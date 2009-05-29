@@ -4,16 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.68 2009-05-29 06:58:45 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.69 2009-05-29 08:48:44 cvsnanne Exp $";
 
 #include "vismpe.h"
 
-#include "arrayndsubsel.h"
-#include "undo.h"
-#include "emmanager.h"
-#include "mpeengine.h"
-#include "survinfo.h"
 #include "visboxdragger.h"
+#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdatagroup.h"
@@ -25,11 +21,18 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.68 2009-05-29 06:58:45 cvsumesh E
 #include "vistexture3.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
+
+#include "arrayndsubsel.h"
 #include "attribsel.h"
 #include "attribdatacubes.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
+#include "emmanager.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "visdataman.h"
+#include "mpeengine.h"
+#include "survinfo.h"
+#include "undo.h"
 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
@@ -120,6 +123,50 @@ MPEDisplay::~MPEDisplay()
 
     delete &curtextureas_;
 }
+
+
+void MPEDisplay::setColTabMapperSetup( int attrib,
+				       const ColTab::MapperSetup& ms,
+				       TaskRunner* )
+{
+    if ( !texture_ ) return;
+    visBase::VisColorTab& vt = texture_->getColorTab();
+    const bool autoscalechange =
+		ms.type_!=vt.colorMapper().setup_.type_ &&
+		ms.type_!=ColTab::MapperSetup::Fixed;
+    vt.colorMapper().setup_ = ms;
+    if ( autoscalechange )
+    {
+	vt.colorMapper().setup_.triggerAutoscaleChange();
+	vt.autoscalechange.trigger();
+    }
+    else
+    {
+	vt.colorMapper().setup_.triggerRangeChange();
+	vt.rangechange.trigger();
+    }
+}
+
+
+void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
+				    TaskRunner* )
+{
+    if ( !texture_ ) return;
+
+    visBase::VisColorTab& vt = texture_->getColorTab();
+    vt.colorSeq().colors() = seq;
+    vt.colorSeq().colorsChanged();
+}
+
+
+const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib ) const
+{ return texture_ ? &texture_->getColorTab().colorMapper().setup_ : 0; }
+
+const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
+{ return texture_ ? &texture_->getColorTab().colorSeq().colors() : 0; }
+
+bool MPEDisplay::canSetColTabSequence() const
+{ return true; }
 
 
 void MPEDisplay::setDragger( visBase::DepthTabPlaneDragger* dr )

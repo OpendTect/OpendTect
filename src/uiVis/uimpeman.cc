@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.150 2009-05-29 06:59:16 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.151 2009-05-29 08:48:44 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -686,12 +686,8 @@ void uiMPEMan::attribSel( CallBacker* )
 
     if ( colbardlg && displays.size() )
     {
-	const int coltabid =
-	    displays[0]->getTexture() && displays[0]->getTexture()->isOn()
-		?  displays[0]->getTexture()->getColorTab().id()
-		: -1;
-
-	colbardlg->setColTab( coltabid );
+	colbardlg->editor().setColTab( displays[0]->getColTabSequence(0), true,
+				displays[0]->getColTabMapperSetup(0), false);
     }
 
     updateButtonSensitivity();
@@ -939,7 +935,8 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     nrstepsbox->setSensitive( !is2d && trackerisshown );
 
     //coltab
-    toolbar->setSensitive( clrtabidx, !is2d && trackerisshown && !colbardlg &&
+    const bool hasdlg = colbardlg && !colbardlg->isHidden();
+    toolbar->setSensitive( clrtabidx, !is2d && trackerisshown && !hasdlg &&
 			   attribfld->currentItem()>0 );
 
 
@@ -1198,35 +1195,54 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
 }
 
 
-void uiMPEMan::setColorbarCB(CallBacker*)
+void uiMPEMan::setColorbarCB( CallBacker* )
 {
-    if ( colbardlg || !toolbar->isOn(clrtabidx) )
-	return;
-
     mGetDisplays(false);
 
     if ( displays.size()<1 )
 	return;
 
-    const int coltabid = displays[0]->getTexture()
-	?  displays[0]->getTexture()->getColorTab().id()
-	: -1;
+    if ( !colbardlg )
+    {
+	colbardlg = new uiColorBarDialog( toolbar, "Track plane colorbar" );
+	colbardlg->editor().setColTab( displays[0]->getColTabSequence(0), true,
+			       displays[0]->getColTabMapperSetup(0), false);
+	colbardlg->editor().seqChange().notify(
+				mCB(this,uiMPEMan,colSeqChange) );
+	colbardlg->editor().mapperChange().notify(
+				mCB(this,uiMPEMan,colMapperChange) );
+	colbardlg->winClosing.notify( mCB(this,uiMPEMan,onColTabClosing) );
+    }
 
-    colbardlg = new uiColorBarDialog( toolbar, coltabid,
-				      "Track plane colorbar" );
-    colbardlg->winClosing.notify( mCB(this,uiMPEMan,onColTabClosing) );
-    colbardlg->go();
-
+    colbardlg->show();
     updateButtonSensitivity();
+}
+
+
+void uiMPEMan::colSeqChange( CallBacker* )
+{
+    mGetDisplays(false);
+    if ( displays.size()<1 ) return;
+
+    displays[0]->setColTabSequence( 0,
+	    colbardlg->editor().getColTabSequence(), 0 );
+}
+
+
+void uiMPEMan::colMapperChange( CallBacker* )
+{
+    mGetDisplays(false);
+    if ( displays.size()<1 ) return;
+
+    displays[0]->setColTabMapperSetup( 0,
+	    colbardlg->editor().getColTabMapperSetup(), 0 );
 }
 
 
 void uiMPEMan::onColTabClosing( CallBacker* )
 {
     toolbar->turnOn( clrtabidx, false );
-    colbardlg = 0;
-
-    updateButtonSensitivity();
+    toolbar->setSensitive( clrtabidx, true );
 }
 
 

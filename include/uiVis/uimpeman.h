@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.50 2009-05-19 05:47:08 cvsnanne Exp $
+ RCS:           $Id: uimpeman.h,v 1.51 2009-05-29 08:48:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,12 +95,15 @@ protected:
     void			addSeedCB(CallBacker*);
     void			seedConnectModeSel(CallBacker*);
     void			setColorbarCB(CallBacker*);
-    void                        onColTabClosing(CallBacker*);
     void			movePlaneCB(CallBacker*);
     void			handleOrientationClick(CallBacker*);
     void			mouseEraseModeCB(CallBacker*);
     void			showTracker(bool yn);
     void			changeTrackerOrientation(int orient);
+
+    void                        onColTabClosing(CallBacker*);
+    void			colSeqChange(CallBacker*);
+    void			colMapperChange(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
     void			restoreActiveVol();

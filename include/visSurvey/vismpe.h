@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.38 2009-05-07 07:32:58 cvsumesh Exp $
+ RCS:		$Id: vismpe.h,v 1.39 2009-05-29 08:48:44 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,9 @@ namespace visBase
     class Transformation;
 };
 
+namespace ColTab { struct MapperSetup; class Sequence; }
 namespace MPE { class Engine; };
+class TaskRunner;
 
 
 namespace visSurvey
@@ -65,6 +67,14 @@ public:
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
     visBase::Texture3*		getTexture() { return texture_; }
+
+    const ColTab::MapperSetup*  getColTabMapperSetup(int) const;
+    void			setColTabMapperSetup(int,
+					const ColTab::MapperSetup&,TaskRunner*);
+    const ColTab::Sequence*	getColTabSequence(int) const;
+    bool			canSetColTabSequence() const;
+    void			setColTabSequence(int,const ColTab::Sequence&,
+	    					  TaskRunner*);
 
     CubeSampling		getCubeSampling(int attrib=-1) const;
     bool			getPlanePosition(CubeSampling&) const;

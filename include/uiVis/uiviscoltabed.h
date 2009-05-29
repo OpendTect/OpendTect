@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.23 2009-05-27 02:07:19 cvskris Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.24 2009-05-29 08:48:44 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -76,10 +76,10 @@ protected:
 mClass uiColorBarDialog :  public uiDialog
 {
 public:
-    				uiColorBarDialog( uiParent* , int coltabid,
-						  const char* title);
+    				uiColorBarDialog(uiParent*,const char* title);
 
-    void			setColTab( int id );
+    uiVisColTabEd&		editor()	{ return *coltabed_; }
+
     Notifier<uiColorBarDialog>	winClosing;
 
 protected:
