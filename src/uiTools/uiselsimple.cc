@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsimple.cc,v 1.15 2009-02-11 12:04:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsimple.cc,v 1.16 2009-06-01 10:19:10 cvsnanne Exp $";
 
 #include "uiselsimple.h"
 #include "uilabel.h"
@@ -24,7 +24,11 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 {
     const int sz = setup_.items_.size();
     if ( sz < 1 )
-	{ new uiLabel(this,"No items available for selection"); return; }
+    {
+	new uiLabel(this,"No items available for selection");
+	setCtrlStyle( LeaveOnly );
+	return;
+    }
 
     filtfld_ = new uiGenInput( this, "Filter", "*" );
     filtfld_->valuechanged.notify( mCB(this,uiSelectFromList,filtChg) );
