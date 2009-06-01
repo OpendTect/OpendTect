@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.4 2009-05-28 09:54:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.5 2009-06-01 05:57:26 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -241,20 +241,18 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
 
 	//Cos Taper
 	window.apply( &signal );
-	Array1DImpl<float> acarr( wvltsize_ );
+	Array1DImpl<float> acarr( signalsz );
 	float* acarrptr = acarr.arr();
 	genericCrossCorrelation( signalsz, 0, signal.arr(),
 				 signalsz, 0, signal.arr(),
-				 wvltsize_, wvltsize_/2, acarrptr );
+				 signalsz,  -signalsz/2, acarrptr );
 
 	Array1DImpl<float> temp( wvltsize_ );
+	int startidx = (signalsz/2) - ((wvltsize_-1)/2);
+	int endidx = (signalsz/2) + ((wvltsize_-1)/2);
+
 	for ( int idx=0; idx<wvltsize_; idx++ )
-	{
-	    if ( idx>=wvltsize_/2 )
-		temp.arr()[idx] = acarr.get( idx - wvltsize_/2 );
-	    else
-		temp.arr()[idx] = acarr.get( wvltsize_/2 - idx );
-	}
+	    temp.set( idx, acarr.get( startidx+idx ) );
 
 	removeBias( &temp );
 	normalisation( temp );
@@ -314,7 +312,7 @@ void uiWaveletExtraction::normalisation( Array1DImpl<float>& normalisation )
 		     normalisation.arr()+wvltsize_-1) );
 
     for( int idx=0; idx<wvltsize_; idx++ )
-	normalisation.arr()[idx] = fabs(normalisation.arr()[idx])/fabs(maxval);
+	normalisation.arr()[idx] = (normalisation.arr()[idx])/(maxval);
 }
 
 
