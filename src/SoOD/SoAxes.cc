@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoAxes.cc,v 1.2 2009-05-28 12:31:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoAxes.cc,v 1.3 2009-06-01 05:19:14 cvsdgb Exp $";
 
 
 #include "SoAxes.h"
@@ -81,13 +81,6 @@ void SoAxes::GLRender( SoGLRenderAction* action )
     glColor3f( 1.0, 1.0, 1.0 );
  
     glDisable( GL_LIGHTING );
-
-    glRasterPos3d( 0, 0, -length - 0.2 );
-    glBitmap(8, 8, 0, 0, 0, 0, zbmp );
-    glRasterPos3d( length + 0.2, 0, 0 );
-    glBitmap(8, 8, 0, 0, 0, 0, ebmp );
-    glRasterPos3d( 0, length - 0.2, 0 );
-    glBitmap(8, 8, 0, 0, 0, 0, nbmp );
     
     const char* ret = getenv( "OD_AXES_SHOW_TRI" );
     if ( ret )//|| ret[0]=='y' || ret[0]=='Y' || ret[0]=='1' )
@@ -98,6 +91,14 @@ void SoAxes::GLRender( SoGLRenderAction* action )
 	glVertex2f( 0, length - 0.4 );
 	glEnd();
     }
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glRasterPos3d( 0, 0, -length - 0.2 );
+    glBitmap(8, 8, 0, 0, 0, 0, zbmp );
+    glRasterPos3d( length + 0.2, 0, 0 );
+    glBitmap(8, 8, 0, 0, 0, 0, ebmp );
+    glRasterPos3d( 0, length - 0.2, 0 );
+    glBitmap(8, 8, 0, 0, 0, 0, nbmp );
 
     glEnable( GL_LIGHTING );		
     glPopMatrix();
