@@ -4,15 +4,16 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvissurvey.cc,v 1.5 2009-02-02 23:44:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: initvissurvey.cc,v 1.6 2009-06-01 10:14:05 cvsnanne Exp $";
 
 
 #include "initvissurvey.h"
 
+#include "visfaultdisplay.h"
+#include "visfaultsticksetdisplay.h"
 #include "vishingeline.h"
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
-#include "visfaultdisplay.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "vismpe.h"
 #include "vismpeeditor.h"
@@ -35,12 +36,13 @@ namespace visSurvey
 void initStdClasses()
 {
     EdgeLineSetDisplay::initClass();
+    FaultDisplay::initClass();
+    FaultStickSetDisplay::initClass();
     Horizon2DDisplay::initClass();
     HorizonDisplay::initClass();
     MarchingCubesDisplay::initClass();
     MPEDisplay::initClass();
     MPEEditor::initClass();
-    FaultDisplay::initClass();
     MPEClickCatcher::initClass();
     PickSetDisplay::initClass();
     RandomPosBodyDisplay::initClass();
