@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.19 2009-05-28 03:53:47 cvskris Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.20 2009-06-01 10:19:37 cvsnanne Exp $";
 
 #include "uitaskrunner.h"
 
@@ -29,6 +29,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
 	.oktext("Pause")
 	.canceltext("Abort") )
     , task_( 0 )
+    , thread_(0)
     , tim_(*new Timer("") )
     , execnm_("")
     , statemutex_( *new Threads::Mutex )
