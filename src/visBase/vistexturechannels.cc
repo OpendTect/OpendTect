@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.18 2009-05-28 05:08:47 cvsraman Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.19 2009-06-01 19:56:58 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -449,7 +449,7 @@ void TextureChannels::removeChannel( int idx )
     if ( idx<0 || idx>=channelinfo_.size() )
 	return;
 
-    delete channelinfo_[idx];
+    PtrMan<ChannelInfo> info = channelinfo_[idx];
     channelinfo_.remove(idx);
 
     bool oldenable = tc_->channels.enableNotify( false );
