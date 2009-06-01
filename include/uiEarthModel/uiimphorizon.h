@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.26 2009-04-23 18:08:50 cvskris Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.27 2009-06-01 20:02:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
+class Array2DInterpol;
 class BinIDValueSet;
 class BufferStringSet;
 class CtxtIOObj;
@@ -25,7 +26,7 @@ class uiColorInput;
 class uiLabeledListBox;
 class uiFileInput;
 class uiGenInput;
-class uiArray2DInterpolSel;
+class uiCompoundParSel;
 class uiIOObjSel;
 class uiPushButton;
 class uiPosSubSel;
@@ -54,7 +55,8 @@ protected:
     uiPushButton*	addbut_;
     uiPosSubSel*	subselfld_;
     uiGenInput*		filludffld_;
-    uiArray2DInterpolSel*	arr2dinterpfld_;
+    uiPushButton*	interpolparbut_;
+    Array2DInterpol*	interpol_;
     uiTableImpDataSel* 	dataselfld_;
     uiColorInput*      	colbut_;
     uiStratLevelSel*   	stratlvlfld_;
@@ -68,6 +70,7 @@ protected:
     void		scanPush(CallBacker*);
     void                fillUdfSel(CallBacker*);
     void                stratLvlChg(CallBacker*);
+    void		interpolSettingsCB(CallBacker*);
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();

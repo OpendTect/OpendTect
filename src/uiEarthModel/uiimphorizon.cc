@@ -7,14 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.119 2009-05-18 21:26:08 cvskris Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.120 2009-06-01 20:02:55 cvskris Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
-#include "array2dinterpol.h"
+#include "array2dinterpolimpl.h"
 #include "uipossubsel.h"
 
 #include "uicombobox.h"
+#include "uicompoundparsel.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uicolor.h"
@@ -59,7 +60,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
     , filludffld_(0)
-    , arr2dinterpfld_(0)
+    , interpol_(0)
     , colbut_(0)
     , stratlvlfld_(0)
     , displayfld_(0)
@@ -119,12 +120,11 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	filludffld_->setValue(false);
 	filludffld_->setSensitive( false );
 	filludffld_->attach( alignedBelow, subselfld_ );
+	interpolparbut_ = new uiPushButton( this, "Settings", 
+	       mCB(this,uiImportHorizon,interpolSettingsCB), false );
+	interpolparbut_->attach( rightOf, filludffld_ );
 
-	arr2dinterpfld_ = new uiArray2DInterpolSel( this, true, true );
-	arr2dinterpfld_->attach( alignedBelow, filludffld_ );
-	arr2dinterpfld_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
-	
-	outputfld_->attach( alignedBelow, arr2dinterpfld_ );
+	outputfld_->attach( alignedBelow, filludffld_ );
 
 	stratlvlfld_ = new uiStratLevelSel( this );
 	stratlvlfld_->attach( alignedBelow, outputfld_ );
@@ -150,6 +150,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 uiImportHorizon::~uiImportHorizon()
 {
     delete ctio_.ioobj; delete &ctio_;
+    delete interpol_;
 }
 
 
@@ -160,6 +161,23 @@ void uiImportHorizon::descChg( CallBacker* cb )
 }
 
 
+void uiImportHorizon::interpolSettingsCB( CallBacker* )
+{
+    uiSingleGroupDlg dlg( this, uiDialog::Setup("Interpolation settings",
+			  (const char*) 0, (const char*) 0 ) );
+
+    uiArray2DInterpolSel* arr2dinterpfld =
+	new uiArray2DInterpolSel( &dlg, true, true, interpol_ );
+    arr2dinterpfld->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
+    dlg.setGroup( arr2dinterpfld );
+
+    if ( dlg.go() )
+    {
+	delete interpol_;
+	interpol_ = arr2dinterpfld->getResult();
+    }
+}
+	
 void uiImportHorizon::formatSel( CallBacker* cb )
 {
     BufferStringSet attrnms;
@@ -230,8 +248,18 @@ bool uiImportHorizon::doScan()
 
 void uiImportHorizon::fillUdfSel( CallBacker* )
 {
-    if ( arr2dinterpfld_ )
-	arr2dinterpfld_->display( filludffld_->getBoolValue() );
+    if ( interpolparbut_ )
+    {
+	interpolparbut_->display( filludffld_->getBoolValue() );
+	if ( !interpol_ && filludffld_->getBoolValue() )
+	{
+	    InverseDistanceArray2DInterpol* templ =
+		new InverseDistanceArray2DInterpol;
+	    templ->setSearchRadius( 10*(SI().inlDistance()+SI().crlDistance()));
+	    templ->setFillType( Array2DInterpol::ConvexHull );
+	    interpol_ = templ;
+	}
+    }
 }
 
 
@@ -292,8 +320,11 @@ bool uiImportHorizon::doImport()
     const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
     {
-	if ( !arr2dinterpfld_->acceptOK() )
+	if ( !interpol_ )
+	{
+	    uiMSG().error("No interpolation selected" );
 	    return false;
+	}
 
 	fillUdfs( sections );
     }
@@ -394,15 +425,14 @@ bool uiImportHorizon::checkInpFlds()
 
 bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
-    HorSampling hs = subselfld_->envelope().hrg;
-    PtrMan<Array2DInterpol> interpolator = arr2dinterpfld_->getResult();
-    if ( !interpolator )
+    if ( !interpol_ )
 	return false;
+    HorSampling hs = subselfld_->envelope().hrg;
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
-    interpolator->setRowStep( inldist*hs.step.inl );
-    interpolator->setColStep( crldist*hs.step.crl);
+    interpol_->setRowStep( inldist*hs.step.inl );
+    interpol_->setColStep( crldist*hs.step.crl);
     uiTaskRunner taskrunner( this );
     Array2DImpl<float> arr( hs.nrInl(), hs.nrCrl() );
     if ( !arr.isOK() )
@@ -429,10 +459,10 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	    }
 	}
 
-	if ( !interpolator->setArray( arr, &taskrunner ) )
+	if ( !interpol_->setArray( arr, &taskrunner ) )
 	    return false;
 
-	if ( !taskrunner.execute(*interpolator) )
+	if ( !taskrunner.execute(*interpol_) )
 	    return false;
 
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
