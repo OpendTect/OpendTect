@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.3 2009-05-19 11:09:37 cvsnanne Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.4 2009-06-01 04:17:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -34,16 +34,20 @@ public:
 				mCreateDataObj(PointSetDisplay);
     				~PointSetDisplay();
 
-    Color			getColor() const	{ return color_; }
-    void			setColor( Color col )	{ color_ = col; }
+    Color			getColor() const;
+    void			setColor(Color);
+    bool			hasColor() const 	{ return true; }
 
     bool			setDataPack(const DataPointSet&);
+    const DataPointSet&		getDataPack() const 	{ return data_; }
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
+    bool			allowMaterialEdit() const	{ return true; }
 protected:
 
     Color			color_;
     visBase::PointSet*		pointset_;
+    DataPointSet&		data_;
 };
 
 };

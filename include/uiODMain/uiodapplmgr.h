@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.88 2009-05-21 09:05:10 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.89 2009-06-01 04:17:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,6 +144,7 @@ public:
 						bool additem );
     bool			calcMultipleAttribs(Attrib::SelSpec&);
     NotifierAccess*		colorTableSeqChange();
+    void			addVisDPSChild(CallBacker*);
     void			manSurvCB(CallBacker*)	  { manageSurvey(); }
     void			seisOut2DCB(CallBacker*)  { createVol(true); }
     void			seisOut3DCB(CallBacker*)  { createVol(false); }

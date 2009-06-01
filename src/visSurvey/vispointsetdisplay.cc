@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.3 2009-05-19 11:09:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.4 2009-06-01 04:17:36 cvssatyaki Exp $";
 
 #include "viscoord.h"
 #include "vispointsetdisplay.h"
@@ -22,6 +22,8 @@ namespace visSurvey {
 
 PointSetDisplay::PointSetDisplay()
     : VisualObjectImpl( true )
+    , data_( * new DataPointSet(TypeSet<DataPointSet::DataRow>(),
+				BufferStringSet(),false,true) )
 {
     pointset_ = visBase::PointSet::create();
     addChild( pointset_->getInventorNode() );
@@ -34,8 +36,17 @@ PointSetDisplay::~PointSetDisplay()
 }
 
 
+void PointSetDisplay::setColor( Color col )
+{ getMaterial()->setColor( col ); }
+
+
+Color PointSetDisplay::getColor() const
+{ return getMaterial()->getColor(); }
+
+
 bool PointSetDisplay::setDataPack( const DataPointSet& dps )
 {
+    data_ = dps;
     pointset_->getCoordinates()->removeAfter(-1);
     getMaterial()->setColor( Color::DgbColor() );
 

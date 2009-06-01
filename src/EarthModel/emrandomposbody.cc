@@ -9,11 +9,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.5 2009-02-26 22:39:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.6 2009-06-01 04:17:35 cvssatyaki Exp $";
 
 #include "emrandomposbody.h"
 
 #include "ascstream.h"
+#include "datapointset.h"
 #include "embodyoperator.h"
 #include "embodytr.h"
 #include "emmanager.h"
@@ -200,6 +201,22 @@ void RandomPosBody::copyFrom( const Pick::Set& ps )
     {
 	locations_ += ps[idx].pos;
 	ids_ += idx;
+    }
+}
+
+
+void RandomPosBody::copyFrom( const DataPointSet& data, bool onlyselected )
+{
+    locations_.erase();
+    ids_.erase();
+
+    for ( int idx=0; idx<data.size(); idx++ )
+    {
+	if ( !onlyselected || data.isSelected(idx) )
+	{
+	    locations_ += Coord3( data.coord(idx), data.z(idx) );
+	    ids_ += idx;
+	}
     }
 }
 

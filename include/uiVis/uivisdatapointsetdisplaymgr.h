@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2009
- RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.1 2009-04-04 10:20:48 cvskris Exp $
+ RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.2 2009-06-01 04:17:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "datapointset.h"
+#include "menuhandler.h"
 #include "thread.h"
 
 class uiVisPartServer;
@@ -34,11 +35,16 @@ public:
     		//!<Will return the number of scenes
     const char*	getParentName(int) const;
 
+    bool	hasDisplay() const			
+    		{ return displayinfos_.size()>0; }
+
+    void	setDispCol(Color,int dispid);
     int		addDisplay(const TypeSet<int>& parents, const DataPointSet&);
     void	updateDisplay(int id, const TypeSet<int>& parents,
 	    		      const DataPointSet&);
     void	removeDisplay(int);
 
+    CNotifier<uiVisDataPointSetDisplayMgr,int>	treeToBeAdded;
     class DisplayInfo
     {
     public:
@@ -46,12 +52,19 @@ public:
 	TypeSet<int>		visids_; //linked with scenes_
     };
 
+protected:
+
     TypeSet<int>		allsceneids_;	
 
+    MenuItem			createbodymnuitem_;
     TypeSet<int>		ids_;	
     ObjectSet<DisplayInfo>	displayinfos_; //linked with ids_
-
+    
     uiVisPartServer&		visserv_;
+    MenuHandler*		vismenu_;
     Threads::Mutex		lock_;
+    
+    void	createMenuCB(CallBacker*);
+    void	handleMenuCB(CallBacker*);
 }; 
 #endif

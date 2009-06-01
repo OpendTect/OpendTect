@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.27 2009-04-27 11:54:57 cvssatyaki Exp $
+ RCS:		$Id: datapointset.h,v 1.28 2009-06-01 04:17:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "binidvalset.h"
+#include "color.h"
 #include "datapackbase.h"
 class DataColDef;
 class BinIDValueSet;
@@ -231,16 +232,18 @@ protected:
    parent in this context.
 */
 
-mClass DataPointSetDisplayMgr
+mClass DataPointSetDisplayMgr : public CallBacker
 {
 public:
     virtual			~DataPointSetDisplayMgr()		{}
     virtual void		lock()					= 0;
     virtual void		unLock()				= 0;
 
+    virtual bool		hasDisplay() const 			= 0; 
     virtual int			getNrParents() const			= 0;
     virtual const char*		getParentName(int) const		= 0;
 
+    virtual void		setDispCol(Color,int)			= 0;
     virtual int			addDisplay(const TypeSet<int>& parents,
 	    				   const DataPointSet&)		= 0;
     virtual void		updateDisplay(int id,

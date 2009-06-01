@@ -7,23 +7,106 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.3 2009-05-21 09:05:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.4 2009-06-01 04:17:36 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
+#include "uimenuhandler.h"
 #include "uivispartserv.h"
+#include "uimaterialdlg.h"
+#include "emrandomposbody.h"
+#include "emmanager.h"
 #include "visdata.h"
+#include "visrandomposbodydisplay.h"
 #include "vissurvscene.h"
 #include "vispointsetdisplay.h"
 
 uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     : visserv_( serv )
-{}
+    , vismenu_( visserv_.getMenuHandler() )
+    , createbodymnuitem_( "Create Body ..." )
+    , treeToBeAdded( this )
+{
+    vismenu_->createnotifier.notify(
+	    mCB(this,uiVisDataPointSetDisplayMgr,createMenuCB) );
+    vismenu_->handlenotifier.notify(
+	    mCB(this,uiVisDataPointSetDisplayMgr,handleMenuCB) );
+}
 
 
 uiVisDataPointSetDisplayMgr::~uiVisDataPointSetDisplayMgr()
 {
     deepErase( displayinfos_ );
+}
+
+
+void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
+{
+    mDynamicCastGet(MenuHandler*,menu,cb);
+    if ( !menu )
+	return;
+    const int displayid = menu->menuID();
+    visBase::DataObject* dataobj = visserv_.getObject( displayid );
+    mDynamicCastGet(visSurvey::PointSetDisplay*,display,dataobj);
+    if ( !display )
+	return;
+
+    bool dispcorrect = false;
+    for ( int idx=0; idx<displayinfos_.size(); idx++ )
+    {
+	const TypeSet<int> visids = displayinfos_[idx]->visids_;
+	for ( int idy=0; idy<visids.size(); idy++ )
+	{
+	    if ( visids[idy] == displayid )
+		dispcorrect = true;
+	}
+    }
+
+    if ( !dispcorrect ) return;
+
+     mAddMenuItem( menu, &createbodymnuitem_, true, false );
+}
+
+
+void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    if ( mnuid==-1 ) return;
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    if ( !menu ) return;
+
+    const int displayid = menu->menuID();
+    visBase::DataObject* dataobj = visserv_.getObject( displayid );
+    mDynamicCastGet(visSurvey::PointSetDisplay*,display,dataobj);
+    if ( !display )
+	return;
+
+    bool dispcorrect = false;
+    for ( int idx=0; idx<displayinfos_.size(); idx++ )
+    {
+	const TypeSet<int> visids = displayinfos_[idx]->visids_;
+	for ( int idy=0; idy<visids.size(); idy++ )
+	{
+	    if ( visids[idy] == displayid )
+		dispcorrect = true;
+	}
+    }
+
+    if ( !dispcorrect ) return;
+
+    if ( mnuid == createbodymnuitem_.id )
+    {
+	RefMan<EM::EMObject> emobj =
+		EM::EMM().createTempObject( EM::RandomPosBody::typeStr() );
+	const DataPointSet& data = display->getDataPack();
+	mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
+	if ( !emps )
+	    return;
+
+	emps->copyFrom( data, true );
+	emps->setPreferredColor( display->getColor() );
+	treeToBeAdded.trigger( emps->id() );
+    }
 }
 
 
@@ -83,8 +166,9 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	if ( !scene )
 	    continue;
 
-	scene->addObject( display );
+	visserv_.addObject( display, parents[idx], true );
 	display->setDataPack( dps );
+	display->setColor( Color::DgbColor() );
 
 	displayinfo->sceneids_ += allsceneids_[idx];
 	displayinfo->visids_ += display->id();
@@ -100,6 +184,19 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
     ids_ += id;
 
     return id;
+}
+
+
+void uiVisDataPointSetDisplayMgr::setDispCol( Color col, int dispid )
+{
+    RefMan<visBase::DataObject> displayptr = visserv_.getObject(dispid);
+    if ( !displayptr )
+	return;
+
+    mDynamicCastGet( visSurvey::PointSetDisplay*, display, displayptr.ptr() );
+    if ( !display )
+	return;
+    display->setColor( col );
 }
 
 
@@ -162,7 +259,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( int id,
 	if ( !scene )
 	    continue;
 
-	scene->addObject( display );
+	visserv_.addObject( display, parents[idx], true );
 
 	displayinfo.sceneids_ += sceneid;
 	displayinfo.visids_ += display->id();
@@ -203,7 +300,8 @@ void uiVisDataPointSetDisplayMgr::removeDisplay( int id )
 	if ( !scene )
 	    continue;
 
-	scene->removeObject( scene->getFirstIdx(displayinfo.visids_[idy]) );
+	visserv_.removeObject( displayinfo.visids_[idy],
+			       displayinfo.sceneids_[idy] );
     }
 
     delete displayinfos_.remove( idx );

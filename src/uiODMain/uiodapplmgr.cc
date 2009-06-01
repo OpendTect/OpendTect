@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.331 2009-05-27 03:22:56 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.332 2009-06-01 04:17:35 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.331 2009-05-27 03:22:56 cvsk
 #include "uimsg.h"
 #include "uinlapartserv.h"
 #include "uiodemsurftreeitem.h"
+#include "uiodbodydisplaytreeitem.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
@@ -93,6 +94,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     mpeserv_ = new uiMPEPartServer( applservice_ );
 
     visdpsdispmgr_ = new uiVisDataPointSetDisplayMgr( *visserv_ );
+    visdpsdispmgr_->treeToBeAdded.notify( mCB(this,uiODApplMgr,addVisDPSChild));
     wellattrserv_->setDPSDispMgr( visdpsdispmgr_ );
     attrserv_->setDPSDispMgr( visdpsdispmgr_ );
 
@@ -150,6 +152,15 @@ int uiODApplMgr::manageSurvey()
 	return 1;
     else
 	return 2;
+}
+
+
+void uiODApplMgr::addVisDPSChild( CallBacker* cb )
+{
+    mCBCapsuleUnpack( int, emid, cb );
+    TypeSet<int> sceneids;
+    visserv_->getChildIds( -1, sceneids );
+    sceneMgr().addEMItem( emid, sceneids[0] );
 }
 
 

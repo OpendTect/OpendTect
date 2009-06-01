@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: emrandomposbody.h,v 1.3 2009-02-13 21:20:03 cvsyuancheng Exp $
+ RCS:		$Id: emrandomposbody.h,v 1.4 2009-06-01 04:17:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "embody.h"
 #include "emobject.h"
 
+class DataPointSet;
 namespace Pick { class Set; }
 
 namespace EM
@@ -34,6 +35,7 @@ public:
     				{ return 0; }
 
     void			copyFrom(const Pick::Set&);//get my own picks.
+    void			copyFrom(const DataPointSet&,bool);
     void			setPositions(const TypeSet<Coord3>&);
     const TypeSet<Coord3>&	getPositions() const	{ return locations_; }
     bool			addPos(const Coord3&);
