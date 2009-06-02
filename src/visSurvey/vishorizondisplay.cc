@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.83 2009-06-02 02:21:56 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.84 2009-06-02 07:45:08 cvsbruno Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -375,6 +375,12 @@ void HorizonDisplay::useTexture( bool yn, bool trigger )
 
 bool HorizonDisplay::usesTexture() const
 { return usestexture_; }
+
+
+bool HorizonDisplay::showingTexture() const
+{
+    return validtexture_ && usesTexture();
+}
 
 
 bool HorizonDisplay::shouldUseTexture() const
