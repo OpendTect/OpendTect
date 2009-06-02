@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.26 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uifileinput.h,v 1.27 2009-06-02 15:09:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,14 +38,21 @@ public:
     public:
 			Setup(const char* filenm=0)
 			    : fnm(filenm)
-			    , filter_("")
-			    , defseldir_("")
 			    , forread_(true)
 			    , withexamine_(false)
 			    , examinetablestyle_(false)
 			    , directories_(false)
 			    , allowallextensions_(true)
 			    , confirmoverwrite_(true)
+			    , filedlgtype_(uiFileDialog::Gen)
+			    {}
+			Setup(uiFileDialog::Type t,const char* filenm=0)
+			    : fnm(filenm)
+			    , forread_(true)
+			    , withexamine_(true)
+			    , examinetablestyle_(false)
+			    , confirmoverwrite_(true)
+			    , filedlgtype_(t)
 			    {}
 
 	BufferString	fnm;
@@ -57,6 +64,8 @@ public:
 	mDefSetupMemb(bool,directories)
 	mDefSetupMemb(bool,allowallextensions)
 	mDefSetupMemb(bool,confirmoverwrite)
+	mDefSetupMemb(uiFileDialog::Type,filedlgtype)
+				//!< if not Gen, overrules some other members
 	
     };
 
@@ -103,6 +112,7 @@ protected:
 
     bool		selmodset_;
     uiFileDialog::Mode  selmode_;
+    uiFileDialog::Type  filedlgtype_;
 
     uiPushButton*	examinebut_;
 

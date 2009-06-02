@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.44 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.45 2009-06-02 15:09:17 cvsbert Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -26,6 +26,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , defseldir_(setup.defseldir_)
     , selmodset_(false)
     , selmode_(uiFileDialog::AnyFile)
+    , filedlgtype_(setup.filedlgtype_)
     , examinebut_(0)
     , addallexts_(setup.allowallextensions_)
     , tablevw_(setup.examinetablestyle_)
@@ -53,6 +54,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
     : uiGenInput( p, txt, FileNameInpSpec(fnm) )
     , forread_(true)
     , filter_("")
+    , filedlgtype_(uiFileDialog::Gen)
     , selmodset_(false)
     , selmode_(uiFileDialog::AnyFile)
     , examinebut_(0)
@@ -93,31 +95,37 @@ void uiFileInput::doSelect( CallBacker* )
     BufferString oldfltr = selfltr_;
     if ( fname.isEmpty() )	fname = defseldir_;
 
-    uiFileDialog dlg( this, forread_, fname, filter_ );
-    dlg.setSelectedFilter( selfltr_ );
-    dlg.setAllowAllExts( addallexts_ );
-    dlg.setConfirmOverwrite( confirmoverwrite_ );
+    PtrMan<uiFileDialog> dlg = filedlgtype_ == uiFileDialog::Gen
+	? new uiFileDialog( this, forread_, fname, filter_ )
+	: new uiFileDialog( this, filedlgtype_, fname );
 
-    if ( selmodset_ )
-	dlg.setMode( selmode_ );
+    dlg->setSelectedFilter( selfltr_ );
+    if ( filedlgtype_ == uiFileDialog::Gen )
+    {
+	dlg->setAllowAllExts( addallexts_ );
+	if ( selmodset_ )
+	    dlg->setMode( selmode_ );
+    }
+    dlg->setConfirmOverwrite( confirmoverwrite_ );
 
-    if ( !dlg.go() )
+
+    if ( !dlg->go() )
 	return;
 
-    selfltr_ = dlg.selectedFilter();
+    selfltr_ = dlg->selectedFilter();
     BufferString oldfname( fname );
     BufferString newfname;
     if ( selmode_ == uiFileDialog::ExistingFiles )
     {
 	BufferStringSet filenames;
-	dlg.getFileNames( filenames );
+	dlg->getFileNames( filenames );
 	uiFileDialog::list2String( filenames, newfname );
 	setFileName( newfname );
 	deepErase( filenames );
     }
     else
     {
-	newfname = dlg.fileName();
+	newfname = dlg->fileName();
 	setFileName( newfname );
     }
 

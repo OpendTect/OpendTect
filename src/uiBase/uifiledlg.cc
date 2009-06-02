@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.44 2008-12-24 05:49:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.45 2009-06-02 15:09:17 cvsbert Exp $";
 
 #include "uifiledlg.h"
 
@@ -59,17 +59,17 @@ QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
 
 #define mCommon \
     , fname_( fname ) \
-    , filter_( filter ) \
     , caption_(caption) \
     , parnt_(parnt) \
-    , addallexts_(false) \
     , confirmoverwrite_(true)
 
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* filter,
 			    const char* caption )
-	: mode_( forread ? ExistingFile : AnyFile )
+	: mode_(forread ? ExistingFile : AnyFile)
         , forread_( forread )
+	, filter_( filter )
+	, addallexts_(false)
         mCommon
 {
     if ( !caption || !*caption )
@@ -80,10 +80,29 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 			    const char* fname, const char* filter,
 			    const char* caption )
-	: mode_( mode )
+	: mode_(mode)
         , forread_(true)
+	, filter_(filter)
+	, addallexts_(false)
 	mCommon
 {}
+
+
+uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
+			    const char* fname, const char* caption )
+	: mode_(AnyFile)
+        , forread_(true)
+	, addallexts_(true)
+	mCommon
+{
+    switch ( typ )
+    {
+	case Img: filter_ = "JPEG (*.jpg *.jpeg);;PNG (*.png)"; break;
+	case Txt: filter_ = "Text (*.txt *.dat)"; break;
+	case Html: filter_ = "Html (*.htm *.html)"; break;
+	default: break;
+    }
+}
 
 
 int uiFileDialog::go()

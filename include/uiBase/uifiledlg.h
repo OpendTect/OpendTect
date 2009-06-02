@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.21 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.h,v 1.22 2009-06-02 15:09:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
 	ExistingFiles	/*!< The names of zero or more existing files. */
     };
 
+
                         uiFileDialog(uiParent*,bool forread,
 				     const char* fname=0,
 				     const char* filter=0,
@@ -44,6 +45,11 @@ public:
 				     const char* fname=0,
 				     const char* filter=0,
 				     const char* caption=0);
+    enum Type		{ Gen, Img, Txt, Html };
+                        uiFileDialog(uiParent*,Type,
+				     const char* fname=0,
+				     const char* caption=0);
+						//!< Always AnyFile
 
     const char*		fileName() const	{ return fn; }
     void		getFileNames(BufferStringSet&) const;
