@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.82 2009-05-28 17:27:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.83 2009-06-02 02:21:56 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -377,8 +377,19 @@ bool HorizonDisplay::usesTexture() const
 { return usestexture_; }
 
 
-bool HorizonDisplay::showingTexture() const
-{ return validtexture_ && usestexture_; }
+bool HorizonDisplay::shouldUseTexture() const
+{
+    if ( !validtexture_ || !usestexture_ )
+	 return false;
+ 
+    for ( int idx=nrAttribs()-1; idx>=0; idx-- )
+    {
+ 	if ( isAttribEnabled( idx ) )
+ 	    return true;
+    }
+ 
+    return false;
+}
 
 
 bool HorizonDisplay::getOnlyAtSectionsDisplay() const
@@ -565,6 +576,8 @@ void HorizonDisplay::enableAttrib( int channelnr, bool yn )
 	transl.z = zshift;
 	setTranslation( transl );
     }
+
+    updateSingleColor();
 }
 
 
@@ -694,7 +707,7 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 
 void HorizonDisplay::updateSingleColor()
 {
-    const bool usesinglecol = !showingTexture();
+    const bool usesinglecol = !shouldUseTexture();
     const Color col = usesinglecol  ? nontexturecol_ : Color::White();
     getMaterial()->setColor( col );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.37 2009-05-27 03:24:58 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.38 2009-06-02 02:21:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,6 @@ public:
 
     void			useTexture(bool yn,bool trigger=false);
     bool			usesTexture() const;
-    bool			showingTexture() const;
 
     void			setOnlyAtSectionsDisplay(bool yn);
     bool			getOnlyAtSectionsDisplay() const;
@@ -95,7 +94,8 @@ public:
 	    					 TaskRunner*);
 
     void			setLineStyle(const LineStyle&);
-    				/*!<If ls is solid, a 3d shape will be used, otherwise 'flat' lines. */
+    				/*!<If ls is solid, a 3d shape will be used,
+				    otherwise 'flat' lines. */
     bool			hasStoredAttrib(int attrib) const;
     bool			hasDepth(int attrib) const;
 
@@ -142,6 +142,8 @@ protected:
     void			removeEMStuff();
 
     EM::PosID			findClosestNode(const Coord3&) const;
+
+    bool			shouldUseTexture() const;
 
     void			removeSectionDisplay(const EM::SectionID&);
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
