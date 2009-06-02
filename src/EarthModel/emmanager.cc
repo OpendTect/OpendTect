@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.83 2009-04-16 04:55:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.84 2009-06-02 10:11:12 cvsnanne Exp $";
 
 #include "emmanager.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.83 2009-04-16 04:55:10 cvsnann
 #include "emsurfacetr.h"
 #include "errh.h"
 #include "executor.h"
+#include "filepath.h"
 #include "iodirentry.h"
 #include "iopar.h"
 #include "ioman.h"
@@ -379,6 +380,28 @@ void EMManager::burstAlertToAll( bool yn )
 	const EM::ObjectID oid = objectID( idx );
 	EM::EMObject* emobj = getObject( oid );
 	emobj->setBurstAlert( yn );
+    }
+}
+
+
+void EMManager::sortedHorizonsList( TypeSet<MultiID>& list, bool is2d ) const
+{
+    list.erase();
+    IOPar iopar;
+    FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
+    fp.add( "horizonrelations.txt" );
+    iopar.read( fp.fullPath(), 0 );
+    PtrMan<IOPar> subpar = iopar.subselect( is2d ? "2D" : "3D" );
+    if ( !subpar ) return;
+
+    for ( int idx=0; idx<subpar->size(); idx++ )
+    {
+	BufferString idstr;
+	if ( !subpar->get(IOPar::compKey("Horizon",idx),idstr) )
+	    continue;
+
+	MultiID mid( idstr );
+	list += mid;
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.44 2009-05-18 21:24:56 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.45 2009-06-02 10:11:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -107,6 +107,8 @@ public:
 
     void		syncGeometry(const ObjectID&);
     void		burstAlertToAll(bool yn);
+
+    void		sortedHorizonsList(TypeSet<MultiID>&,bool is2d) const;
 
     void		removeSelected(const ObjectID&,const Selector<Coord3>&);
     
