@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.13 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.14 2009-06-02 13:38:54 cvsnanne Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -99,26 +99,29 @@ bool uiHorizonRelationsDlg::rejectOK( CallBacker* )
 }
 
 
+void readFile( IOPar& par )
+{
+    FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
+    fp.add( "horizonrelations.txt" );
+    par.read( fp.fullPath(), 0 );
+}
+
+
 void uiHorizonRelationsDlg::read()
 {
     hornames_.erase();
     horids_.erase();
-    FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
-    fp.add( "horizonrelations.txt" );
-    IOPar iopar;
-    iopar.read( fp.fullPath(), 0 );
-    for ( int idx=0; idx<iopar.size(); idx++ )
+    EM::EMM().sortedHorizonsList( horids_, is2d_ );
+    for ( int idx=0; idx<horids_.size(); idx++ )
     {
-	BufferString idstr;
-	if ( !iopar.get(IOPar::compKey("Horizon",idx),idstr) )
-	    continue;
-
-	MultiID mid( idstr );
-	BufferString horname = EM::EMM().objectName( mid );
-	if ( horname.isEmpty() ) continue;
-
-	horids_ += mid;
-	hornames_.add( horname );
+	BufferString hornm = EM::EMM().objectName( horids_[idx] );
+	if ( hornm.isEmpty() )
+	{
+	    horids_.remove( idx );
+	    idx--;
+	}
+	else
+	    hornames_.add( hornm );
     }
 }
 
@@ -126,9 +129,14 @@ void uiHorizonRelationsDlg::read()
 bool uiHorizonRelationsDlg::write()
 {
     IOPar iopar;
-    for ( int idx=0; idx<horids_.size(); idx++ )
-	iopar.set( IOPar::compKey("Horizon",idx), horids_[idx] );
+    readFile( iopar );
+    iopar.removeWithKey( is2d_ ? "2D" : "3D" );
 
+    IOPar subpar;
+    for ( int idx=0; idx<horids_.size(); idx++ )
+	subpar.set( IOPar::compKey("Horizon",idx), horids_[idx] );
+
+    iopar.mergeComp( subpar, is2d_ ? "2D" : "3D" );
     FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf) );
     fp.add( "horizonrelations.txt" );
     const bool res = iopar.write( fp.fullPath(), 0 );
