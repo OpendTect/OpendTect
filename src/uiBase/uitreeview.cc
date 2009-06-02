@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.56 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.57 2009-06-02 09:31:07 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -708,9 +708,11 @@ void uiListViewItem::moveItem( uiListViewItem* after )
     uiListViewItem* prnt = parent();
     if ( !prnt || !after ) return;
 
+    const bool isopen = isOpen();
     const int afterid = prnt->qItem()->indexOfChild( after->qItem() );
     prnt->takeItem( this );
     prnt->insertItem( afterid, this );
+    setOpen( isopen );
 }
 
 
