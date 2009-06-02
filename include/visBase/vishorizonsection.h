@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.20 2009-05-28 19:11:22 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.21 2009-06-02 21:41:29 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "rowcol.h"
 #include "visobject.h"
+#include "geomelement.h"
 
 class BinIDValueSet;
 class Color;
@@ -83,7 +84,8 @@ public:
     int                         activeVersion(int channel) const;
     void                        selectActiveVersion(int channel,int);
 
-    void			setSurface(Geometry::BinIDSurface*,bool conn);
+    void			setSurface(Geometry::BinIDSurface*,bool conn,
+	    				   TaskRunner*);
     Geometry::BinIDSurface*	getSurface() const	{ return geometry_; }
 
     void			useWireframe(bool);
@@ -91,7 +93,7 @@ public:
     
     char			nrResolutions() const { return mHorSectNrRes; }
     char			currentResolution() const;
-    void			setResolution(int);
+    void			setResolution(int,TaskRunner*);
 
     void			setWireframeColor(Color col);
     void			setColTabSequence(int channel,
@@ -115,17 +117,24 @@ protected:
     				~HorizonSection();
     static ArrPtrMan<SbVec2f>	texturecoordptr_;				
     void			surfaceChangeCB(CallBacker*);
+    void			surfaceChange(const TypeSet<GeomPosID>*,
+	    				      TaskRunner*);
     void			removeZTransform();
-    void			updateZAxisVOI(const Geometry::BinIDSurface*);
+    void			updateZAxisVOI();
 
     void			updateTexture(int channel);
-    void			updateAutoResolution(SoState*);
+    void			updateAutoResolution(SoState*,TaskRunner*);
     static void			updateAutoResolution(void*,SoAction*);
-    void			turnOnWireframe(int res);
-    void			updateTileNeighbors(int nrrows,int nrcols);
-    void			insertRowColTilesArray(bool row,bool bef,int);
+    void			turnOnWireframe(int res,TaskRunner*);
+    void			updateTileTextureOrigin();
+    void			updateTileArray(const StepInterval<int>& rrg,
+	    					const StepInterval<int>& crg);
     void			updateBBox(SoGetBoundingBoxAction* action);
     HorizonSectionTile*		createTile(int rowidx,int colidx);
+    void			updateNormals(HorizonSectionTile&, int res,
+	    				      int tilerowidx,int tilecolidx);
+    void			setNormal(int nmidx,int res,HorizonSectionTile&,
+	    				  int tilerowidx,int tilecolidx);	
 
     Geometry::BinIDSurface*	geometry_;
     Threads::Mutex		geometrylock_;
@@ -146,10 +155,18 @@ protected:
     				//-1 not needed by zaxistransform, -2 not set
 				
     int				desiredresolution_;
+    double			cosanglexinl_;
+    double			sinanglexinl_;
+    float			rowdistance_;
+    float			coldistance_;
 
     RowCol			origin_;
     RowCol			step_;
+    static int			normalstartidx_[mHorSectNrRes];
+    static int			normalsidesize_[mHorSectNrRes];
 };
+
+
 
 mClass HorizonSectionTile
 {
@@ -158,16 +175,12 @@ public:
 				~HorizonSectionTile();
     void			setResolution(int);
     				/*!<Resolution -1 means it is automatic. */
+    int				getActualResolution() const;
     void			updateAutoResolution(SoState*);
     				/*<Update only when the resolutionis -1. */
     void			setNeighbor(int,HorizonSectionTile*);
     void			setPos(int row,int col,const Coord3&);
     void			setDisplayTransformation(Transformation*);
-
-    void			setMaxSpacing(int); 
-				//Based on defined nrcells in the biginning
-    int				getMaxSpacing() const	{ return maxspacing_; }
-    				//Not used yet
 
     void			setTextureSize(int rowsz,int colsz);
     void			setTextureOrigin(int globrow,int globcol);
@@ -189,16 +202,21 @@ public:
     SbBox3f			getBBox() const; 
     SoLockableSeparator*	getNodeRoot() const	{ return root_; }
 
+    bool			allNormalsInvalid(int res) const;
+    void			setAllNormalsInvalid(int res,bool yn);
+    void			getNormalUpdateList(int res, TypeSet<int>&);
+    void			removeInvalidNormals(int res);
+
 protected:
 
     friend			class HorSectTileResolutionTesselator;
-    int				getActualResolution() const;
     void			setActualResolution(int);
     int				getAutoResolution(SoState*);
     void			tesselateGlue();
     void			tesselateResolution(int);
     void			updateBBox();
     void			setWireframe(int res);
+    void			setInvalidNormals(int row,int col);
 
     bool			usewireframe_;
     Material*			wireframematerial_;
@@ -215,14 +233,14 @@ protected:
     SoTextureComposer*		texture_;
     SoSwitch*			resswitch_;
     SoNormal*			normals_;
-    int				maxspacing_;
-    static int			normalstartidx_[mHorSectNrRes];
-    static int			spacing_[mHorSectNrRes];
-    static int			nrcells_[mHorSectNrRes];
     int				desiredresolution_;
     bool			resolutionhaschanged_;
 
     bool			needsretesselation_[mHorSectNrRes];
+
+    TypeSet<int>		invalidnormals_[mHorSectNrRes];
+    bool			allnormalsinvalid_[mHorSectNrRes];
+
     SoGroup*			resolutions_[mHorSectNrRes];
     SoIndexedTriangleStripSet*	triangles_[mHorSectNrRes];
     SoIndexedLineSet*		lines_[mHorSectNrRes];
@@ -238,6 +256,11 @@ protected:
     SoIndexedLineSet*		gluelines_;
     SoDGBIndexedPointSet*	gluepoints_;
     bool			glueneedsretesselation_;
+
+    static int			normalstartidx_[mHorSectNrRes];
+    static int			normalsidesize_[mHorSectNrRes];
+    static int			spacing_[mHorSectNrRes];
+    static int			nrcells_[mHorSectNrRes];
 };
 
 };

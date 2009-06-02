@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.34 2009-05-28 21:42:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.35 2009-06-02 21:41:29 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -44,212 +44,163 @@ static const char* rcsID = "$Id: vishorizonsection.cc,v 1.34 2009-05-28 21:42:06
 
 mCreateFactoryEntry( visBase::HorizonSection );
 
-#define mTileSideSize	64
-#define mTileLastIdx	63
-#define mLowestResIdx	5
+#define mNrCoordsPerTileSide	64
+#define mTotalNrCoordsPerTile	4096
+#define mTileSideSize		63
+#define mTileLastIdx		63
+#define mLowestResIdx		5
+#define mTotalNormalSize	5589
 
 namespace visBase
 {
 
-mClass HorSectTileResolutionTesselator : public SequentialTask
+
+int HorizonSection::normalstartidx_[] = { 0, 4096, 5185, 5474, 5555, 5580 };
+int HorizonSection::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
+
+
+mClass HorSectTileResolutionTesselator : public ParallelTask
 {
 public:
-			HorSectTileResolutionTesselator( 
-				HorizonSectionTile& tile,char res,bool doset)
-	    		: tile_( tile )
-	    		, doset_( doset )
-	    		, resolution_( res )		{}
+		HorSectTileResolutionTesselator( HorizonSectionTile** tiles,
+						 int res, int nrtiles )
+		: tiles_( tiles )
+		, totalnr_( nrtiles )  
+		, resolution_( res )	{}
 
-   int			nextStep()
-			{
-    			    tile_.tesselateResolution( resolution_ );
-    			    if ( doset_ ) 
-				tile_.setActualResolution( resolution_ );
-    			    return Finished();
-			}
+   od_int64	nrIterations() const { return totalnr_; }
+
+   bool		doWork( od_int64 start, od_int64 stop, int )
+   		{
+	     	    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+		   {
+		       if ( tiles_[idx] )
+		       {
+    			   tiles_[idx]->tesselateResolution( resolution_ );
+    			   tiles_[idx]->setActualResolution( resolution_ );
+		       }
+		   
+		       addToNrDone(1);
+		   }
+
+		   return true;
+	       }
+
 protected:
 
-   HorizonSectionTile&	tile_;
+   HorizonSectionTile**	tiles_;
    int			resolution_;
-   bool			doset_;
+   int			totalnr_;
 };
 
 
-mClass HorSectTileGlueUpdater : public SequentialTask
+mClass HorSectTileGlueUpdater : public ParallelTask
 {
 public:
-			HorSectTileGlueUpdater( HorizonSectionTile& tile )
-	    		: tile_( tile ) {}
+		HorSectTileGlueUpdater( HorizonSectionTile** tiles, int total )
+	    	: tiles_( tiles )
+		, totalnr_( total )	{}
 
-   int			nextStep()
-   			{
-			    tile_.updateGlue();
-			    return Finished();
-			}
+   od_int64	nrIterations() const { return totalnr_; }
+   
+   bool		doWork( od_int64 start, od_int64 stop, int )
+   		{
+		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+		    {
+			if ( tiles_[idx] ) 
+			    tiles_[idx]->updateGlue();
+
+			addToNrDone(1);
+		    }
+
+		    return true;
+		}
 protected:
 
-   HorizonSectionTile&	tile_;
+   HorizonSectionTile**	tiles_;
+   int			totalnr_;
 };
 
 
-mClass HorSectTileWireframeUpdater : public SequentialTask
+mClass HorSectTileWireframeUpdater : public ParallelTask
 {
 public:
-			HorSectTileWireframeUpdater( HorizonSectionTile& tile, 
-						     int res )
-			: tile_( tile ), res_( res ) {}
-    int			nextStep()
-    			{
-			    tile_.turnOnWireframe( res_ );
-			    return Finished();
-			}	
+		HorSectTileWireframeUpdater( HorizonSectionTile** tiles, 
+					     int resolution, int totalnr )
+		: tiles_( tiles )
+		, totalnr_( totalnr )  
+		, resolution_( resolution ) {}
+
+    od_int64	nrIterations() const { return totalnr_; }
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+    		{
+		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+		    {
+			if ( tiles_[idx] )
+			    tiles_[idx]->turnOnWireframe( resolution_ );
+			
+			addToNrDone(1);
+		    }
+		    
+		    return true;
+		}
 protected:
 
-    HorizonSectionTile&  tile_;
-    int			 res_;
+    HorizonSectionTile** tiles_;
+    int			 resolution_;
+    int			 totalnr_;
 };
 
 
 mClass HorizonSectionTilePosSetup: public ParallelTask
 {
 public:    
-HorizonSectionTilePosSetup( HorizonSectionTile& tile, 
-			    const Geometry::BinIDSurface& geo, int res, 
-			    int startni, int row, int col, RowCol rc )
-    : tile_( tile )
+HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 
+	TypeSet<RowCol> rcs, const Geometry::BinIDSurface& geo )
+    : tiles_( tiles )
     , geo_( geo )  
-    , spacing_( (int)pow(2.0,res) )  
-    , startnormalidx_( startni )			   
-    , startrow_( row )
-    , startcol_( col )
-    , center_( rc )
-    , rowstep_( geo.rowRange().step )
-    , colstep_( geo.colRange().step )		  		     
-    , rowdistance_( rowstep_*SI().inlDistance() )
-    , coldistance_( colstep_*SI().crlDistance() )		    
-{
-    nodesz_ = mTileSideSize/spacing_ + ( spacing_==1 ? 0 : 1 );
-    const double angle = SI().computeAngleXInl();
-    sinanglexinl_ = sin( angle );
-    cosanglexinl_ = cos( angle );
-}
+    , rcs_( rcs )
+{}
 
-od_int64 nrIterations() const	{ return mTileSideSize*mTileSideSize; }
+od_int64 nrIterations() const { return tiles_.size(); }
+
+const char* message() const { return "Creating Horizon Display"; }
+const char* nrDoneText() const { return "Parts completed"; }
 
 protected:
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    const bool setall = center_.row==-1 || center_.col==-1;
+    const int rowstep = geo_.rowRange().step;
+    const int colstep = geo_.colRange().step;
+
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int row = idx/mTileSideSize;
-	const int col = idx%mTileSideSize;
-	if ( (row%spacing_ && row<mTileLastIdx) || 
-	     (col%spacing_ && col<mTileLastIdx) ) 
-	{
-	    addToNrDone(1);
-	    continue;
-	}
+	HorizonSectionTile* tile = tiles_[idx];
+	const int startrow = rcs_[idx].row;
+	const int startcol = rcs_[idx].col;
 
-	const RowCol rc( row*rowstep_+startrow_, col*colstep_+startcol_ );
-	if ( spacing_==1 )
+	for ( int row=0; row<mNrCoordsPerTileSide; row++ )
 	{
-    	    const bool shouldsetpos = setall || ( !setall && 
-    		    (abs(rc.row-center_.row)<=spacing_ || 
-		     abs(rc.col-center_.col)<=spacing_) );
-	    if ( shouldsetpos )
+	    for ( int col=0; col<mNrCoordsPerTileSide; col++ )
 	    {
-    		lock_.lock();
-    		tile_.setPos( row, col, geo_.getKnot(rc,false) );
-    		lock_.unLock();
+		const RowCol rc( row*rowstep+startrow, col*colstep+startcol );
+		tile->setPos( row, col, geo_.getKnot(rc,false) );
 	    }
 	}
 
-	const bool shouldsetnormal = setall;
-        //TODO: should update normal when pos changes	
-	//const RowCol diff = rc-center_;
-	// shouldsetnormal = shouldsetnormal || 
-	// ( !setall && (abs(diff.row)<=(spacing_+32) || 
-	// 	         abs(diff.col)<=(spacing_+32)) ); 
-
-	if ( shouldsetnormal )
-	{
-    	    int ni = idx;
-	    if ( spacing_>1 )
-	    {
-		const int localrow = row/spacing_+(row==mTileLastIdx ? 1 : 0);
-		const int localcol = col/spacing_+(col==mTileLastIdx ? 1 : 0);
-		ni = localrow*nodesz_+localcol+startnormalidx_;
-	    }
-		
-    	    Coord3 normal;
-    	    computeNormal( rc.row, rc.col, normal );
-	    
-	    lock_.lock();
-	    tile_.setNormal( ni, normal);
-	    lock_.unLock();
-	}
-	    
 	addToNrDone(1);
     }
 
     return true;
 }
 
-
-void computeNormal( int row, int col, Coord3& nm )
-{
-    TypeSet<float> posarray, zarray;
-    for ( int idx=-spacing_; idx<=spacing_; idx++ )
-    {
-	const Coord3 pos = geo_.getKnot( RowCol(row+idx*rowstep_,col), false );
-	if ( pos.isDefined() )
-	{
-	    posarray += idx*rowdistance_;
-	    zarray += pos.z;
-	}
-    }
-	   
-    double drow = 0;
-    if ( zarray.size()>1 )
-	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
-
-    posarray.erase(); zarray.erase();    
-    for ( int idx=-spacing_; idx<=spacing_; idx++ )
-    {
-	const Coord3 pos = geo_.getKnot( RowCol(row,col+idx*colstep_), false );
-	if ( pos.isDefined() )
-	{
-	    posarray += idx*coldistance_;
-	    zarray += pos.z;
-	}
-    }
-
-    double dcol = 0;
-    if ( zarray.size()>1 )
-	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &dcol );
-
-    nm = Coord3( drow*cosanglexinl_ + dcol*sinanglexinl_,
-	         dcol*cosanglexinl_ - drow*sinanglexinl_, -1 );
-}
-
-    HorizonSectionTile& 		tile_;
+    ObjectSet<HorizonSectionTile> 	tiles_;
+    TypeSet<RowCol>			rcs_;
     const Geometry::BinIDSurface&	geo_;
-    int					startnormalidx_;
-    int					nodesz_;
-    int					spacing_;
-    int					startrow_;
-    int					startcol_;
-    double				sinanglexinl_;
-    double				cosanglexinl_;
-    double				rowdistance_;
-    double				coldistance_;
-    Threads::Mutex			lock_;
-    RowCol				center_;
-    int					rowstep_;
-    int					colstep_;
 };
+
 
 
 ArrPtrMan<SbVec2f> HorizonSection::texturecoordptr_ = 0;
@@ -267,6 +218,8 @@ HorizonSection::HorizonSection()
     , texturecrds_( new SoTextureCoordinate2 )
     , desiredresolution_( -1 )
     , usewireframe_( false )
+    , cosanglexinl_( cos(SI().computeAngleXInl()) )
+    , sinanglexinl_( sin(SI().computeAngleXInl()) )		     
 {
     cache_.allowNull( true );
     
@@ -290,23 +243,23 @@ HorizonSection::HorizonSection()
 
     addChild( texturecrds_ );
 
-    const int totalnrpts = mTileSideSize*mTileSideSize;
     if ( !texturecoordptr_ )
     {
-	mTryAlloc( texturecoordptr_, SbVec2f[totalnrpts] );
+	mTryAlloc( texturecoordptr_, SbVec2f[mTotalNrCoordsPerTile] );
 	int idx = 0;
-	for ( int irow=0; irow<mTileSideSize; irow++ )
+	for ( int irow=0; irow<mNrCoordsPerTileSide; irow++ )
 	{
-	    for ( int icol=0; icol<mTileSideSize; icol++ )
+	    for ( int icol=0; icol<mNrCoordsPerTileSide; icol++ )
 	    {
-		texturecoordptr_[idx] = SbVec2f((icol+0.5)/mTileSideSize,
-						(irow+0.5)/mTileSideSize);
+		texturecoordptr_[idx] = SbVec2f((icol+0.5)/mNrCoordsPerTileSide,
+			(irow+0.5)/mNrCoordsPerTileSide);
 		idx++;
 	    }
 	}
     }
 
-    texturecrds_->point.setValuesPointer( totalnrpts, texturecoordptr_ );
+    texturecrds_->point.setValuesPointer( mTotalNrCoordsPerTile,
+	    				  texturecoordptr_ );
 }
 
 
@@ -436,7 +389,7 @@ void HorizonSection::setZAxisTransform( ZAxisTransform* zt )
     zaxistransform_->ref();
     if ( geometry_ )
     {
-	updateZAxisVOI( geometry_ );
+	updateZAxisVOI();
 	CBCapsule<const TypeSet<GeomPosID>*> caps( 0, geometry_ );
 	surfaceChangeCB( &caps );
     }
@@ -458,16 +411,16 @@ void HorizonSection::removeZTransform()
 }
 
 
-void HorizonSection::updateZAxisVOI( const Geometry::BinIDSurface* surf )
+void HorizonSection::updateZAxisVOI()
 {
-    if ( !surf || zaxistransformvoi_==-1 )	//transform does not use voi
+    if ( !geometry_ || zaxistransformvoi_==-1 )	//transform does not use voi
 	return;
 
     if ( !zaxistransform_ || !zaxistransform_->needsVolumeOfInterest() )
 	return;
 
     CubeSampling cs;
-    cs.hrg.set( surf->rowRange(), surf->colRange() );
+    cs.hrg.set( geometry_->rowRange(), geometry_->colRange() );
 
     HorSamplingIterator iter( cs.hrg );
 
@@ -475,7 +428,7 @@ void HorizonSection::updateZAxisVOI( const Geometry::BinIDSurface* surf )
     BinID curpos;
     while ( iter.next(curpos) )
     {
-	const float depth = surf->getKnot(curpos,false).z;
+	const float depth = geometry_->getKnot(curpos,false).z;
 	if ( first )
 	{
 	    cs.zrg.start = cs.zrg.stop = depth;
@@ -661,7 +614,6 @@ unsigned char HorizonSection::getTransparency( int ch ) const
 
 void HorizonSection::enableChannel( int channel, bool yn )
 {
-    channels_->turnOn( yn ); 
     channel2rgba_->setEnabled( channel, yn ); 
 }
 
@@ -693,7 +645,8 @@ const BinIDValueSet* HorizonSection::getCache( int channel ) const
 }
 
 
-void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect )
+void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
+       				 TaskRunner* tr )
 {
     if ( !surf ) return;
 
@@ -701,6 +654,8 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect )
     origin_.col = surf->colRange().start;
     step_.row = surf->rowRange().step;
     step_.col = surf->colRange().step;
+    rowdistance_ = step_.row*SI().inlDistance();
+    coldistance_ = step_.col*SI().inlDistance();
 
     if ( connect )
     {
@@ -710,21 +665,25 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect )
 	geometry_->nrpositionnotifier.notify( cb );
     }
 
-    CBCapsule<const TypeSet<GeomPosID>*> caps( 0, surf );
-    surfaceChangeCB( &caps );
+    surfaceChange( 0, tr );
 }
 
 
 void HorizonSection::surfaceChangeCB( CallBacker* cb )
 {
     geometrylock_.lock();
-    mCBCapsuleUnpackWithCaller( const TypeSet<GeomPosID>*, gpids, caller, cb );
-    const Geometry::BinIDSurface* changedsurface =
-	reinterpret_cast<const Geometry::BinIDSurface*>(caller);
+    mCBCapsuleUnpack( const TypeSet<GeomPosID>*, gpids, cb );
 
+    surfaceChange( gpids, 0 );
+}
+
+
+void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
+       				    TaskRunner* tr )
+{
     if ( zaxistransform_ && zaxistransformvoi_>=0 )
     {
-	updateZAxisVOI( changedsurface );
+	updateZAxisVOI();
 	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_) )
 	{
 	    geometrylock_.unLock();
@@ -732,26 +691,25 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
 	}
     }
     
-    const StepInterval<int> rrg = changedsurface->rowRange();
-    const StepInterval<int> crg = changedsurface->colRange();
+    const StepInterval<int>& rrg = geometry_->rowRange();
+    const StepInterval<int>& crg = geometry_->colRange();
     if ( rrg.width(false)<0 || crg.width(false)<0 )
     {
 	geometrylock_.unLock();
 	return;
     }
 
-    int startni[] = { 0, 4096, 5185, 5474, 5555, 5580 };
-    int nrrows = tiles_.info().getSize( 0 );
-    int nrcols = tiles_.info().getSize( 1 );
     if ( !origin_.row && !origin_.col )
 	origin_ = RowCol( rrg.start, crg.start );
    
-    bool neighborchanged = false; 
-    if ( !gpids || !nrrows || !nrcols )
+    ObjectSet<HorizonSectionTile> newtiles;
+    TypeSet<RowCol> tilestarts;
+
+    if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
     {
 	origin_ = RowCol( rrg.start, crg.start );
-	nrrows = nrBlocks( rrg.nrSteps()+1, mTileSideSize, 1 );
-	nrcols = nrBlocks( crg.nrSteps()+1, mTileSideSize, 1 );
+	const int nrrows = nrBlocks( rrg.nrSteps()+1, mNrCoordsPerTileSide, 1 );
+	const int nrcols = nrBlocks( crg.nrSteps()+1, mNrCoordsPerTileSide, 1 );
 
 	if ( !tiles_.setSize( nrrows, nrcols ) )
 	{
@@ -759,166 +717,156 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
 	    return;
 	}
 
+	tiles_.setAll( 0 );
+
 	for ( int tilerowidx=0; tilerowidx<nrrows; tilerowidx++ )
 	{
-	    const int startrow = tilerowidx*mTileLastIdx + origin_.row;
 	    for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
 	    {
-		const int startcol = tilecolidx*mTileLastIdx + origin_.col;
-		HorizonSectionTile* tile = createTile(tilerowidx, tilecolidx);
-		for ( int res=0; res<mHorSectNrRes; res++ )
-		{
-		    HorizonSectionTilePosSetup tsp( *tile, *changedsurface, res,
-			   startni[res], startrow, startcol, RowCol(-1,-1) );
-		    tsp.execute();
-		}
+		newtiles += createTile(tilerowidx, tilecolidx);
+		const int startrow = tilerowidx*mTileSideSize + origin_.row;
+		const int startcol = tilecolidx*mTileSideSize + origin_.col;
+		tilestarts += RowCol( startrow, startcol );
 	    }
 	}
 
-	neighborchanged = true;
+	updateTileTextureOrigin();
     }
     else
     {
-	RowCol oldorigin = origin_;
-	int nrinsertbef = 0, nrinsertaft = 0;
-	const int rowsteps =  mTileLastIdx*step_.row;
-
-	while ( rrg.start<origin_.row )
-	{
-	    nrinsertbef++;
-	    origin_.row -= rowsteps;
-	}
-
-	if ( nrinsertbef ) 
-	{
-	    insertRowColTilesArray( true, true, nrinsertbef );
-	    neighborchanged = true;
-	}
-
-	while ( oldorigin.row+(nrrows+nrinsertaft)*rowsteps<rrg.stop )
-	    nrinsertaft++;
-
-	if ( nrinsertaft ) 
-	{
-	    insertRowColTilesArray( true, false, nrinsertaft );
-	    neighborchanged = true;
-	}
-
-	nrinsertbef = 0; nrinsertaft = 0;
-	const int colsteps = mTileLastIdx*step_.col;
-        while ( crg.start<origin_.col )
-	{
-	    nrinsertbef++;
-	    origin_.col -= colsteps;
-	}
-
-	if ( nrinsertbef ) 
-	{
-	    insertRowColTilesArray( false, true, nrinsertbef );
-	    neighborchanged = true;
-	}
-
-        while ( oldorigin.col+(nrcols+nrinsertaft)*colsteps<crg.stop )
-	    nrinsertaft++; 
-    
-	if ( nrinsertaft ) 
-	{
-	    insertRowColTilesArray( false, false, nrinsertaft );
-	    neighborchanged = true;
-	}
-    
-	nrrows = tiles_.info().getSize( 0 );
-	nrcols = tiles_.info().getSize( 1 );
+	updateTileArray( rrg, crg );
+	const int nrrowsz = tiles_.info().getSize(0);
+	const int nrcolsz = tiles_.info().getSize(1);
 
     	for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
 	{
-	    RowCol absrc( (*gpids)[idx] );
+	    const RowCol& absrc( (*gpids)[idx] );
 	    RowCol rc = absrc-origin_; rc /= step_;
 
-	    int tilerowidx = rc.row/mTileLastIdx;
-	    if ( tilerowidx && !(rc.row%mTileLastIdx) ) tilerowidx--;
-	    int tilecolidx = rc.col/mTileLastIdx;
-	    if ( tilecolidx && !(rc.col%mTileLastIdx) ) tilecolidx--;
-	    const int startrow = tilerowidx*mTileLastIdx + origin_.row;
-	    const int startcol = tilecolidx*mTileLastIdx + origin_.col;
+	    const int tilerowidx = rc.row/mTileSideSize;
+	    const int tilerow = rc.row%mTileSideSize;
+
+	    const int tilecolidx = rc.col/mTileSideSize;
+	    const int tilecol = rc.col%mTileSideSize;
+
+	    const Coord3 pos = geometry_->getKnot(absrc,false);
 
 	    HorizonSectionTile* tile = tiles_.get( tilerowidx, tilecolidx );
-	    bool newtile = false;
-	    if ( !tile )
+	    if ( !tile ) 
 	    {
-		newtile = true;
-		tile =  createTile( tilerowidx, tilecolidx );
-		neighborchanged = true;
+		tile = createTile( tilerowidx, tilecolidx );
+		const int startrow = tilerowidx*mTileSideSize + origin_.row;
+		const int startcol = tilecolidx*mTileSideSize + origin_.col;
+		tilestarts += RowCol( startrow, startcol );
+		newtiles += tile;
+	    }
+	    else
+	    {
+    		for ( int res=0; res<=mLowestResIdx; res++ )
+    		    tile->setAllNormalsInvalid( res, true );
+	    
+		tile->setPos( tilerow, tilecol, pos );
 	    }
 
-	    //Update pos, normals
-	    for ( int res = 0; res<mHorSectNrRes; res++ )
+	    for ( int rowidx=-1; rowidx<=1; rowidx++ )
 	    {
-		HorizonSectionTilePosSetup tsp( *tile, *changedsurface, res,
-					startni[res], startrow, startcol, 
-					newtile ? RowCol(-1,-1) : absrc );
-		tsp.execute();
-	    }
+		const int neighborrow = tilerowidx+rowidx;
+		if ( neighborrow<0 || neighborrow>=nrrowsz )
+		    continue;
 
-	    TypeSet<RowCol> updatedtiles;
-	    updatedtiles += RowCol(tilerowidx, tilecolidx);
-	    const int maxsz = mTileSideSize/2;
-	    for ( int rstep=-maxsz; rstep<=maxsz; rstep += maxsz )
-	    {
-		for ( int cstep=-maxsz; cstep<=maxsz; cstep += maxsz )
+		for ( int colidx=-1; colidx<=1; colidx++ )
 		{
-		    RowCol absnbrc( absrc.row+rstep, absrc.col+cstep );
-		    if ( absnbrc.row<rrg.start || absnbrc.row>rrg.stop ||
-			 absnbrc.col<crg.start || absnbrc.col>crg.stop )
+		    if ( !rowidx && !colidx ) continue;
+
+		    const int neighborcol = tilecolidx+colidx;
+		    if ( neighborcol<0 || neighborcol>=nrcolsz )
 			continue;
 
-		    RowCol relativenbrc = absnbrc-origin_;
-		    relativenbrc /= step_;
-		    int trowidx = relativenbrc.row/mTileLastIdx;
-		    if ( trowidx && !(relativenbrc.row%mTileLastIdx) ) 
-			trowidx--;
-		    
-		    int tcolidx = relativenbrc.col/mTileLastIdx;
-		    if ( tcolidx && !(relativenbrc.col%mTileLastIdx) )
-			tcolidx--;
-		    
-		    RowCol tileidx( trowidx, tcolidx );
-		    if ( updatedtiles.indexOf(tileidx)!=-1 )
+		    if ( !tiles_.get( neighborrow, neighborcol ) )
 			continue;
 
-		    updatedtiles += tileidx;
-		    HorizonSectionTile* nb = tiles_.get(trowidx,tcolidx);
-		    if ( !nb ) continue;
-
-		    const int nbrow = trowidx*mTileLastIdx + origin_.row;
-		    const int nbcol = tcolidx*mTileLastIdx + origin_.col;
-		    for ( int res = 0; res<mHorSectNrRes; res++ )
-		    {
-			HorizonSectionTilePosSetup tsp( *nb, 
-				*changedsurface, res, startni[res], 
-				nbrow, nbcol, absnbrc );
-			tsp.execute();
-		    }
+		    tiles_.get( neighborrow, neighborcol )->setPos(
+			    tilerow-rowidx*mTileSideSize,
+			    tilecol-colidx*mTileSideSize, pos );
 		}
 	    }
 	}
     }
 
-    if ( neighborchanged )
+    HorizonSectionTilePosSetup task( newtiles, tilestarts, *geometry_ );
+    if ( tr ) tr->execute( task );
+    else task.execute();
+
+    geometrylock_.unLock();
+}
+
+
+void HorizonSection::updateTileArray( const StepInterval<int>& rrg,
+				      const StepInterval<int>& crg )
+{
+    const int rowsteps =  mTileSideSize*step_.row;
+    const int colsteps = mTileSideSize*step_.col;
+    const int oldrowsize = tiles_.info().getSize(0);
+    const int oldcolsize = tiles_.info().getSize(1);
+    int newrowsize = oldrowsize;
+    int newcolsize = oldcolsize;
+    int nrnewrowsbefore = 0;
+    int nrnewcolsbefore = 0;
+	
+    int diff = origin_.row - rrg.start;
+    if ( diff>0 ) 
     {
-	updateTileNeighbors( nrrows, nrcols );
-	for ( int tilerowidx=0; tilerowidx<nrrows; tilerowidx++ )
+	nrnewrowsbefore = diff/rowsteps + diff%rowsteps ? 1 : 0;
+    	newrowsize += nrnewrowsbefore;
+    }
+
+    diff = rrg.stop - (origin_.row+oldrowsize*rowsteps);
+    if ( diff>0 ) newrowsize += diff/rowsteps + diff%rowsteps ? 1 : 0;
+    
+    diff = origin_.col-crg.start;
+    if ( diff>0 ) 
+    {
+	nrnewcolsbefore = diff/colsteps + diff%colsteps ? 1 : 0;
+    	newcolsize += nrnewcolsbefore;
+    }
+
+    diff = crg.stop - (origin_.col+oldcolsize*colsteps);
+    if ( diff>0 ) newcolsize += diff/colsteps + diff%colsteps ? 1 : 0;
+
+    if ( newrowsize==oldrowsize && newcolsize==oldcolsize )
+	return;
+
+    Array2DImpl<HorizonSectionTile*> newtiles( newrowsize, newcolsize );
+    newtiles.setAll( 0 );
+
+    for ( int rowidx=0; rowidx<oldrowsize; rowidx++ )
+    {
+	const int targetrow = rowidx+nrnewrowsbefore;
+	for ( int colidx=0; colidx<oldcolsize; colidx++ )
 	{
-	    for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
-	    {
-		if ( tiles_.get(tilerowidx,tilecolidx) )
-		    tiles_.get(tilerowidx,tilecolidx)->setTextureOrigin( 
-			    tilerowidx*mTileLastIdx, tilecolidx*mTileLastIdx );
-	    }
+	    const int targetcol = colidx+nrnewcolsbefore;
+	    newtiles.set( targetrow, targetcol, tiles_.get(rowidx,colidx) );
 	}
     }
 
-    geometrylock_.unLock();
+    tiles_.copyFrom( newtiles );
+    origin_.row -= nrnewrowsbefore*rowsteps;
+    origin_.col -= nrnewcolsbefore*colsteps;
+    updateTileTextureOrigin();
+}
+
+
+void HorizonSection::updateTileTextureOrigin()
+{
+    for ( int rowidx=0; rowidx<tiles_.info().getSize(0); rowidx++ )
+    {
+	for ( int colidx=0; colidx<tiles_.info().getSize(1); colidx++ )
+	{
+	    if ( tiles_.get(rowidx,colidx) )
+		tiles_.get(rowidx,colidx)->setTextureOrigin( 
+			rowidx*mTileSideSize, colidx*mTileSideSize );
+	}
+    }
 }
 
 
@@ -930,75 +878,53 @@ HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
     tile->useShading( channel2rgba_->usesShading() );
     tile->useWireframe( usewireframe_ );
     tile->setWireframeMaterial( visBase::Material::create() );
-    
+
     tiles_.set( tilerowidx, tilecolidx, tile );
+    
+    for ( int rowidx=-1; rowidx<=1; rowidx++ )
+    {
+	const int neighborrow = tilerowidx+rowidx;
+	if ( neighborrow<0 || neighborrow>=tiles_.info().getSize(0) )
+	    continue;
+
+	for ( int colidx=-1; colidx<=1; colidx++ )
+	{
+	    if ( !colidx && !rowidx )
+		continue;
+
+	    const int neighborcol = tilecolidx+colidx;
+	    if ( neighborcol<0 || neighborcol>=tiles_.info().getSize(1) )
+		continue;
+
+	    HorizonSectionTile* neighbor = tiles_.get(neighborrow,neighborcol);
+
+	    if ( !neighbor ) 
+		continue;
+
+	    char pos;
+	    if ( colidx==-1 ) 
+		pos = rowidx==-1 ? 0 : (!rowidx ? 3 : 6);
+	    else if ( colidx==0 ) 
+		pos = rowidx==-1 ? 1 : (!rowidx ? 4 : 7);
+	    else 
+		pos = rowidx==-1 ? 2 : (!rowidx ? 5 : 8);
+
+	    tile->setNeighbor( pos, neighbor );
+
+	    if ( colidx==1 ) 
+		pos = rowidx==1 ? 0 : (!rowidx ? 3 : 6);
+	    else if ( colidx==0 ) 
+		pos = rowidx==1 ? 1 : (!rowidx ? 4 : 7);
+	    else 
+		pos = rowidx==1 ? 2 : (!rowidx ? 5 : 8);
+
+	    neighbor->setNeighbor( pos, tile );
+	}
+    }
+	     
     addChild( tile->getNodeRoot() );
 
     return tile;
-}
-
-
-void HorizonSection::insertRowColTilesArray( bool torow, bool before, int nr )
-{
-    if ( !nr ) return;
-
-    const int rowsz = tiles_.info().getSize(0) + ( torow ? nr : 0 );
-    const int colsz = tiles_.info().getSize(1) + ( torow ? 0 : nr );
-
-    Array2DImpl<HorizonSectionTile*> temp( rowsz, colsz );
-    for ( int row=0; row<rowsz; row++ )
-    {
-	for ( int col=0; col<colsz; col++ )
-	{
-	    HorizonSectionTile* tile = 0;
-	    if ( torow && before && row>=nr )
-		tile = tiles_.get(row-nr,col);
-	    else if ( torow && !before && row<rowsz-nr )
-		tile = tiles_.get(row,col);
-	    else if ( !torow && before && col>=nr )
-		tile = tiles_.get(row,col-nr);
-	    else if ( !torow && !before && col<colsz-nr )
-		tile = tiles_.get(row,col);
-
-	    temp.set( row, col, tile );
-	}
-    }
-
-    tiles_.copyFrom( temp );
-}
-
-void HorizonSection::updateTileNeighbors( int nrrowtiles, int nrcoltiles )
-{
-    for ( int row=0; row<nrrowtiles; row++ )
-    {
-	for ( int col=0; col<nrcoltiles; col++ )
-	{
-	    HorizonSectionTile* tile = tiles_.get(row,col);
-	    if ( !tile ) continue;
-	    
-	    for ( int i=-1; i<2; i++ )
-	    {
-		const int r = row+i;
-		if ( r<0 || r>=nrrowtiles ) continue;
-
-		for ( int j=-1; j<2; j++ )
-		{
-		    const int c = col+j;
-		    if ( (!r && !c) || (c<0 || c>=nrcoltiles) ) 
-			continue;
-		    
-		    char pos;
-		    if ( j==-1 ) 
-			pos = i==-1 ? 0 : (!i ? 3 : 6);
-		    else if ( j==0 ) 
-			pos = i==-1 ? 1 : (!i ? 4 : 7);
-		    else if ( j==1 ) 
-			pos = i==-1 ? 2 : (!i ? 5 : 8);
-		    tile->setNeighbor( pos, tiles_.get(r,c) );
-		}
-	    }
-	}
-    }
 }
 
 
@@ -1008,7 +934,7 @@ void HorizonSection::updateAutoResolution( void* clss, SoAction* action )
     {
 	SoState* state = action->getState();
 	SoCacheElement::invalidate( state );
-    	((HorizonSection*) clss)->updateAutoResolution( state );
+    	((HorizonSection*) clss)->updateAutoResolution( state, 0 );
     }
     else if ( action->isOfType( SoGetBoundingBoxAction::getClassTypeId()) ) 
     {
@@ -1048,94 +974,163 @@ void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
 }
 
 
-void HorizonSection::updateAutoResolution( SoState* state )
+void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 {
-    HorizonSectionTile** tileptrs = tiles_.getData();
-    const int tilesz = tiles_.info().getTotalSz();
+    const int nrrowtiles = tiles_.info().getSize(0);
+    const int nrcoltiles = tiles_.info().getSize(1);
+    const int tilesz = nrrowtiles*nrcoltiles;
     if ( !tilesz ) return;
-    
-    for ( int idx=0; idx<tilesz; idx++ )
+ 
+    for ( int tilerow=0; tilerow<nrrowtiles; tilerow++ )
     {
-	if ( !tileptrs[idx] ) continue;
-	tileptrs[idx]->updateAutoResolution( state );
-	tileptrs[idx]->tesselateActualResolution();
+	for ( int tilecol=0; tilecol<nrcoltiles; tilecol++ )
+	{
+	    HorizonSectionTile* tile = tiles_.get(tilerow, tilecol);
+	    if ( !tile ) continue;
+
+	    tile->updateAutoResolution( state );
+	    tile->tesselateActualResolution();
+	    int res = tile->getActualResolution();
+	    if ( res==-1 ) res = desiredresolution_;
+	    updateNormals( *tile, res, tilerow, tilecol );
+	}
     }
 
-    ObjectSet<SequentialTask> tasks;
-    for ( int idx=0; idx<tilesz; idx++ )
-    {
-	if ( !tileptrs[idx] ) continue;
-	tasks += new HorSectTileGlueUpdater ( *tileptrs[idx] );
-    }
-
-    ParallelTask::twm().addWork( tasks );
-    deepErase( tasks );
+    HorizonSectionTile** tileptrs = tiles_.getData();
+    HorSectTileGlueUpdater gluetask( tileptrs, tilesz );
+    if ( tr )
+	tr->execute(gluetask);
+    else
+	gluetask.execute();
 
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
 }
 
 
-char HorizonSection::currentResolution() const
+void HorizonSection::updateNormals( HorizonSectionTile& tile, int res,
+       				    int tilerowidx, int tilecolidx )
 {
-    return desiredresolution_;
+    if ( res<0 ) return;
+
+    if ( tile.allNormalsInvalid(res) )
+    {
+	const int normalstop = 
+	    res<mLowestResIdx ? normalstartidx_[res+1]-1 : mTotalNormalSize-1;
+	for ( int idx=normalstartidx_[res]; idx<=normalstop; idx++ )
+	    setNormal( idx, res, tile, tilerowidx, tilecolidx );
+    }
+    else
+    {
+	TypeSet<int> updatelist;
+	tile.getNormalUpdateList( res, updatelist );
+	for ( int idx=0; idx<updatelist.size(); idx++ )
+	    setNormal( updatelist[idx], res, tile, tilerowidx, tilecolidx );
+    }
+
+    tile.removeInvalidNormals( res );
+    tile.setAllNormalsInvalid( res, false );
 }
 
 
-void HorizonSection::setResolution( int res )
+void HorizonSection::setNormal( int nmidx, int res, HorizonSectionTile& ti,
+				int tilerowidx, int tilecolidx )
+{
+    const int spacing = (int)pow(2.0,res);
+    const int normalrow = (nmidx-normalstartidx_[res])/normalsidesize_[res];
+    const int normalcol = (nmidx-normalstartidx_[res])%normalsidesize_[res];
+    const int row = origin_.row + tilerowidx*mTileSideSize +
+	(normalrow==normalsidesize_[res]-1 ? mTileSideSize : normalrow*spacing);
+    const int col = origin_.col + tilecolidx*mTileSideSize +
+	normalcol==normalsidesize_[res]-1 ? mTileSideSize : normalcol*spacing;
+
+    TypeSet<float> posarray, zarray;
+    for ( int idx=-spacing; idx<=spacing; idx++ )
+    {
+	const Coord3 pos = 
+	    geometry_->getKnot( RowCol(row+idx*step_.row,col), false );
+	if ( pos.isDefined() )
+	{
+	    posarray += idx*rowdistance_;
+	    zarray += pos.z;
+	}
+    }
+	   
+    double drow = 0;
+    if ( zarray.size()>1 )
+	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
+
+    posarray.erase(); zarray.erase();    
+    for ( int idx=-spacing; idx<=spacing; idx++ )
+    {
+	const Coord3 pos = 
+	    geometry_->getKnot( RowCol(row,col+idx*step_.col), false );
+	if ( pos.isDefined() )
+	{
+	    posarray += idx*coldistance_;
+	    zarray += pos.z;
+	}
+    }
+
+    double dcol = 0;
+    if ( zarray.size()>1 )
+	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &dcol );
+
+    ti.setNormal( nmidx, Coord3(drow*cosanglexinl_+dcol*sinanglexinl_,
+				dcol*cosanglexinl_-drow*sinanglexinl_,-1) );
+}
+
+
+char HorizonSection::currentResolution() const
+{ return desiredresolution_; }
+
+
+void HorizonSection::setResolution( int res, TaskRunner* tr )
 {
     desiredresolution_ = res;
     const int tilesz = tiles_.info().getTotalSz();
     if ( !tilesz ) return;
     
-    if ( usewireframe_ ) turnOnWireframe( res );
-
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    if ( usewireframe_ ) turnOnWireframe( res, tr );
 
     HorizonSectionTile** tileptrs = tiles_.getData();
+    TypeSet<int> resolutions;
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->setResolution( res );
 
-    ObjectSet<SequentialTask> tasks;
-    for ( int idx=0; idx<tilesz; idx++ )
-    {
-	if ( !tileptrs[idx] ) continue;
-	tasks += new HorSectTileResolutionTesselator(*tileptrs[idx],res,true);
-    }
+    if ( res==-1 )
+	return;
 
-    ParallelTask::twm().addWork( tasks );
-    deepErase( tasks );
+    HorSectTileResolutionTesselator task( tileptrs, res, tilesz );
+    if ( tr )
+	tr->execute(task);
+    else
+	task.execute();
 
-    for ( int idx=0; idx<tilesz; idx++ )
-    {
-	if ( !tileptrs[idx] ) continue;
-	tasks += new HorSectTileGlueUpdater ( *tileptrs[idx] );
-    }
-
-    ParallelTask::twm().addWork( tasks );
-    deepErase( tasks );
+    HorSectTileGlueUpdater gluetask( tileptrs, tilesz );
+    if ( tr ) 
+	tr->execute(gluetask);
+    else 
+	gluetask.execute();
 
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
 }
 
 
-void HorizonSection::turnOnWireframe( int res )
+void HorizonSection::turnOnWireframe( int res, TaskRunner* tr )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     
     HorizonSectionTile** tileptrs = tiles_.getData();
     const int tilesz = tiles_.info().getTotalSz();
-   
-    ObjectSet<SequentialTask> tasks; 
-    for ( int idx=0; idx<tilesz; idx++ )
-    {
-	if ( tileptrs[idx] ) 
-	    tasks += new HorSectTileWireframeUpdater( *tileptrs[idx], res );
-    }
+  
+    HorSectTileWireframeUpdater task( tileptrs, res, tilesz );
+    if ( tr )
+	tr->execute( task );
+    else
+	task.execute();
 
-    ParallelTask::twm().addWork( tasks );
-    deepErase( tasks );
 }
 
 
@@ -1163,6 +1158,7 @@ bool HorizonSection::usesWireframe() const
 int HorizonSectionTile::spacing_[] = { 1, 2, 4, 8, 16, 32 };
 int HorizonSectionTile::normalstartidx_[] = { 0, 4096, 5185, 5474, 5555, 5580 };
 int HorizonSectionTile::nrcells_[] = { 4096, 1024, 256, 64, 16, 4 };
+int HorizonSectionTile::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
 
 
 HorizonSectionTile::HorizonSectionTile()
@@ -1174,14 +1170,13 @@ HorizonSectionTile::HorizonSectionTile()
     , gluelowdimswitch_( new SoSwitch )					
     , gluetriangles_( new SoIndexedTriangleStripSet )
     , gluelines_( new SoIndexedLineSet )
-    , glueneedsretesselation_( false )
+    , glueneedsretesselation_( true )
     , gluepoints_( new SoDGBIndexedPointSet )
     , desiredresolution_( -1 )
     , resolutionhaschanged_( false )
     , bboxstart_( Coord3::udf() )				    
     , bboxstop_( Coord3::udf() )				   
     , needsupdatebbox_( false )
-    , maxspacing_( 32 )			     
     , usewireframe_( false )
     , wireframematerial_( 0 )			   
     , wireframetexture_( visBase::Texture2::create() )		  
@@ -1190,6 +1185,10 @@ HorizonSectionTile::HorizonSectionTile()
     root_->ref();
     coords_->ref();
     normals_->ref();
+    normals_->vector.setNum( mTotalNormalSize );
+    for ( int idx=0; idx<mTotalNormalSize; idx++ )
+	normals_->vector.set1Value(idx, SbVec3f(0,0,-1) );
+
     wireframetexture_->ref();
 
     root_->addChild( coords_->getInventorNode() );
@@ -1208,7 +1207,8 @@ HorizonSectionTile::HorizonSectionTile()
     root_->addChild( resswitch_ );
     for ( int idx=0; idx<mHorSectNrRes; idx++ )
     {
-	needsretesselation_[idx] = false;
+	allnormalsinvalid_[idx] = true;
+	needsretesselation_[idx] = true;
 	resolutions_[idx] = new SoGroup;
 	resswitch_->addChild( resolutions_[idx] );
 
@@ -1237,7 +1237,7 @@ HorizonSectionTile::HorizonSectionTile()
     for ( int idx=0; idx<9; idx++ )
 	neighbors_[idx] = 0;
 
-    setTextureSize( mTileSideSize, mTileSideSize );
+    setTextureSize( mNrCoordsPerTileSide, mNrCoordsPerTileSide );
     useWireframe( usewireframe_ );
 }
 
@@ -1307,14 +1307,12 @@ void HorizonSectionTile::setNormal( int index, const Coord3& norm )
 int HorizonSectionTile::getNormalIdx( int crdidx, int res ) const
 {
     //Normals size = 64*64+33*33+17*17+9*9+5*5+3*3
-    if ( crdidx<0 || res<0 || res>=mHorSectNrRes )
+    if ( crdidx<0 || res<0 )
 	return -1;
 
     //Index in the 64*64 tile
-    const int row = crdidx/mTileSideSize;
-    const int col = crdidx%mTileSideSize;
-    if ( row>mTileLastIdx )
-    	return -1;
+    const int row = crdidx/mNrCoordsPerTileSide;
+    const int col = crdidx%mNrCoordsPerTileSide;
 
     int useres = res;
     if ( row==mTileLastIdx || col==mTileLastIdx )
@@ -1329,21 +1327,21 @@ int HorizonSectionTile::getNormalIdx( int crdidx, int res ) const
 	if ( useres==-1 )
 	    useres = res;
     }
-    
+   
     if ( (!(row%spacing_[useres]) || row==mTileLastIdx) &&
          (!(col%spacing_[useres]) || col==mTileLastIdx) )
     {
 	if ( row==mTileLastIdx && col==mTileLastIdx && !neighbors_[8] )
 	    return useres<5 ? normalstartidx_[useres+1]-1 :normalstartidx_[5]+8;
-	
-    	const int nrsideknots = mTileLastIdx/spacing_[useres] +
-	    ( useres==0 ? 1 : 2 );
-	const int resrow = row/spacing_[useres] +
-	    ( useres>0 && row==mTileLastIdx ? 1 : 0 );
-	const int rescol = col/spacing_[useres] +
-	    ( useres>0 && col==mTileLastIdx ? 1 : 0 );
-	
-	return normalstartidx_[useres]+resrow*nrsideknots+rescol;
+	else
+	{
+    	    const int resrow = row/spacing_[useres] + 
+		( useres>0 && row==mTileLastIdx ? 1 : 0 );
+    	    const int rescol = col/spacing_[useres] +
+    		( useres>0 && col==mTileLastIdx ? 1 : 0 );
+
+    	   return normalstartidx_[useres]+resrow*normalsidesize_[useres]+rescol;
+	}
     }
 
     return -1;
@@ -1364,10 +1362,24 @@ void HorizonSectionTile::tesselateActualResolution()
 }
 
 
-void HorizonSectionTile::setResolution( int rs )
-{
-    desiredresolution_ = rs;
-}
+void HorizonSectionTile::getNormalUpdateList( int res, TypeSet<int>& result )
+{ result = invalidnormals_[res]; }
+
+
+void HorizonSectionTile::removeInvalidNormals( int res )
+{ invalidnormals_[res].erase(); }
+
+
+void HorizonSectionTile::setAllNormalsInvalid( int res, bool yn )
+{ allnormalsinvalid_[res] = yn; }
+
+
+bool HorizonSectionTile::allNormalsInvalid( int res ) const
+{ return allnormalsinvalid_[res]; }
+
+
+void HorizonSectionTile::setResolution( int res )
+{ desiredresolution_ = res; }
 
 
 int HorizonSectionTile::getActualResolution() const
@@ -1382,19 +1394,18 @@ int HorizonSectionTile::getActualResolution() const
 
 void HorizonSectionTile::updateAutoResolution( SoState* state )
 {
-    int newres = desiredresolution_;
-    
-    if ( state )
-    {
-	updateBBox();
-	const SbBox3f bbox = getBBox();
-	if ( bbox.isEmpty() || SoCullElement::cullTest(state, bbox, true ) )
-	    newres = -1;
-	else if ( desiredresolution_==-1 )
-	    newres = getAutoResolution( state );
-    }
-    
-    setActualResolution( newres );
+     int newres = desiredresolution_;
+     if ( newres==-1 && state )
+     {
+	 updateBBox();
+	 const SbBox3f bbox = getBBox();
+	 if ( bbox.isEmpty() || SoCullElement::cullTest(state, bbox, true ) )
+	     newres = -1;
+	 else if ( desiredresolution_==-1 )
+	     newres = getAutoResolution( state );
+     }
+
+     setActualResolution( newres );
 }
 
 
@@ -1524,7 +1535,7 @@ if ( !isstripterminated ) \
 #define m22 8
 
 #define mNrBlocks( res) \
-    mTileLastIdx/spacing_[res] + (mTileLastIdx%spacing_[res] ? 0 : -1)
+    mTileSideSize/spacing_[res] + (mTileSideSize%spacing_[res] ? 0 : -1)
 
 
 void HorizonSectionTile::tesselateResolution( int res )
@@ -1536,21 +1547,21 @@ void HorizonSectionTile::tesselateResolution( int res )
 
     for ( int ridx=0; ridx<=nrmyblocks; ridx++ )
     {
-	int ci11 = spacing_[res]*ridx*mTileSideSize;
-	int ci21 = ci11 + spacing_[res]*mTileSideSize;
+	int ci11 = spacing_[res]*ridx*mNrCoordsPerTileSide;
+	int ci21 = ci11 + spacing_[res]*mNrCoordsPerTileSide;
 
 	bool nbdef[] = { false, false, false,		// 00   01     02
 	    		 false, false, false,		// 10   11(me) 12
 			 false, false, false };		// 20   21     22
 
 	root_->lock.readLock();
-	nbdef[m11] = coords_->getPos(ci11).isDefined();
-	nbdef[m21] = ridx!=nrmyblocks ? coords_->getPos(ci21).isDefined()
+	nbdef[m11] = coords_->isDefined(ci11);
+	nbdef[m21] = ridx!=nrmyblocks ? coords_->isDefined(ci21)
 					: false;
 	if ( ridx )
 	{
-	    int ci01 = ci11 - spacing_[res]*mTileSideSize;
-	    nbdef[m01] = coords_->getPos(ci01).isDefined();
+	    int ci01 = ci11 - spacing_[res]*mNrCoordsPerTileSide;
+	    nbdef[m01] = coords_->isDefined(ci01);
 	}
 	root_->lock.readUnlock();
 
@@ -1561,13 +1572,13 @@ void HorizonSectionTile::tesselateResolution( int res )
 	    const int ci22 = ci21 + spacing_[res];
 	    
 	    root_->lock.readLock();
-	    nbdef[m12] = cidx!=nrmyblocks ? coords_->getPos(ci12).isDefined()
+	    nbdef[m12] = cidx!=nrmyblocks ? coords_->isDefined(ci12)
 					    : false;
 	    nbdef[m22] = (cidx==nrmyblocks || ridx==nrmyblocks) ? 
-		false : coords_->getPos(ci22).isDefined();
+		false : coords_->isDefined(ci22);
 	    
-	    int ci02 = ci12 - spacing_[res]*mTileSideSize;
-	    nbdef[m02] = ridx ? coords_->getPos(ci02).isDefined() : false;
+	    int ci02 = ci12 - spacing_[res]*mNrCoordsPerTileSide;
+	    nbdef[m02] = ridx ? coords_->isDefined(ci02) : false;
 	    root_->lock.readUnlock();
 
 	    const int defsum = nbdef[m11]+nbdef[m12]+nbdef[m21]+nbdef[m22];
@@ -1674,8 +1685,8 @@ void HorizonSectionTile::turnOnWireframe( int res )
 	wireframeswitch_[idx]->whichChild = (usewireframe_ && idx==res) ? 0 : 1;
     }
 
-    gluelowdimswitch_->whichChild = (usewireframe_ && res!=-1) ? 
-				    SO_SWITCH_NONE : SO_SWITCH_ALL;
+    gluelowdimswitch_->whichChild = 
+	(usewireframe_ && res!=-1) ? SO_SWITCH_NONE : SO_SWITCH_ALL;
 }
 
 
@@ -1700,34 +1711,35 @@ void HorizonSectionTile::setWireframe( int res )
 	return;
     }
 
-    const int tilesz = mTileLastIdx/spacing_[res] + 
-		     ( mTileLastIdx%spacing_[res] ? 1 : 0 );
+    const int tilesz = mTileSideSize/spacing_[res] + 
+		     ( mTileSideSize%spacing_[res] ? 1 : 0 );
     int lnidx = 0;
     for ( int idx=0; idx<=tilesz; idx++ )
     {
-	const int rowstartidx = idx<tilesz ? idx*spacing_[res]*mTileSideSize
-	    				   : mTileSideSize*mTileLastIdx; 
+	const int rowstartidx = 
+	     idx<tilesz ? idx*spacing_[res]*mNrCoordsPerTileSide
+			: mNrCoordsPerTileSide*mTileSideSize; 
 	for ( int idy=0; idy<=tilesz; idy++ )
 	{
-	    const int colshift = idy<tilesz ? idy*spacing_[res] : mTileLastIdx;
+	    const int colshift = idy<tilesz ? idy*spacing_[res] : mTileSideSize;
 	    const int ci0 = rowstartidx + colshift;
-	    if ( !coords_->getPos(ci0).isDefined() ) 
+	    if ( !coords_->isDefined(ci0) ) 
 		continue;
 
 	    if ( idy<tilesz )
 	    {
-    		const int nexthorci = idy==tilesz-1 ? rowstartidx+mTileLastIdx 
+    		const int nexthorci = idy==tilesz-1 ? rowstartidx+mTileSideSize 
 						    : ci0 + spacing_[res];
-    		if ( coords_->getPos( nexthorci ).isDefined() )
+    		if ( coords_->isDefined( nexthorci ) )
 		    mAddWireframeIndex( ci0, nexthorci );
 	    }
 
 	    if ( idx<tilesz )
 	    {		
     		const int nextvertci = idx==tilesz-1 
-    		    ? mTileSideSize*mTileLastIdx+colshift 
-    		    : ci0 + spacing_[res]*mTileSideSize;
-		if ( coords_->getPos( nextvertci ).isDefined() )
+    		    ? mNrCoordsPerTileSide*mTileSideSize+colshift 
+    		    : ci0 + spacing_[res]*mNrCoordsPerTileSide;
+		if ( coords_->isDefined( nextvertci ) )
 		    mAddWireframeIndex( ci0, nextvertci );
 	    }
 	}
@@ -1741,9 +1753,6 @@ void HorizonSectionTile::setWireframe( int res )
 
 void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
 {
-    if ( nbidx<0 || nbidx>8 || nbidx==4 )
-	return;
-
     if ( (nbidx==5 || nbidx==7 || nbidx==8 ) && neighbors_[nbidx]!=nb )
 	glueneedsretesselation_ = true;
 
@@ -1753,38 +1762,84 @@ void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
 
 void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 {
-    if ( row<0 || row>mTileLastIdx || 
-	 col<0 || col>mTileLastIdx )
-	return;
-
-    const int posidx = row*mTileSideSize+col;
-
-    const bool posdefined = pos.isDefined();
-    const bool oldposdefined = coords_->isDefined( posidx );
-
-    if ( (posdefined && !oldposdefined) || (!posdefined && oldposdefined) )
+    if ( row>=0 && row<mNrCoordsPerTileSide && 
+	 col>=0 && col<mNrCoordsPerTileSide )
     {
-	for ( int res=0; res<mHorSectNrRes; res++ )
-	{
-	    if ( !needsretesselation_[res] )
-	    {
-		if ( !(row % spacing_[res]) && !(col % spacing_[res]) )
-		    needsretesselation_[res] = true;
-	    }
-	}
+	const int posidx = row*mNrCoordsPerTileSide+col;
+	const char oldnewdefined = 
+	    coords_->isDefined(posidx) + pos.isDefined();
+	coords_->setPos( posidx, pos );
 
-	glueneedsretesselation_ = true;
-	needsupdatebbox_ = true;
+	if ( !oldnewdefined ) return;
+
+	if ( oldnewdefined==1 )
+	{
+	    for ( int res=0; res<mHorSectNrRes; res++ )
+	    {
+		if ( !needsretesselation_[res] )
+		{
+		    if ( !(row % spacing_[res]) && !(col % spacing_[res]) )
+			needsretesselation_[res] = true;
+		}
+	    }
+
+	    glueneedsretesselation_ = true;
+	    needsupdatebbox_ = true;
+	}
     }
 
-    coords_->setPos( posidx, pos );
+    setInvalidNormals( row, col );
+}
+
+
+void HorizonSectionTile::setInvalidNormals( int row, int col )
+{ 
+    for ( int res=0; res<mHorSectNrRes; res++ )
+    {
+	if ( allnormalsinvalid_[res] )
+	{
+	    invalidnormals_[res].erase();
+	    continue;
+	}
+
+	int rowstart = row-spacing_[res];
+	if ( rowstart>mTileSideSize ) continue;
+	if ( rowstart<0 ) rowstart = 0;
+
+	int rowstop = row+spacing_[res];
+	if ( rowstop<0 ) continue;
+	if ( rowstop>mTileSideSize ) rowstop = mTileLastIdx;
+
+	for ( int rowidx=rowstart; rowidx<=rowstop; rowidx++ )
+	{
+	    if ( rowidx%spacing_[res] && rowidx!=mTileLastIdx ) continue;
+	    const int nmrow = rowidx==mTileLastIdx ? normalsidesize_[res]-1 
+						   : rowidx/spacing_[res];
+
+	    int colstart = col-spacing_[res];
+	    if ( colstart>mTileSideSize ) continue;
+	    if ( colstart<0 ) colstart = 0;
+
+	    int colstop = col+spacing_[res];
+	    if ( colstop<0 ) continue;
+	    if ( colstop>mTileSideSize ) colstop = mTileLastIdx;
+
+	    for ( int colidx=colstart; colidx<=colstop; colidx++ )
+	    {
+		if ( colidx%spacing_[res] && colidx!=mTileLastIdx ) continue;
+		const int nmcol = colidx==mTileLastIdx ? normalsidesize_[res]-1
+						       : colidx/spacing_[res];
+		invalidnormals_[res].addIfNew( 
+			normalstartidx_[res]+nmrow*normalsidesize_[res]+nmcol );
+	    }
+	}
+    }
 }
 
 
 void HorizonSectionTile::updateGlue()
 {
-    if ( glueneedsretesselation_ ||
-	 resolutionhaschanged_ ||
+    if ( glueneedsretesselation_ || resolutionhaschanged_ ||
 	 (neighbors_[5] && neighbors_[5]->resolutionhaschanged_) ||
 	 (neighbors_[7] && neighbors_[7]->resolutionhaschanged_) ||
 	 (neighbors_[8] && neighbors_[8]->resolutionhaschanged_) )
@@ -1798,9 +1853,9 @@ void HorizonSectionTile::updateGlue()
 #define mAddGlueIndices( i0, i1, i2 ) \
 { \
     root_->lock.readLock(); \
-    const bool df0 = coords_->getPos(i0).isDefined(); \
-    const bool df1 = coords_->getPos(i1).isDefined(); \
-    const bool df2 = coords_->getPos(i2).isDefined(); \
+    const bool df0 = coords_->isDefined(i0); \
+    const bool df1 = coords_->isDefined(i1); \
+    const bool df2 = coords_->isDefined(i2); \
     root_->lock.readUnlock(); \
     const int dfsum = df0 + df1 + df2; \
     if ( dfsum==1 ) \
@@ -1835,11 +1890,14 @@ void HorizonSectionTile::tesselateGlue()
 	const int nrmyblocks = mNrBlocks( res );	
 	TypeSet<int> edgeindices; //Get all my own edge knot indices 
 	for ( int idx=0; idx<2*(nrmyblocks+1); idx++ )
+	{
 	    edgeindices += ( idx<=nrmyblocks 
-		? spacing_[res]*(nrmyblocks+idx*mTileSideSize) 
-		: spacing_[res]*(mTileSideSize*nrmyblocks+idx-nrmyblocks-1) );
+		? spacing_[res]*(nrmyblocks+idx*mNrCoordsPerTileSide) 
+		: spacing_[res]*(mNrCoordsPerTileSide*nrmyblocks+idx-
+		    		 nrmyblocks-1) );
+	}
 
-	for ( int nb=5; nb<8; nb += 2 )
+	for ( int nb=5; nb<8; nb += 2 )//Only consider neighbor 5 and 7
 	{
 	    int nbres = neighbors_[nb] ? neighbors_[nb]->getActualResolution() 
 				       : res; 
@@ -1847,8 +1905,11 @@ void HorizonSectionTile::tesselateGlue()
 	    const int nbblocks = mNrBlocks( nbres ); 
 	    TypeSet<int> nbindices; 
 	    for ( int idx=0; idx<=nbblocks; idx++ ) 
-		nbindices += (nb==5 ? (1+idx*spacing_[nbres])*mTileSideSize-1
-			   : mTileSideSize*mTileLastIdx+idx*spacing_[nbres]);
+	    {
+		nbindices += 
+		    (nb==5 ? (1+idx*spacing_[nbres])*mNrCoordsPerTileSide-1
+		     : mNrCoordsPerTileSide*mTileSideSize+idx*spacing_[nbres]);
+	    }
 
 	    const bool  highres = nrmyblocks >= nbblocks;
 	    const int highstartidx = highres ? (nb==5 ? 0 : nrmyblocks+1) : 0;
@@ -1864,7 +1925,18 @@ void HorizonSectionTile::tesselateGlue()
 		int i1 = highres ? nbindices[lowresidx] : nbindices[idx]; 
 		int i2 = highres ? edgeindices[idx+1] : nbindices[idx+1]; 
 		if ( nb==7 ) mAddGlueIndices( i0, i1, i2 ) 
-		if ( nb==5 ) mAddGlueIndices( i0, i2, i1 )     
+		if ( nb==5 ) 
+		{
+		    mAddGlueIndices( i0, i2, i1 );
+		    if ( !idx )
+		    {
+			if ( highres && nbblocks )
+			    mAddGlueIndices( i1, i2, nbindices[1] )
+			else if ( !highres && nrmyblocks )
+			    mAddGlueIndices( i0, edgeindices[1], i2 )
+		    }
+		}
+
 		skipped++;
 
 		if ( skipped%nrconns && idx-highstartidx+1!=nrconns/2 ) 
@@ -1884,12 +1956,12 @@ void HorizonSectionTile::tesselateGlue()
 	    if ( nb==5 )	    
 	    {
 		mAddGlueIndices( nbindices[nbblocks], edgeindices[nrmyblocks], 
-				 mTileSideSize*mTileSideSize-1 ); 
+				 mTotalNrCoordsPerTile-1 );
 	    }
 	    else if ( nb==7 )
 	    {
 		mAddGlueIndices( edgeindices[nrmyblocks], nbindices[nbblocks],
-				 mTileSideSize*mTileSideSize-1 ); 
+				 mTotalNrCoordsPerTile-1 ); 
 	    }
 	}
     }
@@ -1906,10 +1978,6 @@ void HorizonSectionTile::tesselateGlue()
     gluepoints_->normalIndex.deleteValues( ptidx, -1 );
     root_->lock.writeUnlock();
 }
-
-
-void HorizonSectionTile::setMaxSpacing( int spacing )
-{ maxspacing_ = spacing; }
 
 
 void HorizonSectionTile::setTextureSize( int rowsz, int colsz )
