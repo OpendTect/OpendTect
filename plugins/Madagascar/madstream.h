@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.6 2008-05-13 13:58:51 cvsbert Exp $
+ * ID       : $Id: madstream.h,v 1.7 2009-06-02 16:21:04 cvshelene Exp $
 -*/
 
 
@@ -36,7 +36,8 @@ public:
     bool			getNextTrace(float*);
     int				getNrSamples() const;
     bool			putHeader(std::ostream&);
-    bool			writeTraces();
+    bool			writeTraces(bool writetofile=true);
+    SeisTrcBuf*			getTrcBuf() const	{ return stortrcbuf_; }
 
     bool			isOK() const;
     const char*			errMsg() const;
@@ -60,6 +61,7 @@ protected:
 
     BinID			curbid_;
     SeisTrcBuf*			trcbuf_;
+    SeisTrcBuf*			stortrcbuf_;
     PosInfo::CubeDataIterator*	iter_;
     PosInfo::Line2DData*	l2ddata_;
     int				nroffsets_;
@@ -70,7 +72,7 @@ protected:
     void			fillHeaderParsFromStream();
     void			fillHeaderParsFromSeis();
     void			fillHeaderParsFromPS(const Seis::SelData*);
-    bool			write2DTraces();
+    bool			write2DTraces(bool);
     bool			getNextPos(BinID&);
     BufferString		getPosFileName(bool forread=false) const;
 };

@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.15 2009-02-16 17:10:35 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.16 2009-06-02 16:21:04 cvshelene Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -54,6 +54,7 @@ MadStream::MadStream( IOPar& par )
     , seisrdr_(0),seiswrr_(0)
     , psrdr_(0),pswrr_(0)
     , trcbuf_(0),curtrcidx_(-1)
+    , stortrcbuf_(0)
     , iter_(0),l2ddata_(0)
     , headerpars_(0)
     , errmsg_(*new BufferString(""))
@@ -191,6 +192,7 @@ MadStream::~MadStream()
     delete psrdr_; delete pswrr_;
     delete trcbuf_; delete iter_; delete l2ddata_;
     delete errmsg_;
+    if ( stortrcbuf_ ) delete  stortrcbuf_;
 }
 
 
@@ -580,13 +582,13 @@ bool MadStream::getNextTrace( float* arr )
 	    sp.remove(); \
     }
 
-bool MadStream::writeTraces()
+bool MadStream::writeTraces( bool writetofile )
 {
-    if ( ( isps_ && !pswrr_ ) || ( !isps_ && !seiswrr_ ) )
+    if ( writetofile && ( ( isps_ && !pswrr_ ) || ( !isps_ && !seiswrr_ ) ) )
 	mErrBoolRet( "Cannot initialize writing" );
 
     if ( is2d_ )
-	return write2DTraces();
+	return write2DTraces( writetofile );
 
     int inlstart=0, crlstart=1, inlstep=1, crlstep=1, nrinl=1, nrcrl, nrsamps;
     int firstoffset=0, nrtrcsperbinid=1, nrbinids=0;
@@ -641,17 +643,31 @@ bool MadStream::writeTraces()
 		for ( int trcidx=1; trcidx<=nrtrcsperbinid; trcidx++ )
 		{
 		    std::cin.read( (char*)buf, nrsamps*sizeof(float) );
-		    SeisTrc trc( nrsamps );
-		    trc.info().sampling = sd;
-		    trc.info().binid = BinID( inl, crl );
-		    if ( isps_ ) trc.info().nr = trcidx;
+		    SeisTrc* trc = new SeisTrc( nrsamps );
+		    trc->info().sampling = sd;
+		    trc->info().binid = BinID( inl, crl );
+		    if ( isps_ ) trc->info().nr = trcidx;
 
 		    for ( int isamp=0; isamp<nrsamps; isamp++ )
-			trc.set( isamp, buf[isamp], 0 );
+			trc->set( isamp, buf[isamp], 0 );
 
-		    if ( ( isps_ && !pswrr_->put (trc) )
-			|| ( !isps_ && !seiswrr_->put (trc) ) )
-		    { delete [] buf; mErrBoolRet("Cannot write trace"); }
+		    if ( writetofile )
+		    {
+			if ( ( isps_ && !pswrr_->put (*trc) )
+			    || ( !isps_ && !seiswrr_->put(*trc) ) )
+			{ 
+			    delete [] buf; delete trc;
+			    mErrBoolRet("Cannot write trace");
+			}
+			delete trc;
+		    }
+		    else
+		    {
+			if ( !stortrcbuf_ )
+			    stortrcbuf_ = new SeisTrcBuf( true );
+
+			stortrcbuf_->add( trc );
+		    }
 		}
 	    }
 	}
@@ -662,7 +678,7 @@ bool MadStream::writeTraces()
 }
 
 
-bool MadStream::write2DTraces()
+bool MadStream::write2DTraces( bool writetofile )
 {
     PosInfo::Line2DData geom;
     bool haspos = false;
@@ -694,18 +710,32 @@ bool MadStream::write2DTraces()
 	for ( int offidx=1; offidx<=nroffsets; offidx++ )
 	{
 	    std::cin.read( (char*)buf, nrsamps*sizeof(float) );
-	    SeisTrc trc( nrsamps );
-	    trc.info().sampling = sd;
-	    trc.info().coord = geom.posns_[idx].coord_;
-	    trc.info().binid.crl = trcnr;
-	    trc.info().nr = trcnr;
+	    SeisTrc* trc = new SeisTrc( nrsamps );
+	    trc->info().sampling = sd;
+	    trc->info().coord = geom.posns_[idx].coord_;
+	    trc->info().binid.crl = trcnr;
+	    trc->info().nr = trcnr;
 
 	    for ( int isamp=0; isamp<nrsamps; isamp++ )
-		trc.set( isamp, buf[isamp], 0 );
+		trc->set( isamp, buf[isamp], 0 );
 
-	    if ( ( isps_ && !pswrr_->put (trc) )
-		    || ( !isps_ && !seiswrr_->put (trc) ) )
-	    { delete [] buf; mErrBoolRet("Error writing traces"); }
+	    if ( writetofile )
+	    {
+		if ( ( isps_ && !pswrr_->put (*trc) )
+			|| ( !isps_ && !seiswrr_->put(*trc) ) )
+		{
+		    delete [] buf; delete trc;
+		    mErrBoolRet("Error writing traces");
+		}
+		delete trc;
+	    }
+	    else
+	    {
+		if ( !stortrcbuf_ )
+		    stortrcbuf_ = new SeisTrcBuf( true );
+
+		stortrcbuf_->add( trc );
+	    }
 	}
     }
 
