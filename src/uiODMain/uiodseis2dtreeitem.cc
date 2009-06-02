@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.61 2009-05-27 03:22:56 cvskris Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.62 2009-06-02 09:38:19 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -40,6 +40,9 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.61 2009-05-27 03:22:5
 #include "survinfo.h"
 #include "viscolortab.h"
 
+
+static const char* sKeyUnselected = "<Unselected>";
+static const char* sKeyRightClick = "<right-click>";
 
 uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()
     : uiODTreeItem("2D Seismics" )
@@ -87,7 +90,7 @@ uiTreeItem* Seis2DTreeItemFactory::create( int visid,
     uiTreeItem* linesetitm = treeitem->findChild( linesetname );
     if ( linesetitm )
     {
-	linesetitm->addChild( newsubitm, true);
+	linesetitm->addChild( newsubitm, true );
 	return 0;
     }
 
@@ -107,7 +110,9 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , addattritm_("Add A&ttribute")
     , removeattritm_("Re&move Attribute")
     , editattritm_("&Edit Attribute")
-    , editcoltabitm_("Edit Color Settings")
+    , editcoltabitm_("Edit &Color Settings")
+    , showattritm_("Sho&w Attribute")
+    , hideattritm_("&Hide Attribute")
     , showitm_("&Show all")
     , hideitm_("&Hide all")
     , showlineitm_("&Lines")
@@ -205,7 +210,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 	{
 	    const Attrib::SelSpec* ds =
 			    applMgr()->visServer()->getSelSpec( id, adx );
-	    BufferString attribname = "<Unselected>";
+	    BufferString attribname = sKeyUnselected;
 	    if ( ds && ds->userRef() && *ds->userRef() )
 		attribname = ds->userRef();
 
@@ -226,7 +231,12 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
     {
 	editattritm_.createItems( displayedattribs );
 	mAddMenuItem( menu, &editattritm_, true, false );
-	const int emptyidx = displayedattribs.indexOf( "<Unselected>" );
+	showattritm_.createItems( displayedattribs );
+	mAddMenuItem( menu, &showattritm_, true, false );
+	hideattritm_.createItems( displayedattribs );
+	mAddMenuItem( menu, &hideattritm_, true, false );
+
+	const int emptyidx = displayedattribs.indexOf( sKeyUnselected );
 	if ( emptyidx<0 || displayedattribs.size()>1 )
 	{
 	    removeattritm_.createItems( displayedattribs );
@@ -267,6 +277,8 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &zrgitm_ );
 	mResetMenuItem( &addattritm_ );
 	mResetMenuItem( &removeattritm_ );
+	mResetMenuItem( &showattritm_ );
+	mResetMenuItem( &hideattritm_ );
 	mResetMenuItem( &showitm_ );
 	mResetMenuItem( &showlineitm_ );
 	mResetMenuItem( &showlblitm_ );
@@ -353,7 +365,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	const int itmidx = editattritm_.itemIndex( mnuid );
 	BufferString curnm = editattritm_.getItem(itmidx)->text;
-	const char* attribnm = curnm=="<Unselected>" ? "<right-click>"
+	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
 	    					     : curnm.buf();
 	const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( true );
 	uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, attribnm );
@@ -395,6 +407,20 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	const char* attribnm = removeattritm_.getItem(itmidx)->text;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	    ((uiOD2DLineSetSubItem*)children_[idx])->removeAttrib( attribnm );
+    }
+    else if ( showattritm_.itemIndex(mnuid)!=-1 ||
+	      hideattritm_.itemIndex(mnuid)!=-1 )
+    {
+	menu->setIsHandled( true );
+	const bool show = showattritm_.itemIndex(mnuid)!=-1;
+	MenuItem& attritm = show ? showattritm_ : hideattritm_;
+	const int itmidx = attritm.itemIndex( mnuid );
+	BufferString curnm = attritm.getItem(itmidx)->text;
+	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
+	    					     : curnm.buf();
+	ObjectSet<uiTreeItem> itms; findChildren( attribnm, itms );
+	for ( int idx=0; idx<itms.size(); idx++ )
+	    itms[idx]->setChecked( show, true );
     }
     else if ( mnuid==removeitm_.id )
     {
@@ -712,8 +738,8 @@ void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
 void uiOD2DLineSetSubItem::removeAttrib( const char* attribnm )
 {
     BufferString itemnm = attribnm;
-    if ( itemnm == "<Unselected>" )
-	itemnm = "<right-click>";
+    if ( itemnm == sKeyUnselected )
+	itemnm = sKeyRightClick;
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {

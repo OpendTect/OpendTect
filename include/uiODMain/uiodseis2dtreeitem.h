@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.13 2009-04-16 08:45:40 cvshelene Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.14 2009-06-02 09:38:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -73,6 +73,8 @@ protected:
     MenuItem            steeringitm_;
     MenuItem            storeditm_;
     MenuItem            coltabselitm_;
+    MenuItem		showattritm_;
+    MenuItem		hideattritm_;
 };
 
 
