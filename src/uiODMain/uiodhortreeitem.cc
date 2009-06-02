@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.27 2009-05-22 01:04:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.28 2009-06-02 13:32:30 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -60,6 +60,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	mnu.insertSeparator();
 	mnu.insertItem( new uiMenuItem("&Display all only at sections"), 2 );
 	mnu.insertItem( new uiMenuItem("&Show all in full"), 3 );
+	mnu.insertItem( new uiMenuItem("Sort"), 4 );
     }
 
     addStandardItems( mnu );
@@ -70,7 +71,11 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false ); 
 	for ( int idx=0; idx<objs.size(); idx++ )
-	    addChild( new uiODHorizonTreeItem(objs[idx]->id()), false );
+	{
+	    uiODHorizonTreeItem* itm =
+		new uiODHorizonTreeItem( objs[idx]->id() );
+	    addChild( itm, false, false );
+	}
 
 	deepUnRef( objs );
     }
@@ -101,10 +106,56 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    }
 	}
     }
+    else if ( mnuid==4 )
+	sort();
     else
 	handleStandardItems( mnuid );
 
     return true;
+}
+
+
+uiTreeItem* gtItm( const MultiID& mid, ObjectSet<uiTreeItem>& itms )
+{
+    for ( int idx=0; idx<itms.size(); idx++ )
+    {
+	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,itms[idx])
+	const EM::ObjectID emid = itm && itm->visEMObject() ?
+		     itm->visEMObject()->getObjectID() : -1;
+	if ( mid == EM::EMM().getMultiID(emid) )
+	    return itms[idx];
+    }
+
+    return 0;
+}
+
+
+void uiODHorizonParentTreeItem::sort()
+{
+    TypeSet<MultiID> sortedmids;
+    EM::EMM().sortedHorizonsList( sortedmids, false );
+    uiTreeItem* previtm = 0;
+    for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
+    {
+	uiTreeItem* itm = gtItm( sortedmids[idx], children_ );
+	if ( !itm ) continue;
+
+	if ( !previtm )
+	    itm->moveItemToTop();
+	else
+	    itm->moveItem( previtm );
+
+	previtm = itm;
+    }
+}
+
+
+bool uiODHorizonParentTreeItem::addChild( uiTreeItem* child, bool below,
+					  bool downwards )
+{
+    bool res = uiTreeItem::addChild( child, below, downwards );
+    if ( res ) sort();
+    return res;
 }
 
 
@@ -122,16 +173,16 @@ uiTreeItem* uiODHorizonTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 // uiODHorizonTreeItem
 
-uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& mid_ )
-    : uiODEarthModelSurfaceTreeItem( mid_ )
+uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid )
+    : uiODEarthModelSurfaceTreeItem( emid )
 { initMenuItems(); }
 
 
-uiODHorizonTreeItem::uiODHorizonTreeItem( int id, bool )
+uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool )
     : uiODEarthModelSurfaceTreeItem( 0 )
 {
     initMenuItems();
-    displayid_=id;
+    displayid_ = visid;
 }
 
 
@@ -306,10 +357,13 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
     {
+	TypeSet<MultiID> sortedmids;
+	EM::EMM().sortedHorizonsList( sortedmids, true );
+
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true ); 
 	for ( int idx=0; idx<objs.size(); idx++ )
-	    addChild( new uiODHorizon2DTreeItem(objs[idx]->id()), false );
+	    addChild( new uiODHorizon2DTreeItem(objs[idx]->id()), false, false);
 
 	deepUnRef( objs );
     }
@@ -331,7 +385,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     {
 	uiHor2DFrom3DDlg dlg( getUiParent() );
 	if( dlg.go() && dlg.doDisplay() )
-	    addChild( new uiODHorizon2DTreeItem(dlg.getEMObjID()), true );
+	    addChild( new uiODHorizon2DTreeItem(dlg.getEMObjID()), true, false);
     }
     else if ( mnuid == 3 || mnuid == 4 )
     {
@@ -350,6 +404,35 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	handleStandardItems( mnuid );
 
     return true;
+}
+
+
+void uiODHorizon2DParentTreeItem::sort()
+{
+    TypeSet<MultiID> sortedmids;
+    EM::EMM().sortedHorizonsList( sortedmids, true );
+    uiTreeItem* previtm = 0;
+    for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
+    {
+	uiTreeItem* itm = gtItm( sortedmids[idx], children_ );
+	if ( !itm ) continue;
+
+	if ( !previtm )
+	    itm->moveItemToTop();
+	else
+	    itm->moveItem( previtm );
+
+	previtm = itm;
+    }
+}
+
+
+bool uiODHorizon2DParentTreeItem::addChild( uiTreeItem* child, bool below,
+					    bool downwards )
+{
+    bool res = uiTreeItem::addChild( child, below, downwards );
+    if ( res ) sort();
+    return res;
 }
 
 
