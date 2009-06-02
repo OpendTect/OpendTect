@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.48 2009-01-20 10:29:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.49 2009-06-02 09:40:41 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -208,9 +208,11 @@ void uiTreeItem::moveItemToTop()
     {
 	uiListViewItem* item = getItem();
 	const bool issel = item->isSelected();
+	const bool isopen = item->isOpen();
 	parent_->getItem()->takeItem( item );
 	parent_->getItem()->insertItem( 0, item );
 	item->setSelected( issel );
+	item->setOpen( isopen );
     }
     mEnabSelChg( true )
 }
