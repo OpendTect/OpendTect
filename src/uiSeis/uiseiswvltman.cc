@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.37 2009-05-28 09:44:24 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.38 2009-06-02 13:18:41 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -50,6 +50,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 
     selgrp->getManipGroup()->addButton( "wvltfromothsurv.png",
 	mCB(this,uiSeisWvltMan,getFromOtherSurvey), "Get from other survey" );
+    selgrp->getManipGroup()->addButton( "revpol.png",
+	mCB(this,uiSeisWvltMan,reversePolarity), "Reverse polarity" );
 
     uiGroup* butgrp = new uiGroup( this, "Imp/Create buttons" );
     uiPushButton* impbut = new uiPushButton( butgrp, "&Import", false );
@@ -216,4 +218,22 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 
     selgrp->fullUpdate( ctio.ioobj->key() );
     mRet( 0 )
+}
+
+
+void uiSeisWvltMan::reversePolarity( CallBacker* )
+{
+    Wavelet* wvlt = Wavelet::get( curioobj_ );
+    if ( !wvlt ) return;
+
+    float* samps = wvlt->samples();
+    for ( int idx=0; idx<wvlt->size(); idx++ )
+	samps[idx] *= -1;
+
+    if ( !wvlt->put(curioobj_) )
+	uiMSG().error("Cannot write new polarity reversed wavelet to disk");
+    else
+	selgrp->fullUpdate( curioobj_->key() );
+
+    delete wvlt;
 }
