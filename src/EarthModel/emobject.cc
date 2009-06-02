@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.93 2009-05-18 10:49:52 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.94 2009-06-02 10:35:56 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -49,6 +49,8 @@ EMObject::EMObject( EMManager& emm )
     , fullyloaded_( false )
     , locked_( false )
     , burstalertcount_( 0 )
+    , insideselremoval_( false )
+    , selremoving_( false )
 {
     static EM::ObjectID oid = 0;
     id_ = oid++;
@@ -486,7 +488,9 @@ void EMObject::removeSelected( const Selector<Coord3>& selector )
 	    }
 	} 
     }
-*/    
+*/  
+    insideselremoval_ = true; 
+    EM::PosID dummypid( EM::PosID::udf() ); 
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
     while ( true )
     {
@@ -498,6 +502,10 @@ void EMObject::removeSelected( const Selector<Coord3>& selector )
 	if ( selector.includes(pos) )
 	{
 	    unSetPos( pid, true );
+	    if ( !selremoving_ )
+		selremoving_ = true;
+	    
+	    dummypid = pid;
 
 	    if ( !pos.isDefined() ||
 		 isPosAttrib(pid, EM::EMObject::sSeedNode()) )
@@ -518,6 +526,17 @@ void EMObject::removeSelected( const Selector<Coord3>& selector )
 	    }
 	}
     }
+    selremoving_ = false;
+    if ( !dummypid.isUdf() )
+    {
+	if ( !burstalertcount_ )
+	{
+	    EMObjectCallbackData cbdata;
+	    cbdata.event = EMObjectCallbackData::PositionChange;		            cbdata.pid0 = dummypid;
+	    change.trigger( cbdata );						        }
+
+    }
+    insideselremoval_ = false;
 }
 
 

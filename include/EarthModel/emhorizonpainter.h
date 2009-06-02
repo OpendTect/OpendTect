@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.2 2009-04-07 11:38:18 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.3 2009-06-02 10:35:22 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,10 @@ public:
     void		displayHorizon(const MultiID&,bool);
     bool		isDisplayed(const MultiID&) const;
 
+    void		set2D(bool yn)		{ is2d_ = yn; }
+    TypeSet<int>&	getTrcNos()		{ return trcnos_; }
+    TypeSet<float>&	getDistances()		{ return distances_; }
+
 protected:
 
     bool		addPolyLine(const EM::ObjectID&);
@@ -52,6 +56,8 @@ protected:
     void		removeHorizon(int);
     void		removePolyLine(int);
     void		updateDisplay();
+    void		repaintHorizon(const EM::ObjectID&);
+
     void		nrHorChangeCB(CallBacker*);
     virtual void	horChangeCB(CallBacker*);
 
@@ -62,9 +68,14 @@ protected:
     FlatView::Viewer&   viewer_;
 
     int			loadinghorcount_;
+    EM::ObjectID	horidtoberepainted_;
 
     TypeSet<EM::ObjectID> horizonids_;
-    ObjectSet<ObjectSet<FlatView::Annotation::AuxData> > markerlines_;    
+    ObjectSet< ObjectSet<ObjectSet<FlatView::Annotation::AuxData> > > 										hormarkerlines_;
+
+    bool		is2d_;
+    TypeSet<int>	trcnos_;
+    TypeSet<float>	distances_;    
 };
 
 }// namespace EM

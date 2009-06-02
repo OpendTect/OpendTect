@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.84 2009-05-07 07:26:10 cvsumesh Exp $
+ RCS:		$Id: emobject.h,v 1.85 2009-06-02 10:35:22 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -205,6 +205,10 @@ public:
     virtual bool		isLocked() const	{ return locked_; }
     virtual void		lock(bool yn)		{ locked_=yn;}
 
+    const bool			isInsideSelRemoval() const
+				{ return insideselremoval_; }
+    const bool			isSelRemoving() const	{ return selremoving_; }
+
     const char*			errMsg() const;
     void			setErrMsg(const char* m) { errmsg_ = m; }
 
@@ -243,6 +247,9 @@ protected:
     bool			fullyloaded_;
     bool			locked_;
     int				burstalertcount_;
+
+    bool			insideselremoval_;
+    bool			selremoving_; 
 
     static const char*		prefcolorstr;
     static const char*		nrposattrstr;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.1 2009-05-29 04:25:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.2 2009-06-02 10:36:29 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.1 2009-05-29 04:25:56 cvsna
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
+#include "attribdataholder.h"
 #include "emhorizonpainter.h"
 #include "emmanager.h"
 #include "horflatvieweditor.h"
@@ -57,17 +58,32 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva, bool isvert )
     const bool isnew = !viewwin_;
     if ( isnew )
 	createViewWin( isvert );
-    
-    Attrib::Flat3DDataPack* dp = 
-		(Attrib::Flat3DDataPack*)DPM(
-			DataPackMgr::FlatID()).obtain( packid, true );
-    if ( dp && ( dp->dataDir()==CubeSampling::Inl ||
-		  dp->dataDir()==CubeSampling::Crl) )
+    bool drawhorizon = false;
+    mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,
+	    		DPM(DataPackMgr::FlatID()).obtain(packid,true))
+    if ( dp3d && dp3d->isVertical() )
     {
-	horpainter_->setCubeSampling( dp->cube().cubeSampling(), true );
-	drawHorizons();
+	horpainter_->setCubeSampling( dp3d->cube().cubeSampling(), true );
+	drawhorizon = true;
+    }
+    else
+    {
+	mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,
+			DPM(DataPackMgr::FlatID()).obtain(packid,true))
+	if( dp2d && dp2d->isVertical() )
+	{
+	    horpainter_->setCubeSampling( dp2d->dataholder().getCubeSampling(),
+		    			  true );
+	    horpainter_->set2D( true );
+	    dp2d->getPosDataTable( horpainter_->getTrcNos(), 
+		    		   horpainter_->getDistances() );
+	    drawhorizon = true;
+	}
     }
 
+    if ( drawhorizon )
+	drawHorizons();
+    
     viewwin_->viewer().setPack( wva, packid, true, !isnew );
     FlatView::DataDispPars& ddp = viewwin_->viewer().appearance().ddpars_;
     (wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
