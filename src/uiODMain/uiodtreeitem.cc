@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.207 2009-05-04 11:15:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.208 2009-06-02 11:46:12 cvsraman Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -180,6 +180,7 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 	{
 	    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
 	    if ( !itm ) continue;
+	    itm->prepareForShutdown();
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    removeChild( itm );
 	}
