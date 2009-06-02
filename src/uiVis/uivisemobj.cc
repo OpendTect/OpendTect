@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.82 2009-05-19 14:27:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.83 2009-06-02 21:40:49 cvsyuancheng Exp $";
 
 #include "uivisemobj.h"
 
@@ -62,6 +62,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
     const MultiID mid = emod->getMultiID();
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
+    
+    uiTaskRunner dlg( uiparent_ );
     if ( !EM::EMM().getObject(emid) )
     {
 	Executor* exec = 0;
@@ -109,7 +111,6 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	    emid = EM::EMM().getObjectID( mid );
 	    EM::EMObject* emobject = EM::EMM().getObject( emid );
 	    emobject->ref();
-	    uiTaskRunner dlg( uiparent_ );
 	    if ( !dlg.execute(*exec) )
 	    {
 		emid = -1;
@@ -124,7 +125,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	}
     }
 
-    if ( !emod->setEMObject(emid) )
+    if ( !emod->setEMObject(emid,&dlg) )
     {
 	if ( scene ) visserv_->removeObject( emod, scene->id() );
 	return;
@@ -172,8 +173,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
     emod->setDataTransform( scene->getDataTransform() );
 
-    MouseCursorChanger cursorchanger(MouseCursor::Wait);
-    if ( !emod->setEMObject(emid) ) mRefUnrefRet
+    uiTaskRunner dlg( uiparent_ );
+    if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
 
     visserv_->addObject( emod, sceneid, true );
     displayid_ = emod->id();

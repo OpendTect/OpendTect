@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.20 2009-05-20 21:40:42 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.21 2009-06-02 21:40:49 cvsyuancheng Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -121,7 +121,7 @@ void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
 }
 
 
-bool Horizon2DDisplay::addSection( const EM::SectionID& sid )
+bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 {
     visBase::IndexedPolyLine3D* pl = visBase::IndexedPolyLine3D::create();
     pl->ref();
@@ -372,9 +372,9 @@ void Horizon2DDisplay::otherObjectsMoved(
 }
 
 
-bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid )
+bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 {
-    if ( !EMObjectDisplay::setEMObject( newid ) )
+    if ( !EMObjectDisplay::setEMObject( newid, tr ) )
 	return false;
 
     getMaterial()->setColor( emobject_->preferredColor() );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.115 2009-05-28 17:27:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.116 2009-06-02 21:40:49 cvsyuancheng Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -207,7 +207,7 @@ EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
 { return EM::PosID(-1,-1,-1); }
 
 
-bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
+bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 {
     EM::EMObject* emobject = em_.getObject( newid );
     if ( !emobject ) return false;
@@ -219,7 +219,7 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
     emobject_->change.notify( mCB(this,EMObjectDisplay,emChangeCB) );
 
     restoresessupdate_ = !editor_ && parmid_!=MultiID(-1);
-    bool res = updateFromEM();
+    bool res = updateFromEM( tr );
     restoresessupdate_ = false;
 
     return res;
@@ -257,14 +257,14 @@ BufferStringSet EMObjectDisplay::displayedSections() const
 }
 
 
-bool EMObjectDisplay::updateFromEM()
+bool EMObjectDisplay::updateFromEM( TaskRunner* tr )
 { 
     if ( !emobject_ ) return false;
 
     setName( emobject_->name() );
 
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
-	addSection( emobject_->sectionID(idx) );
+	addSection( emobject_->sectionID(idx), tr );
 
     updateFromMPE();
 
@@ -449,7 +449,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     {
 	const EM::SectionID sectionid = cbdata.pid0.sectionID();
 	if ( emobject_->sectionIndex(sectionid)>=0 )
-	    addSection( sectionid );
+	    addSection( sectionid, 0 );
 	else
 	{
 	    removeSectionDisplay(sectionid);

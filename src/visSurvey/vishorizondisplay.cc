@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.84 2009-06-02 07:45:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.85 2009-06-02 21:40:49 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -252,9 +252,9 @@ void HorizonDisplay::removeEMStuff()
 }
 
 
-bool HorizonDisplay::setEMObject( const EM::ObjectID& newid )
+bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 {
-    if ( !EMObjectDisplay::setEMObject( newid ) )
+    if ( !EMObjectDisplay::setEMObject( newid, tr ) )
 	return false;
 
     mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
@@ -284,9 +284,9 @@ StepInterval<int> HorizonDisplay::displayedColRange() const
 }
 
 
-bool HorizonDisplay::updateFromEM()
+bool HorizonDisplay::updateFromEM( TaskRunner* tr )
 { 
-    if ( !EMObjectDisplay::updateFromEM() )
+    if ( !EMObjectDisplay::updateFromEM( tr ) )
 	return false;
 
     updateSingleColor();
@@ -832,11 +832,11 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 };
 
 
-bool HorizonDisplay::addSection( const EM::SectionID& sid )
+bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 {
     visBase::HorizonSection* surf = visBase::HorizonSection::create();
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
-    surf->setSurface( horizon->geometry().sectionGeometry(sid), true );
+    surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
 
     while ( surf->nrChannels()<nrAttribs() ) surf->addChannel();
 
@@ -849,7 +849,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid )
 
     surf->allowShading( allowshading_ );
     surf->useWireframe( useswireframe_ );
-    surf->setResolution( resolution_-1 );
+    surf->setResolution( resolution_-1, tr );
 
     surf->ref();
     surf->setMaterial( 0 );
@@ -961,7 +961,7 @@ void HorizonDisplay::setResolution( int res )
 {
     resolution_ = res;
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setResolution( res-1 );
+	sections_[idx]->setResolution( res-1, 0 );
 }
 
 

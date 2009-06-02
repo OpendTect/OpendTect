@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.53 2009-05-13 14:08:53 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.54 2009-06-02 21:40:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,9 +48,9 @@ public:
     void			setDisplayTransformation(mVisTrans*);
     void			setSceneEventCatcher( visBase::EventCatcher* );
 
-    virtual bool		setEMObject(const EM::ObjectID&);
+    virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getObjectID() const;
-    virtual bool		updateFromEM();
+    virtual bool		updateFromEM(TaskRunner*);
     virtual void		updateFromMPE();
 
     void			showPosAttrib( int attr, bool yn);
@@ -107,7 +107,7 @@ protected:
     virtual void		removeEMStuff();
 
     virtual void		removeSectionDisplay(const EM::SectionID&) = 0;
-    virtual bool		addSection(const EM::SectionID&)   	   = 0;
+    virtual bool		addSection(const EM::SectionID&,TaskRunner*)=0;
 
     virtual EM::PosID 		findClosestNode(const Coord3&) const;
     virtual void		emChangeCB(CallBacker*);

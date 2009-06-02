@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.39 2009-06-02 07:45:08 cvsbruno Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.40 2009-06-02 21:40:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -37,8 +37,8 @@ public:
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;
 
-    bool			setEMObject(const EM::ObjectID&);
-    bool			updateFromEM();
+    bool			setEMObject(const EM::ObjectID&,TaskRunner*);
+    bool			updateFromEM(TaskRunner*);
     void			updateFromMPE();
 
     StepInterval<int>		displayedRowRange() const;
@@ -148,7 +148,7 @@ protected:
 
     void			removeSectionDisplay(const EM::SectionID&);
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
-    bool			addSection(const EM::SectionID&);
+    bool			addSection(const EM::SectionID&,TaskRunner*);
     bool			addEdgeLineDisplay(const EM::SectionID&);
     void			emChangeCB(CallBacker*);
     void			emEdgeLineChangeCB(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.12 2009-05-20 21:40:42 cvskris Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.13 2009-06-02 21:40:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ public:
 protected:
     				~Horizon2DDisplay();
     void			removeSectionDisplay(const EM::SectionID&);
-    bool			addSection(const EM::SectionID&);
+    bool			addSection(const EM::SectionID&,TaskRunner*);
 
     struct LineRanges
     {
@@ -61,7 +61,7 @@ protected:
     void			updateSection(int idx,const LineRanges* lr=0);
 					      
     void			emChangeCB(CallBacker*);
-    bool			setEMObject(const EM::ObjectID&);
+    bool			setEMObject(const EM::ObjectID&,TaskRunner*);
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
