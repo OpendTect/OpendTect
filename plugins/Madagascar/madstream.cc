@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.16 2009-06-02 16:21:04 cvshelene Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.17 2009-06-03 11:21:30 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -46,6 +46,15 @@ static const char* sKeyPosFileName = "Pos File Name";
 #undef mErrRet
 #define mErrRet(s) { errmsg_ = s; return; }
 #define mErrBoolRet(s) { errmsg_ = s; return false; }
+
+#ifdef __win__
+    #define mReadRSFTrc(arr) \
+        for ( int idx=0; idx<nrsamps; idx++ ) \
+	    *istrm_ >> arr[idx];
+#else
+    #define mReadRSFTrc(arr) \
+        istrm_->read( (char*)arr, nrsamps*sizeof(float) );
+#endif
 
 MadStream::MadStream( IOPar& par )
     : pars_(par)
@@ -485,7 +494,11 @@ bool MadStream::putHeader( std::ostream& strm )
 	strm << "=" << headerpars_->getValue(idx) << std::endl;
     }
 
+#ifdef __win__
+    strm << "\t" << "data_format=\"ascii_float\"" << std::endl;
+#else
     strm << "\t" << "data_format=\"native_float\"" << std::endl;
+#endif
     strm << "\t" << "in=\"stdout\"" << std::endl;
     strm << "\t" << "in=\"stdin\"" << std::endl;
 
@@ -522,7 +535,7 @@ bool MadStream::getNextTrace( float* arr )
     if ( istrm_ && *istrm_ )
     {
 	const int nrsamps = getNrSamples();
-	istrm_->read( (char*)arr, nrsamps*sizeof(float) );
+	mReadRSFTrc( arr );
 	return *istrm_;
     }
     else if ( seisrdr_ )
@@ -642,7 +655,7 @@ bool MadStream::writeTraces( bool writetofile )
 		int crl = crlstart + crlidx * crlstep;
 		for ( int trcidx=1; trcidx<=nrtrcsperbinid; trcidx++ )
 		{
-		    std::cin.read( (char*)buf, nrsamps*sizeof(float) );
+		    mReadRSFTrc( buf );
 		    SeisTrc* trc = new SeisTrc( nrsamps );
 		    trc->info().sampling = sd;
 		    trc->info().binid = BinID( inl, crl );
@@ -709,7 +722,7 @@ bool MadStream::write2DTraces( bool writetofile )
 	const int trcnr = geom.posns_[idx].nr_;
 	for ( int offidx=1; offidx<=nroffsets; offidx++ )
 	{
-	    std::cin.read( (char*)buf, nrsamps*sizeof(float) );
+	    mReadRSFTrc( buf );
 	    SeisTrc* trc = new SeisTrc( nrsamps );
 	    trc->info().sampling = sd;
 	    trc->info().coord = geom.posns_[idx].coord_;

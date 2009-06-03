@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.6 2009-02-16 11:39:42 cvsraman Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.7 2009-06-03 11:21:30 cvsraman Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -135,10 +135,22 @@ bool ODMad::ProcExec::init()
 }
 
 
-#define mAddNewExec \
-    BufferString fname = FilePath::getTempName( "par" ); \
-    pars_.write( fname, sKey::Pars ); \
-    ret += "odmadexec"; ret += " "; ret += fname
+#ifdef __win__
+    #define mAddNewExec \
+        BufferString fname = FilePath::getTempName( "par" ); \
+	pars_.write( fname, sKey::Pars ); \
+	ret += FilePath(rsfroot).add("bin").add("sfdd").fullPath(); \
+	ret += " form=ascii_float | "; \
+	ret += FilePath(GetSoftwareDir(0)).add("bin") \
+					 .add("odmadexec").fullPath(); \
+	ret += " "; ret += fname
+#else
+    #define mAddNewExec \
+	BufferString fname = FilePath::getTempName( "par" ); \
+	pars_.write( fname, sKey::Pars ); \
+	ret += GetExecScript( false ); ret += " "; \
+	ret += "odmadexec"; ret += " "; ret += fname
+#endif
 
 const char* ODMad::ProcExec::getProcString()
 {
@@ -183,8 +195,13 @@ const char* ODMad::ProcExec::getProcString()
 	if ( !firstproc )
 	    ret += " | ";
 	else
+	{
+#ifdef __win__
+	    ret += FilePath(rsfroot).add("bin").add("sfdd").fullPath();
+	    ret += " form=native_float | ";
+#endif
 	    firstproc = false;
-
+	}
 
 	if ( !procflow[pidx]->isValid() )
 	    ret += procflow[pidx]->getCommand();
@@ -217,7 +234,6 @@ const char* ODMad::ProcExec::getProcString()
 		break;
 	    }
 
-	    ret += GetExecScript( false ); ret += " ";
 	    mAddNewExec;
 	    pars_.set( sKeyCurProc(), curprocidx );
 	    break;
@@ -227,7 +243,7 @@ const char* ODMad::ProcExec::getProcString()
 	{
 	    if ( outtyp == ODMad::ProcFlow::Madagascar )
 	    {
-		ret += " > ";
+		ret += " out=stdout > ";
 		ret += procflow.output().find( sKey::FileName );
 	    }
 	    else
@@ -236,7 +252,6 @@ const char* ODMad::ProcExec::getProcString()
 						    Finish) );
 		pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
 		ret += " | ";
-		ret += GetExecScript( false ); ret += " ";
 		mAddNewExec;
 	    }
 	}
@@ -273,6 +288,7 @@ const char* ODMad::ProcExec::getPlotString() const
 
     fp.add( plotcmd );
     ret += fp.fullPath();
+    ret += "&";
     return ret.buf();
 }
 
@@ -295,6 +311,13 @@ od_int64 ODMad::ProcExec::totalNr() const
 }
 
 
+#ifdef __win__
+    #define mWriteToStream(strm) *strm.ostrm << val << " "
+#else
+    #define mWriteToStream(strm) \
+        (*strm.ostrm).write( (const char*) &val, sizeof(val))
+#endif
+
 int ODMad::ProcExec::nextStep()
 {
     if ( stage_ == Finish || !madstream_ || !madstream_->getNextTrace(trc_) )
@@ -309,9 +332,9 @@ int ODMad::ProcExec::nextStep()
     for ( int idx=0; idx<trcsize; idx++ )
     {
 	const float val = trc_[idx];
-	(*procstream_.ostrm).write( (const char*) &val, sizeof(val));
+	mWriteToStream( procstream_ );
 	if ( stage_ == Intermediate && plotstream_.usable() )
-	    (*plotstream_.ostrm).write( (const char*) &val, sizeof(val));
+	    mWriteToStream( plotstream_ );
     }
 
     if ( progmeter_ ) progmeter_->setNrDone( ++nrdone_ );
