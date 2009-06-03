@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.33 2009-05-27 15:59:49 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.34 2009-06-03 15:19:57 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -40,6 +40,9 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     if ( texture_ )
     {
 	texture_->ref();
+#ifdef __mac__
+	texture_->allowShading( false );
+#endif
 	addChild( texture_->getInventorNode() );
 	texture_->setTextureRenderQuality(1);
     }
@@ -77,7 +80,13 @@ bool MultiTextureSurveyObject::_init()
 void MultiTextureSurveyObject::allowShading( bool yn )
 {
     if ( texture_ )
+    {
+#ifdef __mac__
+	texture_->allowShading( false );
+#else
 	texture_->allowShading( yn );
+#endif
+    }
     else if ( channels_ && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->allowShading( yn );
 }
