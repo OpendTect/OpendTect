@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.7 2009-06-02 16:21:04 cvshelene Exp $
+ * ID       : $Id: madstream.h,v 1.8 2009-06-03 14:25:58 cvshelene Exp $
 -*/
 
 
@@ -41,6 +41,10 @@ public:
 
     bool			isOK() const;
     const char*			errMsg() const;
+    bool			is2D() const		{ return is2d_; }
+    bool			isPS() const		{ return isps_; }
+    void			setStorBufMine( bool yn )
+				{ stortrcbufismine_ = yn; }
 
 protected:
 
@@ -62,6 +66,7 @@ protected:
     BinID			curbid_;
     SeisTrcBuf*			trcbuf_;
     SeisTrcBuf*			stortrcbuf_;
+    bool			stortrcbufismine_;
     PosInfo::CubeDataIterator*	iter_;
     PosInfo::Line2DData*	l2ddata_;
     int				nroffsets_;

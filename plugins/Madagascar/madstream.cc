@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.17 2009-06-03 11:21:30 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.18 2009-06-03 14:25:58 cvshelene Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -64,6 +64,7 @@ MadStream::MadStream( IOPar& par )
     , psrdr_(0),pswrr_(0)
     , trcbuf_(0),curtrcidx_(-1)
     , stortrcbuf_(0)
+    , stortrcbufismine_(true)
     , iter_(0),l2ddata_(0)
     , headerpars_(0)
     , errmsg_(*new BufferString(""))
@@ -201,7 +202,7 @@ MadStream::~MadStream()
     delete psrdr_; delete pswrr_;
     delete trcbuf_; delete iter_; delete l2ddata_;
     delete errmsg_;
-    if ( stortrcbuf_ ) delete  stortrcbuf_;
+    if ( stortrcbuf_ && stortrcbufismine_ ) delete  stortrcbuf_;
 }
 
 
