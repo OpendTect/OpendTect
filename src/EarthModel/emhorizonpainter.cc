@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.9 2009-06-02 10:35:56 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.10 2009-06-03 11:13:02 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -408,7 +408,7 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::BurstAlert:
 	{
-	    if ( emobject->hasBurstAlert() )
+	    if ( emobject->hasBurstAlert() && !loadinghorcount_ )
 	    {
 		if ( horizonids_.indexOf(emobject->id()) != -1 )
 		    horidtoberepainted_ = emobject->id();
