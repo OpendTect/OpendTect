@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.36 2009-06-03 15:40:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.37 2009-06-03 21:56:26 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -58,214 +58,121 @@ namespace visBase
 int HorizonSection::normalstartidx_[] = { 0, 4096, 5185, 5474, 5555, 5580 };
 int HorizonSection::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
 
+int HorizonSectionTile::spacing_[] = { 1, 2, 4, 8, 16, 32 };
+int HorizonSectionTile::normalstartidx_[] = { 0, 4096, 5185, 5474, 5555, 5580 };
+int HorizonSectionTile::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
+int HorizonSectionTile::nrcells_[] = { 4096, 1024, 256, 64, 16, 4 };
 
-mClass HorSectTileNormalUpdater: public ParallelTask
+
+mClass HorizonSectionTileUpdater: public ParallelTask
 {
 public: 
-    		HorSectTileNormalUpdater( HorizonSection& section )
-		    : section_( section ) {} 
+HorizonSectionTileUpdater( HorizonSection& section, SoState* state, int res )
+    : section_( section )
+    , state_( state )
+    , step_( section.step_ )
+    , tiles_( section.tiles_.getData() )
+    , nrtiles_( section.tiles_.info().getTotalSz() )
+    , nrcoltiles_( section.tiles_.info().getSize(1) )
+    , resolution_( res )						     
+{}
 
-    od_int64	nrIterations() const 
-    		{ return section_.tiles_.info().getTotalSz(); }
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
-    		{
-		    const int colsz = section_.tiles_.info().getSize(1);
-		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-		    {
-			const int row = idx/colsz;
-			const int col = idx%colsz;
-			HorizonSectionTile* tile = section_.tiles_.get(row,col);
-	    		if ( tile )
-			{
-	    		    int res = tile->getActualResolution();
-    			    if ( res==-1 ) res = section_.desiredresolution_;
+od_int64 nrIterations() const { return nrtiles_; }
 
-    			    updateNormals( *tile, res, row, col );
-			}	
 
-			addToNrDone(1);
-		    }
+od_int64 totalNr() const { return nrtiles_ * 2; }
 
-		    return true;
-		}
 
-protected:
-
-void updateNormals( HorizonSectionTile& tile, int res, int row, int col )
+bool doPrepare( int nrthreads )
 {
-    if ( res<0 ) return;
+    nrthreads_ = nrthreads;
+    nrthreadsfinishedwithres_ = 0;
 
-    if ( tile.allNormalsInvalid(res) )
-    {
-	const int normalstop = res<mLowestResIdx ? 
-	    section_.normalstartidx_[res+1]-1 : mTotalNormalSize-1;
-	for ( int idx=section_.normalstartidx_[res]; idx<=normalstop; idx++ )
-	    setNormal( idx, res, tile, row, col );
-    }
-    else
-    {
-	TypeSet<int> updatelist;
-	tile.getNormalUpdateList( res, updatelist );
-	for ( int idx=0; idx<updatelist.size(); idx++ )
-	    setNormal( updatelist[idx], res, tile, row, col );
-    }
+    mAllocVarLenArr( int, arr, nrtiles_ );
+    for ( int idx=0; idx<nrtiles_; idx++ )
+	arr[idx] = idx;
 
-    tile.removeInvalidNormals( res );
-    tile.setAllNormalsInvalid( res, false );
+    std::random_shuffle( mVarLenArr(arr), arr+nrtiles_ );
+    for ( int idx=0; idx<nrtiles_; idx++ )
+	permutation_ += arr[idx];
+
+    return true;
 }
 
 
-void setNormal( int nmidx, int res, HorizonSectionTile& ti, 
-		int tilerowidx, int tilecolidx )
+bool doWork( od_int64 start, od_int64 stop, int )
 {
-    const int spacing = (int)pow(2.0,res);
-    const int nmstart = section_.normalstartidx_[res];
-    const int nmsidesz = section_.normalsidesize_[res];
-    const int normalrow = (nmidx-nmstart)/nmsidesz;
-    const int normalcol = (nmidx-nmstart)%nmsidesz;
-    const int row = section_.origin_.row + tilerowidx*mTileSideSize +
-	(normalrow==nmsidesz-1 ? mTileSideSize : normalrow*spacing);
-    const int col = section_.origin_.col + tilecolidx*mTileSideSize +
-	(normalcol==nmsidesz-1 ? mTileSideSize : normalcol*spacing);
-
-    TypeSet<float> posarray, zarray;
-    for ( int idx=-spacing; idx<=spacing; idx++ )
+    if ( state_ )
     {
-	const Coord3 pos = section_.geometry_->getKnot( 
-		RowCol(row+idx*section_.step_.row,col), false );
-	if ( pos.isDefined() )
-	{
-	    posarray += idx*section_.rowdistance_;
-	    zarray += pos.z;
-	}
-    }
-	   
-    double drow = 0;
-    if ( zarray.size()>1 )
-	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
+	for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+	    if ( tiles_[idx] ) tiles_[idx]->updateAutoResolution( state_ );
 
-    posarray.erase(); zarray.erase();    
-    for ( int idx=-spacing; idx<=spacing; idx++ )
-    {
-	const Coord3 pos = section_.geometry_->getKnot( 
-		RowCol(row,col+idx*section_.step_.col), false );
-	if ( pos.isDefined() )
-	{
-	    posarray += idx*section_.coldistance_;
-	    zarray += pos.z;
-	}
+	controlcond_.lock();
+	nrthreadsfinishedwithres_++;
+	if ( nrthreadsfinishedwithres_==nrthreads_ )
+	    controlcond_.signal( true ); 
+	controlcond_.unLock();
     }
 
-    double dcol = 0;
-    if ( zarray.size()>1 )
-	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &dcol );
- 
-    const Coord3 norm( drow*section_.cosanglexinl_+dcol*section_.sinanglexinl_,
-	    dcol*section_.cosanglexinl_-drow*section_.sinanglexinl_,-1 );
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    {
+	const int realidx = permutation_[idx];
+	HorizonSectionTile* tile = tiles_[realidx];
+	if ( tile )
+	{
+	    if ( state_ ) 
+	    {
+		int res = tile->getActualResolution();
+		if ( res==-1 ) res = resolution_;
+		const int tilerowidx = realidx/nrcoltiles_;
+		const int tilecolidx = realidx%nrcoltiles_;
+		tile->updateNormals( section_, res, tilerowidx, tilecolidx );
+	    
+		tile->tesselateActualResolution();
+	    }
+	    else
+	    {
+		tile->tesselateResolution( resolution_ );
+		tile->setActualResolution( resolution_ );
+	    }
+	}
 
-    ti.setNormal( nmidx, norm );
+	addToNrDone( 1 );
+    }	
+
+    if ( state_ )
+    {
+	controlcond_.lock();
+	while ( nrthreadsfinishedwithres_!=nrthreads_ && shouldContinue() )
+	    controlcond_.wait();
+	controlcond_.unLock();
+    }
+
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    {
+	if ( tiles_[idx] ) 
+	    tiles_[idx]->updateGlue();
+
+	addToNrDone( 1 );
+    }
+
+    return true;
 }
 
-    HorizonSection&			section_;    
+    TypeSet<int>		permutation_;
+    SoState*			state_;
+    RowCol			step_;
+    HorizonSectionTile**	tiles_;
+    HorizonSection&		section_;
+    int				nrtiles_;
+    int				nrcoltiles_;
+    int				resolution_;
+    int				nrthreads_;
+    int				nrthreadsfinishedwithres_;
+    Threads::ConditionVar	controlcond_;
 };
 
-
-mClass HorSectTileAutoResolutionUpdater : public ParallelTask
-{
-public:
-		HorSectTileAutoResolutionUpdater( HorizonSectionTile** tiles,
-						 SoState* state, int nrtiles )
-		: tiles_( tiles )
-		, totalnr_( nrtiles )  
-		, state_( state )	{}
-
-   od_int64	nrIterations() const { return totalnr_; }
-
-   bool		doWork( od_int64 start, od_int64 stop, int )
-   		{
-	     	    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-		   {
-		       if ( tiles_[idx] )
-		       {
-			   tiles_[idx]->updateAutoResolution( state_ );
-			   tiles_[idx]->tesselateActualResolution();
-		       }
-		   
-		       addToNrDone(1);
-		   }
-
-		   return true;
-	       }
-
-protected:
-
-   HorizonSectionTile**	tiles_;
-   SoState*		state_;
-   int			totalnr_;
-};
-
-mClass HorSectTileResolutionTesselator : public ParallelTask
-{
-public:
-		HorSectTileResolutionTesselator( HorizonSectionTile** tiles,
-						 int res, int nrtiles )
-		: tiles_( tiles )
-		, totalnr_( nrtiles )  
-		, resolution_( res )	{}
-
-   od_int64	nrIterations() const { return totalnr_; }
-
-   bool		doWork( od_int64 start, od_int64 stop, int )
-   		{
-	     	    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-		   {
-		       if ( tiles_[idx] )
-		       {
-    			   tiles_[idx]->tesselateResolution( resolution_ );
-    			   tiles_[idx]->setActualResolution( resolution_ );
-		       }
-		   
-		       addToNrDone(1);
-		   }
-
-		   return true;
-	       }
-
-protected:
-
-   HorizonSectionTile**	tiles_;
-   int			resolution_;
-   int			totalnr_;
-};
-
-
-mClass HorSectTileGlueUpdater : public ParallelTask
-{
-public:
-		HorSectTileGlueUpdater( HorizonSectionTile** tiles, int total )
-	    	: tiles_( tiles )
-		, totalnr_( total )	{}
-
-   od_int64	nrIterations() const { return totalnr_; }
-   
-   bool		doWork( od_int64 start, od_int64 stop, int )
-   		{
-		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-		    {
-			if ( tiles_[idx] ) 
-			    tiles_[idx]->updateGlue();
-
-			addToNrDone(1);
-		    }
-
-		    return true;
-		}
-protected:
-
-   HorizonSectionTile**	tiles_;
-   int			totalnr_;
-};
 
 
 mClass HorSectTileWireframeUpdater : public ParallelTask
@@ -302,45 +209,45 @@ protected:
 mClass HorizonSectionTilePosSetup: public ParallelTask
 {
 public:    
-HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 
-	TypeSet<RowCol> rcs, const Geometry::BinIDSurface& geo )
-    : tiles_( tiles )
-    , geo_( geo )  
-    , rcs_( rcs )
-{}
+		HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 					    TypeSet<RowCol> rcs, 
+					    const Geometry::BinIDSurface& geo )
+		    : tiles_( tiles )
+	  	    , geo_( geo )  
+		    , rcs_( rcs )	{}
 
-od_int64 nrIterations() const { return tiles_.size(); }
+    od_int64	nrIterations() const { return tiles_.size(); }
 
-const char* message() const { return "Creating Horizon Display"; }
-const char* nrDoneText() const { return "Parts completed"; }
+    const char*	message() const { return "Creating Horizon Display"; }
+    const char*	nrDoneText() const { return "Parts completed"; }
 
 protected:
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
-{
-    const int rowstep = geo_.rowRange().step;
-    const int colstep = geo_.colRange().step;
+    bool	doWork( od_int64 start, od_int64 stop, int threadid )
+    		{
+		    const int rowstep = geo_.rowRange().step;
+		    const int colstep = geo_.colRange().step;
 
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-    {
-	HorizonSectionTile* tile = tiles_[idx];
-	const int startrow = rcs_[idx].row;
-	const int startcol = rcs_[idx].col;
+		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+		    {
+			HorizonSectionTile* tile = tiles_[idx];
+			const int startrow = rcs_[idx].row;
+			const int startcol = rcs_[idx].col;
 
-	for ( int row=0; row<mNrCoordsPerTileSide; row++ )
-	{
-	    for ( int col=0; col<mNrCoordsPerTileSide; col++ )
-	    {
-		const RowCol rc( row*rowstep+startrow, col*colstep+startcol );
-		tile->setPos( row, col, geo_.getKnot(rc,false) );
-	    }
-	}
+			for ( int row=0; row<mNrCoordsPerTileSide; row++ )
+			{
+			    for ( int col=0; col<mNrCoordsPerTileSide; col++ )
+			    {
+				const RowCol rc( row*rowstep+startrow, 
+						 col*colstep+startcol );
+				tile->setPos(row, col, geo_.getKnot(rc,false));
+			    }
+			}
 
-	addToNrDone(1);
-    }
+			addToNrDone(1);
+		    }
 
-    return true;
-}
+		    return true;
+		}
 
     ObjectSet<HorizonSectionTile> 	tiles_;
     TypeSet<RowCol>			rcs_;
@@ -442,10 +349,6 @@ HorizonSection::~HorizonSection()
 void HorizonSection::allowShading( bool yn )
 { 
     channel2rgba_->allowShading( yn ); 
-
-    HorizonSectionTile** tileptrs = tiles_.getData();
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
-	if ( tileptrs[idx] ) tileptrs[idx]->useShading( yn );
 }
 
 
@@ -610,8 +513,7 @@ void HorizonSection::getDataPositions( BinIDValueSet& res, float zoff ) const
 
 void HorizonSection::setTextureData( int channel, const BinIDValueSet* data )
 {
-    if ( channel<0 || channel>=cache_.size() || !geometry_ ||
-	 !geometry_->getArray() ) 
+    if ( channel<0 || channel>=cache_.size() ) 
 	return;
 
     if ( cache_[channel] )
@@ -638,6 +540,9 @@ void HorizonSection::setTextureData( int channel, const BinIDValueSet* data )
 
 void HorizonSection::updateTexture( int channel )
 {
+    if ( !geometry_ || !geometry_->getArray() )
+	return;
+
     const StepInterval<int>& rrg = geometry_->rowRange();
     const StepInterval<int>& crg = geometry_->colRange();
 
@@ -877,8 +782,6 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 		tilestarts += RowCol( startrow, startcol );
 	    }
 	}
-
-	updateTileTextureOrigin();
     }
     else
     {
@@ -935,13 +838,15 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 		    if ( !tiles_.get( neighborrow, neighborcol ) )
 			continue;
 
-		    tiles_.get( neighborrow, neighborcol )->setPos(
+		    tiles_.get(neighborrow,neighborcol)->setPos(
 			    tilerow-rowidx*mTileSideSize,
 			    tilecol-colidx*mTileSideSize, pos );
 		}
 	    }
 	}
     }
+
+    updateTileTextureOrigin();
 
     HorizonSectionTilePosSetup task( newtiles, tilestarts, *geometry_ );
     if ( tr ) tr->execute( task );
@@ -1002,15 +907,17 @@ void HorizonSection::updateTileArray( const StepInterval<int>& rrg,
     tiles_.copyFrom( newtiles );
     origin_.row -= nrnewrowsbefore*rowsteps;
     origin_.col -= nrnewcolsbefore*colsteps;
-    updateTileTextureOrigin();
 }
 
 
 void HorizonSection::updateTileTextureOrigin()
 {
-    for ( int rowidx=0; rowidx<tiles_.info().getSize(0); rowidx++ )
+    const int nrrows = tiles_.info().getSize(0);
+    const int nrcols = tiles_.info().getSize(1);
+
+    for ( int rowidx=0; rowidx<nrrows; rowidx++ )
     {
-	for ( int colidx=0; colidx<tiles_.info().getSize(1); colidx++ )
+	for ( int colidx=0; colidx<nrcols; colidx++ )
 	{
 	    if ( tiles_.get(rowidx,colidx) )
 		tiles_.get(rowidx,colidx)->setTextureOrigin( 
@@ -1025,7 +932,6 @@ HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
     HorizonSectionTile* tile =  new HorizonSectionTile();
     tile->setDisplayTransformation( transformation_ );
     tile->setResolution( desiredresolution_ );
-    tile->useShading( channel2rgba_->usesShading() );
     tile->useWireframe( usewireframe_ );
     tile->setWireframeMaterial( visBase::Material::create() );
 
@@ -1128,26 +1034,14 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 {
     const int tilesz = tiles_.info().getTotalSz();
     if ( !tilesz ) return;
- 
-    HorSectTileNormalUpdater normupdater( *this );
+
+    HorizonSectionTileUpdater task( *this, state, desiredresolution_ );
     if ( tr )
-	tr->execute( normupdater );
+	tr->execute(task);
     else
-	normupdater.execute();
+	task.execute();
 
     HorizonSectionTile** tileptrs = tiles_.getData();
-    HorSectTileAutoResolutionUpdater autores( tileptrs, state, tilesz );
-    if ( tr ) 
-	tr->execute( autores );
-    else
-	autores.execute();
-
-    HorSectTileGlueUpdater gluetask( tileptrs, tilesz );
-    if ( tr )
-	tr->execute(gluetask);
-    else
-	gluetask.execute();
-
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
 }
@@ -1166,24 +1060,17 @@ void HorizonSection::setResolution( int res, TaskRunner* tr )
     if ( usewireframe_ ) turnOnWireframe( res, tr );
 
     HorizonSectionTile** tileptrs = tiles_.getData();
-    TypeSet<int> resolutions;
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->setResolution( res );
 
     if ( res==-1 )
 	return;
 
-    HorSectTileResolutionTesselator task( tileptrs, res, tilesz );
+    HorizonSectionTileUpdater task( *this, 0, res );
     if ( tr )
 	tr->execute(task);
     else
 	task.execute();
-
-    HorSectTileGlueUpdater gluetask( tileptrs, tilesz );
-    if ( tr ) 
-	tr->execute(gluetask);
-    else 
-	gluetask.execute();
 
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
@@ -1227,12 +1114,6 @@ bool HorizonSection::usesWireframe() const
 
 
 
-int HorizonSectionTile::spacing_[] = { 1, 2, 4, 8, 16, 32 };
-int HorizonSectionTile::normalstartidx_[] = { 0, 4096, 5185, 5474, 5555, 5580 };
-int HorizonSectionTile::nrcells_[] = { 4096, 1024, 256, 64, 16, 4 };
-int HorizonSectionTile::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
-
-
 HorizonSectionTile::HorizonSectionTile()
     : root_( new SoLockableSeparator )
     , normals_( new SoNormal )  
@@ -1252,7 +1133,6 @@ HorizonSectionTile::HorizonSectionTile()
     , usewireframe_( false )
     , wireframematerial_( 0 )			   
     , wireframetexture_( visBase::Texture2::create() )		  
-    , useshading_( false )						  
 {
     root_->ref();
     coords_->ref();
@@ -1324,15 +1204,6 @@ HorizonSectionTile::~HorizonSectionTile()
 }
 
 
-void HorizonSectionTile::useShading( bool yn )
-{ 
-    if ( useshading_ == yn )
-	return;
-
-    useshading_ = yn; 
-}
-
-
 void HorizonSectionTile::setWireframeMaterial( Material* nm )
 {
     if ( wireframematerial_ )
@@ -1370,9 +1241,80 @@ void HorizonSectionTile::setDisplayTransformation( Transformation* nt )
 }
 
 
-void HorizonSectionTile::setNormal( int index, const Coord3& norm )
+void HorizonSectionTile::updateNormals( HorizonSection& section, int res, 
+					int tilerowidx, int tilecolidx )
 {
-    normals_->vector.set1Value( index, SbVec3f(norm[0],norm[1],norm[2]) );
+    if ( res<0 ) return;
+
+    if ( allnormalsinvalid_[res] )
+    {
+	const int normalstop = res<mLowestResIdx ? 
+	    normalstartidx_[res+1]-1 : mTotalNormalSize-1;
+	for ( int idx=normalstartidx_[res]; idx<=normalstop; idx++ )
+	    setNormal( section, idx, res, tilerowidx, tilecolidx );
+    }
+    else
+    {
+	for ( int idx=0; idx<invalidnormals_[res].size(); idx++ )
+	    setNormal( section, invalidnormals_[res][idx], res, tilerowidx, 
+		       tilecolidx );
+    }
+
+    removeInvalidNormals( res );
+    setAllNormalsInvalid( res, false );
+}
+
+
+void HorizonSectionTile::setNormal( HorizonSection& section, int nmidx, 
+				    int res, int tilerowidx, int tilecolidx )
+{
+    const RowCol origin = section.origin_;
+    const RowCol step = section.step_;
+
+    const int normalrow = (nmidx-normalstartidx_[res])/normalsidesize_[res];
+    const int normalcol = (nmidx-normalstartidx_[res])%normalsidesize_[res];
+    
+    const int row = origin.row + step.row * ( tilerowidx*mTileSideSize + 
+	    (normalrow==normalsidesize_[res]-1 ? mTileSideSize 
+	     				       : normalrow*spacing_[res]) );
+    const int col = origin.col + step.col * ( tilecolidx*mTileSideSize +
+    	    (normalcol==normalsidesize_[res]-1 ? mTileSideSize 
+	     				       : normalcol*spacing_[res]) );
+    TypeSet<float> posarray, zarray;
+    for ( int idx=-spacing_[res]; idx<=spacing_[res]; idx++ )
+    {
+	const Coord3 pos = section.geometry_->getKnot( 
+		RowCol(row+idx*step.row,col), false );
+	if ( pos.isDefined() )
+	{
+	    posarray += idx*section.rowdistance_;
+	    zarray += pos.z;
+	}
+    }
+	   
+    double drow = 0;
+    if ( zarray.size()>1 )
+	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
+
+    posarray.erase(); zarray.erase();    
+    for ( int idx=-spacing_[res]; idx<=spacing_[res]; idx++ )
+    {
+	const Coord3 pos = section.geometry_->getKnot( 
+		RowCol(row,col+idx*step.col), false );
+	if ( pos.isDefined() )
+	{
+	    posarray += idx*section.coldistance_;
+	    zarray += pos.z;
+	}
+    }
+
+    double dcol = 0;
+    if ( zarray.size()>1 )
+	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &dcol );
+ 
+    const SbVec3f normal( drow*section.cosanglexinl_+dcol*section.sinanglexinl_,
+	    dcol*section.cosanglexinl_-drow*section.sinanglexinl_, -1 );
+    normals_->vector.set1Value( nmidx, normal );
 }
 
 
@@ -1838,12 +1780,10 @@ void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
 
 void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 {
-    if ( row>=0 && row<mNrCoordsPerTileSide && 
-	 col>=0 && col<mNrCoordsPerTileSide )
+    if ( row>=0 && row<=mTileLastIdx && col>=0 && col<=mTileLastIdx )
     {
 	const int posidx = row*mNrCoordsPerTileSide+col;
-	const char oldnewdefined = 
-	    coords_->isDefined(posidx) + pos.isDefined();
+	const char oldnewdefined = coords_->isDefined(posidx)+pos.isDefined();
 	coords_->setPos( posidx, pos );
 
 	if ( !oldnewdefined ) return;
@@ -1897,13 +1837,13 @@ void HorizonSectionTile::setInvalidNormals( int row, int col )
 	    if ( colstop<0 ) continue;
 	    if ( colstop>mTileSideSize ) colstop = mTileLastIdx;
 
+	    int colstartni = normalstartidx_[res]+nmrow*normalsidesize_[res];
 	    for ( int colidx=colstart; colidx<=colstop; colidx++ )
 	    {
 		if ( colidx%spacing_[res] && colidx!=mTileLastIdx ) continue;
 		const int nmcol = colidx==mTileLastIdx ? normalsidesize_[res]-1
 						       : colidx/spacing_[res];
-		invalidnormals_[res].addIfNew( 
-			normalstartidx_[res]+nmrow*normalsidesize_[res]+nmcol );
+		invalidnormals_[res].addIfNew( colstartni + nmcol );
 	    }
 	}
     }

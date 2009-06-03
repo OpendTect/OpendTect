@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.22 2009-06-03 15:40:47 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.23 2009-06-03 21:56:26 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class BinIDValueSet;
 class Color;
 class SbBox3f;
 class SbVec2f;
+class SbVec3f;
 class SoAction;
 class SoCallback;
 class SoGetBoundingBoxAction;
@@ -115,7 +116,8 @@ public:
 
 protected:
     				~HorizonSection();
-    friend class		HorSectTileNormalUpdater;			
+    friend class		HorizonSectionTile;			
+    friend class		HorizonSectionTileUpdater;			
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,
 	    				      TaskRunner*);
@@ -183,7 +185,7 @@ public:
     void			setTextureSize(int rowsz,int colsz);
     void			setTextureOrigin(int globrow,int globcol);
 
-    void			setNormal(int idx,const Coord3& normal);
+    void			setNormal(int idx,const SbVec3f& normal);
     int				getNormalIdx(int crdidx,int res) const;
 
     void			resetResolutionChangeFlag();
@@ -191,7 +193,6 @@ public:
     void			tesselateActualResolution();
     void			updateGlue();
 
-    void			useShading(bool);
     void			useWireframe(bool);
     void			turnOnWireframe(int res);
     void			setWireframeMaterial(Material*);
@@ -204,10 +205,12 @@ public:
     void			setAllNormalsInvalid(int res,bool yn);
     void			getNormalUpdateList(int res, TypeSet<int>&);
     void			removeInvalidNormals(int res);
+    void			updateNormals(HorizonSection& section,int res,
+					      int tilerowidx,int tilecolidx);
 
 protected:
 
-    friend			class HorSectTileResolutionTesselator;
+    friend class		HorizonSectionTileUpdater;			
     void			setActualResolution(int);
     int				getAutoResolution(SoState*);
     void			tesselateGlue();
@@ -215,10 +218,11 @@ protected:
     void			updateBBox();
     void			setWireframe(int res);
     void			setInvalidNormals(int row,int col);
+    void			setNormal(HorizonSection& section,int normidx,
+	    				 int res,int tilerowidx,int tilecolidx);
 
     bool			usewireframe_;
     Material*			wireframematerial_;
-    bool			useshading_;
 
     HorizonSectionTile*		neighbors_[9];
 
