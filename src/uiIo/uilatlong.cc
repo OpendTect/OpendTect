@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilatlong.cc,v 1.2 2009-05-28 14:03:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uilatlong.cc,v 1.3 2009-06-03 10:49:08 cvsbert Exp $";
 
 #include "uilatlong2coord.h"
 #include "uilatlonginp.h"
@@ -186,7 +186,8 @@ void uiLatLongInp::set( const LatLong& ll, int opt )
 uiLatLong2CoordDlg::uiLatLong2CoordDlg( uiParent* p, const LatLong2Coord& l,
        					const SurveyInfo* si )
     : uiDialog(p,uiDialog::Setup("Lat/Long vs Coordinates",
-				 "Specify Lat/Long and Coordinate",
+	     "Estimation of geographical coordinates from/to "
+	     "the rectangular survey coordinates",
 				 "0.3.9"))
     , ll2c_(*new LatLong2Coord(l))
     , si_(si?si:&SI())
