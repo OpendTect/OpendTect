@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.86 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.87 2009-06-03 07:02:22 cvsraman Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -231,10 +231,9 @@ void uiAttribDescSetEd::createGroups()
 }
 
 
-#define mSetAuto( yn ) \
-    autoset = yn; \
-    Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, yn); \
-    Settings::common().write();
+#define mUnsetAuto \
+    SI().getPars().remove( autoidkey ); \
+    SI().savePars()
 
 void uiAttribDescSetEd::init()
 {
@@ -245,11 +244,14 @@ void uiAttribDescSetEd::init()
     adsman_->setSaved( inoutadsman_->isSaved() );
 
     setid_ = inoutadsman_->attrsetid_;
-    bool autoset = false;
-    Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, autoset );
     IOM().to( setctio_.ctxt.getSelKey() );
     setctio_.setObj( IOM().get(setid_) );
-    if ( autoset && !setctio_.ioobj )
+    bool autoset = false;
+    MultiID autoid;
+    Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, autoset );
+    const char* autoidkey = is2D() ? uiAttribDescSetEd::sKeyAuto2DAttrSetID
+				   : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
+    if ( autoset && SI().pars().get(autoidkey,autoid) && autoid != setid_ )
     {
         BufferString msg = "The Attribute-set selected for Auto-load ";
         msg += "is no longer valid\n";
@@ -268,20 +270,14 @@ void uiAttribDescSetEd::init()
 		    if ( dlg.isAuto() )
 		    {
 			MultiID id = ioobj ? ioobj->key() : "";
-			const bool is2d = is2D();
-			IOPar& par = SI().getPars();
-			is2d ? par.set( uiAttribDescSetEd::sKeyAuto2DAttrSetID,
-					(const char*)id)
-			     : par.set( uiAttribDescSetEd::sKeyAuto3DAttrSetID,
-				        (const char*)id);
+			SI().getPars().set( autoidkey, id );
 			SI().savePars();
 		    }
 		    else
 		    {
-			Settings::common().setYN(uiAttribDescSetEd::
-				sKeyUseAutoAttrSet, false);
-			Settings::common().write();
+			mUnsetAuto;
 		    }
+
 		    openAttribSet( ioobj );
 		}
 		else
@@ -290,14 +286,18 @@ void uiAttribDescSetEd::init()
 		    const char* attribnm = dlg.getAttribname();
 		    importFromFile( filenm );
 		    attrsetfld_->setText( attribnm );
-		    Settings::common().setYN(uiAttribDescSetEd::
-			        sKeyUseAutoAttrSet, false);
-		    Settings::common().write();
+		    mUnsetAuto;
 		}
 	    }
-	    else mSetAuto( false );
+	    else
+	    {
+		mUnsetAuto;
+	    }
 	}
-	else mSetAuto( false );
+	else
+	{ 
+	    mUnsetAuto;
+	}
     }
     else
     	attrsetfld_->setText( setctio_.ioobj ? setctio_.ioobj->name() : "" );
@@ -813,19 +813,29 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
     }
 
     BufferString bs;
-    if ( ( forread && 
-	   !AttribDescSetTranslator::retrieve(*attrset_,setctio_.ioobj,bs) )
-    || ( !forread && 
-	 !AttribDescSetTranslator::store(*attrset_,setctio_.ioobj,bs) ) )
+    if ( forread )
+    {
+	Attrib::DescSet attrset( is2D() );
+	if ( !AttribDescSetTranslator::retrieve(attrset,setctio_.ioobj,bs) )
+	    mErrRetFalse(bs)
+
+	if ( attrset.is2D() != is2D() )
+	{
+	    bs = "Attribute Set "; bs += setctio_.ioobj->name();
+	    bs += " is of type "; bs += attrset.is2D() ? "2D" : "3D";
+	    mErrRetFalse(bs.buf())
+	}
+
+	*attrset_ = attrset;
+	adsman_->setDescSet( attrset_ );
+	adsman_->fillHist();
+    }
+    else if ( !AttribDescSetTranslator::store(*attrset_,setctio_.ioobj,bs) )
 	mErrRetFalse(bs)
+
     if ( !bs.isEmpty() )
 	pErrMsg( bs );
 
-    if ( forread )
-    {
-	adsman_->setDescSet( attrset_ );
-	adsman_->fillHist();
-    }	
     setid_ = setctio_.ioobj->key();
     return true;
 }

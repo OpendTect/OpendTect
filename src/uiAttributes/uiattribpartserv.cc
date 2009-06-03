@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.123 2009-05-22 04:34:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.124 2009-06-03 07:02:22 cvsraman Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -152,30 +152,37 @@ void uiAttribPartServer::createVolProcOutput( const IOObj* sel )
 }
 
 
-#define mUseAutoAttrSet( typ ) { \
-    MultiID id = \
-	SI().pars().find( uiAttribDescSetEd::sKeyAuto##typ##DAttrSetID ); \
-    if ( id ) \
-    { \
-	const bool is2d = typ==2; \
-	PtrMan<IOObj> ioobj = IOM().get( id ); \
-	BufferString bs; \
-	DescSet* attrset = new DescSet( is2d ); \
-	AttribDescSetTranslator::retrieve( *attrset, ioobj, bs ); \
-	adsman##typ##d_->setDescSet( attrset ); \
-	adsman##typ##d_->attrsetid_ = id; \
-    } \
-    }
-
-
 void uiAttribPartServer::handleAutoSet()
 {
     bool douse = false;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
     if ( douse )
     {
-	if ( SI().has2D() ) mUseAutoAttrSet(2)
-	if ( SI().has3D() ) mUseAutoAttrSet(3)
+	if ( SI().has2D() ) useAutoSet( true );
+	if ( SI().has3D() ) useAutoSet( false );
+    }
+}
+
+
+void uiAttribPartServer::useAutoSet( bool is2d )
+{
+    MultiID id;
+    const char* idkey = is2d ? uiAttribDescSetEd::sKeyAuto2DAttrSetID
+			     : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
+    Attrib::DescSetMan* setmgr = is2d ? adsman2d_ : adsman3d_;
+    if ( SI().pars().get(idkey,id) )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( id );
+	BufferString bs;
+	DescSet* attrset = new DescSet( is2d );
+	if ( !ioobj || !AttribDescSetTranslator::retrieve(*attrset,ioobj,bs)
+		|| attrset->is2D()!=is2d )
+	    delete attrset;
+	else
+	{
+	    setmgr->setDescSet( attrset );
+	    setmgr->attrsetid_ = id;
+	}
     }
 }
 

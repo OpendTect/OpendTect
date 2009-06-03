@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiautoattrdescset.cc,v 1.7 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiautoattrdescset.cc,v 1.8 2009-06-03 07:02:22 cvsraman Exp $";
 
 #include "uiautoattrdescset.h"
 
@@ -101,14 +101,29 @@ void uiAutoAttrSelDlg::useChg( CallBacker* )
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
 {   
-    const bool douse = usefld_->getBoolValue();
+    if ( !usefld_->getBoolValue() )
+	return true;
+
     selgrp_->processInput();
-    if ( douse && selgrp_->nrSel() < 1 )
-        { uiMSG().error("Please select an Attribute Set"); return false; }
-    if ( selgrp_->nrSel() > 0 )
-	ctio_.setObj( selgrp_->selected(0) );
+    if ( selgrp_->nrSel() < 1 )
+        mErrRet("Please select an Attribute Set")
+    
+    ctio_.setObj( selgrp_->selected() );
+    Attrib::DescSet attrset( is2d_ );
+    BufferString bs;
+    if ( !AttribDescSetTranslator::retrieve(attrset,ctio_.ioobj,bs) )
+	mErrRet( "Cannot read selected attribute set" )
+
+    if ( attrset.is2D() != is2d_ )
+    {
+	bs = "Attribute Set "; bs += ctio_.ioobj->name();
+	bs += " is of type "; bs += attrset.is2D() ? "2D" : "3D";
+	uiMSG().error( bs.buf(), "Please select another attribute set" );
+	return false;
+    }
 
     return true;
 }
