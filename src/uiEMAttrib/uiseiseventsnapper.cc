@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.21 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.22 2009-06-03 05:52:01 cvsraman Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -77,6 +77,7 @@ uiSeisEventSnapper::~uiSeisEventSnapper()
     delete horoutctio_.ioobj; delete &horoutctio_;
     delete horinctio_.ioobj; delete &horinctio_;
     delete seisctio_.ioobj; delete &seisctio_;
+    if ( horizon_ ) horizon_->unRef();
 }
 
 
