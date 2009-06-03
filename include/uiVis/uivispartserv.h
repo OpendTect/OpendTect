@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.238 2009-05-18 10:52:05 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.239 2009-06-03 10:51:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,6 +277,7 @@ public:
     void			turnOn(int,bool,bool doclean=false);
     bool			isOn(int) const;
     void			updateDisplay(bool,int,int refid=-1);
+    void			setTopBotImg(int sceneid);
 
     bool			canDuplicate(int) const;
     int				duplicateObject(int id,int sceneid);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.418 2009-05-27 21:58:47 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.419 2009-06-03 10:51:40 cvsbert Exp $";
 
 #include "uivispartserv.h"
 
@@ -38,6 +38,7 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.418 2009-05-27 21:58:47 cv
 #include "uitoolbar.h"
 #include "uivispickretriever.h"
 #include "uiviszstretchdlg.h"
+#include "uisurvtopbotimg.h"
 
 #include "visdataman.h"
 #include "visemobjdisplay.h"
@@ -1049,6 +1050,13 @@ void uiVisPartServer::updateDisplay( bool doclean, int selid, int refid )
 
 	if ( !isselchecked ) turnOn(selid, false);
     }
+}
+
+
+void uiVisPartServer::setTopBotImg( int sceneid )
+{
+    uiSurvTopBotImageDlg dlg( appserv().parent(), getScene(sceneid) );
+    dlg.go();
 }
 
 

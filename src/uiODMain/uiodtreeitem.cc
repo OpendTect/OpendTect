@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.208 2009-06-02 11:46:12 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.209 2009-06-03 10:51:40 cvsbert Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -247,7 +247,8 @@ void uiODSceneTreeItem::updateColumnText( int col )
 }
 
 #define mProperties	0
-#define mDumpIV		1
+#define mTopBotImg	1
+#define mDumpIV		2
 
 bool uiODSceneTreeItem::showSubMenu()
 {
@@ -255,6 +256,7 @@ bool uiODSceneTreeItem::showSubMenu()
 
     uiMenuItem* anntxt = new uiMenuItem( "&Properties ..." );
     mnu.insertItem( anntxt, mProperties );
+    mnu.insertItem( new uiMenuItem("&Top/Bottom image ..."), mTopBotImg );
 
     bool yn = false;
     Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn );
@@ -275,10 +277,10 @@ bool uiODSceneTreeItem::showSubMenu()
 				viewer(), viewers, visserv );
 	dlg.go();
     }
+    else if ( mnuid==mTopBotImg )
+	visserv->setTopBotImg( displayid_ );
     else if ( mnuid==mDumpIV )
-    {
 	visserv->dumpOI( displayid_, "Export scene as ..." );
-    }
 
     return true;
 }
