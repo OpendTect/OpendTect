@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.35 2009-06-02 21:41:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.36 2009-06-03 15:40:47 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -58,6 +58,152 @@ namespace visBase
 int HorizonSection::normalstartidx_[] = { 0, 4096, 5185, 5474, 5555, 5580 };
 int HorizonSection::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
 
+
+mClass HorSectTileNormalUpdater: public ParallelTask
+{
+public: 
+    		HorSectTileNormalUpdater( HorizonSection& section )
+		    : section_( section ) {} 
+
+    od_int64	nrIterations() const 
+    		{ return section_.tiles_.info().getTotalSz(); }
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+    		{
+		    const int colsz = section_.tiles_.info().getSize(1);
+		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+		    {
+			const int row = idx/colsz;
+			const int col = idx%colsz;
+			HorizonSectionTile* tile = section_.tiles_.get(row,col);
+	    		if ( tile )
+			{
+	    		    int res = tile->getActualResolution();
+    			    if ( res==-1 ) res = section_.desiredresolution_;
+
+    			    updateNormals( *tile, res, row, col );
+			}	
+
+			addToNrDone(1);
+		    }
+
+		    return true;
+		}
+
+protected:
+
+void updateNormals( HorizonSectionTile& tile, int res, int row, int col )
+{
+    if ( res<0 ) return;
+
+    if ( tile.allNormalsInvalid(res) )
+    {
+	const int normalstop = res<mLowestResIdx ? 
+	    section_.normalstartidx_[res+1]-1 : mTotalNormalSize-1;
+	for ( int idx=section_.normalstartidx_[res]; idx<=normalstop; idx++ )
+	    setNormal( idx, res, tile, row, col );
+    }
+    else
+    {
+	TypeSet<int> updatelist;
+	tile.getNormalUpdateList( res, updatelist );
+	for ( int idx=0; idx<updatelist.size(); idx++ )
+	    setNormal( updatelist[idx], res, tile, row, col );
+    }
+
+    tile.removeInvalidNormals( res );
+    tile.setAllNormalsInvalid( res, false );
+}
+
+
+void setNormal( int nmidx, int res, HorizonSectionTile& ti, 
+		int tilerowidx, int tilecolidx )
+{
+    const int spacing = (int)pow(2.0,res);
+    const int nmstart = section_.normalstartidx_[res];
+    const int nmsidesz = section_.normalsidesize_[res];
+    const int normalrow = (nmidx-nmstart)/nmsidesz;
+    const int normalcol = (nmidx-nmstart)%nmsidesz;
+    const int row = section_.origin_.row + tilerowidx*mTileSideSize +
+	(normalrow==nmsidesz-1 ? mTileSideSize : normalrow*spacing);
+    const int col = section_.origin_.col + tilecolidx*mTileSideSize +
+	(normalcol==nmsidesz-1 ? mTileSideSize : normalcol*spacing);
+
+    TypeSet<float> posarray, zarray;
+    for ( int idx=-spacing; idx<=spacing; idx++ )
+    {
+	const Coord3 pos = section_.geometry_->getKnot( 
+		RowCol(row+idx*section_.step_.row,col), false );
+	if ( pos.isDefined() )
+	{
+	    posarray += idx*section_.rowdistance_;
+	    zarray += pos.z;
+	}
+    }
+	   
+    double drow = 0;
+    if ( zarray.size()>1 )
+	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
+
+    posarray.erase(); zarray.erase();    
+    for ( int idx=-spacing; idx<=spacing; idx++ )
+    {
+	const Coord3 pos = section_.geometry_->getKnot( 
+		RowCol(row,col+idx*section_.step_.col), false );
+	if ( pos.isDefined() )
+	{
+	    posarray += idx*section_.coldistance_;
+	    zarray += pos.z;
+	}
+    }
+
+    double dcol = 0;
+    if ( zarray.size()>1 )
+	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &dcol );
+ 
+    const Coord3 norm( drow*section_.cosanglexinl_+dcol*section_.sinanglexinl_,
+	    dcol*section_.cosanglexinl_-drow*section_.sinanglexinl_,-1 );
+
+    ti.setNormal( nmidx, norm );
+}
+
+    HorizonSection&			section_;    
+};
+
+
+mClass HorSectTileAutoResolutionUpdater : public ParallelTask
+{
+public:
+		HorSectTileAutoResolutionUpdater( HorizonSectionTile** tiles,
+						 SoState* state, int nrtiles )
+		: tiles_( tiles )
+		, totalnr_( nrtiles )  
+		, state_( state )	{}
+
+   od_int64	nrIterations() const { return totalnr_; }
+
+   bool		doWork( od_int64 start, od_int64 stop, int )
+   		{
+	     	    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+		   {
+		       if ( tiles_[idx] )
+		       {
+			   tiles_[idx]->updateAutoResolution( state_ );
+			   tiles_[idx]->tesselateActualResolution();
+		       }
+		   
+		       addToNrDone(1);
+		   }
+
+		   return true;
+	       }
+
+protected:
+
+   HorizonSectionTile**	tiles_;
+   SoState*		state_;
+   int			totalnr_;
+};
 
 mClass HorSectTileResolutionTesselator : public ParallelTask
 {
@@ -655,7 +801,7 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
     step_.row = surf->rowRange().step;
     step_.col = surf->colRange().step;
     rowdistance_ = step_.row*SI().inlDistance();
-    coldistance_ = step_.col*SI().inlDistance();
+    coldistance_ = step_.col*SI().crlDistance();
 
     if ( connect )
     {
@@ -724,8 +870,10 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
 	    {
 		newtiles += createTile(tilerowidx, tilecolidx);
-		const int startrow = tilerowidx*mTileSideSize + origin_.row;
-		const int startcol = tilecolidx*mTileSideSize + origin_.col;
+		const int startrow = tilerowidx*mTileSideSize*step_.row + 
+		    origin_.row;
+		const int startcol = tilecolidx*mTileSideSize*step_.col + 
+		    origin_.col;
 		tilestarts += RowCol( startrow, startcol );
 	    }
 	}
@@ -755,15 +903,17 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    if ( !tile ) 
 	    {
 		tile = createTile( tilerowidx, tilecolidx );
-		const int startrow = tilerowidx*mTileSideSize + origin_.row;
-		const int startcol = tilecolidx*mTileSideSize + origin_.col;
+		const int startrow = tilerowidx*mTileSideSize*step_.row + 
+		    origin_.row;
+		const int startcol = tilecolidx*mTileSideSize*step_.col + 
+		    origin_.col;
 		tilestarts += RowCol( startrow, startcol );
 		newtiles += tile;
 	    }
 	    else
 	    {
     		for ( int res=0; res<=mLowestResIdx; res++ )
-    		    tile->setAllNormalsInvalid( res, true );
+    		    tile->setAllNormalsInvalid( res, false );
 	    
 		tile->setPos( tilerow, tilecol, pos );
 	    }
@@ -976,27 +1126,22 @@ void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
 
 void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 {
-    const int nrrowtiles = tiles_.info().getSize(0);
-    const int nrcoltiles = tiles_.info().getSize(1);
-    const int tilesz = nrrowtiles*nrcoltiles;
+    const int tilesz = tiles_.info().getTotalSz();
     if ( !tilesz ) return;
  
-    for ( int tilerow=0; tilerow<nrrowtiles; tilerow++ )
-    {
-	for ( int tilecol=0; tilecol<nrcoltiles; tilecol++ )
-	{
-	    HorizonSectionTile* tile = tiles_.get(tilerow, tilecol);
-	    if ( !tile ) continue;
-
-	    tile->updateAutoResolution( state );
-	    tile->tesselateActualResolution();
-	    int res = tile->getActualResolution();
-	    if ( res==-1 ) res = desiredresolution_;
-	    updateNormals( *tile, res, tilerow, tilecol );
-	}
-    }
+    HorSectTileNormalUpdater normupdater( *this );
+    if ( tr )
+	tr->execute( normupdater );
+    else
+	normupdater.execute();
 
     HorizonSectionTile** tileptrs = tiles_.getData();
+    HorSectTileAutoResolutionUpdater autores( tileptrs, state, tilesz );
+    if ( tr ) 
+	tr->execute( autores );
+    else
+	autores.execute();
+
     HorSectTileGlueUpdater gluetask( tileptrs, tilesz );
     if ( tr )
 	tr->execute(gluetask);
@@ -1005,79 +1150,6 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
-}
-
-
-void HorizonSection::updateNormals( HorizonSectionTile& tile, int res,
-       				    int tilerowidx, int tilecolidx )
-{
-    if ( res<0 ) return;
-
-    if ( tile.allNormalsInvalid(res) )
-    {
-	const int normalstop = 
-	    res<mLowestResIdx ? normalstartidx_[res+1]-1 : mTotalNormalSize-1;
-	for ( int idx=normalstartidx_[res]; idx<=normalstop; idx++ )
-	    setNormal( idx, res, tile, tilerowidx, tilecolidx );
-    }
-    else
-    {
-	TypeSet<int> updatelist;
-	tile.getNormalUpdateList( res, updatelist );
-	for ( int idx=0; idx<updatelist.size(); idx++ )
-	    setNormal( updatelist[idx], res, tile, tilerowidx, tilecolidx );
-    }
-
-    tile.removeInvalidNormals( res );
-    tile.setAllNormalsInvalid( res, false );
-}
-
-
-void HorizonSection::setNormal( int nmidx, int res, HorizonSectionTile& ti,
-				int tilerowidx, int tilecolidx )
-{
-    const int spacing = (int)pow(2.0,res);
-    const int normalrow = (nmidx-normalstartidx_[res])/normalsidesize_[res];
-    const int normalcol = (nmidx-normalstartidx_[res])%normalsidesize_[res];
-    const int row = origin_.row + tilerowidx*mTileSideSize +
-	(normalrow==normalsidesize_[res]-1 ? mTileSideSize : normalrow*spacing);
-    const int col = origin_.col + tilecolidx*mTileSideSize +
-	normalcol==normalsidesize_[res]-1 ? mTileSideSize : normalcol*spacing;
-
-    TypeSet<float> posarray, zarray;
-    for ( int idx=-spacing; idx<=spacing; idx++ )
-    {
-	const Coord3 pos = 
-	    geometry_->getKnot( RowCol(row+idx*step_.row,col), false );
-	if ( pos.isDefined() )
-	{
-	    posarray += idx*rowdistance_;
-	    zarray += pos.z;
-	}
-    }
-	   
-    double drow = 0;
-    if ( zarray.size()>1 )
-	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
-
-    posarray.erase(); zarray.erase();    
-    for ( int idx=-spacing; idx<=spacing; idx++ )
-    {
-	const Coord3 pos = 
-	    geometry_->getKnot( RowCol(row,col+idx*step_.col), false );
-	if ( pos.isDefined() )
-	{
-	    posarray += idx*coldistance_;
-	    zarray += pos.z;
-	}
-    }
-
-    double dcol = 0;
-    if ( zarray.size()>1 )
-	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &dcol );
-
-    ti.setNormal( nmidx, Coord3(drow*cosanglexinl_+dcol*sinanglexinl_,
-				dcol*cosanglexinl_-drow*sinanglexinl_,-1) );
 }
 
 
@@ -1371,7 +1443,11 @@ void HorizonSectionTile::removeInvalidNormals( int res )
 
 
 void HorizonSectionTile::setAllNormalsInvalid( int res, bool yn )
-{ allnormalsinvalid_[res] = yn; }
+{ 
+    allnormalsinvalid_[res] = yn; 
+    
+    if ( yn ) removeInvalidNormals( res );
+}
 
 
 bool HorizonSectionTile::allNormalsInvalid( int res ) const
@@ -1797,10 +1873,7 @@ void HorizonSectionTile::setInvalidNormals( int row, int col )
     for ( int res=0; res<mHorSectNrRes; res++ )
     {
 	if ( allnormalsinvalid_[res] )
-	{
-	    invalidnormals_[res].erase();
 	    continue;
-	}
 
 	int rowstart = row-spacing_[res];
 	if ( rowstart>mTileSideSize ) continue;

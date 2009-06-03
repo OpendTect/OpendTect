@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.21 2009-06-02 21:41:29 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.22 2009-06-03 15:40:47 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -115,7 +115,7 @@ public:
 
 protected:
     				~HorizonSection();
-    static ArrPtrMan<SbVec2f>	texturecoordptr_;				
+    friend class		HorSectTileNormalUpdater;			
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,
 	    				      TaskRunner*);
@@ -131,10 +131,6 @@ protected:
 	    					const StepInterval<int>& crg);
     void			updateBBox(SoGetBoundingBoxAction* action);
     HorizonSectionTile*		createTile(int rowidx,int colidx);
-    void			updateNormals(HorizonSectionTile&, int res,
-	    				      int tilerowidx,int tilecolidx);
-    void			setNormal(int nmidx,int res,HorizonSectionTile&,
-	    				  int tilerowidx,int tilecolidx);	
 
     Geometry::BinIDSurface*	geometry_;
     Threads::Mutex		geometrylock_;
@@ -162,6 +158,8 @@ protected:
 
     RowCol			origin_;
     RowCol			step_;
+    
+    static ArrPtrMan<SbVec2f>	texturecoordptr_;				
     static int			normalstartidx_[mHorSectNrRes];
     static int			normalsidesize_[mHorSectNrRes];
 };
