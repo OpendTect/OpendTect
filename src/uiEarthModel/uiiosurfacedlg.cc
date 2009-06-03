@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.41 2009-05-07 08:16:38 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.42 2009-06-03 02:56:36 cvskris Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.41 2009-05-07 08:16:38 cv
 #include "executor.h"
 #include "filegen.h"
 #include "ioobj.h"
-#include "posprovider.h"
+#include "rangeposprovider.h"
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -223,25 +223,30 @@ bool uiCopySurface::acceptOK( CallBacker* )
     PtrMan<Executor> loader = surface->geometry().loader( &sdsel );
     if ( !loader ) mErrRet("Cannot read surface")
 
-    uiTaskRunner loaddlg( this );
-    if ( !loaddlg.execute(*loader) ) return false;
+    uiTaskRunner tr( this );
+    if ( !tr.execute(*loader) ) return false;
 
     uiPosSubSel* pss = inpfld->getPosSubSel();
-    if ( pss )
-    {
-	Pos::Filter* pf = pss->curProvider();
-	if ( pf )
-	    surface->apply( *pf );
-    }
+    Pos::Filter* pf = pss ? pss->curProvider() : 0;
+    if ( pf )
+	surface->apply( *pf );
+ 
+    EM::SurfaceIOData outsd;
+    outsd.use( *surface );
+    EM::SurfaceIODataSelection outsdsel( outsd );
+    outsdsel.setDefault();
+ 
+    mDynamicCastGet( Pos::RangeProvider3D*, rp, pf );
+    if ( rp )
+	outsdsel.rg = rp->sampling().hrg;
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj;
     const MultiID& mid = newioobj->key();
     emobj->setMultiID( mid );
-    PtrMan<Executor> saver = surface->geometry().saver( 0, &mid );
+    PtrMan<Executor> saver = surface->geometry().saver( &outsdsel, &mid );
     if ( !saver ) mErrRet("Cannot save surface")
 
-    uiTaskRunner savedlg( this );
-    if ( !savedlg.execute(*saver) ) return false;
+    if ( !tr.execute(*saver) ) return false;
 
     const BufferString oldsetupname = EM::Surface::getSetupFileName( *ioobj );
     const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);
