@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.176 2009-05-29 17:31:07 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.177 2009-06-03 10:25:53 cvsnanne Exp $";
 
 #include "uiempartserv.h"
 
@@ -736,6 +736,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	    if ( pid.objectID()==-1 )
 		break;
 
+	    auxvals[0] = hor3d->getPos( pid ).z;
 	    for ( int idx=0; idx<nms.size(); idx++ )
 	    {
 		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
