@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.119 2009-04-20 13:01:00 cvsjaap Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.120 2009-06-03 02:46:23 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -99,6 +99,7 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , version_( 1 )
     , readlinenames_( 0 )
     , linestrcrgs_( 0 )		       
+    , nrrows_( 0 )
 {
     sectionnames_.allowNull();
     linenames_.allowNull();
@@ -1238,6 +1239,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , oldsectionindex_( -1 )
     , writeonlyz_( false )
     , filetype_( filetype )
+    , nrrows_( 0 )
     , binary_( binary )
     , geometry_(
 	reinterpret_cast<const EM::RowColSurfaceGeometry&>( surface.geometry()))
