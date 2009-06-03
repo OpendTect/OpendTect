@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.70 2009-05-29 11:40:47 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.71 2009-06-03 14:58:24 cvsumesh Exp $";
 
 #include "vismpe.h"
 
@@ -505,6 +505,7 @@ void MPEDisplay::showDragger( bool yn )
 	updateTexture();
     dragger_->turnOn( yn );
     movement.trigger();
+    planeOrientationChange.trigger();
 }
 
 
@@ -568,6 +569,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 				      || trkmode==MPE::TrackPlane::ReTrack
 				      || trkmode==MPE::TrackPlane::Erase );
 	movement.trigger();
+	planeOrientationChange.trigger();
 	}
 }
 
@@ -720,6 +722,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
     updateTextureCoords();
     movement.trigger();
+    planeOrientationChange.trigger();
 }
 
 
