@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvtopbotimg.cc,v 1.1 2009-06-03 10:51:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvtopbotimg.cc,v 1.2 2009-06-03 11:01:45 cvsbert Exp $";
 
 #include "uisurvtopbotimg.h"
 
@@ -59,7 +59,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop )
 
 void fillCurrent()
 {
-    //TODO set current file names, coords etc., like:
+    //TODO set file names, coords etc. as in current display, like:
     // fnmfld_->setChecked( have_image );
     // transpfld_->sldr()->setValue( initaltransp );
 }
@@ -103,7 +103,8 @@ void transpChg( CallBacker* )
 };
 
 
-uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p, visSurvey::Scene* scene )
+uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
+					    visSurvey::Scene* scene )
     : uiDialog(p, uiDialog::Setup("Top/Bottom Images",
 				  "Set Top and/or Bottom Images",
 				  mTODOHelpID) )
@@ -120,24 +121,27 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p, visSurvey::Scene* scene
 }
 
 
-//TODO implement
 
 void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )
 {
+//TODO user has selected a new file name
 }
 
 
 void uiSurvTopBotImageDlg::setOn( bool istop, bool ison )
 {
+//TODO user switches on or off
 }
 
 
 void uiSurvTopBotImageDlg::setCoord( bool istop, bool istopleft,
 				     const Coord& pos )
 {
+//TODO user changes a corner coordinate
 }
 
 
 void uiSurvTopBotImageDlg::setTransp( bool istop, int val )
 {
+//TODO user changes the transparency slider
 }
