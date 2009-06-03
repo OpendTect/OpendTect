@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.177 2009-05-20 16:40:36 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.178 2009-06-03 15:30:52 cvskris Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -255,7 +255,14 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 
 Qt::WFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 {
+#ifdef __mac__
+    if ( !hasparent )
+ 	return  Qt::WindowFlags( Qt::Window );
+     
+    return  Qt::WindowFlags( modal ? Qt::Dialog : (Qt::Dialog|Qt::WindowStaysOnTopHint));
+#else
     return  Qt::WindowFlags( hasparent ? Qt::Dialog : Qt::Window );
+#endif
 }
 
 
