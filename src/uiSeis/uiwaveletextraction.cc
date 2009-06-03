@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.5 2009-06-01 05:57:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.6 2009-06-03 07:16:57 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -139,9 +139,10 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	inputpars.set(  sKey::ZRange, zrg );
     }
 
-    if ( wtlengthfld_->getfValue()<0 )
+    if ( wtlengthfld_->getfValue()<8 )
     {
-	uiMSG().error( "Entered wavelet length is wrong" );
+	uiMSG().error( "Minimum length of the wavelet should be 8 "
+		       , SI().getZUnitString(false) );
 	return false;
     }
 
@@ -206,9 +207,16 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
     if ( !firsttrc ) return false;
 
     const int signalsz = firsttrc->size();
+    if ( signalsz < 3 )
+    {
+	uiMSG().warning( "Signal length should be more or equal to  12"
+			 , SI().getZUnitString(false) );
+	return false;
+    }
+
     if ( wvltsize_>signalsz )
     {
-	uiMSG().warning("Signal length should be more than wavelet length");
+	uiMSG().warning( "Signal length should be more than wavelet length" );
 	return false;
     }
 
@@ -221,10 +229,13 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
     ArrayNDWindow window( signal.info(), true, ArrayNDWindow::CosTaper5 );
 
     const int nrtrcs = buf.size();
+    int nrgoodtrcs = 0;
     for ( int trcidx=0; trcidx<nrtrcs; trcidx++ )
     {
 	bool foundundef = false;
 	const SeisTrc& trc = *buf.get( trcidx );
+	if ( trc.isNull() ) continue;
+
 	for ( int sidx=0; sidx<trc.size(); sidx++ )
 	{
 	    const float val = trc.get( sidx, 0 );
@@ -250,7 +261,6 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
 	Array1DImpl<float> temp( wvltsize_ );
 	int startidx = (signalsz/2) - ((wvltsize_-1)/2);
 	int endidx = (signalsz/2) + ((wvltsize_-1)/2);
-
 	for ( int idx=0; idx<wvltsize_; idx++ )
 	    temp.set( idx, acarr.get( startidx+idx ) );
 
@@ -269,11 +279,19 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
 	    const float val = std::abs( freqdomsignal.arr()[idx] );
 	    stackedwvlt[idx] += val;
 	}
+
+	nrgoodtrcs++;
     }
 
+    if ( nrgoodtrcs == 0 )
+    {
+	uiMSG().error("No valid traces for computation. ",
+		      "Please change selection");
+	return false;
+    }
     stackedwvlt[0] = 0;
     for ( int idx=1; idx<wvltsize_; idx++ )
-	stackedwvlt[idx] = sqrt( stackedwvlt[idx] / nrtrcs );
+	stackedwvlt[idx] = sqrt( stackedwvlt[idx] / nrgoodtrcs );
 
     return true;
 }
@@ -308,8 +326,13 @@ bool uiWaveletExtraction::doIFFT( const float* in, float* out )
 
 void uiWaveletExtraction::normalisation( Array1DImpl<float>& normalisation )
 {
-    float maxval = *(std::max_element(normalisation.arr(), 
-		     normalisation.arr()+wvltsize_-1) );
+    float maxval = fabs( normalisation.arr()[0] );
+    for ( int idx=1; idx<wvltsize_; idx++ )
+    {
+	float val = fabs( normalisation.arr()[idx] );
+	if( val > maxval )
+	    maxval = val;
+    }
 
     for( int idx=0; idx<wvltsize_; idx++ )
 	normalisation.arr()[idx] = (normalisation.arr()[idx])/(maxval);
