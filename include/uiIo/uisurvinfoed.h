@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.30 2009-03-20 11:11:37 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.31 2009-06-03 10:41:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,7 @@ class SurveyInfo;
 class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
-class uiLabel;
 class uiGroup;
-class uiPushButton;
-class uiLabeledComboBox;
 class uiSurvInfoProvider;
 
 
@@ -50,45 +47,45 @@ public:
 protected:
 
     SurveyInfo&		si_;
-    BufferString	orgdirname;
-    BufferString	orgstorepath;
-    const FileNameString rootdir;
-    bool		isnew;
+    BufferString	orgdirname_;
+    BufferString	orgstorepath_;
+    const FileNameString rootdir_;
+    bool		isnew_;
     IOPar*		impiop_;
     uiSurvInfoProvider*	lastsip_;
 
-    uiGenInput*		survnmfld;
-    uiGenInput*		pathfld;
-    uiGenInput*		inlfld;
-    uiGenInput*		crlfld;
-    uiGenInput*		zfld;
-    uiLabeledComboBox*	zunitfld;
-    uiLabeledComboBox*	pol2dfld;
+    uiGenInput*		survnmfld_;
+    uiGenInput*		pathfld_;
+    uiGenInput*		inlfld_;
+    uiGenInput*		crlfld_;
+    uiGenInput*		zfld_;
+    uiComboBox*		zunitfld_;
+    uiComboBox*		pol2dfld_;
 
-    uiGenInput*		x0fld;
-    uiGenInput*		xinlfld;
-    uiGenInput*		xcrlfld;
-    uiGenInput*		y0fld;
-    uiGenInput*		yinlfld;
-    uiGenInput*		ycrlfld;
-    uiGenInput*		ic0fld;
-    uiGenInput*		ic1fld;
-    uiGenInput*		ic2fld;
-    uiGenInput*		xy0fld;
-    uiGenInput*		xy1fld;
-    uiGenInput*		xy2fld;
+    uiGenInput*		x0fld_;
+    uiGenInput*		xinlfld_;
+    uiGenInput*		xcrlfld_;
+    uiGenInput*		y0fld_;
+    uiGenInput*		yinlfld_;
+    uiGenInput*		ycrlfld_;
+    uiGenInput*		ic0fld_;
+    uiGenInput*		ic1fld_;
+    uiGenInput*		ic2fld_;
+    uiGenInput*		xy0fld_;
+    uiGenInput*		xy1fld_;
+    uiGenInput*		xy2fld_;
     uiGenInput*		coordset;
-    uiGroup*		crdgrp;
-    uiGroup*		trgrp;
-    uiComboBox*		sipfld;
-    uiCheckBox*		overrulefld;
-    uiCheckBox*		xyinftfld;
-    uiPushButton*	applybut;
-    ObjectSet<CallBacker> sipbuts;
+    uiGroup*		topgrp_;
+    uiGroup*		crdgrp_;
+    uiGroup*		trgrp_;
+    uiGroup*		rangegrp_;
+    uiComboBox*		sipfld_;
+    uiCheckBox*		overrulefld_;
+    uiCheckBox*		xyinftfld_;
 
     bool		dirnamechanged;
-    uiObject*		mkSIPFld(uiObject*);
-    uiGroup*		mkRangeGrp();
+    void		mkSIPFld(uiObject*);
+    void		mkRangeGrp();
     void		mkCoordGrp();
     void		mkTransfGrp();
     void		setValues();
@@ -99,15 +96,17 @@ protected:
     bool		doApply();
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
-    void		sipbutPush(CallBacker*);
+    void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		updStatusBar(const char*);
+    void		edGCrdSetup(CallBacker*);
     void		appButPushed(CallBacker*);
 
     friend class	uiSurvey;
+
 };
 
 #endif
