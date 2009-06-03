@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.33 2009-04-17 13:35:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.34 2009-06-03 10:50:28 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -464,9 +464,8 @@ void uiSEGYRead::setupScan()
     if ( setup_.purpose_ == SurvSetup && Seis::is2D(geom_) )
 	uiMSG().warning(
 	"Scanning a 2D file can provide valuable info on your survey.\n"
-	"But to actually set up your survey, you need to select\n"
-	"'Set for 2D only' and press 'Go'\n"
-	"In the survey setup window" );
+	"But to actually set up your survey, you need to use\n"
+	"'Set for 2D only'\nIn the survey setup window.\n" );
     scandlg_ = new uiSEGYScanDlg( parent_, su, pars_,
 	    			  setup_.purpose_ == SurvSetup );
     scandlg_->mSetreadReqCB();
