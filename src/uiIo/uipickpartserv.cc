@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.61 2009-03-18 17:52:57 cvskris Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.62 2009-06-04 13:37:06 cvsbert Exp $";
 
 #include "uipickpartserv.h"
 
@@ -143,95 +143,32 @@ bool uiPickPartServer::createEmptySet( bool aspolygon )
 }
 
 
-bool uiPickPartServer::createGenSet( bool is2d )
+bool uiPickPartServer::create3DGenSet()
 {
-    if ( is2d )
-	{ uiMSG().error( "TODO: 2D not implemented" ); return false; }
-    uiGenPosPicks dlg( parent(), is2d );
+    uiGenPosPicks dlg( parent() );
     mHandleDlg();
     return newps ? storeNewSet( newps ) : false;
 }
 
 
-bool uiPickPartServer::createRandomSet( bool is2d )
+bool uiPickPartServer::createRandom2DSet()
 {
-    fetchHors( is2d );
+    fetchHors( true );
     BufferStringSet hornms;
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	hornms.add( hinfos_[idx]->name );
 
-    if ( is2d )
-    {
-	deepErase( linesets_ );
-	linenms_.erase();
-	sendEvent( evGet2DLineInfo() );
-	uiGenRandPicks2D dlg( parent(), hornms, linesets_, linenms_ );
-	mHandleDlg();
-	if ( !mkRandLocs2D(*newps,dlg.randPars()) )
-	{ delete newps; newps = 0; }
-	if ( newps )
-	    return storeNewSet( newps );
-    }
-    else
-    {
-	uiGenRandPicks3D dlg( parent(), hornms );
-	mHandleDlg();
-	if ( !mkRandLocs3D(*newps,dlg.randPars()) )
-	{ delete newps; newps = 0; }
-	if ( newps )
-	    return storeNewSet( newps );
-    }
+    deepErase( linesets_ );
+    linenms_.erase();
+    sendEvent( evGet2DLineInfo() );
+    uiGenRandPicks2D dlg( parent(), hornms, linesets_, linenms_ );
+    mHandleDlg();
+    if ( !mkRandLocs2D(*newps,dlg.randPars()) )
+    { delete newps; newps = 0; }
+    if ( newps )
+	return storeNewSet( newps );
 
     return false;
-}
-
-
-bool uiPickPartServer::mkRandLocs3D( Pick::Set& ps, const RandLocGenPars& rp )
-{
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-
-    Stats::RandGen::init();
-    selhs_ = rp.hs_;
-    const bool do2hors = rp.needhor_ && rp.horidx2_ >= 0 && 
-			 rp.horidx2_ != rp.horidx_;
-    gendef_.empty();
-    deepErase( selhorids_ );
-    if ( rp.needhor_ )
-    {
-	selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
-	if ( do2hors )
-	    selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
-	sendEvent( evGetHorDef3D() );
-    }
-    else
-    {
-	const BinID stp = BinID( SI().inlStep(), SI().crlStep() );
-	BinID bid;
-	for ( bid.inl=selhs_.start.inl; bid.inl<=selhs_.stop.inl;
-		bid.inl +=selhs_.step.inl )
-	{
-	    for ( bid.crl=selhs_.start.crl; bid.crl<=selhs_.stop.crl;
-		    	bid.crl += selhs_.step.crl )
-		gendef_.add( bid, rp.zrg_.start, rp.zrg_.stop );
-	}
-    }
-
-    const int nrpts = gendef_.totalSize();
-    if ( !nrpts ) return true;
-
-    BinID bid; Interval<float> zrg;
-    for ( int ipt=0; ipt<rp.nr_; ipt++ )
-    {
-	const int ptidx = Stats::RandGen::getIndex( nrpts );
-	BinIDValueSet::Pos pos = gendef_.getPos( ptidx );
-	gendef_.get( pos, bid, zrg.start, zrg.stop );
-	float val = zrg.start + Stats::RandGen::get() * zrg.width();
-
-	ps += Pick::Location( SI().transform(bid), val );
-    }
-
-    gendef_.empty();
-    return true;
 }
 
 

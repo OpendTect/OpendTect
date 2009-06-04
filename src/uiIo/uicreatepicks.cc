@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.15 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.16 2009-06-04 13:37:06 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: uicreatepicks.cc,v 1.15 2008-12-10 18:24:13 cvs
 #include "posprovider.h"
 #include "randcolor.h"
 #include "survinfo.h"
+#include "statrand.h"
 #include "datapointset.h"
 
 static int sLastNrPicks = 500;
@@ -81,19 +82,12 @@ bool uiCreatePicks::acceptOK( CallBacker* )
 }
 
 
-uiGenPosPicks::uiGenPosPicks( uiParent* p, bool is2d )
+uiGenPosPicks::uiGenPosPicks( uiParent* p )
     : uiCreatePicks(p)
     , posprovfld_(0)
     , dps_(0)
 {
     setTitleText( "Create new pickset" );
-
-    if ( is2d )
-    {
-	uiLabel* lbl = new uiLabel( this, "TODO: 2D not implemented" );
-	lbl->attach( centeredBelow, colsel_);
-	return;
-    }
 
     uiPosProvider::Setup psu( false, true, true );
     psu .seltxt( "Generate locations by" )
@@ -106,6 +100,10 @@ uiGenPosPicks::uiGenPosPicks( uiParent* p, bool is2d )
     fsu.seltxt( "Remove locations" ).incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
     posfiltfld_->attach( alignedBelow, posprovfld_ );
+
+    maxnrfld_ = new uiGenInput( this, "Maximum number of locations",
+	    			IntInpSpec() );
+    maxnrfld_->attach( alignedBelow, posfiltfld_ );
 }
 
 
@@ -129,6 +127,10 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( !prov )
 	mErrRet("Internal: no Pos::Provider")
 
+    const int maxnr = maxnrfld_->getIntValue();
+    if ( maxnr < 2 )
+	mErrRet("Please allow more than 2 picks")
+
     uiTaskRunner tr( this );
     if ( !prov->initialize( &tr ) )
 	return false;
@@ -143,6 +145,27 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     mRestorCursor();
     if ( dps_->isEmpty() )
 	{ delete dps_; dps_ = 0; mErrRet("No matching locations found") }
+
+    if ( mIsUdf(maxnr) )
+	return true;   
+
+    mSetCursor();
+    int dpssz = dps_->size();
+    const int nrtoomany = dpssz - maxnr;
+    for ( int idx=0; idx<nrtoomany; idx++ )
+    {
+	int irm = Stats::RandGen::getIndex( dpssz );
+	int ioffs = 0;
+	while ( dps_->isInactive(irm+ioffs) )
+	{
+	    ioffs = ioffs <= 0 ? 1 - ioffs : -ioffs;
+	    if ( irm < -ioffs || irm+ioffs >= dpssz )
+		ioffs = ioffs <= 0 ? 1 - ioffs : -ioffs;
+	}
+	dps_->setInactive( irm+ioffs, true );
+    }
+    dps_->purgeInactive();
+    mRestorCursor();
 
     return true;   
 }
@@ -164,10 +187,14 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 
 
 
-uiGenRandPicks::uiGenRandPicks( uiParent* p, const BufferStringSet& hornms )
-	: uiCreatePicks(p)
-	, geomfld_(0)
-	, hornms_(hornms)
+
+uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
+       				  const BufferStringSet& lsets,
+				  const TypeSet<BufferStringSet>& lnms )
+    : uiCreatePicks(p)
+    , geomfld_(0)
+    , hornms_(hornms)
+    , linenms_(lnms)
 {
     setTitleText( "Create new pickset with random positions" );
     nrfld_ = new uiGenInput( this, "Number of picks to generate",
@@ -180,29 +207,58 @@ uiGenRandPicks::uiGenRandPicks( uiParent* p, const BufferStringSet& hornms )
 	horselfld_->box()->addItem( "Select" );
 	horselfld_->box()->addItems( hornms_ );
 	horselfld_->box()->selectionChanged.notify(mCB(this,
-		    				       uiGenRandPicks,hor1Sel));
+		    				    uiGenRandPicks2D,hor1Sel));
 	horsel2fld_ = new uiComboBox( this, "" );
 	horsel2fld_->addItem( "Select" );
 	horsel2fld_->addItems( hornms_ );
 	horsel2fld_->selectionChanged.notify( mCB(this,
-		    				 uiGenRandPicks,hor2Sel) );
+		    				 uiGenRandPicks2D,hor2Sel) );
     }
+
+    linesetfld_ = new uiGenInput( this, "Line Set",
+	    			  StringListInpSpec(lsets) );
+    linesetfld_->attach( alignedBelow, nrfld_ );
+    linesetfld_->valuechanged.notify( mCB(this,uiGenRandPicks2D,lineSetSel) );
+
+    linenmfld_ = new uiLabeledListBox( this, lnms[0], "Select Lines", true);
+    linenmfld_->attach( alignedBelow, linesetfld_ );
+
+    if ( hornms.size() )
+    {
+	geomfld_ = new uiGenInput( this, "Geometry",
+				     StringListInpSpec(sGeoms2D) );
+	geomfld_->attach( alignedBelow, linenmfld_ );
+	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks2D,geomSel) );
+	horselfld_->attach( alignedBelow, geomfld_ );
+	horsel2fld_->attach( rightOf, horselfld_ );
+    }
+
+    BufferString zlbl = "Z Range";
+    zlbl += SI().getZUnitString();
+    StepInterval<float> survzrg = SI().zRange(false);
+    Interval<float> inpzrg( survzrg.start, survzrg.stop );
+    inpzrg.scale( SI().zFactor() );
+    zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
+    if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
+    else zfld_->attach( alignedBelow, linenmfld_ );
+
+    finaliseStart.notify( mCB(this,uiGenRandPicks2D,geomSel) );
 }
 
 
-void uiGenRandPicks::hor1Sel( CallBacker* cb )
+void uiGenRandPicks2D::hor1Sel( CallBacker* cb )
 {    
     horSel( horselfld_->box(), horsel2fld_ );
 }
 
 
-void uiGenRandPicks::hor2Sel( CallBacker* cb )
+void uiGenRandPicks2D::hor2Sel( CallBacker* cb )
 {
     horSel( horsel2fld_, horselfld_->box() );
 }
 
 
-void uiGenRandPicks::horSel( uiComboBox* sel, uiComboBox* tosel )
+void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
 {
     const char* nm = sel->text();
     const char* curnm = tosel->text();
@@ -218,124 +274,6 @@ void uiGenRandPicks::horSel( uiComboBox* sel, uiComboBox* tosel )
     if ( bs ) delete bs;
 }
 
-
-uiGenRandPicks3D::uiGenRandPicks3D( uiParent* p, const BufferStringSet& hornms )
-    : uiGenRandPicks(p,hornms)
-    , horsubselfld_(0)
-{
-    if ( hornms.size() )
-    {
-	geomfld_ = new uiGenInput( this, "Geometry",
-				     StringListInpSpec(sGeoms3D) );
-	geomfld_->attach( alignedBelow, nrfld_ );
-	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks,geomSel) );
-    }
-
-    uiPosSubSel::Setup su(false,true); su.withstep(false);
-    volsubselfld_ = new uiPosSubSel( this, su );
-    volsubselfld_->attach( alignedBelow, geomfld_ ? geomfld_ : nrfld_ );
-    if ( geomfld_ )
-    {
-	horselfld_->attach( alignedBelow, geomfld_ );
-	horsel2fld_->attach( rightOf, horselfld_ );
-	su.withz(false);
-	horsubselfld_ = new uiPosSubSel( this, su );
-	horsubselfld_->attach( alignedBelow, horselfld_ );
-    }
-
-    finaliseStart.notify( mCB(this,uiGenRandPicks,geomSel) );
-}
-
-
-void uiGenRandPicks3D::geomSel( CallBacker* cb )
-{
-    if ( !geomfld_ ) return;
-
-    const int geomtyp = geomfld_->getIntValue();
-    const bool vol = geomtyp == 0;
-    horsubselfld_->display( !vol );
-    volsubselfld_->display( vol );
-    horselfld_->display( !vol );
-    horsel2fld_->display( geomtyp == 2 );
-}
-
-
-void uiGenRandPicks3D::mkRandPars()
-{
-    randpars_.nr_ = nrfld_->getIntValue();
-    randpars_.needhor_ = geomfld_ && geomfld_->getIntValue();
-
-    uiPosSubSel* ss = randpars_.needhor_ ? horsubselfld_ : volsubselfld_;
-    CubeSampling cs = ss->envelope();
-    randpars_.hs_ = cs.hrg;
-
-    if ( !randpars_.needhor_ )
-	randpars_.zrg_ = cs.zrg;
-    else
-    {
-	randpars_.horidx_ = hornms_.indexOf( horselfld_->box()->text() );
-	randpars_.horidx2_ = -1;
-	if ( geomfld_->getIntValue() == 2 )
-	    randpars_.horidx2_ = hornms_.indexOf( horsel2fld_->text() );
-    }
-}
-
-
-bool uiGenRandPicks3D::acceptOK( CallBacker* c )
-{
-    if ( !uiCreatePicks::acceptOK(c) )
-	return false;
-
-    const int choice = geomfld_ ? geomfld_->getIntValue() : 0;
-    if ( choice )
-    {
-	if ( !strcmp(horselfld_->box()->text(),"Select") )
-	    mErrRet( "Please Select a valid horizon" );
-	if ( choice==2 && !strcmp(horsel2fld_->text(),"Select") )
-	    mErrRet( "Please Select a valid second horizon" );
-    }
-
-    mkRandPars();
-    sLastNrPicks = randpars_.nr_;
-    return true;
-}
-
-
-uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
-       				  const BufferStringSet& lsets,
-				  const TypeSet<BufferStringSet>& lnms )
-    : uiGenRandPicks(p,hornms)
-    , linenms_(lnms)
-{
-    linesetfld_ = new uiGenInput( this, "Line Set",
-	    			  StringListInpSpec(lsets) );
-    linesetfld_->attach( alignedBelow, nrfld_ );
-    linesetfld_->valuechanged.notify( mCB(this,uiGenRandPicks2D,lineSetSel) );
-
-    linenmfld_ = new uiLabeledListBox( this, lnms[0], "Select Lines", true);
-    linenmfld_->attach( alignedBelow, linesetfld_ );
-
-    if ( hornms.size() )
-    {
-	geomfld_ = new uiGenInput( this, "Geometry",
-				     StringListInpSpec(sGeoms2D) );
-	geomfld_->attach( alignedBelow, linenmfld_ );
-	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks,geomSel) );
-	horselfld_->attach( alignedBelow, geomfld_ );
-	horsel2fld_->attach( rightOf, horselfld_ );
-    }
-
-    BufferString zlbl = "Z Range";
-    zlbl += SI().getZUnitString();
-    StepInterval<float> survzrg = SI().zRange(false);
-    Interval<float> inpzrg( survzrg.start, survzrg.stop );
-    inpzrg.scale( SI().zFactor() );
-    zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
-    if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
-    else zfld_->attach( alignedBelow, linenmfld_ );
-
-    finaliseStart.notify( mCB(this,uiGenRandPicks,geomSel) );
-}
 
 
 void uiGenRandPicks2D::geomSel( CallBacker* cb )

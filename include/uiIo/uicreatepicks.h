@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.7 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.8 2009-06-04 13:37:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ protected:
 mClass uiGenPosPicks : public uiCreatePicks
 {
 public:
-    			uiGenPosPicks(uiParent*,bool is2d); //!<TODO: 2D support
+    			uiGenPosPicks(uiParent*);
 			~uiGenPosPicks();
 
     virtual Pick::Set*	getPickSet() const;
@@ -83,19 +83,23 @@ protected:
     uiPosProvider*	posprovfld_;
     uiPosFilterSetSel*	posfiltfld_;
     DataPointSet*	dps_;
+    uiGenInput*		maxnrfld_;
 
     bool		acceptOK(CallBacker*);
 };
 
 
-mClass uiGenRandPicks : public uiCreatePicks
+mClass uiGenRandPicks2D : public uiCreatePicks
 {
 public:
+
+    			uiGenRandPicks2D(uiParent*,const BufferStringSet&,
+					const BufferStringSet&,
+					const TypeSet<BufferStringSet>&);
+
     const RandLocGenPars& randPars() const      { return randpars_; }
-    virtual void        geomSel(CallBacker*)                 =0;
 
 protected:
-    			uiGenRandPicks(uiParent*,const BufferStringSet&);
 
     RandLocGenPars              randpars_;
     const BufferStringSet&      hornms_;
@@ -104,43 +108,6 @@ protected:
     uiGenInput*		geomfld_;
     uiLabeledComboBox*	horselfld_;
     uiComboBox*		horsel2fld_;
-
-    void                hor1Sel(CallBacker*);
-    void                hor2Sel(CallBacker*);
-    void		horSel(uiComboBox*,uiComboBox*);
-
-};
-
-
-mClass uiGenRandPicks3D : public uiGenRandPicks 
-{
-public:
-			uiGenRandPicks3D(uiParent*,const BufferStringSet&);
-
-    void                geomSel(CallBacker*);
-
-protected:
-
-    uiPosSubSel*	volsubselfld_;
-    uiPosSubSel*	horsubselfld_;
-
-    bool		acceptOK(CallBacker*);
-    void		mkRandPars();
-
-};
-
-
-mClass uiGenRandPicks2D : public uiGenRandPicks 
-{
-public:
-    			uiGenRandPicks2D(uiParent*,const BufferStringSet&,
-					const BufferStringSet&,
-					const TypeSet<BufferStringSet>&);
-
-    void                geomSel(CallBacker*);
-
-protected:
-    
     uiGenInput*		linesetfld_;
     uiLabeledListBox*	linenmfld_;
     uiGenInput*		zfld_;
@@ -150,6 +117,13 @@ protected:
     void		lineSetSel(CallBacker*);
     bool                acceptOK(CallBacker*);
     void                mkRandPars();
+
+    void                geomSel(CallBacker*);
+    void                hor1Sel(CallBacker*);
+    void                hor2Sel(CallBacker*);
+    void		horSel(uiComboBox*,uiComboBox*);
+
 };
+
 
 #endif

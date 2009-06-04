@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.58 2009-05-11 06:47:14 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.59 2009-06-04 13:37:06 cvsbert Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -111,9 +111,7 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 #define mEmptyIdx	1
 #define mPolygonIdx	2
 #define mGen3DIdx	3
-#define mGen2DIdx	4
-#define mRandom3DIdx	5
-#define mRandom2DIdx	6
+#define mRandom2DIdx	4
 #define mSaveIdx	10
 #define mDisplayIdx	11
 #define mShowAllIdx	12
@@ -134,17 +132,9 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     newmnu->insertItem( new uiMenuItem("&Empty ..."), mEmptyIdx );
     newmnu->insertItem( new uiMenuItem("&Polygon ..."), mPolygonIdx );
     newmnu->insertItem( new uiMenuItem("&Generate ..."), mGen3DIdx );
-    if ( !SI().has2D() )
-	newmnu->insertItem( new uiMenuItem("&Random positions ..."),
-			    mRandom3DIdx );
-    else
-    {
-	uiPopupMenu* randmnu = new uiPopupMenu( getUiParent(),
-						"&Random positions" );
-	randmnu->insertItem( new uiMenuItem("&3D ..."), mRandom3DIdx );
-	randmnu->insertItem( new uiMenuItem("&2D ..."), mRandom2DIdx );
-	newmnu->insertItem( randmnu );
-    }
+    if ( SI().has2D() )
+	newmnu->insertItem( new uiMenuItem("Random for &2D data ..."),
+			    mRandom2DIdx );
 
     mnu.insertItem( newmnu );
     if ( children_.size() > 0 )
@@ -175,17 +165,17 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	if ( !res )
 	    return -1;
     }
-    else if ( mnuid==mGen3DIdx || mnuid==mGen2DIdx )
+    else if ( mnuid==mGen3DIdx )
     {
 	display_on_add = true;
-	if ( !applMgr()->pickServer()->createGenSet(mnuid==mGen2DIdx) )
+	if ( !applMgr()->pickServer()->create3DGenSet() )
 	    return -1;
 	display_on_add = false;
     }
-    else if ( mnuid==mRandom3DIdx || mnuid==mRandom2DIdx )
+    else if ( mnuid==mRandom2DIdx )
     {
 	display_on_add = true;
-	if ( !applMgr()->pickServer()->createRandomSet(mnuid==mRandom2DIdx) )
+	if ( !applMgr()->pickServer()->createRandom2DSet() )
 	    return -1;
 	display_on_add = false;
     }
