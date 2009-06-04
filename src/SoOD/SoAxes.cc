@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoAxes.cc,v 1.3 2009-06-01 05:19:14 cvsdgb Exp $";
+static const char* rcsID = "$Id: SoAxes.cc,v 1.4 2009-06-04 05:37:52 cvsdgb Exp $";
 
 
 #include "SoAxes.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: SoAxes.cc,v 1.3 2009-06-01 05:19:14 cvsdgb Exp 
 
 
 
-static GLubyte nbmp[] = { 0x81, 0x83, 0x85, 0x89, 0x91, 0xA1, 0xC1, 0x81 };
+static GLubyte nbmp[] = { 0xE3, 0x46, 0x46, 0x4A, 0x52, 0x62, 0x62, 0xC7 };
 static GLubyte ebmp[] = { 0xfe, 0x80, 0x80, 0xF0, 0xF0, 0x80, 0x80, 0xfe };
 static GLubyte zbmp[] = { 0xff, 0x41, 0x21, 0x10, 0x08, 0x84, 0x82, 0xff };
 
@@ -97,7 +97,7 @@ void SoAxes::GLRender( SoGLRenderAction* action )
     glBitmap(8, 8, 0, 0, 0, 0, zbmp );
     glRasterPos3d( length + 0.2, 0, 0 );
     glBitmap(8, 8, 0, 0, 0, 0, ebmp );
-    glRasterPos3d( 0, length - 0.2, 0 );
+    glRasterPos3d( 0, length + 0.2, 0 );
     glBitmap(8, 8, 0, 0, 0, 0, nbmp );
 
     glEnable( GL_LIGHTING );		
