@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.9 2009-06-02 13:32:30 cvsnanne Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.10 2009-06-04 20:26:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,10 +33,12 @@ public:
 mClass uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
-    			uiODHorizonTreeItem( int, bool dummy );
-    			uiODHorizonTreeItem( const EM::ObjectID& emid );
+    			uiODHorizonTreeItem( int, bool rgba, bool dummy );
+    			uiODHorizonTreeItem( const EM::ObjectID& emid,
+					     bool rgba );
 
 protected:
+    bool		init();
     void		initMenuItems();
     void                initNotify();
     BufferString	createDisplayName() const;
@@ -56,6 +58,7 @@ protected:
     MenuItem		snapeventmnuitem_;
     MenuItem		shiftmnuitem_;
     MenuItem		removeselectionmnuitem_;
+    bool		rgba_;
 };
 
 

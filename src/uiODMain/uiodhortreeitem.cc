@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.28 2009-06-02 13:32:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.29 2009-06-04 20:26:42 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.28 2009-06-02 13:32:30 c
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
 #include "vissurvscene.h"
+#include "visrgbatexturechannel2rgba.h"
 
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
@@ -52,6 +53,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Load &color blended..."), 4 );
+
     uiMenuItem* newmenu = new uiMenuItem("&New ...");
     mnu.insertItem( newmenu, 1 );
     newmenu->setEnabled( !hastransform );
@@ -66,14 +69,14 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == 0 )
+    if ( mnuid == 0 || mnuid==4 )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false ); 
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    uiODHorizonTreeItem* itm =
-		new uiODHorizonTreeItem( objs[idx]->id() );
+		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==4 );
 	    addChild( itm, false, false );
 	}
 
@@ -164,8 +167,16 @@ uiTreeItem* uiODHorizonTreeItemFactory::create( int visid, uiTreeItem* ) const
     const FixedString objtype = uiVisEMObject::getObjectType(visid);
     if ( !objtype ) return 0;
 
-    if ( objtype==EM::Horizon3D::typeStr() )
-	return new uiODHorizonTreeItem(visid,true);
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+          ODMainWin()->applMgr().visServer()->getObject(visid));
+    if ( hd )
+    {
+	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
+			 hd->getChannel2RGBA() );
+
+	return new uiODHorizonTreeItem(visid, rgba, true);
+    }
+
 
     return 0;
 }
@@ -173,13 +184,15 @@ uiTreeItem* uiODHorizonTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 // uiODHorizonTreeItem
 
-uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid )
+uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba )
     : uiODEarthModelSurfaceTreeItem( emid )
+    , rgba_( rgba )
 { initMenuItems(); }
 
 
-uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool )
+uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool )
     : uiODEarthModelSurfaceTreeItem( 0 )
+    , rgba_( rgba )
 {
     initMenuItems();
     displayid_ = visid;
@@ -221,6 +234,36 @@ BufferString uiODHorizonTreeItem::createDisplayName() const
     }
 
     return res;
+}
+
+
+bool uiODHorizonTreeItem::init()
+{
+    if ( !createUiVisObj() )
+	return false;
+
+    if ( rgba_ )
+    {
+	mDynamicCastGet(visSurvey::HorizonDisplay*,
+	hd,visserv_->getObject(displayid_));
+	if ( !hd )
+	    return false;
+
+	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
+			hd->getChannel2RGBA() );
+
+	if ( rgba )
+	    return true;
+
+	if ( !hd->setChannel2RGBA( visBase::RGBATextureChannel2RGBA::create()) )
+	    return false;
+
+	hd->addAttrib();
+	hd->addAttrib();
+	hd->addAttrib();
+    }
+
+    return uiODEarthModelSurfaceTreeItem::init();
 }
 
 
