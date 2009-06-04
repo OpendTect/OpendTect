@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.120 2009-06-03 02:46:23 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.121 2009-06-04 14:51:49 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -233,6 +233,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     TypeSet< StepInterval<int> > trcranges;
     if ( par_->get(Horizon2DGeometry::sKeyLineIDs(),lineids) )
     {
+	//check that linenames_.size==lineids.size????
 	for ( int idx=0; idx<lineids.size(); idx++ )
 	{
 	    BufferString linesetkey = Horizon2DGeometry::sKeyLineSets();
@@ -241,14 +242,20 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	    trcrangekey += idx;
 
 	    StepInterval<int> trcrange;
-	    if ( par_->get(trcrangekey.buf(),trcrange) )
-		trcranges += trcrange;
-
 	    MultiID mid;
-	    if ( par_->get(linesetkey.buf(),mid) )
+	    if ( par_->get(trcrangekey.buf(),trcrange) &&
+		 par_->get(linesetkey.buf(),mid) )
 	    {
-		IOObj* ioobj = IOM().get( mid );
-		linesets_.add( ioobj->name() );
+		PtrMan<IOObj> ioobj = IOM().get( mid );
+		if ( ioobj )
+		{
+		    trcranges += trcrange;
+		    linesets_.add( ioobj->name() );
+		}
+		else
+		{
+		    //remove linename??
+		}
 	    }
 	}
     }
@@ -370,7 +377,7 @@ BufferString dgbSurfaceReader::lineName( int idx ) const
 
 
 BufferString dgbSurfaceReader::lineSet( int idx ) const
-{ return linesets_.get( idx ); }
+{ return linesets_.validIdx( idx ) ? linesets_.get( idx ) : BufferString(""); }
 
 
 void dgbSurfaceReader::selSections(const TypeSet<SectionID>& sel)
