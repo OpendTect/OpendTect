@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.24 2009-06-04 19:50:35 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.25 2009-06-04 22:24:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,6 @@ namespace ColTab { class Sequence; struct MapperSetup; }
 
 namespace visBase
 {
-
 class VisColorTab;    
 class TextureChannel2RGBA;    
 class Coordinates;
@@ -108,6 +107,7 @@ public:
     const BinIDValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
+
     void			setChannel2RGBA(TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannel2RGBA();
     const TextureChannel2RGBA*	getChannel2RGBA() const;
@@ -126,7 +126,7 @@ protected:
     void			updateAutoResolution(SoState*,TaskRunner*);
     static void			updateAutoResolution(void*,SoAction*);
     void			turnOnWireframe(int res,TaskRunner*);
-    void			updateTileTextureOrigin();
+    void			updateTileTextureOrigin(const RowCol& texorig);
     void			updateTileArray(const StepInterval<int>& rrg,
 	    					const StepInterval<int>& crg);
     void			updateBBox(SoGetBoundingBoxAction* action);
