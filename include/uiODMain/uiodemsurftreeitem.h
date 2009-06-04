@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.8 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.9 2009-06-04 20:05:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,9 +42,10 @@ protected:
 
     MenuItem		createflatscenemnuitem_;
 
-private:
+protected:
     bool		init();
     virtual void	initNotify() {};
+    bool		createUiVisObj();
 
     virtual void	checkCB(CallBacker*);
 

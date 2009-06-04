@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.52 2009-05-19 14:08:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.53 2009-06-04 20:05:38 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -75,7 +75,24 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 
 bool uiODEarthModelSurfaceTreeItem::init()
 {
-    delete uivisemobj_;
+    if ( !createUiVisObj() )
+	return false;
+
+    if ( !uiODDisplayTreeItem::init() )
+	return false;
+
+    initNotify();
+    treeitemwasenabled_ = isChecked();
+
+    return true;
+}
+
+
+bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
+{
+    if ( uivisemobj_ )
+	return true;
+
     if ( displayid_!=-1 )
     {
 	uivisemobj_ = new uiVisEMObject( getUiParent(), displayid_, visserv_ );
@@ -92,12 +109,6 @@ bool uiODEarthModelSurfaceTreeItem::init()
 	if ( !uivisemobj_->isOK() )
 	    mDelRet;
     }
-
-    if ( !uiODDisplayTreeItem::init() )
-	return false;
-
-    initNotify();
-    treeitemwasenabled_ = isChecked();
 
     return true;
 }
