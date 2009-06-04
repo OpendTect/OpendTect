@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.23 2009-06-03 21:56:26 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.24 2009-06-04 19:50:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ namespace visBase
 {
 
 class VisColorTab;    
-class ColTabTextureChannel2RGBA;    
+class TextureChannel2RGBA;    
 class Coordinates;
 class HorizonSectionTile;
 class TextureChannels;
@@ -68,17 +68,11 @@ public:
     Transformation*		getDisplayTransformation();
     void			setZAxisTransform(ZAxisTransform*);
 
-    void			allowShading(bool);
-    
     void                        useChannel(bool);
     int                         nrChannels() const;
-    int				maxNrChannels() const;
     void                        addChannel();
     void                        removeChannel(int);
     void                        swapChannels(int,int);
-
-    void			enableChannel(int channel,bool yn);
-    bool			isChannelEnabled(int channel) const;
 
     int                         nrVersions(int channel) const;
     void                        setNrVersions(int channel,int);
@@ -114,6 +108,10 @@ public:
     const BinIDValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
+    void			setChannel2RGBA(TextureChannel2RGBA*);
+    TextureChannel2RGBA*	getChannel2RGBA();
+    const TextureChannel2RGBA*	getChannel2RGBA() const;
+
 protected:
     				~HorizonSection();
     friend class		HorizonSectionTile;			
@@ -139,7 +137,7 @@ protected:
     ObjectSet<BinIDValueSet>	cache_;
 
     TextureChannels*		channels_;
-    ColTabTextureChannel2RGBA*	channel2rgba_;
+    TextureChannel2RGBA*	channel2rgba_;
     SoTextureCoordinate2*	texturecrds_;
 
     SoCallback*			callbacker_;

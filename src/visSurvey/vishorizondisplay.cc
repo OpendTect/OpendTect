@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.85 2009-06-02 21:40:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.86 2009-06-04 19:50:35 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.85 2009-06-02 21:40:49
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
+#include "vistexturechannel2rgba.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
@@ -150,6 +151,21 @@ bool HorizonDisplay::setDataTransform( ZAxisTransform* nz )
 
 const ZAxisTransform* HorizonDisplay::getDataTransform() const
 { return zaxistransform_; }
+
+
+bool HorizonDisplay::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
+{
+    RefMan<visBase::TextureChannel2RGBA> dummy( t );
+    if ( sections_.size()!=1 )
+	return false;
+
+    sections_[0]->setChannel2RGBA( t );
+    return true;
+}
+
+
+visBase::TextureChannel2RGBA* HorizonDisplay::getChannel2RGBA()
+{ return sections_.size() ? sections_[0]->getChannel2RGBA() : 0; }
 
 
 void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
@@ -466,10 +482,20 @@ bool HorizonDisplay::canAddAttrib( int nr ) const
     if ( !sections_.size() )
 	return false;
 
-    const int maxnr =  sections_[0]->maxNrChannels();
+    const int maxnr =  sections_[0]->getChannel2RGBA()->maxNrChannels();
     if ( !maxnr ) return true;
 
     return nrAttribs()+nr<=maxnr;
+}
+
+
+bool HorizonDisplay::canRemoveAttrib() const
+{
+    if ( !sections_.size() )
+	return false;
+
+    const int newnrattribs = nrAttribs()-1;
+    return newnrattribs>=sections_[0]->getChannel2RGBA()->minNrChannels();
 }
 
 
@@ -566,7 +592,7 @@ unsigned char HorizonDisplay::getAttribTransparency( int channel ) const
 void HorizonDisplay::enableAttrib( int channelnr, bool yn )
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->enableChannel( channelnr, yn );
+	sections_[idx]->getChannel2RGBA()->setEnabled( channelnr, yn );
     
     mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_);
     int channelidx = shifts_.size()-1;
@@ -592,7 +618,9 @@ bool HorizonDisplay::isAttribEnabled( int channel ) const
     if ( channel<0 || channel>=nrAttribs() )
        return false;
 
-    return sections_.size() ? sections_[0]->isChannelEnabled(channel) : false;
+    return sections_.size()
+	? sections_[0]->getChannel2RGBA()->isEnabled(channel)
+	: false;
 }
 
 
@@ -614,7 +642,8 @@ void HorizonDisplay::allowShading( bool yn )
 {
     allowshading_ = yn;
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
-	sections_[idx]->allowShading( yn );
+	sections_[idx]->getChannel2RGBA()->allowShading( yn );
+
 }
 
 
@@ -844,10 +873,10 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     {
 	surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
 	surf->setColTabSequence( idx, coltabsequences_[idx] );
-	surf->enableChannel( idx, enabled_[idx] );
+	surf->getChannel2RGBA()->setEnabled( idx, enabled_[idx] );
     }
 
-    surf->allowShading( allowshading_ );
+    surf->getChannel2RGBA()->allowShading( allowshading_ );
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1, tr );
 
@@ -1096,7 +1125,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( as_[idx]->id().isUnselInvalid() )
 	    return;
 
-	if ( !sections_[sectionidx]->isChannelEnabled(idx) || 
+	if ( !sections_[sectionidx]->getChannel2RGBA()->isEnabled(idx) || 
 	      sections_[sectionidx]->getTransparency(idx)==255 )
 	    continue;
 

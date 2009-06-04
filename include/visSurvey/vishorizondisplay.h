@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.40 2009-06-02 21:40:49 cvsyuancheng Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.41 2009-06-04 19:50:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,13 @@ ________________________________________________________________________
 class Executor;
 namespace ColTab{ class Sequence; struct MapperSetup; }
 namespace EM { class Horizon3D; }
-namespace visBase { class HorizonSection; class IndexedShape; }
+namespace visBase
+{
+    class HorizonSection;
+    class IndexedShape;
+    class TextureChannel2RGBA;
+}
+
 
 namespace visSurvey
 {
@@ -66,6 +72,7 @@ public:
     bool			addAttrib();
     bool			canAddAttrib(int nrattribstoadd=1) const;
     bool			removeAttrib(int attrib);
+    bool			canRemoveAttrib() const;
     bool			swapAttribs(int attrib0,int attrib1);
     void			setAttribTransparency(int,unsigned char);
     unsigned char		getAttribTransparency(int) const;
@@ -131,6 +138,9 @@ public:
 
     void			setEdgeLineRadius(float);
     float			getEdgeLineRadius() const;
+
+    bool			setChannel2RGBA(visBase::TextureChannel2RGBA*);
+    visBase::TextureChannel2RGBA* getChannel2RGBA();
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);

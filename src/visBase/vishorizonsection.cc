@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.37 2009-06-03 21:56:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.38 2009-06-04 19:50:35 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -346,14 +346,25 @@ HorizonSection::~HorizonSection()
 }
 
 
-void HorizonSection::allowShading( bool yn )
-{ 
-    channel2rgba_->allowShading( yn ); 
+void HorizonSection::setChannel2RGBA( TextureChannel2RGBA* t )
+{
+    channels_->setChannels2RGBA( t );
+    if ( channel2rgba_ )
+	channel2rgba_->unRef();
+
+    channel2rgba_ = t;
+
+    if ( channel2rgba_ )
+	channel2rgba_->ref();
 }
 
 
-int HorizonSection::maxNrChannels() const
-{ return channel2rgba_->maxNrChannels(); }
+TextureChannel2RGBA* HorizonSection::getChannel2RGBA()
+{ return channel2rgba_; }
+
+
+const TextureChannel2RGBA* HorizonSection::getChannel2RGBA() const
+{ return channel2rgba_; }
 
 
 void HorizonSection::useChannel( bool yn )
@@ -653,25 +664,19 @@ const ColTab::MapperSetup* HorizonSection::getColTabMapperSetup( int ch ) const
 
 void HorizonSection::setTransparency( int ch, unsigned char yn )
 { 
-    if ( ch>=0 ) channel2rgba_->setTransparency( ch, yn );
+    mDynamicCastGet( ColTabTextureChannel2RGBA*, ct, channel2rgba_ );
+    if ( ct && ch>=0 ) ct->setTransparency( ch, yn );
+
 }
 
 
 unsigned char HorizonSection::getTransparency( int ch ) const
 { 
-    return channel2rgba_->getTransparency( ch ); 
-}
-
-
-void HorizonSection::enableChannel( int channel, bool yn )
-{
-    channel2rgba_->setEnabled( channel, yn ); 
-}
-
-
-bool HorizonSection::isChannelEnabled( int channel ) const
-{ 
-    return channel2rgba_->isEnabled( channel ); 
+    mDynamicCastGet( ColTabTextureChannel2RGBA*, ct, channel2rgba_ );
+    if ( !ct )
+       return 0;
+     
+    return ct->getTransparency( ch ); 
 }
 
 
