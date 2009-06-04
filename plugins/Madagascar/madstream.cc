@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.18 2009-06-03 14:25:58 cvshelene Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.19 2009-06-04 07:16:19 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -85,6 +85,24 @@ MadStream::MadStream( IOPar& par )
 
 	initRead( inpar );
     }
+}
+
+
+MadStream::~MadStream()
+{
+    if ( istrm_ && istrm_ != &std::cin ) delete istrm_;
+    if ( ostrm_ )
+    {
+	ostrm_->flush();
+	if ( ostrm_ != &std::cout && ostrm_ != &std::cerr ) delete ostrm_;
+    }
+
+    delete seisrdr_; delete seiswrr_;
+    delete psrdr_; delete pswrr_;
+    delete trcbuf_; delete iter_; delete l2ddata_;
+    delete errmsg_;
+    if ( headerpars_ ) delete headerpars_;
+    if ( stortrcbuf_ && stortrcbufismine_ ) delete  stortrcbuf_;
 }
 
 
@@ -187,22 +205,6 @@ void MadStream::initWrite( IOPar* par )
     }	
 
     fillHeaderParsFromStream();
-}
-
-MadStream::~MadStream()
-{
-    if ( istrm_ && istrm_ != &std::cin ) delete istrm_;
-    if ( ostrm_ )
-    {
-	ostrm_->flush();
-	if ( ostrm_ != &std::cout && ostrm_ != &std::cerr ) delete ostrm_;
-    }
-
-    delete seisrdr_; delete seiswrr_;
-    delete psrdr_; delete pswrr_;
-    delete trcbuf_; delete iter_; delete l2ddata_;
-    delete errmsg_;
-    if ( stortrcbuf_ && stortrcbufismine_ ) delete  stortrcbuf_;
 }
 
 
