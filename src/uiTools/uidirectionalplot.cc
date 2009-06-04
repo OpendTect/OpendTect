@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.29 2009-05-26 14:49:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.30 2009-06-04 11:50:32 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -371,7 +371,6 @@ void uiDirectionalPlot::drawScatter()
 
 void uiDirectionalPlot::drawVals()
 {
-    if ( data_.nrSectors() < 1 ) return;
     if ( !colseq_ )
     {
 	colseq_ = new ColTab::Sequence;
@@ -382,59 +381,97 @@ void uiDirectionalPlot::drawVals()
 	    colseq_->setColor( 1, 0, 0, 255 );
 	}
     }
+    drawSectorParts( true );
+}
 
+
+void uiDirectionalPlot::drawRose()
+{
+    drawSectorParts( false );
+}
+
+
+uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
+						 Color col )
+{
     const float dang = data_.angle(0,1) - data_.angle(0,-1);
     const float dangrad = dang * Angle::cPI(dang) / 180;
+    const Stats::SectorData& sd = *data_[isect];
+    Interval<float> angrg( data_.angle(isect,-1), 0 );
+    angrg.stop = angrg.start + dang;
+    Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
+    radangrg.stop = radangrg.start - dangrad;
 
+    rrg.scale( radius_ );
+    uiCurvedItem* ci = new uiCurvedItem(
+				dataUIPos(rrg.start,angrg.start) );
+    ci->drawTo( dataUIPos(rrg.stop,angrg.start) );
+    uiCurvedItem::ArcSpec as( center_, rrg.stop, radangrg );
+    ci->drawTo( as );
+
+    ci->drawTo( dataUIPos(rrg.start,angrg.stop) );
+    as.radius_ = rrg.start;
+    Swap( as.angles_.start, as.angles_.stop );
+    ci->drawTo( as );
+    ci->setFillColor( col );
+    ci->closeCurve();
+    scene().addItem( ci );
+    return ci;
+}
+
+
+void uiDirectionalPlot::drawSectorParts( bool isvals )
+{
     const int nrsectors = data_.nrSectors();
+    if ( nrsectors < 1 ) return;
+
+    const bool usecount = !isvals || setup_.docount_;
+    if ( usecount && maxcount_ < 1 ) return;
+
     for ( int isect=0; isect<nrsectors; isect++ )
     {
 	const Stats::SectorData& sd = *data_[isect];
-	Interval<float> angrg( data_.angle(isect,-1), 0 );
-	angrg.stop = angrg.start + dang;
-	Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
-	radangrg.stop = radangrg.start - dangrad;
-
 	const bool reversepos = sd.first().pos_ > sd.last().pos_;
+
 	for ( int ipart=0; ipart<sd.size(); ipart++ )
 	{
 	    const Stats::SectorPartData& spd = sd[ipart];
 	    if ( spd.count_ < 1 ) continue;
 
 	    Interval<float> rrg( 0, 1 );
-	    if ( reversepos )
-	    {
-		if ( ipart < sd.size()-1 )
-		    rrg.start = (spd.pos_ + sd[ipart+1].pos_) * .5;
-		if ( ipart > 0 )
-		    rrg.stop = (spd.pos_ + sd[ipart-1].pos_) * .5;
-	    }
+	    if ( usecount )
+		rrg.stop = ((float)spd.count_) / maxcount_;
 	    else
 	    {
-		if ( ipart )
-		    rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5;
-		if ( ipart < sd.size()-1 )
-		    rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
+		if ( reversepos )
+		{
+		    if ( ipart < sd.size()-1 )
+			rrg.start = (spd.pos_ + sd[ipart+1].pos_) * .5;
+		    if ( ipart > 0 )
+			rrg.stop = (spd.pos_ + sd[ipart-1].pos_) * .5;
+		}
+		else
+		{
+		    if ( ipart )
+			rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5;
+		    if ( ipart < sd.size()-1 )
+			rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
+		}
 	    }
 
-	    rrg.scale( radius_ );
-	    uiCurvedItem* ci = new uiCurvedItem(
-					dataUIPos(rrg.start,angrg.start) );
-	    ci->drawTo( dataUIPos(rrg.stop,angrg.start) );
-	    uiCurvedItem::ArcSpec as( center_, rrg.stop, radangrg );
-	    ci->drawTo( as );
+	    Color col;
+	    if ( !isvals )
+		col = Color::stdDrawColor( ipart%Color::nrStdDrawColors() );
+	    else
+	    {
+		float relpos = (spd.val_-valrg_.start)
+		    	     / (valrg_.stop-valrg_.start);
+		if ( relpos < 0 ) relpos = 0;
+		if ( relpos > 1 ) relpos = 1;
+		col = colseq_->color(relpos);
+	    }
 
-	    ci->drawTo( dataUIPos(rrg.start,angrg.stop) );
-	    as.radius_ = rrg.start;
-	    Swap( as.angles_.start, as.angles_.stop );
-	    ci->drawTo( as );
-
-	    float relpos = (spd.val_-valrg_.start)/(valrg_.stop-valrg_.start);
-	    if ( relpos < 0 ) relpos = 0;
-	    if ( relpos > 1 ) relpos = 1;
-	    ci->setFillColor( colseq_->color(relpos) );
-
-	    ci->closeCurve();
+	    uiCurvedItem* ci = drawSectorPart( isect, rrg, col );
 	    curveitems_.add( ci );
 	}
     }
@@ -443,41 +480,15 @@ void uiDirectionalPlot::drawVals()
 
 void uiDirectionalPlot::drawSelection()
 {
-    scene().removeItem( selsectoritem_ );
-    delete selsectoritem_; selsectoritem_ = 0;
-    const int selsect = selSector();
-    if ( selsect < 0 ) return;
-
-    const Stats::SectorData& sd = *data_[selsect];
-    const Interval<float> angrg( data_.angle(selsect,1),
-				 data_.angle(selsect,-1) );
-    const Interval<float> radangrg( data_.angle(selsect,Angle::Deg,1),
-				    data_.angle(selsect,Angle::Rad,-1) );
-    selsectoritem_ = new uiCurvedItem( dataUIPos(radius_+1,angrg.start) );
-    selsectoritem_->drawTo( dataUIPos(radius_+10,angrg.start) );
-    selsectoritem_->drawTo( dataUIPos(radius_+1,angrg.start) );
-    uiCurvedItem::ArcSpec as( center_, radius_+1, radangrg );
-    selsectoritem_->drawTo( as );
-    selsectoritem_->drawTo( dataUIPos(radius_+10,angrg.stop) );
-    scene().addItem( selsectoritem_ );
-}
-
-
-void uiDirectionalPlot::drawRose()
-{
-    scene().addItem( new uiTextItem(center_,"TODO: Rose diagrams") );
-
-    bool isstacked = false;
-    for ( int isect=0; isect<data_.nrSectors(); isect++ )
-	{ if ( data_[isect]->size() > 1 ) isstacked = true; break; }
-
-    for ( int isect=0; isect<data_.nrSectors(); isect++ )
+    if ( selsectoritem_ )
     {
-	const Stats::SectorData& sd = *data_[isect];
-	for ( int ipart=0; ipart<sd.size(); ipart++ )
-	{
-	}
+	scene().removeItem( selsectoritem_ );
+	delete selsectoritem_; selsectoritem_ = 0;
     }
+    if ( selsector_ < 0 ) return;
+
+    selsectoritem_ = drawSectorPart( selsector_, Interval<float>(1.01,1.05),
+				     Color::Black() );
 }
 
 
@@ -501,6 +512,13 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
 
     const float ang = atan2( (float)-relpos.y, (float)relpos.x );
     cursector_ = data_.sector( ang, Angle::Rad );
+    if ( setup_.curissel_ )
+    {
+	if ( cursector_ == selsector_ )
+	    selsector_ = -1;
+	else
+	    selsector_ = cursector_;
+    }
 
     sectorPicked.trigger();
 }
@@ -516,10 +534,4 @@ uiPoint uiDirectionalPlot::dataUIPos( float r, float ang ) const
 uiPoint uiDirectionalPlot::usrUIPos( float r, float ang ) const
 {
     return uiPointFromPolar( center_, r, Angle::usrdeg2rad(ang) );
-}
-
-
-int uiDirectionalPlot::selSector() const
-{
-    return setup_.curissel_ ? cursector_ : selsector_;
 }

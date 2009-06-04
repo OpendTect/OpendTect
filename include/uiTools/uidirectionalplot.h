@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.14 2009-05-22 08:31:45 cvsnanne Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.15 2009-06-04 11:50:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,10 +86,9 @@ public:
 
     Notifier<uiDirectionalPlot>	sectorPicked;
     int				curSector() const { return cursector_; }
-
+    int				selSector() const { return selsector_; }
     void			setSelectedSector( int i )
     						{ selsector_ = i; }
-    int				selSector() const;
 
 protected:
 
@@ -135,6 +134,8 @@ protected:
     void			drawVals();
     void			drawRose();
     void			drawSelection();
+    uiCurvedItem*		drawSectorPart(int,Interval<float>,Color);
+    void			drawSectorParts(bool);
 
     void			drawAnnot();
     void			drawDirAnnot();
