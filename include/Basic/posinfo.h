@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.13 2009-02-16 17:13:12 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.14 2009-06-04 06:11:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ public:
 protected:
 
     bool		firstpos_;
-    const CubeData&	cubedata_;
+    CubeData		cubedata_;
 };
 
 /*!\brief One position on a 2D line */
