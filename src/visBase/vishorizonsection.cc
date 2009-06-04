@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.39 2009-06-04 22:24:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.40 2009-06-04 23:16:34 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -623,8 +623,8 @@ void HorizonSection::updateTexture( int channel )
 	channels_->setUnMappedData( channel, idx, versiondata[idx],
 				    OD::TakeOverPtr, 0 );
 
-    updateTileTextureOrigin( RowCol(rrg.start*step_.row - origin_.row,
-				    crg.start*step_.col - origin_.col) );
+    updateTileTextureOrigin( RowCol( rrg.start - origin_.row, 
+				     crg.start - origin_.col ) );
 }
 
 
@@ -915,9 +915,8 @@ void HorizonSection::updateTileTextureOrigin( const RowCol& textureorigin )
 	    if ( !tile )
 		continue;
 
-	    const RowCol tilestart( rowidx*mTileSideSize*step_.row, 
-		    		    colidx*mTileSideSize*step_.col );
-	    const RowCol texturestart = tilestart-textureorigin;
+	    const RowCol tilestart( rowidx*mTileSideSize, colidx*mTileSideSize);
+	    const RowCol texturestart = tilestart - textureorigin/step_;
 
 	    tile->setTextureOrigin( texturestart.row, texturestart.col );
 	}
