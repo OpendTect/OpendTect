@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.71 2009-06-03 14:58:24 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.72 2009-06-05 09:12:28 cvsumesh Exp $";
 
 #include "vismpe.h"
 
@@ -313,10 +313,10 @@ void MPEDisplay::updateTexture()
 
 	const StepInterval<int> inlrg( attrcs.hrg.inlRange() );
 	const StepInterval<int> crlrg( attrcs.hrg.crlRange() );
-	const Interval<int> dispinlrg( inlrg.getIndex(attrcs.hrg.start.inl),
-				       inlrg.getIndex(attrcs.hrg.stop.inl) );
-	const Interval<int> dispcrlrg( crlrg.getIndex(attrcs.hrg.start.crl),
-				       crlrg.getIndex(attrcs.hrg.stop.crl) );
+	const Interval<int> dispinlrg( inlrg.getIndex(displaycs.hrg.start.inl),
+				       inlrg.getIndex(displaycs.hrg.stop.inl) );
+	const Interval<int> dispcrlrg( crlrg.getIndex(displaycs.hrg.start.crl),
+				       crlrg.getIndex(displaycs.hrg.stop.crl) );
 
 	const StepInterval<float>& zrg( displaycs.zrg );
 
