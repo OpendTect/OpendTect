@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.24 2009-06-05 15:17:09 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.25 2009-06-05 17:13:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,7 @@ public:
     int				usePar(const IOPar&);
     virtual bool                canBDispOn2DViewer() const	{ return true; }
     
+    static const char*		sKeyTC2RGBA();
 protected:
 
     				MultiTextureSurveyObject(
@@ -119,7 +120,6 @@ protected:
 
     int				resolution_;
 
-    static const char*		sKeyTC2RGBA();
 private:
     ObjectSet<Attrib::SelSpec>	as_;
     BoolTypeSet			isclassification_;
