@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.152 2009-05-29 12:02:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.153 2009-06-05 10:11:08 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -1147,6 +1147,9 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 
 	toolbar->turnOn( polyselectidx, false );
 	selectionMode( cb );
+
+	toolbar->turnOn( moveplaneidx, false );
+	movePlaneCB( cb );
 
 	toolbar->turnOn( seedidx, true );
 	addSeedCB( cb );
