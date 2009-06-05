@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.86 2009-06-04 19:50:35 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.87 2009-06-05 19:00:25 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.86 2009-06-04 19:50:35
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
 #include "vistexturechannel2rgba.h"
+#include "vismultiattribsurvobj.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
@@ -157,15 +158,20 @@ bool HorizonDisplay::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
 {
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
     if ( sections_.size()!=1 )
-	return false;
+	return EMObjectDisplay::setChannel2RGBA( t );
 
+    EMObjectDisplay::setChannel2RGBA( 0 );
     sections_[0]->setChannel2RGBA( t );
     return true;
 }
 
 
 visBase::TextureChannel2RGBA* HorizonDisplay::getChannel2RGBA()
-{ return sections_.size() ? sections_[0]->getChannel2RGBA() : 0; }
+{
+    return sections_.size()
+	? sections_[0]->getChannel2RGBA()
+	: EMObjectDisplay::getChannel2RGBA();
+}
 
 
 void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
@@ -874,6 +880,12 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 	surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
 	surf->setColTabSequence( idx, coltabsequences_[idx] );
 	surf->getChannel2RGBA()->setEnabled( idx, enabled_[idx] );
+    }
+
+    if ( !sections_.size() && channel2rgba_ )
+    {
+	surf->setChannel2RGBA( channel2rgba_ );
+	EMObjectDisplay::setChannel2RGBA( 0 );
     }
 
     surf->getChannel2RGBA()->allowShading( allowshading_ );
@@ -1711,6 +1723,17 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
 
+    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
+		     const_cast<HorizonDisplay*>(this)->getChannel2RGBA() );
+    if ( !cttc2rgba )
+    {
+	const int ctid =
+          const_cast<HorizonDisplay*>(this)->getChannel2RGBA()->id();
+	par.set( MultiTextureSurveyObject::sKeyTC2RGBA(), ctid );
+	saveids += ctid;
+    }
+
+
     for ( int channel=as_.size()-1; channel>=0; channel-- )
     {
 	IOPar channelpar;
@@ -1738,7 +1761,20 @@ int HorizonDisplay::usePar( const IOPar& par )
 
     res = EMObjectDisplay::usePar( par );
     if ( res!=1 ) return res;
-    
+
+    int tc2rgbaid;
+    if ( par.get( MultiTextureSurveyObject::sKeyTC2RGBA(), tc2rgbaid ) )
+    {
+	RefMan<visBase::DataObject> dataobj =
+		      visBase::DM().getObject( tc2rgbaid );
+	if ( !dataobj )
+	    return 0;
+
+	mDynamicCastGet(visBase::TextureChannel2RGBA*, tc2rgba, dataobj.ptr() );
+	if ( tc2rgba )
+	setChannel2RGBA( tc2rgba );
+    }
+
     if ( scene_ )
 	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
