@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.116 2009-06-02 21:40:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.117 2009-06-05 17:11:49 cvskris Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.116 2009-06-02 21:40:49 
 #include "vismaterial.h"
 #include "vismpeeditor.h"
 #include "vistransform.h"
+#include "vistexturechannel2rgba.h"
+
 
 
 namespace visSurvey
@@ -54,6 +56,7 @@ EMObjectDisplay::EMObjectDisplay()
     , enableedit_( false )
     , restoresessupdate_( false )
     , burstalertison_( false )
+    , channel2rgba_( 0 )
 {
     parposattrshown_.erase();
 
@@ -69,6 +72,9 @@ EMObjectDisplay::EMObjectDisplay()
 
 EMObjectDisplay::~EMObjectDisplay()
 {
+    if ( channel2rgba_ ) channel2rgba_->unRef();
+    channel2rgba_ = 0;
+
     removeChild( drawstyle_->getInventorNode() );
     drawstyle_->unRef();
     drawstyle_ = 0;
@@ -87,6 +93,19 @@ EMObjectDisplay::~EMObjectDisplay()
 
 }
 
+
+bool EMObjectDisplay::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
+{   
+    if ( channel2rgba_ ) channel2rgba_->unRef();
+    channel2rgba_ = t;
+    if ( channel2rgba_ ) channel2rgba_->ref();
+
+    return true;
+}   
+    
+
+visBase::TextureChannel2RGBA* EMObjectDisplay::getChannel2RGBA()
+{ return channel2rgba_; }
 
 mVisTrans* EMObjectDisplay::getDisplayTransformation()
 { return transformation_; }

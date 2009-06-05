@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.54 2009-06-02 21:40:49 cvsyuancheng Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.55 2009-06-05 17:11:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,7 @@ namespace visBase
 {
     class DataObjectGroup;
     class DrawStyle;
-    //class IndexedPolyLine;
-    class VisColorTab;
+    class TextureChannel2RGBA;
 }
 
 namespace visSurvey
@@ -93,6 +92,9 @@ public:
     bool			canRemoveSelecion()	{ return true; }
     void                        removeSelection(const Selector<Coord3>&);
 
+    virtual bool		setChannel2RGBA(visBase::TextureChannel2RGBA*);
+    virtual visBase::TextureChannel2RGBA* getChannel2RGBA();
+
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
@@ -130,6 +132,10 @@ protected:
     BufferStringSet			parsections_;
 
     MPEEditor*				editor_;
+    visBase::TextureChannel2RGBA*	channel2rgba_;
+					//set in usePar,
+					//should be nil when given
+					//to channels_.
 
     mutable Color			nontexturecol_;
     mutable bool			nontexturecolisset_;
