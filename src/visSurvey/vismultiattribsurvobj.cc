@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.34 2009-06-03 15:19:57 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.35 2009-06-05 15:17:09 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -28,6 +28,7 @@ const char* MultiTextureSurveyObject::sKeyResolution()	{ return "Resolution"; }
 const char* MultiTextureSurveyObject::sKeyTextTrans()	{ return "Trans"; }
 const char* MultiTextureSurveyObject::sKeySequence()	{ return "Sequence"; }
 const char* MultiTextureSurveyObject::sKeyMapper()	{ return "Mapper"; }
+const char* MultiTextureSurveyObject::sKeyTC2RGBA()	{ return "TC2RGBA"; }
 
 MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     : VisualObjectImpl(true)
@@ -563,6 +564,14 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 	par.mergeComp( attribpar, key );
     }
 
+    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
+                     channels_ ? channels_->getChannels2RGBA() : 0 );
+    if ( !cttc2rgba )
+    {
+	par.set( sKeyTC2RGBA(), channels_->getChannels2RGBA()->id() );
+	saveids += channels_->getChannels2RGBA()->id();
+    }
+
     par.set( sKeyNrAttribs(), as_.size() );
     fillSOPar( par );
 }
@@ -572,6 +581,19 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 {
     const int res =  visBase::VisualObject::usePar( par );
     if ( res!=1 ) return res;
+
+    int tc2rgbaid;
+    if ( par.get( sKeyTC2RGBA(), tc2rgbaid ) )
+    {
+	RefMan<visBase::DataObject> dataobj =
+	    visBase::DM().getObject( tc2rgbaid );
+	if ( !dataobj )
+	    return 0;
+
+	mDynamicCastGet(visBase::TextureChannel2RGBA*, tc2rgba, dataobj.ptr() );
+	if ( tc2rgba )
+	    setChannel2RGBA( tc2rgba );
+    }
 
     par.get( sKeyResolution(), resolution_ );
 

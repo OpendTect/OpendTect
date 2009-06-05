@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.23 2009-05-27 03:24:58 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.24 2009-06-05 15:17:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -119,6 +119,7 @@ protected:
 
     int				resolution_;
 
+    static const char*		sKeyTC2RGBA();
 private:
     ObjectSet<Attrib::SelSpec>	as_;
     BoolTypeSet			isclassification_;
