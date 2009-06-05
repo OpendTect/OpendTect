@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.12 2009-02-23 21:39:42 cvskris Exp $";
+static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.13 2009-06-05 15:02:35 cvsyuancheng Exp $";
 
 
 #include "SoColTabTextureChannel2RGBA.h"
@@ -127,8 +127,21 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 {
     if ( !nrchannels ) return;
 
-    const SbVec3s size3 = channels[0].getSize();
-    long size = size3[0]; size *= size3[1]; size *= size3[2];
+    //All channels should have the same size or be empty.
+    SbVec3s size3;
+    long size = 0;
+    for ( int idx=0; idx<nrchannels; idx++ )
+    {
+	const SbVec3s chsize3 = channels[idx].getSize();
+	const int chsize = chsize3[0]*chsize3[1]*chsize3[2];
+	if ( !size )
+	{
+	    size3 = chsize3;
+	    size = chsize;
+	}
+	else if ( chsize && size3!=chsize3 )
+	    return;
+    }
 
     int lastchannel = -1;
     int firstchannel = -1;
