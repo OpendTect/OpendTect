@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.40 2009-06-04 23:16:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.41 2009-06-05 20:38:07 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -319,7 +319,6 @@ HorizonSection::HorizonSection()
 
 HorizonSection::~HorizonSection()
 {
-    channels_->unRef();
     channel2rgba_->unRef();
     deepErase( cache_ );
 
@@ -342,8 +341,13 @@ HorizonSection::~HorizonSection()
 
     if ( transformation_ ) transformation_->unRef();
     removeZTransform();
-    
+   
+    removeChild( callbacker_ ); 
     callbacker_->unref();
+
+    removeChild( channels_->getInventorNode() );
+    channels_->unRef();
+    removeChild( texturecrds_ );
 }
 
 
@@ -623,8 +627,8 @@ void HorizonSection::updateTexture( int channel )
 	channels_->setUnMappedData( channel, idx, versiondata[idx],
 				    OD::TakeOverPtr, 0 );
 
-    updateTileTextureOrigin( RowCol( rrg.start - origin_.row, 
-				     crg.start - origin_.col ) );
+    updateTileTextureOrigin( RowCol(rrg.start-origin_.row,
+				    crg.start-origin_.col) );
 }
 
 
@@ -1078,15 +1082,12 @@ void HorizonSection::turnOnWireframe( int res, TaskRunner* tr )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     
-    HorizonSectionTile** tileptrs = tiles_.getData();
     const int tilesz = tiles_.info().getTotalSz();
-  
-    HorSectTileWireframeUpdater task( tileptrs, res, tilesz );
+    HorSectTileWireframeUpdater task( tiles_.getData(), res, tilesz );
     if ( tr )
 	tr->execute( task );
     else
 	task.execute();
-
 }
 
 
@@ -1158,6 +1159,7 @@ HorizonSectionTile::HorizonSectionTile()
     {
 	allnormalsinvalid_[idx] = true;
 	needsretesselation_[idx] = true;
+	wireframeneedsupdate_[idx] = true;
 	resolutions_[idx] = new SoGroup;
 	resswitch_->addChild( resolutions_[idx] );
 
@@ -1193,11 +1195,13 @@ HorizonSectionTile::HorizonSectionTile()
 
 HorizonSectionTile::~HorizonSectionTile()
 {
+    root_->removeChild( coords_->getInventorNode() );
     coords_->unRef();
     normals_->unref();
     root_->unref();
     wireframetexture_->unRef();
-    if ( wireframematerial_ ) wireframematerial_->unRef();
+    if ( wireframematerial_ ) 
+	wireframematerial_->unRef();
 }
 
 
@@ -1371,10 +1375,6 @@ void HorizonSectionTile::tesselateActualResolution()
 
     tesselateResolution( res );
 }
-
-
-void HorizonSectionTile::getNormalUpdateList( int res, TypeSet<int>& result )
-{ result = invalidnormals_[res]; }
 
 
 void HorizonSectionTile::removeInvalidNormals( int res )
@@ -1674,9 +1674,9 @@ void HorizonSectionTile::tesselateResolution( int res )
     lines_[res]->coordIndex.deleteValues( lnidx, -1 );
     lines_[res]->normalIndex.deleteValues( lnidx, -1 );
     lines_[res]->textureCoordIndex.deleteValues( lnidx, -1 );
-    points_[res]->coordIndex.set1Value( ptidx, -1 );
-    points_[res]->normalIndex.set1Value( ptidx, -1 );
-    points_[res]->textureCoordIndex.set1Value( ptidx, -1 );
+    points_[res]->coordIndex.deleteValues( ptidx, -1 );
+    points_[res]->normalIndex.deleteValues( ptidx, -1 );
+    points_[res]->textureCoordIndex.deleteValues( ptidx, -1 );
     root_->lock.writeUnlock();
     
     needsretesselation_[res] = false;
@@ -1694,7 +1694,7 @@ void HorizonSectionTile::turnOnWireframe( int res )
 {
     for ( int idx=0; idx<mHorSectNrRes; idx++ )
     {
-	if ( idx==res && wireframes_[idx]->coordIndex.getNum()<2 )
+	if ( idx==res && wireframeneedsupdate_[res] )
 	    setWireframe( res );
 
 	wireframeswitch_[idx]->whichChild = (usewireframe_ && idx==res) ? 0 : 1;
@@ -1763,6 +1763,8 @@ void HorizonSectionTile::setWireframe( int res )
     wireframes_[res]->textureCoordIndex.deleteValues( lnidx, -1 );
     wireframes_[res]->coordIndex.deleteValues( lnidx, -1 );
     wireframes_[res]->normalIndex.deleteValues( lnidx, -1 );
+
+    wireframeneedsupdate_[res] = false;
 }
 
 
@@ -1780,22 +1782,25 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
     if ( row>=0 && row<=mTileLastIdx && col>=0 && col<=mTileLastIdx )
     {
 	const int posidx = row*mNrCoordsPerTileSide+col;
-	const char oldnewdefined = coords_->isDefined(posidx)+pos.isDefined();
+	const char oldnewdefined = ( coords_->isDefined(posidx) ) + 
+	    			    ( pos.isDefined() );
 	coords_->setPos( posidx, pos );
 
-	if ( !oldnewdefined ) return;
-
-	if ( oldnewdefined==1 )
+	if ( !oldnewdefined ) 
+	    return;
+	else if ( oldnewdefined==1 )
 	{
 	    for ( int res=0; res<mHorSectNrRes; res++ )
 	    {
-		if ( !needsretesselation_[res] )
-		{
-		    if ( !(row % spacing_[res]) && !(col % spacing_[res]) )
+		if ( !needsretesselation_[res] && !(row % spacing_[res]) && 
+						  !(col % spacing_[res]) )
 			needsretesselation_[res] = true;
-		}
-	    }
 
+		if ( !wireframeneedsupdate_[res] && !(row % spacing_[res]) && 
+						    !(col % spacing_[res]) )
+		    wireframeneedsupdate_[res] = true;
+	    }
+	    
 	    glueneedsretesselation_ = true;
 	    needsupdatebbox_ = true;
 	}

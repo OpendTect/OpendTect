@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.25 2009-06-04 22:24:04 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.26 2009-06-05 20:38:07 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -107,7 +107,6 @@ public:
     const BinIDValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
-
     void			setChannel2RGBA(TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannel2RGBA();
     const TextureChannel2RGBA*	getChannel2RGBA() const;
@@ -201,10 +200,7 @@ public:
 
     bool			allNormalsInvalid(int res) const;
     void			setAllNormalsInvalid(int res,bool yn);
-    void			getNormalUpdateList(int res, TypeSet<int>&);
     void			removeInvalidNormals(int res);
-    void			updateNormals(HorizonSection& section,int res,
-					      int tilerowidx,int tilecolidx);
 
 protected:
 
@@ -218,8 +214,11 @@ protected:
     void			setInvalidNormals(int row,int col);
     void			setNormal(HorizonSection& section,int normidx,
 	    				 int res,int tilerowidx,int tilecolidx);
+    void			updateNormals(HorizonSection& section,int res,
+					      int tilerowidx,int tilecolidx);
 
     bool			usewireframe_;
+    bool			wireframeneedsupdate_[mHorSectNrRes];
     Material*			wireframematerial_;
 
     HorizonSectionTile*		neighbors_[9];
@@ -250,7 +249,6 @@ protected:
     SoSeparator*		wireframeseparator_[mHorSectNrRes];
     Texture2*			wireframetexture_;
 
-    visBase::Coordinates*	gluecoords_;
     SoIndexedTriangleStripSet*	gluetriangles_;
     SoSwitch*			gluelowdimswitch_;
     SoIndexedLineSet*		gluelines_;
