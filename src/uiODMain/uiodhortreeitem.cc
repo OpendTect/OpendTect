@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.29 2009-06-04 20:26:42 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.30 2009-06-05 19:16:04 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -252,15 +252,16 @@ bool uiODHorizonTreeItem::init()
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
 			hd->getChannel2RGBA() );
 
-	if ( rgba )
-	    return true;
+	if ( !rgba )
+	{
+	    if ( !hd->setChannel2RGBA(
+			visBase::RGBATextureChannel2RGBA::create()) )
+		return false;
 
-	if ( !hd->setChannel2RGBA( visBase::RGBATextureChannel2RGBA::create()) )
-	    return false;
-
-	hd->addAttrib();
-	hd->addAttrib();
-	hd->addAttrib();
+	    hd->addAttrib();
+	    hd->addAttrib();
+	    hd->addAttrib();
+	}
     }
 
     return uiODEarthModelSurfaceTreeItem::init();
