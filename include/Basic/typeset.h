@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.4 2009-04-30 14:10:31 cvskris Exp $
+ RCS:		$Id: typeset.h,v 1.5 2009-06-05 19:03:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,9 +44,9 @@ public:
 
     inline int			size() const	{ return vec_.size(); }
     inline virtual int		nrItems() const	{ return size(); }
-    inline virtual void		setSize(int,T val=T());
+    inline virtual bool		setSize(int,T val=T());
 				/*!<\param val value assigned to new items */
-    inline virtual void		setCapacity( int sz );
+    inline virtual bool		setCapacity( int sz );
 				/*!<Allocates mem only, no size() change */
 
     inline T&			operator[](int);
@@ -63,7 +63,8 @@ public:
     inline TypeSet<T>&		operator +=(const T&);
     inline TypeSet<T>&		operator -=(const T&);
     inline virtual TypeSet<T>&	copy(const TypeSet<T>&);
-    inline virtual void		append(const TypeSet<T>&);
+    inline virtual bool		append(const TypeSet<T>&);
+    inline bool			add(const T&);
 
     inline virtual void		swap(int,int);
     virtual inline void		createUnion(const TypeSet<T>&);
@@ -122,12 +123,14 @@ inline bool operator !=( const TypeSet<T>& a, const TypeSet<T>& b )
 
 //! append allowing a different type to be merged into set
 template <class T,class S>
-inline void append( TypeSet<T>& to, const TypeSet<S>& from )
+inline bool append( TypeSet<T>& to, const TypeSet<S>& from )
 {
     const int sz = from.size();
-    to.setCapacity( sz + to.size() );
+    if ( !to.setCapacity( sz + to.size() ) ) return false;
     for ( int idx=0; idx<sz; idx++ )
 	to += from[idx];
+
+    return true;
 }
 
 
@@ -180,13 +183,13 @@ TypeSet<T>& TypeSet<T>::operator =( const TypeSet<T>& ts )
 
 
 template <class T> inline
-void TypeSet<T>::setSize( int sz, T val )
-{ vec_.setSize( sz, val ); }
+bool TypeSet<T>::setSize( int sz, T val )
+{ return vec_.setSize( sz, val ); }
 
 
 template <class T> inline
-void TypeSet<T>::setCapacity( int sz )
-{ vec_.setCapacity( sz ); }
+bool TypeSet<T>::setCapacity( int sz )
+{ return vec_.setCapacity( sz ); }
 
 
 template <class T> inline
@@ -282,15 +285,25 @@ TypeSet<T>& TypeSet<T>::copy( const TypeSet<T>& ts )
 
 
 template <class T> inline
-void TypeSet<T>::append( const TypeSet<T>& ts )
+bool TypeSet<T>::add( const T& t )
+{
+    return vec_.push_back( t );
+}
+
+
+template <class T> inline
+bool TypeSet<T>::append( const TypeSet<T>& ts )
 {
     const unsigned int sz = ts.size();
-    if ( !sz ) return;
+    if ( !sz ) return true;
 
-    setCapacity( sz+size() );
+    if ( !setCapacity( sz+size() ) )
+	return false;
 
     for ( unsigned int idx=0; idx<sz; idx++ )
 	*this += ts[idx];
+
+    return true;
 }
 
 
