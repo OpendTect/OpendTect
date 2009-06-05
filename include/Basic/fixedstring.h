@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer
  Date:		April 2009
- RCS:		$Id: fixedstring.h,v 1.6 2009-05-29 16:58:21 cvskris Exp $
+ RCS:		$Id: fixedstring.h,v 1.7 2009-06-05 16:52:48 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -14,8 +14,9 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 
-/*! Class that holds a text string, and provides basic services around it. The string is assumed to be owned by someone else or be static. In any case, it is
-assumed be be alive and well for the lifetime of the FixedString. */
+/*! Class that holds a text string, and provides basic services around it. The
+    string is assumed to be owned by someone else or be static. In any case, it
+    is assumed be be alive and well for the lifetime of the FixedString. */
 
 mClass FixedString
 {
@@ -29,14 +30,14 @@ public:
     bool	operator!=(const char* s) const		{ return !(*this==s); }
     bool	operator==(const FixedString& f) const	{ return *this==f.ptr_;}
     bool	operator!=(const FixedString& f) const	{ return *this!=f.ptr_;}
-    bool	operator!() const			{ return !ptr_; }
+    bool	operator!() const			{ return isEmpty(); }
 
     bool	isEmpty() const { return !ptr_ || !*ptr_; }
     int		size() const;
 
-		operator const char*() const    	{ return ptr_; }
+		operator const char*() const   	{ return buf(); }
 
-    const char*	buf() const 				{ return ptr_; }
+    const char*	buf() const 			{ return isEmpty() ? 0 : ptr_; }
 
 protected:
 
