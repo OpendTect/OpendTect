@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.30 2009-06-04 11:50:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.31 2009-06-05 13:23:10 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -518,6 +518,7 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
 	    selsector_ = -1;
 	else
 	    selsector_ = cursector_;
+	drawSelection();
     }
 
     sectorPicked.trigger();
