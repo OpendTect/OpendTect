@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.26 2009-02-13 13:31:15 cvsbert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.27 2009-06-05 19:02:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "general.h"
 #include <algorithm>
 #include <vector>
+#include <stdexcept>
 
 /*!\brief Simple vector-based container simplifying index-based work.
 
@@ -50,15 +51,15 @@ public:
     inline const T&	operator[]( int idx ) const
     			{ return (*const_cast<VectorAccess*>(this))[idx]; }
     inline unsigned int	size() const	{ return (unsigned int) v.size(); }
-    inline void		setCapacity( int sz )		{ v.reserve(sz); }
+    inline bool		setCapacity( int sz );
     			/*!<Allocates mem for sz, does not change size.*/
     inline void		getCapacity() const		{ return v.capacity(); }
     			/*!<\returns max size without reallocation.*/
-    inline void		setSize( int sz, T val )	{ v.resize(sz,val); }
+    inline bool		setSize( int sz, T val );
 
     inline VectorAccess& operator =( const VectorAccess& v2 )
 			{ v = v2.v; return *this; }
-    inline void		push_back( const T& t )		{ v.push_back(t); }
+    inline bool		push_back( const T& t );
     inline void		insert( int pos, const T& val )
 					    { v.insert(v.begin() + pos,val); }
     inline void		erase()
@@ -131,4 +132,37 @@ protected:
 };
 
 
+template<class T> inline
+bool VectorAccess<T>::setCapacity( int sz )
+{
+    try { v.reserve(sz); }
+    catch ( std::bad_alloc )
+    { return false; }
+    catch ( std::length_error )
+    { return false; }
+
+    return true;
+}
+
+
+template<class T> inline
+bool VectorAccess<T>::push_back( const T& t )
+{
+    try { v.push_back(t); }
+    catch ( std::bad_alloc )
+    { return false; }
+
+    return true;
+}
+
+
+template<class T> inline
+bool VectorAccess<T>::setSize( int sz, T val )
+{
+    try { v.resize(sz,val); }
+    catch ( std::bad_alloc )
+    { return false; }
+
+    return true;
+}
 #endif
