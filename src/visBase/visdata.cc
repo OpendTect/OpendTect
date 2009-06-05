@@ -4,12 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.28 2008-08-12 11:16:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.29 2009-06-05 16:58:19 cvskris Exp $";
 
 #include "visdata.h"
 
 #include "errh.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "visdataman.h"
 #include "visselman.h"
 
@@ -19,10 +20,6 @@ static const char* rcsID = "$Id: visdata.cc,v 1.28 2008-08-12 11:16:17 cvsnanne 
 
 namespace visBase
 {
-
-
-const char* DataObject::sKeyType()	{ return "Type"; }
-const char* DataObject::sKeyName()	{ return "Name"; }
 
 
 const SoNode* DataObject::getInventorNode() const
@@ -81,11 +78,11 @@ void DataObject::setDisplayTransformation( Transformation* trans )
 
 void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 {
-    par.set( sKeyType(), getClassName() );
+    par.set( sKey::Type, getClassName() );
 
     const char* nm = name();
     if ( nm )
-	par.set( sKeyName(), nm );
+	par.set( sKey::Name, nm );
 }
 
 
@@ -107,7 +104,7 @@ bool DataObject::dumpOIgraph( const char* filename, bool binary )
 
 int DataObject::usePar( const IOPar& par )
 {
-    const char* nm = par.find( sKeyName() );
+    const char* nm = par.find( sKey::Name );
     if ( nm )
 	setName( nm );
 

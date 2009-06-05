@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.53 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: visdata.h,v 1.54 2009-06-05 16:58:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -117,9 +117,6 @@ public:
     bool			saveInSessions() const
     				{ return saveinsessions_; }
 			
-    static const char*		sKeyType();
-    static const char*		sKeyName();
-
     bool			dumpOIgraph(const char* filename,
 	    				    bool binary=false);
 
