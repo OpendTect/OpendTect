@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.62 2009-03-18 17:52:57 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.63 2009-06-05 17:56:13 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -135,7 +135,10 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
 	SI().snap( bid, BinID(0,0) );
 	Coord newpos = SI().transform( bid );
 	if ( SI().isReasonable(newpos) )
-	    pos.x = newpos.x; pos.y = newpos.y;
+	{
+	    pos.x = newpos.x;
+	    pos.y = newpos.y;
+	}
     }
 
     // See if there's a direction, too
