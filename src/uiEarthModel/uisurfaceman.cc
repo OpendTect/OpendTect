@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.62 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.63 2009-06-05 10:44:01 cvssatyaki Exp $";
 
 
 #include "uisurfaceman.h"
@@ -292,8 +292,8 @@ void uiSurfaceMan::mkFileInfo()
 		man2dbut_->setSensitive( true );
 
 	    txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
-	    if ( haverg )
-		txt += sd.rg.stop.inl - sd.rg.start.inl + 1; 
+	    if ( sd.linenames.size() )
+		txt += sd.linenames.size();
 	    else
 		txt += "-";
 	    txt += "\n";

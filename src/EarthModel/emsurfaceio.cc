@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.121 2009-06-04 14:51:49 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.122 2009-06-05 10:44:01 cvssatyaki Exp $";
 
 #include "emsurfaceio.h"
 
@@ -233,7 +233,12 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     TypeSet< StepInterval<int> > trcranges;
     if ( par_->get(Horizon2DGeometry::sKeyLineIDs(),lineids) )
     {
-	//check that linenames_.size==lineids.size????
+	if ( linenames_.size() != lineids.size() )
+	{
+	    msg_ = "Inconsistency in file header";
+	    return false;
+	}
+
 	for ( int idx=0; idx<lineids.size(); idx++ )
 	{
 	    BufferString linesetkey = Horizon2DGeometry::sKeyLineSets();
@@ -247,16 +252,28 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 		 par_->get(linesetkey.buf(),mid) )
 	    {
 		PtrMan<IOObj> ioobj = IOM().get( mid );
-		if ( ioobj )
+		if ( !ioobj )
+		    lineids[idx] = mUdf(int);
+		else
 		{
 		    trcranges += trcrange;
 		    linesets_.add( ioobj->name() );
 		}
-		else
-		{
-		    //remove linename??
-		}
 	    }
+	    else
+		lineids[idx] = mUdf(int);
+	}
+
+	int idx = 0;
+	while ( idx<lineids.size() )
+	{
+	    if ( mIsUdf(lineids[idx]) )
+	    {
+		lineids.remove( idx );
+		linenames_.remove( idx );
+		continue;
+	    }
+	    idx++;
 	}
     }
 
