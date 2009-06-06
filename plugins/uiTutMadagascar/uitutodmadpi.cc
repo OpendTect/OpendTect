@@ -47,7 +47,7 @@ mClass uiMadTutMgr :  public CallBacker
 uiMadTutMgr::uiMadTutMgr( uiODMain& a )
     : mainappl( a )
 {
-    uiMenuItem* newitem = new uiMenuItem( "Diplay &Madagascar data ...",
+    uiMenuItem* newitem = new uiMenuItem( "Display &Madagascar data ...",
 					  mCB(this,uiMadTutMgr,dispDlg) );
     mainappl.menuMgr().utilMnu()->insertItem( newitem );
 }

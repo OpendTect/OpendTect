@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitutodmad.cc,v 1.1 2009-06-03 14:26:04 cvshelene Exp $";
+static const char* rcsID = "$Id: uitutodmad.cc,v 1.2 2009-06-06 12:58:09 cvshelene Exp $";
 
 #include "uitutodmad.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uitutodmad.cc,v 1.1 2009-06-03 14:26:04 cvshele
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 
 uiTutODMad::uiTutODMad( uiParent* p )
@@ -32,6 +33,10 @@ uiTutODMad::uiTutODMad( uiParent* p )
     setup.forread( true );
     maddatafld_ = new uiFileInput( this, "Data file", setup );
     maddatafld_->setFilter( "*.rsf" );
+
+    dowigglesfld_ = new uiGenInput ( this, "Display",
+			     BoolInpSpec(true,"Wiggles","Variable density") );
+    dowigglesfld_->attach( alignedBelow, maddatafld_ );
 }
 
 
@@ -82,7 +87,8 @@ void uiTutODMad::createAndDisplay2DViewer()
     uiFlatViewMainWin* fvwin = new uiFlatViewMainWin( 0, 
 		    uiFlatViewMainWin::Setup("Madagascar data",true) );
     uiFlatViewer& vwr = fvwin->viewer();
-    vwr.setPack( false, bufdtpack_->id(), false, true );
+    bool dowiggles = dowigglesfld_->getBoolValue();
+    vwr.setPack( dowiggles, bufdtpack_->id(), false, true );
     FlatView::Appearance& app = vwr.appearance();
     app.annot_.setAxesAnnot( true );
     app.setDarkBG( false );
