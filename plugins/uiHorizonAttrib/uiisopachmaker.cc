@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.6 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.7 2009-06-08 06:17:47 cvsnanne Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -86,7 +86,8 @@ uiIsopachMaker::~uiIsopachMaker()
 
 void uiIsopachMaker::toHorSel( CallBacker* )
 {
-    attrnmfld_->setText( BufferString("I: ",ctio_.ioobj->name()) );
+    if ( horsel_->ioobj() )
+	attrnmfld_->setText( BufferString("I: ",horsel_->ioobj()->name()) );
 }
 
 
@@ -95,12 +96,12 @@ void uiIsopachMaker::toHorSel( CallBacker* )
 bool uiIsopachMaker::acceptOK( CallBacker* )
 {
     horsel_->commitInput();
-    if ( !ctio_.ioobj )
+    if ( !horsel_->ioobj() )
 	mErrRet("Please provide the isopach horizon")
 
     attrnm_ =  attrnmfld_->text();
     if ( attrnm_.isEmpty() || attrnm_ == "<auto>" )
-	{ attrnm_ = "I: "; attrnm_ += ctio_.ioobj->name(); }
+	{ attrnm_ = "I: "; attrnm_ += horsel_->ioobj()->name(); }
 
     return doWork();
 }
@@ -124,6 +125,7 @@ uiIsopachMakerCreater( const EM::Horizon3D& hor1, const EM::Horizon3D& hor2,
     iter_ = hor1.createIterator( sectid1_ );
     totnr_ = iter_->approximateSize();
     dps_.dataSet().add( new DataColDef(attrnm) );
+    nrdone_ = 0;
 }
 
 ~uiIsopachMakerCreater()
@@ -133,7 +135,7 @@ uiIsopachMakerCreater( const EM::Horizon3D& hor1, const EM::Horizon3D& hor2,
 
 const char* message() const	{ return msg_.buf(); }
 const char* nrDoneText() const	{ return "Positions handled"; }
-od_int64 nrDone() const		{ return dps_.size(); }
+od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totnr_; }
 
 int nextStep()
@@ -141,6 +143,7 @@ int nextStep()
     for ( int idx=0; idx<1000; idx++ )
     {
 	const EM::PosID posid = iter_->next();
+	nrdone_++;
 	if ( posid.objectID() < 0 )
 	    return finishWork();
 	if ( posid.sectionID() != sectid1_ )
@@ -188,6 +191,7 @@ int finishWork()
     EM::EMObjectIterator* iter_;
     int                 dataidx_;
     int			totnr_;
+    od_int64		nrdone_;
     BufferString	msg_;
     const EM::SectionID	sectid1_;
     const EM::SectionID	sectid2_;
@@ -207,14 +211,14 @@ bool uiIsopachMaker::doWork()
     
     if ( !baseemobj_ )
     {
-	baseemobj_ = EM::EMM().loadIfNotFullyLoaded( basectio_.ioobj->key(),
+	baseemobj_ = EM::EMM().loadIfNotFullyLoaded( basesel_->ioobj()->key(),
 						     &tr );
 	baseemobj_->ref();
     }
     else baseemobj_->ref();
 
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ctio_.ioobj->key(),
-	    						  &tr );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(
+	    horsel_->ioobj()->key(), &tr );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
 	mErrRet("Cannot load selected horizon")
