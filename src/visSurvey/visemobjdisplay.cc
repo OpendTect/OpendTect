@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.117 2009-06-05 17:11:49 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.118 2009-06-08 21:05:16 cvsyuancheng Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -310,7 +310,7 @@ void EMObjectDisplay::updateFromMPE()
 	MPE::engine().getTrackerByObject(getObjectID()) >= 0;
     if ( hastracker && !restoresessupdate_ )
     {
-	setResolution( 1 );
+	setResolution( 0 );
 	showPosAttrib( EM::EMObject::sSeedNode(), true );
 	enableedit_ = true;
     }

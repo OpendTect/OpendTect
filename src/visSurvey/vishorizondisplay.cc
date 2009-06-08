@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.87 2009-06-05 19:00:25 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.88 2009-06-08 21:05:16 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -327,7 +327,7 @@ void HorizonDisplay::updateFromMPE()
     //}
 
     if ( displayedRowRange().nrSteps()<=1 || displayedColRange().nrSteps()<=1 )
-	setResolution( 1 ); //highest resolution
+	setResolution( 0 ); //Automatic resolution
 
     EMObjectDisplay::updateFromMPE();
 }
