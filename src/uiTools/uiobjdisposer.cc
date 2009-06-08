@@ -7,10 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjdisposer.cc,v 1.2 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjdisposer.cc,v 1.3 2009-06-08 10:09:31 cvsbert Exp $";
 
 #include "uiobjdisposer.h"
 #include "timer.h"
+
+static ObjectSet<Timer> todeltimers;
 
 
 uiObjDisposer* uiOBJDISP()
@@ -41,6 +43,7 @@ void uiObjDisposer::go( CallBacker* obj )
 
 void uiObjDisposer::doDel( CallBacker* in )
 {
+    deepErase( todeltimers );
     mDynamicCastGet(Timer*,tim,in)
     if ( !tim ) return; // Huh?
 
@@ -51,5 +54,6 @@ void uiObjDisposer::doDel( CallBacker* in )
     objs_.remove( idxof );
     timers_.remove( idxof );
 
-    delete tim; delete obj;
+    delete obj;
+    todeltimers += tim;
 }
