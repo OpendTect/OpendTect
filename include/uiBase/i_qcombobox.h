@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qcombobox.h,v 1.5 2009-05-28 09:08:50 cvsjaap Exp $
+ RCS:           $Id: i_qcombobox.h,v 1.6 2009-06-08 08:38:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,11 @@ protected:
 			{ 
 			    connect( sender, SIGNAL( activated (int)),
 				     this,   SLOT( activated (int)) );
+
+			    connect( sender,
+				     SIGNAL( editTextChanged(const QString&)),
+				     this,
+				     SLOT( editTextChanged(const QString&)) );
 			}
 
     virtual		~i_comboMessenger() {}
@@ -52,12 +57,13 @@ private slots:
     \sa QComboBox::activated
 */
 
-    void 		activated( int index ) 
-			{
-			    const int refnr = _receiver->beginCmdRecEvent();
-			    _receiver->selectionChanged.trigger(*_receiver);
-			    _receiver->endCmdRecEvent( refnr );
-			}
+void activated( int ) 
+{ _receiver->notifyHandler( true ); }
+
+
+void editTextChanged( const QString& )
+{ _receiver->notifyHandler( false ); }
+
 
 };
 

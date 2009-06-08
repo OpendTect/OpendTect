@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.49 2009-05-05 14:25:41 cvskris Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.50 2009-06-08 08:38:48 cvsjaap Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -43,10 +43,13 @@ public:
     virtual int 	nrTxtLines() const		{ return 1; }
 
     void		activate(int idx);
+    void		activateField(const char* txt=0,bool enter=true);
     bool		event(QEvent*);
 
 protected:
     int			activateidx_;
+    const char*		activatetxt_;
+    bool		activateenter_;
 
 private:
 
@@ -56,6 +59,7 @@ private:
 
 
 static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User+0);
+static const QEvent::Type sQEventActField = (QEvent::Type) (QEvent::User+1);
 
 void uiComboBoxBody::activate( int idx )
 {
@@ -64,17 +68,45 @@ void uiComboBoxBody::activate( int idx )
     QApplication::postEvent( this, actevent );
 }
 
+void uiComboBoxBody::activateField( const char* txt, bool enter )
+{
+    activatetxt_ = txt;
+    activateenter_ = enter;
+    QEvent* actevent = new QEvent( sQEventActField );
+    QApplication::postEvent( this, actevent );
+}
+
 
 bool uiComboBoxBody::event( QEvent* ev )
 {
-    if ( ev->type() != sQEventActivate )
-	return QComboBox::event( ev );
-    
-    if ( activateidx_>=0 && activateidx_<handle_.size() )
+    if ( ev->type() == sQEventActivate )
     {
-	handle_.setCurrentItem( activateidx_ );
-	handle_.selectionChanged.trigger();
+	if ( activateidx_>=0 && activateidx_<handle_.size() )
+	{
+	    handle_.setCurrentItem( activateidx_ );
+	    handle_.selectionChanged.trigger();
+	}
     }
+    else if ( ev->type() == sQEventActField )
+    {
+	if ( !handle_.isReadOnly() )
+	{
+	    if ( activatetxt_ )
+		setEditText( activatetxt_ );
+
+	    if ( activateenter_ )
+	    {
+		const char* txt = handle_.text();
+		if ( !handle_.isPresent(txt) )
+		    handle_.addItem( txt );
+
+		handle_.setCurrentItem( txt );
+		handle_.selectionChanged.trigger();
+	    }
+	}
+    }
+    else
+	return QComboBox::event( ev );
 
     handle_.activatedone.trigger();
     return true;
@@ -87,6 +119,7 @@ bool uiComboBoxBody::event( QEvent* ev )
 uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this ), activatedone( this )
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 {
 }
 
@@ -95,6 +128,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this ), activatedone( this )
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 { 
     addItems( uids );
 }
@@ -103,6 +137,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
 uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this ), activatedone( this )
+    , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 { 
     addItems( uids );
 }
@@ -276,6 +311,26 @@ void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
 void uiComboBox::activate( int idx )
 { body_->activate( idx ); }
 
+
+void uiComboBox::activateField( const char* txt, bool enter )
+{ body_->activateField( txt, enter ); }
+
+
+void uiComboBox::notifyHandler( bool selectionchanged )
+{
+    BufferString msg; msg.add( oldnritems_ );
+    msg += " "; msg.add( oldcuritem_ );
+    oldnritems_ = size();
+    oldcuritem_ = currentItem();
+
+    msg += selectionchanged ? " selectionChanged" : " editTextChanged";
+    const int refnr = beginCmdRecEvent( msg );
+
+    if ( selectionchanged )
+	selectionChanged.trigger( this );
+
+    endCmdRecEvent( refnr, msg );
+}
 
 
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char* txt,

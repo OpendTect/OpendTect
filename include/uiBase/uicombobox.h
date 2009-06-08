@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.26 2009-05-05 14:25:41 cvskris Exp $
+ RCS:           $Id: uicombobox.h,v 1.27 2009-06-08 08:38:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,8 +62,11 @@ public:
 			//! Triggered when selection has changed.
     Notifier<uiComboBox> selectionChanged;
 
+    void		notifyHandler(bool selectionchanged);
+
 			//! Force activation in GUI thread
     void		activate(int idx);
+    void		activateField(const char* txt=0,bool enter=true);
     Notifier<uiComboBox> activatedone; 
 
     virtual void        setReadOnly( bool = true );
@@ -82,6 +85,9 @@ protected:
 			    { selectionChanged.notify(cb); return true; }
 
 private:
+
+    int			oldnritems_;
+    int			oldcuritem_;
 
     mutable BufferString rettxt_;
 
