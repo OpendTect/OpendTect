@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.16 2009-05-05 01:10:14 cvskris Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.17 2009-06-08 09:14:00 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -420,9 +420,8 @@ int* BufferStringSet::getSortIndexes() const
     const int sz = size();
     if ( sz < 1 ) return 0;
 
-    int* idxs = new int [ sz ];
-    for ( int idx=0; idx<sz; idx++ )
-	idxs[idx] = idx;
+    mGetIdxArr(int,idxs,sz)
+    if ( !idxs ) return 0;
 
     int tmp;
     for ( int d=sz/2; d>0; d=d/2 )

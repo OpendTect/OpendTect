@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.19 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: general.h,v 1.20 2009-06-08 09:14:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,14 @@ enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 #define mDeclareAndTryAlloc(tp,var,stmt)				\
     tp var;								\
     mTryAlloc(var,stmt)
+
+//!Creates new array of an integer type filled with index
+#define mGetIdxArr(tp,var,sz)				\
+    tp* var;						\
+    mTryAlloc(var,tp [sz])				\
+    if ( var )						\
+	for  ( tp idx=0; idx<sz; idx++ )		\
+	    var[idx] = idx;
 
 //! Define members in setup classes (see e.g. uidialog.h)
 /* Usage typically like:
