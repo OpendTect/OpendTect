@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.19 2009-06-04 07:16:19 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.20 2009-06-08 08:59:02 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -115,6 +115,16 @@ void MadStream::initRead( IOPar* par )
     if ( inptyp == "Madagascar" )
     {
 	const char* filenm = par->find( sKey::FileName );
+	if ( !filenm || !*filenm )
+	    mErrRet("No entry for 'Input file' in parameter file")
+
+	BufferString inpstr( filenm );
+#ifdef __win__
+	inpstr = FilePath(GetEnvVar("RSFROOT")).add("bin").add("sfdd")
+	    						  .fullPath();
+	inpstr += " < '"; inpstr += filenm;
+	inpstr += "' form=ascii_float out=stdout";
+#endif
 	istrm_ = StreamProvider(filenm).makeIStream().istrm;
 
 	fillHeaderParsFromStream();
@@ -404,15 +414,20 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     }
 
     nroffsets_ = trcbuf.size();
-    SeisTrc* trc = trcbuf.get(0);
-    if ( !trc ) mErrRet( "No data to read" );
+    SeisTrc* firsttrc = trcbuf.get(0);
+    SeisTrc* nexttrc = trcbuf.get(1);
+    if ( !firsttrc || !nexttrc || !firsttrc->size() || !nexttrc->size() )
+	mErrRet( "No data to read" );
     
-    headerpars_->set( "n2", nroffsets_ );
     headerpars_->set( "n3", nrbids );
 
-    headerpars_->set( "o1", trc->info().sampling.start );
-    headerpars_->set( "n1", trc->size() );
-    headerpars_->set( "d1", trc->info().sampling.step );
+    headerpars_->set( "o2", firsttrc->info().offset );
+    headerpars_->set( "d2", nexttrc->info().offset - firsttrc->info().offset );
+    headerpars_->set( "n2", nroffsets_ );
+
+    headerpars_->set( "o1", firsttrc->info().sampling.start );
+    headerpars_->set( "d1", firsttrc->info().sampling.step );
+    headerpars_->set( "n1", firsttrc->size() );
 }
 
 
