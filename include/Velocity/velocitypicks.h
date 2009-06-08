@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.5 2009-05-18 13:11:57 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.6 2009-06-08 20:40:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -202,9 +202,6 @@ protected:
 
 
 mGlobal PicksMgr& VPM();
-
-const IOObjContext& getPickStorageContext();
-
 
 }; //namespace
 
