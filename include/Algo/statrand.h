@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: statrand.h,v 1.3 2009-06-07 20:08:23 cvsbert Exp $
+ RCS:           $Id: statrand.h,v 1.4 2009-06-08 09:18:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,9 +32,12 @@ public:
 
     template <class T>
     static void		subselect(T*,int sz,int targetsz);
-    			//!< Does not preserve order
+    			//!< Does not preserve order.
+    			//!< Afterwards, the 'removed' values occupy
+    			//!< the indexes targetsz - maxsz-1
     static void		subselect(OD::Set&,int targetsz);
     			//!< Does not preserve order
+    			//!< The removed items will really be erased
 
 private:
 
