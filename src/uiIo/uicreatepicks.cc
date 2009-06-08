@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.16 2009-06-04 13:37:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.17 2009-06-08 09:22:41 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -146,27 +146,8 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( dps_->isEmpty() )
 	{ delete dps_; dps_ = 0; mErrRet("No matching locations found") }
 
-    if ( mIsUdf(maxnr) )
-	return true;   
-
-    mSetCursor();
-    int dpssz = dps_->size();
-    const int nrtoomany = dpssz - maxnr;
-    for ( int idx=0; idx<nrtoomany; idx++ )
-    {
-	int irm = Stats::RandGen::getIndex( dpssz );
-	int ioffs = 0;
-	while ( dps_->isInactive(irm+ioffs) )
-	{
-	    ioffs = ioffs <= 0 ? 1 - ioffs : -ioffs;
-	    if ( irm < -ioffs || irm+ioffs >= dpssz )
-		ioffs = ioffs <= 0 ? 1 - ioffs : -ioffs;
-	}
-	dps_->setInactive( irm+ioffs, true );
-    }
-    dps_->purgeInactive();
-    mRestorCursor();
-
+    if ( !mIsUdf(maxnr) )
+	dps_->randomSubselect( maxnr );
     return true;   
 }
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.15 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:           $Id: statruncalc.h,v 1.16 2009-06-08 09:22:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -513,8 +513,7 @@ inline T RunCalc<T>::median( int* idx_of_med ) const
 	quickSort( valarr, sz );
     else
     {
-	int* idxs = new int [sz];
-	for ( int idx=0; idx<sz; idx++ ) idxs[idx] = idx;
+	mGetIdxArr(int,idxs,sz)
 	quickSort( valarr, idxs, sz );
 	*idx_of_med = idxs[ mididx ];
 	delete [] idxs;

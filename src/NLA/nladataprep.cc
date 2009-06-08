@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID = "$Id: nladataprep.cc,v 1.6 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: nladataprep.cc,v 1.7 2009-06-08 09:22:40 cvsbert Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -96,7 +96,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	if ( totsz < setup.nrptsperclss )
 	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl, rgs );
 	else
-	    removeVecs( bvs, totsz - setup.nrptsperclss );
+	    bvs.randomSubselect( totsz - setup.nrptsperclss );
 	bvs_.append( bvs );
     }
     deepErase( bvss );
@@ -136,26 +136,4 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 	}
     }
     bvs.append( bvsnew );
-}
-
-
-void NLADataPreparer::removeVecs( BinIDValueSet& bvs, int nr )
-{
-    if ( nr == 0 ) return;
-
-    TypeSet<BinIDValueSet::Pos> poss;
-    const int orgsz = bvs.totalSize();
-    BinID bid;
-
-    TypeSet<int> rmidxs;
-    while ( rmidxs.size() < nr )
-    {
-	int rmidx = Stats::RandGen::getIndex( orgsz );
-	if ( rmidxs.indexOf(rmidx) < 0 )
-	{
-	    rmidxs += rmidx;
-	    poss += bvs.getPos( rmidx );
-	}
-    }
-    bvs.remove( poss );
 }
