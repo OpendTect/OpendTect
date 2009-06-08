@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.7 2009-05-18 13:11:58 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.8 2009-06-08 16:28:35 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -384,7 +384,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
     par.set( sKey::Type, sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );
     par.setYN( sKeyIsVelPick(), true );
-    par.setYN( ZDomain::sKey(), zDomain() );
+    par.set( ZDomain::sKey(), zDomain() );
 }
 
 
@@ -941,8 +941,15 @@ const IOObjContext& Picks::getStorageContext()
 	ptr = new IOObjContext(PickSetTranslatorGroup::ioContext());
 	ptr->setName( "Velocity picks" );
 
-	//Should eventually become sKey::Type, sKeyVelocityPicks
+	//In 3.2, subselection was made by sKeyIsVelPick() == Yes.
+	//In 3.4 and beyond we write the sKey::Type == sKeyVelocityPicks()
+	//as well as the 3.2 style in the .omf
+	//Since we still need to read 3.2 picks, we will continue to use
+	//the 3.2 selection here. Once we can drop the 3.2 selection,
+	//the selections should be the sKey::Type == sKeyVelocityPicks()
+
 	ptr->parconstraints.setYN( sKeyIsVelPick(), getYesNoString(true) );
+	ptr->parconstraints.remove( sKey::Type ); //Block Type selection
 	ptr->includeconstraints = true;
 	ptr->allowcnstrsabsent = false;
     }
