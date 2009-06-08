@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.26 2008-11-24 15:01:13 cvskris Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.27 2009-06-08 09:17:01 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: binidvalset.cc,v 1.26 2008-11-24 15:01:13 cvskr
 #include "sorting.h"
 #include "strmoper.h"
 #include "survinfo.h"
+#include "statrand.h"
 #include <iostream>
 
 
@@ -121,6 +122,27 @@ void BinIDValueSet::remove( const BinIDValueSet& removebids )
 	} 
     } 
 } 
+
+
+void BinIDValueSet::randomSubselect( int maxsz )
+{
+    const int orgsz = totalSize();
+    if ( orgsz <= maxsz )
+	return;
+    if ( maxsz == 0 )
+	{ empty(); return; }
+
+    mGetIdxArr(int,idxs,orgsz);
+    if ( !idxs ) { empty(); return; }
+
+    Stats::RandGen::subselect( idxs, orgsz, maxsz );
+    TypeSet<Pos> poss;
+    for ( int idx=maxsz; idx<orgsz; idx++ )
+	poss += getPos( idxs[idx] );
+
+    delete [] idxs;
+    remove( poss );
+}
 
 
 bool BinIDValueSet::getFrom( std::istream& strm )
@@ -580,12 +602,17 @@ void BinIDValueSet::remove( const TypeSet<BinIDValueSet::Pos>& poss )
     else if ( poss.size() == 1 )
 	{ remove( poss[0] ); return; }
 
+    BinIDValueSet rmbvs( 0, false );
+    for ( int idx=0; idx<poss.size(); idx++ )
+	rmbvs.add( BinID(poss[idx].i,poss[idx].j) );
+
     BinIDValueSet bvs( *this );
     empty();
+
     Pos pos; BinID bid;
     while ( bvs.next(pos) )
     {
-	if ( poss.indexOf(pos) < 0 )
+	if ( !rmbvs.valid(BinID(pos.i,pos.j)) )
 	{
 	    bvs.get( pos, bid );
 	    add( bid, bvs.getVals(pos) );

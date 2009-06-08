@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.28 2009-06-01 04:17:35 cvssatyaki Exp $
+ RCS:		$Id: datapointset.h,v 1.29 2009-06-08 09:17:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,10 +176,12 @@ public:
     BinIDValueSet&	bivSet();
     			//!< The idea is to manage vectors with the selection
     			//!< mechanism. But if you really must remove
-    			//!< vectors, this is your access point
+    			//!< vectors, this may be your access point
     PosVecDataSet&	dataSet()		{ return data_; }
     			//!< To add/remove columns. Never remove the position
     			//!< columns!
+
+    void		randomSubselect(int maxsz);
     
     int			bivSetIdx( ColID idx ) const
 						{ return idx+nrfixedcols_; }

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.27 2009-04-23 06:32:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.28 2009-06-08 09:17:01 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -587,6 +587,13 @@ void DataPointSet::purgeSelected( bool sel )
 	bivSet().remove( torem );
 	calcIdxs();
     }
+}
+
+
+void DataPointSet::randomSubselect( int maxsz )
+{
+    bivSet().randomSubselect( maxsz );
+    dataChanged();
 }
 
 

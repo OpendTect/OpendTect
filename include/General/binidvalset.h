@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.20 2008-12-25 11:13:33 cvsranojay Exp $
+ RCS:		$Id: binidvalset.h,v 1.21 2009-06-08 09:17:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,6 +141,7 @@ public:
     void		setNrVals(int,bool kp_data=true);
     void		sortDuplicateBids(int value_nr,bool ascending=true);
     void		removeDuplicateBids();
+    void		randomSubselect(int maxnr);
 
     void		extend(const BinID& stepout,const BinID& stepoutstep);
     			//!< Adds only BinID postions not yet in set
