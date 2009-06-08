@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.28 2009-05-21 07:09:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.29 2009-06-08 06:19:26 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.28 2009-05-21 07:09:5
 #include <QFont>
 #include <QFontMetrics>
 #include <QPen>
+#include <QTextDocument>
 
 uiEllipseItem::uiEllipseItem()
     : uiGraphicsItem(mkQtObj())
@@ -470,7 +471,7 @@ void uiTextItem::setPos( int x, int y )
 void uiTextItem::updatePos()
 {
     QFontMetrics qfm( qtextitem_->font() );
-    const float txtwidth = qfm.width( qtextitem_->toPlainText() );
+    const float txtwidth = qtextitem_->document()->size().width();
     const float txtheight = qfm.height();
     float movex = 0, movey = 0;
     switch ( al_.hPos() )
