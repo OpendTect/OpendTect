@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.16 2009-01-20 10:55:04 cvsraman Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.17 2009-06-08 09:07:14 cvsraman Exp $
 -*/
 
 #include "uibatchlaunch.h"
@@ -25,6 +25,7 @@ public:
 			uiMadagascarMain(uiParent*);
 			~uiMadagascarMain();
 
+    bool		askSave(bool withcancel=true);
 protected:
 
     CtxtIOObj&		ctio_;
@@ -40,7 +41,6 @@ protected:
 
     ODMad::ProcFlow&	procflow_;
 
-    bool		rejectOK(CallBacker*);
     void		cmdAvail(CallBacker*);
     void		hideReq(CallBacker*);
     void		butPush(CallBacker*);
@@ -49,7 +49,7 @@ protected:
     void		selChg(CallBacker*);
     void		newFlow(CallBacker*);
     void		openFlow(CallBacker*);
-    void		saveFlow(CallBacker*);
+    bool		saveFlow(CallBacker*);
     void		exportFlow(CallBacker*);
 
     bool		prepareProcessing()	{ return true; }

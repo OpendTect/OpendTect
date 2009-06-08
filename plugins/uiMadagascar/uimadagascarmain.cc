@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.28 2009-05-07 04:39:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.29 2009-06-08 09:07:14 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.28 2009-05-07 04:39:46 
 #include "uitoolbar.h"
 #include "uiseparator.h"
 #include "uiioobjsel.h"
-#include "uifiledlg.h"
+#include "uifileinput.h"
 #include "uimsg.h"
 #include "cubesampling.h"
 #include "pixmap.h"
@@ -45,7 +45,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 {
     setCtrlStyle( uiDialog::DoAndStay );
     setHelpID( "103.5.0" );
-    addStdFields( false, false );
+    addStdFields( false, false, true );
     setHaveCredits( true );
     createMenus();
 
@@ -70,6 +70,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     uppgrp_->setHAlignObj( sep );
 
     setParFileNmDef( "Mad_Proc" );
+    parfnamefld_->setDefaultSelectionDir( ODMad::FileSpec::defPath() );
     updateCaption();
     finaliseDone.notify( mCB(this,uiMadagascarMain,setButStates) );
 }
@@ -156,7 +157,7 @@ void uiMadagascarMain::inpSel( CallBacker* cb )
 	singmachfld_->setSensitive( true );
     else
     {
-	singmachfld_->setValue( true );
+	singmachfld_->setValue( hascluster_ ? 0 : 1 );
 	singmachfld_->setSensitive( false );
     }
 }
@@ -260,6 +261,8 @@ void uiMadagascarMain::selChg( CallBacker* cb )
 
 void uiMadagascarMain::newFlow( CallBacker* )
 {
+    if ( !askSave() ) return;
+
     deepErase( procflow_ );
     procflow_.setName( 0 );
     procflow_.input().clear();
@@ -270,11 +273,7 @@ void uiMadagascarMain::newFlow( CallBacker* )
 
 void uiMadagascarMain::openFlow( CallBacker* )
 {
-    if ( needsave_ )
-    {
-	if ( !uiMSG().askContinue("Current flow has not been saved, continue?") )
-	    return;
-    }
+    if ( !askSave() ) return;
 
     ctio_.ctxt.forread = true;
     uiIOObjSelDlg dlg( this, ctio_ );
@@ -302,23 +301,38 @@ void uiMadagascarMain::openFlow( CallBacker* )
 }
 
 
-void uiMadagascarMain::saveFlow( CallBacker* )
+bool uiMadagascarMain::saveFlow( CallBacker* )
 {
     ctio_.ctxt.forread = false;
     uiIOObjSelDlg dlg( this, ctio_ );
-    if ( dlg.go() )
-    {
-	ctio_.setObj( dlg.ioObj()->clone() );
-	BufferString emsg;
-	if ( !ODMadProcFlowTranslator::store(procflow_,ctio_.ioobj,emsg) )
-	    uiMSG().error( emsg );
-	else
-	{
-	    needsave_ = false;
-	    procflow_.setName( ctio_.ioobj->name() );
-	    updateCaption();
-	}
-    }
+    if ( !dlg.go() )
+	return false;
+
+    ctio_.setObj( dlg.ioObj()->clone() );
+    BufferString emsg;
+    if ( !ODMadProcFlowTranslator::store(procflow_,ctio_.ioobj,emsg) )
+	mErrRet( emsg )
+
+    needsave_ = false;
+    procflow_.setName( ctio_.ioobj->name() );
+    updateCaption();
+    return true;
+}
+
+
+bool uiMadagascarMain::askSave( bool withcancel )
+{
+    if ( !needsave_ ) return true;
+
+    BufferString msg = "Current Madagascar flow ";
+    msg += procflow_.name();
+    msg += " is not saved";
+    const int ret = uiMSG().askSave( msg, withcancel );
+    if ( ret < 0 ) return false;
+    if ( !ret ) return true;
+
+    const bool saved = saveFlow( 0 );
+    return withcancel ? saved : true;
 }
 
 
@@ -354,14 +368,3 @@ bool uiMadagascarMain::fillPar( IOPar& iop )
     return true;
 }
 
-
-bool uiMadagascarMain::rejectOK( CallBacker* )
-{
-    if ( needsave_ )
-    {
-	if ( !uiMSG().askSave("Current flow has not been saved, quit anyway?") )
-	    return false;
-    }
-
-    return true;
-}

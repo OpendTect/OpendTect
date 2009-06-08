@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.14 2009-04-06 07:31:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.15 2009-06-08 09:07:14 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
@@ -63,6 +63,7 @@ public:
     void		doMain(CallBacker*);
     void		updateToolBar(CallBacker*);
     void		updateMenu(CallBacker*);
+    void		survChg(CallBacker*);
 
 };
 
@@ -73,6 +74,7 @@ uiMadagascarLink::uiMadagascarLink( uiODMain& a )
 {
     mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,updateToolBar) );
     mnumgr.dTectMnuChanged.notify( mCB(this,uiMadagascarLink,updateMenu) );
+    IOM().surveyToBeChanged.notify( mCB(this,uiMadagascarLink,survChg) );
     updateToolBar(0);
     updateMenu(0);
 }
@@ -98,6 +100,14 @@ void uiMadagascarLink::updateMenu( CallBacker* )
     uiMenuItem* newitem = new uiMenuItem( "&Madagascar ...",
 	    				  mCB(this,uiMadagascarLink,doMain) );
     mnumgr.procMnu()->insertItem( newitem );
+}
+
+
+void uiMadagascarLink::survChg( CallBacker* )
+{
+    if ( !madwin_ ) return;
+
+    madwin_->askSave(false);
 }
 
 
