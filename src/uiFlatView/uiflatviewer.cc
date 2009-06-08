@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.79 2009-05-27 04:35:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.80 2009-06-08 20:38:34 cvskris Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -218,7 +218,6 @@ void uiFlatViewer::reset()
 
 void uiFlatViewer::drawBitMaps()
 {
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     canvas_.beforeDraw();
     if ( !anysetviewdone_ )
 	setView( boundingBox() );
@@ -261,8 +260,11 @@ void uiFlatViewer::drawBitMaps()
 	    offs = vdbmpmgr_->dataOffs( wr_, uisz );
     }
 
+    bool doredraw = false;
     if ( (hasdata && (datachgd || mIsUdf(offs.x))) || parschanged  )
     {
+	MouseCursorChanger cursorchgr( MouseCursor::Wait );
+	doredraw = true;
 	wvabmpmgr_->setupChg(); vdbmpmgr_->setupChg();
 	if ( !mkBitmaps(offs) )
 	{
@@ -287,13 +289,17 @@ void uiFlatViewer::drawBitMaps()
 	return;
     }
 
-    bmp2rgb_->setRGBArr( canvas_.rgbArray() );
-    bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
-    PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
-					    canvas_.arrArea().height() );
-    pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
-    canvas_.setPixmap( *pixmap );
-    canvas_.draw();
+    if ( doredraw )
+    {
+	MouseCursorChanger cursorchgr( MouseCursor::Wait );
+	bmp2rgb_->setRGBArr( canvas_.rgbArray() );
+	bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
+	PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
+						canvas_.arrArea().height() );
+	pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
+	canvas_.setPixmap( *pixmap );
+	canvas_.draw();
+    }
 }
 
 
