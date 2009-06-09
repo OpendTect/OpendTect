@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.2 2009-02-13 22:23:20 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.3 2009-06-09 10:40:54 cvsdgb Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -79,17 +79,17 @@ PolygonBodyDisplay::~PolygonBodyDisplay()
     if ( viseditor_ ) 
 	viseditor_->unRef();
 
+    if ( polygonsurfeditor_ ) 
+	polygonsurfeditor_->unRef();
+    
+    polygonsurfeditor_ = 0;
+
     if ( empolygonsurf_ )
     {
 	MPE::engine().removeEditor( empolygonsurf_->id() );
 	empolygonsurf_->change.remove(mCB(this,PolygonBodyDisplay,emChangeCB));
        	empolygonsurf_->unRef();
     }
-
-    if ( polygonsurfeditor_ ) 
-	polygonsurfeditor_->unRef();
-    
-    polygonsurfeditor_ = 0;
 
     if ( bodydisplay_ )
 	bodydisplay_->unRef();
