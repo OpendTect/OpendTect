@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.106 2009-05-27 08:06:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.107 2009-06-09 17:41:50 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -992,7 +992,6 @@ SoNode* VolumeDisplay::getInventorNode()
 	
 	setCubeSampling( cs );
 	setColorTab( getColorTab() );
-	showManipulator( true );
 	scalarfield_->turnOn( true );
 
 	addSlice(cInLine()); addSlice(cCrossLine()); addSlice(cTimeSlice());
