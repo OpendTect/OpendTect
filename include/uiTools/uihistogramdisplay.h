@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.h,v 1.7 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:		$Id: uihistogramdisplay.h,v 1.8 2009-06-09 08:18:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ protected:
     int                         nrclasses_;
     bool			withheader_;
     uiTextItem*			header_;
+    uiTextItem*			nitm_;
     
     void			updateAndDraw();
     void			updateHistogram();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.24 2009-05-12 08:26:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.25 2009-06-09 08:18:19 cvsbert Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -24,6 +24,9 @@ static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.24 2009-05-12 08:26:28 cv
 #include "datapackbase.h"
 #include "statruncalc.h"
 
+#define mPutCountInPlot() (histgramdisp_ && setup_.countinplot_)
+
+
 uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     : uiGroup( p, "Statistics display group" )
     , setup_(su)
@@ -32,9 +35,11 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     , countfld_(0)
     , namefld_(0)
 {
+    const bool putcountinplot = mPutCountInPlot();
     if ( setup_.withplot_ )
     {
 	uiHistogramDisplay::Setup fsu;
+	fsu.annoty( setup_.vertaxis_ );
 	fsu.annoty( setup_.vertaxis_ );
 	histgramdisp_ = new uiHistogramDisplay( this, fsu );
     }
@@ -46,7 +51,6 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 	sep->attach( stretchedBelow, histgramdisp_ );
     }
 
-    const bool putcountinplot = histgramdisp_ && setup_.countinplot_;
     if ( setup_.withtext_ )
     {
 	if ( setup_.withname_ )
@@ -166,7 +170,10 @@ void uiStatsDisplay::setData( const Array2D<float>* array )
 
 void uiStatsDisplay::setData( const Stats::RunCalc<float>& rc )
 {
+    if ( mPutCountInPlot() )
+	putN();
     if ( !minmaxfld_ ) return;
+
     if ( countfld_ )
 	countfld_->setValue( rc.count() );
     minmaxfld_->setValue( rc.min(), 0 );
@@ -187,8 +194,6 @@ void uiStatsDisplay::setMarkValue( float val, bool forx )
 
 void uiStatsDisplay::putN()
 {
-    if ( !setup_.countinplot_ || !histgramdisp_ ) return;
-
     histgramdisp_->putN();
 }
 

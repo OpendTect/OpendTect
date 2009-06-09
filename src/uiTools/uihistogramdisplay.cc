@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.14 2009-04-17 12:16:30 cvsnanne Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.15 2009-06-09 08:18:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
     , nrclasses_(0)		   
     , withheader_(withheader)
     , header_(0)
+    , nitm_(0)
 {
     xAxis()->setName( "Value" );
     yAxis(false)->setName( "Count" );
@@ -178,12 +179,9 @@ void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,
 
 void uiHistogramDisplay::putN()
 {
-    if ( nrinpvals_ < 1 ) return;
+    if ( nrinpvals_ < 1 || nitm_ ) return;
 
     BufferString str = "N="; str += nrinpvals_;
-
-    uiTextItem* textitem =
-	scene().addItem( new uiTextItem(uiPoint(width()/2,0),str) );
-    textitem->setPenColor( Color::Black() );
-    draw();
+    nitm_ = scene().addItem( new uiTextItem(uiPoint(width()/2,0),str) );
+    nitm_->setPenColor( Color::Black() );
 }
