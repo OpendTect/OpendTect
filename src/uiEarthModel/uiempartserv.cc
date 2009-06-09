@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.177 2009-06-03 10:25:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.178 2009-06-09 17:32:41 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -51,6 +51,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.177 2009-06-03 10:25:53 cvs
 #include "uiexpfault.h"
 #include "uiexphorizon.h"
 #include "uigeninputdlg.h"
+#include "uigeninput.h"
 #include "uihor3dfrom2ddlg.h"
 #include "uihorinterpol.h"
 #include "uiimpfault.h"
@@ -565,6 +566,9 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	    context.ctxt.forread = false;
 
 	    uiIOObjSelDlg dlg( parent(), context );
+	    if ( !context.ioobj )
+		dlg.selGrp()->getNameField()->setText( object->name() );
+	     
 	    if ( !dlg.go() )
 		return false;
 
