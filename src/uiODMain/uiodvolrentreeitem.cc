@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.46 2009-05-12 08:48:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.47 2009-06-09 17:35:01 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -501,15 +501,16 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 
 	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
 	    visSurvey::MarchingCubesDisplay::create();
+
+	BufferString newname = "Iso ";
+	newname += vd->isoValue( isosurface );
+	mcdisplay->setName( newname.buf() );
+
 	if ( !mcdisplay->setVisSurface( isosurface ) )
 	{
 	    isosurface->unRef();
 	    return; //TODO error msg.
 	}
-
-	BufferString newname = "Iso ";
-	newname += vd->isoValue( isosurface );
-	mcdisplay->setName( newname.buf() );
 
 	visserv_->addObject( mcdisplay, sceneID(), true );
 	addChild( new uiODBodyDisplayTreeItem(mcdisplay->id(),true), false );
