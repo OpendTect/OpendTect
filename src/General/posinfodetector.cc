@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.10 2009-01-16 09:46:40 cvsraman Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.11 2009-06-09 08:17:03 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -142,22 +142,23 @@ void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 
 
 #define mErrRet(s) { errmsg = s; return errmsg.buf(); }
+#define mErrRet2(x,y) { errmsg = x; errmsg += y; return errmsg.buf(); }
 
 const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
 					    Coord crd[3] ) const
 {
     static BufferString errmsg;
     if ( setup_.is2d_ )
-	mErrRet( "Cannot determine survey setup from 2D line scan" )
+	mErrRet( "Cannot determine survey setup from a 2D line scan" )
     if ( nruniquepos_ < 3 )
 	mErrRet( "Not enough unique positions found" )
 
     hs.start = start_; hs.stop = stop_; hs.step = step_;
 
     if ( hs.start.inl == hs.stop.inl )
-	mErrRet( "Only one in-line in data" )
+	mErrRet2("The input data contains only one in-line: ",hs.start.inl)
     else if ( hs.start.crl == hs.stop.crl )
-	mErrRet( "Only one cross-line in data" );
+	mErrRet2("The input data contains only one cross-line: ",hs.start.crl)
 
     const CrdBidOffs llnstart( userCBO(llnstart_) );
     const CrdBidOffs llnstop( userCBO(llnstop_) );
@@ -175,7 +176,9 @@ const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
 
     RCol2Coord b2c;
     if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl ) )
-	return "Could not set transform with this input.";
+	return "The input data does not contain the required information\n"
+	    "to establish a relation between\nthe inline/crossline system\n"
+	    "and the coordinates.";
 
     // what coords would have been on the corners
     crd[0] = b2c.transform( hs.start );
