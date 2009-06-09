@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.42 2009-06-09 18:54:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.43 2009-06-09 21:17:15 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -283,7 +283,6 @@ HorizonSection::HorizonSection()
     addChild( callbacker_ );
 
     addChild( shapehints_ );
-    shapehints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
 
     SoShapeHints* hints = new SoShapeHints;
     addChild( hints );
@@ -359,6 +358,7 @@ void HorizonSection::setShapeHintsOrder( bool righthandsystem )
 {
     shapehints_->vertexOrdering = righthandsystem ? 
 	SoShapeHints::COUNTERCLOCKWISE : SoShapeHints::CLOCKWISE;
+    shapehints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
 }
 
 
