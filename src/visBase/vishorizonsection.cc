@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.41 2009-06-05 20:38:07 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.42 2009-06-09 18:54:16 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -261,7 +261,8 @@ ArrPtrMan<SbVec2f> HorizonSection::texturecoordptr_ = 0;
 
 HorizonSection::HorizonSection() 
     : VisualObjectImpl( false )
-    , callbacker_( new SoCallback )  
+    , callbacker_( new SoCallback ) 
+    , shapehints_( new SoShapeHints )				    
     , transformation_( 0 )
     , zaxistransform_( 0 )
     , zaxistransformvoi_( -2 )			  
@@ -280,6 +281,9 @@ HorizonSection::HorizonSection()
     callbacker_->ref();
     callbacker_->setCallback( updateAutoResolution, this );
     addChild( callbacker_ );
+
+    addChild( shapehints_ );
+    shapehints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
 
     SoShapeHints* hints = new SoShapeHints;
     addChild( hints );
@@ -348,6 +352,13 @@ HorizonSection::~HorizonSection()
     removeChild( channels_->getInventorNode() );
     channels_->unRef();
     removeChild( texturecrds_ );
+}
+
+
+void HorizonSection::setShapeHintsOrder( bool righthandsystem ) 
+{
+    shapehints_->vertexOrdering = righthandsystem ? 
+	SoShapeHints::COUNTERCLOCKWISE : SoShapeHints::CLOCKWISE;
 }
 
 

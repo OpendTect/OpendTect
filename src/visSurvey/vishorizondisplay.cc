@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.88 2009-06-08 21:05:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.89 2009-06-09 18:54:16 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -179,7 +179,11 @@ void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
     EMObjectDisplay::setSceneEventCatcher( ec );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
+    {
 	sections_[idx]->setSceneEventCatcher( ec );
+	if ( ec && scene_ )
+	    sections_[idx]->setShapeHintsOrder( scene_->isRightHandSystem() );
+    }
 
     for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
 	edgelinedisplays_[idx]->setSceneEventCatcher( ec );

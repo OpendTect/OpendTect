@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.26 2009-06-05 20:38:07 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.27 2009-06-09 18:54:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,7 @@ class SoAction;
 class SoCallback;
 class SoGetBoundingBoxAction;
 class SoGroup;
+class SoShapeHints;
 class SoState;
 class SoIndexedLineSet;
 class SoDGBIndexedPointSet;
@@ -66,6 +67,7 @@ public:
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
     void			setZAxisTransform(ZAxisTransform*);
+    void			setShapeHintsOrder(bool righthandsystem);
 
     void                        useChannel(bool);
     int                         nrChannels() const;
@@ -140,6 +142,7 @@ protected:
     SoTextureCoordinate2*	texturecrds_;
 
     SoCallback*			callbacker_;
+    SoShapeHints*		shapehints_;
 
     Array2DImpl<HorizonSectionTile*> tiles_;
     bool			usewireframe_;
