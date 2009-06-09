@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.51 2009-05-06 09:31:42 cvsranojay Exp $
+ RCS:		$Id: keystrs.h,v 1.52 2009-06-09 15:57:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ namespace sKey
     mExt FixedString	DataType	mImpl("DataType");
     mExt FixedString	Depth		mImpl("Depth");
     mExt FixedString	Desc		mImpl("Description");
+    mExt FixedString	EmptyString	mImpl("");
     mExt FixedString	Factor		mImpl("Factor");
     mExt FixedString	FileName	mImpl("File name");
     mExt FixedString	Filter		mImpl("Filter");
