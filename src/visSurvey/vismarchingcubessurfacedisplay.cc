@@ -4,15 +4,17 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.21 2009-05-28 19:25:20 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.22 2009-06-09 16:36:12 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
 #include "arrayndimpl.h"
+#include "datapointset.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "executor.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "marchingcubes.h"
 #include "marchingcubeseditor.h"
 #include "randcolor.h"
@@ -42,6 +44,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     : VisualObjectImpl(true)
     , emsurface_( 0 )
     , displaysurface_( 0 )
+    , cache_( 0 )
 {
     setColor( getRandomColor( false ) );
 }
@@ -56,6 +59,9 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 	removeChild( displaysurface_->getInventorNode() );
 	displaysurface_->unRef();
     }
+
+    if ( cache_ )
+	DPM( DataPackMgr::PointID() ).release( cache_->id() );
 }
 
 
@@ -206,8 +212,59 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 {
     if ( !attrib && dps && displaysurface_ )
 	displaysurface_->getShape()->setAttribData( *dps, tr );
+
+    if ( cache_ )
+	DPM( DataPackMgr::PointID() ).release( cache_->id() );
+    
+    cache_ = dps;
+
+    if ( cache_ )
+	DPM( DataPackMgr::PointID() ).obtain( cache_->id() );
 }
 
+
+void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
+ 			    const Coord3& xyzpos, BufferString& val,
+ 			    BufferString& info) const
+{
+    val = sKey::EmptyString;
+    info = "Body: ";
+    info += name();
+    if ( !cache_ )
+	return;
+
+    const BinIDValueSet& bivset = cache_->bivSet();
+    const BinID bid = SI().transform( xyzpos );
+
+    TypeSet<float> zdist;
+    TypeSet<float> vals;
+
+    BinIDValueSet::Pos pos = bivset.findFirst( bid );
+
+    while ( pos.valid() )
+    {
+	const float* posvals = bivset.getVals(pos);
+	const float depth = posvals[0];
+	if ( !mIsUdf(depth) )
+	{
+	    zdist += fabs(depth-xyzpos.z);
+	    vals += posvals[1];
+	}
+
+	if ( !bivset.next( pos, false ) || bivset.getBinID(pos)!=bid )
+	    break;
+    }
+
+    if ( !zdist.size() )
+	return;
+
+    sort_coupled( zdist.arr(), vals.arr(), zdist.size() );
+
+    if ( zdist[0]>SI().zRange(true).step )
+	return;
+
+    val = vals[0];
+}
 
 
 #define mErrRet(s) { errmsg = s; return false; }
