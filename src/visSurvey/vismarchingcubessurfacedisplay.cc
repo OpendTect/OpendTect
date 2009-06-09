@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.22 2009-06-09 16:36:12 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.23 2009-06-09 17:38:51 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -119,6 +119,7 @@ bool MarchingCubesDisplay::setVisSurface(
 
     displaysurface_->setMaterial( 0 );
     emsurface_->setPreferredColor( getMaterial()->getColor() );
+    emsurface_->setName( name() );
     
     return true;
 }
