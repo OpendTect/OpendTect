@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.86 2009-05-28 17:25:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.87 2009-06-09 07:29:00 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -214,7 +214,8 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     
     uiDialog* setupdlg  = new uiDialog( 0 , 
 	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1")
-	   		       .savebutton(true).savetext("Save on Close  ") );
+	   		       .savebutton(true).savechecked(true)
+			       .savetext("Save on Close  ") );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
 
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, 
@@ -597,8 +598,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     trackercurrentobject_ = emid;
 
     uiDialog* setupdlg  = new uiDialog( 0 , 
-	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1")
-			       .savebutton(true).savetext("Save on Close  ") );
+	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1") );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
     setupdlg->windowClosed.notify(
 	    mCB(this,uiMPEPartServer,trackerWinClosedCB) );
