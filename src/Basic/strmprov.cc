@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.94 2009-05-21 04:16:39 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.95 2009-06-09 09:55:03 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -831,8 +831,8 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     if ( sd.fp_ )
     {
 #ifdef __msvc__
-	// TODO
-	pErrMsg( "Not implemented yet" )
+	std::filebuf* fb = new std::filebuf( sd.fp_ );
+	sd.istrm = new std::istream( fb );
 #else
 # if __GNUC__ > 2
 	//TODO change StreamData to include filebuf?
