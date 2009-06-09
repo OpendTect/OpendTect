@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.33 2009-05-11 08:26:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.34 2009-06-09 10:03:03 cvsjaap Exp $";
 
 #include "uiimpfault.h"
 
@@ -62,6 +62,9 @@ uiImportFault::uiImportFault( uiParent* p, const char* type )
 const char* uiImportFault::sKeyAutoStickSel()	{ return "Auto"; }
 const char* uiImportFault::sKeyInlCrlSep()	{ return "Inl/Crl separation"; }
 const char* uiImportFault::sKeySlopeThres()	{ return "Slope threshold"; }
+const char* uiImportFault::sKeyGeometric()	{ return "Geometric"; }
+const char* uiImportFault::sKeyIndexed()	{ return "Indexed"; }
+const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 
 
 void uiImportFault::createUI()
@@ -97,8 +100,11 @@ void uiImportFault::createUI()
 				DoubleInpSpec(1.0).setName("Threshold") );
 	thresholdfld_->attach( rightOf, stickselfld_ );
 
-	sortsticksfld_ = new uiGenInput( this, "Stick order",
-				    BoolInpSpec(true,"sorted","as in file") );
+	BufferStringSet sticksortopt; sticksortopt.add( sKeyGeometric() )
+						  .add( sKeyIndexed() ) 
+						  .add( sKeyFileOrder() );
+	sortsticksfld_ = new uiGenInput( this, "Stick sorting",
+					 StringListInpSpec(sticksortopt) );
 	sortsticksfld_->attach( alignedBelow, stickselfld_ );
     }
 
@@ -225,16 +231,13 @@ bool uiImportFault::handleAscii()
 bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
 {
     EM::FaultAscIO ascio( *fd_ );
-    const bool sortsticks = sortsticksfld_ ? sortsticksfld_->getBoolValue() :
-					     false;
-
     mDynamicCastGet( EM::Fault3D*, fault3d, &flt );
     if ( !fault3d )
-	return ascio.get( strm, flt, sortsticks, 0, false );
+	return ascio.get( strm, flt, true, 0, false );
 
     EM::FSStoFault3DConverter::Setup setup;
-    setup.sortsticks_ = sortsticks &&
-			!fd_->bodyinfos_[2]->selection_.isFilled();
+    setup.sortsticks_ = sortsticksfld_ &&
+			!strcmp( sortsticksfld_->text(), sKeyGeometric() ); 
     if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeyInlCrlSep()) )
 	setup.useinlcrlslopesep_ = true;
     if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeySlopeThres()) )
@@ -242,6 +245,8 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
 
     EM::EMObject* emobj = EM::FaultStickSet::create( EM::EMM() );
     mDynamicCastGet( EM::FaultStickSet*, interfss, emobj );
+    const bool sortsticks = sortsticksfld_ &&
+			    !strcmp( sortsticksfld_->text(), sKeyIndexed() ); 
     bool res = ascio.get( strm, *interfss, sortsticks, 0, false );
     if ( res )
     {

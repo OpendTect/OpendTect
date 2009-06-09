@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.11 2009-04-06 12:52:22 cvsjaap Exp $
+ RCS:           $Id: uiimpfault.h,v 1.12 2009-06-09 10:03:03 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,9 @@ protected:
     static const char*	sKeyAutoStickSel();
     static const char*	sKeyInlCrlSep();
     static const char*	sKeySlopeThres();
+    static const char*  sKeyGeometric();
+    static const char*  sKeyIndexed();
+    static const char*  sKeyFileOrder();
 };
 
 
