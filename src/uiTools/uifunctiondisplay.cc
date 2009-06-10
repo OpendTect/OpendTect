@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.39 2009-05-29 08:49:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.40 2009-06-10 10:15:48 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -396,7 +396,8 @@ void uiFunctionDisplay::drawBorder()
     {
 	if ( !borderrectitem_ )
 	{
-	    borderrectitem_ = scene().addRect( width()/2, height()/2,
+	    borderrectitem_ = scene().addRect( xAxis()->pixBefore(),
+		    yAxis(false)->pixAfter(),
 		    width()-yAxis(false)->pixAfter()-yAxis(false)->pixBefore(),
 		    height()-xAxis()->pixAfter()-xAxis()->pixBefore() );
 	}

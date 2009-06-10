@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.27 2009-05-13 05:55:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.28 2009-06-10 10:15:48 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -196,7 +196,6 @@ uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
 { 
     uiRectItem* uirectitem =
 	new uiRectItem( odgraphicsscene_->addRect(x,y,w,h) );
-    uirectitem->moveBy( -w/2, -h/2 );
     items_ += uirectitem;
     return uirectitem;
 }
