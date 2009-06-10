@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.8 2009-06-10 08:30:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.9 2009-06-10 08:34:05 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.8 2009-06-10 08:30:04 c
 #include "ctxtioobj.h"
 #include "fft.h"
 #include "flatposdata.h"
+#include "hilberttransform.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "math.h"
@@ -22,7 +23,6 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.8 2009-06-10 08:30:04 c
 #include "statruncalc.h"
 #include "wavelet.h"
 #include "welltiesetup.h"
-#include "hilberttransform.h"
 
 #include "uiaxishandler.h"
 #include "uibutton.h"
@@ -50,7 +50,6 @@ uiWellTieWaveletView::uiWellTieWaveletView( uiParent* p, WellTieSetup& twtss )
 
 uiWellTieWaveletView::~uiWellTieWaveletView()
 {
-  //  delete wvltctio_.ioobj; delete &wvltctio_;
 }
 
 
@@ -182,7 +181,7 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
     if ( !wvlt ) return;
     wvltsz_ = wvlt->size();
 
-    static const char* disppropnms[] = { "Amplitude", "Frequency", "Phase", 0 };
+    static const char* disppropnms[] = { "Amplitude", "Frequency", 0 };
 
     ObjectSet<uiGroup> wvltdispparamgrps;
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
@@ -193,7 +192,7 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
 	if ( idx )
 	    wvltdispparamgrps[idx]->attach( alignedBelow,
 					    wvltdispparamgrps[idx-1] );
-	if ( idx == 1 ) fdsu.fillbelow(true);	
+	if ( idx>0 ) fdsu.fillbelow(true);	
 	wvltdisps_ += new uiFunctionDisplay( wvltdispparamgrps[idx], fdsu );
 	wvltvalsarr_ += new Array1DImpl<float>( wvltsz_ );
 	wvltdisps_[idx]->xAxis()->setName( "samples" );
@@ -202,7 +201,6 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
 
     memcpy(wvltvalsarr_[0]->getData(),wvlt->samples(),wvltsz_*sizeof(float));
     
-    //setFrequency();
     setPhase();
     setDispCurves();
 }
@@ -249,7 +247,7 @@ void uiWellTieWaveletDispDlg::setDispCurves()
         tf->init();\
         tf->transform(inp,outp);\
 }
-void uiWellTieWaveletDispDlg::setPhase()
+void uiWellTieWaveletDispDlg::setFrequency()
 {
     fft_ = new FFT();
     HilbertTransform* hil = new HilbertTransform();
@@ -269,7 +267,6 @@ void uiWellTieWaveletDispDlg::setPhase()
 	    phase = atan2( cvals.get(idx).imag(), cvals.get(idx).real() );
 
 	wvltvalsarr_[1]->set( idx, abs(cfreqvals.get(idx)) );
-	//wvltvalsarr_[2]->set( idx, phase );
     }
 }
 
