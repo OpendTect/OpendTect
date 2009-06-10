@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.19 2009-05-27 02:45:44 cvskris Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.20 2009-06-10 19:50:57 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.19 2009-05-27 02:45:
 #include "posvecdataset.h"
 #include "indexedshape.h"
 #include "viscoord.h"
+#include "vismaterial.h"
 #include "visnormals.h"
 #include "vistexturecoords.h"
 
@@ -23,7 +24,6 @@ static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.19 2009-05-27 02:45:
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <SoIndexedTriangleFanSet.h>
-#include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/SoDB.h>
 
@@ -61,6 +61,9 @@ GeomIndexedShape::GeomIndexedShape()
 
     texturecoords_->ref();
     addChild( texturecoords_->getInventorNode() );
+
+    if ( getMaterial() )
+	getMaterial()->change.notify( mCB(this,GeomIndexedShape,matChangeCB) );
 }
 
 
@@ -70,11 +73,14 @@ GeomIndexedShape::~GeomIndexedShape()
     normals_->unRef();
     texturecoords_->unRef();
     delete ctab_;
+
+    if ( getMaterial() )
+	getMaterial()->change.remove( mCB(this,GeomIndexedShape,matChangeCB) );
 }
 
 
 GeomIndexedShape::ColTabMaterial::ColTabMaterial()
-    : coltab_( new SoMaterial )
+    : coltab_( visBase::Material::create() )
     , cache_( 0 )
 {
     coltab_->ref();
@@ -83,7 +89,18 @@ GeomIndexedShape::ColTabMaterial::ColTabMaterial()
 
 GeomIndexedShape::ColTabMaterial::~ColTabMaterial()
 {
-    coltab_->unref();
+    coltab_->unRef();
+}
+
+
+void GeomIndexedShape::ColTabMaterial::updatePropertiesFrom( const Material* m )
+{
+    coltab_->setDiffIntensity( m->getDiffIntensity( 0 ), 0 );
+    coltab_->setAmbience( m->getAmbience() );
+    coltab_->setSpecIntensity( m->getSpecIntensity() );
+    coltab_->setEmmIntensity( m->getEmmIntensity() );
+    coltab_->setShininess( m->getShininess() );
+    coltab_->setTransparency( m->getTransparency() );
 }
 
 
@@ -106,10 +123,41 @@ void GeomIndexedShape::renderOneSide( int side )
 }
 
 
+void GeomIndexedShape::setMaterial( Material* mat )
+{
+    if ( getMaterial() )
+	getMaterial()->change.remove( mCB(this,GeomIndexedShape,matChangeCB) );
+
+    VisualObjectImpl::setMaterial( mat );
+    if ( !mat || !ctab_ )
+	return;
+
+    ctab_->updatePropertiesFrom ( mat );
+
+    mat->change.notify( mCB(this,GeomIndexedShape,matChangeCB) );
+}
+
+void GeomIndexedShape::updateMaterialPropertiesFrom( const Material* mat )
+{
+    if ( ctab_ )
+	ctab_->updatePropertiesFrom ( mat );
+}
+
+
+void GeomIndexedShape::matChangeCB( CallBacker* )
+{
+    updateMaterialPropertiesFrom( getMaterial() );
+}
+
+
+
 void GeomIndexedShape::createColTab()
 {
     if ( !ctab_ )
 	ctab_ = new ColTabMaterial;
+
+    if ( getMaterial() )
+	ctab_->updatePropertiesFrom ( getMaterial() );
 }
 
 
@@ -119,13 +167,21 @@ void GeomIndexedShape::enableColTab( bool yn )
 	createColTab();
 
     if ( yn )
-	insertChild( childIndex(coords_->getInventorNode()), ctab_->coltab_ );
+	insertChild( childIndex(coords_->getInventorNode()),
+		ctab_->coltab_->getInventorNode() );
     else if ( ctab_ )
-	removeChild( ctab_->coltab_ );
+	removeChild( ctab_->coltab_->getInventorNode() );
 }
 
 
-void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup )
+bool GeomIndexedShape::isColTabEnabled() const
+{
+    return ctab_ && childIndex( ctab_->coltab_->getInventorNode() )!=-1;
+}
+
+
+void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup,
+				      TaskRunner* tr )
 {
     createColTab();
     if ( setup!=ctab_->mapper_.setup_ )
@@ -133,8 +189,7 @@ void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup )
 	ctab_->mapper_.setup_ = setup;
 	if ( setup.type_!=ColTab::MapperSetup::Fixed )
 	    reClip();
-	else
-	    reMap();
+	reMap( tr );
     }
 }
 
@@ -153,13 +208,11 @@ void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
 	{
 	    const float val = ((float) idx)/(mNrMaterialSteps-1);
 	    const Color col = seq.color( val );
-	    ctab_->coltab_->diffuseColor.set1Value( idx,
-		    col.r(), col.g(), col.b() );
+	    ctab_->coltab_->setColor( col, idx+1 );
 	}
 
 	const Color col = seq.undefColor();
-	ctab_->coltab_->diffuseColor.set1Value( mUndefMaterial,
-		    col.r(), col.g(), col.b() );
+	ctab_->coltab_->setColor( seq.undefColor(), mUndefMaterial+1 );
     }
 }
 
@@ -394,16 +447,19 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,TaskRunner*) const
 	if ( coordid==-1 )
 	    break;
 
-	DataPointSet::Pos dpsetpos( coords_->getPos( coordid ) );
+	const Coord3 pos = coords_->getPos( coordid );
+	DataPointSet::Pos dpsetpos( BinID(mNINT(pos.x),mNINT(pos.y)), pos.z );
 	DataPointSet::DataRow datarow( dpsetpos, 1 );
 	datarow.data_.setSize( set.nrCols(), mUdf(float) );
 	datarow.data_[col-set.nrFixedCols()] =  coordid;
 	set.addRow( datarow );
     }
+
+    set.dataChanged();
 }
     
 
-void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner*)
+void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tr)
 {
     createColTab();
 
@@ -445,15 +501,16 @@ void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner*)
     }
 
     if ( ctab_->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
-	reClip(); //Will also reMap
-    else
-	reMap();
+	reClip();
+    reMap( tr );
 }
 
 
-void GeomIndexedShape::reMap()
+void GeomIndexedShape::reMap( TaskRunner* tr )
 { 
     createColTab();
+    if ( ctab_->cache_.size()<=0 )
+	return;
 
     TypeSet<int> material( ctab_->cache_.size(), -1 );
     if ( !material.arr() )
@@ -462,7 +519,7 @@ void GeomIndexedShape::reMap()
     for ( int idx=0; idx<material.size(); idx++ )
     {
 	material[idx] = ColTab::Mapper::snappedPosition( &ctab_->mapper_,
-		ctab_->cache_[idx], mNrMaterialSteps, mUndefMaterial );
+		ctab_->cache_[idx], mNrMaterialSteps, mUndefMaterial )+1;
     }
 
     for ( int idx=strips_.size()-1; idx>=0; idx-- )

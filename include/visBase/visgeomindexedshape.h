@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.10 2009-05-27 02:45:44 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.11 2009-06-10 19:50:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,9 @@ public:
 
     void			createColTab();
     void			enableColTab(bool);
-    void			setDataMapper(const ColTab::MapperSetup&);
+    bool			isColTabEnabled() const;
+    void			setDataMapper(const ColTab::MapperSetup&,
+	    				      TaskRunner*);
     const ColTab::MapperSetup*	getDataMapper() const;
     void			setDataSequence(const ColTab::Sequence&);
     const ColTab::Sequence*	getDataSequence() const;
@@ -73,20 +75,25 @@ public:
     void			setAttribData(const DataPointSet&,
 	    				TaskRunner*);
 
+    void			setMaterial(Material*);
+    void			updateMaterialPropertiesFrom(const Material*);
+
 protected:
 				~GeomIndexedShape();
     void			reClip();
-    void			reMap();
+    void			reMap(TaskRunner*);
+    void			matChangeCB(CallBacker*);
 
     mClass			ColTabMaterial
     {
     public:
 					ColTabMaterial();
 					~ColTabMaterial();
+	void				updatePropertiesFrom(const Material*);
 	ColTab::Mapper			mapper_;
 	ColTab::Sequence                sequence_;
 
-	SoMaterial*                     coltab_;
+	visBase::Material*		coltab_;
 	ArrayValueSeries<float,float>	cache_;
     };
 
