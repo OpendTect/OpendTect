@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.15 2009-05-20 21:45:22 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.16 2009-06-10 19:55:43 cvskris Exp $";
 
 #include "vismarchingcubessurface.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.15 2009-05-20 21
 #include "visgeomindexedshape.h"
 
 #include <Inventor/nodes/SoShapeHints.h>
-#include <Inventor/nodes/SoMaterial.h>
+#include <Inventor/nodes/SoMaterialBinding.h>
 
 mCreateFactoryEntry( visBase::MarchingCubesSurface );
 
@@ -35,6 +35,10 @@ MarchingCubesSurface::MarchingCubesSurface()
     , yrg_( mUdf(float), mUdf(float), 0 )
     , zrg_( mUdf(float), mUdf(float), 0 )
 {
+    SoMaterialBinding* mb = new SoMaterialBinding;
+    addChild( mb );
+    mb->value = SoMaterialBinding::PER_VERTEX_INDEXED;
+
     shape_->ref();
     shape_->removeSwitch();
     addChild( shape_->getInventorNode() );
