@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.89 2009-06-09 18:54:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.90 2009-06-10 21:07:56 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -55,6 +55,8 @@ const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
 const char* HorizonDisplay::sKeyEdgeLineRadius(){ return "Edgeline radius"; }
 const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
 const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
+const char* HorizonDisplay::sKeyIntersectLineMaterialID() 
+{ return "Intsectline material id"; }
 
 
 HorizonDisplay::HorizonDisplay()
@@ -69,7 +71,8 @@ HorizonDisplay::HorizonDisplay()
     , resolution_( 0 )
     , zaxistransform_( 0 )
     , maxintersectionlinethickness_( 40 )
-    , allowshading_( true )					 
+    , allowshading_( true )					
+    , intersectionlinematerial_( 0 )	
 {
     as_ += new Attrib::SelSpec;
     coltabmappersetups_ += ColTab::MapperSetup();
@@ -90,6 +93,8 @@ HorizonDisplay::HorizonDisplay()
 HorizonDisplay::~HorizonDisplay()
 {
     deepErase(as_);
+    if ( intersectionlinematerial_ ) 
+	intersectionlinematerial_->unRef();
 
     coltabmappersetups_.erase();
     coltabsequences_.erase();
@@ -754,7 +759,9 @@ void HorizonDisplay::updateSingleColor()
 {
     const bool usesinglecol = !shouldUseTexture();
     const Color col = usesinglecol  ? nontexturecol_ : Color::White();
-    getMaterial()->setColor( col );
+    material_->setColor( col );
+    if ( intersectionlinematerial_ ) 
+	intersectionlinematerial_->setColor( nontexturecol_ );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
@@ -918,8 +925,36 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 	sections_[idx]->turnOn(!yn);
 
     EMObjectDisplay::setOnlyAtSectionsDisplay( yn );
+    
+    if ( yn && !intersectionlinematerial_ )
+    {
+    	visBase::Material* linemat = visBase::Material::create();
+    	linemat->setFrom( *material_ );
+    	linemat->setDiffIntensity( 1 );
+    	linemat->setAmbience( 1 );
+    	
+	setIntersectLineMaterial( linemat );
+	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
+	    intersectionlines_[idx]->setMaterial( intersectionlinematerial_ );
+    }
 }
 
+
+visBase::Material* HorizonDisplay::getMaterial()
+{
+    return displayonlyatsections_ ? intersectionlinematerial_ : material_;
+}
+
+
+void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
+{
+    if ( intersectionlinematerial_ )
+	intersectionlinematerial_->unRef();
+
+    intersectionlinematerial_ = nm;
+    if ( intersectionlinematerial_ )
+	intersectionlinematerial_->ref();
+}
 
 
 void HorizonDisplay::emChangeCB( CallBacker* cb )
@@ -937,7 +972,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
 	nontexturecol_ = emobject_->preferredColor();
-	
+
     updateSingleColor();
 }
 
@@ -1533,6 +1568,8 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    newline->setRightHandSystem( righthandsystem_ );
 	    newline->setDisplayTransformation(transformation_);
+	    if ( intersectionlinematerial_ ) 
+		newline->setMaterial( intersectionlinematerial_ );
 	    intersectionlines_ += newline;
 	    addChild( newline->getInventorNode() );
 	}
@@ -1617,6 +1654,8 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 	    newline->copyCoordIndicesFrom( *intersectionlines_[idx] );
 	    newline->getCoordinates()->copyFrom(
 		    *intersectionlines_[idx]->getCoordinates() );
+	    if ( intersectionlinematerial_ ) 
+		newline->setMaterial( intersectionlinematerial_ );
 
 	    removeChild( intersectionlines_[idx]->getInventorNode() );
 	    addChild( newline->getInventorNode() );
@@ -1755,6 +1794,12 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
 
     par.set( sKeyNrAttribs(), as_.size() );
+
+    const int matid = 
+	intersectionlinematerial_ ? intersectionlinematerial_->id() : -1;
+    par.set( sKeyIntersectLineMaterialID(), matid );
+    if ( matid!=-1 && saveids.indexOf(matid)==-1 )
+	saveids += matid;
 }
 
 
@@ -1903,6 +1948,23 @@ int HorizonDisplay::usePar( const IOPar& par )
     }
 
     setResolution( resolution );
+
+    int intersectlinematid;
+    if ( par.get(sKeyIntersectLineMaterialID(),intersectlinematid) )
+    {
+	if ( intersectlinematid==-1 ) 
+	    setIntersectLineMaterial( 0 );
+	else
+	{
+	    DataObject* mat = visBase::DM().getObject( intersectlinematid );
+	    if ( !mat ) return 0;
+	    if ( typeid(*mat) != typeid(visBase::Material) ) return -1;
+
+	    setIntersectLineMaterial( (visBase::Material*)mat );
+	}
+    }
+    else
+	setIntersectLineMaterial( 0 );
 
     return 1;
 }

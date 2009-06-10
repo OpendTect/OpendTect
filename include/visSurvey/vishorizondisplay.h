@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.41 2009-06-04 19:50:35 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.42 2009-06-10 21:07:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,9 @@ public:
 
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;
+
+    visBase::Material*		getMaterial();
+    void			setIntersectLineMaterial(visBase::Material*);
 
     bool			setEMObject(const EM::ObjectID&,TaskRunner*);
     bool			updateFromEM(TaskRunner*);
@@ -186,6 +189,7 @@ protected:
     float				maxintersectionlinethickness_;
     TypeSet<int>			intersectionlineids_;
     TypeSet<int>			intersectionlinevoi_;
+    visBase::Material*			intersectionlinematerial_;
 
     ZAxisTransform*			zaxistransform_;
 
@@ -216,6 +220,7 @@ protected:
     static const char*			sKeyEdgeLineRadius();
     static const char*			sKeyRowRange();
     static const char*			sKeyColRange();
+    static const char*			sKeyIntersectLineMaterialID();
 };
 
 

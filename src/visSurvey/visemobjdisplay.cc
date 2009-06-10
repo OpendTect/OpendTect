@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.118 2009-06-08 21:05:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.119 2009-06-10 21:07:56 cvsyuancheng Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -236,6 +236,9 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
     emobject_ = emobject;
     emobject_->ref();
     emobject_->change.notify( mCB(this,EMObjectDisplay,emChangeCB) );
+
+    if ( nontexturecolisset_ )
+    	emobject_->setPreferredColor( nontexturecol_ );
 
     restoresessupdate_ = !editor_ && parmid_!=MultiID(-1);
     bool res = updateFromEM( tr );
