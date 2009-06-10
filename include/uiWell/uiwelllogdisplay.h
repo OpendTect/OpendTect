@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.2 2009-06-10 13:37:40 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.3 2009-06-10 15:43:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ public:
 	// Set these
 	const Well::Log*	wl_;
 	const UnitOfMeasure*	unitmeas_;
-	Color			color_;
 	LineStyle		linestyle_;
 	bool			logarithmic_;
 	float			clipratio_;
@@ -48,10 +47,8 @@ public:
 	Interval<float>		valrg_;
 	uiAxisHandler		xax_;
 	uiAxisHandler		yax_;
-	uiPolyLineItem*		curveitm_;
+	ObjectSet<uiPolyLineItem> curveitms_;
 	uiTextItem*		curvenmitm_;
-
-	void			setSecond(LogData&);
     };
 
     LogData&			logData( bool first=true )
@@ -80,7 +77,9 @@ protected:
     void			gatherInfo();
     void			draw();
 
+    void			setAxisRelations();
     void			gatherInfo(bool);
+    void			setAxisRanges(bool);
     void			drawCurve(bool);
 
 };

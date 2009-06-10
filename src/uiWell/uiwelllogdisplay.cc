@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.1 2009-06-10 13:21:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.2 2009-06-10 15:43:31 cvsbert Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -17,11 +17,14 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.1 2009-06-10 13:21:39 c
 #include "mouseevent.h"
 #include "dataclipper.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
+#include "linear.h"
 #include <iostream>
 
 
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst )
     : wl_(0)
+    , unitmeas_(0)
     , xax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Top:uiRect::Bottom))
     , yax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Left:uiRect::Right))
     , zrg_(mUdf(float),0)
@@ -29,25 +32,14 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst )
     , logarithmic_(false)
     , linestyle_(LineStyle::Solid)
     , clipratio_(0.001)
+    , curvenmitm_(0)
 {
-    if ( isfirst )
-	xax_.setBegin( &yax_ );
-    else
-	xax_.setEnd( &yax_ );
-
     if ( !isfirst )
 	yax_.setup().nogridline(true);
 
     const uiBorder b( 10 );
     xax_.setup().border( b );
     yax_.setup().border( b );
-}
-
-
-void uiWellLogDisplay::LogData::setSecond( uiWellLogDisplay::LogData& ld )
-{
-    xax_.setEnd( &ld.yax_ );
-    yax_.setBegin( &ld.xax_ );
 }
 
 
@@ -95,9 +87,9 @@ void uiWellLogDisplay::dataChanged()
 
 void uiWellLogDisplay::gatherInfo()
 {
+    setAxisRelations();
     gatherInfo( true );
     gatherInfo( false );
-    ld1_.setSecond( ld2_ );
 
     if ( mIsUdf(zrg_.start) && ld1_.wl_ )
     {
@@ -105,6 +97,8 @@ void uiWellLogDisplay::gatherInfo()
 	if ( ld2_.wl_ )
 	    zrg_.include( ld2_.zrg_ );
     }
+    setAxisRanges( true );
+    setAxisRanges( false );
 
     ld1_.yax_.setup().islog( ld1_.logarithmic_ );
     ld2_.yax_.setup().islog( ld2_.logarithmic_ );
@@ -116,28 +110,90 @@ void uiWellLogDisplay::gatherInfo()
 }
 
 
+void uiWellLogDisplay::setAxisRelations()
+{
+    ld1_.xax_.setBegin( &ld1_.yax_ );
+    ld1_.yax_.setBegin( &ld2_.xax_ );
+    ld2_.xax_.setBegin( &ld1_.yax_ );
+    ld2_.yax_.setBegin( &ld2_.xax_ );
+    ld1_.xax_.setEnd( &ld2_.yax_ );
+    ld1_.yax_.setEnd( &ld1_.xax_ );
+    ld2_.xax_.setEnd( &ld2_.yax_ );
+    ld2_.yax_.setEnd( &ld1_.xax_ );
+
+    ld1_.xax_.setNewDevSize( width(), height() );
+    ld2_.xax_.setNewDevSize( width(), height() );
+    ld1_.yax_.setNewDevSize( height(), width() );
+    ld2_.yax_.setNewDevSize( height(), width() );
+}
+
+
 void uiWellLogDisplay::gatherInfo( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
 
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
-    if ( sz < 2 ) return;
+    if ( sz < 2 )
+    {
+	if ( !first )
+	{
+	    ld2_.unitmeas_ = ld1_.unitmeas_;
+	    ld2_.linestyle_ = ld1_.linestyle_;
+	    ld2_.logarithmic_ = ld1_.logarithmic_;
+	    ld2_.zrg_ = ld1_.zrg_;
+	    ld2_.valrg_ = ld1_.valrg_;
+	}
+	return;
+    }
 
     DataClipSampler dcs( sz );
     dcs.add( ld.wl_->valArr(), sz );
     ld.valrg_ = dcs.getRange( ld.clipratio_ );
     ld.zrg_.start = ld.wl_->dah( 0 );
     ld.zrg_.stop = ld.wl_->dah( sz-1 );
-    ld.xax_.setRange( ld.valrg_ );
-    Interval<float> dispzrg( zrg_ );
+}
+
+
+void uiWellLogDisplay::setAxisRanges( bool first )
+{
+    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    const int sz = ld.wl_ ? ld.wl_->size() : 0;
+    if ( sz < 2 )
+    {
+	if ( !first )
+	{
+	    ld2_.xax_.setRange( ld1_.xax_.range() );
+	    ld2_.yax_.setRange( ld1_.yax_.range() );
+	}
+	return;
+    }
+
+    Interval<float> dispvalrg( ld.valrg_ );
+    if ( ld.unitmeas_ )
+    {
+	dispvalrg.start = ld.unitmeas_->userValue(ld.valrg_.start);
+	dispvalrg.stop = ld.unitmeas_->userValue(ld.valrg_.stop);
+    }
+    AxisLayout alx( dispvalrg );
+    if ( alx.sd.start < dispvalrg.start ) alx.sd.start += alx.sd.step;
+    ld.xax_.setRange(
+	    StepInterval<float>(dispvalrg.start,dispvalrg.stop,alx.sd.step),
+	    &alx.sd.start );
+
+    Interval<float> dispzrg( zrg_.start, zrg_.stop );
     if ( dispzinft_ )
 	dispzrg.scale( mToFeetFactor );
-    ld.yax_.setRange( dispzrg );
+    AxisLayout aly( dispzrg );
+    if ( aly.sd.start < dispzrg.start ) aly.sd.start += aly.sd.step;
+    ld.yax_.setRange(
+	    StepInterval<float>(dispzrg.start,dispzrg.stop,aly.sd.step),
+	    &aly.sd.start );
 }
 
 
 void uiWellLogDisplay::draw()
 {
+    setAxisRelations();
     if ( mIsUdf(zrg_.start) ) return;
 
     ld1_.xax_.plotAxis(); ld1_.yax_.plotAxis();
@@ -151,31 +207,62 @@ void uiWellLogDisplay::draw()
 void uiWellLogDisplay::drawCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-    delete ld.curveitm_; ld.curveitm_ = 0;
+    deepErase( ld.curveitms_ );
     delete ld.curvenmitm_; ld.curvenmitm_ = 0;
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
 
-    TypeSet<uiPoint> pts;
+    ObjectSet< TypeSet<uiPoint> > pts;
+    TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     for ( int idx=0; idx<sz; idx++ )
     {
 	float dah = ld.wl_->dah( idx );
-	if ( !zrg_.includes(dah) )
+	if ( dah < zrg_.start )
 	    continue;
+	else if ( dah > zrg_.stop )
+	    break;
+
+	float val = ld.wl_->value( idx );
+	if ( mIsUdf(val) )
+	{
+	    if ( !curpts->isEmpty() )
+	    {
+		pts += curpts;
+		curpts = new TypeSet<uiPoint>;
+	    }
+	    continue;
+	}
 
 	if ( dispzinft_ ) dah *= mToFeetFactor;
-	const float val = ld.wl_->value( idx );
-	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
+	if ( ld.unitmeas_ ) val = ld.unitmeas_->userValue( val );
+	*curpts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
     }
+    if ( curpts->isEmpty() )
+	delete curpts;
     if ( pts.isEmpty() ) return;
 
-    ld.curveitm_ = scene().addItem( new uiPolyLineItem(pts) );
-    ld.curveitm_->setPenColor( ld.color_ );
+    for ( int idx=0; idx<pts.size(); idx++ )
+    {
+	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem(*pts[idx]) );
+	pli->setPenStyle( ld.linestyle_ );
+	ld.curveitms_ += pli;
+    }
+
     Alignment al( Alignment::HCenter,
 	    	  first ? Alignment::Top : Alignment::Bottom );
     ld.curvenmitm_ = scene().addItem( new uiTextItem(ld.wl_->name(),al) );
-    ld.curvenmitm_->setTextColor( ld.color_ );
-    ld.curvenmitm_->setPos( first ? pts[0] : pts[pts.size()-1] );
+    ld.curvenmitm_->setTextColor( ld.linestyle_.color_ );
+    uiPoint txtpt;
+    if ( first )
+	txtpt = uiPoint( (*pts[0])[0] );
+    else
+    {
+	TypeSet<uiPoint>& lastpts( *pts[pts.size()-1] );
+	txtpt = lastpts[lastpts.size()-1];
+    }
+    ld.curvenmitm_->setPos( txtpt );
+
+    deepErase( pts );
 }
 
 
