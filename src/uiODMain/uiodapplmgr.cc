@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.332 2009-06-01 04:17:35 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.333 2009-06-10 20:45:21 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -394,10 +394,13 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( newid == -1 )
 		res = false;
 	    visserv_->setDataPackID( visid, attrib, newid );
-	    return res;
+	    break;
 	}
 	case uiVisPartServer::RandomPos :
 	{
+	    TypeSet<DataPointSet::DataRow> pts;
+	    BufferStringSet nms;
+
 	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
 	    {
 		const MultiID surfmid = visserv_->getMultiID(visid);
@@ -408,29 +411,40 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    uiMSG().error( "Cannot find stored data" );
 		else
 		{
-		    TypeSet<DataPointSet::DataRow> pts;
-		    BufferStringSet nms;
-		    DataPointSet vals( pts, nms, false, true );
-		    emserv_->getAuxData( emid, auxdatanr, vals );
-		    createAndSetMapDataPack( visid, attrib, vals, 1 );
+		    DataPointSet* data = new DataPointSet( pts, nms,false,true);
+		    if ( !data )
+			return false;
+		    DPM( DataPackMgr::PointID() ).addAndObtain( data );
+
+		    emserv_->getAuxData( emid, auxdatanr, *data );
+		    createAndSetMapDataPack( visid, attrib, *data, 1 );
+		    DPM( DataPackMgr::PointID() ).release( data->id() );
 		}
 
-		return  auxdatanr>=0;
+		res = auxdatanr>=0;
+		break;
 	    }
 
-	    TypeSet<DataPointSet::DataRow> pts;
-	    BufferStringSet nms;
-	    DataPointSet data( pts, nms, false, true );
-	    visserv_->getRandomPos( visid, data );
-	    const int firstcol = data.nrCols();
-	    data.dataSet().add( new DataColDef(myas.userRef()) );
-	    attrserv_->setTargetSelSpec( myas );
-	    if ( !attrserv_->createOutput(data,firstcol) )
+	    DataPointSet* data = new DataPointSet( pts, nms, false, true );
+	    if ( !data )
 		return false;
+	    DPM( DataPackMgr::PointID() ).addAndObtain( data );
+
+	    visserv_->getRandomPos( visid, *data );
+	    const int firstcol = data->nrCols();
+	    data->dataSet().add( new DataColDef(myas.userRef()) );
+	    attrserv_->setTargetSelSpec( myas );
+	    if ( !attrserv_->createOutput(*data,firstcol) )
+	    {
+		DPM( DataPackMgr::PointID() ).release( data->id() );
+		return false;
+	    }
 
 	    //Use the first value stored in the set, what else? (0 stands for Z)
-	    createAndSetMapDataPack( visid, attrib, data, 1 );
-	    return true;
+	    createAndSetMapDataPack( visid, attrib, *data, 1 );
+	    DPM( DataPackMgr::PointID() ).release( data->id() );
+	    res = true;
+	    break;
 	}
 	case uiVisPartServer::OtherFormat :
 	{
@@ -439,7 +453,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    getOtherFormatData.trigger();
 	    otherformatvisid_ = -1;
 	    otherformatattrib_ = -1;
-	    return true;
+	    res = true;
+	    break;
 	}
 	default :
 	{
