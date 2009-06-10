@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.4 2009-04-24 13:44:35 cvsbert Exp $
+ RCS:		$Id: datapack.h,v 1.5 2009-06-10 19:11:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,10 +59,10 @@ public:
 
 protected:
 
-    const ID		id_;
-    const BufferString	category_;
-    int			nrusers_;
-    Threads::Mutex	nruserslock_;
+    const ID			id_;
+    const BufferString		category_;
+    mutable int			nrusers_;
+    mutable Threads::Mutex	nruserslock_;
 
     static ID		getNewID(); 	//!< ensures a global data pack ID
     static const float	sKb2MbFac();	//!< 1 / 1024
@@ -165,7 +165,7 @@ public:
     void		dumpInfo(std::ostream&) const;
     float		nrKBytes() const;
 
-    const ObjectSet<DataPack>&	packs() const	{ return packs_; }
+    const ObjectSet<const DataPack>&	packs() const	{ return packs_; }
 
     			DataPackMgr(ID);
 			//!< You can, but normally should not, construct
@@ -180,7 +180,7 @@ public:
 protected:
 
     ID				id_;
-    ObjectSet<DataPack>		packs_;
+    ObjectSet<const DataPack>	packs_;
 
     DataPack*				doObtain(ID,bool) const;
     int					indexOf(ID) const;

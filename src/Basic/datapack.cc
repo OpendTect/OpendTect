@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapack.cc,v 1.3 2009-04-24 13:44:35 cvsbert Exp $";
+static const char* rcsID = "$Id: datapack.cc,v 1.4 2009-06-10 19:10:32 cvskris Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -129,15 +129,18 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
 {
     if ( !dp ) return 0;
 
-    lock_.writeLock();
-    packs_ += dp;
-
     dp->nruserslock_.lock();
     dp->nrusers_++;
     dp->nruserslock_.unLock();
 
+    lock_.writeLock();
+    const int idx = packs_.indexOf( dp );
+    if ( idx==-1 )
+	packs_ += dp;
     lock_.writeUnLock();
-    newPack.trigger( dp );
+
+    if ( idx==-1 )
+	newPack.trigger( dp );
 
     return dp;
 }
