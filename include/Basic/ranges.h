@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.52 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: ranges.h,v 1.53 2009-06-10 13:21:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ public:
     T			stop;
 
     inline bool		isRev() const		{ return start > stop; }
+    virtual bool	hasStep() const		{ return false; }
 };
 
 
@@ -93,18 +94,21 @@ template <class T>
 class StepInterval : public Interval<T>
 {
 public:
+
     inline		StepInterval();
     inline		StepInterval(const T& start,const T& stop,
 				     const T& step);
+    inline		StepInterval(const Interval<T>&);
+    inline		StepInterval( const StepInterval<T>& si )
+			: Interval<T>(si), step(si.step)	{}
 
     virtual bool inline	isUdf() const;
+    virtual bool	hasStep() const		{ return true; }
 
     inline
     virtual cloneTp*	clone() const;
     inline void		set(const T& start,const T& stop,const T& step);
 
-    template <class X>
-    const StepInterval<T>& setFrom(const StepInterval<X>&);
     template <class X>
     const StepInterval<T>& setFrom(const Interval<X>&);
 
@@ -471,6 +475,12 @@ StepInterval<T>::StepInterval( const T& t1, const T& t2, const T& t3 )
 { step = t3; }
 
 
+template <class T>
+StepInterval<T>::StepInterval( const Interval<T>& intv )
+    : Interval<T>(intv)
+{ step = intv.hasStep() ? ((StepInterval<T>&)intv).step : 1; }
+
+
 template <class T> inline
 bool StepInterval<T>::isUdf() const
 {
@@ -503,18 +513,12 @@ bool StepInterval<T>::operator!=( const StepInterval<T>& i ) const
 
 
 template <class T> template <class X> inline
-const StepInterval<T>& StepInterval<T>::setFrom( const StepInterval<X>& i )
-{
-    Interval<T>::setFrom( i );
-    step = (T) i.step;
-    return *this;
-}
-
-
-template <class T> template <class X> inline
 const StepInterval<T>& StepInterval<T>::setFrom( const Interval<X>& i )
 {
     Interval<T>::setFrom( i );
+    if ( i.hasStep() )
+	step = (T)(((const StepInterval<X>&)i).step);
+
     return *this;
 }
 
