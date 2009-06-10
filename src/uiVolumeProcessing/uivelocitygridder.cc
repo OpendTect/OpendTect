@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.5 2009-03-23 11:02:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.6 2009-06-10 20:47:27 cvskris Exp $";
 
 #include "uivelocitygridder.h"
 
@@ -22,7 +22,8 @@ namespace VolProc
 
 void uiVelocityGridder::initClass()
 {
-    uiChain::factory().addCreator( create, VelGriddingStep::sType() );
+    uiChain::factory().addCreator( create, VelGriddingStep::sType(),
+	   "Velocity gridder" );
 }
 
 
