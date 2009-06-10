@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.18 2009-05-22 01:04:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.19 2009-06-10 20:53:38 cvskris Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -159,6 +159,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , displaypolygonmnuitem_( "&Picked polygons" )			    
     , displayintersectionmnuitem_( "&Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
+    , singlecolormnuitem_( "Use Single &color" )
     , mcd_( 0 )
     , plg_( 0 )
     , rpb_( 0 ) 	       
@@ -166,6 +167,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     displaybodymnuitem_.checkable = true;
     displaypolygonmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
+    singlecolormnuitem_.checkable = true;
 }
 
 
@@ -179,6 +181,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , displaypolygonmnuitem_( "Picked polygons" )			    
     , displayintersectionmnuitem_( "Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
+    , singlecolormnuitem_( "Use Single &color" )
     , mcd_( 0 )
     , plg_( 0 )	       
     , rpb_( 0 ) 	       
@@ -187,6 +190,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     displaybodymnuitem_.checkable = true;
     displaypolygonmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
+    singlecolormnuitem_.checkable = true;
 }
 
 
@@ -365,6 +369,7 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &savemnuitem_, enablesave && 
 		      !applMgr()->EMServer()->isShifted(emid_), false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );
+	mAddMenuItem( menu, &singlecolormnuitem_, true, !mcd->usesTexture() );
     }
 
     if ( plg )
@@ -433,6 +438,11 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	plg_->display( true, true );
 	plg_->displayIntersections( false );
+    }
+    if ( mnuid==singlecolormnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	mcd_->useTexture( !mcd_->usesTexture() );
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
     {
