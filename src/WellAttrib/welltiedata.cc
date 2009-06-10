@@ -7,9 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.2 2009-05-20 14:27:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.3 2009-06-10 08:07:46 cvsbruno Exp $";
 
 #include "welltiedata.h"
+#include "welltied2tmodelmanager.h"
+#include "welltiepickset.h"
 #include "welltieunitfactors.h"
 #include "arrayndimpl.h"
 #include "survinfo.h"
@@ -19,29 +21,36 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.2 2009-05-20 14:27:30 cvsbru
 
 
 
-WellTieDataMGR::WellTieDataMGR( const WellTieParams* pms )
+WellTieDataSetMGR::WellTieDataSetMGR( const WellTieParams* pms, 
+				      WellTieData* data ) 
     		: params_(*pms)
+		, datasets_(data->datasets_)  
 {
-    workdata_.setColNames(params_.colnms_);
-    dispdata_.setColNames(params_.colnms_);
+    for ( int idx=0; idx<data->nrdataset_; idx++ )
+	datasets_ += new WellTieDataSet();
+
+    for ( int idx=0; idx<datasets_.size(); idx++ )
+	datasets_[idx]->setColNames(params_.colnms_);
 }
 
 
-WellTieDataMGR::~WellTieDataMGR()
+WellTieDataSetMGR::~WellTieDataSetMGR()
 {
-    workdata_.clearData();
-    dispdata_.clearData();
+    for ( int idx=datasets_.size()-1; idx>=0; idx-- )
+	datasets_[idx]->clearData();
 }
 
 
-void WellTieDataMGR::resetData()
+void WellTieDataSetMGR::resetData()
 {
-    resetData( workdata_, params_.worksize_ );
-    resetData( dispdata_, params_.dispsize_ );
+    int size[] = { params_.worksize_, params_.dispsize_, params_.corrsize_, 0 };
+
+    for ( int idx=0; idx<datasets_.size(); idx++ )
+	resetData( *datasets_[idx], size[idx] );
 }
 
 
-void WellTieDataMGR::resetData( WellTieDataSet& dataset, int size )
+void WellTieDataSetMGR::resetData( WellTieDataSet& dataset, int size )
 {
     dataset.clearData();
     dataset.setColNr( params_.nrdatacols_ );
@@ -49,20 +58,14 @@ void WellTieDataMGR::resetData( WellTieDataSet& dataset, int size )
     dataset.createDataArrays();
 }
 
-
-void WellTieDataMGR::setWork2DispData()
-{
-    rescaleData( workdata_, dispdata_, 6, params_.step_ );
-}
-
-
-void WellTieDataMGR::rescaleData( const WellTieDataSet& olddata,
+//resampledata at "step" sampling rate
+void WellTieDataSetMGR::rescaleData( const WellTieDataSet& olddata,
 				  WellTieDataSet& newdata,	
 				  int colnr, int step  )
 {
     for ( int colidx=0; colidx<colnr; colidx++)
     {
-	for ( int idx=0; idx<params_.dispsize_; idx++)
+	for ( int idx=0; idx<newdata.getLength(); idx++)
 	{
 	    const float val = olddata.get( colidx )->get( (int)step*idx );
 	    newdata.get(colidx)->setValue( idx, val );
@@ -71,7 +74,21 @@ void WellTieDataMGR::rescaleData( const WellTieDataSet& olddata,
 }
 
 
-void WellTieDataMGR::getSortedDPSDataAlongZ( const DataPointSet& dps,
+//recompute data between timestart and timestop
+void WellTieDataSetMGR::rescaleData( const WellTieDataSet& olddata,
+			     WellTieDataSet& newdata, int colnr, 
+			     float timestart, float timestop )
+{
+    int startidx = olddata.getIdx( timestart );
+    int stopidx  = olddata.getIdx( timestop  );
+
+    for ( int idx=0; idx<colnr; idx++)
+	newdata.setArrayBetweenIdxs( *olddata.get(idx), *newdata.get(idx), 
+				       startidx, stopidx );
+}
+
+
+void WellTieDataSetMGR::getSortedDPSDataAlongZ( const DataPointSet& dps,
        				  	     Array1DImpl<float>& vals )
 {
     TypeSet<float> zvals, tmpvals;
@@ -96,8 +113,7 @@ void WellTieDataMGR::getSortedDPSDataAlongZ( const DataPointSet& dps,
 
 
 
-
-const int WellTieDataSet::findTimeIdx( float dah )
+const int WellTieDataSet::getIdxFromDah( float dah ) const
 {
     int idx=0;
     while ( get(0,idx)<dah )
@@ -121,7 +137,7 @@ void WellTieDataSet::createDataArrays()
 
 
 
-const int WellTieDataSet::getIdx( float time )
+const int WellTieDataSet::getIdx( float time ) const
 {
     const float step = SI().zStep();
     const int idx = int ( (time-data_[1]->get(0))/step );
@@ -129,7 +145,7 @@ const int WellTieDataSet::getIdx( float time )
 }
 
 
-const float WellTieDataSet::get( const char* colnm, int idx )
+const float WellTieDataSet::get( const char* colnm, int idx ) const  
 {
     if ( get(colnm) )
 	return get(colnm)->get(idx);
@@ -137,7 +153,7 @@ const float WellTieDataSet::get( const char* colnm, int idx )
 }
 
 
-const float WellTieDataSet::get( int colidx, int validx )
+const float WellTieDataSet::get( int colidx, int validx ) const
 {
     if ( get(colidx) )
 	return get(colidx)->get(validx);
@@ -145,7 +161,7 @@ const float WellTieDataSet::get( int colidx, int validx )
 }
 
 
-const float WellTieDataSet::getExtremVal( const char* colnm, bool ismax )
+const float WellTieDataSet::getExtremVal( const char* colnm, bool ismax ) const
 {
     float maxval,             minval;
     maxval = get(colnm, 0);   minval = maxval;
@@ -162,7 +178,7 @@ const float WellTieDataSet::getExtremVal( const char* colnm, bool ismax )
 }
 
 
-const int WellTieDataSet::getColIdx( const char* colname )
+const int WellTieDataSet::getColIdx( const char* colname ) const
 {
     if ( !colname ) return 0;
     for ( int idx=0; idx<colnameset_.size(); idx++ )
@@ -174,3 +190,45 @@ const int WellTieDataSet::getColIdx( const char* colname )
 }
 
 
+void WellTieDataSet::setArrayBetweenIdxs( const Array1DImpl<float>& olddata,
+					  Array1DImpl<float>& newdata,
+					  int startidx, int stopidx )
+{
+    for ( int idx=startidx; idx<newdata.info().getSize(0); idx++ )
+    {
+	if (mIsUdf(olddata.get(idx)))
+	    newdata.setValue( idx-startidx, 0 );
+	else
+	    newdata.setValue( idx-startidx, olddata.get( idx ) ); 
+    }
+}
+
+
+void WellTieDataSet::set( const char* colnm, int idx, float val )
+{
+    if ( get(colnm) )
+	get(colnm)->set(idx, val);
+}
+
+
+
+
+WellTieDataHolder::WellTieDataHolder( const WellTieParams* params, 
+				      Well::Data* wd, const WellTieSetup& s )
+    	: params_(params)	
+	, wd_(wd) 
+	, setup_(s)	  
+{
+    pickmgr_ = new WellTiePickSetMGR();
+    d2tmgr_  = new WellTieD2TModelMGR( wd_, params_ );
+    datamgr_ = new WellTieDataSetMGR( params_, &data_ );
+}
+
+
+WellTieDataHolder::~WellTieDataHolder()
+{
+    delete datamgr_;
+    delete pickmgr_;
+    delete d2tmgr_;
+}
+    

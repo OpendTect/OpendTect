@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.9 2009-05-28 14:38:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.10 2009-06-10 08:07:46 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.9 2009-05-28 14:38:11 c
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "ioman.h"
+#include "linear.h"
 #include "mousecursor.h"
 #include "posvecdataset.h"
 #include "task.h"
@@ -29,7 +30,6 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.9 2009-05-28 14:38:11 c
 #include "welllog.h"
 #include "welllogset.h"
 #include "welldata.h"
-#include "welltiecshot.h"
 #include "welltrack.h"
 #include "welltiegeocalculator.h"
 #include "welltieunitfactors.h"
@@ -38,36 +38,29 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.9 2009-05-28 14:38:11 c
 #include "welltiesetup.h"
 #include "welltieextractdata.h"
 
-WellTieToSeismic::WellTieToSeismic( Well::Data* wd, 
-				    WellTieParams* p,
+WellTieToSeismic::WellTieToSeismic( WellTieDataHolder* dh, 
 				    const Attrib::DescSet& ads,
-			       	    WellTieDataMGR& mgr,
-       				    TaskRunner* tr )
-    	: wtsetup_(p->getSetup())
-	, params_(*p)  
+       				    TaskRunner* tr ) 
+    	: wtsetup_(dh->setup())
 	, ads_(ads)	       
-	, wd_(*wd)  
-	, datamgr_(mgr)	   
-	, dispdata_(*mgr.getDispData())		   
-	, workdata_(*mgr.getWorkData())		   
+	, wd_(*dh->wd()) 
+	, params_(*dh->params())		 
+	, datamgr_(*dh->datamgr_)	   
+	, dispdata_(*dh->dispData())		   
+	, workdata_(*dh->extrData())		   
+	, corrdata_(*dh->corrData())		   
 	, tr_(tr)		  
-      	, d2tmgr_(0)
-	, dps_(new DataPointSet(false, false))	    
+      	, d2tmgr_(dh->d2tmgr_)
+	, dps_(new DataPointSet(false, false))	   
+	, wtdata_(dh->data())					   
 {
     dps_->dataSet().add( new DataColDef( params_.attrnm_ ) );
-    if ( wd_.checkShotModel() )
-    {
-	params_.currvellognm_ = wtsetup_.corrvellognm_;
-	WellTieCSCorr cscorr( wd_, params_ );
-    }
-    geocalc_ = new WellTieGeoCalculator( p, wd );
-    d2tmgr_  = new WellTieD2TModelMGR( wd_, wtsetup_, *geocalc_ );
+    geocalc_ = new WellTieGeoCalculator( &params_, &wd_ );
 } 
 
 
 WellTieToSeismic::~WellTieToSeismic()
 {
-    //if ( d2tmgr_ )  delete d2tmgr_;
     if ( geocalc_ ) delete geocalc_;
     if ( tr_ ) 	    delete tr_;
     if ( dps_ )	    delete dps_;
@@ -76,18 +69,24 @@ WellTieToSeismic::~WellTieToSeismic()
 
 bool WellTieToSeismic::computeAll()
 {
-    params_.resetTimeParams(0);
+    //setUpData  
     datamgr_.resetData();
 
-    if ( !resampleLogs() ) 	    return false;
-    if ( !computeSynthetics() )     return false;
+    if ( !resampleLogs() ) 	   return false;
+    if ( !computeSynthetics() )    return false;
 
-    //resamples WorkData and put in DispData
-    datamgr_.setWork2DispData();
+    //WorkData resampled and put in DispData at seismic sample rate 
+    datamgr_.rescaleData( workdata_, dispdata_, 6, params_.step_ );
 
-    if ( !extractWellTrack() )      return false;
-    if ( !extractSeismics() ) 	    return false;
-    if ( !computeCrossCorrel() )    return false;
+    if ( !extractWellTrack() )     return false;
+    if ( !extractSeismics() ) 	   return false;
+
+    //DispData rescaled between user-specified times
+    datamgr_.rescaleData( dispdata_, corrdata_, params_.nrdatacols_, 
+	    params_.corrtimeintv_.start, params_.corrtimeintv_.stop );
+    
+    if ( !estimateWavelet() )	   return false;
+    if ( !computeCrossCorrel() )   return false;
     
     return true;	
 }
@@ -145,7 +144,6 @@ bool WellTieToSeismic::computeSynthetics()
 	      	 	 *workdata_.get(params_.ainm_) );
     
     //geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 125/params_.step_ );
-    
     geocalc_->computeReflectivity( *workdata_.get(params_.ainm_),
        				   *dispdata_.get(params_.refnm_), 
 				   params_.step_ );
@@ -192,23 +190,28 @@ Wavelet* WellTieToSeismic::estimateWavelet()
 {
     //copy initial wavelet
     Wavelet* wvlt = new Wavelet( *Wavelet::get(IOM().get(wtsetup_.wvltid_)) );
-    const int datasz = params_.dispsize_;
     const int wvltsz = wvlt->size();
     const bool iswvltodd = wvltsz%2;
     if ( iswvltodd ) wvlt->reSize( wvltsz+1 );
-    Array1DImpl<float> wvltdata( datasz ), wvltvals( wvltsz );
-
-    geocalc_->deconvolve( *dispdata_.get(params_.attrnm_),
-	   		  *dispdata_.get(params_.refnm_), wvltdata, wvltsz );
+   
+    //set up data
+    int datasz = params_.corrsize_; 
+    Array1DImpl<float> wvltarr( datasz ), wvltvals( wvltsz );
     
+    //performs deconvolution
+    geocalc_->deconvolve( *corrdata_.get(8), 
+	    		  *corrdata_.get(params_.refnm_), 
+			  wvltarr, wvltsz );
+
+    //retrieve wvlt samples from the deconvolved vector
     for ( int idx=0; idx<wvltsz; idx++ )
-	wvlt->samples()[idx] = wvltdata.get( datasz/2 + idx - wvltsz/2 );
+	wvlt->samples()[idx] = wvltarr.get( datasz/2 + idx - wvltsz/2 );
     
     memcpy( wvltvals.getData(),wvlt->samples(), wvltsz*sizeof(float) );
-    ArrayNDWindow window( Array1DInfoImpl(wvltsz),
-			  false, "CosTaper", 0.15 );
+    ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", 0.15 );
     window.apply( &wvltvals );
     memcpy( wvlt->samples(), wvltvals.getData(), wvltsz*sizeof(float) );
+
     geocalc_->reverseWavelet( *wvlt );
 
     return wvlt;
@@ -217,9 +220,17 @@ Wavelet* WellTieToSeismic::estimateWavelet()
 
 bool WellTieToSeismic::computeCrossCorrel()
 {
-    geocalc_->crosscorr(*dispdata_.get(params_.synthnm_),
-	    		*dispdata_.get(params_.attrnm_),
-			*dispdata_.get(params_.crosscorrnm_));
+    geocalc_->crosscorr( *corrdata_.get(params_.synthnm_), 
+	    		 *corrdata_.get(8), 
+	    		 *corrdata_.get(params_.crosscorrnm_));
+
+    //computes cross-correl coeff
+    LinStats2D ls2d;
+    ls2d.use( corrdata_.get(params_.synthnm_)->getData(),
+	      corrdata_.get(8)->getData(),
+	      params_.corrsize_ );
+    wtdata_.corrcoeff_ = ls2d.corrcoeff;
+
     return true;
 }
 

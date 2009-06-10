@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.2 2009-05-26 07:06:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.3 2009-06-10 08:07:46 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -21,23 +21,21 @@ static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.2 2009-05-26 07:06
 #include "welltiegeocalculator.h"
 #include "welltied2tmodelmanager.h"
 
-uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p,
-			    const WellTieParams* pms, Well::Data* wd,
-			    WellTieDataMGR& mgr, uiWellTieView& v,
-			    WellTiePickSetMGR& pmgr )
-        : uiWellTieStretch(p,pms,wd,mgr,v,pmgr)
-	, synthpickset_(*pmgr.getSynthPickSet())
-	, seispickset_(*pmgr.getSeisPickSet())
+uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p, 
+					      WellTieDataHolder* dh, 
+			 		      uiWellTieView& v )
+	: uiWellTieStretch(p,dh,v)
+	, synthpickset_(*dh->pickmgr_->getSynthPickSet())
+	, seispickset_(*dh->pickmgr_->getSeisPickSet())
+        , d2tmgr_(dh->d2tmgr_)	
 	, readyforwork(this)				
 {
-    d2tmgr_  = new WellTieD2TModelMGR( *wd, pms->getSetup(), *geocalc_ );
-    pmgr.pickadded.notify(mCB(this,uiWellTieEventStretch,addUserPick));
+    dh->pickmgr_->pickadded.notify(mCB(this,uiWellTieEventStretch,addUserPick));
 } 
 
 
 uiWellTieEventStretch::~uiWellTieEventStretch()
 {
-    delete d2tmgr_;
 }
 
 
@@ -96,7 +94,7 @@ void uiWellTieEventStretch::updatePos( float& pos )
     const int oldidx = prevdispdata_->getIdx( pos );
     const float oldtime = prevdispdata_->get( params_.timenm_, oldidx );
     const float olddah = prevdispdata_->get( params_.dptnm_, oldidx );
-    const int newidx = dispdata_.findTimeIdx( olddah );
+    const int newidx = dispdata_.getIdxFromDah( olddah );
     pos = dispdata_.get( params_.timenm_, newidx  ); 	
     const float newtime = prevdispdata_->get( params_.timenm_, newidx );
 }

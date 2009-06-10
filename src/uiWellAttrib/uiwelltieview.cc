@@ -7,15 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.12 2009-05-28 14:38:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.13 2009-06-10 08:07:46 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
 #include "uiaxishandler.h"
 #include "uiflatviewer.h"
-#include "uitabstack.h"
-#include "uilabel.h"
 #include "uifunctiondisplay.h"
+#include "uilabel.h"
+#include "uirgbarraycanvas.h"
+#include "uitabstack.h"
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
@@ -37,13 +38,12 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.12 2009-05-28 14:38:11 cvs
 #include "welltiegeocalculator.h"
 #include "welltiepickset.h"
 
-uiWellTieView::uiWellTieView( uiParent* p, WellTieDataMGR& mgr,  
-			      const Well::Data* d, const WellTieParams* pm )
-	: wd_(*d)  
-	, params_(*pm)     	
-	, wtsetup_(pm->getSetup())	
-	, datamgr_(mgr)
-    	, data_(*mgr.getDispData())
+uiWellTieView::uiWellTieView( uiParent* p, WellTieDataHolder* dhr)  
+	: wd_(*dhr->wd())  
+	, params_(*dhr->params())     	
+	, wtsetup_(dhr->setup())	
+    	, data_(*dhr->dispData())
+	, datamgr_(*dhr->datamgr_)
     	, isoriginalscale_(true)
 	, maxtraceval_(0)			
 	, mintraceval_(0)		
@@ -59,8 +59,20 @@ uiWellTieView::~uiWellTieView()
     deleteCheckShot();
 
     for (int vwridx=vwrs_.size()-1; vwridx>=0; vwridx--)
+    {
+	removePacks( *vwrs_[vwridx] );
 	vwrs_.remove(vwridx);
+    }
 }
+
+
+void uiWellTieView::removePacks( uiFlatViewer& vwr )
+{
+	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	for ( int idx=0; idx<ids.size(); idx++ )
+	    vwr.removePack( ids[idx] );
+}
+
 
 
 void uiWellTieView::fullRedraw()
@@ -81,9 +93,11 @@ void uiWellTieView::createViewers( uiGroup* vwrgrp )
 {
     for (int vwridx=0; vwridx<6; vwridx++)
     {
-	vwrs_ += new uiFlatViewer( vwrgrp );
+	uiFlatViewer* vwr = new uiFlatViewer( vwrgrp );
+	vwr->rgbCanvas().enableScrollZoom();
+	vwrs_ += vwr;
 	if ( vwridx>0 )
-	    vwrs_[vwridx]->attach( rightOf, vwrs_[vwridx-1] );
+	    vwr->attach( rightOf, vwrs_[vwridx-1] );
     }
 
     initFlatViewer( wtsetup_.vellognm_, 0, 200, 550, false, Color(255,0,0) );
@@ -174,7 +188,7 @@ void uiWellTieView::createVarDataPack( const char* varname, int vwrnr,
 	}
     }
 
-    vwrs_[vwrnr]->removePack(0);
+    removePacks( *vwrs_[vwrnr] );
     FlatDataPack* dp = new FlatDataPack( "", arr2d );
     DPM(DataPackMgr::FlatID()).add( dp );
     StepInterval<double> zrange( params_.timeintv_.start, 
@@ -211,6 +225,7 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
     FlatView::Appearance& app = vwrs_[vwridx]->appearance();
     app.annot_.auxdata_ +=  auxdata;
     auxdata->linestyle_.color_ = col;
+    auxdata->linestyle_.width_ = 2;
     auxdata->linestyle_.type_  = LineStyle::Solid;
 
     if ( ispick )
@@ -371,35 +386,35 @@ void uiWellTieView::deleteMarkerAuxDatas(
 
 
 
-uiWellTieCorrView::uiWellTieCorrView( uiParent* p, WellTieDataMGR& mgr,
-				      const WellTieParams* pms )
+uiWellTieCorrView::uiWellTieCorrView( uiParent* p, WellTieDataHolder* dh)
 	: uiGroup(p)
-    	, params_(*pms)  
-	, data_(*mgr.getDispData())
+    	, params_(*dh->params())  
+	, data_(*dh->corrData())
 {
-    static const char* propdispnms[] = { "Amplitude", "Phase", 0 };
-    //uiTabStack* ts = 
-//	new uiTabStack( p, "Cross-Correlation display properties tab stack" );
-    ObjectSet<uiGroup> tgs;
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
 
     for (int idx=0; idx<1; idx++)
     {
-	tgs += new uiGroup( this, propdispnms[idx] );
-	//ts->addTab( tgs[idx], propdispnms[idx] );
-	corrflds_ += new uiFunctionDisplay( tgs[idx], fdsu );
-	corrflds_[idx]->xAxis()->setName( "Lags (ms)" );
-	corrflds_[idx]->yAxis(false)->setName( "Coefficient" );
+	corrdisps_ += new uiFunctionDisplay( this, fdsu );
+	corrdisps_[idx]->xAxis()->setName( "Lags (ms)" );
+	corrdisps_[idx]->yAxis(false)->setName( "Coefficient" );
     }
     	
     corrlbl_ = new uiLabel( this,"" );
-    corrlbl_->attach( centeredBelow, this );
+    corrlbl_->attach( centeredAbove, corrdisps_[0] );
+}
+
+
+uiWellTieCorrView::~uiWellTieCorrView()
+{
+    for ( int idx=corrdisps_.size()-1; idx>=0; idx-- )
+	delete corrdisps_.remove(idx);
 }
 
 
 void uiWellTieCorrView::setCrossCorrelation()
 {
-    const int datasz = data_.get(0)->info().getSize(0);
+    const int datasz = data_.get(params_.crosscorrnm_)->info().getSize(0);
     
     LinStats2D ls2d;
     ls2d.use( data_.get(params_.synthnm_)->getData(),
@@ -416,8 +431,8 @@ void uiWellTieCorrView::setCrossCorrelation()
     }
 
 
-    for (int idx=0; idx<corrflds_.size(); idx++)
-	corrflds_[idx]->setVals( xvals.arr(), corrvals.arr(), xvals.size() );
+    for (int idx=0; idx<corrdisps_.size(); idx++)
+	corrdisps_[idx]->setVals( xvals.arr(), corrvals.arr(), xvals.size() );
     
     BufferString corrbuf = "Cross-Correlation Coefficient: ";
     corrbuf += corrcoeff;

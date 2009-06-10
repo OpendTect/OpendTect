@@ -40,9 +40,9 @@ namespace Well
 mClass WellTieToSeismic
 {
 public:
-			WellTieToSeismic( Well::Data*,WellTieParams*,
-					  const Attrib::DescSet& ads, 
-					  WellTieDataMGR&,TaskRunner*);
+			WellTieToSeismic(WellTieDataHolder*,
+					 const Attrib::DescSet&, 
+					 TaskRunner*);
 			~WellTieToSeismic();
 
     //TODO put back as private
@@ -79,13 +79,15 @@ protected:
 
     TaskRunner*			tr_;      //becomes mine  
 
-    const Attrib::DescSet& 	ads_;
     DataPointSet* 		dps_;
+    const Attrib::DescSet& 	ads_;
     Well::Data& 		wd_;	 
-    WellTieDataMGR& 		datamgr_;     
+    WellTieData& 		wtdata_;     
+    WellTieDataSetMGR& 		datamgr_;     
     WellTieDataSet& 		workdata_;
     WellTieDataSet& 		dispdata_;
-    WellTieParams&		params_;	
+    WellTieDataSet& 		corrdata_;
+    const WellTieParams&	params_;	
     const WellTieSetup&		wtsetup_;	
 
     WellTieD2TModelMGR*		d2tmgr_;

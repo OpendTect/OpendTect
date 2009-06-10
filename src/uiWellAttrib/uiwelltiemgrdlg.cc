@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.3 2009-05-26 07:06:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.4 2009-06-10 08:07:46 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -88,7 +88,7 @@ uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
 
 uiWellTieMGRDlg::~uiWellTieMGRDlg()
 {
-    deepErase( welltiedlgsetcpy_ );
+    deepErase( welltiedlgset_ );
     delete wllctio_.ioobj; delete &wllctio_;
     delete wvltctio_.ioobj; delete &wvltctio_;
 }
@@ -201,8 +201,7 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
 	}
     }
 
-    welltiedlgset_ += new uiWellTieToSeismicDlg(this, wtsetup_, attrset_, true);
-    welltiedlgsetcpy_ += welltiedlgset_[welltiedlgset_.size()-1];
+    welltiedlgset_ += new uiWellTieToSeismicDlg(this, wtsetup_, attrset_ );
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
 	    			mCB(this,uiWellTieMGRDlg,wellTieDlgClosed));
     welltiedlgset_[welltiedlgset_.size()-1]->go();
@@ -215,10 +214,10 @@ void uiWellTieMGRDlg::wellTieDlgClosed( CallBacker* cb )
 {
     mDynamicCastGet(uiWellTieToSeismicDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
-
+/*
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
 	if ( welltiedlgset_[idx] == dlg )
-	    welltiedlgset_.remove(idx); 
-    }
+	     welltiedlgset_.remove(idx); 
+    }*/
 }

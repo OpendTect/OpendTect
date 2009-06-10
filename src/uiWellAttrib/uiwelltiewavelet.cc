@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.6 2009-05-28 14:38:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.7 2009-06-10 08:07:46 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -50,8 +50,6 @@ uiWellTieWaveletView::uiWellTieWaveletView( uiParent* p, WellTieSetup& twtss )
 
 uiWellTieWaveletView::~uiWellTieWaveletView()
 {
-  //  for (int idx=wvlts_.size(); idx>=0; idx--)
-//	delete wvlts_.remove(idx);
   //  delete wvltctio_.ioobj; delete &wvltctio_;
 }
 
@@ -99,11 +97,15 @@ void uiWellTieWaveletView::createWaveletFields( uiGroup* grp )
 
 void uiWellTieWaveletView::initWavelets( Wavelet* wvltest )
 {
+    for ( int idx=wvlts_.size()-1; idx>=0; idx-- )
+	delete wvlts_.remove(idx);
+
     IOObj* ioobj = IOM().get( MultiID(twtss_.wvltid_) );
-    Wavelet* wvlt = new Wavelet(*Wavelet::get( ioobj));
-    if ( !wvlt ) return;
-    wvlts_ += wvlt;
+    wvlts_ += Wavelet::get( ioobj);
     wvlts_ += wvltest;
+
+    if ( !wvlts_[0] || !wvlts_[1] ) return;
+
     for ( int idx=0; idx<2; idx++ )
 	drawWavelet( wvlts_[idx], idx );
 }
@@ -151,15 +153,19 @@ void uiWellTieWaveletView::wvtSel( CallBacker* )
 
 void uiWellTieWaveletView::viewInitWvltPropPushed( CallBacker* )
 {
-    uiWellTieWaveletDispDlg wvltdlg( this, wvlts_[0] );
-    wvltdlg.go();
+    uiWellTieWaveletDispDlg* wvltinitdlg = 
+	new uiWellTieWaveletDispDlg( this, wvlts_[0] );
+    wvltinitdlg->go();
+    delete wvltinitdlg;
 }
 
 
 void uiWellTieWaveletView::viewEstWvltPropPushed( CallBacker* )
 {
-    uiWellTieWaveletDispDlg wvltdlg( this, wvlts_[1] );
-    wvltdlg.go();
+    uiWellTieWaveletDispDlg* wvltestdlg = 
+	new uiWellTieWaveletDispDlg( this, wvlts_[1] );
+    wvltestdlg->go();
+    delete wvltestdlg;
 }
 
 
@@ -169,6 +175,7 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
 	: uiDialog( p,Setup("Wavelet Properties","",mTODOHelpID))
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, wvltsz_(0)
+	, fft_(0)	    
 {
     setCtrlStyle( LeaveOnly );
 
@@ -180,12 +187,13 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
     ObjectSet<uiGroup> wvltdispparamgrps;
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
 
-    for (int idx=0; disppropnms[idx]; idx++)
+    for ( int idx=0; idx<2; idx++ )
     {
 	wvltdispparamgrps += new uiGroup( this, disppropnms[idx] );
 	if ( idx )
-	    wvltdispparamgrps[idx]->attach( ensureBelow,
+	    wvltdispparamgrps[idx]->attach( alignedBelow,
 					    wvltdispparamgrps[idx-1] );
+	if ( idx == 1 ) fdsu.fillbelow(true);	
 	wvltdisps_ += new uiFunctionDisplay( wvltdispparamgrps[idx], fdsu );
 	wvltvalsarr_ += new Array1DImpl<float>( wvltsz_ );
 	wvltdisps_[idx]->xAxis()->setName( "samples" );
@@ -193,7 +201,8 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
     }
 
     memcpy(wvltvalsarr_[0]->getData(),wvlt->samples(),wvltsz_*sizeof(float));
-    setFrequency();
+    
+    //setFrequency();
     setPhase();
     setDispCurves();
 }
@@ -201,55 +210,66 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
 
 uiWellTieWaveletDispDlg::~uiWellTieWaveletDispDlg()
 {
-    for (int idx=wvltvalsarr_.size(); idx>=0; idx--)
+    for ( int idx=wvltvalsarr_.size()-1; idx>=0; idx-- )
 	delete wvltvalsarr_.remove(idx);
+    delete fft_;
 }
 
 
 void uiWellTieWaveletDispDlg::setDispCurves()
 {
-    TypeSet<float> xvals;
-    for (int idx=0; idx<wvltsz_; idx++)
+    TypeSet<float> xvals, freqvals;
+    for ( int idx=0; idx<wvltsz_; idx++ )
 	xvals += idx;
+    for ( int idx=0; idx<wvltsz_/2; idx++ )
+	freqvals += wvltvalsarr_[1]->get(idx+wvltsz_/2);
+    for ( int idx=wvltsz_/2; idx<wvltsz_; idx++ )
+	freqvals += wvltvalsarr_[1]->get(idx-wvltsz_/2);
 
-    for (int idx=0; idx<3; idx++)
+    for ( int idx=0; idx<1; idx++ )
 	wvltdisps_[idx]->setVals( xvals.arr(),
 				  wvltvalsarr_[idx]->getData(),
     				  wvltsz_ );
+
+    float maxfreq = fft_->getNyqvist( SI().zStep() );
+    if ( SI().zIsTime() )
+	maxfreq = mNINT( maxfreq );
+
+    wvltdisps_[1]->setVals( Interval<float>( 0, maxfreq ), 
+	    		    freqvals.arr(), 
+			    wvltsz_ );
 }
 
 
-void uiWellTieWaveletDispDlg::setFrequency()
-{
-    Array1DImpl<float> vals( wvltsz_ );
-    FFT fft;
-    fft.setInputInfo( Array1DInfoImpl( wvltsz_) );
-    fft.setDir(true);
-    fft.init();
-    fft.transform( *wvltvalsarr_[0], vals );
 
-    for ( int idx=0; idx<wvltsz_; idx++ )
-    wvltvalsarr_[1]->set( idx, vals.get(idx) );
+#define mDoTransform(tf,isstraight,inp,outp,sz) \
+{   \
+        tf->setInputInfo(Array1DInfoImpl(sz));\
+        tf->setDir(isstraight);\
+        tf->init();\
+        tf->transform(inp,outp);\
 }
-
-
 void uiWellTieWaveletDispDlg::setPhase()
 {
+    fft_ = new FFT();
+    HilbertTransform* hil = new HilbertTransform();
     Array1DImpl<float_complex> cvals( wvltsz_ );
+    Array1DImpl<float_complex> cfreqvals( wvltsz_ );
 
-    HilbertTransform hil;
-    hil.setCalcRange( 0, wvltsz_, 0 );
-    hil.setInputInfo( Array1DInfoImpl(wvltsz_) );
-    hil.setDir( true );
-    hil.init();
-    hil.transform( *wvltvalsarr_[0], cvals );
-
+    hil->setCalcRange( 0, wvltsz_, 0 );
+    
+    mDoTransform( hil, true, *wvltvalsarr_[0], cvals, wvltsz_ );
+    delete hil;
+    mDoTransform( fft_, true, cvals, cfreqvals, wvltsz_ );
+    
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
 	float phase = 0;
 	if ( cvals.get(idx).real() )
-	phase =atan2( cvals.get(idx).imag(), cvals.get(idx).real() );
-	wvltvalsarr_[2]->set( idx, phase );
+	    phase = atan2( cvals.get(idx).imag(), cvals.get(idx).real() );
+
+	wvltvalsarr_[1]->set( idx, abs(cfreqvals.get(idx)) );
+	//wvltvalsarr_[2]->set( idx, phase );
     }
 }
 

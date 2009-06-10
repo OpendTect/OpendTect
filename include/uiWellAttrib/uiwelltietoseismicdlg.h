@@ -18,11 +18,12 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class WellTieDataMGR;
+class WellTieD2TModelMGR;
+class WellTieDataHolder;
 class WellTieParams;
 class WellTieToSeismic;
 class WellTiePickSetMGR;
 class WellTieCSCorr;
-
 
 class uiGroup;
 class uiToolBar;
@@ -48,72 +49,73 @@ mClass uiWellTieToSeismicDlg : public uiDialog
 public:
 
 	    uiWellTieToSeismicDlg(uiParent*,const WellTieSetup&,
-				const Attrib::DescSet&,bool); 
+				const Attrib::DescSet&); 
 	    ~uiWellTieToSeismicDlg();
 
 
-    const WellTieSetup&	Setup()		{ return setup_; }    
+    const WellTieSetup&		Setup()		{ return setup_; }    
 	
 protected:
 
-    BufferStringSet     markernames_;
-    Well::Data*		wd_;
-    WellTieSetup	setup_;
-    WellTieParams*	params_;
-    WellTieToSeismic*   dataplayer_;
-    WellTiePickSetMGR*  picksetmgr_;
-    WellTieDataMGR* 	datamgr_;
-    WellTieCSCorr*	cscorr_;	
+    BufferStringSet     	markernames_;
+    Well::Data*			wd_;
+    WellTieSetup		setup_;
+    WellTieDataHolder*		dataholder_;
+    WellTieParams*		params_;
+    WellTieToSeismic*   	dataplayer_;
+    WellTieCSCorr*		cscorr_;	
 
-    uiToolBar*          toolbar_;
-    uiGroup*            vwrgrp_;
-    uiPushButton*	applybut_;
-    uiPushButton*	applymrkbut_;
-    uiPushButton*	undobut_;
-    uiCheckBox* 	cscorrfld_;
-    uiCheckBox* 	csdispfld_;
-    uiGenInput*		topmrkfld_;
-    uiGenInput*		botmrkfld_;
-    uiGenInput*		corrcoefffld_;
-    uiWellTieWaveletView* wvltdraw_; 
-    uiWellTieView*	datadrawer_;
-    uiWellTieControlView* controlview_;
-    uiWellTieLogStretch* logstretcher_;
-    uiWellTieEventStretch* eventstretcher_;
-    uiWellTieCorrView*  crosscorr_;
+    uiWellTieWaveletView* 	wvltdraw_; 
+    uiWellTieView*		datadrawer_;
+    uiWellTieControlView* 	controlview_;
+    uiWellTieLogStretch* 	logstretcher_;
+    uiWellTieEventStretch* 	eventstretcher_;
+    uiWellTieCorrView*  	crosscorr_;
 
-    bool		manip_;
+    uiToolBar*          	toolbar_;
+    uiGroup*            	vwrgrp_;
+    uiPushButton*		applybut_;
+    uiPushButton*		applymrkbut_;
+    uiPushButton*		undobut_;
+    uiCheckBox* 		cscorrfld_;
+    uiCheckBox* 		csdispfld_;
+    uiGenInput*			topmrkfld_;
+    uiGenInput*			botmrkfld_;
+    uiGenInput*			corrcoefffld_;
 
-    void		addControl();
-    void 		addToolBarTools();
-    void 		doWholeWork();
-    void		createTaskFields(uiGroup*);
-    void 		dispParPushed(CallBacker*);
-    void 		drawData();
-    void 		dispDataChanged(CallBacker*);
-    void 		drawFields(uiGroup*);
-    void 		initAll();
-    void 		updateButtons();
-    void 		setWinTitle(const Attrib::DescSet& ads);
-    bool 		setUserDepths();
+    bool			manip_;
 
-    void 		applyPushed(CallBacker*);
-    void 		applyReady(CallBacker*);
-    void 		applyMarkerPushed(CallBacker*);
-    void 		applyShiftPushed(CallBacker*);
-    void		checkShotChg(CallBacker*);
-    void		checkShotDisp(CallBacker*);
-    void		drawUserPick(CallBacker*);
-    void 		viewDataPushed(CallBacker*);
-    void 		setView(CallBacker*);
-    void 		wvltChg(CallBacker*);
-    bool		saveD2TPushed(CallBacker*);
-    bool 		editD2TPushed(CallBacker*);
-    void		userDepthsChanged(CallBacker*);
+    void			addControl();
+    void 			addToolBarTools();
+    void 			doWholeWork();
+    void			createTaskFields(uiGroup*);
+    void			createInformFields(uiGroup*);
+    void 			dispParPushed(CallBacker*);
+    void 			drawData();
+    void 			dispDataChanged(CallBacker*);
+    void 			drawFields(uiGroup*);
+    void 			initAll();
+    void 			updateButtons();
+    void 			setWinTitle(const Attrib::DescSet& ads);
+    bool 			setUserDepths();
+
+    void 			applyPushed(CallBacker*);
+    void 			applyReady(CallBacker*);
+    void 			applyMarkerPushed(CallBacker*);
+    void 			applyShiftPushed(CallBacker*);
+    void			checkShotChg(CallBacker*);
+    void			checkShotDisp(CallBacker*);
+    void			drawUserPick(CallBacker*);
+    void 			viewDataPushed(CallBacker*);
+    void 			setView(CallBacker*);
+    void 			wvltChg(CallBacker*);
+    bool			saveD2TPushed(CallBacker*);
+    bool 			editD2TPushed(CallBacker*);
+    void			userDepthsChanged(CallBacker*);
     
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool 		undoPushed(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    bool			rejectOK(CallBacker*);
+    bool 			undoPushed(CallBacker*);
 };
 
 

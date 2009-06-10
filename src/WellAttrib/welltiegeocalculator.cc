@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.9 2009-05-28 14:38:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.10 2009-06-10 08:07:46 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -214,9 +214,9 @@ void WellTieGeoCalculator::interpolateLogData( TypeSet<float>& data,
     for ( int idx=startidx; idx<lastidx; idx++)
     {
 	//no negative values in dens or vel log assumed
-	if ( !isdah && ( mIsUdf(data[idx]) || data[idx]<0 ) )
+	if ( idx && !isdah && ( mIsUdf(data[idx]) || data[idx]<0 ) )
 	    data[idx] = data[idx-1];
-	if ( isdah && (mIsUdf(data[idx]) || data[idx]<data[idx-1]
+	if ( idx && isdah && (mIsUdf(data[idx]) || data[idx]<data[idx-1]
 	     || data[idx] >= data[lastidx])  )
 	    data[idx] = data[idx-1] + dahstep;
     }

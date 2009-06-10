@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 template <class T> class Array1DImpl;
 class CtxtIOObj;
+class FFT;
 class WellTieSetup;
 class Wavelet;
 
@@ -68,6 +69,7 @@ public:
 protected:
 
     int                                 wvltsz_;
+    FFT*				fft_;
     CtxtIOObj&                          wvltctio_;
     ObjectSet<uiFunctionDisplay>        wvltdisps_;
     ObjectSet< Array1DImpl<float> >     wvltvalsarr_;

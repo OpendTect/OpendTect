@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.6 2009-05-28 14:38:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.7 2009-06-10 08:07:46 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -24,6 +24,9 @@ static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.6 2009-05-28 14:38:11
 #include "welltrack.h"
 #include "welllogset.h"
 #include "wellman.h"
+
+#include "welltiecshot.h"
+#include "welltiesetup.h"
 
 
 WellTieUnitFactors::WellTieUnitFactors( const WellTieSetup* wtsetup )
@@ -146,30 +149,54 @@ WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
 		, iscsdisp_(true)
 		, currvellognm_(wts.vellognm_)
 {
+    corrstartdah_ = wd_.track().dah(0);
+    corrstopdah_  = wd_.track().dah(wd_.track().size()-1);
+
+    if ( wd_.checkShotModel() )
+    {
+	currvellognm_ = wtsetup_.corrvellognm_;
+	WellTieCSCorr cscorr( wd_, *this );
+    }
+
     attrnm_ = getAttrName(ads);
-    startdah_ = wd_.track().dah(0);
-    stopdah_  = wd_.track().dah(wd_.track().size()-1);
+    resetDataParams(0);
     createColNames();
 }
 
 
 #define mStep 20
 #define mComputeStepFactor SI().zStep()/mStep
-bool WellTieParams::resetTimeParams( CallBacker* )
+bool WellTieParams::resetDataParams( CallBacker* )
 {
-    timeintv_.start = wd_.d2TModel()->getTime( startdah_ );
-    timeintv_.stop  = wd_.d2TModel()->getTime( stopdah_ );
-    timeintv_.step  = mComputeStepFactor;
+    const float startdah = wd_.track().dah(0);
+    const float stopdah  = wd_.track().dah(wd_.track().size()-1);
 
-    if ( timeintv_.step < 1e-6 )
+    setTimes( timeintv_, startdah, stopdah );
+    setTimes( corrtimeintv_, corrstartdah_, corrstopdah_ );
+
+    worksize_ = (int) ( (timeintv_.stop-timeintv_.start)/timeintv_.step );
+    dispsize_ = (int) ( worksize_/mStep )-1;
+    corrsize_ = (int) ( (corrtimeintv_.stop - corrtimeintv_.start )
+	    		/(mStep*timeintv_.step) );
+
+    if ( corrsize_>dispsize_ ) corrsize_ = dispsize_;
+
+    return true;
+}
+
+
+bool WellTieParams::setTimes( StepInterval<float>& timeintv, 
+			      float startdah, float stopdah )
+{
+    timeintv.start = wd_.d2TModel()->getTime( startdah );
+    timeintv.stop  = wd_.d2TModel()->getTime( stopdah );
+    timeintv.step  = mComputeStepFactor;
+
+    if ( timeintv.step < 1e-6 )
 	return false;
 
-    if ( timeintv_.start > timeintv_.stop )
+    if ( timeintv.start > timeintv_.stop )
 	return false;
-
-    worksize_ = (int) ((timeintv_.stop-timeintv_.start)/timeintv_.step);
-    dispsize_ = (int) (worksize_/mStep)-1;
-
     return true;
 }
 
@@ -191,14 +218,14 @@ BufferString WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
 
 void WellTieParams::createColNames()
 {
-    dptnm_ = "Depth";			 colnms_.add( dptnm_ ); 
-    timenm_ = "Time";  			 colnms_.add( timenm_ );
-    					 colnms_.add( wtsetup_.corrvellognm_ );
-    					 colnms_.add( wtsetup_.vellognm_ );
-    				 	 colnms_.add( wtsetup_.denlognm_ );
-    ainm_ = "Computed AI";	         colnms_.add( ainm_ );     
-    refnm_ ="Computed Reflectivity";     colnms_.add( refnm_ );
-    synthnm_ = "Synthetics";         	 colnms_.add( synthnm_ );
-    crosscorrnm_ = "Cross Correlation";  colnms_.add( crosscorrnm_ );
-             				 colnms_.add( attrnm_ );
+    dptnm_ = "Depth";			colnms_.add( dptnm_ ); 
+    timenm_ = "Time";  			colnms_.add( timenm_ );
+    				        colnms_.add(wtsetup_.corrvellognm_);
+    				 	colnms_.add( wtsetup_.vellognm_ );
+    				 	colnms_.add( wtsetup_.denlognm_ );
+    ainm_ = "Computed AI";	        colnms_.add( ainm_ );     
+    refnm_ ="Computed Reflectivity";    colnms_.add( refnm_ );
+    synthnm_ = "Synthetics";         	colnms_.add( synthnm_ );
+    crosscorrnm_ = "Cross Correlation"; colnms_.add( crosscorrnm_ );
+             				colnms_.add( attrnm_ );
 }

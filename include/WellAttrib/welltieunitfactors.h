@@ -17,10 +17,9 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "ranges.h"
 #include "bufstringset.h"
-#include "welltiesetup.h"
-
 
 class UnitOfMeasure;
+class WellTieSetup;
 namespace Attrib { class DescSet; }
 namespace Well
 {
@@ -65,18 +64,20 @@ public :
 					      const Attrib::DescSet&);
 				~WellTieParams(){};
 
-    const WellTieSetup& 	getSetup() const   { return wtsetup_; }	 
+    const WellTieSetup& 	getSetup() const   { return wtsetup_; }
     const WellTieUnitFactors& 	getUnits() const   { return factors_; }
     const StepInterval<float>&  getTimeScale() const  { return timeintv_; } 
 
     BufferStringSet		colnms_;
     const int 			nrdatacols_;				    
-    float 			startdah_;				    
-    float 			stopdah_;				    
     StepInterval<float> 	timeintv_;
+    StepInterval<float> 	corrtimeintv_;
+    float			corrstartdah_;
+    float			corrstopdah_;
     int 			step_;
     int           		worksize_;
     int           		dispsize_;
+    int           		corrsize_;
     const char*			currvellognm_;
     const char*			ainm_;
     const char*			refnm_;
@@ -90,16 +91,17 @@ public :
     bool                        iscsdisp_;
     const Attrib::DescSet& 	ads_;
 
-    bool			resetTimeParams(CallBacker*);
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
+    bool			resetDataParams(CallBacker*);
 
 protected :
 
+    const WellTieSetup&		wtsetup_;
     Well::Data&			wd_;
-    WellTieSetup		wtsetup_;
     const WellTieUnitFactors    factors_;
     
     void	 		createColNames();
+    bool			setTimes(StepInterval<float>&,float,float);
 };
 
 #endif

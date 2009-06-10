@@ -30,9 +30,8 @@ namespace Well
 mClass WellTieD2TModelMGR
 {
 public:
-				WellTieD2TModelMGR(Well::Data&,
-						       const WellTieSetup&,
-						       WellTieGeoCalculator&);
+				WellTieD2TModelMGR(Well::Data*,
+						   const WellTieParams*);
 				~WellTieD2TModelMGR();
 
     bool 		save(const char* filenm);
@@ -52,7 +51,7 @@ public:
 
 protected:
 
-    Well::Data& 		wd_;
+    Well::Data* 		wd_;
     Well::D2TModel& 		d2T();
     Well::D2TModel* 		prvd2t_;
     Well::D2TModel* 		orgd2t_;

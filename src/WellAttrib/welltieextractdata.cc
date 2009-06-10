@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.5 2009-05-20 14:27:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.6 2009-06-10 08:07:46 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -147,7 +147,7 @@ int WellTieResampleLog::nextStep()
 void WellTieResampleLog::updateLogIdx( float curdah, int& logidx  )
 {
     int tmpidx = logidx;
-    while ( curdah >= dah_[tmpidx] && tmpidx < val_.size() )
+    while ( tmpidx < val_.size() && curdah >= dah_[tmpidx] )
 	tmpidx++;
     
     logidx = tmpidx;

@@ -19,8 +19,9 @@ ________________________________________________________________________
 template <class T> class Array1DImpl;
 class WellTieSetup; 
 class WellTieParams; 
+class WellTieDataHolder; 
 class WellTieDataSet; 
-class WellTieDataMGR; 
+class WellTieDataSetMGR; 
 class WellTiePickSet; 
 class UserPick;
 namespace Attrib { class DescSet; }
@@ -35,8 +36,7 @@ namespace Well
 mClass uiWellTieView
 {
 public:
-			    	uiWellTieView(uiParent*, WellTieDataMGR&,
-				    const Well::Data*, const WellTieParams*);
+			    	uiWellTieView(uiParent*,WellTieDataHolder*);
 				~uiWellTieView();
 
 
@@ -64,7 +64,7 @@ public:
 
 protected:
 
-    WellTieDataMGR&		datamgr_; 		
+    WellTieDataSetMGR&		datamgr_; 		
     WellTieDataSet&  		data_;
     const Well::Data& 		wd_;		
     const WellTieSetup& 	wtsetup_;
@@ -82,6 +82,7 @@ protected:
     void        		initFlatViewer(const char*,int,int,int,bool,
 						const Color&);
     void        		createVarDataPack(const char*,int,int);
+    void 			removePacks(uiFlatViewer&);
     void			deleteMarkerAuxDatas(
 				  ObjectSet<FlatView::Annotation::AuxData>&);
 };
@@ -92,9 +93,8 @@ mClass uiWellTieCorrView : uiGroup
 {
 public:
 
-				uiWellTieCorrView(uiParent*,WellTieDataMGR&,
-						  const WellTieParams*);
-				~uiWellTieCorrView(){};
+				uiWellTieCorrView(uiParent*,WellTieDataHolder*);
+				~uiWellTieCorrView();
 
     void                	setCrossCorrelation();
 
@@ -103,7 +103,7 @@ protected:
     uiLabel* 			corrlbl_;
     WellTieDataSet& 		data_;
     const WellTieParams& 	params_;
-    ObjectSet<uiFunctionDisplay>  corrflds_;
+    ObjectSet<uiFunctionDisplay>  corrdisps_;
 };
 
 #endif

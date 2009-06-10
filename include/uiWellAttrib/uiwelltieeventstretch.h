@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiwelltiestretch.h"
 
+class WellTieDataHolder;
 class WellTieSetup;
 class WellTieParams;
 class WellTieDataSet;
@@ -34,9 +35,8 @@ namespace Well
 mClass uiWellTieEventStretch : public uiWellTieStretch
 {
 public:
-			uiWellTieEventStretch(uiParent*,const WellTieParams*,
-			    		 Well::Data* wd,WellTieDataMGR&,
-					 uiWellTieView&,WellTiePickSetMGR&);
+			uiWellTieEventStretch(uiParent*,WellTieDataHolder*,
+					      uiWellTieView&);
 			~uiWellTieEventStretch();
 
     Notifier<uiWellTieEventStretch> 	readyforwork;
@@ -45,6 +45,7 @@ public:
     
 protected:
 
+    Well::Data*				wd_;
     WellTieD2TModelMGR*			d2tmgr_;
     WellTiePickSet& 			seispickset_;
     WellTiePickSet& 			synthpickset_;
