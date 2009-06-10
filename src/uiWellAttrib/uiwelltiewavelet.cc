@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.9 2009-06-10 08:34:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.10 2009-06-10 10:13:11 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -201,7 +201,6 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
 
     memcpy(wvltvalsarr_[0]->getData(),wvlt->samples(),wvltsz_*sizeof(float));
     
-    setPhase();
     setDispCurves();
 }
 

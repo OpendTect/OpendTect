@@ -76,7 +76,6 @@ protected:
 
     void                                setDispCurves();
     void                                setFrequency();
-    void                                setPhase();
 };
 
 #endif
