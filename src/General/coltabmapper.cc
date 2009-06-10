@@ -4,11 +4,12 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.20 2009-05-27 14:54:02 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.21 2009-06-10 19:12:34 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
 #include "histequalizer.h"
+#include "keystrs.h"
 #include "settings.h"
 #include "math2.h"
 #include "errh.h"
@@ -163,7 +164,7 @@ bool ColTab::MapperSetup::operator!=( const ColTab::MapperSetup& b ) const
 
 void ColTab::MapperSetup::fillPar( IOPar& par ) const
 {
-    par.set( sKeyType(), TypeNames()[(int)type_] );
+    par.set( sKey::Type, TypeNames()[(int)type_] );
     par.set( sKeyClipRate(), cliprate_ );
     par.set( sKeySymMidVal(), symmidval_ );
     par.setYN( sKeyAutoSym(), autosym0_ );
@@ -174,7 +175,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
 
 bool ColTab::MapperSetup::usePar( const IOPar& par )
 {
-    const char* typestr = par.find( sKeyType() );
+    const char* typestr = par.find( sKey::Type );
     const int typeidx = TypeDef().convert( typestr );
     if ( typeidx==-1 )
 	return false;

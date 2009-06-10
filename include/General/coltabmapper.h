@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.17 2009-05-27 14:54:02 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.18 2009-06-10 19:12:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,6 @@ mStruct MapperSetup : public CallBacker
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    static const char*		sKeyType()	{ return "Type"; }
     static const char*		sKeyClipRate()	{ return "Clip Rate"; }
     static const char*		sKeyAutoSym()	{ return "Auto Sym"; }
     static const char*		sKeySymMidVal()	{ return "Sym Mid Value"; }
