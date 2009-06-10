@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.9 2009-01-20 04:38:46 cvsranojay Exp $
+ RCS:		$Id: coltabsequence.h,v 1.10 2009-06-10 17:59:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,11 +86,11 @@ public:
     Notifier<Sequence>	transparencyChanged;
     Notifier<Sequence>	toBeRemoved;
 
-    Color		undefColor() const
+    const Color&	undefColor() const
 			{ return undefcolor_; }
     void		setUndefColor( Color c )
 			{ undefcolor_ = c; triggerAll(); }
-    Color		markColor() const
+    const Color&	markColor() const
 			{ return markcolor_; }
     void		setMarkColor( Color c )
 			{ markcolor_ = c; triggerAll(); }
