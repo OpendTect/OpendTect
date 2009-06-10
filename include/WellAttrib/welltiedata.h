@@ -131,6 +131,7 @@ public:
     const WellTieParams*  params() const   { return params_; }   
     const WellTieSetup&	  setup()  const   { return setup_; }
     WellTieData&	  data()   	   { return data_; }
+    const WellTieData&	  data()   const   { return data_; }
     Well::Data* 	  wd()        	   { return wd_; }	
     const Well::Data* 	  wd()     const   { return wd_; }	
     WellTieD2TModelMGR*   d2TMGR()	   { return d2tmgr_; }   

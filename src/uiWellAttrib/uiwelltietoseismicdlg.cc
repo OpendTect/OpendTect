@@ -8,32 +8,31 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.11 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.12 2009-06-10 08:30:04 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
-#include "uiwelltieview.h"
-#include "uiwelltiestretch.h"
-#include "uiwelltiewavelet.h"
 #include "uiwelltieeventstretch.h"
 #include "uiwelltielogstretch.h"
+#include "uiwelltiestretch.h"
+#include "uiwelltieview.h"
+#include "uiwelltiewavelet.h"
 
-#include "uigroup.h"
 #include "uibutton.h"
 #include "uifiledlg.h"
-#include "uimsg.h"
-#include "uiwelldlgs.h"
 #include "uigeninput.h"
-#include "uitoolbar.h"
-#include "uiseparator.h"
+#include "uigroup.h"
+#include "uimsg.h"
 #include "uitaskrunner.h"
+#include "uiseparator.h"
+#include "uitoolbar.h"
+#include "uiwelldlgs.h"
 
 #include "arrayndimpl.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "ctxtioobj.h"
 #include "survinfo.h"
-
 #include "welldata.h"
 #include "welltrack.h"
 #include "wellextractdata.h"
@@ -41,11 +40,11 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.11 2009-06-10 08:0
 #include "wellmarker.h"
 
 #include "welltiedata.h"
-#include "welltiesetup.h"
 #include "welltied2tmodelmanager.h"
-#include "welltieunitfactors.h"
-#include "welltietoseismic.h"
 #include "welltiepickset.h"
+#include "welltiesetup.h"
+#include "welltietoseismic.h"
+#include "welltieunitfactors.h"
 
 
 #define mErrRet(msg) \

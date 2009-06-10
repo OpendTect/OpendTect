@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.10 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.11 2009-06-10 08:30:04 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -26,17 +26,18 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.10 2009-06-10 08:07:46 
 #include "unitofmeasure.h"
 #include "wavelet.h"
 
-#include "wellman.h"
+#include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "welldata.h"
+#include "wellman.h"
 #include "welltrack.h"
-#include "welltiegeocalculator.h"
-#include "welltieunitfactors.h"
+
 #include "welltiedata.h"
 #include "welltied2tmodelmanager.h"
-#include "welltiesetup.h"
 #include "welltieextractdata.h"
+#include "welltiegeocalculator.h"
+#include "welltiesetup.h"
+#include "welltieunitfactors.h"
 
 WellTieToSeismic::WellTieToSeismic( WellTieDataHolder* dh, 
 				    const Attrib::DescSet& ads,
@@ -143,7 +144,9 @@ bool WellTieToSeismic::computeSynthetics()
 	      		 *workdata_.get(wtsetup_.denlognm_),
 	      	 	 *workdata_.get(params_.ainm_) );
     
-    //geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 125/params_.step_ );
+    //geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 
+    //				1/SI().zStep()/params_.step_ );
+
     geocalc_->computeReflectivity( *workdata_.get(params_.ainm_),
        				   *dispdata_.get(params_.refnm_), 
 				   params_.step_ );
@@ -199,7 +202,7 @@ Wavelet* WellTieToSeismic::estimateWavelet()
     Array1DImpl<float> wvltarr( datasz ), wvltvals( wvltsz );
     
     //performs deconvolution
-    geocalc_->deconvolve( *corrdata_.get(8), 
+    geocalc_->deconvolve( *corrdata_.get(params_.attrnm_), 
 	    		  *corrdata_.get(params_.refnm_), 
 			  wvltarr, wvltsz );
 
@@ -221,13 +224,13 @@ Wavelet* WellTieToSeismic::estimateWavelet()
 bool WellTieToSeismic::computeCrossCorrel()
 {
     geocalc_->crosscorr( *corrdata_.get(params_.synthnm_), 
-	    		 *corrdata_.get(8), 
+	    		 *corrdata_.get(params_.attrnm_), 
 	    		 *corrdata_.get(params_.crosscorrnm_));
 
     //computes cross-correl coeff
     LinStats2D ls2d;
     ls2d.use( corrdata_.get(params_.synthnm_)->getData(),
-	      corrdata_.get(8)->getData(),
+	      corrdata_.get(params_.attrnm_)->getData(),
 	      params_.corrsize_ );
     wtdata_.corrcoeff_ = ls2d.corrcoeff;
 

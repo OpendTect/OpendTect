@@ -7,17 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.3 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.4 2009-06-10 08:30:04 cvsbruno Exp $";
+
+#include "arrayndimpl.h"
+#include "datapointset.h"
+#include "posvecdataset.h"
+#include "survinfo.h"
+#include "sorting.h"
 
 #include "welltiedata.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 #include "welltieunitfactors.h"
-#include "arrayndimpl.h"
-#include "survinfo.h"
-#include "sorting.h"
-#include "posvecdataset.h"
-#include "datapointset.h"
 
 
 

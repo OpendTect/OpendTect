@@ -21,6 +21,7 @@ class WellTieSetup;
 class WellTieParams; 
 class WellTieDataHolder; 
 class WellTieDataSet; 
+class WellTieData; 
 class WellTieDataSetMGR; 
 class WellTiePickSet; 
 class UserPick;
@@ -101,7 +102,8 @@ public:
 protected:
 
     uiLabel* 			corrlbl_;
-    WellTieDataSet& 		data_;
+    WellTieDataSet& 		corrdata_;
+    const WellTieData& 		welltiedata_;
     const WellTieParams& 	params_;
     ObjectSet<uiFunctionDisplay>  corrdisps_;
 };

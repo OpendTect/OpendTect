@@ -7,19 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.3 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.4 2009-06-10 08:30:04 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
 
-#include "uiwelltieview.h"
 #include "welltiedata.h"
+#include "welltied2tmodelmanager.h"
+#include "welltiegeocalculator.h"
 #include "welltieunitfactors.h"
 #include "welltiedata.h"
 #include "welltiepickset.h"
 #include "welltiesetup.h"
-#include "welltiegeocalculator.h"
-#include "welltied2tmodelmanager.h"
+#include "uiwelltieview.h"
 
 uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p, 
 					      WellTieDataHolder* dh, 

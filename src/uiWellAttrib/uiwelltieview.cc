@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.13 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.14 2009-06-10 08:30:04 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -22,8 +22,8 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.13 2009-06-10 08:07:46 cvs
 #include "arrayndimpl.h"
 #include "linear.h"
 #include "flatposdata.h"
-#include "iostrm.h"
 #include "geometry.h"
+#include "iostrm.h"
 #include "unitofmeasure.h"
 #include "posinfo.h"
 #include "position.h"
@@ -32,11 +32,11 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.13 2009-06-10 08:07:46 cvs
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 
-#include "welltiesetup.h"
 #include "welltiedata.h"
-#include "welltieunitfactors.h"
 #include "welltiegeocalculator.h"
 #include "welltiepickset.h"
+#include "welltiesetup.h"
+#include "welltieunitfactors.h"
 
 uiWellTieView::uiWellTieView( uiParent* p, WellTieDataHolder* dhr)  
 	: wd_(*dhr->wd())  
@@ -389,7 +389,8 @@ void uiWellTieView::deleteMarkerAuxDatas(
 uiWellTieCorrView::uiWellTieCorrView( uiParent* p, WellTieDataHolder* dh)
 	: uiGroup(p)
     	, params_(*dh->params())  
-	, data_(*dh->corrData())
+	, corrdata_(*dh->corrData())
+	, welltiedata_(dh->data())			
 {
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
 
@@ -414,20 +415,16 @@ uiWellTieCorrView::~uiWellTieCorrView()
 
 void uiWellTieCorrView::setCrossCorrelation()
 {
-    const int datasz = data_.get(params_.crosscorrnm_)->info().getSize(0);
+    const int datasz = corrdata_.get(params_.crosscorrnm_)->info().getSize(0);
     
-    LinStats2D ls2d;
-    ls2d.use( data_.get(params_.synthnm_)->getData(),
-	      data_.get(params_.attrnm_)->getData(), 
-	      datasz );
-
-    const float corrcoeff = ls2d.corrcoeff; 
-    float scalefactor = corrcoeff/data_.get(params_.crosscorrnm_,datasz/2);
+    const float corrcoeff = welltiedata_.corrcoeff_; 
+    float scalefactor = corrcoeff/corrdata_.get(params_.crosscorrnm_,datasz/2);
     TypeSet<float> xvals,corrvals;
     for ( int idx=-datasz/2; idx<datasz/2; idx++)
     {
 	xvals += idx*params_.timeintv_.step*params_.step_*1000;
-	corrvals += data_.get(params_.crosscorrnm_, idx+datasz/2)*scalefactor;
+	corrvals += corrdata_.get(params_.crosscorrnm_, idx+datasz/2)
+	    	    	     *scalefactor;
     }
 
 

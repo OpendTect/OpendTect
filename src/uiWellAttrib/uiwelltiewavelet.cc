@@ -7,29 +7,29 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.7 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.8 2009-06-10 08:30:04 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
+#include "fft.h"
 #include "flatposdata.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "math.h"
 #include "survinfo.h"
 #include "statruncalc.h"
 #include "wavelet.h"
 #include "welltiesetup.h"
 #include "hilberttransform.h"
-#include "fft.h"
-#include "math.h"
 
 #include "uiaxishandler.h"
+#include "uibutton.h"
+#include "uiflatviewer.h"
 #include "uifunctiondisplay.h"
 #include "uigroup.h"
-#include "uiflatviewer.h"
 #include "uiioobjsel.h"
-#include "uibutton.h"
 
 #include <complex>
 
