@@ -4,10 +4,11 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.20 2009-06-08 08:59:02 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.21 2009-06-10 12:40:18 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
+#include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -42,6 +43,7 @@ static const char* sKeyWrite = "Write";
 static const char* sKeyIn = "in";
 static const char* sKeyStdIn = "stdin";
 static const char* sKeyPosFileName = "Pos File Name";
+static const char* sKeyScons = "Scons";
 
 #undef mErrRet
 #define mErrRet(s) { errmsg_ = s; return; }
@@ -106,6 +108,42 @@ MadStream::~MadStream()
 }
 
 
+static bool getScriptForScons( BufferString& str )
+{
+    FilePath fp( str.buf() );
+    if ( fp.fileName() != "SConstruct" )
+	return false;
+
+    const char* rsfroot = GetEnvVar("RSFROOT");
+    FilePath sconsfp(rsfroot);
+    sconsfp.add( "bin" ).add( "scons" );
+    if ( !File_exists(sconsfp.fullPath()) )
+	return false;
+
+#ifdef __win__
+    BufferString scriptfile = FilePath::getTempName( "bat" );
+    StreamData sd = StreamProvider(scriptfile).makeOStream();
+    *sd.ostrm << "@echo off" << std::endl;
+    *sd.ostrm << "Pushd " << fp.pathOnly() << std::endl;
+    *sd.ostrm << sconsfp.fullPath() << std::endl;
+    *sd.ostrm << "Popd" << std::endl;
+#else
+    BufferString scriptfile = FilePath::getTempName();
+    StreamData sd = StreamProvider(scriptfile).makeOStream();
+    *sd.ostrm << "#!/bin/csh -f" << std::endl;
+    *sd.ostrm << "pushd " << fp.pathOnly() << std::endl;
+    *sd.ostrm << sconsfp.fullPath() << std::endl;
+    *sd.ostrm << "popd" << std::endl;
+#endif
+    sd.close();
+    File_setPermissions( scriptfile, "744", 0 );
+
+    str = "@";
+    str += scriptfile;
+    return true;
+}
+
+
 void MadStream::initRead( IOPar* par )
 {
     BufferString inptyp = par->find( sKey::Type );
@@ -119,13 +157,21 @@ void MadStream::initRead( IOPar* par )
 	    mErrRet("No entry for 'Input file' in parameter file")
 
 	BufferString inpstr( filenm );
+	bool scons = false;
+	par->getYN( sKeyScons, scons );
+	if ( scons && !getScriptForScons(inpstr) )
+	    return;
 #ifdef __win__
-	inpstr = FilePath(GetEnvVar("RSFROOT")).add("bin").add("sfdd")
-	    						  .fullPath();
-	inpstr += " < '"; inpstr += filenm;
-	inpstr += "' form=ascii_float out=stdout";
+	FilePath fp( GetEnvVar("RSFROOT") );
+	if ( scons )
+	    inpstr += " | ";
+	else
+	    inpstr = "@";
+	inpstr += fp.add("bin").add("sfdd").fullPath();
+	inpstr += " < \""; inpstr += filenm;
+	inpstr += "\" form=ascii_float out=stdout";
 #endif
-	istrm_ = StreamProvider(filenm).makeIStream().istrm;
+	istrm_ = StreamProvider(inpstr).makeIStream().istrm;
 
 	fillHeaderParsFromStream();
 	if ( !headerpars_ ) mErrRet( "Error reading RSF header" );;

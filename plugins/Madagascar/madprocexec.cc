@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.7 2009-06-03 11:21:30 cvsraman Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.8 2009-06-10 12:40:18 cvsraman Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -52,6 +52,7 @@ ODMad::ProcExec::~ProcExec()
 }
 
 
+#define mErrRet(s) { strm_ << s << std::endl; return false; }
 bool ODMad::ProcExec::init()
 {
     delete madstream_; madstream_ = 0;
@@ -60,20 +61,20 @@ bool ODMad::ProcExec::init()
 	pars_.setYN( "Write", true );
 	madstream_ = new ODMad::MadStream( pars_ );
 	if ( !madstream_->isOK() )
-	    return false;
+	    mErrRet( madstream_->errMsg() )
 
 	if ( !madstream_->writeTraces() )
-	    return false;
+	    mErrRet( madstream_->errMsg() )
     }
     else
     {
 	madstream_ = new ODMad::MadStream( pars_ );
 	if ( !madstream_->isOK() )
-	    return false;
+	    mErrRet( madstream_->errMsg() )
 
 	PtrMan<IOPar> inpar = pars_.subselect( ODMad::ProcFlow::sKeyInp() );
 	if ( !inpar || !inpar->size() )
-	    return false;
+	    mErrRet( "Input parameters missing" )
 
 	ODMad::ProcFlow::IOType inptyp = ODMad::ProcFlow::ioType( *inpar );
 	const char* comm = getProcString();
@@ -104,16 +105,10 @@ bool ODMad::ProcExec::init()
 	    procstream_ = StreamProvider( comm ).makeOStream();
 
 	if ( !procstream_.usable() )
-	{
-	    strm_ << "Failed to create output stream" << std::endl;
-	    return false;
-	}
+	    mErrRet("Failed to create output stream")
 
 	if ( !madstream_->putHeader(*procstream_.ostrm) )
-	{
-	    strm_ << "Failed to get RSF header" << std::endl;
-	    return false;
-	}
+	    mErrRet("Failed to get RSF header")
 
 	if ( stage_ == Intermediate )
 	{
@@ -121,10 +116,7 @@ bool ODMad::ProcExec::init()
 	    plotcomm += getPlotString();
 	    plotstream_ = StreamProvider( plotcomm.buf() ).makeOStream();
 	    if ( !madstream_->putHeader(*plotstream_.ostrm) )
-	    {
-		strm_ << "Failed to put RSF header in plot stream" << std::endl;
-		return false;
-	    }
+		mErrRet("Failed to put RSF header in plot stream")
 	}
 
 	const int trcsize = madstream_->getNrSamples();

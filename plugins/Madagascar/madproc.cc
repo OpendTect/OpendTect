@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.cc,v 1.2 2009-05-26 10:34:31 cvsraman Exp $
+ * ID       : $Id: madproc.cc,v 1.3 2009-06-10 12:40:18 cvsraman Exp $
 -*/
 
 
@@ -11,6 +11,7 @@
 #include "filegen.h"
 #include "filepath.h"
 #include "iopar.h"
+#include "madio.h"
 #include "string2.h"
 #include <cctype>
 
@@ -76,14 +77,33 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	    continue;
 	}
 
-	while ( buf[idx++] ) 
+	char* rsfstr = strstr( buf, ".rsf" );
+	if ( rsfstr )
 	{
-	    if ( buf[idx]=='=' && buf[idx+1] )
+	    while ( rsfstr > buf && *rsfstr != ' ' && *rsfstr != '=' )
+		rsfstr--;
+	    FilePath fp( rsfstr == buf ? buf : rsfstr+1 );
+	    if ( !File_exists(fp.fullPath()) )
 	    {
-		parstrs_.add( buf );
-		break;
+		FilePath newfp( ODMad::FileSpec::defPath() );
+		newfp.add( fp.fullPath() );
+		if ( !File_exists(newfp.fullPath()) )
+		{
+		    isvalid_ = false;
+		    continue;
+		}
+		
+		rsfstr = strchr( buf, ' ' );
+		if ( !rsfstr ) rsfstr = strchr( buf, '=' );
+		if ( rsfstr ) *(rsfstr+1) = '\0';
+		BufferString parstr( rsfstr ? buf : "" );
+		parstr += newfp.fullPath();
+		parstrs_.add( parstr );
+		continue;
 	    }
 	}
+	
+	parstrs_.add( buf );
     }
 }
 

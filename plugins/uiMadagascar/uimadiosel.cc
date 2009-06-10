@@ -5,10 +5,11 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.25 2009-05-07 04:39:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.26 2009-06-10 12:39:59 cvsraman Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
+#include "uibutton.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uifileinput.h"
@@ -25,6 +26,7 @@ static const char* rcsID = "$Id: uimadiosel.cc,v 1.25 2009-05-07 04:39:46 cvsran
 #include "keystrs.h"
 
 
+static const char* sKeyScons = "Scons";
 
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	: uiDialog(p, Setup(BufferString("Processing ",isinp?"input":"output"),
@@ -100,8 +102,12 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     uiFileInput::Setup setup;
     setup.defseldir( ODMad::FileSpec::defPath() );
     setup.forread( isinp );
-    madfld_ = new uiFileInput( this, "Data file", setup );
+    madfld_ = new uiFileInput( this, "Select file", setup );
     madfld_->attach( alignedBelow, typfld_ );
+
+    sconsfld_ = new uiCheckBox( this, "SCons script",
+	    			mCB(this,uiMadIOSelDlg,sconsCB) );
+    sconsfld_->attach( rightTo, madfld_ );
 
     finaliseDone.notify( mCB(this,uiMadIOSelDlg,initWin) );
 }
@@ -185,9 +191,12 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     if ( seis2dfld_ ) seis2dfld_->display( choice == idx2d_ );
     if ( seisps2dfld_ ) seisps2dfld_->display( choice == idxps2d_ );
     const bool filesel = choice == idxmad_ || choice == idxsu_;
-    madfld_->display( filesel );
-    if ( filesel )
-	madfld_->setFilter( choice == idxmad_ ? "*.rsf" : "*.su" );
+    madfld_->display( choice == idxmad_ || choice == idxsu_ );
+    sconsfld_->display( choice == idxmad_ );
+    if ( choice == idxsu_ )
+	madfld_->setFilter( "*.su" );
+    else if ( choice == idxmad_ )
+	sconsCB(0);
 
     if ( subsel3dfld_ )
 	subsel3dfld_->display( choice == idx3d_ || choice == idxps3d_ );
@@ -198,16 +207,27 @@ void uiMadIOSelDlg::typSel( CallBacker* )
 }
 
 
+void uiMadIOSelDlg::sconsCB( CallBacker* )
+{
+    if ( typfld_->getIntValue() != idxmad_ )
+	return;
+
+    madfld_->setFilter( sconsfld_->isChecked() ? "*" : "*.rsf" );
+}
+
+
 void uiMadIOSelDlg::selChg( CallBacker* )
 {
     if ( isMad() || isNone() || !isinp_ ) return;
 
     const Seis::GeomType gt = geomType();
+    if ( !seisSel(gt)->commitInput() ) return;
+
     CtxtIOObj& ctio = ctxtIOObj( gt );
     uiSeisSubSel* subsel = seisSubSel( gt );
-    if ( !ctio.ioobj && gt != Seis::Line )
+    if ( !ctio.ioobj )
 	subsel->clear();
-    else if ( gt == Seis::Line && isinp_ )
+    else if ( gt == Seis::Line )
     {
 	mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel);
 	subsel2d->setInputWithAttrib( *ctio.ioobj, seisSel(gt)->attrNm() );
@@ -237,6 +257,13 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
 
     if ( iot == ODMad::ProcFlow::Madagascar || iot == ODMad::ProcFlow::SU )
     {
+	if ( iot == ODMad::ProcFlow::Madagascar )
+	{
+	    bool isscons = false;
+	    iop.getYN( sKeyScons, isscons );
+	    sconsfld_->setChecked( isscons );
+	}
+
 	BufferString txt;
 	if ( iop.get(sKey::FileName,txt) )
 	    madfld_->setFileName( txt );
@@ -258,7 +285,12 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
 {
     iop.clear();
     ODMad::ProcFlow::setIOType( iop, ioType() );
-    if ( isMad() || isSU() )
+    if ( isMad() )
+    {
+	iop.setYN( sKeyScons, sconsfld_->isChecked() );
+	iop.set( sKey::FileName, madfld_->fileName() );
+    }
+    else if ( isSU() )
 	iop.set( sKey::FileName, madfld_->fileName() );
     else if ( !isNone() )
     {
