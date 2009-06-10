@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.18 2009-06-09 16:36:12 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.19 2009-06-10 20:36:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,8 @@ public:
     bool		allowMaterialEdit() const { return true; }
     NotifierAccess*	materialChange();
 
+    void		useTexture(bool yn);
+    bool		usesTexture() const;
 
     void		setDisplayTransformation(mVisTrans*);
     mVisTrans*		getDisplayTransformation();
@@ -102,6 +104,7 @@ protected:
     void			updateVisFromEM(bool onlyshape);
     virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
     virtual int			usePar(const IOPar&);
+    void			materialChangeCB(CallBacker*);
 
     void			getMousePosInfo(const visBase::EventInfo&,
 	     			    const Coord3& xyzpos, BufferString& val,

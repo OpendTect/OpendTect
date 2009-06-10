@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.23 2009-06-09 17:38:51 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.24 2009-06-10 20:36:51 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -47,6 +47,9 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , cache_( 0 )
 {
     setColor( getRandomColor( false ) );
+    getMaterial()->setAmbience( 0.4 );
+    getMaterial()->change.notify(
+	    mCB(this,MarchingCubesDisplay,materialChangeCB));
 }
 
 
@@ -56,13 +59,24 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
     
     if ( displaysurface_ )
     {
-	removeChild( displaysurface_->getInventorNode() );
 	displaysurface_->unRef();
     }
 
+    getMaterial()->change.remove(
+	    mCB(this,MarchingCubesDisplay,materialChangeCB));
     if ( cache_ )
 	DPM( DataPackMgr::PointID() ).release( cache_->id() );
 }
+
+
+void MarchingCubesDisplay::useTexture( bool yn )
+{
+    displaysurface_->getShape()->enableColTab( yn );
+}
+
+
+bool MarchingCubesDisplay::usesTexture() const
+{ return displaysurface_->getShape()->isColTabEnabled(); }
 
 
 bool MarchingCubesDisplay::setVisSurface(
@@ -118,9 +132,12 @@ bool MarchingCubesDisplay::setVisSurface(
 	getMaterial()->setFrom( *displaysurface_->getMaterial() );
 
     displaysurface_->setMaterial( 0 );
+    getMaterial()->change.notify(
+	    mCB(this,MarchingCubesDisplay,materialChangeCB));
     emsurface_->setPreferredColor( getMaterial()->getColor() );
     emsurface_->setName( name() );
     
+    materialChangeCB( 0 );
     return true;
 }
 
@@ -152,17 +169,17 @@ bool MarchingCubesDisplay::canHandleColTabSeqTrans(int) const
 const ColTab::MapperSetup*
 MarchingCubesDisplay::getColTabMapperSetup( int attrib, int version ) const
 {
-    return !attrib && !version && displaysurface_
+    return !attrib && (!version || mIsUdf(version)) && displaysurface_
 	? displaysurface_->getShape()->getDataMapper()
 	: 0;
 }
 
 
 void MarchingCubesDisplay::setColTabMapperSetup( int attrib,
-	const ColTab::MapperSetup& setup, TaskRunner* )
+	const ColTab::MapperSetup& setup, TaskRunner* tr )
 {
     if ( !attrib )
-	displaysurface_->getShape()->setDataMapper( setup );
+	displaysurface_->getShape()->setDataMapper( setup, tr );
 }
 
 
@@ -212,7 +229,10 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 				 const DataPointSet* dps, TaskRunner* tr )
 {
     if ( !attrib && dps && displaysurface_ )
+    {
 	displaysurface_->getShape()->setAttribData( *dps, tr );
+	useTexture( true );
+    }
 
     if ( cache_ )
 	DPM( DataPackMgr::PointID() ).release( cache_->id() );
@@ -241,6 +261,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
     TypeSet<float> vals;
 
     BinIDValueSet::Pos pos = bivset.findFirst( bid );
+    const int validx = bivset.nrVals()-1;
 
     while ( pos.valid() )
     {
@@ -249,7 +270,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 	if ( !mIsUdf(depth) )
 	{
 	    zdist += fabs(depth-xyzpos.z);
-	    vals += posvals[1];
+	    vals += posvals[validx];
 	}
 
 	if ( !bivset.next( pos, false ) || bivset.getBinID(pos)!=bid )
@@ -311,6 +332,7 @@ void MarchingCubesDisplay::updateVisFromEM( bool onlyshape )
 	    displaysurface_->setSelectable( false );
 	    displaysurface_->setRightHandSystem( righthandsystem_ );
 	    addChild( displaysurface_->getInventorNode() );
+	    materialChangeCB( 0 );
 	}
 
 	displaysurface_->setScales(
@@ -394,6 +416,13 @@ void MarchingCubesDisplay::setRightHandSystem( bool yn )
 
 visBase::Transformation* MarchingCubesDisplay::getDisplayTransformation()
 { return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0; }
+
+
+void MarchingCubesDisplay::materialChangeCB( CallBacker* )
+{
+    if ( displaysurface_ )
+	displaysurface_->getShape()->updateMaterialPropertiesFrom( getMaterial() );
+}
 
 
 }; // namespace visSurvey
