@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.1 2009-06-10 13:21:39 cvsbert Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.2 2009-06-10 13:37:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class uiTextItem;
 class uiPolyLineItem;
 class uiGraphicsScene;
+class UnitOfMeasure;
 namespace Well { class Log; }
 
 /*!\brief creates a display of max 2 well logs. */
@@ -36,6 +37,7 @@ public:
 
 	// Set these
 	const Well::Log*	wl_;
+	const UnitOfMeasure*	unitmeas_;
 	Color			color_;
 	LineStyle		linestyle_;
 	bool			logarithmic_;
@@ -59,7 +61,8 @@ public:
     void			setZRange(const Interval<float>&);
     void			dataChanged();
 
-    void			setZDispInFeet( bool yn ) { dispzinft_ = yn; }
+    void			setZDispInFeet( bool yn )
+    				{ dispzinft_ = yn; dataChanged(); }
     bool			zDispInFeet() const	  { return dispzinft_; }
 
 protected:
