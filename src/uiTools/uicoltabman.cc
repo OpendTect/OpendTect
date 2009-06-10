@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.33 2009-05-07 07:13:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.34 2009-06-10 17:59:00 cvskris Exp $";
 
 #include "uicoltabman.h"
 
@@ -352,8 +352,8 @@ bool uiColorTableMan::saveColTab( bool saveas )
 
 bool uiColorTableMan::acceptOK( CallBacker* )
 {
-    ctab_.undefColor() = undefcolfld_->color();
-    ctab_.markColor() = markercolfld_->color();
+    ctab_.setUndefColor( undefcolfld_->color() );
+    ctab_.setMarkColor( markercolfld_->color() );
 
     if ( !(ctab_==*orgctab_) )
 	issaved_ = false;
