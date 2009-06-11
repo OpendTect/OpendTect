@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.24 2009-05-21 07:12:37 cvsraman Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.25 2009-06-11 06:28:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ protected:
     virtual bool	fillPar(IOPar&)		= 0;
     void		addStdFields(bool forread=false,
 	    			     bool onlysinglemachine=false,
-				     bool clusterproc=true);
+				     bool clusterproc=false);
     			//!< Needs to be called at end of constructor
     void		setParFileNmDef(const char*);
 
