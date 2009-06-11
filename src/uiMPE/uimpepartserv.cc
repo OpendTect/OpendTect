@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.87 2009-06-09 07:29:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.88 2009-06-11 09:06:49 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -35,6 +35,7 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.87 2009-06-09 07:29:00 cvs
 #include "mousecursor.h"
 #include "undo.h"
 
+#include "uibutton.h"
 #include "uitaskrunner.h"
 #include "uihorizontracksetup.h"
 #include "uimsg.h"
@@ -220,6 +221,10 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, 
 	    					  emobj->getTypeStr(), 0 );
+    uiPushButton* applybut = new uiPushButton( setupdlg, "Retrack all", true );
+    applybut->activated.notify( mCB(this,uiMPEPartServer,retrackCB) );
+    applybut->attach( centeredBelow, setupgrp_ );
+    
     MPE::SectionTracker* sectiontracker = 
 				tracker->getSectionTracker(sectionid, true);
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
@@ -241,6 +246,17 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     if ( propertychangenotifier )
 	propertychangenotifier->notify( 
 		mCB(this,uiMPEPartServer,propertyChangedCB) );
+
+    NotifierAccess* eventchangenotifier = setupgrp_->eventChangeNotifier();
+    if ( eventchangenotifier )
+	eventchangenotifier->notify( 
+		mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
+
+    NotifierAccess* similartyChangeNotifier = 
+					setupgrp_->similartyChangeNotifier();
+    if ( similartyChangeNotifier )
+	similartyChangeNotifier->notify(
+		mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
 
     sendEvent( uiMPEPartServer::evStartSeedPick() );
     
@@ -306,6 +322,12 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
 }
 
 
+void uiMPEPartServer::eventorsimimlartyChangedCB( CallBacker* )
+{
+    setupgrp_->commitToTracker();
+}
+
+
 void uiMPEPartServer::propertyChangedCB( CallBacker* )
 {
     if ( trackercurrentobject_!=-1 )
@@ -316,6 +338,13 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), 
 				      setupgrp_->getMarkerStyle() );	
     }
+}
+
+
+void uiMPEPartServer::retrackCB( CallBacker* )
+{
+    if ( trackercurrentobject_!=-1 )
+	retrack( trackercurrentobject_ );
 }
 
 
@@ -345,9 +374,23 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 {
 
     deleteSetupGrp();
+
     if ( trackercurrentobject_ == -1 ) return;
+
+    const int trackerid = getTrackerID( trackercurrentobject_ );
+    if ( trackerid == -1 ) return;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker ) return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker) return;
+
     if ( setupbeingupdated_ )
     {
+	if ( seedpicker->doesModeUseSetup() )
+	    saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
+	
 	trackercurrentobject_ = -1;
 	setupbeingupdated_ = false;
 	sendEvent( uiMPEPartServer::evShowToolbar() );
@@ -377,15 +420,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 
     if ( !setupgrp_->commitToTracker() )
 	return;
-
-    const int trackerid = getTrackerID( trackercurrentobject_ );
-    if ( trackerid == -1 ) return;
-
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    if ( !tracker ) return;
-
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    if ( !seedpicker) return;
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
     if ( addrmseednotifier )
@@ -548,8 +582,17 @@ void uiMPEPartServer::deleteSetupGrp()
 	propertychangenotifier->remove(
 		mCB(this,uiMPEPartServer,propertyChangedCB) );
 
+    NotifierAccess* eventchangenotifier = setupgrp_->eventChangeNotifier();
+    if ( eventchangenotifier )
+	eventchangenotifier->remove( 
+		mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
+    
+    NotifierAccess* similartyChangeNotifier = 
+				setupgrp_->similartyChangeNotifier();
+    if ( similartyChangeNotifier )
+	similartyChangeNotifier->remove(				                    mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
+    
     EM::EMM().addRemove.remove( mCB(this,uiMPEPartServer,nrHorChangeCB) );
-
 }
 
 
@@ -637,6 +680,17 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 	propertychangenotifier->notify(
 		mCB(this,uiMPEPartServer,propertyChangedCB) );
 
+    NotifierAccess* eventchangenotifier = setupgrp_->eventChangeNotifier();
+    if ( eventchangenotifier )
+	eventchangenotifier->notify( 
+		mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
+    
+    NotifierAccess* similartyChangeNotifier = 
+				setupgrp_->similartyChangeNotifier();
+    if ( similartyChangeNotifier )
+	similartyChangeNotifier->notify(
+	       	mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
+
     sendEvent( uiMPEPartServer::evStartSeedPick() );
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
     if ( addrmseednotifier )
@@ -644,6 +698,8 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 
     setupdlg->go();
+
+    setupgrp_->commitToTracker();
 
     tracker->applySetupAsDefault( sid );
     loadAttribData();
@@ -1045,7 +1101,6 @@ void uiMPEPartServer::fillPar( IOPar& par ) const
 
 bool uiMPEPartServer::usePar( const IOPar& par )
 {
-    //delete wizard_; wizard_ = 0;
     bool res = MPE::engine().usePar( par );
     if ( res )
     {

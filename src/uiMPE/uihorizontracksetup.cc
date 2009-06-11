@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.25 2009-05-18 10:55:15 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.26 2009-06-11 09:06:49 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -83,6 +83,8 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     , inpfld(0)
     , typestr_(typestr)
     , modechanged_(this)
+    , eventchanged_(this)
+    , similartychanged_(this)
     , propertychanged_(this)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
@@ -151,30 +153,38 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     else
 	inpfld = new uiAttrSel( grp, "Input data", uiAttrSelData(false) );
     grp->setHAlignObj( inpfld );
+    inpfld->selectiondone.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     evfld = new uiGenInput( grp, "Event type",
 	    		    StringListInpSpec(sKeyEventNames()) );
     evfld->attach( alignedBelow, inpfld );
     evfld->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
+    evfld->valuechanged.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     BufferString srchwindtxt( "Search window " );
     srchwindtxt += SI().getZUnitString();
     srchgatefld = new uiGenInput( grp, srchwindtxt, FloatInpIntervalSpec() );
     srchgatefld->attach( alignedBelow, evfld );
+    srchgatefld->valuechanged.notify( 
+	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     thresholdtypefld = new uiGenInput( grp, "Threshold type",
 		BoolInpSpec(true,"Cut-off amplitude","Relative difference") );
     thresholdtypefld->valuechanged.notify(
-			mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
+	    mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
     thresholdtypefld->attach( alignedBelow, srchgatefld );
 
     ampthresholdfld = new uiGenInput ( grp, "Allowed difference (%)",
 	    			       FloatInpSpec() );
     ampthresholdfld->attach( alignedBelow, thresholdtypefld );
+    ampthresholdfld->valuechanged.notify( 
+	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     extriffailfld = new uiGenInput( grp, "If tracking fails",
 				    BoolInpSpec(true,"Extrapolate","Stop") );
     extriffailfld->attach( alignedBelow, ampthresholdfld );
+    extriffailfld->valuechanged.notify( 
+	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     return grp;
 }
@@ -187,15 +197,22 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
     usesimifld = new uiGenInput( grp, "Use similarity", BoolInpSpec(true) );
     usesimifld->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
+    usesimifld->valuechanged.notify( 
+	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
 
     BufferString compwindtxt( "Compare window " );
     compwindtxt += SI().getZUnitString();
     compwinfld = new uiGenInput( grp, compwindtxt, FloatInpIntervalSpec() );
     compwinfld->attach( alignedBelow, usesimifld );
+    compwinfld->valuechanged.notify( 
+	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
 
     simithresholdfld = new uiGenInput( grp, "Similarity threshold(0-1)",
 				       FloatInpSpec() );
     simithresholdfld->attach( alignedBelow, compwinfld );
+    simithresholdfld->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
+
     grp->setHAlignObj( usesimifld );
     return grp;
 }
@@ -277,6 +294,18 @@ void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 {
     mode_ = (EMSeedPicker::SeedModeOrder) modeselgrp_->selectedId();
     modechanged_.trigger();
+}
+
+
+void uiHorizonSetupGroup::eventChangeCB( CallBacker* )
+{
+    eventchanged_.trigger();
+}
+
+
+void uiHorizonSetupGroup::similartyChangeCB( CallBacker* )
+{
+    similartychanged_.trigger();
 }
 
 
