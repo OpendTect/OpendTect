@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.22 2009-04-09 01:01:56 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.23 2009-06-11 17:14:37 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -154,6 +154,14 @@ bool TextureChannel2RGBA::canUseShading() const
 }
 
 
+bool ColTabTextureChannel2RGBA::canUseShading() const
+{
+    return TextureChannel2RGBA::canUseShading() &&
+	   SoOD::maxNrTextureUnits()>=3;
+}
+
+
+
 ColTabTextureChannel2RGBA::ColTabTextureChannel2RGBA()
     : converter_( new SoColTabTextureChannel2RGBA )
     , shaderswitch_( new SoSwitch )
@@ -279,8 +287,6 @@ void ColTabTextureChannel2RGBA::allowShading( bool yn )
 {
     TextureChannel2RGBA::allowShading( yn );
     update();
-
-    shaderswitch_->whichChild = yn && shadinggroup_ ? 1 : 0;
 }
 
 
@@ -337,10 +343,13 @@ void ColTabTextureChannel2RGBA::update()
 {
     adjustNrChannels();
 
-    if ( shadingallowed_ && canUseShading() )
+    const bool doshading = shadingallowed_ && canUseShading();
+    if ( doshading )
 	setShadingVars();
     else
 	doFill( converter_ );
+
+    shaderswitch_->whichChild = doshading ? 1 : 0;
 }
 
 
@@ -358,7 +367,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	tci_->units.set1Value( 0, 0 );
 	tci_->units.set1Value( 1, 1 );
 
-	const int ctabunitnr = SoTextureUnit::getMaxTextureUnit()-1;
+	const int ctabunitnr = SoOD::maxNrTextureUnits()-1;
 	SoTextureUnit* ctabunit = new SoTextureUnit;
 	shadinggroup_->addChild( ctabunit );
 	ctabunit->unit = ctabunitnr;

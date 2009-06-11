@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.15 2009-03-23 20:12:15 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.16 2009-06-11 17:14:36 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -99,6 +99,7 @@ public:
 
     bool			createRGBA(SbImage&) const;
 
+    bool			canUseShading() const;
 protected:
     void			notifyChannelChange()	{ update(); }
     void			adjustNrChannels() const;
