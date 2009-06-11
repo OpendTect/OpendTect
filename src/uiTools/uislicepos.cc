@@ -7,16 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.1 2009-04-21 09:55:20 cvshelene Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.2 2009-06-11 05:33:50 cvsnanne Exp $";
 
 #include "uislicepos.h"
 
+#include "uibutton.h"
 #include "uilabel.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
 
 #include "cubesampling.h"
 #include "ioman.h"
+#include "pixmap.h"
 #include "survinfo.h"
 
 uiSlicePos::uiSlicePos( uiParent* p )
@@ -25,7 +27,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     toolbar_ = new uiToolBar( p, "Slice position" );
 
     uiGroup* grp = new uiGroup( 0, "Position boxes" );
-    sliceposbox_ = new uiLabeledSpinBox( grp, "Crossline", 0,
+    sliceposbox_ = new uiLabeledSpinBox( grp, "Crl", 0,
 	    				 "Slice position" );
     sliceposbox_->box()->valueChanging.notify(
 	    			mCB(this,uiSlicePos,slicePosChg) );
@@ -34,6 +36,13 @@ uiSlicePos::uiSlicePos( uiParent* p )
     slicestepbox_->box()->valueChanged.notify(
 	    			mCB(this,uiSlicePos,sliceStepChg) );
     slicestepbox_->attach( rightTo, sliceposbox_ );
+
+    uiToolButton* prevbut = new uiToolButton( grp, "Previous position",
+	    ioPixmap("prevpos.png"), mCB(this,uiSlicePos,prevCB) );
+    uiToolButton* nextbut = new uiToolButton( grp, "Next position",
+	    ioPixmap("nextpos.png"), mCB(this,uiSlicePos,nextCB) );
+    prevbut->attach( rightTo, slicestepbox_ );
+    nextbut->attach( rightTo, prevbut );
     toolbar_->addObject( grp->attachObj() );
 
     IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
@@ -59,11 +68,11 @@ void uiSlicePos::initSteps( CallBacker* )
 void uiSlicePos::setBoxLabel( Orientation orientation )
 {
     if ( orientation == uiSlicePos::Inline )
-	sliceposbox_->label()->setText( "Inline" );
+	sliceposbox_->label()->setText( "Inl" );
     else if ( orientation == uiSlicePos::Crossline )
-	sliceposbox_->label()->setText( "Crossline" );
+	sliceposbox_->label()->setText( "Crl" );
     else
-	sliceposbox_->label()->setText( SI().zIsTime() ? "Time" : "Depth" );
+	sliceposbox_->label()->setText( "Z" );
 }
 
 
@@ -146,5 +155,17 @@ void uiSlicePos::setPosBoxVal( Orientation orientation, const CubeSampling& cs )
 }
 
 
+void uiSlicePos::prevCB( CallBacker* )
+{
+    uiSpinBox* posbox = sliceposbox_->box();
+    uiSpinBox* stepbox = slicestepbox_->box();
+    posbox->setValue( posbox->getValue()-stepbox->getValue() );
+}
 
 
+void uiSlicePos::nextCB( CallBacker* )
+{
+    uiSpinBox* posbox = sliceposbox_->box();
+    uiSpinBox* stepbox = slicestepbox_->box();
+    posbox->setValue( posbox->getValue()+stepbox->getValue() );
+}

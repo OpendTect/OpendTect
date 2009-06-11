@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uislicepos.h,v 1.1 2009-04-21 09:55:20 cvshelene Exp $
+ RCS:           $Id: uislicepos.h,v 1.2 2009-06-11 05:33:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,9 @@ protected:
     void		sliceStepChanged(Orientation);
     void		setBoxRg(Orientation,const CubeSampling&);
     void		setPosBoxVal(Orientation,const CubeSampling&);
+
+    void		prevCB(CallBacker*);
+    void		nextCB(CallBacker*);
 };
 
 #endif
