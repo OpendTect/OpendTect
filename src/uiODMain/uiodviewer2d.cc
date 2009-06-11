@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.2 2009-06-02 10:36:29 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.3 2009-06-11 11:00:08 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.2 2009-06-02 10:36:29 cvsum
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribdataholder.h"
+#include "attribsel.h"
 #include "emhorizonpainter.h"
 #include "emmanager.h"
 #include "horflatvieweditor.h"
@@ -32,6 +33,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.2 2009-06-02 10:36:29 cvsum
 uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     : appl_(appl)
     , visid_(visid)
+    , selspec_(*new Attrib::SelSpec)
     , viewwin_(0)
     , horpainter_(0)
 {
@@ -97,8 +99,12 @@ void uiODViewer2D::createViewWin( bool isvert )
     Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
     uiParent* controlparent = 0;
     if ( !wantdock )
-	viewwin_ = new uiFlatViewMainWin( 0,
-		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(false) );
+    {
+	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( 0,
+		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true) );
+	fvmw->windowClosed.notify( mCB(this,uiODViewer2D,winCloseCB) );
+	viewwin_ = fvmw;
+    }
     else
     {
 	uiFlatViewDockWin* dwin = new uiFlatViewDockWin( &appl_,
@@ -125,6 +131,20 @@ void uiODViewer2D::createViewWin( bool isvert )
 	    horfveditor_ = new MPE::HorizonFlatViewEditor( auxdataeditor_ );
 	}
     }
+}
+
+
+void uiODViewer2D::winCloseCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiMainWin*,mw,cb)
+    if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
+    viewwin_ = 0;
+}
+
+
+void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as )
+{
+    selspec_ = as ? *as : Attrib::SelSpec();
 }
 
 
