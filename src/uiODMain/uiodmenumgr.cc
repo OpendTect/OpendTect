@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.174 2009-05-20 07:15:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.175 2009-06-11 06:30:37 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -167,7 +167,8 @@ void uiODMenuMgr::enableActButton( bool yn )
 
 void uiODMenuMgr::fillSurveyMenu()
 {
-    mInsertItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm );
+    ioPixmap surveypm( "survey.png" );
+    mInsertPixmapItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm, &surveypm );
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession");
     mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
