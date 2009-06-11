@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.24 2009-04-16 10:03:39 cvsranojay Exp $
+ RCS:		$Id: plfdefs.h,v 1.25 2009-06-11 07:06:27 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -20,13 +20,14 @@ For every platform, the HDIR variable should be put in a -D$HDIR by make.
 HDIR can be:
 
 	lux		Linux
-	win		M$ Windows
+	win		MS Windows
 	mac		Apple Mac OSX
 	sun5		Sun Solaris 5.x
 
 Also, PLFSUBDIR should be defined. It is identical to HDIR, except for:
 Linux:   lux32 or lux64
 Solaris: sol32
+Windows: win32 or win64
 
 Then you get:
 OS type:
@@ -42,20 +43,21 @@ Machine:
 
 Platform:
 
-	__win__		Windows
+	__win32__	Windows 32 bits (x86)
+	__win64__	Windows 64 bits (AMD)
 	__mac__		Mac
 	__lux32__	Linux 32 bits (x86)
 	__lux64__	Linux 64 bits (AMD)
 	__sol32__	Solaris (Sparc)
 
-	__plfsubdir__	String like "win", "lux32" etc.
-	__plfname__	String like "MS WIndows", "Linux 32 bits"
+	__plfsubdir__	String like "win32", "lux32" etc.
+	__plfname__	String like "MS Windows 32 bits", "Linux 32 bits"
 
 Compiler type:
 
 	__gnuc__	GNU gcc
 	__sunc__	Sun c
-	__msvc__	M$ Visual C++
+	__msvc__	MS Visual C++
 
 Language:
 
@@ -83,7 +85,13 @@ Always defined:
 
 #if defined( win ) || defined( WIN32 ) 
 # define __win__ 1
+# ifdef _WIN64
+#  define __win64__ 1
+# else
+#  define __win32__ 1
+# endif
 #endif
+
 #ifdef lux
 # define __unix__ 1
 # ifdef lux64
@@ -92,6 +100,7 @@ Always defined:
 #  define __lux32__ 1
 # endif
 #endif
+
 #ifdef sun5
 # define __unix__ 1
 #endif
@@ -164,9 +173,13 @@ Always defined:
 #  define __islittle__ false
 #endif
 
-#ifdef __win__
-# define __plfsubdir__	"win"
-# define __plfname__	"MS Windows"
+#ifdef __win32__
+# define __plfsubdir__	"win32"
+# define __plfname__	"MS Windows 32 bits"
+#endif
+#ifdef __win64__
+# define __plfsubdir__	"win64"
+# define __plfname__	"MS Windows 64 bits"
 #endif
 #ifdef __lux32__
 # define __plfsubdir__	"lux32"
