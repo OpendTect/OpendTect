@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.12 2009-05-07 07:37:43 cvsumesh Exp $
+ RCS:		$Id: uimpe.h,v 1.13 2009-06-11 09:04:19 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,8 @@ public:
 
     virtual NotifierAccess*	modeChangeNotifier()		{ return 0; }
     virtual NotifierAccess*	propertyChangeNotifier()	{ return 0; }
+    virtual NotifierAccess*	eventChangeNotifier()		{ return 0; }
+    virtual NotifierAccess*	similartyChangeNotifier()	{ return 0; }
 
     virtual bool	commitToTracker(bool& fieldchg) const   { return true; }
     virtual bool	commitToTracker() const; 

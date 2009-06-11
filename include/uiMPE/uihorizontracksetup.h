@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.12 2009-05-18 10:54:45 cvsumesh Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.13 2009-06-11 09:04:19 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,10 @@ public:
     				{ return &modechanged_; }
     NotifierAccess*		propertyChangeNotifier()	
 				{ return &propertychanged_; }
+    NotifierAccess*		eventChangeNotifier()
+    				{ return &eventchanged_; }
+    NotifierAccess*		similartyChangeNotifier()
+				{ return &similartychanged_; }
 
     bool			commitToTracker(bool& fieldchange) const;
 
@@ -84,6 +88,8 @@ protected:
     void			selAmpThresholdType(CallBacker*);
     void			selEventType(CallBacker*);
     void                	seedModeChange(CallBacker*);
+    void			eventChangeCB(CallBacker*);
+    void			similartyChangeCB(CallBacker*);
     void			colorChangeCB(CallBacker*);
     void			seedTypeSel(CallBacker*);
     void			seedSliderMove(CallBacker*);
@@ -118,6 +124,8 @@ protected:
     HorizonAdjuster*		horadj_;
 
     Notifier<uiHorizonSetupGroup> modechanged_;
+    Notifier<uiHorizonSetupGroup> eventchanged_;
+    Notifier<uiHorizonSetupGroup> similartychanged_;
     Notifier<uiHorizonSetupGroup> propertychanged_;
     
     static const char**		sKeyEventNames();

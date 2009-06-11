@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.42 2009-05-21 08:14:38 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.43 2009-06-11 09:04:19 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,7 +170,9 @@ protected:
     bool			setupbeingupdated_;
 
     void			modeChangedCB(CallBacker*);
+    void			eventorsimimlartyChangedCB(CallBacker*);
     void			propertyChangedCB(CallBacker*);
+    void			retrackCB(CallBacker*);
 
     void			nrHorChangeCB(CallBacker*);
 
