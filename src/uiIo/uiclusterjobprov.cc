@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.1 2009-05-21 07:14:17 cvsraman Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.2 2009-06-11 12:07:29 cvsraman Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -134,12 +134,12 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	mErrRet( "Please enter a valid par file name")
 
     BufferString tmpdir = tmpstordirfld_->fileName();
-    if ( tmpdir.isEmpty() )
+    if ( tmpdir.isEmpty() || !File_isDirectory(tmpdir) )
 	mErrRet( "Please make a valid entry for temporary storage directory")
 
     BufferString scriptdir = scriptdirfld_->fileName();
-    if ( scriptdir.isEmpty() )
-	mErrRet( "Please make a valid entry for temporary storage directory")
+    if ( scriptdir.isEmpty() || !File_isDirectory(scriptdir) )
+	mErrRet( "Please make a valid entry for script storage directory")
 
     BufferString mainscrnm = masterscriptfld_->fileName();
     if ( mainscrnm.isEmpty() )
@@ -287,5 +287,7 @@ bool uiClusterJobProv::createMasterScript( const char* parfnm,
     *sd.ostrm << "end" << std::endl;
     sd.close();
     File_setPermissions( masterscript.buf(), "744", 0 );
+    uiMSG().message( "The script file ", masterscript.buf(),
+	    	     " has been created successfully" );
     return true;
 }

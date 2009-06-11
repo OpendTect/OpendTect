@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.73 2009-05-21 07:14:17 cvsraman Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.74 2009-06-11 12:07:29 cvsraman Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -292,23 +292,16 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
     if ( !onlysinglemachine )
     {
 	BufferStringSet opts;
-	opts.add( "Single machine" );
-	opts.add( "Multiple machines" );
-	opts.add( "Cluster" );
+	opts.add("Single machine").add("Multiple machines").add("Cluster");
 	if ( hascluster_ )
-	{
 	    singmachfld_ = new uiGenInput( dogrp, "Submit to",
 		    			   StringListInpSpec(opts) );
-	    singmachfld_->valuechanged.notify( 
-		    mCB(this,uiFullBatchDialog,singTogg) );
-	}
 	else
-	{
 	    singmachfld_ = new uiGenInput( dogrp, "Submit to",
-		    BoolInpSpec(true,opts.get(0),opts.get(1)) );
-	    singmachfld_->valuechanged.notify( 
-		    mCB(this,uiFullBatchDialog,singTogg) );
-	}
+		    		BoolInpSpec(true,opts.get(0),opts.get(1)) );
+
+	singmachfld_->valuechanged.notify( 
+		mCB(this,uiFullBatchDialog,singTogg) );
     }
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
