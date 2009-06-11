@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.8 2009-03-27 17:04:55 cvskris Exp $
+ RCS:		$Id: SoOD.h,v 1.9 2009-06-11 17:01:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,9 @@ mGlobal static int	supportsVertexShading();
 			    \retval  0 don't know
 			    \retval  1 supported
 			*/
+
+mGlobal static int	maxNrTextureUnits();
+			/*!<If not know, function will return 1.  */
 			    	     
 };
 
