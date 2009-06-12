@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.21 2009-04-27 10:37:11 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.22 2009-06-12 20:42:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,9 +40,11 @@ public:
 
     void			removeAllItems();
     uiGraphicsItem*		removeItem(uiGraphicsItem*);
+    				/*!<Gives object back to caller (not deleted) */
 
     template <class T> T*	addItem(T*);
     uiGraphicsItemGroup*	addItemGrp(uiGraphicsItemGroup*);
+    				//!<Item becomes mine
     int				nrItems() const;
     int				getDPI() const;
 
