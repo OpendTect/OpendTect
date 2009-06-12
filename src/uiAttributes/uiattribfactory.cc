@@ -7,11 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribfactory.cc,v 1.9 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribfactory.cc,v 1.10 2009-06-12 18:50:58 cvskris Exp $";
 
 #include "uiattribfactory.h"
 #include "uiattrdesced.h"
 #include "ptrman.h"
+
+
+uiAttributeFactory::~uiAttributeFactory()
+{
+    deepErase( entries_ );
+}
 
 
 uiAttributeFactory& uiAF()
