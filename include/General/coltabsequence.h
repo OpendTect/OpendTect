@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.10 2009-06-10 17:59:50 cvskris Exp $
+ RCS:		$Id: coltabsequence.h,v 1.11 2009-06-12 18:24:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,10 @@ public:
     void		removeTransparencyAt(int);
     bool		hasTransparency() const;
 
+    int			nrSegments() const		{ return nrsegments_; }
+    void		setNrSegments(int n)		{ nrsegments_ = n; }
+    			//!<No segments means not segmented
+
     void		changeColor(int,
 	    			    unsigned char,unsigned char,unsigned char);
     void		changePos(int,float);
@@ -100,6 +104,7 @@ public:
     static const char*	sKeyUdfColor;
     static const char*	sKeyTransparency;
     static const char*	sKeyCtbl;
+    static const char*	sKeyNrSegments;
     
 protected:
 
@@ -112,9 +117,11 @@ protected:
     Color		undefcolor_;
     Color		markcolor_;
     Type		type_;
+    int			nrsegments_;
 
     inline void		triggerAll() {	colorChanged.trigger();
 					transparencyChanged.trigger(); }
+    float		snapToSegmentCenter(float) const;
 };
 
 

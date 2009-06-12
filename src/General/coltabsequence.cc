@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.17 2009-04-09 09:13:00 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.18 2009-06-12 18:24:23 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -26,6 +26,8 @@ const char* ColTab::Sequence::sKeyMarkColor = "Marker color";
 const char* ColTab::Sequence::sKeyUdfColor = "Undef color";
 const char* ColTab::Sequence::sKeyTransparency = "Transparency";
 const char* ColTab::Sequence::sKeyCtbl = "Color table";
+const char* ColTab::Sequence::sKeyNrSegments = "Nr segments";
+
 static const char* sKeyCtabSettsKey = "coltabs";
 
 #define mInitStdMembs(uc,mc) \
@@ -38,6 +40,7 @@ static const char* sKeyCtabSettsKey = "coltabs";
 
 ColTab::Sequence::Sequence()
     : mInitStdMembs(Color::LightGrey(),Color::DgbColor())
+    , nrsegments_( 0 )
 {
 }
 
@@ -45,6 +48,7 @@ ColTab::Sequence::Sequence()
 ColTab::Sequence::Sequence( const char* nm )
     : NamedObject(nm)
     , mInitStdMembs(Color::LightGrey(),Color::DgbColor())
+    , nrsegments_( 0 )
 {
     bool res = false;
     if ( nm && *nm )
@@ -62,6 +66,7 @@ ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
     , x_(ctab.x_)
     , tr_(ctab.tr_)
     , type_(ctab.type_)
+    , nrsegments_( ctab.nrsegments_ )
     , mInitStdMembs(ctab.undefcolor_,ctab.markcolor_)
 {
 }
@@ -83,6 +88,7 @@ ColTab::Sequence& ColTab::Sequence::operator=( const ColTab::Sequence& ctab )
 	b_ = ctab.b_;
 	x_ = ctab.x_;
 	tr_ = ctab.tr_;
+	nrsegments_ = ctab.nrsegments_;
 	undefcolor_ = ctab.undefcolor_;
 	markcolor_ = ctab.markcolor_;
 	type_ = ctab.type_;
@@ -98,6 +104,7 @@ bool ColTab::Sequence::operator==( const ColTab::Sequence& ctab ) const
 	ctab.size() != size() ||
 	ctab.tr_.size() != tr_.size() ||
 	ctab.undefcolor_ != undefcolor_ ||
+	ctab.nrsegments_ != nrsegments_ ||
 	ctab.markcolor_ != markcolor_ )          return false;
 
    for ( int idx=0; idx<size(); idx++ )
@@ -126,6 +133,9 @@ Color ColTab::Sequence::color( float x ) const
     const int sz = size();
     if ( sz == 0 || x <= -mDefEps || x >= 1+mDefEps )
 	return undefcolor_;
+
+    if ( nrsegments_ )
+	x = snapToSegmentCenter( x );
 
     const unsigned char t = Color::getUChar( transparencyAt(x) );
 
@@ -346,6 +356,7 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
     fms = (int)undefcolor_.r(); fms += (int)undefcolor_.g();
     fms += (int)undefcolor_.b(); fms += (int)undefcolor_.t();
     iopar.set( sKeyUdfColor, fms );
+    iopar.set( sKeyNrSegments, nrsegments_ );
 
     for ( int idx=0; idx<x_.size(); idx++ )
     {
@@ -378,6 +389,9 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	*this = backup;
 	return false;
     }
+
+    nrsegments_ = 0;
+    iopar.get( sKeyNrSegments, nrsegments_ );
 
     x_.erase(); r_.erase(); g_.erase(); b_.erase(); tr_.erase();
     for ( int idx=0; ; idx++ )
@@ -591,4 +605,25 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 
     iopar.putTo( astrm );
     return true;
+}
+
+
+float ColTab::Sequence::snapToSegmentCenter( float x ) const
+{
+    if ( !nrsegments_ )
+	return x;
+
+    if ( mIsUdf(x) )
+	return x;
+
+    if ( nrsegments_==1 )
+	return 0.5;
+
+    const float segmentsize = 1.0/(nrsegments_-1);
+
+    int segment = (int) (x/segmentsize+0.5 );
+    if ( segment<0 ) segment = 0;
+    if ( segment>=nrsegments_ )
+	segment = nrsegments_-1;
+    return segment*segmentsize;
 }
