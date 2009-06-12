@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.124 2009-06-03 07:02:22 cvsraman Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.125 2009-06-12 18:49:20 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -916,7 +916,7 @@ for ( int idx=start; idx<stop; idx++ ) \
     MenuItem* itm = new MenuItem( nm ); \
     itm->checkable = true; \
     const bool docheck = correcttype && nm == as.userRef(); \
-    mAddManagedMenuItem( mnu, itm, true, docheck );\
+    mAddMenuItem( mnu, itm, true, docheck );\
     if ( docheck ) (mnu)->checked = true; \
 }
 
