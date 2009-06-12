@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.31 2009-06-12 08:17:57 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.32 2009-06-12 09:36:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,7 @@ protected:
     uiRectItem*			rectitem_;
     uiArrowItem*		arrowitem1_;
     uiArrowItem*		arrowitem2_;
+    uiMarkerItem*		pointitem_;
     uiPolygonItem*		polyitem_;
     uiGraphicsItemGroup*	polylineitmgrp_;
     uiGraphicsItemGroup*	markeritemgrp_;
