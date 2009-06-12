@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.5 2009-03-10 06:33:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.6 2009-06-12 19:34:49 cvskris Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -289,11 +289,6 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
     else if ( res==2 )
     {
 	ColTab::Sequence coltab = ctab_;
-	if ( isSegmentized() )
-	{
-	    uiMSG().error( "You cannot edit markers of segementized table");
-	    return;
-	}
 	uiColTabMarkerDlg dlg( parent_, ctab_ );
 	dlg.markersChanged.notify( mCB(this,uiColTabMarkerCanvas,markerChgd) );
 	if ( !dlg.go() )
@@ -392,63 +387,15 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
     if ( changepos > 1 ) changepos = 1;
     if ( changepos < 0 ) changepos = 0;
 
-    if ( !isSegmentized() )
-    {
-	float position = mUdf(float); 
-	if ( (selidx_ > 0 && ctab_.position(selidx_-1)>=changepos) )
-	    position = ctab_.position(selidx_-1) + 1.01*mEps;
-	else if ( (selidx_ < sz-1 && ctab_.position(selidx_+1)<=changepos) )
-	    position = ctab_.position( selidx_+1 ) - 1.01*mEps;
-	else
-	    position = changepos;
-	ctab_.changePos( selidx_, position );
-	reDrawNeeded.trigger();
-	return;
-    }
-
-    int rightidx = mUdf(int);
-    int leftidx = mUdf(int);
-    float positionright = mUdf(float);
-    float positionleft = mUdf(float);
-    (selidx_%2)==0 ? rightidx = selidx_ : leftidx = selidx_;
-    mIsUdf(rightidx) ? rightidx = leftidx+1 : leftidx = rightidx-1;
-    if ( (leftidx > 0 && ctab_.position( leftidx-1 ) >= changepos) )
-    {
-	positionleft = ctab_.position( leftidx-1 ) + 1.01*mEps;
-	positionright = positionleft + 0.9*mEps;
-    }
-    else if ( (rightidx < sz-1 && ctab_.position( rightidx+1 ) <= changepos) )
-    {
-	positionright = ctab_.position( rightidx+1 ) - 1.01*mEps;
-	positionleft = positionright - 0.9*mEps;
-    }
+    float position = mUdf(float); 
+    if ( (selidx_ > 0 && ctab_.position(selidx_-1)>=changepos) )
+	position = ctab_.position(selidx_-1) + 1.01*mEps;
+    else if ( (selidx_ < sz-1 && ctab_.position(selidx_+1)<=changepos) )
+	position = ctab_.position( selidx_+1 ) - 1.01*mEps;
     else
-    {
-	positionright = changepos;
-	positionleft = positionright - 0.9*mEps;
-    }
+	position = changepos;
 
-    if ( positionright - positionleft > mEps )
-	positionleft = positionright - 0.9*mEps;
-    ctab_.changePos( leftidx, positionleft );
-    ctab_.changePos( rightidx, positionright );
-
+    ctab_.changePos( selidx_, position );
     reDrawNeeded.trigger();
     meh_.setHandled( true );
-    markerChanged.trigger();
-}
-
-
-bool uiColTabMarkerCanvas::isSegmentized()
-{
-    if ( ctab_.size() <= 3 )
-	return false;
-
-    for ( int idx=1; idx<ctab_.size()-2; idx+=2 )
-    {
-	if ( ctab_.position(idx+1)-ctab_.position(idx) > 1.01*mEps )
-	    return false;
-    }
-
-    return true;
 }

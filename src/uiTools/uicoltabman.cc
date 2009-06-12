@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.34 2009-06-10 17:59:00 cvskris Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.35 2009-06-12 19:34:49 cvskris Exp $";
 
 #include "uicoltabman.h"
 
@@ -108,11 +108,11 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     BufferString lbl = "Segmentize";
     segmentfld_ = new uiCheckBox( rightgrp, lbl );
-    segmentfld_->setChecked( markercanvas_->isSegmentized() );
+    segmentfld_->setChecked( ctab_.isSegmentized() );
     segmentfld_->activated.notify( mCB(this,uiColorTableMan,segmentSel) );
     segmentfld_->attach( leftAlignedBelow, ctabcanvas_ );
     nrsegbox_ = new uiSpinBox( rightgrp, 0, lbl );
-    nrsegbox_->setInterval( 2, 25 ); nrsegbox_->setValue( 8 );
+    nrsegbox_->setInterval( 2, 64 ); nrsegbox_->setValue( 8 );
     nrsegbox_->setSensitive( false );
     nrsegbox_->valueChanging.notify( mCB(this,uiColorTableMan,nrSegmentsCB) );
     nrsegbox_->attach( rightTo, segmentfld_ );
@@ -407,11 +407,11 @@ void uiColorTableMan::updateSegmentFields()
 {
     NotifyStopper ns1( segmentfld_->activated );
     NotifyStopper ns2( nrsegbox_->valueChanging );
-    segmentfld_->setChecked( markercanvas_->isSegmentized() );
+    segmentfld_->setChecked( ctab_.isSegmentized() );
     nrsegbox_->setSensitive( segmentfld_->isChecked() );
 
-    if ( markercanvas_->isSegmentized() )
-	nrsegbox_->setValue( ctab_.size()/2 );
+    if ( ctab_.isSegmentized() )
+	nrsegbox_->setValue( ctab_.nrSegments() );
     else
 	nrsegbox_->setValue( 8 );
 }
@@ -440,7 +440,7 @@ void uiColorTableMan::doSegmentize()
 {
     if ( !segmentfld_->isChecked() )
     {
-	ColTab::SM().get( orgctab_->name(), ctab_ );
+	ctab_.setNrSegments( 0 );
 	markercanvas_->reDrawNeeded.trigger();
 	tableChanged.trigger();
 	return;
@@ -451,18 +451,7 @@ void uiColorTableMan::doSegmentize()
 	return;
 
     NotifyStopper ns( ctab_.colorChanged );
-    *orgctab_ = ctab_;
-    ctab_.removeAllColors();
-    const float step = 1 / (float)(nrseg-1);
-    ColTab::IndexedLookUpTable indextbl( *orgctab_, nrseg );
-    mAddColor( 0, 0 );
-    for ( int idx=0; idx<nrseg-1; idx++ )
-    {
-	const float newpos = (idx+0.5) * step;
-	mAddColor( idx, newpos );
-	mAddColor( idx+1, newpos+0.9*mEps );
-    }
-    mAddColor( nrseg-1, 1 );
+    ctab_.setNrSegments( nrseg );
 
     markercanvas_->reDrawNeeded.trigger();
     ctabcanvas_->setRGB();

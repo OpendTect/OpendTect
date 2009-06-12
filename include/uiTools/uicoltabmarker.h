@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabmarker.h,v 1.4 2009-03-10 06:33:51 cvssatyaki Exp $
+ RCS:           $Id: uicoltabmarker.h,v 1.5 2009-06-12 19:34:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ public:
 						     ColTab::Sequence&);
 				~uiColTabMarkerCanvas();
 
-    bool                       	isSegmentized();
     Notifier<uiColTabMarkerCanvas> markerChanged;
 
 protected:
