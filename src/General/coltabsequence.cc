@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.18 2009-06-12 18:24:23 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.19 2009-06-12 19:09:47 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -391,7 +391,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
     }
 
     nrsegments_ = 0;
-    iopar.get( sKeyNrSegments, nrsegments_ );
+    const bool hadnrsegments = iopar.get( sKeyNrSegments, nrsegments_ );
 
     x_.erase(); r_.erase(); g_.erase(); b_.erase(); tr_.erase();
     for ( int idx=0; ; idx++ )
@@ -419,6 +419,23 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	Geom::Point2D<float> pt;
 	if ( !iopar.get( key, pt.x, pt.y ) ) break;
 	tr_ += pt;
+    }
+
+    //OD 3.2 and before
+    if ( !hadnrsegments && size() > 3 )
+    {
+	bool found = false;
+	for ( int idx=1; idx<size()-2; idx+=2 )
+	{
+	    if ( position(idx+1)-position(idx) > 1.01*mEps )
+	    {
+		found = true;
+		break;
+	    }
+	}
+
+	if ( !found )
+	    nrsegments_ = size()/2;
     }
 
     triggerAll();
