@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.19 2009-04-20 06:20:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.20 2009-06-12 08:17:57 cvssatyaki Exp $";
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
@@ -25,6 +25,7 @@ uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
 	, pixmap_(0)
 {
     disableScrollZoom();
+
     setStretch( 2, 2 );
 }
 
@@ -62,7 +63,13 @@ void uiRGBArrayCanvas::setDrawArr( bool yn )
 
 void uiRGBArrayCanvas::beforeDraw()
 {
-    const uiSize totsz( width(), height() ); 
+    beforeDraw( width(), height() );
+}
+
+
+void uiRGBArrayCanvas::beforeDraw( int w, int h )
+{
+    const uiSize totsz( w, h ); 
     const int unusedpix = 1;
     arrarea_ = border_.getRect( totsz, unusedpix );
     const int xsz = arrarea_.width() + 1;
@@ -124,7 +131,8 @@ void uiRGBArrayCanvas::draw()
 
 void uiRGBArrayCanvas::setPixMapPos( int x, int y )
 {
-    pixmapitm_->setOffset( x, y );
+    if ( pixmapitm_ )
+	pixmapitm_->setOffset( x, y );
 }
 
 

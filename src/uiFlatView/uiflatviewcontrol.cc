@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.44 2009-02-02 08:01:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.45 2009-06-12 08:17:57 cvssatyaki Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -134,7 +134,7 @@ bool uiFlatViewControl::haveZoom( Geom::Size2D<double> oldsz,
 
 uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& centre,
 						Geom::Size2D<double>& sz,
-						const uiWorldRect& bb) const
+						const uiWorldRect& bb ) const
 {
     const uiWorldRect cv( vwrs_[0]->curView() );
     const bool havepan = havePan( cv.centre(), centre, cv.size() );
@@ -156,9 +156,47 @@ uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& centre,
 void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 				    Geom::Size2D<double>& sz )
 {
-    const uiWorldRect wr = getNewWorldRect( centre, sz, getBoundingBox() );
+    uiWorldRect br = getBoundingBox();
+    br.checkCorners();
+    const uiWorldRect& wr = getNewWorldRect( centre, sz, br );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
-	vwrs_[idx]->setView( wr );
+    {
+	uiRGBArrayCanvas& canvas = vwrs_[idx]->rgbCanvas();
+	if ( vwrs_[idx]->hasHandDrag() )
+	{
+	    uiWorldRect prevwr = vwrs_[idx]->curView();
+	    const float widthfac = (float)prevwr.width() / (float)wr.width();
+	    const float heightfac = (float)prevwr.height() / (float)wr.height();
+	    uiRect scenerect;
+	    if ( !mIsEqual(widthfac,1,mDefEps) ||
+		 !mIsEqual(heightfac,1,mDefEps) )
+	    {
+		uiRect prevscrect = canvas.getSceneRect();
+		scenerect = uiRect( uiPoint(0,0),
+				uiSize(mNINT(prevscrect.width()*widthfac),
+				       mNINT(prevscrect.height()*heightfac)) );
+		canvas.setSceneRect( scenerect );
+	    }
+	    else
+		scenerect = canvas.getSceneRect();
+	    const uiWorld2Ui w2u( scenerect.size(), br );
+	    uiPoint lefttop = w2u.transform( wr.topLeft() );
+	    uiPoint rightbottom = w2u.transform( wr.bottomRight() );
+	    uiPoint brdrlefttop = lefttop - scenerect.topLeft();
+	    uiPoint brdrrightbottom = scenerect.bottomRight() - rightbottom;
+	    uiBorder actborder( brdrlefttop.x,brdrlefttop.y,
+				brdrrightbottom.x, brdrrightbottom.y);
+	    uiRect viewarea = actborder.getRect( canvas.getSceneRect().size() );
+	    vwrs_[idx]->setViewBorder( actborder );
+	    actborder += vwrs_[idx]->annotBorder();
+	    canvas.setBorder( actborder );
+
+	    vwrs_[idx]->setView( wr );
+	    canvas.centreOn( viewarea.centre() );
+	}
+	else
+	    vwrs_[idx]->setView( wr );
+    }
 }
 
 

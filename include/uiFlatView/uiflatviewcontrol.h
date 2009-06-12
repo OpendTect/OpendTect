@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.26 2009-04-21 13:55:59 cvsbruno Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.27 2009-06-12 08:17:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 
     virtual uiWorldRect	getBoundingBox() const;
     virtual void	setNewView(Geom::Point2D<double>& centre,
-	    			   Geom::Size2D<double>& sizes);
+	    			   Geom::Size2D<double>& sizes );
     			//!< retains uiWorldRect's LR/TB swapping
     			//!< Changes the input to the actual new values
     void		flip(bool hor);

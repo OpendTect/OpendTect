@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.14 2009-05-25 15:29:19 cvsbert Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.15 2009-06-12 08:17:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
 			~uiGraphicsItem()			{}
 
     QGraphicsItem*	qGraphicsItem()		{ return qgraphicsitem_; }
+    const QGraphicsItem* qGraphicsItem() const	{ return qgraphicsitem_; }
 
     void		show();
     void		hide();

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.11 2009-03-12 14:59:32 cvsbert Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.12 2009-06-12 08:17:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
 protected:
 
     bool		manip_;
+    bool		mousepressed_;
     uiToolBar*		tb_;
     uiToolButton*	zoominbut_;
     uiToolButton*	zoomoutbut_;
@@ -58,11 +59,15 @@ protected:
 
     virtual void	finalPrepare();
     void		updatePosButtonStates();
+    uiRect		getViewRect();
 
     void		vwChgCB(CallBacker*);
     void		vwrAdded(CallBacker*);
     void		wheelMoveCB(CallBacker*);
     void		zoomCB(CallBacker*);
+    void		handDragStarted(CallBacker*);
+    void		handDragging(CallBacker*);
+    void		handDragged(CallBacker*);
     void		panCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		parsCB(CallBacker*);

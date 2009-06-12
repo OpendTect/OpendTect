@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.8 2009-05-19 09:44:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.9 2009-06-12 08:17:57 cvssatyaki Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -53,7 +53,6 @@ protected:
     MouseEventHandler&	mousehandler_;
     uiGraphicsViewBase&	handle_;
 
-    void		paintEvent(QPaintEvent*);
     void		wheelEvent(QWheelEvent*);
     void		resizeEvent(QResizeEvent*);
     void		mouseMoveEvent(QMouseEvent*);
@@ -152,15 +151,11 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
 
     handle_.setCtrlPressed( false );
 
+    buttonstate_ = OD::NoButton;
     QGraphicsView::mouseReleaseEvent( event );
 }
 
 static const int sBorder = 5;
-
-void uiGraphicsViewBody::paintEvent( QPaintEvent* event )
-{
-    QGraphicsView::paintEvent( event );
-}
 
 
 void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
@@ -180,7 +175,8 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
 #endif
     }
 
-    handle_.reSize.trigger();
+    uiSize oldsize( event->oldSize().width(), event->oldSize().height() );
+    handle_.reSize.trigger( oldsize );
 }
 
 
@@ -188,31 +184,29 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 {
     if ( ev && handle_.scrollZoomEnabled() )
     {
-	int numsteps = ( ev->delta() / 8 ) / 15;
+	const int numsteps = ( ev->delta() / 8 ) / 15;
 
 	QMatrix mat = matrix();
-	QPointF mouseposition = ev->pos();
-
-	mat.translate( (width()/2) - mouseposition.x(),
-		       (height()/2) - mouseposition.y() );
+	const QPointF& mousepos = ev->pos();
+	mat.translate( (width()/2) - mousepos.x(),
+		       (height()/2) - mousepos.y() );
 
 	if ( numsteps > 0 )
 	    mat.scale( numsteps * 1.2, numsteps * 1.2 );
 	else
 	    mat.scale( -1 / (numsteps*1.2), -1 / (numsteps*1.2) );
 
-	mat.translate( mouseposition.x() - (width()/2),
-		       mouseposition.y() - (height()/2) );
+	mat.translate( mousepos.x() - (width()/2),
+		       mousepos.y() - (height()/2) );
 	setMatrix( mat );
 	ev->accept();
     }
-    else
-    {
-	MouseEvent me( OD::NoButton, (int)ev->pos().x(), (int)ev->pos().y(),
-		                   ev->delta() );
-	mousehandler_.triggerWheel( me );
+
+    MouseEvent me( OD::NoButton, (int)ev->pos().x(), (int)ev->pos().y(),
+			       ev->delta() );
+    mousehandler_.triggerWheel( me );
+    if ( handle_.scrollZoomEnabled() )
 	QGraphicsView::wheelEvent( ev );
-    }
 }
 
 
@@ -319,6 +313,10 @@ int uiGraphicsViewBase::height() const
 }
 
 
+void uiGraphicsViewBase::centreOn( uiPoint centre )
+{ body_->centerOn( centre.x, centre.y ); }
+
+
 void uiGraphicsViewBase::setScrollBarPolicy( bool hor, ScrollBarPolicy sbp )
 {
     if ( hor )
@@ -334,7 +332,8 @@ void uiGraphicsViewBase::setViewArea( double x, double y, double w, double h )
 
 uiRect uiGraphicsViewBase::getViewArea() const
 {
-    QRectF qselrect( body_->sceneRect() );
+    QRectF qselrect( body_->mapToScene(0,0),
+	    	     body_->mapToScene(width(),height()) );
     return uiRect( (int)qselrect.left(), (int)qselrect.top(),
 	    	   (int)qselrect.right(), (int)qselrect.bottom() );
 }
@@ -353,6 +352,18 @@ uiGraphicsScene& uiGraphicsViewBase::scene()
 {
     return *scene_;
 }
+
+
+uiRect uiGraphicsViewBase::getSceneRect() const
+{
+    QRectF scenerect = body_->sceneRect();
+    return uiRect( (int)scenerect.left(), (int)scenerect.top(),
+	    	   (int)scenerect.right(), (int)scenerect.bottom() );
+}
+
+
+void uiGraphicsViewBase::setSceneRect( const uiRect& rect )
+{ body_->setSceneRect( rect.left(), rect.top(), rect.width(), rect.height() ); }
 
 
 uiPoint uiGraphicsViewBase::getCursorPos() const

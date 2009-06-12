@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.12 2009-05-13 06:36:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.13 2009-06-12 08:17:57 cvssatyaki Exp $";
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -27,6 +27,7 @@ uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
 {
     setColors( Color(0,0,200), Color(255,255,200) );
     viewer_.viewChanged.notify( mCB(this,uiFlatViewThumbnail,vwChg) );
+    viewer_.viewChanging.notify( mCB(this,uiFlatViewThumbnail,vwChging) );
     mousehandler_.buttonReleased.notify(
 	    		mCB(this,uiFlatViewThumbnail,mouseRelCB) );
     mousehandler_.buttonPressed.notify(
@@ -68,7 +69,13 @@ void uiFlatViewThumbnail::setColors( Color fg, Color bg )
 
 void uiFlatViewThumbnail::draw()
 {
-    mDeclW2UVars( viewer_.curView() );
+    draw( viewer_.curView() );
+}
+
+
+void uiFlatViewThumbnail::draw( const uiWorldRect& viewarea )
+{
+    mDeclW2UVars( viewarea );
     const uiRect uibr( w2u.transform(br) );
     if ( !bgrectitem_ )
 	bgrectitem_ = scene().addRect( uibr.left(), uibr.top(), uibr.width(),
@@ -121,8 +128,13 @@ void uiFlatViewThumbnail::getUiRect( const uiWorldRect& inputwr,
 
 
 void uiFlatViewThumbnail::vwChg( CallBacker* )
+{ draw(); }
+
+
+void uiFlatViewThumbnail::vwChging( CallBacker* cb )
 {
-    draw();
+    mCBCapsuleUnpack(uiWorldRect,viewarea,cb);
+    draw( viewarea );
 }
 
 

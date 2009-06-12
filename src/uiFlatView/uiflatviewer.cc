@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.80 2009-06-08 20:38:34 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.81 2009-06-12 08:17:57 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -46,7 +46,7 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.80 2009-06-08 20:38:34 cvsk
 
 float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
 
-uiFlatViewer::uiFlatViewer( uiParent* p )
+uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     : uiGroup(p,"Flat viewer")
     , mStdInitItem
     , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray(false)))
@@ -55,16 +55,23 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , wvabmpmgr_(0)
     , vdbmpmgr_(0)
     , anysetviewdone_(false)
+    , enabhaddrag_(enabhanddrag)
+    , initview_(true)
     , extraborders_(0,0,0,0)
+    , annotborder_(0,0,0,0)
+    , viewborder_(0,0,0,0)
     , annotsz_(50,20) //TODO: should be dep on font size
+    , viewChanging(this)
     , viewChanged(this)
     , dataChanged(this)
     , dispParsChanged(this)
     , control_(0)
 {
+    canvas_.setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    canvas_.setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
     setStretch( 2, 2 ); canvas_.setStretch( 2, 2 );
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
-    canvas_.reSize.notify( mCB(this,uiFlatViewer,reDraw) );
+    canvas_.reSize.notify( mCB(this,uiFlatViewer,reSizeDraw) );
     canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDraw) );
     reportedchanges_ += All;
 
@@ -86,6 +93,36 @@ void uiFlatViewer::reDraw( CallBacker* )
 {
     drawBitMaps();
     drawAnnot();
+}
+
+
+void uiFlatViewer::reSizeDraw( CallBacker* cb )
+{
+    anysetviewdone_ = true;
+    if ( !initview_ && enabhaddrag_ )
+    {
+	uiSize newsize( canvas_.width(), canvas_.height() );
+	mCBCapsuleUnpack(uiSize,oldsize,cb);
+	const float widthfac = (float)newsize.width()/(float)oldsize.width();
+	const float heightfac = (float)newsize.height()/(float)oldsize.height();
+	uiRect scenerect( uiPoint(0,0),
+		uiSize(mNINT(canvas_.getSceneRect().width()*widthfac),
+		       mNINT(canvas_.getSceneRect().height()*heightfac)) );
+	canvas_.setSceneRect( scenerect ); 
+	uiRect viewrect = canvas_.getViewArea();
+
+	viewborder_ = uiBorder( viewrect.left() - scenerect.left(),
+			        viewrect.top() - scenerect.top(),
+			        scenerect.right() - viewrect.right(),
+			        scenerect.bottom() - viewrect.bottom() );
+	uiBorder actborder = viewborder_;
+	actborder += annotborder_;
+	canvas_.setBorder( actborder );
+    }
+
+    drawBitMaps();
+    drawAnnot();
+    initview_ = false;
 }
 
 
@@ -192,7 +229,7 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
     reportedchanges_ += dct;
 
     const FlatView::Annotation& annot = appearance().annot_;
-    int l = extraborders_.left(); int r = extraborders_.right();
+    int l = extraborders_.left(); int r = extraborders_.right() + 2;
     int t = extraborders_.top(); int b = extraborders_.bottom();
     if ( annot.haveTitle() )
 	t += annotsz_.height();
@@ -201,7 +238,10 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
     if ( annot.haveAxisAnnot(true) )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
 
-    canvas_.setBorder( uiBorder(l,t,r,b) );
+    annotborder_ =  uiBorder(l,t,r,b);
+    uiBorder actborder = enabhaddrag_ ? viewborder_ : uiBorder(0,0,0,0);
+    actborder += annotborder_;
+    canvas_.setBorder( actborder );
     if ( dofill )
 	canvas_.reDrawNeeded.trigger();
 
@@ -218,7 +258,13 @@ void uiFlatViewer::reset()
 
 void uiFlatViewer::drawBitMaps()
 {
-    canvas_.beforeDraw();
+    if ( enabhaddrag_ )
+    {
+	uiRect scenerect =  rgbCanvas().getSceneRect();
+	canvas_.beforeDraw( scenerect.width(), scenerect.height() );
+    }
+    else
+	canvas_.beforeDraw();
     if ( !anysetviewdone_ )
 	setView( boundingBox() );
 
@@ -226,6 +272,7 @@ void uiFlatViewer::drawBitMaps()
 
     bool datachgd = false;
     bool parschanged = false;
+    bool annotchanged = false;
     for ( int idx=0; idx<reportedchanges_.size(); idx++ )
     {
 	DataChangeType dct = reportedchanges_[idx];
@@ -237,8 +284,14 @@ void uiFlatViewer::drawBitMaps()
 	}
 	else if ( dct == WVAPars || dct == VDPars )
 	    parschanged = true;
+	else if ( dct == Annot )
+	    annotchanged = true;
     }
     reportedchanges_.erase();
+
+    if ( !datachgd && !parschanged && annotchanged )
+	return;
+
     if ( datachgd )
 	dataChanged.trigger();
 
@@ -260,11 +313,9 @@ void uiFlatViewer::drawBitMaps()
 	    offs = vdbmpmgr_->dataOffs( wr_, uisz );
     }
 
-    bool doredraw = false;
     if ( (hasdata && (datachgd || mIsUdf(offs.x))) || parschanged  )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	doredraw = true;
 	wvabmpmgr_->setupChg(); vdbmpmgr_->setupChg();
 	if ( !mkBitmaps(offs) )
 	{
@@ -289,17 +340,14 @@ void uiFlatViewer::drawBitMaps()
 	return;
     }
 
-    if ( doredraw )
-    {
-	MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	bmp2rgb_->setRGBArr( canvas_.rgbArray() );
-	bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
-	PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
-						canvas_.arrArea().height() );
-	pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
-	canvas_.setPixmap( *pixmap );
-	canvas_.draw();
-    }
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
+    bmp2rgb_->setRGBArr( canvas_.rgbArray() );
+    bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
+    PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
+			   		    canvas_.arrArea().height() );
+    pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
+    canvas_.setPixmap( *pixmap );
+    canvas_.draw();
 }
 
 
@@ -348,20 +396,24 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
 
 
 void uiFlatViewer::drawAnnot()
+{ drawAnnot( canvas_.arrArea(), wr_ ); }
+
+
+void uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 {
     if ( mainwin() && !mainwin()->finalised() )
 	return;
 
     const FlatView::Annotation& annot = appearance().annot_;
 
-    drawGridAnnot( annot.color_.isVisible() );
+    drawGridAnnot( annot.color_.isVisible(), drawarea, wr );
 
     if ( polylineitmgrp_ )
 	polylineitmgrp_->removeAll( true );
     if ( markeritemgrp_ )
 	markeritemgrp_->removeAll( true );
     for ( int idx=0; idx<annot.auxdata_.size(); idx++ )
-	drawAux( *annot.auxdata_[idx] );
+	drawAux( *annot.auxdata_[idx], drawarea, wr );
 
     if ( !annot.title_.isEmpty() )
     {
@@ -375,7 +427,7 @@ void uiFlatViewer::drawAnnot()
 	}
 	else
 	    titletxtitem_->setText( annot.title_ );
-	titletxtitem_->setPos( uiPoint(canvas_.arrArea().centre().x,2) );
+	titletxtitem_->setPos( uiPoint(drawarea.centre().x,2) );
     }
     else
     { mRemoveAnnotItem( titletxtitem_ ); }
@@ -415,7 +467,8 @@ void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
 }
 
 
-void uiFlatViewer::drawGridAnnot( bool isvisble )
+void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
+				  const uiWorldRect& wr )
 {
     if ( rectitem_ )
 	rectitem_->setVisible( isvisble );
@@ -436,8 +489,8 @@ void uiFlatViewer::drawGridAnnot( bool isvisble )
     const bool showanyx1annot = ad1.showannot_ || ad1.showgridlines_;
     const bool showanyx2annot = ad2.showannot_ || ad2.showgridlines_;
     
-    const uiRect datarect( canvas_.arrArea() );
-    axesdrawer_.draw( datarect, wr_ );
+    const uiRect datarect( drawarea );
+    axesdrawer_.draw( datarect, wr );
    
     if ( (!showanyx1annot && !showanyx2annot) )
     {
@@ -509,13 +562,14 @@ void uiFlatViewer::drawGridAnnot( bool isvisble )
 }
 
 
-void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
+void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
+			    const uiRect& drawarea, const uiWorldRect& wr )
 {
     if ( !ad.enabled_ || ad.isEmpty() ) return;
 
     const FlatView::Annotation& annot = appearance().annot_;
-    const uiRect datarect( canvas_.arrArea() );
-    uiWorldRect auxwr( wr_ );
+    const uiRect datarect( drawarea );
+    uiWorldRect auxwr( wr );
     if ( ad.x1rg_ )
     {
 	auxwr.setLeft( ad.x1rg_->start );

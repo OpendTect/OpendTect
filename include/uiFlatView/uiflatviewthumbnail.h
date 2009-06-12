@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.h,v 1.4 2009-05-13 06:36:38 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewthumbnail.h,v 1.5 2009-06-12 08:17:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ public:
     void		setColors(Color fg,Color bg);
 
     void		draw();
+    void		draw(const uiWorldRect&);
     const uiFlatViewer&	viewer()		{ return viewer_; }
 
 protected:
@@ -45,6 +46,7 @@ protected:
 
     void		reDrawHandler(uiRect);
     void		vwChg(CallBacker*);
+    void		vwChging(CallBacker*);
     void		mouseRelCB(CallBacker*);
     void		mousePressCB(CallBacker*);
     void		mouseMoveCB(CallBacker*);

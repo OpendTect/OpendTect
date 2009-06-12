@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.30 2009-05-27 04:35:19 cvsnanne Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.31 2009-06-12 08:17:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ mClass uiFlatViewer : public uiGroup
 		   , public FlatView::Viewer
 {
 public:
-    			uiFlatViewer(uiParent*);
+    			uiFlatViewer(uiParent*,bool enabhanddrag = false);
 			~uiFlatViewer();
 
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
@@ -66,6 +66,7 @@ public:
 
     void		handleChange(DataChangeType,bool dofill = true);
 
+    CNotifier<uiFlatViewer,uiWorldRect> viewChanging; //!< change thumbnail
     Notifier<uiFlatViewer> viewChanged; //!< setView
     Notifier<uiFlatViewer> dataChanged; //!< WVA or VD data changed
     Notifier<uiFlatViewer> dispParsChanged; //!< WVA or VD disppars changed
@@ -73,9 +74,14 @@ public:
     uiFlatViewControl*	control()	{ return control_; }
     Interval<float>     getDataRange(bool) const;
     void		drawBitMaps();
+    void		drawAnnot(const uiRect&,const uiWorldRect&);
     void		drawAnnot();
 
-
+    bool		hasHandDrag() const		{ return enabhaddrag_; }
+    void		setViewBorder( const uiBorder& border )
+    			{ viewborder_ = border; }
+    uiBorder		annotBorder() const		{ return annotborder_; }
+    uiBorder		viewBorder() const		{ return viewborder_; }
     static float	bufextendratio_;
     			//!< Must be > 0. default 0.4
     			//!< Controls how much extra bitmap is generated
@@ -89,9 +95,11 @@ protected:
     TypeSet<DataChangeType>	reportedchanges_;
     float			dim0extfac_;
     uiRect			extraborders_;
+    uiBorder			annotborder_;
+    uiBorder			viewborder_;
     uiSize			annotsz_;
-    uiWorldRect			prevwr_;
-    uiSize			prevsz_;
+    bool			initview_;
+    bool			enabhaddrag_;
     bool			anysetviewdone_;
     bool			x0rev_;
     bool			x1rev_;
@@ -112,11 +120,14 @@ protected:
     uiGraphicsItemGroup*	markeritemgrp_;
     void			onFinalise(CallBacker*);
     void			reDraw(CallBacker*);
+    void			reSizeDraw(CallBacker*);
     uiWorldRect			getBoundingBox(bool) const;
     Color			color(bool foreground) const;
 
-    void			drawGridAnnot(bool);
-    void			drawAux(const FlatView::Annotation::AuxData&);
+    void			drawGridAnnot(bool,const uiRect&,
+	    				      const uiWorldRect&);
+    void			drawAux(const FlatView::Annotation::AuxData&,
+	    				const uiRect&,const uiWorldRect&);
 
     void			reset();
     bool			mkBitmaps(uiPoint&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.20 2009-03-05 04:26:39 cvsraman Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.21 2009-06-12 08:17:57 cvssatyaki Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -22,7 +22,7 @@ void uiFlatViewWin::createViewers( int nr )
     for ( int idx=0; idx<nr; idx++ )
     {
 	//TODO Nanne: with group in between nothing is right
-	uiFlatViewer* vwr = new uiFlatViewer( dockParent() );
+	uiFlatViewer* vwr = new uiFlatViewer( dockParent(), true );
 	//uiFlatViewer* vwr = new uiFlatViewer( viewerParent() );
 	vwrs_ += vwr;
 	vwr->setStretch( 2, 2 );

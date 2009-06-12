@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.10 2009-04-20 06:20:58 cvsnanne Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.11 2009-06-12 08:17:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ public:
     inline bool		arrDrawn() const	{ return dodraw_; }
 
     void		beforeDraw();
+    void		beforeDraw(int w,int h);
     void 		setPixMapPos(int x,int y);
     void		draw();
 

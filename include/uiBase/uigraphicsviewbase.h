@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.3 2009-04-27 10:37:11 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.4 2009-06-12 08:17:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 class Color;
+class ioPixmap;
+class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsViewBody;
 class KeyboardEventHandler;
@@ -47,6 +49,10 @@ public:
     int				width() const; 
     int				height() const; 
 
+    void			centreOn(uiPoint);
+    uiRect			getSceneRect() const;
+    void			setSceneRect(const uiRect&);
+
     uiPoint			getCursorPos() const; 
     uiPoint			getScenePos(float,float) const; 
     const uiRect*		getSelectedArea() const	{return selectedarea_;}
@@ -61,13 +67,14 @@ public:
     void			disableScrollZoom() { enabscrollzoom_ = false; }
     bool			scrollZoomEnabled()
     				{ return enabscrollzoom_; }
+    
     bool			isCtrlPressed() const	{return isctrlpressed_;}
     void			setCtrlPressed( bool yn )
     				{ isctrlpressed_ = yn; }
 
     MouseEventHandler&		getMouseEventHandler();
 
-    Notifier<uiGraphicsViewBase>	reSize;
+    CNotifier<uiGraphicsViewBase,uiSize> reSize;
     Notifier<uiGraphicsViewBase>	rubberBandUsed;
     Notifier<uiGraphicsViewBase>	reDrawNeeded;
     Notifier<uiGraphicsViewBase>	activatedone;
@@ -85,6 +92,7 @@ protected:
 
     bool			isctrlpressed_;
     bool			enabscrollzoom_;
+    bool			enabbgzoom_;
     void 			rubberBandCB(CallBacker*);
 };
 
