@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.3 2009-06-11 11:00:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.4 2009-06-12 07:25:14 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -16,8 +16,10 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.3 2009-06-11 11:00:08 cvsna
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
+#include "uigraphicsscene.h"
 #include "uiodmain.h"
 #include "uiodscenemgr.h"
+#include "uirgbarraycanvas.h"
 #include "uivispartserv.h"
 
 #include "attribdatacubes.h"
@@ -129,6 +131,8 @@ void uiODViewer2D::createViewWin( bool isvert )
 	    horpainter_ = new EM::HorizonPainter( vwr );
 	    auxdataeditor_ = new uiFlatViewAuxDataEditor( vwr );
 	    horfveditor_ = new MPE::HorizonFlatViewEditor( auxdataeditor_ );
+	    horfveditor_->setMouseEventHandler( 
+		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	}
     }
 }
