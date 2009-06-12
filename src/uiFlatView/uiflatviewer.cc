@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.81 2009-06-12 08:17:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.82 2009-06-12 09:36:29 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.81 2009-06-12 08:17:57 cvss
     , arrowitem1_(0) \
     , arrowitem2_(0) \
     , polyitem_(0) \
+    , pointitem_(0) \
     , polylineitmgrp_(0) \
     , markeritemgrp_(0) 
 
@@ -590,7 +591,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	ptlist += w2u.transform( ad.poly_[idx] ) + datarect.topLeft();
 
     const bool drawfill = ad.close_ && ad.fillcolor_.isVisible();
-    if ( ad.linestyle_.isVisible() || drawfill )
+    if ( (ad.linestyle_.isVisible() || drawfill) && ptlist.size()>1 )
     {
 
 	if ( drawfill )
@@ -630,6 +631,18 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 
 	    deepErase( lines );
 	}
+    }
+    else if ( ptlist.size() == 1 )
+    {
+	if ( !pointitem_ )
+	{
+	    pointitem_ = new uiMarkerItem(
+		    ptlist[0], MarkerStyle2D(MarkerStyle2D::Square,4) );
+	    canvas_.scene().addItem( pointitem_ );
+	}
+	else
+	    pointitem_->setPos( ptlist[0] );
+	pointitem_->setPenColor( Color::White() );
     }
 
     const int nrmarkerstyles = ad.markerstyles_.size();
