@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.107 2009-06-09 17:41:50 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.108 2009-06-12 17:22:32 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
 
 #include "visboxdragger.h"
-#include "viscolortab.h"
 #include "visdataman.h"
 #include "visevent.h"
 #include "vismarchingcubessurface.h"
@@ -69,6 +68,7 @@ const char* VolumeDisplay::sKeySeedsAboveIsov()	{ return "Above IsoVal"; }
 VolumeDisplay::VolumeDisplay()
     : VisualObjectImpl(true)
     , boxdragger_(visBase::BoxDragger::create())
+    , isinited_(0)
     , scalarfield_(0)
     , volren_(0)
     , as_(*new Attrib::SelSpec)
@@ -92,22 +92,29 @@ VolumeDisplay::VolumeDisplay()
     voltrans_->ref();
     addChild( voltrans_->getInventorNode() );
     voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
+
+    scalarfield_ = visBase::VolumeRenderScalarField::create();
+    scalarfield_->ref(); //Don't add it here, do that in getInventorNode
+
+    CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
+    cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
+    cs.hrg.start.crl = (5*sics.hrg.start.crl+3*sics.hrg.stop.crl)/8;
+    cs.hrg.stop.inl = (3*sics.hrg.start.inl+5*sics.hrg.stop.inl)/8;
+    cs.hrg.stop.crl = (3*sics.hrg.start.crl+5*sics.hrg.stop.crl)/8;
+    cs.zrg.start = ( 5*sics.zrg.start + 3*sics.zrg.stop ) / 8;
+    cs.zrg.stop = ( 3*sics.zrg.start + 5*sics.zrg.stop ) / 8;
+    SI().snap( cs.hrg.start, BinID(0,0) );
+    SI().snap( cs.hrg.stop, BinID(0,0) );
+    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
+    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
+    
+    setCubeSampling( cs );
 }
 
 
 VolumeDisplay::~VolumeDisplay()
 {
     setSceneEventCatcher( 0 );
-
-    if ( scalarfield_ )
-    {
-	scalarfield_->getColorTab().rangechange.remove(
-		mCB(this,VolumeDisplay,colTabChange) );
-	scalarfield_->getColorTab().sequencechange.remove(
-		mCB(this,VolumeDisplay,colTabChange) );
-	scalarfield_->getColorTab().autoscalechange.remove(
-		mCB(this,VolumeDisplay,colTabChange) );
-    }
 
     if ( getMaterial() )
 	getMaterial()->change.remove( mCB(this,VolumeDisplay,materialChange) );
@@ -124,7 +131,7 @@ VolumeDisplay::~VolumeDisplay()
     boxdragger_->finished.remove( mCB(this,VolumeDisplay,manipMotionFinishCB) );
     boxdragger_->unRef();
     voltrans_->unRef();
-    if ( scalarfield_ ) scalarfield_->unRef();
+    scalarfield_->unRef();
 
     setDataTransform( 0 );
 }
@@ -159,15 +166,25 @@ void VolumeDisplay::materialChange( CallBacker* )
 }
 
 
-void VolumeDisplay::colTabChange( CallBacker* )
+void VolumeDisplay::updateIsoSurfColor()
 {
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
 	if ( mIsUdf( isosurfsettings_[idx].isovalue_) )
 	    continue;
 
-	isosurfaces_[idx]->getMaterial()->setColor(
-	    scalarfield_->getColorTab().color(isosurfsettings_[idx].isovalue_));
+	const float val = isosurfsettings_[idx].isovalue_;
+	Color col;
+	if ( mIsUdf(val) )
+	    col = getColTabSequence( 0 )->undefColor();
+	else
+	{
+	    const float mappedval =
+		scalarfield_->getColTabMapper().position( val );
+	    col = getColTabSequence( 0 )->color( mappedval );
+	}
+
+	isosurfaces_[idx]->getMaterial()->setColor( col );
     }
 }
 
@@ -366,8 +383,9 @@ bool VolumeDisplay::isVolRenShown() const
 
 float VolumeDisplay::defaultIsoValue() const
 {
-    return  cache_ ? scalarfield_->getColorTab().getInterval().center()
-		   : mUdf(float);
+    return  cache_
+	? getColTabMapperSetup(0)->start_+getColTabMapperSetup(0)->width_/2
+	: mUdf(float);
 }
 
 
@@ -425,7 +443,7 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 	isosurfaces_[idx]->touch( false );
     }
 
-    scalarfield_->turnOn( false );
+    if ( scalarfield_ ) scalarfield_->turnOn( false );
 
     resetManipulation();
 }
@@ -608,10 +626,9 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		return;
 	}
 
-	isosurfaces_[idx]->getMaterial()->setColor(
-	    scalarfield_->getColorTab().color(isosurfsettings_[idx].isovalue_));
     }
 
+    updateIsoSurfColor();
     isosurfaces_[idx]->touch( false, tr );
 }
 
@@ -704,41 +721,6 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 }
 
 
-void VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
-{
-    scalarfield_->getColorTab().rangechange.remove(
-	    mCB(this,VolumeDisplay,colTabChange) );
-    scalarfield_->getColorTab().sequencechange.remove(
-	    mCB(this,VolumeDisplay,colTabChange) );
-    scalarfield_->getColorTab().autoscalechange.remove(
-	    mCB(this,VolumeDisplay,colTabChange) );
-
-    scalarfield_->setColorTab( ctab );
-
-    scalarfield_->getColorTab().rangechange.notify(
-	    mCB(this,VolumeDisplay,colTabChange) );
-    scalarfield_->getColorTab().sequencechange.notify(
-	    mCB(this,VolumeDisplay,colTabChange) );
-    scalarfield_->getColorTab().autoscalechange.notify(
-	    mCB(this,VolumeDisplay,colTabChange) );
-
-}
-
-
-int VolumeDisplay::getColTabID( int attrib ) const
-{
-    return attrib ? -1 : getColorTab().id();
-}
-
-
-const visBase::VisColorTab& VolumeDisplay::getColorTab() const
-{ return scalarfield_->getColorTab(); }
-
-
-visBase::VisColorTab& VolumeDisplay::getColorTab()
-{ return scalarfield_->getColorTab(); }
-
-
 const TypeSet<float>* VolumeDisplay::getHistogram( int attrib ) const
 { return attrib ? 0 : &scalarfield_->getHistogram(); }
 
@@ -761,7 +743,7 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     DPM( DataPackMgr::CubeID() ).release( cacheid_ );
     cacheid_ = DataPack::cNoID();
 
-    scalarfield_->setScalarField( 0, true );
+    scalarfield_->setScalarField( 0, true, 0 );
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
 	updateIsoSurface( idx );
@@ -834,7 +816,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	arrayismine = false;
     }
 
-    scalarfield_->setScalarField( usedarray, !arrayismine );
+    scalarfield_->setScalarField( usedarray, !arrayismine, tr );
 
     setCubeSampling( getCubeSampling(true,true,0) );
 
@@ -971,38 +953,25 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 
 SoNode* VolumeDisplay::getInventorNode()
 {
-    if ( !scalarfield_ )
+    if ( !isinited_ )
     {
-	scalarfield_ = visBase::VolumeRenderScalarField::create();
-	scalarfield_->ref();
+	isinited_ = true;
 	scalarfield_->useShading( allowshading_ );
-	addChild( scalarfield_->getInventorNode() );
 
-	CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
-	cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
-	cs.hrg.start.crl = (5*sics.hrg.start.crl+3*sics.hrg.stop.crl)/8;
-	cs.hrg.stop.inl = (3*sics.hrg.start.inl+5*sics.hrg.stop.inl)/8;
-	cs.hrg.stop.crl = (3*sics.hrg.start.crl+5*sics.hrg.stop.crl)/8;
-	cs.zrg.start = ( 5*sics.zrg.start + 3*sics.zrg.stop ) / 8;
-	cs.zrg.stop = ( 3*sics.zrg.start + 5*sics.zrg.stop ) / 8;
-	SI().snap( cs.hrg.start, BinID(0,0) );
-	SI().snap( cs.hrg.stop, BinID(0,0) );
-	float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
-	float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
-	
-	setCubeSampling( cs );
-	setColorTab( getColorTab() );
+	const int voltransidx = childIndex( voltrans_->getInventorNode() );
+	insertChild( voltransidx+1, scalarfield_->getInventorNode() );
+
 	scalarfield_->turnOn( true );
 
-	addSlice(cInLine()); addSlice(cCrossLine()); addSlice(cTimeSlice());
-	showVolRen( true ); showVolRen( false );
+	if ( !slices_.size() )
+	{
+	    addSlice( cInLine() );
+	    addSlice( cCrossLine() );
+	    addSlice( cTimeSlice() );
+	}
 
-	scalarfield_->getColorTab().rangechange.notify(
-		mCB( this, VolumeDisplay, colTabChange ));
-	scalarfield_->getColorTab().sequencechange.notify(
-		mCB( this, VolumeDisplay, colTabChange ));
-	scalarfield_->getColorTab().autoscalechange.notify(
-		mCB( this, VolumeDisplay, colTabChange ));
+	showVolRen( true );
+	showVolRen( false );
     }
 
     return VisualObjectImpl::getInventorNode();
@@ -1091,57 +1060,31 @@ bool VolumeDisplay::canSetColTabSequence() const
 
 
 void VolumeDisplay::setColTabSequence( int attr, const ColTab::Sequence& seq,
-       					TaskRunner* )
+       					TaskRunner* tr )
 {
-    if ( !scalarfield_ ) return;
-
-    visBase::VisColorTab& vt = scalarfield_->getColorTab();
-    vt.colorSeq().colors() = seq;
-    vt.colorSeq().colorsChanged();
+    scalarfield_->setColTabSequence( seq, tr );
+    updateIsoSurfColor();
 }
 
 
 const ColTab::Sequence* VolumeDisplay::getColTabSequence( int attrib ) const
 {
-    if ( !scalarfield_ ) return 0;
-
-    visBase::VisColorTab& vt = scalarfield_->getColorTab();
-    return &vt.colorSeq().colors();
+    return &scalarfield_->getColTabSequence();
 }
 
 
 void VolumeDisplay::setColTabMapperSetup( int attrib,
 					  const ColTab::MapperSetup& ms,
-       					  TaskRunner* )
+       					  TaskRunner* tr )
 {
-    if ( !scalarfield_ ) return;
-
-    visBase::VisColorTab& vt = scalarfield_->getColorTab();
-    const bool autoscalechange =
-	ms.type_!=vt.colorMapper().setup_.type_ &&
-	ms.type_!=ColTab::MapperSetup::Fixed;
-
-    vt.colorMapper().setup_ = ms;
-    if ( autoscalechange )
-    {
-	vt.colorMapper().setup_.triggerAutoscaleChange();
-	vt.autoscalechange.trigger();
-    }
-    else
-    {
-	vt.colorMapper().setup_.triggerRangeChange();
-	vt.rangechange.trigger();
-    }
+    scalarfield_->setColTabMapperSetup( ms, tr );
+    updateIsoSurfColor();
 }
 
 
-const ColTab::MapperSetup*
-    VolumeDisplay::getColTabMapperSetup( int attrib ) const
+const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int ) const
 {
-    if ( !scalarfield_ ) return 0;
-
-    visBase::VisColorTab& vt = scalarfield_->getColorTab();
-    return &vt.colorMapper().setup_;
+    return &scalarfield_->getColTabMapper().setup_;
 }
 
 
@@ -1158,9 +1101,10 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 	if ( saveids.indexOf( volid )==-1 ) saveids += volid;
     }
 
-    const int textureid = scalarfield_->id();
-    par.set( sKeyTexture(), textureid );
-    if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
+    IOPar texturepar;
+    getColTabMapperSetup(0)->fillPar( texturepar );
+    getColTabSequence(0)->fillPar( texturepar );
+    par.mergeComp( texturepar, sKeyTexture() );
 
     const int nrslices = slices_.size();
     par.set( sKeyNrSlices(), nrslices );
@@ -1204,30 +1148,34 @@ int VolumeDisplay::usePar( const IOPar& par )
 
     if ( !as_.usePar(par) ) return -1;
 
-    int textureid;
-    if ( !par.get(sKeyTexture(),textureid) ) return false;
-
-    visBase::DataObject* dataobj = visBase::DM().getObject( textureid );
-    if ( !dataobj ) return 0;
-    mDynamicCastGet(visBase::VolumeRenderScalarField*,vt,dataobj)
-    if ( !vt ) return -1;
-    if ( scalarfield_ )
+    ColTab::MapperSetup mappersetup;
+    ColTab::Sequence sequence;
+    PtrMan<IOPar> texturepar = par.subselect( sKeyTexture() );
+    if ( !texturepar || !mappersetup.usePar(*texturepar) ||
+	 !sequence.usePar(*texturepar ) )
     {
-	if ( childIndex(scalarfield_->getInventorNode()) !=-1 )
-	    VisualObjectImpl::removeChild(scalarfield_->getInventorNode());
-	scalarfield_->unRef();
+	//od 3.2 style
+	int textureid;
+	if ( !par.get(sKeyTexture(),textureid) ) return -1;
+	RefMan<visBase::DataObject> dataobj =
+	    visBase::DM().getObject( textureid );
+	if ( !dataobj ) return 0;
+	mDynamicCastGet(visBase::VolumeRenderScalarField*,vt,dataobj.ptr() );
+	if ( !vt ) return -1;
+
+	mappersetup = vt->getColTabMapper().setup_;
+	sequence = vt->getColTabSequence();
     }
 
-    scalarfield_ = vt;
-    scalarfield_->ref();
-    insertChild( 0, scalarfield_->getInventorNode() );
-
+    setColTabMapperSetup( 0, mappersetup, 0 );
+    setColTabSequence( 0, sequence, 0 );
+	
     int volid;
     if ( par.get(sKeyVolumeID(),volid) )
     {
-	dataobj = visBase::DM().getObject( volid );
+	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject( volid );
 	if ( !dataobj ) return 0;
-	mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj)
+	mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj.ptr());
 	if ( !vr ) return -1;
 	if ( volren_ )
 	{
@@ -1253,9 +1201,9 @@ int VolumeDisplay::usePar( const IOPar& par )
 	BufferString str( sKeySlice(), idx );
 	int sliceid;
 	par.get( str, sliceid );
-	dataobj = visBase::DM().getObject( sliceid );
+	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject(sliceid);
 	if ( !dataobj ) return 0;
-	mDynamicCastGet(visBase::OrthogonalSlice*,os,dataobj)
+	mDynamicCastGet(visBase::OrthogonalSlice*,os,dataobj.ptr())
 	if ( !os ) return -1;
 	os->ref();
 	os->motion.notify( mCB(this,VolumeDisplay,sliceMoving) );
@@ -1264,11 +1212,11 @@ int VolumeDisplay::usePar( const IOPar& par )
 	// set correct dimensions ...
 	if ( !strcmp(os->name(),sKeyInline()) )
 	    os->setDim( cInLine() );
+	else if ( !strcmp(os->name(),sKeyCrossLine()) )
+	    os->setDim( cCrossLine() );
 	else if ( !strcmp(os->name(),sKeyTime()) )
 	    os->setDim( cTimeSlice() );
     }
-
-    setColorTab( getColorTab() );
 
     CubeSampling cs;
     if ( cs.usePar(par) )

@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.21 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.22 2009-06-12 17:22:32 cvskris Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -15,7 +15,6 @@ static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.21 2008-12-23 11:41
 #include "valseries.h"
 #include "viscolortab.h"
 #include "visdataman.h"
-#include "viscolortabindexer.h"
 #include "settings.h"
 
 #include <Inventor/nodes/SoGroup.h>
@@ -28,12 +27,12 @@ mCreateFactoryEntry( visBase::VolumeRenderScalarField );
 namespace visBase
 {
 
-#define NRCOLORS 256
+#define mNrColors 256
 static const char* sKeyColTabID = "ColorTable ID";
 
 
 VolumeRenderScalarField::VolumeRenderScalarField()
-    : transferfunc_( new SoTransferFunction )
+    : transferfunc_( 0 )
     , voldata_( 0 )
     , root_( new SoGroup )
     , dummytexture_( 255 )
@@ -44,13 +43,10 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     , sz0_( 1 )
     , sz1_( 1 )
     , sz2_( 1 )
-    , ctab_( 0 )
     , blendcolor_( Color::White() )
     , useshading_( true )
 {
     root_->ref();
-    setColorTab( *VisColorTab::create() );
-    turnOn( true );
 
     useshading_ = Settings::common().isTrue( "dTect.Use VolRen shading" );
     if ( !useshading_ )
@@ -62,22 +58,13 @@ VolumeRenderScalarField::~VolumeRenderScalarField()
 {
     if ( ownsindexcache_ ) delete [] indexcache_;
     if ( ownsdatacache_ ) delete datacache_;
-    if ( ctab_ )
-    {
-	ctab_->rangechange.remove(
-		mCB(this,VolumeRenderScalarField,colorTabChCB) );
-	ctab_->sequencechange.remove(
-		mCB(this,VolumeRenderScalarField,colorSeqChCB) );
-	ctab_->autoscalechange.remove(
-		mCB(this,VolumeRenderScalarField,autoscaleChCB) );
-	ctab_->unRef();
-    }
     root_->unref();
 }
 
 
 bool VolumeRenderScalarField::turnOn( bool yn )
 {
+    if ( !voldata_ ) return false;
     const bool wason = isOn();
      if ( !yn )
 	voldata_->setVolumeData( SbVec3s(1,1,1),
@@ -85,23 +72,25 @@ bool VolumeRenderScalarField::turnOn( bool yn )
      else if ( indexcache_ )
 	 voldata_->setVolumeData( SbVec3s(sz2_,sz1_,sz0_),
 				 indexcache_, SoVolumeData::UNSIGNED_BYTE );
-
     return wason;
 }
 
 
 bool VolumeRenderScalarField::isOn() const
 {
-    if ( !voldata_ ) return false;
+    if ( !voldata_ ) 
+	return false;
+
     SbVec3s size;
     void* ptr;
     SoVolumeData::DataType dt;
+    
     return voldata_->getVolumeData(size,ptr,dt) && ptr==indexcache_;
 }
 
 
 void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
-					      bool mine )
+					      bool mine, TaskRunner* tr )
 {
     if ( !sc )
     {
@@ -112,8 +101,8 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
     }
 
     const bool isresize = sc->info().getSize(0)!=sz0_ ||
-			 sc->info().getSize(1)!=sz1_ ||
-			 sc->info().getSize(2)!=sz2_;
+			  sc->info().getSize(1)!=sz1_ ||
+			  sc->info().getSize(2)!=sz2_;
 
     const od_int64 totalsz = sc->info().getTotalSz();
 
@@ -149,49 +138,35 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
     }
 
     //TODO: if 8-bit data & some flags, use data itself
-    if ( ctab_->autoScale() )
-	clipData();
-    else
-    {
-	makeColorTables();
-	makeIndices( doset );
-    }
+    if ( mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+	mapper_.setData( datacache_, totalsz, tr );
+    
+    makeIndices( doset, tr );
 }
 
 
-void VolumeRenderScalarField::setColorTab( VisColorTab& ctab )
+void VolumeRenderScalarField::setColTabSequence( const ColTab::Sequence& s,
+						 TaskRunner* tr )
 {
-    if ( &ctab==ctab_ )
-	return;
-
-    if ( ctab_ )
-    {
-	ctab_->rangechange.remove(
-		mCB(this,VolumeRenderScalarField,colorTabChCB) );
-	ctab_->sequencechange.remove(
-		mCB(this,VolumeRenderScalarField,colorSeqChCB) );
-	ctab_->autoscalechange.remove(
-		mCB(this,VolumeRenderScalarField,autoscaleChCB) );
-	ctab_->unRef();
-    }
-
-    ctab_ = &ctab;
-    ctab_->rangechange.notify(
-	    mCB(this,VolumeRenderScalarField,colorTabChCB) );
-    ctab_->sequencechange.notify(
-	    mCB(this,VolumeRenderScalarField,colorSeqChCB) );
-    ctab_->autoscalechange.notify(
-	    mCB(this,VolumeRenderScalarField,autoscaleChCB) );
-    ctab_->ref();
-    ctab_->setNrSteps( 255 );
-
+    sequence_ = s;
     makeColorTables();
-    makeIndices( false );
 }
 
 
-VisColorTab& VolumeRenderScalarField::getColorTab()
-{ return *ctab_; }
+const ColTab::Mapper& VolumeRenderScalarField::getColTabMapper()
+{ return mapper_; }
+
+
+const ColTab::Sequence& VolumeRenderScalarField::getColTabSequence()
+{ return sequence_; }
+
+
+void VolumeRenderScalarField::setColTabMapperSetup(const ColTab::MapperSetup& m,
+					           TaskRunner* tr )
+{
+    mapper_.setup_ = m;
+    makeIndices( false, tr );
+}
 
 
 void VolumeRenderScalarField::setBlendColor( const Color& col )
@@ -213,6 +188,9 @@ void VolumeRenderScalarField::setVolumeSize(  const Interval<float>& x,
 						  const Interval<float>& y,
 						  const Interval<float>& z )
 {
+    if ( !voldata_ )
+	return;
+
     const SbBox3f size( x.start, y.start, z.start, x.stop, y.stop, z.stop );
     voldata_->setVolumeSize( size );
 }
@@ -232,12 +210,16 @@ SoNode* VolumeRenderScalarField::getInventorNode()
 	voldata_ = new SoVolumeData;
 	root_->addChild( voldata_ );
 
+	setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
+		       Interval<float>(-0.5,0.5) );
 	voldata_->setVolumeData( SbVec3s(1,1,1),
 	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
 	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	    voldata_->usePalettedTexture = FALSE;
 
 	transferfunc_ = new SoTransferFunction;
+	makeColorTables();
+
 	root_->addChild( transferfunc_ );
     }
 
@@ -245,27 +227,11 @@ SoNode* VolumeRenderScalarField::getInventorNode()
 }
 
 
-void VolumeRenderScalarField::colorTabChCB(CallBacker*)
-{
-    makeIndices( false );
-    makeColorTables();
-}
-
-
-void VolumeRenderScalarField::colorSeqChCB(CallBacker*)
-{
-    makeColorTables();
-}
-
-
-void VolumeRenderScalarField::autoscaleChCB(CallBacker*)
-{
-    clipData();
-}
-
-
 void VolumeRenderScalarField::makeColorTables()
 {
+    if ( !transferfunc_ )
+	return;
+
     const float redfactor = (float) blendcolor_.r()/(255*255);
     const float greenfactor = (float) blendcolor_.g()/(255*255);
     const float bluefactor = (float) blendcolor_.b()/(255*255);
@@ -273,9 +239,10 @@ void VolumeRenderScalarField::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
     int cti = 0;
-    for ( int idx=0; idx<NRCOLORS; idx++ )
+    for ( int idx=0; idx<mNrColors; idx++ )
     {
-	const ::Color col = ctab_->tableColor( idx );
+	const float relval = ((float) idx)/(mNrColors-2);
+	const ::Color col = sequence_.color( relval );
 	transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
@@ -289,7 +256,7 @@ void VolumeRenderScalarField::makeColorTables()
 }
 
 
-void VolumeRenderScalarField::makeIndices( bool doset )
+void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 {
     if ( !datacache_ )
 	return;
@@ -302,8 +269,10 @@ void VolumeRenderScalarField::makeIndices( bool doset )
 	ownsindexcache_ = true;
     }
 
-    ColorTabIndexer indexer( *datacache_, indexcache_, totalsz, ctab_ );
-    if ( !indexer.execute() )
+    ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
+	mNrColors, *datacache_, indexcache_ );
+
+    if ( (tr&&!tr->execute( indexer ) ) || !indexer.execute() )
 	return;
 
     int max = 0;
@@ -331,26 +300,6 @@ void VolumeRenderScalarField::makeIndices( bool doset )
 }
 
 
-void VolumeRenderScalarField::clipData()
-{
-    const od_int64 nrsamples = sz0_*sz1_*sz2_;
-    if ( datacache_ && datacache_->arr() )
-	ctab_->scaleTo( datacache_->arr(), nrsamples );
-    else if ( datacache_ )
-	ctab_->scaleTo( datacache_ , nrsamples );
-}
-
-
-void VolumeRenderScalarField::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    DataObject::fillPar( par, saveids );
-
-    int ctid = ctab_->id();
-    par.set( sKeyColTabID, ctid );
-    if ( saveids.indexOf(ctid) == -1 ) saveids += ctid;
-}
-
-
 int VolumeRenderScalarField::usePar( const IOPar& par )
 {
     int res = DataObject::usePar( par );
@@ -358,11 +307,13 @@ int VolumeRenderScalarField::usePar( const IOPar& par )
 
     int coltabid;
     if ( !par.get( sKeyColTabID, coltabid ) ) return -1;
-    DataObject* dataobj = DM().getObject( coltabid );
+    RefMan<DataObject> dataobj = DM().getObject( coltabid );
     if ( !dataobj ) return 0;
-    mDynamicCastGet(VisColorTab*,coltab,dataobj)
+    mDynamicCastGet(VisColorTab*,coltab,dataobj.ptr());
     if ( !coltab ) return -1;
-    setColorTab( *coltab );
+
+    setColTabMapperSetup( coltab->colorMapper().setup_, 0 );
+    setColTabSequence( coltab->colorSeq().colors(), 0 );
 
     return 1;
 }

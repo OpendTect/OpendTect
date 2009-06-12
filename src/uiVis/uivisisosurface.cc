@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.23 2009-05-07 16:41:32 cvskris Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.24 2009-06-12 17:22:32 cvskris Exp $";
 
 #include "uivisisosurface.h"
 
 #include "attribdatacubes.h"
+#include "coltabmapper.h"
 #include "marchingcubes.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
@@ -27,7 +28,6 @@ static const char* rcsID = "$Id: uivisisosurface.cc,v 1.23 2009-05-07 16:41:32 c
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uistatsdisplay.h"
-#include "viscolortab.h"
 #include "vismarchingcubessurface.h"
 #include "visvolumedisplay.h"
 
@@ -67,7 +67,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     
     TypeSet<float> histogram;
     if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
-    const Interval<float> rg = vd->getColorTab().getInterval();
+    const ColTab::MapperSetup* ms = vd->getColTabMapperSetup( 0 );
+    const Interval<float> rg( ms->start_, ms->start_+ms->width_ );
 
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );

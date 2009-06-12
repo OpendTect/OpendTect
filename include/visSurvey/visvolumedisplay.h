@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.66 2009-05-27 03:24:58 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.67 2009-06-12 17:22:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,6 @@ namespace Attrib { class SelSpec; class DataCubes; }
 namespace visBase
 {
     class MarchingCubesSurface;
-    class VisColorTab;
     class Material;
     class BoxDragger;
     class VolumeRenderScalarField;
@@ -112,7 +111,6 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
     const TypeSet<float>* 	getHistogram(int attrib) const;
-    int				getColTabID(int attrib) const;
     void			setSelSpec(int attrib,const Attrib::SelSpec&);
 
     float			slicePosition(visBase::OrthogonalSlice*) const;
@@ -132,10 +130,6 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 	    			     		const Coord3&,BufferString& val,
 	    					BufferString& info) const;
-
-    void			setColorTab(visBase::VisColorTab&);
-    visBase::VisColorTab&	getColorTab();
-    const visBase::VisColorTab&	getColorTab() const;
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
     void			setColTabMapperSetup(int,
@@ -173,7 +167,7 @@ protected:
     CubeSampling		getCubeSampling(bool manippos,bool display,
 	    					int attrib) const;
     void			materialChange(CallBacker*);
-    void			colTabChange(CallBacker*);
+    void			updateIsoSurfColor();
     bool			pickable() const { return true; }
     bool			rightClickable() const { return true; }
     bool			selectable() const { return false; }
@@ -231,6 +225,7 @@ protected:
     MouseCursor			mousecursor_;
     visBase::EventCatcher*	eventcatcher_;
 
+    bool			isinited_;
 
     static const char*		sKeyVolumeID();
     static const char*		sKeyInline();
