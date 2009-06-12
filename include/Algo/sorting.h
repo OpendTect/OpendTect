@@ -8,12 +8,16 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.8 2003-12-24 11:59:21 bert Exp $
+ RCS:		$Id: sorting.h,v 1.9 2009-06-12 02:01:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
+#include "general.h"
+#include "ptrman.h"
+#include "task.h"
+#include "thread.h"
 
 
 #define mDoSort(extra_var,extra_action) \
@@ -61,6 +65,50 @@ template <class T, class IT>
 inline void sort_idxabl_coupled( T& arr, IT* idxs, int sz )
 mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
 #undef mDoSort
+
+
+/*!Sorting in parallel. Code is still experimental. The basic principle is:
+1. Divide samples into subsets.
+2. Sort subsets in parallel
+3. Merge pairs of subsets iteratively until there are only one subset left.
+*/
+
+template <class T>
+mClass ParallelSorter : public ParallelTask
+{
+public:
+				ParallelSorter(T* vals, int sz);
+protected:
+    od_int64			nrIterations() const { return nrvals_; }
+
+    int				minThreadSize() const { return 10000; }
+    bool			doPrepare(int);
+    bool			doFinish(bool);
+    bool			doWork(od_int64,od_int64,int);
+    static bool			mergeLists(const T* vals, T* res,
+	    				   int start0,int start1,int start2,
+	    				   int stop, int& totalsz );
+    od_int64			nrDone() const { return totalnr_; }
+
+    T*				vals_;
+    ArrPtrMan<T>		tmpbuffer_;
+
+    T*				curvals_;
+    T*				buf_;
+
+    const int			nrvals_;
+    const int			totalnr_;
+
+    Threads::ConditionVar	condvar_;
+    TypeSet<int>		starts_;
+    TypeSet<int>		newstarts_;
+
+    int				nrthreads_;
+    int				curnrthreads_;
+    int				nrthreadswaiting_;
+    bool			waitforall_;
+};
+
 
 #define NSMALL 7
 #define FM 7875
@@ -322,5 +370,177 @@ void quickSort( T* arr, IT* iarr, int sz )
 #undef FA
 #undef FC 
 #undef NSTACK
+
+
+//ParallelSort implementation
+template <class T> inline
+ParallelSorter<T>::ParallelSorter(T* vals, int sz)
+    : vals_( vals )
+    , nrvals_( sz )
+    , tmpbuffer_( 0 )
+{
+    mTryAlloc( tmpbuffer_, T[sz] );
+}
+
+
+template <class T> inline
+bool ParallelSorter<T>::doPrepare( int nrthreads )
+{
+    if ( !tmpbuffer_ )
+	return false;
+
+    starts_.erase();
+    newstarts_.erase();
+    nrthreads_ = nrthreads;
+    curnrthreads_ = nrthreads;
+    nrthreadswaiting_ = 0;
+    waitforall_ = false;
+
+    int nrmerges = -1;
+    while ( nrthreads )
+    {
+	nrmerges++;
+	nrthreads>>=1;
+    }
+
+    totalnr_ = (1+nrmerges)*nrvals_;
+    return true;
+}
+
+
+template <class T> inline
+bool ParallelSorter<T>::doFinish( bool success )
+{
+    if ( !success )
+	return false;
+
+    if ( curvals_!=vals_ )
+	memcpy( vals_, curvals_, nrvals_*sizeof(T) );
+
+    return true;
+}
+
+
+template <class T> inline
+bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
+{
+    const int threadsize = stop-start+1;
+    if ( threadsize<100 )
+	sort_array( vals_+start, threadsize );
+    else
+	quickSort( vals_+start, threadsize );
+
+    if ( !shouldContinue() )
+	return false;
+
+    addToNrDone( threadsize );
+
+    condvar_.lock();
+    newstarts_ += start;
+
+    while ( true )
+    {
+	if ( !nrthreadswaiting_ )
+	    waitforall_ = true;
+
+	nrthreadswaiting_++;
+
+	if ( nrthreadswaiting_==curnrthreads_ )
+	{
+	    if ( curvals_==vals_ )
+	    {
+		curvals_ = tmpbuffer_;
+		buf_ = vals_;
+	    }
+	    else
+	    {
+		buf_ = tmpbuffer_;
+		curvals_ = vals_;
+	    }
+
+	    nrthreadswaiting_ = 0;
+	    starts_ = newstarts_;
+	    curnrthreads_ = starts_.size()/2;
+
+	    waitforall_ = false;
+	    condvar_.signal( true );
+	}
+	else while ( waitforall_ )
+	    condvar_.wait();
+
+	if ( thread>=curnrthreads_ )
+	{
+	    //I'm not needed any longer
+	    condvar_.unLock();
+	    break;
+	}
+
+	const int curstart0 = starts_.remove( 0 );
+	const int curstart1 = starts_.remove( 0 );
+	const int curstart2 = starts_.size()==1 ? starts_.remove( 0 ) : -1;
+	const int curstop = (starts_.size() ? starts_[0] : nrvals_)-1;
+	newstarts_ += curstart0;
+	condvar_.unLock();
+
+	int cursize;
+	if ( !mergeLists( curvals_, buf_, 
+		    curstart0, curstart1, curstart2, curstop, cursize) )
+	    return false;
+
+	if ( !shouldContinue() )
+	    return false;
+
+	addToNrDone( cursize );
+    }
+
+    return true;
+}
+
+
+template <class T> inline
+bool ParallelSorter<T>::mergeLists( const T* valptr, T* result,
+				    int start0, int start1, int start2,
+				    int stop, int& totalsz )
+{
+    const int sz0 = start1-start0;
+    const int sz1 = start2==-1 ? stop-start1+1 : start2-start1;
+    const int sz2 = start2==-1 ? 0 : stop-start2+1;
+    totalsz = sz0+sz1+sz2;
+
+    const T* ptr0 = valptr + start0;
+    const T* stopptr0 = ptr0+sz0;
+    const T* ptr1 = valptr + start1;
+    const T* stopptr1 = ptr1+sz1;
+    const T* ptr2 = start2==-1 ? 0 : valptr + start2;
+    const T* stopptr2 = ptr2+sz2;
+
+    while ( true )
+    {
+	if ( ptr0 && (!ptr1 || *ptr0<*ptr1) && (!ptr2 || *ptr0<*ptr2 ) )
+	{
+	    (*result++) = (*ptr0++);
+	    if ( ptr0==stopptr0 )
+		ptr0 = 0;
+	}
+	else if ( ptr1 && ( !ptr2 || *ptr1<*ptr2 ) )
+	{
+	    (*result++) = (*ptr1++);
+	    if ( ptr1==stopptr1 )
+		ptr1 = 0;
+	}
+	else if ( ptr2 )
+	{
+	    (*result++) = (*ptr2++);
+	    if ( ptr2==stopptr2 )
+		ptr2 = 0;
+	}
+	else
+	    break;
+    }
+
+    return true;
+}
+
+
 
 #endif
