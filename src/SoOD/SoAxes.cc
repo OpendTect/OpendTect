@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoAxes.cc,v 1.4 2009-06-04 05:37:52 cvsdgb Exp $";
+static const char* rcsID = "$Id: SoAxes.cc,v 1.5 2009-06-12 11:09:52 cvsranojay Exp $";
 
 
 #include "SoAxes.h"
@@ -120,7 +120,7 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
     glEnable( GL_LIGHT0 );						
     glEnable( GL_LIGHTING );						
     glEnable( GL_COLOR_MATERIAL );
-    glFrontFace( GL_CW );
+    glFrontFace( GL_CCW );
 
     if ( typ == 1 )
     {
@@ -375,7 +375,7 @@ void SoAxes::drawSphere( float rad, float u, float v, float w )
     glEnable( GL_LIGHT0 );						
     glEnable( GL_LIGHTING );						
     glEnable( GL_COLOR_MATERIAL );
-    glFrontFace( GL_CW );
+    glFrontFace( GL_CCW );
 
     glColor3ub( 255, 255, 0 );
 
