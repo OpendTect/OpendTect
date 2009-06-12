@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.43 2009-06-09 21:17:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.44 2009-06-12 21:12:31 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -93,7 +93,7 @@ bool doPrepare( int nrthreads )
     for ( int idx=0; idx<nrtiles_; idx++ )
 	arr[idx] = idx;
 
-    std::random_shuffle( mVarLenArr(arr), arr+nrtiles_ );
+    std::random_shuffle( arr, arr+nrtiles_ );
     for ( int idx=0; idx<nrtiles_; idx++ )
 	permutation_ += arr[idx];
 
@@ -106,7 +106,11 @@ bool doWork( od_int64 start, od_int64 stop, int )
     if ( state_ )
     {
 	for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-	    if ( tiles_[idx] ) tiles_[idx]->updateAutoResolution( state_ );
+	{
+	    const int realidx = permutation_[idx];
+	    if ( tiles_[realidx] ) 
+		tiles_[realidx]->updateAutoResolution( state_ );
+	}
 
 	controlcond_.lock();
 	nrthreadsfinishedwithres_++;
@@ -152,8 +156,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	if ( tiles_[idx] ) 
-	    tiles_[idx]->updateGlue();
+	const int realidx = permutation_[idx];
+	if ( tiles_[realidx] ) 
+	    tiles_[realidx]->updateGlue();
 
 	addToNrDone( 1 );
     }
@@ -354,10 +359,19 @@ HorizonSection::~HorizonSection()
 }
 
 
-void HorizonSection::setShapeHintsOrder( bool righthandsystem ) 
+void HorizonSection::setRightHandSystem( bool yn )
 {
-    shapehints_->vertexOrdering = righthandsystem ? 
-	SoShapeHints::COUNTERCLOCKWISE : SoShapeHints::CLOCKWISE;
+    if ( false && yn!=righthandsystem_ )//Test
+    {
+	HorizonSectionTile** tileptrs = tiles_.getData();
+	for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+	    if ( tileptrs[idx] ) tileptrs[idx]->reverseNormals();
+    }
+
+    VisualObjectImpl::setRightHandSystem( yn );
+    
+    shapehints_->vertexOrdering = yn ? SoShapeHints::COUNTERCLOCKWISE 
+				     : SoShapeHints::CLOCKWISE;
     shapehints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
 }
 
@@ -1055,6 +1069,9 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tilesz; idx++ )
+	if ( tileptrs[idx] ) tileptrs[idx]->resetGlueNeedsUpdateFlag();
+
+    for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
 }
 
@@ -1083,6 +1100,9 @@ void HorizonSection::setResolution( int res, TaskRunner* tr )
 	tr->execute(task);
     else
 	task.execute();
+
+    for ( int idx=0; idx<tilesz; idx++ )
+	if ( tileptrs[idx] ) tileptrs[idx]->resetGlueNeedsUpdateFlag();
 
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
@@ -1132,7 +1152,7 @@ HorizonSectionTile::HorizonSectionTile()
     , gluelowdimswitch_( new SoSwitch )					
     , gluetriangles_( new SoIndexedTriangleStripSet )
     , gluelines_( new SoIndexedLineSet )
-    , glueneedsretesselation_( true )
+    , glueneedsretesselation_( false )
     , gluepoints_( new SoDGBIndexedPointSet )
     , desiredresolution_( -1 )
     , resolutionhaschanged_( false )
@@ -1169,7 +1189,7 @@ HorizonSectionTile::HorizonSectionTile()
     for ( int idx=0; idx<mHorSectNrRes; idx++ )
     {
 	allnormalsinvalid_[idx] = true;
-	needsretesselation_[idx] = true;
+	needsretesselation_[idx] = false;
 	wireframeneedsupdate_[idx] = true;
 	resolutions_[idx] = new SoGroup;
 	resswitch_->addChild( resolutions_[idx] );
@@ -1374,8 +1394,26 @@ int HorizonSectionTile::getNormalIdx( int crdidx, int res ) const
 }
 
 
+void HorizonSectionTile::reverseNormals()
+{
+    normlock_.lock();
+    SbVec3f* normalspt = normals_->vector.startEditing();
+    for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
+	normalspt[idx] *= -1;
+    
+    if ( normals_->vector.getNum() )
+	normals_->vector.finishEditing();
+
+    normlock_.unLock();
+}
+
+
 void HorizonSectionTile::resetResolutionChangeFlag()
 { resolutionhaschanged_= false; }
+
+
+void HorizonSectionTile::resetGlueNeedsUpdateFlag()
+{ glueneedsretesselation_ = false; }
 
 
 void HorizonSectionTile::tesselateActualResolution()
@@ -1803,18 +1841,20 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 	{
 	    for ( int res=0; res<mHorSectNrRes; res++ )
 	    {
-		if ( !needsretesselation_[res] && !(row % spacing_[res]) && 
-						  !(col % spacing_[res]) )
+		if ( !needsretesselation_[res] && !(row%spacing_[res]) && 
+						  !(col%spacing_[res]) )
 			needsretesselation_[res] = true;
 
-		if ( !wireframeneedsupdate_[res] && !(row % spacing_[res]) && 
-						    !(col % spacing_[res]) )
+		if ( !wireframeneedsupdate_[res] && !(row%spacing_[res]) && 
+						    !(col%spacing_[res]) )
 		    wireframeneedsupdate_[res] = true;
 	    }
-	    
-	    glueneedsretesselation_ = true;
-	    needsupdatebbox_ = true;
+	   
+	    if ( !glueneedsretesselation_ ) 
+    		glueneedsretesselation_ = true;
 	}
+	    
+	if ( !needsupdatebbox_ ) needsupdatebbox_ = true;
     }
 
     setInvalidNormals( row, col );
@@ -1872,7 +1912,6 @@ void HorizonSectionTile::updateGlue()
 	 (neighbors_[8] && neighbors_[8]->resolutionhaschanged_) )
     {
 	tesselateGlue();
-	glueneedsretesselation_ = false;
     }
 }
 

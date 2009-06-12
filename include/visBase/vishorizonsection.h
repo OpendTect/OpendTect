@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.27 2009-06-09 18:54:16 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.28 2009-06-12 21:12:31 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -67,7 +67,8 @@ public:
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
     void			setZAxisTransform(ZAxisTransform*);
-    void			setShapeHintsOrder(bool righthandsystem);
+
+    void			setRightHandSystem(bool);
 
     void                        useChannel(bool);
     int                         nrChannels() const;
@@ -187,8 +188,10 @@ public:
 
     void			setNormal(int idx,const SbVec3f& normal);
     int				getNormalIdx(int crdidx,int res) const;
+    void			reverseNormals();
 
     void			resetResolutionChangeFlag();
+    void			resetGlueNeedsUpdateFlag();
 
     void			tesselateActualResolution();
     void			updateGlue();
@@ -235,6 +238,8 @@ protected:
     SoTextureComposer*		texture_;
     SoSwitch*			resswitch_;
     SoNormal*			normals_;
+    Threads::Mutex		normlock_;
+
     int				desiredresolution_;
     bool			resolutionhaschanged_;
 
