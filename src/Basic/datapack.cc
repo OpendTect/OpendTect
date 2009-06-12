@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapack.cc,v 1.4 2009-06-10 19:10:32 cvskris Exp $";
+static const char* rcsID = "$Id: datapack.cc,v 1.5 2009-06-12 18:45:51 cvskris Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -34,7 +34,7 @@ DataPackMgr& DPM( DataPackMgr::ID dpid )
 { return DataPackMgr::DPM( dpid ); }
 
 
-ObjectSet<DataPackMgr> DataPackMgr::mgrs_;
+ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_( false );
 Threads::Mutex DataPackMgr::mgrlistlock_;
 
 DataPackMgr& DataPackMgr::DPM( DataPackMgr::ID dpid )

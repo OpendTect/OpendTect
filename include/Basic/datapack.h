@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.5 2009-06-10 19:11:08 cvskris Exp $
+ RCS:		$Id: datapack.h,v 1.6 2009-06-12 18:45:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
-#include "objectset.h"
+#include "manobjectset.h"
 #include "thread.h"
 #include <iosfwd>
 
@@ -187,8 +187,8 @@ protected:
     					//!<Object should be readlocked
     mutable Threads::ReadWriteLock	lock_;
 
-    static Threads::Mutex		mgrlistlock_;
-    static ObjectSet<DataPackMgr> 	mgrs_;
+    static Threads::Mutex			mgrlistlock_;
+    static ManagedObjectSet<DataPackMgr> 	mgrs_;
 };
 
 
