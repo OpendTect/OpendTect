@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.28 2009-05-25 15:27:50 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.29 2009-06-12 07:56:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,7 @@ public:
     inline uiPoint	drawPt(const uiPoint& relpt) const;
     inline uiPoint	relPt(const uiPoint& drawpt) const;
     inline uiRect	getRect(const uiSize&,int extrapix=0) const;
+    inline uiRect	getRect(const uiRect&,int extrapix=0) const;
     uiBorder&		operator +=( const uiBorder& b )
 			{ lt_ += b.lt_; rb_ += b.rb_; return *this; }
 };
@@ -284,6 +285,14 @@ inline uiRect uiBorder::getRect( const uiSize& sz, int extr ) const
     return uiRect( lt_.width()+extr, lt_.height()+extr,
 	    	   sz.width()-rb_.width()-2*extr,
 		   sz.height()-rb_.height()-2*extr );
+}
+
+
+inline uiRect uiBorder::getRect( const uiRect& rect, int extr ) const
+{
+    return uiRect( rect.left()+lt_.width()+extr,rect.top()+lt_.height()+extr,
+	    	   rect.right()-rb_.width()-2*extr,
+		   rect.bottom()-rb_.height()-2*extr );
 }
 
 
