@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.18 2009-06-10 19:12:34 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.19 2009-06-12 17:20:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,10 @@ ________________________________________________________________________
 #include "enums.h"
 #include "coltab.h"
 #include "ranges.h"
+#include "thread.h"
 #include "valseries.h"
 
-#define mUndefColIdx    255
+#define mUndefColIdx    (nrsteps_)
 
 class DataClipper;
 class IOPar;
@@ -112,15 +113,25 @@ public:
     				MapperTask(const ColTab::Mapper& map,
 					   od_int64 sz,int nrsteps,
 					   const float* unmapped,T* mapped);
+    				MapperTask(const ColTab::Mapper& map,
+					   od_int64 sz,int nrsteps,
+					   const ValueSeries<float>& unmapped,
+					   T* mapped);
+				~MapperTask();
     od_int64			nrIterations() const;
+    const unsigned int*		getHistogram() const	{ return histogram_; }
+
 private:    
     bool			doWork(od_int64 start,od_int64 stop,int);
 
+    Threads::Mutex		lock_;
     const ColTab::Mapper&	mapper_;
     od_int64			totalsz_;
     const float*		unmapped_;
+    const ValueSeries<float>*	unmappedvs_;
     T*				mapped_;
     int				nrsteps_;
+    unsigned int*		histogram_;
 };
 
 
@@ -131,8 +142,34 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps,
     , totalsz_( sz )
     , nrsteps_( nrsteps )		    
     , unmapped_( unmapped )
+    , unmappedvs_( 0 )
     , mapped_( mapped )
-{}		       
+    , histogram_( new unsigned int[nrsteps+1] )
+{
+    memset( histogram_, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
+}
+
+
+template <class T> inline
+MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps, 
+			   const ValueSeries<float>& unmapped, T* mapped )
+    : mapper_( map )
+    , totalsz_( sz )
+    , nrsteps_( nrsteps )		    
+    , unmapped_( unmapped.arr() )
+    , unmappedvs_( unmapped.arr() ? 0 : &unmapped )
+    , mapped_( mapped )
+    , histogram_( new unsigned int[nrsteps+1] )
+{
+    memset( histogram_, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
+}
+
+
+template <class T> inline
+MapperTask<T>::~MapperTask()
+{
+    delete [] histogram_;
+}
 
 
 template <class T> inline
@@ -142,18 +179,29 @@ od_int64 MapperTask<T>::nrIterations() const
 template <class T> inline
 bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 {
+    unsigned int histogram[mUndefColIdx+1];
+    memset( histogram, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
+
     T* result = mapped_+start;
     const float* inp = unmapped_+start;
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	*result = ColTab::Mapper::snappedPosition( &mapper_, *inp, 
+	float input = unmappedvs_ ? unmappedvs_->value(idx) : *inp;
+	const T res = *result = ColTab::Mapper::snappedPosition( &mapper_,input,
 						    nrsteps_, mUndefColIdx );
+	histogram[res]++;
 	result++; 
 	inp++;
 
 	addToNrDone( 1 );
     }
+
+    lock_.lock();
+    for ( int idx=0; idx<=mUndefColIdx; idx++ )
+	histogram_[idx] += histogram[idx];
+
+    lock_.unLock();
     
     return true;
 }
