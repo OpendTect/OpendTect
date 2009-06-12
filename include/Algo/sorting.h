@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.10 2009-06-12 03:42:42 cvssatyaki Exp $
+ RCS:		$Id: sorting.h,v 1.11 2009-06-12 04:10:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -361,6 +361,7 @@ void quickSort( T* arr, IT* iarr, int sz )
 		p = k;
 	    }
 	}
+
 	insertionSort( arr, iarr, p, q );
     }
 }
@@ -475,10 +476,17 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 	    break;
 	}
 
-	// TODO: Does not compile
-	const int curstart0 = 0; // starts_.remove( 0 );
-	const int curstart1 = 0; // starts_.remove( 0 );
-	const int curstart2 = 0; //starts_.size()==1 ? starts_.remove( 0 ) : -1;
+	const int curstart0 = starts_[0]; starts_.remove( 0 );
+	const int curstart1 = starts_[0]; starts_.remove( 0 );
+	int curstart2;
+	if ( starts_.size()==1 )
+	{
+	    curstart2 = starts_[0];
+	    starts_.remove( 0 );
+	}
+	else
+	    curstart2 = -1;
+
 	const int curstop = (starts_.size() ? starts_[0] : nrvals_)-1;
 	newstarts_ += curstart0;
 	condvar_.unLock();
