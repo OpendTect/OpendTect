@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.20 2009-05-06 21:57:10 cvsyuancheng Exp $
+ RCS:		$Id: task.h,v 1.21 2009-06-12 15:40:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class ProgressMeter;
 mClass Task : public NamedObject
 {
 public:
-    virtual		~Task() 			{}
+    virtual		~Task();
 
     virtual void	setProgressMeter(ProgressMeter*)	{}
     			//!<Must be called before execute()

@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.18 2009-05-01 19:24:34 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.19 2009-06-12 15:40:38 cvskris Exp $";
 
 #include "task.h"
 
@@ -19,6 +19,10 @@ Task::Task( const char* nm )
     , workcontrolcondvar_( 0 )
     , control_( Task::Run )
 {}
+
+
+Task::~Task()
+{ delete workcontrolcondvar_; }
 
 
 void Task::enableWorkControl( bool yn )
