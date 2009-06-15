@@ -28,6 +28,7 @@ class uiFunctionDisplay;
 class uiPushButton;
 class uiIOObjSel;
 class uiTextEdit;
+class uiWellTieWaveletDispDlg;
 
 mClass uiWellTieWaveletView : public uiGroup
 {
@@ -50,14 +51,16 @@ protected:
     uiIOObjSel*			wvltfld_;
     uiTextEdit*			infofld_;
     ObjectSet<const Wavelet>  	wvlts_;
+    uiWellTieWaveletDispDlg*    wvltestdlg_;
+    uiWellTieWaveletDispDlg*    wvltinitdlg_;
 
     void			initWaveletViewer(int);
     void 			createWaveletFields(uiGroup*);	   
     void			drawWavelet(const Wavelet*,int);
     
-    void 		wvtSel(CallBacker*);
-    void 		viewInitWvltPropPushed(CallBacker*);
-    void 		viewEstWvltPropPushed(CallBacker*);
+    void 			wvtSel(CallBacker*);
+    void 			viewInitWvltPropPushed(CallBacker*);
+    void 			viewEstWvltPropPushed(CallBacker*);
 };
 
 

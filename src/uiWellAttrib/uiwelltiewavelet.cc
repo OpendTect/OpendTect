@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.11 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.12 2009-06-15 10:02:22 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -42,6 +42,8 @@ uiWellTieWaveletView::uiWellTieWaveletView( uiParent* p,
 	, dataholder_(dh)  
 	, twtss_(dh->setup())
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
+    	, wvltinitdlg_(0)
+    	, wvltestdlg_(0)
 {
     for ( int idx=0; idx<2; idx++ )
     {
@@ -54,6 +56,10 @@ uiWellTieWaveletView::uiWellTieWaveletView( uiParent* p,
 
 uiWellTieWaveletView::~uiWellTieWaveletView()
 {
+    if ( wvltinitdlg_ )
+	delete wvltinitdlg_;
+    if ( wvltestdlg_ )
+	delete wvltestdlg_;
     for (int vwridx=viewer_.size()-1; vwridx>=0; vwridx--)
 	viewer_.remove(vwridx);
 }
@@ -117,6 +123,11 @@ void uiWellTieWaveletView::initWavelets( )
 
     for ( int idx=0; idx<2; idx++ )
 	drawWavelet( wvlts_[idx], idx );
+    
+    if ( !wvltinitdlg_ )
+	wvltinitdlg_ = new uiWellTieWaveletDispDlg( this, wvlts_[0] );
+    if ( !wvltestdlg_ )
+	wvltestdlg_  = new uiWellTieWaveletDispDlg( this, wvlts_[1] );
 }
 
 
@@ -163,19 +174,13 @@ void uiWellTieWaveletView::wvtSel( CallBacker* )
 
 void uiWellTieWaveletView::viewInitWvltPropPushed( CallBacker* )
 {
-    uiWellTieWaveletDispDlg* wvltinitdlg = 
-	new uiWellTieWaveletDispDlg( this, wvlts_[0] );
-    wvltinitdlg->go();
-   // delete wvltinitdlg;
+    wvltinitdlg_->go();
 }
 
 
 void uiWellTieWaveletView::viewEstWvltPropPushed( CallBacker* )
 {
-    uiWellTieWaveletDispDlg* wvltestdlg = 
-	new uiWellTieWaveletDispDlg( this, wvlts_[1] );
-    wvltestdlg->go();
-    //delete wvltestdlg;
+    wvltestdlg_->go();
 }
 
 
@@ -192,7 +197,8 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
     if ( !wvlt ) return;
     wvltsz_ = wvlt->size();
 
-    static const char* disppropnms[] = { "Amplitude", "Phase", "Frequency", 0 };
+    static const char* disppropnms[] = { "Amplitude", "Phase", 0 };
+       					//	"Frequency", 0 };
 
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
     for ( int idx=0; disppropnms[idx]; idx++ )
@@ -231,22 +237,16 @@ void uiWellTieWaveletDispDlg::setDispCurves()
 	xvals += idx;
 	wvlttrc_->set( idx, wvlt_->samples()[idx], 0 );
 	wvlttrc_->info().nr = idx;
+	*propvals_[0] += wvlt_->samples()[idx]; 
+	SeisTrcPropCalc pc( *wvlttrc_ );
+	*propvals_[1] += pc.getPhase( idx ); 
+	//*propvals_[2] += pc.getFreq( idx ); 
     }
 
-    *propvals_[0] += wvlttrc_->getValue( 0, 0 ); 
-    SeisTrcPropCalc pc( *wvlttrc_ );
-    const int idx = wvlttrc_->nearestSample( 0 );
-    *propvals_[1] += pc.getPhase( idx ); 
-    *propvals_[2] += pc.getFreq( idx ); 
-
-    for ( int idx=0; idx<propvals_.size()-1; idx++ )
+    for ( int idx=0; idx<propvals_.size(); idx++ )
 	wvltdisps_[idx]->setVals( xvals.arr(),
 				  propvals_[idx]->arr(),
     				  wvltsz_ );
-
-	wvltdisps_[2]->setVals( Interval<float>(20,75),
-				propvals_[2]->arr(),
-    			  	wvltsz_ );
 }
 
 

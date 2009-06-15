@@ -35,6 +35,7 @@ public:
 			~uiWellTieEventStretch();
 
     Notifier<uiWellTieEventStretch> 	readyforwork;
+    Notifier<uiWellTieEventStretch> 	pickadded;
     
     void 				doWork(CallBacker*); 
     

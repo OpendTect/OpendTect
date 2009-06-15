@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.15 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.16 2009-06-15 10:02:22 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -347,10 +347,10 @@ void uiWellTieView::drawWellMarkers()
 	mTryAlloc( auxdata, FlatView::Annotation::AuxData(marker->name()) );
 	wellmarkerauxdatas_ += auxdata;
 	
-	for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
+	for ( int vwridx=0; vwridx<vwrsz-1; vwridx++ ) 
 	    drawMarker( auxdata, vwridx, 0, zpos, col, false );
     }
-    for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
+    for ( int vwridx=0; vwridx<vwrsz-1; vwridx++ ) 
 	vwrs_[vwridx]->handleChange( FlatView::Viewer::Annot );
 }	
 

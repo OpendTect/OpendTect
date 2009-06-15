@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.5 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.6 2009-06-15 10:02:22 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -27,6 +27,7 @@ uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p,
         : d2tmgr_(dh->d2tmgr_)
   	, pmgr_(*dh->pickmgr_)  
 	, readyforwork(this)
+	, pickadded(this)
 	, synthpickset_(*dh->pickmgr_->getSynthPickSet())
 	, seispickset_(*dh->pickmgr_->getSeisPickSet())
 	, uiWellTieStretch(p,dh,v)
@@ -45,6 +46,7 @@ void uiWellTieEventStretch::addSyntPick( CallBacker* )
 {
     dataviewer_.drawUserPicks();
     checkReadyForWork();
+    pickadded.trigger();
 }
 
 
@@ -52,6 +54,7 @@ void uiWellTieEventStretch::addSeisPick( CallBacker* )
 {
     dataviewer_.drawUserPicks();
     checkReadyForWork();
+    pickadded.trigger();
 }
 
 

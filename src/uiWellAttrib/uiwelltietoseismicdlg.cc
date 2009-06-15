@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.14 2009-06-15 09:07:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.15 2009-06-15 10:02:22 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -80,6 +80,8 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	    		mCB(this,uiWellTieToSeismicDlg,dispDataChanged) );
     eventstretcher_->readyforwork.notify(
 	    		mCB(this,uiWellTieToSeismicDlg,applyReady) );
+    eventstretcher_->pickadded.notify(
+	    		mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
    
     infodlg_ = new uiWellTieInfoDlg( this, dataholder_, params_ );
     infodlg_->applyPushed.notify(
@@ -224,7 +226,7 @@ void uiWellTieToSeismicDlg::createTaskFields( uiGroup* taskgrp )
     
     clearallpicksbut_ = new uiPushButton( taskgrp, "&Clear picks",
 	   mCB(this,uiWellTieToSeismicDlg,clearAllPicksPushed), true );
-    clearallpicksbut_->setSensitive( true );
+    clearallpicksbut_->setSensitive( false );
     clearallpicksbut_->attach( ensureRightOf, undobut_ );
 }
 
@@ -253,7 +255,6 @@ void uiWellTieToSeismicDlg::applyReady( CallBacker* )
 	manip_ = 1;
     applybut_->setSensitive( manip_ ? true : false );
 }
-
 
 
 void uiWellTieToSeismicDlg::setView( CallBacker* )
@@ -383,8 +384,10 @@ void uiWellTieToSeismicDlg::clearAllPicksPushed( CallBacker* )
 void uiWellTieToSeismicDlg::checkIfPick( CallBacker* )
 {
     bool ispick = dataholder_->pickmgr_->checkIfPick();
-    clearpickbut_->setSensitive( ispick );
+    //clearpickbut_->setSensitive( ispick );
     clearallpicksbut_->setSensitive( ispick );
+    if ( !ispick )
+	applybut_->setSensitive( false );
 }
 
 
@@ -425,7 +428,7 @@ bool uiWellTieToSeismicDlg::acceptOK( CallBacker* )
 uiWellTieInfoDlg::uiWellTieInfoDlg( uiParent* p, 
 				    WellTieDataHolder* dh,
 				    WellTieParams* pms )
-	: uiDialog(p,uiDialog::Setup("Cross-check parameters", "",
+	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
 				     mTODOHelpID).modal(false))
 	, dataholder_(dh)
 	, wd_(dh->wd())		 
