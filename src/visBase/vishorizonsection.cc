@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.48 2009-06-15 18:32:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.49 2009-06-15 18:38:12 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -561,7 +561,7 @@ void HorizonSection::setTextureData( int channel, const BinIDValueSet* data )
 	cache_.replace( channel, new BinIDValueSet(*data) );
     }
 
-    setNrVersions( channel, !data ? 0 : data->nrVals()-1 )
+    setNrVersions( channel, !data ? 0 : data->nrVals()-1 );
     updateTexture( channel );
 }
 
