@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.45 2009-06-15 05:06:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.46 2009-06-15 13:59:37 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -289,11 +289,6 @@ HorizonSection::HorizonSection()
 
     addChild( shapehints_ );
 
-    SoShapeHints* hints = new SoShapeHints;
-    addChild( hints );
-    hints->vertexOrdering = SoShapeHints::CLOCKWISE;
-    hints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
-
     channel2rgba_->ref();
     channels_->ref();
     addChild( channels_->getInventorNode() );
@@ -361,13 +356,6 @@ HorizonSection::~HorizonSection()
 
 void HorizonSection::setRightHandSystem( bool yn )
 {
-    if ( false && yn!=righthandsystem_ )//Test
-    {
-	HorizonSectionTile** tileptrs = tiles_.getData();
-	for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
-	    if ( tileptrs[idx] ) tileptrs[idx]->reverseNormals();
-    }
-
     VisualObjectImpl::setRightHandSystem( yn );
     
     shapehints_->vertexOrdering = yn ? SoShapeHints::COUNTERCLOCKWISE 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.91 2009-06-12 21:12:31 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.92 2009-06-15 13:59:37 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -186,8 +186,8 @@ void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	sections_[idx]->setSceneEventCatcher( ec );
-	//if ( ec && scene_ )
-	    //sections_[idx]->setRightHandSystem( scene_->isRightHandSystem() );
+	if ( ec && scene_ )
+	    sections_[idx]->setRightHandSystem( scene_->isRightHandSystem() );
     }
 
     for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
@@ -902,7 +902,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->getChannel2RGBA()->allowShading( allowshading_ );
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1, tr );
-    surf->setRightHandSystem( righthandsystem_ );
 
     surf->ref();
     surf->setMaterial( 0 );

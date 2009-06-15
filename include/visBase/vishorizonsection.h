@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.28 2009-06-12 21:12:31 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.29 2009-06-15 13:59:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -188,7 +188,6 @@ public:
 
     void			setNormal(int idx,const SbVec3f& normal);
     int				getNormalIdx(int crdidx,int res) const;
-    void			reverseNormals();
 
     void			resetResolutionChangeFlag();
     void			resetGlueNeedsUpdateFlag();
