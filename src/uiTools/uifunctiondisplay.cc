@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.40 2009-06-10 10:15:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.41 2009-06-15 09:49:12 cvsbert Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -157,13 +157,6 @@ void uiFunctionDisplay::setMarkValue( float val, bool is_x )
 }
 
 
-#define mSetRange( axis, rg ) \
-    axlyo.setDataRange( rg ); rg.step = axlyo.sd.step; \
-    if ( !mIsEqual(rg.start,axlyo.sd.start,axlyo.sd.step*1e-6) ) \
-	axlyo.sd.start += axlyo.sd.step; \
-    axis->setRange( rg, &axlyo.sd.start );
-
-
 void uiFunctionDisplay::gatherInfo()
 {
     if ( yvals_.isEmpty() ) return;
@@ -174,14 +167,13 @@ void uiFunctionDisplay::gatherInfo()
     StepInterval<float> xrg, yrg;
     getRanges( xvals_, yvals_, setup_.xrg_, setup_.yrg_, xrg, yrg );
 
-    AxisLayout axlyo;
-    mSetRange( xax_, xrg );
-    mSetRange( yax_, yrg );
+    xax_->setBounds( xrg );
+    yax_->setBounds( yrg );
 
     if ( havey2 )
     {
 	getRanges( y2xvals_, y2yvals_, setup_.xrg_, setup_.y2rg_, xrg, yrg );
-	mSetRange( y2ax_, yrg );
+	y2ax_->setBounds( yrg );
     }
 }
 

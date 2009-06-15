@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.18 2009-02-04 12:04:27 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.19 2009-06-15 09:49:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,6 @@ public:
 
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
 			~uiAxisHandler();
-    void		setRange(const StepInterval<float>&,float* axstart=0);
     void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
     void		setBorder( const uiBorder& b )
 						{ setup_.border_ = b; reCalc();}
@@ -86,6 +85,9 @@ public:
 						{ beghndlr_ = ah; newDevSize();}
     void		setEnd( const uiAxisHandler* ah )
 						{ endhndlr_ = ah; newDevSize();}
+
+    void		setRange(const StepInterval<float>&,float* axstart=0);
+    void		setBounds(Interval<float>); //!< makes annot 'nice'
 
     float		getVal(int pix) const;
     float		getRelPos(float absval) const;
