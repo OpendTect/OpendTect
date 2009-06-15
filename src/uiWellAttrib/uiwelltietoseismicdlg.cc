@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.15 2009-06-15 10:02:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.16 2009-06-15 10:16:56 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -207,7 +207,7 @@ void uiWellTieToSeismicDlg::drawFields( uiGroup* vwrgrp_ )
     uiGroup* informgrp = new uiGroup( this, "Indicator Group" );
     informgrp->attach( ensureBelow, csgrp );
     informgrp->attach( hCentered );
-    infobut_ = new uiPushButton( informgrp, "&Display additional informations",
+    infobut_ = new uiPushButton( informgrp, "&Display additional information",
 	               mCB(this,uiWellTieToSeismicDlg,infoPushed), true );
 }
 
