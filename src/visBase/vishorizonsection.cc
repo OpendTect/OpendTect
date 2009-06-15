@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.46 2009-06-15 13:59:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.47 2009-06-15 14:01:17 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1379,20 +1379,6 @@ int HorizonSectionTile::getNormalIdx( int crdidx, int res ) const
     }
 
     return -1;
-}
-
-
-void HorizonSectionTile::reverseNormals()
-{
-    normlock_.lock();
-    SbVec3f* normalspt = normals_->vector.startEditing();
-    for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
-	normalspt[idx] *= -1;
-    
-    if ( normals_->vector.getNum() )
-	normals_->vector.finishEditing();
-
-    normlock_.unLock();
 }
 
 
