@@ -7,7 +7,7 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.16 2009-04-20 06:20:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.17 2009-06-15 18:43:38 cvskris Exp $";
 
 #include "uicoltabtools.h"
 #include "uirgbarray.h"
@@ -70,8 +70,8 @@ void uiColorTableCanvas::setRGB()
 	}
     }
 
-    ioPixmap* pixmap = new ioPixmap( sz0, sz1 );
-    pixmap->convertFromRGBArray( *rgbarr_ );
-    setPixmap( *pixmap );
+    ioPixmap pixmap( sz0, sz1 );
+    pixmap.convertFromRGBArray( *rgbarr_ );
+    setPixmap( pixmap );
     draw();
 }
