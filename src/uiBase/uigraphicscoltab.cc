@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicscoltab.cc,v 1.3 2009-05-25 15:46:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicscoltab.cc,v 1.4 2009-06-15 07:00:14 cvsnanne Exp $";
 
 
 #include "uigraphicscoltab.h"
@@ -25,8 +25,9 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     ctseqitm_ = new uiPixmapItem();
     minvalitm_ = new uiTextItem( "0", mAlignment(HCenter,Top) );
     maxvalitm_ = new uiTextItem( "1", mAlignment(HCenter,Bottom) );
-
     add( ctseqitm_ ); add( minvalitm_ ); add( maxvalitm_ );
+
+    setColTabSequence( ColTab::Sequence("") );
 }
 
 
