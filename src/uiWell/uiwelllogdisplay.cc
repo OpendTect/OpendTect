@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.3 2009-06-15 09:53:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.4 2009-06-15 14:33:21 cvsbert Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -170,6 +170,7 @@ void uiWellLogDisplay::setAxisRanges( bool first )
     {
 	dispvalrg.start = ld.unitmeas_->userValue(ld.valrg_.start);
 	dispvalrg.stop = ld.unitmeas_->userValue(ld.valrg_.stop);
+	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
     }
     if ( ld.xrev_ ) Swap( dispvalrg.start, dispvalrg.stop );
     ld.xax_.setBounds( dispvalrg );
@@ -178,6 +179,7 @@ void uiWellLogDisplay::setAxisRanges( bool first )
     if ( dispzinft_ )
 	dispzrg.scale( mToFeetFactor );
     ld.yax_.setBounds( dispzrg );
+    ld.yax_.annotAtEnd( dispzinft_ ? "(ft)" : "(m)" );
 
     if ( first )
     {
