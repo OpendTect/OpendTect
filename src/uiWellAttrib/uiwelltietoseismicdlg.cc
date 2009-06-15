@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.13 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.14 2009-06-15 09:07:49 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -191,16 +191,20 @@ void uiWellTieToSeismicDlg::addControl()
 
 
 void uiWellTieToSeismicDlg::drawFields( uiGroup* vwrgrp_ )
-{	
+{
+    uiGroup* csgrp = new uiGroup( this, "check shot group" );
+    csgrp->attach( ensureBelow, vwrgrp_ );
+    csgrp->attach( leftBorder );
+    createCSFields( csgrp );
+
     uiGroup* taskgrp = new uiGroup( this, "task group" );
-    taskgrp->attach( alignedBelow, vwrgrp_ );
+    taskgrp->attach( ensureBelow, vwrgrp_ );
+    taskgrp->attach( rightBorder );
     createTaskFields( taskgrp );
 
-    uiSeparator* sep = new uiSeparator( this, "sep", false );
-    sep->attach( centeredBelow, taskgrp ) ;
-
     uiGroup* informgrp = new uiGroup( this, "Indicator Group" );
-    informgrp->attach( centeredBelow, sep );
+    informgrp->attach( ensureBelow, csgrp );
+    informgrp->attach( hCentered );
     infobut_ = new uiPushButton( informgrp, "&Display additional informations",
 	               mCB(this,uiWellTieToSeismicDlg,infoPushed), true );
 }
@@ -218,25 +222,23 @@ void uiWellTieToSeismicDlg::createTaskFields( uiGroup* taskgrp )
     undobut_->attach( ensureRightOf, applybut_ );
     undobut_->setSensitive( false );
     
-    clearpickbut_ = new uiPushButton( taskgrp, "&Clear last pick",
-	   mCB(this,uiWellTieToSeismicDlg,clearPickPushed), true );
-    clearpickbut_->setSensitive( true );
-    clearpickbut_->attach( ensureRightOf, undobut_ );
-
-    clearallpicksbut_ = new uiPushButton( taskgrp, "&Clear all picks",
+    clearallpicksbut_ = new uiPushButton( taskgrp, "&Clear picks",
 	   mCB(this,uiWellTieToSeismicDlg,clearAllPicksPushed), true );
     clearallpicksbut_->setSensitive( true );
-    clearallpicksbut_->attach( ensureRightOf, clearpickbut_ );
+    clearallpicksbut_->attach( ensureRightOf, undobut_ );
+}
 
-    cscorrfld_ = new uiCheckBox( taskgrp, "use checkshot corrections" );
-    cscorrfld_->attach( rightOf, undobut_ );
+
+void uiWellTieToSeismicDlg::createCSFields( uiGroup* csgrp )
+{
+    cscorrfld_ = new uiCheckBox( csgrp, "use checkshot corrections" );
     cscorrfld_->setChecked(params_->iscscorr_);
     cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,checkShotChg));
 
-    csdispfld_ = new uiCheckBox( taskgrp, "display checkshot related curve" );
+    csdispfld_ = new uiCheckBox( csgrp, "display checkshot related curve" );
     csdispfld_->setChecked(params_->iscsdisp_);
     csdispfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,checkShotDisp));
-    csdispfld_->attach( rightOf, cscorrfld_ );
+    csdispfld_->attach( alignedBelow, cscorrfld_ );
     
     setPrefWidthInChar( 60 );
     updateButtons();	    

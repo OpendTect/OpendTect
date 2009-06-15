@@ -90,6 +90,7 @@ protected:
     void 			addToolBarTools();
     void 			doWholeWork();
     void			createTaskFields(uiGroup*);
+    void			createCSFields(uiGroup*);
     void 			drawData();
     void 			drawFields(uiGroup*);
     void 			initAll();
