@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.20 2009-06-12 08:17:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.21 2009-06-15 12:24:07 cvsnanne Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -42,7 +42,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , propertiesmnuitem_("Properties...",100)
     , manipdrawbut_(0)
 {
-    tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools" );
+    tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools",
+	    setup.withcoltabed_ ? uiToolBar::Left : uiToolBar::Top );
     if ( setup.withstates_ )
 	{ mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode"); }
     vwr_.setRubberBandingOn( !manip_ );
@@ -50,7 +51,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
     uiToolButton* mDefBut(fliplrbut,"flip_lr.png",flipCB,"Flip left/right");
-    tb_->addObject( vwr_.rgbCanvas().getSaveImageTB(this) );
+    tb_->addObject( vwr_.rgbCanvas().getSaveImageButton() );
 
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
