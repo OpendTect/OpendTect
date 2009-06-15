@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.44 2009-06-12 21:12:31 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.45 2009-06-15 05:06:03 cvsranojay Exp $";
 
 #include "vishorizonsection.h"
 
@@ -93,7 +93,7 @@ bool doPrepare( int nrthreads )
     for ( int idx=0; idx<nrtiles_; idx++ )
 	arr[idx] = idx;
 
-    std::random_shuffle( arr, arr+nrtiles_ );
+    std::random_shuffle( mVarLenArr(arr), arr+nrtiles_ );
     for ( int idx=0; idx<nrtiles_; idx++ )
 	permutation_ += arr[idx];
 
