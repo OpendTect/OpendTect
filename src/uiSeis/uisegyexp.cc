@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.16 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.17 2009-06-15 14:32:43 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -166,10 +166,9 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     seissel_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_) );
     seissel_->selectiondone.notify( mCB(this,uiSEGYExp,inpSel) );
 
-    transffld_ = new uiSeisTransfer( this, uiSeisTransfer::Setup(geom_)
-				    .withnullfill(true)
-				    .fornewentry(false)
-	   			    .onlyrange(false) );
+    uiSeisTransfer::Setup tsu( geom_ );
+    tsu.withnullfill(true).fornewentry(false).onlyrange(false);
+    transffld_ = new uiSeisTransfer( this, tsu );
     transffld_->attach( alignedBelow, seissel_ );
 
     fpfld_ = new uiSEGYFilePars( this, false );
