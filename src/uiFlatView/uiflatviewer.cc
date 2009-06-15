@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.83 2009-06-12 10:13:29 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.84 2009-06-15 14:58:46 cvskris Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -78,6 +78,11 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
 
     mainObject()->finaliseDone.notify( mCB(this,uiFlatViewer,onFinalise) );
 }
+
+
+#define mRemoveAnnotItem( item ) \
+    { delete canvas_.scene().removeItem( item ); item = 0; }
+
 
 
 uiFlatViewer::~uiFlatViewer()
@@ -391,11 +396,6 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
 }
 
 
-#define mRemoveAnnotItem( item ) \
-    if ( item ) \
-    { canvas_.scene().removeItem( item ); delete item; item = 0; }
-
-
 void uiFlatViewer::drawAnnot()
 { drawAnnot( canvas_.arrArea(), wr_ ); }
 
@@ -524,7 +524,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	uiPoint to( datarect.right()-2, ynameannpos  + 15);
 	if ( ad1.reversed_ ) Swap( from, to );
 	if ( arrowitem1_ )
-	    delete arrowitem1_;
+	    mRemoveAnnotItem( arrowitem1_ );
 	arrowitem1_ = canvas_.scene().addArrow( from, to, arrowstyle );
 	arrowitem1_->setZValue(1);
 	if ( !axis1nm_ )
@@ -546,7 +546,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	uiPoint to( left, ynameannpos + 25 );
 	if ( ad2.reversed_ ) Swap( from, to );
 	if ( arrowitem2_ )
-	    delete arrowitem2_;
+	    mRemoveAnnotItem( arrowitem2_ );
 	arrowitem2_ = canvas_.scene().addArrow(
 		from, to, arrowstyle );
 	arrowitem2_->setZValue(1); 
