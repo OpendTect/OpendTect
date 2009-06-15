@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.9 2009-01-20 11:34:48 cvsranojay Exp $
+ RCS:           $Id: uifont.h,v 1.10 2009-06-15 18:44:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ mClass uiFontList : public CallBacker
 public:
 
 			uiFontList() : inited_(false)	    {}
+			~uiFontList();
     static uiFontList&	getInst();
 
     int			nrKeys();

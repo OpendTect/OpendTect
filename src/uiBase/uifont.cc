@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifont.cc,v 1.26 2009-01-20 11:42:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uifont.cc,v 1.27 2009-06-15 18:44:56 cvskris Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"
@@ -156,6 +156,10 @@ bool select( uiFont& fnt, uiParent* parnt, const char* nm )
 
 //----------------------------------------------------------------------------
 
+uiFontList::~uiFontList()
+{
+    deepErase( fonts_ );
+}
 
 uiFontList& uiFontList::getInst()
 {
