@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.64 2009-04-22 06:12:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.65 2009-06-15 14:06:53 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -90,20 +90,20 @@ void uiSeisSubSel::clear()
 void uiSeisSubSel::setInput( const HorSampling& hs )
 {
     CubeSampling cs = selfld_->envelope(); cs.hrg = hs;
-    selfld_->setInputLimit( cs );
+    selfld_->setInput( cs );
 }
 
 
 void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
 {
     CubeSampling cs = selfld_->envelope(); cs.zrg = zrg;
-    selfld_->setInputLimit( cs );
+    selfld_->setInput( cs );
 }
 
 
 void uiSeisSubSel::setInput( const CubeSampling& cs )
 {
-    selfld_->setInputLimit( cs );
+    selfld_->setInput( cs );
 }
 
 
@@ -137,7 +137,7 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
     if ( !oinf.getRanges(cs) )
 	clear();
     else
-	selfld_->setInputLimit( cs );
+	selfld_->setInput( cs );
 }
 
 
