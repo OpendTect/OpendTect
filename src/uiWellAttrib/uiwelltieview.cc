@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.16 2009-06-15 10:02:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.17 2009-06-15 10:10:57 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -108,13 +108,13 @@ void uiWellTieView::createViewers( uiGroup* vwrgrp )
     initFlatViewer( wtsetup_.denlognm_, 1, 150, 550, false, Color(0,0,255) );
     initFlatViewer( params_.ainm_, 2, 150, 550, false, Color(150,100,0) );
     initFlatViewer( params_.refnm_, 3, 150, 550, false, Color::Black() );
-    initFlatViewer( "Synthetics/Seismics", 4, 300, 550, true, Color(255,0,0) );
+    initFlatViewer( "Synthetics/Seismics", 4, 300, 550, true, Color::Black() );
 }
 
 
 //TODO move to display properties
 void uiWellTieView::initFlatViewer( const char* nm, int nr, int xsize,
-				    int ysize, bool iswigg, const Color& col)
+				    int ysize, bool iswigg, const Color& col )
 {
     vwrs_[nr]->setInitialSize( uiSize(xsize,ysize) );
     FlatView::Appearance& app = vwrs_[nr]->appearance();
@@ -129,7 +129,8 @@ void uiWellTieView::initFlatViewer( const char* nm, int nr, int xsize,
     app.annot_.x2_.sampling_ = 0.2;
     app.annot_.title_ = nm;
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.right_= iswigg? col : Color::NoColor() ;
+    app.ddpars_.wva_.right_= iswigg? Color(255,0,0) : Color::NoColor() ;
+    app.ddpars_.wva_.left_= iswigg? Color(0,0,255) : Color::NoColor() ;
     app.ddpars_.wva_.clipperc_.set(0,0);
     app.ddpars_.wva_.wigg_ = col;
     app.ddpars_.wva_.overlap_ = 1;
