@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.15 2008-08-18 13:36:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.16 2009-06-15 15:12:55 cvsbert Exp $";
 
 
 #include "linear.h"
@@ -122,7 +122,7 @@ void AxisLayout::setDataRange( const Interval<float>& dr )
 {
     Interval<float> intv = dr;
     sd.start = intv.start;
-    bool rev = intv.start > intv.stop;
+    const bool rev = intv.start > intv.stop;
     if ( rev ) Swap( intv.start, intv.stop );
     float wdth = intv.width();
 
@@ -159,21 +159,25 @@ void AxisLayout::setDataRange( const Interval<float>& dr )
     }
     if ( rev ) sd.step = -sd.step;
 
-    stop = findEnd( intv.stop );
+    stop = findEnd( rev ? intv.start : intv.stop );
 }
 
 
 float AxisLayout::findEnd( float datastop ) const
 {
     SamplingData<float> worksd = sd;
-    bool rev = datastop < worksd.start;
-    if ( rev ) Swap( datastop, worksd.start );
-    if ( worksd.step < 0 ) worksd.step = -worksd.step;
+    const bool rev = worksd.step < 0;
+    if ( rev )
+    {
+	worksd.start = -worksd.start;
+	worksd.step = -worksd.step;
+	datastop = -datastop;
+    }
 
     if ( worksd.start + 10000 * worksd.step < datastop )
 	return datastop;
 
-    float pos = ceil( (datastop-sd.start) / worksd.step - 1e-6 );
+    float pos = ceil( (datastop-worksd.start) / worksd.step - 1e-6 );
     if ( pos < .5 ) pos = 1;
     float wdth = mNINT(pos) * worksd.step;
 
