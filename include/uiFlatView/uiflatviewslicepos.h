@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uiflatviewslicepos.h,v 1.1 2009-05-18 11:43:08 cvshelene Exp $
+ RCS:           $Id: uiflatviewslicepos.h,v 1.2 2009-06-15 12:17:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ mClass uiSlicePos2DView : public uiSlicePos
 public:		
 			uiSlicePos2DView(uiParent*);
 
+    void		setCubeSampling(const CubeSampling&);
 
 protected:
     void		setBoxRanges();
@@ -29,6 +30,8 @@ protected:
     void		slicePosChg(CallBacker*);
     void		sliceStepChg(CallBacker*);
 
+    CubeSampling	curcs_;
+    Orientation		curorientation_;
 };
 
 #endif

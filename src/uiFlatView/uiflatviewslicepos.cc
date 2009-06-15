@@ -7,9 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewslicepos.cc,v 1.1 2009-05-18 11:43:08 cvshelene Exp $";
+static const char* rcsID = "$Id: uiflatviewslicepos.cc,v 1.2 2009-06-15 12:17:23 cvsnanne Exp $";
 
 #include "uiflatviewslicepos.h"
+
+#include "survinfo.h"
+
 
 uiSlicePos2DView::uiSlicePos2DView( uiParent* p )
     : uiSlicePos( p )
@@ -17,31 +20,53 @@ uiSlicePos2DView::uiSlicePos2DView( uiParent* p )
 }
 
 
+uiSlicePos::Orientation getOrientation( const CubeSampling& cs )
+{
+    if ( cs.defaultDir() == CubeSampling::Crl )
+	return uiSlicePos::Crossline;
+    if ( cs.defaultDir() == CubeSampling::Z )
+	return uiSlicePos::Timeslice;
+
+    return uiSlicePos::Inline;
+}
+
+
+void uiSlicePos2DView::setCubeSampling( const CubeSampling& cs )
+{
+    curorientation_ = getOrientation( cs );
+    curcs_ = cs;
+
+    setBoxLabel( curorientation_ );
+    setBoxRanges();
+    setPosBoxValue();
+    setStepBoxValue();
+}
+
+
 void uiSlicePos2DView::setBoxRanges()
 {
-    //TODO
+    setBoxRg( curorientation_, SI().sampling(true) );
 }
 
 
 void uiSlicePos2DView::setPosBoxValue()
 {
-    //TODO
+    setPosBoxVal( curorientation_, curcs_ ); 
 }
 
 
 void uiSlicePos2DView::setStepBoxValue()
 {
-    //TODO
 }
 
 
 void uiSlicePos2DView::slicePosChg( CallBacker* )
 {
-    //TODO
+    slicePosChanged( curorientation_, curcs_ );
 }
 
 
 void uiSlicePos2DView::sliceStepChg( CallBacker* )
 {
-    //TODO
+    sliceStepChanged( curorientation_ );
 }
