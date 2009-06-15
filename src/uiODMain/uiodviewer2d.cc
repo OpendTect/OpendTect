@@ -7,14 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.4 2009-06-12 07:25:14 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.5 2009-06-15 12:22:14 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
+#include "uiattribpartserv.h"
 #include "uiflatauxdataeditor.h"
 #include "uiflatviewdockwin.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
+#include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigraphicsscene.h"
 #include "uiodmain.h"
@@ -32,10 +34,14 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.4 2009-06-12 07:25:14 cvsum
 #include "settings.h"
 
 
+void initSelSpec( Attrib::SelSpec& as )
+{ as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
+
 uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     : appl_(appl)
     , visid_(visid)
-    , selspec_(*new Attrib::SelSpec)
+    , vdselspec_(*new Attrib::SelSpec)
+    , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
     , horpainter_(0)
 {
@@ -43,6 +49,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     BufferString info;
     appl.applMgr().visServer()->getObjectInfo( visid, info );
     basetxt_ += info;
+
+    initSelSpec( vdselspec_ );
+    initSelSpec( wvaselspec_ );
 }
 
 
@@ -57,40 +66,46 @@ uiODViewer2D::~uiODViewer2D()
 }
 
 
-void uiODViewer2D::setUpView( DataPack::ID packid, bool wva, bool isvert )
+void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, true );
+    mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
+    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,dp)
     const bool isnew = !viewwin_;
     if ( isnew )
-	createViewWin( isvert );
+	createViewWin( dp3d && dp3d->isVertical() );
+
     bool drawhorizon = false;
-    mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,
-	    		DPM(DataPackMgr::FlatID()).obtain(packid,true))
-    if ( dp3d && dp3d->isVertical() )
+    if ( dp3d )
     {
-	horpainter_->setCubeSampling( dp3d->cube().cubeSampling(), true );
-	drawhorizon = true;
-    }
-    else
-    {
-	mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,
-			DPM(DataPackMgr::FlatID()).obtain(packid,true))
-	if( dp2d && dp2d->isVertical() )
+	const CubeSampling& cs = dp3d->cube().cubeSampling();
+	slicepos_->setCubeSampling( cs );
+	if ( dp3d->isVertical() )
 	{
-	    horpainter_->setCubeSampling( dp2d->dataholder().getCubeSampling(),
-		    			  true );
-	    horpainter_->set2D( true );
-	    dp2d->getPosDataTable( horpainter_->getTrcNos(), 
-		    		   horpainter_->getDistances() );
+	    horpainter_->setCubeSampling( cs, true );
 	    drawhorizon = true;
 	}
+    }
+    else if ( dp2d && dp2d->isVertical() )
+    {
+	horpainter_->setCubeSampling( dp2d->dataholder().getCubeSampling(),
+				      true );
+	horpainter_->set2D( true );
+	dp2d->getPosDataTable( horpainter_->getTrcNos(), 
+			       horpainter_->getDistances() );
+	drawhorizon = true;
     }
 
     if ( drawhorizon )
 	drawHorizons();
-    
-    viewwin_->viewer().setPack( wva, packid, true, !isnew );
+
+    DataPack::ID curpackid = viewwin_->viewer().packID( wva );
+    DPM(DataPackMgr::FlatID()).release( curpackid );
+
     FlatView::DataDispPars& ddp = viewwin_->viewer().appearance().ddpars_;
     (wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
+
+    viewwin_->viewer().setPack( wva, packid, false, isnew );
     viewwin_->start();
 }
 
@@ -105,6 +120,8 @@ void uiODViewer2D::createViewWin( bool isvert )
 	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( 0,
 		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true) );
 	fvmw->windowClosed.notify( mCB(this,uiODViewer2D,winCloseCB) );
+	slicepos_ = new uiSlicePos2DView( fvmw );
+	slicepos_->positionChg.notify( mCB(this,uiODViewer2D,posChg) );
 	viewwin_ = fvmw;
     }
     else
@@ -142,13 +159,38 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
+    slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
     viewwin_ = 0;
 }
 
 
-void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as )
+void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 {
-    selspec_ = as ? *as : Attrib::SelSpec();
+    if ( as )
+	(wva ? wvaselspec_ : vdselspec_) = *as;
+    else
+	initSelSpec( wva ? wvaselspec_ : vdselspec_ );
+}
+
+
+void uiODViewer2D::posChg( CallBacker* )
+{
+    CubeSampling cs = slicepos_->getCubeSampling();
+    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
+
+    if ( vdselspec_.id().asInt() > -1 )
+    {
+	attrserv->setTargetSelSpec( vdselspec_ );
+	DataPack::ID dpid = attrserv->createOutput( cs, DataPack::cNoID() );
+	setUpView( dpid, false );
+    }
+
+    if ( wvaselspec_.id().asInt() > -1 )
+    {
+	attrserv->setTargetSelSpec( wvaselspec_ );
+	DataPack::ID dpid = attrserv->createOutput( cs, DataPack::cNoID() );
+	setUpView( dpid, true );
+    }
 }
 
 

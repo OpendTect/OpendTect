@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.3 2009-06-11 11:00:08 cvsnanne Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.4 2009-06-15 12:22:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiFlatViewAuxDataEditor;
 class uiFlatViewWin;
 class uiODMain;
+class uiSlicePos2DView;
 namespace Attrib { class SelSpec; }
 namespace EM { class HorizonPainter; }
 namespace MPE { class HorizonFlatViewEditor; }
@@ -31,8 +32,8 @@ public:
 				uiODViewer2D(uiODMain&,int visid);
 				~uiODViewer2D();
 
-    void			setUpView(DataPack::ID,bool wva,bool isvert);
-    void			setSelSpec(const Attrib::SelSpec*);
+    void			setUpView(DataPack::ID,bool wva);
+    void			setSelSpec(const Attrib::SelSpec*,bool wva);
 
     uiFlatViewWin*		viewwin_;
     uiODMain&			appl_;
@@ -42,14 +43,17 @@ public:
     
 protected:
 
+    uiSlicePos2DView*		slicepos_;
     EM::HorizonPainter*		horpainter_;
     uiFlatViewAuxDataEditor*	auxdataeditor_;
     MPE::HorizonFlatViewEditor*	horfveditor_;
 
-    Attrib::SelSpec&		selspec_;
+    Attrib::SelSpec&		wvaselspec_;
+    Attrib::SelSpec&		vdselspec_;
 
     void			createViewWin(bool isvert);
     void			winCloseCB(CallBacker*);
+    void			posChg(CallBacker*);
     void			drawHorizons();
 };
 

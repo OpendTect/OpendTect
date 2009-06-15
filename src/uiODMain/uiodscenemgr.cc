@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.176 2009-06-04 20:26:42 cvskris Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.177 2009-06-15 12:22:14 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1032,8 +1032,8 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
 
-    const bool isvert = visServ().isVerticalDisp( visid );
-    curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva, isvert );
+    curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva );
+    curvwr->setSelSpec( visServ().getSelSpec(visid,attribid), dowva );
     appl_.applMgr().visServer()->fillDispPars( visid, attribid,
 	    curvwr->viewwin_->viewer().appearance().ddpars_ );
     curvwr->viewwin_->viewer().handleChange( FlatView::Viewer::All );
