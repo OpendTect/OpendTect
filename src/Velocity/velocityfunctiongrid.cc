@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.5 2009-05-07 17:07:54 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.6 2009-06-15 15:40:35 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -217,6 +217,7 @@ GriddedSource::~GriddedSource()
     }
 
     deepUnRef( datasources_ );
+    delete gridder_;
 }
 
 
