@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.117 2009-04-06 07:25:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.118 2009-06-15 12:19:08 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -113,6 +113,7 @@ void Scene::init()
     scenecoltab_ = visBase::SceneColTab::create();
     addUTMObject( scenecoltab_ );
     scenecoltab_->turnOn( false );
+    scenecoltab_->doSaveInSessions( false );
 }
 
 
