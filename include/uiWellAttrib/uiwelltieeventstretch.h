@@ -27,11 +27,6 @@ class WellTiePickSet;
 
 class uiWellTieView;
 
-namespace Well
-{
-    class Data;
-}
-
 mClass uiWellTieEventStretch : public uiWellTieStretch
 {
 public:
@@ -45,15 +40,17 @@ public:
     
 protected:
 
-    Well::Data*				wd_;
     WellTieD2TModelMGR*			d2tmgr_;
     WellTiePickSet& 			seispickset_;
     WellTiePickSet& 			synthpickset_;
+    WellTiePickSetMGR& 			pmgr_;
 
-    void 				addUserPick(CallBacker*);
+    void 				addSyntPick(CallBacker*);
+    void 				addSeisPick(CallBacker*);
+    void 				checkReadyForWork();
     void 				drawLogsData();
     void 				doStretchWork(); 
-    void				updatePos(float&);
+    void				updateTime(float&);
 };
 
 #endif

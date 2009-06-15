@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.4 2009-06-10 08:30:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.5 2009-06-15 08:29:32 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
@@ -77,8 +77,8 @@ void WellTieDataSetMGR::rescaleData( const WellTieDataSet& olddata,
 
 //recompute data between timestart and timestop
 void WellTieDataSetMGR::rescaleData( const WellTieDataSet& olddata,
-			     WellTieDataSet& newdata, int colnr, 
-			     float timestart, float timestop )
+				     WellTieDataSet& newdata, int colnr, 
+				     float timestart, float timestop )
 {
     int startidx = olddata.getIdx( timestart );
     int stopidx  = olddata.getIdx( timestop  );
@@ -195,12 +195,14 @@ void WellTieDataSet::setArrayBetweenIdxs( const Array1DImpl<float>& olddata,
 					  Array1DImpl<float>& newdata,
 					  int startidx, int stopidx )
 {
-    for ( int idx=startidx; idx<newdata.info().getSize(0); idx++ )
+    const int olddatasz = olddata.info().getSize(0);
+    const int newdatasz = newdata.info().getSize(0);
+    for ( int idx=0; idx<newdatasz; idx++ )
     {
-	if (mIsUdf(olddata.get(idx)))
-	    newdata.setValue( idx-startidx, 0 );
+	if ( idx && (idx+startidx >= olddatasz || mIsUdf(olddata.get(idx))) )
+	    newdata.setValue( idx, idx-1 );
 	else
-	    newdata.setValue( idx-startidx, olddata.get( idx ) ); 
+	    newdata.setValue( idx, olddata.get( idx+startidx ) ); 
     }
 }
 
@@ -220,7 +222,7 @@ WellTieDataHolder::WellTieDataHolder( const WellTieParams* params,
 	, wd_(wd) 
 	, setup_(s)	  
 {
-    pickmgr_ = new WellTiePickSetMGR();
+    pickmgr_ = new WellTiePickSetMGR( wd_ );
     d2tmgr_  = new WellTieD2TModelMGR( wd_, params_ );
     datamgr_ = new WellTieDataSetMGR( params_, &data_ );
 }

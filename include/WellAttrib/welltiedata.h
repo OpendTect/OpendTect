@@ -142,6 +142,9 @@ public:
     const WellTieDataSet* dispData() const { return data_.datasets_[1]; }
     WellTieDataSet*	  corrData()  	   { return data_.datasets_[2]; } 
     const WellTieDataSet* corrData() const { return data_.datasets_[2]; } 
+    Wavelet*              getEstimatedWvlt()  { return &data_.wvltest_; } 
+    const Wavelet*        getEstimatedWvlt() const { return &data_.wvltest_; } 
+
     
     WellTieD2TModelMGR*	 d2tmgr_;
     WellTiePickSetMGR*   pickmgr_;

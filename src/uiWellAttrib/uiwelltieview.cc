@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.14 2009-06-10 08:30:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.15 2009-06-15 08:29:32 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.14 2009-06-10 08:30:04 cvs
 #include "uilabel.h"
 #include "uirgbarraycanvas.h"
 #include "uitabstack.h"
+#include "uiwelllogdisplay.h"
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
@@ -28,7 +29,11 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.14 2009-06-10 08:30:04 cvs
 #include "posinfo.h"
 #include "position.h"
 #include "posvecdataset.h"
+#include "seistrc.h"
+#include "seisbufadapters.h"
 #include "welldata.h"
+#include "welllogset.h"
+#include "welllog.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 
@@ -44,9 +49,12 @@ uiWellTieView::uiWellTieView( uiParent* p, WellTieDataHolder* dhr)
 	, wtsetup_(dhr->setup())	
     	, data_(*dhr->dispData())
 	, datamgr_(*dhr->datamgr_)
-    	, isoriginalscale_(true)
+	, synthpickset_(dhr->pickmgr_->getSynthPickSet())
+	, seispickset_(dhr->pickmgr_->getSeisPickSet())
 	, maxtraceval_(0)			
-	, mintraceval_(0)		
+	, mintraceval_(0)
+	, seistrcbuf_(0) 		 
+	, synthtrcbuf_(0) 		 
 {
     createViewers( (uiGroup*)p );
 } 
@@ -60,7 +68,7 @@ uiWellTieView::~uiWellTieView()
 
     for (int vwridx=vwrs_.size()-1; vwridx>=0; vwridx--)
     {
-	removePacks( *vwrs_[vwridx] );
+	removePacks(*vwrs_[vwridx]);
 	vwrs_.remove(vwridx);
     }
 }
@@ -69,11 +77,9 @@ uiWellTieView::~uiWellTieView()
 void uiWellTieView::removePacks( uiFlatViewer& vwr )
 {
 	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
-	for ( int idx=0; idx<ids.size(); idx++ )
-	    vwr.removePack( ids[idx] );
+	for ( int idx=ids.size()-1; idx>=0; idx-- )
+	    DPM( DataPackMgr::FlatID() ).release( ids[idx] );
 }
-
-
 
 void uiWellTieView::fullRedraw()
 {
@@ -82,30 +88,27 @@ void uiWellTieView::fullRedraw()
     drawAI();
     drawReflectivity();
     drawSynthetics();
-    drawSeismic();
     drawWellMarkers();
-    drawUserPicks(0);
+    drawUserPicks();
     drawCShot();
 }
 
 
 void uiWellTieView::createViewers( uiGroup* vwrgrp )
 {
-    for (int vwridx=0; vwridx<6; vwridx++)
+    for (int vwridx=0; vwridx<5; vwridx++)
     {
 	uiFlatViewer* vwr = new uiFlatViewer( vwrgrp );
-	vwr->rgbCanvas().enableScrollZoom();
+	//vwr->rgbCanvas().enableScrollZoom();
 	vwrs_ += vwr;
 	if ( vwridx>0 )
 	    vwr->attach( rightOf, vwrs_[vwridx-1] );
     }
-
-    initFlatViewer( wtsetup_.vellognm_, 0, 200, 550, false, Color(255,0,0) );
-    initFlatViewer( wtsetup_.denlognm_, 1, 200, 550, false, Color(0,0,255) );
-    initFlatViewer( params_.ainm_, 2, 200, 550, false, Color(150,100,0) );
-    initFlatViewer( params_.refnm_, 3, 200, 550, false, Color::Black() );
-    initFlatViewer( params_.synthnm_, 4, 200, 550, true, Color(0,0,255) );
-    initFlatViewer( "Seismics", 5, 200, 550, true, Color(255,0,0) );
+    initFlatViewer( wtsetup_.vellognm_, 0, 150, 550, false, Color(255,0,0) );
+    initFlatViewer( wtsetup_.denlognm_, 1, 150, 550, false, Color(0,0,255) );
+    initFlatViewer( params_.ainm_, 2, 150, 550, false, Color(150,100,0) );
+    initFlatViewer( params_.refnm_, 3, 150, 550, false, Color::Black() );
+    initFlatViewer( "Synthetics/Seismics", 4, 300, 550, true, Color(255,0,0) );
 }
 
 
@@ -135,79 +138,139 @@ void uiWellTieView::initFlatViewer( const char* nm, int nr, int xsize,
 
 void uiWellTieView::drawVelLog()
 {
-    createVarDataPack( params_.currvellognm_, 0, 1);
+    removePacks( *vwrs_[0] );
+    createVarDataPack( params_.currvellognm_, 0 );
 }
 
 
 void uiWellTieView::drawDenLog()
 {
-    createVarDataPack( wtsetup_.denlognm_, 1, 1 );
+    removePacks( *vwrs_[1] );
+    createVarDataPack( wtsetup_.denlognm_, 1 );
 }
 
 
 void uiWellTieView::drawAI()
 {
-    createVarDataPack( params_.ainm_, 2, 1 );
+    removePacks( *vwrs_[2] );
+    createVarDataPack( params_.ainm_, 2 );
 }
 
 
 void uiWellTieView::drawReflectivity()
 {
-    createVarDataPack( params_.refnm_, 3, 1 );
+    removePacks( *vwrs_[3] );
+    createVarDataPack( params_.refnm_, 3 );
 }
 
 
 void uiWellTieView::drawSynthetics()
 {
-    createVarDataPack( params_.synthnm_, 4, 6 );
+    if ( !synthtrcbuf_ )
+	synthtrcbuf_ = new SeisTrcBuf(true);
+    synthtrcbuf_->erase();
+
+ //   setUpTrcBuf( synthtrcbuf_, params_.attrnm_, 4, 5 );
+    setUpTrcBuf( synthtrcbuf_, params_.synthnm_, 4, 5 );
+    setUpTrcBuf( synthtrcbuf_, params_.attrnm_, 4, 5 );
+    setDataPack( synthtrcbuf_, params_.attrnm_, 4, 5 );
 }
 
 
-void uiWellTieView::drawSeismic()
-{
-    createVarDataPack( params_.attrnm_, 5, 6 );
-}
-
-
-void uiWellTieView::createVarDataPack( const char* varname, int vwrnr, 
-					int nrtraces )
+void uiWellTieView::setUpTrcBuf( SeisTrcBuf* trcbuf, const char* varname, 
+				 int vwrnr, int nrtraces )
 {
     const int varsz = data_.getLength();
-    Array2DImpl<float>*  arr2d = new Array2DImpl<float>( nrtraces, varsz );
-    for ( int idz=0; idz<varsz; idz++)
-    {
-	float val =  data_.get( varname, idz );
-	for ( int idx=0; idx<nrtraces; idx++)
-	{
-	    if ( nrtraces<2 )
-		arr2d->set( idx, idz, val );
-	    else if ( idx && idx < nrtraces-1 )
-		arr2d->set( idx, idz, val );
-	    else
-		arr2d->set( idx, idz, mUdf(float) );
-	}
-    }
+    SeisTrc valtrc;
+    SeisTrc udftrc;
 
-    removePacks( *vwrs_[vwrnr] );
-    FlatDataPack* dp = new FlatDataPack( "", arr2d );
+    valtrc.reSize( varsz, false );
+    udftrc.reSize( varsz, false ) ;
+
+    setUpValTrc( valtrc, varname, varsz );
+    setUpUdfTrc( udftrc, varname, varsz );
+
+    for ( int idx=0; idx<nrtraces+2; idx++ )
+    {
+	bool isudf =  ( idx<1 || idx > nrtraces );
+	SeisTrc* newtrc = new SeisTrc( isudf? udftrc : valtrc );
+	trcbuf->add( newtrc );
+	trcbuf->get(trcbuf->size()-1)->info().nr = trcbuf->size()-1;
+    }
+}
+
+
+void uiWellTieView::setUpUdfTrc( SeisTrc& trc, const char* varname, int varsz )
+{
+    for ( int idx=0; idx<varsz; idx++)
+	trc.set( idx, mUdf(float), 0 );
+}
+
+
+void uiWellTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
+{
+    for ( int idx=0; idx<varsz; idx++)
+    {
+	float val = data_.get( varname, idx );
+	trc.set( idx, val, 0 );
+    }
+}
+
+
+void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname, 
+				 int vwrnr, int nrtraces )
+{    
+    const int type = trcbuf->get(0)->info().getDefaultAxisFld( 
+			    Seis::Line, &trcbuf->get(1)->info() );
+    SeisTrcBufDataPack* dp =
+	new SeisTrcBufDataPack( trcbuf, Seis::Line, 
+				(SeisTrcInfo::Fld)type, "Seismic" );
+
     DPM(DataPackMgr::FlatID()).add( dp );
     StepInterval<double> zrange( params_.timeintv_.start, 
 	    			 params_.timeintv_.stop,
 				 params_.timeintv_.step*params_.step_ );
+    StepInterval<double> xrange( 1, trcbuf->size(), 1 );
     dp->posData().setRange( false, zrange );
+    dp->posData().setRange( true, xrange );
     dp->setName( varname );
     
     FlatView::Appearance& app = vwrs_[vwrnr]->appearance();
-    if ( nrtraces<2 )
-    {
-	float maxval = data_.getExtremVal( varname, true );
-	float minval = data_.getExtremVal( varname, false );
-	const float shift =  minval + ( maxval - minval )/2;
-	StepInterval<double> xrange( shift, shift, maxval-minval);
-	app.ddpars_.wva_.overlap_ = maxval-minval-1;
-	dp->posData().setRange( true, xrange );
-	app.annot_.x1_.showgridlines_ = true;
-    }
+    
+    vwrs_[vwrnr]->setPack( true, dp->id(), false, true );
+    const UnitOfMeasure* uom = 0;
+    const char* units =  ""; //uom ? uom->symbol() : "";
+    app.annot_.x1_.name_ =  units;
+    app.annot_.x2_.name_ = "TWT (s)";
+    vwrs_[vwrnr]->handleChange( FlatView::Viewer::Annot );
+}
+
+
+void uiWellTieView::createVarDataPack( const char* varname, int vwrnr ) 
+{
+    const int varsz = data_.getLength();
+    Array2DImpl<float>*  arr2d = new Array2DImpl<float>( 1, varsz );
+    for ( int idz=0; idz<varsz; idz++)
+	arr2d->set( 0, idz, data_.get( varname, idz ) );
+    
+    removePacks( *vwrs_[vwrnr] );
+    FlatDataPack* dp = new FlatDataPack( "", arr2d );
+    DPM(DataPackMgr::FlatID()).add( dp );
+    StepInterval<double> zrange( params_.timeintv_.start, 
+    params_.timeintv_.stop,
+    params_.timeintv_.step*params_.step_ );
+
+    dp->posData().setRange( false, zrange );
+    dp->setName( varname );
+
+    FlatView::Appearance& app = vwrs_[vwrnr]->appearance();
+    float maxval = data_.getExtremVal( varname, true );
+    float minval = data_.getExtremVal( varname, false );
+    const float shift =  minval + ( maxval - minval )/2;
+    StepInterval<double> xrange( shift, shift, maxval-minval);
+    app.ddpars_.wva_.overlap_ = maxval-minval-1;
+    dp->posData().setRange( true, xrange );
+    app.annot_.x1_.showgridlines_ = true;
 
     vwrs_[vwrnr]->setPack( true, dp->id(), false, true );
     const UnitOfMeasure* uom = 0;
@@ -227,21 +290,35 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
     auxdata->linestyle_.color_ = col;
     auxdata->linestyle_.width_ = 2;
     auxdata->linestyle_.type_  = LineStyle::Solid;
+    
+    float xleft = vwrs_[vwridx]->boundingBox().left();
+    float xright = vwrs_[vwridx]->boundingBox().right();
 
+    //TODO go to switch cases!
     if ( ispick )
     {
 	auxdata->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Cross,5,col );
 	Geom::PosRectangle<double> boundingdata( xpos, 0, xpos, 0  );
 	auxdata->poly_ += FlatView::Point( boundingdata.left(), zpos);
     }
-    else
+    else if ( xpos == 0 )
     {
-	auxdata->poly_ += FlatView::Point(
-		vwrs_[vwridx]->boundingBox().left(), zpos );
-	auxdata->poly_ += FlatView::Point(
-		vwrs_[vwridx]->boundingBox().right(), zpos );
+	auxdata->poly_ += FlatView::Point( xleft , zpos );
+	auxdata->poly_ += FlatView::Point( xright, zpos );
     }
-}
+    else if ( xpos && xpos < ( xright-xleft )/2 )
+	   			//|| xpos> ( xright-xleft )*2/3 )
+    {
+	auxdata->poly_ += FlatView::Point( xleft, zpos );
+	auxdata->poly_ += FlatView::Point( (xright-xleft)/2, zpos );
+    }
+    else if ( xpos && xpos>( xright-xleft )/2 )
+	    			//&& xpos<( xright-xleft )*2/3 )
+    {
+	auxdata->poly_ += FlatView::Point( (xright-xleft)/2, zpos );
+	auxdata->poly_ += FlatView::Point( xright, zpos );
+    }
+}	
 
 
 void uiWellTieView::drawWellMarkers()
@@ -278,31 +355,45 @@ void uiWellTieView::drawWellMarkers()
 }	
 
 
-void uiWellTieView::drawUserPicks( const WellTiePickSet* pickset )
+void uiWellTieView::drawUserPicks()
 {
     deleteUserPicks();
-    if ( !pickset) 
-	return;
-
-    const int vwridx = pickset->get(0)->vidx_;
+    const int vwridx = 4;
+    const int nrauxs = mMAX(seispickset_->getSize(),synthpickset_->getSize());
     
-    for ( int idx=0; idx<pickset->getSize(); idx++ )
+    for ( int idx=0; idx<nrauxs; idx++ )
     {
-	const UserPick* userpick = pickset->get(idx);
-	if ( !userpick  ) continue;
-
 	FlatView::Annotation::AuxData* auxdata = 0;
 	mTryAlloc( auxdata, FlatView::Annotation::AuxData(0) );
 	userpickauxdatas_ += auxdata;
+    }
+    
+    const Well::D2TModel* d2tm = wd_.d2TModel();
+    if ( !d2tm ) return; 
+
+    for ( int idx=0; idx<seispickset_->getSize(); idx++ )
+    {
+	const UserPick* pick = seispickset_->get(idx);
+	if ( !pick  ) continue;
+
+	float zpos = d2tm->getTime( pick->dah_ ); 
+	float xpos = pick->xpos_;
 	
-	float zpos = userpick->zpos_;
-	const int idxatzpos = data_.getIdx( zpos );
-	float xpos = 0;
-	if ( vwridx == 0 )
-	    xpos = data_.get( params_.currvellognm_, idxatzpos );
-	bool isxpick = vwridx? false : true;
-	drawMarker( auxdata, vwridx, xpos, zpos, userpick->color_, isxpick );
-    }	
+	drawMarker( userpickauxdatas_[idx], vwridx, xpos, zpos, 
+		    pick->color_, false );
+    }
+
+    for ( int idx=0; idx<synthpickset_->getSize(); idx++ )
+    {
+	const UserPick* pick = synthpickset_->get(idx);
+	if ( !pick  ) continue;
+
+	float zpos = d2tm->getTime( pick->dah_ ); 
+	float xpos = pick->xpos_;
+	
+	drawMarker( userpickauxdatas_[idx], vwridx, xpos, zpos, 
+		    pick->color_, false );
+    }
     vwrs_[vwridx]->handleChange( FlatView::Viewer::Annot );
 }
 
@@ -408,8 +499,7 @@ uiWellTieCorrView::uiWellTieCorrView( uiParent* p, WellTieDataHolder* dh)
 
 uiWellTieCorrView::~uiWellTieCorrView()
 {
-    for ( int idx=corrdisps_.size()-1; idx>=0; idx-- )
-	delete corrdisps_.remove(idx);
+    deepErase( corrdisps_ );
 }
 
 

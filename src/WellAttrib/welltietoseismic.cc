@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.11 2009-06-10 08:30:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.12 2009-06-15 08:29:32 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -43,7 +43,7 @@ WellTieToSeismic::WellTieToSeismic( WellTieDataHolder* dh,
 				    const Attrib::DescSet& ads,
        				    TaskRunner* tr ) 
     	: wtsetup_(dh->setup())
-	, ads_(ads)	       
+	, ads_(ads)
 	, wd_(*dh->wd()) 
 	, params_(*dh->params())		 
 	, datamgr_(*dh->datamgr_)	   
@@ -189,7 +189,7 @@ void WellTieToSeismic::convolveWavelet()
 }
 
 
-Wavelet* WellTieToSeismic::estimateWavelet()
+bool WellTieToSeismic::estimateWavelet()
 {
     //copy initial wavelet
     Wavelet* wvlt = new Wavelet( *Wavelet::get(IOM().get(wtsetup_.wvltid_)) );
@@ -216,8 +216,8 @@ Wavelet* WellTieToSeismic::estimateWavelet()
     memcpy( wvlt->samples(), wvltvals.getData(), wvltsz*sizeof(float) );
 
     geocalc_->reverseWavelet( *wvlt );
-
-    return wvlt;
+    wtdata_.wvltest_ = *wvlt;
+    return true;
 }
 
 

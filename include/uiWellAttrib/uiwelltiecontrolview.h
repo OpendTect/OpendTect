@@ -53,7 +53,6 @@ protected:
     void		propDlgClosed(CallBacker*);
     void		rubBandCB(CallBacker*);
     void 		usrClickCB(CallBacker*);
-    void 		mouseMoveCB(CallBacker*);
     void 		stateCB(CallBacker*);
     void		updateButtons(CallBacker*);
     void 		vwChgCB(CallBacker*);

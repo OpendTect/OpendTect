@@ -34,6 +34,7 @@ class uiCheckBox;
 class uiWellTieView;
 class uiWellTieControlView;
 class uiWellTieCorrView;
+class uiWellTieInfoDlg;
 class uiWellTieWaveletView;
 class uiWellTieEventStretch;
 class uiWellTieLogStretch;
@@ -57,7 +58,7 @@ public:
 	
 protected:
 
-    BufferStringSet     	markernames_;
+   // BufferStringSet     	markernames_;
     Well::Data*			wd_;
     WellTieSetup		setup_;
     WellTieDataHolder*		dataholder_;
@@ -65,23 +66,23 @@ protected:
     WellTieToSeismic*   	dataplayer_;
     WellTieCSCorr*		cscorr_;	
 
-    uiWellTieWaveletView* 	wvltdraw_; 
+    uiWellTieInfoDlg* 		infodlg_; 
     uiWellTieView*		datadrawer_;
     uiWellTieControlView* 	controlview_;
     uiWellTieLogStretch* 	logstretcher_;
     uiWellTieEventStretch* 	eventstretcher_;
-    uiWellTieCorrView*  	crosscorr_;
+   // uiWellTieCorrView*  	crosscorr_;
 
     uiToolBar*          	toolbar_;
     uiGroup*            	vwrgrp_;
+    uiPushButton*		infobut_;
     uiPushButton*		applybut_;
-    uiPushButton*		applymrkbut_;
     uiPushButton*		undobut_;
+    uiPushButton*		clearpickbut_;
+    uiPushButton*		clearallpicksbut_;
     uiCheckBox* 		cscorrfld_;
     uiCheckBox* 		csdispfld_;
-    uiGenInput*			topmrkfld_;
-    uiGenInput*			botmrkfld_;
-    uiGenInput*			corrcoefffld_;
+  //  uiGenInput*			corrcoefffld_;
 
     bool			manip_;
 
@@ -89,23 +90,26 @@ protected:
     void 			addToolBarTools();
     void 			doWholeWork();
     void			createTaskFields(uiGroup*);
-    void			createInformFields(uiGroup*);
-    void 			dispParPushed(CallBacker*);
     void 			drawData();
-    void 			dispDataChanged(CallBacker*);
     void 			drawFields(uiGroup*);
     void 			initAll();
+    void			resetInfoDlg();
     void 			updateButtons();
     void 			setWinTitle(const Attrib::DescSet& ads);
-    bool 			setUserDepths();
 
     void 			applyPushed(CallBacker*);
     void 			applyReady(CallBacker*);
     void 			applyMarkerPushed(CallBacker*);
     void 			applyShiftPushed(CallBacker*);
+    void			checkIfPick(CallBacker*);
     void			checkShotChg(CallBacker*);
     void			checkShotDisp(CallBacker*);
+    void			clearPickPushed(CallBacker*);
+    void			clearAllPicksPushed(CallBacker*);
+    void 			dispDataChanged(CallBacker*);
+    void 			dispParPushed(CallBacker*);
     void			drawUserPick(CallBacker*);
+    void 			infoPushed(CallBacker*);
     void 			viewDataPushed(CallBacker*);
     void 			setView(CallBacker*);
     void 			wvltChg(CallBacker*);
@@ -116,6 +120,39 @@ protected:
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     bool 			undoPushed(CallBacker*);
+};
+
+
+
+mClass uiWellTieInfoDlg : public uiDialog
+{
+public:		
+    		
+    		uiWellTieInfoDlg(uiParent*,WellTieDataHolder*,WellTieParams*);
+    		~uiWellTieInfoDlg();
+
+    Notifier<uiWellTieInfoDlg>  applyPushed;
+
+    bool 			setUserDepths();
+    void 			setXCorrel();
+    void 			setWvlts();
+
+protected:
+   
+    WellTieDataHolder*		dataholder_;
+    WellTieParams*		params_;
+    uiPushButton*               applymarkerbut_;
+    uiPushButton*               applymrkbut_;
+    uiGenInput*			botmrkfld_;
+    uiGenInput*                 corrcoefffld_;
+    uiGenInput*			topmrkfld_;
+    uiWellTieCorrView*          crosscorr_;
+    uiWellTieWaveletView*       wvltdraw_;
+    BufferStringSet             markernames_;
+    Well::Data*                 wd_;
+    
+    void 			applyMarkerPushed(CallBacker*);
+    void 			userDepthsChanged(CallBacker*);
 };
 
 

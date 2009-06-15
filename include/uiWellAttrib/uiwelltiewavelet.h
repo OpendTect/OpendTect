@@ -18,7 +18,8 @@ ________________________________________________________________________
 
 template <class T> class Array1DImpl;
 class CtxtIOObj;
-class FFT;
+class SeisTrc;
+class WellTieDataHolder;
 class WellTieSetup;
 class Wavelet;
 
@@ -32,26 +33,27 @@ mClass uiWellTieWaveletView : public uiGroup
 {
 public:
 
-	    uiWellTieWaveletView(uiParent*,WellTieSetup&); 
+	    uiWellTieWaveletView(uiParent*,const WellTieDataHolder*); 
 	    ~uiWellTieWaveletView();
 
-    void 		initWavelets(Wavelet*);
-    Notifier<uiWellTieWaveletView>      wvltChanged;
+    void 		initWavelets();
+    //Notifier<uiWellTieWaveletView>      wvltChanged;
 
 protected:
 
-    WellTieSetup&	twtss_;
-    CtxtIOObj&          wvltctio_;
+    const WellTieDataHolder*	dataholder_;
+    const WellTieSetup&		twtss_;
+    CtxtIOObj&          	wvltctio_;
 
-    ObjectSet<uiPushButton> wvltbuts_;
-    ObjectSet<uiFlatViewer> viewer_;	   
-    uiIOObjSel*		wvltfld_;
-    uiTextEdit*		infofld_;
-    ObjectSet<Wavelet>  wvlts_;
+    ObjectSet<uiPushButton> 	wvltbuts_;
+    ObjectSet<uiFlatViewer> 	viewer_;	   
+    uiIOObjSel*			wvltfld_;
+    uiTextEdit*			infofld_;
+    ObjectSet<const Wavelet>  	wvlts_;
 
-    void		initWaveletViewer(const int);
-    void 		createWaveletFields(uiGroup*);	   
-    void		drawWavelet(Wavelet*,const int);
+    void			initWaveletViewer(int);
+    void 			createWaveletFields(uiGroup*);	   
+    void			drawWavelet(const Wavelet*,int);
     
     void 		wvtSel(CallBacker*);
     void 		viewInitWvltPropPushed(CallBacker*);
@@ -69,13 +71,13 @@ public:
 protected:
 
     int                                 wvltsz_;
-    FFT*				fft_;
+    SeisTrc*				wvlttrc_;
     CtxtIOObj&                          wvltctio_;
     ObjectSet<uiFunctionDisplay>        wvltdisps_;
-    ObjectSet< Array1DImpl<float> >     wvltvalsarr_;
+    ObjectSet< TypeSet<float> >     	propvals_;
+    const Wavelet*			wvlt_;
 
     void                                setDispCurves();
-    void                                setFrequency();
 };
 
 #endif

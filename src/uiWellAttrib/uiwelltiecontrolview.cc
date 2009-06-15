@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.7 2009-05-28 14:38:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.8 2009-06-15 08:29:32 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -175,28 +175,9 @@ void uiWellTieControlView::usrClickCB( CallBacker* cb )
 }
 
 
-void uiWellTieControlView::mouseMoveCB( CallBacker* )
-{
-    if ( picksetmgr_->getLogPickSet()->getSize() >= 1 )
-    {
-	for ( int vwridx=0; vwridx<1; vwridx++ )
-	{
-	    if ( !mouseEventHandler( vwridx ).hasEvent() )
-		            continue;
-	    const MouseEvent& ev = mouseEventHandler(vwridx).event();
-	    uiWorld2Ui w2u;
-	    vwrs_[vwridx]->getWorld2Ui(w2u);
-	    const uiWorldPoint wp = w2u.transform( ev.pos() );
-	    vwrs_[vwridx]->getAuxInfo( wp, infopars_ );
-	    picksetmgr_->updateShift( vwridx,  wp.y );
-	}
-    }
-}
-
-
 bool uiWellTieControlView::handleUserClick( int vwridx )
 {
-    if ( vwridx == 1 || vwridx == 2 || vwridx == 3 ) return false;
+    if ( vwridx !=4 ) return false;
     const MouseEvent& ev = mouseEventHandler(vwridx).event();
     uiWorld2Ui w2u;
     vwrs_[vwridx]->getWorld2Ui(w2u);
@@ -207,10 +188,13 @@ bool uiWellTieControlView::handleUserClick( int vwridx )
     {
 	if ( !checkIfInside( wp.x, wp.y, vwridx ) ) 
 	    return false;
-	picksetmgr_->addPick( vwridx, wp.y );
+	Interval<float> xvwrsize; 
+	xvwrsize.set( (float)(vwrs_[vwridx]->boundingBox().left()),
+		      (float)(vwrs_[vwridx]->boundingBox().right()) );
+	picksetmgr_->addPick( xvwrsize, wp.x, wp.y );
+
 	return true;
     }
-
     return false;
 }
 

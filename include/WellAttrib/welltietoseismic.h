@@ -54,7 +54,7 @@ public:
     bool 	      	resampleLogs();
     bool		computeCrossCorrel();
     
-    Wavelet*  		estimateWavelet();
+    bool  		estimateWavelet();
    
     //D2TModelmanager operations
     void 		setd2TModelFromData()
@@ -72,8 +72,6 @@ public:
 			{ return d2tmgr_->updateFromWD(); }
     bool		commitD2TModel()
 			{ return d2tmgr_->commitToWD(); }
-    void		shiftD2TModel(float s)
-			{ d2tmgr_->shiftModel(s); }
     
 protected:
 

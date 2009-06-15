@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.4 2009-05-20 14:27:29 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.5 2009-06-15 08:29:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ public:
 			    , attrid_(*new Attrib::DescID())
 			    , wvltid_(*new MultiID())
 			    , issonic_(true)
+			    , isinitdlg_(true)
 			    , corrvellognm_("CS Corrected ")
 			    {}
 
@@ -41,6 +42,7 @@ public:
 			    , attrid_(setup.attrid_)
 			    , wvltid_(setup.wvltid_)
 			    , issonic_(setup.issonic_)
+			    , isinitdlg_(setup.isinitdlg_)
 			    , vellognm_(setup.vellognm_)
 			    , denlognm_(setup.denlognm_)
 			    , corrvellognm_(setup.corrvellognm_)
@@ -53,6 +55,7 @@ public:
     BufferString          	corrvellognm_;
     MultiID               	wvltid_;
     bool                	issonic_;
+    bool 			isinitdlg_;
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;

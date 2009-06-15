@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.7 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.8 2009-06-15 08:29:32 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -49,6 +49,9 @@ WellTieUnitFactors::WellTieUnitFactors( const WellTieSetup* wtsetup )
     denuom_ = UnitOfMeasure::getGuessed( umlden );
     const char* umlval = vellog->unitMeasLabel();
     veluom_ = UnitOfMeasure::getGuessed( umlval );
+
+    if ( !denuom_ || !veluom_ )
+	{ pErrMsg("No valid log units specified"); return; }
 
     calcVelFactor( veluom_->symbol(), wtsetup->issonic_ );
     calcDensFactor( denuom_->symbol() );
@@ -220,7 +223,7 @@ void WellTieParams::createColNames()
 {
     dptnm_ = "Depth";			colnms_.add( dptnm_ ); 
     timenm_ = "Time";  			colnms_.add( timenm_ );
-    				        colnms_.add(wtsetup_.corrvellognm_);
+    				        colnms_.add( wtsetup_.corrvellognm_ );
     				 	colnms_.add( wtsetup_.vellognm_ );
     				 	colnms_.add( wtsetup_.denlognm_ );
     ainm_ = "Computed AI";	        colnms_.add( ainm_ );     

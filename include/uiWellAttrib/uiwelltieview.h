@@ -24,11 +24,15 @@ class WellTieDataSet;
 class WellTieData; 
 class WellTieDataSetMGR; 
 class WellTiePickSet; 
+class SeisTrcBuf;
+class SeisTrc;
 class UserPick;
+class UserPickSet;
 namespace Attrib { class DescSet; }
 
 class uiFlatViewer;
 class uiFunctionDisplay;
+class uiWellLogDisplay;
 class uiLabel;
 namespace Well
 {
@@ -40,17 +44,10 @@ public:
 			    	uiWellTieView(uiParent*,WellTieDataHolder*);
 				~uiWellTieView();
 
-
-    const int 			viewerSize() const 	{ return vwrs_.size(); }
-    uiFlatViewer* 		getViewer(int idx) 	{ return vwrs_[idx]; }
-    const uiFlatViewer* 	getViewer(int idx) const { return vwrs_[idx]; }
-
-    void        		fullRedraw();
     void        		createViewers(uiGroup*);
     void 			deleteUserPicks();
     void			deleteWellMarkers();
     void			deleteCheckShot();
-
     void        		drawAI();
     void        		drawVelLog();
     void        		drawDenLog();
@@ -59,9 +56,14 @@ public:
     void        		drawReflectivity();
     void        		drawSynthetics();
     void        		drawSeismic();
-    void        		drawUserPicks(const WellTiePickSet*);
+    void        		drawUserPicks();
     void        		drawWellMarkers();
     void        		drawCShot();
+    void        		fullRedraw();
+    uiFlatViewer* 		getViewer(int idx) 	{ return vwrs_[idx]; }
+    const uiFlatViewer* 	getViewer(int idx) const { return vwrs_[idx]; }
+    const int 			viewerSize() const 	{ return vwrs_.size(); }
+
 
 protected:
 
@@ -70,9 +72,14 @@ protected:
     const Well::Data& 		wd_;		
     const WellTieSetup& 	wtsetup_;
     const WellTieParams& 	params_;
+    uiWellLogDisplay*		logdisp_;
     ObjectSet<uiFlatViewer> 	vwrs_;
+    WellTiePickSet*		seispickset_;
+    WellTiePickSet*		synthpickset_;
 
-    bool 			isoriginalscale_;
+    SeisTrcBuf*			seistrcbuf_;
+    SeisTrcBuf*			synthtrcbuf_;
+    ObjectSet<SeisTrc>		trcs_;
     float			maxtraceval_;
     float			mintraceval_;
 
@@ -82,7 +89,11 @@ protected:
 
     void        		initFlatViewer(const char*,int,int,int,bool,
 						const Color&);
-    void        		createVarDataPack(const char*,int,int);
+    void 			createVarDataPack(const char*,int);
+    void 			setUpTrcBuf(SeisTrcBuf*,const char*,int,int);
+    void			setUpUdfTrc(SeisTrc&,const char*,int);
+    void			setUpValTrc(SeisTrc&,const char*,int);
+    void        		setDataPack(SeisTrcBuf*,const char*,int,int);
     void 			removePacks(uiFlatViewer&);
     void			deleteMarkerAuxDatas(
 				  ObjectSet<FlatView::Annotation::AuxData>&);
