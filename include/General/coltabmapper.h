@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.19 2009-06-12 17:20:51 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.20 2009-06-15 05:04:19 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "thread.h"
 #include "valseries.h"
+#include "varlenarray.h"
 
 #define mUndefColIdx    (nrsteps_)
 
@@ -179,7 +180,8 @@ od_int64 MapperTask<T>::nrIterations() const
 template <class T> inline
 bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 {
-    unsigned int histogram[mUndefColIdx+1];
+    mAllocVarLenArr( unsigned int, histogram,  mUndefColIdx+1);
+   
     memset( histogram, 0, (mUndefColIdx+1)*sizeof(unsigned int) );
 
     T* result = mapped_+start;
