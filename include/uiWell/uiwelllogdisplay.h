@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.3 2009-06-10 15:43:31 cvsbert Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.4 2009-06-15 09:53:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,10 +34,16 @@ public:
     mStruct LogData
     {
 				LogData(uiGraphicsScene&,bool isfirst);
+	void			copySetupFrom( const LogData& ld )
+	    			{ unitmeas_ = ld.unitmeas_; xrev_ = ld.xrev_;
+				  linestyle_ = ld.linestyle_;
+				  logarithmic_ = ld.logarithmic_;
+				  clipratio_ = ld.clipratio_; }
 
 	// Set these
 	const Well::Log*	wl_;
 	const UnitOfMeasure*	unitmeas_;
+	bool			xrev_;
 	LineStyle		linestyle_;
 	bool			logarithmic_;
 	float			clipratio_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.2 2009-06-10 15:43:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.3 2009-06-15 09:53:03 cvsbert Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.2 2009-06-10 15:43:31 c
 #include "dataclipper.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include "linear.h"
 #include <iostream>
 
 
@@ -27,6 +26,7 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst )
     , unitmeas_(0)
     , xax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Top:uiRect::Bottom))
     , yax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Left:uiRect::Right))
+    , xrev_(false)
     , zrg_(mUdf(float),0)
     , valrg_(mUdf(float),0)
     , logarithmic_(false)
@@ -64,6 +64,13 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p )
 
 uiWellLogDisplay::~uiWellLogDisplay()
 {
+}
+
+
+void uiWellLogDisplay::setZRange( const Interval<float>& rg )
+{
+    zrg_ = rg;
+    dataChanged();
 }
 
 
@@ -122,8 +129,8 @@ void uiWellLogDisplay::setAxisRelations()
     ld2_.yax_.setEnd( &ld1_.xax_ );
 
     ld1_.xax_.setNewDevSize( width(), height() );
-    ld2_.xax_.setNewDevSize( width(), height() );
     ld1_.yax_.setNewDevSize( height(), width() );
+    ld2_.xax_.setNewDevSize( width(), height() );
     ld2_.yax_.setNewDevSize( height(), width() );
 }
 
@@ -137,9 +144,7 @@ void uiWellLogDisplay::gatherInfo( bool first )
     {
 	if ( !first )
 	{
-	    ld2_.unitmeas_ = ld1_.unitmeas_;
-	    ld2_.linestyle_ = ld1_.linestyle_;
-	    ld2_.logarithmic_ = ld1_.logarithmic_;
+	    ld2_.copySetupFrom( ld1_ );
 	    ld2_.zrg_ = ld1_.zrg_;
 	    ld2_.valrg_ = ld1_.valrg_;
 	}
@@ -158,15 +163,7 @@ void uiWellLogDisplay::setAxisRanges( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
-    if ( sz < 2 )
-    {
-	if ( !first )
-	{
-	    ld2_.xax_.setRange( ld1_.xax_.range() );
-	    ld2_.yax_.setRange( ld1_.yax_.range() );
-	}
-	return;
-    }
+    if ( sz < 2 ) return;
 
     Interval<float> dispvalrg( ld.valrg_ );
     if ( ld.unitmeas_ )
@@ -174,20 +171,20 @@ void uiWellLogDisplay::setAxisRanges( bool first )
 	dispvalrg.start = ld.unitmeas_->userValue(ld.valrg_.start);
 	dispvalrg.stop = ld.unitmeas_->userValue(ld.valrg_.stop);
     }
-    AxisLayout alx( dispvalrg );
-    if ( alx.sd.start < dispvalrg.start ) alx.sd.start += alx.sd.step;
-    ld.xax_.setRange(
-	    StepInterval<float>(dispvalrg.start,dispvalrg.stop,alx.sd.step),
-	    &alx.sd.start );
+    if ( ld.xrev_ ) Swap( dispvalrg.start, dispvalrg.stop );
+    ld.xax_.setBounds( dispvalrg );
 
-    Interval<float> dispzrg( zrg_.start, zrg_.stop );
+    Interval<float> dispzrg( zrg_.stop, zrg_.start );
     if ( dispzinft_ )
 	dispzrg.scale( mToFeetFactor );
-    AxisLayout aly( dispzrg );
-    if ( aly.sd.start < dispzrg.start ) aly.sd.start += aly.sd.step;
-    ld.yax_.setRange(
-	    StepInterval<float>(dispzrg.start,dispzrg.stop,aly.sd.step),
-	    &aly.sd.start );
+    ld.yax_.setBounds( dispzrg );
+
+    if ( first )
+    {
+	// Set default for 2nd
+	ld2_.xax_.setBounds( dispvalrg );
+	ld2_.yax_.setBounds( dispzrg );
+    }
 }
 
 
@@ -239,6 +236,8 @@ void uiWellLogDisplay::drawCurve( bool first )
     }
     if ( curpts->isEmpty() )
 	delete curpts;
+    else
+	pts += curpts;
     if ( pts.isEmpty() ) return;
 
     for ( int idx=0; idx<pts.size(); idx++ )
