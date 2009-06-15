@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.88 2009-06-11 09:06:49 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.89 2009-06-15 12:19:56 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -213,10 +213,11 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
     trackercurrentobject_ = emobj->id();
     
-    uiDialog* setupdlg  = new uiDialog( 0 , 
+    uiDialog* setupdlg  = new uiDialog( parent(), 
 	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1")
 	   		       .savebutton(true).savechecked(true)
-			       .savetext("Save on Close  ") );
+			       .savetext("Save on Close  ")
+	   		       .modal(false) );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
 
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, 
