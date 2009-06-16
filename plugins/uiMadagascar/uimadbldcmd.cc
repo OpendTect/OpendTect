@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.18 2009-01-20 10:55:04 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.19 2009-06-16 08:51:04 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uibutton.h"
@@ -283,14 +283,16 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
     auxcmdfld_->attach( alignedBelow, useauxfld_ );
     auxcmdfld_->setStretch( 2, 0 );
 
-    uiPushButton* addbut = new uiPushButton( lowgrp, "&Add", true );
-    addbut->setToolTip( "Add to process flow" );
+    uiPushButton* addbut = new uiPushButton( lowgrp, "&Add to flow", true );
+    addbut->setToolTip( "Add 'Command line' to process flow" );
     addbut->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
-    uiPushButton* edbut = new uiPushButton( lowgrp, "&Replace", true );
-    edbut->setToolTip( "Replace current command" );
+    addbut->attach( alignedBelow, auxcmdfld_ );
+    addbut->setPrefWidthInChar( 16 );
+    uiPushButton* edbut = new uiPushButton( lowgrp, "&Replace in flow", true );
+    edbut->setToolTip( "Replace current command in flow with 'Command line'" );
     edbut->activated.notify( mCB(this,uiMadagascarBldCmd,doEdit) );
-    edbut->attach( alignedBelow, auxcmdfld_ );
-    addbut->attach( rightOf, edbut );
+    edbut->attach( rightOf, addbut );
+    edbut->setPrefWidthInChar( 16 );
 
     lowgrp->setHAlignObj( synopsfld_ );
     auxSel(0);
@@ -461,6 +463,3 @@ void uiMadagascarBldCmd::setInput( const ODMad::ProgDef* def )
 
 void uiMadagascarBldCmd::doAdd( CallBacker* )	{ mImplButFn( true ); }
 void uiMadagascarBldCmd::doEdit( CallBacker* )	{ mImplButFn( false ); }
-
-
-
