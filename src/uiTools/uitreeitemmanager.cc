@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.49 2009-06-02 09:40:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.50 2009-06-16 12:51:02 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -34,6 +34,8 @@ uiTreeItem::~uiTreeItem()
 {
     while ( children_.size() )
 	removeChild( children_[0] );
+
+    delete uilistviewitem_;
 }
 
 

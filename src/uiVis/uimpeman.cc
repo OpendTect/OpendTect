@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.153 2009-06-05 10:11:08 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.154 2009-06-16 12:54:58 cvskris Exp $";
 
 #include "uimpeman.h"
 
@@ -129,10 +129,10 @@ void uiMPEMan::addButtons()
 
     polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
 	    			 "Polygon Selection mode", true );
-    uiPopupMenu* polymnu = new uiPopupMenu( toolbar, "PolyMenu" );
-    mAddMnuItm( polymnu, "Polygon", handleToolClick, "polygonselect.png", 0 );
-    mAddMnuItm( polymnu, "Rectangle", handleToolClick, "rectangleselect.png",1);
-    toolbar->setButtonMenu( polyselectidx, *polymnu );
+    uiPopupMenu polymnu( toolbar, "PolyMenu" );
+    mAddMnuItm( (&polymnu),"Polygon", handleToolClick, "polygonselect.png", 0 );
+    mAddMnuItm( (&polymnu),"Rectangle",handleToolClick,"rectangleselect.png",1);
+    toolbar->setButtonMenu( polyselectidx, polymnu );
 
     toolbar->addSeparator();
 
