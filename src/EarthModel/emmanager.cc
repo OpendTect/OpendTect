@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.84 2009-06-02 10:11:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.85 2009-06-16 21:37:56 cvsyuancheng Exp $";
 
 #include "emmanager.h"
 
@@ -110,7 +110,11 @@ const char* EMManager::objectType( const MultiID& mid ) const
     if ( !ioobj ) 
 	return 0;
 
-    const int idx = EMOF().getNames().indexOf( ioobj->group() );
+    FixedString typenm = ioobj->pars().find( sKey::Type );
+    if ( !typenm )
+	typenm = ioobj->group();
+
+    const int idx = EMOF().getNames().indexOf( typenm );
     if ( idx<0 )
 	return 0;
 
@@ -260,7 +264,11 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) return 0;
 
-	obj = EMOF().create( ioobj->group(), *this );
+	FixedString typenm = ioobj->pars().find( sKey::Type );
+	if ( !typenm )
+	    typenm = ioobj->group();
+
+	obj = EMOF().create( typenm, *this );
 	if ( !obj ) return 0;
 	obj->setMultiID( mid );
     }
