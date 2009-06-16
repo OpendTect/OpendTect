@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.31 2009-06-05 13:23:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.32 2009-06-16 12:44:23 cvskris Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -65,6 +65,18 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
 
 uiDirectionalPlot::~uiDirectionalPlot()
 {
+    delete scene().removeItem( outercircleitm_ );
+    delete scene().removeItem( selsectoritem_ );
+    delete scene().removeItem( &sectorlines_ );
+    delete scene().removeItem( &curveitems_ );
+    delete scene().removeItem( &markeritems_ );
+    delete scene().removeItem( hdrannotitm1_ );
+    delete scene().removeItem( hdrannotitm2_ );
+    delete scene().removeItem( scalelineitm_ );
+    delete scene().removeItem( scalearcitm_ );
+    delete scene().removeItem( scaleannotitm_ );
+    delete scene().removeItem( coltabitm_ );
+
     delete colseq_;
 }
 
@@ -217,6 +229,7 @@ void uiDirectionalPlot::drawScale()
     }
 
     delete scene().removeItem( scalearcitm_ );
+    scalearcitm_ = 0;
     const Interval<float> angs( Angle::usrdeg2rad(120.F),
 	    			Angle::usrdeg2rad(150.F) );
     const float r = (float)startpt.distTo( endpt );
@@ -482,8 +495,8 @@ void uiDirectionalPlot::drawSelection()
 {
     if ( selsectoritem_ )
     {
-	scene().removeItem( selsectoritem_ );
-	delete selsectoritem_; selsectoritem_ = 0;
+	delete scene().removeItem( selsectoritem_ );
+	selsectoritem_ = 0;
     }
     if ( selsector_ < 0 ) return;
 
