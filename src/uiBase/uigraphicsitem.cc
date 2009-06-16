@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.15 2009-05-25 15:29:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.16 2009-06-16 12:32:49 cvskris Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -179,6 +179,7 @@ uiGraphicsItemGroup::uiGraphicsItemGroup( const ObjectSet<uiGraphicsItem>& grp )
 
 uiGraphicsItemGroup::~uiGraphicsItemGroup()
 {
+    removeAll( true );
     delete qgraphicsitemgrp_;
 }
 
