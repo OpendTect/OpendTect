@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.6 2009-06-16 08:54:28 cvsbert Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.7 2009-06-16 10:23:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,21 @@ mClass uiWellLogDisplay : public uiGraphicsView
 {
 public:
 
-				uiWellLogDisplay(uiParent*,
-						 const uiBorder& b=uiBorder(5));
+    mStruct Setup
+    {
+				Setup()
+				    : nrmarkerchars_(2)
+				    , markerls_(LineStyle::Dot,1)
+				    , pickls_(LineStyle::Solid,1,Color(0,200,0))
+				    , border_(5)		{}
+
+	mDefSetupMemb(uiBorder,border)
+	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
+	mDefSetupMemb(LineStyle,markerls) //!< will not use color
+	mDefSetupMemb(LineStyle,pickls)	  //!< color used if no PickData color
+    };
+
+				uiWellLogDisplay(uiParent*,const Setup&);
 				~uiWellLogDisplay();
 
     mStruct LogData
@@ -67,7 +80,18 @@ public:
 				{ return first ? ld1_ : ld2_; }
     void			setMarkers( const ObjectSet<Well::Marker>* ms )
 				{ markers_ = ms; }
-    TypeSet<float>&		zPicks()	{ return zpicks_; }
+
+    mStruct PickData
+    {
+			PickData( float dah, Color c=Color::NoColor() )
+			    : dah_(dah), color_(c)	{}
+	bool		operator ==( const PickData& pd ) const
+	    		{ return mIsEqual(pd.dah_,dah_,1e-4); }
+
+	float		dah_;
+	Color		color_;	//!< default will use the global setup color
+    };
+    TypeSet<PickData>&		zPicks()	{ return zpicks_; }
 
     const Interval<float>&	zRange() const	{ return zrg_; }
     void			setZRange(const Interval<float>&);
@@ -85,10 +109,11 @@ protected:
     Interval<float>		zrg_;
     bool			dispzinft_;
     const ObjectSet<Well::Marker>* markers_;
-    TypeSet<float>		zpicks_;
-    uiBorder			border_;
+    TypeSet<PickData>		zpicks_;
+    Setup			setup_;
 
     ObjectSet<uiLineItem>	markeritms_;
+    ObjectSet<uiTextItem>	markertxtitms_;
     ObjectSet<uiLineItem>	zpickitms_;
 
     void			init(CallBacker*);

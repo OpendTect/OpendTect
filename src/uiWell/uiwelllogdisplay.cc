@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.5 2009-06-16 08:51:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.6 2009-06-16 10:23:30 cvsbert Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
+#include "wellmarker.h"
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -19,6 +20,14 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.5 2009-06-16 08:51:24 c
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include <iostream>
+
+#define mDefDahInLoop(val) \
+	float dah = val; \
+	if ( dah < zrg_.start ) \
+	    continue; \
+	else if ( dah > zrg_.stop ) \
+	    break; \
+	if ( dispzinft_ ) dah *= mToFeetFactor
 
 
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
@@ -42,11 +51,11 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 }
 
 
-uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const uiBorder& b )
+uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     : uiGraphicsView(p,"Well Log display viewer")
-    , border_(b)
-    , ld1_(scene(),true,b)
-    , ld2_(scene(),false,b)
+    , setup_(su)
+    , ld1_(scene(),true,su.border_)
+    , ld2_(scene(),false,su.border_)
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().zInFeet())
     , markers_(0)
@@ -212,11 +221,7 @@ void uiWellLogDisplay::drawCurve( bool first )
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     for ( int idx=0; idx<sz; idx++ )
     {
-	float dah = ld.wl_->dah( idx );
-	if ( dah < zrg_.start )
-	    continue;
-	else if ( dah > zrg_.stop )
-	    break;
+	mDefDahInLoop( ld.wl_->dah( idx ) );
 
 	float val = ld.wl_->value( idx );
 	if ( mIsUdf(val) )
@@ -229,7 +234,6 @@ void uiWellLogDisplay::drawCurve( bool first )
 	    continue;
 	}
 
-	if ( dispzinft_ ) dah *= mToFeetFactor;
 	*curpts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
     }
     if ( curpts->isEmpty() )
@@ -267,13 +271,60 @@ void uiWellLogDisplay::drawCurve( bool first )
 }
 
 
+#define mDefHorLineX1X2Y() \
+	const int x1 = ld1_.xax_.getRelPosPix( 0 ); \
+	const int x2 = ld1_.xax_.getRelPosPix( 1 ); \
+	const int y = ld1_.yax_.getPix( dah )
+
 void uiWellLogDisplay::drawMarkers()
 {
+    deepErase( markeritms_ );
+    deepErase( markertxtitms_ );
+    if ( !markers_ ) return;
+
+    for ( int idx=0; idx<markers_->size(); idx++ )
+    {
+	const Well::Marker& mrkr = *((*markers_)[idx]);
+	if ( mrkr.color() == Color::NoColor() ) continue;
+
+	mDefDahInLoop( mrkr.dah() );
+	mDefHorLineX1X2Y();
+
+	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
+	li->setPenStyle( LineStyle(setup_.markerls_.type_,
+		    		   setup_.markerls_.width_,mrkr.color()) );
+	markeritms_ += li;
+
+	BufferString mtxt( mrkr.name() );
+	if ( setup_.nrmarkerchars_ < mtxt.size() )
+	    mtxt[setup_.nrmarkerchars_] = '\0';
+	uiTextItem* ti = scene().addItem(
+			 new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
+	ti->setPos( uiPoint(x1-1,y) );
+	ti->setTextColor( mrkr.color() );
+	markertxtitms_ += ti;
+    }
 }
 
 
 void uiWellLogDisplay::drawZPicks()
 {
+    deepErase( zpickitms_ );
+
+    for ( int idx=0; idx<zpicks_.size(); idx++ )
+    {
+	const PickData& pd = zpicks_[idx];
+	mDefDahInLoop( pd.dah_ );
+	mDefHorLineX1X2Y();
+
+	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
+	Color lcol( setup_.pickls_.color_ );
+	if ( pd.color_ != Color::NoColor() )
+	    lcol = pd.color_;
+	li->setPenStyle( LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,
+		    		   lcol) );
+	zpickitms_ += li;
+    }
 }
 
 
