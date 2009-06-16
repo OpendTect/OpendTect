@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.42 2009-05-26 11:25:46 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.43 2009-06-16 04:37:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.42 2009-05-26 11:25:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.43 2009-06-16 04:37:31 cvsnanne Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -1092,7 +1092,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
 	    "Selection settings" );
 
-    maniptb_.addObject( plotter_.getSaveImageTB(this) );
+    maniptb_.addObject( plotter_.getSaveImageButton() );
 
     maniptb_.addButton( "xplotprop.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );

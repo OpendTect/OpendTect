@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsview.h,v 1.4 2009-04-20 06:20:58 cvsnanne Exp $
+ RCS:		$Id: uigraphicsview.h,v 1.5 2009-06-16 04:36:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ mClass uiGraphicsView : public uiGraphicsViewBase
 public:
 				uiGraphicsView(uiParent*,const char* nm);
 
-    uiToolButton*		getSaveImageTB(uiParent*);
+    uiToolButton*		getSaveImageButton(uiParent* p=0);
     void			enableImageSave();
     void			disableImageSave();
 
