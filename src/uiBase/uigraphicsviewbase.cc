@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.10 2009-06-16 12:25:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.11 2009-06-16 12:27:38 cvskris Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -40,6 +40,8 @@ uiGraphicsViewBody( uiGraphicsViewBase& handle, uiParent* p, const char* nm )
     setPrefHeight( sDefaultHeight );
     setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
 }
+
+    ~uiGraphicsViewBody()			{ delete &mousehandler_; } 
 
     MouseEventHandler&	mouseEventHandler()	{ return mousehandler_; }
 
@@ -240,6 +242,7 @@ uiGraphicsViewBody& uiGraphicsViewBase::mkbody( uiParent* p, const char* nm )
 uiGraphicsViewBase::~uiGraphicsViewBase()
 {
     delete body_;
+    delete scene_;
 }
 
 
@@ -343,6 +346,7 @@ uiRect uiGraphicsViewBase::getViewArea() const
 
 void uiGraphicsViewBase::setScene( uiGraphicsScene& scene )
 {
+    if ( scene_ ) delete scene_;
     scene_ = &scene;
     scene_->setSceneRect( sBorder, sBorder,
 			  width()-2*sBorder, height()-2*sBorder );

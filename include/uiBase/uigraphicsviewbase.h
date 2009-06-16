@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.5 2009-06-16 12:25:20 cvsbert Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.6 2009-06-16 12:27:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ public:
 				~uiGraphicsViewBase();
 
     void			setScene(uiGraphicsScene&);
+    				//!<Scene becomes mine
     uiGraphicsScene&		scene();
     void			show();
     enum ODDragMode		{ NoDrag, ScrollHandDrag, RubberBandDrag };
