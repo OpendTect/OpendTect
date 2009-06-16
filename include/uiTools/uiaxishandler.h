@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.19 2009-06-15 09:49:12 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.20 2009-06-16 10:22:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ public:
     float		getVal(int pix) const;
     float		getRelPos(float absval) const;
     int			getPix(float absval) const;
+    int			getRelPosPix(float relpos) const;
 
     void		plotAxis(); //!< draws gridlines if appropriate
     void		annotAtEnd(const char*);
@@ -145,7 +146,6 @@ protected:
     bool		ynmtxtvertical_;
     float		rgwidth_;
 
-    int			getRelPosPix(float) const;
     void		drawAxisLine();
     void		annotPos(int,const char*,const LineStyle&);
     void		drawName();
