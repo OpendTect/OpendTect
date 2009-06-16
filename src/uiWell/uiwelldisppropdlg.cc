@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.14 2009-01-16 14:55:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.15 2009-06-16 10:34:47 cvsbert Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -20,6 +20,11 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.14 2009-01-16 14:55:26
 
 #include "keystrs.h"
 
+//TODO remove
+#include "uiwelllogdisplay.h"
+#include "welllogset.h"
+#include "unitofmeasure.h"
+
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
@@ -31,6 +36,23 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 	, applyAllReq(this)
 	, savedefault_(false)		   
 {
+uiDialog wlddlg( this, uiDialog::Setup("Aap","Noot","") );
+uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3).border(0);
+uiWellLogDisplay* wldisp = new uiWellLogDisplay( &wlddlg, wldsu );
+wldisp->setMarkers( &wd_.markers() );
+wldisp->zPicks() += uiWellLogDisplay::PickData(900,Color(255,0,255));
+wldisp->zPicks() += uiWellLogDisplay::PickData(1050,Color::NoColor());
+uiWellLogDisplay::LogData& wldld1 = wldisp->logData( true );
+wldld1.wl_ = &wd_.logs().getLog( 0 );
+wldld1.linestyle_.color_ = Color::stdDrawColor(0);
+uiWellLogDisplay::LogData& wldld2 = wldisp->logData( false );
+wldld2.wl_ = &wd_.logs().getLog( 1 );
+wldld2.unitmeas_ = UoMR().get( "g/cc" );
+wldld2.xrev_ = true;
+wldld2.linestyle_.color_ = Color::stdDrawColor(1);
+wldisp->setZRange( Interval<float>(400,1100) );
+wlddlg.go();
+
     setCtrlStyle( LeaveOnly );
     wd_.dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 

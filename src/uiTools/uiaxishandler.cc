@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.31 2009-06-15 09:49:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.32 2009-06-16 10:34:47 cvsbert Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -96,7 +96,7 @@ void uiAxisHandler::reCalc()
     annotrg.start = annotstart_;
 
     const uiFont& font = FontList().get();
-    wdthy_ = 2*font.height();
+    wdthy_ = font.height();
     BufferString str;
 
     const int nrsteps = annotrg.nrSteps();
