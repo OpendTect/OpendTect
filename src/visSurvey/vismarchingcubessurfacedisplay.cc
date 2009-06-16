@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.24 2009-06-10 20:36:51 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.25 2009-06-16 15:40:29 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -79,8 +79,7 @@ bool MarchingCubesDisplay::usesTexture() const
 { return displaysurface_->getShape()->isColTabEnabled(); }
 
 
-bool MarchingCubesDisplay::setVisSurface(
-	visBase::MarchingCubesSurface* surface )
+bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 {
     if ( displaysurface_ )
     {
@@ -232,6 +231,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     {
 	displaysurface_->getShape()->setAttribData( *dps, tr );
 	useTexture( true );
+	materialChangeCB( 0 );
     }
 
     if ( cache_ )
@@ -421,7 +421,7 @@ visBase::Transformation* MarchingCubesDisplay::getDisplayTransformation()
 void MarchingCubesDisplay::materialChangeCB( CallBacker* )
 {
     if ( displaysurface_ )
-	displaysurface_->getShape()->updateMaterialPropertiesFrom( getMaterial() );
+	displaysurface_->getShape()->updateMaterialFrom( getMaterial() );
 }
 
 
