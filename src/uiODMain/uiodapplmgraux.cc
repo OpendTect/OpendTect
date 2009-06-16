@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.4 2009-04-03 17:19:23 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.5 2009-06-16 02:08:15 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -57,6 +57,17 @@ void* uiODApplService::getObject( const uiApplPartServer* ps, int evid )
 {
     return applman_.deliverObject( ps, evid );
 }
+
+
+uiParent* uiODApplService::parent() const
+{
+    uiParent* res = uiMainWin::activeWindow();
+    if ( !res )
+	res = par_;
+
+    return res;
+}
+
 
 
 uiODApplMgrVelSel::uiODApplMgrVelSel( uiParent* p )

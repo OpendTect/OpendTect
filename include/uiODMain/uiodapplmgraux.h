@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.5 2009-04-06 11:59:01 cvshelene Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.6 2009-06-16 02:08:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ mClass uiODApplService : public uiApplService
 public:
     			uiODApplService( uiParent* p, uiODApplMgr& am )
 			    : par_(p), applman_(am)	{}
-    uiParent*		parent() const			{ return par_; }
+    uiParent*		parent() const;
     bool		eventOccurred(const uiApplPartServer*,int);
     void*		getObject(const uiApplPartServer*, int);
 
