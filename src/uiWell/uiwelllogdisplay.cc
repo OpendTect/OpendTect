@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.4 2009-06-15 14:33:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.5 2009-06-16 08:51:24 cvsbert Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -21,11 +21,14 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.4 2009-06-15 14:33:21 c
 #include <iostream>
 
 
-uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst )
+uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
+       				    const uiBorder& b )
     : wl_(0)
     , unitmeas_(0)
-    , xax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Top:uiRect::Bottom))
-    , yax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Left:uiRect::Right))
+    , xax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Top:uiRect::Bottom)
+	    			   .border(b))
+    , yax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Left:uiRect::Right)
+	    			   .border(b))
     , xrev_(false)
     , zrg_(mUdf(float),0)
     , valrg_(mUdf(float),0)
@@ -36,19 +39,17 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst )
 {
     if ( !isfirst )
 	yax_.setup().nogridline(true);
-
-    const uiBorder b( 10 );
-    xax_.setup().border( b );
-    yax_.setup().border( b );
 }
 
 
-uiWellLogDisplay::uiWellLogDisplay( uiParent* p )
+uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const uiBorder& b )
     : uiGraphicsView(p,"Well Log display viewer")
-    , ld1_(scene(),true)
-    , ld2_(scene(),false)
+    , border_(b)
+    , ld1_(scene(),true,b)
+    , ld2_(scene(),false,b)
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().zInFeet())
+    , markers_(0)
 {
     setStretch( 2, 2 );
     getMouseEventHandler().buttonReleased.notify(
@@ -166,12 +167,6 @@ void uiWellLogDisplay::setAxisRanges( bool first )
     if ( sz < 2 ) return;
 
     Interval<float> dispvalrg( ld.valrg_ );
-    if ( ld.unitmeas_ )
-    {
-	dispvalrg.start = ld.unitmeas_->userValue(ld.valrg_.start);
-	dispvalrg.stop = ld.unitmeas_->userValue(ld.valrg_.stop);
-	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
-    }
     if ( ld.xrev_ ) Swap( dispvalrg.start, dispvalrg.stop );
     ld.xax_.setBounds( dispvalrg );
 
@@ -179,7 +174,6 @@ void uiWellLogDisplay::setAxisRanges( bool first )
     if ( dispzinft_ )
 	dispzrg.scale( mToFeetFactor );
     ld.yax_.setBounds( dispzrg );
-    ld.yax_.annotAtEnd( dispzinft_ ? "(ft)" : "(m)" );
 
     if ( first )
     {
@@ -200,6 +194,9 @@ void uiWellLogDisplay::draw()
 
     drawCurve( true );
     drawCurve( false );
+
+    drawMarkers();
+    drawZPicks();
 }
 
 
@@ -233,7 +230,6 @@ void uiWellLogDisplay::drawCurve( bool first )
 	}
 
 	if ( dispzinft_ ) dah *= mToFeetFactor;
-	if ( ld.unitmeas_ ) val = ld.unitmeas_->userValue( val );
 	*curpts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
     }
     if ( curpts->isEmpty() )
@@ -264,6 +260,20 @@ void uiWellLogDisplay::drawCurve( bool first )
     ld.curvenmitm_->setPos( txtpt );
 
     deepErase( pts );
+    if ( first )
+	ld.yax_.annotAtEnd( dispzinft_ ? "(ft)" : "(m)" );
+    if ( ld.unitmeas_ )
+	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
+}
+
+
+void uiWellLogDisplay::drawMarkers()
+{
+}
+
+
+void uiWellLogDisplay::drawZPicks()
+{
 }
 
 
