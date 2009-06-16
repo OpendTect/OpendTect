@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.178 2009-06-09 17:32:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.179 2009-06-16 21:46:05 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -586,6 +586,17 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 
     if ( !exec )
 	return false;
+
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj->pars().find( sKey::Type ) )
+    {
+	ioobj->pars().set( sKey::Type, object->getTypeStr() );
+	if ( !IOM().commitChanges( *ioobj ) )
+	{
+	    uiMSG().error( "Could not write to database" );
+	    return false;
+	}
+    }
 
     storagekey = key;
     uiTaskRunner exdlg( parent() );
