@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.125 2009-06-12 18:49:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.126 2009-06-16 11:49:41 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1271,9 +1271,9 @@ bool uiAttribPartServer::handleMultiCompSubMenu( int mnuid, bool is2donly,
     {
 	TypeSet<int> selectedcomps;
 	compdlg.getCompNrs( selectedcomps );
+	targetspecs_.erase();
 	for ( int idx=0; idx<selectedcomps.size(); idx++ )
 	{
-	    targetspecs_.erase();
 	    DescID did = adsman->descSet()->getStoredID( 
 		    			idlkey, selectedcomps[idx], true );
 	    SelSpec as( 0, did );
