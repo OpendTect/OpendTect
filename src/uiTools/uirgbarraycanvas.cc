@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.20 2009-06-12 08:17:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.21 2009-06-16 12:49:05 cvskris Exp $";
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
@@ -33,7 +33,7 @@ uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
 uiRGBArrayCanvas::~uiRGBArrayCanvas()
 {
     delete pixmap_;
-    delete pixmapitm_;
+    removePixmap();
 }
 
 
@@ -100,7 +100,10 @@ void uiRGBArrayCanvas::setPixmap( const ioPixmap& pixmap )
 void uiRGBArrayCanvas::removePixmap()
 {
     if ( pixmapitm_ )
-	scene().removeItem( pixmapitm_ );
+    {
+	delete scene().removeItem( pixmapitm_ );
+	pixmapitm_ = 0;
+    }
 }
 
 
