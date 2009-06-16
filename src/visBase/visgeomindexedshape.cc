@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.21 2009-06-16 14:28:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.22 2009-06-16 15:39:49 cvsyuancheng Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -140,7 +140,7 @@ void GeomIndexedShape::setMaterial( Material* mat )
     mat->change.notify( mCB(this,GeomIndexedShape,matChangeCB) );
 }
 
-void GeomIndexedShape::updateMaterialPropertiesFrom( const Material* mat )
+void GeomIndexedShape::updateMaterialFrom( const Material* mat )
 {
     if ( ctab_ )
 	ctab_->updatePropertiesFrom ( mat );
@@ -149,7 +149,7 @@ void GeomIndexedShape::updateMaterialPropertiesFrom( const Material* mat )
 
 void GeomIndexedShape::matChangeCB( CallBacker* )
 {
-    updateMaterialPropertiesFrom( getMaterial() );
+    updateMaterialFrom( getMaterial() );
 }
 
 

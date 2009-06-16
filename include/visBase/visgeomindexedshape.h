@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.11 2009-06-10 19:50:57 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.12 2009-06-16 15:39:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ public:
 	    				TaskRunner*);
 
     void			setMaterial(Material*);
-    void			updateMaterialPropertiesFrom(const Material*);
+    void			updateMaterialFrom(const Material*);
 
 protected:
 				~GeomIndexedShape();
