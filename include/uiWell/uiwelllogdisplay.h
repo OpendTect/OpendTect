@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.5 2009-06-16 08:51:23 cvsbert Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.6 2009-06-16 08:54:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public:
 				{ return first ? ld1_ : ld2_; }
     void			setMarkers( const ObjectSet<Well::Marker>* ms )
 				{ markers_ = ms; }
-    TypeSet<float>		zPicks()	{ return zpicks_; }
+    TypeSet<float>&		zPicks()	{ return zpicks_; }
 
     const Interval<float>&	zRange() const	{ return zrg_; }
     void			setZRange(const Interval<float>&);
