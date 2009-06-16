@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.27 2009-05-27 09:28:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.28 2009-06-16 13:34:12 cvsbert Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -301,7 +301,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	for ( int idr=0; idr<curdps.size(); idr++ )
 	{
 	    dr = curdps.dataRow( idr );
-	    if ( filt && !filt->includes(dr.pos_.coord()) )
+	    if ( filt && !filt->includes(dr.pos_.coord(),dr.pos_.z()) )
 		continue;
 
 	    DataPointSet::DataRow newdr( dr );
