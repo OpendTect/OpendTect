@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.3 2008-12-17 08:52:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.4 2009-06-16 07:31:01 cvsjaap Exp $";
 
 #include "faultstickset.h"
 
@@ -250,6 +250,143 @@ void FaultStickSet::addUdfRow( int sticknr, int firstknotnr, int nrknots )
 	firstrow_ = sticknr;
     firstcols_ += firstknotnr;
     sticks_ += new TypeSet<Coord3>( nrknots, Coord3::udf() );
+}
+
+
+static double pointToSegmentDist( const Coord3& point,
+				 const Coord3& end1, const Coord3& end2 )
+{
+    double d01 = point.distTo( end1 );
+    double d02 = point.distTo( end2 );
+    double d12 = end1.distTo( end2 );
+
+    if ( mIsZero(d12,mDefEps) )
+	return d01;
+    if ( d01<d02 && d01*d01+d12*d12<=d02*d02 )
+	return d01;
+    if ( d01>d02 && d02*d02+d12*d12<=d01*d01 )
+	return d02;
+
+    double sp = 0.5 *( d01+d02+d12 );
+    double area = sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );  
+    return 2.0*area/d12;
+}
+
+
+#define mGetEndPoints( sticknr1, sticknr2, zscale, a0, a1, b0, b1, errres ) \
+\
+    StepInterval<int> knotrg1 = colRange( sticknr1 ); \
+    StepInterval<int> knotrg2 = colRange( sticknr2 ); \
+    if ( knotrg1.isUdf() || knotrg2.isUdf() ) \
+	return errres; \
+\
+    Coord3 a0 = getKnot( RowCol(sticknr1,knotrg1.start) ); \
+    Coord3 a1 = getKnot( RowCol(sticknr1,knotrg1.stop) ); \
+    Coord3 b0 = getKnot( RowCol(sticknr2,knotrg2.start) ); \
+    Coord3 b1 = getKnot( RowCol(sticknr2,knotrg2.stop) ); \
+\
+    if ( zscale==MAXDOUBLE ) \
+    { \
+	a0.x=0; a0.y=0; a1.x=0; a1.y=0; b0.x=0; b0.y=0; b1.x=0; b1.y=0; \
+    } \
+    else \
+    { \
+	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale; \
+    } \
+
+double FaultStickSet::interStickDist( int sticknr1, int sticknr2,
+				      double zscale ) const
+{
+    mGetEndPoints( sticknr1, sticknr2, zscale, a0, a1, b0, b1, mUdf(double) );
+
+    const double dista0 = pointToSegmentDist( a0, b0, b1 );
+    const double dista1 = pointToSegmentDist( a1, b0, b1 );
+    const double distb0 = pointToSegmentDist( b0, a0, a1 );
+    const double distb1 = pointToSegmentDist( b1, a0, a1 );
+
+    return mMIN( mMIN(dista0,dista1), mMIN(distb0,distb1) );
+}
+
+
+bool FaultStickSet::isTwisted( int sticknr1, int sticknr2, double zscale ) const
+{
+    mGetEndPoints( sticknr1, sticknr2, zscale, a0, a1, b0, b1, false );
+    return (a0.distTo(b0)+a1.distTo(b1) > a0.distTo(b1)+a1.distTo(b0));
+}
+
+
+void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
+					 double zscale, bool orderall ) const
+{
+    StepInterval<int> rowrg = rowRange();
+    if ( rowrg.isUdf() )
+    {
+	sticknrs.erase();
+	return;
+    }
+
+    if ( orderall )
+    {
+	sticknrs.erase();
+	for (int sticknr=rowrg.start; sticknr<=rowrg.stop; sticknr+=rowrg.step)
+	    sticknrs += sticknr;
+    }
+    else
+    {
+	for ( int idx=sticknrs.size()-1; idx>=0; idx-- )
+	{
+	    if ( !rowrg.includes(sticknrs[idx]) )
+		sticknrs.remove( idx );
+	}
+    }
+
+    if ( sticknrs.size() < 3 )
+	return;
+
+    double mindist = MAXDOUBLE;
+    int minidx0, minidx1;
+
+    for ( int idx=0; idx<sticknrs.size()-1; idx++ )
+    {
+	for ( int idy=idx+1; idy<sticknrs.size(); idy++ )
+	{
+	    const double dist = interStickDist( sticknrs[idx],
+						sticknrs[idy], zscale );
+
+	    if ( dist < mindist )
+	    {
+		mindist = dist;
+		minidx0 = idx;
+		minidx1 = idy;
+	    }
+	}
+    }
+    sticknrs.swap( 0, minidx0 );
+    sticknrs.swap( 1, minidx1 );
+
+    for ( int tailidx=1; tailidx<sticks_.size()-1; tailidx++ )
+    {
+	mindist = MAXDOUBLE;
+	bool reverse = false;
+	for ( int idy=tailidx+1; idy<sticknrs.size(); idy++ )
+	{
+	    const double dist0 = interStickDist( sticknrs[0],
+		    				 sticknrs[idy], zscale );
+	    const double dist1 = interStickDist( sticknrs[tailidx],
+		    				 sticknrs[idy], zscale );
+
+	    if ( mMIN(dist0,dist1) < mindist )
+	    {
+		mindist = mMIN( dist0, dist1 );
+		minidx0 = idy;
+		reverse = dist0 < dist1;
+	    }
+	}
+	for ( int idx=0; reverse && idx<tailidx*0.5; idx++ )
+	    sticknrs.swap( idx, tailidx-idx );
+
+	sticknrs.swap( tailidx+1, minidx0 );
+    }
 }
 
 

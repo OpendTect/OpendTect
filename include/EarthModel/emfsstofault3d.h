@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		March 2009
- RCS:		$Id: emfsstofault3d.h,v 1.2 2009-04-21 12:29:51 cvsjaap Exp $
+ RCS:		$Id: emfsstofault3d.h,v 1.3 2009-06-16 07:31:01 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "position.h"
 
+
+namespace Geometry { class FaultStickSet; }
 
 namespace EM
 {
@@ -60,9 +62,6 @@ protected:
 	Coord3			normal_;
 	bool			pickedonplane_;
 
-	double 			distTo(const FaultStick&,double zscale) const;
-	void			untwist(const FaultStick& prev,double zscale);
-
 	Coord3			findPlaneNormal() const;
 	double			slope(double zscale) const;
 	bool			pickedOnInl() const;
@@ -75,10 +74,13 @@ protected:
     Setup			setup_;
     ObjectSet<FaultStick>	sticks_;
 
+    const Geometry::FaultStickSet* curfssg_;
+
     bool			readSection(const SectionID&);
     bool			preferHorPicked() const;
     void			selectSticks( bool selhorpicked );
     void			geometricSort(double zscale);
+    void			untwistSticks(double zscale);
     void			resolveUdfNormals();
     bool			writeSection(const SectionID&) const;
 };

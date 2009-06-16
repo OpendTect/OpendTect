@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.4 2009-05-12 04:59:32 cvsumesh Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.5 2009-06-16 07:31:01 cvsjaap Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -25,83 +25,6 @@ FSStoFault3DConverter::FaultStick::FaultStick( int sticknr )
 	, pickedonplane_(false)
 	, normal_(Coord3::udf())
 {}
-
-
-static double pointToSegmentDist( const Coord3& point,
-				 const Coord3& end1, const Coord3& end2 )
-{
-    double d01 = point.distTo( end1 );
-    double d02 = point.distTo( end2 );
-    double d12 = end1.distTo( end2 );
-
-    if ( mIsZero(d12,mDefEps) )
-	return d01;
-    if ( d01<d02 && d01*d01+d12*d12<=d02*d02 )
-	return d01;
-    if ( d01>d02 && d02*d02+d12*d12<=d01*d01 )
-	return d02;
-
-    double sp = 0.5 *( d01+d02+d12 );
-    double area = sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );  
-    return 2.0*area/d12;
-}
-
-
-double FSStoFault3DConverter::FaultStick::distTo( const FaultStick& fs,
-						  double zscale ) const
-{
-    if ( crds_.isEmpty() || fs.crds_.isEmpty() )
-	return mUdf(double);
-   
-    Coord3 a0 = crds_[0];
-    Coord3 a1 = crds_[crds_.size()-1];
-    Coord3 b0 = fs.crds_[0];
-    Coord3 b1 = fs.crds_[fs.crds_.size()-1];
-
-    if ( zscale==MAXDOUBLE )
-    {
-	a0.x=0; a0.y=0; a1.x=0; a1.y=0; b0.x=0; b0.y=0; b1.x=0; b1.y=0; 
-    }
-    else 
-    {
-	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale;
-    }
-
-    const double dista0 = pointToSegmentDist( a0, b0, b1 );
-    const double dista1 = pointToSegmentDist( a1, b0, b1 );
-    const double distb0 = pointToSegmentDist( b0, a0, a1 );
-    const double distb1 = pointToSegmentDist( b1, a0, a1 );
-
-    return mMIN( mMIN(dista0,dista1), mMIN(distb0,distb1) );
-}
-
-
-void FSStoFault3DConverter::FaultStick::untwist( const FaultStick& fs,
-						 double zscale )
-{
-    if ( crds_.isEmpty() || fs.crds_.isEmpty() )
-	return;
-   
-    Coord3 a0 = crds_[0];
-    Coord3 a1 = crds_[crds_.size()-1];
-    Coord3 b0 = fs.crds_[0];
-    Coord3 b1 = fs.crds_[fs.crds_.size()-1];
-
-    if ( zscale==MAXDOUBLE )
-    {
-	a0.x=0; a0.y=0; a1.x=0; a1.y=0; b0.x=0; b0.y=0; b1.x=0; b1.y=0; 
-    }
-    else 
-    {
-	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale;
-    }
-
-    if ( a0.distTo(b0)+a1.distTo(b1) <= a0.distTo(b1)+a1.distTo(b0) )
-	return;
-
-    for ( int idx=0; idx<crds_.size()/2; idx++ )
-	crds_.swap( idx, crds_.size()-1-idx );
-}
 
 
 double FSStoFault3DConverter::FaultStick::slope( double zscale ) const
@@ -189,6 +112,7 @@ FSStoFault3DConverter::FSStoFault3DConverter( const Setup& setup,
     : setup_(setup)
     , fss_(fss)
     , fault3d_(f3d)
+    , curfssg_(0)
 {
 }
 
@@ -211,9 +135,7 @@ bool FSStoFault3DConverter::convert()
 	if ( setup_.sortsticks_ )
 	    geometricSort( selhorpicked ? MAXDOUBLE : 0.0 );
 
-	for ( int idx=1; idx<sticks_.size(); idx++ )
-	    sticks_[idx]->untwist( *sticks_[idx-1], setup_.zscale_ );
-
+	untwistSticks( setup_.zscale_ );
 	resolveUdfNormals();
 	writeSection( sid );
 	deepErase( sticks_ );
@@ -227,18 +149,18 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 {
     if ( fss_.sectionIndex(sid) < 0 )
 	return false;
-    mDynamicCastGet( const Geometry::FaultStickSet*, fssg,
-		     fss_.sectionGeometry(sid) );
-    if ( !fssg )
+    mDynamicCast( const Geometry::FaultStickSet*, curfssg_,
+		  fss_.sectionGeometry(sid) );
+    if ( !curfssg_ )
 	return false;
-    const StepInterval<int> rowrg = fssg->rowRange();
+    const StepInterval<int> rowrg = curfssg_->rowRange();
     if ( rowrg.isUdf() )
 	return false;
 
     RowCol rc;
     for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
     {
-	const StepInterval<int> colrg = fssg->colRange( rc.row );
+	const StepInterval<int> colrg = curfssg_->colRange( rc.row );
 	if ( colrg.isUdf() )
 	    return false;
 
@@ -247,7 +169,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
-	    const Coord3 pos = fssg->getKnot( rc );
+	    const Coord3 pos = curfssg_->getKnot( rc );
 	    if ( !pos.isDefined() )
 		return false;
 	    stick->crds_ += pos;
@@ -257,7 +179,7 @@ bool FSStoFault3DConverter::readSection( const SectionID& sid )
 	if ( stick->pickedonplane_ )
 	    stick->normal_ = stick->findPlaneNormal();
 	else
-	    stick->normal_ = fssg->getEditPlaneNormal( rc.row );
+	    stick->normal_ = curfssg_->getEditPlaneNormal( rc.row );
     }
     return true;
 }
@@ -381,51 +303,43 @@ void FSStoFault3DConverter::selectSticks( bool selhorpicked )
 
 void FSStoFault3DConverter::geometricSort( double zscale )
 {
-    if ( sticks_.size()>2 )
+    TypeSet<int> sticknrs;
+
+    for ( int idx=0; idx<sticks_.size(); idx++ )
+	sticknrs += sticks_[idx]->sticknr_;
+
+    if ( curfssg_ )
+	curfssg_->geometricStickOrder( sticknrs, zscale, false );
+
+    for ( int idy=sticknrs.size()-1; idy>0; idy-- )
     {
-	double mindist = MAXDOUBLE;
-	int minidx0, minidx1;
-
-	for ( int idx=0; idx<sticks_.size()-1; idx++ )
+	for ( int idx=0; idx<sticks_.size(); idx++ )
 	{
-	    for ( int idy=idx+1; idy<sticks_.size(); idy++ )
+	    if ( sticks_[idx]->sticknr_ == sticknrs[idy] )
 	    {
-		const double dist =
-			     sticks_[idx]->distTo( *sticks_[idy], zscale );
-
-		if ( dist < mindist )
-		{
-		    mindist = dist;
-		    minidx0 = idx;
-		    minidx1 = idy;
-		}
+		sticks_.swap( idx, idy );
+		break;
 	    }
 	}
-	sticks_.swap( 0, minidx0 );
-	sticks_.swap( 1, minidx1 );
+    }
+}
 
-	for ( int tailidx=1; tailidx<sticks_.size()-1; tailidx++ )
+
+void FSStoFault3DConverter::untwistSticks( double zscale )
+{
+    bool reverse = false;
+    for ( int idx=1; idx<sticks_.size(); idx++ )
+    {
+
+	if ( curfssg_ && curfssg_->isTwisted(sticks_[idx-1]->sticknr_,
+					     sticks_[idx]->sticknr_, zscale) )
+	    reverse = !reverse;
+
+	if ( reverse )
 	{
-	    mindist = MAXDOUBLE;
-	    bool reverse = false;
-	    for ( int idy=tailidx+1; idy<sticks_.size(); idy++ )
-	    {
-		const double dist0 =
-			     sticks_[0]->distTo( *sticks_[idy], zscale );
-		const double dist1 =
-			     sticks_[tailidx]->distTo( *sticks_[idy], zscale );
-
-		if ( mMIN(dist0,dist1) < mindist )
-		{
-		    mindist = mMIN( dist0, dist1 );
-		    minidx0 = idy;
-		    reverse = dist0 < dist1;
-		}
-	    }
-	    for ( int idx=0; reverse && idx<tailidx*0.5; idx++ )
-		sticks_.swap( idx, tailidx-idx );
-
-	    sticks_.swap( tailidx+1, minidx0 );
+	    const int nrknots = sticks_[idx]->crds_.size();
+	    for ( int idy=0; idy<nrknots/2; idy++ )
+		sticks_[idx]->crds_.swap( idy, nrknots-1-idy );
 	}
     }
 }

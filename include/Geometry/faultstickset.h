@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.3 2008-12-25 11:55:38 cvsranojay Exp $
+RCS:           $Id: faultstickset.h,v 1.4 2009-06-16 07:31:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,17 @@ public:
     void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
     void		addEditPlaneNormal(const Coord3&);
 
+    			// Use zscale=0 to measure in xy-direction only and
+   			// zscale=MAXDOUBLE to measure in z-direction only.
+    void		geometricStickOrder(TypeSet<int>& sticknrs,
+				  double zscale,bool orderall=true) const;
+
+    bool		isTwisted(int sticknr1,int sticknr2,
+				  double zscale) const;
+
 protected:
+    double			interStickDist(int sticknr1,int sticknr2,
+					       double zscale) const;
 
     int				firstrow_;
 
