@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.4 2009-06-12 08:17:57 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.5 2009-06-16 12:25:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,13 +74,15 @@ public:
 
     MouseEventHandler&		getMouseEventHandler();
 
-    CNotifier<uiGraphicsViewBase,uiSize> reSize;
-    Notifier<uiGraphicsViewBase>	rubberBandUsed;
-    Notifier<uiGraphicsViewBase>	reDrawNeeded;
-    Notifier<uiGraphicsViewBase>	activatedone;
+    CNotifier<uiGraphicsViewBase,uiSize> reSize; //!< CallBacker is OLD size
+    Notifier<uiGraphicsViewBase> rubberBandUsed;
+    Notifier<uiGraphicsViewBase> reDrawNeeded;
+    Notifier<uiGraphicsViewBase> reDrawn;
+    				//!< In practice, this happens only after reSize
 
     				//! Force activation in GUI thread
     void			activateMenu();
+    Notifier<uiGraphicsViewBase> activatedone; 
 
 protected:
 

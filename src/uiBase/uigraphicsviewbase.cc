@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.9 2009-06-12 08:17:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.10 2009-06-16 12:25:20 cvsbert Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -177,6 +177,7 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
 
     uiSize oldsize( event->oldSize().width(), event->oldSize().height() );
     handle_.reSize.trigger( oldsize );
+    handle_.reDrawn.trigger();
 }
 
 
@@ -214,6 +215,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     : uiObject( p, nm, mkbody(p,nm) )
     , reDrawNeeded(this)
     , reSize(this)
+    , reDrawn(this)
     , rubberBandUsed(this)
     , activatedone(this)
     , scene_(0)
