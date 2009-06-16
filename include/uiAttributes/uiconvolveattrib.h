@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          Nov 2006
- RCS:           $Id: uiconvolveattrib.h,v 1.6 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiconvolveattrib.h,v 1.7 2009-06-16 04:34:24 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 class uiAttrSel;
 class uiGenInput;
 class uiLabeledSpinBox;
-class CtxtIOObj;
 class uiIOObjSel;
 
 /*! \brief Convolve Attribute description editor */
@@ -39,8 +38,6 @@ protected:
     uiGenInput*         shapefld_;
     uiGenInput*         outpfld_;
     uiIOObjSel*         waveletfld_;
-
-    CtxtIOObj&          ctio_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

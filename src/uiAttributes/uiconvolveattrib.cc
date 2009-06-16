@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.16 2009-04-06 09:32:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.17 2009-06-16 04:34:24 cvsnageswara Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.16 2009-04-06 09:32:24 
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "uiioobjsel.h"
-#include "ctxtioobj.h"
 #include "wavelet.h"
 #include "transl.h"
 #include "ioman.h"
@@ -66,7 +65,6 @@ mInitAttribUI(uiConvolveAttrib,Convolve,"Convolve",sKeyFilterGrp())
 
 uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.1")
-    	, ctio_(*mMkCtxtIOObj(Wavelet))
 {
     inpfld_ = getInpFld( is2d );
 
@@ -90,7 +88,8 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 		       StringListInpSpec( is2d_ ? outpstrs2d : outpstrs3d) );
     outpfld_->attach( alignedBelow, kernelfld_ );
 
-    waveletfld_ = new uiIOObjSel( this, ctio_ );
+    const TranslatorGroup& tr = TranslatorGroup::getGroup( "Wavelet" );
+    waveletfld_ = new uiIOObjSel( this, IOObjContext(&tr) );
     waveletfld_->attach( alignedBelow, kernelfld_ );
     waveletfld_->display(false);
 
@@ -101,8 +100,6 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 
 uiConvolveAttrib::~uiConvolveAttrib()
 {
-    delete ctio_.ioobj;
-    delete &ctio_;
 }
 
 
@@ -175,9 +172,8 @@ bool uiConvolveAttrib::getParameters( Desc& desc )
 	mSetInt( Convolve::sizeStr(), szfld_->box()->getValue() );
     }
     else if ( typeval == 3 )
-	if ( waveletfld_->ctxtIOObj().ioobj )
-	    mSetString( Convolve::waveletStr(),
-			waveletfld_->ctxtIOObj().ioobj->key().buf() )
+	if ( waveletfld_->ioobj() )
+	    mSetString( Convolve::waveletStr(), waveletfld_->key().buf() );
 
     return true;
 }
