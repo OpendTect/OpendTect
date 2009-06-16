@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.10 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.11 2009-06-16 12:31:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ mClass DrawAxis2D
 {
 public:
 			DrawAxis2D(uiGraphicsView*);
+			~DrawAxis2D();
     void		setDrawScene(uiGraphicsScene*);
     void		setDrawRectangle(const uiRect*);
     			/*!<Specifies a rectangle on the canvas where the

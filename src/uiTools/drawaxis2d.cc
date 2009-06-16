@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.21 2009-04-21 06:16:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.22 2009-06-16 12:31:10 cvskris Exp $";
 
 #include "drawaxis2d.h"
 
@@ -44,6 +44,19 @@ DrawAxis2D::DrawAxis2D( uiGraphicsView* drawview )
     , useuirect_( false )
     , zValue_( 3 )
 { }
+
+
+DrawAxis2D::~DrawAxis2D()
+{
+    delete drawscene_->removeItem( xaxlineitmgrp_ );
+    delete drawscene_->removeItem( yaxlineitmgrp_ );
+    delete drawscene_->removeItem( xaxgriditmgrp_ );
+    delete drawscene_->removeItem( yaxgriditmgrp_ );
+    delete drawscene_->removeItem( xaxtxtitmgrp_ );
+    delete drawscene_->removeItem( yaxtxtitmgrp_ );
+    delete drawscene_->removeItem( xaxrectitem_ );
+    delete drawscene_->removeItem( yaxlineitem_ );
+}
 
 
 void DrawAxis2D::setDrawScene( uiGraphicsScene* da )
