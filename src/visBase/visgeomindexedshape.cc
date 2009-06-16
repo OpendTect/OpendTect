@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.20 2009-06-10 19:50:57 cvskris Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.21 2009-06-16 14:28:52 cvsyuancheng Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -95,7 +95,10 @@ GeomIndexedShape::ColTabMaterial::~ColTabMaterial()
 
 void GeomIndexedShape::ColTabMaterial::updatePropertiesFrom( const Material* m )
 {
-    coltab_->setDiffIntensity( m->getDiffIntensity( 0 ), 0 );
+    const float diffintensity = m->getDiffIntensity( 0 );
+    for ( int idx=0; idx<mNrMaterials; idx++ )
+	coltab_->setDiffIntensity( diffintensity, idx );
+
     coltab_->setAmbience( m->getAmbience() );
     coltab_->setSpecIntensity( m->getSpecIntensity() );
     coltab_->setEmmIntensity( m->getEmmIntensity() );
