@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.30 2009-06-17 08:46:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.31 2009-06-17 10:28:00 cvssatyaki Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -656,7 +656,7 @@ void uiArrowItem::update()
     const float arrsz = sqrt( diffx*diffx + diffy*diffy );
     setArrowSize( mNINT(arrsz) );
     setPos( headpos_ );
-    const uiPoint relvec( diffx, diffy );
+    const uiPoint relvec( mNINT(diffx), mNINT(diffy) );
     const float ang = atan2((float)relvec.y,(float)relvec.x) * 180/M_PI;
     rotate( ang );
 }
