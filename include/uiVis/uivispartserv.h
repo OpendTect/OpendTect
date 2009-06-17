@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.239 2009-06-03 10:51:40 cvsbert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.240 2009-06-17 10:24:23 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,7 +288,8 @@ public:
     static const int		evPickingStatusChange();
     bool			sendPickingStatusChangeEvent(); 
     static const int		evDisableSelTracker();
-    bool			sendDisableSelTrackerEvent(); 
+    bool			sendDisableSelTrackerEvent();
+    void			trackInVolume(); 
 
     void			reportTrackingSetupActive(bool yn);
     bool 			isTrackingSetupActive() const;

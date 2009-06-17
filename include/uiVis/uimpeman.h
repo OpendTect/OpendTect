@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.52 2009-05-29 12:01:52 cvsumesh Exp $
+ RCS:           $Id: uimpeman.h,v 1.53 2009-06-17 10:24:23 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     void			introduceMPEDisplay();
     void			updateSeedModeSel();
     void			initFromDisplay();
+    void			trackInVolume();
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
