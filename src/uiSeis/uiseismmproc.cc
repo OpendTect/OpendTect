@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.128 2009-05-22 04:36:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.129 2009-06-17 17:42:04 cvskris Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -92,9 +92,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     setTitleText( multihost ? "Multi-Machine Processing"
 		    : (is2d ? "Multi-line processing"
 			    : "Line-split processing") );
-    const char* res = iop.find( sKey::Target );
+    FixedString res = iop.find( sKey::Target );
     caption = "Processing";
-    if ( res && *res )
+    if ( res )
 	{ caption += " '"; caption += res; caption += "'"; }
     setCaption( caption );
 
@@ -108,7 +108,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     uiObject* inlperjobattach = 0;
     if ( !is2d )
     {
-	BufferString tmpstordir = iop.find( sKey::TmpStor );
+	FixedString tmpstordir = iop.find( sKey::TmpStor );
 	isrestart = !tmpstordir.isEmpty();
 	if ( !isrestart )
 	{

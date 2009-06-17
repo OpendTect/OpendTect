@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.44 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.45 2009-06-17 17:42:04 cvskris Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -179,7 +179,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
 	Seis2DLineSet seislineset( ioobj->fullUserExpr(true) );
 	const int index = seislineset.indexOf( setup.linekey_ );
 	IOPar par( seislineset.getInfo(index) );
-	BufferString fname = par.find( sKey::FileName );
+	FixedString fname = par.find( sKey::FileName );
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() )
 	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );

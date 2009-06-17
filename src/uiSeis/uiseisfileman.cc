@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.84 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.85 2009-06-17 17:42:04 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -400,7 +400,7 @@ void attribSel( CallBacker* )
     txt += " ["; mZRangeTxt(l2dd.zrg_.step); txt += "]";
 
     const IOPar& iopar = lineset->getInfo( lineidx );
-    BufferString fname = iopar.find( sKey::FileName );
+    FixedString fname = iopar.find( sKey::FileName );
     FilePath fp( fname );
     if ( !fp.isAbsolute() )
 	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
