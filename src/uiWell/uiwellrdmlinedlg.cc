@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.22 2009-03-24 12:33:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.23 2009-06-17 06:03:18 cvsranojay Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -308,7 +308,7 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 			coords += Coord( coord3.x, coord3.y );
 			continue;
 		    }
-		    Coord3 prevcoord3 = wd->track().pos( posidx + 1 );
+		    Coord3 prevcoord3 = wd->track().pos( posidx - 1 );
 		    Coord3 coord3 = wd->track().pos( posidx );
 		    if ( prevcoord3 != coord3 )
 			coords += Coord( coord3.x, coord3.y );
