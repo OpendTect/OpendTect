@@ -88,7 +88,7 @@ protected:
 
     void			addControl();
     void 			addToolBarTools();
-    void 			doWholeWork();
+    void 			doWholeWork( CallBacker* );
     void			createTaskFields(uiGroup*);
     void			createCSFields(uiGroup*);
     void 			drawData();

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.16 2009-06-15 10:16:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.17 2009-06-17 11:48:13 cvsranojay Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -142,11 +142,11 @@ void uiWellTieToSeismicDlg::initAll()
 {
     addControl();
     addToolBarTools();
-    doWholeWork();
+    doWholeWork( 0 );
 }
 
 
-void uiWellTieToSeismicDlg::doWholeWork()
+void uiWellTieToSeismicDlg::doWholeWork( CallBacker* )
 {
     params_->resetDataParams(0); //TODO put as CB
     dataplayer_->computeAll();
@@ -270,9 +270,9 @@ void uiWellTieToSeismicDlg::viewDataPushed( CallBacker* )
 }
 
 
-void uiWellTieToSeismicDlg::wvltChg( CallBacker* )
+void uiWellTieToSeismicDlg::wvltChg( CallBacker* cb  )
 {
-    doWholeWork();
+    doWholeWork( cb );
 }
 
 
@@ -354,11 +354,11 @@ bool uiWellTieToSeismicDlg::saveD2TPushed( CallBacker* )
 }
 
 
-void uiWellTieToSeismicDlg::applyPushed( CallBacker* )
+void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
 {
     eventstretcher_->doWork(0);
     //dataholder_->pickmgr_->clearAllPicks();
-    doWholeWork();
+    doWholeWork( cb );
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
     manip_ = 0;
@@ -391,12 +391,12 @@ void uiWellTieToSeismicDlg::checkIfPick( CallBacker* )
 }
 
 
-bool uiWellTieToSeismicDlg::undoPushed( CallBacker* )
+bool uiWellTieToSeismicDlg::undoPushed( CallBacker* cb )
 {
     if ( !dataplayer_->undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
     
-    doWholeWork();
+    doWholeWork( cb );
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );
 
