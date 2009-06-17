@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.50 2009-06-15 13:17:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.51 2009-06-17 11:57:44 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -42,6 +42,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.50 2009-06-15 13:17:50 cvsbert
 #include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uiwelldlgs.h"
+#include "uiwelllogcalc.h"
 #include "uiwellmarkerdlg.h"
 
 
@@ -61,10 +62,16 @@ uiWellMan::uiWellMan( uiParent* p )
     logsfld = new uiListBox( logsgrp, "Available logs", true );
     logsfld->attach( alignedBelow, lbl );
 
-    uiPushButton* logsbut = new uiPushButton( logsgrp, "Add &Logs", false );
-    logsbut->activated.notify( mCB(this,uiWellMan,addLogs) );
-    logsbut->attach( centeredBelow, logsfld );
-    logsgrp->attach( rightOf, selgrp );
+    uiButtonGroup* logsbgrp = new uiButtonGroup( logsgrp, "Logs buttons",
+	    					 false );
+    uiPushButton* addlogsbut = new uiPushButton( logsbgrp, "Import &Logs",
+	    					 false );
+    addlogsbut->activated.notify( mCB(this,uiWellMan,importLogs) );
+    uiPushButton* calclogsbut = new uiPushButton( logsbgrp, "Calculate &Logs",
+	    					  false );
+    calclogsbut->activated.notify( mCB(this,uiWellMan,calcLogs) );
+    calclogsbut->attach( rightOf, addlogsbut );
+    logsbgrp->attach( centeredBelow, logsfld );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp );
     butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiWellMan,renameLogPush),
@@ -74,6 +81,7 @@ uiWellMan::uiWellMan( uiParent* p )
     butgrp->addButton( "export.png", mCB(this,uiWellMan,exportLogs),
 	    	       "Export log" );
     butgrp->attach( rightOf, logsfld );
+    logsgrp->attach( rightOf, selgrp );
 
     uiToolButton* welltrackbut = new uiToolButton( this, "Well Track",
 	   	 "edwelltrack.png", mCB(this,uiWellMan, edWellTrack) );
@@ -248,16 +256,33 @@ void uiWellMan::defD2T( bool chkshot )
     while ( welldata->logs().size() ) \
         delete welldata->logs().remove(0);
 
-void uiWellMan::addLogs( CallBacker* )
+void uiWellMan::importLogs( CallBacker* )
 {
     if ( !welldata || !wellrdr ) return;
 
     wellrdr->getLogs();
     uiLoadLogsDlg dlg( this, *welldata );
-    if ( !dlg.go() ) { mDeleteLogs(); return; }
+    if ( dlg.go() )
+	writeLogs();
+}
 
+
+void uiWellMan::calcLogs( CallBacker* )
+{
+    if ( !welldata || !wellrdr ) return;
+
+    wellrdr->getLogs();
+    uiWellLogCalc dlg( this, welldata->logs() );
+    if ( dlg.go() )
+	writeLogs();
+}
+
+
+void uiWellMan::writeLogs()
+{
     Well::Writer wtr( fname, *welldata );
     wtr.putLogs();
+
     fillLogsFld();
     const MultiID& key = curioobj_->key();
     Well::MGR().reload( key );

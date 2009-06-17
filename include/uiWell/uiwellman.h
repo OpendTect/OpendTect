@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.13 2009-04-21 11:36:01 cvsbert Exp $
+ RCS:           $Id: uiwellman.h,v 1.14 2009-06-17 11:57:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ protected:
     void			ownSelChg();
     void			getCurrentWell();
     void			mkFileInfo();
+    void			writeLogs();
     void			fillLogsFld();
     void			removeLogPush(CallBacker*);
     void			renameLogPush(CallBacker*);
@@ -48,7 +49,8 @@ protected:
     void			edWellTrack(CallBacker*);
     void			edD2T(CallBacker*);
     void			edChckSh(CallBacker*);
-    void			addLogs(CallBacker*);
+    void			importLogs(CallBacker*);
+    void			calcLogs(CallBacker*);
     void			exportLogs(CallBacker*);
 
     double			getFileSize(const char*,int&) const;
