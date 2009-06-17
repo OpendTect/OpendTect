@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.333 2009-06-10 20:45:21 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.334 2009-06-17 10:29:30 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -768,6 +768,10 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     else if ( evid==uiMPEPartServer::evRemoveUnsavedEMObject() )
     {
 	emserv_->removeUnsavedEMObjectFromTree();
+    }
+    else if ( evid==uiMPEPartServer::evRetrackInVolume() )
+    {
+	visserv_->trackInVolume();
     }
     else
 	pErrMsg("Unknown event from mpeserv");
