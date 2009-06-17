@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.1 2009-06-17 11:57:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.2 2009-06-17 15:07:39 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -18,11 +18,13 @@ static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.1 2009-06-17 11:57:44 cvsb
 #include "uimsg.h"
 #include "uitable.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uiseparator.h"
 
 #include "welllogset.h"
 #include "welllog.h"
 #include "separstr.h"
+#include "survinfo.h"
 #include "mathexpression.h"
 
 static const int cMaxNrInps = 6;
@@ -36,6 +38,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     	, formfld_(0)
     	, nrvars_(0)
     	, expr_(0)
+    	, havenew_(false)
 {
     setCtrlStyle( DoAndStay );
 
@@ -53,6 +56,10 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     uiGroup* inpgrp = new uiGroup( this, "inp grp" );
     formfld_ = new uiGenInput( inpgrp, "Formula (like 'x0 + x1')",
 				     StringInpSpec().setName("Formula") );
+    formfld_->valuechanged.notify( formsetcb );
+    UserInputObj* uiobj = formfld_->element(0);
+    mDynamicCastGet(uiLineEdit*,le,uiobj)
+    if ( le ) le->returnPressed.notify( formsetcb );
     uiButton* setbut = new uiPushButton( inpgrp, "&Set", formsetcb, true );
     setbut->attach( rightOf, formfld_ );
     inpgrp->setHAlignObj( formfld_ );
@@ -81,6 +88,10 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
 	    			  FloatInpIntervalSpec(true) );
     dahrgfld_->attach( alignedBelow, inpgrp );
     dahrgfld_->attach( ensureBelow, sep );
+    ftbox_ = new uiCheckBox( this, "Feet" );
+    ftbox_->setChecked( SI().zInFeet() );
+    ftbox_->activated.notify( mCB(this,uiWellLogCalc,feetSel) );
+    ftbox_->attach( rightOf, dahrgfld_ );
 
     nmfld_ = new uiGenInput( this, "Name for new log" );
     nmfld_->attach( alignedBelow, dahrgfld_ );
@@ -112,6 +123,17 @@ void uiWellLogCalc::getMathExpr()
 	uiMSG().warning( "The provided expression cannot be used."
 	    	       "\nPlease enter an expression with variables like:\n"
 		       "2.345 * x0 + x1 / x2" );
+}
+
+
+void uiWellLogCalc::feetSel( CallBacker* )
+{
+    dahrg_ = dahrgfld_->getFStepInterval();
+    const float fac = ftbox_->isChecked() ? mToFeetFactor : mFromFeetFactor;
+    if ( !mIsUdf(dahrg_.start) ) dahrg_.start *= fac;
+    if ( !mIsUdf(dahrg_.stop) ) dahrg_.stop *= fac;
+    if ( !mIsUdf(dahrg_.step) ) dahrg_.step *= fac;
+    dahrgfld_->setValue( dahrg_ );
 }
 
 
@@ -172,6 +194,12 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	mErrRet("A log with this name already exists."
 		"\nPlease enter a different name for the new log")
 
+    dahrg_ = dahrgfld_->getFStepInterval();
+    if ( mIsUdf(dahrg_.start) || mIsUdf(dahrg_.stop) || mIsUdf(dahrg_.step) )
+	mErrRet("Please provide the MD range and step for the output log")
+    if ( ftbox_->isChecked() )
+    	dahrg_.scale( mFromFeetFactor );
+
     ObjectSet<const Well::Log> inps; inps.allowNull( true );
     TypeSet<int> shifts;
     if ( !getInpsAndShifts(inps,shifts) || !getRecInfo() )
@@ -183,6 +211,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
     wls_.add( newwl );
     uiMSG().message( "Successfully added this log" );
+    havenew_ = true;
     return false;
 }
 
@@ -191,7 +220,7 @@ bool uiWellLogCalc::getInpsAndShifts( ObjectSet<const Well::Log>& inps,
 				      TypeSet<int>& shifts )
 {
     BufferString pfx; int shift;
-    recvars_.erase(); recstartvals_.erase();
+    recvars_.erase(); startvals_.erase();
     for ( int iexpr=0; iexpr<expr_->getNrVariables(); iexpr++ )
     {
 	const MathExpression::VarType typ = expr_->getType( iexpr );
@@ -216,7 +245,7 @@ bool uiWellLogCalc::getInpsAndShifts( ObjectSet<const Well::Log>& inps,
 		mErrRet(BufferString("The variable number is too high: '"
 				     ,varnm,"'"))
 
-	    Well::Log* wl = wls_.getLog( varselflds_[varidx]->box()->text() );
+	    wl = wls_.getLog( varselflds_[varidx]->box()->text() );
 	    if ( !wl ) { pErrMsg("Huh"); return false; }
 	    if ( wl->isEmpty() )
 		mErrRet(BufferString("Empty well log: '",wl->name(),"'"))
@@ -238,9 +267,12 @@ bool uiWellLogCalc::getRecInfo()
 
     const char* wintitl = nrrec > 1 ? "Specify values" : "Specify value";
     uiDialog dlg( this, uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpID) );
+    uiLabel* lbl = new uiLabel( &dlg,
+	    "Recursive calculation: Please enter starting value(s)" );
     uiGenInput* fld = new uiGenInput( &dlg,
 				     "Start values (comma separated)" );
-    uiLabel* lbl = new uiLabel( &dlg,
+    fld->attach( centeredBelow, lbl );
+    lbl = new uiLabel( &dlg,
 	    "These will be the first THIS[0], THIS[-1], ..." );
     lbl->attach( centeredBelow, fld );
     if ( !dlg.go() )
@@ -253,17 +285,61 @@ bool uiWellLogCalc::getRecInfo()
 	float val = atof( usrinp[idx] );
 	if ( mIsUdf(val) )
 	    break;
-	recstartvals_ += val;
+	startvals_ += val;
     }
 
-    if ( recstartvals_.isEmpty() )
-	recstartvals_ += 0;
+    if ( startvals_.isEmpty() )
+	startvals_ += 0;
     return true;
 }
 
 
-bool uiWellLogCalc::calcLog( Well::Log& wl, ObjectSet<const Well::Log>& inps,
+bool uiWellLogCalc::calcLog( Well::Log& wlout, ObjectSet<const Well::Log>& inps,
 			     TypeSet<int>& shifts )
 {
+    TypeSet<float> vals; int rgidx = 0;
+    int nrstart = startvals_.size();
+    if ( nrstart > 0 )
+	{ vals = startvals_; rgidx = 1; }
+    if ( nrstart > 0 ) nrstart--;
+
+    dahrg_.sort();
+    const int endrgidx = dahrg_.nrSteps();
+    for ( ; rgidx<=endrgidx; rgidx++ )
+    {
+	float outval = 0;
+	const float dah = dahrg_.atIndex( rgidx );
+	for ( int iinp=0; iinp<inps.size(); iinp++ )
+	{
+	    const Well::Log* wl = inps[iinp];
+	    if ( wl )
+	    {
+		float curdah = dah + dahrg_.step * shifts[iinp];
+		const float val = wl->getValue( curdah );
+		if ( mIsUdf(val) )
+		    { outval = val; break; }
+		else
+		    expr_->setVariable( iinp, val );
+	    }
+	    else
+	    {
+		const int valsidx = rgidx + nrstart + shifts[iinp];
+		if ( valsidx < 0 || valsidx >= vals.size() )
+		    { outval = mUdf(float); break; }
+		expr_->setVariable( iinp, vals[valsidx] );
+	    }
+	}
+
+	if ( !mIsUdf(outval) )
+	    outval = expr_->getValue();
+	vals += outval;
+    }
+
+    for ( int idx=nrstart; idx<vals.size(); idx++ )
+    {
+	const float dah = dahrg_.atIndex( idx - nrstart );
+	wlout.addValue( dah, vals[idx] );
+    }
+
     return true;
 }

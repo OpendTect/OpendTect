@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.51 2009-06-17 11:57:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.52 2009-06-17 15:07:39 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -273,7 +273,8 @@ void uiWellMan::calcLogs( CallBacker* )
 
     wellrdr->getLogs();
     uiWellLogCalc dlg( this, welldata->logs() );
-    if ( dlg.go() )
+    dlg.go();
+    if ( dlg.haveNewLogs() )
 	writeLogs();
 }
 
