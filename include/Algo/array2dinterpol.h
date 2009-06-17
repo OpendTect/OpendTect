@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          April 2009
- RCS:           $Id: array2dinterpol.h,v 1.2 2009-05-18 21:21:49 cvskris Exp $
+ RCS:           $Id: array2dinterpol.h,v 1.3 2009-06-17 17:08:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "odmemory.h"
 
 template <class T> class Array2D;
+namespace Stats { class RunCalcSetup; }
 
 
 mClass Array2DInterpol : public ParallelTask
@@ -39,6 +40,9 @@ public:
     void			setMaxHoleSize(float);
     float			getMaxHoleSize() const;
 
+    void			setClassification(bool);
+    bool			isClassification() const;
+
     void			setMask(const Array2D<bool>*,
 	    				OD::PtrPolicy = OD::UsePtr );
     				/*!<If mask is set, interpolation will only
@@ -58,7 +62,8 @@ public:
     public:
 	virtual			~ArrayAccess()				{}
 	virtual void		set(int target, const int* sources,
-				    const float* weights, int nrsrc)	= 0;
+				    const float* weights, int nrsrc,
+				    bool isclassification)		= 0;
 	virtual bool		isDefined(int) const			= 0;
 	virtual int		getSize(char dim) const			= 0;
     };
@@ -71,6 +76,7 @@ public:
 
 protected:
 		Array2DInterpol();
+    bool	doPrepare(int);
     void	getNodesToFill(const bool* isdef, bool* shouldinterpol,
 	    		       TaskRunner*) const;
     		/*!<Fills shouldinterpol with true or false depending on if a
@@ -108,7 +114,8 @@ protected:
 
     const Array2D<bool>*	mask_;
     bool			maskismine_;
-
+    bool			isclassification_;
+    Stats::RunCalcSetup*	statsetup_;
 };
 
 

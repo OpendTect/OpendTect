@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.12 2009-05-19 21:57:57 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.13 2009-06-17 17:08:00 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: array2dinterpol.cc,v 1.12 2009-05-19 21:57:57 c
 #include "limits.h"
 #include "rowcol.h"
 #include "sorting.h"
+#include "statruncalc.h"
 #include "trigonometry.h"
 
 
@@ -36,13 +37,24 @@ Array2DInterpol::Array2DInterpol()
     , colstep_( 1 )
     , mask_( 0 )
     , maskismine_( false )
+    , isclassification_( false )
+    , statsetup_( 0 )
 {}
 
 
 Array2DInterpol::~Array2DInterpol()
 {
     if ( maskismine_ ) delete mask_;
+    delete statsetup_;
 }
+
+
+void Array2DInterpol::setClassification( bool yn )
+{ isclassification_ = yn; }
+
+
+bool Array2DInterpol::isClassification() const
+{ return isclassification_; }
 
 
 void Array2DInterpol::setFillType( FillType ft )
@@ -389,9 +401,26 @@ bool Array2DInterpol::isDefined( int idx ) const
 for ( int idx=0; idx<nrsrc; idx++ ) \
 { \
     fetchval; \
-    const float weight = weights[idx]; \
-    sum += val*weight; \
-    wsum += weight; \
+    calc.addValue( val, weights[idx] ); \
+}
+
+
+bool Array2DInterpol::doPrepare( int )
+{
+    if ( arrsetter_ )
+	return true;
+
+    delete statsetup_;
+    mTryAlloc( statsetup_, Stats::RunCalcSetup( true ) );
+    if ( !statsetup_ )
+	return false;
+
+    if ( isclassification_ )
+	statsetup_->require( Stats::MostFreq );
+    else
+	statsetup_->require( Stats::Average );
+
+    return true;
 }
 
 
@@ -403,18 +432,20 @@ void Array2DInterpol::setFrom( int target, const int* sources,
 
     if ( arrsetter_ )
     {
-	arrsetter_->set( target, sources, weights, nrsrc );
+	arrsetter_->set( target, sources, weights, nrsrc, isclassification_ );
 	return;
     }
 
-    double sum = 0;
-    double wsum = 0;
+
+    Stats::RunCalc<float> calc( *statsetup_ );
 
     float* ptr = arr_->getData();
     if ( ptr )
     {
 	mDoLoop( const float val = ptr[sources[idx]] );
-	ptr[target] = sum/wsum;
+	ptr[target] = isclassification_
+	    ? calc.mostFreq()
+	    : calc.average();
     }
     else
     {
@@ -422,13 +453,15 @@ void Array2DInterpol::setFrom( int target, const int* sources,
 	if ( storage )
 	{
 	    mDoLoop( const float val = storage->value(sources[idx]) );
-	    storage->setValue(target, sum/wsum );
+	    storage->setValue(target,
+		    isclassification_ ? calc.mostFreq() : calc.average() );
 	}
 	else
 	{
 	    mDoLoop( const int src = sources[idx];
 		     const float val = arr_->get(src/nrcols_,src%nrcols_ ) );
-	    arr_->set( target/nrcols_, target%nrcols_, sum/wsum );
+	    arr_->set( target/nrcols_, target%nrcols_,
+		    isclassification_ ? calc.mostFreq() : calc.average() );
 	}
     }
 }
@@ -615,6 +648,9 @@ bool InverseDistanceArray2DInterpol::initFromArray( TaskRunner* tr )
 
 bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 {
+    if ( !Array2DInterpol::doPrepare(nrthreads) )
+	return false;
+
     nrthreads_ = nrthreads;
     if ( !nrinitialdefined_ )
 	return false; //Nothing defined;
@@ -1250,6 +1286,9 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 
 bool TriangulationArray2DInterpol::doPrepare( int nrthreads )
 {
+    if ( !Array2DInterpol::doPrepare(nrthreads) )
+	return false;
+
     curnode_ = 0;
     firstthreadtestpos_ = coordlist_.size();
 
