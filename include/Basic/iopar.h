@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.57 2009-03-20 18:54:29 cvskris Exp $
+ RCS:		$Id: iopar.h,v 1.58 2009-06-17 19:13:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "namedobj.h"
 #include "sets.h"
+#include "fixedstring.h"
 #include "samplingdata.h"
 
 class BinID;
@@ -65,7 +66,7 @@ public:
     void		remove(int);
     void		remove(const char* key);
     bool		hasKey( const char* s ) const
-			{ return find(s) ? true : false; }
+			{ return !find(s).isEmpty(); }
     const char*		findKeyFor(const char*,int nr=0) const;
 				//!< returns null if value not found
     void		removeWithKey(const char* globexpression);
@@ -93,9 +94,9 @@ public:
 
 // GET functions
 
-    const char*		find(const char*) const;
+    FixedString		find(const char*) const;
 			//!< returns null if not found
-    const char*		operator[](const char*) const;
+    FixedString		operator[](const char*) const;
 			//!< returns empty string if not found
 
     			// Functions for getting 1,2,3 and 4 of the same type
@@ -203,6 +204,7 @@ public:
     void		set(const char*,const MultiID&);
     void		set(const char*,const Color&);
     void		set(const char*,const SeparString&);
+    void		set(const char*,const FixedString&);
     void		set(const char*,const BufferString&);
     void		set(const char*,const BufferString&,
 	    				const BufferString&);

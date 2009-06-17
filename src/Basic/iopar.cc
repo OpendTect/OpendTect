@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.79 2009-03-20 18:54:29 cvskris Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.80 2009-06-17 19:16:05 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -292,17 +292,20 @@ void IOPar::removeWithKey( const char* key )
 }
 
 
-const char* IOPar::operator[]( const char* keyw ) const
+FixedString IOPar::operator[]( const char* keyw ) const
 {
-    const char* res = find( keyw );
-    return res ? res : "";
+    FixedString res = find( keyw );
+    if ( res )
+	return res;
+
+    return sKey::EmptyString;
 }
 
 
-const char* IOPar::find( const char* keyw ) const
+FixedString IOPar::find( const char* keyw ) const
 {
-    int idx = keys_.indexOf( keyw );
-    return idx < 0 ? 0 : vals_.get(idx).buf();
+    const int idx = keys_.indexOf( keyw );
+    return FixedString( keys_.validIdx(idx) ? vals_.get(idx).buf() : 0 );
 }
 
 
@@ -563,7 +566,7 @@ static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
 	}
 
 	keyidx++;
-	BufferString newkey = IOPar::compKey(s,keyidx);
+	FixedString newkey = IOPar::compKey(s,keyidx);
 	ptr = iop.find( newkey );
     }
     return true;
@@ -592,7 +595,7 @@ static void iopset_typeset( IOPar& iop, const char* keyw,
 	    fms += Conv::to<const char*>( val );
 	}
 	
-	BufferString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
+	FixedString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
 	iop.set( newkey, fms );
 	keyidx++;
     }
@@ -873,6 +876,12 @@ void IOPar::set( const char* s, const SeparString& ss )
 
 
 void IOPar::set( const char* s, const BufferString& bs )
+{
+    set( s, bs.buf() );
+}
+
+
+void IOPar::set( const char* s, const FixedString& bs )
 {
     set( s, bs.buf() );
 }
