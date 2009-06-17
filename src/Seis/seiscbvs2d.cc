@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.46 2009-04-01 05:13:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.47 2009-06-17 19:20:49 cvskris Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -45,7 +45,7 @@ static const BufferString& gtFileName( const char* fnm )
 
 static const BufferString& gtFileName( const IOPar& iop )
 {
-    return gtFileName( iop.find( sKey::FileName ) );
+    return gtFileName( iop.find( sKey::FileName ).buf() );
 }
 
 const char* SeisCBVS2DLineIOProvider::getFileName( const IOPar& iop )
@@ -308,8 +308,8 @@ SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
 {
     tr->set2D( true );
     bid.inl = CBVSIOMgr::getFileNr( fnm );
-    const char* fmt = iop.find( "Data storage" );
-    if ( fmt && *fmt )
+    FixedString fmt = iop.find( "Data storage" );
+    if ( fmt )
 	preseldt = eEnum(DataCharacteristics::UserType,fmt);
 }
 
@@ -408,11 +408,11 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
-    BufferString fnm = iop.find( sKey::FileName );
+    BufferString fnm = iop.find( sKey::FileName ).buf();
     if ( fnm.isEmpty() )
     {
 	if ( previop )
-	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName));
+	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName)).buf();
 	else
 	{
 	    if ( lsetnm && *lsetnm )

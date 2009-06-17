@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.34 2009-02-03 09:06:43 cvshelene Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.35 2009-06-17 19:20:50 cvskris Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -56,7 +56,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     ctio_.ctxt.trglobexpr = "CBVS";
     seisoutkey_ = outputKey( iopar_ );
 
-    const char* res = iopar_.find( seisoutkey_ );
+    FixedString res = iopar_.find( seisoutkey_ );
     IOObj* outioobj = IOM().get( res );
     if ( !outioobj )
 	errmsg_ = "Cannot find specified output seismic ID";
@@ -82,7 +82,7 @@ SeisJobExecProv::~SeisJobExecProv()
 const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 {
     static BufferString res;
-    res = iopar.find( sKeySeisOutIDKey() );
+    res = iopar.find( sKeySeisOutIDKey() ).buf();
     if ( res.isEmpty() ) res = mOutKey("Seismic.ID");
     return res.buf();
 }
@@ -90,7 +90,7 @@ const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 
 JobDescProv* SeisJobExecProv::mk2DJobProv()
 {
-    const char* restkey = iopar_.find( sKeyProcIs2D );
+    FixedString restkey = iopar_.find( sKeyProcIs2D );
     const bool isrestart = restkey && *restkey == 'Y';
     iopar_.set( sKeyProcIs2D, "Yes" );
 
@@ -107,7 +107,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	Seis2DLineSet* inpls = new Seis2DLineSet( ioobj->fullUserExpr(true) );
 	for ( int idx=0; idx<inpls->nrLines(); idx++ )
 	    nms.addIfNew( inpls->lineName(idx) );
-	const BufferString attrnm = iopar_.find( sKey::Target );
+	FixedString attrnm = iopar_.find( sKey::Target );
 
 	if ( isrestart )
 	{
