@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiarray2dinterpol.h,v 1.4 2009-05-16 04:22:37 cvskris Exp $
+ RCS:           $Id: uiarray2dinterpol.h,v 1.5 2009-06-17 17:30:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,8 @@ mClass uiArray2DInterpolSel : public uiDlgGroup
 public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
     				uiArray2DInterpolSel(uiParent*,bool filltype,
-				     bool holesz,
-				     const Array2DInterpol* oldvals = 0);
+				bool holesz, bool withclassification, 
+				const Array2DInterpol* oldvals);
 
     bool			acceptOK();
     Array2DInterpol*		getResult();
@@ -49,6 +49,7 @@ protected:
     uiGenInput*				filltypefld_;
     uiGenInput*				maxholeszfld_;
     uiGenInput*				methodsel_;
+    uiGenInput*				isclassificationfld_;
 
     ObjectSet<uiArray2DInterpol>	params_;
 };

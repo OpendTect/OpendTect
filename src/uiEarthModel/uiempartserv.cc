@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.179 2009-06-16 21:46:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.180 2009-06-17 17:30:52 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -807,7 +807,7 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 					(const char*) 0 ) );
 
 	uiArray2DInterpolSel* settings =
-	    new uiArray2DInterpolSel( &dlg, false, false );
+	    new uiArray2DInterpolSel( &dlg, false, false, true, 0 );
 
 	dlg.setGroup( settings );
 	if ( !dlg.go() ) return 0;
@@ -868,8 +868,13 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    res->add( BinID(row,col), 0, arr2d->get(rowrg.getIndex(row),
-						    colrg.getIndex(col)) );
+	    const BinID rc( row, col );
+	    const float z = hor3d->getPos( sid, rc.getSerialized() ).z;
+	    if ( mIsUdf(z) )
+		continue;
+
+	    res->add( rc, z, arr2d->get(rowrg.getIndex(row),
+					colrg.getIndex(col)) );
 	}
     }
 

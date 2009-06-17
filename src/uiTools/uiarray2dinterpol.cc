@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.5 2009-05-18 18:33:34 cvskris Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.6 2009-06-17 17:30:52 cvskris Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -23,12 +23,14 @@ mImplFactory1Param( uiArray2DInterpol, uiParent*,uiArray2DInterpolSel::factory);
 
 uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 					    bool maxholesz,
+					    bool withclassification,
        					    const Array2DInterpol* oldvals )
     : uiDlgGroup( p, "Array2D Interpolation" )
     , result_( 0 )
     , filltypefld_( 0 )
     , maxholeszfld_( 0 )
     , methodsel_( 0 )
+    , isclassificationfld_( 0 )
 {
     params_.allowNull( true );
     uiObject* prevfld = 0;
@@ -45,8 +47,8 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     {
 	maxholeszfld_ = new uiGenInput( this, 0, FloatInpSpec() );
 	maxholeszfld_->setWithCheck( true );
-	if ( filltypefld_ )
-	    maxholeszfld_->attach( alignedBelow, filltypefld_ );
+	if ( prevfld )
+	    maxholeszfld_->attach( alignedBelow, prevfld );
 	if ( oldvals )
 	{
 	    if ( mIsUdf(oldvals->getMaxHoleSize() ) )
@@ -59,6 +61,18 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 	}
 
 	prevfld = maxholeszfld_->attachObj();
+    }
+
+
+    if ( withclassification )
+    {
+	isclassificationfld_ = new uiGenInput( this,
+		"Values are classifications", BoolInpSpec( false ) );
+	if ( prevfld )
+	    isclassificationfld_->attach( alignedBelow, prevfld );
+	if ( oldvals )
+	    isclassificationfld_->setValue( oldvals->isClassification() );
+	prevfld = isclassificationfld_->attachObj();
     }
 
     const BufferStringSet& methods = Array2DInterpol::factory().getNames(false);
@@ -207,6 +221,9 @@ bool uiArray2DInterpolSel::acceptOK()
 	if ( !result_ )
 	    return false;
     }
+
+    if ( isclassificationfld_ )
+	result_->setClassification( isclassificationfld_->getBoolValue() );
 
     result_->setFillType( filltypefld_ 
 	? (Array2DInterpol::FillType) filltypefld_->getIntValue()

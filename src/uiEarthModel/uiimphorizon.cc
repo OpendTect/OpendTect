@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.120 2009-06-01 20:02:55 cvskris Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.121 2009-06-17 17:30:52 cvskris Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -167,7 +167,7 @@ void uiImportHorizon::interpolSettingsCB( CallBacker* )
 			  (const char*) 0, (const char*) 0 ) );
 
     uiArray2DInterpolSel* arr2dinterpfld =
-	new uiArray2DInterpolSel( &dlg, true, true, interpol_ );
+	new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
     arr2dinterpfld->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
     dlg.setGroup( arr2dinterpfld );
 

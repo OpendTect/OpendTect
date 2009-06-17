@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.17 2009-04-23 18:08:50 cvskris Exp $";
+static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.18 2009-06-17 17:30:52 cvskris Exp $";
 
 #include "uihor3dfrom2ddlg.h"
 
@@ -40,7 +40,7 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     , emserv_( ems )
     , hor3d_( 0 )
 {
-    interpolsel_ = new uiArray2DInterpolSel( this, false, false );
+    interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();

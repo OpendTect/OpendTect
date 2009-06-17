@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.6 2009-05-19 21:56:19 cvskris Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.7 2009-06-17 17:30:52 cvskris Exp $";
 
 #include "uihorinterpol.h"
 
@@ -49,7 +49,7 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
     geometrysel_ = new uiGenInput( this, "Geometry",
 	    			   StringListInpSpec( geometries ) );
     if ( inputhorsel_ ) geometrysel_->attach( alignedBelow, inputhorsel_ );
-    interpolsel_ = new uiArray2DInterpolSel( this, false, true, 0 );
+    interpolsel_ = new uiArray2DInterpolSel( this, false, true, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
     interpolsel_->attach( alignedBelow, geometrysel_ );
 
