@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.94 2009-06-02 10:35:56 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.95 2009-06-17 10:15:49 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -537,6 +537,21 @@ void EMObject::removeSelected( const Selector<Coord3>& selector )
 
     }
     insideselremoval_ = false;
+}
+
+
+void EMObject::removeAllUnSeedPos()
+{
+    PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
+    while( true )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) )
+	    unSetPos( pid, true );
+    }
 }
 
 
