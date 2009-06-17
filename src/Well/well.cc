@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.56 2009-05-28 12:05:11 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.57 2009-06-17 14:03:05 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -249,7 +249,7 @@ float Well::Log::getValue( float dh ) const
 }
 
 
-void Well::Log::addValue( float z, float val )
+void Well::Log::addValue( float dh, float val )
 {
     if ( !mIsUdf(val) ) 
     {
@@ -258,7 +258,7 @@ void Well::Log::addValue( float z, float val )
 	selrange_.setFrom( range_ );
     }
 
-    dah_ += z; 
+    dah_ += dh; 
     val_ += val;
 }
 

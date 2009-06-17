@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.20 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:		$Id: welllog.h,v 1.21 2009-06-17 14:03:05 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ public:
     float		value( int idx ) const		{ return val_[idx]; }
 
     float		getValue(float) const;
-    void		addValue(float z,float val);
+    void		addValue(float dh,float val);
     			//!< addition must always ascend or descend
     void		ensureAscZ();
     			// Do this after adding values when Z may be reversed
