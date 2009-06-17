@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.43 2009-06-11 09:04:19 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.44 2009-06-17 10:22:21 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,7 @@ public:
     static const int		evHideToolBar();
     static const int		evSaveUnsavedEMObject();
     static const int		evRemoveUnsavedEMObject();
+    static const int		evRetrackInVolume();
 
     bool			isDataLoadingBlocked() const;
     void			blockDataLoading(bool);

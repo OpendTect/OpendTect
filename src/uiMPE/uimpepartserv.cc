@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.89 2009-06-15 12:19:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.90 2009-06-17 10:22:56 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -56,6 +56,7 @@ const int uiMPEPartServer::evMPEStoreEMObject()	    { return 12; }
 const int uiMPEPartServer::evHideToolBar()	    { return 13; }
 const int uiMPEPartServer::evSaveUnsavedEMObject()  { return 14; }
 const int uiMPEPartServer::evRemoveUnsavedEMObject(){ return 15; }
+const int uiMPEPartServer::evRetrackInVolume()	    { return 16; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -552,20 +553,45 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker) return;
 
-    const CubeSampling curvol =  MPE::engine().activeVolume();
-    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
-	loadAttribData();
-
     Undo& undo = EM::EMM().undo();
     int cureventnr = undo.currentEventID();
     undo.setUserInteractionEnd( cureventnr, false );
 
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     EM::EMObject* emobj = EM::EMM().getObject( oid );
     emobj->setBurstAlert( true );
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    seedpicker->reTrack();
-    MouseCursorManager::restoreOverride();
+    emobj->removeAllUnSeedPos();
+
+    CubeSampling oldactivevol = MPE::engine().activeVolume();
+
+    ObjectSet<CubeSampling>* trackedcubes = 
+				MPE::engine().getTrackedFlatCubes( trackerid );
+    for ( int idx=0; idx<trackedcubes->size(); idx++ )
+    {
+	NotifyStopper notifystopper( MPE::engine().activevolumechange );
+	MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
+	notifystopper.restore();
+	
+	const CubeSampling curvol =  MPE::engine().activeVolume();
+	if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
+	    loadAttribData();
+
+	seedpicker->reTrack();
+    }
+
     emobj->setBurstAlert( false );
+    deepErase( *trackedcubes );
+
+    MPE::engine().setActiveVolume( oldactivevol );
+    eventorsimimlartyChangedCB( 0 );
+
+    if ( !(MPE::engine().activeVolume().nrInl()==1) &&
+         !(MPE::engine().activeVolume().nrCrl()==1) )
+    {
+	sendEvent( uiMPEPartServer::evRetrackInVolume() );
+    }
+
+    MouseCursorManager::restoreOverride();
 
     undo.setUserInteractionEnd( undo.currentEventID() );
 }
