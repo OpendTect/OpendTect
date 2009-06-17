@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.25 2009-06-16 15:40:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.26 2009-06-17 16:13:08 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -71,12 +71,16 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
 void MarchingCubesDisplay::useTexture( bool yn )
 {
-    displaysurface_->getShape()->enableColTab( yn );
+    if ( displaysurface_ )
+    	displaysurface_->getShape()->enableColTab( yn );
 }
 
 
 bool MarchingCubesDisplay::usesTexture() const
-{ return displaysurface_->getShape()->isColTabEnabled(); }
+{ 
+    return displaysurface_ ? displaysurface_->getShape()->isColTabEnabled()
+			   : false; 
+}
 
 
 bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
@@ -373,6 +377,30 @@ void MarchingCubesDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
     par.set( sKeyEarthModelID(), getMultiID() );
+
+    IOPar attribpar;
+    selspec_.fillPar( attribpar ); //Right now only one attribute for the body
+
+    if ( canSetColTabSequence() && getColTabSequence( 0 ) )
+    {
+	IOPar seqpar;
+	const ColTab::Sequence* seq = getColTabSequence( 0 );
+	if ( seq->isSys() )
+	    seqpar.set( sKey::Name, seq->name() );
+	else
+	    seq->fillPar( seqpar );
+	
+	attribpar.mergeComp( seqpar, sKeyColTabSequence() );
+    }
+    
+    if ( getColTabMapperSetup( 0, 0 ) )
+    {
+	IOPar mapperpar;
+	getColTabMapperSetup( 0, 0 )->fillPar( mapperpar );
+	attribpar.mergeComp( mapperpar, sKeyColTabMapper() );
+    }
+
+    par.mergeComp( attribpar, sKeyAttribSelSpec() );
 }
 
 
@@ -395,6 +423,34 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 	}
 
 	if ( emobject ) setEMID( emobject->id() );
+    }
+
+    const IOPar* attribpar = par.subselect( sKeyAttribSelSpec() );
+    if ( attribpar ) //Right now only one attribute for the body
+    {
+	selspec_.usePar( *attribpar );
+	
+	PtrMan<IOPar> seqpar = attribpar->subselect( sKeyColTabSequence() );
+	if ( seqpar )
+	{
+	    ColTab::Sequence seq;
+	    if ( !seq.usePar( *seqpar ) )
+	    {
+		BufferString seqname;
+		if ( seqpar->get( sKey::Name, seqname ) ) 
+		    ColTab::SM().get( seqname.buf(), seq );
+	    }
+	    
+	    setColTabSequence( 0, seq, 0 );
+	}
+	
+	PtrMan<IOPar> mappar = attribpar->subselect( sKeyColTabMapper() );
+ 	if ( mappar )
+	{
+	    ColTab::MapperSetup mapper;
+	    mapper.usePar( *mappar );
+	    setColTabMapperSetup( 0, mapper, 0 );
+	}
     }
 
     return 1;
