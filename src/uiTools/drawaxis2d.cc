@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.23 2009-06-17 08:46:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.24 2009-06-17 10:00:07 cvsranojay Exp $";
 
 #include "drawaxis2d.h"
 
@@ -48,14 +48,14 @@ DrawAxis2D::DrawAxis2D( uiGraphicsView& drawview )
 
 DrawAxis2D::~DrawAxis2D()
 {
-    delete drawscene_->removeItem( xaxlineitmgrp_ );
-    delete drawscene_->removeItem( yaxlineitmgrp_ );
-    delete drawscene_->removeItem( xaxgriditmgrp_ );
-    delete drawscene_->removeItem( yaxgriditmgrp_ );
-    delete drawscene_->removeItem( xaxtxtitmgrp_ );
-    delete drawscene_->removeItem( yaxtxtitmgrp_ );
-    delete drawscene_->removeItem( xaxrectitem_ );
-    delete drawscene_->removeItem( yaxlineitem_ );
+    delete drawscene_.removeItem( xaxlineitmgrp_ );
+    delete drawscene_.removeItem( yaxlineitmgrp_ );
+    delete drawscene_.removeItem( xaxgriditmgrp_ );
+    delete drawscene_.removeItem( yaxgriditmgrp_ );
+    delete drawscene_.removeItem( xaxtxtitmgrp_ );
+    delete drawscene_.removeItem( yaxtxtitmgrp_ );
+    delete drawscene_.removeItem( xaxrectitem_ );
+    delete drawscene_.removeItem( yaxlineitem_ );
 }
 
 
