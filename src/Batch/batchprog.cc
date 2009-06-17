@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.99 2009-06-17 08:42:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.100 2009-06-17 18:54:25 cvskris Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -84,10 +84,10 @@ void BatchProgram::init( int* pac, char** av )
     BufferString masterhost;
     int masterport = -1;
     
-    const char* fn = argv_[1];
+    FixedString fn = argv_[1];
     while ( fn && *fn == '-' )
     {
-	if ( !strcmp(fn,"-bg") )
+	if ( fn=="-bg" )
 	    inbg = true;
 	else if ( !strncmp(fn,"-masterhost",11) )
 	{
@@ -152,7 +152,7 @@ void BatchProgram::init( int* pac, char** av )
     }
  
     ascistream aistrm( *sd.istrm, true );
-    if ( strcmp(aistrm.fileType(),sKey::Pars) )
+    if ( aistrm.fileType()!=sKey::Pars )
     {
 	errorMsg( BufferString("Input file ",fn," is not a parameter file") );
 	std::cerr << aistrm.fileType() << std::endl;
@@ -169,11 +169,11 @@ void BatchProgram::init( int* pac, char** av )
     }
 
 
-    const char* res = iopar->find( sKey::LogFile );
+    FixedString res = iopar->find( sKey::LogFile );
     if ( !res )
 	iopar->set( sKey::LogFile, StreamProvider::sStdErr() );
     res = iopar->find( sKey::Survey );
-    if ( !res || !*res )
+    if ( !res )
 	IOMan::newSurvey();
     else
     {
@@ -181,7 +181,7 @@ void BatchProgram::init( int* pac, char** av )
 	{
 	    const char* oldsnm = IOM().surveyName();
 	    if ( !oldsnm ) oldsnm = "<empty>";
-	    if ( strcmp(res,oldsnm) )
+	    if ( res!=oldsnm )
 	    {
 		BufferString msg( "Using survey from par file: ", res,
 				  ". was: " ); msg += oldsnm;
@@ -314,15 +314,15 @@ bool BatchProgram::initOutput()
 	exit( 0 );
     }
 
-    const char* res = pars()[sKey::LogFile];
-    if ( !*res || !strcmp(res,"stdout") ) res = 0;
+    FixedString res = pars()[sKey::LogFile];
+    if ( res=="stdout" ) res = 0;
  
     bool hasviewprogress = true;
 #ifdef __cygwin__
     hasviewprogress = false;
 #endif
 
-    if ( hasviewprogress && res && !strcmp(res,"window") )
+    if ( hasviewprogress && res && res=="window" )
     {
 	BufferString cmd( "@view_progress " );
 
@@ -344,7 +344,7 @@ bool BatchProgram::initOutput()
 	}
     }
 
-    if ( !res || strcmp(res,"window") )
+    if ( !res || res!="window" )
     {
 	StreamProvider spout( res );
 	sdout = spout.makeOStream();
@@ -370,7 +370,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     const BufferString basekey( bsky );
     BufferString iopkey( basekey ); iopkey += ".";
     iopkey += "ID";
-    BufferString res = pars().find( iopkey );
+    FixedString res = pars().find( iopkey );
     if ( res.isEmpty() )
     {
 	iopkey = basekey; res = pars().find( iopkey );
@@ -389,7 +389,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 	{
 	    CtxtIOObj ctio( ctxt );
 	    IOM().to( ctio.ctxt.getSelKey() );
-	    const IOObj* ioob = (*(const IODir*)(IOM().dirPtr()))[res];
+	    const IOObj* ioob = (*(const IODir*)(IOM().dirPtr()))[res.buf()];
 	    if ( ioob )
 		res = ioob->key();
 	    else if ( mknew )
