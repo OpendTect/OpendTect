@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.85 2009-06-02 10:35:22 cvsumesh Exp $
+ RCS:		$Id: emobject.h,v 1.86 2009-06-17 10:14:58 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -187,6 +187,7 @@ public:
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
     void			removeSelected(const Selector<Coord3>&);
+    void			removeAllUnSeedPos();
     const CubeSampling		getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
 
