@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.45 2008-11-28 06:29:06 cvsnageswara Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.46 2009-06-17 11:56:43 cvsbert Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -980,6 +980,36 @@ MathExpression* MathExpression::parse( const char* input )
 	return new MathExpressionVariable( str );
 
     return 0;	
+}
+
+
+MathExpression::VarType MathExpression::getType( int ivar ) const
+{
+    BufferString pfx; int shft;
+    getPrefixAndShift( getVariableStr(ivar), pfx, shft );
+
+    if ( pfx == "THIS" )
+	return Recursive;
+    else if ( pfx[0] == 'c' || pfx[0] == 'C' )
+	return Constant;
+
+    return Variable;
+}
+
+
+int MathExpression::getUsrVarIdx( int ivar ) const
+{
+    if ( getType(ivar) == Recursive )
+	return -1;
+
+    BufferString pfx; int shft;
+    getPrefixAndShift( getVariableStr(ivar), pfx, shft );
+
+    const char* ptr = pfx.buf();
+    while ( *ptr && !isdigit(*ptr) )
+	ptr++;
+
+    return atoi( ptr );
 }
 
 

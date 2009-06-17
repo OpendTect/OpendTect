@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.11 2009-02-16 17:13:12 cvsbert Exp $
+ RCS:           $Id: mathexpression.h,v 1.12 2009-06-17 11:56:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,15 +50,21 @@ public:
 	    					  int&);
     virtual float		getValue() const		= 0;
 
-    virtual const char*		getVariableStr( int ) const;
     virtual int			getNrVariables() const;
-    virtual void		setVariable( int, float );
+    virtual const char*		getVariableStr(int) const;
+    virtual void		setVariable(int,float);
 
     //returns the number of different variables : 
     //recursive "THIS" and shifted variables are excluded
     int				getNrDiffVariables() const;
-    const char*			getVarPrefixStr( int idx ) const
-				{ return varprefixes_.get( idx ).buf(); }
+
+    // functions for each variable in expression
+    const char*			getVarPrefixStr( int varidx ) const
+				{ return varprefixes_.get( varidx ).buf(); }
+    enum VarType		{ Variable, Constant, Recursive };
+    VarType			getType(int varidx) const;
+    int				getUsrVarIdx(int varidx) const;
+
     int				getPrefixIdx(const char*,bool) const;
     bool			isRecursive() const	{ return isrecursive_; }
 
