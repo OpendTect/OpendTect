@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.8 2009-06-17 17:40:55 cvskris Exp $
+ RCS:		$Id: multiid.h,v 1.9 2009-06-17 19:59:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
 			{ id_ = mi.id_; return *this; }
     MultiID&		operator =( const CompoundKey& ck )
 			{ id_ = (const char*)ck; return *this; }
+    MultiID&		operator =( const FixedString& fs )
+			{ id_ = fs.buf(); return *this; }
     MultiID&		operator =( const char* s )
 			{ id_ = s; return *this; }
 
