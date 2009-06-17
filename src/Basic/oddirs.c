@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.13 2009-05-28 09:12:40 cvsraman Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.14 2009-06-17 07:43:26 cvsnanne Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -420,7 +420,7 @@ const char* GetDocFileDir( const char* filedir )
 const char* GetPlfSubDir()
 {
 #ifdef __win__
-    return "win";
+    return __plfsubdir__;
 #else
     const char* ret = GetEnvVar( "PLFSUBDIR" );
     if ( !ret || !*ret ) ret = GetEnvVar( "binsubdir" );
