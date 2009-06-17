@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.88 2009-05-29 05:37:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.89 2009-06-17 10:20:20 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
@@ -57,6 +57,7 @@ Engine::Engine()
     , oneactivetracker_( 0 )
 {
     trackers_.allowNull(true);
+    flatcubescontainer_.allowNull(true);
     init();
 }
 
@@ -69,6 +70,7 @@ Engine::~Engine()
     deepErase( attribcachespecs_ );
     deepUnRef( attribbackupcache_ );
     deepErase( attribbackupcachespecs_ );
+    deepErase( flatcubescontainer_ );
 }
 
 
@@ -249,6 +251,8 @@ int Engine::addTracker( EM::EMObject* obj )
 	mRetErr( "Cannot find this trackertype", -1 );
 
     trackers_ += tracker;
+    ObjectSet<FlatCubeInfo>* flatcubes = new ObjectSet<FlatCubeInfo>;
+    flatcubescontainer_ += flatcubes;
     trackeraddremove.trigger();
 
     return trackers_.size()-1;
@@ -262,6 +266,9 @@ void Engine::removeTracker( int idx )
 
     delete trackers_[idx];
     trackers_.replace( idx, 0 );
+
+    deepErase( *flatcubescontainer_[idx] );
+    flatcubescontainer_.replace( idx, 0 );
 
     trackeraddremove.trigger();
 }
@@ -543,6 +550,84 @@ void Engine::swapCacheAndItsBackup()
 }
 
 
+void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
+					bool addremove )
+{
+    if ( !(cs.nrInl()==1) && !(cs.nrCrl()==1) )
+	return;
+    
+    ObjectSet<FlatCubeInfo>& flatcubes = *flatcubescontainer_[idx];
+
+    int idxinquestion = -1;
+    for ( int flatcsidx=0; flatcsidx<flatcubes.size(); flatcsidx++ )
+	if ( flatcubes[flatcsidx]->flatcs_.defaultDir() == cs.defaultDir() )
+	{
+	    if ( flatcubes[flatcsidx]->flatcs_.nrInl() == 1 )
+	    {
+		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.inl == 
+			cs.hrg.start.inl )
+		{
+		    idxinquestion = flatcsidx;
+		    break;
+		}
+	    }
+	    else if ( flatcubes[flatcsidx]->flatcs_.nrCrl() == 1 )
+	    {
+		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.crl ==
+		     cs.hrg.start.crl )
+		{
+		    idxinquestion = flatcsidx;
+		    break;
+		}
+	    }
+	}
+
+    if ( addremove )
+    {
+	if ( idxinquestion == -1 )
+	{
+	    FlatCubeInfo* flatcsinfo = new FlatCubeInfo();
+	    flatcsinfo->flatcs_.include( cs );
+	    flatcubes += flatcsinfo;
+	}
+	else
+	{
+	    flatcubes[idxinquestion]->flatcs_.include( cs );
+	    flatcubes[idxinquestion]->nrseeds_++;
+	}
+    }
+    else
+    {
+	if ( idxinquestion == -1 ) return;
+
+	flatcubes[idxinquestion]->nrseeds_--;
+	if ( flatcubes[idxinquestion]->nrseeds_ == 0 )
+	    flatcubes.remove( idxinquestion );
+    }
+}
+
+
+ObjectSet<CubeSampling>* Engine::getTrackedFlatCubes( const int idx ) const
+{
+    if ( (flatcubescontainer_.size()==0) || !flatcubescontainer_[idx] )
+	return 0;
+
+    const ObjectSet<FlatCubeInfo>& flatcubes = *flatcubescontainer_[idx];
+    if ( flatcubes.size()==0 )
+	return 0;
+
+    ObjectSet<CubeSampling>* flatcbs = new ObjectSet<CubeSampling>;
+    for ( int flatcsidx = 0; flatcsidx<flatcubes.size(); flatcsidx++ )
+    {
+	CubeSampling* cs = new CubeSampling();
+	cs->setEmpty();
+	cs->include( flatcubes[flatcsidx]->flatcs_ );
+	flatcbs->push( cs );
+    }
+    return flatcbs;
+}
+
+
 ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 {
     for ( int idx=0; idx<editors_.size(); idx++ )
@@ -718,6 +803,7 @@ void Engine::init()
     deepErase( attribcachespecs_ );
     deepUnRef( attribbackupcache_ );
     deepErase( attribbackupcachespecs_ );
+    deepErase( flatcubescontainer_ );
     setActiveVolume( getDefaultActiveVolume() );
 }
 
