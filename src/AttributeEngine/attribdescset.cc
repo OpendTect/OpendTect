@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.79 2009-05-26 08:16:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.80 2009-06-17 19:28:45 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -481,7 +481,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	handleStorageOldFormat( *descpar );
 
-	BufferString defstring = descpar->find( definitionStr() );
+	BufferString defstring = descpar->find( definitionStr() ).buf();
 	if ( defstring.isEmpty() )
 	    mHandleParseErr( "No attribute definition string specified" );
 
@@ -577,8 +577,8 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  ObjectSet<Desc>& newsteeringdescs, int& id,
 				  BufferStringSet* errmsgs )
 {
-    BufferString steeringtype = steeringpar.find("Type");
-    BufferString steeringdef = steeringtype;
+    FixedString steeringtype = steeringpar.find( sKey::Type );
+    BufferString steeringdef = steeringtype.buf();
     if ( steeringtype == "ConstantSteering" )
     {
 	steeringdef += " ";
