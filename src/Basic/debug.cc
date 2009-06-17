@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.28 2009-05-20 20:42:56 cvskris Exp $
+ RCS:           $Id: debug.cc,v 1.29 2009-06-17 07:51:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.28 2009-05-20 20:42:56 cvskris Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.29 2009-06-17 07:51:54 cvsnanne Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -158,25 +158,7 @@ void putProgInfo( int argc, char** argv )
     if ( !ison ) return;
 
     msg = "PID: "; msg += GetPID();
-    msg += "; Platform: ";
-#ifdef lux
-    msg += "Linux";
-# ifdef lux64
-    msg += " (64 bits)";
-# endif
-#endif
-#ifdef sun5
-    msg += "Solaris";
-# ifdef sol64
-    msg += " (64 bits)";
-# endif
-#endif
-#ifdef mac
-    msg += "Mac OS/X";
-#endif
-#ifdef win
-    msg += "MS Windows";
-#endif
+    msg += "; Platform: "; msg += __plfname__;
 
 #ifdef __GNUC__
     msg += "; gcc ";
