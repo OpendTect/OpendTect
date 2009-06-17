@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.37 2009-05-20 20:46:50 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.38 2009-06-17 08:42:17 cvsnanne Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -298,9 +298,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
 
 bool uiBatchProgLaunch::acceptOK( CallBacker* )
 {
-
-
-        if ( !progfld ) return true;
+    if ( !progfld ) return true;
 
     const int selidx = progfld->box()->currentItem();
     const BatchProgInfo& bpi = *pil[selidx];
@@ -349,20 +347,14 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     }
 
 #else
-     
-   BufferString comm("");
-   comm += FilePath(GetSoftwareDir(0)).add("bin").fullPath();
-   comm += "\\";
+
+    FilePath fp( GetBinPlfDir() );
 
     const char* progtxt = progfld->box()->text();
     if ( progtxt && *progtxt && *progtxt != '[' )
-    {
-	
-	FilePath progfp( progfld->box()->text() );
-	comm += progfp.fullPath( FilePath::Windows );
-	
-    }
+	fp.add( progfld->box()->text() );
 
+    BufferString comm = fp.fullPath();
     ObjectSet<uiGenInput>& inplst = *inps[selidx];
     for ( int iinp=0; iinp<inplst.size(); iinp++ )
     {

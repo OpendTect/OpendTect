@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.15 2009-06-17 08:13:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.16 2009-06-17 08:42:17 cvsnanne Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -431,6 +431,15 @@ const char* GetPlfSubDir()
     if ( !ret || !*ret ) ret = GetEnvVar( "binsubdir" );
     return ret && *ret ? ret : GetEnvVar( "HDIR" );
 #endif
+}
+
+
+const char* GetBinPlfDir()
+{
+    static FileNameString dirnm;
+    strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"bin") );
+    strcpy( dirnm, mkFullPath(dirnm,GetPlfSubDir()) );
+    return dirnm;
 }
 
 

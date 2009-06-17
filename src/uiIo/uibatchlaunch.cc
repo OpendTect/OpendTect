@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.74 2009-06-11 12:07:29 cvsraman Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.75 2009-06-17 08:42:17 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -231,8 +231,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     inbg = true;
 
     comm = "@";
-    comm += FilePath(GetSoftwareDir(0)).add("bin").
-	    add(progname_).fullPath();
+    comm += FilePath(GetBinPlfDir()).add(progname_).fullPath();
     comm += " ";
     comm += parfname_;
 #else
@@ -452,7 +451,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     BufferString comm( "@" );
     comm += GetExecScript( dormt );
 
-#ifdef __win__ 
+# ifdef __win__ 
     comm += " --inxterm+askclose "; comm += procprognm_;
 
     BufferString _parfnm( parfp.fullPath(FilePath::Unix) );
@@ -460,22 +459,18 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 
     comm += " \""; comm += _parfnm; comm += "\"";
 
-#else
+# else
     comm += " "; comm += procprognm_;
     comm += " -bg "; comm += parfp.fullPath();
-#endif
+# endif
 
 #else
-    BufferString comm( "" );
-    comm += FilePath(GetSoftwareDir(0)).add("bin").fullPath();
-    comm += "\\";   
-    comm += procprognm_;
-    comm += " ";
+    BufferString comm = FilePath(GetBinPlfDir()).add(procprognm_);
     BufferString _parfnm( parfp.fullPath(FilePath::Windows) );
     comm += " \""; comm += _parfnm; comm += "\"";
     dormt = true;
 #endif
-    
+
     const bool inbg=dormt;
     if ( !StreamProvider( comm ).executeCommand(inbg) )
     {

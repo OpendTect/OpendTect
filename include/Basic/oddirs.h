@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.15 2009-05-20 20:42:56 cvskris Exp $
+ RCS:		$Id: oddirs.h,v 1.16 2009-06-17 08:42:17 cvsnanne Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -85,9 +85,13 @@ mGlobal const char* GetPlfSubDir(void);
 /*!< Platform subdirectory for platforms
 
   Tries PLFSUBDIR, if not set: binsubdir, if not set: HDIR
-  Ouput medio 2007 is one of lux32, lux64, sol32, mac or win.
- 
- */
+  Ouput medio 2009 is one of lux32, lux64, sol32, mac, win32 or win64.
+*/
+
+mGlobal const char* GetBinPlfDir(void);
+/*!< Platform dependent bin directory
+  Returns full path to bin dir: GetSoftwareDir()/bin/GetPlfSubDir
+*/
 
 mGlobal const char* GetDocFileDir(const char* filedir);
 /*!< Location of Documentation */
