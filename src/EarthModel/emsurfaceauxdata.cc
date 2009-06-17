@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.22 2009-01-09 09:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.23 2009-06-17 16:35:48 cvskris Exp $";
 
 #include "emsurfaceauxdata.h"
 
 #include "arrayndimpl.h"
+#include "binidvalset.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
@@ -26,17 +27,18 @@ static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.22 2009-01-09 09:44:08 
 #include "ptrman.h"
 #include "settings.h"
 #include "strmprov.h"
+#include "varlenarray.h"
 
 namespace EM
 {
 
 SurfaceAuxData::SurfaceAuxData( Horizon3D& horizon )
     : horizon_( horizon )
-    , changed( 0 )
+    , changed_( 0 )
 {
-    auxdatanames.allowNull(true);
-    auxdatainfo.allowNull(true);
-    auxdata.allowNull(true);
+    auxdatanames_.allowNull(true);
+    auxdatainfo_.allowNull(true);
+    auxdata_.allowNull(true);
 }
 
 
@@ -48,147 +50,148 @@ SurfaceAuxData::~SurfaceAuxData()
 
 void SurfaceAuxData::removeAll()
 {
-    deepErase( auxdatanames );
-    deepErase( auxdatainfo );
-    auxdatashift.erase();
-    for ( int idx=0; idx<auxdata.size(); idx++ )
-    {
-	if ( !auxdata[idx] ) continue;
-	deepErase( *auxdata[idx] );
-    }
+    deepErase( auxdatanames_ );
+    deepErase( auxdatainfo_ );
+    auxdatashift_.erase();
 
-    deepErase( auxdata );
-    changed = true;
+    deepErase( auxdata_ );
+    changed_ = true;
 }
 
 
 int SurfaceAuxData::nrAuxData() const
-{ return auxdatanames.size(); }
+{ return auxdatanames_.size(); }
 
 
 const char* SurfaceAuxData::auxDataName( int dataidx ) const
 {
-    if ( nrAuxData() && auxdatanames[dataidx] )
-	return auxdatanames[dataidx]->buf();
+    if ( nrAuxData() && auxdatanames_[dataidx] )
+	return auxdatanames_[dataidx]->buf();
 
     return 0;
 }
 
 
 float SurfaceAuxData::auxDataShift( int dataidx ) const
-{ return auxdatashift[dataidx]; }
+{ return auxdatashift_[dataidx]; }
 
 
 void SurfaceAuxData::setAuxDataName( int dataidx, const char* name )
 {
-    if ( auxdatanames[dataidx] )
-	auxdatanames.replace( dataidx, new BufferString(name) );
+    if ( auxdatanames_[dataidx] )
+	auxdatanames_.replace( dataidx, new BufferString(name) );
 }
 
 
 void SurfaceAuxData::setAuxDataShift( int dataidx, float shift )
 {
-    if ( auxdatanames[dataidx] )
-	auxdatashift[dataidx] = shift;
+    if ( auxdatanames_[dataidx] )
+	auxdatashift_[dataidx] = shift;
 }
 
 
 int SurfaceAuxData::auxDataIndex( const char* nm ) const
 {
-    for ( int idx=0; idx<auxdatanames.size(); idx++ )
-	if ( *auxdatanames[idx] == nm ) return idx;
+    for ( int idx=0; idx<auxdatanames_.size(); idx++ )
+	if ( *auxdatanames_[idx] == nm ) return idx;
     return -1;
 }
 
 
 int SurfaceAuxData::addAuxData( const char* name )
 {
-    auxdatanames += new BufferString( name );
-    auxdatashift += 0.0;
-    ObjectSet<TypeSet<float> >* newauxdata = new ObjectSet<TypeSet<float> >;
-    auxdata += newauxdata;
-    newauxdata->allowNull(true);
+    auxdatanames_ += new BufferString( name );
+    auxdatashift_ += 0.0;
 
-    for ( int idx=0; idx<horizon_.nrSections(); idx++ )
-	(*newauxdata) += 0;
+    for ( int idx=0; idx<auxdata_.size(); idx++ )
+    {
+	if ( auxdata_[idx] )
+	    auxdata_[idx]->setNrVals( nrAuxData(), true );
+    }
 
-    changed = true;
-    return auxdatanames.size()-1;
+    changed_ = true;
+    return auxdatanames_.size()-1;
 }
 
 
 void SurfaceAuxData::removeAuxData( int dataidx )
 {
-    delete auxdatanames[dataidx];
-    auxdatanames.replace( dataidx, 0 );
-    auxdatashift[dataidx] = 0.0;
+    delete auxdatanames_[dataidx];
+    auxdatanames_.replace( dataidx, 0 );
+    auxdatashift_[dataidx] = 0.0;
 
-    deepEraseArr( *auxdata[dataidx] );
-    delete auxdata[dataidx];
-    auxdata.replace( dataidx, 0 );
-    changed = true;
+    for ( int idx=0; idx<auxdata_.size(); idx++ )
+    {
+	if ( auxdata_[idx] )
+	    auxdata_[idx]->removeVal( dataidx );
+    }
+
+    changed_ = true;
 }
 
 
 float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 {
-    if ( !auxdata.validIdx(dataidx) || !auxdata[dataidx] )
+    if ( !auxdatanames_.validIdx(dataidx) )
 	return mUdf(float);
 
     const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
-    if ( sectionidx==-1 ) return mUdf(float);
+    if ( !auxdata_.validIdx(sectionidx) || !auxdata_[sectionidx] )
+	return mUdf(float);
 
-    const TypeSet<float>* sectionauxdata = sectionidx<auxdata[dataidx]->size()
-	? (*auxdata[dataidx])[sectionidx] : 0;
+    const BinID geomrc( RowCol(posid.subID()) );
+    const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
+    if ( !pos.valid() )
+	return mUdf(float);
 
-    if ( !sectionauxdata ) return mUdf(float);
-
-    const RowCol geomrc( posid.subID() );
-    const int subidx =
-	horizon_.geometry().sectionGeometry(posid.sectionID())->getKnotIndex(geomrc);
-    if ( subidx==-1 ) return mUdf(float);
-    return (*sectionauxdata)[subidx];
+    return auxdata_[sectionidx]->getVals( pos )[dataidx];
 }
 
 
 void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 {
-    if ( !auxdata[dataidx] ) return;
+    if ( !auxdatanames_.validIdx(dataidx) )
+	return;
 
     const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
-    if ( sectionidx==-1 ) return;
-
-    const RowCol geomrc( posid.subID() ); 
-    const int subidx =
-	horizon_.geometry().sectionGeometry(posid.sectionID())->getKnotIndex(geomrc);
-    if ( subidx==-1 ) return;
-
-    TypeSet<float>* sectionauxdata = sectionidx<auxdata[dataidx]->size()
-	? (*auxdata[dataidx])[sectionidx] : 0;
-    if ( !sectionauxdata )
+    if ( !auxdata_.validIdx(sectionidx) )
     {
-	for ( int idx=auxdata[dataidx]->size(); idx<=sectionidx; idx++ )
-	    (*auxdata[dataidx]) += 0;
+	for ( int idx=auxdata_.size(); idx<horizon_.nrSections(); idx++ )
+	{
+	    auxdata_ += 0;
+	}
+    }
+    
+    if ( !auxdata_[sectionidx] )
+	auxdata_.replace( sectionidx, new BinIDValueSet( nrAuxData(), false ) );
 
-	const int sz =
-	    horizon_.geometry().sectionGeometry( posid.sectionID() )->nrKnots();
-	auxdata[dataidx]->replace( sectionidx,
-				   new TypeSet<float>(sz,mUdf(float)) );
-	sectionauxdata = (*auxdata[dataidx])[sectionidx];
+    const BinID geomrc( RowCol(posid.subID()) );
+    const BinIDValueSet::Pos pos = auxdata_[sectionidx]->findFirst( geomrc );
+    if ( !pos.valid() )
+    {
+	mAllocVarLenArr( float, vals, auxdata_[sectionidx]->nrVals() );
+	for ( int idx=0; idx<auxdata_[sectionidx]->nrVals(); idx++ )
+	    vals[idx] = mUdf(float);
+
+	vals[dataidx] = val;
+	auxdata_[sectionidx]->add( geomrc, vals );
+    }
+    else
+    {
+	auxdata_[sectionidx]->getVals( pos )[dataidx] = val;
     }
 
-    (*sectionauxdata)[subidx] = val;
-    changed = true;
+    changed_ = true;
 }
 
 
 bool SurfaceAuxData::isChanged(int idx) const
-{ return changed; }
+{ return changed_; }
 
 
 void SurfaceAuxData::resetChangedFlag()
 {
-    changed = false;
+    changed_ = false;
 }
 
 
@@ -270,16 +273,10 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 void SurfaceAuxData::removeSection( const SectionID& sectionid )
 {
     const int sectionidx = horizon_.sectionIndex( sectionid );
-    if ( sectionidx==-1 ) return;
+    if ( !auxdata_.validIdx( sectionidx ) )
+	return;
 
-    for ( int idy=0; idy<nrAuxData(); idy++ )
-    {
-	if ( !auxdata[idy] )
-	    continue;
-
-	delete (*auxdata[idy])[sectionidx];
-	auxdata[idy]->replace( sectionidx, 0 );
-    }
+    delete auxdata_.remove( sectionidx );
 }
 
 

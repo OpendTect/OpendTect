@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.9 2009-02-13 13:31:15 cvsbert Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.10 2009-06-17 16:35:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 class Executor;
 class IOObj;
 class IOPar;
+class BinIDValueSet;
 
 template <class T> class Array2D;
 
@@ -82,12 +83,15 @@ public:
 protected:
     Horizon3D&					horizon_;
 
-    BufferStringSet				auxdatanames;
-    BufferStringSet				auxdatainfo;
-    ObjectSet<ObjectSet<TypeSet<float> > >	auxdata;
-    TypeSet<float>				auxdatashift;
+    						//One entry per auxdata
+    BufferStringSet				auxdatanames_;
+    BufferStringSet				auxdatainfo_;
+    TypeSet<float>				auxdatashift_;
 
-    bool					changed;
+    						//One entry per section
+    ObjectSet<BinIDValueSet>			auxdata_;
+
+    bool					changed_;
 };
 
 
