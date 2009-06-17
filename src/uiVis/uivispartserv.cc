@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.419 2009-06-03 10:51:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.420 2009-06-17 10:24:50 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -1282,6 +1282,10 @@ bool uiVisPartServer::sendDisableSelTrackerEvent()
    eventmutex_.lock();
    return sendEvent( evDisableSelTracker() );
 }
+
+
+void uiVisPartServer::trackInVolume()
+{ mpetools_->trackInVolume(); }
 
 
 void uiVisPartServer::reportTrackingSetupActive( bool yn )

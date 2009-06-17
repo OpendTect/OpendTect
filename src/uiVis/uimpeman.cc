@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.154 2009-06-16 12:54:58 cvskris Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.155 2009-06-17 10:24:50 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -255,6 +255,9 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !emobj ) 
 	return;
 
+    const int trackerid = 
+		MPE::engine().getTrackerByObject( tracker->objectID() );
+
     const int clickedobject = clickcatcher->info().getObjID();
     if ( clickedobject == -1 )
 	return;
@@ -279,6 +282,7 @@ void uiMPEMan::seedClick( CallBacker* )
     }
 	
     const EM::PosID pid = clickcatcher->info().getNode();
+    CubeSampling newvolume;
     if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
 	return;
 
@@ -338,7 +342,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	if ( !seedpicker->startSeedPick() )
 	    return;
 	
-	CubeSampling newvolume = clickcatcher->info().getObjCS();
+	newvolume = clickcatcher->info().getObjCS();
 	const CubeSampling trkplanecs = engine.trackPlane().boundingBox();
 
 	if ( trackerisshown && trkplanecs.zrg.includes(seedpos.z) && 
@@ -401,17 +405,30 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( pid.objectID()!=-1 )
     {
 	if ( ctrlshiftclicked )
-	    seedpicker->removeSeed( pid, false, false );
+	{
+	    if ( seedpicker->removeSeed( pid, false, false ) )
+		engine.updateFlatCubesContainer( newvolume, trackerid, false );
+	}
 	else if ( clickcatcher->info().isCtrlClicked() )
-	    seedpicker->removeSeed( pid, true, true );
+	{
+	    if ( seedpicker->removeSeed( pid, true, true ) )
+		engine.updateFlatCubesContainer( newvolume, trackerid, false );
+	}
 	else if ( clickcatcher->info().isShiftClicked() )
-	    seedpicker->removeSeed( pid, true, false );
+	{
+	    if ( seedpicker->removeSeed( pid, true, false ) )
+		engine.updateFlatCubesContainer( newvolume, trackerid, false );
+	}
 	else
-	    seedpicker->addSeed( seedpos, false );
+	{
+	    if ( seedpicker->addSeed( seedpos, false ) )
+		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	}
     }
     else
-	seedpicker->addSeed( seedpos, ctrlshiftclicked );
-
+	if ( seedpicker->addSeed( seedpos, ctrlshiftclicked ) )
+	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
+    
     emobj->setBurstAlert( false );
     MouseCursorManager::restoreOverride();
     setUndoLevel(currentevent);
@@ -1350,6 +1367,10 @@ void uiMPEMan::initFromDisplay()
     updateSelectedAttrib();
     updateButtonSensitivity(0);
 }
+
+
+void uiMPEMan::trackInVolume()
+{ trackInVolume(0); }
 
 
 void uiMPEMan::setUndoLevel( int preveventnr )
