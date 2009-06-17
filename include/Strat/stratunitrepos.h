@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.21 2009-01-09 10:38:05 cvsranojay Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.22 2009-06-17 13:00:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,8 @@ public:
     const RefTree*	getTreeFromSource(Repos::Source) const;
     bool		write(Repos::Source) const;
     void		reRead();
+
+    mutable Notifier<UnitRepository> changed;
 
     int			getNewLithID() const	{ return ++lastlithid_; }
     int			getNewLevelID() const	{ return ++lastlevelid_; }

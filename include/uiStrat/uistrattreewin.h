@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.22 2009-01-30 16:04:23 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.23 2009-06-17 13:00:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
 			~uiStratTreeWin();
 
     void		popUp() const;
+    virtual bool		closeOK();
 
     mutable Notifier<uiStratTreeWin>	levelCreated;
     mutable Notifier<uiStratTreeWin>	levelChanged;
@@ -99,13 +100,13 @@ protected:
     void			unitSelCB(CallBacker*);
     void			unitRenamedCB(CallBacker*);
     void			moveUnitCB(CallBacker*);
-    void			shutdownCB(CallBacker*);
+    void			forceCloseCB(CallBacker*);
 
 
     uiStratMgr*			uistratmgr_;
 
     bool			needsave_;
-    virtual bool		closeOK();
+    bool			needcloseok_;
 
 private:
 

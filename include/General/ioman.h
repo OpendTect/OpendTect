@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.41 2009-03-16 12:42:08 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.42 2009-06-17 13:00:43 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,7 @@ private:
     int			curlvl;
     MultiID		prevkey;
     FileNameString	rootdir;
+    bool		canchangesurvey_;
 
     void		init();
 			IOMan(const char* rd=0);
@@ -138,11 +139,15 @@ public:
 
     // Don't use these functions unless you really know what you're doing
 
+    void		allowSurveyChange()	{ canchangesurvey_ = true; }
+    void		disallowSurveyChange()	{ canchangesurvey_ = false; }
+    bool		canChangeSurvey() const		
+    			{ return canchangesurvey_; }
     void		applClosing()	{ applicationClosing.trigger(); }
     static bool		newSurvey();
 			/*!< if an external source has changed
 				the .od/survey, force re-read it. */
-    static void		setSurvey(const char*);
+    static bool		setSurvey(const char*);
 			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */

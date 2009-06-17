@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.34 2009-05-22 06:37:39 cvsranojay Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.35 2009-06-17 13:00:44 cvssatyaki Exp $";
 
 #include "uistrattreewin.h"
 
@@ -40,9 +40,9 @@ static const char* sNoLevelTxt      = "--- Empty ---";
 using namespace Strat;
 
 
+static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()
 {
-    static uiStratTreeWin* stratwin = 0;
     if ( !stratwin )
 	stratwin = new uiStratTreeWin(0);
 
@@ -67,9 +67,10 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , lithChanged(this)		//TODO support
     , lithRemoved(this)		//TODO support
     , needsave_(false)
+    , needcloseok_(true)
 {
     uistratmgr_ = new uiStratMgr( this );
-    IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,shutdownCB ) );
+    IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     mAskStratMgrNotif(unitCreated)
     mAskStratMgrNotif(unitChanged)
     mAskStratMgrNotif(unitRemoved)
@@ -87,9 +88,6 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 
 uiStratTreeWin::~uiStratTreeWin()
 {
-    delete uitree_;
-    delete tb_;
-    IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,shutdownCB ) );
 }
 
 #define mImplCBFunctions(nm)\
@@ -361,6 +359,8 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
+    if ( !needcloseok_ )
+	return true;
     if ( needsave_ || uistratmgr_->needSave() )
     {
 	int res = uiMSG().askSave( 
@@ -368,6 +368,12 @@ bool uiStratTreeWin::closeOK()
 	if ( res == 1 )
 	    uistratmgr_->save();
 	else if ( res == 0 )
+	{
+	    resetCB( 0 );
+	    uistratmgr_->createTmpTree( true );
+	    return true;
+	}
+	else if ( res == -1 )
 	    return false;
     }
 
@@ -375,9 +381,14 @@ bool uiStratTreeWin::closeOK()
 }
 
 
-void uiStratTreeWin::shutdownCB( CallBacker* )
+void uiStratTreeWin::forceCloseCB( CallBacker* )
 {
-    closeOK();
+    IOM().surveyChanged.remove( mCB(this,uiStratTreeWin,forceCloseCB ) );
+    needcloseok_ = false;
+    if ( stratwin )
+	stratwin->close();
+    needcloseok_ = true;
+    stratwin = 0;
 }
 
 

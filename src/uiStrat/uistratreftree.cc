@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.32 2009-02-03 16:31:41 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.33 2009-06-17 13:00:44 cvssatyaki Exp $";
 
 #include "uistratreftree.h"
 
@@ -52,6 +52,7 @@ uiStratRefTree::uiStratRefTree( uiParent* p, uiStratMgr* uistratmgr )
     lv_->setStretch( 2, 2 );
     lv_->rightButtonClicked.notify( mCB( this,uiStratRefTree,rClickCB ) );
 
+    Strat::UnRepo().changed.notify( mCB(this,uiStratRefTree,repoChangedCB) );
     setTree( uistratmgr_->getCurTree() );
 }
 
@@ -142,6 +143,12 @@ void uiStratRefTree::makeTreeEditable( bool yn ) const
 	lvit->setDropEnabled( yn );
 	lvit = lvit->itemBelow();
     }
+}
+
+
+void uiStratRefTree::repoChangedCB( CallBacker* )
+{
+    setTree( uistratmgr_->getCurTree() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.16 2009-02-03 16:31:41 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.17 2009-06-17 13:00:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ protected:
     uiStratMgr*		uistratmgr_;
 
     void		rClickCB(CallBacker*);
+    void		repoChangedCB(CallBacker*);
 
     void		insertSubUnit(uiListViewItem*);
     void		removeUnit(uiListViewItem*);

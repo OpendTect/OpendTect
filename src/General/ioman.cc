@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.97 2009-03-16 12:43:46 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.98 2009-06-17 13:00:44 cvssatyaki Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -46,6 +46,7 @@ IOMan& IOM()
 IOMan::IOMan( const char* rd )
 	: NamedObject("IO Manager")
 	, dirptr(0)
+	, canchangesurvey_(true)
 	, state_(IOMan::NeedInit)
     	, newIODir(this)
     	, entryRemoved(this)
@@ -185,6 +186,11 @@ bool IOMan::isReady() const
 #define mDestroyInst(dotrigger) \
     if ( dotrigger && survchg_triggers ) \
 	IOM().surveyToBeChanged.trigger(); \
+    if ( !IOM().canChangeSurvey() ) \
+    { \
+	IOM().allowSurveyChange(); \
+	return false; \
+    } \
     StreamProvider::unLoadAll(); \
     CallBackSet s2bccbs = IOM().surveyToBeChanged.cbs_; \
     CallBackSet sccbs = IOM().surveyChanged.cbs_; \
@@ -194,7 +200,7 @@ bool IOMan::isReady() const
     CallBackSet apccbs = IOM().applicationClosing.cbs_; \
     delete IOMan::theinst_; \
     IOMan::theinst_ = 0; \
-    clearSelHists()
+    clearSelHists();
 
 #define mFinishNewInst(dotrigger) \
     IOM().surveyToBeChanged.cbs_ = s2bccbs; \
@@ -233,13 +239,14 @@ bool IOMan::newSurvey()
 }
 
 
-void IOMan::setSurvey( const char* survname )
+bool IOMan::setSurvey( const char* survname )
 {
     mDestroyInst( true );
 
     SurveyInfo::deleteInstance();
     SetSurveyName( survname );
     mFinishNewInst( true );
+    return !IOM().bad();
 }
 
 
