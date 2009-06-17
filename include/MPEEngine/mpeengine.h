@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.43 2009-05-07 07:28:44 cvsumesh Exp $
+ RCS:           $Id: mpeengine.h,v 1.44 2009-06-17 10:18:38 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,11 @@ public:
 				      const CubeSampling&);
     void		swapCacheAndItsBackup();
 
+    void		updateFlatCubesContainer(const CubeSampling& cs,
+	    					 const int idx,bool);
+			/*!< add = true, remove = false. */
+    ObjectSet<CubeSampling>* getTrackedFlatCubes(const int idx) const;
+
     			/*Editors */
     ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
     void		removeEditor(const EM::ObjectID&);
@@ -160,6 +165,19 @@ protected:
     TypeSet<DataPack::ID>               attribbkpcachedatapackids_;
     ObjectSet<const Attrib::DataCubes>	attribbackupcache_;
     ObjectSet<CacheSpecs>		attribbackupcachespecs_;
+
+    mStruct FlatCubeInfo
+    {
+				FlatCubeInfo()
+				:nrseeds_(1)
+				{
+				    flatcs_.setEmpty();
+				}
+	CubeSampling		flatcs_;
+	int			nrseeds_;	
+    };
+
+    ObjectSet<ObjectSet<FlatCubeInfo> >	flatcubescontainer_;
 
     static const char*		sKeyNrTrackers(){ return "Nr Trackers"; }
     static const char*		sKeyObjectID()	{ return "ObjectID"; }
