@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.17 2009-06-08 09:14:00 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.18 2009-06-17 22:07:54 cvskris Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -235,11 +235,11 @@ void BufferString::replaceAt( int atidx, const char* str, bool cut )
 
 
 bool BufferString::operator >( const char* s ) const
-{ return s ? strcmp(buf_,s) > 0 : true; }
+{ return s && buf_ ? strcmp(buf_,s) > 0 : (bool) buf_; }
 
 
 bool BufferString::operator <( const char* s ) const
-{ return s ? strcmp(buf_,s) < 0 : false; }
+{ return s && buf_ ? strcmp(buf_,s) < 0 : (bool) s; }
 
 
 const BufferString& BufferString::empty()
