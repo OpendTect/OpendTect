@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.14 2009-06-17 07:43:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.15 2009-06-17 08:13:16 cvsnanne Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -276,6 +276,7 @@ const char* GetSoftwareDir( int acceptnone )
     char* chptr1; char* chptr2;
     const char* dir = 0;
     static const char* ret = 0;
+    int termidx = 0;
     if ( ret ) return ret;
     ret = dirnm;
 
@@ -287,15 +288,19 @@ const char* GetSoftwareDir( int acceptnone )
 #endif
 
 #ifdef __msvc__
-    if ( !dir )
+    if ( !dir || !*dir )
     {
 	GetShortPathName(_getcwd(NULL,0),dirnm,strlen(_getcwd(NULL,0)));
-	dirnm[strlen(dirnm)-4] = '\0';
-	dir = dirnm;
+	termidx = strlen(dirnm) - 10; // remove \bin\win%%
+	if ( termidx > 0 )
+	{
+	    dirnm[termidx] = '\0';
+	    dir = dirnm;
+	}
     }
 #endif
 
-    if ( !dir )
+    if ( !dir || !*dir )
     {
 #ifdef __mac__
        	if ( getBundleLocation(dirnm) )
@@ -303,7 +308,7 @@ const char* GetSoftwareDir( int acceptnone )
 #endif
        	if ( !dir && gtSoftwareDirFromArgv(dirnm) )
 	    dir = dirnm;
-	if ( !dir )
+	if ( !dir || !*dir )
 	{
 	    fprintf( stderr, "Cannot determine OpendTect location\n" );
 	    if ( acceptnone )
