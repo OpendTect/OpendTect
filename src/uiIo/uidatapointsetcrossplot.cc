@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.43 2009-06-16 04:37:31 cvsnanne Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.44 2009-06-17 12:38:29 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.43 2009-06-16 04:37:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.44 2009-06-17 12:38:29 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -431,6 +431,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
     {
 	SelectionArea* curselarea = selareaset_[curselarea_];
 	selareaset_ -= curselarea;
+	curselarea_--;
 	removeSelections();
 
 	if ( rectangleselection_ )
