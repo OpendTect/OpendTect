@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.37 2009-05-05 03:32:32 cvskris Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.38 2009-06-17 08:03:19 cvshelene Exp $";
 
 
 #include "uisteeringsel.h"
@@ -322,7 +322,7 @@ CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
 DescID uiSteerCubeSel::getDipID( int dipnr ) const
 {
     const DescSet& ads = attrdata_.attrSet();
-    if ( !workctio_.ioobj || ads.isEmpty() ) 
+    if ( !workctio_.ioobj ) 
 	return DescID::undef();
 
     LineKey linekey( workctio_.ioobj->key() );
