@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoord.cc,v 1.33 2009-04-24 21:23:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.34 2009-06-17 13:18:23 cvsyuancheng Exp $";
 
 #include "viscoord.h"
 
@@ -143,6 +143,8 @@ int Coordinates::nextID( int previd ) const
     {
 	if ( unusedcoords_.indexOf(res)==-1 )
 	    return res;
+	else
+	    res++;
     }
 
     return -1;
