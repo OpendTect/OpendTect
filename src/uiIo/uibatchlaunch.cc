@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.75 2009-06-17 08:42:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.76 2009-06-17 19:22:42 cvskris Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -394,7 +394,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	    if ( !sd.usable() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
 	    ascistream aistrm( *sd.istrm, true );
-	    if ( strcmp(aistrm.fileType(),sKey::Pars) )
+	    if ( aistrm.fileType()!=sKey::Pars )
 	    {
 		sd.close();
 		uiMSG().error(BufferString(fnm," is not a parameter file"));
