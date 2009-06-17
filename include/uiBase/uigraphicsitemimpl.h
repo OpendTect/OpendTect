@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.19 2009-05-21 07:09:58 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.20 2009-06-17 08:46:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,9 +249,16 @@ mClass uiArrowItem : public uiGraphicsItem
 {
 public:
     				uiArrowItem();
+				uiArrowItem(const uiPoint& tail,
+					    const uiPoint& head,
+					    const ArrowStyle&);
     				uiArrowItem(ODGraphicsArrowItem*);
 				~uiArrowItem();
 
+    void			setHeadPos(const uiPoint&);
+    void			setTailPos(const uiPoint&);
+    void			setTailHeadPos(const uiPoint& tail,
+	    				       const uiPoint& head);
     void                        setArrowStyle(const ArrowStyle&);
     void 			setArrowSize(int);
 
@@ -261,6 +268,11 @@ protected:
 
     QGraphicsItem*		mkQtObj();
     ODGraphicsArrowItem*	qarrowitem_;
+
+    uiPoint			tailpos_;
+    uiPoint			headpos_;
+
+    void			update();
 };
 
 

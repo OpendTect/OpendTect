@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.11 2009-06-16 12:31:10 cvskris Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.12 2009-06-17 08:46:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,9 @@ template <class T> class StepInterval;
 mClass DrawAxis2D
 {
 public:
-			DrawAxis2D(uiGraphicsView*);
+			DrawAxis2D(uiGraphicsView&);
 			~DrawAxis2D();
-    void		setDrawScene(uiGraphicsScene*);
+
     void		setDrawRectangle(const uiRect*);
     			/*!<Specifies a rectangle on the canvas where the
 			    axis should be drawn. If set to zero, drawer will
@@ -93,8 +93,8 @@ protected:
 			    \returns 		the actual display pos is
 			 */
 
-    uiGraphicsScene*	drawscene_;
-    uiGraphicsView*	drawview_;
+    uiGraphicsScene&	drawscene_;
+    uiGraphicsView&	drawview_;
     uiGraphicsItemGroup* xaxlineitmgrp_;
     uiGraphicsItemGroup* yaxlineitmgrp_;
     uiGraphicsItemGroup* xaxgriditmgrp_;

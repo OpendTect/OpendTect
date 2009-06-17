@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.22 2009-06-16 12:31:10 cvskris Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.23 2009-06-17 08:46:06 cvsnanne Exp $";
 
 #include "drawaxis2d.h"
 
@@ -31,8 +31,8 @@ static const char* rcsID = "$Id: drawaxis2d.cc,v 1.22 2009-06-16 12:31:10 cvskri
     , xaxrectitem_( 0 ) \
     , yaxlineitem_( 0 )
 
-DrawAxis2D::DrawAxis2D( uiGraphicsView* drawview )
-    : drawscene_( &drawview->scene() )
+DrawAxis2D::DrawAxis2D( uiGraphicsView& drawview )
+    : drawscene_( drawview.scene() )
     , mDefGrpItmInit
     , drawview_(drawview)
     , inside_(false)
@@ -43,7 +43,7 @@ DrawAxis2D::DrawAxis2D( uiGraphicsView* drawview )
     , yrg_( 0, 1 )
     , useuirect_( false )
     , zValue_( 3 )
-{ }
+{}
 
 
 DrawAxis2D::~DrawAxis2D()
@@ -56,12 +56,6 @@ DrawAxis2D::~DrawAxis2D()
     delete drawscene_->removeItem( yaxtxtitmgrp_ );
     delete drawscene_->removeItem( xaxrectitem_ );
     delete drawscene_->removeItem( yaxlineitem_ );
-}
-
-
-void DrawAxis2D::setDrawScene( uiGraphicsScene* da )
-{
-    drawscene_ = da; 
 }
 
 
@@ -98,7 +92,7 @@ void DrawAxis2D::setup( const StepInterval<float>& xrg,
 
 # define mRemoveGraphicsItem( item ) \
     if ( item ) \
-    { drawscene_->removeItem( item ); delete item; item = 0; }
+    { drawscene_.removeItem( item ); delete item; item = 0; }
 
 void DrawAxis2D::drawAxes( bool xdir, bool ydir,
 			   bool topside, bool leftside )
@@ -155,7 +149,7 @@ void DrawAxis2D::drawXAxis( bool topside )
     if ( drawaxisline_ )
     {
 	if ( !xaxrectitem_ )
-	    xaxrectitem_ = drawscene_->addRect( drawarea.left(),
+	    xaxrectitem_ = drawscene_.addRect( drawarea.left(),
 						drawarea.top(),
 						drawarea.width(),
 						drawarea.height() );
@@ -169,7 +163,7 @@ void DrawAxis2D::drawXAxis( bool topside )
     if ( !xaxlineitmgrp_ )
     {
 	xaxlineitmgrp_ = new uiGraphicsItemGroup();
-	drawscene_->addItemGrp( xaxlineitmgrp_ );
+	drawscene_.addItemGrp( xaxlineitmgrp_ );
     }
     else
 	xaxlineitmgrp_->removeAll( true );
@@ -177,7 +171,7 @@ void DrawAxis2D::drawXAxis( bool topside )
     if ( !xaxtxtitmgrp_ )
     {
 	xaxtxtitmgrp_ = new uiGraphicsItemGroup();
-	drawscene_->addItemGrp( xaxtxtitmgrp_ );
+	drawscene_.addItemGrp( xaxtxtitmgrp_ );
     }
     else
 	xaxtxtitmgrp_->removeAll( true );
@@ -237,22 +231,22 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	const uiPoint& pt1 = drawarea.topLeft();
 	const uiPoint& pt2 = drawarea.bottomLeft();
 	if ( !yaxlineitem_ )
-	    yaxlineitem_ = drawscene_->addItem( new uiLineItem(pt1,pt2,true) );
+	    yaxlineitem_ = drawscene_.addItem( new uiLineItem(pt1,pt2,true) );
 	else 
 	    yaxlineitem_->setLine( pt1, pt2, true );
     }
     
     if ( !yaxlineitmgrp_ )
     {
-	yaxlineitmgrp_ = new uiGraphicsItemGroup();
-	drawscene_->addItemGrp( yaxlineitmgrp_ );
+	yaxlineitmgrp_ = new uiGraphicsItemGroup( true );
+	drawscene_.addItemGrp( yaxlineitmgrp_ );
     }
     else
 	yaxlineitmgrp_->removeAll( true );
     if ( !yaxtxtitmgrp_ )
     {
-	yaxtxtitmgrp_ = new uiGraphicsItemGroup();
-	drawscene_->addItemGrp( yaxtxtitmgrp_ );
+	yaxtxtitmgrp_ = new uiGraphicsItemGroup( true );
+	drawscene_.addItemGrp( yaxtxtitmgrp_ );
     }
     else
 	yaxtxtitmgrp_->removeAll( true );
@@ -299,8 +293,8 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	const int bot = drawarea.bottom();// - drawarea.top();
 	if ( !xaxgriditmgrp_ )
 	{
-	    xaxgriditmgrp_ = new uiGraphicsItemGroup();
-	    drawscene_->addItemGrp( xaxgriditmgrp_ );
+	    xaxgriditmgrp_ = new uiGraphicsItemGroup( true );
+	    drawscene_.addItemGrp( xaxgriditmgrp_ );
 	}
 	else
 	    xaxgriditmgrp_->removeAll( true );
@@ -323,8 +317,8 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	const int right = drawarea.right();// - drawarea.left();
 	if ( !yaxgriditmgrp_ )
 	{
-	    yaxgriditmgrp_ = new uiGraphicsItemGroup();
-	    drawscene_->addItemGrp( yaxgriditmgrp_ );
+	    yaxgriditmgrp_ = new uiGraphicsItemGroup( true );
+	    drawscene_.addItemGrp( yaxgriditmgrp_ );
 	}
 	else
 	    yaxgriditmgrp_->removeAll( true );
@@ -357,7 +351,7 @@ uiRect DrawAxis2D::getDrawArea() const
     if ( useuirect_ )
 	return uirect_;
 
-    return uiRect( 0, 0, drawview_->width(), drawview_->height() );
+    return uiRect( 0, 0, drawview_.width(), drawview_.height() );
 }
 
 

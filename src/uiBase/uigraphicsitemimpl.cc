@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.29 2009-06-08 06:19:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.30 2009-06-17 08:46:06 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -589,10 +589,15 @@ uiArrowItem::uiArrowItem()
 {}
 
 
-uiArrowItem::uiArrowItem( ODGraphicsArrowItem* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qarrowitem_(qtobj)
-{}
+uiArrowItem::uiArrowItem( const uiPoint& tail, const uiPoint& head,
+			  const ArrowStyle& style )
+    : uiGraphicsItem(mkQtObj())
+{
+    tailpos_ = tail;
+    headpos_ = head;
+    setArrowStyle( style );
+    update();
+}
 
 
 uiArrowItem::~uiArrowItem()
@@ -608,6 +613,28 @@ QGraphicsItem* uiArrowItem::mkQtObj()
 }
 
 
+void uiArrowItem::setHeadPos( const uiPoint& pt )
+{
+    headpos_ = pt;
+    update();
+}
+
+
+void uiArrowItem::setTailPos( const uiPoint& pt )
+{
+    tailpos_ = pt;
+    update();
+}
+
+
+void uiArrowItem::setTailHeadPos( const uiPoint& tail, const uiPoint& head )
+{
+    tailpos_ = tail;
+    headpos_ = head;
+    update();
+}
+
+
 void uiArrowItem::setArrowStyle( const ArrowStyle& arrowstyle )
 {
     qarrowitem_->setArrowStyle( arrowstyle );
@@ -617,6 +644,21 @@ void uiArrowItem::setArrowStyle( const ArrowStyle& arrowstyle )
 void uiArrowItem::setArrowSize( int arrowsz )
 {
     qarrowitem_->setArrowSize( arrowsz );
+}
+
+
+void uiArrowItem::update()
+{
+    qarrowitem_->resetTransform();
+
+    float diffx = headpos_.x-tailpos_.x;
+    float diffy = headpos_.y-tailpos_.y;
+    const float arrsz = sqrt( diffx*diffx + diffy*diffy );
+    setArrowSize( mNINT(arrsz) );
+    setPos( headpos_ );
+    const uiPoint relvec( diffx, diffy );
+    const float ang = atan2((float)relvec.y,(float)relvec.x) * 180/M_PI;
+    rotate( ang );
 }
 
 

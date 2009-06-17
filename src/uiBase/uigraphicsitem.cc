@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.16 2009-06-16 12:32:49 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.17 2009-06-17 08:46:06 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.16 2009-06-16 12:32:49 cv
 #include <QBrush>
 #include <QCursor>
 #include <QGraphicsItemGroup>
+#include <QGraphicsScene>
 #include <QPen>
 #include <QTransform>
 
@@ -111,7 +112,7 @@ void uiGraphicsItem::setSelectable( bool yn )
 
 void uiGraphicsItem::setParent( uiGraphicsItem* item )
 {
-    qgraphicsitem_->setParentItem( item->qgraphicsitem_ );
+    qgraphicsitem_->setParentItem( item ? item->qgraphicsitem_ : 0 );
 }
 
 
@@ -153,22 +154,17 @@ void uiGraphicsItem::setCursor( const MouseCursor& cursor )
 
 // +++++ uiGraphicsItemGroup +++++
 
-uiGraphicsItemGroup::uiGraphicsItemGroup()
+uiGraphicsItemGroup::uiGraphicsItemGroup( bool owner )
     : uiGraphicsItem(mkQtObj())
     , isvisible_(true)
-{}
-
-
-uiGraphicsItemGroup::uiGraphicsItemGroup( QGraphicsItemGroup* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qgraphicsitemgrp_(qtobj)
-    , isvisible_(true)
+    , owner_(owner)
 {}
 
 
 uiGraphicsItemGroup::uiGraphicsItemGroup( const ObjectSet<uiGraphicsItem>& grp )
     : uiGraphicsItem(mkQtObj())
     , isvisible_(true)
+    , owner_(false)
 {
     ObjectSet<uiGraphicsItem>& itms =
 				const_cast<ObjectSet<uiGraphicsItem>&>(grp);
@@ -179,7 +175,7 @@ uiGraphicsItemGroup::uiGraphicsItemGroup( const ObjectSet<uiGraphicsItem>& grp )
 
 uiGraphicsItemGroup::~uiGraphicsItemGroup()
 {
-    removeAll( true );
+    removeAll( owner_ );
     delete qgraphicsitemgrp_;
 }
 
@@ -201,9 +197,14 @@ void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
 void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
 {
     items_ -= itm;
-    qgraphicsitemgrp_->removeFromGroup( itm->qGraphicsItem() );
+    QGraphicsItem* qitm = itm->qGraphicsItem();
+    qgraphicsitemgrp_->removeFromGroup( qitm );
     if ( withdelete )
-	delete itm;
+    {
+	if ( qitm && qitm->scene() )
+	    qitm->scene()->removeItem( qitm );
+//	delete itm;
+    }
 }
 
 

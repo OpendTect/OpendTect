@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.84 2009-06-15 14:58:46 cvskris Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.85 2009-06-17 08:46:06 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -90,8 +90,8 @@ uiFlatViewer::~uiFlatViewer()
     delete bmp2rgb_;
     delete wvabmpmgr_;
     delete vdbmpmgr_;
-    delete &canvas_.rgbArray();
     delete &axesdrawer_;
+    delete &canvas_.rgbArray();
 }
 
 
@@ -523,10 +523,14 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	uiPoint from( datarect.right()-12, ynameannpos + 15 );
 	uiPoint to( datarect.right()-2, ynameannpos  + 15);
 	if ( ad1.reversed_ ) Swap( from, to );
-	if ( arrowitem1_ )
-	    mRemoveAnnotItem( arrowitem1_ );
-	arrowitem1_ = canvas_.scene().addArrow( from, to, arrowstyle );
-	arrowitem1_->setZValue(1);
+	if ( !arrowitem1_ )
+	{
+	    arrowitem1_ = canvas_.scene().addItem( new uiArrowItem() );
+	    arrowitem1_->setArrowStyle( arrowstyle );
+	    arrowitem1_->setZValue( 1 );
+	}
+	arrowitem1_->setTailHeadPos( from, to );
+
 	if ( !axis1nm_ )
 	{
 	    axis1nm_ = canvas_.scene().addItem(
@@ -545,11 +549,14 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	uiPoint from( left , ynameannpos + 15 );
 	uiPoint to( left, ynameannpos + 25 );
 	if ( ad2.reversed_ ) Swap( from, to );
-	if ( arrowitem2_ )
-	    mRemoveAnnotItem( arrowitem2_ );
-	arrowitem2_ = canvas_.scene().addArrow(
-		from, to, arrowstyle );
-	arrowitem2_->setZValue(1); 
+	if ( !arrowitem2_ )
+	{
+	    arrowitem2_ = canvas_.scene().addItem( new uiArrowItem() );
+	    arrowitem2_->setArrowStyle( arrowstyle );
+	    arrowitem2_->setZValue( 1 ); 
+	}
+	arrowitem2_->setTailHeadPos( from, to );
+
 	if ( !axis2nm_ )
 	{
 	    axis2nm_ = canvas_.scene().addItem(

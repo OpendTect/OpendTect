@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.32 2009-06-12 09:36:51 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.33 2009-06-17 08:46:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,13 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "flatview.h"
 #include "uigeom.h"
+
 namespace FlatView {
 class BitMapMgr;
 class BitMap2RGB;
 class AxesDrawer;
 }
+
 class BufferStringSet;
 class uiRGBArrayCanvas;
 class uiRGBArray;
@@ -39,10 +41,10 @@ class uiTextItem;
 /*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
 
 mClass uiFlatViewer : public uiGroup
-		   , public FlatView::Viewer
+		    , public FlatView::Viewer
 {
 public:
-    			uiFlatViewer(uiParent*,bool enabhanddrag = false);
+    			uiFlatViewer(uiParent*,bool enabhanddrag=false);
 			~uiFlatViewer();
 
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
@@ -119,6 +121,7 @@ protected:
     uiPolygonItem*		polyitem_;
     uiGraphicsItemGroup*	polylineitmgrp_;
     uiGraphicsItemGroup*	markeritemgrp_;
+
     void			onFinalise(CallBacker*);
     void			reDraw(CallBacker*);
     void			reSizeDraw(CallBacker*);

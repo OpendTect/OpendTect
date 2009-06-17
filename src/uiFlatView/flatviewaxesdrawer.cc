@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewaxesdrawer.cc,v 1.12 2009-06-12 18:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: flatviewaxesdrawer.cc,v 1.13 2009-06-17 08:46:06 cvsnanne Exp $";
 
 #include "flatviewaxesdrawer.h"
 #include "flatview.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: flatviewaxesdrawer.cc,v 1.12 2009-06-12 18:53:3
 
 
 FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, uiGraphicsView& view )
-    : DrawAxis2D( &view )
+    : DrawAxis2D(view)
     , vwr_(vwr)
     , altdim0_(mUdf(int))
 {

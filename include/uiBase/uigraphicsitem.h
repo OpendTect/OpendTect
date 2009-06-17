@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.15 2009-06-12 08:17:56 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.16 2009-06-17 08:46:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,10 +77,13 @@ protected:
 mClass uiGraphicsItemGroup : public uiGraphicsItem
 {
 public:
-    			uiGraphicsItemGroup();
-			uiGraphicsItemGroup(QGraphicsItemGroup*);
+    			uiGraphicsItemGroup(bool owner=false);
 			uiGraphicsItemGroup(const ObjectSet<uiGraphicsItem>&);
 			~uiGraphicsItemGroup();
+			//!<If owner, it deletes all items
+
+    void		setIsOwner( bool own )	{ owner_ = own; }
+    bool		isOwner() const		{ return owner_; }
 
     void		add(uiGraphicsItem*);
     void		remove(uiGraphicsItem*,bool);
@@ -99,6 +102,7 @@ protected:
 
     QGraphicsItem*	mkQtObj();
 
+    bool		owner_;
     bool		isvisible_;
     QGraphicsItemGroup*	qgraphicsitemgrp_;
     ObjectSet<uiGraphicsItem>	items_;

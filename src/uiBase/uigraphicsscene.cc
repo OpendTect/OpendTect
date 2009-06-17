@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.29 2009-06-16 12:34:52 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.30 2009-06-17 08:46:06 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -229,24 +229,6 @@ uiPolyLineItem* uiGraphicsScene::addPolyLine( const TypeSet<uiPoint>& ptlist )
     polylineitem->setPolyLine( ptlist );
     addItem( polylineitem );
     return polylineitem;
-}
-
-
-uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
-					const uiPoint& head,
-					const ArrowStyle& arrstyle )
-{
-    uiArrowItem* arritem = new uiArrowItem();
-    arritem->setArrowStyle( arrstyle );
-    const int arrsz = (int)sqrt( (float)(head.x - tail.x)*(head.x - tail.x) +
-		      	         (float)(tail.y - head.y)*(tail.y - head.y) );
-    arritem->setArrowSize( arrsz );
-    arritem->setPos( head );
-    const uiPoint relvec( head.x - tail.x, tail.y - head.y );
-    const float ang = atan2((float)relvec.y,(float)relvec.x) *180/M_PI;
-    arritem->rotate( ang );
-    addItem( arritem );
-    return arritem;
 }
 
 

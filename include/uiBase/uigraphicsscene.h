@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.22 2009-06-12 20:42:22 cvskris Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.23 2009-06-17 08:46:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ class ArrowStyle;
 class Alignment;
 class MarkerStyle2D;
 
-class uiArrowItem;
 class uiPolygonItem;
 class uiPolyLineItem;
 class uiRectItem;
@@ -52,10 +51,6 @@ public:
 
     uiPolygonItem*		addPolygon(const TypeSet<uiPoint>&,bool fill);
     uiPolyLineItem*		addPolyLine(const TypeSet<uiPoint>&);
-
-    uiArrowItem*		addArrow(const uiPoint& head,
-	    				 const uiPoint& tail,
-					 const ArrowStyle&);
 
     void			useBackgroundPattern(bool);
     void 			setBackGroundColor(const Color&);
