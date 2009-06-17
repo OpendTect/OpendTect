@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.2 2009-06-11 12:07:29 cvsraman Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.3 2009-06-17 17:44:29 cvskris Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -149,7 +149,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	File_remove( tempstordir_.buf(), 1 );
 
     const MultiID tmpid = getTmpID( tmpdir.buf() );
-    BufferString res = iopar_.find( getOutPutIDKey() );
+    FixedString res = iopar_.find( getOutPutIDKey() );
     iopar_.set( getOutPutIDKey(), tmpid );
     delete jobprov_;
     jobprov_ = new InlineSplitJobDescProv( iopar_ );
@@ -230,8 +230,8 @@ bool uiClusterJobProv::writeScriptFile( const char* scrfnm, const char* parfnm,
 
 const char* uiClusterJobProv::getOutPutIDKey() const
 {
-    const char* res = iopar_.find( sKeySeisOutIDKey() );
-    if ( !res || !*res )
+    FixedString res = iopar_.find( sKeySeisOutIDKey() );
+    if ( !res )
 	res = sKeyOutputID();
 
     return res;
