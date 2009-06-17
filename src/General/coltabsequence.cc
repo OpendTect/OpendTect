@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.19 2009-06-12 19:09:47 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.20 2009-06-17 22:12:47 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -381,8 +381,12 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
     ColTab::Sequence backup = *this;
-    const char* res = iopar.find( sKey::Name );
-    if ( res ) setName( res );
+    FixedString res = iopar.find( sKey::Name );
+    if ( !res )
+	return false;
+
+    setName( res );
+
     if ( !getfromPar( iopar, markcolor_, sKeyMarkColor, 0 ) ||
 	 !getfromPar( iopar, undefcolor_, sKeyUdfColor, 0 ) )
     {
@@ -501,7 +505,9 @@ void ColTab::SeqMgr::addFromPar( const IOPar& iop, bool fromsys )
 	    return;
 	}
 	ColTab::Sequence* newseq = new ColTab::Sequence;
-	newseq->usePar( *ctiopar );
+	if ( !newseq->usePar( *ctiopar ) )
+	    { delete newseq; continue; }
+
 	if ( newseq->size() < 1 && newseq->transparencySize() < 1 )
 	    { delete newseq; continue; }
 
