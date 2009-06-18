@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.4 2009-05-28 09:54:41 cvsnanne Exp $
+ RCS:		$Id: uiwaveletextraction.h,v 1.5 2009-06-18 09:53:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class IOPar;
 class SeisTrcBuf;
 class MultiID;
 
-class uiWaveletExtraction : public uiDialog
+mClass uiWaveletExtraction : public uiDialog
 {
 public:
 				uiWaveletExtraction(uiParent*);
