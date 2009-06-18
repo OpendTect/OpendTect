@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.2 2009-06-17 15:07:39 cvsbert Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.3 2009-06-18 14:55:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class uiGenInput;
 class uiCheckBox;
 class MathExpression;
 class uiLabeledComboBox;
+class uiWellLogCalcInpData;
 namespace Well { class Log; class LogSet; }
 
 /*! \brief Dialog for marker specifications */
@@ -36,23 +37,37 @@ protected:
     uiGenInput*			nmfld_;
     uiGenInput*			dahrgfld_;
     uiCheckBox*			ftbox_;
-    ObjectSet<uiLabeledComboBox> varselflds_;
+    ObjectSet<uiWellLogCalcInpData> inpdataflds_;
     Well::LogSet&		wls_;
 
     int				nrvars_;
-    TypeSet<int>		recvars_;
+    int				nrspecvars_;
+    TypeSet<int>		recvaridxs_;
+    TypeSet<int>		specvaridxs_;
+    BoolTypeSet			isspecvar_;
     TypeSet<float>		startvals_;
     MathExpression*		expr_;
     bool			havenew_;
     StepInterval<float>		dahrg_;
 
+    friend class		uiWellLogCalcInpData;
+
+    struct InpData
+    {
+			InpData( const Well::Log* w=0, int s=0, bool n=false )
+			    : wl_(w), shift_(s), noudf_(n), specidx_(-1) {}
+	bool		operator ==( const InpData& id ) const
+					{ return wl_ == id.wl_; }
+	const Well::Log* wl_;
+	int		shift_;
+	bool		noudf_;
+	int		specidx_;
+    };
+
     void			getMathExpr();
-    void			dispVarInps(int);
-    bool			getInpsAndShifts(ObjectSet<const Well::Log>&,
-					TypeSet<int>&);
+    bool			getInpData(TypeSet<InpData>&);
     bool			getRecInfo();
-    bool			calcLog(Well::Log&,ObjectSet<const Well::Log>&,
-					TypeSet<int>&);
+    bool			calcLog(Well::Log&,const TypeSet<InpData>&);
 
     void			initWin(CallBacker*);
     void			feetSel(CallBacker*);

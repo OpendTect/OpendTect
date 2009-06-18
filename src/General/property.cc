@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.12 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.13 2009-06-18 14:55:01 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -182,9 +182,10 @@ void MathProperty::setDef( const char* s )
 {
     inps_.erase();
     def_ = s;
-    delete expr_; expr_ = MathExpression::parse( def_ );
+    MathExpressionParser mep( def_ );
+    delete expr_; expr_ = mep.parse();
     if ( !expr_ ) return;
-    const int sz = expr_->getNrVariables();
+    const int sz = expr_->nrVariables();
     while ( sz > inps_.size() )
 	inps_ += 0;
 }
@@ -192,13 +193,13 @@ void MathProperty::setDef( const char* s )
 
 int MathProperty::nrInputs() const
 {
-    return expr_ ? expr_->getNrVariables() : 0;
+    return expr_ ? expr_->nrVariables() : 0;
 }
 
 
 const char* MathProperty::inputName( int idx ) const
 {
-    return expr_ ? expr_->getVariableStr(idx) : 0;
+    return expr_ ? expr_->fullVariableExpression(idx) : 0;
 }
 
 
@@ -238,7 +239,7 @@ float MathProperty::value() const
     {
 	const Property* p = inps_[idx];
 	if ( !p ) return mUdf(float);
-	expr_->setVariable( idx, inps_[idx]->value() );
+	expr_->setVariableValue( idx, inps_[idx]->value() );
     }
 
     return expr_->getValue();

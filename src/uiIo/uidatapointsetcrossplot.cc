@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.44 2009-06-17 12:38:29 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.45 2009-06-18 14:55:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.44 2009-06-17 12:38:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.45 2009-06-18 14:55:01 cvsbert Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -798,7 +798,7 @@ bool uiDataPointSetCrossPlotter::isSelectionValid( uiDataPointSet::DRowID rid )
 	for ( int idx=0; idx<modcolidxs_.size(); idx++ )
 	{
 	    const float yval = uidps_.getVal( modcolidxs_[idx], rid, true );
-	    mathobj_->setVariable( idx, yval );
+	    mathobj_->setVariableValue( idx, yval );
 	}
 
 	const float result = mathobj_->getValue();
@@ -1221,10 +1221,12 @@ uiSetSelDomainDlg( uiParent* p , DataColInfo& info,
 
 void parsePush( CallBacker* )
 {
-    mathobj_ = MathExpression::parse( inpfld_->getvalue_() );
     mathexprstring_ = inpfld_->getvalue_();
+    MathExpressionParser mep( mathexprstring_ );
+    mathobj_ = mep.parse();
     if ( !mathobj_ )
     {
+	if ( *mep.errMsg() ) uiMSG().error( mep.errMsg() );
 	dcolids_.erase();
 	vartable_->display( false );
 	return;
@@ -1235,15 +1237,16 @@ void parsePush( CallBacker* )
 
 void updateDisplay()
 {
-     vartable_->setNrRows( mathobj_->getNrVariables() );
-     for ( int idx=0; idx<mathobj_->getNrVariables(); idx++ )
-     {
-	 uiComboBox* varsel = new uiComboBox( 0, datainfo_.colnms_, "Variable");
-	 if ( !dcolids_.isEmpty() )
-	     varsel->setCurrentItem( dcolids_[idx] );
-	 vartable_->setCellObject( RowCol(idx,0), varsel );
-     }
-     vartable_->display( true );
+    const int nrvars = mathobj_->nrVariables();
+    vartable_->setNrRows( nrvars );
+    for ( int idx=0; idx<nrvars; idx++ )
+    {
+	uiComboBox* varsel = new uiComboBox( 0, datainfo_.colnms_, "Variable");
+	if ( !dcolids_.isEmpty() )
+	    varsel->setCurrentItem( dcolids_[idx] );
+	vartable_->setCellObject( RowCol(idx,0), varsel );
+    }
+    vartable_->display( true );
 }
 
 
@@ -1253,7 +1256,8 @@ bool acceptOK( CallBacker* )
     if ( !mathobj_ )
 	return true;
 
-    for ( int idx=0; idx<mathobj_->getNrVariables(); idx++ )
+    int nrvars = mathobj_->nrVariables();
+    for ( int idx=0; idx<nrvars; idx++ )
     {
 	uiObject* obj = vartable_->getCellObject( RowCol(idx,0) );
 	mDynamicCastGet( uiComboBox*, box, obj );
@@ -1263,8 +1267,9 @@ bool acceptOK( CallBacker* )
     }
 
     PtrMan<MathExpression> testexpr = mathobj_->clone();
-    for ( int idx=0; idx<testexpr->getNrVariables(); idx++ )
-	testexpr->setVariable( idx, 100 );
+    nrvars = testexpr->nrVariables();
+    for ( int idx=0; idx<nrvars; idx++ )
+	testexpr->setVariableValue( idx, 100 );
 
     if ( !mIsZero(testexpr->getValue(),mDefEps) &&
 	 !mIsZero(testexpr->getValue()-1,mDefEps) )

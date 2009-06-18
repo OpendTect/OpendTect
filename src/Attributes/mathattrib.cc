@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.31 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.32 2009-06-18 14:55:01 cvsbert Exp $";
 
 #include "mathattrib.h"
 
@@ -51,7 +51,7 @@ void Math::initClass()
 void Math::getInputTable( const MathExpression* me, TypeSet<int>& inptab, 
 			  bool iscst, bool prefixonly )
 {
-    const int nrvar = me->getNrVariables();
+    const int nrvar = me->nrVariables();
     TypeSet<int> tmpset;
     for ( int idx=0; idx<nrvar; idx++ )
     {
@@ -60,7 +60,7 @@ void Math::getInputTable( const MathExpression* me, TypeSet<int>& inptab,
 	snprintf( name, 8, "c%d", idx );
 	for ( int idy=0; idy<nrvar; idy++ )
 	{
-	    if ( !strcmp(name,me->getVariableStr(idy)) )
+	    if ( !strcmp(name,me->fullVariableExpression(idy)) )
 	    {
 		inptab += idy;
 		break;
@@ -77,7 +77,7 @@ void Math::getInputTable( const MathExpression* me, TypeSet<int>& inptab,
 	    {
 		char prefname[8];
 		snprintf( prefname, 8, "x%d", idx );
-		int prefidx = me->getPrefixIdx( prefname, false );
+		int prefidx = 0; //TODO was: me->getPrefixIdx(prefname,false);
 		if ( prefidx > -1 )
 		    inptab += prefidx;
 		else
@@ -95,9 +95,10 @@ void Math::updateDesc( Desc& desc )
     ValParam* expr = desc.getValParam( expressionStr() );
     if ( !expr ) return;
 
-    PtrMan<MathExpression> formula = 
-			MathExpression::parse( expr->getStringValue() );
+    MathExpressionParser mep( expr->getStringValue() );
+    PtrMan<MathExpression> formula = mep.parse();
     if ( !formula ) return;
+    //TODO use mep.errMsg() ...?
 
     TypeSet<int> xdiffvarstab;
     getInputTable( formula, xdiffvarstab, false, true );
@@ -109,10 +110,10 @@ void Math::updateDesc( Desc& desc )
 
 	for ( int idx=0; idx<nrdiffxvars; idx++ )
 	    desc.addInput( InputSpec(
-			formula->getVarPrefixStr( xdiffvarstab[idx] ), true ) );
+			formula->uniqueVarName( xdiffvarstab[idx] ), true ) );
     }
 
-    int totnrdiffvars = formula->getNrDiffVariables();
+    int totnrdiffvars = formula->nrUniqueVarNames();
     desc.setParamEnabled( cstStr(), totnrdiffvars - nrdiffxvars );
 
     bool isrec = formula->isRecursive();
@@ -134,7 +135,9 @@ Math::Math( Desc& dsc )
     ValParam* expr = dsc.getValParam( expressionStr() );
     if ( !expr ) return;
 
-    expression_ = MathExpression::parse( expr->getStringValue() );
+    MathExpressionParser mep( expr->getStringValue() );
+    expression_ = mep.parse();
+    //TODO handle parse errors? expression_ is used later!!
 
     mDescGetParamGroup(FloatParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
@@ -168,7 +171,7 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Math::getInputData( const BinID& relpos, int zintv )
 {
-    int nrinputs = expression_->getNrDiffVariables() - csts_.size();
+    int nrinputs = expression_->nrUniqueVarNames() - csts_.size();
     while ( inputdata_.size() < nrinputs )
     {
 	inputdata_ += 0;
@@ -197,7 +200,7 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     const bool isrec = expression_->isRecursive();
     const int nrxvars = varstable_.size();
     const int nrcstvars = cstsinputtable_.size();
-    const int nrvar = mathobj->getNrVariables();
+    const int nrvar = mathobj->nrVariables();
     if ( (nrxvars + nrcstvars) != nrvar ) 
 	return false;
 
@@ -253,10 +256,10 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( inpidx == -1 && mIsUdf( val ) && hasudf )
 		val = recstartval_;
 	    
-	    mathobj->setVariable( variableidx, val );
+	    mathobj->setVariableValue( variableidx, val );
 	}
 	for ( int cstidx=0; cstidx<nrcstvars; cstidx++ )
-	    mathobj->setVariable( cstsinputtable_[cstidx], csts_[cstidx] );
+	    mathobj->setVariableValue( cstsinputtable_[cstidx], csts_[cstidx] );
 
 	const float result = mathobj->getValue();
 	
@@ -276,6 +279,7 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 
 bool Math::getInputAndShift( int varidx, int& inpidx, int& shift) const
 {
+    /*
     BufferString prefix;
     expression_->getPrefixAndShift( expression_->getVariableStr(varidx),
 	   			    prefix, shift );
@@ -286,6 +290,8 @@ bool Math::getInputAndShift( int varidx, int& inpidx, int& shift) const
     bool inpok = inpidx>=0 || isrec;
     bool shiftok = !mIsUdf(shift) && ( !isrec || shift<=0 );
     return inpok && shiftok;
+    */
+    return false; //TODO
 }
 
 

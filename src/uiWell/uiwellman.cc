@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.52 2009-06-17 15:07:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.53 2009-06-18 14:55:01 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -64,11 +64,9 @@ uiWellMan::uiWellMan( uiParent* p )
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( logsgrp, "Logs buttons",
 	    					 false );
-    uiPushButton* addlogsbut = new uiPushButton( logsbgrp, "Import &Logs",
-	    					 false );
+    uiPushButton* addlogsbut = new uiPushButton( logsbgrp, "&Import", false );
     addlogsbut->activated.notify( mCB(this,uiWellMan,importLogs) );
-    uiPushButton* calclogsbut = new uiPushButton( logsbgrp, "Calculate &Logs",
-	    					  false );
+    uiPushButton* calclogsbut = new uiPushButton( logsbgrp, "&Create", false );
     calclogsbut->activated.notify( mCB(this,uiWellMan,calcLogs) );
     calclogsbut->attach( rightOf, addlogsbut );
     logsbgrp->attach( centeredBelow, logsfld );

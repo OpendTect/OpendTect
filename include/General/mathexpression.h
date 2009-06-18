@@ -7,13 +7,73 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.12 2009-06-17 11:56:43 cvsbert Exp $
+ RCS:           $Id: mathexpression.h,v 1.13 2009-06-18 14:55:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
 template <class T> class TypeSet;
+
+
+
+/*!\brief Parsed Math expression.
+
+A MathExpression can be queried about its variables with getNrVariables(), and
+each variable's name can be queried with getVariableStr( int ).
+
+When a calculations should be done, all variables must be set with
+setVariable( int, float ). Then, the calculation can be done with getValue().
+
+-*/
+
+mClass MathExpression
+{
+public:
+
+    virtual float		getValue() const		= 0;
+
+    virtual int			nrVariables() const;
+    virtual const char*		fullVariableExpression(int) const;
+    virtual void		setVariableValue(int,float);
+
+				// recursive "out" or "this" excluded
+    int				nrUniqueVarNames() const
+    				{ return varnms_.size(); }
+    const char*			uniqueVarName( int idx ) const
+				{ return varnms_.get(idx).buf(); }
+
+    enum VarType		{ Variable, Constant, Recursive };
+    VarType			getType(int varidx) const;
+    int				getConstIdx(int varidx) const;
+
+    bool			isRecursive() const
+    				{ return isrecursive_; }
+
+    virtual MathExpression*	clone() const = 0;
+
+    virtual			~MathExpression();
+
+protected:
+
+				MathExpression(int nrinputs);
+
+    int				nrInputs() const { return inputs_.size(); }
+    bool			setInput( int, MathExpression* );
+    void			copyInput( MathExpression* target ) const;
+
+    void			addIfOK(const char*);
+
+
+    ObjectSet<TypeSet<int> >	variableobj_;
+    ObjectSet<TypeSet<int> >	variablenr_;
+    ObjectSet<MathExpression>	inputs_;
+    BufferStringSet		varnms_;
+    bool			isrecursive_;
+
+    friend class		MathExpressionParser;
+
+};
 
 
 /*!\brief parses a string with a mathematical expression.
@@ -32,61 +92,33 @@ A mathematical function can be either:
 sin(), cos(), tan(), ln(), log(), exp() or sqrt().
 
 If the parser returns null, it couldn't parse the expression.
-
-A MathExpression can be queried about its variables with getNrVariables(), and
-each variable's name can be queried with getVariableStr( int ).
-
-When a calculations should be done, all variables must be set with
-setVariable( int, float ). Then, the calculation can be done with getValue().
+Then, errmsg_ should contain info.
 
 -*/
 
-mClass MathExpression
+
+mClass MathExpressionParser
 {
 public:
 
-    static MathExpression* 	parse( const char* );
-    static void			getPrefixAndShift(const char*,BufferString&,
-	    					  int&);
-    virtual float		getValue() const		= 0;
+    				MathExpressionParser( const char* str=0 )
+				    : inp_(str)		{}
 
-    virtual int			getNrVariables() const;
-    virtual const char*		getVariableStr(int) const;
-    virtual void		setVariable(int,float);
+    void			setInput( const char* s ) { inp_ = s; }
+    MathExpression*		parse() const;
 
-    //returns the number of different variables : 
-    //recursive "THIS" and shifted variables are excluded
-    int				getNrDiffVariables() const;
+    static BufferString		varNameOf(const char* fullvarnm,int* shift=0);
+    static MathExpression::VarType varTypeOf(const char*);
+    static int			constIdxOf(const char*);
 
-    // functions for each variable in expression
-    const char*			getVarPrefixStr( int varidx ) const
-				{ return varprefixes_.get( varidx ).buf(); }
-    enum VarType		{ Variable, Constant, Recursive };
-    VarType			getType(int varidx) const;
-    int				getUsrVarIdx(int varidx) const;
-
-    int				getPrefixIdx(const char*,bool) const;
-    bool			isRecursive() const	{ return isrecursive_; }
-
-    virtual MathExpression*	clone() const = 0;
-
-    virtual			~MathExpression();
+    const BufferString&		errMsg() const		{ return errmsg_; }
 
 protected:
-				MathExpression(int nrinputs);
 
-    int				getNrInputs() const { return inputs_.size(); }
-    bool			setInput( int, MathExpression* );
-    void			copyInput( MathExpression* target ) const;
+    BufferString		inp_;
+    mutable BufferString	errmsg_;
 
-    void			checkVarPrefix(const char*);
-
-
-    ObjectSet<TypeSet<int> >	variableobj_;
-    ObjectSet<TypeSet<int> >	variablenr_;
-    ObjectSet<MathExpression>	inputs_;
-    BufferStringSet		varprefixes_;
-    bool			isrecursive_;
+    MathExpression*		parse(const char*) const;
 
 };
 

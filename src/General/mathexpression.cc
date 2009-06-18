@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.46 2009-06-17 11:56:43 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.47 2009-06-18 14:55:01 cvsbert Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -35,21 +35,21 @@ public:
 				MathExpressionVariable( const char* str )
 				    : MathExpression( 0 )		
 				    , str_( new char[strlen(str)+1] )
-				{ strcpy( str_, str ); checkVarPrefix(str); }
+				{ strcpy( str_, str ); addIfOK(str); }
 
 				~MathExpressionVariable() { delete [] str_; }
 
-    const char*			getVariableStr( int ) const
+    const char*			fullVariableExpression( int ) const
 				{ return str_; }
 
-    int				getNrVariables() const { return 1; }
+    int				nrVariables() const { return 1; }
 
     float			getValue() const
 				{
 				    return val_;
 				}
 
-    void			setVariable( int, float nv )
+    void			setVariableValue( int, float nv )
 				{ val_ = nv; }
 
     MathExpression*		clone() const
@@ -402,46 +402,46 @@ mMathExpressionStats( Average );
 mMathExpressionStats( Variance );
 
 
-const char* MathExpression::getVariableStr( int var ) const
+const char* MathExpression::fullVariableExpression( int var ) const
 {
-    if ( var>=getNrVariables() ) return 0;
+    if ( var>=nrVariables() ) return 0;
 
     int input = (*variableobj_[var])[0];
     int v = (*variablenr_[var])[0];
-    return inputs_[input]->getVariableStr( v );
+    return inputs_[input]->fullVariableExpression( v );
 }
 
 
-void MathExpression::setVariable( int var, float val )
+void MathExpression::setVariableValue( int var, float val )
 {
-    if ( var>=getNrVariables() || var<0 ) return;
+    if ( var>=nrVariables() || var<0 ) return;
 
     for ( int idx=0; idx<variableobj_[var]->size(); idx++ )
     {
 	int input = (*variableobj_[var])[idx];
 	int v = (*variablenr_[var])[idx];
 
-	inputs_[input]->setVariable( v, val );
+	inputs_[input]->setVariableValue( v, val );
     }
 }
 
 
 bool MathExpression::setInput( int inp, MathExpression* obj )
 {
-    if ( inp>=0 && inp<getNrInputs() )
+    if ( inp>=0 && inp<nrInputs() )
     {
 	if ( inputs_[inp] ) return false;
 	delete inputs_.replace( inp, obj );
 
-	for ( int idx=0; idx<obj->getNrVariables(); idx++ )
+	for ( int idx=0; idx<obj->nrVariables(); idx++ )
 	{
-	    const char* str = obj->getVariableStr(idx);
+	    const char* str = obj->fullVariableExpression(idx);
 
 	    bool found=false;
 
-	    for ( int idy=0; idy<getNrVariables(); idy++ )
+	    for ( int idy=0; idy<nrVariables(); idy++ )
 	    {
-		if ( !strcmp( str, getVariableStr(idy) ) )	
+		if ( !strcmp( str, fullVariableExpression(idy) ) )	
 		{
 		    (*variableobj_[idy]) += inp;
 		    (*variablenr_[idy]) += idx;
@@ -454,7 +454,7 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 	    {
 		variableobj_ += new TypeSet<int>( 1, inp );
 		variablenr_ += new TypeSet<int>( 1, idx );
-		checkVarPrefix( str );
+		addIfOK( str );
 	    }
 	}
 		
@@ -465,7 +465,117 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 }
 
 
-static void parens( const char* str, int& idx, int& parenslevel, int len )
+MathExpression::VarType MathExpression::getType( int ivar ) const
+{
+    const BufferString varnm( MathExpressionParser::varNameOf(
+			      fullVariableExpression(ivar) ) );
+    return MathExpressionParser::varTypeOf( varnm.buf() );
+}
+
+
+int MathExpression::getConstIdx( int ivar ) const
+{
+    return MathExpressionParser::constIdxOf( fullVariableExpression(ivar) );
+}
+
+
+MathExpression::MathExpression( int sz )
+    : isrecursive_(false)
+{
+    inputs_.allowNull();
+    for ( int idx=0; idx<sz; idx++ )
+	inputs_ += 0;
+}
+
+
+MathExpression::~MathExpression( )
+{
+    deepErase( inputs_ );
+    deepErase( variableobj_ );
+    deepErase( variablenr_ );
+}
+
+
+int MathExpression::nrVariables() const
+{
+    return variableobj_.size();
+}
+
+
+void MathExpression::copyInput( MathExpression* target ) const
+{
+    const int sz = nrInputs();
+
+    for ( int idx=0; idx<sz; idx++ )
+	target->setInput(idx, inputs_[idx]->clone() );
+}
+
+
+void MathExpression::addIfOK( const char* str )
+{
+    BufferString varnm = MathExpressionParser::varNameOf( str );
+    if ( MathExpressionParser::varTypeOf( varnm ) == Recursive )
+    {
+	isrecursive_ = true;
+	return;
+    }
+
+    varnms_.addIfNew( varnm );
+}
+
+
+//--- Parser
+
+
+BufferString MathExpressionParser::varNameOf( const char* str, int* shift )
+{
+    if ( shift ) *shift = 0;
+
+    BufferString varnm( str );
+    char* ptr = varnm.buf();
+    while ( *ptr && *ptr != '[' ) ptr++;
+    if ( !*ptr ) return varnm;
+    *ptr++ = '\0';
+    if ( shift )
+    {
+	const char* shftstr = ptr;
+	while ( *ptr && *ptr != ']' ) ptr++;
+	if ( *ptr ) *ptr = '\0';
+	*shift = atoi( shftstr );
+    }
+    return varnm;
+}
+
+
+MathExpression::VarType MathExpressionParser::varTypeOf( const char* varnm )
+{
+    const BufferString vnm( varnm );
+
+    if ( vnm.isEqual("this",true) || vnm.isEqual("out",true) )
+	return MathExpression::Recursive;
+
+    if ( vnm.size() > 1 && vnm[0] == 'c' || vnm[0] == 'C' && isdigit(vnm[1]) )
+	return MathExpression::Constant;
+
+    return MathExpression::Variable;
+}
+
+
+int MathExpressionParser::constIdxOf( const char* varstr )
+{
+    if ( varTypeOf(varstr) != MathExpression::Constant )
+	return -1;
+
+    const BufferString varnm( varNameOf( varstr ) );
+    const char* ptr = varnm.buf();
+    while ( *ptr && !isdigit(*ptr) )
+	ptr++;
+
+    return atoi( ptr );
+}
+
+
+static void countParens( const char* str, int& idx, int& parenslevel, int len )
 {
     while ( idx<len && (str[idx]=='(' || parenslevel) )
     {
@@ -476,9 +586,17 @@ static void parens( const char* str, int& idx, int& parenslevel, int len )
 }
 
 
-MathExpression* MathExpression::parse( const char* input )
+MathExpression* MathExpressionParser::parse() const
 {
-    int len = strlen( input );
+    if ( inp_.isEmpty() ) { errmsg_ = "Empty input"; return 0; }
+    return parse( inp_.buf() );
+}
+
+
+MathExpression* MathExpressionParser::parse( const char* input ) const
+{
+    
+    int len = input ? strlen(input) : 0;
     if ( !len ) return 0;
 
     ArrPtrMan<char> str = new char[len+1];
@@ -501,6 +619,14 @@ MathExpression* MathExpression::parse( const char* input )
 	if ( str[idx]==')' ) parenslevel--;
     }
     if ( parenslevel ) return 0;
+    if ( parenslevel )
+    {
+	if ( parenslevel > 0 )
+	    errmsg_ = "More left than right parentheses";
+	else
+	    errmsg_ = "More right than left parentheses";
+	return 0;
+    }
 
     while ( str[0] == '(' && str[len-1]==')' )
     {
@@ -558,7 +684,7 @@ MathExpression* MathExpression::parse( const char* input )
 	absolute( str, idx, inabs);
 	if ( inabs ) continue;
 
-	parens(str, idx, parenslevel, len);
+	countParens(str, idx, parenslevel, len);
 	if ( parenslevel ) continue;
 
 	if ( str[idx] == '?' )
@@ -574,7 +700,7 @@ MathExpression* MathExpression::parse( const char* input )
 		absolute( str, idx, inabs)
 		if ( inabs ) continue;
 
-		parens(str, idx, parenslevel, len);
+		countParens(str, idx, parenslevel, len);
 		if ( parenslevel ) continue;
 
 		if ( str[idy] == ':' )
@@ -624,7 +750,7 @@ MathExpression* MathExpression::parse( const char* input )
 	absolute( str, idx, inabs)
 	if ( inabs ) continue;
 
-	parens(str, idx, parenslevel, len);
+	countParens(str, idx, parenslevel, len);
 	if ( parenslevel ) continue;
 
 	if ( (str[idx]=='&'&&str[idx+1]=='&')||(str[idx]=='|'&&str[idx+1]=='|'))
@@ -671,7 +797,7 @@ MathExpression* MathExpression::parse( const char* input )
 	absolute( str, idx, inabs)
 	if ( inabs ) continue;
 
-	parens(str, idx, parenslevel, len);
+	countParens(str, idx, parenslevel, len);
 	if ( parenslevel ) continue;
 
 	if ( str[idx]=='<' ||  str[idx]=='>' || str[idx]=='=' || str[idx]=='!')
@@ -735,7 +861,7 @@ MathExpression* MathExpression::parse( const char* input )
 	absolute( str, idx, inabs)
 	if ( inabs ) continue;
 
-        parens(str, idx, parenslevel, len);
+        countParens(str, idx, parenslevel, len);
 	if ( parenslevel ) continue;
 
 	if ( str[idx]=='+' ||  str[idx]=='-' )
@@ -790,7 +916,7 @@ MathExpression* MathExpression::parse( const char* input )
 	absolute( str, idx, inabs) \
 	if ( inabs ) continue; \
  \
-	parens(str, idx, parenslevel, len); \
+	countParens(str, idx, parenslevel, len); \
 	if ( parenslevel ) continue; \
  \
 	if ( str[idx] == op ) \
@@ -903,7 +1029,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    absolute( str, idx, inabs)
 	    if ( inabs ) continue;
 
-	    parens(str, idx, parenslevel, len);
+	    countParens(str, idx, parenslevel, len);
 	    if ( parenslevel ) continue;
 
 	    if ( str[idx] == ',' || str[idx] == ')' )
@@ -979,147 +1105,7 @@ MathExpression* MathExpression::parse( const char* input )
     if ( isvariable )
 	return new MathExpressionVariable( str );
 
+    errmsg_ = "Cannot parse this:\n'";
+    errmsg_ += input; errmsg_ += "'";
     return 0;	
-}
-
-
-MathExpression::VarType MathExpression::getType( int ivar ) const
-{
-    BufferString pfx; int shft;
-    getPrefixAndShift( getVariableStr(ivar), pfx, shft );
-
-    if ( pfx == "THIS" )
-	return Recursive;
-    else if ( pfx[0] == 'c' || pfx[0] == 'C' )
-	return Constant;
-
-    return Variable;
-}
-
-
-int MathExpression::getUsrVarIdx( int ivar ) const
-{
-    if ( getType(ivar) == Recursive )
-	return -1;
-
-    BufferString pfx; int shft;
-    getPrefixAndShift( getVariableStr(ivar), pfx, shft );
-
-    const char* ptr = pfx.buf();
-    while ( *ptr && !isdigit(*ptr) )
-	ptr++;
-
-    return atoi( ptr );
-}
-
-
-void MathExpression::getPrefixAndShift( const char* str,
-					BufferString& varprefix, int& shift )
-{
-    int startbracketidx = -1;
-    int endbracketidx = -1;
-    for ( int charidx=0; charidx<strlen(str); charidx++ )
-    {
-	if ( str[charidx]=='[' )
-	    startbracketidx = charidx;
-	if ( str[charidx]==']' )
-	{
-	    endbracketidx = charidx;
-	    break;
-	}
-    }
-
-    int nrchars = startbracketidx>-1 ? startbracketidx : strlen(str);
-    ArrPtrMan<char> prefix = new char [nrchars+1];
-    strncpy( prefix, &str[0], nrchars );
-    prefix[nrchars] = 0;
-
-    if ( endbracketidx == -1 && startbracketidx > -1 )
-	shift = mUdf(int);
-    else
-    {
-	nrchars = endbracketidx>-1 ? endbracketidx - startbracketidx - 1 : 0;
-	if ( !nrchars )
-	    shift = 0;
-	else
-	{
-	    ArrPtrMan<char> shiftstr = new char [nrchars+1];
-	    strncpy( shiftstr, &str[startbracketidx+1], nrchars );
-	    shiftstr[nrchars] = 0;
-	    shift = isNumberString(shiftstr,mC_False)
-		  ? atoi( shiftstr ) : mUdf(int);
-	}
-    }
-    
-    varprefix = prefix.ptr();
-}
-
-
-MathExpression::MathExpression( int sz )
-    : isrecursive_(false)
-{
-    inputs_.allowNull();
-    for ( int idx=0; idx<sz; idx++ )
-	inputs_ += 0;
-}
-
-
-MathExpression::~MathExpression( )
-{
-    deepErase( inputs_ );
-    deepErase( variableobj_ );
-    deepErase( variablenr_ );
-}
-
-
-int MathExpression::getNrVariables() const
-{ return variableobj_.size(); }
-
-
-int MathExpression::getNrDiffVariables() const
-{
-    return varprefixes_.size();
-}
-
-
-void MathExpression::copyInput( MathExpression* target ) const
-{
-    int sz = getNrInputs();
-
-    for ( int idx=0; idx<sz; idx++ )
-	target->setInput(idx, inputs_[idx]->clone() );
-}
-
-
-void MathExpression::checkVarPrefix( const char* str )
-{
-    BufferString prefix;
-    int shift;
-    getPrefixAndShift( str, prefix, shift );
-
-    if ( !strcmp( prefix, "THIS" ) )
-    {
-	isrecursive_ = true;
-	return;
-    }
-
-    varprefixes_.addIfNew( prefix );
-}
-
-
-int MathExpression::getPrefixIdx( const char* str, bool skipcstvar ) const
-{
-    if ( skipcstvar )
-    {
-	int nrcstpreffound = 0;
-	for ( int idx=0; idx<varprefixes_.size(); idx++ )
-	{
-	    if ( !strcmp( str, getVarPrefixStr(idx) ) )
-		return idx - nrcstpreffound;
-	    else if ( !strncmp( getVarPrefixStr(idx), "c", 1 ) )
-		nrcstpreffound++;
-	}
-    }
-    
-    return varprefixes_.indexOf(str);
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.28 2009-04-06 09:32:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.29 2009-06-18 14:55:01 cvsbert Exp $";
 
 
 #include "uimathattrib.h"
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: uimathattrib.cc,v 1.28 2009-04-06 09:32:24 cvsr
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uitable.h"
+    //TODO remove
+#include "uilabel.h"
 
 #include <math.h>
 
@@ -36,8 +38,12 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	, nrcstvars_(0)
 
 {
-    inpfld_ = new uiGenInput( this, "Formula (e.g. x0 + c0 * x1)",
+    //TODO remove
+    uiLabel* todolbl = new uiLabel( this, "TODO: Helene must adapt to new MathExpressionParser" );
+    inpfld_ = new uiGenInput( this, "Formula (e.g. nearstk + c0 * farstk)",
 	    		     StringInpSpec().setName("Formula") );
+    //TODO remove
+    inpfld_->attach( centeredBelow, todolbl );
 
     parsebut_ = new uiPushButton( this, "Set", true );
     parsebut_->activated.notify( mCB(this,uiMathAttrib,parsePush) );
@@ -100,11 +106,15 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 
 void uiMathAttrib::parsePush( CallBacker* )
 {
-    MathExpression* expr = MathExpression::parse( inpfld_->text() );
-    if ( !expr && strcmp( inpfld_->text(), "" ) )
-	mErrRet( "Could not parse this equation", )
+    const BufferString usrinp( inpfld_->text() );
+    if ( usrinp.isEmpty() ) return;
 
-    nrvariables_ = expr ? expr->getNrDiffVariables() : 0;
+    MathExpressionParser mep( usrinp );
+    MathExpression* expr = mep.parse();
+    if ( !expr )
+	mErrRet( BufferString("Invalid formula:\n",mep.errMsg()), )
+
+    nrvariables_ = expr ? expr->nrUniqueVarNames() : 0;
     bool foundvar = false;
     bool correctshifts = true;
     checkVarSpelAndShift( expr, foundvar, correctshifts );
@@ -165,11 +175,13 @@ void uiMathAttrib::checkVarSpelAndShift( MathExpression* expr,
 	BufferString xstr = "x"; xstr += idx;
 	for ( int idy=0; idy<nrvariables_; idy++ )
 	{
+	    /* TODO change
 	    if ( !strcmp( expr->getVarPrefixStr(idy), xstr.buf() ) )
 	    {
 		nrxvars_++;
 		foundvar = true;
 	    }
+	    */
 	} 
     }
     for ( int idx=0; idx<nrvariables_-nrxvars_; idx++ )
@@ -177,19 +189,21 @@ void uiMathAttrib::checkVarSpelAndShift( MathExpression* expr,
 	BufferString varstr = "c"; varstr += idx;
 	for ( int idy=0; idy<nrvariables_; idy++ )
 	{
+	    /* TODO change
 	    if ( !strcmp( expr->getVarPrefixStr(idy), varstr.buf() ) )
 	    {
 		nrcstvars_++;
 		foundvar = true;
 	    }
+	    */
 	}
     }
 
-    for ( int idx=0; idx<expr->getNrVariables(); idx++ )
+    for ( int idx=0; idx<expr->nrVariables(); idx++ )
     {
-	int shift;
-	BufferString testprefix;
-	expr->getPrefixAndShift( expr->getVariableStr(idx), testprefix, shift );
+	int shift = mUdf(int);
+	BufferString testprefix = MathExpressionParser::varNameOf(
+				  expr->fullVariableExpression(idx), &shift );
 	if ( strncmp( testprefix, "c", 1 ) && mIsUdf(shift) )
 	    correctshifts = false;
     }
@@ -253,16 +267,17 @@ bool uiMathAttrib::getParameters( Desc& desc )
 	return false;
 
     mSetString( Attrib::Math::expressionStr(), inpfld_->text() );
-    
-    MathExpression* expr = MathExpression::parse( inpfld_->text() );
+
+    MathExpressionParser mep( inpfld_->text() );
+    MathExpression* expr = mep.parse();
     if ( !expr )
-	mErrRet( "Could not parse this equation", false )
+	mErrRet( BufferString("Incorrect formula:\n",mep.errMsg()), false )
 
     TypeSet<int> cstinptable, xinptable;
     Attrib::Math::getInputTable( expr, cstinptable, true );
     Attrib::Math::getInputTable( expr, xinptable, false );
     int nrcsts = cstinptable.size();
-    int nrxvars = expr->getNrDiffVariables();
+    int nrxvars = expr->nrUniqueVarNames();
     mDescGetParamGroup(FloatParam,cstset,desc,Attrib::Math::cstStr())
     cstset->setSize( nrcsts );
     if ( ctable_->nrRows() < nrcsts ) return false;
