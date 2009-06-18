@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.57 2009-06-17 14:03:05 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.58 2009-06-18 14:53:54 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -219,17 +219,56 @@ Well::Log& Well::Log::operator =( const Well::Log& l )
     if ( &l != this )
     {
 	setName( l.name() );
-	dah_ = l.dah_; val_ = l.val_;
-	range_ = l.range_; selrange_ = l.selrange_;
-	displogrthm_ = l.displogrthm_;
+	dah_ = l.dah_; val_ = l.val_; range_ = l.range_;
     }
     return *this;
 }
 
 
-float Well::Log::getValue( float dh ) const
+float Well::Log::getValue( float dh, bool noudfs ) const
 {
+    if ( isEmpty() )
+	return noudfs ? 0 : mUdf(float);
+
     int idx1;
+    const float ret = gtVal( dh, idx1 );
+    if ( !noudfs || !mIsUdf(ret) )
+	return ret;
+
+    float dah1, val1, dah2, val2;
+    bool found1 = false, found2 = false;
+    if ( idx1 > 0 )
+    {
+	for ( int idx=idx1; idx>=0; idx-- )
+	{
+	    const float val = value( idx );
+	    if ( !mIsUdf(val) )
+		{ dah1 = dah( idx ); val1 = val; found1 = true; break; }
+	}
+    }
+    if ( idx1 < size()-1 )
+    {
+	for ( int idx=idx1+1; idx<size(); idx++ )
+	{
+	    const float val = value( idx );
+	    if ( !mIsUdf(val) )
+		{ dah2 = dah( idx ); val2 = val; found2 = true; break; }
+	}
+    }
+
+    if ( !found1 && !found2 )
+	return 0;
+    else if ( !found1 )
+	return val2;
+    else if ( !found2 )
+	return val1;
+
+    return ((dh-dah1) * val2 + (dah2-dh) * val1) / (dah2 - dah1);
+}
+
+
+float Well::Log::gtVal( float dh, int& idx1 ) const
+{
     if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return val_[idx1];
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
@@ -255,7 +294,6 @@ void Well::Log::addValue( float dh, float val )
     {
 	if ( val < range_.start ) range_.start = val;
 	if ( val > range_.stop ) range_.stop = val;
-	selrange_.setFrom( range_ );
     }
 
     dah_ += dh; 
@@ -274,12 +312,6 @@ void Well::Log::ensureAscZ()
 	Swap( dah_[idx], dah_[sz-idx-1] );
 	Swap( val_[idx], val_[sz-idx-1] );
     }
-}
-
-
-void Well::Log::setSelValueRange( const Interval<float>& newrg )
-{
-    selrange_.setFrom( newrg );
 }
 
 

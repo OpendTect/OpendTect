@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.21 2009-06-17 14:03:05 cvsbert Exp $
+ RCS:		$Id: welllog.h,v 1.22 2009-06-18 14:53:54 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,11 +15,28 @@ ________________________________________________________________________
 
 #include "welldahobj.h"
 #include "ranges.h"
-#include "color.h"
 #include "iopar.h"
 
 namespace Well
 {
+
+/*!\brief Well log
+ 
+  No regular sampling required, as in all DahObjs. 
+
+  Logs can contain undefined points and sections (washouts etc.) - they will
+  never have undefined dah values though. If you can't handle undef values,
+  use getValue( dah, true ).
+
+  Log are imported 'as is', making this one of the rare non-SI value
+  objects in OpendTect. The unit of measure label you get may be able to
+  uncover what the actual unit of measure is.
+
+  The IOPar pars() will be retrieved and stored with each log; it is not
+  really used; moreover, it's intended for plugins to dump their extra info
+  about this log.
+ 
+ */
 
 mClass Log : public DahObj
 {
@@ -27,25 +44,20 @@ public:
 
 			Log( const char* nm=0 )
 			: DahObj(nm)
-			, range_(mUdf(float),-mUdf(float))
-			, displogrthm_(false)		{}
+			, range_(mUdf(float),-mUdf(float))	{}
 			Log( const Log& t )
 			: DahObj("")			{ *this = t; }
     Log&		operator =(const Log&);
 
     float		value( int idx ) const		{ return val_[idx]; }
 
-    float		getValue(float) const;
+    float		getValue(float,bool noudfs=false) const;
     void		addValue(float dh,float val);
     			//!< addition must always ascend or descend
     void		ensureAscZ();
     			// Do this after adding values when Z may be reversed
 
-    Interval<float>& valueRange() 			{ return range_; }
-    void		setSelValueRange(const Interval<float>&);
-    Interval<float>& selValueRange() 			{ return selrange_; }
-    bool		dispLogarithmic() const		{ return displogrthm_; }
-    void		setDispLogarithmic( bool yn )	{ displogrthm_ = yn; }
+    Interval<float>&	valueRange() 			{ return range_; }
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
@@ -63,77 +75,13 @@ protected:
 
     TypeSet<float>	val_;
     Interval<float>	range_;
-    Interval<float>	selrange_;
     BufferString	unitmeaslbl_;
-    bool		displogrthm_;
     IOPar		pars_;
 
     void		removeAux( int idx )		{ val_.remove(idx); }
     void		eraseAux()			{ val_.erase(); }
+    float		gtVal(float,int&) const;
 
-};
-
-
-mClass LogDisplayPars
-{
-public:
-			LogDisplayPars( const char* nm=0 )
-			    : name_(nm)
- 			    , cliprate_(mUdf(float))
-			    , range_(mUdf(float),mUdf(float))
-			    , nocliprate_(false)	
-			    , logarithmic_(false)
-			    , repeat_(1)	
-			    , repeatovlap_(mUdf(float))
-			    , seisstyle_(false)	
-			    , linecolor_(Color::White())	
-			    , logfill_(false)
-	    		    , logfillcolor_(Color::White())
-			    , seqname_("")
-       			    , singlfillcol_(false)				
-						        {}
-			~LogDisplayPars()		{}
-
-    BufferString	name_;
-    float		cliprate_;	//!< If undef, use range_
-    Interval<float>	range_;		//!< If cliprate_ set, filled using it
-    bool		logarithmic_;
-    bool		seisstyle_;
-    bool		nocliprate_;
-    bool		logfill_;
-    int 		repeat_;
-    float		repeatovlap_;
-    Color		linecolor_;
-    Color		logfillcolor_;
-    const char*		seqname_;
-    bool 		singlfillcol_;
-};
-
-
-mClass LogDisplayParSet
-{
-public:
-			LogDisplayParSet ()
-			{
-			    Interval<float> lrg( 0, 0 );
-			    Interval<float> rrg( 0, 0 );
-			    leftlogpar_ = new LogDisplayPars( "None" );
-			    rightlogpar_ = new LogDisplayPars( "None" );
-			}
-			~LogDisplayParSet()  
-			{
-			    delete leftlogpar_;
-			    delete rightlogpar_;
-			}
-
-    LogDisplayPars*	getLeft() const { return leftlogpar_; }
-    LogDisplayPars*	getRight() const { return rightlogpar_; }
-    void		setLeft( LogDisplayPars* lp ) { leftlogpar_ = lp; }
-    void		setRight( LogDisplayPars* rp ) { rightlogpar_ = rp; }
-
-protected:
-    LogDisplayPars*	leftlogpar_;
-    LogDisplayPars*	rightlogpar_;
 };
 
 }; // namespace Well

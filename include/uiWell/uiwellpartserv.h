@@ -7,14 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.33 2009-02-20 11:34:18 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.34 2009-06-18 14:53:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
-#include "welllog.h"
-#include "welldata.h"
 
 class MultiID;
 class Coord3;
@@ -25,6 +23,7 @@ class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
 class uiD2TModelGen;
 class uiD2TMLogSelDlg;
+namespace Well { class Data; class LogDisplayParSet; }
 
 /*! \brief Part Server for Wells */
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.50 2009-02-20 08:42:01 cvsnanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.51 2009-06-18 14:53:54 cvsbert Exp $
 
 
 
@@ -18,9 +18,11 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "multiid.h"
 #include "ranges.h"
-#include "welllog.h"
+#include "welllogdisp.h"
 
 class LineStyle;
+namespace Well { class Log; class LogDisplayPars; class LogDisplayParSet; }
+
 
 namespace visBase
 {
