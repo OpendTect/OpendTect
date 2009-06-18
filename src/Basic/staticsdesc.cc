@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: staticsdesc.cc,v 1.2 2009-05-14 18:32:03 cvskris Exp $";
+static const char* rcsID = "$Id: staticsdesc.cc,v 1.3 2009-06-18 19:06:17 cvskris Exp $";
 
 
 #include "staticsdesc.h"
@@ -68,8 +68,12 @@ void StaticsDesc::removePars( IOPar& par )
 
 bool StaticsDesc::usePar( const IOPar& par )
 {
-    if  ( !par.get( sKeyHorizon(), horizon_ ) )
-	return false;
+    horizon_.setEmpty();
+    vel_ = mUdf(float);
+    par.get( sKeyHorizon(), horizon_ );
+
+    if ( horizon_.isEmpty() )
+	return true;
 
     par.get( sKeyVelocityAttrib(), velattrib_ );
     par.get( sKeyVelocity(), vel_ );
