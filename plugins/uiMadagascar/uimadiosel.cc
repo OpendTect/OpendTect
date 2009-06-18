@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.26 2009-06-10 12:39:59 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.27 2009-06-18 11:54:22 cvsnanne Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -372,16 +372,16 @@ void uiMadIOSel::useParIfNeeded( const IOPar& iop )
 {
     if ( iop_.find(sKey::Type) ) return;
 
-    BufferString typ = iop.find( sKey::Type );
+    BufferString typ( iop.find(sKey::Type) );
     if ( typ.isEmpty() || typ != Seis::nameOf(Seis::Line) ) return;
 
-    BufferString idval = iop.find( sKey::ID );
+    BufferString idval( iop.find(sKey::ID) );
     if ( !idval.isEmpty() && !iop_.find(sKey::ID) )
 	iop_.set( sKey::ID, idval );
 
     iop_.set( sKey::Type, typ );
     const char* lkey = IOPar::compKey( sKey::Subsel, sKey::LineKey );
-    BufferString lnm = iop.find( lkey );
+    BufferString lnm( iop.find(lkey) );
     if ( !lnm.isEmpty() && !iop_.find(lkey) )
 	iop_.set( lkey, lnm );
 

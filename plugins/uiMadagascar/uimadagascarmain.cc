@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.29 2009-06-08 09:07:14 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.30 2009-06-18 11:54:22 cvsnanne Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -150,8 +150,8 @@ void uiMadagascarMain::inpSel( CallBacker* cb )
 
     IOPar& outpar = procflow_.output();
     outfld_->fillPar( outpar );
-    BufferString inptyp = inpar.find( sKey::Type );
-    BufferString outptyp = outpar.find( sKey::Type );
+    BufferString inptyp( inpar.find(sKey::Type) );
+    BufferString outptyp( outpar.find(sKey::Type) );
 
     if ( inptyp==Seis::nameOf(Seis::Vol) && outptyp==Seis::nameOf(Seis::Vol) )
 	singmachfld_->setSensitive( true );
