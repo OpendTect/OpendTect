@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.18 2009-06-17 22:07:54 cvskris Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.19 2009-06-18 12:20:55 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -85,6 +85,18 @@ void BufferString::setEmpty()
 	{ destroy(); init(); }
     else
 	buf_[0] = 0;
+}
+
+
+bool BufferString::isEqual( const char* s, bool caseinsens ) const
+{
+    return caseinsens ? caseInsensitiveEqual(buf(),s,0) : (*this == s);
+}
+
+
+bool BufferString::isStartOf( const char* s, bool caseinsens ) const
+{
+    return caseinsens ? matchStringCI(buf(),s) : matchString(buf(),s);
 }
 
 
