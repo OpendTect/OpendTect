@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.21 2009-06-10 12:40:18 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.22 2009-06-18 11:51:30 cvsnanne Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -146,13 +146,13 @@ static bool getScriptForScons( BufferString& str )
 
 void MadStream::initRead( IOPar* par )
 {
-    BufferString inptyp = par->find( sKey::Type );
+    BufferString inptyp( par->find(sKey::Type) );
     if ( inptyp == "None" || inptyp == "SU" )
 	return;
 
     if ( inptyp == "Madagascar" )
     {
-	const char* filenm = par->find( sKey::FileName );
+	const char* filenm = par->find( sKey::FileName ).buf();
 	if ( !filenm || !*filenm )
 	    mErrRet("No entry for 'Input file' in parameter file")
 
@@ -176,7 +176,7 @@ void MadStream::initRead( IOPar* par )
 	fillHeaderParsFromStream();
 	if ( !headerpars_ ) mErrRet( "Error reading RSF header" );;
 
-	BufferString insrc = headerpars_->find( sKeyIn );
+	BufferString insrc( headerpars_->find(sKeyIn) );
 	if ( insrc == "" || insrc == sKeyStdIn ) return;
 
 	StreamData sd = StreamProvider(insrc).makeIStream();
@@ -224,7 +224,7 @@ void MadStream::initRead( IOPar* par )
 
 void MadStream::initWrite( IOPar* par )
 {
-    BufferString outptyp = par->find( sKey::Type );
+    BufferString outptyp( par->find(sKey::Type) );
     Seis::GeomType gt = Seis::geomTypeOf( outptyp );
 
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
@@ -253,7 +253,7 @@ void MadStream::initWrite( IOPar* par )
     
     if ( is2d_ && !isps_ )
     {
-	const char* attrnm = par->find( sKey::Attribute );
+	const char* attrnm = par->find( sKey::Attribute ).buf();
 	if ( attrnm && *attrnm && seldata )
 	    seldata->lineKey().setAttrName( attrnm );
 
@@ -269,7 +269,7 @@ BufferString MadStream::getPosFileName( bool forread ) const
     BufferString posfnm;
     if ( forread )
     {
-	posfnm = pars_.find( sKeyPosFileName );
+	posfnm = pars_.find( sKeyPosFileName ).buf();
 	if ( !posfnm.isEmpty() && File_exists(posfnm) )
 	    return posfnm;
 	else posfnm.setEmpty();
@@ -277,12 +277,12 @@ BufferString MadStream::getPosFileName( bool forread ) const
 
     BufferString typ = 
 	pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
-		    		    sKey::Type) );
+		    		    sKey::Type) ).buf();
     if ( typ == sKeyMadagascar )
     {
 	BufferString outfnm =
 	    pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
-		    			sKey::FileName) );
+		    			sKey::FileName) ).buf();
 	FilePath fp( outfnm );
 	fp.setExtension( "pos" );
 	if ( !forread || File_exists(fp.fullPath()) )
