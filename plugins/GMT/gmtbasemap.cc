@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.15 2009-01-30 07:06:12 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.16 2009-06-18 14:56:02 cvskris Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -41,7 +41,7 @@ GMTPar* GMTBaseMap::createInstance( const IOPar& iop )
 bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
 {
     strm << "Creating the Basemap ...  ";
-    BufferString maptitle = find( ODGMT::sKeyMapTitle );
+    FixedString maptitle = find( ODGMT::sKeyMapTitle );
     Interval<float> lblintv;
     if ( !get(ODGMT::sKeyLabelIntv,lblintv) )
 	mErrStrmRet("Incomplete data for basemap creation")
@@ -175,7 +175,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     for ( int idx=0; idx<nritems; idx++ )
     {
 	IOPar* par = parset[idx];
-	BufferString namestr = par->find( sKey::Name );
+	FixedString namestr = par->find( sKey::Name );
 	if ( namestr.isEmpty() )
 	    continue;
 

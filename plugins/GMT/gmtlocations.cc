@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.8 2009-03-18 17:52:58 cvskris Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.9 2009-06-18 14:56:02 cvskris Exp $";
 
 #include "gmtlocations.h"
 
@@ -51,7 +51,7 @@ const char* GMTLocations::userRef() const
 
 bool GMTLocations::fillLegendPar( IOPar& par ) const
 {
-    BufferString str = find( sKey::Name );
+    FixedString str = find( sKey::Name );
     par.set( sKey::Name, str );
     str = find( ODGMT::sKeyShape );
     par.set( ODGMT::sKeyShape, str );
@@ -146,7 +146,7 @@ const char* GMTPolyline::userRef() const
 
 bool GMTPolyline::fillLegendPar( IOPar& par ) const
 {
-    BufferString str = find( sKey::Name );
+    FixedString str = find( sKey::Name );
     par.set( sKey::Name, str );
     par.set( ODGMT::sKeyShape, "Polygon" );
     par.set( sKey::Size, 1 );
@@ -254,7 +254,7 @@ const char* GMTWells::userRef() const
 bool GMTWells::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name, find(sKey::Name) );
-    BufferString str = find( ODGMT::sKeyShape );
+    FixedString str = find( ODGMT::sKeyShape );
     par.set( ODGMT::sKeyShape, str );
     str = find( sKey::Size );
     par.set( sKey::Size, str );

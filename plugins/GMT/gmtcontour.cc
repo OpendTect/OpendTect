@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.8 2009-01-30 07:06:12 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.9 2009-06-18 14:56:02 cvskris Exp $";
 
 #include "gmtcontour.h"
 
@@ -53,7 +53,7 @@ const char* GMTContour::userRef() const
 bool GMTContour::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name, find(sKey::Name) );
-    BufferString attrnm = find( ODGMT::sKeyAttribName );
+    FixedString attrnm = find( ODGMT::sKeyAttribName );
     BufferString str = "\""; str += attrnm;
     if ( attrnm == ODGMT::sKeyZVals )
 	str += SI().getZUnitString();
@@ -66,7 +66,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     {
 	par.set( ODGMT::sKeyShape, "Line" );
 	par.set( sKey::Size, 1 );
-	str = find( ODGMT::sKeyLineStyle );
+	str = find( ODGMT::sKeyLineStyle ).buf();
 	par.set( ODGMT::sKeyLineStyle, str );
     }
 
@@ -75,7 +75,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     if ( dofill )
     {
 	par.set( ODGMT::sKeyPostColorBar, true );
-	str = find( ODGMT::sKeyDataRange );
+	str = find( ODGMT::sKeyDataRange ).buf();
 	par.set( ODGMT::sKeyDataRange, str );
     }
 
@@ -119,7 +119,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     strm << "Done" << std::endl;
     hor->ref();
 
-    BufferString attribnm = find( ODGMT::sKeyAttribName );
+    FixedString attribnm = find( ODGMT::sKeyAttribName );
     const bool isz = attribnm == ODGMT::sKeyZVals;
     if ( !isz )
     {
@@ -246,7 +246,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( drawcontour )
     {
 	strm << "Drawing contours ...  ";
-	BufferString lskey = find( ODGMT::sKeyLineStyle );
+	FixedString lskey = find( ODGMT::sKeyLineStyle );
 	LineStyle ls; ls.fromString( lskey.buf() );
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.9 2009-01-08 10:13:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.10 2009-06-18 14:56:02 cvskris Exp $";
 
 #include "gmt2dlines.h"
 
@@ -50,7 +50,7 @@ const char* GMT2DLines::userRef() const
 
 bool GMT2DLines::fillLegendPar( IOPar& par ) const
 {
-    BufferString str = find( sKey::Name );
+    FixedString str = find( sKey::Name );
     par.set( sKey::Name, str );
     par.set( ODGMT::sKeyShape, "Line" );
     par.set( sKey::Size, 1 );
@@ -75,7 +75,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     strm << "Posting 2D Lines " << ioobj->name() << " ...  ";
 
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle );
+    BufferString lsstr = find( ODGMT::sKeyLineStyle ).buf();
     ls.fromString( lsstr );
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel, postlabel );
@@ -231,7 +231,7 @@ const char* GMTRandLines::userRef() const
 
 bool GMTRandLines::fillLegendPar( IOPar& par ) const
 {
-    BufferString str = find( sKey::Name );
+    FixedString str = find( sKey::Name );
     par.set( sKey::Name, str );
     par.set( ODGMT::sKeyShape, "Line" );
     par.set( sKey::Size, 1 );
@@ -257,7 +257,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 	mErrStrmRet("Cannot read random lines")
 	
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle );
+    BufferString lsstr = find( ODGMT::sKeyLineStyle ).buf();
     ls.fromString( lsstr );
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel, postlabel );
