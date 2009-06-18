@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.85 2009-06-17 17:42:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.86 2009-06-18 07:46:59 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -173,6 +173,12 @@ void uiSeisFileMan::mkFileInfo()
 	if ( curioobj_->pars().hasKey(optstr) )
 	{ txt += "\nOptimized direction: ";
 	    txt += curioobj_->pars().find(optstr); }
+	if ( curioobj_->pars().isTrue("Is Velocity") )
+	{
+	    txt += "\nVelocity Type: ";
+	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
+	    txt += typstr ? typstr : "<unknown>";
+	}
     }
 
     if ( !strcmp(curioobj_->translator(),"CBVS") )
