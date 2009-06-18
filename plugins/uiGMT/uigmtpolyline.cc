@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.7 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.8 2009-06-18 15:01:44 cvskris Exp $";
 
 #include "uigmtpolyline.h"
 
@@ -120,10 +120,10 @@ bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 bool uiGMTPolylineGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    const char* nm = par.find( sKey::Name );
-    if ( nm && *nm ) namefld_->setText( nm );
+    FixedString nm = par.find( sKey::Name );
+    if ( nm ) namefld_->setText( nm );
 
-    BufferString lskey = par.find( ODGMT::sKeyLineStyle );
+    FixedString lskey = par.find( ODGMT::sKeyLineStyle );
     if ( !lskey.isEmpty() )
     {
 	LineStyle ls; ls.fromString( lskey.buf() );

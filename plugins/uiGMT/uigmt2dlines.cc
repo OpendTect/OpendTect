@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.6 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.7 2009-06-18 15:01:44 cvskris Exp $";
 
 #include "uigmt2dlines.h"
 
@@ -168,8 +168,8 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
     objSel( 0 );
-    const char* nm = par.find( sKey::Name );
-    if ( nm && *nm ) namefld_->setText( nm );
+    FixedString nm = par.find( sKey::Name );
+    if ( nm ) namefld_->setText( nm );
 
     BufferStringSet linenms;
     par.get( ODGMT::sKeyLineNames, linenms );
@@ -178,8 +178,8 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
 	if ( linenms.indexOf(linelistfld_->textOfItem(idx)) >= 0 )
 	    linelistfld_->setSelected( idx, true );
 
-    BufferString lskey = par.find( ODGMT::sKeyLineStyle );
-    if ( !lskey.isEmpty() )
+    FixedString lskey = par.find( ODGMT::sKeyLineStyle );
+    if ( lskey )
     {
 	LineStyle ls; ls.fromString( lskey.buf() );
 	lsfld_->setStyle( ls );

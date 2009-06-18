@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.16 2009-05-07 04:39:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.17 2009-06-18 15:01:44 cvskris Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -300,7 +300,7 @@ void uiGMTMainWin::selChg( CallBacker* )
 	return;
     }
 
-    BufferString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName );
+    FixedString tabname = pars_[selidx]->find( ODGMT::sKeyGroupName );
     for ( int idx=0; idx<overlaygrps_.size(); idx++ )
     {
 	if ( tabname == overlaygrps_[idx]->name() )
@@ -488,8 +488,8 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 
 bool uiGMTMainWin::usePar( const IOPar& par )
 {
-    const char* fnm = par.find( sKey::FileName );
-    if ( fnm && *fnm )
+    FixedString fnm = par.find( sKey::FileName );
+    if ( fnm )
 	filefld_->setFileName( fnm );
 
     int idx = 0;

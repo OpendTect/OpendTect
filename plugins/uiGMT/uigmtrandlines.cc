@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.4 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.5 2009-06-18 15:01:44 cvskris Exp $";
 
 #include "uigmtrandlines.h"
 
@@ -145,13 +145,13 @@ bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 bool uiGMTRandLinesGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
-    const char* nm = par.find( sKey::Name );
-    if ( nm && *nm ) namefld_->setText( nm );
+    FixedString nm = par.find( sKey::Name );
+    if ( nm ) namefld_->setText( nm );
 
     linenms_.erase();
     par.get( ODGMT::sKeyLineNames, linenms_ );
-    BufferString lskey = par.find( ODGMT::sKeyLineStyle );
-    if ( !lskey.isEmpty() )
+    FixedString lskey = par.find( ODGMT::sKeyLineStyle );
+    if ( lskey )
     {
 	LineStyle ls; ls.fromString( lskey.buf() );
 	lsfld_->setStyle( ls );
