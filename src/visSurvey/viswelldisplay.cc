@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.98 2009-05-28 11:59:12 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.99 2009-06-18 14:54:09 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 
@@ -309,10 +309,8 @@ void WellDisplay::setWellData( const int logidx, TypeSet<Coord3Value>& crdvals, 
 	crdvals += cv;
      }
 
-     selrange = ( Interval<float>().setFrom(
-		range ? *range : wl.selValueRange() ) );
-    if ( !range )
-	logrthm = wl.dispLogarithmic();
+    if ( range )
+	selrange = *range;
 }
 
 
