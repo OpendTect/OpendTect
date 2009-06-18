@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginsel.cc,v 1.12 2009-02-11 10:56:35 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipluginsel.cc,v 1.13 2009-06-18 02:03:35 cvskris Exp $";
 
 #include "uipluginsel.h"
 #include "uibutton.h"
@@ -36,21 +36,23 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     BufferStringSet piusrnms;
+    TypeSet<int> pluginidx;
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
 	PluginManager::Data& data = *pimdata[idx];
 	if ( data.sla_ && data.sla_->isOK()
 	  && data.autotype_ == PI_AUTO_INIT_LATE )
 	{
-	    pluginnms_.add( data.name_ );
+	    pluginidx += idx;
 	    piusrnms.add( PIM().userName(data.name_) );
 	}
     }
-    piusrnms.sort( &pluginnms_ );
+
+    ArrPtrMan<int> sortindices = piusrnms.getSortIndexes();
 
     const int maxlen = piusrnms.maxLength();
     const float rowspercol = maxlen / 10.;
-    const int nrplugins = pluginnms_.size();
+    const int nrplugins = piusrnms.size();
     int nrcols = (int)(Math::Sqrt( rowspercol * nrplugins ) + .5);
     if ( nrcols < 1 ) nrcols = 1;
     if ( nrcols > 3 ) nrcols = 3;
@@ -65,12 +67,16 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     for ( int idx=0; idx<nrplugins; idx++ )
     {
+	const int realidx = sortindices[idx];
 	const int colnr = idx / nrows;
 	const int rownr = idx - colnr * nrows;
 
-	BufferString dispnm = piusrnms.get( idx );
+	BufferString dispnm = piusrnms.get( realidx );
 	uiCheckBox* cb = new uiCheckBox( grp, dispnm );
-	cb->setChecked( true );
+
+	PluginManager::Data& pdata = *pimdata[pluginidx[realidx]];
+	pluginnms_.add( pdata.name_ );
+	cb->setChecked( pdata.autosource_!=PluginManager::Data::None );
 	cbs_ += cb;
 	if ( colnr != nrcols - 1 )
 	    cb->setPrefWidthInChar( maxlen+5 );
@@ -86,21 +92,26 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
 bool uiPluginSel::rejectOK( CallBacker* )
 {
+    FileMultiString dontloadlist;
     for ( int idx=0; idx<cbs_.size(); idx++ )
     {
 	if ( !cbs_[idx]->isChecked() )
 	{
+	    dontloadlist += PIM().userName( pluginnms_.get(idx) );
 	    PluginManager::Data* data = PIM().findData( pluginnms_.get(idx) );
 	    if ( data )
 		data->autosource_ = PluginManager::Data::None;
 	}
     }
 
-    if ( !saveButtonChecked() )
-    {
-	Settings::common().setYN( sKeyDoAtStartup(), false );
-	Settings::common().write();
-    }
+    Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
+    if ( !dontloadlist.size() )
+	Settings::common().remove( PluginManager::sKeyDontLoad() );
+    else
+	Settings::common().set( PluginManager::sKeyDontLoad(),
+				dontloadlist.rep() );
+
+    Settings::common().write();
 
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.61 2009-05-20 20:42:56 cvskris Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.62 2009-06-18 02:03:35 cvskris Exp $";
 
 
 #include "plugins.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: plugins.cc,v 1.61 2009-05-20 20:42:56 cvskris E
 #include "strmprov.h"
 #include "envvars.h"
 #include "oddirs.h"
+#include "settings.h"
 #include "errh.h"
 
 #ifndef __win__
@@ -131,6 +132,7 @@ PluginManager::PluginManager()
     , argv_(const_cast<char**>(errargv))
 {
     getDefDirs();
+    Settings::common().get( sKeyDontLoad(), dontloadlist_.rep() );
 }
 
 
@@ -335,8 +337,13 @@ void PluginManager::openALOEntries()
 		{ delete data.sla_; data.sla_ = 0; continue; }
 	}
 
+
 	data.autotype_ = getPluginType( data.sla_, data.name_ );
 	data.info_ = getPluginInfo( data.sla_, data.name_ );
+
+	const char* username = userName( data.name_ );
+	if ( dontloadlist_.indexOf( username )!=-1 )
+	    data.autosource_=Data::None;
     }
 }
 

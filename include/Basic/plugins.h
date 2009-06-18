@@ -8,13 +8,14 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.22 2009-03-16 11:52:34 cvsranojay Exp $
+ RCS:		$Id: plugins.h,v 1.23 2009-06-18 02:03:35 cvskris Exp $
 
 ________________________________________________________________________
 
 -*/
 
 #include "sharedlibs.h"
+#include "separstr.h"
 #include "bufstring.h"
 #include "objectset.h"
 
@@ -114,23 +115,22 @@ public:
 	AutoSource		autosource_;
 	int			autotype_;
 	SharedLibAccess*	sla_;
-
     };
 
-    ObjectSet<Data>&		getData()		{ return data_; }
-    Data*			findData( const char* nm )
-    				{ return fndData( nm ); }
-    const Data*			findData( const char* nm ) const
-    				{ return fndData( nm ); }
-    const Data*			findDataWithDispName(const char*) const;
+    ObjectSet<Data>&	getData()		{ return data_; }
+    Data*		findData( const char* nm ) { return fndData( nm ); }
+    const Data*		findData( const char* nm ) const {return fndData( nm );}
+    const Data*		findDataWithDispName(const char*) const;
 
-    bool			isPresent(const char*) const;
-    const char*			userName(const char*) const;
-    				//!< returns without path, 'lib' and extension
-    const char*			getFileName(const Data&) const;
+    bool		isPresent(const char*) const;
+    const char*		userName(const char*) const;
+    			//!< returns without path, 'lib' and extension
+    const char*		getFileName(const Data&) const;
 
-    const char*			getAutoDir( bool usr ) const
-				{ return usr ? userlibdir_ : applibdir_; }
+    const char*		getAutoDir( bool usr ) const
+			{ return usr ? userlibdir_ : applibdir_; }
+
+    static const char*	sKeyDontLoad() { return "dTect.Dont load plugins"; }
 
 private:
 
@@ -144,6 +144,7 @@ private:
     BufferString		appdir_;
     BufferString		userlibdir_;
     BufferString		applibdir_;
+    FileMultiString		dontloadlist_;
 
     Data*			fndData(const char*) const;
     void			getDefDirs();
