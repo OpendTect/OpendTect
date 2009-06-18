@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.6 2009-06-15 10:02:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.7 2009-06-18 07:41:52 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -24,12 +24,12 @@ static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.6 2009-06-15 10:02
 uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p, 
 					      WellTieDataHolder* dh, 
 			 		      uiWellTieView& v )
-        : d2tmgr_(dh->d2tmgr_)
-  	, pmgr_(*dh->pickmgr_)  
+        : d2tmgr_(dh->d2TMGR())
+  	, pmgr_(*dh->pickmgr())  
 	, readyforwork(this)
 	, pickadded(this)
-	, synthpickset_(*dh->pickmgr_->getSynthPickSet())
-	, seispickset_(*dh->pickmgr_->getSeisPickSet())
+	, synthpickset_(*dh->pickmgr()->getSynthPickSet())
+	, seispickset_(*dh->pickmgr()->getSeisPickSet())
 	, uiWellTieStretch(p,dh,v)
 {
     synthpickset_.pickadded.notify(mCB(this,uiWellTieEventStretch,addSyntPick));
@@ -71,9 +71,9 @@ void uiWellTieEventStretch::doWork(CallBacker*)
     {
 	float seistime = time( seispickset_.getLastDah() );
 	float synthtime = time( synthpickset_.getLastDah() );
-	d2tmgr_->shiftModel( synthtime - seistime );
-	updateTime( synthtime );
-	synthpickset_.setDah( 0, dah(synthtime) );
+	d2tmgr_->shiftModel( seistime - synthtime );
+	seispickset_.setDah( 0, dah(seistime) );
+	synthpickset_.setDah( 0, dah(seistime) );
     }
     else
     {
@@ -104,7 +104,7 @@ void uiWellTieEventStretch::doStretchWork()
 
 	delete prevdispdata_;
 	prevdispdata_ = new WellTieDataSet ( dispdata_ );
-	doStretchData( params_.dptnm_ );
+	doStretchData( params_.dpms_.dptnm_ );
 
 	updateTime( startpos_ );
 	synthpickset_.setDah( idx, dah(startpos_) );
@@ -115,11 +115,12 @@ void uiWellTieEventStretch::doStretchWork()
 
 void uiWellTieEventStretch::updateTime( float& pos )
 {
+    WellTieParams::DataParams dpms = params_.dpms_;
     const int oldidx = prevdispdata_->getIdx( pos );
-    const float oldtime = prevdispdata_->get( params_.timenm_, oldidx );
-    const float olddah = prevdispdata_->get( params_.dptnm_, oldidx );
+    const float oldtime = prevdispdata_->get( dpms.timenm_, oldidx );
+    const float olddah = prevdispdata_->get( dpms.dptnm_, oldidx );
     const int newidx = dispdata_.getIdxFromDah( olddah );
-    pos = dispdata_.get( params_.timenm_, newidx  ); 	
-    const float newtime = prevdispdata_->get( params_.timenm_, newidx );
+    pos = dispdata_.get( dpms.timenm_, newidx  ); 	
+    const float newtime = prevdispdata_->get( dpms.timenm_, newidx );
 }
 

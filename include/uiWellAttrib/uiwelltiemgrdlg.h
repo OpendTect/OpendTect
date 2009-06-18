@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.2 2009-05-26 07:06:52 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.3 2009-06-18 07:41:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ protected:
     void		saveWellTieSetup(const MultiID&,const WellTieSetup&);
 
     bool		acceptOK(CallBacker*);
-    void		genWvlt(CallBacker*);
+    void		extrWvlt(CallBacker*);
     void		isSonicSel(CallBacker*);
     void		wellSel(CallBacker*);
     void 		wellTieDlgClosed(CallBacker*);

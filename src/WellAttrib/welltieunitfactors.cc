@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.8 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.9 2009-06-18 07:41:52 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -53,85 +53,36 @@ WellTieUnitFactors::WellTieUnitFactors( const WellTieSetup* wtsetup )
     if ( !denuom_ || !veluom_ )
 	{ pErrMsg("No valid log units specified"); return; }
 
-    calcVelFactor( veluom_->symbol(), wtsetup->issonic_ );
-    calcDensFactor( denuom_->symbol() );
+    velfactor_  = calcVelFactor( veluom_->symbol(), wtsetup->issonic_ );
+    denfactor_ = calcDensFactor( denuom_->symbol() );
 
     Well::MGR().release( wtsetup->wellid_ ); 
 }
 
 
-void WellTieUnitFactors::calcVelFactor( const char* velunit,
-       						bool issonic )
+double WellTieUnitFactors::calcVelFactor( const char* velunit, bool issonic )
 {
-    issonic ? calcSonicVelFactor( velunit ) : calcVelFactor( velunit );
+    return ( issonic ? calcSonicVelFactor( velunit ):calcVelFactor( velunit ) );
 }
 
 
-void WellTieUnitFactors::calcSonicVelFactor( const char* velunit )
+double WellTieUnitFactors::calcSonicVelFactor( const char* velunit )
 {
-    double velfactor;
-    if ( !strcmp( velunit, "None") )
-	velfactor = 0.001*mFromFeetFactor;
-    if ( !strcmp( velunit, "us/ft") )
-	velfactor =  0.001*mFromFeetFactor;
-    else if ( !strcmp(velunit, "ms/ft" ) )
-	velfactor =  1*mFromFeetFactor;
-    else if ( !strcmp( velunit, "s/ft" ) )
-	velfactor =  1000*mFromFeetFactor;
-    else if ( !strcmp( velunit, "us/m") )
-	velfactor =  0.001;
-    else if ( !strcmp( velunit, "ms/m") )
-	velfactor =  1;
-    else if ( !strcmp( velunit, "s/m") )
-	velfactor =  1000;
-    else
-	velfactor = 0.001*mFromFeetFactor; // us/ft taken if no unit found
-
-    velfactor_ = velfactor;
+    const UnitOfMeasure* um = UoMR().get( velunit );
+    return um ? um->userValue(1.0) : 0.001*mFromFeetFactor;
 }
 
 
-void WellTieUnitFactors::calcVelFactor( const char* velunit )
+double WellTieUnitFactors::calcVelFactor( const char* velunit )
 {
-    double velfactor;
-    if ( !strcmp( velunit, "None") )
-	velfactor = 0.001 * mToFeetFactor;
-    if ( !strcmp( velunit, "ft/us") )
-	velfactor =  0.001 * mToFeetFactor;
-    else if ( velunit, "ft/ms")
-	velfactor =  1 * mToFeetFactor;
-    else if ( !strcmp( velunit, "ft/s" ) )
-	velfactor =  1000 * mToFeetFactor;
-    else if ( !strcmp( velunit, "m/us") )
-	velfactor =  1/0.001;
-    else if ( !strcmp( velunit, "m/ms") )
-	velfactor =  1;
-    else if ( !strcmp( velunit, "m/s") )
-	velfactor =  1/1000;
-    else
-	velfactor = 0.001 * mToFeetFactor; // ft/us taken if no unit found
-
-    velfactor_ = velfactor;
+    return ( 1 / calcSonicVelFactor( velunit ) );
 }
 
 
-void WellTieUnitFactors::calcDensFactor( const char* densunit )
+double WellTieUnitFactors::calcDensFactor( const char* densunit )
 {
-    double denfactor;
-    if ( !strcmp( densunit, "None") )
-	denfactor = 1000;
-    if ( !strcmp( densunit, "g/cc") )
-	denfactor =  1000;
-    else if ( !strcmp( densunit, "g/cm") )
-	denfactor =  0.001;
-    else if ( !strcmp( densunit, "kg/cc") )
-	denfactor =  1000000;
-    else if ( !strcmp( densunit, "kg/cm") )
-	denfactor =  1;
-    else
-	denfactor = 1000; // g/cc taken if no unit found
-
-    denfactor_ = denfactor;
+    const UnitOfMeasure* um = UoMR().get( densunit );
+    return um ? um->userValue(1.0) : 1000;
 }
 
 
@@ -139,68 +90,25 @@ void WellTieUnitFactors::calcDensFactor( const char* densunit )
 WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
 			      const Attrib::DescSet& ads )
 		: wtsetup_(wts)
+		, uipms_(wd)				    
+		, dpms_(wd,wts)				    
 		, wd_(*wd)
 		, ads_(ads)	  
-		, iscsavailable_(wd->checkShotModel())
-		, timeintv_(0,0,0)
-		, worksize_(0)
-		, step_(20)	      
-		, dispsize_(0)
-		, nrdatacols_(10)
 		, factors_(WellTieUnitFactors(&wts))
-		, iscscorr_(iscsavailable_)
-		, iscsdisp_(true)
-		, currvellognm_(wts.vellognm_)
 {
-    corrstartdah_ = wd_.track().dah(0);
-    corrstopdah_  = wd_.track().dah(wd_.track().size()-1);
+    dpms_.currvellognm_ = wts.vellognm_;
+    dpms_.corrstartdah_ = wd_.track().dah(0);
+    dpms_.corrstopdah_  = wd_.track().dah(wd_.track().size()-1);
 
     if ( wd_.checkShotModel() )
     {
-	currvellognm_ = wtsetup_.corrvellognm_;
+	dpms_.currvellognm_ = wtsetup_.corrvellognm_;
 	WellTieCSCorr cscorr( wd_, *this );
     }
 
-    attrnm_ = getAttrName(ads);
-    resetDataParams(0);
-    createColNames();
-}
-
-
-#define mStep 20
-#define mComputeStepFactor SI().zStep()/mStep
-bool WellTieParams::resetDataParams( CallBacker* )
-{
-    const float startdah = wd_.track().dah(0);
-    const float stopdah  = wd_.track().dah(wd_.track().size()-1);
-
-    setTimes( timeintv_, startdah, stopdah );
-    setTimes( corrtimeintv_, corrstartdah_, corrstopdah_ );
-
-    worksize_ = (int) ( (timeintv_.stop-timeintv_.start)/timeintv_.step );
-    dispsize_ = (int) ( worksize_/mStep )-1;
-    corrsize_ = (int) ( (corrtimeintv_.stop - corrtimeintv_.start )
-	    		/(mStep*timeintv_.step) );
-
-    if ( corrsize_>dispsize_ ) corrsize_ = dispsize_;
-
-    return true;
-}
-
-
-bool WellTieParams::setTimes( StepInterval<float>& timeintv, 
-			      float startdah, float stopdah )
-{
-    timeintv.start = wd_.d2TModel()->getTime( startdah );
-    timeintv.stop  = wd_.d2TModel()->getTime( stopdah );
-    timeintv.step  = mComputeStepFactor;
-
-    if ( timeintv.step < 1e-6 )
-	return false;
-
-    if ( timeintv.start > timeintv_.stop )
-	return false;
-    return true;
+    dpms_.attrnm_ = getAttrName(ads);
+    dpms_.resetDataParams();
+    dpms_.createColNames();
 }
 
 
@@ -219,16 +127,70 @@ BufferString WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
 }
 
 
-void WellTieParams::createColNames()
+#define mStep 20
+#define mComputeStepFactor SI().zStep()/mStep
+bool WellTieParams::DataParams::resetDataParams()
 {
-    dptnm_ = "Depth";			colnms_.add( dptnm_ ); 
-    timenm_ = "Time";  			colnms_.add( timenm_ );
-    				        colnms_.add( wtsetup_.corrvellognm_ );
-    				 	colnms_.add( wtsetup_.vellognm_ );
-    				 	colnms_.add( wtsetup_.denlognm_ );
-    ainm_ = "Computed AI";	        colnms_.add( ainm_ );     
-    refnm_ ="Computed Reflectivity";    colnms_.add( refnm_ );
-    synthnm_ = "Synthetics";         	colnms_.add( synthnm_ );
-    crosscorrnm_ = "Cross Correlation"; colnms_.add( crosscorrnm_ );
-             				colnms_.add( attrnm_ );
+    const float startdah = wd_.track().dah(0);
+    const float stopdah  = wd_.track().dah(wd_.track().size()-1);
+
+    setTimes( timeintv_, startdah, stopdah );
+    setTimes( corrtimeintv_, corrstartdah_, corrstopdah_ );
+    setDepths( timeintv_, dptintv_ );
+
+    worksize_ = (int) ( (timeintv_.stop-timeintv_.start)/timeintv_.step );
+    dispsize_ = (int) ( worksize_/mStep )-1;
+    corrsize_ = (int) ( (corrtimeintv_.stop-corrtimeintv_.start )
+	    		 	/(mStep*timeintv_.step) );
+
+    if ( corrsize_>dispsize_ ) corrsize_ = dispsize_;
+
+    return true;
+}
+
+
+bool WellTieParams::DataParams::setTimes( StepInterval<float>& timeintv, 
+			      float startdah, float stopdah )
+{
+    timeintv.start = wd_.d2TModel()->getTime( startdah );
+    timeintv.stop  = wd_.d2TModel()->getTime( stopdah );
+    timeintv.step  = mComputeStepFactor;
+
+    if ( timeintv.step < 1e-6 )
+	return false;
+
+    if ( timeintv.start > timeintv.stop )
+	return false;
+    return true;
+}
+
+
+bool WellTieParams::DataParams::setDepths( const StepInterval<float>& timeintv, 
+			 	     StepInterval<float>& dptintv )
+{
+    const Well::D2TModel* d2tm = wd_.d2TModel();
+    if ( !d2tm ) return false;
+
+    dptintv.start = d2tm->getDepth( timeintv.start );
+    dptintv.stop  = d2tm->getDepth( timeintv.stop );
+    return true;
+}
+
+
+void WellTieParams::DataParams::createColNames()
+{
+    dptnm_ = "Depth";			      colnms_.add( dptnm_ ); 
+    timenm_ = "Time";  			      colnms_.add( timenm_ );
+    corrvellognm_ = wts_.corrvellognm_;       colnms_.add( corrvellognm_ );
+    vellognm_ = wts_.vellognm_; 	      colnms_.add( wts_.vellognm_ );
+    denlognm_ = wts_.denlognm_;		      colnms_.add( wts_.denlognm_ );
+    ainm_ = "Computed AI";	              colnms_.add( ainm_ );     
+    refnm_ ="Computed Reflectivity";          colnms_.add( refnm_ );
+    synthnm_ = "Synthetics";         	      colnms_.add( synthnm_ );
+    crosscorrnm_ = "Cross Correlation";       colnms_.add( crosscorrnm_ );
+             				      colnms_.add( attrnm_ );
+    
+    BufferString add2name = "'"; 
+    vellognm_ += add2name;
+    denlognm_ += add2name;		
 }

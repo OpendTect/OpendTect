@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.12 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.13 2009-06-18 07:41:52 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -45,18 +45,18 @@ WellTieToSeismic::WellTieToSeismic( WellTieDataHolder* dh,
     	: wtsetup_(dh->setup())
 	, ads_(ads)
 	, wd_(*dh->wd()) 
-	, params_(*dh->params())		 
-	, datamgr_(*dh->datamgr_)	   
+	, params_(*dh->dpms())		 
+	, datamgr_(*dh->datamgr())	   
 	, dispdata_(*dh->dispData())		   
 	, workdata_(*dh->extrData())		   
+	, wtdata_(dh->data())					   
 	, corrdata_(*dh->corrData())		   
 	, tr_(tr)		  
-      	, d2tmgr_(dh->d2tmgr_)
+      	, d2tmgr_(dh->d2TMGR())
 	, dps_(new DataPointSet(false, false))	   
-	, wtdata_(dh->data())					   
 {
     dps_->dataSet().add( new DataColDef( params_.attrnm_ ) );
-    geocalc_ = new WellTieGeoCalculator( &params_, &wd_ );
+    geocalc_ = new WellTieGeoCalculator( dh->params(), &wd_ );
 } 
 
 
@@ -70,22 +70,26 @@ WellTieToSeismic::~WellTieToSeismic()
 
 bool WellTieToSeismic::computeAll()
 {
-    //setUpData  
+    //setUpData 
     datamgr_.resetData();
-
+  
+    //compute Synth  
     if ( !resampleLogs() ) 	   return false;
     if ( !computeSynthetics() )    return false;
 
     //WorkData resampled and put in DispData at seismic sample rate 
     datamgr_.rescaleData( workdata_, dispdata_, 6, params_.step_ );
 
+    //extract seismic according to Well Track
     if ( !extractWellTrack() )     return false;
     if ( !extractSeismics() ) 	   return false;
+
+    //create Logs to be displayed
+    setLogValues();
 
     //DispData rescaled between user-specified times
     datamgr_.rescaleData( dispdata_, corrdata_, params_.nrdatacols_, 
 	    params_.corrtimeintv_.start, params_.corrtimeintv_.stop );
-    
     if ( !estimateWavelet() )	   return false;
     if ( !computeCrossCorrel() )   return false;
     
@@ -156,6 +160,20 @@ bool WellTieToSeismic::computeSynthetics()
 }
 
 
+void WellTieToSeismic::setLogValues()
+{
+    for ( int logidx=0; logidx<params_.colnms_.size(); logidx++ )
+    {
+	for ( int idx=0; idx<dispdata_.getLength(); idx++ )
+	{
+	    wtdata_.logset_[logidx]->addValue(
+			    dispdata_.get( params_.dptnm_, idx), 
+			    dispdata_.get(*params_.colnms_[logidx],idx) );
+	}
+    }
+}
+
+
 bool WellTieToSeismic::extractSeismics()
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -167,8 +185,7 @@ bool WellTieToSeismic::extractSeismics()
     dps_->dataChanged();
 
     //retrieve data from DPS    
-    datamgr_.getSortedDPSDataAlongZ( *dps_,
-	    *dispdata_.get( params_.attrnm_ ));
+    datamgr_.getSortedDPSDataAlongZ( *dps_, *dispdata_.get( params_.attrnm_ ));
 
     return true;
 }

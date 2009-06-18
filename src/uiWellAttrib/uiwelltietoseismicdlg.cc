@@ -8,18 +8,18 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.17 2009-06-17 11:48:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.18 2009-06-18 07:41:52 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
 #include "uiwelltieeventstretch.h"
-#include "uiwelltielogstretch.h"
 #include "uiwelltiestretch.h"
 #include "uiwelltieview.h"
 #include "uiwelltiewavelet.h"
 
 #include "uibutton.h"
 #include "uifiledlg.h"
+#include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uimsg.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.17 2009-06-17 11:4
 #include "uiseparator.h"
 #include "uitoolbar.h"
 #include "uiwelldlgs.h"
+#include "uiwelllogdisplay.h"
 
 #include "arrayndimpl.h"
 #include "attribdesc.h"
@@ -52,8 +53,9 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.17 2009-06-17 11:4
 uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p, 
 					      const WellTieSetup& wts,
 					      const Attrib::DescSet& ads )
-	: uiDialog(p,uiDialog::Setup("Tie Well to seismics dialog", "",
-		    			mTODOHelpID).modal(false))
+	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
+						.menubar(true)
+						.deleteonclose(false))
     	, setup_(WellTieSetup(wts))
 	, wd_(Well::MGR().get(wts.wellid_))
 	, dataplayer_(0)
@@ -62,20 +64,28 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	, params_(0)       		 
 	, manip_(0)				 
 {
+    setTitle( ads );
+   
     uiTaskRunner* tr = new uiTaskRunner( p );
     toolbar_ = new uiToolBar( this, "Well Tie Control" );
-    vwrgrp_ = new uiGroup( this, "viewers group" );
     
-    params_ 	  = new WellTieParams( setup_, wd_, ads );
-    dataholder_   = new WellTieDataHolder( params_, wd_, setup_ );
-    dataplayer_   = new WellTieToSeismic( dataholder_, ads, tr );
-    datadrawer_   = new uiWellTieView( vwrgrp_, dataholder_ );
-    logstretcher_ = new uiWellTieLogStretch( this, dataholder_, *datadrawer_ );
-    logstretcher_->dispdataChanged.notify(
-			mCB(this,uiWellTieToSeismicDlg,dispDataChanged) );
-
+    for ( int idx=0; idx<2; idx++ )
+    {
+	uiWellLogDisplay::Setup lsu; lsu.border(5);
+	logsdisp_ += new uiWellLogDisplay( this, lsu );
+    }
+    
+    params_ 	    = new WellTieParams( setup_, wd_, ads );
+    dataholder_     = new WellTieDataHolder( params_, wd_, setup_ );
+    dataplayer_     = new WellTieToSeismic( dataholder_, ads, tr );
+    datadrawer_     = new uiWellTieView( this, &viewer(), 
+	    				 dataholder_, &logsdisp_ );
+    infodlg_ 	    = new uiWellTieInfoDlg( this, dataholder_ );
     eventstretcher_ = new uiWellTieEventStretch( this, dataholder_,
 	    					 *datadrawer_ );
+
+    infodlg_->applyPushed.notify(
+	    		mCB(this,uiWellTieToSeismicDlg,doWork) );
     eventstretcher_->dispdataChanged.notify(
 	    		mCB(this,uiWellTieToSeismicDlg,dispDataChanged) );
     eventstretcher_->readyforwork.notify(
@@ -83,20 +93,7 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
     eventstretcher_->pickadded.notify(
 	    		mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
    
-    infodlg_ = new uiWellTieInfoDlg( this, dataholder_, params_ );
-    infodlg_->applyPushed.notify(
-	    		mCB(this,uiWellTieToSeismicDlg,doWholeWork) );
-
-    setWinTitle( ads );
-    drawFields( vwrgrp_ );
-    infodlg_->setUserDepths();
     initAll();
-    
-    finaliseDone.notify( mCB(this,uiWellTieToSeismicDlg,setView) );
-   /* 
-    BufferString msg( "To correlate seismics to synthetics, please select events 	in the synthetic seismic traces and link them to the seismic traces");
-    uiMSG().showMsgNextTime(msg);
-    */
 }
 
 
@@ -105,24 +102,22 @@ uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
     if ( eventstretcher_ )
     {
 	eventstretcher_->readyforwork.remove(
-				mCB(this,uiWellTieToSeismicDlg,applyReady) );
+			    mCB(this,uiWellTieToSeismicDlg,applyReady) );
 	eventstretcher_->dispdataChanged.remove(
 			    mCB(this,uiWellTieToSeismicDlg,dispDataChanged) );
+	eventstretcher_->pickadded.remove(
+			    mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
     }
-    if ( logstretcher_ )
-	logstretcher_->dispdataChanged.remove(
-			    mCB(this,uiWellTieToSeismicDlg,dispDataChanged) );
 
     if ( datadrawer_ )     delete datadrawer_;
     if ( dataholder_ ) 	   delete dataholder_;
-    if ( params_ )	   delete params_;
-    if ( logstretcher_ )   delete logstretcher_;
     if ( eventstretcher_ ) delete eventstretcher_;
     if ( dataplayer_ )     delete dataplayer_;
+    if ( infodlg_ )  	   delete infodlg_; 
 }
 
 
-void uiWellTieToSeismicDlg::setWinTitle( const Attrib::DescSet& ads )
+void uiWellTieToSeismicDlg::setTitle( const Attrib::DescSet& ads )
 {
     const Attrib::Desc* ad = ads.getDesc( setup_.attrid_ );
     if ( !ad ) return;
@@ -134,23 +129,24 @@ void uiWellTieToSeismicDlg::setWinTitle( const Attrib::DescSet& ads )
     wname += " to ";
     wname += attrnm;   
     
-    setCaption( wname );
+    setWinTitle( wname );
 }
 
 
 void uiWellTieToSeismicDlg::initAll()
 {
+    drawFields();
     addControl();
     addToolBarTools();
-    doWholeWork( 0 );
+    infodlg_->setUserDepths();
+    putDispParams();
+    doWork( 0 );
 }
 
 
-void uiWellTieToSeismicDlg::doWholeWork( CallBacker* )
+void uiWellTieToSeismicDlg::doWork( CallBacker* )
 {
-    params_->resetDataParams(0); //TODO put as CB
     dataplayer_->computeAll();
-    logstretcher_->resetData();
     eventstretcher_->resetData();
     drawData();
     resetInfoDlg();
@@ -165,7 +161,6 @@ void uiWellTieToSeismicDlg::resetInfoDlg()
 void uiWellTieToSeismicDlg::drawData()
 {
     datadrawer_->fullRedraw();
-    setView(0);
 }
 
 
@@ -173,39 +168,34 @@ void uiWellTieToSeismicDlg::drawData()
     toolbar_->addButton( pm, mCB(this,uiWellTieToSeismicDlg,func), tip )
 void uiWellTieToSeismicDlg::addToolBarTools()
 {
-    toolbar_->addSeparator();
     mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
     mAddButton( "saveflow.png",saveD2TPushed, "Save Model" );
-    //toolbar_->addSeparator();
-    //mAddButton( "xplot.png", viewDataPushed, "View/Plot Data" );
 }    
 
 
 void uiWellTieToSeismicDlg::addControl()
 {
-    ObjectSet<uiFlatViewer> viewer;
-    for (int vwridx=0; vwridx<datadrawer_->viewerSize(); vwridx++)
-	viewer += datadrawer_->getViewer( vwridx );
-
-    controlview_ = new uiWellTieControlView( this, toolbar_, viewer );
-    controlview_->setPickSetMGR( dataholder_->pickmgr_ );
+    controlview_ = new uiWellTieControlView( this, toolbar_, &viewer() );
+    controlview_->setPickSetMGR( dataholder_->pickmgr() );
 }
 
 
-void uiWellTieToSeismicDlg::drawFields( uiGroup* vwrgrp_ )
+void uiWellTieToSeismicDlg::drawFields()
 {
-    uiGroup* csgrp = new uiGroup( this, "check shot group" );
-    csgrp->attach( ensureBelow, vwrgrp_ );
-    csgrp->attach( leftBorder );
-    createCSFields( csgrp );
-
     uiGroup* taskgrp = new uiGroup( this, "task group" );
-    taskgrp->attach( ensureBelow, vwrgrp_ );
+    taskgrp->attach( ensureBelow, viewer() );
     taskgrp->attach( rightBorder );
     createTaskFields( taskgrp );
 
+    uiGroup* disppropgrp = new uiGroup( this, "Display Properties group" );
+    disppropgrp->attach( ensureBelow, viewer() );
+    disppropgrp->attach( ensureBelow, logsdisp_[0] );
+    disppropgrp->attach( ensureBelow, logsdisp_[1] );
+    disppropgrp->attach( leftBorder );
+    createDispPropFields( disppropgrp );
+
     uiGroup* informgrp = new uiGroup( this, "Indicator Group" );
-    informgrp->attach( ensureBelow, csgrp );
+    informgrp->attach( ensureBelow, disppropgrp );
     informgrp->attach( hCentered );
     infobut_ = new uiPushButton( informgrp, "&Display additional information",
 	               mCB(this,uiWellTieToSeismicDlg,infoPushed), true );
@@ -224,28 +214,46 @@ void uiWellTieToSeismicDlg::createTaskFields( uiGroup* taskgrp )
     undobut_->attach( ensureRightOf, applybut_ );
     undobut_->setSensitive( false );
     
-    clearallpicksbut_ = new uiPushButton( taskgrp, "&Clear picks",
-	   mCB(this,uiWellTieToSeismicDlg,clearAllPicksPushed), true );
-    clearallpicksbut_->setSensitive( false );
-    clearallpicksbut_->attach( ensureRightOf, undobut_ );
+    clearpicksbut_ = new uiPushButton( taskgrp, "&Clear picks",
+	   mCB(this,uiWellTieToSeismicDlg,clearPicksPushed), true );
+    clearpicksbut_->setSensitive( false );
+    clearpicksbut_->attach( ensureRightOf, undobut_ );
 }
 
 
-void uiWellTieToSeismicDlg::createCSFields( uiGroup* csgrp )
+void uiWellTieToSeismicDlg::createDispPropFields( uiGroup* dispgrp )
 {
-    cscorrfld_ = new uiCheckBox( csgrp, "use checkshot corrections" );
-    cscorrfld_->setChecked(params_->iscscorr_);
-    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,checkShotChg));
+    cscorrfld_ = new uiCheckBox( dispgrp, "use checkshot corrections" );
+    //cscorrfld_->setChecked(params_->iscscorr_);
+    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,doWork));
 
-    csdispfld_ = new uiCheckBox( csgrp, "display checkshot related curve" );
-    csdispfld_->setChecked(params_->iscsdisp_);
-    csdispfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,checkShotDisp));
+    csdispfld_ = new uiCheckBox( dispgrp, "display checkshot related curve" );
+    //csdispfld_->setChecked(params_->iscsdisp_);
     csdispfld_->attach( alignedBelow, cscorrfld_ );
+
+    zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
+    zinftfld_ ->attach( rightOf, csdispfld_);
+    
+    markerfld_ = new uiCheckBox( dispgrp, "display Markers" );
+    markerfld_->attach( alignedAbove, zinftfld_ );
+
+
+    putDispParams();
+
+    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
+    csdispfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
+    markerfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
+    zinftfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
     
     setPrefWidthInChar( 60 );
-    updateButtons();	    
 }
 
+
+void uiWellTieToSeismicDlg::dispDataChanged( CallBacker* )
+{
+    dataplayer_->setd2TModelFromData();
+    applybut_->setSensitive( true );
+}
 
 void uiWellTieToSeismicDlg::applyReady( CallBacker* )
 {
@@ -257,62 +265,31 @@ void uiWellTieToSeismicDlg::applyReady( CallBacker* )
 }
 
 
-void uiWellTieToSeismicDlg::setView( CallBacker* )
+void uiWellTieToSeismicDlg::getDispParams()
 {
-    if ( controlview_ )
-	controlview_->setView();
+    WellTieParams::uiParams* pms = dataholder_->uipms();
+    pms->iscscorr_ = cscorrfld_->isChecked();
+    pms->iscsdisp_ = csdispfld_->isChecked();
+    pms->iszinft_ = zinftfld_->isChecked();
+    dataholder_->dpms()->currvellognm_ = pms->iscscorr_ ? 
+			setup_.corrvellognm_ : setup_.vellognm_;
 }
 
 
-void uiWellTieToSeismicDlg::viewDataPushed( CallBacker* )
+void uiWellTieToSeismicDlg::putDispParams()
 {
-    //TODO dps and uidps class to view data
+    WellTieParams::uiParams* pms = dataholder_->uipms();
+    csdispfld_->setChecked( pms->iscsdisp_ );
+    cscorrfld_->setChecked( pms->iscscorr_ );
+    markerfld_->setChecked( pms->ismarker_ );
+    zinftfld_->setChecked( pms->iszinft_ );
 }
 
 
-void uiWellTieToSeismicDlg::wvltChg( CallBacker* cb  )
+void uiWellTieToSeismicDlg::dispPropChg( CallBacker* )
 {
-    doWholeWork( cb );
-}
-
-
-void uiWellTieToSeismicDlg::updateButtons()
-{
-    if ( !params_->iscsavailable_ )
-    {
-	cscorrfld_->display(false);
-	csdispfld_->display(false);
-    }
-}
-
-
-void uiWellTieToSeismicDlg::checkShotChg( CallBacker* )
-{
-    params_->iscscorr_ = cscorrfld_->isChecked();
-    if ( params_->iscscorr_ )
-	params_->currvellognm_ = setup_.corrvellognm_;
-    else
-	params_->currvellognm_ = setup_.vellognm_;
-    datadrawer_->drawVelLog();
-    datadrawer_->drawWellMarkers();
-    datadrawer_->drawCShot();
-    setView(0);
-    applybut_->setSensitive(true);
-}
-
-
-void uiWellTieToSeismicDlg::checkShotDisp( CallBacker* )
-{
-    params_->iscsdisp_ = csdispfld_->isChecked();
-    datadrawer_->drawCShot();
-    setView(0);
-}
-
-
-void uiWellTieToSeismicDlg::dispDataChanged( CallBacker* )
-{
-    dataplayer_->setd2TModelFromData();
-    applybut_->setSensitive( true );
+    getDispParams();
+    //drawData();
 }
 
 
@@ -322,17 +299,14 @@ void uiWellTieToSeismicDlg::infoPushed( CallBacker* )
 }
 
 
-bool uiWellTieToSeismicDlg::editD2TPushed( CallBacker* )
+void uiWellTieToSeismicDlg::editD2TPushed( CallBacker* )
 {
     uiD2TModelDlg d2tmdlg( this, *wd_, false );
-
     if ( d2tmdlg.go() )
     {
-	applybut_->setSensitive(true);
-	undobut_->setSensitive( true );
-	return true;
+	applybut_->setSensitive( true );
+	undobut_ ->setSensitive( true );
     }
-    return false;
 }
 
 
@@ -340,54 +314,42 @@ bool uiWellTieToSeismicDlg::saveD2TPushed( CallBacker* )
 {
     uiFileDialog* uifiledlg =
 	new uiFileDialog( this, false,"","", "Save depth/time table" );
-    uifiledlg->setDirectory(
-             IOObjContext::getDataDirName(IOObjContext::WllInf) );
-    
+    uifiledlg->setDirectory(IOObjContext::getDataDirName(IOObjContext::WllInf));
     if ( uifiledlg->go() );
     {
 	if ( !dataplayer_->saveD2TModel(uifiledlg->fileName()) )
 	    return true;
     }
     delete uifiledlg;
-   
     return true;
 }
 
 
 void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
 {
+    params_->resetDataParams();
     eventstretcher_->doWork(0);
+    doWork( cb );
     //dataholder_->pickmgr_->clearAllPicks();
-    doWholeWork( cb );
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
     manip_ = 0;
 }
 
 
-void uiWellTieToSeismicDlg::clearPickPushed( CallBacker* )
+void uiWellTieToSeismicDlg::clearPicksPushed( CallBacker* )
 {
-    dataholder_->pickmgr_->clearLastPicks();
+    dataholder_->pickmgr()->clearAllPicks();
     drawData();
-    checkIfPick(0);
+    checkIfPick();
 }
 
 
-void uiWellTieToSeismicDlg::clearAllPicksPushed( CallBacker* )
+void uiWellTieToSeismicDlg::checkIfPick()
 {
-    dataholder_->pickmgr_->clearAllPicks();
-    drawData();
-    checkIfPick(0);
-}
-
-
-void uiWellTieToSeismicDlg::checkIfPick( CallBacker* )
-{
-    bool ispick = dataholder_->pickmgr_->checkIfPick();
-    //clearpickbut_->setSensitive( ispick );
-    clearallpicksbut_->setSensitive( ispick );
-    if ( !ispick )
-	applybut_->setSensitive( false );
+    bool ispick = dataholder_->pickmgr()->checkIfPick();
+    clearpicksbut_->setSensitive( ispick );
+    applybut_->setSensitive( ispick );
 }
 
 
@@ -395,11 +357,11 @@ bool uiWellTieToSeismicDlg::undoPushed( CallBacker* cb )
 {
     if ( !dataplayer_->undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
+    doWork( cb );
     
-    doWholeWork( cb );
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );
-
+    
     return true;	    
 }
 
@@ -425,14 +387,12 @@ bool uiWellTieToSeismicDlg::acceptOK( CallBacker* )
 
 
 
-uiWellTieInfoDlg::uiWellTieInfoDlg( uiParent* p, 
-				    WellTieDataHolder* dh,
-				    WellTieParams* pms )
+uiWellTieInfoDlg::uiWellTieInfoDlg( uiParent* p, WellTieDataHolder* dh )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
 				     mTODOHelpID).modal(false))
 	, dataholder_(dh)
 	, wd_(dh->wd())		 
-	, params_(pms) 
+	, params_(dataholder_->dpms()) 
       	, crosscorr_(0)	       
 	, wvltdraw_(0)
 	, applyPushed(this)
@@ -461,14 +421,14 @@ uiWellTieInfoDlg::uiWellTieInfoDlg( uiParent* p,
     topmrkfld_->setValue( (int)0 );
     topmrkfld_->setElemSzPol( uiObject::Medium );
     topmrkfld_->valuechanged.notify(
-			mCB(this, uiWellTieInfoDlg, userDepthsChanged));
+			mCB(this,uiWellTieInfoDlg,userDepthsChanged));
     
     botmrkfld_ = new uiGenInput( markergrp, "", slis.setName("Bottom Marker") );
     botmrkfld_->attach( rightOf, topmrkfld_ );
     botmrkfld_->setValue( markernames_.size()-1 );
     botmrkfld_->setElemSzPol( uiObject::Medium );
     botmrkfld_->valuechanged.notify(
-			mCB(this, uiWellTieInfoDlg, userDepthsChanged));
+			mCB(this,uiWellTieInfoDlg,userDepthsChanged));
     
     applymrkbut_ = new uiPushButton( markergrp, "&Apply",
 	       mCB(this,uiWellTieInfoDlg,applyMarkerPushed), true );

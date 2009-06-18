@@ -15,10 +15,10 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 #include "flatview.h"
+#include "welltieunitfactors.h"
 
 template <class T> class Array1DImpl;
 class WellTieSetup; 
-class WellTieParams; 
 class WellTieDataHolder; 
 class WellTieDataSet; 
 class WellTieData; 
@@ -36,67 +36,63 @@ class uiWellLogDisplay;
 class uiLabel;
 namespace Well
 {
+    class Marker;
     class Data;
 };
-mClass uiWellTieView
+mClass uiWellTieView : public CallBacker
 {
 public:
-			    	uiWellTieView(uiParent*,WellTieDataHolder*);
+			    	uiWellTieView(uiParent*,uiFlatViewer*,
+					      WellTieDataHolder*,
+					      ObjectSet<uiWellLogDisplay>*);
 				~uiWellTieView();
 
-    void        		createViewers(uiGroup*);
-    void 			deleteUserPicks();
-    void			deleteWellMarkers();
-    void			deleteCheckShot();
-    void        		drawAI();
+    void        		drawAILog();
     void        		drawVelLog();
     void        		drawDenLog();
+    void        		drawRefLog();
+    void        		drawTraces();
     void        		drawMarker(FlatView::Annotation::AuxData*,
 					    int,float,float,Color,bool);
-    void        		drawReflectivity();
-    void        		drawSynthetics();
-    void        		drawSeismic();
     void        		drawUserPicks();
     void        		drawWellMarkers();
     void        		drawCShot();
     void        		fullRedraw();
-    uiFlatViewer* 		getViewer(int idx) 	{ return vwrs_[idx]; }
-    const uiFlatViewer* 	getViewer(int idx) const { return vwrs_[idx]; }
-    const int 			viewerSize() const 	{ return vwrs_.size(); }
 
 
 protected:
 
+    uiFlatViewer*		vwr_;
+
+    ObjectSet<Well::Marker> 	markerset_;
+    ObjectSet<uiWellLogDisplay>& logsdisp_;
     WellTieDataSetMGR&		datamgr_; 		
     WellTieDataSet&  		data_;
+    WellTieDataHolder*  	dataholder_;
     const Well::Data& 		wd_;		
     const WellTieSetup& 	wtsetup_;
-    const WellTieParams& 	params_;
-    uiWellLogDisplay*		logdisp_;
-    ObjectSet<uiFlatViewer> 	vwrs_;
+    const WellTieParams::DataParams* params_;
     WellTiePickSet*		seispickset_;
     WellTiePickSet*		synthpickset_;
 
-    SeisTrcBuf*			seistrcbuf_;
-    SeisTrcBuf*			synthtrcbuf_;
+    SeisTrcBuf*			trcbuf_;
     ObjectSet<SeisTrc>		trcs_;
     float			maxtraceval_;
     float			mintraceval_;
 
     ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
-    ObjectSet<FlatView::Annotation::AuxData> csauxdatas_;
 
-    void        		initFlatViewer(const char*,int,int,int,bool,
-						const Color&);
+    void        		initFlatViewer();
+    void        		initLogViewers();
     void 			createVarDataPack(const char*,int);
-    void 			setUpTrcBuf(SeisTrcBuf*,const char*,int,int);
+    void 			setLogRanges(float,float);
+    void 			setUpTrcBuf(SeisTrcBuf*,const char*,int);
     void			setUpUdfTrc(SeisTrc&,const char*,int);
     void			setUpValTrc(SeisTrc&,const char*,int);
-    void        		setDataPack(SeisTrcBuf*,const char*,int,int);
+    void        		setDataPack(SeisTrcBuf*,const char*,int);
     void 			removePacks(uiFlatViewer&);
-    void			deleteMarkerAuxDatas(
-				  ObjectSet<FlatView::Annotation::AuxData>&);
+    void			zoomChg(CallBacker*);
 };
 
 
@@ -115,7 +111,7 @@ protected:
     uiLabel* 			corrlbl_;
     WellTieDataSet& 		corrdata_;
     const WellTieData& 		welltiedata_;
-    const WellTieParams& 	params_;
+    const WellTieParams::DataParams& params_;
     ObjectSet<uiFunctionDisplay>  corrdisps_;
 };
 

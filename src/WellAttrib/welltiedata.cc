@@ -7,13 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.5 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.6 2009-06-18 07:41:52 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
 #include "survinfo.h"
 #include "sorting.h"
+
+#include "welldata.h"
+#include "welllog.h"
+#include "welllogset.h"
 
 #include "welltiedata.h"
 #include "welltied2tmodelmanager.h"
@@ -22,7 +26,7 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.5 2009-06-15 08:29:32 cvsbru
 
 
 
-WellTieDataSetMGR::WellTieDataSetMGR( const WellTieParams* pms, 
+WellTieDataSetMGR::WellTieDataSetMGR( const WellTieParams::DataParams* pms, 
 				      WellTieData* data ) 
     		: params_(*pms)
 		, datasets_(data->datasets_)  
@@ -125,8 +129,7 @@ const int WellTieDataSet::getIdxFromDah( float dah ) const
 
 void WellTieDataSet::clearData()
 {
-    for ( int idx=data_.size()-1; idx>=0; idx-- )
-	delete ( data_.remove(idx) );
+    deepErase( data_ );
 }
 
 
@@ -216,7 +219,7 @@ void WellTieDataSet::set( const char* colnm, int idx, float val )
 
 
 
-WellTieDataHolder::WellTieDataHolder( const WellTieParams* params, 
+WellTieDataHolder::WellTieDataHolder( WellTieParams* params, 
 				      Well::Data* wd, const WellTieSetup& s )
     	: params_(params)	
 	, wd_(wd) 
@@ -224,7 +227,10 @@ WellTieDataHolder::WellTieDataHolder( const WellTieParams* params,
 {
     pickmgr_ = new WellTiePickSetMGR( wd_ );
     d2tmgr_  = new WellTieD2TModelMGR( wd_, params_ );
-    datamgr_ = new WellTieDataSetMGR( params_, &data_ );
+    datamgr_ = new WellTieDataSetMGR( &params_->dpms_, &data_ );
+    uipms_   = &params_->uipms_;
+    dpms_    = &params_->dpms_;
+    createLogs();
 }
 
 
@@ -233,5 +239,20 @@ WellTieDataHolder::~WellTieDataHolder()
     delete datamgr_;
     delete pickmgr_;
     delete d2tmgr_;
+    delete params_;
 }
-    
+
+void WellTieDataHolder::createLogs()
+{
+    for ( int idx=0; idx<dpms_->colnms_.size(); idx++ )
+    {
+	data_.logset_ += new Well::Log();
+	if ( !strcmp (setup_.vellognm_,*dpms_->colnms_[idx]) )
+	    data_.logset_[idx]->setName( dpms_->vellognm_ );
+	else if ( !strcmp (setup_.denlognm_,*dpms_->colnms_[idx]) )
+	    data_.logset_[idx]->setName( dpms_->denlognm_ );
+	else
+	    data_.logset_[idx]->setName( *dpms_->colnms_[idx] );
+	wd_->logs().add( data_.logset_[idx] );
+    }
+}

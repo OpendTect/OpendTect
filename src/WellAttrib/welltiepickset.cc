@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.5 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.6 2009-06-18 07:41:52 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -27,32 +27,16 @@ WellTiePickSetMGR::~WellTiePickSetMGR()
 {}
 
 
-void WellTiePickSetMGR::addPick( Interval<float> vwrsz, float xpos, float zpos )
+void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop, 
+				 float xpos, float zpos )
 {
     if ( abs(seispickset_.getSize() - synthpickset_.getSize()) < 2 )
     {
-	if ( xpos<(vwrsz.stop-vwrsz.start)/2 )
-				//|| xpos>(vwrsz.stop-vwrsz.start)*2/3  )
-	    seispickset_.add( 0, xpos, wd_->d2TModel()->getDepth( zpos ) );
-	else
+	if ( xpos<(vwrszstop-vwrszstart)/2 )
 	    synthpickset_.add( 0, xpos, wd_->d2TModel()->getDepth( zpos ) );
+	else
+	    seispickset_.add( 0, xpos, wd_->d2TModel()->getDepth( zpos ) );
     }
-}
-
-
-void WellTiePickSetMGR::addPick( int vwridx, float zpos )
-{
-    if ( vwridx == 0 )
-	logpickset_.add( 0, 0, zpos );
-
-    else if ( abs(seispickset_.getSize() - synthpickset_.getSize()) < 2 )
-    {
-	if ( vwridx == 4 )
-	    synthpickset_.add( 0, 0, zpos );
-	else if ( vwridx == 5 )
-	    seispickset_.add( 0, 0, zpos );
-    }
-    else return;
 }
 
 

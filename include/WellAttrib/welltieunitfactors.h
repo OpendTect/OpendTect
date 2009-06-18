@@ -17,14 +17,12 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "ranges.h"
 #include "bufstringset.h"
+#include "welldata.h"
 
 class UnitOfMeasure;
 class WellTieSetup;
 namespace Attrib { class DescSet; }
-namespace Well
-{
-    class Data;
-}
+
 
 mClass WellTieUnitFactors
 {
@@ -47,15 +45,15 @@ protected:
     double	 	velfactor_;
     double 	 	denfactor_;
 
-    void	 	calcVelFactor(const char*,bool);
-    void 	 	calcVelFactor(const char*);
-    void 	 	calcSonicVelFactor(const char*);    
-    void  	 	calcDensFactor(const char*);
+    double	 	calcVelFactor(const char*,bool);
+    double 	 	calcVelFactor(const char*);
+    double 	 	calcSonicVelFactor(const char*);    
+    double  	 	calcDensFactor(const char*);
 };
 
 
 
-/*!\collects the parameters used for TWTS. */
+/*!\collects the parameters used for TWTS, linked to ui and data computation*/
 mClass WellTieParams
 {
 public :
@@ -64,44 +62,90 @@ public :
 					      const Attrib::DescSet&);
 				~WellTieParams(){};
 
-    const WellTieSetup& 	getSetup() const   { return wtsetup_; }
-    const WellTieUnitFactors& 	getUnits() const   { return factors_; }
-    const StepInterval<float>&  getTimeScale() const  { return timeintv_; } 
+    mStruct uiParams
+    {
+			    uiParams(const Well::Data* d)
+				: wd_(*d)
+				, iscsavailable_(wd_.checkShotModel())
+				, iscscorr_(wd_.checkShotModel())
+				, iscsdisp_(wd_.checkShotModel())
+				, ismarker_(wd_.markers().size())
+	    			{}
 
-    BufferStringSet		colnms_;
-    const int 			nrdatacols_;				    
-    StepInterval<float> 	timeintv_;
-    StepInterval<float> 	corrtimeintv_;
-    float			corrstartdah_;
-    float			corrstopdah_;
-    int 			step_;
-    int           		worksize_;
-    int           		dispsize_;
-    int           		corrsize_;
-    const char*			currvellognm_;
-    const char*			ainm_;
-    const char*			refnm_;
-    BufferString		attrnm_;
-    const char*			timenm_;
-    const char*			dptnm_;
-    const char*			synthnm_;
-    const char*			crosscorrnm_;
-    bool 			iscsavailable_;
-    bool                        iscscorr_;
-    bool                        iscsdisp_;
+	bool                    iscsavailable_;
+	bool                    iscscorr_;
+	bool 			iscsdisp_;
+	bool                    ismarker_;
+	bool                    iszinft_;
+	const Well::Data&	wd_;
+	
+	friend class 		WellTieParams;
+    };
+
+    mStruct DataParams
+    {
+			   DataParams(const Well::Data* d,const WellTieSetup& w)
+				: wd_(*d)
+				, wts_(w)  
+				, nrdatacols_(10)
+				, step_(20)
+				, timeintv_(0,0,0)
+				, dispsize_(0)  
+				, corrsize_(0)  
+				, worksize_(0) 
+				{}
+
+	int           		worksize_;
+	int           		dispsize_;
+	int           		corrsize_;
+	int           		nrdatacols_;
+	StepInterval<float> 	timeintv_;
+	StepInterval<float> 	dptintv_;
+	StepInterval<float> 	corrtimeintv_;
+	float			corrstartdah_;
+	float			corrstopdah_;
+	int 			step_;
+	BufferStringSet		colnms_;
+	BufferString		denlognm_;
+	BufferString		vellognm_;
+	BufferString		corrvellognm_;
+	BufferString		currvellognm_;
+	BufferString		ainm_;
+	BufferString		refnm_;
+	BufferString		attrnm_;
+	BufferString		timenm_;
+	BufferString		dptnm_;
+	BufferString		synthnm_;
+	BufferString		crosscorrnm_;
+    
+	const WellTieSetup&	wts_;
+	const Well::Data&	wd_;
+	void	 		createColNames();
+	bool			resetDataParams();
+	bool			setTimes(StepInterval<float>&,float,float);
+	bool			setDepths(const StepInterval<float>&,
+						StepInterval<float>&);
+    	const StepInterval<float>&  getTimeScale() const { return timeintv_; } 
+
+	friend class WellTieParams;
+    };
+
+    uiParams			uipms_;
+    DataParams			dpms_;
+
     const Attrib::DescSet& 	ads_;
 
+    const WellTieSetup& 	getSetup() const   { return wtsetup_; }
+    const WellTieUnitFactors& 	getUnits() const   { return factors_; }
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
-    bool			resetDataParams(CallBacker*);
+    bool			resetDataParams() 
+    			 	{ return dpms_.resetDataParams(); }
 
 protected :
 
     const WellTieSetup&		wtsetup_;
     Well::Data&			wd_;
     const WellTieUnitFactors    factors_;
-    
-    void	 		createColNames();
-    bool			setTimes(StepInterval<float>&,float,float);
 };
 
 #endif

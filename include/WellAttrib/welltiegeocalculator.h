@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.6 2009-05-28 14:38:11 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.7 2009-06-18 07:41:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
 			~WellTieGeoCalculator() {};
 
 
-    Well::D2TModel* 	getModelFromVelLog(bool);
+    Well::D2TModel* 	getModelFromVelLog(const char*, bool);
     Well::D2TModel*     getModelFromVelLogData(const Array1DImpl<float>&,
 	                                       const Array1DImpl<float>&);
     void		setVelLogDataFromModel(const Array1DImpl<float>&,    

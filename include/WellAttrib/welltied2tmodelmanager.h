@@ -45,7 +45,7 @@ public:
 
     void 		shiftModel(float);
     void 		setAsCurrent(Well::D2TModel*);
-    void		setFromVelLog(bool docln=true);
+    void		setFromVelLog(const char*,bool docln=true);
     void		setFromData(const Array1DImpl<float>&,
 				    const Array1DImpl<float>&);
 
@@ -56,6 +56,7 @@ protected:
     Well::D2TModel* 		prvd2t_;
     Well::D2TModel* 		orgd2t_;
     WellTieGeoCalculator&	geocalc_;
+    const WellTieParams*	params_;
     const WellTieSetup&		wtsetup_;
     bool			emptyoninit_;
 };

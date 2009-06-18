@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.4 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.5 2009-06-18 07:41:52 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -28,12 +28,13 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.4 2009-06-10 08:0
 #include "welltieunitfactors.h"
 
 WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data* d, 
-					const WellTieParams* params)
+					const WellTieParams* pms)
 	: wd_(d)
-	, geocalc_(*new WellTieGeoCalculator(params,d))
+	, geocalc_(*new WellTieGeoCalculator(pms,d))
 	, prvd2t_(0)
 	, emptyoninit_(false)
-	, wtsetup_(params->getSetup())		     
+	, wtsetup_(pms->getSetup())	
+	, params_(pms)		   		
 {
     if ( !wd_ ) return;
     if ( !wd_->d2TModel() || wd_->d2TModel()->size()<=2 )
@@ -44,7 +45,7 @@ WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data* d,
     orgd2t_ = new Well::D2TModel( *wd_->d2TModel() );
 
     if ( wd_->checkShotModel() || wd_->d2TModel()->size()<=2 )
-	setFromVelLog();
+	setFromVelLog( params_->dpms_.currvellognm_ );
 } 
 
 
@@ -61,8 +62,8 @@ Well::D2TModel& WellTieD2TModelMGR::d2T()
 }
 
 
-void WellTieD2TModelMGR::setFromVelLog( bool docln )
-{setAsCurrent( geocalc_.getModelFromVelLog(docln) );}
+void WellTieD2TModelMGR::setFromVelLog( const char* lognm,  bool docln )
+{setAsCurrent( geocalc_.getModelFromVelLog(lognm,docln) );}
 
 
 void WellTieD2TModelMGR::setFromData( const Array1DImpl<float>& time,

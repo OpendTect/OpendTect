@@ -47,21 +47,21 @@ public:
 
     //TODO put back as private
     bool 		computeAll();
+    bool		computeCrossCorrel();
     bool		computeSynthetics();
     bool		extractSeismics();
     bool		extractWellTrack();
-    void 	      	setWorkData();
-    bool 	      	resampleLogs();
-    bool		computeCrossCorrel();
-    
     bool  		estimateWavelet();
+    bool 	      	resampleLogs();
+    void 	      	setWorkData();
+    void 	      	setLogValues();
    
     //D2TModelmanager operations
     void 		setd2TModelFromData()
     			{ d2tmgr_->setFromData(*dispdata_.get(params_.timenm_),
 				              *dispdata_.get(params_.dptnm_)); }
     void 		computeD2TModel()
-			{ d2tmgr_->setFromVelLog(); }
+			{ d2tmgr_->setFromVelLog(params_.currvellognm_); }
     bool 		saveD2TModel(const char* fname)
     			{ return d2tmgr_->save( fname ); }
     bool 		undoD2TModel()
@@ -79,13 +79,13 @@ protected:
 
     DataPointSet* 		dps_;
     const Attrib::DescSet& 	ads_;
-    Well::Data& 		wd_;	 
+    Well::Data& 		wd_;
     WellTieData& 		wtdata_;     
     WellTieDataSetMGR& 		datamgr_;     
     WellTieDataSet& 		workdata_;
     WellTieDataSet& 		dispdata_;
     WellTieDataSet& 		corrdata_;
-    const WellTieParams&	params_;	
+    const WellTieParams::DataParams& params_;	
     const WellTieSetup&		wtsetup_;	
 
     WellTieD2TModelMGR*		d2tmgr_;

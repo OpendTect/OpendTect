@@ -106,8 +106,7 @@ public:
 
     const Well::Data* wd_;
 
-    void           addPick(Interval<float>,float,float);
-    void           addPick(int,float);
+    void           addPick(float,float,float,float);
     void           clearAllPicks();
     void 	   clearLastPicks();
     bool 	   checkIfPick();

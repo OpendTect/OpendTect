@@ -27,6 +27,7 @@ class DataPointSet;
 namespace Well
 {
     class Data;
+    class Log;
 }
 
 // brief structure containing datasets and data used for TWTS
@@ -41,6 +42,7 @@ mStruct WellTieData
     Wavelet		wvltest_;
     
     ObjectSet<WellTieDataSet> datasets_;
+    ObjectSet<Well::Log> logset_;
 };
 
 
@@ -99,7 +101,8 @@ protected:
 mClass WellTieDataSetMGR
 {
 public:
-			WellTieDataSetMGR(const WellTieParams*,WellTieData*);
+			WellTieDataSetMGR(const WellTieParams::DataParams*,
+						WellTieData*);
 			~WellTieDataSetMGR();
 
     void 		resetData();
@@ -115,7 +118,7 @@ public:
     
 protected:
 
-    const WellTieParams& params_;
+    const WellTieParams::DataParams& params_;
     ObjectSet<WellTieDataSet>& datasets_;
 };
 
@@ -124,11 +127,15 @@ protected:
 mClass WellTieDataHolder 
 {
 public:    
-			WellTieDataHolder(const WellTieParams*,Well::Data*,
+			WellTieDataHolder(WellTieParams*,Well::Data*,
 					  const WellTieSetup&);
 			~WellTieDataHolder();
 
     const WellTieParams*  params() const   { return params_; }   
+    WellTieParams::uiParams* uipms()       { return &params_->uipms_;  }
+    const WellTieParams::uiParams* uipms() const { return &params_->uipms_;  }
+    WellTieParams::DataParams* dpms() 	    { return &params_->dpms_; }
+    const WellTieParams::DataParams* dpms() const { return &params_->dpms_; }
     const WellTieSetup&	  setup()  const   { return setup_; }
     WellTieData&	  data()   	   { return data_; }
     const WellTieData&	  data()   const   { return data_; }
@@ -136,6 +143,10 @@ public:
     const Well::Data* 	  wd()     const   { return wd_; }	
     WellTieD2TModelMGR*   d2TMGR()	   { return d2tmgr_; }   
     const WellTieD2TModelMGR* d2TMGR() const { return d2tmgr_; }   
+    WellTiePickSetMGR*    pickmgr()   	   { return pickmgr_; }
+    const WellTiePickSetMGR* pickmgr() const { return pickmgr_; }
+    WellTieDataSetMGR* 	   datamgr()	   { return datamgr_; }
+    const WellTieDataSetMGR* datamgr() const { return datamgr_; }
     WellTieDataSet*	  extrData() 	   { return data_.datasets_[0]; }
     const WellTieDataSet* extrData() const { return data_.datasets_[0]; }
     WellTieDataSet*	  dispData() 	   { return data_.datasets_[1]; }
@@ -146,16 +157,19 @@ public:
     const Wavelet*        getEstimatedWvlt() const { return &data_.wvltest_; } 
 
     
-    WellTieD2TModelMGR*	 d2tmgr_;
-    WellTiePickSetMGR*   pickmgr_;
-    WellTieDataSetMGR*	 datamgr_;
-
 private:
 
     Well::Data*          wd_;
     const WellTieSetup&	 setup_;
     WellTieData	 	 data_;
+    WellTieD2TModelMGR*	 d2tmgr_;
+    WellTiePickSetMGR*   pickmgr_;
+    WellTieDataSetMGR*	 datamgr_;
+    WellTieParams::uiParams* uipms_;
+    WellTieParams::DataParams* dpms_;
+    WellTieParams* 	 params_; //becomes mine
 
-    const WellTieParams* params_;
+    void 		 createLogs();
+
 };
 #endif

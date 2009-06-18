@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.5 2009-06-15 08:29:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.6 2009-06-18 07:41:52 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.5 2009-06-15 08:29:32 cv
 
 #include "uiattrsel.h"
 #include "uiwelltietoseismicdlg.h"
-#include "uiseiswvltgen.h"
+#include "uiwaveletextraction.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uicombobox.h"
@@ -78,8 +78,8 @@ uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
     
     wvltfld_ = new uiIOObjSel( this, wvltctio_, "Reference wavelet" );
     wvltfld_->attach(alignedBelow, llbl2);
-    uiPushButton* crwvltbut = new uiPushButton( this, "Generate",
-	    			mCB(this,uiWellTieMGRDlg,genWvlt), false );
+    uiPushButton* crwvltbut = new uiPushButton( this, "Extract",
+	    			mCB(this,uiWellTieMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
     finaliseDone.notify( mCB(this,uiWellTieMGRDlg,wellSel) );
@@ -120,9 +120,9 @@ void uiWellTieMGRDlg::wellSel( CallBacker* )
 }
 
 
-void uiWellTieMGRDlg::genWvlt( CallBacker* )
+void uiWellTieMGRDlg::extrWvlt( CallBacker* )
 {
-    uiSeisWvltGen dlg( this );
+    uiWaveletExtraction dlg( this );
     if ( dlg.go() )
 	wvltfld_->setInput( dlg.storeKey() );
 }
@@ -205,7 +205,7 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
     welltiedlgsetcpy_ += welltiedlgset_[welltiedlgset_.size()-1];
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
 	    			mCB(this,uiWellTieMGRDlg,wellTieDlgClosed));
-    welltiedlgset_[welltiedlgset_.size()-1]->go();
+    welltiedlgset_[welltiedlgset_.size()-1]->show();
     
     return false;
 }

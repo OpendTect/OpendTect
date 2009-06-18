@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.10 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.11 2009-06-18 07:41:52 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -46,9 +46,10 @@ WellTieGeoCalculator::WellTieGeoCalculator( const WellTieParams* p,
 //each sample is converted to a time using the travel time log
 //the correspondance between samples and depth values provides a first
 //TWT approx.
-Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( bool doclean )
+Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( const char* vellog,
+							  bool doclean )
 {
-    const Well::Log& log = *wd_.logs().getLog( params_.currvellognm_ );
+    const Well::Log& log = *wd_.logs().getLog( vellog );
     TypeSet<float> vals, d2t, dpt, time, depth;
 
     dpt += -wd_.track().value(0);
@@ -140,8 +141,8 @@ Well::D2TModel* WellTieGeoCalculator::getModelFromVelLogData(
 }
 
 
-//Small TWT/ Interval Velocity converter
-#define mFactor 1000000000
+//Small TWT/Interval Velocity converter
+#define mFactor 1000000
 void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 				     const TypeSet<float>& dpt,	
 				     TypeSet<float>& outp, bool t2vel  )
