@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.12 2009-06-19 17:00:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.13 2009-06-19 17:22:24 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -358,23 +358,9 @@ void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 				   Array1DImpl<float>& aivals )
 {
     const int datasz = aivals.info().getSize(0);
-    Array1DImpl<float> newvelvals(datasz);
-    for ( int idx = 0; idx <datasz; idx++ )
+    for ( int idx = 0; idx<datasz; idx++ )
     {
-	if ( velvals.get(idx) == 0 )
-	{
-	    int curidx = idx;	    
-	    while ( velvals.get(curidx) == 0 && curidx< datasz )
-		idx++;
-	    newvelvals.set( idx, curidx );
-	}
-	else
-	    newvelvals.set( idx,velvals.get(idx) );
-    }
-		
-    for ( int idx = 0; idx < datasz; idx++ )
-    {
-	float velval = newvelvals.get(idx);
+	float velval = velvals.get(idx);
 	float denval = denvals.get(idx);
 	aivals.setValue( idx, denval/velval*mFactor*denfactor_*velfactor_ );
     }
