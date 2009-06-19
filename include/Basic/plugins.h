@@ -8,16 +8,18 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.24 2009-06-19 11:16:07 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.25 2009-06-19 16:15:32 cvskris Exp $
 
 ________________________________________________________________________
 
 -*/
 
 #include "sharedlibs.h"
-#include "separstr.h"
 #include "bufstring.h"
 #include "objectset.h"
+
+
+class FileMultiString;
 
 #ifdef __cpp__
 extern "C" {
@@ -131,7 +133,7 @@ public:
 			{ return usr ? userlibdir_ : applibdir_; }
 
     static const char*	sKeyDontLoad() { return "dTect.Dont load plugins"; }
-    const FileMultiString& notLoadedByUser() const { return dontloadlist_; }
+    void		getNotLoadedByUser(FileMultiString&) const;
 
 private:
 
@@ -145,7 +147,6 @@ private:
     BufferString		appdir_;
     BufferString		userlibdir_;
     BufferString		applibdir_;
-    FileMultiString		dontloadlist_;
 
     Data*			fndData(const char*) const;
     void			getDefDirs();

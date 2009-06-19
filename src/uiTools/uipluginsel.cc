@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginsel.cc,v 1.13 2009-06-18 02:03:35 cvskris Exp $";
+static const char* rcsID = "$Id: uipluginsel.cc,v 1.14 2009-06-19 16:15:32 cvskris Exp $";
 
 #include "uipluginsel.h"
 #include "uibutton.h"
@@ -15,10 +15,11 @@ static const char* rcsID = "$Id: uipluginsel.cc,v 1.13 2009-06-18 02:03:35 cvskr
 #include "uilabel.h"
 #include "plugins.h"
 #include "settings.h"
+#include "separstr.h"
 #include "odver.h"
 #include <math.h>
 
-const char* uiPluginSel::sKeyDoAtStartup()	{ return "dTect.Select Plugins"; }
+const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 
 
 uiPluginSel::uiPluginSel( uiParent* p )

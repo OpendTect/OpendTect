@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.62 2009-06-18 02:03:35 cvskris Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.63 2009-06-19 16:15:32 cvskris Exp $";
 
 
 #include "plugins.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: plugins.cc,v 1.62 2009-06-18 02:03:35 cvskris E
 #include "envvars.h"
 #include "oddirs.h"
 #include "settings.h"
+#include "separstr.h"
 #include "errh.h"
 
 #ifndef __win__
@@ -132,7 +133,6 @@ PluginManager::PluginManager()
     , argv_(const_cast<char**>(errargv))
 {
     getDefDirs();
-    Settings::common().get( sKeyDontLoad(), dontloadlist_.rep() );
 }
 
 
@@ -318,8 +318,16 @@ static int getPluginType( SharedLibAccess* sla, const char* libnm )
 }
 
 
+void PluginManager::getNotLoadedByUser( FileMultiString& dontloadlist ) const
+{
+    Settings::common().get( sKeyDontLoad(), dontloadlist.rep() );
+}
+
+
 void PluginManager::openALOEntries()
 {
+    FileMultiString dontloadlist;
+    getNotLoadedByUser( dontloadlist );
     for ( int idx=0; idx<data_.size(); idx++ )
     {
 	Data& data = *data_[idx];
@@ -342,7 +350,7 @@ void PluginManager::openALOEntries()
 	data.info_ = getPluginInfo( data.sla_, data.name_ );
 
 	const char* username = userName( data.name_ );
-	if ( dontloadlist_.indexOf( username )!=-1 )
+	if ( dontloadlist.indexOf( username )!=-1 )
 	    data.autosource_=Data::None;
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginman.cc,v 1.24 2009-06-19 11:16:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uipluginman.cc,v 1.25 2009-06-19 16:15:32 cvskris Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uipluginman.cc,v 1.24 2009-06-19 11:16:08 cvsbe
 #include "oddirs.h"
 #include "envvars.h"
 #include "filegen.h"
+#include "separstr.h"
 #include "filepath.h"
 #include "strmprov.h"
 #include "settings.h"
@@ -58,11 +59,12 @@ void uiPluginMan::fillList()
     listfld->empty();
     const ObjectSet<PluginManager::Data>& lst = PIM().getData();
     BufferStringSet loaded, notloaded;
+    FileMultiString dontloadlist;
+    PIM().getNotLoadedByUser( dontloadlist );
     for ( int idx=0; idx<lst.size(); idx++ )
     {
 	const PluginManager::Data& data = *lst[idx];
-	if ( !data.info_
-	  || PIM().notLoadedByUser().indexOf(data.info_->dispname) >= 0 )
+	if ( !data.info_ || dontloadlist.indexOf(data.info_->dispname) >= 0 )
 	    notloaded.add( data.name_ );
 	else
 	    loaded.add( data.info_->dispname );
