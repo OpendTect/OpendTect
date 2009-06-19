@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.12 2009-06-19 17:00:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.13 2009-06-19 17:23:32 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -220,7 +220,7 @@ WellTieParams::uiParams::uiParams( const Well::Data* d)
     	: wd_(*d)
 	, iscsavailable_(d->checkShotModel())
 	, iscscorr_(d->checkShotModel())
-	, iscsdisp_(d->checkShotModel())
+	, iscsdisp_(false)
 	, ismarkerdisp_(!d->markers().isEmpty())
 	, iszinft_(false)					
 {}
