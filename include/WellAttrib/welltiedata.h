@@ -68,6 +68,7 @@ public:
     const Array1DImpl<float>* get(const char* colname) const
 				    { return data_[getColIdx(colname)]; }
 
+    const bool          isEmpty() const		{ return data_.isEmpty(); }
     const int           getLength() const           { return datasz_; }
     void                setLength( int datasz )     { datasz_ = datasz; }
     void                setColNr( int colnr)        { colnr_ = colnr; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.7 2009-06-18 07:41:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.8 2009-06-19 08:30:13 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -67,15 +67,13 @@ void uiWellTieEventStretch::checkReadyForWork()
 
 void uiWellTieEventStretch::doWork(CallBacker*)
 {
-    if ( synthpickset_.getSize() == 1 )
-    {
-	float seistime = time( seispickset_.getLastDah() );
-	float synthtime = time( synthpickset_.getLastDah() );
-	d2tmgr_->shiftModel( seistime - synthtime );
-	seispickset_.setDah( 0, dah(seistime) );
-	synthpickset_.setDah( 0, dah(seistime) );
-    }
-    else
+    float seistime = time( seispickset_.getLastDah() );
+    float synthtime = time( synthpickset_.getLastDah() );
+    d2tmgr_->shiftModel( seistime - synthtime );
+    seispickset_.setDah( 0, dah(seistime) );
+    synthpickset_.setDah( 0, dah(seistime) );
+    
+    if ( synthpickset_.getSize() > 1 )
     {
 	//pmgr_.sortByDah( seispickset_ );
 	//pmgr_.sortByDah( synthpickset_ );
@@ -86,13 +84,13 @@ void uiWellTieEventStretch::doWork(CallBacker*)
 
 void uiWellTieEventStretch::doStretchWork()
 {
-    for (int idx=0; idx<seispickset_.getSize(); idx++)
+    for ( int idx=0; idx<seispickset_.getSize(); idx++ )
     {
-	//position of the folloring picks needs update if one of the pick moved
+	//position of the following picks needs update if one of the pick moved
 	if ( idx )
 	{
 	    infborderpos_ = time( seispickset_.getDah(idx-1) );
-	    for (int pickidx=idx; pickidx<synthpickset_.getSize(); pickidx++)
+	    for ( int pickidx=idx; pickidx<synthpickset_.getSize(); pickidx++ )
 	    {
 		float pos = time( synthpickset_.getDah(pickidx) );
 		updateTime( pos );

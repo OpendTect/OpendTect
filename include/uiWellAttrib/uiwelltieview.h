@@ -16,22 +16,17 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "flatview.h"
 #include "welltieunitfactors.h"
+#include "welltiedata.h"
 
 template <class T> class Array1DImpl;
 class WellTieSetup; 
-class WellTieDataHolder; 
-class WellTieDataSet; 
-class WellTieData; 
-class WellTieDataSetMGR; 
 class WellTiePickSet; 
 class SeisTrcBuf;
 class SeisTrc;
-class UserPick;
-class UserPickSet;
-namespace Attrib { class DescSet; }
 
 class uiFlatViewer;
 class uiFunctionDisplay;
+class uiPolyLineItem;
 class uiWellLogDisplay;
 class uiLabel;
 namespace Well
@@ -47,24 +42,15 @@ public:
 					      ObjectSet<uiWellLogDisplay>*);
 				~uiWellTieView();
 
-    void        		drawAILog();
-    void        		drawVelLog();
-    void        		drawDenLog();
-    void        		drawRefLog();
-    void        		drawTraces();
-    void        		drawMarker(FlatView::Annotation::AuxData*,
-					    int,float,float,Color,bool);
-    void        		drawUserPicks();
-    void        		drawWellMarkers();
-    void        		drawCShot();
     void        		fullRedraw();
+    void        		drawUserPicks();
+    bool        		isEmpty() { return data_.isEmpty(); }
 
 
 protected:
 
     uiFlatViewer*		vwr_;
 
-    ObjectSet<Well::Marker> 	markerset_;
     ObjectSet<uiWellLogDisplay>& logsdisp_;
     WellTieDataSetMGR&		datamgr_; 		
     WellTieDataSet&  		data_;
@@ -82,16 +68,26 @@ protected:
 
     ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
+    ObjectSet<uiPolyLineItem> pli_;
 
+    void        		drawAILog();
+    void        		drawVelLog();
+    void        		drawDenLog();
+    void        		drawRefLog();
+    void        		drawTraces();
+    void        		drawMarker(FlatView::Annotation::AuxData*,
+					    int,float,float,Color,bool);
+    void        		drawWellMarkers();
+    void        		drawCShot();
     void        		initFlatViewer();
     void        		initLogViewers();
-    void 			createVarDataPack(const char*,int);
-    void 			setLogRanges(float,float);
+    void 			removePacks(uiFlatViewer&);
+    void 			setLogsRanges(float,float);
+    void 			getLogsParams();
     void 			setUpTrcBuf(SeisTrcBuf*,const char*,int);
     void			setUpUdfTrc(SeisTrc&,const char*,int);
     void			setUpValTrc(SeisTrc&,const char*,int);
     void        		setDataPack(SeisTrcBuf*,const char*,int);
-    void 			removePacks(uiFlatViewer&);
     void			zoomChg(CallBacker*);
 };
 

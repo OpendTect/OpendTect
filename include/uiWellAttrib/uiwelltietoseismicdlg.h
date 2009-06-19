@@ -19,11 +19,8 @@ ________________________________________________________________________
 #include "welltieunitfactors.h"
 #include "bufstringset.h"
 
-class WellTieDataMGR;
-class WellTieD2TModelMGR;
 class WellTieDataHolder;
 class WellTieToSeismic;
-class WellTiePickSetMGR;
 
 class uiGroup;
 class uiToolBar;

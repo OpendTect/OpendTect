@@ -18,8 +18,6 @@ class WellTieDisplayProperties;
 
 class uiFlatViewer;
 class uiToolBar;
-class uiToolButton;
-class uiWellTieViewPropDlg;
 
 mClass uiWellTieControlView : public uiFlatViewStdControl
 {
@@ -36,10 +34,6 @@ protected:
     bool                manip_;
     
     uiToolBar*		toolbar_;
-    uiToolButton*       zoominbut_;
-    uiToolButton*       zoomoutbut_;
-    uiToolButton*       manipdrawbut_;
-    uiToolButton*       disppropbut_;
     
     WellTiePickSetMGR*  picksetmgr_;
    

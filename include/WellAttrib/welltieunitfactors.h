@@ -64,18 +64,12 @@ public :
 
     mStruct uiParams
     {
-			    uiParams(const Well::Data* d)
-				: wd_(*d)
-				, iscsavailable_(wd_.checkShotModel())
-				, iscscorr_(wd_.checkShotModel())
-				, iscsdisp_(wd_.checkShotModel())
-				, ismarker_(wd_.markers().size())
-	    			{}
+			    uiParams(const Well::Data*);
 
 	bool                    iscsavailable_;
 	bool                    iscscorr_;
 	bool 			iscsdisp_;
-	bool                    ismarker_;
+	bool                    ismarkerdisp_;
 	bool                    iszinft_;
 	const Well::Data&	wd_;
 	
