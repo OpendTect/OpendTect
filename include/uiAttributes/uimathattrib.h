@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.12 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uimathattrib.h,v 1.13 2009-06-19 13:02:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,13 +41,15 @@ protected:
     uiGenInput*		recstartfld_;
     uiGenInput*		recstartposfld_;
 
-    int			nrvariables_;
-    int			nrxvars_;
-    int			nrcstvars_;
+    int			nrvars_;
+    int			nrcsts_;
+    int			nrspecs_;
+    BufferStringSet	varnms;
+    BufferStringSet	cstnms;
     
     void 		parsePush(CallBacker*);
     void		updateDisplay(bool);
-    void		checkVarSpelAndShift(MathExpression*,bool&,bool&);
+    void		getVarsNrAndNms(MathExpression*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.32 2009-06-18 14:55:01 cvsbert Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.33 2009-06-19 13:02:30 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -48,48 +48,6 @@ void Math::initClass()
 }
 
 
-void Math::getInputTable( const MathExpression* me, TypeSet<int>& inptab, 
-			  bool iscst, bool prefixonly )
-{
-    const int nrvar = me->nrVariables();
-    TypeSet<int> tmpset;
-    for ( int idx=0; idx<nrvar; idx++ )
-    {
-	char name[8];
-	tmpset += idx;
-	snprintf( name, 8, "c%d", idx );
-	for ( int idy=0; idy<nrvar; idy++ )
-	{
-	    if ( !strcmp(name,me->fullVariableExpression(idy)) )
-	    {
-		inptab += idy;
-		break;
-	    }
-	}
-    }
-    if ( !iscst )
-    {
-	tmpset.createDifference( inptab, true );
-	if ( prefixonly )
-	{
-	    inptab.erase();
-	    for ( int idx=0; idx<tmpset.size(); idx++ )
-	    {
-		char prefname[8];
-		snprintf( prefname, 8, "x%d", idx );
-		int prefidx = 0; //TODO was: me->getPrefixIdx(prefname,false);
-		if ( prefidx > -1 )
-		    inptab += prefidx;
-		else
-		    break;
-	    }
-	}
-	else
-	    inptab = tmpset;
-    }
-}
-
-
 void Math::updateDesc( Desc& desc )
 {
     ValParam* expr = desc.getValParam( expressionStr() );
@@ -98,23 +56,36 @@ void Math::updateDesc( Desc& desc )
     MathExpressionParser mep( expr->getStringValue() );
     PtrMan<MathExpression> formula = mep.parse();
     if ( !formula ) return;
-    //TODO use mep.errMsg() ...?
 
-    TypeSet<int> xdiffvarstab;
-    getInputTable( formula, xdiffvarstab, false, true );
-    int nrdiffxvars = xdiffvarstab.size();
-    if ( desc.nrInputs() != nrdiffxvars )
+    int nrconsts = 0;
+    int nrvariables = 0;
+    BufferStringSet varnms;
+    for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
+    {
+	MathExpression::VarType vtyp =
+	    MathExpressionParser::varTypeOf( formula->uniqueVarName(idx) );
+	switch ( vtyp )
+	{
+	    case MathExpression::Variable :
+		nrvariables++;
+		varnms.add( formula->uniqueVarName(idx) );
+		break;
+	    case MathExpression::Constant :
+		nrconsts++;
+		break;
+	}
+    }
+
+    if ( desc.nrInputs() != nrvariables )
     {
 	while ( desc.nrInputs() )
 	    desc.removeInput(0);
 
-	for ( int idx=0; idx<nrdiffxvars; idx++ )
-	    desc.addInput( InputSpec(
-			formula->uniqueVarName( xdiffvarstab[idx] ), true ) );
+	for ( int idx=0; idx<nrvariables; idx++ )
+	    desc.addInput( InputSpec( varnms.get( idx ), true ) );
     }
 
-    int totnrdiffvars = formula->nrUniqueVarNames();
-    desc.setParamEnabled( cstStr(), totnrdiffvars - nrdiffxvars );
+    desc.setParamEnabled( cstStr(), nrconsts );
 
     bool isrec = formula->isRecursive();
     desc.setParamEnabled( recstartStr(), isrec );
@@ -137,7 +108,8 @@ Math::Math( Desc& dsc )
 
     MathExpressionParser mep( expr->getStringValue() );
     expression_ = mep.parse();
-    //TODO handle parse errors? expression_ is used later!!
+    errmsg += mep.errMsg();
+    if ( !mep.errMsg().isEmpty() ) return;
 
     mDescGetParamGroup(FloatParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
@@ -146,8 +118,7 @@ Math::Math( Desc& dsc )
 	csts_ += param.getfValue();
     }
     
-    getInputTable( expression_, cstsinputtable_, true );
-    fillInVarsSet();
+    setUpVarsSets();
     if ( expression_->isRecursive() )
     {
 	mGetFloat( recstartval_, recstartStr() );
@@ -171,6 +142,7 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Math::getInputData( const BinID& relpos, int zintv )
 {
+    //TODO will not work with specials
     int nrinputs = expression_->nrUniqueVarNames() - csts_.size();
     while ( inputdata_.size() < nrinputs )
     {
@@ -194,12 +166,13 @@ bool Math::getInputData( const BinID& relpos, int zintv )
 bool Math::computeData( const DataHolder& output, const BinID& relpos, 
 			int z0, int nrsamples, int threadid ) const
 {
+    //TODO adapt for specials
     PtrMan<MathExpression> mathobj = expression_ ? expression_->clone() : 0;
     if ( !mathobj ) return false;
 
     const bool isrec = expression_->isRecursive();
     const int nrxvars = varstable_.size();
-    const int nrcstvars = cstsinputtable_.size();
+    const int nrcstvars = cststable_.size();
     const int nrvar = mathobj->nrVariables();
     if ( (nrxvars + nrcstvars) != nrvar ) 
 	return false;
@@ -259,7 +232,8 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    mathobj->setVariableValue( variableidx, val );
 	}
 	for ( int cstidx=0; cstidx<nrcstvars; cstidx++ )
-	    mathobj->setVariableValue( cstsinputtable_[cstidx], csts_[cstidx] );
+	    mathobj->setVariableValue( cststable_[cstidx].fexpvaridx_,
+		    		       csts_[cstidx] );
 
 	const float result = mathobj->getValue();
 	
@@ -277,35 +251,46 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-bool Math::getInputAndShift( int varidx, int& inpidx, int& shift) const
+void Math::setUpVarsSets()
 {
-    /*
-    BufferString prefix;
-    expression_->getPrefixAndShift( expression_->getVariableStr(varidx),
-	   			    prefix, shift );
-    inpidx = expression_->getPrefixIdx( prefix, true );
-    bool isrec = !strcmp(prefix,"THIS");
-    if ( inpidx>=0 )
-	inpidx = atoi( prefix.buf() +1 );
-    bool inpok = inpidx>=0 || isrec;
-    bool shiftok = !mIsUdf(shift) && ( !isrec || shift<=0 );
-    return inpok && shiftok;
-    */
-    return false; //TODO
-}
-
-
-void Math::fillInVarsSet()
-{
-    TypeSet<int> varstable;
-    int inpidx, shift;
-    getInputTable( expression_, varstable, false );
-    for ( int idx=0; idx<varstable.size(); idx++ )
+    for ( int idx=0; idx<expression_->nrVariables(); idx++ )
     {
-	const int variableidx = varstable[idx];
-	bool canusevar = getInputAndShift( variableidx, inpidx, shift );
-	if ( canusevar )
-	    varstable_ += VAR( variableidx, inpidx, shift );
+	int nrcsts = 0;
+	int nrspecs = 0;
+	BufferString fvarexp = expression_->fullVariableExpression( idx );
+	MathExpression::VarType vtyp = MathExpressionParser::varTypeOf(fvarexp);
+	switch ( vtyp )
+	{
+	    case MathExpression::Variable :
+	    {
+		int shift=0;
+		const BufferString varnm =
+			    MathExpressionParser::varNameOf( fvarexp, &shift );
+		int inputidx = expression_->indexOfUnVarName( varnm.buf() )
+		    		- nrcsts - nrspecs;
+		varstable_ += VAR( idx, inputidx, shift );
+		break;
+	    }
+	    case MathExpression::Constant :
+	    {
+		int insertatidx=0;
+		int constidx = expression_->getConstIdx( idx );
+		while ( insertatidx<cststable_.size()
+			&& constidx>cststable_[insertatidx].cstidx_ )
+		    insertatidx++;
+		cststable_.insert( insertatidx, CSTS( idx, constidx ) );
+		break;
+	    }
+	    case MathExpression::Recursive :
+	    {
+		int shift=0;
+		const BufferString varnm =
+			    MathExpressionParser::varNameOf( fvarexp, &shift );
+		varstable_ += VAR( idx, -1, shift );
+	    }
+	    default :	break;
+		//TODO specials
+	}
     }
 }
 

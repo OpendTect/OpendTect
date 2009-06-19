@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.29 2009-06-18 14:55:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.30 2009-06-19 13:02:30 cvshelene Exp $";
 
 
 #include "uimathattrib.h"
@@ -22,8 +22,6 @@ static const char* rcsID = "$Id: uimathattrib.cc,v 1.29 2009-06-18 14:55:01 cvsb
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uitable.h"
-    //TODO remove
-#include "uilabel.h"
 
 #include <math.h>
 
@@ -33,24 +31,19 @@ mInitAttribUI(uiMathAttrib,Attrib::Math,"Mathematics",sKeyBasicGrp())
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.9")
-	, nrvariables_(0)
-	, nrxvars_(0)
-	, nrcstvars_(0)
+	, nrvars_(0)
+	, nrcsts_(0)
+	, nrspecs_(0)
 
 {
-    //TODO remove
-    uiLabel* todolbl = new uiLabel( this, "TODO: Helene must adapt to new MathExpressionParser" );
     inpfld_ = new uiGenInput( this, "Formula (e.g. nearstk + c0 * farstk)",
 	    		     StringInpSpec().setName("Formula") );
-    //TODO remove
-    inpfld_->attach( centeredBelow, todolbl );
 
     parsebut_ = new uiPushButton( this, "Set", true );
     parsebut_->activated.notify( mCB(this,uiMathAttrib,parsePush) );
     parsebut_->attach( rightTo, inpfld_ );
 
-    xtable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
-					.minrowhgt(1.5)
+    xtable_ = new uiTable( this,uiTable::Setup().minrowhgt(1.5)
 					.maxrowhgt(2)
 					.mincolwdt(3*uiObject::baseFldSize())
 					.maxcolwdt(3.5*uiObject::baseFldSize())
@@ -58,7 +51,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 					.fillcol(true)
 					.fillrow(true)
 					.defrowstartidx(0),
-				"Variable X attribute table" );
+				"Variable attribute table" );
     const char* xcollbls[] = { "Select input for", 0 };
     xtable_->setColumnLabels( xcollbls );
     xtable_->setNrRows( 3 );
@@ -67,8 +60,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     xtable_->setColumnResizeMode( uiTable::Fixed );
     xtable_->attach( alignedBelow, inpfld_ );
 
-    ctable_ = new uiTable( this,uiTable::Setup().rowdesc("C")
-					.minrowhgt(1)
+    ctable_ = new uiTable( this,uiTable::Setup().minrowhgt(1)
 					.maxrowhgt(1.2)
 					.mincolwdt(uiObject::baseFldSize())
 					.maxcolwdt(1.5*uiObject::baseFldSize())
@@ -112,101 +104,74 @@ void uiMathAttrib::parsePush( CallBacker* )
     MathExpressionParser mep( usrinp );
     MathExpression* expr = mep.parse();
     if ( !expr )
-	mErrRet( BufferString("Invalid formula:\n",mep.errMsg()), )
-
-    nrvariables_ = expr ? expr->nrUniqueVarNames() : 0;
-    bool foundvar = false;
-    bool correctshifts = true;
-    checkVarSpelAndShift( expr, foundvar, correctshifts );
-
-    const bool varspellingok = ( foundvar || !nrvariables_ )
-				&& ( nrxvars_+nrcstvars_==nrvariables_ );
-    if ( !varspellingok || !correctshifts )
     {
-	BufferString errmsg = "Formula should have x0, x1, x2 ...";
-	errmsg += "or c0, c1, c2 ...\n";
-	errmsg += "Please take care of the numbering: ";
-       	errmsg += "first x0, then x1...\n";
+	BufferString errmsg = "Invalid formula:\n";
+	errmsg += mep.errMsg();
+	errmsg += "\nFormula should have variable names";
+	errmsg += "or constants c0, c1, c2 ...\n";
 	errmsg += "Please read documentation for detailed examples\n ";
 	errmsg += "over recursive formulas, shift....";
 	uiMSG().error( errmsg.buf() );
-	nrvariables_ = 0;
 	return;
     }
 
+    getVarsNrAndNms( expr );
     updateDisplay( expr && expr->isRecursive() );
+}
+
+
+void uiMathAttrib::getVarsNrAndNms( MathExpression* expr )
+{
+    //TODO check what extra for specs
+    nrvars_ = 0;
+    nrcsts_ = 0;
+    nrspecs_ = 0;
+    varnms.erase();
+    cstnms.erase();
+    for ( int idx=0; idx<expr->nrUniqueVarNames(); idx++ )
+    {
+	MathExpression::VarType vtyp =
+		MathExpressionParser::varTypeOf( expr->uniqueVarName(idx) );
+	switch ( vtyp )
+	{
+	    case MathExpression::Variable :
+	    nrvars_++;
+	    varnms.add( expr->uniqueVarName(idx) );
+	    break;
+	    case MathExpression::Constant :
+	    nrcsts_++;
+	    cstnms.add( expr->uniqueVarName(idx) );
+	    break;
+	}
+    }
 }
 
 
 void uiMathAttrib::updateDisplay( bool userecfld )
 {
-    if ( attribflds_.size() != nrxvars_ )
+    if ( attribflds_.size() != nrvars_ )
     {
 	attribflds_.erase();
 
-	xtable_->setNrRows( nrxvars_ );
+	xtable_->setNrRows( nrvars_ );
 	const uiAttrSelData asd( is2d_, false );
-	for ( int idx=0; idx<nrxvars_; idx++ )
+	for ( int idx=0; idx<nrvars_; idx++ )
 	{
 	    uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
 	    attrbox->setDescSet( ads_ );
 	    attribflds_ += attrbox;
 	    xtable_->setCellGroup( RowCol(idx,0), attrbox );
+	    xtable_->setRowLabel( idx, varnms.get(idx) );
 	}
     }
-    xtable_->display( nrxvars_ );
+    xtable_->display( nrvars_ );
     
-    ctable_->setNrRows( nrcstvars_ );
-    ctable_->display( nrcstvars_ );
+    ctable_->setNrRows( nrcsts_ );
+    ctable_->setRowLabels( cstnms );
+    ctable_->display( nrcsts_ );
     
     recstartfld_->display( userecfld );
     recstartposfld_->display( userecfld );
-}
-
-
-void uiMathAttrib::checkVarSpelAndShift( MathExpression* expr,
-					 bool& foundvar, bool& correctshifts )
-{
-    nrxvars_= nrcstvars_ = 0;
-    if ( !expr ) return;
-
-    for ( int idx=0; idx<nrvariables_; idx++ )
-    {
-	BufferString xstr = "x"; xstr += idx;
-	for ( int idy=0; idy<nrvariables_; idy++ )
-	{
-	    /* TODO change
-	    if ( !strcmp( expr->getVarPrefixStr(idy), xstr.buf() ) )
-	    {
-		nrxvars_++;
-		foundvar = true;
-	    }
-	    */
-	} 
-    }
-    for ( int idx=0; idx<nrvariables_-nrxvars_; idx++ )
-    {
-	BufferString varstr = "c"; varstr += idx;
-	for ( int idy=0; idy<nrvariables_; idy++ )
-	{
-	    /* TODO change
-	    if ( !strcmp( expr->getVarPrefixStr(idy), varstr.buf() ) )
-	    {
-		nrcstvars_++;
-		foundvar = true;
-	    }
-	    */
-	}
-    }
-
-    for ( int idx=0; idx<expr->nrVariables(); idx++ )
-    {
-	int shift = mUdf(int);
-	BufferString testprefix = MathExpressionParser::varNameOf(
-				  expr->fullVariableExpression(idx), &shift );
-	if ( strncmp( testprefix, "c", 1 ) && mIsUdf(shift) )
-	    correctshifts = false;
-    }
 }
 
 
@@ -228,7 +193,8 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 		ctable_->insertRows( idx, 1 );
 	    
 	    const ValParam& param = (ValParam&)(*cstset)[idx];
-	    ctable_->setValue( idx, param.getfValue(0) );
+	    ctable_->setValue( RowCol(idx,0), param.getfValue(0) );
+	    ctable_->setRowLabel( idx, cstnms.get(idx) );
 	}
     }
     
@@ -273,16 +239,20 @@ bool uiMathAttrib::getParameters( Desc& desc )
     if ( !expr )
 	mErrRet( BufferString("Incorrect formula:\n",mep.errMsg()), false )
 
-    TypeSet<int> cstinptable, xinptable;
-    Attrib::Math::getInputTable( expr, cstinptable, true );
-    Attrib::Math::getInputTable( expr, xinptable, false );
-    int nrcsts = cstinptable.size();
-    int nrxvars = expr->nrUniqueVarNames();
+    int nrconsts = 0;
+    for ( int idx=0; idx<expr->nrUniqueVarNames(); idx++ )
+    {
+	MathExpression::VarType vtyp =
+		    MathExpressionParser::varTypeOf( expr->uniqueVarName(idx) );
+	if ( vtyp == MathExpression::Constant )
+	    nrconsts++;
+    }
+
     mDescGetParamGroup(FloatParam,cstset,desc,Attrib::Math::cstStr())
-    cstset->setSize( nrcsts );
-    if ( ctable_->nrRows() < nrcsts ) return false;
+    cstset->setSize( nrconsts );
+    if ( ctable_->nrRows() < nrconsts ) return false;
     
-    for ( int idx=0; idx<nrcsts; idx++ )
+    for ( int idx=0; idx<nrconsts; idx++ )
     {
 	FloatParam& fparam = (FloatParam&)(*cstset)[idx];
 	fparam.setValue( ctable_->getfValue( RowCol(idx,0) ) );
@@ -297,7 +267,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
 
 bool uiMathAttrib::getInput( Desc& desc )
 {
-    for ( int idx=0; idx<nrxvars_; idx++ )
+    for ( int idx=0; idx<nrvars_; idx++ )
     {
 	attribflds_[idx]->processInput();
 	fillInp( attribflds_[idx], desc, idx );

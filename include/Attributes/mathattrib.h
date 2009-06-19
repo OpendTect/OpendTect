@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.16 2009-01-06 10:29:52 cvsranojay Exp $
+ RCS:           $Id: mathattrib.h,v 1.17 2009-06-19 13:02:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,10 +38,6 @@ public:
     static const char*		recstartStr()		{ return "recstart"; }
     static const char*		recstartposStr()	{ return "recstartpos";}
 
-    static void 		getInputTable(const MathExpression*,
-					      TypeSet<int>&,bool iscst,
-					      bool prefixonly = false);
-
 protected:
     				~Math()	{}
     static Provider*		createInstance(Desc&);
@@ -54,9 +50,7 @@ protected:
 					    int threadid) const;
 
     bool			allowParallelComputation() const;
-    bool			getInputAndShift(int varidx,int& inpidx,
-	    					 int& shift) const;
-    void			fillInVarsSet();
+    void			setUpVarsSets();
 
     const Interval<float>*	desZMargin(int input,int) const;
     const Interval<int>*        reqZSampMargin(int input,int) const;
@@ -65,7 +59,6 @@ private:
     ObjectSet<const DataHolder>	inputdata_;
     TypeSet<int>		inputidxs_;
 
-    TypeSet<int>		cstsinputtable_;
     TypeSet<float>		csts_;
     MathExpression*		expression_;
     float			recstartval_;
@@ -93,8 +86,24 @@ private:
 	Interval<int>		sampgate_;	//sample gate (for convenience)
     };
 
+    struct CSTS
+    {
+				CSTS( int fexpvaridx, int cstidx )
+					: fexpvaridx_( fexpvaridx )
+					, cstidx_( cstidx )
+				{}
+				
+	bool			operator ==(CSTS csts) const
+				{ return csts.fexpvaridx_ == fexpvaridx_
+				    	 && csts.cstidx_ == cstidx_; }
+
+	int			fexpvaridx_;	//index of var in expression_ 
+	int			cstidx_;	//corresponding ConstantN param
+    };
+
     //all variables including recursive THIS and shifted x0[-1]
     TypeSet<VAR>		varstable_;
+    TypeSet<CSTS>		cststable_;
     
 };
 
