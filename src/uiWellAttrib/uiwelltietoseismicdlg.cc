@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.19 2009-06-19 08:30:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.20 2009-06-19 12:23:50 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -62,19 +62,20 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	, dataplayer_(0)
 	, datadrawer_(0)
     	, controlview_(0)
+    	, infodlg_(0)
 	, params_(0)       		 
 	, manip_(0)				 
 {
     setTitle( ads );
-   
+    viewer().setHandDrag( false );
     uiTaskRunner* tr = new uiTaskRunner( p );
     toolbar_ = new uiToolBar( this, "Well Tie Control" );
    
-   for ( int idx=0; idx<2; idx++ )
-   { 
+    for ( int idx=0; idx<2; idx++ )
+    { 
 	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3).border(5);
 	logsdisp_ += new uiWellLogDisplay( this, wldsu );
-   }
+    }
 
     params_ 	    = new WellTieParams( setup_, wd_, ads );
     dataholder_     = new WellTieDataHolder( params_, wd_, setup_ );
@@ -238,7 +239,7 @@ void uiWellTieToSeismicDlg::createDispPropFields( uiGroup* dispgrp )
 {
     cscorrfld_ = new uiCheckBox( dispgrp, "use checkshot corrections" );
     cscorrfld_->display( params_->uipms_.iscscorr_ );
-    //cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,doWork));
+    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,doWork));
 
     csdispfld_ = new uiCheckBox( dispgrp, "display checkshot related curve" );
     csdispfld_->display(params_->uipms_.iscscorr_);
@@ -340,7 +341,7 @@ bool uiWellTieToSeismicDlg::saveD2TPushed( CallBacker* )
 
 void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
 {
-    params_->resetDataParams();
+    params_->resetParams();
     eventstretcher_->doWork(0);
     doWork( cb );
     //dataholder_->pickmgr_->clearAllPicks();
@@ -394,7 +395,7 @@ bool uiWellTieToSeismicDlg::acceptOK( CallBacker* )
     {
        if ( !dataplayer_->commitD2TModel() )
 	    mErrRet("Cannot write new depth/time model")
-	return true;
+	close();
     }
     return false;
 }
@@ -506,5 +507,5 @@ void uiWellTieInfoDlg::setXCorrel()
 
 void uiWellTieInfoDlg::setWvlts()
 {
-    //wvltdraw_->initWavelets();
+    wvltdraw_->initWavelets();
 }

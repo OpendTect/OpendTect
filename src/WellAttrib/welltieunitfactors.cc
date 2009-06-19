@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.10 2009-06-19 08:30:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.11 2009-06-19 12:23:50 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -69,7 +69,7 @@ double WellTieUnitFactors::calcVelFactor( const char* velunit, bool issonic )
 double WellTieUnitFactors::calcSonicVelFactor( const char* velunit )
 {
     const UnitOfMeasure* um = UoMR().get( velunit );
-    return um ? um->userValue(1.0) : 0.001*mFromFeetFactor;
+    return um ? um->userValue( 1.0 ) : 0.001*mFromFeetFactor;
 }
 
 
@@ -96,9 +96,9 @@ WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
 		, ads_(ads)	  
 		, factors_(WellTieUnitFactors(&wts))
 {
-    dpms_.currvellognm_ = wts.vellognm_;
     dpms_.corrstartdah_ = wd_.track().dah(0);
     dpms_.corrstopdah_  = wd_.track().dah(wd_.track().size()-1);
+    dpms_.currvellognm_ = wts.vellognm_;
 
     if ( wd_.checkShotModel() )
     {
@@ -107,8 +107,8 @@ WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
     }
 
     dpms_.attrnm_ = getAttrName(ads);
-    dpms_.resetDataParams();
     dpms_.createColNames();
+    resetParams();
 }
 
 
@@ -124,6 +124,15 @@ BufferString WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
     const char* defkey = bss.get(0).buf();
     BufferString attrnm = ad->userRef();
     return SeisIOObjInfo::defKey2DispName(defkey,attrnm);
+}
+
+bool WellTieParams::resetParams()
+{
+    if ( !dpms_.resetDataParams() )
+	return false;
+    dpms_.currvellognm_ = uipms_.iscscorr_? dpms_.corrvellognm_ 
+					  : dpms_.vellognm_;
+    return true;
 }
 
 
@@ -144,7 +153,7 @@ bool WellTieParams::DataParams::resetDataParams()
 	    		 	/(mStep*timeintv_.step) );
 
     if ( corrsize_>dispsize_ ) corrsize_ = dispsize_;
-
+    
     return true;
 }
 

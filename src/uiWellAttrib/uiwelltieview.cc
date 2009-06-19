@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.20 2009-06-19 10:40:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.21 2009-06-19 12:23:50 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -62,7 +62,8 @@ uiWellTieView::uiWellTieView( uiParent* p, uiFlatViewer* vwr,
 	, datamgr_(*dhr->datamgr())
 	, synthpickset_(dhr->pickmgr()->getSynthPickSet())
 	, seispickset_(dhr->pickmgr()->getSeisPickSet())
-	, trcbuf_(0) 		
+	, trcbuf_(0)
+	, checkshotitm_(0)
 {
     initFlatViewer();
     initLogViewers();
@@ -77,7 +78,7 @@ uiWellTieView::~uiWellTieView()
 
 void uiWellTieView::fullRedraw()
 {
-    getLogsParams();
+    setLogsParams();
     drawVelLog();
     drawDenLog();
     drawAILog();
@@ -131,17 +132,19 @@ void uiWellTieView::initFlatViewer()
 }
 
 
-void uiWellTieView::getLogsParams()
+void uiWellTieView::setLogsParams()
 {
     for ( int idx =0; idx<logsdisp_.size(); idx++ )
 	logsdisp_[idx]->setZDispInFeet( dataholder_->uipms()->iszinft_ );
+    setLogsRanges( params_->dptintv_.start, params_->dptintv_.stop );
 }
 
 
 void uiWellTieView::drawVelLog()
 {
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[0]->logData( true );
-    wldld1.wl_ = wd_.logs().getLog( params_->vellognm_ );
+    wldld1.wl_ = wd_.logs().getLog( params_->currvellognm_ );
+    wldld1.xrev_ = !wtsetup_.issonic_;
     wldld1.linestyle_.color_ = Color::stdDrawColor(0);
 }
 
@@ -150,7 +153,6 @@ void uiWellTieView::drawDenLog()
 {
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[0]->logData( false );
     wldld2.wl_ = wd_.logs().getLog( params_->denlognm_ );
-    wldld2.xrev_ = true;
     wldld2.linestyle_.color_ = Color::stdDrawColor(1);
 }
 
@@ -226,7 +228,7 @@ void uiWellTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
 
 void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname, 
 				 int vwrnr )
-{    
+{   
     const int type = trcbuf->get(0)->info().getDefaultAxisFld( 
 			    Seis::Line, &trcbuf->get(1)->info() );
     SeisTrcBufDataPack* dp =
@@ -246,9 +248,10 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     FlatView::Appearance& app = vwr_->appearance();
     
     vwr_->setPack( true, dp->id(), false, true );
+    vwr_->handleChange( FlatView::Viewer::All );
     const UnitOfMeasure* uom = 0;
     const char* units =  ""; //uom ? uom->symbol() : "";
-    app.annot_.x1_.name_ =  units;
+    app.annot_.x1_.name_ =  varname;
     app.annot_.x2_.name_ = "TWT (s)";
 }
 
@@ -260,9 +263,9 @@ void uiWellTieView::setLogsRanges( float start, float stop )
 }
 
 
-void uiWellTieView::removePacks( uiFlatViewer& vwr )
+void uiWellTieView::removePack()
 {
-    const TypeSet<DataPack::ID> ids = vwr.availablePacks();
+    const TypeSet<DataPack::ID> ids = vwr_->availablePacks();
     for ( int idx=ids.size()-1; idx>=0; idx-- )
 	DPM( DataPackMgr::FlatID() ).release( ids[idx] );
 }
@@ -384,8 +387,8 @@ void uiWellTieView::drawUserPicks()
 
 
 void uiWellTieView::drawCShot()
-{/*
-    deepErase( pli_ );
+{
+    delete checkshotitm_;
     if ( !dataholder_->uipms()->iscsdisp_ ) 
 	return;
     const Well::D2TModel* cs = wd_.checkShotModel();
@@ -398,7 +401,7 @@ void uiWellTieView::drawCShot()
     TypeSet<float> csvals, cstolog, dpt;
     for ( int idx=0; idx<sz; idx++ )
     {
-	float val = cs->value( idx )/10e5;
+	float val = cs->value( idx );
 	float dah = cs->dah( idx );
 	csvals += val;
 	dpt    += dah;
@@ -415,8 +418,7 @@ void uiWellTieView::drawCShot()
 	    minval = val;
     }
 
-    ObjectSet< TypeSet<uiPoint> > pts;
-    TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
+    TypeSet<uiPoint> pts;
 
     uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData();
     if ( minval<ld.valrg_.start )   
@@ -431,28 +433,22 @@ void uiWellTieView::drawCShot()
     for ( int idx=0; idx<sz; idx++ )
     {
 	float val = cstolog[idx];
-	float dah = dpt[idx];
+	float dah = dpt[sz-idx];
 	if ( dah < zrg.start )
 	    continue;
 	else if ( dah > zrg.stop )
 	    break;
 	
 	if ( dataholder_->uipms()->iszinft_ ) dah *= mToFeetFactor;
-	*curpts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
+	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
     }
 
-    if ( curpts->isEmpty() )
-	delete curpts;
-    else
-	pts += curpts;
     if ( pts.isEmpty() ) return;
 
     uiGraphicsScene& scene = logsdisp_[0]->scene();
-    for ( int idx=0; idx<pts.size(); idx++ )
-    {
-	pli_ += scene.addItem( new uiPolyLineItem(*pts[idx]) );
-	pli_[idx]->setPenStyle( ld.linestyle_ );
-    }*/
+    checkshotitm_ = scene.addItem( new uiPolyLineItem(pts) );
+    LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
+    checkshotitm_->setPenStyle( ls );
 }
 
 

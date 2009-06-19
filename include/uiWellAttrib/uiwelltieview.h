@@ -68,7 +68,7 @@ protected:
 
     ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
-    ObjectSet<uiPolyLineItem> pli_;
+    uiPolyLineItem*		checkshotitm_;
 
     void        		drawAILog();
     void        		drawVelLog();
@@ -81,9 +81,9 @@ protected:
     void        		drawCShot();
     void        		initFlatViewer();
     void        		initLogViewers();
-    void 			removePacks(uiFlatViewer&);
+    void 			removePack();
     void 			setLogsRanges(float,float);
-    void 			getLogsParams();
+    void 			setLogsParams();
     void 			setUpTrcBuf(SeisTrcBuf*,const char*,int);
     void			setUpUdfTrc(SeisTrc&,const char*,int);
     void			setUpValTrc(SeisTrc&,const char*,int);

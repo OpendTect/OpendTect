@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.14 2009-06-19 08:30:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.15 2009-06-19 12:23:50 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -90,8 +90,8 @@ bool WellTieToSeismic::computeAll()
     //DispData rescaled between user-specified times
     datamgr_.rescaleData( dispdata_, corrdata_, params_.nrdatacols_, 
 	    params_.corrtimeintv_.start, params_.corrtimeintv_.stop );
-   // if ( !estimateWavelet() )	   return false;
-    //if ( !computeCrossCorrel() )   return false;
+    if ( !estimateWavelet() )	   return false;
+    if ( !computeCrossCorrel() )   return false;
     
     return true;	
 }

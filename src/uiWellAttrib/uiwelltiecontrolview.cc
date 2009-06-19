@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.9 2009-06-18 07:41:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.10 2009-06-19 12:23:50 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.9 2009-06-18 07:41:
 #include "welltiepickset.h"
 
 #include "uiflatviewer.h"
+#include "uibutton.h"
 #include "uimsg.h"
 #include "uiworld2ui.h"
 
@@ -25,6 +26,7 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.9 2009-06-18 07:41:
 uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
        					    uiFlatViewer* vwr)
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
+	    						//.withstates(false)
 	    						.withcoltabed(false))
     , toolbar_(toolbar)
 {
@@ -38,15 +40,14 @@ bool uiWellTieControlView::handleUserClick()
     vwr_.getWorld2Ui(w2u);
     const uiWorldPoint wp = w2u.transform( ev.pos() );
     vwr_.getAuxInfo( wp, infopars_ );
-    if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
-	!ev.altStatus() )
+    if ( ev.rightButton() )
     {
 	if ( !checkIfInside( wp.x, wp.y ) ) 
 	    return false;
 	Interval<float> xvwrsize; 
 	xvwrsize.set( (float)(vwr_.boundingBox().left()),
 		      (float)(vwr_.boundingBox().right()) );
-	picksetmgr_->addPick( xvwrsize.start,xvwrsize.stop, wp.x, wp.y );
+	picksetmgr_->addPick( xvwrsize.start, xvwrsize.stop, wp.x, wp.y );
 
 	return true;
     }

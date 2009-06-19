@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.12 2009-06-15 10:02:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.13 2009-06-19 12:23:50 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -88,9 +88,6 @@ void uiWellTieWaveletView::initWaveletViewer( int vwridx )
 void uiWellTieWaveletView::createWaveletFields( uiGroup* grp )
 {
     grp->setHSpacing(40);
-   // wvltfld_ = new uiIOObjSel( grp, wvltctio_ );
-   // wvltfld_->setInput( twtss_.wvltid_ );
-    //wvltfld_->selectiondone.notify( mCB(this, uiWellTieWaveletView, wvtSel));
     
     uiLabel* wvltlbl = new uiLabel( this, "Initial wavelet" );
     uiLabel* wvltestlbl = new uiLabel( this, "Estimated wavelet" );
@@ -156,19 +153,6 @@ void uiWellTieWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
     
     viewer_[vwridx]->setPack( true, dp->id(), false );
     viewer_[vwridx]->handleChange( FlatView::Viewer::All );
-}
-
-
-void uiWellTieWaveletView::wvtSel( CallBacker* )
-{
-    /*
-    if ( twtss_.wvltid_ == wvltfld_->getKey() ) return;
-    twtss_.wvltid_ =  wvltfld_->getKey();
-    IOObj* ioobj = IOM().get( twtss_.wvltid_ );
-    Wavelet* wvlt = Wavelet::get( ioobj );
-    viewer_[0]->removePack( viewer_[0]->pack(true)->id() ); 
-    drawWavelet( wvlt, 0 );*/
-    //wvltChanged.trigger();
 }
 
 
