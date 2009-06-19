@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.17 2009-06-17 08:46:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.18 2009-06-19 08:07:29 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -177,6 +177,7 @@ uiGraphicsItemGroup::~uiGraphicsItemGroup()
 {
     removeAll( owner_ );
     delete qgraphicsitemgrp_;
+    deepErase( items2bdel_ );
 }
 
 
@@ -196,6 +197,8 @@ void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
 
 void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
 {
+    if ( !itm ) return;
+
     items_ -= itm;
     QGraphicsItem* qitm = itm->qGraphicsItem();
     qgraphicsitemgrp_->removeFromGroup( qitm );
@@ -203,7 +206,9 @@ void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
     {
 	if ( qitm && qitm->scene() )
 	    qitm->scene()->removeItem( qitm );
-//	delete itm;
+//	delete itm; TODO: This delete leads to crash in Qt 4.4.3
+	itm->setVisible( false );
+	items2bdel_ += itm;
     }
 }
 
