@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.104 2009-05-27 03:24:58 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.105 2009-06-19 14:38:02 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -189,6 +189,7 @@ public:
     virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
     virtual const Attrib::SelSpec* getSelSpec(int attrib) const  { return 0; }
 
+
     virtual bool		canHaveMultipleTextures() const { return false;}
     virtual int			nrTextures(int attrib) const	{ return 0; }
     virtual void		selectTexture(int attrib,int texture) {}
@@ -276,16 +277,22 @@ public:
     static const char*		sKeyAttribs()	{ return "Attrib "; }
     static const char*          sKeyLocked()    { return "Locked"; }
 
+    void			setUserRefs( int attrib, BufferStringSet* nms )
+				{ userrefs_.replace( attrib, nms ); }
+
 protected:
     				SurveyObject() 
 				: scene_(0)
 				, locked_(false)	{};
 
-    static int			cValNameOffset() 	{ return 12; }
+				~SurveyObject()		{ deepErase(userrefs_);}
+
+    static int			cValNameOffset()	{ return 12; }
 
     BufferString		errmsg;
     Scene*			scene_;
     bool			locked_;
+    ObjectSet<BufferStringSet>	userrefs_;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.335 2009-06-17 13:00:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.336 2009-06-19 14:38:02 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1342,6 +1342,10 @@ bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
     as.setObjectRef( savedusrref );
     as.set2DFlag( attrserv_->is2DEvent() );
     visserv_->setSelSpec( visid, attrib, as );
+    BufferStringSet* refs = new BufferStringSet();
+    for ( int idx=0; idx<tmpset.size(); idx++ )
+	refs->add( tmpset[idx].userRef() );
+    visserv_->setUserRefs( visid, attrib, refs );
     return as.is2D() ? evaluate2DAttribute(visid,attrib)
 		     : evaluateAttribute(visid,attrib);
 }

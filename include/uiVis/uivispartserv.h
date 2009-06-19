@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.240 2009-06-17 10:24:23 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.241 2009-06-19 14:38:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,6 +123,7 @@ public:
     void		setAttribTransparency(int id,int attrib, unsigned char);
     const Attrib::SelSpec* getSelSpec(int id,int attrib) const;
     void		setSelSpec(int id,int attrib,const Attrib::SelSpec&);
+    void		setUserRefs(int id,int attrib,BufferStringSet*);
     bool		isClassification(int id,int attrib) const;
     			/*!<Specifies that the data is integers that should't
 			    be interpolated. */

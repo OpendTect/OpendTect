@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.42 2009-06-10 21:07:56 cvsyuancheng Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.43 2009-06-19 14:38:02 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -210,7 +210,6 @@ protected:
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
     TypeSet< TypeSet<float> >		shifts_;
-    ObjectSet<BufferStringSet>		userrefs_;
     bool				validtexture_;
 
     static const char*			sKeyTexture();

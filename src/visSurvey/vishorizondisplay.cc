@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.92 2009-06-15 13:59:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.93 2009-06-19 14:38:02 cvshelene Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -102,7 +102,6 @@ HorizonDisplay::~HorizonDisplay()
     setSceneEventCatcher( 0 );
     shifts_.erase();
     curshiftidx_.erase();
-    deepErase( userrefs_ );
 
     if ( translation_ )
     {

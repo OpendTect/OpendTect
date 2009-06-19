@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.36 2009-06-12 17:22:32 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.37 2009-06-19 14:38:02 cvshelene Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -179,6 +179,9 @@ bool MultiTextureSurveyObject::canRemoveAttrib() const
 
 bool MultiTextureSurveyObject::addAttrib()
 {
+    BufferStringSet* aatrnms = new BufferStringSet();
+    aatrnms->allowNull();
+    userrefs_ += aatrnms;
     as_ += new Attrib::SelSpec;
     addCache();
 
@@ -209,6 +212,7 @@ bool MultiTextureSurveyObject::removeAttrib( int attrib )
 
     delete as_[attrib];
     as_.remove( attrib );
+    userrefs_.remove( attrib );
 
     removeCache( attrib );
     if ( texture_ ) texture_->removeTexture( attrib );
@@ -227,6 +231,7 @@ bool MultiTextureSurveyObject::swapAttribs( int a0, int a1 )
     if ( texture_ ) texture_->swapTextures( a0, a1 );
     else channels_->swapChannels( a0, a1 );
     as_.swap( a0, a1 );
+    userrefs_.swap( a0, a1 );
     swapCache( a0, a1 );
 
     return true;
@@ -297,6 +302,10 @@ void MultiTextureSurveyObject::setSelSpec( int attrib,
     emptyCache( attrib );
 
     const char* usrref = as.userRef();
+    BufferStringSet* attrnms = new BufferStringSet();
+    attrnms->add( usrref );
+    userrefs_.replace( attrib, attrnms );
+
     if ( !usrref || !*usrref )
     {
 	if ( texture_ )
@@ -512,6 +521,9 @@ void MultiTextureSurveyObject::selectTexture( int attrib, int idx )
 
 	channels_->setCurrentVersion( attrib, idx );
     }
+
+    BufferString attrnm = userrefs_[attrib]->get( idx );
+    as_[attrib]->setUserRef( attrnm.buf() );
 }
 
 

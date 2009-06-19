@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.420 2009-06-17 10:24:50 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.421 2009-06-19 14:38:02 cvshelene Exp $";
 
 #include "uivispartserv.h"
 
@@ -1425,6 +1425,14 @@ void uiVisPartServer::setSelSpec( int id, int attrib,
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->setSelSpec( attrib, myattribspec );
+}
+
+
+void uiVisPartServer::setUserRefs( int id, int attrib,
+				   BufferStringSet* newuserrefs )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) so->setUserRefs( attrib, newuserrefs );
 }
 
 
