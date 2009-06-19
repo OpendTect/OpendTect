@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.19 2009-06-19 08:30:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.20 2009-06-19 10:40:09 cvsnanne Exp $";
 
 #include "uiwelltieview.h"
 
@@ -71,6 +71,7 @@ uiWellTieView::uiWellTieView( uiParent* p, uiFlatViewer* vwr,
 
 uiWellTieView::~uiWellTieView()
 {
+    delete trcbuf_;
 }
 
 
@@ -231,6 +232,7 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     SeisTrcBufDataPack* dp =
 	new SeisTrcBufDataPack( trcbuf, Seis::Line, 
 				(SeisTrcInfo::Fld)type, "Seismic" );
+    dp->trcBufArr2D().setBufMine( false );
 
     DPM(DataPackMgr::FlatID()).add( dp );
     StepInterval<double> zrange( params_->timeintv_.start, 
