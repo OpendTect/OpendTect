@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uislicepos.h,v 1.2 2009-06-11 05:33:50 cvsnanne Exp $
+ RCS:           $Id: uislicepos.h,v 1.3 2009-06-19 09:36:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiLabeledSpinBox;
 class uiToolBar;
+class uiToolButton;
 
 /*! \brief Toolbar for setting slice position _ base class */
 
@@ -39,6 +40,8 @@ protected:
     uiToolBar*		toolbar_;
     uiLabeledSpinBox*	sliceposbox_;
     uiLabeledSpinBox*	slicestepbox_;
+    uiToolButton*	prevbut_;
+    uiToolButton*	nextbut_;
     int			laststeps_[3];
     CubeSampling	curcs_;
 

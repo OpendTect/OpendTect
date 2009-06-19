@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.2 2009-06-11 05:33:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.3 2009-06-19 09:36:34 cvsnanne Exp $";
 
 #include "uislicepos.h"
 
@@ -37,12 +37,12 @@ uiSlicePos::uiSlicePos( uiParent* p )
 	    			mCB(this,uiSlicePos,sliceStepChg) );
     slicestepbox_->attach( rightTo, sliceposbox_ );
 
-    uiToolButton* prevbut = new uiToolButton( grp, "Previous position",
+    prevbut_ = new uiToolButton( grp, "Previous position",
 	    ioPixmap("prevpos.png"), mCB(this,uiSlicePos,prevCB) );
-    uiToolButton* nextbut = new uiToolButton( grp, "Next position",
+    nextbut_ = new uiToolButton( grp, "Next position",
 	    ioPixmap("nextpos.png"), mCB(this,uiSlicePos,nextCB) );
-    prevbut->attach( rightTo, slicestepbox_ );
-    nextbut->attach( rightTo, prevbut );
+    prevbut_->attach( rightTo, slicestepbox_ );
+    nextbut_->attach( rightTo, prevbut_ );
     toolbar_->addObject( grp->attachObj() );
 
     IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
