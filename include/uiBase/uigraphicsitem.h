@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.16 2009-06-17 08:46:05 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.17 2009-06-19 09:21:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,6 +106,7 @@ protected:
     bool		isvisible_;
     QGraphicsItemGroup*	qgraphicsitemgrp_;
     ObjectSet<uiGraphicsItem>	items_;
+    ObjectSet<uiGraphicsItem>	items2bdel_;
 
     uiGraphicsItem*	gtItm( int idx ) const
 			{ return !items_.validIdx(idx) ? 0
