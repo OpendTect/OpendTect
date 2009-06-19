@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.19 2009-06-18 12:20:55 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.20 2009-06-19 08:14:37 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -342,6 +342,59 @@ int BufferStringSet::indexOf( const char* s ) const
 {
     if ( !s ) s = "";
     return ::indexOf( *this, s );
+}
+
+
+// TODO this is crap, find a good algo
+static int getMatchDist( const BufferString& bs, const char* s )
+{
+    const char* ptr1 = bs.buf();
+    const char* ptr2 = s;
+    int ret = 0;
+    while ( *ptr1 && *ptr2 )
+    {
+	ret += abs( *ptr1 - *ptr2 );
+	ptr1++; ptr2++;
+    }
+    return ret;
+}
+
+
+int BufferStringSet::nearestMatch( const char* s ) const
+{
+    if ( isEmpty() ) return -1;
+    const int sz = size();
+    if ( sz < 2 ) return 0;
+
+    if ( !s || !*s )
+    {
+	int minsz = get(0).size(); int midx = 0;
+	for ( int idx=1; idx<sz; idx++ )
+	{
+	    const int cursz = get(midx).size();
+	    if ( cursz < minsz )
+		{ minsz = cursz; midx = idx; }
+	}
+	return midx;
+    }
+
+    int midx = ::indexOf( *this, s );
+    if ( midx >= 0 ) return midx;
+
+    for ( midx=0; midx<sz; midx++ )
+	{ if ( get(midx).isEqual(s,true) ) return midx; }
+    for ( midx=0; midx<sz; midx++ )
+	{ if ( get(midx).isStartOf(s,true) ) return midx; }
+
+    int mindist = getMatchDist( get(0), s ); midx = 0;
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	const int curdist = getMatchDist( get(idx), s );
+	if ( curdist < mindist )
+	    { mindist = curdist; midx = idx; }
+    }
+
+    return midx;
 }
 
 

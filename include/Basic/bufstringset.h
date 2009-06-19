@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.14 2009-04-14 05:06:54 cvsranojay Exp $
+ RCS:		$Id: bufstringset.h,v 1.15 2009-06-19 08:14:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
     int			indexOf(const char*) const;
     inline bool		isPresent( const char* s ) const
     						{ return indexOf(s) >= 0; }
+    int			nearestMatch(const char*) const;
+			    //!< algo may not be very good, but anyway
 
     BufferStringSet&	add(const char*);
     BufferStringSet&	add(const BufferString&);
