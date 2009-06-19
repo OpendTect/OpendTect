@@ -104,6 +104,7 @@ public :
 	BufferString		vellognm_;
 	BufferString		corrvellognm_;
 	BufferString		currvellognm_;
+	BufferString		dispcurrvellognm_;
 	BufferString		ainm_;
 	BufferString		refnm_;
 	BufferString		attrnm_;
@@ -133,6 +134,7 @@ public :
     const WellTieUnitFactors& 	getUnits() const   { return factors_; }
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
     bool			resetParams(); 
+    void			resetVellLognm();
 
 protected :
 

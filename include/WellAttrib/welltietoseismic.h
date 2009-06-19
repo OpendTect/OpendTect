@@ -54,7 +54,7 @@ public:
     bool  		estimateWavelet();
     bool 	      	resampleLogs();
     void 	      	setWorkData();
-    void 	      	setLogValues();
+    void 	      	createDispLogs();
    
     //D2TModelmanager operations
     void 		setd2TModelFromData()

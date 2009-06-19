@@ -170,7 +170,5 @@ private:
     WellTieParams::DataParams* dpms_;
     WellTieParams* 	 params_; //becomes mine
 
-    void 		 createLogs();
-
 };
 #endif
