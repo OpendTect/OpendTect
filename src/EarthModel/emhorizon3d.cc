@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.115 2009-04-28 13:23:48 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.116 2009-06-19 07:52:10 cvsnanne Exp $";
 
 #include "emhorizon3d.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.115 2009-04-28 13:23:48 cvsk
 #include "executor.h"
 #include "ioobj.h"
 #include "pickset.h"
+#include "posprovider.h"
 #include "ptrman.h"
 #include "scaler.h"
 #include "survinfo.h"
@@ -688,7 +689,8 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 
 
 void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
-					   BinIDValueSet& bivs ) const
+					   BinIDValueSet& bivs,
+       					   Pos::Provider3D* prov ) const
 {
     PtrMan<EMObjectIterator> it = createIterator( sid );
     if ( !it ) return;
@@ -704,7 +706,9 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 	if ( crd.isDefined() )
 	{
 	    bid.setSerialized( pid.subID() );
-	    bivs.add( bid, crd.z );
+	    const bool isinside = prov ? prov->includes( bid ) : true;
+	    if ( isinside )
+		bivs.add( bid, crd.z );
 	}
     }
 }

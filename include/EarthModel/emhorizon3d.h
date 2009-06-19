@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.62 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.63 2009-06-19 07:52:10 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,7 @@ class Scaler;
 class ZAxisTransform;
 namespace Table { class FormatDesc; }
 namespace Pick { class Set; }
+namespace Pos { class Provider3D; }
 
 namespace EM
 {
@@ -67,7 +68,8 @@ public:
 	    					  DataPointSet&,
 						  float shift=0.0) const;
     void			fillBinIDValueSet(const SectionID&,
-	    					  BinIDValueSet&) const;
+	    					 BinIDValueSet&,
+						 Pos::Provider3D* prov=0) const;
 
     EMObjectIterator*   	createIterator(const EM::SectionID&,
 					       const CubeSampling* =0) const;
