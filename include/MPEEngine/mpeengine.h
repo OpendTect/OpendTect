@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.44 2009-06-17 10:18:38 cvsumesh Exp $
+ RCS:           $Id: mpeengine.h,v 1.45 2009-06-19 12:18:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,9 @@ public:
     int			addTracker(EM::EMObject*);
     void		removeTracker(int idx);
     Notifier<Engine>	trackeraddremove;
+    void		setActiveTracker(const EM::ObjectID&);
+    void		setActiveTracker(EMTracker*);
+    EMTracker*		getActiveTracker();
 
 
     			/*Attribute stuff */
@@ -145,6 +148,7 @@ protected:
     ObjectSet<ObjectEditor>	editors_;
 
     const EMTracker*		oneactivetracker_;
+    EMTracker*			activetracker_;
 
     struct CacheSpecs
     {

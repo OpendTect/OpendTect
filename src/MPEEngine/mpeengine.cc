@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.89 2009-06-17 10:20:20 cvsumesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.90 2009-06-19 12:18:11 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -55,6 +55,7 @@ Engine::Engine()
     , trackeraddremove( this )
     , loadEMObject( this )
     , oneactivetracker_( 0 )
+    , activetracker_( 0 )
 {
     trackers_.allowNull(true);
     flatcubescontainer_.allowNull(true);
@@ -328,6 +329,21 @@ int Engine::getTrackerByObject( const char* objname ) const
 
     return -1;
 }
+
+
+void Engine::setActiveTracker( EMTracker* tracker )
+{ activetracker_ = tracker; }
+
+
+void Engine::setActiveTracker( const EM::ObjectID& objid )
+{
+    const int tridx = getTrackerByObject( objid );
+    activetracker_ = trackers_.validIdx(tridx) ? trackers_[tridx] : 0;
+}
+
+
+EMTracker* Engine::getActiveTracker()
+{ return activetracker_; }
 
 
 void Engine::setOneActiveTracker( const EMTracker* tracker )
