@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.20 2009-06-19 08:14:37 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.21 2009-06-19 08:40:12 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -353,7 +353,8 @@ static int getMatchDist( const BufferString& bs, const char* s )
     int ret = 0;
     while ( *ptr1 && *ptr2 )
     {
-	ret += abs( *ptr1 - *ptr2 );
+	if ( toupper(*ptr1) != toupper(*ptr2) )
+	    ret += 1;
 	ptr1++; ptr2++;
     }
     return ret;
