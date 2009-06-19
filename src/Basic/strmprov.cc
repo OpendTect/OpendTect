@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.95 2009-06-09 09:55:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.96 2009-06-19 10:00:53 cvsnanne Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1097,7 +1097,7 @@ void StreamProvider::mkOSCmd( bool forread ) const
 
     if ( DBG::isOn(DBG_IO) )
     {
-	BufferString msg( "Aboute to execute : '" );
+	BufferString msg( "About to execute: '" );
 	msg += oscommand;
 	msg += "'";
 	DBG::message( msg );
