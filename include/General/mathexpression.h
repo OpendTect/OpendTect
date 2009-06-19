@@ -7,15 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.13 2009-06-18 14:55:01 cvsbert Exp $
+ RCS:           $Id: mathexpression.h,v 1.14 2009-06-19 13:00:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
 template <class T> class TypeSet;
-
-
 
 /*!\brief Parsed Math expression.
 
@@ -42,6 +40,8 @@ public:
     				{ return varnms_.size(); }
     const char*			uniqueVarName( int idx ) const
 				{ return varnms_.get(idx).buf(); }
+    int				indexOfUnVarName( const char* nm )
+				{ return varnms_.indexOf( nm ); }
 
     enum VarType		{ Variable, Constant, Recursive };
     VarType			getType(int varidx) const;
