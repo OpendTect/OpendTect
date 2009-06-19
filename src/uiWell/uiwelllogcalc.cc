@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.3 2009-06-18 14:55:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.4 2009-06-19 08:58:37 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -40,11 +40,13 @@ uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
     : uiGroup(inpgrp,"Inp data group")
     , wls_(p->wls_)
     , idx_(fieldnr)
+    , lognms_(lognms)
+    , lognmsettodef_(false)
 {
     varmfld_ = new uiGenInput( this, "For" );
     varmfld_->setElemSzPol( uiObject::Small );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, lognms, "use",
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, lognms_, "use",
 				    BufferString("input ",fieldnr) );
     inpfld_ = lcb->box();
     int selidx = fieldnr; if ( selidx >= wls_.size() ) selidx = wls_.size()-1;
@@ -64,8 +66,19 @@ void use( MathExpression* expr )
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
     const bool mustdisp = idx_ < nrvars;
     display( mustdisp );
-    if ( mustdisp )
-	varmfld_->setText( expr->uniqueVarName(idx_) );
+    if ( !mustdisp ) return;
+
+    const BufferString varnm = expr->uniqueVarName( idx_ );
+    varmfld_->setText( varnm );
+    if ( !lognmsettodef_ )
+    {
+	const int nearidx = lognms_.nearestMatch( varnm );
+	if ( nearidx >= 0 )
+	{
+	    inpfld_->setCurrentItem( nearidx );
+	    lognmsettodef_ = true;
+	}
+    }
 }
 
 bool hasVarName( const char* nm )
@@ -91,6 +104,8 @@ bool getInp( uiWellLogCalc::InpData& inpdata )
     uiCheckBox*		udfbox_;
     const Well::LogSet&	wls_;
     const int		idx_;
+    BufferStringSet	lognms_;
+    bool		lognmsettodef_;
 
 };
 
@@ -147,7 +162,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     dahrgfld_->attach( alignedBelow, inpgrp );
     dahrgfld_->attach( ensureBelow, sep );
     ftbox_ = new uiCheckBox( this, "Feet" );
-    ftbox_->setChecked( SI().zInFeet() );
+    ftbox_->setChecked( SI().depthsInFeetByDefault() );
     ftbox_->activated.notify( mCB(this,uiWellLogCalc,feetSel) );
     ftbox_->attach( rightOf, dahrgfld_ );
 
