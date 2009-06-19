@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.7 2009-06-19 08:58:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.8 2009-06-19 10:34:53 cvsnanne Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -209,10 +209,16 @@ void uiWellLogDisplay::draw()
 }
 
 
+#define mRemoveSet( itms ) \
+    for ( int idx=0; idx<itms.size(); idx++ ) \
+	scene().removeItem( itms[idx] ); \
+    deepErase( itms );
+
 void uiWellLogDisplay::drawCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
-    deepErase( ld.curveitms_ );
+    mRemoveSet( ld.curveitms_ );
+    scene().removeItem( ld.curvenmitm_ );
     delete ld.curvenmitm_; ld.curvenmitm_ = 0;
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
@@ -278,8 +284,8 @@ void uiWellLogDisplay::drawCurve( bool first )
 
 void uiWellLogDisplay::drawMarkers()
 {
-    deepErase( markeritms_ );
-    deepErase( markertxtitms_ );
+    mRemoveSet( markeritms_ );
+    mRemoveSet( markertxtitms_ );
     if ( !markers_ ) return;
 
     for ( int idx=0; idx<markers_->size(); idx++ )
@@ -309,7 +315,7 @@ void uiWellLogDisplay::drawMarkers()
 
 void uiWellLogDisplay::drawZPicks()
 {
-    deepErase( zpickitms_ );
+    mRemoveSet( zpickitms_ );
 
     for ( int idx=0; idx<zpicks_.size(); idx++ )
     {
