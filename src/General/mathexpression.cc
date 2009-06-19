@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.47 2009-06-18 14:55:01 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.48 2009-06-19 04:49:14 cvsnanne Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -554,7 +554,7 @@ MathExpression::VarType MathExpressionParser::varTypeOf( const char* varnm )
     if ( vnm.isEqual("this",true) || vnm.isEqual("out",true) )
 	return MathExpression::Recursive;
 
-    if ( vnm.size() > 1 && vnm[0] == 'c' || vnm[0] == 'C' && isdigit(vnm[1]) )
+    if ( vnm.size() > 1 && (vnm[0]=='c' || vnm[0]=='C') && isdigit(vnm[1]) )
 	return MathExpression::Constant;
 
     return MathExpression::Variable;
