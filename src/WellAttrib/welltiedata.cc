@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.6 2009-06-18 07:41:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.7 2009-06-19 17:00:14 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
@@ -230,7 +230,6 @@ WellTieDataHolder::WellTieDataHolder( WellTieParams* params,
     datamgr_ = new WellTieDataSetMGR( &params_->dpms_, &data_ );
     uipms_   = &params_->uipms_;
     dpms_    = &params_->dpms_;
-    createLogs();
 }
 
 
@@ -240,19 +239,4 @@ WellTieDataHolder::~WellTieDataHolder()
     delete pickmgr_;
     delete d2tmgr_;
     delete params_;
-}
-
-void WellTieDataHolder::createLogs()
-{
-    for ( int idx=0; idx<dpms_->colnms_.size(); idx++ )
-    {
-	data_.logset_ += new Well::Log();
-	if ( !strcmp (setup_.vellognm_,*dpms_->colnms_[idx]) )
-	    data_.logset_[idx]->setName( dpms_->vellognm_ );
-	else if ( !strcmp (setup_.denlognm_,*dpms_->colnms_[idx]) )
-	    data_.logset_[idx]->setName( dpms_->denlognm_ );
-	else
-	    data_.logset_[idx]->setName( *dpms_->colnms_[idx] );
-	wd_->logs().add( data_.logset_[idx] );
-    }
 }

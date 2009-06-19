@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.20 2009-06-19 12:23:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.21 2009-06-19 17:00:14 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -141,13 +141,14 @@ void uiWellTieToSeismicDlg::initAll()
     addControl();
     addToolBarTools();
     infodlg_->setUserDepths();
-    putDispParams();
     doWork( 0 );
 }
 
 
 void uiWellTieToSeismicDlg::doWork( CallBacker* )
 {
+    getDispParams();
+    params_->resetParams();
     dataplayer_->computeAll();
     eventstretcher_->resetData();
     drawData();
@@ -239,11 +240,9 @@ void uiWellTieToSeismicDlg::createDispPropFields( uiGroup* dispgrp )
 {
     cscorrfld_ = new uiCheckBox( dispgrp, "use checkshot corrections" );
     cscorrfld_->display( params_->uipms_.iscscorr_ );
-    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,doWork));
 
     csdispfld_ = new uiCheckBox( dispgrp, "display checkshot related curve" );
     csdispfld_->display(params_->uipms_.iscscorr_);
-    csdispfld_->attach( alignedBelow, cscorrfld_ );
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
     zinftfld_ ->attach( rightOf, csdispfld_);
@@ -253,6 +252,7 @@ void uiWellTieToSeismicDlg::createDispPropFields( uiGroup* dispgrp )
 
     putDispParams();
 
+    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,doWork));
     cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
     csdispfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
     markerfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
@@ -262,13 +262,12 @@ void uiWellTieToSeismicDlg::createDispPropFields( uiGroup* dispgrp )
 
 void uiWellTieToSeismicDlg::getDispParams()
 {
-    WellTieParams::uiParams* pms = dataholder_->uipms();
-    pms->iscscorr_ = cscorrfld_->isChecked();
-    pms->iscsdisp_ = csdispfld_->isChecked();
-    pms->iszinft_ = zinftfld_->isChecked();
-    pms->ismarkerdisp_ = markerfld_->isChecked();
-    dataholder_->dpms()->currvellognm_ = pms->iscscorr_ ? 
-			setup_.corrvellognm_ : setup_.vellognm_;
+    WellTieParams::uiParams* uipms = dataholder_->uipms();
+    WellTieParams::DataParams* dpms = dataholder_->dpms();
+    uipms->iscscorr_ = cscorrfld_->isChecked();
+    uipms->iscsdisp_ = csdispfld_->isChecked();
+    uipms->iszinft_ = zinftfld_->isChecked();
+    uipms->ismarkerdisp_ = markerfld_->isChecked();
 }
 
 
@@ -341,7 +340,6 @@ bool uiWellTieToSeismicDlg::saveD2TPushed( CallBacker* )
 
 void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
 {
-    params_->resetParams();
     eventstretcher_->doWork(0);
     doWork( cb );
     //dataholder_->pickmgr_->clearAllPicks();

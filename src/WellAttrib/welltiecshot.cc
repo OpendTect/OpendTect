@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.4 2009-05-20 14:27:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.5 2009-06-19 17:00:14 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -35,7 +35,6 @@ WellTieCSCorr::WellTieCSCorr( Well::Data& d, const WellTieParams& pms )
     WellTieGeoCalculator geocalc( &pms, &d );
     setCSToLogScale( newcsvals, pms.getUnits().velFactor(), geocalc );
     fitCS( newcsvals, geocalc );
-    
     log_->setName( pms.getSetup().corrvellognm_ );
     d.logs().add( log_ );
 }

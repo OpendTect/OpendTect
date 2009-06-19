@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.21 2009-06-19 12:23:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.22 2009-06-19 17:00:14 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -143,7 +143,7 @@ void uiWellTieView::setLogsParams()
 void uiWellTieView::drawVelLog()
 {
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[0]->logData( true );
-    wldld1.wl_ = wd_.logs().getLog( params_->currvellognm_ );
+    wldld1.wl_ = wd_.logs().getLog( params_->dispcurrvellognm_ );
     wldld1.xrev_ = !wtsetup_.issonic_;
     wldld1.linestyle_.color_ = Color::stdDrawColor(0);
 }
@@ -388,7 +388,9 @@ void uiWellTieView::drawUserPicks()
 
 void uiWellTieView::drawCShot()
 {
-    delete checkshotitm_;
+    uiGraphicsScene& scene = logsdisp_[0]->scene();
+    scene.removeItem( checkshotitm_ );
+    delete checkshotitm_; checkshotitm_=0;
     if ( !dataholder_->uipms()->iscsdisp_ ) 
 	return;
     const Well::D2TModel* cs = wd_.checkShotModel();
@@ -408,7 +410,7 @@ void uiWellTieView::drawCShot()
     }
     geocalc.TWT2Vel( csvals, dpt, cstolog, true );
     
-    float maxval, minval = 0;
+    float maxval, minval = cstolog[0];
     for ( int idx=0; idx<sz; idx++ )
     {
 	float val = cstolog[idx];
@@ -424,7 +426,7 @@ void uiWellTieView::drawCShot()
     if ( minval<ld.valrg_.start )   
 	minval = ld.valrg_.start;
     if ( maxval<ld.valrg_.stop )
-       maxval = ld.valrg_.stop;
+	maxval = ld.valrg_.stop;
 
     Interval<float> dispvalrg( minval, maxval );
     Interval<float> zrg = logsdisp_[0]->zRange();
@@ -433,7 +435,7 @@ void uiWellTieView::drawCShot()
     for ( int idx=0; idx<sz; idx++ )
     {
 	float val = cstolog[idx];
-	float dah = dpt[sz-idx];
+	float dah = dpt[sz-idx-1];
 	if ( dah < zrg.start )
 	    continue;
 	else if ( dah > zrg.stop )
@@ -445,7 +447,6 @@ void uiWellTieView::drawCShot()
 
     if ( pts.isEmpty() ) return;
 
-    uiGraphicsScene& scene = logsdisp_[0]->scene();
     checkshotitm_ = scene.addItem( new uiPolyLineItem(pts) );
     LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
     checkshotitm_->setPenStyle( ls );

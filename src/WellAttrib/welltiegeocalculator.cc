@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.11 2009-06-18 07:41:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.12 2009-06-19 17:00:14 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -142,24 +142,23 @@ Well::D2TModel* WellTieGeoCalculator::getModelFromVelLogData(
 
 
 //Small TWT/Interval Velocity converter
-#define mFactor 1000000
+#define mFactor 10e6
 void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 				     const TypeSet<float>& dpt,	
 				     TypeSet<float>& outp, bool t2vel  )
 {
+    outp += 0;
     if ( t2vel )
     {
-	outp += 0;
 	for ( int idx=1; idx<timevel.size(); idx++ )
-	    outp +=  mFactor*( timevel[idx]-timevel[idx-1] )
+	    outp +=  ( timevel[idx]-timevel[idx-1] )
 		    /( (dpt[idx]-dpt[idx-1])/velfactor_*2 );
 	outp[0] = outp[1];
     }
     else 
     {
-	outp += 0;
 	for ( int idx=1; idx<timevel.size(); idx++ )
-	    outp +=  2*( dpt[idx]-dpt[idx-1] )*timevel[idx]/velfactor_/mFactor;
+	    outp +=  2*( dpt[idx]-dpt[idx-1] )*timevel[idx]/velfactor_;
 
 	for ( int idx=1;  idx<timevel.size(); idx++ )
 	    outp[idx] += outp[idx-1];
@@ -358,11 +357,26 @@ void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 				   const Array1DImpl<float>& denvals,
 				   Array1DImpl<float>& aivals )
 {
-    for ( int idx = 0; idx < velvals.info().getSize(0); idx++ )
+    const int datasz = aivals.info().getSize(0);
+    Array1DImpl<float> newvelvals(datasz);
+    for ( int idx = 0; idx <datasz; idx++ )
     {
-	float velval = velvals.get(idx);
+	if ( velvals.get(idx) == 0 )
+	{
+	    int curidx = idx;	    
+	    while ( velvals.get(curidx) == 0 && curidx< datasz )
+		idx++;
+	    newvelvals.set( idx, curidx );
+	}
+	else
+	    newvelvals.set( idx,velvals.get(idx) );
+    }
+		
+    for ( int idx = 0; idx < datasz; idx++ )
+    {
+	float velval = newvelvals.get(idx);
 	float denval = denvals.get(idx);
-	aivals.setValue( idx, denval/velval *mFactor*denfactor_*velfactor_ );
+	aivals.setValue( idx, denval/velval*mFactor*denfactor_*velfactor_ );
     }
 }
 

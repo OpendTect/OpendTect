@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.15 2009-06-19 12:23:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.16 2009-06-19 17:00:14 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -80,12 +80,10 @@ bool WellTieToSeismic::computeAll()
     //WorkData resampled and put in DispData at seismic sample rate 
     datamgr_.rescaleData( workdata_, dispdata_, 6, params_.step_ );
 
-    //extract seismic according to Well Track
     if ( !extractWellTrack() )     return false;
     if ( !extractSeismics() ) 	   return false;
 
-    //create Logs to be displayed
-    setLogValues();
+    createDispLogs();
 
     //DispData rescaled between user-specified times
     datamgr_.rescaleData( dispdata_, corrdata_, params_.nrdatacols_, 
@@ -160,15 +158,27 @@ bool WellTieToSeismic::computeSynthetics()
 }
 
 
-void WellTieToSeismic::setLogValues()
+void WellTieToSeismic::createDispLogs()
 {
     for ( int logidx=0; logidx<params_.colnms_.size(); logidx++ )
     {
+	Well::Log* log = new Well::Log();
+	wtdata_.logset_ += log;
+
+	if ( !strcmp (wtsetup_.vellognm_,*params_.colnms_[logidx]) )
+	    log->setName( params_.vellognm_ );
+	else if ( !strcmp (wtsetup_.corrvellognm_,*params_.colnms_[logidx]) )
+	    log->setName( params_.corrvellognm_ );
+	else if ( !strcmp (wtsetup_.denlognm_,*params_.colnms_[logidx]) )
+	    log->setName( params_.denlognm_ );
+	else
+	    log->setName( *params_.colnms_[logidx] );
+	wd_.logs().add( log );
+
 	for ( int idx=0; idx<dispdata_.getLength(); idx++ )
 	{
-	    wtdata_.logset_[logidx]->addValue(
-			    dispdata_.get( params_.dptnm_, idx), 
-			    dispdata_.get(*params_.colnms_[logidx],idx) );
+	    log->addValue( dispdata_.get(params_.dptnm_,idx), 
+		    	   dispdata_.get(*params_.colnms_[logidx],idx) );
 	}
     }
 }

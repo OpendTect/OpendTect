@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.11 2009-06-19 12:23:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.12 2009-06-19 17:00:14 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -130,9 +130,19 @@ bool WellTieParams::resetParams()
 {
     if ( !dpms_.resetDataParams() )
 	return false;
-    dpms_.currvellognm_ = uipms_.iscscorr_? dpms_.corrvellognm_ 
-					  : dpms_.vellognm_;
+    //TODO this should be an easiest way to set the vellognm than using 
+    // one name for display and one for data!
+    resetVellLognm();
     return true;
+}
+
+
+void WellTieParams::resetVellLognm()
+{
+    dpms_.currvellognm_ = uipms_.iscscorr_? wtsetup_.corrvellognm_
+					  : wtsetup_.vellognm_;
+    dpms_.dispcurrvellognm_ = uipms_.iscscorr_? dpms_.corrvellognm_
+					      : dpms_.vellognm_;
 }
 
 
@@ -198,10 +208,11 @@ void WellTieParams::DataParams::createColNames()
     synthnm_ = "Synthetics";         	      colnms_.add( synthnm_ );
     crosscorrnm_ = "Cross Correlation";       colnms_.add( crosscorrnm_ );
              				      colnms_.add( attrnm_ );
-    
+
     BufferString add2name = "'"; 
     vellognm_ += add2name;
     denlognm_ += add2name;		
+    corrvellognm_ += add2name;
 }
 
 
