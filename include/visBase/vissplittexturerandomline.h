@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.h,v 1.3 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: vissplittexturerandomline.h,v 1.4 2009-06-19 18:28:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,10 @@ ________________________________________________________________________
 #include "visobject.h"
 
 class SoSeparator;
+class SoIndexedTriangleStripSet;
+class SoTextureCoordinate2;
+class SoTextureComposer;
+
 
 namespace visBase
 {
@@ -30,12 +34,8 @@ public:
     static SplitTextureRandomLine*	create()
 					mCreateDataObj(SplitTextureRandomLine);
 
-    void				enableSpliting(bool yn);
-    bool				isSplitingEnabled() const;
-    void				setTextureUnits(const TypeSet<int>&);
     void				setTexturePath(const TypeSet<BinID>&,
 						       int nrzpixels);
-
     void				setDepthRange(const Interval<float>&); 
     void				setLineKnots(const TypeSet<BinID>&);
     
@@ -47,15 +47,16 @@ public:
 protected:
     					~SplitTextureRandomLine();
     void				updateDisplay();
+    void				updateSeparator(SoSeparator*, 
+	    					SoIndexedTriangleStripSet*&,
+						SoTextureCoordinate2*&,
+						SoTextureComposer*&,bool) const;
 
     TypeSet<BinID>			path_;
     TypeSet<BinID>			knots_;
     
     int					nrzpixels_;
     Interval<float>			zrg_;
-
-    bool 				dosplit_;
-    TypeSet<int>			usedunits_;
 
     Coordinates*			coords_;
     ObjectSet<SoSeparator>		separators_;

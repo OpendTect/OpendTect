@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.109 2009-05-27 03:24:59 cvskris Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.110 2009-06-19 18:28:06 cvsyuancheng Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.109 2009-05-27 03:
 #include "arrayndimpl.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
+#include "coltabmapper.h"
 #include "iopar.h"
 #include "seisbuf.h"
 #include "seistrc.h"
@@ -32,6 +33,8 @@ static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.109 2009-05-27 03:
 #include "visrandomtrack.h"
 #include "visrandomtrackdragger.h"
 #include "vissplittexturerandomline.h"
+#include "vistexturechannels.h"
+#include "vistexturechannel2rgba.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
 
@@ -49,7 +52,8 @@ const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
-    : triangles_( visBase::SplitTextureRandomLine::create() )
+    : MultiTextureSurveyObject( true )
+    , triangles_( visBase::SplitTextureRandomLine::create() )
     , dragger_( visBase::RandomTrackDragger::create() )
     , knotmoving_(this)
     , moving_(this)
@@ -81,9 +85,11 @@ RandomTrackDisplay::RandomTrackDisplay()
     material_->setDiffIntensity( 0.2 );
 
     dragger_->ref();
-    insertChild( childIndex(texture_->getInventorNode()),
-	        
-	         dragger_->getInventorNode() );
+    int channelidx = texture_
+	? childIndex( texture_->getInventorNode() )
+	: childIndex( channels_->getInventorNode() );
+    insertChild( channelidx, dragger_->getInventorNode() );
+
     dragger_->motion.notify( mCB(this,visSurvey::RandomTrackDisplay,knotMoved));
 
     triangles_->ref();
@@ -140,7 +146,8 @@ void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
     triangles_->setDepthRange( intv );
     dragger_->setDepthRange( intv );
 
-    texture_->clearAll();
+    if ( texture_ ) texture_->clearAll();
+
     moving_.trigger();
 }
 
@@ -171,7 +178,7 @@ void RandomTrackDisplay::addKnot( const BinID& bid )
 	triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
 	dragger_->setKnot( knots_.size()-1, Coord(sbid.inl,sbid.crl) );
-	texture_->clearAll();
+	if ( texture_ ) texture_->clearAll();
 	moving_.trigger();
     }
 }
@@ -186,7 +193,7 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
 	triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
 	dragger_->insertKnot( knotidx, Coord(sbid.inl,sbid.crl) );
-	texture_->clearAll();
+	if ( texture_ ) texture_->clearAll();
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	    if ( cache_[idx] ) setData( idx, *cache_[idx] );
 
@@ -230,7 +237,7 @@ void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
 	triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
 	dragger_->setKnot( knotidx, Coord(sbid.inl,sbid.crl) );
-	texture_->clearAll();
+	if ( texture_ ) texture_->clearAll();
 	moving_.trigger();
     }
 }
@@ -398,8 +405,16 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     const int nrtrcs = trcbuf.size();
     if ( !nrtrcs )
     {
-	texture_->setData( attrib, 0, 0 );
-	texture_->turnOn( false );
+	if ( texture_ )
+	{
+    	    texture_->setData( attrib, 0, 0 );
+    	    texture_->turnOn( false );
+	}
+	else
+	{
+	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+	    channels_->turnOn( false );
+	}
 	return;
     }
 
@@ -411,7 +426,11 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     getDataTraceBids( path );
 
     const int nrslices = trcbuf.get(0)->nrComponents();
-    texture_->setNrVersions( attrib, nrslices );
+    if ( texture_ )
+    	texture_->setNrVersions( attrib, nrslices );
+    else
+	channels_->setNrVersions( attrib, nrslices );
+
     for ( int sidx=0; sidx<nrslices; sidx++ )
     {
 	Array2DImpl<float> array( path.size(), nrsamp );
@@ -450,16 +469,26 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	    }
 	}
 
-	texture_->splitTexture( true );
-	texture_->setData( attrib, sidx, &array, true );
-	
-	triangles_->enableSpliting( texture_->canUseShading() );
-	triangles_->setTextureUnits( texture_->getUsedTextureUnits() );	
+ 	if ( texture_ )
+	{
+	    texture_->splitTexture( true );
+	    texture_->setData( attrib, sidx, &array, true );
+	}
+	else
+	{
+	    channels_->setSize( 1, array.info().getSize(0),
+				   array.info().getSize(1) );
+	    channels_->setUnMappedData( attrib, sidx, dataptr, OD::UsePtr, 0 );
+        }
+
 	triangles_->setDepthRange( zrg );
 	triangles_->setTexturePath( path, nrsamp );
     }
     
-    texture_->turnOn( true );
+    if ( texture_ )
+    	texture_->turnOn( true );
+    else
+	channels_->turnOn( true );
 }
 
 
@@ -576,17 +605,6 @@ BufferString RandomTrackDisplay::getManipulationString() const
     return str;
 }
  
-
-int RandomTrackDisplay::getColTabID( int attrib ) const
-{
-    return texture_->getColorTab( attrib ).id();
-}
-
-
-const TypeSet<float>* RandomTrackDisplay::getHistogram( int attrib ) const
-{
-    return texture_->getHistogram( attrib, texture_->currentVersion( attrib ) );}
-
 
 void RandomTrackDisplay::knotMoved( CallBacker* cb )
 {
@@ -815,12 +833,21 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 		{
 		    mDynamicCastGet( visBase::VisColorTab*, coltab,
 		    visBase::DM().getObject(coltabid) );
-		    texture_->setColorTab( attribnr, *coltab );
+		    if ( texture_ )
+    			texture_->setColorTab( attribnr, *coltab );
+		    else
+		    {
+			channels_->setColTabMapperSetup( attribnr, 
+				coltab->colorMapper().setup_ );
+			channels_->getChannels2RGBA()->setSequence( attribnr, 
+				coltab->colorSeq().colors() );
+		    }
 		}
 
 		bool ison = true;
 		attribpar->getYN( sKeyIsOn(), ison );
-		texture_->enableTexture( attribnr, ison );
+		if ( texture_ )
+    		    texture_->enableTexture( attribnr, ison );
 	    }
 	}
 	else //For old pars
@@ -839,7 +866,16 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	    as.usePar( par );
 	    setSelSpec( 0, as );
 
-	    texture_->setColorTab( 0, rt->getColorTab() );
+	    if ( texture_ )
+    		texture_->setColorTab( 0, rt->getColorTab() );
+	    else
+	    {
+		channels_->setColTabMapperSetup( 0, 
+			rt->getColorTab().colorMapper().setup_ );
+		channels_->getChannels2RGBA()->setSequence( 0, 
+			rt->getColorTab().colorSeq().colors() );
+	    }
+
 	    rt->unRef();
 	    setMaterial( rt->getMaterial() );
 	    turnOn( rt->isOn() );

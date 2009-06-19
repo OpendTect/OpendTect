@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.67 2009-05-27 03:24:58 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.68 2009-06-19 18:28:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -118,9 +118,6 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 				    const Coord3&, BufferString&,
 				    BufferString&) const;
-
-    int				getColTabID(int) const;
-    const TypeSet<float>*	getHistogram(int) const;
 
     int				getSelKnotIdx() const	{ return selknotidx_; }
 

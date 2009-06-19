@@ -7,19 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.6 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.7 2009-06-19 18:28:06 cvsyuancheng Exp $";
 
 #include "vissplittexturerandomline.h"
 
 #include "scaler.h"
 #include "simpnumer.h"
+#include "SoTextureComposer.h"
 #include "viscoord.h"
-#include "SoSplitTexture2.h"
 
+#include <Inventor/nodes/SoComplexity.h>
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoShapeHints.h>
-#include <Inventor/nodes/SoTextureCoordinate3.h>
+#include <Inventor/nodes/SoTextureCoordinate2.h>
+
 
 #define mMaxHorSz 256
 #define mMaxVerSz 256
@@ -31,7 +33,6 @@ namespace visBase
    
 SplitTextureRandomLine::SplitTextureRandomLine()
     : VisualObjectImpl( false )
-    , dosplit_( false )
     , nrzpixels_( 0 )
     , zrg_( 0, 0 )
 {
@@ -43,7 +44,13 @@ SplitTextureRandomLine::SplitTextureRandomLine()
     addChild( shapehint );
     shapehint->vertexOrdering = SoShapeHints::CLOCKWISE;
     shapehint->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
-    
+   
+    SoComplexity* complexity = new SoComplexity;
+    complexity->textureQuality.setValue( 0.9 );
+    complexity->type.setIgnored( true );
+    complexity->value.setIgnored( true );
+    addChild( complexity );
+
     setMaterial( 0 );
 }
 
@@ -54,31 +61,6 @@ SplitTextureRandomLine::~SplitTextureRandomLine()
 
     for ( int idx=0; idx<separators_.size(); idx++ )
 	separators_[idx]->unref();
-}
-
-
-void SplitTextureRandomLine::enableSpliting( bool yn )
-{
-    if ( dosplit_==yn )
-	return;
-
-    dosplit_ = yn;
-    updateDisplay();
-}
-
-
-bool SplitTextureRandomLine::isSplitingEnabled() const
-{ return dosplit_; }
-
-
-void SplitTextureRandomLine::setTextureUnits( const TypeSet<int>& units )
-{ 
-    if ( usedunits_==units )
-	return;
-
-    usedunits_ = units;
-    if ( dosplit_ )
-    	updateDisplay();
 }
 
 
@@ -128,20 +110,64 @@ void SplitTextureRandomLine::setDisplayTransformation( mVisTrans* nt )
 { coords_->setDisplayTransformation( nt ); }
 
 
+void SplitTextureRandomLine::updateSeparator( SoSeparator* sep,
+	SoIndexedTriangleStripSet*& triangle, SoTextureCoordinate2*& tc,
+	SoTextureComposer*& tcomp, bool hastexture ) const
+{
+    if ( sep->getNumChildren() )
+    {
+	triangle = (SoIndexedTriangleStripSet*)
+	    sep->getChild( sep->getNumChildren()-1 );
+    }
+    else
+    {
+	triangle = new SoIndexedTriangleStripSet;
+	sep->addChild( triangle );
+    }
+
+    if ( hastexture )
+    {
+	if ( sep->getNumChildren()>1 )
+	    tc = (SoTextureCoordinate2*) sep->getChild(sep->getNumChildren()-2);
+	else
+	{
+	    tc = new SoTextureCoordinate2;
+	    sep->insertChild( tc, 0 );
+	    
+	    if ( sep->findChild(tc)!=sep->findChild(triangle)-1 )
+	    {
+		sep->removeChild( tc );
+		sep->insertChild( tc, sep->findChild( triangle ) );
+	    }
+	}
+
+	if ( sep->getNumChildren()>2 )
+	    tcomp = (SoTextureComposer*) sep->getChild(sep->getNumChildren()-3);
+	else
+	{
+	    tcomp = new SoTextureComposer;
+	    sep->insertChild( tcomp, 0 );
+	    
+	    if ( sep->findChild(tcomp)!=sep->findChild(tc)-1 )
+	    {
+		sep->removeChild( tcomp );
+		sep->insertChild( tcomp, sep->findChild( tc ) );
+	    }
+	}
+    }
+    else while ( sep->getNumChildren()>1 )
+	sep->removeChild( 0 );
+}
+
+
 void SplitTextureRandomLine::updateDisplay( )
 {
     if ( !knots_.size() || !zrg_.width() )
 	return;
 
     const int pathsz = path_.size();
-    const bool shouldsplit = dosplit_ && pathsz && usedunits_.size() && 
-			     nrzpixels_;
-
-    if ( dosplit_ && !shouldsplit )
-	return;
-
-    const int nrhorblocks =  shouldsplit ? nrBlocks( pathsz,mMaxHorSz,1 ) : 1;
-    const int nrzblocks = shouldsplit ? nrBlocks( nrzpixels_,mMaxVerSz,1 ) : 1;
+    const int nrhorblocks =  nrBlocks( pathsz, mMaxHorSz, 1 );
+    const int nrverblocks = nrBlocks( nrzpixels_, mMaxVerSz, 1 );
 
     ObjectSet<SoSeparator> unusedseparators = separators_;
 
@@ -152,29 +178,29 @@ void SplitTextureRandomLine::updateDisplay( )
 	const int startpathidx = horidx * (mMaxHorSz-1);
 	int lastpathidx = startpathidx + mMaxHorSz-1;
 	if ( lastpathidx>=pathsz || nrhorblocks==1 ) 
-	    lastpathidx = pathsz-1;
+	    lastpathidx = pathsz ? pathsz-1 : 0;
 
 	TypeSet<BinID> knots;
-	if ( shouldsplit )
+	if ( pathsz )
 	{
-	    knots += path_[startpathidx];
-	    for ( int idx=startpathidx+1; idx<lastpathidx; idx++ )
-	    {
-		const BinID bid = path_[idx];
-		if ( knots_.indexOf( bid )>=0 && knots.indexOf(bid)<0 )
-		    knots += bid;
-	    }
-
-	    knots += path_[lastpathidx];
+    	    knots += path_[startpathidx];
+    	    for ( int idx=startpathidx+1; idx<lastpathidx; idx++ )
+    	    {
+    		const BinID bid = path_[idx];
+    		if ( knots_.indexOf( bid )>=0 && knots.indexOf(bid)<0 )
+    		    knots += bid;
+    	    }
+	    
+    	    knots += path_[lastpathidx];
 	}
 	else
 	    knots = knots_;
 	
-	for ( int idz=0; idz<nrzblocks; idz++ )
+	for ( int veridx=0; veridx<nrverblocks; veridx++ )
 	{
 	    SoSeparator* sep = 0;
-	    SoTextureCoordinate3* tc = 0;
-	    SoSplitTexture2Part* sp = 0;
+	    SoTextureComposer* tcomp = 0;
+	    SoTextureCoordinate2* tc = 0;
 	    SoIndexedTriangleStripSet* triangle = 0;
 
 	    if ( unusedseparators.size() )
@@ -187,94 +213,37 @@ void SplitTextureRandomLine::updateDisplay( )
 		separators_ += sep;
 	    }
 
-	    if ( sep->getNumChildren() )
-	    {
-		triangle = (SoIndexedTriangleStripSet*)
-		    sep->getChild( sep->getNumChildren()-1 );
-	    }
-	    else
-	    {
-		triangle = new SoIndexedTriangleStripSet;
-		sep->addChild( triangle );
-	    }
+	    updateSeparator( sep, triangle, tc, tcomp, pathsz && nrzpixels_ );
 
-	    if ( pathsz && nrzpixels_ )
-	    {
-		if ( sep->getNumChildren()>1 )
-		{
-		    tc = (SoTextureCoordinate3*)
-			sep->getChild( sep->getNumChildren()-2 );
-		}
-		else
-		{
-		    tc = new SoTextureCoordinate3;
-		    sep->insertChild( tc, 0 );
-		    
-		    if ( sep->findChild(tc)!=sep->findChild(triangle)-1 )
-		    {
-			sep->removeChild( tc );
-			sep->insertChild( tc, sep->findChild( triangle ) );
-		    }
-		}
-
-		if ( shouldsplit )
-		{
-		    if ( sep->getNumChildren()>2 )
-			sp = (SoSplitTexture2Part*)
-			    sep->getChild( sep->getNumChildren()-3 );
-		    else
-		    {
-			sp = new SoSplitTexture2Part;
-			sep->insertChild( sp, 0 );
-			
-			if ( sep->findChild(sp)!=sep->findChild(tc)-1 )
-			{
-			    sep->removeChild( sp );
-			    sep->insertChild( sp, sep->findChild( tc ) );
-			}
-		    }
-		}
-		else while ( sep->getNumChildren()>2 )
-		    sep->removeChild( 0 );
-	    }
-	    else while ( sep->getNumChildren()>1 )
-		sep->removeChild( 0 );
-
-	    const int startzpixel = idz * (mMaxVerSz-1);
+	    const int startzpixel = veridx * (mMaxVerSz-1);
 	    int stopzpixel = startzpixel + mMaxVerSz-1;
-	    if ( stopzpixel>=nrzpixels_ || nrzblocks==1 ) 
-		stopzpixel = nrzpixels_-1;
+	    if ( stopzpixel>=nrzpixels_ || nrverblocks==1 ) 
+		stopzpixel = nrzpixels_ ? nrzpixels_-1 : 0;
 	    
 	    const int horsz = lastpathidx-startpathidx+1;
 	    const int versz = stopzpixel-startzpixel+1;
-	    const int texturepathsz = shouldsplit ? nextPower(horsz,2) : horsz;
-	    const int texturezsz = shouldsplit ? nextPower(versz,2) : versz;
+	    const int texturepathsz = nextPower(horsz,2);
+	    const int texturezsz = nextPower(versz,2);
 
-	    if ( sp )
+	    if ( tcomp )
 	    {
-		sp->origin.setValue( startzpixel, startpathidx );
-		sp->size.setValue( texturezsz, texturepathsz );
-		
-		const int unitssz = usedunits_.size();
-		for ( int idx=0; idx<unitssz; idx++ )
-		    sp->textureunits.set1Value( idx, usedunits_[idx] );
-
-		sp->textureunits.deleteValues( unitssz );
+		tcomp->origin.setValue( 0, startpathidx, startzpixel );
+		tcomp->size.setValue( 1, texturepathsz, texturezsz );
 	    }
 
 	    if ( tc )
 	    {
-    		const float tcstart = shouldsplit ? 0.5/texturezsz : 0;
-    		const float tcstop = shouldsplit ? (versz-0.5)/texturezsz : 1;
+    		const float tcstart = 0.5/texturezsz;
+    		const float tcstop = (versz-0.5)/texturezsz;
 		int textureidx=0;
 		for ( int idx=0; idx<knots.size(); idx++ )
     		{
 		    const int posid = path_.indexOf(knots[idx]);
 		    const float tcrd = (posid-startpathidx+0.5)/texturepathsz;
-		    tc->point.set1Value( textureidx, SbVec3f(tcstart,tcrd,0) );
+		    tc->point.set1Value( textureidx, SbVec2f(tcstart,tcrd) );
 		    textureidx++;
 
-		    tc->point.set1Value( textureidx, SbVec3f(tcstop,tcrd,0) );
+		    tc->point.set1Value( textureidx, SbVec2f(tcstop,tcrd) );
 		    textureidx++;
 		}
 		
@@ -318,8 +287,8 @@ void SplitTextureRandomLine::updateDisplay( )
 		    coordidx++;		
 		}
 
-		triangle->coordIndex.set1Value( curknotidx, 
-		       usedpts.indexOf(stop) );
+		triangle->coordIndex.set1Value( curknotidx,
+			usedpts.indexOf(stop) );
 		triangle->textureCoordIndex.set1Value( curknotidx,curknot );
 		curknotidx++; 
 		curknot++;
@@ -328,7 +297,7 @@ void SplitTextureRandomLine::updateDisplay( )
 		{
 		    triangle->coordIndex.set1Value( curknotidx, -1 );
 		    triangle->textureCoordIndex.set1Value( curknotidx, -1 );
-		    curknotidx ++;
+		    curknotidx++;
 		    curknot -= 2;
 		    idx--;
 		    repeated = true;
