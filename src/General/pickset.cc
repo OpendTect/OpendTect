@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.63 2009-06-05 17:56:13 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.64 2009-06-19 08:15:13 cvsbert Exp $";
 
 #include "pickset.h"
 
@@ -504,9 +504,7 @@ void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool iszreq )
 	Table::TargetInfo* ti =
 	    new Table::TargetInfo( "Z Values", FloatInpSpec(), Table::Required,
 		    		   PropertyRef::surveyZType() );
-	const char* un = SI().zIsTime() ? "Milliseconds"
-	                                : SI().zInFeet() ? "Feet" : "Meter";
-	ti->selection_.unit_ = UoMR().get( un );
+	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
 	fd->bodyinfos_ += ti;
     }
 }

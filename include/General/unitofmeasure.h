@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.7 2008-12-31 07:16:34 cvsranojay Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.8 2009-06-19 08:15:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,11 @@ public:
     static const UnitOfMeasure* getGuessed(const char*);
     Repos::Source	source() const			{ return source_; }
     void		setSource( Repos::Source s )	{ source_ = s; }
+
+    static const UnitOfMeasure* surveyDefZUnit();
+    static const char*	surveyDefZUnitAnnot(bool symbol=false);
+    static const UnitOfMeasure* surveyDefDepthUnit();
+    static const char*	surveyDefDepthUnitAnnot(bool symbol=false);
 
 protected:
 

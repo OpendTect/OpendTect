@@ -4,11 +4,12 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.11 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.12 2009-06-19 08:15:14 cvsbert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
 #include "separstr.h"
+#include "survinfo.h"
 #include "strmprov.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -54,6 +55,39 @@ const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 {
     const UnitOfMeasure* direct = UoMR().get( nm );
     return direct ? direct : UoMR().get( UoMR().guessedStdName(nm) );
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
+{
+    if ( SI().zIsTime() )
+	return UoMR().get( "Milliseconds" );
+    else
+	return surveyDefDepthUnit();
+}
+
+
+const char* UnitOfMeasure::surveyDefZUnitAnnot( bool symb )
+{
+    if ( SI().zIsTime() )
+	return symb ? "ms" : "Milliseconds";
+    else
+	return surveyDefDepthUnitAnnot( symb );
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
+{
+    return UoMR().get( SI().depthsInFeetByDefault() ? "Feet" : "Meter" );
+}
+
+
+const char* UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb )
+{
+    if ( SI().depthsInFeetByDefault() )
+	return symb ? "ft" : "Feet";
+    else
+	return symb ? "m" : "Meter";
 }
 
 
