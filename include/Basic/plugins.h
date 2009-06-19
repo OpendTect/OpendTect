@@ -8,7 +8,7 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.23 2009-06-18 02:03:35 cvskris Exp $
+ RCS:		$Id: plugins.h,v 1.24 2009-06-19 11:16:07 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -131,6 +131,7 @@ public:
 			{ return usr ? userlibdir_ : applibdir_; }
 
     static const char*	sKeyDontLoad() { return "dTect.Dont load plugins"; }
+    const FileMultiString& notLoadedByUser() const { return dontloadlist_; }
 
 private:
 
