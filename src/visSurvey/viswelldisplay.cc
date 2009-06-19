@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.99 2009-06-18 14:54:09 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.100 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 
@@ -74,7 +74,7 @@ WellDisplay::WellDisplay()
     , well_(0)
     , wellid_(-1)
     , zistime_(SI().zIsTime())
-    , zinfeet_(SI().zInFeet())
+    , zinfeet_(SI().depthsInFeetByDefault())
     , eventcatcher_(0)
     , changed_(this)
     , transformation_(0)

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.56 2009-05-28 12:05:11 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.57 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -35,7 +35,7 @@ inline static StreamData getSD( const char* fnm )
 Well::AscImporter::D2TModelInfo::D2TModelInfo()
     : istwt_(true)
     , istvd_(false)
-    , zinft_(SI().zInFeet())
+    , zinft_(SI().depthsInFeetByDefault())
     , vel_(4000)
 {
 }

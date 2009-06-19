@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.6 2009-06-16 10:23:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.7 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -57,7 +57,7 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , ld1_(scene(),true,su.border_)
     , ld2_(scene(),false,su.border_)
     , zrg_(mUdf(float),0)
-    , dispzinft_(SI().zInFeet())
+    , dispzinft_(SI().depthsInFeetByDefault())
     , markers_(0)
 {
     setStretch( 2, 2 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.27 2009-04-06 08:14:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.28 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "emhorizon2d.h"
 
@@ -388,9 +388,7 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
 	BufferString fldname = hornms.get( idx );
 	Table::TargetInfo* ti = new Table::TargetInfo( fldname.buf(),
 		FloatInpSpec(), Table::Required, PropertyRef::surveyZType() );
-	const char* un = SI().zIsTime() ? "Milliseconds"
-					: SI().zInFeet() ? "Feet" : "Meter";
-	ti->selection_.unit_ = UoMR().get( un );
+	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
 	fd->bodyinfos_ += ti;
     }
 }

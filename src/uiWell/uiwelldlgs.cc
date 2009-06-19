@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.79 2009-05-28 12:05:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.80 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -67,7 +67,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     tbl_->setNrRows( nremptyrows );
 
     zinftfld_ = new uiCheckBox( this, "Z in Feet" );
-    zinftfld_->setChecked( SI().zInFeet() );
+    zinftfld_->setChecked( SI().depthsInFeetByDefault() );
     zinftfld_->activated.notify( mCB(this,uiWellTrackDlg,fillTable) );
     zinftfld_->attach( ensureBelow, tbl_ );
     zinftfld_->attach( rightBorder );

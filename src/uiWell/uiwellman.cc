@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.53 2009-06-18 14:55:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.54 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.53 2009-06-18 14:55:01 cvsbert
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
@@ -420,25 +421,18 @@ void uiWellMan::mkFileInfo()
 
     if ( !track.isEmpty() )
     {
-	float rdelev = track.dah( 0 ) - track.value( 0 );
+	const float rdelev = track.dah( 0 ) - track.value( 0 );
+	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
 	    txt += "Reference Datum Elevation"; txt += ": ";
-	    const char* unstr = " m";
-	    if ( SI().zInFeet() )
-		{ rdelev *= mToFeetFactor; unstr = " ft"; }
-	    txt += rdelev; txt += unstr;
-	    txt += "\n";
+	    txt += zun->userValue(rdelev); txt += zun->symbol(); txt += "\n";
 	}
-	float surfelev = -info.surfaceelev;
+	const float surfelev = -info.surfaceelev;
 	if ( !mIsZero(surfelev,1e-4) && !mIsUdf(surfelev) )
 	{
 	    txt += "Surface Reference Datum"; txt += ": ";
-	    const char* unstr = " m";
-	    if ( SI().zInFeet() )
-		{ surfelev *= mToFeetFactor; unstr = " ft"; }
-	    txt += surfelev; txt += unstr;
-	    txt += "\n";
+	    txt += zun->userValue(surfelev); txt += zun->symbol(); txt += "\n";
 	}
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.7 2008-12-23 12:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.8 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
@@ -50,8 +50,7 @@ void MuteAscIO::createDescBody( Table::FormatDesc& fd, bool haveposinfo )
     Table::TargetInfo* bti = new Table::TargetInfo( "Z Values" , FloatInpSpec(),
 	                                           Table::Required,
 					           PropertyRef::surveyZType() );
-    bti->selection_.unit_ = UoMR().get( SI().zIsTime() ? "Milliseconds" :
-	    				(SI().zInFeet() ? "Feet" : "Meter") );
+    bti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
     fd.bodyinfos_ += bti;
 }
 

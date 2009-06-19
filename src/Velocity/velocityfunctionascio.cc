@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.2 2009-04-29 16:25:05 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.3 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "velocityfunctionascio.h"
 
@@ -60,8 +60,7 @@ void FunctionAscIO::createDescBody( Table::FormatDesc& fd )
     Table::TargetInfo* bti = new Table::TargetInfo( "Z Values" , FloatInpSpec(),
 	    					   Table::Required,
 						   PropertyRef::surveyZType() );
-    bti->selection_.unit_ = UoMR().get( SI().zIsTime() ? "Milliseconds" :
-	    				(SI().zInFeet() ? "Feet" : "Meter") );
+    bti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
     fd.bodyinfos_ += bti;
 
     fd.bodyinfos_ += new Table::TargetInfo( "Velocity", FloatInpSpec(),

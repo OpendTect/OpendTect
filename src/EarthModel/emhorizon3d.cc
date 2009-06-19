@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.116 2009-06-19 07:52:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.117 2009-06-19 08:58:11 cvsbert Exp $";
 
 #include "emhorizon3d.h"
 
@@ -758,9 +758,7 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 	if ( fldname == "Z values" )
 	{
 	    ti->setPropertyType( PropertyRef::surveyZType() );
-	    const char* un = SI().zIsTime() ? "Milliseconds"
-					    : SI().zInFeet() ? "Feet" : "Meter";
-	    ti->selection_.unit_ = UoMR().get( un );
+	    ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
 	}
 
 	fd->bodyinfos_ += ti;
