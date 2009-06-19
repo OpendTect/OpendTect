@@ -8,15 +8,18 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.64 2009-05-29 05:38:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.65 2009-06-19 20:27:32 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
+#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "vismultitexture2.h"
 #include "vismaterial.h"
 #include "vistext.h"
+#include "vistexturechannels.h"
+#include "vistexturechannel2rgba.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
 #include "vissplittextureseis2d.h"
@@ -25,6 +28,7 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.64 2009-05-29 05:38:23 
 #include "arrayndslice.h"
 #include "attribdataholder.h"
 #include "attribdatapack.h"
+#include "coltabmapper.h"
 #include "genericnumer.h"
 #include "idxable.h"
 #include "iopar.h"
@@ -140,7 +144,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 
 Seis2DDisplay::Seis2DDisplay()
-    : transformation_(0)
+    : MultiTextureSurveyObject( true )
+    , transformation_(0)
     , geometry_(*new PosInfo::Line2DData)
     , triangles_( visBase::SplitTextureSeis2D::create() )	 
     , geomchanged_(this)
@@ -339,7 +344,20 @@ const Attrib::Data2DHolder* Seis2DDisplay::getCache( int attrib ) const
 void Seis2DDisplay::setData( int attrib,
 			     const Attrib::Data2DHolder& data2dh )
 {
-    if ( data2dh.isEmpty() ) return;
+    if ( data2dh.isEmpty() ) 
+    {
+	if ( texture_ )
+	{
+	    texture_->setData( attrib, 0, 0 );
+	    texture_->turnOn( false );
+	}
+	else
+	{
+	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+	    channels_->turnOn( false );
+	}
+	return;
+    }
 
     const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
 
@@ -361,7 +379,11 @@ void Seis2DDisplay::setData( int attrib,
     if ( nrseries == 0 )
 	return;
 
-    texture_->setNrVersions( attrib, nrseries );
+    if ( texture_ )
+	texture_->setNrVersions( attrib, nrseries );
+    else
+	channels_->setNrVersions( attrib, nrseries );
+
     for ( int sidx=0; sidx<nrseries; sidx++ )
     {
 	arr->setAll( mUdf(float) );
@@ -421,21 +443,32 @@ void Seis2DDisplay::setData( int attrib,
 	if ( !slice.init() )
 	    continue;
 
-	if ( resolution_ )
+	if ( texture_ )
 	{
-	    texture_->setDataOversample( attrib, sidx, resolution_,
-				 !isClassification(attrib), &slice, true );
+	    if ( resolution_ )
+		texture_->setDataOversample( attrib, sidx, resolution_, 
+			!isClassification(attrib), &slice, true );
+	    else
+	    {
+		texture_->splitTexture( true );
+    		texture_->setData( attrib, sidx, &slice, true );
+	    }
 	}
 	else
 	{
-	    texture_->splitTexture( true );
-	    texture_->setData( attrib, sidx, &slice, true );
-	    
-	    triangles_->enableSpliting( texture_->canUseShading() );
-	    triangles_->setTextureUnits( texture_->getUsedTextureUnits() );
-	    triangles_->setTextureZPixels( slice.info().getSize(0) );
+	    channels_->setSize( 1, slice.info().getSize(1),
+		    		   slice.info().getSize(0) );
+	    channels_->setUnMappedData( attrib, sidx, usedarr->getData(), 
+		    			OD::UsePtr, 0 );
 	}
+    
+	triangles_->setTextureZPixels( slice.info().getSize(0) );
     }
+
+    if ( texture_ )
+	texture_->turnOn( true );
+    else
+	channels_->turnOn( true );
 }
 
 
@@ -444,8 +477,9 @@ void Seis2DDisplay::updateVizPath()
     triangles_->setDisplayedGeometry( trcnrrg_, curzrg_ );
     if ( trcnrrg_.width() )
     	updateLineNamePos();
-    
-    texture_->clearAll();
+   
+   if ( texture_ ) 
+       texture_->clearAll();
 }
 
 
@@ -478,8 +512,9 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
 	    s2dd->addAttrib();
 
 	s2dd->setSelSpec( idx, *getSelSpec(idx) );
-	s2dd->texture_->copySettingsFrom( idx,
-		(const visBase::MultiTexture&) *texture_, idx );
+	if ( texture_ && s2dd->texture_ )
+    	    s2dd->texture_->copySettingsFrom( idx,
+    		    (const visBase::MultiTexture&) *texture_, idx );
 
 	if ( getCache( idx ) )
 	    s2dd->setData( idx, *getCache( idx ) );
@@ -549,13 +584,13 @@ bool Seis2DDisplay::lineNameShown() const
 
 int Seis2DDisplay::nrResolutions() const
 {
-    return texture_->usesShading() ? 1 : 3;
+    return texture_ ? (texture_->usesShading() ? 1 : 3) : 1;
 }
 
 
 void Seis2DDisplay::setResolution( int res )
 {
-    if ( texture_->usesShading() )
+    if ( !texture_ || texture_->canUseShading() )
 	return;
 
     if ( res==resolution_ )
@@ -931,8 +966,12 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 
 void Seis2DDisplay::clearTexture( int attribnr )
 {
+    if ( !texture_ )
+	return;
+
     for ( int idx=0; idx<texture_->nrVersions(attribnr); idx++ )
 	texture_->setData( attribnr, idx, 0 );
+    
     texture_->enableTexture( attribnr, false );
 
     Attrib::SelSpec as;
@@ -985,7 +1024,16 @@ int Seis2DDisplay::usePar( const IOPar& par )
 
 	RefMan<visBase::Texture2> texture =
 	    reinterpret_cast<visBase::Texture2*>(text);
-	texture_->setColorTab( 0, texture->getColorTab() );
+	if ( texture_ )
+    	    texture_->setColorTab( 0, texture->getColorTab() );
+	else
+	{
+	    channels_->setColTabMapperSetup( 0,
+		    texture->getColorTab().colorMapper().setup_ );
+	    channels_->getChannels2RGBA()->setSequence( 0,
+		    texture->getColorTab().colorSeq().colors() );
+	}
+
 	Attrib::SelSpec as;
 	as.usePar( par );
 	setSelSpec( 0, as );
@@ -996,7 +1044,7 @@ int Seis2DDisplay::usePar( const IOPar& par )
 	if ( res!=1 ) return res;
 
 	par.get( sKeyTrcNrRange(), trcnrrg_ );
-//	par.get( sKeyZRange(), samplerg_ );
+	
 	bool showlinename = false;
 	par.getYN( sKeyShowLineName(), showlinename );
 	showLineName( showlinename );

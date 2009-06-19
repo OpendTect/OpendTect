@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.3 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.4 2009-06-19 20:27:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,9 @@ ________________________________________________________________________
 #include "visobject.h"
 
 class SoSeparator;
+class SoIndexedTriangleStripSet;
+class SoTextureCoordinate2;
+class SoTextureComposer;
 
 namespace visBase
 {
@@ -33,9 +36,6 @@ public:
     static SplitTextureSeis2D*	create()
 				mCreateDataObj(SplitTextureSeis2D);
 
-    void			enableSpliting(bool yn);
-    bool			isSplitingEnabled() const;
-    void			setTextureUnits(const TypeSet<int>&);
     void			setTextureZPixels(int);
     				//!<\note Horizontal size is trcrg.width()+1, 
 
@@ -53,10 +53,10 @@ protected:
     				~SplitTextureSeis2D();
     void			updateDisplay();
     void			updateHorSplit();
-
-    bool 			splittexture_;
-    TypeSet<int>		usedunits_;
-
+    void			updateSeparator(SoSeparator*,
+	    				SoIndexedTriangleStripSet*&,
+					SoTextureCoordinate2*&,
+					SoTextureComposer*&,bool) const;
     TypeSet<Coord>		path_; 
     Interval<float>		zrg_;
     Interval<int>		trcrg_;

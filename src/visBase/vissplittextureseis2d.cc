@@ -7,23 +7,23 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.4 2009-02-05 22:12:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.5 2009-06-19 20:27:32 cvsyuancheng Exp $";
 
 #include "vissplittextureseis2d.h"
 
 #include "idxable.h"
 #include "posinfo.h"
 #include "simpnumer.h"
+#include "SoTextureComposer.h"
 #include "survinfo.h"
 #include "viscoord.h"
 #include "vistexturecoords.h"
-#include "SoSplitTexture2.h"
 
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoNormalBinding.h>
-#include <Inventor/nodes/SoTextureCoordinate3.h>
+#include <Inventor/nodes/SoTextureCoordinate2.h>
 
 #define mMaxHorSz 256
 #define mMaxVerSz 256
@@ -35,7 +35,6 @@ namespace visBase
    
 SplitTextureSeis2D::SplitTextureSeis2D()
     : VisualObjectImpl( false )
-    , splittexture_( false )
     , zrg_( 0, 0 )
     , trcrg_( 0, 0 )	
     , nrzpixels_( 0 )
@@ -64,33 +63,6 @@ SplitTextureSeis2D::~SplitTextureSeis2D()
 	separators_[idx]->unref();
 
     deepErase( horblocktrcindices_ );
-}
-
-
-void SplitTextureSeis2D::enableSpliting( bool yn )
-{
-    if ( splittexture_==yn )
-	return;
-
-    splittexture_ = yn;
-    updateDisplay();
-}
-
-
-bool SplitTextureSeis2D::isSplitingEnabled() const
-{
-    return splittexture_;
-}
-
-
-void SplitTextureSeis2D::setTextureUnits( const TypeSet<int>& units )
-{ 
-    if ( usedunits_ == units )
-	return;
-
-    usedunits_ = units;
-    if ( splittexture_ )
-	updateDisplay();
 }
 
 
@@ -201,15 +173,65 @@ void SplitTextureSeis2D::updateHorSplit()
 }
 
 
+void SplitTextureSeis2D::updateSeparator( SoSeparator* sep,
+	SoIndexedTriangleStripSet*& tristrip, SoTextureCoordinate2*& tc,
+	SoTextureComposer*& tcomp, bool hastexture ) const
+{
+    if ( sep->getNumChildren() )
+    {
+	tristrip = (SoIndexedTriangleStripSet*)
+	    sep->getChild( sep->getNumChildren()-1 );
+    }
+    else
+    {
+	tristrip = new SoIndexedTriangleStripSet;
+	sep->addChild( tristrip );
+    }
+
+    if ( hastexture )
+    {
+	if ( sep->getNumChildren()>1 )
+	    tc = (SoTextureCoordinate2*) sep->getChild(sep->getNumChildren()-2);
+	else
+	{
+	    tc = new SoTextureCoordinate2;
+	    sep->insertChild( tc, 0 );
+	    
+	    if ( sep->findChild(tc)!=sep->findChild(tristrip)-1 )
+	    {
+		sep->removeChild( tc );
+		sep->insertChild( tc, sep->findChild( tristrip ) );
+	    }
+	}
+
+	if ( sep->getNumChildren()>2 )
+	    tcomp = (SoTextureComposer*) sep->getChild(sep->getNumChildren()-3);
+	else
+	{
+	    tcomp = new SoTextureComposer;
+	    sep->insertChild( tcomp, 0 );
+	    
+	    if ( sep->findChild(tcomp)!=sep->findChild(tc)-1 )
+	    {
+		sep->removeChild( tcomp );
+		sep->insertChild( tcomp, sep->findChild( tc ) );
+	    }
+	}
+    }
+    else 
+    {
+	while ( sep->getNumChildren()>1 )
+    	    sep->removeChild( 0 );
+    }
+}
+
+
 void SplitTextureSeis2D::updateDisplay( )
 {
     if ( !zrg_.width() || !trcrg_.width() )
 	return;
 
-    if ( splittexture_ && (!nrzpixels_ || !usedunits_.size()) )
-	return;
-
-    const int verblocks = splittexture_ ? nrBlocks(nrzpixels_,mMaxVerSz,1) : 1;
+    const int verblocks = nrBlocks( nrzpixels_, mMaxVerSz, 1 );
     ObjectSet<SoSeparator> unusedseparators = separators_;
 
     int coordidx = 0;
@@ -220,72 +242,21 @@ void SplitTextureSeis2D::updateDisplay( )
 	for ( int idz=0; idz<verblocks; idz++ )
 	{
 	    SoSeparator* sep = 0;
-	    SoTextureCoordinate3* tc = 0;
+	    SoTextureComposer* tcomp = 0;
+	    SoTextureCoordinate2* tc = 0;
 	    SoIndexedTriangleStripSet* tristrip = 0;
-	    SoSplitTexture2Part* sp = 0;
 
 	    if ( unusedseparators.size() )
 		sep = unusedseparators.remove( 0 );
 	    else
 	    {
-		sep =new SoSeparator;
+		sep = new SoSeparator;
 		sep->ref();
 		addChild( sep );
 		separators_ += sep;
 	    }
 
-	    if ( sep->getNumChildren() )
-	    {
-		tristrip = (SoIndexedTriangleStripSet*)
-		    sep->getChild( sep->getNumChildren()-1 );
-	    }
-	    else
-	    {
-		tristrip = new SoIndexedTriangleStripSet;
-		sep->addChild( tristrip );
-	    }
-
-	    if ( nrzpixels_ )
-	    {
-		if ( sep->getNumChildren()>1 )
-		{
-		    tc = (SoTextureCoordinate3*)
-			sep->getChild( sep->getNumChildren()-2 );
-		}
-		else
-		{
-		    tc = new SoTextureCoordinate3;
-		    sep->insertChild( tc, 0 );
-		    
-		    if ( sep->findChild(tc)!=sep->findChild(tristrip)-1 )
-		    {
-			sep->removeChild( tc );
-			sep->insertChild( tc, sep->findChild( tristrip ) );
-		    }
-		}
-
-		if ( splittexture_ )
-		{
-		    if ( sep->getNumChildren()>2 )
-			sp = (SoSplitTexture2Part*)
-			    sep->getChild( sep->getNumChildren()-3 );
-		    else
-		    {
-			sp = new SoSplitTexture2Part;
-			sep->insertChild( sp, 0 );
-			
-			if ( sep->findChild(sp)!=sep->findChild(tc)-1 )
-			{
-			    sep->removeChild( sp );
-			    sep->insertChild( sp, sep->findChild( tc ) );
-			}
-		    }
-		}
-		else while ( sep->getNumChildren()>2 )
-		    sep->removeChild( 0 );
-	    }
-	    else while ( sep->getNumChildren()>1 )
-		sep->removeChild( 0 );
+	    updateSeparator( sep, tristrip, tc, tcomp, nrzpixels_ );
 	    
 	    const int startzpixel = idz * (mMaxVerSz-1);
 	    int stopzpixel = startzpixel + mMaxVerSz-1;
@@ -295,38 +266,31 @@ void SplitTextureSeis2D::updateDisplay( )
 	    const int bpsz = (*horblockrg).size();
 	    const int horsz = (*horblockrg)[bpsz-1]-(*horblockrg)[0]+1;
 	    const int versz = stopzpixel-startzpixel+1;
-	    const int texturehorsz = splittexture_ ? nextPower(horsz,2) : horsz;
-	    const int textureversz = splittexture_ ? nextPower(versz,2) : versz;
+	    const int texturehorsz = nextPower( horsz, 2 );
+	    const int textureversz = nextPower( versz, 2 );
 	    
-	    if ( sp )
+	    if ( tcomp )
 	    {
 		const int firstpathidx = trcrg_.start - firsttrcnr_; 
-		sp->origin.setValue( (*horblockrg)[0]-firstpathidx,startzpixel);
-		sp->size.setValue( texturehorsz, textureversz );
-
-		const int unitssz = usedunits_.size();
-		for ( int idx=0; idx<unitssz; idx++ )
-		    sp->textureunits.set1Value( idx, usedunits_[idx] );
-
-		sp->textureunits.deleteValues( unitssz );
+		tcomp->origin.setValue( 0, 
+			(*horblockrg)[0]-firstpathidx, startzpixel );
+		tcomp->size.setValue( 1, texturehorsz, textureversz );
 	    }
 	 
 	    if ( tc )
 	    {
-		const float tcstart = splittexture_ ? 0.5/textureversz : 0;
-		const float tcstop = splittexture_ ? (versz-0.5)/textureversz 
-						   : 1;
+		const float tcstart = 0.5/textureversz;
+		const float tcstop = (versz-0.5)/textureversz;
 		int tcidx = 0;
 		for ( int idx=0; idx<bpsz; idx++ )
 		{
 		    const float dist = (*horblockrg)[idx]-(*horblockrg)[0];
-		    const float tcrd = splittexture_ ? (0.5+dist)/texturehorsz
-			: ((*horblockrg)[idx]-inithorpos)/trcrg_.width();
+		    const float tcrd = (0.5+dist)/texturehorsz;
 	
-		    tc->point.set1Value( tcidx, SbVec3f(tcrd,tcstart,0) );
+		    tc->point.set1Value( tcidx, SbVec2f(tcstart,tcrd) );
 		    tcidx++;
 		    
-		    tc->point.set1Value( tcidx, SbVec3f(tcrd,tcstop,0) );
+		    tc->point.set1Value( tcidx, SbVec2f(tcstop,tcrd) );
 		    tcidx++;
 		}
 		
