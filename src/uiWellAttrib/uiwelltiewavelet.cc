@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.14 2009-06-20 16:38:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.15 2009-06-20 16:45:12 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -186,6 +186,7 @@ uiWellTieWvltSaveDlg( uiParent* p, const Wavelet* wvlt )
             : uiDialog(p,uiDialog::Setup("Save Estimated Wavelet",
 	    "Specify wavelet name",mTODOHelpID))
 	    , wvltctio_(*mMkCtxtIOObj(Wavelet))
+	    , wvlt_(wvlt)				       
 {
     wvltctio_.ctxt.forread = false;
     wvltfld_ = new uiIOObjSel( this, wvltctio_, "Output wavelet" );
@@ -197,13 +198,18 @@ bool acceptOK( CallBacker* )
     if ( !wvltfld_->commitInput() )
 	mErrRet( "Please enter a name for the new Wavelet" );
 
-    Wavelet wvlt( wvltfld_->getInput() );
+    const int wvltsize = wvlt_->size();
+    Wavelet wvlt( wvltfld_->getInput(), -wvltsize/2, SI().zStep() );
+    wvlt.reSize( wvltsize );
+    for( int idx=0; idx<wvltsize; idx++ )
+	wvlt.samples()[idx] = wvlt_->samples()[idx];
     wvlt.put( wvltctio_.ioobj );
     return true;
 }
 
-    CtxtIOObj&  wvltctio_;
-    uiIOObjSel* wvltfld_;
+    CtxtIOObj&  	wvltctio_;
+    uiIOObjSel* 	wvltfld_;
+    const Wavelet* 	wvlt_;
 };
 
 
