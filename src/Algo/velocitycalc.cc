@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.17 2009-05-05 16:48:33 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.18 2009-06-20 17:16:46 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -35,6 +35,16 @@ bool TimeDepthConverter::isOK() const
 { return times_ || depths_; }
 
 
+bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
+ 					       bool velintime)
+{
+    if ( velintime )
+ 	return vd.type_==VelocityDesc::Interval || vd.type_==VelocityDesc::RMS;
+ 
+    return vd.type_==VelocityDesc::Interval;
+}
+ 
+ 
 bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 				      int sz, const SamplingData<double>& sd,
 				      const VelocityDesc& vd, bool istime )

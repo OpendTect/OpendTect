@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.13 2009-05-05 16:48:33 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.14 2009-06-20 17:16:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
 			~TimeDepthConverter();
 
     bool		isOK() const;
+    static bool		isVelocityDescUseable(const VelocityDesc&,
+	    				      bool velintime);
 
     const char*		errMsg() const;
 
