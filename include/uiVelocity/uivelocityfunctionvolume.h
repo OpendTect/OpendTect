@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocityfunctionvolume.h,v 1.2 2009-01-08 08:37:00 cvsranojay Exp $
+ RCS:		$Id: uivelocityfunctionvolume.h,v 1.3 2009-06-20 03:29:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "uiselectvelocityfunction.h"
 
-class CtxtIOObj;
 class uiSeisSel;
 class uiGenInput;
 
@@ -39,8 +38,6 @@ protected:
 				create(uiParent*,FunctionSource*);
 
     uiSeisSel*			volumesel_;
-    CtxtIOObj*			ctxtioobj_;
-
     VolumeFunctionSource*	source_;
 };
 

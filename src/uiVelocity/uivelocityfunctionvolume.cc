@@ -4,13 +4,13 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityfunctionvolume.cc,v 1.2 2008-11-19 22:14:42 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionvolume.cc,v 1.3 2009-06-20 03:29:07 cvskris Exp $";
 
 #include "uivelocityfunctionvolume.h"
 
 
 #include "uigeninput.h"
-#include "uiseissel.h"
+#include "uiveldesc.h"
 #include "velocityfunctionvolume.h"
 #include "seistrctr.h"
 #include "seisselection.h"
@@ -39,15 +39,14 @@ uiFunctionSettings* uiVolumeFunction::create( uiParent* p, FunctionSource* vs )
 uiVolumeFunction::uiVolumeFunction( uiParent* p, VolumeFunctionSource* s )
     : uiFunctionSettings( p, "Volume" )
     , source_( s )
-    , ctxtioobj_( new CtxtIOObj( SeisTrcTranslatorGroup::ioContext() ) )
 {
     if ( source_ ) source_->ref();
 
-    if ( source_ ) ctxtioobj_->setObj( source_->multiID() );
-    ctxtioobj_->ctxt.forread = true;
+    IOObjContext ctxt = uiVelSel::ioContext();
+    ctxt.forread = true;
+    volumesel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
+    if ( source_ ) volumesel_->setInput( source_->multiID() );
 
-    volumesel_ = new uiSeisSel( this, *ctxtioobj_,
-	    			uiSeisSel::Setup(Seis::Vol) );
     setHAlignObj( volumesel_ );
 }
 
@@ -55,14 +54,13 @@ uiVolumeFunction::uiVolumeFunction( uiParent* p, VolumeFunctionSource* s )
 uiVolumeFunction::~uiVolumeFunction()
 {
     if ( source_ ) source_->unRef();
-    delete ctxtioobj_->ioobj;
-    delete ctxtioobj_;
 }
 
 
 bool uiVolumeFunction::acceptOK()
 {
-    if ( !ctxtioobj_->ioobj )
+    const IOObj* ioobj = volumesel_->ioobj();
+    if ( !ioobj )
 	return false;
 
     if ( !source_ )
@@ -71,10 +69,7 @@ bool uiVolumeFunction::acceptOK()
 	source_->ref();
     }
 
-    if ( !source_->setFrom( ctxtioobj_->ioobj->key() ) )
-	return false;
-
-    return true;
+    return source_->setFrom( ioobj->key() );
 }
 
 
