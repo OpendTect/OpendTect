@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.47 2009-06-20 16:13:42 cvskris Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.48 2009-06-20 16:49:08 cvskris Exp $";
 
 
 #include "uimsg.h"
@@ -161,7 +161,13 @@ void uiMsg::odfunc( const char* text, const char* p2, const char* p3 ) \
 
 mImplSimpleMsg( message, "Information", information );
 mImplSimpleMsg( warning, "Warning", warning );
-mImplSimpleMsg( error, "Error", critical );
+
+
+void uiMsg::error( const char* p1, const char* p2, const char* p3 )
+{
+    BufferString msg( p1 ); if ( p2 ) msg += p2; if ( p3 ) msg += p3;
+    errorWithDetails( FileMultiString(msg.buf()) );
+}
 
 
 void uiMsg::errorWithDetails( const FileMultiString& fms )
