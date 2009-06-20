@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.13 2009-06-19 12:23:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.14 2009-06-20 16:38:57 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -33,9 +33,13 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.13 2009-06-19 12:23:50 
 #include "uigroup.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
+#include "uimsg.h"
 
 #include <complex>
 
+
+#define mErrRet(msg) \
+{ uiMSG().error(msg); return false; }
 uiWellTieWaveletView::uiWellTieWaveletView( uiParent* p,
 					    const WellTieDataHolder* dh )
 	: uiGroup(p)
@@ -97,6 +101,8 @@ void uiWellTieWaveletView::createWaveletFields( uiGroup* grp )
 	    mCB(this,uiWellTieWaveletView,viewInitWvltPropPushed),false);
     wvltbuts_ += new uiPushButton( grp, "Properties", 
 	    mCB(this,uiWellTieWaveletView,viewEstWvltPropPushed),false);
+    wvltbuts_ += new uiPushButton( grp, "Save Estimated Wavelet", 
+	    mCB(this,uiWellTieWaveletView,saveWvltPushed),false);
 
     wvltbuts_[0]->attach( alignedBelow, viewer_[0] );
     wvltbuts_[1]->attach( alignedBelow, viewer_[1] );
@@ -104,6 +110,10 @@ void uiWellTieWaveletView::createWaveletFields( uiGroup* grp )
     viewer_[0]->attach( alignedBelow, wvltlbl );
     viewer_[1]->attach( rightOf, viewer_[0] );
     viewer_[1]->attach( ensureRightOf, viewer_[0] );
+    
+    wvltbuts_[2]->attach( hCentered );
+    wvltbuts_[2]->attach( ensureBelow, wvltbuts_[1] );
+    wvltbuts_[2]->attach( ensureBelow, wvltbuts_[0] );
 }
 
 
@@ -165,6 +175,42 @@ void uiWellTieWaveletView::viewInitWvltPropPushed( CallBacker* )
 void uiWellTieWaveletView::viewEstWvltPropPushed( CallBacker* )
 {
     wvltestdlg_->go();
+}
+
+
+class uiWellTieWvltSaveDlg : public uiDialog
+{
+public:
+
+uiWellTieWvltSaveDlg( uiParent* p, const Wavelet* wvlt )
+            : uiDialog(p,uiDialog::Setup("Save Estimated Wavelet",
+	    "Specify wavelet name",mTODOHelpID))
+	    , wvltctio_(*mMkCtxtIOObj(Wavelet))
+{
+    wvltctio_.ctxt.forread = false;
+    wvltfld_ = new uiIOObjSel( this, wvltctio_, "Output wavelet" );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    if ( !wvltfld_->commitInput() )
+	mErrRet( "Please enter a name for the new Wavelet" );
+
+    Wavelet wvlt( wvltfld_->getInput() );
+    wvlt.put( wvltctio_.ioobj );
+    return true;
+}
+
+    CtxtIOObj&  wvltctio_;
+    uiIOObjSel* wvltfld_;
+};
+
+
+void uiWellTieWaveletView::saveWvltPushed( CallBacker* )
+{
+    uiWellTieWvltSaveDlg dlg( this, wvlts_[1] );
+    if ( !dlg.go() ) return;
 }
 
 

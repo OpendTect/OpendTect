@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.22 2009-06-20 13:35:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.23 2009-06-20 16:38:57 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.22 2009-06-20 13:3
 #include "uifiledlg.h"
 #include "uiflatviewer.h"
 #include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uigroup.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
@@ -507,3 +508,4 @@ void uiWellTieInfoDlg::setWvlts()
 {
     wvltdraw_->initWavelets();
 }
+

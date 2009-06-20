@@ -50,7 +50,8 @@ protected:
     void 				addSeisPick(CallBacker*);
     void 				checkReadyForWork();
     void 				drawLogsData();
-    void 				doStretchWork(); 
+    void 				doStretchWork();
+    void				shiftModel(); 
     void				updateTime(float&);
 };
 

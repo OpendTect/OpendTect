@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.8 2009-06-19 08:30:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.9 2009-06-20 16:38:57 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -67,18 +67,23 @@ void uiWellTieEventStretch::checkReadyForWork()
 
 void uiWellTieEventStretch::doWork(CallBacker*)
 {
-    float seistime = time( seispickset_.getLastDah() );
-    float synthtime = time( synthpickset_.getLastDah() );
-    d2tmgr_->shiftModel( seistime - synthtime );
-    seispickset_.setDah( 0, dah(seistime) );
-    synthpickset_.setDah( 0, dah(seistime) );
-    
-    if ( synthpickset_.getSize() > 1 )
+    shiftModel();
+    delete seispickset_.remove( seispickset_.getSize()-1 );
+    delete synthpickset_.remove( synthpickset_.getSize()-1 );
+    if ( synthpickset_.getSize() )
     {
 	//pmgr_.sortByDah( seispickset_ );
 	//pmgr_.sortByDah( synthpickset_ );
 	doStretchWork();	
     }
+}
+
+
+void uiWellTieEventStretch::shiftModel()
+{
+    float seistime = time( seispickset_.getLastDah() );
+    float synthtime = time( synthpickset_.getLastDah() );
+    d2tmgr_->shiftModel( seistime - synthtime );
 }
 
 
@@ -105,7 +110,6 @@ void uiWellTieEventStretch::doStretchWork()
 	doStretchData( params_.dpms_.dptnm_ );
 
 	updateTime( startpos_ );
-	synthpickset_.setDah( idx, dah(startpos_) );
     }
     dispdataChanged.trigger();
 }

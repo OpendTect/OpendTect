@@ -78,7 +78,6 @@ protected:
     uiWellTieEventStretch* 	eventstretcher_;
     uiWellTieInfoDlg* 		infodlg_; 
     uiWellTieView*		datadrawer_;
-
     
     bool			manip_;
 
@@ -145,6 +144,7 @@ protected:
     uiGenInput*			topmrkfld_;
     uiPushButton*               applymarkerbut_;
     uiPushButton*               applymrkbut_;
+    uiPushButton*               savewvltestbut_;
     uiWellTieCorrView*          crosscorr_;
     uiWellTieWaveletView*       wvltdraw_;
     

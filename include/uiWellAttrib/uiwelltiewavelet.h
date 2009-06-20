@@ -58,9 +58,10 @@ protected:
     void 			createWaveletFields(uiGroup*);	   
     void			drawWavelet(const Wavelet*,int);
     
-    void 			wvtSel(CallBacker*);
+    void			saveWvltPushed(CallBacker*);
     void 			viewInitWvltPropPushed(CallBacker*);
     void 			viewEstWvltPropPushed(CallBacker*);
+    void 			wvtSel(CallBacker*);
 };
 
 
