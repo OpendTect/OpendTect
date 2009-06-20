@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.9 2009-04-06 07:25:31 cvsnanne Exp $
+ RCS:		$Id: timedepthconv.h,v 1.10 2009-06-20 13:39:36 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -34,6 +34,11 @@ mClass VelocityStretcher : public ZAxisTransform
 {
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
+    const char*			errMsg() const 		{ return errmsg_; }
+
+protected:
+    				VelocityStretcher() : errmsg_( 0 ) 	{}
+    mutable const char*		errmsg_;
 };
 
 
