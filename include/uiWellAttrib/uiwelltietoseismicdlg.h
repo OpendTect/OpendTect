@@ -103,7 +103,7 @@ protected:
     void 			applyShiftPushed(CallBacker*);
     void			checkShotChg(CallBacker*);
     void			checkShotDisp(CallBacker*);
-    void			clearPicksPushed(CallBacker*);
+    void			clearPicks(CallBacker*);
     void 			dispDataChanged(CallBacker*);
     void 			dispParPushed(CallBacker*);
     void 			dispPropChg(CallBacker*);

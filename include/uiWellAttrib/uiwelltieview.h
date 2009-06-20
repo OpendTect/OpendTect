@@ -21,8 +21,9 @@ ________________________________________________________________________
 template <class T> class Array1DImpl;
 class WellTieSetup; 
 class WellTiePickSet; 
-class SeisTrcBuf;
 class SeisTrc;
+class SeisTrcBuf;
+class SeisTrcBufDataPack;
 
 class uiFlatViewer;
 class uiFunctionDisplay;
@@ -62,6 +63,7 @@ protected:
     WellTiePickSet*		synthpickset_;
 
     SeisTrcBuf*			trcbuf_;
+    SeisTrcBufDataPack*		seistrcdp_;
     ObjectSet<SeisTrc>		trcs_;
     float			maxtraceval_;
     float			mintraceval_;
@@ -75,6 +77,7 @@ protected:
     void        		drawDenLog();
     void        		drawRefLog();
     void        		drawTraces();
+    void			drawUserPicks(const WellTiePickSet*);
     void        		drawMarker(FlatView::Annotation::AuxData*,
 					    int,float,float,Color,bool);
     void        		drawWellMarkers();

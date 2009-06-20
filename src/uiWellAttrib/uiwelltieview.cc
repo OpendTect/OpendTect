@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.22 2009-06-19 17:00:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.23 2009-06-20 13:35:12 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -72,6 +72,7 @@ uiWellTieView::uiWellTieView( uiParent* p, uiFlatViewer* vwr,
 
 uiWellTieView::~uiWellTieView()
 {
+    removePack();
     delete trcbuf_;
 }
 
@@ -288,7 +289,6 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 			       	Color col, bool ispick )
 {
     FlatView::Appearance& app = vwr_->appearance();
-    app.annot_.auxdata_ +=  auxdata;
     auxdata->linestyle_.color_ = col;
     auxdata->linestyle_.width_ = 2;
     auxdata->linestyle_.type_  = LineStyle::Solid;
@@ -339,42 +339,39 @@ void uiWellTieView::drawWellMarkers()
 	logsdisp_[idx]->setMarkers( ismarkerdisp ? &wd_.markers() : 0 );
 }	
 
-
+#define mRemoveSet( auxs ) \
+    for ( int idx=0; idx<auxs.size(); idx++ ) \
+        app.annot_.auxdata_ -= auxs[idx]; \
+    deepErase( auxs );
 void uiWellTieView::drawUserPicks()
 {
-    deepErase( userpickauxdatas_ );
-    const int nrauxs = mMAX(seispickset_->getSize(),synthpickset_->getSize());
+    FlatView::Appearance& app = vwr_->appearance();
+    mRemoveSet( userpickauxdatas_ );
+    const int nrauxs = mMAX( seispickset_->getSize(),synthpickset_->getSize() );
     
     for ( int idx=0; idx<nrauxs; idx++ )
     {
 	FlatView::Annotation::AuxData* auxdata = 0;
 	mTryAlloc( auxdata, FlatView::Annotation::AuxData(0) );
 	userpickauxdatas_ += auxdata;
+	app.annot_.auxdata_ +=  auxdata;
     }
     
+    drawUserPicks( seispickset_ );
+    drawUserPicks( synthpickset_ );
+
+    vwr_->handleChange( FlatView::Viewer::Annot );    
+}
+
+
+void uiWellTieView::drawUserPicks( const WellTiePickSet* pickset )
+{
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return; 
 
-    for ( int idx=0; idx<seispickset_->getSize(); idx++ )
+    for ( int idx=0; idx<pickset->getSize(); idx++ )
     {
-	const UserPick* pick = seispickset_->get(idx);
-	if ( !pick  ) continue;
-
-	float zpos = d2tm->getTime( pick->dah_ ); 
-	float xpos = pick->xpos_;
-	
-	drawMarker( userpickauxdatas_[idx], 0, xpos, zpos, 
-		    pick->color_, false );
-
-	uiWellLogDisplay::PickData* pd = 
-			new uiWellLogDisplay::PickData( zpos,pick->color_);
-	for ( int idx=0; idx<logsdisp_.size(); idx++ )
-	   logsdisp_[idx]->zPicks() += *pd; 
-    }
-
-    for ( int idx=0; idx<synthpickset_->getSize(); idx++ )
-    {
-	const UserPick* pick = synthpickset_->get(idx);
+	const UserPick* pick = pickset->get(idx);
 	if ( !pick  ) continue;
 
 	float zpos = d2tm->getTime( pick->dah_ ); 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.21 2009-06-19 17:00:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.22 2009-06-20 13:35:12 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -94,13 +94,13 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	    		mCB(this,uiWellTieToSeismicDlg,applyReady) );
     eventstretcher_->pickadded.notify(
 	    		mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
-   
     initAll();
 }
 
 
 uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
 {
+    clearPicks(0);
     if ( eventstretcher_ )
     {
 	eventstretcher_->readyforwork.remove(
@@ -230,7 +230,7 @@ void uiWellTieToSeismicDlg::createTaskFields( uiGroup* taskgrp )
     undobut_->setSensitive( false );
     
     clearpicksbut_ = new uiPushButton( taskgrp, "&Clear picks",
-	   mCB(this,uiWellTieToSeismicDlg,clearPicksPushed), true );
+	   mCB(this,uiWellTieToSeismicDlg,clearPicks), true );
     clearpicksbut_->setSensitive( false );
     clearpicksbut_->attach( ensureRightOf, undobut_ );
 }
@@ -349,7 +349,7 @@ void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
 }
 
 
-void uiWellTieToSeismicDlg::clearPicksPushed( CallBacker* )
+void uiWellTieToSeismicDlg::clearPicks( CallBacker* )
 {
     dataholder_->pickmgr()->clearAllPicks();
     drawData();
