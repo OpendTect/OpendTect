@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.11 2009-03-20 19:34:43 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.12 2009-06-20 16:44:38 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -400,8 +400,9 @@ bool EventReader::addReader( const char* fnm )
 
     if ( reader->errMsg() )
     {
-	errmsg_ = "Cannot add patch reader. Reader said: ";
-	errmsg_ += reader->errMsg();
+	FileMultiString errmsg( "Cannot add patch reader. ");
+	errmsg += reader->errMsg();
+	errmsg_ = errmsg.buf();
 	delete reader;
 	return false;
     }
@@ -1116,10 +1117,12 @@ EventPatchReader::EventPatchReader( Conn* conn, EventManager* events )
 
     if ( !fileheader_.fromStream( strm ) )
     {
-	errmsg_ = "Could not read file header from ";
-	errmsg_ += ((StreamConn*)conn_)->fileName();
-	errmsg_ += ". File header reader said: ";
-	errmsg_ += fileheader_.errMsg();
+	BufferString errmsg( "Could not read file header from " );
+	errmsg += ((StreamConn*)conn_)->fileName();
+	errmsg += ".";
+	FileMultiString fms( errmsg.buf() );
+	fms += fileheader_.errMsg();
+	errmsg_ = fms.buf();
     }
 }
 
