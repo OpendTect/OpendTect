@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.21 2009-04-06 07:25:31 cvsnanne Exp $
+ RCS:           $Id: zaxistransform.h,v 1.22 2009-06-20 13:34:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     			ZAxisTransform();
     virtual const char*	name() const 				= 0;
     virtual bool	isOK() const				{ return true; }
+    virtual const char*	errMsg()				{ return 0; }
 
     virtual bool	needsVolumeOfInterest() const		{ return true; }
     virtual int		addVolumeOfInterest(const CubeSampling&,
