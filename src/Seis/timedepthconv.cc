@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.9 2009-06-20 13:39:36 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.10 2009-06-20 17:19:21 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -83,9 +83,9 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
 
 bool Time2DepthStretcher::isOK() const
 {
-    if ( veldesc_.type_!=VelocityDesc::Interval )
+    if ( !TimeDepthConverter::isVelocityDescUseable( veldesc_, velintime_ ) )
     {
-	errmsg_ = "Only interval velocities are supported"; 
+	errmsg_ = "Provided velocity is not useable";
 	return false;
     }
 
