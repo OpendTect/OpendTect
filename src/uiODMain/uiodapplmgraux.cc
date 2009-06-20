@@ -7,21 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.5 2009-06-16 02:08:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.6 2009-06-20 16:37:42 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
 
-#include "ioobj.h"
-#include "veldesc.h"
-#include "survinfo.h"
+#include "attribdescset.h"
+#include "bidvsetarrayadapter.h"
 #include "ctxtioobj.h"
-#include "emsurfacetr.h"
 #include "datapointset.h"
 #include "datapackbase.h"
-#include "attribdescset.h"
+#include "emsurfacetr.h"
+#include "ioobj.h"
+#include "separstr.h"
+#include "survinfo.h"
 #include "timedepthconv.h"
-#include "bidvsetarrayadapter.h"
+#include "veldesc.h"
 
 #include "uimsg.h"
 #include "uiconvpos.h"
@@ -122,7 +123,12 @@ bool uiODApplMgrVelSel::acceptOK( CallBacker* )
     }
 
     if ( !trans_->setVelData( velsel_->key() ) || !trans_->isOK() )
-	mErrRet("Internal: Could not initialize transform")
+    {
+	FileMultiString fms("Internal: Could not initialize transform" );
+	fms += trans_->errMsg();
+	uiMSG().errorWithDetails( fms );
+	return false;
+    }
 
     return true;
 }
