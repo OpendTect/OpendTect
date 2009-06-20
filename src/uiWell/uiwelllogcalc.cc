@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.4 2009-06-19 08:58:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.5 2009-06-20 15:32:54 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -241,6 +241,8 @@ void uiWellLogCalc::inpSel( CallBacker* )
     if ( actualnr < 1 ) return;
 
     dahrg.step /= actualnr;
+    if ( ftbox_->isChecked() )
+	dahrg.scale( mToFeetFactor );
     dahrgfld_->setValue( dahrg );
 }
 
