@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.31 2009-06-03 10:41:49 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.32 2009-06-20 15:33:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,7 @@ protected:
     uiComboBox*		sipfld_;
     uiCheckBox*		overrulefld_;
     uiCheckBox*		xyinftfld_;
+    uiCheckBox*		zinftfld_;
 
     bool		dirnamechanged;
     void		mkSIPFld(uiObject*);
@@ -99,10 +100,10 @@ protected:
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
+    void		updZUnit(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		updStatusBar(const char*);
-    void		edGCrdSetup(CallBacker*);
     void		appButPushed(CallBacker*);
 
     friend class	uiSurvey;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.107 2009-06-17 13:00:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.108 2009-06-20 15:33:32 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.107 2009-06-17 13:00:44 cvssaty
 #include "uiseparator.h"
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
+#include "uilatlong2coord.h"
 #include "uisetdatadir.h"
 #include "uitextedit.h"
 #include "uifileinput.h"
@@ -37,6 +38,7 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.107 2009-06-17 13:00:44 cvssaty
 #include "filepath.h"
 #include "oddirs.h"
 #include "iostrm.h"
+#include "latlong.h"
 #include "strmprov.h"
 #include "envvars.h"
 #include "cubesampling.h"
@@ -62,6 +64,9 @@ static ObjectSet<uiSurvey::Util>& getUtils()
     {
 	utils = new ObjectSet<uiSurvey::Util>;
 	*utils += new uiSurvey::Util( "xy2ic.png", "Convert (X,Y) to/from I/C",
+				      CallBack() );
+	*utils += new uiSurvey::Util( "spherewire.png",
+				"Setup geographical coordinates",
 				      CallBack() );
     }
     return *utils;
@@ -457,6 +462,16 @@ void uiSurvey::utilButPush( CallBacker* cb )
     {
 	uiConvertPos dlg( this, *survinfo_ );
 	dlg.go();
+    }
+    else if ( butidx == 1 )
+    {
+	if ( !survinfo_->latlong2Coord().isOK() )
+	    uiLatLong2CoordDlg::ensureLatLongDefined( this, survinfo_ );
+	else
+	{
+	    uiLatLong2CoordDlg dlg( this, survinfo_->latlong2Coord(),survinfo_);
+	    dlg.go();
+	}
     }
     else
     {

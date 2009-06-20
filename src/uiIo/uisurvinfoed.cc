@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.110 2009-06-03 10:41:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.111 2009-06-20 15:33:32 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.110 2009-06-03 10:41:49 cvs
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
-#include "latlong.h"
 #include "mousecursor.h"
 #include "oddirs.h"
 #include "ptrman.h"
@@ -37,7 +36,6 @@ static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.110 2009-06-03 10:41:49 cvs
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uiseparator.h"
-#include "uilatlong2coord.h"
 #include "uisurvey.h"
 
 
@@ -227,14 +225,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     uiPushButton* applybut = new uiPushButton( this, "&Apply", true ); 
     applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
     applybut->attach( alignedBelow, crdgrp_ );
+
     xyinftfld_ = new uiCheckBox( this, "Coordinates are in feet" );
     xyinftfld_->attach( rightTo, applybut );
     xyinftfld_->attach( rightBorder );
-
-    uiPushButton* latlongbut = new uiPushButton( this, "G&eographical",false ); 
-    latlongbut->activated.notify( mCB(this,uiSurveyInfoEditor,edGCrdSetup) );
-    latlongbut->attach( leftTo, applybut );
-    latlongbut->attach( leftBorder );
+    xyinftfld_->activated.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
+    zinftfld_ = new uiCheckBox( this, "Display depths in feet" );
+    zinftfld_->attach( leftTo, applybut );
+    zinftfld_->attach( leftBorder );
 
     finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
 }
@@ -297,6 +295,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     zunitfld_ = new uiComboBox( rangegrp_, zunitstrs, "Z unit" );
     zunitfld_->attach( rightOf, zfld_ );
     zunitfld_->setHSzPol( uiObject::Small );
+    zunitfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
 
     rangegrp_->setHAlignObj( inlfld_ );
 }
@@ -423,6 +422,8 @@ void uiSurveyInfoEditor::setValues()
     }
 
     xyinftfld_->setChecked( si_.xyInFeet() );
+    zinftfld_->setChecked( si_.depthsInFeetByDefault() );
+    updZUnit( 0 );
 }
 
 
@@ -503,19 +504,6 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 }
 
 
-void uiSurveyInfoEditor::edGCrdSetup( CallBacker* )
-{
-    doApply();
-    if ( !si_.latlong2Coord().isOK() )
-	uiLatLong2CoordDlg::ensureLatLongDefined( this, &si_ );
-    else
-    {
-	uiLatLong2CoordDlg dlg( this, si_.latlong2Coord(), &si_ );
-	dlg.go();
-    }
-}
-
-
 #define mUseAdvanced() (overrulefld_->isChecked() && !coordset->getBoolValue())
 
 void uiSurveyInfoEditor::appButPushed( CallBacker* )
@@ -528,6 +516,12 @@ bool uiSurveyInfoEditor::doApply()
 {
     if ( !setSurvName() || !setRanges() )
 	return false;
+
+    const bool xyinft = xyinftfld_->isChecked();
+    si_.setXYInFeet( xyinft );
+    const bool zdepthft = zunitfld_->currentItem() == 2;
+    const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
+	    xyinft || zdepthft || zinftfld_->isChecked() );
 
     if ( !mUseAdvanced() )
     {
@@ -563,6 +557,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
     chgSetMode(0);
     ic1fld_->setReadOnly( true, 0 );
+    updZUnit( 0 );
 }
 
 
@@ -722,13 +717,6 @@ bool uiSurveyInfoEditor::setRanges()
 	mErrRet("Please specify a valid Z range")
 
     si_.setRange( cs, false );
-    const bool inft = xyinftfld_->isChecked();
-    if ( inft )
-	uiMSG().warning(
-		"Support for coordinates in feet has been added recently.\n"
-		"The impact of it is still being evaluated.\n"
-		"Please be on guard for unprepared parts of the software" );
-    si_.setXYInFeet( inft );
     return true;
 }
 
@@ -801,6 +789,10 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     si_.set3Pts( crd, bid, cs.hrg.stop.crl );
     setValues();
     if ( !havez ) zfld_->clear();
+    const bool xyinft = xyinftfld_->isChecked();
+    si_.setXYInFeet( xyinft );
+    const_cast<IOPar&>(si_.pars()).setYN( SurveyInfo::sKeyDpthInFt(),
+	    		xyinft || zinftfld_->isChecked() );
 
     si_.setWSProjName( SI().getWSProjName() );
     si_.setWSPwd( SI().getWSPwd() );
@@ -845,4 +837,11 @@ void uiSurveyInfoEditor::chgSetMode( CallBacker* )
 void uiSurveyInfoEditor::setInl1Fld( CallBacker* )
 {
     ic1fld_->setText( ic0fld_->text(0), 0 );
+}
+
+
+void uiSurveyInfoEditor::updZUnit( CallBacker* )
+{
+    zinftfld_->display( zunitfld_->currentItem() == 0
+		     && !xyinftfld_->isChecked() );
 }
