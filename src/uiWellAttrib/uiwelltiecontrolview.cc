@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.10 2009-06-19 12:23:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.11 2009-06-20 11:22:09 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -26,9 +26,9 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.10 2009-06-19 12:23
 uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
        					    uiFlatViewer* vwr)
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
-	    						//.withstates(false)
 	    						.withcoltabed(false))
     , toolbar_(toolbar)
+    , manip_(true)
 {
 }
 
