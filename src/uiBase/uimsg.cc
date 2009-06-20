@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.46 2009-05-22 04:36:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.47 2009-06-20 16:13:42 cvskris Exp $";
 
 
 #include "uimsg.h"
 
 #include "mousecursor.h"
+#include "separstr.h"
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uistatusbar.h"
@@ -98,10 +99,7 @@ void uiMsg::setNextCaption( const char* s )
 
 #define mPrepCursor() \
     MouseCursorChanger cc( MouseCursor::Arrow )
-#define mPrepTxt() \
-    mPrepCursor(); \
-    BufferString msg( text ); if ( p2 ) msg += p2; if ( p3 ) msg += p3; \
-    if ( msg.isEmpty() ) return
+
 #define mCapt(s) QString( getCaptn(s) )
 #define mTxt QString( msg.buf() )
 
@@ -148,40 +146,52 @@ void uiMsg::endCmdRecEvent( int refnr, int retval, const char* buttxt0,
 }
 
 
-#define mDeclArgs const char* text, const char* p2, const char* p3
-
-void uiMsg::message( mDeclArgs )
-{
-    mPrepTxt();
-    const char* oktxt = "&Ok";
-
-    const int refnr = beginCmdRecEvent();
-    QMessageBox::information( popParnt(), mCapt("Information"), mTxt,
-	    		      QString(oktxt) );
-    endCmdRecEvent( refnr, 0, oktxt );
+#define mImplSimpleMsg( odfunc, caption, qtfunc ) \
+void uiMsg::odfunc( const char* text, const char* p2, const char* p3 ) \
+{ \
+    mPrepCursor(); \
+    BufferString msg( text ); if ( p2 ) msg += p2; if ( p3 ) msg += p3; \
+    if ( msg.isEmpty() ) return; \
+    const char* oktxt = "&Ok"; \
+ \
+    const int refnr = beginCmdRecEvent(); \
+    QMessageBox::qtfunc( popParnt(), mCapt(caption), mTxt, QString(oktxt) ); \
+    endCmdRecEvent( refnr, 0, oktxt ); \
 }
 
+mImplSimpleMsg( message, "Information", information );
+mImplSimpleMsg( warning, "Warning", warning );
+mImplSimpleMsg( error, "Error", critical );
 
-void uiMsg::warning( mDeclArgs )
+
+void uiMsg::errorWithDetails( const FileMultiString& fms )
 {
-    mPrepTxt();
+    if ( !fms.size() )
+	return;
+
+    MouseCursorChanger cc( MouseCursor::Arrow );
     const char* oktxt = "&Ok";
 
     const int refnr = beginCmdRecEvent();
-    QMessageBox::warning( popParnt(), mCapt("Warning"), mTxt, QString(oktxt) );
-    endCmdRecEvent( refnr, 0, oktxt );
-}
+    QMessageBox msgbox( QMessageBox::Critical, mCapt("Error"), QString(fms[0]),
+    QMessageBox::Ok, popParnt() );
+    if ( fms.size()>1 )
+    {
+	BufferString detailed;
+	for ( int idx=0; idx<fms.size(); idx++ )
+	{
+	    if ( idx>0 )
+		detailed += "\n";
+	    detailed  += fms[idx];
+	}
 
+	msgbox.setDetailedText( QString( detailed.buf() ) );
+    }
 
-void uiMsg::error( mDeclArgs )
-{
-    mPrepTxt();
-    const char* oktxt = "&Ok";
-
-    const int refnr = beginCmdRecEvent();
-    QMessageBox::critical( popParnt(), mCapt("Error"), mTxt, QString(oktxt) );
+    msgbox.exec();
     endCmdRecEvent(  refnr, 0, oktxt );
 }
+
 
 
 int uiMsg::askSave( const char* text, bool wcancel )

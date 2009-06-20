@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.29 2009-05-22 04:36:43 cvsnanne Exp $
+ RCS:           $Id: uimsg.h,v 1.30 2009-06-20 16:13:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class uiMainWin;
 class uiStatusBar;
 class QWidget;
+class FileMultiString;
 
 
 mClass uiMsg
@@ -29,6 +30,10 @@ public:
     void 	message(const char*,const char* part2=0,const char* part3=0);
     void 	warning(const char*,const char* part2=0,const char* part3=0);
     void 	error(const char*,const char* part2=0,const char* part3=0);
+    void	errorWithDetails(const FileMultiString&);
+    		/*!<If input has multiple parts, the first will be displayed
+		    directly, while the complete message is available under a
+		    'Details ...' button, separated by new lines. */
 
     // Interaction
     int		question(const char*,const char* textyes=0,const char* textno=0,
