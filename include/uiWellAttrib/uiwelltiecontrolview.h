@@ -17,6 +17,7 @@ ________________________________________________________________________
 class WellTieDisplayProperties;
 
 class uiFlatViewer;
+class uiButton;
 class uiToolBar;
 
 mClass uiWellTieControlView : public uiFlatViewStdControl
@@ -34,9 +35,11 @@ protected:
     bool                manip_;
     
     uiToolBar*		toolbar_;
+    uiToolButton*	manipdrawbut_;
     
     WellTiePickSetMGR*  picksetmgr_;
    
+    void 		stateCB(CallBacker*);
     bool 		checkIfInside(double,double);
     bool 		handleUserClick();
 };
