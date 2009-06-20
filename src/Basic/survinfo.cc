@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.119 2009-06-20 15:13:31 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.120 2009-06-20 15:32:25 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -544,8 +544,9 @@ float SurveyInfo::zScale() const
 
 bool SurveyInfo::depthsInFeetByDefault() const
 {
-    bool ret = zIsTime() ? false : zInFeet();
-    pars().getYN( sKeyDpthInFt(), ret );
+    bool ret = zIsTime() ? xyInFeet() : zInFeet();
+    if ( !ret && zIsTime() )
+	pars().getYN( sKeyDpthInFt(), ret );
     return ret;
 }
 
