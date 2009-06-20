@@ -5,7 +5,7 @@
 ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.17 2009-05-19 16:19:58 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.18 2009-06-20 01:45:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,6 @@ public:
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int row) const;
     StepInterval<int>	colRange() const;
-    int			nrKnots() const;
-    RowCol		getKnotRowCol( int idx ) const;
-    int			getKnotIndex(const RCol& rc) const;
 
     virtual ParametricCurve*
 			createRowCurve( float row,
@@ -59,6 +56,9 @@ public:
     virtual Coord3	getKnot(const RCol&) const;
     virtual bool	isKnotDefined( const RCol& ) const;
     bool		hasSupport(const RCol&) const;
+
+    int			nrKnots() const;
+    RowCol		getKnotRowCol( int idx ) const;
 
     Coord3		getPosition( GeomPosID pid ) const;
     bool		setPosition( GeomPosID pid, const Coord3&);
@@ -78,6 +78,8 @@ public:
     void 		trimUndefParts();
 
 protected:
+    int			getKnotIndex(const RCol& rc) const;
+
     virtual void	_setKnot( int idx, const Coord3& ) 		= 0;
     virtual bool	checkSelfIntersection( const RCol& ) const;
 
