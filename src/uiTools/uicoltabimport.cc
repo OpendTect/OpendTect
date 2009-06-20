@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabimport.cc,v 1.4 2009-05-04 11:15:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicoltabimport.cc,v 1.5 2009-06-20 14:13:41 cvskris Exp $";
 
 #include "uicoltabimport.h"
 
@@ -55,7 +55,7 @@ const char* uiColTabImport::getCurrentSelColTab() const
 }
 
 
-#define mErrRet(s1,s2) { uiMSG().error(s1,s2); return; }
+#define mErrRet(s1) { uiMSG().error(s1); return; }
 
 void uiColTabImport::usrSel( CallBacker* )
 {
@@ -63,17 +63,17 @@ void uiColTabImport::usrSel( CallBacker* )
 
     FilePath fp( homedirfld_->fileName() );
     if ( !File_exists(fp.fullPath()) )
-	mErrRet( "Please select an existing directory", 0 );
+	mErrRet( "Please select an existing directory" );
     fp.add( ".od" );
     if ( !File_exists(fp.fullPath()) )
-	mErrRet( "No '.od' directory found in directory", 0 );
+	mErrRet( "No '.od' directory found in directory" );
 
     BufferString settdir( fp.fullPath() );
     const char* dtusr = dtectusrfld_->text();
 
     PtrMan<IOPar> ctabiop = Settings::fetchExternal( "coltabs", dtusr, settdir);
     if ( !ctabiop )
-	mErrRet( "No user-defined color tables found", 0 );
+	mErrRet( "No user-defined color tables found" );
 
     deepErase( seqs_ );
     for ( int idx=0; ; idx++ )
