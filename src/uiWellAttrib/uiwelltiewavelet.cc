@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.15 2009-06-20 16:45:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.16 2009-06-21 10:14:28 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
 #include "flatposdata.h"
+#include "fft.h"
 #include "hilberttransform.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -233,8 +234,7 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
     if ( !wvlt ) return;
     wvltsz_ = wvlt->size();
 
-    static const char* disppropnms[] = { "Amplitude", "Phase", 0 };
-       					//	"Frequency", 0 };
+    static const char* disppropnms[] = { "Amplitude", "Phase", "Frequency", 0 };
 
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
     for ( int idx=0; disppropnms[idx]; idx++ )
@@ -245,44 +245,73 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
 	wvltdisps_[idx]->yAxis(false)->setName( disppropnms[idx] );
 	if  (idx )
 	    wvltdisps_[idx]->attach( alignedBelow, wvltdisps_[idx-1] );
-	propvals_ += new TypeSet<float>;
+	wvltarrays_ += new  Array1DImpl<float>( wvltsz_ );
     }
-
-    wvlttrc_ = new SeisTrc;
-    wvlttrc_->reSize( wvltsz_, false );
-    
+    setValArrays();
     setDispCurves();
 }
 
 
 uiWellTieWaveletDispDlg::~uiWellTieWaveletDispDlg()
 {
-//    for ( int idx=propvals_.size()-1; idx>=0; idx++ )
-//	delete propvals_.remove(idx);
+    deepErase( wvltarrays_ );
 //    delete wvlttrc_;
+}
+
+
+#define mDoTransform(tf,isstraight,inp,outp,sz) \
+{   \
+            tf->setInputInfo(Array1DInfoImpl(sz));\
+            tf->setDir(isstraight);\
+            tf->init();\
+            tf->transform(inp,outp);\
+}
+void uiWellTieWaveletDispDlg::setValArrays()
+{
+    memcpy(wvltarrays_[0]->getData(),wvlt_->samples(),wvltsz_*sizeof(float));
+
+    FFT* fft = new FFT();
+    HilbertTransform* hil = new HilbertTransform();
+    Array1DImpl<float_complex> carr( wvltsz_ );
+    Array1DImpl<float_complex> czeropaddedarr( 3*wvltsz_ );
+    Array1DImpl<float_complex> cfreqarr( 3*wvltsz_ );
+    
+    hil->setCalcRange( 0, wvltsz_, 0 );
+
+    mDoTransform( hil, true, *wvltarrays_[0], carr, wvltsz_ );
+    delete hil;
+    for ( int idx=0; idx<wvltsz_; idx++ )
+    {
+	float phase = 0;
+	if ( carr.get(idx).real() )
+	    phase = atan2( carr.get(idx).imag(), carr.get(idx).real() );
+	wvltarrays_[1]->set( idx, phase );
+    }
+
+    for ( int idx=0; idx<3*wvltsz_; idx++ )
+    {
+	if ( idx>=wvltsz_ && idx<2*wvltsz_ )
+	    czeropaddedarr.setValue( idx, carr.get( idx-wvltsz_ ) );
+	else
+	    czeropaddedarr.setValue( idx, 0 );
+    }
+		
+    mDoTransform( fft, true, czeropaddedarr, cfreqarr, 3*wvltsz_ );
+    delete fft;
+    for ( int idx=0; idx<wvltsz_; idx++ )
+    {
+	float val = cfreqarr.get(idx+wvltsz_).real();
+	wvltarrays_[2]->set( idx, val );
+    }
+
 }
 
 
 void uiWellTieWaveletDispDlg::setDispCurves()
 {
     TypeSet<float> xvals;
-    for ( int propidx=0; propidx<propvals_.size(); propidx++ )
-	propvals_[propidx]->erase();
     for ( int idx=0; idx<wvltsz_; idx++ )
-    {
 	xvals += idx;
-	wvlttrc_->set( idx, wvlt_->samples()[idx], 0 );
-	wvlttrc_->info().nr = idx;
-	*propvals_[0] += wvlt_->samples()[idx]; 
-	SeisTrcPropCalc pc( *wvlttrc_ );
-	*propvals_[1] += pc.getPhase( idx ); 
-	//*propvals_[2] += pc.getFreq( idx ); 
-    }
-
-    for ( int idx=0; idx<propvals_.size(); idx++ )
-	wvltdisps_[idx]->setVals( xvals.arr(),
-				  propvals_[idx]->arr(),
-    				  wvltsz_ );
+    for ( int idx=0; idx<wvltarrays_.size(); idx++ )
+	wvltdisps_[idx]->setVals(xvals.arr(),wvltarrays_[idx]->arr(),wvltsz_);
 }
-
-

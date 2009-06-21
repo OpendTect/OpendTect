@@ -75,12 +75,12 @@ public:
 protected:
 
     int                                 wvltsz_;
-    SeisTrc*				wvlttrc_;
     CtxtIOObj&                          wvltctio_;
     ObjectSet<uiFunctionDisplay>        wvltdisps_;
-    ObjectSet< TypeSet<float> >     	propvals_;
+    ObjectSet< Array1DImpl<float> >     wvltarrays_;
     const Wavelet*			wvlt_;
 
+    void				setValArrays();
     void                                setDispCurves();
 };
 
