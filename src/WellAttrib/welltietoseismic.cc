@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.16 2009-06-19 17:00:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.17 2009-06-21 13:49:11 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -205,6 +205,7 @@ void WellTieToSeismic::convolveWavelet()
 {
     IOObj* ioobj = IOM().get( wtsetup_.wvltid_ );
     Wavelet* wvlt = new Wavelet( *Wavelet::get( ioobj ) );
+    if ( !wvlt ) return;
     Array1DImpl<float> wvltvals( wvlt->size() );
     memcpy( wvltvals.getData(), wvlt->samples(), wvlt->size()*sizeof(float) );
 

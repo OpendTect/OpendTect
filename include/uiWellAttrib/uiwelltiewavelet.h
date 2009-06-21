@@ -18,7 +18,8 @@ ________________________________________________________________________
 
 template <class T> class Array1DImpl;
 class CtxtIOObj;
-class SeisTrc;
+class FFT;
+class WellTieGeoCalculator;
 class WellTieDataHolder;
 class WellTieSetup;
 class Wavelet;
@@ -69,19 +70,24 @@ protected:
 class uiWellTieWaveletDispDlg : public uiDialog
 {
 public:
-			    uiWellTieWaveletDispDlg(uiParent*,const Wavelet*);
+			    uiWellTieWaveletDispDlg(uiParent*,const Wavelet*,
+				    		const WellTieDataHolder*);
 			    ~uiWellTieWaveletDispDlg();
-
-protected:
-
-    int                                 wvltsz_;
-    CtxtIOObj&                          wvltctio_;
-    ObjectSet<uiFunctionDisplay>        wvltdisps_;
-    ObjectSet< Array1DImpl<float> >     wvltarrays_;
-    const Wavelet*			wvlt_;
 
     void				setValArrays();
     void                                setDispCurves();
+
+protected:
+
+    ObjectSet< Array1DImpl<float> >     proparrays_;
+    
+    int                                 wvltsz_;
+    CtxtIOObj&                          wvltctio_;
+    FFT*				fft_;
+    ObjectSet<uiFunctionDisplay>        wvltdisps_;
+    const Wavelet*			wvlt_;
+    WellTieGeoCalculator&		geocalc_;
+
 };
 
 #endif

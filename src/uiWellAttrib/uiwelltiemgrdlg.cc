@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.6 2009-06-18 07:41:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.7 2009-06-21 13:49:11 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -89,8 +89,6 @@ uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
 uiWellTieMGRDlg::~uiWellTieMGRDlg()
 {
     deepErase( welltiedlgsetcpy_ );
-    delete wllctio_.ioobj; delete &wllctio_;
-    delete wvltctio_.ioobj; delete &wvltctio_;
 }
 
 
@@ -180,6 +178,8 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
     
     if ( !wvltfld_->commitInput() )
 	 mErrRet("Please select an initial wavelet")
+    if ( !wvltfld_->ctxtIOObj().ioobj )
+	mErrRet("Please select an valid wavelet")
 
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
     wtsetup_.wvltid_ = wvltfld_->ctxtIOObj().ioobj->key();

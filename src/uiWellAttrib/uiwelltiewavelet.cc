@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.16 2009-06-21 10:14:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.17 2009-06-21 13:49:11 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -20,11 +20,10 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.16 2009-06-21 10:14:28 
 #include "ioobj.h"
 #include "math.h"
 #include "survinfo.h"
-#include "seistrc.h"
-#include "seistrcprop.h"
 #include "statruncalc.h"
 #include "wavelet.h"
 #include "welltiedata.h"
+#include "welltiegeocalculator.h"
 #include "welltiesetup.h"
 
 #include "uiaxishandler.h"
@@ -133,9 +132,9 @@ void uiWellTieWaveletView::initWavelets( )
 	drawWavelet( wvlts_[idx], idx );
     
     if ( !wvltinitdlg_ )
-	wvltinitdlg_ = new uiWellTieWaveletDispDlg( this, wvlts_[0] );
+	wvltinitdlg_ = new uiWellTieWaveletDispDlg(this,wvlts_[0],dataholder_);
     if ( !wvltestdlg_ )
-	wvltestdlg_  = new uiWellTieWaveletDispDlg( this, wvlts_[1] );
+	wvltestdlg_  = new uiWellTieWaveletDispDlg(this,wvlts_[1],dataholder_ );
 }
 
 
@@ -169,12 +168,16 @@ void uiWellTieWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
 
 void uiWellTieWaveletView::viewInitWvltPropPushed( CallBacker* )
 {
+    wvltinitdlg_->setValArrays();
+    wvltinitdlg_->setDispCurves();
     wvltinitdlg_->go();
 }
 
 
 void uiWellTieWaveletView::viewEstWvltPropPushed( CallBacker* )
 {
+    wvltestdlg_->setValArrays();
+    wvltestdlg_->setDispCurves();
     wvltestdlg_->go();
 }
 
@@ -221,13 +224,16 @@ void uiWellTieWaveletView::saveWvltPushed( CallBacker* )
 }
 
 
-
+#define mPaddFac 3
 uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p, 
-						  const Wavelet* wvlt )
+						  const Wavelet* wvlt,
+       						  const WellTieDataHolder* dh )
 	: uiDialog( p,Setup("Wavelet Properties","",mTODOHelpID).modal(false))
 	, wvlt_(wvlt)  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, wvltsz_(0)
+	, geocalc_(*new WellTieGeoCalculator(dh->params(),dh->wd()))	    
+	, fft_(new FFT())
 {
     setCtrlStyle( LeaveOnly );
 
@@ -235,18 +241,26 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
     wvltsz_ = wvlt->size();
 
     static const char* disppropnms[] = { "Amplitude", "Phase", "Frequency", 0 };
-
+    
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
-    for ( int idx=0; disppropnms[idx]; idx++ )
+
+    for ( int idx=0; idx<2; idx++ )
     {
-	if ( idx>1 ) fdsu.fillbelow(true);	
 	wvltdisps_ += new uiFunctionDisplay( this, fdsu );
 	wvltdisps_[idx]->xAxis()->setName( "samples" );
 	wvltdisps_[idx]->yAxis(false)->setName( disppropnms[idx] );
-	if  (idx )
-	    wvltdisps_[idx]->attach( alignedBelow, wvltdisps_[idx-1] );
-	wvltarrays_ += new  Array1DImpl<float>( wvltsz_ );
+	proparrays_ += new  Array1DImpl<float>( wvltsz_ );
     }
+
+    fdsu.fillbelow(true);	
+    wvltdisps_ += new uiFunctionDisplay( this, fdsu );
+    wvltdisps_[2]->xAxis()->setName( disppropnms[2] );
+    wvltdisps_[2]->yAxis(false)->setName( "" );
+    proparrays_ += new  Array1DImpl<float>( mPaddFac*wvltsz_ );
+
+    for ( int idx=1; disppropnms[idx]; idx++ )
+	wvltdisps_[idx]->attach( alignedBelow, wvltdisps_[idx-1] );
+
     setValArrays();
     setDispCurves();
 }
@@ -254,8 +268,8 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
 
 uiWellTieWaveletDispDlg::~uiWellTieWaveletDispDlg()
 {
-    deepErase( wvltarrays_ );
-//    delete wvlttrc_;
+    deepErase( proparrays_ );
+    delete fft_;
 }
 
 
@@ -268,42 +282,42 @@ uiWellTieWaveletDispDlg::~uiWellTieWaveletDispDlg()
 }
 void uiWellTieWaveletDispDlg::setValArrays()
 {
-    memcpy(wvltarrays_[0]->getData(),wvlt_->samples(),wvltsz_*sizeof(float));
+    memcpy(proparrays_[0]->getData(),wvlt_->samples(),wvltsz_*sizeof(float));
 
-    FFT* fft = new FFT();
     HilbertTransform* hil = new HilbertTransform();
-    Array1DImpl<float_complex> carr( wvltsz_ );
-    Array1DImpl<float_complex> czeropaddedarr( 3*wvltsz_ );
-    Array1DImpl<float_complex> cfreqarr( 3*wvltsz_ );
-    
-    hil->setCalcRange( 0, wvltsz_, 0 );
 
-    mDoTransform( hil, true, *wvltarrays_[0], carr, wvltsz_ );
+    Array1DImpl<float_complex> carr( wvltsz_ );
+
+    hil->setCalcRange( 0, wvltsz_, 0 );
+    mDoTransform( hil, true, *proparrays_[0], carr, wvltsz_ );
     delete hil;
+
+    const int zpadsz = mPaddFac*wvltsz_;
+    Array1DImpl<float_complex> czeropaddedarr( zpadsz );
+    Array1DImpl<float_complex> cfreqarr( zpadsz );
+
+    geocalc_.zeroPadd( carr, czeropaddedarr );
+   
+    mDoTransform( fft_, true, czeropaddedarr, cfreqarr, zpadsz );
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
 	float phase = 0;
 	if ( carr.get(idx).real() )
 	    phase = atan2( carr.get(idx).imag(), carr.get(idx).real() );
-	wvltarrays_[1]->set( idx, phase );
+	proparrays_[1]->set( idx, phase );
     }
 
-    for ( int idx=0; idx<3*wvltsz_; idx++ )
+    Array1DImpl<float_complex> scaledfreqvals( zpadsz );
+    for ( int idx=0; idx<zpadsz/2; idx++ )
     {
-	if ( idx>=wvltsz_ && idx<2*wvltsz_ )
-	    czeropaddedarr.setValue( idx, carr.get( idx-wvltsz_ ) );
-	else
-	    czeropaddedarr.setValue( idx, 0 );
+	scaledfreqvals.setValue( idx, cfreqarr.get(idx+zpadsz/2) );
+	scaledfreqvals.setValue( idx+zpadsz/2, cfreqarr.get(idx ) );
     }
-		
-    mDoTransform( fft, true, czeropaddedarr, cfreqarr, 3*wvltsz_ );
-    delete fft;
-    for ( int idx=0; idx<wvltsz_; idx++ )
+    for ( int idx=0; idx<zpadsz; idx++ )
     {
-	float val = cfreqarr.get(idx+wvltsz_).real();
-	wvltarrays_[2]->set( idx, val );
+	float freq = abs(scaledfreqvals.get(idx));
+	proparrays_[2]->set( idx, freq );
     }
-
 }
 
 
@@ -312,6 +326,14 @@ void uiWellTieWaveletDispDlg::setDispCurves()
     TypeSet<float> xvals;
     for ( int idx=0; idx<wvltsz_; idx++ )
 	xvals += idx;
-    for ( int idx=0; idx<wvltarrays_.size(); idx++ )
-	wvltdisps_[idx]->setVals(xvals.arr(),wvltarrays_[idx]->arr(),wvltsz_);
+    for ( int idx=0; idx<proparrays_.size()-1; idx++ )
+	wvltdisps_[idx]->setVals(xvals.arr(),proparrays_[idx]->arr(),wvltsz_);
+
+    float maxfreq = fft_->getNyqvist( SI().zStep() );
+    if ( SI().zIsTime() )
+	maxfreq = mNINT( maxfreq );
+
+    wvltdisps_[2]->setVals( Interval<float>( 0, maxfreq ), 
+			    proparrays_[2]->arr(), 
+			    mPaddFac*wvltsz_ );
 }

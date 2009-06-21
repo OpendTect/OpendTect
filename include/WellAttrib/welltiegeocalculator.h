@@ -7,18 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.7 2009-06-18 07:41:52 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.8 2009-06-21 13:49:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "namedobj.h"
+#include "arrayndimpl.h"
+#include "fft.h"
+
+#include <complex>
 
 /*
   brief class to perform the computations needed by TWTS  
 */   
-#include "namedobj.h"
 
-template <class T> class Array1DImpl;
 class WellTieSetup;
 class Wavelet;
 class WellTieParams;
@@ -38,38 +41,45 @@ public:
 					     const Well::Data*);
 			~WellTieGeoCalculator() {};
 
-
+//d2tm operations
     Well::D2TModel* 	getModelFromVelLog(const char*, bool);
     Well::D2TModel*     getModelFromVelLogData(const Array1DImpl<float>&,
 	                                       const Array1DImpl<float>&);
     void		setVelLogDataFromModel(const Array1DImpl<float>&,    
 						const Array1DImpl<float>&,	    						Array1DImpl<float>&);
-    int 		getFirstDefIdx(const TypeSet<float>&);
-    int 		getLastDefIdx(const TypeSet<float>&);
-    void 		interpolateLogData(TypeSet<float>&,float,bool);
-    bool 		isValidLogData(const TypeSet<float>&);
     void 		TWT2Vel(const TypeSet<float>&,const TypeSet<float>&,
 				TypeSet<float>&,bool);
-    void 		lowPassFilter(Array1DImpl<float>&,float);
-    void		stretchArr(const Array1DImpl<float>&,
-				     Array1DImpl<float>&,int,int,int,int);
-    void 		interpolAtIdx(float,float,float,float&);
-    void		resampleData(const Array1DImpl<float>&,
-				     Array1DImpl<float>&,float);
+//logs operations
     void                computeAI(const Array1DImpl<float>&,
 				 const Array1DImpl<float>&,Array1DImpl<float>&);
     void                computeReflectivity(const Array1DImpl<float>&,
 					    Array1DImpl<float>&,int);
+    void 		interpolAtIdx(float,float,float,float&);
+    void 		interpolateLogData(TypeSet<float>&,float,bool);
+    bool 		isValidLogData(const TypeSet<float>&);
+
+//wvlt operations
     void                convolveWavelet(const Array1DImpl<float>&,
 	    				const Array1DImpl<float>&, 
 					Array1DImpl<float>&,int);
-    void 		reverseWavelet(Wavelet&);
     void 		deconvolve( const Array1DImpl<float>&,
 				    const Array1DImpl<float>&,
 				    Array1DImpl<float>&,int);
+    void 		reverseWavelet(Wavelet&);
+
+//other operations    
     void 		crosscorr( const Array1DImpl<float>&,
 				  const Array1DImpl<float>&,
 				  Array1DImpl<float>&);
+    int 		getFirstDefIdx(const TypeSet<float>&);
+    int 		getLastDefIdx(const TypeSet<float>&);
+    void 		lowPassFilter(Array1DImpl<float>&,float);
+    void		resampleData(const Array1DImpl<float>&,
+				     Array1DImpl<float>&,float);
+    void		stretchArr(const Array1DImpl<float>&,
+				     Array1DImpl<float>&,int,int,int,int);
+    void		zeroPadd(const Array1DImpl<float_complex>&,
+				       Array1DImpl<float_complex>&);
 
 
 protected:
