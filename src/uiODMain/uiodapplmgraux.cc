@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.6 2009-06-20 16:37:42 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.7 2009-06-21 01:08:01 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -94,6 +94,9 @@ const char* uiODApplMgrVelSel::selName() const
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiODApplMgrVelSel::acceptOK( CallBacker* )
 {
+    if ( trans_ ) trans_->unRef();
+    trans_ = 0;
+
     if ( !velsel_->ioobj( false ) )
 	return false;
 
@@ -108,7 +111,8 @@ bool uiODApplMgrVelSel::acceptOK( CallBacker* )
 	     desc.type_ != VelocityDesc::RMS )
 	    mErrRet("Only RMS and Interval allowed for time based models")
 
-	trans_ = new Time2DepthStretcher();
+	trans_ = new Time2DepthStretcher();A
+	trans_->ref();
 	zscale_ = SurveyInfo::defaultXYtoZScale( SurveyInfo::Meter,
 						 SI().xyUnit() );
     }
@@ -118,6 +122,7 @@ bool uiODApplMgrVelSel::acceptOK( CallBacker* )
 	    mErrRet("Only Interval velocity allowed for time based models")
 
 	trans_ = new Depth2TimeStretcher();
+	trans_->ref();
 	zscale_ = SurveyInfo::defaultXYtoZScale( SurveyInfo::Second,
 						 SI().xyUnit() );
     }
