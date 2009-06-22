@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.20 2009-06-03 17:34:56 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.21 2009-06-22 19:38:54 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -146,15 +146,22 @@ bool ChannelInfo::reMapData( TaskRunner* tr )
 
 void ChannelInfo::removeCaches()
 {
+    ObjectSet<unsigned char> mappeddata = mappeddata_;
+    ObjectSet<const float> unmappeddata = unmappeddata_;
+    for ( int idx=0; idx<ownsmappeddata_.size(); idx++ )
+    {
+	mappeddata_.replace( idx, 0 );
+	unmappeddata_.replace( idx, 0 );
+    }
+
+    owner_.update( this, true );
+
     for ( int idx=0; idx<ownsmappeddata_.size(); idx++ )
     {
 	if ( ownsmappeddata_[idx] )
-	    delete [] mappeddata_[idx];
+	    delete [] mappeddata[idx];
 	if ( ownsunmappeddata_[idx] )
-	    delete [] unmappeddata_[idx];
-
-	mappeddata_.replace( idx, 0 );
-	unmappeddata_.replace( idx, 0 );
+	    delete [] unmappeddata[idx];
     }
 }
 
