@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.17 2009-06-19 13:02:30 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.18 2009-06-22 15:32:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,10 @@ public:
     static const char*		expressionStr()		{ return "expression"; }
     static const char*		cstStr()		{ return "constant"; }
     static const char*		recstartStr()		{ return "recstart"; }
+    static const char*		recstartvalsStr()	{return "recstartvals";}
     static const char*		recstartposStr()	{ return "recstartpos";}
+
+    static const BufferStringSet	getSpecVars();
 
 protected:
     				~Math()	{}
@@ -61,10 +64,11 @@ private:
 
     TypeSet<float>		csts_;
     MathExpression*		expression_;
-    float			recstartval_;
+    TypeSet<float>		recstartvals_;
     float			recstartpos_;
     Interval<float>		desintv_;
     Interval<int>		reqintv_;
+    int				maxshift_;
 
     struct VAR
     {
@@ -101,9 +105,25 @@ private:
 	int			cstidx_;	//corresponding ConstantN param
     };
 
+    struct SPECS
+    {
+				SPECS( int fexpvaridx, int specidx )
+					: fexpvaridx_( fexpvaridx )
+					, specidx_( specidx )
+				{}
+				
+	bool			operator ==(SPECS specs) const
+				{ return specs.fexpvaridx_ == fexpvaridx_
+				    	 && specs.specidx_ == specidx_; }
+
+	int			fexpvaridx_;	//index of var in expression_
+	int			specidx_;	//corresponding special item idx
+    };
+
     //all variables including recursive THIS and shifted x0[-1]
     TypeSet<VAR>		varstable_;
     TypeSet<CSTS>		cststable_;
+    TypeSet<SPECS>		specstable_;
     
 };
 

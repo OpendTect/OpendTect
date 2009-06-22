@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.33 2009-06-19 13:02:30 cvshelene Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.34 2009-06-22 15:32:04 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -17,6 +17,10 @@ static const char* rcsID = "$Id: mathattrib.cc,v 1.33 2009-06-19 13:02:30 cvshel
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "mathexpression.h"
+#include "separstr.h"
+
+static const char* specvararr[] = { "DZ", "Inl", "Crl", 0 };
+;
 
 namespace Attrib
 {
@@ -34,7 +38,8 @@ void Math::initClass()
 			new ParamGroup<FloatParam>( 0, cstStr(), cst );
     desc->addParam( cstset );
 
-    desc->addParam( new FloatParam(recstartStr()) );
+    desc->addParam( new FloatParam(recstartStr(), 0, false) );
+    desc->addParam( new StringParam(recstartvalsStr(), 0, false) );
 
     FloatParam* recstartpos = new FloatParam( recstartposStr() );
     recstartpos->setDefaultValue( 0 );
@@ -67,9 +72,17 @@ void Math::updateDesc( Desc& desc )
 	switch ( vtyp )
 	{
 	    case MathExpression::Variable :
-		nrvariables++;
-		varnms.add( formula->uniqueVarName(idx) );
+	    {
+		BufferString fvarexp = formula->fullVariableExpression( idx );
+		const char* varnm = MathExpressionParser::varNameOf( fvarexp );
+		const int specidx = getSpecVars().indexOf(varnm);
+		if ( specidx < 0 )
+		{
+		    nrvariables++;
+		    varnms.add( formula->uniqueVarName(idx) );
+		}
 		break;
+	    }
 	    case MathExpression::Constant :
 		nrconsts++;
 		break;
@@ -89,7 +102,14 @@ void Math::updateDesc( Desc& desc )
 
     bool isrec = formula->isRecursive();
     desc.setParamEnabled( recstartStr(), isrec );
+    desc.setParamEnabled( recstartvalsStr(), isrec );
     desc.setParamEnabled( recstartposStr(), isrec );
+}
+
+
+const BufferStringSet Math::getSpecVars()
+{
+    return BufferStringSet( specvararr );
 }
 
 
@@ -98,6 +118,7 @@ Math::Math( Desc& dsc )
     , desintv_( Interval<float>(0,0) )
     , reqintv_( Interval<int>(0,0) )
     , recstartpos_( 0 )
+    , maxshift_( 0 )
 {
     if ( !isOK() ) return;
 
@@ -118,13 +139,34 @@ Math::Math( Desc& dsc )
 	csts_ += param.getfValue();
     }
     
-    setUpVarsSets();
     if ( expression_->isRecursive() )
     {
-	mGetFloat( recstartval_, recstartStr() );
+	SeparString recstartstr;
+	mGetString( recstartstr, recstartvalsStr() );
+	if ( recstartstr.isEmpty() )
+	{
+	    //backward compatibility v3.3 and previous
+	    float recstartval;
+	    mGetFloat( recstartval, recstartStr() );
+	    if ( !mIsUdf(recstartval) ) recstartvals_ += recstartval;
+	}
+	else
+	{
+	    const int nrvals = recstartstr.size();
+	    for ( int idx=0; idx<nrvals; idx++ )
+	    {
+		float val = atof( recstartstr[idx] );
+		if ( mIsUdf(val) )
+		    break;
+		recstartvals_ += val;
+	    }
+	}
+
 	mGetFloat( recstartpos_, recstartposStr() );
 	desintv_.start = -1000;	//ensure we get the entire trace beginning
     }
+
+    setUpVarsSets();
 }
 
 
@@ -142,8 +184,8 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Math::getInputData( const BinID& relpos, int zintv )
 {
-    //TODO will not work with specials
-    int nrinputs = expression_->nrUniqueVarNames() - csts_.size();
+    int nrinputs = expression_->nrUniqueVarNames() -
+				   ( csts_.size() + specstable_.size() );
     while ( inputdata_.size() < nrinputs )
     {
 	inputdata_ += 0;
@@ -166,15 +208,15 @@ bool Math::getInputData( const BinID& relpos, int zintv )
 bool Math::computeData( const DataHolder& output, const BinID& relpos, 
 			int z0, int nrsamples, int threadid ) const
 {
-    //TODO adapt for specials
     PtrMan<MathExpression> mathobj = expression_ ? expression_->clone() : 0;
     if ( !mathobj ) return false;
 
     const bool isrec = expression_->isRecursive();
     const int nrxvars = varstable_.size();
     const int nrcstvars = cststable_.size();
+    const int nrspecvars = specstable_.size();
     const int nrvar = mathobj->nrVariables();
-    if ( (nrxvars + nrcstvars) != nrvar ) 
+    if ( (nrxvars + nrcstvars + nrspecvars) != nrvar ) 
 	return false;
 
     const int recstartidx = mNINT( recstartpos_/refstep );
@@ -187,7 +229,7 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     if ( isrec && recstartidx>z0 )
     {
 	for ( int idx=z0; idx<recstartidx; idx++ )
-	    setOutputValue( output, 0, idx-z0, z0, recstartval_ );
+	    setOutputValue( output, 0, idx-z0, z0, recstartvals_[0] );
     }
     
     const int loopstartidx = isrec ? recstartidx : z0;
@@ -203,9 +245,10 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	const int sampidx = idx - loopstartidx;
 	if ( isrec && sampidx == 0 )
 	{
-	    setOutputValue( *tmpholder, 0, sampidx, recstartidx, recstartval_ );
+	    setOutputValue( *tmpholder, 0, sampidx, recstartidx,
+		    	    recstartvals_[0] );
 	    if ( idx == z0 || recstartidx>z0 )
-		setOutputValue( output, 0, idx-z0, z0, recstartval_ );
+		setOutputValue( output, 0, idx-z0, z0, recstartvals_[0] );
 
 	    continue;
 	}
@@ -216,24 +259,36 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    const int inpidx = varstable_[xvaridx].inputidx_;
 	    const int shift = varstable_[xvaridx].shift_;
 	    const DataHolder* inpdata = inpidx == -1 ? tmpholder 
-						    : inputdata_[inpidx];
+						     : inputdata_[inpidx];
 	    const int refdhidx = inpidx == -1 ? recstartidx : 0;
 	    const int inpsampidx = inpidx == -1 ? sampidx : idx;
 	    int compidx = inpidx == -1 ? 0 : inputidxs_[inpidx];
 	    float val = inpidx==-1 && shift+idx-loopstartidx<0
-		? recstartval_
-		: getInputValue(*inpdata, compidx, inpsampidx+shift, refdhidx);
+		? recstartvals_[shift-maxshift_]
+		: getInputValue( *inpdata, compidx, inpsampidx+shift, refdhidx);
 	    
 	    //in case first samp is undef prevent result=undef
 	    //on whole trace for recursive formulas
 	    if ( inpidx == -1 && mIsUdf( val ) && hasudf )
-		val = recstartval_;
+		val = recstartvals_[shift-maxshift_];
 	    
 	    mathobj->setVariableValue( variableidx, val );
 	}
 	for ( int cstidx=0; cstidx<nrcstvars; cstidx++ )
 	    mathobj->setVariableValue( cststable_[cstidx].fexpvaridx_,
 		    		       csts_[cstidx] );
+	
+	for ( int specidx=0; specidx<nrspecvars; specidx++ )
+	{
+	    float val;
+	    switch ( specstable_[specidx].specidx_ )
+	    {
+		case 0 :	val = refstep; break;
+		case 1 :	val = currentbid.inl; break;
+		case 2 :	val = currentbid.crl; break;
+	    }
+	    mathobj->setVariableValue( specstable_[specidx].fexpvaridx_, val );
+	}
 
 	const float result = mathobj->getValue();
 	
@@ -266,9 +321,20 @@ void Math::setUpVarsSets()
 		int shift=0;
 		const BufferString varnm =
 			    MathExpressionParser::varNameOf( fvarexp, &shift );
-		int inputidx = expression_->indexOfUnVarName( varnm.buf() )
-		    		- nrcsts - nrspecs;
-		varstable_ += VAR( idx, inputidx, shift );
+		const int specidx = getSpecVars().indexOf(varnm);
+		if ( specidx >=0 )
+		{
+		    nrspecs++;
+		    specstable_ += SPECS( idx, specidx );
+		}
+		else
+		{
+		    int inputidx = expression_->indexOfUnVarName( varnm.buf() )
+							    - nrcsts - nrspecs;
+		    if ( inputidx<0 && shift<maxshift_ )
+			maxshift_ = shift;
+		    varstable_ += VAR( idx, inputidx, shift );
+		}
 		break;
 	    }
 	    case MathExpression::Constant :
@@ -288,10 +354,12 @@ void Math::setUpVarsSets()
 			    MathExpressionParser::varNameOf( fvarexp, &shift );
 		varstable_ += VAR( idx, -1, shift );
 	    }
-	    default :	break;
-		//TODO specials
 	}
     }
+
+    while ( recstartvals_.size()< -maxshift_ )
+	recstartvals_+= recstartvals_.size() ? 
+	    			recstartvals_[ recstartvals_.size()-1] : 0;
 }
 
 

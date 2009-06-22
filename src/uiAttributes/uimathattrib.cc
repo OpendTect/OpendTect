@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.30 2009-06-19 13:02:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.31 2009-06-22 15:32:04 cvshelene Exp $";
 
 
 #include "uimathattrib.h"
@@ -77,9 +77,10 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     ctable_->setRowResizeMode( uiTable::Fixed );
     ctable_->attach( alignedBelow, xtable_ );
     
-    BufferString str = "Provide a starting value\n";
-    str += "for recursive function";
-    recstartfld_ = new uiGenInput( this, str, FloatInpSpec() );
+    BufferString str = "Specify starting value(s)\n";
+    str += "for recursive function\n";
+    str += "(comma separated)";
+    recstartfld_ = new uiGenInput( this, str, StringInpSpec() );
     recstartfld_->setPrefHeightInChar(2);
     recstartfld_->attach( alignedBelow, ctable_ );
     
@@ -89,6 +90,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     recstartposfld_->setPrefHeightInChar(2);
     recstartposfld_->attach( alignedBelow, recstartfld_ );
     setHAlignObj( inpfld_ );
+    updateDisplay(false);
 }
 
 
@@ -130,18 +132,26 @@ void uiMathAttrib::getVarsNrAndNms( MathExpression* expr )
     cstnms.erase();
     for ( int idx=0; idx<expr->nrUniqueVarNames(); idx++ )
     {
-	MathExpression::VarType vtyp =
-		MathExpressionParser::varTypeOf( expr->uniqueVarName(idx) );
+	const char* varnm = expr->uniqueVarName(idx);
+	MathExpression::VarType vtyp = MathExpressionParser::varTypeOf( varnm );
 	switch ( vtyp )
 	{
 	    case MathExpression::Variable :
-	    nrvars_++;
-	    varnms.add( expr->uniqueVarName(idx) );
-	    break;
+	    {
+		const int specidx = Attrib::Math::getSpecVars().indexOf(varnm);
+		if ( specidx<0 )
+		{
+		    nrvars_++;
+		    varnms.add( varnm );
+		}
+		break;
+	    }
 	    case MathExpression::Constant :
-	    nrcsts_++;
-	    cstnms.add( expr->uniqueVarName(idx) );
-	    break;
+	    {
+		nrcsts_++;
+		cstnms.add( varnm );
+		break;
+	    }
 	}
     }
 }
@@ -198,13 +208,17 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	}
     }
     
+    //backward compatibility v3.3 and previous
     if ( desc.getValParam( Attrib::Math::recstartStr() ) )
     {
 	float recstart =
 	    desc.getValParam( Attrib::Math::recstartStr() )->getfValue(0);
 	if ( !mIsUdf( recstart ) )
-	    recstartfld_->setValue( recstart );
+	    recstartfld_->setText( toString(recstart) );
     }
+
+    mIfGetString( Attrib::Math::recstartvalsStr(), recstartvals, 
+	    	  recstartfld_->setText(recstartvals) );
     
     if ( desc.getValParam( Attrib::Math::recstartposStr() ) )
     {
@@ -258,7 +272,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
 	fparam.setValue( ctable_->getfValue( RowCol(idx,0) ) );
     }
     
-    mSetFloat( Attrib::Math::recstartStr(), recstartfld_->getfValue() );
+    mSetString( Attrib::Math::recstartvalsStr(), recstartfld_->text() );
     mSetFloat( Attrib::Math::recstartposStr(),
 	       recstartposfld_->getfValue() / SI().zFactor() );
     return true;
