@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.40 2009-06-22 15:17:25 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.41 2009-06-22 18:17:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,10 @@ protected:
 
     Setup		mkSetup(const Setup&,bool);
     virtual void	newSelection(uiIOObjRetDlg*);
+    virtual void	commitSucceeded();
     virtual const char*	userNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();
-    void		 mkOthDomBox();
+    void		mkOthDomBox();
 };
 
 

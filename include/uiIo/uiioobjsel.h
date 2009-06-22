@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.62 2009-04-03 13:24:55 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.63 2009-06-22 18:17:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,6 +214,7 @@ protected:
 
     virtual const char*	userNameFromKey(const char*) const;
     virtual void	objSel();
+    virtual void	commitSucceeded()			{}
 
     void		fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*)		{}

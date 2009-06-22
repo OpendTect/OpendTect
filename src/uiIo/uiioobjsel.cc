@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.133 2009-04-14 10:20:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.134 2009-06-22 18:17:45 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -740,6 +740,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
     if ( specialitems.findKeyFor(inp) )
     {
 	workctio_.setObj( 0 ); inctio_.setObj( 0 );
+	commitSucceeded();
 	return true;
     }
     if ( inp.isEmpty() )
@@ -751,7 +752,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	if ( workctio_.ioobj )
 	{
 	    inctio_.setObj( workctio_.ioobj->clone() );
-	    return true;
+	    commitSucceeded(); return true;
 	}
 
 	BufferString msg( "'" ); msg += getInput();
@@ -764,7 +765,10 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 
     workctio_.setObj( createEntry( getInput() ) );
     inctio_.setObj( workctio_.ioobj ? workctio_.ioobj->clone() : 0 );
-    return inctio_.ioobj;
+    if ( !inctio_.ioobj ) return false;
+
+    commitSucceeded();
+    return true;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.79 2009-06-22 15:17:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.80 2009-06-22 18:17:45 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -386,17 +386,23 @@ void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
     if ( workctio_.ioobj )
-    {
 	ioobjkey = workctio_.ioobj->key();
-	if ( othdombox_ && othdombox_->isChecked() )
-	{
-	    const char* str = SI().zIsTime() ? ZDomain::sKeyDepth()
-					     : ZDomain::sKeyTWT();
-	    workctio_.ioobj->pars().set( ZDomain::sKey(), str );
-	    dlgiopar_.set( ZDomain::sKey(), str );
-	}
-    }
     uiIOSelect::setInput( LineKey(ioobjkey,attrnm_).buf() );
+}
+
+
+void uiSeisSel::commitSucceeded()
+{
+    if ( othdombox_ && othdombox_->isChecked() )
+    {
+	const char* str = SI().zIsTime() ? ZDomain::sKeyDepth()
+					 : ZDomain::sKeyTWT();
+	if ( workctio_.ioobj )
+	    workctio_.ioobj->pars().set( ZDomain::sKey(), str );
+	if ( inctio_.ioobj )
+	    inctio_.ioobj->pars().set( ZDomain::sKey(), str );
+	dlgiopar_.set( ZDomain::sKey(), str );
+    }
 }
 
 
