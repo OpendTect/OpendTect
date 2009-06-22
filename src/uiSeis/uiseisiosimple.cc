@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.22 2009-04-23 15:09:50 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.23 2009-06-22 15:17:25 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -83,6 +83,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     const bool is2d = is2D();
     const bool isps = isPS();
 
+    uiSeisSel::Setup ssu( geom_ );
     uiSeparator* sep = 0;
     if ( isimp_ )
     {
@@ -94,7 +95,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     }
     else
     {
-	seisfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_) );
+	seisfld_ = new uiSeisSel( this, ctio_, ssu );
 	seisfld_->selectiondone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
 	sep = mkDataManipFlds();
     }
@@ -222,7 +223,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			IntInpSpec(data().nrsamples_).setName("Nr samples") );
 	sdfld_->attach( alignedBelow, havesdfld_ );
 	sep = mkDataManipFlds();
-	seisfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_));
+	if ( !isps ) ssu.enabotherdomain( true );
+	seisfld_ = new uiSeisSel( this, ctio_, ssu );
 	seisfld_->attach( alignedBelow, remnullfld_ );
 	if ( is2d )
 	{

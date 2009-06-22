@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.39 2009-05-05 16:45:10 cvskris Exp $
+ RCS:           $Id: uiseissel.h,v 1.40 2009-06-22 15:17:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiSeisIOObjInfo;
 class uiListBox;
+class uiCheckBox;
 
 mClass uiSeisSel : public uiIOObjSel
 {
@@ -29,20 +30,23 @@ public:
 			    , selattr_(gt==Seis::Line)
 			    , allowsetdefault_(true)
 			    , allowcnstrsabsent_(false)
-			    , include_(true)	{}
+			    , include_(true)
+			    , enabotherdomain_(false)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , selattr_(is2d && !isps)
 			    , allowsetdefault_(true)
 			    , allowcnstrsabsent_(false)
-			    , include_(true)	{}
+			    , include_(true)
+			    , enabotherdomain_(false)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(bool,selattr)
-	mDefSetupMemb(bool,allowsetdefault)
-	mDefSetupMemb(bool,allowcnstrsabsent)
-	mDefSetupMemb(bool,include)
-	mDefSetupMemb(BufferString,datatype)
+	mDefSetupMemb(bool,selattr)		//!< 2D: can user select attrib?
+	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
+	mDefSetupMemb(bool,allowcnstrsabsent)	//!< ctio constraints
+	mDefSetupMemb(bool,include)		//!< include or exclude constr.
+	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
+	mDefSetupMemb(BufferString,datatype)	
 	mDefSetupMemb(BufferString,defaultkey)
     };
 
@@ -73,11 +77,13 @@ protected:
     BufferString	attrnm_;
     mutable BufferString curusrnm_;
     IOPar		dlgiopar_;
+    uiCheckBox*		othdombox_;
 
     Setup		mkSetup(const Setup&,bool);
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual const char*	userNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();
+    void		 mkOthDomBox();
 };
 
 

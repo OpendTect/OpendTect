@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.86 2009-06-18 07:46:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.87 2009-06-22 15:17:25 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.86 2009-06-18 07:46:59 cvs
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "survinfo.h"
+#include "zdomain.h"
 
 #include "uibutton.h"
 #include "uigeninputdlg.h"
@@ -179,6 +180,8 @@ void uiSeisFileMan::mkFileInfo()
 	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
 	    txt += typstr ? typstr : "<unknown>";
 	}
+	if ( curioobj_->pars().hasKey(ZDomain::sKey()) )
+	{ txt += "\nDomain: "; txt += curioobj_->pars().find(ZDomain::sKey()); }
     }
 
     if ( !strcmp(curioobj_->translator(),"CBVS") )

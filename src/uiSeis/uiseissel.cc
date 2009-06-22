@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.78 2009-05-14 21:17:12 cvskris Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.79 2009-06-22 15:17:25 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -15,7 +15,9 @@ static const char* rcsID = "$Id: uiseissel.cc,v 1.78 2009-05-14 21:17:12 cvskris
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uibutton.h"
 
+#include "zdomain.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "iodirentry.h"
@@ -237,20 +239,36 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 uiSeisSel::uiSeisSel( uiParent* p, IOObjContext& c, const uiSeisSel::Setup& su )
 	: uiIOObjSel(p,c,mkSetup(su,c.forread))
     	, seissetup_(mkSetup(su,c.forread))
+    	, othdombox_(0)
 {
     adaptCtxt( c, seissetup_, false );
     if ( !c.forread && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
+
+    mkOthDomBox();
 }
 
 
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	: uiIOObjSel(p,c,mkSetup(su,c.ctxt.forread))
     	, seissetup_(mkSetup(su,c.ctxt.forread))
+    	, othdombox_(0)
 {
     adaptCtxt( c.ctxt, seissetup_, false );
     if ( !c.ctxt.forread && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
+
+    mkOthDomBox();
+}
+
+
+void uiSeisSel::mkOthDomBox()
+{
+    if ( !inctio_.ctxt.forread && seissetup_.enabotherdomain_ )
+    {
+	othdombox_ = new uiCheckBox( this, SI().zIsTime() ? "Depth" : "Time" );
+	othdombox_->attach( rightOf, selbut_ );
+    }
 }
 
 
@@ -367,7 +385,17 @@ void uiSeisSel::usePar( const IOPar& iop )
 void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
-    if ( workctio_.ioobj ) ioobjkey = workctio_.ioobj->key();
+    if ( workctio_.ioobj )
+    {
+	ioobjkey = workctio_.ioobj->key();
+	if ( othdombox_ && othdombox_->isChecked() )
+	{
+	    const char* str = SI().zIsTime() ? ZDomain::sKeyDepth()
+					     : ZDomain::sKeyTWT();
+	    workctio_.ioobj->pars().set( ZDomain::sKey(), str );
+	    dlgiopar_.set( ZDomain::sKey(), str );
+	}
+    }
     uiIOSelect::setInput( LineKey(ioobjkey,attrnm_).buf() );
 }
 

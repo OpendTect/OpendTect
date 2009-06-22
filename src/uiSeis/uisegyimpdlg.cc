@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.18 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.19 2009-06-22 15:17:25 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -69,7 +69,8 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 	outgrp->attach( ensureBelow, sep );
     }
 
-    seissel_ = new uiSeisSel( outgrp, ctio_, uiSeisSel::Setup(setup_.geom_) );
+    uiSeisSel::Setup sssu( setup_.geom_ ); sssu.enabotherdomain( true );
+    seissel_ = new uiSeisSel( outgrp, ctio_, sssu );
     seissel_->attach( alignedBelow, transffld_ );
 
     if ( setup_.geom_ == Seis::Line )
