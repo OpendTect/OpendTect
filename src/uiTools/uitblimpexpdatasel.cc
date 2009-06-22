@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.42 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.43 2009-06-22 08:41:00 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.42 2008-11-25 15:35:2
 #include "pixmap.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "survinfo.h"
 #include "tabledef.h"
 #include "tableascio.h"
 #include "unitofmeasure.h"
@@ -101,6 +102,9 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	unitfld_->attach( rightTo, rightmostfld_ );
 	if ( tinf_.selection_.unit_ )
 	    unitfld_->box()->setCurrentItem( tinf_.selection_.unit_->name() );
+	else if ( tinf_.propertyType() == PropertyRef::Dist
+		&& SI().depthsInFeetByDefault() )
+	    unitfld_->box()->setText( "Feet" );
     }
 
     mainObject()->finaliseDone.notify( boxcb );
