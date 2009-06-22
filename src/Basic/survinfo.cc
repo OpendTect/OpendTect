@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.120 2009-06-20 15:32:25 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.121 2009-06-22 15:17:08 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -43,6 +43,12 @@ const char* SurveyInfo::sKeyWSProjName()    { return "Workstation Project Name";
 const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
+
+const char* ZDomain::sKey()		{ return "ZDomain"; }
+const char* ZDomain::sKeyID()		{ return "ZDomain ID"; }
+const char* ZDomain::sKeyTWT()		{ return "TWT"; }
+const char* ZDomain::sKeyDepth()	{ return "Depth"; }
+
 
 
 static bool sDoWarnings = false;
