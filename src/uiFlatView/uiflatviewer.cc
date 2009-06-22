@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.85 2009-06-17 08:46:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.86 2009-06-22 10:04:26 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -525,8 +525,8 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	if ( ad1.reversed_ ) Swap( from, to );
 	if ( !arrowitem1_ )
 	{
-	    arrowitem1_ = canvas_.scene().addItem( new uiArrowItem() );
-	    arrowitem1_->setArrowStyle( arrowstyle );
+	    arrowitem1_ = canvas_.scene().addItem(
+		    new uiArrowItem(from,to,arrowstyle) );
 	    arrowitem1_->setZValue( 1 );
 	}
 	arrowitem1_->setTailHeadPos( from, to );
@@ -551,8 +551,8 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	if ( ad2.reversed_ ) Swap( from, to );
 	if ( !arrowitem2_ )
 	{
-	    arrowitem2_ = canvas_.scene().addItem( new uiArrowItem() );
-	    arrowitem2_->setArrowStyle( arrowstyle );
+	    arrowitem2_ = canvas_.scene().addItem(
+		    new uiArrowItem(from,to,arrowstyle) );
 	    arrowitem2_->setZValue( 1 ); 
 	}
 	arrowitem2_->setTailHeadPos( from, to );
