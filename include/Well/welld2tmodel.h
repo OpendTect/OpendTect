@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.16 2009-06-22 11:49:52 cvsbert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.17 2009-06-22 12:50:24 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "welldahobj.h"
-#include "tableascio.h"
 
 namespace Well
 {
@@ -55,21 +54,6 @@ protected:
     void		removeAux( int idx )	{ t_.remove(idx); }
     void		eraseAux()		{ t_.erase(); }
 
-};
-
-
-mClass D2TModelAscIO : public Table::AscIO
-{   
-    public:
-				D2TModelAscIO( const Table::FormatDesc& fd )
-				: Table::AscIO(fd)          {}
-
-    static Table::FormatDesc*   getDesc(bool withunitfld);
-    static void                 updateDesc(Table::FormatDesc&,bool withunitfld);
-    static void                 createDescBody(Table::FormatDesc*,bool unitfld);
-
-    bool                        get(std::istream&,Well::D2TModel&,
-	    			    const Well::Track&) const;
 };
 
 

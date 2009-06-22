@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.9 2009-06-22 11:49:52 cvsbert Exp $
+ RCS:		$Id: wellmarker.h,v 1.10 2009-06-22 12:50:24 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "namedobj.h"
 #include "color.h"
-#include "tableascio.h"
 namespace Strat { class Level; }
 
 namespace Well
@@ -65,19 +64,6 @@ mClass MarkerSet : public ObjectSet<Marker>
 {
 public:
     			MarkerSet()		{}
-};
-
-
-mClass MarkerSetAscIO : public Table::AscIO
-{
-public:
-    			MarkerSetAscIO( const Table::FormatDesc& fd )
-			    : Table::AscIO(fd)		{}
-
-    static Table::FormatDesc*	getDesc();
-
-    bool		get(std::istream&,MarkerSet&,const Well::Track&) const;
-
 };
 
 

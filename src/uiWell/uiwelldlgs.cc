@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.80 2009-06-19 08:58:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.81 2009-06-22 12:50:24 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -56,7 +56,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	, wd_(d)
     	, track_(d.track())
     	, orgtrack_(new Well::Track(d.track()))
-	, fd_( *Well::WellAscIO::getDesc() )
+	, fd_( *Well::TrackAscIO::getDesc() )
 
 {
     setPrefWidth( 500 ); setPrefHeight( 400 );
@@ -173,7 +173,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
 	if ( !sd.usable() )
 	uiMSG().error( "Cannot open input file" );
 
-	Well::WellAscIO wellascio(fd_, *sd.istrm );
+	Well::TrackAscIO wellascio(fd_, *sd.istrm );
 	if ( !wellascio.getData( wd_, true ) )
 	uiMSG().error( "Failed to convert into compatible data" );
 
@@ -281,14 +281,15 @@ static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
     SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinft ); \
     SI().savePars()
 
+#define mD2TModel (cksh_ ? wd_.checkShotModel() : wd_.d2TModel())
+
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
 	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
 				     "Edit velocity model",
 				     "107.1.5"))
 	, wd_(d)
-    	, d2t_(*(cksh ? d.checkShotModel() : d.d2TModel()))
-    	, orgd2t_(new Well::D2TModel(d2t_))
     	, cksh_(cksh)
+    	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
 {
     tbl_ = new uiTable( this, uiTable::Setup()
 	    			.rowdesc(cksh_ ? "Measure point" : "Control Pt")
@@ -319,15 +320,16 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
 
 void uiD2TModelDlg::fillTable()
 {
-    const int sz = d2t_.size();
+    const Well::D2TModel* d2t = mD2TModel;
+    const int sz = d2t ? d2t->size() : 0;
     if ( !sz ) return;
     tbl_->setNrRows( sz + nremptyrows );
 
     const float zfac = unitfld_->getBoolValue() ? 1 : 1./mFromFeetFac;
     for ( int idx=0; idx<sz; idx++ )
     {
-	tbl_->setValue( RowCol(idx,0), d2t_.dah(idx) * zfac );
-	tbl_->setValue( RowCol(idx,1), d2t_.t(idx) * 1000 );
+	tbl_->setValue( RowCol(idx,0), d2t->dah(idx) * zfac );
+	tbl_->setValue( RowCol(idx,1), d2t->t(idx) * 1000 );
     }
 }
 
@@ -358,6 +360,10 @@ bool acceptOK( CallBacker* )
     const char* errmsg = d2tgrp->getD2T( wd_, cksh_ );
     if ( errmsg && *errmsg )
 	{ uiMSG().error( errmsg ); return false; }
+
+    if ( wd_.d2TModel() )
+	wd_.d2TModel()->deInterpolate();
+
     return true;
 }
 
@@ -387,7 +393,9 @@ void uiD2TModelDlg::readNew( CallBacker* )
 
 void uiD2TModelDlg::updNow( CallBacker* )
 {
-    d2t_.erase();
+    Well::D2TModel* d2t = mD2TModel;
+
+    d2t->erase();
     const float zfac = unitfld_->getBoolValue() ? 1 : mFromFeetFac;
     const int nrrows = tbl_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
@@ -398,9 +406,9 @@ void uiD2TModelDlg::updNow( CallBacker* )
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
 	float tm = atof(sval) * 0.001;
-	d2t_.add( dah, tm );
+	d2t->add( dah, tm );
     }
-    if ( d2t_.size() > 1 )
+    if ( d2t->size() > 1 )
 	wd_.d2tchanged.trigger();
     else
 	uiMSG().error( "Please define at least two control points." );
@@ -409,7 +417,9 @@ void uiD2TModelDlg::updNow( CallBacker* )
 
 bool uiD2TModelDlg::rejectOK( CallBacker* )
 {
-    d2t_ = *orgd2t_;
+    Well::D2TModel* d2t = mD2TModel;
+    if ( d2t )
+	*d2t = *orgd2t_;
     wd_.d2tchanged.trigger();
     return true;
 }
@@ -417,9 +427,8 @@ bool uiD2TModelDlg::rejectOK( CallBacker* )
 
 bool uiD2TModelDlg::acceptOK( CallBacker* )
 {
-    mSetSIDepthInFeetDef(!unitfld_->getBoolValue());
     updNow( 0 );
-    return d2t_.size() > 1;
+    return mD2TModel && mD2TModel->size() > 0;
 }
 
 
@@ -474,8 +483,8 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     const char* lasfnm = lasfld->text();
     if ( !lasfnm || !*lasfnm ) return;
 
-    Well::Data wd_; Well::AscImporter wdai( wd_ );
-    Well::AscImporter::LasFileInfo lfi;
+    Well::Data wd_; Well::LASImporter wdai( wd_ );
+    Well::LASImporter::FileInfo lfi;
     const char* res = wdai.getLogInfo( lasfnm, lfi );
     if ( res ) { uiMSG().error( res ); return; }
 
@@ -502,8 +511,8 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
 
 bool uiLoadLogsDlg::acceptOK( CallBacker* )
 {
-    Well::AscImporter wdai( wd );
-    Well::AscImporter::LasFileInfo lfi;
+    Well::LASImporter wdai( wd );
+    Well::LASImporter::FileInfo lfi;
 
     lfi.undefval = udffld->getfValue();
     lfi.zrg.setFrom( intvfld->getFInterval() );

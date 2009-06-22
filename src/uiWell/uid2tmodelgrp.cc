@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.14 2009-06-22 11:49:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.15 2009-06-22 12:50:24 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.14 2009-06-22 11:49:52 cvs
 
 #include "ctxtioobj.h"
 #include "welld2tmodel.h"
+#include "wellimpasc.h"
 #include "welldata.h"
 #include "welltrack.h"
 #include "strmprov.h"
@@ -97,7 +98,6 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	d2t.erase();
 	d2t.add( dah0, dah0 / twtvel );
 	d2t.add( dah1, dah1 / twtvel );
-	return 0;
     }
     else
     {
@@ -116,8 +116,10 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
 	aio.get( *sdi.istrm, d2t, wd.track() );
-	return 0;
     }
+
+    d2t.deInterpolate();
+    return 0;
 }
 
 

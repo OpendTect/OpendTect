@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.50 2009-05-29 11:08:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.51 2009-06-22 12:50:24 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -42,7 +42,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",
 				 "Import Well Track",sHelpID))
     , ctio_( *mMkCtxtIOObj(Well) )
-    , fd_( *Well::WellAscIO::getDesc() )			       
+    , fd_( *Well::TrackAscIO::getDesc() )			       
     , trckinpfld_(0)
     , zrgfld_(0)
     , tmzrgfld_(0)
@@ -235,7 +235,7 @@ bool uiWellImportAsc::doWork()
 					.makeIStream();
 	    if ( !sd.usable() )
 		mErrRet( "Cannot open track file" )
-	    Well::WellAscIO wellascio( fd_, *sd.istrm );
+	    Well::TrackAscIO wellascio( fd_, *sd.istrm );
 	    if ( !wellascio.getData(wd_,true) )
 		mErrRet( "The track file cannot be loaded with given format" );
 	    sd.close();

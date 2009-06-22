@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.57 2009-06-19 08:58:11 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.58 2009-06-22 12:50:24 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -18,9 +18,6 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.57 2009-06-19 08:58:11 cvsber
 #include "unitofmeasure.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "stratunitrepos.h"
-#include "stratreftree.h"
-#include "stratlevel.h"
 #include <iostream>
 
 
@@ -32,16 +29,7 @@ inline static StreamData getSD( const char* fnm )
 }
 
 
-Well::AscImporter::D2TModelInfo::D2TModelInfo()
-    : istwt_(true)
-    , istvd_(false)
-    , zinft_(SI().depthsInFeetByDefault())
-    , vel_(4000)
-{
-}
-
-
-Well::AscImporter::~AscImporter()
+Well::LASImporter::~LASImporter()
 {
     unitmeasstrs_.erase();
 }
@@ -53,110 +41,9 @@ Well::AscImporter::~AscImporter()
 	if ( !sd.usable() ) \
 	    return "Cannot open input file"
 
-const char* Well::AscImporter::getD2T( const D2TModelInfo& mi, bool cksh )
-{
-    if ( (!cksh && !wd.d2TModel()) )
-	wd.setD2TModel( new Well::D2TModel );
-    if ( (cksh && !wd.checkShotModel()) )
-	wd.setCheckShotModel( new Well::D2TModel );
-    Well::D2TModel& d2t = *(cksh ? wd.checkShotModel() : wd.d2TModel());
 
-    if ( mi.fname_.isEmpty() )
-    {
-	if ( wd.track().isEmpty() )
-	    return "Cannot generate D2Time model without track";
-	if ( cksh )
-	    return "No file name specified";
-	const float twtvel = mi.vel_ * .5;
-	const float dah0 = wd.track().dah( 0 );
-	const float dah1 = wd.track().dah( wd.track().size()-1 );
-	d2t.erase();
-	d2t.add( dah0, dah0 / twtvel );
-	d2t.add( dah1, dah1 / twtvel );
-	return 0;
-    }
-
-    mOpenFile( mi.fname_ );
-    std::istream& strm = *sd.istrm;
-
-    d2t.erase();
-    const float zfac = mi.zinft_ ? mFromFeetFactor : 1;
-    float z, tval, prevdah = mUdf(float);
-    bool firstpos = true;
-    bool t_in_ms = false;
-    TypeSet<float> tms; TypeSet<float> dahs;
-    while ( strm )
-    {
-	strm >> z >> tval;
-	if ( !strm ) break;
-	if ( mIsUdf(z) ) continue;
-	z *= zfac;
-
-	if ( mi.istvd_ )
-	{
-	    z = wd.track().getDahForTVD( z, prevdah );
-	    if ( mIsUdf(z) ) continue;
-	    prevdah = z;
-	}
-
-	tms += mi.istwt_ ? tval : 2*tval;
-	dahs += z;
-    }
-    sd.close();
-    if ( tms.isEmpty() ) return "No valid Depth/Time points found";
-
-    const bool t_in_sec = tms[tms.size()-1] < 2 * SI().zRange(false).stop;
-
-    for ( int idx=0; idx<tms.size(); idx++ )
-	d2t.add( dahs[idx], t_in_sec ? tms[idx] : tms[idx] * 0.001 );
-
-    if ( !cksh )
-	d2t.deInterpolate();
-    return 0;
-}
-
-
-const char* Well::AscImporter::getMarkers( const char* fnm, bool istvd, 
-					   bool zinfeet )
-{
-    mOpenFile( fnm );
-    std::istream& strm = *sd.istrm;
-    const float zfac = zinfeet ? mFromFeetFactor : 1;
-    float z, prevdah = mUdf(float);
-#   define mBufSz 128
-    char buf[mBufSz];
-    while ( strm )
-    {
-	strm >> z;
-	if ( !strm ) break;
-	strm.getline( buf, mBufSz );
-	char* ptr = buf; mTrimBlanks(ptr);
-	if ( mIsUdf(z) || !*ptr ) continue;
-	z *= zfac;
-
-	if ( istvd )
-	{
-	    z = wd.track().getDahForTVD( z, prevdah );
-	    if ( mIsUdf(z) ) continue;
-	    prevdah = z;
-	}
-
-	Well::Marker* newmrk = new Well::Marker( ptr );
-	newmrk->setDah( z );
-	const Strat::Level* lvl = Strat::RT().getLevel( ptr );
-	if ( lvl )
-	    newmrk->setLevelID( lvl->id_ );
-	wd.markers() += newmrk;
-    }
-    sd.close();
-
-    return 0;
-}
-
-
-
-const char* Well::AscImporter::getLogInfo( const char* fnm,
-					   LasFileInfo& lfi ) const
+const char* Well::LASImporter::getLogInfo( const char* fnm,
+					   FileInfo& lfi ) const
 {
     mOpenFile( fnm );
     const char* res = getLogInfo( *sd.istrm, lfi );
@@ -167,8 +54,8 @@ const char* Well::AscImporter::getLogInfo( const char* fnm,
 #define mIsKey(s) caseInsensitiveEqual(keyw,s,0)
 #define mErrRet(s) { lfi.depthcolnr = -1; return s; }
 
-const char* Well::AscImporter::getLogInfo( std::istream& strm,
-					   LasFileInfo& lfi ) const
+const char* Well::LASImporter::getLogInfo( std::istream& strm,
+					   FileInfo& lfi ) const
 {
     convs_.allowNull();
     convs_.erase();
@@ -313,7 +200,7 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 }
 
 
-void Well::AscImporter::parseHeader( char* startptr, char*& val1, char*& val2,
+void Well::LASImporter::parseHeader( char* startptr, char*& val1, char*& val2,
 				     char*& info ) const
 {
     val1 = 0; val2 = 0; info = 0;
@@ -341,7 +228,7 @@ void Well::AscImporter::parseHeader( char* startptr, char*& val1, char*& val2,
 }
 
 
-const char* Well::AscImporter::getLogs( const char* fnm, const LasFileInfo& lfi,
+const char* Well::LASImporter::getLogs( const char* fnm, const FileInfo& lfi,
 					bool istvd )
 {
     mOpenFile( fnm );
@@ -351,10 +238,10 @@ const char* Well::AscImporter::getLogs( const char* fnm, const LasFileInfo& lfi,
 }
 
 
-const char* Well::AscImporter::getLogs( std::istream& strm,
-					const LasFileInfo& lfi, bool istvd )
+const char* Well::LASImporter::getLogs( std::istream& strm,
+					const FileInfo& lfi, bool istvd )
 {
-    LasFileInfo inplfi;
+    FileInfo inplfi;
     const char* res = getLogInfo( strm, inplfi );
     if ( res )
 	return res;
@@ -364,7 +251,7 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
 	return "Input file is invalid";
 
     if ( lfi.depthcolnr < 0 )
-	const_cast<LasFileInfo&>(lfi).depthcolnr = inplfi.depthcolnr;
+	const_cast<FileInfo&>(lfi).depthcolnr = inplfi.depthcolnr;
     const int addstartidx = wd.logs().size();
     BoolTypeSet issel( inplfi.lognms.size(), false );
 
@@ -394,8 +281,8 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
 }
 
 
-const char* Well::AscImporter::getLogData( std::istream& strm,
-	const BoolTypeSet& issel, const LasFileInfo& lfi,
+const char* Well::LASImporter::getLogData( std::istream& strm,
+	const BoolTypeSet& issel, const FileInfo& lfi,
 	bool istvd, int addstartidx, int totalcols )
 {
     Interval<float> reqzrg( Interval<float>().setFrom( lfi.zrg ) );
@@ -468,9 +355,7 @@ const char* Well::AscImporter::getLogData( std::istream& strm,
 }
 
 
-//****** WellAscIO ********
-
-Table::FormatDesc* Well::WellAscIO::getDesc()
+Table::FormatDesc* Well::TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
 
@@ -493,7 +378,7 @@ Table::FormatDesc* Well::WellAscIO::getDesc()
 }
 
 
-bool  Well::WellAscIO::getData( Well::Data& wd, bool tosurf ) const
+bool  Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 {
     Coord3 c, c0, prevc;
     Coord3 surfcoord;
@@ -538,4 +423,146 @@ bool  Well::WellAscIO::getData( Well::Data& wd, bool tosurf ) const
     }
 
     return wd.track().size();
+}
+
+
+Table::FormatDesc* Well::MarkerSetAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "MarkerSet" );
+
+    Table::TargetInfo* depthinfo = new Table::TargetInfo( "Depth",
+	    		FloatInpSpec(), Table::Required, PropertyRef::Dist );
+
+    Table::TargetInfo::Form* depthform = 
+	new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() );
+    depthinfo->form(0).setName( "MD" );
+    depthinfo->add( depthform );
+    fd->bodyinfos_ += depthinfo;
+
+#define mAddNmSpec(nm,typ) \
+    fd->bodyinfos_ += new Table::TargetInfo(nm,StringInpSpec(),Table::typ)
+    mAddNmSpec( "Marker name", Required );
+    mAddNmSpec( "Nm p2", Hidden );
+    mAddNmSpec( "Nm p3", Hidden );
+    mAddNmSpec( "Nm p4", Hidden );
+
+    return fd;
+}
+
+
+bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
+       				const Well::Track& trck ) const
+{
+    ms.erase();
+
+    const int dpthcol = columnOf( false, 0, 0 );
+    const int nmcol = columnOf( false, 1, 0 );
+    if ( nmcol > dpthcol )
+    {
+	// We'll assume that the name occupies up to 4 words
+	for ( int icol=nmcol+1; icol<5; icol++ )
+	{
+	    if ( icol == dpthcol ) break;
+	    fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_[0].pos_.c() = icol;
+	}
+    }
+
+    while ( true )
+    {
+	int ret = getNextBodyVals( strm );
+	if ( ret < 0 ) return false;
+	if ( ret == 0 ) break;
+
+	float dah = getfValue( 0 );
+	BufferString namepart = text( 1 );
+	if ( mIsUdf(dah) || namepart.isEmpty() ) continue;
+
+	if ( formOf(false,0) == 1 )
+	    dah = trck.getDahForTVD( dah );
+	BufferString fullnm( namepart );
+	for ( int icol=nmcol+1; ; icol++ )
+	{
+	    if ( icol == dpthcol ) break;
+	    namepart = text( icol );
+	    if ( namepart.isEmpty() ) break;
+
+	    fullnm += " "; fullnm += namepart;
+	}
+	ms += new Well::Marker( fullnm, dah );
+    }
+
+    return true;
+}
+
+
+Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
+    fd->headerinfos_ +=
+	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf),
+				Table::Required );
+    createDescBody( fd, withunitfld );
+    return fd;
+}
+
+
+void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
+					  bool withunitfld )
+{
+    Table::TargetInfo* depthinfo = 0;
+
+    if ( withunitfld )
+	depthinfo = new Table::TargetInfo( "Depth", FloatInpSpec(),
+					   Table::Required,
+					   PropertyRef::Dist );
+    else
+	depthinfo = new Table::TargetInfo( "Depth", FloatInpSpec(),
+					   Table::Required);
+
+    Table::TargetInfo::Form* depthform = 
+	new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() );
+    depthinfo->form(0).setName( "MD" );
+    depthinfo->add( depthform );
+    fd->bodyinfos_ += depthinfo;
+
+    Table::TargetInfo* timeinfo =
+		new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
+				       PropertyRef::Time );
+
+    Table::TargetInfo::Form* timeform =
+    new Table::TargetInfo::Form( "TWT", FloatInpSpec() );
+    timeinfo->form(0).setName( "One-way TT" );
+    timeinfo->add( timeform );
+    fd->bodyinfos_ += timeinfo;
+}
+
+
+void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, withunitfld );
+}
+
+
+bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
+       				const Well::Track& trck ) const
+{
+    d2t.erase();
+
+    while ( true )
+    {
+	int ret = getNextBodyVals( strm );
+	if ( ret < 0 ) return false;
+	if ( ret == 0 ) break;
+
+	float dah = getfValue( 0 );
+	const float time = getfValue( 1 );
+	if ( mIsUdf(dah) || mIsUdf(time) ) continue;
+
+	if ( formOf(false,0) == 1 )
+	    dah = trck.getDahForTVD( dah );
+	d2t.add( dah, time );
+    }
+
+    return true;
 }

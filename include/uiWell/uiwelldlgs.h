@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.32 2009-05-28 12:05:11 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.33 2009-06-22 12:50:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,8 @@ public:
 protected:
 
     Well::Data&			wd_;
-    Well::D2TModel&		d2t_;
-    Well::D2TModel*		orgd2t_; // Must be declared *below* d2t_!
     bool			cksh_;
+    Well::D2TModel*		orgd2t_; // Must be declared *below* others
 
     uiTable*			tbl_;
     uiGenInput*			unitfld_;

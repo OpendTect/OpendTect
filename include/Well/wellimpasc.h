@@ -7,16 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.22 2009-04-21 11:36:01 cvsbert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.23 2009-06-22 12:50:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ranges.h"
-#include "strmdata.h"
 #include "bufstringset.h"
 #include "tableascio.h"
-
 #include <iosfwd>
 
 namespace Table { class FormatDesc; }
@@ -26,39 +24,26 @@ class UnitOfMeasure;
 namespace Well
 {
 class Data;
+class Track;
+class D2TModel;
+class MarkerSet;
 
-mClass AscImporter
+
+mClass LASImporter
 {
 public:
 
-			AscImporter( Data& d ) : wd(d), useconvs_(false) {}
-			~AscImporter();
-    mClass D2TModelInfo
+			LASImporter( Data& d ) : wd(d), useconvs_(false) {}
+			~LASImporter();
+
+    mClass FileInfo
     {
     public:
-			D2TModelInfo();
-
-	BufferString	fname_;
-	bool		istwt_;
-	bool		istvd_;
-	bool		zinft_;
-
-	float		vel_;	// used if fname_.isEmpty()
-    };
-
-    const char*		getD2T(const D2TModelInfo&,bool chksh=false);
-    const char*		getMarkers(const char*,bool istvd,
-	    			   bool depthinfeet);
-    Data&		getWellData() 				{ return wd; }
-
-    mClass LasFileInfo
-    {
-    public:
-			LasFileInfo()
+			FileInfo()
 			    : zrg(mUdf(float),mUdf(float))
 			    , depthcolnr(-1)
 			    , undefval(-999.25)	{}
-			~LasFileInfo()		{ deepErase(lognms); }
+			~FileInfo()		{ deepErase(lognms); }
 
 	BufferStringSet	lognms;
 	Interval<float>	zrg;
@@ -69,11 +54,11 @@ public:
 	BufferString	wellnm; //!< only info; not used by getLogs
     };
 
-    const char*		getLogInfo(const char* lasfnm,LasFileInfo&) const;
-    const char*		getLogInfo(std::istream& lasstrm,LasFileInfo&) const;
-    const char*		getLogs(const char* lasfnm,const LasFileInfo&,
+    const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
+    const char*		getLogInfo(std::istream& lasstrm,FileInfo&) const;
+    const char*		getLogs(const char* lasfnm,const FileInfo&,
 	    			bool istvd=true);
-    const char*		getLogs(std::istream& lasstrm,const LasFileInfo&,
+    const char*		getLogs(std::istream& lasstrm,const FileInfo&,
 	    			bool istvd=true);
 
     bool		willConvertToSI() const		{ return useconvs_; }
@@ -91,15 +76,15 @@ protected:
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
     const char*		getLogData(std::istream&,const BoolTypeSet&,
-	    			   const LasFileInfo&,bool,int,int);
+	    			   const FileInfo&,bool,int,int);
 
 };
 
 
-mClass WellAscIO : public Table::AscIO
+mClass TrackAscIO : public Table::AscIO
 {
 public:
-    				WellAscIO( const Table::FormatDesc& fd,
+    				TrackAscIO( const Table::FormatDesc& fd,
 					   std::istream& strm )
 				    : Table::AscIO(fd)
 	      		    	    , strm_(strm)	{}
@@ -108,8 +93,39 @@ public:
     bool 			getData(Data&,bool first_is_surface) const;
 
 protected:
+
     std::istream&		strm_;
+
 };
+
+
+mClass D2TModelAscIO : public Table::AscIO
+{   
+    public:
+				D2TModelAscIO( const Table::FormatDesc& fd )
+				: Table::AscIO(fd)          {}
+
+    static Table::FormatDesc*   getDesc(bool withunitfld);
+    static void                 updateDesc(Table::FormatDesc&,bool withunitfld);
+    static void                 createDescBody(Table::FormatDesc*,bool unitfld);
+
+    bool                        get(std::istream&,Well::D2TModel&,
+	    			    const Well::Track&) const;
+};
+
+
+mClass MarkerSetAscIO : public Table::AscIO
+{
+public:
+    			MarkerSetAscIO( const Table::FormatDesc& fd )
+			    : Table::AscIO(fd)		{}
+
+    static Table::FormatDesc*	getDesc();
+
+    bool		get(std::istream&,MarkerSet&,const Track&) const;
+
+};
+
 
 }; // namespace Well
 
