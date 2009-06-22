@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.24 2009-06-17 10:00:07 cvsranojay Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.25 2009-06-22 10:05:30 cvsnanne Exp $";
 
 #include "drawaxis2d.h"
 
@@ -162,7 +162,7 @@ void DrawAxis2D::drawXAxis( bool topside )
 
     if ( !xaxlineitmgrp_ )
     {
-	xaxlineitmgrp_ = new uiGraphicsItemGroup();
+	xaxlineitmgrp_ = new uiGraphicsItemGroup( true );
 	drawscene_.addItemGrp( xaxlineitmgrp_ );
     }
     else
@@ -170,7 +170,7 @@ void DrawAxis2D::drawXAxis( bool topside )
 
     if ( !xaxtxtitmgrp_ )
     {
-	xaxtxtitmgrp_ = new uiGraphicsItemGroup();
+	xaxtxtitmgrp_ = new uiGraphicsItemGroup( true );
 	drawscene_.addItemGrp( xaxtxtitmgrp_ );
     }
     else
