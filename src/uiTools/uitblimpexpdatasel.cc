@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.43 2009-06-22 08:41:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.44 2009-06-22 11:49:52 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -418,6 +418,8 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
 	, bodyinpgrp_(0)
 	, nrhdrlines_(ds->nrHdrLines())
 {
+    hdrelems_.allowNull( true ); bodyelems_.allowNull( true );
+
     elemgrp_ = new uiGroup( this, "Elem group" );
     uiTableTargetInfoEd::choicegrp_ = 0;
 
@@ -462,15 +464,20 @@ void uiTableFormatDescFldsEd::mkElemFlds( bool ishdr )
 	}
     }
 
+    uiTableTargetInfoEd* prev = 0;
     for ( int idx=0; idx<infos.size(); idx++ )
     {
+	if ( infos[idx]->isHidden() )
+	    { elms += 0; continue; }
+
 	uiTableTargetInfoEd* elem = new uiTableTargetInfoEd( grp, *infos[idx],
 						     ishdr, nrhdrlines_ );
 	elms += elem;
-	if ( idx )
-	    elem->doAttach( elms[idx-1] );
+	if ( prev )
+	    elem->doAttach( prev );
 	else
 	    grp->setHAlignObj( elem );
+	prev = elem;
     }
 }
 
@@ -478,7 +485,7 @@ void uiTableFormatDescFldsEd::mkElemFlds( bool ishdr )
 #define mDoCommit(elms) \
     for ( int idx=0; idx<elms.size(); idx++ ) \
     { \
-	if ( !elms[idx]->commit() ) \
+	if ( elms[idx] && !elms[idx]->commit() ) \
 	{ \
 	    uiMSG().error( elms[idx]->errmsg_ ); \
 	    return false; \

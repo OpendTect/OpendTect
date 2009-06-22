@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.58 2009-06-18 14:53:54 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.59 2009-06-22 11:49:52 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -108,6 +108,7 @@ Well::Data::Data( const char* nm )
     , disp_(*new Well::DisplayProperties)
     , d2tmodel_(0)
     , csmodel_(0)
+    , markers_(*new MarkerSet)
     , d2tchanged(this)
     , csmdlchanged(this)
     , markerschanged(this)
@@ -124,6 +125,18 @@ Well::Data::~Data()
     delete &disp_;
     delete d2tmodel_;
     delete csmodel_;
+}
+
+
+bool Well::Data::haveMarkers() const
+{
+    return !markers_.isEmpty();
+}
+
+
+bool Well::Data::haveLogs() const
+{
+    return !logs_.isEmpty();
 }
 
 
@@ -763,6 +776,72 @@ float Well::D2TModel::getVelocity( float dh ) const
 }
 
 
+Table::FormatDesc* Well::MarkerSetAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "MarkerSet" );
+
+    Table::TargetInfo* depthinfo = new Table::TargetInfo( "Depth",
+	    		FloatInpSpec(), Table::Required, PropertyRef::Dist );
+
+    Table::TargetInfo::Form* depthform = 
+	new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() );
+    depthinfo->form(0).setName( "MD" );
+    depthinfo->add( depthform );
+    fd->bodyinfos_ += depthinfo;
+
+#define mAddNmSpec(nm,typ) \
+    fd->bodyinfos_ += new Table::TargetInfo(nm,StringInpSpec(),Table::typ)
+    mAddNmSpec( "Marker name", Required );
+    mAddNmSpec( "Nm p2", Hidden );
+    mAddNmSpec( "Nm p3", Hidden );
+    mAddNmSpec( "Nm p4", Hidden );
+    mAddNmSpec( "Nm p5", Hidden );
+
+    return fd;
+}
+
+
+bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
+       				const Well::Track& trck ) const
+{
+    ms.erase();
+
+    const int dpthcol = columnOf( false, 0, 0 );
+    const int nmcol = columnOf( false, 1, 0 );
+    for ( int icol=nmcol+1; icol<6; icol++ )
+    {
+	if ( icol == dpthcol ) break;
+	fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_[0].pos_.c() = icol;
+    }
+
+    while ( true )
+    {
+	int ret = getNextBodyVals( strm );
+	if ( ret < 0 ) return false;
+	if ( ret == 0 ) break;
+
+	float dah = getfValue( 0 );
+	BufferString namepart = text( 1 );
+	if ( mIsUdf(dah) || namepart.isEmpty() ) continue;
+
+	if ( formOf(false,0) == 1 )
+	    dah = trck.getDahForTVD( dah );
+	BufferString fullnm( namepart );
+	for ( int icol=nmcol+1; ; icol++ )
+	{
+	    if ( icol == dpthcol ) break;
+	    namepart = text( icol );
+	    if ( namepart.isEmpty() ) break;
+
+	    fullnm += " "; fullnm += namepart;
+	}
+	ms += new Well::Marker( fullnm, dah );
+    }
+
+    return true;
+}
+
+
 Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
@@ -812,7 +891,8 @@ void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
 }
 
 
-bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t ) const
+bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
+       				const Well::Track& trck ) const
 {
     d2t.erase();
 
@@ -822,9 +902,12 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t ) const
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	const float dah = getfValue( 0 );
+	float dah = getfValue( 0 );
 	const float time = getfValue( 1 );
 	if ( mIsUdf(dah) || mIsUdf(time) ) continue;
+
+	if ( formOf(false,0) == 1 )
+	    dah = trck.getDahForTVD( dah );
 	d2t.add( dah, time );
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.15 2009-05-12 08:46:47 cvssatyaki Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.16 2009-06-22 11:49:52 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,8 @@ ________________________________________________________________________
 
 namespace Well
 {
+
+class Track;
 
 mClass D2TModel : public DahObj
 {
@@ -66,7 +68,8 @@ mClass D2TModelAscIO : public Table::AscIO
     static void                 updateDesc(Table::FormatDesc&,bool withunitfld);
     static void                 createDescBody(Table::FormatDesc*,bool unitfld);
 
-    bool                        get(std::istream&,Well::D2TModel&) const;
+    bool                        get(std::istream&,Well::D2TModel&,
+	    			    const Well::Track&) const;
 };
 
 

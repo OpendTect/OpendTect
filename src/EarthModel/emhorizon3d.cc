@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.117 2009-06-19 08:58:11 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.118 2009-06-22 11:49:52 cvsbert Exp $";
 
 #include "emhorizon3d.h"
 
@@ -778,11 +778,7 @@ void Horizon3DAscIO::updateDesc( Table::FormatDesc& fd,
 
 bool Horizon3DAscIO::isXY() const
 {
-    const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
-    if ( !xinfo ) return false;
-
-    const int sel = xinfo->selection_.form_;
-    return !sel;
+    return formOf( false, 0 ) == 0;
 }
 
 

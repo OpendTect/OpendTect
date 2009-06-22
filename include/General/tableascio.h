@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.9 2009-01-20 04:38:46 cvsranojay Exp $
+ RCS:		$Id: tableascio.h,v 1.10 2009-06-22 11:49:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,9 @@ protected:
     float			getfValue(int,float udf=mUdf(float)) const;
     double			getdValue(int,double udf=mUdf(double)) const;
     				// For more, use Conv:: stuff
+
+    int				formOf(bool hdr,int iinf) const;
+    int				columnOf(bool hdr,int iinf,int ielem) const;
 
 };
 

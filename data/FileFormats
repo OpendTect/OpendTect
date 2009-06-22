@@ -294,3 +294,39 @@ Body.Selection.Z: P`-1/2
 Body.Selection.Stick index: P`-1/3
 Group: Fault
 !
+MD name (m)
+Header.Size: 0
+Header.Token: -1`
+Body.Depth.Form: MD
+Body.Depth.Unit: Meter
+Body.Selection.Depth: P`-1/0
+Body.Selection.Marker name: P`-1/1
+Group: MarkerSet
+!
+TVDSS name (m)
+Header.Size: 0
+Header.Token: -1`
+Body.Depth.Form: TVDSS
+Body.Depth.Unit: Meter
+Body.Selection.Depth: P`-1/0
+Body.Selection.Marker name: P`-1/1
+Group: MarkerSet
+!
+MD name (ft)
+Header.Size: 0
+Header.Token: -1`
+Body.Depth.Form: MD
+Body.Depth.Unit: Feet
+Body.Selection.Depth: P`-1/0
+Body.Selection.Marker name: P`-1/1
+Group: MarkerSet
+!
+TVDSS name (ft)
+Header.Size: 0
+Header.Token: -1`
+Body.Depth.Form: TVDSS
+Body.Depth.Unit: Feet
+Body.Selection.Depth: P`-1/0
+Body.Selection.Marker name: P`-1/1
+Group: MarkerSet
+!

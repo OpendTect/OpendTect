@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.13 2009-05-29 11:08:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.14 2009-06-22 11:49:52 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -115,7 +115,7 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
-	aio.get( *sdi.istrm, d2t );
+	aio.get( *sdi.istrm, d2t, wd.track() );
 	return 0;
     }
 }

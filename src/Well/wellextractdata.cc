@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.53 2009-05-27 09:29:25 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.54 2009-06-22 11:49:52 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -98,7 +98,7 @@ int Well::InfoCollector::nextStep()
 	}
 	if ( domrkrs_ )
 	{
-	    ObjectSet<Well::Marker>* newset = new ObjectSet<Well::Marker>;
+	    Well::MarkerSet* newset = new Well::MarkerSet;
 	    markers_ += newset;
 	    if ( wr.getMarkers() )
 		deepCopy( *newset, wd.markers() );
@@ -233,7 +233,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 }
 
 
-void Well::TrackSampler::getLimitPos( const ObjectSet<Marker>& markers,
+void Well::TrackSampler::getLimitPos( const MarkerSet& markers,
 				      bool isstart, float& val ) const
 {
     const BufferString& mrknm = isstart ? topmrkr : botmrkr;

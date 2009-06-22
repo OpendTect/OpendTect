@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.28 2009-06-16 13:34:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.29 2009-06-22 11:49:52 cvsbert Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -132,7 +132,7 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
 	const BufferStringSet& logs = *wic.logs()[iid];
 	for ( int ilog=0; ilog<logs.size(); ilog++ )
 	    lognms.addIfNew( logs.get(ilog) );
-	const ObjectSet<Well::Marker>& mrkrs = *wic.markers()[iid];
+	const Well::MarkerSet& mrkrs = *wic.markers()[iid];
 	for ( int imrk=0; imrk<mrkrs.size(); imrk++ )
 	    markernms.addIfNew( mrkrs[imrk]->name() );
     }

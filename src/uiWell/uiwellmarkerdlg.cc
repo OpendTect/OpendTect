@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.11 2009-05-28 11:59:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.12 2009-06-22 11:49:52 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.11 2009-05-28 11:59:12 c
 #include "uimsg.h"
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
+#include "uitblimpexpdatasel.h"
 #include "stratlevel.h"
 #include "uitable.h"
 
@@ -26,6 +27,8 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.11 2009-05-28 11:59:12 c
 #include "filegen.h"
 #include "iopar.h"
 #include "pixmap.h"
+#include "tabledef.h"
+#include "strmprov.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -124,8 +127,7 @@ int uiMarkerDlg::rowNrFor( uiStratLevelSel* lvlsel ) const
 }
 
 
-void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
-				bool add )
+void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 {
     const int nrnew = markers.size();
     if ( !nrnew ) return;
@@ -197,36 +199,43 @@ uiReadMarkerFile( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Markers",
 				 "Specify Marker import",
 				 "107.1.4"))
+    , fd_(*Well::MarkerSetAscIO::getDesc())
 {
-    fnmfld = new uiFileInput( this, "Input Ascii file",
+    fnmfld_ = new uiFileInput( this, "Input Ascii file",
 	    		uiFileInput::Setup().withexamine(true)
 					    .forread(true));
-    fnmfld->setDefaultSelectionDir(
+    fnmfld_->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
-    istvdfld = new uiGenInput( this, "Depth (col 1) is",
-	    			BoolInpSpec(false,"TVDSS","MD") );
-    istvdfld->attach( alignedBelow, fnmfld );
-    replfld = new uiGenInput( this, "Replace current markers",
-	    		      BoolInpSpec(true) );
-    replfld->attach( alignedBelow, istvdfld );
+
+    dataselfld_ = new uiTableImpDataSel( this, fd_, mTODOHelpID );
+    dataselfld_->attach( alignedBelow, fnmfld_ );
+
+    replfld_ = new uiGenInput( this, "Existing markers (if any)",
+	    		      BoolInpSpec(true,"Replace","Keep") );
+    replfld_->attach( alignedBelow, dataselfld_ );
+}
+
+~uiReadMarkerFile()
+{
+    delete &fd_;
 }
 
 bool acceptOK( CallBacker* )
 {
-    fnm = fnmfld->fileName();
-    if ( File_isEmpty(fnm) )
+    fnm_ = fnmfld_->fileName();
+    if ( File_isEmpty(fnm_) )
 	{ uiMSG().error( "Invalid input file" ); return false; }
-    istvd = istvdfld->getBoolValue();
-    repl = replfld->getBoolValue();
+    keep_ = !replfld_->getBoolValue();
     return true;
 }
 
-    BufferString	fnm;
-    bool		istvd;
-    bool		repl;
-    uiFileInput*	fnmfld;
-    uiGenInput*		istvdfld;
-    uiGenInput*		replfld;
+    Table::FormatDesc&	fd_;
+    BufferString	fnm_;
+    bool		keep_;
+
+    uiFileInput*	fnmfld_;
+    uiGenInput*		replfld_;
+    uiTableImpDataSel*	dataselfld_;
 
 };
 
@@ -235,18 +244,21 @@ void uiMarkerDlg::rdFile( CallBacker* )
 {
     uiReadMarkerFile dlg( this );
     if ( !dlg.go() ) return;
-    Well::Data wd; wd.track() = track_;
-    Well::AscImporter wdai( wd );
-    const bool inft = !unitfld_->getBoolValue();
-    const char* res = wdai.getMarkers( dlg.fnm, dlg.istvd, inft );
-    if ( res && *res )
-	uiMSG().error( res );
+    StreamData sd( StreamProvider(dlg.fnm_).makeIStream() );
+    if ( !sd.usable() )
+	{ uiMSG().error( "Input file exists but cannot be read" ); return; }
+
+    Well::MarkerSetAscIO aio( dlg.fd_ );
+    Well::MarkerSet mrkrs;
+    aio.get( *sd.istrm, mrkrs, track_ );
+    if ( mrkrs.isEmpty() )
+	uiMSG().error( "No valid markers found" );
     else
-	setMarkerSet( wd.markers(), !dlg.repl );
+	setMarkerSet( mrkrs, dlg.keep_ );
 }
 
 
-void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
+void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 {
     deepErase( markers );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.18 2009-05-28 12:05:11 cvsbert Exp $
+ RCS:		$Id: welldata.h,v 1.19 2009-06-22 11:49:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,9 +24,11 @@ namespace Well
 
 class Track;
 class LogSet;
-class D2TModel;
 class Marker;
+class MarkerSet;
+class D2TModel;
 class DisplayProperties;
+
 
 /*!\brief Infomation about a certain well */
 
@@ -80,8 +82,8 @@ public:
     Track&			track()			{ return track_; }
     const LogSet&		logs() const		{ return logs_; }
     LogSet&			logs()			{ return logs_; }
-    const ObjectSet<Marker>&	markers() const		{ return markers_; }
-    ObjectSet<Marker>&		markers()		{ return markers_; }
+    const MarkerSet&		markers() const		{ return markers_; }
+    MarkerSet&			markers()		{ return markers_; }
     const D2TModel*		d2TModel() const	{ return d2tmodel_; }
     D2TModel*			d2TModel()		{ return d2tmodel_; }
     const D2TModel*		checkShotModel() const	{ return csmodel_; }
@@ -91,7 +93,12 @@ public:
     DisplayProperties&		displayProperties()	{ return disp_; }
     const DisplayProperties&	displayProperties() const { return disp_; }
 
-    void			empty();
+    void			empty(); //!< removes everything
+
+    bool			haveLogs() const;
+    bool			haveMarkers() const;
+    bool			haveD2TModel() const	{ return d2tmodel_; }
+    bool			haveCheckShotModel() const { return csmodel_; }
 
     Notifier<Well::Data>	d2tchanged;
     Notifier<Well::Data>	csmdlchanged;
@@ -101,13 +108,13 @@ public:
 
 protected:
 
-    Info			info_;
-    Track&			track_;
-    LogSet&			logs_;
-    D2TModel*			d2tmodel_;
-    D2TModel*			csmodel_;
-    ObjectSet<Marker>		markers_;
-    DisplayProperties&		disp_;
+    Info		info_;
+    Track&		track_;
+    LogSet&		logs_;
+    D2TModel*		d2tmodel_;
+    D2TModel*		csmodel_;
+    MarkerSet&		markers_;
+    DisplayProperties&	disp_;
 
 };
 

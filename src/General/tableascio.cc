@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.22 2008-10-17 11:33:42 cvsraman Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.23 2009-06-22 11:49:52 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -708,4 +708,22 @@ double Table::AscIO::getdValue( int ifld, double udf ) const
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
     return unit ? unit->internalValue( val ) : val;
+}
+
+
+int Table::AscIO::formOf( bool hdr, int iinf ) const
+{
+    const ObjectSet<TargetInfo>& tis = hdr ? fd_.headerinfos_ : fd_.bodyinfos_;
+    if ( tis.size() <= iinf ) return 0;
+
+    return tis[iinf]->selection_.form_;
+}
+
+
+int Table::AscIO::columnOf( bool hdr, int iinf,int ielem ) const
+{
+    const ObjectSet<TargetInfo>& tis = hdr ? fd_.headerinfos_ : fd_.bodyinfos_;
+    if ( tis.size() <= iinf ) return 0;
+
+    return tis[iinf]->selection_.elems_[ielem].pos_.c();
 }

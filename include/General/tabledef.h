@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.18 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: tabledef.h,v 1.19 2009-06-22 11:49:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class UnitOfMeasure;
 namespace Table
 {
 
-    enum ReqSpec	{ Optional=0, Required=1 };
+    enum ReqSpec	{ Optional=0, Required=1, Hidden=2 };
 
 /*!\brief Description of a Logical piece of information.
 
@@ -111,7 +111,8 @@ public:
     TargetInfo&		add( Form* frm )
 			    { forms_ += frm; return *this; }
 
-    bool		isOptional() const	{ return req_ == Optional; }
+    bool		isOptional() const	{ return req_ != Required; }
+    bool		isHidden() const	{ return req_ == Hidden; }
     PropertyRef::StdType propertyType() const	{ return proptype_; }
     void		setPropertyType( PropertyRef::StdType p )
 			    { proptype_ = p; }

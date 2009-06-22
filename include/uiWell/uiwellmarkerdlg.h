@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.6 2009-01-08 09:16:21 cvsranojay Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.7 2009-06-22 11:49:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiStratLevelSel;
 class uiGenInput;
 class uiTable;
-namespace Well { class Marker; class Track; }
+namespace Well { class Marker; class MarkerSet; class Track; }
 
 /*! \brief Dialog for marker specifications */
 
@@ -26,9 +26,9 @@ mClass uiMarkerDlg : public uiDialog
 public:
 				uiMarkerDlg(uiParent*,const Well::Track&);
 
-    void			setMarkerSet(const ObjectSet<Well::Marker>&,
+    void			setMarkerSet(const Well::MarkerSet&,
 	    				     bool addtoexisting=false);
-    void			getMarkerSet(ObjectSet<Well::Marker>&) const;
+    void			getMarkerSet(Well::MarkerSet&) const;
 
 protected:
 

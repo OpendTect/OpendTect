@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.8 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:		$Id: wellmarker.h,v 1.9 2009-06-22 11:49:52 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,10 +15,13 @@ ________________________________________________________________________
 
 #include "namedobj.h"
 #include "color.h"
+#include "tableascio.h"
 namespace Strat { class Level; }
 
 namespace Well
 {
+
+class Track;
 
 /*!\brief Marker, should be attached to Strat level
 
@@ -58,6 +61,26 @@ protected:
 };
 
 
-}; // namespace Well
+mClass MarkerSet : public ObjectSet<Marker>
+{
+public:
+    			MarkerSet()		{}
+};
+
+
+mClass MarkerSetAscIO : public Table::AscIO
+{
+public:
+    			MarkerSetAscIO( const Table::FormatDesc& fd )
+			    : Table::AscIO(fd)		{}
+
+    static Table::FormatDesc*	getDesc();
+
+    bool		get(std::istream&,MarkerSet&,const Well::Track&) const;
+
+};
+
+
+} // namespace Well
 
 #endif

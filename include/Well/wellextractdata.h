@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.22 2009-04-06 09:41:55 cvsranojay Exp $
+ RCS:		$Id: wellextractdata.h,v 1.23 2009-06-22 11:49:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ class Info;
 class Data;
 class Track;
 class Marker;
+class MarkerSet;
 
 /*!\brief Collects info about all wells in store */
 
@@ -45,8 +46,6 @@ public:
     const char*		nrDoneText() const	{ return "Wells inspected"; }
     od_int64		nrDone() const		{ return curidx_; }
     od_int64		totalNr() const		{ return totalnr_; }
-
-    typedef ObjectSet<Marker>	MarkerSet;
 
     const ObjectSet<MultiID>&	ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
@@ -125,7 +124,7 @@ protected:
     int				dahcolnr;
 
     void		getData(const Data&,DataPointSet&);
-    void		getLimitPos(const ObjectSet<Marker>&,bool,float&) const;
+    void		getLimitPos(const MarkerSet&,bool,float&) const;
     bool		getSnapPos(const Data&,float,BinIDValue&,int&,
 	    			   Coord3&) const;
     void		addPosns(DataPointSet&,const BinIDValue&,
