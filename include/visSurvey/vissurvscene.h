@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.60 2009-04-06 07:25:31 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.61 2009-06-22 10:55:50 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "cubesampling.h"
 #include "position.h"
+
 
 class Color;
 class MouseCursor;
@@ -30,6 +31,7 @@ namespace visBase
     class Marker;
     class PolygonSelection;
     class SceneColTab;
+    class TopBotImage;
     class Transformation;
     class VisualObject;
 };
@@ -144,6 +146,7 @@ public:
     float			getMarkerSize() const;
     const Color&		getMarkerColor() const;
     void			setMarkerColor(const Color&);
+    visBase::TopBotImage*	getTopBotImage(bool istop);
 
     void			allowAppShading(bool yn){ appallowshad_ = yn; }
     bool			allowsAppShading() const{return appallowshad_;}
@@ -178,6 +181,11 @@ protected:
     Selector<Coord3>*		coordselector_;
     visBase::SceneColTab*	scenecoltab_;
 
+    visBase::TopBotImage*	topimg_;
+    visBase::TopBotImage*	botimg_;
+    int				getImageFromPar(const IOPar&,const char*,
+					        visBase::TopBotImage*&);
+    
     Coord3			xytmousepos_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
@@ -198,6 +206,9 @@ protected:
     static const char*		sKeyZStretch();
     static const char*		sKeyZDataTransform();
     static const char*		sKeyAppAllowShading();
+    static const char*		sKeyTopImageID();
+    static const char*		sKeyBotImageID();
+
 };
 
 }; // namespace visSurvey

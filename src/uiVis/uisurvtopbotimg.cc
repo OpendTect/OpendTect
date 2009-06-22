@@ -7,14 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvtopbotimg.cc,v 1.2 2009-06-03 11:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvtopbotimg.cc,v 1.3 2009-06-22 10:55:50 cvsranojay Exp $";
 
 #include "uisurvtopbotimg.h"
-
+#include "vistopbotimage.h"
 #include "vissurvscene.h"
 #include "uislider.h"
 #include "uifileinput.h"
 #include "uiseparator.h"
+#include "vismaterial.h"
 
 #include "survinfo.h"
 #include "oddirs.h"
@@ -28,7 +29,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop )
     : uiGroup(p,istop?"Top img grp":"Bot img grp")
     , dlg_(p)
     , istop_(istop)
-    , scene_(p->scene_)
+    , img_(p->scene_->getTopBotImage(istop))
 {
     uiFileInput::Setup su( uiFileDialog::Img ); su.defseldir( GetDataDir() );
     fnmfld_ = new uiFileInput( this, istop_ ? "Top image" : "Bottom image", su);
@@ -36,12 +37,14 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop )
     fnmfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
     fnmfld_->checked.notify( mCB(this,uiSurvTopBotImageGrp,onOff) );
 
+    const Coord mincrd = SI().minCoord(true);
+    const Coord maxcrd = SI().maxCoord(true);
     tlfld_ = new uiGenInput( this, "NorthWest (TopLeft) Coordinate",
-	    		     PositionInpSpec(SI().minCoord(false)) );
+	    		     PositionInpSpec(Coord(mincrd.x,maxcrd.y)) );
     tlfld_->attach( alignedBelow, fnmfld_ );
     tlfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,coordChg) );
     brfld_ = new uiGenInput( this, "SouthEast (BottomRight) Coordinate",
-	    		     PositionInpSpec(SI().maxCoord(false)) );
+	    		     PositionInpSpec(Coord(maxcrd.x,mincrd.y)) );
     brfld_->attach( alignedBelow, tlfld_ );
     brfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,coordChg) );
 
@@ -49,7 +52,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop )
 	    	uiSliderExtra::Setup("Transparency"), "Transparency slider" );
     transpfld_->attach( alignedBelow, brfld_ );
     transpfld_->sldr()->setMinValue( 0 );
-    transpfld_->sldr()->setMaxValue( 255 );
+    transpfld_->sldr()->setMaxValue( 254 );
     transpfld_->sldr()->setStep( 1 );
     transpfld_->sldr()->valueChanged.notify(
 				mCB(this,uiSurvTopBotImageGrp,transpChg) );
@@ -59,9 +62,15 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop )
 
 void fillCurrent()
 {
-    //TODO set file names, coords etc. as in current display, like:
-    // fnmfld_->setChecked( have_image );
-    // transpfld_->sldr()->setValue( initaltransp );
+    fnmfld_->setChecked( img_->isOn() );
+    fnmfld_->setFileName( img_->getImageFilename() );
+    if( img_->isOn() )
+    {
+	tlfld_->setValue( img_->topLeft() );
+	brfld_->setValue( img_->bottomRight() );
+	transpfld_->sldr()->setValue( img_->getTransparency() );
+    }
+    
 }
 
 void newFile( CallBacker* )
@@ -69,20 +78,21 @@ void newFile( CallBacker* )
     dlg_->newFile( istop_, fnmfld_->fileName() );
 }
 
-void onOff( CallBacker* )
+void onOff( CallBacker* cb  )
 {
     const bool ison = fnmfld_->isChecked();
     dlg_->setOn( istop_, ison );
     tlfld_->display( ison );
     brfld_->display( ison );
     transpfld_->display( ison );
+    coordChg( cb );
+    transpChg( cb );
 }
 
 void coordChg( CallBacker* cb )
 {
     const bool istl = cb == tlfld_;
-    dlg_->setCoord( istop_, istl,
-	    	    istl ? tlfld_->getCoord() : brfld_->getCoord() );
+    dlg_->setCoord( istop_, tlfld_->getCoord(), brfld_->getCoord() );
 }
 
 void transpChg( CallBacker* )
@@ -93,7 +103,7 @@ void transpChg( CallBacker* )
     const bool		istop_;
 
     uiSurvTopBotImageDlg* dlg_;
-    visSurvey::Scene*	scene_;
+    visBase::TopBotImage* img_;
 
     uiFileInput*	fnmfld_;
     uiGenInput*		tlfld_;
@@ -124,24 +134,26 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 
 void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )
 {
-//TODO user has selected a new file name
+    scene_->getTopBotImage(istop)->setImageFilename( fnm );
 }
 
 
 void uiSurvTopBotImageDlg::setOn( bool istop, bool ison )
 {
-//TODO user switches on or off
+    scene_->getTopBotImage(istop)->turnOn( ison );
 }
 
 
-void uiSurvTopBotImageDlg::setCoord( bool istop, bool istopleft,
-				     const Coord& pos )
+void uiSurvTopBotImageDlg::setCoord( bool istop, const Coord& tl,
+				     const Coord& br  )
 {
-//TODO user changes a corner coordinate
+    const CubeSampling& cs = scene_->getCubeSampling();
+    scene_->getTopBotImage(istop)->setPos( tl, br,
+	istop ? cs.zrg.start : cs.zrg.stop );
 }
 
 
 void uiSurvTopBotImageDlg::setTransp( bool istop, int val )
 {
-//TODO user changes the transparency slider
+    scene_->getTopBotImage(istop)->setTransparency( val );
 }

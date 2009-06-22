@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uisurvtopbotimg.h,v 1.1 2009-06-03 10:51:40 cvsbert Exp $
+ RCS:           $Id: uisurvtopbotimg.h,v 1.2 2009-06-22 10:55:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ protected:
     uiSurvTopBotImageGrp*	botfld_;
 
     void		setOn(bool,bool);
-    void		setCoord(bool,bool,const Coord&);
+    void		setCoord(bool,const Coord&, const Coord&);
     void		setTransp(bool,int);
     void		newFile(bool,const char*);
 

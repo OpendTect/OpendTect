@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.118 2009-06-15 12:19:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.119 2009-06-22 10:55:50 cvsranojay Exp $";
 
 #include "vissurvscene.h"
 
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.118 2009-06-15 12:19:08 cvs
 #include "vissurvobj.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
+#include "vistopbotimage.h"
 
 
 mCreateFactoryEntry( visSurvey::Scene );
@@ -42,7 +43,10 @@ const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
 const char* Scene::sKeyZStretch()	{ return "ZStretch"; }
 const char* Scene::sKeyZDataTransform()	{ return "ZTransform"; }
-const char* Scene::sKeyAppAllowShading() { return "Application Allows shading";}
+const char* Scene::sKeyAppAllowShading(){ return "";}
+const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
+const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
+
 
 Scene::Scene()
     : inlcrl2disptransform_(0)
@@ -113,6 +117,15 @@ void Scene::init()
     scenecoltab_ = visBase::SceneColTab::create();
     addUTMObject( scenecoltab_ );
     scenecoltab_->turnOn( false );
+
+    topimg_ = visBase::TopBotImage::create();
+    addUTMObject( topimg_ );
+    topimg_->turnOn( false );
+
+    botimg_ = visBase::TopBotImage::create();
+    addUTMObject( botimg_ );
+    botimg_->turnOn( false );
+    
     scenecoltab_->doSaveInSessions( false );
 }
 
@@ -142,6 +155,12 @@ Scene::~Scene()
 	    so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
 	so->setScene( 0 );
     }
+
+    objidx = getFirstIdx( topimg_ );
+    if ( objidx >= 0 ) removeObject( objidx );
+
+    objidx = getFirstIdx( botimg_ );
+    if ( objidx >= 0 ) removeObject( objidx );
 
     delete coordselector_;
 }
@@ -637,6 +656,9 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	datatransform_->fillPar( transpar );
 	par.mergeComp( transpar, sKeyZDataTransform() );
     }
+
+    par.set( sKeyTopImageID(), topimg_->id() );
+    par.set( sKeyBotImageID(), botimg_->id() );
 }
 
 
@@ -691,7 +713,38 @@ int Scene::usePar( const IOPar& par )
 	    setDataTransform( transform );
     }
 
+    res = getImageFromPar( par,sKeyTopImageID(), topimg_ );
+    if ( res != 1 ) return res;
+    res = getImageFromPar( par, sKeyBotImageID(), botimg_ );
+    if ( res != 1 ) return res;
+
     return 1;
 }
 
+
+int Scene::getImageFromPar( const IOPar& par, const char* key,
+			    visBase::TopBotImage*& image )
+{
+    int imgid;
+    if ( par.get(key,imgid) )
+    { 
+        DataObject* dataobj = visBase::DM().getObject( imgid );
+        if ( !dataobj ) return 0;
+        mDynamicCastGet(visBase::TopBotImage*,im,dataobj)
+        if ( !im ) return -1;
+	int objidx = getFirstIdx( image );
+	if ( objidx>=0 ) removeObject( objidx ); 	
+	image = im;
+	addUTMObject( image );
+    }
+
+    return 1;
+}
+
+
+visBase::TopBotImage* Scene::getTopBotImage( bool istop )
+{ return istop ? topimg_ : botimg_; }
+
+
 } // namespace visSurvey
+
