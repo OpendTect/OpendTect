@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.29 2009-06-15 13:59:37 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.30 2009-06-22 19:37:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -106,7 +106,7 @@ public:
 
     void			getDataPositions(BinIDValueSet&,float) const;
     void			setTextureData(int channel,
-	    				       const BinIDValueSet*);
+	    				       const BinIDValueSet*,float zoff);
     const BinIDValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
@@ -124,7 +124,7 @@ protected:
     void			removeZTransform();
     void			updateZAxisVOI();
 
-    void			updateTexture(int channel);
+    void			updateTexture(int channel,float zoff);
     void			updateAutoResolution(SoState*,TaskRunner*);
     static void			updateAutoResolution(void*,SoAction*);
     void			turnOnWireframe(int res,TaskRunner*);

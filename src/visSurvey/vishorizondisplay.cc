@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.93 2009-06-19 14:38:02 cvshelene Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.94 2009-06-22 19:37:16 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -784,8 +784,10 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 	return;
     }
 
+    const float zf = scene_ ? scene_->getZScale() : SI().zScale();
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setTextureData( channel, !idx ? &data->bivSet() : 0 );
+	sections_[idx]->setTextureData( channel, !idx ? &data->bivSet() : 0,
+	       				getTranslation().z/zf );
 
     //We should really scale here, and then update sections. This
     //works for single sections though.

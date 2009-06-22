@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.49 2009-06-15 18:38:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.50 2009-06-22 19:37:16 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -539,7 +539,8 @@ void HorizonSection::getDataPositions( BinIDValueSet& res, float zoff ) const
 }
 
 
-void HorizonSection::setTextureData( int channel, const BinIDValueSet* data )
+void HorizonSection::setTextureData( int channel, const BinIDValueSet* data,
+       				     float zoff	)
 {
     if ( channel<0 || channel>=cache_.size() ) 
 	return;
@@ -562,11 +563,11 @@ void HorizonSection::setTextureData( int channel, const BinIDValueSet* data )
     }
 
     setNrVersions( channel, !data ? 0 : data->nrVals()-1 );
-    updateTexture( channel );
+    updateTexture( channel, zoff );
 }
 
 
-void HorizonSection::updateTexture( int channel )
+void HorizonSection::updateTexture( int channel, float zoff )
 {
     if ( !geometry_ || !geometry_->getArray() )
 	return;
@@ -618,7 +619,7 @@ void HorizonSection::updateTexture( int channel )
     while ( data->next(pos,true) )
     {
 	const BinID bid = data->getBinID( pos );
-	const float geomzval = geometry_->getKnot(bid, false).z;
+	const float geomzval = geometry_->getKnot(bid, false).z + zoff;
 	if ( mIsUdf(geomzval) )
 	    continue;
 
