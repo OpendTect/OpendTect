@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.88 2009-06-22 11:06:39 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.h,v 1.89 2009-06-22 11:12:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ public:
     			//!<Returned set is reffed and must be unrefed by caller
     bool		showLoadAuxDataDlg(const EM::ObjectID&);
     int			loadAuxData(const EM::ObjectID&,const char*,
-				    bool removeold=false);
+				    bool removeold=true);
     			/*!<Loads the specified data into memory and returns
 			    its auxdatanr. */
 
@@ -140,7 +140,7 @@ protected:
     void		selectSurfaces(ObjectSet<EM::EMObject>&,
 	    			       const char* type);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&,
-				    bool removeold=false);
+				    bool removeold=true);
     void		syncGeometry(CallBacker*);
     BinIDValueSet*	changeAuxData(const EM::ObjectID&,const char* nm,
 	    			      bool interp);
