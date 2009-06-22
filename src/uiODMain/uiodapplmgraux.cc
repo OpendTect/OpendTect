@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.7 2009-06-21 01:08:01 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.8 2009-06-22 05:09:08 cvsraman Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -111,7 +111,7 @@ bool uiODApplMgrVelSel::acceptOK( CallBacker* )
 	     desc.type_ != VelocityDesc::RMS )
 	    mErrRet("Only RMS and Interval allowed for time based models")
 
-	trans_ = new Time2DepthStretcher();A
+	trans_ = new Time2DepthStretcher();
 	trans_->ref();
 	zscale_ = SurveyInfo::defaultXYtoZScale( SurveyInfo::Meter,
 						 SI().xyUnit() );
