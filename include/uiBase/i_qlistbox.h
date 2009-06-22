@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.12 2009-05-28 09:08:50 cvsjaap Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.13 2009-06-22 15:57:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,10 @@ protected:
 
 			    connect( sender, SIGNAL(itemSelectionChanged()),
 				     this, SLOT(itemSelectionChanged()) );
+
+			    connect( sender,
+				 SIGNAL(itemEntered(QListWidgetItem*)),
+				 this, SLOT(itemEntered(QListWidgetItem*)) );
 			}
 
     virtual		~i_listMessenger() {}
@@ -53,18 +57,32 @@ private:
     uiListBox* 		receiver_;
     QListWidget*  	sender_;
 
+
+#define mTrigger( notifier, itm ) \
+{ \
+    BufferString msg = #notifier; \
+    if ( itm ) \
+    { \
+	QListWidgetItem* qlwi = itm; \
+	msg += " "; msg += qlwi->listWidget()->row( qlwi ); \
+    } \
+    const int refnr = receiver_->beginCmdRecEvent( msg ); \
+    receiver_->notifier.trigger( receiver_ ); \
+    receiver_->endCmdRecEvent( refnr, msg ); \
+}
+
 private slots:
 
-void itemDoubleClicked( QListWidgetItem* cur )
-{ receiver_->notifyHandler( "doubleClicked" ); }
+void itemDoubleClicked( QListWidgetItem* itm )
+{ mTrigger( doubleClicked, itm ); }
 
 
-void itemClicked( QListWidgetItem* )
+void itemClicked( QListWidgetItem* itm )
 {
     if ( receiver_->buttonstate_ == OD::RightButton )
-	receiver_->notifyHandler( "rightButtonClicked" );
+	mTrigger( rightButtonClicked, itm )
     else if ( receiver_->buttonstate_ == OD::LeftButton )
-	receiver_->notifyHandler( "leftButtonClicked" );
+	mTrigger( leftButtonClicked, itm );
 }
 
 void itemSelectionChanged()
@@ -76,7 +94,13 @@ void itemSelectionChanged()
     else if ( selitems.count() == 1 )
 	sender_->setCurrentItem( selitems.first() );
 
-    receiver_->notifyHandler( "selectionChanged" );
+    mTrigger( selectionChanged, 0 );
+}
+
+void itemEntered( QListWidgetItem* itm )
+{
+    const int refnr = receiver_->beginCmdRecEvent( "itemEntered" );
+    receiver_->endCmdRecEvent( refnr, "itemEntered" );
 }
 
 };

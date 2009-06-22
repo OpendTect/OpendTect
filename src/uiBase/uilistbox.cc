@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.98 2009-05-28 09:08:50 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.99 2009-06-22 15:57:27 cvsjaap Exp $";
 
 #include "uilistbox.h"
 
@@ -45,8 +45,7 @@ public:
 
     int			maxSelectable() const;
 
-    void		activateClick(int idx,bool leftclick,bool doubleclick);
-    void		activateButton(int idx);
+    void		activateClick(int idx,const BufferStringSet& clicktags);
     void		activateSelect(const TypeSet<int>&);
     bool		event(QEvent*);
 
@@ -72,10 +71,9 @@ protected:
     void		mouseReleaseEvent(QMouseEvent*);
     void		keyPressEvent(QKeyEvent*);
 
-    int			actidx_;
-    bool		actleftclick_;
-    bool		actdoubleclick_;
-    const TypeSet<int>* actselset_;
+    int				actidx_;
+    const TypeSet<int>*		actselset_;
+    const BufferStringSet* 	actclicktags_;
 
 private:
 
@@ -99,8 +97,9 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
     if ( ismultiselect ) setSelectionMode( mExtended );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
-
     setHSzPol( uiObject::Medium );
+
+    setMouseTracking( true );
 }
 
 
@@ -146,24 +145,14 @@ int uiListBoxBody::maxSelectable() const
 
 
 static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActButton = (QEvent::Type) (QEvent::User+1);
-static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+2);
+static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+1);
 
 
-void uiListBoxBody::activateClick( int idx, bool leftclick, bool doubleclick )
+void uiListBoxBody::activateClick( int idx, const BufferStringSet& clicktags )
 {
     actidx_ = idx;
-    actleftclick_ = leftclick;
-    actdoubleclick_ = doubleclick;
+    actclicktags_ = &clicktags;
     QEvent* actevent = new QEvent( sQEventActClick );
-    QApplication::postEvent( this, actevent );
-}
-
-
-void uiListBoxBody::activateButton( int idx )
-{
-    actidx_ = idx;
-    QEvent* actevent = new QEvent( sQEventActButton );
     QApplication::postEvent( this, actevent );
 }
 
@@ -177,13 +166,29 @@ void uiListBoxBody::activateSelect( const TypeSet<int>& selectset )
 
 
 #define mSetCurListItem() \
+{ \
     if ( maxSelectable()>0 ) \
     { \
 	handle_.selectionChanged.disable(); \
 	clearSelection(); \
 	handle_.selectionChanged.enable(); \
 	setCurrentRow( actidx_ ); \
-    }
+    } \
+}
+
+#define mHandleLeftRightClick() \
+{ \
+    if ( actclicktags_->isPresent("Check") && \
+	 handle_.isItemCheckable(actidx_) ) \
+    { \
+	handle_.setItemChecked( actidx_, !handle_.isItemChecked(actidx_) ); \
+    } \
+    if ( actclicktags_->isPresent("Left") ) \
+	handle_.leftButtonClicked.trigger(); \
+    if ( actclicktags_->isPresent("Right") ) \
+	handle_.rightButtonClicked.trigger(); \
+}
+
 
 bool uiListBoxBody::event( QEvent* ev )
 {
@@ -191,22 +196,26 @@ bool uiListBoxBody::event( QEvent* ev )
     {
 	if ( actidx_>=0 && actidx_<count() )
 	{
-	    mSetCurListItem();
-	    if ( actdoubleclick_ )
+	    if ( actclicktags_->isPresent("Ctrl") )
+	    {
+		setCurrentRow( actidx_ );
+		handle_.setSelected( actidx_, !handle_.isSelected(actidx_) );
+	    }
+	    else if ( !actclicktags_->isPresent("Quiet") )
+	    {
+		if ( actclicktags_->isPresent("Right") &&
+						handle_.isSelected(actidx_) )
+		    setCurrentRow( actidx_ );
+		else
+		    mSetCurListItem();
+	    }
+
+	    mHandleLeftRightClick();
+	    if ( actclicktags_->isPresent("Double") )
+	    {
 		handle_.doubleClicked.trigger();
-	    else if ( actleftclick_ )
-		handle_.leftButtonClicked.trigger();
-	    else
-		handle_.rightButtonClicked.trigger();
-	}
-    }
-    else if ( ev->type() == sQEventActButton )
-    {
-	if ( handle_.isItemCheckable(actidx_) )
-	{
-	    handle_.setItemChecked( actidx_,
-				    !handle_.isItemChecked(actidx_) );
-	    mSetCurListItem();
+		mHandleLeftRightClick();
+	    }
 	}
     }
     else if ( ev->type() == sQEventActSelect )
@@ -244,8 +253,6 @@ bool uiListBoxBody::event( QEvent* ev )
     , activatedone(this) \
     , rightclickmnu_(*new uiPopupMenu(p)) \
     , itemscheckable_(false) \
-    , curitemwaschecked_(false) \
-    , oldnrselected_(0)
 
 
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
@@ -740,36 +747,12 @@ int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
 }
 
 
-void uiListBox::activateClick( int idx, bool leftclick, bool doubleclick )
-{ body_->activateClick( idx, leftclick, doubleclick ); }
-
-
-void uiListBox::activateButton( int idx )
-{ body_->activateButton( idx ); }
+void uiListBox::activateClick( int idx, const BufferStringSet& clicktags )
+{ body_->activateClick( idx, clicktags ); }
 
 
 void uiListBox::activateSelect( const TypeSet<int>& selection )
 { body_->activateSelect( selection ); }
-
-
-#define mTriggerIf( notifiername, notifier ) \
-    if ( !strcmp(notifiername, #notifier) ) \
-	notifier.trigger( this );
-
-void uiListBox::notifyHandler( const char* notifiername )
-{
-    BufferString msg = notifiername; msg += " "; msg += oldnrselected_;
-    if ( curitemwaschecked_ )
-	msg += " CurItemWasChecked";
-    curitemwaschecked_ = isItemChecked( currentItem() );
-
-    const int refnr = beginCmdRecEvent( msg );
-    mTriggerIf( notifiername, selectionChanged );
-    mTriggerIf( notifiername, doubleClicked );
-    mTriggerIf( notifiername, leftButtonClicked );
-    mTriggerIf( notifiername, rightButtonClicked );
-    endCmdRecEvent( refnr, msg );
-}
 
 
 // -------------- uiLabeledListBox ----------------

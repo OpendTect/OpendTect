@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.85 2009-05-15 16:28:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.86 2009-06-22 15:57:27 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -215,6 +215,7 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
 
 uiObject::~uiObject()
 {
+    closed.trigger();
     uiobjectlist_ -= this;
 }
 
