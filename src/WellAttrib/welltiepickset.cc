@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.6 2009-06-18 07:41:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.7 2009-06-22 09:58:00 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -73,22 +73,19 @@ bool WellTiePickSetMGR::checkIfPick()
 
 void WellTiePickSetMGR::sortByDah( WellTiePickSet& pickset )
 {
-    WellTiePickSet tmppickset( pickset );
     const int sz = pickset.getSize();
-    TypeSet<float> zvals, tmpvals;
+    TypeSet<float> zvals;
     for ( int idx=0; idx<sz; idx++ )
 	zvals += pickset.getDah(idx);
 
     mAllocVarLenArr( int, zidxs, sz );
     for ( int idx=0; idx<sz; idx++ )
 	zidxs[idx] = idx;
+
     sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
 
     for ( int idx=0; idx<sz; idx++ )
-	delete pickset.remove(idx); 
-
-    for ( int idx=0; idx<sz; idx++ )
-	pickset.add(tmppickset.get(zidxs[idx]));
+	pickset.setDah( idx, zvals[idx]  );
 }
 
 

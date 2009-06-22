@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.11 2009-06-22 08:29:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.12 2009-06-22 09:58:00 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -73,8 +73,8 @@ void uiWellTieEventStretch::doWork(CallBacker*)
 	shiftModel();
     else if ( synthpickset_.getSize()>1 && seispickset_.getSize()>1 )
     {
-	//pmgr_.sortByDah( seispickset_ );
-	//pmgr_.sortByDah( synthpickset_ );
+	pmgr_.sortByDah( seispickset_ );
+	pmgr_.sortByDah( synthpickset_ );
 	shiftDahData(); 
 	updatePicksPos( synthpickset_, 0 );
 	doStretchWork();	
