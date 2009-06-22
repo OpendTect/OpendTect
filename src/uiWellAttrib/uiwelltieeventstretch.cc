@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.10 2009-06-22 07:45:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.11 2009-06-22 08:29:18 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -39,6 +39,8 @@ uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p,
 
 uiWellTieEventStretch::~uiWellTieEventStretch()
 {
+    synthpickset_.pickadded.remove(mCB(this,uiWellTieEventStretch,addSyntPick));
+    seispickset_.pickadded.remove(mCB(this,uiWellTieEventStretch,addSeisPick));
 }
 
 

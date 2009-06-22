@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.17 2009-06-21 13:49:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.18 2009-06-22 08:29:18 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -131,10 +131,10 @@ void uiWellTieWaveletView::initWavelets( )
     for ( int idx=0; idx<2; idx++ )
 	drawWavelet( wvlts_[idx], idx );
     
-    if ( !wvltinitdlg_ )
-	wvltinitdlg_ = new uiWellTieWaveletDispDlg(this,wvlts_[0],dataholder_);
-    if ( !wvltestdlg_ )
-	wvltestdlg_  = new uiWellTieWaveletDispDlg(this,wvlts_[1],dataholder_ );
+    delete wvltinitdlg_; wvltinitdlg_=0;
+    wvltinitdlg_ = new uiWellTieWaveletDispDlg(this,wvlts_[0],dataholder_);
+    delete wvltestdlg_; wvltinitdlg_=0;
+    wvltestdlg_  = new uiWellTieWaveletDispDlg(this,wvlts_[1],dataholder_ );
 }
 
 
@@ -168,17 +168,15 @@ void uiWellTieWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
 
 void uiWellTieWaveletView::viewInitWvltPropPushed( CallBacker* )
 {
-    wvltinitdlg_->setValArrays();
-    wvltinitdlg_->setDispCurves();
-    wvltinitdlg_->go();
+    if ( wvltinitdlg_ )
+	wvltinitdlg_->go();
 }
 
 
 void uiWellTieWaveletView::viewEstWvltPropPushed( CallBacker* )
 {
-    wvltestdlg_->setValArrays();
-    wvltestdlg_->setDispCurves();
-    wvltestdlg_->go();
+    if ( wvltestdlg_ )
+	wvltestdlg_->go();
 }
 
 
