@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.65 2009-06-02 09:24:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.66 2009-06-22 05:16:39 cvsraman Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -83,7 +83,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 
     uppgrp_->setHAlignObj( transffld );
 
-    addStdFields();
+    addStdFields( false, false, !is2d );
 }
 
 
