@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.5 2009-06-15 12:22:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.6 2009-06-22 12:37:10 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -73,7 +73,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,dp)
     const bool isnew = !viewwin_;
     if ( isnew )
-	createViewWin( dp3d && dp3d->isVertical() );
+	createViewWin( dp2d || (dp3d && dp3d->isVertical()) );
 
     bool drawhorizon = false;
     if ( dp3d )
@@ -83,6 +83,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	if ( dp3d->isVertical() )
 	{
 	    horpainter_->setCubeSampling( cs, true );
+	    horfveditor_->setCubeSampling( cs );
 	    drawhorizon = true;
 	}
     }

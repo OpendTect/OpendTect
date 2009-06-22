@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.90 2009-06-17 10:22:56 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.91 2009-06-22 12:37:10 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -642,7 +642,13 @@ bool uiMPEPartServer::isTrackingEnabled( int trackerid ) const
 
 
 void uiMPEPartServer::enableTracking( int trackerid, bool yn )
-{ return MPE::engine().getTracker(trackerid)->enable(yn); }
+{
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker ) return;
+
+    MPE::engine().setActiveTracker( tracker );
+    tracker->enable( yn );
+}
 
 
 int uiMPEPartServer::activeTrackerID() const
@@ -662,11 +668,11 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 
     const int trackerid = getTrackerID( emid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker ) return false;
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
     if ( !sectracker ) return false;
 
     trackercurrentobject_ = emid;
-
     uiDialog* setupdlg  = new uiDialog( 0 , 
 	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1") );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
