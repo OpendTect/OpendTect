@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.180 2009-06-17 17:30:52 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.181 2009-06-22 11:06:39 cvsjaap Exp $";
 
 #include "uiempartserv.h"
 
@@ -451,12 +451,14 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 
 
 bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
-				  const TypeSet<int>& selattribs )
+			    const TypeSet<int>& selattribs, bool removeold )
 {
     mDynamicCastAll(id);
     if ( !hor3d ) return false;
 
-    hor3d->auxdata.removeAll();
+    if ( removeold )
+	hor3d->auxdata.removeAll();
+
     ExecutorGroup exgrp( "Surface data loader" );
     exgrp.setNrDoneText( "Nr done" );
     for ( int idx=0; idx<selattribs.size(); idx++ )
@@ -468,7 +470,8 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 
 
 
-int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm )
+int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm,
+				 bool removeold )
 {
     mDynamicCastAll(id);
     if ( !hor3d ) return -1;
@@ -487,7 +490,7 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm )
 
     if ( selidx<0 ) return -1;
     TypeSet<int> selattribs( 1, selidx );
-    return loadAuxData( id, selattribs )
+    return loadAuxData( id, selattribs, removeold )
 	? hor3d->auxdata.auxDataIndex(attrnm) : -1;
 }
 
