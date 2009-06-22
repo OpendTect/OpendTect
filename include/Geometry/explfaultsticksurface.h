@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.11 2008-12-25 11:55:38 cvsranojay Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.12 2009-06-22 21:41:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ public:
     void		setRightHandedNormals(bool yn);
 
 
-    bool		setTexturePositions(DataPointSet&);
+    bool		getTexturePositions(DataPointSet&,
+	    				    TaskRunner*);
     const BinIDValue	getBinIDValue() { return texturesampling_; }
 
     static const char*  sKeyTextureI() { return "Fault texture i column"; }

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.37 2009-05-27 03:24:59 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.38 2009-06-22 21:41:48 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -725,11 +725,11 @@ int FaultDisplay::nrResolutions() const
 { return 1; }
 
 
-void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* ) const
+void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* tr ) const
 {
     if ( explicitpanels_ )
     {
-	explicitpanels_->setTexturePositions( dpset );
+	explicitpanels_->getTexturePositions( dpset, tr );
 	paneldisplay_->touch( true );
     }
 }

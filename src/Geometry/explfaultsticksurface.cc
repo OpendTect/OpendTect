@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.33 2009-04-09 00:51:23 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.34 2009-06-22 21:41:48 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1031,7 +1031,8 @@ const RowCol& ExplFaultStickSurface::getTextureSize() const
 { return texturesize_; }
 
 
-bool ExplFaultStickSurface::setTexturePositions( DataPointSet& dpset )
+bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
+       TaskRunner* tr )
 {
     updateTextureSize();
     const DataColDef texture_i( sKeyTextureI() );
@@ -1044,7 +1045,8 @@ bool ExplFaultStickSurface::setTexturePositions( DataPointSet& dpset )
     PtrMan<ExplFaultStickTexturePositionExtracter> extractor =
 	new ExplFaultStickTexturePositionExtracter( *this, dpset );
 
-    return extractor->execute();
+    return tr ? tr->execute( *extractor )
+	      : extractor->execute();
 }
 
 
