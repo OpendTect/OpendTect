@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.6 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.7 2009-06-22 05:17:15 cvsraman Exp $";
 
 #include "uiattr2dsel.h"
 #include "attribdescset.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.6 2008-11-25 15:35:23 cvsber
 #include "iopar.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
+#include "nlamodel.h"
 #include "pixmap.h"
 #include "ptrman.h"
 #include "seistrctr.h"
@@ -41,19 +42,21 @@ using namespace Attrib;
 
 
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
-				const MultiID& lsid, const char* curnm )
+				const MultiID& lsid, const NLAModel* nla,
+				const char* curnm )
 	: uiDialog(p,Setup("Select Attribute","Select Attribute",mNoHelpID))
 	, setid_(lsid)
+	, nla_(nla)
 	, descid_(-1,true)
 	, curnm_(curnm)
 	, seltype_(0)
 	, selgrp_(0)
+	, nlafld_(0)
 	, storoutfld_(0)
 	, attroutfld_(0)
+	, nlaoutfld_(0)
 {
-    attrinf_ = new SelInfo( ds, 0, true );
-
-    const bool haveattribs = attrinf_->attrnms.size();
+    attrinf_ = new SelInfo( ds, nla_, true );
 
     createSelectionButtons();
     createSelectionFields();
@@ -103,6 +106,12 @@ void uiAttr2DSelDlg::createSelectionButtons()
     attrfld_ = new uiRadioButton( selgrp_, "Attributes" );
     attrfld_->setSensitive( haveattribs );
     attrfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
+
+    if ( !nla_ ) return;
+
+    nlafld_ = new uiRadioButton( selgrp_, nla_->nlaType(false) );
+    nlafld_->setSensitive( attrinf_->nlaoutnms.size() );
+    nlafld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
 }
 
 
@@ -128,52 +137,71 @@ void uiAttr2DSelDlg::createSelectionFields()
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
 	attroutfld_->attach( rightOf, selgrp_ );
     }
+
+    if ( attrinf_->nlaoutnms.size() )
+    {
+	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms,
+				    "Attributes", false );
+	nlaoutfld_->setHSzPol( uiObject::Wide );
+	nlaoutfld_->setCurrentItem( 0 );
+	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
+	nlaoutfld_->attach( rightOf, selgrp_ );
+
+    }
 }
 
 
 int uiAttr2DSelDlg::selType() const
 {
+    if ( storfld_->isChecked() )
+	return 0;
     if ( attrfld_->isChecked() )
 	return 1;
-    return 0;
+    return 2;
 }
 
 
 void uiAttr2DSelDlg::selDone( CallBacker* c )
 {
     const int seltyp = selType();
+    if ( storoutfld_ ) storoutfld_->display( seltyp == 0 );
     if ( attroutfld_ ) attroutfld_->display( seltyp == 1 );
-    if ( storoutfld_ )
-	storoutfld_->display( seltyp == 0 );
+    if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 2 );
 }
 
 
 bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 {
     int selidx = -1;
-    if ( seltype_ == selType() )
+    const int newseltype = selType();
+    uiListBox* attrfld = newseltype ? (newseltype==1 ? storoutfld_ : nlaoutfld_)				    : attroutfld_;
+    if ( seltype_ == newseltype )
     {
-	BufferString selnm = seltype_ ? attroutfld_->getText()
-	    			      : storoutfld_->getText();
+	BufferString selnm = attrfld->getText();
 	if ( selnm==curnm_ )
 	{
 	    BufferString msg = "Do you want to reload the attribute ";
 	    msg += selnm;
-	    if ( !uiMSG().askGoOn(msg) ) seltype_ = -1;
+	    if ( !uiMSG().askGoOn(msg) )
+	    {
+		seltype_ = -1;
+		return false;
+	    }
 	}
     }
 
-    seltype_ = selType();
-    if ( seltype_==1 )		selidx = attroutfld_->currentItem();
-    else if ( seltype_==0 )	selidx = storoutfld_->currentItem();
+    seltype_ = newseltype;
+    selidx = attrfld->currentItem();
 
-    if ( seltype_>=0 && selidx < 0 )
+    if ( selidx < 0 )
 	return false;
 
-    if ( seltype_ == 1 )
-	descid_ = attrinf_->attrids[selidx];
-    else if ( seltype_ == 0 )
+    if ( seltype_ == 0 )
 	storednm_ = storoutfld_->getText();
+    else if ( seltype_ == 1 )
+	descid_ = attrinf_->attrids[selidx];
+    else if ( seltype_ == 2 )
+	descid_ = DescID( selidx, true );
 
     return true;
 }

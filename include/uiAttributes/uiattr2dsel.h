@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Nov 2007
- RCS:           $Id: uiattr2dsel.h,v 1.4 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiattr2dsel.h,v 1.5 2009-06-22 05:17:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "attribdescid.h"
+#include "attribsel.h"
 #include "bufstring.h"
 
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
@@ -23,6 +23,7 @@ class uiButtonGroup;
 class uiGenInput;
 class uiListBox;
 class uiRadioButton;
+class NLAModel;
 
 
 mClass uiAttr2DSelDlg : public uiDialog
@@ -30,7 +31,8 @@ mClass uiAttr2DSelDlg : public uiDialog
 public:
 
 			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,
-				       const MultiID&,const char* curnm=0);
+				       const MultiID&,const NLAModel* nla,
+				       const char* curnm=0);
 			~uiAttr2DSelDlg();
 
     int			getSelType()		{ return seltype_; }
@@ -42,6 +44,7 @@ protected:
     Attrib::SelInfo*	attrinf_;
     const MultiID&	setid_;
     Attrib::DescID	descid_;
+    const NLAModel*	nla_;
     int			seltype_;
     BufferString	storednm_;
     BufferString	curnm_;
@@ -49,9 +52,11 @@ protected:
     uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
     uiRadioButton*	attrfld_;
+    uiRadioButton*	nlafld_;
 
     uiListBox*		storoutfld_;
     uiListBox*		attroutfld_;
+    uiListBox*		nlaoutfld_;
 
     void		createSelectionButtons();
     void		createSelectionFields();
