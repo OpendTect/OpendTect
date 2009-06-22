@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.108 2009-06-12 17:22:32 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.109 2009-06-22 09:54:52 cvsumesh Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -83,6 +83,7 @@ VolumeDisplay::VolumeDisplay()
     , eventcatcher_( 0 )
 {
     boxdragger_->ref();
+    boxdragger_->setBoxTransparency( 0.7 );
     addChild( boxdragger_->getInventorNode() );
     boxdragger_->finished.notify( mCB(this,VolumeDisplay,manipMotionFinishCB) );
     getMaterial()->setColor( Color::White() );
