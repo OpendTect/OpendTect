@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.5 2009-06-20 15:32:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.6 2009-06-22 07:22:50 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.5 2009-06-20 15:32:54 cvsb
 #include "separstr.h"
 #include "survinfo.h"
 #include "mathexpression.h"
+#include "unitofmeasure.h"
 
 static const int cMaxNrInps = 6;
 static const char* specvararr[] = { "MD", "DZ", 0 };
@@ -169,6 +170,15 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     nmfld_ = new uiGenInput( this, "Name for new log" );
     nmfld_->attach( alignedBelow, dahrgfld_ );
 
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+	    					"Output unit of measure" );
+    unfld_ = lcb->box();
+    const ObjectSet<const UnitOfMeasure>& uns( UoMR().all() );
+    unfld_->addItem( "-" );
+    for ( int idx=0; idx<uns.size(); idx++ )
+	unfld_->addItem( uns[idx]->name() );
+    lcb->attach( alignedBelow, nmfld_ );
+
     finaliseDone.notify( formsetcb );
 }
 
@@ -276,6 +286,9 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     Well::Log* newwl = new Well::Log( newnm );
     if ( !calcLog(*newwl,inpdata) )
 	{ delete newwl; return false; }
+    const int unselidx = unfld_->currentItem();
+    if ( unselidx > 0 )
+	newwl->setUnitMeasLabel( unfld_->text() );
 
     wls_.add( newwl );
     uiMSG().message( "Successfully added this log" );

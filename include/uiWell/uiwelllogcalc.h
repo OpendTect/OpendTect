@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		June 2009
- RCS:		$Id: uiwelllogcalc.h,v 1.3 2009-06-18 14:55:01 cvsbert Exp $
+ RCS:		$Id: uiwelllogcalc.h,v 1.4 2009-06-22 07:22:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,8 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiCheckBox;
+class uiComboBox;
 class MathExpression;
-class uiLabeledComboBox;
 class uiWellLogCalcInpData;
 namespace Well { class Log; class LogSet; }
 
@@ -37,6 +37,7 @@ protected:
     uiGenInput*			nmfld_;
     uiGenInput*			dahrgfld_;
     uiCheckBox*			ftbox_;
+    uiComboBox*			unfld_;
     ObjectSet<uiWellLogCalcInpData> inpdataflds_;
     Well::LogSet&		wls_;
 
