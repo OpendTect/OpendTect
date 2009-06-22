@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.9 2009-06-20 16:38:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.10 2009-06-22 07:45:57 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -67,14 +67,16 @@ void uiWellTieEventStretch::checkReadyForWork()
 
 void uiWellTieEventStretch::doWork(CallBacker*)
 {
-    shiftModel();
-    delete seispickset_.remove( seispickset_.getSize()-1 );
-    delete synthpickset_.remove( synthpickset_.getSize()-1 );
-    if ( synthpickset_.getSize() )
+    if ( synthpickset_.getSize() == 1 && seispickset_.getSize() == 1 )
+	shiftModel();
+    else if ( synthpickset_.getSize()>1 && seispickset_.getSize()>1 )
     {
 	//pmgr_.sortByDah( seispickset_ );
 	//pmgr_.sortByDah( synthpickset_ );
+	shiftDahData(); 
+	updatePicksPos( synthpickset_, 0 );
 	doStretchWork();	
+	dispdataChanged.trigger();
     }
 }
 
@@ -89,29 +91,44 @@ void uiWellTieEventStretch::shiftModel()
 
 void uiWellTieEventStretch::doStretchWork()
 {
-    for ( int idx=0; idx<seispickset_.getSize(); idx++ )
+    for ( int idx=0; idx<seispickset_.getSize()-1; idx++ )
     {
-	//position of the following picks needs update if one of the pick moved
 	if ( idx )
 	{
 	    infborderpos_ = time( seispickset_.getDah(idx-1) );
-	    for ( int pickidx=idx; pickidx<synthpickset_.getSize(); pickidx++ )
-	    {
-		float pos = time( synthpickset_.getDah(pickidx) );
-		updateTime( pos );
-		synthpickset_.setDah( pickidx, dah(pos) );
-	    }
+	    updatePicksPos( synthpickset_, idx );
 	}
+	//position of the following picks needs update if one of the pick moved
 	startpos_ = time( synthpickset_.getDah(idx) );
 	stoppos_  = time( seispickset_.getDah(idx) );
 
 	delete prevdispdata_;
 	prevdispdata_ = new WellTieDataSet ( dispdata_ );
-	doStretchData( params_.dpms_.dptnm_ );
 
+	doStretchData( params_.dpms_.dptnm_ );
 	updateTime( startpos_ );
     }
-    dispdataChanged.trigger();
+}
+
+
+void uiWellTieEventStretch::updatePicksPos( WellTiePickSet& pickset, 
+					    int startidx )
+{
+    for ( int pickidx=startidx; pickidx<pickset.getSize(); pickidx++ )
+    {
+	float pos = time( pickset.getDah( pickidx ) );
+	updateTime( pos );
+	pickset.setDah( pickidx, dah(pos) );
+    }
+}
+
+
+void uiWellTieEventStretch::shiftDahData()
+{
+    const float dahshift = seispickset_.getLastDah()-synthpickset_.getLastDah();
+    for ( int idx=0; idx<dispdata_.getLength(); idx++ )
+	dispdata_.set( params_.dpms_.dptnm_, idx, 
+		dispdata_.get(params_.dpms_.dptnm_,idx)-dahshift );
 }
 
 

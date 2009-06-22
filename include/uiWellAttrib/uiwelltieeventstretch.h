@@ -51,8 +51,10 @@ protected:
     void 				checkReadyForWork();
     void 				drawLogsData();
     void 				doStretchWork();
+    void				shiftDahData(); 
     void				shiftModel(); 
     void				updateTime(float&);
+    void				updatePicksPos(WellTiePickSet&,int);
 };
 
 #endif
