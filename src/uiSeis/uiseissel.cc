@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.80 2009-06-22 18:17:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.81 2009-06-22 20:58:00 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiseissel.cc,v 1.80 2009-06-22 18:17:45 cvsbert
 #include "cubesampling.h"
 #include "iodirentry.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
@@ -397,10 +398,11 @@ void uiSeisSel::commitSucceeded()
     {
 	const char* str = SI().zIsTime() ? ZDomain::sKeyDepth()
 					 : ZDomain::sKeyTWT();
-	if ( workctio_.ioobj )
-	    workctio_.ioobj->pars().set( ZDomain::sKey(), str );
 	if ( inctio_.ioobj )
+	{
 	    inctio_.ioobj->pars().set( ZDomain::sKey(), str );
+	    IOM().commitChanges( *inctio_.ioobj );
+	}
 	dlgiopar_.set( ZDomain::sKey(), str );
     }
 }
