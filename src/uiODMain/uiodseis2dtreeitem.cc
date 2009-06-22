@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.62 2009-06-02 09:38:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.63 2009-06-22 05:13:22 cvsraman Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -368,7 +368,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
 	    					     : curnm.buf();
 	const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( true );
-	uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, attribnm );
+	const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
+	uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, nla, attribnm );
 	if ( !dlg.go() ) return;
 
 	ObjectSet<uiTreeItem> set;
@@ -383,16 +384,26 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 		if ( item ) item->displayStoredData( newattrnm );
 	    }
 	}
-	else if ( attrtype == 1 )
+	else if ( attrtype == 1 || attrtype == 2 )
 	{
-	    const Attrib::Desc* desc =  ds->getDesc( dlg.getSelDescID() );
-	    if ( !desc )
+	    if ( attrtype == 1 )
 	    {
-		uiMSG().error("Selected attribute is not available");
-		return;
+		const Attrib::Desc* desc =  ds->getDesc( dlg.getSelDescID() );
+		if ( !desc )
+		{
+		    uiMSG().error("Selected attribute is not available");
+		    return;
+		}
+
+		as.set( *desc );
+	    }
+	    else if ( nla )
+	    {
+		as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
+		as.setRefFromID( *nla );
 	    }
 
-	    as.set( *desc );
+	    as.set2DFlag( true );
 	    for ( int idx=0; idx<set.size(); idx++ )
 	    {
 		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
