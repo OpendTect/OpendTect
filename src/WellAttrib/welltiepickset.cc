@@ -7,24 +7,51 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.8 2009-06-22 10:19:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.9 2009-06-22 15:33:48 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
+#include "welltiedata.h"
+
 #include "arrayndimpl.h"
+#include "valseriesevent.h"
 #include "sorting.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 
 WellTiePickSetMGR::WellTiePickSetMGR( const Well::Data* wd )
 	: CallBacker(CallBacker::CallBacker())
-	, mousemoving(this)
     	, wd_(wd)
 {
 }
 
 WellTiePickSetMGR::~WellTiePickSetMGR()
 {}
+
+
+void WellTiePickSetMGR::setDataParams( const WellTieParams::DataParams* dpms )
+{
+    datapms_ = dpms;			    
+}
+
+
+void WellTiePickSetMGR::setData( const WellTieDataSet* data )
+{
+    dispdata_ = data;
+}
+
+
+void WellTiePickSetMGR::setEventType( int seltype )
+{
+    if ( seltype==1 )
+	evtype_ = VSEvent::Max;
+    else if ( seltype==2 )
+	evtype_ = VSEvent::Min;
+    else if ( seltype==3 )
+	evtype_ = VSEvent::ZC;
+    else 
+	evtype_ = VSEvent::Extr;
+}
 
 
 void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop, 
@@ -37,21 +64,40 @@ void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop,
 	if ( xpos<(vwrszstop-vwrszstart)/2 )
 	{
 	    if ( abs(synthsz+1-seissz) < 2 )
-		synthpickset_.add( 0, xpos, wd_->d2TModel()->getDepth( zpos ) );
+		synthpickset_.add( 0, xpos, findEventDah(zpos,true) );
 	}
 	else
 	{
 	    if ( abs(seissz+1-synthsz) < 2 )
-	    seispickset_.add( 0, xpos, wd_->d2TModel()->getDepth( zpos ) );
+		seispickset_.add( 0, xpos, findEventDah(zpos,false) );
 	}
     }
 }
 
 
+float WellTiePickSetMGR::findEventDah( float zpos, bool issynth )
+{
+    if ( evtype_ == VSEvent::None ) 
+	evtype_ = VSEvent::Extr;
+    const int posidx = dispdata_->getIdx( zpos );  
+    const char* colnm = issynth ? datapms_->synthnm_ : datapms_->attrnm_; 
+    const int maxidx = dispdata_->getLength()-1;
+    Interval<float> intv ( posidx, maxidx );
+    SamplingData<int> sd;
+    ValueSeriesEvFinder<float,float> evf( *dispdata_->get(colnm), maxidx, sd );
+    const int evpos = mNINT( evf.find( evtype_, intv ).pos );
+    if ( evpos > maxidx || evpos <0 )
+	return 0;
+
+    return dispdata_->get( datapms_->dptnm_, evpos );
+}
+
+
 void WellTiePickSetMGR::updateShift( int vwridx, float curpos )
 {
+    /*used only for log stretch and squueze...
     logpickset_.setMousePos( curpos );
-    mousemoving.trigger();
+    mousemoving.trigger();*/
 }
 
 
@@ -147,7 +193,7 @@ void WellTiePickSet::updateSupPickedPos( float& lastpos, float curpos,
 	float pos = getDah( idx );
 	if ( pos > curpos ) 
 	{	
-	    if ( (pos - curpos) < ( lastpos - curpos ) )
+	    if ( ( pos - curpos ) < ( lastpos - curpos ) )
 		lastpos = pos;
 	}
     }

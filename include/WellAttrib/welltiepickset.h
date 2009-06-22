@@ -13,13 +13,16 @@ ________________________________________________________________________
 
 -*/
 
+#include "enums.h"
 #include "namedobj.h"
 #include "color.h"
 #include "ranges.h"
-#include "welld2tmodel.h"
-
+#include "valseriesevent.h"
+#include "welltieunitfactors.h"
 
 class UserPick;
+class WellTieDataSet;
+class WellTieDataHolder;
 namespace Well
 {
     class Data;
@@ -28,13 +31,13 @@ namespace Well
 mClass UserPick
 {
     public:
-		    UserPick()
-		    {}
+			UserPick()
+			{}
 
-    Color           color_;
-    int             vidx_;
-    float           dah_;
-    float           xpos_;
+    Color           	color_;
+    int            	vidx_;
+    float           	dah_;
+    float           	xpos_;
 };
 
 
@@ -42,16 +45,16 @@ mClass WellTiePickSet : public CallBacker
 {
 public:
 
-			    WellTiePickSet();
-                            ~WellTiePickSet();
+			WellTiePickSet();
+			~WellTiePickSet();
 			    
-			    WellTiePickSet( const WellTiePickSet& wps )
-				: mousepos_(wps.mousepos_)
-				, nrpickstotal_(wps.nrpickstotal_)
-	      			, pickadded(wps.pickadded)		
-				{ 
-				    deepCopy(pickset_,wps.pickset_);
-				}
+			WellTiePickSet( const WellTiePickSet& wps )
+			    : mousepos_(wps.mousepos_)
+			    , nrpickstotal_(wps.nrpickstotal_)
+			    , pickadded(wps.pickadded)		
+			    { 
+				deepCopy(pickset_,wps.pickset_);
+			    }
 
     Notifier<WellTiePickSet> pickadded;
 
@@ -94,30 +97,41 @@ protected:
 mClass WellTiePickSetMGR : public CallBacker
 {
 public:
+    
 
-			    WellTiePickSetMGR(const Well::Data*);
-                            ~WellTiePickSetMGR();
+			WellTiePickSetMGR(const Well::Data*);
+			~WellTiePickSetMGR();
+    
+    enum TrackType      { Maxima, Minima, ZeroCrossings };
+			DeclareEnumUtils(TrackType)
 
-    Notifier<WellTiePickSetMGR> mousemoving;
+    WellTiePickSet* 	getLogPickSet()   { return &logpickset_; }
+    WellTiePickSet* 	getSynthPickSet() { return &synthpickset_; }
+    WellTiePickSet* 	getSeisPickSet()  { return &seispickset_; }
 
-    WellTiePickSet* getLogPickSet()   		{ return &logpickset_; }
-    WellTiePickSet* getSynthPickSet() 		{ return &synthpickset_; }
-    WellTiePickSet* getSeisPickSet()  		{ return &seispickset_; }
+    const Well::Data* 	wd_;
+    VSEvent::Type	evtype_;
 
-    const Well::Data* wd_;
+    void           	addPick(float,float,float,float);
+    void           	clearAllPicks();
+    void 	   	clearLastPicks();
+    bool 	   	checkIfPick();
+    float 	   	findEventDah(float,bool);
+    void 	   	setData(const WellTieDataSet*);
+    void 	   	setDataParams(const WellTieParams::DataParams*);
+    void 	   	setEventType(int);
+    void 	   	sortByDah(WellTiePickSet&);
+    void           	updateShift(int,float);
 
-    void           addPick(float,float,float,float);
-    void           clearAllPicks();
-    void 	   clearLastPicks();
-    bool 	   checkIfPick();
-    void 	   sortByDah(WellTiePickSet&);
-    void           updateShift(int,float);
 
 protected:
 
-    WellTiePickSet logpickset_;
-    WellTiePickSet synthpickset_;
-    WellTiePickSet seispickset_;
+    const WellTieDataSet* dispdata_;
+    const WellTieParams::DataParams* datapms_;
+
+    WellTiePickSet 	logpickset_;
+    WellTiePickSet 	synthpickset_;
+    WellTiePickSet 	seispickset_;
 };
 
 #endif

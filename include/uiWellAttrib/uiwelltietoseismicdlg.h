@@ -26,6 +26,7 @@ class uiGroup;
 class uiToolBar;
 class uiGenInput;
 class uiPushButton;
+class uiLabeledComboBox;
 class uiCheckBox;
 class uiWellLogDisplay;
 
@@ -47,12 +48,13 @@ mClass uiWellTieToSeismicDlg : public uiFlatViewMainWin
 {
 public:
 
-	    uiWellTieToSeismicDlg(uiParent*,const WellTieSetup&,
-				const Attrib::DescSet&); 
-	    ~uiWellTieToSeismicDlg();
+				uiWellTieToSeismicDlg(uiParent*,
+						      const WellTieSetup&,
+						      const Attrib::DescSet&); 
+				~uiWellTieToSeismicDlg();
 
 
-    const WellTieSetup&		Setup()		{ return setup_; }    
+    const WellTieSetup&		Setup()		{ return setup_; }
 	
 protected:
 
@@ -67,6 +69,7 @@ protected:
     uiCheckBox* 		markerfld_;
     uiCheckBox* 		zinftfld_;
     uiGroup*            	vwrgrp_;
+    uiLabeledComboBox*		eventtypefld_;
     uiPushButton*		infobut_;
     uiPushButton*		applybut_;
     uiPushButton*		undobut_;
@@ -84,7 +87,7 @@ protected:
     void			addControl();
     void 			addToolBarTools();
     void			checkIfPick();
-    void			createTaskFields(uiGroup*);
+    void			createViewerTaskFields(uiGroup*);
     void			createDispPropFields(uiGroup*);
     void 			drawData();
     void 			drawFields();
@@ -113,6 +116,7 @@ protected:
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
     bool			saveD2TPushed(CallBacker*);
+    void			eventTypeChg(CallBacker*);
     bool 			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);
 };

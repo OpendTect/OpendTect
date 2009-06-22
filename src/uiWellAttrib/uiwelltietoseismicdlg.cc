@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.24 2009-06-22 08:29:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.25 2009-06-22 15:33:48 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -21,8 +21,9 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.24 2009-06-22 08:2
 #include "uifiledlg.h"
 #include "uiflatviewer.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
 #include "uigroup.h"
+#include "uiioobjsel.h"
+#include "uicombobox.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uiseparator.h"
@@ -50,6 +51,9 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.24 2009-06-22 08:2
 #include "welltietoseismic.h"
 #include "welltieunitfactors.h"
 
+
+static const char*  eventtypes[] = {"Extrema","Maxima",
+				    "Minima","Zero-crossings",0};
 
 #define mErrRet(msg) \
 { uiMSG().error(msg); return false; }
@@ -143,6 +147,8 @@ void uiWellTieToSeismicDlg::initAll()
     addToolBarTools();
     infodlg_->setUserDepths();
     doWork( 0 );
+    dataholder_->pickmgr()->setDataParams( dataholder_->dpms() );
+    dataholder_->pickmgr()->setData( dataholder_->dispData() );
 }
 
 
@@ -189,7 +195,7 @@ void uiWellTieToSeismicDlg::drawFields()
     uiGroup* taskgrp = new uiGroup( this, "task group" );
     taskgrp->attach( ensureBelow, viewer() );
     taskgrp->attach( rightBorder );
-    createTaskFields( taskgrp );
+    createViewerTaskFields( taskgrp );
 
     uiGroup* disppropgrp = new uiGroup( this, "Display Properties group" );
     disppropgrp->attach( ensureBelow, viewer() );
@@ -218,12 +224,18 @@ void uiWellTieToSeismicDlg::drawFields()
 }
 
 
-//TODO some of them will have to be placed in toolbar
-void uiWellTieToSeismicDlg::createTaskFields( uiGroup* taskgrp )
+void uiWellTieToSeismicDlg::createViewerTaskFields( uiGroup* taskgrp )
 {
+    eventtypefld_ = new uiLabeledComboBox( taskgrp, "Track events by" );
+    for ( int idx=0; eventtypes[idx]; idx++)
+	eventtypefld_->box()->addItem( eventtypes[idx] );
+    eventtypefld_->box()->selectionChanged.
+	notify(mCB(this,uiWellTieToSeismicDlg,eventTypeChg));
+
     applybut_ = new uiPushButton( taskgrp, "&Apply Changes",
 	   mCB(this,uiWellTieToSeismicDlg,applyPushed), true );
     applybut_->setSensitive( false );
+    applybut_->attach( ensureRightOf, eventtypefld_ );
 
     undobut_ = new uiPushButton( taskgrp, "&Undo",
 	   mCB(this,uiWellTieToSeismicDlg,undoPushed), true );
@@ -336,6 +348,12 @@ bool uiWellTieToSeismicDlg::saveD2TPushed( CallBacker* )
     }
     delete uifiledlg;
     return true;
+}
+	
+
+void uiWellTieToSeismicDlg::eventTypeChg( CallBacker* )
+{
+    dataholder_->pickmgr()->setEventType(eventtypefld_->box()->currentItem());
 }
 
 
