@@ -4,7 +4,7 @@
  * DATE     : June 2009
 -*/
 
-static const char* rcsID = "$Id: vistopbotimage.cc,v 1.1 2009-06-22 10:55:50 cvsranojay Exp $";
+static const char* rcsID = "$Id: vistopbotimage.cc,v 1.2 2009-06-22 11:50:29 cvsumesh Exp $";
 
 
 #include "vistopbotimage.h"
@@ -100,7 +100,7 @@ void TopBotImage::setTransparency( int val )
 
 
 int TopBotImage::getTransparency() const
-{ return 255 - getMaterial()->getTransparency(); }
+{ return mNINT(255 - getMaterial()->getTransparency()); }
 
 
 void TopBotImage::setImageFilename( const char* fnm )
