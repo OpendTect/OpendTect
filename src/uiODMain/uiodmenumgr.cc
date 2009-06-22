@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.175 2009-06-11 06:30:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.176 2009-06-22 10:02:27 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -615,7 +615,7 @@ void uiODMenuMgr::fillManTB()
 		    mCB(this,uiODMenuMgr,handleClick)), mManHor2DMnuItm );
 	mnuhr->insertItem( new uiMenuItem("3D Horizons",
 		    mCB(this,uiODMenuMgr,handleClick)), mManHor3DMnuItm );
-	mantb_ ->setButtonMenu( horid, *mnuhr );
+	mantb_ ->setButtonMenu( horid, mnuhr );
     }
 }
 
@@ -652,7 +652,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddMnuItm( vwmnu, "View Z", handleViewClick, "cube_z.png", 2 );
     mAddMnuItm( vwmnu, "View North", handleViewClick, "view_N.png", 3 );
     mAddMnuItm( vwmnu, "View North - Z", handleViewClick, "view_NZ.png", 4 );
-    cointb_->setButtonMenu( viewselectid_, *vwmnu );
+    cointb_->setButtonMenu( viewselectid_, vwmnu );
 
     axisid_ = mAddTB(cointb_,"axis.png","Display orientation axis",
 	    	     true,showRotAxis);
@@ -664,7 +664,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     uiPopupMenu* mnu = new uiPopupMenu( &appl_, "Menu" );
     mAddMnuItm( mnu, "Polygon", handleToolClick, "polygonselect.png", 0 );
     mAddMnuItm( mnu, "Rectangle", handleToolClick, "rectangleselect.png", 1 );
-    cointb_->setButtonMenu( polyselectid_, *mnu );
+    cointb_->setButtonMenu( polyselectid_, mnu );
 
     removeselectionid_ = cointb_->addButton( "trashcan.png",
 	mCB(this,uiODMenuMgr,removeSelection), "Remove selection", false );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.155 2009-06-17 10:24:50 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.156 2009-06-22 10:02:27 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -129,9 +129,9 @@ void uiMPEMan::addButtons()
 
     polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
 	    			 "Polygon Selection mode", true );
-    uiPopupMenu polymnu( toolbar, "PolyMenu" );
-    mAddMnuItm( (&polymnu),"Polygon", handleToolClick, "polygonselect.png", 0 );
-    mAddMnuItm( (&polymnu),"Rectangle",handleToolClick,"rectangleselect.png",1);
+    uiPopupMenu* polymnu = new uiPopupMenu( toolbar, "PolyMenu" );
+    mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect.png", 0 );
+    mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect.png",1);
     toolbar->setButtonMenu( polyselectidx, polymnu );
 
     toolbar->addSeparator();
@@ -152,7 +152,7 @@ void uiMPEMan::addButtons()
     mAddMnuItm( mnu, "CrossLine", handleOrientationClick, 
 	    	"QCplane-crossline.png", 1 );
     mAddMnuItm( mnu, "Z", handleOrientationClick, "QCplane-z.png", 2 );
-    toolbar->setButtonMenu( moveplaneidx, *mnu );
+    toolbar->setButtonMenu( moveplaneidx, mnu );
 
     toolbar->addSeparator();
     

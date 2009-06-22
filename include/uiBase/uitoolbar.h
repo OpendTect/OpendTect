@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.36 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.37 2009-06-22 10:02:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,8 @@ public:
     			/*!< Does only work on buttons */
     void		setSensitive(bool yn);
     			/*!< Works on complete toolbar */
-    void		setButtonMenu(int,const uiPopupMenu&);
+    void		setButtonMenu(int,uiPopupMenu*);
+    			//!<Menu will be owned by uiToolButton
 
     virtual void	display(bool yn=true,bool s=false,bool m=false);
 			/*!< you must call this after all buttons are added

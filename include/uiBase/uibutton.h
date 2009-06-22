@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.29 2009-03-27 12:25:48 cvsnanne Exp $
+ RCS:           $Id: uibutton.h,v 1.30 2009-06-22 10:02:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class QAbstractButton;
 class uiPopupMenu;
 class ioPixmap;
 class QEvent;
+class QMenu;
 
 
 //!\brief Button Abstract Base class
@@ -136,6 +137,7 @@ public:
 					     const ioPixmap&);
 				uiToolButton(uiParent*,const char*,
 					     const ioPixmap&,const CallBack&);
+				~uiToolButton();
 
     enum ArrowType		{ NoArrow, UpArrow, DownArrow,
 				  LeftArrow, RightArrow };
@@ -150,7 +152,7 @@ public:
     void			setArrowType(ArrowType);
 
     void			setShortcut(const char*);
-    void			setMenu(const uiPopupMenu&);
+    void			setMenu(uiPopupMenu*); //!<Menu becomes mine
 
     void			setID( int i )		{ id_ = i; }
     int				id() const		{ return id_; }
@@ -163,6 +165,9 @@ private:
     uiToolButtonBody&		mkbody(uiParent*,const ioPixmap*, const char*); 
 
     int				id_; // Used by toolbar
+
+    uiPopupMenu*		uimenu_;
+    QMenu*			qmenu_;
 
 };
 

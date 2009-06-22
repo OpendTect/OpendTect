@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.51 2009-03-27 12:27:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.52 2009-06-22 10:02:27 cvsnanne Exp $";
 
 #include "uitoolbar.h"
 
@@ -49,7 +49,7 @@ public:
     void		setShortcut(int,const char*);
     void		setPixmap(int,const char*);
     void		setPixmap(int,const ioPixmap&);
-    void		setButtonMenu(int,const uiPopupMenu&);
+    void		setButtonMenu(int,uiPopupMenu*);
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
@@ -199,7 +199,7 @@ void uiToolBarBody::setSensitive( bool yn )
 bool uiToolBarBody::isSensitive() const
 { return qwidget() ? qwidget()->isEnabled() : false; }
 
-void uiToolBarBody::setButtonMenu( int idx, const uiPopupMenu& mnu )
+void uiToolBarBody::setButtonMenu( int idx, uiPopupMenu* mnu )
 { mToolBarBut(idx)->setMenu( mnu ); }
 
 
@@ -302,7 +302,7 @@ void uiToolBar::setPixmap( int idx, const char* fnm )
 void uiToolBar::setPixmap( int idx, const ioPixmap& pm )
 { body_->setPixmap( idx, pm ); }
 
-void uiToolBar::setButtonMenu( int idx, const uiPopupMenu& mnu )
+void uiToolBar::setButtonMenu( int idx, uiPopupMenu* mnu )
 { body_->setButtonMenu( idx, mnu ); }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.61 2009-05-15 16:28:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.62 2009-06-22 10:02:27 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -382,9 +382,12 @@ static int preftbsz = -1;
     mDynamicCastGet(uiToolBar*,tb,parnt) \
     if ( !tb ) setPrefWidth( prefVNrPics() );
 
+#define mInit \
+    id_(-1), qmenu_(0), uimenu_(0)
+
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
-    , id_(-1)
+    , mInit
 {
     mSetDefPrefSzs();
 }
@@ -392,7 +395,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
     : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
-    , id_(-1)
+    , mInit
 {
     mSetDefPrefSzs();
 }
@@ -401,7 +404,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm )
     : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
-    , id_(-1)
+    , mInit
 {
     mSetDefPrefSzs();
 }
@@ -410,9 +413,16 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm, const CallBack& cb )
     : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
-    , id_(-1)
+    , mInit
 {
     mSetDefPrefSzs();
+}
+
+
+uiToolButton::~uiToolButton()
+{
+    delete qmenu_;
+    delete uimenu_;
 }
 
 
@@ -470,15 +480,19 @@ void uiToolButton::setShortcut( const char* sc )
 }
 
 
-void uiToolButton::setMenu( const uiPopupMenu& mnu )
+void uiToolButton::setMenu( uiPopupMenu* mnu )
 {
-    QMenu* qmenu = new QMenu;
-    for ( int idx=0; idx<mnu.nrItems(); idx++ )
+    delete qmenu_; delete uimenu_;
+    uimenu_ = mnu;
+    if ( !uimenu_ ) return;
+
+    qmenu_ = new QMenu;
+    for ( int idx=0; idx<mnu->nrItems(); idx++ )
     {
-	QAction* qact = const_cast<QAction*>( mnu.items()[idx]->qAction() );
-	qmenu->addAction( qact );
+	QAction* qact = const_cast<QAction*>( mnu->items()[idx]->qAction() );
+	qmenu_->addAction( qact );
     }
 
+    body_->setMenu( qmenu_ );
     body_->setPopupMode( QToolButton::MenuButtonPopup );
-    body_->setMenu( qmenu );
 }
