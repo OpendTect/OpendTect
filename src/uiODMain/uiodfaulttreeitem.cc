@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.26 2009-05-22 01:04:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.27 2009-06-22 14:22:05 cvsjaap Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -103,7 +103,7 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
     , displaystickmnuitem_ ( "Fault &sticks" ) \
     , displayintersectionmnuitem_( "&At sections only" ) \
     , singlecolmnuitem_( "Use single &color" ) \
-    , removeselectedmnuitem_( "&Remove selection" )
+    , removeselectedmnuitem_( "Re&move selection" )
 
 
 
@@ -371,8 +371,8 @@ uiTreeItem* uiODFaultStickSetTreeItemFactory::create( int visid,
     , faultsticksetdisplay_(0) \
     , savemnuitem_("&Save") \
     , saveasmnuitem_("Save &as ...") \
-    , removeselectedmnuitem_( "&Remove selection" )
-
+    , removeselectedmnuitem_( "Re&move selection" ) \
+    , onlyatsectmnuitem_("&Display only at sections")
 
 
 uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
@@ -380,6 +380,7 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
     , emid_( oid )
     mCommonInit
 {
+    onlyatsectmnuitem_.checkable = true;
 }
 
 
@@ -389,6 +390,7 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( int id, bool dummy )
     mCommonInit
 {
     displayid_ = id;
+    onlyatsectmnuitem_.checkable = true;
 }
 
 
@@ -472,6 +474,8 @@ void uiODFaultStickSetTreeItem::createMenuCB( CallBacker* cb )
     if ( !fd )
 	return;
 
+    mAddMenuItem( menu, &onlyatsectmnuitem_, true,
+					     fd->displayedOnlyAtSections() );
     const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
     mAddMenuItem( menu, &removeselectedmnuitem_, sel, true );
 
@@ -490,7 +494,16 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
-    if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
+    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
+	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
+
+    if ( mnuid==onlyatsectmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	if ( fd )
+	    fd->setDisplayOnlyAtSections( !fd->displayedOnlyAtSections() );
+    }
+    else if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled(true);
 	bool saveas = mnuid==saveasmnuitem_.id ||

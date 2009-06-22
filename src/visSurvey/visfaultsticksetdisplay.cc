@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.7 2009-02-16 16:02:28 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.8 2009-06-22 14:22:05 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -47,6 +47,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , showmanipulator_( false )
     , neareststickpickstyle_( visBase::PickStyle::create() )
     , stickspickstyle_( visBase::PickStyle::create() )
+    , displayonlyatsections_( false )
 {
     neareststickpickstyle_->ref();
     neareststickpickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -249,7 +250,7 @@ void FaultStickSetDisplay::updateEditPids()
 		const char* lnm = emfss_->geometry().lineName( sid, rc.row );
 		Seis2DDisplay* s2dd =
 		    		Seis2DDisplay::getSeis2DDisplay( *lset, lnm );
-		if ( !s2dd )
+		if ( (!s2dd || !s2dd->isOn()) && displayonlyatsections_ )
 		    continue;
 	    }
 	    else if ( emfss_->geometry().pickedOnPlane(sid,rc.row) )
@@ -296,6 +297,16 @@ void FaultStickSetDisplay::updateSticks( bool nearestonly )
 	    if ( nearestonly && rc.row!=neareststicknr_ )
 		continue;
 
+	    Seis2DDisplay* s2dd = 0;
+	    if ( emfss_->geometry().pickedOn2DLine(sid,rc.row) )
+	    {
+		const MultiID* lset = emfss_->geometry().lineSet( sid, rc.row );
+		const char* lnm = emfss_->geometry().lineName( sid, rc.row );
+		s2dd = Seis2DDisplay::getSeis2DDisplay( *lset, lnm );
+		if ( (!s2dd || !s2dd->isOn()) && displayonlyatsections_ )
+		    continue;
+	    }
+
 	    const StepInterval<int> colrg = fss->colRange( rc.row );
 	    if ( !colrg.width() )
 	    {
@@ -327,14 +338,6 @@ void FaultStickSetDisplay::updateSticks( bool nearestonly )
 		}
 		poly->setCoordIndex( cii++, -1 );
 		continue;
-	    }
-
-	    Seis2DDisplay* s2dd = 0;
-	    if ( emfss_->geometry().pickedOn2DLine(sid,rc.row) )
-	    {
-		const MultiID* lset = emfss_->geometry().lineSet( sid, rc.row );
-		const char* lnm = emfss_->geometry().lineName( sid, rc.row );
-		s2dd = Seis2DDisplay::getSeis2DDisplay( *lset, lnm );
 	    }
 
 	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
@@ -640,6 +643,14 @@ void FaultStickSetDisplay::otherObjectsMoved(
     updateSticks();
     updateEditPids();
 }
+
+
+void FaultStickSetDisplay::setDisplayOnlyAtSections( bool yn )
+{ displayonlyatsections_ = yn; }
+
+
+bool FaultStickSetDisplay::displayedOnlyAtSections() const
+{ return displayonlyatsections_; }
 
 
 void FaultStickSetDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const

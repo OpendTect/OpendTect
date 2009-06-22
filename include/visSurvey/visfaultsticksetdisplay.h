@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.2 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.3 2009-06-22 14:22:05 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ namespace MPE { class FaultStickSetEditor; }
 namespace visSurvey
 {
 class MPEEditor;
+class Seis2DDisplay;
 
 /*!\brief Display class for FaultStickSets
 */
@@ -70,6 +71,9 @@ public:
 
     void			removeSelection(const Selector<Coord3>&);
 
+    void			setDisplayOnlyAtSections(bool yn);
+    bool			displayedOnlyAtSections() const;
+
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
 
@@ -105,6 +109,8 @@ protected:
 
     visBase::PickStyle*		stickspickstyle_;
     visBase::PickStyle*		neareststickpickstyle_;
+
+    bool			displayonlyatsections_;
 };
 
 } // namespace VisSurvey
