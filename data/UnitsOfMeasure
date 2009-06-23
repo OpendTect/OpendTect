@@ -2,38 +2,38 @@ dTect V3.0
 Units of measure
 Thu Feb 19 11:23:10 2004
 !
-Seconds: Time`s`1
 Milliseconds: Time`ms`0.001
+Seconds: Time`s`1
 Microseconds: Time`us`1e-6
 Meter: Distance/Depth`m`1
 Feet: Distance/Depth`ft`0.3048
 Inches: Distance/Depth`in`0.0254
 -Meter: Distance/Depth`-m`-1
 -Feet: Distance/Depth`-ft`-0.3048
-Kg/m3: Density`kg/m3`1
 Gram/cm3: Density`g/cc`1000
+Kg/m3: Density`kg/m3`1
 Meter/second: Velocity`m/s`1
 Feet/second : Velocity`ft/s`0.3048
 Km/second : Velocity`km/s`1000
-Seconds/meter: Sonic travel time`s/m`1
 Microseconds/foot: Sonic travel time`us/ft`3.28084e-6
 Microseconds/meter: Sonic travel time`us/m`1e-6
+Seconds/meter: Sonic travel time`s/m`1
 Kg/m2s: Acoustic Impedance`kg/m2s`1
 Kg/m2us: Acoustic Impedance`kg/m2us`1000000
 G/ft2s: Acoustic Impedance`g/ft2s`0.0107639
-Fraction: Porosity``1
 Percent: Porosity`%`0.01
+Fraction: Porosity``1
 Darcy: Permeability`k`1
-Fraction: Saturation``1
 Percent: Saturation`%`0.01
+Fraction: Saturation``1
 API: Gamma Ray`API`1
 Volt: Electrical Potential`V`1
 OhmMeter: Resistivity`ohmm`1
 Ratio: Poisson's Ratio``1
 1/Pascal: Compressibility`1/Pa`1
-Kelvin: Temperature`K`1
 Degrees Celcius: Temperature`deg.C`1`273.15
 Degrees Fahrenheit: Temperature`deg.F`0.5555555`255.3722222222222222
+Kelvin: Temperature`K`1
 Pascal: Pressure`Pa`1
 Bar: Pressure`bar`1e5
 !
