@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.7 2009-06-23 04:50:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.8 2009-06-23 11:28:48 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -159,6 +159,8 @@ void uiODViewer2D::createViewWin( bool isvert )
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
+    delete horpainter_;
+    horpainter_ = 0;
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
     slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
