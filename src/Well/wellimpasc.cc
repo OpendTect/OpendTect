@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.58 2009-06-22 12:50:24 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.59 2009-06-23 08:25:10 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -530,8 +530,8 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 				       PropertyRef::Time );
 
     Table::TargetInfo::Form* timeform =
-    new Table::TargetInfo::Form( "TWT", FloatInpSpec() );
-    timeinfo->form(0).setName( "One-way TT" );
+    new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() );
+    timeinfo->form(0).setName( "TWT" );
     timeinfo->add( timeform );
     fd->bodyinfos_ += timeinfo;
 }
