@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.156 2009-06-22 10:02:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.157 2009-06-23 08:38:54 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -330,6 +330,7 @@ void uiMPEMan::seedClick( CallBacker* )
 			   "to be displayed" );
 	    return;
 	}
+	seedpicker->setSelSpec( as );
 	if ( datapackid > DataPack::cNoID() )
 	    engine.setAttribData( *as, datapackid );
 
@@ -381,6 +382,8 @@ void uiMPEMan::seedClick( CallBacker* )
 		if ( datapackid > DataPack::cNoID() )
 		    engine.setAttribData( *clickedas, datapackid );
 	    }
+
+	    seedpicker->setSelSpec( clickedas );
 
 	    for ( int idx=0; idx<displays.size(); idx++ )
 		displays[idx]->freezeBoxPosition( true );
