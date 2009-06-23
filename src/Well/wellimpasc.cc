@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.59 2009-06-23 08:25:10 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.60 2009-06-23 13:48:32 cvskris Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -378,8 +378,11 @@ Table::FormatDesc* Well::TrackAscIO::getDesc()
 }
 
 
-bool  Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
+bool Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 {
+    if ( !getHdrVals(strm_) )
+	return false;
+
     Coord3 c, c0, prevc;
     Coord3 surfcoord;
     float dah = 0;
@@ -393,9 +396,14 @@ bool  Well::TrackAscIO::getData( Well::Data& wd, bool tosurf ) const
 	if ( ret < 0 ) return false;
 	if ( ret == 0) break;
 
-	c.x = getfValue(0) * xyfac;
-	c.y = getfValue(1) * xyfac;
+	c.x = getfValue(0);
+	c.y = getfValue(1);
 	c.z = getfValue(2);
+	if ( !c.isDefined() )
+	    continue;
+
+	c.x *= xyfac;
+	c.y *= xyfac;
 
 	if ( c.distTo(c0) < 1 ) break;
 
