@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.16 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.17 2009-06-23 05:17:25 cvsraman Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: uitutseistools.cc,v 1.16 2009-03-24 12:33:51 cv
 #include "uiseissubsel.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seistype.h"
 #include "seisselection.h"
@@ -35,9 +36,11 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     setHaveCredits( true );
 
     const CallBack choicecb( mCB(this,uiTutSeisTools,choiceSel) );
+    const CallBack inpcb( mCB(this,uiTutSeisTools,inpSel) );
 
     // The input seismic object
     inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup(geom_) );
+    inpfld_->selectiondone.notify( inpcb );
     
     subselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(geom_) );
     
@@ -135,4 +138,12 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 
     uiTaskRunner taskrunner( this );
     return taskrunner.execute( tst_ );
+}
+
+
+void uiTutSeisTools::inpSel( CallBacker* )
+{
+    if ( !inpfld_->commitInput() || !inctio_.ioobj ) return;
+
+    subselfld_->setInput( *inctio_.ioobj );
 }

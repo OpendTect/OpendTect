@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.7 2008-04-30 03:31:48 cvssatyaki Exp $
+ * ID       : $Id: uitutseistools.h,v 1.8 2009-06-23 05:17:25 cvsraman Exp $
 -*/
 
 #include "uidialog.h"
@@ -41,6 +41,7 @@ protected:
 
     bool		acceptOK(CallBacker*);
     void		choiceSel(CallBacker*);
+    void		inpSel(CallBacker*);
     void		doProc(CallBacker*);
 
 };
