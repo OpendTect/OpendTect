@@ -5,12 +5,11 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.96 2009-06-19 10:00:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.97 2009-06-23 05:17:45 cvsnanne Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fstream>
 #include <iostream>
 #include "strmprov.h"
 #include "datapack.h"
@@ -29,6 +28,7 @@ static const char* rcsID = "$Id: strmprov.cc,v 1.96 2009-06-19 10:00:53 cvsnanne
 #  define pclose _pclose
 #  define fileno(s) _fileno(s)
 #  include "errh.h"
+#  include "winstreambuf.h"
 # endif
 #endif
 
@@ -815,12 +815,20 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 		sd.setFileName( fullpath );
 	}
 
+#ifdef __msvc__
+	std::winfilebuf* fb = new std::winfilebuf( sd.fileName(),
+		binary ? std::ios_base::in | std::ios_base::binary
+		       : std::ios_base::in );
+	sd.istrm = fb->isOK() ? new std::istream(fb) : 0;
+#else
 	sd.istrm = new std::ifstream( sd.fileName(),
 		      binary ? std::ios_base::in | std::ios_base::binary 
 			     : std::ios_base::in );
 	if ( doesexist ? sd.istrm->bad() : !sd.istrm->good() )
 	    { delete sd.istrm; sd.istrm = 0; }
+#endif
 	return sd;
+
     }
 
     mkOSCmd( true );
@@ -868,11 +876,18 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 
     if ( type_ != StreamConn::Command && hostname_.isEmpty() )
     {
+#ifdef __msvc__
+	std::winfilebuf* fb = new std::winfilebuf( sd.fileName(),
+		binary ? std::ios_base::out | std::ios_base::binary
+		       : std::ios_base::out );
+	sd.ostrm = fb->isOK() ? new std::ostream(fb) : 0;
+#else
 	sd.ostrm = new std::ofstream( sd.fileName(),
 			  binary ? std::ios_base::out | std::ios_base::binary 
 				 : std::ios_base::out );
 	if ( sd.ostrm->bad() )
 	    { delete sd.ostrm; sd.ostrm = 0; }
+#endif
 	return sd;
     }
 
