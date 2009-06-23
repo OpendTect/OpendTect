@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.100 2009-06-17 18:54:25 cvskris Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.101 2009-06-23 11:39:29 cvsranojay Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -328,9 +328,9 @@ bool BatchProgram::initOutput()
 
 #if defined(__mac__) || defined(__msvc__)
         // Mac and win require full path in order to support GUI apps
-	cmd = "@'";
+	cmd = "@";
 	cmd += FilePath(GetBinPlfDir()).add("view_progress").fullPath();
-	cmd += "' ";
+	cmd += " ";
 #endif
 
 	cmd += GetPID();
