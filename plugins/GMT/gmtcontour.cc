@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.9 2009-06-18 14:56:02 cvskris Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.10 2009-06-23 04:57:28 cvsraman Exp $";
 
 #include "gmtcontour.h"
 
@@ -194,37 +194,6 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 
     Pick::Set ps;
     BufferString finalgrd = fileName( fp.fullPath() );
-    if ( hor->geometry().getBoundingPolygon(hor->sectionID(0),ps) )
-    {
-	strm << "Clipping the grid ... ";
-	fp.setExtension( "gd3" );
-	BufferString maskgrd = fileName( fp.fullPath() );
-	comm = "@grdmask -R -NNaN/NaN/1 -I25 -G";
-	comm += maskgrd;
-	sdata = StreamProvider(comm).makeOStream();
-	if ( !sdata.usable() )
-	    mErrStrmRet("Failed")
-
-	for ( int pdx=0; pdx<ps.size(); pdx++ )
-	    *sdata.ostrm << ps[pdx].pos.x << " " << ps[pdx].pos.y << std::endl;
-
-	sdata.close();
-	fp.setExtension( "gd2" );
-	comm = "grdmath ";
-	comm += fileName( fp.fullPath() );
-	comm += " "; comm += maskgrd;
-	comm += " OR = ";
-	fp.setExtension( "gd4" );
-	comm += fileName( fp.fullPath() );
-	if ( system(comm) )
-	    mErrStrmRet("Failed")
-
-	strm << "Done" << std::endl;
-	StreamProvider( maskgrd ).remove();
-	StreamProvider( finalgrd ).remove();
-	finalgrd = fileName( fp.fullPath() );
-    }
-
     BufferString mapprojstr;
     mGetRangeProjString( mapprojstr, "X" );
     if ( dofill )
