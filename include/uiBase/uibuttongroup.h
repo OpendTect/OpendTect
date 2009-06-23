@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.13 2009-02-10 14:16:35 cvsbert Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.14 2009-06-23 09:11:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ public:
 				      bool vertical=true);
 			~uiButtonGroup();
 
-    int			addButton(uiButton*);
     void		selectButton(int id);
     int			selectedId() const;
     int			nrButtons() const;
@@ -36,6 +35,10 @@ public:
     bool		isFrameDisplayed() const;
     void		setExclusive(bool);
     bool		isExclusive() const;
+
+    int			addButton(uiButton*);
+    			//!< Only use if you need ID. Then, set 0 as parent
+    			//!< when constructing teh button.
 
 protected:
 
