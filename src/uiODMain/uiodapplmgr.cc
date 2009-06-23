@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.336 2009-06-19 14:38:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.337 2009-06-23 21:16:41 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -941,16 +941,19 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    BufferString auxdatanm( emattrserv_->getAttribBaseNm() );
-	    auxdatanm += "_";
-	    auxdatanm += emattrserv_->shiftRange().atIndex( idx );
+	    auxdatanm += " [";
+	    auxdatanm += emattrserv_->shiftRange()->atIndex( idx );
+	    auxdatanm += "]";
 	    emserv_->setAuxData( emid, data, auxdatanm, idx+1,
-		   		 emattrserv_->shiftRange().atIndex(idx) );
+		   		 emattrserv_->shiftRange()->atIndex(idx) );
 	    BufferString dummy;
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
     else if ( evid == uiEMAttribPartServer::evShiftDlgOpened() )
+    {
 	enableMenusAndToolBars( false );
+    }
     else if ( evid == uiEMAttribPartServer::evShiftDlgClosed() )
     {
 	enableMenusAndToolBars( true );
@@ -971,10 +974,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	    else
 		valkept = true;
 	}
-	TypeSet<float> curshift;
-	curshift += emattrserv_->getShift();
 	visserv_->setRandomPosData( visid, emattrserv_->attribIdx(), &data );
-	visserv_->setAttribShift( visid, emattrserv_->attribIdx(), curshift );
     }
     else if ( evid == uiEMAttribPartServer::evShiftDlgFinalised() )
     {
@@ -985,10 +985,6 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	    const Attrib::SelSpec* as = visserv_->getSelSpec(
 		    visserv_->getEventObjId(), attribidx );
 	    calShiftAtribute( attribidx, *as, false );
-	    TypeSet<float> curshift;
-	    curshift += emattrserv_->getShift();
-	    visserv_->setAttribShift( visserv_->getEventObjId(), attribidx,
-		    		      curshift );
 	}
     }
     else
@@ -1313,7 +1309,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    emserv_->setAuxData( emid, data, specs[idx].userRef(), idx+1,
-			         emattrserv_->shiftRange().atIndex(idx) );
+			         emattrserv_->shiftRange()->atIndex(idx) );
 	    BufferString dummy;
 	    emserv_->storeAuxData( emid, dummy, false );
 	}

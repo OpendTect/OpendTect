@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.9 2009-05-14 09:05:51 cvssatyaki Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.10 2009-06-23 21:16:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,8 @@ public:
 				{ descset_ = ads; }
 
     void			showHorShiftDlg(uiParent*,const EM::ObjectID&,
-	    					const TypeSet<int>&);
+	    					const TypeSet<int>&,
+						bool canaddattrib);
     void			getDataPointSet(const EM::ObjectID&,
 					const EM::SectionID&, DataPointSet&,
 					float shift); 
@@ -69,11 +70,8 @@ public:
 					//Works only in case of Shift Dlg
     int				textureIdx() const;
     					//Works only in case of Shift Dlg
-    const StepInterval<float>&	shiftRange() const	{ return shiftrg_; }
-    void			setShiftRange( const StepInterval<float>& rg )
-    				{ shiftrg_ = rg; }
-    const char*			getAttribBaseNm() const
-	                        { return shiftattrbasename_.buf(); }
+    const StepInterval<float>*	shiftRange() const;
+    const char*			getAttribBaseNm() const;
     void			import2DHorizon() const;
     void			import2DFaultStickset(const char* type);
 
@@ -84,11 +82,9 @@ protected:
     MultiID			nlaid_;
     uiHorizonShiftDialog*	horshiftdlg_;
 
-    StepInterval<float>		shiftrg_;
     int				shiftidx_;
     Attrib::DescID		attribid_;
     int				attribidx_;
-    BufferString		shiftattrbasename_;
 
     void			calcDPS(CallBacker*);
     void			horShifted(CallBacker*);

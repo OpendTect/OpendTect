@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.9 2009-05-14 09:05:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.10 2009-06-23 21:16:41 cvskris Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -33,7 +33,6 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     , nlamodel_(0)
     , descset_(0)
     , horshiftdlg_(0)
-    , shiftrg_(-100,100,10)
     , shiftidx_(10)
     , attribidx_(0)
 {}
@@ -77,15 +76,22 @@ float uiEMAttribPartServer::getShift() const
 {
     if ( horshiftdlg_ )
 	return horshiftdlg_->curShift();
-    return shiftrg_.atIndex( shiftidx_ );
+    return mUdf(float);
+}
+
+
+const StepInterval<float>* uiEMAttribPartServer::shiftRange() const
+{
+    return horshiftdlg_ ? &horshiftdlg_->shiftIntv() : 0;
 }
 
 
 void uiEMAttribPartServer::showHorShiftDlg( uiParent* p,const EM::ObjectID& id,
-       					    const TypeSet<int>& attribids )
+       					    const TypeSet<int>& attribids,
+       					    bool canaddattrib )
 {
     setAttribIdx( -1 );
-    horshiftdlg_ = new uiHorizonShiftDialog( p, id, *descset_ );
+    horshiftdlg_ = new uiHorizonShiftDialog( p, id, *descset_, canaddattrib );
     horshiftdlg_->setAttribIds( attribids );
     sendEvent( uiEMAttribPartServer::evShiftDlgOpened() );
     horshiftdlg_->calcAttribPushed.notify(
@@ -105,7 +111,6 @@ void uiEMAttribPartServer::shiftDlgClosed( CallBacker* cb )
     {
 	if ( horshiftdlg_->doStore() )
 	{
-	    shiftattrbasename_ = horshiftdlg_->getAttribName();
 	    sendEvent( uiEMAttribPartServer::evStoreShiftHorizons() );
 	}
 	else
@@ -117,12 +122,14 @@ void uiEMAttribPartServer::shiftDlgClosed( CallBacker* cb )
 
 void uiEMAttribPartServer::calcDPS( CallBacker* cb )
 {
-    shiftattrbasename_ = horshiftdlg_->getAttribName();
-    shiftrg_ = horshiftdlg_->shiftIntv();
     shiftidx_ = horshiftdlg_->curShiftIdx();
     setAttribID( horshiftdlg_->attribID() );
     sendEvent( uiEMAttribPartServer::evCalcShiftAttribute() );
 }
+
+
+const char* uiEMAttribPartServer::getAttribBaseNm() const
+{ return horshiftdlg_ ? horshiftdlg_->getAttribBaseName() : 0; }
 
 
 void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset )
@@ -166,9 +173,7 @@ const TypeSet<int>& uiEMAttribPartServer::attribIds() const
 
 void uiEMAttribPartServer::horShifted( CallBacker* cb )
 {
-    shiftrg_ = horshiftdlg_->shiftIntv();
     shiftidx_ = horshiftdlg_->curShiftIdx();
-    setAttribID( horshiftdlg_->attribID() );
     sendEvent( uiEMAttribPartServer::evHorizonShift() );
 }
 
