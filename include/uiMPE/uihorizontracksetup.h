@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.13 2009-06-11 09:04:19 cvsumesh Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.14 2009-06-23 06:28:49 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,9 @@ public:
     const Color&                getColor();
     void                        setMarkerStyle(const MarkerStyle3D&);
     const MarkerStyle3D&        getMarkerStyle();
+
+    void			setAttribSelSpec(const Attrib::SelSpec*);
+    bool			isSameSelSpec(const Attrib::SelSpec*) const;
 
     NotifierAccess*		modeChangeNotifier()	
     				{ return &modechanged_; }
