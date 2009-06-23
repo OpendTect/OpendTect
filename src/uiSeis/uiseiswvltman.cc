@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.38 2009-06-02 13:18:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.39 2009-06-23 09:05:11 cvssatyaki Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -160,7 +160,6 @@ void uiSeisWvltMan::mkFileInfo()
     }
 
     wvltfld->setPack( true, curid_, false );
-    wvltfld->handleChange( FlatView::Viewer::All );
 
     txt += getFileInfo();
     infofld->setText( txt );
