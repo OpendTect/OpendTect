@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.92 2009-06-23 08:40:13 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.93 2009-06-23 09:32:05 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -295,6 +295,9 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
     if ( !seedpicker )
 	return;
 
+    if ( !seedpicker->getSelSpec() )
+	return;
+
     bool fieldchange;
     if ( seedpicker->nrSeeds() < 1 )
 	setupgrp_->setAttribSelSpec( seedpicker->getSelSpec() );
@@ -310,6 +313,9 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( isvalidsetup && fieldchange )
 	loadAttribData();
+
+    if ( !isvalidsetup )
+	return;
 
     if ( !seedhasbeenpicked_ )
 	sendEvent( uiMPEPartServer::evShowToolbar() );
