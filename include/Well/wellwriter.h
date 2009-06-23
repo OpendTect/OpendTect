@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellwriter.h,v 1.9 2009-03-25 16:39:47 cvsbert Exp $
+ RCS:		$Id: wellwriter.h,v 1.10 2009-06-23 16:21:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ public:
 
     bool		put() const;		//!< Just write all
 
-    bool		putInfo() const;	//!< Write Info only
+    bool		putInfoAndTrack() const;//!< Write Info and track
     bool		putTrack() const;	//!< Write track only
     bool		putLogs() const;	//!< Write logs only
     bool		putMarkers() const;	//!< Write Markers only
@@ -37,7 +37,7 @@ public:
     bool		putCSMdl() const;	//!< Write Check shot model only
     bool		putDispProps() const;	//!< Write display pars only
 
-    bool		putInfo(std::ostream&) const;
+    bool		putInfoAndTrack(std::ostream&) const;
     bool		putLog(std::ostream&,const Log&) const;
     bool		putMarkers(std::ostream&) const;
     bool		putD2T(std::ostream&) const;

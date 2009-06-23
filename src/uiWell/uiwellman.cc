@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.54 2009-06-19 08:58:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.55 2009-06-23 16:21:52 cvskris Exp $";
 
 #include "uiwellman.h"
 
@@ -203,7 +203,7 @@ void uiWellMan::edWellTrack( CallBacker* )
     if ( !dlg.go() ) return;
 
     Well::Writer wtr( fname, *wd );
-    if ( !wtr.putTrack( ) )
+    if ( !wtr.putInfoAndTrack( ) )
 	uiMSG().error( "Cannot write new track to disk" );
 
     wd->trackchanged.trigger();

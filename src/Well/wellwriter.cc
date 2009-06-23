@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.20 2009-04-22 13:09:45 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.21 2009-06-23 16:21:52 cvskris Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -47,7 +47,7 @@ bool Well::Writer::wrHdr( std::ostream& strm, const char* fileky ) const
 
 bool Well::Writer::put() const
 {
-    return putInfo()
+    return putInfoAndTrack()
 	&& putLogs()
 	&& putMarkers()
 	&& putD2T()
@@ -56,18 +56,18 @@ bool Well::Writer::put() const
 }
 
 
-bool Well::Writer::putInfo() const
+bool Well::Writer::putInfoAndTrack() const
 {
     StreamData sd = mkSD( sExtWell() );
     if ( !sd.usable() ) return false;
 
-    const bool isok = putInfo( *sd.ostrm );
+    const bool isok = putInfoAndTrack( *sd.ostrm );
     sd.close();
     return isok;
 }
 
 
-bool Well::Writer::putInfo( std::ostream& strm ) const
+bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyWell()) ) return false;
 
