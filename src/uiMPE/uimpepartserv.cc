@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.91 2009-06-22 12:37:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.92 2009-06-23 08:40:13 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -296,6 +296,16 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
 	return;
 
     bool fieldchange;
+    if ( seedpicker->nrSeeds() < 1 )
+	setupgrp_->setAttribSelSpec( seedpicker->getSelSpec() );
+    else if ( !setupgrp_->isSameSelSpec(seedpicker->getSelSpec()) )
+    {
+	seedpicker->blockSeedPick( true );
+	uiMSG().error( 
+		"Tracking Setup has different attribute then your seed's" );
+	return;
+    }
+
     const bool isvalidsetup = setupgrp_->commitToTracker(fieldchange);
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( isvalidsetup && fieldchange )
