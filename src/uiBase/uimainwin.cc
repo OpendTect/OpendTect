@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.179 2009-06-17 19:22:04 cvskris Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.180 2009-06-23 05:25:13 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -663,8 +663,7 @@ void uiMainWinBody::saveSettings()
     const BufferString fnm = getSettingsFileName();
     QSettings settings( fnm.buf(), QSettings::IniFormat );
     settings.beginGroup( NamedObject::name().buf() );
-    QSize qsz( frameGeometry().width(), frameGeometry().height() );
-    settings.setValue( "size", qsz );
+    settings.setValue( "size", size() );
     settings.setValue( "pos", pos() );
     settings.setValue( "state", saveState() );
     settings.endGroup();
