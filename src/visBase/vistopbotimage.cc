@@ -1,10 +1,14 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : Ranojay Sen
- * DATE     : June 2009
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        Ranojay Sen
+ Date:          June 2009
+________________________________________________________________________
+
 -*/
 
-static const char* rcsID = "$Id: vistopbotimage.cc,v 1.2 2009-06-22 11:50:29 cvsumesh Exp $";
+static const char* rcsID = "$Id: vistopbotimage.cc,v 1.3 2009-06-23 05:25:47 cvsranojay Exp $";
 
 
 #include "vistopbotimage.h"
@@ -95,12 +99,12 @@ void TopBotImage::setDisplayTransformation( mVisTrans* trans )
 }
 
 
-void TopBotImage::setTransparency( int val )
-{ getMaterial()->setTransparency( 255-val ); }
+void TopBotImage::setTransparency( float val )
+{ getMaterial()->setTransparency( val ); }
 
 
-int TopBotImage::getTransparency() const
-{ return mNINT(255 - getMaterial()->getTransparency()); }
+float TopBotImage::getTransparency() const
+{ return getMaterial()->getTransparency(); }
 
 
 void TopBotImage::setImageFilename( const char* fnm )

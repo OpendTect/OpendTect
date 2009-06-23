@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvtopbotimg.cc,v 1.3 2009-06-22 10:55:50 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurvtopbotimg.cc,v 1.4 2009-06-23 05:25:47 cvsranojay Exp $";
 
 #include "uisurvtopbotimg.h"
 #include "vistopbotimage.h"
@@ -52,7 +52,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop )
 	    	uiSliderExtra::Setup("Transparency"), "Transparency slider" );
     transpfld_->attach( alignedBelow, brfld_ );
     transpfld_->sldr()->setMinValue( 0 );
-    transpfld_->sldr()->setMaxValue( 254 );
+    transpfld_->sldr()->setMaxValue( 100 );
     transpfld_->sldr()->setStep( 1 );
     transpfld_->sldr()->valueChanged.notify(
 				mCB(this,uiSurvTopBotImageGrp,transpChg) );
@@ -68,7 +68,7 @@ void fillCurrent()
     {
 	tlfld_->setValue( img_->topLeft() );
 	brfld_->setValue( img_->bottomRight() );
-	transpfld_->sldr()->setValue( img_->getTransparency() );
+	transpfld_->sldr()->setValue( img_->getTransparency()*100 );
     }
     
 }
@@ -97,7 +97,8 @@ void coordChg( CallBacker* cb )
 
 void transpChg( CallBacker* )
 {
-    dlg_->setTransp( istop_, transpfld_->sldr()->getIntValue() );
+    dlg_->setTransparency( istop_, 
+			   float(transpfld_->sldr()->getIntValue()/100.) );
 }
 
     const bool		istop_;
@@ -153,7 +154,7 @@ void uiSurvTopBotImageDlg::setCoord( bool istop, const Coord& tl,
 }
 
 
-void uiSurvTopBotImageDlg::setTransp( bool istop, int val )
+void uiSurvTopBotImageDlg::setTransparency( bool istop, float val )
 {
     scene_->getTopBotImage(istop)->setTransparency( val );
 }

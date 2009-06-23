@@ -1,12 +1,13 @@
 #ifndef vistopbotimage_h
 #define	vistopbotimage_h
+
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Ranojay Sen
  Date:		June 2009
- RCS:		$Id: vistopbotimage.h,v 1.1 2009-06-22 10:55:50 cvsranojay Exp $
+ RCS:		$Id: vistopbotimage.h,v 1.2 2009-06-23 05:25:47 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +37,8 @@ public:
     void			setImageFilename(const char*);
     const char*			getImageFilename() const;
 
-    void			setTransparency(int); // 0-255
-    int				getTransparency() const; // returns value 0-255
+    void			setTransparency(float); // 0-1
+    float			getTransparency() const; // returns value 0-1
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
