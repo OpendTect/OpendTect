@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.1 2009-06-22 12:37:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.2 2009-06-23 05:35:32 cvssatyaki Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -96,9 +96,9 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     BinID bid;
     if ( curcs_.defaultDir() == CubeSampling::Inl )
-	bid = BinID( curcs_.hrg.start.inl, wp.x );
+	bid = BinID( mNINT(curcs_.hrg.start.inl), mNINT(wp.x) );
     else
-	bid = BinID( wp.x, curcs_.hrg.start.crl );
+	bid = BinID( mNINT(wp.x), mNINT(curcs_.hrg.start.crl) );
 
     seedpicker->addSeed( Coord3(SI().transform(bid),wp.y) );
 }
