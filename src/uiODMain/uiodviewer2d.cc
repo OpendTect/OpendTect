@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.6 2009-06-22 12:37:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.7 2009-06-23 04:50:29 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -144,8 +144,9 @@ void uiODViewer2D::createViewWin( bool isvert )
 	vwr.appearance().annot_.setAxesAnnot(true);
 	if ( ivwr == 0 )
 	{
-	    viewwin_->addControl( new uiFlatViewStdControl( vwr,
-		uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0") ) );
+	    viewwin_->addControl( new uiFlatViewStdControl(vwr,
+		uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
+		.withedit(true)) );
 	    horpainter_ = new EM::HorizonPainter( vwr );
 	    auxdataeditor_ = new uiFlatViewAuxDataEditor( vwr );
 	    horfveditor_ = new MPE::HorizonFlatViewEditor( auxdataeditor_ );

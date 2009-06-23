@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.21 2009-06-15 12:24:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.22 2009-06-23 04:50:28 cvsnanne Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -41,12 +41,19 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , menu_(*new uiMenuHandler(&vwr,-1))	//TODO multiple menus ?
     , propertiesmnuitem_("Properties...",100)
     , manipdrawbut_(0)
+    , editbut_(0)
 {
     tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools",
 	    setup.withcoltabed_ ? uiToolBar::Left : uiToolBar::Top );
     if ( setup.withstates_ )
 	{ mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode"); }
     vwr_.setRubberBandingOn( !manip_ );
+
+    if ( setup.withedit_ )
+    {
+	mDefBut(editbut_,"seedpickmode.png",editCB,"Edit mode");
+	editbut_->setToggleButton( true );
+    }
 
     mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
@@ -287,7 +294,7 @@ void uiFlatViewStdControl::handDragged( CallBacker* )
 }
 
 
-void uiFlatViewStdControl::panCB( CallBacker* but )
+void uiFlatViewStdControl::panCB( CallBacker* )
 {
     const bool isleft = true;
     const bool isright = false;
@@ -315,19 +322,19 @@ void uiFlatViewStdControl::panCB( CallBacker* but )
 }
 
 
-void uiFlatViewStdControl::flipCB( CallBacker* but )
+void uiFlatViewStdControl::flipCB( CallBacker* )
 {
     flip( true );
 }
 
 
-void uiFlatViewStdControl::parsCB( CallBacker* but )
+void uiFlatViewStdControl::parsCB( CallBacker* )
 {
     doPropertiesDialog();
 }
 
 
-void uiFlatViewStdControl::stateCB( CallBacker* but )
+void uiFlatViewStdControl::stateCB( CallBacker* )
 {
     if ( !manipdrawbut_ ) return;
     manip_ = !manip_;
@@ -335,6 +342,21 @@ void uiFlatViewStdControl::stateCB( CallBacker* but )
     manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
     vwr_.rgbCanvas().setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
 	   				  : uiGraphicsViewBase::ScrollHandDrag);
+    if ( editbut_ )
+	editbut_->setOn( false );
+}
+
+
+void uiFlatViewStdControl::editCB( CallBacker* )
+{
+    uiGraphicsViewBase::ODDragMode mode;
+    if ( editbut_->isOn() )
+	mode = uiGraphicsViewBase::NoDrag;
+    else
+	mode = manip_ ? uiGraphicsViewBase::ScrollHandDrag
+	    	      : uiGraphicsViewBase::RubberBandDrag;
+
+    vwr_.rgbCanvas().setDragMode( mode );
 }
 
 

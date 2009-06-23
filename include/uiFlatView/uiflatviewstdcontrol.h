@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.12 2009-06-12 08:17:57 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.13 2009-06-23 04:50:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,11 +32,13 @@ public:
 			    , helpid_("")
 			    , withwva_(true)
 			    , withcoltabed_(true)
+			    , withedit_(false)
 			    , withstates_(true)		{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withwva)
 	mDefSetupMemb(bool,withcoltabed)
+	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,withstates)
 	mDefSetupMemb(BufferString,helpid)
     };
@@ -53,6 +55,7 @@ protected:
     uiToolButton*	zoomoutbut_;
     uiToolButton*	manipdrawbut_;
     uiToolButton*	parsbut_;
+    uiToolButton*	editbut_;
 
     uiFlatViewer&	vwr_;
     uiFlatViewColTabEd*	ctabed_;
@@ -72,6 +75,7 @@ protected:
     void		flipCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		stateCB(CallBacker*);
+    void		editCB(CallBacker*);
     void		helpCB(CallBacker*);
     void		coltabChg(CallBacker*);
     void		dispChgCB(CallBacker*);
