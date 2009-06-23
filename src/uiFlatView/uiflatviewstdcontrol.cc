@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.23 2009-06-23 06:24:07 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.24 2009-06-23 08:28:13 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -249,6 +249,7 @@ void uiFlatViewStdControl::handDragged( CallBacker* )
     if ( canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag ||
 	 !vwrs_[0]->hasHandDrag() || !viewdragged_ )
 	return;
+    viewdragged_ = false;
     Geom::Point2D<double> centre;
     Geom::Size2D<double> newsz;
     uiWorld2Ui w2ui;
