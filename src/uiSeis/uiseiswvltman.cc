@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.39 2009-06-23 09:05:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.40 2009-06-23 10:01:11 cvssatyaki Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -90,7 +90,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     infofld->attach( ensureBelow, wvltfld );
     selgrp->setPrefWidthInChar( 50 );
     infofld->setPrefWidthInChar( 60 );
-    selChg(0);
+    //selChg(0);
 }
 
 
@@ -128,6 +128,9 @@ void uiSeisWvltMan::mkFileInfo()
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
 
+    bool initview = false;
+    if ( curid_ == DataPack::cNoID() )
+	initview = true;
     wvltfld->removePack( curid_ );
     curid_ = DataPack::cNoID();
     if ( wvlt )
@@ -160,6 +163,8 @@ void uiSeisWvltMan::mkFileInfo()
     }
 
     wvltfld->setPack( true, curid_, false );
+    if ( !initview )
+	wvltfld->handleChange( uiFlatViewer::All );
 
     txt += getFileInfo();
     infofld->setText( txt );
