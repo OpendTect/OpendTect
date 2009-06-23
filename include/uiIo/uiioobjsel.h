@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.63 2009-06-22 18:17:45 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.64 2009-06-23 08:31:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ protected:
     void		fillListBox();
     void		setCur(int);
     void		toStatusBar(const char*);
-    bool		createEntry(const char*);
+    virtual bool	createEntry(const char*);
 
     void		setInitial(CallBacker*);
     void		selChg(CallBacker*);
