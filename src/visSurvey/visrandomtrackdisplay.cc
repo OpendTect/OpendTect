@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.110 2009-06-19 18:28:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.111 2009-06-23 15:52:35 cvskris Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -412,7 +412,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	}
 	else
 	{
-	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+	    channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
 	    channels_->turnOn( false );
 	}
 	return;
@@ -478,7 +478,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	{
 	    channels_->setSize( 1, array.info().getSize(0),
 				   array.info().getSize(1) );
-	    channels_->setUnMappedData( attrib, sidx, dataptr, OD::UsePtr, 0 );
+	    channels_->setUnMappedData( attrib, sidx, dataptr, OD::CopyPtr, 0 );
         }
 
 	triangles_->setDepthRange( zrg );

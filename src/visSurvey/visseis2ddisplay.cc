@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.66 2009-06-23 05:25:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.67 2009-06-23 15:52:35 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -459,7 +459,7 @@ void Seis2DDisplay::setData( int attrib,
 	    channels_->setSize( 1, slice.info().getSize(1),
 		    		   slice.info().getSize(0) );
 	    channels_->setUnMappedData( attrib, sidx, usedarr->getData(), 
-		    			OD::UsePtr, 0 );
+		    			OD::CopyPtr, 0 );
 	}
     
 	triangles_->setTextureZPixels( slice.info().getSize(0) );
