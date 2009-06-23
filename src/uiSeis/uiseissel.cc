@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.81 2009-06-22 20:58:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.82 2009-06-23 09:00:47 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: uiseissel.cc,v 1.81 2009-06-22 20:58:00 cvsbert
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "iodirentry.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -336,6 +336,25 @@ void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
     ((uiSeisSelDlg*)dlg)->fillPar( dlgiopar_ );
     setAttrNm( dlgiopar_.find( sKey::Attribute ) );
+}
+
+
+IOObj* uiSeisSel::createEntry( const char* nm )
+{
+    if ( !Seis::is2D(seissetup_.geom_) || Seis::isPS(seissetup_.geom_) )
+	return uiIOObjSel::createEntry( nm );
+
+    CtxtIOObj newctio( inctio_.ctxt );
+    newctio.setName( nm );
+    newctio.fillObj();
+    if ( !newctio.ioobj ) return 0;
+    mDynamicCastGet(IOStream*,iostrm,newctio.ioobj)
+    if ( !iostrm )
+	return newctio.ioobj;
+
+    iostrm->setTranslator( "2D" );
+    iostrm->setExt( "2ds" );
+    return iostrm;
 }
 
 
