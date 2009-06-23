@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.14 2009-05-28 11:59:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.15 2009-06-23 06:58:20 cvsranojay Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -63,9 +63,10 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     }
 
     // TODO: Get markers from all wells
+    ObjectSet<Well::Data>& wells = Well::MGR().wells();
     markernames_.add( Well::TrackSampler::sKeyDataStart() );
-    for ( int idx=0; idx<Well::MGR().wells()[0]->markers().size(); idx++ )
-	markernames_.add( Well::MGR().wells()[0]->markers()[idx]->name() );
+    for ( int idx=0; !wells.isEmpty() && idx<wells.size(); idx++ )
+	markernames_.add( wells[0]->markers()[idx]->name() );
     markernames_.add( Well::TrackSampler::sKeyDataEnd() );
 
     StringListInpSpec slis( markernames_ );
