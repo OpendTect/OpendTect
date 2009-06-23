@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.13 2009-06-11 09:04:19 cvsumesh Exp $
+ RCS:		$Id: uimpe.h,v 1.14 2009-06-23 06:46:11 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,9 @@ public:
     virtual const Color& getColor()				=0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}
     virtual const MarkerStyle3D& getMarkerStyle()		=0;
+    virtual void	setAttribSelSpec(const Attrib::SelSpec*) {}
+    virtual bool	isSameSelSpec(const Attrib::SelSpec*) const
+			{ return true; }
 
     virtual NotifierAccess*	modeChangeNotifier()		{ return 0; }
     virtual NotifierAccess*	propertyChangeNotifier()	{ return 0; }
