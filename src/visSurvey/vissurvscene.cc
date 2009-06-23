@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.119 2009-06-22 10:55:50 cvsranojay Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.120 2009-06-23 05:25:54 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -66,6 +66,7 @@ Scene::Scene()
     , polyselector_( 0 )
     , coordselector_( 0 )
     , zscale_( SI().zScale() )
+    , infopar_(*new IOPar)
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -163,6 +164,7 @@ Scene::~Scene()
     if ( objidx >= 0 ) removeObject( objidx );
 
     delete coordselector_;
+    delete &infopar_;
 }
 
 
@@ -476,6 +478,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
 		    BufferString newstr;
 		    so->getMousePosInfo( eventinfo, xytmousepos_,
 			    		 newmouseposval, newstr );
+		    so->getMousePosInfo( eventinfo, infopar_ );
 		    if ( !newstr.isEmpty() )
 			mouseposstr_ = newstr;
 
@@ -530,8 +533,21 @@ ZAxisTransform* Scene::getDataTransform()
 void Scene::setMarkerPos( const Coord3& coord )
 {
     Coord3 displaypos = coord;
+
     if ( datatransform_ && coord.isDefined() )
-	displaypos.z = datatransform_->transform( coord );
+    {
+	BufferString linenm; int trcnr = -1;
+	infopar_.get( sKey::LineKey, linenm );
+	infopar_.get( sKey::TraceNr, trcnr );
+	if ( !linenm.isEmpty() && trcnr>=0 )
+	{
+	    BinID bid( datatransform_->lineIndex(linenm), trcnr );
+	    displaypos.z = datatransform_->transform(
+		    BinIDValue(bid,coord.z) );
+	}
+	else
+	    displaypos.z = datatransform_->transform( coord );
+    }
 
     const bool defined = displaypos.isDefined();
     if ( !defined )

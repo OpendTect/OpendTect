@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.61 2009-06-22 10:55:50 cvsranojay Exp $
+ RCS:		$Id: vissurvscene.h,v 1.62 2009-06-23 05:25:54 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -190,6 +190,7 @@ protected:
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     const MouseCursor*		mousecursor_;
+    IOPar&			infopar_;
     float			curzstretch_;
     float			zscale_;
 

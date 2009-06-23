@@ -8,19 +8,19 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.65 2009-06-19 20:27:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.66 2009-06-23 05:25:54 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
+#include "visevent.h"
 #include "vismultitexture2.h"
 #include "vismaterial.h"
 #include "vistext.h"
 #include "vistexturechannels.h"
 #include "vistexturechannel2rgba.h"
-#include "vistexturecoords.h"
 #include "vistransform.h"
 #include "vissplittextureseis2d.h"
 
@@ -30,8 +30,8 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.65 2009-06-19 20:27:32 
 #include "attribdatapack.h"
 #include "coltabmapper.h"
 #include "genericnumer.h"
-#include "idxable.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "posinfo.h"
@@ -652,6 +652,22 @@ void Seis2DDisplay::updateDataFromCache()
 {
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
 	if ( cache_[idx] ) setData( idx, *cache_[idx] );
+}
+
+
+void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
+				     IOPar& par ) const
+{
+    par.clear();
+    par.set( sKey::XCoord, evinfo.worldpickedpos.x );
+    par.set( sKey::YCoord, evinfo.worldpickedpos.y );
+    par.set( sKey::LineKey, name() );
+
+    int dataidx = -1;
+    float mindist;
+    if ( getNearestTrace(evinfo.worldpickedpos,dataidx,mindist) )
+	par.set( sKey::TraceNr, geometry_.posns_[dataidx].nr_ );
+
 }
 
 
