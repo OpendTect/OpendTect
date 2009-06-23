@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.37 2009-06-19 14:38:02 cvshelene Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.38 2009-06-23 08:40:56 cvsnanne Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -463,6 +463,7 @@ void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
     else
     {
 	channels_->setColTabMapperSetup( attrib, mapper );
+	channels_->reMapData( attrib, 0 );
     }
 }
 
