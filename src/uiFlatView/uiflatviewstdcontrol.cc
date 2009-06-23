@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.22 2009-06-23 04:50:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.23 2009-06-23 06:24:07 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -38,6 +38,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , ctabed_(0)
     , manip_(false)
     , mousepressed_(false)
+    , viewdragged_(false)
     , menu_(*new uiMenuHandler(&vwr,-1))	//TODO multiple menus ?
     , propertiesmnuitem_("Properties...",100)
     , manipdrawbut_(0)
@@ -86,8 +87,6 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
 
     new uiFlatViewThumbnail( this, vwr );
-    viewerAdded.notify( mCB(this,uiFlatViewStdControl,vwrAdded) );
-
     //TODO attach keyboard events to panCB
 }
 
@@ -128,21 +127,6 @@ void uiFlatViewStdControl::dispChgCB( CallBacker* )
 {
     if ( ctabed_ )
 	ctabed_->setColTab( vwr_ );
-}
-
-
-void uiFlatViewStdControl::vwrAdded( CallBacker* )
-{
-    MouseEventHandler& mevh =
-	vwrs_[vwrs_.size()-1]->rgbCanvas().getMouseEventHandler();
-    mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
-    if ( vwrs_[vwrs_.size()-1]->hasHandDrag() )
-    {
-	mevh.buttonPressed.notify(
-		mCB(this,uiFlatViewStdControl,handDragStarted));
-	mevh.buttonReleased.notify( mCB(this,uiFlatViewStdControl,handDragged));
-	mevh.movement.notify( mCB(this,uiFlatViewStdControl,handDragging) );
-    }
 }
 
 
@@ -229,24 +213,6 @@ void uiFlatViewStdControl::zoomCB( CallBacker* but )
 }
 
 
-uiRect uiFlatViewStdControl::getViewRect()
-{
-    const uiRGBArrayCanvas& canvas = vwrs_[0]->rgbCanvas();
-    uiBorder annotborder = vwrs_[0]->annotBorder();
-    uiRect viewarea = canvas.getViewArea();
-    uiRect scenearea = canvas.getSceneRect();
-
-    uiBorder viewborder( viewarea.left() - scenearea.left(),
-			 viewarea.top() - scenearea.top(),
-			 scenearea.right() - viewarea.right(),
-			 scenearea.bottom() - viewarea.bottom() );
-
-    vwrs_[0]->setViewBorder( viewborder );
-    viewarea = annotborder.getRect( viewarea );
-    return viewarea;
-}
-
-
 void uiFlatViewStdControl::handDragStarted( CallBacker* )
 { mousepressed_ = true; }
 
@@ -258,16 +224,19 @@ void uiFlatViewStdControl::handDragging( CallBacker* )
 	 !mousepressed_ || !vwrs_[0]->hasHandDrag() )
 	return;
 
+    viewdragged_ = true;
     Geom::Point2D<double> centre;
     Geom::Size2D<double> newsz;
     uiWorld2Ui w2ui;
     vwrs_[0]->getWorld2Ui( w2ui );
 
-    uiRect viewarea = getViewRect();
+    uiRect viewarea = getViewRect( vwrs_[0] );
     uiWorldRect wr = w2ui.transform( viewarea );
     centre = wr.centre();
     newsz = vwrs_[0]->curView().size();
-    wr = getNewWorldRect( centre, newsz, getBoundingBox() );
+    wr = getNewWorldRect( centre, newsz, vwrs_[0]->curView(), getBoundingBox());
+    if ( wr == vwrs_[0]->curView() )
+	return;
     vwrs_[0]->drawAnnot( viewarea, wr );
     vwrs_[0]->viewChanging.trigger( wr );
 }
@@ -278,16 +247,18 @@ void uiFlatViewStdControl::handDragged( CallBacker* )
     mousepressed_ = false;
     const uiRGBArrayCanvas& canvas = vwrs_[0]->rgbCanvas();
     if ( canvas.dragMode() != uiGraphicsViewBase::ScrollHandDrag ||
-	 !vwrs_[0]->hasHandDrag())
+	 !vwrs_[0]->hasHandDrag() || !viewdragged_ )
 	return;
     Geom::Point2D<double> centre;
     Geom::Size2D<double> newsz;
     uiWorld2Ui w2ui;
     vwrs_[0]->getWorld2Ui( w2ui );
 
-    uiRect viewarea = getViewRect();
+    uiRect viewarea = getViewRect( vwrs_[0] );
     uiWorldRect wr = w2ui.transform( viewarea );
     centre = wr.centre();
+    if ( centre == vwrs_[0]->curView().centre() )
+	return;
     newsz = vwrs_[0]->curView().size();
 
     setNewView( centre, newsz );

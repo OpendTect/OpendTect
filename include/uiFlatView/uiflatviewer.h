@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.34 2009-06-19 09:51:56 cvsbruno Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.35 2009-06-23 06:24:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,8 @@ public:
     void		drawAnnot(const uiRect&,const uiWorldRect&);
     void		drawAnnot();
 
+    void		setNoViewDone()			
+    			{ anysetviewdone_  = false; }
     bool		hasHandDrag() const		{ return enabhaddrag_; }
     void		setHandDrag( bool yn )		{ enabhaddrag_ = yn; }
     void		setViewBorder( const uiBorder& border )

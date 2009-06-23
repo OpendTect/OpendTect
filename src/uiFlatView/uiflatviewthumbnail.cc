@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.13 2009-06-12 08:17:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.14 2009-06-23 06:24:07 cvssatyaki Exp $";
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -92,7 +92,7 @@ void uiFlatViewThumbnail::draw( const uiWorldRect& viewarea )
 	fgrectitem_->setRect( uiwr.left(), uiwr.top(),
 			      uiwr.width(), uiwr.height() );
     fgrectitem_->setPenColor( fgcolor_ );
-    fgrectitem_->setZValue( 1 );
+    fgrectitem_->setZValue( 2 );
 }
 
 
@@ -162,7 +162,8 @@ void uiFlatViewThumbnail::mouseMoveCB( CallBacker* )
     const MouseEvent& ev = mousehandler_.event();
     Geom::Point2D<double> wpt = w2u.transform( ev.pos() );
     Geom::Size2D<double> wsz = wr.size();
-    *feedbackwr_ = viewer_.control()->getNewWorldRect(wpt,wsz,br);
+    *feedbackwr_ = viewer_.control()->getNewWorldRect(
+	    wpt, wsz, viewer_.curView(), br );
 
     mousehandler_.setHandled( true );
     draw();

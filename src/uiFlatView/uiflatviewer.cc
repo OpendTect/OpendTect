@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.86 2009-06-22 10:04:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.87 2009-06-23 06:24:07 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -112,8 +112,8 @@ void uiFlatViewer::reSizeDraw( CallBacker* cb )
 	const float widthfac = (float)newsize.width()/(float)oldsize.width();
 	const float heightfac = (float)newsize.height()/(float)oldsize.height();
 	uiRect scenerect( uiPoint(0,0),
-		uiSize(mNINT(canvas_.getSceneRect().width()*widthfac),
-		       mNINT(canvas_.getSceneRect().height()*heightfac)) );
+		uiSize(mNINT((canvas_.getSceneRect().width()-5)*widthfac),
+		       mNINT((canvas_.getSceneRect().height()-5)*heightfac)) );
 	canvas_.setSceneRect( scenerect ); 
 	uiRect viewrect = canvas_.getViewArea();
 
@@ -210,8 +210,43 @@ uiWorldRect uiFlatViewer::boundingBox() const
 
 void uiFlatViewer::setView( const uiWorldRect& wr )
 {
-    anysetviewdone_ = true;
+    uiRect viewarea;
+    uiWorldRect br = boundingBox();
+    if ( enabhaddrag_ && anysetviewdone_ )
+    {
+	if ( (br.top()>br.bottom() && wr.top()<wr.bottom()) ||
+	     (br.top()<br.bottom() && wr.top()>wr.bottom()) )
+	    br.swapVer();
+	if ( (br.left()>br.right() && wr.left()<wr.right()) ||
+	     (br.left()<br.right() && wr.left()>wr.right()) )
+	    br.swapHor();
+	uiWorldRect prevwr = curView();
+	const float widthfac = (float)prevwr.width() / (float)wr.width();
+	const float heightfac = (float)prevwr.height() / (float)wr.height();
+	uiRect scenerect;
+	if ( !mIsEqual(widthfac,1,mDefEps) || !mIsEqual(heightfac,1,mDefEps) )
+	{
+	    uiRect prevscrect = canvas_.getSceneRect();
+	    scenerect = uiRect( uiPoint(0,0),
+	    uiSize(mNINT(prevscrect.width()*widthfac),
+	    mNINT(prevscrect.height()*heightfac)) );
+	    canvas_.setSceneRect( scenerect );
+	}
+	else
+	    scenerect = canvas_.getSceneRect();
 
+	const uiWorld2Ui w2u( scenerect.size(), br );
+	uiPoint lefttop = w2u.transform( wr.topLeft() );
+	uiPoint rightbottom = w2u.transform( wr.bottomRight() );
+	uiPoint brdrlefttop = lefttop - scenerect.topLeft();
+	uiPoint brdrrightbottom = scenerect.bottomRight() - rightbottom;
+	uiBorder actborder( brdrlefttop.x,brdrlefttop.y,
+	brdrrightbottom.x, brdrrightbottom.y);
+	viewarea = actborder.getRect( canvas_.getSceneRect().size() );
+	viewborder_ = actborder;
+	actborder += annotborder_;
+	canvas_.setBorder( actborder );
+    }
     if ( wr.topLeft() == wr.bottomRight() )
 	return;
     wr_ = wr;
@@ -220,7 +255,11 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
     if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();
 
-    canvas_.reDrawNeeded.trigger();
+    anysetviewdone_ = true;
+    drawBitMaps();
+    drawAnnot();
+    if ( enabhaddrag_ )
+	canvas_.centreOn( viewarea.centre() );
     viewChanged.trigger();
 }
 
@@ -258,6 +297,9 @@ void uiFlatViewer::reset()
 {
     delete wvabmpmgr_; wvabmpmgr_ = 0;
     delete vdbmpmgr_; vdbmpmgr_ = 0;
+    uiRect scenerect( 0, 0, canvas_.width(), canvas_.height() );
+    canvas_.setSceneRect( scenerect );
+    viewborder_ = uiBorder( 0, 0, 0 ,0 );
     anysetviewdone_ = false;
 }
 

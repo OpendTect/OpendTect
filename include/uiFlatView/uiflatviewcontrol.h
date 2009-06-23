@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.27 2009-06-12 08:17:57 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.28 2009-06-23 06:24:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ public:
     Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
     Notifier<uiFlatViewControl>  viewerAdded;
 
+    uiRect			getViewRect(uiFlatViewer*);
     static uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>,
 						  Geom::Size2D<double>,
 						  const uiWorldRect& bbox);
@@ -61,6 +62,7 @@ public:
 						 const uiWorldRect& bbox);
     uiWorldRect			getNewWorldRect(Geom::Point2D<double>& centre,
 						Geom::Size2D<double>& sz,
+						const uiWorldRect& curview,
 						const uiWorldRect& bbox) const;
 
 protected:
@@ -86,6 +88,10 @@ protected:
     
     virtual void	dataChangeCB(CallBacker*);
     virtual void	rubBandCB(CallBacker*);
+    virtual void	vwrAdded(CallBacker*)	{}
+    virtual void	handDragStarted(CallBacker*)	{}
+    virtual void	handDragging(CallBacker*)	{}
+    virtual void	handDragged(CallBacker*)	{}
     virtual void	mouseMoveCB(CallBacker*);
     virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick()		{ return false; }
