@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.26 2009-06-23 06:58:20 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.27 2009-06-23 12:30:45 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -443,10 +443,12 @@ uiWellTieInfoDlg::uiWellTieInfoDlg( uiParent* p, WellTieDataHolder* dh )
     uiGroup* markergrp =  new uiGroup( this, "User Position Group" );
     markergrp->attach( centeredAbove, panelsgrp );
 
-    ObjectSet<Well::Data>& wells = Well::MGR().wells();
     markernames_.add( Well::TrackSampler::sKeyDataStart() );
-    for ( int idx=0; !wells.isEmpty() && idx<wells[0]->markers().size(); idx++)
-	markernames_.add( wells[0]->markers()[idx]->name() );
+    if ( wd_->haveMarkers() )
+    {
+	for ( int idx=0; idx<wd_->markers().size(); idx++)
+	    markernames_.add( wd_->markers()[idx]->name() );
+    }
     markernames_.add( Well::TrackSampler::sKeyDataEnd() );
     StringListInpSpec slis( markernames_ );
 
