@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.22 2009-04-03 13:24:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.23 2009-06-23 05:27:28 cvsraman Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -207,7 +207,7 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
 bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type, sKey::Polygon );
-    if ( !polyfld_->fillPar(iop,sKey::Polygon) )
+    if ( !polyfld_->commitInput() || !polyfld_->fillPar(iop,sKey::Polygon) )
 	mErrRet("Please select the polygon")
 
     const BinID stps(
