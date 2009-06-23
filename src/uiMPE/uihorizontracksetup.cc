@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.26 2009-06-11 09:06:49 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.27 2009-06-23 06:30:25 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -468,6 +468,14 @@ const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
 {
     return markerstyle_;
 }
+
+
+void uiHorizonSetupGroup::setAttribSelSpec( const Attrib::SelSpec* selspec )
+{ inpfld->setSelSpec( selspec ); }
+
+
+bool uiHorizonSetupGroup::isSameSelSpec( const Attrib::SelSpec* selspec ) const
+{ return ( inpfld->attribID() == selspec->id() ); }
 
 
 bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
