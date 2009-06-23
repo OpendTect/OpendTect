@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.10 2009-06-22 11:49:52 cvsbert Exp $
+ RCS:		$Id: tableascio.h,v 1.11 2009-06-23 13:44:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,8 @@ public:
 				    : fd_(fd)
 				    , imphndlr_(0)
 				    , exphndlr_(0)
-				    , cnvrtr_(0) { units_.allowNull(true);}
+				    , cnvrtr_(0)
+				    , hdrread_(false) { units_.allowNull(true);}
     virtual			~AscIO();
 
     const FormatDesc&		desc() const		{ return fd_; }
@@ -61,6 +62,7 @@ protected:
     ImportHandler*		imphndlr_;
     ExportHandler*		exphndlr_;
     Converter*			cnvrtr_;
+    mutable bool		hdrread_;
 
     friend class		AscIOImp_ExportHandler;
     friend class		AscIOExp_ImportHandler;

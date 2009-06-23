@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.23 2009-06-22 11:49:52 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.24 2009-06-23 13:44:55 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -602,12 +602,22 @@ bool Table::AscIO::getHdrVals( std::istream& strm ) const
     if ( !strm.good() || strm.eof() )
 	mErrRet( "End of file reached before end of header" )
 
+    hdrread_ = true;
     return true;
 }
 
 
 int Table::AscIO::getNextBodyVals( std::istream& strm ) const
 {
+    if ( !hdrread_ )
+    {
+	if ( !getHdrVals(strm) )
+	{
+	    errmsg_ = "Cannot read file header";
+	    return -1;
+	}
+    }
+
     if ( !cnvrtr_ )
     {
 	AscIO& self = *const_cast<AscIO*>(this);
