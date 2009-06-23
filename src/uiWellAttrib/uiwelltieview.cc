@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.26 2009-06-23 12:15:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.27 2009-06-23 15:07:44 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.26 2009-06-23 12:15:51 cvs
 #include "position.h"
 #include "posvecdataset.h"
 #include "seistrc.h"
+#include "seistrcprop.h"
 #include "seisbufadapters.h"
 #include "welldata.h"
 #include "welllogset.h"
@@ -224,8 +225,12 @@ void uiWellTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
     for ( int idx=0; idx<varsz; idx++)
     {
 	float val = data_.get( varname, idx );
+	if ( mIsUdf(val) )
+	    val = 0;
 	trc.set( idx, val, 0 );
     }
+    SeisTrcPropChg pc( trc );
+    pc.normalize( true ); 
 }
 
 
