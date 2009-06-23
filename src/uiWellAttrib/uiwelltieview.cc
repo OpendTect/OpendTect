@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.25 2009-06-22 09:58:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.26 2009-06-23 12:15:51 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -64,6 +64,7 @@ uiWellTieView::uiWellTieView( uiParent* p, uiFlatViewer* vwr,
 	, seispickset_(dhr->pickmgr()->getSeisPickSet())
 	, trcbuf_(0)
 	, checkshotitm_(0)
+    	, seistrcdp_(0)
 {
     initFlatViewer();
     initLogViewers();
@@ -72,6 +73,8 @@ uiWellTieView::uiWellTieView( uiParent* p, uiFlatViewer* vwr,
 
 uiWellTieView::~uiWellTieView()
 {
+    if ( seistrcdp_ )
+	removePack();
     delete trcbuf_;
 }
 
@@ -228,26 +231,32 @@ void uiWellTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
 
 void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname, 
 				 int vwrnr )
-{   
+{ 
+    if ( seistrcdp_ )
+    {	
+	removePack();
+        seistrcdp_ = 0;
+    }	
     const int type = trcbuf->get(0)->info().getDefaultAxisFld( 
 			    Seis::Line, &trcbuf->get(1)->info() );
-    SeisTrcBufDataPack* dp =
+    seistrcdp_ =
 	new SeisTrcBufDataPack( trcbuf, Seis::Line, 
 				(SeisTrcInfo::Fld)type, "Seismic" );
-    dp->trcBufArr2D().setBufMine( false );
+    seistrcdp_->setName( varname );
+    seistrcdp_->trcBufArr2D().setBufMine( false );
 
-    DPM(DataPackMgr::FlatID()).add( dp );
+    DPM(DataPackMgr::FlatID()).addAndObtain( seistrcdp_ );
     StepInterval<double> zrange( params_->timeintv_.start, 
 	    			 params_->timeintv_.stop,
 				 params_->timeintv_.step*params_->step_ );
     StepInterval<double> xrange( 1, trcbuf->size(), 1 );
-    dp->posData().setRange( false, zrange );
-    dp->posData().setRange( true, xrange );
-    dp->setName( varname );
+    seistrcdp_->posData().setRange( false, zrange );
+    seistrcdp_->posData().setRange( true, xrange );
+    seistrcdp_->setName( varname );
     
     FlatView::Appearance& app = vwr_->appearance();
     
-    vwr_->setPack( true, dp->id(), false, true );
+    vwr_->setPack( true, seistrcdp_->id(), false, true );
     vwr_->handleChange( FlatView::Viewer::All );
     const UnitOfMeasure* uom = 0;
     const char* units =  ""; //uom ? uom->symbol() : "";
@@ -265,9 +274,7 @@ void uiWellTieView::setLogsRanges( float start, float stop )
 
 void uiWellTieView::removePack()
 {
-    const TypeSet<DataPack::ID> ids = vwr_->availablePacks();
-    for ( int idx=ids.size()-1; idx>=0; idx-- )
-	DPM( DataPackMgr::FlatID() ).release( ids[idx] );
+    if ( seistrcdp_ ) DPM( DataPackMgr::FlatID() ).release( seistrcdp_->id() );
 }
 
 

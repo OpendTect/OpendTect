@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.18 2009-06-22 08:29:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.19 2009-06-23 12:15:51 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -60,12 +60,16 @@ uiWellTieWaveletView::uiWellTieWaveletView( uiParent* p,
 
 uiWellTieWaveletView::~uiWellTieWaveletView()
 {
+    for ( int vwridx=0; vwridx<2; vwridx++ )
+    {
+	const TypeSet<DataPack::ID> ids = viewer_[vwridx]->availablePacks();
+	for ( int idx=ids.size()-1; idx>=0; idx-- )
+	    DPM( DataPackMgr::FlatID() ).release( ids[idx] );
+    }
     if ( wvltinitdlg_ )
 	delete wvltinitdlg_;
     if ( wvltestdlg_ )
 	delete wvltestdlg_;
-    for (int vwridx=viewer_.size()-1; vwridx>=0; vwridx--)
-	viewer_.remove(vwridx);
 }
 
 
@@ -128,6 +132,13 @@ void uiWellTieWaveletView::initWavelets( )
 
     if ( !wvlts_[0] || !wvlts_[1] ) return;
 
+    for ( int vwridx=0; vwridx<2; vwridx++ )
+    {
+	const TypeSet<DataPack::ID> ids = viewer_[vwridx]->availablePacks();
+	for ( int idx=ids.size()-1; idx>=0; idx-- )
+	    DPM( DataPackMgr::FlatID() ).release( ids[idx] );
+    }
+
     for ( int idx=0; idx<2; idx++ )
 	drawWavelet( wvlts_[idx], idx );
     
@@ -144,6 +155,7 @@ void uiWellTieWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
     const int wvltsz = wvlt->size();
     const float zfac = SI().zFactor();
 
+
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
     DPM( DataPackMgr::FlatID() ).add( dp );
@@ -153,7 +165,7 @@ void uiWellTieWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
 	 fva2d->set( 0, wvltidx,  wvlt->samples()[wvltidx] );
     dp->setName( wvlt->name() );
     
-    DPM( DataPackMgr::FlatID() ).add( dp );
+    DPM( DataPackMgr::FlatID() ).addAndObtain( dp );
     StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
     if ( SI().zIsTime() ) posns.scale( zfac );
     
