@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.14 2009-04-14 11:33:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.15 2009-06-23 11:33:29 cvsumesh Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -34,6 +34,7 @@ Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
     , surfchange_( this )
     , seedconmode_( defaultSeedConMode() )
     , blockpicking_( false )
+    , selspec_(0)
 { }
 
 
