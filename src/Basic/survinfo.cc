@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.122 2009-06-23 10:25:05 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.123 2009-06-23 10:32:06 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -782,7 +782,8 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    savePars( basedir );
+    fp.set( basedir ); fp.add( dirname );
+    savePars( fp.fullPath() );
     return true;
 }
 
