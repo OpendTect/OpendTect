@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.157 2009-06-23 08:38:54 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.158 2009-06-23 09:18:01 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -324,13 +324,15 @@ void uiMPEMan::seedClick( CallBacker* )
 	DataPack::ID datapackid = clickcatcher->info().getObjDataPackID();
 	const Attrib::SelSpec* as = clickcatcher->info().getObjDataSelSpec();
 
+	if ( as && h2dsp )
+	    h2dsp->setSelSpec( as );
+
 	if ( !as || !h2dsp || !h2dsp->canAddSeed(*as) )
 	{
 	    uiMSG().error( "2D tracking requires attribute from setup "
 			   "to be displayed" );
 	    return;
 	}
-	seedpicker->setSelSpec( as );
 	if ( datapackid > DataPack::cNoID() )
 	    engine.setAttribData( *as, datapackid );
 
