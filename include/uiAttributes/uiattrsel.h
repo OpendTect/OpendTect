@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.17 2009-03-03 13:00:50 cvsbert Exp $
+ RCS:           $Id: uiattrsel.h,v 1.18 2009-06-23 04:56:10 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,6 +148,7 @@ public:
     void		setDesc(const Attrib::Desc*);
 			//!< If called, it has to be called before getHistory !
 			//!< If you call it, you don't need to call setDescSet.
+    void		setSelSpec(const Attrib::SelSpec*);
     void		setNLAModel(const NLAModel*);
 
     void		setIgnoreDesc(const Attrib::Desc*);
