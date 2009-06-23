@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.24 2009-04-17 06:50:15 cvsumesh Exp $
+ RCS:           $Id: emseedpicker.h,v 1.25 2009-06-23 05:03:11 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "position.h"
 #include "sets.h"
+
+namespace Attrib { class SelSpec; }    
 
 namespace MPE
 {
@@ -49,6 +51,9 @@ public:
     virtual bool	removeSeed(const EM::PosID&,
 	    			   bool enviromment=true,
 	    			   bool retrack=true)		{ return false;}
+    virtual void	setSelSpec(const Attrib::SelSpec*) {}
+    virtual const Attrib::SelSpec* 
+			getSelSpec()				{ return 0; }
     virtual bool	reTrack()				{ return false;}
     virtual int		nrSeeds() const				{ return 0; }
     virtual int		minSeedsToLeaveInitStage() const	{ return 1; }

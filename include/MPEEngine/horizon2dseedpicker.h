@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.8 2009-04-17 06:50:25 cvsumesh Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.9 2009-06-23 05:03:11 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emseedpicker.h"
 
-namespace Attrib { class Data2DHolder; }
+namespace Attrib { class Data2DHolder; class SelSpec; }
 
 namespace MPE
 {
@@ -39,6 +39,11 @@ public:
 	    			   bool environment,
 	    			   bool retrack);
     bool		canRemoveSeed() const		{ return true; }
+
+    void		setSelSpec(const Attrib::SelSpec* selspec) 
+			{ selspec_ = selspec; }
+    const Attrib::SelSpec* getSelSpec()			{ return selspec_; }
+
     bool		reTrack();
     int			nrSeeds() const;
     int			minSeedsToLeaveInitStage() const;
@@ -81,6 +86,8 @@ protected:
     TypeSet<EM::PosID>  	junctions_;
     TypeSet<EM::PosID>  	eraselist_;
     MPE::EMTracker&		tracker_;
+
+    const Attrib::SelSpec* 	selspec_;
 
     EM::SectionID		sectionid_;
     bool			didchecksupport_;
