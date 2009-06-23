@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.93 2009-06-23 09:32:05 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.94 2009-06-23 12:23:07 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -81,6 +81,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
 	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
     MPE::engine().trackeraddremove.notify(
 	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
+    EM::EMM().addRemove.notify( mCB(this,uiMPEPartServer,nrHorChangeCB) );
     trackerseedbox_.setEmpty();
 }
 
@@ -93,6 +94,7 @@ uiMPEPartServer::~uiMPEPartServer()
 	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
     MPE::engine().trackeraddremove.remove(
 	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
+    EM::EMM().addRemove.remove( mCB(this,uiMPEPartServer,nrHorChangeCB) );
 }
 
 
@@ -268,8 +270,6 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 
     initialundoid_ = EM::EMM().undo().currentEventID();
-
-    EM::EMM().addRemove.notify( mCB(this,uiMPEPartServer,nrHorChangeCB) );
 
     setupdlg->windowClosed.notify( 
 	    	mCB(this,uiMPEPartServer,trackerWinClosedCB) );
@@ -634,8 +634,6 @@ void uiMPEPartServer::deleteSetupGrp()
 				setupgrp_->similartyChangeNotifier();
     if ( similartyChangeNotifier )
 	similartyChangeNotifier->remove(				                    mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
-    
-    EM::EMM().addRemove.remove( mCB(this,uiMPEPartServer,nrHorChangeCB) );
 }
 
 
