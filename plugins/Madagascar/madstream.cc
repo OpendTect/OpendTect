@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.22 2009-06-18 11:51:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.23 2009-06-23 05:16:18 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -153,8 +153,6 @@ void MadStream::initRead( IOPar* par )
     if ( inptyp == "Madagascar" )
     {
 	const char* filenm = par->find( sKey::FileName ).buf();
-	if ( !filenm || !*filenm )
-	    mErrRet("No entry for 'Input file' in parameter file")
 
 	BufferString inpstr( filenm );
 	bool scons = false;
@@ -168,10 +166,13 @@ void MadStream::initRead( IOPar* par )
 	else
 	    inpstr = "@";
 	inpstr += fp.add("bin").add("sfdd").fullPath();
-	inpstr += " < \""; inpstr += filenm;
-	inpstr += "\" form=ascii_float out=stdout";
+	if ( filenm && *filenm )
+	    inpstr += " < \""; inpstr += filenm; inpstr += "\"";
+
+	inpstr += " form=ascii_float out=stdout";
 #endif
-	istrm_ = StreamProvider(inpstr).makeIStream().istrm;
+	const char* str = inpstr.isEmpty() ? 0 : inpstr.buf();
+	istrm_ = StreamProvider(str).makeIStream().istrm;
 
 	fillHeaderParsFromStream();
 	if ( !headerpars_ ) mErrRet( "Error reading RSF header" );;
