@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.30 2009-06-05 19:16:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.31 2009-06-24 04:31:46 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -352,7 +352,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 		attribids += idx;
 	}
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
-	emattrserv->showHorShiftDlg( getUiParent(), emid_, attribids );
+	emattrserv->showHorShiftDlg( getUiParent(), emid_, attribids,
+	       			     visserv_->canAddAttrib(displayID()) );
     }
     else if ( mnuid==removeselectionmnuitem_.id )
     {
