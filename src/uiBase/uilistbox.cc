@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.99 2009-06-22 15:57:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.100 2009-06-24 10:05:19 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -42,6 +42,8 @@ public:
 				  int preferredFieldWidth=0);
 
     virtual 		~uiListBoxBody()		{ delete &messenger_; }
+
+    void		setItemAlignment(int idx,Alignment::HPos);
 
     int			maxSelectable() const;
 
@@ -100,6 +102,14 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
     setHSzPol( uiObject::Medium );
 
     setMouseTracking( true );
+}
+
+
+void uiListBoxBody::setItemAlignment( int idx, Alignment::HPos hpos )
+{
+    Alignment al( hpos, Alignment::VCenter );
+    if ( item(idx) )
+	item(idx)->setTextAlignment( (Qt::Alignment)al.uiValue() );
 }
 
 
@@ -253,6 +263,7 @@ bool uiListBoxBody::event( QEvent* ev )
     , activatedone(this) \
     , rightclickmnu_(*new uiPopupMenu(p)) \
     , itemscheckable_(false) \
+    , alignment_(Alignment::Left)
 
 
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
@@ -374,6 +385,7 @@ void uiListBox::addItem( const char* text, bool embed )
     body_->addItem( qs );
     setItemCheckable( size()-1, false ); // Qt bug
     setItemCheckable( size()-1, itemscheckable_ );
+    body_->setItemAlignment( size()-1, alignment_ );
 }
 
 
@@ -405,11 +417,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 {
     int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
-    {
-	body_->addItem( QString(strs.get(idx)) );
-	setItemCheckable( size()-1,  false ); // Qt bug
-	setItemCheckable( size()-1, itemscheckable_ );
-    }
+	addItem( strs.get(idx) );
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
@@ -419,11 +427,13 @@ void uiListBox::insertItem( const char* text, int index, bool embed )
     QString qs;
     createQString( qs, text, embed );
     if ( index<0 )
-	body_->addItem( qs );
+	addItem( text, embed );
     else
+    {
 	body_->insertItem( index, qs );
-
-    setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
+	setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
+	body_->setItemAlignment( size()-1, alignment_ );
+    }
 }
 
 
@@ -744,6 +754,14 @@ int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
 	    len = itlen;
     }
     return len + 1;
+}
+
+
+void uiListBox::setAlignment( Alignment::HPos al )
+{
+    alignment_ = al;
+    for ( int idx=0; idx<size(); idx++ )
+	body_->setItemAlignment( idx, al );
 }
 
 
