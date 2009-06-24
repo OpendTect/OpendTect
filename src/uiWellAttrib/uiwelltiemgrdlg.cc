@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.8 2009-06-23 12:57:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.9 2009-06-24 15:18:52 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -115,8 +115,8 @@ void uiWellTieMGRDlg::wellSel( CallBacker* )
 
     wtsetup_.wellid_ = wllctio_.ioobj->key();
 
-    vellogfld_->setCurrentItem( lognms.nearestMatch( "Son" ) );
-    denlogfld_->setCurrentItem( lognms.nearestMatch( "Den" ) );
+    vellogfld_->setCurrentItem( "Son" );
+    denlogfld_->setCurrentItem( "Den" );
 
     getDefaults();
 }
