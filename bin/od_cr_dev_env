@@ -2,30 +2,20 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.26 2007-08-07 03:29:04 cvsnanne Exp $
+# $Id: od_cr_dev_env,v 1.27 2009-06-24 04:40:19 cvsnanne Exp $
 #
 # Script copies sources and libs into a development directory
 #
 #_______________________________________________________________________________
 
 if (  $#argv < 2 ) then
-    echo "Usage : $0 OpendTect_directory existing_target_directory [--installcygwin]"
+    echo "Usage : $0 OpendTect_directory existing_target_directory"
     exit 1
 endif
 
-set instcyg=0
-if ( "$HDIR" == "win" ) then
-    set inpdir=`cygpath -u "$1"` 
-    set outdir=`cygpath -u "$2"`
-    set soext=dll
-    if ( "$3" == "--installcygwin" ) then
-	set instcyg=1
-    endif
-else
-    set inpdir="$1"
-    set outdir="$2"
-    set soext=so
-endif
+set inpdir="$1"
+set outdir="$2"
+set soext=so
 
 set cpcmd="cp -rp"
 
@@ -41,8 +31,8 @@ if ( ! -d "$inpdir" ) then
     echo "$0 : $inpdir does not exist"
     exit 1
 endif
-if ( ! -e "$inpdir/.rel.od.doc" ) then
-    echo "$0 : warning : $inpdir does not have the doc package installed"
+if ( ! -e "$inpdir/.rel.devel" ) then
+    echo "$0 : warning : $inpdir does not have the development package installed"
 endif
 
 if ( ! -w "$outdir"  ) then
@@ -92,10 +82,6 @@ mkdir so
 cd so
 
 ${cpcmd} "${inpdir}/bin/${binsubdir}/so"/*.${soext}* .
-if ( "$binsubdir" == "win" ) then
-    $cpcmd "$inpdir/bin/$binsubdir/so"/*.a .
-endif
-
 
 cd "$outdir"
 mkdir lib
@@ -119,9 +105,5 @@ foreach fil ( init.bash init.csh )
         "$inpdir/.$fil" > $fil
 end
 
-if ( -e "$inpdir/.rel.od.doc" ) cp "$inpdir/.rel.od.doc" .
+if ( -e "$inpdir/.rel.devel" ) cp "$inpdir/.rel.devel" .
 
-if ( $instcyg == 1 ) then
-    cd "${inpdir}\\bin\\win"
-    cmd /c start instcyg.bat
-endif
