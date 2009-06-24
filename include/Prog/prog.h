@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.17 2009-03-18 09:05:58 cvsranojay Exp $
+ RCS:		$Id: prog.h,v 1.18 2009-06-24 11:00:21 cvsbert Exp $
 ________________________________________________________________________
 
  Include this file in any executable program you make. The file is actually
@@ -30,6 +30,8 @@ extern "C" {
 #endif
     const char*		errno_message();
     			/*!< Will not return meaningful string on Windows */
+    void		forkProcess();
+    			/*!< Doesn't do anything om mac and windows */
 #ifdef __cpp__
 }
 #endif
