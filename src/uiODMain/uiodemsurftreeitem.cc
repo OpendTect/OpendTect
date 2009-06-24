@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.54 2009-06-23 21:16:40 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.55 2009-06-24 10:06:15 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -66,6 +66,16 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 { 
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,
+		    emd,visserv_->getObject(displayid_));
+    if ( emd )
+    {
+	emd->selection()->remove(
+		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
+	emd->deSelection()->remove(
+		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
+    }
+
     delete uivisemobj_;
 }
 
@@ -83,7 +93,6 @@ bool uiODEarthModelSurfaceTreeItem::init()
 
     initNotify();
     treeitemwasenabled_ = isChecked();
-
     return true;
 }
 
@@ -110,7 +119,28 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
 	    mDelRet;
     }
 
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,
+		    emd,visserv_->getObject(displayid_));
+    if ( emd )
+    {
+	emd->selection()->notify(
+		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
+	emd->deSelection()->notify(
+		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
+    }
     return true;
+}
+
+
+void uiODEarthModelSurfaceTreeItem::selChg( CallBacker* )
+{
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,
+		    emd,visserv_->getObject(displayid_));
+
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    const int trackerid = mps->getTrackerID( emid_ );
+    bool enable = emd && emd->isSelected() && isChecked();
+    mps->enableTracking( trackerid, enable );
 }
 
 

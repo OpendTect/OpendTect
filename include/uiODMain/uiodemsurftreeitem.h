@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.9 2009-06-04 20:05:38 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.10 2009-06-24 10:06:16 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,7 @@ protected:
     bool		createUiVisObj();
 
     virtual void	checkCB(CallBacker*);
+    void		selChg(CallBacker*);
 
     bool		treeitemwasenabled_;
     bool		prevtrackstatus_;
