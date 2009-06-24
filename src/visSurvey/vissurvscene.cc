@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.120 2009-06-23 05:25:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.121 2009-06-24 22:21:33 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -645,8 +645,9 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	     getObject(kid)==polyselector_ ) continue;
 
 	const visBase::DataObject* dobj = getObject( kid );
-	const bool saveinsess = dobj->saveInSessions();
-	if ( !dobj || !dobj->saveInSessions() ) continue;
+	const bool saveinsess = dobj && dobj->saveInSessions();
+	if ( !saveinsess )
+	    continue;
 
 	const int objid = dobj->id();
 	if ( saveids.indexOf(objid) == -1 )
@@ -744,9 +745,9 @@ int Scene::getImageFromPar( const IOPar& par, const char* key,
     int imgid;
     if ( par.get(key,imgid) )
     { 
-        DataObject* dataobj = visBase::DM().getObject( imgid );
+        RefMan<DataObject> dataobj = visBase::DM().getObject( imgid );
         if ( !dataobj ) return 0;
-        mDynamicCastGet(visBase::TopBotImage*,im,dataobj)
+        mDynamicCastGet(visBase::TopBotImage*,im,dataobj.ptr())
         if ( !im ) return -1;
 	int objidx = getFirstIdx( image );
 	if ( objidx>=0 ) removeObject( objidx ); 	
