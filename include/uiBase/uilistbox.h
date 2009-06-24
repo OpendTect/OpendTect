@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.47 2009-06-22 15:57:27 cvsjaap Exp $
+ RCS:           $Id: uilistbox.h,v 1.48 2009-06-24 08:40:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "pixmap.h"
 #include "keyenum.h"
+#include "draw.h"
 
 class BufferStringSet;
 class Color;
@@ -114,6 +115,8 @@ public:
 
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
+    Alignment::HPos	alignment() const		{ return alignment_; }
+    void		setAlignment(Alignment::HPos);
 
     Notifier<uiListBox> selectionChanged;
     Notifier<uiListBox> doubleClicked;
@@ -130,6 +133,7 @@ protected:
 
     mutable BufferString	rettxt;
     OD::ButtonState	buttonstate_;
+    Alignment::HPos	alignment_;
     bool		itemscheckable_;
     uiPopupMenu&	rightclickmnu_;
 
