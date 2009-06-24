@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.29 2009-06-24 13:58:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.30 2009-06-24 14:35:22 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -113,7 +113,6 @@ void uiWellTieView::initLogViewers()
 void uiWellTieView::initFlatViewer()
 {
     BufferString nm("Synthetics<------------------------------------>Seismics");
-    vwr_->rgbCanvas().enableScrollZoom();
     vwr_->setInitialSize( uiSize(490,540) );
     vwr_->viewChanged.notify( mCB(this,uiWellTieView,zoomChg) );
     FlatView::Appearance& app = vwr_->appearance();
