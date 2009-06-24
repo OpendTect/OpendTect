@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.27 2009-06-23 12:30:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.28 2009-06-24 09:42:01 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -371,7 +371,7 @@ void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
 void uiWellTieToSeismicDlg::clearPicks( CallBacker* )
 {
     dataholder_->pickmgr()->clearAllPicks();
-    drawData();
+    datadrawer_->drawUserPicks();
     checkIfPick();
 }
 
