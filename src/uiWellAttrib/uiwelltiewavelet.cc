@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.19 2009-06-23 12:15:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.20 2009-06-24 12:22:15 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -95,7 +95,7 @@ void uiWellTieWaveletView::initWaveletViewer( int vwridx )
 
 void uiWellTieWaveletView::createWaveletFields( uiGroup* grp )
 {
-    grp->setHSpacing(40);
+    grp->setHSpacing( 40 );
     
     uiLabel* wvltlbl = new uiLabel( this, "Initial wavelet" );
     uiLabel* wvltestlbl = new uiLabel( this, "Estimated wavelet" );
@@ -143,38 +143,29 @@ void uiWellTieWaveletView::initWavelets( )
 	drawWavelet( wvlts_[idx], idx );
     
     delete wvltinitdlg_; wvltinitdlg_=0;
-    wvltinitdlg_ = new uiWellTieWaveletDispDlg(this,wvlts_[0],dataholder_);
+    wvltinitdlg_ = new uiWellTieWaveletDispDlg( this, wvlts_[0], dataholder_);
     delete wvltestdlg_; wvltinitdlg_=0;
-    wvltestdlg_  = new uiWellTieWaveletDispDlg(this,wvlts_[1],dataholder_ );
+    wvltestdlg_  = new uiWellTieWaveletDispDlg( this, wvlts_[1], dataholder_);
 }
 
 
 void uiWellTieWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
 {
-    BufferString tmp;
     const int wvltsz = wvlt->size();
-    const float zfac = SI().zFactor();
-
-
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
+    memcpy( fva2d->getData(), wvlt->samples(), wvltsz * sizeof(float) );
+    
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
-    DPM( DataPackMgr::FlatID() ).add( dp );
+    DPM( DataPackMgr::FlatID() ).add( dp ); dp->setName( wvlt->name() );
     viewer_[vwridx]->setPack( true, dp->id(), false );
-
-    for ( int wvltidx=0; wvltidx< wvltsz; wvltidx++)
-	 fva2d->set( 0, wvltidx,  wvlt->samples()[wvltidx] );
-    dp->setName( wvlt->name() );
-    
     DPM( DataPackMgr::FlatID() ).addAndObtain( dp );
-    StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
-    if ( SI().zIsTime() ) posns.scale( zfac );
     
+    StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
+    if ( SI().zIsTime() ) posns.scale( SI().zFactor() );
     dp->posData().setRange( false, posns );
-    Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
-    rc.addValues( wvltsz, wvlt->samples() );
     
     viewer_[vwridx]->setPack( true, dp->id(), false );
-    viewer_[vwridx]->handleChange( FlatView::Viewer::All );
+    viewer_[vwridx]->handleChange( uiFlatViewer::All );
 }
 
 
