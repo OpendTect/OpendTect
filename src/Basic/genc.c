@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.100 2009-06-24 10:52:23 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.101 2009-06-24 11:07:35 cvsbert Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -104,7 +104,7 @@ void forkProcess()
     case -1:
 	fprintf( stderr, "Cannot fork new process: %s\n", errno_message() );
     default:
-	ExitProgram( 1 );
+	ExitProgram( 0 );
     }
 #endif
 }
