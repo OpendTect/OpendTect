@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.48 2009-06-20 16:49:08 cvskris Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.49 2009-06-24 10:54:02 cvsbert Exp $";
 
 
 #include "uimsg.h"
 
 #include "mousecursor.h"
 #include "separstr.h"
+#include "bufstringset.h"
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uistatusbar.h"
@@ -170,6 +171,19 @@ void uiMsg::error( const char* p1, const char* p2, const char* p3 )
 }
 
 
+void uiMsg::errorWithDetails( const BufferStringSet& bss, const char* before )
+{
+    FileMultiString fms;
+    if ( before && *before )
+	fms += before;
+
+    for ( int idx=0; idx<bss.size(); idx++ )
+	fms += bss.get( idx );
+
+    errorWithDetails( fms );
+}
+
+
 void uiMsg::errorWithDetails( const FileMultiString& fms )
 {
     if ( !fms.size() )
@@ -180,7 +194,7 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
 
     const int refnr = beginCmdRecEvent();
     QMessageBox msgbox( QMessageBox::Critical, mCapt("Error"), QString(fms[0]),
-    QMessageBox::Ok, popParnt() );
+			QMessageBox::Ok, popParnt() );
     if ( fms.size()>1 )
     {
 	BufferString detailed;
@@ -195,7 +209,7 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
     }
 
     msgbox.exec();
-    endCmdRecEvent(  refnr, 0, oktxt );
+    endCmdRecEvent( refnr, 0, oktxt );
 }
 
 
