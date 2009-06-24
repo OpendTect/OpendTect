@@ -7,17 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.15 2009-03-17 07:02:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.16 2009-06-24 10:59:48 cvsbert Exp $";
 
 #include "uitextfile.h"
 #include "uimain.h"
 
 #include "prog.h"
 #include <iostream>
-
-#ifndef __msvc__
-# include <unistd.h>
-#endif
 
 #ifdef __win__
 # include "filegen.h"
@@ -50,18 +46,8 @@ int main( int argc, char ** argv )
     }
     argidx--;
 
-#if !defined( __mac__ ) && !defined( __win__ )
-    const int forkres = dofork ? fork() : 0;
-    switch ( forkres )
-    {
-    case -1:
-	std::cerr << argv[0] << ": cannot fork: " << errno_message()
-	    	  << std::endl;
-	ExitProgram( 1 );
-    case 0:	break;
-    default:	return 0;
-    }
-#endif
+    if ( dofork )
+	forkProcess();
 
     BufferString fnm = argidx > 0 ? argv[argidx] : "";
     replaceCharacter( fnm.buf(), (char)128, ' ' );

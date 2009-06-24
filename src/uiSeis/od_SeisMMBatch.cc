@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_SeisMMBatch.cc,v 1.23 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: od_SeisMMBatch.cc,v 1.24 2009-06-24 10:59:48 cvsbert Exp $";
 
 #include "uiseismmproc.h"
 #include "uimain.h"
@@ -22,9 +22,6 @@ static const char* rcsID = "$Id: od_SeisMMBatch.cc,v 1.23 2008-11-25 15:35:25 cv
 #include "filepath.h"
 #include "keystrs.h"
 #include <iostream>
-#ifndef __msvc__
-# include <unistd.h>
-#endif
 
 
 int main( int argc, char ** argv )
@@ -55,20 +52,8 @@ int main( int argc, char ** argv )
     }
     sdin.close();
 
-#if !defined( __mac__ ) && !defined( __win__ )
     if ( bgadd )
-    {
-	switch ( fork() )
-	{
-	case -1:
-	    std::cerr << argv[0] << ": cannot fork: "
-		      << errno_message() << std::endl;
-	    ExitProgram( 1 );
-	case 0:		break;
-	default:	return 0;
-	}
-    }
-#endif
+	forkProcess();
 
     const char* res = iop.find( sKey::Survey );
     if ( res && *res && SI().getDirName() != res )

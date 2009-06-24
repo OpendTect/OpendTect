@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ClusterProc.cc,v 1.2 2009-05-25 10:16:06 cvsraman Exp $";
+static const char* rcsID = "$Id: od_ClusterProc.cc,v 1.3 2009-06-24 10:59:48 cvsbert Exp $";
 
 #include "uiclusterproc.h"
 #include "uimain.h"
@@ -24,9 +24,6 @@ static const char* rcsID = "$Id: od_ClusterProc.cc,v 1.2 2009-05-25 10:16:06 cvs
 #include "survinfo.h"
 
 #include <iostream>
-#ifndef __msvc__
-# include <unistd.h>
-#endif
 
 
 int main( int argc, char ** argv )

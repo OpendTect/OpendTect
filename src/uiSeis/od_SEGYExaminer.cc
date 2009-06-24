@@ -7,18 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.19 2009-04-17 06:08:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.20 2009-06-24 10:59:48 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 
 #include "uimain.h"
 #include "prog.h"
 #include <iostream>
-
-#ifdef __cygwin__
-# include <unistd.h>
-#endif 
-
 
 #ifdef __win__
 #include "filegen.h"
@@ -70,18 +65,8 @@ int main( int argc, char ** argv )
     std::cerr << std::endl;
 #endif
 
-#if !defined( __mac__ ) && !defined( __win__ )
-    const int forkres = dofork ? fork() : 0;
-    switch ( forkres )
-    {
-    case -1:
-	std::cerr << argv[0] << ": cannot fork: " << errno_message()
-	    	  << std::endl;
-	ExitProgram( 1 );
-    case 0:	break;
-    default:	return 0;
-    }
-#endif
+    if ( dofork )
+	forkProcess();
 
     su.fs_.fname_ = argv[argidx];
     replaceCharacter( su.fs_.fname_.buf(), (char)128, ' ' );
