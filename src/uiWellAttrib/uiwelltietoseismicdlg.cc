@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.30 2009-06-24 14:47:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.31 2009-06-24 14:49:25 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -231,7 +231,7 @@ void uiWellTieToSeismicDlg::createViewerTaskFields( uiGroup* taskgrp )
     eventtypefld_ = new uiLabeledComboBox( taskgrp, "Track events by" );
     for ( int idx=0; eventtypes[idx]; idx++)
 	eventtypefld_->box()->addItem( eventtypes[idx] );
-    eventtypefld_->box()->selectionChanging.
+    eventtypefld_->box()->selectionChanged.
 	notify(mCB(this,uiWellTieToSeismicDlg,eventTypeChg));
 
     applybut_ = new uiPushButton( taskgrp, "&Apply Changes",
