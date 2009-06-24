@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrdevenv.cc,v 1.29 2009-05-20 20:46:50 cvskris Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.30 2009-06-24 04:28:40 cvsnanne Exp $";
 
 #include "uicrdevenv.h"
 
@@ -39,7 +39,7 @@ static void showProgrDoc()
 
 
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
-			const char* workdirnm, const char* cygwin )
+			const char* workdirnm )
 	: uiDialog(p,uiDialog::Setup("Create Work Enviroment",
 		    		     "Specify a work directory",
 		    		     "8.0.1"))
@@ -95,53 +95,6 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     FilePath oldworkdir( GetEnvVar("WORK") );
     const bool oldok = isOK( oldworkdir.fullPath() );
 
-    const char* cygwin = 0;
-
-#ifdef __win__
-
-    cygwin = getCygDir();
-
-    if ( !cygwin )
-    {
-	const char* msg =
-	    "Cygwin installation not found."
-	    "Please close OpendTect and use the Cygwin installer\n"
-	    "you can find in the start-menu under"
-	    "\"Start-Programs-OpendTect-Install Cygwin\""
-	    "\nIf you are sure you have cygwin installed, "
-	    "you can safely continue."
-	    "\n\nDo you want to continue anyway?";
-
-	if ( !uiMSG().askContinue(msg) )
-	{
-	    const char* closemsg = 
-		"Please run the Cygwin (bash) shell "
-		"at least once after the installation.\n\n"
-		"This will make sure you have a Cygwin home "
-		"directory for your work environment.\n\n"
-		"Please refer to the documentation that will pop up to "
-		"see which packages to install." 
-		"\n\nIt is required to close OpendTect before installing"
-		"Cygwin.\nDo you want to close OpendTect now?";
-
-	    const bool close = uiMSG().askGoOn( closemsg );
-
-	    showProgrDoc();
-
-	    if ( close )
-	    {
-		if( uiMain::theMain().topLevel() )
-		   uiMain::theMain().topLevel()->close();
-		else
-		   uiMain::theMain().exit();
-	    }
-
-	    return;
-	}
-    }
-
-#endif
-
     BufferString workdirnm;
 
     if ( File_exists(oldworkdir.fullPath()) )
@@ -164,33 +117,9 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     {
 	BufferString worksubdirm = "ODWork";
 	BufferString basedirnm = GetPersonalDir();
-	if ( cygwin )
-	{
-	    FilePath fp( cygwin ); fp.add( "home" );
-	    if ( GetEnvVar("USERNAME") )
-		fp.add( GetEnvVar("USERNAME") );
-	    else if ( GetEnvVar("USER") )
-		fp.add( GetEnvVar("USER") );
-
-	    basedirnm = fp.fullPath();
-	    if ( !File_isDirectory(basedirnm) )
-	    {
-		const char* msg =
-		"You have installed Cygwin but seem to have never used it.\n"
-		"Unfortunately, this means you have no Cygwin home directory.\n"
-		"\nWe advise to close OpendTect and start a Cygwin shell.\n"
-		"Then use this utility again.\n"
-		"\nDo you still wish to continue?";
-
-		if ( !uiMSG().askContinue(msg) )
-		    return;
-
-		basedirnm = GetPersonalDir();
-	    }
-	}
 
 	// pop dialog
-	uiCrDevEnv dlg( appl, basedirnm, worksubdirm, cygwin );
+	uiCrDevEnv dlg( appl, basedirnm, worksubdirm );
 	if ( !dlg.go() ) return;
 
 	basedirnm = dlg.basedirfld->text();
@@ -256,7 +185,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     StreamProvider( cmd ).executeCommand( false );
 
-    BufferString relfile = FilePath(workdirnm).add(".rel.od.doc").fullPath();
+    BufferString relfile = FilePath(workdirnm).add(".rel.devel").fullPath();
     if ( !File_exists(relfile) )
 	mErrRet( "Creation seems to have failed" )
     else
@@ -291,7 +220,7 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 	  || strstr( workdir, "Program Files" )
 	  || strstr( workdir, "program files" )
 	  || strstr( workdir, "PROGRAM FILES" ) )
-	    mErrRet( "Please do not try to use 'Program Files' for data.\n"
+	    mErrRet( "Please do not use 'Program Files'.\n"
 		     "A directory like 'My Documents' would be good." )
 #endif
     }
