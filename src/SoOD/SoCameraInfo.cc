@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoCameraInfo.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: SoCameraInfo.cc,v 1.3 2009-06-24 18:04:09 cvskris Exp $";
 
 #include "SoCameraInfo.h"
 
@@ -31,10 +31,10 @@ SoCameraInfo::SoCameraInfo()
 
     SO_NODE_ADD_FIELD( cameraInfo, (SoCameraInfo::NORMAL) );
     
-    SO_NODE_DEFINE_ENUM_VALUE(cameraStatus, NORMAL );
-    SO_NODE_DEFINE_ENUM_VALUE(cameraStatus, MOVING );
-    SO_NODE_DEFINE_ENUM_VALUE(cameraStatus, INTERACTIVE);
-    SO_NODE_DEFINE_ENUM_VALUE(cameraStatus, STEREO );
+    SO_NODE_DEFINE_ENUM_VALUE(CameraStatus, NORMAL );
+    SO_NODE_DEFINE_ENUM_VALUE(CameraStatus, MOVING );
+    SO_NODE_DEFINE_ENUM_VALUE(CameraStatus, INTERACTIVE);
+    SO_NODE_DEFINE_ENUM_VALUE(CameraStatus, STEREO );
 }
 
 

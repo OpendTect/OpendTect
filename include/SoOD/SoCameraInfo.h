@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraInfo.h,v 1.5 2009-02-13 10:47:30 cvsnanne Exp $
+ RCS:		$Id: SoCameraInfo.h,v 1.6 2009-06-24 18:04:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ public:
 
     SoSFInt32		cameraInfo;
 
-    enum cameraStatus	{
+    enum CameraStatus	{
 			    NORMAL=0x0000,
 			    MOVING=0x0001,	/*!< The camera is moving
 						     without user interaction */
