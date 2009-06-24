@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.99 2009-01-20 04:53:19 cvsranojay Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.100 2009-06-24 10:52:23 cvsbert Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -90,6 +90,23 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 	fns[nrfns] = fn;
 	nrfns++;
     }
+}
+
+
+extern const char* errno_message();
+
+void forkProcess()
+{
+#if !defined( __mac__ ) && !defined( __win__ )
+    switch ( fork() )
+    {
+    case 0:     break;
+    case -1:
+	fprintf( stderr, "Cannot fork new process: %s\n", errno_message() );
+    default:
+	ExitProgram( 1 );
+    }
+#endif
 }
 
 
