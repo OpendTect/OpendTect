@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.9 2009-06-22 15:33:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.10 2009-06-24 09:03:55 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -87,7 +87,7 @@ float WellTiePickSetMGR::findEventDah( float zpos, bool issynth )
     ValueSeriesEvFinder<float,float> evf( *dispdata_->get(colnm), maxidx, sd );
     const int evpos = mNINT( evf.find( evtype_, intv ).pos );
     if ( evpos > maxidx || evpos <0 )
-	return 0;
+	return zpos;
 
     return dispdata_->get( datapms_->dptnm_, evpos );
 }

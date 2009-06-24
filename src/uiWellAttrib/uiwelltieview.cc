@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.27 2009-06-23 15:07:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.28 2009-06-24 09:03:55 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -494,16 +494,17 @@ void uiWellTieCorrView::setCrossCorrelation()
     const int datasz = corrdata_.get(params_.crosscorrnm_)->info().getSize(0);
     
     const float corrcoeff = welltiedata_.corrcoeff_; 
-    float scalefactor = corrcoeff/corrdata_.get(params_.crosscorrnm_,datasz/2);
+    float normalfactor = corrcoeff/corrdata_.get(params_.crosscorrnm_,datasz/2);
     TypeSet<float> xvals,corrvals;
     for ( int idx=-datasz/2; idx<datasz/2; idx++)
     {
 	xvals += idx*params_.timeintv_.step*params_.step_*1000;
 	float val = corrdata_.get(params_.crosscorrnm_, idx+datasz/2);
-	if ( mIsUdf(val) )
-	    corrvals +=0;
+	val *= normalfactor;
+	if ( fabs(val)>1 )
+	    corrvals += 0;
 	else
-	    corrvals += val*scalefactor;
+	    corrvals += val;
     }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.8 2009-06-22 15:33:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.9 2009-06-24 09:03:55 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
@@ -202,10 +202,13 @@ void WellTieDataSet::setArrayBetweenIdxs( const Array1DImpl<float>& olddata,
     const int newdatasz = newdata.info().getSize(0);
     for ( int idx=0; idx<newdatasz; idx++ )
     {
-	if ( idx && (idx+startidx >= olddatasz || mIsUdf(olddata.get(idx))) )
-	    newdata.setValue( idx, idx-1 );
+	float val = 0;
+	if ( idx+startidx < olddatasz )
+	    val = olddata.get( idx + startidx );
+	if ( mIsUdf(val) )
+	    newdata.setValue( idx, 0 );
 	else
-	    newdata.setValue( idx, olddata.get( idx+startidx ) ); 
+	    newdata.setValue( idx, val ); 
     }
 }
 
