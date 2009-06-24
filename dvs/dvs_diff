@@ -19,8 +19,16 @@ else
     set rev=""
 endif
 
-set repos=`cat ./CVS/Repository`
-dvs co -p $rev $repos/$1 > /tmp/mdiff.$$
+set diffinp=$1
+set reposfile=./CVS/Repository
+if ( ! -e $reposfile ) then
+    set filedir=`echo $1 | sed 's/\/.*$//'`
+    cd $filedir
+    set diffinp=`echo $diffinp|sed "s/$filedir\///"`
+endif
 
-tkdiff /tmp/mdiff.$$ $*
+set repos=`cat $reposfile`
+dvs co -p ${rev} $repos/$diffinp > /tmp/mdiff.$$
+
+tkdiff /tmp/mdiff.$$ $diffinp
 \rm /tmp/mdiff.$$
