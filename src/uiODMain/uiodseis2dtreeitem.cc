@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.63 2009-06-22 05:13:22 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.64 2009-06-24 07:10:12 cvsraman Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.63 2009-06-22 05:13:2
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
+#include "uinlapartserv.h"
 #include "uiodapplmgr.h"
 #include "uiodeditattribcolordlg.h"
 #include "uiodscenemgr.h"
@@ -400,6 +401,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	    else if ( nla )
 	    {
 		as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
+		as.setObjectRef( applMgr()->nlaServer()->modelName() );
 		as.setRefFromID( *nla );
 	    }
 
