@@ -5,13 +5,14 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.18 2008-12-10 10:43:36 cvsranojay Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.19 2009-06-24 10:52:12 cvsbert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
 #include "separstr.h"
 #include "convert.h"
 #include "string2.h"
+#include "bufstringset.h"
 
 #ifdef __msvc__
 # include <iostream>
@@ -98,6 +99,14 @@ const char* SeparString::from( int idx ) const
 	if ( ptr ) ptr++;
     }
     return ptr;
+}
+
+
+SeparString& SeparString::operator +=( const BufferStringSet& bss )
+{
+    for ( int idx=0; idx<bss.size(); idx++ )
+	*this += bss.get( idx );
+    return *this;
 }
 
 

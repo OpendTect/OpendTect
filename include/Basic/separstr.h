@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.20 2009-04-14 05:07:52 cvsranojay Exp $
+ RCS:		$Id: separstr.h,v 1.21 2009-06-24 10:52:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
 #include "convert.h"
+class BufferStringSet;
 
 
 /*!\brief list encoded in a string.
@@ -59,6 +60,7 @@ public:
     template <class T>
     SeparString&	operator +=( T t )
     				{ return add( Conv::to<const char*>(t) ); }
+    SeparString&	operator +=(const BufferStringSet&);
 
     inline		operator const char*() const	{ return buf(); }
     inline char*	buf()			{ return rep_.buf(); }
