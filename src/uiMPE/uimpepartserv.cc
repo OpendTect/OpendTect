@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.94 2009-06-23 12:23:07 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.95 2009-06-24 07:06:19 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -582,21 +582,29 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
 
     ObjectSet<CubeSampling>* trackedcubes = 
 				MPE::engine().getTrackedFlatCubes( trackerid );
-    for ( int idx=0; idx<trackedcubes->size(); idx++ )
+    if ( trackedcubes )
     {
-	NotifyStopper notifystopper( MPE::engine().activevolumechange );
-	MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
-	notifystopper.restore();
-	
-	const CubeSampling curvol =  MPE::engine().activeVolume();
-	if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
-	    loadAttribData();
+	for ( int idx=0; idx<trackedcubes->size(); idx++ )
+	{
+	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
+	    MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
+	    notifystopper.restore();
 
-	seedpicker->reTrack();
+	    const CubeSampling curvol =  MPE::engine().activeVolume();
+	    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
+		loadAttribData();
+
+	    seedpicker->reTrack();
+	}
+
+	emobj->setBurstAlert( false );
+	deepErase( *trackedcubes );
     }
-
-    emobj->setBurstAlert( false );
-    deepErase( *trackedcubes );
+    else
+    {
+	seedpicker->reTrack();
+	emobj->setBurstAlert( false );
+    }
 
     MPE::engine().setActiveVolume( oldactivevol );
     eventorsimimlartyChangedCB( 0 );
