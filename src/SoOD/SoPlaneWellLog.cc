@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.28 2009-05-07 06:58:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.29 2009-06-25 08:41:30 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -470,7 +470,7 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     {
 	int index = int(idx*step+.5);
 	float logval = log[index];
-	if ( lognr == 2 ) logval = maxval.getValue() - logval;
+	if ( lognr == 1 ) logval = maxval.getValue() - logval;
 	meanvalF += logval/nrsamp;
     }
     meanlogval = meanvalF;
@@ -485,7 +485,7 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     {
 	int index = int(idx*step+.5);
 	float logval = log[index];
-	if ( lognr == 2 ) logval = maxval.getValue() - logval;
+	if ( lognr == 1 ) logval = maxval.getValue() - logval;
 	if ( logval < 0 ) logval = 0;
 	if ( logval > 100 ) logval = prevval;
 	
@@ -512,7 +512,7 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 	    else
 		coordtri->point.set1Value( 2*idx+1, seisfillcrd );
 	}
-	if ( lognr == 2 )
+	else if ( lognr == 2 )
 	{
 	    if ( logval > meanlogval )
 		coordtri->point.set1Value( 2*idx+1, linecrd );
