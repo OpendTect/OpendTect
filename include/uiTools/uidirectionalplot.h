@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.15 2009-06-04 11:50:32 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.16 2009-06-25 14:13:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ protected:
     int				radius_;
     int				cursector_;
     int				selsector_;
-    ColTab::Sequence*		colseq_;
+    const ColTab::Sequence*	colseq_;
 
     uiGraphicsItemGroup&	sectorlines_;
     uiCircleItem*		outercircleitm_;

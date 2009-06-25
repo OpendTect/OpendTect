@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.20 2009-06-17 22:12:47 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.21 2009-06-25 14:13:40 cvsbert Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -544,6 +544,29 @@ bool ColTab::SeqMgr::get( const char* nm, Sequence& seq )
     if ( idx < 0 ) return false;
     seq = *get( idx );
     return true;
+}
+
+
+const ColTab::Sequence* ColTab::SeqMgr::getAny( const char* nm ) const
+{
+    if ( seqs_.isEmpty() )
+    {
+	ColTab::Sequence* cs = new ColTab::Sequence;
+	cs->setColor( 0, 0, 0, 0 );
+	cs->setColor( 1, 255, 255, 255 );
+	cs->setName( "Grey scales" );
+	cs->setType( ColTab::Sequence::User );
+	cs->setMarkColor( Color::DgbColor() );
+	cs->setUndefColor( Color(255,255,0) );
+	((ColTab::SeqMgr*)this)->seqs_ += cs;
+	return cs;
+    }
+    int idx = indexOf( nm );
+    if ( idx >= 0 ) return get( idx );
+    idx = indexOf( "Rainbow" );
+    if ( idx >= 0 ) return get( idx );
+
+    return get( 0 );
 }
 
 

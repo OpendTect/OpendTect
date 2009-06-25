@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.32 2009-06-16 12:44:23 cvskris Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.33 2009-06-25 14:13:40 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -76,8 +76,6 @@ uiDirectionalPlot::~uiDirectionalPlot()
     delete scene().removeItem( scalearcitm_ );
     delete scene().removeItem( scaleannotitm_ );
     delete scene().removeItem( coltabitm_ );
-
-    delete colseq_;
 }
 
 
@@ -385,15 +383,8 @@ void uiDirectionalPlot::drawScatter()
 void uiDirectionalPlot::drawVals()
 {
     if ( !colseq_ )
-    {
-	colseq_ = new ColTab::Sequence;
-	if ( !ColTab::SM().get("Directional Plot",*colseq_)
-	  && !ColTab::SM().get("Rainbow",*colseq_) )
-	{
-	    colseq_->setColor( 0, 255, 255, 0 );
-	    colseq_->setColor( 1, 0, 0, 255 );
-	}
-    }
+	colseq_ = ColTab::SM().getAny( "Directional Plot" );
+
     drawSectorParts( true );
 }
 

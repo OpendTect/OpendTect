@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.12 2009-06-12 19:11:17 cvskris Exp $
+ RCS:		$Id: coltabsequence.h,v 1.13 2009-06-25 14:13:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,6 +143,8 @@ public:
     const Sequence*	get( int idx ) const	{ return seqs_[idx]; }
     bool		get(const char*,Sequence&);
     void		getSequenceNames(BufferStringSet&);
+    const Sequence*	getAny(const char* key) const;
+    			//!< returns with key, or a nice one anyway
 
     void		set(const Sequence&); //!< if name not yet present, adds
     void		remove(int);
