@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.45 2009-06-17 17:42:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.46 2009-06-25 06:15:01 cvssatyaki Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -704,6 +704,7 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
     {
 	const char* name = IOM().nameOf( setup_.id_ );
 	uiSeisTrcBufViewer::Setup stbvsetup( "", 1 );
+	stbvsetup.withhanddrag(true);
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	SeisTrcBufDataPack* dp = trcbufvwr_->setTrcBuf
 	                            ( &tbuf_, setup_.geom_, "Seismics", name);

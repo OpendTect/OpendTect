@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.87 2009-06-23 06:24:07 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.88 2009-06-25 06:15:01 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -297,8 +297,11 @@ void uiFlatViewer::reset()
 {
     delete wvabmpmgr_; wvabmpmgr_ = 0;
     delete vdbmpmgr_; vdbmpmgr_ = 0;
-    uiRect scenerect( 0, 0, canvas_.width(), canvas_.height() );
-    canvas_.setSceneRect( scenerect );
+    if ( enabhaddrag_ )
+    {
+	uiRect scenerect( 0, 0, canvas_.width(), canvas_.height() );
+	canvas_.setSceneRect( scenerect );
+    }
     viewborder_ = uiBorder( 0, 0, 0 ,0 );
     anysetviewdone_ = false;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.21 2009-06-12 08:17:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.22 2009-06-25 06:15:01 cvssatyaki Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -17,12 +17,12 @@ static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.21 2009-06-12 08:17:57 cvs
 #include "keystrs.h"
 
 
-void uiFlatViewWin::createViewers( int nr )
+void uiFlatViewWin::createViewers( int nr, bool withhanddrag )
 {
     for ( int idx=0; idx<nr; idx++ )
     {
 	//TODO Nanne: with group in between nothing is right
-	uiFlatViewer* vwr = new uiFlatViewer( dockParent(), true );
+	uiFlatViewer* vwr = new uiFlatViewer( dockParent(), withhanddrag );
 	//uiFlatViewer* vwr = new uiFlatViewer( viewerParent() );
 	vwrs_ += vwr;
 	vwr->setStretch( 2, 2 );
@@ -52,7 +52,7 @@ uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
 				      const uiFlatViewMainWin::Setup& setup )
     : uiMainWin(p,setup.wintitle_,setup.nrstatusfields_,setup.menubar_)
 {
-    createViewers( setup.nrviewers_ );
+    createViewers( setup.nrviewers_, setup.withhanddrag_ );
     setDeleteOnClose( setup.deleteonclose_ );
 }
 

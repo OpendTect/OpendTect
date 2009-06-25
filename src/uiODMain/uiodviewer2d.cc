@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.8 2009-06-23 11:28:48 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.9 2009-06-25 06:15:01 cvssatyaki Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -119,7 +119,8 @@ void uiODViewer2D::createViewWin( bool isvert )
     if ( !wantdock )
     {
 	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( 0,
-		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true) );
+		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true)
+	       					  .withhanddrag(true) );
 	fvmw->windowClosed.notify( mCB(this,uiODViewer2D,winCloseCB) );
 	slicepos_ = new uiSlicePos2DView( fvmw );
 	slicepos_->positionChg.notify( mCB(this,uiODViewer2D,posChg) );

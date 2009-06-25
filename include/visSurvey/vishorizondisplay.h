@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.43 2009-06-19 14:38:02 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.44 2009-06-25 06:15:01 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -150,14 +150,14 @@ public:
 
     bool                        canBDispOn2DViewer() const      { return true; }
     bool                        isVerticalPlane() const		{ return false;}
+    
+    bool			shouldUseTexture() const;
         
 protected:
     				~HorizonDisplay();
     void			removeEMStuff();
 
     EM::PosID			findClosestNode(const Coord3&) const;
-
-    bool			shouldUseTexture() const;
 
     void			removeSectionDisplay(const EM::SectionID&);
     visBase::VisualObject*	createSection(const EM::SectionID&) const;

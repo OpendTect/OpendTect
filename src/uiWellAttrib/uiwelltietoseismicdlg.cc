@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.31 2009-06-24 14:49:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.32 2009-06-25 06:15:01 cvssatyaki Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -72,7 +72,6 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	, manip_(0)				 
 {
     setTitle( ads );
-    viewer().setHandDrag( false );
     uiTaskRunner* tr = new uiTaskRunner( p );
     toolbar_ = new uiToolBar( this, "Well Tie Control" );
    

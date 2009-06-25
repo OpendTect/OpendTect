@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.83 2009-06-02 21:40:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.84 2009-06-25 06:15:01 cvssatyaki Exp $";
 
 #include "uivisemobj.h"
 
@@ -367,7 +367,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     else
 	mAddMenuItem( menu, &singlecolmnuitem_,
 		      !emod->getOnlyAtSectionsDisplay(),
-		      !hordisp || (hordisp&&!hordisp->showingTexture()) );
+		      !hordisp || (hordisp&&!hordisp->shouldUseTexture()) );
 
     mAddMenuItem( menu, &showonlyatsectionsmnuitem_, true,
 	          emod->getOnlyAtSectionsDisplay() );
@@ -440,7 +440,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==singlecolmnuitem_.id )
     {
-	if ( hordisp ) hordisp->useTexture( !hordisp->showingTexture(), true );
+	if ( hordisp ) hordisp->useTexture( !hordisp->shouldUseTexture(),true );
 	visserv_->triggerTreeUpdate();
 	menu->setIsHandled(true);
     }
@@ -519,7 +519,7 @@ void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
     {
 	bool usetexture = false;
 	if ( yn )
-	    showedtexture_ = hordisp->showingTexture();
+	    showedtexture_ = hordisp->shouldUseTexture();
 	else 
 	    usetexture = showedtexture_;
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.10 2009-02-20 11:34:18 cvsbruno Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.11 2009-06-25 06:15:01 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ protected:
 
     ObjectSet<uiFlatViewer>	vwrs_;
 
-    void			createViewers(int);
+    void			createViewers(int,bool withhanddrag = false);
     void			cleanUp();
 
     virtual void		handleNewViewer(uiFlatViewer*)	{}

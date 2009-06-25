@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewmainwin.h,v 1.10 2009-02-20 11:34:18 cvsbruno Exp $
+ RCS:           $Id: uiflatviewmainwin.h,v 1.11 2009-06-25 06:15:01 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,12 +31,14 @@ public:
 					    , nrviewers_(1)
 					    , nrstatusfields_(1)
 					    , deleteonclose_(delonclose)
+					    , withhanddrag_(false)
 					    , menubar_(false)		{}
 	mDefSetupMemb(BufferString,wintitle)
 	mDefSetupMemb(int,nrviewers)
 	mDefSetupMemb(int,nrstatusfields)
 	mDefSetupMemb(bool,deleteonclose)
 	mDefSetupMemb(bool,menubar)
+	mDefSetupMemb(bool,withhanddrag)
     };
 
     			uiFlatViewMainWin(uiParent*,const Setup&);
