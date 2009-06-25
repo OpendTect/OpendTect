@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.101 2009-06-24 11:07:35 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.102 2009-06-25 06:30:16 cvsranojay Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -95,7 +95,7 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 
 extern const char* errno_message();
 
-void forkProcess()
+mGlobal void forkProcess()
 {
 #if !defined( __mac__ ) && !defined( __win__ )
     switch ( fork() )
