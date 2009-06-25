@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.33 2009-06-22 12:50:24 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.34 2009-06-25 12:06:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,8 @@ protected:
     void			readNew(CallBacker*);
     bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
+    void			expData(CallBacker*);
+    void			getModel(Well::D2TModel&);
 };
 
 
