@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.97 2009-06-23 05:17:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.98 2009-06-25 11:04:20 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -218,9 +218,21 @@ StreamData& StreamData::operator =( const StreamData& sd )
 void StreamData::close()
 {
     if ( istrm && istrm != &std::cin )
+    {
+#ifdef __msvc__
+	std::streambuf* sbuf = istrm->rdbuf();
+	mDynamicCastGet(std::winfilebuf*,fbuf,sbuf)
+	if ( fbuf ) fbuf->close();
+#endif
 	delete istrm;
+    }
     if ( ostrm )
     {
+#ifdef __msvc__
+	std::streambuf* sbuf = ostrm->rdbuf();
+	mDynamicCastGet(std::winfilebuf*,fbuf,sbuf)
+	if ( fbuf ) fbuf->close();
+#endif
 	ostrm->flush();
 	if ( ostrm != &std::cout && ostrm != &std::cerr )
 	    delete ostrm;
