@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.14 2009-06-21 13:49:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.15 2009-06-25 14:26:17 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -384,13 +384,13 @@ void WellTieGeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 	if ( (ai1 + ai2 ) == 0 )
 	    rval = prevval;
 	else
-	    rval =  ( ai2 - ai1 ) / ( ai2 + ai1 );     
+	    rval =  -( ai2 - ai1 ) / ( ai2 + ai1 );     
 	
 	reflvals.setValue( idx, rval ); 
 	prevval = rval;
     }
-	reflvals.setValue( 0, reflvals.get(1) ); 
-	reflvals.setValue( sz-1, reflvals.get(sz-2) ); 
+    reflvals.setValue( 0, reflvals.get(1) ); 
+    reflvals.setValue( sz-1, reflvals.get(sz-2) ); 
 }
 
 
