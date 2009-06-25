@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.121 2009-06-24 22:21:33 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.122 2009-06-25 06:31:21 cvsranojay Exp $";
 
 #include "vissurvscene.h"
 
@@ -752,7 +752,6 @@ int Scene::getImageFromPar( const IOPar& par, const char* key,
 	int objidx = getFirstIdx( image );
 	if ( objidx>=0 ) removeObject( objidx ); 	
 	image = im;
-	addUTMObject( image );
     }
 
     return 1;
