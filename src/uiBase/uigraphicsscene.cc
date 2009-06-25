@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.30 2009-06-17 08:46:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.31 2009-06-25 08:25:42 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.30 2009-06-17 08:46:06 c
 #include <QByteArray>
 #include <QGraphicsItemGroup>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QGraphicsSceneMouseEvent>
 #include <QImage>
 #include <QImageWriter>
@@ -333,7 +334,10 @@ void uiGraphicsScene::saveAsImage( const char* filename, int width,
     image->setDotsPerMeterX( resolution*254 );
     image->setDotsPerMeterY( resolution*254 );
     imagepainter->begin(image);
-    qGraphicsScene()->render(imagepainter);
+    QGraphicsView* view = qGraphicsScene()->views()[0];
+    QRectF sourcerect( view->mapToScene(0,0),
+	    	       view->mapToScene(view->width(),view->height()) );
+    qGraphicsScene()->render( imagepainter,QRectF(0,0,width,height),sourcerect);
     imagepainter->end();
     image->save(fileName);
     delete imagepainter;
@@ -354,7 +358,11 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
 
     QPainter* pdfpainter = new QPainter();
     pdfpainter->begin( pdfprinter );
-    qGraphicsScene()->render( pdfpainter );
+    QGraphicsView* view = qGraphicsScene()->views()[0];
+    QRectF sourcerect( view->mapToScene(0,0),
+	    	       view->mapToScene(view->width(),view->height()) );
+    qGraphicsScene()->render( pdfpainter,
+	    QRectF(0,0,pdfprinter->width(),pdfprinter->height()) ,sourcerect );
     pdfpainter->end();
     delete pdfpainter;
     delete pdfprinter;
