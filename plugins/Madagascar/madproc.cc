@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.cc,v 1.3 2009-06-10 12:40:18 cvsraman Exp $
+ * ID       : $Id: madproc.cc,v 1.4 2009-06-25 10:01:54 cvsraman Exp $
 -*/
 
 
@@ -77,30 +77,58 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	    continue;
 	}
 
+	const char* startquote = strchr( buf, '"' );
+	if ( startquote )
+	{
+	    BufferString newbuf( cmd );
+	    bool foundmatch = false;
+	    while ( cmd )
+	    {
+		const char* endquote = strrchr( buf, '"' );
+		if ( endquote && endquote != startquote )
+		{
+		    foundmatch = true;
+		    break;
+		}
+
+		cmd = getNextWord( cmd, newbuf.buf() );
+		if ( !newbuf.buf() || !*newbuf.buf() ) break;
+
+		strcat( buf, " " );
+		strcat( buf, newbuf.buf() );
+	    }
+
+	    if ( !foundmatch ) break;
+	}
+
 	char* rsfstr = strstr( buf, ".rsf" );
 	if ( rsfstr )
 	{
 	    while ( rsfstr > buf && *rsfstr != ' ' && *rsfstr != '=' )
 		rsfstr--;
 	    FilePath fp( rsfstr == buf ? buf : rsfstr+1 );
+	    if ( !fp.isAbsolute() )
+	    {
+		BufferString filepath = fp.fullPath();
+		fp.set( ODMad::FileSpec::defPath() );
+		fp.add( filepath );
+	    }
+	    
 	    if ( !File_exists(fp.fullPath()) )
 	    {
-		FilePath newfp( ODMad::FileSpec::defPath() );
-		newfp.add( fp.fullPath() );
-		if ( !File_exists(newfp.fullPath()) )
-		{
-		    isvalid_ = false;
-		    continue;
-		}
-		
-		rsfstr = strchr( buf, ' ' );
-		if ( !rsfstr ) rsfstr = strchr( buf, '=' );
-		if ( rsfstr ) *(rsfstr+1) = '\0';
-		BufferString parstr( rsfstr ? buf : "" );
-		parstr += newfp.fullPath();
-		parstrs_.add( parstr );
-		continue;
+		isvalid_ = false;
+		errmsg_ = "Cannot find RSF file ";
+		errmsg_ += fp.fullPath();
+		return;
 	    }
+    
+	    rsfstr = strchr( buf, ' ' );
+	    if ( !rsfstr ) rsfstr = strchr( buf, '=' );
+	    if ( rsfstr ) *(rsfstr+1) = '\0';
+	    BufferString parstr( rsfstr ? buf : "" );
+	    parstr += fp.fullPath();
+	    parstrs_.add( parstr );
+	    continue;
 	}
 	
 	parstrs_.add( buf );

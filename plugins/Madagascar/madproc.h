@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.h,v 1.2 2009-04-06 07:24:44 cvsranojay Exp $
+ * ID       : $Id: madproc.h,v 1.3 2009-06-25 10:01:54 cvsraman Exp $
 -*/
 
 
@@ -35,6 +35,7 @@ public:
     const char*		parStr(int) const;
     const char*		getCommand() const;
     const char*		getSummary() const;
+    BufferString	errMsg() const		{ return errmsg_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -48,6 +49,7 @@ protected:
     BufferString	progname_;
     BufferStringSet	parstrs_;
     BufferString	auxcmd_;
+    BufferString	errmsg_;
     IOType		inptype_;
     IOType		outptype_;
 
