@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.81 2009-06-22 12:50:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.82 2009-06-25 09:29:57 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -45,7 +45,6 @@ static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.81 2009-06-22 12:50:24 cvsber
 #include "welltrack.h"
 
 
-#define mFromFeetFac 0.3048
 static const char* trackcollbls[] = { "X", "Y", "Z", "MD", 0 };
 static const int nremptyrows = 5;
 
@@ -285,7 +284,7 @@ static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
 
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
 	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
-				     "Edit velocity model",
+		 BufferString("Edit ",cksh?"Checkshot":"Time/Depth"," model"),
 				     "107.1.5"))
 	, wd_(d)
     	, cksh_(cksh)
@@ -297,16 +296,15 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
     tbl_->setColumnLabels( t2dcollbls );
     tbl_->setNrRows( nremptyrows );
 
-    uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
-    uiButton* updnowbut = 0;
+    uiGroup* actbutgrp = new uiButtonGroup( this, "Action buttons", false );
     if ( !cksh_ )
-	updnowbut = new uiPushButton( actbutgrp, "&Update display",
-					mCB(this,uiD2TModelDlg,updNow),
-					true );
-    uiButton* readbut = new uiPushButton( actbutgrp, "&Read new",
-	    				    mCB(this,uiD2TModelDlg,readNew),
-					    false );
-    if ( updnowbut ) readbut->attach( rightOf, updnowbut );
+	new uiPushButton( actbutgrp, "&Update display",
+			  mCB(this,uiD2TModelDlg,updNow), true );
+
+    new uiPushButton( actbutgrp, "&Read new", mCB(this,uiD2TModelDlg,readNew),
+		      false );
+    new uiPushButton( actbutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),
+		      false );
     actbutgrp->attach( centeredBelow, tbl_ );
 
     BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
@@ -325,7 +323,7 @@ void uiD2TModelDlg::fillTable()
     if ( !sz ) return;
     tbl_->setNrRows( sz + nremptyrows );
 
-    const float zfac = unitfld_->getBoolValue() ? 1 : 1./mFromFeetFac;
+    const float zfac = unitfld_->getBoolValue() ? 1 : mToFeetFactor;
     for ( int idx=0; idx<sz; idx++ )
     {
 	tbl_->setValue( RowCol(idx,0), d2t->dah(idx) * zfac );
@@ -391,12 +389,46 @@ void uiD2TModelDlg::readNew( CallBacker* )
 }
 
 
+void uiD2TModelDlg::expData( CallBacker* )
+{
+    Well::D2TModel d2t; getModel( d2t );
+    if ( d2t.isEmpty() )
+	{ uiMSG().error( "No valid data entered" ); return; }
+
+    uiFileDialog dlg( this, false, 0, 0, "Filename for export" );
+    dlg.setDirectory( GetDataDir() );
+    if ( !dlg.go() )
+	return;
+
+    StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );
+    if ( !sd.usable() )
+	{ uiMSG().error( BufferString("Cannot open '", dlg.fileName(),
+		    			"' for write") ); return; }
+
+    const float zfac = unitfld_->getBoolValue() ? 1 : mToFeetFactor;
+    for ( int idx=0; idx<d2t.size(); idx++ )
+	*sd.ostrm << d2t.dah(idx)*zfac << '\t' << d2t.t(idx)*1000 << '\n';
+
+    sd.close();
+}
+
+
 void uiD2TModelDlg::updNow( CallBacker* )
 {
     Well::D2TModel* d2t = mD2TModel;
+    getModel( *d2t );
 
-    d2t->erase();
-    const float zfac = unitfld_->getBoolValue() ? 1 : mFromFeetFac;
+    if ( d2t->size() > 1 )
+	wd_.d2tchanged.trigger();
+    else
+	uiMSG().error( "Please define at least two control points." );
+}
+
+
+void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
+{
+    d2t.erase();
+    const float zfac = unitfld_->getBoolValue() ? 1 : mFromFeetFactor;
     const int nrrows = tbl_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
@@ -406,12 +438,8 @@ void uiD2TModelDlg::updNow( CallBacker* )
 	sval = tbl_->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
 	float tm = atof(sval) * 0.001;
-	d2t->add( dah, tm );
+	d2t.add( dah, tm );
     }
-    if ( d2t->size() > 1 )
-	wd_.d2tchanged.trigger();
-    else
-	uiMSG().error( "Please define at least two control points." );
 }
 
 
@@ -614,9 +642,9 @@ void uiExportLogs::setDefaultRange( bool zinft )
 
     if ( zinft )
     {
-	dahintv.start /= mFromFeetFac;
-	dahintv.stop /= mFromFeetFac;
-	dahintv.step /= mFromFeetFac;
+	dahintv.start *= mToFeetFactor;
+	dahintv.stop *= mToFeetFactor;
+	dahintv.step *= mToFeetFactor;
     }
 
     zrangefld->setValue( dahintv );
@@ -696,10 +724,10 @@ void uiExportLogs::writeLogs( StreamData& sdo )
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = intv.atIndex( idx );
-	if ( zinft ) md *= mFromFeetFac;
+	if ( zinft ) md *= mFromFeetFactor;
 	if ( outtypesel == 0 )
 	{
-	    const float mdout = infeet ? md/mFromFeetFac : md;
+	    const float mdout = infeet ? md*mToFeetFactor : md;
 	    *sdo.ostrm << mdout;
 	}
 	else
@@ -719,7 +747,7 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 	    }
 
 	    float z = pos.z;
-	    if ( infeet ) z /= mFromFeetFac;
+	    if ( infeet ) z *= mToFeetFactor;
 	    else if ( insec ) z = wd.d2TModel()->getTime( md );
 	    else if ( inmsec ) z = wd.d2TModel()->getTime( md ) * 1000;
 	    *sdo.ostrm << '\t' << z;
