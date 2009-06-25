@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.94 2009-06-22 19:37:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.95 2009-06-25 21:34:22 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -559,9 +559,15 @@ bool HorizonDisplay::removeAttrib( int channel )
     datapackids_.remove( channel );
     coltabmappersetups_.remove( channel );
     coltabsequences_.remove( channel );
-
     delete as_[channel];
     as_.remove( channel );
+
+    for ( int chan=channel; chan<nrAttribs(); chan++ )
+    {
+	for ( int idx=0; idx<sections_.size(); idx++ )
+	    sections_[idx]->setColTabSequence( chan, coltabsequences_[chan] );
+    }
+
     return true;
 }
 
