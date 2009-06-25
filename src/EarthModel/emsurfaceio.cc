@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.122 2009-06-05 10:44:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.123 2009-06-25 19:58:00 cvsyuancheng Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1091,6 +1091,10 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
 	    msg_ = sMsgReadError();
 	    return false;
 	}
+
+	if ( !Math::IsNormalNumber(pos.z) || !Math::IsNormalNumber(pos.x) ||
+	     !Math::IsNormalNumber(pos.y) )
+	    continue;
 
 	if ( surface_ )
 	{
