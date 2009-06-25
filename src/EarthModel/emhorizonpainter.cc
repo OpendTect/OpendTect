@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.10 2009-06-03 11:13:02 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.11 2009-06-25 05:58:42 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 	bool newmarker = true;
 	bool coorddefined = true;
 	int markerlinecount = 0;
-	FlatView::Annotation::AuxData* auxdata;
+	FlatView::Annotation::AuxData* auxdata = 0;
 
 	EM::SectionID sid( ids );
 	HorSamplingIterator iter( cs_.hrg );
