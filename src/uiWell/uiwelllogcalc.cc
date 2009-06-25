@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.6 2009-06-22 07:22:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.7 2009-06-25 09:32:08 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -63,13 +63,14 @@ uiWellLogCalcInpData( uiWellLogCalc* p, uiGroup* inpgrp,
 
 void use( MathExpression* expr )
 {
-
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
-    const bool mustdisp = idx_ < nrvars;
-    display( mustdisp );
-    if ( !mustdisp ) return;
-
+    if ( idx_ >= nrvars )
+	{ display( false ); return; }
     const BufferString varnm = expr->uniqueVarName( idx_ );
+    if ( specvars.indexOf(varnm.buf()) >= 0 )
+	{ display( false ); return; }
+
+    display( true );
     varmfld_->setText( varnm );
     if ( !lognmsettodef_ )
     {
@@ -125,7 +126,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
     const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
 
     uiGroup* inpgrp = new uiGroup( this, "inp grp" );
-    formfld_ = new uiGenInput( inpgrp, "Formula (like 'den/son')",
+    formfld_ = new uiGenInput( inpgrp, "Formula (like 'den / son')",
 				     StringInpSpec().setName("Formula") );
     formfld_->valuechanged.notify( formsetcb );
     UserInputObj* uiobj = formfld_->element(0);
