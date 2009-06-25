@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.30 2009-06-18 11:54:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.31 2009-06-25 10:02:08 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -170,6 +170,11 @@ void uiMadagascarMain::cmdAvail( CallBacker* cb )
     ODMad::Proc* proc = bldfld_->proc();
 
     if ( !proc ) return;
+    if ( !proc->errMsg().isEmpty() )
+    {
+	uiMSG().error( proc->errMsg() );
+	return;
+    }
 
     if ( bldfld_->isAdd() )
     {
