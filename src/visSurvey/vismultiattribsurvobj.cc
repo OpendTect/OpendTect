@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.38 2009-06-23 08:40:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.39 2009-06-25 21:46:59 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -210,13 +210,25 @@ bool MultiTextureSurveyObject::removeAttrib( int attrib )
     if ( as_.size()<2 || attrib<0 || attrib>=as_.size() )
 	return false;
 
+    if ( texture_ ) texture_->removeTexture( attrib );
+    else
+    {
+	for ( int idx=attrib; idx<nrAttribs()-1; idx++ )
+	{
+	    const ColTab::Sequence* tmpseq = 
+		channels_->getChannels2RGBA()->getSequence( idx+1 );
+	    if ( tmpseq )
+		channels_->getChannels2RGBA()->setSequence( idx, *tmpseq );
+	}
+
+	channels_->removeChannel( attrib );
+    }
+
     delete as_[attrib];
     as_.remove( attrib );
     userrefs_.remove( attrib );
 
     removeCache( attrib );
-    if ( texture_ ) texture_->removeTexture( attrib );
-    else channels_->removeChannel( attrib );
 
     updateMainSwitch();
     return true;
@@ -402,10 +414,7 @@ void MultiTextureSurveyObject::setColTabSequence( int attrib,
     }
     else
     {
-	mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-		channels_->getChannels2RGBA() );
-	if ( cttc2rgba )
-	    cttc2rgba->setSequence( attrib, seq );
+	channels_->getChannels2RGBA()->setSequence( attrib, seq );
     }
 }
 
