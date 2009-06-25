@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.21 2009-06-25 14:13:40 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.22 2009-06-25 14:16:30 cvsbert Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -533,6 +533,9 @@ int ColTab::SeqMgr::indexOf( const char* nm ) const
 {
     for ( int idx=0; idx<seqs_.size(); idx++ )
 	if ( seqs_[idx]->name() == nm )
+	    return idx;
+    for ( int idx=0; idx<seqs_.size(); idx++ )
+	if ( seqs_[idx]->name().isEqual(nm,true) )
 	    return idx;
     return -1;
 }
