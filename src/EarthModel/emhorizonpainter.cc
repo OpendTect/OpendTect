@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.11 2009-06-25 05:58:42 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.12 2009-06-25 12:18:04 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 		{
 		    int idx = trcnos_.indexOf(bid.crl);
 		    auxdata->poly_ += FlatView::Point(
-			    distances_[idx]*10000, crd.z );
+			    distances_[idx], crd.z );
 		}
 		else
 		    auxdata->poly_ += FlatView::Point( bid.crl, crd.z );
@@ -216,7 +216,7 @@ void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
 			    if ( is2d_ )
 			    {
 				int idx = trcnos_.indexOf(binid.crl);
-				if ( distances_[idx]*10000 == 
+				if ( distances_[idx] == 
 				     auxdata->poly_[posidx].x )
 				    {
 					auxdata->poly_[posidx].y = crd.z;
