@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.96 2009-05-28 15:00:38 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.97 2009-06-26 15:54:27 cvsyuancheng Exp $";
 
 #include "attriboutput.h"
 
@@ -1121,7 +1121,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 
     if ( rid<0 ) return;
 
-    const int desnrvals = desoutputs_.size();
+    const int desnrvals = desoutputs_.size() + firstattrcol_;
     if ( datapointset_.nrCols() < desnrvals )
 	datapointset_.bivSet().setNrVals(desnrvals+datapointset_.nrFixedCols());
 
