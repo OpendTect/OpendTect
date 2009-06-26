@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.17 2008-09-04 10:07:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.18 2009-06-26 13:24:55 cvsbert Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -17,14 +17,18 @@ static const char* rcsID = "$Id: uiposprovider.cc,v 1.17 2008-09-04 10:07:51 cvs
 #include "uimainwin.h"
 #include "uilabel.h"
 #include "uidialog.h"
+#include "uibutton.h"
+#include "pixmap.h"
 #include "cubesampling.h"
 #include "keystrs.h"
+#include "survinfo.h"
 
 
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	: uiGroup(p,"uiPosProvider")
 	, setup_(su)
 	, selfld_(0)
+	, fullsurvbut_(0)
 {
     const BufferStringSet& factnms( setup_.is2d_
 	    ? Pos::Provider2D::factory().getNames()
@@ -71,6 +75,14 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	for ( int idx=0; idx<grps_.size(); idx++ )
 	    grps_[idx]->attach( alignedBelow, selfld_ );
 	selfld_->valuechanged.notify( selcb );
+	if ( !setup_.is2d_ )
+	{
+	    fullsurvbut_ = new uiToolButton( this, "Extend to full survey",
+					 ioPixmap("exttofullsurv.png"),
+					 mCB(this,uiPosProvider,fullSurvPush) );
+	    fullsurvbut_->setToolTip( "Set ranges to full survey" );
+	    fullsurvbut_->attach( rightOf, selfld_ );
+	}
     }
 
     setHAlignObj( grps_[0] );
@@ -84,6 +96,20 @@ void uiPosProvider::selChg( CallBacker* )
     const int selidx = selfld_->getIntValue();
     for ( int idx=0; idx<grps_.size(); idx++ )
 	grps_[idx]->display( idx == selidx );
+
+    if ( fullsurvbut_ )
+	fullsurvbut_->display( BufferString(selfld_->text()) == sKey::Range );
+}
+
+
+void uiPosProvider::fullSurvPush( CallBacker* )
+{
+    if ( !selfld_ ) return;
+    const int selidx = selfld_->getIntValue();
+    if ( selidx < 0 ) return;
+
+    IOPar iop; SI().sampling(false).fillPar( iop );
+    grps_[selidx]->usePar( iop );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.13 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uiposprovider.h,v 1.14 2009-06-26 13:24:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicompoundparsel.h"
 #include "uiposprovgroup.h"
 #include "iopar.h"
+class uiButton;
 class uiGenInput;
 namespace Pos { class Provider; }
 class uiPosProvGroup;
@@ -55,10 +56,12 @@ public:
 protected:
 
     uiGenInput*			selfld_;
+    uiButton*			fullsurvbut_;
     ObjectSet<uiPosProvGroup>	grps_;
     Setup			setup_;
 
     void			selChg(CallBacker*);
+    void			fullSurvPush(CallBacker*);
     uiPosProvGroup*		curGrp() const;
 };
 
