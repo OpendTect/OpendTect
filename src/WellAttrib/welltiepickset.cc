@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.11 2009-06-26 09:39:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.12 2009-06-26 10:26:23 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -63,13 +63,15 @@ void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop,
     {
 	if ( xpos<(vwrszstop-vwrszstart)/2 )
 	{
-	    if ( abs(synthsz+1-seissz) < 2 )
-		synthpickset_.add( 0, xpos, findEventDah(zpos,true) );
+	    if ( abs(synthsz+1-seissz) > 1 )
+		synthpickset_.clear( synthpickset_.getSize()-1 );
+	    synthpickset_.add( 0, xpos, findEventDah(zpos,true) );
 	}
 	else
 	{
-	    if ( abs(seissz+1-synthsz) < 2 )
-		seispickset_.add( 0, xpos, findEventDah(zpos,false) );
+	    if ( abs(seissz+1-synthsz) > 1 )
+		seispickset_.clear( seispickset_.getSize()-1 );
+	    seispickset_.add( 0, xpos, findEventDah(zpos,true) );
 	}
     }
 }
