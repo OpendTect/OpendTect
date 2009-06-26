@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.34 2009-06-22 15:32:04 cvshelene Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.35 2009-06-26 14:45:29 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -74,7 +74,7 @@ void Math::updateDesc( Desc& desc )
 	    case MathExpression::Variable :
 	    {
 		BufferString fvarexp = formula->fullVariableExpression( idx );
-		const char* varnm = MathExpressionParser::varNameOf( fvarexp );
+		BufferString varnm = MathExpressionParser::varNameOf( fvarexp );
 		const int specidx = getSpecVars().indexOf(varnm);
 		if ( specidx < 0 )
 		{
