@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.31 2009-04-21 09:55:20 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.32 2009-06-26 19:10:24 cvskris Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -114,7 +114,7 @@ bool uiODPlaneDataTreeItem::init()
 	for ( int idx=0; idx<pdd->nrResolutions(); idx++ )
 	{
 	    if ( res == pdd->getResolutionName(idx) )
-		pdd->setResolution( idx );
+		pdd->setResolution( idx, 0 );
 	}
 
 	if ( type_ == Default )
