@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.95 2009-06-25 21:34:22 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.96 2009-06-26 18:19:28 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.95 2009-06-25 21:34:22
 #include "isocontourtracer.h"
 #include "survinfo.h"
 #include "mpeengine.h"
+#include "posvecdataset.h"
 
 #include "viscolortab.h"
 #include "viscoord.h"
@@ -680,16 +681,25 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     as_[channel]->set( "Depth", Attrib::SelSpec::cNoAttrib(), false, "" );
 
     TypeSet<DataPointSet::DataRow> pts;
-    BufferStringSet nms;
-    nms.add( "Depth" );
-    DataPointSet positions( pts, nms, false, true );
+    ObjectSet<DataColDef> defs;
+    DataColDef depthdef( "Depth" );
+    defs += &depthdef;
+    DataPointSet positions( pts, defs, false, true );
     getRandomPos( positions, 0 );
 
     if ( !positions.size() ) return;
 
     BinIDValueSet& bivs = positions.bivSet();
-    if ( bivs.nrVals()!=2 )
-	bivs.setNrVals(2);
+    if ( bivs.nrVals()!=3 )
+    {
+	pErrMsg( "Hmm" );
+	return;
+    }
+
+    int depthcol = 
+	positions.dataSet().findColDef( depthdef, PosVecDataSet::NameExact );
+    if ( depthcol==-1 )
+	depthcol = 1;
 
     BinIDValueSet::Pos pos;
     while ( bivs.next(pos,true) )
@@ -697,11 +707,11 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	float* vals = bivs.getVals(pos);
 	if ( zaxistransform_ )
 	{
-	    vals[1] = zaxistransform_->transform(
+	    vals[depthcol] = zaxistransform_->transform(
 		    BinIDValue( bivs.getBinID(pos), vals[0] ) );
 	}
 	else
-	    vals[1] = vals[0];
+	    vals[depthcol] = vals[0];
     }
 
     createAndDispDataPack( channel, &positions, 0 );
@@ -738,12 +748,13 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 
 void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* tr ) const
 {
-    const float zf = scene_ ? scene_->getZScale() : SI().zScale();
-    
     data.bivSet().allowDuplicateBids(false);
+    const float zf = scene_ ? scene_->getZScale() : SI().zScale();
+
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getDataPositions(data.bivSet(),getTranslation().z/zf);
-    
+	sections_[idx]->getDataPositions( data, getTranslation().z/zf, 
+					  sids_[idx], tr );
+
     data.dataChanged();
 }
 
@@ -790,10 +801,8 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 	return;
     }
 
-    const float zf = scene_ ? scene_->getZScale() : SI().zScale();
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setTextureData( channel, !idx ? &data->bivSet() : 0,
-	       				getTranslation().z/zf );
+	sections_[idx]->setTextureData( channel, data, sids_[idx], tr );
 
     //We should really scale here, and then update sections. This
     //works for single sections though.

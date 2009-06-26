@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.30 2009-06-22 19:37:16 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.31 2009-06-26 18:19:28 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class Color;
+class DataPointSet;
 class SbBox3f;
 class SbVec2f;
 class SbVec3f;
@@ -104,9 +105,10 @@ public:
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 
-    void			getDataPositions(BinIDValueSet&,float) const;
-    void			setTextureData(int channel,
-	    				       const BinIDValueSet*,float zoff);
+    void			getDataPositions(DataPointSet&,double zoff,
+	    					 int sid,TaskRunner*) const;
+    void			setTextureData(int channel,const DataPointSet*,
+	    				       int sid,TaskRunner*);
     const BinIDValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
@@ -124,7 +126,8 @@ protected:
     void			removeZTransform();
     void			updateZAxisVOI();
 
-    void			updateTexture(int channel,float zoff);
+    void			updateTexture(int channel,const DataPointSet*,
+	    				      int sectionid);
     void			updateAutoResolution(SoState*,TaskRunner*);
     static void			updateAutoResolution(void*,SoAction*);
     void			turnOnWireframe(int res,TaskRunner*);
@@ -165,6 +168,7 @@ protected:
     static ArrPtrMan<SbVec2f>	texturecoordptr_;				
     static int			normalstartidx_[mHorSectNrRes];
     static int			normalsidesize_[mHorSectNrRes];
+    static const char*		sKeySectionID()	{ return "Section ID"; }
 };
 
 

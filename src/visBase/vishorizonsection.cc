@@ -4,14 +4,17 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.50 2009-06-22 19:37:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.51 2009-06-26 18:19:28 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
 #include "binidsurface.h"
 #include "binidvalset.h"
 #include "cubesampling.h"
+#include "datacoldef.h"
+#include "datapointset.h"
 #include "mousecursor.h"
+#include "posvecdataset.h"
 #include "simpnumer.h"
 #include "survinfo.h"
 #include "threadwork.h"
@@ -215,11 +218,11 @@ protected:
 mClass HorizonSectionTilePosSetup: public ParallelTask
 {
 public:    
-		HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 					    TypeSet<RowCol> rcs, 
+		HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 					    TypeSet<RowCol> start, 
 					    const Geometry::BinIDSurface& geo )
 		    : tiles_( tiles )
 	  	    , geo_( geo )  
-		    , rcs_( rcs )	{}
+		    , start_( start )	{}
 
     od_int64	nrIterations() const { return tiles_.size(); }
 
@@ -228,35 +231,34 @@ public:
 
 protected:
 
-    bool	doWork( od_int64 start, od_int64 stop, int threadid )
-    		{
-		    const int rowstep = geo_.rowRange().step;
-		    const int colstep = geo_.colRange().step;
-
-		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-		    {
-			HorizonSectionTile* tile = tiles_[idx];
-			const int startrow = rcs_[idx].row;
-			const int startcol = rcs_[idx].col;
-
-			for ( int row=0; row<mNrCoordsPerTileSide; row++ )
-			{
-			    for ( int col=0; col<mNrCoordsPerTileSide; col++ )
-			    {
-				const RowCol rc( row*rowstep+startrow, 
-						 col*colstep+startcol );
-				tile->setPos(row, col, geo_.getKnot(rc,false));
-			    }
-			}
-
-			addToNrDone(1);
-		    }
-
-		    return true;
+    bool doWork( od_int64 start, od_int64 stop, int threadid )
+    {
+	const StepInterval<int> rowrg = geo_.rowRange();
+	for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+	{
+	    for ( int rowidx=0; rowidx<mNrCoordsPerTileSide; rowidx++ )
+	    {
+		const int row = start_[idx].row + rowidx*rowrg.step;
+		const bool rowok = rowrg.includes(row);
+		for ( int colidx=0; colidx<mNrCoordsPerTileSide; colidx++ )
+		{
+		    const StepInterval<int> colrg = geo_.colRange( row );
+		    const int col = start_[idx].col + colidx*colrg.step;
+		    tiles_[idx]->setPos( rowidx, colidx, 
+			    rowok && colrg.includes(col) 
+			    ? geo_.getKnot(RowCol(row,col),false)
+			    : Coord3::udf() );
 		}
+	    }
+
+	    addToNrDone(1);
+	}
+
+	return true;
+    }
 
     ObjectSet<HorizonSectionTile> 	tiles_;
-    TypeSet<RowCol>			rcs_;
+    TypeSet<RowCol>			start_;
     const Geometry::BinIDSurface&	geo_;
 };
 
@@ -524,24 +526,41 @@ void HorizonSection::updateZAxisVOI()
 }
 
 
-void HorizonSection::getDataPositions( BinIDValueSet& res, float zoff ) const
+void HorizonSection::getDataPositions( DataPointSet& res, double zoff,
+				       int sid, TaskRunner* tr ) const
 {
     if ( !geometry_ ) return;
+
+    const DataColDef sidcol( sKeySectionID() );
+    if ( res.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
+	res.dataSet().add( new DataColDef(sidcol) );
+
+    const int sidcolidx =  res.dataSet().findColDef( 
+	    sidcol, PosVecDataSet::NameExact ) - res.nrFixedCols();
     
     const int nrknots = geometry_->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
     {
 	const BinID bid = geometry_->getKnotRowCol(idx);
-	const Coord3 pos = geometry_->getKnot(bid,false);
-	if ( pos.isDefined() ) 
-	    res.add( bid, pos.z+zoff );
+	Coord3 pos = geometry_->getKnot(bid,false);
+	if ( !pos.isDefined() ) 
+	    continue;
+
+	pos.z += zoff;
+
+	DataPointSet::Pos dpsetpos( pos );
+	DataPointSet::DataRow datarow( dpsetpos, 1 );
+	datarow.data_.setSize( res.nrCols(), mUdf(float) );
+	datarow.data_[sidcolidx] = sid;
+	res.addRow( datarow );
     }
 }
 
 
-void HorizonSection::setTextureData( int channel, const BinIDValueSet* data,
-       				     float zoff	)
+void HorizonSection::setTextureData( int channel, const DataPointSet* dpset,
+				     int sid, TaskRunner* tr )
 {
+    const BinIDValueSet* data = dpset ? &dpset->bivSet() : 0;
     if ( channel<0 || channel>=cache_.size() ) 
 	return;
 
@@ -562,15 +581,28 @@ void HorizonSection::setTextureData( int channel, const BinIDValueSet* data,
 	cache_.replace( channel, new BinIDValueSet(*data) );
     }
 
-    setNrVersions( channel, !data ? 0 : data->nrVals()-1 );
-    updateTexture( channel, zoff );
+    updateTexture( channel, dpset, sid );
 }
 
 
-void HorizonSection::updateTexture( int channel, float zoff )
+void HorizonSection::updateTexture( int channel, const DataPointSet* dpset, 
+				    int sid )
 {
-    if ( !geometry_ || !geometry_->getArray() )
+    const BinIDValueSet* data = getCache( channel );
+    if ( !geometry_ || !geometry_->getArray() || !dpset || !data )
+    {
+	setNrVersions( channel, 0 );
 	return;
+    }
+
+    const int nrfixedcols = dpset->nrFixedCols();
+    const DataColDef sidcoldef( sKeySectionID() );
+    const int sidcol = 
+	dpset->dataSet().findColDef(sidcoldef,PosVecDataSet::NameExact);
+    const int shift = sidcol==-1 ?  nrfixedcols : nrfixedcols+1;
+
+    const int nrversions = data->nrVals()-shift;
+    setNrVersions( channel, nrversions );
 
     const StepInterval<int>& rrg = geometry_->rowRange();
     const StepInterval<int>& crg = geometry_->colRange();
@@ -580,8 +612,6 @@ void HorizonSection::updateTexture( int channel, float zoff )
 
     channels_->setSize( 1, nrrows, nrcols );
    
-    const int nrversions = channels_->nrVersions( channel );
-
     ObjectSet<float> versiondata;
     versiondata.allowNull( true );
     const int nrcells = nrrows*nrcols;
@@ -590,51 +620,37 @@ void HorizonSection::updateTexture( int channel, float zoff )
     memsetter.setSize( nrcells );
     memsetter.setValue( mUdf(float) );
 
-    const BinIDValueSet* data = getCache( channel );
-    if ( !data ) return;
-
     for ( int idx=0; idx<nrversions; idx++ )
     {
-	if ( idx<data->nrVals()-1 )
+	float* vals = new float[nrcells];
+	if ( !vals )
 	{
-	    float* vals = new float[nrcells];
-	    if ( !vals )
-	    {
-		deepEraseArr( versiondata );
-		return;
-	    }
-
-	    memsetter.setTarget( vals );
-	    memsetter.execute();
-
-	    versiondata += vals;
+	    deepEraseArr( versiondata );
+	    return;
 	}
-	else
-	    versiondata += 0;
+
+	memsetter.setTarget( vals );
+	memsetter.execute();
+
+	versiondata += vals;
     }
 
-    const float eps = SI().zRange(true).step*1e-3;
-
     BinIDValueSet::Pos pos;
+    const int startsourceidx = nrfixedcols + (nrfixedcols==sidcol ? 1 : 0);
     while ( data->next(pos,true) )
     {
+	const float* ptr = data->getVals(pos);
+	if ( sidcol!=-1 && sid!=mNINT(ptr[sidcol]) )
+	    continue;
+
 	const BinID bid = data->getBinID( pos );
-	const float geomzval = geometry_->getKnot(bid, false).z + zoff;
-	if ( mIsUdf(geomzval) )
-	    continue;
-
-	const float* vals = data->getVals(pos);
-	const float datazval = vals[0];
-	if ( !mIsEqual(datazval,geomzval, eps ) )
-	    continue;
-
 	const int inlidx = rrg.nearestIndex(bid.inl);
 	const int crlidx = crg.nearestIndex(bid.crl);
 
 	const int offset = inlidx*nrcols + crlidx;
 
-	for ( int idx=0; idx<data->nrVals()-1; idx++ )
-	    versiondata[idx][offset] = vals[idx+1]; 
+	for ( int idx=0; idx<nrversions; idx++ )
+	    versiondata[idx][offset] = ptr[idx+startsourceidx];
     }
 
     for ( int idx=0; idx<nrversions; idx++ )
