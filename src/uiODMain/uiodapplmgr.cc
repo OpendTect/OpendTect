@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.337 2009-06-23 21:16:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.338 2009-06-26 15:55:16 cvsyuancheng Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -553,7 +553,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 	BufferStringSet nms;
 	DataPointSet data( pts, nms, false, true );
 	visserv_->getRandomPos( visid, data );
-	attrserv_->createOutput( data );
+	attrserv_->createOutput( data, data.nrCols() );
 	visserv_->setRandomPosData( visid, attrib, &data );
     }
     else
