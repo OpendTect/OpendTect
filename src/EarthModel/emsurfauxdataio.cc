@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.39 2009-01-09 09:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.40 2009-06-26 21:57:56 cvskris Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -53,7 +53,7 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 {
     IOPar par( "Surface Data" );
     par.set( sKeyAttrName(), surf.auxdata.auxDataName(dataidx_) );
-    par.set( sKeyShift(), surf.auxdata.auxDataShift(dataidx_)/SI().zFactor() );
+    par.set( sKeyShift(), surf.auxdata.auxDataShift(dataidx_) );
 
     if ( binary_ )
     {
