@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.19 2008-12-08 12:51:15 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.20 2009-06-26 18:46:56 cvskris Exp $";
 
 #include "posvecdataset.h"
 
@@ -136,10 +136,11 @@ void PosVecDataSet::setEmpty()
 }
 
 
-void PosVecDataSet::add( DataColDef* cd )
+int PosVecDataSet::add( DataColDef* cd )
 {
     coldefs_ += cd;
     data_.setNrVals( data_.nrVals() + 1 );
+    return data_.nrVals()-2;
 }
 
 

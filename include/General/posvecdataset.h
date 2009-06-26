@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.10 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: posvecdataset.h,v 1.11 2009-06-26 18:46:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,8 @@ public:
     void		copyStructureFrom(const PosVecDataSet&);
 
     void		setEmpty();
-    void		add(DataColDef*);
+    int			add(DataColDef*);
+    			//!<\returns index
     void		removeColumn(int); //!< "Z" col (idx=0) can't be removed
     enum OvwPolicy	{ Keep, OvwIfUdf, Ovw };
     			//!< During merge, which set is dominant?
