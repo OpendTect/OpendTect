@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.37 2009-05-20 14:56:06 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.38 2009-06-26 12:50:40 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -273,11 +273,20 @@ void SelInfo::fillStored( const char* filter )
 	if ( ge && !ge->matches(ioobjnm) )
 	    continue;
 
-	if ( onlymulticomp_ && !is2d )
+	if ( onlymulticomp_ )
 	{
-	    LineKey tmpkey( ioobj.key().buf(), 0 );
-	    if ( SeisIOObjInfo::getNrCompAvail( tmpkey ) < 2 )
-		continue;
+	    if ( is2d )
+	    {
+		BufferStringSet nms;
+		SelInfo::getAttrNames( ioobj.key(), nms, usesteering_, true );
+		if ( nms.isEmpty() ) continue;
+	    }
+	    else
+	    {
+		LineKey tmpkey( ioobj.key().buf(), 0 );
+		if ( SeisIOObjInfo::getNrCompAvail( tmpkey ) < 2 )
+		    continue;
+	    }
 	}
 
 	ioobjnms.add( ioobjnm );

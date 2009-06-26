@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.30 2009-05-20 16:10:36 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.31 2009-06-26 12:50:40 cvshelene Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -233,7 +233,7 @@ bool uiODAttribTreeItem::handleMultCompSelMenu( int mnuid, int visid,
 	return false;
 
     bool isonly2d = false;
-    mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(sceneID()));
+    mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(visid));
     if ( so ) isonly2d = so->getAllowedDataType() == Only2D;
 
     const MenuItem* item = multcompmnuitem_.findItem( mnuid );

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.89 2009-05-18 10:31:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.90 2009-06-26 12:50:40 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.89 2009-05-18 10:31:4
 #include "ptrman.h"
 #include "seis2dline.h"
 #include "seisbounds.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -83,8 +84,14 @@ void StorageProvider::updateDesc( Desc& desc )
 	if ( !issteering )
 	{
 	    SeisTrcTranslator* transl = rdr.seisTranslator();
-	    if ( !transl || transl->componentInfo().isEmpty() )
-		desc.setNrOutputs( Seis::UnknowData, 1 );//why only 1 ?
+	    if ( !transl )
+	       desc.setNrOutputs( Seis::UnknowData, 1 );//why only 1 ?
+	    else if ( transl->componentInfo().isEmpty() )
+	    {
+		BufferStringSet complist;
+		SeisIOObjInfo::getCompNames( lk, complist );
+		desc.setNrOutputs( Seis::UnknowData, complist.size() );
+	    }
 	    else
 	    {
 		for ( int idx=0; idx<transl->componentInfo().size(); idx++ )

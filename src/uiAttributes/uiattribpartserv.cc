@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.126 2009-06-16 11:49:41 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.127 2009-06-26 12:50:40 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -870,11 +870,12 @@ void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
 	if ( docheck ) mnu->checked = true;
 	if ( usesubmnu )
 	{
-	    linesets2dmnuitem_ += itm;
 	    SelInfo attrinf( adsman2d_->descSet(), 0, true, DescID::undef(),
 		    	     issteer, issteer );
 	    const MultiID mid( attrinf.ioobjids.get(idx) );
 	    BufferStringSet nms = get2DStoredItems( mid, issteer, onlymultcomp);
+	    if ( nms.isEmpty() ) continue;
+	    linesets2dmnuitem_ += itm;
 	    insert2DStoredItems( nms, 0, nms.size(), correcttype,
 				 itm, as, false, issteer, onlymultcomp );
 	}
@@ -1233,8 +1234,8 @@ bool uiAttribPartServer::handleMultiCompSubMenu( int mnuid, bool is2donly,
 						 const char* itemtext )
 {
     const bool needext = SI().getSurvDataType()==SurveyInfo::Both2DAnd3D;
-    const bool is2d = is2donly || needext ? (bool) multcomp2d_.findItem(mnuid)
-					  : SI().has2D();
+    const bool is2d = is2donly || ( needext ? (bool) multcomp2d_.findItem(mnuid)
+					    : SI().has2D() );
     DescSetMan* adsman = getAdsMan( is2d );
     uiAttrSelData attrdata( *adsman->descSet() );
     SelInfo attrinf( &attrdata.attrSet(), 0, is2d, DescID::undef(),
@@ -1284,8 +1285,10 @@ bool uiAttribPartServer::handleMultiCompSubMenu( int mnuid, bool is2donly,
 	    desc->getDefStr(bfs);
 	    as.setDefString(bfs.buf());
 	    as.setRefFromID( *adsman->descSet() );
+	    as.set2DFlag( is2d );
 	    targetspecs_ += as;
 	}
+	set2DEvent( is2d );
 	return true;
     }
 
