@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.8 2009-06-03 14:25:58 cvshelene Exp $
+ * ID       : $Id: madstream.h,v 1.9 2009-06-26 06:21:00 cvsraman Exp $
 -*/
 
 
@@ -41,6 +41,8 @@ public:
 
     bool			isOK() const;
     const char*			errMsg() const;
+
+    bool			isBinary() const	{ return isbinary_; }
     bool			is2D() const		{ return is2d_; }
     bool			isPS() const		{ return isps_; }
     void			setStorBufMine( bool yn )
@@ -51,6 +53,7 @@ protected:
     bool			iswrite_;
     bool			is2d_;
     bool			isps_;
+    bool			isbinary_;
     IOPar&			pars_;
     IOPar*			headerpars_;
     BufferString&		errmsg_;
@@ -78,6 +81,7 @@ protected:
     void			fillHeaderParsFromSeis();
     void			fillHeaderParsFromPS(const Seis::SelData*);
     bool			write2DTraces(bool);
+    void			readRSFTrace(float*,int) const;
     bool			getNextPos(BinID&);
     BufferString		getPosFileName(bool forread=false) const;
 };

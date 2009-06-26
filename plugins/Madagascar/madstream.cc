@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.23 2009-06-23 05:16:18 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.24 2009-06-26 06:21:00 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -41,7 +41,10 @@ static const char* sKeyOutput = "Output";
 static const char* sKeyProc = "Proc";
 static const char* sKeyWrite = "Write";
 static const char* sKeyIn = "in";
-static const char* sKeyStdIn = "stdin";
+static const char* sKeyStdIn = "\"stdin\"";
+static const char* sKeyDataFormat = "data_format";
+static const char* sKeyNativeFloat = "\"native_float\"";
+static const char* sKeyAsciiFloat = "\"ascii_float\"";
 static const char* sKeyPosFileName = "Pos File Name";
 static const char* sKeyScons = "Scons";
 
@@ -49,18 +52,10 @@ static const char* sKeyScons = "Scons";
 #define mErrRet(s) { errmsg_ = s; return; }
 #define mErrBoolRet(s) { errmsg_ = s; return false; }
 
-#ifdef __win__
-    #define mReadRSFTrc(arr) \
-        for ( int idx=0; idx<nrsamps; idx++ ) \
-	    *istrm_ >> arr[idx];
-#else
-    #define mReadRSFTrc(arr) \
-        istrm_->read( (char*)arr, nrsamps*sizeof(float) );
-#endif
 
 MadStream::MadStream( IOPar& par )
     : pars_(par)
-    , is2d_(false),isps_(false)
+    , is2d_(false),isps_(false),isbinary_(true)
     , istrm_(0),ostrm_(0)
     , seisrdr_(0),seiswrr_(0)
     , psrdr_(0),pswrr_(0)
@@ -304,6 +299,15 @@ BufferString MadStream::getPosFileName( bool forread ) const
     sd.close(); \
     pars_.set( sKeyPosFileName, posfnm );
 
+#ifdef __win__
+#define mSetFormat \
+    headerpars_->set( sKeyDataFormat, sKeyAsciiFloat ); \
+    isbinary_ = false
+#else
+#define mSetFormat \
+    headerpars_->set( sKeyDataFormat, sKeyNativeFloat ) \
+    isbinary_ = true
+#endif
 
 void MadStream::fillHeaderParsFromSeis()
 {
@@ -398,6 +402,8 @@ void MadStream::fillHeaderParsFromSeis()
     headerpars_->set( "o1", zrg.start );
     headerpars_->set( "n1", zrg.nrSteps()+1 );
     headerpars_->set( "d1", zrg.step );
+    mSetFormat;
+    headerpars_->set( sKeyIn, sKeyStdIn );
 }
 
 
@@ -475,6 +481,8 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     headerpars_->set( "o1", firsttrc->info().sampling.start );
     headerpars_->set( "d1", firsttrc->info().sampling.step );
     headerpars_->set( "n1", firsttrc->size() );
+    mSetFormat;
+    headerpars_->set( sKeyIn, sKeyStdIn );
 }
 
 
@@ -483,7 +491,7 @@ void MadStream::fillHeaderParsFromStream()
     delete headerpars_; headerpars_ = 0;
 
     headerpars_ = new IOPar;
-    char linebuf[256], tag[4], *ptr;
+    char linebuf[256];
     if ( !istrm_ ) return;
 
     while ( *istrm_ )
@@ -497,30 +505,29 @@ void MadStream::fillHeaderParsFromStream()
 	    char c;
 	    istrm_->get( c );
 	    if ( c == '\n' ) { linebuf[idx] = '\0'; break; }
-	    linebuf[idx++] = c;
+	    else if ( !isspace(c) )
+		linebuf[idx++] = c;
+
 	    if ( c==sKeyRSFEndOfHeader[nullcount] )
 		nullcount++;
 	}
 
 	if ( nullcount > 2 ) break;
 
-	ptr = linebuf + 1;
-	if ( *(ptr+2)!='=' )continue;
+	char* valstr = strchr( linebuf, '=' );
+	if ( !valstr )continue;
 
-	char* valptr = ptr + 3;
-	*(ptr+2) = '\0';
-	if ( !strcmp(ptr,"in") )
-	{
-	    valptr++;
-	    const int sz = strlen( valptr );
-	    *( valptr + sz - 1 ) = '\0';
-	}
-
-	headerpars_->set( ptr, valptr );
+	*valstr = '\0'; valstr++;
+	headerpars_->set( linebuf, valstr );
     }
 
     if ( !headerpars_->size() )
 	mErrRet("Empty or corrupt RSF Header")
+
+    BufferString dataformat;
+    if ( headerpars_->get(sKeyDataFormat,dataformat)
+	    && dataformat == sKeyAsciiFloat )
+	isbinary_ = false;
 }
 
 
@@ -559,14 +566,6 @@ bool MadStream::putHeader( std::ostream& strm )
 	strm << "=" << headerpars_->getValue(idx) << std::endl;
     }
 
-#ifdef __win__
-    strm << "\t" << "data_format=\"ascii_float\"" << std::endl;
-#else
-    strm << "\t" << "data_format=\"native_float\"" << std::endl;
-#endif
-    strm << "\t" << "in=\"stdout\"" << std::endl;
-    strm << "\t" << "in=\"stdin\"" << std::endl;
-
     strm << sKeyRSFEndOfHeader;
     return true;
 }
@@ -600,7 +599,7 @@ bool MadStream::getNextTrace( float* arr )
     if ( istrm_ && *istrm_ )
     {
 	const int nrsamps = getNrSamples();
-	mReadRSFTrc( arr );
+	readRSFTrace( arr, nrsamps );
 	return *istrm_;
     }
     else if ( seisrdr_ )
@@ -641,6 +640,19 @@ bool MadStream::getNextTrace( float* arr )
     }
 
     mErrBoolRet( "No data source found" );
+}
+
+
+void MadStream::readRSFTrace( float* arr, int nrsamps ) const
+{
+    if ( isbinary_ )
+    {
+	istrm_->read( (char*)arr, nrsamps*sizeof(float) );
+	return;
+    }
+
+    for ( int idx=0; idx<nrsamps; idx++ ) \
+	    *istrm_ >> arr[idx];
 }
 
 
@@ -720,7 +732,7 @@ bool MadStream::writeTraces( bool writetofile )
 		int crl = crlstart + crlidx * crlstep;
 		for ( int trcidx=1; trcidx<=nrtrcsperbinid; trcidx++ )
 		{
-		    mReadRSFTrc( buf );
+		    readRSFTrace( buf, nrsamps );
 		    SeisTrc* trc = new SeisTrc( nrsamps );
 		    trc->info().sampling = sd;
 		    trc->info().binid = BinID( inl, crl );
@@ -787,7 +799,7 @@ bool MadStream::write2DTraces( bool writetofile )
 	const int trcnr = geom.posns_[idx].nr_;
 	for ( int offidx=1; offidx<=nroffsets; offidx++ )
 	{
-	    mReadRSFTrc( buf );
+	    readRSFTrace( buf, nrsamps );
 	    SeisTrc* trc = new SeisTrc( nrsamps );
 	    trc->info().sampling = sd;
 	    trc->info().coord = geom.posns_[idx].coord_;

@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.9 2009-06-17 08:42:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.10 2009-06-26 06:21:00 cvsraman Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -81,6 +81,7 @@ bool ODMad::ProcExec::init()
 	if ( !comm || !*comm )
 	    return false;
 
+	std::cerr << "About to execute: " << comm << std::endl;
 	if ( stage_ == Start && ( inptyp == ODMad::ProcFlow::None
 		    		|| inptyp == ODMad::ProcFlow::SU ) )
 	{
@@ -114,6 +115,7 @@ bool ODMad::ProcExec::init()
 	{
 	    BufferString plotcomm = "@";
 	    plotcomm += getPlotString();
+	    std::cerr << "About to plot: " << plotcomm << std::endl;
 	    plotstream_ = StreamProvider( plotcomm.buf() ).makeOStream();
 	    if ( !madstream_->putHeader(*plotstream_.ostrm) )
 		mErrRet("Failed to put RSF header in plot stream")
@@ -301,13 +303,11 @@ od_int64 ODMad::ProcExec::totalNr() const
     return -1;
 }
 
-
-#ifdef __win__
-    #define mWriteToStream(strm) *strm.ostrm << val << " "
-#else
-    #define mWriteToStream(strm) \
-        (*strm.ostrm).write( (const char*) &val, sizeof(val))
-#endif
+#define mWriteToStream(strm) \
+    if ( madstream_->isBinary() ) \
+        (*strm.ostrm).write( (const char*) &val, sizeof(val)); \
+    else \
+	*strm.ostrm << val << " ";
 
 int ODMad::ProcExec::nextStep()
 {
@@ -323,9 +323,9 @@ int ODMad::ProcExec::nextStep()
     for ( int idx=0; idx<trcsize; idx++ )
     {
 	const float val = trc_[idx];
-	mWriteToStream( procstream_ );
+	mWriteToStream( procstream_ )
 	if ( stage_ == Intermediate && plotstream_.usable() )
-	    mWriteToStream( plotstream_ );
+	{ mWriteToStream( plotstream_ ) }
     }
 
     if ( progmeter_ ) progmeter_->setNrDone( ++nrdone_ );
