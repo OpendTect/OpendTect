@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.cc,v 1.4 2009-06-25 10:01:54 cvsraman Exp $
+ * ID       : $Id: madproc.cc,v 1.5 2009-06-26 11:41:57 cvsraman Exp $
 -*/
 
 
@@ -104,7 +104,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	char* rsfstr = strstr( buf, ".rsf" );
 	if ( rsfstr )
 	{
-	    while ( rsfstr > buf && *rsfstr != ' ' && *rsfstr != '=' )
+	    while ( rsfstr > buf && *rsfstr != '=' )
 		rsfstr--;
 	    FilePath fp( rsfstr == buf ? buf : rsfstr+1 );
 	    if ( !fp.isAbsolute() )

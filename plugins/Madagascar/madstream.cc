@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.24 2009-06-26 06:21:00 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.25 2009-06-26 11:41:57 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -305,7 +305,7 @@ BufferString MadStream::getPosFileName( bool forread ) const
     isbinary_ = false
 #else
 #define mSetFormat \
-    headerpars_->set( sKeyDataFormat, sKeyNativeFloat ) \
+    headerpars_->set( sKeyDataFormat, sKeyNativeFloat ); \
     isbinary_ = true
 #endif
 
