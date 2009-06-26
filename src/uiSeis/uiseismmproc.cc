@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.129 2009-06-17 17:42:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.130 2009-06-26 10:05:09 cvsraman Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -108,7 +108,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     uiObject* inlperjobattach = 0;
     if ( !is2d )
     {
-	FixedString tmpstordir = iop.find( sKey::TmpStor );
+	BufferString tmpstordir = iop.find(sKey::TmpStor).buf();
 	isrestart = !tmpstordir.isEmpty();
 	if ( !isrestart )
 	{
@@ -513,12 +513,19 @@ int uiSeisMMProc::runnerHostIdx( const char* mach ) const
 }
 
 
+#ifdef __win__
+#define mReDirectToNull checkcmd += " > NUL"
+#else
+#define mReDirectToNull checkcmd += " > /dev/null"
+#endif
+
 static bool isHostOK( const HostData& hd, const char* rshcomm,
 		      BufferString& errmsg )
 {	
     BufferString remotecmd( rshcomm );
     remotecmd += " "; remotecmd += hd.name();
     BufferString checkcmd( remotecmd ); checkcmd += " whoami";
+    mReDirectToNull;
     if ( system(checkcmd.buf()) )
     {
 	errmsg = "Cannot establish a ";
