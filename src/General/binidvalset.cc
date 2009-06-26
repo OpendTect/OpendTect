@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.27 2009-06-08 09:17:01 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.28 2009-06-26 18:44:18 cvskris Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: binidvalset.cc,v 1.27 2009-06-08 09:17:01 cvsbe
 #include "strmoper.h"
 #include "survinfo.h"
 #include "statrand.h"
+#include "varlenarray.h"
 #include <iostream>
 
 
@@ -78,7 +79,7 @@ void BinIDValueSet::empty()
 }
 
 
-void BinIDValueSet::append( const BinIDValueSet& bvs )
+bool BinIDValueSet::append( const BinIDValueSet& bvs )
 {
     Pos pos; BinID bid;
     if ( nrvals_ <= bvs.nrvals_ )
@@ -86,21 +87,26 @@ void BinIDValueSet::append( const BinIDValueSet& bvs )
 	while ( bvs.next(pos,!bvs.allowdup_) )
 	{
 	    bvs.get( pos, bid );
-	    add( bid, nrvals_ ? bvs.getVals( pos ) : 0 );
+	    const Pos newpos = add( bid, nrvals_ ? bvs.getVals( pos ) : 0 );
+	    if ( !newpos.valid() )
+		return false;
 	}
     }
     else
     {
-	float* insvals = new float [nrvals_];
+	mAllocVarLenArr( float, insvals, nrvals_ );
 	setToUdf(insvals,nrvals_);
 	while ( bvs.next(pos,!allowdup_) )
 	{
 	    bvs.get( pos, bid );
 	    memcpy( insvals, bvs.getVals( pos ), bvs.nrvals_ * sizeof(float) );
-	    add( bid, insvals );
+	    const Pos newpos = add( bid, insvals );
+	    if ( !newpos.valid() )
+		return false;
 	}
-	delete [] insvals;
     }
+
+    return true;
 }
 
 
@@ -148,7 +154,8 @@ void BinIDValueSet::randomSubselect( int maxsz )
 bool BinIDValueSet::getFrom( std::istream& strm )
 {
     empty();
-    setNrVals( 0, false );
+    if ( !setNrVals( 0, false ) )
+	return false;
 
     char linebuf[4096], valbuf[1024];
     Coord crd; BinID bid;
@@ -663,10 +670,10 @@ void BinIDValueSet::removeVal( int validx )
 }
 
 
-void BinIDValueSet::setNrVals( int newnrvals, bool keepdata )
+bool BinIDValueSet::setNrVals( int newnrvals, bool keepdata )
 {
-    if ( newnrvals == nrvals_ )
-	return;
+    if ( newnrvals==nrvals_ )
+	return true;
 
     const int oldnrvals = nrvals_;
     const_cast<int&>( nrvals_ ) = newnrvals;
@@ -681,8 +688,10 @@ void BinIDValueSet::setNrVals( int newnrvals, bool keepdata )
 	else
 	{
 	    TypeSet<float>* oldvals = valsets_[iinl];
-	    TypeSet<float>* newvals = new TypeSet<float>( nrcrl*nrvals_,
-		    					  mUdf(float) );
+	    mDeclareAndTryAlloc( TypeSet<float>*, newvals,
+				 TypeSet<float>( nrcrl*nrvals_, mUdf(float) ) );
+	    if ( !newvals )
+		return false;
 	    valsets_.replace( iinl, newvals );
 	    if ( keepdata )
 	    {
@@ -696,6 +705,8 @@ void BinIDValueSet::setNrVals( int newnrvals, bool keepdata )
 	    delete oldvals;
 	}
     }
+
+    return true;
 }
 
 

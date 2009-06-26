@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.21 2009-06-08 09:17:01 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.22 2009-06-26 18:44:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public:
     inline void		allowDuplicateBids( bool yn )
 			{ allowdup_ = yn; if ( !yn ) removeDuplicateBids(); }
     void		empty();
-    void		append(const BinIDValueSet&);
+    bool		append(const BinIDValueSet&);
     void		remove(const BinIDValueSet&);
     void		copyStructureFrom(const BinIDValueSet&);
     			//!< will also empty this set
@@ -138,7 +138,7 @@ public:
     			//!< You cannot remove while iterating
     			//!< Collect the to-be-removed and use this instead
     void		removeVal(int); // Will remove entire 'column'
-    void		setNrVals(int,bool kp_data=true);
+    bool		setNrVals(int,bool kp_data=true);
     void		sortDuplicateBids(int value_nr,bool ascending=true);
     void		removeDuplicateBids();
     void		randomSubselect(int maxnr);
