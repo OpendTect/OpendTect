@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.10 2009-06-24 09:03:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.11 2009-06-26 09:39:56 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -75,18 +75,20 @@ void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop,
 }
 
 
+#define mSampleGate 5
 float WellTiePickSetMGR::findEventDah( float zpos, bool issynth )
 {
     if ( evtype_ == VSEvent::None ) 
 	evtype_ = VSEvent::Extr;
-    const int posidx = dispdata_->getIdx( zpos );  
+    const int posidx = dispdata_->getIdx( zpos*0.001 );  
     const char* colnm = issynth ? datapms_->synthnm_ : datapms_->attrnm_; 
     const int maxidx = dispdata_->getLength()-1;
-    Interval<float> intv ( posidx, maxidx );
+    Interval<float> intv ( posidx, posidx+mSampleGate );
     SamplingData<int> sd;
-    ValueSeriesEvFinder<float,float> evf( *dispdata_->get(colnm), maxidx, sd );
+    ValueSeriesEvFinder<float,float> evf( *dispdata_->get(colnm), 
+	    				  maxidx, sd );
     const int evpos = mNINT( evf.find( evtype_, intv ).pos );
-    if ( evpos > maxidx || evpos <0 )
+    if ( evpos>maxidx || evpos<0 )
 	return zpos;
 
     return dispdata_->get( datapms_->dptnm_, evpos );
@@ -95,6 +97,7 @@ float WellTiePickSetMGR::findEventDah( float zpos, bool issynth )
 
 void WellTiePickSetMGR::updateShift( int vwridx, float curpos )
 {
+    //TODO ???
     /*used only for log stretch and squueze...
     logpickset_.setMousePos( curpos );
     mousemoving.trigger();*/

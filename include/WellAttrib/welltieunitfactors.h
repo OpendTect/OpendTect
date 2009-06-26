@@ -93,9 +93,9 @@ public :
 	int           		dispsize_;
 	int           		corrsize_;
 	int           		nrdatacols_;
-	StepInterval<float> 	timeintv_;
-	StepInterval<float> 	dptintv_;
-	StepInterval<float> 	corrtimeintv_;
+	StepInterval<double> 	timeintv_;
+	StepInterval<double> 	dptintv_;
+	StepInterval<double> 	corrtimeintv_;
 	float			corrstartdah_;
 	float			corrstopdah_;
 	int 			step_;
@@ -117,10 +117,10 @@ public :
 	const Well::Data&	wd_;
 	void	 		createColNames();
 	bool			resetDataParams();
-	bool			setTimes(StepInterval<float>&,float,float);
-	bool			setDepths(const StepInterval<float>&,
-						StepInterval<float>&);
-    	const StepInterval<float>&  getTimeScale() const { return timeintv_; } 
+	bool			setTimes(StepInterval<double>&,float,float);
+	bool			setDepths(const StepInterval<double>&,
+						StepInterval<double>&);
+    	const StepInterval<double>&  getTimeScale() const { return timeintv_; } 
 
 	friend class WellTieParams;
     };

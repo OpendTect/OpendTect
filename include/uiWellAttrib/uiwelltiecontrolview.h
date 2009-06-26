@@ -42,6 +42,11 @@ protected:
     void 		stateCB(CallBacker*);
     bool 		checkIfInside(double,double);
     bool 		handleUserClick();
+
+    void 		setView();
+    void		rubBandCB(CallBacker*);
+    void 		zoomCB( CallBacker* );
+
 };
 
 #endif

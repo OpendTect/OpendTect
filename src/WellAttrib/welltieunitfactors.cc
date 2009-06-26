@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.14 2009-06-22 11:49:52 cvsbert Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.15 2009-06-26 09:39:56 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -157,6 +157,11 @@ bool WellTieParams::DataParams::resetDataParams()
     setTimes( corrtimeintv_, corrstartdah_, corrstopdah_ );
     setDepths( timeintv_, dptintv_ );
 
+    //TODO: change structure to get time and corrtime ALWAYS start at 0.
+    //->no use to update startintv anymore!
+    timeintv_.start = 0;
+    corrtimeintv_.start = 0;
+
     worksize_ = (int) ( (timeintv_.stop-timeintv_.start)/timeintv_.step );
     dispsize_ = (int) ( worksize_/mStep )-1;
     corrsize_ = (int) ( (corrtimeintv_.stop-corrtimeintv_.start )
@@ -168,7 +173,7 @@ bool WellTieParams::DataParams::resetDataParams()
 }
 
 
-bool WellTieParams::DataParams::setTimes( StepInterval<float>& timeintv, 
+bool WellTieParams::DataParams::setTimes( StepInterval<double>& timeintv, 
 			      float startdah, float stopdah )
 {
     timeintv.start = wd_.d2TModel()->getTime( startdah );
@@ -184,8 +189,7 @@ bool WellTieParams::DataParams::setTimes( StepInterval<float>& timeintv,
 }
 
 
-bool WellTieParams::DataParams::setDepths( const StepInterval<float>& timeintv, 
-			 	     StepInterval<float>& dptintv )
+bool WellTieParams::DataParams::setDepths( const StepInterval<double>& timeintv,					   StepInterval<double>& dptintv )
 {
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return false;

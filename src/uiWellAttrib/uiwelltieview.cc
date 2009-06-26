@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.30 2009-06-24 14:35:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.31 2009-06-26 09:39:56 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.30 2009-06-24 14:35:22 cvs
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisbufadapters.h"
+#include "survinfo.h"
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
@@ -164,6 +165,7 @@ void uiWellTieView::drawAILog()
 {
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[1]->logData( true );
     wldld1.wl_ = wd_.logs().getLog( params_->ainm_ );
+    //wldld2.xrev_ = true;
     wldld1.linestyle_.color_ = Color::stdDrawColor(0);
 }
 
@@ -172,7 +174,6 @@ void uiWellTieView::drawRefLog()
 {
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[1]->logData( false );
     wldld2.wl_ = wd_.logs().getLog( params_->refnm_ );
-    wldld2.xrev_ = true;
     wldld2.linestyle_.color_ = Color::stdDrawColor(1);
 }
 
@@ -250,11 +251,11 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     seistrcdp_->trcBufArr2D().setBufMine( false );
 
     DPM(DataPackMgr::FlatID()).addAndObtain( seistrcdp_ );
-    StepInterval<double> zrange( params_->timeintv_.start, 
+    /*StepInterval<double> zrange( params_->timeintv_.start,
 	    			 params_->timeintv_.stop,
-				 params_->timeintv_.step*params_->step_ );
+				 SI().zStep() );*/
     StepInterval<double> xrange( 1, trcbuf->size(), 1 );
-    seistrcdp_->posData().setRange( false, zrange );
+    //seistrcdp_->posData().setRange( false, zrange );
     seistrcdp_->posData().setRange( true, xrange );
     seistrcdp_->setName( varname );
     
@@ -265,7 +266,7 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     const UnitOfMeasure* uom = 0;
     const char* units =  ""; //uom ? uom->symbol() : "";
     app.annot_.x1_.name_ =  varname;
-    app.annot_.x2_.name_ = "TWT (s)";
+    app.annot_.x2_.name_ = "TWT (ms)";
 }
 
 
@@ -290,7 +291,7 @@ void uiWellTieView::zoomChg( CallBacker* )
     uiWorldRect curwr = vwr_->curView();
     const float start = curwr.top();
     const float stop  = curwr.bottom();
-    setLogsRanges( d2tm->getDepth(start), d2tm->getDepth(stop) );
+    setLogsRanges( d2tm->getDepth(start*0.001), d2tm->getDepth(stop*0.001) );
 }
 
 
@@ -384,7 +385,7 @@ void uiWellTieView::drawUserPicks( const WellTiePickSet* pickset )
 	const UserPick* pick = pickset->get(idx);
 	if ( !pick  ) continue;
 
-	float zpos = d2tm->getTime( pick->dah_ ); 
+	float zpos = d2tm->getTime( pick->dah_ )*1000; 
 	float xpos = pick->xpos_;
 	
 	drawMarker( userpickauxdatas_[idx], 0, xpos, zpos, 

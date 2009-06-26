@@ -32,7 +32,7 @@ public:
 			~WellTieExtractTrack() {};
 
 
-    StepInterval<float> timeintv_;
+    StepInterval<double> timeintv_;
 
     int                 nextStep();
     od_int64            totalNr() const		{ return timeintv_.nrSteps(); }
@@ -57,7 +57,7 @@ public:
 			~WellTieResampleLog() {};
 
 
-    StepInterval<float> timeintv_;
+    StepInterval<double> timeintv_;
 
     int                 nextStep();
     int           	colnr_;

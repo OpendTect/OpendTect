@@ -9,17 +9,19 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.12 2009-06-20 11:57:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.13 2009-06-26 09:39:56 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
+#include "flatviewzoommgr.h"
 #include "mouseevent.h"
-#include "welltiepickset.h"
 #include "pixmap.h"
+#include "welltiepickset.h"
 
-#include "uiflatviewer.h"
 #include "uibutton.h"
+#include "uiflatviewer.h"
 #include "uimsg.h"
+#include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
 #include "uiworld2ui.h"
 
@@ -75,6 +77,56 @@ bool uiWellTieControlView::checkIfInside( double xpos, double zpos )
 	    || zpos > sizztop || zpos < sizzbot )
 	mErrRet("Please select your pick inside the work area");
     return true;
+}
+
+
+void uiWellTieControlView::rubBandCB( CallBacker* cb )
+{
+    const uiRect* selarea = vwr_.rgbCanvas().getSelectedArea();
+    if ( selarea->topLeft() == selarea->bottomRight() ) return;
+
+    uiWorld2Ui w2u;
+    uiWorldRect wr;
+
+    //set current view
+    vwr_.getWorld2Ui( w2u );
+    wr  = w2u.transform( *selarea );
+
+    const uiWorldRect bbox = vwr_.boundingBox();
+
+    Interval<double> zrg( wr.top() , wr.bottom() );
+    Interval<double> xrg( bbox.left(), bbox.right());
+
+    wr.setTopBottom( zrg );
+    wr.setLeftRight( xrg );
+
+    Geom::Point2D<double> centre = wr.centre();
+    Geom::Size2D<double> newsz = wr.size();
+
+    setNewView( centre, newsz );
+}
+
+
+void uiFlatViewStdControl::zoomCB( CallBacker* but )
+{
+    const bool zoomin = but == zoominbut_;
+    const uiWorldRect bbox = vwr_.boundingBox();
+    if ( but == zoominbut_ )
+    {
+	zoommgr_.forward();
+	Geom::Size2D<double> size = zoommgr_.current();
+	size.setWidth( bbox.left()- bbox.right() );
+	vwr_.setView( getZoomOrPanRect( vwr_.curView().centre(),size, bbox ) );
+    }
+    else
+    {
+	if ( zoommgr_.atStart() )
+	return;
+	zoommgr_.back();
+	Geom::Size2D<double> size = zoommgr_.current();
+	size.setWidth( bbox.left()- bbox.right() );
+	vwr_.setView( getZoomOrPanRect( vwr_.curView().centre(),size, bbox ) );
+    }
 }
 
 

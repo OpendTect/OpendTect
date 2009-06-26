@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.6 2009-06-10 08:07:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.7 2009-06-26 09:39:56 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -39,7 +39,7 @@ WellTieExtractTrack::WellTieExtractTrack(  DataPointSet& dps,
     dr.pos_.z_ = pos.z; dr.pos_.set( bid, pos ); dps_.addRow( dr )
 int WellTieExtractTrack::nextStep()
 {
-    float time = timeintv_.atIndex( nrdone_ );
+    double time = timeintv_.atIndex( nrdone_ );
 
     Coord3 pos = wd_.track().getPos( wd_.d2TModel()->getDepth(time) );
     pos.z = time;
