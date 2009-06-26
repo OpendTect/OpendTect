@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.241 2009-06-19 14:38:02 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.242 2009-06-26 19:04:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,17 +62,16 @@ public:
     			/*<\Returns a notifier that is triggered
 			            when the entire visualization is
 				    closed. All visBase::DataObjects
-				    must then be unrefed.
-			*/
+				    must then be unrefed.  */
 
     visBase::DataObject* getObject( int id ) const;
     int			highestID() const;
     void		addObject( visBase::DataObject*, int sceneid,
-				   bool saveinsessions  );
-    void		shareObject( int sceneid, int id );
-    void		findObject( const std::type_info&, TypeSet<int>& );
-    void		findObject( const MultiID&, TypeSet<int>& );
-    void		removeObject( visBase::DataObject*,int sceneid);
+				   bool saveinsessions);
+    void		shareObject(int sceneid,int id);
+    void		findObject(const std::type_info&,TypeSet<int>&);
+    void		findObject(const MultiID&, TypeSet<int>& );
+    void		removeObject(visBase::DataObject*,int sceneid);
     void		removeObject(int id,int sceneid);
     void		setObjectName(int,const char*);
     const char*		getObjectName(int) const;
@@ -137,6 +136,7 @@ public:
     bool		isAttribEnabled(int id,int attrib) const;
     void		enableAttrib(int id,int attrib,bool yn);
     void		setTranslation(int visid,const Coord3& shift);
+    Coord3		getTranslation(int visid) const;
     
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id,int attrib=-1) const;
@@ -215,8 +215,6 @@ public:
     void		calculateAllAttribs();
     bool		calculateAttrib(int id,int attrib,bool newsel,
 	    				bool ignorelocked=false);
-    void		setAttribShift(int id,int attr,const TypeSet<float>&);
-
     bool		canHaveMultipleTextures(int) const;
     int			nrTextures(int id,int attrib) const;
     void		selectTexture(int id,int attrib,int texture);

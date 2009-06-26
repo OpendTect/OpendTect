@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.421 2009-06-19 14:38:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.422 2009-06-26 19:04:47 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -659,6 +659,13 @@ void uiVisPartServer::setTranslation( int id, const Coord3& shift )
 }
 
 
+Coord3 uiVisPartServer::getTranslation( int id ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getTranslation() : Coord3::udf();
+}
+
+
 int uiVisPartServer::selectedTexture( int id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -700,14 +707,6 @@ void uiVisPartServer::createAndDispDataPack( int id, int attrib,
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->createAndDispDataPack( attrib, dtps, 0 );
-}
-
-
-void uiVisPartServer::setAttribShift( int id, int attr,
-				      const TypeSet<float>& shifts )
-{
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setAttribShift( attr, shifts );
 }
 
 
@@ -1753,8 +1752,8 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     }
     else if ( resmnuitem_.id!=-1 && resmnuitem_.itemIndex(mnuid)!=-1 )
     {
-	MouseCursorChanger cursorlock( MouseCursor::Wait );
-	so->setResolution( resmnuitem_.itemIndex(mnuid) );
+	uiTaskRunner taskrunner( appserv().parent() );
+	so->setResolution( resmnuitem_.itemIndex(mnuid), &taskrunner );
 	menu->setIsHandled( true );
     }
 }
