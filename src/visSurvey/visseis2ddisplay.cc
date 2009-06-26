@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.67 2009-06-23 15:52:35 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.68 2009-06-26 18:49:32 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -327,9 +327,9 @@ DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
 
 void Seis2DDisplay::setTraceData( int attrib,
 				  const Attrib::Data2DHolder& dataset,
-				  TaskRunner*)
+				  TaskRunner* tr )
 {
-    setData( attrib, dataset );
+    setData( attrib, dataset, tr );
     if ( cache_[attrib] ) cache_[attrib]->unRef();
 
     cache_.replace( attrib, &dataset );
@@ -342,7 +342,8 @@ const Attrib::Data2DHolder* Seis2DDisplay::getCache( int attrib ) const
 
 
 void Seis2DDisplay::setData( int attrib,
-			     const Attrib::Data2DHolder& data2dh )
+			     const Attrib::Data2DHolder& data2dh,
+       			     TaskRunner* tr )
 {
     if ( data2dh.isEmpty() ) 
     {
@@ -353,7 +354,7 @@ void Seis2DDisplay::setData( int attrib,
 	}
 	else
 	{
-	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, tr );
 	    channels_->turnOn( false );
 	}
 	return;
@@ -459,7 +460,7 @@ void Seis2DDisplay::setData( int attrib,
 	    channels_->setSize( 1, slice.info().getSize(1),
 		    		   slice.info().getSize(0) );
 	    channels_->setUnMappedData( attrib, sidx, usedarr->getData(), 
-		    			OD::CopyPtr, 0 );
+		    			OD::CopyPtr, tr );
 	}
     
 	triangles_->setTextureZPixels( slice.info().getSize(0) );
@@ -501,7 +502,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( curzrg_ );
     s2dd->setTraceNrRange( trcnrrg_ );
-    s2dd->setResolution( getResolution() );
+    s2dd->setResolution( getResolution(), tr );
 
     s2dd->setLineSetID( linesetid_ );
     s2dd->setLineName( getLineName() );
@@ -517,7 +518,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     		    (const visBase::MultiTexture&) *texture_, idx );
 
 	if ( getCache( idx ) )
-	    s2dd->setData( idx, *getCache( idx ) );
+	    s2dd->setData( idx, *getCache( idx ), tr );
     }
 
     return s2dd;
@@ -588,7 +589,7 @@ int Seis2DDisplay::nrResolutions() const
 }
 
 
-void Seis2DDisplay::setResolution( int res )
+void Seis2DDisplay::setResolution( int res, TaskRunner* tr )
 {
     if ( !texture_ || texture_->canUseShading() )
 	return;
@@ -598,7 +599,7 @@ void Seis2DDisplay::setResolution( int res )
 
     texture_->clearAll();
     resolution_ = res;
-    updateDataFromCache();
+    updateDataFromCache( tr );
 }
 
 
@@ -648,10 +649,10 @@ bool Seis2DDisplay::hasCache( int attrib ) const
 { return cache_[attrib] && cache_[attrib]->size(); }
 
 
-void Seis2DDisplay::updateDataFromCache()
+void Seis2DDisplay::updateDataFromCache( TaskRunner* tr )
 {
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
-	if ( cache_[idx] ) setData( idx, *cache_[idx] );
+	if ( cache_[idx] ) setData( idx, *cache_[idx], tr );
 }
 
 
@@ -968,7 +969,7 @@ const ZAxisTransform* Seis2DDisplay::getDataTransform() const
 void Seis2DDisplay::dataTransformCB( CallBacker* )
 {
     updateRanges( false, true );
-    updateDataFromCache();
+    updateDataFromCache( 0 );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.217 2009-05-27 15:59:49 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.218 2009-06-26 18:49:32 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -488,7 +488,7 @@ int PlaneDataDisplay::nrResolutions() const
 }
 
 
-void PlaneDataDisplay::setResolution( int res )
+void PlaneDataDisplay::setResolution( int res, TaskRunner* tr )
 {
     if ( !texture_ || texture_->canUseShading() )
 	return;
@@ -500,7 +500,7 @@ void PlaneDataDisplay::setResolution( int res )
     texture_->clearAll();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	updateFromDisplayIDs( idx );
+	updateFromDisplayIDs( idx, tr );
 }
 
 
@@ -544,7 +544,7 @@ void PlaneDataDisplay::removeCache( int attrib )
     if ( !texture_ || texture_->splitsTexture() )
     {
 	for ( int idx=0; idx<displaycache_.size(); idx++ )
-    	    updateFromDisplayIDs( idx );
+    	    updateFromDisplayIDs( idx, 0 );
     }
 }
 
@@ -557,7 +557,7 @@ void PlaneDataDisplay::swapCache( int a0, int a1 )
     if ( !texture_ || texture_->splitsTexture() )
     {
 	for ( int idx=0; idx<displaycache_.size(); idx++ )
-    	    updateFromDisplayIDs( idx );
+    	    updateFromDisplayIDs( idx, 0 );
     }
 }
 
@@ -874,11 +874,11 @@ void PlaneDataDisplay::setDisplayDataPackIDs( int attrib,
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
 	DPM(DataPackMgr::FlatID()).obtain( dpids[idx] );
 
-    updateFromDisplayIDs( attrib );
+    updateFromDisplayIDs( attrib, 0 );
 }
 
 
-void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
+void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 {
     const TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
     int sz = dpids.size();
@@ -954,7 +954,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 
 	    channels_->setSize( 1, dparr.info().getSize(0),
 				   dparr.info().getSize(1) );
-	    channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
+	    channels_->setUnMappedData( attrib, idx, arr, cp, tr );
 	}
 
 	rectangle_->setOriginalTextureSize( dparr.info().getSize(0),

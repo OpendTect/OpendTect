@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.105 2009-06-19 14:38:02 cvshelene Exp $
+ RCS:		$Id: vissurvobj.h,v 1.106 2009-06-26 18:49:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -90,7 +90,7 @@ public:
 				     \param whichobj refers to id of the
 				     moved object */
 
-    virtual void		setTranslation(const Coord3&)		{}
+    virtual void		setTranslation(const Coord3&) {}
     virtual Coord3		getTranslation() const
     				{ return Coord3(0,0,0); }
 
@@ -133,7 +133,7 @@ public:
     virtual int			nrResolutions() const		{ return 1; }
     virtual BufferString	getResolutionName(int) const;
     virtual int			getResolution() const		{ return 0; }
-    virtual void		setResolution(int)		{}
+    virtual void		setResolution(int,TaskRunner*)	{}
 
     enum AttribFormat		{ None, Cube, Traces, RandomPos, OtherFormat };
     				/*!\enum AttribFormat
@@ -236,9 +236,6 @@ public:
     				{ return Interval<float>(0,0); }
     virtual void		setTraceData(int attrib,SeisTrcBuf&,
 	    				     TaskRunner*);
-    virtual void		setAttribShift(int attr,const TypeSet<float>&)
-				{}
-
 				// Random pos
 				/*!< Every position is put in the DataPointSet
 				  no matter which original patch it belongs to*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.31 2009-06-23 05:25:54 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.32 2009-06-26 18:49:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -65,7 +65,7 @@ public:
 	    				     const Attrib::Data2DHolder&,
 					     TaskRunner*);
     const Attrib::Data2DHolder*	getCache(int attrib) const;
-    void			updateDataFromCache();
+    void			updateDataFromCache(TaskRunner*);
 
     bool			allowPicks() const		{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
@@ -84,7 +84,7 @@ public:
 
     int				nrResolutions() const;
     int				getResolution() const;
-    void			setResolution(int);
+    void			setResolution(int,TaskRunner*);
 
     Pol2D3D                     getAllowedDataType() const	{return Only2D;}
     SurveyObject::AttribFormat 	getAttributeFormat(int attrib) const;
@@ -142,7 +142,8 @@ protected:
 				    z-coordinates & texture coordinates.*/
 
     void			updateLineNamePos();
-    void			setData(int attrib,const Attrib::Data2DHolder&);
+    void			setData(int attrib,const Attrib::Data2DHolder&,
+	    				TaskRunner*);
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
     void			dataTransformCB(CallBacker*);

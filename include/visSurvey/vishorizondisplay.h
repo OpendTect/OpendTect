@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.44 2009-06-25 06:15:01 cvssatyaki Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.45 2009-06-26 18:49:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -113,7 +113,7 @@ public:
     int				nrResolutions() const;
     BufferString		getResolutionName(int) const;
     int				getResolution() const;
-    void			setResolution(int);
+    void			setResolution(int,TaskRunner*);
     				/*!< 0 is automatic */
 
     bool			allowPicks() const		{ return true; }
@@ -134,7 +134,6 @@ public:
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
-    void			setAttribShift(int attr,const TypeSet<float>&);
 
     bool			usesWireframe() const;
     void			useWireframe(bool);

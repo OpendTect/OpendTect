@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.38 2009-06-22 21:41:48 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.39 2009-06-26 18:49:32 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -790,7 +790,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 }
 
 
-void FaultDisplay::setResolution( int res )
+void FaultDisplay::setResolution( int res, TaskRunner* tr )
 {
     if ( texture_->canUseShading() )
 	return;

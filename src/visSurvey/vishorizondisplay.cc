@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.96 2009-06-26 18:19:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.97 2009-06-26 18:49:32 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -81,7 +81,6 @@ HorizonDisplay::HorizonDisplay()
     
     TypeSet<float> shift;
     shift += 0.0;
-    shifts_ += shift;
     curshiftidx_ += 0;
     BufferStringSet* aatrnms = new BufferStringSet();
     aatrnms->allowNull();
@@ -101,7 +100,6 @@ HorizonDisplay::~HorizonDisplay()
     coltabsequences_.erase();
 
     setSceneEventCatcher( 0 );
-    shifts_.erase();
     curshiftidx_.erase();
 
     if ( translation_ )
@@ -336,7 +334,7 @@ void HorizonDisplay::updateFromMPE()
     //}
 
     if ( displayedRowRange().nrSteps()<=1 || displayedColRange().nrSteps()<=1 )
-	setResolution( 0 ); //Automatic resolution
+	setResolution( 0, 0 ); //Automatic resolution
 
     EMObjectDisplay::updateFromMPE();
 }
@@ -451,7 +449,7 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
     curtextureidx_ = textureidx;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->selectActiveVersion( channel, textureidx );
-
+/*
     mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_)
     if ( !emsurf || emsurf->auxdata.nrAuxData() == 0 ) return;
 
@@ -461,7 +459,6 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
     else
     {
 	BufferString attrnm = userrefs_[channel]->get( textureidx );
-	const float shift = (shifts_[channel])[ textureidx ];
 	curshiftidx_[channel] = textureidx;
 	emsurf->geometry().setShift( shift );
 	Coord3 tranl = getTranslation();
@@ -470,6 +467,7 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
 	setSelSpec( channel,
 		    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
     }
+    */
 }
 
 
@@ -519,7 +517,6 @@ bool HorizonDisplay::addAttrib()
     as_ += new Attrib::SelSpec;
     TypeSet<float> shift;
     shift += 0.0;
-    shifts_ += shift;
     curshiftidx_ += 0;
     BufferStringSet* aatrnms = new BufferStringSet();
     aatrnms->allowNull();
@@ -552,7 +549,6 @@ bool HorizonDisplay::removeAttrib( int channel )
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->removeChannel( channel );
 
-    shifts_.remove( channel );
     curshiftidx_.remove( channel );
     userrefs_.remove( channel );
     enabled_.remove( channel );
@@ -583,7 +579,6 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
 
     as_.swap( a0, a1 );
     enabled_.swap( a0, a1 );
-    shifts_.swap( a0, a1 );
     curshiftidx_.swap( a0, a1 );
     userrefs_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );
@@ -612,9 +607,10 @@ unsigned char HorizonDisplay::getAttribTransparency( int channel ) const
 
 void HorizonDisplay::enableAttrib( int channelnr, bool yn )
 {
+    enabled_[channelnr] = yn;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->getChannel2RGBA()->setEnabled( channelnr, yn );
-    
+   /* 
     mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_);
     int channelidx = shifts_.size()-1;
     if ( channelnr != 0 )
@@ -629,6 +625,7 @@ void HorizonDisplay::enableAttrib( int channelnr, bool yn )
 	transl.z = zshift;
 	setTranslation( transl );
     }
+    */
 
     updateSingleColor();
 }
@@ -639,23 +636,7 @@ bool HorizonDisplay::isAttribEnabled( int channel ) const
     if ( channel<0 || channel>=nrAttribs() )
        return false;
 
-    return sections_.size()
-	? sections_[0]->getChannel2RGBA()->isEnabled(channel)
-	: false;
-}
-
-
-void HorizonDisplay::setAttribShift( int channel, const TypeSet<float>& shifts )
-{
-    if ( shifts_.size()-1 < channel )
-    {
-	TypeSet<float> shft;
-	shft += 0.0;
-	shifts_.setSize( channel+1, shft );
-	curshiftidx_.setSize( channel+1, 0 );
-    }
-
-    shifts_[channel] = shifts;
+    return enabled_[channel];
 }
 
 
@@ -1053,11 +1034,11 @@ int HorizonDisplay::getResolution() const
 }
 
 
-void HorizonDisplay::setResolution( int res )
+void HorizonDisplay::setResolution( int res, TaskRunner* tr )
 {
     resolution_ = res;
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setResolution( res-1, 0 );
+	sections_[idx]->setResolution( res-1, tr );
 }
 
 
@@ -1963,7 +1944,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 	}
     }
 
-    setResolution( resolution );
+    setResolution( resolution, 0 );
 
     int intersectlinematid;
     if ( par.get(sKeyIntersectLineMaterialID(),intersectlinematid) )

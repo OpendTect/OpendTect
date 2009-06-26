@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.113 2009-05-27 03:24:58 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.114 2009-06-26 18:49:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -76,7 +76,7 @@ public:
     bool			allowMaterialEdit() const	{ return true; }
 
     int				nrResolutions() const;
-    void			setResolution(int);
+    void			setResolution(int,TaskRunner*);
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
 
@@ -151,7 +151,7 @@ protected:
 							TaskRunner*);
     void			setDisplayDataPackIDs(int attrib,
 	    				const TypeSet<DataPack::ID>& dpids);
-    void			updateFromDisplayIDs(int attrib);
+    void			updateFromDisplayIDs(int attrib,TaskRunner*);
 
     void			updateMainSwitch();
     void			setSceneEventCatcher(visBase::EventCatcher*);

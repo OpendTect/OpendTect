@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.68 2009-06-19 18:28:06 cvsyuancheng Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.69 2009-06-26 18:49:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,7 +58,7 @@ public:
 
 
     int				nrResolutions() const 	{ return 1;  }
-    void			setResolution( int )	{}
+    void			setResolution(int,TaskRunner*)	{}
 
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;

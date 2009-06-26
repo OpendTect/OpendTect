@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.17 2009-05-27 03:24:58 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.18 2009-06-26 18:49:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ public:
     bool			isInlCrl() const	{ return false; }
 
     virtual int			nrResolutions() const;
-    virtual void		setResolution(int);
+    virtual void		setResolution(int,TaskRunner*);
 
     SurveyObject::AttribFormat	getAttributeFormat(int) const
 				{ return SurveyObject::RandomPos; }
