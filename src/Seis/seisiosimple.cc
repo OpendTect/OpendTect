@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.12 2009-04-23 15:09:50 cvshelene Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.13 2009-06-29 09:56:43 cvshelene Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -525,7 +525,7 @@ int SeisIOSimple::writeExpTrc()
 
     float val;
     int comptoextract = data_.compidx_;
-    if ( comptoextract>= trc_.nrComponents() )
+    if ( comptoextract>= trc_.nrComponents() || comptoextract<0 )
 	comptoextract = 0;
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
     {

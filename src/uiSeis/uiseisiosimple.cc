@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.23 2009-06-22 15:17:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.24 2009-06-29 09:56:43 cvshelene Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -281,6 +281,7 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
     multcompfld_ = new uiGenInput( this, "Component to export",
 	    			   StringListInpSpec() );
     multcompfld_->display( false );
+    multcompfld_->setSensitive( false );
 
     if ( !isimp_ )
     {
@@ -319,6 +320,7 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
 	SeisIOObjInfo::getCompNames( lkey, compnms );
 	multcompfld_->newSpec( StringListInpSpec(compnms), 0 );
 	multcompfld_->display( compnms.size()>1 );
+	multcompfld_->setSensitive( compnms.size()>1 );
     }
 }
 
@@ -419,7 +421,8 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     data().setScaler( scalefld_->getScaler() );
     data().remnull_ = remnullfld_->getBoolValue();
-    data().compidx_ = multcompfld_->getIntValue();
+    data().compidx_ = multcompfld_->sensitive() ? multcompfld_->getIntValue()
+						: 0;
 
     data().isasc_ = isascfld_->getBoolValue();
     data().havesd_ = havesdfld_->getBoolValue();
