@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.39 2009-01-16 03:53:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.40 2009-06-29 18:29:31 cvskris Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -352,6 +352,11 @@ void uiSliderExtra::processInput()
 	slider->setValue( editfld->getfValue() );
 }
 
+
+float uiSliderExtra::editValue() const
+{
+    return editfld ? editfld->getfValue() : mUdf(float); 
+}
 
 void uiSliderExtra::editRetPress( CallBacker* )
 {

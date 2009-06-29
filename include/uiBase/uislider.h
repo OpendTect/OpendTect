@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.21 2009-01-09 09:15:20 cvssatyaki Exp $
+ RCS:           $Id: uislider.h,v 1.22 2009-06-29 18:29:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,8 @@ public:
     uiLabel*		label()			{ return lbl; }
 
     void		processInput();
+    float		editValue() const;
+    			//!<The val in the ed field, which may be outside range
 
 protected:
 
