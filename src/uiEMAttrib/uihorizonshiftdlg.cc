@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.5 2009-06-23 21:16:41 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.6 2009-06-29 19:09:35 cvskris Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -33,14 +33,13 @@ const char* uiHorizonShiftDialog::sDefaultAttribName()
 uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const EM::ObjectID& emid,
 					    const Attrib::DescSet& descset,
+					    float initialshift,
 					    bool cancalcattrib )
     : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,mNoHelpID).
 	    			  modal(false) )
     , shiftrg_(-100,100,10)
     , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
     , emhor3d_(0)
-    , curshift_(0.0)
-    , curshiftidx_(10)
     , emid_(emid)
     , storefld_(0)
     , namefld_(0)
@@ -63,6 +62,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     // TODO: Calculate slider range from horizon's z-range
     sldr->setScale( shiftrg_.step, 0 );
     sldr->setInterval( shiftrg_ );
+    sldr->setValue( initialshift*SI().zFactor() );
     sldr->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -70,13 +70,12 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     emhor3d_ = emhor3d;
     emhor3d_->ref();
 
-    curshift_ = shiftrg_.start + ( curshiftidx_ * shiftrg_.step );
-    slider_->sldr()->setValue( curshift_ );
-
     if ( cancalcattrib )
     {
 	attrinpfld_ = new uiAttrSel( this, descset, "Select Attribute" );
 	attrinpfld_->attach( alignedBelow, slider_ );
+	attrinpfld_->selectiondone.notify(
+		mCB(this,uiHorizonShiftDialog,attribChangeCB) );
 	
 	calbut_ = new uiPushButton( this, "Calculate", false );
 	calbut_->attach( rightTo, attrinpfld_ );
@@ -84,7 +83,6 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 
 	storefld_ = new uiCheckBox( this, "Store Horizons on pressing Ok" );
 	storefld_->attach( alignedBelow, attrinpfld_ );
-	storefld_->setSensitive( false );
 	storefld_->setChecked( false );
 	storefld_->activated.notify(
 		mCB(this,uiHorizonShiftDialog,setNameFldSensitive) );
@@ -92,7 +90,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	namefld_ = new uiGenInput( this, "Attribute Basename",
 				   StringInpSpec(sDefaultAttribName()) );
 	namefld_->attach( alignedBelow, storefld_ );
-	namefld_->setSensitive( false );
+	attribChangeCB( 0 );
     }
 }
 
@@ -103,13 +101,44 @@ uiHorizonShiftDialog::~uiHorizonShiftDialog()
 }
 
 
+int uiHorizonShiftDialog::nrSteps() const
+{ return shiftrg_.nrSteps()+1; }
+
+
+StepInterval<float> uiHorizonShiftDialog::shiftRg() const
+{
+    StepInterval<float> res = shiftrg_;
+    res.start /= SI().zFactor();
+    res.stop /= SI().zFactor();
+    res.step /= SI().zFactor();
+
+    return res;
+}
+
+
 bool uiHorizonShiftDialog::doStore() const
 { return storefld_ ? storefld_->isChecked() : false; }
 
 
 void uiHorizonShiftDialog::setNameFldSensitive( CallBacker* )
 {
-    namefld_->setSensitive( storefld_->isChecked() );
+    namefld_->display( storefld_->isChecked() &&
+		       (attrinpfld_ || attrinpfld_->attribID().isValid() ) );
+}
+
+
+void uiHorizonShiftDialog::attribChangeCB( CallBacker* )
+{
+    const bool isok = attrinpfld_->attribID().isValid();
+    calbut_->display( isok );
+    storefld_->display( isok );
+    namefld_->display( isok && storefld_->isChecked() );
+     
+    if ( !isok )
+ 	return;
+
+    if ( uiMSG().question("Calculate now?" ) )
+	calcAttrib( 0 );
 }
 
 
@@ -161,9 +190,7 @@ void uiHorizonShiftDialog::calcAttrib( CallBacker* )
     if ( !attrinpfld_->attribID().isValid() )
 	return;
 
-    storefld_->setSensitive( true );
     calcshiftrg_ = shiftrg_;
-    curshiftidx_ = shiftrg_.getIndex( slider_->sldr()->getValue() ); 
     calcAttribPushed.trigger();
 }
 
@@ -173,12 +200,32 @@ Attrib::DescID uiHorizonShiftDialog::attribID() const
 
 
 
+float uiHorizonShiftDialog::getShift() const
+{
+    float curshift = slider_->editValue();
+    if ( mIsUdf(curshift) )
+	curshift = slider_->sldr()->getValue();
+    
+    return curshift / SI().zFactor();
+}
+
+
 void uiHorizonShiftDialog::shiftCB( CallBacker* )
 {
-    curshift_ = slider_->sldr()->getValue() / SI().zFactor();
-    curshiftidx_ = shiftrg_.getIndex( slider_->sldr()->getValue() ); 
-    emhor3d_->geometry().setShift( curshift_ );
+    const float curshift = getShift();
+    emhor3d_->geometry().setShift( curshift );
     horShifted.trigger();
+}
+
+
+int uiHorizonShiftDialog::curShiftIdx() const
+{
+    const float curshift = getShift();
+    const int curshiftidx = shiftrg_.getIndex( curshift );
+    if ( curshiftidx<0 || curshiftidx>=nrSteps() )
+	return mUdf(int);
+
+    return curshiftidx;
 }
 
 
@@ -188,7 +235,10 @@ const char* uiHorizonShiftDialog::getAttribName() const
 
 const char* uiHorizonShiftDialog::getAttribBaseName() const
 {
-    FixedString res = namefld_->text();
+    FixedString res;
+    if ( storefld_->isChecked() )
+       res = namefld_->text();
+
     if ( res.isEmpty() || res==sDefaultAttribName() )
 	res = attrinpfld_->getInput();
 
@@ -208,7 +258,6 @@ bool uiHorizonShiftDialog::acceptOK( CallBacker* )
 	}
     }
 
-    slider_->processInput();
     shiftCB( 0 );
 
     return true;

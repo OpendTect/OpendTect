@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Feb 2009
- RCS:           $Id: uihorizonshiftdlg.h,v 1.4 2009-06-23 21:16:41 cvskris Exp $
+ RCS:           $Id: uihorizonshiftdlg.h,v 1.5 2009-06-29 19:09:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,21 +32,15 @@ class uiHorizonShiftDialog : public uiDialog
 public:
 			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
 					     const Attrib::DescSet&,
+					     float initialshift,
 			       		     bool cancalcattrib);
 			~uiHorizonShiftDialog();
     const EM::Horizon3D&	horizon3D()		{ return *emhor3d_; }
-    const StepInterval<float>&  shiftIntv()		{ return shiftrg_; }
-    void			setShiftIntv( const StepInterval<float>& rg )
-							{ shiftrg_ = rg; }
-    TypeSet<int>&		attribIds()		{ return attribids_; }
-    const TypeSet<int>&		attribIds() const	{ return attribids_; }
+    StepInterval<float>  	shiftRg() const;
+    int				nrSteps() const;
     Attrib::DescID		attribID() const;
-    float			curShift() const	{ return curshift_; }
-    int				curShiftIdx() const	{ return curshiftidx_; }
-    void			setShiftIdx( int idx )
-							{ curshiftidx_ = idx; }
-    void			setAttribIds(const TypeSet<int>& ids)
-							{ attribids_ = ids; }
+    float			getShift() const;
+    int				curShiftIdx() const;
     bool			doStore() const;
     const EM::ObjectID&		emID() const		{ return emid_; }
     const char*			getAttribName() const;
@@ -60,6 +54,7 @@ protected:
 
     void			setNameFldSensitive(CallBacker*);
     void			rangeChangeCB(CallBacker*);
+    void			attribChangeCB(CallBacker*);
     void			calcAttrib(CallBacker*);
     void			shiftCB(CallBacker*);
     bool                	acceptOK(CallBacker*);
@@ -71,12 +66,8 @@ protected:
     uiCheckBox*			storefld_;
     uiGenInput*			namefld_;
 
-    float			curshift_;
-    int				curshiftidx_;
-
     StepInterval<float>		shiftrg_;
     StepInterval<float>		calcshiftrg_;
-    TypeSet<int>		attribids_;
     EM::Horizon3D*		emhor3d_;
     EM::ObjectID		emid_;
 };
