@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.57 2009-04-16 14:45:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.58 2009-06-29 09:17:54 cvshelene Exp $";
 
 -*/
 
@@ -574,8 +574,8 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
     Seis2DLineSet lineset( fnm );
     for ( int idx=0 ;idx<lineset.nrLines();idx++ )
     {
-	LineKey lkey( linefld_->lineName(), "Seis" );
-	const int lineindex = lineset.indexOf(lkey);
+	const int lineindex = lineset.indexOfFirstOccurrence(
+							linefld_->lineName() );
 	if ( lineindex > -1 )
 	{
 	    PosInfo::Line2DData* geometry = new PosInfo::Line2DData;
