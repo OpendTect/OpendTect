@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.31 2009-06-26 09:39:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.32 2009-06-29 09:07:25 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -292,6 +292,7 @@ void uiWellTieView::zoomChg( CallBacker* )
     const float start = curwr.top();
     const float stop  = curwr.bottom();
     setLogsRanges( d2tm->getDepth(start*0.001), d2tm->getDepth(stop*0.001) );
+    drawCShot();
 }
 
 
@@ -404,7 +405,6 @@ void uiWellTieView::drawCShot()
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
     const int sz = cs->size();
-    if ( sz<2 ) return;
     
     WellTieGeoCalculator geocalc( dataholder_->params(), &wd_ );
 
@@ -418,32 +418,14 @@ void uiWellTieView::drawCShot()
     }
     geocalc.TWT2Vel( csvals, dpt, cstolog, true );
     
-    float maxval, minval = cstolog[0];
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	float val = cstolog[idx];
-	if ( val > maxval )
-	    maxval = val;
-	if ( val < minval )
-	    minval = val;
-    }
-
     TypeSet<uiPoint> pts;
-
     uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData();
-    if ( minval<ld.valrg_.start )   
-	minval = ld.valrg_.start;
-    if ( maxval<ld.valrg_.stop )
-	maxval = ld.valrg_.stop;
+    Interval<float> zrg = ld.zrg_;
 
-    Interval<float> dispvalrg( minval, maxval );
-    Interval<float> zrg = logsdisp_[0]->zRange();
-    ld.xax_.setBounds( dispvalrg );
-    ld.yax_.setBounds( zrg );
     for ( int idx=0; idx<sz; idx++ )
     {
 	float val = cstolog[idx];
-	float dah = dpt[sz-idx-1];
+	float dah = dpt[idx];
 	if ( dah < zrg.start )
 	    continue;
 	else if ( dah > zrg.stop )
@@ -452,7 +434,6 @@ void uiWellTieView::drawCShot()
 	if ( dataholder_->uipms()->iszinft_ ) dah *= mToFeetFactor;
 	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
     }
-
     if ( pts.isEmpty() ) return;
 
     checkshotitm_ = scene.addItem( new uiPolyLineItem(pts) );
