@@ -4,15 +4,17 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: attribdescsettr.cc,v 1.6 2009-02-26 13:00:52 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.7 2009-06-29 04:48:03 cvsnanne Exp $";
 
 #include "attribdescsettr.h"
 #include "attrfact.h"
 #include "attribdescset.h"
 #include "bufstringset.h"
+#include "conn.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "conn.h"
+#include "keystrs.h"
 #include "ptrman.h"
 
 
@@ -47,6 +49,8 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
+    ioobj->pars().set( sKey::Type, ads.is2D() ? "2D" : "3D" );
+    IOM().commitChanges( *ioobj );
     bs = tr->write( ads, *conn );
     return bs.isEmpty();
 }
