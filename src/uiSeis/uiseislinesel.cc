@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.22 2009-04-17 13:18:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.23 2009-06-29 09:02:30 cvshelene Exp $";
 
 #include "uiseislinesel.h"
 
@@ -110,7 +110,7 @@ MultiID uiSeis2DLineSel::lineSetID() const
     for ( int idx=0; idx<lsnms.size(); idx++ )
     {
 	const MultiID& key = mids[idx];
-	if ( lsnms.get(idx) == IOM().nameOf(key.buf()) )
+	if ( lsnms.get(idx) == lsnm_ )
 	    return key;
     }
     return MultiID("");
