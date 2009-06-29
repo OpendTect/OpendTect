@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.134 2009-06-22 18:17:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.135 2009-06-29 09:26:28 cvsnanne Exp $";
 
 #include "uiioobjsel.h"
 
@@ -293,6 +293,9 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    if ( isdef )
 		dispnm += " <";
 	    dispnms_.add( dispnm );
+
+	    if ( isdef )
+		curidx = idx;
 	}
     }
 
