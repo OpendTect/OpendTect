@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.123 2009-06-25 19:58:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.124 2009-06-29 19:13:46 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1744,7 +1744,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 				RowCol(row,col).getSerialized() );
 	Coord3 pos = surface_.getPos( posid );
 	if ( hor3d && pos.isDefined() )
-	    pos.z += hor3d->geometry().getShift() / SI().zFactor();
+	    pos.z += hor3d->geometry().getShift();
 
 	if ( colcoords.isEmpty() && !pos.isDefined() )
 	    continue;
