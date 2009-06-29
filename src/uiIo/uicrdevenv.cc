@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrdevenv.cc,v 1.30 2009-06-24 04:28:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.31 2009-06-29 09:25:21 cvsnanne Exp $";
 
 #include "uicrdevenv.h"
 
@@ -46,7 +46,6 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 	, workdirfld(0)
 	, basedirfld(0)
 {
-
     const char* titltxt =
     "For OpendTect development you'll need a $WORK dir\n"
     "Please specify where this directory should be created.";
@@ -71,7 +70,7 @@ bool uiCrDevEnv::isOK( const char* datadir )
     if ( !datafp.nrLevels() || !File_isDirectory( datafp.fullPath() ) )
 	return false;
 
-    datafp.add( "Pmake" );
+    datafp.add( "src" );
     if ( !File_isDirectory(datafp.fullPath()) )
 	return false;
 
@@ -92,6 +91,14 @@ bool uiCrDevEnv::isOK( const char* datadir )
 
 void uiCrDevEnv::crDevEnv( uiParent* appl )
 {
+    BufferString swdir = GetSoftwareDir(0);
+    if ( !isOK(swdir) )
+    {
+	uiMSG().error( "No source code found. Please download\n"
+		       "and install development package first" );
+	return;
+    }
+
     FilePath oldworkdir( GetEnvVar("WORK") );
     const bool oldok = isOK( oldworkdir.fullPath() );
 
@@ -141,18 +148,18 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	if ( isdir )
 	{
-	    msg = "The directory you selected(";
+	    msg = "The directory you selected (";
 	    msg += workdirnm;
-	    msg += isok ? ") seems to already be a work directory.\n\n" :
-			  ") does not seem to be a valid work directory.\n\n";
+	    msg += isok ? ")\nalready seems to be a work directory.\n\n" :
+			  ")\ndoes not seem to be a valid work directory.\n\n";
 	}
 	else
 	{
 	    msg = "You selected a file.\n\n";
 	}
 
-	msg += "Do you want to completely remove the existing";
-	msg + isdir ?  "directory\n" : "file\n" ;
+	msg += "Do you want to completely remove the existing ";
+	msg += isdir ? "directory\n" : "file\n";
 	msg += "and create a new work directory there?";   
 
 	if ( !uiMSG().askRemove(msg) )
@@ -166,22 +173,31 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	mErrRet( "Cannot create the new directory.\n"
 		 "Please check if you have the required write permissions" )
 
-    const char* aboutto =
+    const char* docmsg =
 	"The OpendTect window will FREEZE during this process\n"
 	"- for upto a few minutes.\n\n"
-	"Meanwhile, please take a look at the developers documentation."
+	"Meanwhile, do you want to take a look at the developers documentation?"
     ;
+    if ( uiMSG().askGoOn(docmsg) )
+	showProgrDoc();
 
-    uiMSG().message(aboutto);
-
-    showProgrDoc();
-
-    BufferString cmd( "@'" );
-    FilePath fp( GetSoftwareDir(0) );
-    fp.add( "bin" ).add( "od_cr_dev_env" );
+    FilePath fp( swdir );
+    fp.add( "bin" );
+#ifdef __win__
+    BufferString cmd( "@" );
+    fp.add( "od_cr_dev_env.bat" );
     cmd += fp.fullPath();
-    cmd += "' '"; cmd += GetSoftwareDir(0);
+    cmd += " "; cmd += swdir;
+    BufferString shortpath;
+    GetShortPathName(workdirnm.buf(),shortpath.buf(),strlen(workdirnm.buf()));
+    cmd += " "; cmd += shortpath;
+#else
+    BufferString cmd( "@'" );
+    fp.add( "od_cr_dev_env" );
+    cmd += fp.fullPath();
+    cmd += "' '"; cmd += swdir;
     cmd += "' '"; cmd += workdirnm; cmd += "'";
+#endif
 
     StreamProvider( cmd ).executeCommand( false );
 
@@ -189,8 +205,13 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( !File_exists(relfile) )
 	mErrRet( "Creation seems to have failed" )
     else
-	uiMSG().message( "Creation seems to have succeeded.\n\n"
-			 "Source 'init.csh' or 'init.bash' before starting." );
+    {
+	uiMSG().message( "Creation seems to have succeeded."
+#ifndef __win__
+			 "\n\nSource 'init.csh' or 'init.bash' before starting."
+#endif
+			);
+    }
 }
 
 
