@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.7 2009-06-22 05:17:15 cvsraman Exp $";
+static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.8 2009-06-29 08:39:47 cvsraman Exp $";
 
 #include "uiattr2dsel.h"
 #include "attribdescset.h"
@@ -174,7 +174,7 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 {
     int selidx = -1;
     const int newseltype = selType();
-    uiListBox* attrfld = newseltype ? (newseltype==1 ? storoutfld_ : nlaoutfld_)				    : attroutfld_;
+    uiListBox* attrfld = newseltype ? (newseltype==1 ? attroutfld_ : nlaoutfld_)				    : storoutfld_;
     if ( seltype_ == newseltype )
     {
 	BufferString selnm = attrfld->getText();
