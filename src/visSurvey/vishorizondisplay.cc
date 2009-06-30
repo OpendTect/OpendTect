@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.97 2009-06-26 18:49:32 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.98 2009-06-30 22:00:58 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -730,10 +730,8 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* tr ) const
 {
     data.bivSet().allowDuplicateBids(false);
-    const float zf = scene_ ? scene_->getZScale() : SI().zScale();
-
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getDataPositions( data, getTranslation().z/zf, 
+	sections_[idx]->getDataPositions( data, getTranslation().z, 
 					  sids_[idx], tr );
 
     data.dataChanged();
@@ -1181,13 +1179,14 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( !bidvalset || bidvalset->nrVals()<2 ) continue;
 
 	const BinIDValueSet::Pos setpos = bidvalset->findFirst( bid );
-	if ( setpos.i<0 || setpos.j<0 ) continue;
+	if ( !setpos.valid() )
+	    continue;
 
 	const float* vals = bidvalset->getVals( setpos );
 	int curtexture = selectedTexture(idx);
-	if ( curtexture>bidvalset->nrVals()-1 ) curtexture = 0;
+	if ( curtexture>bidvalset->nrVals()-2 ) curtexture = 0;
 
-	const float fval = vals[curtexture+1];
+	const float fval = vals[curtexture+2];
 	bool islowest = true;
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
