@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.181 2009-06-22 11:06:39 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.182 2009-06-30 16:33:37 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -665,12 +665,13 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
     BinID bid;
     BinIDValueSet::Pos pos;
     const EM::SectionID sectionid = hor3d->sectionID( 0 );
-    mAllocVarLenArr( float, vals, bivs.nrVals() );
 
     EM::PosID posid( id, sectionid );
     while ( bivs.next(pos) )
     {
-	bivs.get( pos, bid, vals );
+	bid = bivs.getBinID( pos );
+	const float* vals = bivs.getVals( pos );
+
 	RowCol rc( bid.inl, bid.crl );
 	EM::SubID subid = rc.getSerialized();
 	posid.setSubID( subid );
