@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.89 2009-06-01 04:17:35 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.90 2009-06-30 16:39:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,9 +139,9 @@ public:
     void			resetServers();
     void			updateColorTable(int visid,int attrib);
     void			saveDefColTab(int visid,int attrib);
-    void			calShiftAtribute(int attrib,
-	                                        const Attrib::SelSpec& as,
-						bool additem );
+    void			calShiftAttribute(int attrib,
+	                                        const Attrib::SelSpec& as );
+    bool			calcRandomPosAttrib(int visid,int attrib);
     bool			calcMultipleAttribs(Attrib::SelSpec&);
     NotifierAccess*		colorTableSeqChange();
     void			addVisDPSChild(CallBacker*);

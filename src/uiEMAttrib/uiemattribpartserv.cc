@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.10 2009-06-23 21:16:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.11 2009-06-30 16:39:04 cvskris Exp $";
 
 
 #include "uiemattribpartserv.h"
 
+#include "posvecdataset.h"
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 #include "uihorizonshiftdlg.h"
@@ -24,8 +25,9 @@ static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.10 2009-06-23 21:16:4
 #include "emhorizon3d.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "survinfo.h"
 #include "typeset.h"
+
+const DataColDef uiEMAttribPartServer::siddef_( "Section ID" );
 
 
 uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
@@ -74,32 +76,40 @@ void uiEMAttribPartServer::import2DHorizon() const
 
 float uiEMAttribPartServer::getShift() const
 {
+    return horshiftdlg_ ? horshiftdlg_->getShift() : mUdf(float);
+}
+
+
+StepInterval<float> uiEMAttribPartServer::shiftRange() const
+{
+    StepInterval<float> res;
     if ( horshiftdlg_ )
-	return horshiftdlg_->curShift();
-    return mUdf(float);
+	res = horshiftdlg_->shiftRg();
+
+    return res;
 }
 
 
-const StepInterval<float>* uiEMAttribPartServer::shiftRange() const
+void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
+					    const BoolTypeSet& attrenabled,
+					    float initialshift,
+					    bool canaddattrib)
 {
-    return horshiftdlg_ ? &horshiftdlg_->shiftIntv() : 0;
-}
-
-
-void uiEMAttribPartServer::showHorShiftDlg( uiParent* p,const EM::ObjectID& id,
-       					    const TypeSet<int>& attribids,
-       					    bool canaddattrib )
-{
-    setAttribIdx( -1 );
-    horshiftdlg_ = new uiHorizonShiftDialog( p, id, *descset_, canaddattrib );
-    horshiftdlg_->setAttribIds( attribids );
     sendEvent( uiEMAttribPartServer::evShiftDlgOpened() );
+
+    initialshift_ = initialshift;
+    initialattribstatus_ = attrenabled;
+    setAttribIdx( mUdf(int) );
+    horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(),
+	    id, *descset_, initialshift, canaddattrib );
+
     horshiftdlg_->calcAttribPushed.notify(
 	    mCB(this,uiEMAttribPartServer,calcDPS) );
     horshiftdlg_->horShifted.notify(
 	    mCB(this,uiEMAttribPartServer,horShifted) );
     horshiftdlg_->windowClosed.notify(
 	    mCB(this,uiEMAttribPartServer,shiftDlgClosed));
+
     horshiftdlg_->go();
     horshiftdlg_->setDeleteOnClose( true );
 }
@@ -110,19 +120,17 @@ void uiEMAttribPartServer::shiftDlgClosed( CallBacker* cb )
     if ( horshiftdlg_->uiResult()==1 )
     {
 	if ( horshiftdlg_->doStore() )
-	{
 	    sendEvent( uiEMAttribPartServer::evStoreShiftHorizons() );
-	}
-	else
-	    sendEvent( uiEMAttribPartServer::evShiftDlgFinalised() );
+
+	sendEvent( uiEMAttribPartServer::evShiftDlgClosedOK() );
     }
-    sendEvent( uiEMAttribPartServer::evShiftDlgClosed() );
+    else
+	sendEvent( uiEMAttribPartServer::evShiftDlgClosedCancel() );
 }
 
 
 void uiEMAttribPartServer::calcDPS( CallBacker* cb )
 {
-    shiftidx_ = horshiftdlg_->curShiftIdx();
     setAttribID( horshiftdlg_->attribID() );
     sendEvent( uiEMAttribPartServer::evCalcShiftAttribute() );
 }
@@ -132,23 +140,59 @@ const char* uiEMAttribPartServer::getAttribBaseNm() const
 { return horshiftdlg_ ? horshiftdlg_->getAttribBaseName() : 0; }
 
 
-void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset )
+void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
+       					    TaskRunner* )
 {
-    const EM::Horizon3DGeometry& hor3dgeom =
-		horshiftdlg_->horizon3D().geometry();
-    const EM::SectionID sid = hor3dgeom.sectionID(0);
-    const StepInterval<float> intv = horshiftdlg_->shiftIntv();
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    for ( int idx=0; idx<=intv.nrSteps(); idx++ )
+
+    StepInterval<float> intv = horshiftdlg_->shiftRg();
+
+    const int nrshifts = horshiftdlg_->nrSteps();
+    const EM::Horizon3DGeometry& hor3dgeom =
+	horshiftdlg_->horizon3D().geometry();
+    for ( int idx=0; idx<nrshifts; idx++ )
     {
-	const float shift = intv.atIndex(idx) / SI().zFactor();
+	const float shift = intv.atIndex(idx);
 	TypeSet<DataPointSet::DataRow> drset;
 	BufferStringSet nmset;
 	DataPointSet* dps = new DataPointSet( drset, nmset, false, true );
-	dps->bivSet().setNrVals( 1 );
-	getDataPointSet( horshiftdlg_->emID(), sid, *dps, shift );
+
+	dps->dataSet().add( new DataColDef( siddef_ ) );
+	dps->bivSet().setNrVals( 3 );
 	dpsset += dps;
     }
+
+    DataPointSet::DataRow datarow;
+    datarow.data_.setSize( 1, mUdf(float) );
+    for ( int sididx=0; sididx<hor3dgeom.nrSections(); sididx++ )
+    {
+	const EM::SectionID sid = hor3dgeom.sectionID(sididx);
+	datarow.data_[0] = sid;
+	const int nrknots = hor3dgeom.sectionGeometry(sid)->nrKnots();
+
+	for ( int idx=0; idx<nrknots; idx++ )
+	{
+	    const BinID bid =
+		    hor3dgeom.sectionGeometry(sid)->getKnotRowCol(idx);
+	    const float realz = 
+		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z;
+	    if ( mIsUdf(realz) )
+		continue;
+
+	    datarow.pos_.binid_ = bid;
+
+	    for ( int shiftidx=0; shiftidx<nrshifts; shiftidx++ )
+	    {
+		const float shift = intv.atIndex(shiftidx);
+		datarow.pos_.z_ = realz+shift;
+		dpsset[shiftidx]->addRow( datarow );
+	    }
+
+	}
+    }
+
+    for ( int shiftidx=0; shiftidx<nrshifts; shiftidx++ )
+	dpsset[shiftidx]->dataChanged();
 }
 
 
@@ -159,44 +203,13 @@ int uiEMAttribPartServer::textureIdx() const
 void uiEMAttribPartServer::setAttribIdx( int idx )
 {
     attribidx_ = idx;
-    
-    if ( idx <0 || !&horshiftdlg_->attribIds() )
-	return;
-
-    horshiftdlg_->attribIds() += idx;
 }
-
-
-const TypeSet<int>& uiEMAttribPartServer::attribIds() const
-{ return horshiftdlg_->attribIds(); }
 
 
 void uiEMAttribPartServer::horShifted( CallBacker* cb )
 {
     shiftidx_ = horshiftdlg_->curShiftIdx();
     sendEvent( uiEMAttribPartServer::evHorizonShift() );
-}
-
-
-void uiEMAttribPartServer::getDataPointSet( const EM::ObjectID& emid,
-					    const EM::SectionID& sid,
-				      	    DataPointSet& dps, float shift)
-{
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
-    mDynamicCastGet( EM::Horizon3D*, hor3d, emobj )
-    BinIDValueSet& bidvalset = dps.bivSet();
-    const EM::Horizon3DGeometry& hor3dgeom = hor3d->geometry();
-    const int nrknots = hor3dgeom.sectionGeometry(sid)->nrKnots();
-    for ( int idx=0; idx<nrknots; idx++ )
-    {
-	const BinID bid =
-	hor3dgeom.sectionGeometry(sid)->getKnotRowCol(idx);
-	Coord3 coord =
-	hor3dgeom.sectionGeometry( sid )->getKnot( bid, false );
-	TypeSet<float> zvalues;
-	bidvalset.add( bid, coord.z + shift );
-    }
-    dps.dataChanged();
 }
 
 

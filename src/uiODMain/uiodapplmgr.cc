@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.338 2009-06-26 15:55:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.339 2009-06-30 16:39:04 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -402,52 +402,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
 	case uiVisPartServer::RandomPos :
 	{
-	    TypeSet<DataPointSet::DataRow> pts;
-	    BufferStringSet nms;
-
-	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
-	    {
-		const MultiID surfmid = visserv_->getMultiID(visid);
-		const EM::ObjectID emid = emserv_->getObjectID(surfmid);
-		const int auxdatanr = emserv_->loadAuxData(emid,myas.userRef());
-		bool allok = true;
-		if ( auxdatanr<0 )
-		    uiMSG().error( "Cannot find stored data" );
-		else
-		{
-		    DataPointSet* data = new DataPointSet( pts, nms,false,true);
-		    if ( !data )
-			return false;
-		    DPM( DataPackMgr::PointID() ).addAndObtain( data );
-
-		    emserv_->getAuxData( emid, auxdatanr, *data );
-		    createAndSetMapDataPack( visid, attrib, *data, 1 );
-		    DPM( DataPackMgr::PointID() ).release( data->id() );
-		}
-
-		res = auxdatanr>=0;
-		break;
-	    }
-
-	    DataPointSet* data = new DataPointSet( pts, nms, false, true );
-	    if ( !data )
-		return false;
-	    DPM( DataPackMgr::PointID() ).addAndObtain( data );
-
-	    visserv_->getRandomPos( visid, *data );
-	    const int firstcol = data->nrCols();
-	    data->dataSet().add( new DataColDef(myas.userRef()) );
-	    attrserv_->setTargetSelSpec( myas );
-	    if ( !attrserv_->createOutput(*data,firstcol) )
-	    {
-		DPM( DataPackMgr::PointID() ).release( data->id() );
-		return false;
-	    }
-
-	    //Use the first value stored in the set, what else? (0 stands for Z)
-	    createAndSetMapDataPack( visid, attrib, *data, 1 );
-	    DPM( DataPackMgr::PointID() ).release( data->id() );
-	    res = true;
+	    res = calcRandomPosAttrib( visid, attrib );
 	    break;
 	}
 	case uiVisPartServer::OtherFormat :
@@ -472,17 +427,18 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 }
 
 
-void uiODApplMgr::calShiftAtribute( int attrib, const Attrib::SelSpec& as,
-				    bool additem )
+void uiODApplMgr::calShiftAttribute( int attrib, const Attrib::SelSpec& as )
 {
     uiTreeItem* parent = sceneMgr().findItem( visserv_->getEventObjId() );
-    ObjectSet<DataPointSet> dpsset;
-    EMAttribServer()->fillHorShiftDPS( dpsset );
     if ( !parent ) return;
 
-    if ( attrib < 0 && additem )
+    ObjectSet<DataPointSet> dpsset;
+    emattrserv_->fillHorShiftDPS( dpsset, 0 );
+
+    if ( mIsUdf(attrib) )
     {
-	uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(
+	uiODAttribTreeItem* itm =
+	    new uiODEarthModelSurfaceDataTreeItem(
 		    visserv_->getEventObjId(), 0, typeid(*parent).name() );
 	parent->addChild( itm, false );
 	attrib = visserv_->addAttrib( visserv_->getEventObjId() );
@@ -490,35 +446,126 @@ void uiODApplMgr::calShiftAtribute( int attrib, const Attrib::SelSpec& as,
     }
 
     attrserv_->setTargetSelSpec( as );
-    attrserv_->createOutput( dpsset );
+    attrserv_->createOutput( dpsset, 1 );
 
     TypeSet<DataPointSet::DataRow> drset;
     BufferStringSet nmset;
-    DataPointSet* dps = new DataPointSet( drset, nmset, false, true );
-    dps->bivSet().setNrVals( dpsset.size()+1 );
+    mDeclareAndTryAlloc( DataPointSet*, dps,
+	    DataPointSet( drset, nmset, false, true ) );
+    if ( !dps )
+    {
+	deepErase( dpsset );
+	return;
+    }
+
+    mDeclareAndTryAlloc(DataColDef*,siddef,DataColDef(emattrserv_->sidDef()));
+    if ( !siddef )
+    {
+	deepErase( dpsset );
+	return;
+    }
+    
+    dps->dataSet().add( siddef );
+    if ( !dps->bivSet().setNrVals( dpsset.size()+2 ) )
+    {
+	deepErase( dpsset );
+	return;
+    }
+
+    mAllocVarLenArr( float, attribvals, dpsset.size()+2 );
+    if ( !attribvals )
+    {
+	deepErase( dpsset );
+	return;
+    }
+
+    attribvals[0] = 0.0; //depth
 
     BinIDValueSet::Pos bvspos;
     while ( dpsset[0]->bivSet().next(bvspos) )
     {
-	TypeSet<float> attribvals;
-	attribvals += 0.0;
-	BinID binid;
+	const BinID binid = dpsset[0]->bivSet().getBinID( bvspos );
 	for ( int idx=0; idx<dpsset.size(); idx++ )
 	{
-	    float zval=0;
-	    float attribval=0;
-	    dpsset[idx]->bivSet().get( bvspos, binid, zval, attribval );
-	    attribvals += attribval;
+	    const float* vals = dpsset[idx]->bivSet().getVals( bvspos );
+	    if ( !idx )
+		attribvals[1] = vals[1]; //Sid
+
+	    attribvals[idx+2] = vals[2]; //attrib
 	}
-	dps->bivSet().add( binid, attribvals.arr() );
+
+	dps->bivSet().add( binid, attribvals );
     }
+
     dps->dataChanged();
     visServer()->setRandomPosData( visServer()->getEventObjId(),
 				   attrib, dps );
     visserv_->setSelSpec( visserv_->getEventObjId(), attrib, as );
     visServer()->selectTexture( visServer()->getEventObjId(), attrib,
-				EMAttribServer()->textureIdx() );
+				emattrserv_->textureIdx() );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
+
+    deepErase( dpsset );
+}
+
+
+bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
+{
+    const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
+    if ( !as )
+    {
+	uiMSG().error( "Cannot calculate attribute on this object" );
+	return false;
+    }
+
+    Attrib::SelSpec myas( *as );
+
+    TypeSet<DataPointSet::DataRow> pts;
+    BufferStringSet nms;
+
+    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
+    {
+	const MultiID surfmid = visserv_->getMultiID(visid);
+	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
+	const int auxdatanr = emserv_->loadAuxData(emid,myas.userRef());
+	bool allok = true;
+	if ( auxdatanr<0 )
+	    uiMSG().error( "Cannot find stored data" );
+	else
+	{
+	    DataPointSet* data = new DataPointSet( pts, nms,false,true);
+	    if ( !data )
+		return false;
+	    DPM( DataPackMgr::PointID() ).addAndObtain( data );
+
+	    emserv_->getAuxData( emid, auxdatanr, *data );
+	    createAndSetMapDataPack( visid, attrib, *data, 2 );
+	    DPM( DataPackMgr::PointID() ).release( data->id() );
+	}
+
+	return auxdatanr>=0;
+    }
+
+    DataPointSet* data = new DataPointSet( pts, nms, false, true );
+    if ( !data )
+	return false;
+    DPM( DataPackMgr::PointID() ).addAndObtain( data );
+
+    visserv_->getRandomPos( visid, *data );
+    const int firstcol = data->nrCols();
+    data->dataSet().add( new DataColDef(myas.userRef()) );
+    attrserv_->setTargetSelSpec( myas );
+    if ( !attrserv_->createOutput(*data,firstcol) )
+    {
+	DPM( DataPackMgr::PointID() ).release( data->id() );
+	return false;
+    }
+
+    //Use the first value stored in the set, what else? (0 stands for Z)
+    createAndSetMapDataPack( visid, attrib, *data, firstcol );
+    DPM( DataPackMgr::PointID() ).release( data->id() );
+
+    return true;
 }
 
 
@@ -907,24 +954,27 @@ bool uiODApplMgr::handleEMServEv( int evid )
 
 bool uiODApplMgr::handleEMAttribServEv( int evid )
 {
+    const int visid = visserv_->getEventObjId();
+    const int attribidx = emattrserv_->attribIdx();
     if ( evid == uiEMAttribPartServer::evCalcShiftAttribute() )
     {
 	const Attrib::SelSpec as( emattrserv_->getAttribBaseNm(),
 				  emattrserv_->attribID() );
-	calShiftAtribute( EMAttribServer()->attribIdx(), as, true );
+	calShiftAttribute( attribidx, as );
     }
     else if ( evid == uiEMAttribPartServer::evHorizonShift() )
     {
-	visServer()->setTranslation( visServer()->getEventObjId(),
-				     Coord3(0,0,EMAttribServer()->getShift()) );
-	if ( !mIsUdf(EMAttribServer()->attribIdx()) )
-	    visServer()->selectTexture( visServer()->getEventObjId(),
-					EMAttribServer()->attribIdx(),
-					EMAttribServer()->textureIdx() );
+	const int textureidx = emattrserv_->textureIdx();
+	visserv_->setTranslation( visid,
+				     Coord3(0,0,emattrserv_->getShift()) );
+	for ( int idx=0; idx<visserv_->getNrAttribs(visid); idx++ )
+	    visserv_->enableAttrib( visid, idx, idx==attribidx );
+
+	if ( !mIsUdf(attribidx) )
+	    visserv_->selectTexture( visid, attribidx, textureidx );
     }
     else if ( evid == uiEMAttribPartServer::evStoreShiftHorizons() )
     {
-	const int visid = visserv_->getEventObjId();
 	const uiVisPartServer::AttribFormat format = 
 				visserv_->getAttributeFormat( visid, -1 );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
@@ -932,59 +982,96 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	TypeSet<DataPointSet::DataRow> pts;
 	BufferStringSet nms;
 	DataPointSet data( pts, nms, false, true );
-	visserv_->getRandomPosCache( visid, emattrserv_->attribIdx(), data );
+	visserv_->getRandomPosCache( visid, attribidx, data );
 	if ( data.isEmpty() ) return false;
 
 	const MultiID mid = visserv_->getMultiID( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
-	const int nrvals = data.bivSet().nrVals()-1;
+	const int nrvals = data.bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    BufferString auxdatanm( emattrserv_->getAttribBaseNm() );
 	    auxdatanm += " [";
-	    auxdatanm += emattrserv_->shiftRange()->atIndex( idx );
+	    auxdatanm += emattrserv_->shiftRange().atIndex(idx) *
+				SI().zFactor();
 	    auxdatanm += "]";
-	    emserv_->setAuxData( emid, data, auxdatanm, idx+1,
-		   		 emattrserv_->shiftRange()->atIndex(idx) );
+	    emserv_->setAuxData( emid, data, auxdatanm, idx+2,
+		   		 emattrserv_->shiftRange().atIndex(idx) );
 	    BufferString dummy;
-	    emserv_->storeAuxData( emid, dummy, false );
+	    if ( !emserv_->storeAuxData( emid, dummy, false ) )
+		return false;
 	}
     }
     else if ( evid == uiEMAttribPartServer::evShiftDlgOpened() )
     {
 	enableMenusAndToolBars( false );
     }
-    else if ( evid == uiEMAttribPartServer::evShiftDlgClosed() )
+    else if ( evid==uiEMAttribPartServer::evShiftDlgClosedCancel() ||
+	      evid==uiEMAttribPartServer::evShiftDlgClosedOK() )
     {
 	enableMenusAndToolBars( true );
-	
-	const int visid = visserv_->getEventObjId();
-	TypeSet<DataPointSet::DataRow> pts;
-	BufferStringSet nms;
-	DataPointSet data( pts, nms, false, true );
-	visserv_->getRandomPosCache( visid, emattrserv_->attribIdx(), data );
-	if ( data.isEmpty() ) return false;
-	const int texturenr = emattrserv_->textureIdx() + 1;
-	const int nrvals = data.bivSet().nrVals();
-	bool valkept = false;
-	for ( int idx=0; idx<nrvals; idx++ )
+
+	const bool isok = evid==uiEMAttribPartServer::evShiftDlgClosedOK();
+	const BoolTypeSet& enableattrib = emattrserv_->initialAttribStatus();
+
+	if ( !isok )
 	{
-	    if ( idx != texturenr && idx !=0 )
-		data.bivSet().removeVal( valkept ? 1 : 0 );
-	    else
-		valkept = true;
+	    uiTreeItem* parent = sceneMgr().findItem(visid);
+	    if ( !mIsUdf(emattrserv_->attribIdx() ) )
+	    {
+		uiTreeItem* itm = parent->lastChild();
+		while ( true )
+		{
+		    uiTreeItem* nxt = itm->siblingAbove();
+		    if ( !nxt ) break;
+		    itm = nxt;
+		}
+
+		parent->removeChild( itm );
+		visserv_->removeAttrib( visid, emattrserv_->attribIdx() );
+	    }
+
+	    visserv_->setTranslation( visid,
+		    Coord3(0,0,emattrserv_->initialShift() ) );
+
+	    for ( int idx=0; idx<enableattrib.size(); idx++ )
+		visserv_->enableAttrib( visid, idx, enableattrib[idx] );
 	}
-	visserv_->setRandomPosData( visid, emattrserv_->attribIdx(), &data );
-    }
-    else if ( evid == uiEMAttribPartServer::evShiftDlgFinalised() )
-    {
-	const TypeSet<int>& attrids = emattrserv_->attribIds();
-	for ( int idx=0; idx<attrids.size(); idx++ )
+	else
 	{
-	    const int attribidx = attrids[idx];
-	    const Attrib::SelSpec* as = visserv_->getSelSpec(
-		    visserv_->getEventObjId(), attribidx );
-	    calShiftAtribute( attribidx, *as, false );
+	    for ( int idx=0; idx<enableattrib.size(); idx++ )
+	    {
+		if ( idx==attribidx )
+		{
+		    TypeSet<DataPointSet::DataRow> pts;
+		    BufferStringSet nms;
+		    DataPointSet data( pts, nms, false, true );
+		    visserv_->getRandomPosCache( visid, attribidx, data );
+		    if ( data.isEmpty() )
+			continue;
+
+		    const int sididx = data.dataSet().findColDef(
+			    emattrserv_->sidDef(), PosVecDataSet::NameExact );
+
+		    int texturenr = emattrserv_->textureIdx() + 1;
+		    if ( sididx<=texturenr )
+			texturenr++;
+
+		    const int nrvals = data.bivSet().nrVals();
+		    for ( int idy=nrvals-1; idy>0; idy-- )
+		    {
+			if ( idy!=texturenr && idy!=sididx )
+			    data.bivSet().removeVal( idy );
+		    }
+
+		    visserv_->setRandomPosData( visid, attribidx, &data );
+		}
+		else
+		{
+		    visserv_->enableAttrib( visid, idx, 
+			calcRandomPosAttrib(visid,idx) && enableattrib[idx] );
+		}
+	    }
 	}
     }
     else
@@ -1309,7 +1396,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    emserv_->setAuxData( emid, data, specs[idx].userRef(), idx+1,
-			         emattrserv_->shiftRange()->atIndex(idx) );
+			         emattrserv_->shiftRange().atIndex(idx) );
 	    BufferString dummy;
 	    emserv_->storeAuxData( emid, dummy, false );
 	}

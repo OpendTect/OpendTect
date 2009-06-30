@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.31 2009-06-24 04:31:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.32 2009-06-30 16:39:05 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -319,10 +319,11 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 
 void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 {
+    const int visid = displayID();
     uiODEarthModelSurfaceTreeItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller)
-    if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
+    if ( menu->menuID()!=visid || mnuid==-1 || menu->isHandled() )
 	return;
 
     uiEMPartServer* emserv = applMgr()->EMServer();
@@ -342,18 +343,20 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==shiftmnuitem_.id )
     {
-	TypeSet<int> attribids;
-	const int nrattrib = visserv_->getNrAttribs( displayID());
+	BoolTypeSet isenabled;
+	const int nrattrib = visserv_->getNrAttribs( visid );
 	for ( int idx=0; idx<nrattrib; idx++ )
 	{
-	    const Attrib::SelSpec* as = visserv_->getSelSpec(
-		    displayID(), idx );
-	    if ( as->id().isValid() )
-		attribids += idx;
+	    isenabled += visserv_->isAttribEnabled( visid, idx ); 
 	}
+
+	float curshift = visserv_->getTranslation( visid ).z;
+	if ( mIsUdf( curshift ) ) curshift = 0;
+
+
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
-	emattrserv->showHorShiftDlg( getUiParent(), emid_, attribids,
-	       			     visserv_->canAddAttrib(displayID()) );
+	emattrserv->showHorShiftDlg( emid_, isenabled, curshift,
+				     visserv_->canAddAttrib( visid, 1) );
     }
     else if ( mnuid==removeselectionmnuitem_.id )
     {
