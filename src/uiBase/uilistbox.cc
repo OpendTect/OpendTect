@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.100 2009-06-24 10:05:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.101 2009-06-30 14:52:24 cvsjaap Exp $";
 
 #include "uilistbox.h"
 
@@ -175,17 +175,37 @@ void uiListBoxBody::activateSelect( const TypeSet<int>& selectset )
 }
 
 
-#define mSetCurListItem() \
-{ \
-    if ( maxSelectable()>0 ) \
+#define mHandleSelectionChangedBegin( oldselitems ) \
+\
+    const bool notifierwasenabled = handle_.selectionChanged.disable(); \
+    TypeSet<int> oldselitems; \
+    for ( int idx=0; idx<handle_.size(); idx++ ) \
     { \
-	handle_.selectionChanged.disable(); \
-	clearSelection(); \
-	handle_.selectionChanged.enable(); \
-	setCurrentRow( actidx_ ); \
-    } \
-}
+	if ( handle_.isSelected(idx) ) \
+	   oldselitems += idx; \
+    }
 
+#define mInitListSelection( selecteditems, currow ) \
+\
+    handle_.clear(); \
+    setCurrentRow( currow ); \
+    for ( int idx=0; idx<selecteditems.size(); idx++ ) \
+	handle_.setSelected( selecteditems[idx], true ); \
+
+#define mHandleSelectionChangedEnd( oldselitems ) \
+\
+    if ( notifierwasenabled ) \
+	handle_.selectionChanged.enable(); \
+\
+    for ( int idx=0; idx<handle_.size(); idx++ ) \
+    { \
+	if ( handle_.isSelected(idx) == (oldselitems.indexOf(idx)<0) ) \
+	{ \
+	    handle_.selectionChanged.trigger(); \
+	    break; \
+	} \
+    }
+	
 #define mHandleLeftRightClick() \
 { \
     if ( actclicktags_->isPresent("Check") && \
@@ -199,25 +219,28 @@ void uiListBoxBody::activateSelect( const TypeSet<int>& selectset )
 	handle_.rightButtonClicked.trigger(); \
 }
 
-
 bool uiListBoxBody::event( QEvent* ev )
 {
     if ( ev->type() == sQEventActClick ) 
     {
 	if ( actidx_>=0 && actidx_<count() )
 	{
-	    if ( actclicktags_->isPresent("Ctrl") )
+	    if ( maxSelectable()>0 )
 	    {
-		setCurrentRow( actidx_ );
-		handle_.setSelected( actidx_, !handle_.isSelected(actidx_) );
-	    }
-	    else if ( !actclicktags_->isPresent("Quiet") )
-	    {
-		if ( actclicktags_->isPresent("Right") &&
-						handle_.isSelected(actidx_) )
-		    setCurrentRow( actidx_ );
+		mHandleSelectionChangedBegin( oldselitems );
+		mInitListSelection( oldselitems, actidx_ );
+		const bool wasselected = oldselitems.indexOf(actidx_) >= 0;
+
+		if ( actclicktags_->isPresent("Ctrl") )
+		    handle_.setSelected( actidx_, !wasselected );
 		else
-		    mSetCurListItem();
+		{
+		    if ( !actclicktags_->isPresent("Right") || !wasselected )
+			handle_.clear();
+		    handle_.setSelected( actidx_, true );
+		}
+
+		mHandleSelectionChangedEnd( oldselitems );
 	    }
 
 	    mHandleLeftRightClick();
@@ -232,15 +255,9 @@ bool uiListBoxBody::event( QEvent* ev )
     {
 	if ( maxSelectable()>0 && actselset_->size()<=maxSelectable() )
 	{
-	    handle_.selectionChanged.disable();
-	    clearSelection();
-	    for ( int idx=0; idx<actselset_->size(); idx++ )
-	    {
-		if ( (*actselset_)[idx]>=0 && (*actselset_)[idx]<count() )
-		    item( (*actselset_)[idx] )->setSelected( true );
-	    }
-	    handle_.selectionChanged.enable();
-	    handle_.selectionChanged.trigger();
+	    mHandleSelectionChangedBegin( oldselitems );
+	    mInitListSelection( (*actselset_), (*actselset_)[0] );
+	    mHandleSelectionChangedEnd( oldselitems );
 	}
     }
     else
