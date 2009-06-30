@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.49 2009-06-24 10:54:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.50 2009-06-30 14:49:04 cvsjaap Exp $";
 
 
 #include "uimsg.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uimsg.cc,v 1.49 2009-06-24 10:54:02 cvsbert Exp
 
 #undef Ok
 #include <QMessageBox>
+#include <QAbstractButton>
 
 uiMsg* uiMsg::theinst_ = 0;
 uiMsg& uiMSG()
@@ -131,10 +132,18 @@ int uiMsg::beginCmdRecEvent()
 
 }
 
+
+#define mEndCmdRecEvent( refnr, qmsgbox ) \
+\
+    QAbstractButton* abstrbut = qmsgbox.clickedButton(); \
+    endCmdRecEvent( refnr, 0, \
+		    (abstrbut ? mQStringToConstChar(abstrbut->text()) : "") );
+	
 void uiMsg::endCmdRecEvent( int refnr, int retval, const char* buttxt0,
 			    const char* buttxt1, const char* buttxt2 )
 {
     BufferString msg( "QMsgBoxBut " );
+
     msg += !retval ? buttxt0 : ( retval==1 ? buttxt1 : buttxt2 );
 
     uiMainWin* carrier = uiMain::theMain().topLevel();
@@ -190,9 +199,9 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
 	return;
 
     MouseCursorChanger cc( MouseCursor::Arrow );
-    const char* oktxt = "&Ok";
 
     const int refnr = beginCmdRecEvent();
+
     QMessageBox msgbox( QMessageBox::Critical, mCapt("Error"), QString(fms[0]),
 			QMessageBox::Ok, popParnt() );
     if ( fms.size()>1 )
@@ -209,7 +218,7 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
     }
 
     msgbox.exec();
-    endCmdRecEvent( refnr, 0, oktxt );
+    mEndCmdRecEvent( refnr, msgbox );
 }
 
 
@@ -278,7 +287,7 @@ void uiMsg::about( const char* text )
     mPrepCursor();
     const int refnr = beginCmdRecEvent();
     QMessageBox::about( popParnt(), mCapt("About"), QString(text) );
-    endCmdRecEvent( refnr, 0, "OK" );
+    endCmdRecEvent( refnr, 0, "&OK" );
 }
 
 

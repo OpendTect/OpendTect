@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.180 2009-06-23 05:25:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.181 2009-06-30 14:49:04 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.180 2009-06-23 05:25:13 cvsnan
 
 #include <iostream>
 
+#include <QAbstractButton>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QColorDialog>
@@ -52,7 +53,6 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.180 2009-06-23 05:25:13 cvsnan
 #include <QSettings>
 #include <QStatusBar>
 #include <QWidget>
-
 
 static const QEvent::Type sQEventActClose   = (QEvent::Type) (QEvent::User+0);
 static const QEvent::Type sQEventActShow    = (QEvent::Type) (QEvent::User+1);
@@ -109,11 +109,11 @@ public:
 			    popped_up = false;
 			    poptimer.start( 100, true );
 
-			    if ( modal_ )
-				eventloop_.exec();
-
 			    QEvent* ev = new QEvent( sQEventPopUpReady );
 			    QApplication::postEvent( this, ev );
+
+			    if ( modal_ )
+				eventloop_.exec();
 			}
 
     void		move(uiMainWin::PopupArea);
@@ -904,6 +904,24 @@ uiMainWin* uiMainWin::activeModalWindow()
 }
 
 
+#define mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut ) \
+\
+    int stdbutcount = 0; \
+    QMessageBox::StandardButton stdbut = QMessageBox::NoButton; \
+    for ( unsigned int idx=QMessageBox::Ok; \
+	  qmb && idx<=QMessageBox::RestoreDefaults; idx+=idx ) \
+    { \
+	const QAbstractButton* abstrbut; \
+        abstrbut = qmb->button( (QMessageBox::StandardButton) idx ); \
+	if ( !abstrbut ) \
+	    continue; \
+	if ( stdbutcount == buttonnr ) \
+	    stdbut = (QMessageBox::StandardButton) idx; \
+	stdbutcount++; \
+    }
+
+// buttons() function to get all buttons only available from Qt4.5 :-(
+
 const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 {
     const ActModalTyp typ = activeModalType();
@@ -911,9 +929,18 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 
     if ( typ == Message )
     {
-        const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw );
-	const char* buttext = mQStringToConstChar( qmb->buttonText(buttonnr) );
-	return const_cast<char*>( buttext );
+	const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw ); 
+	mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
+
+	static BufferString buttext;
+        if ( stdbut )
+	    buttext = mQStringToConstChar( qmb->button(stdbut)->text() );
+	else if ( !stdbutcount )
+	    buttext = mQStringToConstChar( qmb->buttonText(buttonnr) );
+	else 
+	    buttext = "";
+
+	return buttext;
     }
 
     if ( typ==Colour || typ==Font )
@@ -947,7 +974,11 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 
 int uiMainWin::activeModalQDlgRetVal( int buttonnr )
 {
-    return buttonnr;
+    QWidget* amw = qApp->activeModalWidget();
+    const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw ); 
+    mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
+
+    return stdbut ? ((int) stdbut) : buttonnr;
 }
 
 
