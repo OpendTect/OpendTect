@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.23 2009-06-11 17:14:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.24 2009-06-30 18:09:38 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -468,7 +468,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	const SbImage& channel = channels_->getChannels()[idx];
 	SbVec3s size; int dummy2;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
-	if ( enabled_[idx] && vals )
+	if ( vals && enabled_.size()>idx && enabled_[idx] )
 	{
 	    firstlayer = idx;
 	    firstlayertrans = getTextureTransparency(idx);
@@ -485,7 +485,9 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	    SbVec3s size; int dummy2;
 	    const unsigned char* vals = channel.getValue( size, dummy2 );
 	    layeropacity_->value.set1Value( idx,
-		enabled_[idx] && vals ? (float) opacity_[idx]/255 : 0.0 );
+		vals && idx<enabled_.size() && enabled_[idx]
+		    ? (float) opacity_[idx]/255
+		    : 0.0 );
 	}
 
 	tci_->transparencyInfo = firstlayertrans;
