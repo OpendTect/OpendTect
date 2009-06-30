@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.64 2009-06-24 07:10:12 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.65 2009-06-30 06:33:57 cvsraman Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -147,7 +147,9 @@ bool uiOD2DLineSetTreeItem::showSubMenu()
 {
     if ( !menuhandler_ )
     {
-	menuhandler_ = new uiMenuHandler( getUiParent(), -1 );
+//	menuhandler_ = new uiMenuHandler( getUiParent(), -1 );
+	mDynamicCast(uiMenuHandler*,menuhandler_,
+		     ODMainWin()->applMgr().visServer()->getMenuHandler())
 	menuhandler_->createnotifier.notify(
 		mCB(this,uiOD2DLineSetTreeItem,createMenuCB) );
 	menuhandler_->handlenotifier.notify(
@@ -155,8 +157,19 @@ bool uiOD2DLineSetTreeItem::showSubMenu()
 	menuhandler_->ref();
     }
 
+    menuhandler_->setMenuID( selectionKey() );
     menuhandler_->executeMenu( uiMenuHandler::fromTree() );
     return true;
+}
+
+
+int uiOD2DLineSetTreeItem::selectionKey() const
+{
+    if ( children_.size() < 2 )
+	return -1;
+
+    mDynamicCastGet(const uiODDisplayTreeItem*,itm,children_[0])
+    return itm ? 100000 + itm->displayID() : -1;
 }
 
 
