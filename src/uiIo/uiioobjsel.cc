@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.135 2009-06-29 09:26:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.136 2009-06-30 13:30:39 cvshelene Exp $";
 
 #include "uiioobjsel.h"
 
@@ -668,7 +668,7 @@ void uiIOObjSel::obtainIOObj()
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( inp == itemusrnm && workctio_.ioobj 
+	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj 
 			      && !strcmp(workctio_.ioobj->name(), inp.buf()) )
 	    return;
     }
