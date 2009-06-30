@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.cc,v 1.5 2009-06-26 11:41:57 cvsraman Exp $
+ * ID       : $Id: madproc.cc,v 1.6 2009-06-30 11:38:15 cvsraman Exp $
 -*/
 
 
@@ -103,10 +103,19 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 
 	char* rsfstr = strstr( buf, ".rsf" );
 	if ( rsfstr )
+	    rsfstr = strchr( buf, '=' );
+
+	if ( rsfstr )
 	{
-	    while ( rsfstr > buf && *rsfstr != '=' )
-		rsfstr--;
-	    FilePath fp( rsfstr == buf ? buf : rsfstr+1 );
+	    BufferString filenm( startquote ? rsfstr + 2 : rsfstr + 1 );
+	    if ( startquote )
+	    {
+		char* endquote = strrchr( filenm.buf(), '"' );
+		if ( endquote )
+		    *endquote = '\0';
+	    }
+
+	    FilePath fp( filenm.buf() );
 	    if ( !fp.isAbsolute() )
 	    {
 		BufferString filepath = fp.fullPath();
@@ -122,11 +131,11 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		return;
 	    }
     
-	    rsfstr = strchr( buf, ' ' );
-	    if ( !rsfstr ) rsfstr = strchr( buf, '=' );
-	    if ( rsfstr ) *(rsfstr+1) = '\0';
-	    BufferString parstr( rsfstr ? buf : "" );
+	    *(rsfstr+1) = '\0';
+	    BufferString parstr( buf );
+	    parstr += "\"";
 	    parstr += fp.fullPath();
+	    parstr += "\"";
 	    parstrs_.add( parstr );
 	    continue;
 	}
