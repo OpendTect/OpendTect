@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.42 2009-06-03 02:56:36 cvskris Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.43 2009-06-30 18:33:27 cvskris Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.42 2009-06-03 02:56:36 cv
 #include "filegen.h"
 #include "ioobj.h"
 #include "rangeposprovider.h"
+#include "survinfo.h"
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -37,10 +38,13 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
     : uiDialog(p,uiDialog::Setup("Output selection",mNoDlgTitle,"104.3.1"))
     , surface_(surf)
 {
-    mDynamicCastGet(const EM::Horizon3D*,hor,&surface_)
+    mDynamicCastGet(const EM::Horizon3D*,hor,&surface_);
+    const bool hasshift = hor &&
+	!mIsZero(hor->geometry().getShift(),SI().zRange(true).step*1e-3);
+
     iogrp_ = new uiSurfaceWrite( this, surface_,
 	   			 uiSurfaceWrite::Setup(surface_.getTypeStr())
-	   			 .withdisplayfld(true).withsubsel(true) );
+	   			 .withdisplayfld(hasshift).withsubsel(true) );
 }
 
 
