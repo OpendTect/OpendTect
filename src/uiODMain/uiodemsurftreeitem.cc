@@ -7,16 +7,18 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.55 2009-06-24 10:06:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.56 2009-06-30 16:35:15 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
 #include "datapointset.h"
+#include "datacoldef.h"
 #include "emhorizon.h"
 #include "emhorizonztransform.h"
 #include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "survinfo.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
@@ -278,11 +280,22 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	BufferStringSet attrnms;
-	TypeSet< float > shifts;
+	TypeSet<float> shifts;
 	TypeSet<DataPointSet::DataRow> pts;
 	DataPointSet vals( pts, attrnms, false, true );
 	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
-	BufferString attrnm = attrnms.size() ? attrnms.get(0) : "";
+	if ( shifts.size()<1 )
+	    return;
+
+	const float curshift = visserv->getTranslation( displayID() ).z;
+	if ( !mIsEqual(curshift,shifts[0],SI().zRange(true).step) )
+	{
+	    uiMSG().error( "Selected attribute has a different shift than "
+		    "the Horizon" );
+	    return;
+	}
+
+	FixedString attrnm = vals.colDef( 0 ).name_.buf();
 	visserv->setSelSpec( displayID(), attribNr(),
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->createAndDispDataPack( displayID(), attribNr(), &vals );
