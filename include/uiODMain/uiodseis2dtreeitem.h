@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.14 2009-06-02 09:38:19 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.15 2009-06-30 06:33:18 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
     bool		showSubMenu();
 
     const MultiID&	lineSetID() const { return setid_; }
+    int			selectionKey() const;
 
 protected:
     			~uiOD2DLineSetTreeItem();
