@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.41 2009-01-20 10:29:23 cvsjaap Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.42 2009-06-30 06:32:45 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,9 @@ public:
     virtual void		moveItem(uiTreeItem* after);
     virtual void		moveItemToTop();
     uiTreeItem*			lastChild();
+
+    int				nrChildren() const { return children_.size(); }
+    const uiTreeItem*		getChild(int) const;
 				 
     virtual bool		addChild(uiTreeItem* child,bool below);
     				/*!<Adds a child. If the child does not fit
