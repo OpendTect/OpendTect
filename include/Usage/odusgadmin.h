@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusgadmin.h,v 1.2 2009-04-17 12:34:40 cvsranojay Exp $
+ RCS:           $Id: odusgadmin.h,v 1.3 2009-06-30 15:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
+#include "objectset.h"
 #include <iosfwd>
 class IOPar;
 
@@ -20,7 +21,7 @@ class IOPar;
 namespace Usage
 {
 class Info;
- static std::ostream* logstrm_ = 0;
+static std::ostream* logstrm_ = 0;
 
 
 
@@ -32,7 +33,7 @@ public:
     virtual		~Administrator();
 
     virtual bool	handle(Info&)		= 0;
-    const IOPar&	pars() const		{ return pars_; }
+    const ObjectSet<IOPar>& pars() const		{ return pars_; }
     void		reInit();
 
     static int		add(Administrator*);
@@ -43,8 +44,10 @@ public:
 
 protected:
 
-    IOPar&		pars_;
+    ObjectSet<IOPar>	pars_;
+
     void		readPars();
+    void		addPars(const char*,const char*);
 
     bool		haveLogging() const	{ return logstrm_; }
     void		toLogFile(const char*) const;

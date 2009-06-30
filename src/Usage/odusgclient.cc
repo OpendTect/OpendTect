@@ -4,11 +4,12 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgclient.cc,v 1.1 2009-03-17 12:53:18 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgclient.cc,v 1.2 2009-06-30 15:23:47 cvsbert Exp $";
 
 #include "odusgclient.h"
 #include "odusginfo.h"
 #include <iostream>
+
 
 
 bool Usage::Client::sendUsageInfo()

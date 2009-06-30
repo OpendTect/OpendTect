@@ -4,11 +4,16 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgadm.cc,v 1.3 2009-04-17 12:39:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: odusgadm.cc,v 1.4 2009-06-30 15:23:47 cvsbert Exp $";
 
 #include "odusgbaseadmin.h"
 #include "odusginfo.h"
+#include "odusgserver.h"
 #include "iopar.h"
+#include "oddirs.h"
+#include "filepath.h"
+#include "strmprov.h"
+#include "ascstream.h"
 #include <iostream>
 
 
@@ -27,6 +32,8 @@ static ObjectSet<Usage::Administrator>& ADMS()
 
 int Usage::Administrator::add( Usage::Administrator* adm )
 {
+    if ( !adm ) return -1;
+
     ADMS() += adm;
     return ADMS().size() - 1;
 }
@@ -45,7 +52,6 @@ bool Usage::Administrator::dispatch( Usage::Info& inf )
 
 Usage::Administrator::Administrator( const char* nm )
     : NamedObject(nm)
-    , pars_(*new IOPar)
 {
     readPars();
 }
@@ -53,19 +59,36 @@ Usage::Administrator::Administrator( const char* nm )
 
 Usage::Administrator::~Administrator()
 {
-    delete &pars_;
+    deepErase( pars_ );
 }
 
 
 void Usage::Administrator::readPars()
 {
-    //TODO get all pars from repos sources
+    deepErase( pars_ );
+    const BufferString filenm( Usage::Server::sKeyFileBase(), ".", name() );
+    addPars( GetSetupDataFileDir(ODSetupLoc_ApplSetupPref), filenm );
+    addPars( GetSettingsDir(), filenm );
+}
+
+
+void Usage::Administrator::addPars( const char* dir, const char* fnm )
+{
+    FilePath fp( dir ); fp.add( fnm );
+    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+    if ( !sd.usable() ) return;
+
+    ascistream astrm( *sd.istrm );
+    IOPar* newpar = new IOPar( astrm );
+    if ( newpar->isEmpty() )
+	delete newpar;
+    else
+	pars_ += newpar;
 }
 
 
 void Usage::Administrator::reInit()
 {
-    pars_.clear();
     readPars();
     reset();
 }
@@ -73,7 +96,7 @@ void Usage::Administrator::reInit()
 
 void Usage::Administrator::toLogFile( const char* msg ) const
 {
-    if ( !logstrm_ || !msg ) return;
+    if ( !logstrm_ || !msg || !*msg ) return;
 
     const char* nm = name();
     if ( *nm )
@@ -96,5 +119,4 @@ bool Usage::BaseAdministrator::handle( Usage::Info& inf )
 
 void Usage::BaseAdministrator::reset()
 {
-    //TODO use the pars
 }

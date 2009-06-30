@@ -4,10 +4,17 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusginfo.cc,v 1.1 2009-03-17 12:53:18 cvsbert Exp $";
+static const char* rcsID = "$Id: odusginfo.cc,v 1.2 2009-06-30 15:23:47 cvsbert Exp $";
 
 #include "odusginfo.h"
 #include <iostream>
+
+
+Usage::Info::ID Usage::Info::newID()
+{
+    static Usage::Info::ID id = 0;
+    return ++id;
+}
 
 
 std::ostream& Usage::Info::dump( std::ostream& strm ) const
