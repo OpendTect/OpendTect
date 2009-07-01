@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonsorter.cc,v 1.11 2009-01-15 06:45:59 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonsorter.cc,v 1.12 2009-07-01 06:26:08 cvsraman Exp $";
 
 #include "horizonsorter.h"
 
@@ -185,10 +185,14 @@ int HorizonSorter::nextStep()
 	{
 	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
 	    EM::EMObject* emobj = EM::EMM().getObject( objid );
+	    if ( !emobj ) return ErrorOccurred();
 	    emobj->ref();
 	    mDynamicCastGet(EM::Horizon*,horizon,emobj);
 	    if ( !horizon )
+	    {
 		emobj->unRef();
+		return ErrorOccurred();
+	    }
 	    horizons_ += horizon;
 	}
 
