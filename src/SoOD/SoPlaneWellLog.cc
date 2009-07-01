@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.29 2009-06-25 08:41:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.30 2009-07-01 06:46:04 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -132,10 +132,10 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( maxval2, (0) );
     SO_KIT_ADD_FIELD( fillmaxval1, (0) );
     SO_KIT_ADD_FIELD( fillmaxval2, (0) );
-    SO_KIT_ADD_FIELD( minval1, (0) );
-    SO_KIT_ADD_FIELD( minval2, (0) );
-    SO_KIT_ADD_FIELD( fillminval1, (0) );
-    SO_KIT_ADD_FIELD( fillminval2, (0) );
+    SO_KIT_ADD_FIELD( minval1, (100) );
+    SO_KIT_ADD_FIELD( minval2, (100) );
+    SO_KIT_ADD_FIELD( fillminval1, (100) );
+    SO_KIT_ADD_FIELD( fillminval2, (100) );
     SO_KIT_ADD_FIELD( shift1, (0) );
     SO_KIT_ADD_FIELD( shift2, (0) );
     SO_KIT_ADD_FIELD( style1, (0) );
@@ -171,10 +171,12 @@ void SoPlaneWellLog::resetLogData( int lognr )
 {
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
     maxval.setValue( 0 ); 
+    SoSFFloat& minval = lognr==1 ? minval1 : minval2;
+    minval.setValue( 100 ); 
     SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
     fillmaxval.setValue( 0 ); 
     SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
-    fillminval.setValue( 0 ); 
+    fillminval.setValue( 100 ); 
 }
 
 
@@ -225,8 +227,8 @@ void SoPlaneWellLog::setLogFillTransparency( int lognr )
     SoMaterial* material  = SO_GET_ANY_PART( this,
 	     lognr==1 ? "material1" : "material2", SoMaterial );
     float vals[257];
-    for (int i = 0; i<257; i++)
-	vals[i] = i < 256 ? 0 : 1 ;
+    for ( int idx = 0; idx<257; idx++ )
+	vals[idx] = idx < 256 ? 0 : 1 ;
     material->transparency.setValues(0, 257, vals);
 }
 
@@ -385,7 +387,6 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
     SoMFVec3f& path = lognr==1 ? path1 : path2;
     SoMFFloat& log = lognr==1 ? log1 : log2;
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
-    SoSFFloat& minval = lognr==1 ? minval1 : minval2;
     
     bool& revscale = lognr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
@@ -447,8 +448,7 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
     float meanvalF = 0;
-    float shiftprct; 
-    shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0 );
+    float shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0 );
     float meanlogval = ( maxvalF - minvalF ) / 2;
 
     bool& revscale = lognr==1 ? revscale1 : revscale2;
@@ -575,11 +575,16 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	int index = int(idx*step+.5);
         float filllogval = filllog[index];
 	float logval = log[index];
-	if ( revscale ) logval = maxval.getValue() - logval;
+	if ( revscale ) 
+	{
+	    logval = maxval.getValue() - logval;
+	    colindex =  (int) ( (fillmaxvalF - filllogval) / colstep );
+	}
+	else
+	    colindex =  (int) ( (filllogval - fillminvalF) / colstep );
 
 	if ( filllogval <= 100 && logval <= 100 )
 	{
-	    colindex = (int) ( (filllogval - fillminvalF) / colstep );
 	    triset->materialIndex.set1Value( 2*idx, colindex );
 	    triset->materialIndex.set1Value( 2*idx+1, colindex );
 	}
@@ -692,7 +697,7 @@ int SoPlaneWellLog::getResolution( SoState* state )
     return ismov ? 0 : 1; 
 }
 
-
+#define mScaleFac 50000
 void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 {
     SoState* state = action->getState();
@@ -714,17 +719,14 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 
 	if ( path1.getNum()>0 && sw->whichChild.getValue()==SO_SWITCH_ALL )
 	{
-	    const int hnum = path1.getNum() / 2;
-	    worldwidth = vv.getWorldToScreenScale( path1[hnum], nsize1 );
-	    
+	    worldwidth = nsize1*mScaleFac;
 	    buildLog( 1, projectiondir, newres );
 	}
 
 	sw = SO_GET_ANY_PART( this, "line2Switch", SoSwitch );
 	if ( path2.getNum()>0 && sw->whichChild.getValue()==SO_SWITCH_ALL )
 	{
-	    const int hnum = path2.getNum() / 2;
-	    worldwidth = vv.getWorldToScreenScale( path2[hnum], nsize2 );
+	    worldwidth = nsize2*mScaleFac;
 	    buildLog( 2, projectiondir, newres );
 	}
 
