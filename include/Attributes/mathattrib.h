@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.18 2009-06-22 15:32:04 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.19 2009-07-01 15:58:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
     static const char*		recstartvalsStr()	{return "recstartvals";}
     static const char*		recstartposStr()	{ return "recstartpos";}
 
-    static const BufferStringSet	getSpecVars();
+    static const BufferStringSet&	getSpecVars();
 
 protected:
     				~Math()	{}

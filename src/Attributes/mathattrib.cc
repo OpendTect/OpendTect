@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.36 2009-07-01 09:13:38 cvshelene Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.37 2009-07-01 15:58:18 cvskris Exp $";
 
 #include "mathattrib.h"
 
@@ -107,9 +107,10 @@ void Math::updateDesc( Desc& desc )
 }
 
 
-const BufferStringSet Math::getSpecVars()
+const BufferStringSet& Math::getSpecVars()
 {
-    return BufferStringSet( specvararr );
+    static const BufferStringSet res( specvararr );
+    return res;
 }
 
 
