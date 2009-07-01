@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: i_qtabbar.h,v 1.8 2008-01-03 12:16:03 cvsnanne Exp $
+ RCS:           $Id: i_qtabbar.h,v 1.9 2009-07-01 09:21:54 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,11 @@ private:
 private slots:
 
     void		selected ( int id )
-			{ receiver_->selected.trigger(*receiver_); }
+			{
+			    const int refnr = receiver_->beginCmdRecEvent();
+			    receiver_->selected.trigger(*receiver_);
+			    receiver_->endCmdRecEvent( refnr );
+			}
 
 };
 
