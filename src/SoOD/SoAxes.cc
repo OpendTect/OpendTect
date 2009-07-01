@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoAxes.cc,v 1.5 2009-06-12 11:09:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: SoAxes.cc,v 1.6 2009-07-01 08:32:55 cvsnanne Exp $";
 
 
 #include "SoAxes.h"
@@ -28,8 +28,9 @@ SO_NODE_SOURCE(SoAxes);
 SoAxes::SoAxes()
 {
     SO_NODE_CONSTRUCTOR(SoAxes);
-    SO_NODE_ADD_FIELD( lineLength, (4.5) );
-    SO_NODE_ADD_FIELD( baseRadius, (0.4) );
+    SO_NODE_ADD_FIELD( linelength_, (4.5) );
+    SO_NODE_ADD_FIELD( baseradius_, (0.4) );
+    SO_NODE_ADD_FIELD( textcolor_, (1.0f,1.0f,1.0f) );
 }
 
 
@@ -66,8 +67,8 @@ void SoAxes::GLRender( SoGLRenderAction* action )
   
     glPushMatrix();
    
-    const float length = lineLength.getValue();
-    const float rad = baseRadius.getValue();
+    const float length = linelength_.getValue();
+    const float rad = baseradius_.getValue();
 
     drawArrow( 1, length, rad );
     drawArrow( 2, length, rad );
@@ -82,8 +83,8 @@ void SoAxes::GLRender( SoGLRenderAction* action )
  
     glDisable( GL_LIGHTING );
     
-    const char* ret = getenv( "OD_AXES_SHOW_TRI" );
-    if ( ret )//|| ret[0]=='y' || ret[0]=='Y' || ret[0]=='1' )
+    const char* ret = getenv( "OD_AXES_SHOW_TRIANGLE" );
+    if ( ret )
     {
 	glBegin( GL_TRIANGLES ) ;
 	glVertex2f( 0, 0 );
@@ -93,6 +94,8 @@ void SoAxes::GLRender( SoGLRenderAction* action )
     }
 
     glClear(GL_DEPTH_BUFFER_BIT);
+    glColor3f( textcolor_.getValue()[0], textcolor_.getValue()[1],
+	       textcolor_.getValue()[2] );
     glRasterPos3d( 0, 0, -length - 0.2 );
     glBitmap(8, 8, 0, 0, 0, 0, zbmp );
     glRasterPos3d( length + 0.2, 0, 0 );
