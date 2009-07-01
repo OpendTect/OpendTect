@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.30 2009-07-01 06:46:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.31 2009-07-01 07:49:50 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -578,10 +578,14 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	if ( revscale ) 
 	{
 	    logval = maxval.getValue() - logval;
-	    colindex =  (int) ( (fillmaxvalF - filllogval) / colstep );
+	    colindex =  (int) ( (fillmaxvalF - logval) / colstep );
 	}
 	else
-	    colindex =  (int) ( (filllogval - fillminvalF) / colstep );
+	    colindex =  (int) ( (logval - fillminvalF) / colstep );
+	if ( colindex > 255 )
+	    colindex = 255;
+	else if ( colindex < 0 )
+	    colindex = 0;
 
 	if ( filllogval <= 100 && logval <= 100 )
 	{

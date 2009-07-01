@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.14 2009-02-26 13:30:33 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.15 2009-07-01 07:49:50 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,6 +148,7 @@ protected:
     uiGenInput*		stylefld_;
     uiGenInput*         clipratefld_;
     uiGenInput*         rangefld_;
+    uiGenInput*         colorrangefld_;
     uiGenInput*         cliprangefld_;
     uiSpinBox*          ovlapfld_;
     uiSpinBox*		repeatfld_;

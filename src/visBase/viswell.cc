@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.46 2009-02-26 13:30:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.47 2009-07-01 07:49:50 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -330,7 +330,7 @@ bool Well::markerNameShown() const
 
 
 void Well::initializeData( int lognr, const Interval<float>& range,
-	                                        float& step, int& nrsamp )
+			   float& step, int& nrsamp )
 {
     step = 1;
     if ( nrsamp > sMaxNrLogSamples )
@@ -338,10 +338,8 @@ void Well::initializeData( int lognr, const Interval<float>& range,
 	step = (float)nrsamp / sMaxNrLogSamples;
 	nrsamp = sMaxNrLogSamples;
     }
-    const bool rev = range.start > range.stop;
-    for ( int i=0; i<log.size(); i++ )
-	log[i]->setRevScale( rev, lognr );
 }
+
 
 void Well::setSampleData( const TypeSet<Coord3Value>& crdvals,int idx,
 			  int nrsamp, float step, Coord3& pos,
@@ -380,6 +378,9 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
     int nrsamp = crdvals.size();
     float step;
     initializeData( lognr, range, step, nrsamp );
+    const bool rev = range.start > range.stop;
+    for ( int idx=0; idx<log.size(); idx++ )
+	log[idx]->setRevScale( rev, lognr );
     Interval<float> rg = range; rg.sort();
     LinScaler scaler( rg.start, 0, rg.stop, 100 );
     Coord3 pos;
@@ -395,7 +396,7 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	    log[i]->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
 	prevval = val;
     }
-	showLog( true, lognr );
+    showLog( true, lognr );
 }
 
 
@@ -529,28 +530,28 @@ void Well::setLogFillColorTab( const char* seqname, int lognr,
     const ColTab::Sequence* seq = ColTab::SM().get( idx);
     Color Col;
 
-    for (int i=0; i<256; i++ )
+    for (int idx=0; idx<256; idx++ )
     {
 	if ( (!iswelllog || ( iswelllog && issinglecol )) )
 	{
-	    colors[i][0] = scolors2f(r);
-	    colors[i][1] = scolors2f(g);
-	    colors[i][2] = scolors2f(b);
+	    colors[idx][0] = scolors2f(r);
+	    colors[idx][1] = scolors2f(g);
+	    colors[idx][2] = scolors2f(b);
 	}
 	else
 	{
-	    Col = seq->color((float)i/255);
-	    colors[i][0] = colors2f(r);
-	    colors[i][1] = colors2f(g);
-	    colors[i][2] = colors2f(b);
+	    Col = seq->color((float)idx/255);
+	    colors[idx][0] = colors2f(r);
+	    colors[idx][1] = colors2f(g);
+	    colors[idx][2] = colors2f(b);
 	}
     }
 	    colors[256][0] = 0;
 	    colors[256][1] = 0;
 	    colors[256][2] = 0;
 
-    for ( int i=0; i<log.size(); i++ )
-	log[i]->setLogFillColorTab( colors, lognr );
+    for ( int idx=0; idx<log.size(); idx++ )
+	log[idx]->setLogFillColorTab( colors, lognr );
 }
 
 

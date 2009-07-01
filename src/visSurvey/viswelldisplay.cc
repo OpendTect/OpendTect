@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.100 2009-06-19 08:58:11 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.101 2009-07-01 07:49:50 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -282,7 +282,8 @@ mShowFunction( showLogName, logNameShown )
      
 
 
-void WellDisplay::setWellData( const int logidx, TypeSet<Coord3Value>& crdvals, 			      Interval<float>* range, Interval<float>& selrange			       	      ,bool& logrthm, Well::Log& wl )
+void WellDisplay::setWellData( const int logidx, TypeSet<Coord3Value>& crdvals, 			      Interval<float>* range, Interval<float>& selrange,
+	 		bool& logrthm, Well::Log& wl )
 { 
     if ( logidx < 0 ) { pErrMsg("Logidx < 0"); return;}
     Well::Data* wd = Well::MGR().get( wellid_ );
@@ -324,6 +325,7 @@ void WellDisplay::createLogDisplay( int logidx, Interval<float>* range,
     well_->setLogData( crdvals, wl.name(), selrange, logrthm, lognr );
 }
 
+
 void WellDisplay::createFillLogDisplay( int logidx, Interval<float>* range,
 			            bool logrthm, int lognr)
 {
@@ -335,42 +337,21 @@ void WellDisplay::createFillLogDisplay( int logidx, Interval<float>* range,
 }
 
 
-void WellDisplay::displayLog( const BufferString lognm, bool logrthm,
-		        	  Interval<float>& range, int lognr )
-{
-    Well::Data* wd = Well::MGR().get( wellid_ );
-    if ( !wd || wd->logs().isEmpty() ) return;
-
-    int logidx = wd->logs().indexOf( lognm );
-    if ( logidx < 0 ) return; // TODO: errmsg
-   
-    mDeclareAndTryAlloc( Interval<float>*, rgptr, Interval<float>( range ) );
-    createLogDisplay( lognr, rgptr, logidx, logrthm );
-    createFillLogDisplay( lognr, rgptr, logidx, logrthm );
-}
-
-
 void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
     
-    BufferString logname ;
-    BufferString fillname ;
-    Interval<float> range;
-    Interval<float> fillrg;
-    int repeat;
-    bool islog;
+    bool isfilled = ( lognr == 1 ? dpp(left_.islogfill_) : dpp(right_.islogfill_) );
+    bool islog = ( lognr == 1 ? dpp( left_.islogarithmic_ ) 
+			      : dpp( right_.islogarithmic_ ));
+
+    int repeat; BufferString logname ; Interval<float> range;
+
     logname = ( lognr == 1 ? dpp( left_.name_ ) : dpp( right_.name_ ) ); 
-    fillname = ( lognr == 1 ? dpp( left_.fillname_ ):dpp( right_.fillname_ ) ); 
     range = ( lognr == 1 ? dpp( left_.range_ ) : dpp( right_.range_ ) );
-    fillrg = ( lognr == 1 ? dpp( left_.fillrange_ ) :dpp( right_.fillrange_ ) );
     repeat = ( lognr == 1 ? dpp( left_.repeat_ ) : dpp( right_.repeat_ ) );
-    islog = ( lognr == 1 ? dpp( left_.islogarithmic_ ) :
-	    		   dpp( right_.islogarithmic_ ) );
-    
     const int logidx = wd->logs().indexOf( logname );
-    const int filllogidx = wd->logs().indexOf( fillname );
    
     if( logidx<0 )
     {
@@ -380,12 +361,21 @@ void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
     }
   
     setWellProperties( lognr, range );
-    mDeclareAndTryAlloc( Interval<float>*,rgptr,
-	    		 Interval<float>( range ) );
-    mDeclareAndTryAlloc( Interval<float>*,fillrgptr,
-	    		 Interval<float>( fillrg ) );
+    mDeclareAndTryAlloc( Interval<float>*,rgptr, Interval<float>( range ) );
     createLogDisplay( logidx, rgptr, islog, lognr );
-    createFillLogDisplay( filllogidx, fillrgptr, islog, lognr );
+
+    if ( isfilled )
+    {
+	BufferString fillname ; Interval<float> fillrg;
+	fillname = ( lognr == 1 ? dpp( left_.fillname_ ):dpp( right_.fillname_ ) ); 
+	fillrg = ( lognr == 1 ? dpp( left_.fillrange_ ) :dpp( right_.fillrange_ ) );
+    
+	const int filllogidx = wd->logs().indexOf( fillname );
+    
+	mDeclareAndTryAlloc( Interval<float>*,fillrgptr, Interval<float>( fillrg ) );
+	createFillLogDisplay( filllogidx, fillrgptr, islog, lognr );
+    }
+
     well_->showLog( true, lognr );
     if (repeat < logsnumber_) well_->hideUnwantedLogs( lognr, repeat  );
 }
@@ -394,9 +384,9 @@ void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
 void WellDisplay::calcClippedRange(float cliprate, Interval<float>& range,
        							Well::Log& wl )
 {
+    if ( cliprate > 100 ) cliprate = 100;
     cliprate = cliprate / 100;
     if ( mIsUdf(cliprate) || cliprate < 0 ) cliprate = 0;
-    if ( cliprate > 100 ) cliprate = 100;
     int logsz=wl.size();
     DataClipper dataclipper;
     dataclipper.setApproxNrValues( logsz );

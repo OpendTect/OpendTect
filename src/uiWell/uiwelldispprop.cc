@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.25 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.26 2009-07-01 07:49:50 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -35,7 +35,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
 
 {
     szfld_ = new uiSpinBox( this, 0, "Size" );
-    szfld_->setInterval( StepInterval<int>(1,mUdf(int),1) );
+    szfld_->setInterval( StepInterval<int>(0,mUdf(int),1) );
     szfld_->setValue(  props_.size_ );
     szfld_->valueChanging.notify( mCB(this,uiWellDispProperties,propChg) );
     new uiLabel( this, su.mysztxt_, szfld_ );
@@ -248,11 +248,10 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logsfld_->box()->selectionChanged.notify( mCB(this,
 	       			uiWellLogDispProperties, updateFillRange));
 
-
     BufferString selfilllbl( "Fill with log" );
     filllogsfld_ = new uiLabeledComboBox( this, selfilllbl );
     filllogsfld_->box()->addItems( lognames );
-    filllogsfld_->attach( alignedBelow , colfld_ );
+    filllogsfld_->attach( alignedBelow, colfld_ );
     filllogsfld_->box()->selectionChanged.notify( mCB(this,
 	       			uiWellLogDispProperties, updateFillRange));
 
@@ -271,6 +270,15 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     }
     coltablistfld_->selectionChanged.notify( mCB(this,uiWellLogDispProperties,
 								propChg) );
+    colorrangefld_ = new uiGenInput( this, "Color range",
+			     FloatInpIntervalSpec()
+			     .setName(BufferString(" range start"),0)
+			     .setName(BufferString(" range stop"),1) );
+    colorrangefld_->attach( alignedBelow, filllogsfld_ );
+    colorrangefld_->valuechanged.notify( mCB(this,uiWellLogDispProperties,
+	       						choiceSel) );
+    colorrangefld_->valuechanged.notify( mCB(this,uiWellLogDispProperties,
+							propChg) );
 
     logwidthfld_ = new uiLabeledSpinBox( this, "Log screen width" );
     logwidthfld_->box()->setInterval(1,500);
@@ -322,7 +330,8 @@ void uiWellLogDispProperties::doPutToScreen()
     NotifyStopper nsl( logarithmfld_->activated );
 
     logsfld_->box()-> setText( logprops().name_ );
-    rangefld_->setValue( logprops().range_ ); 
+    rangefld_->setValue( logprops().range_ );
+    colorrangefld_->setValue( logprops().fillrange_ );
     filllogsfld_->box()-> setText( logprops().fillname_ );
     stylefld_->setValue( logprops().iswelllog_ );
     logarithmfld_->setChecked( logprops().islogarithmic_ ); 
@@ -357,6 +366,7 @@ void uiWellLogDispProperties::doGetFromScreen()
         logprops().isdatarange_ = true;
     }
     logprops().range_ = rangefld_->getFInterval();
+    logprops().fillrange_ = colorrangefld_->getFInterval();
     logprops().islogarithmic_ = logarithmfld_->isChecked(); 
     logprops().islogfill_ = logfillfld_->isChecked();
     logprops().issinglecol_ = singlfillcolfld_->isChecked();
@@ -432,10 +442,9 @@ void uiWellLogDispProperties::recoverProp( )
     isFilledSel(0);
 }
 
+
 void uiWellLogDispProperties::setRangeFields( Interval<float>& range )
 {
-    rangefld_->setValue( range );
-    valuerange_ = range;
 }
 
 
@@ -450,6 +459,7 @@ void uiWellLogDispProperties::logSel( CallBacker* )
 void uiWellLogDispProperties::selNone()
 {
     rangefld_->setValue( Interval<float>(0,0) );
+    colorrangefld_->setValue( Interval<float>(0,0) );
     colfld_->setColor( Color::White() );
     seiscolorfld_->setColor( Color::White() );
     fillcolorfld_->setColor( Color::White() );
@@ -470,6 +480,7 @@ void uiWellLogDispProperties::selNone()
 void uiWellLogDispProperties::setFldSensitive( bool yn )
 {
     rangefld_->setSensitive( yn );
+    colorrangefld_->setSensitive( yn );
     cliprangefld_->setSensitive( yn );
     colfld_->setSensitive( yn );
     seiscolorfld_->setSensitive( yn );
@@ -503,58 +514,37 @@ void uiWellLogDispProperties::setFieldVals( bool def )
 	selNone();
 	return;
     }
-
     setFldSensitive( true );
 }
 
 
 void uiWellLogDispProperties::updateRange( CallBacker* )
 {
-	const char* lognm = logsfld_->box()->textOfItem(
-			    logsfld_->box()->currentItem() );;
-	const int logno = wl_->indexOf( lognm );
-	if ( logno < 0 )
-	return;
+    const char* lognm = logsfld_->box()->textOfItem(
+		        logsfld_->box()->currentItem() ); 
+    const int logno = wl_->indexOf( lognm );
+    if ( logno<0 ) return; 
 
-	Interval<float> range; 
-	range = wl_->getLog(logno).valueRange();
-	setRangeFields( range );
-	propChanged.trigger();
-	return;
-
-    calcRange( lognm, valuerange_ );
-
-    if ( mIsUdf(valuerange_.start) || mIsUdf(valuerange_.stop) )
-	valuerange_.set(0,0);
-    else
-	setRangeFields( valuerange_ );
-
+    rangefld_->setValue( wl_->getLog(logno).valueRange() );
     propChanged.trigger();
 }
 
 
 void uiWellLogDispProperties::updateFillRange( CallBacker* )
 {
-	const char* lognm = filllogsfld_->box()->textOfItem(
-			    filllogsfld_->box()->currentItem() );;
-	const int logno = wl_->indexOf( lognm );
-	if ( logno < 0 )
-	return;
+    const char* lognm = filllogsfld_->box()->textOfItem(
+			filllogsfld_->box()->currentItem() ); 
+    const int logno = wl_->indexOf( lognm );
+    if ( logno<0 ) return; 
 
-    calcRange( lognm, fillvaluerange_ );
-
-    if ( mIsUdf(fillvaluerange_.start) || mIsUdf(fillvaluerange_.stop) )
-	fillvaluerange_.set(0,0);
-    else 
-	 logprops().fillrange_ = fillvaluerange_;
-
+    colorrangefld_->setValue( wl_->getLog(logno).valueRange() );
     propChanged.trigger();
 }
 
 
 
 void uiWellLogDispProperties::calcRange( const char* lognm,
-       					        	Interval<float>& valr )
+					 Interval<float>& valr )
 {
     valr.set( mUdf(float), -mUdf(float) );
     for ( int idy=0; idy<wl_->size(); idy++ )
