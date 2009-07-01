@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.35 2009-06-26 14:45:29 cvshelene Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.36 2009-07-01 09:13:38 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -308,10 +308,10 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 
 void Math::setUpVarsSets()
 {
+    int nrcsts = 0;
+    int nrspecs = 0;
     for ( int idx=0; idx<expression_->nrVariables(); idx++ )
     {
-	int nrcsts = 0;
-	int nrspecs = 0;
 	BufferString fvarexp = expression_->fullVariableExpression( idx );
 	MathExpression::VarType vtyp = MathExpressionParser::varTypeOf(fvarexp);
 	switch ( vtyp )
@@ -345,6 +345,7 @@ void Math::setUpVarsSets()
 			&& constidx>cststable_[insertatidx].cstidx_ )
 		    insertatidx++;
 		cststable_.insert( insertatidx, CSTS( idx, constidx ) );
+		nrcsts++;
 		break;
 	    }
 	    case MathExpression::Recursive :
