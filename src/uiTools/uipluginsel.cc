@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginsel.cc,v 1.14 2009-06-19 16:15:32 cvskris Exp $";
+static const char* rcsID = "$Id: uipluginsel.cc,v 1.15 2009-07-01 18:57:17 cvskris Exp $";
 
 #include "uipluginsel.h"
 #include "uibutton.h"
@@ -106,11 +106,7 @@ bool uiPluginSel::rejectOK( CallBacker* )
     }
 
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
-    if ( !dontloadlist.size() )
-	Settings::common().remove( PluginManager::sKeyDontLoad() );
-    else
-	Settings::common().set( PluginManager::sKeyDontLoad(),
-				dontloadlist.rep() );
+    Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist.rep() );
 
     Settings::common().write();
 
