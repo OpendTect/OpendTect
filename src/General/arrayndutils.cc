@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.23 2009-01-09 04:35:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.24 2009-07-01 08:57:39 cvsnageswara Exp $";
 
 #include "arrayndutils.h"
 
@@ -42,6 +42,13 @@ ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
 ArrayNDWindow::~ArrayNDWindow()
 {
     delete [] window_;
+}
+
+
+bool ArrayNDWindow::resize( const ArrayNDInfo& info )
+{
+    size_ = info;
+    return buildWindow( windowtypename_, paramval_ );
 }
 
 
