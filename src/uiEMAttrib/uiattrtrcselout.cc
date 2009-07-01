@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.51 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.52 2009-07-01 11:47:08 cvsnanne Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -44,8 +44,8 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 				  const NLAModel* n, const MultiID& mid, 
 				  bool usesinglehor )
     : uiAttrEMOut( p, ad, n, mid, "Create Horizon related cube output" )
-    , ctio_( mkCtxtIOObjHor( ad.is2D() ) )
-    , ctio2_( mkCtxtIOObjHor( ad.is2D() ) )
+    , ctio_( mkCtxtIOObjHor(ad.is2D()) )
+    , ctio2_( mkCtxtIOObjHor(ad.is2D()) )
     , ctioout_(*mMkCtxtIOObj(SeisTrc))
     , usesinglehor_(usesinglehor)
     , extraztopfld_(0)
@@ -279,8 +279,8 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 					   : nrsampfld_ ? nrsampfld_
 					   		: outsidevalfld_ );
     setcubeboundsfld_->setValue( false );
-    setcubeboundsfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
-		                                cubeBoundsSel) );
+    setcubeboundsfld_->valuechanged.notify(
+	    mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
 
     cubeboundsfld_ = new uiGenInput ( prnt, "Z Range", FloatInpIntervalSpec()
 	    						.setName("Z Start",0)
@@ -559,10 +559,7 @@ void uiAttrTrcSelOut::extraDlgDone( CallBacker* cb )
 
 CtxtIOObj& uiAttrTrcSelOut::mkCtxtIOObjHor( bool is2d )
 {
-    if ( is2d )
-	return *mMkCtxtIOObj( EMAnyHorizon );
-    else
-	return *mMkCtxtIOObj( EMHorizon3D );
+    return is2d ? *mMkCtxtIOObj( EMHorizon2D ) : *mMkCtxtIOObj( EMHorizon3D );
 }
 
 
