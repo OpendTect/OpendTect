@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.16 2008-12-22 09:07:54 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.17 2009-07-01 12:15:30 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -406,6 +406,10 @@ bool SeisMSCProvider::doAdvance()
 	    delete tbufs_[0]->remove(0); 
 	    if ( pivotidx_ == 0 )
 		pivotidy_--;
+
+	    if ( tbufs_.isEmpty() )
+	       break;
+
 	    if ( tbufs_[0]->isEmpty() )
 	    {
 		delete tbufs_.remove(0);
