@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.76 2009-05-18 10:31:39 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.77 2009-07-01 20:08:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ public:
     void			setSelData(const Seis::SelData*);
     void                        setExtraZ(const Interval<float>&);
     void			setNeedInterpol(bool);
-    void			setExactZ(TypeSet<float>);
+    void			setExactZ(const TypeSet<float>&);
     
     void			computeRefStep();
     				/*!<If an attribute uses as inputs stored cubes
