@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.120 2009-06-26 18:49:32 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.121 2009-07-02 20:59:44 cvskris Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -524,7 +524,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 
 
 void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
-				       const Coord3& pos,
+				       Coord3& pos,
 				       BufferString& val,
 				       BufferString& info ) const
 {

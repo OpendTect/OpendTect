@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.109 2009-06-22 09:54:52 cvsumesh Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.110 2009-07-02 20:59:44 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -851,7 +851,7 @@ DataPack::ID VolumeDisplay::getDataPackID( int attrib ) const
 
 
 void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
-				     const Coord3& pos, BufferString& val,
+				     Coord3& pos, BufferString& val,
 				     BufferString& info ) const
 {
     info = "";

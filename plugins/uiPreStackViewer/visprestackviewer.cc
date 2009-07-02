@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.52 2009-05-07 04:39:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.53 2009-07-02 20:59:43 cvskris Exp $";
 
 #include "visprestackviewer.h"
 
@@ -858,7 +858,7 @@ void Viewer3D::finishedCB( CallBacker* )
 
 
 void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
-				      const Coord3& pos, 
+				      Coord3& pos, 
 				      BufferString& val,
 				      BufferString& info ) const
 {
@@ -922,6 +922,8 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
 
     const int zsample = posdata.range(false).nearestIndex( pos.z );
     val = fdp->data().get( offsetsample, zsample );
+
+    pos = Coord3( SI().transform( bid_ ), pos.z );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.13 2009-06-02 21:40:49 cvsyuancheng Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.14 2009-07-02 20:59:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ public:
     void			setDisplayTransformation(mVisTrans*);
 
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-						const Coord3&,
+						Coord3&,
 						BufferString& val,
 					       	BufferString& info) const;
     void			setLineStyle(const LineStyle&);

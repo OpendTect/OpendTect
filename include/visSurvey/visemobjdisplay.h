@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.55 2009-06-05 17:11:49 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.56 2009-07-02 20:59:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ public:
 
     bool			allowPicks() const	{ return true; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-	    					const Coord3&,
+	    					Coord3&,
 	    					BufferString& val,
 						BufferString& info) const;
     MPEEditor*			getEditor();

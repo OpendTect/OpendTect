@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.26 2009-06-17 16:13:08 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.27 2009-07-02 20:59:44 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -249,7 +249,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 
 
 void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
- 			    const Coord3& xyzpos, BufferString& val,
+ 			    Coord3& xyzpos, BufferString& val,
  			    BufferString& info) const
 {
     val = sKey::EmptyString;

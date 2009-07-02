@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.68 2009-06-26 18:49:32 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.69 2009-07-02 20:59:44 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -673,7 +673,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 
 
 void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
-				     const Coord3& pos, BufferString& val,
+				     Coord3& pos, BufferString& val,
 				     BufferString& info ) const
 {
     getObjectInfo( info );

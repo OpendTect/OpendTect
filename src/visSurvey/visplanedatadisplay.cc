@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.218 2009-06-26 18:49:32 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.219 2009-07-02 20:59:44 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1005,7 +1005,7 @@ const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const
 #define mIsValid(idx,sz) ( idx>=0 && idx<sz )
 
 void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
-					const Coord3& pos,
+					Coord3& pos,
 					BufferString& val, 
 					BufferString& info ) const
 {

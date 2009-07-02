@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.21 2009-06-02 21:40:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.22 2009-07-02 20:59:44 cvskris Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -66,7 +66,7 @@ void Horizon2DDisplay::setDisplayTransformation( mVisTrans* nt )
 
 
 void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
-				       const Coord3& mousepos,
+				       Coord3& mousepos,
 				       BufferString& val,
 				       BufferString& info) const
 {

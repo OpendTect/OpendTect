@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.67 2009-06-12 17:22:32 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.68 2009-07-02 20:59:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -128,7 +128,7 @@ public:
     virtual DataPackMgr::ID     getDataPackMgrID() const
 	                                { return DataPackMgr::CubeID(); }
     void			getMousePosInfo(const visBase::EventInfo&,
-	    			     		const Coord3&,BufferString& val,
+	    			     		Coord3&,BufferString& val,
 	    					BufferString& info) const;
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int) const;

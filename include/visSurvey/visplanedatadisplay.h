@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.114 2009-06-26 18:49:32 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.115 2009-07-02 20:59:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -101,7 +101,7 @@ public:
 
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
     void			getMousePosInfo(const visBase::EventInfo&,
-	    					const Coord3&,
+	    					Coord3&,
 	    					BufferString& val,
 	    					BufferString& info) const;
     void			getObjectInfo(BufferString&) const;

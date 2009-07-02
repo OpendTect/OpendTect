@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.25 2009-01-30 21:23:06 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.26 2009-07-02 20:59:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ public:
     BinID			getBinID() { return bid_; }
     MultiID			getMultiID() { return mid_; }
     void			getMousePosInfo(const visBase::EventInfo&,
-	    					const Coord3&,
+	    					Coord3&,
 				  		BufferString& val,
 						BufferString& info) const;
     void			 otherObjectsMoved( 

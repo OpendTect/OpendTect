@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.98 2009-06-30 22:00:58 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.99 2009-07-02 20:59:44 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1151,7 +1151,7 @@ EM::SectionID HorizonDisplay::getSectionID( int visid ) const
 
 
 void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
-				       const Coord3& pos, BufferString& val,
+				       Coord3& pos, BufferString& val,
 				       BufferString& info ) const
 {
     EMObjectDisplay::getMousePosInfo( eventinfo, pos, val, info );

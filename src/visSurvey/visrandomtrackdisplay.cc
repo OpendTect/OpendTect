@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.111 2009-06-23 15:52:35 cvskris Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.112 2009-07-02 20:59:44 cvskris Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -914,7 +914,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 
 
 void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
-					  const Coord3& pos, BufferString& val,
+					  Coord3& pos, BufferString& val,
 					  BufferString& info ) const
 {
     info = name();

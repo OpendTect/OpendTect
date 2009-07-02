@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.20 2009-06-17 16:13:08 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.21 2009-07-02 20:59:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -105,7 +105,7 @@ protected:
     void			materialChangeCB(CallBacker*);
 
     void			getMousePosInfo(const visBase::EventInfo&,
-	     			    const Coord3& xyzpos, BufferString& val,
+	     			    Coord3& xyzpos, BufferString& val,
 	     			    BufferString& info) const;
 
     visBase::MarchingCubesSurface*	displaysurface_;

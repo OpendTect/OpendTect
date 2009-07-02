@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.45 2009-06-26 18:49:32 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.46 2009-07-02 20:59:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -118,7 +118,7 @@ public:
 
     bool			allowPicks() const		{ return true; }
     void			getMousePosInfo(const visBase::EventInfo& pos,
-	    					const Coord3&,
+	    					Coord3&,
 	    					BufferString& val,
 						BufferString& info) const;
     float			calcDist(const Coord3&) const;

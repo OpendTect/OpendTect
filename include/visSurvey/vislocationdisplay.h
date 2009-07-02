@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.24 2009-05-11 06:41:19 cvsumesh Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.25 2009-07-02 20:59:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ public:
     bool                        lineShown() const;
     virtual BufferString	getManipulationString() const;
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-						const Coord3&,BufferString&,
+						Coord3&,BufferString&,
 						BufferString&) const;
     virtual bool		hasColor() const	{ return true; }
     virtual Color		getColor() const;

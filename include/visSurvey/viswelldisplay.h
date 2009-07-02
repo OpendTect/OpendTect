@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.51 2009-06-18 14:53:54 cvsbert Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.52 2009-07-02 20:59:44 cvskris Exp $
 
 
 
@@ -114,7 +114,7 @@ public:
 				{return left ? logparset_.getLeft()->name_					: logparset_.getRight()->name_;}
 
     void			getMousePosInfo(const visBase::EventInfo& pos,
-	    					const Coord3&,BufferString& val,
+	    					Coord3&,BufferString& val,
 						BufferString& info) const;
 
     void			setDisplayTransformation(mVisTrans*);

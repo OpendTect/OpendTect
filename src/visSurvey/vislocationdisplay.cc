@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.55 2009-05-11 06:42:26 cvsumesh Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.56 2009-07-02 20:59:44 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -664,7 +664,7 @@ BufferString LocationDisplay::getManipulationString() const
 
 
 void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
-				      const Coord3& pos, BufferString& val,
+				      Coord3& pos, BufferString& val,
 				      BufferString& info ) const
 {
     val = "";

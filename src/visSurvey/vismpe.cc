@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.72 2009-06-05 09:12:28 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.73 2009-07-02 20:59:44 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -869,7 +869,7 @@ float MPEDisplay::maxDist() const
 }
 
 
-void MPEDisplay::getMousePosInfo( const visBase::EventInfo&, const Coord3& pos,
+void MPEDisplay::getMousePosInfo( const visBase::EventInfo&, Coord3& pos,
 				  BufferString& val, BufferString& info ) const
 {
     val = "undef";
