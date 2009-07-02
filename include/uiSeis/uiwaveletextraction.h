@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.5 2009-06-18 09:53:21 cvsranojay Exp $
+ RCS:		$Id: uiwaveletextraction.h,v 1.6 2009-07-02 12:39:04 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,18 +14,20 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiIOObjSel;
-class uiSeisSel;
-class uiSelZRange;
 class uiPosProvGroup;
+class uiSeisSel;
 class uiSeis3DSubSel;
-typedef std::complex<float> float_complex;
-template <class T> class Array1DImpl;
+class uiSelZRange;
+class BinIDValueSet;
 class CtxtIOObj;
 class IOPar;
-class SeisTrcBuf;
 class MultiID;
+namespace Seis { class SelData; class TableSelData; }
+class SeisTrcBuf;
+typedef std::complex<float> float_complex;
+template <class T> class Array1DImpl;
 
-mClass uiWaveletExtraction : public uiDialog
+class uiWaveletExtraction : public uiDialog
 {
 public:
 				uiWaveletExtraction(uiParent*);
@@ -35,18 +37,25 @@ protected:
     void			choiceSel(CallBacker*);
     void			inputSel(CallBacker*);
     bool			acceptOK(CallBacker*);
-    bool			doProcess(const IOPar&);
-    bool                        readInputData(const IOPar&);
-    bool			doFFT(const SeisTrcBuf&,float*);
+    bool			doProcess(const IOPar&,const IOPar&);
+    bool                        readInputData(const IOPar&,const IOPar&
+	    				      ,Seis::SelData*&);
+    bool			doFFT(const SeisTrcBuf&,const Seis::SelData*
+				      ,float*);
     bool			doIFFT(const float*,float*);
     void			normalisation(Array1DImpl<float>&);
     void			storeWavelet(const float*);
+    bool			fillHorizonSelData(const IOPar&
+	    					   ,const IOPar&
+						   ,Seis::TableSelData&);
+    bool			calcWvltPhase(const float*,float*);
 
     CtxtIOObj&			seisctio_;
     CtxtIOObj&			wvltctio_;
     SeisTrcBuf*			seistrcbuf_;
     uiGenInput*			zextraction_;
     uiGenInput*			wtlengthfld_;
+    uiGenInput*			wvltphasefld_;
     uiIOObjSel*			outputwvltfld_;
     uiSeisSel*			seisselfld_;
     uiSelZRange*		zrangefld_;
@@ -54,4 +63,5 @@ protected:
     uiPosProvGroup* 		surfacesel_;
     int				zextractval_;
     int				wvltsize_;
+    bool			isdouble_;
 };
