@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.54 2009-07-02 13:03:58 cvsbert Exp $
+ RCS:		$Id: ranges.h,v 1.55 2009-07-02 13:54:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ class Interval
 public:
     inline		Interval();
     inline		Interval(const T& start,const T& stop);
+    inline Interval<T>&	operator=(const Interval<T>&);
     virtual bool inline	isUdf() const;
     inline
     virtual Interval<T>* clone() const;
@@ -101,6 +102,7 @@ public:
     inline		StepInterval(const Interval<T>&);
     inline		StepInterval( const StepInterval<T>& si )
 			: Interval<T>(si), step(si.step)	{}
+    inline StepInterval<T>& operator=(const Interval<T>&);
 
     virtual bool inline	isUdf() const;
     virtual bool	hasStep() const		{ return true; }
@@ -304,6 +306,10 @@ inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
 
 // ---------------- Interval ---------------------
 
+template <class T>
+inline Interval<T>& Interval<T>::operator=( const Interval<T>& intv )
+{ start = intv.start; stop = intv.stop; return *this; }
+
 template <class T> template <class X> inline
 int Interval<T>::nearestIndex( const X& x, const T& step ) const
 {
@@ -486,6 +492,10 @@ template <class T>
 StepInterval<T>::StepInterval( const Interval<T>& intv )
     : Interval<T>(intv)
 { step = intv.hasStep() ? ((StepInterval<T>&)intv).step : 1; }
+
+template <class T>
+inline StepInterval<T>& StepInterval<T>::operator=( const Interval<T>& intv )
+{ assign( *this, intv ); return *this; }
 
 
 template <class T> inline
