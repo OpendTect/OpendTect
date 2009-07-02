@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.124 2009-06-29 19:13:46 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.125 2009-07-02 07:10:38 cvsnanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -241,27 +241,18 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
 	for ( int idx=0; idx<lineids.size(); idx++ )
 	{
-	    BufferString linesetkey = Horizon2DGeometry::sKeyLineSets();
-	    BufferString trcrangekey = Horizon2DGeometry::sKeyTraceRange();
-	    linesetkey += idx;
-	    trcrangekey += idx;
+	    BufferString linesetkey(Horizon2DGeometry::sKeyLineSets(),idx);
+	    BufferString trcrangekey(Horizon2DGeometry::sKeyTraceRange(),idx);
 
-	    StepInterval<int> trcrange;
+	    StepInterval<int> trcrange( mUdf(int), mUdf(int), 1 );
+	    par_->get( trcrangekey, trcrange );
+	    trcranges += trcrange;
+
 	    MultiID mid;
-	    if ( par_->get(trcrangekey.buf(),trcrange) &&
-		 par_->get(linesetkey.buf(),mid) )
-	    {
-		PtrMan<IOObj> ioobj = IOM().get( mid );
-		if ( !ioobj )
-		    lineids[idx] = mUdf(int);
-		else
-		{
-		    trcranges += trcrange;
-		    linesets_.add( ioobj->name() );
-		}
-	    }
-	    else
-		lineids[idx] = mUdf(int);
+	    par_->get( linesetkey, mid );
+	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    linesets_.add( ioobj ? ioobj->name() : "" );
+	    if ( !ioobj ) lineids[idx] = mUdf(int);
 	}
 
 	int idx = 0;
@@ -695,7 +686,9 @@ int dgbSurfaceReader::nextStep()
 	    readlinenames_->indexOf( lines.get(rowindex_).buf() );
 	int callastcols = ( firstcol - 1 ) + nrcols;
 
-	StepInterval<int> trcrg = (*linestrcrgs_)[trcrgidx];
+	StepInterval<int> trcrg =
+	    linestrcrgs_->validIdx(trcrgidx) ? (*linestrcrgs_)[trcrgidx]
+	    				     : StepInterval<int>(0,0,1);
 	if ( trcrg.width() > 1 )
 	{
 	    if ( firstcol < trcrg.start )
