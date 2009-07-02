@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.32 2009-03-25 07:01:22 cvssatyaki Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.33 2009-07-02 22:11:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -81,6 +81,7 @@ public:
     const char*			dbInfo() const;
     int				nrAuxVals() const;
     const char*			auxDataName(int) const;
+    float			auxDataShift(int) const;
     void			selAuxData(const TypeSet<int>&);
     				/*!< The specified data will be loaded. If this
 				     function is not called, all avaliable
@@ -163,6 +164,7 @@ protected:
     bool			fullyread_;
 
     BufferStringSet		auxdatanames_;
+    TypeSet<float>		auxdatashifts_;
     ObjectSet<EM::dgbSurfDataReader> auxdataexecs_;
     TypeSet<int>		auxdatasel_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.125 2009-07-02 07:10:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.126 2009-07-02 22:11:36 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -301,6 +301,7 @@ void dgbSurfaceReader::createAuxDataReader()
 	if ( dreader->dataName() )
 	{
 	    auxdatanames_ += new BufferString(dreader->dataName());
+	    auxdatashifts_ += dreader->shift();
 	    auxdataexecs_ += dreader;
 	}
 	else
@@ -404,6 +405,10 @@ const char* dgbSurfaceReader::auxDataName( int idx ) const
 {
     return auxdatanames_[idx]->buf();
 }
+
+
+float dgbSurfaceReader::auxDataShift( int idx ) const
+{ return auxdatashifts_[idx]; }
 
 
 void dgbSurfaceReader::selAuxData(const TypeSet<int>& sel )

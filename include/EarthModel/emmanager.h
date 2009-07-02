@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.45 2009-06-02 10:11:12 cvsnanne Exp $
+ RCS:		$Id: emmanager.h,v 1.46 2009-07-02 22:11:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -88,7 +88,7 @@ public:
     EMObject*		createTempObject(const char* type);
 
     const char*		getSurfaceData(const MultiID&,SurfaceIOData&);
-    			// returns err msg or null if OK
+    			//!<\returns err msg or null if OK
     void		get2DHorizons(const MultiID& lineset,const char* linenm,
 	    			      TypeSet<MultiID>&) const;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.40 2009-06-26 21:57:56 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.41 2009-07-02 22:11:36 cvskris Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -313,6 +313,10 @@ const char* dgbSurfDataReader::dataName() const
 {
     return dataname_[0] ? dataname_.buf() : 0;
 }
+
+
+float dgbSurfDataReader::shift() const 
+{ return shift_; }
 
 
 const char* dgbSurfDataReader::dataInfo() const

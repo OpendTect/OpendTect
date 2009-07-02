@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.20 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.21 2009-07-02 22:11:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -93,6 +93,7 @@ public:
 				~dgbSurfDataReader();
 
     const char*			dataName() const;
+    float			shift() const;
     const char*			dataInfo() const;
 
     void			setSurface(EM::Horizon3D&);
