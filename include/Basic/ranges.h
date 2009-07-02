@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.53 2009-06-10 13:21:27 cvsbert Exp $
+ RCS:		$Id: ranges.h,v 1.54 2009-07-02 13:03:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,7 +287,14 @@ bool IntervalND<T>::intersects( const IntervalND<T>& b ) const
 
 template <class T1,class T2>
 inline void assign( Interval<T1>& i1, const Interval<T2>& i2 )
-{ i1.start = (T1)i2.start; i1.stop = (T1)i2.stop; }
+{
+    i1.start = (T1)i2.start;
+    i1.stop = (T1)i2.stop;
+    mDynamicCastGet(StepInterval<T1>*,si1,&i1)
+    mDynamicCastGet(const StepInterval<T2>*,si2,&i2)
+    if ( si1 && si2 )
+	si1->step = (T1)si2->step;
+}
 
 template <class T1,class T2>
 inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
