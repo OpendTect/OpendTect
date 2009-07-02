@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.4 2009-06-19 20:27:32 cvsyuancheng Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.5 2009-07-02 22:03:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ public:
     void			setTextureZPixels(int);
     				//!<\note Horizontal size is trcrg.width()+1, 
 
-    void			setPath(const TypeSet<PosInfo::Line2DPos>&);
+    void			setPath(const TypeSet<PosInfo::Line2DPos>&,
+	    				int tracestep);
     				//!<Is assumed to remain in memory
 
     void			setDisplayedGeometry(const Interval<int>& trcrg,
@@ -59,7 +60,7 @@ protected:
 					SoTextureComposer*&,bool) const;
     TypeSet<Coord>		path_; 
     Interval<float>		zrg_;
-    Interval<int>		trcrg_;
+    StepInterval<int>		trcrg_;
     int				nrzpixels_;
     int				firsttrcnr_;
     ObjectSet<TypeSet<int> > 	horblocktrcindices_;

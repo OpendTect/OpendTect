@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.5 2009-06-19 20:27:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.6 2009-07-02 22:03:02 cvsyuancheng Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -36,7 +36,7 @@ namespace visBase
 SplitTextureSeis2D::SplitTextureSeis2D()
     : VisualObjectImpl( false )
     , zrg_( 0, 0 )
-    , trcrg_( 0, 0 )	
+    , trcrg_( 0, 0, 1 )
     , nrzpixels_( 0 )
 {
     coords_ = visBase::Coordinates::create();
@@ -66,33 +66,28 @@ SplitTextureSeis2D::~SplitTextureSeis2D()
 }
 
 
-void SplitTextureSeis2D::setPath( const TypeSet<PosInfo::Line2DPos>& path )
+void SplitTextureSeis2D::setPath( const TypeSet<PosInfo::Line2DPos>& path, 
+				  int tracestep )
 {
     path_.erase();
-    if ( !path.size() )
+    
+    const int nrtraces = path.size();
+    if ( !nrtraces )
 	return;
 
     firsttrcnr_ = path[0].nr_;
-    const int size = path[path.size()-1].nr_ - firsttrcnr_ + 1;
-    path_.setSize( size, Coord::udf() );
-    
-    for ( int idx=0; idx<path.size()-1; idx++ )
-    {
-	const int start = path[idx].nr_ - firsttrcnr_;
-	const int stop = path[idx+1].nr_ - firsttrcnr_;
-	path_[start] = path[idx].coord_;
-	path_[stop] = path[idx+1].coord_;
+    if ( tracestep ) trcrg_.step = tracestep;
 
-	const int nrinsertpts = stop-start;
-	if ( nrinsertpts>1 )
-	{
-	    for ( int idy=1; idy<nrinsertpts; idy++ )
-	    {
-		const Coord diff = path_[stop] - path_[start];
-		path_[start+idy] = path_[start] + diff*(float)idy/nrinsertpts;
-	    }
-	}
+    if ( nrtraces==1 )
+    {
+	path_.setSize( 1, path[0].coord_ );
+	return;
     }
+
+    path_.setSize( nrtraces, Coord::udf() );
+    
+    for ( int idx=0; idx<nrtraces; idx++ )
+	path_[idx] = path[idx].coord_;
     
     updateHorSplit();
 }
@@ -138,11 +133,11 @@ void SplitTextureSeis2D::updateHorSplit()
 	return;
 
     deepErase( horblocktrcindices_ );
-    const int diff = trcrg_.start - firsttrcnr_;
+    const int diff = (trcrg_.start - firsttrcnr_)/trcrg_.step;
     if ( diff<0 )
 	return;
 
-    const int nrhorpixels = trcrg_.width()+1;
+    const int nrhorpixels = trcrg_.nrSteps() + 1;
     const int nrhorblocks = nrBlocks( nrhorpixels, mMaxHorSz, 1 );
 
     for ( int idx=0; idx<nrhorblocks; idx++ )
@@ -151,15 +146,20 @@ void SplitTextureSeis2D::updateHorSplit()
 	if ( blockidxrg.stop>=nrhorpixels || nrhorblocks==1 ) 
 	    blockidxrg.stop = nrhorpixels-1;
 
-	TypeSet<double> x, y;
-	for ( int idy=blockidxrg.start; idy<=blockidxrg.stop; idy++ )
+	const int pathsize = blockidxrg.width()+1;
+	mAllocVarLenArr( double, x, pathsize );
+	mAllocVarLenArr( double, y, pathsize );
+
+	for ( int idy=0; idy<pathsize; idy++ )
 	{
-	    x += path_[idy+diff].x;
-	    y += path_[idy+diff].y;
+	    const int pathidx = idy+blockidxrg.start+diff;
+	    x[idy] = path_[pathidx].x;
+	    y[idy] = path_[pathidx].y;
 	}
 
 	TypeSet<int> totalbps;
-	IdxAble::getBendPoints( x, y, x.size(), 0.5, totalbps );
+	IdxAble::getBendPoints<double*,double*,double>( x, y, pathsize,
+							0.5, totalbps );
 
 	TypeSet<int>* trcindices = new TypeSet<int>;
 	trcindices->setCapacity( totalbps.size() );
@@ -271,7 +271,8 @@ void SplitTextureSeis2D::updateDisplay( )
 	    
 	    if ( tcomp )
 	    {
-		const int firstpathidx = trcrg_.start - firsttrcnr_; 
+		const int firstpathidx = 
+		    (trcrg_.start - firsttrcnr_)/trcrg_.step; 
 		tcomp->origin.setValue( 0, 
 			(*horblockrg)[0]-firstpathidx, startzpixel );
 		tcomp->size.setValue( 1, texturehorsz, textureversz );

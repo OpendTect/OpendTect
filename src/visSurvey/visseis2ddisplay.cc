@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.69 2009-07-02 20:59:44 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.70 2009-07-02 22:03:02 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -105,7 +105,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    continue;
 	}
 
-	const int trcidx = trcnr-s2d_.trcnrrg_.start;
+	const int trcidx = (trcnr-s2d_.trcnrrg_.start)/s2d_.trcnrrg_.step;
 	const DataHolder* dh = data2dh_.dataset_[idx];
 	if ( !dh )
 	{
@@ -150,7 +150,7 @@ Seis2DDisplay::Seis2DDisplay()
     , triangles_( visBase::SplitTextureSeis2D::create() )	 
     , geomchanged_(this)
     , maxtrcnrrg_(INT_MAX,INT_MIN)
-    , trcnrrg_(-1,-1)
+    , trcnrrg_(-1,-1,0)
     , datatransform_(0)
     , voiidx_(-1)
     , prevtrcidx_(0)
@@ -215,7 +215,8 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
 	maxtrcnrrg_.include( linepositions[idx].nr_, false );
 
-    triangles_->setPath( geometry_.posns_ );
+    trcnrrg_.step = geometry_.getTraceNrRange().step;
+    triangles_->setPath( geometry_.posns_, trcnrrg_.step );
 
     setTraceNrRange( maxtrcnrrg_ );
     setZRange( geometry_.zrg_ );
@@ -285,7 +286,8 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
     if ( !rg.width() || trcnrrg_==rg )
 	return;
 
-    trcnrrg_ = rg;
+    trcnrrg_.start = rg.start;
+    trcnrrg_.stop = rg.stop;
     updateVizPath();
 }
 
@@ -370,7 +372,7 @@ void Seis2DDisplay::setData( int attrib,
 	    			mNINT(arrayzrg.stop/sd.step), 1 );
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
-			 Array2DImpl<float>( trcnrrg_.width()+1, arrzsz ) );
+	    Array2DImpl<float>( trcnrrg_.nrSteps()+1, arrzsz ) );
     if ( !arr->isOK() )
 	return;
 
@@ -502,6 +504,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( curzrg_ );
     s2dd->setTraceNrRange( trcnrrg_ );
+    s2dd->trcnrrg_.step = trcnrrg_.step;
     s2dd->setResolution( getResolution(), tr );
 
     s2dd->setLineSetID( linesetid_ );
