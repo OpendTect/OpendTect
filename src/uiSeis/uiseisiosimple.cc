@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.24 2009-06-29 09:56:43 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.25 2009-07-02 13:13:26 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -299,6 +299,8 @@ void uiSeisIOSimple::initFlds( CallBacker* cb )
     haveposSel( cb );
     isascSel( cb );
     haveoffsSel( cb );
+    if ( !isimp_ )
+	inpSeisSel( cb );
 }
 
 
