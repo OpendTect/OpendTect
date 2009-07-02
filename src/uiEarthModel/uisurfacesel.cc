@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfacesel.cc,v 1.4 2009-06-02 13:38:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfacesel.cc,v 1.5 2009-07-02 09:10:36 cvsraman Exp $";
 
 #include "uisurfacesel.h"
 
@@ -47,7 +47,7 @@ void uiSurfaceSel::getFullList()
 
     names_.erase();
     mids_.erase();
-    listfld_->clear();
+    listfld_->empty();
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj;
@@ -97,7 +97,7 @@ void uiSurface2DSel::setLineSetID( const MultiID& mid )
 
     names_.erase();
     mids_.erase();
-    listfld_->clear();
+    listfld_->empty();
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj;
