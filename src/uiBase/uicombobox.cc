@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.50 2009-06-08 08:38:48 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.51 2009-07-02 08:17:27 cvsnanne Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -34,6 +34,7 @@ public:
 			{
 			    setEditable( false );
 			    setAutoCompletion( false );
+			    setStretch( 1, 0 );
 			    setHSzPol( uiObject::Medium) ;
 			}
 
