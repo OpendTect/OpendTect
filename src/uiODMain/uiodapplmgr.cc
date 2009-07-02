@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.339 2009-06-30 16:39:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.340 2009-07-02 20:32:15 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -965,8 +965,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
     else if ( evid == uiEMAttribPartServer::evHorizonShift() )
     {
 	const int textureidx = emattrserv_->textureIdx();
-	visserv_->setTranslation( visid,
-				     Coord3(0,0,emattrserv_->getShift()) );
+	visserv_->setTranslation( visid, Coord3(0,0,emattrserv_->getShift()) );
 	for ( int idx=0; idx<visserv_->getNrAttribs(visid); idx++ )
 	    visserv_->enableAttrib( visid, idx, idx==attribidx );
 
@@ -1013,8 +1012,9 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 
 	const bool isok = evid==uiEMAttribPartServer::evShiftDlgClosedOK();
 	const BoolTypeSet& enableattrib = emattrserv_->initialAttribStatus();
+	const int textureidx = emattrserv_->textureIdx();
 
-	if ( !isok )
+	if ( !isok || mIsUdf(textureidx) )
 	{
 	    uiTreeItem* parent = sceneMgr().findItem(visid);
 	    if ( !mIsUdf(emattrserv_->attribIdx() ) )
@@ -1030,7 +1030,10 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 		parent->removeChild( itm );
 		visserv_->removeAttrib( visid, emattrserv_->attribIdx() );
 	    }
+	}
 
+	if ( !isok )
+	{
 	    visserv_->setTranslation( visid,
 		    Coord3(0,0,emattrserv_->initialShift() ) );
 
@@ -1039,7 +1042,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	}
 	else
 	{
-	    for ( int idx=0; idx<enableattrib.size(); idx++ )
+	    for ( int idx=0; idx<visserv_->getNrAttribs(visid); idx++ )
 	    {
 		if ( idx==attribidx )
 		{
