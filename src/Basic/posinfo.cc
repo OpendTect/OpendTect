@@ -4,12 +4,12 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.17 2009-02-16 17:13:12 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.18 2009-07-02 18:52:46 cvsyuancheng Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
-#include "survinfo.h"
 #include "position.h"
+#include "survinfo.h"
 #include <iostream>
 
 
@@ -840,4 +840,56 @@ bool PosInfo::Line2DData::write( std::ostream& strm, bool asc ) const
     }
 
     return strm.good();
+}
+
+
+StepInterval<int> PosInfo::Line2DData::getTraceNrRange() const
+{
+    const int possize = posns_.size();
+
+    StepInterval<int> res( -1, -1, 1 );
+    
+    if ( possize==1 )
+    {
+	res.start = posns_[0].nr_;
+	res.stop = posns_[0].nr_;
+    }
+    else if ( possize>1 )
+    {
+	TypeSet<int> trnrs;	
+	trnrs += posns_[0].nr_;
+	
+	for ( int idx=1; idx<possize; idx++ )
+	{
+	    int insert = idx;
+	    while ( posns_[idx].nr_<posns_[insert-1].nr_ && insert>=1 )
+		insert--;
+
+	    if ( insert==idx )
+		trnrs += posns_[idx].nr_;
+	    else
+		trnrs.insert( insert, posns_[idx].nr_ );
+	}
+
+	res.start = trnrs[0];
+	res.stop = trnrs[possize-1];
+
+	int mindiff;
+    	bool isset = false;
+	for ( int idx=0; idx<possize-1; idx++ )
+	{
+	    const int diff = trnrs[idx+1] - trnrs[idx];
+    	    if ( !isset || diff<mindiff )
+    	    {
+    		isset = true;
+    		mindiff = diff;
+    		if ( mindiff==1 )
+    		    break;
+    	    }
+    	}
+
+	res.step = mindiff;
+    }
+
+    return res;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.14 2009-06-04 06:11:43 cvsraman Exp $
+ RCS:		$Id: posinfo.h,v 1.15 2009-07-02 18:52:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,7 +181,7 @@ public:
     void                dump(std::ostream&,bool pretty=true) const;
     bool		read(std::istream&,bool asc);
     bool		write(std::ostream&,bool asc) const;
-
+    StepInterval<int>	getTraceNrRange() const;
 };
 
 } // namespace PosInfo
