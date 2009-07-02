@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.56 2009-06-30 16:35:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.57 2009-07-02 19:06:24 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -238,8 +238,11 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
+    const int visid = displayID();
+    const int attribnr = attribNr();
+
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
+    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attribnr );
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -247,11 +250,12 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	BufferStringSet nms;
 	DataPointSet vals( pts, nms, false, true );
 	vals.bivSet().setNrVals(2);
-	visserv->getRandomPosCache( displayID(), attribNr(), vals );
+	visserv->getRandomPosCache( visid, attribnr, vals );
 	if ( vals.size() )
 	{
+	    const int validx = visserv->selectedTexture( visid, attribnr )+2;
 	    const int auxnr =
-		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1,
+		applMgr()->EMServer()->setAuxData( emid_, vals, name_, validx,
 		       	applMgr()->EMAttribServer()->getShift() );
 	    BufferString auxdatanm;
 	    const bool saved =
@@ -260,7 +264,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    {
 		const Attrib::SelSpec newas( auxdatanm,
 			Attrib::SelSpec::cOtherAttrib() );
-		visserv->setSelSpec( displayID(), attribNr(), newas );
+		visserv->setSelSpec( visid, attribnr, newas );
 		updateColumnText( uiODSceneMgr::cNameColumn() );
 	    }
 	    changed_ = !saved;
@@ -269,7 +273,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==depthattribmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	uivisemobj_->setDepthAsAttrib( attribNr() );
+	uivisemobj_->setDepthAsAttrib( attribnr );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
     }
@@ -287,7 +291,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( shifts.size()<1 )
 	    return;
 
-	const float curshift = visserv->getTranslation( displayID() ).z;
+	const float curshift = visserv->getTranslation( visid ).z;
 	if ( !mIsEqual(curshift,shifts[0],SI().zRange(true).step) )
 	{
 	    uiMSG().error( "Selected attribute has a different shift than "
@@ -296,10 +300,10 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	FixedString attrnm = vals.colDef( 0 ).name_.buf();
-	visserv->setSelSpec( displayID(), attribNr(),
+	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
-	visserv->createAndDispDataPack( displayID(), attribNr(), &vals );
-	visserv->selectTexture( displayID(), attribNr(), 0 );
+	visserv->createAndDispDataPack( visid, attribnr, &vals );
+	visserv->selectTexture( visid, attribnr, 0 );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
@@ -329,9 +333,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	
 	vals.bivSet().append( *set );
 	vals.dataChanged();
-	visserv->setSelSpec( displayID(), attribNr(),
+	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(name_,Attrib::SelSpec::cOtherAttrib()) );
-	visserv->setRandomPosData( displayID(), attribNr(), &vals );
+	visserv->setRandomPosData( visid, attribnr, &vals );
 	changed_ = true;
     }
 }
