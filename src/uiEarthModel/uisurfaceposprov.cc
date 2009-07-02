@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.6 2009-04-09 09:27:18 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.7 2009-07-02 12:34:48 cvsnageswara Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -95,9 +95,6 @@ void uiSurfacePosProvGroup::selChg( CallBacker* )
 	zstepfld_->display( isbtwn );
 	zsteplbl_->display( isbtwn );
     }
-
-    if ( extrazfld_ )
-	extrazfld_->display( isbtwn );
 }
 
 
@@ -117,7 +114,7 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 	surf2fld_->setInput( MultiID(res) );
     issingfld_->setValue( issing );
 
-    if( zstepfld_ )
+    if ( zstepfld_ )
     {
 	float zstep = zstepfld_->getValue() / zfac_;
 	iop.get( mGetSurfKey(zstep), zstep );
@@ -125,7 +122,7 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 	zstepfld_->setValue( v );
     }
 
-    if( extrazfld_ )
+    if ( extrazfld_ )
     {
 	StepInterval<float> ez = extrazfld_->getRange();
 	iop.get( mGetSurfKey(extraZ), ez );
@@ -144,6 +141,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 	mErrRet("Please select the surface")
     iop.set( mGetSurfKey(id1), ctio1_.ioobj->key() );
 
+    Interval<float> ez( 0, 0 );
     if ( issingfld_->getBoolValue() )
 	iop.removeWithKey( mGetSurfKey(id2) );
     else
@@ -151,18 +149,17 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 	if ( !surf2fld_->commitInput() )
 	    mErrRet("Please select the bottom surface")
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
-
-	const float zstep = zstepfld_ ? zstepfld_->getValue() / zfac_ 
-	    			      : SI().zStep();
-	iop.set( mGetSurfKey(zstep), zstep );
-
-	Interval<float> ez( 0, 0 );
-	if ( extrazfld_ ) assign( ez, extrazfld_->getRange() );
-	if ( mIsUdf(ez.start) ) ez.start = 0;
-	if ( mIsUdf(ez.stop) ) ez.stop = 0;
-	iop.set( mGetSurfKey(extraZ), ez );
     }
 
+    const float zstep = zstepfld_ ? zstepfld_->getValue() / zfac_ 
+				  : SI().zStep();
+    iop.set( mGetSurfKey(zstep), zstep );
+
+    if ( mIsUdf(ez.start) ) ez.start = 0;
+    if ( mIsUdf(ez.stop) ) ez.stop = 0;
+
+    if ( extrazfld_ ) assign( ez, extrazfld_->getRange() );
+    iop.set( mGetSurfKey(extraZ), ez );
     iop.set( sKey::Type, sKey::Surface );
     return true;
 }
