@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.33 2009-05-28 12:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.34 2009-07-03 11:48:14 cvsnanne Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -257,6 +257,7 @@ bool HorizonScanner::analyzeData()
 static bool isInsideSurvey( const BinID& bid, float zval )
 {
     const CubeSampling& cs = SI().sampling( false );
+    return SI().isReasonable(bid) && cs.zrg.includes( zval );
     return cs.hrg.includes( bid ) && cs.zrg.includes( zval );
 }
 
