@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.24 2009-07-03 10:49:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.25 2009-07-03 11:57:16 cvsbert Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -38,12 +38,7 @@ static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.24 2009-07-03 10:49:32 
 #include "uiwellpartserv.h"
 
 
-static const char* sTypes[] =
-{
-    "Normal",
-    "Reversed",
-    0
-};
+static const char* sTypes[] = { "Top", "Bottom", 0 };
 
 
 uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
@@ -82,7 +77,7 @@ void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
 				"Wells Table" );
     selwellsbox_->setNrCols( 2 );
     selwellsbox_->setColumnLabel( 0, "Well Name" );
-    selwellsbox_->setColumnLabel( 1, "Read Order" );
+    selwellsbox_->setColumnLabel( 1, "Start at" );
     selwellsbox_->setNrRows( 5 );
     selwellsbox_->setColumnWidth(0,90);
     selwellsbox_->setColumnWidth(1,90);
@@ -92,12 +87,13 @@ void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
     onlytopfld_ = new uiGenInput( this, "Use only wells' top position", 
 				  BoolInpSpec(true) );
     onlytopfld_->valuechanged.notify( mCB(this,uiWell2RandomLineDlg,ptsSel) );
-    onlytopfld_->setValue(false);
 
     BufferString txt( "Extend outward (" );
     txt += SI().xyInFeet() ? "ft)" : "m)";
-    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(1000) );
+    float defdist = 100 * SI().inlDistance();
+    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(mNINT(defdist)) );
     extendfld_->setWithCheck( true );
+    extendfld_->setChecked( true );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, extendfld_ );
@@ -281,48 +277,29 @@ void uiWell2RandomLineDlg::setSelectedWells()
 void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 {
     setSelectedWells();
+    const bool onlytop = onlytopfld_->getBoolValue();
     for ( int idx=0; idx<selwellsids_.size(); idx++ )
     {
-	Well::Data* wd;
-	wd = Well::MGR().get( selwellsids_[idx] );
-	if ( !wd ) return;
-	if ( onlytopfld_->getBoolValue() )
-	{
-	    Coord3 coord3 = wd->track().pos(0);
-	    coords += Coord( coord3.x, coord3.y );
-	}
+	const Well::Data* wd = Well::MGR().get( selwellsids_[idx] );
+	if ( !wd || wd->track().isEmpty() ) return;
+
+	if ( onlytop )
+	    coords += wd->track().pos(0).coord();
 	else
 	{
-	    if ( selwellstypes_[idx] )
+	    const int firstidx = selwellstypes_[idx] ? wd->track().size()-1 : 0;
+	    const int stopidx = selwellstypes_[idx] ? -1 : wd->track().size();
+	    const int incidx = selwellstypes_[idx] ? -1 : 1;
+
+	    BinID prevbid( SI().transform(wd->track().pos(firstidx)) );
+	    coords += SI().transform( prevbid );
+	    for ( int posidx=firstidx; posidx!=stopidx; posidx+=incidx )
 	    {
-		for ( int posidx=wd->track().size()-1; posidx>=0; posidx-- )
+		BinID bid( SI().transform(wd->track().pos(posidx)) );
+		if ( bid != prevbid )
 		{
-		    if ( posidx == wd->track().size()-1 )
-		    {
-			Coord3 coord3 = wd->track().pos( posidx );
-			coords += Coord( coord3.x, coord3.y );
-			continue;
-		    }
-		    Coord3 prevcoord3 = wd->track().pos( posidx + 1 );
-		    Coord3 coord3 = wd->track().pos( posidx );
-		    if ( prevcoord3 != coord3 )
-			coords += Coord( coord3.x, coord3.y );
-		}
-	    }
-	    else
-	    {
-		for ( int posidx=0; posidx<wd->track().size(); posidx++ )
-		{
-		    if ( posidx == 0 )
-		    {
-			Coord3 coord3 = wd->track().pos( posidx );
-			coords += Coord( coord3.x, coord3.y );
-			continue;
-		    }
-		    Coord3 prevcoord3 = wd->track().pos( posidx - 1 );
-		    Coord3 coord3 = wd->track().pos( posidx );
-		    if ( prevcoord3 != coord3 )
-			coords += Coord( coord3.x, coord3.y );
+		    coords += SI().transform( bid );
+		    prevbid = bid;
 		}
 	    }
 	}
@@ -340,21 +317,28 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
     if ( nrcoords == 1 )
     {
 	const Coord c( coords[0] );
-	coords[0].x -= extradist;
-	coords += Coord( c.x + extradist, c.y );
+	coords.erase();
+	coords += Coord( c.x-extradist, c.y );
+	coords += c;
+	coords += Coord( c.x+extradist, c.y );
 	return;
     }
 
-    const Coord d0( coords[1].x - coords[0].x, coords[1].y - coords[0].y );
+    TypeSet<Coord> oldcrds( coords );
+    coords.erase();
+    const Coord d0( oldcrds[1].x - oldcrds[0].x, oldcrds[1].y - oldcrds[0].y );
     float p = sqrt( extradist * extradist / d0.sqAbs() );
-    const Coord newc0( coords[0].x - p * d0.x, coords[0].y - p * d0.y );
-    coords[0] = newc0;
-    const Coord d1( coords[nrcoords-1].x - coords[nrcoords-2].x,
-		    coords[nrcoords-1].y - coords[nrcoords-2].y );
+    const Coord newc0( oldcrds[0].x - p * d0.x, oldcrds[0].y - p * d0.y );
+    const Coord d1( oldcrds[nrcoords-1].x - oldcrds[nrcoords-2].x,
+		    oldcrds[nrcoords-1].y - oldcrds[nrcoords-2].y );
     p = sqrt( extradist * extradist / d1.sqAbs() );
-    const Coord newc1( coords[nrcoords-1].x + p * d1.x,
-	    	       coords[nrcoords-1].y + p * d1.y );
-    coords[nrcoords-1] = newc1;
+    const Coord newc1( oldcrds[nrcoords-1].x + p * d1.x,
+	    	       oldcrds[nrcoords-1].y + p * d1.y );
+
+    coords += newc0;
+    for ( int idx=0; idx<oldcrds.size(); idx++ )
+	coords += oldcrds[idx];
+    coords += newc1;
 }
 
 
