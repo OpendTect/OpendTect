@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.57 2009-07-02 19:06:24 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.58 2009-07-03 14:28:45 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -253,10 +253,11 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->getRandomPosCache( visid, attribnr, vals );
 	if ( vals.size() )
 	{
+	    const float shift = visserv->getTranslation( visid ).z;
 	    const int validx = visserv->selectedTexture( visid, attribnr )+2;
 	    const int auxnr =
 		applMgr()->EMServer()->setAuxData( emid_, vals, name_, validx,
-		       	applMgr()->EMAttribServer()->getShift() );
+			shift );
 	    BufferString auxdatanm;
 	    const bool saved =
 		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );
