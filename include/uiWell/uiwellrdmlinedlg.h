@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.7 2009-01-08 09:16:21 cvsranojay Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.8 2009-07-03 10:49:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ protected:
     uiListBox*		wellsbox_;
     uiTable*		selwellsbox_;
     uiGenInput*		onlytopfld_;
+    uiGenInput*		extendfld_;
     uiIOObjSel* 	outfld_;
     uiCheckBox* 	dispfld_;
 

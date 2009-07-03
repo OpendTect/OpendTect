@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.23 2009-06-17 06:03:18 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.24 2009-07-03 10:49:32 cvsbert Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -87,14 +87,24 @@ void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
     selwellsbox_->setColumnWidth(0,90);
     selwellsbox_->setColumnWidth(1,90);
     selwellsbox_->setTableReadOnly(true);
+    topgrp->setHAlignObj( selwellsbox_ );
     
     onlytopfld_ = new uiGenInput( this, "Use only wells' top position", 
 				  BoolInpSpec(true) );
     onlytopfld_->valuechanged.notify( mCB(this,uiWell2RandomLineDlg,ptsSel) );
     onlytopfld_->setValue(false);
 
+    BufferString txt( "Extend outward (" );
+    txt += SI().xyInFeet() ? "ft)" : "m)";
+    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(1000) );
+    extendfld_->setWithCheck( true );
+
+    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    sep->attach( stretchedBelow, extendfld_ );
+
     CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
     previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
+    previewbutton_->attach( ensureBelow, sep );
     outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
     dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
     dispfld_->setChecked( true );
@@ -142,8 +152,9 @@ void uiWell2RandomLineDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
     selbuttons->attach( ensureRightOf, wellsbox_ );
     selwellsbox_->attach( rightTo, wellsbox_ );
     movebuttons->attach( centeredRightOf, selwellsbox_ );
-    onlytopfld_->attach( centeredBelow, topgrp );
-    previewbutton_->attach( centeredBelow, onlytopfld_ );
+    onlytopfld_->attach( alignedBelow, topgrp );
+    extendfld_->attach( alignedBelow, onlytopfld_ );
+    previewbutton_->attach( alignedBelow, extendfld_ );
     outfld_->attach( alignedBelow, previewbutton_ );
     dispfld_->attach( alignedBelow, outfld_ );
 }
@@ -316,6 +327,34 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 	    }
 	}
     }
+
+    if ( !extendfld_->isChecked() )
+	return;
+
+    const int nrcoords = coords.size();
+    if ( nrcoords < 1 ) return;
+    float extradist = extendfld_->getfValue();
+    if ( extradist < 0.1 || extradist > 1e6 ) return;
+    if ( SI().xyInFeet() )
+	extradist *= mFromFeetFactor;
+    if ( nrcoords == 1 )
+    {
+	const Coord c( coords[0] );
+	coords[0].x -= extradist;
+	coords += Coord( c.x + extradist, c.y );
+	return;
+    }
+
+    const Coord d0( coords[1].x - coords[0].x, coords[1].y - coords[0].y );
+    float p = sqrt( extradist * extradist / d0.sqAbs() );
+    const Coord newc0( coords[0].x - p * d0.x, coords[0].y - p * d0.y );
+    coords[0] = newc0;
+    const Coord d1( coords[nrcoords-1].x - coords[nrcoords-2].x,
+		    coords[nrcoords-1].y - coords[nrcoords-2].y );
+    p = sqrt( extradist * extradist / d1.sqAbs() );
+    const Coord newc1( coords[nrcoords-1].x + p * d1.x,
+	    	       coords[nrcoords-1].y + p * d1.y );
+    coords[nrcoords-1] = newc1;
 }
 
 
