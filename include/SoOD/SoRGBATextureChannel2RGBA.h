@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.4 2009-02-13 10:47:31 cvsnanne Exp $
+ RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.5 2009-07-03 21:49:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,7 +58,9 @@ protected:
     void		GLRender(SoGLRenderAction*);
 
     SbImage		rgba_[4];
-    char		ti_;
+    SoElement*		matchinfo_;
+    bool		didsend_;
+    int			prevnodeid_;
 };
 
 #endif
