@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.13 2009-06-26 09:39:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.14 2009-07-03 15:13:13 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -28,10 +28,10 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.13 2009-06-26 09:39
 #define mErrRet(msg) \
 { uiMSG().error(msg); return false; }
 #define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton( tb_, 0, ioPixmap(fnm), \
+    but = new uiToolButton( toolbar_, 0, ioPixmap(fnm), \
 			    mCB(this,uiWellTieControlView,cbnm) ); \
     but->setToolTip( tt ); \
-    tb_->addObject( but );
+    toolbar_->addObject( but );
 
 uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
        					    uiFlatViewer* vwr)
@@ -41,8 +41,16 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
     , toolbar_(toolbar)
     , manip_(true)
 {
-     mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode");
-     vwr_.setRubberBandingOn( !manip_ );
+    tb_->display(false);
+    toolbar_->addSeparator();
+    toolbar_->addObject( vwr_.rgbCanvas().getSaveImageButton() );
+    mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
+    mDefBut(zoominbut_,"zoomforward.png",altZoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward.png",altZoomCB,"Zoom out");
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode");
+    toolbar_->addSeparator();
+
+    vwr_.setRubberBandingOn( !manip_ );
 }
 
 
@@ -107,7 +115,7 @@ void uiWellTieControlView::rubBandCB( CallBacker* cb )
 }
 
 
-void uiFlatViewStdControl::zoomCB( CallBacker* but )
+void uiWellTieControlView::altZoomCB( CallBacker* but )
 {
     const bool zoomin = but == zoominbut_;
     const uiWorldRect bbox = vwr_.boundingBox();
@@ -139,6 +147,17 @@ void uiWellTieControlView::stateCB( CallBacker* )
 	manip_ = 1;
     manipdrawbut_->setPixmap( manip_ ? "altpick.png" :"altview.png" );
     vwr_.setRubberBandingOn( !manip_ );
-}
+    MouseCursor cursor;
+    if ( manip_ )
+	cursor.shape_ = MouseCursor::Arrow;
+    else
+    {
+	cursor.shape_ = MouseCursor::Bitmap;
+	cursor.filename_ = "zoomforward.png";
+	cursor.hotx_ = 8;
+	cursor.hoty_ = 6;
+    }
 
+    vwr_.setCursor( cursor );
+}
 

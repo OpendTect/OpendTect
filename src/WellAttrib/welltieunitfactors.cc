@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.15 2009-06-26 09:39:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.16 2009-07-03 15:13:13 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -38,7 +38,7 @@ WellTieUnitFactors::WellTieUnitFactors( const WellTieSetup* wtsetup )
     if ( !wtsetup ) return; 
 
     Well::Data* wd = Well::MGR().get( wtsetup->wellid_ ); 
-    if ( !wd ) return;; 
+    if ( !wd ) return; 
 
     const Well::Log* vellog =  wd->logs().getLog( wtsetup->vellognm_ );
     const Well::Log* denlog =  wd->logs().getLog( wtsetup->denlognm_ );
@@ -75,7 +75,8 @@ double WellTieUnitFactors::calcSonicVelFactor( const char* velunit )
 
 double WellTieUnitFactors::calcVelFactor( const char* velunit )
 {
-    return ( 1 / calcSonicVelFactor( velunit ) );
+    const UnitOfMeasure* um = UoMR().get( velunit );
+    return um ? um->userValue( 1.0 ) : 1000/mFromFeetFactor;
 }
 
 
@@ -160,7 +161,6 @@ bool WellTieParams::DataParams::resetDataParams()
     //TODO: change structure to get time and corrtime ALWAYS start at 0.
     //->no use to update startintv anymore!
     timeintv_.start = 0;
-    corrtimeintv_.start = 0;
 
     worksize_ = (int) ( (timeintv_.stop-timeintv_.start)/timeintv_.step );
     dispsize_ = (int) ( worksize_/mStep )-1;

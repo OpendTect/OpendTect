@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.5 2009-06-18 07:41:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.6 2009-07-03 15:13:13 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.5 2009-06-18 07:4
 #include "welllog.h"
 #include "wellman.h"
 #include "welllogset.h"
+#include "welltrack.h"
 #include "wellwriter.h"
 
 #include "welltiegeocalculator.h"
@@ -85,12 +86,33 @@ void WellTieD2TModelMGR::shiftModel( float shift)
 
     //replace by shifted one
     d2t->erase();
-    for ( int dahidx=0; dahidx<dah.size(); dahidx++ )
+    //set KB depth
+    d2t->add ( -wd_->track().value(0) , 0 );
+    for ( int dahidx=1; dahidx<dah.size(); dahidx++ )
 	d2t->add( dah[dahidx], time[dahidx] + shift );
 
     setAsCurrent( d2t );
 }
 
+
+void WellTieD2TModelMGR::replaceTime( const Array1DImpl<float>& timevals )
+{
+    TypeSet<float> dah, time;
+    Well::D2TModel* d2t =  new Well::D2TModel( d2T() );
+    //copy old d2t
+    for (int idx = 0; idx<d2t->size(); idx++)
+    {
+	time += d2t->value( idx );
+	dah  += d2t->dah( idx );
+    }
+    d2t->erase();
+    //set KB depth
+    d2t->add ( -wd_->track().value(0) , 0 );
+    for ( int dahidx=1; dahidx<dah.size(); dahidx++ )
+	d2t->add( dah[dahidx], timevals[dahidx]);
+
+    setAsCurrent( d2t );
+}
 
 
 void WellTieD2TModelMGR::setAsCurrent( Well::D2TModel* d2t )

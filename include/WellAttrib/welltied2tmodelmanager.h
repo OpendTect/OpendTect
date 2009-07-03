@@ -43,6 +43,7 @@ public:
     bool      		updateFromWD();
     bool      		commitToWD();
 
+    void 		replaceTime(const Array1DImpl<float>&);
     void 		shiftModel(float);
     void 		setAsCurrent(Well::D2TModel*);
     void		setFromVelLog(const char*,bool docln=true);

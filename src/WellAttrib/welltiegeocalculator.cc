@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.16 2009-06-26 09:39:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.17 2009-07-03 15:13:13 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -113,30 +113,14 @@ void WellTieGeoCalculator::setVelLogDataFromModel(
 Well::D2TModel* WellTieGeoCalculator::getModelFromVelLogData(
 					    const Array1DImpl<float>& velvals, 
 					    const Array1DImpl<float>& dptvals )
-{/*
-    TypeSet<float> vals, d2t, dpt, time, depth;
-
-    dpt += -wd_.track().value(0);
-    vals += 0;
-    for ( int idx=0; idx<velvals.info().getSize(0); idx++ )
-    {
-	vals += velvals.get(idx);
-	dpt  += dptvals.get(idx);
-    }
-
-    TWT2Vel( vals, dpt, d2t, false );
-    int idx=0;
-    while ( idx < d2t.size() )
-    {
-	time += d2t[idx];
-	depth += dpt[idx];
-	idx++;
-    }
-*/
+{
+    const int datasz = dptvals.info().getSize(0);
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    for ( int dahidx=0; dahidx<dptvals.info().getSize(0); dahidx++ )
-	d2tnew->add( dptvals.get(dahidx), velvals.get(dahidx) );
-
+    //set KB depth
+    d2tnew->add ( -wd_.track().value(0) , 0 );
+    //set other depths 
+    for ( int idx=1; idx<datasz; idx++ )
+	d2tnew->add( dptvals.get(idx), velvals.get(idx) );
     return d2tnew;
 }
 
@@ -171,26 +155,39 @@ void WellTieGeoCalculator::stretchArr( const Array1DImpl<float>& inp,
 				       int idxstop, int idxpick, int idxlast )
 {
     const int datasz = inp.info().getSize(0);
-    const float stretchfac = ( idxpick-idxstart ) / (float) (idxstop-idxstart); 
-    const float squeezefac = ( idxlast-idxpick ) / (float) (idxlast - idxstop);
+    const float stretchfac = ( idxstop-idxstart )/(float)(idxpick-idxstart); 
+    const float squeezefac = ( idxlast-idxstop  )/(float)(idxlast-idxpick);
    
-    float val;
+    float val = 0;
     for ( int idx=idxstart; idx<idxstop; idx++ )
     {
 	float curval = ( idx - idxstart )*stretchfac + idxstart;
 	int curidx = (int)curval;
-	if ( curidx >= datasz-1 || curidx < 0) return;
+	if ( curidx >= datasz-1 || curidx < 0) continue;
 	interpolAtIdx( inp.get( curidx ), inp.get( curidx+1), curval, val );
 	outp.setValue( idx, val );
     }
-    for ( int idx=idxstop; idx<datasz-1; idx++ )
+    for ( int idx=idxstop; idx<idxlast; idx++ )
     {
-	float curval = ( idx - datasz )*squeezefac + datasz;
+	float curval = ( idx - idxlast )*squeezefac + idxlast;
 	int curidx = (int)curval;
-	if ( curidx >= datasz-1 || curidx < 0 ) return;
+	if ( curidx >= datasz-1 || curidx < 0 ) continue;
 	interpolAtIdx( inp.get( curidx ), inp.get( curidx+1), curval, val );
 	outp.setValue( idx , val );
     }
+}
+
+
+int WellTieGeoCalculator::getIdx( const Array1DImpl<float>& inp, float pos )
+{
+    int idx = 0;
+    while ( inp.get(idx)<pos )
+    {
+	if( idx == inp.info().getSize(0)-1 )
+	    break;
+	idx++;
+    }
+    return idx;
 }
 
 
@@ -358,9 +355,10 @@ void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 				   Array1DImpl<float>& aivals )
 {
     const int datasz = aivals.info().getSize(0);
-    for ( int idx = 0; idx<datasz; idx++ )
+    const bool issonic = params_.getSetup().issonic_;
+    for ( int idx=0; idx<datasz; idx++ )
     {
-	float velval = velvals.get(idx);
+	float velval = issonic ? velvals.get(idx) : 1/velvals.get(idx);
 	float denval = denvals.get(idx);
 	aivals.setValue( idx, denval/velval*mFactor*denfactor_*velfactor_ );
     }

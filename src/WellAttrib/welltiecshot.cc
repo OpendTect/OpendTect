@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.5 2009-06-19 17:00:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.6 2009-07-03 15:13:13 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -84,7 +84,10 @@ void WellTieCSCorr::fitCS( const TypeSet<float>& csvals,
     for ( int idx=0; idx<cs_->size(); idx++)
     {
 	float val = log_->getValue(cs_->dah(idx));
-	logvaldah += val; 
+	if ( mIsUdf(val) )
+	    logvaldah += csvals[idx];
+	else
+	    logvaldah += val; 
     }
     
     geocalc.interpolateLogData ( logvaldah, log_->dahStep(true),  false );

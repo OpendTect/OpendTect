@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.32 2009-06-29 09:07:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.33 2009-07-03 15:13:13 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -128,8 +128,8 @@ void uiWellTieView::initFlatViewer()
     app.annot_.x2_.sampling_ = 0.2;
     app.annot_.title_ = nm;
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.right_= Color(255,0,0);
-    app.ddpars_.wva_.left_= Color(0,0,255);
+    app.ddpars_.wva_.right_= Color(0,0,255);
+    app.ddpars_.wva_.left_= Color(255,0,0);
     app.ddpars_.wva_.clipperc_.set(0,0);
     app.ddpars_.wva_.wigg_ = Color::Black();
     app.ddpars_.wva_.overlap_ = 1;
@@ -251,18 +251,15 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     seistrcdp_->trcBufArr2D().setBufMine( false );
 
     DPM(DataPackMgr::FlatID()).addAndObtain( seistrcdp_ );
-    /*StepInterval<double> zrange( params_->timeintv_.start,
-	    			 params_->timeintv_.stop,
-				 SI().zStep() );*/
     StepInterval<double> xrange( 1, trcbuf->size(), 1 );
-    //seistrcdp_->posData().setRange( false, zrange );
     seistrcdp_->posData().setRange( true, xrange );
     seistrcdp_->setName( varname );
     
     FlatView::Appearance& app = vwr_->appearance();
-    
+    uiWorldRect curwr = vwr_->curView();
     vwr_->setPack( true, seistrcdp_->id(), false, true );
     vwr_->handleChange( FlatView::Viewer::All );
+    vwr_->setView( curwr  );
     const UnitOfMeasure* uom = 0;
     const char* units =  ""; //uom ? uom->symbol() : "";
     app.annot_.x1_.name_ =  varname;

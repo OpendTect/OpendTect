@@ -39,13 +39,11 @@ protected:
     
     WellTiePickSetMGR*  picksetmgr_;
    
-    void 		stateCB(CallBacker*);
+    void 		altZoomCB(CallBacker*);
     bool 		checkIfInside(double,double);
     bool 		handleUserClick();
-
-    void 		setView();
     void		rubBandCB(CallBacker*);
-    void 		zoomCB( CallBacker* );
+    void 		stateCB(CallBacker*);
 
 };
 

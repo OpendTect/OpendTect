@@ -110,6 +110,7 @@ public:
     WellTiePickSet* 	getSeisPickSet()  { return &seispickset_; }
 
     const Well::Data* 	wd_;
+    bool		lastpicksynth_;
     VSEvent::Type	evtype_;
 
     void           	addPick(float,float,float,float);

@@ -54,7 +54,10 @@ protected:
     void				shiftDahData(); 
     void				shiftModel(); 
     void				updateTime(float&);
-    void				updatePicksPos(WellTiePickSet&,int);
+    void				updatePicksPos(
+	    					const Array1DImpl<float>&,
+						const Array1DImpl<float>&,
+						WellTiePickSet&,int);
 };
 
 #endif

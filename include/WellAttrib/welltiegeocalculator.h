@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.8 2009-06-21 13:49:11 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.9 2009-07-03 15:13:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ public:
 				     Array1DImpl<float>&,int,int,int,int);
     void		zeroPadd(const Array1DImpl<float_complex>&,
 				       Array1DImpl<float_complex>&);
+    int 		getIdx(const Array1DImpl<float>&, float); 
 
 
 protected:

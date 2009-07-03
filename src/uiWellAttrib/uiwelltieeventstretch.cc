@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.12 2009-06-22 09:58:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.13 2009-07-03 15:13:13 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
 
+#include "welld2tmodel.h"
 #include "welltiedata.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiegeocalculator.h"
@@ -67,81 +68,64 @@ void uiWellTieEventStretch::checkReadyForWork()
 }
 
 
-void uiWellTieEventStretch::doWork(CallBacker*)
+void uiWellTieEventStretch::doWork( CallBacker* )
 {
-    if ( synthpickset_.getSize() == 1 && seispickset_.getSize() == 1 )
-	shiftModel();
-    else if ( synthpickset_.getSize()>1 && seispickset_.getSize()>1 )
-    {
-	pmgr_.sortByDah( seispickset_ );
-	pmgr_.sortByDah( synthpickset_ );
-	shiftDahData(); 
-	updatePicksPos( synthpickset_, 0 );
-	doStretchWork();	
-	dispdataChanged.trigger();
-    }
-}
-
-
-void uiWellTieEventStretch::shiftModel()
-{
-    float seistime = time( seispickset_.getLastDah() );
-    float synthtime = time( synthpickset_.getLastDah() );
-    d2tmgr_->shiftModel( seistime - synthtime );
+    pmgr_.sortByDah( seispickset_ ); 	
+    pmgr_.sortByDah( synthpickset_ );
+    doStretchWork();	
+    timeChanged.trigger();
 }
 
 
 void uiWellTieEventStretch::doStretchWork()
 {
+    Well::D2TModel d2t = *wd_->d2TModel();
+    Array1DImpl<float> d2tarr( d2t.size() );
+    Array1DImpl<float>* prvd2tarr = new Array1DImpl<float>( d2t.size() );
+    float timeshift = time( seispickset_.getLastDah() ) 
+		     -time( synthpickset_.getLastDah() ) ;
+    for ( int idx=0; idx<d2t.size(); idx++ )
+    {
+	prvd2tarr->set( idx, d2t.value(idx) );
+	d2tarr.set( idx, d2t.value(idx)+timeshift );
+    }
+
+    updatePicksPos( d2tarr, *prvd2tarr, synthpickset_, 0 );
+    infborderpos_ = 0;
+    supborderpos_ = time( seispickset_.getLastDah() );
+
     for ( int idx=0; idx<seispickset_.getSize()-1; idx++ )
     {
-	if ( idx )
-	{
+	if ( idx && idx<seispickset_.getSize()-1 )
 	    infborderpos_ = time( seispickset_.getDah(idx-1) );
-	    updatePicksPos( synthpickset_, idx );
-	}
-	//position of the following picks needs update if one of the pick moved
+
 	startpos_ = time( synthpickset_.getDah(idx) );
 	stoppos_  = time( seispickset_.getDah(idx) );
 
-	delete prevdispdata_;
-	prevdispdata_ = new WellTieDataSet ( dispdata_ );
+	delete prvd2tarr; prvd2tarr = 0;
+	prvd2tarr = new Array1DImpl<float>( d2tarr );
 
-	doStretchData( params_.dpms_.dptnm_ );
-	updateTime( startpos_ );
+	doStretchData( *prvd2tarr, d2tarr );
+	//position of the following picks needs update if one of the pick moved
+	updatePicksPos( d2tarr, *prvd2tarr, synthpickset_, idx );
     }
+    delete prvd2tarr;
+    d2tmgr_->replaceTime( d2tarr );
 }
 
 
-void uiWellTieEventStretch::updatePicksPos( WellTiePickSet& pickset, 
+void uiWellTieEventStretch::updatePicksPos( const Array1DImpl<float>& curtime,
+					    const Array1DImpl<float>& prevtime,
+					    WellTiePickSet& pickset, 
 					    int startidx )
 {
     for ( int pickidx=startidx; pickidx<pickset.getSize(); pickidx++ )
     {
 	float pos = time( pickset.getDah( pickidx ) );
-	updateTime( pos );
+	const int newidx = geocalc_->getIdx( prevtime, pos );
+	pos = curtime.get( newidx ); 	
 	pickset.setDah( pickidx, dah(pos) );
     }
 }
 
-
-void uiWellTieEventStretch::shiftDahData()
-{
-    const float dahshift = seispickset_.getLastDah()-synthpickset_.getLastDah();
-    for ( int idx=0; idx<dispdata_.getLength(); idx++ )
-	dispdata_.set( params_.dpms_.dptnm_, idx, 
-		dispdata_.get(params_.dpms_.dptnm_,idx)-dahshift );
-}
-
-
-void uiWellTieEventStretch::updateTime( float& pos )
-{
-    WellTieParams::DataParams dpms = params_.dpms_;
-    const int oldidx = prevdispdata_->getIdx( pos );
-    const float oldtime = prevdispdata_->get( dpms.timenm_, oldidx );
-    const float olddah = prevdispdata_->get( dpms.dptnm_, oldidx );
-    const int newidx = dispdata_.getIdxFromDah( olddah );
-    pos = dispdata_.get( dpms.timenm_, newidx  ); 	
-    const float newtime = prevdispdata_->get( dpms.timenm_, newidx );
-}
 

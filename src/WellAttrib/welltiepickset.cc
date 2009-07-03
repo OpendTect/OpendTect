@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.12 2009-06-26 10:26:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.13 2009-07-03 15:13:13 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: welltiepickset.cc,v 1.12 2009-06-26 10:26:23 cv
 WellTiePickSetMGR::WellTiePickSetMGR( const Well::Data* wd )
 	: CallBacker(CallBacker::CallBacker())
     	, wd_(wd)
+	, evtype_ (VSEvent::Extr)
 {
 }
 
@@ -63,26 +64,29 @@ void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop,
     {
 	if ( xpos<(vwrszstop-vwrszstart)/2 )
 	{
-	    if ( abs(synthsz+1-seissz) > 1 )
+	    if ( abs(synthsz+1-seissz) > 1 || lastpicksynth_ == true )
 		synthpickset_.clear( synthpickset_.getSize()-1 );
 	    synthpickset_.add( 0, xpos, findEventDah(zpos,true) );
+	    lastpicksynth_ = true;
 	}
 	else
 	{
-	    if ( abs(seissz+1-synthsz) > 1 )
+	    if ( abs(seissz+1-synthsz) > 1 || lastpicksynth_ == false )
 		seispickset_.clear( seispickset_.getSize()-1 );
-	    seispickset_.add( 0, xpos, findEventDah(zpos,true) );
+	    seispickset_.add( 0, xpos, findEventDah(zpos,false) );
+	    lastpicksynth_ = false;
 	}
     }
 }
 
 
-#define mSampleGate 5
+#define mSampleGate 10
 float WellTiePickSetMGR::findEventDah( float zpos, bool issynth )
 {
+    zpos *= 0.001;
     if ( evtype_ == VSEvent::None ) 
-	evtype_ = VSEvent::Extr;
-    const int posidx = dispdata_->getIdx( zpos*0.001 );  
+	return wd_->d2TModel()->getDepth( zpos );
+    const int posidx = dispdata_->getIdx( zpos );  
     const char* colnm = issynth ? datapms_->synthnm_ : datapms_->attrnm_; 
     const int maxidx = dispdata_->getLength()-1;
     Interval<float> intv ( posidx, posidx+mSampleGate );
@@ -91,7 +95,7 @@ float WellTiePickSetMGR::findEventDah( float zpos, bool issynth )
 	    				  maxidx, sd );
     const int evpos = mNINT( evf.find( evtype_, intv ).pos );
     if ( evpos>maxidx || evpos<0 )
-	return zpos;
+	return wd_->d2TModel()->getDepth( zpos );
 
     return dispdata_->get( datapms_->dptnm_, evpos );
 }
@@ -116,8 +120,17 @@ void WellTiePickSetMGR::clearAllPicks()
 
 void WellTiePickSetMGR::clearLastPicks()
 {
-    seispickset_.clear( seispickset_.getSize()-1 );
-    synthpickset_.clear( synthpickset_.getSize()-1 );
+    if ( seispickset_.getSize() == synthpickset_.getSize() )
+    {
+	if ( lastpicksynth_ )
+	    synthpickset_.clear( synthpickset_.getSize()-1 );
+	else
+	    seispickset_.clear( seispickset_.getSize()-1 );
+    }
+    else if ( seispickset_.getSize() > synthpickset_.getSize() )
+	seispickset_.clear( seispickset_.getSize()-1 );
+    else if ( seispickset_.getSize() < synthpickset_.getSize() )
+	synthpickset_.clear( synthpickset_.getSize()-1 );
 }
 
 

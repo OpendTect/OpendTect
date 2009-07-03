@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.31 2009-07-01 07:49:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.32 2009-07-03 15:13:13 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -404,7 +404,6 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
     {
 	int index = int(idx*step+.5);
 	float logval = log[index];
-	if ( revscale ) logval = maxval.getValue() - logval;
 	if ( logval > 100 )
 	{
 	    lineset->materialIndex.set1Value( idx, 1 );
@@ -412,6 +411,8 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
 	}
 	else 
 	    lineset->materialIndex.set1Value( idx, 0 );
+	
+	if ( revscale ) logval = maxval.getValue() - logval;
 	
 	SbVec3f newcrd = path[index];
 	SbVec3f normal = getProjCoords( path, index, projdir, 
@@ -451,7 +452,6 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     float shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0 );
     float meanlogval = ( maxvalF - minvalF ) / 2;
 
-    bool& revscale = lognr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
     int nrsamp = pathsz;
     float step = 1;
@@ -578,10 +578,10 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	if ( revscale ) 
 	{
 	    logval = maxval.getValue() - logval;
-	    colindex =  (int) ( (fillmaxvalF - logval) / colstep );
+	    colindex =  abs( (int)((fillmaxvalF-logval)/colstep) );
 	}
 	else
-	    colindex =  (int) ( (logval - fillminvalF) / colstep );
+	    colindex =  abs( (int)((logval-fillminvalF)/colstep) );
 	if ( colindex > 255 )
 	    colindex = 255;
 	else if ( colindex < 0 )
