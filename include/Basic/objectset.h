@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.2 2009-04-09 09:12:32 cvsbert Exp $
+ RCS:		$Id: objectset.h,v 1.3 2009-07-03 11:47:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,10 @@ ________________________________________________________________________
 #endif
 #ifndef vectoraccess_h
 #include "vectoraccess.h"
+#endif
+
+#ifdef __debug__
+# include "debug.h"
 #endif
 
 
@@ -191,12 +195,24 @@ bool ObjectSet<T>::validIdx( int idx ) const
 
 template <class T> inline
 T* ObjectSet<T>::operator[]( int idx )
-{ return (T*)vec_[idx]; }
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+	DBG::forceCrash(true);
+#endif
+    return (T*)vec_[idx];
+}
 
 
 template <class T> inline
 const T* ObjectSet<T>::operator[]( int idx ) const
-{ return (const T*)vec_[idx]; }
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+	DBG::forceCrash(true);
+#endif
+    return (const T*)vec_[idx];
+}
 
 
 template <class T> inline

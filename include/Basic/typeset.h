@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.5 2009-06-05 19:03:53 cvskris Exp $
+ RCS:		$Id: typeset.h,v 1.6 2009-07-03 11:47:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,10 @@ ________________________________________________________________________
 #endif
 #ifndef vectoraccess_h
 #include "vectoraccess.h"
+#endif
+
+#ifdef __debug__
+# include "debug.h"
 #endif
 
 /*!\brief Set of (small) copyable elements
@@ -211,12 +215,24 @@ bool TypeSet<T>::validIdx( int idx ) const
 
 template <class T> inline
 T& TypeSet<T>::operator[]( int idx )
-{ return vec_[idx]; }
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+	DBG::forceCrash(true);
+#endif
+    return vec_[idx];
+}
 
 
 template <class T> inline
 const T& TypeSet<T>::operator[]( int idx ) const
-{ return vec_[idx]; }
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+	DBG::forceCrash(true);
+#endif
+    return vec_[idx];
+}
 
 
 template <class T> inline
