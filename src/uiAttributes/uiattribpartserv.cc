@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.127 2009-06-26 12:50:40 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.128 2009-07-06 12:47:56 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1194,6 +1194,14 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 	SeisIOObjInfo::getCompNames( idlkey, complist );
 	if ( complist.size()>1 )
 	{
+	    //Trick for old steering cubes: fake good component names
+	    if ( is3d && issteering && complist.indexOf("Component 1")>=0 )
+	    {
+		complist.erase();
+		complist.add( "Inline Dip" );
+		complist.add( "Crossline Dip" );
+	    }
+
 	    StringListInpSpec* specs = new StringListInpSpec(complist);
 	    uiGenInputDlg compdlg( parent(), "Choose the component to display",
 		    		   "Component name", specs );
