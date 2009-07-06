@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoRGBATextureChannel2RGBA.cc,v 1.5 2009-07-03 21:49:07 cvskris Exp $";
+static const char* rcsID = "$Id: SoRGBATextureChannel2RGBA.cc,v 1.6 2009-07-06 15:31:50 cvskris Exp $";
 
 
 #include "SoRGBATextureChannel2RGBA.h"
@@ -32,7 +32,7 @@ void SoRGBATextureChannel2RGBA::initClass()
 SoRGBATextureChannel2RGBA::SoRGBATextureChannel2RGBA()
     : matchinfo_( 0 )
     , prevnodeid_( -1 )
-    , didsend_( false )
+    , ti_( SoTextureComposerInfo::cHasNoTransparency() )
 {
     SO_NODE_CONSTRUCTOR( SoRGBATextureChannel2RGBA );
     SO_NODE_ADD_FIELD( enabled, (true) );
@@ -52,13 +52,13 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     const SoTextureChannelSetElement* elem = (const SoTextureChannelSetElement*)
     state->getConstElement(SoTextureChannelSetElement::getClassStackIndex() );
 
-    const bool needsregeneration = prevnodeid_!=getNodeId() ||
+    const int curnodeid = getNodeId();
+
+    const bool needsregeneration = prevnodeid_!=curnodeid ||
 	!matchinfo_ || !elem || !elem->matches( matchinfo_ );
 
     if ( needsregeneration )
     {
-	didsend_ = false;
-
 	const int nrinputchannels =
 	    SoTextureChannelSetElement::getNrChannels( state );
 	const SbImage* inputchannels =
@@ -77,21 +77,49 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 		: 0;
 
 	    rgba_[idx].setValuePtr( size, nc, isenab ? data : 0 );
-	    if ( !isenab )
-		didsend_ = true;
+
+	    if ( idx!=3 )
+		continue;
+
+	    const int fullsize = size[0]*size[1]*size[2];
+	    if ( !isenab || nc!=1 || !fullsize )
+	    {
+		ti_ = SoTextureComposerInfo::cHasNoTransparency();
+		continue;
+	    }
+
+	    bool fullyopaque = true;
+	    bool fullytransparent = true;
+	    for ( int idy=0; idy<fullsize; idy++ )
+	    {
+		if ( data[idy] )
+		{
+		    fullyopaque = false;
+		    if ( data[idy]!=255 )
+			fullytransparent = false;
+		}
+
+		if ( !fullytransparent && !fullyopaque )
+		    break;
+	    }
+
+	    if ( !fullytransparent && !fullyopaque )
+		ti_ = SoTextureComposerInfo::cHasTransparency();
+	    else if ( fullyopaque )
+		ti_ = SoTextureComposerInfo::cHasNoTransparency();
+	    else
+		ti_ = SoTextureComposerInfo::cHasNoIntermediateTransparency();
 	}
 
 	delete matchinfo_; matchinfo_ = elem->copyMatchInfo();
-	touch(); //trigger nodeid to go up.
-	prevnodeid_ = getNodeId();
+	prevnodeid_ = curnodeid;
     }
 
-    if ( didsend_ )
-    {
-	SoTextureChannelSetElement::set( state, this, rgba_, 4 );
-    }
+    SbList<uint32_t> dep;
+    dep.append( elem->getNodeId() );
+    SoTextureChannelSetElement::set( state, this, rgba_, 4, &dep );
 
     SbList<int> units;
     units.append( 0 );
-    SoTextureComposerElement::set( state, this, units, 0 );
+    SoTextureComposerElement::set( state, this, units, ti_ );
 }
