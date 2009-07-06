@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.26 2009-07-01 07:49:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.27 2009-07-06 08:14:50 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -396,6 +396,7 @@ void uiWellLogDispProperties::isFilledSel( CallBacker* )
     seiscolorfld_->display( !iswelllog );
     fillcolorfld_->display( (issinglecol && isfilled) );
     filllogsfld_->display( iswelllog &&  isfilled && !issinglecol );
+    colorrangefld_->display( iswelllog &&  isfilled && !issinglecol );
 }
 
 
