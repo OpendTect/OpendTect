@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.65 2009-06-30 06:33:57 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.66 2009-07-06 06:20:48 cvsraman Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -271,6 +271,9 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
+    if ( !menu || menu->menuID() != selectionKey() )
+	return;
+
     mAddMenuItem( menu, &addlinesitm_, true, false );
 
     if ( children_.size() > 1 )
@@ -319,7 +322,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller)
-    if ( mnuid==-1 || menu->isHandled() )
+    if ( mnuid==-1 || menu->isHandled() || menu->menuID() != selectionKey() )
 	return;
 
     if ( mnuid==addlinesitm_.id )
