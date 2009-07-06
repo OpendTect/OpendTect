@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.90 2009-06-26 12:50:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.91 2009-07-06 12:53:57 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -618,11 +618,8 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     BoolTypeSet isclass( outputinterest.size(), true );
     if ( needinterp )
     {
-	int intvidx = localcomputezintervals.indexOf( 
-				    Interval<int>( z0, z0+data.nrsamples_-1) );
-	exacttime = exactz_[intvidx];
 	checkClassType( trc, isclass );
-	extrazfromsamppos = getExtraZFromSampPos( exacttime );
+	extrazfromsamppos = getExtraZFromSampInterval( z0, data.nrsamples_ );
 	const_cast<DataHolder&>(data).extrazfromsamppos_ = extrazfromsamppos;
     }
     

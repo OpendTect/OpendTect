@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.25 2009-05-18 10:33:38 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.26 2009-07-06 12:53:57 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -254,10 +254,7 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	//make sure the data extracted from input DataHolders is at exact z pos
 	if ( needinterp )
 	{
-	    int intvidx = localcomputezintervals.indexOf(
-					Interval<int>( z0, z0+nrsamples-1) );
-	    float exacttime = intvidx >=0 ? exactz_[intvidx] : 0;
-	    float extrazfspos = getExtraZFromSampPos( exacttime );
+	    float extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
 	    extras0 = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep;
 	    extras1 = (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refstep;
 	    extras2 = (extrazfspos - inputdata_[2]->extrazfromsamppos_)/refstep;
@@ -316,10 +313,7 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
     //make sure the data extracted from input DataHolders is at exact z pos
     if ( needinterp )
     {
-	int intvidx = localcomputezintervals.indexOf(
-				    Interval<int>( z0, z0+nrsamples-1) );
-	float exacttime = intvidx >=0 ? exactz_[intvidx] : 0;
-	float extrazfspos = getExtraZFromSampPos( exacttime );
+	float extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
 	extras = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep;
     }
     for ( int idx=0; idx<nrsamples; idx++ )

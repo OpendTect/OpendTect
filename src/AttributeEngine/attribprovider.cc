@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.118 2009-07-01 20:08:40 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.119 2009-07-06 12:53:57 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -934,12 +934,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
     const int z0 = outdata->z0_;
     if ( needinterp )
-    {
-	int intvidx = localcomputezintervals.indexOf(
-					Interval<int>( z0, z0+nrsamples-1 ) );
-	const float exacttime = exactz_[intvidx];
-	outdata->extrazfromsamppos_ = getExtraZFromSampPos( exacttime );
-    }
+	outdata->extrazfromsamppos_ = getExtraZFromSampInterval( z0, nrsamples);
 
     bool success = false;
     if ( !allowParallelComputation() )
@@ -1564,5 +1559,24 @@ float Provider::getExtraZFromSampPos( float exacttime ) const
 {
     return DataHolder::getExtraZFromSampPos( exacttime, getRefStep() );
 }
+
+
+float Provider::getExtraZFromSampInterval( int z0, int nrsamples ) const
+{
+    int intvidx = -1;
+    for ( int idx=0; idx<localcomputezintervals.size(); idx++ )
+    {
+	 if ( localcomputezintervals[idx].includes( z0 ) &&
+	      localcomputezintervals[idx].includes( z0+nrsamples-1 ) )
+	 {
+	     intvidx = idx;
+	     break;
+	 }
+    }
+
+    return ( intvidx>=0 && exactz_.size()>intvidx )
+		? getExtraZFromSampPos( exactz_[intvidx] ) : 0;
+}
+
 
 }; // namespace Attrib

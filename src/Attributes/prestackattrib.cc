@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.15 2009-05-18 10:33:38 cvshelene Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.16 2009-07-06 12:53:57 cvshelene Exp $";
 
 #include "prestackattrib.h"
 
@@ -225,12 +225,7 @@ bool PSAttrib::computeData( const DataHolder& output, const BinID& relpos,
 
     float extrazfromsamppos = 0;
     if ( needinterp )
-    {
-	int intvidx = localcomputezintervals.indexOf(
-					Interval<int>( z0, z0+nrsamples-1) );
-	float exacttime = exactz_[intvidx];
-	extrazfromsamppos = getExtraZFromSampPos( exacttime );
-    }
+	extrazfromsamppos = getExtraZFromSampInterval( z0, nrsamples );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {

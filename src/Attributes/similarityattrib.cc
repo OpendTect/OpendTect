@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.39 2009-05-18 10:33:38 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.40 2009-07-06 12:53:57 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -258,12 +258,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
     float extrazfspos = mUdf(float);
     if ( needinterp )
-    {
-	int intvidx = localcomputezintervals.indexOf(
-					Interval<int>( z0, z0+nrsamples-1) );
-	float exacttime = exactz_[intvidx];
-	extrazfspos = getExtraZFromSampPos( exacttime );
-    }
+	extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
