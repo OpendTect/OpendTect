@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.27 2009-06-22 14:22:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.28 2009-07-07 09:10:27 cvsumesh Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -60,7 +60,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
     else if ( mnuid == mNewMnuID )
     {
-	applMgr()->mpeServer()->saveUnsaveEMObject();
+	//applMgr()->mpeServer()->saveUnsaveEMObject();
 	RefMan<EM::EMObject> emo =
 	    EM::EMM().createTempObject( EM::Fault3D::typeStr() );
 	if ( !emo )
@@ -330,7 +330,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
     else if ( mnuid == mNewMnuID )
     {
-	applMgr()->mpeServer()->saveUnsaveEMObject();
+	//applMgr()->mpeServer()->saveUnsaveEMObject();
 	RefMan<EM::EMObject> emo =
 	    EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
 	if ( !emo )

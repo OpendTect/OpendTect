@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.9 2009-06-25 06:15:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.10 2009-07-07 09:10:27 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.9 2009-06-25 06:15:01 cvssa
 #include "horflatvieweditor.h"
 #include "settings.h"
 
+#include "visseis2ddisplay.h"
 
 void initSelSpec( Attrib::SelSpec& as )
 { as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
@@ -84,6 +85,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	{
 	    horpainter_->setCubeSampling( cs, true );
 	    horfveditor_->setCubeSampling( cs );
+	    horfveditor_->setSelSpec( &vdselspec_, false );
+	    horfveditor_->setSelSpec( &wvaselspec_, true );
 	    drawhorizon = true;
 	}
     }
@@ -91,7 +94,18 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     {
 	horpainter_->setCubeSampling( dp2d->dataholder().getCubeSampling(),
 				      true );
+	horfveditor_->setCubeSampling( dp2d->dataholder().getCubeSampling() );
+	horfveditor_->setSelSpec( &vdselspec_, false );
+	horfveditor_->setSelSpec( &wvaselspec_, true );
 	horpainter_->set2D( true );
+	horpainter_->setLineName(
+		appl_.applMgr().visServer()->getObjectName(visid_) );
+	horfveditor_->setLineName(
+		appl_.applMgr().visServer()->getObjectName(visid_) );
+	mDynamicCastGet(visSurvey::Seis2DDisplay*, s2d,
+			appl_.applMgr().visServer()->getObject(visid_) );
+	horfveditor_->setLineSetID( s2d->lineSetID() );
+	horfveditor_->set2D( true );
 	dp2d->getPosDataTable( horpainter_->getTrcNos(), 
 			       horpainter_->getDistances() );
 	drawhorizon = true;
@@ -153,6 +167,7 @@ void uiODViewer2D::createViewWin( bool isvert )
 	    horfveditor_ = new MPE::HorizonFlatViewEditor( auxdataeditor_ );
 	    horfveditor_->setMouseEventHandler( 
 		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
+	    vwr.dataChanged.notify(  mCB(this,uiODViewer2D,dataChangedCB) );
 	}
     }
 }
@@ -196,6 +211,36 @@ void uiODViewer2D::posChg( CallBacker* )
 	DataPack::ID dpid = attrserv->createOutput( cs, DataPack::cNoID() );
 	setUpView( dpid, true );
     }
+}
+
+
+void uiODViewer2D::dataChangedCB( CallBacker* )
+{
+    const FlatDataPack* wdp = viewwin_->viewer().pack( true );
+    if ( wdp && !wdp->name().isEmpty() )
+    {
+	if ( wvaselspec_.userRef() && 
+	     !strcmp(wdp->name().buf(),wvaselspec_.userRef()) )
+	    horfveditor_->setSelSpec( &wvaselspec_, true );
+	else if ( vdselspec_.userRef() &&
+		  !strcmp(wdp->name().buf(),vdselspec_.userRef()) )
+	    horfveditor_->setSelSpec( &vdselspec_, true );
+    }
+    else
+	horfveditor_->setSelSpec( 0, true );
+
+    const FlatDataPack* vddp = viewwin_->viewer().pack( false );
+    if ( vddp && !vddp->name().isEmpty() )
+    {
+	if ( wvaselspec_.userRef() &&
+	     !strcmp(vddp->name().buf(),wvaselspec_.userRef()) )
+	    horfveditor_->setSelSpec( &wvaselspec_, false );
+	else if ( vdselspec_.userRef() &&
+		  !strcmp(vddp->name().buf(),vdselspec_.userRef()) )
+	    horfveditor_->setSelSpec( &vdselspec_, false );
+    }
+    else
+	horfveditor_->setSelSpec( 0, false );
 }
 
 
