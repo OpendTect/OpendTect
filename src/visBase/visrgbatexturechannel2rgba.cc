@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrgbatexturechannel2rgba.cc,v 1.4 2009-07-07 14:53:23 cvskris Exp $";
+static const char* rcsID = "$Id: visrgbatexturechannel2rgba.cc,v 1.5 2009-07-07 15:14:14 cvskris Exp $";
 
 #include "visrgbatexturechannel2rgba.h"
 
@@ -49,7 +49,7 @@ RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
 	sequences_[3].setColor( 0, 0, 0, 0 );
 	sequences_[3].setColor( 1, 0, 0, 0 );
 	sequences_[3].setTransparency( Geom::Point2D<float>(0,0) );
-	sequences_[3].setTransparency( Geom::Point2D<float>(1,1) );
+	sequences_[3].setTransparency( Geom::Point2D<float>(1,255) );
 	sequences_[3].setName( "Transparency" );
     }
 

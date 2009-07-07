@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.13 2009-06-25 14:13:40 cvsbert Exp $
+ RCS:		$Id: coltabsequence.h,v 1.14 2009-07-07 15:14:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
     Geom::Point2D<float> transparency( int idx ) const	{ return tr_[idx]; }
     float		transparencyAt(float) const;
     void		setTransparency(Geom::Point2D<float>);
+    			/*!<x goes from 0 to 1, trans from 0 to 255 */
     void		changeTransparency(int,Geom::Point2D<float>);
     void		removeTransparencies();
     void		removeTransparencyAt(int);
