@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.73 2009-07-02 20:59:44 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.74 2009-07-07 09:14:48 cvsumesh Exp $";
 
 #include "vismpe.h"
 
@@ -688,7 +688,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 {
     NotifyStopper stop( dragger_->changed );
 
-    const CubeSampling cube = engine_.activeVolume();
+    CubeSampling cube = engine_.activeVolume();
     Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
 		     cube.hrg.stop.crl-cube.hrg.start.crl,
 		     cube.zrg.stop-cube.zrg.start );
