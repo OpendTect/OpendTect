@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.13 2009-07-07 18:55:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.14 2009-07-07 19:01:47 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -262,7 +262,7 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
     const int nrrows = getNrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const float z = table_->getfValue( RowCol(idx,cDepthCol) );
+	float z = table_->getfValue( RowCol(idx,cDepthCol) );
 	if ( mIsUdf(z) )
 	    continue;
 	z *= zfac;
