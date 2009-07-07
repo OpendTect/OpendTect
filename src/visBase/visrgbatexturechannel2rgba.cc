@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrgbatexturechannel2rgba.cc,v 1.3 2009-07-07 02:20:16 cvskris Exp $";
+static const char* rcsID = "$Id: visrgbatexturechannel2rgba.cc,v 1.4 2009-07-07 14:53:23 cvskris Exp $";
 
 #include "visrgbatexturechannel2rgba.h"
 
@@ -31,24 +31,24 @@ RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
     {
 	sequences_ = new ColTab::Sequence[4];
 	sequences_[0].setType(ColTab::Sequence::User);
-	sequences_[0].setColor( 0, 255, 0, 0 );
+	sequences_[0].setColor( 0, 0, 0, 0 );
 	sequences_[0].setColor( 1, 255, 0, 0 );
 	sequences_[0].setName( "Red" );
 
 	sequences_[1].setType(ColTab::Sequence::User);
-	sequences_[1].setColor( 0, 0, 255, 0 );
+	sequences_[1].setColor( 0, 0, 0, 0 );
 	sequences_[1].setColor( 1, 0, 255, 0 );
 	sequences_[1].setName( "Green" );
 
 	sequences_[2].setType(ColTab::Sequence::User);
-	sequences_[2].setColor( 0, 0, 0, 255 );
+	sequences_[2].setColor( 0, 0, 0, 0 );
 	sequences_[2].setColor( 1, 0, 0, 255 );
 	sequences_[2].setName( "Blue" );
 
 	sequences_[3].setType(ColTab::Sequence::User);
 	sequences_[3].setColor( 0, 0, 0, 0 );
 	sequences_[3].setColor( 1, 0, 0, 0 );
-	sequences_[3].setTransparency( Geom::Point2D<float>(0,1) );
+	sequences_[3].setTransparency( Geom::Point2D<float>(0,0) );
 	sequences_[3].setTransparency( Geom::Point2D<float>(1,1) );
 	sequences_[3].setName( "Transparency" );
     }
