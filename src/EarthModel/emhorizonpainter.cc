@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.12 2009-06-25 12:18:04 cvssatyaki Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.13 2009-07-07 08:45:26 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "emhorizonpainter.h"
 
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "flatview.h"
@@ -26,8 +27,11 @@ HorizonPainter::HorizonPainter( FlatView::Viewer& fv )
     , markerlinestyle_(LineStyle::Solid,2,Color(0,255,0))
     , horrg_(0,1)
     , loadinghorcount_(0)
+    , markerstyle_( MarkerStyle2D::Square, 4, Color::White() )
     , is2d_(false) 
     , horidtoberepainted_(-1)
+    , isupdating(false)
+    , linenm_(0)
 {
     cs_.setEmpty();
     EM::EMM().addRemove.notify( mCB(this,HorizonPainter,nrHorChangeCB) );
@@ -96,9 +100,19 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
     mDynamicCastGet(EM::Horizon*,hor,emobj)
 	if ( !hor ) return false;
 
-    if ( !loadinghorcount_ )
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj)
+	if ( is2d_ && !hor2d )
+	    return false;
+
+    if ( !loadinghorcount_ && !isupdating )
 	hor->change.notify( mCB(this,HorizonPainter,horChangeCB) );
 
+    FlatView::Annotation::AuxData* seedsauxdata = 
+				new FlatView::Annotation::AuxData( 0 );
+    horsmarkerseeds_ += seedsauxdata;
+    seedsauxdata->poly_.erase();
+    seedsauxdata->markerstyles_ += markerstyle_;
+    viewer_.appearance().annot_.auxdata_ += seedsauxdata;
 
     ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
 		new ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >;
@@ -109,6 +123,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 	ObjectSet<FlatView::Annotation::AuxData>* markerlines = 
 	    			new ObjectSet<FlatView::Annotation::AuxData>;
 	(*sectionmarkerlines) += markerlines;
+	
 	bool newmarker = true;
 	bool coorddefined = true;
 	int markerlinecount = 0;
@@ -119,44 +134,72 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 	BinID bid;
 	while( iter.next(bid) )
 	{
-	    const Coord3 crd = hor->getPos( sid, bid.getSerialized() );
-	   if ( !crd.isDefined() )
-	   {
-	       coorddefined = false;
-	       continue;
-	   }
-	   else if ( !coorddefined )
-	   {
-	       coorddefined = true;
-	       newmarker = true;
-	   }
+	    int inlfromcs = bid.inl;
+	    if ( is2d_ )
+	    {
+		if ( hor2d->geometry().lineIndex( linenm_ ) < 0 )
+		    continue;
+		else
+		    bid.inl = hor2d->geometry().lineIndex( linenm_ );
+	    }
 
-	   if ( newmarker )
-	   {
-	       auxdata = new FlatView::Annotation::AuxData( hor->name() );
-	       auxdata->namepos_ = 0;
-	       (*markerlines) += auxdata;
-	       viewer_.appearance().annot_.auxdata_ += auxdata;
-	       auxdata->poly_.erase();
-	       auxdata->linestyle_ = markerlinestyle_;
-	       auxdata->linestyle_.color_ = hor->preferredColor();
-	       auxdata->fillcolor_ = hor->preferredColor();
-	       newmarker = false;
-	       markerlinecount++;
-	   }
-	   if ( cs_.nrInl() == 1 )
+	    const Coord3 crd = hor->getPos( sid, bid.getSerialized() );
+	    EM::PosID posid( hor->id(), sid, bid.getSerialized() );
+
+	    if ( !crd.isDefined() )
+	    {
+		coorddefined = false;
+		continue;
+	    }
+	    else if ( !coorddefined )
+	    {
+		coorddefined = true;
+		newmarker = true;
+	    }
+
+	    bool isaseed = hor->isPosAttrib( posid,EM::EMObject::sSeedNode());
+
+	    if ( newmarker )
+	    {
+		auxdata = new FlatView::Annotation::AuxData( "" );
+		(*markerlines) += auxdata;
+		viewer_.appearance().annot_.auxdata_ += auxdata;
+		auxdata->poly_.erase();
+		auxdata->linestyle_ = markerlinestyle_;
+		auxdata->linestyle_.color_ = hor->preferredColor();
+		auxdata->fillcolor_ = hor->preferredColor();
+		newmarker = false;
+		markerlinecount++;
+	    }
+	    if ( cs_.nrInl() == 1 )
 	    {
 		if ( is2d_ )
 		{
 		    int idx = trcnos_.indexOf(bid.crl);
-		    auxdata->poly_ += FlatView::Point(
-			    distances_[idx], crd.z );
+		    auxdata->poly_ += 
+			FlatView::Point( distances_[idx], crd.z );
+		    if ( isaseed )
+			seedsauxdata->poly_ +=
+			    FlatView::Point( distances_[idx], crd.z );
 		}
 		else
+		{
 		    auxdata->poly_ += FlatView::Point( bid.crl, crd.z );
+		    if ( isaseed )
+			seedsauxdata->poly_ += 
+			    	FlatView::Point( bid.crl, crd.z );
+		}
 	    }
 	    else if ( cs_.nrCrl() == 1 )
+	    {
 		auxdata->poly_ += FlatView::Point( bid.inl, crd.z );
+		if ( isaseed )
+		    seedsauxdata->poly_ +=
+			FlatView::Point( bid.inl, crd.z );
+	    }
+
+	    if ( is2d_ )
+		bid.inl = inlfromcs;
 	}
     }
 
@@ -255,6 +298,7 @@ void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
 
 void HorizonPainter::updateDisplay()
 {
+    isupdating = true;
     for ( int idx=0; idx<hormarkerlines_.size(); idx++ )
 	removePolyLine( idx );
 
@@ -265,6 +309,7 @@ void HorizonPainter::updateDisplay()
     }
 
     viewer_.handleChange( FlatView::Viewer::Annot );
+    isupdating = false;
 }
 
 
@@ -311,6 +356,9 @@ void HorizonPainter::removePolyLine( int idx )
     }
     deepErase( *hormarkerlines_[idx] );
     hormarkerlines_.remove( idx );
+
+    viewer_.appearance().annot_.auxdata_ -= horsmarkerseeds_[idx];
+    delete horsmarkerseeds_.remove( idx );
 }
 
 
@@ -439,5 +487,9 @@ bool HorizonPainter::isDisplayed( const MultiID& mid ) const
     EM::ObjectID objid = EM::EMM().getObjectID( mid );
     return horizonids_.indexOf( objid ) >= 0;
 }
+
+
+void HorizonPainter::setLineName( const char* lnm )
+{ linenm_ = lnm; }
 
 } // namespace EM
