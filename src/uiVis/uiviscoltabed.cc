@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.41 2009-05-29 08:48:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.42 2009-07-07 01:18:34 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -88,7 +88,7 @@ void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
     mImplNotification( ref, notify );
 
     uicoltab_->setSequence( so ? so->getColTabSequence(channel_) : 0,
-			    true, true );
+			    so && so->canSetColTabSequence(), true );
     uicoltab_->setMapperSetup(
 	    so ? so->getColTabMapperSetup(channel_,version_) : 0, true );
     uicoltab_->enableTransparencyEdit(
