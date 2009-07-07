@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.4 2009-06-15 12:22:14 cvsnanne Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.5 2009-07-07 09:08:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ protected:
     void			createViewWin(bool isvert);
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);
+    void			dataChangedCB(CallBacker*);
     void			drawHorizons();
 };
 
