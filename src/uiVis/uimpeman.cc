@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.158 2009-06-23 09:18:01 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.159 2009-07-07 09:12:57 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
 #include "attribsel.h"
 #include "emobject.h"
 #include "emmanager.h"
+#include "emposid.h"
 #include "emsurfacetr.h"
 #include "emtracker.h"
 #include "executor.h"
@@ -662,6 +663,51 @@ void uiMPEMan::showCubeCB( CallBacker* )
     const bool isshown = toolbar->isOn( showcubeidx );
     if ( isshown)
 	turnSeedPickingOn( false );
+
+    if ( isshown )
+    {
+	bool isvolflat = false;
+	CubeSampling cube = MPE::engine().activeVolume();
+	
+	if ( cube.isFlat() )
+	{
+	    cube = MPE::engine().getDefaultActiveVolume();
+	    isvolflat = true;
+	}
+
+	if ( cube == MPE::engine().getDefaultActiveVolume() )
+	{
+	    bool seedincluded = false;
+	    MPE::EMTracker* tracker = getSelectedTracker();
+	    if ( tracker )
+	    {
+		EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID());
+		if ( emobj )
+		{
+		    const TypeSet<EM::PosID>* seeds = 
+			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
+		    if ( seeds->size() > 0 )
+			seedincluded = true;
+		    for ( int idx=0; idx<seeds->size(); idx++ )
+		    {
+			const Coord3 pos = emobj->getPos( (*seeds)[idx] );
+			const BinID bid = SI().transform(pos);
+			cube.hrg.include(bid);
+			cube.zrg.include(pos.z);
+		    }
+		}
+	    }
+	    
+	    if ( isvolflat || seedincluded )
+	    {
+		NotifyStopper notifystopper( MPE::engine().activevolumechange );
+		MPE::engine().setActiveVolume( cube );
+		notifystopper.restore();
+		MPE::engine().activevolumechange.trigger();
+	    }
+	}
+    }
+
     mGetDisplays(isshown)
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->showBoxDragger( isshown );
