@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.16 2009-06-11 17:14:36 cvsyuancheng Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.17 2009-07-07 02:18:18 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
-#include "coltabsequence.h"
+//#include "coltabsequence.h"
 
 class SoColTabTextureChannel2RGBA;
 class SbImage;
@@ -28,6 +28,8 @@ class SoShaderParameter1i;
 class SoShaderParameterArray1f;
 class SoRGBATextureChannel2RGBA;
 class SoTextureComposerInfo;
+
+namespace ColTab { class Sequence; }
 
 namespace visBase
 { 
