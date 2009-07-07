@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.12 2009-06-22 11:49:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.13 2009-07-07 18:55:21 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -45,10 +45,6 @@ static const int cLevelCol = 0;
 static const int cDepthCol = 1;
 static const int cNameCol  = 2;
 static const int cColorCol = 3;
-
-#define mSetSIDepthInFeetDef(zinft) \
-    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinft ); \
-    SI().savePars()
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
@@ -269,6 +265,7 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	const float z = table_->getfValue( RowCol(idx,cDepthCol) );
 	if ( mIsUdf(z) )
 	    continue;
+	z *= zfac;
 
 	const char* txt = table_->text( RowCol(idx,cNameCol) );
 	mDynamicCastGet(uiStratLevelSel*,levelsel,
@@ -290,6 +287,5 @@ void uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
-    mSetSIDepthInFeetDef( !unitfld_->getBoolValue() );
     return true;
 }

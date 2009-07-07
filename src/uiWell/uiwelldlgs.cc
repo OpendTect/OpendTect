@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.82 2009-06-25 09:29:57 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.83 2009-07-07 18:55:21 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -276,10 +276,6 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
 
 
 static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
-#define mSetSIDepthInFeetDef(zinft) \
-    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinft ); \
-    SI().savePars()
-
 #define mD2TModel (cksh_ ? wd_.checkShotModel() : wd_.d2TModel())
 
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
@@ -550,7 +546,6 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 	if ( !mIsUdf(lfi.zrg.start) ) lfi.zrg.start *= feetfac;
 	if ( !mIsUdf(lfi.zrg.stop) ) lfi.zrg.stop *= feetfac;
     }
-    mSetSIDepthInFeetDef( zinft );
 
     const char* lasfnm = lasfld->text();
     if ( !lasfnm || !*lasfnm ) 
