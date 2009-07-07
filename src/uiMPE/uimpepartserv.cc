@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.95 2009-06-24 07:06:19 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.96 2009-07-07 09:05:36 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -177,7 +177,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     if ( trackercurrentobject_ != -1 )
 	return false;
 
-    saveUnsaveEMObject();
+    //saveUnsaveEMObject();
 
     cursceneid_ = addedtosceneid;
     NotifyStopper notifystopper( MPE::engine().trackeraddremove );
@@ -218,8 +218,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     
     uiDialog* setupdlg  = new uiDialog( parent(), 
 	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1")
-	   		       .savebutton(true).savechecked(true)
-			       .savetext("Save on Close  ")
+	   		       .savebutton(true).savetext("Save on Close  ")
 	   		       .modal(false) );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
 
@@ -887,7 +886,14 @@ void uiMPEPartServer::loadAttribData()
     for ( int idx=0; idx<attribselspecs.size(); idx++ )
     {
 	if ( attribselspecs[idx]->is2D() ) // TODO
+	{
+	    eventattrselspec_ = attribselspecs[idx];
+	    const bool isloaded =
+		getAttribCacheID(*eventattrselspec_) != DataPack::cNoID();
+	    if ( !isloaded )
+		sendEvent( evGetAttribData() );
 	    continue;
+	}
 
 	eventattrselspec_ = attribselspecs[idx];
 	const CubeSampling desiredcs = getAttribVolume( *eventattrselspec_ );
@@ -939,7 +945,7 @@ void uiMPEPartServer::expandActiveVolume(const CubeSampling& seedcs)
     const CubeSampling activecs = MPE::engine().activeVolume();
     const bool isdefault = activeVolumeIsDefault();
 
-    CubeSampling newcube = isdefault ? seedcs : activecs;
+    CubeSampling newcube = isdefault || activecs.isFlat() ? seedcs : activecs;
     newcube.zrg.step = SI().zStep();
     if ( !isdefault )
     {
