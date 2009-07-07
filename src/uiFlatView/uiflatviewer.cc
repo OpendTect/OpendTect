@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.88 2009-06-25 06:15:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.89 2009-07-07 09:03:54 cvsumesh Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -645,6 +645,12 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
     const bool drawfill = ad.close_ && ad.fillcolor_.isVisible();
     if ( (ad.linestyle_.isVisible() || drawfill) && ptlist.size()>1 )
     {
+	if ( pointitem_ )
+	{
+	    canvas_.scene().removeItem( pointitem_ );
+	    delete pointitem_;
+	    pointitem_ = 0;
+	}
 
 	if ( drawfill )
 	{
@@ -689,7 +695,8 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	if ( !pointitem_ )
 	{
 	    pointitem_ = new uiMarkerItem(
-		    ptlist[0], MarkerStyle2D(MarkerStyle2D::Square,4) );
+		    ptlist[0], MarkerStyle2D(MarkerStyle2D::Square,4,
+					     Color::White()) );
 	    canvas_.scene().addItem( pointitem_ );
 	}
 	else
