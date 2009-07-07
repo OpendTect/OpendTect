@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.3 2009-06-02 10:35:22 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.4 2009-07-07 08:42:24 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     bool		isDisplayed(const MultiID&) const;
 
     void		set2D(bool yn)		{ is2d_ = yn; }
+    void		setLineName(const char*);
     TypeSet<int>&	getTrcNos()		{ return trcnos_; }
     TypeSet<float>&	getDistances()		{ return distances_; }
 
@@ -73,7 +74,12 @@ protected:
     TypeSet<EM::ObjectID> horizonids_;
     ObjectSet< ObjectSet<ObjectSet<FlatView::Annotation::AuxData> > > 										hormarkerlines_;
 
+    ObjectSet<FlatView::Annotation::AuxData> horsmarkerseeds_;
+    MarkerStyle2D	markerstyle_;
+
     bool		is2d_;
+    const char*		linenm_;
+    bool		isupdating;
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;    
 };
