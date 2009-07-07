@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.33 2009-05-26 07:02:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.34 2009-07-07 01:16:17 cvskris Exp $";
 
 #include "uicolortable.h"
 
@@ -269,7 +269,7 @@ void uiColorTable::canvasClick( CallBacker* )
 	return;
 
     PtrMan<uiPopupMenu> mnu = new uiPopupMenu( this, "Action" );
-    if ( hasseq ) 
+    if ( hasmapper ) 
 	mnu->insertItem( new uiMenuItem("Flip",
 	    mCB(this,uiColorTable,doFlip)), 0 );
     if ( hasmapper )
