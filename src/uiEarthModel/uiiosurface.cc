@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.70 2009-04-28 12:51:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.71 2009-07-08 09:43:00 cvsumesh Exp $";
 
 #include "uiiosurface.h"
 
@@ -361,8 +361,8 @@ bool uiSurfaceWrite::processInput()
 }
 
 
-bool uiSurfaceWrite::replaceInTree() const       
-{ return displayfld_->isChecked(); }
+bool uiSurfaceWrite::replaceInTree() const
+{ return displayfld_ ? displayfld_->isChecked() : false; }
 
 
 void uiSurfaceWrite::stratLvlChg( CallBacker* )
