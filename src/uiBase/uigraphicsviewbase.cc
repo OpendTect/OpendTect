@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.11 2009-06-16 12:27:38 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.12 2009-07-08 20:37:05 cvskris Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -227,7 +227,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
 {
     setScene( *new uiGraphicsScene(nm) );
     setDragMode( uiGraphicsViewBase::NoDrag );
-    getMouseEventHandler().buttonReleased.notify(
+    getNavigationMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiGraphicsViewBase,rubberBandCB) );
 }
 
@@ -246,9 +246,15 @@ uiGraphicsViewBase::~uiGraphicsViewBase()
 }
 
 
-MouseEventHandler& uiGraphicsViewBase::getMouseEventHandler()
+MouseEventHandler& uiGraphicsViewBase::getNavigationMouseEventHandler()
 {
     return body_->mouseEventHandler();
+}
+
+
+MouseEventHandler& uiGraphicsViewBase::getMouseEventHandler()
+{
+    return scene_->getMouseEventHandler();
 }
 
 
@@ -261,10 +267,7 @@ void uiGraphicsViewBase::rePaintRect( const uiRect* rect )
 void uiGraphicsViewBase::setDragMode( ODDragMode dragmode )
 {
     body_->setDragMode( (QGraphicsView::DragMode)int(dragmode) );
-    if ( dragmode == uiGraphicsViewBase::RubberBandDrag )
-	scene().setMouseEventActive( false );
-    else
-	scene().setMouseEventActive( true );
+    scene().setMouseEventActive( dragmode==uiGraphicsViewBase::NoDrag );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.6 2009-06-16 12:27:38 cvskris Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.7 2009-07-08 20:37:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,12 @@ public:
     void			setCtrlPressed( bool yn )
     				{ isctrlpressed_ = yn; }
 
+    MouseEventHandler&		getNavigationMouseEventHandler();
+    				/*!<This eventhandler handles events related to
+				    navigation (rubberbands & panning). For general
+				    calls, use getMouseEventHandler(). */
     MouseEventHandler&		getMouseEventHandler();
+
 
     CNotifier<uiGraphicsViewBase,uiSize> reSize; //!< CallBacker is OLD size
     Notifier<uiGraphicsViewBase> rubberBandUsed;
