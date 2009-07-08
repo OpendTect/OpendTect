@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.12 2009-02-09 18:09:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.13 2009-07-08 21:55:22 cvsyuancheng Exp $";
 
 #include "uipickpropdlg.h"
 
@@ -99,7 +99,7 @@ void uiPickPropDlg::doFinalise( CallBacker* )
 {
     sliderfld->sldr()->setValue( set_.disp_.pixsize_ );
     colselfld->setColor( set_.disp_.color_ );
-    typefld->setValue( set_.disp_.markertype_ + 1 );
+    typefld->setValue( set_.disp_.markertype_ );
 }
 
 
@@ -113,7 +113,7 @@ void uiPickPropDlg::sliderMove( CallBacker* )
 
 void uiPickPropDlg::typeSel( CallBacker* )
 {
-    set_.disp_.markertype_ = typefld->getIntValue() - 1;
+    set_.disp_.markertype_ = typefld->getIntValue();//Didn't inlude None -1
     Pick::Mgr().reportDispChange( this, set_ );
 }
 

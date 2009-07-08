@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.8 2009-01-13 03:32:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.9 2009-07-08 21:55:22 cvsyuancheng Exp $";
 
 #include "uimarkerstyledlg.h"
 
@@ -24,8 +24,16 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
 		       		   mNoHelpID)
 		   .canceltext(""))
 {
-    typefld = new uiGenInput( this, "Shape", 
-	    		      StringListInpSpec(MarkerStyle3D::TypeNames()) );
+    //Here we list all the types of MarkerStyle3D, except None and Point in 
+    //order. If use all, use StringListInpSpec(MarkerStyle3D::TypeNames()
+    StringListInpSpec str;
+    str.addString( "Cube" ); 
+    str.addString( "Cone" ); 
+    str.addString( "Cylinder" ); 
+    str.addString( "Sphere" ); 
+    str.addString( "Arrow" ); 
+    str.addString( "Cross" ); 
+    typefld = new uiGenInput( this, "Shape", str );
     typefld->valuechanged.notify( mCB(this,uiMarkerStyleDlg,typeSel) );
 
     sliderfld = new uiSliderExtra( this, 
