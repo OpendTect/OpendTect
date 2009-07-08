@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.24 2009-06-23 08:28:13 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.25 2009-07-08 21:34:47 cvskris Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -103,7 +103,7 @@ void uiFlatViewStdControl::finalPrepare()
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	MouseEventHandler& mevh =
-	            vwrs_[vwrs_.size()-1]->rgbCanvas().getMouseEventHandler();
+	    vwrs_[vwrs_.size()-1]->rgbCanvas().getNavigationMouseEventHandler();
 	mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
 	if ( vwrs_[idx]->hasHandDrag() )
 	{
@@ -140,11 +140,12 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	if ( !vwrs_[idx]->rgbCanvas().getMouseEventHandler().hasEvent() )
+	if ( !vwrs_[idx]->rgbCanvas().
+		getNavigationMouseEventHandler().hasEvent() )
 	    continue;
 
 	const MouseEvent& ev =
-	    vwrs_[idx]->rgbCanvas().getMouseEventHandler().event();
+	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler().event();
 	if ( mIsZero(ev.angle(),0.01) )
 	    continue;
 
@@ -174,7 +175,8 @@ void uiFlatViewStdControl::zoomCB( CallBacker* but )
 
     Geom::Point2D<double> centre;
     Geom::Size2D<double> newsz;
-    if ( !vwrs_[0]->rgbCanvas().getMouseEventHandler().hasEvent() || !zoomin )
+    if ( !vwrs_[0]->rgbCanvas().getNavigationMouseEventHandler().hasEvent() ||
+	 !zoomin )
     {
 	newsz = zoommgr_.current();
 	centre = vwrs_[0]->curView().centre();
