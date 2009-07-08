@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.33 2009-07-08 13:56:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.34 2009-07-08 19:16:10 cvsyuancheng Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -651,9 +651,13 @@ SbVec3f SoPlaneWellLog::getProjCoords( const SoMFVec3f& path, const int index,
 SbVec3f SoPlaneWellLog::getNormal( const SbVec3f& pt1, const SbVec3f& pt2, 
 				   const SbVec3f& projdir )
 {
-    SbVec3f diff = pt2;
-    diff -= pt1; diff.setValue( 0, 0, -1 ); //TODO:
-    return diff.cross( projdir );
+    SbVec3f res = SbVec3f(0,0,-1).cross( projdir );
+    //Followed old code, pt1,pt2 are not really used.
+
+    if ( res.length()<1e-6 )
+	res = SbVec3f( 1, 0, 0 ); 
+
+    return res;
 }
 
 
