@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.34 2009-07-02 22:03:02 cvsyuancheng Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.35 2009-07-08 19:58:57 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -158,7 +158,7 @@ protected:
 
     PosInfo::Line2DData&			geometry_;
     Interval<float>				curzrg_;
-    StepInterval<int>				trcnrrg_;
+    Interval<int>				trcnrrg_;
     Interval<int>				maxtrcnrrg_;
 
     visBase::Transformation*			transformation_;

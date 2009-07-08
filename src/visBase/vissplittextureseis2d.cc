@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.6 2009-07-02 22:03:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.7 2009-07-08 19:58:57 cvsyuancheng Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -36,7 +36,7 @@ namespace visBase
 SplitTextureSeis2D::SplitTextureSeis2D()
     : VisualObjectImpl( false )
     , zrg_( 0, 0 )
-    , trcrg_( 0, 0, 1 )
+    , trcrg_( 0, 0 )
     , nrzpixels_( 0 )
 {
     coords_ = visBase::Coordinates::create();
@@ -66,29 +66,36 @@ SplitTextureSeis2D::~SplitTextureSeis2D()
 }
 
 
-void SplitTextureSeis2D::setPath( const TypeSet<PosInfo::Line2DPos>& path, 
-				  int tracestep )
+void SplitTextureSeis2D::setPath( const TypeSet<PosInfo::Line2DPos>& path )
 {
     path_.erase();
+    trcnrs_.erase();
     
     const int nrtraces = path.size();
     if ( !nrtraces )
 	return;
-
-    firsttrcnr_ = path[0].nr_;
-    if ( tracestep ) trcrg_.step = tracestep;
-
-    if ( nrtraces==1 )
+    
+    trcnrs_ += path[0].nr_;
+    path_ += path[0].coord_;
+    
+    for ( int idx=1; idx<nrtraces; idx++ )
     {
-	path_.setSize( 1, path[0].coord_ );
-	return;
-    }
+	int insert = idx;
+	while ( path[idx].nr_<path[insert-1].nr_ && insert>=1 )
+	    insert--;
+	
+	if ( insert==idx )
+	{
+	    path_ += path[idx].coord_;
+	    trcnrs_ += path[idx].nr_;
+	}
+	else
+	{
+	    path_.insert( insert, path[idx].coord_ );
+	    trcnrs_.insert( insert, path[idx].nr_ );
+	}
+    }    
 
-    path_.setSize( nrtraces, Coord::udf() );
-    
-    for ( int idx=0; idx<nrtraces; idx++ )
-	path_[idx] = path[idx].coord_;
-    
     updateHorSplit();
 }
 
@@ -99,9 +106,14 @@ void SplitTextureSeis2D::setDisplayedGeometry( const Interval<int>& trcrg,
     if ( trcrg_ == trcrg && zrg_ == zrg )
 	return;
 
-    trcrg_ = trcrg;
     zrg_ = zrg;
-    updateHorSplit();
+    if ( trcrg_!=trcrg )
+    {
+	trcrg_ = trcrg;
+	updateHorSplit();
+    }
+    else
+	updateDisplay();
 }
 
 
@@ -129,15 +141,19 @@ void SplitTextureSeis2D::setDisplayTransformation( mVisTrans* nt )
 
 void SplitTextureSeis2D::updateHorSplit()
 {
+    const int nrhorpixels = path_.size();
+
     if ( !trcrg_.width() || !path_.size() ) 
 	return;
 
     deepErase( horblocktrcindices_ );
-    const int diff = (trcrg_.start - firsttrcnr_)/trcrg_.step;
-    if ( diff<0 )
+    int diff = 0;
+    while ( trcrg_.start>trcnrs_[diff] && diff<nrhorpixels-1 )
+	diff++;
+    
+    if ( diff>=nrhorpixels-1 )
 	return;
 
-    const int nrhorpixels = trcrg_.nrSteps() + 1;
     const int nrhorblocks = nrBlocks( nrhorpixels, mMaxHorSz, 1 );
 
     for ( int idx=0; idx<nrhorblocks; idx++ )
@@ -231,6 +247,14 @@ void SplitTextureSeis2D::updateDisplay( )
     if ( !zrg_.width() || !trcrg_.width() )
 	return;
 
+    int firstpathidx = 0;
+    while ( trcrg_.start>trcnrs_[firstpathidx] )
+    {
+	firstpathidx++;
+	if ( firstpathidx >= trcnrs_.size() )
+	    return;
+    }
+
     const int verblocks = nrBlocks( nrzpixels_, mMaxVerSz, 1 );
     ObjectSet<SoSeparator> unusedseparators = separators_;
 
@@ -271,8 +295,6 @@ void SplitTextureSeis2D::updateDisplay( )
 	    
 	    if ( tcomp )
 	    {
-		const int firstpathidx = 
-		    (trcrg_.start - firsttrcnr_)/trcrg_.step; 
 		tcomp->origin.setValue( 0, 
 			(*horblockrg)[0]-firstpathidx, startzpixel );
 		tcomp->size.setValue( 1, texturehorsz, textureversz );

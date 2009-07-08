@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.70 2009-07-02 22:03:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.71 2009-07-08 19:58:57 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -68,7 +68,13 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
     , arr_( array )	
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
     , s2d_( s2d )			  
-{}
+{
+    const int trnrsz = s2d_.geometry_.posns_.size();
+    for ( int idx=0; idx<trnrsz; idx++ )
+ 	trcnrs_ += s2d_.geometry_.posns_[idx].nr_;
+    
+    quickSort( trcnrs_.arr() , trnrsz );
+}
 
       	
 od_int64 nrIterations() const { return data2dh_.size(); }
@@ -96,6 +102,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	return false;
     }
 
+    const int trcsz= trcnrs_.size();
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const int trcnr = data2dh_.trcinfoset_[idx]->nr;
@@ -105,7 +112,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    continue;
 	}
 
-	const int trcidx = (trcnr-s2d_.trcnrrg_.start)/s2d_.trcnrrg_.step;
+	int trcidx = 0;
+	while ( trcnr>trcnrs_[trcidx] && trcidx<trcsz-1 )
+  	    trcidx++;
+
 	const DataHolder* dh = data2dh_.dataset_[idx];
 	if ( !dh )
 	{
@@ -140,6 +150,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const Attrib::Data2DHolder&		data2dh_;
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
+    TypeSet<int>			trcnrs_;
 };
 
 
@@ -150,7 +161,7 @@ Seis2DDisplay::Seis2DDisplay()
     , triangles_( visBase::SplitTextureSeis2D::create() )	 
     , geomchanged_(this)
     , maxtrcnrrg_(INT_MAX,INT_MIN)
-    , trcnrrg_(-1,-1,0)
+    , trcnrrg_(-1,-1)
     , datatransform_(0)
     , voiidx_(-1)
     , prevtrcidx_(0)
@@ -215,8 +226,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
 	maxtrcnrrg_.include( linepositions[idx].nr_, false );
 
-    trcnrrg_.step = geometry_.getTraceNrRange().step;
-    triangles_->setPath( geometry_.posns_, trcnrrg_.step );
+    triangles_->setPath( linepositions );
 
     setTraceNrRange( maxtrcnrrg_ );
     setZRange( geometry_.zrg_ );
@@ -372,7 +382,7 @@ void Seis2DDisplay::setData( int attrib,
 	    			mNINT(arrayzrg.stop/sd.step), 1 );
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
-	    Array2DImpl<float>( trcnrrg_.nrSteps()+1, arrzsz ) );
+	    Array2DImpl<float>( geometry_.posns_.size(), arrzsz ) );
     if ( !arr->isOK() )
 	return;
 
@@ -504,7 +514,6 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( curzrg_ );
     s2dd->setTraceNrRange( trcnrrg_ );
-    s2dd->trcnrrg_.step = trcnrrg_.step;
     s2dd->setResolution( getResolution(), tr );
 
     s2dd->setLineSetID( linesetid_ );
