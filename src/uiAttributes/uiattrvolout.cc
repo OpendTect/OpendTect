@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.66 2009-06-22 05:16:39 cvsraman Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.67 2009-07-08 21:28:21 cvskris Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -187,7 +187,7 @@ bool uiAttrVolOut::prepareProcessing()
     Desc* seldesc = ads.getDesc( todofld->attribID() );
     if ( seldesc )
     {
-	uiMultOutSel multoutdlg( parent(), *seldesc );
+	uiMultOutSel multoutdlg( this, *seldesc );
 	if ( multoutdlg.doDisp() && multoutdlg.go() )
 	{
 	    seloutputs.erase();
