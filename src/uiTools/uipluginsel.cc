@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginsel.cc,v 1.15 2009-07-01 18:57:17 cvskris Exp $";
+static const char* rcsID = "$Id: uipluginsel.cc,v 1.16 2009-07-08 15:48:57 cvskris Exp $";
 
 #include "uipluginsel.h"
 #include "uibutton.h"
@@ -34,6 +34,9 @@ uiPluginSel::uiPluginSel( uiParent* p )
     setCtrlStyle( uiDialog::LeaveOnly );
     setCancelText( "&Ok" );
     setSaveButtonChecked( true );
+
+    FileMultiString dontloadlist;
+    PIM().getNotLoadedByUser( dontloadlist );
 
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     BufferStringSet piusrnms;
@@ -77,7 +80,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
 	PluginManager::Data& pdata = *pimdata[pluginidx[realidx]];
 	pluginnms_.add( pdata.name_ );
-	cb->setChecked( pdata.autosource_!=PluginManager::Data::None );
+	cb->setChecked( dontloadlist.indexOf( dispnm )==-1 );
 	cbs_ += cb;
 	if ( colnr != nrcols - 1 )
 	    cb->setPrefWidthInChar( maxlen+5 );
@@ -97,12 +100,7 @@ bool uiPluginSel::rejectOK( CallBacker* )
     for ( int idx=0; idx<cbs_.size(); idx++ )
     {
 	if ( !cbs_[idx]->isChecked() )
-	{
 	    dontloadlist += PIM().userName( pluginnms_.get(idx) );
-	    PluginManager::Data* data = PIM().findData( pluginnms_.get(idx) );
-	    if ( data )
-		data->autosource_ = PluginManager::Data::None;
-	}
     }
 
     Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );

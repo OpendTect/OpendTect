@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.63 2009-06-19 16:15:32 cvskris Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.64 2009-07-08 15:48:57 cvskris Exp $";
 
 
 #include "plugins.h"
@@ -326,8 +326,6 @@ void PluginManager::getNotLoadedByUser( FileMultiString& dontloadlist ) const
 
 void PluginManager::openALOEntries()
 {
-    FileMultiString dontloadlist;
-    getNotLoadedByUser( dontloadlist );
     for ( int idx=0; idx<data_.size(); idx++ )
     {
 	Data& data = *data_[idx];
@@ -348,10 +346,6 @@ void PluginManager::openALOEntries()
 
 	data.autotype_ = getPluginType( data.sla_, data.name_ );
 	data.info_ = getPluginInfo( data.sla_, data.name_ );
-
-	const char* username = userName( data.name_ );
-	if ( dontloadlist.indexOf( username )!=-1 )
-	    data.autosource_=Data::None;
     }
 }
 
@@ -441,28 +435,52 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
 
 bool PluginManager::load( const char* libnm )
 {
-    Data* data = new Data( libnm );
+    FilePath fp( libnm );
+    const BufferString libnmonly( fp.fileName() );
+
+    Data* data = new Data( libnmonly );
     data->sla_ = new SharedLibAccess( libnm );
     if ( !data->sla_->isOK() )
 	{ delete data; return false; }
 
-    FilePath fp( libnm );
-    const BufferString libnmonly( fp.fileName() );
-    if ( !loadPlugin(data->sla_,argc_,argv_,libnmonly) )
+    data->info_ = getPluginInfo( data->sla_, libnmonly );
+    if ( !data->info_ )
+	{ delete data; return false; }
+
+    Data* existing = const_cast<Data*>(
+    findDataWithDispName( data->info_->dispname ) );
+
+    if ( existing && existing->sla_ && existing->sla_->isOK() )
     {
-	data->sla_->close();
-	delete data;
-	return false;
+	if ( !loadPlugin(existing->sla_,argc_,argv_,libnmonly) )
+	{
+	    existing->info_ = 0;
+	    existing->sla_->close();
+	    delete existing->sla_; existing->sla_ = 0;
+	    return false;
+	}
+    }
+    else
+    {
+	if ( !loadPlugin(data->sla_,argc_,argv_,libnmonly) )
+	{
+	    data->sla_->close();
+	    delete data;
+	    return false;
+	}
+
+	data_ += data;
     }
 
-    data->info_ = getPluginInfo( data->sla_, libnmonly );
-    data_ += data;
     return true;
 }
 
 
 void PluginManager::loadAuto( bool late )
 {
+    FileMultiString dontloadlist;
+    getNotLoadedByUser( dontloadlist );
+
     for ( int idx=0; idx<data_.size(); idx++ )
     {
 	Data& data = *data_[idx];
@@ -471,6 +489,9 @@ void PluginManager::loadAuto( bool late )
 
 	const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
 	if ( data.autotype_ != pitype )
+	    continue;
+
+	if ( data.info_ && dontloadlist.indexOf( data.info_->dispname )!=-1 )
 	    continue;
 
 	if ( !loadPlugin(data.sla_,argc_,argv_,data.name_) )
