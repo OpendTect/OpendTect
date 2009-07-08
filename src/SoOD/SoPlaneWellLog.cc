@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.32 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.33 2009-07-08 13:56:15 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -325,9 +325,9 @@ void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val,
 
 
 void SoPlaneWellLog::setFillLogValue( int index, const SbVec3f& crd,
-       					float fillval, int lognr )
+				      float fillval, int lognr )
 {
-    SoMFFloat& filllog = lognr==1 ? filllog1 : filllog2;
+    SoMFFloat& filllog    = lognr==1 ? filllog1 : filllog2;
     SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
     SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
     filllog.set1Value( index, fillval );
@@ -361,8 +361,8 @@ void SoPlaneWellLog::buildLog(int lognr, const SbVec3f& projdir, int res )
 	
     SoSFBool& style = lognr==1 ? style1 : style2;
     SoSFBool& filling = lognr==1 ? filling1 : filling2;
-    bool styleB = style.getValue();
-    bool fillingB = filling.getValue();
+    const bool styleB = style.getValue();
+    const bool fillingB = filling.getValue();
 
     if ( fillingB && !styleB)
     {	
@@ -485,8 +485,8 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     {
 	int index = int(idx*step+.5);
 	float logval = log[index];
-	if ( lognr == 1 ) logval = maxval.getValue() - logval;
-	if ( logval < 0 ) logval = 0;
+	if ( lognr == 1 )   logval = maxval.getValue() - logval;
+	if ( logval < 0 )   logval = 0;
 	if ( logval > 100 ) logval = prevval;
 	
 	SbVec3f shiftcrd;
@@ -573,21 +573,21 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	int index = int(idx*step+.5);
-        float filllogval = filllog[index];
+	float filllogval = filllog[index];
 	float logval = log[index];
 	if ( revscale ) 
 	{
 	    logval = maxval.getValue() - logval;
-	    colindex =  abs( (int)((fillmaxvalF-logval)/colstep) );
+	    colindex = abs( (int)((fillmaxvalF-filllogval)/colstep) );
 	}
 	else
-	    colindex =  abs( (int)((logval-fillminvalF)/colstep) );
+	    colindex = abs( (int)((filllogval-fillminvalF)/colstep) );
 	if ( colindex > 255 )
 	    colindex = 255;
 	else if ( colindex < 0 )
 	    colindex = 0;
 
-	if ( filllogval <= 100 && logval <= 100 )
+	if ( logval <= 100 &&  filllogval <= 100 )
 	{
 	    triset->materialIndex.set1Value( 2*idx, colindex );
 	    triset->materialIndex.set1Value( 2*idx+1, colindex );
