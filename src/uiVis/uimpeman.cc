@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.159 2009-07-07 09:12:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.160 2009-07-08 12:34:06 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -1230,10 +1230,10 @@ void uiMPEMan::showTracker( bool yn )
     if ( yn && attribfld->currentItem() )
     {
 	mGetDisplays(false);
-	for ( int idx=0; idx<displays.size(); idx++ )
-	    displays[idx]->updateMPEActiveVolume();
+//	for ( int idx=0; idx<displays.size(); idx++ )
+//	    displays[idx]->updateMPEActiveVolume();
 
-	loadPostponedData();
+//	loadPostponedData();
     }
 
     MouseCursorManager::setOverride( MouseCursor::Wait );

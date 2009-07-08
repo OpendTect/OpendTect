@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.90 2009-06-19 12:18:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.91 2009-07-08 12:34:06 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
@@ -221,7 +221,31 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector )
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
 	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )
 	{
-	    setActiveVolume( emobj->getRemovedPolySelectedPosBox() );
+	    int dim = 0;
+	    if ( trackplane_.boundingBox().hrg.start.crl==
+		 trackplane_.boundingBox().hrg.stop.crl )
+		dim = 1;
+	    else if ( !trackplane_.boundingBox().zrg.width() )
+		dim = 2;
+
+	    TrackPlane ntp;
+	    CubeSampling& ncs = ntp.boundingBox();
+	    ncs = emobj->getRemovedPolySelectedPosBox();
+
+	    if ( !dim )
+		ncs.hrg.start.inl = ncs.hrg.stop.inl =
+		    SI().inlRange(true).snap(
+			    (ncs.hrg.start.inl+ncs.hrg.stop.inl)/2);
+	    else if ( dim==1 )
+		ncs.hrg.start.crl = ncs.hrg.stop.crl =
+		    SI().crlRange(true).snap(
+			    (ncs.hrg.start.crl+ncs.hrg.stop.crl)/2);
+	    else
+		ncs.zrg.start = ncs.zrg.stop = SI().zRange(true).snap(
+							ncs.zrg.center());
+	    ntp.setTrackMode( trackPlane().getTrackMode() );
+	    setTrackPlane( ntp, false );
+	    //setActiveVolume( emobj->getRemovedPolySelectedPosBox() );
 	    emobj->emptyRemovedPolySelectedPosBox();
 	}
     }
