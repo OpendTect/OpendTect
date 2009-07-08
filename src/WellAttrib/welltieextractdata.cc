@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.7 2009-06-26 09:39:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.8 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -107,15 +107,13 @@ int WellTieResampleLog::nextStep()
     updateLogIdx( curdah, tmpidx  );
     curlogsample_ = tmpidx;
     
-    if ( curtime > timeintv_.stop || curlogsample_ >= dah_.size() 
-	    			  || nrdone_ >= workdata_.getLength() )
+    if ( curtime > timeintv_.stop ||  nrdone_ >= workdata_.getLength() )
 	return Executor::Finished();
    
     if ( curdah < dah_[0] )
 	curval = val_[0];
-    else if ( curdah > dah_[dah_.size()-1])
-	curval = val_[val_.size()-1];
-
+    else if ( curdah > dah_[dah_.size()-1] )
+	curval = mUdf(float);
     else
     {
 	if ( tmpidx>1 && tmpidx<dah_.size()-2 )
@@ -132,12 +130,9 @@ int WellTieResampleLog::nextStep()
 	    curval = val_[curlogsample_];
     }
 
-    if (  curlogsample_ < dah_.size()  )
-    {
-	workdata_.get(logname_)->setValue( nrdone_, curval );
-	workdata_.get(dptnm_)->setValue( nrdone_, curdah );
-	workdata_.get(timenm_)->setValue( nrdone_, curtime );
-    }
+    workdata_.get(logname_)->setValue( nrdone_, curval );
+    workdata_.get(dptnm_)->setValue( nrdone_, curdah );
+    workdata_.get(timenm_)->setValue( nrdone_, curtime );
 
     nrdone_++;
     return Executor::MoreToDo();

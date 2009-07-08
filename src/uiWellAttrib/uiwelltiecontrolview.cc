@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.14 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.15 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -90,28 +90,7 @@ bool uiWellTieControlView::checkIfInside( double xpos, double zpos )
 
 void uiWellTieControlView::rubBandCB( CallBacker* cb )
 {
-    const uiRect* selarea = vwr_.rgbCanvas().getSelectedArea();
-    if ( selarea->topLeft() == selarea->bottomRight() ) return;
-
-    uiWorld2Ui w2u;
-    uiWorldRect wr;
-
-    //set current view
-    vwr_.getWorld2Ui( w2u );
-    wr  = w2u.transform( *selarea );
-
-    const uiWorldRect bbox = vwr_.boundingBox();
-
-    Interval<double> zrg( wr.top() , wr.bottom() );
-    Interval<double> xrg( bbox.left(), bbox.right());
-
-    wr.setTopBottom( zrg );
-    wr.setLeftRight( xrg );
-
-    Geom::Point2D<double> centre = wr.centre();
-    Geom::Size2D<double> newsz = wr.size();
-
-    setNewView( centre, newsz );
+    setSelView();
 }
 
 
@@ -160,4 +139,34 @@ void uiWellTieControlView::stateCB( CallBacker* )
 
     vwr_.setCursor( cursor );
 }
+
+
+void uiWellTieControlView::setSelView( bool isnewsel )
+{
+    const uiRect viewarea = isnewsel ? 
+	*vwr_.rgbCanvas().getSelectedArea() : getViewRect( &vwr_ );
+    if ( viewarea.topLeft() == viewarea.bottomRight() ) return;
+
+    uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
+    uiWorldRect wr = w2u.transform( viewarea );
+
+    const uiWorldRect bbox = vwr_.boundingBox();
+
+    Interval<double> zrg( wr.top() , wr.bottom() );
+    wr.setTopBottom( zrg );
+    
+    Interval<double> xrg( bbox.left(), bbox.right());
+    wr.setLeftRight( xrg );
+
+    Geom::Point2D<double> centre = wr.centre();
+    Geom::Size2D<double> newsz = wr.size();
+
+    vwr_.handleChange( FlatView::Viewer::All );
+    setNewView( centre, newsz );
+}
+
+
+
+
+
 

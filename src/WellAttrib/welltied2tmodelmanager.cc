@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.6 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.7 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -52,8 +52,8 @@ WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data* d,
 
 WellTieD2TModelMGR::~WellTieD2TModelMGR()
 {
-    delete prvd2t_;
-    delete orgd2t_;
+    if ( prvd2t_ ) delete prvd2t_;
+    if ( orgd2t_ ) delete orgd2t_;
 }
 
 

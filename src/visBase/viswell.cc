@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.47 2009-07-01 07:49:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.48 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -328,42 +328,31 @@ bool Well::markerNameShown() const
 { return markernmswitch->whichChild.getValue()==0; }
 
 
-
-void Well::initializeData( int lognr, const Interval<float>& range,
-			   float& step, int& nrsamp )
-{
-    step = 1;
-    if ( nrsamp > sMaxNrLogSamples )
-    {
-	step = (float)nrsamp / sMaxNrLogSamples;
-	nrsamp = sMaxNrLogSamples;
-    }
-}
-
-
 void Well::setSampleData( const TypeSet<Coord3Value>& crdvals,int idx,
 			  int nrsamp, float step, Coord3& pos,
-			  bool sclog, float prevval, int lognr
-			  ,const LinScaler& scaler, float& val)
+			  bool sclog, float prevval, int lognr,
+			  const LinScaler& scaler, float& val)
 {
     bool isvalundef = false;
     int index = mNINT(idx*step);
     const Coord3Value& cv = crdvals[index];
     pos = cv.coord ;
+    
     if ( transformation )
 	pos = transformation->transform( pos );
     if ( mIsUdf(pos.z) ) return;
-	val = scaler.scale( cv.value );
+    
+    val = scaler.scale( cv.value );
     if ( mIsUdf(val) )
     {
 	val = 105; //for undef value (>100), to be set transparent
 	isvalundef = true;
     }
-    else if ( val < 0 )
+    else if ( val < 0 )   
 	val = 0;
-    else if ( val > 100 )
+    else if ( val > 100 ) 
 	val = 100;
-
+    
     if ( sclog && !isvalundef )
     {
 	val += 1;
@@ -373,55 +362,40 @@ void Well::setSampleData( const TypeSet<Coord3Value>& crdvals,int idx,
 
 
 void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
-		       const Interval<float>& range, bool sclog, int lognr )
+		       const Interval<float>& range, bool sclog, int lognr, 
+		       bool isfilled )
 {
     int nrsamp = crdvals.size();
-    float step;
-    initializeData( lognr, range, step, nrsamp );
-    const bool rev = range.start > range.stop;
+    float step = 1;
+    if ( nrsamp > sMaxNrLogSamples )
+    {
+	step = (float)nrsamp / sMaxNrLogSamples;
+	nrsamp = sMaxNrLogSamples;
+    }
+    const bool rev = range.isRev();
     for ( int idx=0; idx<log.size(); idx++ )
 	log[idx]->setRevScale( rev, lognr );
     Interval<float> rg = range; rg.sort();
     LinScaler scaler( rg.start, 0, rg.stop, 100 );
-    Coord3 pos;
-    float val;
-    float prevval = 0;
+    Coord3 pos; float val, prevval = 0;
 
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	setSampleData( crdvals, idx, nrsamp, step, pos, sclog,
 			prevval, lognr, scaler, val );
-
-	for ( int i=0; i<log.size(); i++ )
-	    log[i]->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
+	
+	for ( int logidx=0; logidx<log.size(); logidx++ )
+	{
+	    if ( isfilled  )
+		log[logidx]->setFillLogValue( idx, SbVec3f(pos.x,pos.y,pos.z),
+					      val, lognr );
+	    else
+		log[logidx]->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z),
+					  val, lognr );
+	}
 	prevval = val;
     }
     showLog( true, lognr );
-}
-
-
-void Well::setFillLogData( const TypeSet<Coord3Value>& crdvals,
-       			const char* lognm, const Interval<float>& range,
-       			bool sclog, int lognr )
-{
-    int nrsamp = crdvals.size();
-    float step;
-    initializeData( lognr, range, step, nrsamp );
-    Interval<float> rg = range; rg.sort();
-    LinScaler scaler( rg.start, 0, rg.stop, 100 );
-    Coord3 pos;
-    float val;
-    float prevval = 0;
-
-    for ( int idx=0; idx<nrsamp; idx++ )
-    {
-	setSampleData( crdvals, idx, nrsamp, step, pos, sclog,
-			prevval, lognr, scaler, val );
-
-	for ( int i=0; i<log.size(); i++ )
-	    log[i]->setFillLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
-	prevval = val;
-    }
 }
 
 
@@ -516,23 +490,22 @@ const Color& Well::logColor( int lognr ) const
 }
 
 
-void Well::setLogFillColorTab( const char* seqname, int lognr,
-			       const Color& color, const bool iswelllog,
-       				const bool issinglecol	)
-{
-#define scolors2f(rgb) float(color.rgb())/255
+#define scolors2f(rgb) float(coldata.color_.rgb())/255
 #define colors2f(rgb) float(Col.rgb())/255
-	
+void Well::setLogFillColorTab( int lognr, ColorData& coldata )
+{
+    int idx = ColTab::SM().indexOf( coldata.seqname_);
+    if ( idx<0 || mIsUdf(idx) ) idx = 0;
+    const ColTab::Sequence* seq = ColTab::SM().get( idx );
+
     float colors[257][3];
-    int idx= ColTab::SM().indexOf(seqname);
-    if (idx<0 || mIsUdf(idx))
-	idx=0;
-    const ColTab::Sequence* seq = ColTab::SM().get( idx);
-    Color Col;
+    for ( int idz=0; idz<3; idz++ )  
+	colors[256][idz] = 0;
 
     for (int idx=0; idx<256; idx++ )
     {
-	if ( (!iswelllog || ( iswelllog && issinglecol )) )
+	if ( (!coldata.iswelllog_ 
+		    || ( coldata.iswelllog_ && coldata.issinglecol_ )) )
 	{
 	    colors[idx][0] = scolors2f(r);
 	    colors[idx][1] = scolors2f(g);
@@ -540,15 +513,12 @@ void Well::setLogFillColorTab( const char* seqname, int lognr,
 	}
 	else
 	{
-	    Col = seq->color((float)idx/255);
+	    Color Col = seq->color( (float)idx/255 );
 	    colors[idx][0] = colors2f(r);
 	    colors[idx][1] = colors2f(g);
 	    colors[idx][2] = colors2f(b);
 	}
     }
-	    colors[256][0] = 0;
-	    colors[256][1] = 0;
-	    colors[256][2] = 0;
 
     for ( int idx=0; idx<log.size(); idx++ )
 	log[idx]->setLogFillColorTab( colors, lognr );
@@ -599,6 +569,7 @@ void Well::showLogs( bool yn )
     }
 }
 
+
 void Well::showLog( bool yn, int lognr )
 {
     for ( int i=0; i<log.size(); i++ )
@@ -620,6 +591,7 @@ bool Well::logsShown() const
 
 void Well::showLogName( bool yn )
 {} 
+
 
 bool Well::logNameShown() const
 { return false; }

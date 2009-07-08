@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.33 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.34 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.33 2009-07-03 15:1
 #include "uitoolbar.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
+#include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
 #include "attribdesc.h"
@@ -181,6 +182,7 @@ void uiWellTieToSeismicDlg::resetInfoDlg()
 void uiWellTieToSeismicDlg::drawData()
 {
     datadrawer_->fullRedraw();
+    controlview_->setSelView( false );
 }
 
 
@@ -203,7 +205,7 @@ void uiWellTieToSeismicDlg::addControl()
 void uiWellTieToSeismicDlg::drawFields()
 {
     uiGroup* vwrtaskgrp = new uiGroup( this, "task group" );
-    vwrtaskgrp->attach( ensureBelow, viewer() );
+    vwrtaskgrp->attach( alignedBelow, viewer() );
     vwrtaskgrp->attach( rightBorder );
     createViewerTaskFields( vwrtaskgrp );
 

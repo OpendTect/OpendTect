@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.6 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.7 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -101,12 +101,12 @@ void WellTieCSCorr::fitCS( const TypeSet<float>& csvals,
 
     for ( int logidx =0; logidx<log_->size()-1; logidx++)
     {
-	for (int csidx=0; csidx<cs_->size(); csidx++)
+	for (int csidx=0; csidx<cs_->size()-1; csidx++)
 	{
 	    if ( (cs_->dah(csidx) <= log_->dah(logidx)) 
 		  && (cs_->dah(csidx+1) > log_->dah(logidx)) )
 		logshifts += coeffs[csidx]*log_->dah(logidx) 
-		   	   + csshifts[csidx]-coeffs[csidx]*cs_->dah(csidx);  
+		   	  + csshifts[csidx]-coeffs[csidx]*cs_->dah(csidx);  
 	}
 	if ( log_->dah(logidx) <= cs_->dah(0))
 	    logshifts += 0;
@@ -114,7 +114,7 @@ void WellTieCSCorr::fitCS( const TypeSet<float>& csvals,
 	    logshifts += logshifts[logidx-1];
     }
     
-    for ( int idx=0; idx< log_->size(); idx++ )
+    for ( int idx=0; idx< log_->size()-1; idx++ )
     {
 	if ( idx>1 && (mIsUdf(log_->value(idx)) || mIsUdf(logshifts[idx])) )
 	    log_->valArr()[idx] = log_->valArr()[idx-1];

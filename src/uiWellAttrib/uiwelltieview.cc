@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.33 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.34 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -138,7 +138,7 @@ void uiWellTieView::initFlatViewer()
 
 void uiWellTieView::setLogsParams()
 {
-    for ( int idx =0; idx<logsdisp_.size(); idx++ )
+    for ( int idx=0; idx<logsdisp_.size(); idx++ )
 	logsdisp_[idx]->setZDispInFeet( dataholder_->uipms()->iszinft_ );
     setLogsRanges( params_->dptintv_.start, params_->dptintv_.stop );
 }
@@ -238,10 +238,8 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
 				 int vwrnr )
 { 
     if ( seistrcdp_ )
-    {	
-	removePack();
-        seistrcdp_ = 0;
-    }	
+    { removePack(); seistrcdp_=0; }
+
     const int type = trcbuf->get(0)->info().getDefaultAxisFld( 
 			    Seis::Line, &trcbuf->get(1)->info() );
     seistrcdp_ =
@@ -256,10 +254,8 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     seistrcdp_->setName( varname );
     
     FlatView::Appearance& app = vwr_->appearance();
-    uiWorldRect curwr = vwr_->curView();
     vwr_->setPack( true, seistrcdp_->id(), false, true );
-    vwr_->handleChange( FlatView::Viewer::All );
-    vwr_->setView( curwr  );
+
     const UnitOfMeasure* uom = 0;
     const char* units =  ""; //uom ? uom->symbol() : "";
     app.annot_.x1_.name_ =  varname;

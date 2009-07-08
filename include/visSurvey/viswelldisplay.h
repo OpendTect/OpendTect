@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.52 2009-07-02 20:59:44 cvskris Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.53 2009-07-08 13:57:04 cvsbruno Exp $
 
 
 
@@ -83,7 +83,8 @@ public:
     void 			setWellData( const int, TypeSet<Coord3Value>&,
 	                           Interval<float>*, Interval<float>&,
 				   bool&, Well::Log& );
-    void			createLogDisplay(int,Interval<float>*,bool,int);
+    void			createLogDisplay(int,Interval<float>*,
+						 bool,int,bool);
     void			createFillLogDisplay(int,Interval<float>*,
 	    							bool,int);
     void			setLogDisplay(Well::LogDisplayPars&,int);
@@ -99,9 +100,6 @@ public:
     	
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
-    void			setLogFillColor(const Color&,int, const char*
-	    					,const bool, const bool);
-    const Color&		logFillColor(int) const;
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;
     void			setLogWidth(int,int);

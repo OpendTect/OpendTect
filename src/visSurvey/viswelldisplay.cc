@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.102 2009-07-02 20:59:44 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.103 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -283,7 +283,7 @@ mShowFunction( showLogName, logNameShown )
 
 
 void WellDisplay::setWellData( const int logidx, TypeSet<Coord3Value>& crdvals, 			      Interval<float>* range, Interval<float>& selrange,
-	 		bool& logrthm, Well::Log& wl )
+			      bool& logrthm, Well::Log& wl )
 { 
     if ( logidx < 0 ) { pErrMsg("Logidx < 0"); return;}
     Well::Data* wd = Well::MGR().get( wellid_ );
@@ -316,33 +316,23 @@ void WellDisplay::setWellData( const int logidx, TypeSet<Coord3Value>& crdvals, 
 
 
 void WellDisplay::createLogDisplay( int logidx, Interval<float>* range,
-			            bool logrthm, int lognr)
+			            bool logrthm, int lognr, bool isfilled )
 {
     Interval<float> selrange;
     TypeSet<Coord3Value> crdvals;
     Well::Log wl;
-    setWellData( logidx, crdvals, range, selrange, logrthm, wl);
-    well_->setLogData( crdvals, wl.name(), selrange, logrthm, lognr );
+    setWellData( logidx, crdvals, range, selrange, logrthm, wl );
+    well_->setLogData( crdvals, wl.name(), selrange, logrthm, lognr, isfilled );
 }
 
 
-void WellDisplay::createFillLogDisplay( int logidx, Interval<float>* range,
-			            bool logrthm, int lognr)
-{
-    Interval<float> selrange;
-    TypeSet<Coord3Value> crdvals;
-    Well::Log wl;
-    setWellData( logidx, crdvals, range, selrange, logrthm, wl ) ;
-    well_->setFillLogData( crdvals, wl.name(), selrange, logrthm, lognr );
-}
-
-
-void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
+void WellDisplay::setLogDisplay(  Well::LogDisplayPars& dp, int lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
     
-    bool isfilled = ( lognr == 1 ? dpp(left_.islogfill_) : dpp(right_.islogfill_) );
+    bool isfilled = ( lognr == 1 ? dpp(left_.islogfill_) 
+	    			 : dpp(right_.islogfill_) );
     bool islog = ( lognr == 1 ? dpp( left_.islogarithmic_ ) 
 			      : dpp( right_.islogarithmic_ ));
 
@@ -362,18 +352,21 @@ void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
   
     setWellProperties( lognr, range );
     mDeclareAndTryAlloc( Interval<float>*,rgptr, Interval<float>( range ) );
-    createLogDisplay( logidx, rgptr, islog, lognr );
+    createLogDisplay( logidx, rgptr, islog, lognr, false );
 
     if ( isfilled )
     {
 	BufferString fillname ; Interval<float> fillrg;
-	fillname = ( lognr == 1 ? dpp( left_.fillname_ ):dpp( right_.fillname_ ) ); 
-	fillrg = ( lognr == 1 ? dpp( left_.fillrange_ ) :dpp( right_.fillrange_ ) );
+	fillname = ( lognr == 1 ? dpp( left_.fillname_ )
+				: dpp( right_.fillname_ ) ); 
+	fillrg = ( lognr == 1 ? dpp( left_.fillrange_ ) 
+			      : dpp( right_.fillrange_ ) );
     
 	const int filllogidx = wd->logs().indexOf( fillname );
     
-	mDeclareAndTryAlloc( Interval<float>*,fillrgptr, Interval<float>( fillrg ) );
-	createFillLogDisplay( filllogidx, fillrgptr, islog, lognr );
+	mDeclareAndTryAlloc( Interval<float>*,fillrgptr, 
+			     Interval<float>( fillrg ) );
+	createLogDisplay( filllogidx, fillrgptr, islog, lognr, true );
     }
 
     well_->showLog( true, lognr );
@@ -387,7 +380,7 @@ void WellDisplay::calcClippedRange(float cliprate, Interval<float>& range,
     if ( cliprate > 100 ) cliprate = 100;
     cliprate = cliprate / 100;
     if ( mIsUdf(cliprate) || cliprate < 0 ) cliprate = 0;
-    int logsz=wl.size();
+    int logsz = wl.size();
     DataClipper dataclipper;
     dataclipper.setApproxNrValues( logsz );
     dataclipper.putData( wl.valArr(), logsz );
@@ -422,7 +415,6 @@ void WellDisplay::setOneLogDisplayed(bool yn)
     int logwidth = dpp( side.logwidth_);\
     float ovlap = dpp( side.repeatovlap_ );\
     Color& lcolor = dpp( side.color_);\
-    Color& seiscolor = dpp( side.seiscolor_);\
     bool isfilled = dpp(side.islogfill_);\
     bool issinglefill = dpp(side.issinglecol_);\
     isdatarange = dpp(side.isdatarange_);\
@@ -434,10 +426,13 @@ void WellDisplay::setOneLogDisplayed(bool yn)
     well_->setOverlapp( ovlap, lognr );\
     well_->setLogStyle( iswelllog, lognr ); \
     well_->setLogFill( isfilled, lognr ); \
-    setLogColor( lcolor, lognr ); \
+    setLogColor( lcolor, lognr );\
     setLogLineWidth( dpp(side.size_), lognr );\
     setLogWidth( logwidth, lognr );\
-    setLogFillColor( seiscolor, lognr, seqname, iswelllog, issinglefill );\
+    visBase::Well::ColorData cd;\
+    cd.color_ = dpp( side.seiscolor_); cd.seqname_ = seqname;\
+    cd.iswelllog_ = iswelllog; cd.issinglecol_ = issinglefill;\
+    well_->setLogFillColorTab( lognr, cd );\
 }
 
 
@@ -466,25 +461,11 @@ void WellDisplay::setWellProperties( int lognr, Interval<float>& range)
 
 
 void WellDisplay::setLogColor( const Color& col, int lognr )
-{
-    Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
-					 : logparset_.getRight();
-    well_->setLogColor( col, lognr );
-}
+{ well_->setLogColor( col, lognr ); }
 
 
 const Color& WellDisplay::logColor( int lognr ) const
 { return well_->logColor( lognr ); }
-
-
-void WellDisplay::setLogFillColor(const Color& color, int lognr, 
-				  const char* seqname, const bool iswelllog, 
-				  const bool issinglecol)
-{
-    Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
-					 : logparset_.getRight();
-    well_->setLogFillColorTab(seqname, lognr, color, iswelllog, issinglecol); 
-}
 
 
 void WellDisplay::setLogLineWidth( float width, int lognr )
@@ -511,8 +492,8 @@ bool WellDisplay::logsShown() const
 
 void WellDisplay::showLogs( bool yn )
 {
-    well_->showLog( yn && !(logparset_.getLeft()->name_="None"), 1);
-    well_->showLog( yn && !(logparset_.getRight()->name_="None"), 2);
+    well_->showLog( yn, 1);
+    well_->showLog( yn, 2);
 }
 
 

@@ -7,16 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.29 2009-02-26 13:30:33 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.30 2009-07-08 13:57:04 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "ranges.h"
 #include "visobject.h"
 #include "scaler.h"
+#include "color.h"
 
-class Color;
 class Coord3;
 class Coord3Value;
 class IOPar;
@@ -42,8 +43,17 @@ Base class for well display
 mClass Well : public VisualObjectImpl
 {
 public:
+
     static Well*		create()
     				mCreateDataObj(Well);
+
+    mStruct ColorData
+    {
+	const char* seqname_;
+	bool  iswelllog_;
+	bool  issinglecol_;
+	Color color_;
+    };
 
     void			setTrack(const TypeSet<Coord3>&);
 
@@ -75,11 +85,7 @@ public:
 					      int,const LinScaler&,float&);
     void			setLogData(const TypeSet<Coord3Value>&,
 	    			           const char*,const Interval<float>&,
-					   bool,int);
-    void			setFillLogData(const TypeSet<Coord3Value>&,
-	    			           const char* lognm,
-					   const Interval<float>& rg,
-					   bool scale,int nr);
+					   bool,int,bool);
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
     const Color&		logFillColor(int) const;
@@ -102,9 +108,7 @@ public:
     void			showOneLog(bool,int,int);
     void 			setTrackProperties(Color&,int);
 
-    void			setLogFillColorTab(const char*,int,
-	    					   const Color&,const bool,
-						   const bool);
+    void			setLogFillColorTab(int,ColorData&);
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
 
@@ -122,9 +126,9 @@ public:
     static const char*		showlognmstr();
     static const char*		logwidthstr();
 
+
 protected:
     				~Well();
-
 
     PolyLine*			track;
     DrawStyle*			drawstyle;

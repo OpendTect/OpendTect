@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.38 2009-04-17 12:18:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.39 2009-07-08 13:57:04 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -55,8 +55,6 @@ bool uiODWellParentTreeItem::showSubMenu()
     if ( children_.size() > 1 )
     {
 	mnu.insertItem( new uiMenuItem( "Create Attribute Log ..." ), 2 );
-	//mnu.insertItem( new uiMenuItem( "Select Log ..." ), 3 );
-	//mnu.insertItem( new uiMenuItem("&Properties ..."), 4 );
 
 	mnu.insertSeparator( 40 );
 	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "&Show all" );
@@ -257,7 +255,6 @@ void uiODWellTreeItem::initMenuItems()
     markernamemnuitem_.text = "Marker &names";
     showlogmnuitem_.text = "&Logs" ;
     attrmnuitem_.text = "&Create attribute log...";
-    //showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = "St&ore ...";
 
@@ -315,7 +312,6 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
-    //mAddMenuItem( menu, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,  
 	    					wd->wellTopNameShown() );
     mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,  

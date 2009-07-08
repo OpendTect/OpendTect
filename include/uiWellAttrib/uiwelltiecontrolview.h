@@ -29,6 +29,7 @@ public:
    
     void		setPickSetMGR(WellTiePickSetMGR* pmgr)
     			{ picksetmgr_ = pmgr; }
+    void		setSelView(bool isnewsel = true );
     
 protected:
     

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.17 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.18 2009-07-08 13:57:04 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -360,7 +360,10 @@ void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
     {
 	float velval = issonic ? velvals.get(idx) : 1/velvals.get(idx);
 	float denval = denvals.get(idx);
-	aivals.setValue( idx, denval/velval*mFactor*denfactor_*velfactor_ );
+	float aival = denval/velval*mFactor*denfactor_*velfactor_;
+	if ( mIsUdf(denval) || mIsUdf(velval) )
+	    aival = mUdf( float );
+	aivals.setValue( idx, aival );
     }
 }
 
@@ -381,7 +384,9 @@ void WellTieGeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 
 	if ( (ai1 + ai2 ) == 0 )
 	    rval = prevval;
-	else
+	else if ( mIsUdf( ai1 )|| mIsUdf( ai2 ) )
+	    rval = 0;
+	else 
 	    rval =  ( ai2 - ai1 ) / ( ai2 + ai1 );     
 	
 	reflvals.setValue( idx, rval ); 
@@ -417,6 +422,8 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
 {
     const int sz = inputvals.info().getSize(0);
     const int filtersz = filtervals.info().getSize(0);
+    if ( !sz || !filtersz || filtersz<wvltsz ) 
+	return;
     int border = wvltsz/2;
 
     Array1DImpl<float> timeinputvals( sz ), timefiltervals(filtersz );
