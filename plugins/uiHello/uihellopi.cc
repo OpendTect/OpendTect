@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.12 2009-04-06 07:29:57 cvsranojay Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.13 2009-07-09 13:44:08 cvsnanne Exp $";
 
 #include "uimsg.h"
 
@@ -62,7 +62,7 @@ public:
 uiHelloMgr::uiHelloMgr( uiODMain& a )
 	: appl(a)
 {
-    uiMenuItem* newitem = new uiMenuItem( "&Diplay Hello Message ...",
+    uiMenuItem* newitem = new uiMenuItem( "&Display Hello Message ...",
 	    				  mCB(this,uiHelloMgr,dispMsg) );
     appl.menuMgr().utilMnu()->insertItem( newitem );
 }
