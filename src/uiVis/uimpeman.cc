@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.160 2009-07-08 12:34:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.161 2009-07-09 13:52:06 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -146,7 +146,7 @@ void uiMPEMan::addButtons()
     toolbar->addSeparator();
 
     moveplaneidx = mAddButton( "QCplane-inline.png", movePlaneCB,
-			       "Move track plane", true );
+			       "Display QC plane", true );
     uiPopupMenu* mnu = new uiPopupMenu( toolbar, "Menu" );
     mAddMnuItm( mnu, "Inline", handleOrientationClick, 
 	    	"QCplane-inline.png", 0 );
@@ -163,7 +163,7 @@ void uiMPEMan::addButtons()
     toolbar->addObject( attribfld );
 
     clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
-			    "Set track plane colorbar", true );
+			    "Set QC plane colortable", true );
 
     transfld = new uiSlider( toolbar, "Transparency", 2 );
     transfld->setOrientation( uiSlider::Horizontal );
@@ -175,10 +175,10 @@ void uiMPEMan::addButtons()
     toolbar->addSeparator();
 
     trackforwardidx = mAddButton( "leftarrow.png", moveBackward,
-	    			  "Move plane backward ( key: '[' )", false );
+	    			  "Move QC plane backward (key: '[')", false );
     toolbar->setShortcut(trackforwardidx,"[");
     trackbackwardidx = mAddButton( "rightarrow.png", moveForward,
-	    			   "Move plane forward ( key: ']' )", false );
+	    			   "Move QC plane forward (key: ']')", false );
     toolbar->setShortcut(trackbackwardidx,"]");
 
     nrstepsbox = new uiSpinBox( toolbar, 0, "Nr of track steps" );
@@ -668,7 +668,6 @@ void uiMPEMan::showCubeCB( CallBacker* )
     {
 	bool isvolflat = false;
 	CubeSampling cube = MPE::engine().activeVolume();
-	
 	if ( cube.isFlat() )
 	{
 	    cube = MPE::engine().getDefaultActiveVolume();
@@ -684,7 +683,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
 		EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID());
 		if ( emobj )
 		{
-		    const TypeSet<EM::PosID>* seeds = 
+		    const TypeSet<EM::PosID>* seeds =
 			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
 		    if ( seeds->size() > 0 )
 			seedincluded = true;
@@ -697,7 +696,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
 		    }
 		}
 	    }
-	    
+
 	    if ( isvolflat || seedincluded )
 	    {
 		NotifyStopper notifystopper( MPE::engine().activevolumechange );
@@ -1280,7 +1279,7 @@ void uiMPEMan::setColorbarCB( CallBacker* )
 
     if ( !colbardlg )
     {
-	colbardlg = new uiColorBarDialog( toolbar, "Track plane colorbar" );
+	colbardlg = new uiColorBarDialog( toolbar, "QC plane colorbar" );
 	colbardlg->editor().setColTab( displays[0]->getColTabSequence(0), true,
 			       displays[0]->getColTabMapperSetup(0), false);
 	colbardlg->editor().seqChange().notify(
@@ -1330,27 +1329,27 @@ void uiMPEMan::movePlaneCB( CallBacker* )
 }
 
 
+void updateQCButton( uiToolBar* tb, int butidx, int dim )
+{
+    BufferString pm, tooltip;
+    if ( dim == 0 )
+    { pm = "QCplane-inline.png"; tooltip = "Display QC plane Inline"; }
+    else if ( dim == 1 )
+    { pm = "QCplane-crossline.png"; tooltip = "Display QC plane Crossline"; }
+    else
+    { pm = "QCplane-z.png"; tooltip = "Display QC plane Z-dir"; }
+
+    tb->setPixmap( butidx, pm );
+    tb->setToolTip( butidx, tooltip );
+}
+
+
 void uiMPEMan::handleOrientationClick( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
     const int dim = itm->id();
-    if ( !dim )
-    {
-	toolbar->setPixmap( moveplaneidx, "QCplane-inline.png" );
-	toolbar->setToolTip( moveplaneidx, "Move track plane Inline" );
-    }
-    else if ( dim == 1 )
-    {
-	toolbar->setPixmap( moveplaneidx, "QCplane-crossline.png" );
-	toolbar->setToolTip( moveplaneidx, "Move track plane Crossline" );
-    }
-    else
-    {
-	toolbar->setPixmap( moveplaneidx, "QCplane-z.png" );
-	toolbar->setToolTip( moveplaneidx, "Move track plane Z-dir" );
-    }
-
+    updateQCButton( toolbar, moveplaneidx, dim );
     changeTrackerOrientation( dim );
     movePlaneCB( cb );
 }
@@ -1362,21 +1361,7 @@ void uiMPEMan::planeOrientationChangedCB( CallBacker* cb )
     if ( !disp ) return;
 
     const int dim = disp->getPlaneOrientation();
-    if ( !dim )
-    {
-	toolbar->setPixmap( moveplaneidx, "QCplane-inline.png" );
-	toolbar->setToolTip( moveplaneidx, "Move track plane Inline" );
-    }
-    else if ( dim == 1 )
-    {
-	toolbar->setPixmap( moveplaneidx, "QCplane-crossline.png" );
-	toolbar->setToolTip( moveplaneidx, "Move track plane Crossline" );
-    }
-    else
-    {
-	toolbar->setPixmap( moveplaneidx, "QCplane-z.png" );
-	toolbar->setToolTip( moveplaneidx, "Move track plane Z-dir" );
-    }
+    updateQCButton( toolbar, moveplaneidx, dim );
 }
 
 
