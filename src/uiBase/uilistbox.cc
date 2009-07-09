@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.101 2009-06-30 14:52:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.102 2009-07-09 18:31:04 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -503,15 +503,10 @@ ioPixmap uiListBox::pixmap( int index ) const
 
 
 void uiListBox::empty()
-{
-    body_->QListWidget::clear();
-}
+{ body_->QListWidget::clear(); }
 
-
-void uiListBox::clear()
-{
-    body_->clearSelection();
-}
+void uiListBox::clearSelection()
+{ body_->clearSelection(); }
 
 
 void uiListBox::sort( bool asc )

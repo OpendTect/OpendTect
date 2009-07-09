@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.48 2009-06-24 08:40:24 cvsbert Exp $
+ RCS:           $Id: uilistbox.h,v 1.49 2009-07-09 18:31:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public:
     int			nrSelected() const;
     void		setSelected(int,bool yn=true);
     void		selectAll(bool yn=true);
-    virtual void	clear();
+    void		clearSelection();
     void		sort(bool asc=true);
 
     void		empty();
