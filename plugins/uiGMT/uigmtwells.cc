@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtwells.cc,v 1.6 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtwells.cc,v 1.7 2009-07-09 18:34:04 cvsnanne Exp $";
 
 #include "uigmtwells.h"
 
@@ -91,7 +91,7 @@ void uiGMTWellsGrp::fillItems()
 
 void uiGMTWellsGrp::reset()
 {
-    welllistfld_->clear();
+    welllistfld_->clearSelection();
     namefld_->setValue( "Wells" );
     symbfld_->reset();
     lebelfld_->setChecked( false );
@@ -135,7 +135,7 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
     namefld_->setText( par.find(sKey::Name) );
     BufferStringSet selnames;
     par.get( ODGMT::sKeyWellNames, selnames );
-    welllistfld_->clear();
+    welllistfld_->clearSelection();
     for ( int idx=0; idx<welllistfld_->size(); idx ++ )
     {
 	const int index = selnames.indexOf( welllistfld_->textOfItem(idx) );

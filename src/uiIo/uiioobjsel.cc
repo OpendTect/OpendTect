@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.136 2009-06-30 13:30:39 cvshelene Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.137 2009-07-09 18:36:53 cvsnanne Exp $";
 
 #include "uiioobjsel.h"
 
@@ -148,7 +148,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	    if ( listfld_->isPresent( nm ) )
 		listfld_->setCurrentItem( nm );
 	    else
-		listfld_->clear();
+		listfld_->clearSelection();
 	}
     }
 

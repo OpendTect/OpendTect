@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.130 2009-06-26 10:05:09 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.131 2009-07-09 18:36:53 cvsnanne Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -493,7 +493,7 @@ void uiSeisMMProc::updateCurMachs()
 	usedmachfld->box()->setCurrentItem(curit);
     }
     else
-	usedmachfld->box()->clear();
+	usedmachfld->box()->clearSelection();
 
     mReturn();
 }

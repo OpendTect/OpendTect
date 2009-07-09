@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.7 2009-06-18 15:01:44 cvskris Exp $";
+static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.8 2009-07-09 18:34:04 cvsnanne Exp $";
 
 #include "uigmt2dlines.h"
 
@@ -173,7 +173,7 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
 
     BufferStringSet linenms;
     par.get( ODGMT::sKeyLineNames, linenms );
-    linelistfld_->clear();
+    linelistfld_->clearSelection();
     for ( int idx=0; idx<linelistfld_->size(); idx++ )
 	if ( linenms.indexOf(linelistfld_->textOfItem(idx)) >= 0 )
 	    linelistfld_->setSelected( idx, true );
