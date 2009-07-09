@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.33 2009-06-25 14:13:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.34 2009-07-09 13:57:59 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -37,9 +37,9 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , cursector_(-1)
     , outercircleitm_(0)
     , selsectoritem_(0)
-    , sectorlines_(*scene().addItemGrp(new uiGraphicsItemGroup))
-    , curveitems_(*scene().addItemGrp(new uiGraphicsItemGroup))
-    , markeritems_(*scene().addItemGrp(new uiGraphicsItemGroup))
+    , sectorlines_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
+    , curveitems_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
+    , markeritems_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
     , hdrannotitm1_(0)
     , hdrannotitm2_(0)
     , scalelineitm_(0)
@@ -201,8 +201,7 @@ void uiDirectionalPlot::drawGrid()
 	const float ang = data_.angle( isect, 1 );
 	const float mathang = Angle::convert( data_.setup_.angletype_, ang,
 					      Angle::Rad );
-	uiLineItem* li = scene().addItem(
-		new uiLineItem(center_,mathang,radius_,true) );
+	uiLineItem* li = new uiLineItem( center_, mathang, radius_, true );
 	sectorlines_.add( li );
 	li->setPenStyle( setup_.sectorls_ );
     }
@@ -419,7 +418,6 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
     ci->drawTo( as );
     ci->setFillColor( col );
     ci->closeCurve();
-    scene().addItem( ci );
     return ci;
 }
 
