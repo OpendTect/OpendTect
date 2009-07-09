@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.15 2009-04-07 07:12:20 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.16 2009-07-09 18:34:58 cvsnanne Exp $";
 
 #include "uihorizonsortdlg.h"
 
@@ -93,7 +93,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     ExecutorGroup execgrp("Reading horizons");
     execgrp.add( horreader );
 
-    HorizonSorter* horsorter = new HorizonSorter( horids );
+    HorizonSorter* horsorter = new HorizonSorter( horids, is2d_ );
     execgrp.add( horsorter );
 
     uiTaskRunner taskrunner( this );
