@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.11 2009-06-30 16:39:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.12 2009-07-09 12:44:38 cvsranojay Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -27,8 +27,10 @@ static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.11 2009-06-30 16:39:0
 #include "ioobj.h"
 #include "typeset.h"
 
-const DataColDef uiEMAttribPartServer::siddef_( "Section ID" );
+static const DataColDef	siddef_( "Section ID" );
 
+const DataColDef& uiEMAttribPartServer::sidDef() const
+{ return siddef_; }
 
 uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.11 2009-06-30 16:39:04 cvskris Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.12 2009-07-09 12:44:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
     void			fillHorShiftDPS(ObjectSet<DataPointSet>&,
 	    				TaskRunner*);
 
-    const DataColDef&		sidDef() const		{ return siddef_; }
+    const DataColDef&		sidDef() const;
     const BoolTypeSet&		initialAttribStatus() const { return initialattribstatus_; }
     float			initialShift() const { return initialshift_; }
 
@@ -96,7 +96,6 @@ protected:
     void			calcDPS(CallBacker*);
     void			horShifted(CallBacker*);
     void			shiftDlgClosed(CallBacker*);
-    static const DataColDef	siddef_;
 };
 
 /*!\mainpage EMAttrib User Interface
