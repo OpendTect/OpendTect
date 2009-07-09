@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.34 2009-07-07 01:16:17 cvskris Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.35 2009-07-09 13:54:32 cvsnanne Exp $";
 
 #include "uicolortable.h"
 
@@ -76,6 +76,7 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool ve
 
     selfld_ = new uiComboBox( this, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
+    selfld_->setStretch( 0, 0 );
 
     if ( vert )
     {
