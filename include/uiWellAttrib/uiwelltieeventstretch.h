@@ -34,7 +34,6 @@ public:
 					      uiWellTieView&);
 			~uiWellTieEventStretch();
 
-    Notifier<uiWellTieEventStretch> 	readyforwork;
     Notifier<uiWellTieEventStretch> 	pickadded;
     
     void 				doWork(CallBacker*); 
@@ -48,7 +47,6 @@ protected:
 
     void 				addSyntPick(CallBacker*);
     void 				addSeisPick(CallBacker*);
-    void 				checkReadyForWork();
     void 				drawLogsData();
     void 				doStretchWork();
     void				shiftDahData(); 

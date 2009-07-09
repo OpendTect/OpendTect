@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.17 2009-06-21 13:49:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.18 2009-07-09 14:36:52 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -165,20 +165,22 @@ void WellTieToSeismic::createDispLogs()
 	Well::Log* log = new Well::Log();
 	wtdata_.logset_ += log;
 
-	if ( !strcmp (wtsetup_.vellognm_,*params_.colnms_[logidx]) )
+	if ( wtsetup_.vellognm_ == params_.colnms_.get(logidx) )
 	    log->setName( params_.vellognm_ );
-	else if ( !strcmp (wtsetup_.corrvellognm_,*params_.colnms_[logidx]) )
+	else if ( wtsetup_.corrvellognm_ == params_.colnms_.get(logidx) ) 
 	    log->setName( params_.corrvellognm_ );
-	else if ( !strcmp (wtsetup_.denlognm_,*params_.colnms_[logidx]) )
+	else if ( wtsetup_.denlognm_ == params_.colnms_.get(logidx) )
 	    log->setName( params_.denlognm_ );
 	else
-	    log->setName( *params_.colnms_[logidx] );
+	    log->setName( params_.colnms_.get(logidx) );
+
 	wd_.logs().add( log );
 
+	const char* colnm = params_.colnms_.get(logidx);
 	for ( int idx=0; idx<dispdata_.getLength(); idx++ )
 	{
 	    log->addValue( dispdata_.get(params_.dptnm_,idx), 
-		    	   dispdata_.get(*params_.colnms_[logidx],idx) );
+		    	   dispdata_.get(colnm,idx) );
 	}
     }
 }
@@ -211,24 +213,24 @@ void WellTieToSeismic::convolveWavelet()
 
     int wvltidx = wvlt->centerSample();
     geocalc_->convolveWavelet( wvltvals, *dispdata_.get(params_.refnm_),
-	    			*dispdata_.get(params_.synthnm_), wvltidx );
-    
+			       *dispdata_.get(params_.synthnm_), wvltidx );
     delete wvlt;
 }
 
 
 bool WellTieToSeismic::estimateWavelet()
 {
+    const int datasz = params_.corrsize_; 
     //copy initial wavelet
     Wavelet* wvlt = new Wavelet( *Wavelet::get(IOM().get(wtsetup_.wvltid_)) );
     const int wvltsz = wvlt->size();
+    if ( datasz < wvltsz )
+       return false;
+
     const bool iswvltodd = wvltsz%2;
     if ( iswvltodd ) wvlt->reSize( wvltsz+1 );
    
-    //set up data
-    int datasz = params_.corrsize_; 
     Array1DImpl<float> wvltarr( datasz ), wvltvals( wvltsz );
-    
     //performs deconvolution
     geocalc_->deconvolve( *corrdata_.get(params_.attrnm_), 
 	    		  *corrdata_.get(params_.refnm_), 

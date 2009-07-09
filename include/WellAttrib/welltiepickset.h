@@ -116,7 +116,8 @@ public:
     void           	addPick(float,float,float,float);
     void           	clearAllPicks();
     void 	   	clearLastPicks();
-    bool 	   	checkIfPick();
+    bool 	   	isPick();
+    bool 	   	isSameSize();
     float 	   	findEventDah(float,bool);
     void 	   	setData(const WellTieDataSet*);
     void 	   	setDataParams(const WellTieParams::DataParams*);

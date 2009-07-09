@@ -83,8 +83,6 @@ protected:
     uiWellTieInfoDlg* 		infodlg_; 
     uiWellTieView*		datadrawer_;
     
-    bool			manip_;
-
     void			addControl();
     void 			addToolBarTools();
     void			checkIfPick();
@@ -101,7 +99,6 @@ protected:
     //CallBackers
     bool			acceptOK(CallBacker*);
     void 			applyPushed(CallBacker*);
-    void 			applyReady(CallBacker*);
     void 			applyMarkerPushed(CallBacker*);
     void 			applyShiftPushed(CallBacker*);
     void			checkShotChg(CallBacker*);

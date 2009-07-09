@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.18 2009-07-08 13:57:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.19 2009-07-09 14:36:52 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -534,14 +534,9 @@ void WellTieGeoCalculator::crosscorr( const Array1DImpl<float>& seisvals,
 
 
 void WellTieGeoCalculator::zeroPadd( const Array1DImpl<float_complex>& inp, 
-				      Array1DImpl<float_complex>& outp )	
+				      Array1DImpl<float_complex>& outp )
 {
-    const int paddsz = outp.info().getSize(0); 
-    for ( int idx=0; idx<paddsz; idx++ )
-    {
-	if ( idx>=paddsz/3 && idx<2*paddsz/3 )
-	    outp.setValue( idx, inp.get(idx-paddsz/3) );
-	else
-	    outp.setValue( idx, 0 );
-    }
+    const int psz = outp.info().getSize(0); 
+    for ( int idx=0; idx<psz; idx++ )
+	outp.setValue( idx, idx>=psz/3 && idx<2*psz/3? inp.get(idx-psz/3):0 );
 }

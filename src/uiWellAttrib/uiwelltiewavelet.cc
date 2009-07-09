@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.20 2009-06-24 12:22:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.21 2009-07-09 14:36:52 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -144,7 +144,7 @@ void uiWellTieWaveletView::initWavelets( )
     
     delete wvltinitdlg_; wvltinitdlg_=0;
     wvltinitdlg_ = new uiWellTieWaveletDispDlg( this, wvlts_[0], dataholder_);
-    delete wvltestdlg_; wvltinitdlg_=0;
+    delete wvltestdlg_; wvltestdlg_=0;
     wvltestdlg_  = new uiWellTieWaveletDispDlg( this, wvlts_[1], dataholder_);
 }
 
@@ -292,14 +292,7 @@ void uiWellTieWaveletDispDlg::setValArrays()
     hil->setCalcRange( 0, wvltsz_, 0 );
     mDoTransform( hil, true, *proparrays_[0], carr, wvltsz_ );
     delete hil;
-
-    const int zpadsz = mPaddFac*wvltsz_;
-    Array1DImpl<float_complex> czeropaddedarr( zpadsz );
-    Array1DImpl<float_complex> cfreqarr( zpadsz );
-
-    geocalc_.zeroPadd( carr, czeropaddedarr );
-   
-    mDoTransform( fft_, true, czeropaddedarr, cfreqarr, zpadsz );
+    
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
 	float phase = 0;
@@ -308,16 +301,17 @@ void uiWellTieWaveletDispDlg::setValArrays()
 	proparrays_[1]->set( idx, phase );
     }
 
-    Array1DImpl<float_complex> scaledfreqvals( zpadsz );
-    for ( int idx=0; idx<zpadsz/2; idx++ )
-    {
-	scaledfreqvals.setValue( idx, cfreqarr.get(idx+zpadsz/2) );
-	scaledfreqvals.setValue( idx+zpadsz/2, cfreqarr.get(idx ) );
-    }
+    const int zpadsz = mPaddFac*wvltsz_;
+    Array1DImpl<float_complex> czeropaddedarr( zpadsz );
+    Array1DImpl<float_complex> cfreqarr( zpadsz );
+
+    geocalc_.zeroPadd( carr, czeropaddedarr );
+    mDoTransform( fft_, true, czeropaddedarr, cfreqarr, zpadsz );
     for ( int idx=0; idx<zpadsz; idx++ )
     {
-	float freq = abs(scaledfreqvals.get(idx));
-	proparrays_[2]->set( idx, freq );
+	const float imag = pow(cfreqarr.get(idx).imag(),2);
+	const float real = pow(cfreqarr.get(idx).real(),2);
+	proparrays_[2]->set( zpadsz-idx-1, imag+real ); 
     }
 }
 
@@ -336,5 +330,5 @@ void uiWellTieWaveletDispDlg::setDispCurves()
 
     wvltdisps_[2]->setVals( Interval<float>( 0, maxfreq ), 
 			    proparrays_[2]->arr(), 
-			    mPaddFac*wvltsz_ );
+			    mPaddFac*wvltsz_/2 );
 }

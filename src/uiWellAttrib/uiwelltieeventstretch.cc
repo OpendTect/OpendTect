@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.13 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.14 2009-07-09 14:36:52 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -27,7 +27,6 @@ uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p,
 			 		      uiWellTieView& v )
         : d2tmgr_(dh->d2TMGR())
   	, pmgr_(*dh->pickmgr())  
-	, readyforwork(this)
 	, pickadded(this)
 	, synthpickset_(*dh->pickmgr()->getSynthPickSet())
 	, seispickset_(*dh->pickmgr()->getSeisPickSet())
@@ -48,7 +47,6 @@ uiWellTieEventStretch::~uiWellTieEventStretch()
 void uiWellTieEventStretch::addSyntPick( CallBacker* )
 {
     dataviewer_.drawUserPicks();
-    checkReadyForWork();
     pickadded.trigger();
 }
 
@@ -56,15 +54,7 @@ void uiWellTieEventStretch::addSyntPick( CallBacker* )
 void uiWellTieEventStretch::addSeisPick( CallBacker* )
 {
     dataviewer_.drawUserPicks();
-    checkReadyForWork();
     pickadded.trigger();
-}
-
-
-void uiWellTieEventStretch::checkReadyForWork()
-{
-    if ( seispickset_.getSize() && synthpickset_.getSize() )
-	readyforwork.trigger();
 }
 
 
@@ -80,14 +70,17 @@ void uiWellTieEventStretch::doWork( CallBacker* )
 void uiWellTieEventStretch::doStretchWork()
 {
     Well::D2TModel d2t = *wd_->d2TModel();
-    Array1DImpl<float> d2tarr( d2t.size() );
-    Array1DImpl<float>* prvd2tarr = new Array1DImpl<float>( d2t.size() );
+    const int d2tsz = d2t.size();
+    Array1DImpl<float> d2tarr( d2tsz );
+    Array1DImpl<float>* prvd2tarr = new Array1DImpl<float>( d2tsz );
+
     float timeshift = time( seispickset_.getLastDah() ) 
-		     -time( synthpickset_.getLastDah() ) ;
-    for ( int idx=0; idx<d2t.size(); idx++ )
+		     -time( synthpickset_.getLastDah() );
+
+    for ( int idx=0; idx<d2tsz; idx++ )
     {
 	prvd2tarr->set( idx, d2t.value(idx) );
-	d2tarr.set( idx, d2t.value(idx)+timeshift );
+	d2tarr.set( idx, d2t.value(idx) + timeshift );
     }
 
     updatePicksPos( d2tarr, *prvd2tarr, synthpickset_, 0 );
@@ -121,10 +114,10 @@ void uiWellTieEventStretch::updatePicksPos( const Array1DImpl<float>& curtime,
 {
     for ( int pickidx=startidx; pickidx<pickset.getSize(); pickidx++ )
     {
-	float pos = time( pickset.getDah( pickidx ) );
-	const int newidx = geocalc_->getIdx( prevtime, pos );
-	pos = curtime.get( newidx ); 	
-	pickset.setDah( pickidx, dah(pos) );
+	float curpos = time( pickset.getDah( pickidx ) );
+	const int newidx = geocalc_->getIdx( prevtime, curpos );
+	curpos = curtime.get( newidx ); 	
+	pickset.setDah( pickidx, dah( curpos ) );
     }
 }
 

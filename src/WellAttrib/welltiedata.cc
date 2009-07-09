@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.9 2009-06-24 09:03:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.10 2009-07-09 14:36:52 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
@@ -183,15 +183,7 @@ const float WellTieDataSet::getExtremVal( const char* colnm, bool ismax ) const
 
 
 const int WellTieDataSet::getColIdx( const char* colname ) const
-{
-    if ( !colname ) return 0;
-    for ( int idx=0; idx<colnameset_.size(); idx++ )
-    {
-	if ( !strcmp(colname,*colnameset_[idx]) )
-	    return idx;
-    }
-    return 0;
-}
+{ return colnameset_.indexOf( colname  ); }
 
 
 void WellTieDataSet::setArrayBetweenIdxs( const Array1DImpl<float>& olddata,

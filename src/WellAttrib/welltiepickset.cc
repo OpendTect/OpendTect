@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.13 2009-07-03 15:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.14 2009-07-09 14:36:52 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -134,12 +134,15 @@ void WellTiePickSetMGR::clearLastPicks()
 }
 
 
-bool WellTiePickSetMGR::checkIfPick()
+bool WellTiePickSetMGR::isPick()
 {
-    if ( seispickset_.getSize() || synthpickset_.getSize())
-	return true;
-    else
-	return false;
+    return ( seispickset_.getSize() || synthpickset_.getSize() );
+}
+
+
+bool WellTiePickSetMGR::isSameSize()
+{
+    return ( seispickset_.getSize() == synthpickset_.getSize() );
 }
 
 

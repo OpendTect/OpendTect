@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.34 2009-07-08 13:57:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.35 2009-07-09 14:36:52 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -71,10 +71,8 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
     	, controlview_(0)
     	, infodlg_(0)
 	, params_(0)       		 
-	, manip_(0)				 
 {
     setTitle( ads );
-    uiTaskRunner* tr = new uiTaskRunner( p );
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
     addToolBarTools();
    
@@ -84,21 +82,19 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	logsdisp_ += new uiWellLogDisplay( this, wldsu );
     }
 
-    params_ 	    = new WellTieParams( setup_, wd_, ads );
-    dataholder_     = new WellTieDataHolder( params_, wd_, setup_ );
-    dataplayer_     = new WellTieToSeismic( dataholder_, ads, tr );
-    datadrawer_     = new uiWellTieView( this, &viewer(), 
-	    				 dataholder_, &logsdisp_ );
-    infodlg_ 	    = new uiWellTieInfoDlg( this, dataholder_ );
-    eventstretcher_ = new uiWellTieEventStretch( this, dataholder_,
-	    					 *datadrawer_ );
-
+    uiTaskRunner* tr = new uiTaskRunner( p );
+    params_ 	     = new WellTieParams( setup_, wd_, ads );
+    dataholder_      = new WellTieDataHolder( params_, wd_, setup_ );
+    infodlg_ 	     = new uiWellTieInfoDlg( this, dataholder_ );
+    dataplayer_      = new WellTieToSeismic( dataholder_, ads, tr );
+    datadrawer_      = new uiWellTieView( this, &viewer(), 
+	    				  dataholder_, &logsdisp_ );
+    eventstretcher_  = new uiWellTieEventStretch( this, dataholder_,
+	    					  *datadrawer_ );
     infodlg_->applyPushed.notify(
 	    		mCB(this,uiWellTieToSeismicDlg,doCrossCheckWork) );
     eventstretcher_->timeChanged.notify(
 	    		mCB(this,uiWellTieToSeismicDlg,timeChanged) );
-    eventstretcher_->readyforwork.notify(
-	    		mCB(this,uiWellTieToSeismicDlg,applyReady) );
     eventstretcher_->pickadded.notify(
 	    		mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
     initAll();
@@ -110,19 +106,21 @@ uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
     clearPicks(0);
     if ( eventstretcher_ )
     {
-	eventstretcher_->readyforwork.remove(
-			    mCB(this,uiWellTieToSeismicDlg,applyReady) );
 	eventstretcher_->timeChanged.remove(
 			    mCB(this,uiWellTieToSeismicDlg,timeChanged) );
 	eventstretcher_->pickadded.remove(
 			    mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
+	delete eventstretcher_;
     }
-
+    if ( infodlg_ )
+    {
+	infodlg_->applyPushed.remove(
+	    		mCB(this,uiWellTieToSeismicDlg,doCrossCheckWork) );
+	delete infodlg_;
+    }
     if ( datadrawer_ )     delete datadrawer_;
-    if ( eventstretcher_ ) delete eventstretcher_;
     if ( dataplayer_ )     delete dataplayer_;
     if ( dataholder_ ) 	   delete dataholder_;
-    if ( infodlg_ )  	   delete infodlg_;
 }
 
 
@@ -325,16 +323,6 @@ void uiWellTieToSeismicDlg::timeChanged( CallBacker* )
 }
 
 
-void uiWellTieToSeismicDlg::applyReady( CallBacker* )
-{
-    if ( manip_ )
-	manip_ = 0;
-    else
-	manip_ = 1;
-    applybut_->setSensitive( manip_ ? true : false );
-}
-
-
 void uiWellTieToSeismicDlg::infoPushed( CallBacker* )
 {
     infodlg_->go();
@@ -380,7 +368,6 @@ void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
     clearPicks(0);
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
-    manip_ = 0;
 }
 
 
@@ -402,14 +389,16 @@ void uiWellTieToSeismicDlg::clearLastPick( CallBacker* )
 
 void uiWellTieToSeismicDlg::checkIfPick()
 {
-    bool ispick = dataholder_->pickmgr()->checkIfPick();
+    const bool ispick = dataholder_->pickmgr()->isPick();
+    const bool issamesz = dataholder_->pickmgr()->isSameSize();
     clearpicksbut_->setSensitive( ispick );
     clearlastpicksbut_->setSensitive( ispick );
-    applybut_->setSensitive( ispick );
+    applybut_->setSensitive( ispick && issamesz );
 }
 
 
 bool uiWellTieToSeismicDlg::undoPushed( CallBacker* cb )
+
 {
     if ( !dataplayer_->undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
@@ -504,6 +493,7 @@ uiWellTieInfoDlg::uiWellTieInfoDlg( uiParent* p, WellTieDataHolder* dh )
 uiWellTieInfoDlg::~uiWellTieInfoDlg()
 {
     if ( crosscorr_ ) delete crosscorr_;
+    if ( wvltdraw_ ) delete wvltdraw_;
 }
 
 
