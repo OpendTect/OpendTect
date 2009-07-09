@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.15 2009-06-23 06:58:20 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.16 2009-07-09 15:45:48 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -63,13 +63,18 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     }
 
     // TODO: Get markers from all wells
-    ObjectSet<Well::Data>& wells = Well::MGR().wells();
-    markernames_.add( Well::TrackSampler::sKeyDataStart() );
-    for ( int idx=0; !wells.isEmpty() && idx<wells.size(); idx++ )
-	markernames_.add( wells[0]->markers()[idx]->name() );
-    markernames_.add( Well::TrackSampler::sKeyDataEnd() );
+    Well::Data* wd = Well::MGR().wells()[0];
+    if ( !wd ) return; 
 
+    markernames_.add( Well::TrackSampler::sKeyDataStart() );
+    if ( wd->haveMarkers() )
+    {
+	for ( int idx=0; idx<wd->markers().size(); idx++ )
+	    markernames_.add( wd->markers()[idx]->name() );
+    }
+    markernames_.add( Well::TrackSampler::sKeyDataEnd() );
     StringListInpSpec slis( markernames_ );
+
     topmrkfld_ = new uiGenInput( this, "Extract between",
 	    					slis.setName("Top Marker") );
 
@@ -197,15 +202,19 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
 {
     const bool zinft = SI().depthsInFeetByDefault();
     const float step = stepfld_->getfValue();
-    const int topmarker = markernames_.indexOf( topmrkfld_->text() );
-    const int bottommarker = markernames_.indexOf( botmrkfld_->text() );
+    int topmarker = markernames_.indexOf( topmrkfld_->text() );
+    int bottommarker = markernames_.indexOf( botmrkfld_->text() );
+
+    if ( bottommarker < topmarker )
+    { int tmp; mSWAP( bottommarker, topmarker, tmp ); }
+
     float start = 0;
     float stop = 0;
-    if ( topmarker == 0)
+    if ( topmarker == 0 )
 	start = wd.track().dah(0);
     else 
 	start = wd.markers()[ topmarker-1 ]->dah();
-
+    
     if ( markernames_.size()-1 != bottommarker )
     {
 	if ( wd.markers().size() <= bottommarker-2 )
@@ -219,13 +228,9 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
     }
     else
 	stop = wd.track().dah( wd.track().size()-1 );
-
+    
     if ( start > stop )
-    {
-	BufferString msg( "Please choose the Markers correctly" );
-	uiMSG().error(msg);
-	return false;
-    }
+    { float tmp; mSWAP( start, stop, tmp ); }
 
     const StepInterval<float> intv = StepInterval<float>( start, stop, step );
     const int nrsteps = intv.nrSteps();
