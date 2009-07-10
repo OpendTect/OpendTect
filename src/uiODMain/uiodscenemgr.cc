@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.177 2009-06-15 12:22:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.178 2009-07-10 09:29:42 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -315,8 +315,6 @@ const char* uiODSceneMgr::getSceneName( int sceneid ) const
 
 void uiODSceneMgr::storePositions()
 {
-    //TODO remember the scene's positions
-    // mDoAllScenes(sovwr_,storePosition,);
 }
 
 
@@ -788,19 +786,16 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     BufferString capt( "Tree scene " ); capt += vwridx;
 
     scn.dw_ = new uiDockWin( &appl_, capt );
-    scn.lv_ = new uiListView( scn.dw_->topGroup(), capt );
+    scn.dw_->setMinimumWidth( 150 );
+    scn.lv_ = new uiListView( scn.dw_, capt );
+    scn.dw_->setObject( scn.lv_ );
     BufferStringSet labels;
     labels.add( "Elements" );
     labels.add( "Color" );
     scn.lv_->addColumns( labels );
-
-    scn.lv_->setColumnWidth( cColorColumn(), 38 );
-    scn.lv_->setColumnWidth( cNameColumn(), 152 );
-    scn.lv_->setPrefWidth( 190 );
-    scn.dw_->setObject( scn.lv_ );
+    scn.lv_->setColumnWidth( cColorColumn(), 30 );
 
     scn.itemmanager_ = new uiODTreeTop( scn.sovwr_, scn.lv_, &applMgr(), tifs_);
-
     uiODSceneTreeItem* sceneitm =
 	new uiODSceneTreeItem( scn.wsgrp_->getTitle(), scn.sovwr_->sceneID() );
     scn.itemmanager_->addChild( sceneitm, false );
