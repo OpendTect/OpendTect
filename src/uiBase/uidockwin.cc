@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidockwin.cc,v 1.33 2009-03-16 09:26:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: uidockwin.cc,v 1.34 2009-07-10 09:29:06 cvsnanne Exp $";
 
 #include "uidockwin.h"
 #include "uigroup.h"
@@ -15,8 +15,6 @@ static const char* rcsID = "$Id: uidockwin.cc,v 1.33 2009-03-16 09:26:56 cvsrano
 #include "uiparentbody.h"
 
 #include <QDockWidget>
-
-
 
 
 class uiDockWinBody : public uiParentBody, public QDockWidget
@@ -38,24 +36,19 @@ public:
 protected:
 
     virtual void	finalise();
-
-
-
 };
 
 
 
-
-uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt, 
+uiDockWinBody::uiDockWinBody( uiDockWin& uidw, uiParent* parnt, 
 			      const char* nm )
-	: uiParentBody( nm )
-        , QDockWidget( nm )
-	, handle_( handle__ )
-	, initing( true )
-	, centralWidget_( 0 )
+    : uiParentBody( nm )
+    , QDockWidget( nm )
+    , handle_( uidw )
+    , initing( true )
+    , centralWidget_( 0 )
 
 {
-
     QDockWidget::setFeatures( QDockWidget::DockWidgetMovable | 
 	    		      QDockWidget::DockWidgetFloatable );
     setObjectName( nm );
@@ -77,7 +70,6 @@ void uiDockWinBody::construct()
 
 uiDockWinBody::~uiDockWinBody( )
 {
-
     delete centralWidget_; centralWidget_ = 0;
 }
 
@@ -93,9 +85,9 @@ void uiDockWinBody::finalise()
 
 // ----- uiDockWin -----
 uiDockWin::uiDockWin( uiParent* parnt, const char* nm )
-    : uiParent( nm, 0 )
-    , body_( 0 )
-    , parent_( parnt )
+    : uiParent(nm,0)
+    , body_(0)
+    , parent_(parnt)
 { 
     body_= new uiDockWinBody( *this, parnt, nm ); 
     setBody( body_ );
@@ -153,3 +145,6 @@ bool uiDockWin::isFloating() const
 
 QDockWidget* uiDockWin::qwidget()
 { return body_; }
+
+void uiDockWin::setMinimumWidth( int width )
+{ if ( body_ ) body_->setMinimumWidth( width ); }

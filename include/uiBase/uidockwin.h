@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.19 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uidockwin.h,v 1.20 2009-07-10 09:29:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,8 @@ public:
 
     void		setFloating(bool);
     bool		isFloating() const;
+
+    void		setMinimumWidth(int);
 
     QDockWidget*	qwidget();
 
