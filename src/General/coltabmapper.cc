@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.21 2009-06-10 19:12:34 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.22 2009-07-10 12:17:06 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -288,6 +288,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 {
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
+	if ( mIsUdf(vs_[idx]) ) continue;
 	if ( vs_[idx] < 0 ) below0_++;
 	else if ( vs_[idx] > 0 ) above0_++;
     }
