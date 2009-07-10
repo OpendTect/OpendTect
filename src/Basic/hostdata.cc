@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hostdata.cc,v 1.43 2009-05-26 14:31:20 cvskris Exp $";
+static const char* rcsID = "$Id: hostdata.cc,v 1.44 2009-07-10 14:42:37 cvskris Exp $";
 
 #include "hostdata.h"
 #include "strmdata.h"
@@ -416,8 +416,7 @@ void HostDataList::handleLocal()
 	}
     }
 
-    const int newsz = size();
-    for ( int idx=1; idx<newsz; idx++ )
+    for ( int idx=1; idx<size(); idx++ )
     {
 	HostData* hd = (*this)[idx];
 	hd->setLocalHost( *localhd );
@@ -428,6 +427,7 @@ void HostDataList::handleLocal()
 	    for ( int idy=0; idy<hd->aliases_.size(); idy++ )
 		lochd.addAlias( *hd->aliases_[idy] );
 	    *this -= hd;
+	    idx--;
 	}
     }
 }
