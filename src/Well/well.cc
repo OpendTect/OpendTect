@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.60 2009-06-22 12:50:24 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.61 2009-07-10 15:30:00 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -358,6 +358,24 @@ Color Well::Marker::color() const
 {
     const Strat::Level* lvl = level();
     return lvl ? lvl->color_ : color_;
+}
+
+
+const Well::Marker* Well::MarkerSet::getByName(const char* mname) const
+{
+    const int idx = indexOf( mname );
+    return  idx < 0 ? 0 : (Well::Marker*)vec_[idx]; 
+}
+
+
+int Well::MarkerSet::indexOf( const char* mname ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( !strcmp(mname,((Well::Marker*)vec_[idx])->name()) )
+	    return idx;
+    }
+    return -1;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.10 2009-06-22 12:50:24 cvsbert Exp $
+ RCS:		$Id: wellmarker.h,v 1.11 2009-07-10 15:30:00 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,9 @@ mClass MarkerSet : public ObjectSet<Marker>
 {
 public:
     			MarkerSet()		{}
+
+  const Well::Marker*   getByName(const char*) const;
+  int			indexOf(const char*) const;		  
 };
 
 
