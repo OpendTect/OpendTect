@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.4 2009-05-27 02:07:19 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.5 2009-07-10 19:06:13 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -208,8 +208,13 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 
 void uiODApplMgrAttrVisHandler::colSeqChg()
 {
-    const int visid = am_.visserv_->getSelObjectId();
-    int attrib = am_.visserv_->getSelAttribNr();
+    mDynamicCastGet( const visBase::DataObject*, dataobj,
+	    	     am_.appl_.colTabEd().getSurvObj() );
+    const int visid = dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
+    int attrib = dataobj
+	? am_.appl_.colTabEd().getChannel()
+	: am_.visserv_->getSelAttribNr();
+
     if ( attrib == -1 ) attrib = 0;
     setHistogram( visid, attrib );
 

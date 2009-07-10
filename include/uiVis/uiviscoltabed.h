@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.24 2009-05-29 08:48:44 cvsnanne Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.25 2009-07-10 19:06:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,9 @@ public:
 	    				  int version);
     const ColTab::Sequence&	getColTabSequence() const;
     const ColTab::MapperSetup&	getColTabMapperSetup() const;
+
+    int				getChannel() const { return channel_; }
+    const visSurvey::SurveyObject* getSurvObj() const { return survobj_; }
 
     NotifierAccess&		seqChange();
     NotifierAccess&		mapperChange();
