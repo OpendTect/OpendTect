@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.39 2009-07-08 13:57:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.40 2009-07-10 11:14:13 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -38,6 +38,11 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
 }
 
 
+static int sLoadIdx	= 0;
+static int sWellTieIdx	= 1;
+static int sNewWellIdx	= 2;
+static int sAttribIdx	= 3;
+
 bool uiODWellParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
@@ -49,12 +54,12 @@ bool uiODWellParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."), 1 );
-    mnu.insertItem( new uiMenuItem("&New WellTrack ..."), 2 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), sLoadIdx );
+    mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."), sWellTieIdx );
+    mnu.insertItem( new uiMenuItem("&New WellTrack ..."), sNewWellIdx );
     if ( children_.size() > 1 )
     {
-	mnu.insertItem( new uiMenuItem( "Create Attribute Log ..." ), 2 );
+	mnu.insertItem( new uiMenuItem("Create Attribute Log ..."), sAttribIdx);
 
 	mnu.insertSeparator( 40 );
 	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "&Show all" );
@@ -83,7 +88,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    if ( mnuid == 0 )
+    if ( mnuid == sLoadIdx )
     {
 	ObjectSet<MultiID> emwellids;
 	applMgr()->selectWells( emwellids );
@@ -96,14 +101,13 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	deepErase( emwellids );
     }
 
-    else if ( mnuid == 1 )
+    else if ( mnuid == sWellTieIdx )
     {
 	 MultiID wid;
 	 ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wid );
     }
 
-
-    else if ( mnuid == 2 )
+    else if ( mnuid == sNewWellIdx )
     {
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
 	wd->setupPicking(true);
@@ -117,7 +121,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
 
-    else if ( mnuid == 3 )
+    else if ( mnuid == sAttribIdx )
     {
 	ObjectSet<MultiID> wellids;
 	BufferStringSet list;
@@ -139,51 +143,6 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<wellids.size(); idx++ )
 	    ODMainWin()->applMgr().wellAttribServer()->createAttribLog(
 		*wellids[idx], dlg.selectedLogIdx() );
-    }
-    else if ( mnuid == 3 )
-    {
-	Interval<float> rightrange;  
-	Interval<float> leftrange;  
-	ObjectSet<MultiID> wellids;
-	ObjectSet<Well::LogDisplayParSet> welllogparsets;
-	ObjectSet<visSurvey::WellDisplay> welldisplayset;
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx]);
-	    if ( !itm )
-		continue;
-	    mDynamicCastGet(visSurvey::WellDisplay*,wd,
-			    visserv->getObject(itm->displayID()));
-	    welldisplayset += wd;
-	    wellids += new MultiID( wd->getMultiID() );
-	    welllogparsets += wd->getLogParSet();
-	}
-
-	uiLogSelectDlg dlg( getUiParent(), wellids, welllogparsets );
-	dlg.go(); 
-
-	TypeSet<int> selectedwells;
-	selectedwells = dlg.getSelectedWells();
-
-	for ( int idx=0; idx<selectedwells.size(); idx++ )
-	{
-	    welldisplayset[ selectedwells[idx] ]->setOneLogDisplayed(false);
-	    welldisplayset[ selectedwells[idx] ]->displayRightLog();
-	    welldisplayset[ selectedwells[idx] ]->displayLeftLog();
-	}
-	deepErase( wellids );
-	
-    }
-    else if ( mnuid == 4 )
-    {
-	//const MultiID& mid = *Well::MGR().keys()[0]; //TODO get the actual current one
-	//ODMainWin()->applMgr().wellServer()->editDisplayProperties( mid );
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx])
-	    if ( itm )
-		itm->updateColumnText(uiODSceneMgr::cColorColumn());
-	}
     }
     else if ( ( mnuid>40 && mnuid<46 ) || ( mnuid>50 && mnuid<56 ) )
     {
