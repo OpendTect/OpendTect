@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.19 2009-07-10 15:32:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.20 2009-07-10 16:09:34 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -237,9 +237,14 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
 	start = wd.track().dah(0);
     else  
 	start = topmarker->dah();
-  
+ 
     if ( !botmarker )
-	stop = wd.track().dah( wd.track().size()-1 );
+    {
+	if ( botmrkfld_->getIntValue() == 0 )
+	    stop = wd.track().dah(0);
+	else
+	    stop = wd.track().dah( wd.track().size()-1 );
+    }
     else
 	stop = botmarker->dah();
 
