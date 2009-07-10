@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.18 2009-07-10 11:05:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.19 2009-07-10 15:32:58 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -92,16 +92,16 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 	welllistfld_->addItems( wellnames );
     }
 
-
-    markernames_.add( Well::TrackSampler::sKeyDataStart() );
+    BufferStringSet markernames;
+    markernames.add( Well::TrackSampler::sKeyDataStart() );
     if ( wd->haveMarkers() )
     {
 	for ( int idx=0; idx<wd->markers().size(); idx++ )
-	    markernames_.add( wd->markers()[idx]->name() );
+	    markernames.add( wd->markers()[idx]->name() );
     }
-    markernames_.add( Well::TrackSampler::sKeyDataEnd() );
+    markernames.add( Well::TrackSampler::sKeyDataEnd() );
 
-    StringListInpSpec slis( markernames_ );
+    StringListInpSpec slis( markernames );
     topmrkfld_ = new uiGenInput( this, "Extract between",
 	    					slis.setName("Top Marker") );
 
@@ -113,7 +113,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     topmrkfld_->setElemSzPol( uiObject::Medium );
     botmrkfld_ = new uiGenInput( this, "", slis.setName("Bottom Marker") );
     botmrkfld_->attach( rightOf, topmrkfld_ );
-    botmrkfld_->setValue( markernames_.size()-1 );
+    botmrkfld_->setValue( markernames.size()-1 );
     botmrkfld_->setElemSzPol( uiObject::Medium );
 
     const bool zinft = SI().depthsInFeetByDefault();
@@ -226,32 +226,23 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
 {
     const bool zinft = SI().depthsInFeetByDefault();
     const float step = stepfld_->getfValue();
-    int topmarker = markernames_.indexOf( topmrkfld_->text() );
-    int bottommarker = markernames_.indexOf( botmrkfld_->text() );
-    if ( bottommarker < topmarker )
-    { int tmp; mSWAP( bottommarker, topmarker, tmp ); }
 
     float start = 0;
     float stop = 0;
-    if ( topmarker == 0 )
+    
+    const Well::Marker* topmarker = wd.markers().getByName(topmrkfld_->text()); 
+    const Well::Marker* botmarker = wd.markers().getByName(botmrkfld_->text()); 
+
+    if ( !topmarker )
 	start = wd.track().dah(0);
-    else 
-	start = wd.markers()[ topmarker-1 ]->dah();
-    
-    if ( markernames_.size()-1 != bottommarker )
-    {
-	if ( wd.markers().size() <= bottommarker-2 )
-	{
-	    BufferString msg( "Cannot create log for Well: " );
-	    msg += wd.name() ;
-	    uiMSG().error(msg);
-	    return false;
-	}
-	stop = wd.markers()[ bottommarker-1 ]->dah();
-    }
-    else
+    else  
+	start = topmarker->dah();
+  
+    if ( !botmarker )
 	stop = wd.track().dah( wd.track().size()-1 );
-    
+    else
+	stop = botmarker->dah();
+
     if ( start > stop )
     { float tmp; mSWAP( start, stop, tmp ); }
 

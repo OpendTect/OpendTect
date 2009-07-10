@@ -6,7 +6,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.h,v 1.4 2009-01-08 09:18:28 cvsranojay Exp $
+ RCS:           $Id: uicreateattriblogdlg.h,v 1.5 2009-07-10 15:32:58 cvsbruno Exp $
  _______________________________________________________________________
 
       -*/
@@ -43,7 +43,6 @@ protected:
     uiGenInput*			botmrkfld_;
     uiGenInput*			stepfld_;
     uiGenInput*			lognmfld_;
-    BufferStringSet		markernames_;
     const BufferStringSet&	wellnames_;
     int 			sellogidx_;
     bool 			singlewell_;
