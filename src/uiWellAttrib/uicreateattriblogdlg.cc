@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.16 2009-07-09 15:45:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.17 2009-07-10 07:20:02 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -179,6 +179,9 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
 
     if( stepfld_->getfValue()<0 || stepfld_->getfValue(0)>100 )
 	mErrRet( "Please Enter a valid step value" );
+    
+    if ( topmrkfld_->getIntValue() == botmrkfld_->getIntValue() )
+	mErrRet( "Please select the extraction range correctly" );
     
     BufferString lognm = lognmfld_->text();
     if ( lognm.isEmpty() )
