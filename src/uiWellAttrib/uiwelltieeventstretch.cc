@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.14 2009-07-09 14:36:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.15 2009-07-10 16:11:17 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -60,8 +60,8 @@ void uiWellTieEventStretch::addSeisPick( CallBacker* )
 
 void uiWellTieEventStretch::doWork( CallBacker* )
 {
-    pmgr_.sortByDah( seispickset_ ); 	
-    pmgr_.sortByDah( synthpickset_ );
+    pmgr_.sortByPos( seispickset_ ); 	
+    pmgr_.sortByPos( synthpickset_ );
     doStretchWork();	
     timeChanged.trigger();
 }
@@ -74,8 +74,7 @@ void uiWellTieEventStretch::doStretchWork()
     Array1DImpl<float> d2tarr( d2tsz );
     Array1DImpl<float>* prvd2tarr = new Array1DImpl<float>( d2tsz );
 
-    float timeshift = time( seispickset_.getLastDah() ) 
-		     -time( synthpickset_.getLastDah() );
+    float timeshift =  seispickset_.getLastPos() - synthpickset_.getLastPos();
 
     for ( int idx=0; idx<d2tsz; idx++ )
     {
@@ -85,15 +84,15 @@ void uiWellTieEventStretch::doStretchWork()
 
     updatePicksPos( d2tarr, *prvd2tarr, synthpickset_, 0 );
     infborderpos_ = 0;
-    supborderpos_ = time( seispickset_.getLastDah() );
+    supborderpos_ = seispickset_.getLastPos();
 
     for ( int idx=0; idx<seispickset_.getSize()-1; idx++ )
     {
 	if ( idx && idx<seispickset_.getSize()-1 )
-	    infborderpos_ = time( seispickset_.getDah(idx-1) );
+	    infborderpos_ = seispickset_.getPos(idx-1);
 
-	startpos_ = time( synthpickset_.getDah(idx) );
-	stoppos_  = time( seispickset_.getDah(idx) );
+	startpos_ = synthpickset_.getPos(idx);
+	stoppos_  = seispickset_.getPos(idx);
 
 	delete prvd2tarr; prvd2tarr = 0;
 	prvd2tarr = new Array1DImpl<float>( d2tarr );
@@ -114,10 +113,10 @@ void uiWellTieEventStretch::updatePicksPos( const Array1DImpl<float>& curtime,
 {
     for ( int pickidx=startidx; pickidx<pickset.getSize(); pickidx++ )
     {
-	float curpos = time( pickset.getDah( pickidx ) );
+	float curpos = pickset.getPos( pickidx );
 	const int newidx = geocalc_->getIdx( prevtime, curpos );
 	curpos = curtime.get( newidx ); 	
-	pickset.setDah( pickidx, dah( curpos ) );
+	pickset.setPos( pickidx, curpos );
     }
 }
 

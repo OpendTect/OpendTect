@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.15 2009-07-08 13:57:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.16 2009-07-10 16:11:17 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.15 2009-07-08 13:57
 
 #include "uibutton.h"
 #include "uiflatviewer.h"
+#include "uimainwin.h"
 #include "uimsg.h"
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
@@ -41,7 +42,12 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
     , toolbar_(toolbar)
     , manip_(true)
 {
-    tb_->display(false);
+    mDynamicCastGet(uiMainWin*,mw,p)
+    if ( mw )
+	mw->removeToolBar( tb_ );
+    else
+	tb_->display(false);
+
     toolbar_->addSeparator();
     toolbar_->addObject( vwr_.rgbCanvas().getSaveImageButton() );
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.35 2009-07-09 14:36:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.36 2009-07-10 16:11:17 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -73,9 +73,7 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	, params_(0)       		 
 {
     setTitle( ads );
-    toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
-    addToolBarTools();
-   
+    
     for ( int idx=0; idx<2; idx++ )
     { 
 	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3).border(5);
@@ -188,6 +186,7 @@ void uiWellTieToSeismicDlg::drawData()
     toolbar_->addButton( pm, mCB(this,uiWellTieToSeismicDlg,func), tip )
 void uiWellTieToSeismicDlg::addToolBarTools()
 {
+    toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
     mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
     mAddButton( "saveflow.png",saveD2TPushed, "Save Model" );
 }    
@@ -195,6 +194,7 @@ void uiWellTieToSeismicDlg::addToolBarTools()
 
 void uiWellTieToSeismicDlg::addControl()
 {
+    addToolBarTools();
     controlview_ = new uiWellTieControlView( this, toolbar_, &viewer() );
     controlview_->setPickSetMGR( dataholder_->pickmgr() );
 }
@@ -225,7 +225,7 @@ void uiWellTieToSeismicDlg::drawFields()
 
     uiPushButton* okbut = new uiPushButton( this, "&Ok/Save",
 	      		mCB(this,uiWellTieToSeismicDlg,acceptOK), true );
-    okbut->attach( leftBorder );
+    okbut->attach( leftBorder, 40 );
     okbut->attach( ensureBelow, horSepar );
     uiPushButton* cancelbut = new uiPushButton( this, "&Cancel",
 	      		mCB(this,uiWellTieToSeismicDlg,rejectOK), true );
@@ -507,25 +507,30 @@ void uiWellTieInfoDlg::applyMarkerPushed( CallBacker* )
 bool uiWellTieInfoDlg::setUserDepths()
 {
     const bool zinft = SI().depthsInFeetByDefault();
-    const int topmarker = markernames_.indexOf( topmrkfld_->text() );
-    const int bottommarker = markernames_.indexOf( botmrkfld_->text() );
-    float startdah = 0;
-    float stopdah = 0;
-    if ( topmarker == 0 )
-	startdah = wd_->d2TModel()->getDepth( 0 );
-    else
-	startdah = wd_->markers()[ topmarker-1 ]->dah();
+    float start = 0;
+    float stop = 0;
 
-    if ( markernames_.size()-1 != bottommarker )
-	stopdah = wd_->markers()[ bottommarker-1 ]->dah();
-    else
-	stopdah = wd_->track().dah( wd_->track().size()-1 );
+    if ( topmrkfld_->getIntValue() == botmrkfld_->getIntValue() )
+	return false;
 
-    if ( startdah >= stopdah )
-	mErrRet("Please choose the Markers correctly");
+    const Well::Marker* topmarkr = wd_->markers().getByName(topmrkfld_->text());
+    const Well::Marker* botmarkr = wd_->markers().getByName(botmrkfld_->text());
+
+    if ( !topmarkr )
+	start = wd_->track().dah(0);
+    else
+	start = topmarkr->dah();
+
+    if ( !botmarkr )
+	stop = wd_->track().dah( wd_->track().size()-1 );
+    else
+	stop = botmarkr->dah();
+
+    if ( start > stop )
+    { float tmp; mSWAP( start, stop, tmp ); }
     
-    params_->corrstartdah_ = startdah;
-    params_->corrstopdah_  = stopdah;
+    params_->corrstartdah_ = start;
+    params_->corrstopdah_  = stop;
 
     return true;
 }

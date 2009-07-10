@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.18 2009-07-09 14:36:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.19 2009-07-10 16:11:17 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.18 2009-07-09 14:36:52 
 #include "linear.h"
 #include "mousecursor.h"
 #include "posvecdataset.h"
+#include "survinfo.h"
 #include "task.h"
 #include "unitofmeasure.h"
 #include "wavelet.h"
@@ -178,10 +179,8 @@ void WellTieToSeismic::createDispLogs()
 
 	const char* colnm = params_.colnms_.get(logidx);
 	for ( int idx=0; idx<dispdata_.getLength(); idx++ )
-	{
 	    log->addValue( dispdata_.get(params_.dptnm_,idx), 
 		    	   dispdata_.get(colnm,idx) );
-	}
     }
 }
 
@@ -241,11 +240,11 @@ bool WellTieToSeismic::estimateWavelet()
 	wvlt->samples()[idx] = wvltarr.get( datasz/2 + idx - wvltsz/2 );
     
     memcpy( wvltvals.getData(),wvlt->samples(), wvltsz*sizeof(float) );
-    ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", 0.15 );
+    ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", 0.05 );
     window.apply( &wvltvals );
     memcpy( wvlt->samples(), wvltvals.getData(), wvltsz*sizeof(float) );
 
-    geocalc_->reverseWavelet( *wvlt );
+    //geocalc_->reverseWavelet( *wvlt );
     wtdata_.wvltest_ = *wvlt;
     return true;
 }

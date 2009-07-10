@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.34 2009-07-08 13:57:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.35 2009-07-10 16:11:17 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -371,15 +371,12 @@ void uiWellTieView::drawUserPicks()
 
 void uiWellTieView::drawUserPicks( const WellTiePickSet* pickset )
 {
-    const Well::D2TModel* d2tm = wd_.d2TModel();
-    if ( !d2tm ) return; 
-
     for ( int idx=0; idx<pickset->getSize(); idx++ )
     {
 	const UserPick* pick = pickset->get(idx);
 	if ( !pick  ) continue;
 
-	float zpos = d2tm->getTime( pick->dah_ )*1000; 
+	float zpos = pick->zpos_*1000; 
 	float xpos = pick->xpos_;
 	
 	drawMarker( userpickauxdatas_[idx], 0, xpos, zpos, 

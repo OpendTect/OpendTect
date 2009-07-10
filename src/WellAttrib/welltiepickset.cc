@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.14 2009-07-09 14:36:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.15 2009-07-10 16:11:17 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -66,38 +66,35 @@ void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop,
 	{
 	    if ( abs(synthsz+1-seissz) > 1 || lastpicksynth_ == true )
 		synthpickset_.clear( synthpickset_.getSize()-1 );
-	    synthpickset_.add( 0, xpos, findEventDah(zpos,true) );
+	    synthpickset_.add( 0, xpos, findEvent(zpos,true) );
 	    lastpicksynth_ = true;
 	}
 	else
 	{
 	    if ( abs(seissz+1-synthsz) > 1 || lastpicksynth_ == false )
 		seispickset_.clear( seispickset_.getSize()-1 );
-	    seispickset_.add( 0, xpos, findEventDah(zpos,false) );
+	    seispickset_.add( 0, xpos, findEvent(zpos,false) );
 	    lastpicksynth_ = false;
 	}
     }
 }
 
 
-#define mSampleGate 10
-float WellTiePickSetMGR::findEventDah( float zpos, bool issynth )
+#define mTimeGate 0.04
+float WellTiePickSetMGR::findEvent( float zpos, bool issynth )
 {
     zpos *= 0.001;
-    if ( evtype_ == VSEvent::None ) 
-	return wd_->d2TModel()->getDepth( zpos );
-    const int posidx = dispdata_->getIdx( zpos );  
+    if ( evtype_ == VSEvent::None ) return zpos;
     const char* colnm = issynth ? datapms_->synthnm_ : datapms_->attrnm_; 
     const int maxidx = dispdata_->getLength()-1;
-    Interval<float> intv ( posidx, posidx+mSampleGate );
-    SamplingData<int> sd;
+    Interval<float> intv ( zpos, mTimeGate );
+    SamplingData<float> sd;
     ValueSeriesEvFinder<float,float> evf( *dispdata_->get(colnm), 
 	    				  maxidx, sd );
-    const int evpos = mNINT( evf.find( evtype_, intv ).pos );
-    if ( evpos>maxidx || evpos<0 )
-	return wd_->d2TModel()->getDepth( zpos );
+    const float evpos = mNINT( evf.find( evtype_, intv ).pos );
+    if ( evpos>maxidx || evpos<0 ) return zpos;
 
-    return dispdata_->get( datapms_->dptnm_, evpos );
+    return evpos;
 }
 
 
@@ -146,12 +143,12 @@ bool WellTiePickSetMGR::isSameSize()
 }
 
 
-void WellTiePickSetMGR::sortByDah( WellTiePickSet& pickset )
+void WellTiePickSetMGR::sortByPos( WellTiePickSet& pickset )
 {
     const int sz = pickset.getSize();
     TypeSet<float> zvals;
     for ( int idx=0; idx<sz; idx++ )
-	zvals += pickset.getDah(idx);
+	zvals += pickset.getPos(idx);
 
     mAllocVarLenArr( int, zidxs, sz );
     for ( int idx=0; idx<sz; idx++ )
@@ -160,7 +157,7 @@ void WellTiePickSetMGR::sortByDah( WellTiePickSet& pickset )
     sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
 
     for ( int idx=0; idx<sz; idx++ )
-	pickset.setDah( idx, zvals[idx]  );
+	pickset.setPos( idx, zvals[idx]  );
 }
 
 
@@ -185,7 +182,7 @@ void WellTiePickSet::add( int vwridx, float xpos, float zpos )
 {
     UserPick* pick = new UserPick();
     pick->vidx_ = vwridx; pick->color_ = Color::DgbColor();
-    pick->xpos_ = xpos;   pick->dah_ = zpos;
+    pick->xpos_ = xpos;   pick->zpos_ = zpos;
     pickset_ += pick;
     nrpickstotal_++;
     pickadded.trigger();
@@ -205,33 +202,4 @@ void WellTiePickSet::clearAll()
 	delete ( pickset_.remove(idx) );
 }
 
-
-void WellTiePickSet::updateSupPickedPos( float& lastpos, float curpos,
-       						int vwridx )
-{
-    for ( int idx=0; idx<pickset_.size(); idx++ )
-    { 
-	float pos = getDah( idx );
-	if ( pos > curpos ) 
-	{	
-	    if ( ( pos - curpos ) < ( lastpos - curpos ) )
-		lastpos = pos;
-	}
-    }
-}
-
-
-void WellTiePickSet::updateInfPickedPos( float& firstpos, float curpos,
-						int vwridx )
-{
-    for ( int idx=0; idx<pickset_.size(); idx++ )
-    { 
-	float pos = getDah( idx );
-	if ( pos < curpos )
-	{
-	    if ( (pos - curpos) > ( firstpos - curpos) )
-		firstpos = pos;
-	}
-    }
-}
 

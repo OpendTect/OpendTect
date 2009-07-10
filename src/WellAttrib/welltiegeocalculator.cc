@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.19 2009-07-09 14:36:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.20 2009-07-10 16:11:17 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -264,8 +264,7 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals,
 					  float cutfreq )
 {
     int filtersz = vals.info().getSize(0);
-    if ( !filtersz )
-       	return;
+    if ( !filtersz ) return;
 
     float df = 1/( filtersz * SI().zStep() );
     TypeSet<float> freq, fwin, backwin; 
@@ -281,12 +280,12 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals,
 	if ( freq[idx] <= cutfreq )
 	{
 	    fwin[idx] += 1;
-	    fwin[filtersz-idx] += 1;
+	    fwin[filtersz-idx-1] += 1;
 	}
 	else if ( freq[idx] > cutfreq )
 	{
 	    fwin[idx] += 0;
-	    fwin[filtersz-idx] += 0;
+	    fwin[filtersz-idx-1] += 0;
 	}
     }
 
@@ -414,7 +413,7 @@ void WellTieGeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
 }
 
 
-#define mNoise 0.005
+#define mNoise 0.05
 void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
 				       const Array1DImpl<float>& filtervals,
 				       Array1DImpl<float>& deconvals, 
@@ -424,7 +423,7 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
     const int filtersz = filtervals.info().getSize(0);
     if ( !sz || !filtersz || filtersz<wvltsz ) 
 	return;
-    int border = wvltsz/2;
+    int border = 0; //  wvltsz/2;
 
     Array1DImpl<float> timeinputvals( sz ), timefiltervals(filtersz );
 
@@ -438,11 +437,11 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
     memcpy(timefiltervals.getData(), filtervals.arr(), filtersz*sizeof(float)); 
 
     ArrayNDWindow window( Array1DInfoImpl(filtersz),
-			 false, "CosTaper", 0.95 );
+			 false, "CosTaper", .05 );
     window.apply( &timefiltervals );
     window.apply( &timeinputvals );
-    //removeBias( &timefiltervals );
-    //removeBias( &timeinputvals );
+    removeBias( &timefiltervals );
+    removeBias( &timeinputvals );
 
     HilbertTransform hil;
     hil.setCalcRange(0, filtersz, 0);
@@ -450,7 +449,7 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
     hil.setCalcRange(0, filtersz, 0);
     mDoTransform( hil, true, timefiltervals, ctimefiltervals, filtersz );
     
-    FFT fft(false);
+    FFT fft( false );
     mDoTransform( fft, true, ctimeinputvals, cfreqinputvals, filtersz );
     mDoTransform( fft, true, ctimefiltervals, cfreqfiltervals, filtersz );
 
@@ -462,7 +461,8 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
 
     for ( int idx=0; idx<filtersz; idx++ )
 	wholespec += cspecfiltervals.get(idx);  
-    float_complex cnoiseshift = noise*wholespec;
+
+    float_complex cnoiseshift =noise*wholespec;
     
     for ( int idx=border; idx<filtersz-border; idx++ )
     {
@@ -473,25 +473,26 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
 	double ifilterval = filterval.imag();
 	float_complex conjfilterval = float_complex( rfilterval ,-ifilterval ); 
 
-	float_complex numer = inputval * conjfilterval;
-	float_complex denom = filterval* conjfilterval;// + cnoiseshift;
-	float_complex res = numer / denom;
+	float_complex num = inputval * conjfilterval;
+	float_complex denom = filterval * conjfilterval + cnoiseshift;
+	float_complex res = num / denom;
 
 	cfreqdeconvvals.setValue( idx, res );
     }
+/*
     for ( int idx=0; idx<border; idx++ )
     {
 	cfreqdeconvvals.setValue( idx, 0 );
 	cfreqdeconvvals.setValue( idx+filtersz-border, 0 );
-    }
-    
+    }*/
+
     float avg = 0;
     for ( int idx=0; idx<filtersz; idx++ )
 	avg += abs( cfreqdeconvvals.get(idx) )/filtersz;
 
     for ( int idx=0; idx<filtersz; idx++ )
     {
-	if ( abs (cfreqdeconvvals.get(idx) ) < avg/4 )
+	if ( abs(cfreqdeconvvals.get(idx) ) > 5*avg )
 	    cfreqdeconvvals.set( idx, 0 );
     }
    
