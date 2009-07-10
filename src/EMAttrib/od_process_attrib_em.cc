@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.59 2009-05-18 07:48:12 cvsnageswara Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.60 2009-07-10 16:14:03 cvskris Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -345,6 +345,15 @@ bool BatchProgram::go( std::ostream& strm )
     {
 	geompar->get( sKey::LineKey, linename );
 	hsamp = getHorSamp( geompar );
+    }
+
+    PtrMan<IOPar> mmprocrange =
+	pars().subselect( IOPar::compKey(sKey::Output,sKey::Subsel) );
+    if ( iscubeoutp && mmprocrange )
+    {
+	HorSampling mmrange;
+	if ( mmrange.usePar( *mmprocrange ) )
+	    hsamp.limitTo( mmrange );
     }
 
     ObjectSet<EMObject> objects;
