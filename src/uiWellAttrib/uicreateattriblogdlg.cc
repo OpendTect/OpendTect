@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.17 2009-07-10 07:20:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.18 2009-07-10 11:05:45 cvsnanne Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -30,9 +30,22 @@ static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.17 2009-07-10 07:20
 
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+
+
+static int getWellIndex( const char* wellnm )
+{
+    for ( int idx=0; idx<Well::MGR().wells().size(); idx++ )
+    {
+	if ( !strcmp(Well::MGR().wells()[idx]->name(),wellnm) )
+	    return idx;
+    }
+
+    return -1;
+}
 
 
 uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
@@ -48,7 +61,24 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     , singlewell_(singlewell)
     , attrib_(attrib)
     , sellogidx_(-1)
+    , attribfld_(0)
 {
+    int nrmarkers = -1; int wellidx = -1;
+    for ( int idx=0; idx<wellnames_.size(); idx++ )
+    {
+	int wdidx = getWellIndex( wellnames_.get(idx) );
+	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
+	if ( wdtmp->markers().size() > nrmarkers )
+	{ nrmarkers = wdtmp->markers().size(); wellidx = wdidx; }
+    }
+
+    Well::Data* wd = wellidx<0 ? 0 : Well::MGR().wells()[wellidx];
+    if ( !wd )
+    {
+	uiLabel* lbl = new uiLabel( this, "First well not valid" );
+	return;
+    }
+
     attribfld_ = attrib ? new uiAttrSel( this, *attrib_ )
 			: new uiAttrSel( this, 0, uiAttrSelData(false) );
     attribfld_->setNLAModel( nlamodel_ );
@@ -62,9 +92,6 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 	welllistfld_->addItems( wellnames );
     }
 
-    // TODO: Get markers from all wells
-    Well::Data* wd = Well::MGR().wells()[0];
-    if ( !wd ) return; 
 
     markernames_.add( Well::TrackSampler::sKeyDataStart() );
     if ( wd->haveMarkers() )
@@ -73,8 +100,8 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 	    markernames_.add( wd->markers()[idx]->name() );
     }
     markernames_.add( Well::TrackSampler::sKeyDataEnd() );
-    StringListInpSpec slis( markernames_ );
 
+    StringListInpSpec slis( markernames_ );
     topmrkfld_ = new uiGenInput( this, "Extract between",
 	    					slis.setName("Top Marker") );
 
@@ -112,22 +139,12 @@ void uiCreateAttribLogDlg::selDone( CallBacker* )
 }
 
 
-static int getWellIndex( const char* wellnm )
-{
-    for ( int idx=0; idx<Well::MGR().wells().size(); idx++ )
-    {
-	if ( !strcmp(Well::MGR().wells()[idx]->name(),wellnm) )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
 bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 {
+    if ( !attribfld_ ) return true;
+
     BufferStringSet selwells;
     if ( !singlewell_ )
     {
@@ -136,7 +153,14 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	welllistfld_->getSelectedItems( selwells );
     }
     else
-	selwells.add( *wellnames_[0] );
+	selwells.add( wellnames_.get(0) );
+
+    if ( !strcmp(topmrkfld_->text(),botmrkfld_->text()) )
+    {
+	uiMSG().error( "Please select different markers" );
+	return false;
+    }
+
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
 	const int wellidx = getWellIndex( selwells.get(idx) );
@@ -180,9 +204,6 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     if( stepfld_->getfValue()<0 || stepfld_->getfValue(0)>100 )
 	mErrRet( "Please Enter a valid step value" );
     
-    if ( topmrkfld_->getIntValue() == botmrkfld_->getIntValue() )
-	mErrRet( "Please select the extraction range correctly" );
-    
     BufferString lognm = lognmfld_->text();
     if ( lognm.isEmpty() )
 	mErrRet( "Please provide logname" );
@@ -207,7 +228,6 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
     const float step = stepfld_->getfValue();
     int topmarker = markernames_.indexOf( topmrkfld_->text() );
     int bottommarker = markernames_.indexOf( botmrkfld_->text() );
-
     if ( bottommarker < topmarker )
     { int tmp; mSWAP( bottommarker, topmarker, tmp ); }
 
