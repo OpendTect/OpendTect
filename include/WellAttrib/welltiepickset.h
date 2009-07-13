@@ -36,7 +36,7 @@ mClass UserPick
 
     Color           	color_;
     int            	vidx_;
-    float           	dah_;
+    float           	zpos_;
     float           	xpos_;
 };
 
@@ -69,20 +69,18 @@ public:
     const UserPick*     getLast(int idx) const { return pickset_[getSize()-1]; }
     const int           getTotalNr() const     { return nrpickstotal_; }
     const int           getSize() const        { return pickset_.size(); }
-    float 		getDah( int idx )     
-    			{ return get(idx)->dah_; }
-    const float 	getDah( int idx ) const 
-    			{ return get(idx)->dah_; }
-    const float 	getLastDah() 		 
-    			{ return getLast()->dah_; }
+    float 		getPos( int idx )     
+    			{ return get(idx)->zpos_; }
+    const float 	getPos( int idx ) const 
+    			{ return get(idx)->zpos_; }
+    const float 	getLastPos() 		 
+    			{ return getLast()->zpos_; }
    
     UserPick*		remove(int idx) { return pickset_.remove(idx); }
     void         	setMousePos( float mp ) { mousepos_ = mp; }
-    void		setDah( int idx, float dah ) 
-    			{ get(idx)->dah_= dah; }
+    void		setPos( int idx, float pos ) 
+    			{ get(idx)->zpos_= pos; }
     
-    void 		updateSupPickedPos(float&,float,int);
-    void 		updateInfPickedPos(float&,float,int);
     void                updateShift(int,float);
 
 protected:
@@ -118,11 +116,11 @@ public:
     void 	   	clearLastPicks();
     bool 	   	isPick();
     bool 	   	isSameSize();
-    float 	   	findEventDah(float,bool);
+    float 	   	findEvent(float,bool);
     void 	   	setData(const WellTieDataSet*);
     void 	   	setDataParams(const WellTieParams::DataParams*);
     void 	   	setEventType(int);
-    void 	   	sortByDah(WellTiePickSet&);
+    void 	   	sortByPos(WellTiePickSet&);
     void           	updateShift(int,float);
 
 

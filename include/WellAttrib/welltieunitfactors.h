@@ -133,7 +133,7 @@ public :
     const WellTieSetup& 	getSetup() const   { return wtsetup_; }
     const WellTieUnitFactors& 	getUnits() const   { return factors_; }
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
-    bool			resetParams(); 
+    void			resetParams(); 
     void			resetVellLognm();
 
 protected :
