@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.6 2009-06-12 19:34:49 cvskris Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.7 2009-07-13 15:56:08 cvskris Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -397,5 +397,6 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
 
     ctab_.changePos( selidx_, position );
     reDrawNeeded.trigger();
+    markerChanged.trigger();
     meh_.setHandled( true );
 }
