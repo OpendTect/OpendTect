@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.64 2009-07-08 15:48:57 cvskris Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.65 2009-07-13 21:57:58 cvskris Exp $";
 
 
 #include "plugins.h"
@@ -448,10 +448,17 @@ bool PluginManager::load( const char* libnm )
 	{ delete data; return false; }
 
     Data* existing = const_cast<Data*>(
-    findDataWithDispName( data->info_->dispname ) );
+	findDataWithDispName( data->info_->dispname ) );
 
     if ( existing && existing->sla_ && existing->sla_->isOK() )
     {
+	data->sla_->close();
+	delete data;
+	data = 0;
+
+	if ( existing_->isloaded_ )
+	    return false;
+
 	if ( !loadPlugin(existing->sla_,argc_,argv_,libnmonly) )
 	{
 	    existing->info_ = 0;
@@ -459,6 +466,8 @@ bool PluginManager::load( const char* libnm )
 	    delete existing->sla_; existing->sla_ = 0;
 	    return false;
 	}
+
+	existing->isloaded_ = true;
     }
     else
     {
@@ -469,6 +478,7 @@ bool PluginManager::load( const char* libnm )
 	    return false;
 	}
 
+	data->isloaded_ = true;
 	data_ += data;
     }
 
@@ -500,6 +510,8 @@ void PluginManager::loadAuto( bool late )
 	    data.sla_->close();
 	    delete data.sla_; data.sla_ = 0;
 	}
+
+	data.isloaded_ = true;
 
 	static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
 	if ( shw_load )

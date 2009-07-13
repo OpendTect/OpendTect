@@ -8,7 +8,7 @@ ________________________________________________________________________
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.25 2009-06-19 16:15:32 cvskris Exp $
+ RCS:		$Id: plugins.h,v 1.26 2009-07-13 21:57:58 cvskris Exp $
 
 ________________________________________________________________________
 
@@ -109,6 +109,7 @@ public:
 				    , info_(0)
 				    , autosource_(None)
 				    , autotype_(PI_AUTO_INIT_NONE)
+				    , isloaded_( false )
 				    , sla_(0)	{}
 				~Data()		{ delete sla_; }
 
@@ -117,6 +118,7 @@ public:
 	AutoSource		autosource_;
 	int			autotype_;
 	SharedLibAccess*	sla_;
+	bool			isloaded_;
     };
 
     ObjectSet<Data>&	getData()		{ return data_; }
