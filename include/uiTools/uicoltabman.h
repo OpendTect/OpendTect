@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.11 2009-04-17 12:15:14 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.h,v 1.12 2009-07-13 15:56:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ protected:
     uiPushButton*       	importbut_;
     uiColorInput*       	undefcolfld_;
     uiColorInput*       	markercolfld_;
-    uiCheckBox*			segmentfld_;
+    uiGenInput*			segmentfld_;
     uiSpinBox*			nrsegbox_;
     uiWorld2Ui*			w2uictabcanvas_;
 
