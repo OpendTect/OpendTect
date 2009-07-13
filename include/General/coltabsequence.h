@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.14 2009-07-07 15:14:14 cvskris Exp $
+ RCS:		$Id: coltabsequence.h,v 1.15 2009-07-13 15:30:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,11 @@ public:
 
     int			nrSegments() const		{ return nrsegments_; }
     void		setNrSegments(int n)		{ nrsegments_ = n; }
-    			//!<No segments means not segmented
+    			/*!<nrsegments > 0 divide the ctab in equally wide
+			    nrsegments == 0 no segmentation
+			    nrsegments == -1 constant color between markers.*/
+
+		
     bool		isSegmentized() const		{ return nrsegments_; }
 
     void		changeColor(int,

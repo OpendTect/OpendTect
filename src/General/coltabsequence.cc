@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.22 2009-06-25 14:16:30 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.23 2009-07-13 15:30:20 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -134,7 +134,8 @@ Color ColTab::Sequence::color( float x ) const
     if ( sz == 0 || x <= -mDefEps || x >= 1+mDefEps )
 	return undefcolor_;
 
-    if ( nrsegments_ )
+    const bool snaptomarkerbelow = nrsegments_==-1;
+    if ( nrsegments_>0 )
 	x = snapToSegmentCenter( x );
 
     const unsigned char t = Color::getUChar( transparencyAt(x) );
@@ -153,6 +154,9 @@ Color ColTab::Sequence::color( float x ) const
 	{
 	    if ( mIsEqual(x,x1,mDefEps) )
 		return Color( r_[idx], g_[idx], b_[idx], t );
+	    if ( snaptomarkerbelow )
+		return Color( r_[idx-1], g_[idx-1], b_[idx-1], t );
+
 	    x0 = x_[idx-1];
 	    const float frac = (x-x0) / (x1-x0);
 #	    define mColVal(c) Color::getUChar( frac*c[idx] + (1-frac)*c[idx-1] )
@@ -659,7 +663,7 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 
 float ColTab::Sequence::snapToSegmentCenter( float x ) const
 {
-    if ( !nrsegments_ )
+    if ( nrsegments_<1 )
 	return x;
 
     if ( mIsUdf(x) )
