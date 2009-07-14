@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.20 2009-06-15 05:04:19 cvsranojay Exp $
+ RCS:		$Id: coltabmapper.h,v 1.21 2009-07-14 20:13:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,7 +187,8 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     T* result = mapped_+start;
     const float* inp = unmapped_+start;
 
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    int nrdone = 0;
+    for ( int idx=start; idx<=stop; idx++, nrdone++ )
     {
 	float input = unmappedvs_ ? unmappedvs_->value(idx) : *inp;
 	const T res = *result = ColTab::Mapper::snappedPosition( &mapper_,input,
@@ -196,7 +197,19 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 	result++; 
 	inp++;
 
-	addToNrDone( 1 );
+	if ( nrdone>10000 )
+	{
+	    addToNrDone( nrdone );
+	    nrdone = 0;
+	    if ( !shouldContinue() )
+		return false;
+	}
+    }
+
+    if ( nrdone )
+    {
+	addToNrDone( nrdone );
+	nrdone = 0;
     }
 
     lock_.lock();
