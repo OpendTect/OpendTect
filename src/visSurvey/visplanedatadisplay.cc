@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.219 2009-07-02 20:59:44 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.220 2009-07-14 20:23:03 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -67,9 +67,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     rposcache_.allowNull( true );
     dragger_->ref();
 
-    int channelidx = texture_
-	? childIndex(texture_->getInventorNode() )
-	: childIndex( channels_->getInventorNode() );
+    int channelidx = childIndex( channels_->getInventorNode() );
 
     insertChild( channelidx++, dragger_->getInventorNode() );
     dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
@@ -481,26 +479,12 @@ NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
 
 int PlaneDataDisplay::nrResolutions() const
 {
-    if ( !texture_ )
-	return 1;
-
-    return texture_->canUseShading() ? 1 : 3;
+    return 1;
 }
 
 
 void PlaneDataDisplay::setResolution( int res, TaskRunner* tr )
 {
-    if ( !texture_ || texture_->canUseShading() )
-	return;
-
-    if ( res==resolution_ )
-	return;
-
-    resolution_ = res;
-    texture_->clearAll();
-
-    for ( int idx=0; idx<nrAttribs(); idx++ )
-	updateFromDisplayIDs( idx, tr );
 }
 
 
@@ -541,11 +525,8 @@ void PlaneDataDisplay::removeCache( int attrib )
 
     delete displaycache_.remove( attrib );
     
-    if ( !texture_ || texture_->splitsTexture() )
-    {
-	for ( int idx=0; idx<displaycache_.size(); idx++ )
-    	    updateFromDisplayIDs( idx, 0 );
-    }
+    for ( int idx=0; idx<displaycache_.size(); idx++ )
+	updateFromDisplayIDs( idx, 0 );
 }
 
 
@@ -554,11 +535,8 @@ void PlaneDataDisplay::swapCache( int a0, int a1 )
     volumecache_.swap( a0, a1 );
     rposcache_.swap( a0, a1 );
     displaycache_.swap( a0, a1 );
-    if ( !texture_ || texture_->splitsTexture() )
-    {
-	for ( int idx=0; idx<displaycache_.size(); idx++ )
-    	    updateFromDisplayIDs( idx, 0 );
-    }
+    for ( int idx=0; idx<displaycache_.size(); idx++ )
+	updateFromDisplayIDs( idx, 0 );
 }
 
 
@@ -579,10 +557,7 @@ void PlaneDataDisplay::emptyCache( int attrib )
 	dpids.erase();
     }
 
-    if ( texture_ )
-	texture_->setData( attrib, 0, 0 );
-    else
-	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
 }
 
 
@@ -687,8 +662,7 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     curicstep_ = hrg.step;
     curzstep_ = cs.zrg.step;
 
-    if ( texture_ ) texture_->clearAll();
-    //else channels_->clearAll();
+    //channels_->clearAll();
     movefinished_.trigger();
 }
 
@@ -884,23 +858,11 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
     int sz = dpids.size();
     if ( sz<1 )
     {
-	if ( texture_ )
-	{
-	    texture_->setData( attrib, 0, 0 );
-	    texture_->turnOn( false );
-	}
-	else
-	{
-	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
-	    channels_->turnOn( false );
-	}
+	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
 	return;
     }
 
-    if ( texture_ )
-	texture_->setNrVersions( attrib, sz );
-    else
-	channels_->setNrVersions( attrib, sz );
+    channels_->setNrVersions( attrib, sz );
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -909,53 +871,36 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	mDynamicCastGet( const FlatDataPack*, fdp, datapack );
 	if ( !fdp )
 	{
-	    if ( texture_ )
-		texture_->turnOn( false );
-	    else
-		channels_->turnOn( false );
+	    channels_->turnOn( false );
 	    DPM(DataPackMgr::FlatID()).release( dpid );
 	    continue;
 	}
 
 	const Array2D<float>& dparr = fdp->data();
 
-	if ( texture_ )
+	const float* arr = dparr.getData();
+	OD::PtrPolicy cp = OD::UsePtr;
+
+	if ( !arr )
 	{
-	    if ( !texture_->usesShading() && resolution_ )
-		texture_->setDataOversample( attrib, idx, resolution_, 
-			!isClassification( attrib ), &dparr, true );
-	    else
+	    const od_int64 totalsz =
+		dparr.info().getSize(0) * dparr.info().getSize(1);
+	    mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
+
+	    if ( !tmparr )
 	    {
-		texture_->splitTexture( true );
-		texture_->setData( attrib, idx, &dparr, true );
-	    }
-	}
-	else
-	{
-	    const float* arr = dparr.getData();
-	    OD::PtrPolicy cp = OD::UsePtr;
-
-	    if ( !arr )
-	    {
-		const od_int64 totalsz =
-		    dparr.info().getSize(0) * dparr.info().getSize(1);
-		mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
-
-		if ( !tmparr )
-		{
-		    DPM(DataPackMgr::FlatID()).release( dpid );
-		    continue;
-		}
-
-		dparr.getAll( tmparr );
-		arr = tmparr;
-		cp = OD::TakeOverPtr;
+		DPM(DataPackMgr::FlatID()).release( dpid );
+		continue;
 	    }
 
-	    channels_->setSize( 1, dparr.info().getSize(0),
-				   dparr.info().getSize(1) );
-	    channels_->setUnMappedData( attrib, idx, arr, cp, tr );
+	    dparr.getAll( tmparr );
+	    arr = tmparr;
+	    cp = OD::TakeOverPtr;
 	}
+
+	channels_->setSize( 1, dparr.info().getSize(0),
+			       dparr.info().getSize(1) );
+	channels_->setUnMappedData( attrib, idx, arr, cp, tr );
 
 	rectangle_->setOriginalTextureSize( dparr.info().getSize(0),
 					    dparr.info().getSize(1) );
@@ -963,10 +908,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	DPM(DataPackMgr::FlatID()).release( dpid );
     }
    
-    if ( texture_ )
-	texture_->turnOn( true );
-    else
-	channels_->turnOn( true );
+    channels_->turnOn( true );
 }
 
 
@@ -1111,9 +1053,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
     const BinIDValue bidv( SI().transform(pos), pos.z );
     if ( attrib<volumecache_.size() && volumecache_[attrib] )
     {
-	const int ver = texture_
-	    ? texture_->currentVersion(attrib)
-	    : channels_->currentVersion(attrib);
+	const int ver = channels_->currentVersion(attrib);
 
 	const Attrib::DataCubes& vc = volumecache_[attrib]->cube();
 	return vc.getValue( ver, bidv, &res, false );
@@ -1201,13 +1141,10 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
 
 	pdd->setSelSpec( idx, *getSelSpec(idx) );
 	pdd->setDataPackID( idx, getDataPackID(idx), tr );
-
-	const int ctid = pdd->getColTabID( idx );
-	visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
-	mDynamicCastGet(visBase::VisColorTab*,vct,obj);
-	if ( vct && texture_ )
-	    vct->colorSeq().loadFromStorage(
-		    texture_->getColorTab(idx).colorSeq().colors().name() );
+	if ( getColTabMapperSetup( idx ) )
+	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ), tr );
+	if ( getColTabSequence( idx ) )
+	    pdd->setColTabSequence( idx, *getColTabSequence( idx ), tr );
     }
 
     return pdd;
