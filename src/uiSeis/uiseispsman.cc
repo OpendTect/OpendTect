@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.13 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.14 2009-07-14 12:36:29 cvsbert Exp $";
 
 
 #include "uiseispsman.h"
@@ -135,9 +135,7 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
 
 void uiSeisPreStackMan::mkMultiPush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
-
-    const MultiID key( curioobj_->key() );
+    const MultiID key( curioobj_ ? curioobj_->key() : MultiID("") );
     uiSeisMultiCubePS dlg( this );
     dlg.go();
     selgrp->fullUpdate( key );
