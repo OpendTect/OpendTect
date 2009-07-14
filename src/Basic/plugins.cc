@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.65 2009-07-13 21:57:58 cvskris Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.66 2009-07-14 10:46:59 cvsbert Exp $";
 
 
 #include "plugins.h"
@@ -456,7 +456,7 @@ bool PluginManager::load( const char* libnm )
 	delete data;
 	data = 0;
 
-	if ( existing_->isloaded_ )
+	if ( existing->isloaded_ )
 	    return false;
 
 	if ( !loadPlugin(existing->sla_,argc_,argv_,libnmonly) )
