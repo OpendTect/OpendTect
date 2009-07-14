@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: undo.cc,v 1.5 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: undo.cc,v 1.6 2009-07-14 07:14:53 cvsraman Exp $";
 
 #include "undo.h"
 
@@ -115,8 +115,8 @@ void Undo::removeAllAfterCurrentEvent()
     {
 	const int idx = indexOf(event);
 
-	delete events_.remove(idx);
 	mUpdateUserEndsCount(idx,false);
+	delete events_.remove(idx);
     }
 
     changenotifier.trigger();
