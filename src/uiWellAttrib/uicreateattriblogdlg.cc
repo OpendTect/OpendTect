@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.20 2009-07-10 16:09:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.21 2009-07-14 08:39:13 cvsbruno Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -227,25 +227,16 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
     const bool zinft = SI().depthsInFeetByDefault();
     const float step = stepfld_->getfValue();
 
-    float start = 0;
-    float stop = 0;
+    float start = wd.track().dah(0);
+    float stop = wd.track().dah( wd.track().size()-1);
     
     const Well::Marker* topmarker = wd.markers().getByName(topmrkfld_->text()); 
     const Well::Marker* botmarker = wd.markers().getByName(botmrkfld_->text()); 
 
-    if ( !topmarker )
-	start = wd.track().dah(0);
-    else  
+    if ( topmarker )
 	start = topmarker->dah();
  
-    if ( !botmarker )
-    {
-	if ( botmrkfld_->getIntValue() == 0 )
-	    stop = wd.track().dah(0);
-	else
-	    stop = wd.track().dah( wd.track().size()-1 );
-    }
-    else
+    if ( botmarker )
 	stop = botmarker->dah();
 
     if ( start > stop )
