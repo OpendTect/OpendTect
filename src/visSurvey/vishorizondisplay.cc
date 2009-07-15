@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.99 2009-07-02 20:59:44 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.100 2009-07-15 17:26:11 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1052,7 +1052,13 @@ const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
 
 
 bool HorizonDisplay::canSetColTabSequence() const
-{ return usesTexture(); }
+{
+    if ( !usesTexture() || !sections_.size() ||
+	 !sections_[0]->getChannel2RGBA() )
+	return false;
+
+    return sections_[0]->getChannel2RGBA()->canSetSequence();
+}
 
 
 void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
