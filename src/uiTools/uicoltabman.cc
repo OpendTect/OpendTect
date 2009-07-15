@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.37 2009-07-13 15:56:51 cvskris Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.38 2009-07-15 18:05:33 cvskris Exp $";
 
 #include "uicoltabman.h"
 
@@ -106,7 +106,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     ctabcanvas_->setPrefHeight( mTransWidth/10 );
     ctabcanvas_->setStretch( 2, 0 );
 
-    const char* segtypes[] = { "None", "Equidistant", "Variable", 0 };
+    const char* segtypes[] = { "None", "Fixed", "Variable", 0 };
     segmentfld_ = new uiGenInput( rightgrp, "Segmentation",
 				  StringListInpSpec(segtypes) );
     segmentfld_->valuechanged.notify( mCB(this,uiColorTableMan,segmentSel) );
@@ -114,7 +114,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     segmentfld_->attach( leftAlignedBelow, ctabcanvas_ );
     nrsegbox_ = new uiSpinBox( rightgrp, 0, 0 );
     nrsegbox_->setInterval( 2, 64 ); nrsegbox_->setValue( 8 );
-    nrsegbox_->setSensitive( false );
+    nrsegbox_->display( false );
     nrsegbox_->valueChanging.notify( mCB(this,uiColorTableMan,nrSegmentsCB) );
     nrsegbox_->attach( rightTo, segmentfld_ );
 
@@ -412,7 +412,7 @@ void uiColorTableMan::updateSegmentFields()
 	    ? 1
 	    : 2;
     segmentfld_->setValue( val );
-    nrsegbox_->setSensitive( val==1 );
+    nrsegbox_->display( val==1 );
 
     if ( val==1 )
 	nrsegbox_->setValue( ctab_.nrSegments() );
@@ -423,7 +423,7 @@ void uiColorTableMan::updateSegmentFields()
 
 void uiColorTableMan::segmentSel( CallBacker* )
 {
-    nrsegbox_->setSensitive( segmentfld_->getIntValue()==1 );
+    nrsegbox_->display( segmentfld_->getIntValue()==1 );
     doSegmentize();
 }
 
