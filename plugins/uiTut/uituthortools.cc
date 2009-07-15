@@ -1,11 +1,11 @@
 
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : R.K. Singh
+ * AUTHOR   : R.K. Singh / Karthika
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uituthortools.cc,v 1.11 2009-04-09 11:49:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: uituthortools.cc,v 1.12 2009-07-15 09:24:48 cvskarthika Exp $";
 
 #include "uituthortools.h"
 #include "tuthortools.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uituthortools.cc,v 1.11 2009-04-09 11:49:08 cvs
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
+
 uiTutHorTools::uiTutHorTools( uiParent* p )
 	: uiDialog( p, Setup( "Tut Horizon tools",
 			      "Specify process parameters",
@@ -33,12 +34,13 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 	, thickcalc_(0)
 	, smoother_(0)
 {
-    taskfld_= new uiGenInput( this, "Select Task",
-	    		BoolInpSpec(true, "Smooth a Horizon", 
-			    	    "Find Thickness between two Horizons") );
+    taskfld_= new uiGenInput( this, "Task",
+	    		BoolInpSpec(true,"Thickness between two horizons",
+			    		 "Smooth a horizon") );
     taskfld_->valuechanged.notify( mCB(this,uiTutHorTools,choiceSel) );
     
-    inpfld_ = new uiIOObjSel( this, inctio_, "  Input Horizon  " );
+     
+    inpfld_ = new uiIOObjSel( this, inctio_, "Input Horizon" );
     inpfld_->attach( alignedBelow, taskfld_ );
 
     outctio_.ctxt.forread = false;
@@ -49,7 +51,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 	    		BoolInpSpec(true, "Low", "High") );
     strengthfld_->attach( alignedBelow, outfld_ );
 
-    inpfld2_ = new uiIOObjSel( this, inctio2_, "Input Bottom Horizon" );
+    inpfld2_ = new uiIOObjSel( this, inctio2_, "Bottom Horizon" );
     inpfld2_->attach( alignedBelow, inpfld_ );
 
     selfld_= new uiGenInput( this, "Add Result as an Attribute to ",
@@ -73,30 +75,36 @@ uiTutHorTools::~uiTutHorTools()
 }
 
 
+#define mIsThick (taskfld_->getBoolValue())
+
+
 void uiTutHorTools::choiceSel( CallBacker* )
 {
-    const bool mono = taskfld_->getBoolValue();
-    inpfld_->setLabelText( mono ? "  Input Horizon  " : "Input Top Horizon" );
-    inpfld_->clear();
-    selfld_->display( !mono );
-    inpfld2_->display( !mono );
-    attribnamefld_->display( !mono );
-    outfld_->display( mono );
-    strengthfld_->display( mono );
+    const bool isthick = mIsThick;
+
+    inpfld_->setLabelText( isthick ? "Top Horizon" : "Input Horizon" );
+    inpfld2_->display( isthick );
+    selfld_->display( isthick );
+    attribnamefld_->display( isthick );
+    outfld_->display( !isthick );
+    strengthfld_->display( !isthick );
 }
 
 
-bool uiTutHorTools::initThicknessFinder()
-{
-    thickcalc_ = new Tut::ThicknessFinder;
-    const bool top = selfld_->getBoolValue();
-    EM::Horizon3D* hor1 = loadHor( top ? inctio_.ioobj : inctio2_.ioobj );
-    if ( !hor1 )
-	return false;
+#define mGetHor(varnm,ioobj) \
+    EM::EMObject* varnm##_emobj = \
+	EM::EMM().loadIfNotFullyLoaded( (ioobj)->key(), tr ); \
+    mDynamicCastGet(EM::Horizon3D*,varnm,varnm##_emobj) \
+    if ( !varnm ) \
+	return false; \
+    varnm->ref()
 
-    EM::Horizon3D* hor2 = loadHor( top ? inctio2_.ioobj : inctio_.ioobj );
-    if ( !hor2 )
-	return false;
+bool uiTutHorTools::initThicknessCalculator( uiTaskRunner* tr )
+{
+    thickcalc_ = new Tut::ThicknessCalculator;
+    const bool top = selfld_->getBoolValue();
+    mGetHor(hor1,top ? inctio_.ioobj : inctio2_.ioobj);
+    mGetHor(hor2,top ? inctio2_.ioobj : inctio_.ioobj);
 
     thickcalc_->setHorizons( hor1, hor2 );
     thickcalc_->init( attribnamefld_->text() );
@@ -104,48 +112,45 @@ bool uiTutHorTools::initThicknessFinder()
 }
 
 
-bool uiTutHorTools::initHorSmoother()
+bool uiTutHorTools::initHorSmoother( uiTaskRunner* tr )
 {
     smoother_ = new Tut::HorSmoother;
-    EM::Horizon3D* hor = loadHor(inctio_.ioobj);
-    if ( !hor )
-	return false;
+    mGetHor(hor,inctio_.ioobj);
     smoother_->setHorizons( hor );
     smoother_->setWeak( strengthfld_->getBoolValue() ); 
     return true;
 }
 
 
-EM::Horizon3D* uiTutHorTools::loadHor( const IOObj* ioobj )
+EM::Horizon3D* uiTutHorTools::loadHor( const IOObj& ioobj )
 {
-    if ( !ioobj )
-	return 0;
-
     EM::EMManager& em = EM::EMM();
-    PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
+    PtrMan<Executor> exec = em.objectLoader( ioobj.key() );
     if ( !exec )
     {
 	BufferString errmsg = "Cannot Find Object  ";
-        errmsg += ioobj->name();
+        errmsg += ioobj.name();
         uiMSG().error( errmsg );
 	return 0;
     }
+
     uiTaskRunner taskrunner( this );
     taskrunner.execute( *exec );
-    EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
+    EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj.key()) );
     emobj->ref();
+
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     return horizon;
 }
 
 
-void uiTutHorTools::saveData(bool geom)
+void uiTutHorTools::saveData( bool isthick )
 {
-    PtrMan<Executor> exec = geom ? smoother_->dataSaver(outctio_.ioobj->key())
-				 : thickcalc_->dataSaver();
+    PtrMan<Executor> exec = isthick ? thickcalc_->dataSaver()
+			    : smoother_->dataSaver(outctio_.ioobj->key());
 
     if ( !exec )
-    { uiMSG().error( "Cannot save Horizon" ); return; }
+	{ uiMSG().error( "Cannot save Horizon" ); return; }
 
     uiTaskRunner taskrunner( this );
     taskrunner.execute( *exec );
@@ -156,40 +161,39 @@ void uiTutHorTools::saveData(bool geom)
 
 bool uiTutHorTools::acceptOK( CallBacker* )
 {
-    const bool smooth = taskfld_->getBoolValue();
-    bool retval = 0;
-    if( smooth )
+    const bool isthick = mIsThick;
+
+    const bool inpok = inpfld_->commitInput()
+		    && (!isthick || inpfld2_->commitInput());
+    if ( !inpok )
+	mErrRet("\nPlease select all input horizons")
+
+    uiTaskRunner taskrunner( this );
+    if ( isthick )
     {
-	if ( !inpfld_->commitInput() )
-	    mErrRet("Missing Input\nPlease select the input horizon")
+	if( !inpfld2_->commitInput() )
+	    mErrRet("")
+	if( inctio_.ioobj->key()==inctio2_.ioobj->key()
+		&& !uiMSG().askGoOn("Input horizon same as Output. Continue?") )
+	    return false;
+	if ( !initThicknessCalculator( &taskrunner ) )
+	    return false;
+    }
+    else
+    {
 	if ( !outfld_->commitInput() )
 	    mErrRet("Missing Output\nPlease select the output horizon")
 	else if ( outctio_.ioobj->implExists(false)
 	 	&& !uiMSG().askGoOn("Output horizon exists. Overwrite?") )
-        return false;
-
-	if ( !initHorSmoother() )
-	    return false; 
-	uiTaskRunner taskrunner( this );
-	retval = taskrunner.execute( *smoother_ );
-    }
-    else
-    {
-	if( !inpfld_->commitInput() )
-	    mErrRet("Missing Input\nPlease select the Top Horizon")
-	if( !inpfld2_->commitInput() )
-	    mErrRet("Missing Input\nPlease select the Bottom Horizon")
-	if( inctio_.ioobj->key()==inctio2_.ioobj->key()
-		&& !uiMSG().askGoOn("Input horizon same as Output. Continue?") )
-	return false; 
-
-	if ( !initThicknessFinder() )
 	    return false;
-	uiTaskRunner taskrunner( this );
-	retval = taskrunner.execute( *thickcalc_ );
+	if ( !initHorSmoother( &taskrunner ) )
+	    return false; 
     }
 
+    Executor* toexec = isthick ? (Executor*)thickcalc_ : (Executor*)smoother_;
+    bool retval = taskrunner.execute( *toexec );
     if ( retval )
-	saveData( smooth );
+	saveData( isthick );
+
     return retval;
 }

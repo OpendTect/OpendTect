@@ -1,10 +1,10 @@
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : R.K. Singh
+ * AUTHOR   : R.K. Singh / Karthika
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tuthortools.cc,v 1.8 2009-04-09 11:49:07 cvsranojay Exp $";
+static const char* rcsID = "$Id: tuthortools.cc,v 1.9 2009-07-15 09:24:48 cvskarthika Exp $";
 
 #include "tuthortools.h"
 #include "emhorizon3d.h"
@@ -12,12 +12,13 @@ static const char* rcsID = "$Id: tuthortools.cc,v 1.8 2009-04-09 11:49:07 cvsran
 #include "cubesampling.h"
 #include "survinfo.h"
 #include "emsurfaceauxdata.h"
+#include "statruncalc.h"
 
 
 
 #include "ioobj.h"
 
-Tut::HorTools::HorTools(const char* title)
+Tut::HorTool::HorTool(const char* title)
     : Executor(title)
     , horizon1_(0)
     , horizon2_(0)
@@ -27,15 +28,15 @@ Tut::HorTools::HorTools(const char* title)
 }
 
 
-Tut::HorTools::~HorTools()
+Tut::HorTool::~HorTool()
 {
     delete iter_;
-    if( horizon1_ ) horizon1_->unRef();
-    if( horizon2_ ) horizon2_->unRef();
+    if ( horizon1_ ) horizon1_->unRef();
+    if ( horizon2_ ) horizon2_->unRef();
 }
 
 
-void Tut::HorTools::setHorizons( EM::Horizon3D* hor1, EM::Horizon3D* hor2 )
+void Tut::HorTool::setHorizons( EM::Horizon3D* hor1, EM::Horizon3D* hor2 )
 {
     horizon1_ = hor1;
     horizon2_ = hor2;
@@ -48,13 +49,13 @@ void Tut::HorTools::setHorizons( EM::Horizon3D* hor1, EM::Horizon3D* hor2 )
 }
 
 
-od_int64 Tut::HorTools::totalNr() const
+od_int64 Tut::HorTool::totalNr() const
 {
     return hs_.totalNr();
 }
 
 
-void Tut::HorTools::setHorSamp( const StepInterval<int>& inlrg, 
+void Tut::HorTool::setHorSamp( const StepInterval<int>& inlrg, 
 				const StepInterval<int>& crlrg )
 {
     hs_.set( inlrg, crlrg );
@@ -62,16 +63,15 @@ void Tut::HorTools::setHorSamp( const StepInterval<int>& inlrg,
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-
-Tut::ThicknessFinder::ThicknessFinder()
-	: HorTools("Calculating Thickness")
+Tut::ThicknessCalculator::ThicknessCalculator()
+	: HorTool("Calculating Thickness")
 	, dataidx_(0)
+	, usrfac_(SI().zIsTime() ? 1000 : 1)
 {
 }
 
 
-void Tut::ThicknessFinder::init( const char* attribname )
+void Tut::ThicknessCalculator::init( const char* attribname )
 {
     if ( !horizon1_ )
     {
@@ -85,40 +85,42 @@ void Tut::ThicknessFinder::init( const char* attribname )
 }
 
 
-int Tut::ThicknessFinder::nextStep()
+int Tut::ThicknessCalculator::nextStep()
 {
     if ( !iter_->next(bid_) )
 	return Executor::Finished();
 
-    const EM::SubID subid = bid_.getSerialized();
-    const float z1 = horizon1_->getPos( horizon1_->sectionID(0), subid ).z;
-    const float z2 = horizon2_->getPos( horizon2_->sectionID(0), subid ).z;
-		        
-    float val = mUdf(float);
-    if ( !mIsUdf(z1) && !mIsUdf(z2) )
-    {
-        val = fabs( z2 - z1 );
-	if ( SI().zIsTime() ) val *= 1000;
-    }
+    int nrsect = horizon1_->nrSections();
+    if ( horizon2_->nrSections() < nrsect ) nrsect = horizon2_->nrSections();
 
-    posid_.setSubID( subid );
-    horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
+    for ( EM::SectionID isect=0; isect<nrsect; isect++ )
+    {
+	const EM::SubID subid = bid_.getSerialized();
+	const float z1 = horizon1_->getPos( isect, subid ).z;
+	const float z2 = horizon2_->getPos( isect, subid ).z;
+		        
+	float val = mUdf(float);
+	if ( !mIsUdf(z1) && !mIsUdf(z2) )
+	    val = fabs( z2 - z1 ) * usrfac_;
+
+	posid_.setSubID( subid );
+	posid_.setSectionID( isect );
+	horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
+    }
 
     nrdone_++;
     return Executor::MoreToDo();
 }
 
 
-Executor* Tut::ThicknessFinder::dataSaver()
+Executor* Tut::ThicknessCalculator::dataSaver()
 {
     return horizon1_->auxdata.auxDataSaver();
 }
 
 
-//////////////////////////////////////////////////////////////////////
-
 Tut::HorSmoother::HorSmoother()
-    : HorTools("Smoothing Horizon")
+    : HorTool("Smoothing Horizon")
     , subid_(0)
 {
 }
@@ -129,33 +131,30 @@ int Tut::HorSmoother::nextStep()
     if ( !iter_->next(bid_) )
 	return Executor::Finished();
 
-    int inl = bid_.r(); int crl = bid_.c();
-    float sum = 0;
-    int count = 0;
+    const int nrsect = horizon1_->nrSections();
     const int rad = weak_ ? 1 : 2;
-    for ( int idx=-rad; idx<=rad; idx++ )
+    for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
-	for ( int cdx=-rad; cdx<=rad; cdx++ )
+	float sum = 0; int count = 0;
+	for ( int inloffs=-rad; inloffs<=rad; inloffs++ )
 	{
-	    BinID binid = BinID( inl + idx * hs_.step.r(),
-		    		 crl + cdx * hs_.step.c() );
-	    if ( hs_.includes( binid ) )
+	    for ( int crloffs=-rad; crloffs<=rad; crloffs++ )
 	    {
-	        const EM::SubID subid = binid.getSerialized();
-	        const float z = horizon1_->getPos( horizon1_->sectionID(0),
-							subid ).z;
-	        if ( mIsUdf(z) ) continue;
-	        sum += z; count++;
+		const BinID binid = BinID( bid_.inl + inloffs * hs_.step.inl,
+					   bid_.crl + crloffs * hs_.step.crl );
+		const EM::SubID subid = binid.getSerialized();
+		const float z = horizon1_->getPos( isect, subid ).z;
+		if ( mIsUdf(z) ) continue;
+		sum += z; count++;
 	    }
 	}
-    }
-    
-    float val = count ? sum / count : mUdf(float);
+	float val = count ? sum / count : mUdf(float);
 
-    subid_ = bid_.getSerialized();
-    Coord3 pos = horizon1_->getPos( horizon1_->sectionID(0), subid_ );
-    pos.z = val;
-    horizon1_->setPos( horizon1_->sectionID(0), subid_, pos, false );
+	subid_ = bid_.getSerialized();
+	Coord3 pos = horizon1_->getPos( isect, subid_ );
+	pos.z = val;
+	horizon1_->setPos( isect, subid_, pos, false );
+    }
 
     nrdone_++;
     return Executor::MoreToDo();

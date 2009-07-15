@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.14 2009-04-14 10:04:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.15 2009-07-15 09:24:48 cvskarthika Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -77,9 +77,9 @@ uiTutMgr::uiTutMgr( uiODMain* a )
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     uiPopupMenu* mnu = new uiPopupMenu( appl_, "&Tut Tools" );
     if ( SI().has2D() && SI().has3D() ) 
-    {	mnuseis_ = new uiPopupMenu( appl_, "3D" );
+    {	mnuseis_ = new uiPopupMenu( appl_, "&3D" );
     	mnu->insertMenu( mnuseis_, mnu );
-    	mnuhor_ = new uiPopupMenu( appl_, "2D" );
+    	mnuhor_ = new uiPopupMenu( appl_, "&2D" );
     	mnu->insertMenu( mnuhor_, mnu );
 	insertSubMenu();
     }	

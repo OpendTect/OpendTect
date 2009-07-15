@@ -2,9 +2,9 @@
 #define tuthortools_h
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : R.K. Singh
+ * AUTHOR   : R.K. Singh / Karthika
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.9 2009-04-09 11:49:08 cvsranojay Exp $
+ * ID       : $Id: tuthortools.h,v 1.10 2009-07-15 09:24:48 cvskarthika Exp $
 -*/
 
 #include "executor.h"
@@ -20,20 +20,19 @@ namespace EM { class Horizon3D; }
 namespace Tut
 {
 
-mClass HorTools : public Executor
+mClass HorTool : public Executor
 {
 public:
 
-    			HorTools(const char* title);
-    virtual		~HorTools();
+			HorTool(const char* title);
+    virtual		~HorTool();
 
     void		setHorizons(EM::Horizon3D* hor1,EM::Horizon3D* hor2=0);
     od_int64		totalNr() const;
     od_int64		nrDone() const		{ return nrdone_; }
     void		setHorSamp(const StepInterval<int>& inlrg,
 		    		   const StepInterval<int>& crlrg);
-    const char*		message() const		{ return "Computing..."; }
-    const char*		nrDoneText() const	{ return "Points done"; }    
+    const char*		nrDoneText() const	{ return "Positions done"; }    
 
 protected:
 
@@ -52,23 +51,27 @@ protected:
 
 
 
-mClass ThicknessFinder : public HorTools
+mClass ThicknessCalculator : public HorTool
 {
 public:
-    			ThicknessFinder();
+    			ThicknessCalculator();
 			 
     int			nextStep();
     Executor*		dataSaver();
     void		init(const char*);
 
+    const char*		message() const	{ return "Calculating thickness"; }    
+
 protected:
+
     EM::PosID		posid_;
     int			dataidx_;
+    const float		usrfac_;
 
 };
 
 
-mClass HorSmoother : public HorTools
+mClass HorSmoother : public HorTool
 {
 public:
 			HorSmoother();
@@ -76,12 +79,15 @@ public:
     int			nextStep();
     void		setWeak( bool yn )	{ weak_ = yn; }
     Executor*		dataSaver(const MultiID&);
+
+    const char*		message() const	{ return "Smoothing"; }    
+
 protected:
 
     EM::SubID		subid_;
     bool		weak_;
-};
 
+};
 
 } // namespace
 

@@ -2,19 +2,20 @@
 #define uituthortools_h
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : R.K. Singh
+ * AUTHOR   : R.K. Singh / Karthika
  * DATE     : Mar 2007
- * ID       : $Id: uituthortools.h,v 1.5 2009-04-09 11:49:08 cvsranojay Exp $
+ * ID       : $Id: uituthortools.h,v 1.6 2009-07-15 09:24:48 cvskarthika Exp $
 -*/
 
 #include "uidialog.h"
 
-class uiGenInput;
-class uiIOObjSel;
-class CtxtIOObj;
 class IOObj;
+class CtxtIOObj;
+class uiIOObjSel;
+class uiGenInput;
+class uiTaskRunner;
 
-namespace Tut { class HorSmoother; class ThicknessFinder; }
+namespace Tut { class HorSmoother; class ThicknessCalculator; }
 namespace EM { class Horizon3D; }
 
 
@@ -27,16 +28,16 @@ public:
 
 protected:
 
-    bool		initThicknessFinder();
-    bool                initHorSmoother();
+    bool		initThicknessCalculator(uiTaskRunner*);
+    bool                initHorSmoother(uiTaskRunner*);
     void		saveData(bool);
-    EM::Horizon3D*	loadHor(const IOObj*);
+    EM::Horizon3D*	loadHor(const IOObj&);
 
     CtxtIOObj&		inctio_;
     CtxtIOObj&          inctio2_;
     CtxtIOObj&		outctio_;
 
-    Tut::ThicknessFinder*	thickcalc_;
+    Tut::ThicknessCalculator*	thickcalc_;
     Tut::HorSmoother*		smoother_;
 
     uiGenInput*		taskfld_;
