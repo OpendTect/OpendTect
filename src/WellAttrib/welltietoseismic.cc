@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.19 2009-07-10 16:11:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.20 2009-07-15 09:13:41 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -148,7 +148,7 @@ bool WellTieToSeismic::computeSynthetics()
 	      	 	 *workdata_.get(params_.ainm_) );
     
     //geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 
-    //				1/SI().zStep()/params_.step_ );
+    //				1/( SI().zStep()*params_.step_) );
 
     geocalc_->computeReflectivity( *workdata_.get(params_.ainm_),
        				   *dispdata_.get(params_.refnm_), 
@@ -191,6 +191,7 @@ bool WellTieToSeismic::extractSeismics()
     Attrib::EngineMan aem; BufferString errmsg;
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps_, ads_, errmsg,
 						       dps_->nrCols()-1 );
+    if ( !tabextr ) return false;
     MouseCursorManager::restoreOverride();
     if (!tr_->execute( *tabextr )) return false;
     dps_->dataChanged();
@@ -227,7 +228,7 @@ bool WellTieToSeismic::estimateWavelet()
        return false;
 
     const bool iswvltodd = wvltsz%2;
-    if ( iswvltodd ) wvlt->reSize( wvltsz+1 );
+    //if ( iswvltodd ) wvlt->reSize( wvltsz+1 );
    
     Array1DImpl<float> wvltarr( datasz ), wvltvals( wvltsz );
     //performs deconvolution
@@ -237,10 +238,10 @@ bool WellTieToSeismic::estimateWavelet()
 
     //retrieve wvlt samples from the deconvolved vector
     for ( int idx=0; idx<wvltsz; idx++ )
-	wvlt->samples()[idx] = wvltarr.get( datasz/2 + idx - wvltsz/2 );
+	wvlt->samples()[idx] = wvltarr.get( datasz/2 + idx - wvltsz/2 + 1 );
     
     memcpy( wvltvals.getData(),wvlt->samples(), wvltsz*sizeof(float) );
-    ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", 0.05 );
+    ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
     window.apply( &wvltvals );
     memcpy( wvlt->samples(), wvltvals.getData(), wvltsz*sizeof(float) );
 

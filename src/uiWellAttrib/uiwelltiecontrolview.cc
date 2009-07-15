@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.16 2009-07-10 16:11:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.17 2009-07-15 09:13:41 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -160,7 +160,7 @@ void uiWellTieControlView::setSelView( bool isnewsel )
 
     Interval<double> zrg( wr.top() , wr.bottom() );
     wr.setTopBottom( zrg );
-    
+
     Interval<double> xrg( bbox.left(), bbox.right());
     wr.setLeftRight( xrg );
 
@@ -168,6 +168,7 @@ void uiWellTieControlView::setSelView( bool isnewsel )
     Geom::Size2D<double> newsz = wr.size();
 
     vwr_.handleChange( FlatView::Viewer::All );
+
     setNewView( centre, newsz );
 }
 

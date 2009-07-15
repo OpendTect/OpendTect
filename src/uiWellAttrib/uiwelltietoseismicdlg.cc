@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.36 2009-07-10 16:11:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.37 2009-07-15 09:13:41 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -54,9 +54,8 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.36 2009-07-10 16:1
 #include "welltieunitfactors.h"
 
 
-static const char*  eventtypes[] = {"Extrema","Maxima",
+static const char*  eventtypes[] = {"None","Extrema","Maxima",
 				    "Minima","Zero-crossings",0};
-
 #define mErrRet(msg) \
 { uiMSG().error(msg); return false; }
 uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p, 
@@ -371,23 +370,23 @@ void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
 }
 
 
-void uiWellTieToSeismicDlg::clearPicks( CallBacker* )
+void uiWellTieToSeismicDlg::clearPicks( CallBacker* cb )
 {
     dataholder_->pickmgr()->clearAllPicks();
     datadrawer_->drawUserPicks();
-    checkIfPick();
+    checkIfPick( cb );
 }
 
 
-void uiWellTieToSeismicDlg::clearLastPick( CallBacker* )
+void uiWellTieToSeismicDlg::clearLastPick( CallBacker* cb )
 {
     dataholder_->pickmgr()->clearLastPicks();
     datadrawer_->drawUserPicks();
-    checkIfPick();
+    checkIfPick( cb );
 }
 
 
-void uiWellTieToSeismicDlg::checkIfPick()
+void uiWellTieToSeismicDlg::checkIfPick( CallBacker* )
 {
     const bool ispick = dataholder_->pickmgr()->isPick();
     const bool issamesz = dataholder_->pickmgr()->isSameSize();
@@ -506,9 +505,8 @@ void uiWellTieInfoDlg::applyMarkerPushed( CallBacker* )
 
 bool uiWellTieInfoDlg::setUserDepths()
 {
-    const bool zinft = SI().depthsInFeetByDefault();
-    float start = 0;
-    float stop = 0;
+    float start = wd_->d2TModel()->getDepth( 0 );
+    float stop = wd_->track().dah( wd_->track().size()-1 );
 
     if ( topmrkfld_->getIntValue() == botmrkfld_->getIntValue() )
 	return false;
@@ -516,14 +514,10 @@ bool uiWellTieInfoDlg::setUserDepths()
     const Well::Marker* topmarkr = wd_->markers().getByName(topmrkfld_->text());
     const Well::Marker* botmarkr = wd_->markers().getByName(botmrkfld_->text());
 
-    if ( !topmarkr )
-	start = wd_->track().dah(0);
-    else
+    if ( topmarkr )
 	start = topmarkr->dah();
 
-    if ( !botmarkr )
-	stop = wd_->track().dah( wd_->track().size()-1 );
-    else
+    if ( botmarkr )
 	stop = botmarkr->dah();
 
     if ( start > stop )

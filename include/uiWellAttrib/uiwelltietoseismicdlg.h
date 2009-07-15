@@ -85,7 +85,6 @@ protected:
     
     void			addControl();
     void 			addToolBarTools();
-    void			checkIfPick();
     void			createViewerTaskFields(uiGroup*);
     void			createDispPropFields(uiGroup*);
     void 			drawData();
@@ -101,6 +100,7 @@ protected:
     void 			applyPushed(CallBacker*);
     void 			applyMarkerPushed(CallBacker*);
     void 			applyShiftPushed(CallBacker*);
+    void			checkIfPick(CallBacker*);
     void			checkShotChg(CallBacker*);
     void			checkShotDisp(CallBacker*);
     void			clearLastPick(CallBacker*);

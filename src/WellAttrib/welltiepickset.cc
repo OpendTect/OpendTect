@@ -7,15 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.15 2009-07-10 16:11:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.16 2009-07-15 09:13:41 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
 #include "welltiedata.h"
 
 #include "arrayndimpl.h"
-#include "valseriesevent.h"
 #include "sorting.h"
+#include "survinfo.h"
+#include "valseriesevent.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 
@@ -45,13 +46,15 @@ void WellTiePickSetMGR::setData( const WellTieDataSet* data )
 void WellTiePickSetMGR::setEventType( int seltype )
 {
     if ( seltype==1 )
-	evtype_ = VSEvent::Max;
+	evtype_ = VSEvent::Extr;
     else if ( seltype==2 )
-	evtype_ = VSEvent::Min;
+	evtype_ = VSEvent::Max;
     else if ( seltype==3 )
+	evtype_ = VSEvent::Min;
+    else if ( seltype==4 )
 	evtype_ = VSEvent::ZC;
     else 
-	evtype_ = VSEvent::Extr;
+	evtype_ = VSEvent::None;
 }
 
 
@@ -85,14 +88,14 @@ float WellTiePickSetMGR::findEvent( float zpos, bool issynth )
 {
     zpos *= 0.001;
     if ( evtype_ == VSEvent::None ) return zpos;
+
     const char* colnm = issynth ? datapms_->synthnm_ : datapms_->attrnm_; 
     const int maxidx = dispdata_->getLength()-1;
-    Interval<float> intv ( zpos, mTimeGate );
-    SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> evf( *dispdata_->get(colnm), 
-	    				  maxidx, sd );
-    const float evpos = mNINT( evf.find( evtype_, intv ).pos );
-    if ( evpos>maxidx || evpos<0 ) return zpos;
+    Interval<float> intv( zpos, zpos+mTimeGate );
+    SamplingData<float> sd; sd.start = 0; sd.step = SI().zStep();
+    ValueSeriesEvFinder<float,float> evf( *dispdata_->get(colnm), maxidx, sd );
+    const float evpos = evf.find( evtype_, intv ).pos;
+    if ( mIsUdf(evpos) || evpos<0 ) return zpos;
 
     return evpos;
 }
