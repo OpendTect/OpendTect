@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: tableposprovider.cc,v 1.3 2009-03-18 17:52:58 cvskris Exp $";
+static const char* rcsID = "$Id: tableposprovider.cc,v 1.4 2009-07-15 14:50:47 cvsbert Exp $";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
@@ -101,7 +101,34 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	{
 	    StreamData sd( StreamProvider(res).makeIStream() );
 	    if ( sd.usable() )
-		{ bvs.getFrom( *sd.istrm ); sd.close(); }
+	    {
+		bvs.getFrom( *sd.istrm );
+		sd.close();
+	    }
+	    if ( !bvs.isEmpty() )
+	    {
+		float zfac = -1;
+		if ( !SI().zIsTime() )
+		    zfac = SI().depthsInFeetByDefault() ? mFromFeetFactor : -1;
+		else if ( bvs.nrVals() > 0 )
+		{
+		    const Interval<float> zrg( bvs.valRange(0) );
+		    if ( !mIsUdf(zrg.start) )
+		    {
+			const Interval<float> sizrg( SI().zRange(false) );
+			const float siwdth = sizrg.width();
+			if ( zrg.start < sizrg.start - 10 * siwdth
+			  || zrg.stop > sizrg.stop + 10 * siwdth )
+			    zfac = 0.001;
+		    }
+		}
+		if ( zfac > 0 )
+		{
+		    BinIDValueSet::Pos p;
+		    while ( bvs.next(p) )
+			*bvs.getVals(p) *= zfac;
+		}
+	    }
 	}
     }
 
