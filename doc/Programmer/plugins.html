@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.47 2009-01-06 10:10:48 cvsbert Exp $
+  - RCS:	$Id: plugins.html,v 1.48 2009-07-15 09:24:09 cvskarthika Exp $
  -->
 
 <body background="backg.png"><title>Plugins [OpendTect Programmer's manual V3.2]</title>
@@ -493,33 +493,37 @@ for UI plugins that want to start working when all objects have already been cre
 }
 </pre></code>
 
-<p><a name=hortools><h5>HorTools</h5>
+<p><a name=hortools><h5>HorTool</h5>
 
-<p> Similar to <code>SeisTools, HorTools</code> performs some simple operations on horizons: thickness computation and smoothening. Each of these operations is handled by a subclass of <code>HorTools</code> which is a subclass of <code>Executor</code> and as expected the computation is performed by the function <code>nextStep()</code>. You may notice here that no object of class <code>HorTools</code> is defined anywhere. It is only used as the base class for classes <code>ThicknessFinder</code> and <code>HorSmoothener</code>. Let us have a look at the <code>nextStep()</code> function in class <code>ThicknessFinder</code> to see how the data values are accessed in a <code>Horizon3D</code>:<p>
+<p> Similar to <code>SeisTools, HorTool</code> performs some simple operations on horizons: thickness computation and smoothening. Each of these operations is handled by a subclass of <code>HorTool</code> which is a subclass of <code>Executor</code> and as expected the computation is performed by the function <code>nextStep()</code>. You may notice here that no object of class <code>HorTool</code> is defined anywhere. It is only used as the base class for classes <code>ThicknessCalculator</code> and <code>HorSmoothener</code>. Let us have a look at the <code>nextStep()</code> function in class <code>ThicknessCalculator</code> to see how the data values are accessed in a <code>Horizon3D</code>:<p>
 
-<code><pre>int Tut::ThicknessFinder::nextStep()
+<code><pre>int Tut::ThicknessCalculator::nextStep()
 {
     if ( !iter_->next(bid_) )
-        return Executor::Finished;
+        return Executor::Finished();
 
-    const EM::SubID subid = bid_.getSerialized();
-    const float z1 = horizon1_->getPos( horizon1_->sectionID(0), subid ).z;
-    const float z2 = horizon2_->getPos( horizon2_->sectionID(0), subid ).z;
+    int nrsect = horizon1_->nrSections();
+    if ( horizon2_->nrSections() < nrsect ) nrsect = horizon2_->nrSections();
 
-    float val = mUdf(float);
-    if ( !mIsUdf(z1) && !mIsUdf(z2) )
+    for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
-        val = fabs( z2 - z1 );
-        if ( SI().zIsTime() ) val *= 1000;
+        const EM::SubID subid = bid_.getSerialized();
+        const float z1 = horizon1_->getPos( isect, subid ).z;
+        const float z2 = horizon2_->getPos( isect, subid ).z;
+
+        float val = mUdf(float);
+        if ( !mIsUdf(z1) && !mIsUdf(z2) )
+            val = fabs( z2 - z1 ) * usrfac_;
+
+        posid_.setSubID( subid );
+        posid_.setSectionID( isect );
+        horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
     }
 
-    posid_.setSubID( subid );
-    horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
-    
     nrdone_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }</pre></code>
-<p> Please note the difference in the function <code>dataSaver</code> in the two classes. In <code>ThicknessFinder</code>, it saves the auxilary data, whereas in <code>HorSmoothener</code>, it saves the geometry.<p>
+<p> Please note the difference in the function <code>dataSaver</code> in the two classes. In <code>ThicknessCalculator</code>, it saves the auxilary data, whereas in <code>HorSmoothener</code>, it saves the geometry.<p>
 <p>
 <a name=tutattrib><h4>The Tutorial Attribute</h4>
 
