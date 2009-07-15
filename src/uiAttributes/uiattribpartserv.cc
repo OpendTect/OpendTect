@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.129 2009-07-15 12:44:24 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.130 2009-07-15 14:36:01 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -293,8 +293,8 @@ void uiAttribPartServer::showXPlot( CallBacker* cb )
 	is2d = is2DEvent();
     else if ( attrsetdlg_ )
 	is2d = attrsetdlg_->getSet()->is2D();
-
-    uiattrxplot_ = new uiAttribCrossPlot( 0, *curDescSet(is2d) );
+    uiattrxplot_ = new uiAttribCrossPlot( 0,
+	    	 *(attrsetdlg_ ? attrsetdlg_->getSet() : curDescSet(is2d)) );
     uiattrxplot_->setDeleteOnClose( true );
     uiattrxplot_->pointsSelected.notify(
 	    mCB(this,uiAttribPartServer,showSelPts) );
