@@ -1,0 +1,6 @@
+#!/bin/csh -f
+# Calls ckin from $WORK/..
+# $Id: ckinall,v 1.1 2009-07-15 07:14:51 cvsbert Exp $
+
+cd $WORK/..
+ckin
