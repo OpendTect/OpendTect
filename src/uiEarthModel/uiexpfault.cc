@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.13 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.14 2009-07-15 13:47:28 cvsbert Exp $";
 
 #include "uiexpfault.h"
 
@@ -55,6 +55,17 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     coordfld_ = new uiGenInput( this, "Write coordinates as",
 				BoolInpSpec(true,"X/Y","Inl/Crl") );
     coordfld_->attach( alignedBelow, infld_ );
+
+    bool setchk = true;
+    if ( SI().zIsTime() )
+	zbox_ = new uiCheckBox( this, "Z in msec" );
+    else
+    {
+	zbox_ = new uiCheckBox( this, "Z in feet" );
+	setchk = SI().depthsInFeetByDefault();
+    }
+    zbox_->setChecked( setchk );
+    zbox_->attach( rightTo, coordfld_ );
 
     stickfld_ = new uiCheckBox( this, "stick index" );
     stickfld_->setChecked( true );
@@ -140,6 +151,8 @@ bool uiExportFault::writeAscii()
     }
 
     BufferString str;
+    const float zfac = !zbox_->isChecked() ? 1
+		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickfld_->isChecked();
     const bool inclknotidx = nodefld_->isChecked();
@@ -168,7 +181,7 @@ bool uiExportFault::writeAscii()
 		*sdo.ostrm << str;
 	    }
 
-	    *sdo.ostrm << '\t' << crd.z*SI().zFactor();
+	    *sdo.ostrm << '\t' << crd.z*zfac;
 
 	    if ( inclstickidx )
 		*sdo.ostrm << '\t' << stickidx;
