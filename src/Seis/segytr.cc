@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.82 2009-05-26 09:49:49 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.83 2009-07-15 10:16:55 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -177,7 +177,7 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     }
     else if ( nr == cSEGYWarnZeroSampIntv )
     {
-	msg = "Zero sample interval found. Replaced with survey default.\n"
+	msg = "Zero sample interval found in trace header.\n"
 	      "First occurrence ";
 	msg += detail;
     }
@@ -201,10 +201,16 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 
 void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
-    SeisTrcInfo info;
-    trchead_.fill( info, fileopts_.coordscale_ );
-    insd = info.sampling;
-    if ( !insd.step ) insd.step = binhead_dpos_;
+    SeisTrcInfo info; trchead_.fill( info, fileopts_.coordscale_ );
+
+    insd.start = info.sampling.start;
+    insd.step = binhead_dpos_;
+    if ( mIsZero(insd.step,1e-8) )
+    {
+	insd.step = info.sampling.step;
+	if ( mIsZero(insd.step,1e-8) )
+	    insd.step = SI().zRange(false).step;
+    }
     if ( !mIsUdf(fileopts_.timeshift_) )
 	insd.start = fileopts_.timeshift_;
     if ( !mIsUdf(fileopts_.sampleintv_) )
@@ -620,7 +626,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( mIsZero(ti.sampling.step,mDefEps) )
     {
 	addWarn(cSEGYWarnZeroSampIntv,getTrcPosStr());
-	ti.sampling.step = SI().zStep();
+	ti.sampling.step = insd.step;
     }
 
     if ( trchead_.nonrectcoords )
