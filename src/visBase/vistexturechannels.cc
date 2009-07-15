@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.21 2009-06-22 19:38:54 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.22 2009-07-15 18:44:54 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -30,29 +30,31 @@ namespace visBase
 class ChannelInfo : public CallBacker
 {
 public:
-    			ChannelInfo( TextureChannels& );
-    			~ChannelInfo();
+				ChannelInfo( TextureChannels& );
+				~ChannelInfo();
 
-    void		setColTabMapperSetup(const ColTab::MapperSetup&);
-    const ColTab::MapperSetup& getColTabMapperSetup(int version) const;
-    const ColTab::Mapper& getColTabMapper(int version) const;
-    bool		reMapData(TaskRunner*);
+    void			setColTabMapperSetup(
+	    					const ColTab::MapperSetup&);
+    const ColTab::MapperSetup&	getColTabMapperSetup(int version) const;
+    const ColTab::Mapper&	getColTabMapper(int version) const;
+    bool			reMapData(TaskRunner*);
+    const TypeSet<float>&	getHistogram() const	{ return histogram_; }
 
-    void		setNrVersions(int);
-    int			nrVersions() const;
+    void			setNrVersions(int);
+    int				nrVersions() const;
 
-    void		removeCaches();
+    void			removeCaches();
 
-    bool		setUnMappedData(int version,const float*,
-	    				OD::PtrPolicy, TaskRunner*);
-    bool		setMappedData(int version,unsigned char*,
-	    			      OD::PtrPolicy);
+    bool			setUnMappedData(int version,const float*,
+	    					OD::PtrPolicy, TaskRunner*);
+    bool			setMappedData(int version,unsigned char*,
+	    				      OD::PtrPolicy);
 
-    void		clipData(int version,TaskRunner*);
-    			//!<If version==-1, all versions will be clipped
-    bool		mapData(int version,TaskRunner*);
-    int			getCurrentVersion() const;
-    void		setCurrentVersion( int );
+    void			clipData(int version,TaskRunner*);
+    				//!<If version==-1, all versions will be clipped
+    bool			mapData(int version,TaskRunner*);
+    int				getCurrentVersion() const;
+    void			setCurrentVersion( int );
 
     ObjectSet<unsigned char>			mappeddata_;
     BoolTypeSet					ownsmappeddata_;
@@ -61,12 +63,14 @@ public:
     ObjectSet<ColTab::Mapper>			mappers_;
     int						currentversion_;
     TextureChannels&				owner_;
+    TypeSet<float>				histogram_;
 };
 
 
 ChannelInfo::ChannelInfo( TextureChannels& nc )
     : owner_( nc )
     , currentversion_( 0 )
+    , histogram_( mNrColors, 0 )
 {
     mappeddata_.allowNull(true);
     unmappeddata_.allowNull(true);
@@ -278,6 +282,24 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 	    mNrColors, unmappeddata_[version], mappeddata_[version] );
     if ( ( tr && tr->execute(maptask) ) || maptask.execute() )
     {
+	int max = 0;
+	const unsigned int* histogram = maptask.getHistogram();
+	for ( int idx=mNrColors-1; idx>=0; idx-- )
+	{
+	    if ( histogram[idx]>max )
+		max = histogram[idx];
+	}
+
+	if ( max )
+	{
+	    for ( int idx=mNrColors-1; idx>=0; idx-- )
+		histogram_[idx] = (float) histogram[idx]/max;
+	}
+	else
+	{
+	    memset( histogram_.arr(), 0, histogram_.size()*sizeof(float) );
+	}
+
 	owner_.update( this, true );
 	return true;
     }
@@ -488,6 +510,15 @@ void TextureChannels::reMapData( int channel, TaskRunner* tr )
 	pErrMsg("Index out of bounds");
 
     channelinfo_[channel]->reMapData( tr );
+}
+
+
+const TypeSet<float>* TextureChannels::getHistogram( int channel ) const
+{
+    if ( !channelinfo_.validIdx(channel) )
+	return 0;
+
+    return &channelinfo_[channel]->getHistogram();
 }
 
 

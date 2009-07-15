@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.10 2009-05-27 15:59:48 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.11 2009-07-15 18:44:54 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ public:
 	    					     int version) const;
     const ColTab::Mapper&	getColTabMapper(int channel,int version) const;
     void			reMapData(int channel,TaskRunner*);
+    const TypeSet<float>*	getHistogram(int channel) const;
 
     void			setNrVersions(int channel,int nrvers);
     int				nrVersions(int channel) const;
