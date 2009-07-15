@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.18 2009-04-06 09:32:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.19 2009-07-15 14:36:17 cvsbert Exp $";
 
 
 #include "uiprestackattrib.h"
@@ -107,7 +107,7 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
 
 bool uiPreStackAttrib::getParameters( Desc& desc )
 {
-    inpfld_->processInput();
+    inpfld_->commitInput();
     if ( !ctio_.ioobj )
 	{ errmsg_ = "Please select the input data store"; return false; }
 
