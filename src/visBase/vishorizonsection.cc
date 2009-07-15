@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.51 2009-06-26 18:19:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.52 2009-07-15 19:07:56 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -697,6 +697,10 @@ const ColTab::MapperSetup* HorizonSection::getColTabMapperSetup( int ch ) const
 {
     return ch<0 ? 0 : &channels_->getColTabMapperSetup( ch,activeVersion(ch) );
 }
+
+
+const TypeSet<float>* HorizonSection::getHistogram( int ch ) const
+{ return channels_->getHistogram( ch ); }
 
 
 void HorizonSection::setTransparency( int ch, unsigned char yn )

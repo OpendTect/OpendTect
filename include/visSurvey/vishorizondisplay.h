@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.46 2009-07-02 20:59:44 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.47 2009-07-15 19:07:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -131,6 +131,7 @@ public:
     const ColTab::MapperSetup*	getColTabMapperSetup(int attr) const;
     void			setColTabMapperSetup(int attr,
 				    const ColTab::MapperSetup&,TaskRunner*);
+    const TypeSet<float>*	getHistogram(int) const;
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);

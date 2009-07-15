@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.100 2009-07-15 17:26:11 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.101 2009-07-15 19:07:56 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1099,6 +1099,15 @@ const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch ) const
        return 0;
 
     return &coltabmappersetups_[ch];
+}
+
+
+const TypeSet<float>* HorizonDisplay::getHistogram( int attrib ) const
+{
+    if ( !sections_.size() )
+	return 0;
+
+    return sections_[0]->getHistogram( attrib );
 }
 
 

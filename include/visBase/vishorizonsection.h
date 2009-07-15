@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.31 2009-06-26 18:19:28 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.32 2009-07-15 19:07:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -101,6 +101,7 @@ public:
 						const ColTab::MapperSetup&,
 						TaskRunner*);
     const ColTab::MapperSetup*	getColTabMapperSetup(int channel) const;
+    const TypeSet<float>*	getHistogram(int channel) const;
 
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;
