@@ -4,9 +4,10 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: attribdescsettr.cc,v 1.7 2009-06-29 04:48:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.8 2009-07-15 12:44:23 cvshelene Exp $";
 
 #include "attribdescsettr.h"
+#include "ascstream.h"
 #include "attrfact.h"
 #include "attribdescset.h"
 #include "bufstringset.h"
@@ -62,16 +63,20 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
     if ( !conn.forRead() || !conn.isStream() )
 	return "Internal error: bad connection";
 
-    IOPar iopar, bupar;
-    iopar.read( ((StreamConn&)conn).iStream(), mTranslGroupName(AttribDescSet));
-    ads.fillPar( bupar );
+    ascistream astream( ((StreamConn&)conn).iStream() );
+    const float versionnr = atof( astream.version() );
+    if ( strcmp(astream.fileType(),mTranslGroupName(AttribDescSet)) )
+	return "File has wrong file type";
+
+    IOPar iopar( astream );
+    IOPar bupar; ads.fillPar( bupar );
     ads.removeAll( false );
     BufferStringSet parseerrmsgs;
-    ads.usePar( iopar, &parseerrmsgs );
+    ads.usePar( iopar, versionnr, &parseerrmsgs );
 
     if ( !ads.nrDescs() )
     {
-	ads.usePar( bupar );
+	ads.usePar( bupar, versionnr );
 	return "Could not find any attribute definitions in file";
     }
     

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.96 2009-07-07 09:05:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.97 2009-07-15 12:44:24 cvshelene Exp $";
 
 #include "uimpepartserv.h"
 
@@ -1092,8 +1092,16 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
     if ( !attrpar ) return true;
 
+    BufferString version;
+    float versionnr = 0;
+    if ( iopar.get( "dTect", version ) )
+    {
+	const char* ptr = version.buf();
+	ptr +=1;
+	versionnr = atof( ptr );
+    }
     Attrib::DescSet newads( tracker->is2D() );
-    newads.usePar( *attrpar );
+    newads.usePar( *attrpar, versionnr );
     mergeAttribSets( newads, *tracker ); 
     return true;
 }

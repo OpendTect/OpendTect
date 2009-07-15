@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.26 2009-03-03 08:14:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.27 2009-07-15 12:44:24 cvshelene Exp $";
 
 #include "batchprog.h"
 
@@ -77,9 +77,10 @@ bool BatchProgram::go( std::ostream& strm )
 {
     strm << "Processing on " << HostData::localHostName()  << '.' << std::endl;
 
+    float vsn = 0;
     if ( !parversion_.isEmpty() )
     {
-	const float vsn = atof( parversion_.buf() );
+	vsn = atof( parversion_.buf() );
 	if ( vsn < 3.2 )
 	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
     }
@@ -159,7 +160,7 @@ bool BatchProgram::go( std::ostream& strm )
     else
     {
 	PtrMan<IOPar> attribs = pars().subselect("Attributes");
-	if ( !attribset.usePar( *attribs ) )
+	if ( !attribset.usePar( *attribs, vsn ) )
 	    mRetJobErr( attribset.errMsg() )
     }
 

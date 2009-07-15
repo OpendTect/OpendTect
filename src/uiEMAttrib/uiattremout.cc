@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattremout.cc,v 1.9 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattremout.cc,v 1.10 2009-07-15 12:44:24 cvshelene Exp $";
 
 
 #include "uiattremout.h"
@@ -89,7 +89,7 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 	MultiID ky;
 	DescSet descset(true);
 	if ( nlamodel_ )
-	    descset.usePar( nlamodel_->pars() );
+	    descset.usePar( nlamodel_->pars(), nlamodel_->versionNr() );
 
 	const Desc* desc = nlamodel_ ? descset.getFirstStored()
 				     : clonedset->getFirstStored();

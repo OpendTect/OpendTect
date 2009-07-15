@@ -4,13 +4,15 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.20 2009-01-27 12:48:01 cvsbert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.21 2009-07-15 12:44:24 cvshelene Exp $";
 
 #include "odsession.h"
-#include "ptrman.h"
+#include "ascstream.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "ascstream.h"
+#include "keystrs.h"
+#include "odver.h"
+#include "ptrman.h"
 #include "settings.h"
 #include "survinfo.h"
 
@@ -25,6 +27,13 @@ const char* ODSession::trackprefix = "Tracking";
 const char* ODSession::pluginprefix = "Plugins";
 const char* ODSession::sKeyUseStartup = "dTect.Use startup session";
 const char* ODSession::sKeyStartupID = "Session.Auto ID";
+
+
+ODSession::ODSession()
+{
+    versionnr_ = mODMajorVersion; versionnr_ += ".";
+    versionnr_ += mODMinorVersion;
+}
 
 
 void ODSession::clear()
@@ -52,6 +61,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 	nlapars_ = sess.nlapars_;
 	mpepars_ = sess.mpepars_;
 	pluginpars_ = sess.pluginpars_;
+	versionnr_ = sess.versionnr_;
     }
     return *this;
 }
@@ -65,9 +75,12 @@ bool ODSession::operator==( const ODSession& sess ) const
 	&& attrpars3d_ == sess.attrpars3d_
 	&& nlapars_ == sess.nlapars_
 	&& mpepars_ == sess.mpepars_
-	&& pluginpars_ == sess.pluginpars_;
+	&& pluginpars_ == sess.pluginpars_
+	&& versionnr_ == sess.versionnr_;
 }
-    
+   
+#define mAddVersionNr(iopar) \
+    iopar.add( sKey::Version, versionnr_ );
 
 bool ODSession::usePar( const IOPar& par )
 {
@@ -103,6 +116,14 @@ bool ODSession::usePar( const IOPar& par )
     if ( pluginsubpars )
         pluginpars_ = *pluginsubpars;
 
+    mAddVersionNr(vispars_);
+    mAddVersionNr(scenepars_);
+    mAddVersionNr(attrpars_);
+    mAddVersionNr(attrpars2d_);
+    mAddVersionNr(attrpars3d_);
+    mAddVersionNr(nlapars_);
+    mAddVersionNr(mpepars_);
+    mAddVersionNr(pluginpars_);
     return true;
 }
 
@@ -218,6 +239,7 @@ const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn )
     if ( iopar.isEmpty() )
 	return "Empty input file";
 
+    session.setVersionNr( BufferString(astream.version()) );
     if ( !session.usePar( iopar ))
 	return "Could not read session-file";
 

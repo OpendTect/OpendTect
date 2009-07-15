@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.23 2009-02-18 16:26:27 cvshelene Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.24 2009-07-15 12:44:24 cvshelene Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -319,7 +319,7 @@ void uiEvaluateDlg::variableSel( CallBacker* )
 
 void uiEvaluateDlg::calcPush( CallBacker* )
 {
-    attrset_->usePar( initpar_ );
+    attrset_->usePar( initpar_ , atof(GetProjectVersionName()) );
     sliderfld->sldr()->setValue(0);
     lbls_.erase();
     specs_.erase();

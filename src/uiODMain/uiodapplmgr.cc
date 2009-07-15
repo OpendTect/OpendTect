@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.340 2009-07-02 20:32:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.341 2009-07-15 12:44:24 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1229,7 +1229,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// New NLA Model available: replace the attribute set!
 	// Create new attrib set from NLA model's IOPar
 
-	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
+	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent(),
+	       		       nlaserv_->getModel().versionNr() );
 	wellattrserv_->setNLAModel( &nlaserv_->getModel() );
     }
     else if ( evid == uiNLAPartServer::evGetInputNames() )
@@ -1279,7 +1280,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( res!=uiNLAPartServer::sKeyUsrCancel() )
 	    uiMSG().warning( res );
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
-	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D() );
+	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D(),
+		   		   atof( GetProjectVersionName() ) );
 	deepErase(dpss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass() )
@@ -1299,7 +1301,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( !attrserv_->createAttributeSet(nlaserv_->modelInputs(),&attrset) )
 	    return false;
 	attrset.fillPar( nlaserv_->modelPars() );
-	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
+	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent(),
+	       		       nlaserv_->getModel().versionNr() );
     }
     else
 	pErrMsg("Unknown event from nlaserv");

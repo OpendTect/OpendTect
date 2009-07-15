@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.80 2009-06-17 19:28:45 cvskris Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.81 2009-07-15 12:44:23 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -13,13 +13,13 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.80 2009-06-17 19:28:45 cvs
 #include "attribfactory.h"
 #include "attribsel.h"
 #include "bufstringset.h"
+#include "gendefs.h"
 #include "keystrs.h"
-#include "separstr.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mathexpression.h"
 #include "separstr.h"
-#include "gendefs.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 
@@ -301,7 +301,8 @@ void DescSet::handleStorageOldFormat( IOPar& descpar )
 
 
 void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
-	                           BufferString& defstring )
+	                           BufferString& defstring,
+				   float versionnr ) const
 {
     if ( attribname == "RefTime" )
     {
@@ -318,6 +319,53 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	BufferString bstr = attribname;
 	bstr += ptr;
 	defstring = bstr;
+    }
+    if ( attribname == "Math" && versionnr<3.4 )
+	handleOldMathExpression( descpar, defstring );
+}
+
+
+void DescSet::handleOldMathExpression( IOPar& descpar,
+				       BufferString& defstring ) const
+{
+    RefMan<Desc> tmpdesc = PF().createDescCopy("Math");
+    if ( !tmpdesc || !tmpdesc->parseDefStr(defstring.buf()) ) return;
+    ValParam* expr = tmpdesc->getValParam( "expression" );
+    if ( !expr ) return;
+    MathExpressionParser mep( expr->getStringValue() );
+    PtrMan<MathExpression> formula = mep.parse();
+    if ( !formula ) return;
+
+    TypeSet<int> oldinputs;
+    TypeSet<int> correctinputs;
+    int inputidx = 0;
+    while( true )
+    {
+	int inpid;
+	const char* key = IOPar::compKey( inputPrefixStr(), inputidx );
+	if ( !descpar.get(key,inpid) ) break;
+	oldinputs += inpid;
+	inputidx++;
+    }
+
+    for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
+    {
+	if ( MathExpressionParser::varTypeOf( formula->uniqueVarName(idx) ) !=
+		MathExpression::Variable ) continue;
+
+	const BufferString varnm( formula->uniqueVarName(idx) );
+	const char* ptr = varnm.buf();
+	while ( *ptr && !isdigit(*ptr) )
+	    ptr++;
+
+	int varxidx = atoi( ptr );
+	correctinputs += oldinputs[varxidx];
+    }
+
+    for ( int idx=0; idx<correctinputs.size(); idx++ )
+    {
+	const char* key = IOPar::compKey( inputPrefixStr(), idx );
+	descpar.set( key, correctinputs[idx] );
     }
 }
 
@@ -461,7 +509,8 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 }
 
 
-bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
+bool DescSet::usePar( const IOPar& par, float versionnr,
+		      BufferStringSet* errmsgs )
 {
     const char* typestr = par.find( sKey::Type );
     if ( typestr )
@@ -489,7 +538,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	if ( !Desc::getAttribName( defstring.buf(), attribname ) )
 	    mHandleParseErr( "Cannot find attribute name" );
 
-	handleOldAttributes( attribname, *descpar, defstring );
+	handleOldAttributes( attribname, *descpar, defstring, versionnr );
 	
 	RefMan<Desc> dsc;
 	dsc = errmsgs ? createDesc( attribname, *descpar, defstring, errmsgs )
@@ -509,6 +558,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	
 	dsc->updateParams();
 	addDesc( dsc, DescID(id,true) );
+	copypar.mergeComp( *descpar, toString(id) );
     }
     
     ObjectSet<Desc> newsteeringdescs;

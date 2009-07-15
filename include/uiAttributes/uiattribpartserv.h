@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.57 2009-06-03 06:59:39 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.58 2009-07-15 12:44:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ public:
     bool		selectAttrib(Attrib::SelSpec&,const char*,bool);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*);
     void		outputVol(MultiID&,bool);
-    bool		replaceSet(const IOPar&,bool);
+    bool		replaceSet(const IOPar&,bool,float);
     bool		addToDescSet(const char*,bool);
     int			getSliceIdx() const		{ return sliceidx_; }
     void		getPossibleOutputs(bool,BufferStringSet&) const;

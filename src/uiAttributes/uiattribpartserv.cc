@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.128 2009-07-06 12:47:56 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.129 2009-07-15 12:44:24 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -187,10 +187,11 @@ void uiAttribPartServer::useAutoSet( bool is2d )
 }
 
 
-bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
+bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d,
+				     float versionnr )
 {
     DescSet* ads = new DescSet(is2d);
-    if ( !ads->usePar(iopar) )
+    if ( !ads->usePar(iopar, versionnr) )
     {
 	delete ads;
 	return false;
@@ -1446,7 +1447,10 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d )
     if ( adsman->descSet() )
     {
 	BufferStringSet errmsgs;
-	adsman->descSet()->usePar( iopar, &errmsgs );
+	BufferString versionstr;
+	float versionnr = iopar.get( sKey::Version, versionstr )
+	    			? atof( versionstr.buf() ) : 0 ;
+	adsman->descSet()->usePar( iopar, versionnr, &errmsgs );
 	BufferString errmsg;
 	for ( int idx=0; idx<errmsgs.size(); idx++ )
 	{

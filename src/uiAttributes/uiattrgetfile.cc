@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.11 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.12 2009-07-15 12:44:24 cvshelene Exp $";
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
@@ -80,6 +80,16 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 {
     fname_ = fileinpfld->fileName();
     IOPar iop; iop.read( fname_, sKey::Pars );
+
+    BufferString version;
+    float versionnr = 0;
+    if ( iop.get( "dTect", version ) )
+    {
+	const char* ptr = version.buf();
+	ptr +=1;
+	versionnr = atof( ptr );
+    }
+
     if ( !isattrset_ )
     {
 	PtrMan<IOPar> subpar = iop.subselect( "Attributes" );
@@ -87,7 +97,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 	if ( subpar ) iop = *subpar;
     }
 
-    attrset_.removeAll( false ); attrset_.usePar( iop );
+    attrset_.removeAll( false ); attrset_.usePar( iop, versionnr );
     const int nrgood = attrset_.nrDescs( false, false );
     BufferString txt( nrgood == 1  ? "Attribute: "
 			: (nrgood ? "Attributes:\n"

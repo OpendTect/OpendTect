@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.60 2009-07-10 16:14:03 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.61 2009-07-15 12:44:23 cvshelene Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -94,11 +94,11 @@ protected:
 
 
 static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
-			    bool stepout )
+			    bool stepout, float vnr )
 {
     DescSet initialset( false );
     PtrMan<IOPar> attribs = iopar.subselect("Attributes");
-    if ( !initialset.usePar( *attribs ) )
+    if ( !initialset.usePar( *attribs, vnr ) )
 	mErrRet( initialset.errMsg() )
 
     const BufferString tmpoutstr( IOPar::compKey( sKey::Output, 0 ) );
@@ -312,12 +312,13 @@ bool BatchProgram::go( std::ostream& strm )
     Attributes::initStdClasses();
     EarthModel::initStdClasses();
 
+    const float vnr = parversion_.isEmpty() ? 0 : atof( parversion_.buf() );
     if ( cmdLineOpts().size() )
     {
 	BufferString opt = *cmdLineOpts()[0];
 	bool ismaxstepout = opt == "maxstepout";
 	if ( ismaxstepout || opt == "validate" )
-	    return attribSetQuery( strm, pars(), ismaxstepout );
+	    return attribSetQuery( strm, pars(), ismaxstepout, vnr );
     }
 
     showHostName( strm );
@@ -386,7 +387,7 @@ bool BatchProgram::go( std::ostream& strm )
     StorageProvider::initClass();
     DescSet attribset( false );
     PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes );
-    if ( !attribset.usePar(*attribs) )
+    if ( !attribset.usePar(*attribs,vnr) )
 	mErrRetNoProc( attribset.errMsg() )
 
     PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output,0) );

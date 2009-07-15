@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlamodel.h,v 1.6 2009-01-06 05:22:16 cvsranojay Exp $
+ RCS:		$Id: nlamodel.h,v 1.7 2009-07-15 12:44:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
     virtual const char*			name() const			= 0;
     virtual const NLADesign&		design() const			= 0;
     virtual NLAModel*			clone()	const			= 0;
+    virtual float			versionNr() const		= 0;
 
     virtual IOPar&			pars()				= 0;
     const IOPar&			pars() const

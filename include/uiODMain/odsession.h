@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.7 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: odsession.h,v 1.8 2009-07-15 12:44:23 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ ________________________________________________________________________
 mClass ODSession
 {
 public:
-    			ODSession()		{}
+    			ODSession();
     virtual		~ODSession()		{}
 
     IOPar&		vispars() 		{ return vispars_; }
@@ -42,6 +42,8 @@ public:
     static void		getStartupData(bool& douse,MultiID&);
     static void		setStartupData(bool,const MultiID&);
 
+    void		setVersionNr( BufferString nr )	{ versionnr_ = nr; }
+
 protected:
 
     IOPar		vispars_;
@@ -52,6 +54,8 @@ protected:
     IOPar		nlapars_;
     IOPar		mpepars_;
     IOPar		pluginpars_;
+
+    BufferString	versionnr_;
 
     static const char*	visprefix;
     static const char*	sceneprefix;

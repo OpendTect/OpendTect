@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.37 2009-02-26 13:00:52 cvsbert Exp $
+ RCS:           $Id: attribdescset.h,v 1.38 2009-07-15 12:44:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,8 @@ public:
     bool 			isAttribUsed(const DescID&) const;
 
     void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&,BufferStringSet* errmsgs=0);
+    bool			usePar(const IOPar&,float,
+	    			       BufferStringSet* errmsgs=0);
     bool 			useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
 	    					  BufferStringSet*);
     bool			createSteeringDesc(const IOPar&,BufferString,
@@ -100,8 +101,10 @@ public:
     bool 			setAllInputDescs(int, const IOPar&,
 						 BufferStringSet*);
     void 			handleStorageOldFormat(IOPar&);
-    void 			handleOldAttributes(BufferString&, IOPar&,
-						    BufferString&);
+    void 			handleOldAttributes(BufferString&,IOPar&,
+						    BufferString&,float) const;
+    void			handleOldMathExpression(IOPar&,
+	    						BufferString&) const;
     void                        handleReferenceInput(Desc*);
 
     				//!<will prepare strings for each desc, format :
