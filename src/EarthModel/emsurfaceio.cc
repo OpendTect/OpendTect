@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.126 2009-07-02 22:11:36 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.127 2009-07-16 09:29:22 cvsjaap Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1506,13 +1506,23 @@ int dgbSurfaceWriter::nextStep()
 	mDynamicCastGet(const Horizon3D*,hor,&surface_);
 	for ( int idx=0; idx<auxdatasel_.size(); idx++ )
 	{
-	    if ( auxdatasel_[idx]>=hor->auxdata.nrAuxData() )
+	    const int dataidx = auxdatasel_[idx];
+	    if ( dataidx<0 || dataidx>=hor->auxdata.nrAuxData() )
 		continue;
 
-	    BufferString fnm( dgbSurfDataWriter::createHovName( 
-		    			conn_->fileName(),auxdatasel_[idx]) );
-	    add(new dgbSurfDataWriter(*hor,auxdatasel_[idx],0,binary_,
-				      fnm.buf()));
+	    BufferString fnm = hor->auxdata.getAuxDataFileName( *ioobj_,
+		    					auxDataName(dataidx) );
+	    if ( fnm.isEmpty() )
+	    {
+		for ( int count=0; true; count++ )
+		{
+		    fnm = dgbSurfDataWriter::createHovName( conn_->fileName(),
+							    count );
+		    if ( !File_exists(fnm.buf()) )
+			break;
+		}
+	    }
+	    add(new dgbSurfDataWriter(*hor,dataidx,0,binary_,fnm.buf()));
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
 	}
