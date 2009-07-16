@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.33 2009-06-17 13:00:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.34 2009-07-16 07:29:12 cvsbert Exp $";
 
 #include "uistratreftree.h"
 
@@ -28,9 +28,9 @@ static const char* rcsID = "$Id: uistratreftree.cc,v 1.33 2009-06-17 13:00:44 cv
 #define PMWIDTH		11
 #define PMHEIGHT	9
 
-static const int sUnitsCol	= 0;
-static const int sDescCol	= 1;
-static const int sLithoCol	= 2;
+static const int cUnitsCol	= 0;
+static const int cDescCol	= 1;
+static const int cLithoCol	= 2;
 
 using namespace Strat;
 
@@ -136,9 +136,9 @@ void uiStratRefTree::makeTreeEditable( bool yn ) const
     uiListViewItem* lvit = lv_->firstItem();
     while ( lvit )
     {
-	lvit->setRenameEnabled( sUnitsCol, false );  //TODO
-	lvit->setRenameEnabled( sDescCol, false );   //TODO
-	lvit->setRenameEnabled( sLithoCol, false );
+	lvit->setRenameEnabled( cUnitsCol, false );  //TODO
+	lvit->setRenameEnabled( cDescCol, false );   //TODO
+	lvit->setRenameEnabled( cLithoCol, false );
 	lvit->setDragEnabled( yn );
 	lvit->setDropEnabled( yn );
 	lvit = lvit->itemBelow();
@@ -196,9 +196,9 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	else
 	    newitem = new uiListViewItem( lv_, setup );
 
-	newitem->setRenameEnabled( sUnitsCol, false );	//TODO
-	newitem->setRenameEnabled( sDescCol, false );	//TODO
-	newitem->setRenameEnabled( sLithoCol, false );
+	newitem->setRenameEnabled( cUnitsCol, false );	//TODO
+	newitem->setRenameEnabled( cDescCol, false );	//TODO
+	newitem->setRenameEnabled( cLithoCol, false );
 	newitem->setDragEnabled( true );
 	newitem->setDropEnabled( true );
 	ioPixmap* pm = createLevelPixmap(0);
@@ -248,13 +248,13 @@ void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
 
     urdlg.setUnitName( lvit->text(0) ); 
     urdlg.setUnitDesc( lvit->text(1) ); 
-    urdlg.setUnitLith( lvit->text(sLithoCol) ); 
+    urdlg.setUnitLith( lvit->text(cLithoCol) ); 
     if ( urdlg.go() )
     {
 	//TODO will require an update of all children
-	//lvit->setText( urdlg.getUnitName(), sUnitsCol ); 
-	lvit->setText( urdlg.getUnitDesc(), sDescCol ); 
-	lvit->setText( urdlg.getUnitLith(), sLithoCol );
+	//lvit->setText( urdlg.getUnitName(), cUnitsCol ); 
+	lvit->setText( urdlg.getUnitDesc(), cDescCol ); 
+	lvit->setText( urdlg.getUnitLith(), cLithoCol );
 	uistratmgr_->updateUnitProps( uncode.buf(), urdlg.getUnitDesc(),
 				      urdlg.getUnitLith() );
     }
@@ -350,7 +350,7 @@ void uiStratRefTree::updateLithoCol()
 	    {
 		uiListViewItem* lvit = lv_->findItem(un->code().buf(),0,false);
 		if ( lvit )
-		    lvit->setText( "", sLithoCol );
+		    lvit->setText( "", cLithoCol );
 	    }
 	}
 	if ( !it.next() ) break;

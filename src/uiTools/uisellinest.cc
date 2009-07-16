@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.25 2009-01-13 03:32:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.26 2009-07-16 07:30:21 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -18,8 +18,8 @@ static const char* rcsID = "$Id: uisellinest.cc,v 1.25 2009-01-13 03:32:09 cvsna
 #include "bufstringset.h"
 
 
-static const int sMinWidth = 1;
-static const int sMaxWidth = 10;
+static const int cMinWidth = 1;
+static const int cMaxWidth = 10;
 
 uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 				const char* txt, bool wdraw, bool wcol, 
@@ -57,8 +57,8 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 	widthbox->box()->valueChanging.notify( 
 					mCB(this,uiSelLineStyle,changeCB) );
 	widthbox->box()->setValue( linestyle.width_ );
-	widthbox->box()->setMinValue( sMinWidth );
-  	widthbox->box()->setMaxValue( sMaxWidth );
+	widthbox->box()->setMinValue( cMinWidth );
+  	widthbox->box()->setMaxValue( cMaxWidth );
 	if ( colinp )
 	    widthbox->attach( rightTo, colinp );
 	else if ( stylesel )

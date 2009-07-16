@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicanvas.cc,v 1.46 2009-01-30 05:05:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicanvas.cc,v 1.47 2009-07-16 07:24:15 cvsbert Exp $";
 
 #include "uicanvas.h"
 #include "i_uidrwbody.h"
@@ -17,8 +17,8 @@ static const char* rcsID = "$Id: uicanvas.cc,v 1.46 2009-01-30 05:05:23 cvssatya
 #include <QFrame>
 
 
-static const int sDefaultWidth  = 1;
-static const int sDefaultHeight = 1;
+static const int cDefaultWidth  = 1;
+static const int cDefaultHeight = 1;
 
 class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QFrame>
 {
@@ -29,8 +29,8 @@ uiCanvasBody( uiCanvas& handle, uiParent* p, const char *nm="uiCanvasBody")
     , handle_( handle )
 {
     setStretch( 2, 2 );
-    setPrefWidth( sDefaultWidth );
-    setPrefHeight( sDefaultHeight );
+    setPrefWidth( cDefaultWidth );
+    setPrefHeight( cDefaultHeight );
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
 }
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.12 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.13 2009-07-16 07:21:04 cvsbert Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.12 2009-02-13 13:31
 
 using namespace Attrib;
 
-static const int sNrRandPicks = 100;
+static const int cNrRandPicks = 100;
 
 
 #define mErrRet(msg) \
@@ -67,7 +67,7 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
     }
     
     const int nrlines = geoms.size();
-    while ( rangesset->totalSize() < sNrRandPicks )
+    while ( rangesset->totalSize() < cNrRandPicks )
     {
 	const int lineidx = Stats::RandGen::getIndex( nrlines );
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
@@ -86,7 +86,7 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
 static void create3DRandPicks( BinIDValueSet* rangesset )
 {
     BinID bid;
-    for ( int ipt=0; ipt<sNrRandPicks; ipt++ )
+    for ( int ipt=0; ipt<cNrRandPicks; ipt++ )
     {
 	StepInterval<int> irg = SI().inlRange( true );
 	StepInterval<int> crg = SI().crlRange( true );

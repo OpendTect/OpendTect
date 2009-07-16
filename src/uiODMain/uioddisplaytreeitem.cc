@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.32 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.33 2009-07-16 07:27:27 cvsbert Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -47,25 +47,25 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
     return false;
 }
 
-static const int sHistogramIdx = 991;
-static const int sAttribIdx = 1000;
-static const int sDuplicateIdx = 900;
-static const int sLinkIdx = 800;
-static const int sLockIdx = -900;
-static const int sHideIdx = -950;
-static const int sRemoveIdx = -1000;
+static const int cHistogramIdx = 991;
+static const int cAttribIdx = 1000;
+static const int cDuplicateIdx = 900;
+static const int cLinkIdx = 800;
+static const int cLockIdx = -900;
+static const int cHideIdx = -950;
+static const int cRemoveIdx = -1000;
 
 uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(0)
     , displayid_(-1)
     , visserv_(ODMainWin()->applMgr().visServer())
-    , addattribmnuitem_("&Add attribute",sAttribIdx)
-    , duplicatemnuitem_("&Duplicate",sDuplicateIdx)
-    , displyhistgram_("&Show histogram ...",sHistogramIdx)		   
-    , linkmnuitem_("&Link ...",sLinkIdx)
-    , lockmnuitem_("&Lock",sLockIdx)
-    , hidemnuitem_("&Hide",sHideIdx )
-    , removemnuitem_("&Remove",sRemoveIdx)
+    , addattribmnuitem_("&Add attribute",cAttribIdx)
+    , duplicatemnuitem_("&Duplicate",cDuplicateIdx)
+    , displyhistgram_("&Show histogram ...",cHistogramIdx)		   
+    , linkmnuitem_("&Link ...",cLinkIdx)
+    , lockmnuitem_("&Lock",cLockIdx)
+    , hidemnuitem_("&Hide",cHideIdx )
+    , removemnuitem_("&Remove",cRemoveIdx)
 {
 }
 

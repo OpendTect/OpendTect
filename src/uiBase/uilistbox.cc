@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.102 2009-07-09 18:31:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.103 2009-07-16 07:24:15 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -27,6 +27,8 @@ static const char* rcsID = "$Id: uilistbox.cc,v 1.102 2009-07-09 18:31:04 cvsnan
 #define mNoSelection QAbstractItemView::NoSelection
 #define mExtended QAbstractItemView::ExtendedSelection
 #define mSingle QAbstractItemView::SingleSelection
+
+static const int cIconSz = 16;
 
 
 class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
@@ -302,13 +304,11 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
 }
 
 
-static const int sIconSz = 16;
-
 uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, bool ms,
 				  int nl, int pfw )
 {
     body_ = new uiListBoxBody(*this,p,nm,ms,nl,pfw);
-    body_->setIconSize( QSize(sIconSz,sIconSz) );
+    body_->setIconSize( QSize(cIconSz,cIconSz) );
     return *body_;
 }
 

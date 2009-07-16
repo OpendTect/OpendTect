@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.12 2009-07-08 20:37:05 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.13 2009-07-16 07:24:15 cvsbert Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -20,8 +20,8 @@ static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.12 2009-07-08 20:37:0
 #include <QGraphicsView>
 #include <QWheelEvent>
 
-const int sDefaultWidth  = 1;
-const int sDefaultHeight = 1;
+static const int cDefaultWidth  = 1;
+static const int cDefaultHeight = 1;
 
 
 class uiGraphicsViewBody :
@@ -36,8 +36,8 @@ uiGraphicsViewBody( uiGraphicsViewBase& handle, uiParent* p, const char* nm )
     , handle_(handle)
 {
     setStretch( 2, 2 );
-    setPrefWidth( sDefaultWidth );
-    setPrefHeight( sDefaultHeight );
+    setPrefWidth( cDefaultWidth );
+    setPrefHeight( cDefaultHeight );
     setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
 }
 
@@ -157,7 +157,7 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
     QGraphicsView::mouseReleaseEvent( event );
 }
 
-static const int sBorder = 5;
+static const int cBorder = 5;
 
 
 void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
@@ -168,12 +168,12 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
     {
 #if defined(__win__) && !defined(__msvc__)
 	QSize newsz = event->size();
-	handle_.scene_->setSceneRect( sBorder, sBorder,
-				      newsz.width()-2*sBorder,
-				      newsz.height()-2*sBorder );
+	handle_.scene_->setSceneRect( cBorder, cBorder,
+				      newsz.width()-2*cBorder,
+				      newsz.height()-2*cBorder );
 #else
-	handle_.scene_->setSceneRect( sBorder, sBorder,
-				      width()-2*sBorder, height()-2*sBorder );
+	handle_.scene_->setSceneRect( cBorder, cBorder,
+				      width()-2*cBorder, height()-2*cBorder );
 #endif
     }
 
@@ -351,8 +351,8 @@ void uiGraphicsViewBase::setScene( uiGraphicsScene& scene )
 {
     if ( scene_ ) delete scene_;
     scene_ = &scene;
-    scene_->setSceneRect( sBorder, sBorder,
-			  width()-2*sBorder, height()-2*sBorder );
+    scene_->setSceneRect( cBorder, cBorder,
+			  width()-2*cBorder, height()-2*cBorder );
     body_->setScene( scene.qGraphicsScene() );
 }
 

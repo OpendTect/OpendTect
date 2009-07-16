@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.130 2009-07-15 14:36:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.131 2009-07-16 07:21:04 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -82,6 +82,8 @@ const int uiAttribPartServer::objNLAModel2D()	    { return 100; }
 const int uiAttribPartServer::objNLAModel3D()	    { return 101; }
 
 const char* uiAttribPartServer::attridstr()	    { return "Attrib ID"; }
+
+static const int cMaxNrClasses = 100;
 
 
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
@@ -769,8 +771,6 @@ bool uiAttribPartServer::isDataAngles( bool is2ddesc ) const
 }
 
 
-static const int sMaxNrClasses = 100;
-//static const int sMaxNrVals = 100;
 
 bool uiAttribPartServer::isDataClassified( const Array3D<float>& array ) const
 {
@@ -785,7 +785,7 @@ bool uiAttribPartServer::isDataClassified( const Array3D<float>& array ) const
 		const float val = array.get( x0, x1, x2 );
 		if ( mIsUdf(val) ) continue;
 		const int ival = mNINT(val);
-		if ( !mIsEqual(val,ival,mDefEps) || abs(ival)>sMaxNrClasses )
+		if ( !mIsEqual(val,ival,mDefEps) || abs(ival)>cMaxNrClasses )
 		    return false;
 //		nrint++;
 //		if ( nrint > sMaxNrVals )

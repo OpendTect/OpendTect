@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.58 2009-06-29 09:17:54 cvshelene Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.59 2009-07-16 07:21:04 cvsbert Exp $";
 
 -*/
 
@@ -51,7 +51,7 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.58 2009-06-29 09:17:
 
 using namespace Attrib;
 
-static const int sInitNrRows = 4;
+static const int cInitNrRows = 4;
 
 static const char* valinpstrs[] =
 {
@@ -166,7 +166,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 
     const char* collbls[] = { "Reference attributes", 0 };
     table_->setColumnLabels( collbls );
-    table_->setNrRows( sInitNrRows );
+    table_->setNrRows( cInitNrRows );
     table_->setStretch( 2, 0 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
     if ( linefld_ )	table_->attach( alignedBelow, linefld_ );
@@ -285,7 +285,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 
     refSel(0);
     
-    int nrvals = sInitNrRows;
+    int nrvals = cInitNrRows;
     if ( desc.getParam( FingerPrint::valStr() ) )
     {
 	TypeSet<float> values;
@@ -297,7 +297,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 		values += param.getfValue(0);
 	}
 	calcobj_->setValues( values );
-	if ( valueset->size() > sInitNrRows )
+	if ( valueset->size() > cInitNrRows )
 	    nrvals = valueset->size();
     }
 

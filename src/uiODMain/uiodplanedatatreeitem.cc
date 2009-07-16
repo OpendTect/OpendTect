@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.32 2009-06-26 19:10:24 cvskris Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.33 2009-07-16 07:27:27 cvsbert Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -36,8 +36,8 @@ static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.32 2009-06-26 19:1
 #include "zaxistransform.h"
 
 
-static const int sPositionIdx = 990;
-static const int sGridLinesIdx = 980;
+static const int cPositionIdx = 990;
+static const int cGridLinesIdx = 980;
 
 static uiODPlaneDataTreeItem::Type getType( int mnuid )
 {
@@ -64,8 +64,8 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, Orientation o, Type t )
     : orient_(o)
     , type_(t)
     , positiondlg_(0)
-    , positionmnuitem_("P&osition ...",sPositionIdx)
-    , gridlinesmnuitem_("&Gridlines ...",sGridLinesIdx)
+    , positionmnuitem_("P&osition ...",cPositionIdx)
+    , gridlinesmnuitem_("&Gridlines ...",cGridLinesIdx)
 {
     displayid_ = did;
 }

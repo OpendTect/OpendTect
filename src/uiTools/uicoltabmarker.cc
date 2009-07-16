@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.7 2009-07-13 15:56:08 cvskris Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.8 2009-07-16 07:30:21 cvsbert Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.7 2009-07-13 15:56:08 cvs
 #include "rowcol.h"
 
 
-static const int sColorCol = 1;
+static const int cColorCol = 1;
 #define mEps 0.00001
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
@@ -46,7 +46,7 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
     BufferStringSet columnlabels;
     columnlabels.add("Position").add("Color");
     table_->setColumnLabels( columnlabels );
-    table_->setColumnReadOnly( sColorCol, true );
+    table_->setColumnReadOnly( cColorCol, true );
     fillTable();
 
     table_->leftClicked.notify( mCB(this,uiColTabMarkerDlg,mouseClick) );
@@ -82,7 +82,7 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     RowCol rc = table_->notifiedCell();
-    if ( rc.col != sColorCol ) return;
+    if ( rc.col != cColorCol ) return;
 
     Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
