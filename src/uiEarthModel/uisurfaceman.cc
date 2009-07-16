@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.63 2009-06-05 10:44:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.64 2009-07-16 09:04:47 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -117,6 +117,15 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 
 uiSurfaceMan::~uiSurfaceMan()
 {}
+
+
+const char* uiSurfaceMan::getDefKey() const
+{
+    if ( !curioobj_ )
+	return uiObjFileMan::getDefKey();
+
+    return IOPar::compKey( sKey::Default, curioobj_->group() );
+}
 
 
 bool uiSurfaceMan::isCur2D() const
