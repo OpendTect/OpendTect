@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.46 2009-05-07 07:13:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.47 2009-07-16 07:00:26 cvsbert Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -40,7 +40,7 @@ static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.46 2009-05-07 07:13:55 c
 static const char* sKeySnapshot = "snapshot";
 static bool prevsavestate = true;
 BufferString uiSaveImageDlg::dirname_ = "";
-static StepInterval<float> sPixelSizeRange(1,9999,1);
+static StepInterval<float> pixelsize_range(1,9999,1);
 
 #define mAttachToAbove( fld ) \
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
@@ -70,7 +70,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     }
 
     SbVec2s maxres = SoOffscreenRenderer::getMaximumResolution();
-    sPixelSizeRange.stop = mMIN(maxres[0],maxres[1]);
+    pixelsize_range.stop = mMIN(maxres[0],maxres[1]);
 
     uiParent* fldabove = 0;
     if ( viewers_.size() > 1 )
