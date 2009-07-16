@@ -1,10 +1,10 @@
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : A.H. Bril
- * DATE     : Sep 2003
+ * AUTHOR   : K. Tingdahl
+ * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id";
+static const char* rcsID = "$Id: gpucalcpi.cc,v 1.2 2009-07-16 18:57:05 cvsyuancheng Exp $";
 
 #include "cuda_runtime.h"
 #include "cudafft.h"
