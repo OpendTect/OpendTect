@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.11 2009-06-12 04:10:23 cvskris Exp $
+ RCS:		$Id: sorting.h,v 1.12 2009-07-16 20:45:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,10 +103,7 @@ protected:
     TypeSet<int>		starts_;
     TypeSet<int>		newstarts_;
 
-    int				nrthreads_;
-    int				curnrthreads_;
-    int				nrthreadswaiting_;
-    bool			waitforall_;
+    Threads::Barrier		barrier_;
 };
 
 
@@ -379,6 +376,7 @@ ParallelSorter<T>::ParallelSorter(T* vals, int sz)
     : vals_( vals )
     , nrvals_( sz )
     , tmpbuffer_( 0 )
+    , barrier_( -1, false )
 {
     mTryAlloc( tmpbuffer_, T[sz] );
 }
@@ -390,12 +388,10 @@ bool ParallelSorter<T>::doPrepare( int nrthreads )
     if ( !tmpbuffer_ )
 	return false;
 
+    barrier_.setNrThreads( nrthreads );
+
     starts_.erase();
     newstarts_.erase();
-    nrthreads_ = nrthreads;
-    curnrthreads_ = nrthreads;
-    nrthreadswaiting_ = 0;
-    waitforall_ = false;
 
     int nrmerges = -1;
     while ( nrthreads )
@@ -436,17 +432,13 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 
     addToNrDone( threadsize );
 
-    condvar_.lock();
+    barrier_.mutex().lock();
     newstarts_ += start;
+    barrier_.mutex().unLock();
 
     while ( true )
     {
-	if ( !nrthreadswaiting_ )
-	    waitforall_ = true;
-
-	nrthreadswaiting_++;
-
-	if ( nrthreadswaiting_==curnrthreads_ )
+	if ( barrier_.waitForAll(false) )
 	{
 	    if ( curvals_==vals_ )
 	    {
@@ -459,20 +451,15 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 		curvals_ = vals_;
 	    }
 
-	    nrthreadswaiting_ = 0;
 	    starts_ = newstarts_;
-	    curnrthreads_ = starts_.size()/2;
-
-	    waitforall_ = false;
-	    condvar_.signal( true );
+	    barrier_.setNrThreads( starts_.size()/2 );
+	    barrier_.releaseAllNoLock();
 	}
-	else while ( waitforall_ )
-	    condvar_.wait();
 
-	if ( thread>=curnrthreads_ )
+	if ( thread>=barrier_.nrThreads() )
 	{
+	    barrier_.mutex().unLock();
 	    //I'm not needed any longer
-	    condvar_.unLock();
 	    break;
 	}
 
@@ -489,7 +476,7 @@ bool ParallelSorter<T>::doWork( od_int64 start, od_int64 stop, int thread )
 
 	const int curstop = (starts_.size() ? starts_[0] : nrvals_)-1;
 	newstarts_ += curstart0;
-	condvar_.unLock();
+	barrier_.mutex().unLock();
 
 	int cursize;
 	if ( !mergeLists( curvals_, buf_, 
