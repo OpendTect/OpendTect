@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusginfo.h,v 1.3 2009-06-30 15:23:47 cvsbert Exp $
+ RCS:           $Id: odusginfo.h,v 1.4 2009-07-16 07:55:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 			    , action_(act)
     			    , aux_(aux)
     			    , start_(true)
-    			    , wantreply_(false)		{}
+    			    , withreply_(false)		{}
 
     bool		operator ==( const Info& inf ) const
 			{ return id_ == inf.id_; }
@@ -43,8 +43,8 @@ public:
     BufferString	group_;		//!< Action group
     BufferString	action_;	//!< Specific action
     BufferString	aux_;		//!< Extra info
-    bool		start_;		//!< Is this start of action?
-    bool		wantreply_;	//!< Wait for a reply?
+    bool		start_;		//!< Initiate action or close it?
+    bool		withreply_;	//!< Client side: wait for a reply?
 
     std::ostream&	dump(std::ostream&) const;
     BufferString&	dump(BufferString&) const;
