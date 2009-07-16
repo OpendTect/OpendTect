@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.6 2009-04-01 08:55:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.7 2009-07-16 07:04:51 cvsbert Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -45,8 +45,8 @@ static const char* imageformatdescs[] =
 };
 
 
-static const StepInterval<float> sSizeRange(0.5,999,0.1);
-static StepInterval<float> sPixelSizeRange(1,9999,1);
+static const StepInterval<float> maximum_size_range(0.5,999,0.1);
+static StepInterval<float> maximum_pixel_size_range(1,9999,1);
 
 #define mAttachToAbove( fld ) \
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
@@ -184,7 +184,7 @@ void uiSaveImageDlg::unitChg( CallBacker* )
 {
     Geom::Size2D<float> size;
     int nrdec = 2;
-    StepInterval<float> range = sSizeRange;
+    StepInterval<float> range = maximum_size_range;
 
     const int sel = unitfld_->getIntValue();
     if ( !sel )
@@ -195,7 +195,7 @@ void uiSaveImageDlg::unitChg( CallBacker* )
     {
 	size = sizepix_;
 	nrdec = 0;
-	range = sPixelSizeRange;
+	range = maximum_pixel_size_range;
     }
 
     widthfld_->box()->setNrDecimals( nrdec );
