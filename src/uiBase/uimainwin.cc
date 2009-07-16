@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.181 2009-06-30 14:49:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.182 2009-07-16 15:48:08 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1547,6 +1547,10 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     break;
     case LeaveOnly:
 	setOkText( mBody->finalised() ? "&Dismiss" : "" );
+	setCancelText( "&Dismiss" );
+    break;
+    case DoAndProceed:
+	setOkText( "&Proceed" );
 	setCancelText( "&Dismiss" );
     break;
     }

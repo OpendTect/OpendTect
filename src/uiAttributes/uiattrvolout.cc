@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.68 2009-07-15 12:44:24 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.69 2009-07-16 15:48:08 cvsbert Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -59,6 +59,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     setHelpID( "101.2.0" );
 
     bool is2d = ad.is2D();
+    setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute");
     setTitleText( is2d ? "Create 2D seismic output":"Create 3D seismic output");
 
     uiAttrSelData attrdata( ad, false );

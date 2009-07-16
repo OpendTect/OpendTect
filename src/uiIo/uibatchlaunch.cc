@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.76 2009-06-17 19:22:42 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.77 2009-07-16 15:48:08 cvsbert Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -255,8 +255,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
 
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
-    : uiDialog(p,uiDialog::Setup(s.wintxt_,"X",mNoHelpID).oktext("Proceed")
-						 .modal(s.modal_)
+    : uiDialog(p,uiDialog::Setup(s.wintxt_,"X",mNoHelpID).modal(s.modal_)
 						 .menubar(s.menubar_))
     , uppgrp_(new uiGroup(this,"Upper group"))
     , procprognm_(s.procprognm_.isEmpty() ? "process_attrib" : s.procprognm_)
@@ -267,6 +266,7 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
     , singmachfld_( 0 )
     , hascluster_(false)
 {
+    setCtrlStyle( DoAndProceed );
     setParFileNmDef( 0 );
 }
 
@@ -506,7 +506,7 @@ uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
     redo_ = true;
     setHelpID( "101.2.1" );
     setTitleText( "Run a saved processing job" );
-    setCtrlStyle( DoAndLeave );
+    setCtrlStyle( DoAndProceed );
     addStdFields( true );
 }
 
