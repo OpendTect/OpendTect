@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.60 2009-07-16 12:41:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.61 2009-07-16 12:51:51 cvsbert Exp $";
 
 #include "uiexphorizon.h"
 
@@ -103,7 +103,7 @@ uiExportHorizon::~uiExportHorizon()
 #define mHdr1GFLineLen 102
 #define mDataGFLineLen 148
 
-static void initGF( std::ostream& strm, const char* hornm, bool inmeter, 
+static void initGF( std::ostream& strm, const char* hornm,
 		    const char* comment )
 {
     char gfbuf[mHdr1GFLineLen+2];
@@ -111,7 +111,7 @@ static void initGF( std::ostream& strm, const char* hornm, bool inmeter,
     BufferString hnm( hornm );
     cleanupString( hnm.buf(), mC_False, mC_False, mC_False );
     sprintf( gfbuf, "PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
-		    "", "", inmeter ? "m " : "ft" );
+		    "", "", SI().xyInFeet() ? "ft" : "m " );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;
     memcpy( gfbuf+8, hnm.buf(), sz );
     hnm = comment;
@@ -129,7 +129,8 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z, float val,
     static char buf[mDataGFLineLen+2];
     const float crl = bid.crl;
     const float gfval = mIsUdf(val) ? mGFUndefValue : val;
-    const float zfac = SI().zIsTime() ? 1000 : 1;
+    const float zfac = SI().zIsTime() ? 1000
+		    : (SI().xyInFeet() ? mToFeetFactor : 1);
     const float depth = mIsUdf(z) ? mGFUndefValue : z * zfac;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	     crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl, gfval, bid.inl,
@@ -222,8 +223,7 @@ bool uiExportHorizon::writeAscii()
 	}
 
 	if ( dogf )
-	    initGF( *sdo.ostrm, gfnmfld_->text(), SI().xyInFeet(), 
-		    gfcommfld_->text() );
+	    initGF( *sdo.ostrm, gfnmfld_->text(), gfcommfld_->text() );
 
 	const EM::SectionID sectionid = hor->sectionID( sectionidx );
 	PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
