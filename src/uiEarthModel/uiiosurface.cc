@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.72 2009-07-16 12:41:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.73 2009-07-16 13:29:25 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -44,6 +44,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* typ )
     , rgfld_(0)
     , attrSelChange(this)
     , forread_(forread)
+    , objfld_(0)
 {
     if ( !strcmp(typ,EMHorizon2DTranslatorGroup::keyword()) )
 	ctio_ = mMkCtxtIOObj(EMHorizon2D);
@@ -223,6 +224,8 @@ IOObj* uiIOSurface::selIOObj() const
 
 void uiIOSurface::objSel( CallBacker* )
 {
+    if ( !objfld_ ) return;
+
     objfld_->commitInput();
     IOObj* ioobj = objfld_->ctxtIOObj().ioobj;
     if ( !ioobj ) return;
