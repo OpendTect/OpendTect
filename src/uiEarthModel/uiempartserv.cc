@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.182 2009-06-30 16:33:37 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.183 2009-07-16 21:56:48 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -427,10 +427,11 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     dlg.iogrp()->getSurfaceIds( surfaceids );
 
     EM::SurfaceIOData sd;
-    EM::SurfaceIODataSelection sel( sd );
+    EM::SurfaceIODataSelection sel( sd ), orisel( sd );
     dlg.iogrp()->getSurfaceSelection( sel );
 
-    PtrMan<Executor> exec = em_.objectLoader( surfaceids, &sel );
+    const bool hor3d = typ==EMHorizon3DTranslatorGroup::keyword();
+    PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &orisel : &sel);
     if ( !exec ) return;
 
     for ( int idx=0; idx<surfaceids.size(); idx++ )
@@ -439,6 +440,11 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 	obj->ref();
 	obj->setBurstAlert( true );
 	objs += obj;
+	if ( hor3d )
+	{
+	    mDynamicCastGet( EM::Horizon3D*, hor, obj );
+	    if ( hor ) hor->geometry().setDisplayRange( sel.rg );
+	}
     }
 
     uiTaskRunner execdlg( parent() );

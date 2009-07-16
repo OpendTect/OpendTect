@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.63 2009-06-19 07:52:10 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.64 2009-07-16 21:56:47 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -73,6 +73,8 @@ public:
 
     EMObjectIterator*   	createIterator(const EM::SectionID&,
 					       const CubeSampling* =0) const;
+    void			setDisplayRange(const HorSampling&);
+    HorSampling			getDisplayRange() const	{ return selection_; }
 
 protected:
     Geometry::BinIDSurface*	createSectionGeometry() const;
@@ -81,6 +83,7 @@ protected:
     RowCol			step_;
     float			shift_;
     bool			checksupport_;
+    HorSampling			selection_;
 };
 
 
