@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.23 2009-07-13 15:30:20 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.24 2009-07-16 22:36:42 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -33,14 +33,14 @@ static const char* sKeyCtabSettsKey = "coltabs";
 #define mInitStdMembs(uc,mc) \
       undefcolor_(uc) \
     , markcolor_(mc) \
-    , colorChanged(this) \
-    , transparencyChanged(this) \
-    , toBeRemoved(this)
 
 
 ColTab::Sequence::Sequence()
     : mInitStdMembs(Color::LightGrey(),Color::DgbColor())
     , nrsegments_( 0 )
+    , colorChanged(this)
+    , transparencyChanged(this)
+    , toBeRemoved(this)
 {
 }
 
@@ -49,6 +49,9 @@ ColTab::Sequence::Sequence( const char* nm )
     : NamedObject(nm)
     , mInitStdMembs(Color::LightGrey(),Color::DgbColor())
     , nrsegments_( 0 )
+    , colorChanged(this)
+    , transparencyChanged(this)
+    , toBeRemoved(this)
 {
     bool res = false;
     if ( nm && *nm )
@@ -66,6 +69,9 @@ ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
     , x_(ctab.x_)
     , tr_(ctab.tr_)
     , type_(ctab.type_)
+    , colorChanged( ctab.colorChanged )
+    , transparencyChanged( ctab.transparencyChanged )
+    , toBeRemoved( ctab.toBeRemoved )
     , nrsegments_( ctab.nrsegments_ )
     , mInitStdMembs(ctab.undefcolor_,ctab.markcolor_)
 {
