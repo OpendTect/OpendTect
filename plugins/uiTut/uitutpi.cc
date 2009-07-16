@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.15 2009-07-15 09:24:48 cvskarthika Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.16 2009-07-16 07:36:34 cvsbert Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: uitutpi.cc,v 1.15 2009-07-15 09:24:48 cvskarthi
 
 #include "plugins.h"
 
-static const int sTutIdx = -1100;
+static const int cTutIdx = -1100;
 
 mExternC mGlobal int GetuiTutPluginType()
 {
@@ -72,7 +72,7 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 	, is2d_(false)
 	, wellmnuitmhandler_(visSurvey::WellDisplay::getStaticClassName(),
 		  	      *a->applMgr().visServer(),"&Tut Well Tools ...",
-			      mCB(this,uiTutMgr,doWells),sTutIdx)
+			      mCB(this,uiTutMgr,doWells),cTutIdx)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     uiPopupMenu* mnu = new uiPopupMenu( appl_, "&Tut Tools" );
