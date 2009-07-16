@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.101 2009-07-15 19:07:56 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.102 2009-07-16 21:58:41 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -878,6 +878,8 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     visBase::HorizonSection* surf = visBase::HorizonSection::create();
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
+    const HorSampling& hs = horizon->geometry().getDisplayRange();
+    surf->setDisplayRange( hs.inlRange(), hs.crlRange() );
 
     while ( surf->nrChannels()<nrAttribs() ) surf->addChannel();
 
@@ -1150,6 +1152,19 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 float HorizonDisplay::maxDist() const
 {
     return SI().zRange(true).step;
+}
+
+
+visBase::HorizonSection* HorizonDisplay::getHorizonSection( 
+	const EM::SectionID& sid )
+{
+    for ( int idx=0; idx<sids_.size(); idx++ )
+    {
+	if ( sids_[idx]==sid )
+	    return sections_[idx];
+    }
+
+    return 0;
 }
 
 

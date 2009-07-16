@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.32 2009-07-15 19:07:56 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.33 2009-07-16 21:58:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -85,6 +85,10 @@ public:
     void			setSurface(Geometry::BinIDSurface*,bool conn,
 	    				   TaskRunner*);
     Geometry::BinIDSurface*	getSurface() const	{ return geometry_; }
+    StepInterval<int>		displayedRowRange() const;
+    StepInterval<int>		displayedColRange() const;
+    void			setDisplayRange(const StepInterval<int>&,
+	    					const StepInterval<int>&);
 
     void			useWireframe(bool);
     bool			usesWireframe() const;
@@ -133,12 +137,13 @@ protected:
     static void			updateAutoResolution(void*,SoAction*);
     void			turnOnWireframe(int res,TaskRunner*);
     void			updateTileTextureOrigin(const RowCol& texorig);
-    void			updateTileArray(const StepInterval<int>& rrg,
-	    					const StepInterval<int>& crg);
+    void			updateTileArray();
     void			updateBBox(SoGetBoundingBoxAction* action);
     HorizonSectionTile*		createTile(int rowidx,int colidx);
 
     Geometry::BinIDSurface*	geometry_;
+    StepInterval<int>		displayrrg_;
+    StepInterval<int>		displaycrg_;
     Threads::Mutex		geometrylock_;
     ObjectSet<BinIDValueSet>	cache_;
 
@@ -164,7 +169,6 @@ protected:
     float			coldistance_;
 
     RowCol			origin_;
-    RowCol			step_;
     
     static ArrPtrMan<SbVec2f>	texturecoordptr_;				
     static int			normalstartidx_[mHorSectNrRes];

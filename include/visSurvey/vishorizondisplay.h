@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.47 2009-07-15 19:07:56 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.48 2009-07-16 21:58:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ public:
 
     StepInterval<int>		displayedRowRange() const;
     StepInterval<int>		displayedColRange() const;
+    visBase::HorizonSection*	getHorizonSection(const EM::SectionID&);
 
     void			useTexture(bool yn,bool trigger=false);
     bool			usesTexture() const;
