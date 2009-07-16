@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.422 2009-06-26 19:04:47 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.423 2009-07-16 07:32:29 cvsbert Exp $";
 
 #include "uivispartserv.h"
 
@@ -76,18 +76,17 @@ const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
 const char* uiVisPartServer::sKeyWorkArea()		{ return "Work Area"; }
 
 
-static const int sResetManipIdx = 800;
-static const int sColorIdx = 700;
-static const int sPropertiesIdx = 600;
-static const int sResolutionIdx = 500;
+static const int cResetManipIdx = 800;
+static const int cPropertiesIdx = 600;
+static const int cResolutionIdx = 500;
 
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , menu_( *new uiMenuHandler(appserv().parent(),-1) )
-    , resetmanipmnuitem_("R&eset Manipulation",sResetManipIdx)
-    , changematerialmnuitem_("&Properties ...",sPropertiesIdx)
-    , resmnuitem_("&Resolution",sResolutionIdx)
+    , resetmanipmnuitem_("R&eset Manipulation",cResetManipIdx)
+    , changematerialmnuitem_("&Properties ...",cPropertiesIdx)
+    , resmnuitem_("&Resolution",cResolutionIdx)
     , eventmutex_(*new Threads::Mutex)
     , tracksetupactive_(false)
     , viewmode_(false)
