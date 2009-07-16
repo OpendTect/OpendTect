@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.176 2009-06-22 10:02:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.177 2009-07-16 09:28:52 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -529,7 +529,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( settmnu_, "&Look and feel ...", mSettLkNFlMnuItm );
     mInsertItem( settmnu_, "&Mouse controls ...", mSettMouseMnuItm );
     mInsertItem( settmnu_, "&Keyboard shortcuts ...", mSettShortcutsMnuItm );
-    mInsertItem( settmnu_, "&General ...", mSettGeneral );
+    mInsertItem( settmnu_, "&Advanced ...", mSettGeneral );
 
     toolsmnu_ = new uiPopupMenu( &appl_, "&Tools" );
     utilmnu_->insertItem( toolsmnu_ );
