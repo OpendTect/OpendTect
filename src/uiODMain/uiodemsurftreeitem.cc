@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.58 2009-07-03 14:28:45 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.59 2009-07-16 21:42:56 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -425,7 +425,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
-    if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
     EM::SectionID sectionid = -1;

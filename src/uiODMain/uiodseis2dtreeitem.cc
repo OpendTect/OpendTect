@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.66 2009-07-06 06:20:48 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.67 2009-07-16 21:42:57 cvskris Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -606,10 +606,12 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller);
+    if ( !menu || menu->isHandled() || mnuid==-1 )
+	return;
+
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_));
-    if ( !menu || !s2d || menu->isHandled() ||
-	 menu->menuID() != displayID() || mnuid==-1 )
+    if ( !s2d || menu->menuID() != displayID() )
 	return;
 
     if ( mnuid==linenmitm_.id )

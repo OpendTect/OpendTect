@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.32 2009-06-30 16:39:05 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.33 2009-07-16 21:42:57 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -319,12 +319,13 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 
 void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 {
-    const int visid = displayID();
     uiODEarthModelSurfaceTreeItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller)
-    if ( menu->menuID()!=visid || mnuid==-1 || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
+
+    const int visid = displayID();
 
     uiEMPartServer* emserv = applMgr()->EMServer();
     uiEMAttribPartServer* emattrserv = applMgr()->EMAttribServer();
@@ -559,7 +560,7 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     uiODEarthModelSurfaceTreeItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller)
-    if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
     bool handled = true;

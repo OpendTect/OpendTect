@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.59 2009-06-04 13:37:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.60 2009-07-16 21:42:57 cvskris Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -323,10 +323,13 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet( uiMenuHandler*, menu, caller );
+    if ( menu->isHandled() || mnuid==-1 )
+	return;
+
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 	    visserv_->getObject(displayid_));
 
-    if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
+    if ( menu->menuID()!=displayID() )
 	return;
 
     if ( set_.disp_.connect_==Pick::Set::Disp::Open 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.33 2009-07-16 07:27:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.34 2009-07-16 21:42:57 cvskris Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -218,7 +218,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
-    if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
     
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,

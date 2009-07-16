@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.27 2009-04-03 11:57:14 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.28 2009-07-16 21:42:57 cvskris Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -275,7 +275,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
-    if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 	
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
