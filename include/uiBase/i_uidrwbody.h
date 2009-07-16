@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.27 2008-12-24 05:52:49 cvsnanne Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.28 2009-07-16 07:42:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include <QPaintEvent>
 #include <QWidget>
 
-static const int sMinNrPix = 10;
+static const int cMinNrPix = 10;
 
 
 /*! \brief template implementation for drawable objects
@@ -169,8 +169,8 @@ void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* qev )
     {
 	rubberband_->stop( qev );
 	uiRect newarea = rubberband_->area();
-	bool sizeok = newarea.hNrPics() > sMinNrPix 
-		      && newarea.vNrPics() > sMinNrPix;
+	bool sizeok = newarea.hNrPics() > cMinNrPix 
+		      && newarea.vNrPics() > cMinNrPix;
 	if ( sizeok )
 	{
 	    ishandled = true;

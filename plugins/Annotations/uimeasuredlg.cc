@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.11 2008-12-10 23:27:17 cvskris Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.12 2009-07-16 07:43:15 cvsbert Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -123,8 +123,8 @@ void uiMeasureDlg::reset()
 }
 
 
-static const double sM2Ft2 = 10.76391;
-static const double sFt2M2 = 0.09290304;
+static const double cM2Ft2 = 10.76391;
+static const double cFt2M2 = 0.09290304;
 
 void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 {
@@ -158,7 +158,7 @@ void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 	else if ( SI().zInMeter() )
 	{
 	   if ( SI().xyInFeet() )
-		totrealdist += Math::Sqrt( hdist*hdist + sM2Ft2*zdist*zdist );
+		totrealdist += Math::Sqrt( hdist*hdist + cM2Ft2*zdist*zdist );
 	   else
 		totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
 	}
@@ -167,7 +167,7 @@ void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 	    if ( SI().xyInFeet() )
 		totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
 	    else
-		totrealdist += Math::Sqrt( sFt2M2*hdist*hdist + zdist*zdist );
+		totrealdist += Math::Sqrt( cFt2M2*hdist*hdist + zdist*zdist );
 	}
     }
 
