@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.37 2009-07-01 15:58:18 cvskris Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.38 2009-07-16 10:59:36 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -147,7 +147,7 @@ Math::Math( Desc& dsc )
 	if ( recstartstr.isEmpty() )
 	{
 	    //backward compatibility v3.3 and previous
-	    float recstartval;
+	    float recstartval = mUdf(float);
 	    mGetFloat( recstartval, recstartStr() );
 	    if ( !mIsUdf(recstartval) ) recstartvals_ += recstartval;
 	}
