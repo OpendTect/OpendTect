@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.23 2009-04-06 09:32:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.24 2009-07-16 06:58:16 cvsbert Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -26,7 +26,6 @@ static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.23 2009-04-06 09:32:2
 
 using namespace Attrib;
 
-static float sDefaultFreqStep = 5;
 
 mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp())
 
