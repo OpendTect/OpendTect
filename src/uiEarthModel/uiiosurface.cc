@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.71 2009-07-08 09:43:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.72 2009-07-16 12:41:41 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -55,6 +55,8 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* typ )
 	ctio_ = mMkCtxtIOObj(EMFault3D);
     else
 	ctio_ = new CtxtIOObj( polygonEMBodyTranslator::getIOObjContext() );
+
+    finaliseDone.notify( mCB(this,uiIOSurface,objSel) );
 }
 
 
@@ -226,6 +228,7 @@ void uiIOSurface::objSel( CallBacker* )
     if ( !ioobj ) return;
 
     fillFields( ioobj->key() );
+    inpChanged();
 }
 
 
@@ -413,6 +416,7 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 
 uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     : uiIOSurface(p,true,setup.typ_)
+    , inpChange(this)
 {
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
 	mkObjFld( "Input Stickset" );

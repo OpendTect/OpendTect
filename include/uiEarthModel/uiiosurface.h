@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.32 2009-04-28 12:51:07 cvsbert Exp $
+ RCS:           $Id: uiiosurface.h,v 1.33 2009-07-16 12:41:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,8 @@ protected:
 
     CtxtIOObj*		ctio_;
     bool		forread_;
+
+    virtual void	inpChanged()		{}
 };
 
 
@@ -149,8 +151,11 @@ public:
     virtual bool	processInput();
     void		setIOObj(const MultiID&);
 
+    Notifier<uiIOSurface> inpChange;
+
 protected:
 
+    void		inpChanged()	{ inpChange.trigger(); }
 
 };
 
