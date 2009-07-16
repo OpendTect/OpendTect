@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.40 2009-07-10 11:14:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.41 2009-07-16 13:39:54 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.40 2009-07-10 11:14:13 
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
 #include "mousecursor.h"
+#include "survinfo.h"
 #include "wellman.h"
 #include "welldata.h"
 
@@ -55,7 +56,8 @@ bool uiODWellParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), sLoadIdx );
-    mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."), sWellTieIdx );
+    if ( SI().zIsTime()) 
+	mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."),sWellTieIdx);
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), sNewWellIdx );
     if ( children_.size() > 1 )
     {
@@ -207,7 +209,7 @@ uiODWellTreeItem::~uiODWellTreeItem()
 void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = "&Properties ...";
-    gend2tm_.text = "Tie Well to Seismic ...";
+    gend2tm_.text = "&Tie Well to Seismic ...";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
@@ -267,7 +269,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
-    mAddMenuItem( menu, &gend2tm_, true, false );
+    if ( SI().zIsTime() )mAddMenuItem( menu, &gend2tm_, true, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
