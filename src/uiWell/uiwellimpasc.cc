@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.52 2009-07-15 13:44:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.53 2009-07-16 13:00:38 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -294,10 +294,6 @@ bool uiWellImportAsc::checkInpFlds()
 	    return false;
 	}
     }
-
-    const char* errmsg = SI().zIsTime() ? d2tgrp_->getD2T( wd_ ) : 0;
-    if ( errmsg && *errmsg )
-	mErrRet( errmsg )
 
     if ( !outfld_->commitInput() )
 	mErrRet( "Please select output" )
