@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.36 2009-05-28 03:53:46 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.37 2009-07-16 20:44:59 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -190,6 +190,44 @@ protected:
     ConditionVar	statuscond_;
 };
 
+
+/*!Waits for a number of threads to reach a certain point (i.e. the call to
+   Barrier::waitForAll). Once everyone has arrived, everyone is released. */
+
+mClass Barrier
+{
+public:
+    			Barrier(int nrthreads=-1,bool immediatrelease=true);
+    void		setNrThreads(int);
+    int			nrThreads() const 		{ return nrthreads_; }
+
+    bool		waitForAll(bool unlock=true);
+    			/*!<\returns true if current thread is the first
+				     one to return. If immediaterelease_ is
+				     false, this thread has to release all
+				     other threads with releaseAll() or 
+				     releaseAllNoLock().
+			    \param   unlock If false, the mutex will still be
+			    	     locked when returning, and mutex().unLock()
+				     must be called to allow other threads to
+				     be released(). */
+    void		releaseAll();
+    			/*!<Locks, and releases all. */
+    void		releaseAllNoLock();
+    			/*!<Releases all. */
+
+    Mutex&		mutex()				{ return condvar_; }
+
+protected:
+    void		releaseAllInternal();
+
+    ConditionVar	condvar_;
+    int			nrthreads_;
+    int			threadcount_;
+    bool		dorelease_;
+
+    bool		immediaterelease_;
+};
 
 
 /*!\brief

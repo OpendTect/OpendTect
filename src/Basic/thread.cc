@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.40 2009-05-28 03:53:47 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.41 2009-07-16 20:44:59 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -246,6 +246,71 @@ void Threads::ReadWriteLock::convWriteToPermissive()
 	statuscond_.signal( true );
     }
 }
+
+
+Threads::Barrier::Barrier( int nrthreads, bool immrel )
+    : nrthreads_( nrthreads )
+    , threadcount_( 0 )
+    , dorelease_( false )
+    , immediaterelease_( immrel )
+{}
+
+
+void Threads::Barrier::setNrThreads( int nthreads )
+{
+    Threads::MutexLocker lock( condvar_ );
+    if ( threadcount_ )
+    {
+	pErrMsg("Thread waiting. Should never happen");
+	return;
+    }
+}
+
+
+bool Threads::Barrier::waitForAll( bool unlock )
+{
+    condvar_.lock();
+    threadcount_++;
+    if ( threadcount_==nrthreads_ )
+    {
+	threadcount_--;
+	if ( immediaterelease_ )
+	    releaseAllNoLock();
+
+	if ( !threadcount_ )
+	    dorelease_ = false;
+
+	if ( unlock ) condvar_.unLock();
+	return true;
+    }
+    else
+    {
+	while ( !dorelease_ )
+	    condvar_.wait();
+    }
+
+    threadcount_--;
+    if ( !threadcount_ )
+	dorelease_ = false;
+
+    if ( unlock ) condvar_.unLock();
+    return false;
+}
+
+
+void Threads::Barrier::releaseAllNoLock()
+{
+    dorelease_ = true;
+    condvar_.signal( true );
+}
+
+
+void Threads::Barrier::releaseAll()
+{
+    Threads::MutexLocker lock( condvar_ );
+    releaseAllNoLock();
+}
+
 
 
 Threads::ConditionVar::ConditionVar()
