@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.10 2009-06-04 20:26:42 cvskris Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.11 2009-07-16 21:59:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,7 @@ protected:
     MenuItem		snapeventmnuitem_;
     MenuItem		shiftmnuitem_;
     MenuItem		removeselectionmnuitem_;
+    MenuItem		positionmnuitem_;
     bool		rgba_;
 };
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.33 2009-07-16 21:42:57 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.34 2009-07-16 21:59:44 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -30,13 +30,16 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.33 2009-07-16 21:42:57 c
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiposprovider.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
 
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
+#include "vishorizonsection.h"
 #include "vissurvscene.h"
 #include "visrgbatexturechannel2rgba.h"
+#include "zaxistransform.h"
 
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
@@ -201,7 +204,8 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool )
 
 void uiODHorizonTreeItem::initMenuItems()
 {
-    shiftmnuitem_.text = "&Shift ..";
+    positionmnuitem_.text = "&Position ...";
+    shiftmnuitem_.text = "&Shift ...";
     algomnuitem_.text = "&Algorithms";
     fillholesmnuitem_.text = "&Grid ...";
     filterhormnuitem_.text = "&Filter ...";
@@ -293,6 +297,7 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 
     if ( menu->menuID()!=displayID() || hastransform )
     {
+	mResetMenuItem( &positionmnuitem_ );
 	mResetMenuItem( &shiftmnuitem_ );
 	mResetMenuItem( &fillholesmnuitem_ );
 	mResetMenuItem( &filterhormnuitem_ );
@@ -304,6 +309,7 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
     else
     {
 	mAddMenuItem( menu, &createflatscenemnuitem_, true, false );
+	mAddMenuItem( menu, &positionmnuitem_, true, false );
 
 	const bool islocked = visserv_->isLocked( displayID() );
 	mAddMenuItem( menu, &shiftmnuitem_, !islocked, false )
@@ -342,6 +348,68 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 		(const char*) applMgr()->EMServer()->getName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
+    else if ( mnuid==positionmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+
+	mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
+			 visserv_->getObject(displayid_) );
+	if ( !hd ) return;
+
+	visBase::HorizonSection* section = hd->getHorizonSection( 0 );
+	if ( !section )
+	    return;
+
+	CubeSampling maxcs = SI().sampling(true);;
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	if ( scene && scene->getDataTransform() )
+	{
+	    const Interval<float> zintv =
+		scene->getDataTransform()->getZInterval( false );
+	    maxcs.zrg.start = zintv.start;
+	    maxcs.zrg.stop = zintv.stop;
+	}
+
+        CubeSampling curcs;
+        curcs.zrg.setFrom( SI().zRange(true) );
+	curcs.hrg.set( section->displayedRowRange(),
+		       section->displayedColRange() );
+
+	uiPosProvider::Setup setup( false, true, false );
+	setup.allownone_ = true;
+	setup.seltxt( "Area subselection" );
+	setup.cs_ = maxcs;
+	
+	uiDialog dlg( getUiParent(), 
+		uiDialog::Setup("Positions","Specify positions", "103.1.6") );
+	uiPosProvider pp( &dlg, setup );
+
+	IOPar displaypar;
+	pp.fillPar( displaypar ); //Get display type
+	curcs.fillPar( displaypar ); //Get display ranges
+	pp.usePar( displaypar );
+
+	if ( !dlg.go() )
+	    return;
+
+	MouseCursorChanger cursorlock( MouseCursor::Wait );
+	pp.fillPar( displaypar );
+	
+        CubeSampling newcs;
+	if ( pp.isAll() )
+	    newcs = maxcs;
+	else
+	    newcs.usePar( displaypar );
+	section->setDisplayRange( newcs.hrg.inlRange(), newcs.hrg.crlRange() );
+	
+	for ( int idx=0; idx<hd->nrAttribs(); idx++ )
+	{
+	    if ( hd->hasDepth(idx) )
+		hd->setDepthAsAttrib( idx );
+	    else
+		applMgr()->calcRandomPosAttrib( visid, idx );
+	}
+    }
     else if ( mnuid==shiftmnuitem_.id )
     {
 	BoolTypeSet isenabled;
@@ -353,7 +421,6 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 	float curshift = visserv_->getTranslation( visid ).z;
 	if ( mIsUdf( curshift ) ) curshift = 0;
-
 
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
 	emattrserv->showHorShiftDlg( emid_, isenabled, curshift,
