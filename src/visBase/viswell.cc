@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.48 2009-07-08 13:57:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.49 2009-07-16 07:34:03 cvsbert Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -40,7 +40,7 @@ mCreateFactoryEntry( visBase::Well );
 namespace visBase
 {
 
-static const int sMaxNrLogSamples = 2000;
+static const int cMaxNrLogSamples = 2000;
 
 const char* Well::linestylestr()	{ return "Line style"; }
 const char* Well::showwelltopnmstr()	{ return "Show top name"; }
@@ -367,10 +367,10 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 {
     int nrsamp = crdvals.size();
     float step = 1;
-    if ( nrsamp > sMaxNrLogSamples )
+    if ( nrsamp > cMaxNrLogSamples )
     {
-	step = (float)nrsamp / sMaxNrLogSamples;
-	nrsamp = sMaxNrLogSamples;
+	step = (float)nrsamp / cMaxNrLogSamples;
+	nrsamp = cMaxNrLogSamples;
     }
     const bool rev = range.isRev();
     for ( int idx=0; idx<log.size(); idx++ )

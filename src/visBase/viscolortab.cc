@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscolortab.cc,v 1.50 2009-05-22 05:29:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.51 2009-07-16 07:34:03 cvsbert Exp $";
 
 #include "viscolortab.h"
 
@@ -34,7 +34,7 @@ const char* VisColorTab::sKeyAutoScale()	{ return "Auto scale"; }
 const char* VisColorTab::sKeySymmetry()		{ return "Symmetry"; }
 const char* VisColorTab::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
-static const int sNrColors = 255;
+static const int cNrColors = 255;
 
 VisColorTab::VisColorTab()
     : sequencechange(this)
@@ -178,7 +178,7 @@ void VisColorTab::setColorSeq( ColorSequence* ns )
 
     delete indextable_;
     indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
-	    					  sNrColors, ctmapper_ );
+	    					  cNrColors, ctmapper_ );
 
     viscolseq_->change.notify( mCB(this,VisColorTab,colorseqChanged) );
     sequencechange.trigger();
