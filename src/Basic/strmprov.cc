@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.98 2009-06-25 11:04:20 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.99 2009-07-16 13:57:40 cvsbert Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -320,7 +320,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 	{ msg_ = "Cannot open '"; msg_ += nm; msg_ += "'"; }
     else
     {
-	int bufsz = File_getKbSize( nm ) + 1;
+	od_int64 bufsz = File_getKbSize( nm ) + 1;
 	bufsz *= 1024;
 	char* buf = 0;
 	mTryAlloc(buf,char [ bufsz ])
