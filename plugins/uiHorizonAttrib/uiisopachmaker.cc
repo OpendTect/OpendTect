@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.7 2009-06-08 06:17:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.8 2009-07-16 15:35:19 cvsbert Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -51,7 +51,7 @@ uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
     }
     else
     {
-	title += " '";
+	title += " for '";
 	title += getHorNm( horid );
 	title += "'";
     }
@@ -60,6 +60,9 @@ uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
     ctio_.ctxt.forread = true;
     horsel_ = new uiIOObjSel( this, ctio_, "Calculate to" );
     horsel_->selectiondone.notify( mCB(this,uiIsopachMaker,toHorSel) );
+    if ( baseemobj_ && horsel_->ioobj(true)
+      && baseemobj_->multiID() == horsel_->ioobj(true)->key() )
+	horsel_->setInput( MultiID("") );
 
     if ( !baseemobj_ )
 	horsel_->attach( alignedBelow, basesel_ );
