@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.5 2009-04-06 07:25:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.6 2009-07-16 14:12:58 cvsbert Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -27,6 +27,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 	    .procprognm("process_time2depth" ) )
 {
     setTitleText( "Time/Depth conversion" );
+    setHelpID( "103.2.12" );
 
     directionsel_ = new uiGenInput( uppgrp_, "Direction",
 	    BoolInpSpec(true, "Time to Depth", "Depth to Time", true ) );

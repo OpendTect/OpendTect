@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.7 2009-05-14 21:18:16 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.8 2009-07-16 14:12:58 cvsbert Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -34,6 +34,7 @@ VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
 {
     setCtrlStyle( DoAndStay );
     setTitleText( 0 );
+    setHelpID( "103.2.11" );
 
     IOObjContext setupcontext = VolProcessingTranslatorGroup::ioContext();
     setupcontext.forread = true;

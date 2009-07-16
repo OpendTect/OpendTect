@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.3 2009-05-14 21:21:47 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.4 2009-07-16 14:12:58 cvsbert Exp $";
 
 #include "uibatchprestackproc.h"
 
@@ -32,6 +32,7 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
     , is2d_( is2d )
 {
     setTitleText( "Prestack processing" );
+    setHelpID( "103.2.10" );
 
     chainsel_ = new uiProcSel( uppgrp_, "Setup", 0 );
 
