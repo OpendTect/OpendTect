@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjbody.cc,v 1.24 2009-01-20 11:42:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.25 2009-07-17 08:50:59 cvsjaap Exp $";
 
 
 #include "uiobjbody.h"
@@ -475,13 +475,13 @@ void uiObjectBody::setToolTip( const char* txt )
 
 
 void uiObjectBody::getToolTipBGColor( Color& col )
-{ col = Color( QToolTip::palette().color(QPalette::Window).rgb() ); }
+{ col = Color( QToolTip::palette().color(QPalette::ToolTipBase).rgb() ); }
 
 
 void uiObjectBody::setToolTipBGColor( const Color& col )
 {
     QPalette palette;
-    palette.setColor( QPalette::Window, QColor(col.r(),col.g(),col.b()) );
+    palette.setColor( QPalette::ToolTipBase, QColor(col.r(),col.g(),col.b()) );
     QToolTip::setPalette( palette );
 } 
 
