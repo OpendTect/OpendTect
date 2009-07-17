@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.10 2009-07-09 14:36:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.11 2009-07-17 12:08:23 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
@@ -86,10 +86,13 @@ void WellTieDataSetMGR::rescaleData( const WellTieDataSet& olddata,
 {
     int startidx = olddata.getIdx( timestart );
     int stopidx  = olddata.getIdx( timestop  );
+    if ( startidx<0 || startidx>=stopidx  )
+	return;
 
     for ( int idx=0; idx<colnr; idx++)
-	newdata.setArrayBetweenIdxs( *olddata.get(idx), *newdata.get(idx), 
-				       startidx, stopidx );
+	newdata.setArrayBetweenIdxs( *olddata.get(idx), 
+				     *newdata.get(idx), 
+				     startidx, stopidx );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.20 2009-07-15 09:13:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.21 2009-07-17 12:08:23 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -78,7 +78,7 @@ bool WellTieToSeismic::computeAll()
     if ( !resampleLogs() ) 	   return false;
     if ( !computeSynthetics() )    return false;
 
-    //WorkData resampled and put in DispData at seismic sample rate 
+    //WorkData resampled and put in DispData at Survey step 
     datamgr_.rescaleData( workdata_, dispdata_, 6, params_.step_ );
 
     if ( !extractWellTrack() )     return false;
@@ -147,8 +147,8 @@ bool WellTieToSeismic::computeSynthetics()
 	      		 *workdata_.get(wtsetup_.denlognm_),
 	      	 	 *workdata_.get(params_.ainm_) );
     
-    //geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 
-    //				1/( SI().zStep()*params_.step_) );
+    geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 
+			     1/( 1.1*SI().zStep() ) );
 
     geocalc_->computeReflectivity( *workdata_.get(params_.ainm_),
        				   *dispdata_.get(params_.refnm_), 

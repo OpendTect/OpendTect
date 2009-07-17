@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.37 2009-07-15 09:13:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.38 2009-07-17 12:08:23 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -53,7 +53,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.37 2009-07-15 09:1
 #include "welltietoseismic.h"
 #include "welltieunitfactors.h"
 
-
+static bool isfirstdisplay_ = true;
 static const char*  eventtypes[] = {"None","Extrema","Maxima",
 				    "Minima","Zero-crossings",0};
 #define mErrRet(msg) \
@@ -145,6 +145,25 @@ void uiWellTieToSeismicDlg::initAll()
     doWork( 0 );
     dataholder_->pickmgr()->setDataParams( dataholder_->dpms() );
     dataholder_->pickmgr()->setData( dataholder_->dispData() );
+    show();
+    displayUserMsg();
+}
+
+
+void uiWellTieToSeismicDlg::displayUserMsg()
+{
+    if ( isfirstdisplay_ )
+    {
+	BufferString msg = "To correlate synthetic to seimsic, "; 
+	msg += "pick one or more synthetic events "; 
+	msg += "and link them with the seismic events. "; 
+	msg += "Each synthetic event must be coupled with a seismic event. "; 
+	msg += "Once you are satisfied with the picking, push the ";
+        msg += "'Apply Changes' button to re-extract the data and repeat "; 
+	msg += "the picking operation if needed.";
+
+	isfirstdisplay_ = uiMSG().showMsgNextTime( msg );
+    }
 }
 
 
@@ -244,22 +263,22 @@ void uiWellTieToSeismicDlg::createViewerTaskFields( uiGroup* taskgrp )
     applybut_ = new uiPushButton( taskgrp, "&Apply Changes",
 	   mCB(this,uiWellTieToSeismicDlg,applyPushed), true );
     applybut_->setSensitive( false );
-    applybut_->attach( ensureRightOf, eventtypefld_ );
+    applybut_->attach( rightOf, eventtypefld_ );
 
     undobut_ = new uiPushButton( taskgrp, "&Undo",
 	   mCB(this,uiWellTieToSeismicDlg,undoPushed), true );
-    undobut_->attach( ensureRightOf, applybut_ );
+    undobut_->attach( rightOf, applybut_ );
     undobut_->setSensitive( false );
     
     clearpicksbut_ = new uiPushButton( taskgrp, "&Clear picks",
 	   mCB(this,uiWellTieToSeismicDlg,clearPicks), true );
     clearpicksbut_->setSensitive( false );
-    clearpicksbut_->attach( ensureRightOf, undobut_ );
+    clearpicksbut_->attach( rightOf, undobut_ );
     
     clearlastpicksbut_ = new uiPushButton( taskgrp, "&Clear last pick",
 	   mCB(this,uiWellTieToSeismicDlg,clearLastPick), true );
     clearlastpicksbut_->setSensitive( false );
-    clearlastpicksbut_->attach( ensureRightOf, clearpicksbut_ );
+    clearlastpicksbut_->attach( rightOf, clearpicksbut_ );
 }
 
 
@@ -401,6 +420,7 @@ bool uiWellTieToSeismicDlg::undoPushed( CallBacker* cb )
 {
     if ( !dataplayer_->undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
+    clearPicks(0);
     doWork( cb );
     
     undobut_->setSensitive( false );

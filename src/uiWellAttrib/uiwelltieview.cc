@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.36 2009-07-15 09:13:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.37 2009-07-17 12:08:23 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -256,7 +256,6 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     FlatView::Appearance& app = vwr_->appearance();
     vwr_->setPack( true, seistrcdp_->id(), false, true );
 
-    vwr_->handleChange( FlatView::Viewer::All );
     const UnitOfMeasure* uom = 0;
     const char* units =  ""; //uom ? uom->symbol() : "";
     app.annot_.x1_.name_ =  varname;
