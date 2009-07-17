@@ -7,18 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          June 2008
- RCS:           $Id: uiexport2dhorizon.h,v 1.2 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uiexport2dhorizon.h,v 1.3 2009-07-17 10:31:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-
 class SurfaceInfo;
-class uiComboBox;
-class uiFileInput;
-class uiGenInput;
 class uiListBox;
+class uiComboBox;
+class uiGenInput;
+class uiCheckBox;
+class uiFileInput;
 
 
 /*! \brief Dialog for 2D horizon export */
@@ -37,6 +37,8 @@ protected:
     uiListBox*		linenmfld_;
     uiGenInput*		udffld_;
     uiFileInput*	outfld_;
+    uiCheckBox*		wrlnmsbox_;
+    uiCheckBox*		zbox_;
 
     const ObjectSet<SurfaceInfo>&	hinfos_;
 

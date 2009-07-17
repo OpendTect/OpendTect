@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.4 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.5 2009-07-17 10:31:28 cvsbert Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.4 2009-04-27 04:40:31 
 #include "uifileinput.h"
 #include "uicombobox.h"
 #include "uilistbox.h"
+#include "uibutton.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
@@ -54,15 +55,31 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     llbox->attach( alignedBelow, lcbox );
     linenmfld_ = llbox->box();
 
-    udffld_ = new uiGenInput( this, "Undefined value",
+    udffld_ = new uiGenInput( this, "Write undefined parts? Undef value",
 	    		     StringInpSpec(sKey::FloatUdf) );
+    udffld_->setChecked( true );
+    udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, llbox );
+
+    wrlnmsbox_ = new uiCheckBox( this, "Write line name" );
+    wrlnmsbox_->attach( alignedBelow, udffld_ );
+    wrlnmsbox_->setChecked( true );
+    bool setchk = true;
+    if ( SI().zIsTime() )
+	zbox_ = new uiCheckBox( this, "Z in msec" );
+    else
+    {
+	zbox_ = new uiCheckBox( this, "Z in feet" );
+	setchk = SI().depthsInFeetByDefault();
+    }
+    zbox_->setChecked( setchk );
+    zbox_->attach( rightTo, wrlnmsbox_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		      uiFileInput::Setup().forread(false) );
     outfld_->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
-    outfld_->attach( alignedBelow, udffld_ );
+    outfld_->attach( alignedBelow, wrlnmsbox_ );
 
     horChg( 0 );
 }
@@ -77,10 +94,6 @@ uiExport2DHorizon::~uiExport2DHorizon()
 
 bool uiExport2DHorizon::doExport()
 {
-    BufferString undefstr = udffld_->text();
-    if ( undefstr.isEmpty() )
-	undefstr = "NaN";
-
     BufferStringSet linenms;
     linenmfld_->getSelectedItems( linenms );
     if ( !linenms.size() )
@@ -118,6 +131,19 @@ bool uiExport2DHorizon::doExport()
     const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry(sid);
     if ( !geom ) mErrRet("Error Reading Horizon")
 
+    const bool wrudfs = udffld_->isChecked();
+    BufferString undefstr;
+    if ( wrudfs )
+    {
+	undefstr =  udffld_->text();
+	if ( undefstr.isEmpty() )
+	    undefstr = "-";
+    }
+
+    const float zfac = !zbox_->isChecked() ? 1
+		     : (SI().zIsTime() ? 1000 : mToFeetFactor);
+    const bool wrlnms = wrlnmsbox_->isChecked();
+    char buf[180];
     for ( int idx=0; idx< linenms.size(); idx++ )
     {
 	BufferString linename = linenms.get( idx );
@@ -127,17 +153,42 @@ bool uiExport2DHorizon::doExport()
 	for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
 	{
 	    Coord3 pos = geom->getKnot( RowCol(lineid,trcnr) );
+
 	    if ( mIsUdf(pos.x) || mIsUdf(pos.y) )
 		continue;
+	    const bool zudf = mIsUdf(pos.z);
+	    if ( zudf && !wrudfs )
+		continue;
 
-	    char buf[180];
-	    if ( mIsUdf(pos.z) )
-		sprintf( buf, "%15s%16.2lf%16.2lf%8d%16s\n", linename.buf(),
-			 pos.x, pos.y, trcnr, undefstr.buf() );
+	    if ( zudf )
+	    {
+		if ( wrlnms )
+		    sprintf( buf, "%15s%16.2lf%16.2lf%8d%16s", linename.buf(),
+			     pos.x, pos.y, trcnr, undefstr.buf() );
+		else
+		{
+		    BufferString out;
+		    out += pos.x; out += "\t"; out += pos.y; out += "\t";
+		    out += undefstr;
+		    strcpy( buf, out.buf() );
+		}
+	    }
 	    else
-		sprintf( buf, "%15s%16.2lf%16.2lf%8d%16.2lf\n", linename.buf(),
-			 pos.x, pos.y, trcnr, pos.z*SI().zFactor() );
-	    *sd.ostrm << buf;
+	    {
+		pos.z *= zfac;
+		if ( wrlnms )
+		    sprintf( buf, "%15s%16.2lf%16.2lf%8d%16.2lf",
+			    linename.buf(), pos.x, pos.y, trcnr, pos.z );
+		else
+		{
+		    BufferString out;
+		    out += pos.x; out += "\t"; out += pos.y; out += "\t";
+		    out += pos.z;
+		    strcpy( buf, out.buf() );
+		}
+	    }
+
+	    *sd.ostrm << buf << '\n';
 	    if ( sd.ostrm->bad() )
 		mErrRet("Error writing to the output file")
 	}
