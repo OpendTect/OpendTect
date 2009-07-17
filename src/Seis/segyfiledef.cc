@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.14 2009-01-29 06:05:15 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.15 2009-07-17 13:03:10 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -32,10 +32,10 @@ const char* FileReadOpts::sKeyCoordScale()
 static const char* allsegyfmtoptions[] = {
 	"From file header",
 	"1 - Floating point",
-	"2 - Integer (4 byte)",
-	"3 - Integer (2 byte)",
-	"5 - IEEE float (4 byte)",
-	"8 - Signed char (1 byte)",
+	"2 - Integer (32 bits)",
+	"3 - Integer (16 bits)",
+	"5 - IEEE float (32 bits)",
+	"8 - Signed char (8 bits)",
 	0
 };
 
