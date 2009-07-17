@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.27 2009-06-02 15:09:17 cvsbert Exp $
+ RCS:           $Id: uifileinput.h,v 1.28 2009-07-17 11:05:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,12 +44,12 @@ public:
 			    , directories_(false)
 			    , allowallextensions_(true)
 			    , confirmoverwrite_(true)
-			    , filedlgtype_(uiFileDialog::Gen)
+			    , filedlgtype_(uiFileDialog::Txt)
 			    {}
 			Setup(uiFileDialog::Type t,const char* filenm=0)
 			    : fnm(filenm)
 			    , forread_(true)
-			    , withexamine_(true)
+			    , withexamine_(t==uiFileDialog::Txt)
 			    , examinetablestyle_(false)
 			    , confirmoverwrite_(true)
 			    , filedlgtype_(t)
