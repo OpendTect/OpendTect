@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.13 2009-06-17 17:08:00 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.14 2009-07-17 19:55:40 cvsyuancheng Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -1345,7 +1345,8 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 		return false;
 
 	    TypeSet<double> neighborweights;
-	    if ( neighbors.size()==3 )
+	    if ( neighbors.size()==3 && neighbors[0]>=0 && neighbors[1]>=0 && 
+		 neighbors[2]>=0 )
 	    {
 		float weights[3];
 		interpolateOnTriangle2D( coordlist_[testidx],
