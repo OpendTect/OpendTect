@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.24 2009-06-30 18:09:38 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.25 2009-07-17 01:29:34 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -184,6 +184,7 @@ int ColTabTextureChannel2RGBA::maxNrChannels() const
 ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()
 {
     shaderswitch_->unref();
+    deepErase( coltabs_ );
 }
 
 
@@ -200,14 +201,14 @@ void ColTabTextureChannel2RGBA::adjustNrChannels() const
 
     while ( coltabs_.size()<nr )
     {
-	coltabs_ += ColTab::Sequence( ColTab::defSeqName() );
+	coltabs_ += new ColTab::Sequence( ColTab::defSeqName() );
 	enabled_ += true;
 	opacity_ += 255;
     }
 
     while ( coltabs_.size()>nr )
     {
-	coltabs_.remove( nr );
+	delete coltabs_.remove( nr );
 	enabled_.remove( nr );
 	opacity_.remove( nr );
     }
@@ -229,7 +230,7 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
     if ( channel>=coltabs_.size() )
 	adjustNrChannels();
 
-    coltabs_[channel] = seq;
+    *coltabs_[channel] = seq;
 
     update();
 }
@@ -241,7 +242,7 @@ ColTabTextureChannel2RGBA::getSequence( int channel ) const
     if ( channel>=coltabs_.size() )
 	adjustNrChannels();
 
-    return &coltabs_[channel];
+    return coltabs_[channel];
 }
 
 
@@ -632,7 +633,7 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
 	return;
     }
 
-    const ColTab::Sequence& seq = coltabs_[channelidx];
+    const ColTab::Sequence& seq = *coltabs_[channelidx];
     if ( cols.size()!=((mNrColors+1)*4) )
 	cols.setSize( ((mNrColors+1)*4), 0 );
 
@@ -661,7 +662,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     if ( !enabled_[channelidx] )
 	return SoTextureComposerInfo::cHasNoIntermediateTransparency();
 
-    const ColTab::Sequence& seq = coltabs_[channelidx];
+    const ColTab::Sequence& seq = *coltabs_[channelidx];
     if ( !seq.hasTransparency() )
 	return SoTextureComposerInfo::cHasNoTransparency();
 

@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.17 2009-07-07 02:18:18 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.18 2009-07-17 01:29:34 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
-//#include "coltabsequence.h"
 
 class SoColTabTextureChannel2RGBA;
 class SbImage;
@@ -114,7 +113,7 @@ protected:
     void				getColors(int channel,
 					      TypeSet<unsigned char>&) const;
 
-    mutable TypeSet<ColTab::Sequence>	coltabs_;
+    mutable ObjectSet<ColTab::Sequence>	coltabs_;
     mutable BoolTypeSet			enabled_;
     mutable TypeSet<unsigned char>	opacity_;
 
