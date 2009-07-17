@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.52 2009-07-01 11:47:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.53 2009-07-17 10:29:18 cvsbert Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -43,7 +43,7 @@ using namespace Attrib;
 uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 				  const NLAModel* n, const MultiID& mid, 
 				  bool usesinglehor )
-    : uiAttrEMOut( p, ad, n, mid, "Create Horizon related cube output" )
+    : uiAttrEMOut( p, ad, n, mid, "Create Horizon delimited cube output" )
     , ctio_( mkCtxtIOObjHor(ad.is2D()) )
     , ctio2_( mkCtxtIOObjHor(ad.is2D()) )
     , ctioout_(*mMkCtxtIOObj(SeisTrc))
