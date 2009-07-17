@@ -87,6 +87,7 @@ protected:
     void 			addToolBarTools();
     void			createViewerTaskFields(uiGroup*);
     void			createDispPropFields(uiGroup*);
+    void 			displayUserMsg();
     void 			drawData();
     void 			drawFields();
     void 			getDispParams();
