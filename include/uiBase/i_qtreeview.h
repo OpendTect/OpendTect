@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.12 2009-01-19 13:09:39 cvsjaap Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.13 2009-07-17 06:32:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,12 @@ i_listVwMessenger( QTreeWidget& sender, uiListView& receiver )
 
     connect( &sender, SIGNAL(itemCollapsed(QTreeWidgetItem*)), 
 	     this, SLOT(itemCollapsed(QTreeWidgetItem*)) );
+
+    connect( &sender, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), 
+	     this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)) );
+
+    connect( &sender, SIGNAL(itemEntered(QTreeWidgetItem*,int)), 
+	     this, SLOT(itemEntered(QTreeWidgetItem*,int)) );
 }
 
 private:
@@ -71,25 +77,45 @@ void setNotifiedColumn( int col )
 uiListView&	receiver_;
 QTreeWidget& 	sender_;
 
+
+#define mTriggerBody( notifier, triggerstatement1, triggerstatement2 ) \
+{ \
+    BufferString msg = #notifier; \
+    const int refnr = receiver_.beginCmdRecEvent( msg ); \
+    triggerstatement1; \
+    triggerstatement2; \
+    receiver_.endCmdRecEvent( refnr, msg ); \
+}
+
+#define mNoTrigger( notifier ) \
+    mTriggerBody( notifier, , )
+
+#define mTrigger( notifier ) \
+    mTriggerBody( notifier, receiver_.notifier.trigger(receiver_), )
+
+#define mTriggerExtra( notifier, extranotifier ) \
+    mTriggerBody( notifier, receiver_.notifier.trigger(receiver_), \
+		  receiver_.extranotifier.trigger(receiver_) )
+
 private slots:
 
 void itemSelectionChanged()
 {
     QList<QTreeWidgetItem*> items = sender_.selectedItems();
     setNotifiedItem( items.size()>0 ? items[0] : 0 );
-    receiver_.selectionChanged.trigger(receiver_);
+    mTrigger( selectionChanged );
 }
 
 void itemChanged( QTreeWidgetItem* item, int column )
 {
     setNotifiedItem( item );
-    receiver_.itemChanged.trigger(receiver_);
+    mTrigger( itemChanged );
 }
 
 void currentItemChanged( QTreeWidgetItem* item, QTreeWidgetItem* )
 {
     setNotifiedItem( item );
-    receiver_.currentChanged.trigger(receiver_);
+    mTrigger( currentChanged );
 }
 
 void itemClicked( QTreeWidgetItem* item, int col )
@@ -97,11 +123,11 @@ void itemClicked( QTreeWidgetItem* item, int col )
     setNotifiedItem( item );
     setNotifiedColumn( col );
     if ( receiver_.buttonstate_ == OD::RightButton )
-	receiver_.rightButtonClicked.trigger( receiver_ );
+	mTriggerExtra( rightButtonClicked, mouseButtonClicked )
     else if ( receiver_.buttonstate_ == OD::LeftButton )
-	receiver_.leftButtonClicked.trigger( receiver_ );
-
-    receiver_.mouseButtonClicked.trigger( receiver_ );
+	mTriggerExtra( leftButtonClicked, mouseButtonClicked )
+    else 
+	mTrigger( mouseButtonClicked );
 }
 
 void itemPressed( QTreeWidgetItem* item, int col )
@@ -109,31 +135,46 @@ void itemPressed( QTreeWidgetItem* item, int col )
     setNotifiedItem( item );
     setNotifiedColumn( col );
     if ( receiver_.buttonstate_ == OD::RightButton )
-	receiver_.rightButtonPressed.trigger( receiver_ );
+	mTriggerExtra( rightButtonPressed, mouseButtonPressed )
     else if ( receiver_.buttonstate_ == OD::NoButton )
-	receiver_.leftButtonPressed.trigger( receiver_ );
-
-    receiver_.mouseButtonPressed.trigger( receiver_ );
+	mTriggerExtra( leftButtonPressed, mouseButtonPressed )
+    else 
+	mTrigger( mouseButtonPressed );
 }
 
 void customContextMenuRequested( const QPoint& qpoint )
 {
     setNotifiedItem( sender_.itemAt(qpoint) );
     receiver_.setNotifiedColumn( sender_.columnAt(qpoint.x()) );
-    receiver_.contextMenuRequested.trigger(receiver_);
+    mTrigger( contextMenuRequested );
 }
 
 void itemExpanded( QTreeWidgetItem* item )
 {
     setNotifiedItem( item );
-    receiver_.expanded.trigger(receiver_);
+    mTrigger( expanded );
 }
 
 void itemCollapsed( QTreeWidgetItem* item )
 {
     setNotifiedItem( item );
-    receiver_.collapsed.trigger(receiver_);
+    mTrigger( collapsed );
 }
+
+void itemDoubleClicked( QTreeWidgetItem* item, int col )
+{
+    setNotifiedItem( item );
+    setNotifiedColumn( col );
+    mNoTrigger( doubleClicked );
+}
+
+void itemEntered( QTreeWidgetItem* item, int col )
+{
+    setNotifiedItem( item );
+    setNotifiedColumn( col );
+    mNoTrigger( itemEntered );
+}
+
 
 };
 
