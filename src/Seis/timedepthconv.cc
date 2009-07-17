@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.10 2009-06-20 17:19:21 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.11 2009-07-17 21:22:04 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -402,12 +402,12 @@ Interval<float> Time2DepthStretcher::getDepthInterval( const BinID& bid,
     if ( !voiintime_[idx] )
 	return voivols_[idx].zrg;
 
-    return
-	Interval<float>( voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl),
-				    voivols_[idx].hrg.crlIdx(bid.crl), 0 ),
-			 voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl),
-				    voivols_[idx].hrg.crlIdx(bid.crl), 
-		   		    voidata_[idx]->info().getSize(2) ) );
+    const int inlidx = voivols_[idx].hrg.inlIdx(bid.inl);
+    const int crlidx = voivols_[idx].hrg.crlIdx(bid.crl);
+    const int zsz = voidata_[idx]->info().getSize(2);
+
+    return Interval<float>( voidata_[idx]->get( inlidx, crlidx, 0 ),
+			    voidata_[idx]->get( inlidx, crlidx, zsz-1 ) );
 }
 
 
