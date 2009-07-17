@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.103 2009-07-08 13:57:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.104 2009-07-17 16:02:56 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -98,6 +98,8 @@ WellDisplay::~WellDisplay()
     if ( group_ )
 	removeChild( group_->getInventorNode() );
     delete &logparset_;
+    //should it be here?
+    Well::MGR().release( wellid_ );
 }
 
 
@@ -374,8 +376,8 @@ void WellDisplay::setLogDisplay(  Well::LogDisplayPars& dp, int lognr )
 }
 
 
-void WellDisplay::calcClippedRange(float cliprate, Interval<float>& range,
-       							Well::Log& wl )
+void WellDisplay::calcClippedRange( float cliprate, Interval<float>& range,
+				    Well::Log& wl )
 {
     if ( cliprate > 100 ) cliprate = 100;
     cliprate = cliprate / 100;
