@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.81 2009-07-15 12:44:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.82 2009-07-17 09:01:33 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -359,6 +359,12 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 	    ptr++;
 
 	int varxidx = atoi( ptr );
+	if ( varxidx >= oldinputs.size() )
+	{
+	    const_cast<DescSet*>(this)->errmsg_ +=
+					"Cannot use old Math expression";
+	    return;
+	}
 	correctinputs += oldinputs[varxidx];
     }
 
@@ -539,6 +545,8 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	    mHandleParseErr( "Cannot find attribute name" );
 
 	handleOldAttributes( attribname, *descpar, defstring, versionnr );
+	if ( errmsgs && !errmsg_.isEmpty() )
+	    errmsgs->add( errmsg_ );
 	
 	RefMan<Desc> dsc;
 	dsc = errmsgs ? createDesc( attribname, *descpar, defstring, errmsgs )
