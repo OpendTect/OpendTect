@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.53 2009-07-16 21:58:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.54 2009-07-18 18:42:56 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -216,15 +216,27 @@ protected:
 mClass HorizonSectionTilePosSetup: public ParallelTask
 {
 public:    
-		HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 					    TypeSet<RowCol> start, 
-					    const Geometry::BinIDSurface& geo,
-		       			    StepInterval<int> rrg,
-					    StepInterval<int> crg )
-		    : tiles_( tiles )
-	  	    , geo_( geo )  
-		    , rrg_( rrg )
-	            , crg_( crg )			 
-		    , start_( start )	{}
+    HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 					    TypeSet<RowCol> start, 
+				const Geometry::BinIDSurface& geo,
+				ZAxisTransform* zat,
+				StepInterval<int> rrg,
+				StepInterval<int> crg )
+	: tiles_( tiles )
+	, zat_( zat )
+	, geo_( geo )  
+	, rrg_( rrg )
+	, crg_( crg )			 
+	, start_( start )
+    {
+    	if ( zat_ ) zat_->ref();
+    }
+
+
+    HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
+    {
+ 	if ( zat_ ) zat_->unRef();
+    }
+
 
     od_int64	nrIterations() const { return tiles_.size(); }
 
@@ -247,10 +259,11 @@ protected:
 		for ( int colidx=0; colidx<mNrCoordsPerTileSide; colidx++ )
 		{
 		    const int col = start_[idx].col + colidx*colrg.step;
-		    tiles_[idx]->setPos( rowidx, colidx, 
-			    rowok && colrg.includes(col) 
-			    ? geo_.getKnot(RowCol(row,col),false)
-			    : Coord3::udf() );
+		    Coord3 pos = rowok && colrg.includes(col) 
+			? geo_.getKnot(RowCol(row,col),false)
+			: Coord3::udf();
+		    if ( zat_ ) pos.z = zat_->transform( pos );
+		    tiles_[idx]->setPos( rowidx, colidx, pos );
 		}
 	    }
 
@@ -264,6 +277,7 @@ protected:
     TypeSet<RowCol>			start_;
     const Geometry::BinIDSurface&	geo_;
     StepInterval<int>			rrg_, crg_;
+    ZAxisTransform*			zat_;
 };
 
 
@@ -325,7 +339,7 @@ HorizonSection::HorizonSection()
     }
 
     texturecrds_->point.setValuesPointer( mTotalNrCoordsPerTile,
-	    				  texturecoordptr_ );
+					  texturecoordptr_ );
 }
 
 
@@ -737,8 +751,8 @@ void HorizonSection::inValidateCache( int channel )
     }
     else
     {
-    	delete cache_[channel];
-    	cache_.replace( channel, 0 );
+	delete cache_[channel];
+	cache_.replace( channel, 0 );
     }
 }
 
@@ -933,7 +947,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     }
 
     HorizonSectionTilePosSetup task( newtiles, tilestarts, *geometry_,
-	   displayrrg_, displaycrg_ );
+	    zaxistransform_, displayrrg_, displaycrg_ );
     if ( tr ) tr->execute( task );
     else task.execute();
 
