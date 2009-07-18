@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.18 2009-06-20 17:16:46 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.19 2009-07-18 18:24:35 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -281,13 +281,28 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 {
     if ( !velsz ) return true;
 
-    float prevvel = vels.value(0);
+    float prevvel = mUdf(float);
+    for ( int idx=0; idx<velsz; idx++ )
+    {
+	if ( mIsUdf(vels.value(idx) ) )
+	    continue;
+
+	prevvel = vels.value(idx);
+	break;
+    }
+
+    if ( mIsUdf(prevvel) )
+	return false;
+
     double depth = sd.start * prevvel/2;
     depths[0] = depth;
 
     for ( int idx=1; idx<velsz; idx++ )
     {
-	const float curvel = vels.value( idx );
+	float curvel = vels.value( idx );
+	if ( mIsUdf(curvel) )
+	    curvel = prevvel;
+
 	depth += sd.step*curvel/2; //time is TWT
 
 	depths[idx] = depth;
