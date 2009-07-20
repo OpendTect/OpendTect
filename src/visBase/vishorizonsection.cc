@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.54 2009-07-18 18:42:56 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.55 2009-07-20 05:27:27 cvsraman Exp $";
 
 #include "vishorizonsection.h"
 
@@ -232,7 +232,7 @@ public:
     }
 
 
-    HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
+    ~HorizonSectionTilePosSetup()
     {
  	if ( zat_ ) zat_->unRef();
     }
