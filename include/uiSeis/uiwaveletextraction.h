@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.6 2009-07-02 12:39:04 cvsnageswara Exp $
+ RCS:		$Id: uiwaveletextraction.h,v 1.7 2009-07-20 12:27:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class SeisTrcBuf;
 typedef std::complex<float> float_complex;
 template <class T> class Array1DImpl;
 
-class uiWaveletExtraction : public uiDialog
+mClass uiWaveletExtraction : public uiDialog
 {
 public:
 				uiWaveletExtraction(uiParent*);
