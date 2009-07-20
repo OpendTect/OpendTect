@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.162 2009-07-20 11:57:33 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.163 2009-07-20 12:51:00 cvsranojay Exp $";
 
 #include "uimpeman.h"
 
@@ -1097,7 +1097,7 @@ void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
 }
 
 
-void uiMPEMan::visObjectLockedCB()
+void uiMPEMan::visObjectLockedCB( CallBacker* )
 {
     updateButtonSensitivity();
 }

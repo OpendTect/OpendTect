@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.54 2009-07-20 11:56:53 cvsumesh Exp $
+ RCS:           $Id: uimpeman.h,v 1.55 2009-07-20 12:51:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ public:
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
-    void                        visObjectLockedCB();
 
 protected:
     void			addButtons();
@@ -144,6 +143,11 @@ protected:
     CubeSampling		oldactivevol;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }
+    
+public:
+     void                        visObjectLockedCB(CallBacker*);
+
+
 };
 
 #endif
