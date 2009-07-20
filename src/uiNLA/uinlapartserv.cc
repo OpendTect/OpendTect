@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.68 2009-05-22 04:34:09 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.69 2009-07-20 08:29:53 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -53,6 +53,8 @@ const int uiNLAPartServer::evSaveMisclass()	{ return 6; }
 const int uiNLAPartServer::evCreateAttrSet()	{ return 7; }
 const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
 
+#define mDPM DPM(DataPackMgr::PointID())
+
 
 uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 	: uiApplPartServer(a)
@@ -69,7 +71,8 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 uiNLAPartServer::~uiNLAPartServer()
 {
     deepErase( inpnms_ );
-    delete dps_;
+    if ( dps_ )
+	mDPM.release( dps_->id() );
     delete &storepars_;
 }
 
@@ -501,8 +504,6 @@ bool uiNLAPartServer::doDPSDlg()
     return uidps_->go();
 }
 
-
-#define mDPM DPM(DataPackMgr::PointID())
 
 #undef mErrRet
 #define mErrRet(rv) \
