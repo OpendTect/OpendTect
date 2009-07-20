@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.6 2009-01-28 22:22:44 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.7 2009-07-20 16:23:21 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -165,13 +165,16 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 		bottomhorizon_->sectionID(0), bid.getSerialized() ).z
 	: SI().zRange(true).stop;
 
+    const SamplingData<double>
+	zsampling( output_->z0*output_->zstep, output_->zstep );
+
     const int topsample = mIsUdf(topdepth)
 	? mUdf(int)
-	: chain_.getZSampling().nearestIndex( topdepth );
+	: zsampling.nearestIndex( topdepth );
 
     const int bottomsample = mIsUdf(bottomdepth)
 	? mUdf(int)
-	: chain_.getZSampling().nearestIndex( bottomdepth );
+	: zsampling.nearestIndex( bottomdepth );
 
     SamplingData<double> cursampling;
     if ( usegradient_ )
@@ -212,21 +215,20 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     Array3D<float>& outputarray = output_->getCube(0);
     for ( int idx=outputarray.info().getSize(2)-1; idx>=0; idx-- )
     {
-	const int cursample = output_->z0+idx;
 	bool dobg = false;
 	if ( mIsUdf(topsample) && mIsUdf(bottomsample) )
 	    dobg = true;
 	else if ( !mIsUdf(topsample) && !mIsUdf(bottomsample) )
 	{
 	    const Interval<int> rg(topsample,bottomsample);
-	    dobg = !rg.includes( cursample, false );
+	    dobg = !rg.includes( idx, false );
 	}
 	else if ( tophorizon_ && bottomhorizon_ )
 	    dobg = true;
 	else if ( !mIsUdf(topsample) )
-	    dobg = cursample<topsample;
+	    dobg = idx<topsample;
 	else 
-	    dobg = cursample>bottomsample;
+	    dobg = idx>bottomsample;
 
     	float value;
 	if ( dobg )
@@ -235,7 +237,10 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 			     : mUdf( float );
 	}   
 	else
+	{
+	    const int cursample = output_->z0+idx;
 	    value = cursampling.atIndex( cursample );
+	}
 
         outputarray.set( outputinlidx, outputcrlidx, idx, value );
     } 
