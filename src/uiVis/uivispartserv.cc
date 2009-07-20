@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.423 2009-07-16 07:32:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.424 2009-07-20 11:57:33 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -70,6 +70,7 @@ const int uiVisPartServer::evLoadPostponedData()    { return 14; }
 const int uiVisPartServer::evToggleBlockDataLoad()  { return 15; }
 const int uiVisPartServer::evDisableSelTracker()    { return 16; }
 const int uiVisPartServer::evColorTableChange()	    { return 17; }
+const int uiVisPartServer::evLoadAttribDataInMPEServ()	{ return 18; }
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -1809,6 +1810,10 @@ void uiVisPartServer::initMPEStuff()
     
     mpetools_->initFromDisplay();
 }
+
+
+void uiVisPartServer::fireLoadAttribDataInMPEServ()
+{ sendEvent( evLoadAttribDataInMPEServ() ); }
 
 
 bool uiVisPartServer::canBDispOn2DViewer( int id ) const

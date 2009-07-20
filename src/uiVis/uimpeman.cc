@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.161 2009-07-09 13:52:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.162 2009-07-20 11:57:33 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -126,6 +126,14 @@ void uiMPEMan::addButtons()
 
     trackwithseedonlyidx = mAddButton( "trackfromseeds.png", trackFromSeedsOnly,
 	    			       "Track From Seeds Only", false );
+    toolbar->addSeparator();
+
+    displayatsectionidx = mAddButton( "sectiononly.png", displayAtSectionCB,
+	    			      "Display at section only", true );
+    toolbar->addSeparator();
+
+    retrackallinx = mAddButton( "retrackhorizon.png", retrackAllCB,
+	    			 "Retrack All", false );
     toolbar->addSeparator();
 
     polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
@@ -994,6 +1002,7 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool isinvolumemode = !seedpicker || seedpicker->doesModeUseVolume();
     toolbar->setSensitive( trackinvolidx, !is2d && isinvolumemode );
     toolbar->setSensitive( trackwithseedonlyidx, !is2d && isinvolumemode );
+    toolbar->setSensitive( displayatsectionidx, !is2d && isinvolumemode );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
@@ -1368,6 +1377,81 @@ void uiMPEMan::planeOrientationChangedCB( CallBacker* cb )
 void uiMPEMan::showSettingsCB( CallBacker* )
 {
     visserv->sendShowSetupDlgEvent();
+}
+
+
+void uiMPEMan::displayAtSectionCB( CallBacker* )
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    if ( !tracker )
+	return;
+
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size()!=1 || visserv->isLocked(selectedids[0]) )
+	return;
+
+    mDynamicCastGet( visSurvey::EMObjectDisplay*,
+	    	     surface, visserv->getObject(selectedids[0]) );
+
+    if ( surface && (surface->getObjectID()== tracker->objectID()) )
+	surface->setOnlyAtSectionsDisplay( toolbar->isOn(displayatsectionidx) );
+}
+
+
+void uiMPEMan::retrackAllCB( CallBacker* )
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    if ( !tracker )
+	return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker) return;
+
+    Undo& undo = EM::EMM().undo();
+    int cureventnr = undo.currentEventID();
+    undo.setUserInteractionEnd( cureventnr, false );
+
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    emobj->setBurstAlert( true );
+    emobj->removeAllUnSeedPos();
+
+    CubeSampling realactivevol = MPE::engine().activeVolume();
+     ObjectSet<CubeSampling>* trackedcubes =
+	 MPE::engine().getTrackedFlatCubes( 
+		 MPE::engine().getTrackerByObject(tracker->objectID()) );
+     if ( trackedcubes )
+     {
+	 for ( int idx=0; idx<trackedcubes->size(); idx++ )
+	 {
+	     NotifyStopper notifystopper( MPE::engine().activevolumechange );
+	     MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
+	     notifystopper.restore();
+
+	     const CubeSampling curvol =  MPE::engine().activeVolume();
+	     if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
+		 visserv->fireLoadAttribDataInMPEServ();
+
+	     seedpicker->reTrack();
+	 }
+
+	 emobj->setBurstAlert( false );
+	 deepErase( *trackedcubes );
+     }
+     else
+     {
+	 seedpicker->reTrack();
+	 emobj->setBurstAlert( false );
+     }
+
+     MPE::engine().setActiveVolume( realactivevol );
+
+     if ( !(MPE::engine().activeVolume().nrInl()==1) &&
+	  !(MPE::engine().activeVolume().nrCrl()==1) )
+	 trackInVolume(0);
+
+     MouseCursorManager::restoreOverride();
+     undo.setUserInteractionEnd( undo.currentEventID() );
 }
 
 
