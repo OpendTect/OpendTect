@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.49 2009-04-09 09:13:00 cvsbert Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.50 2009-07-20 05:58:55 cvsraman Exp $";
 
 #include "trigonometry.h"
 
@@ -370,6 +370,7 @@ bool Line2::getParallelLine( Line2& line, double dist ) const
 	if ( !isvertical_ || mIsUdf(xintcpt_) )
 	    return false;
 
+	line.yintcpt_ = mUdf(double);
 	line.isvertical_ = true;
 	line.xintcpt_ = xintcpt_ + dist;
     }
@@ -397,6 +398,8 @@ bool Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
     }
     else if ( mIsZero(slope_,mDefEps) )
     {
+	line.slope_ = mUdf(double);
+	line.yintcpt_ = mUdf(double);
 	line.isvertical_ = true;
 	line.xintcpt_ = point.x;
     }
