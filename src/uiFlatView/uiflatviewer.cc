@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.89 2009-07-07 09:03:54 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.90 2009-07-20 11:54:29 cvsumesh Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -725,6 +725,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    marketitem->setPenColor( ad.markerstyles_[styleidx].color_ );
 	    marketitem->setFillColor( ad.markerstyles_[styleidx].color_ );
 	    marketitem->setPos( ptlist[idx] );
+	    marketitem->setZValue( 2 );
 	    markeritemgrp_->add( marketitem );
 	}
 	
