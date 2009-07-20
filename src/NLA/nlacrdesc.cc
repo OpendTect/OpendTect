@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.18 2008-12-08 12:51:59 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.19 2009-07-20 11:37:12 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -117,11 +117,8 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	for ( DataPointSet::RowID irow=0; irow<curdps.size(); irow++ )
 	{
 	    DataPointSet::DataRow dr( curdps.dataRow(irow) );
-	    if ( nrcols != orgnrcols )
-	    {
-		for ( int idx=0; idx<nrout; idx++ )
-		    dr.data_ += idx == idps ? 1 : 0;
-	    }
+	    for ( int idx=0; idx<nrout; idx++ )
+		dr.data_ += idx == idps ? 1 : 0;
 
 	    const bool istest = extractrand ? Stats::RandGen::get() < ratiotst
 					     : irow > lasttrain;
