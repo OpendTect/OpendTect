@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.99 2009-07-16 13:57:40 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.100 2009-07-20 08:57:38 cvsbert Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -362,7 +362,8 @@ int nextStep()
     if ( !isOK() ) return ErrorOccurred();
 
     std::istream& strm = *sd_.istrm;
-    strm.read( dp_->buf() + chunkidx_ * mPreLoadChunkSz, mPreLoadChunkSz );
+    od_int64 offs = chunkidx_; offs *= mPreLoadChunkSz;
+    strm.read( dp_->buf() + offs, mPreLoadChunkSz );
     chunkidx_++;
     if ( strm.good() )
     {
