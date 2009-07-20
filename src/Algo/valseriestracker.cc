@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.8 2009-03-09 16:34:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.9 2009-07-20 11:46:37 cvsumesh Exp $";
 
 #include "valseriestracker.h"
 
@@ -143,6 +143,19 @@ void EventTracker::setAllowedVariance( float v )
 
 float EventTracker::allowedVariance() const
 { return allowedvar_; }
+
+
+void EventTracker::setAllowedVariances( const TypeSet<float>& avs )
+{
+    allowedvars_ = avs;
+    //TODO sort the values in descending order
+}
+
+
+TypeSet<float>& EventTracker::getAllowedVariances()
+{
+    return allowedvars_;
+}
 
 
 void EventTracker::useSimilarity( bool yn )
@@ -375,6 +388,7 @@ void EventTracker::fillPar( IOPar& iopar ) const
     iopar.set( sKeyPermittedRange(), permrange_ );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
     iopar.set( sKeyAllowedVariance(), allowedvar_);
+    iopar.set( sKeyAllowedVariances(), allowedvars_);
     iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
     iopar.set( sKeySimWindow(), similaritywin_ );
     iopar.set( sKeySimThreshold(), similaritythreshold_ );
@@ -393,6 +407,7 @@ bool EventTracker::usePar( const IOPar& iopar )
     iopar.get( sKeyPermittedRange(), permrange_ );
     iopar.get( sKeyValueThreshold(), ampthreshold_ );
     iopar.get( sKeyAllowedVariance(), allowedvar_);
+    iopar.get( sKeyAllowedVariances(), allowedvars_);
     iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ );
     iopar.get( sKeySimWindow(),similaritywin_ );
     iopar.getYN( sKeyNormSimi(), normalizesimi_ );
