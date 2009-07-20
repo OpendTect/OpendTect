@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.3 2009-07-07 09:05:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.4 2009-07-20 11:51:36 cvsumesh Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -18,10 +18,15 @@ static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.3 2009-07-07 09:05:36 
 #include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
+#include "emhorizon2d.h"
 #include "horizon2dseedpicker.h"
+#include "ioman.h"
+#include "linesetposinfo.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
+#include "posinfo.h"
+#include "seis2dline.h"
 #include "survinfo.h"
 #include "undo.h"
 
@@ -141,6 +146,14 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 	 !seedpicker->setSectionID(emobj->sectionID(0)) )
 	return;
 
+    CubeSampling oldactivevol = MPE::engine().activeVolume();
+
+    CubeSampling newactivevol;
+    if ( is2d_ )
+	newactivevol.setEmpty();
+    else
+	newactivevol = curcs_;
+
     const MouseEvent& mouseevent = mouseeventhandler_->event();
     const uiRect datarect( editor_->getMouseArea() );
     const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
@@ -233,15 +246,103 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 	MPE::engine().activevolumechange.trigger();
     }
 
+    // get EM::PosID
+    EM::PosID pid;
+    bool posidavlble = false;
+    if ( is2d_ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( lsetid_ );
+	if ( ioobj )
+	{
+	    const Seis2DLineSet lset(ioobj->fullUserExpr(true));
+	    PosInfo::LineSet2DData linesetgeom;
+	    if ( lset.getGeometry(linesetgeom) )
+	    {
+		PosInfo::Line2DPos fltpos;
+		linesetgeom.getLineData( linenm_ )->getPos( clickedcrd, fltpos,
+							   mDefEps );
+		mDynamicCastGet(EM::Horizon2D*,hor2d,emobj);
+
+		if ( hor2d )
+		{
+		    BinID bid;
+		    bid.inl = hor2d->geometry().lineIndex( linenm_ );
+		    bid.crl = fltpos.nr_;
+		    for ( int idx=0; idx<emobj->nrSections(); idx++ )
+			if ( emobj->isDefined(emobj->sectionID(idx),
+				    	      bid.getSerialized()) )
+			{
+			    posidavlble = true;
+			    pid.setObjectID( emobj->id() );
+			    pid.setSectionID( emobj->sectionID(idx) );
+			    pid.setSubID( bid.getSerialized() );
+			}
+		}
+	    }
+	}
+    }
+    else
+    {
+	BinID bid = SI().transform( clickedcrd );
+	for ( int idx=0; idx<emobj->nrSections(); idx++ )
+	    if ( emobj->isDefined(emobj->sectionID(idx), bid.getSerialized()) )
+	    {
+		posidavlble = true;
+		pid.setObjectID( emobj->id() );
+		pid.setSectionID( emobj->sectionID(idx) );
+		pid.setSubID( bid.getSerialized() );
+	    }
+    }
+
     const int prevevent = EM::EMM().undo().currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
     emobj->setBurstAlert( true );
-    seedpicker->addSeed( clickedcrd);
+
+    const int trackerid = MPE::engine().getTrackerByObject( emobj->id() );
+
+    const bool ctrlshiftclicked =  mouseevent.ctrlStatus() && 
+				   mouseevent.shiftStatus();
+    if ( posidavlble )
+    {
+	if ( ctrlshiftclicked )
+	{
+	    if ( seedpicker->removeSeed( pid, false, false ) )
+		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
+						      false );
+	}
+	else if ( mouseevent.ctrlStatus() )
+	{
+	    if ( seedpicker->removeSeed( pid, true, true ) )
+	       MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
+	       					     false );	    
+	}
+	else if ( mouseevent.shiftStatus() )
+	{
+	    if ( seedpicker->removeSeed( pid, true, false ) )
+		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
+						      false );
+	}
+	else
+	{
+	    if ( seedpicker->addSeed( clickedcrd, false ) )
+		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
+						      true );
+	}
+    }
+    else
+    {
+	if ( seedpicker->addSeed(clickedcrd,ctrlshiftclicked) )
+	    MPE::engine().updateFlatCubesContainer( newactivevol, trackerid, 
+		    				    true );
+    }
+
     emobj->setBurstAlert( false );
     MouseCursorManager::restoreOverride();
     const int currentevent = EM::EMM().undo().currentEventID();
     if ( currentevent != prevevent )
 	EM::EMM().undo().setUserInteractionEnd(currentevent);
+
+    //TODO restore active volume for proper condition
 }
 
 

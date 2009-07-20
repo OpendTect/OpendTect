@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.27 2009-06-23 06:30:25 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.28 2009-07-20 11:51:36 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.27 2009-06-23 06:30:
 #include "horizon3dseedpicker.h"
 #include "randcolor.h"
 #include "sectiontracker.h"
+#include "separstr.h"
 #include "survinfo.h"
 
 #include "uiattrsel.h"
@@ -175,7 +176,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     thresholdtypefld->attach( alignedBelow, srchgatefld );
 
     ampthresholdfld = new uiGenInput ( grp, "Allowed difference (%)",
-	    			       FloatInpSpec() );
+	    			       StringInpSpec() );
     ampthresholdfld->attach( alignedBelow, thresholdtypefld );
     ampthresholdfld->valuechanged.notify( 
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
@@ -276,8 +277,21 @@ void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
     const bool absthreshold = thresholdtypefld->getBoolValue();
     ampthresholdfld->setTitleText( absthreshold ? "       Amplitude value"
 						: "Allowed difference (%)" );
-    ampthresholdfld->setValue( absthreshold ? horadj_->amplitudeThreshold()
-	    				    : horadj_->allowedVariance()*100 );
+    if ( absthreshold )
+	ampthresholdfld->setValue( horadj_->amplitudeThreshold() );
+    else
+    {
+	if ( horadj_->getAllowedVariances().size() <= 0 )
+	    ampthresholdfld->setValue( horadj_->allowedVariance()*100 );
+	else
+	{
+	    BufferString bs;
+	    bs += horadj_->getAllowedVariances()[0]*100;
+	    for ( int idx=1; idx<horadj_->getAllowedVariances().size(); idx++ )
+	    { bs += ","; bs += horadj_->getAllowedVariances()[idx]*100; }
+	    ampthresholdfld->setText( bs.buf() );
+	}
+    }
 }
 
 
@@ -568,14 +582,55 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     }
     else
     {
-	float var = ampthresholdfld->getfValue() / 100;
-	if ( var<=0.0 || var>=1.0 )
-	    mErrRet( "Allowed variance must be between 0-100" );
-	if ( horadj_->allowedVariance() != var )
+	SeparString ss( ampthresholdfld->text(), ',' );
+	int idx = 0;
+	if ( ss.size() < 2 )
 	{
-	    fieldchange = true;
-	    horadj_->setAllowedVariance( var );
+	    float var = ss.getFValue(0) / 100;
+	    if ( var<=0.0 || var>=1.0 )
+		mErrRet( "Allowed variance must be between 0-100" );
+	    if ( horadj_->allowedVariance() != var )
+	    {
+		fieldchange = true;
+		horadj_->setAllowedVariance( var );
+	    }
 	}
+	else
+	{
+	    TypeSet<float> vars;
+	    for ( ; idx<ss.size(); idx++ )
+	    {
+		float varvalue = ss.getFValue(idx) / 100;
+		if ( varvalue <=0.0 || varvalue>=1.0 )
+		    mErrRet( "Allowed variance must be between 0-100" );
+
+		if ( horadj_->getAllowedVariances().size() < idx+1 )
+		{
+		    fieldchange = true;
+		    horadj_->getAllowedVariances() += varvalue;
+		    if ( idx == 0 )
+			horadj_->setAllowedVariance( varvalue );
+		}
+		else if ( horadj_->getAllowedVariances().size() >= idx+1 )
+		    if ( horadj_->getAllowedVariances()[idx] != varvalue )
+		    {
+			fieldchange = true;
+			horadj_->getAllowedVariances()[idx] = varvalue;
+			if ( idx == 0 )
+			    horadj_->setAllowedVariance( varvalue );
+		    }
+	    }
+	}
+
+	if (  horadj_->getAllowedVariances().size() > idx+1 )
+	{
+	    int size = horadj_->getAllowedVariances().size();
+	    fieldchange = true;
+	    horadj_->getAllowedVariances().remove( idx+1, size-1 );
+	}
+
+	if ( idx==0 && horadj_->getAllowedVariances().size()>0 )
+	    horadj_->getAllowedVariances()[idx] = horadj_->allowedVariance();
     }
 
     const bool rmonfail = !extriffailfld->getBoolValue();

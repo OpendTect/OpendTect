@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.7 2009-01-06 10:48:18 cvsranojay Exp $
+ RCS:           $Id: autotracker.h,v 1.8 2009-07-20 11:48:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,10 +44,12 @@ public:
 protected:
     bool			addSeed(const EM::PosID&);
     void			manageCBbuffer(bool block);
+    void			reCalculateTtalNr();
     int				nrdone_;
     int				totalnr_;
     int				nrflushes_;
     int				flushcntr_;
+    int 			stepcount_;
 
     const EM::SectionID		sectionid_;
     TypeSet<EM::SubID>		blacklist_;

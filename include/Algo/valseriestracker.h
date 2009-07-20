@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.7 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:		$Id: valseriestracker.h,v 1.8 2009-07-20 11:46:03 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,9 @@ public:
     				//!<Only used if not using absolute threshold
     float			allowedVariance() const;
 
+    void			setAllowedVariances(const TypeSet<float>& avs);
+    TypeSet<float>&		getAllowedVariances();
+
     void			setSimilarityWindow(const Interval<float>& rg);
     const Interval<float>&	similarityWindow() const;
     void			setSimilarityThreshold(float th);
@@ -155,6 +158,7 @@ protected:
     Interval<float>	permrange_;
     float		ampthreshold_;
     float		allowedvar_;
+    TypeSet<float>	allowedvars_;
     bool		useabsthreshold_;
     Interval<float>	similaritywin_;
     float		rangestep_;
@@ -168,6 +172,7 @@ protected:
     static const char*	sKeyPermittedRange()	{ return "Permitted range"; }
     static const char*	sKeyValueThreshold()	{ return "Value threshhold"; }
     static const char*	sKeyAllowedVariance()	{ return "Allowed variance"; }
+    static const char*	sKeyAllowedVariances()	{ return "Allowed variances"; }
     static const char*	sKeyUseAbsThreshold()	{ return "Use abs threshhold"; }
     static const char*	sKeySimWindow()		{ return "Similarity window"; }
     static const char*	sKeySimThreshold() { return "Similarity threshhold"; }

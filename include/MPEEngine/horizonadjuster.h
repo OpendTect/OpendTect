@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.24 2009-01-06 10:48:18 cvsranojay Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.25 2009-07-20 11:48:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,8 @@ public:
     void		setAmplitudeThreshold(float th);
     float		amplitudeThreshold() const;
     void 		setAllowedVariance(float v);
+    void		setAllowedVariances(const TypeSet<float>& avs);
+    TypeSet<float>&	getAllowedVariances();
     float 		allowedVariance() const;
     void		setUseAbsThreshold(bool abs);
     bool		useAbsThreshold() const;

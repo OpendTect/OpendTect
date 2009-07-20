@@ -8,18 +8,21 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.16 2009-01-09 10:58:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.17 2009-07-20 11:49:09 cvsumesh Exp $";
 
 #include "autotracker.h"
 
 #include "emmanager.h"
 #include "emobject.h"
 #include "emtracker.h"
+#include "horizonadjuster.h"
 #include "mpeengine.h"
+#include "progressmeter.h"
 #include "sectionextender.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
+#include "timefun.h"
 
 namespace MPE 
 {
@@ -33,30 +36,17 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     , totalnr_( 0 )
     , nrflushes_( 0 )
     , flushcntr_( 0 )
+    , stepcount_(-1)
 {
     geomelem_ = emobject_.sectionGeometry(sectionid_);
     extender_ = sectiontracker_->extender();
     adjuster_ = sectiontracker_->adjuster();
 
-    PtrMan<EM::EMObjectIterator>iterator = 
-	    emobject_.createIterator( sectionid_, &engine().activeVolume() );
+    reCalculateTtalNr();
 
-    totalnr_ = extender_->maxNrPosInExtArea();
-
-    while ( true )
-    {
-	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
-	    break;
-	
-	totalnr_--;
-	if ( !sectiontracker_->propagatingFromSeedOnly() ||
-	     emobject_.isPosAttrib(pid,EM::EMObject::sSeedNode()) )
-	    addSeed(pid);
-    }
-
-    if ( currentseeds_.isEmpty() )
-	totalnr_ = 0;
+    mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster());
+    if ( horadj  && (horadj->getAllowedVariances().size()>0) )
+	stepcount_ = 0;
 }
 
 
@@ -65,6 +55,30 @@ AutoTracker::~AutoTracker()
     manageCBbuffer( false );
     geomelem_->trimUndefParts();
     emobject_.setBurstAlert( false );
+}
+
+
+void AutoTracker::reCalculateTtalNr()
+{
+    PtrMan<EM::EMObjectIterator>iterator =
+	emobject_.createIterator( sectionid_, &engine().activeVolume() );
+
+    totalnr_ = extender_->maxNrPosInExtArea();
+
+    while( true )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	totalnr_--;
+	if ( !sectiontracker_->propagatingFromSeedOnly() ||
+	     emobject_.isPosAttrib(pid,EM::EMObject::sSeedNode()) )
+	    addSeed(pid);
+    }
+
+    if ( currentseeds_.isEmpty() )
+	totalnr_ = 0;
 }
 
 
@@ -167,7 +181,32 @@ int AutoTracker::nextStep()
     currentseeds_ = addedpos;
     nrdone_ += currentseeds_.size();
     
-    return currentseeds_.size() ? MoreToDo() : Finished();
+    int status =  currentseeds_.size() ? MoreToDo() : Finished();
+    if ( status == Finished() )
+    {
+	if ( stepcount_ == -1 )
+	    return status;
+
+	mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster());
+	if ( !horadj )
+	{
+	    stepcount_ = -1;
+	    return status;
+	}
+
+	if ( horadj->getAllowedVariances().size() <= (stepcount_+1) )
+	{
+	    stepcount_ = -1;
+	    return status;
+	}
+
+	stepcount_++;
+	reCalculateTtalNr();
+	horadj->setAllowedVariance( horadj->getAllowedVariances()[stepcount_] );
+	return MoreToDo();
+    }
+
+    return status;
 }
 
 
