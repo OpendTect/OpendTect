@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.137 2009-07-09 18:36:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.138 2009-07-20 12:38:39 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -128,7 +128,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     if ( ismultisel_ )
 	listfld_->setMultiSelect( true );
     listfld_->setPrefHeightInChar( 8 );
-    fullUpdate( 0 );
+    fullUpdate( -1 );
 
     if ( ctio_.ioobj )
         listfld_->setCurrentItem( ctio_.ioobj->name() );
@@ -294,7 +294,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 		dispnm += " <";
 	    dispnms_.add( dispnm );
 
-	    if ( isdef )
+	    if ( isdef && curidx < 0 )
 		curidx = idx;
 	}
     }
@@ -372,7 +372,7 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 void uiIOObjSelGrp::setContext( const IOObjContext& c )
 {
     ctio_.ctxt = c; ctio_.setObj( 0 );
-    fullUpdate( 0 );
+    fullUpdate( -1 );
 }
 
 
@@ -395,7 +395,7 @@ bool uiIOObjSelGrp::processInput()
 	if ( !ioobj || (iol && ctio_.ctxt.maychdir) )
 	{
 	    IOM().to( iol );
-	    fullUpdate( 0 );
+	    fullUpdate( -1 );
 	    return false;
 	}
 	ctio_.setObj( ioobj->clone() );
