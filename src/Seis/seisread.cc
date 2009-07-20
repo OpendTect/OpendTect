@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.94 2009-05-25 11:14:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.95 2009-07-20 12:39:33 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -611,7 +611,8 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     new_packet = false;
     if ( !isMultiConn() ) return 0;
 
-    strl()->cleanUp();
+    // Multiconn is only used for multi-machine data collection nowadays
+    strl()->cleanUp(); setSelData( 0 );
     IOStream* iostrm = (IOStream*)ioobj;
     if ( !iostrm->toNextConnNr() )
 	return 0;
