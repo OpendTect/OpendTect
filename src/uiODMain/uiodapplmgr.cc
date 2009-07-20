@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.341 2009-07-15 12:44:24 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.342 2009-07-20 12:00:25 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1195,6 +1195,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if ( evid == uiVisPartServer::evColorTableChange() )
 	updateColorTable( visserv_->getEventObjId(), 
 			  visserv_->getEventAttrib() );
+    else if ( evid == uiVisPartServer::evLoadAttribDataInMPEServ() )
+	mpeserv_->fireLAttribData();
     else
 	pErrMsg("Unknown event from visserv");
 
