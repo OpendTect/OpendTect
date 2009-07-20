@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.30 2009-06-22 10:02:27 cvsnanne Exp $
+ RCS:           $Id: uibutton.h,v 1.31 2009-07-20 10:04:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,8 @@ public:
 
     void			setShortcut(const char*);
     void			setMenu(uiPopupMenu*); //!<Menu becomes mine
+
+    const uiPopupMenu*		menu() const		{ return uimenu_; }
 
     void			setID( int i )		{ id_ = i; }
     int				id() const		{ return id_; }
