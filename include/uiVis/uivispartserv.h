@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.242 2009-06-26 19:04:47 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.243 2009-07-20 11:56:53 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -315,6 +315,8 @@ public:
     void			introduceMPEDisplay();
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
+    void			fireLoadAttribDataInMPEServ();
+    static const int            evLoadAttribDataInMPEServ();
 
     uiSlicePos3DDisp*		getUiSlicePos() const
     				{ return slicepostools_; }

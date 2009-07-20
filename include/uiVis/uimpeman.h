@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.53 2009-06-17 10:24:23 cvsumesh Exp $
+ RCS:           $Id: uimpeman.h,v 1.54 2009-07-20 11:56:53 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,8 @@ protected:
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
     void			showSettingsCB(CallBacker*);
+    void			displayAtSectionCB(CallBacker*);
+    void			retrackAllCB(CallBacker*);
 
     void			updateSeedPickState();
     void			trackPlaneTrackCB(CallBacker*);
@@ -131,6 +133,8 @@ protected:
     int				trackinvolidx;
     int 			polyselectidx;
     int				removeinpolygon;
+    int				displayatsectionidx;
+    int				retrackallinx;
     bool			trackerwasonbeforemouseerase;
 
     bool			seedpickwason;
