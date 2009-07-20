@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.24 2009-05-20 14:57:41 cvshelene Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.25 2009-07-20 14:40:35 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.24 2009-05-20 14:57:41 cvs
 #include "seisselection.h"
 #include "seistrctr.h"
 #include "ptrman.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -162,6 +162,9 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 bool SeisIOObjInfo::getRanges( CubeSampling& cs ) const
 {
     mChk(false);
+    mDynamicCastGet(IOStream*,iostrm,ioobj_)
+    if ( iostrm && iostrm->isMulti() )
+	{ cs.init( true ); return false; }
     return SeisTrcTranslator::getRanges( *ioobj_, cs );
 }
 
