@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.27 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.28 2009-07-21 09:13:27 cvsnanne Exp $";
 
 
 #include "uiattrsurfout.h"
@@ -71,8 +71,8 @@ void uiAttrSurfaceOut::attribSel( CallBacker* )
 
 void uiAttrSurfaceOut::objSel( CallBacker* )
 {
-    if ( !objfld_->ctxtIOObj().ioobj ) return;
-    BufferString parnm( objfld_->ctxtIOObj().ioobj->name() );
+    if ( !objfld_->ioobj(true) ) return;
+    BufferString parnm( objfld_->ioobj(true)->name() );
     parnm += " "; parnm += attrnmfld_->text();
     setParFileNmDef( parnm );
 }
