@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.45 2009-02-20 11:34:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.46 2009-07-21 09:06:02 cvsbert Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.45 2009-02-20 11:34:18 cv
 #include "welldata.h"
 #include "welllog.h"
 #include "welltrack.h"
+#include "welld2tmodel.h"
 #include "welldisp.h"
 #include "welllogset.h"
 #include "wellwriter.h"
@@ -33,6 +34,7 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.45 2009-02-20 11:34:18 cv
 #include "ptrman.h"
 #include "color.h"
 #include "errh.h"
+#include "survinfo.h"
 
 
 const int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
@@ -243,13 +245,42 @@ bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
     return ( dlg.uiResult() == 1 );
 }
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiWellPartServer::storeWell( const TypeSet<Coord3>& newcoords, 
+
+bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords, 
 				  const char* wellname, MultiID& mid )
 {
-    uiStoreWellDlg dlg( parent(), wellname );
-    dlg.setWellCoords( newcoords );
-    const bool res = dlg.go();
-    if ( res ) mid = dlg.getMultiID();
-    return res;
+    if ( coords.isEmpty() )
+	mErrRet("Empty well track")
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
+    ctio->setObj(0); ctio->setName( wellname );
+    if ( !ctio->fillObj() )
+	mErrRet("Cannot create an entry in the data store")
+    PtrMan<Translator> tr = ctio->ioobj->getTranslator();
+    mDynamicCastGet(WellTranslator*,wtr,tr.ptr())
+    if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
+			 "Another type object with this name already exists." );
+
+    PtrMan<Well::Data> well = new Well::Data( wellname );
+    Well::D2TModel* d2t = SI().zIsTime() ? new Well::D2TModel : 0;
+    const float vel = d2t ? 3000 : 1;
+    const Coord3& c0( coords[0] );
+    const float minz = c0.z * vel;
+    well->track().addPoint( c0, minz, minz );
+    if ( d2t ) d2t->add( minz, c0.z );
+
+    for ( int idx=1; idx<coords.size(); idx++ )
+    {
+	const Coord3& c( coords[idx] );
+	well->track().addPoint( c, c.z*vel );
+	if ( d2t ) d2t->add( well->track().dah(idx), c.z );
+    }
+
+    well->setD2TModel( d2t );
+    if ( !wtr->write(*well,*ctio->ioobj) )
+	mErrRet( "Cannot write well. Please check permissions." )
+
+    mid = ctio->ioobj->key();
+    return true;
 }
