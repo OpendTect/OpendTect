@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.24 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.25 2009-07-21 20:07:03 cvsnanne Exp $";
 
 
 #include "uiobjfileman.h"
@@ -184,7 +184,8 @@ BufferString uiObjFileMan::getFileInfo()
 	{ txt += "\nNumber of files: "; txt += nrfiles; }
     const char* timestr = File_getTime( fname );
     if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
-    txt += "\nObject ID: "; txt += curioobj_->key(); txt += "\n";
+    if ( txt[txt.size()-1] != '\n' ) txt += "\n";
+    txt += "Object ID: "; txt += curioobj_->key(); txt += "\n";
     conn->close();
     delete conn;
     return txt;
