@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.42 2009-07-16 21:42:57 cvskris Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.43 2009-07-21 08:52:23 cvsbert Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -217,7 +217,7 @@ void uiODWellTreeItem::initMenuItems()
     showlogmnuitem_.text = "&Logs" ;
     attrmnuitem_.text = "&Create attribute log...";
     editmnuitem_.text = "&Edit Welltrack" ;
-    storemnuitem_.text = "St&ore ...";
+    storemnuitem_.text = "&Save";
 
     nametopmnuitem_.checkable = true;
     namebotmnuitem_.checkable = true;
