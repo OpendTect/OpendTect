@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.7 2009-07-16 07:04:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.8 2009-07-21 19:11:30 cvsnanne Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -145,7 +145,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
     if ( dirname_.isEmpty() )
 	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld_ = new uiFileInput( this, "Select filename",
-				    uiFileInput::Setup()
+				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
 				    .defseldir(dirname_)
 	   			    .allowallextensions(false) );
