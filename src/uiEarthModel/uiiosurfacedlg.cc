@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.43 2009-06-30 18:33:27 cvskris Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.44 2009-07-21 11:07:50 cvsnanne Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -44,7 +44,7 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
 
     iogrp_ = new uiSurfaceWrite( this, surface_,
 	   			 uiSurfaceWrite::Setup(surface_.getTypeStr())
-	   			 .withdisplayfld(hasshift).withsubsel(true) );
+	   			 .withdisplayfld(!hasshift).withsubsel(true) );
 }
 
 
