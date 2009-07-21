@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.25 2009-07-03 11:57:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.26 2009-07-21 12:28:53 cvsbert Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.25 2009-07-03 11:57:16 
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "survinfo.h"
+#include "cubesampling.h"
 #include "welldata.h"
 #include "wellman.h"
 #include "welltrack.h"
@@ -305,9 +306,13 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 	}
     }
 
-    if ( !extendfld_->isChecked() )
-	return;
+    if ( extendfld_->isChecked() )
+	extendLine( coords );
+}
 
+
+void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
+{
     const int nrcoords = coords.size();
     if ( nrcoords < 1 ) return;
     float extradist = extendfld_->getfValue();
@@ -321,24 +326,26 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 	coords += Coord( c.x-extradist, c.y );
 	coords += c;
 	coords += Coord( c.x+extradist, c.y );
-	return;
     }
+    else
+    {
+	TypeSet<Coord> oldcrds( coords );
+	coords.erase();
+	const Coord d0( oldcrds[1].x - oldcrds[0].x,
+			oldcrds[1].y - oldcrds[0].y );
+	float p = sqrt( extradist * extradist / d0.sqAbs() );
+	const Coord newc0( oldcrds[0].x - p * d0.x, oldcrds[0].y - p * d0.y );
+	const Coord d1( oldcrds[nrcoords-1].x - oldcrds[nrcoords-2].x,
+			oldcrds[nrcoords-1].y - oldcrds[nrcoords-2].y );
+	p = sqrt( extradist * extradist / d1.sqAbs() );
+	const Coord newc1( oldcrds[nrcoords-1].x + p * d1.x,
+			   oldcrds[nrcoords-1].y + p * d1.y );
 
-    TypeSet<Coord> oldcrds( coords );
-    coords.erase();
-    const Coord d0( oldcrds[1].x - oldcrds[0].x, oldcrds[1].y - oldcrds[0].y );
-    float p = sqrt( extradist * extradist / d0.sqAbs() );
-    const Coord newc0( oldcrds[0].x - p * d0.x, oldcrds[0].y - p * d0.y );
-    const Coord d1( oldcrds[nrcoords-1].x - oldcrds[nrcoords-2].x,
-		    oldcrds[nrcoords-1].y - oldcrds[nrcoords-2].y );
-    p = sqrt( extradist * extradist / d1.sqAbs() );
-    const Coord newc1( oldcrds[nrcoords-1].x + p * d1.x,
-	    	       oldcrds[nrcoords-1].y + p * d1.y );
-
-    coords += newc0;
-    for ( int idx=0; idx<oldcrds.size(); idx++ )
-	coords += oldcrds[idx];
-    coords += newc1;
+	coords += newc0;
+	for ( int idx=0; idx<oldcrds.size(); idx++ )
+	    coords += oldcrds[idx];
+	coords += newc1;
+    }
 }
 
 
@@ -421,15 +428,28 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 {
     if ( !outfld_->commitInput() || !outctio_.ioobj )
     {
-	uiMSG().error( " Please specify the output " );
+	uiMSG().error( "Please specify the output" );
 	return false;
     }
 
     Geometry::RandomLine* rl = new Geometry::RandomLine;
-    TypeSet<Coord> wellcoord;
-    getCoordinates( wellcoord );
+    TypeSet<Coord> wellcoord; getCoordinates( wellcoord );
+    if ( wellcoord.size() < 2 )
+    {
+	uiMSG().error( "Please define at least two points" );
+	return false;
+    }
+
     for ( int idx=0; idx<wellcoord.size(); idx++ )
-	rl->addNode( SI().transform(wellcoord[idx]) );
+    {
+	Coord c( wellcoord[idx] );
+	if ( !SI().isInside(SI().transform(c),false) )
+	{
+	    Coord othcoord = wellcoord[idx ? idx - 1 : 1];
+	    c = SI().getEdgePoint( othcoord, c );
+	}
+	rl->addNode( SI().transform(c) );
+    }
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( rl );

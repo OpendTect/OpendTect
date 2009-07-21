@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.8 2009-07-03 10:49:32 cvsbert Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.9 2009-07-21 12:28:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ protected:
     void		moveButPush(CallBacker*);
     void		previewPush(CallBacker*);
     int			getFirstEmptyRow();
+    void		extendLine(TypeSet<Coord>&);
     void		ptsSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
