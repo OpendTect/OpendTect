@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.111 2009-06-20 15:33:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.112 2009-07-21 09:50:14 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -842,6 +842,10 @@ void uiSurveyInfoEditor::setInl1Fld( CallBacker* )
 
 void uiSurveyInfoEditor::updZUnit( CallBacker* )
 {
-    zinftfld_->display( zunitfld_->currentItem() == 0
-		     && !xyinftfld_->isChecked() );
+    const bool xyinft = xyinftfld_->isChecked();
+    zinftfld_->setSensitive( !xyinft );
+    zinftfld_->display( zunitfld_->currentItem() == 0 );
+
+    NotifyStopper ns( zinftfld_->activated );
+    zinftfld_->setChecked( xyinft );
 }
