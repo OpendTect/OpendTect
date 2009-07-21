@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.38 2009-06-17 08:03:19 cvshelene Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.39 2009-07-21 20:13:50 cvsnanne Exp $";
 
 
 #include "uisteeringsel.h"
@@ -259,7 +259,7 @@ static uiSeisSel::Setup mkSeisSelSetup( bool is2d, const char* txt )
     uiSeisSel::Setup sssu( is2d, false );
     sssu.selattr( is2d )
 	.datatype( is2d ? sKey::Steering.buf() : "" )
-	.allowcnstrsabsent( !is2d ).include( is2d )
+	.allowcnstrsabsent( false ).include( is2d )
 	.seltxt( txt );
     return sssu;
 }
@@ -270,7 +270,6 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 	: uiSeisSel( p, c, mkSeisSelSetup(is2d,txt) )
 	, attrdata_( ads )
 {
-    c.ctxt.allowcnstrsabsent = is2d;
     attachObj()->finaliseStart.notify( mCB(this,uiSteerCubeSel,doFinalise) );
 }
 
@@ -307,6 +306,9 @@ CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
     CtxtIOObj* ret = mMkCtxtIOObj(SeisTrc);
     ret->ctxt = ioContext();
     ret->ctxt.forread = forread;
+    if ( is2d )
+	ret->ctxt.deftransl = "2D";
+
     if ( forread && !is2d )
     {
 	ret->setObj( IOM().getFirst(ret->ctxt) );
