@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.23 2009-06-29 09:02:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.24 2009-07-21 16:18:57 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
@@ -287,14 +287,23 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
     {
 	BufferStringSet attrbnms;
 	oinf.getAttribNamesForLine( lnms.get(idx).buf(), attrbnms );
-	StepInterval<int> globtrcrg( mUdf(int), -mUdf(int), 1 );
-	for ( int attridx=0; attridx<attrbnms.size(); attridx++ )
+	StepInterval<int> globtrcrg( 0, 0, 1 );
+	int startidx=0; int nrattribs=attrbnms.size();
+	const int defidx = attrbnms.indexOf( LineKey::sKeyDefAttrib() );
+	if ( defidx>=0 ) { startidx=defidx; nrattribs=1; }
+
+	int maxnrtrcs = 0;
+	for ( int attridx=startidx; attridx<nrattribs; attridx++ )
 	{
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
 	    LineKey lk( lnms.get(idx).buf(), attrbnms.get(attridx) );
 	    oinf.getRanges( lk, trcrg, zrg );
-	    globtrcrg.include( trcrg, false );
+	    if ( trcrg.nrSteps() > maxnrtrcs )
+	    {
+		globtrcrg = trcrg;
+		maxnrtrcs = trcrg.nrSteps();
+	    }
 	}
 
 	maxtrcrgs_ += globtrcrg;
