@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.86 2009-03-30 04:31:06 cvsnanne Exp $
+ RCS:		$Id: survinfo.h,v 1.87 2009-07-21 12:22:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,9 +128,17 @@ public:
     float		computeAngleXInl() const;
     			/*!< It's the angle (0 to pi/2) between
 			     the X-axis and the Inl-axis (not an inline) */
+    Coord		getEdgePoint(Coord from,Coord to) const;
+    			/*!< Calculates where the line (or extension of it)
+			     through the coords exits the survey box.
+			     if !hasEdgePoint() returns the nearest corner. */
+    bool		hasEdgePoint(Coord,Coord) const;
+    			/*!< Calculates whether the line between the coords
+			     visits the survey box. */
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;
+    bool		isInside(const BinID&,bool work) const;
     bool		isReasonable(const BinID&) const;
 			//!< Checks if in or near survey
     bool		isReasonable(const Coord&) const;
@@ -224,7 +232,6 @@ public:
     void		setRange(const CubeSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		setComment( const char* s )	{ comment_ = s; }
-    static void		produceWarnings(bool);
     void		setInvalid() const;
 
     void		setWSProjName( const char* nm ) const

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.123 2009-06-23 10:32:06 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.124 2009-07-21 12:22:38 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -48,10 +48,9 @@ const char* ZDomain::sKey()		{ return "ZDomain"; }
 const char* ZDomain::sKeyID()		{ return "ZDomain ID"; }
 const char* ZDomain::sKeyTWT()		{ return "TWT"; }
 const char* ZDomain::sKeyDepth()	{ return "Depth"; }
+const char* ZDomain::getDefault()	{ return SI().getZDomainString(); }    
 
 
-
-static bool sDoWarnings = false;
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
 
@@ -843,8 +842,23 @@ float SurveyInfo::computeAngleXInl() const
 }
 
 
-void SurveyInfo::produceWarnings( bool yn )
-{ sDoWarnings = yn; }
+Coord SurveyInfo::getEdgePoint( Coord c0, Coord c1 ) const
+{
+    //TODO implement properly
+    return transform( transform(c1) );
+}
 
 
-const char* ZDomain::getDefault() { return SI().getZDomainString(); }    
+bool SurveyInfo::hasEdgePoint( Coord c0, Coord c1 ) const
+{
+    //TODO implement
+    return true;
+}
+
+
+bool SurveyInfo::isInside( const BinID& bid, bool work ) const
+{
+    const Interval<int> inlrg( inlRange(work) );
+    const Interval<int> crlrg( crlRange(work) );
+    return inlrg.includes(bid.inl) && crlrg.includes(bid.crl);
+}
