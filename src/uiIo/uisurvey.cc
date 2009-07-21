@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.108 2009-06-20 15:33:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.109 2009-07-21 12:26:18 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -147,7 +147,6 @@ uiSurvey::uiSurvey( uiParent* p )
     , impiop_(0)
     , impsip_(0)
 {
-    SurveyInfo::produceWarnings( false );
     const int lbwidth = 250;
     const int noteshght = 5;
     const int totwdth = lbwidth + mMapWidth + 10;
@@ -634,7 +633,6 @@ bool uiSurvey::rejectOK( CallBacker* )
     SurveyInfo::read(
 	FilePath(initialdatadir_).add(initialsurvey_).fullPath() );
 
-    SurveyInfo::produceWarnings( true );
     return true;
 }
 
@@ -647,7 +645,6 @@ bool uiSurvey::acceptOK( CallBacker* )
 	return false;
     }
     writeComments();
-    SurveyInfo::produceWarnings( true );
 
     if ( initialsurvey_ != listbox_->getText()
       || initialdatadir_ != GetBaseDataDir() )
@@ -657,7 +654,7 @@ bool uiSurvey::acceptOK( CallBacker* )
     
     IOMan::enableSurveyChangeTriggers( false );
     if ( !cansetnewsurv )
-	{ SurveyInfo::produceWarnings( false ); return false; }
+	return false;
 
     newSurvey();
     if ( impiop_ && impsip_
