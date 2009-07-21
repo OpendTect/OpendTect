@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.21 2009-03-26 09:33:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.22 2009-07-21 20:46:23 cvsnanne Exp $";
 
 #include "uimultisurfaceread.h"
 
@@ -89,6 +89,8 @@ void uiMultiSurfaceRead::dClck( CallBacker* )
 
 void uiMultiSurfaceRead::selCB( CallBacker* cb )
 {
+    if ( !rgfld_->mainObject() || !rgfld_->mainObject()->isDisplayed() ) return;
+
     const int nrsel = ioobjselgrp_->nrSel();
     if( nrsel == 0 )
 	return;
