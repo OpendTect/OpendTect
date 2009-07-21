@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.34 2009-06-25 12:06:59 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.35 2009-07-21 09:07:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,35 +133,6 @@ protected:
     virtual bool		acceptOK(CallBacker*);
     void			writeHeader(StreamData&);
     void			writeLogs(StreamData&);
-};
-
-/*! \brief Dialog for storing edited or home-made wells */
-
-mClass uiStoreWellDlg : public uiDialog
-{
-public:
-    				uiStoreWellDlg(uiParent*,const BufferString&);
-				~uiStoreWellDlg();
-
-    void			setWellCoords(const TypeSet<Coord3>&);
-    MultiID			getMultiID() const;
-
-protected:
-
-    uiD2TModelGroup*		d2tgrp;
-    uiGenInput*			usemodelfld;
-    uiGenInput*			constvelfld;
-    uiIOObjSel*			outfld;
-
-    virtual bool       		acceptOK(CallBacker*);
-    bool			checkInpFlds();
-    void			modelSel(CallBacker*);
-    bool			storeWell();
-    bool			setWellTrack(Well::Data*);
-
-    CtxtIOObj&			ctio_;
-    TypeSet<Coord3>		wellcoords_;
-
 };
 
 

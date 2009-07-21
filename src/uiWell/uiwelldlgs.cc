@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.83 2009-07-07 18:55:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.84 2009-07-21 09:07:27 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -760,125 +760,6 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 
 	*sdo.ostrm << '\n';
     }
-}
-
-
-//============================================================================
-
-uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
-    : uiDialog(p,uiDialog::Setup("Store Well",
-				 "Specify well parameters", "107.0.1"))
-    , ctio_(*mMkCtxtIOObj(Well))
-    , usemodelfld(0)
-    , constvelfld(0)
-{
-    uiGroup* topgrp = 0;
-    if ( SI().zIsTime() )
-    {
-	topgrp = new uiGroup( this, "time survey group" );
-	constvelfld =
-	    new uiGenInput( topgrp, "Constant velocity (m/s)", FloatInpSpec() );
-	topgrp->setHAlignObj( constvelfld );
-    }
-
-    ctio_.ctxt.forread = false;
-    uiIOObjSel::Setup su( "Output Well" );
-    su.keepmytxt( true );
-    outfld = new uiIOObjSel( this, ctio_, su );
-    if ( topgrp )
-	outfld->attach( alignedBelow, topgrp );
-
-    outfld->setInputText( wellname );
-}
-
-
-uiStoreWellDlg::~uiStoreWellDlg()
-{
-    delete ctio_.ioobj; delete &ctio_;
-}
-
-
-void uiStoreWellDlg::setWellCoords( const TypeSet<Coord3>& newcoords )
-{ wellcoords_ = newcoords; }
-
-
-MultiID uiStoreWellDlg::getMultiID() const
-{ return ctio_.ioobj ? ctio_.ioobj->key() : -1; }
-
-
-bool uiStoreWellDlg::acceptOK( CallBacker* )
-{
-    return checkInpFlds() && storeWell();
-}
-
-
-bool uiStoreWellDlg::checkInpFlds()
-{
-    if ( SI().zIsTime() )
-    {
-	if ( constvelfld )
-	{
-	    const float vel = constvelfld->getfValue();
-	    if ( mIsUdf(vel) || vel<=0 )
-		mErrRet( "Please specify correct (positive) velocity value" )
-	}
-    }
-	    
-    if ( !outfld->commitInput() )
-	mErrRet( "Please select an output" )
-
-    return true;
-}
-
-
-bool uiStoreWellDlg::storeWell()
-{
-    PtrMan<Translator> tr = ctio_.ioobj->getTranslator();
-    mDynamicCastGet(WellTranslator*,wtr,tr.ptr())
-    if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
-			 "Another type object with this name already exists." );
-
-    const char* wellname = outfld->getInput();
-    PtrMan<Well::Data> well = new Well::Data( wellname );
-    const bool res = setWellTrack( well );
-    if ( !res ) return false;
-
-    well->info().surfacecoord = Coord( well->track().pos(0).x, 
-	    			       well->track().pos(0).y );
-    if ( !wtr->write(*well,*ctio_.ioobj) ) mErrRet( "Cannot write well" );
-
-    return true;
-}
-
-
-bool uiStoreWellDlg::setWellTrack( Well::Data* well )
-{
-    TypeSet<float> times;
-    if ( SI().zIsTime() )
-    {
-	const float vel = constvelfld->getfValue();
-	for ( int idx=0; idx<wellcoords_.size(); idx++ )
-	{
-	    times += wellcoords_[idx].z;
-	    wellcoords_[idx].z *= vel; 
-	}
-    }
-
-    for ( int idx=0; idx<wellcoords_.size(); idx++ )
-	well->track().insertPoint( Coord(wellcoords_[idx].x,wellcoords_[idx].y),
-				   wellcoords_[idx].z );
-
-    if ( SI().zIsTime() )
-    {
-	const float vel = constvelfld->getfValue();
-	Well::D2TModel* d2t = new Well::D2TModel();
-	for ( int idx=0; idx<wellcoords_.size(); idx++ )
-	    d2t->add( well->track().dah(idx), times[idx] );
-	
-	well->setD2TModel(d2t);
-    }
-
-    return true;
 }
 
 
