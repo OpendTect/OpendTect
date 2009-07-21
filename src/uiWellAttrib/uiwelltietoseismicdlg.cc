@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.38 2009-07-17 12:08:23 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.39 2009-07-21 08:58:33 cvsbert Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -298,11 +298,14 @@ void uiWellTieToSeismicDlg::createDispPropFields( uiGroup* dispgrp )
 
     putDispParams();
 
+    const CallBack pccb( mCB(this,uiWellTieToSeismicDlg,dispPropChg) );
     cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,doWork));
-    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
-    csdispfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
-    markerfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
-    zinftfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,dispPropChg));
+    cscorrfld_->activated.notify( pccb );
+    csdispfld_->activated.notify( pccb );
+    markerfld_->activated.notify( pccb );
+    zinftfld_->activated.notify( pccb );
+
+    zinftfld_->setChecked( SI().depthsInFeetByDefault() );
 }
 
 
