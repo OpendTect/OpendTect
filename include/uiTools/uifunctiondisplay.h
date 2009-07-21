@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.22 2009-03-18 12:40:06 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.23 2009-07-21 19:19:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,8 @@ public:
 				    , pointsz_(0)
 				    , ptsnaptol_(0.01)
 				    , editable_(false)
-				    , curvzval_(1)
+				    , curvzvaly_(5)
+				    , curvzvaly2_(3)
 				    , fillbelow_(false)
 				    , fillbelowy2_(false)
 				    , drawscattery1_(false)
@@ -83,7 +84,8 @@ public:
 	mDefSetupMemb(int,canvaswidth)
 	mDefSetupMemb(int,canvasheight)
 	mDefSetupMemb(uiBorder,border)
-	mDefSetupMemb(int,curvzval)
+	mDefSetupMemb(int,curvzvaly)
+	mDefSetupMemb(int,curvzvaly2)
 	mDefSetupMemb(bool,annotx)
 	mDefSetupMemb(bool,annoty)
 	mDefSetupMemb(bool,annoty2)

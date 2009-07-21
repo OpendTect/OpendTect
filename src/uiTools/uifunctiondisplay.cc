@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.43 2009-06-30 07:47:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.44 2009-07-21 19:19:05 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -278,7 +278,7 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
     if ( polydrawn )
     {
 	ypolyitem_->setPenColor( setup_.ycol_ );
-	ypolyitem_->setZValue( setup_.curvzval_ );
+	ypolyitem_->setZValue( setup_.curvzvaly_ );
 	ypolyitem_->setVisible( true );
     }
     else if ( ypolyitem_ )
@@ -314,12 +314,13 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
     if ( polydrawn )
     {
 	y2polyitem_->setPenColor( setup_.y2col_ );
-	y2polyitem_->setZValue( setup_.curvzval_ );
+	y2polyitem_->setZValue( setup_.curvzvaly2_ );
 	y2polyitem_->setVisible( true );
     }
     else if ( y2polyitem_ && !havey2)
 	y2polyitem_->setVisible( false );
 }
+
 
 void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 {
@@ -336,7 +337,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 		return;
 	    }
 	    
-	    y2markeritems_ = new uiGraphicsItemGroup();
+	    y2markeritems_ = new uiGraphicsItemGroup( true );
 	    scene().addItemGrp( y2markeritems_ );
 	}
 	else
@@ -348,7 +349,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 		return;
 	    }
 	    
-	    ymarkeritems_ = new uiGraphicsItemGroup();
+	    ymarkeritems_ = new uiGraphicsItemGroup( true );
 	    scene().addItemGrp( ymarkeritems_ );
 	}
     }
@@ -378,7 +379,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	for ( int idx=ptlist.size(); idx<curitmgrp->getSize(); idx++ )
 	    curitmgrp->getUiItem(idx)->setVisible( false );
     }
-    curitmgrp->setZValue( setup_.curvzval_ );
+    curitmgrp->setZValue( isy2 ? setup_.curvzvaly2_ : setup_.curvzvaly_ );
 }
 
 
