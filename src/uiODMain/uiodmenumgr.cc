@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.177 2009-07-16 09:28:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.178 2009-07-22 08:54:24 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -429,20 +429,28 @@ void uiODMenuMgr::updateSceneMenu()
     int activescene = 0;
     sceneMgr().getSceneNames( scenenms, activescene );
 
-    for ( int id=mSceneSelMnuItm; id<mSceneSelMnuItm+scenenms.size()+1; id++ )
-	scenemnu_->removeItem( id );
-
-#define mInsertSceneItem(txt,docheck,id) \
-    uiMenuItem* itm = new uiMenuItem( txt, \
-	    			      mCB(this,uiODMenuMgr,handleClick) ); \
-    scenemnu_->insertItem( itm, id ); \
-    itm->setCheckable( true ); \
-    itm->setChecked( docheck );
-
-    for ( int idx=0; idx<scenenms.size(); idx++ )
+    for ( int idx=0; idx<=scenenms.size(); idx++ )
     {
-	mInsertSceneItem( scenenms.get(idx), idx==activescene,
-			  mSceneSelMnuItm+idx );    
+	const int id = mSceneSelMnuItm + idx;
+	uiMenuItem* itm = scenemnu_->find( id );
+
+	if ( idx >= scenenms.size() )
+	{
+	    if ( itm )
+		scenemnu_->removeItem( id );
+	    continue;
+	}
+
+	if ( !itm )
+	{
+	    itm = new uiMenuItem( "", mCB(this,uiODMenuMgr,handleClick) );
+	    scenemnu_->insertItem( itm, id );
+	    itm->setCheckable( true );
+	}
+
+	itm->setName( scenenms.get(idx) );
+	itm->setText( scenenms.get(idx) );
+	itm->setChecked( idx==activescene );
     }
 
     BufferString itmtxt( "New [" );
