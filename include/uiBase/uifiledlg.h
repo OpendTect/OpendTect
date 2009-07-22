@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.22 2009-06-02 15:09:17 cvsbert Exp $
+ RCS:           $Id: uifiledlg.h,v 1.23 2009-07-22 09:06:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,10 @@ protected:
     
     static FileMultiString*	externalfilenames_;
     static BufferString		extfilenameserrmsg_;
+
+private:
+    int			beginCmdRecEvent();
+    void		endCmdRecEvent(int refnr, bool ok);
 };
 
 #endif

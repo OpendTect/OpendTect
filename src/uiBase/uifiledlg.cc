@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.45 2009-06-02 15:09:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.46 2009-07-22 09:06:53 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: uifiledlg.cc,v 1.45 2009-06-02 15:09:17 cvsbert
 #include "uidialog.h"
 #include "uilineedit.h"
 #include "uilabel.h"
+#include "uimain.h"
+#include "uimainwin.h"
 
 #include <QFileDialog>
 
@@ -164,6 +166,7 @@ int uiFileDialog::go()
 	}
     }
 
+    int refnr = beginCmdRecEvent();
     ODFileDialog* fd = new ODFileDialog( QString(dirname), QString(flt),
 					 qparent, "File dialog", true );
     fd->selectFile( QString(fname_) );
@@ -182,7 +185,13 @@ int uiFileDialog::go()
 #endif
 
     if ( fd->exec() != QDialog::Accepted )
-    	return processExternalFilenames( dirname, flt );
+    {
+    	if ( !processExternalFilenames(dirname, flt) )
+	{
+	    endCmdRecEvent( refnr, false );
+	    return 0;
+	}
+    }
 
     QStringList selfiles = fd->selectedFiles();
     if ( !selfiles.isEmpty() )
@@ -203,6 +212,7 @@ int uiFileDialog::go()
 	filenames.add( bs );
     }
 
+    endCmdRecEvent( refnr, true );
     return 1;
 }
 
@@ -389,3 +399,45 @@ int uiFileDialog::processExternalFilenames( const char* dir,
     selectedfilter_ = filterset[0]->buf();
     mRetErrMsg( "", 0 );
 }
+
+
+int uiFileDialog::beginCmdRecEvent()
+{
+    uiMainWin* carrier = uiMain::theMain().topLevel();
+    if ( !carrier )
+	return -1;
+
+#ifdef __lux32__
+    return carrier->beginCmdRecEvent( (od_uint32) this, "QFileDlg" );
+#else
+    return carrier->beginCmdRecEvent( (od_uint64) this, "QFileDlg" );
+#endif
+
+}
+
+
+void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
+{
+    BufferString msg( "QFileDlg" );
+    if ( ok )
+    {
+	FileMultiString fms;
+	for ( int idx=0; idx<filenames.size(); idx++ )
+	    fms += filenames.get( idx );
+
+	msg += " \""; msg += fms; msg += "\"";
+    }
+
+    uiMainWin* carrier = uiMain::theMain().topLevel();
+    if ( carrier )
+#ifdef __lux32__
+	carrier->endCmdRecEvent( (od_uint32) this, refnr, msg );
+#else
+	carrier->endCmdRecEvent( (od_uint64) this, refnr, msg );
+#endif
+
+}
+
+
+
+

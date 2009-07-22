@@ -7,23 +7,53 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.24 2009-03-04 10:45:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.25 2009-07-22 09:06:53 cvsjaap Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
 #include "uibody.h"
 #include "uilabel.h"
+#include "uimain.h"
+#include "uimainwin.h"
 #include "pixmap.h"
 #include "uiparentbody.h"
 
 #include <QColorDialog>
 
 
+static int beginCmdRecEvent()
+{
+    uiMainWin* carrier = uiMain::theMain().topLevel();
+    if ( !carrier )
+	return -1;
+
+    return carrier->beginCmdRecEvent( -1, "QColorDlg" );
+}
+
+static void endCmdRecEvent( int refnr, bool ok, const Color& col,
+			    bool withtransp )
+{
+    BufferString msg( "QColorDlg " );
+    if ( ok )
+    {
+	msg += (int) col.r(); msg += " ";
+	msg += (int) col.g(); msg += " ";
+	msg += (int) col.b(); msg += " ";
+	if ( withtransp )
+	    msg += (int) col.t();
+    }
+
+    uiMainWin* carrier = uiMain::theMain().topLevel();
+    if ( carrier )
+	carrier->endCmdRecEvent( -1, refnr, msg );
+}
+
+
 bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
-  
     bool ok;
     QRgb rgb;
+    const int refnr = beginCmdRecEvent();
 
     if ( withtransp )
     {
@@ -56,6 +86,8 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 	if ( !withtransp )
 	    col.setTransparency( 0 );
     }
+
+    endCmdRecEvent( refnr, ok, col, withtransp );
 
     return ok;
 }
