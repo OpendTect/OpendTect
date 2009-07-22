@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.7 2009-07-22 10:45:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.8 2009-07-22 10:50:45 cvsranojay Exp $";
 
 #include "emrandomposbody.h"
 
@@ -90,7 +90,6 @@ public:
 
 	if ( !strm.good() ) { errmsg_ = err; return ErrorOccurred(); }
 	rdposbody_.addPos( pos );
-	//rdposbody_.setPos( rdposbody_.sectionID(0), posid, pos, true );
 	nrdone_++;
 
 	return MoreToDo();
