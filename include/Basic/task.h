@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.21 2009-06-12 15:40:39 cvskris Exp $
+ RCS:		$Id: task.h,v 1.22 2009-07-22 15:55:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,9 +92,9 @@ public:
 protected:
 
     virtual int	nextStep()				= 0;
-    		/*!<\retval cMoreToDo()		Not finished. Call me again.
-		    \retval cFinished()		Nothing more to do.
-		    \retval cErrorOccurred()	Something went wrong.
+    		/*!<\retval MoreToDo()		Not finished. Call me again.
+		    \retval Finished()		Nothing more to do.
+		    \retval ErrorOccurred()	Something went wrong.
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
 
