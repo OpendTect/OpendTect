@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.68 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.69 2009-07-22 21:51:58 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -205,7 +205,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
     MenuItem* nla = applMgr()->attrServer()->
 			    nlaAttribMenuItem( as, true, false );
     if ( nla && nla->nrItems() )
-	mAddMenuItem( &addattritm_, nla, true, false );
+	mAddMenuItem( &addattritm_, nla, true, false )
 
     BufferStringSet allsteering;
     Attrib::SelInfo::getAttrNames( setid_, allsteering, true );
@@ -256,6 +256,9 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 	    removeattritm_.createItems( displayedattribs );
     	    mAddMenuItem( menu, &removeattritm_, true, false );
 	}
+	else
+	    mResetMenuItem( &removeattritm_ )
+
 
 	if ( emptyidx >= 0 ) displayedattribs.remove( emptyidx );
 
@@ -264,6 +267,16 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 	    editcoltabitm_.createItems( displayedattribs );
 	    mAddMenuItem( menu, &editcoltabitm_, true, false );
 	}
+	else
+	    mResetMenuItem( &editcoltabitm_ )
+    }
+    else
+    {
+	mResetMenuItem( &editattritm_ );
+	mResetMenuItem( &showattritm_ );
+	mResetMenuItem( &hideattritm_ );
+	mResetMenuItem( &removeattritm_ );
+	mResetMenuItem( &editcoltabitm_ );
     }
 }
     
@@ -772,20 +785,30 @@ void uiOD2DLineSetSubItem::removeAttrib( const char* attribnm )
     if ( itemnm == sKeyUnselected )
 	itemnm = sKeyRightClick;
 
+    int nrattribitms = 0;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
-	mDynamicCastGet( uiOD2DLineSetAttribItem*, item, children_[idx] );
-	if ( !item || itemnm!=item->name() ) continue;
+	mDynamicCastGet(uiOD2DLineSetAttribItem*,item,children_[idx]);
+	if ( item ) nrattribitms++;
+    }
 
-	if ( applMgr()->visServer()->getNrAttribs(displayID()) <= 1 )
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(uiODDataTreeItem*,dataitem,children_[idx]);
+	mDynamicCastGet(uiOD2DLineSetAttribItem*,attribitem,children_[idx]);
+	if ( !dataitem || itemnm!=dataitem->name() ) continue;
+
+	if ( attribitem && nrattribitms<=1 )
 	{
-	    item->clearAttrib();
+	    attribitem->clearAttrib();
 	    return;
 	}
 
-	applMgr()->visServer()->removeAttrib( displayID(), item->attribNr() );
-	item->prepareForShutdown();
-	removeChild( item );
+	applMgr()->visServer()->removeAttrib( displayID(),
+					      dataitem->attribNr() );
+	dataitem->prepareForShutdown();
+	removeChild( dataitem );
 	idx--;
     }
 }
