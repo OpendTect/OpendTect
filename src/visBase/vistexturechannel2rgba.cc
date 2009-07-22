@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.27 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.28 2009-07-22 22:02:51 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -671,7 +671,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
 	    hastrans = true;
     }
 
-    const ColTab::Sequence& seq = coltabs_[channelidx];
+    const ColTab::Sequence& seq = *coltabs_[channelidx];
     if ( !seq.hasTransparency() )
     {
 	return hastrans
