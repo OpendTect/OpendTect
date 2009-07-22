@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.72 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.73 2009-07-22 21:49:59 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -995,13 +995,18 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 
 void Seis2DDisplay::clearTexture( int attribnr )
 {
-    if ( !texture_ )
-	return;
-
-    for ( int idx=0; idx<texture_->nrVersions(attribnr); idx++ )
-	texture_->setData( attribnr, idx, 0 );
-    
-    texture_->enableTexture( attribnr, false );
+    if ( texture_ )
+    {
+	for ( int idx=0; idx<texture_->nrVersions(attribnr); idx++ )
+	    texture_->setData( attribnr, idx, 0 );
+	
+	texture_->enableTexture( attribnr, false );
+    }
+    else if ( channels_ )
+    {
+	channels_->setUnMappedData( attribnr, 0, 0, OD::UsePtr, 0 );
+	channels_->turnOn( false );
+    }
 
     Attrib::SelSpec as;
     as.set2DFlag(true);
