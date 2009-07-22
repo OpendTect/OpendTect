@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	*NO COPYRIGHT*
+ (C) dGB Beheer B.V.; No license.
  Author:	A.H.Bril
  Date:		June 2006
- RCS:		$Id: pluginbase.h,v 1.1 2006-06-20 07:15:23 cvsbert Exp $
+ RCS:		$Id: pluginbase.h,v 1.2 2009-07-22 10:39:47 cvsbert Exp $
 ________________________________________________________________________
 
  This header file is intended for programmers who want to use their code for
