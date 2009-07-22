@@ -1,12 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.47 2009-06-17 19:20:49 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.48 2009-07-22 16:00:49 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
+#include "seiscbvs2dlinegetter.h"
 #include "seiscbvs.h"
 #include "cbvsreadmgr.h"
 #include "seistrc.h"
@@ -122,12 +123,8 @@ void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 #undef mErrRet
 #define mErrRet(s) { msg = s; return -1; }
 
-class SeisCBVS2DLineGetter : public Executor
-{
-public:
-
-SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, int ntps,
-		      const Seis::SelData& sd )
+SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
+					    int ntps, const Seis::SelData& sd )
     	: Executor("Load 2D line")
 	, tbuf(b)
 	, curnr(0)
@@ -150,14 +147,14 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, int ntps,
 }
 
 
-~SeisCBVS2DLineGetter()
+SeisCBVS2DLineGetter::~SeisCBVS2DLineGetter()
 {
     delete tr;
     delete seldata;
 }
 
 
-void addTrc( SeisTrc* trc )
+void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 {
     const int tnr = trc->info().binid.crl;
     if ( !isEmpty(seldata) )
@@ -176,7 +173,7 @@ void addTrc( SeisTrc* trc )
 }
 
 
-int nextStep()
+int SeisCBVS2DLineGetter::nextStep()
 {
     if ( !tr ) return -1;
 
@@ -214,24 +211,6 @@ int nextStep()
 
     return 1;
 }
-
-const char*		message() const		{ return msg; }
-const char*		nrDoneText() const	{ return "Traces read"; }
-od_int64		nrDone() const		{ return curnr; }
-od_int64		totalNr() const		{ return totnr; }
-
-    int			curnr;
-    int			totnr;
-    SeisTrcBuf&		tbuf;
-    BufferString	fname;
-    BufferString	msg;
-    CBVSSeisTrcTranslator* tr;
-    Seis::SelData*	seldata;
-    int			trcstep;
-    const int		linenr;
-    const int		trcsperstep;
-
-};
 
 
 #undef mErrRet
