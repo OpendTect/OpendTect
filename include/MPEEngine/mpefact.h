@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		March 2004
- RCS:		$Id: mpefact.h,v 1.1 2005-03-11 16:56:32 cvsnanne Exp $
+ RCS:		$Id: mpefact.h,v 1.2 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 

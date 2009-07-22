@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.20 2009-06-08 09:14:00 cvsbert Exp $
+ RCS:		$Id: general.h,v 1.21 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

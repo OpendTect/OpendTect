@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          January 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattremout.cc,v 1.10 2009-07-15 12:44:24 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattremout.cc,v 1.11 2009-07-22 16:01:39 cvsbert Exp $";
 
 
 #include "uiattremout.h"

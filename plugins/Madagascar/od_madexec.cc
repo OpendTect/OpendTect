@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	R. K. Singh
  Date:		March 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_madexec.cc,v 1.14 2009-01-20 10:54:43 cvsraman Exp $";
+static const char* rcsID = "$Id: od_madexec.cc,v 1.15 2009-07-22 16:01:27 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "envvars.h"

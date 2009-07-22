@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.6 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: vissplittexture2rectangle.h,v 1.7 2009-07-22 16:01:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

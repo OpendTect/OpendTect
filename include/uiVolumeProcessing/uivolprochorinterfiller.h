@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: uivolprochorinterfiller.h,v 1.5 2009-03-23 11:02:00 cvsbert Exp $
+ RCS:		$Id: uivolprochorinterfiller.h,v 1.6 2009-07-22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

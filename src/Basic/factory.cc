@@ -1,15 +1,15 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer
  Date:          Mar 2009
- RCS:           $Id: factory.cc,v 1.2 2009-05-14 15:26:09 cvskris Exp $
+ RCS:           $Id: factory.cc,v 1.3 2009-07-22 16:01:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: factory.cc,v 1.2 2009-05-14 15:26:09 cvskris Exp $";
+static const char* rcsID = "$Id: factory.cc,v 1.3 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "factory.h"
 

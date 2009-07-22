@@ -1,14 +1,14 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.10 2008-09-04 10:07:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.11 2009-07-22 16:01:40 cvsbert Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"

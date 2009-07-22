@@ -4,7 +4,7 @@
 /*+
   ________________________________________________________________________
 
-CopyRight:     (C) dGB Beheer B.V.
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Feb 2009
 ________________________________________________________________________

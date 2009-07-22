@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.18 2009-06-24 11:00:21 cvsbert Exp $
+ RCS:		$Id: prog.h,v 1.19 2009-07-22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
  Include this file in any executable program you make. The file is actually

@@ -1,5 +1,5 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Translator functions
@@ -16,7 +16,7 @@
 #include "preloads.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.26 2009-05-29 02:45:24 cvskris Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.27 2009-07-22 16:01:33 cvsbert Exp $";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 

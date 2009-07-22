@@ -5,10 +5,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.8 2009-04-09 00:43:27 cvskris Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.9 2009-07-22 16:01:12 cvsbert Exp $
  ________________________________________________________________________
 
 -*/

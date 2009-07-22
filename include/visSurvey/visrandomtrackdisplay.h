@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.70 2009-07-02 20:59:44 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.71 2009-07-22 16:01:25 cvsbert Exp $
 ________________________________________________________________________
 
 

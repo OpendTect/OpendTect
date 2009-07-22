@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.30 2009-05-05 02:23:04 cvskris Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.31 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"

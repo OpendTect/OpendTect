@@ -1,7 +1,7 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
@@ -21,7 +21,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoMaterialBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoDGBIndexedPointSet.cc,v 1.1 2009-05-08 21:45:09 cvskris Exp $";
+static const char* rcsID = "$Id: SoDGBIndexedPointSet.cc,v 1.2 2009-07-22 16:01:35 cvsbert Exp $";
 
 SO_NODE_SOURCE(SoDGBIndexedPointSet);
 

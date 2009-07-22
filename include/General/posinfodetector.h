@@ -3,10 +3,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.5 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: posinfodetector.h,v 1.6 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 */

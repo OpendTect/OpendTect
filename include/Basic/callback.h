@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.42 2009-03-10 05:21:05 cvsnanne Exp $
+ RCS:		$Id: callback.h,v 1.43 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

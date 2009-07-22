@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.26 2009-07-02 20:59:43 cvskris Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.27 2009-07-22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_copy.cc,v 1.2 2007-11-23 11:59:06 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_copy.cc,v 1.3 2009-07-22 16:01:29 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_copy.cc,v 1.2 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_copy.cc,v 1.3 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"

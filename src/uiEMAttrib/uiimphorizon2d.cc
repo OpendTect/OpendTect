@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          May 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.15 2009-05-07 07:13:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.16 2009-07-22 16:01:39 cvsbert Exp $";
 
 #include "uiimphorizon2d.h"
 

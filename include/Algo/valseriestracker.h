@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.8 2009-07-20 11:46:03 cvsumesh Exp $
+ RCS:		$Id: valseriestracker.h,v 1.9 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

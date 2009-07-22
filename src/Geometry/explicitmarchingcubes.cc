@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.28 2009-05-08 21:43:15 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.29 2009-07-22 16:01:33 cvsbert Exp $";
 
 #include "explicitmarchingcubes.h"
 

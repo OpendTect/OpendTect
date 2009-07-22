@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: offsetazimuth.cc,v 1.2 2007-06-21 21:26:28 cvskris Exp $";
+static const char* rcsID = "$Id: offsetazimuth.cc,v 1.3 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "offsetazimuth.h"
 

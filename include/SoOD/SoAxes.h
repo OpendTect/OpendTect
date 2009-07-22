@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		2009
- RCS:		$Id: SoAxes.h,v 1.2 2009-07-01 08:32:55 cvsnanne Exp $
+ RCS:		$Id: SoAxes.h,v 1.3 2009-07-22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

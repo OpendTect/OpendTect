@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.62 2009-06-04 13:37:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.63 2009-07-22 16:01:40 cvsbert Exp $";
 
 #include "uipickpartserv.h"
 

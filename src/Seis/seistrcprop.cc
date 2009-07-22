@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 28-2-1996
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.18 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.19 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"

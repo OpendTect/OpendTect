@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.11 2009-04-06 08:29:57 cvskris Exp $
+ RCS:		$Id: idxable.h,v 1.12 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 */

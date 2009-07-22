@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Nov 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.8 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.9 2009-07-22 16:01:34 cvsbert Exp $";
    
 
 #include "trackplane.h"

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.13 2009-04-01 05:13:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.14 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "segydirectdef.h"
 #include "segyfiledata.h"

@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/12/1999
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.34 2009-05-22 08:32:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.35 2009-07-22 16:01:38 cvsbert Exp $";
 
 #include "pixmap.h"
 

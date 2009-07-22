@@ -1,13 +1,13 @@
 /*+
 _______________________________________________________________________________
 
- COPYRIGHT:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.53 2009-07-02 20:59:43 cvskris Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.54 2009-07-22 16:01:28 cvsbert Exp $";
 
 #include "visprestackviewer.h"
 

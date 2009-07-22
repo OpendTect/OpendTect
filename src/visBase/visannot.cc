@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.27 2009-01-09 09:17:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.28 2009-07-22 16:01:44 cvsbert Exp $";
 
 #include "visannot.h"
 #include "vistext.h"

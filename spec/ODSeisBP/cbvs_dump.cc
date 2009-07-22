@@ -1,5 +1,5 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
 -*/

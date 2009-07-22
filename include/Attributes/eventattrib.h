@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.17 2009-02-13 14:25:34 cvshelene Exp $
+ RCS:		$Id: eventattrib.h,v 1.18 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,7 +1,7 @@
 #ifndef uiseisiosimple_h
 #define uiseisiosimple_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Nov 2003
 -*/

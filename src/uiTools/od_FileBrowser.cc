@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Jan 2003
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.16 2009-06-24 10:59:48 cvsbert Exp $";
+static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.17 2009-07-22 16:01:42 cvsbert Exp $";
 
 #include "uitextfile.h"
 #include "uimain.h"

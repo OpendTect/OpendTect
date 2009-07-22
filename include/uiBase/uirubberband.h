@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		November 2006
- RCS:		$Id: uirubberband.h,v 1.4 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:		$Id: uirubberband.h,v 1.5 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

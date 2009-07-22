@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.17 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: enums.h,v 1.18 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

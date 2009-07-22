@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.17 2009-05-26 10:22:11 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.18 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

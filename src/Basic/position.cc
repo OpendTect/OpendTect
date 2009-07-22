@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.65 2009-03-13 10:26:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.66 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "position.h"
 #include "bufstring.h"

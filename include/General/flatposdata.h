@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.6 2008-12-25 11:21:53 cvsranojay Exp $
+ RCS:           $Id: flatposdata.h,v 1.7 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

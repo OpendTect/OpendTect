@@ -2,13 +2,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Aug 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.3 2009-06-19 08:58:11 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "velocityfunctionascio.h"
 

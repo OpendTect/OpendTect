@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.22 2009-04-23 06:32:37 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.23 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

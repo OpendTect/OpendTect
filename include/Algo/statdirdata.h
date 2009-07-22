@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.7 2009-04-22 13:10:32 cvsbert Exp $
+ RCS:           $Id: statdirdata.h,v 1.8 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

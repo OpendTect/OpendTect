@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Yuancheng Liu
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.55 2009-07-20 05:27:27 cvsraman Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.56 2009-07-22 16:01:45 cvsbert Exp $";
 
 #include "vishorizonsection.h"
 

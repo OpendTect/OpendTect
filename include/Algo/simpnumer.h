@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.32 2009-03-30 12:38:51 cvsbert Exp $
+ RCS:		$Id: simpnumer.h,v 1.33 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 */

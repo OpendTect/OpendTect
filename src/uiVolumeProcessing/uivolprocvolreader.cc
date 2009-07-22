@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.3 2009-03-24 13:20:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.4 2009-07-22 16:01:43 cvsbert Exp $";
 
 #include "uivolprocvolreader.h"
 #include "uimsg.h"

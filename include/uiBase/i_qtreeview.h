@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.13 2009-07-17 06:32:41 cvsjaap Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.14 2009-07-22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

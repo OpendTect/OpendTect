@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.13 2009-04-09 00:43:27 cvskris Exp $
+ RCS:           $Id: delaunay3d.h,v 1.14 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

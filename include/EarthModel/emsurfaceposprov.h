@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.5 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.6 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 

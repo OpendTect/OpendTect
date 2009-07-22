@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Nov 2004
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.15 2008-02-20 21:05:53 cvskris Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.16 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "sectionselectorimpl.h"
 

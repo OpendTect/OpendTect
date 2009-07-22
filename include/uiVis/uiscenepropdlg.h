@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.h,v 1.3 2009-01-09 09:19:48 cvssatyaki Exp $
+ RCS:           $Id: uiscenepropdlg.h,v 1.4 2009-07-22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

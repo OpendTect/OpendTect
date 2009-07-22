@@ -1,9 +1,9 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.8 2009-02-19 13:26:15 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.9 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "seispreload.h"
 #include "seistrctr.h"

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 12-3-1996
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.7 2008-12-18 09:22:47 cvsbert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.8 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"

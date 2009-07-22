@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabindex.h,v 1.7 2009-02-16 17:13:12 cvsbert Exp $
+ RCS:		$Id: coltabindex.h,v 1.8 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.8 2009-03-30 06:54:47 cvsraman Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.9 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,12 +1,12 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : April 2001
  * FUNCTION : IODir entries for selectors
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.22 2008-05-15 12:40:14 cvsbert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.23 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"

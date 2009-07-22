@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2008
- RCS:		$Id: uibatchtime2depthsetup.h,v 1.3 2009-04-05 14:52:53 cvskris Exp $
+ RCS:		$Id: uibatchtime2depthsetup.h,v 1.4 2009-07-22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

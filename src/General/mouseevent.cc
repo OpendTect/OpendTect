@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : September 2006
 -*/
 
-static const char* rcsID = "$Id: mouseevent.cc,v 1.6 2007-08-29 16:22:59 cvsbert Exp $";
+static const char* rcsID = "$Id: mouseevent.cc,v 1.7 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "mouseevent.h"
 

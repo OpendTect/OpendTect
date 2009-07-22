@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nanne Hemstra & K. Tingdahl
  * DATE     : September 2008
 -*/
 
-static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.5 2009-04-20 04:48:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.6 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "displaypropertylinks.h"
 #include "ptrman.h"

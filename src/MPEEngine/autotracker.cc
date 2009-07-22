@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Nov 2004
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.17 2009-07-20 11:49:09 cvsumesh Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.18 2009-07-22 16:01:33 cvsbert Exp $";
 
 #include "autotracker.h"
 

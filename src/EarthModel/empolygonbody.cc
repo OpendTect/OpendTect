@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          July 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.11 2009-03-10 15:36:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.12 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "empolygonbody.h"
 

@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
  
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.9 2009-04-06 05:39:35 cvsraman Exp $
+ RCS:		$Id: _execbatch.h,v 1.10 2009-07-22 16:01:17 cvsbert Exp $
 ________________________________________________________________________
 
  The implementation fo Execute_batch should be in the executable on 

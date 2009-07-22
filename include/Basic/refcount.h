@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.15 2009-04-30 19:04:20 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.16 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

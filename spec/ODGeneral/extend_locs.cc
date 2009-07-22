@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 1-12-1999
  * FUNCTION : Create extra picks from locations file
 -*/
 
-static const char* rcsID = "$Id: extend_locs.cc,v 1.7 2006-09-21 12:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: extend_locs.cc,v 1.8 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"

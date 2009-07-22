@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.11 2008-11-17 22:11:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.12 2009-07-22 16:01:33 cvsbert Exp $";
 
 #include "polygonsurface.h"
 

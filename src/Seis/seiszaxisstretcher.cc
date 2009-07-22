@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.3 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "seiszaxisstretcher.h"
 

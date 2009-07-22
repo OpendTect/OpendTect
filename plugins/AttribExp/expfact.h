@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: expfact.h,v 1.2 2004-02-19 12:42:07 nanne Exp $
+ RCS:           $Id: expfact.h,v 1.3 2009-07-22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

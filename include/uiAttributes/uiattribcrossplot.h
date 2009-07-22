@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.12 2009-05-21 09:05:10 cvssatyaki Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.13 2009-07-22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

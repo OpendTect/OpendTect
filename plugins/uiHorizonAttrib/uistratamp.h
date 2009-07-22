@@ -2,10 +2,10 @@
 #define uistratamp_h
 
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nageswara
  * DATE     : Mar 2008
- * ID       : $Id: uistratamp.h,v 1.3 2008-07-07 04:56:16 cvsraman Exp $
+ * ID       : $Id: uistratamp.h,v 1.4 2009-07-22 16:01:28 cvsbert Exp $
 -*/
 
 #include "uidialog.h"

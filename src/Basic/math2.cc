@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: math2.cc,v 1.7 2009-01-22 15:29:39 cvsbert Exp $";
+static const char* rcsID = "$Id: math2.cc,v 1.8 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "math2.h"
 #include "undefval.h"

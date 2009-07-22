@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2002
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.26 2009-07-22 10:45:59 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.27 2009-07-22 16:01:40 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"

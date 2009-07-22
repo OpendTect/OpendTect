@@ -1,9 +1,9 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.4 2009-03-16 09:28:45 cvsranojay Exp $";
+static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.5 2009-07-22 16:01:39 cvsbert Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 

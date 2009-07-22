@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 18-8-2000
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.38 2008-12-18 16:03:51 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.39 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "helpview.h"
 

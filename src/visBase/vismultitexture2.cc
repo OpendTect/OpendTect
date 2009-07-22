@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2005
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.62 2009-06-11 17:04:01 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.63 2009-07-22 16:01:45 cvsbert Exp $";
 
 
 #include "vismultitexture2.h"

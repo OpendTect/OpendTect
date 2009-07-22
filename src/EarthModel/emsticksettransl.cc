@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.10 2008-12-23 11:08:31 cvsdgb Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.11 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "emsticksettransl.h"
 

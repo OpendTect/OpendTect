@@ -1,10 +1,10 @@
 #ifndef uimadbldcmd_h
 #define uimadbldcmd_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: uimadbldcmd.h,v 1.8 2009-01-20 10:55:04 cvsraman Exp $
+ * ID       : $Id: uimadbldcmd.h,v 1.9 2009-07-22 16:01:28 cvsbert Exp $
 -*/
 
 #include "uigroup.h"

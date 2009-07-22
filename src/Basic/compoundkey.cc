@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 8-9-1995
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID = "$Id: compoundkey.cc,v 1.6 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: compoundkey.cc,v 1.7 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "multiid.h"
 #include "globexpr.h"

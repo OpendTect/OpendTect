@@ -3,10 +3,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: winstreambuf.h,v 1.1 2009-06-22 10:05:57 cvsnanne Exp $
+ RCS:		$Id: winstreambuf.h,v 1.2 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 */

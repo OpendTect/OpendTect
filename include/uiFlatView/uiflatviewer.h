@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.35 2009-06-23 06:24:07 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.36 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

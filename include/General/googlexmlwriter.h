@@ -1,10 +1,10 @@
 #ifndef odgooglewritexml_h
 #define odgooglewritexml_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: googlexmlwriter.h,v 1.1 2007-11-09 14:12:32 cvsbert Exp $
+ * ID       : $Id: googlexmlwriter.h,v 1.2 2009-07-22 16:01:28 cvsbert Exp $
 -*/
 
 #include "bufstring.h"

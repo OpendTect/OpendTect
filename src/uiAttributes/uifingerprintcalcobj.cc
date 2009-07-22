@@ -1,14 +1,14 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          June 2006
 
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.13 2009-07-16 07:21:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.14 2009-07-22 16:01:37 cvsbert Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"

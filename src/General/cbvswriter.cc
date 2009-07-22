@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Mar 2001
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.52 2008-01-08 11:53:52 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.53 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"

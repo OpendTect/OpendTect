@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother2d.h,v 1.1 2008-03-17 14:38:47 cvskris Exp $
+ RCS:		$Id: smoother2d.h,v 1.2 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.12 2009-04-06 17:51:35 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.13 2009-07-22 16:01:41 cvsbert Exp $";
 
 #include "uiprestackprocessor.h"
 

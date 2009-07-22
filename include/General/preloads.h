@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: preloads.h,v 1.1 2009-02-18 17:12:19 cvsbert Exp $
+ RCS:		$Id: preloads.h,v 1.2 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 

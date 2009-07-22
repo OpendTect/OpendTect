@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Nanne Hemstra
  * DATE     : May 2009
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.4 2009-07-20 11:51:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.5 2009-07-22 16:01:40 cvsbert Exp $";
 
 #include "horflatvieweditor.h"
 

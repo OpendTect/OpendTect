@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : May 2006
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.5 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.6 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "horizon2dextender.h"
 

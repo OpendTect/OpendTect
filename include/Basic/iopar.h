@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.58 2009-06-17 19:13:23 cvskris Exp $
+ RCS:		$Id: iopar.h,v 1.59 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

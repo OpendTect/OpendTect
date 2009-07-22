@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 2005
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.27 2008-12-29 11:49:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.28 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"

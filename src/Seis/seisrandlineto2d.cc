@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.9 2009-03-31 05:31:07 cvsraman Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.10 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iopar.h"

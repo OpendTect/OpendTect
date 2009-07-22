@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          May 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.4 2009-01-30 21:23:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.5 2009-07-22 16:01:28 cvsbert Exp $";
 
 #include "uipsviewerappearancetab.h"
 

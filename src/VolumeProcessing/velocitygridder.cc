@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.12 2009-05-14 19:58:42 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.13 2009-07-22 16:01:36 cvsbert Exp $";
 
 #include "velocitygridder.h"
 

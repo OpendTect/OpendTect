@@ -1,11 +1,11 @@
 
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.15 2009-06-08 09:07:14 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.16 2009-07-22 16:01:28 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"

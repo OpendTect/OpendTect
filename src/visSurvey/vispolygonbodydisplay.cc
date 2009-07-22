@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.3 2009-06-09 10:40:54 cvsdgb Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.4 2009-07-22 16:01:46 cvsbert Exp $";
 
 #include "vispolygonbodydisplay.h"
 

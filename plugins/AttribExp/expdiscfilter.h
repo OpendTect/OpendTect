@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expdiscfilter.h,v 1.6 2007-10-30 16:53:35 cvskris Exp $
+ RCS:           $Id: expdiscfilter.h,v 1.7 2009-07-22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 DiscFilter radius= planefilter=true [constantvel=true] [velocity=] [fast=]

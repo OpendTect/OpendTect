@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.15 2009-03-25 06:14:32 cvsnanne Exp $
+ RCS:		$Id: valseriesevent.h,v 1.16 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 */

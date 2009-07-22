@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: uistoredattrreplacer.h,v 1.5 2009-02-02 11:30:41 cvsnageswara Exp $
+ RCS:		$Id: uistoredattrreplacer.h,v 1.6 2009-07-22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

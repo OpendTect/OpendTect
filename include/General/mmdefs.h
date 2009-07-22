@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
  
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		Dec 2002
- RCS:		$Id: mmdefs.h,v 1.10 2005-04-28 20:24:48 cvsarend Exp $
+ RCS:		$Id: mmdefs.h,v 1.11 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 Defines for multimachine status tags and codes

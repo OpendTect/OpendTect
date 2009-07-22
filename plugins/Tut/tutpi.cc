@@ -1,11 +1,11 @@
 
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tutpi.cc,v 1.4 2009-04-09 11:49:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: tutpi.cc,v 1.5 2009-07-22 16:01:27 cvsbert Exp $";
 
 #include "tutseistools.h"
 #include "tutorialattrib.h"

@@ -3,10 +3,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: uivisplanedatadisplaydragprop.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
+ RCS:		$Id: uivisplanedatadisplaydragprop.h,v 1.3 2009-07-22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 */

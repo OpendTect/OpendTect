@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          October 2008
- RCS:           $Id: SoLockableSeparator.h,v 1.5 2009-05-06 22:05:51 cvskris Exp $
+ RCS:           $Id: SoLockableSeparator.h,v 1.6 2009-07-22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

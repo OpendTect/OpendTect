@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.8 2009-04-06 07:33:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.9 2009-07-22 16:01:28 cvsbert Exp $";
 
 #include "plugins.h"
 #include "uipsviewermanager.h"

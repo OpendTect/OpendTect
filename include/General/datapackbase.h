@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.15 2009-03-05 09:14:32 cvsraman Exp $
+ RCS:		$Id: datapackbase.h,v 1.16 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 #ifndef madproc_h
 #define madproc_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.h,v 1.3 2009-06-25 10:01:54 cvsraman Exp $
+ * ID       : $Id: madproc.h,v 1.4 2009-07-22 16:01:27 cvsbert Exp $
 -*/
 
 

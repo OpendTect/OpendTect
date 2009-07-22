@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribslice.h,v 1.5 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribslice.h,v 1.6 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

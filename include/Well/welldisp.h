@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.15 2009-02-26 13:30:33 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.16 2009-07-22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

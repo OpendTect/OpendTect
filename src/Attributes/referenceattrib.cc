@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Helene Payraudeau
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.23 2009-07-06 14:22:08 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.24 2009-07-22 16:01:30 cvsbert Exp $";
 
 
 #include "referenceattrib.h"

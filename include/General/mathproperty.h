@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: mathproperty.h,v 1.7 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 

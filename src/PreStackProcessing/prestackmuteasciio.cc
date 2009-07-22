@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		June 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.8 2009-06-19 08:58:11 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.9 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"

@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.16 2009-03-23 15:38:53 cvskris Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.17 2009-07-22 16:01:35 cvsbert Exp $";
 
 
 #include "SoTextureComposer.h"

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodscenetreeitem.h,v 1.2 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodscenetreeitem.h,v 1.3 2009-07-22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 

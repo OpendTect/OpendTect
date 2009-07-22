@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Nov 2004
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulttracker.cc,v 1.5 2008-10-01 03:44:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: faulttracker.cc,v 1.6 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "faulttracker.h"
 

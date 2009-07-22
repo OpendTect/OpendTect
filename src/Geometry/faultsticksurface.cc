@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : J.C. Glas
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.13 2008-11-18 13:28:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.14 2009-07-22 16:01:33 cvsbert Exp $";
 
 #include "faultsticksurface.h"
 

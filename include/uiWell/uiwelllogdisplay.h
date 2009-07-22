@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.7 2009-06-16 10:23:30 cvsbert Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.8 2009-07-22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

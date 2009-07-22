@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Feb 2009
 ________________________________________________________________________
 -*/
 
-static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.2 2009-03-11 08:18:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.3 2009-07-22 16:01:39 cvsbert Exp $";
 
 #include "uiimpfaultstickset2d.h"
 

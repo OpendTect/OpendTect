@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.19 2009-06-16 08:51:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.20 2009-07-22 16:01:28 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uibutton.h"

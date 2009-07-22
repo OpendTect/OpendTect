@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          20/01/2006
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.14 2009-03-23 08:59:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.15 2009-07-22 16:01:38 cvsbert Exp $";
 
 
 #include "uishortcutsmgr.h"

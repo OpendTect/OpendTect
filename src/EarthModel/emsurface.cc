@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Oct 1999
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurface.cc,v 1.92 2009-05-07 08:16:38 cvsjaap Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.93 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "emsurface.h"
 

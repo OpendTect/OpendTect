@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.20 2009-04-09 00:43:27 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.21 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "delaunay3d.h"
 

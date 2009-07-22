@@ -1,10 +1,10 @@
 #ifndef tutseistools_h
 #define tutseistools_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: tutseistools.h,v 1.7 2009-04-09 11:49:08 cvsranojay Exp $
+ * ID       : $Id: tutseistools.h,v 1.8 2009-07-22 16:01:27 cvsbert Exp $
 -*/
 
 #include "executor.h"

@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          June 2005
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.40 2009-07-06 12:53:57 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.41 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "similarityattrib.h"
 

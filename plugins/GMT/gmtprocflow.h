@@ -1,10 +1,10 @@
 #ifndef gmtprocflow_h
 #define gmtprocflow_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: gmtprocflow.h,v 1.2 2009-04-06 07:19:31 cvsranojay Exp $
+ * ID       : $Id: gmtprocflow.h,v 1.3 2009-07-22 16:01:27 cvsbert Exp $
 -*/
 
 #include "iopar.h"

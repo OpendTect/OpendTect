@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Nov 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.37 2008-07-16 18:05:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.38 2009-07-22 16:01:31 cvsbert Exp $";
    
 
 #include "emsurfaceedgeline.h"

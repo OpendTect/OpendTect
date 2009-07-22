@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.16 2009-03-06 16:04:00 cvskris Exp $
+ RCS:           $Id: uicolortable.h,v 1.17 2009-07-22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

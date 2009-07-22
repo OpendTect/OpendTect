@@ -1,7 +1,7 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
@@ -27,7 +27,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.8 2008-09-23 04:10:13 cvsnageswara Exp $";
+static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.9 2009-07-22 16:01:35 cvsbert Exp $";
 
 SO_NODE_SOURCE(SoIndexedTriangleFanSet);
 

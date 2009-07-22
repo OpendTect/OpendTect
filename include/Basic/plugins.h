@@ -3,12 +3,12 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
 
- RCS:		$Id: plugins.h,v 1.26 2009-07-13 21:57:58 cvskris Exp $
+ RCS:		$Id: plugins.h,v 1.27 2009-07-22 16:01:14 cvsbert Exp $
 
 ________________________________________________________________________
 

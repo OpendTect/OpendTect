@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          December 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initattributes.cc,v 1.4 2009-02-04 18:35:32 cvskris Exp $";
+static const char* rcsID = "$Id: initattributes.cc,v 1.5 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "initattributes.h"
 #include "coherencyattrib.h"

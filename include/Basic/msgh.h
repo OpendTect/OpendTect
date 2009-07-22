@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.11 2008-12-24 12:41:59 cvsranojay Exp $
+ RCS:		$Id: msgh.h,v 1.12 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 */

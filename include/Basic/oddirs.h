@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.16 2009-06-17 08:42:17 cvsnanne Exp $
+ RCS:		$Id: oddirs.h,v 1.17 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 OpendTect directories.

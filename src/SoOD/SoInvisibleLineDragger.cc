@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoInvisibleLineDragger.cc,v 1.1 2007-10-18 14:15:52 cvskris Exp $";
+static const char* rcsID = "$Id: SoInvisibleLineDragger.cc,v 1.2 2009-07-22 16:01:35 cvsbert Exp $";
 
 
 #include "SoInvisibleLineDragger.h"

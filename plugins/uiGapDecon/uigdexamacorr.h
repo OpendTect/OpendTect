@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.14 2007-12-13 15:20:29 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.15 2009-07-22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

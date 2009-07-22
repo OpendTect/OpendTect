@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.8 2009-06-19 08:15:13 cvsbert Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.9 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

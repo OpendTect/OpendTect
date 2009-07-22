@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		12-4-1999
  Contents:	Periodic value interpolation and so forth
- RCS:		$Id: periodicvalue.h,v 1.6 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:		$Id: periodicvalue.h,v 1.7 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 */

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.22 2009-06-26 18:44:18 cvskris Exp $
+ RCS:		$Id: binidvalset.h,v 1.23 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

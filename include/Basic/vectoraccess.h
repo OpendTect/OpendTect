@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.27 2009-06-05 19:02:49 cvskris Exp $
+ RCS:		$Id: vectoraccess.h,v 1.28 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Feb 2009
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.6 2009-06-29 19:09:35 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.7 2009-07-22 16:01:39 cvsbert Exp $";
 
 #include "uihorizonshiftdlg.h"
 

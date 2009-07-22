@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: attribdataholderarray.h,v 1.4 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:		$Id: attribdataholderarray.h,v 1.5 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

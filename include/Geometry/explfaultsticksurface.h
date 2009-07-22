@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.12 2009-06-22 21:41:48 cvskris Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.13 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

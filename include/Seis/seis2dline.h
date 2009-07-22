@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.43 2009-02-03 09:06:42 cvshelene Exp $
+ RCS:		$Id: seis2dline.h,v 1.44 2009-07-22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.37 2009-06-18 12:20:47 cvsbert Exp $
+ RCS:		$Id: bufstring.h,v 1.38 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

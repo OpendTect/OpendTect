@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.21 2008-12-25 11:16:07 cvsranojay Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.22 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

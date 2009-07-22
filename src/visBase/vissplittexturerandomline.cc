@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-12-2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.7 2009-06-19 18:28:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.8 2009-07-22 16:01:45 cvsbert Exp $";
 
 #include "vissplittexturerandomline.h"
 

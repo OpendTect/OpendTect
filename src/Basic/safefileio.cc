@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.5 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.6 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "safefileio.h"
 #include "filegen.h"

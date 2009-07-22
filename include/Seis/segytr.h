@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.32 2009-02-16 17:14:40 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.33 2009-07-22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.

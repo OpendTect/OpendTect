@@ -1,9 +1,9 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.6 2008-12-04 15:55:27 cvsbert Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.7 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"

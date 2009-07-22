@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene
  Date:          Jul 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxisdata.cc,v 1.3 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaxisdata.cc,v 1.4 2009-07-22 16:01:42 cvsbert Exp $";
 
 #include "uiaxisdata.h"
 #include "dataclipper.h"

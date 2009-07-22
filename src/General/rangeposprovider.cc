@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.10 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.11 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"

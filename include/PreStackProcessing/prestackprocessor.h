@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.23 2009-05-12 02:14:25 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.24 2009-07-22 16:01:17 cvsbert Exp $
 ________________________________________________________________________
 
 

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.4 2009-07-16 07:55:07 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.5 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -39,7 +39,7 @@ Usage::Server::Server( const IOPar* pars, std::ostream& strm )
 
     if ( pars_.isEmpty() )
     {
-	logstrm_ << "Cannot start OpendTect Usage server (" << "$Revision: 1.4 $"
+	logstrm_ << "Cannot start OpendTect Usage server (" << "$Revision: 1.5 $"
 	    	 << "):\n";
 	if ( pars )
 	    logstrm_ << "No input parameters" << std::endl;

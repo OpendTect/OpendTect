@@ -5,10 +5,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.16 2009-04-17 13:18:47 cvsbert Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.17 2009-07-22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

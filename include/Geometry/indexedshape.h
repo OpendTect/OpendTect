@@ -3,10 +3,10 @@
                                                                                 
 /*+
 ________________________________________________________________________
-CopyRight:     (C) dGB Beheer B.V.
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.11 2008-12-25 11:55:38 cvsranojay Exp $
+RCS:           $Id: indexedshape.h,v 1.12 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

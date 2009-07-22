@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne and Kristofer
  Date:          December 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initseis.cc,v 1.4 2008-12-09 21:38:44 cvskris Exp $";
+static const char* rcsID = "$Id: initseis.cc,v 1.5 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "initseis.h"
 #include "timedepthconv.h"

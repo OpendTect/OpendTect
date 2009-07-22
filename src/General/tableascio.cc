@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.24 2009-06-23 13:44:55 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.25 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"

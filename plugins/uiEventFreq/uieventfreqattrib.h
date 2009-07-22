@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Jul 2007
- RCS:           $Id: uieventfreqattrib.h,v 1.2 2007-08-10 11:57:19 cvsbert Exp $
+ RCS:           $Id: uieventfreqattrib.h,v 1.3 2009-07-22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

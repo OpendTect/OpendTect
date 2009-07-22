@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.12 2009-06-16 15:39:49 cvsyuancheng Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.13 2009-07-22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

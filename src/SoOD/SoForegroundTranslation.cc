@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoForegroundTranslation.cc,v 1.5 2004-11-23 14:59:18 nanne Exp $";
+static const char* rcsID = "$Id: SoForegroundTranslation.cc,v 1.6 2009-07-22 16:01:35 cvsbert Exp $";
 
 
 #include "SoForegroundTranslation.h"

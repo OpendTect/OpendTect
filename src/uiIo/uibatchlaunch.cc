@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2002
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.77 2009-07-16 15:48:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.78 2009-07-22 16:01:39 cvsbert Exp $";
 
 #include "uibatchlaunch.h"
 

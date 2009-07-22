@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 11-4-1994
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.19 2009-06-24 10:52:12 cvsbert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.20 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include <string.h>
 #include <stdlib.h>

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Sep 2003
 -*/
 
 
-static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.10 2006-12-11 11:23:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.11 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "attriblinebuffer.h"
 

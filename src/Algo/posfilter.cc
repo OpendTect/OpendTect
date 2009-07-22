@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.12 2008-03-25 11:40:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.13 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"

@@ -1,10 +1,10 @@
 #ifndef uitutwelltools_h
 #define uitutwelltools_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : June 2007
- * ID       : $Id: uitutwelltools.h,v 1.2 2009-04-09 11:49:08 cvsranojay Exp $
+ * ID       : $Id: uitutwelltools.h,v 1.3 2009-07-22 16:01:29 cvsbert Exp $
 -*/
 
 #include "uidialog.h"

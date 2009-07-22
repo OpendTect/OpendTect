@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Arend Lammertink
  Date:		2001
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprogressbar.cc,v 1.17 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiprogressbar.cc,v 1.18 2009-07-22 16:01:38 cvsbert Exp $";
 
 
 #include "uiprogressbar.h"

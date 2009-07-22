@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          Feb 2005
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.12 2008-12-30 04:18:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.13 2009-07-22 16:01:39 cvsbert Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"

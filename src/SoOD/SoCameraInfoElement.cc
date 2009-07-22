@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoCameraInfoElement.cc,v 1.3 2007-09-13 19:35:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoCameraInfoElement.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "SoCameraInfoElement.h"
 

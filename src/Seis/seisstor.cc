@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 21-1-1998
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.42 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.43 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"

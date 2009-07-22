@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: datacoldef.h,v 1.5 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: datacoldef.h,v 1.6 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

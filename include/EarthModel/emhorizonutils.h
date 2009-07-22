@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.10 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.11 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

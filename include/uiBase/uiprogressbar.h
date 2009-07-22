@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiprogressbar.h,v 1.8 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uiprogressbar.h,v 1.9 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

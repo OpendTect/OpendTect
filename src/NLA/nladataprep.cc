@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : May 2005
 -*/
  
-static const char* rcsID = "$Id: nladataprep.cc,v 1.7 2009-06-08 09:22:40 cvsbert Exp $";
+static const char* rcsID = "$Id: nladataprep.cc,v 1.8 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"

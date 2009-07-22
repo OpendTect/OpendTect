@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          May 2002
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseistransf.cc,v 1.47 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseistransf.cc,v 1.48 2009-07-22 16:01:42 cvsbert Exp $";
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"

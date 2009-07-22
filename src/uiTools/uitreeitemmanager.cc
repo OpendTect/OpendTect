@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.52 2009-07-14 22:01:10 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.53 2009-07-22 16:01:42 cvsbert Exp $";
 
 
 #include "uitreeitemmanager.h"

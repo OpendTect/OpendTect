@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.13 2009-01-08 09:04:20 cvsranojay Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.14 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

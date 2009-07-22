@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 24-1-2001
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.81 2009-01-14 12:28:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.82 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"

@@ -1,10 +1,10 @@
 #ifndef uimadagascarmain_h
 #define uimadagascarmain_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.17 2009-06-08 09:07:14 cvsraman Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.18 2009-07-22 16:01:28 cvsbert Exp $
 -*/
 
 #include "uibatchlaunch.h"

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: uitutwelltools.cc,v 1.3 2009-01-27 11:33:28 cvsdgb Exp $";
+static const char* rcsID = "$Id: uitutwelltools.cc,v 1.4 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "uitutwelltools.h"
 #include "uigeninput.h"

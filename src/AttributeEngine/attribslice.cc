@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Feb 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: attribslice.cc,v 1.8 2008-12-05 23:14:38 cvskris Exp $";
+static const char* rcsID = "$Id: attribslice.cc,v 1.9 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "attribslice.h"
 

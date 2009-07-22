@@ -2,14 +2,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.11 2007-07-06 14:11:05 cvskris Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.12 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "emstickset.h"
 

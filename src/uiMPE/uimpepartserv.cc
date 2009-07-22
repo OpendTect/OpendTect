@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2004
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.97 2009-07-15 12:44:24 cvshelene Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.98 2009-07-22 16:01:40 cvsbert Exp $";
 
 #include "uimpepartserv.h"
 

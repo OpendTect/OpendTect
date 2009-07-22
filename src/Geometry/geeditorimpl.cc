@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jan 2005
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: geeditorimpl.cc,v 1.1 2005-01-14 13:11:55 kristofer Exp $";
+static const char* rcsID = "$Id: geeditorimpl.cc,v 1.2 2009-07-22 16:01:33 cvsbert Exp $";
 
 #include "geeditorimpl.h"
 

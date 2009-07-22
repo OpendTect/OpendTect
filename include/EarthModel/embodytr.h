@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embodytr.h,v 1.8 2009-05-29 02:44:14 cvskris Exp $
+ RCS:		$Id: embodytr.h,v 1.9 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 

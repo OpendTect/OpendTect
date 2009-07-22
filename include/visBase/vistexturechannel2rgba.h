@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.18 2009-07-17 01:29:34 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.19 2009-07-22 16:01:25 cvsbert Exp $
 ________________________________________________________________________
 
 

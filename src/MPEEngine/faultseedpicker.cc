@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Sep 2005
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.7 2009-04-17 06:53:26 cvsumesh Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.8 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "faultseedpicker.h"
 

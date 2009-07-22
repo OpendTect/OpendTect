@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.h,v 1.3 2009-04-09 11:49:08 cvsranojay Exp $
+ RCS:           $Id: tutorialattrib.h,v 1.4 2009-07-22 16:01:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

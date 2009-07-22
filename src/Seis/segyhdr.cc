@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : May 1995
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.72 2009-03-16 10:45:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.73 2009-07-22 16:01:34 cvsbert Exp $";
 
 
 #include "segyhdr.h"

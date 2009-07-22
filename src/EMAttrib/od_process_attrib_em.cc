@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2004
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.61 2009-07-15 12:44:23 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.62 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"

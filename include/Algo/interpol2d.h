@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol2d.h,v 1.9 2006-10-04 17:17:03 cvsbert Exp $
+ RCS:		$Id: interpol2d.h,v 1.10 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 */

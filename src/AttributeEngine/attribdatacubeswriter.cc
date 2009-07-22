@@ -1,10 +1,10 @@
 /*+
- *CopyRight:	(C) dGB Beheer B.V.
+ *(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  *Author:	Y.C. Liu
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.3 2008-12-23 11:11:20 cvsdgb Exp $";
+static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.4 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "attribdatacubeswriter.h"
 

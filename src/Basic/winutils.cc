@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Lammertink
  * DATE     : November 2004
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.16 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.17 2009-07-22 16:01:31 cvsbert Exp $";
 
 
 #include "winutils.h"

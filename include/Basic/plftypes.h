@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Contents:	Platform dependent types
- RCS:		$Id: plftypes.h,v 1.6 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: plftypes.h,v 1.7 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 */

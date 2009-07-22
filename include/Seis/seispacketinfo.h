@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 1995 / Nov 2008
- RCS:		$Id: seispacketinfo.h,v 1.2 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seispacketinfo.h,v 1.3 2009-07-22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

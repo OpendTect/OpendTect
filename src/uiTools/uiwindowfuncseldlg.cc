@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          August 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.13 2009-05-22 04:35:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.14 2009-07-22 16:01:43 cvsbert Exp $";
 
 
 #include "uiwindowfuncseldlg.h"

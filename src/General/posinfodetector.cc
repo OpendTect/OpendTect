@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.11 2009-06-09 08:17:03 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.12 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"

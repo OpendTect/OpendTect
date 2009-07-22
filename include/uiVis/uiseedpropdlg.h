@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseedpropdlg.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
+ RCS:           $Id: uiseedpropdlg.h,v 1.3 2009-07-22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

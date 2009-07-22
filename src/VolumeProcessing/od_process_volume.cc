@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.15 2009-05-14 19:58:42 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.16 2009-07-22 16:01:36 cvsbert Exp $";
 
 #include "batchprog.h"
 

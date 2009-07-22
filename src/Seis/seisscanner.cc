@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.41 2009-05-18 13:59:09 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.42 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.18 2009-07-02 18:52:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.19 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"

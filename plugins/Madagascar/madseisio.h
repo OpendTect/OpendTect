@@ -1,10 +1,10 @@
 #ifndef madseisio_h
 #define madseisio_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: madseisio.h,v 1.4 2009-01-20 10:54:43 cvsraman Exp $
+ * ID       : $Id: madseisio.h,v 1.5 2009-07-22 16:01:27 cvsbert Exp $
 -*/
 
 #include "madio.h"

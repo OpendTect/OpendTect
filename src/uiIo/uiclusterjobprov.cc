@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          May 2009
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.4 2009-07-02 07:02:22 cvsraman Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.5 2009-07-22 16:01:40 cvsbert Exp $";
 
 #include "uiclusterjobprov.h"
 

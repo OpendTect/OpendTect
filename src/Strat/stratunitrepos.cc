@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.29 2009-06-17 13:00:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.30 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"

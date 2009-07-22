@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.20 2009-05-16 03:08:46 cvskris Exp $
+ RCS:		$Id: polygon.h,v 1.21 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

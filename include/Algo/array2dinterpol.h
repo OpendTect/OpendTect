@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          April 2009
- RCS:           $Id: array2dinterpol.h,v 1.3 2009-06-17 17:08:00 cvskris Exp $
+ RCS:           $Id: array2dinterpol.h,v 1.4 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 

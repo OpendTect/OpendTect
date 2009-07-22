@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		5-11-2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.26 2009-05-27 15:59:49 cvskris Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.27 2009-07-22 16:01:45 cvsbert Exp $";
 
 #include "visflatviewer.h"
 

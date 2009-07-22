@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Nov 2004
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.9 2008-11-18 13:28:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.10 2009-07-22 16:01:33 cvsbert Exp $";
 
 #include "faulteditor.h"
 

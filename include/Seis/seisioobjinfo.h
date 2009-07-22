@@ -4,16 +4,17 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.13 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.14 2009-07-22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "samplingdata.h"
 #include "seistype.h"
+#include "linekey.h"
 
 class IOObj;
 class LineKey;
@@ -64,6 +65,13 @@ public:
     static BufferString	defKey2DispName(const char* defkey,
 	    				const char* ioobjnm=0);
 
+    int			nrComponents(LineKey lk=LineKey()) const;
+    void		componentNames(BufferStringSet&,
+	    				LineKey lk=LineKey()) const;
+
+    static int		getNrCompAvail(const LineKey&);
+    static void		getCompNames(const LineKey& lkey,BufferStringSet&);
+
     // 2D only
     void		getLineNames( BufferStringSet& b, bool add=true,
 	    				const BinIDValueSet* bvs=0 ) const
@@ -95,9 +103,6 @@ public:
     static const MultiID& getDefault(const char* type=0);
     static void		setDefault(const MultiID&,const char* type=0);
 
-    static int          getNrCompAvail(const LineKey&);
-    static void		getCompNames(const LineKey&,BufferStringSet&);
-
     static void		get2DLineInfo(BufferStringSet& linesets,
 	    			      TypeSet<MultiID>* setids=0,
 				      TypeSet<BufferStringSet>* linenames=0);
@@ -120,6 +125,7 @@ protected:
 					const char* datatype=0,
 					bool allowcnstabsent=false,
 					bool incl=true) const;
+    int			getComponentInfo(LineKey,BufferStringSet*) const;
 
 };
 

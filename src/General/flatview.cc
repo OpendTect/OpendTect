@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2000
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.52 2009-05-26 08:24:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.53 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"

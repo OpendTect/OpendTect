@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : May 1995
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* rcsID = "$Id: ibmformat.cc,v 1.3 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: ibmformat.cc,v 1.4 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "ibmformat.h"
 #include <string.h>

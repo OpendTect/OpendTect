@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          25/05/2000
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.39 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.40 2009-07-22 16:01:40 cvsbert Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"

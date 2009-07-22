@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.18 2009-04-24 10:28:11 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.19 2009-07-22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,14 +1,14 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Jan 2009
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.39 2009-07-21 08:58:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.40 2009-07-22 16:01:44 cvsbert Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"

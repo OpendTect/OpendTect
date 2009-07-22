@@ -1,14 +1,14 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          June 2009
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistopbotimage.cc,v 1.3 2009-06-23 05:25:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: vistopbotimage.cc,v 1.4 2009-07-22 16:01:45 cvsbert Exp $";
 
 
 #include "vistopbotimage.h"

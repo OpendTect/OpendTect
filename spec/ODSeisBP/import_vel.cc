@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril 
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: import_vel.cc,v 1.1 2008-01-22 11:49:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: import_vel.cc,v 1.2 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "prog.h"
 #include "batchprog.h"

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : April 2001
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.34 2007-07-02 10:41:59 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.35 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"

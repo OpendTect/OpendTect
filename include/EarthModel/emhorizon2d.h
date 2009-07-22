@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.17 2009-03-25 07:01:22 cvssatyaki Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.18 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.6 2009-07-06 15:31:50 cvskris Exp $
+ RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.7 2009-07-22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 

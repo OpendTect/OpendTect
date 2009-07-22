@@ -1,13 +1,13 @@
 /*+
 ___________________________________________________________________
 
- CopyRight: 	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author: 	K. Tingdahl
  Date: 		Jul 2003
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.209 2009-06-03 10:51:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.210 2009-07-22 16:01:41 cvsbert Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"

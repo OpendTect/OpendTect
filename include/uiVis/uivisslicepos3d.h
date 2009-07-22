@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          April 2009
- RCS:           $Id: uivisslicepos3d.h,v 1.5 2009-04-21 09:55:20 cvshelene Exp $
+ RCS:           $Id: uivisslicepos3d.h,v 1.6 2009-07-22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

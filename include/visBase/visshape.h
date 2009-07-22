@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.22 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: visshape.h,v 1.23 2009-07-22 16:01:25 cvsbert Exp $
 ________________________________________________________________________
 
 

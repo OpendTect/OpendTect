@@ -1,11 +1,11 @@
 
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.11 2009-04-09 11:49:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.12 2009-07-22 16:01:27 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "tutseistools.h"

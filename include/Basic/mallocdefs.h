@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: mallocdefs.h,v 1.1 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:		$Id: mallocdefs.h,v 1.2 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 

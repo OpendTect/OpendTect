@@ -1,10 +1,10 @@
 #ifndef tuthortools_h
 #define tuthortools_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh / Karthika
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.10 2009-07-15 09:24:48 cvskarthika Exp $
+ * ID       : $Id: tuthortools.h,v 1.11 2009-07-22 16:01:27 cvsbert Exp $
 -*/
 
 #include "executor.h"

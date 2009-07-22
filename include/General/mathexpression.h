@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.14 2009-06-19 13:00:41 cvshelene Exp $
+ RCS:           $Id: mathexpression.h,v 1.15 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

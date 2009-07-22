@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jan 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.42 2009-07-07 01:18:34 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.43 2009-07-22 16:01:43 cvsbert Exp $";
 
 #include "uiviscoltabed.h"
 

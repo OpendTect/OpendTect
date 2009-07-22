@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jul 2005
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: picksettr.cc,v 1.21 2009-03-18 17:52:58 cvskris Exp $";
+static const char* rcsID = "$Id: picksettr.cc,v 1.22 2009-07-22 16:01:33 cvsbert Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"

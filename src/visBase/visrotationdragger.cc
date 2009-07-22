@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          August 2002
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrotationdragger.cc,v 1.4 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visrotationdragger.cc,v 1.5 2009-07-22 16:01:45 cvsbert Exp $";
 
 #include "visrotationdragger.h"
 

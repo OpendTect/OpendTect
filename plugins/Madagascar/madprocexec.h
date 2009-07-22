@@ -1,10 +1,10 @@
 #ifndef madprocexec_h
 #define madprocexec_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jan 2008
- * ID       : $Id: madprocexec.h,v 1.4 2009-04-17 10:04:11 cvsranojay Exp $
+ * ID       : $Id: madprocexec.h,v 1.5 2009-07-22 16:01:27 cvsbert Exp $
 -*/
 
 #include "enums.h"

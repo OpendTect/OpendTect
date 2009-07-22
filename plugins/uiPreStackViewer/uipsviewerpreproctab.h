@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		May 2008
- RCS:		$Id: uipsviewerpreproctab.h,v 1.7 2008-12-22 19:25:37 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewerpreproctab.h,v 1.8 2009-07-22 16:01:28 cvsbert Exp $
 ________________________________________________________________________
 
 

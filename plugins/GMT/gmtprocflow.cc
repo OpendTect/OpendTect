@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
 -*/
 
-static const char* rcsID = "$Id: gmtprocflow.cc,v 1.1 2008-09-12 11:32:25 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtprocflow.cc,v 1.2 2009-07-22 16:01:27 cvsbert Exp $";
 
 #include "gmtdef.h"
 #include "gmtprocflow.h"

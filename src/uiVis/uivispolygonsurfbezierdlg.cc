@@ -1,13 +1,13 @@
 /*+
 ___________________________________________________________________
 
- CopyRight: 	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author: 	Yuancheng Liu
  Date: 		Feb 2009
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispolygonsurfbezierdlg.cc,v 1.1 2009-02-26 22:33:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivispolygonsurfbezierdlg.cc,v 1.2 2009-07-22 16:01:43 cvsbert Exp $";
 
 #include "uivispolygonsurfbezierdlg.h"
 

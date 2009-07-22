@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.5 2009-04-06 17:47:11 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.6 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "batchprog.h"
 

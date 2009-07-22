@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: mmassetmgr.h,v 1.2 2009-02-26 06:52:37 cvsranojay Exp $
+ RCS:		$Id: mmassetmgr.h,v 1.3 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

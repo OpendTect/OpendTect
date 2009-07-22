@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.182 2009-07-16 15:48:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.183 2009-07-22 16:01:38 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"

@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: geeditorimpl.h,v 1.3 2008-12-25 11:55:38 cvsranojay Exp $
+ RCS:           $Id: geeditorimpl.h,v 1.4 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

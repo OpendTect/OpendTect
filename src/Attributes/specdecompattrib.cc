@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2004
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.28 2009-05-26 10:22:11 cvshelene Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.29 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"

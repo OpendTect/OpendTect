@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2006
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonmodifier.cc,v 1.6 2009-01-28 06:31:30 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonmodifier.cc,v 1.7 2009-07-22 16:01:32 cvsbert Exp $";
 
 
 #include "horizonmodifier.h"

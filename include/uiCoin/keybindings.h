@@ -4,10 +4,10 @@
 /*+
  ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          Dec 2002
- RCS:           $Id: keybindings.h,v 1.7 2009-01-08 10:32:11 cvsranojay Exp $
+ RCS:           $Id: keybindings.h,v 1.8 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 */

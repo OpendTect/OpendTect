@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.11 2009-06-26 18:46:56 cvskris Exp $
+ RCS:		$Id: posvecdataset.h,v 1.12 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.11 2009-01-30 07:06:12 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.12 2009-07-22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

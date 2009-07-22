@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.26 2009-05-20 09:51:52 cvsbert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.27 2009-07-22 16:01:29 cvsbert Exp $";
 
 
 #include "dataclipper.h"

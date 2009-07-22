@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.30 2008-01-21 09:23:56 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.31 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"

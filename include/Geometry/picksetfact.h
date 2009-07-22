@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksetfact.h,v 1.8 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:		$Id: picksetfact.h,v 1.9 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

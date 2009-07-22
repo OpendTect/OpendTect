@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          January 2009
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandompos2body.cc,v 1.2 2009-02-06 20:46:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visrandompos2body.cc,v 1.3 2009-07-22 16:01:45 cvsbert Exp $";
 
 #include "visrandompos2body.h"
 

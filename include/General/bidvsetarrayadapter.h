@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	H.Huck
  Date:		March 2008
- RCS:		$Id: bidvsetarrayadapter.h,v 1.2 2008-12-25 11:13:33 cvsranojay Exp $
+ RCS:		$Id: bidvsetarrayadapter.h,v 1.3 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

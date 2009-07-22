@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.25 2009-06-26 11:41:57 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.26 2009-07-22 16:01:27 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"

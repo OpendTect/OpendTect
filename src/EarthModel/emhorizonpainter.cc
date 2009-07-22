@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.13 2009-07-07 08:45:26 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.14 2009-07-22 16:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

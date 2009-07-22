@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          Oct 2004
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.30 2009-05-28 03:53:47 cvskris Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.31 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "jobiomgr.h"
 #include "filepath.h"

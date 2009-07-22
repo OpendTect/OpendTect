@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
 Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.17 2009-06-15 18:43:38 cvskris Exp $";
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.18 2009-07-22 16:01:42 cvsbert Exp $";
 
 #include "uicoltabtools.h"
 #include "uirgbarray.h"

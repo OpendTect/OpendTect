@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: uiseisrandto2dline.h,v 1.3 2009-03-30 06:58:43 cvsraman Exp $
+ RCS:		$Id: uiseisrandto2dline.h,v 1.4 2009-07-22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

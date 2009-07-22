@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          May 2009
- RCS:           $Id: uiclusterjobprov.h,v 1.1 2009-05-21 07:12:37 cvsraman Exp $
+ RCS:           $Id: uiclusterjobprov.h,v 1.2 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.37 2009-01-16 04:51:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.38 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"

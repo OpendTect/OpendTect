@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.16 2009-05-18 21:22:23 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.17 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "gridder2d.h"
 

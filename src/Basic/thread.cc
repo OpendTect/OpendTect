@@ -1,10 +1,10 @@
 /*
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.41 2009-07-16 20:44:59 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.42 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "thread.h"
 #include "callback.h"

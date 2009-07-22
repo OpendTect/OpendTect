@@ -3,11 +3,11 @@
                                                                                 
 /*+
 ________________________________________________________________________
-CopyRight:     (C) dGB Beheer B.V.
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        K. Tingdahl
 Date:          2005
 Contents:      Ranges
-RCS:           $Id: cubicbeziercurve.h,v 1.7 2008-12-25 11:55:38 cvsranojay Exp $
+RCS:           $Id: cubicbeziercurve.h,v 1.8 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

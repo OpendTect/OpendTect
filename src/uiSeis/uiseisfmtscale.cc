@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          May 2002
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.25 2009-04-23 15:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.26 2009-07-22 16:01:41 cvsbert Exp $";
 
 #include "uiseisfmtscale.h"
 #include "uicompoundparsel.h"

@@ -3,10 +3,10 @@
 /*
 ________________________________________________________________________
 
-CopyRight:     (C) dGB Beheer B.V.
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          July 2008
-RCS:           $Id: uihor2dfrom3ddlg.h,v 1.3 2009-03-10 12:29:10 cvsranojay Exp $
+RCS:           $Id: uihor2dfrom3ddlg.h,v 1.4 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

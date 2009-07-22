@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.42 2009-01-14 12:29:51 cvsranojay Exp $
+ RCS:		$Id: seiscbvs.h,v 1.43 2009-07-22 16:01:18 cvsbert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.

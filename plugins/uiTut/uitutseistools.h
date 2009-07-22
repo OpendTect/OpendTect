@@ -1,10 +1,10 @@
 #ifndef uitutseistools_h
 #define uitutseistools_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.8 2009-06-23 05:17:25 cvsraman Exp $
+ * ID       : $Id: uitutseistools.h,v 1.9 2009-07-22 16:01:29 cvsbert Exp $
 -*/
 
 #include "uidialog.h"

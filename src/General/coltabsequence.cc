@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert etc.
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.24 2009-07-16 22:36:42 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.25 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"

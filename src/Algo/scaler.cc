@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 8-9-1995
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.8 2008-09-29 13:23:47 cvsbert Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.9 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "scaler.h"
 #include "separstr.h"

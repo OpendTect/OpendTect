@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.20 2009-05-20 14:56:06 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.21 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

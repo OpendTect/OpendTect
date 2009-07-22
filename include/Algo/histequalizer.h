@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: histequalizer.h,v 1.3 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:		$Id: histequalizer.h,v 1.4 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

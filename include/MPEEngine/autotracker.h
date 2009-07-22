@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.8 2009-07-20 11:48:33 cvsumesh Exp $
+ RCS:           $Id: autotracker.h,v 1.9 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

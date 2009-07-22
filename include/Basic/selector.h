@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.9 2009-04-20 18:40:05 cvskris Exp $
+ RCS:		$Id: selector.h,v 1.10 2009-07-22 16:01:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

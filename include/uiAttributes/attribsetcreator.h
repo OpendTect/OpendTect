@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.h,v 1.2 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: attribsetcreator.h,v 1.3 2009-07-22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2009
  Contents:	Angle functions
- RCS:		$Id: angles.h,v 1.3 2009-03-31 12:12:34 cvsbert Exp $
+ RCS:		$Id: angles.h,v 1.4 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
  Converting degrees, radians and user degrees to one another.

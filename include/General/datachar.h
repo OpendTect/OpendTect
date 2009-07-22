@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.13 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: datachar.h,v 1.14 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 */

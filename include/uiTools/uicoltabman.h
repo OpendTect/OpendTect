@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.12 2009-07-13 15:56:51 cvskris Exp $
+ RCS:           $Id: uicoltabman.h,v 1.13 2009-07-22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

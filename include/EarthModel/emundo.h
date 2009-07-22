@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emundo.h,v 1.4 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emundo.h,v 1.5 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 

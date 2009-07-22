@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.11 2006-06-06 18:21:35 cvskris Exp $
+ RCS:           $Id: samplfunc.h,v 1.12 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -2,10 +2,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: i_uiobjqtbody.h,v 1.6 2009-03-23 05:08:44 cvsnanne Exp $
+ RCS:           $Id: i_uiobjqtbody.h,v 1.7 2009-07-22 16:01:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

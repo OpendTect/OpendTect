@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.12 2009-05-28 12:05:11 cvsbert Exp $
+ RCS:		$Id: welllogset.h,v 1.13 2009-07-22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 

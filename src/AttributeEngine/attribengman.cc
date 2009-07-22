@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H.Payraudeau
  Date:          04/2005
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.97 2009-07-15 12:44:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.98 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "attribengman.h"
 

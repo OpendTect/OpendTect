@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 14-9-1998
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.101 2009-06-23 11:39:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.102 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"

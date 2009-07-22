@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.3 2009-05-07 17:07:54 cvskris Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.4 2009-07-22 16:01:19 cvsbert Exp $
 ________________________________________________________________________
 
 

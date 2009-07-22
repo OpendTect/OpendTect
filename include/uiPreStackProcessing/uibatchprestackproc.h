@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		March 2009
- RCS:		$Id: uibatchprestackproc.h,v 1.1 2009-03-16 16:31:14 cvskris Exp $
+ RCS:		$Id: uibatchprestackproc.h,v 1.2 2009-07-22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

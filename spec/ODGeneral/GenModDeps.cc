@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Nov 2002
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id: GenModDeps.cc,v 1.16 2009-04-06 20:28:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: GenModDeps.cc,v 1.17 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.h,v 1.4 2009-03-18 18:45:26 cvskris Exp $
+ RCS:		$Id: uivelocityfunctionimp.h,v 1.5 2009-07-22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

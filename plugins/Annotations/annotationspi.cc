@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2004
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: annotationspi.cc,v 1.9 2009-04-06 07:16:35 cvsranojay Exp $";
+static const char* rcsID = "$Id: annotationspi.cc,v 1.10 2009-07-22 16:01:25 cvsbert Exp $";
 
 #include "measuretoolman.h"
 #include "plugins.h"

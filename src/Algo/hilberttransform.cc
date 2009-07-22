@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		June 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hilberttransform.cc,v 1.5 2008-11-28 09:24:10 cvsnageswara Exp $";
+static const char* rcsID = "$Id: hilberttransform.cc,v 1.6 2009-07-22 16:01:29 cvsbert Exp $";
 
 
 #include "hilberttransform.h"

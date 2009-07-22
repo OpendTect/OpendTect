@@ -1,17 +1,20 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.25 2009-07-20 14:40:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.26 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
+#include "seiscbvs2dlinegetter.h"
 #include "seispsioprov.h"
 #include "seisread.h"
+#include "seisbuf.h"
+#include "seistrc.h"
 #include "seisselection.h"
 #include "seistrctr.h"
 #include "ptrman.h"
@@ -434,6 +437,88 @@ void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
 	typs.add( typ );
 	ids += id;
     }
+}
+
+
+int SeisIOObjInfo::nrComponents( LineKey lk ) const
+{
+    return getComponentInfo( lk, 0 );
+}
+
+
+void SeisIOObjInfo::componentNames( BufferStringSet& nms, LineKey lk ) const
+{
+    getComponentInfo( lk, &nms );
+}
+
+
+int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
+{
+    int ret = 0;
+    mChk(ret);
+
+    if ( !is2D() )
+    {
+	Translator* tr = ioobj_->getTranslator();
+	mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
+	if ( !sttr )
+	    { pErrMsg("No Translator!"); return 0; }
+	Conn* conn = ioobj_->getConn( Conn::Read );
+	if ( sttr->initRead(conn) )
+	{
+	    ret = sttr->componentInfo().size();
+	    if ( nms )
+	    {
+		for ( int icomp=0; icomp<ret; icomp++ )
+		    nms->add( sttr->componentInfo()[icomp]->name() );
+	    }
+	}
+	delete conn;
+    }
+    else
+    {
+	PtrMan<Seis2DLineSet> lset = new Seis2DLineSet(
+						ioobj_->fullUserExpr(true));
+	if ( lset->nrLines() == 0 )
+	    return 0;
+	int lidx = 0;
+	if ( !lk.isEmpty() )
+	{
+	    const bool haveline = !lk.lineName().isEmpty();
+	    const BufferString attrnm( lk.attrName() );
+	    if ( haveline )
+		lidx = lset->indexOf( lk );
+	    else
+	    {
+		for ( int idx=0; idx<lset->nrLines(); idx++ )
+		    if ( attrnm == lset->attribute(idx) )
+			{ lidx = idx; break; }
+	    }
+	    if ( lidx < 0 ) lidx = 0;
+	    SeisTrcBuf tbuf( true );
+	    Executor* ex = lset->lineFetcher( lidx, tbuf, 1 );
+	    ex->doStep();
+	    ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
+	    if ( nms )
+	    {
+		mDynamicCastGet(SeisCBVS2DLineGetter*,lg,ex)
+		if ( !lg )
+		    ret = 1;
+		else
+		{
+		    ret = lg->tr->componentInfo().size();
+		    if ( nms )
+		    {
+			for ( int icomp=0; icomp<ret; icomp++ )
+			    nms->add( lg->tr->componentInfo()[icomp]->name() );
+		    }
+		}
+	    }
+	    delete ex;
+	}
+    }
+
+    return ret;
 }
 
 

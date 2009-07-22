@@ -1,10 +1,10 @@
 #ifndef madstream_h
 #define madstream_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.9 2009-06-26 06:21:00 cvsraman Exp $
+ * ID       : $Id: madstream.h,v 1.10 2009-07-22 16:01:27 cvsbert Exp $
 -*/
 
 

@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Dec 2005
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.28 2009-07-20 11:51:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.29 2009-07-22 16:01:40 cvsbert Exp $";
 
 #include "uihorizontracksetup.h"
 

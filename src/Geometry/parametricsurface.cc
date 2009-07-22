@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.25 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.26 2009-07-22 16:01:33 cvsbert Exp $";
 
 #include "parametricsurface.h"
 

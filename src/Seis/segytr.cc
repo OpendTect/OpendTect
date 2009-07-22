@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 21-3-1996
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.83 2009-07-15 10:16:55 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.84 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"

@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Jan 2009
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.8 2009-07-08 13:57:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.9 2009-07-22 16:01:44 cvsbert Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"

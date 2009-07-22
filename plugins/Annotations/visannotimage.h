@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visannotimage.h,v 1.5 2007-10-12 19:14:34 cvskris Exp $
+ RCS:		$Id: visannotimage.h,v 1.6 2009-07-22 16:01:26 cvsbert Exp $
 ________________________________________________________________________
 
 

@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          June 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.12 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.13 2009-07-22 16:01:39 cvsbert Exp $";
 
 #include "uiflatauxdataeditorlist.h"
 

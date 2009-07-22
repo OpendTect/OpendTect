@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Helene Huck
  Date:		April 2009
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.11 2009-04-21 09:55:20 cvshelene Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.12 2009-07-22 16:01:43 cvsbert Exp $";
 
 #include "uivisslicepos3d.h"
 

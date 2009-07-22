@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.12 2009-01-05 09:39:21 cvsranojay Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.13 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

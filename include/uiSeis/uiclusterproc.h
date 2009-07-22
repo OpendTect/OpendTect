@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          April 2009
- RCS:           $Id: uiclusterproc.h,v 1.1 2009-05-22 05:11:54 cvsraman Exp $
+ RCS:           $Id: uiclusterproc.h,v 1.2 2009-07-22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

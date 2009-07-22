@@ -1,9 +1,9 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id: od_create_ridge.cc,v 1.5 2009-06-24 13:38:06 cvshelene Exp $";
+static const char* rcsID = "$Id: od_create_ridge.cc,v 1.6 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "conn.h"
 #include "cubesampling.h"

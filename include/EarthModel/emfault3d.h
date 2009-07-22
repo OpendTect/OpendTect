@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.6 2009-05-07 08:16:38 cvsjaap Exp $
+ RCS:		$Id: emfault3d.h,v 1.7 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 

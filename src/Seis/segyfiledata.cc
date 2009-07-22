@@ -1,9 +1,9 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.17 2009-02-16 17:15:32 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.18 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"

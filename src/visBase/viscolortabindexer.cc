@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2005
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.11 2009-04-09 00:58:53 cvskris Exp $";
+static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.12 2009-07-22 16:01:44 cvsbert Exp $";
 
 #include "viscolortabindexer.h"
 

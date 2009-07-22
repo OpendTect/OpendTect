@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.12 2009-04-06 13:56:03 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.13 2009-07-22 16:01:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

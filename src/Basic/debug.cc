@@ -1,15 +1,15 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.29 2009-06-17 07:51:54 cvsnanne Exp $
+ RCS:           $Id: debug.cc,v 1.30 2009-07-22 16:01:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.29 2009-06-17 07:51:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.30 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"

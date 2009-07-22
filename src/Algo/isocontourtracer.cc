@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : J.C. Glas
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: isocontourtracer.cc,v 1.4 2008-10-03 12:22:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: isocontourtracer.cc,v 1.5 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include "isocontourtracer.h"
 

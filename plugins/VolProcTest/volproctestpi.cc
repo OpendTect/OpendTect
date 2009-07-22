@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Y.C. Liu
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: volproctestpi.cc,v 1.2 2007-09-07 20:52:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: volproctestpi.cc,v 1.3 2009-07-22 16:01:27 cvsbert Exp $";
 
 
 #include "volumeprocessingattribute.h"

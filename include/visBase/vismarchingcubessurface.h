@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.14 2009-05-20 21:45:22 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.15 2009-07-22 16:01:24 cvsbert Exp $
 ________________________________________________________________________
 
 

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Feb 2001
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID = "$Id: bindatadesc.cc,v 1.6 2006-10-25 16:03:34 cvskris Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.7 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "bindatadesc.h"
 #include <stdio.h>

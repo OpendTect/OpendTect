@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.51 2009-07-02 08:17:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.52 2009-07-22 16:01:38 cvsbert Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"

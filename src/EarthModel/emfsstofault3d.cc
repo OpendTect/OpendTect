@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          March 2009
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.5 2009-06-16 07:31:01 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.6 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "emfsstofault3d.h"
 

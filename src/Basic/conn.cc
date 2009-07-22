@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.32 2009-04-01 05:29:28 cvsranojay Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.33 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"

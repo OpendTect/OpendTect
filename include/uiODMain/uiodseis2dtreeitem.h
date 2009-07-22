@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.15 2009-06-30 06:33:18 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.16 2009-07-22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 

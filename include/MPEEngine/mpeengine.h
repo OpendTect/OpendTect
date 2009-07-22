@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.45 2009-06-19 12:18:11 cvsnanne Exp $
+ RCS:           $Id: mpeengine.h,v 1.46 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -5,10 +5,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackimpmute.h,v 1.8 2009-01-08 08:56:15 cvsranojay Exp $
+ RCS:		$Id: uiprestackimpmute.h,v 1.9 2009-07-22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

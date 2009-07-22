@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		July 2008
- RCS:		$Id: empolygonbody.h,v 1.4 2009-02-13 21:20:03 cvsyuancheng Exp $
+ RCS:		$Id: empolygonbody.h,v 1.5 2009-07-22 16:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 

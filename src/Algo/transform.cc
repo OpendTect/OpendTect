@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.5 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.6 2009-07-22 16:01:29 cvsbert Exp $";
 
 #include <transform.h>
 #include <arraynd.h>

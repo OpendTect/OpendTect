@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.h,v 1.8 2009-06-09 08:18:19 cvsbert Exp $
+ RCS:		$Id: uihistogramdisplay.h,v 1.9 2009-07-22 16:01:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

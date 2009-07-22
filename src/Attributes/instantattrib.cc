@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.18 2009-05-18 10:33:38 cvshelene Exp $";
+static const char* rcsID = "$Id: instantattrib.cc,v 1.19 2009-07-22 16:01:30 cvsbert Exp $";
 
 #include "instantattrib.h"
 

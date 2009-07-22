@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
-  CopyRight:     (C) dGB Beheer B.V.
+  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
   Author:        Kristofer
   Date:          July 2004
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.12 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.13 2009-07-22 16:01:35 cvsbert Exp $";
 
 #include "SoIndexedLineSet3D.h"
 

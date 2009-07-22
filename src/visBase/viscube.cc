@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Feb 2002
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscube.cc,v 1.20 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.21 2009-07-22 16:01:44 cvsbert Exp $";
 
 #include "viscube.h"
 #include "vistransform.h"

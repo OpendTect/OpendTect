@@ -1,7 +1,7 @@
 /*+
 -----------------------------------------------------------------------------
 
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : N. Fredman
  * DATE     : 18-12-2002
 
@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.11 2008-08-18 13:36:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.12 2009-07-22 16:01:29 cvsbert Exp $";
 
 
 #include "houghtransform.h"

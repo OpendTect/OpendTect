@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.16 2008-12-31 13:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.17 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "strmoper.h"
 #include "timefun.h"

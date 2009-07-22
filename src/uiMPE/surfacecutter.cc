@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          March 2005
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: surfacecutter.cc,v 1.13 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: surfacecutter.cc,v 1.14 2009-07-22 16:01:40 cvsbert Exp $";
 
 #include "surfacecutter.h"
 #include "emmanager.h"

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.62 2009-07-15 07:30:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.63 2009-07-22 16:01:36 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"

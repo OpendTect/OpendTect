@@ -1,15 +1,15 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.31 2008-12-10 12:09:49 cvsnanne Exp $
+ RCS:           $Id: sighndl.cc,v 1.32 2009-07-22 16:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.31 2008-12-10 12:09:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.32 2009-07-22 16:01:31 cvsbert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"

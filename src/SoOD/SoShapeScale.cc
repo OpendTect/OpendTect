@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoShapeScale.cc,v 1.9 2005-01-24 11:13:35 kristofer Exp $";
+static const char* rcsID = "$Id: SoShapeScale.cc,v 1.10 2009-07-22 16:01:35 cvsbert Exp $";
 
 
 #include "SoShapeScale.h"

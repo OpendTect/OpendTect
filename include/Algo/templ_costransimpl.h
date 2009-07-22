@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          2001
- RCS:           $Id: templ_costransimpl.h,v 1.3 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: templ_costransimpl.h,v 1.4 2009-07-22 16:01:12 cvsbert Exp $
 ________________________________________________________________________
 
  This is part of another include file. Do not protect against multiple

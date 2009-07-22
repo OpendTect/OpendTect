@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.72 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.73 2009-07-22 16:01:32 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 

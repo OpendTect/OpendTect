@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.67 2009-05-29 04:37:13 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.68 2009-07-22 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          November 2008
  Contents:      Ranges
- RCS:           $Id: stickseteditor.h,v 1.2 2008-12-25 11:55:38 cvsranojay Exp $
+ RCS:           $Id: stickseteditor.h,v 1.3 2009-07-22 16:01:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

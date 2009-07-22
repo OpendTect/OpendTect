@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2005
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.15 2009-06-23 11:33:29 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.16 2009-07-22 16:01:34 cvsbert Exp $";
 
 #include "horizon2dseedpicker.h"
 

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.49 2009-07-09 18:31:04 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.50 2009-07-22 16:01:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

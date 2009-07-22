@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Beheer B.V.
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.26 2009-05-27 07:53:39 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.27 2009-07-22 16:01:13 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.

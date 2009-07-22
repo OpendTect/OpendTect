@@ -1,10 +1,10 @@
 #ifndef madprocflowtr_h
 #define madprocflowtr_h
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Dec 2007
- * ID       : $Id: madprocflowtr.h,v 1.2 2009-04-06 07:24:44 cvsranojay Exp $
+ * ID       : $Id: madprocflowtr.h,v 1.3 2009-07-22 16:01:27 cvsbert Exp $
 -*/
  
 #include "transl.h"

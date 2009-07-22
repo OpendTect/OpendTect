@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.16 2008-12-23 11:05:50 cvsdgb Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.17 2009-07-22 16:01:32 cvsbert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"
