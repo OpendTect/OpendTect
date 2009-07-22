@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.26 2009-06-04 13:34:13 cvskris Exp $
+ RCS:           $Id: attribprocessor.h,v 1.27 2009-07-22 11:20:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ public:
     od_int64			totalNr() const;
     od_int64			nrDone() const;
     const char*         	message() const;
-    const char*			nrDoneText() const { return "CDPs processed"; }
+    const char*			nrDoneText() const
+    				{ return "Positions processed"; }
 
     void			addOutputInterest(int sel);
     bool			setZIntervals(TypeSet< Interval<int> >&,
