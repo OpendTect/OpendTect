@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
+ * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 3-5-1994
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.16 2006-09-11 09:19:00 cvsbert Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.17 2009-07-22 16:03:40 cvsbert Exp $";
 
 #include "timefun.h"
 
