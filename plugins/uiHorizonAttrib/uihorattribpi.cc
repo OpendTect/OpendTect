@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.16 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.17 2009-07-22 17:49:24 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uihorattribpi.cc,v 1.16 2009-07-22 16:01:28 cvs
 #include "uiflattenedcube.h"
 #include "uiisopachmaker.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodemsurftreeitem.h"
@@ -127,6 +128,12 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
 {
     const int displayid = isopachmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
+    if ( !visserv->canAddAttrib(displayid) )
+    {
+	uiMSG().error( "Cannot add extra attribute layers" );
+	return;
+    }
+
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
     if ( !hd ) return;
     uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
@@ -173,6 +180,12 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     }
 
     uiVisPartServer* visserv = appl_->applMgr().visServer();
+    if ( !visserv->canAddAttrib(displayid) )
+    {
+	uiMSG().error( "Cannot add extra attribute layers" );
+	return;
+    }
+
     const int attrib = visserv->addAttrib( displayid );
     Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cOtherAttrib(),
 	    		  false, 0 );
