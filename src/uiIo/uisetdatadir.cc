@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetdatadir.cc,v 1.28 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.29 2009-07-22 16:19:08 cvsnanne Exp $";
 
 #include "uisetdatadir.h"
 #include "uifileinput.h"
@@ -85,7 +85,8 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     const char* basetxt = oldok ? "OpendTect Data Root Directory"
 				: "Location";
     basedirfld = new uiFileInput( this, basetxt,
-			      uiFileInput::Setup(basedirnm).directories(true) );
+			      uiFileInput::Setup(uiFileDialog::Gen,basedirnm)
+			      .directories(true) );
     if ( !oldok )
     {
 	oddirfld = new uiGenInput( this, "Directory name", oddirnm );
