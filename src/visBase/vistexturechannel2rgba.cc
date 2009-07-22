@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.25 2009-07-17 01:29:34 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.26 2009-07-22 15:04:46 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -662,10 +662,6 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     if ( !enabled_[channelidx] )
 	return SoTextureComposerInfo::cHasNoIntermediateTransparency();
 
-    const ColTab::Sequence& seq = *coltabs_[channelidx];
-    if ( !seq.hasTransparency() )
-	return SoTextureComposerInfo::cHasNoTransparency();
-
     bool hastrans = false;
     if ( opacity_[channelidx]!=255 )
     {
@@ -673,6 +669,14 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
 	    return SoTextureComposerInfo::cHasNoIntermediateTransparency();
 	else
 	    hastrans = true;
+    }
+
+    const ColTab::Sequence& seq = coltabs_[channelidx];
+    if ( !seq.hasTransparency() )
+    {
+	return hastrans
+	    ? SoTextureComposerInfo::cHasTransparency()
+	    : SoTextureComposerInfo::cHasNoTransparency();
     }
 
     channels_->ref();
