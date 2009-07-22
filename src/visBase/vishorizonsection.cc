@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.56 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.57 2009-07-22 21:56:52 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: vishorizonsection.cc,v 1.56 2009-07-22 16:01:45
 #include "SoCameraInfo.h"
 #include "SoCameraInfoElement.h"
 #include "SoDGBIndexedPointSet.h"
+#include "SoIndexedLineSet3D.h"
 #include "SoLockableSeparator.h"
 #include "SoTextureComposer.h"
 #include <Inventor/actions/SoAction.h>
@@ -67,7 +68,7 @@ int HorizonSectionTile::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
 int HorizonSectionTile::nrcells_[] = { 4096, 1024, 256, 64, 16, 4 };
 
 
-mClass HorizonSectionTileUpdater: public ParallelTask
+class HorizonSectionTileUpdater: public ParallelTask
 {
 public: 
 HorizonSectionTileUpdater( HorizonSection& section, SoState* state, int res )
@@ -81,9 +82,9 @@ HorizonSectionTileUpdater( HorizonSection& section, SoState* state, int res )
 
 
 od_int64 nrIterations() const { return nrtiles_; }
-
-
 od_int64 totalNr() const { return nrtiles_ * 2; }
+const char* message() const { return "Updating Horizon Display"; }
+const char* nrDoneText() const { return "Parts completed"; }
 
 
 bool doPrepare( int nrthreads )
@@ -181,8 +182,25 @@ bool doWork( od_int64 start, od_int64 stop, int )
 };
 
 
+class TileTesselator : public SequentialTask
+{
+public:
+	TileTesselator( HorizonSectionTile* tile, char res )
+	    : tile_( tile ), res_( res ) {}
 
-mClass HorSectTileWireframeUpdater : public ParallelTask
+    int	nextStep()
+    {
+	tile_->tesselateResolution( res_ );
+	return SequentialTask::Finished();
+    }
+
+    HorizonSectionTile*		tile_;
+    char			res_;
+};
+
+
+
+class HorSectTileWireframeUpdater : public ParallelTask
 {
 public:
 		HorSectTileWireframeUpdater( HorizonSectionTile** tiles, 
@@ -213,30 +231,26 @@ protected:
 };
 
 
-mClass HorizonSectionTilePosSetup: public ParallelTask
+class HorizonSectionTilePosSetup: public ParallelTask
 {
 public:    
-    HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 					    TypeSet<RowCol> start, 
-				const Geometry::BinIDSurface& geo,
-				ZAxisTransform* zat,
-				StepInterval<int> rrg,
-				StepInterval<int> crg )
+    HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 
+	    TypeSet<RowCol> start, const Geometry::BinIDSurface& geo,
+	    StepInterval<int> rrg, StepInterval<int> crg, ZAxisTransform* zat )
 	: tiles_( tiles )
-	, zat_( zat )
 	, geo_( geo )  
 	, rrg_( rrg )
-	, crg_( crg )			 
-	, start_( start )
+	, crg_( crg )			 	
+        , zat_( zat )						
+	, start_( start )	
     {
-    	if ( zat_ ) zat_->ref();
+	if ( zat_ ) zat_->ref();
     }
-
 
     ~HorizonSectionTilePosSetup()
     {
- 	if ( zat_ ) zat_->unRef();
+	if ( zat_ ) zat_->unRef();
     }
-
 
     od_int64	nrIterations() const { return tiles_.size(); }
 
@@ -259,10 +273,11 @@ protected:
 		for ( int colidx=0; colidx<mNrCoordsPerTileSide; colidx++ )
 		{
 		    const int col = start_[idx].col + colidx*colrg.step;
-		    Coord3 pos = rowok && colrg.includes(col) 
-			? geo_.getKnot(RowCol(row,col),false)
+		    Coord3 pos = rowok && colrg.includes(col)
+			? geo_.getKnot(RowCol(row,col),false) 
 			: Coord3::udf();
 		    if ( zat_ ) pos.z = zat_->transform( pos );
+			
 		    tiles_[idx]->setPos( rowidx, colidx, pos );
 		}
 	    }
@@ -294,6 +309,7 @@ HorizonSection::HorizonSection()
     , geometry_( 0 )
     , displayrrg_( -1, -1, 0 )
     , displaycrg_( -1, -1, 0 )
+    , userchangeddisplayrg_( false )			      
     , channels_( TextureChannels::create() )		   
     , channel2rgba_( ColTabTextureChannel2RGBA::create() ) 
     , tiles_( 0, 0 )					  
@@ -339,7 +355,7 @@ HorizonSection::HorizonSection()
     }
 
     texturecrds_->point.setValuesPointer( mTotalNrCoordsPerTile,
-					  texturecoordptr_ );
+	    				  texturecoordptr_ );
 }
 
 
@@ -384,6 +400,10 @@ void HorizonSection::setRightHandSystem( bool yn )
     shapehints_->vertexOrdering = yn ? SoShapeHints::COUNTERCLOCKWISE 
 				     : SoShapeHints::CLOCKWISE;
     shapehints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
+
+    HorizonSectionTile** tileptrs = tiles_.getData();
+    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+	if ( tileptrs[idx] ) tileptrs[idx]->setRightHandSystem( yn );
 }
 
 
@@ -558,7 +578,14 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zoff,
 
     const int sidcolidx =  res.dataSet().findColDef( 
 	    sidcol, PosVecDataSet::NameExact ) - res.nrFixedCols();
-    
+ 
+    BinIDValueSet& bivs = res.bivSet();
+    mAllocVarLenArr( float, vals, bivs.nrVals() ); 
+    for ( int idx=0; idx<bivs.nrVals(); idx++ )
+	vals[idx] = mUdf(float);
+
+    vals[sidcolidx+res.nrFixedCols()] = sid;
+
     const int nrknots = geometry_->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
     {
@@ -566,17 +593,12 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zoff,
 	if ( !displayrrg_.includes(bid.inl) || !displaycrg_.includes(bid.crl) )
 	    continue;
 
-	Coord3 pos = geometry_->getKnot(bid,false);
+	const Coord3 pos = geometry_->getKnot(bid,false);
 	if ( !pos.isDefined() ) 
 	    continue;
 
-	pos.z += zoff;
-
-	DataPointSet::Pos dpsetpos( pos );
-	DataPointSet::DataRow datarow( dpsetpos, 1 );
-	datarow.data_.setSize( res.nrCols(), mUdf(float) );
-	datarow.data_[sidcolidx] = sid;
-	res.addRow( datarow );
+	vals[0] = pos.z+zoff;
+	bivs.add( bid, vals );
     }
 }
 
@@ -751,8 +773,8 @@ void HorizonSection::inValidateCache( int channel )
     }
     else
     {
-	delete cache_[channel];
-	cache_.replace( channel, 0 );
+    	delete cache_[channel];
+    	cache_.replace( channel, 0 );
     }
 }
 
@@ -767,9 +789,12 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
        				 TaskRunner* tr )
 {
     if ( !surf ) return;
-    
-    displayrrg_ = surf->rowRange();
-    displaycrg_ = surf->colRange();
+   
+    if ( !userchangeddisplayrg_ )
+    {	
+    	displayrrg_ = surf->rowRange();
+    	displaycrg_ = surf->colRange();
+    }
 
     origin_.row = displayrrg_.start;
     origin_.col = displaycrg_.start;
@@ -789,22 +814,29 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
 
 
 void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
-				      const StepInterval<int>& crg )
+	const StepInterval<int>& crg, bool userchange )
 {
-    if ( displayrrg_==rrg && displaycrg_==crg )
+    const bool usegeo = !userchange && geometry_;
+    if ( (!usegeo && displayrrg_==rrg && displaycrg_==crg) || 
+	 (usegeo && displayrrg_==geometry_->rowRange() && 
+	  	    displaycrg_==geometry_->colRange()) )
 	return;
+
+    displayrrg_ = usegeo ? geometry_->rowRange() : rrg;
+    displaycrg_ = usegeo ? geometry_->colRange() : crg;
+    origin_.row = displayrrg_.start;
+    origin_.col = displayrrg_.start;
+    userchangeddisplayrg_ = userchange;
 
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
     {
-	removeChild( tileptrs[idx]->getNodeRoot() );
-	delete tileptrs[idx];
+	if ( tileptrs[idx] )
+	{
+    	    removeChild( tileptrs[idx]->getNodeRoot() );
+    	    delete tileptrs[idx];
+	}
     }
-
-    displayrrg_ = rrg;
-    displaycrg_ = crg;
-    origin_.row = rrg.start;
-    origin_.col = crg.start;
 
     surfaceChange( 0, 0 );
 }
@@ -831,16 +863,25 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
 void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
        				    TaskRunner* tr )
 {
+    if ( !geometry_ || !geometry_->getArray() )
+	return;
+
     if ( zaxistransform_ && zaxistransformvoi_>=0 )
     {
 	updateZAxisVOI();
 	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_) )
 	    return;
     }
-    
+  
+    if ( !userchangeddisplayrg_ )
+    {
+	displayrrg_ = geometry_->rowRange();
+	displaycrg_ = geometry_->colRange();
+    }
+
     if ( displayrrg_.width(false)<0 || displaycrg_.width(false)<0 )
 	return;
-    
+
     const RowCol step( displayrrg_.step, displaycrg_.step );
     ObjectSet<HorizonSectionTile> newtiles;
     TypeSet<RowCol> tilestarts;
@@ -947,7 +988,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     }
 
     HorizonSectionTilePosSetup task( newtiles, tilestarts, *geometry_,
-	    zaxistransform_, displayrrg_, displaycrg_ );
+	   displayrrg_, displaycrg_, zaxistransform_ );
     if ( tr ) tr->execute( task );
     else task.execute();
 
@@ -1039,6 +1080,7 @@ HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
     tile->setResolution( desiredresolution_ );
     tile->useWireframe( usewireframe_ );
     tile->setWireframeMaterial( visBase::Material::create() );
+    tile->setRightHandSystem( righthandsystem_ );
 
     tiles_.set( tilerowidx, tilecolidx, tile );
     
@@ -1232,7 +1274,7 @@ HorizonSectionTile::HorizonSectionTile()
     , resswitch_( new SoSwitch )	
     , gluelowdimswitch_( new SoSwitch )					
     , gluetriangles_( new SoIndexedTriangleStripSet )
-    , gluelines_( new SoIndexedLineSet )
+    , gluelines_( new SoIndexedLineSet3D )
     , glueneedsretesselation_( false )
     , gluepoints_( new SoDGBIndexedPointSet )
     , desiredresolution_( -1 )
@@ -1242,7 +1284,9 @@ HorizonSectionTile::HorizonSectionTile()
     , needsupdatebbox_( false )
     , usewireframe_( false )
     , wireframematerial_( 0 )			   
-    , wireframetexture_( visBase::Texture2::create() )		  
+    , wireframetexture_( visBase::Texture2::create() )		 
+    , nrdefinedpos_( 0 )
+    , bgfinished_( mCB( this, HorizonSectionTile, bgTesselationFinishCB ) )
 {
     root_->ref();
     coords_->ref();
@@ -1265,6 +1309,10 @@ HorizonSectionTile::HorizonSectionTile()
     gluetriangles_->coordIndex.deleteValues( 0, -1 );
     gluelines_->coordIndex.deleteValues( 0, -1 );
     gluepoints_->coordIndex.deleteValues( 0, -1 );
+
+    gluelines_->rightHandSystem = true ;
+    gluelines_->radius = 2;
+    gluelines_->screenSize = false;
 
     root_->addChild( resswitch_ );
     for ( int idx=0; idx<mHorSectNrRes; idx++ )
@@ -1291,7 +1339,10 @@ HorizonSectionTile::HorizonSectionTile()
 		 wireframetexture_->getInventorNode() );
 	wireframeseparator_[idx]->addChild( wireframes_[idx] );
 
-	lines_[idx] = new SoIndexedLineSet;
+	lines_[idx] = new SoIndexedLineSet3D;
+	lines_[idx]->rightHandSystem = true; 
+	lines_[idx]->radius = 2;
+	lines_[idx]->screenSize = false;
 	lines_[idx]->coordIndex.deleteValues( 0, -1 );
 	wireframeswitch_[idx]->addChild( wireframeseparator_[idx] );
 	wireframeswitch_[idx]->addChild( lines_[idx] );
@@ -1314,6 +1365,26 @@ HorizonSectionTile::~HorizonSectionTile()
     wireframetexture_->unRef();
     if ( wireframematerial_ ) 
 	wireframematerial_->unRef();
+    
+    tesselationqueuelock_.lock();
+    for ( int idx=tesselationqueue_.size()-1; idx>=0; idx-- )
+    {
+	if ( ParallelTask::twm().removeWork( tesselationqueue_[idx] ) )
+	    delete tesselationqueue_.remove( idx );
+    }
+
+    while ( tesselationqueue_.size() )
+	tesselationqueuelock_.wait();
+
+    tesselationqueuelock_.unLock();
+}
+
+
+void HorizonSectionTile::setRightHandSystem( bool yn )
+{
+    gluelines_->rightHandSystem = yn;
+    for ( int idx=0; idx<mHorSectNrRes; idx++ )
+    	lines_[idx]->rightHandSystem = yn;
 }
 
 
@@ -1533,10 +1604,62 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 	 if ( bbox.isEmpty() || SoCullElement::cullTest(state, bbox, true ) )
 	     newres = -1;
 	 else if ( desiredresolution_==-1 )
-	     newres = getAutoResolution( state );
+	 {
+	     const int wantedres = getAutoResolution( state );
+	     newres = wantedres;
+	     for ( ; newres<mHorSectNrRes-1; newres++ )
+	     {
+		 if ( !needsretesselation_[newres] )
+		     break;
+	     }
+
+	     if ( wantedres!=newres )
+	     {
+		 tesselationqueuelock_.lock();
+		 bool found = false;
+		 for ( int idx=0; idx<tesselationqueue_.size(); idx++ )
+		 {
+		     if ( tesselationqueue_[idx]->res_==wantedres )
+		     {
+			 found = true;
+			 break;
+		     }
+		 }
+
+		 if ( !found )
+		 {
+		     TileTesselator* tt = new TileTesselator( this, wantedres );
+		     tesselationqueue_ += tt;
+		     ParallelTask::twm().addWork( tt, &bgfinished_ );
+		 }
+
+		 tesselationqueuelock_.unLock();
+		 newres = wantedres;
+	     }
+	 }
      }
 
      setActualResolution( newres );
+}
+
+
+void HorizonSectionTile::bgTesselationFinishCB( CallBacker* cb )
+{
+    mDynamicCastGet( const TileTesselator*, tt,ParallelTask::twm().getWork(cb));
+    if ( !tt )
+	return;
+
+    tesselationqueuelock_.lock();
+
+    const int idx = tesselationqueue_.indexOf( tt );
+    delete tesselationqueue_.remove( idx );
+
+    if ( !tesselationqueue_.size() )
+	tesselationqueuelock_.signal( true );
+
+    tesselationqueuelock_.unLock();
+
+    resswitch_->touch();
 }
 
 
@@ -1606,12 +1729,20 @@ int HorizonSectionTile::getAutoResolution( SoState* state )
     SbVec2s screensize;
     SoShape::getScreenSize( state, bbox, screensize );
     const float complexity = SbClamp(SoComplexityElement::get(state),0.0f,1.0f);
-    const float wantednumcells = complexity*screensize[0]*screensize[1]/16;
+    const int wantednumcells = (int)(complexity*screensize[0]*screensize[1]/16);
+    if ( !wantednumcells )
+	return mLowestResIdx;
+
+    if ( nrdefinedpos_<=wantednumcells )
+	return 0;
+
+    int maxres = nrdefinedpos_/wantednumcells;
+    if ( nrdefinedpos_%wantednumcells ) maxres++;
 
     for ( int desiredres=mLowestResIdx; desiredres>=0; desiredres-- )
     {
-	if ( nrcells_[desiredres]>wantednumcells )
-	    return desiredres;
+	if ( nrcells_[desiredres]>=wantednumcells )
+	    return mMIN(desiredres,maxres);
     }
 
     return 0;
@@ -1630,33 +1761,46 @@ void HorizonSectionTile::setActualResolution( int resolution )
     resolutionhaschanged_ = true;
 }
 
+#define mStrip 3
+#define mLine 2
+#define mPoint 1
 
-#define mAddInitialTriangle( ci0, ci1, ci2, triangle ) \
+#define mAddInitialTriangle( ci0, ci1, ci2 ) \
 { \
     isstripterminated =  false; \
-    mAddIndex( ci0, triangle, stripidx ); \
-    mAddIndex( ci1, triangle, stripidx ); \
-    mAddIndex( ci2, triangle, stripidx ); \
+    mAddIndex( ci0, mStrip ); \
+    mAddIndex( ci1, mStrip ); \
+    mAddIndex( ci2, mStrip ); \
 }
 
 
-#define mTerminateStrip( triangle ) \
+#define mTerminateStrip \
 if ( !isstripterminated ) \
 { \
     isstripterminated = true; \
-    mAddIndex( -1, triangle, stripidx ); \
+    mAddIndex( -1, mStrip ); \
 }
 
 
-#define mAddIndex( ci, obj, objidx ) \
+#define mAddIndex( ci, obj ) \
 { \
-    root_->lock.writeLock(); \
-    obj->coordIndex.set1Value( objidx, ci ); \
-    obj->textureCoordIndex.set1Value( objidx, ci ); \
-    obj->normalIndex.set1Value( objidx, getNormalIdx(ci,res) ); \
-    objidx++; \
-    root_->lock.writeUnlock(); \
+    if ( obj==mStrip ) \
+    { \
+	stripci += ci; \
+	stripni += getNormalIdx(ci,res); \
+    }\
+    else if ( obj==mLine ) \
+    { \
+	lineci += ci; \
+	lineni += getNormalIdx(ci,res); \
+    }\
+    else if ( obj==mPoint ) \
+    { \
+	pointci += ci; \
+	pointni += getNormalIdx(ci,res); \
+    }\
 }
+
 
 #define m00 0
 #define m01 1
@@ -1676,9 +1820,10 @@ void HorizonSectionTile::tesselateResolution( int res )
 {
     if ( res<0 || !needsretesselation_[res] ) return;
 
+    TypeSet<int> pointci, lineci, stripci;
+    TypeSet<int> pointni, lineni, stripni;
     const int nrmyblocks = mNrBlocks(res);
-    int stripidx = 0, lnidx = 0, ptidx = 0;
-
+    
     for ( int ridx=0; ridx<=nrmyblocks; ridx++ )
     {
 	int ci11 = spacing_[res]*ridx*mNrCoordsPerTileSide;
@@ -1688,16 +1833,13 @@ void HorizonSectionTile::tesselateResolution( int res )
 	    		 false, false, false,		// 10   11(me) 12
 			 false, false, false };		// 20   21     22
 
-	root_->lock.readLock();
 	nbdef[m11] = coords_->isDefined(ci11);
-	nbdef[m21] = ridx!=nrmyblocks ? coords_->isDefined(ci21)
-					: false;
+	nbdef[m21] = ridx!=nrmyblocks ? coords_->isDefined(ci21) : false;
 	if ( ridx )
 	{
 	    int ci01 = ci11 - spacing_[res]*mNrCoordsPerTileSide;
 	    nbdef[m01] = coords_->isDefined(ci01);
 	}
-	root_->lock.readUnlock();
 
 	bool isstripterminated = true;
 	for ( int cidx=0; cidx<=nrmyblocks; cidx++ )
@@ -1705,74 +1847,75 @@ void HorizonSectionTile::tesselateResolution( int res )
 	    const int ci12 = ci11 + spacing_[res];
 	    const int ci22 = ci21 + spacing_[res];
 	    
-	    root_->lock.readLock();
-	    nbdef[m12] = cidx!=nrmyblocks ? coords_->isDefined(ci12)
-					    : false;
+	    nbdef[m12] = cidx!=nrmyblocks ? coords_->isDefined(ci12) : false;
 	    nbdef[m22] = (cidx==nrmyblocks || ridx==nrmyblocks) ? 
 		false : coords_->isDefined(ci22);
 	    
 	    int ci02 = ci12 - spacing_[res]*mNrCoordsPerTileSide;
 	    nbdef[m02] = ridx ? coords_->isDefined(ci02) : false;
-	    root_->lock.readUnlock();
 
 	    const int defsum = nbdef[m11]+nbdef[m12]+nbdef[m21]+nbdef[m22];
 	    if ( defsum<3 ) 
 	    {
-		mTerminateStrip( triangles_[res] );
-		if ( ridx<nrmyblocks && cidx<nrmyblocks && nbdef[m11] && 
-		     (nbdef[m12] || nbdef[m21]) )
+		mTerminateStrip;
+		if ( ridx<nrmyblocks && cidx<nrmyblocks && nbdef[m11] )
 		{
-		    mAddIndex( ci11, lines_[res], lnidx );
-		    mAddIndex( nbdef[m12] ? ci12 : ci21, lines_[res], lnidx );
-		    mAddIndex( -1, lines_[res], lnidx );
+		    const bool con12 = nbdef[m12];
+		    		       //&& rids && !nbdef[m01] && !nbdef[m02];
+		    const bool con21 = nbdef[m21];
+		    		      //cidx && && !nbdef[m10] && !nbdef[m20];
+		    if ( con12 || con21 )
+    		    {
+    			mAddIndex( ci11, mLine )
+    			mAddIndex( con12 ? ci12 : ci21, mLine );
+    			mAddIndex( -1, mLine )
+    		    }
 		}
 		else if ( nbdef[m11] && !nbdef[m10] && !nbdef[m12] && 
 			 !nbdef[m01] && !nbdef[m21] )
 		{
-		    mAddIndex( ci11, points_[res], ptidx ) 
+		    mAddIndex( ci11, mPoint );
 		} 
 	    }
 	    else if ( defsum==3 )
 	    {
-		mTerminateStrip( triangles_[res] );
+		mTerminateStrip;
 		if ( !nbdef[m11] )
-		    mAddInitialTriangle( ci12, ci21, ci22, triangles_[res] )
+		    mAddInitialTriangle( ci12, ci21, ci22 )
 		else if ( !nbdef[m21] )
-		    mAddInitialTriangle( ci11, ci22, ci12, triangles_[res] )
+		    mAddInitialTriangle( ci11, ci22, ci12 )
 		else if ( !nbdef[m12] )
-		    mAddInitialTriangle( ci11, ci21, ci22, triangles_[res] )
+		    mAddInitialTriangle( ci11, ci21, ci22 )
 		else
-		    mAddInitialTriangle( ci11, ci21, ci12, triangles_[res] )
-		mTerminateStrip( triangles_[res] );
+		    mAddInitialTriangle( ci11, ci21, ci12 )
+		mTerminateStrip;
 	    }
 	    else
 	    {
-		root_->lock.readLock();
 		const float diff0 = coords_->getPos(ci11,true).z-
 				    coords_->getPos(ci22,true).z;
 		const float diff1 = coords_->getPos(ci12,true).z-
 				    coords_->getPos(ci21,true).z;
-		root_->lock.readUnlock();
 
 		const bool do11to22 = fabs(diff0) < fabs(diff1);
 		if ( do11to22 )
 		{
-		    mTerminateStrip( triangles_[res] );
-		    mAddInitialTriangle( ci21, ci22, ci11, triangles_[res] );
-		    mAddIndex( ci12, triangles_[res], stripidx );
-		    mTerminateStrip( triangles_[res] );
+		    mTerminateStrip;
+		    mAddInitialTriangle( ci21, ci22, ci11 );
+		    mAddIndex( ci12, mStrip );
+		    mTerminateStrip;
 		}
 		else
 		{
 		    if ( isstripterminated )
 		    {
-			mAddInitialTriangle(ci11, ci21, ci12, triangles_[res]);
-			mAddIndex( ci22, triangles_[res], stripidx );
+			mAddInitialTriangle( ci11, ci21, ci12 );
+			mAddIndex( ci22, mStrip );
 		    }
 		    else
 		    {
-			mAddIndex( ci12, triangles_[res], stripidx );
-			mAddIndex( ci22, triangles_[res], stripidx );
+			mAddIndex( ci12, mStrip );
+			mAddIndex( ci22, mStrip );
 		    }
 		}
 	    } 
@@ -1783,19 +1926,32 @@ void HorizonSectionTile::tesselateResolution( int res )
     	    ci11 = ci12; ci21 = ci22;
 	}
 
-	mTerminateStrip( triangles_[res] );
+	mTerminateStrip;
     }
 
+    const int stripsz = stripci.size();
+    const int linesz = lineci.size();
+    const int pointsz = pointci.size();
+    
     root_->lock.writeLock();
-    triangles_[res]->coordIndex.deleteValues( stripidx, -1 ); 
-    triangles_[res]->normalIndex.deleteValues( stripidx, -1 ); 
-    triangles_[res]->textureCoordIndex.deleteValues( stripidx, -1 );
-    lines_[res]->coordIndex.deleteValues( lnidx, -1 );
-    lines_[res]->normalIndex.deleteValues( lnidx, -1 );
-    lines_[res]->textureCoordIndex.deleteValues( lnidx, -1 );
-    points_[res]->coordIndex.deleteValues( ptidx, -1 );
-    points_[res]->normalIndex.deleteValues( ptidx, -1 );
-    points_[res]->textureCoordIndex.deleteValues( ptidx, -1 );
+    triangles_[res]->coordIndex.setValues( 0, stripsz, stripci.arr() );
+    triangles_[res]->coordIndex.deleteValues( stripsz, -1 ); 
+    triangles_[res]->textureCoordIndex.setValues( 0, stripsz, stripci.arr() );
+    triangles_[res]->textureCoordIndex.deleteValues( stripsz, -1 );
+    triangles_[res]->normalIndex.setValues( 0, stripni.size(), stripni.arr() );
+    triangles_[res]->normalIndex.deleteValues( stripni.size(), -1 ); 
+    lines_[res]->coordIndex.setValues( 0, linesz, lineci.arr() );
+    lines_[res]->coordIndex.deleteValues( linesz, -1 ); 
+    lines_[res]->textureCoordIndex.setValues( 0, linesz, lineci.arr() );
+    lines_[res]->textureCoordIndex.deleteValues( linesz, -1 );
+    lines_[res]->normalIndex.setValues( 0, lineni.size(), lineni.arr() );
+    lines_[res]->normalIndex.deleteValues( lineni.size(), -1 ); 
+    points_[res]->coordIndex.setValues( 0, pointsz, pointci.arr() );
+    points_[res]->coordIndex.deleteValues( pointsz, -1 ); 
+    points_[res]->textureCoordIndex.setValues( 0, pointsz, pointci.arr() );
+    points_[res]->textureCoordIndex.deleteValues( pointsz, -1 );
+    points_[res]->normalIndex.setValues( 0, pointni.size(), pointni.arr() );
+    points_[res]->normalIndex.deleteValues( pointni.size(), -1 ); 
     root_->lock.writeUnlock();
     
     needsretesselation_[res] = false;
@@ -1879,9 +2035,11 @@ void HorizonSectionTile::setWireframe( int res )
 	}
     }
 
+    root_->lock.writeLock();
     wireframes_[res]->textureCoordIndex.deleteValues( lnidx, -1 );
     wireframes_[res]->coordIndex.deleteValues( lnidx, -1 );
     wireframes_[res]->normalIndex.deleteValues( lnidx, -1 );
+    root_->lock.writeUnlock();
 
     wireframeneedsupdate_[res] = false;
 }
@@ -1901,14 +2059,16 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
     if ( row>=0 && row<=mTileLastIdx && col>=0 && col<=mTileLastIdx )
     {
 	const int posidx = row*mNrCoordsPerTileSide+col;
-	const char oldnewdefined = ( coords_->isDefined(posidx) ) + 
-	    			    ( pos.isDefined() );
+	const bool olddefined = coords_->isDefined(posidx);
+	const bool newdefined = pos.isDefined();
+	const char oldnewdefined = ( olddefined ) + ( newdefined );
 	coords_->setPos( posidx, pos );
 
 	if ( !oldnewdefined ) 
 	    return;
 	else if ( oldnewdefined==1 )
 	{
+	    nrdefinedpos_ += (newdefined ? 1 : -1);
 	    for ( int res=0; res<mHorSectNrRes; res++ )
 	    {
 		if ( !needsretesselation_[res] && !(row%spacing_[res]) && 
@@ -1988,38 +2148,22 @@ void HorizonSectionTile::updateGlue()
 
 #define mAddGlueIndices( i0, i1, i2 ) \
 { \
-    root_->lock.readLock(); \
     const bool df0 = coords_->isDefined(i0); \
     const bool df1 = coords_->isDefined(i1); \
     const bool df2 = coords_->isDefined(i2); \
-    root_->lock.readUnlock(); \
     const int dfsum = df0 + df1 + df2; \
-    if ( dfsum==1 ) \
-    { \
-	int ptidx = df0 ? i0 : ( df1 ? i1 : i2 ); \
-	mAddIndex( ptidx, gluepoints_, ptidx ); \
-    }\
-    else if ( dfsum==2 ) \
-    { \
-	if ( df0 ) mAddIndex( i0, gluelines_, lnidx ) \
-	if ( df1 ) mAddIndex( i1, gluelines_, lnidx ) \
-	if ( df2 ) mAddIndex( i2, gluelines_, lnidx ) \
-	mAddIndex( -1, gluelines_, lnidx ) \
-    } \
-    else if ( dfsum==3 ) \
-    { \
-	mAddIndex( i0, gluetriangles_, stripidx ) \
-	mAddIndex( i1, gluetriangles_, stripidx ) \
-	mAddIndex( i2, gluetriangles_, stripidx ) \
-	mAddIndex( -1, gluetriangles_, stripidx ) \
-    } \
+    if ( df0 ) mAddIndex( i0, dfsum ) \
+    if ( df1 ) mAddIndex( i1, dfsum ) \
+    if ( df2 ) mAddIndex( i2, dfsum ) \
+    if ( dfsum>1 ) mAddIndex( -1, dfsum ) \
 }
 
 
 void HorizonSectionTile::tesselateGlue()
 {
     const int res = getActualResolution();
-    int stripidx = 0, lnidx = 0, ptidx = 0;
+    TypeSet<int> pointci, lineci, stripci;
+    TypeSet<int> pointni, lineni, stripni;
     
     if ( res!=-1 )
     {
@@ -2072,7 +2216,8 @@ void HorizonSectionTile::tesselateGlue()
 		if ( lowresidx+1<(highres ? nbblocks+1 : edgeindices.size()) ) 
 		{ 
 		    lowresidx++; 
-		    i0 = highres ? edgeindices[idx+1] :edgeindices[lowresidx-1]; 		    i1 = highres ? nbindices[lowresidx-1] : nbindices[idx+1]; 
+		    i0 = highres ? edgeindices[idx+1] :edgeindices[lowresidx-1];
+		    i1 = highres ? nbindices[lowresidx-1] : nbindices[idx+1]; 
 		    i2 = highres ? nbindices[lowresidx]:edgeindices[lowresidx];
 		    if ( nb==7 ) mAddGlueIndices( i0, i1, i2 ) 
 		    if ( nb==5 ) mAddGlueIndices( i0, i2, i1 )	
@@ -2092,16 +2237,29 @@ void HorizonSectionTile::tesselateGlue()
 	}
     }
    
-    root_->lock.writeLock(); 
-    gluetriangles_->textureCoordIndex.deleteValues( stripidx, -1 );
-    gluetriangles_->coordIndex.deleteValues( stripidx, -1 );
-    gluetriangles_->normalIndex.deleteValues( stripidx, -1 );
-    gluelines_->textureCoordIndex.deleteValues( lnidx, -1 );
-    gluelines_->coordIndex.deleteValues( lnidx, -1 );
-    gluelines_->normalIndex.deleteValues( lnidx, -1 );
-    gluepoints_->textureCoordIndex.deleteValues( ptidx, -1 );
-    gluepoints_->coordIndex.deleteValues( ptidx, -1 );
-    gluepoints_->normalIndex.deleteValues( ptidx, -1 );
+    const int stripsz = stripci.size();
+    const int linesz = lineci.size();
+    const int pointsz = pointci.size();
+    
+    root_->lock.writeLock();
+    gluetriangles_->coordIndex.setValues( 0, stripsz, stripci.arr() );
+    gluetriangles_->coordIndex.deleteValues( stripsz, -1 ); 
+    gluetriangles_->textureCoordIndex.setValues( 0, stripsz, stripci.arr() );
+    gluetriangles_->textureCoordIndex.deleteValues( stripsz, -1 );
+    gluetriangles_->normalIndex.setValues( 0, stripni.size(), stripni.arr() );
+    gluetriangles_->normalIndex.deleteValues( stripni.size(), -1 ); 
+    gluelines_->coordIndex.setValues( 0, linesz, lineci.arr() );
+    gluelines_->coordIndex.deleteValues( linesz, -1 ); 
+    gluelines_->textureCoordIndex.setValues( 0, linesz, lineci.arr() );
+    gluelines_->textureCoordIndex.deleteValues( linesz, -1 );
+    gluelines_->normalIndex.setValues( 0, lineni.size(), lineni.arr() );
+    gluelines_->normalIndex.deleteValues( lineni.size(), -1 ); 
+    gluepoints_->coordIndex.setValues( 0, pointsz, pointci.arr() );
+    gluepoints_->coordIndex.deleteValues( pointsz, -1 ); 
+    gluepoints_->textureCoordIndex.setValues( 0, pointsz, pointci.arr() );
+    gluepoints_->textureCoordIndex.deleteValues( pointsz, -1 );
+    gluepoints_->normalIndex.setValues( 0, pointni.size(), pointni.arr() );
+    gluepoints_->normalIndex.deleteValues( pointni.size(), -1 ); 
     root_->lock.writeUnlock();
 }
 

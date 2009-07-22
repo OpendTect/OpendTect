@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.35 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.36 2009-07-22 21:56:52 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -400,7 +400,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    newcs = maxcs;
 	else
 	    newcs.usePar( displaypar );
-	section->setDisplayRange( newcs.hrg.inlRange(), newcs.hrg.crlRange() );
+	section->setDisplayRange( newcs.hrg.inlRange(), 
+				  newcs.hrg.crlRange(), true );
 	
 	for ( int idx=0; idx<hd->nrAttribs(); idx++ )
 	{

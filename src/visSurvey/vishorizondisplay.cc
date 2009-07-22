@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.103 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.104 2009-07-22 21:56:52 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -875,11 +875,13 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 
 bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 {
-    visBase::HorizonSection* surf = visBase::HorizonSection::create();
+    RefMan<visBase::HorizonSection> surf = visBase::HorizonSection::create();
+    surf->setDisplayTransformation( transformation_ );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
     const HorSampling& hs = horizon->geometry().getDisplayRange();
-    surf->setDisplayRange( hs.inlRange(), hs.crlRange() );
+    const bool unchanged = hs==SI().sampling(true).hrg;
+    surf->setDisplayRange( hs.inlRange(), hs.crlRange(), !unchanged );
 
     while ( surf->nrChannels()<nrAttribs() ) surf->addChannel();
 
@@ -902,7 +904,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 
     surf->ref();
     surf->setMaterial( 0 );
-    surf->setDisplayTransformation( transformation_ );
     surf->setZAxisTransform( zaxistransform_ );
     const int index = childIndex(drawstyle_->getInventorNode());
     insertChild( index, surf->getInventorNode() );

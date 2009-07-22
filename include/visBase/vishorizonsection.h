@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.34 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.35 2009-07-22 21:56:52 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ class SoGroup;
 class SoShapeHints;
 class SoState;
 class SoIndexedLineSet;
+class SoIndexedLineSet3D;
 class SoDGBIndexedPointSet;
 class SoIndexedTriangleStripSet;
 class SoNormal;
@@ -52,7 +53,7 @@ class Coordinates;
 class HorizonSectionTile;
 class TextureChannels;
 class Texture2;
-class TileResolutionTesselator;
+class TileTesselator;
 
 /*!Horizon geometry is divided into 64*64 pixel tiles. Each tile has it's own 
   glue edge to merge into it's neighbors in case of different resolutions. Each
@@ -88,7 +89,8 @@ public:
     StepInterval<int>		displayedRowRange() const;
     StepInterval<int>		displayedColRange() const;
     void			setDisplayRange(const StepInterval<int>&,
-	    					const StepInterval<int>&);
+	    					const StepInterval<int>&,
+						bool userchangedisplayrg);
 
     void			useWireframe(bool);
     bool			usesWireframe() const;
@@ -144,6 +146,7 @@ protected:
     Geometry::BinIDSurface*	geometry_;
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
+    bool			userchangeddisplayrg_;
     Threads::Mutex		geometrylock_;
     ObjectSet<BinIDValueSet>	cache_;
 
@@ -178,7 +181,7 @@ protected:
 
 
 
-mClass HorizonSectionTile
+mClass HorizonSectionTile : CallBacker
 {
 public:
 				HorizonSectionTile();
@@ -215,10 +218,13 @@ public:
     bool			allNormalsInvalid(int res) const;
     void			setAllNormalsInvalid(int res,bool yn);
     void			removeInvalidNormals(int res);
+    void			setRightHandSystem(bool yn);
 
 protected:
 
     friend class		HorizonSectionTileUpdater;			
+    friend class		TileTesselator;			
+    void			bgTesselationFinishCB(CallBacker*);
     void			setActualResolution(int);
     int				getAutoResolution(SoState*);
     void			tesselateGlue();
@@ -240,6 +246,7 @@ protected:
     Coord3			bboxstart_;	//Display space
     Coord3			bboxstop_;	//Display space
     bool			needsupdatebbox_;
+    int				nrdefinedpos_;
 
     SoLockableSeparator*	root_;
     visBase::Coordinates*	coords_;
@@ -252,13 +259,15 @@ protected:
     bool			resolutionhaschanged_;
 
     bool			needsretesselation_[mHorSectNrRes];
+    ObjectSet<TileTesselator>	tesselationqueue_;
+    Threads::ConditionVar	tesselationqueuelock_;
 
     TypeSet<int>		invalidnormals_[mHorSectNrRes];
     bool			allnormalsinvalid_[mHorSectNrRes];
 
     SoGroup*			resolutions_[mHorSectNrRes];
     SoIndexedTriangleStripSet*	triangles_[mHorSectNrRes];
-    SoIndexedLineSet*		lines_[mHorSectNrRes];
+    SoIndexedLineSet3D*		lines_[mHorSectNrRes];
     SoIndexedLineSet*		wireframes_[mHorSectNrRes];
     SoDGBIndexedPointSet*	points_[mHorSectNrRes];
     SoSwitch*			wireframeswitch_[mHorSectNrRes];
@@ -267,9 +276,11 @@ protected:
 
     SoIndexedTriangleStripSet*	gluetriangles_;
     SoSwitch*			gluelowdimswitch_;
-    SoIndexedLineSet*		gluelines_;
+    SoIndexedLineSet3D*		gluelines_;
     SoDGBIndexedPointSet*	gluepoints_;
     bool			glueneedsretesselation_;
+
+    CallBack			bgfinished_;
 
     static int			normalstartidx_[mHorSectNrRes];
     static int			normalsidesize_[mHorSectNrRes];
