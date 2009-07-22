@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.19 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: threadwork.h,v 1.20 2009-07-22 15:56:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -42,10 +42,11 @@ public:
     				/*!< Managed by caller */
 
     bool			addWork(ObjectSet<SequentialTask>&);
-    void			removeWork(const SequentialTask*);	
+    bool			removeWork(const SequentialTask*);	
     				/*!< Removes the task from queue
 				     and stop it if allready running
-				*/
+				    \returns true if the task was removed
+				    before it had started.*/
 
     const SequentialTask*	getWork(CallBacker*) const;
     				/*!When a work is sumbmitted with a

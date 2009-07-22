@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.24 2009-05-28 03:53:47 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.25 2009-07-22 15:56:48 cvsyuancheng Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -266,7 +266,7 @@ void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb)
 }
 
 
-void Threads::ThreadWorkManager::removeWork( const SequentialTask* task )
+bool Threads::ThreadWorkManager::removeWork( const SequentialTask* task )
 {
     workloadcond_.lock();
 
@@ -276,12 +276,13 @@ void Threads::ThreadWorkManager::removeWork( const SequentialTask* task )
 	workloadcond_.unLock();
 	for ( int idy=0; idy<threads_.size(); idy++ )
 	    threads_[idy]->cancelWork( task );
-	return;
+	return false;
     }
 
     workload_.remove( idx );
     callbacks_.remove( idx );
     workloadcond_.unLock();
+    return true;
 }
 
 
