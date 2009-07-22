@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.26 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.27 2009-07-22 23:03:19 cvsnanne Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.26 2009-07-22 16:01
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
 #include "uiworld2ui.h"
+
+#include "keyboardevent.h"
 #include "mouseevent.h"
 #include "pixmap.h"
 
@@ -47,7 +49,12 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools",
 	    setup.withcoltabed_ ? uiToolBar::Left : uiToolBar::Top );
     if ( setup.withstates_ )
-	{ mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode"); }
+    {
+	mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode");
+	vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
+		mCB(this,uiFlatViewStdControl,keyPressCB) );
+    }
+
     vwr_.setRubberBandingOn( !manip_ );
 
     if ( setup.withedit_ )
@@ -384,4 +391,13 @@ void uiFlatViewStdControl::coltabChg( CallBacker* )
 {
     vwr_.handleChange( FlatView::Viewer::VDPars, false );
     vwr_.handleChange( FlatView::Viewer::VDData );
+}
+
+
+void uiFlatViewStdControl::keyPressCB( CallBacker* )
+{
+    const KeyboardEvent& ev = 
+	vwr_.rgbCanvas().getKeyboardEventHandler().event();
+    if ( ev.key_ == OD::Escape )
+	stateCB( 0 );
 }

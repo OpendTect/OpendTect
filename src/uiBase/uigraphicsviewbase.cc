@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.14 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.15 2009-07-22 23:03:19 cvsnanne Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -31,7 +31,8 @@ public:
 
 uiGraphicsViewBody( uiGraphicsViewBase& handle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>(handle,p,nm)
-    , mousehandler_( *new MouseEventHandler() )
+    , mousehandler_(*new MouseEventHandler)
+    , keyboardhandler_(*new KeyboardEventHandler)
     , startpos_(0)
     , handle_(handle)
 {
@@ -41,26 +42,36 @@ uiGraphicsViewBody( uiGraphicsViewBase& handle, uiParent* p, const char* nm )
     setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
 }
 
-    ~uiGraphicsViewBody()			{ delete &mousehandler_; } 
+~uiGraphicsViewBody()
+{
+    delete &mousehandler_;
+    delete &keyboardhandler_;
+} 
 
-    MouseEventHandler&	mouseEventHandler()	{ return mousehandler_; }
+MouseEventHandler& mouseEventHandler()
+{ return mousehandler_; }
+
+KeyboardEventHandler& keyboardEventHandler()
+{ return keyboardhandler_; }
 
     void		activateMenu();
     bool		event(QEvent*);
 
 protected:
 
-    uiPoint*		startpos_;
-    OD::ButtonState	buttonstate_;
-    MouseEventHandler&	mousehandler_;
-    uiGraphicsViewBase&	handle_;
+    uiPoint*			startpos_;
+    OD::ButtonState		buttonstate_;
+    MouseEventHandler&		mousehandler_;
+    KeyboardEventHandler&	keyboardhandler_;
+    uiGraphicsViewBase&		handle_;
 
-    void		wheelEvent(QWheelEvent*);
-    void		resizeEvent(QResizeEvent*);
-    void		mouseMoveEvent(QMouseEvent*);
-    void		mouseReleaseEvent(QMouseEvent*);
-    void		mousePressEvent(QMouseEvent*);
-    void		mouseDoubleClickEvent(QMouseEvent*);
+    void			wheelEvent(QWheelEvent*);
+    void			resizeEvent(QResizeEvent*);
+    void			mouseMoveEvent(QMouseEvent*);
+    void			mouseReleaseEvent(QMouseEvent*);
+    void			mousePressEvent(QMouseEvent*);
+    void			mouseDoubleClickEvent(QMouseEvent*);
+    void			keyPressEvent(QKeyEvent*);
 };
 
 
@@ -102,7 +113,7 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* event )
 
     if ( event->modifiers() == Qt::ControlModifier )
 	handle_.setCtrlPressed( true );
-    MouseEvent me;
+
     if ( event->button() == Qt::RightButton )
     {
 	buttonstate_ = OD::RightButton;
@@ -157,8 +168,19 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
     QGraphicsView::mouseReleaseEvent( event );
 }
 
-static const int cBorder = 5;
 
+void uiGraphicsViewBody::keyPressEvent( QKeyEvent* event )
+{
+    if ( !event ) return;
+
+    // TODO: impl modifier
+    KeyboardEvent ke;
+    ke.key_ = (OD::KeyboardKey)event->key();
+    keyboardhandler_.triggerKeyPressed( ke );
+}
+
+
+static const int cBorder = 5;
 
 void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
 {
@@ -247,21 +269,16 @@ uiGraphicsViewBase::~uiGraphicsViewBase()
 
 
 MouseEventHandler& uiGraphicsViewBase::getNavigationMouseEventHandler()
-{
-    return body_->mouseEventHandler();
-}
-
+{ return body_->mouseEventHandler(); }
 
 MouseEventHandler& uiGraphicsViewBase::getMouseEventHandler()
-{
-    return scene_->getMouseEventHandler();
-}
+{ return scene_->getMouseEventHandler(); }
 
+KeyboardEventHandler& uiGraphicsViewBase::getKeyboardEventHandler()
+{ return body_->keyboardEventHandler(); }
 
 void uiGraphicsViewBase::rePaintRect( const uiRect* rect )
-{
-    body_->repaint();
-}
+{ body_->repaint(); }
 
 
 void uiGraphicsViewBase::setDragMode( ODDragMode dragmode )

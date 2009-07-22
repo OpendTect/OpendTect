@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.8 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.9 2009-07-22 23:03:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ public:
 				    navigation (rubberbands & panning). For general
 				    calls, use getMouseEventHandler(). */
     MouseEventHandler&		getMouseEventHandler();
+    KeyboardEventHandler&	getKeyboardEventHandler();
 
 
     CNotifier<uiGraphicsViewBase,uiSize> reSize; //!< CallBacker is OLD size
