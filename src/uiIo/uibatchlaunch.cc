@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.78 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.79 2009-07-22 19:22:53 cvskris Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -306,6 +306,7 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
 			    : "Store processing specification as";
     parfnamefld_ = new uiFileInput( dogrp,txt, uiFileInput::Setup(singparfname_)
 					       .forread(forread)
+					       .filedlgtype(uiFileDialog::Gen)
 					       .filter("*.par;;*")
 					       .confirmoverwrite(false) );
     if ( !onlysinglemachine )
