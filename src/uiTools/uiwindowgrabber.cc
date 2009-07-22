@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.7 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.8 2009-07-22 22:04:43 cvsnanne Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -62,7 +62,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     if ( dirname_.isEmpty() )
 	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld_ = new uiFileInput( this, "Filename",
-				    uiFileInput::Setup()
+				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
 				    .defseldir(dirname_)
 	   			    .allowallextensions(false) );
