@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.11 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.12 2009-07-22 13:07:31 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"
@@ -227,8 +227,37 @@ bool AttributeSetCreator::create()
 	return false;
     }
 
-    uiSelGDIAttrInps dlg( prnt, attrset, indirects, directs );
-    return dlg.go();
+    bool isgdi = false;
+    const Desc* stored = 0;
+    const int nrdescs = attrset->nrDescs();
+    for ( int idx=0; idx<nrdescs; idx++ )
+    {
+	const Desc& desc = *attrset->desc( idx );
+	if ( desc.isHidden() )
+	   continue;
+       if (  desc.isStored() )
+	   stored = &desc;
+       else if ( !matchStringCI( "sample", desc.userRef() ) )
+	    { isgdi = true; break; }
+    }
+
+    if ( isgdi )
+    {
+	uiSelGDIAttrInps dlg( prnt, attrset, indirects, directs );
+	return dlg.go();
+    }
+    else if ( stored )
+    {
+	for ( int idx=0; idx<nrdescs; idx++ )
+	{
+	    Desc& desc = *attrset->desc( idx );
+	    if ( desc.isHidden() || desc.isStored() )
+	       continue;
+	    desc.setInput( 0, stored );
+	}
+    }
+
+    return true;
 }
 
 
