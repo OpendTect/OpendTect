@@ -5,7 +5,7 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.9 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.10 2009-07-23 08:22:17 cvsbert Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
@@ -52,6 +52,8 @@ void Scaler::put( char* str ) const
 
 
 LinScaler::LinScaler( double x0, double y0, double x1, double y1 )
+    : factor(1)
+    , constant(0)
 {
     set( x0, y0, x1, y1 );
 }
@@ -59,8 +61,12 @@ LinScaler::LinScaler( double x0, double y0, double x1, double y1 )
 
 void LinScaler::set( double x0, double y0, double x1, double y1 )
 {
-    factor = (y1-y0)/(x1-x0);
-    constant = y0-factor*x0;
+    x1 -= x0;
+    if ( x1 )
+    {
+	factor = (y1 - y0) / x1;
+	constant = y0 - factor * x0;
+    }
 }
 
 

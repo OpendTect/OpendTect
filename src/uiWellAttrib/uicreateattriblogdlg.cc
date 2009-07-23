@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.22 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.23 2009-07-23 08:22:17 cvsbert Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -224,7 +224,7 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
 					 TypeSet<BinIDValueSet::Pos>& positions,
 					 TypeSet<float>& mdepths )
 {
-    const bool zinft = SI().depthsInFeetByDefault();
+    const bool zinft = SI().zInFeet();
     const float step = stepfld_->getfValue();
 
     float start = wd.track().dah(0);

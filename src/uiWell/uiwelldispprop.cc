@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.28 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.29 2009-07-23 08:22:17 cvsbert Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.28 2009-07-22 16:01:43 cv
 #include "wellman.h"
 #include "welllog.h"
 #include "welllogset.h"
+
+static int deflogwidth = 30;
 
 
 uiWellDispProperties::uiWellDispProperties( uiParent* p,
@@ -382,7 +384,7 @@ void uiWellLogDispProperties::doGetFromScreen()
 	logprops().seiscolor_ = seiscolorfld_->color();
     logprops().name_ = logsfld_->box()->text();
     logprops().fillname_ = filllogsfld_->box()->text();
-    logprops().logwidth_ = logwidthfld_->box()->getValue();
+    deflogwidth = logprops().logwidth_ = logwidthfld_->box()->getValue();
 }
 
 
@@ -473,7 +475,7 @@ void uiWellLogDispProperties::selNone()
     logfillfld_->setChecked( true );
     singlfillcolfld_->setChecked( false );
     coltablistfld_->setText( "Rainbow" ); 
-    logwidthfld_->box()->setValue( 40 );
+    logwidthfld_->box()->setValue( deflogwidth );
 }
 
 

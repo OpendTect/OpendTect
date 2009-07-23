@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.16 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: errh.h,v 1.17 2009-07-23 08:22:16 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -43,13 +43,9 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 				const char* fname, int linenr )
 {
     BufferString str( cname );
-    str += "-";
-    str += fname;
-    str += "/";
-    str += linenr;
-    str += ": ";
-    str += msg;
-
+    str += " | "; str += fname;
+    str += ":"; str += linenr;
+    str += " | "; str += msg;
     ErrMsg( str.buf(), true );
 }
 
