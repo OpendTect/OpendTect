@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.13 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.14 2009-07-23 12:33:59 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: attribsetcreator.cc,v 1.13 2009-07-22 16:01:37 
 #include "iopar.h"
 
 using namespace Attrib;
+MultiID AttributeSetCreator::storhint_;
 
 
 class uiSelGDIAttrInps : public uiDialog
@@ -235,10 +236,20 @@ bool AttributeSetCreator::create()
 	const Desc& desc = *attrset->desc( idx );
 	if ( desc.isHidden() )
 	   continue;
-       if (  desc.isStored() )
-	   stored = &desc;
-       else if ( !matchStringCI( "sample", desc.userRef() ) )
+	if ( desc.isStored() )
+	{
+	    if ( storhint_.isEmpty() || desc.getStoredID() == storhint_ )
+	       stored = &desc;
+	}
+	else if ( !matchStringCI( "sample", desc.userRef() ) )
 	    { isgdi = true; break; }
+    }
+
+    if ( !stored && !storhint_.isEmpty() )
+    {
+	DescID did = attrset->createStoredDesc( storhint_, 0,
+						BufferString("") );
+	stored = attrset->getDesc( did );
     }
 
     if ( isgdi )
