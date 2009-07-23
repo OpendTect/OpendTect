@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.88 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.89 2009-07-23 05:44:15 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,13 +128,6 @@ public:
     float		computeAngleXInl() const;
     			/*!< It's the angle (0 to pi/2) between
 			     the X-axis and the Inl-axis (not an inline) */
-    Coord		getEdgePoint(Coord from,Coord to) const;
-    			/*!< Calculates where the line (or extension of it)
-			     through the coords exits the survey box.
-			     if !hasEdgePoint() returns the nearest corner. */
-    bool		hasEdgePoint(Coord,Coord) const;
-    			/*!< Calculates whether the line between the coords
-			     visits the survey box. */
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.125 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.126 2009-07-23 05:45:02 cvsraman Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -839,20 +839,6 @@ float SurveyInfo::computeAngleXInl() const
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
     return atan2( ydiff, xdiff );
-}
-
-
-Coord SurveyInfo::getEdgePoint( Coord c0, Coord c1 ) const
-{
-    //TODO implement properly
-    return transform( transform(c1) );
-}
-
-
-bool SurveyInfo::hasEdgePoint( Coord c0, Coord c1 ) const
-{
-    //TODO implement
-    return true;
 }
 
 
