@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.16 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.17 2009-07-23 02:07:04 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -56,6 +56,13 @@ bool BatchProgram::go( std::ostream& strm )
     PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
     RefMan<Attrib::DataCubes> cube = new Attrib::DataCubes;
 
+    char itemsize = cube && cube->nrCubes() && cube->getCube(0).getStorage()
+	? cube->getCube(0).getStorage()->bytesPerItem()
+	: sizeof(float);
+
+    od_uint64 nrbytes = cs.totalNr() * itemsize * 2;
+    strm << "Allocating " << getBytesString( nrbytes ) << "in memory\n";
+    
     cube->setSizeAndPos( cs );
     if ( !pce->setCalculationScope( cube ) )
     {
