@@ -1,6 +1,13 @@
 #!/bin/csh -f
 # Calls ckin from $WORK/..
-# $Id: ckinall,v 1.2 2009-07-16 07:57:54 cvsbert Exp $
+# $Id: ckinall,v 1.3 2009-07-23 10:57:14 cvsbert Exp $
+
+set args="$*"
+if ( $#argv < 1 ) then
+	set ver=`echo $WORK:t|sed 's/od//'`
+	set args="od$ver dgb$ver"
+endif
 
 cd $WORK/..
-ckin $*
+echo "ckin $args"
+ckin $args
