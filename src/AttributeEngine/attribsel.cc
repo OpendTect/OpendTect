@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.39 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.40 2009-07-23 09:06:27 cvsbert Exp $";
 
 #include "attribsel.h"
 
@@ -283,8 +283,7 @@ void SelInfo::fillStored( const char* filter )
 	    }
 	    else
 	    {
-		LineKey tmpkey( ioobj.key().buf(), 0 );
-		if ( SeisIOObjInfo::getNrCompAvail( tmpkey ) < 2 )
+		if ( SeisIOObjInfo(ioobj).nrComponents() < 2 )
 		    continue;
 	    }
 	}
@@ -355,8 +354,8 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
     {
 	for ( int idx=nms.size()-1; idx>=0; idx-- )
 	{
-	    LineKey tmpkey( ioobj->key(),nms.get(idx).buf() );
-	    if ( SeisIOObjInfo::getNrCompAvail( tmpkey ) < 2 )
+	    LineKey tmpkey( "", nms.get(idx).buf() );
+	    if ( SeisIOObjInfo(*ioobj).nrComponents(tmpkey) < 2 )
 		nms.remove( idx );
 	}
     }
