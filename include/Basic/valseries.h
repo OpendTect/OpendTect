@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.27 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:           $Id: valseries.h,v 1.28 2009-07-23 01:18:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,9 @@ public:
     virtual T*		arr()				{ return 0; }
     virtual const T*	arr() const			{ return 0; }
 
-    inline T		operator[](od_int64 idx) const	{ return value(idx); }
+    virtual char	bytesPerItem() const		{ return sizeof(T); }
 
+    inline T		operator[](od_int64 idx) const	{ return value(idx); }
 };
 
 
@@ -113,6 +114,7 @@ public:
     bool	reSizeable() const		{ return mine_; }
     inline bool	setSize(od_int64);
     od_int64	size() const			{ return cursize_; }
+    char	bytesPerItem() const		{ return sizeof(AT); }
 
 protected:
 
@@ -153,6 +155,7 @@ public:
     bool	reSizeable() const		{ return true; }
     inline bool	setSize(od_int64);
     od_int64	size() const			{ return cursize_; }
+    char	bytesPerItem() const		{ return sizeof(AT); }
 
 protected:
     ObjectSet<AT>	ptrs_;
