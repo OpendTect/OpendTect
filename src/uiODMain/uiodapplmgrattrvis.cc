@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.6 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.7 2009-07-23 12:31:08 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -188,7 +188,10 @@ void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
 void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 {
     if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
+    {
+	am_.appl_.colTabEd().setColTab( 0, false, 0, false );
 	return;
+    }
 
     mDynamicCastGet( visSurvey::SurveyObject*, so,
 	am_.visserv_->getObject( visid ) );
