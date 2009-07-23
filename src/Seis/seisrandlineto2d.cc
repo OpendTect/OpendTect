@@ -7,11 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.10 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.11 2009-07-23 11:19:56 cvsraman Exp $";
 
+#include "cubesampling.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "progressmeter.h"
+#include "seisioobjinfo.h"
 #include "seisrandlineto2d.h"
 #include "randomlinegeom.h"
 #include "seisread.h"
@@ -234,8 +236,13 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, std::ostream& s )
 #define mFalseRet(s) { strm_ << s << std::endl; return false; }
 bool SeisRandLineTo2DGrid::createGrid()
 {
+    CubeSampling cs;
+    SeisIOObjInfo info( inpobj_ );
+    info.getRanges( cs );
     Geometry::RandomLineSet parset( rln_, gridspacing_, true );
     Geometry::RandomLineSet perpset( rln_, gridspacing_, false );
+    parset.limitTo( cs );
+    perpset.limitTo( cs );
     if ( !parset.size() && !perpset.size() )
 	mFalseRet("Error: failed to generate grid lines")
 
