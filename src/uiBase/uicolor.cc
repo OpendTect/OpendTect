@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.26 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.27 2009-07-23 07:22:30 cvsjaap Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -21,13 +21,15 @@ static const char* rcsID = "$Id: uicolor.cc,v 1.26 2009-07-22 16:01:38 cvsbert E
 #include <QColorDialog>
 
 
+#define mGlobalQColorDlgCmdRecId 1
+
 static int beginCmdRecEvent()
 {
     uiMainWin* carrier = uiMain::theMain().topLevel();
     if ( !carrier )
 	return -1;
 
-    return carrier->beginCmdRecEvent( -1, "QColorDlg" );
+    return carrier->beginCmdRecEvent( mGlobalQColorDlgCmdRecId, "QColorDlg" );
 }
 
 static void endCmdRecEvent( int refnr, bool ok, const Color& col,
@@ -45,7 +47,7 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 
     uiMainWin* carrier = uiMain::theMain().topLevel();
     if ( carrier )
-	carrier->endCmdRecEvent( -1, refnr, msg );
+	carrier->endCmdRecEvent( mGlobalQColorDlgCmdRecId, refnr, msg );
 }
 
 
