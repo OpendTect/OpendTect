@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.27 2009-07-23 09:08:09 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.28 2009-07-23 09:30:51 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -510,7 +510,10 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 	    {
 		mDynamicCastGet(SeisCBVS2DLineGetter*,lg,ex)
 		if ( !lg )
-		    ret = 1;
+		{
+		    for ( int icomp=0; icomp<ret; icomp++ )
+			nms->add( BufferString("[",icomp+1,"]") );
+		}
 		else
 		{
 		    ret = lg->tr->componentInfo().size();
