@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.27 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.28 2009-07-23 05:40:29 cvsraman Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.27 2009-07-22 16:01:44 
 #include "iodirentry.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
+#include "survgeometry.h"
 #include "survinfo.h"
 #include "cubesampling.h"
 #include "welldata.h"
@@ -446,7 +447,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 	if ( !SI().isInside(SI().transform(c),false) )
 	{
 	    Coord othcoord = wellcoord[idx ? idx - 1 : 1];
-	    c = SI().getEdgePoint( othcoord, c );
+	    c = SurveyGeometry::getEdgePoint( othcoord, c );
 	}
 	rl->addNode( SI().transform(c) );
     }
