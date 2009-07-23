@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.27 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.28 2009-07-23 02:05:21 cvskris Exp $
 ________________________________________________________________________
 -*/
 
@@ -83,6 +83,9 @@ mGlobal const char* getYesNoString(int);
 mGlobal int yesNoFromString(const char*);
 /*!> returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
 mGlobal const char* getRankPostFix(int);
+/*!> returns a nicely, readable size, in bytes, KB, MB, GB, or TB */
+mGlobal const char* getBytesString(od_uint64);
+
 
 
 #ifdef __cpp__
