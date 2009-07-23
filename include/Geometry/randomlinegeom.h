@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.9 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.10 2009-07-23 11:18:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "namedobj.h"
 
+class CubeSampling;
 class IOPar;
 class Line2;
 
@@ -36,6 +37,7 @@ public:
     void		setNodePosition(int idx,const BinID&);
     void		removeNode(int);
     void		removeNode(const BinID&);
+    void		limitTo(const CubeSampling&); // nrNodes should be 2
 
     int			nodeIndex(const BinID&) const;
     int			nrNodes() const;
@@ -81,6 +83,7 @@ public:
     void		removeLine( int idx )	{ delete lines_.remove(idx); }
     void		addLine( RandomLine* rl )
     			{ rl->lset_ = this; lines_ += rl; }
+    void		limitTo(const CubeSampling&);
 
     const IOPar&	pars() const		{ return pars_; }
     IOPar&		pars()			{ return pars_; }

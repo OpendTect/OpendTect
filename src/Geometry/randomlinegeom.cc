@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: randomlinegeom.cc,v 1.8 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: randomlinegeom.cc,v 1.9 2009-07-23 11:19:16 cvsraman Exp $";
 
 #include "randomlinegeom.h"
 #include "cubesampling.h"
@@ -61,6 +61,51 @@ const BinID& RandomLine::nodePosition( int idx ) const
 
 void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
 { bids = nodes_; }
+
+
+void RandomLine::limitTo( const CubeSampling& cs )
+{
+    if ( nrNodes() != 2 ) return;
+
+    zrange_.limitTo( cs.zrg );
+    const HorSampling& hs = cs.hrg;
+    const bool startin = hs.includes( nodes_[0] );
+    const bool stopin = hs.includes( nodes_[1] );
+    if ( startin && stopin )
+	return;
+
+    Coord svert[4];
+    svert[0] = SI().transform( hs.start );
+    svert[1] = SI().transform( BinID(hs.start.inl,hs.stop.crl) );
+    svert[2] = SI().transform( hs.stop );
+    svert[3] = SI().transform( BinID(hs.stop.inl,hs.start.crl) );
+
+    Line2 line( SI().transform(nodes_[0]), SI().transform(nodes_[1]) );
+    TypeSet<Coord> points;
+    for ( int idx=0; idx<4; idx++ )
+    {
+	Line2 bound( svert[idx], idx < 3 ? svert[idx+1] : svert[0] );
+	Coord pt = line.intersection( bound );
+	if ( !mIsUdf(pt.x) && !mIsUdf(pt.y) )
+	    points += pt;
+    }
+
+    if ( !points.size() )
+	nodes_.erase();
+    else if ( points.size() == 1 )
+	nodes_[startin ? 1 : 0] = SI().transform( points[0] );
+    else if ( SI().transform(nodes_[0]).distTo(points[0])
+	    < SI().transform(nodes_[0]).distTo(points[1]) )
+    {
+	nodes_[0] = SI().transform( points[0] );
+	nodes_[1] = SI().transform( points[1] );
+    }
+    else
+    {
+	nodes_[0] = SI().transform( points[1] );
+	nodes_[1] = SI().transform( points[0] );
+    }
+}
 
 
 RandomLineSet::RandomLineSet()
@@ -171,6 +216,16 @@ void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 	    rln->lset_ = this;
 	    lines_.insertAt( rln, 0 );
 	}
+    }
+}
+
+void RandomLineSet::limitTo( const CubeSampling& cs )
+{
+    for ( int idx=0; idx<lines_.size(); idx++ )
+    {
+	lines_[idx]->limitTo( cs );
+	if ( !lines_[idx]->nrNodes() )
+	    removeLine( idx-- );
     }
 }
 
