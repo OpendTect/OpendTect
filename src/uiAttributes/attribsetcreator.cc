@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.14 2009-07-23 12:33:59 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.15 2009-07-23 12:57:01 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"
@@ -28,14 +28,14 @@ using namespace Attrib;
 MultiID AttributeSetCreator::storhint_;
 
 
-class uiSelGDIAttrInps : public uiDialog
+class uiSelExternalAttrInps : public uiDialog
 {
 public:
-uiSelGDIAttrInps( uiParent* p, DescSet* ads,
+uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 		const BufferStringSet& indirinps, 
 		const BufferStringSet& dirinps )
     : uiDialog(p,uiDialog::Setup("Specify inputs",
-		     "GDI network: define the actual attribute definitions",
+		     "Network without attributes: definitions",
 		     "102.0.1"))
     , attrset(ads)
     , nrindir(indirinps.size())
@@ -72,7 +72,7 @@ uiSelGDIAttrInps( uiParent* p, DescSet* ads,
 }
 
 
-~uiSelGDIAttrInps()
+~uiSelExternalAttrInps()
 {
     for ( int idx=0; idx<sels.size(); idx++ )
     {
@@ -114,7 +114,7 @@ void mkGrp( uiGroup* mkgrp, const char* lbltxt,
 	    newsel->attach( alignedBelow, prevsel );
 
 	neednewgrp = !((idx+1) % maxnrselinrow);
-	newsel->selectiondone.notify( mCB(this,uiSelGDIAttrInps,cubeSel) );
+	newsel->selectiondone.notify( mCB(this,uiSelExternalAttrInps,cubeSel) );
 	sels += newsel;
 	prevsel = newsel;
     }
@@ -228,7 +228,6 @@ bool AttributeSetCreator::create()
 	return false;
     }
 
-    bool isgdi = false;
     const Desc* stored = 0;
     const int nrdescs = attrset->nrDescs();
     for ( int idx=0; idx<nrdescs; idx++ )
@@ -238,11 +237,9 @@ bool AttributeSetCreator::create()
 	   continue;
 	if ( desc.isStored() )
 	{
-	    if ( storhint_.isEmpty() || desc.getStoredID() == storhint_ )
+	    if ( desc.getStoredID() == storhint_ )
 	       stored = &desc;
 	}
-	else if ( !matchStringCI( "sample", desc.userRef() ) )
-	    { isgdi = true; break; }
     }
 
     if ( !stored && !storhint_.isEmpty() )
@@ -252,12 +249,12 @@ bool AttributeSetCreator::create()
 	stored = attrset->getDesc( did );
     }
 
-    if ( isgdi )
+    if ( !stored )
     {
-	uiSelGDIAttrInps dlg( prnt, attrset, indirects, directs );
+	uiSelExternalAttrInps dlg( prnt, attrset, indirects, directs );
 	return dlg.go();
     }
-    else if ( stored )
+    else
     {
 	for ( int idx=0; idx<nrdescs; idx++ )
 	{
@@ -272,10 +269,10 @@ bool AttributeSetCreator::create()
 }
 
 
-static void addGate( BufferString& defstr, const char* gdidesc )
+static void addGate( BufferString& defstr, const char* extdesc )
 {
-    BufferString gdistr( gdidesc );
-    char* ptr = strchr( gdistr.buf(), '[' );
+    BufferString extstr( extdesc );
+    char* ptr = strchr( extstr.buf(), '[' );
     BufferString gatestr( ptr ? ptr : "[-32,32]" );
     ptr = strchr( gatestr.buf(), ']' );
     if ( ptr ) *(ptr+1) = '\0';
@@ -284,24 +281,24 @@ static void addGate( BufferString& defstr, const char* gdidesc )
 }
 
 
-Desc* AttributeSetCreator::getDesc( const char* gdidesc )
+Desc* AttributeSetCreator::getDesc( const char* extdesc )
 {
-    if ( ! gdidesc || !*gdidesc ) return 0;
+    if ( ! extdesc || !*extdesc ) return 0;
 
     BufferString defstr;
-    if ( matchStringCI("Energy",gdidesc) )
+    if ( matchStringCI("Energy",extdesc) )
     {
 	defstr = "Energy";
-	addGate( defstr, gdidesc );
+	addGate( defstr, extdesc );
 	defstr += "output=0";
     }
-    else if ( matchStringCI("Reference time",gdidesc) )
+    else if ( matchStringCI("Reference time",extdesc) )
     {
 	defstr = "Reference output=2";
     }
-    else if ( matchStringCI("Sample",gdidesc) )
+    else if ( matchStringCI("Sample",extdesc) )
     {
-	BufferString offs = gdidesc + 7;
+	BufferString offs = extdesc + 7;
 	char* ptr = offs.buf();
 	mSkipBlanks(ptr);
 	offs = ptr;
@@ -310,11 +307,11 @@ Desc* AttributeSetCreator::getDesc( const char* gdidesc )
 	defstr = "Shift pos=0,0 steering=No time=";
 	defstr += offs;
     }
-    else if ( matchStringCI("Similarity",gdidesc) )
+    else if ( matchStringCI("Similarity",extdesc) )
     {
 	defstr = "Similarity steering=No";
-	addGate( defstr, gdidesc );
-	BufferString work( gdidesc );
+	addGate( defstr, extdesc );
+	BufferString work( extdesc );
 	char* pos0ptr = strchr( work.buf(), '=' );
 	if ( pos0ptr ) pos0ptr++;
 	char* pos1ptr = pos0ptr ? strchr( pos0ptr, 'x' ) : 0;
@@ -361,7 +358,7 @@ Desc* AttributeSetCreator::getDesc( const char* gdidesc )
 	return 0;
     }
 
-    desc->setUserRef( gdidesc );
+    desc->setUserRef( extdesc );
     attrset->addDesc( desc );
     return desc;
 }
