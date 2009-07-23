@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.88 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.89 2009-07-23 10:54:36 cvsnanne Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -1089,10 +1089,14 @@ bool uiAttribDescSetEd::offerSetSave()
 {
     doCommit( true );
     bool saved = adsman_->isSaved();
+    if ( saved ) return true;
+
     BufferString msg( "Attribute set is not saved.\nSave now?" );
-    if ( !saved && uiMSG().askSave( msg ) )
+    const int res = uiMSG().askSave( msg );
+    if ( res==1 )
 	return doSave(false);
-    return true;
+
+    return res==0;
 }
 
 
