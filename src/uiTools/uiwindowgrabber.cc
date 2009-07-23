@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.8 2009-07-22 22:04:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.9 2009-07-23 06:25:42 cvssatyaki Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.8 2009-07-22 22:04:43 cv
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
+#include "settings.h"
 #include "timefun.h"
 
 BufferString uiWindowGrabDlg::dirname_ = "";
@@ -65,6 +66,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
 				    .defseldir(dirname_)
+				    .directories(false)
 	   			    .allowallextensions(false) );
     fileinputfld_->valuechanged.notify( mCB(this,uiWindowGrabDlg,fileSel) );
     if ( windowfld_ )
@@ -92,8 +94,26 @@ void uiWindowGrabDlg::surveyChanged( CallBacker* )
 
 void uiWindowGrabDlg::updateFilter()
 {
-    BufferString filter;
+    Settings& settings = Settings::fetch("snapshot");
+    PtrMan<IOPar> iopar = settings.subselect( "3D" );
+    BufferString deftype = imageformats[0];
+    if ( iopar ) iopar->get( "File type", deftype );
+
     int idx = 0;
+    while ( imageformats[idx] )
+    {
+	if ( deftype != imageformats[idx] )
+	{
+	    idx++;
+	    continue;
+	}
+
+	fileinputfld_->setSelectedFilter( filters[idx] );
+	break;
+    }
+
+    BufferString filter;
+    idx = 0;
     while ( imageformats[idx] )
     {
 	if ( !filter.isEmpty() ) filter += ";;";

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uisaveimagedlg.h,v 1.4 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uisaveimagedlg.h,v 1.5 2009-07-23 06:25:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ protected:
     BufferString	filters_;
     BufferString	selfilter_;
     Settings&		settings_;
+    Interval<float>	fldranges_;
 
     void		getSettingsPar(PtrMan<IOPar>&,BufferString);
     void		setSizeInPix(int width, int height);

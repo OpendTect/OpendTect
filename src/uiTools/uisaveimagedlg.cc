@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.9 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.10 2009-07-23 06:25:42 cvssatyaki Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -148,6 +148,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
 				    .defseldir(dirname_)
+				    .directories(false)
 	   			    .allowallextensions(false) );
     fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
     mAttachToAbove( fileinputfld_ );
@@ -169,11 +170,19 @@ void uiSaveImageDlg::sizeChg( CallBacker* cb )
     if ( lockfld_->isChecked() )
     {
 	if ( box == widthfld_->box() )
+	{
 	    heightfld_->box()->setValue(
 		    widthfld_->box()->getFValue()/aspectratio_ );
+	    fldranges_.start =
+		(float) ( widthfld_->box()->getFValue()/aspectratio_ );
+	}
 	else
+	{
 	    widthfld_->box()->setValue(
 		    heightfld_->box()->getFValue()*aspectratio_ );
+	    fldranges_.stop =
+		(float) ( heightfld_->box()->getFValue()*aspectratio_ );
+	}
     }
 
     updateSizes();
@@ -201,10 +210,12 @@ void uiSaveImageDlg::unitChg( CallBacker* )
     widthfld_->box()->setNrDecimals( nrdec );
     widthfld_->box()->setInterval( range );
     widthfld_->box()->setValue( size.width() );
+    fldranges_.stop = size.width();
 
     heightfld_->box()->setNrDecimals( nrdec );
     heightfld_->box()->setInterval( range );
     heightfld_->box()->setValue( size.height() );
+    fldranges_.start = size.height();
 }
 
 
@@ -214,6 +225,7 @@ void uiSaveImageDlg::lockChg( CallBacker* )
 
     const float width = widthfld_->box()->getFValue();
     heightfld_->box()->setValue( width / aspectratio_ );
+    fldranges_.start = (float) ( width / aspectratio_ );
     updateSizes();
 }
 
@@ -226,8 +238,8 @@ void uiSaveImageDlg::dpiChg( CallBacker* )
 
 void uiSaveImageDlg::updateSizes()
 {
-    const float width = widthfld_->box()->getFValue();
-    const float height = heightfld_->box()->getFValue();
+    const float width = fldranges_.stop;
+    const float height = fldranges_.start;
     const int sel = unitfld_->getIntValue();
     if ( !sel )
     {
@@ -372,9 +384,15 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 
     float val;
     if ( par.get(sKeyHeight(),val) )
+    {
 	heightfld_->box()->setValue( val );
+	fldranges_.start = val;
+    }
     if ( par.get(sKeyWidth(),val) )
+    {
 	widthfld_->box()->setValue( val );
+	fldranges_.stop = val;
+    }
 
     int dpi;
     if ( par.get(sKeyRes(),dpi) )
@@ -392,7 +410,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 	    continue;
 	}
 
-	fileinputfld_->setSelectedFilter( selfilter_ );
+	fileinputfld_->setSelectedFilter( imageformatdescs[idx] );
 	break;
     }
 
