@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.14 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uibody.h,v 1.15 2009-07-23 12:30:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ public:
                                    {return const_cast<QWidget*>(qwidget_());}
 
 protected:
-
     virtual const QWidget*	qwidget_() const		=0;
 
 };
@@ -64,6 +63,7 @@ public:
     inline const C&	handle()			{ return handle_; }
 
 protected:
+			~uiBodyImpl()			{ delete qthing_; }
 
     virtual const QWidget* qwidget_() const		
 			    { return dynamic_cast<QWidget*>( qthing_ ); }
