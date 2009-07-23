@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.98 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.99 2009-07-23 07:43:22 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -224,10 +224,6 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, 
 	    					  emobj->getTypeStr(), 0 );
-    uiPushButton* applybut = new uiPushButton( setupdlg, "Retrack all", true );
-    applybut->activated.notify( mCB(this,uiMPEPartServer,retrackCB) );
-    applybut->attach( centeredBelow, setupgrp_ );
-    
     MPE::SectionTracker* sectiontracker = 
 				tracker->getSectionTracker(sectionid, true);
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
@@ -389,7 +385,6 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
 
 void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 {
-
     deleteSetupGrp();
 
     if ( trackercurrentobject_ == -1 ) return;
@@ -414,10 +409,15 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	return;
     }
     
-    if( !seedhasbeenpicked_ )
+    if ( !seedhasbeenpicked_ )
     {
-	noTrackingRemoval();
-	return;
+	const bool res = uiMSG().askContinue( "No seed has been picked. "
+		"Do you want to continue with horizon tracking?" );
+	if ( !res )
+	{
+	    noTrackingRemoval();
+	    return;
+	}
     }
 
     mDynamicCastGet( uiDialog*, dlg, cb );
@@ -443,7 +443,8 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	addrmseednotifier->remove( 
 		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 
-    adjustSeedBox();
+    if ( seedhasbeenpicked_ )
+	adjustSeedBox();
 
     // finishing time
     blockDataLoading( true );
@@ -454,7 +455,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     if ( seedpicker->doesModeUseVolume() && !trackerseedbox_.isEmpty() )
 	expandActiveVolume( trackerseedbox_ );
 
-    if ( !seedpicker->doesModeUseVolume() )
+    if ( !seedhasbeenpicked_ || !seedpicker->doesModeUseVolume() )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );
     blockDataLoading( false );
 
