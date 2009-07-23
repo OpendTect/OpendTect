@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.28 2009-07-23 09:30:51 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.29 2009-07-23 09:47:24 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -480,7 +480,7 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 		    nms->add( sttr->componentInfo()[icomp]->name() );
 	    }
 	}
-	delete conn;
+	delete tr;
     }
     else
     {
