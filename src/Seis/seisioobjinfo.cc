@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.26 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.27 2009-07-23 09:08:09 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -446,9 +446,16 @@ int SeisIOObjInfo::nrComponents( LineKey lk ) const
 }
 
 
-void SeisIOObjInfo::componentNames( BufferStringSet& nms, LineKey lk ) const
+void SeisIOObjInfo::getComponentNames( BufferStringSet& nms, LineKey lk ) const
 {
     getComponentInfo( lk, &nms );
+}
+
+
+void SeisIOObjInfo::getCompNames( const LineKey& lk, BufferStringSet& nms )
+{
+    SeisIOObjInfo ioobjinf( MultiID(lk.lineName()) );
+    ioobjinf.getComponentNames( nms, LineKey("",lk.attrName()) );
 }
 
 
@@ -519,46 +526,6 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
     }
 
     return ret;
-}
-
-
-int SeisIOObjInfo::getNrCompAvail( const LineKey& lkey )
-{
-    BufferStringSet bss;
-    SeisIOObjInfo::getCompNames( lkey, bss );
-    return bss.size();
-}
-
-
-void SeisIOObjInfo::getCompNames( const LineKey& lkey, BufferStringSet& bss )
-{
-    const MultiID key( lkey );
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    SeisTrcReader rdr( ioobj );
-    SeisTrcTranslator* transl = rdr.prepareWork(Seis::PreScan) ?
-					  rdr.seisTranslator() : 0;
-    if ( !transl ) return;
-
-    const int nrcomp = transl->componentInfo().size();
-    if ( !nrcomp && rdr.is2D() )
-    {
-	BufferStringSet linenames;
-	rdr.lineSet()->getLineNamesWithAttrib( linenames, lkey.attrName() );
-	if ( linenames.size() )
-	{
-	    LineKey tmplkey( linenames.get(0).buf(), lkey.attrName() );
-	    const int lineattridx = rdr.lineSet()->indexOf( tmplkey );
-	    const IOPar& lineattpar = rdr.lineSet()->getInfo( lineattridx );
-	    const char* fnm = SeisCBVS2DLineIOProvider::getFileName(lineattpar);
-	    CBVSSeisTrcTranslator* newtransl =
-				CBVSSeisTrcTranslator::make( fnm, true, true );
-	    if ( !newtransl ) return;
-	    newtransl->getComponentNames( bss );
-	    delete newtransl;
-	}
-    }
-    else
-	transl->getComponentNames( bss );
 }
 
 

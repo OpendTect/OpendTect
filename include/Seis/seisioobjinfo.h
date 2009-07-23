@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.14 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.15 2009-07-23 09:08:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,11 +66,8 @@ public:
 	    				const char* ioobjnm=0);
 
     int			nrComponents(LineKey lk=LineKey()) const;
-    void		componentNames(BufferStringSet&,
+    void		getComponentNames(BufferStringSet&,
 	    				LineKey lk=LineKey()) const;
-
-    static int		getNrCompAvail(const LineKey&);
-    static void		getCompNames(const LineKey& lkey,BufferStringSet&);
 
     // 2D only
     void		getLineNames( BufferStringSet& b, bool add=true,
@@ -106,6 +103,9 @@ public:
     static void		get2DLineInfo(BufferStringSet& linesets,
 	    			      TypeSet<MultiID>* setids=0,
 				      TypeSet<BufferStringSet>* linenames=0);
+    static void		getCompNames(const LineKey&,BufferStringSet&);
+    			//!< Function useful in attribute environments
+    			//!< The 'LineKey' must be IOObj_ID|attrnm
 
 protected:
 
