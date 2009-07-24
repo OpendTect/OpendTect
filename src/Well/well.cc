@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.63 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.64 2009-07-24 04:57:03 cvsraman Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -398,7 +398,7 @@ void Well::Track::addPoint( const Coord& c, float z, float dahval )
     if ( mIsUdf(dahval) )
     {
 	const int previdx = dah_.size() - 1;
-	dahval = previdx < 0 ? 0
+	dahval = previdx < 0 && previdx < pos_.size()-1 ? 0
 	    : dah_[previdx] + pos_[previdx].distTo( pos_[previdx+1] );
     }
     dah_ += dahval;
@@ -473,19 +473,21 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	    { minidx = idx-1; minval = val; }
 	if ( d1 < mindist )
 	    { mindist = d1; mindistidx = idx; }
-	if ( idx == oldsz-1 && minval > 0.85 )
+	if ( idx == oldsz-1 && minval > 0 )
 	{
 	    if ( mindistidx == oldsz-1)
 	    {
 		addPoint( c, z );
 		return oldsz;
 	    }
-	    else
+	    else if ( mindistidx > 0 && mindistidx < oldsz-1 )
 	    {
 		float prevdist = pos_[mindistidx-1].distTo(cnew);
 		float nextdist = pos_[mindistidx+1].distTo(cnew);
 		minidx = prevdist > nextdist ? mindistidx : mindistidx -1;
 	    }
+	    else
+		minidx = mindistidx;
 	}
     }
 
@@ -541,10 +543,14 @@ void Well::Track::setPoint( int idx, const Coord& c, float z )
 
 void Well::Track::removePoint( int idx )
 {
-    float olddist = dah_[idx+1] - dah_[idx-1];
-    float newdist = pos_[idx+1].distTo( pos_[idx-1] );
-    float extradah = olddist - newdist;
-    removeFromDahFrom( idx+1, extradah );
+    if ( idx < pos_.size()-1 && idx < dah_.size()-1 )
+    {
+	float olddist = idx ? dah_[idx+1] - dah_[idx-1] : dah_[1];
+	float newdist = idx ? pos_[idx+1].distTo( pos_[idx-1] ) : 0;
+	float extradah = olddist - newdist;
+	removeFromDahFrom( idx+1, extradah );
+    }
+
     remove( idx );
 }
 
