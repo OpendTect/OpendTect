@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.11 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.12 2009-07-24 06:46:06 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -45,6 +45,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
     , horpainter_(0)
+    , horfveditor_(0)
 {
     basetxt_ = "2D Viewer - ";
     BufferString info;
@@ -62,7 +63,18 @@ uiODViewer2D::~uiODViewer2D()
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
-    delete horpainter_;
+    delete horpainter_; 
+    if ( horfveditor_ )
+    {
+	horfveditor_->updateoldactivevolinuimpeman.remove(
+		mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
+	horfveditor_->restoreactivevolinuimpeman.remove(
+		mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
+	horfveditor_->updateseedpickingstatus.remove(
+		mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
+    }
+	
+    delete horfveditor_;
     delete viewwin_;
 }
 
@@ -165,6 +177,12 @@ void uiODViewer2D::createViewWin( bool isvert )
 	    horpainter_ = new EM::HorizonPainter( vwr );
 	    auxdataeditor_ = new uiFlatViewAuxDataEditor( vwr );
 	    horfveditor_ = new MPE::HorizonFlatViewEditor( auxdataeditor_ );
+	    horfveditor_->updateoldactivevolinuimpeman.notify(
+		    mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
+	    horfveditor_->restoreactivevolinuimpeman.notify(
+		    mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
+	    horfveditor_->updateseedpickingstatus.notify(
+		     mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
 	    horfveditor_->setMouseEventHandler( 
 		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    vwr.dataChanged.notify(  mCB(this,uiODViewer2D,dataChangedCB) );
@@ -177,6 +195,18 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
     delete horpainter_;
     horpainter_ = 0;
+
+    if ( horfveditor_ )
+    {
+	horfveditor_->updateoldactivevolinuimpeman.remove(
+		mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
+	horfveditor_->restoreactivevolinuimpeman.remove(
+		mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
+	horfveditor_->updateseedpickingstatus.remove(
+		mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
+    }
+	
+    delete horfveditor_; horfveditor_ = 0;
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
     slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
@@ -241,6 +271,26 @@ void uiODViewer2D::dataChangedCB( CallBacker* )
     }
     else
 	horfveditor_->setSelSpec( 0, false );
+}
+
+
+void uiODViewer2D::updateOldActiveVolInUiMPEManCB( CallBacker* )
+{
+    appl_.applMgr().visServer()->updateOldActiVolInuiMPEMan();
+}
+
+
+void uiODViewer2D::restoreActiveVolInUiMPEManCB( CallBacker* )
+{
+    if ( !appl_.applMgr().visServer()->isTrackingSetupActive() )
+	appl_.applMgr().visServer()->restoreActiveVolInuiMPEMan();
+}
+
+
+void uiODViewer2D::updateHorFlatViewerSeedPickStatus( CallBacker* )
+{
+    horfveditor_->setSeedPickingStatus(
+	    appl_.applMgr().visServer()->isPicking() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.56 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uimpeman.h,v 1.57 2009-07-24 06:43:53 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,12 @@ public:
     void			initFromDisplay();
     void			trackInVolume();
 
+    void			updateOldActiveVol();
+    void			restoreActiveVolume();
+
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
+    void                        visObjectLockedCB(CallBacker*);
 
 protected:
     void			addButtons();
@@ -143,11 +147,6 @@ protected:
     CubeSampling		oldactivevol;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }
-    
-public:
-     void                        visObjectLockedCB(CallBacker*);
-
-
 };
 
 #endif

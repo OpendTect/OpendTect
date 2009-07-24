@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.425 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.426 2009-07-24 06:44:20 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -1814,6 +1814,14 @@ void uiVisPartServer::initMPEStuff()
 
 void uiVisPartServer::fireLoadAttribDataInMPEServ()
 { sendEvent( evLoadAttribDataInMPEServ() ); }
+
+
+void uiVisPartServer::updateOldActiVolInuiMPEMan()
+{ mpetools_->updateOldActiveVol(); }
+
+
+void uiVisPartServer::restoreActiveVolInuiMPEMan()
+{ mpetools_->restoreActiveVolume(); }
 
 
 bool uiVisPartServer::canBDispOn2DViewer( int id ) const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.244 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.245 2009-07-24 06:43:53 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -317,6 +317,8 @@ public:
     void			initMPEStuff();
     void			fireLoadAttribDataInMPEServ();
     static const int            evLoadAttribDataInMPEServ();
+    void			updateOldActiVolInuiMPEMan();
+    void			restoreActiveVolInuiMPEMan();
 
     uiSlicePos3DDisp*		getUiSlicePos() const
     				{ return slicepostools_; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.164 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.165 2009-07-24 06:44:20 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -452,6 +452,13 @@ void uiMPEMan::seedClick( CallBacker* )
 }
 
 
+void uiMPEMan::restoreActiveVolume()
+{ 
+    if ( !isPickingWhileSetupUp() )
+	restoreActiveVol();
+}
+
+
 void uiMPEMan::restoreActiveVol()
 {
     MPE::Engine& engine = MPE::engine();
@@ -574,6 +581,18 @@ bool uiMPEMan::isPickingWhileSetupUp() const
     return isSeedPickingOn() && 
 	( visserv->isTrackingSetupActive() );
 }
+
+
+void uiMPEMan::updateOldActiveVol()
+{
+     if ( oldactivevol.isEmpty() )
+     {
+	 MPE::engine().swapCacheAndItsBackup();
+	 oldactivevol = MPE::engine().activeVolume();
+	 oldtrackplane = MPE::engine().trackPlane();
+     }
+}
+
 
 
 void uiMPEMan::turnSeedPickingOn( bool yn )

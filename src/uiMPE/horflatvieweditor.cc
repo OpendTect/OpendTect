@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.5 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.6 2009-07-24 06:42:36 cvsumesh Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -45,6 +45,10 @@ HorizonFlatViewEditor::HorizonFlatViewEditor( FlatView::AuxDataEditor* ed )
     , linenm_(0)
     , lsetid_(-1)
     , is2d_(false)
+    , seedpickingon_(false)
+    , updateoldactivevolinuimpeman(this)
+    , restoreactivevolinuimpeman(this)
+    , updateseedpickingstatus(this)
 {
     curcs_.setEmpty();
     editor_->movementFinished.notify(
@@ -108,6 +112,10 @@ void HorizonFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 }
 
 
+void HorizonFlatViewEditor::setSeedPickingStatus( bool yn )
+{ seedpickingon_ = yn; } 
+
+
 void HorizonFlatViewEditor::mouseMoveCB( CallBacker* )
 {
 }
@@ -121,6 +129,9 @@ void HorizonFlatViewEditor::mousePressCB( CallBacker* )
 void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 {
     if ( curcs_.isEmpty() ) return;
+
+    updateseedpickingstatus.trigger();
+    if ( !seedpickingon_ ) return;
 
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
     if ( !tracker ) return;
@@ -156,9 +167,16 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     const MouseEvent& mouseevent = mouseeventhandler_->event();
     const uiRect datarect( editor_->getMouseArea() );
+
+    if ( !datarect.isInside(mouseevent.pos()) )
+	return;
+
     const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
     const uiWorldPoint wp =
 	w2u.transform( mouseevent.pos()-datarect.topLeft() );
+
+    if ( oldactivevol != newactivevol )
+	updateoldactivevolinuimpeman.trigger();
 
     const FlatDataPack* dp = 0;
     const Attrib::SelSpec* as = 0;
@@ -307,26 +325,24 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 	if ( ctrlshiftclicked )
 	{
 	    if ( seedpicker->removeSeed( pid, false, false ) )
-		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
-						      false );
+		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,							false );
 	}
 	else if ( mouseevent.ctrlStatus() )
 	{
 	    if ( seedpicker->removeSeed( pid, true, true ) )
 	       MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
-	       					     false );	    
+		       				       false );	    
 	}
 	else if ( mouseevent.shiftStatus() )
 	{
 	    if ( seedpicker->removeSeed( pid, true, false ) )
-		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
-						      false );
+		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,							false );
 	}
 	else
 	{
 	    if ( seedpicker->addSeed( clickedcrd, false ) )
 		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
-						      true );
+							true );
 	}
     }
     else
@@ -342,7 +358,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( currentevent != prevevent )
 	EM::EMM().undo().setUserInteractionEnd(currentevent);
 
-    //TODO restore active volume for proper condition
+    restoreactivevolinuimpeman.trigger();
 }
 
 
@@ -354,6 +370,5 @@ void HorizonFlatViewEditor::movementEndCB( CallBacker* )
 void HorizonFlatViewEditor::removePosCB( CallBacker* )
 {
 }
-
 
 } // namespace MPE
