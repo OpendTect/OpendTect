@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.h,v 1.5 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: measuretoolman.h,v 1.6 2009-07-24 05:53:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ protected:
 
     void		objSelected(CallBacker*);
     void		buttonClicked(CallBacker*);
+    void		addScene(int);
     void		sceneAdded(CallBacker*);
     void		sceneClosed(CallBacker*);
     void		sceneChanged(CallBacker*);

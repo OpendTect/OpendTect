@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: measuretoolman.cc,v 1.10 2009-07-22 16:01:25 cvsbert Exp $";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.11 2009-07-24 05:53:18 cvsnageswara Exp $";
 
 
 #include "measuretoolman.h"
@@ -35,6 +35,11 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     butidx_ = appl.menuMgr().coinTB()->addButton(
 	    "measure.png", mCB(this,MeasureToolMan,buttonClicked),
 	    "Display Distance", true );
+
+    TypeSet<int> sceneids;
+    appl.applMgr().visServer()->getChildIds( -1, sceneids );
+    for( int ids=0; ids<sceneids.size(); ids++ )
+	addScene( sceneids[ids] );
 
     appl.sceneMgr().treeToBeAdded.notify(
 			mCB(this,MeasureToolMan,sceneAdded) );
@@ -89,10 +94,13 @@ void MeasureToolMan::manageDlg( bool show )
 
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
-	if ( show )
-	    visBase::DM().selMan().select( displayobjs_[idx]->id() );
-	else
-	    visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
+	if ( sceneids_[idx] == appl_.sceneMgr().getActiveSceneID() )
+	{
+	    if ( show )
+		visBase::DM().selMan().select( displayobjs_[idx]->id() );
+	    else
+		visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
+	}
     }
 }
 
@@ -115,6 +123,12 @@ static MultiID getMultiID( int sceneid )
 void MeasureToolMan::sceneAdded( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sceneid,cb);
+    addScene( sceneid );
+}
+
+
+void MeasureToolMan::addScene( int sceneid )
+{
     visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
     psd->ref();
 
