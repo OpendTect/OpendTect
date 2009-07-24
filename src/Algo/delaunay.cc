@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.35 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.36 2009-07-24 19:42:45 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -316,8 +316,14 @@ bool DAGTriangleTree::getTriangle( int ci, int& dupid,
     vertices += triangles_[ti0].coordindices_[0];
     vertices += triangles_[ti0].coordindices_[1];
     vertices += triangles_[ti0].coordindices_[2];
+    if ( ti1!=cNoVertex() && (vertices[0]<0 || vertices[1]<0 || vertices[2]<0))
+    {
+  	vertices[0] = triangles_[ti1].coordindices_[0];
+  	vertices[1] = triangles_[ti1].coordindices_[1];
+ 	vertices[2] = triangles_[ti1].coordindices_[2];
+    }
 
-   return true;
+    return true;
 }
 
 
@@ -463,7 +469,8 @@ char DAGTriangleTree::searchFurther( int ci, int& ti0, int& ti1,
 #ifndef mDAGTriangleForceSingleThread
 	    trianglelock_.readUnLock();
 #endif
-	   
+	  
+	    int candidates[] = { cNoTriangle(), cNoTriangle() }; 
 	    bool found = false; 
 	    for ( int childidx = 0; childidx<3; childidx++ )
 	    {
@@ -490,6 +497,13 @@ char DAGTriangleTree::searchFurther( int ci, int& ti0, int& ti1,
 			     children[1]==sharedtriangle ||
 			     children[2]==sharedtriangle ) )
 		    {
+			if ( candidates[0]==cNoTriangle() ||
+			     candidates[1]!=curchild )
+	  		{
+   			    candidates[0] = curchild;
+ 			    candidates[1] = sharedtriangle;
+      			}
+
 			continue;
 		    }
 
@@ -525,8 +539,15 @@ char DAGTriangleTree::searchFurther( int ci, int& ti0, int& ti1,
 
 	    if ( !found )
 	    {
-		pErrMsg("No child found");
-		return cError();
+		if ( candidates[0]==cNoTriangle() || 
+		     candidates[1]==cNoTriangle() )
+		{
+    		    pErrMsg("No child found");
+    		    return cError();
+		}
+
+		ti0 = candidates[0];
+		ti1 = candidates[1];
 	    }
 	}
 	else
@@ -670,8 +691,16 @@ char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a,	const Coord& b,
     const Coord linevec = b - a;
     const Coord newvec = p - a;
     const double sqlen = linevec.sqAbs();
-    if ( mIsZero(sqlen,mDefEps) )
+    if ( mIsZero(newvec.sqAbs(),mDefEps) )
+    {
+	duponfirst = true;
 	return cIsDuplicate();
+    }
+    else if ( mIsZero((p-b).sqAbs(),mDefEps) )
+    {
+	duponfirst = true;
+	return cIsDuplicate();
+    }
 
     const double t = linevec.dot(newvec) / sqlen;
     const Coord closestpt = a + linevec * t;
