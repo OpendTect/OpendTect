@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.47 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.48 2009-07-24 04:50:13 cvsraman Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -268,6 +268,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     const Coord3& c0( coords[0] );
     const float minz = c0.z * vel;
     well->track().addPoint( c0, minz, minz );
+    well->info().surfacecoord = Coord( c0.x, c0.y );
     if ( d2t ) d2t->add( minz, c0.z );
 
     for ( int idx=1; idx<coords.size(); idx++ )
