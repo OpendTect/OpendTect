@@ -7,20 +7,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra & K. Tingdahl
  Date:		April 2009
- RCS:		$Id: zdomain.h,v 1.4 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: zdomain.h,v 1.5 2009-07-25 01:09:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
+#include "fixedstring.h"
 
 namespace ZDomain
 {
-    mBasicExtern const char*	sKey();
-    mBasicExtern const char*	sKeyID();
-    mBasicExtern const char*	sKeyTWT();
-    mBasicExtern const char*	sKeyDepth();
-    mBasicExtern const char*	getDefault();
+    mBasicExtern FixedString	sKey();
+    mBasicExtern FixedString	sKeyID();
+    mBasicExtern FixedString	sKeyTWT();
+    mBasicExtern FixedString	sKeyDepth();
+    mBasicExtern FixedString	getDefault();
 };
 
 
