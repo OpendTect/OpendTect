@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.343 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.344 2009-07-26 04:20:57 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.343 2009-07-22 16:01:40 cvsb
 #include "uisurvey.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
+#include "uiveldesc.h"
 #include "uivispartserv.h"
 #include "uivisdatapointsetdisplaymgr.h"
 #include "uiwellpartserv.h"
@@ -71,6 +72,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.343 2009-07-22 16:01:40 cvsb
 #include "ptrman.h"
 #include "seisbuf.h"
 #include "survinfo.h"
+#include "zaxistransform.h"
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl_(a)
@@ -260,16 +262,27 @@ void uiODApplMgr::setStereoOffset()
 
 void uiODApplMgr::addTimeDepthScene()
 {
-    uiODApplMgrVelSel dlg( &appl_ );
+    uiDialog::Setup setup("Velocity model",
+		"Select velocity model to base scene on","0.4.7");
+    uiSingleGroupDlg dlg( &appl_, setup );
+    uiZAxisTransform* uitrans = SI().zIsTime() 
+	? (uiZAxisTransform*) new uiTime2Depth( &dlg )
+	: (uiZAxisTransform*) new uiDepth2Time( &dlg );
+
     if ( !dlg.go() ) return;
 
     const BufferString snm( "Converted using '",
-	    		    dlg.selName(), "'" );
-    const int sceneid = sceneMgr().addScene( false, dlg.transform(), snm );
-    if ( sceneid != -1 )
+	     	    		    uitrans->selName(), "'" );
+    RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
+    const int sceneid = sceneMgr().addScene( false, ztrans, snm);
+    if ( sceneid!=-1 )
     {
+	const float zscale = SI().zIsTime()
+	    ? SurveyInfo::defaultXYtoZScale( SurveyInfo::Meter, SI().xyUnit())
+	    : SurveyInfo::defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit());
+
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
-	scene->setZScale( dlg.zScale() );
+	scene->setZScale( zscale );
 	sceneMgr().viewAll( 0 ); sceneMgr().tile();
     }
 }
