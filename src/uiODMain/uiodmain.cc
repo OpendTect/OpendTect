@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.116 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.117 2009-07-26 04:16:26 cvskris Exp $";
 
 #include "uiodmain.h"
 
@@ -62,6 +62,7 @@ static const char* rcsID = "$Id: uiodmain.cc,v 1.116 2009-07-22 16:01:41 cvsbert
 #include "initseis.h"
 #include "initsood.h"
 #include "inituibase.h"
+#include "inituiseis.h"
 #include "inituitools.h"
 #include "inituiio.h"
 #include "inituiattributes.h"
@@ -119,6 +120,7 @@ static void initUiStdClasses()
     uiVolumeProcessing::initStdClasses();
     uiPreStackProcessing::initStdClasses();
     uiMPE::initStdClasses();
+    uiSeis::initStdClasses();
     uiVelocity::initStdClasses();
 
     SoOD::initStdClasses();
