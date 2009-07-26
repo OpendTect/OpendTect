@@ -6,17 +6,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.12 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiveldesc.h,v 1.13 2009-07-26 04:14:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissel.h"
 #include "veldesc.h"
+#include "uizaxistransform.h"
 
 class uiGenInput;
 class uiSeisSel;
 class uiStaticsDesc;
+class VelocityStretcher;
 
 /*!Group that allows the user to edit VelocityDesc information. */
 
@@ -87,6 +89,44 @@ protected:
     void			updateEditButton(CallBacker*);
     void			editCB(CallBacker*);
     uiPushButton*		editcubebutt_;
+};
+
+
+mClass uiTimeDepthBase : public uiZAxisTransform
+{
+public:
+    ZAxisTransform*		getSelection();
+    const char*			selName() const;
+protected:
+    				uiTimeDepthBase(uiParent*,bool);
+    				~uiTimeDepthBase();
+    FixedString			getZDomain() const;
+    bool			acceptOK();
+
+    VelocityStretcher*		transform_;
+    BufferString		selname_;
+    uiVelSel*			velsel_;
+    bool 			t2d_;
+};
+
+
+mClass uiTime2Depth : public uiTimeDepthBase
+{
+public:
+    static void			initClass();
+    static uiZAxisTransform*	create(uiParent*,const char*);
+
+				uiTime2Depth(uiParent*);
+};
+
+
+mClass uiDepth2Time : public uiTimeDepthBase
+{
+public:
+    static void			initClass();
+    static uiZAxisTransform*	create(uiParent*,const char*);
+
+				uiDepth2Time(uiParent*);
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.25 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.26 2009-07-26 04:14:18 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -18,12 +18,15 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.25 2009-07-22 16:01:42 cvsbert
 #include "ioman.h"
 #include "seistrctr.h"
 #include "seisselection.h"
+#include "separstr.h"
 #include "survinfo.h"
+#include "timedepthconv.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uistaticsdesc.h"
+#include "zdomain.h"
 
 
 
@@ -211,3 +214,140 @@ void uiVelSel::updateEditButton(CallBacker*)
 {
     editcubebutt_->setText( ioobj(true) ? "Edit ..." : "Create ..." );
 }
+
+uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
+    : uiZAxisTransform( p )
+    , transform_ ( 0 )
+    , t2d_( t2d )
+{
+    IOObjContext ctxt = uiVelSel::ioContext();
+    ctxt.forread = true;
+    uiSeisSel::Setup su( false, false ); su.seltxt("Velocity model");
+    velsel_ = new uiVelSel( this, ctxt, su );
+}
+
+
+uiTimeDepthBase::~uiTimeDepthBase()
+{
+    if ( transform_ ) transform_->unRef();
+}
+
+
+ZAxisTransform* uiTimeDepthBase::getSelection()
+{
+    return transform_;
+}
+
+
+const char* uiTimeDepthBase::selName() const
+{ return selname_.buf(); }
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
+bool uiTimeDepthBase::acceptOK()
+{
+    if ( transform_ ) transform_->unRef();
+        transform_ = 0;
+    
+    const IOObj* ioobj = velsel_->ioobj( false );
+    if ( !ioobj )
+	return false;
+
+    VelocityDesc desc;
+    if ( !desc.usePar( ioobj->pars() ) )
+	mErrRet("Cannot read velocity information for selected model");
+
+    BufferString zdomain = ioobj->pars().find( ZDomain::sKey() ).buf();
+    if ( zdomain.isEmpty() )
+	zdomain = SI().getZDomainString();
+
+    if ( zdomain==ZDomain::sKeyTWT() )
+    {
+	if ( desc.type_ != VelocityDesc::Interval &&
+	     desc.type_ != VelocityDesc::RMS )
+	    mErrRet("Only RMS and Interval allowed for time based models");
+    }
+    else if ( zdomain==ZDomain::sKeyDepth() )
+    {
+	if ( desc.type_ != VelocityDesc::Interval )
+	    mErrRet("Only Interval velocity allowed for time based models");
+    }
+    else
+    {
+	mErrRet( "Velocity model must be in either time or depth");
+    }
+
+    if ( t2d_ )
+    {
+	mTryAlloc( transform_, Time2DepthStretcher() );
+    }
+    else
+    {
+	mTryAlloc( transform_, Depth2TimeStretcher() );
+    }
+
+    if ( !transform_ )
+	mErrRet("Could not allocate memory");
+
+    transform_->ref();
+    if ( !transform_->setVelData( velsel_->key() ) || !transform_->isOK() )
+    {
+	FileMultiString fms("Internal: Could not initialize transform" );
+	fms += transform_->errMsg();
+	uiMSG().errorWithDetails( fms );
+	return false;
+    }
+
+    selname_ = ioobj->name();
+
+    return true;
+}
+
+
+FixedString uiTimeDepthBase::getZDomain() const
+{
+    return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTWT();
+}
+
+
+void uiTime2Depth::initClass()
+{
+    uiZAxisTransform::factory().addCreator( create,
+		    Time2DepthStretcher::sName(), "Time to depth" );
+}
+
+
+uiZAxisTransform* uiTime2Depth::create( uiParent* p, const char* fromdomain )
+{
+    if ( fromdomain!=ZDomain::sKeyTWT() )
+	return 0;
+
+    return new uiTime2Depth( p );
+}
+
+
+uiTime2Depth::uiTime2Depth( uiParent* p )
+    : uiTimeDepthBase( p, true )
+{}
+
+
+void uiDepth2Time::initClass()
+{
+    uiZAxisTransform::factory().addCreator( create,
+		    Depth2TimeStretcher::sName(), "Depth to Time" );
+}
+
+
+uiZAxisTransform* uiDepth2Time::create( uiParent* p, const char* fromdomain )
+{
+    if ( fromdomain!=ZDomain::sKeyDepth() )
+	return 0;
+
+    return new uiDepth2Time( p );
+}
+
+
+uiDepth2Time::uiDepth2Time( uiParent* p )
+    : uiTimeDepthBase( p, false )
+{}
