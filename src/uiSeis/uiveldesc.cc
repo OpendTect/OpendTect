@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.26 2009-07-26 04:14:18 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.27 2009-07-26 19:36:06 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -291,7 +291,7 @@ bool uiTimeDepthBase::acceptOK()
 	mErrRet("Could not allocate memory");
 
     transform_->ref();
-    if ( !transform_->setVelData( velsel_->key() ) || !transform_->isOK() )
+    if ( !transform_->setVelData( ioobj->key() ) || !transform_->isOK() )
     {
 	FileMultiString fms("Internal: Could not initialize transform" );
 	fms += transform_->errMsg();
