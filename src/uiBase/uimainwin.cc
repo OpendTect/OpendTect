@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.183 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.184 2009-07-27 09:32:23 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -59,7 +59,8 @@ static const QEvent::Type sQEventActShow    = (QEvent::Type) (QEvent::User+1);
 static const QEvent::Type sQEventActQDlg    = (QEvent::Type) (QEvent::User+2);
 static const QEvent::Type sQEventActGrab    = (QEvent::Type) (QEvent::User+3);
 static const QEvent::Type sQEventActCursor  = (QEvent::Type) (QEvent::User+4);
-static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+5);
+static const QEvent::Type sQEventActQtSync  = (QEvent::Type) (QEvent::User+5);
+static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+6);
 
 
 class uiMainWinBody : public uiParentBody
@@ -126,6 +127,7 @@ public:
     void		activateGrab( const char* filenm, int zoom=1,
 				      const char* format=0, int quality=-1 );
     void		activateCmdCursor(MouseCursor::Shape);
+    void		activateQtSyncDisplayToggle( uiObject* dummyobj );
 
     bool		poppedUp() const { return popped_up; }
     bool		touch()
@@ -185,6 +187,7 @@ protected:
     MouseCursor::Shape	actcursor_;
     static QCursor*	actqcursor_;
 
+    uiObject*		actqtsyncdummy_;
     int			actminnormmax_;
     int			eventrefnr_;
 
@@ -472,6 +475,11 @@ bool uiMainWinBody::event( QEvent* ev )
 	    actqcursor_ = 0;
 	}
     }
+    else if ( ev->type() == sQEventActQtSync )
+    {
+	actqtsyncdummy_->display( !actqtsyncdummy_->isDisplayed() );
+	return true;
+    }
     else if ( ev->type() == sQEventPopUpReady )
     {
 	handle_.endCmdRecEvent( eventrefnr_, "WinPopUp" );
@@ -524,6 +532,14 @@ void uiMainWinBody::activateCmdCursor( MouseCursor::Shape mcs )
     actcursor_ = mcs;
     QEvent* actgrabevent = new QEvent( sQEventActCursor );
     QApplication::postEvent( this, actgrabevent );
+}
+
+
+void uiMainWinBody::activateQtSyncDisplayToggle( uiObject* dummyobj )
+{ 
+    actqtsyncdummy_ = dummyobj;
+    QEvent* actqtsyncevent = new QEvent( sQEventActQtSync );
+    QApplication::postEvent( this, actqtsyncevent );
 }
 
 
@@ -798,6 +814,10 @@ void uiMainWin::activateCmdCursor( MouseCursor::Shape mcs )
 
 void uiMainWin::activateShow( int minnormmax )
 { body_->activateShow( minnormmax ); }
+
+
+void uiMainWin::activateQtSyncDisplayToggle( uiObject* dummyobj )
+{ body_->activateQtSyncDisplayToggle( dummyobj ); }
 
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )

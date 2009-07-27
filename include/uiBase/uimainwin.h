@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.71 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uimainwin.h,v 1.72 2009-07-27 09:32:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ public:
     void		activateGrab(const char* filenm,int zoom=1,
 				     const char* format=0,int quality=-1);
     void		activateCmdCursor(MouseCursor::Shape);
+    void		activateQtSyncDisplayToggle(uiObject* dummyobj);
 
     Notifier<uiMainWin> activatedone;
 
