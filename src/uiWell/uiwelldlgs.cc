@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.85 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.86 2009-07-27 11:51:01 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -219,7 +219,11 @@ void uiWellTrackDlg::updNow( CallBacker* )
 	track_.addPoint( newc, newc.z, dahval );
     }
     if ( track_.nrPoints() > 1 )
+    {
+	wd_.info().surfacecoord = track_.pos(0);
+	wd_.info().surfaceelev = track_.dah(0);
 	wd_.trackchanged.trigger();
+    }
     else
 	uiMSG().error( "Please define at least two points." );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.56 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.57 2009-07-27 11:51:01 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -207,6 +207,7 @@ void uiWellMan::edWellTrack( CallBacker* )
 	uiMSG().error( "Cannot write new track to disk" );
 
     wd->trackchanged.trigger();
+    mkFileInfo();
 }
 
 
