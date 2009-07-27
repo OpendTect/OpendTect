@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.123 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.124 2009-07-27 05:26:41 cvsraman Exp $";
 
 #include "vissurvscene.h"
 
@@ -206,7 +206,7 @@ bool Scene::isRightHandSystem() const
 const char* Scene::getZDomainString() const
 {
     return datatransform_ ? datatransform_->getToZDomainString()
-			  : ZDomain::getDefault();
+			  : ZDomain::getDefault().buf();
 }
 
 
