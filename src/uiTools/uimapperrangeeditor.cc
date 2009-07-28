@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.14 2009-07-28 07:46:18 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.15 2009-07-28 08:15:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
     , rangeChanged(this)
 {
     uiHistogramDisplay::Setup hsu;
+    hsu.border( uiBorder(20,20,20,40) );
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
     histogramdisp_->getMouseEventHandler().buttonPressed.notify(
 	    		     mCB(this,uiMapperRangeEditor,mousePressed) );
@@ -68,6 +69,7 @@ bool uiMapperRangeEditor::setDataPackID( DataPack::ID dpid,
     const bool nodata = histogramdisp_->xVals().isEmpty();
     datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
     datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    if ( retval ) drawAgain();
     return retval;
 }
 
@@ -85,12 +87,14 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
     ctmapper_->type_ = ColTab::MapperSetup::Fixed;
     cliprg_.start = ctmapper_->start_;
     cliprg_.stop = ctmapper_->start_ + ctmapper_->width_;
+    drawAgain();
 }
 
 
 void uiMapperRangeEditor::setColTabSeq( const ColTab::Sequence& cseq )
 { 
     *ctseq_ = cseq;
+    drawAgain();
 }
 
 

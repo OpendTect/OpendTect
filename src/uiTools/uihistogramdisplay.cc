@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.17 2009-07-28 07:46:18 cvsnanne Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.18 2009-07-28 08:15:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 
 void uiHistogramDisplay::setData( const Array2D<float>* array )
 {
+    rc_.clear();
     if ( !array ) return;
 
     if ( array->getData() )
@@ -130,6 +131,7 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 
 void uiHistogramDisplay::setData( const float* array, int sz )
 {
+    rc_.clear();
     if ( !array ) return;
 
     for ( int idx=0; idx<sz; idx++ )

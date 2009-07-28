@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.426 2009-07-24 06:44:20 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.427 2009-07-28 08:15:20 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -600,7 +600,12 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
 	return false;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    return so->setDataPackID( attrib, dpid, 0 );
+    const bool res = so->setDataPackID( attrib, dpid, 0 );
+
+    if ( res && multirgeditwin_ && (id == mapperrgeditordisplayid_) )
+	multirgeditwin_->setDataPackID( attrib, dpid );
+
+    return res;
 }
 
 
