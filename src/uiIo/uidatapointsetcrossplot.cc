@@ -4,11 +4,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.46 2009-07-22 16:01:40 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.47 2009-07-28 07:13:31 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.46 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.47 2009-07-28 07:13:31 cvsraman Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -205,6 +205,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 
     setStretch( 2, 2 );
     setDragMode( uiGraphicsView::ScrollHandDrag );
+    scene().setMouseEventActive( true );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 }
@@ -427,7 +428,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
     if ( !selectable_ || !selareaset_.validIdx(curselarea_) )
 	return;
 
-    if ( !isCtrlPressed() && selareaset_.size()>1 )
+    if ( !getMouseEventHandler().event().ctrlStatus() && selareaset_.size()>1 )
     {
 	SelectionArea* curselarea = selareaset_[curselarea_];
 	selareaset_ -= curselarea;
@@ -1157,6 +1158,7 @@ void uiDataPointSetCrossPlotWin::setSelectionMode( CallBacker* )
     plotter_.setDragMode( plotter_.isRectSelection() ?
 	    			uiGraphicsView::RubberBandDrag :
 	    			uiGraphicsView::NoDrag );
+    plotter_.scene().setMouseEventActive( true );
 }
 
 
@@ -1343,6 +1345,7 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 				    ? uiGraphicsView::RubberBandDrag
 				    : uiGraphicsView::NoDrag )
 				: uiGraphicsView::ScrollHandDrag );
+    plotter_.scene().setMouseEventActive( true );
 }
 
 
