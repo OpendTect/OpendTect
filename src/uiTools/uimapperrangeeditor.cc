@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.13 2009-07-22 16:01:42 cvsbert Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.14 2009-07-28 07:46:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,11 +49,13 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
 }
 
 
+#define mRmItm( itm ) delete histogramdisp_->scene().removeItem( itm )
+
 uiMapperRangeEditor::~uiMapperRangeEditor()
 {
-    delete minline_; delete maxline_;
-    delete leftcoltab_; delete centercoltab_; delete rightcoltab_;
-    delete minvaltext_; delete maxvaltext_;
+    mRmItm( minline_ ); mRmItm( maxline_ );
+    mRmItm( leftcoltab_ ); mRmItm( centercoltab_ ); mRmItm( rightcoltab_ );
+    mRmItm( minvaltext_ ); mRmItm( maxvaltext_ );
     delete ctseq_;
     delete ctmapper_;
 }
@@ -112,12 +114,12 @@ void uiMapperRangeEditor::init()
     minline_ = scene.addItem( new uiLineItem() );
     minline_->setPenStyle( ls );
     minline_->setCursor( cursor );
-    minline_->setZValue( zval );
+    minline_->setZValue( zval+2 );
 
     maxline_ = scene.addItem( new uiLineItem() );
     maxline_->setPenStyle( ls );
     maxline_->setCursor( cursor );
-    maxline_->setZValue( zval );
+    maxline_->setZValue( zval+2 );
 }
 
 

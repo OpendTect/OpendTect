@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.16 2009-07-22 16:01:42 cvsbert Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.17 2009-07-28 07:46:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,8 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
 uiHistogramDisplay::~uiHistogramDisplay()
 { 
     delete &rc_; 
-    delete header_;
+    delete scene().removeItem( header_ );
+    delete scene().removeItem( nitm_ );
 }
 
 
@@ -85,9 +86,14 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 
     if ( withheader_ )
     {
-	header_ = scene().addItem(
-		new uiTextItem(uiPoint(width()/2,0),dpman.nameOf(dpid)) );
-	header_->setZValue( 2 );
+	if ( !header_ )
+	{
+	    const uiPoint pt( width()/2, 0 );
+	    header_ = scene().addItem( new uiTextItem(pt,dpman.nameOf(dpid)) );
+	    header_->setZValue( 2 );
+	}
+	else
+	    header_->setText( dpman.nameOf(dpid) );
     }
 
     dpman.release( dpid );
@@ -182,6 +188,11 @@ void uiHistogramDisplay::putN()
     if ( nrinpvals_ < 1 || nitm_ ) return;
 
     BufferString str = "N="; str += nrinpvals_;
-    nitm_ = scene().addItem( new uiTextItem(uiPoint(width()/2,0),str) );
-    nitm_->setPenColor( Color::Black() );
+    if ( !nitm_ )
+    {
+	nitm_ = scene().addItem( new uiTextItem(uiPoint(width()/2,0),str) );
+	nitm_->setPenColor( Color::Black() );
+    }
+    else
+	nitm_->setText( str );
 }
