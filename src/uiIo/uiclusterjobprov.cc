@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.5 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.6 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -74,8 +74,8 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
     parfilefld_ = new uiFileInput( this, "Par file",
-	    	uiFileInput::Setup(parfnm).forread(false).filter("*.par;;")
-					  .confirmoverwrite(false) );
+	    	uiFileInput::Setup(uiFileDialog::Gen,parfnm)
+		.forread(false).filter("*.par;;").confirmoverwrite(false) );
     parfilefld_->attach( alignedBelow, nrjobsfld_ );
 
     tmpstordirfld_ = new uiFileInput( this, "Temporary storage directory",

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.86 2009-07-27 11:51:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.87 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -477,8 +477,8 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     , wd(wd_)
 {
     lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
-			      uiFileInput::Setup().filter(lasfileflt)
-			      			  .withexamine(true) );
+			      uiFileInput::Setup(uiFileDialog::Gen)
+			      .filter(lasfileflt).withexamine(true) );
     lasfld->setDefaultSelectionDir( GetDataDir() );
     lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );
 
@@ -616,7 +616,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_,
     zunitgrp->selectButton( zinft );
 
     outfld = new uiFileInput( this, "Output file",
-	   			uiFileInput::Setup().forread(false) );
+			      uiFileInput::Setup().forread(false) );
     outfld->setDefaultSelectionDir(
 			IOObjContext::getDataDirName(IOObjContext::WllInf) );
     outfld->attach( alignedBelow, zunitgrp );

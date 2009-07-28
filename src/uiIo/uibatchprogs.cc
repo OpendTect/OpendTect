@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.39 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.40 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -208,8 +208,8 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 		    filt = "Parameter files (*.par)";
 		bool forread = bpp.type == BatchProgPar::FileRead;
 		uiFileInput* fi = new uiFileInput( this, txt,
-			uiFileInput::Setup().forread(forread)
-					    .filter(filt.buf()) );
+			uiFileInput::Setup(uiFileDialog::Gen)
+			.forread(forread).filter(filt.buf()) );
 		newinp = fi;
 		fi->setDefaultSelectionDir( startdir );
 	    }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.35 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.36 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "uiimpfault.h"
 
@@ -82,8 +82,8 @@ void uiImportFault::createUI()
 	typefld_->attach( alignedBelow, infld_ );
 
 	formatfld_ = new uiFileInput( this, "Input Landmark formatfile",
-				      uiFileInput::Setup().
-				      		   filter("*.fault_fmt") );
+				      uiFileInput::Setup(uiFileDialog::Gen)
+				      .filter("*.fault_fmt") );
 	formatfld_->setDefaultSelectionDir(
 		    IOObjContext::getDataDirName(IOObjContext::Surf) );
 	formatfld_->attach( alignedBelow, typefld_ );

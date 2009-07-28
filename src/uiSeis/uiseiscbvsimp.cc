@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.53 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.54 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -80,7 +80,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     {
 	BufferString seldir = IOObjContext::getDataDirName(IOObjContext::Seis);
 	finpfld = new uiFileInput( this, "(First) CBVS file name",
-	       			   uiFileInput::Setup()
+	       			   uiFileInput::Setup(uiFileDialog::Gen)
 				   .filter("CBVS (*.cbvs)") );
 	finpfld->setDefaultSelectionDir( seldir );
 	finpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,finpSel) );
@@ -120,8 +120,8 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	convertfld->attach( ensureBelow, transffld );
 	convertfld->attach( leftAlignedAbove, outfld );
     }
-    else
-	outfld->attach( alignedBelow, transffld );
+
+    outfld->attach( alignedBelow, transffld );
 }
 
 

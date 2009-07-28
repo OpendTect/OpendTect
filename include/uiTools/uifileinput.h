@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.29 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uifileinput.h,v 1.30 2009-07-28 07:15:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
 			    , confirmoverwrite_(true)
 			    , filedlgtype_(uiFileDialog::Txt)
 			    {}
+
 			Setup(uiFileDialog::Type t,const char* filenm=0)
 			    : fnm(filenm)
 			    , forread_(true)
@@ -53,6 +54,8 @@ public:
 			    , examinetablestyle_(false)
 			    , confirmoverwrite_(true)
 			    , filedlgtype_(t)
+			    , directories_(false)
+			    , allowallextensions_(true)
 			    {}
 
 	BufferString	fnm;

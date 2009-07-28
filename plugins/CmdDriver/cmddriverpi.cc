@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.28 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.29 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -86,7 +86,8 @@ uiCmdDriverInps( uiParent* p, CmdDriver& d )
 			    " to execute","0.4.6"))
 	, drv_(d)
 {
-    fnmfld = new uiFileInput( this, "Command file", uiFileInput::Setup(lastinp_)
+    fnmfld = new uiFileInput( this, "Command file",
+	    		      uiFileInput::Setup(uiFileDialog::Gen,lastinp_)
 				.filter("*.cmd")
 				.forread(true)
 				.withexamine(true) );
@@ -149,10 +150,10 @@ uiCmdRecordInps( uiParent* p, CmdRecorder& cmdrec )
 	, rec_(cmdrec)
 {
     outfld_ = new uiFileInput( this, "Output command file",
-			       uiFileInput::Setup(lastoutput_)
-				    .filter("*.cmd")
-				    .forread(false)
-				    .confirmoverwrite(false) );
+			       uiFileInput::Setup(uiFileDialog::Gen,lastoutput_)
+				.filter("*.cmd")
+				.forread(false)
+				.confirmoverwrite(false) );
     outfld_->setDefaultSelectionDir( GetScriptsDir(0) );
 }
 

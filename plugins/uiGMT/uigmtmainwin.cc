@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.18 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.19 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -108,9 +108,8 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     flowgrp_->setHAlignObj( flowfld_ );
     BufferString defseldir = FilePath(GetDataDir()).add("Misc").fullPath();
     filefld_ = new uiFileInput( uppgrp_, "Select output file",
-	    			uiFileInput::Setup().forread(false)
-						    .filter("*.ps")
-	   					    .defseldir(defseldir) );
+			uiFileInput::Setup(uiFileDialog::Gen)
+			.forread(false).filter("*.ps").defseldir(defseldir) );
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
 

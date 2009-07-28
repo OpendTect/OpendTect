@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.26 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.27 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -54,7 +54,8 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     disptxt += " SEG-Y file";
     if ( canbemulti ) disptxt += "(s)";
     fnmfld_ = new uiFileInput( this, disptxt,
-		uiFileInput::Setup().forread(forread_).filter(sgyfileflt) );
+		uiFileInput::Setup(uiFileDialog::Gen)
+		.forread(forread_).filter(sgyfileflt) );
     fnmfld_->setDefaultSelectionDir( GetDataDir() );
 
     if ( canbemulti )

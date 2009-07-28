@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.79 2009-07-22 19:22:53 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.80 2009-07-28 07:15:30 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -107,7 +107,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 	fname += ".txt";
     }
     filefld_ = new uiFileInput( this, "Log file",
-	   		       uiFileInput::Setup(fname)
+	   		       uiFileInput::Setup(uiFileDialog::Gen,fname)
 				.forread(false)
 	   			.filter("*.log;;*.txt") );
     filefld_->attach( alignedBelow, optfld_ );
