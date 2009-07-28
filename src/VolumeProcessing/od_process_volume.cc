@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.17 2009-07-23 02:07:04 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.18 2009-07-28 07:10:38 cvsranojay Exp $";
 
 #include "batchprog.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: od_process_volume.cc,v 1.17 2009-07-23 02:07:04
 #include "initearthmodel.h"
 #include "initvolumeprocessing.h"
 #include "initvelocity.h"
+#include "arrayndimpl.h"
 
 bool BatchProgram::go( std::ostream& strm )
 { 
