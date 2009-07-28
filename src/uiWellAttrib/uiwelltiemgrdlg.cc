@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.12 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.13 2009-07-28 10:09:17 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -88,7 +88,7 @@ uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
 
 uiWellTieMGRDlg::~uiWellTieMGRDlg()
 {
-    deepErase( welltiedlgsetcpy_ );
+    deepErase( welltiedlgset_ );
 }
 
 
@@ -206,7 +206,6 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
     }
 
     welltiedlgset_ += new uiWellTieToSeismicDlg(this, wtsetup_, attrset_ );
-    welltiedlgsetcpy_ += welltiedlgset_[welltiedlgset_.size()-1];
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
 	    			mCB(this,uiWellTieMGRDlg,wellTieDlgClosed) );
     return false;

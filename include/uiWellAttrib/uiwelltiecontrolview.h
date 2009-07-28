@@ -39,12 +39,15 @@ protected:
     uiToolButton*	manipdrawbut_;
     
     WellTiePickSetMGR*  picksetmgr_;
+    
+    bool 		checkIfInside(double,double);
+    void 		finalPrepare();
+    bool 		handleUserClick();
    
     void 		altZoomCB(CallBacker*);
-    bool 		checkIfInside(double,double);
-    bool 		handleUserClick();
+    void 		editKeyPressCB(CallBacker*);
     void		rubBandCB(CallBacker*);
-    void 		stateCB(CallBacker*);
+    void 		wheelMoveCB(CallBacker*);
 
 };
 

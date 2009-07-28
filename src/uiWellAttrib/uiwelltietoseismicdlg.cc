@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.40 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.41 2009-07-28 10:09:17 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -62,7 +62,8 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 					      const WellTieSetup& wts,
 					      const Attrib::DescSet& ads )
 	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
-						.deleteonclose(false))
+						.withhanddrag(true)
+						.deleteonclose(true))
     	, setup_(WellTieSetup(wts))
 	, wd_(Well::MGR().get(wts.wellid_))
 	, dataplayer_(0)
@@ -100,7 +101,6 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 
 uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
 {
-    clearPicks(0);
     if ( eventstretcher_ )
     {
 	eventstretcher_->timeChanged.remove(
@@ -146,6 +146,7 @@ void uiWellTieToSeismicDlg::initAll()
     dataholder_->pickmgr()->setDataParams( dataholder_->dpms() );
     dataholder_->pickmgr()->setData( dataholder_->dispData() );
     show();
+    dispPropChg(0);
     displayUserMsg();
 }
 

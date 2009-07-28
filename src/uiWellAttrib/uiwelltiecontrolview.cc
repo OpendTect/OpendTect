@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.18 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.19 2009-07-28 10:09:17 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
 #include "flatviewzoommgr.h"
+#include "keyboardevent.h"
 #include "mouseevent.h"
 #include "pixmap.h"
 #include "welltiepickset.h"
@@ -37,7 +38,6 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.18 2009-07-22 16:01
 uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
        					    uiFlatViewer* vwr)
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
-	   						.withstates(false)
 	    						.withcoltabed(false))
     , toolbar_(toolbar)
     , manip_(true)
@@ -47,34 +47,48 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
 	mw->removeToolBar( tb_ );
     else
 	tb_->display(false);
-
     toolbar_->addSeparator();
     toolbar_->addObject( vwr_.rgbCanvas().getSaveImageButton() );
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
     mDefBut(zoominbut_,"zoomforward.png",altZoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",altZoomCB,"Zoom out");
-    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode");
+    mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
+    mDefBut(editbut_,"seedpickmode.png",editCB,"Pick mode (P)");
+
+    vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
+	                    mCB(this,uiWellTieControlView,editKeyPressCB) );
+    editbut_->setToggleButton( true );
     toolbar_->addSeparator();
 
     vwr_.setRubberBandingOn( !manip_ );
 }
 
 
+void uiWellTieControlView::finalPrepare()
+{
+    updatePosButtonStates();
+    MouseEventHandler& mevh =
+	vwr_.rgbCanvas().getNavigationMouseEventHandler();
+    mevh.wheelMove.notify( mCB(this,uiWellTieControlView,wheelMoveCB) );
+    mevh.buttonPressed.notify(
+	mCB(this,uiWellTieControlView,handDragStarted));
+    mevh.buttonReleased.notify(
+	mCB(this,uiWellTieControlView,handDragged));
+    mevh.movement.notify( mCB(this,uiWellTieControlView,handDragging));
+}
+
+
 bool uiWellTieControlView::handleUserClick()
 {
     const MouseEvent& ev = mouseEventHandler(0).event();
-    uiWorld2Ui w2u;
-    vwr_.getWorld2Ui(w2u);
+    uiWorld2Ui w2u; vwr_.getWorld2Ui(w2u);
     const uiWorldPoint wp = w2u.transform( ev.pos() );
-    vwr_.getAuxInfo( wp, infopars_ );
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() 
-	    && !ev.altStatus() && checkIfInside(wp.x,wp.y)  )
+	&& !ev.altStatus() && checkIfInside(wp.x,wp.y) && editbut_->isOn()  )
     {
-	Interval<float> xvwrsize; 
-	xvwrsize.set( (float)(vwr_.boundingBox().left()),
-		      (float)(vwr_.boundingBox().right()) );
-	picksetmgr_->addPick( xvwrsize.start, xvwrsize.stop, wp.x, wp.y );
-
+	vwr_.getAuxInfo( wp, infopars_ );
+	const uiWorldRect& bbox = vwr_.boundingBox();
+	picksetmgr_->addPick( bbox.left(), bbox.right(), wp.x, wp.y );
 	return true;
     }
     return false;
@@ -83,12 +97,10 @@ bool uiWellTieControlView::handleUserClick()
 
 bool uiWellTieControlView::checkIfInside( double xpos, double zpos )
 {
-    const double sizxleft  = vwr_.boundingBox().left();
-    const double sizxright = vwr_.boundingBox().right();
-    const double sizztop   = vwr_.boundingBox().top();
-    const double sizzbot   = vwr_.boundingBox().bottom();
-    if ( xpos < sizxleft || xpos > sizxright 
-	    || zpos > sizztop || zpos < sizzbot )
+    const uiWorldRect& bbox = vwr_.boundingBox();
+    const Interval<double> xrg( bbox.left(), bbox.right() ),
+			   zrg( bbox.bottom(), bbox.top() );
+    if ( !xrg.includes( xpos, false ) || !zrg.includes( zpos, false ) ) 
 	mErrRet("Please select your pick inside the work area");
     return true;
 }
@@ -103,47 +115,48 @@ void uiWellTieControlView::rubBandCB( CallBacker* cb )
 void uiWellTieControlView::altZoomCB( CallBacker* but )
 {
     const bool zoomin = but == zoominbut_;
-    const uiWorldRect bbox = vwr_.boundingBox();
+    const uiWorldRect& bbox = vwr_.boundingBox();
+    const Interval<double> xrg( bbox.left(), bbox.right());
     if ( but == zoominbut_ )
-    {
 	zoommgr_.forward();
-	Geom::Size2D<double> size = zoommgr_.current();
-	size.setWidth( bbox.left()- bbox.right() );
-	vwr_.setView( getZoomOrPanRect( vwr_.curView().centre(),size, bbox ) );
-    }
     else
     {
-	if ( zoommgr_.atStart() )
-	return;
+	if ( zoommgr_.atStart() ) return;
 	zoommgr_.back();
-	Geom::Size2D<double> size = zoommgr_.current();
-	size.setWidth( bbox.left()- bbox.right() );
-	vwr_.setView( getZoomOrPanRect( vwr_.curView().centre(),size, bbox ) );
     }
+    Geom::Size2D<double> size = zoommgr_.current();
+    size.setWidth ( xrg.stop - xrg.start );
+    uiWorldRect wr = vwr_.curView();
+    uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
+    wr.setLeftRight( xrg );
+    vwr_.setView( getZoomOrPanRect( wr.centre(), size, bbox ) );
 }
 
 
-void uiWellTieControlView::stateCB( CallBacker* )
+void uiWellTieControlView::wheelMoveCB( CallBacker* )
 {
-    if ( !manipdrawbut_ ) return;
-    if ( manip_ ) 
-	manip_ = 0;
-    else
-	manip_ = 1;
-    manipdrawbut_->setPixmap( manip_ ? "altpick.png" :"altview.png" );
-    vwr_.setRubberBandingOn( !manip_ );
-    MouseCursor cursor;
-    if ( manip_ )
-	cursor.shape_ = MouseCursor::Arrow;
-    else
-    {
-	cursor.shape_ = MouseCursor::Bitmap;
-	cursor.filename_ = "zoomforward.png";
-	cursor.hotx_ = 8;
-	cursor.hoty_ = 6;
-    }
+    if ( !vwr_.rgbCanvas().
+	getNavigationMouseEventHandler().hasEvent() )
+	return;
 
-    vwr_.setCursor( cursor );
+    const MouseEvent& ev =
+	vwr_.rgbCanvas().getNavigationMouseEventHandler().event();
+    if ( mIsZero(ev.angle(),0.01) )
+	return;
+
+    altZoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
+}
+
+
+void uiWellTieControlView::editKeyPressCB( CallBacker* )
+{
+    const KeyboardEvent& ev =
+	vwr_.rgbCanvas().getKeyboardEventHandler().event();
+    if ( ev.key_ == OD::P )
+    {
+	editbut_->setOn( !editbut_->isOn() );
+	editCB( 0 );
+    }
 }
 
 
@@ -173,7 +186,45 @@ void uiWellTieControlView::setSelView( bool isnewsel )
 }
 
 
+/*
+void uiWellTieControlView::stateCB( CallBacker* )
+{
+    if ( !manipdrawbut_ ) return;
+    if ( manip_ ) 
+	manip_ = 0;
+    else
+	manip_ = 1;
+    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+    vwr_.setRubberBandingOn( !manip_ );
+    vwr_.rgbCanvas().setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
+					  : uiGraphicsViewBase::ScrollHandDrag);
+    if ( editbut_ )
+	editbut_->setOn( false );
+    MouseCursor cursor;
+    if ( manip_ )
+	cursor.shape_ = MouseCursor::Arrow;
+    else
+    {
+	cursor.shape_ = MouseCursor::Bitmap;
+	cursor.filename_ = "zoomforward.png";
+	cursor.hotx_ = 8;
+	cursor.hoty_ = 6;
+    }
+    vwr_.setCursor( cursor );
+}
 
 
+void uiFlatViewStdControl::editCB( CallBacker* )
+{
+    uiGraphicsViewBase::ODDragMode mode;
+    if ( editbut_->isOn() )
+	mode = uiGraphicsViewBase::NoDrag;
+    else
+	mode = manip_ ? uiGraphicsViewBase::ScrollHandDrag
+					  : uiGraphicsViewBase::RubberBandDrag;
+
+    vwr_.rgbCanvas().setDragMode( mode );
+}
+*/
 
 

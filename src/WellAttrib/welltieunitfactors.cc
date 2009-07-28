@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.18 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.19 2009-07-28 10:09:17 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -173,15 +173,18 @@ bool WellTieParams::DataParams::resetDataParams()
 bool WellTieParams::DataParams::setTimes( StepInterval<double>& timeintv, 
 			      float startdah, float stopdah )
 {
-    timeintv.start = wd_.d2TModel()->getTime( startdah );
-    timeintv.stop  = wd_.d2TModel()->getTime( stopdah );
+    const Well::D2TModel* d2t = wd_.d2TModel();
+    if ( !d2t ) return false;
+
+    timeintv.start = d2t->getTime( startdah );
+    timeintv.stop  = d2t->getTime( stopdah );
     timeintv.step  = mComputeStepFactor;
 
     if ( timeintv.step < 1e-6 )
 	return false;
 
     if ( timeintv.start > timeintv.stop )
-	return false;
+	timeintv.reverse;
     return true;
 }
 
