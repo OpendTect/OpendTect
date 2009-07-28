@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.72 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.73 2009-07-28 09:00:19 cvsnageswara Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -31,7 +31,6 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.72 2009-07-22 16:01:34 cvsber
 #include <iostream>
 #include <sstream>
 
-
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 {
     static ObjectSet<Seis2DLineIOProvider>* theinst = 0;
@@ -54,6 +53,21 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
     nms.erase();
 
     return File_remove( fnm, mFile_NotRecursive );
+}
+
+
+bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
+					const CallBack* cb ) const
+{
+    if ( !ioobj )
+	return false;
+
+    bool res = Translator::implRename( ioobj, newnm, cb );
+    if ( !res ) 
+	return false;
+
+    Seis2DLineSet ls( *ioobj );
+    return ls.rename( ioobj->name() );
 }
 
 
@@ -559,6 +573,18 @@ bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
     }
 
     writeFile();
+    return true;
+}
+
+
+bool Seis2DLineSet::rename( const char* lsnm )
+{
+    if ( !lsnm )
+	return false;
+
+    setName( lsnm );
+    writeFile();
+
     return true;
 }
 

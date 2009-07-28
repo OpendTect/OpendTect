@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.44 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.45 2009-07-28 09:00:19 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,8 @@ public:
     				//!< if lnm == null, add attrib to all lines
     				//!< will commit to file
 
+    bool		rename(const char* lsnm);
+    				//!< Renames LineSet
     bool		rename(const char* lk,const char* newlk);
     				//!< Fails if new line key exists
     				//!< or if LineSet is currently being written
@@ -200,6 +202,9 @@ mClass TwoDSeisTrcTranslator : public SeisTrcTranslator
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
     bool		isReadDefault() const		{ return true; }
+
+    bool		implRename( const IOObj*,const char*,
+	    			    const CallBack* cb=0) const;
 
 };
 
