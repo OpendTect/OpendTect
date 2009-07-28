@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.29 2009-07-23 09:47:24 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.30 2009-07-28 09:16:02 cvshelene Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -455,7 +455,8 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms, LineKey lk ) const
 void SeisIOObjInfo::getCompNames( const LineKey& lk, BufferStringSet& nms )
 {
     SeisIOObjInfo ioobjinf( MultiID(lk.lineName()) );
-    ioobjinf.getComponentNames( nms, LineKey("",lk.attrName()) );
+    LineKey tmplk( "",lk.attrName(), true );
+    ioobjinf.getComponentNames( nms, tmplk );
 }
 
 
@@ -489,43 +490,40 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 	if ( lset->nrLines() == 0 )
 	    return 0;
 	int lidx = 0;
-	if ( !lk.isEmpty() )
+	const bool haveline = !lk.lineName().isEmpty();
+	const BufferString attrnm( lk.attrName() );
+	if ( haveline )
+	    lidx = lset->indexOf( lk );
+	else
 	{
-	    const bool haveline = !lk.lineName().isEmpty();
-	    const BufferString attrnm( lk.attrName() );
-	    if ( haveline )
-		lidx = lset->indexOf( lk );
+	    for ( int idx=0; idx<lset->nrLines(); idx++ )
+		if ( attrnm == lset->attribute(idx) )
+		    { lidx = idx; break; }
+	}
+	if ( lidx < 0 ) lidx = 0;
+	SeisTrcBuf tbuf( true );
+	Executor* ex = lset->lineFetcher( lidx, tbuf, 1 );
+	ex->doStep();
+	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
+	if ( nms )
+	{
+	    mDynamicCastGet(SeisCBVS2DLineGetter*,lg,ex)
+	    if ( !lg )
+	    {
+		for ( int icomp=0; icomp<ret; icomp++ )
+		    nms->add( BufferString("[",icomp+1,"]") );
+	    }
 	    else
 	    {
-		for ( int idx=0; idx<lset->nrLines(); idx++ )
-		    if ( attrnm == lset->attribute(idx) )
-			{ lidx = idx; break; }
-	    }
-	    if ( lidx < 0 ) lidx = 0;
-	    SeisTrcBuf tbuf( true );
-	    Executor* ex = lset->lineFetcher( lidx, tbuf, 1 );
-	    ex->doStep();
-	    ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
-	    if ( nms )
-	    {
-		mDynamicCastGet(SeisCBVS2DLineGetter*,lg,ex)
-		if ( !lg )
+		ret = lg->tr->componentInfo().size();
+		if ( nms )
 		{
 		    for ( int icomp=0; icomp<ret; icomp++ )
-			nms->add( BufferString("[",icomp+1,"]") );
-		}
-		else
-		{
-		    ret = lg->tr->componentInfo().size();
-		    if ( nms )
-		    {
-			for ( int icomp=0; icomp<ret; icomp++ )
-			    nms->add( lg->tr->componentInfo()[icomp]->name() );
-		    }
+			nms->add( lg->tr->componentInfo()[icomp]->name() );
 		}
 	    }
-	    delete ex;
 	}
+	delete ex;
     }
 
     return ret;
