@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.15 2009-07-23 12:57:01 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.16 2009-07-28 07:09:41 cvsranojay Exp $";
 
 
 #include "attribsetcreator.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: attribsetcreator.cc,v 1.15 2009-07-23 12:57:01 
 #include "iopar.h"
 
 using namespace Attrib;
-MultiID AttributeSetCreator::storhint_;
+MultiID storhint_;
 
 
 class uiSelExternalAttrInps : public uiDialog
@@ -362,3 +362,7 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     attrset->addDesc( desc );
     return desc;
 }
+
+
+void AttributeSetCreator::setStorageHint( const MultiID& m )
+{ storhint_ = m; }

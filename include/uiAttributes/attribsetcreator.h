@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.h,v 1.4 2009-07-23 12:33:59 cvsbert Exp $
+ RCS:           $Id: attribsetcreator.h,v 1.5 2009-07-28 07:09:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ public:
 					    Attrib::DescSet*);
 
     bool		create();
-    static void		setStorageHint( const MultiID& m ) { storhint_ = m; }
+    static void		setStorageHint( const MultiID& m );
 
 protected:
 
@@ -35,5 +35,4 @@ protected:
     BufferStringSet	indirects;
     BufferStringSet	directs;
 
-    static MultiID	storhint_;
 };
