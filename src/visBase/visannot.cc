@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.28 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.29 2009-07-29 19:23:57 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -55,35 +55,33 @@ Annotation::Annotation()
     coords->point.setValues( 0, 8, pos );
 
     SoIndexedLineSet* line = new SoIndexedLineSet;
-    int indexes[] = { 0, 1, 2, 3, 0 };
-    line->coordIndex.setValues( 0, 5, indexes );
     addChild( line );
+    line->setName( "Survey box" );
 
-    line = new SoIndexedLineSet;
+    int coordidx = 0;
+    int indexes[] = { 0, 1, 2, 3, 0, -1 };
+    line->coordIndex.setValues( coordidx, 6, indexes );
+    coordidx += 6;
+
     indexes[0] = 4; indexes[1] = 5; indexes[2] = 6; indexes[3] = 7;
     indexes[4] = 4;
-    line->coordIndex.setValues( 0, 5, indexes );
-    addChild( line );
+    line->coordIndex.setValues( coordidx, 6, indexes );
+    coordidx += 6;
 
-    line = new SoIndexedLineSet;
-    indexes[0] = 0; indexes[1] = 4;
-    line->coordIndex.setValues( 0, 2, indexes );
-    addChild( line );
+    indexes[0] = 0; indexes[1] = 4; indexes[2] = -1;
+    line->coordIndex.setValues( coordidx, 3, indexes );
+    coordidx += 3;
     
-    line = new SoIndexedLineSet;
     indexes[0] = 1; indexes[1] = 5;
-    line->coordIndex.setValues( 0, 2, indexes );
-    addChild( line );
+    line->coordIndex.setValues( coordidx, 3, indexes );
+    coordidx += 3;
     
-    line = new SoIndexedLineSet;
     indexes[0] = 2; indexes[1] = 6;
-    line->coordIndex.setValues( 0, 2, indexes );
-    addChild( line );
+    line->coordIndex.setValues( coordidx, 3, indexes );
+    coordidx += 3;
     
-    line = new SoIndexedLineSet;
     indexes[0] = 3; indexes[1] = 7;
-    line->coordIndex.setValues( 0, 2, indexes );
-    addChild( line );
+    line->coordIndex.setValues( coordidx, 3, indexes );
 
     addChild( textswitch );
     texts = DataObjectGroup::create();
