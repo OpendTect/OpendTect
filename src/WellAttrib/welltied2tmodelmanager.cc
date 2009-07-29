@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.8 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.9 2009-07-29 10:18:30 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -43,7 +43,7 @@ WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data* d,
 	emptyoninit_ = true;
 	wd_->setD2TModel( new Well::D2TModel );
     }
-    orgd2t_ = new Well::D2TModel( *wd_->d2TModel() );
+    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd_->d2TModel() );
 
     if ( wd_->checkShotModel() || wd_->d2TModel()->size()<=2 )
 	setFromVelLog( params_->dpms_.currvellognm_ );
@@ -53,7 +53,7 @@ WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data* d,
 WellTieD2TModelMGR::~WellTieD2TModelMGR()
 {
     if ( prvd2t_ ) delete prvd2t_;
-    if ( orgd2t_ ) delete orgd2t_;
+    if ( orgd2t_ && !emptyoninit_ ) delete orgd2t_;
 }
 
 
