@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.165 2009-07-24 06:44:20 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.166 2009-07-29 06:27:33 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -540,7 +540,7 @@ void uiMPEMan::updateAttribNames()
 
     updateSelectedAttrib();
     attribSel(0);
-    updateButtonSensitivity(0);
+    updateButtonSensitivity();
 }
 
 
@@ -604,6 +604,9 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
     if ( yn )
     {
+	toolbar->turnOn( polyselectidx, false );
+	selectionMode(0);
+
 	visserv->setViewMode(false);
 	toolbar->turnOn( showcubeidx, false );
 	showCubeCB(0);
@@ -1022,6 +1025,8 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     toolbar->setSensitive( trackinvolidx, !is2d && isinvolumemode );
     toolbar->setSensitive( trackwithseedonlyidx, !is2d && isinvolumemode );
     toolbar->setSensitive( displayatsectionidx, !is2d && isinvolumemode );
+
+    toolbar->setSensitive( removeinpolygon, toolbar->isOn(polyselectidx) );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
@@ -1211,6 +1216,7 @@ void uiMPEMan::selectionMode( CallBacker* cb )
 						 : uiVisPartServer::Rectangle );
 	visserv->turnSeedPickingOn( false );
     }
+    updateButtonSensitivity(0);
 }
 
 
