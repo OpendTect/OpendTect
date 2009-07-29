@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.60 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.61 2009-07-29 21:47:34 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -405,12 +405,18 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &enabletrackingmnuitem_ );
     }
 
+    const bool istransformedandshifted = hastransform &&
+		!mIsZero(visserv_->getTranslation(displayID()).z, 1e-5);
+
+
+
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) && 
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
+		  !istransformedandshifted &&
 		  !applMgr()->EMServer()->isShifted(emid_), false );
 
-    mAddMenuItem( menu, &saveasmnuitem_, true, false );
+    mAddMenuItem( menu, &saveasmnuitem_, !istransformedandshifted, false );
 #ifdef __debug__
     mAddMenuItem( menu, &reloadmnuitem_, true, false );
 #else
