@@ -27,6 +27,7 @@ public:
 			    		     uiFlatViewer*);
 			~uiWellTieControlView(){};
    
+    void 		setEditOn(bool);
     void		setPickSetMGR(WellTiePickSetMGR* pmgr)
     			{ picksetmgr_ = pmgr; }
     void		setSelView(bool isnewsel = true );
@@ -45,7 +46,7 @@ protected:
     bool 		handleUserClick();
    
     void 		altZoomCB(CallBacker*);
-    void 		editKeyPressCB(CallBacker*);
+    void 		keyPressCB(CallBacker*);
     void		rubBandCB(CallBacker*);
     void 		wheelMoveCB(CallBacker*);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.20 2009-07-28 10:11:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.21 2009-07-29 10:05:49 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -179,12 +179,11 @@ bool WellTieParams::DataParams::setTimes( StepInterval<double>& timeintv,
     timeintv.start = d2t->getTime( startdah );
     timeintv.stop  = d2t->getTime( stopdah );
     timeintv.step  = mComputeStepFactor;
+    timeintv.sort();
 
     if ( timeintv.step < 1e-6 )
 	return false;
 
-    if ( timeintv.start > timeintv.stop )
-	return false;
     return true;
 }
 

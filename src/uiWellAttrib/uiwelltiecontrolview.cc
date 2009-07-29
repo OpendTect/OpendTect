@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.19 2009-07-28 10:09:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.20 2009-07-29 10:05:49 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -54,13 +54,11 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
     mDefBut(zoomoutbut_,"zoombackward.png",altZoomCB,"Zoom out");
     mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode (Esc)");
     mDefBut(editbut_,"seedpickmode.png",editCB,"Pick mode (P)");
+    editbut_->setToggleButton( true );
 
     vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
-	                    mCB(this,uiWellTieControlView,editKeyPressCB) );
-    editbut_->setToggleButton( true );
+	                    mCB(this,uiWellTieControlView,keyPressCB) );
     toolbar_->addSeparator();
-
-    vwr_.setRubberBandingOn( !manip_ );
 }
 
 
@@ -114,22 +112,14 @@ void uiWellTieControlView::rubBandCB( CallBacker* cb )
 
 void uiWellTieControlView::altZoomCB( CallBacker* but )
 {
-    const bool zoomin = but == zoominbut_;
     const uiWorldRect& bbox = vwr_.boundingBox();
     const Interval<double> xrg( bbox.left(), bbox.right());
-    if ( but == zoominbut_ )
-	zoommgr_.forward();
-    else
-    {
-	if ( zoommgr_.atStart() ) return;
-	zoommgr_.back();
-    }
-    Geom::Size2D<double> size = zoommgr_.current();
-    size.setWidth ( xrg.stop - xrg.start );
+    zoomCB( but );
     uiWorldRect wr = vwr_.curView();
-    uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
     wr.setLeftRight( xrg );
-    vwr_.setView( getZoomOrPanRect( wr.centre(), size, bbox ) );
+    Geom::Point2D<double> centre = wr.centre();
+    Geom::Size2D<double> size = wr.size();
+    setNewView( centre, size );
 }
 
 
@@ -148,7 +138,7 @@ void uiWellTieControlView::wheelMoveCB( CallBacker* )
 }
 
 
-void uiWellTieControlView::editKeyPressCB( CallBacker* )
+void uiWellTieControlView::keyPressCB( CallBacker* )
 {
     const KeyboardEvent& ev =
 	vwr_.rgbCanvas().getKeyboardEventHandler().event();
@@ -170,13 +160,10 @@ void uiWellTieControlView::setSelView( bool isnewsel )
     uiWorldRect wr = w2u.transform( viewarea );
 
     const uiWorldRect bbox = vwr_.boundingBox();
-
     Interval<double> zrg( wr.top() , wr.bottom() );
     wr.setTopBottom( zrg );
-
     Interval<double> xrg( bbox.left(), bbox.right());
     wr.setLeftRight( xrg );
-
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
@@ -185,6 +172,12 @@ void uiWellTieControlView::setSelView( bool isnewsel )
     setNewView( centre, newsz );
 }
 
+
+void uiWellTieControlView::setEditOn( bool yn )
+{
+    editbut_->setOn( yn );
+    editCB( 0 );
+}
 
 /*
 void uiWellTieControlView::stateCB( CallBacker* )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.12 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.13 2009-07-29 10:05:49 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
@@ -43,6 +43,7 @@ WellTieDataSetMGR::~WellTieDataSetMGR()
 {
     for ( int idx=datasets_.size()-1; idx>=0; idx-- )
 	datasets_[idx]->clearData();
+    deepErase( datasets_ );
 }
 
 

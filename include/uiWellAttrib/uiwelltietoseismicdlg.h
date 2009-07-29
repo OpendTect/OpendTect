@@ -87,7 +87,6 @@ protected:
     void 			addToolBarTools();
     void			createViewerTaskFields(uiGroup*);
     void			createDispPropFields(uiGroup*);
-    void 			displayUserMsg();
     void 			drawData();
     void 			drawFields();
     void 			getDispParams();
@@ -109,8 +108,9 @@ protected:
     void 			timeChanged(CallBacker*);
     void 			dispParPushed(CallBacker*);
     void 			dispPropChg(CallBacker*);
-    void 			doCrossCheckWork(CallBacker*);
-    void 			doWork(CallBacker*);
+    void 			displayUserMsg(CallBacker*);
+    bool 			doCrossCheckWork(CallBacker*);
+    bool 			doWork(CallBacker*);
     void			drawUserPick(CallBacker*);
     void 			editD2TPushed(CallBacker*);
     void 			infoPushed(CallBacker*);

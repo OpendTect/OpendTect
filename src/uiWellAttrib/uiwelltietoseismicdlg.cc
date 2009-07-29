@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.41 2009-07-28 10:09:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.42 2009-07-29 10:05:49 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -53,7 +53,6 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.41 2009-07-28 10:0
 #include "welltietoseismic.h"
 #include "welltieunitfactors.h"
 
-static bool isfirstdisplay_ = true;
 static const char*  eventtypes[] = {"None","Extrema","Maxima",
 				    "Minima","Zero-crossings",0};
 #define mErrRet(msg) \
@@ -147,43 +146,47 @@ void uiWellTieToSeismicDlg::initAll()
     dataholder_->pickmgr()->setData( dataholder_->dispData() );
     show();
     dispPropChg(0);
-    displayUserMsg();
 }
 
 
-void uiWellTieToSeismicDlg::displayUserMsg()
+void uiWellTieToSeismicDlg::displayUserMsg( CallBacker* )
 {
-    if ( isfirstdisplay_ )
-    {
-	BufferString msg = "To correlate synthetic to seimsic, "; 
-	msg += "pick one or more synthetic events "; 
-	msg += "and link them with the seismic events. "; 
-	msg += "Each synthetic event must be coupled with a seismic event. "; 
-	msg += "Once you are satisfied with the picking, push the ";
-        msg += "'Apply Changes' button to re-extract the data and repeat "; 
-	msg += "the picking operation if needed.";
+    BufferString msg = "To correlate synthetic to seismic, "; 
+    msg += " choose your tracking mode, "; 
+    msg += "pick one or more synthetic events "; 
+    msg += "and link them with the seismic events. "; 
+    msg += "Each synthetic event must be coupled with a seismic event. "; 
+    msg += "Once you are satisfied with the picking, push the ";
+    msg += "'Apply Changes' button to re-extract the data and repeat "; 
+    msg += "the picking operation if needed.    ";
+    msg += "To cross-check your operation, press the 'Display additional ";
+    msg += "information' button.";
+    msg += "press 'OK/Save' to store your new depth/time model on disk";
 
-	isfirstdisplay_ = uiMSG().showMsgNextTime( msg );
-    }
+    uiMSG().message( msg );
 }
 
 
-void uiWellTieToSeismicDlg::doWork( CallBacker* )
+bool uiWellTieToSeismicDlg::doWork( CallBacker* )
 {
     getDispParams();
     params_->resetParams();
-    dataplayer_->computeAll();
+    if ( !dataplayer_->computeAll() )
+	mErrRet( "unable to compute data, please check your input data" ); 
     drawData();
     resetInfoDlg();
+    return true;
 }
 
 
-void uiWellTieToSeismicDlg::doCrossCheckWork( CallBacker* )
+bool uiWellTieToSeismicDlg::doCrossCheckWork( CallBacker* )
 {
     getDispParams();
     params_->resetParams();
-    dataplayer_->computeAll();
+    if ( dataplayer_->computeAll() )
+	mErrRet( "unable to compute data, please check your input data" ); 
     resetInfoDlg();
+    return true;
 }
 
 
@@ -233,23 +236,24 @@ void uiWellTieToSeismicDlg::drawFields()
     disppropgrp->attach( leftBorder );
     createDispPropFields( disppropgrp );
 
-    uiGroup* informgrp = new uiGroup( this, "Indicator Group" );
-    informgrp->attach( ensureBelow, disppropgrp );
-    informgrp->attach( hCentered );
-    infobut_ = new uiPushButton( informgrp, "Display additional information",
-	               mCB(this,uiWellTieToSeismicDlg,infoPushed), false );
-
     uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, informgrp );
+    horSepar->attach( stretchedBelow, disppropgrp );
+    horSepar->attach( ensureBelow, vwrtaskgrp );
 
     uiPushButton* okbut = new uiPushButton( this, "&Ok/Save",
 	      		mCB(this,uiWellTieToSeismicDlg,acceptOK), true );
     okbut->attach( leftBorder, 40 );
     okbut->attach( ensureBelow, horSepar );
+
+    uiPushButton* infobut = new uiPushButton( this, "Info",
+	      		mCB(this,uiWellTieToSeismicDlg,displayUserMsg), false );
+    infobut->attach( hCentered );
+    infobut->attach( ensureBelow, horSepar );
     uiPushButton* cancelbut = new uiPushButton( this, "&Cancel",
 	      		mCB(this,uiWellTieToSeismicDlg,rejectOK), true );
     cancelbut->attach( rightBorder );
     cancelbut->attach( ensureBelow, horSepar );
+    
 }
 
 
@@ -280,6 +284,12 @@ void uiWellTieToSeismicDlg::createViewerTaskFields( uiGroup* taskgrp )
 	   mCB(this,uiWellTieToSeismicDlg,clearLastPick), true );
     clearlastpicksbut_->setSensitive( false );
     clearlastpicksbut_->attach( rightOf, clearpicksbut_ );
+    
+    infobut_ = new uiPushButton( taskgrp, "Display additional information",
+	               mCB(this,uiWellTieToSeismicDlg,infoPushed), false );
+    infobut_->attach( ensureBelow, applybut_ );
+    infobut_->attach( hCentered );
+
 }
 
 
@@ -380,6 +390,7 @@ bool uiWellTieToSeismicDlg::saveD2TPushed( CallBacker* )
 void uiWellTieToSeismicDlg::eventTypeChg( CallBacker* )
 {
     dataholder_->pickmgr()->setEventType(eventtypefld_->box()->currentItem());
+    controlview_->setEditOn( true );
 }
 
 
