@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.15 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.16 2009-07-29 06:25:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ protected:
     void			seedTypeSel(CallBacker*);
     void			seedSliderMove(CallBacker*);
     void			seedColSel(CallBacker*);
+    void			addStepPushedCB(CallBacker*);
 
     uiTabStack*			tabgrp_;
     uiButtonGroup*      	modeselgrp_;
@@ -107,6 +108,7 @@ protected:
     uiGenInput*			evfld;
     uiGenInput*			srchgatefld;
     uiGenInput*			ampthresholdfld;
+    uiPushButton*		addstepbut;
     uiGenInput*			simithresholdfld;
     uiGenInput*			compwinfld;
     uiGenInput*			extriffailfld;

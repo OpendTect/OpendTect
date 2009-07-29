@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.29 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.30 2009-07-29 06:26:07 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.29 2009-07-22 16:01:
 #include "uibuttongroup.h"
 #include "uicolor.h"
 #include "uigeninput.h"
+#include "uigeninputdlg.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -181,6 +182,10 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     ampthresholdfld->valuechanged.notify( 
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
+    addstepbut = new uiPushButton( grp, "Add Step(s)",
+	    mCB(this,uiHorizonSetupGroup,addStepPushedCB), true );
+    addstepbut->attach( rightTo, ampthresholdfld );
+
     extriffailfld = new uiGenInput( grp, "If tracking fails",
 				    BoolInpSpec(true,"Extrapolate","Stop") );
     extriffailfld->attach( alignedBelow, ampthresholdfld );
@@ -278,7 +283,18 @@ void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
     ampthresholdfld->setTitleText( absthreshold ? "       Amplitude value"
 						: "Allowed difference (%)" );
     if ( absthreshold )
-	ampthresholdfld->setValue( horadj_->amplitudeThreshold() );
+    {
+	if (  horadj_->getAmplitudeThresholds().size() <=0 )
+	    ampthresholdfld->setValue( horadj_->amplitudeThreshold() );
+	else
+	{
+	    BufferString bs;
+	    bs += horadj_->getAmplitudeThresholds()[0];
+	    for (int idx=1;idx<horadj_->getAmplitudeThresholds().size();idx++)
+	    { bs += ","; bs += horadj_->getAmplitudeThresholds()[idx]; }
+	    ampthresholdfld->setText( bs.buf() );
+	}
+    }
     else
     {
 	if ( horadj_->getAllowedVariances().size() <= 0 )
@@ -358,6 +374,26 @@ void uiHorizonSetupGroup::seedColSel( CallBacker* )
 	return;
     markerstyle_.color_ = newcolor;
     propertychanged_.trigger();
+}
+
+
+void uiHorizonSetupGroup::addStepPushedCB(CallBacker*)
+{
+    uiGenInputDlg dlg( this, "Add value(s) for step(s), ',' separated",
+	    	       "Value(string)", new StringInpSpec() );
+    if ( !dlg.go() ) return;
+
+    const char* valuestring = dlg.text();
+    
+    SeparString ss( ampthresholdfld->text(), ',' );
+    
+    BufferString bs;
+    bs += ampthresholdfld->text();
+    if ( ss.size() > 0 )
+	bs += ",";
+    bs += valuestring;
+
+    ampthresholdfld->setText( bs.buf() );
 }
     
 
@@ -571,14 +607,56 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 
     if ( useabs )
     {
-	float vgate = ampthresholdfld->getfValue();
-	if ( Values::isUdf(vgate) )
-	    mErrRet( "Value threshold not set" );
-	if ( horadj_->amplitudeThreshold() != vgate )
+	SeparString ss( ampthresholdfld->text(), ',' );
+	int idx = 0;
+	if ( ss.size() < 2 )
 	{
-	    fieldchange = true;
-	    horadj_->setAmplitudeThreshold( vgate );
+	    float vgate = ss.getFValue(0);
+	    if ( Values::isUdf(vgate) )
+		mErrRet( "Value threshold not set" );
+	    if ( horadj_->amplitudeThreshold() != vgate )
+	    {
+		fieldchange = true;
+		horadj_->setAmplitudeThreshold( vgate );
+	    }
 	}
+	else
+	{
+	    TypeSet<float> vars;
+	    for ( ; idx<ss.size(); idx++ )
+	    {
+		float varvalue = ss.getFValue(idx);
+		if ( Values::isUdf(varvalue) )
+		    mErrRet( "Value threshold not set properly" );
+
+		if ( horadj_->getAmplitudeThresholds().size() < idx+1 )
+		{
+		    fieldchange = true;
+		    horadj_->getAmplitudeThresholds() += varvalue;
+		    if ( idx == 0 )
+			horadj_->setAmplitudeThreshold( varvalue );
+		}
+		else if ( horadj_->getAmplitudeThresholds().size() >= idx+1 )
+		    if ( horadj_->getAmplitudeThresholds()[idx] != varvalue )
+		    {
+			fieldchange = true;
+			horadj_->getAmplitudeThresholds() += varvalue;
+			if ( idx == 0 )
+			    horadj_->setAmplitudeThreshold( varvalue );
+		    }
+	    }
+	}
+
+	if ( horadj_->getAmplitudeThresholds().size() > idx+1 )
+	{
+	    int size = horadj_->getAmplitudeThresholds().size();
+	    fieldchange = true;
+	    horadj_->getAmplitudeThresholds().remove( idx+1, size-1 );
+	}
+
+	if ( idx==0 && horadj_->getAmplitudeThresholds().size() > 0 )
+	    horadj_->getAmplitudeThresholds()[idx] = 
+				horadj_->amplitudeThreshold();
     }
     else
     {

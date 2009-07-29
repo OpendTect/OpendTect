@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.57 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.58 2009-07-29 06:24:21 cvsumesh Exp $";
 
 #include "horizonadjuster.h"
 
@@ -100,6 +100,14 @@ void HorizonAdjuster::setAmplitudeThreshold( float th )
 
 float HorizonAdjuster::amplitudeThreshold() const
 { return tracker_->amplitudeThreshold(); }
+
+
+void HorizonAdjuster::setAmplitudeThresholds( const TypeSet<float>& ats )
+{ tracker_->setAllowedVariances( ats ); }
+
+
+TypeSet<float>& HorizonAdjuster::getAmplitudeThresholds()
+{ return tracker_->getAmplitudeThresholds(); }
 
 
 void HorizonAdjuster::setAllowedVariances( const TypeSet<float>& avs )

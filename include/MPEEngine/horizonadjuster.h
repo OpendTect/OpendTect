@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.26 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.27 2009-07-29 06:23:59 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
 
     void		setAmplitudeThreshold(float th);
     float		amplitudeThreshold() const;
+    void		setAmplitudeThresholds(const TypeSet<float>& ats);
+    TypeSet<float>&	getAmplitudeThresholds();
     void 		setAllowedVariance(float v);
     void		setAllowedVariances(const TypeSet<float>& avs);
     TypeSet<float>&	getAllowedVariances();

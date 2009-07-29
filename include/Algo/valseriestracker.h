@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.9 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: valseriestracker.h,v 1.10 2009-07-29 06:22:14 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,9 @@ public:
     				//!<Must be set if using absolute threshold.
     float			amplitudeThreshold() const;
 
+    void			setAmplitudeThresholds(const TypeSet<float>&);
+    TypeSet<float>&		getAmplitudeThresholds();
+
     void			setAllowedVariance(float v);
     				//!<Only used if not using absolute threshold
     float			allowedVariance() const;
@@ -157,6 +160,7 @@ protected:
     VSEvent::Type	evtype_;
     Interval<float>	permrange_;
     float		ampthreshold_;
+    TypeSet<float>	ampthresholds_;
     float		allowedvar_;
     TypeSet<float>	allowedvars_;
     bool		useabsthreshold_;
@@ -171,6 +175,7 @@ protected:
 
     static const char*	sKeyPermittedRange()	{ return "Permitted range"; }
     static const char*	sKeyValueThreshold()	{ return "Value threshhold"; }
+    static const char*	sKeyValueThresholds()	{ return "Value threshholds"; }
     static const char*	sKeyAllowedVariance()	{ return "Allowed variance"; }
     static const char*	sKeyAllowedVariances()	{ return "Allowed variances"; }
     static const char*	sKeyUseAbsThreshold()	{ return "Use abs threshhold"; }

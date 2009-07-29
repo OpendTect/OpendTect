@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.18 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.19 2009-07-29 06:24:21 cvsumesh Exp $";
 
 #include "autotracker.h"
 
@@ -36,17 +36,42 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     , totalnr_( 0 )
     , nrflushes_( 0 )
     , flushcntr_( 0 )
-    , stepcount_(-1)
+    , stepcntallowedvar_(-1)
+    , stepcntapmtthesld_(-1)
+    , trackingextriffail(false)
 {
     geomelem_ = emobject_.sectionGeometry(sectionid_);
     extender_ = sectiontracker_->extender();
     adjuster_ = sectiontracker_->adjuster();
 
+    trackingextriffail = adjuster_->removesOnFailure();
+
     reCalculateTtalNr();
 
     mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster());
-    if ( horadj  && (horadj->getAllowedVariances().size()>0) )
-	stepcount_ = 0;
+    if ( horadj )
+    {
+	if ( horadj->useAbsThreshold() )
+	{
+	    if ( horadj->getAmplitudeThresholds().size()>0 ) 
+	    {
+		stepcntapmtthesld_ = 0;
+		stepcntallowedvar_ = -1;
+		adjuster_->removeOnFailure( true );
+		horadj->setAmplitudeThreshold(
+			horadj->getAmplitudeThresholds()[stepcntapmtthesld_] );
+	    }
+	}
+	else if ( horadj->getAllowedVariances().size()>0 ) 
+	{ 
+	    stepcntallowedvar_ = 0;
+	    stepcntapmtthesld_ = -1;
+	    adjuster_->removeOnFailure( true );
+	    horadj->setAllowedVariance(
+		    horadj->getAllowedVariances()[stepcntallowedvar_] );
+	    
+	}
+    }
 }
 
 
@@ -184,26 +209,60 @@ int AutoTracker::nextStep()
     int status =  currentseeds_.size() ? MoreToDo() : Finished();
     if ( status == Finished() )
     {
-	if ( stepcount_ == -1 )
-	    return status;
-
 	mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster());
 	if ( !horadj )
 	{
-	    stepcount_ = -1;
+	    stepcntallowedvar_ = -1;
+	    stepcntapmtthesld_ = -1;
 	    return status;
 	}
 
-	if ( horadj->getAllowedVariances().size() <= (stepcount_+1) )
+	if ( horadj->useAbsThreshold() )
 	{
-	    stepcount_ = -1;
-	    return status;
-	}
+	    if ( stepcntapmtthesld_ == -1 )
+		return status;
 
-	stepcount_++;
-	reCalculateTtalNr();
-	horadj->setAllowedVariance( horadj->getAllowedVariances()[stepcount_] );
-	return MoreToDo();
+	    if ( horadj->getAmplitudeThresholds().size() <=
+		 (stepcntapmtthesld_+1) )
+	    {
+		stepcntapmtthesld_ = -1;
+		return status;
+	    }
+
+	    stepcntapmtthesld_++;
+
+	    if( horadj->getAmplitudeThresholds().size() ==
+		(stepcntapmtthesld_+1) )
+		adjuster_->removeOnFailure( trackingextriffail );
+
+	    reCalculateTtalNr();
+	    horadj->setAmplitudeThreshold(
+		    horadj->getAmplitudeThresholds()[stepcntapmtthesld_] );
+
+	    return MoreToDo();
+	}
+	else
+	{
+	    if ( stepcntallowedvar_ == -1 )
+		return status;
+
+	    if ( horadj->getAllowedVariances().size() <= (stepcntallowedvar_+1))
+	    {
+		stepcntallowedvar_ = -1;
+		return status;
+	    }
+
+	    stepcntallowedvar_++;
+
+	    if ( horadj->getAllowedVariances().size() == (stepcntallowedvar_+1))
+		adjuster_->removeOnFailure( trackingextriffail );
+
+	    reCalculateTtalNr();
+	    horadj->setAllowedVariance(
+		    horadj->getAllowedVariances()[stepcntallowedvar_] );
+	    
+	    return MoreToDo();
+	}
     }
 
     return status;

@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.10 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.11 2009-07-29 06:22:36 cvsumesh Exp $";
 
 #include "valseriestracker.h"
 
@@ -135,6 +135,14 @@ void EventTracker::setAmplitudeThreshold( float th )
 
 float EventTracker::amplitudeThreshold() const
 { return ampthreshold_; }
+
+
+void EventTracker::setAmplitudeThresholds( const TypeSet<float>& ats )
+{ ampthresholds_ = ats; }
+
+
+TypeSet<float>& EventTracker::getAmplitudeThresholds()
+{ return ampthresholds_; }
 
 
 void EventTracker::setAllowedVariance( float v )
@@ -387,6 +395,7 @@ void EventTracker::fillPar( IOPar& iopar ) const
     iopar.set( sKeyTrackEvent(), eString(VSEvent::Type,evtype_) );
     iopar.set( sKeyPermittedRange(), permrange_ );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
+    iopar.set( sKeyValueThresholds(), ampthresholds_ ); 
     iopar.set( sKeyAllowedVariance(), allowedvar_);
     iopar.set( sKeyAllowedVariances(), allowedvars_);
     iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
@@ -406,6 +415,7 @@ bool EventTracker::usePar( const IOPar& iopar )
     if ( res && *res ) evtype_ = eEnum(VSEvent::Type,res);
     iopar.get( sKeyPermittedRange(), permrange_ );
     iopar.get( sKeyValueThreshold(), ampthreshold_ );
+    iopar.get( sKeyValueThresholds(), ampthresholds_ );
     iopar.get( sKeyAllowedVariance(), allowedvar_);
     iopar.get( sKeyAllowedVariances(), allowedvars_);
     iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ );
