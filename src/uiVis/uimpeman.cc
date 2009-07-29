@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.166 2009-07-29 06:27:33 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.167 2009-07-29 10:09:56 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -1047,6 +1047,14 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     toolbar->turnOn( moveplaneidx, trackerisshown && tm==TrackPlane::Move );
+
+    if ( !tracker )
+	visserv->disabToolBars( true );
+    else
+    {	
+	if ( !(visserv->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
+	   visserv->disabToolBars( false );
+    }
 }
 
 
