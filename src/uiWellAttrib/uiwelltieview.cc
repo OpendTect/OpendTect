@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.38 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.39 2009-07-29 14:36:19 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -105,6 +105,7 @@ void uiWellTieView::initLogViewers()
     {
 	logsdisp_[idx]->setPrefWidth( vwr_->prefHNrPics()/2 );
 	logsdisp_[idx]->setPrefHeight( vwr_->prefVNrPics() );
+	logsdisp_[idx]->disableScrollZoom();
     }
     logsdisp_[0]->attach( leftOf, logsdisp_[1] );
     logsdisp_[1]->attach( leftOf, vwr_ );
@@ -429,6 +430,7 @@ void uiWellTieView::drawCShot()
     checkshotitm_ = scene.addItem( new uiPolyLineItem(pts) );
     LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
     checkshotitm_->setPenStyle( ls );
+    logsdisp_[0]->dataChanged();
 }
 
 

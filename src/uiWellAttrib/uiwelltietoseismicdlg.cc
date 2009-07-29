@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.43 2009-07-29 11:04:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.44 2009-07-29 14:36:19 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -152,17 +152,17 @@ void uiWellTieToSeismicDlg::initAll()
 void uiWellTieToSeismicDlg::displayUserMsg( CallBacker* )
 {
     BufferString msg = "To correlate synthetic to seismic, "; 
-    msg += " choose your tracking mode, "; 
+    msg += "choose your tracking mode, "; 
     msg += "pick one or more synthetic events "; 
     msg += "and link them with the seismic events. "; 
     msg += "Each synthetic event must be coupled with a seismic event. "; 
     msg += "Once you are satisfied with the picking, push the ";
     msg += "'Apply Changes' button to compute a new depth/time model ";
-    msg += " and to re-extract the data. "; 
-    msg += "Repeat the picking operation if needed.    ";
+    msg += "and to re-extract the data.\n"; 
+    msg += "Repeat the picking operation if needed.\n";
     msg += "To cross-check your operation, press the 'Display additional ";
-    msg += "information' button.";
-    msg += "press 'OK/Save' to store your new depth/time model on disk";
+    msg += "information' button.\n\n";
+    msg += "Press 'OK/Save' to store your new depth/time model.";
 
     uiMSG().message( msg );
 }
