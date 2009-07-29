@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.42 2009-07-29 10:05:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.43 2009-07-29 11:04:10 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -157,8 +157,9 @@ void uiWellTieToSeismicDlg::displayUserMsg( CallBacker* )
     msg += "and link them with the seismic events. "; 
     msg += "Each synthetic event must be coupled with a seismic event. "; 
     msg += "Once you are satisfied with the picking, push the ";
-    msg += "'Apply Changes' button to re-extract the data and repeat "; 
-    msg += "the picking operation if needed.    ";
+    msg += "'Apply Changes' button to compute a new depth/time model ";
+    msg += " and to re-extract the data. "; 
+    msg += "Repeat the picking operation if needed.    ";
     msg += "To cross-check your operation, press the 'Display additional ";
     msg += "information' button.";
     msg += "press 'OK/Save' to store your new depth/time model on disk";
@@ -183,7 +184,7 @@ bool uiWellTieToSeismicDlg::doCrossCheckWork( CallBacker* )
 {
     getDispParams();
     params_->resetParams();
-    if ( dataplayer_->computeAll() )
+    if ( !dataplayer_->computeAll() )
 	mErrRet( "unable to compute data, please check your input data" ); 
     resetInfoDlg();
     return true;
