@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoCameraInfoElement.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoCameraInfoElement.cc,v 1.5 2009-07-30 18:17:49 cvsyuancheng Exp $";
 
 #include "SoCameraInfoElement.h"
 
@@ -25,8 +25,9 @@ SoCameraInfoElement::~SoCameraInfoElement()
 {}
 
 
-void SoCameraInfoElement::init(SoState*)
+void SoCameraInfoElement::init( SoState* state )
 {
+    SoInt32Element::init( state );
     data = getDefault();
 }
 
