@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.25 2009-07-29 21:04:10 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.26 2009-07-30 15:49:28 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -196,13 +196,21 @@ void ChannelInfo::setNrVersions( int nsz )
 	delete mappers_.remove( nsz );
     }
 
+    const ColTab::MapperSetup* templ = mappers_.size()
+	? &mappers_[0]->setup_
+	: 0;
+
     while ( mappeddata_.size()<nsz )
     {
 	mappeddata_ += 0;
 	unmappeddata_ += 0;
 	ownsmappeddata_ += false;
 	ownsunmappeddata_ += false;
-	mappers_ += new ColTab::Mapper;
+
+	ColTab::Mapper* mapper = new ColTab::Mapper;
+	if ( templ )
+	    mapper->setup_ = *templ;
+	mappers_ += mapper;
     }
 }
 
