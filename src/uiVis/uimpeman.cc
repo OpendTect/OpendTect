@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.168 2009-07-29 11:36:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.169 2009-07-30 07:35:34 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -122,18 +122,16 @@ void uiMPEMan::addButtons()
 
     trackinvolidx = mAddButton( "autotrack.png", trackFromSeedsAndEdges,
     				"Auto-track", false );
-    toolbar->addSeparator();
 
     trackwithseedonlyidx = mAddButton( "trackfromseeds.png", trackFromSeedsOnly,
 	    			       "Track From Seeds Only", false );
+
+    retrackallinx = mAddButton( "retrackhorizon.png", retrackAllCB,
+	    			 "Retrack All", false );
     toolbar->addSeparator();
 
     displayatsectionidx = mAddButton( "sectiononly.png", displayAtSectionCB,
 	    			      "Display at section only", true );
-    toolbar->addSeparator();
-
-    retrackallinx = mAddButton( "retrackhorizon.png", retrackAllCB,
-	    			 "Retrack All", false );
     toolbar->addSeparator();
 
     polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
@@ -143,15 +141,12 @@ void uiMPEMan::addButtons()
     mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect.png",1);
     toolbar->setButtonMenu( polyselectidx, polymnu );
 
-    toolbar->addSeparator();
-
     removeinpolygon = mAddButton( "trashcan.png", removeInPolygon,
 	    			  " Remove PolySelection", false );
     toolbar->addSeparator();
 
     showcubeidx = mAddButton( "trackcube.png", showCubeCB,
 	    		      "Show track area", true );
-    toolbar->addSeparator();
 
     moveplaneidx = mAddButton( "QCplane-inline.png", movePlaneCB,
 			       "Display QC plane", true );
@@ -1013,18 +1008,21 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     //Seed button
     updateSeedPickState();
 
-    const bool is2d = !SI().has3D();
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
+    const bool is2d = sp2d;
     const bool isseedpicking = toolbar->isOn(seedidx);
     
     toolbar->setSensitive( moveplaneidx, !is2d );
-    toolbar->setSensitive( showcubeidx, !is2d); 
+    toolbar->setSensitive( showcubeidx, !is2d ); 
 
-    MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    const bool isinvolumemode = !seedpicker || seedpicker->doesModeUseVolume();
-    toolbar->setSensitive( trackinvolidx, !is2d && isinvolumemode );
-    toolbar->setSensitive( trackwithseedonlyidx, !is2d && isinvolumemode );
-    toolbar->setSensitive( displayatsectionidx, !is2d && isinvolumemode );
+    const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
+    toolbar->setSensitive( trackinvolidx,
+	    !is2d && isinvolumemode && seedpicker );
+    toolbar->setSensitive( trackwithseedonlyidx,
+	    !is2d && isinvolumemode && seedpicker );
+    toolbar->setSensitive( displayatsectionidx, seedpicker );
 
     toolbar->setSensitive( removeinpolygon, toolbar->isOn(polyselectidx) );
     
