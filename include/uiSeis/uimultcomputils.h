@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Huck
  Date:          August 2008
- RCS:           $Id: uimultcomputils.h,v 1.7 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uimultcomputils.h,v 1.8 2009-07-30 13:30:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiListBox;
 mClass uiMultCompDlg : public uiDialog
 {
 public:
-			uiMultCompDlg(uiParent*,LineKey);
+			uiMultCompDlg(uiParent*,const BufferStringSet&);
 
     void		getCompNrs(TypeSet<int>&) const;
     const char*		getCompName(int) const;

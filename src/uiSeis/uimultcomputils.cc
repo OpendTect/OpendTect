@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultcomputils.cc,v 1.7 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uimultcomputils.cc,v 1.8 2009-07-30 13:30:04 cvshelene Exp $";
 
 #include "uimultcomputils.h"
 #include "bufstringset.h"
@@ -17,17 +17,15 @@ static const char* rcsID = "$Id: uimultcomputils.cc,v 1.7 2009-07-22 16:01:41 cv
 #include "uilistbox.h"
 
 
-uiMultCompDlg::uiMultCompDlg( uiParent* p, LineKey lkey )
+uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
     	: uiDialog(p,uiDialog::Setup("Component dialog","","") )
 	, compfld_(0)
 {
-    BufferString instructions = "After loading, use 'Page Up' \n";
-    instructions += "and 'Page Down' buttons to scroll.\n";
+    BufferString instructions = "After loading multiple components,\n";
+    instructions += "use 'Page Up and 'Page Down' buttons to scroll.\n";
     instructions += "Make sure the attribute treeitem is selected\n";
     instructions += "and that the mouse pointer is in the scene.";
     setTitleText( instructions );
-    BufferStringSet complist;
-    SeisIOObjInfo::getCompNames( lkey, complist );
 
     compfld_ = new uiListBox( this, complist, "" );
     compfld_->setMultiSelect();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.59 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.60 2009-07-30 13:30:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,8 +147,10 @@ public:
 	    					   const Attrib::SelSpec&,bool,
 						   bool needext=false);
 
-    bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&) const;
-    bool		handleMultiCompSubMenu(int,bool,const char*);
+    bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&,bool&);
+    bool		handleMultiComp(const LineKey&,bool,bool,
+	    				BufferStringSet&,Attrib::DescID&,
+					bool&);
 
     void		setEvaluateInfo(bool ae,bool as)
 			{ alloweval_=ae; allowevalstor_=as; }

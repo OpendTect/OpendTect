@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.32 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.33 2009-07-30 13:30:04 cvshelene Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -38,10 +38,6 @@ const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
 { return "Select &Attribute"; }
 
 
-const char* uiODAttribTreeItem::sKeyMultCompMenuTxt()
-{ return "Display &Multi-components stored data"; }
-
-
 const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
 { return "Save &Color Settings"; }
 
@@ -49,7 +45,6 @@ const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
     , selattrmnuitem_( sKeySelAttribMenuTxt() )
-    , multcompmnuitem_( sKeyMultCompMenuTxt() )
     , colsettingsmnuitem_( sKeyColSettingsMenuTxt() )
 {}
 
@@ -104,7 +99,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 
 
 void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
-					int sceneid, bool ismulticomp )
+					int sceneid )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
@@ -119,18 +114,6 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 
 	bool need2dlist = SI().has2D() && p2d3d != Only3D;
 	bool need3dlist = SI().has3D() && p2d3d != Only2D;
-
-	if ( ismulticomp )
-	{
-	    if ( need3dlist )
-		attrserv->fillInStoredAttribMenuItem(
-				&mnu, false, false, *as, true, need2dlist );
-	    if ( need2dlist )
-		attrserv->fillInStoredAttribMenuItem(
-				&mnu, true, false, *as, true, !need2dlist );
-
-	    return;
-	}
 
 	MenuItem* subitem;
 	attrserv->resetMenuItems();
@@ -159,12 +142,6 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &selattrmnuitem_,
 		      !visserv->isLocked(displayID()), false );
 
-    multcompmnuitem_.removeItems();
-    createSelMenu( multcompmnuitem_, displayID(), attribNr(), sceneID(), true );
-    if ( multcompmnuitem_.nrItems() )
-	mAddMenuItem( menu, &multcompmnuitem_,
-		      !visserv->isLocked(displayID()), false );
-
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     if ( as && attrserv->getIOObj(*as) )
@@ -188,11 +165,6 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	applMgr()->saveDefColTab( displayID(), attribNr() );
     }
-    else if( handleMultCompSelMenu( mnuid, displayID(), attribNr() ) )
-    {
-	menu->setIsHandled(true);
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-    }
     else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
     {
 	menu->setIsHandled(true);
@@ -213,39 +185,25 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
     uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
 
     Attrib::SelSpec myas( *as );
-    if ( attrserv->handleAttribSubMenu(mnuid,myas) )
+    bool dousemulticomp = false;
+    if ( attrserv->handleAttribSubMenu(mnuid,myas,dousemulticomp) )
     {
-	visserv->setSelSpec( visid, attrib, myas );
-	visserv->calculateAttrib( visid, attrib, false );
+	if ( dousemulticomp )
+	{
+	    Attrib::SelSpec mtas( "Multi-Textures",
+		    		Attrib::SelSpec::cOtherAttrib() );
+	    if ( !ODMainWin()->applMgr().calcMultipleAttribs( mtas ) )
+		return false;
+	}
+	else
+	{
+	    visserv->setSelSpec( visid, attrib, myas );
+	    visserv->calculateAttrib( visid, attrib, false );
+	}
 	return true;
     }
 
     return false;
-}
-
-
-bool uiODAttribTreeItem::handleMultCompSelMenu( int mnuid, int visid,
-						int attrib )
-{
-    if ( !multcompmnuitem_.findItem(mnuid) ) return false;
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    if ( mnuid==-1 || visserv->isLocked(visid) )
-	return false;
-
-    bool isonly2d = false;
-    mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(visid));
-    if ( so ) isonly2d = so->getAllowedDataType() == Only2D;
-
-    const MenuItem* item = multcompmnuitem_.findItem( mnuid );
-    uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
-    if ( attrserv->handleMultiCompSubMenu( mnuid, isonly2d, item->text ) )
-    {
-	Attrib::SelSpec as( "Multi-Textures", Attrib::SelSpec::cOtherAttrib() );
-	if ( !applMgr()->calcMultipleAttribs( as ) )
-	    return false;
-    }
-
-    return true;
 }
 
 

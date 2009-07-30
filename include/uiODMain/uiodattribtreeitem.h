@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodattribtreeitem.h,v 1.7 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodattribtreeitem.h,v 1.8 2009-07-30 13:30:04 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -27,10 +27,9 @@ public:
 			~uiODAttribTreeItem();
     static BufferString	createDisplayName( int visid, int attrib );
     static void		createSelMenu(MenuItem&,int visid,int attrib,
-	    			      int sceneid,bool ismulticomp=false);
+	    			      int sceneid);
     static bool		handleSelMenu(int mnuid,int visid,int attrib);
     static const char*	sKeySelAttribMenuTxt();
-    static const char*	sKeyMultCompMenuTxt();
     static const char*	sKeyColSettingsMenuTxt();
 protected:
 
@@ -40,10 +39,8 @@ protected:
     void		handleMenuCB( CallBacker* );
     void		updateColumnText( int col );
     BufferString	createDisplayName() const;
-    bool		handleMultCompSelMenu(int,int,int);
     
     MenuItem		selattrmnuitem_;
-    MenuItem		multcompmnuitem_;
     MenuItem		colsettingsmnuitem_;
 };
 

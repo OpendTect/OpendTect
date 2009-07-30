@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.69 2009-07-22 21:51:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.70 2009-07-30 13:30:04 cvshelene Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -346,6 +346,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     }
 
     Attrib::SelSpec as;
+    bool usemcomp = false;
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
 	menu->setIsHandled( true );
@@ -368,7 +369,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	    lineitem->addStoredData( attribnm, 1 );
 	}
     }
-    else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,as) )
+    else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,as,usemcomp) )
     {
 	menu->setIsHandled( true );
 	for ( int idx=0; idx<children_.size(); idx++ )
@@ -903,6 +904,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 	return;
 
     Attrib::SelSpec myas;
+    bool usemcomp = false;
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
@@ -915,7 +917,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	displayStoredData( steeringitm_.findItem(mnuid)->text, 1 );
     }
-    else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas ) )
+    else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas,usemcomp))
     {
 	menu->setIsHandled(true);
 	setAttrib( myas );
