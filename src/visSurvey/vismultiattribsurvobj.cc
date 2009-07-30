@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.42 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.43 2009-07-30 15:54:09 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -534,8 +534,11 @@ void MultiTextureSurveyObject::selectTexture( int attrib, int idx )
 	channels_->setCurrentVersion( attrib, idx );
     }
 
-    BufferString attrnm = userrefs_[attrib]->get( idx );
-    as_[attrib]->setUserRef( attrnm.buf() );
+    if ( userrefs_[attrib]->validIdx(idx) )
+    {
+ 	const BufferString& attrnm = userrefs_[attrib]->get( idx );
+	as_[attrib]->setUserRef( attrnm.buf() );
+    }
 }
 
 
