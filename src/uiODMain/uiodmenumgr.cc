@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.179 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.180 2009-07-30 12:37:12 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -909,6 +909,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	{
 	    const char* scenenm = itm->name();
 	    sceneMgr().setActiveScene( scenenm );
+	    itm->setChecked( true );
 	}
 
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
