@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.180 2009-07-30 12:37:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.181 2009-07-30 16:01:26 cvskris Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -343,7 +343,7 @@ void uiODMenuMgr::fillProcMenu()
 	    new uiMenuItem("Volume &Builder ...",
 			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
 	voitm->insertItem(
-	    new uiMenuItem("&Time - deph conversion ...",
+	    new uiMenuItem("&Time - depth conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
 	voitm->insertItem(
 	    new uiMenuItem("&Pre Stack processing ...",
