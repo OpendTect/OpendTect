@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.32 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.33 2009-07-30 11:14:57 cvsumesh Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -203,7 +203,7 @@ void Horizon3DSeedPicker::processJunctions()
 	    continue;
 
 	const EM::PosID curpid = junctions_[idx+1];
-	emobj->setPosAttrib( curpid, EM::EMObject::sSeedNode(), true );
+	//emobj->setPosAttrib( curpid, EM::EMObject::sSeedNode(), true );
 
 	const EM::PosID nextpid = junctions_[idx+2];
 	if ( seedconmode_!=TrackFromSeeds || emobj->isDefined(nextpid) )

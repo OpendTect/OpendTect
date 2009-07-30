@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.16 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.17 2009-07-30 11:14:57 cvsumesh Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -251,11 +251,14 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
 
     res = retrackFromSeedList();
 
+    /*
     for ( int idx=0; idx<junctions_.size(); idx+=2 )
     {
 	if ( hor->isDefined(junctions_[idx]) )
-	    hor->setPosAttrib(junctions_[idx+1], EM::EMObject::sSeedNode(), true);
+	    hor->setPosAttrib(junctions_[idx+1], 
+		    	      EM::EMObject::sSeedNode(), true);
     }
+    */
 
     return res;
 }
