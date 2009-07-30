@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.169 2009-07-30 07:35:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.170 2009-07-30 11:13:48 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -1366,6 +1366,9 @@ void uiMPEMan::movePlaneCB( CallBacker* )
     const bool ison = toolbar->isOn( moveplaneidx );
     showTracker( ison );
     engine().setTrackMode( ison ? TrackPlane::Move : TrackPlane::None );
+
+    if ( ison )
+	toolbar->setToolTip( moveplaneidx, "Hide QC plane" );
 }
 
 
@@ -1424,8 +1427,13 @@ void uiMPEMan::displayAtSectionCB( CallBacker* )
     mDynamicCastGet( visSurvey::EMObjectDisplay*,
 	    	     surface, visserv->getObject(selectedids[0]) );
 
+    bool ison = toolbar->isOn(displayatsectionidx);
+
     if ( surface && (surface->getObjectID()== tracker->objectID()) )
-	surface->setOnlyAtSectionsDisplay( toolbar->isOn(displayatsectionidx) );
+	surface->setOnlyAtSectionsDisplay( ison );
+
+    toolbar->setToolTip( displayatsectionidx, ison ? "Display full" :
+	    					   "Display at section only" );
 }
 
 
