@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.57 2009-07-22 21:56:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.58 2009-07-30 19:21:19 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1464,11 +1464,23 @@ void HorizonSectionTile::setNormal( HorizonSection& section, int nmidx,
     const int col = origin.col + step.col * ( tilecolidx*mTileSideSize +
     	    (normalcol==normalsidesize_[res]-1 ? mTileSideSize 
 	     				       : normalcol*spacing_[res]) );
+
+    const StepInterval<int> rowrange = section.geometry_->rowRange();
     TypeSet<float> posarray, zarray;
     for ( int idx=-spacing_[res]; idx<=spacing_[res]; idx++ )
     {
-	const Coord3 pos = section.geometry_->getKnot( 
-		RowCol(row+idx*step.row,col), false );
+	const int currow = row+idx*step.row;
+	if ( currow<rowrange.start )
+	{
+	    idx += (rowrange.start-currow)/step.row-1;
+	    continue;
+	}
+	
+	if ( currow>rowrange.stop )
+	    break;
+	
+	const Coord3 pos = section.geometry_->getKnot(RowCol(currow,col),false);
+	
 	if ( pos.isDefined() )
 	{
 	    posarray += idx*section.rowdistance_;
@@ -1481,10 +1493,20 @@ void HorizonSectionTile::setNormal( HorizonSection& section, int nmidx,
 	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
 
     posarray.erase(); zarray.erase();    
+    const StepInterval<int> colrange = section.geometry_->colRange();
     for ( int idx=-spacing_[res]; idx<=spacing_[res]; idx++ )
     {
-	const Coord3 pos = section.geometry_->getKnot( 
-		RowCol(row,col+idx*step.col), false );
+ 	const int curcol = col+idx*step.col;
+	if ( curcol<colrange.start )
+	{
+	    idx += (colrange.start-curcol)/step.col-1;
+	    continue;
+	}
+	
+	if ( curcol>colrange.stop )
+	    break;
+	
+	const Coord3 pos = section.geometry_->getKnot(RowCol(row,curcol),false);
 	if ( pos.isDefined() )
 	{
 	    posarray += idx*section.coldistance_;
