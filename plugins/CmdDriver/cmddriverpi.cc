@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.29 2009-07-28 07:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.30 2009-07-30 10:08:38 cvsjaap Exp $";
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -279,6 +279,9 @@ void uiCmdDriverMgr::autoStart( CallBacker* cb )
 
 void uiCmdDriverMgr::survChg( CallBacker* cb )
 {
+    uiCmdDriverInps::lastinp_ = "";
+    uiCmdRecordInps::lastoutput_ = GetScriptsDir("rec.cmd");
+
     if ( CmdDriver::nowExecuting() )
 	return;
 
