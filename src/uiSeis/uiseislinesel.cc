@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.25 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.26 2009-07-30 09:47:24 cvsraman Exp $";
 
 #include "uiseislinesel.h"
 
@@ -288,12 +288,12 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 	BufferStringSet attrbnms;
 	oinf.getAttribNamesForLine( lnms.get(idx).buf(), attrbnms );
 	StepInterval<int> globtrcrg( 0, 0, 1 );
-	int startidx=0; int nrattribs=attrbnms.size();
+	int startidx=0; int maxattridx = attrbnms.size() - 1;
 	const int defidx = attrbnms.indexOf( LineKey::sKeyDefAttrib() );
-	if ( defidx>=0 ) { startidx=defidx; nrattribs=1; }
+	if ( defidx>=0 ) { startidx=maxattridx=defidx; }
 
 	int maxnrtrcs = 0;
-	for ( int attridx=startidx; attridx<nrattribs; attridx++ )
+	for ( int attridx=startidx; attridx<=maxattridx; attridx++ )
 	{
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
