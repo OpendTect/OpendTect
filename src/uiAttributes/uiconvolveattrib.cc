@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.18 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.19 2009-07-31 06:12:28 cvsraman Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -119,7 +119,7 @@ static void setFldInp( uiIOObjSel* fld, const char* str )
 {
     IOObj* ioobj = IOM().get( MultiID(str) );
     if ( !ioobj ) return;
-    fld->ctxtIOObj().setObj( ioobj );
+    fld->ctxtIOObj( true ).setObj( ioobj );
     fld->updateInput();
 }
 
