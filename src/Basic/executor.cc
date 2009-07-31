@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.30 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.31 2009-07-31 06:16:51 cvsraman Exp $";
 
 #include "executor.h"
 
@@ -48,8 +48,6 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
     bool res = SequentialTask::execute();
     if ( !res )
 	stream << "Error: " << message() << std::endl;
-    else
-	stream << "\nFinished: " << Time_getFullDateString() << std::endl;
 
     setProgressMeter( 0 );
 
