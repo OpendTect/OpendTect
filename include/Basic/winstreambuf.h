@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: winstreambuf.h,v 1.3 2009-07-31 05:29:25 cvsnanne Exp $
+ RCS:		$Id: winstreambuf.h,v 1.4 2009-07-31 08:06:27 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -106,7 +106,7 @@ winifstream( const char* fnm, ios_base::openmode om )
 	setstate( ios_base::failbit );
 }
 
-~winifstream
+~winifstream()
 {
     if ( !fb_->close() )
 	setstate( ios_base::failbit );
@@ -118,6 +118,10 @@ bool is_open()
     winfilebuf*	fb_;
 };
 
+
+class winofstream : public ostream
+{
+public:
 
 winofstream( const char* fnm, ios_base::openmode om )
     : ostream(0)
@@ -131,7 +135,7 @@ winofstream( const char* fnm, ios_base::openmode om )
 	setstate( ios_base::failbit );
 }
 
-~winofstream
+~winofstream()
 {
     if ( !fb_->close() )
 	setstate( ios_base::failbit );
