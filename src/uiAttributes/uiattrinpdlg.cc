@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.23 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.24 2009-07-31 19:42:39 cvskris Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -39,6 +39,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     , is2d_(is2d)
     , seisinpfld_(0)
     , steerinpfld_(0)
+    , inpfld_(0)
 {
     BufferString infotxt( "Provide input for the following attributes: " );
     uiLabel* infolbl = new uiLabel( this, infotxt );
@@ -55,8 +56,18 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 
     uiSeisSel::Setup sssu( is2d, false );
     sssu.seltxt( issteer ? "Input Steering cube" : "Input Seismics" );
-    inpfld_ = new uiSeisSel( this, issteer ? ctiosteer_ : ctio_, sssu );
-    inpfld_->attach( alignedBelow, txtfld );
+
+    if ( issteer )
+    {
+	steerinpfld_ = new uiSeisSel( this, ctiosteer_, sssu );
+	steerinpfld_->attach( alignedBelow, txtfld );
+    }
+    else
+    {
+	inpfld_ = new uiSeisSel( this, ctio_, sssu );
+	inpfld_->attach( alignedBelow, txtfld );
+    }
+
 }
 
 
@@ -107,19 +118,14 @@ CtxtIOObj& uiAttrInpDlg::getCtxtIO( bool is2d )
 
 bool uiAttrInpDlg::acceptOK( CallBacker* )
 {
-    if ( multiinpcube_ ) 
-    {
-	if ( !inpfld_->commitInput() )
-	    mErrRetSelInp()
-    }
-    else
-    {
-	if ( seisinpfld_ && !seisinpfld_->commitInput() )
-	    mErrRetSelInp()
+    if ( inpfld_ && !inpfld_->commitInput() )
+	mErrRetSelInp();
 
-	if ( steerinpfld_ && !steerinpfld_->commitInput() )
-	    mErrRetSelInp()
-    }
+    if ( steerinpfld_ && !steerinpfld_->commitInput() )
+	mErrRetSelInp();
+
+    if ( seisinpfld_ && !seisinpfld_->commitInput() )
+	mErrRetSelInp();
 
     return true;
 }
