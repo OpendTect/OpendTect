@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: winstreambuf.h,v 1.2 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: winstreambuf.h,v 1.3 2009-07-31 05:29:25 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -29,6 +29,7 @@ namespace std
   Only change is: feek -> _fseeki64
 
 */
+
 
 class winfilebuf : public filebuf
 {
@@ -87,6 +88,61 @@ virtual pos_type seekpos( pos_type _Pos, ios_base::openmode = defom )
 bool	isok_;
 
 };
+
+
+class winifstream : public istream
+{
+public:
+
+winifstream( const char* fnm, ios_base::openmode om )
+    : istream(0)
+{
+    fb_ = new winfilebuf( fnm, om );
+    rdbuf( fb_ );
+
+    if ( fb_->isOK() )
+	clear();
+    else
+	setstate( ios_base::failbit );
+}
+
+~winifstream
+{
+    if ( !fb_->close() )
+	setstate( ios_base::failbit );
+}
+
+bool is_open()
+{ return fb_->is_open(); }
+
+    winfilebuf*	fb_;
+};
+
+
+winofstream( const char* fnm, ios_base::openmode om )
+    : ostream(0)
+{
+    fb_ = new winfilebuf( fnm, om );
+    rdbuf( fb_ );
+
+    if ( fb_->isOK() )
+	clear();
+    else
+	setstate( ios_base::failbit );
+}
+
+~winofstream
+{
+    if ( !fb_->close() )
+	setstate( ios_base::failbit );
+}
+
+bool is_open()
+{ return fb_->is_open(); }
+
+    winfilebuf*	fb_;
+};
+
 
 } // namespace std
 
