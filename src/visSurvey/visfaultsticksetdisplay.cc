@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.9 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.10 2009-07-31 06:49:48 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -528,6 +528,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	if ( eventinfo.pressed )
 	    return;
 
+	editpids_.erase();
 	const int rmnr = RowCol(mousepid.subID()).row;
 	const bool res = fssg.nrKnots(mousepid.sectionID(), rmnr) == 1 
 	    ? fssg.removeStick( mousepid.sectionID(), rmnr, true )
@@ -564,20 +565,18 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    const int insertsticknr = 
 			!fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
 
-	    if ( fssg.insertStick(sid, insertsticknr, 0, pos, editnormal,
-				  lineset, linenm, true) )
-	    {
-		updateEditPids();
-	    }
+	    editpids_.erase();
+	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
+			      lineset, linenm, true );
+	    updateEditPids();
 	}
     }
     else
     {
 	// Add knot
-	if ( fssg.insertKnot(insertpid.sectionID(),insertpid.subID(),pos,true) )
-	{
-	    updateEditPids();
-	}
+	editpids_.erase();
+	fssg.insertKnot( insertpid.sectionID(), insertpid.subID(), pos, true );
+	updateEditPids();
     }
 
     eventcatcher_->setHandled();
@@ -646,7 +645,11 @@ void FaultStickSetDisplay::otherObjectsMoved(
 
 
 void FaultStickSetDisplay::setDisplayOnlyAtSections( bool yn )
-{ displayonlyatsections_ = yn; }
+{
+    displayonlyatsections_ = yn;
+    updateSticks();
+    updateEditPids();
+}
 
 
 bool FaultStickSetDisplay::displayedOnlyAtSections() const
