@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.10 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.11 2009-07-31 19:36:56 cvskris Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -163,13 +163,14 @@ void uiStoredAttribReplacer::handleMultiInput()
 		adsteercrl = attrset_.getDesc(
 			DescID(storeentry.firstid_.asInt(),true));
 	    }
-	    adsteerinl->changeStoredID( dlg.getKey() );
-	    BufferString bfstr = dlg.getUserRef();
+
+	    adsteerinl->changeStoredID( dlg.getSteerKey() );
+	    BufferString bfstr = dlg.getSteerRef();
 	    bfstr += "_inline_dip";
 	    adsteerinl->setUserRef( bfstr.buf() );
 
-	    adsteercrl->changeStoredID( dlg.getKey() );
-	    bfstr = dlg.getUserRef();
+	    adsteercrl->changeStoredID( dlg.getSteerKey() );
+	    bfstr = dlg.getSteerRef();
 	    bfstr += "_crline_dip";
 	    adsteercrl->setUserRef( bfstr.buf() );
 	}
