@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.48 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.49 2009-07-31 05:27:49 cvssatyaki Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -172,6 +172,7 @@ void uiPrintSceneDlg::setFldVals( CallBacker* )
 	sceneSel( 0 );
 	lockfld_->setChecked( true );
 	lockfld_->setSensitive( false );
+	dpifld_->setValue( screendpi_ );
     }
 }
 
