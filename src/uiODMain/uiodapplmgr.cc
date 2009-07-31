@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.344 2009-07-26 04:20:57 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.345 2009-07-31 07:12:42 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1195,6 +1195,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	mpeserv_->showSetupDlg( emid, sid );
 	visserv_->updateMPEToolbar();
     }
+    else if ( evid == uiVisPartServer::evPostponedLoadingData() )
+	mpeserv_->postponeLoadingCurVol();
     else if ( evid == uiVisPartServer::evLoadPostponedData() )
 	mpeserv_->loadPostponedVolume();
     else if ( evid == uiVisPartServer::evToggleBlockDataLoad() )
