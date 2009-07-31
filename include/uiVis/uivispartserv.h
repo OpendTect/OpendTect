@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.245 2009-07-24 06:43:53 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.246 2009-07-31 07:11:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,6 +302,9 @@ public:
 
     static const int		evLoadPostponedData();
     void 			loadPostponedData() const;
+
+    static const int		evPostponedLoadingData();
+    void			postponedLoadingData() const;
     
     static const int		evToggleBlockDataLoad();
     void 			toggleBlockDataLoad() const;

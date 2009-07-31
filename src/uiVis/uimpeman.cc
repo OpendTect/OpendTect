@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.170 2009-07-30 11:13:48 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.171 2009-07-31 07:11:28 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -727,6 +727,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
 		NotifyStopper notifystopper( MPE::engine().activevolumechange );
 		MPE::engine().setActiveVolume( cube );
 		notifystopper.restore();
+		visserv->postponedLoadingData();
 		MPE::engine().activevolumechange.trigger();
 	    }
 	}
