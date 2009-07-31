@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprogressbar.cc,v 1.18 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprogressbar.cc,v 1.19 2009-07-31 11:52:56 cvsnanne Exp $";
 
 
 #include "uiprogressbar.h"
@@ -57,7 +57,7 @@ int uiProgressBar::progress() const
 { return body_->value(); }
 
 void uiProgressBar::setTotalSteps( int tstp )
-{ body_->setMaximum( tstp > 2 ? tstp : 2 ); } 
+{ body_->setMaximum( tstp > 1 ? tstp : 1 ); } 
 
 int uiProgressBar::totalSteps() const
 { return body_->maximum(); }
