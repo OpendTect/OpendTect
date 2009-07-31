@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.31 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.32 2009-07-31 10:19:05 cvsranojay Exp $";
 
 #include "jobiomgr.h"
 #include "filepath.h"
@@ -61,9 +61,10 @@ public:
 
     void		addFilePath( const FilePath& fp, FilePath::Style stl )
 			{
-			    cmd += " '";
+			    cmd += stl == FilePath::Unix ? " '" : " \"";
 			    cmd += fp.fullPath(stl);
-			    cmd += "'";
+			    cmd += stl == FilePath::Unix ? " '" : " \"";
+			  
 			}
     void		addFilePathFlag( const char* flag, const FilePath& fp,
 	    			     FilePath::Style stl )
@@ -481,6 +482,17 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     const bool remote = !machine.isKnownAs( HostData::localHostName() );
 
     cmd = "@";
+
+#ifdef __msvc__
+
+    cmd.add(progname);
+    cmd.addFlag( "-masterhost", HostData::localHostName() ); 
+    cmd.addFlag( "-masterport", iohdlr_.port() );
+    cmd.addFlag( "-jobid", ji.descnr_ );
+    FilePath parfp( iopfp );
+    cmd.addFilePath( parfp, FilePath::Windows );
+
+#else
     cmd.addWoSpc( GetExecScript(remote) );
 
     if ( remote )
@@ -527,4 +539,6 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     bool winstyle = machine.isWin() && rshcomm == "rcmd";
     
     cmd.addFilePath( riopfp, winstyle ? FilePath::Windows : FilePath::Unix );
+
+#endif
 }

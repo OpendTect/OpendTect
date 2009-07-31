@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.80 2009-07-28 07:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.81 2009-07-31 10:19:05 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -492,8 +492,13 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
     comm += fnm; 
     comm += "\"";
 
+   
+#ifdef __msvc__ 
+    if ( !ExecOSCmd( comm, false ) )
+#else
     if ( !ExecOSCmd( comm, true ) )
-	{ uiMSG().error( "Cannot start multi-machine program" ); return false;}
+#endif
+	{ uiMSG().error( "Cannot start multi-machine program" ); return false; }
 
     return true;
 }

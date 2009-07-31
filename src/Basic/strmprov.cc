@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.101 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.102 2009-07-31 10:19:05 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -121,11 +121,18 @@ bool ExecOSCmd( const char* comm, bool inbg )
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
-    ZeroMemory( &si, sizeof(si) );
-    si.cb = sizeof(si);
+    ZeroMemory(&si, sizeof(STARTUPINFO));
     ZeroMemory( &pi, sizeof(pi) );
-
-    // Start the child process. 
+    si.cb = sizeof(STARTUPINFO);
+    
+    if(  inbg )
+    {
+	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
+	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);	
+	si.wShowWindow = SW_HIDE;
+    }
+    
+   //Start the child process. 
     int res = CreateProcess( NULL,	// No module name (use command line). 
         const_cast<char*>( comm ),
         NULL,				// Process handle not inheritable. 
@@ -135,11 +142,9 @@ bool ExecOSCmd( const char* comm, bool inbg )
         NULL,				// Use parent's environment block. 
         NULL,       			// Use parent's starting directory. 
         &si, &pi );
-
-
+	
     if ( res )
     {
-	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
     }
@@ -158,9 +163,6 @@ bool ExecOSCmd( const char* comm, bool inbg )
 
 #endif
 }
-
-
-
 
 
 const char* GetExecCommand( const char* prognm, const char* filenm )
@@ -218,21 +220,10 @@ StreamData& StreamData::operator =( const StreamData& sd )
 void StreamData::close()
 {
     if ( istrm && istrm != &std::cin )
-    {
-#ifdef __msvc__
-	std::streambuf* sbuf = istrm->rdbuf();
-	mDynamicCastGet(std::winfilebuf*,fbuf,sbuf)
-	if ( fbuf ) fbuf->close();
-#endif
-	delete istrm;
-    }
+    	delete istrm;
+
     if ( ostrm )
     {
-#ifdef __msvc__
-	std::streambuf* sbuf = ostrm->rdbuf();
-	mDynamicCastGet(std::winfilebuf*,fbuf,sbuf)
-	if ( fbuf ) fbuf->close();
-#endif
 	ostrm->flush();
 	if ( ostrm != &std::cout && ostrm != &std::cerr )
 	    delete ostrm;
@@ -829,19 +820,16 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	}
 
 #ifdef __msvc__
-	std::winfilebuf* fb = new std::winfilebuf( sd.fileName(),
-		binary ? std::ios_base::in | std::ios_base::binary
-		       : std::ios_base::in );
-	sd.istrm = fb->isOK() ? new std::istream(fb) : 0;
+	sd.istrm = new std::winifstream(
 #else
-	sd.istrm = new std::ifstream( sd.fileName(),
-		      binary ? std::ios_base::in | std::ios_base::binary 
-			     : std::ios_base::in );
+	sd.istrm = new std::ifstream(
+#endif
+	    sd.fileName(), binary ? std::ios_base::in | std::ios_base::binary
+				  : std::ios_base::in );
+
 	if ( doesexist ? sd.istrm->bad() : !sd.istrm->good() )
 	    { delete sd.istrm; sd.istrm = 0; }
-#endif
 	return sd;
-
     }
 
     mkOSCmd( true );
@@ -890,17 +878,14 @@ StreamData StreamProvider::makeOStream( bool binary ) const
     if ( type_ != StreamConn::Command && hostname_.isEmpty() )
     {
 #ifdef __msvc__
-	std::winfilebuf* fb = new std::winfilebuf( sd.fileName(),
-		binary ? std::ios_base::out | std::ios_base::binary
-		       : std::ios_base::out );
-	sd.ostrm = fb->isOK() ? new std::ostream(fb) : 0;
+	sd.ostrm = new std::winofstream(
 #else
-	sd.ostrm = new std::ofstream( sd.fileName(),
-			  binary ? std::ios_base::out | std::ios_base::binary 
-				 : std::ios_base::out );
+	sd.ostrm = new std::ofstream(
+#endif
+	    sd.fileName(), binary ? std::ios_base::out | std::ios_base::binary
+				  : std::ios_base::out );
 	if ( sd.ostrm->bad() )
 	    { delete sd.ostrm; sd.ostrm = 0; }
-#endif
 	return sd;
     }
 
