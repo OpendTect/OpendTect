@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyexp.h,v 1.5 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uisegyexp.h,v 1.6 2009-08-03 13:59:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ protected:
     bool		autogentxthead_;
     BufferString	hdrtxt_;
     IOPar		pars_;
+    int			selcomp_;
 
     uiSeisSel*		seissel_;
     uiSeisTransfer*	transffld_;

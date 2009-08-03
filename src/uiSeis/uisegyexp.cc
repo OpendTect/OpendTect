@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.18 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.19 2009-08-03 13:59:30 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uisegyexp.cc,v 1.18 2009-07-22 16:01:41 cvsbert
 #include "uiseisioobjinfo.h"
 #include "segyhdr.h"
 #include "segytr.h"
+#include "seisread.h"
 #include "seiswrite.h"
 #include "seissingtrcproc.h"
 #include "uimsg.h"
@@ -28,6 +29,7 @@ static const char* rcsID = "$Id: uisegyexp.cc,v 1.18 2009-07-22 16:01:41 cvsbert
 #include "uitaskrunner.h"
 #include "uifileinput.h"
 #include "uifiledlg.h"
+#include "uiselsimple.h"
 #include "uitextedit.h"
 #include "executor.h"
 #include "ctxtioobj.h"
@@ -162,6 +164,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     	, geom_(gt)
     	, morebut_(0)
     	, autogentxthead_(true)
+	, selcomp_(-1)
 {
     seissel_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_) );
     seissel_->selectiondone.notify( mCB(this,uiSEGYExp,inpSel) );
@@ -371,13 +374,18 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const char* lnm = is2d && transffld_->selFld2D()
 			   && transffld_->selFld2D()->isSingLine()
 		    ? transffld_->selFld2D()->selectedLine() : 0;
+    bool rv;
     if ( !morebut_ || !morebut_->isChecked() )
-	return doWork( *inioobj, *outioobj, lnm, attrnm );
+	rv = doWork( *inioobj, *outioobj, lnm, attrnm );
     else
     {
 	uiSEGYExpMore dlg( this, *inioobj, *outioobj, attrnm );
-	return dlg.go();
+	rv = dlg.go();
     }
+
+    rv &= selcomp_ < 0;
+    selcomp_ = -1;
+    return rv;
 }
 
 
@@ -398,17 +406,34 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     PtrMan<Executor> execptrman = exec;
 
     mDynamicCastGet(SeisSingleTraceProc*,sstp,exec)
-    if ( sstp && !autogentxthead_ && !hdrtxt_.isEmpty() )
+    if ( sstp )
     {
-	const SeisTrcWriter* wrr = sstp->writer();
-	SeisTrcTranslator* tr =
-	    	const_cast<SeisTrcTranslator*>(wrr->seisTranslator());
-	mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,tr)
-	if ( segytr )
+	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
+	SeisIOObjInfo oinf( rdr.ioObj() );
+	if ( oinf.isOK() && oinf.nrComponents() > 1 && selcomp_ < 0 )
 	{
-	    SEGY::TxtHeader* th = new SEGY::TxtHeader;
-	    th->setText( hdrtxt_ );
-	    segytr->setTxtHeader( th );
+	    const LineKey lk( linenm, attrnm );
+	    BufferStringSet cnms; oinf.getComponentNames( cnms, lk );
+	    uiSelectFromList dlg( this,
+		uiSelectFromList::Setup("Please select the component",cnms) );
+	    if ( !dlg.go() )
+		return false;
+	    selcomp_ = dlg.selection();
+	}
+	rdr.setComponent( selcomp_ );
+
+	if ( !autogentxthead_ && !hdrtxt_.isEmpty() )
+	{
+	    const SeisTrcWriter* wrr = sstp->writer();
+	    SeisTrcTranslator* tr =
+		    const_cast<SeisTrcTranslator*>(wrr->seisTranslator());
+	    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,tr)
+	    if ( segytr )
+	    {
+		SEGY::TxtHeader* th = new SEGY::TxtHeader;
+		th->setText( hdrtxt_ );
+		segytr->setTxtHeader( th );
+	    }
 	}
     }
 
