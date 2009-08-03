@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.13 2009-07-22 16:01:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.14 2009-08-03 12:10:42 cvsraman Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -154,7 +154,7 @@ void uiMeasureDlg::fill( TypeSet<Coord3>& points )
     
 	if ( SI().zIsTime() )
 	    totrealdist += 
-		Math::Sqrt( hdist*hdist + velocity*velocity*zdist*zdist );
+		Math::Sqrt( hdist*hdist + velocity*velocity*zdist*zdist / 4 );
 	else if ( SI().zInMeter() )
 	{
 	   if ( SI().xyInFeet() )
