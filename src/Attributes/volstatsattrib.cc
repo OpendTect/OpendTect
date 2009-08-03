@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.47 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.48 2009-08-03 08:26:11 cvsbert Exp $";
 
 #include "volstatsattrib.h"
 
@@ -142,6 +142,7 @@ VolStats::VolStats( Desc& ds )
     mGetEnum( shape_, shapeStr() );
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
+    gate_.sort();
 
     mGetInt( optstackstep_, optstackstepStr() );
     mGetEnum( optstackdir_, optstackdirStr() );
