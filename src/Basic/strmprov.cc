@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.102 2009-07-31 10:19:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.103 2009-08-03 05:23:03 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,7 +164,6 @@ bool ExecOSCmd( const char* comm, bool inbg )
 #endif
 }
 
-
 const char* GetExecCommand( const char* prognm, const char* filenm )
 {
     static BufferString cmd;
@@ -185,7 +184,7 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 
 #ifdef __msvc__
     cmd = BufferString( prognm, " ", filenm );
-    return ExecOSCmd( cmd, true );
+    return ExecOSCmd( cmd, false );
 #endif
     
     cmd = GetExecCommand( prognm, filenm );
