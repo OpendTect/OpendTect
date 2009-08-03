@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.36 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.37 2009-08-03 13:51:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,9 @@ public:
     bool		isPrepared() const		{ return prepared; }
     Seis::Bounds*	getBounds() const;
     			//!< use after prepareWork(). If not avail: survinfo
+    void		setComponent( int ic )		{ selcomp_ = ic; }
+    			//!< use before startWork()
+    			//!< -1 (default) is all components
 
     			// 2D only
     int			curLineIdx() const		{ return curlineidx; }
@@ -101,6 +104,7 @@ protected:
     SeisPS3DReader*	psrdr_;
     PosInfo::CubeDataIterator* pscditer_;
     BinID		curpsbid_;
+    int			selcomp_;
 
     void		init();
     Conn*		openFirst();

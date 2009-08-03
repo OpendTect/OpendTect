@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.96 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.97 2009-08-03 13:51:14 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -40,6 +40,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
     	, psrdr_(0)
     	, tbuf_(0)
     	, pscditer_(0)
+    	, selcomp_(-1)
 {
     init();
     if ( ioobj )
@@ -55,6 +56,7 @@ SeisTrcReader::SeisTrcReader( const char* fname )
     	, psrdr_(0)
 	, pscditer_(0)
     	, tbuf_(0)
+    	, selcomp_(-1)
 {
     init();
 }
@@ -159,6 +161,11 @@ void SeisTrcReader::startWork()
     {
 	for ( int idx=0; idx<sttrl.componentInfo().size(); idx++ )
 	    sttrl.componentInfo()[idx]->datachar = DataCharacteristics();
+    }
+    if ( selcomp_ >= 0 )
+    {
+	for ( int idx=0; idx<sttrl.componentInfo().size(); idx++ )
+	    sttrl.componentInfo()[idx]->destidx = idx == selcomp_ ? 0 : -1;
     }
 
     sttrl.setSelData( seldata );
@@ -338,6 +345,21 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 }
 
 
+static void reduceComps( SeisTrc& trc, int selcomp )
+{
+    const int orgnrcomps = trc.nrComponents();
+    if ( selcomp < 0 || orgnrcomps < 2 ) return;
+    if ( selcomp >= orgnrcomps )
+	selcomp = orgnrcomps-1;
+
+    TraceData& td( trc.data() );
+    for ( int idx=0; idx<selcomp; idx++ )
+	td.delComponent( 0 );
+    for ( int idx=selcomp+1; idx<orgnrcomps; idx++ )
+	td.delComponent( 1 );
+}
+
+
 bool SeisTrcReader::get( SeisTrc& trc )
 {
     needskip = false;
@@ -356,6 +378,8 @@ bool SeisTrcReader::get( SeisTrc& trc )
 	strl()->skip();
 	return false;
     }
+
+    reduceComps( trc, selcomp_ );
     return true;
 }
 
@@ -419,6 +443,7 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
     trc.copyDataFrom( *buftrc, -1, forcefloats );
 
     delete tbuf_->remove(0);
+    reduceComps( trc, selcomp_ );
     nrtrcs++;
     return true;
 }
@@ -601,6 +626,7 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
     trc.copyDataFrom( *buftrc, -1, forcefloats );
 
     delete tbuf_->remove(0);
+    reduceComps( trc, selcomp_ );
     nrtrcs++;
     return true;
 }
