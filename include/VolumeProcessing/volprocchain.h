@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.9 2009-08-03 20:05:03 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.10 2009-08-03 20:17:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -109,6 +109,7 @@ public:
     				//!<\returns true if it wants to keep the data.
     virtual void		setOutput(Attrib::DataCubes*);
     virtual bool		canInputAndOutputBeSame() const { return false;}
+    virtual bool		needsFullVolume() const { return true;}
     const Attrib::DataCubes*	getOutput() const	{ return output_; }
     Attrib::DataCubes*		getOutput()		{ return output_; }
 
