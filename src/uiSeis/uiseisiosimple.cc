@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.26 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.27 2009-08-03 14:00:26 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -423,8 +423,8 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     data().setScaler( scalefld_->getScaler() );
     data().remnull_ = remnullfld_->getBoolValue();
-    data().compidx_ = multcompfld_->sensitive() ? multcompfld_->getIntValue()
-						: 0;
+    const bool ismulticomp = multcompfld_->sensitive();
+    data().compidx_ = ismulticomp ? multcompfld_->getIntValue() : 0;
 
     data().isasc_ = isascfld_->getBoolValue();
     data().havesd_ = havesdfld_->getBoolValue();
@@ -504,5 +504,5 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     SeisIOSimple sios( data(), isimp_ );
     uiTaskRunner dlg( this );
-    return dlg.execute( sios );
+    return dlg.execute( sios ) && !ismulticomp;
 }
