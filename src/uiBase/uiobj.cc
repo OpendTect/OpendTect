@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.87 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.88 2009-08-04 05:05:50 cvsnanne Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -273,10 +273,16 @@ void uiObject::display( bool yn, bool shrink, bool maximise )
 }
 
 void uiObject::setFocus()			
-    { mBody()->uisetFocus(); }
+{ mBody()->uisetFocus(); }
     
 bool uiObject::hasFocus() const			
-    { return mConstBody()->uihasFocus(); }
+{ return mConstBody()->uihasFocus(); }
+
+void uiObject::disabFocus()
+{
+    if ( qwidget() )
+	qwidget()->setFocusPolicy( Qt::NoFocus );
+}
 
 
 void uiObject::setCursor( const MouseCursor& cursor )

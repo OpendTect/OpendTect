@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.63 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiobj.h,v 1.64 2009-08-04 05:05:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ public:
     void		display(bool yn,bool shrink=false,bool maximised=false);
     void		setFocus();
     bool		hasFocus() const;
+    void		disabFocus();
 
     void		setCursor(const MouseCursor&);
 
