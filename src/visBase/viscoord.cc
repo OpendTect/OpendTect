@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoord.cc,v 1.35 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.36 2009-08-04 20:07:21 cvskris Exp $";
 
 #include "viscoord.h"
 
@@ -368,6 +368,20 @@ void Coordinates::setPositions( const TypeSet<Coord3>& pos)
     coords_->point.enableNotify( oldstatus );
     coords_->point.touch();
 }
+
+
+void Coordinates::setPositions( const TypeSet<Coord3>& pos, int start )
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    const bool oldstatus = coords_->point.enableNotify( false );
+    for ( int idx=0; idx<pos.size(); idx++ )
+	setPosWithoutLock(idx, pos[idx] );
+
+    coords_->point.enableNotify( oldstatus );
+    coords_->point.touch();
+}
+
 
 
 CoordListAdapter::CoordListAdapter( Coordinates& c )
