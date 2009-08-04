@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.58 2009-07-29 06:24:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.59 2009-08-04 05:13:25 cvsnanne Exp $";
 
 #include "horizonadjuster.h"
 
@@ -41,7 +41,7 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
     tracker_->setSimilarityWindow(
 	    Interval<float>(-10*SI().zStep(), 10*SI().zStep() ) );
     tracker_->setPermittedRange(
-	    Interval<float>(-5*SI().zStep(), 5*SI().zStep() ) );
+	    Interval<float>(-3*SI().zStep(), 3*SI().zStep() ) );
     tracker_->setRangeStep( SI().zStep() );
 }
 
@@ -103,7 +103,7 @@ float HorizonAdjuster::amplitudeThreshold() const
 
 
 void HorizonAdjuster::setAmplitudeThresholds( const TypeSet<float>& ats )
-{ tracker_->setAllowedVariances( ats ); }
+{ tracker_->setAmplitudeThresholds( ats ); }
 
 
 TypeSet<float>& HorizonAdjuster::getAmplitudeThresholds()

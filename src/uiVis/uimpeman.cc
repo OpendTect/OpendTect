@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.171 2009-07-31 07:11:28 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.172 2009-08-04 05:13:25 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -127,7 +127,7 @@ void uiMPEMan::addButtons()
 	    			       "Track From Seeds Only", false );
 
     retrackallinx = mAddButton( "retrackhorizon.png", retrackAllCB,
-	    			 "Retrack All", false );
+	    			"Retrack All", false );
     toolbar->addSeparator();
 
     displayatsectionidx = mAddButton( "sectiononly.png", displayAtSectionCB,
@@ -448,7 +448,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 
 void uiMPEMan::restoreActiveVolume()
-{ 
+{
     if ( !isPickingWhileSetupUp() )
 	restoreActiveVol();
 }
@@ -580,14 +580,13 @@ bool uiMPEMan::isPickingWhileSetupUp() const
 
 void uiMPEMan::updateOldActiveVol()
 {
-     if ( oldactivevol.isEmpty() )
-     {
-	 MPE::engine().swapCacheAndItsBackup();
-	 oldactivevol = MPE::engine().activeVolume();
-	 oldtrackplane = MPE::engine().trackPlane();
-     }
+    if ( oldactivevol.isEmpty() )
+    {
+	MPE::engine().swapCacheAndItsBackup();
+	oldactivevol = MPE::engine().activeVolume();
+	oldtrackplane = MPE::engine().trackPlane();
+    }
 }
-
 
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
@@ -1016,7 +1015,7 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool isseedpicking = toolbar->isOn(seedidx);
     
     toolbar->setSensitive( moveplaneidx, !is2d );
-    toolbar->setSensitive( showcubeidx, !is2d ); 
+    toolbar->setSensitive( showcubeidx, !is2d );
 
     const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
     toolbar->setSensitive( trackinvolidx,
@@ -1047,13 +1046,10 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     toolbar->turnOn( moveplaneidx, trackerisshown && tm==TrackPlane::Move );
 
-    if ( !tracker )
-	toolbar->setSensitive( false );
-    else
-    {	
-	if ( !(visserv->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
-	   toolbar->setSensitive( true );
-    }
+    toolbar->setSensitive( tracker );
+    if ( seedpicker &&
+	    !(visserv->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
+	toolbar->setSensitive( true );
 }
 
 
@@ -1418,8 +1414,7 @@ void uiMPEMan::showSettingsCB( CallBacker* )
 void uiMPEMan::displayAtSectionCB( CallBacker* )
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    if ( !tracker )
-	return;
+    if ( !tracker ) return;
 
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size()!=1 || visserv->isLocked(selectedids[0]) )
@@ -1441,8 +1436,7 @@ void uiMPEMan::displayAtSectionCB( CallBacker* )
 void uiMPEMan::retrackAllCB( CallBacker* )
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    if ( !tracker )
-	return;
+    if ( !tracker ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker) return;
@@ -1457,41 +1451,41 @@ void uiMPEMan::retrackAllCB( CallBacker* )
     emobj->removeAllUnSeedPos();
 
     CubeSampling realactivevol = MPE::engine().activeVolume();
-     ObjectSet<CubeSampling>* trackedcubes =
-	 MPE::engine().getTrackedFlatCubes( 
-		 MPE::engine().getTrackerByObject(tracker->objectID()) );
-     if ( trackedcubes )
-     {
-	 for ( int idx=0; idx<trackedcubes->size(); idx++ )
-	 {
-	     NotifyStopper notifystopper( MPE::engine().activevolumechange );
-	     MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
-	     notifystopper.restore();
+    ObjectSet<CubeSampling>* trackedcubes =
+	MPE::engine().getTrackedFlatCubes(
+	    MPE::engine().getTrackerByObject(tracker->objectID()) );
+    if ( trackedcubes )
+    {
+	for ( int idx=0; idx<trackedcubes->size(); idx++ )
+	{
+	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
+	    MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
+	    notifystopper.restore();
 
-	     const CubeSampling curvol =  MPE::engine().activeVolume();
-	     if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
-		 visserv->fireLoadAttribDataInMPEServ();
+	    const CubeSampling curvol =  MPE::engine().activeVolume();
+	    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
+		visserv->fireLoadAttribDataInMPEServ();
 
-	     seedpicker->reTrack();
-	 }
+	    seedpicker->reTrack();
+	}
 
-	 emobj->setBurstAlert( false );
-	 deepErase( *trackedcubes );
-     }
-     else
-     {
-	 seedpicker->reTrack();
-	 emobj->setBurstAlert( false );
-     }
+	emobj->setBurstAlert( false );
+	deepErase( *trackedcubes );
+    }
+    else
+    {
+	seedpicker->reTrack();
+	emobj->setBurstAlert( false );
+    }
 
-     MPE::engine().setActiveVolume( realactivevol );
+    MPE::engine().setActiveVolume( realactivevol );
 
-     if ( !(MPE::engine().activeVolume().nrInl()==1) &&
-	  !(MPE::engine().activeVolume().nrCrl()==1) )
-	 trackInVolume(0);
+    if ( !(MPE::engine().activeVolume().nrInl()==1) &&
+	 !(MPE::engine().activeVolume().nrCrl()==1) )
+	trackInVolume(0);
 
-     MouseCursorManager::restoreOverride();
-     undo.setUserInteractionEnd( undo.currentEventID() );
+    MouseCursorManager::restoreOverride();
+    undo.setUserInteractionEnd( undo.currentEventID() );
 }
 
 

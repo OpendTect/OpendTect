@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.30 2009-07-29 06:26:07 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.31 2009-08-04 05:13:25 cvsnanne Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -29,12 +29,13 @@ static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.30 2009-07-29 06:26:
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
+#include "uidialog.h"
 #include "uigeninput.h"
-#include "uigeninputdlg.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uislider.h"
+#include "uitable.h"
 #include "uitabstack.h"
 
 
@@ -182,8 +183,8 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     ampthresholdfld->valuechanged.notify( 
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
-    addstepbut = new uiPushButton( grp, "Add Step(s)",
-	    mCB(this,uiHorizonSetupGroup,addStepPushedCB), true );
+    addstepbut = new uiPushButton( grp, "Steps",
+	    mCB(this,uiHorizonSetupGroup,addStepPushedCB), false );
     addstepbut->attach( rightTo, ampthresholdfld );
 
     extriffailfld = new uiGenInput( grp, "If tracking fails",
@@ -377,23 +378,54 @@ void uiHorizonSetupGroup::seedColSel( CallBacker* )
 }
 
 
+class uiStepDialog : public uiDialog
+{
+public:
+
+uiStepDialog( uiParent* p, const char* valstr )
+    : uiDialog(p,Setup("Stepwise tracking","","108.0.1"))
+{
+    steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")
+				    .rowgrow(true).defrowlbl(true),
+			      "Stepwise tracking table" );
+    steptable_->setColumnLabel( 0, "Value" );
+
+    SeparString ss( valstr, ',' );
+    if ( ss.size() > 3 )
+	steptable_->setNrRows( ss.size() + 2 );
+
+    for ( int idx=0; idx<ss.size(); idx++ )
+	steptable_->setText( RowCol(idx,0), ss[idx] );
+}
+
+
+void getValueString( BufferString& valstr )
+{
+    SeparString ss( 0, ',' );
+    for ( int idx=0; idx<steptable_->nrRows(); idx++ )
+    {
+	const char* valtxt = steptable_->text( RowCol(idx,0) );
+	if ( !valtxt || !*valtxt ) continue;
+	ss.add( valtxt );
+    }
+
+    valstr = ss.buf();
+}
+
+    uiTable*	steptable_;
+};
+
+
 void uiHorizonSetupGroup::addStepPushedCB(CallBacker*)
 {
-    uiGenInputDlg dlg( this, "Add value(s) for step(s), ',' separated",
-	    	       "Value(string)", new StringInpSpec() );
-    if ( !dlg.go() ) return;
-
-    const char* valuestring = dlg.text();
-    
-    SeparString ss( ampthresholdfld->text(), ',' );
-    
-    BufferString bs;
-    bs += ampthresholdfld->text();
-    if ( ss.size() > 0 )
-	bs += ",";
-    bs += valuestring;
-
-    ampthresholdfld->setText( bs.buf() );
+    uiStepDialog dlg( this, ampthresholdfld->text() );
+    if ( dlg.go() )
+    {
+	BufferString valstr;
+	dlg.getValueString( valstr );
+	ampthresholdfld->setText( valstr );
+	propertychanged_.trigger();
+    }
 }
     
 
@@ -655,7 +687,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	}
 
 	if ( idx==0 && horadj_->getAmplitudeThresholds().size() > 0 )
-	    horadj_->getAmplitudeThresholds()[idx] = 
+	    horadj_->getAmplitudeThresholds()[idx] =
 				horadj_->amplitudeThreshold();
     }
     else
