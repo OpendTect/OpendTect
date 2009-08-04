@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.60 2009-08-04 20:27:03 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.61 2009-08-04 20:29:17 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1335,7 +1335,7 @@ HorizonSectionTile::HorizonSectionTile()
 	allnormalsinvalid_[idx] = true;
 	needsretesselation_[idx] = false;
 	wireframeneedsupdate_[idx] = true;
-	resolutions_[idx] = new SoGroup;
+	resolutions_[idx] = new SoSeparator;//We want caching here, so no group
 	resswitch_->addChild( resolutions_[idx] );
 
 	triangles_[idx] = new SoIndexedTriangleStripSet;
