@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.12 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: datainterp.h,v 1.13 2009-08-04 08:13:02 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -26,8 +26,14 @@ are supported and instantiated.
 
 */
 
+#if defined(__msvc__) && defined(GENERAL_EXPORTS)
+# define mGenClass	class dll_export
+#else
+# define mGenClass	class
+#endif
+
 template<class T>
-mGeneralClass DataInterpreter
+mGenClass DataInterpreter
 {
 public:
 			DataInterpreter(const DataCharacteristics&,
