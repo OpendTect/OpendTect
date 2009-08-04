@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.11 2009-07-29 06:22:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.12 2009-08-04 04:44:21 cvsnanne Exp $";
 
 #include "valseriestracker.h"
 
@@ -87,7 +87,12 @@ EventTracker::EventTracker()
     , normalizesimi_( false )
     , quality_( 1 )
     , rangestep_( 1 )
-{}
+{
+#define mAddAV(v) allowedvars_ += v
+    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
+#undef mAddAV
+
+}
 
 
 void EventTracker::setPermittedRange( const Interval<float>& rg )
