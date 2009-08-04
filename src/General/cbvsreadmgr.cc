@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.57 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.58 2009-08-04 12:21:46 cvsbert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -738,16 +738,10 @@ const char* CBVSReadMgr::check( const char* basefname )
 static void putComps( std::ostream& strm,
 		      const ObjectSet<BasicComponentInfo>& cinfo )
 {
-    strm << "Data is written on a "
-	 << (cinfo[0]->datachar.littleendian ? "little" : "big")
-	 << " endian machine.\n";
-
     for ( int idx=0; idx<cinfo.size(); idx++ )
     {
 	const BasicComponentInfo& bci = *cinfo[idx];
-	strm << "\nComponent '" << (const char*)bci.name() << "':";
-	DataCharacteristics::UserType ut = bci.datachar.userType();
-	strm << eString(DataCharacteristics::UserType,ut) << "\n\n";
+	strm << "\nComponent " << idx+1 << ": '" << bci.name() << "'";
     }
 }
 
@@ -777,14 +771,19 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
     if ( info().nrtrcsperposn > 1 )
 	strm << info().nrtrcsperposn << " traces per position" << std::endl;
 
-    if ( inclcompinfo )
-	putComps( strm, info().compinfo );
-
     strm << "The " << datastr
 	 << (info().geom.fullyrectandreg ?
 	    (singinl == -999 ? " is 100% rectangular.": " has no gaps.")
 	    : " is irregular.")
 	 << '\n';
+
+    if ( info().compinfo.size() > 1 )
+    {
+	putComps( strm, info().compinfo );
+	strm << '\n';
+    }
+    strm << '\n';
+
     if ( singinl != -999 )
     {
 	strm << "Line number: " << singinl << '\n';
@@ -799,7 +798,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
     }
     strm << info().geom.start.crl << " - " << info().geom.stop.crl
 	 << " (step " << info().geom.step.crl << ").\n";
-    strm << "Z start: " << info().sd.start
+    strm << "\nZ start: " << info().sd.start
 	 << " step: " << info().sd.step << '\n';
     strm << "Number of samples: " << info().nrsamples << "\n\n";
     strm << std::endl;
