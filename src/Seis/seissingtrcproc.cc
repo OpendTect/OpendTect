@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.57 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.58 2009-08-04 12:20:24 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -423,9 +423,23 @@ bool SeisSingleTraceProc::writeTrc()
     if ( nrwr_ < 1 && wrr_ && wrr_->seisTranslator() )
     {
 	const SeisTrcReader& currdr = *rdrset_[currentobj_];
-	wrr_->seisTranslator()->setCurLineKey( currdr.lineKey() );
+	SeisTrcTranslator& wrtr = *wrr_->seisTranslator();
+	wrtr.setCurLineKey( currdr.lineKey() );
 	if ( currdr.is2D() )
-	    wrr_->seisTranslator()->packetInfo().crlrg = currdr.curTrcNrRange();
+	    wrtr.packetInfo().crlrg = currdr.curTrcNrRange();
+	else
+	{
+	    if ( !wrr_->prepareWork(*worktrc_) )
+		{ curmsg_ = wrr_->errMsg(); return false; }
+	    if ( currdr.seisTranslator() && worktrc_->nrComponents() > 1 )
+	    {
+		SeisTrcTranslator& rdtr = const_cast<SeisTrcTranslator&>(
+						*currdr.seisTranslator() );
+		for ( int icomp=0; icomp<wrtr.componentInfo().size(); icomp++ )
+		    wrtr.componentInfo()[icomp]->setName(
+			    	rdtr.componentInfo()[icomp]->name() );
+	    }
+	}
     }
 
     if ( wrr_ && !wrr_->put(*worktrc_) )
