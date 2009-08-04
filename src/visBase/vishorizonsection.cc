@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.59 2009-08-04 16:41:35 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.60 2009-08-04 20:27:03 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -261,6 +261,9 @@ protected:
 
     bool doWork( od_int64 start, od_int64 stop, int threadid )
     {
+	TypeSet<Coord3> positions;
+	positions.setCapacity( mNrCoordsPerTileSide*mNrCoordsPerTileSide );
+
 	for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
 	{
 	    for ( int rowidx=0; rowidx<mNrCoordsPerTileSide; rowidx++ )
@@ -277,11 +280,12 @@ protected:
 			? geo_.getKnot(RowCol(row,col),false) 
 			: Coord3::udf();
 		    if ( zat_ ) pos.z = zat_->transform( pos );
-			
-		    tiles_[idx]->setPos( rowidx, colidx, pos );
+		
+	    	    positions += pos;
 		}
 	    }
 
+	    tiles_[idx]->setPositions( positions );
 	    addToNrDone(1);
 	}
 
@@ -2078,6 +2082,21 @@ void HorizonSectionTile::setWireframe( int res )
 }
 
 
+void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
+{
+    coords_->setPositions( pos, 0 );
+    for ( int idx=0; idx<mHorSectNrRes; idx++ )
+    {
+	needsretesselation_[idx] = true;
+	allnormalsinvalid_[idx] = true;
+	invalidnormals_[idx].erase();
+	wireframeneedsupdate_[idx] = true;
+    }
+
+    needsupdatebbox_ = true;
+}
+ 
+ 
 void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
 {
     if ( (nbidx==5 || nbidx==7 || nbidx==8 ) && neighbors_[nbidx]!=nb )

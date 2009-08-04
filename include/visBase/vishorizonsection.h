@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.36 2009-08-04 16:41:35 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.37 2009-08-04 20:27:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -194,6 +194,7 @@ public:
     				/*<Update only when the resolutionis -1. */
     void			setNeighbor(int,HorizonSectionTile*);
     void			setPos(int row,int col,const Coord3&);
+    void			setPositions(const TypeSet<Coord3>&);
     void			setDisplayTransformation(Transformation*);
 
     void			setTextureSize(int rowsz,int colsz);
