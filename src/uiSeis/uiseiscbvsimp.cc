@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.54 2009-07-28 07:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.55 2009-08-04 12:24:41 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "seistrctr.h"
+#include "seisread.h"
 #include "seisselection.h"
+#include "seissingtrcproc.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"
@@ -29,6 +31,7 @@ static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.54 2009-07-28 07:15:30 cvs
 #include "uibutton.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
+#include "uicombobox.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseisioobjinfo.h"
@@ -65,16 +68,22 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 void uiSeisImpCBVS::init( bool fromioobj )
 {
     finpfld = 0; modefld = typefld = 0; oinpfld = 0; convertfld = 0;
+    compfld_ = 0;
+    ismc_ = false;
     setTitleText( fromioobj ? "Specify transfer parameters"
 	    		    : "Create CBVS cube definition" );
     tmpid_ = "100010."; tmpid_ += IOObj::tmpID();
 
+    uiGroup* attobj = 0;
     if ( fromioobj )
     {
 	inctio_.ctxt.forread = true;
 	inctio_.ctxt.trglobexpr = "CBVS";
 	oinpfld = new uiSeisSel( this, inctio_, uiSeisSel::Setup(Seis::Vol) );
 	oinpfld->selectiondone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
+	compfld_ = new uiLabeledComboBox( this, "Component(s)" );
+	attobj = compfld_;
+	compfld_->attach( alignedBelow, oinpfld );
     }
     else
     {
@@ -97,6 +106,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 			  BoolInpSpec(false,"Copy the data","Use in-place") );
 	modefld->attach( alignedBelow, typefld );
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
+	attobj = modefld;
 
 	convertfld = new uiCheckBox( this, 
 		"Convert underscores to spaces in Output Cube name",
@@ -107,8 +117,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     sts.withnullfill(fromioobj).withstep(true).onlyrange(false)
 				.fornewentry(true);
     transffld = new uiSeisTransfer( this, sts );
-    transffld->attach( alignedBelow,
-	    		modefld ? (uiGroup*)modefld : (uiGroup*)oinpfld );
+    transffld->attach( alignedBelow, attobj );
 
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
@@ -166,8 +175,23 @@ void uiSeisImpCBVS::typeChg( CallBacker* )
 
 void uiSeisImpCBVS::oinpSel( CallBacker* cb )
 {
+    if ( !oinpfld ) return;
+    oinpfld->commitInput();
+    ismc_ = false;
     if ( inctio_.ioobj )
+    {
 	transffld->updateFrom( *inctio_.ioobj );
+	SeisIOObjInfo oinf( *inctio_.ioobj );
+	ismc_ = oinf.isOK() && oinf.nrComponents() > 1;
+	compfld_->display( ismc_ );
+	if ( ismc_ )
+	{
+	    BufferStringSet cnms; oinf.getComponentNames( cnms );
+	    compfld_->box()->empty();
+	    compfld_->box()->addItem( "<All>" );
+	    compfld_->box()->addItems( cnms );
+	}
+    }
     typeChg( cb );
 }
 
@@ -272,6 +296,13 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 				attrnm );
     if ( !stp )
 	{ rmTmpIOObj(); return false; }
+
+    if ( ismc_ )
+    {
+	mDynamicCastGet(SeisSingleTraceProc*,sstp,stp.ptr())
+	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
+	rdr.setComponent( compfld_->box()->currentItem() - 1 );
+    }
 
     uiTaskRunner dlg( this );
     const bool rv = dlg.execute(*stp) && !ioobjinfo.is2D() &&
