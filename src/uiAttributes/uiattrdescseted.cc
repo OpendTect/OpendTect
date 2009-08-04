@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.89 2009-07-23 10:54:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.90 2009-08-04 07:28:02 cvsranojay Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -995,18 +995,31 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
-    const char* ptr = GetBaseDataDir();
-    if ( !ptr ) return;
+     const char* basedir = GetBaseDataDir();
+    if ( !basedir ) return;
 
-    PtrMan<DirList> dirlist = new DirList( ptr, DirList::DirsOnly );
-    dirlist->sort();
+    PtrMan<DirList> dirlist = new DirList( basedir, DirList::DirsOnly );
+    BufferStringSet survlist;
+    for ( int idx=0; idx<dirlist->size(); idx++ )
+    {
+	const char* dirnm = dirlist->get( idx );
+	if ( matchString("_New_Survey_",dirnm) )
+	    continue;
 
-    uiSelectFromList::Setup setup( "Survey", *dirlist );
+	FilePath fp( basedir );
+	fp.add( dirnm ).add( ".survey" );
+	BufferString survfnm = fp.fullPath();
+	if ( File_exists(survfnm) )
+	    survlist.add( dirnm );
+    }
+    survlist.sort();
+
+    uiSelectFromList::Setup setup( "Survey", survlist );
     setup.dlgtitle( "Select survey" );
     uiSelectFromList dlg( this, setup );
     if ( dlg.go() )
     {
-	FilePath fp( ptr ); fp.add( dlg.selFld()->getText() );
+	FilePath fp( basedir ); fp.add( dlg.selFld()->getText() );
 	IOM().setRootDir( fp.fullPath() );
 	setctio_.ctxt.forread = true;
         uiIOObjSelDlg objdlg( this, setctio_ );

@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.18 2009-07-22 16:03:40 cvsbert Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.19 2009-08-04 07:28:02 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -154,6 +154,7 @@ extern const char* GetSettingsDataDir();
 
 const char* GetBaseDataDir()
 {
+    static FileNameString bddir;
     const char* dir = 0;
 
 #ifdef __win__
@@ -173,7 +174,9 @@ const char* GetBaseDataDir()
 
 #endif
 
-    return dir;
+    if ( !dir ) return 0;
+    strcpy( bddir, dir );
+    return bddir;
 }
 
 
