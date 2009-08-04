@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.58 2009-07-30 19:21:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.59 2009-08-04 16:41:35 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -315,6 +315,7 @@ HorizonSection::HorizonSection()
     , tiles_( 0, 0 )					  
     , texturecrds_( new SoTextureCoordinate2 )
     , desiredresolution_( -1 )
+    , ismoving_( false )
     , usewireframe_( false )
     , cosanglexinl_( cos(SI().computeAngleXInl()) )
     , sinanglexinl_( sin(SI().computeAngleXInl()) )		     
@@ -1183,6 +1184,16 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 {
     const int tilesz = tiles_.info().getTotalSz();
     if ( !tilesz || !state ) return;
+
+    if ( desiredresolution_!=-1 )
+	return;
+
+    const int32_t camerainfo = SoCameraInfoElement::get(state);
+    bool ismoving = camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE);
+    if ( ismoving_==ismoving )
+	return;
+
+    ismoving_ = ismoving;
 
     HorizonSectionTileUpdater task( *this, state, desiredresolution_ );
     if ( tr )

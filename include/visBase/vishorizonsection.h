@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.35 2009-07-22 21:56:52 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.36 2009-08-04 16:41:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -166,6 +166,7 @@ protected:
     				//-1 not needed by zaxistransform, -2 not set
 				
     int				desiredresolution_;
+    bool			ismoving_;
     double			cosanglexinl_;
     double			sinanglexinl_;
     float			rowdistance_;
