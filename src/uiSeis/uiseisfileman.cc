@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.89 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.90 2009-08-04 12:23:16 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -132,7 +132,12 @@ void uiSeisFileMan::ownSelChg()
 void uiSeisFileMan::mkFileInfo()
 {
     BufferString txt;
-    const bool is2d = SeisTrcTranslator::is2D( *curioobj_ );
+    SeisIOObjInfo oinf( curioobj_ );
+
+    if ( oinf.isOK() )
+    {
+
+    const bool is2d = oinf.is2D();
     if ( is2d )
     {
 	BufferString fnm( curioobj_->fullUserExpr(true) );
@@ -151,7 +156,6 @@ void uiSeisFileMan::mkFileInfo()
     CubeSampling cs;
     if ( !is2d )
     {
-	SeisIOObjInfo oinf( *curioobj_ );
 	if ( oinf.getRanges(cs) )
 	{
 	    txt = "";
@@ -197,6 +201,13 @@ void uiSeisFileMan::mkFileInfo()
 	}
 	delete tri;
     }
+
+    const int nrcomp = oinf.nrComponents();
+    if ( nrcomp > 1 )
+	{ txt += "\nNumber of components: "; txt += nrcomp; }
+
+
+    } // if ( oinf.isOK() )
 
     if ( !txt.isEmpty() ) txt += "\n";
     txt += getFileInfo();
