@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.60 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.61 2009-08-04 05:11:03 cvsnanne Exp $";
 
 -*/
 
@@ -275,7 +275,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr, 
 	    	  IOObj* ioobj = IOM().get( MultiID(pickidstr) );
-		  picksetfld_->ctxtIOObj().setObj( ioobj );
+		  if ( ioobj ) picksetfld_->setInput( *ioobj );
 	   	  picksetfld_->updateInput() )
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
@@ -380,9 +380,9 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     else if ( refgrpval == 2 )
     {
 	mSetInt( FingerPrint::statstypeStr(), statsfld_->getIntValue() );
-	if ( picksetfld_->ctxtIOObj().ioobj )
+	if ( picksetfld_->ioobj() )
 	    mSetString( FingerPrint::valpicksetStr(), 
-			picksetfld_->ctxtIOObj().ioobj->key().buf() )
+			picksetfld_->key() )
     }
 
     TypeSet<float> values = calcobj_->getValues();
@@ -539,7 +539,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
     {
 	ObjectSet<BinIDValueSet> values;
 	picksetfld_->processInput();
-	const IOObj* ioobj = picksetfld_->ctxtIOObj().ioobj;
+	const IOObj* ioobj = picksetfld_->ioobj();
 	if ( !ioobj )
 	{
 	    errmsg = "Please choose the pickset from which\n";
@@ -722,7 +722,7 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
     if ( refgrpval == 1 )
     {
 	picksetfld_->processInput();
-	const IOObj* ioobj = picksetfld_->ctxtIOObj().ioobj;
+	const IOObj* ioobj = picksetfld_->ioobj();
 	if ( !ioobj )
 	{
 	    errmsg_ = "Please choose the pickset from which\n";
@@ -762,8 +762,8 @@ bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
 
     if ( refgrpval == 1 )
     {
-	if ( picksetfld_->ctxtIOObj().ioobj )
-	    calcobj_.setRgRefPick( picksetfld_->ctxtIOObj().ioobj->key().buf());
+	if ( picksetfld_->ioobj() )
+	    calcobj_.setRgRefPick( picksetfld_->key() );
     }
 
     TypeSet<float> values;
