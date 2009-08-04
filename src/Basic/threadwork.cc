@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.26 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.27 2009-08-04 16:32:06 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -236,7 +236,8 @@ Threads::ThreadWorkManager::~ThreadWorkManager()
 }
 
 
-void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb)
+void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb,
+					  bool firstinline )
 {
     const int nrthreads = threads_.size();
     if ( !nrthreads )
@@ -261,8 +262,16 @@ void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb)
 	return;
     }
 
-    workload_ += newtask;
-    callbacks_ += cb;
+    if ( firstinline )
+    {
+	workload_.insertAt( newtask, 0 );
+	callbacks_.insertAt( cb, 0 );
+    }
+    else
+    {
+	workload_ += newtask;
+	callbacks_ += cb;
+    }
 }
 
 
@@ -337,7 +346,8 @@ protected:
 };
 
 
-bool Threads::ThreadWorkManager::addWork( ObjectSet<SequentialTask>& work )
+bool Threads::ThreadWorkManager::addWork( ObjectSet<SequentialTask>& work,
+       					  bool firstinline )
 {
     if ( work.isEmpty() )
 	return true;
@@ -363,7 +373,7 @@ bool Threads::ThreadWorkManager::addWork( ObjectSet<SequentialTask>& work )
 	CallBack cb( mCB( &resultman, ThreadWorkResultManager, imFinished ));
 
 	for ( int idx=1; idx<nrwork; idx++ )
-	    addWork( work[idx], &cb );
+	    addWork( work[idx], &cb, firstinline );
 
 	res = work[0]->execute();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.21 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: threadwork.h,v 1.22 2009-08-04 16:32:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,10 +38,12 @@ public:
     				ThreadWorkManager(int nrthreads=-1);
 				~ThreadWorkManager();
 
-    void			addWork(SequentialTask*,CallBack* finished);
+    void			addWork(SequentialTask*,CallBack* finished,
+	    				bool putfirstinline=false);
     				/*!< Managed by caller */
 
-    bool			addWork(ObjectSet<SequentialTask>&);
+    bool			addWork(ObjectSet<SequentialTask>&,
+	    				bool firstinline = false);
     bool			removeWork(const SequentialTask*);	
     				/*!< Removes the task from queue
 				     and stop it if allready running
