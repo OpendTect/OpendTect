@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.184 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.185 2009-08-05 21:07:00 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -432,11 +432,26 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 
     const bool hor3d = typ==EMHorizon3DTranslatorGroup::keyword();
     PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &orisel : &sel);
-    if ( !exec ) return;
+    if ( !exec )
+    {
+	bool allmissing = true;
+	for ( int idx=0; idx<surfaceids.size(); idx++ )
+	{
+	    if ( em_.getObject(em_.getObjectID(surfaceids[idx])) )
+	    {
+		allmissing = false;
+		break;
+	    }
+        }
+	
+	if ( allmissing )
+	    return;
+    }    
 
     for ( int idx=0; idx<surfaceids.size(); idx++ )
     {
 	EM::EMObject* obj = em_.getObject( em_.getObjectID(surfaceids[idx]) );
+	if ( !obj ) continue;
 	obj->ref();
 	obj->setBurstAlert( true );
 	objs += obj;
@@ -447,9 +462,12 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 	}
     }
 
-    uiTaskRunner execdlg( parent() );
-    if ( !execdlg.execute(*exec) )
-	deepUnRef( objs );
+    if ( exec )
+    {
+    	uiTaskRunner execdlg( parent() );
+    	if ( !execdlg.execute(*exec) )
+    	    deepUnRef( objs );
+    }
 
     for ( int idx=0; idx<objs.size(); idx++ )
 	objs[idx]->setBurstAlert( false );
