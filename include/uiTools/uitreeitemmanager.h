@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.43 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.44 2009-08-05 06:31:12 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,7 @@ public:
 
     int				nrChildren() const { return children_.size(); }
     const uiTreeItem*		getChild(int) const;
+    uiTreeItem*			getChild(int);
 				 
     virtual bool		addChild(uiTreeItem* child,bool below);
     				/*!<Adds a child. If the child does not fit
