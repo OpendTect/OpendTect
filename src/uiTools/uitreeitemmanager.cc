@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.53 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.54 2009-08-05 06:30:53 cvsraman Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -296,6 +296,15 @@ uiTreeItem* uiTreeItem::lastChild()
 
 
 const uiTreeItem* uiTreeItem::getChild( int idx ) const
+{
+    if ( idx < 0 || idx >= children_.size() )
+	return 0;
+
+    return children_[idx];
+}
+
+
+uiTreeItem* uiTreeItem::getChild( int idx )
 {
     if ( idx < 0 || idx >= children_.size() )
 	return 0;
