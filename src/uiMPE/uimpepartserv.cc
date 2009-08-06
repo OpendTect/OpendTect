@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.99 2009-07-23 07:43:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.100 2009-08-06 12:13:41 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -695,8 +695,9 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     if ( !sectracker ) return false;
 
     trackercurrentobject_ = emid;
-    uiDialog* setupdlg  = new uiDialog( 0 , 
-	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1") );
+    uiDialog* setupdlg  = new uiDialog( parent(), 
+	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1")
+	   		       .modal(false) );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
     setupdlg->windowClosed.notify(
 	    mCB(this,uiMPEPartServer,trackerWinClosedCB) );
