@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.47 2009-08-06 02:25:19 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.48 2009-08-06 02:27:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ a static inistanciation of that can be retrieved by MPE::engine().
 class BufferStringSet;
 class Executor;
 class CubeSampling;
+class TaskRunner;
 class MultiID;
 
 namespace Attrib { class SelSpec; class DataCubes; }
