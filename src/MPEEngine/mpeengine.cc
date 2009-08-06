@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.92 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.93 2009-08-06 02:25:19 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -208,7 +208,8 @@ Executor* Engine::trackInVolume()
 }
 
 
-void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector )
+void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
+       				       TaskRunner* tr )
 {
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
@@ -216,7 +217,7 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector )
 	    continue;
 
 	EM::ObjectID oid = trackers_[idx]->objectID();
-	EM::EMM().removeSelected( oid, selector );
+	EM::EMM().removeSelected( oid, selector, tr );
 
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
 	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )

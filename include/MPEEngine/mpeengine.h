@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.46 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: mpeengine.h,v 1.47 2009-08-06 02:25:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,8 @@ public:
     bool		trackAtCurrentPlane();
     void		updateSeedOnlyPropagation(bool);
     Executor*		trackInVolume();
-    void		removeSelectionInPolygon(const Selector<Coord3>&);
+    void		removeSelectionInPolygon(const Selector<Coord3>&,
+	    					 TaskRunner*);
 
     void		getAvailableTrackerTypes(BufferStringSet&)const;
 
