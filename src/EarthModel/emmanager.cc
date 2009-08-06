@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.88 2009-08-04 20:15:42 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.89 2009-08-06 01:57:41 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -434,14 +434,15 @@ void EMManager::sortedHorizonsList( TypeSet<MultiID>& list, bool is2d ) const
 
 
 void EMManager::removeSelected( const ObjectID& id, 
-				const Selector<Coord3>& selector )
+				const Selector<Coord3>& selector,
+       				TaskRunner* tr )
 {
     EM::EMObject* emobj = getObject( id );
     if ( !emobj ) return;
 
     emobj->ref();
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    emobj->removeSelected( selector );
+    emobj->removeSelected( selector, tr );
     emobj->unRef();
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.96 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.97 2009-08-06 01:57:41 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -442,7 +442,8 @@ bool EMObject::isPosAttribLocked( int attr ) const
 }
 
 
-void EMObject::removeSelected( const Selector<Coord3>& selector )
+void EMObject::removeSelected( const Selector<Coord3>& selector,
+			       TaskRunner* tr )
 {
     if ( !selector.isOK() )
 	return;

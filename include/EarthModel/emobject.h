@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.88 2009-08-03 16:08:29 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.89 2009-08-06 01:57:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ class CubeSampling;
 class Executor;
 class IOObj;
 class IOObjContext;
+class TaskRunner;
 
 namespace Geometry { class Element; }
 
@@ -186,7 +187,8 @@ public:
 						      const MarkerStyle3D&);
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
-    virtual void		removeSelected(const Selector<Coord3>&);
+    virtual void		removeSelected(const Selector<Coord3>&,
+	    				       TaskRunner*);
     void			removeAllUnSeedPos();
     const CubeSampling		getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
