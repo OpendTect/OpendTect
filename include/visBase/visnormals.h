@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.12 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visnormals.h,v 1.13 2009-08-06 02:42:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,8 @@ public:
     void	set(int idx,const Coord3& n)	{ normals_.setNormal(idx,n); }
     void	remove(int idx)		{ normals_.removeNormal(idx); }
     Coord3	get(int idx) const	{ return normals_.getNormal(idx); }
+    bool	isDefined(int idx) const
+    		{ return normals_.getNormal(idx).isDefined(); }
 
 protected:
 		~NormalListAdapter()	{ normals_.unRef(); }

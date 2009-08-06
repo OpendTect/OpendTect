@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexturecoords.h,v 1.7 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistexturecoords.h,v 1.8 2009-08-06 02:42:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,7 @@ public:
 
     int			nextID(int previd) const;
     Coord3		get(int id) const;
+    bool		isDefined(int id) const;
     void		set(int id,const Coord3&);
     int			add(const Coord3&);
     void		remove(int id);

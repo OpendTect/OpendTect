@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoord.cc,v 1.36 2009-08-04 20:07:21 cvskris Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.37 2009-08-06 02:42:55 cvskris Exp $";
 
 #include "viscoord.h"
 
@@ -406,6 +406,10 @@ int CoordListAdapter::add( const Coord3& p )
 
 Coord3 CoordListAdapter::get( int idx ) const
 { return coords_.getPos( idx, false ); }
+
+
+bool CoordListAdapter::isDefined( int idx ) const
+{ return coords_.isDefined( idx ); }
 
 
 void CoordListAdapter::set( int idx, const Coord3& p )
