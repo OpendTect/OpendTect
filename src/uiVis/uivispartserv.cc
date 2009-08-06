@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.428 2009-07-31 07:11:28 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.429 2009-08-06 02:04:14 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -1409,7 +1409,10 @@ void uiVisPartServer::removeSelection()
 		msg += "?";
 		
 		if ( uiMSG().askContinue(msg.buf()) )
-		    so->removeSelection( *sel );
+		{
+		    uiTaskRunner taskrunner( appserv().parent() );
+		    so->removeSelection( *sel, &taskrunner );
+		}
 	    }
 	}
     }

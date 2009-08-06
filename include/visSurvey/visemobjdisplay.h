@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.57 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.58 2009-08-06 02:04:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,8 @@ public:
 					   const TypeSet<int>& path ) const;
 
     bool			canRemoveSelecion()	{ return true; }
-    void                        removeSelection(const Selector<Coord3>&);
+    void                        removeSelection(const Selector<Coord3>&,
+	    					TaskRunner*);
 
     virtual bool		setChannel2RGBA(visBase::TextureChannel2RGBA*);
     virtual visBase::TextureChannel2RGBA* getChannel2RGBA();

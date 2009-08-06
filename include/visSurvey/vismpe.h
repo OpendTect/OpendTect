@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.42 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vismpe.h,v 1.43 2009-08-06 02:04:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,7 +56,8 @@ public:
     void			updateSeedOnlyPropagation(bool);
     void			updateMPEActiveVolume();
     void			removeSelectionInPolygon(
-	    					const Selector<Coord3>&);
+	    					const Selector<Coord3>&,
+						TaskRunner*);
 	    
     void			showBoxDragger(bool);
     bool			isBoxDraggerShown() const;

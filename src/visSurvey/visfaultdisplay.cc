@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.40 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.41 2009-08-06 02:04:13 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -287,7 +287,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 }
 
 
-void FaultDisplay::removeSelection( const Selector<Coord3>& selector )
+void FaultDisplay::removeSelection( const Selector<Coord3>& selector,
+	TaskRunner* tr )
 {
     if ( faulteditor_ )
 	faulteditor_->removeSelection( selector );

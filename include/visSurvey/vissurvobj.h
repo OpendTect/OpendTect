@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.108 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vissurvobj.h,v 1.109 2009-08-06 02:04:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -183,7 +183,8 @@ public:
     
     virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
 
-    virtual void		removeSelection(const Selector<Coord3>&) {}
+    virtual void		removeSelection(const Selector<Coord3>&,
+	    					TaskRunner*) {}
     virtual bool		canRemoveSelecion()		{ return false;}
 
     virtual void		   setSelSpec(int,const Attrib::SelSpec&){}

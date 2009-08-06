@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.10 2009-07-31 06:49:48 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.11 2009-08-06 02:04:13 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -628,7 +628,8 @@ bool  FaultStickSetDisplay::isManipulatorShown() const
 { return showmanipulator_; }
 
 
-void FaultStickSetDisplay::removeSelection( const Selector<Coord3>& sel )
+void FaultStickSetDisplay::removeSelection( const Selector<Coord3>& sel,
+	TaskRunner* tr )
 {
     if ( fsseditor_ )
 	fsseditor_->removeSelection( sel );

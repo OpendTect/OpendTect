@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.4 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.5 2009-08-06 02:04:14 cvskris Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -282,7 +282,8 @@ void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
 }
 
 
-void PolygonBodyDisplay::removeSelection( const Selector<Coord3>& selector )
+void PolygonBodyDisplay::removeSelection( const Selector<Coord3>& selector,
+	TaskRunner* tr )
 {
     if ( polygonsurfeditor_ )
 	polygonsurfeditor_->removeSelection( selector );

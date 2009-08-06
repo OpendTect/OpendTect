@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.172 2009-08-04 05:13:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.173 2009-08-06 02:04:14 cvskris Exp $";
 
 #include "uimpeman.h"
 
@@ -1246,8 +1246,9 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
     if ( sel && sel->isOK() ) 
     {
 	mGetDisplays(false);
+	uiTaskRunner taskrunner( toolbar );
 	for ( int idx=0; idx<displays.size(); idx++ )
-	    displays[idx]->removeSelectionInPolygon( *sel );
+	    displays[idx]->removeSelectionInPolygon( *sel, &taskrunner );
 
 	toolbar->turnOn( polyselectidx, false );
 	selectionMode( cb );
