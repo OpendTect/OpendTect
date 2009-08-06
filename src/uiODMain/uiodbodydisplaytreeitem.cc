@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.21 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.22 2009-08-06 02:14:30 cvskris Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -459,7 +459,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removeselectedmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	plg_->removeSelection( *visserv_->getCoordSelector(sceneID()) );
+	plg_->removeSelection( *visserv_->getCoordSelector(sceneID()), 0 );
     }
 }
 

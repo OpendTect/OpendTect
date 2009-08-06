@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.29 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.30 2009-08-06 02:14:30 cvskris Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -295,10 +295,11 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==removeselectedmnuitem_.id )
     {
+	//TODO: Should this code go as we have the trashcan?
 	menu->setIsHandled(true);
 	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
 	if ( sel->isOK() )
-	    faultdisplay_->removeSelection( *sel );
+	    faultdisplay_->removeSelection( *sel, 0 );
 	else
 	    uiMSG().error( "Invalid selection : self-intersecting polygon" );
     }
@@ -529,7 +530,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
 	if ( sel->isOK() )
-	    faultsticksetdisplay_->removeSelection( *sel );
+	    faultsticksetdisplay_->removeSelection( *sel, 0 );
 	else
 	    uiMSG().error( "Invalid selection : self-intersecting polygon" );
     }

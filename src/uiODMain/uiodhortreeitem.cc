@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.36 2009-07-22 21:56:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.37 2009-08-06 02:14:30 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.36 2009-07-22 21:56:52 c
 #include "uiposprovider.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
+#include "uitaskrunner.h"
 
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
@@ -432,7 +433,10 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	const Selector<Coord3>* sel = 
 	    applMgr()->visServer()->getCoordSelector( sceneID() );
 	if ( sel && sel->isOK() )
-	    EM::EMM().removeSelected( emid_, *sel );
+	{
+	    uiTaskRunner taskrunner( getUiParent() );
+	    EM::EMM().removeSelected( emid_, *sel, &taskrunner );
+	}
     }
     else
 	handled = false;
