@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.42 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.43 2009-08-07 12:48:40 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -38,13 +38,13 @@ static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.42 2009-07-22 16:01:42 cvs
 #include "uigeninput.h"
 #include "uimsg.h"
 
-
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Wavelet management",
                                      "Manage wavelets",
                                      "103.3.0").nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
     , curid_(DataPack::cNoID())
+    , wvltext_(0)
 {
     createDefaultUI();
 
@@ -90,12 +90,20 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     infofld->attach( ensureBelow, wvltfld );
     selgrp->setPrefWidthInChar( 50 );
     infofld->setPrefWidthInChar( 60 );
-    //selChg(0);
+
+    windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
 }
 
 
 uiSeisWvltMan::~uiSeisWvltMan()
 {
+    if ( wvltext_ )
+    {
+	wvltext_->close();
+	wvltext_->extractionDone.remove( mCB(this,uiSeisWvltMan,updateCB) );
+    }
+    
+    delete wvltext_;
 }
 
 
@@ -115,13 +123,29 @@ void uiSeisWvltMan::crPush( CallBacker* )
 }
 
 
-void uiSeisWvltMan::extractPush( CallBacker* )
+void uiSeisWvltMan::extractPush( CallBacker* cb )
 {
-    uiWaveletExtraction wedlg( this );
-    if ( wedlg.go() )
-	selgrp->fullUpdate( wedlg.storeKey() );
+    if ( !wvltext_ )
+    {
+	wvltext_ = new uiWaveletExtraction( this );
+	wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,updateCB) );
+    }
+
+    wvltext_->show();
 }
 
+
+void uiSeisWvltMan::updateCB( CallBacker* )
+{
+    selgrp->fullUpdate( wvltext_->storeKey() );
+}
+
+
+void uiSeisWvltMan::closeDlg( CallBacker* )
+{
+   if ( !wvltext_ ) return;
+   wvltext_->close();
+}
 
 void uiSeisWvltMan::mkFileInfo()
 {
