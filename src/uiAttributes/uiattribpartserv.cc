@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.133 2009-07-30 13:30:04 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.134 2009-08-07 00:44:12 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.133 2009-07-30 13:30:04
 
 #include "arraynd.h"
 #include "binidvalset.h"
+#include "coltabmapper.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "datapointset.h"
@@ -77,7 +78,7 @@ const int uiAttribPartServer::evEvalAttrInit()	    { return 3; }
 const int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
 const int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
 const int uiAttribPartServer::evEvalStoreSlices()   { return 6; }
-const int uiAttribPartServer::evEvalUpdateName()    { return 7; }
+const int uiAttribPartServer::evEvalRestore()       { return 7; }
 const int uiAttribPartServer::objNLAModel2D()	    { return 100; }
 const int uiAttribPartServer::objNLAModel3D()	    { return 101; }
 
@@ -103,6 +104,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, volprocchain_( 0 )
 	, dpsdispmgr_( 0 )
 	, dpsid_( -1 )
+        , evalmapperbackup_( 0 )
 {
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -1377,7 +1379,7 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 	attrsetdlg_->updateCurDescEd();
     }
 
-    sendEvent( evEvalUpdateName() );
+    sendEvent( evEvalRestore() );
     attrsetdlg_->setSensitive( true );
 }
 
@@ -1474,3 +1476,24 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d )
 	sendEvent( evNewAttrSet() );
     }
 }
+
+
+void uiAttribPartServer::setEvalBackupColTabMapper(
+			const ColTab::MapperSetup* mp )
+{
+    if ( evalmapperbackup_ && mp )
+	*evalmapperbackup_ = *mp;
+    else if ( !mp )
+    {
+	delete evalmapperbackup_;
+	evalmapperbackup_ = 0;
+    }
+    else if ( mp )
+    {
+	evalmapperbackup_ = new ColTab::MapperSetup( *mp );
+    }
+}
+
+
+const ColTab::MapperSetup* uiAttribPartServer::getEvalBackupColTabMapper() const
+{ return evalmapperbackup_; }

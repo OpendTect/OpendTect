@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.60 2009-07-30 13:30:04 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.61 2009-08-07 00:44:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ namespace Attrib
     class SelInfo;
     class SelSpec;
 };
+
+namespace ColTab { class MapperSetup; }
 
 namespace VolProc { class Chain; }
 
@@ -80,8 +82,9 @@ public:
     			//!< Display slice
     static const int	evEvalStoreSlices();
     			//!< Store slices
-    static const int	evEvalUpdateName();
+    static const int	evEvalRestore();
     			//!< Update name in tree after evaluation dlg closed
+			//!< And restore mapper
     static const int	objNLAModel2D();
     			//!< Request current 2D NLAModel* via getObject()
     static const int	objNLAModel3D();
@@ -173,6 +176,9 @@ public:
     void		doVolProc();
     void		createVolProcOutput( const IOObj* setupsel = 0);
 
+    void		setEvalBackupColTabMapper(const ColTab::MapperSetup*);
+    const ColTab::MapperSetup* getEvalBackupColTabMapper() const;
+
 protected:
 
     MenuItem            stored2dmnuitem_;
@@ -233,15 +239,17 @@ protected:
     static const char*	attridstr();
     BufferString	nlaname_;
 
-    bool		alloweval_;
-    bool		allowevalstor_;
-    int			sliceidx_;
-    Attrib::DescSet*	evalset;
-    TypeSet<Attrib::SelSpec> targetspecs_;
+    bool			alloweval_;
+    bool			allowevalstor_;
+    int				sliceidx_;
+    Attrib::DescSet*		evalset;
+    TypeSet<Attrib::SelSpec>	targetspecs_;
 
-    DataPointSetDisplayMgr* dpsdispmgr_;
-    int			dpsid_;
-    VolProc::Chain*	volprocchain_;
+    DataPointSetDisplayMgr*	dpsdispmgr_;
+    int				dpsid_;
+    VolProc::Chain*		volprocchain_;
+
+    ColTab::MapperSetup*	evalmapperbackup_;
 };
 
 

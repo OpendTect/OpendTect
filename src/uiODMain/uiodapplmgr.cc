@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.345 2009-07-31 07:12:42 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.346 2009-08-07 00:44:12 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1379,6 +1379,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
 	const ColTab::MapperSetup* ms =
 	    visserv_->getColTabMapperSetup( visid, attrib, tmpset.size()/2 );
+
+	attrserv_->setEvalBackupColTabMapper( ms );
+
 	if ( ms )
 	{
 	    ColTab::MapperSetup myms = *ms;
@@ -1424,8 +1427,14 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
-    else if ( evid==uiAttribPartServer::evEvalUpdateName() )
+    else if ( evid==uiAttribPartServer::evEvalRestore() )
     {
+	if ( attrserv_->getEvalBackupColTabMapper() )
+	{
+	    visserv_->setColTabMapperSetup( visid, attrib,
+		    *attrserv_->getEvalBackupColTabMapper() );
+	}
+
 	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
 					visserv_->getSelSpec(visid,attrib) );
 	//set user chosen name stocked in objectRef during evaluation process
