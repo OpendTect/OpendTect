@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.50 2009-08-07 15:30:56 cvsyuancheng Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.51 2009-08-07 18:56:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -154,6 +154,8 @@ public:
     bool                        isVerticalPlane() const		{ return false;}
     
     bool			shouldUseTexture() const;
+
+    const ObjectSet<visBase::IndexedShape>& getIntersectionLines() const;
         
 protected:
     				~HorizonDisplay();

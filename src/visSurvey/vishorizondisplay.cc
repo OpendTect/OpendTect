@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.105 2009-07-31 11:57:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.106 2009-08-07 18:56:15 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -743,8 +743,14 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
     if ( channel<0 || channel>=nrAttribs() )
        return;
 
+    data.bivSet().empty();
+
     for ( int idx=0; idx<sections_.size(); idx++ )
-	data.bivSet() = *sections_[idx]->getCache( channel );
+    {
+	const BinIDValueSet* cache = sections_[idx]->getCache( channel );
+	if ( cache )
+	    data.bivSet().append( *cache );
+    }
 
     data.dataChanged();
 }
@@ -1995,6 +2001,11 @@ int HorizonDisplay::usePar( const IOPar& par )
 
     return 1;
 }
+
+
+const ObjectSet<visBase::IndexedShape>&
+HorizonDisplay::getIntersectionLines() const
+{ return intersectionlines_; }
 
 
 bool HorizonDisplay::setDataPackID( int channel, DataPack::ID dpid,
