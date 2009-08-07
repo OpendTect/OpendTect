@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.7 2009-07-23 12:31:08 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.8 2009-08-07 06:32:11 cvsranojay Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -266,27 +266,28 @@ static bool useOldDefColTab( const IOPar& par, ColTab::MapperSetup& ms,
 
 void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 {
-    if ( am_.appl_.isRestoringSession() ) return;
+   if ( am_.appl_.isRestoringSession() ) return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
     if ( !as ) return;
 
-    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
-    if ( !ioobj ) return;
-
     ColTab::MapperSetup mapper;
     ColTab::Sequence seq( 0 );
-    FilePath fp( ioobj->fullUserExpr(true) );
-    fp.setExtension( "par" );
-    BufferString fnm = fp.fullPath();
-    IOPar iop;
-    if ( iop.read(fnm,sKey::Pars) && !iop.isEmpty() )
+    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
+    if ( ioobj )
     {
-	if ( !useOldDefColTab(iop,mapper,seq) )
+	FilePath fp( ioobj->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	BufferString fnm = fp.fullPath();
+	IOPar iop;
+	if ( iop.read(fnm,sKey::Pars) && !iop.isEmpty() )
 	{
-	    const char* ctname = iop.find( sKey::Name );
-	    seq = ColTab::Sequence( ctname );
-	    mapper.usePar( iop );
+	    if ( !useOldDefColTab(iop,mapper,seq) )
+	    {
+		const char* ctname = iop.find( sKey::Name );
+		seq = ColTab::Sequence( ctname );
+		mapper.usePar( iop );
+	    }
 	}
     }
 
