@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.11 2009-07-23 11:19:56 cvsraman Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.12 2009-08-07 06:14:27 cvsnanne Exp $";
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -253,6 +253,7 @@ bool SeisRandLineTo2DGrid::createGrid()
 bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
        				      bool parll )
 {
+    BufferString strsuffix;
     int numsuffix = 1;
     for ( int idx=0; idx<rlset.size(); idx++ )
     {
@@ -261,7 +262,12 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
 	    continue;
 
 	BufferString linenm( parll ? parprefix_ : perprefix_ );
-	linenm += numsuffix++;
+	strsuffix = numsuffix++;
+	if ( strsuffix.size() == 1 )
+	    linenm += "00";
+	else if ( strsuffix.size() == 2 )
+	    linenm += "0";
+	linenm += strsuffix;
 	LineKey lk( linenm, outpattrib_.buf() );
 	SeisRandLineTo2D exec( inpobj_, outpobj_, lk, 1, *rln );
 	strm_ << "Creating 2D line " << linenm << ":" << std::endl;
