@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.134 2009-08-07 00:44:12 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.135 2009-08-07 11:25:24 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -593,7 +593,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     Settings::common().getYN( "dTect.Show inl progress", showinlprogress );
 
     const bool isstoredinl = cs.isFlat() && cs.defaultDir() == CubeSampling::Inl
-	&& targetdesc && targetdesc->isStored();
+	&& targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
 
     bool success = true;
     if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
@@ -1314,6 +1314,8 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 
 IOObj* uiAttribPartServer::getIOObj( const Attrib::SelSpec& as ) const
 {
+    if ( as.isNLA() ) return 0;
+
     const Attrib::DescSet* attrset = curDescSet(false);
     if ( !attrset ) return 0;
 
