@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.61 2009-08-04 20:29:17 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.62 2009-08-07 16:27:55 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -54,18 +54,133 @@ mCreateFactoryEntry( visBase::HorizonSection );
 #define mTileLastIdx		63
 #define mLowestResIdx		5
 #define mTotalNormalSize	5589
+#define mHorSectNrRes		6
 
 namespace visBase
 {
 
+class TileTesselator;
 
-int HorizonSection::normalstartidx_[] = { 0, 4096, 5185, 5474, 5555, 5580 };
-int HorizonSection::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
+//A tile with 64x64 nodes.
+class HorizonSectionTile : CallBacker
+{
+public:
+				HorizonSectionTile(const HorizonSection&,
+						   const RowCol& origin);
+				~HorizonSectionTile();
+    void			setNeighbor(char neighbor,HorizonSectionTile*);
+    				//!<The neighbor is numbered from 0 to 8
+    void			setDisplayTransformation(Transformation*);
+    void			setRightHandSystem(bool yn);
 
-int HorizonSectionTile::spacing_[] = { 1, 2, 4, 8, 16, 32 };
-int HorizonSectionTile::normalstartidx_[] = { 0, 4096, 5185, 5474, 5555, 5580 };
-int HorizonSectionTile::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
-int HorizonSectionTile::nrcells_[] = { 4096, 1024, 256, 64, 16, 4 };
+    void			setResolution(int);
+    				/*!<Resolution -1 means it is automatic. */
+    int				getActualResolution() const;
+    void			updateAutoResolution(SoState*);
+    				/*<Update only when the resolutionis -1. */
+
+    void			setPos(int row,int col,const Coord3&);
+    void			setPositions(const TypeSet<Coord3>&);
+
+    void			setTextureSize(int rowsz,int colsz);
+    				//!<Sets size of my part of global texture
+    void			setTextureOrigin(int globrow,int globcol);
+    				//!<Sets origin in global texture
+
+    				//Calle by the end of each render
+    void			resetResolutionChangeFlag();
+    void			resetGlueNeedsUpdateFlag();
+
+    				//Makes object ready for render
+    void			updateNormals(int res);
+    void			tesselateResolution(int res);
+    void			updateGlue();
+
+    void			useWireframe(bool);
+    void			turnOnWireframe(int res);
+    void			setWireframeMaterial(Material*);
+    void			setWireframeColor(Color col);
+    
+    const SbBox3f&		getBBox() const; 
+    SoNode*			getNodeRoot() const	{ return root_; }
+
+    bool			allNormalsInvalid(int res) const;
+    void			setAllNormalsInvalid(int res,bool yn);
+    void			emptyInvalidNormalsList(int res);
+
+
+protected:
+    int				getNormalIdx(int crdidx,int res) const;
+    				//!<Gives normal index in normals_
+
+    friend class		HorizonSectionTileUpdater;			
+    friend class		TileTesselator;			
+    void			bgTesselationFinishCB(CallBacker*);
+    void			setActualResolution(int);
+    int				getAutoResolution(SoState*);
+    void			tesselateGlue();
+    void			updateBBox();
+    void			setWireframe(int res);
+    void			setInvalidNormals(int row,int col);
+    void			computeNormal(int normidx, int res);
+    bool			usewireframe_;
+    bool			wireframeneedsupdate_[mHorSectNrRes];
+    Material*			wireframematerial_;
+
+    HorizonSectionTile*		neighbors_[9];
+
+    SbBox3f			bbox_;	//In display space
+    bool			needsupdatebbox_;
+    int				nrdefinedpos_;
+    const RowCol&		origin_;
+    const HorizonSection&	section_;
+
+    SoLockableSeparator*	root_;
+    visBase::Coordinates*	coords_;
+    SoTextureComposer*		texture_;
+    SoSwitch*			resswitch_;
+    SoNormal*			normals_;
+    Threads::Mutex		normlock_;
+
+    int				desiredresolution_;
+    bool			resolutionhaschanged_;
+
+    bool			needsretesselation_[mHorSectNrRes];
+    ObjectSet<TileTesselator>	tesselationqueue_;
+    Threads::ConditionVar	tesselationqueuelock_;
+
+    TypeSet<int>		invalidnormals_[mHorSectNrRes];
+    bool			allnormalsinvalid_[mHorSectNrRes];
+
+    SoSeparator*			resolutions_[mHorSectNrRes];
+    SoIndexedTriangleStripSet*	triangles_[mHorSectNrRes];
+    SoIndexedLineSet3D*		lines_[mHorSectNrRes];
+    SoIndexedLineSet*		wireframes_[mHorSectNrRes];
+    SoDGBIndexedPointSet*	points_[mHorSectNrRes];
+    SoSwitch*			wireframeswitch_[mHorSectNrRes];
+    SoSeparator*		wireframeseparator_[mHorSectNrRes];
+    Texture2*			wireframetexture_;
+
+    SoIndexedTriangleStripSet*	gluetriangles_;
+    SoSwitch*			gluelowdimswitch_;
+    SoIndexedLineSet3D*		gluelines_;
+    SoDGBIndexedPointSet*	gluepoints_;
+    bool			glueneedsretesselation_;
+
+    CallBack			bgfinished_;
+
+    static const char		spacing_[];
+    static const short		nrcells_[];
+    static const short		normalstartidx_[];
+    static const char		normalsidesize_[];
+};
+
+
+const short HorizonSectionTile::normalstartidx_[] =
+{ 0, 4096, 5185, 5474, 5555, 5580 };
+const char HorizonSectionTile::normalsidesize_[] = { 64, 33, 17, 9, 5, 3 };
+const char HorizonSectionTile::spacing_[] = { 1, 2, 4, 8, 16, 32 };
+const short HorizonSectionTile::nrcells_[] = { 4096, 1024, 256, 64, 16, 4 };
 
 
 class HorizonSectionTileUpdater: public ParallelTask
@@ -132,13 +247,15 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    {
 		int res = tile->getActualResolution();
 		if ( res==-1 ) res = resolution_;
-		const int tilerowidx = realidx/nrcoltiles_;
-		const int tilecolidx = realidx%nrcoltiles_;
-		tile->updateNormals( section_, res, tilerowidx, tilecolidx );
+		tile->updateNormals( res );
 	    }
 
 	    if ( state_ )
-		tile->tesselateActualResolution();
+	    {
+		const int actualres = tile->getActualResolution();
+		if ( actualres!=-1 )
+		    tile->tesselateResolution( actualres );
+	    }
 	    else
 	    {
 		tile->tesselateResolution( resolution_ );
@@ -286,6 +403,9 @@ protected:
 	    }
 
 	    tiles_[idx]->setPositions( positions );
+	    tiles_[idx]->updateNormals( mLowestResIdx );
+	    tiles_[idx]->tesselateResolution( mLowestResIdx );
+
 	    addToNrDone(1);
 	}
 
@@ -786,7 +906,7 @@ void HorizonSection::inValidateCache( int channel )
 
 const BinIDValueSet* HorizonSection::getCache( int channel ) const
 { 
-    return (channel<0 && channel>=cache_.size()) ? 0 : cache_[channel]; 
+    return cache_.validIdx(channel) ? 0 : cache_[channel]; 
 }
 
 
@@ -847,11 +967,11 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 }
 
 
-StepInterval<int> HorizonSection::displayedRowRange() const
+const StepInterval<int>& HorizonSection::displayedRowRange() const
 { return displayrrg_; }
 
 
-StepInterval<int> HorizonSection::displayedColRange() const
+const StepInterval<int>& HorizonSection::displayedColRange() const
 { return displaycrg_; }
 
 
@@ -1080,7 +1200,11 @@ void HorizonSection::updateTileTextureOrigin( const RowCol& textureorigin )
 
 HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
 {
-    HorizonSectionTile* tile =  new HorizonSectionTile();
+    const RowCol step( displayrrg_.step, displaycrg_.step );
+    const RowCol tileorigin( origin_.row+tilerowidx*mTileSideSize*step.row,
+			     origin_.col+tilecolidx*mTileSideSize*step.col );
+    HorizonSectionTile* tile = new HorizonSectionTile( *this, tileorigin );
+
     tile->setDisplayTransformation( transformation_ );
     tile->setResolution( desiredresolution_ );
     tile->useWireframe( usewireframe_ );
@@ -1218,6 +1342,10 @@ char HorizonSection::currentResolution() const
 { return desiredresolution_; }
 
 
+char HorizonSection::nrResolutions() const
+{ return mHorSectNrRes; }
+
+
 void HorizonSection::setResolution( int res, TaskRunner* tr )
 {
     desiredresolution_ = res;
@@ -1280,8 +1408,8 @@ bool HorizonSection::usesWireframe() const
 { return usewireframe_; }
 
 
-
-HorizonSectionTile::HorizonSectionTile()
+HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
+					const RowCol& origin )
     : root_( new SoLockableSeparator )
     , normals_( new SoNormal )  
     , coords_( visBase::Coordinates::create() )
@@ -1294,14 +1422,14 @@ HorizonSectionTile::HorizonSectionTile()
     , gluepoints_( new SoDGBIndexedPointSet )
     , desiredresolution_( -1 )
     , resolutionhaschanged_( false )
-    , bboxstart_( Coord3::udf() )				    
-    , bboxstop_( Coord3::udf() )				   
     , needsupdatebbox_( false )
     , usewireframe_( false )
     , wireframematerial_( 0 )			   
     , wireframetexture_( visBase::Texture2::create() )		 
     , nrdefinedpos_( 0 )
     , bgfinished_( mCB( this, HorizonSectionTile, bgTesselationFinishCB ) )
+    , origin_( origin )
+    , section_( section )
 {
     root_->ref();
     coords_->ref();
@@ -1335,7 +1463,8 @@ HorizonSectionTile::HorizonSectionTile()
 	allnormalsinvalid_[idx] = true;
 	needsretesselation_[idx] = false;
 	wireframeneedsupdate_[idx] = true;
-	resolutions_[idx] = new SoSeparator;//We want caching here, so no group
+	resolutions_[idx] = new SoSeparator;
+	resolutions_[idx]->renderCaching = SoSeparator::ON;
 	resswitch_->addChild( resolutions_[idx] );
 
 	triangles_[idx] = new SoIndexedTriangleStripSet;
@@ -1368,6 +1497,7 @@ HorizonSectionTile::HorizonSectionTile()
 
     setTextureSize( mNrCoordsPerTileSide, mNrCoordsPerTileSide );
     useWireframe( usewireframe_ );
+    bbox_.makeEmpty();
 }
 
 
@@ -1440,47 +1570,43 @@ void HorizonSectionTile::setDisplayTransformation( Transformation* nt )
 }
 
 
-void HorizonSectionTile::updateNormals( HorizonSection& section, int res, 
-					int tilerowidx, int tilecolidx )
+void HorizonSectionTile::updateNormals( int res )
 {
     if ( res<0 ) return;
+
+    const bool oldstatus = normals_->vector.enableNotify( false );
 
     if ( allnormalsinvalid_[res] )
     {
 	const int normalstop = res<mLowestResIdx ? 
 	    normalstartidx_[res+1]-1 : mTotalNormalSize-1;
 	for ( int idx=normalstartidx_[res]; idx<=normalstop; idx++ )
-	    setNormal( section, idx, res, tilerowidx, tilecolidx );
+	    computeNormal( idx, res );
     }
     else
     {
 	for ( int idx=0; idx<invalidnormals_[res].size(); idx++ )
-	    setNormal( section, invalidnormals_[res][idx], res, tilerowidx, 
-		       tilecolidx );
+	    computeNormal( invalidnormals_[res][idx], res );
     }
 
-    removeInvalidNormals( res );
-    setAllNormalsInvalid( res, false );
+    emptyInvalidNormalsList( res );
+    allnormalsinvalid_[res] = false; 
+    normals_->vector.enableNotify( oldstatus );
+    normals_->vector.touch();
 }
 
 
-void HorizonSectionTile::setNormal( HorizonSection& section, int nmidx, 
-				    int res, int tilerowidx, int tilecolidx )
+void HorizonSectionTile::computeNormal( int nmidx, int res )
 {
-    const RowCol origin = section.origin_;
-    const RowCol step( section.displayrrg_.step, section.displaycrg_.step );
+    const RowCol step( section_.displayrrg_.step, section_.displaycrg_.step );
 
     const int normalrow = (nmidx-normalstartidx_[res])/normalsidesize_[res];
     const int normalcol = (nmidx-normalstartidx_[res])%normalsidesize_[res];
-    
-    const int row = origin.row + step.row * ( tilerowidx*mTileSideSize + 
-	    (normalrow==normalsidesize_[res]-1 ? mTileSideSize 
-	     				       : normalrow*spacing_[res]) );
-    const int col = origin.col + step.col * ( tilecolidx*mTileSideSize +
-    	    (normalcol==normalsidesize_[res]-1 ? mTileSideSize 
-	     				       : normalcol*spacing_[res]) );
 
-    const StepInterval<int> rowrange = section.geometry_->rowRange();
+    const int row = origin_.row + step.row * normalrow*spacing_[res];
+    const int col = origin_.col + step.col * normalcol*spacing_[res];
+
+    const StepInterval<int> rowrange = section_.geometry_->rowRange();
     TypeSet<float> posarray, zarray;
     for ( int idx=-spacing_[res]; idx<=spacing_[res]; idx++ )
     {
@@ -1494,11 +1620,11 @@ void HorizonSectionTile::setNormal( HorizonSection& section, int nmidx,
 	if ( currow>rowrange.stop )
 	    break;
 	
-	const Coord3 pos = section.geometry_->getKnot(RowCol(currow,col),false);
+	const Coord3 pos = section_.geometry_->getKnot(RowCol(currow,col),false);
 	
 	if ( pos.isDefined() )
 	{
-	    posarray += idx*section.rowdistance_;
+	    posarray += idx*section_.rowdistance_;
 	    zarray += pos.z;
 	}
     }
@@ -1508,7 +1634,7 @@ void HorizonSectionTile::setNormal( HorizonSection& section, int nmidx,
 	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
 
     posarray.erase(); zarray.erase();    
-    const StepInterval<int> colrange = section.geometry_->colRange();
+    const StepInterval<int> colrange = section_.geometry_->colRange();
     for ( int idx=-spacing_[res]; idx<=spacing_[res]; idx++ )
     {
  	const int curcol = col+idx*step.col;
@@ -1521,10 +1647,10 @@ void HorizonSectionTile::setNormal( HorizonSection& section, int nmidx,
 	if ( curcol>colrange.stop )
 	    break;
 	
-	const Coord3 pos = section.geometry_->getKnot(RowCol(row,curcol),false);
+	const Coord3 pos = section_.geometry_->getKnot(RowCol(row,curcol),false);
 	if ( pos.isDefined() )
 	{
-	    posarray += idx*section.coldistance_;
+	    posarray += idx*section_.coldistance_;
 	    zarray += pos.z;
 	}
     }
@@ -1533,8 +1659,8 @@ void HorizonSectionTile::setNormal( HorizonSection& section, int nmidx,
     if ( zarray.size()>1 )
 	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &dcol );
  
-    const SbVec3f normal( drow*section.cosanglexinl_+dcol*section.sinanglexinl_,
-	    dcol*section.cosanglexinl_-drow*section.sinanglexinl_, -1 );
+    const SbVec3f normal( drow*section_.cosanglexinl_+dcol*section_.sinanglexinl_,
+	    dcol*section_.cosanglexinl_-drow*section_.sinanglexinl_, -1 );
     normals_->vector.set1Value( nmidx, normal );
 }
 
@@ -1591,17 +1717,7 @@ void HorizonSectionTile::resetGlueNeedsUpdateFlag()
 { glueneedsretesselation_ = false; }
 
 
-void HorizonSectionTile::tesselateActualResolution()
-{
-    const int res = getActualResolution();
-    if ( res==-1 )
-	return;
-
-    tesselateResolution( res );
-}
-
-
-void HorizonSectionTile::removeInvalidNormals( int res )
+void HorizonSectionTile::emptyInvalidNormalsList( int res )
 { invalidnormals_[res].erase(); }
 
 
@@ -1609,7 +1725,7 @@ void HorizonSectionTile::setAllNormalsInvalid( int res, bool yn )
 { 
     allnormalsinvalid_[res] = yn; 
     
-    if ( yn ) removeInvalidNormals( res );
+    if ( yn ) emptyInvalidNormalsList( res );
 }
 
 
@@ -1646,7 +1762,9 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 	     newres = wantedres;
 	     for ( ; newres<mHorSectNrRes-1; newres++ )
 	     {
-		 if ( !needsretesselation_[newres] )
+		 if ( !needsretesselation_[newres] &&
+		      !allnormalsinvalid_[newres] &&
+		      !invalidnormals_[newres].size() )
 		     break;
 	     }
 
@@ -1667,7 +1785,7 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 		 {
 		     TileTesselator* tt = new TileTesselator( this, wantedres );
 		     tesselationqueue_ += tt;
-		     ParallelTask::twm().addWork( tt, &bgfinished_ );
+		     ParallelTask::twm().addWork( tt, &bgfinished_, true );
 		 }
 
 		 tesselationqueuelock_.unLock();
@@ -1700,49 +1818,32 @@ void HorizonSectionTile::bgTesselationFinishCB( CallBacker* cb )
 }
 
 
-SbBox3f HorizonSectionTile::getBBox() const
-{
-    return  (!bboxstart_.isDefined() || !bboxstop_.isDefined()) ? SbBox3f() :
-	SbBox3f( bboxstart_.x, bboxstart_.y, bboxstart_.z,
-		 bboxstop_.x, bboxstop_.y, bboxstop_.z );
-}
+const SbBox3f& HorizonSectionTile::getBBox() const
+{ return bbox_; }
 
 
 void HorizonSectionTile::updateBBox()
 {
     if ( !needsupdatebbox_ ) return;
 
-    Interval<float> xrg, yrg, zrg;
-    bool first = true;
+    bbox_.makeEmpty();
+
     int id = coords_->nextID( -1 );
     while ( id>=0 )
     {
 	const Coord3 pos = coords_->getPos( id, true );
 	if ( pos.isDefined() )
 	{
-	    if ( first )
-	    {
-		xrg.start = xrg.stop = pos.x;
-		yrg.start = yrg.stop = pos.y;
-		zrg.start = zrg.stop = pos.z;
-		first = false;
-	    }
-	    else
-	    {
-		xrg.include( pos.x );
-		yrg.include( pos.y );
-		zrg.include( pos.z );
-	    }
+	    const SbVec3f vec( pos.x, pos.y, pos.z );
+	    bbox_.extendBy( vec );
 	}
 
 	id = coords_->nextID( id );
     }
 
-    if ( first )
+    if ( bbox_.isEmpty() )
 	return;
 
-    bboxstart_ = Coord3( xrg.start, yrg.start, zrg.start );
-    bboxstop_ = Coord3( xrg.stop, yrg.stop, zrg.stop );
     needsupdatebbox_ = false;
 }
 
@@ -1751,20 +1852,15 @@ int HorizonSectionTile::getAutoResolution( SoState* state )
 {
     updateBBox();
 
-    if ( !bboxstart_.isDefined() || !bboxstop_.isDefined() )
+    if ( !bbox_.isEmpty() )
 	return -1;
 
-    const SbBox3f bbox( bboxstart_.x, bboxstart_.y, bboxstart_.z,
-	    	        bboxstop_.x, bboxstop_.y, bboxstop_.z );
-    if ( bbox.isEmpty() )
-	return -1;
-    
     const int32_t camerainfo = SoCameraInfoElement::get(state);
     if ( camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE) )
 	return mLowestResIdx;
 
     SbVec2s screensize;
-    SoShape::getScreenSize( state, bbox, screensize );
+    SoShape::getScreenSize( state, bbox_, screensize );
     const float complexity = SbClamp(SoComplexityElement::get(state),0.0f,1.0f);
     const int wantednumcells = (int)(complexity*screensize[0]*screensize[1]/16);
     if ( !wantednumcells )
@@ -2085,6 +2181,14 @@ void HorizonSectionTile::setWireframe( int res )
 void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 {
     coords_->setPositions( pos, 0 );
+
+    nrdefinedpos_ = 0;
+    for ( int idx=0; idx<pos.size(); idx++ )
+    {
+	if ( pos[idx].isDefined() )
+	    nrdefinedpos_++;
+    }
+
     for ( int idx=0; idx<mHorSectNrRes; idx++ )
     {
 	needsretesselation_[idx] = true;
@@ -2097,7 +2201,7 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 }
  
  
-void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
+void HorizonSectionTile::setNeighbor( char nbidx, HorizonSectionTile* nb )
 {
     if ( (nbidx==5 || nbidx==7 || nbidx==8 ) && neighbors_[nbidx]!=nb )
 	glueneedsretesselation_ = true;

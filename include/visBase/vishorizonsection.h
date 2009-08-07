@@ -7,53 +7,39 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.37 2009-08-04 20:27:03 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.38 2009-08-07 16:27:55 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "arrayndimpl.h"
-#include "position.h"
 #include "rowcol.h"
+#include "thread.h"
 #include "visobject.h"
 #include "geomelement.h"
 
 class BinIDValueSet;
 class Color;
 class DataPointSet;
-class SbBox3f;
 class SbVec2f;
-class SbVec3f;
 class SoAction;
 class SoCallback;
 class SoGetBoundingBoxAction;
-class SoGroup;
 class SoShapeHints;
 class SoState;
-class SoIndexedLineSet;
-class SoIndexedLineSet3D;
-class SoDGBIndexedPointSet;
-class SoIndexedTriangleStripSet;
-class SoNormal;
-class SoTextureComposer;
 class SoTextureCoordinate2;
 class ZAxisTransform;
+class TaskRunner;
 
 namespace Geometry { class BinIDSurface; }
 namespace ColTab { class Sequence; struct MapperSetup; }
 
-#define mHorSectNrRes		6
-
 namespace visBase
 {
-class VisColorTab;    
-class TextureChannel2RGBA;    
-class Coordinates;
-class HorizonSectionTile;
-class TextureChannels;
-class Texture2;
-class TileTesselator;
+    class TextureChannel2RGBA;    
+    class HorizonSectionTile;
+    class TextureChannels;
 
 /*!Horizon geometry is divided into 64*64 pixel tiles. Each tile has it's own 
   glue edge to merge into it's neighbors in case of different resolutions. Each
@@ -72,6 +58,7 @@ public:
 
     void			setRightHandSystem(bool);
 
+    				//Texture information
     void                        useChannel(bool);
     int                         nrChannels() const;
     void                        addChannel();
@@ -83,23 +70,6 @@ public:
     int                         activeVersion(int channel) const;
     void                        selectActiveVersion(int channel,int);
 
-    void			setSurface(Geometry::BinIDSurface*,bool conn,
-	    				   TaskRunner*);
-    Geometry::BinIDSurface*	getSurface() const	{ return geometry_; }
-    StepInterval<int>		displayedRowRange() const;
-    StepInterval<int>		displayedColRange() const;
-    void			setDisplayRange(const StepInterval<int>&,
-	    					const StepInterval<int>&,
-						bool userchangedisplayrg);
-
-    void			useWireframe(bool);
-    bool			usesWireframe() const;
-    
-    char			nrResolutions() const { return mHorSectNrRes; }
-    char			currentResolution() const;
-    void			setResolution(int,TaskRunner*);
-
-    void			setWireframeColor(Color col);
     void			setColTabSequence(int channel,
 	    					  const ColTab::Sequence&);
     const ColTab::Sequence*	getColTabSequence(int channel) const;
@@ -123,6 +93,25 @@ public:
     TextureChannel2RGBA*	getChannel2RGBA();
     const TextureChannel2RGBA*	getChannel2RGBA() const;
 
+    				//Geometry stuff
+    void			setSurface(Geometry::BinIDSurface*,bool conn,
+	    				   TaskRunner*);
+    Geometry::BinIDSurface*	getSurface() const	{ return geometry_; }
+    const StepInterval<int>&	displayedRowRange() const;
+    const StepInterval<int>&	displayedColRange() const;
+    void			setDisplayRange(const StepInterval<int>&,
+	    					const StepInterval<int>&,
+						bool userchangedisplayrg);
+
+    void			useWireframe(bool);
+    bool			usesWireframe() const;
+    
+    char			nrResolutions() const;
+    char			currentResolution() const;
+    void			setResolution(int,TaskRunner*);
+
+    void			setWireframeColor(Color col);
+
 protected:
     				~HorizonSection();
     friend class		HorizonSectionTile;			
@@ -144,6 +133,8 @@ protected:
     HorizonSectionTile*		createTile(int rowidx,int colidx);
 
     Geometry::BinIDSurface*	geometry_;
+    RowCol			origin_;
+
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
     bool			userchangeddisplayrg_;
@@ -172,122 +163,9 @@ protected:
     float			rowdistance_;
     float			coldistance_;
 
-    RowCol			origin_;
     
     static ArrPtrMan<SbVec2f>	texturecoordptr_;				
-    static int			normalstartidx_[mHorSectNrRes];
-    static int			normalsidesize_[mHorSectNrRes];
     static const char*		sKeySectionID()	{ return "Section ID"; }
-};
-
-
-
-mClass HorizonSectionTile : CallBacker
-{
-public:
-				HorizonSectionTile();
-				~HorizonSectionTile();
-    void			setResolution(int);
-    				/*!<Resolution -1 means it is automatic. */
-    int				getActualResolution() const;
-    void			updateAutoResolution(SoState*);
-    				/*<Update only when the resolutionis -1. */
-    void			setNeighbor(int,HorizonSectionTile*);
-    void			setPos(int row,int col,const Coord3&);
-    void			setPositions(const TypeSet<Coord3>&);
-    void			setDisplayTransformation(Transformation*);
-
-    void			setTextureSize(int rowsz,int colsz);
-    void			setTextureOrigin(int globrow,int globcol);
-
-    void			setNormal(int idx,const SbVec3f& normal);
-    int				getNormalIdx(int crdidx,int res) const;
-
-    void			resetResolutionChangeFlag();
-    void			resetGlueNeedsUpdateFlag();
-
-    void			tesselateActualResolution();
-    void			updateGlue();
-
-    void			useWireframe(bool);
-    void			turnOnWireframe(int res);
-    void			setWireframeMaterial(Material*);
-    void			setWireframeColor(Color col);
-    
-    SbBox3f			getBBox() const; 
-    SoLockableSeparator*	getNodeRoot() const	{ return root_; }
-
-    bool			allNormalsInvalid(int res) const;
-    void			setAllNormalsInvalid(int res,bool yn);
-    void			removeInvalidNormals(int res);
-    void			setRightHandSystem(bool yn);
-
-protected:
-
-    friend class		HorizonSectionTileUpdater;			
-    friend class		TileTesselator;			
-    void			bgTesselationFinishCB(CallBacker*);
-    void			setActualResolution(int);
-    int				getAutoResolution(SoState*);
-    void			tesselateGlue();
-    void			tesselateResolution(int);
-    void			updateBBox();
-    void			setWireframe(int res);
-    void			setInvalidNormals(int row,int col);
-    void			setNormal(HorizonSection& section,int normidx,
-	    				 int res,int tilerowidx,int tilecolidx);
-    void			updateNormals(HorizonSection& section,int res,
-					      int tilerowidx,int tilecolidx);
-
-    bool			usewireframe_;
-    bool			wireframeneedsupdate_[mHorSectNrRes];
-    Material*			wireframematerial_;
-
-    HorizonSectionTile*		neighbors_[9];
-
-    Coord3			bboxstart_;	//Display space
-    Coord3			bboxstop_;	//Display space
-    bool			needsupdatebbox_;
-    int				nrdefinedpos_;
-
-    SoLockableSeparator*	root_;
-    visBase::Coordinates*	coords_;
-    SoTextureComposer*		texture_;
-    SoSwitch*			resswitch_;
-    SoNormal*			normals_;
-    Threads::Mutex		normlock_;
-
-    int				desiredresolution_;
-    bool			resolutionhaschanged_;
-
-    bool			needsretesselation_[mHorSectNrRes];
-    ObjectSet<TileTesselator>	tesselationqueue_;
-    Threads::ConditionVar	tesselationqueuelock_;
-
-    TypeSet<int>		invalidnormals_[mHorSectNrRes];
-    bool			allnormalsinvalid_[mHorSectNrRes];
-
-    SoGroup*			resolutions_[mHorSectNrRes];
-    SoIndexedTriangleStripSet*	triangles_[mHorSectNrRes];
-    SoIndexedLineSet3D*		lines_[mHorSectNrRes];
-    SoIndexedLineSet*		wireframes_[mHorSectNrRes];
-    SoDGBIndexedPointSet*	points_[mHorSectNrRes];
-    SoSwitch*			wireframeswitch_[mHorSectNrRes];
-    SoSeparator*		wireframeseparator_[mHorSectNrRes];
-    Texture2*			wireframetexture_;
-
-    SoIndexedTriangleStripSet*	gluetriangles_;
-    SoSwitch*			gluelowdimswitch_;
-    SoIndexedLineSet3D*		gluelines_;
-    SoDGBIndexedPointSet*	gluepoints_;
-    bool			glueneedsretesselation_;
-
-    CallBack			bgfinished_;
-
-    static int			normalstartidx_[mHorSectNrRes];
-    static int			normalsidesize_[mHorSectNrRes];
-    static int			spacing_[mHorSectNrRes];
-    static int			nrcells_[mHorSectNrRes];
 };
 
 };
