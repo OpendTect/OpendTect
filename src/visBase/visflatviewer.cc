@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.27 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.28 2009-08-07 18:55:39 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
 
@@ -276,7 +276,8 @@ Interval<float> FlatViewer::getDataRange( bool wva ) const
     Interval<float> cliprate( vd.clipperc_.start*0.01, clipstop );
    
     DataClipper clipper;
-    clipper.putData( wva ? wvapack_->data() : vdpack_->data() );
+    if ( (wva && wvapack_) || (!wva && vdpack_) )
+    	clipper.putData( wva ? wvapack_->data() : vdpack_->data() );
     clipper.fullSort();
 
     Interval<float> res;
