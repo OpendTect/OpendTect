@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.61 2009-08-07 00:44:12 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.62 2009-08-07 06:16:06 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ namespace Attrib
     class SelSpec;
 };
 
-namespace ColTab { class MapperSetup; }
+namespace ColTab { struct MapperSetup; }
 
 namespace VolProc { class Chain; }
 
