@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.54 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.55 2009-08-07 18:16:55 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -249,27 +249,19 @@ bool Viewer3D::setPosition( const BinID& nb )
 	static bool resetpos = true;
 	if ( !shown3d )
 	{
-	    resetpos = 
-		uiMSG().askContinue("There is no data at the selected location.\n"
-    			"Do you want to find a nearby location to continue?");
+	    resetpos = uiMSG().askContinue(
+		    "There is no data at the selected location.\n"
+		    "Do you want to find a nearby location to continue?" );
 	    shown3d = true;
 	}
 
-	if ( resetpos )
-	{
-	    bid_ = getNearBinID( nb );
-	    if ( bid_.inl==-1 || bid_.crl==-1 )
-	    {
-		uiMSG().warning("Can not read or no data at the section.");
-		bid_ = nb; //We still display the panel.
-	    }
-	}
+	bid_ = resetpos ? getNearBinID( nb ) : nb;
     }
     else
 	bid_ = nb;
 
     if ( bid_.inl==-1 || bid_.crl==-1 )
-	return false;
+	bid_ = nb;
 
     draggerpos_ = bid_;
     draggermoving.trigger();
@@ -352,14 +344,14 @@ const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
     {
 	mDynamicCastGet( SeisPS3DReader*, rdr3d, reader_ );
 	if ( !rdr3d ) 
-	    return StepInterval<int>();
+	    return StepInterval<int>(mUdf(int),mUdf(int),1);
 
 	const PosInfo::CubeData& posinfo = rdr3d->posData();
 	if ( isOrientationInline() )
 	{
 	    const int inlidx = posinfo.indexOf( bid.inl );
 	    if ( inlidx==-1 )
-		return StepInterval<int>();
+		return StepInterval<int>(mUdf(int),mUdf(int),1);
 
 	    const int seg = posinfo[inlidx]->nearestSegment( bid.crl );
 	    return posinfo[inlidx]->segments_[seg];
@@ -375,12 +367,12 @@ const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
     {
 	mDynamicCastGet( SeisPS2DReader*, rdr2d, reader_ );
 	if ( !seis2d_ || !rdr2d ) 
-	    return StepInterval<int>();
+	    return StepInterval<int>(mUdf(int),mUdf(int),1);
 
 	TypeSet<PosInfo::Line2DPos>  posnrs = rdr2d->posData().posns_;
 	const int nrtraces = posnrs.size();
 	if ( !nrtraces )
-	     return StepInterval<int>();
+	     return StepInterval<int>(mUdf(int),mUdf(int),1);
 
 	mAllocVarLenArr( int, trcnrs, nrtraces );
 
