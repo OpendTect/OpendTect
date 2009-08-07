@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.49 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.50 2009-08-07 15:30:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,7 @@ public:
     StepInterval<int>		displayedRowRange() const;
     StepInterval<int>		displayedColRange() const;
     visBase::HorizonSection*	getHorizonSection(const EM::SectionID&);
+    TypeSet<EM::SectionID>	getSectionIDs() const	{ return sids_; }
 
     void			useTexture(bool yn,bool trigger=false);
     bool			usesTexture() const;
