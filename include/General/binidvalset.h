@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.23 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.24 2009-08-07 12:11:44 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,7 @@ public:
     			//!< Collect the to-be-removed and use this instead
     void		removeVal(int); // Will remove entire 'column'
     bool		setNrVals(int,bool kp_data=true);
+    int			nrDuplicateBinIDs() const;
     void		sortDuplicateBids(int value_nr,bool ascending=true);
     void		removeDuplicateBids();
     void		randomSubselect(int maxnr);
@@ -186,7 +187,6 @@ public:
     inline float	getVal( const Pos& pos, int valnr ) const
     			//!< Direct access to value arrays. No check on valid()!
 			{ return getVals(pos)[valnr]; }
-
 protected:
 
     const int			nrvals_;

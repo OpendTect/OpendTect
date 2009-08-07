@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.29 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.30 2009-08-07 12:11:44 cvsnageswara Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: binidvalset.cc,v 1.29 2009-07-22 16:01:32 cvsbe
 #include "statrand.h"
 #include "varlenarray.h"
 #include <iostream>
-
+#include <vector>
 
 static inline void setToUdf( float* arr, int nvals )
 {
@@ -27,8 +27,9 @@ static inline void setToUdf( float* arr, int nvals )
 
 static int findIndexFor( const TypeSet<int>& nrs, int nr, bool* found = 0 )
 {
-    int ret;
-    bool fnd = IdxAble::findPos( nrs.arr(), nrs.size(), nr, -1, ret );
+    int ret = -1;
+    bool fnd = nrs.size() ? IdxAble::findPos(nrs.arr(),nrs.size(),nr,-1,ret)
+			  : false;
     if ( found ) *found = fnd;
     return ret;
 }
@@ -1087,4 +1088,34 @@ bool BinIDValueSet::areBinidValuesThere( const BinIDValues& bidvals ) const
 }
 
 
+int BinIDValueSet::nrDuplicateBinIDs() const
+{
+    int nrdupbinids = 0;
+    BinIDValueSet::Pos pos;
+    if ( !next(pos) )
+	return 0;
 
+    BinID prevbid = getBinID( pos );
+    while ( next(pos) )
+    {
+	BinID bid = getBinID( pos );
+	if ( prevbid == bid )
+	{
+	    nrdupbinids++;
+	    while ( next(pos) )
+	    {
+		prevbid = bid;
+		bid = getBinID( pos );
+		if ( prevbid != bid )
+		    break;
+	    }	
+	}
+
+	if ( !pos.valid() )
+	    break;
+
+	prevbid = bid;
+    }
+
+    return nrdupbinids;
+}
