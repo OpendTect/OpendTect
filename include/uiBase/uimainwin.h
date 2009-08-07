@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.72 2009-07-27 09:32:23 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.73 2009-08-07 12:53:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ public:
     static ActModalTyp	activeModalType();
     static uiMainWin*	activeModalWindow();
 
+    static const char*	activeModalQDlgTitle();
     static const char*	activeModalQDlgButTxt(int butnr);
     static int		activeModalQDlgRetVal(int butnr);
 

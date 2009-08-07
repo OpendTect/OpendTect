@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.184 2009-07-27 09:32:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.185 2009-08-07 12:53:11 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -921,6 +921,21 @@ uiMainWin* uiMainWin::activeModalWindow()
     if ( !mwb )	return 0;
 
     return &mwb->handle();
+}
+
+
+const char* uiMainWin::activeModalQDlgTitle()
+{
+    QWidget* amw = qApp->activeModalWidget();
+    if ( !amw )
+	return 0;
+
+    static BufferString title;
+    title = mQStringToConstChar( amw->windowTitle() );
+    if ( title.isEmpty() )
+	title = "odmain";
+
+    return title;
 }
 
 

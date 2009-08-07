@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.47 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.48 2009-08-07 12:53:11 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -166,7 +166,7 @@ int uiFileDialog::go()
 	}
     }
 
-    int refnr = beginCmdRecEvent();
+    int refnr = beginCmdRecEvent( forread_ ? "Open" : "Save As" );
     ODFileDialog* fd = new ODFileDialog( QString(dirname), QString(flt),
 					 qparent, "File dialog", true );
     fd->selectFile( QString(fname_) );
@@ -401,16 +401,19 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 }
 
 
-int uiFileDialog::beginCmdRecEvent()
+int uiFileDialog::beginCmdRecEvent( const char* wintitle )
 {
     uiMainWin* carrier = uiMain::theMain().topLevel();
     if ( !carrier )
 	return -1;
 
+    BufferString msg( "QFileDlg " );
+    msg += wintitle;
+
 #ifdef __lux32__
-    return carrier->beginCmdRecEvent( (od_uint32) this, "QFileDlg" );
+    return carrier->beginCmdRecEvent( (od_uint32) this, msg );
 #else
-    return carrier->beginCmdRecEvent( (od_uint64) this, "QFileDlg" );
+    return carrier->beginCmdRecEvent( (od_uint64) this, msg );
 #endif
 
 }

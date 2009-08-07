@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.32 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uimsg.h,v 1.33 2009-08-07 12:53:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ protected:
 
 private:
 
-    int			beginCmdRecEvent();
+    int			beginCmdRecEvent( const char* wintitle );
     void		endCmdRecEvent(int refnr,int retval,const char* buttxt0,
 				const char* buttxt1=0,const char* buttxt2=0); 
 

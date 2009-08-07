@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.51 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.52 2009-08-07 12:53:11 cvsjaap Exp $";
 
 
 #include "uimsg.h"
@@ -118,16 +118,20 @@ static const char* getCaptn( const char* s )
 }
 
 
-int uiMsg::beginCmdRecEvent()
+int uiMsg::beginCmdRecEvent( const char* wintitle )
 {
     uiMainWin* carrier = uiMain::theMain().topLevel();
     if ( !carrier )
 	return -1;
 
+    BufferString caption = getCaptn( wintitle );
+    BufferString msg( "QMsgBoxBut " );
+    msg += caption.isEmpty() ? "odmain" : caption;
+
 #ifdef __lux32__
-    return carrier->beginCmdRecEvent( (od_uint32) this, "QMsgBoxBut" );
+    return carrier->beginCmdRecEvent( (od_uint32) this, msg );
 #else
-    return carrier->beginCmdRecEvent( (od_uint64) this, "QMsgBoxBut" );
+    return carrier->beginCmdRecEvent( (od_uint64) this, msg );
 #endif
 
 }
@@ -164,7 +168,7 @@ void uiMsg::odfunc( const char* text, const char* p2, const char* p3 ) \
     if ( msg.isEmpty() ) return; \
     const char* oktxt = "&Ok"; \
  \
-    const int refnr = beginCmdRecEvent(); \
+    const int refnr = beginCmdRecEvent( caption ); \
     QMessageBox::qtfunc( popParnt(), mCapt(caption), mTxt, QString(oktxt) ); \
     endCmdRecEvent( refnr, 0, oktxt ); \
 }
@@ -200,9 +204,10 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
 
     MouseCursorChanger cc( MouseCursor::Arrow );
 
-    const int refnr = beginCmdRecEvent();
+    const char* wintitle = "Error";
+    const int refnr = beginCmdRecEvent( wintitle );
 
-    QMessageBox msgbox( QMessageBox::Critical, mCapt("Error"), QString(fms[0]),
+    QMessageBox msgbox( QMessageBox::Critical, mCapt(wintitle), QString(fms[0]),
 			QMessageBox::Ok, popParnt() );
     if ( fms.size()>1 )
     {
@@ -263,7 +268,7 @@ int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
 		     const char* cncltxt, const char* title )
 {
     mPrepCursor();
-    const int refnr = beginCmdRecEvent();
+    const int refnr = beginCmdRecEvent( title );
 
     if ( !yestxt || !*yestxt )
 	yestxt = "Yes";
@@ -285,8 +290,9 @@ int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
 void uiMsg::about( const char* text )
 {
     mPrepCursor();
-    const int refnr = beginCmdRecEvent();
-    QMessageBox::about( popParnt(), mCapt("About"), QString(text) );
+    const char* wintitle = "About";
+    const int refnr = beginCmdRecEvent( wintitle );
+    QMessageBox::about( popParnt(), mCapt(wintitle), QString(text) );
     endCmdRecEvent( refnr, 0, "&OK" );
 }
 
@@ -304,8 +310,9 @@ bool uiMsg::askGoOn( const char* text, const char* textyes, const char* textno )
 {
     mPrepCursor();
 
-    const int refnr = beginCmdRecEvent();
-    const int res = QMessageBox::warning( popParnt(), mCapt("Please specify"),
+    const char* wintitle = "Please specify";
+    const int refnr = beginCmdRecEvent( wintitle );
+    const int res = QMessageBox::warning( popParnt(), mCapt(wintitle),
 	    				  QString(text), QString(textyes),
 					  QString(textno), QString::null, 0, 1);
     endCmdRecEvent( refnr, res, textyes, textno );
@@ -324,9 +331,10 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
     if ( !textno || !*textno )
 	textno = "&No";
 
-    const int refnr = beginCmdRecEvent();
+    const char* wintitle = "Please specify";
+    const int refnr = beginCmdRecEvent( wintitle );
     const int res = QMessageBox::warning( popParnt(),
-				mCapt("Please specify"), QString(text),
+				mCapt(wintitle), QString(text),
 				QString(textyes),
 				QString(textno),
 				QString(cnclmsg), 0, 2 );
@@ -343,9 +351,10 @@ bool uiMsg::showMsgNextTime( const char* text, const char* ntmsg )
     if ( !ntmsg || !*ntmsg )
 	ntmsg = "&Don't show this message again";
 
-    const int refnr = beginCmdRecEvent();
+    const char* wintitle = "Information";
+    const int refnr = beginCmdRecEvent( wintitle );
     const int res = QMessageBox::warning( popParnt(),
-				mCapt("Information"), QString(text),
+				mCapt(wintitle), QString(text),
 				QString(oktxt),
 				QString(ntmsg),
 				QString::null, 0, 1 );

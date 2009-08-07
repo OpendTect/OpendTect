@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.27 2009-07-23 07:22:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.28 2009-08-07 12:53:11 cvsjaap Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -29,7 +29,11 @@ static int beginCmdRecEvent()
     if ( !carrier )
 	return -1;
 
-    return carrier->beginCmdRecEvent( mGlobalQColorDlgCmdRecId, "QColorDlg" );
+    const char* windowtitle = "Select color";
+    BufferString msg( "QColorDlg " );
+    msg += windowtitle;
+
+    return carrier->beginCmdRecEvent( mGlobalQColorDlgCmdRecId, msg );
 }
 
 static void endCmdRecEvent( int refnr, bool ok, const Color& col,
