@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.62 2009-08-07 16:27:55 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.63 2009-08-08 01:38:03 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -692,10 +692,16 @@ void HorizonSection::updateZAxisVOI()
 }
 
 
-void HorizonSection::getDataPositions( DataPointSet& res, double zoff,
+void HorizonSection::getDataPositions( DataPointSet& res, double zshift,
 				       int sid, TaskRunner* tr ) const 
 {
     if ( !geometry_ ) return;
+
+    if ( zaxistransform_ && zaxistransformvoi_>=0 )
+    {
+	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_) )
+		return;
+    }
 
     const DataColDef sidcol( sKeySectionID() );
     if ( res.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
@@ -722,7 +728,21 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zoff,
 	if ( !pos.isDefined() ) 
 	    continue;
 
-	vals[0] = pos.z+zoff;
+	float zval = pos.z;
+	if ( zaxistransform_ && zshift )
+	{
+	    zval = zaxistransform_->transform( BinIDValue(bid,zval) );
+	    if ( mIsUdf(zval) )
+		continue;
+
+	    zval += zshift;
+	    zval = zaxistransform_->transformBack( BinIDValue(bid,zval) );
+
+	    if ( mIsUdf(zval) )
+		continue;
+	}
+
+	vals[0] = zval;
 	bivs.add( bid, vals );
     }
 }
@@ -994,7 +1014,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     if ( zaxistransform_ && zaxistransformvoi_>=0 )
     {
 	updateZAxisVOI();
-	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_) )
+	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_,tr) )
 	    return;
     }
   
