@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.63 2009-08-08 01:38:03 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.64 2009-08-08 03:31:06 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1338,7 +1338,7 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 
     const int32_t camerainfo = SoCameraInfoElement::get(state);
     bool ismoving = camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE);
-    if ( ismoving_==ismoving )
+    if ( ismoving_ && ismoving )
 	return;
 
     ismoving_ = ismoving;
