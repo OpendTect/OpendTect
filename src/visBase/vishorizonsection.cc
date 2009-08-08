@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.64 2009-08-08 03:31:06 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.65 2009-08-08 03:46:01 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1595,6 +1595,7 @@ void HorizonSectionTile::updateNormals( int res )
     if ( res<0 ) return;
 
     const bool oldstatus = normals_->vector.enableNotify( false );
+    bool change = false;
 
     if ( allnormalsinvalid_[res] )
     {
@@ -1602,17 +1603,22 @@ void HorizonSectionTile::updateNormals( int res )
 	    normalstartidx_[res+1]-1 : mTotalNormalSize-1;
 	for ( int idx=normalstartidx_[res]; idx<=normalstop; idx++ )
 	    computeNormal( idx, res );
+	change = true;
     }
     else
     {
 	for ( int idx=0; idx<invalidnormals_[res].size(); idx++ )
+	{
+	    change = true;
 	    computeNormal( invalidnormals_[res][idx], res );
+	}
     }
 
     emptyInvalidNormalsList( res );
     allnormalsinvalid_[res] = false; 
     normals_->vector.enableNotify( oldstatus );
-    normals_->vector.touch();
+    if ( change )
+	normals_->vector.touch();
 }
 
 
