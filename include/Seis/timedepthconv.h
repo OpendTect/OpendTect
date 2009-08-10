@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.11 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: timedepthconv.h,v 1.12 2009-08-10 22:10:15 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -78,6 +78,7 @@ public:
     static const char*	sKeyVelData() { return "Velocity volume"; }
 
 protected:
+    friend		class TimeDepthDataLoader;
 			~Time2DepthStretcher();
     void		releaseData();
     Interval<float>	getTimeInterval(const BinID&,int voiidx) const;

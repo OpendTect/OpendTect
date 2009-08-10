@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.13 2009-07-27 05:26:13 cvsraman Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.14 2009-08-10 22:10:15 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: timedepthconv.cc,v 1.13 2009-07-27 05:26:13 cvs
 #include "keystrs.h"
 #include "samplfunc.h"
 #include "seisread.h"
+#include "seispacketinfo.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -157,7 +158,98 @@ void Time2DepthStretcher::removeVolumeOfInterest( int id )
 }
 
 
-bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* )
+class TimeDepthDataLoader : public SequentialTask
+{
+public:
+		TimeDepthDataLoader( Array3D<float>& arr,
+				    SeisTrcReader& reader,
+				    const CubeSampling& readcs,
+				    const VelocityDesc& vd,
+				    bool velintime,
+				    bool voiintime )
+		    : arr_( arr )
+		    , reader_( reader )
+		    , readcs_( readcs )
+		    , hiter_( readcs.hrg )
+		    , veldesc_( vd )
+		    , velintime_( velintime )
+		    , voiintime_( voiintime )
+		    , nrdone_( 0 )
+		{}
+protected:
+
+    od_int64            totalNr() const
+			{ return readcs_.hrg.nrCrl()*readcs_.hrg.nrInl(); }
+    od_int64            nrDone() const { return nrdone_; }
+    const char*         message() const { return "Reading velocity model"; };
+    const char*         nrDoneText() const { return "Position read"; }
+
+    int                 nextStep()
+    {
+	const int nrz = arr_.info().getSize( 2 );
+
+	if ( !hiter_.next( curbid_ ) )
+	    return Finished();
+
+	const od_int64 offset =
+	    arr_.info().getOffset(readcs_.hrg.inlIdx(curbid_.inl),
+				  readcs_.hrg.crlIdx(curbid_.crl), 0 );
+
+	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
+
+	mDynamicCastGet( SeisTrcTranslator*, veltranslator,
+			reader_.translator() );
+
+	SeisTrc velocitytrc;
+	if ( !veltranslator->goTo(curbid_) || !reader_.get(velocitytrc) )
+	{
+	    Time2DepthStretcher::udfFill( arrvs, nrz );
+		return MoreToDo();
+	}
+
+	const SeisTrcValueSeries trcvs( velocitytrc, 0 );
+	tdc_.setVelocityModel( trcvs, velocitytrc.size(),
+				velocitytrc.info().sampling, veldesc_,
+				velintime_ );
+
+
+	nrdone_++;
+
+	if ( voiintime_ )
+	{
+	    if ( !tdc_.calcDepths(arrvs,nrz,SamplingData<double>(readcs_.zrg)))
+	    {
+		Time2DepthStretcher::udfFill( arrvs, nrz );
+		return MoreToDo();
+	    }
+	}
+	else
+	{
+	    if ( !tdc_.calcTimes(arrvs,nrz, SamplingData<double>(readcs_.zrg)))
+	    {
+		Time2DepthStretcher::udfFill( arrvs, nrz );
+		return MoreToDo();
+	    }
+	}
+
+	return MoreToDo();
+    }
+
+    CubeSampling        readcs_;
+    SeisTrcReader&      reader_;
+    Array3D<float>&     arr_;
+    TimeDepthConverter  tdc_;
+    VelocityDesc        veldesc_;
+    bool                velintime_;
+    bool                voiintime_;
+    BinID               curbid_;
+    int                 nrdone_;
+
+    HorSamplingIterator hiter_;
+};
+
+
+bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 {
     if ( !velreader_ )
 	return true;
@@ -172,61 +264,36 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* )
     if ( idx<0 )
 	return false;
 
-    const CubeSampling& cs( voivols_[idx] );
+    CubeSampling readcs( voivols_[idx] );
 
-    TimeDepthConverter tdc;
+    const StepInterval<float> filezrg = veltranslator->packetInfo().zrg;
+    const int nrsamplesinfile = filezrg.nrSteps()+1;
+    int zstartidx = (int) filezrg.getIndex( readcs.zrg.start );
+    if ( zstartidx<0 ) zstartidx = 0;
+    int zstopidx = (int) filezrg.getIndex( readcs.zrg.stop )+1;
+    if ( zstopidx>=nrsamplesinfile )
+	zstopidx = nrsamplesinfile-1;
+
+    readcs.zrg.start = filezrg.atIndex( zstartidx );
+    readcs.zrg.stop = filezrg.atIndex( zstopidx );
+    readcs.zrg.step = filezrg.step;
+
     Array3D<float>* arr = voidata_[idx];
     if ( !arr )
     {
-	const int nrz = cs.nrZ();
-	arr = new Array3DImpl<float>( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
+	const int nrz = readcs.nrZ();
+	arr =
+	    new Array3DImpl<float>(readcs.nrInl(),readcs.nrCrl(),readcs.nrZ());
 	if ( !arr->isOK() )
 	    return false;
 
 	voidata_.replace( idx, arr );
     }
 
-    HorSamplingIterator hiter( cs.hrg );
-    BinID curbid;
-    const int nrz = arr->info().getSize( 2 );
-    while ( hiter.next( curbid ) )
-    {
-	const od_int64 offset =
-	    arr->info().getOffset(cs.hrg.inlIdx(curbid.inl),
-				  cs.hrg.crlIdx(curbid.crl), 0 );
-
-	OffsetValueSeries<float> arrvs( *arr->getStorage(), offset );
-
-	SeisTrc velocitytrc;
-	if ( !veltranslator->goTo(curbid) || !velreader_->get(velocitytrc) )
-	{
-	    udfFill( arrvs, nrz );
-	    continue;
-	}
-
-	const SeisTrcValueSeries trcvs( velocitytrc, 0 );
-	tdc.setVelocityModel( trcvs, velocitytrc.size(),
-			      velocitytrc.info().sampling, veldesc_,
-			      velintime_ );
-
-	if ( voiintime_[idx] )
-	{
-	    if ( !tdc.calcDepths( arrvs, nrz, SamplingData<double>(cs.zrg) ) )
-	    {
-		udfFill( arrvs, nrz );
-		continue;
-	    }
-	}
-	else
-	{
-	    if ( !tdc.calcTimes( arrvs, nrz, SamplingData<double>(cs.zrg) ) )
-	    {
-		udfFill( arrvs, nrz );
-		continue;
-	    }
-	}
-    }
-
+    TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
+				velintime_, voiintime_[idx] );
+    if ( (tr && !tr->execute( loader ) ) || !loader.execute() )
+	return false;
 
     return true;
 }
