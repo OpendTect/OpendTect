@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.110 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.111 2009-08-10 10:26:49 cvsranojay Exp $";
 
 #include "uisurvey.h"
 
@@ -464,13 +464,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
     }
     else if ( butidx == 1 )
     {
-	if ( !survinfo_->latlong2Coord().isOK() )
-	    uiLatLong2CoordDlg::ensureLatLongDefined( this, survinfo_ );
-	else
-	{
-	    uiLatLong2CoordDlg dlg( this, survinfo_->latlong2Coord(),survinfo_);
-	    dlg.go();
-	}
+	uiLatLong2CoordDlg::ensureLatLongDefined( this, survinfo_ );
     }
     else
     {
