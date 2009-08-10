@@ -443,7 +443,7 @@ void SoBeachBall::getTriangleInfo( SbList<int>** pTriList1,
     // This must later be retrieved from the SoDetail class
     // 0-0.3 - level 0; 0.3-0.7 - level 1; 0.7-1.0 - level 2
     const float levelOfDetail = 0.9;
-    const int level = floor ( levelOfDetail * mMaxLevelOfDetail );
+    const int level = (int) floor ( levelOfDetail * mMaxLevelOfDetail );
 
     if ( level == 0) 
     { 
