@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.5 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.6 2009-08-10 06:46:01 cvsjaap Exp $";
 
 #include "faultstickset.h"
 
@@ -22,7 +22,7 @@ namespace Geometry
 \
     if ( !firstcols_.size() ) return errorres; \
     int knotidx = knotnr - firstcols_[stickidx]; \
-    if ( knotidx<0 && knotidx>sticks_[stickidx]->size()+extra ) \
+    if ( knotidx<-extra || knotidx>sticks_[stickidx]->size()+extra ) \
 	return errorres;
 
     
