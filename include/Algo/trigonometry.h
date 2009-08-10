@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.40 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: trigonometry.h,v 1.41 2009-08-10 19:29:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -322,6 +322,7 @@ public:
     			
  
     double		distanceToPoint( const Coord3& point ) const;
+    double		sqDistanceToPoint( const Coord3& point ) const;
     double		closestPoint( const Coord3& point ) const;
     			/*!<\returns the point on the line that is closest to
 			 	     the given point */

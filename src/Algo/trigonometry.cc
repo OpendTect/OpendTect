@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.51 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.52 2009-08-10 19:29:42 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -439,10 +439,16 @@ Line3::Line3( const Coord3& point, const Vector3& vector )
 
 double Line3::distanceToPoint( const Coord3& point ) const
 {
-   const Vector3 p0p1( point.x - x0_, point.y - y0_, point.z - z0_ );
-   const Vector3 v( alpha_, beta_, gamma_ );
+    return Math::Sqrt( sqDistanceToPoint( point ) );
+}
 
-   return v.cross( p0p1 ).abs() / v.abs();
+
+double Line3::sqDistanceToPoint( const Coord3& point ) const
+{
+    const Vector3 p0p1( point.x - x0_, point.y - y0_, point.z - z0_ );
+    const Vector3 v( alpha_, beta_, gamma_ );
+
+    return v.cross( p0p1 ).sqAbs() / v.sqAbs();
 }
 
 
