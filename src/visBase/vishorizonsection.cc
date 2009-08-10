@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.65 2009-08-08 03:46:01 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.66 2009-08-10 22:14:18 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -674,6 +674,9 @@ void HorizonSection::updateZAxisVOI()
     while ( iter.next(curpos) )
     {
 	const float depth = geometry_->getKnot(curpos,false).z;
+	if ( mIsUdf(depth) )
+	    continue;
+
 	if ( first )
 	{
 	    cs.zrg.start = cs.zrg.stop = depth;
@@ -781,10 +784,7 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 {
     const BinIDValueSet* data = getCache( channel );
     if ( !geometry_ || !geometry_->getArray() || !dpset || !data )
-    {
-	setNrVersions( channel, 0 );
 	return;
-    }
 
     const int nrfixedcols = dpset->nrFixedCols();
     const DataColDef sidcoldef( sKeySectionID() );
@@ -1011,7 +1011,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     if ( !geometry_ || !geometry_->getArray() )
 	return;
 
-    if ( zaxistransform_ && zaxistransformvoi_>=0 )
+    if ( zaxistransform_ && zaxistransformvoi_!=-1 )
     {
 	updateZAxisVOI();
 	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_,tr) )
