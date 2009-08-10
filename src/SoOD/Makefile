@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.39 2009-05-28 09:01:00 cvsranojay Exp $
+#	RCS :		$Id: Makefile,v 1.40 2009-08-10 09:53:25 cvskarthika Exp $
 #_______________________________________________________________________________
 
 
@@ -46,7 +46,9 @@ SRC.cc	:=	initsood.cc \
 		UTMElement.cc \
 		UTMPosition.cc \
 		ViewportRegion.cc \
-		LegendKit.cc
+		LegendKit.cc \
+		SoBeachBall.cc 
+		
 
 PROG.cc := oib2a.cc
 
