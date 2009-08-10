@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.55 2009-08-07 18:16:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.56 2009-08-10 14:36:40 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -242,6 +242,8 @@ bool Viewer3D::setPosition( const BinID& nb )
     if ( bid_==nb )
 	return true;
 
+    bid_ = nb;
+
     PtrMan<PreStack::Gather> gather = new PreStack::Gather;
     if ( !ioobj_ || !reader_ || !gather->readFrom( *ioobj_, *reader_, nb ) )
     {
@@ -255,13 +257,27 @@ bool Viewer3D::setPosition( const BinID& nb )
 	    shown3d = true;
 	}
 
-	bid_ = resetpos ? getNearBinID( nb ) : nb;
+	bool hasdata = false;
+	if ( resetpos )
+	{
+	    BinID nearbid = getNearBinID( nb );
+	    if ( nearbid.inl==-1 || nearbid.crl==-1 )
+		uiMSG().warning("No gather data at the whole section.");
+	    else
+	    {
+		bid_ = nearbid;
+		hasdata = true;
+	    }
+        }
+	else
+	    uiMSG().warning("No gather data at the picked location.");
+	
+    	if ( !hasdata && flatviewer_ )
+	{
+	    flatviewer_->appearance().annot_.x1_.showgridlines_ = false;
+	    flatviewer_->appearance().annot_.x2_.showgridlines_ = false;
+	}
     }
-    else
-	bid_ = nb;
-
-    if ( bid_.inl==-1 || bid_.crl==-1 )
-	bid_ = nb;
 
     draggerpos_ = bid_;
     draggermoving.trigger();
