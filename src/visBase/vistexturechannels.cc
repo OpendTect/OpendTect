@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.26 2009-07-30 15:49:28 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.27 2009-08-10 09:47:06 cvsbert Exp $";
 
 #include "vistexturechannels.h"
 
@@ -114,7 +114,18 @@ void ChannelInfo::setColTabMapperSetup( const ColTab::MapperSetup& setup )
 
 const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
 {
-    return mappers_[channel]->setup_;
+    if ( channel < mappers_.size() )
+	return mappers_[channel]->setup_;
+    else
+    {
+	pErrMsg( "channel >= mappers_.size()" );
+	if ( mappers_.isEmpty() )
+	{
+	    static ColTab::MapperSetup ctms;
+	    return ctms;
+	}
+	return mappers_[mappers_.size()-1]->setup_;
+    }
 }
 
 
