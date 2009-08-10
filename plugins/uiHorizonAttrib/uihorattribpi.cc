@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.17 2009-07-22 17:49:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.18 2009-08-10 14:45:17 cvsbert Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -15,14 +15,17 @@ static const char* rcsID = "$Id: uihorattribpi.cc,v 1.17 2009-07-22 17:49:24 cvs
 #include "uistratamp.h"
 #include "uiflattenedcube.h"
 #include "uiisopachmaker.h"
+#include "uicalcpoly2horvol.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodemsurftreeitem.h"
 #include "vishorizondisplay.h"
+#include "vispicksetdisplay.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
+#include "uipickpartserv.h"
 #include "attribsel.h"
 #include "emobject.h"
 #include "emmanager.h"
@@ -63,11 +66,13 @@ public:
     void		doIsopach(CallBacker*);
     void		doIsopachThruMenu(CallBacker*);
     void		doContours(CallBacker*);
+    void		calcVol(CallBacker*);
 
     uiODMain*		appl_;
     uiVisMenuItemHandler flattenmnuitemhndlr_;
     uiVisMenuItemHandler isopachmnuitemhndlr_;
     uiVisMenuItemHandler contourmnuitemhndlr_;
+    uiVisMenuItemHandler volmnuitemhndlr_;
 };
 
 
@@ -80,6 +85,9 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
     	, flattenmnuitemhndlr_(mMkPars("Write &Flattened cube ...",doFlattened))
     	, isopachmnuitemhndlr_(mMkPars("Calculate &Isopach ...",doIsopach))
 	, contourmnuitemhndlr_(mMkPars("Add &Contour Display",doContours),995)
+	, volmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
+		*a->applMgr().visServer(),"Calculate &Volume ...",
+		mCB(this,uiHorAttribPIMgr,calcVol),996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mnumgr.dTectMnuChanged.notify(mCB(this,uiHorAttribPIMgr,updateMenu));
@@ -196,6 +204,20 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     uiContourTreeItem* newitem = new uiContourTreeItem(typeid(*parent).name());
     parent->addChild( newitem, false );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
+}
+
+
+void uiHorAttribPIMgr::calcVol( CallBacker* )
+{
+    const int displayid = volmnuitemhndlr_.getDisplayID();
+    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    	    visserv->getObject(displayid))
+    if ( !psd || !psd->getSet() )
+	{ pErrMsg("Can't get PickSetDisplay"); return; }
+
+    uiCalcPoly2HorVol dlg( appl_, *psd->getSet() );
+    dlg.go();
 }
 
 
