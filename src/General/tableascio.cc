@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.25 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.26 2009-08-11 08:58:29 cvsranojay Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: tableascio.cc,v 1.25 2009-07-22 16:01:32 cvsber
 #include "keystrs.h"
 #include "filegen.h"
 #include <iostream>
+
+mBasicExtern std::ostream& logMsgStrm();
 
 namespace Table
 {
@@ -380,7 +382,7 @@ struct HdrInfo : public BodyInfo
 };
 
 AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
-    : ExportHandler(std::cerr)
+    : ExportHandler(logMsgStrm())
     , aio_(const_cast<AscIO&>(aio))
     , ishdr_(hdr)
     , ready_(false)

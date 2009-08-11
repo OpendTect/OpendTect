@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.33 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.34 2009-08-11 08:58:29 cvsranojay Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -44,7 +44,7 @@ mBasicGlobal int gLogFilesRedirectCode = -1;
 	return *strm; \
     }
 
-static std::ostream& logMsgStrm()
+mBasicGlobal std::ostream& logMsgStrm()
 {
     if ( gLogFilesRedirectCode < 1 )
 	return std::cerr;
