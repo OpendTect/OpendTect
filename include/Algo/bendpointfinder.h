@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Aug 2009
- RCS:		$Id: bendpointfinder.h,v 1.1 2009-08-11 13:00:25 cvskris Exp $
+ RCS:		$Id: bendpointfinder.h,v 1.2 2009-08-11 21:12:36 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -57,10 +57,11 @@ class BendPointFinder2D : public BendPointFinderBase
 {
 public:
     		BendPointFinder2D(const TypeSet<Coord>&, float eps);
+    		BendPointFinder2D(const Coord*, int size, float eps);
 protected:
     float	getMaxSqDistToLine(int& idx, int start, int stop ) const;
 
-    const TypeSet<Coord>&	coords_;
+    const Coord*	coords_;
 };
 
 
@@ -72,7 +73,7 @@ public:
 protected:
     float	getMaxSqDistToLine(int& idx, int start, int stop ) const;
 
-    const TypeSet<Coord3>&	coords_;
-    const Coord3		scale_;
+    const Coord3*	coords_;
+    const Coord3	scale_;
 };
 #endif

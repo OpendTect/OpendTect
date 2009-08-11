@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: bendpointfinder.cc,v 1.1 2009-08-11 13:00:25 cvskris Exp $";
+static const char* rcsID = "$Id: bendpointfinder.cc,v 1.2 2009-08-11 21:12:36 cvskris Exp $";
 
 #include "bendpointfinder.h"
 #include "sorting.h"
@@ -119,6 +119,12 @@ void BendPointFinderBase::findInSegment( int idx0, int idx1 )
 
 BendPointFinder2D::BendPointFinder2D( const TypeSet<Coord>& crd, float eps )
     : BendPointFinderBase( crd.size(), eps )
+    , coords_( crd.arr() )
+{}
+
+
+BendPointFinder2D::BendPointFinder2D( const Coord* crd, int sz, float eps )
+    : BendPointFinderBase( sz, eps )
     , coords_( crd )
 {}
 
@@ -152,7 +158,7 @@ float BendPointFinder2D::getMaxSqDistToLine( int& idx, int start,
 BendPointFinder3D::BendPointFinder3D( const TypeSet<Coord3>& crd, 
 				      const Coord3& scale, float eps )
     : BendPointFinderBase( crd.size(), eps )
-    , coords_( crd )
+    , coords_( crd.arr() )
     , scale_( scale )
 {}
 
