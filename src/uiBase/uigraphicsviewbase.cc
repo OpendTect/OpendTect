@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.15 2009-07-22 23:03:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.16 2009-08-11 07:08:17 cvssatyaki Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -122,7 +122,8 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* event )
     }
     else if ( event->button() == Qt::LeftButton )
     {
-	startpos_ = new uiPoint( event->x(), event->y() );
+	uiPoint viewpt = handle_.getScenePos( event->x(), event->y() );
+	startpos_ = new uiPoint( viewpt.x, viewpt.y );
 	buttonstate_ = OD::LeftButton;
 	MouseEvent me( buttonstate_, event->x(), event->y() );
 	mousehandler_.triggerButtonPressed( me );
@@ -156,7 +157,8 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
 	mousehandler_.triggerButtonReleased( me );
 	if ( handle_.isRubberBandingOn() )
 	{
-	    uiPoint* stoppos = new uiPoint( event->x(), event->y() );
+	    uiPoint viewpt = handle_.getScenePos( event->x(), event->y() );
+	    uiPoint* stoppos = new uiPoint( viewpt.x, viewpt.y );
 	    uiRect selrect( *startpos_, *stoppos );
 	    handle_.scene().setSelectionArea( selrect );
 	}
@@ -186,6 +188,7 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
 {
     if ( !event ) return;
 
+    bool isfinished = event->isAccepted();
     if ( handle_.scene_ )
     {
 #if defined(__win__) && !defined(__msvc__)
@@ -394,15 +397,16 @@ void uiGraphicsViewBase::setSceneRect( const uiRect& rect )
 
 uiPoint uiGraphicsViewBase::getCursorPos() const
 {
-    return getScenePos( body_->cursor().pos().x(), body_->cursor().pos().y() );
+    QPoint globalpos( body_->cursor().pos().x(), body_->cursor().pos().y() );
+    QPoint viewpos( (int)body_->mapFromGlobal(globalpos).x(),
+		    (int)body_->mapFromGlobal(globalpos).y() );
+    return getScenePos( (float)viewpos.x(), (float)viewpos.y() );
 }
 
 
 uiPoint uiGraphicsViewBase::getScenePos( float x, float y ) const
 {
-    QPoint globalpos( (int)x, (int)y );
-    QPoint viewpos( (int)body_->mapFromGlobal(globalpos).x(),
-		    (int)body_->mapFromGlobal(globalpos).y() );
+    QPoint viewpos( (int)x, (int)y );
     return uiPoint( (int)body_->mapToScene(viewpos).x(),
 	    	    (int)body_->mapToScene(viewpos).y() );
 }
