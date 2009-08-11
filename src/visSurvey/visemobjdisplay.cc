@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.123 2009-08-06 02:04:13 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.124 2009-08-11 13:19:40 cvskris Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.123 2009-08-06 02:04:13 
 #include "keystrs.h"
 #include "mpeengine.h"
 #include "randcolor.h"
+#include "undo.h"
 
 #include "visdrawstyle.h"
 #include "visevent.h"
@@ -678,7 +679,13 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 void EMObjectDisplay::removeSelection( const Selector<Coord3>& selector,
 	TaskRunner* tr)
 {
+    const int lastid = EM::EMM().undo().currentEventID();
     em_.removeSelected( emobject_->id(), selector, tr );
+    if ( lastid!=EM::EMM().undo().currentEventID() )
+    {
+	EM::EMM().undo().setUserInteractionEnd(
+					EM::EMM().undo().currentEventID() );
+    }
 }
 
 
