@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.32 2009-07-31 10:19:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.33 2009-08-11 05:16:48 cvsraman Exp $";
 
 #include "jobiomgr.h"
 #include "filepath.h"
@@ -63,7 +63,7 @@ public:
 			{
 			    cmd += stl == FilePath::Unix ? " '" : " \"";
 			    cmd += fp.fullPath(stl);
-			    cmd += stl == FilePath::Unix ? " '" : " \"";
+			    cmd += stl == FilePath::Unix ? "'" : "\"";
 			  
 			}
     void		addFilePathFlag( const char* flag, const FilePath& fp,
