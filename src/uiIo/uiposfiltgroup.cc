@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.6 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.7 2009-08-11 09:49:41 cvsbert Exp $";
 
 #include "uiposfiltgroupstd.h"
 #include "posfilterstd.h"
@@ -43,6 +43,7 @@ void uiRandPosFiltGroup::usePar( const IOPar& iop )
     const float initialperc = percpassfld_->getfValue();
     float perc = mIsUdf(initialperc) ? initialperc : initialperc * 0.01;
     iop.get( Pos::RandomFilter::ratioStr(), perc );
+    if ( !mIsUdf(perc) ) perc *= 100;
     if ( perc >= 0 && perc <= 100 )
 	percpassfld_->setValue( perc );
 }
