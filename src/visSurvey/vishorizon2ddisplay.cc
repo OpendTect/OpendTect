@@ -7,15 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.23 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.24 2009-08-11 13:01:45 cvskris Exp $";
 
 #include "vishorizon2ddisplay.h"
 
+#include "bendpointfinder.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "rowcolsurface.h"
+#include "survinfo.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vismarker.h"
@@ -175,6 +177,24 @@ bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z,
 }
 
 
+#define mSendLine \
+    BendPointFinder3D finder( positions, scale, eps ); \
+    finder.execute(); \
+    const TypeSet<int>& bendpoints = finder.bendPoints(); \
+\
+    for ( int idy=0; idy<bendpoints.size(); idy++ ) \
+    { \
+	pl->getCoordinates()->setPos( lcidx, positions[bendpoints[idy]] ); \
+	pl->setCoordIndex(ciidx++, lcidx++ ); \
+    } \
+\
+    positions.erase(); \
+ \
+    if ( ciidx && pl->getCoordIndex(ciidx-1)!=-1 ) \
+	pl->setCoordIndex( ciidx++, -1 )
+
+
+
 void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 {
     const EM::SectionID sid = emobject_->sectionID( idx );
@@ -189,12 +209,16 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     int pcidx = 0;
     int ciidx = 0;
     RowCol rc;
+
+    const Coord3 scale( 1, 1, SI().zScale() );
+    float eps = mMIN(SI().inlDistance(),SI().crlDistance());
+    eps = mMIN(eps,SI().zRange(true).step*scale.z )/4;
+
     for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
     {
 	const StepInterval<int> colrg = rcs->colRange( rc.row );
 
-	Coord3 prevpos = Coord3::udf();
-	int indexinline = 0;
+	TypeSet<Coord3> positions;
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
 	    const Coord3 pos = emobject_->getPos( sid, rc.getSerialized() );
@@ -206,7 +230,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	    if ( !pos.isDefined() || 
 		 (lineranges && !withinRanges(rc,pos.z,*lineranges)) )
 	    {
-		if ( indexinline==1 )
+		if ( positions.size()==1 )
 		{
 		    if ( !ps )
 		    {
@@ -215,39 +239,21 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 			points_.replace( idx, ps );
 		    }
 
-		    ps->getCoordinates()->setPos( pcidx++, prevpos );
-		    indexinline = 0;
+		    ps->getCoordinates()->setPos( pcidx++, positions[0] );
+		    positions.erase();
 		}
 		else if ( ciidx && pl->getCoordIndex(ciidx-1)!=-1 )
 		{
-		    pl->setCoordIndex( ciidx++, -1 );
-		    indexinline = 0;
+		    mSendLine;
 		}
-	    }
-	    else if ( !indexinline )
-	    {
-		prevpos = pos;
-		indexinline = 1;
-	    }
-	    else if ( indexinline==1 )
-	    {
-		pl->getCoordinates()->setPos( lcidx, prevpos );
-		pl->setCoordIndex(ciidx++, lcidx++ );
-
-		pl->getCoordinates()->setPos( lcidx, pos );
-		pl->setCoordIndex(ciidx++, lcidx++ );
-		indexinline++;
 	    }
 	    else
 	    {
-		pl->getCoordinates()->setPos( lcidx, pos );
-		pl->setCoordIndex(ciidx++, lcidx++ );
-		indexinline++;
+		positions += pos;
 	    }
 	}
 
-	if ( indexinline && pl->getCoordIndex(ciidx-1)!=-1 )
-	    pl->setCoordIndex( ciidx++, -1 );
+	mSendLine;
     }
 
     pl->removeCoordIndexAfter( ciidx-1 );
