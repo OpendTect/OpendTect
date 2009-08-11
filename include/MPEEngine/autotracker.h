@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.10 2009-07-29 06:23:59 cvsumesh Exp $
+ RCS:           $Id: autotracker.h,v 1.11 2009-08-11 09:46:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,8 @@ protected:
     int 			stepcntallowedvar_;
     int				stepcntapmtthesld_;
 
-    bool			trackingextriffail;
+    bool			trackingextriffail_;
+    bool			burstalertactive_;
 
     const EM::SectionID		sectionid_;
     TypeSet<EM::SubID>		blacklist_;
