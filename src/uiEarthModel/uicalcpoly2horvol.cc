@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.3 2009-08-11 14:30:57 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.4 2009-08-11 14:49:31 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.3 2009-08-11 14:30:57 
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uibutton.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -43,6 +44,7 @@ uiCalcPoly2HorVol::uiCalcPoly2HorVol( uiParent* p, const Pick::Set& ps )
     setCtrlStyle( LeaveOnly );
     ctio_.ctxt.forread = true;
     const CallBack chgcb( mCB(this,uiCalcPoly2HorVol,haveChg) );
+    const CallBack calccb( mCB(this,uiCalcPoly2HorVol,doCalc) );
 
     if ( ps_.size() < 3 )
     {
@@ -60,20 +62,23 @@ uiCalcPoly2HorVol::uiCalcPoly2HorVol( uiParent* p, const Pick::Set& ps )
     ignnegbox_->attach( alignedBelow, horsel_ );
     upwbox_->attach( leftOf, ignnegbox_ );
 
+    uiObject* attobj = ignnegbox_;
     if ( SI().zIsTime() )
     {
 	const char* txt = zinft_ ? "Velocity (ft/s)" : "Velocity (m/s)";
 	velfld_ = new uiGenInput( this, txt, FloatInpSpec(zinft_?10000:3000) );
 	velfld_->attach( alignedBelow, ignnegbox_ );
-	velfld_->valuechanged.notify( chgcb );
+	velfld_->valuechanged.notify( calccb );
+	attobj = velfld_->attachObj();
     }
 
-    uiPushButton* calcbut = new uiPushButton( this, "&Calculate",
-	    			mCB(this,uiCalcPoly2HorVol,doCalc), true );
-    if ( velfld_ )
-	calcbut->attach( alignedBelow, velfld_ );
-    else
-	calcbut->attach( alignedBelow, ignnegbox_ );
+    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    sep->attach( stretchedBelow, attobj );
+
+    uiPushButton* calcbut = new uiPushButton( this,
+	    			"&Estimate volume", calccb, true);
+    calcbut->attach( alignedBelow, attobj );
+    calcbut->attach( ensureBelow, sep );
 
     valfld_ = new uiGenInput( this, "==> Volume" );
     valfld_->attach( alignedBelow, calcbut );
