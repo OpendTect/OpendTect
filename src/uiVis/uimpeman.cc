@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.173 2009-08-06 02:04:14 cvskris Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.174 2009-08-11 04:56:16 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -108,6 +108,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
+    mAddButton( "tracker-settings.png", showSettingsCB, "Settings", false );
+
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
     seedconmodefld->setToolTip( "Seed connect mode" );
     seedconmodefld->selectionChanged.notify(
@@ -117,8 +119,7 @@ void uiMPEMan::addButtons()
 
     seedidx = mAddButton( "seedpickmode.png", addSeedCB, 
 	    		  "Create seed ( key: 'Tab' )", true );
-    toolbar->setShortcut(seedidx,"Tab");
-    toolbar->addSeparator();
+    toolbar->setShortcut( seedidx, "Tab" );
 
     trackinvolidx = mAddButton( "autotrack.png", trackFromSeedsAndEdges,
     				"Auto-track", false );
@@ -128,21 +129,6 @@ void uiMPEMan::addButtons()
 
     retrackallinx = mAddButton( "retrackhorizon.png", retrackAllCB,
 	    			"Retrack All", false );
-    toolbar->addSeparator();
-
-    displayatsectionidx = mAddButton( "sectiononly.png", displayAtSectionCB,
-	    			      "Display at section only", true );
-    toolbar->addSeparator();
-
-    polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
-	    			 "Polygon Selection mode", true );
-    uiPopupMenu* polymnu = new uiPopupMenu( toolbar, "PolyMenu" );
-    mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect.png", 0 );
-    mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect.png",1);
-    toolbar->setButtonMenu( polyselectidx, polymnu );
-
-    removeinpolygon = mAddButton( "trashcan.png", removeInPolygon,
-	    			  " Remove PolySelection", false );
     toolbar->addSeparator();
 
     showcubeidx = mAddButton( "trackcube.png", showCubeCB,
@@ -158,15 +144,40 @@ void uiMPEMan::addButtons()
     mAddMnuItm( mnu, "Z", handleOrientationClick, "QCplane-z.png", 2 );
     toolbar->setButtonMenu( moveplaneidx, mnu );
 
+    displayatsectionidx = mAddButton( "sectiononly.png", displayAtSectionCB,
+	    			      "Display at section only", true );
+
+    nrstepsbox = new uiSpinBox( toolbar, 0, "Nr of track steps" );
+    nrstepsbox->setToolTip( "Nr of track steps" );
+    nrstepsbox->setMinValue( 1 );
+    toolbar->addObject( nrstepsbox );
+    trackforwardidx = mAddButton( "prevpos.png", moveBackward,
+	    			  "Move QC plane backward (key: '[')", false );
+    toolbar->setShortcut(trackforwardidx,"[");
+    trackbackwardidx = mAddButton( "nextpos.png", moveForward,
+	    			   "Move QC plane forward (key: ']')", false );
+    toolbar->setShortcut(trackbackwardidx,"]");
+    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
+			    "Set QC plane colortable", true );
     toolbar->addSeparator();
-    
+
+    polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
+	    			 "Polygon Selection mode", true );
+    uiPopupMenu* polymnu = new uiPopupMenu( toolbar, "PolyMenu" );
+    mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect.png", 0 );
+    mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect.png",1);
+    toolbar->setButtonMenu( polyselectidx, polymnu );
+
+    removeinpolygon = mAddButton( "trashcan.png", removeInPolygon,
+	    			  " Remove PolySelection", false );
+    toolbar->addSeparator();
+
+/*
     attribfld = new uiComboBox( toolbar, "QC Attribute" );
     attribfld->setToolTip( "QC Attribute" );
     attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
     toolbar->addObject( attribfld );
 
-    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
-			    "Set QC plane colortable", true );
 
     transfld = new uiSlider( toolbar, "Transparency", 2 );
     transfld->setOrientation( uiSlider::Horizontal );
@@ -176,24 +187,13 @@ void uiMPEMan::addButtons()
     transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
     toolbar->addObject( transfld );
     toolbar->addSeparator();
-
-    trackforwardidx = mAddButton( "leftarrow.png", moveBackward,
-	    			  "Move QC plane backward (key: '[')", false );
-    toolbar->setShortcut(trackforwardidx,"[");
-    trackbackwardidx = mAddButton( "rightarrow.png", moveForward,
-	    			   "Move QC plane forward (key: ']')", false );
-    toolbar->setShortcut(trackbackwardidx,"]");
-
-    nrstepsbox = new uiSpinBox( toolbar, 0, "Nr of track steps" );
-    nrstepsbox->setToolTip( "Nr of track steps" );
-    nrstepsbox->setMinValue( 1 );
-    toolbar->addObject( nrstepsbox );
-    toolbar->addSeparator();
-
-    mAddButton( "tracker-settings.png", showSettingsCB, "Settings", false );
+*/
 
     undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
     redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
+
+    toolbar->addSeparator();
+    mAddButton( "save.png", savePush, "Save", false );
 }
 
 
@@ -505,7 +505,7 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     visSurvey::MPEDisplay* mpedisplay = visSurvey::MPEDisplay::create();
 
     visserv->addObject( mpedisplay, scene->id(), false );
-    mpedisplay->setDraggerTransparency( transfld->getValue() );
+//    mpedisplay->setDraggerTransparency( transfld->getValue() );
     mpedisplay->showDragger( toolbar->isOn(moveplaneidx) );
 
     mpedisplay->boxDraggerStatusChange.notify(
@@ -520,6 +520,7 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 
 void uiMPEMan::updateAttribNames()
 {
+    /*
     BufferString oldsel = attribfld->text();
     attribfld->empty();
     attribfld->addItem( sKeyNoAttrib() );
@@ -532,6 +533,7 @@ void uiMPEMan::updateAttribNames()
 	attribfld->addItem( spec->userRef() );
     }
     attribfld->setCurrentItem( oldsel );
+    */
 
     updateSelectedAttrib();
     attribSel(0);
@@ -559,9 +561,10 @@ void uiMPEMan::updateSelectedAttrib()
     }
     else if ( userref==sKey::None )
 	userref = sKeyNoAttrib();
-    
+ /*   
     if ( userref )  	
 	attribfld->setCurrentItem( userref );
+	*/
 }
 
 
@@ -743,10 +746,11 @@ void uiMPEMan::showCubeCB( CallBacker* )
 
 void uiMPEMan::attribSel( CallBacker* )
 {
+    /*
     mGetDisplays(false);
     const bool trackerisshown = displays.size() &&
 			        displays[0]->isDraggerShown();
-    if ( trackerisshown && attribfld->currentItem() )
+    if ( trackerisshown ) //&& attribfld->currentItem() )
 	loadPostponedData();
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
@@ -788,6 +792,7 @@ void uiMPEMan::attribSel( CallBacker* )
     }
 
     updateButtonSensitivity();
+    */
 }
 
 
@@ -894,8 +899,8 @@ void uiMPEMan::introduceMPEDisplay()
     toolbar->turnOn( showcubeidx, true );
     showCubeCB(0);
     
-    attribfld->setCurrentItem( sKeyNoAttrib() );
-    attribSel(0);
+//    attribfld->setCurrentItem( sKeyNoAttrib() );
+//    attribSel(0);
 
     mGetDisplays(false);
     if ( displays.size() && !displays[0]->isDraggerShown() )
@@ -922,7 +927,7 @@ void uiMPEMan::finishMPEDispIntro( CallBacker* )
     if ( !tracker)
 	tracker = engine().getTracker( engine().highestTrackerID() );
 
-    if ( !tracker || attribfld->currentItem() )
+    if ( !tracker ) //|| attribfld->currentItem() )
 	return;
 
     ObjectSet<const Attrib::SelSpec> attribspecs;
@@ -930,8 +935,8 @@ void uiMPEMan::finishMPEDispIntro( CallBacker* )
     if ( attribspecs.isEmpty() )
     	return;
 
-    attribfld->setCurrentItem( attribspecs[0]->userRef() );
-    attribSel(0);
+//    attribfld->setCurrentItem( attribspecs[0]->userRef() );
+//    attribSel(0);
 }
 
 
@@ -965,6 +970,12 @@ void uiMPEMan::redoPush( CallBacker* )
     EM::EMM().burstAlertToAll( false );
 
     updateButtonSensitivity(0);
+}
+
+
+void uiMPEMan::savePush( CallBacker* )
+{
+    // Not impl
 }
 
 
@@ -1033,14 +1044,14 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 
     toolbar->setSensitive( trackforwardidx, !is2d && trackerisshown );
     toolbar->setSensitive( trackbackwardidx, !is2d && trackerisshown );
-    attribfld->setSensitive( !is2d && trackerisshown );
-    transfld->setSensitive( !is2d && trackerisshown );
+//    attribfld->setSensitive( !is2d && trackerisshown );
+//    transfld->setSensitive( !is2d && trackerisshown );
     nrstepsbox->setSensitive( !is2d && trackerisshown );
 
     //coltab
-    const bool hasdlg = colbardlg && !colbardlg->isHidden();
-    toolbar->setSensitive( clrtabidx, !is2d && trackerisshown && !hasdlg &&
-			   attribfld->currentItem()>0 );
+//    const bool hasdlg = colbardlg && !colbardlg->isHidden();
+//    toolbar->setSensitive( clrtabidx, !is2d && trackerisshown && !hasdlg &&
+//			   attribfld->currentItem()>0 );
 
 
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
@@ -1255,15 +1266,13 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 
 	toolbar->turnOn( moveplaneidx, false );
 	movePlaneCB( cb );
-
-	toolbar->turnOn( seedidx, true );
-	addSeedCB( cb );
     }
 }
 
 
 void uiMPEMan::showTracker( bool yn )
 {
+    /*
     if ( yn && attribfld->currentItem() )
     {
 	mGetDisplays(false);
@@ -1272,6 +1281,7 @@ void uiMPEMan::showTracker( bool yn )
 
 //	loadPostponedData();
     }
+    */
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     mGetDisplays(true)
@@ -1506,7 +1516,7 @@ void uiMPEMan::initFromDisplay()
 
 	if ( idx==0 )
 	{
-	    transfld->setValue( displays[idx]->getDraggerTransparency() );
+//	    transfld->setValue( displays[idx]->getDraggerTransparency() );
 	    toolbar->turnOn( showcubeidx, displays[idx]->isBoxDraggerShown() );
 	}
     }
