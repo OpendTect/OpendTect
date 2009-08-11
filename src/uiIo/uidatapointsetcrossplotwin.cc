@@ -83,7 +83,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 		  "Toggle show Y2", true );
     disptb_.turnOn( showy2tbid_, false );
 
-    coltabfld_ = new uiColorTable( dispgrp, *new ColTab::Sequence(), false );
+    coltabfld_ = new uiColorTable( dispgrp, ColTab::Sequence(0), false );
     coltabfld_->setEnabManage( false );
     coltabfld_->seqChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
@@ -171,7 +171,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 void uiDataPointSetCrossPlotWin::drawTypeChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( bool, yn , cb );
-    coltabfld_->setSensitive( yn );
+    colortb_.display( yn );
     disptb_.setSensitive( showy2tbid_, !yn );
     setSelComboSensitive( !yn );
 }
