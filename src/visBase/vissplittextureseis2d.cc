@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.8 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.9 2009-08-11 21:16:45 cvskris Exp $";
 
 #include "vissplittextureseis2d.h"
 
-#include "idxable.h"
+#include "bendpointfinder.h"
 #include "posinfo.h"
 #include "simpnumer.h"
 #include "SoTextureComposer.h"
@@ -163,24 +163,16 @@ void SplitTextureSeis2D::updateHorSplit()
 	    blockidxrg.stop = nrhorpixels-1;
 
 	const int pathsize = blockidxrg.width()+1;
-	mAllocVarLenArr( double, x, pathsize );
-	mAllocVarLenArr( double, y, pathsize );
+	const int offset = blockidxrg.start+diff;
+	BendPointFinder2D finder( path_.arr()+offset, pathsize, 0.5 );
+	finder.execute();
 
-	for ( int idy=0; idy<pathsize; idy++ )
-	{
-	    const int pathidx = idy+blockidxrg.start+diff;
-	    x[idy] = path_[pathidx].x;
-	    y[idy] = path_[pathidx].y;
-	}
-
-	TypeSet<int> totalbps;
-	IdxAble::getBendPoints<double*,double*,double>( x, y, pathsize,
-							0.5, totalbps );
+	const TypeSet<int>& totalbps = finder.bendPoints();
 
 	TypeSet<int>* trcindices = new TypeSet<int>;
 	trcindices->setCapacity( totalbps.size() );
 	for ( int idy=0; idy<totalbps.size(); idy++ )
-	    (*trcindices) += totalbps[idy] + blockidxrg.start + diff;
+	    (*trcindices) += totalbps[idy] + offset;
 
 	horblocktrcindices_ += trcindices;
     }
