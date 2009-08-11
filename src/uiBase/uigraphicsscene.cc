@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.33 2009-07-27 21:47:49 cvskris Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.34 2009-08-11 07:10:20 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -113,6 +113,10 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
+    if ( qev->modifiers() == Qt::ControlModifier )
+	bs = OD::ControlButton;
+    else if ( qev->modifiers() == Qt::ShiftModifier )
+	bs = OD::ShiftButton;
     mousepressedbs_ = OD::NoButton;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
@@ -274,8 +278,10 @@ uiRect uiGraphicsScene::getSelectedArea() const
 }
 
 
-void uiGraphicsScene::setSelectionArea( const uiRect& rect )
+void uiGraphicsScene::setSelectionArea( const uiRect& uirect )
 {
+    uiRect rect = uirect;
+    rect.checkCorners();
     const QRectF selrect( rect.topLeft().x, rect.topLeft().y, rect.width(),
 	    		  rect.height() );
     QPainterPath selareapath;
