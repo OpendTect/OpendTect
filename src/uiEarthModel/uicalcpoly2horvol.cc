@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.2 2009-08-11 08:26:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.3 2009-08-11 14:30:57 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.2 2009-08-11 08:26:04 
 #include "pickset.h"
 #include "survinfo.h"
 #include "polygon.h"
+#include "gridder2d.h"
 
 #include "uiioobjsel.h"
 #include "uigeninput.h"
@@ -138,6 +139,9 @@ void uiCalcPoly2HorVol::doCalc( CallBacker* )
 }
 
 
+#define mPolyLoc(b) \
+	Geom::Point2D<float>( (float)b.inl, (float)(b.crl) )
+
 float uiCalcPoly2HorVol::getM3( float vel )
 {
     if ( !curhor_ )
@@ -147,23 +151,28 @@ float uiCalcPoly2HorVol::getM3( float vel )
 	    return mUdf(float);
     }
 
-    //TODO do better than use average Z of polygon
-
     ODPolygon<float> poly;
     HorSampling hs;
-    float avgz = 0; int nrz = 0;
+    const Pick::Location& pl0( ps_[0] );
+    TypeSet<Coord> pts; TypeSet<float> zvals;
     for ( int idx=0; idx<ps_.size(); idx++ )
     {
 	const Pick::Location& pl( ps_[idx] );
-	avgz += pl.pos.z; nrz++;
+	pts += pl.pos; zvals += pl.pos.z;
 	const BinID bid( SI().transform(pl.pos) );
-	poly.add( Geom::Point2D<float>(bid.inl,bid.crl) );
+	poly.add( mPolyLoc(bid) );
 	if ( idx )
 	    hs.include( bid );
 	else
 	    hs.start = hs.stop = bid;
     }
-    avgz /= nrz;
+
+    InverseDistanceGridder2D grdr;
+    grdr.setPoints( pts ); grdr.setValues( zvals, false );
+    float avgz = 0;
+    for ( int idx=0; idx<zvals.size(); idx++ )
+	avgz += zvals[idx];
+    avgz /= zvals.size();
 
     const bool upw = upwbox_->isChecked();
     const bool useneg = !ignnegbox_->isChecked();
@@ -173,18 +182,31 @@ float uiCalcPoly2HorVol::getM3( float vel )
     BinID bid; float totth = 0;
     while ( iter.next(bid) )
     {
-	if ( !poly.isInside(Geom::Point2D<float>(bid.inl,bid.crl),true,1e-6) )
+	if ( !poly.isInside(mPolyLoc(bid),true,1e-6) )
 	    continue;
 
 	const EM::SubID subid = bid.getSerialized();
+	const Coord coord( SI().transform(bid) );
 
 	for ( int isect=0; isect<nrsect; isect++ )
 	{
-	    const float z = curhor_->getPos( isect, subid ).z;
-	    if ( mIsUdf(z) )
+	    const float horz = curhor_->getPos( isect, subid ).z;
+	    if ( mIsUdf(horz) )
 		continue;
 
-	    const float th = upw ? avgz - z : z - avgz;
+	    float polyz = avgz;
+	    bool useavgz = true;
+	    useavgz = !grdr.setGridPoint(coord) || !grdr.init();
+	    if ( useavgz )
+		polyz = avgz;
+	    else
+	    {
+		polyz = grdr.getValue();
+		if ( mIsUdf(polyz) )
+		    polyz = avgz;
+	    }
+
+	    const float th = upw ? polyz - horz : horz - polyz;
 	    if ( useneg || th > 0 )
 		{ totth += th; break; }
 	}
