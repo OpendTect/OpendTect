@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.34 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.35 2009-08-11 07:09:31 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -96,7 +96,7 @@ void uiAxisHandler::reCalc()
     annotrg.start = annotstart_;
 
     const uiFont& font = FontList().get();
-    wdthy_ = font.height();
+    wdthy_ = 2*font.height();
     BufferString str;
 
     const int nrsteps = annotrg.nrSteps();
@@ -110,8 +110,8 @@ void uiAxisHandler::reCalc()
 	if ( setup_.islog_ )
 	    relpos = log( 1 + relpos );
 	pos_ += relpos;
-	const int wdth = font.width( str );
-	if ( idx == 0 )			wdthx_ = font.width( str )+2;
+	const int wdth = font.width( str ) + font.height();
+	if ( idx == 0 )			wdthx_ = font.width( str );
 	else if ( wdthx_ < wdth )	wdthx_ = wdth;
     }
     endpos_ = setup_.islog_ ? logof2 : 1;
@@ -534,7 +534,7 @@ void uiAxisHandler::drawName()
     {
 	const bool istop = setup_.side_ == uiRect::Top;
 	const int x = pixBefore() + axsz_ / 2;
-	const int y = istop ? 2 : height_- pixBefore()/2;
+	const int y = istop ? 2 : height_- 20;
 	const Alignment al( Alignment::HCenter,
 			    istop ? Alignment::Bottom : Alignment::Top );
 	nameitm_->setPos( uiPoint(x,y) );
