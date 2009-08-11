@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.1 2009-08-10 14:45:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.2 2009-08-11 08:26:04 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.1 2009-08-10 14:45:17 
 
 uiCalcPoly2HorVol::uiCalcPoly2HorVol( uiParent* p, const Pick::Set& ps )
 	: uiDialog(p,Setup("Calculate volume",
-		    "Calculate volume from polygon to horizon", "104.4.5"))
+		    "Volume estimation: polygon to horizon", "104.4.5"))
 	, ps_(ps)
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, zinft_(SI().depthsInFeetByDefault())
@@ -212,7 +212,7 @@ void uiCalcPoly2HorVol::dispVal( float m3 )
 	{ mega = true; dispval /= 1e6; }
 
     BufferString txt( "", dispval, mega ? "M " : " " );
-    txt += zinft_ ? "cft" : "cm";
+    txt += zinft_ ? "ft^3" : "m^3";
     txt += " (";
     dispval *= bblconv;
     if ( zinft_ ) dispval /= ft3conv;
