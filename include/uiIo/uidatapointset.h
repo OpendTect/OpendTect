@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.22 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.23 2009-08-11 07:43:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,7 +124,7 @@ protected:
     TypeSet<TRowID>		sortidxs_;
     TypeSet<TRowID>		revsortidxs_;
     float			eachrow_;
-    int				percentage_;
+    float			percentage_;
     TColID			xcol_;
     TColID			ycol_;
     TColID			y2col_;
@@ -204,6 +204,13 @@ protected:
 private:
 
     int				initVars();
+
+public:
+    float			getValue( DColID did, DRowID rid ,
+	    				  bool userunits ) const
+				{ return getVal(did,rid,userunits); }
+    void			setUnsavedChg( bool chg )
+				{ unsavedchgs_ = chg; }
 };
 
 

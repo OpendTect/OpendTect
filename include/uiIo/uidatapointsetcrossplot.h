@@ -7,29 +7,31 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.23 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.24 2009-08-11 07:43:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiaxishandler.h"
 #include "uidatapointset.h"
+#include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "datapointset.h"
-#include "uigraphicsview.h"
+#include "uirgbarraycanvas.h"
 #include "uiaxisdata.h"
 #include "rowcol.h"
 
 class Coord;
 class RowCol;
-class ioDrawTool;
 class uiComboBox;
-class uiParent;
 class MathExpression;
 class MouseEvent;
 class LinStats2D;
+class Timer;
 class uiDataPointSet;
 class uiPolygonItem;
 class uiLineItem;
+class uiRectItem;
 class uiGraphicsItemGroup;
 class uiGraphicsItem;
 class uiRect;
@@ -37,7 +39,7 @@ template <class T> class ODPolygon;
 
 /*!\brief Data Point Set Cross Plotter */
 
-mClass uiDataPointSetCrossPlotter : public uiGraphicsView
+mClass uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
 {
 public:
 
@@ -71,6 +73,8 @@ public:
     Notifier<uiDataPointSetCrossPlotter>	pointsSelected;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
     Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
+    CNotifier<uiDataPointSetCrossPlotter,bool>	drawTypeChanged;
+    CNotifier<uiDataPointSetCrossPlotter,Interval<float> > coltabRgChanged;
     DataPointSet::RowID	selRow() const		{ return selrow_; }
     bool		selRowIsY2() const	{ return selrowisy2_; }
 
@@ -105,14 +109,17 @@ public:
 	bool			isValid() const;
 
 	uiRect*			rect_;
-	ODPolygon<int>*		poly_;	
+	ODPolygon<int>*		poly_;
+	uiWorldRect*		worldrect_;
+	ODPolygon<double>*	worldpoly_;
     };
 
     AxisData			x_;
     AxisData			y_;
     AxisData			y2_;
     int				getRow(const AxisData&,uiPoint) const;
-    void 			drawData(const AxisData&,bool y2);
+    void 			drawData(const AxisData&,bool y2,
+	    				 bool rempts = false);
     void 			drawRegrLine(uiAxisHandler&,
 	    				     const Interval<int>&);
 
@@ -122,9 +129,12 @@ public:
 					uiDataPointSet::DRowID,bool);
     void			setItem(uiGraphicsItem*,bool y2,const uiPoint&);
     void			setAnnotEndTxt(uiAxisHandler&);
+    int				calcDensity(Array2D<float>*,bool chgdps=false,
+	    				    bool removesel=false);
+    void			drawDensityPlot(bool removesel=false);
     bool			drawPoints(uiGraphicsItemGroup*,
 	    				   const AxisData&,bool y2,
-	    				   MarkerStyle2D&);
+	    				   MarkerStyle2D&,bool rempt = false);
     void			drawDeSelectedItems();
 
     void			setSceneSelectable( bool yn )	
@@ -133,11 +143,12 @@ public:
     				{ return selectable_; }
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections();
-    void			deleteSelections(bool);
+    void			deleteSelections();
     void			removePoint(uiDataPointSet::DRowID,
 					    bool isy2,int itmidx);
     void			checkSelection(uiDataPointSet::DRowID,
-				   uiGraphicsItem*,bool,const AxisData&);
+				   uiGraphicsItem*,bool,const AxisData&,
+				   bool rempt = false);
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
@@ -173,15 +184,21 @@ public:
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
 
+    void			setColTab( const ColTab::Sequence& ctseq )
+				{ ctab_ = ctseq; }
+    void			setCTMapper(const ColTab::MapperSetup&);
     void			showY2(bool);
     void 			drawContent( bool withaxis = true );
-    bool                        isY2Shown() const;
+    bool			isY2Shown() const;
+    bool			isADensityPlot() const { return isdensityplot_;}
     bool			isRectSelection() const	
     				{ return rectangleselection_; }
     void			setRectSelection( bool yn )
 				{ rectangleselection_ = yn; }
     void			setSelectionAreas(
 				    const ObjectSet<SelectionArea>&);
+    void			setTRMsg( const char* msg )
+				{ trmsg_ = msg; }
 protected:
 
     uiDataPointSet&		uidps_;
@@ -190,20 +207,27 @@ protected:
     MouseEventHandler&		meh_;
     MathExpression*		mathobj_;
     BufferString		mathobjstr_;
+    BufferString		trmsg_;
     uiPolygonItem*		selectionpolygonitem_;
+    uiRectItem*			selectionrectitem_;
     uiGraphicsItemGroup*	yptitems_;
     uiGraphicsItemGroup*	y2ptitems_;
+    uiGraphicsItemGroup*	selrectitems_;
+    uiGraphicsItemGroup*	selpolyitems_;
     uiLineItem*			regrlineitm_;
     uiLineItem*			y1userdeflineitm_;
     uiLineItem*			y2userdeflineitm_;
+    ColTab::Sequence		ctab_;
+    ColTab::Mapper		ctmapper_;
     LinStats2D&			lsy1_;
     LinStats2D&			lsy2_;
+    Timer&			timer_;
     bool			doy2_;
     bool			dobd_;
-    bool			pointstobeselected_;
     bool			selectable_;
     bool			mousepressed_;
-    bool                        rectangleselection_;
+    bool			rectangleselection_;
+    bool                        isdensityplot_;
     int				eachrow_;
     int				eachcount_;
     int				curgrp_;
@@ -228,9 +252,12 @@ protected:
     virtual void		mkNewFill();
     void 			calcStats();
     bool 			isSelectionValid(uiDataPointSet::DRowID);
+    void			setWorldSelArea(int);
+    void			reDrawSelArea();
 
     bool			selNearest(const MouseEvent&);
     void 			reDraw(CallBacker*);
+    void 			reSizeDraw(CallBacker*);
     void 			mouseClick(CallBacker*);
     void 			mouseRel(CallBacker*);
     void                        getSelStarPos(CallBacker*);

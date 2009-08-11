@@ -1,148 +1,52 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.47 2009-07-28 07:13:31 cvsraman Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.48 2009-08-11 07:43:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.47 2009-07-28 07:13:31 cvsraman Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.48 2009-08-11 07:43:57 cvssatyaki Exp $";
 
-#include "uidatapointsetcrossplotwin.h"
+#include "uidatapointsetcrossplot.h"
 
-#include "uibutton.h"
-#include "uidpscrossplotpropdlg.h"
 #include "uidatapointset.h"
-#include "uidialog.h"
-#include "uilineedit.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uiprogressbar.h"
 #include "uirgbarray.h"
-#include "uicombobox.h"
-#include "uilabel.h"
-#include "uimsg.h"
-#include "uispinbox.h"
-#include "uitable.h"
-#include "uitoolbar.h"
+#include "uitaskrunner.h"
+#include "uiworld2ui.h"
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
-#include "draw.h"
+#include "coltabsequence.h"
+#include "densitycalc.h"
 #include "datapointset.h"
-#include "datainpspec.h"
 #include "envvars.h"
 #include "linear.h"
+#include "pixmap.h"
 #include "mathexpression.h"
 #include "mousecursor.h"
 #include "polygon.h"
 #include "randcolor.h"
 #include "rowcol.h"
-#include "statruncalc.h"
 #include "sorting.h"
 #include "settings.h"
+#include "task.h"
+#include "timer.h"
+#include "thread.h"
 
 static const int cMaxPtsForMarkers = 20000;
+static const int cMinPtsForDensity = 20000;
 static const int cMaxPtsForDisplay = 100000;
-
-uiDataPointSetCrossPlotter::Setup uiDataPointSetCrossPlotWin::defsetup_;
-
-uiDataPointSetCrossPlotter::Setup::Setup()
-    : noedit_(false)
-    , markerstyle_(MarkerStyle2D::Square)
-    , xstyle_(LineStyle::Solid,1,Color::Black())
-    , ystyle_(LineStyle::Solid,1,Color::stdDrawColor(0))
-    , y2style_(LineStyle::Dot,1,Color::stdDrawColor(1))
-    , minborder_(10,20,20,5)
-    , showcc_(true)
-    , showregrline_(false)
-    , showy1userdefline_(false)
-    , showy2userdefline_(false)
-{
-}
-
-
-uiDataPointSetCrossPlotter::AxisData::AxisData( uiDataPointSetCrossPlotter& cp,
-						uiRect::Side s )
-    : uiAxisData( s )
-    , cp_( cp )
-{
-}
-
-
-void uiDataPointSetCrossPlotter::AxisData::stop()
-{
-    if ( isreset_ ) return;
-    colid_ = cp_.mincolid_ - 1;
-    uiAxisData::stop();
-}
-
-
-void uiDataPointSetCrossPlotter::AxisData::setCol( DataPointSet::ColID cid )
-{
-    if ( axis_ && cid == colid_ )
-	return;
-
-    stop();
-    colid_ = cid;
-    newColID();
-}
-
-
-void uiDataPointSetCrossPlotter::AxisData::newColID()
-{
-    if ( colid_ < cp_.mincolid_ )
-	return;
-
-    renewAxis( cp_.uidps_.userName(colid_), &cp_.scene(), cp_.width(),
-	       cp_.height(), 0 );
-    handleAutoScale( cp_.uidps_.getRunCalc( colid_ ) );
-}
-
-
-uiDataPointSetCrossPlotter::SelectionArea::SelectionArea( uiRect* rect )
-    : type_( uiDataPointSetCrossPlotter::SelectionArea::Rectangle )
-    , rect_(rect)
-    , poly_(0)
-{
-}
-
-
-uiDataPointSetCrossPlotter::SelectionArea::SelectionArea( ODPolygon<int>* poly )
-    : type_( uiDataPointSetCrossPlotter::SelectionArea::Polygon )
-    , rect_(0)
-    , poly_(poly)
-{
-}
-
-
-uiDataPointSetCrossPlotter::SelectionArea::~SelectionArea()
-{
-    delete rect_;
-    delete poly_;
-}
-
-
-bool uiDataPointSetCrossPlotter::SelectionArea::isInside(
-	const uiPoint& pos ) const
-{
-    return type_ == Polygon ? poly_->isInside(pos,true,0)
-			    : rect_->contains( pos );
-}
-
-
-bool uiDataPointSetCrossPlotter::SelectionArea::isValid() const
-{
-    return type_ == Polygon ? !poly_->isSelfIntersecting()
-			    : (rect_->width()>1 && rect_->height()>1);
-}
-
 
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidps,
 			    const uiDataPointSetCrossPlotter::Setup& su )
-    : uiGraphicsView(p,"Data pointset crossplotter")
+    : uiRGBArrayCanvas(p,*new uiRGBArray(false))
     , dps_(uidps.pointSet())
     , uidps_(uidps)
     , setup_(su)
@@ -155,6 +59,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , selectionChanged( this )
     , pointsSelected( this )
     , removeRequest( this )
+    , drawTypeChanged( this )
+    , coltabRgChanged( this )
     , doy2_(true)
     , dobd_(false)
     , eachrow_(1)
@@ -169,19 +75,25 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , yptitems_(0)
     , y2ptitems_(0)
     , selectionpolygonitem_(0)
+    , selectionrectitem_(0)
     , regrlineitm_(0)
     , y1userdeflineitm_(0)
     , y2userdeflineitm_(0)
     , selyitems_(0)
     , sely2items_(0)
+    , selrectitems_(0)
+    , selpolyitems_(0)
     , eachcount_(0)
     , selectable_(false)
     , isy1selectable_(true)
     , isy2selectable_(false)
     , mousepressed_(false)
-    , pointstobeselected_(false)
+    , isdensityplot_(false)
+    , timer_(*new Timer())
+    , trmsg_("Calculating Density" )
 {
     enableImageSave();
+    enableScrollZoom();
     x_.defaxsu_.style_ = setup_.xstyle_;
     y_.defaxsu_.style_ = setup_.ystyle_;
     y2_.defaxsu_.style_ = setup_.y2style_;
@@ -191,10 +103,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     
     meh_.buttonPressed.notify( mCB(this,uiDataPointSetCrossPlotter,mouseClick));
     meh_.buttonReleased.notify( mCB(this,uiDataPointSetCrossPlotter,mouseRel));
-    initDraw();
-    drawContent();
 
-    reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
+    reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reSizeDraw) );
     reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     getMouseEventHandler().buttonPressed.notify(
 	    mCB(this,uiDataPointSetCrossPlotter,getSelStarPos) );
@@ -203,6 +113,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     getMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiDataPointSetCrossPlotter,itemsSelected) );
 
+    timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     setStretch( 2, 2 );
     setDragMode( uiGraphicsView::ScrollHandDrag );
     scene().setMouseEventActive( true );
@@ -215,6 +126,10 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
     delete &lsy1_;
     delete &lsy2_;
+    if ( yptitems_ ) scene().removeItem( yptitems_ );
+    if ( y2ptitems_ ) scene().removeItem( y2ptitems_ );
+    if ( selrectitems_ ) scene().removeItem( selrectitems_ );
+    if ( selrectitems_ ) scene().removeItem( selrectitems_ );
 }
 
 #define mHandleAxisAutoScale(axis) \
@@ -229,10 +144,24 @@ void uiDataPointSetCrossPlotter::setMathObj( MathExpression* mathobj )
 }
 
 
+void uiDataPointSetCrossPlotter::reSizeDraw( CallBacker* )
+{
+    if ( isdensityplot_ )
+    {
+	trmsg_ = "Calculating Density";
+	timer_.start( 1200, true );
+    }
+    else
+	reDraw( 0 );
+    return;
+}
+
+
 void uiDataPointSetCrossPlotter::reDraw( CallBacker* )
 {
     MouseCursorChanger cursorchanger(MouseCursor::Wait);
     setDraw();
+    reDrawSelArea();
     drawContent();
 }
 
@@ -264,27 +193,24 @@ void uiDataPointSetCrossPlotter::dataChanged()
 
 void uiDataPointSetCrossPlotter::drawDeSelectedItems()
 {
-    for (  int idx=0; idx<yptitems_->getSize(); idx++ )
+    if ( selpolyitems_ )
     {
-	yptitems_->getUiItem(idx)->setPenColor(
-		axisHandler(1)->setup().style_.color_ );
-	yptitems_->getUiItem(idx)->setSelected( false );
+	selpolyitems_->removeAll( true );
+	selectionpolygonitem_ = 0;
     }
-    if ( y2ptitems_ && isY2Shown() )
-    {
-	for (  int idx=0; idx<y2ptitems_->getSize(); idx++ )
-	{
-	    y2ptitems_->getUiItem(idx)->setPenColor(
-		    axisHandler(2)->setup().style_.color_ );
-	    y2ptitems_->getUiItem(idx)->setSelected( false );
-	}
-    }
+    if ( selrectitems_ )
+	selrectitems_->removeAll( true );
 }
 
 
 void uiDataPointSetCrossPlotter::removePoint( uiDataPointSet::DRowID rid,
 					      bool isy2, int itmidx )
 {
+    const Interval<int> udfrg( 0, 1 );
+    const Interval<int> xpixrg( x_.axis_->pixRange() ),
+	  		ypixrg( y_.axis_ ? y_.axis_->pixRange() : udfrg ),
+			y2pixrg( y2_.axis_ ? y2_.axis_->pixRange() : udfrg );
+
     for ( int idx=0; idx<selareaset_.size(); idx++ )
     {
 	const SelectionArea* selarea = selareaset_[idx];
@@ -304,7 +230,6 @@ void uiDataPointSetCrossPlotter::removePoint( uiDataPointSet::DRowID rid,
 	    if ( itmselected )
 	    {
 		curitmgrp->getUiItem( itmidx )->setVisible( false );
-		yrowidxs_[ itmidx ] = -1;
 		BinIDValueSet::Pos pos = dps_.bvsPos(rid);
 		float* vals = dps_.bivSet().getVals( pos );
 		vals[ dps_.nrFixedCols()+y_.colid_ ] = mUdf(float);
@@ -315,7 +240,6 @@ void uiDataPointSetCrossPlotter::removePoint( uiDataPointSet::DRowID rid,
 	    if ( itmselected )
 	    {
 		curitmgrp->getUiItem( itmidx )->setVisible( false );
-		y2rowidxs_[ itmidx ] = -1;
 		BinIDValueSet::Pos pos = dps_.bvsPos(rid);
 		float* vals = dps_.bivSet().getVals( pos );
 		vals[ dps_.nrFixedCols()+y2_.colid_ ] = mUdf(float);
@@ -325,19 +249,21 @@ void uiDataPointSetCrossPlotter::removePoint( uiDataPointSet::DRowID rid,
 }
 
 
-void uiDataPointSetCrossPlotter::deleteSelections( bool isy2 )
+void uiDataPointSetCrossPlotter::deleteSelections()
 {
-    TypeSet<BinIDValueSet::Pos> removepos;
-    int itmidx = 0;
-    TypeSet<int>& rowidxs = isy2 ? y2rowidxs_ : yrowidxs_;
-    for ( int rid=0; rid<rowidxs.size(); rid++ )
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    if ( isdensityplot_ )
     {
-	if ( rowidxs[rid] < 0 )
-	    continue;
-	removePoint( rowidxs[rid], isy2, itmidx );
-	itmidx++;
+	uidps_.setUnsavedChg( true );
+	trmsg_ = "Deleting Selected Points";
+	drawDensityPlot( true );
     }
-    dps_.dataChanged();
+    else
+    {
+	drawData( y_, false, true );
+	if ( y2_.axis_ && doy2_ )
+	    drawData( y2_ , true, true );
+    }
     uidps_.redoAll();
 }
 
@@ -346,8 +272,11 @@ void uiDataPointSetCrossPlotter::setSelectionAreas(
 	const ObjectSet<SelectionArea>& areaset )
 {
     selareaset_ = areaset;
-    pointstobeselected_ = true;
-    reDrawNeeded.trigger();
+    for ( int idx=0; idx<selareaset_.size(); idx++ )
+	setWorldSelArea( idx );
+    reDrawSelArea();
+    if ( !isdensityplot_ )
+	reDrawNeeded.trigger();
 }
 
 
@@ -359,17 +288,8 @@ void uiDataPointSetCrossPlotter::removeSelections()
     selyitems_ = 0;
     sely2items_ = 0;
     
-    if ( selectionpolygonitem_ )
-    {
-	scene().removeItem( selectionpolygonitem_ );
-	selectionpolygonitem_ = 0;
-    }
-    
     for ( int idx=0; idx<dps_.size(); idx++ )
 	dps_.setSelected( idx, false );
-
-    pointstobeselected_ = true;
-    reDrawNeeded.trigger();
 }
 
 
@@ -387,8 +307,17 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 
     mousepressed_ = true;
     if ( rectangleselection_ )
+    {
 	selareaset_ += new SelectionArea(
 		new uiRect(getCursorPos(),uiSize(0,0)) );
+	if ( !selectionrectitem_ )
+	    selectionrectitem_ = new uiRectItem( 0, 0, 1, 1 );
+	else
+	    selectionrectitem_->setRect( 0, 0, 1, 1 );
+
+	selectionrectitem_->setPenColor( isdensityplot_ ? ctab_.markColor()
+							: Color(255,0,0) );
+    }
     else
     {
 	ODPolygon<int>* poly = new ODPolygon<int>;
@@ -397,12 +326,17 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 	if ( !selectionpolygonitem_ )
 	{
 	    selectionpolygonitem_ = new uiPolygonItem();
-	    selectionpolygonitem_->setPenColor( Color(255,0,0) );
-	    selectionpolygonitem_->setZValue( 5 );
-	    scene().addItem( selectionpolygonitem_ );
+	    if ( !selpolyitems_ )
+	    {
+		selpolyitems_ = new uiGraphicsItemGroup();
+		scene().addItemGrp( selpolyitems_ );
+		selpolyitems_->setZValue( 5 );
+	    }
+	    
+	    selpolyitems_->add( selectionpolygonitem_ );
 	}
-	else
-	    selectionpolygonitem_->setPolygon( *poly );
+	selectionpolygonitem_->setPenColor( isdensityplot_ ? ctab_.markColor()
+							   : Color(255,0,0) );
     }
 
     curselarea_ = selareaset_.size() - 1;
@@ -411,14 +345,135 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 
 void uiDataPointSetCrossPlotter::drawPolygon( CallBacker* )
 {
-    if ( !selectable_ || rectangleselection_ || !mousepressed_ )
+    if ( !selectable_ || !mousepressed_ )
 	return;
 
-    ODPolygon<int>* poly = selareaset_.validIdx(curselarea_) ?
-	selareaset_[curselarea_]->poly_ : 0;
-    if ( poly )
-	poly->add( getCursorPos() );
-    selectionpolygonitem_->setPolygon( *poly );
+    if ( !rectangleselection_ )
+    {
+	ODPolygon<int>* poly = selareaset_.validIdx(curselarea_) ?
+	    selareaset_[curselarea_]->poly_ : 0;
+	if ( poly )
+	    poly->add( getCursorPos() );
+	
+	if ( !selectionpolygonitem_ )
+	{
+	    selectionpolygonitem_ = new uiPolygonItem();
+	    if ( !selpolyitems_ )
+	    {
+		selpolyitems_ = new uiGraphicsItemGroup();
+		scene().addItemGrp( selpolyitems_ );
+		selpolyitems_->setZValue( 5 );
+	    }
+	    selpolyitems_->add( selectionpolygonitem_ );
+	}
+	selectionpolygonitem_->setPolygon( *poly );
+	
+    }
+}
+
+
+void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::MapperSetup& setup )
+{ ctmapper_.setup_ = setup; }
+
+
+void uiDataPointSetCrossPlotter::setWorldSelArea( int selareaidx  )
+{
+    const uiAxisHandler& xah = *x_.axis_;
+    const uiAxisHandler& yah = *y_.axis_;
+
+    if ( selareaset_[selareaidx]->type_ == SelectionArea::Rectangle )
+    {
+	const uiRect* selarea = selareaset_[selareaidx]->rect_;
+	uiWorldRect* worldselarea =
+	    new uiWorldRect( xah.getVal(selarea->left()),
+		    	     yah.getVal(selarea->top()),
+			     xah.getVal(selarea->right()),
+			     yah.getVal(selarea->bottom()) );
+	selareaset_[selareaidx]->worldrect_ = worldselarea;
+    }
+    else
+    {
+	ODPolygon<double>* worldpoly = new ODPolygon<double>;
+	const ODPolygon<int>* selpoly = selareaset_[selareaidx]->poly_;
+	TypeSet<uiPoint> polypts = selpoly->data();
+	for (  int idx=0; idx<polypts.size(); idx++ )
+	{
+	    worldpoly->add( uiWorldPoint(xah.getVal(polypts[idx].x),
+					 yah.getVal(polypts[idx].y)) );
+	}
+	selareaset_[selareaidx]->worldpoly_= worldpoly;
+    }
+}
+
+
+void uiDataPointSetCrossPlotter::reDrawSelArea()
+{
+    const uiAxisHandler& xah = *x_.axis_;
+    const uiAxisHandler& yah = *y_.axis_;
+    
+    int nrrect = 0;
+    int nrpoly = 0;
+    for ( int idx=0; idx<selareaset_.size(); idx++ )
+    {
+	SelectionArea* selarea = selareaset_.size() ? selareaset_[idx] : 0;
+	if ( !selarea )
+	    continue;
+	if ( selareaset_[idx]->type_ == SelectionArea::Rectangle )
+	{
+	    const uiWorldRect* worldselarea = selareaset_[idx]->worldrect_;
+	    uiRect* selarea =
+		new uiRect( xah.getPix(worldselarea->left()),
+			    yah.getPix(worldselarea->top()),
+			    xah.getPix(worldselarea->right()),
+			    yah.getPix(worldselarea->bottom()) );
+	    selareaset_[idx]->rect_ = selarea;
+	    if ( !selrectitems_ )
+	    {
+		selrectitems_ = new uiGraphicsItemGroup();
+		scene().addItemGrp( selrectitems_ );
+		selrectitems_->setZValue( 5 );
+		if ( !selectionrectitem_ )
+		    selectionrectitem_ =
+			new uiRectItem( selarea->left(), selarea->top(),
+					selarea->width(), selarea->height() );
+		else
+		    selectionrectitem_->setRect( selarea->left(),selarea->top(),
+						 selarea->width(),
+						 selarea->height() );
+		selrectitems_->add( selectionrectitem_ );
+		selectionrectitem_ = 0;
+	    }
+	    else
+	    {
+		uiGraphicsItem* item = selrectitems_->getUiItem( nrrect );
+		mDynamicCastGet( uiRectItem*, rect, item );
+		if ( !rect )
+		    continue;
+		rect->setRect( selarea->left(), selarea->top(),
+			       selarea->width(), selarea->height() );
+		nrrect ++;
+	    }
+	}
+	else
+	{
+	    ODPolygon<int>* poly = new ODPolygon<int>;
+	    const ODPolygon<double>* worldpoly = selareaset_[idx]->worldpoly_;
+	    TypeSet<uiWorldPoint> polypts = worldpoly->data();
+	    for (  int nrpts=0; nrpts<polypts.size(); nrpts++ )
+	    {
+		poly->add( uiPoint(xah.getPix(polypts[nrpts].x),
+				   yah.getPix(polypts[nrpts].y)) );
+	    }
+	    selareaset_[idx]->poly_= poly;
+	    
+	    uiGraphicsItem* item = selpolyitems_->getUiItem( nrpoly );
+	    mDynamicCastGet( uiPolygonItem*, polyitem, item );
+	    if ( !polyitem )
+		continue;
+	    polyitem->setPolygon( *poly );
+	    nrpoly ++;
+	}
+    }
 }
 
 
@@ -432,29 +487,53 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
     {
 	SelectionArea* curselarea = selareaset_[curselarea_];
 	selareaset_ -= curselarea;
-	curselarea_--;
+	curselarea_ = 0;
 	removeSelections();
 
-	if ( rectangleselection_ )
-	    curselarea->rect_->setBottomRight( getCursorPos() );
 	selareaset_ += curselarea;
+    }
+    
+    if ( rectangleselection_ )
+    {
+	uiRect selrect = scene().getSelectedArea();
+	selareaset_[curselarea_]->rect_->setTopLeft( selrect.topLeft() );
+	selareaset_[curselarea_]->rect_->setBottomRight(
+		selrect.bottomRight() );
+	selectionrectitem_->setRect( selrect.left(), selrect.top(),
+				     selrect.width(), selrect.height() );
+	if ( !selrectitems_ )
+	{
+	    selrectitems_ = new uiGraphicsItemGroup();
+	    scene().addItemGrp( selrectitems_ );
+	    selrectitems_->setZValue( 5 );
+	}
+	selrectitems_->add( selectionrectitem_ );
+	selectionrectitem_ = 0;
     }
     else
     {
-	if ( rectangleselection_ )
-	    selareaset_[curselarea_]->rect_->setBottomRight( getCursorPos() );
+	if ( !selectionpolygonitem_ )
+	{
+	    selectionpolygonitem_ = new uiPolygonItem();
+	    selectionpolygonitem_->setPolygon(
+		    *selareaset_[curselarea_]->poly_ );
+	    selectionpolygonitem_->setPenColor(
+		    isdensityplot_ ? ctab_.markColor() : Color(255,0,0) );
+	    selpolyitems_->add( selectionpolygonitem_ );
+	}
+	selectionpolygonitem_ = 0;
     }
-    
+	
+    setWorldSelArea( curselarea_ );
+
     if ( !selareaset_[curselarea_]->isValid() )
     {
 	selareaset_.remove( curselarea_ );
-	uiMSG().error( "Selection area is not valid" );
 	return;
     }
 
-    pointstobeselected_ = true;
-    reDrawNeeded.trigger();
- 
+    if ( !isdensityplot_ )
+	reDrawNeeded.trigger();
 }
 
 
@@ -569,7 +648,7 @@ int uiDataPointSetCrossPlotter::getRow(
     int row = -1; float mindistsq = 1e30;
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
-	if ( rid % eachrow_ || (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
+	if ( (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
 	    continue;
 
 	const float xval = uidps_.getVal( x_.colid_, rid, true );
@@ -607,7 +686,7 @@ void uiDataPointSetCrossPlotter::mouseRel( CallBacker* cb )
     if ( meh_.isHandled() ) return;
 
     const MouseEvent& ev = meh_.event();
-    const bool isdel = ev.ctrlStatus() && !ev.shiftStatus() && !ev.altStatus();
+    const bool isdel = ev.shiftStatus() && !ev.ctrlStatus() && !ev.altStatus();
     
     uiPoint scenepos( getScenePos(ev.x(),ev.y()) );
     MouseEvent sceneev( ev.buttonState(), scenepos.x, scenepos.y );
@@ -701,14 +780,9 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
     if ( y2_.axis_ && doy2_ )
 	drawData( y2_, true );
     else if ( y2ptitems_ )
-    {
-	y2rowidxs_.erase();
 	y2ptitems_->removeAll( true );
-    }
     
-    if ( pointstobeselected_ )
-	pointsSelected.trigger();
-    pointstobeselected_ = false;
+    pointsSelected.trigger();
 }
 
 
@@ -749,10 +823,7 @@ void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
 
 	itm->setPenColor( yah.setup().style_.color_ );
 	curitmgrp->add( itm );
-	isy2 ? y2rowidxs_ += rid : yrowidxs_ += rid;
     }
-    else
-	isy2 ? y2rowidxs_[itmidx] = rid : yrowidxs_[itmidx] = rid;
 }
 
 
@@ -761,7 +832,7 @@ void uiDataPointSetCrossPlotter::setItem( uiGraphicsItem* item, bool isy2,
 {
     item->setPos( pt.x, pt.y ); 
     eachcount_ ++;
-    if ( eachcount_ == eachrow_ )
+    if ( eachcount_ >= eachrow_ )
     {
 	item->setVisible( isy2 ? isY2Shown() : true ); 
 	eachcount_ = 0;
@@ -812,32 +883,42 @@ bool uiDataPointSetCrossPlotter::isSelectionValid( uiDataPointSet::DRowID rid )
 
 void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	     uiGraphicsItem* item, bool isy2,
-	     const uiDataPointSetCrossPlotter::AxisData& yad )
+	     const uiDataPointSetCrossPlotter::AxisData& yad, bool removesel )
 {
     if ( !item ) return;
+    bool ptselected = false;
     for ( int idx=0; idx<selareaset_.size(); idx++ )
     {
 	SelectionArea* selarea = selareaset_.size() ? selareaset_[idx] : 0;
 	if ( !selarea )
 	    continue;
 
-	uiRect* rect = selarea->rect_;
 	const uiPoint itempos = item->getPos();
-	const bool itmselected = selarea->isInside( itempos );
+	const bool itmselected = selarea->isInside( itempos ) ;
 	if ( isy1selectable_ && !isy2 )
 	{
 	    if ( itmselected )
 	    {
 		if ( !isSelectionValid(rid) )
 		    continue;
-		item->setPenColor( Color::DgbColor() );
-		item->setSelected( true );
+		if ( removesel )
+		{
+		    item->setVisible( false );
+		    BinIDValueSet::Pos pos = dps_.bvsPos(rid);
+		    float* vals = dps_.bivSet().getVals( pos );
+		    vals[ dps_.nrFixedCols()+y_.colid_ ] = mUdf(float);
+		    return;
+		}
+		if ( item->isVisible() )
+		{
+		    item->setPenColor( Color::DgbColor() );
+		    dps_.setSelected( rid, true );
+		    selrowcols_ += RowCol( uidps_.tRowID(rid),
+					   uidps_.tColID(yad.colid_) );
 		
-		dps_.setSelected( rid, true );
-		selrowcols_ += RowCol( uidps_.tRowID(rid),
-				       uidps_.tColID(yad.colid_) );
-		
-		selyitems_++;
+		    selyitems_++;
+		    ptselected = true;
+		}
 	    }
 	    else
 		dps_.setSelected( rid, false );
@@ -848,27 +929,137 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	    {
 		if ( !isSelectionValid(rid) )
 		    continue;
-		item->setPenColor( Color(100,230,220) );
-		item->setSelected( true );
-		
-		dps_.setSelected( rid, true );
-		selrowcols_ += RowCol( uidps_.tRowID(rid),
-				       uidps_.tColID(yad.colid_) );
-		
-		sely2items_++;
+		if ( removesel )
+		{
+		    item->setVisible( false );
+		    BinIDValueSet::Pos pos = dps_.bvsPos(rid);
+		    float* vals = dps_.bivSet().getVals( pos );
+		    vals[ dps_.nrFixedCols()+y2_.colid_ ] = mUdf(float);
+		    return;
+		}
+		if ( item->isVisible() )
+		{
+		    item->setPenColor( Color(100,230,220) );
+		    
+		    dps_.setSelected( rid, true );
+		    selrowcols_ += RowCol( uidps_.tRowID(rid),
+					   uidps_.tColID(yad.colid_) );
+		    
+		    sely2items_++;
+		    ptselected = true;
+		}
 	    }
 	    else
 		dps_.setSelected( rid, false );
 	}
     }
+
+    if ( !ptselected )
+	item->setPenColor( yad.axis_->setup().style_.color_ );
     
+}
+
+int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data,
+					     bool changedps, bool removesel )
+{
+    const Interval<int> xpixrg( x_.axis_->pixRange() ),
+	  		ypixrg( y_.axis_->pixRange() );
+    uiWorld2Ui w2ui( uiSize(rgbarr_.getSize(true), rgbarr_.getSize(false)),
+	    	     uiWorldRect((double)arrarea_.left(),(double)arrarea_.top(),
+			 	 (double)arrarea_.right(),
+				 (double)arrarea_.bottom()) );
+    if ( !x_.axis_ || !y_.axis_ )
+	return -1;
+    DensityCalc densitycalc( uidps_, data, x_, y_, selareaset_, trmsg_.buf() );
+    densitycalc.setWorld2Ui( w2ui );
+    densitycalc.setMathObj( mathobj_ );
+    densitycalc.setModifiedColIds( modcolidxs_ );
+    densitycalc.setDPSChangeable( changedps );
+    densitycalc.setRemSelected( removesel );
+    densitycalc.setCurGroup( curgrp_ );
+    uiTaskRunner tr( parent() );
+    tr.execute( densitycalc );
+
+
+    selrowcols_ = densitycalc.selRCs();
+    selyitems_ = selrowcols_.size();
+    const od_int64 totalsz =
+	data->info().getSize(true) * data->info().getSize(false);
+    
+    int indexsz = densitycalc.indexSize();
+    ctmapper_.setData( data->getStorage(), totalsz );
+    Interval<float> mapperrg =
+	Interval<float>(ctmapper_.range().start<1 ? 1 : ctmapper_.range().start,
+			ctmapper_.range().stop > indexsz
+			? indexsz : ctmapper_.range().stop );
+    if ( ctmapper_.range().start<1 || ctmapper_.range().stop > indexsz )
+	ctmapper_.setRange( mapperrg );
+    return indexsz;
+}
+
+
+void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
+{
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    isdensityplot_ = true;
+    drawTypeChanged.trigger( true );
+    const uiAxisHandler& xah = *x_.axis_;
+    const uiAxisHandler& yah = *y_.axis_;
+    border_ = uiBorder( xah.pixBefore(), yah.pixAfter(),
+	    		xah.pixAfter(), yah.pixBefore() );
+    beforeDraw();
+    if ( arrarea_.left()>arrarea_.right() || arrarea_.top()>arrarea_.bottom() )
+	return;
+
+    Array2D<float>* data = new Array2DImpl<float>( arrarea_.width()+ 1,
+						   arrarea_.height() + 1);
+
+    data->setAll( (float)0 );
+
+    int indexsz = calcDensity( data, false, withremovesel );
+    if ( indexsz < 1 )
+	return;
+
+    Interval<float> mapperrg =
+	Interval<float>(ctmapper_.range().start<1 ? 1 : ctmapper_.range().start,
+			ctmapper_.range().stop > indexsz
+			? indexsz : ctmapper_.range().stop );
+    coltabRgChanged.trigger( mapperrg );
+    for( int idx=0; idx<data->info().getSize(true); idx++ )
+    {
+	for( int idy=0; idy<data->info().getSize(false); idy++ )
+	{
+	    if ( !data->info().validPos(idy,idx) )
+		continue;
+	    const float val = data->get( idy, idx );
+	    const float mappedval = ctmapper_.position( (float)val );
+	    Color col = ( val == 0 ) ? Color::White() 
+				     : ctab_.color( mappedval );
+	    if ( col.isVisible() )
+		rgbarr_.set( idy, idx, col );
+	}
+    }
+
+    PtrMan<ioPixmap> pixmap = new ioPixmap( arrarea_.width(),arrarea_.height());
+    pixmap->convertFromRGBArray( rgbarr_ );
+    setPixmap( *pixmap );
+    draw();
 }
 
 
 bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 	const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2,
-	MarkerStyle2D& mstyle )
+	MarkerStyle2D& mstyle, bool removesel )
 {
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    isdensityplot_ = false;
+    drawTypeChanged.trigger( false );
+    PtrMan<ioPixmap> pixmap = new ioPixmap( arrarea_.width(),arrarea_.height());
+    pixmap->fill( Color::White() );
+    setPixmap( *pixmap );
+    draw();
+    curitmgrp->setVisible( true );
+
     int nrptsdisp = 0;
     usedxpixrg_ = Interval<int>(0,0);
     uiAxisHandler& xah = *x_.axis_;
@@ -883,7 +1074,13 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 
 	const float xval = uidps_.getVal( x_.colid_, rid, true );
 	const float yval = uidps_.getVal( yad.colid_, rid, true );
-	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
+	if ( mIsUdf(xval) || mIsUdf(yval) )
+	{
+	    eachcount_ ++;
+	    if ( eachcount_ >= eachrow_ )
+		eachcount_ = 0;
+	    continue;
+	}
 
 	const uiPoint pt( xah.getPix(xval), yah.getPix(yval) );
 	
@@ -893,7 +1090,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 	addItemIfNew( itmidx, mstyle, curitmgrp, yah, rid, isy2 );
 
 	setItem( curitmgrp->getUiItem(itmidx), isy2, pt );
-	checkSelection( rid, curitmgrp->getUiItem(itmidx), isy2, yad );
+	checkSelection( rid, curitmgrp->getUiItem(itmidx), isy2, yad,removesel);
 	nrptsdisp++;
 	if ( nrptsdisp > 1 )
 	    usedxpixrg_.include( pt.x );
@@ -907,7 +1104,6 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
     {
 	for ( int idx=itmidx; idx<curitmgrp->getSize(); idx++ )
 	{
-	    isy2 ? y2rowidxs_[ itmidx ] = -1 : yrowidxs_[ itmidx ] = -1;
 	    curitmgrp->getUiItem(idx)->setVisible(false);
 	}
     }
@@ -919,12 +1115,12 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 
 
 void uiDataPointSetCrossPlotter::drawData(
-    const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2 )
+    const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2, bool rempts )
 {
     uiAxisHandler& xah = *x_.axis_;
     uiAxisHandler& yah = *yad.axis_;
 
-    int estpts = dps_.size() / eachrow_;
+    int estpts = dps_.nrActive() ;
     if ( curgrp_ > 0 ) estpts = cMaxPtsForMarkers;
 
     MarkerStyle2D mstyle( setup_.markerstyle_ );
@@ -937,7 +1133,13 @@ void uiDataPointSetCrossPlotter::drawData(
     if ( !curitmgrp )
 	return;
 
-    if( !drawPoints(curitmgrp,yad,isy2,mstyle) )
+    if ( estpts > cMinPtsForDensity )
+    {
+	curitmgrp->setVisible( false );
+	if ( !isy2 )
+	    drawDensityPlot();
+    }
+    else if ( !drawPoints(curitmgrp,yad,isy2,mstyle,rempts) )
 	return;
 
     setAnnotEndTxt( yah );
@@ -1019,395 +1221,3 @@ void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
     drawLine( *regrlineitm_, ls.lp, xah, yah, &xvalrg );
 }
 
-
-uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
-    : uiMainWin(&uidps,BufferString(uidps.pointSet().name()," Cross-plot"),
-	    			    2,false)
-    , uidps_(uidps)
-    , plotter_(*new uiDataPointSetCrossPlotter(this,uidps,defsetup_))
-    , disptb_(*new uiToolBar(this,"Crossplot display toolbar"))
-    , seltb_(*new uiToolBar(this,"Crossplot selection toolbar"))
-    , maniptb_(*new uiToolBar(this,"Crossplot manipulation toolbar"))
-    , grpfld_(0)
-    , showSelPts(this)
-{
-    windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
-
-    const int nrpts = uidps.pointSet().size();
-    const int eachrow = 1 + nrpts / cMaxPtsForDisplay;
-    uiGroup* dispgrp = new uiGroup( &disptb_, "Display grp" );
-    
-    eachfld_ = new uiSpinBox( dispgrp, 0, "Each" );
-    eachfld_->setValue( eachrow );
-    eachfld_->setInterval( 1, mUdf(int), 1 );
-    eachfld_->valueChanged.notify(
-	    		mCB(this,uiDataPointSetCrossPlotWin,eachChg) );
-    plotter_.eachrow_ = eachrow;
-    
-    uiLabel* eachlabel = new uiLabel( dispgrp, "Plot each", eachfld_ );
-    disptb_.addObject( dispgrp->attachObj() );
-    
-    showy2tbid_ = disptb_.addButton( "showy2.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2),
-		  "Toggle show Y2", true );
-    disptb_.turnOn( showy2tbid_, plotter_.doy2_ );
-    
-    uiGroup* selgrp = new uiGroup( &seltb_, "Each grp" );
-    selfld_ = new uiComboBox( selgrp, "Selection Option" );
-    selfld_->addItem( "Select only Y1" );
-    selfld_->addItem( "Select only Y2" );
-    selfld_->addItem( "Select both" );
-    selfld_->selectionChanged.notify( mCB(this,uiDataPointSetCrossPlotWin,
-					  selOption) );
-    selfld_->setSensitive( false );
-    seltb_.addObject( selgrp->attachObj() );
-
-    setselecttbid_ = seltb_.addButton( "altview.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,setSelectable),
-		  "Set selectable", true );
-    seltb_.turnOn( setselecttbid_, true );
-
-
-    showselptswstbid_ = seltb_.addButton( "picks.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
-		  "Show selected points in workSpace", false );
-    seltb_.turnOn( setselecttbid_, true );
-
-    selmodechgtbid_ = seltb_.addButton( "rectangleselect.png",
-	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) ,
-	   "Selection mode" ); 
-    seltb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
-
-    clearseltbid_ = seltb_.addButton( "clearselection.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections), 
-	    "Remove all selections" );
-    
-    seldeltbid_ = seltb_.addButton( "trashcan.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections), 
-	    "Delete all selections" );
-
-    seltabletbid_ = seltb_.addButton( "seltable.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,showTableSel), 
-	    "Show selections in table" );
-
-    selsettingstbid_ = seltb_.addButton( "settings.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
-	    "Selection settings" );
-
-    maniptb_.addObject( plotter_.getSaveImageButton() );
-
-    maniptb_.addButton( "xplotprop.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );
-
-    const int nrgrps = uidps_.groupNames().size();
-    if ( nrgrps > 1 )
-    {
-	grpfld_ = new uiComboBox( dispgrp, "Group selection" );
-	BufferString txt( nrgrps == 2 ? "Both " : "All " );
-	txt += uidps_.groupType(); txt += "s";
-	grpfld_->addItem( txt );
-	for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
-	    grpfld_->addItem( uidps_.groupNames().get(idx) );
-	grpfld_->attach( rightOf, eachfld_ );
-	grpfld_->setCurrentItem( 0 );
-	grpfld_->selectionChanged.notify(
-			    mCB(this,uiDataPointSetCrossPlotWin,grpChg) );
-    }
-
-    seltb_.turnOn( setselecttbid_, false );
-    setSelectable( 0 );
-    plotter_.setPrefWidth( 600 );
-    plotter_.setPrefHeight( 500 );
-}
-
-
-void uiDataPointSetCrossPlotWin::removeSelections( CallBacker* )
-{
-    plotter_.removeSelections();
-}
-
-
-void uiDataPointSetCrossPlotWin::showTableSel( CallBacker* )
-{
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    uidps_.notifySelectedCell();
-}
-
-
-void uiDataPointSetCrossPlotWin::deleteSelections( CallBacker* )
-{
-    plotter_.deleteSelections( true );
-    plotter_.deleteSelections( false );
-    plotter_.removeSelections();
-}
-
-
-void uiDataPointSetCrossPlotWin::closeNotif( CallBacker* )
-{
-    defsetup_ = plotter_.setup();
-    plotter_.eachrow_ = mUdf(int); // Make sure eachChg knows we are closing
-}
-
-
-void uiDataPointSetCrossPlotWin::setSelectionMode( CallBacker* )
-{
-    plotter_.setRectSelection( !plotter_.isRectSelection() );
-    seltb_.setPixmap( selmodechgtbid_,
-	   	       plotter_.isRectSelection() ? "rectangleselect.png"
-			      			  : "polygonselect.png" );
-    plotter_.setDragMode( plotter_.isRectSelection() ?
-	    			uiGraphicsView::RubberBandDrag :
-	    			uiGraphicsView::NoDrag );
-    plotter_.scene().setMouseEventActive( true );
-}
-
-
-class uiSetSelDomainDlg : public uiDialog
-{
-public:
-
-struct DataColInfo
-{
-    			DataColInfo( const BufferStringSet& colnames,
-				     const TypeSet<int>& colids )
-			    : colnms_(colnames), colids_(colids) {}
-
-    BufferStringSet	colnms_;
-    TypeSet<int>	colids_;
-};
-
-
-uiSetSelDomainDlg( uiParent* p , DataColInfo& info,
-		   const BufferString& mathobjstr, const TypeSet<int>& colids )
-    : uiDialog( p, uiDialog::Setup("Refine Selection","Set selectable domain",
-				    mNoHelpID).savebutton(true)
-	    				      .savetext("Select on Ok") )
-    , mathobj_(0)
-    , datainfo_(info)
-    , dcolids_(colids)
-{
-    uiLabel* label =
-	new uiLabel( this, "Ranges (e.g. 0>x0 && x0>1.5 && -6125<x1)" );
-    uiLabel* linelabel = new uiLabel( this, "Enter Ranges" );
-    linelabel->attach( leftAlignedBelow, label );
-    inpfld_ = new uiLineEdit( this, "Enter Ranges" );
-    inpfld_->setHSzPol( uiObject::WideMax );
-    inpfld_->attach( rightTo, linelabel );
-
-    setbut_ = new uiPushButton( this, "Set", true );
-    setbut_->activated.notify( mCB(this,uiSetSelDomainDlg,parsePush) );
-    setbut_->attach( rightTo, inpfld_ );
-
-    vartable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
-					.minrowhgt(1.5) .maxrowhgt(2)
-					.mincolwdt(3*uiObject::baseFldSize())
-					.maxcolwdt(3.5*uiObject::baseFldSize())
-					.defrowlbl("") .fillcol(true)
-					.fillrow(true) .defrowstartidx(0),
-					"Variable X attribute table" );
-    const char* xcollbls[] = { "Select input for", 0 };
-    vartable_->setColumnLabels( xcollbls );
-    vartable_->setNrRows( 2 );
-    vartable_->setStretch( 2, 0 );
-    vartable_->setRowResizeMode( uiTable::Fixed );
-    vartable_->setColumnResizeMode( uiTable::Fixed );
-    vartable_->attach( alignedBelow, inpfld_ );
-    vartable_->display( false );
-    if ( !mathobjstr.isEmpty() )
-    {
-	inpfld_->setvalue_( mathobjstr );
-	parsePush(0);
-    }
-}
-
-
-void parsePush( CallBacker* )
-{
-    mathexprstring_ = inpfld_->getvalue_();
-    MathExpressionParser mep( mathexprstring_ );
-    mathobj_ = mep.parse();
-    if ( !mathobj_ )
-    {
-	if ( *mep.errMsg() ) uiMSG().error( mep.errMsg() );
-	dcolids_.erase();
-	vartable_->display( false );
-	return;
-    }
-    updateDisplay();
-}
-
-
-void updateDisplay()
-{
-    const int nrvars = mathobj_->nrVariables();
-    vartable_->setNrRows( nrvars );
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	uiComboBox* varsel = new uiComboBox( 0, datainfo_.colnms_, "Variable");
-	if ( !dcolids_.isEmpty() )
-	    varsel->setCurrentItem( dcolids_[idx] );
-	vartable_->setCellObject( RowCol(idx,0), varsel );
-    }
-    vartable_->display( true );
-}
-
-
-bool acceptOK( CallBacker* )
-{
-    dcolids_.erase();
-    if ( !mathobj_ )
-	return true;
-
-    int nrvars = mathobj_->nrVariables();
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	uiObject* obj = vartable_->getCellObject( RowCol(idx,0) );
-	mDynamicCastGet( uiComboBox*, box, obj );
-	if ( !box )
-	    continue;
-	dcolids_ += datainfo_.colids_[box->currentItem()];
-    }
-
-    PtrMan<MathExpression> testexpr = mathobj_->clone();
-    nrvars = testexpr->nrVariables();
-    for ( int idx=0; idx<nrvars; idx++ )
-	testexpr->setVariableValue( idx, 100 );
-
-    if ( !mIsZero(testexpr->getValue(),mDefEps) &&
-	 !mIsZero(testexpr->getValue()-1,mDefEps) )
-    {
-	uiMSG().error( "Equation should return true or false" );
-	return false;
-    }
-
-    return true;
-}
-    
-    BufferString	mathexprstring_;
-    DataColInfo&	datainfo_;
-    MathExpression*	mathobj_;
-    TypeSet<int>	dcolids_;
-    
-    MathExpression*	mathObject()		{ return mathobj_; }
-    
-    uiLineEdit*		inpfld_;
-    uiPushButton*	setbut_;
-    uiTable*		vartable_;
-};
-
-
-void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
-{
-    BufferStringSet colnames;
-    TypeSet<int> colids;
-    const DataPointSet& dps = plotter_.dps();
-    for ( uiDataPointSet::DColID dcid=0; dcid<dps.nrCols(); dcid++ )
-    {
-	colids += dcid;
-	colnames.add( dps.colName(dcid) ); 
-    }
-    uiSetSelDomainDlg::DataColInfo datainfo( colnames, colids );
-    uiSetSelDomainDlg dlg( this, datainfo, plotter_.mathObjStr(),
-	    		   plotter_.modifiedColIds() );
-    if ( dlg.go() )
-    {
-	plotter_.setMathObj( dlg.mathObject() );
-	plotter_.setMathObjStr( dlg.mathexprstring_ );
-	plotter_.setModifiedColIds( dlg.dcolids_ );
-	if ( dlg.saveButtonChecked() )
-	{
-	    plotter_.removeSelections();
-	    if ( !dlg.mathObject() )
-		return;
-	    ObjectSet<uiDataPointSetCrossPlotter::SelectionArea> selareas;
-	    selareas += new uiDataPointSetCrossPlotter::SelectionArea(
-		    new uiRect(0,0,plotter_.width(),plotter_.height()) );
-	    plotter_.setSelectionAreas( selareas );
-	}
-    }
-}
-
-
-void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
-{
-    const bool isoff = !seltb_.isOn(setselecttbid_ );
-    seltb_.setPixmap( setselecttbid_, !isoff ? "altview.png" : "altpick.png");
-    plotter_.setSceneSelectable( isoff );
-    selfld_->setSensitive( plotter_.isY2Shown() ? isoff : false );
-    seltb_.setSensitive( selmodechgtbid_, isoff );
-    seltb_.setSensitive( showselptswstbid_, isoff );
-    seltb_.setSensitive( selsettingstbid_, isoff );
-    seltb_.setSensitive( seltabletbid_, isoff );
-    seltb_.setSensitive( seldeltbid_, isoff );
-    seltb_.setSensitive( clearseltbid_, isoff );
-    plotter_.setDragMode(  plotter_.isSceneSelectable()
-	    			? ( plotter_.isRectSelection()
-				    ? uiGraphicsView::RubberBandDrag
-				    : uiGraphicsView::NoDrag )
-				: uiGraphicsView::ScrollHandDrag );
-    plotter_.scene().setMouseEventActive( true );
-}
-
-
-void uiDataPointSetCrossPlotWin::showY2( CallBacker* )
-{
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    if ( plotter_.y2_.axis_ )
-    {
-	plotter_.showY2( disptb_.isOn(showy2tbid_) );
-	setSelComboSensitive( disptb_.isOn(showy2tbid_) );
-    }
-}
-
-
-void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
-{ showSelPts.trigger(); }
-
-
-void uiDataPointSetCrossPlotWin::selOption( CallBacker* )
-{
-    const int selitem = selfld_->currentItem();
-    if ( selitem == 0 )
-	plotter_.setSelectable( true, false );
-    else if ( selitem == 1 )
-	plotter_.setSelectable( false, true );
-    else
-	plotter_.setSelectable( true, true );
-}
-
-
-void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
-{
-    MouseCursorChanger cursorchanger(MouseCursor::Wait);
-    if ( mIsUdf(plotter_.eachrow_) ) return; // window is closing
-
-    int neweachrow = eachfld_->getValue();
-    if ( neweachrow < 1 ) neweachrow = 1;
-    if ( plotter_.eachrow_ == neweachrow )
-	return;
-    plotter_.eachrow_ = neweachrow;
-    plotter_.drawContent( false );
-}
-
-
-void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
-{
-    if ( !grpfld_ ) return;
-    plotter_.curgrp_ = grpfld_->currentItem();
-    plotter_.dataChanged();
-}
-
-
-void uiDataPointSetCrossPlotWin::setSelComboSensitive( bool yn )
-{
-    selfld_->setCurrentItem( 0 );
-    plotter_.setSelectable( true, false );
-    selfld_->setSensitive( plotter_.isSceneSelectable() ? yn : false );
-}
-
-
-void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
-{
-    uiDataPointSetCrossPlotterPropDlg dlg( &plotter_ );
-    dlg.go();
-}

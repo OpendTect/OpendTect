@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.49 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.50 2009-08-11 07:43:57 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.49 2009-07-22 16:01:40 cv
 #include "uimsg.h"
 
 static const int cNrPosCols = 3;
+static const int cMinPtsForDensity = 20000;
 static const char* sKeyGroups = "Groups";
 
 
@@ -140,7 +141,7 @@ int uiDataPointSet::initVars()
 
     eachrow_ = dps_.size() / setup_.initialmaxnrlines_;
     if ( eachrow_ < 1.0 ) eachrow_ = 1.0;
-    percentage_ = mNINT( (float)100/eachrow_ );
+    percentage_ = (float)100/eachrow_;
 
     calcIdxs();
     if ( tbl_ )
@@ -182,9 +183,9 @@ void uiDataPointSet::mkToolBars()
     disptb_ = new uiToolBar( this, "Display Tool bar" );
 
     uiGroup* grp = new uiGroup( disptb_, "Each grp" );
-    percfld_ = new uiSpinBox( grp, 0, "Each" );
+    percfld_ = new uiSpinBox( grp, 1, "Each" );
     percfld_->setValue( percentage_ );
-    percfld_->setInterval( 1, mUdf(int), 1 );
+    percfld_->setInterval( (float)0.1, mUdf(float),(float)0.1 );
     percfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
     new uiLabel( grp, "% Data Displayed", percfld_ );
     disptb_->addObject( grp->attachObj() );
@@ -237,6 +238,13 @@ void uiDataPointSet::calcIdxs()
     drowids_.erase(); trowids_.erase(); sortidxs_.erase();
 
     const int dpssz = dps_.size();
+    if ( dpssz<0 )
+    {
+	std::cerr << "DataPointSet too large" << std::endl;
+	return;
+    }
+
+    trowids_.setSize( dpssz, -1 );
     int calcidx = 0;
     int dcountidx = 0;
     for ( int did=0; did<dpssz; did++ )
@@ -245,7 +253,6 @@ void uiDataPointSet::calcIdxs()
 	const bool inact = dps_.isInactive(did);
 	if ( inact || (dcountidx < mNINT(calcidx * eachrow_)) )
 	{
-	    trowids_ += -1;
 	    if ( !inact )
 		dcountidx++;
 	    continue;
@@ -254,7 +261,7 @@ void uiDataPointSet::calcIdxs()
 	{
 	    const TRowID tid = drowids_.size();
 	    sortidxs_ += tid;
-	    trowids_ += tid;
+	    trowids_[did] = tid;
 	    drowids_ += did;
 	}
 	calcidx++;
@@ -392,7 +399,7 @@ void uiDataPointSet::selYCol( CallBacker* )
     if ( ycol_ == -1 )
 	ycol_ = tid;
     else
-	y2col_ = tid;
+	y2col_ = dps_.nrActive() > cMinPtsForDensity ? -1 : tid;
     if ( xplotwin_ && y2col_ == tid )
 	xplotwin_->setSelComboSensitive( true );
 
@@ -798,13 +805,13 @@ void uiDataPointSet::valChg( CallBacker* )
 
 void uiDataPointSet::eachChg( CallBacker* )
 {
-    int newpercentage = percfld_->getValue();
-    if ( newpercentage < 1 ) newpercentage = 1;
+    float newpercentage = percfld_->getFValue();
+    if ( newpercentage < 0 ) newpercentage = 0;
     if ( newpercentage == percentage_ )
 	return;
     percentage_ = newpercentage;
 
-    float neweachrow = (float)100/(float)percentage_;
+    float neweachrow = (float)100/percentage_;
     if ( neweachrow < 1.0 ) neweachrow = 1.0;
     if ( !mIsEqual(neweachrow,eachrow_,mDefEps) )
     {
