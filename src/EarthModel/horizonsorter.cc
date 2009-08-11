@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonsorter.cc,v 1.13 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonsorter.cc,v 1.14 2009-08-11 12:37:25 cvsnanne Exp $";
 
 #include "horizonsorter.h"
 
@@ -179,7 +179,7 @@ int HorizonSorter::nextStep()
     if ( !nrdone_ )
     {
 	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
-	horreader->execute();
+	if ( horreader ) horreader->execute();
 
 	for ( int idx=0; idx<unsortedids_.size(); idx++ )
 	{
