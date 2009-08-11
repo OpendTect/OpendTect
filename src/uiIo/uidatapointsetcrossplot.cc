@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.48 2009-08-11 07:43:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.49 2009-08-11 09:50:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.48 2009-08-11 07:43:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.49 2009-08-11 09:50:13 cvsbert Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1173,7 +1173,7 @@ void uiDataPointSetCrossPlotter::drawY1UserDefLine( const Interval<int>& xpixrg,
 	y1userdeflineitm_ = new uiLineItem();
 	scene().addItem( y1userdeflineitm_ );
     }
-    drawLine( *y1userdeflineitm_, userdefy1lp_, xah, yah, 0);
+    drawLine( *y1userdeflineitm_, userdefy1lp_, xah, yah, &xvalrg );
     y1userdeflineitm_->setPenStyle( y_.defaxsu_.style_ );
 }
 
@@ -1200,7 +1200,7 @@ void uiDataPointSetCrossPlotter::drawY2UserDefLine( const Interval<int>& xpixrg,
 	y2userdeflineitm_ = new uiLineItem();
 	scene().addItem( y2userdeflineitm_ );
     }
-    drawLine( *y2userdeflineitm_, userdefy2lp_, xah, yah, 0 );
+    drawLine( *y2userdeflineitm_, userdefy2lp_, xah, yah, &xvalrg );
     y2userdeflineitm_->setPenStyle( y2_.defaxsu_.style_ );
 }
 
