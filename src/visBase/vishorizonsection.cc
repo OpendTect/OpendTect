@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.66 2009-08-10 22:14:18 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.67 2009-08-11 22:08:06 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -926,7 +926,7 @@ void HorizonSection::inValidateCache( int channel )
 
 const BinIDValueSet* HorizonSection::getCache( int channel ) const
 { 
-    return cache_.validIdx(channel) ? 0 : cache_[channel]; 
+    return cache_.validIdx(channel) ? cache_[channel] : 0; 
 }
 
 
@@ -1878,7 +1878,7 @@ int HorizonSectionTile::getAutoResolution( SoState* state )
 {
     updateBBox();
 
-    if ( !bbox_.isEmpty() )
+    if ( bbox_.isEmpty() )
 	return -1;
 
     const int32_t camerainfo = SoCameraInfoElement::get(state);
