@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.57 2009-07-24 06:43:53 cvsumesh Exp $
+ RCS:           $Id: uimpeman.h,v 1.58 2009-08-11 05:01:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ protected:
 
     void			undoPush(CallBacker*);
     void			redoPush(CallBacker*);
+    void			savePush(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
     void			updateSelectedAttrib();
     void			moveBackward(CallBacker*);
