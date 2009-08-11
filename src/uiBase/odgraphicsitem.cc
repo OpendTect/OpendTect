@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.13 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.14 2009-08-11 07:07:14 cvssatyaki Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -78,6 +78,10 @@ ODGraphicsMarkerItem::ODGraphicsMarkerItem()
     , mstyle_( new MarkerStyle2D() )
     , fill_(false)
 {}
+
+
+ODGraphicsMarkerItem::~ODGraphicsMarkerItem()
+{ delete mstyle_; }
 
 
 void ODGraphicsMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
@@ -180,13 +184,14 @@ void ODGraphicsArrowItem::drawArrow( QPainter& painter )
 {
     setLineStyle( painter, arrowstyle_.linestyle_ );
 
-    qpointtail_ = new QPoint( -arrowsz_, 0 );
-    qpointhead_ = new QPoint( 0, 0 );
-    painter.drawLine( qpointtail_->x(), qpointtail_->y(), qpointhead_->x(), qpointhead_->y() ); 
+    QPoint qpointtail( -arrowsz_, 0 );
+    QPoint qpointhead( 0, 0 );
+    painter.drawLine( qpointtail.x(), qpointtail.y(), qpointhead.x(),
+	    	      qpointhead.y() ); 
     if ( arrowstyle_.hasHead() )
-	drawArrowHead( painter, *qpointhead_, *qpointtail_ );
+	drawArrowHead( painter, qpointhead, qpointtail );
     if ( arrowstyle_.hasTail() )
-	drawArrowHead( painter, *qpointtail_, *qpointhead_ );
+	drawArrowHead( painter, qpointtail, qpointhead );
 }
 
 
@@ -284,6 +289,13 @@ ODGraphicsTextItem::ODGraphicsTextItem()
 }
 
 
+ODGraphicsTextItem::~ODGraphicsTextItem()
+{
+    delete text_;
+    delete alignoption_;
+}
+
+
 void ODGraphicsTextItem::setTextAlignment( Alignment alignment )
 {
     alignoption_->setAlignment( (Qt::Alignment)alignment.uiValue() );
@@ -291,9 +303,7 @@ void ODGraphicsTextItem::setTextAlignment( Alignment alignment )
 
 
 void ODGraphicsTextItem::setText( const char* txt )
-{
-    text_ = new QString( txt );
-}
+{ *text_ = txt; }
 
 
 QRectF ODGraphicsTextItem::boundingRect() const

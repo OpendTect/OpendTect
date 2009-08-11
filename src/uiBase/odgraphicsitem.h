@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.9 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.10 2009-08-11 07:07:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,9 @@ protected:
     MarkerStyle2D*		mstyle_;	
     bool			fill_;	
     int 			side_;	
-    const QPoint* 		qpoint_;	
+
+public:
+    				~ODGraphicsMarkerItem();
 };
 
 
@@ -98,8 +100,6 @@ public:
 protected:
     QRectF*			boundingrect_;
     ArrowStyle			arrowstyle_;
-    QPoint*			qpointhead_;
-    QPoint*			qpointtail_;
     int				arrowsz_;
 };
 
@@ -117,6 +117,9 @@ protected:
     QRectF			boundingrect_;
     QString*			text_;
     QTextOption*		alignoption_;
+
+public:
+    				~ODGraphicsTextItem();
 };
 
 
