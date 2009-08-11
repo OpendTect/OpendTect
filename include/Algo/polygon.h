@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.21 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: polygon.h,v 1.22 2009-08-11 07:00:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,14 +30,14 @@ public:
 		    : poly_(plg), closed_(true)
 		    , udf_(Geom::Point2D<T>::udf())			{}
 
-    void	erase()				{ poly_.erase(); }
+    void	erase();
     bool	isEmpty() const			{ return poly_.isEmpty(); }
 		
     int 	size() const			{ return poly_.size(); }
     bool 	validIdx(int idx) const		{ return poly_.validIdx(idx); }
-    void	setEmpty()			{ poly_.erase(); }
+    void	setEmpty()			{ erase(); }
     
-    void	add(const Geom::Point2D<T>& vtx)	{ poly_+=vtx; }
+    void	add(const Geom::Point2D<T>& vtx);
     void	remove(int idx);
     void	insert(int idx,const Geom::Point2D<T>& vtx);
 
@@ -125,6 +125,8 @@ protected:
     bool			closed_;
     Geom::Point2D<T>		udf_;
 
+    mutable Interval<T>		xrg_;
+    mutable Interval<T>		yrg_;
 };
 
 
@@ -176,11 +178,41 @@ void usePar( const IOPar& iop, ODPolygon<T>& poly, const char* inpkey )
 
 template <class T> inline
 void ODPolygon<T>::insert( int idx, const Geom::Point2D<T>& vtx )
-{ if ( idx>=0 && idx<=size() ) poly_.insert( idx, vtx ); }
+{
+    if ( idx>=0 && idx<=size() )
+	poly_.insert( idx, vtx );
+    xrg_.set( mUdf(T), mUdf(T) );
+    yrg_.set( mUdf(T), mUdf(T) );
+}
+
+
+template <class T> inline
+void ODPolygon<T>::erase()
+{
+    poly_.erase();
+    xrg_.set( mUdf(T), mUdf(T) );
+    yrg_.set( mUdf(T), mUdf(T) );
+}
+
+
+template <class T> inline
+void ODPolygon<T>::add( const Geom::Point2D<T>& vtx )
+{
+    poly_+=vtx;
+    xrg_.set( mUdf(T), mUdf(T) );
+    yrg_.set( mUdf(T), mUdf(T) );
+}
+
 
 template <class T> inline
 void ODPolygon<T>::remove( int idx )
-{ if ( poly_.validIdx(idx) ) poly_.remove( idx ); }
+{
+    if ( poly_.validIdx(idx) )
+	poly_.remove( idx );
+    xrg_.set( mUdf(T), mUdf(T) );
+    yrg_.set( mUdf(T), mUdf(T) );
+}
+
 
 template <class T> inline
 const Geom::Point2D<T>& ODPolygon<T>::getVertex( int idx ) const
@@ -202,7 +234,9 @@ Interval<T> ODPolygon<T>::getRange( bool forx ) const
 {
     if ( poly_.isEmpty() ) return Interval<T>( udf_.x, udf_.y );
     Geom::Point2D<T> vtx0 = poly_[0];
-    Interval<float> ret;
+    Interval<T> ret = forx ? xrg_ : yrg_;
+    if ( !mIsUdf(ret.start) && !mIsUdf(ret.stop) )
+	return ret;
     ret.start = ret.stop = forx ? vtx0.x : vtx0.y;
     for ( int idx=1; idx<size(); idx++ )
     {
@@ -211,6 +245,10 @@ Interval<T> ODPolygon<T>::getRange( bool forx ) const
 	if ( val < ret.start )		ret.start = val;
 	else if ( val > ret.stop )	ret.stop = val;
     }
+    if ( forx )
+	xrg_ = ret;
+    else
+	yrg_ = ret;
     return ret;
 }
 
@@ -539,6 +577,9 @@ void ODPolygon<T>::convexHull()
     }
 
     poly_ += pivot;
+    
+    xrg_.set( mUdf(T), mUdf(T) );
+    yrg_.set( mUdf(T), mUdf(T) );
 }
 
 
@@ -552,6 +593,9 @@ void ODPolygon<T>::reverse()
 	poly_[idx] = poly_[sz-1-idx];
 	poly_[sz-1-idx] = temp;
     }
+    
+    xrg_.set( mUdf(T), mUdf(T) );
+    yrg_.set( mUdf(T), mUdf(T) );
 }
 
 #endif
