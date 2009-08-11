@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.19 2009-07-29 06:24:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.20 2009-08-11 09:46:05 cvsumesh Exp $";
 
 #include "autotracker.h"
 
@@ -38,13 +38,14 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     , flushcntr_( 0 )
     , stepcntallowedvar_(-1)
     , stepcntapmtthesld_(-1)
-    , trackingextriffail(false)
+    , trackingextriffail_(false)
+    , burstalertactive_(false)
 {
     geomelem_ = emobject_.sectionGeometry(sectionid_);
     extender_ = sectiontracker_->extender();
     adjuster_ = sectiontracker_->adjuster();
 
-    trackingextriffail = adjuster_->removesOnFailure();
+    trackingextriffail_ = adjuster_->removesOnFailure();
 
     reCalculateTtalNr();
 
@@ -80,6 +81,7 @@ AutoTracker::~AutoTracker()
     manageCBbuffer( false );
     geomelem_->trimUndefParts();
     emobject_.setBurstAlert( false );
+    burstalertactive_ = false;
 }
 
 
@@ -142,7 +144,12 @@ int AutoTracker::nextStep()
 
     if ( !nrdone_ )
     {
-	emobject_.setBurstAlert( true );
+	if ( !burstalertactive_ )
+	{
+	    emobject_.setBurstAlert( true );
+	    burstalertactive_ = true;
+	}
+
 	extender_->preallocExtArea();
     }
 
@@ -233,7 +240,7 @@ int AutoTracker::nextStep()
 
 	    if( horadj->getAmplitudeThresholds().size() ==
 		(stepcntapmtthesld_+1) )
-		adjuster_->removeOnFailure( trackingextriffail );
+		adjuster_->removeOnFailure( trackingextriffail_ );
 
 	    reCalculateTtalNr();
 	    horadj->setAmplitudeThreshold(
@@ -255,7 +262,7 @@ int AutoTracker::nextStep()
 	    stepcntallowedvar_++;
 
 	    if ( horadj->getAllowedVariances().size() == (stepcntallowedvar_+1))
-		adjuster_->removeOnFailure( trackingextriffail );
+		adjuster_->removeOnFailure( trackingextriffail_ );
 
 	    reCalculateTtalNr();
 	    horadj->setAllowedVariance(
