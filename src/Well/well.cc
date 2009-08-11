@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.64 2009-07-24 04:57:03 cvsraman Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.65 2009-08-11 21:31:29 cvskris Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: well.cc,v 1.64 2009-07-24 04:57:03 cvsraman Exp
 #include "stratlevel.h"
 #include "stratunitrepos.h"
 #include "idxable.h"
+#include "bendpointfinder.h"
 #include "iopar.h"
 #include "tabledef.h"
 
@@ -64,13 +65,20 @@ float Well::DahObj::dahStep( bool ismin ) const
 
 void Well::DahObj::deInterpolate()
 {
-    TypeSet<int> bpidxs;
-    TypeSet<float> dahsc( dah_ );
+    TypeSet<Coord> dahsc;
+    dahsc.setCapacity( dah_.size() );
     for ( int idx=0; idx<dahsc.size(); idx++ )
-	dahsc[idx] *= 0.001; // gives them about same dimension
+    {
+	dahsc += Coord( dah_[idx]*0.001, value( idx ) );
+	// gives them about same dimension
+    }
 
-    IdxAble::getBendPoints( dahsc, *this, dahsc.size(), 1e-5, bpidxs );
-    if ( bpidxs.size() < 1 ) return;
+
+    BendPointFinder2D finder( dahsc, 1e-5 );
+    if ( !finder.execute() || finder.bendPoints().size()<1 )
+	return;
+
+    const TypeSet<int>& bpidxs = finder.bendPoints();
 
     int bpidx = 0;
     TypeSet<int> torem;
