@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.17 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.18 2009-08-12 19:30:41 cvsbert Exp $";
 
 #include "gridder2d.h"
 
@@ -340,8 +340,10 @@ bool TriangulatedNeighborhoodGridder2D::init()
 	    return false;
 	}
 
-	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
-	yrg.include( yrg_.start ); yrg.include( yrg_.stop );
+	if ( !mIsUdf(xrg_.start) ) xrg.include( xrg_.start );
+	if ( !mIsUdf(xrg_.stop) ) xrg.include( xrg_.stop );
+	if ( !mIsUdf(yrg_.start) ) yrg.include( yrg_.start );
+	if ( !mIsUdf(yrg_.stop) ) yrg.include( yrg_.stop );
 
 	if ( !triangles_->setBBox( xrg, yrg ) )
 	{
@@ -484,9 +486,11 @@ bool TriangulatedGridder2D::init()
 	    triangles_ = 0;
 	    return false;
 	}
-	
-	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
-	yrg.include( yrg_.start ); yrg.include( yrg_.stop );
+
+	if ( !mIsUdf(xrg_.start) ) xrg.include( xrg_.start );
+	if ( !mIsUdf(xrg_.stop) ) xrg.include( xrg_.stop );
+	if ( !mIsUdf(yrg_.start) ) yrg.include( yrg_.start );
+	if ( !mIsUdf(yrg_.stop) ) yrg.include( yrg_.stop );
 
 	TypeSet<Coord>* pts = new TypeSet<Coord>;
 	for ( int idx=0; idx<points_->size(); idx++ )
