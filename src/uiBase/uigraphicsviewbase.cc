@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.16 2009-08-11 07:08:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.17 2009-08-12 13:51:43 cvsjaap Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -90,6 +90,7 @@ bool uiGraphicsViewBody::event( QEvent* ev )
     {
 	const MouseEvent right( OD::RightButton );
 	mouseEventHandler().triggerButtonPressed( right );
+	handle_.scene().getMouseEventHandler().triggerButtonPressed( right );
     }
     else
 	return QGraphicsView::event( ev );
@@ -118,7 +119,11 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* event )
     {
 	buttonstate_ = OD::RightButton;
 	MouseEvent me( buttonstate_, event->x(), event->y() );
+	const int refnr = handle_.beginCmdRecEvent( "rightButtonPressed" );
 	mousehandler_.triggerButtonPressed( me );
+	QGraphicsView::mousePressEvent( event );
+	handle_.endCmdRecEvent( refnr, "rightButtonPressed" );
+	return;
     }
     else if ( event->button() == Qt::LeftButton )
     {
