@@ -172,8 +172,6 @@ void uiDataPointSetCrossPlotWin::drawTypeChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( bool, yn , cb );
     colortb_.display( yn );
-    disptb_.setSensitive( showy2tbid_, !yn );
-    setSelComboSensitive( !yn );
 }
 
 
@@ -503,9 +501,10 @@ void uiDataPointSetCrossPlotWin::setSelComboSensitive( bool yn )
 	plotter_.setSelectable( true, false );
     }
 
-    selfld_->setSensitive(
-	    plotter_.isSceneSelectable() && plotter_.isADensityPlot() ? yn
-	    							      : false );
+    bool status = plotter_.isSceneSelectable() &&
+		  !plotter_.isADensityPlot() ? yn : false;
+    seltb_.setSensitive( showy2tbid_, status );
+    selfld_->setSensitive( status );
 }
 
 

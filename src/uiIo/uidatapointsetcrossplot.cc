@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.49 2009-08-11 09:50:13 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.50 2009-08-12 08:09:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.49 2009-08-11 09:50:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.50 2009-08-12 08:09:02 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -186,12 +186,12 @@ void uiDataPointSetCrossPlotter::dataChanged()
     mHandleAxisAutoScale( y2_ )
     calcStats();
     setDraw();
-    drawDeSelectedItems();
+    removeSelectionItems();
     drawContent();
 }
 
 
-void uiDataPointSetCrossPlotter::drawDeSelectedItems()
+void uiDataPointSetCrossPlotter::removeSelectionItems()
 {
     if ( selpolyitems_ )
     {
@@ -200,52 +200,6 @@ void uiDataPointSetCrossPlotter::drawDeSelectedItems()
     }
     if ( selrectitems_ )
 	selrectitems_->removeAll( true );
-}
-
-
-void uiDataPointSetCrossPlotter::removePoint( uiDataPointSet::DRowID rid,
-					      bool isy2, int itmidx )
-{
-    const Interval<int> udfrg( 0, 1 );
-    const Interval<int> xpixrg( x_.axis_->pixRange() ),
-	  		ypixrg( y_.axis_ ? y_.axis_->pixRange() : udfrg ),
-			y2pixrg( y2_.axis_ ? y2_.axis_->pixRange() : udfrg );
-
-    for ( int idx=0; idx<selareaset_.size(); idx++ )
-    {
-	const SelectionArea* selarea = selareaset_[idx];
-	if ( !selarea )
-	    continue;
-
-	uiGraphicsItemGroup* curitmgrp = isy2 ? y2ptitems_ : yptitems_ ;
-	if ( !curitmgrp )
-	    return;
-	uiGraphicsItem* item = curitmgrp->getUiItem( itmidx );
-	if ( !item )
-	    continue;
-	uiPoint itempos = item->getPos();
-	const bool itmselected = selarea->isInside( itempos );
-	if ( isy1selectable_ && !isy2 )
-	{
-	    if ( itmselected )
-	    {
-		curitmgrp->getUiItem( itmidx )->setVisible( false );
-		BinIDValueSet::Pos pos = dps_.bvsPos(rid);
-		float* vals = dps_.bivSet().getVals( pos );
-		vals[ dps_.nrFixedCols()+y_.colid_ ] = mUdf(float);
-	    }
-	}
-	if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
-	{
-	    if ( itmselected )
-	    {
-		curitmgrp->getUiItem( itmidx )->setVisible( false );
-		BinIDValueSet::Pos pos = dps_.bvsPos(rid);
-		float* vals = dps_.bivSet().getVals( pos );
-		vals[ dps_.nrFixedCols()+y2_.colid_ ] = mUdf(float);
-	    }
-	}
-    }
 }
 
 
@@ -282,7 +236,7 @@ void uiDataPointSetCrossPlotter::setSelectionAreas(
 
 void uiDataPointSetCrossPlotter::removeSelections()
 {
-    drawDeSelectedItems();
+    removeSelectionItems();
     selrowcols_.erase();
     deepErase( selareaset_ );
     selyitems_ = 0;
@@ -527,10 +481,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
     setWorldSelArea( curselarea_ );
 
     if ( !selareaset_[curselarea_]->isValid() )
-    {
 	selareaset_.remove( curselarea_ );
-	return;
-    }
 
     if ( !isdensityplot_ )
 	reDrawNeeded.trigger();
@@ -920,8 +871,6 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    ptselected = true;
 		}
 	    }
-	    else
-		dps_.setSelected( rid, false );
 	}
 	if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
 	{
@@ -949,13 +898,14 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    ptselected = true;
 		}
 	    }
-	    else
-		dps_.setSelected( rid, false );
 	}
     }
 
     if ( !ptselected )
+    {
 	item->setPenColor( yad.axis_->setup().style_.color_ );
+	dps_.setSelected( rid, false );
+    }
     
 }
 
@@ -1147,61 +1097,45 @@ void uiDataPointSetCrossPlotter::drawData(
 	drawRegrLine( yah, usedxpixrg_ );
     else if ( regrlineitm_ )
 	regrlineitm_->setLine( 0, 0, 0, 0 );
-    drawY1UserDefLine( usedxpixrg_, setup_.showy1userdefline_ );
-    drawY2UserDefLine( usedxpixrg_, setup_.showy2userdefline_ );
+    drawYUserDefLine( usedxpixrg_, setup_.showy1userdefline_, true );
+    drawYUserDefLine( usedxpixrg_, setup_.showy2userdefline_, false );
 }
 
 
-void uiDataPointSetCrossPlotter::drawY1UserDefLine( const Interval<int>& xpixrg,
-						    bool draw )
+void uiDataPointSetCrossPlotter::drawYUserDefLine( const Interval<int>& xpixrg,
+						    bool draw, bool isy1 )
 {
+    uiLineItem* curlineitem = isy1 ? y1userdeflineitm_ : y2userdeflineitm_;
     if ( !draw )
     {
-	if ( y1userdeflineitm_ )
+	if ( curlineitem )
 	{
-	    scene().removeItem( y1userdeflineitm_ );
-	    y1userdeflineitm_ = 0;
+	    scene().removeItem( curlineitem );
+	    curlineitem = 0;
 	}
 	return;
     }
 
     const uiAxisHandler& xah = *x_.axis_;
-    const uiAxisHandler& yah = *y_.axis_;
+    const uiAxisHandler& yah = isy1 ? *y_.axis_ : *y2_.axis_;
     Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
-    if ( !y1userdeflineitm_ )
+    if ( !curlineitem )
     {
-	y1userdeflineitm_ = new uiLineItem();
-	scene().addItem( y1userdeflineitm_ );
-    }
-    drawLine( *y1userdeflineitm_, userdefy1lp_, xah, yah, &xvalrg );
-    y1userdeflineitm_->setPenStyle( y_.defaxsu_.style_ );
-}
-
-
-void uiDataPointSetCrossPlotter::drawY2UserDefLine( const Interval<int>& xpixrg,						    bool draw )
-{
-    if ( !draw )
-    {
-	if ( y2userdeflineitm_ )
+	if ( isy1 )
 	{
-	    scene().removeItem( y2userdeflineitm_ );
-	    y2userdeflineitm_ = 0;
+	    y1userdeflineitm_ = new uiLineItem();
+	    scene().addItem( y1userdeflineitm_ );
+	    curlineitem = y1userdeflineitm_;
 	}
-	return;
+	else
+	{
+	    y2userdeflineitm_ = new uiLineItem();
+	    scene().addItem( y2userdeflineitm_ );
+	    curlineitem = y2userdeflineitm_;
+	}
     }
-
-    const uiAxisHandler& xah = *x_.axis_;
-    if ( !y2_.axis_ )
-	return;
-    const uiAxisHandler& yah = *y2_.axis_;
-    Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
-    if ( !y2userdeflineitm_ )
-    {
-	y2userdeflineitm_ = new uiLineItem();
-	scene().addItem( y2userdeflineitm_ );
-    }
-    drawLine( *y2userdeflineitm_, userdefy2lp_, xah, yah, &xvalrg );
-    y2userdeflineitm_->setPenStyle( y2_.defaxsu_.style_ );
+    drawLine( *curlineitem, userdefy1lp_, xah, yah, &xvalrg );
+    curlineitem->setPenStyle( isy1 ? y_.defaxsu_.style_: y2_.defaxsu_.style_ );
 }
 
 

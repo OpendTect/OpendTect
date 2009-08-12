@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: densitycalc.h,v 1.1 2009-08-11 07:21:23 cvssatyaki Exp $
+ RCS:           $Id: densitycalc.h,v 1.2 2009-08-12 08:09:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
     , mathobj_( 0 )
     , xpixrg_( x_.axis_->pixRange() )
     , ypixrg_( y_.axis_->pixRange() )
+    , usedxpixrg_( Interval<int> (0,0) )
     , changedps_( false )
     , removesel_( false )
     , curgrp_( 0 )
@@ -87,6 +88,12 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	if ( !xpixrg_.includes(pos.x) || !ypixrg_.includes(pos.y) )
 	    continue;
 
+	if ( usedxpixrg_.width() == 0 && usedxpixrg_.start == 0 )
+	    usedxpixrg_ = Interval<int>( pos.x, pos.x );
+	else
+	    usedxpixrg_.include( pos.x );
+
+	bool ptselected = false;
 	bool ptremoved = false;
 	if ( selareaset_.size() && (changedps_ || removesel_) )
 	{
@@ -109,17 +116,18 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		    }
 		    else
 		    {
+			ptselected = true;
 			dps_.setSelected( rid, true );
 			RowCol rcol( uidps_.tRowID(rid),
 				     uidps_.tColID(y_.colid_) );
 			selrowcols_ += rcol;
 		    }
 		}
-		else
-		    dps_.setSelected( rid, false );
 	    }
 	}
 
+	if ( !ptselected )
+	    dps_.setSelected( rid, false );
 	if ( !data_->info().validPos(datapt.x,datapt.y) )
 	    continue;
 	data_->set( datapt.x, datapt.y,
@@ -147,6 +155,8 @@ int indexSize() const			{ return indexsz_; }
 
 const TypeSet<RowCol>& selRCs() const	{ return selrowcols_; }
 
+const Interval<int>& usedXPixRg() const	{ return usedxpixrg_; }
+
 protected:
     uiDataPointSet&			uidps_;
     DataPointSet&			dps_;
@@ -159,6 +169,7 @@ protected:
     uiDataPointSetCrossPlotter::AxisData& x_;
     uiDataPointSetCrossPlotter::AxisData& y_;
     Interval<int>			xpixrg_;
+    Interval<int>			usedxpixrg_;
     Interval<int>			ypixrg_;
     Threads::Mutex			mutex_;
     bool				changedps_;

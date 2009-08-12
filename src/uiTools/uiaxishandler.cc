@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.35 2009-08-11 07:09:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.36 2009-08-12 08:09:02 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -342,6 +342,8 @@ void drawLine( uiLineItem& lineitm, const LinePars& lp,
 	       const uiAxisHandler& xah, const uiAxisHandler& yah,
 	       const Interval<float>* extxvalrg )
 {
+    if ( !&xah || !&yah || !&lineitm || !extxvalrg )
+	return;
     const Interval<int> ypixrg( yah.pixRange() );
     const Interval<float> yvalrg( yah.getVal(ypixrg.start),
 	    			  yah.getVal(ypixrg.stop) );

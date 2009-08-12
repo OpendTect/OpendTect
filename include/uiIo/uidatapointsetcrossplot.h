@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.24 2009-08-11 07:43:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.25 2009-08-12 08:09:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,7 @@ public:
     bool			drawPoints(uiGraphicsItemGroup*,
 	    				   const AxisData&,bool y2,
 	    				   MarkerStyle2D&,bool rempt = false);
-    void			drawDeSelectedItems();
+    void			removeSelectionItems();
 
     void			setSceneSelectable( bool yn )	
 				{ selectable_ = yn; }
@@ -144,8 +144,6 @@ public:
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections();
     void			deleteSelections();
-    void			removePoint(uiDataPointSet::DRowID,
-					    bool isy2,int itmidx);
     void			checkSelection(uiDataPointSet::DRowID,
 				   uiGraphicsItem*,bool,const AxisData&,
 				   bool rempt = false);
@@ -178,8 +176,8 @@ public:
     const DataPointSet&		dps() const 		{ return dps_; }
     const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
 
-    void			drawY1UserDefLine(const Interval<int>&,bool);
-    void			drawY2UserDefLine(const Interval<int>&,bool);
+    void			drawYUserDefLine(const Interval<int>&,bool draw,
+	    					 bool isy1);
 
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
