@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.91 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.92 2009-08-12 06:56:15 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,6 +220,7 @@ protected:
     void			setHistogram(int visid,int attrib);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
+    void			storeEMObject();
 
     void			manStrat();
 

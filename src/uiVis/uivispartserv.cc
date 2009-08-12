@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.429 2009-08-06 02:04:14 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.430 2009-08-12 06:56:12 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -72,6 +72,7 @@ const int uiVisPartServer::evDisableSelTracker()    { return 16; }
 const int uiVisPartServer::evColorTableChange()	    { return 17; }
 const int uiVisPartServer::evLoadAttribDataInMPEServ()	{ return 18; }
 const int uiVisPartServer::evPostponedLoadingData()	{ return 19; }
+const int uiVisPartServer::evFromMPEManStoreEMObject()	{ return 20; }
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -1830,6 +1831,10 @@ void uiVisPartServer::initMPEStuff()
 
 void uiVisPartServer::fireLoadAttribDataInMPEServ()
 { sendEvent( evLoadAttribDataInMPEServ() ); }
+
+
+void uiVisPartServer::fireFromMPEManStoreEMObject()
+{ sendEvent( evFromMPEManStoreEMObject() ); }
 
 
 void uiVisPartServer::updateOldActiVolInuiMPEMan()

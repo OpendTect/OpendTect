@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.346 2009-08-07 00:44:12 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.347 2009-08-12 06:56:19 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -795,20 +795,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	visserv_->updateSeedConnectMode();
     else if ( evid==uiMPEPartServer::evMPEStoreEMObject() )
     {
-	const int trackerid = mpeserv_->activeTrackerID();
-	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
-	emserv_->storeObject( emid, true );
-	const MultiID mid = emserv_->getStorageID(emid);
-	TypeSet<int> ids;
-	visserv_->findObject( mid, ids );
-
-	for ( int idx=0; idx<ids.size(); idx++ )
-	{
-	    visserv_->setObjectName( ids[idx], 
-		    		     (const char*) emserv_->getName(emid) );
-	}
-	mpeserv_->saveSetup( mid );
-	sceneMgr().updateTrees();
+	storeEMObject();
     }
     else if ( evid==uiMPEPartServer::evSaveUnsavedEMObject() )
     {
@@ -1212,6 +1199,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
 			  visserv_->getEventAttrib() );
     else if ( evid == uiVisPartServer::evLoadAttribDataInMPEServ() )
 	mpeserv_->fireLAttribData();
+    else if ( evid == uiVisPartServer::evFromMPEManStoreEMObject() )
+	storeEMObject();
     else
 	pErrMsg("Unknown event from visserv");
 
@@ -1497,6 +1486,26 @@ void uiODApplMgr::cleanPreview()
 	visserv_->removeObject( previds[0],sceneids[idx] );
 
     previds.erase();
+}
+
+
+void uiODApplMgr::storeEMObject()
+{
+    const int trackerid = mpeserv_->activeTrackerID();
+    const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
+    emserv_->storeObject( emid, true );
+    const MultiID mid = emserv_->getStorageID(emid);
+    
+    TypeSet<int> ids;
+    visserv_->findObject( mid, ids );
+    
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	visserv_->setObjectName( ids[idx],
+				 (const char*) emserv_->getName(emid) );
+    }
+    mpeserv_->saveSetup( mid );
+    sceneMgr().updateTrees();
 }
 
 

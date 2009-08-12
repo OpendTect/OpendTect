@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.174 2009-08-11 04:56:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.175 2009-08-12 06:56:12 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -975,7 +975,22 @@ void uiMPEMan::redoPush( CallBacker* )
 
 void uiMPEMan::savePush( CallBacker* )
 {
-    // Not impl
+    MPE::Engine& engine = MPE::engine();
+    MPE::EMTracker* tracker = getSelectedTracker();
+    if ( !tracker )
+	return;
+
+    bool proceedsaving = 
+	EM::EMM().getMultiID( tracker->objectID() ).isEmpty();
+    if ( !proceedsaving )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(
+		    					tracker->objectID()) );
+	proceedsaving = !ioobj;
+    }
+
+    if ( proceedsaving )
+	visserv->fireFromMPEManStoreEMObject();
 }
 
 
