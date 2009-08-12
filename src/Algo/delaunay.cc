@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.36 2009-07-24 19:42:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.37 2009-08-12 15:25:12 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -1224,6 +1224,27 @@ bool DAGTriangleTree::getCoordIndices( TypeSet<int>& result ) const
     return result.size();
 }
 
+
+bool DAGTriangleTree::getSurroundingIndices( TypeSet<int>& result ) const 
+{
+    result.erase();
+    for ( int idx=triangles_.size()-1; idx>=0; idx-- )
+    {
+	const int* child = triangles_[idx].childindices_;
+	if ( child[0]>=0 || child[1]>=0 || child[2]>=0 )
+	    continue;
+
+	const int* c = triangles_[idx].coordindices_;
+	const char nrinits = (c[0]<0) + (c[1]<0) + (c[2]<0);
+	if ( !nrinits )
+	    continue;
+
+	for ( int idy=0; idy<3; idy++ )
+	    if ( c[idy]>=0 && result.indexOf(c[idy])==-1 ) result += c[idy];
+    }
+
+    return result.size();
+}
 
 bool DAGTriangleTree::getConnections( int vertex, TypeSet<int>& result ) const
 {

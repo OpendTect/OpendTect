@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.25 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: delaunay.h,v 1.26 2009-08-12 15:25:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,7 @@ public:
     static bool		computeCoordRanges(const TypeSet<Coord>&,
 	    		    Interval<double>&,Interval<double>&);
 
-    bool		setCoordList(const TypeSet<Coord>*
-	    			     OD);
+    bool		setCoordList(const TypeSet<Coord>* OD);
     bool		setCoordList(TypeSet<Coord>*,OD::PtrPolicy);
     const TypeSet<Coord>& coordList() const { return *coordlist_; }
 
@@ -53,7 +52,7 @@ public:
     bool		insertPoint(int pointidx, int& dupid);
     int			insertPoint(const Coord&, int& dupid);
     
-    const Coord		getInitCoord(int vetexidx);
+    const Coord		getInitCoord(int vetexidx);/*vetexidx=-2,-3 or -4. */
     bool		getTriangle(const Coord&,int& dupid,
 	    			    TypeSet<int>& vertexindices) const;
     			/*!<search triangle contains the point.return crds. */
@@ -64,12 +63,16 @@ public:
     			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle
 			    ci[3], ci[4], ci[5] is the second triangle. */
+    bool		getSurroundingIndices(TypeSet<int>&) const;
+    			/*!Points on the edge of the geometry shape. */
+
     bool		getConnections(int pointidx,TypeSet<int>&) const;
-    bool		getConnectionAndWeights(int pointidx,TypeSet<int>& conns,
+    bool		getConnectionAndWeights(int ptidx,TypeSet<int>& conns,
 	    				     TypeSet<double>& weights,
 					     bool normailze=true) const;
-    bool		getWeights(int pointidx, const TypeSet<int>& conns,
-				   TypeSet<double>& weights, bool normailze=true) const;
+    bool		getWeights(int pointidx,const TypeSet<int>& conns,
+				   TypeSet<double>& weights,
+				   bool normailze=true) const;
     			/*!Calculate inverse distance weight for each conns.*/
     void		setEpsilon(double err)	{ epsilon_ = err; }
 
