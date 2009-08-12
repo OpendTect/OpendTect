@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.7 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.8 2009-08-12 02:57:36 cvskris Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -213,7 +213,6 @@ float uiHorizonShiftDialog::getShift() const
 void uiHorizonShiftDialog::shiftCB( CallBacker* )
 {
     const float curshift = getShift();
-    emhor3d_->geometry().setShift( curshift );
     horShifted.trigger();
 }
 
