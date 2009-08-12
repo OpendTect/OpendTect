@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.128 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.129 2009-08-12 02:30:13 cvskris Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1267,6 +1267,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , filetype_( filetype )
     , nrrows_( 0 )
     , binary_( binary )
+    , shift_( 0 )
     , geometry_(
 	reinterpret_cast<const EM::RowColSurfaceGeometry&>( surface.geometry()))
 {
@@ -1724,6 +1725,10 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 }
 
 
+void dgbSurfaceWriter::setShift( float s )
+{ shift_ = s; }
+
+
 bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 {
     if ( !colrange_.step || !rowrange_.step )
@@ -1752,7 +1757,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 				RowCol(row,col).getSerialized() );
 	Coord3 pos = surface_.getPos( posid );
 	if ( hor3d && pos.isDefined() )
-	    pos.z += hor3d->geometry().getShift();
+	    pos.z += shift_;
 
 	if ( colcoords.isEmpty() && !pos.isDefined() )
 	    continue;

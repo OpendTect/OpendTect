@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.34 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.35 2009-08-12 02:32:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -263,6 +263,8 @@ public:
 			     function is not called, all avaliable sections
 			     will be written.
 			*/
+    void		setShift(float);
+    			//!<Shift is added to z values before writing
 
     int			nrAuxVals() const;
     const char*		auxDataName(int) const;
@@ -337,6 +339,7 @@ protected:
     Interval<int>		writtencolrange_;
     bool			writeonlyz_;
     bool			binary_;
+    float			shift_;
     BufferString		filetype_;
 
     static const char*		sTab()		{ return "\t"; }
