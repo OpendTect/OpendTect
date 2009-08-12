@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: bendpointfinder.cc,v 1.3 2009-08-12 07:29:40 cvsbert Exp $";
+static const char* rcsID = "$Id: bendpointfinder.cc,v 1.4 2009-08-12 17:44:00 cvskris Exp $";
 
 #include "bendpointfinder.h"
 #include "sorting.h"
@@ -26,12 +26,10 @@ bool BendPointFinderBase::doPrepare( int nrthreads )
     queue_ += Interval<int>( 0, sz_-1 );
 
     finished_ = false;
-    nrwaiting_ = false;
+    nrwaiting_ = 0;
     nrthreads_ = nrthreads;
 
-    return doWork( 0, sz_-1, 0 );
-    // TODO change back to
-    //return true;
+    return true;
 }
 
 
@@ -48,15 +46,20 @@ bool BendPointFinderBase::doFinish( bool res )
 
 bool BendPointFinderBase::doWork( od_int64, od_int64, int )
 {
-    // TODO remove
-    return true;
-
     lock_.lock();
     while ( !finished_ )
     {
 	if ( !queue_.size() )
 	{
 	    nrwaiting_ ++;
+	    if ( nrwaiting_==nrthreads_ )
+	    {
+		finished_ = true;
+		lock_.signal( true );
+		nrwaiting_--;
+		break;
+	    }
+
 	    lock_.wait();
 	    nrwaiting_ --;
 	}
@@ -72,11 +75,6 @@ bool BendPointFinderBase::doWork( od_int64, od_int64, int )
 	findInSegment( segment.start, segment.stop );
 
 	lock_.lock();
-	if ( nrwaiting_==nrthreads_-1 && !queue_.size() )
-	{
-	    finished_ = true;
-	    lock_.signal( true );
-	}
     }
 
     lock_.unLock();
@@ -110,7 +108,7 @@ void BendPointFinderBase::findInSegment( int idx0, int idx1 )
 	if ( idx1>idx+1 )
 	{
 	    queue_ += Interval<int>( idx, idx1 );
-	    lock_.signal( false );
+	    lock_.signal( queue_.size()>1 );
 	}
 
 	lock_.unLock();
