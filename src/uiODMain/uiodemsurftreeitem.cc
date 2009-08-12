@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.61 2009-07-29 21:47:34 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.62 2009-08-12 03:02:43 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -405,16 +405,15 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &enabletrackingmnuitem_ );
     }
 
-    const bool istransformedandshifted = hastransform &&
+    const bool isshifted =
 		!mIsZero(visserv_->getTranslation(displayID()).z, 1e-5);
-
-
+    
+    const bool istransformedandshifted = hastransform && isshifted;
 
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) && 
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
-		  !istransformedandshifted &&
-		  !applMgr()->EMServer()->isShifted(emid_), false );
+		  !isshifted, false );
 
     mAddMenuItem( menu, &saveasmnuitem_, !istransformedandshifted, false );
 #ifdef __debug__
@@ -478,7 +477,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	mps->prepareSaveSetupAs( oldmid );
 
 	MultiID storedmid;
-	ems->storeObject( emid_, true, storedmid );
+	ems->storeObject( emid_, true, storedmid,
+		visserv_->getTranslation(displayID()).z);
 	applMgr()->visServer()->setObjectName( displayid_,
 		(const char*) ems->getName(emid_) );
 
