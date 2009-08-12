@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.91 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.92 2009-08-12 11:58:01 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -302,13 +302,14 @@ bool SeisTrcTranslator::writeBlock()
 	const int firstnr = is_2d ? firsttrc->info().nr
 	    			 : firsttrc->info().binid.crl;
 	int nrperpos = 1;
-	for ( int idx=1; idx<sz; idx++ )
+	if ( !is_2d )
 	{
-	    const int nr = is_2d ? trcblock_.get(idx)->info().nr
-				: trcblock_.get(idx)->info().binid.crl;
-	    if ( nr != firstnr )
-		break;
-	    nrperpos++;
+	    for ( int idx=1; idx<sz; idx++ )
+	    {
+		if ( trcblock_.get(idx)->info().binid.crl != firstnr )
+		    break;
+		nrperpos++;
+	    }
 	}
 	trcblock_.enforceNrTrcs( nrperpos, keyfld );
 	sz = trcblock_.size();

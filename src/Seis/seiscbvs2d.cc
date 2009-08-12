@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.48 2009-07-22 16:00:49 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.49 2009-08-12 11:58:01 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -246,7 +246,8 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     geom.zrg_.start = cbvsinf.sd.start;
     geom.zrg_.step = cbvsinf.sd.step;
     geom.zrg_.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
-    for ( int idx=0; idx<coords.size(); idx++ )
+    const int sz = mMIN(coords.size(),binids.size());
+    for ( int idx=0; idx<sz; idx++ )
     {
 	PosInfo::Line2DPos p( binids[idx].crl );
 	p.coord_ = coords[idx];
@@ -311,6 +312,7 @@ bool put( const SeisTrc& trc )
 
     if ( nrwr == 0 )
     {
+	tr->setIs2D( true );
 	bool res = tr->initWrite(new StreamConn(fname.buf(),Conn::Write),trc);
 	if ( !res )
 	{
@@ -332,6 +334,7 @@ bool put( const SeisTrc& trc )
 	}
     }
 
+    tr->setIs2D( true );
     bool res = tr->write(trc);
     info.binid = oldbid;
     if ( res )
@@ -350,6 +353,7 @@ bool put( const SeisTrc& trc )
 bool close()
 {
     if ( !tr ) return true;
+    tr->setIs2D( true );
     bool ret = tr->close();
     if ( ret ) errmsg = tr->errMsg();
     return ret; 
