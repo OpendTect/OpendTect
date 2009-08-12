@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.58 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.59 2009-08-12 11:56:57 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -298,6 +298,10 @@ private:
     bool		writeBlock();
     bool		dumpBlock();
 
+public:
+
+    void		setIs2D( bool yn )	{ is_2d = yn; }
+    void		setIsPS( bool yn )	{ is_prestack = yn; }
 };
 
 
