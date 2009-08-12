@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: bendpointfinder.cc,v 1.2 2009-08-11 21:12:36 cvskris Exp $";
+static const char* rcsID = "$Id: bendpointfinder.cc,v 1.3 2009-08-12 07:29:40 cvsbert Exp $";
 
 #include "bendpointfinder.h"
 #include "sorting.h"
@@ -29,7 +29,9 @@ bool BendPointFinderBase::doPrepare( int nrthreads )
     nrwaiting_ = false;
     nrthreads_ = nrthreads;
 
-    return true;
+    return doWork( 0, sz_-1, 0 );
+    // TODO change back to
+    //return true;
 }
 
 
@@ -46,6 +48,9 @@ bool BendPointFinderBase::doFinish( bool res )
 
 bool BendPointFinderBase::doWork( od_int64, od_int64, int )
 {
+    // TODO remove
+    return true;
+
     lock_.lock();
     while ( !finished_ )
     {
