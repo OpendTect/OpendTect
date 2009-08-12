@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.90 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.91 2009-08-12 02:55:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,6 @@ public:
     bool		isEmpty(const EM::ObjectID&) const;
     bool		isFullResolution(const EM::ObjectID&) const;
     bool		isFullyLoaded(const EM::ObjectID&) const;
-    bool		isShifted(const EM::ObjectID&) const;
 
     void		fillHoles(const EM::ObjectID&);
     void		filterSurface(const EM::ObjectID&);
@@ -104,7 +103,8 @@ public:
     bool		storeObject(const EM::ObjectID&,
 	    			    bool storeas=false) const;
     bool		storeObject(const EM::ObjectID&,bool storeas,
-				    MultiID& storagekey) const;
+				    MultiID& storagekey,
+				    float shift=0) const;
     bool		storeAuxData(const EM::ObjectID&,
 	    			     BufferString& auxdataname,
 	    			     bool storeas=false) const;

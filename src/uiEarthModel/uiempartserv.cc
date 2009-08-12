@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.185 2009-08-05 21:07:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.186 2009-08-12 02:55:26 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.185 2009-08-05 21:07:00 cvs
 #include "empolygonbody.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
+#include "emsurfaceio.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "iodir.h"
@@ -228,17 +229,6 @@ bool uiEMPartServer::isFullyLoaded( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject(emid);
     return emobj && emobj->isFullyLoaded();
-}
-
-
-bool uiEMPartServer::isShifted( const EM::ObjectID& emid ) const
-{
-    const EM::EMObject* emobj = em_.getObject( emid );
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj)
-    if ( !hor3d ) return false;
-
-    const float shift = hor3d->geometry().getShift();
-    return !mIsZero(shift,mDefEps);
 }
 
 
@@ -561,7 +551,8 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 
 
 bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
-				  MultiID& storagekey ) const
+				  MultiID& storagekey,
+       				  float shift ) const
 {
     mDynamicCastAll(id);
     if ( !object ) return false;
@@ -573,7 +564,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
     {
 	if ( surface )
 	{
-	    uiWriteSurfaceDlg dlg( parent(), *surface );
+	    uiWriteSurfaceDlg dlg( parent(), *surface, shift );
 	    if ( !dlg.go() ) return false;
 
 	    EM::SurfaceIOData sd;
@@ -584,6 +575,9 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	    exec = surface->geometry().saver( &sel, &key );
 	    if ( exec && dlg.replaceInTree() )
 		    surface->setMultiID( key );
+
+	    mDynamicCastGet( EM::dgbSurfaceWriter*, writer, exec.ptr() );
+	    if ( writer ) writer->setShift( shift );
 	}
 	else
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.21 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.22 2009-08-12 02:55:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ namespace EM { class Surface; class SurfaceIODataSelection; class Horizon3D; }
 mClass uiWriteSurfaceDlg : public uiDialog
 {
 public:
-			uiWriteSurfaceDlg(uiParent*,const EM::Surface&);
+			uiWriteSurfaceDlg(uiParent*,const EM::Surface&,
+				          float shift);
 
     void		getSelection(EM::SurfaceIODataSelection&);
     bool		replaceInTree() const;
