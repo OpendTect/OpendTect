@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Aug 2008
- RCS:           $Id: uicalcpoly2horvol.h,v 1.1 2009-08-10 14:45:17 cvsbert Exp $
+ RCS:           $Id: uicalcpoly2horvol.h,v 1.2 2009-08-12 06:14:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace EM	{ class Horizon3D; }
 
 /*! \brief Calculate isopach as attribute of horizon */
 
-class uiCalcPoly2HorVol : public uiDialog
+mClass uiCalcPoly2HorVol : public uiDialog
 {
 public:
 
