@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.65 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.66 2009-08-12 03:11:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,9 +44,6 @@ public:
     bool			removeSection(const SectionID&,bool hist);
     SectionID			cloneSection(const SectionID&);
 
-    void			setShift(float);
-    float			getShift() const;
-
     bool			isFullResolution() const;
     RowCol			loadedStep() const;
     RowCol			step() const;
@@ -81,7 +78,6 @@ protected:
 
     RowCol			loadedstep_;
     RowCol			step_;
-    float			shift_;
     bool			checksupport_;
     HorSampling			selection_;
 };

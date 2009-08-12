@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.120 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.121 2009-08-12 03:11:51 cvskris Exp $";
 
 #include "emhorizon3d.h"
 
@@ -407,7 +407,6 @@ Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
     , step_( SI().inlStep(), SI().crlStep() )
     , selection_( SI().sampling(true).hrg )			     
     , loadedstep_( SI().inlStep(), SI().crlStep() )
-    , shift_( 0 )
     , checksupport_( true )
 {}
 
@@ -481,16 +480,6 @@ SectionID Horizon3DGeometry::cloneSection( const SectionID& sid )
 
     return res;
 }
-
-
-void Horizon3DGeometry::setShift( float ns )
-{
-    shift_ = ns;
-}
-
-
-float Horizon3DGeometry::getShift() const
-{ return shift_; }
 
 
 bool Horizon3DGeometry::enableChecks( bool yn )
