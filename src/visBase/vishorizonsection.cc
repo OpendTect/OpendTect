@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.67 2009-08-11 22:08:06 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.68 2009-08-12 14:58:00 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -984,6 +984,7 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
     }
 
     surfaceChange( 0, 0 );
+    setResolution( desiredresolution_, 0 );
 }
 
 
