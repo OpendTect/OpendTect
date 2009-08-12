@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.106 2009-08-07 18:56:15 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.107 2009-08-12 03:08:19 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1411,7 +1411,7 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 }
 
 
-static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zfactor,
+static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zshift,
 			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
 			const ZAxisTransform* zaxistransform, 
 			visBase::IndexedShape* line, int& cii )
@@ -1426,7 +1426,6 @@ static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zfactor,
 	   		  hor->geometry().colRange(sid) );
     ictracer.selectRectROI( cs.hrg.inlRange(), cs.hrg.crlRange() );
     ObjectSet<ODPolygon<float> > isocontours;
-    const float zshift = hor->geometry().getShift() / zfactor;
     ictracer.getContours( isocontours, cs.zrg.start-zshift, false );
     
     for ( int cidx=0; cidx<isocontours.size(); cidx++ )
@@ -1653,10 +1652,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		const float zfactor = scene_
-		    ? scene_->getZScale()
-		    : SI().zScale();
-		drawHorizonOnTimeSlice( cs, zfactor, horizon, sid,  
+		drawHorizonOnTimeSlice( cs, getTranslation().z, horizon, sid,  
 				        zaxistransform_, line, cii );
 	    }
 	}
