@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.68 2009-08-12 14:58:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.69 2009-08-12 19:38:15 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -132,7 +132,7 @@ protected:
     SbBox3f			bbox_;	//In display space
     bool			needsupdatebbox_;
     int				nrdefinedpos_;
-    const RowCol&		origin_;
+    const RowCol		origin_;
     const HorizonSection&	section_;
 
     SoLockableSeparator*	root_;
@@ -152,7 +152,7 @@ protected:
     TypeSet<int>		invalidnormals_[mHorSectNrRes];
     bool			allnormalsinvalid_[mHorSectNrRes];
 
-    SoSeparator*			resolutions_[mHorSectNrRes];
+    SoSeparator*		resolutions_[mHorSectNrRes];
     SoIndexedTriangleStripSet*	triangles_[mHorSectNrRes];
     SoIndexedLineSet3D*		lines_[mHorSectNrRes];
     SoIndexedLineSet*		wireframes_[mHorSectNrRes];
@@ -378,11 +378,11 @@ protected:
 
     bool doWork( od_int64 start, od_int64 stop, int threadid )
     {
-	TypeSet<Coord3> positions;
-	positions.setCapacity( mNrCoordsPerTileSide*mNrCoordsPerTileSide );
-
+	TypeSet<Coord3> positions( mNrCoordsPerTileSide*mNrCoordsPerTileSide,
+	       			   Coord3::udf() );
 	for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
 	{
+	    int coordidx = 0;
 	    for ( int rowidx=0; rowidx<mNrCoordsPerTileSide; rowidx++ )
 	    {
 		const int row = start_[idx].row + rowidx*rrg_.step;
@@ -390,7 +390,8 @@ protected:
 		const StepInterval<int> colrg( 
 			mMAX(geo_.colRange(row).start, crg_.start),
 		        mMIN(geo_.colRange(row).stop, crg_.stop), crg_.step );
-		for ( int colidx=0; colidx<mNrCoordsPerTileSide; colidx++ )
+		for ( int colidx=0; colidx<mNrCoordsPerTileSide;
+		      colidx++, coordidx++ )
 		{
 		    const int col = start_[idx].col + colidx*colrg.step;
 		    Coord3 pos = rowok && colrg.includes(col)
@@ -398,7 +399,7 @@ protected:
 			: Coord3::udf();
 		    if ( zat_ ) pos.z = zat_->transform( pos );
 		
-	    	    positions += pos;
+	    	    positions[coordidx] = pos;
 		}
 	    }
 
