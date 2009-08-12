@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.42 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.43 2009-08-12 03:04:35 cvskris Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -331,7 +331,6 @@ void dgbSurfDataReader::setSurface( Horizon3D& surf )
     surf_ = &surf;
     dataidx_ = surf_->auxdata.addAuxData( dataname_.buf() );
     surf_->auxdata.setAuxDataShift( dataidx_, shift_ );
-    surf_->geometry().setShift( shift_ );
 }
 
 
