@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.431 2009-08-12 07:19:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.432 2009-08-13 12:05:45 cvsnageswara Exp $";
 
 #include "uivispartserv.h"
 
@@ -1798,7 +1798,6 @@ void uiVisPartServer::showMPEToolbar( bool yn )
 void uiVisPartServer::updateMPEToolbar()
 {
     mpetools_->validateSeedConMode();
-    mpetools_->updateAttribNames();
 }
 
 
