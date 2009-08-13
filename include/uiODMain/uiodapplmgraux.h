@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.7 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.8 2009-08-13 09:19:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,6 @@ class CtxtIOObj;
 class uiODApplMgr;
 class DataPointSet;
 class uiConvertPos;
-class ZAxisTransform;
-class VelocityStretcher;
 
 
 /*!\brief uiApplService for OD */
@@ -98,28 +96,6 @@ mClass uiODApplMgrAttrVisHandler : public CallBacker
 
     uiODApplMgr&	am_;
     uiParent*		par_;
-};
-
-
-/*!\brief Velocity model for depth scene */
-
-mClass uiODApplMgrVelSel : public uiDialog
-{
-public:
-
-			uiODApplMgrVelSel(uiParent*);
-			~uiODApplMgrVelSel();
-
-    bool		acceptOK(CallBacker*);
-    ZAxisTransform*	transform();
-    float		zScale() const		{ return zscale_; }
-    const char*		selName() const;
-
-protected:    
-    uiVelSel*		velsel_;
-    VelocityStretcher*	trans_;
-    float		zscale_;
-
 };
 
 

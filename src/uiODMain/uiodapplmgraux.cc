@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.9 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.10 2009-08-13 09:19:08 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -67,81 +67,6 @@ uiParent* uiODApplService::parent() const
 	res = par_;
 
     return res;
-}
-
-
-
-uiODApplMgrVelSel::uiODApplMgrVelSel( uiParent* p )
-    : uiDialog(p,Setup("Velocity model",
-		"Select velocity model to base scene on","0.4.7"))
-    , trans_(0)
-{
-    IOObjContext ctxt = uiVelSel::ioContext();
-    ctxt.forread = true;
-    uiSeisSel::Setup su( false, false ); su.seltxt("Velocity model");
-    velsel_ = new uiVelSel( this, ctxt, su );
-}
-
-uiODApplMgrVelSel::~uiODApplMgrVelSel()
-{
-    if ( trans_ ) trans_->unRef();
-}
-
-
-const char* uiODApplMgrVelSel::selName() const
-{ return velsel_->ioobj( true )->name(); }
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
-bool uiODApplMgrVelSel::acceptOK( CallBacker* )
-{
-    if ( trans_ ) trans_->unRef();
-    trans_ = 0;
-
-    if ( !velsel_->ioobj( false ) )
-	return false;
-
-    VelocityDesc desc;
-    if ( !desc.usePar( velsel_->ioobj(true)->pars() ) )
-	mErrRet("Cannot read velocity information for selected model")
-
-    if ( SI().zIsTime() ) 
-	// TODO: Should really depend on z-domain of model, not the survey.
-    {
-	if ( desc.type_ != VelocityDesc::Interval &&
-	     desc.type_ != VelocityDesc::RMS )
-	    mErrRet("Only RMS and Interval allowed for time based models")
-
-	trans_ = new Time2DepthStretcher();
-	trans_->ref();
-	zscale_ = SurveyInfo::defaultXYtoZScale( SurveyInfo::Meter,
-						 SI().xyUnit() );
-    }
-    else
-    {
-	if ( desc.type_ != VelocityDesc::Interval )
-	    mErrRet("Only Interval velocity allowed for time based models")
-
-	trans_ = new Depth2TimeStretcher();
-	trans_->ref();
-	zscale_ = SurveyInfo::defaultXYtoZScale( SurveyInfo::Second,
-						 SI().xyUnit() );
-    }
-
-    if ( !trans_->setVelData( velsel_->key() ) || !trans_->isOK() )
-    {
-	FileMultiString fms("Internal: Could not initialize transform" );
-	fms += trans_->errMsg();
-	uiMSG().errorWithDetails( fms );
-	return false;
-    }
-
-    return true;
-}
-
-
-ZAxisTransform* uiODApplMgrVelSel::transform()
-{
-    return trans_;
 }
 
 
