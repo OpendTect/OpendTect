@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.8 2009-08-07 06:32:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.9 2009-08-13 10:28:00 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -269,7 +269,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
    if ( am_.appl_.isRestoringSession() ) return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
-    if ( !as ) return;
+    if ( !as || as->id().asInt()<0 ) return;
 
     ColTab::MapperSetup mapper;
     ColTab::Sequence seq( 0 );
