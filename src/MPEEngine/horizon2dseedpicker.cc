@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.17 2009-07-30 11:14:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.18 2009-08-13 10:49:00 cvsumesh Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -35,7 +35,11 @@ Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
     , seedconmode_( defaultSeedConMode() )
     , blockpicking_( false )
     , selspec_(0)
-{ }
+{
+    mDynamicCastGet(EM::Horizon2D*,hor,EM::EMM().getObject(tracker_.objectID()))
+    if ( hor && hor->nrSections()>0 )
+	sectionid_ = hor->sectionID(0);
+}
 
 
 void Horizon2DSeedPicker::setLine( const MultiID& lineset, const char* linenm )

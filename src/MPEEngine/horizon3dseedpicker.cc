@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.33 2009-07-30 11:14:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.34 2009-08-13 10:49:00 cvsumesh Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -33,7 +33,11 @@ Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     , blockpicking_( false )
     , sectionid_( -1 )
     , selspec_(0)
-{ }
+{
+    mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(tracker_.objectID()))
+    if ( hor && hor->nrSections()>0 )
+	sectionid_ = hor->sectionID(0);
+}
 
 
 bool Horizon3DSeedPicker::setSectionID( const EM::SectionID& sid )
