@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.12 2009-07-24 06:46:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.13 2009-08-13 11:19:54 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -81,7 +81,7 @@ uiODViewer2D::~uiODViewer2D()
 
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, true );
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, false );
     mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,dp)
     const bool isnew = !viewwin_;
