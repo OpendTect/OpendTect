@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.5 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.6 2009-08-13 10:35:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ protected:
 
     bool		is2d_;
     const char*		linenm_;
-    bool		isupdating;
+    bool		isupdating_;
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;    
 };

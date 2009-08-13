@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.14 2009-07-22 16:01:31 cvsbert Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.15 2009-08-13 10:35:59 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,11 @@ HorizonPainter::HorizonPainter( FlatView::Viewer& fv )
     , markerstyle_( MarkerStyle2D::Square, 4, Color::White() )
     , is2d_(false) 
     , horidtoberepainted_(-1)
-    , isupdating(false)
+    , isupdating_(false)
     , linenm_(0)
 {
+    hormarkerlines_.allowNull();
+    horsmarkerseeds_.allowNull();
     cs_.setEmpty();
     EM::EMM().addRemove.notify( mCB(this,HorizonPainter,nrHorChangeCB) );
 }
@@ -104,19 +106,26 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 	if ( is2d_ && !hor2d )
 	    return false;
 
-    if ( !loadinghorcount_ && !isupdating )
+    if ( !loadinghorcount_ && !isupdating_ )
 	hor->change.notify( mCB(this,HorizonPainter,horChangeCB) );
 
     FlatView::Annotation::AuxData* seedsauxdata = 
 				new FlatView::Annotation::AuxData( 0 );
-    horsmarkerseeds_ += seedsauxdata;
+    if ( isupdating_ )
+	horsmarkerseeds_.replace( horizonids_.indexOf(oid), seedsauxdata );
+    else
+	horsmarkerseeds_ += seedsauxdata;
+
     seedsauxdata->poly_.erase();
     seedsauxdata->markerstyles_ += markerstyle_;
     viewer_.appearance().annot_.auxdata_ += seedsauxdata;
 
     ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
 		new ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >;
-    hormarkerlines_ += sectionmarkerlines;
+    if ( isupdating_ )
+	hormarkerlines_.replace( horizonids_.indexOf(oid), sectionmarkerlines );
+    else
+	hormarkerlines_ += sectionmarkerlines;
 
     for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
@@ -298,7 +307,7 @@ void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
 
 void HorizonPainter::updateDisplay()
 {
-    isupdating = true;
+    isupdating_ = true;
     for ( int idx=0; idx<hormarkerlines_.size(); idx++ )
 	removePolyLine( idx );
 
@@ -309,7 +318,7 @@ void HorizonPainter::updateDisplay()
     }
 
     viewer_.handleChange( FlatView::Viewer::Annot );
-    isupdating = false;
+    isupdating_ = false;
 }
 
 
@@ -355,10 +364,18 @@ void HorizonPainter::removePolyLine( int idx )
 
     }
     deepErase( *hormarkerlines_[idx] );
-    hormarkerlines_.remove( idx );
+    delete hormarkerlines_[idx];
+    if ( isupdating_ )
+	hormarkerlines_.replace( idx, 0 );
+    else
+	hormarkerlines_.remove( idx );
 
     viewer_.appearance().annot_.auxdata_ -= horsmarkerseeds_[idx];
-    delete horsmarkerseeds_.remove( idx );
+    delete horsmarkerseeds_[idx];
+    if ( isupdating_ )
+	horsmarkerseeds_.replace( idx, 0 );
+    else
+	horsmarkerseeds_.remove( idx );
 }
 
 
