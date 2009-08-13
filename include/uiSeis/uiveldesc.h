@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.13 2009-07-26 04:14:18 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.14 2009-08-13 09:30:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiSeisSel;
+class uiCheckBox;
 class uiStaticsDesc;
 class VelocityStretcher;
 
@@ -48,6 +49,8 @@ protected:
     uiGenInput*			typefld_;
     uiGenInput*			hasstaticsfld_;
     uiStaticsDesc*		staticsfld_;
+    uiCheckBox*			setdefbox_;
+
 };
 
 

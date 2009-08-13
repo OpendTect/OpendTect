@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.27 2009-07-26 19:36:06 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.28 2009-08-13 09:30:52 cvsbert Exp $";
 
 #include "uiveldesc.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.27 2009-07-26 19:36:06 cvskris
 #include "uistaticsdesc.h"
 #include "zdomain.h"
 
+static const char* sKeyDefVelCube = "Default.Cube.Velocity";
 
 
 uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
@@ -37,12 +38,16 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
 			StringListInpSpec(VelocityDesc::TypeNames()) );
     typefld_->valuechanged.notify( mCB(this,uiVelocityDesc,updateFlds) );
 
-    hasstaticsfld_ = new uiGenInput( this, "Has statics", BoolInpSpec(true) );
+    uiGroup* vigrp = new uiGroup( this, "Vel info grp" );
+    hasstaticsfld_ = new uiGenInput( vigrp, "Has statics", BoolInpSpec(true) );
     hasstaticsfld_->valuechanged.notify(mCB(this,uiVelocityDesc,updateFlds));
-    hasstaticsfld_->attach( alignedBelow, typefld_ );
-
-    staticsfld_ = new uiStaticsDesc( this, 0 );
+    staticsfld_ = new uiStaticsDesc( vigrp, 0 );
     staticsfld_->attach( alignedBelow, hasstaticsfld_ );
+    vigrp->setHAlignObj( hasstaticsfld_ );
+    vigrp->attach( alignedBelow, typefld_ );
+
+    setdefbox_ = new uiCheckBox( this, "Set as default" );
+    setdefbox_->attach( alignedBelow, vigrp );
 
     setHAlignObj( typefld_ );
 
@@ -110,6 +115,12 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 	return false;
     }
 
+    if ( setdefbox_->isChecked() )
+    {
+	SI().getPars().set( sKeyDefVelCube, ioobj.key() );
+	SI().savePars();
+    }
+
     return true;
 }
 
@@ -174,6 +185,10 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
     editcubebutt_->attach( rightOf, selbut_ );
     updateEditButton( 0 );
     selectiondone.notify( mCB(this,uiVelSel,updateEditButton) );
+
+    const char* res = SI().pars().find( sKeyDefVelCube );
+    if ( res && *res && IOObj::isKey(res) )
+	setInput( MultiID(res) );
 }
 
 
