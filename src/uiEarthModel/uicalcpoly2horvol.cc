@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.4 2009-08-11 14:49:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.5 2009-08-13 07:49:53 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 
@@ -172,7 +172,7 @@ float uiCalcPoly2HorVol::getM3( float vel )
 	    hs.start = hs.stop = bid;
     }
 
-    InverseDistanceGridder2D grdr;
+    TriangulatedGridder2D grdr;
     grdr.setPoints( pts ); grdr.setValues( zvals, false );
     float avgz = 0;
     for ( int idx=0; idx<zvals.size(); idx++ )
