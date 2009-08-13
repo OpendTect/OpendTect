@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.347 2009-08-12 06:56:19 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.348 2009-08-13 08:23:11 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -268,7 +268,7 @@ void uiODApplMgr::addTimeDepthScene()
     uiZAxisTransform* uitrans = SI().zIsTime() 
 	? (uiZAxisTransform*) new uiTime2Depth( &dlg )
 	: (uiZAxisTransform*) new uiDepth2Time( &dlg );
-
+    dlg.setGroup( uitrans );
     if ( !dlg.go() ) return;
 
     const BufferString snm( "Converted using '",
