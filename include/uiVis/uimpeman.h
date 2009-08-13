@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.58 2009-08-11 05:01:25 cvsnanne Exp $
+ RCS:           $Id: uimpeman.h,v 1.59 2009-08-13 11:58:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace MPE { class EMTracker; };
 namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
 
-class uiColorBarDialog;
+class uiPropertiesDialog;
 class uiComboBox;
 class uiSpinBox;
 class uiSlider;
@@ -32,13 +32,13 @@ class uiVisPartServer;
 mClass uiMPEMan : public CallBacker
 {
 public:		
+    friend class uiPropertiesDialog;
 				uiMPEMan(uiParent*,uiVisPartServer*);
 				~uiMPEMan();
 
     uiToolBar*			getToolBar() const;
 
     void			deleteVisObjects();
-    void			updateAttribNames();
     void			validateSeedConMode();
     void			introduceMPEDisplay();
     void			updateSeedModeSel();
@@ -55,8 +55,9 @@ public:
 protected:
     void			addButtons();
     visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
-    
-    uiColorBarDialog*		colbardlg;
+
+    uiPropertiesDialog*		propdlg_;
+    bool			showtexture_;
 
     uiToolBar*			toolbar;
     
@@ -66,8 +67,6 @@ protected:
     int				clickablesceneid;
 
     uiComboBox*			seedconmodefld;
-    uiComboBox*			attribfld;
-    uiSlider*			transfld;
     uiSpinBox*			nrstepsbox;
 
     void			boxDraggerStatusChangeCB(CallBacker*);
@@ -75,13 +74,10 @@ protected:
 
     void			attribSel(CallBacker*);
 
-    void			transpChg(CallBacker*);
-
     void			undoPush(CallBacker*);
     void			redoPush(CallBacker*);
     void			savePush(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
-    void			updateSelectedAttrib();
     void			moveBackward(CallBacker*);
     void			moveForward(CallBacker*);
     void			trackFromSeedsOnly(CallBacker*);
@@ -110,8 +106,6 @@ protected:
     void			changeTrackerOrientation(int orient);
 
     void                        onColTabClosing(CallBacker*);
-    void			colSeqChange(CallBacker*);
-    void			colMapperChange(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
     void			restoreActiveVol();

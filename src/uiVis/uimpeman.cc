@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.175 2009-08-12 06:56:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.176 2009-08-13 11:58:16 cvsnageswara Exp $";
 
 #include "uimpeman.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.175 2009-08-12 06:56:12 cvsumes
 #include "undo.h"
 
 #include "uicombobox.h"
+#include "uigroup.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uislider.h"
@@ -76,14 +77,14 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : clickcatcher(0)
     , clickablesceneid(-1)
     , visserv(ps)
-    , colbardlg(0)
+    , propdlg_(0)
     , seedpickwason(false)
     , oldactivevol(false)
     , mpeintropending(false)
+    , showtexture_(true)
 {
     toolbar = new uiToolBar( p, "Tracking controls", uiToolBar::Bottom );
     addButtons();
-    updateAttribNames();
 
     EM::EMM().undo().changenotifier.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
@@ -158,7 +159,7 @@ void uiMPEMan::addButtons()
 	    			   "Move QC plane forward (key: ']')", false );
     toolbar->setShortcut(trackbackwardidx,"]");
     clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
-			    "Set QC plane colortable", true );
+			    "Set QC plane colortable", false );
     toolbar->addSeparator();
 
     polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
@@ -171,23 +172,6 @@ void uiMPEMan::addButtons()
     removeinpolygon = mAddButton( "trashcan.png", removeInPolygon,
 	    			  " Remove PolySelection", false );
     toolbar->addSeparator();
-
-/*
-    attribfld = new uiComboBox( toolbar, "QC Attribute" );
-    attribfld->setToolTip( "QC Attribute" );
-    attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
-    toolbar->addObject( attribfld );
-
-
-    transfld = new uiSlider( toolbar, "Transparency", 2 );
-    transfld->setOrientation( uiSlider::Horizontal );
-    transfld->setMaxValue( 1 );
-    transfld->setToolTip( "Transparency" );
-    transfld->setStretch( 0, 0 );
-    transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
-    toolbar->addObject( transfld );
-    toolbar->addSeparator();
-*/
 
     undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
     redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
@@ -505,7 +489,7 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     visSurvey::MPEDisplay* mpedisplay = visSurvey::MPEDisplay::create();
 
     visserv->addObject( mpedisplay, scene->id(), false );
-//    mpedisplay->setDraggerTransparency( transfld->getValue() );
+    mpedisplay->setDraggerTransparency( 0 );
     mpedisplay->showDragger( toolbar->isOn(moveplaneidx) );
 
     mpedisplay->boxDraggerStatusChange.notify(
@@ -515,56 +499,6 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 	    mCB(this,uiMPEMan,planeOrientationChangedCB) );
 
     return mpedisplay;
-}
-
-
-void uiMPEMan::updateAttribNames()
-{
-    /*
-    BufferString oldsel = attribfld->text();
-    attribfld->empty();
-    attribfld->addItem( sKeyNoAttrib() );
-
-    ObjectSet<const Attrib::SelSpec> attribspecs;
-    engine().getNeededAttribs( attribspecs );
-    for ( int idx=0; idx<attribspecs.size(); idx++ )
-    {
-	const Attrib::SelSpec* spec = attribspecs[idx];
-	attribfld->addItem( spec->userRef() );
-    }
-    attribfld->setCurrentItem( oldsel );
-    */
-
-    updateSelectedAttrib();
-    attribSel(0);
-    updateButtonSensitivity();
-}
-
-
-void uiMPEMan::updateSelectedAttrib()
-{
-    mGetDisplays(false);
-
-    if ( displays.isEmpty() )
-	return;
-
-    ObjectSet<const Attrib::SelSpec> attribspecs;
-    engine().getNeededAttribs( attribspecs );
-
-    const char* userref = displays[0]->getSelSpecUserRef();
-    if ( !userref && !attribspecs.isEmpty() )
-    {
-	for ( int idx=0; idx<displays.size(); idx++ )
-	    displays[idx]->setSelSpec( 0, *attribspecs[0] );
-
-	userref = displays[0]->getSelSpecUserRef();
-    }
-    else if ( userref==sKey::None )
-	userref = sKeyNoAttrib();
- /*   
-    if ( userref )  	
-	attribfld->setCurrentItem( userref );
-	*/
 }
 
 
@@ -744,66 +678,6 @@ void uiMPEMan::showCubeCB( CallBacker* )
 }
 
 
-void uiMPEMan::attribSel( CallBacker* )
-{
-    /*
-    mGetDisplays(false);
-    const bool trackerisshown = displays.size() &&
-			        displays[0]->isDraggerShown();
-    if ( trackerisshown ) //&& attribfld->currentItem() )
-	loadPostponedData();
-
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-
-    if ( !attribfld->currentItem() )
-    {
-	for ( int idx=0; idx<displays.size(); idx++ )
-	{
-	    Attrib::SelSpec spec( 0, Attrib::SelSpec::cNoAttrib() );
-	    displays[idx]->setSelSpec( 0, spec );
-	    if ( trackerisshown )
-		displays[idx]->updateTexture();
-	}
-    }
-    else
-    {
-	ObjectSet<const Attrib::SelSpec> attribspecs;
-	engine().getNeededAttribs( attribspecs );
-	for ( int idx=0; idx<attribspecs.size(); idx++ )
-	{
-	    const Attrib::SelSpec* spec = attribspecs[idx];
-	    if ( strcmp(spec->userRef(),attribfld->text()) )
-		continue;
-
-	    for ( int idy=0; idy<displays.size(); idy++ )
-	    {
-		displays[idy]->setSelSpec( 0, *spec );
-		if ( trackerisshown )
-		    displays[idy]->updateTexture();
-	    }
-	    break;
-	}	
-    }
-
-    if ( colbardlg && displays.size() )
-    {
-	colbardlg->editor().setColTab( displays[0]->getColTabSequence(0), true,
-				displays[0]->getColTabMapperSetup(0), false);
-    }
-
-    updateButtonSensitivity();
-    */
-}
-
-
-void uiMPEMan::transpChg( CallBacker* )
-{
-    mGetDisplays(false)
-    for ( int idx=0; idx<displays.size(); idx++ )
-	displays[idx]->setDraggerTransparency( transfld->getValue() );
-}
-
-
 void uiMPEMan::addSeedCB( CallBacker* )
 {
     turnSeedPickingOn( toolbar->isOn(seedidx) );
@@ -899,8 +773,7 @@ void uiMPEMan::introduceMPEDisplay()
     toolbar->turnOn( showcubeidx, true );
     showCubeCB(0);
     
-//    attribfld->setCurrentItem( sKeyNoAttrib() );
-//    attribSel(0);
+    attribSel(0);
 
     mGetDisplays(false);
     if ( displays.size() && !displays[0]->isDraggerShown() )
@@ -927,7 +800,7 @@ void uiMPEMan::finishMPEDispIntro( CallBacker* )
     if ( !tracker)
 	tracker = engine().getTracker( engine().highestTrackerID() );
 
-    if ( !tracker ) //|| attribfld->currentItem() )
+    if ( !tracker )
 	return;
 
     ObjectSet<const Attrib::SelSpec> attribspecs;
@@ -935,8 +808,7 @@ void uiMPEMan::finishMPEDispIntro( CallBacker* )
     if ( attribspecs.isEmpty() )
     	return;
 
-//    attribfld->setCurrentItem( attribspecs[0]->userRef() );
-//    attribSel(0);
+    attribSel(0);
 }
 
 
@@ -1013,72 +885,6 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 }
 
 
-void uiMPEMan::updateButtonSensitivity( CallBacker* ) 
-{
-    //Undo/Redo
-    toolbar->setSensitive( undoidx, EM::EMM().undo().canUnDo() );
-    BufferString tooltip("Undo ");
-    if ( EM::EMM().undo().canUnDo() )
-	tooltip += EM::EMM().undo().unDoDesc();
-    toolbar->setToolTip( undoidx, tooltip.buf() );
-
-    if ( EM::EMM().undo().canReDo() )
-    {
-	tooltip = "Redo ";
-	tooltip += EM::EMM().undo().reDoDesc();
-    }
-    toolbar->setToolTip( redoidx, tooltip.buf() );
-
-    toolbar->setSensitive( redoidx, EM::EMM().undo().canReDo() );
-
-    //Seed button
-    updateSeedPickState();
-
-    MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
-    const bool is2d = sp2d;
-    const bool isseedpicking = toolbar->isOn(seedidx);
-    
-    toolbar->setSensitive( moveplaneidx, !is2d );
-    toolbar->setSensitive( showcubeidx, !is2d );
-
-    const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
-    toolbar->setSensitive( trackinvolidx,
-	    !is2d && isinvolumemode && seedpicker );
-    toolbar->setSensitive( trackwithseedonlyidx,
-	    !is2d && isinvolumemode && seedpicker );
-    toolbar->setSensitive( displayatsectionidx, seedpicker );
-
-    toolbar->setSensitive( removeinpolygon, toolbar->isOn(polyselectidx) );
-    
-    //Track forward, backward, attrib, trans, nrstep
-    mGetDisplays(false);
-    const bool trackerisshown = displays.size() &&
-				displays[0]->isDraggerShown();
-
-    toolbar->setSensitive( trackforwardidx, !is2d && trackerisshown );
-    toolbar->setSensitive( trackbackwardidx, !is2d && trackerisshown );
-//    attribfld->setSensitive( !is2d && trackerisshown );
-//    transfld->setSensitive( !is2d && trackerisshown );
-    nrstepsbox->setSensitive( !is2d && trackerisshown );
-
-    //coltab
-//    const bool hasdlg = colbardlg && !colbardlg->isHidden();
-//    toolbar->setSensitive( clrtabidx, !is2d && trackerisshown && !hasdlg &&
-//			   attribfld->currentItem()>0 );
-
-
-    const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
-    toolbar->turnOn( moveplaneidx, trackerisshown && tm==TrackPlane::Move );
-
-    toolbar->setSensitive( tracker );
-    if ( seedpicker &&
-	    !(visserv->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
-	toolbar->setSensitive( true );
-}
-
-
 #define mAddSeedConModeItems( seedconmodefld, typ ) \
     if ( emobj && emobj->getTypeStr() == EM##typ##TranslatorGroup::keyword() ) \
     { \
@@ -1145,8 +951,6 @@ void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
 	showTracker(false);
 	engine().setActiveVolume( engine().getDefaultActiveVolume() );
     }
-
-    updateAttribNames();
 }
 
 
@@ -1271,7 +1075,7 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 
     if ( sel && sel->isOK() ) 
     {
-	mGetDisplays(false);
+	mGetDisplays(true);
 	uiTaskRunner taskrunner( toolbar );
 	for ( int idx=0; idx<displays.size(); idx++ )
 	    displays[idx]->removeSelectionInPolygon( *sel, &taskrunner );
@@ -1287,17 +1091,6 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 
 void uiMPEMan::showTracker( bool yn )
 {
-    /*
-    if ( yn && attribfld->currentItem() )
-    {
-	mGetDisplays(false);
-//	for ( int idx=0; idx<displays.size(); idx++ )
-//	    displays[idx]->updateMPEActiveVolume();
-
-//	loadPostponedData();
-    }
-    */
-
     MouseCursorManager::setOverride( MouseCursor::Wait );
     mGetDisplays(true)
     for ( int idx=0; idx<displays.size(); idx++ )
@@ -1333,6 +1126,205 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
 }
 
 
+class uiPropertiesDialog : public uiDialog
+{
+public:
+				uiPropertiesDialog(uiMPEMan*);
+
+    uiVisColTabEd&              editor()        { return *coltbl_; }
+    int				selAttrib() const
+				{ return attribfld_->currentItem(); }
+
+protected:
+    void			transpChg(CallBacker*);
+    void			colSeqChange(CallBacker*);
+    void			colMapperChange(CallBacker*);
+    void			updateAttribNames();
+    void			updateSelectedAttrib();
+    void			updateDisplayList();
+
+    uiVisColTabEd*		coltbl_;
+    uiComboBox*			attribfld_;
+    uiSlider*			transfld_;
+    uiMPEMan*			mpeman_;
+
+    ObjectSet<visSurvey::MPEDisplay> displays_;
+};
+
+
+uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
+    : uiDialog( mpeman->getToolBar(),
+	    uiDialog::Setup("QC display properties","",mNoHelpID).modal(false) )
+    , mpeman_(mpeman)
+{
+    updateDisplayList();
+    setCtrlStyle( LeaveOnly );
+
+    uiGroup* coltabgrp = new uiGroup( this, "Coltabgrp" );
+    coltbl_ = new uiVisColTabEd( coltabgrp, false );
+    coltbl_->seqChange().notify( mCB(this,uiPropertiesDialog,colSeqChange) );
+    coltbl_->mapperChange().notify( mCB(this,uiPropertiesDialog,
+					colMapperChange) );
+    
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "QC Attribute",
+	   					    "QC Attribute" );
+    attribfld_ = lcb->box();
+    attribfld_->setToolTip( "QC Attribute" );
+    attribfld_->selectionChanged.notify( mCB(mpeman_,uiMPEMan,attribSel) );
+    lcb->attach( leftAlignedBelow, coltabgrp );
+
+    uiSliderExtra* se = new uiSliderExtra( this, 
+	    				   uiSliderExtra::Setup("Transparency")
+					   .nrdec(2), "Slider" );
+    transfld_ = se->sldr();
+    transfld_->setOrientation( uiSlider::Horizontal );
+    transfld_->setMaxValue( 1 );
+    transfld_->setToolTip( "Transparency" );
+    transfld_->setStretch( 0, 0 );
+    transfld_->setValue( displays_[0]->getDraggerTransparency() );
+    transfld_->valueChanged.notify( mCB(this,uiPropertiesDialog,transpChg) );
+    se->attach( alignedBelow, lcb );
+
+    updateAttribNames();
+}
+
+
+void uiPropertiesDialog::updateDisplayList()
+{
+    displays_.erase();
+    TypeSet<int> scenes;
+    mpeman_->visserv->getChildIds( -1, scenes );
+    for ( int idx=0; idx<scenes.size(); idx++ )
+	displays_ += mpeman_->getDisplay( scenes[idx], false );
+}
+
+
+void uiPropertiesDialog::transpChg( CallBacker* )
+{
+    updateDisplayList();
+    if ( displays_.size() < 1 )
+	return;
+
+    for ( int idx=0; idx<displays_.size(); idx++ )
+	displays_[idx]->setDraggerTransparency( transfld_->getValue() );
+}
+
+void uiPropertiesDialog::colSeqChange( CallBacker* )
+{
+    updateDisplayList();
+    if ( displays_.size()<1 )
+	return;
+
+    displays_[0]->setColTabSequence( 0, coltbl_->getColTabSequence(), 0 );
+}
+
+
+void uiPropertiesDialog::colMapperChange( CallBacker* )
+{
+    updateDisplayList();
+    if ( displays_.size()<1 )
+	return;
+
+    displays_[0]->setColTabMapperSetup( 0, coltbl_->getColTabMapperSetup(), 0 );
+}
+
+
+void uiPropertiesDialog::updateAttribNames()
+{
+    BufferString oldsel = attribfld_->text();
+    attribfld_->empty();
+    attribfld_->addItem( mpeman_->sKeyNoAttrib() );
+
+    ObjectSet<const Attrib::SelSpec> attribspecs;
+    engine().getNeededAttribs( attribspecs );
+    for ( int idx=0; idx<attribspecs.size(); idx++ )
+    {
+	const Attrib::SelSpec* spec = attribspecs[idx];
+	attribfld_->addItem( spec->userRef() );
+    }
+    attribfld_->setCurrentItem( oldsel );
+
+    updateSelectedAttrib();
+    mpeman_->attribSel(0);
+}
+
+
+void uiPropertiesDialog::updateSelectedAttrib()
+{
+    updateDisplayList();
+    if ( displays_.isEmpty() )
+	return;
+
+    ObjectSet<const Attrib::SelSpec> attribspecs;
+    engine().getNeededAttribs( attribspecs );
+
+    const char* userref = displays_[0]->getSelSpecUserRef();
+    if ( !userref && !attribspecs.isEmpty() )
+    {
+	for ( int idx=0; idx<displays_.size(); idx++ )
+	    displays_[idx]->setSelSpec( 0, *attribspecs[0] );
+
+	userref = displays_[0]->getSelSpecUserRef();
+    }
+    else if ( userref == sKey::None )
+	userref = mpeman_->sKeyNoAttrib();
+    
+    if ( userref )  	
+	attribfld_->setCurrentItem( userref );
+}
+
+
+void uiMPEMan::attribSel( CallBacker* )
+{
+    mGetDisplays(false);
+    const bool trackerisshown = displays.size() &&
+			        displays[0]->isDraggerShown();
+    if ( trackerisshown && showtexture_ )
+	loadPostponedData();
+
+    if ( propdlg_ )
+	showtexture_ = propdlg_->selAttrib() > 0;
+
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
+    if ( !showtexture_ )
+    {
+	for ( int idy=0; idy<displays.size(); idy++ )
+	{
+	    Attrib::SelSpec spec( 0, Attrib::SelSpec::cNoAttrib() );
+	    displays[idy]->setSelSpec( 0, spec );
+	    if ( trackerisshown )
+		displays[idy]->updateTexture();
+	}
+    }
+    else
+    {
+	ObjectSet<const Attrib::SelSpec> attribspecs;
+	engine().getNeededAttribs( attribspecs );
+	for ( int idx=0; idx<attribspecs.size(); idx++ )
+	{
+	    const Attrib::SelSpec* spec = attribspecs[idx];
+	    if ( !spec )
+		continue;
+
+	    for ( int idy=0; idy<displays.size(); idy++ )
+	    {
+		displays[idy]->setSelSpec( 0, *spec );
+		if ( trackerisshown )
+		    displays[idy]->updateTexture();
+	    }
+	    break;
+	}	
+    }
+
+    if ( displays.size() && propdlg_ )
+    {
+	propdlg_->editor().setColTab( displays[0]->getColTabSequence(0), true,
+				displays[0]->getColTabMapperSetup(0), false);
+    }
+}
+
+
 void uiMPEMan::setColorbarCB( CallBacker* )
 {
     mGetDisplays(false);
@@ -1340,46 +1332,21 @@ void uiMPEMan::setColorbarCB( CallBacker* )
     if ( displays.size()<1 )
 	return;
 
-    if ( !colbardlg )
+    if ( !propdlg_ )
     {
-	colbardlg = new uiColorBarDialog( toolbar, "QC plane colorbar" );
-	colbardlg->editor().setColTab( displays[0]->getColTabSequence(0), true,
-			       displays[0]->getColTabMapperSetup(0), false);
-	colbardlg->editor().seqChange().notify(
-				mCB(this,uiMPEMan,colSeqChange) );
-	colbardlg->editor().mapperChange().notify(
-				mCB(this,uiMPEMan,colMapperChange) );
-	colbardlg->winClosing.notify( mCB(this,uiMPEMan,onColTabClosing) );
+	propdlg_ = new uiPropertiesDialog( this );
+	propdlg_->windowClosed.notify( mCB(this,uiMPEMan,onColTabClosing) ); 
     }
 
-    colbardlg->show();
-    updateButtonSensitivity();
-}
-
-
-void uiMPEMan::colSeqChange( CallBacker* )
-{
-    mGetDisplays(false);
-    if ( displays.size()<1 ) return;
-
-    displays[0]->setColTabSequence( 0,
-	    colbardlg->editor().getColTabSequence(), 0 );
-}
-
-
-void uiMPEMan::colMapperChange( CallBacker* )
-{
-    mGetDisplays(false);
-    if ( displays.size()<1 ) return;
-
-    displays[0]->setColTabMapperSetup( 0,
-	    colbardlg->editor().getColTabMapperSetup(), 0 );
+    propdlg_->editor().setColTab( displays[0]->getColTabSequence(0), true,
+				  displays[0]->getColTabMapperSetup(0), false);
+    propdlg_->show();
+    toolbar->setSensitive( clrtabidx, false );
 }
 
 
 void uiMPEMan::onColTabClosing( CallBacker* )
 {
-    toolbar->turnOn( clrtabidx, false );
     toolbar->setSensitive( clrtabidx, true );
 }
 
@@ -1530,10 +1497,7 @@ void uiMPEMan::initFromDisplay()
 		mCB(this,uiMPEMan,planeOrientationChangedCB) );
 
 	if ( idx==0 )
-	{
-//	    transfld->setValue( displays[idx]->getDraggerTransparency() );
 	    toolbar->turnOn( showcubeidx, displays[idx]->isBoxDraggerShown() );
-	}
     }
     
     bool showtracker = engine().trackPlane().getTrackMode()!=TrackPlane::None;
@@ -1544,7 +1508,6 @@ void uiMPEMan::initFromDisplay()
     }
 
     showTracker( showtracker );
-    updateSelectedAttrib();
     updateButtonSensitivity(0);
 }
 
@@ -1560,3 +1523,66 @@ void uiMPEMan::setUndoLevel( int preveventnr )
     if ( currentevent != preveventnr )
 	    undo.setUserInteractionEnd(currentevent);
 }
+
+
+void uiMPEMan::updateButtonSensitivity( CallBacker* ) 
+{
+    //Undo/Redo
+    toolbar->setSensitive( undoidx, EM::EMM().undo().canUnDo() );
+    BufferString tooltip("Undo ");
+    if ( EM::EMM().undo().canUnDo() )
+	tooltip += EM::EMM().undo().unDoDesc();
+    toolbar->setToolTip( undoidx, tooltip.buf() );
+
+    if ( EM::EMM().undo().canReDo() )
+    {
+	tooltip = "Redo ";
+	tooltip += EM::EMM().undo().reDoDesc();
+    }
+    toolbar->setToolTip( redoidx, tooltip.buf() );
+
+    toolbar->setSensitive( redoidx, EM::EMM().undo().canReDo() );
+
+    //Seed button
+    updateSeedPickState();
+
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
+    const bool is2d = sp2d;
+    const bool isseedpicking = toolbar->isOn(seedidx);
+    
+    toolbar->setSensitive( moveplaneidx, !is2d );
+    toolbar->setSensitive( showcubeidx, !is2d );
+
+    const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
+    toolbar->setSensitive( trackinvolidx,
+	    !is2d && isinvolumemode && seedpicker );
+    toolbar->setSensitive( trackwithseedonlyidx,
+	    !is2d && isinvolumemode && seedpicker );
+    toolbar->setSensitive( displayatsectionidx, seedpicker );
+
+    toolbar->setSensitive( removeinpolygon, toolbar->isOn(polyselectidx) );
+    
+    //Track forward, backward, attrib, trans, nrstep
+    mGetDisplays(false);
+    const bool trackerisshown = displays.size() &&
+				displays[0]->isDraggerShown();
+
+    toolbar->setSensitive( trackforwardidx, !is2d && trackerisshown );
+    toolbar->setSensitive( trackbackwardidx, !is2d && trackerisshown );
+    nrstepsbox->setSensitive( !is2d && trackerisshown );
+
+    //coltab
+    const bool hasdlg = propdlg_ && !propdlg_->isHidden();
+    toolbar->setSensitive( clrtabidx, !is2d && trackerisshown && !hasdlg );
+
+    const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
+    toolbar->turnOn( moveplaneidx, trackerisshown && tm==TrackPlane::Move );
+
+    toolbar->setSensitive( tracker );
+    if ( seedpicker &&
+	    !(visserv->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
+	toolbar->setSensitive( true );
+}
+
