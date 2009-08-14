@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.16 2009-07-24 19:42:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.17 2009-08-14 19:33:05 cvsyuancheng Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -13,7 +13,6 @@ static const char* rcsID = "$Id: array2dinterpol.cc,v 1.16 2009-07-24 19:42:45 c
 #include "polygon.h"
 #include "limits.h"
 #include "rowcol.h"
-#include "sorting.h"
 #include "statruncalc.h"
 #include "trigonometry.h"
 
@@ -1101,6 +1100,7 @@ Array2DInterpol* TriangulationArray2DInterpol::create()
 
 TriangulationArray2DInterpol::TriangulationArray2DInterpol()
     : triangulation_( 0 )
+    , triangleinterpolator_( 0 )  
     , curdefined_( 0 )
     , nodestofill_( 0 )
     , totalnr_( -1 )
@@ -1111,6 +1111,7 @@ TriangulationArray2DInterpol::~TriangulationArray2DInterpol()
 {
     delete [] nodestofill_;
     delete [] curdefined_;
+    delete triangleinterpolator_;
 }
 
 
@@ -1269,16 +1270,11 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 
     if ( (tr && !tr->execute(triangulator)) || !triangulator.execute() )
 	return false;
-
-    if ( !triangulation_->getConnections(-2,corner2conns_) ||
-	 !triangulation_->getWeights( -2, corner2conns_, corner2weights_) ||
-	 !triangulation_->getConnections(-3,corner3conns_) ||
-	 !triangulation_->getWeights( -3, corner3conns_, corner3weights_) ||
-	 !triangulation_->getConnections(-4,corner4conns_) ||
-	 !triangulation_->getWeights( -4, corner4conns_, corner4weights_) )
-    {
-	return false;
-    }
+    
+    if ( triangleinterpolator_ )
+	delete triangleinterpolator_;
+    
+    triangleinterpolator_ = new Triangle2DInterpolator( *triangulation_ );
 
     return true;
 }
@@ -1319,10 +1315,14 @@ void TriangulationArray2DInterpol::getNextNodes( TypeSet<od_int64>& res )
 
 bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 {
+    if ( !triangleinterpolator_ )
+	return false;
+
     TypeSet<int> neighbors;
-    int dupid;
+    int dupid = -1;
     const int testidx = firstthreadtestpos_+thread;
     TypeSet<od_int64> currenttask;
+
     while ( shouldContinue() )
     {
 	getNextNodes( currenttask );
@@ -1336,77 +1336,20 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 	    const int col = curnode%nrcols_;
 	    const Coord crd(rowstep_*row, colstep_*col);
 
-	    coordlist_[testidx] = crd;
-
-	    if ( !triangulation_->getTriangle( testidx, dupid, neighbors ) )
+	    TypeSet<int> vertices;
+	    TypeSet<float> weights;
+	    if ( !triangleinterpolator_->computeWeights(crd,vertices,weights) )
 		return false;
+	    
+	    TypeSet<int> usedindices;
+	    const int vertsz = vertices.size();
+	    for ( int vidx=0; vidx<vertsz; vidx++ )
+		usedindices += coordlistindices_[vertices[vidx]];
 
-	    if ( dupid!=-1 )
-	    {
-		const float weight = 1;
-		setFrom( curnode, &dupid, &weight, 1 );
- 		continue;
-	    }
-
-	    if ( !neighbors.size() )
-		return false;
-
-	    TypeSet<double> neighborweights;
-	    if ( neighbors.size()==3 && neighbors[0]>=0 && neighbors[1]>=0 && 
-		 neighbors[2]>=0 )
-	    {
-		float weights[3];
-		interpolateOnTriangle2D( coordlist_[testidx],
-		    coordlist_[neighbors[0]],
-		    coordlist_[neighbors[1]],
-		    coordlist_[neighbors[2]],
-		    weights[0], weights[1], weights[2] );
-		neighborweights += weights[0];
-		neighborweights += weights[1];
-		neighborweights += weights[2];
-	    }
-	    else if ( !triangulation_->getWeights( testidx, neighbors,
-						   neighborweights) )
-		return false;
-
-	    TypeSet<int> usedneigbors;
-	    TypeSet<float> usedneigborsweight_;
-	    for ( int idy=0; idy<neighbors.size(); idy++ )
-	    {
-		const double weight = neighborweights[idy];
-
-		if ( neighbors[idy]>=0 )
-		{
-		    usedneigbors += coordlistindices_[neighbors[idy]];
-		    usedneigborsweight_ += weight;
-		}
-		else
-		{
-		    TypeSet<int>* conns;
-		    TypeSet<double>* weights;
-
-		    if ( neighbors[idy]==-2 )
-			{ conns = &corner2conns_; weights=&corner2weights_; }
-		    else if ( neighbors[idy]==-3 )
-			{ conns = &corner3conns_; weights=&corner3weights_; }
-		    else
-			{ conns = &corner4conns_; weights=&corner4weights_; }
-
-		    for ( int idz=0; idz<conns->size(); idz++ )
-		    {
-			usedneigbors += coordlistindices_[(*conns)[idz]];
-			usedneigborsweight_ += (*weights)[idz] * weight;
-		    }
-		}
-	    }
-
-	    if ( !usedneigbors.size() )
-		return false;
-
-	    setFrom( curnode, usedneigbors.arr(), usedneigborsweight_.arr(),
-		     usedneigborsweight_.size() );
+	    setFrom( curnode, usedindices.arr(), weights.arr(), vertsz );
 	}
     }
 
     return true;
 }
+

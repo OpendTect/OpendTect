@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.7 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.8 2009-08-14 19:33:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 template <class T> class Array2DImpl;
 class RowCol;
 class DAGTriangleTree;
+class Triangle2DInterpolator;
 
 
 /*!Class that interpolates 2D arrays with inverse distance.
@@ -146,15 +147,10 @@ protected:
 
     				//triangulation stuff
     DAGTriangleTree*		triangulation_;
+    Triangle2DInterpolator*	triangleinterpolator_;
     TypeSet<Coord>		coordlist_;
     TypeSet<int>		coordlistindices_;
     int				firstthreadtestpos_;
-    TypeSet<int>		corner2conns_;
-    TypeSet<double>		corner2weights_;
-    TypeSet<int>		corner3conns_;
-    TypeSet<double>		corner3weights_;
-    TypeSet<int>		corner4conns_;
-    TypeSet<double>		corner4weights_;
 
     				//Working arrays
     bool*			curdefined_;
