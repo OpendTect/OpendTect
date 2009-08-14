@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.38 2009-08-14 18:46:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.39 2009-08-14 19:35:09 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -1572,8 +1572,8 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	initb = triangles_.coordList()[usedinit[1]];
 
     Line2 initline( inita, initb );
-    const Coord intersect0 = center_ptline.intersection( edgeline );
-    const Coord intersect1 = center_ptline.intersection( initline );
+    const Coord intersect0 = center_ptline.intersection( edgeline, false );
+    const Coord intersect1 = center_ptline.intersection( initline, false );
     //May want to check if pt is located between intersect0 && intersect1.
 
     /*Basice Geometry
