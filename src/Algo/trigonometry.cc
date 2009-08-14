@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.52 2009-08-10 19:29:42 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.53 2009-08-14 19:31:53 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -282,7 +282,7 @@ Coord Line2::closestPoint( const Coord& point ) const
 }
 
 
-Coord Line2::intersection( const Line2& line ) const
+Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 {
     Coord pos( mUdf(double), mUdf(double) );
     if ( mIsUdf(slope_) )
@@ -316,6 +316,9 @@ Coord Line2::intersection( const Line2& line ) const
 	    pos.y = slope_ * pos.x + yintcpt_;
 	}
     }
+
+    if ( !checkinlimits )
+    	return pos;
 
     bool inlimits1 = true;
     if ( !mIsUdf(start_.x) && !mIsUdf(stop_.x) )

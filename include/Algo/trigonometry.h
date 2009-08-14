@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.41 2009-08-10 19:29:42 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.42 2009-08-14 19:31:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -271,7 +271,7 @@ public:
     			/*!<\returns the point on the line that is closest to
 			 	     the given point */
 
-    Coord		intersection(const Line2&) const;
+    Coord		intersection(const Line2&,bool checkinlimit=true) const;
 
     double		distanceTo(const Line2&) const;
     			/*!<\gives diatance to another parallel line */
