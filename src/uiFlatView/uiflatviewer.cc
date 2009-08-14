@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.92 2009-07-23 05:50:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.93 2009-08-14 08:43:55 cvsnageswara Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -388,7 +388,15 @@ void uiFlatViewer::drawBitMaps()
     {
 	if ( hasdata )
 	    ErrMsg( "Internal error during bitmap generation" );
-	return;
+	else
+	{
+	    PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
+		   				    canvas_.arrArea().height());
+	    pixmap->fill( Color::White() );
+	    canvas_.setPixmap( *pixmap );
+	    canvas_.draw();
+	    return;
+	}
     }
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
