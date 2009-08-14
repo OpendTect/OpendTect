@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.26 2009-08-12 15:25:12 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.27 2009-08-14 18:46:54 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ public:
     bool		insertPoint(int pointidx, int& dupid);
     int			insertPoint(const Coord&, int& dupid);
     
-    const Coord		getInitCoord(int vetexidx);/*vetexidx=-2,-3 or -4. */
+    const Coord		getInitCoord(int vetexidx) const;
     bool		getTriangle(const Coord&,int& dupid,
 	    			    TypeSet<int>& vertexindices) const;
     			/*!<search triangle contains the point.return crds. */
@@ -175,6 +175,42 @@ protected:
     DAGTriangleTree&	tree_;
     Interval<int>	calcscope_;
 };
+
+
+/*For a given triangulated geometry(set of points), interpolating any point 
+  located in or nearby the goemetry. If the point is located outside of the 
+  boundary of the geometry, we compare azimuth to find related points and then
+  apply inverse distance to calculate weights. */
+class Triangle2DInterpolator
+{
+public:
+    			Triangle2DInterpolator(const DAGTriangleTree&);
+
+			/*The vertices are indices from the DAGTriangleTree 
+			  coordlist, corresponding to the weights.*/
+    bool		computeWeights(const Coord&,TypeSet<int>& vertices,
+	    			       TypeSet<float>& weights);
+
+protected:
+
+    bool			setFromAzimuth(const TypeSet<int>& tmpvertices,
+	    				       const Coord&,
+					       TypeSet<int>& vertices, 
+					       TypeSet<float>& weights);
+    const DAGTriangleTree&	triangles_;
+    TypeSet<int>		corner0_;
+    TypeSet<double>		cornerweights0_;
+    TypeSet<int>		corner1_;
+    TypeSet<double>		cornerweights1_;
+    TypeSet<int>		corner2_;
+    TypeSet<double>		cornerweights2_;
+    Coord			initcenter_;
+
+    TypeSet<int>		perimeter_;
+    TypeSet<double>		perimeterazimuth_;
+    double			initazimuth_[3];
+};
+    			
 
 
 #endif

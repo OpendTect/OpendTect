@@ -4,9 +4,10 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.37 2009-08-12 15:25:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.38 2009-08-14 18:46:54 cvsyuancheng Exp $";
 
 #include "delaunay.h"
+#include "sorting.h"
 #include "trigonometry.h"
 #include "varlenarray.h"
 #include <iostream>
@@ -207,8 +208,7 @@ bool DAGTriangleTree::setBBox(const Interval<double>& xrg,
     return true;
 }
 
-
-const Coord DAGTriangleTree::getInitCoord( int vetexidx )
+const Coord DAGTriangleTree::getInitCoord( int vetexidx ) const
 {
     if ( vetexidx==cInitVertex0() )
 	return initialcoords_[0];
@@ -1427,3 +1427,227 @@ DAGTriangleTree::DAGTriangle::operator=( const DAGTriangleTree::DAGTriangle& b )
 
     return *this;
 }
+
+
+#define mInitCorner0 -2
+#define mInitCorner1 -3
+#define mInitCorner2 -4
+
+Triangle2DInterpolator::Triangle2DInterpolator( const DAGTriangleTree& tri )
+    : triangles_( tri )
+{
+    triangles_.getSurroundingIndices( perimeter_ );
+    triangles_.getConnectionAndWeights(mInitCorner0, corner0_, cornerweights0_);
+    triangles_.getConnectionAndWeights(mInitCorner1, corner1_, cornerweights1_);
+    triangles_.getConnectionAndWeights(mInitCorner2, corner2_, cornerweights2_);
+     
+    initcenter_ = ( triangles_.getInitCoord(mInitCorner0) + 
+	    	    triangles_.getInitCoord(mInitCorner1) +
+	    	    triangles_.getInitCoord(mInitCorner2) )/3;
+}
+
+
+bool Triangle2DInterpolator::computeWeights( const Coord& pt, 
+	TypeSet<int>& vertices, TypeSet<float>& weights )
+{
+    int dupid = -1;
+    TypeSet<int> tmpvertices;
+    if ( !triangles_.getTriangle(pt,dupid,tmpvertices) )
+	return false;
+
+    if ( dupid!=-1 )
+    {
+	vertices += dupid;
+	weights += 1;
+	return true;
+    }
+
+    const int nrvertices = tmpvertices.size();
+    if ( !nrvertices )
+    {
+	pErrMsg("Hmm");
+	return false;
+    }
+
+    for ( int ptidx=0; ptidx<nrvertices; ptidx++ )
+    {
+	if ( tmpvertices[ptidx]<0 ) 
+	    return setFromAzimuth( tmpvertices, pt, vertices, weights );
+    }
+
+    float weight[3];
+    interpolateOnTriangle2D( pt,
+	    triangles_.coordList()[tmpvertices[0]], 
+	    triangles_.coordList()[tmpvertices[1]],	
+	    triangles_.coordList()[tmpvertices[2]],
+	    weight[0], weight[1], weight[2] );
+    
+    vertices += tmpvertices[0]; weights += weight[0];
+    vertices += tmpvertices[1]; weights += weight[1];
+    vertices += tmpvertices[2]; weights += weight[2];
+    
+    return true;
+}
+
+
+bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices, 
+	const Coord& pt, TypeSet<int>& vertices, TypeSet<float>& weights )
+{
+    const Coord startpt = initcenter_ + Coord(1,0);
+    const int perimetersize = perimeter_.size();
+    
+    if ( !perimeterazimuth_.size() )
+    {
+	initazimuth_[0] = initcenter_.angle( startpt,
+		triangles_.getInitCoord(mInitCorner0) );
+    	initazimuth_[1] = initcenter_.angle( startpt, 
+		triangles_.getInitCoord(mInitCorner1) );
+    	initazimuth_[2] = initcenter_.angle( startpt,
+		triangles_.getInitCoord(mInitCorner2) );
+	
+	for ( int idx=0; idx<perimetersize; idx++ )
+	    perimeterazimuth_ += initcenter_.angle( startpt,
+		    triangles_.coordList()[perimeter_[idx]] );
+    
+	sort_coupled(perimeterazimuth_.arr(), perimeter_.arr(), perimetersize);
+    }
+    
+    const double ptazim = initcenter_.angle( startpt, pt );
+
+    int preidx = -1, aftidx = -1;
+    for ( int idx=0; idx<perimetersize; idx++ )
+    {
+	if ( perimeterazimuth_[idx]<ptazim )
+	    preidx = perimeter_[idx];
+	else
+	    aftidx = perimeter_[idx];
+	
+	if ( preidx!=-1 && aftidx!=-1 )
+	    break;
+    }
+
+    if ( preidx==-1 && aftidx==-1 )
+    {
+	pErrMsg("Hmm");
+	return false;
+    }
+    
+    if ( preidx==-1 )
+	preidx = perimeter_[0];
+    else if ( aftidx==-1 )
+	aftidx = perimeter_[0];
+    
+    Line2 center_ptline( initcenter_, pt );
+    Line2 edgeline( triangles_.coordList()[preidx], 
+	    	    triangles_.coordList()[aftidx] );
+   
+    //Get the init edge the point close to. 
+    char usedinit[2] = {-1, -1};
+    for ( int idx=0; idx<tmpvertices.size(); idx++ )
+    {
+	if ( tmpvertices[idx]<0 )
+	{
+	    if ( usedinit[0]==-1 )
+		usedinit[0] = tmpvertices[idx];
+	    else
+		usedinit[1] = tmpvertices[idx];
+	}
+    }
+
+    const Coord inita = triangles_.getInitCoord( usedinit[0] );
+    Coord initb;
+    if ( usedinit[1]==-1 )
+    {
+	for ( int initidx=-4; initidx<-1; initidx++ )
+	{
+	    if ( initidx==usedinit[0] ) continue;
+
+	    usedinit[1] = initidx;
+	    initb = triangles_.getInitCoord( usedinit[1] );
+	    if ( pointInTriangle2D(pt,initcenter_,inita,initb,0) )
+		break;
+	}
+    }
+    else
+	initb = triangles_.coordList()[usedinit[1]];
+
+    Line2 initline( inita, initb );
+    const Coord intersect0 = center_ptline.intersection( edgeline );
+    const Coord intersect1 = center_ptline.intersection( initline );
+    //May want to check if pt is located between intersect0 && intersect1.
+
+    /*Basice Geometry
+     *			      x				  y
+     *		*(inita)----------------*(intersect1)------------*(initb)
+     *					 \ 
+     *					  \f	
+     *					   \	
+     *					    *(pt)
+     *					     \	
+     *					      \e
+     *					       \	
+     *			*(edgepre)--------------*(intersect0)-------*(edgeaft)
+     * 					c	 \		d
+     *						  \
+     *						   *(center)	
+     */
+
+    const double x = intersect1.distTo( inita );
+    const double y = intersect1.distTo( initb );
+    const double f = intersect1.distTo( pt );
+    const double e = intersect0.distTo( pt );
+    const double c = intersect0.distTo( triangles_.coordList()[preidx] );
+    const double d = intersect0.distTo( triangles_.coordList()[aftidx] );
+
+    //Inverse distance weighting.
+    vertices += preidx;
+    weights += (f/(e+f))*(d/(c+d));
+    vertices += aftidx;
+    weights += (f/(e+f))*(c/(c+d));
+
+    for ( int idx=0; idx<2; idx++ )
+    {
+	TypeSet<int>* conns;
+	TypeSet<double>* ws;
+	if ( usedinit[idx]==mInitCorner0 )
+	{ conns = &corner0_; ws = &cornerweights0_; }
+	else if ( usedinit[idx]==mInitCorner1 )
+	{ conns = &corner1_; ws = &cornerweights1_; }
+	else
+	{ conns = &corner2_; ws = &cornerweights2_; }
+	
+	const double useddist = idx ? x : y;
+	const float factor = (e/(e+f))*(useddist/(x+y));
+	for ( int idz=0; idz<conns->size(); idz++ )
+	{
+	    vertices += (*conns)[idz];
+	    weights += (*ws)[idz] * factor;
+	}
+    }
+    
+    return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
