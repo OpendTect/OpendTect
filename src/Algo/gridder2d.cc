@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.18 2009-08-12 19:30:41 cvsbert Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.19 2009-08-14 21:34:32 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -246,6 +246,7 @@ void InverseDistanceGridder2D::fillPar( IOPar& par ) const
 
 TriangulatedNeighborhoodGridder2D::TriangulatedNeighborhoodGridder2D()
     : triangles_( 0 )
+    , interpolator_( 0 )  
     , xrg_( mUdf(float), mUdf(float) )
     , yrg_( mUdf(float), mUdf(float) )
 {}
@@ -254,16 +255,23 @@ TriangulatedNeighborhoodGridder2D::TriangulatedNeighborhoodGridder2D()
 TriangulatedNeighborhoodGridder2D::TriangulatedNeighborhoodGridder2D(
 	const TriangulatedNeighborhoodGridder2D& b )
     : triangles_( 0 )
+    , interpolator_( 0 )  
     , xrg_( b.xrg_ )
     , yrg_( b.yrg_ )
 {
     if ( b.triangles_ )
+    {
 	triangles_ = new DAGTriangleTree( *b.triangles_ );
+	interpolator_ = new Triangle2DInterpolator( *triangles_ );
+    }
 }
 
 
 TriangulatedNeighborhoodGridder2D::~TriangulatedNeighborhoodGridder2D()
-{ delete triangles_; }
+{ 
+    delete triangles_; 
+    delete interpolator_;
+}
 
 
 void TriangulatedNeighborhoodGridder2D::setGridArea( const Interval<float>& xrg,
@@ -277,20 +285,6 @@ void TriangulatedNeighborhoodGridder2D::setGridArea( const Interval<float>& xrg,
 Gridder2D* TriangulatedNeighborhoodGridder2D::create()
 {
     return new TriangulatedNeighborhoodGridder2D;
-}
-
-bool TriangulatedNeighborhoodGridder2D::setPoints( const TypeSet<Coord>& pts )
-{
-    if ( !Gridder2D::setPoints( pts ) )
-    {
-	mycoords_.erase();
-	return false;
-    }
-
-    mycoords_ = pts;
-    mycoords_ += Coord::udf();
-
-    return true;
 }
 
 
@@ -333,7 +327,11 @@ bool TriangulatedNeighborhoodGridder2D::init()
 	    return false;
 	}
 
-	if ( !triangles_->setCoordList( &mycoords_, OD::UsePtr ) )
+	TypeSet<Coord>* pts = new TypeSet<Coord>;
+	for ( int idx=0; idx<points_->size(); idx++ )
+	    (*pts) += (*points_)[idx];
+
+	if ( !triangles_->setCoordList( pts, OD::TakeOverPtr ) )
 	{
 	    delete triangles_;
 	    triangles_ = 0;
@@ -361,51 +359,15 @@ bool TriangulatedNeighborhoodGridder2D::init()
 	    triangles_ = 0;
 	    return false;
 	}
-    }
-
-    DAGTriangleTree interpoltriangles( *triangles_ );
-    int dupid = -1;
-    const int gridptid = mycoords_.size()-1;
-    mycoords_[gridptid] = gridpoint_;
-
-    if ( !interpoltriangles.insertPoint( gridptid, dupid) )
-	return false;
-
-    if ( dupid!=DAGTriangleTree::cNoVertex() )
-    {
-	usedvalues_ += dupid;
-	weights_ += 1;
-	inited_ = true;
-	return true;
-    }
-
-    double weightsum = 0;
-    TypeSet<int> connections;
-    interpoltriangles.getConnections( gridptid, connections );
-    for ( int idx=connections.size()-1; idx>=0; idx-- )
-    {
-	const Coord& point = interpoltriangles.coordList()[connections[idx]];
-	const float sqdist = gridpoint_.sqDistTo( point );
-	if ( !sqdist ) //Should not be neccesary here.
-	{
-	    usedvalues_.erase();
-	    weights_.erase();
-	    usedvalues_ += connections[idx];
-	    weights_ += 1;
-	    inited_ = true;
-
-	    return true;
-	}
-
-	const float weight = 1/Math::Sqrt(sqdist);
-
-	usedvalues_ += connections[idx];
-	weights_ += weight;
-	weightsum += weight;
-    }
     
-    for ( int idx=weights_.size()-1; idx>=0; idx-- )
-        weights_[idx] /= weightsum;
+	if ( interpolator_ )
+    	    delete interpolator_;
+	
+    	interpolator_ = new Triangle2DInterpolator( *triangles_ );
+    }
+
+    if ( !interpolator_->computeWeights(gridpoint_,usedvalues_,weights_) )
+	return false;
 
     inited_ = true;
     return true;
@@ -414,6 +376,7 @@ bool TriangulatedNeighborhoodGridder2D::init()
 
 TriangulatedGridder2D::TriangulatedGridder2D()
     : triangles_( 0 )
+    , interpolator_( 0 )  
     , xrg_( mUdf(float), mUdf(float) )
     , yrg_( mUdf(float), mUdf(float) )
 {}
@@ -422,16 +385,23 @@ TriangulatedGridder2D::TriangulatedGridder2D()
 TriangulatedGridder2D::TriangulatedGridder2D( 
 				const TriangulatedGridder2D& b )
     : triangles_( 0 )
+    , interpolator_( 0 )  
     , xrg_( b.xrg_ )
     , yrg_( b.yrg_ )
 {
     if ( b.triangles_ )
+    {
 	triangles_ = new DAGTriangleTree( *b.triangles_ );
+	interpolator_ = new Triangle2DInterpolator( *triangles_ );
+    }
 }
 
 
 TriangulatedGridder2D::~TriangulatedGridder2D()
-{ delete triangles_; }
+{ 
+    delete triangles_; 
+    delete interpolator_;
+}
 
 
 Gridder2D* TriangulatedGridder2D::create()
@@ -521,98 +491,22 @@ bool TriangulatedGridder2D::init()
 	}
 	
 	ParallelDTriangulator triangulator( *triangles_ );
-	triangulator.dataIsRandom( true ); //false );
+	triangulator.dataIsRandom( true ); 
 	if ( !triangulator.execute( false ) )
 	{
 	    delete triangles_;
 	    triangles_ = 0;
 	    return false;
 	}
+    
+	if ( interpolator_ )
+    	    delete interpolator_;
+	
+	interpolator_ = new Triangle2DInterpolator( *triangles_ );
     }
 
-    int dupid;
-    TypeSet<int> vertices;
-    if ( !triangles_->getTriangle( gridpoint_, dupid, vertices ) )
+    if ( !interpolator_->computeWeights(gridpoint_,usedvalues_,weights_) )
 	return false;
-
-    if ( dupid!=DAGTriangleTree::cNoVertex() )
-    {
-	usedvalues_ += dupid;
-	weights_ += 1;
-	inited_ = true;
-	return true;
-    }
-
-    if ( vertices.size()<3 ||
-	 vertices[0]==DAGTriangleTree::cNoVertex() ||
-	 vertices[1]==DAGTriangleTree::cNoVertex() ||
-	 vertices[2]==DAGTriangleTree::cNoVertex() )
-    {
-	pErrMsg("Hmm");
-	return false;
-    }
-
-    Coord vertex[3];
-    const TypeSet<Coord>& crds = triangles_->coordList(); 
-    for ( int idx=0; idx<3; idx++ )
-    {
-	vertex[idx] = vertices[idx]>=0 
-	    ? crds[vertices[idx]] 
-	    : triangles_->getInitCoord(vertices[idx]);
-    }
-
-    float weight[3];
-    interpolateOnTriangle2D( gridpoint_, vertex[0], vertex[1], vertex[2], 
-			     weight[0], weight[1], weight[2] );
-
-    for ( int idx=0; idx<3; idx++ )
-    {
-    	if ( vertices[idx]<0 || vertices[idx]>=points_->size() )
-    	{
-	    TypeSet<int> conns;
-	    TypeSet<double> ws;
-	    triangles_->getConnectionAndWeights(vertices[idx],conns,ws,false);
-
-	    double weightsum = 0;
-    	    for ( int idy=0; idy<ws.size(); idy++ )
-    	    {
-		if ( addedindices_.indexOf(conns[idy])!=-1 )
-		{
-		    ws.remove( idy );
-		    conns.remove( idy );
-		    idy--;
-		    continue;
-		}
-
-		weightsum += ws[idy];
-	    }
-
-    	    for ( int idy=0; idy<ws.size(); idy++ )
-    	    {
-		const int ptidx = usedvalues_.indexOf( conns[idy] );
-		if ( ptidx==-1 )
-		{
-    		    usedvalues_ += conns[idy];
-    		    weights_ += weight[idx]*ws[idy]/weightsum;
-		}
-		else
-		{
-		    weights_[ptidx] += weight[idx]*ws[idy]/weightsum;
-		}
-    	    }
-    	}
-    	else
-    	{
-	    const int ptidx = usedvalues_.indexOf( vertices[idx] );
-	    if ( ptidx==-1 )
-	    {               
-		usedvalues_ += vertices[idx];
-		weights_ += weight[idx];
-	    }
-	    else
-		weights_[ptidx] += weight[idx];
-    	}
-    }	
 
     inited_ = true;
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.13 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: gridder2d.h,v 1.14 2009-08-14 21:34:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 template<class T> class Interval;
 class IOPar;
 class DAGTriangleTree;
+class Triangle2DInterpolator;
 
 /*! Generic interface for 2D gridding. */
 
@@ -145,8 +146,6 @@ public:
     static const char* 	sName() 	{ return "TriangulatedNeighborhood"; }
     static const char* 	sUserName() 	{ return "Triangulated Neighborhood";}
 
-    bool		setPoints(const TypeSet<Coord>&);
-
     void		setGridArea(const Interval<float>&,
 	    			    const Interval<float>&);
 
@@ -158,10 +157,10 @@ public:
     bool		init();
 protected:
 
-    TypeSet<Coord>	mycoords_;
-    DAGTriangleTree*	triangles_;
-    Interval<float>	xrg_;
-    Interval<float>	yrg_;
+    DAGTriangleTree*		triangles_;
+    Triangle2DInterpolator*	interpolator_;
+    Interval<float>		xrg_;
+    Interval<float>		yrg_;
 };
 
 
@@ -191,10 +190,11 @@ public:
 
 protected:
 
-    DAGTriangleTree*	triangles_;
-    Interval<float>	xrg_;
-    Interval<float>	yrg_;
-    TypeSet<int>	addedindices_;
+    DAGTriangleTree*		triangles_;
+    Triangle2DInterpolator*	interpolator_;
+    Interval<float>		xrg_;
+    Interval<float>		yrg_;
+    TypeSet<int>		addedindices_;
 };
 
 
