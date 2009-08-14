@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.2 2009-08-12 15:57:49 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.3 2009-08-14 16:40:20 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: visbeachball.cc,v 1.2 2009-08-12 15:57:49 cvska
 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoTranslation.h>
 
 mCreateFactoryEntry( visBase::BeachBall );
@@ -32,17 +33,23 @@ const char* BeachBall::radiusstr()	{ return "Radius"; }
 
 
 BeachBall::BeachBall()
-    : VisualObjectImpl( false )
+    : VisualObjectImpl( true )  // to do: check if must be true / false!
     , ball_( 0 )
-    , shape_( 0 )
+    , transformation_( 0 )
     , translation_( new SoTranslation )
     , xytranslation_( 0 )
-    , scale_( new SoShapeScale )
-    , transformation_( 0 )
+//    , scale_( new SoShapeScale )
+    , material_( new SoMaterial )
 {
+    material_->diffuseColor.setNum( 2 );
+    material_->diffuseColor.set1Value( 0, SbColor( 1, 1, 1 ) );
+    material_->diffuseColor.set1Value( 1, SbColor( 0, 1, 1 ) );
+
     addChild( translation_ );
-    addChild( scale_ );
+//    addChild( scale_ );
+    addChild( material_ );
     ball_ = new SoBeachBall();
+    ball_->ref(); // to do: check if this needs to be there
 //    setScreenSize( cDefaultScreenSize() );
 }
 
@@ -53,24 +60,19 @@ BeachBall::~BeachBall()
 }
 
 
-void BeachBall::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    VisualObjectImpl::fillPar( par, saveids );
-
-    par.set( radiusstr(), getRadius() );
+Transformation* BeachBall::getDisplayTransformation()
+{ 
+    return transformation_; 
 }
 
 
-int BeachBall::usePar( const IOPar& par )
+void BeachBall::setDisplayTransformation( Transformation* nt )
 {
-    int res = VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
-
-    float rd = getRadius();
-    par.get( radiusstr(), rd );
-    setRadius( rd );
-
-    return 1;
+    const Coord3 pos = getCenterPosition();
+    if ( transformation_ ) transformation_->unRef();
+    transformation_ = nt;
+    if ( transformation_ ) transformation_->ref();
+    setCenterPosition( pos );
 }
 
 
@@ -79,18 +81,18 @@ void BeachBall::setCenterPosition( Coord3 c )
     Coord3 pos( c );
     
     if ( transformation_ ) pos = transformation_->transform( pos );
-/*
-    if ( !xytranslation && (fabs(pos.x)>1e5 || fabs(pos.y)>1e5) )
+
+    if ( !xytranslation_ && (fabs(pos.x)>1e5 || fabs(pos.y)>1e5) )
     {
-	xytranslation = new UTMPosition;
-	insertChild( childIndex( translation ), xytranslation );
+	xytranslation_ = new UTMPosition;
+	insertChild( childIndex( translation_ ), xytranslation_ );
     }
 
-    if ( xytranslation )
+    if ( xytranslation_ )
     {
-	xytranslation->utmposition.setValue( pos.x, pos.y, 0 );
+	xytranslation_->utmposition.setValue( pos.x, pos.y, 0 );
 	pos.x = 0; pos.y = 0;
-    }*/
+    }
     translation_->translation.setValue( pos.x, pos.y, pos.z );
 }
 
@@ -100,12 +102,12 @@ Coord3 BeachBall::getCenterPosition() const
     Coord3 res;
     SbVec3f pos = translation_->translation.getValue();
 
-/*    if ( xytranslation )
+    if ( xytranslation_ )
     {
-	res.x = xytranslation->utmposition.getValue()[0];
-	res.y = xytranslation->utmposition.getValue()[1];
+	res.x = xytranslation_->utmposition.getValue()[0];
+	res.y = xytranslation_->utmposition.getValue()[1];
     }
-    else*/
+    else
     {
 	res.x = pos[0];
 	res.y = pos[1];
@@ -120,6 +122,7 @@ Coord3 BeachBall::getCenterPosition() const
 void BeachBall::setRadius( float r )
 {
     // to do!
+
 }
 
 
@@ -133,6 +136,7 @@ float BeachBall::getRadius() const
 void BeachBall::setColor1( Color col )
 {
     // to do! create a material and set the color
+
 }
 
 
@@ -158,19 +162,24 @@ Color BeachBall::getColor2() const
 }
 
 
-Transformation* BeachBall::getDisplayTransformation()
-{ 
-    return transformation_; 
+void BeachBall::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    par.set( radiusstr(), getRadius() );
 }
 
 
-void BeachBall::setDisplayTransformation( Transformation* nt )
+int BeachBall::usePar( const IOPar& par )
 {
-    const Coord3 pos = getCenterPosition();
-    if ( transformation_ ) transformation_->unRef();
-    transformation_ = nt;
-    if ( transformation_ ) transformation_->ref();
-    setCenterPosition( pos );
+    int res = VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    float rd = getRadius();
+    par.get( radiusstr(), rd );
+    setRadius( rd );
+
+    return 1;
 }
 
 
