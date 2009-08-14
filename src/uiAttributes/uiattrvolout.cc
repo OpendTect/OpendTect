@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.70 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.71 2009-08-14 07:43:34 cvsranojay Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -42,8 +42,8 @@ static const char* rcsID = "$Id: uiattrvolout.cc,v 1.70 2009-07-22 16:01:37 cvsb
 
 using namespace Attrib;
 
-const char* uiAttrVolOut::sKeyMaxCrlRg = "Maximum Crossline Range";
-const char* uiAttrVolOut::sKeyMaxInlRg = "Maximum Inline Range";
+const char* uiAttrVolOut::sKeyMaxCrlRg()  { return "Maximum Crossline Range"; }
+const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 
 
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
@@ -343,8 +343,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( usecs )
     {
 	EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
-	iop.set(sKeyMaxInlRg,cs.hrg.start.inl,cs.hrg.stop.inl,cs.hrg.step.inl);
-	iop.set(sKeyMaxCrlRg,cs.hrg.start.crl,cs.hrg.stop.crl,cs.hrg.step.crl);
+	iop.set(sKeyMaxInlRg(),cs.hrg.start.inl,cs.hrg.stop.inl,cs.hrg.step.inl);
+	iop.set(sKeyMaxCrlRg(),cs.hrg.start.crl,cs.hrg.stop.crl,cs.hrg.step.crl);
     }
     delete clonedset;
 

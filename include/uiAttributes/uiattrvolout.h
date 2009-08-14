@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattrvolout.h,v 1.7 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattrvolout.h,v 1.8 2009-08-14 07:43:34 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ public:
     const IOPar&	subSelPar() const		{ return subselpar; }
     const Attrib::CurrentSel& outputSelection() const	{ return sel; }
 
-    static const char*  sKeyMaxCrlRg;
-    static const char*  sKeyMaxInlRg;
+    static const char*  sKeyMaxCrlRg();
+    static const char*  sKeyMaxInlRg();
 
 protected:
 
