@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.349 2009-08-13 09:21:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.350 2009-08-14 04:15:47 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -130,6 +130,7 @@ void uiODApplMgr::resetServers()
     if ( nlaserv_ ) nlaserv_->reset();
     delete attrserv_; delete mpeserv_;
     attrserv_ = new uiAttribPartServer( applservice_ );
+    attrserv_->setDPSDispMgr( visdpsdispmgr_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
     visserv_->deleteAllObjects();
     emserv_->removeUndo();
@@ -194,6 +195,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
 	sceneMgr().addScene( true );
 
     attrserv_ = new uiAttribPartServer( applservice_ );
+    attrserv_->setDPSDispMgr( visdpsdispmgr_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
     MPE::engine().init();
 }
