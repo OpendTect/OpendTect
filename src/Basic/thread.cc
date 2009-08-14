@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.42 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.43 2009-08-14 10:34:23 cvsbert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -14,7 +14,6 @@ static const char* rcsID = "$Id: thread.cc,v 1.42 2009-07-22 16:01:31 cvsbert Ex
 #include "debug.h"
 #include "envvars.h"
 #include "errh.h"
-#include "errno.h" // for EBUSY
 
 #include <QThread>
 #include <QMutex>
@@ -393,20 +392,6 @@ void Threads::Thread::stop()
 {
     thread_->wait();
 }
-
-
-#ifndef __win__
-
-#include <unistd.h>
-
-#ifdef mac
-# include <mach/mach.h>
-# include <mach/mach_host.h>
-# include <mach/host_info.h>
-# include <mach/machine.h>
-#endif
-
-#endif
 
 
 int Threads::getNrProcessors()
