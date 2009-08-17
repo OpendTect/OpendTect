@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.39 2009-08-14 19:35:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.40 2009-08-17 13:42:17 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -1569,7 +1569,7 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	}
     }
     else
-	initb = triangles_.coordList()[usedinit[1]];
+	initb = triangles_.getInitCoord(usedinit[1]);
 
     Line2 initline( inita, initb );
     const Coord intersect0 = center_ptline.intersection( edgeline, false );
