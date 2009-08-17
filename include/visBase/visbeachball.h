@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Aug 2009
- RCS:           $Id: visbeachball.h,v 1.3 2009-08-14 16:43:15 cvskarthika Exp $
+ RCS:           $Id: visbeachball.h,v 1.4 2009-08-17 15:20:52 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,12 @@ class SoShapeScale;
 class UTMPosition;
 class SoTranslation;
 class SoMaterial;
+class SoMaterialBinding;
 
 namespace visBase
 {
 class Transformation;
+class DrawStyle;
 
 /*! \brief 
 Display a beachball-type object.
@@ -58,14 +60,13 @@ protected:
     				~BeachBall();
 
     SoBeachBall*		ball_;
-//    SoNode*			shape_;
-    Transformation*             transformation_;
+    SoMaterial*			material_;
     SoTranslation*      	translation_;
     UTMPosition*        	xytranslation_;
-    SoMaterial*			material_;
+    SoShapeScale*		scale_;
+    DrawStyle*			style_;
+    Transformation*             transformation_;
 };
-
-
 };
 
 #endif
