@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.16 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: welldisp.h,v 1.17 2009-08-17 12:00:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,23 +103,22 @@ public:
     mStruct Log : public BasicProps
     {
 			Log()
-			    : name_("none")
+			    : cliprate_(mUdf(float))
 			    , fillname_("none")
-			    , iswelllog_(true)	
-			    , cliprate_(mUdf(float))
-			    , range_(mUdf(float),mUdf(float))
 			    , fillrange_(mUdf(float),mUdf(float))
-			    , logarithmic_(false)
+		            , isdatarange_(true)
+			    , islogfill_(true)
+			    , islogarithmic_(false) 
+			    , issinglecol_(false)
+			    , iswelllog_(true)	
+			    , name_("none")
+		            , logwidth_ (40)	
+			    , range_(mUdf(float),mUdf(float))
 			    , repeat_(5)
 			    , repeatovlap_(50)
-			    , linecolor_(Color::White())
-			    , islogfill_(true)
-		            , isdatarange_(true)
 		            , seiscolor_(Color::White())
 			    , seqname_("Rainbow")
-			    , issinglecol_(false)
-			    , islogarithmic_(false) 
-		            , logwidth_ (40)	{}
+			    {}		 
 
 	virtual const char* subjectName() const	{ return "Log"; }
 

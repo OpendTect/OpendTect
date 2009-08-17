@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.31 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: viswell.h,v 1.32 2009-08-17 12:00:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,49 +47,103 @@ public:
     static Well*		create()
     				mCreateDataObj(Well);
 
-    mStruct ColorData
+    mStruct BasicParams
     {
-	const char* seqname_;
-	bool  iswelllog_;
-	bool  issinglecol_;
-	Color color_;
+				BasicParams(){}
+	const char* 		name_;
+	Color 			col_;    
+	int 			size_;    
+    };
+    
+    //Well
+    mStruct TrackParams : public BasicParams
+    {
+				TrackParams()
+				{}
+	Coord3* 		toppos_;
+	Coord3* 		botpos_;
+	bool 			isdispabove_;
+	bool 			isdispbelow_;
+	int 			namesz_;    
     };
 
     void			setTrack(const TypeSet<Coord3>&);
-
-    void			setLineStyle(const LineStyle&);
-    const LineStyle&		lineStyle() const;
-
-    void			setWellName(const char*,Coord3,Coord3,bool,
-	    					bool,int);
+    void			setWellName(const TrackParams&);
     void			showWellTopName(bool);
     void			showWellBotName(bool);
     bool			wellTopNameShown() const;
     bool			wellBotNameShown() const;
 
-    void			addMarker(const Coord3&,const Color&,
-	    				  const char*,bool, int size);
-    void			removeAllMarkers();
-    void			setMarkerScreenSize(int);
-    int				markerScreenSize() const;
+    
+    //Markers
+    mStruct MarkerParams : public BasicParams
+    {
+				MarkerParams()
+				{}
+	bool 			iscircular_; 
+	bool 			issinglecol_; 
+	int			namesize_;			
+	Coord3* 		pos_;
+    };
+
+    void			addMarker(const MarkerParams&);
     bool			canShowMarkers() const;
     void			showMarkers(bool);
+    int				markerScreenSize() const;
     bool			markersShown() const;
     void			showMarkerName(bool);
     bool			markerNameShown() const;
+    void			removeAllMarkers();
+    void			setMarkerScreenSize(int);
 
-    void 			initializeData(int,const Interval<float>&,
-	    						float&,int&);
-    void 			setSampleData(const TypeSet<Coord3Value>&,
-	    				      int, int,float,Coord3&,bool,float,
-					      int,const LinScaler&,float&);
-    void			setLogData(const TypeSet<Coord3Value>&,
-	    			           const char*,const Interval<float>&,
-					   bool,int,bool);
+    //logs
+    mStruct LogParams : public BasicParams
+    {
+				LogParams()
+				{}
+	float               	cliprate_;
+	bool			isdatarange_;
+	bool			islinedisplayed_;
+	bool                	islogarithmic_;
+	bool  			issinglcol_;
+	bool  			iswelllog_;
+	bool 			isfilled_;
+	int                 	logwidth_;
+	int                 	logidx_;
+	int                 	lognr_;
+	Interval<float> 	range_;
+	Interval<float> 	valrange_;
+	bool 			sclog_; 
+
+	int                 	filllogidx_;
+	const char*        	fillname_;
+	Interval<float>     	fillrange_;
+	Interval<float> 	valfillrange_;
+	const char* 		seqname_;
+
+	int                 	repeat_;
+	float               	ovlap_;
+	Color               	seiscolor_;
+    };
+
+    const LineStyle&		lineStyle() const;
+    void			setLineStyle(const LineStyle&);
+
+    void 			initializeData(const LogParams&,int);
+    void			setLogData(const TypeSet<Coord3Value>&, 
+					   const LogParams&);
+    void			setFilledLogData(const TypeSet<Coord3Value>&, 
+					   	 const LogParams&);
+    const float 		getValue(const TypeSet<Coord3Value>&,int,bool,
+	    				 const LinScaler&) const;
+    const Coord3 		getPos(const TypeSet<Coord3Value>&,int) const;
     void			setLogColor(const Color&,int);
+    void			setLogTransparency(int);
     const Color&		logColor(int) const;
     const Color&		logFillColor(int) const;
     void			clearLog(int);
+    void			setLogLineDisplayed(bool,int);
+    bool			logLineDisplayed(int) const;
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;
     void			setLogWidth(int,int);
@@ -107,14 +161,14 @@ public:
     void			hideUnwantedLogs(int,int);
     void			showOneLog(bool,int,int);
     void 			setTrackProperties(Color&,int);
+    void			setLogFillColorTab(const LogParams&,int);
 
-    void			setLogFillColorTab(int,ColorData&);
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar& par);
-    int				markersize;
+    int				markersize_;
     
     static const char*		linestylestr();
     static const char*		showwelltopnmstr();
@@ -126,24 +180,24 @@ public:
     static const char*		showlognmstr();
     static const char*		logwidthstr();
 
-
 protected:
     				~Well();
 
-    PolyLine*			track;
-    DrawStyle*			drawstyle;
-    Text2*			welltoptxt;
-    Text2*			wellbottxt;
-    DataObjectGroup*		markergroup;
-    SoSwitch*			markernmswitch;
-    DataObjectGroup*		markernames;
-    SoSwitch*			lognmswitch;
-    Text2*			lognmleft;
-    Text2*			lognmright;
-    ObjectSet<SoPlaneWellLog>	log;
-    Transformation*		transformation;
+    PolyLine*			track_;
+    DrawStyle*			drawstyle_;
+    Text2*			welltoptxt_;
+    Text2*			wellbottxt_;
+    DataObjectGroup*		markergroup_;
+    SoSwitch*			markernmswitch_;
+    DataObjectGroup*		markernames_;
+    SoSwitch*			lognmswitch_;
+    Text2*			lognmleft_;
+    Text2*			lognmright_;
+    Transformation*		transformation_;
 
-    bool			showmarkers;
+    bool			showmarkers_;
+    
+    ObjectSet<SoPlaneWellLog>	log_;
 };
 
 

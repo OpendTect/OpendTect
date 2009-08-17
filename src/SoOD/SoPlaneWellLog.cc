@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.35 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.36 2009-08-17 12:00:21 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -47,6 +47,10 @@ SoPlaneWellLog::SoPlaneWellLog()
     : valuesensor( new SoFieldSensor(SoPlaneWellLog::valueChangedCB,this) )
     , revscale1(false)
     , revscale2(false)
+    , seisstyle1(false)
+    , seisstyle2(false)
+    , isfilled1(true)
+    , isfilled2(true)
 {
     SO_KIT_CONSTRUCTOR(SoPlaneWellLog);
 
@@ -138,10 +142,6 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( fillminval2, (100) );
     SO_KIT_ADD_FIELD( shift1, (0) );
     SO_KIT_ADD_FIELD( shift2, (0) );
-    SO_KIT_ADD_FIELD( style1, (0) );
-    SO_KIT_ADD_FIELD( style2, (0) );
-    SO_KIT_ADD_FIELD( filling1, (0) );
-    SO_KIT_ADD_FIELD( filling2, (0) );
     SO_KIT_ADD_FIELD( screenWidth1, (40) );
     SO_KIT_ADD_FIELD( screenWidth2, (40) );
     screenWidth1.setValue( 40 );
@@ -233,10 +233,10 @@ void SoPlaneWellLog::setLogFillTransparency( int lognr )
 }
 
 
-void SoPlaneWellLog::setLogFillColorTab( const float colors[][3], int lognr )
+void SoPlaneWellLog::setFilledLogColorTab( const float colors[][3], int lognr )
 {
     SoShapeHints* hints  = SO_GET_ANY_PART( this,
-	      lognr==1 ? "hints1" : "hints2", SoShapeHints );
+	     lognr==1 ? "hints1" : "hints2", SoShapeHints );
     hints->vertexOrdering.setValue( SoShapeHints::COUNTERCLOCKWISE );
 
     SoMaterial* material  = SO_GET_ANY_PART( this,
@@ -300,10 +300,6 @@ void SoPlaneWellLog::clearLog( int lognr )
     minval.setValue( 0 ); 
     SoSFFloat& shift = lognr==1 ? shift1 : shift2;
     shift.setValue( 0 ); 
-    SoSFBool& style = lognr==1 ? style1 : style2;
-    style.setValue( 0 ); 
-    SoSFBool& filling = lognr==1 ? filling1 : filling2;
-    filling.setValue( 0 ); 
 }
 
 
@@ -324,18 +320,21 @@ void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val,
 }
 
 
-void SoPlaneWellLog::setFillLogValue( int index, const SbVec3f& crd,
-				      float fillval, int lognr )
+void SoPlaneWellLog::setFillLogValue( int index, float fillval, int lognr )
 {
     SoMFFloat& filllog    = lognr==1 ? filllog1 : filllog2;
     SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
     SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
     filllog.set1Value( index, fillval );
-    if ( fillval <= 100 )
-    {
-	if ( fillval > fillmaxval.getValue() ) fillmaxval.setValue( fillval );
-	if ( fillval < fillminval.getValue() ) fillminval.setValue( fillval );
-    }
+}
+
+
+void SoPlaneWellLog::setFillExtrValue( float maxval, float minval, int lognr )
+{
+    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    fillmaxval.setValue( maxval );
+    fillminval.setValue( minval );
 }
 
 
@@ -359,33 +358,33 @@ void SoPlaneWellLog::buildLog(int lognr, const SbVec3f& projdir, int res )
     triset->coordIndex.deleteValues(0,-1);
     triset->materialIndex.deleteValues(0,-1);
 	
-    SoSFBool& style = lognr==1 ? style1 : style2;
-    SoSFBool& filling = lognr==1 ? filling1 : filling2;
-    const bool styleB = style.getValue();
-    const bool fillingB = filling.getValue();
+    const bool isfilled = lognr==1 ? isfilled1 : isfilled2;
+    const bool seisstyle = lognr==1 ? seisstyle1 : seisstyle2;
+    const bool islinedisplayed = lognr==1 ? islinedisp1 : islinedisp2;
 
-    if ( fillingB && !styleB)
-    {	
-	buildSimpleLog( lognr, projdir, res );
-	buildFilledLog( lognr, projdir, res );
+    if ( !seisstyle )
+    {
+	if ( islinedisplayed )
+	    buildSimpleLog( lognr, projdir, res );
+	if ( isfilled )
+	    buildFilledLog( lognr, projdir, res );
     }
-    else if ( styleB )
+    else
 	buildSeismicLog( lognr, projdir, res );
-    else 
-	buildSimpleLog( lognr, projdir, res );
 }
+
 
 #define sMaxNrSamplesRot 15
 void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res) 
 {
     SoIndexedLineSet* lineset = SO_GET_ANY_PART( this,
 	     lognr==1 ? "lineset1":"lineset2" , SoIndexedLineSet );
-  
+
     SoCoordinate3* coords = SO_GET_ANY_PART( this,
              lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
     
-    SoMFVec3f& path = lognr==1 ? path1 : path2;
-    SoMFFloat& log = lognr==1 ? log1 : log2;
+    SoMFVec3f& path   = lognr==1 ? path1   : path2;
+    SoMFFloat& log    = lognr==1 ? log1    : log2;
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
     
     bool& revscale = lognr==1 ? revscale1 : revscale2;
@@ -440,11 +439,11 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     SoIndexedTriangleStripSet* triset = SO_GET_ANY_PART( this,
 	    lognr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
 
-    SoMFVec3f& path = lognr==1 ? path1 : path2;
-    SoMFFloat& log = lognr==1 ? log1 : log2;
+    SoMFVec3f& path   = lognr==1 ? path1   : path2;
+    SoMFFloat& log    = lognr==1 ? log1    : log2;
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
     SoSFFloat& minval = lognr==1 ? minval1 : minval2;
-    SoSFFloat& shift = lognr==1 ? shift1 : shift2;
+    SoSFFloat& shift  = lognr==1 ? shift1  : shift2;
 
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
@@ -556,7 +555,7 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
     float fillminvalF = fillminval.getValue();
     float fillmaxvalF = fillmaxval.getValue();
     float colstep = ( fillmaxvalF - fillminvalF ) / 255;
-    int colindex = 0;
+    int   colindex = 0;
 
     bool& revscale = lognr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
@@ -578,10 +577,10 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	if ( revscale ) 
 	{
 	    logval = maxval.getValue() - logval;
-	    colindex = abs( (int)((fillmaxvalF-filllogval)/colstep) );
+	    colindex = (int)((fillmaxvalF-filllogval)/colstep);
 	}
 	else
-	    colindex = abs( (int)((filllogval-fillminvalF)/colstep) );
+	    colindex = (int)((filllogval-fillminvalF)/colstep);
 	if ( colindex > 255 )
 	    colindex = 255;
 	else if ( colindex < 0 )
@@ -677,15 +676,30 @@ void SoPlaneWellLog::setShift( float sht, int lognr )
 
 void SoPlaneWellLog::setLogStyle( bool stl, int lognr )
 {
-    SoSFBool& style = lognr==1 ? style1 : style2;
-    style.setValue( stl ); 
+    bool& style = lognr==1 ? seisstyle1 : seisstyle2;
+    style = stl; 
 }
 
 
-void SoPlaneWellLog::setLogFill( bool fill, int lognr )
+void SoPlaneWellLog::setLineDisplayed( bool isdisp, int lognr )
 {
-    SoSFBool& filling = lognr==1 ? filling1 : filling2;
-    filling.setValue( fill ); 
+    bool& islinedisplayed = lognr==1 ? islinedisp1 : islinedisp2;
+    islinedisplayed = isdisp; 
+}
+
+
+bool SoPlaneWellLog::lineDisp( int lognr ) const
+{
+    SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
+    const bool isdisp = lognr==1 ? islinedisp1 : islinedisp2;
+    return isdisp;
+}
+
+
+void SoPlaneWellLog::setLogFill( bool isfill, int lognr )
+{
+    bool& isfilled = lognr==1 ? isfilled1 : isfilled2;
+    isfilled = isfill; 
 }
 
 

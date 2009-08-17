@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.23 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.24 2009-08-17 12:00:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,14 +52,14 @@ public:
     void			resetLogData(int);
     void			setLineColor(const SbVec3f&,int);
     const SbVec3f&		lineColor(int) const;
-    void			setLogFillColorTab(const float[][3],int);
+    void			setFilledLogColorTab(const float[][3],int);
     void			setLineWidth(float,int);
     float			lineWidth(int) const;
+    bool			lineDisp(int) const;
     void			showLog(bool,int);
     bool			logShown(int) const;
     void			clearLog(int);
-    void			setRevScale( bool yn, int lognr ) 
-    				{ (lognr == 1 ? revscale1 : revscale2) = yn; }
+    void 			setLineDisplayed(bool, int);
     void			setLogValue(int,const SbVec3f&,float,int);
     void   			setLogStyle(bool,int);
     bool 		        getLogStyle() const;
@@ -67,10 +67,10 @@ public:
     void   			setLogFill(bool,int);
     void   			setLogFillTransparency(int);
     void   			setLineTransparency(int);
-    void 			setFillLogValue(int,const SbVec3f&,
-	                                        float,int);
-
-
+    void 			setFillLogValue(int,float,int);
+    void 			setFillExtrValue(float,float,int);
+    void			setRevScale( bool yn, int lognr ) 
+    				{ (lognr == 1 ? revscale1 : revscale2) = yn; }
     SoMFVec3f			path1;
     SoMFVec3f			path2;
     SoMFFloat			log1;
@@ -87,10 +87,6 @@ public:
     SoSFFloat			fillminval2;
     SoSFFloat			shift1;
     SoSFFloat			shift2;
-    SoSFBool  			style1;
-    SoSFBool  			style2;
-    SoSFBool  			filling1;
-    SoSFBool  			filling2;
     SoSFFloat			screenWidth1;
     SoSFFloat			screenWidth2;
 
@@ -139,8 +135,10 @@ protected:
     int				currentres;
     float			worldwidth;
     bool			revscale1, revscale2;
+    bool  			seisstyle1, seisstyle2;
+    bool  			isfilled1, isfilled2;
+    bool  			islinedisp1, islinedisp2;
     int 			lognr;
-
     
     SoFieldSensor*		valuesensor;
     static void			valueChangedCB(void*,SoSensor*);

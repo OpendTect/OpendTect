@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.54 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.55 2009-08-17 12:00:21 cvsbruno Exp $
 
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "viswell.h"
 #include "multiid.h"
 #include "ranges.h"
 #include "welllogdisp.h"
@@ -30,7 +31,6 @@ namespace visBase
     class EventCatcher;
     class EventInfo;
     class Transformation;
-    class Well;
 }
 
 namespace Well
@@ -61,75 +61,71 @@ public:
     bool			setMultiID(const MultiID&);
     MultiID			getMultiID() const 	{ return wellid_; }
 
-    const LineStyle*		lineStyle() const;
-    void			setLineStyle(LineStyle);
+    //track
+    void 			fillTrackParams(visBase::Well::TrackParams&);
 
-    bool			hasColor() const	{ return true; }
-    Color			getColor() const;
-
-    void			showWellTopName(bool);
-    void			showWellBotName(bool);
     bool			wellTopNameShown() const;
+    void			showWellTopName(bool);
     bool			wellBotNameShown() const;
+    void			showWellBotName(bool);
+    TypeSet<Coord3>             getWellCoords()	const;
+
+    //markers
+    void 			fillMarkerParams(visBase::Well::MarkerParams&);
 
     bool			canShowMarkers() const;
-    void			showMarkers(bool);
     bool			markersShown() const;
-    void			showMarkerName(bool);
+    void			showMarkers(bool);
     bool			markerNameShown() const;
-    void			setMarkerScreenSize(int);
+    void			showMarkerName(bool);
     int				markerScreenSize() const;
+    void			setMarkerScreenSize(int);
     
-    void 			setWellData( const int, TypeSet<Coord3Value>&,
-	                           Interval<float>*, Interval<float>&,
-				   bool&, Well::Log& );
-    void			createLogDisplay(int,Interval<float>*,
-						 bool,int,bool);
-    void			createFillLogDisplay(int,Interval<float>*,
-	    							bool,int);
-    void			setLogDisplay(Well::LogDisplayPars&,int);
-    void			displayLog(const BufferString, bool,
-	    				       Interval<float>&,int nr);
-    void			calcClippedRange(float,Interval<float>&,
-	    							Well::Log&);
+    //logs
+    void 			fillLogParams(visBase::Well::LogParams&,int);
+
+    const LineStyle*		lineStyle() const;
+    void			setLineStyle(LineStyle);
+    bool			hasColor() const	{ return true; }
+    Color			getColor() const;
+    void 			setLogData(visBase::Well::LogParams&,bool);
+    void			setLogDisplay(int);
+    void			calcClippedRange(float,Interval<float>&,int);
     void			displayRightLog();
     void			displayLeftLog();
-    Well::LogDisplayParSet*	getLogParSet() const	{ return &logparset_; }
-
     void			setOneLogDisplayed(bool);
-    	
-    void			setLogColor(const Color&,int);
+    Well::LogDisplayParSet*	getLogParSet() const	{ return &logparset_; }
     const Color&		logColor(int) const;
-    void			setLogLineWidth(float,int);
+    void			setLogColor(const Color&,int);
     float			logLineWidth(int) const;
-    void			setLogWidth(int,int);
+    void			setLogLineWidth(float,int);
     int				logWidth() const;
-    void			showLogs(bool);
+    void			setLogWidth(int,int);
     bool			logsShown() const;
-    void			showLogName(bool);
-    bool			logNameShown() const;
+    void			showLogs(bool);
     const char*			logName(bool left) const
-				{return left ? logparset_.getLeft()->name_					: logparset_.getRight()->name_;}
+				{return left ? logparset_.getLeft()->name_						     : logparset_.getRight()->name_;}
 
+    bool			logNameShown() const;
+    void			showLogName(bool);
+
+    mVisTrans*			getDisplayTransformation();
+    void			setDisplayTransformation(mVisTrans*);
+    void 			setDisplayTransformForPicks(mVisTrans*);
+    
+    void                        setSceneEventCatcher(visBase::EventCatcher*);
+    void 			addPick(Coord3);
+    				//only used for user-made wells
     void			getMousePosInfo(const visBase::EventInfo& pos,
 	    					Coord3&,BufferString& val,
 						BufferString& info) const;
-
-    void			setDisplayTransformation(mVisTrans*);
-    mVisTrans*			getDisplayTransformation();
-    void 			setDisplayTransformForPicks(mVisTrans*);
-
-    void                        setSceneEventCatcher(visBase::EventCatcher*);
-    void 			addPick(Coord3);
+    NotifierAccess*             getManipulationNotifier() { return &changed_; }
+    bool			hasChanged() const 	{ return needsave_; }
+    bool			isHomeMadeWell() const { return picksallowed_; }
+    void			setChanged( bool yn )	{ needsave_ = yn; }
     void			setupPicking(bool);
     void			showKnownPositions();
-    NotifierAccess*             getManipulationNotifier() { return &changed_; }
-    bool			isHomeMadeWell() const { return picksallowed_; }
-    bool			hasChanged() const 	{ return needsave_; }
-    void			setChanged( bool yn )	{ needsave_ = yn; }
-    TypeSet<Coord3>             getWellCoords()	const;
-    				//only used for user-made wells
-
+    
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
 
@@ -141,31 +137,28 @@ protected:
     void			fullRedraw(CallBacker*);
     TypeSet<Coord3>		getTrackPos(Well::Data*);
     void			displayLog(Well::LogDisplayPars*,int);
-    void			setWellProperties(int,Interval<float>&);
+    void			setLogProperties(visBase::Well::LogParams&);
     void                        pickCB(CallBacker* cb=0);
 
-    visBase::Well*		well_;
-
-    MultiID			wellid_;
-    const bool			zistime_;
-    const bool			zinfeet_;
-
-    bool			onelogdisplayed_;
-    int 			logsnumber_;
-    Well::LogDisplayParSet&	logparset_;
-
-    visBase::DataObjectGroup*	group_;
-    visBase::EventCatcher*	eventcatcher_;
+    Coord3                      mousepressposition_;
     mVisTrans*			transformation_;
+    MultiID			wellid_;
+    visBase::EventCatcher*	eventcatcher_;
+    visBase::DataObjectGroup*	group_;
+    visBase::Well*		well_;
+    Well::LogDisplayParSet&	logparset_;
+    Well::Track*		pseudotrack_;
+    Well::Data*			wd_;
+
     Notifier<WellDisplay>	changed_;
 
+    int 			logsnumber_;
     int                         mousepressid_;
-    Coord3                      mousepressposition_;
-
-    Well::Track*		pseudotrack_;
-
-    bool			picksallowed_;
     bool			needsave_;
+    bool			onelogdisplayed_;
+    bool			picksallowed_;
+    const bool			zistime_;
+    const bool			zinfeet_;
     
     static const char*		sKeyEarthModelID;
     static const char*		sKeyWellID;
