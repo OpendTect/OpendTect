@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.93 2009-08-14 08:43:55 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.94 2009-08-17 05:56:52 cvsnageswara Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -384,27 +384,21 @@ void uiFlatViewer::drawBitMaps()
 		wvabmpmgr_->bitMapGen()->getScaleRange();
     }
 
-    if ( mIsUdf(offs.x) )
-    {
-	if ( hasdata )
-	    ErrMsg( "Internal error during bitmap generation" );
-	else
-	{
-	    PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
-		   				    canvas_.arrArea().height());
-	    pixmap->fill( Color::White() );
-	    canvas_.setPixmap( *pixmap );
-	    canvas_.draw();
-	    return;
-	}
-    }
+    if ( mIsUdf(offs.x) && hasdata )
+	ErrMsg( "Internal error during bitmap generation" );
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    bmp2rgb_->setRGBArr( canvas_.rgbArray() );
-    bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
     PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
-			   		    canvas_.arrArea().height() );
-    pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
+	    				    canvas_.arrArea().height() );
+    if ( hasdata && !mIsUdf(offs.x) )
+    {
+	bmp2rgb_->setRGBArr( canvas_.rgbArray() );
+	bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
+	pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
+    }
+    else
+	pixmap->fill( Color::White() );
+
     canvas_.setPixmap( *pixmap );
     canvas_.draw();
 }
