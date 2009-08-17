@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.107 2009-08-12 03:08:19 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.108 2009-08-17 19:16:47 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -882,7 +882,9 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 {
     RefMan<visBase::HorizonSection> surf = visBase::HorizonSection::create();
+    surf->ref();
     surf->setDisplayTransformation( transformation_ );
+    surf->setZAxisTransform( zaxistransform_ );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
     const HorSampling& hs = horizon->geometry().getDisplayRange();
@@ -908,9 +910,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1, tr );
 
-    surf->ref();
     surf->setMaterial( 0 );
-    surf->setZAxisTransform( zaxistransform_ );
     const int index = childIndex(drawstyle_->getInventorNode());
     insertChild( index, surf->getInventorNode() );
     surf->turnOn( !displayonlyatsections_ );
