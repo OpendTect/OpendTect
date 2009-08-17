@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.3 2009-08-14 16:40:20 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.4 2009-08-17 15:20:05 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -18,10 +18,11 @@ static const char* rcsID = "$Id: visbeachball.cc,v 1.3 2009-08-14 16:40:20 cvska
 #include "color.h"
 #include "SoShapeScale.h"
 #include "UTMPosition.h"
-
+#include "visdrawstyle.h"
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoMaterial.h>
+#include <Inventor/nodes/SoMaterialBinding.h>
 #include <Inventor/nodes/SoTranslation.h>
 
 mCreateFactoryEntry( visBase::BeachBall );
@@ -33,30 +34,53 @@ const char* BeachBall::radiusstr()	{ return "Radius"; }
 
 
 BeachBall::BeachBall()
-    : VisualObjectImpl( true )  // to do: check if must be true / false!
-    , ball_( 0 )
-    , transformation_( 0 )
-    , translation_( new SoTranslation )
-    , xytranslation_( 0 )
-//    , scale_( new SoShapeScale )
-    , material_( new SoMaterial )
+    : VisualObjectImpl(true) 
+    , ball_(new SoBeachBall)
+    , material_(new SoMaterial)
+    , translation_(new SoTranslation)
+    , xytranslation_(0)
+    , scale_(new SoShapeScale)
+    , style_ (0)
+    , transformation_(0)
 {
+    material_->ref();
     material_->diffuseColor.setNum( 2 );
     material_->diffuseColor.set1Value( 0, SbColor( 1, 1, 1 ) );
-    material_->diffuseColor.set1Value( 1, SbColor( 0, 1, 1 ) );
-
-    addChild( translation_ );
-//    addChild( scale_ );
+    material_->diffuseColor.set1Value( 1, SbColor( 1, 0, 0 ) );
     addChild( material_ );
-    ball_ = new SoBeachBall();
-    ball_->ref(); // to do: check if this needs to be there
-//    setScreenSize( cDefaultScreenSize() );
+
+    SoMaterialBinding* matbinding = new SoMaterialBinding;
+    matbinding->ref();
+    matbinding->value = SoMaterialBinding::PER_PART;
+    addChild( matbinding );
+    
+    translation_->ref();
+    addChild( translation_ );
+    
+    scale_->ref();
+//    scale_->restoreProportions = true;
+//    scale_->screenSize.setValue( 5 ); // to do: check! cDefaultScreenSize();
+    addChild( scale_ );
+
+    style_ = DrawStyle::create();
+    style_->ref();
+    style_->setDrawStyle( DrawStyle::Filled );
+    addChild( style_->getInventorNode() );
+
+    ball_->ref();
+    addChild( ball_ );
 }
 
 
 BeachBall::~BeachBall()
 {
-     if ( transformation_ ) transformation_->unRef();
+    material_->unref();
+    translation_->unref();
+    scale_->unref();
+    //transformation_->unRef(); 
+    // transformation_ is deleted even before control reaches here!
+//    ball_->unref();
+    // cannot unref scale_ and transformation_.
 }
 
 
@@ -78,7 +102,8 @@ void BeachBall::setDisplayTransformation( Transformation* nt )
 
 void BeachBall::setCenterPosition( Coord3 c )
 {
-    Coord3 pos( c );
+    Coord3 pos( 607903, 6077213, 0.5 );
+//    Coord3 pos;
     
     if ( transformation_ ) pos = transformation_->transform( pos );
 
@@ -121,44 +146,41 @@ Coord3 BeachBall::getCenterPosition() const
 
 void BeachBall::setRadius( float r )
 {
-    // to do!
-
+    // to do! check
+    scale_->screenSize.setValue( r );
 }
 
 
 float BeachBall::getRadius() const
 {
-    // to do!
-    return 1;
+    // to do! check
+    return scale_->screenSize.getValue();
 }
 
 
 void BeachBall::setColor1( Color col )
 {
-    // to do! create a material and set the color
-
+    material_->diffuseColor.set1Value( 0, col.r(), col.g(), col.b() );
 }
 
 
 Color BeachBall::getColor1() const
 {
-    // to do!
-    Color c(0, 0, 0);
-    return c;
+    SbColor col = material_->diffuseColor[0];
+    return Color( col[0], col[1], col[2] );
 }
 
 
 void BeachBall::setColor2( Color col )
 {
-    // to do! create a material and set the color
+    material_->diffuseColor.set1Value( 1, col.r(), col.g(), col.b() );
 }
 
 
 Color BeachBall::getColor2() const
 {
-    // to do!
-    Color c(0, 0, 0);
-    return c;
+    SbColor col = material_->diffuseColor[1];
+    return Color( col[0], col[1], col[2] );
 }
 
 
