@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.19 2009-08-14 21:34:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.20 2009-08-17 14:42:13 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -505,8 +505,59 @@ bool TriangulatedGridder2D::init()
 	interpolator_ = new Triangle2DInterpolator( *triangles_ );
     }
 
-    if ( !interpolator_->computeWeights(gridpoint_,usedvalues_,weights_) )
+    TypeSet<int> vertices;
+    TypeSet<float> weight;
+    if ( !interpolator_->computeWeights(gridpoint_,vertices,weight) )
 	return false;
+
+    for ( int idx=0; idx<vertices.size(); idx++ )
+    {
+	if ( vertices[idx]>=points_->size() )
+	{
+	    TypeSet<int> conns;
+	    TypeSet<double> ws;
+	    triangles_->getConnectionAndWeights(vertices[idx],conns,ws,false);
+	    
+	    double weightsum = 0;
+	    for ( int idy=0; idy<ws.size(); idy++ )
+	    {
+		if ( addedindices_.indexOf(conns[idy])!=-1 )
+		{
+		    ws.remove( idy );
+		    conns.remove( idy );
+		    idy--;
+		    continue;
+		}
+		
+		weightsum += ws[idy];
+	    }
+	    
+	    for ( int idy=0; idy<ws.size(); idy++ )
+	    {
+		const int ptidx = usedvalues_.indexOf( conns[idy] );
+		if ( ptidx==-1 )
+		{
+		    usedvalues_ += conns[idy];
+		    weights_ += weight[idx]*ws[idy]/weightsum;
+		}
+		else
+		{
+		    weights_[ptidx] += weight[idx]*ws[idy]/weightsum;
+		}
+	    }
+	}
+	else
+	{
+	    const int ptidx = usedvalues_.indexOf( vertices[idx] );
+	    if ( ptidx==-1 )
+	    {
+		usedvalues_ += vertices[idx];
+		weights_ += weight[idx];
+	    }
+	    else
+		weights_[ptidx] += weight[idx];
+	}
+    }
 
     inited_ = true;
     return true;
