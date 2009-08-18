@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.23 2009-07-29 10:05:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.24 2009-08-18 10:53:36 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -149,7 +149,7 @@ bool WellTieToSeismic::computeSynthetics()
 	      	 	 *workdata_.get(params_.ainm_) );
     
     geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 
-			     1/( 1.1*SI().zStep() ) );
+			     1/( 4*SI().zStep() ) );
 
     geocalc_->computeReflectivity( *workdata_.get(params_.ainm_),
        				   *dispdata_.get(params_.refnm_), 
@@ -230,7 +230,7 @@ bool WellTieToSeismic::estimateWavelet()
        return false;
 
     const bool iswvltodd = wvltsz%2;
-    //if ( iswvltodd ) wvlt->reSize( wvltsz+1 );
+    if ( iswvltodd ) wvlt->reSize( wvltsz+1 );
    
     Array1DImpl<float> wvltarr( datasz ), wvltvals( wvltsz );
     //performs deconvolution
