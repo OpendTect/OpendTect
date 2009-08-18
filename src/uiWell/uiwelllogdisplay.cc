@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.10 2009-08-18 06:52:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.11 2009-08-18 13:15:25 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.10 2009-08-18 06:52:38 
 #define mDefZPosInLoop(val) \
 	float zpos = val; \
 	if ( zintime_ && d2tm_ ) \
-	    zpos = d2tm_->getTime( val )*1000; \
+	    zpos = d2tm_->getTime( zpos )*1000; \
 	if ( zpos < zrg_.start ) \
 	    continue; \
 	else if ( zpos > zrg_.stop ) \
