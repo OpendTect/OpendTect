@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.39 2009-07-29 14:36:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.40 2009-08-18 08:33:39 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -116,6 +116,7 @@ void uiWellTieView::initFlatViewer()
 {
     BufferString nm("Synthetics<------------------------------------>Seismics");
     vwr_->setInitialSize( uiSize(490,540) );
+    vwr_->setExtraBorders( uiSize(0,00), uiSize(0,20) );
     vwr_->viewChanged.notify( mCB(this,uiWellTieView,zoomChg) );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
@@ -129,8 +130,7 @@ void uiWellTieView::initFlatViewer()
     app.annot_.x2_.sampling_ = 0.2;
     app.annot_.title_ = nm;
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.right_= Color(0,0,255);
-    app.ddpars_.wva_.left_= Color(255,0,0);
+    app.ddpars_.wva_.right_= Color::Black();
     app.ddpars_.wva_.clipperc_.set(0,0);
     app.ddpars_.wva_.wigg_ = Color::Black();
     app.ddpars_.wva_.overlap_ = 1;
@@ -139,9 +139,17 @@ void uiWellTieView::initFlatViewer()
 
 void uiWellTieView::setLogsParams()
 {
+    const Well::D2TModel* d2tm = wd_.d2TModel();
+    if ( !d2tm ) return;
+    WellTieParams::uiParams* uipms = dataholder_->uipms();
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
-	logsdisp_[idx]->setZDispInFeet( dataholder_->uipms()->iszinft_ );
+    {
+	logsdisp_[idx]->setD2TModel( d2tm );
+	logsdisp_[idx]->setZDispInFeet( uipms->iszinft_ );
+	logsdisp_[idx]->setZInTime( uipms->iszintime_ );
+    }
     setLogsRanges( params_->dptintv_.start, params_->dptintv_.stop );
+
 }
 
 
@@ -396,6 +404,7 @@ void uiWellTieView::drawCShot()
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
     const int sz = cs->size();
+    if ( sz < 2 ) return;
     
     WellTieGeoCalculator geocalc( dataholder_->params(), &wd_ );
 
@@ -413,17 +422,23 @@ void uiWellTieView::drawCShot()
     uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData();
     Interval<float> zrg = ld.zrg_;
 
+    const bool dispintime = dataholder_->uipms()->iszintime_;
+    const Well::D2TModel* d2tm = wd_.d2TModel();
+    if ( dispintime && !d2tm ) return; 
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	float val = cstolog[idx];
-	float dah = dpt[idx];
-	if ( dah < zrg.start )
+	float zpos = dpt[idx];
+	if ( dispintime ) 
+	    zpos = d2tm->getTime( zpos )*1000;
+	if ( zpos < zrg.start )
 	    continue;
-	else if ( dah > zrg.stop )
+	else if ( zpos > zrg.stop )
 	    break;
 	
-	if ( dataholder_->uipms()->iszinft_ ) dah *= mToFeetFactor;
-	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
+	if ( dataholder_->uipms()->iszinft_ ) zpos *= mToFeetFactor;
+	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(zpos) );
     }
     if ( pts.isEmpty() ) return;
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.45 2009-08-18 07:49:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.46 2009-08-18 08:33:39 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -310,7 +310,7 @@ void uiWellTieToSeismicDlg::createDispPropFields( uiGroup* dispgrp )
     zintimefld_ ->attach( alignedAbove, zinftfld_ );
     
     markerfld_ = new uiCheckBox( dispgrp, "display Markers" );
-    markerfld_->attach( rightOf, zinftfld_ );
+    markerfld_->attach( rightOf, zintimefld_ );
     markerfld_->display( wd_->haveMarkers() );
 
     putDispParams();
