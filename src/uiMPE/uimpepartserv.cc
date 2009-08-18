@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.100 2009-08-06 12:13:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.101 2009-08-18 09:27:12 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -73,6 +73,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , initialundoid_(mUdf(int))
     , seedhasbeenpicked_(false)
     , setupbeingupdated_(false)
+    , rtnwtseedwtas_(false)
 {
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
     MPE::engine().activevolumechange.notify(
@@ -174,10 +175,9 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
 bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
-    if ( trackercurrentobject_ != -1 )
+    if ( trackercurrentobject_ != -1 && !rtnwtseedwtas_ )
 	return false;
-
-    //saveUnsaveEMObject();
+    rtnwtseedwtas_ = false;
 
     cursceneid_ = addedtosceneid;
     NotifyStopper notifystopper( MPE::engine().trackeraddremove );
@@ -386,6 +386,7 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
 void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 {
     deleteSetupGrp();
+    rtnwtseedwtas_ = false;
 
     if ( trackercurrentobject_ == -1 ) return;
 
@@ -436,7 +437,11 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     }
 
     if ( !setupgrp_->commitToTracker() )
-	return;
+	if ( !seedhasbeenpicked_ )
+	{
+	    rtnwtseedwtas_ = true;
+	    return;
+	}
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
     if ( addrmseednotifier )
@@ -685,9 +690,12 @@ const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 				    const EM::SectionID& sid )
 {
-    if ( trackercurrentobject_!=-1 || emid<0 || sid<0 )
+    if ( emid<0 || sid<0 )
 	return false;
-
+    else if ( trackercurrentobject_!=-1 )
+	if ( !rtnwtseedwtas_ )
+	    return false;
+    
     const int trackerid = getTrackerID( emid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( !tracker ) return false;
@@ -725,6 +733,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 					EM::EMObject::sSeedNode()) );
     setupgrp_->setSectionTracker( sectracker );
+    setupgrp_->setAttribSet( getCurAttrDescSet(tracker->is2D()) );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
     if ( modechangenotifier )
