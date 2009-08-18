@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.17 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.18 2009-08-18 08:40:29 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -83,7 +83,7 @@ void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop,
 }
 
 
-#define mTimeGate 0.04
+#define mTimeGate 0.02
 float WellTiePickSetMGR::findEvent( float zpos, bool issynth )
 {
     zpos *= 0.001;
@@ -91,11 +91,19 @@ float WellTiePickSetMGR::findEvent( float zpos, bool issynth )
 
     const char* colnm = issynth ? datapms_->synthnm_ : datapms_->attrnm_; 
     const int maxidx = dispdata_->getLength()-1;
-    Interval<float> intv( zpos, zpos+mTimeGate );
+    Interval<float> intvup ( zpos, zpos - mTimeGate );
+    Interval<float> intvdown ( zpos, zpos + mTimeGate );
     SamplingData<float> sd; sd.start = 0; sd.step = SI().zStep();
     ValueSeriesEvFinder<float,float> evf( *dispdata_->get(colnm), maxidx, sd );
-    const float evpos = evf.find( evtype_, intv ).pos;
-    if ( mIsUdf(evpos) || evpos<0 ) return zpos;
+    const float evposup =  evf.find( evtype_, intvup ).pos;
+    const float evposdown =  evf.find( evtype_, intvdown ).pos;
+    float evpos = evposdown;
+    if ( (mIsUdf(evposup) || evposup<0) && (mIsUdf(evposdown) || evposdown<0) )
+	evpos = zpos;
+    else if ( mIsUdf(evposdown) || evposdown<0 )
+	evpos = evposup;
+    else if ( fabs(zpos-evposup)<fabs(zpos-evposdown) )
+	evpos = evposup;
 
     return evpos;
 }
