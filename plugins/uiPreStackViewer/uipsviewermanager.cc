@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.48 2009-08-18 18:10:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.49 2009-08-18 19:17:21 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -131,6 +131,9 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
     	mAddMenuItem( menu, &amplspectrumitem_, true, false ); 
 	if ( !posdialogs_[idxof] || posdialogs_[idxof]->isHidden() )
 	    mAddMenuItem( menu, &positionmenuitem_, true, false )
+	else
+	    mResetMenuItem( &positionmenuitem_ )
+
     	mAddMenuItem( menu, &removemenuitem_, true, false ); 
     }
 }
