@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.40 2009-08-18 08:33:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.41 2009-08-18 15:23:22 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -116,7 +116,7 @@ void uiWellTieView::initFlatViewer()
 {
     BufferString nm("Synthetics<------------------------------------>Seismics");
     vwr_->setInitialSize( uiSize(490,540) );
-    vwr_->setExtraBorders( uiSize(0,00), uiSize(0,20) );
+    vwr_->setExtraBorders( uiSize(0,0), uiSize(0,20) );
     vwr_->viewChanged.notify( mCB(this,uiWellTieView,zoomChg) );
     FlatView::Appearance& app = vwr_->appearance();
     app.setGeoDefaults( true );
@@ -274,6 +274,13 @@ void uiWellTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
 
 void uiWellTieView::setLogsRanges( float start, float stop )
 {
+    const Well::D2TModel* d2tm = wd_.d2TModel();
+    if ( !d2tm ) return; 
+    if ( dataholder_->uipms()->iszintime_ )
+    {
+	start = d2tm->getTime( start )*1000;
+	stop = d2tm->getTime( stop )*1000;
+    }
     for (int idx=0; idx<logsdisp_.size(); idx++)
 	logsdisp_[idx]->setZRange( Interval<float>( start, stop) );
 }
