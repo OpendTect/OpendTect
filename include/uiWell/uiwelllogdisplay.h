@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.8 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.9 2009-08-18 06:52:38 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiLineItem;
 class uiPolyLineItem;
 class uiGraphicsScene;
 class UnitOfMeasure;
-namespace Well { class Log; class Marker; }
+namespace Well { class Log; class Marker; class D2TModel; }
 
 /*!\brief creates a display of max 2 well logs. */
 
@@ -97,9 +97,17 @@ public:
     void			setZRange(const Interval<float>&);
     void			dataChanged();
 
+    void                        setD2TModel( const Well::D2TModel* d2tm )
+				{ d2tm_ = d2tm; }
+
     void			setZDispInFeet( bool yn )
     				{ dispzinft_ = yn; dataChanged(); }
     bool			zDispInFeet() const	  { return dispzinft_; }
+
+    void			setZInTime( bool yn )
+    				{ zintime_ = yn; dataChanged(); }
+    bool			zInTime() const	  { return zintime_; }
+
 
 protected:
 
@@ -107,9 +115,11 @@ protected:
     LogData			ld2_;
     Interval<float>		datazrg_;
     Interval<float>		zrg_;
+    bool			zintime_;
     bool			dispzinft_;
     const ObjectSet<Well::Marker>* markers_;
     TypeSet<PickData>		zpicks_;
+    const Well::D2TModel*       d2tm_;
     Setup			setup_;
 
     ObjectSet<uiLineItem>	markeritms_;

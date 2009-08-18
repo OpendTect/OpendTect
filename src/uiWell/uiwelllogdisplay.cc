@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.9 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.10 2009-08-18 06:52:38 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
 #include "wellmarker.h"
+#include "welld2tmodel.h"
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -21,13 +22,15 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.9 2009-07-22 16:01:44 c
 #include "unitofmeasure.h"
 #include <iostream>
 
-#define mDefDahInLoop(val) \
-	float dah = val; \
-	if ( dah < zrg_.start ) \
+#define mDefZPosInLoop(val) \
+	float zpos = val; \
+	if ( zintime_ && d2tm_ ) \
+	    zpos = d2tm_->getTime( val )*1000; \
+	if ( zpos < zrg_.start ) \
 	    continue; \
-	else if ( dah > zrg_.stop ) \
+	else if ( zpos > zrg_.stop ) \
 	    break; \
-	if ( dispzinft_ ) dah *= mToFeetFactor
+	if ( dispzinft_ && !zintime_ ) zpos *= mToFeetFactor
 
 
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
@@ -58,7 +61,9 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , ld2_(scene(),false,su.border_)
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeetByDefault())
+    , zintime_(false)
     , markers_(0)
+    , d2tm_(0)
 {
     setStretch( 2, 2 );
     getMouseEventHandler().buttonReleased.notify(
@@ -122,7 +127,11 @@ void uiWellLogDisplay::gatherInfo()
 
     if ( ld1_.wl_ ) ld1_.xax_.setup().name( ld1_.wl_->name() );
     if ( ld2_.wl_ ) ld2_.xax_.setup().name( ld1_.wl_->name() );
-    BufferString znm( "MD ", dispzinft_ ? "(ft)" : "(m)" );
+    BufferString znm;
+    if ( zintime_ )
+	znm += "TWT", "(ms)";
+    else
+	znm += "MD ", dispzinft_ ? "(ft)" : "(m)";
     ld1_.yax_.setup().name( znm ); ld2_.yax_.setup().name( znm );
 }
 
@@ -164,8 +173,15 @@ void uiWellLogDisplay::gatherInfo( bool first )
     DataClipSampler dcs( sz );
     dcs.add( ld.wl_->valArr(), sz );
     ld.valrg_ = dcs.getRange( ld.clipratio_ );
-    ld.zrg_.start = ld.wl_->dah( 0 );
-    ld.zrg_.stop = ld.wl_->dah( sz-1 );
+    float startpos = ld.wl_->dah( 0 );
+    float stoppos = ld.wl_->dah( sz-1 );
+    if ( zintime_ && d2tm_ )
+    {
+	startpos = d2tm_->getTime( startpos )*1000;
+	stoppos = d2tm_->getTime( stoppos )*1000;
+    }
+    ld.zrg_.start = startpos;
+    ld.zrg_.stop = stoppos;
 }
 
 
@@ -180,7 +196,7 @@ void uiWellLogDisplay::setAxisRanges( bool first )
     ld.xax_.setBounds( dispvalrg );
 
     Interval<float> dispzrg( zrg_.stop, zrg_.start );
-    if ( dispzinft_ )
+    if ( dispzinft_ && !zintime_ )
 	dispzrg.scale( mToFeetFactor );
     ld.yax_.setBounds( dispzrg );
 
@@ -227,7 +243,7 @@ void uiWellLogDisplay::drawCurve( bool first )
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     for ( int idx=0; idx<sz; idx++ )
     {
-	mDefDahInLoop( ld.wl_->dah( idx ) );
+	mDefZPosInLoop( ld.wl_->dah( idx ) );
 
 	float val = ld.wl_->value( idx );
 	if ( mIsUdf(val) )
@@ -240,7 +256,7 @@ void uiWellLogDisplay::drawCurve( bool first )
 	    continue;
 	}
 
-	*curpts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
+	*curpts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(zpos) );
     }
     if ( curpts->isEmpty() )
 	delete curpts;
@@ -271,7 +287,7 @@ void uiWellLogDisplay::drawCurve( bool first )
 
     deepErase( pts );
     if ( first )
-	ld.yax_.annotAtEnd( dispzinft_ ? "(ft)" : "(m)" );
+	ld.yax_.annotAtEnd( zintime_ ? "(ms)" : dispzinft_ ? "(ft)" : "(m)" );
     if ( ld.unitmeas_ )
 	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
 }
@@ -280,7 +296,7 @@ void uiWellLogDisplay::drawCurve( bool first )
 #define mDefHorLineX1X2Y() \
 	const int x1 = ld1_.xax_.getRelPosPix( 0 ); \
 	const int x2 = ld1_.xax_.getRelPosPix( 1 ); \
-	const int y = ld1_.yax_.getPix( dah )
+	const int y = ld1_.yax_.getPix( zpos )
 
 void uiWellLogDisplay::drawMarkers()
 {
@@ -293,7 +309,7 @@ void uiWellLogDisplay::drawMarkers()
 	const Well::Marker& mrkr = *((*markers_)[idx]);
 	if ( mrkr.color() == Color::NoColor() ) continue;
 
-	mDefDahInLoop( mrkr.dah() );
+	mDefZPosInLoop( mrkr.dah() );
 	mDefHorLineX1X2Y();
 
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
@@ -320,7 +336,7 @@ void uiWellLogDisplay::drawZPicks()
     for ( int idx=0; idx<zpicks_.size(); idx++ )
     {
 	const PickData& pd = zpicks_[idx];
-	mDefDahInLoop( pd.dah_ );
+	mDefZPosInLoop( pd.dah_ );
 	mDefHorLineX1X2Y();
 
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
