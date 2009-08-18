@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.28 2009-08-07 18:55:39 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.29 2009-08-18 18:12:46 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
 
@@ -186,6 +186,13 @@ const SamplingData<float> FlatViewer::getDefaultGridSampling( bool x1 ) const
     Interval<float> range; range.setFrom( posdata->range( x1 ) );
     AxisLayout layout( range );
     return layout.sd;
+}
+
+
+void FlatViewer::turnOnGridLines( bool offsetlines, bool zlines )
+{
+    x1gridlines_->turnOn( offsetlines );
+    x2gridlines_->turnOn( zlines );
 }
 
 

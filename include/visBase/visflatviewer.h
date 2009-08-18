@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.12 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visflatviewer.h,v 1.13 2009-08-18 18:12:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
 	    				     bool dofill = true);
     void	                setPosition(const Coord3& c00,const Coord3& c01,
 	                                  const Coord3& c10,const Coord3& c11);    
+    void			turnOnGridLines(bool offsetlines,bool zlines);
     void			allowShading(bool yn);  
     void			replaceChannels(visBase::TextureChannels*);
     				/*!<Replaces internal texture. The new texture 
