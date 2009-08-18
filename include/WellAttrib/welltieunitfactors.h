@@ -71,6 +71,7 @@ public :
 	bool 			iscsdisp_;
 	bool                    ismarkerdisp_;
 	bool                    iszinft_;
+	bool                    iszintime_;
 	const Well::Data&	wd_;
 	
 	friend class 		WellTieParams;
@@ -133,7 +134,7 @@ public :
     const WellTieSetup& 	getSetup() const   { return wtsetup_; }
     const WellTieUnitFactors& 	getUnits() const   { return factors_; }
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
-    void			resetParams(); 
+    bool			resetParams(); 
     void			resetVellLognm();
 
 protected :

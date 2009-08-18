@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.44 2009-07-29 14:36:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.45 2009-08-18 07:49:16 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -53,8 +53,8 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.44 2009-07-29 14:3
 #include "welltietoseismic.h"
 #include "welltieunitfactors.h"
 
-static const char*  eventtypes[] = {"None","Extrema","Maxima",
-				    "Minima","Zero-crossings",0};
+static const char*  eventtypes[] = { "None","Extrema","Maxima",
+				     "Minima","Zero-crossings",0 };
 #define mErrRet(msg) \
 { uiMSG().error(msg); return false; }
 uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p, 
@@ -72,6 +72,7 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	, params_(0)       		 
 {
     setTitle( ads );
+    viewer().setHandDrag( true );
     
     for ( int idx=0; idx<2; idx++ )
     { 
@@ -89,7 +90,7 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
     eventstretcher_  = new uiWellTieEventStretch( this, dataholder_,
 	    					  *datadrawer_ );
     infodlg_->applyPushed.notify(
-	    		mCB(this,uiWellTieToSeismicDlg,doCrossCheckWork) );
+	    		mCB(this,uiWellTieToSeismicDlg,compute) );
     eventstretcher_->timeChanged.notify(
 	    		mCB(this,uiWellTieToSeismicDlg,timeChanged) );
     eventstretcher_->pickadded.notify(
@@ -111,7 +112,7 @@ uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
     if ( infodlg_ )
     {
 	infodlg_->applyPushed.remove(
-	    		mCB(this,uiWellTieToSeismicDlg,doCrossCheckWork) );
+	    		mCB(this,uiWellTieToSeismicDlg,compute) );
 	delete infodlg_;
     }
     if ( datadrawer_ )     delete datadrawer_;
@@ -145,7 +146,7 @@ void uiWellTieToSeismicDlg::initAll()
     dataholder_->pickmgr()->setDataParams( dataholder_->dpms() );
     dataholder_->pickmgr()->setData( dataholder_->dispData() );
     show();
-    dispPropChg(0);
+    dispPropChg( 0 );
 }
 
 
@@ -170,20 +171,18 @@ void uiWellTieToSeismicDlg::displayUserMsg( CallBacker* )
 
 bool uiWellTieToSeismicDlg::doWork( CallBacker* )
 {
-    getDispParams();
-    params_->resetParams();
-    if ( !dataplayer_->computeAll() )
-	mErrRet( "unable to compute data, please check your input data" ); 
+    if ( !compute(0) )
+	return false;
     drawData();
-    resetInfoDlg();
     return true;
 }
 
 
-bool uiWellTieToSeismicDlg::doCrossCheckWork( CallBacker* )
+bool uiWellTieToSeismicDlg::compute( CallBacker* )
 {
     getDispParams();
-    params_->resetParams();
+    if ( !params_->resetParams() )
+	 mErrRet( "unable to handle log data, please check your input logs" );
     if ( !dataplayer_->computeAll() )
 	mErrRet( "unable to compute data, please check your input data" ); 
     resetInfoDlg();
@@ -231,6 +230,7 @@ void uiWellTieToSeismicDlg::drawFields()
     createViewerTaskFields( vwrtaskgrp );
 
     uiGroup* disppropgrp = new uiGroup( this, "Display Properties group" );
+    disppropgrp->attach( ensureLeftOf, vwrtaskgrp );
     disppropgrp->attach( ensureBelow, viewer() );
     disppropgrp->attach( ensureBelow, logsdisp_[0] );
     disppropgrp->attach( ensureBelow, logsdisp_[1] );
@@ -296,26 +296,32 @@ void uiWellTieToSeismicDlg::createViewerTaskFields( uiGroup* taskgrp )
 
 void uiWellTieToSeismicDlg::createDispPropFields( uiGroup* dispgrp )
 {
+    dispgrp->setHSpacing( 50 );
     cscorrfld_ = new uiCheckBox( dispgrp, "use checkshot corrections" );
-    cscorrfld_->display( params_->uipms_.iscscorr_ );
+    cscorrfld_->display( params_->uipms_.iscsavailable_ );
 
     csdispfld_ = new uiCheckBox( dispgrp, "display checkshot related curve" );
-    csdispfld_->display(params_->uipms_.iscscorr_);
+    csdispfld_->display( params_->uipms_.iscsavailable_ );
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
     zinftfld_ ->attach( rightOf, csdispfld_);
+
+    zintimefld_ = new uiCheckBox( dispgrp, "Z in time" );
+    zintimefld_ ->attach( alignedAbove, zinftfld_ );
     
     markerfld_ = new uiCheckBox( dispgrp, "display Markers" );
-    markerfld_->attach( alignedAbove, zinftfld_ );
+    markerfld_->attach( rightOf, zinftfld_ );
+    markerfld_->display( wd_->haveMarkers() );
 
     putDispParams();
 
     const CallBack pccb( mCB(this,uiWellTieToSeismicDlg,dispPropChg) );
-    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,doWork));
+    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,csCorrChanged));
     cscorrfld_->activated.notify( pccb );
     csdispfld_->activated.notify( pccb );
     markerfld_->activated.notify( pccb );
     zinftfld_->activated.notify( pccb );
+    zintimefld_->activated.notify( pccb );
 
     zinftfld_->setChecked( SI().depthsInFeetByDefault() );
 }
@@ -328,6 +334,7 @@ void uiWellTieToSeismicDlg::getDispParams()
     uipms->iscscorr_ = cscorrfld_->isChecked();
     uipms->iscsdisp_ = csdispfld_->isChecked();
     uipms->iszinft_ = zinftfld_->isChecked();
+    uipms->iszintime_ = zintimefld_->isChecked();
     uipms->ismarkerdisp_ = markerfld_->isChecked();
 }
 
@@ -339,12 +346,14 @@ void uiWellTieToSeismicDlg::putDispParams()
     cscorrfld_->setChecked( pms->iscscorr_ );
     markerfld_->setChecked( pms->ismarkerdisp_ );
     zinftfld_->setChecked( pms->iszinft_ );
+    zintimefld_->setChecked( pms->iszintime_ );
 }
 
 
 void uiWellTieToSeismicDlg::dispPropChg( CallBacker* )
 {
     getDispParams();
+    zinftfld_->display( !dataholder_->uipms()->iszintime_ );
     if ( !datadrawer_->isEmpty() )
 	drawData();
 }
@@ -355,6 +364,21 @@ void uiWellTieToSeismicDlg::timeChanged( CallBacker* )
     applybut_->setSensitive( true );
 }
 
+
+void uiWellTieToSeismicDlg::csCorrChanged( CallBacker* )
+{
+    getDispParams();
+    WellTieParams::uiParams* pms = dataholder_->uipms();
+    params_->resetVellLognm();
+    if ( pms->iscscorr_ )
+	dataplayer_->computeD2TModel();
+    else  
+	dataplayer_->undoD2TModel();
+    if ( wd_->haveD2TModel() && wd_->d2TModel()->size()<3 )
+	dataplayer_->computeD2TModel();
+
+    doWork(0);
+}
 
 void uiWellTieToSeismicDlg::infoPushed( CallBacker* )
 {
@@ -436,7 +460,7 @@ bool uiWellTieToSeismicDlg::undoPushed( CallBacker* cb )
 {
     if ( !dataplayer_->undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
-    clearPicks(0);
+    clearPicks( 0 );
     doWork( cb );
     
     undobut_->setSensitive( false );
@@ -541,26 +565,27 @@ void uiWellTieInfoDlg::applyMarkerPushed( CallBacker* )
 
 bool uiWellTieInfoDlg::setUserDepths()
 {
-    float start = wd_->d2TModel()->getDepth( 0 );
-    float stop = wd_->track().dah( wd_->track().size()-1 );
+    float startdah = wd_->d2TModel()->getDepth( 0 );
+    float stopdah = wd_->track().dah( wd_->track().size()-1 );
 
     if ( topmrkfld_->getIntValue() == botmrkfld_->getIntValue() )
 	return false;
 
+    const bool zinft = SI().depthsInFeetByDefault();
     const Well::Marker* topmarkr = wd_->markers().getByName(topmrkfld_->text());
     const Well::Marker* botmarkr = wd_->markers().getByName(botmrkfld_->text());
 
     if ( topmarkr )
-	start = topmarkr->dah();
+	startdah = topmarkr->dah();
 
     if ( botmarkr )
-	stop = botmarkr->dah();
+	stopdah = botmarkr->dah();
 
-    if ( start > stop )
-    { float tmp; mSWAP( start, stop, tmp ); }
+    if ( startdah > stopdah )
+    { float tmp; mSWAP( startdah, stopdah, tmp ); }
     
-    params_->corrstartdah_ = start;
-    params_->corrstopdah_  = stop;
+    params_->corrstartdah_ = startdah;
+    params_->corrstopdah_  = stopdah;
 
     return true;
 }

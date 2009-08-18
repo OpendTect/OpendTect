@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.21 2009-07-29 10:05:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.22 2009-08-18 07:49:16 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -126,12 +126,16 @@ BufferString WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
     return SeisIOObjInfo::defKey2DispName(defkey,attrnm);
 }
 
-void WellTieParams::resetParams()
+bool WellTieParams::resetParams()
 {
-    dpms_.resetDataParams();
+    if ( !dpms_.resetDataParams() )
+	return false;
+
     resetVellLognm();
     //TODO this should be an easiest way to set the vellognm than using 
     // one name for display and one for data!
+
+    return true;
 }
 
 
@@ -144,8 +148,9 @@ void WellTieParams::resetVellLognm()
 }
 
 
-#define mStep 20
-#define mComputeStepFactor SI().zStep()/mStep
+#define mMaxWorkArraySize (int)1.e5
+#define mComputeStepFactor (SI().zStep()/step_)
+
 bool WellTieParams::DataParams::resetDataParams()
 {
     const float startdah = wd_.track().dah(0);
@@ -160,11 +165,12 @@ bool WellTieParams::DataParams::resetDataParams()
     timeintv_.start = 0;
 
     worksize_ = (int) ( (timeintv_.stop-timeintv_.start)/timeintv_.step );
-    dispsize_ = (int) ( worksize_/mStep )-1;
-    corrsize_ = (int) ( (corrtimeintv_.stop-corrtimeintv_.start )
-	    		 	/(mStep*timeintv_.step) );
+    dispsize_ = (int) ( worksize_/step_ )-1;
+    corrsize_ = (int) ( (corrtimeintv_.stop - corrtimeintv_.start )
+	    		 	/( step_*timeintv_.step ) );
 
     if ( corrsize_>dispsize_ ) corrsize_ = dispsize_;
+    if ( worksize_ > mMaxWorkArraySize ) return false;
     
     return true;
 }
@@ -221,11 +227,12 @@ void WellTieParams::DataParams::createColNames()
 
 WellTieParams::uiParams::uiParams( const Well::Data* d)
     	: wd_(*d)
-	, iscsavailable_(d->checkShotModel())
-	, iscscorr_(d->checkShotModel())
+	, iscsavailable_(d->haveCheckShotModel())
+	, iscscorr_(d->haveCheckShotModel())
 	, iscsdisp_(false)
 	, ismarkerdisp_(d->haveMarkers())
 	, iszinft_(false)
+	, iszintime_(true)		 
 {}
 
 

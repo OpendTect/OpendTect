@@ -68,6 +68,7 @@ protected:
     uiCheckBox* 		csdispfld_;
     uiCheckBox* 		markerfld_;
     uiCheckBox* 		zinftfld_;
+    uiCheckBox* 		zintimefld_;
     uiGroup*            	vwrgrp_;
     uiLabeledComboBox*		eventtypefld_;
     uiPushButton*		infobut_;
@@ -100,16 +101,17 @@ protected:
     void 			applyPushed(CallBacker*);
     void 			applyMarkerPushed(CallBacker*);
     void 			applyShiftPushed(CallBacker*);
+    bool			compute(CallBacker*);
     void			checkIfPick(CallBacker*);
     void			checkShotChg(CallBacker*);
     void			checkShotDisp(CallBacker*);
+    void 			csCorrChanged(CallBacker*);
     void			clearLastPick(CallBacker*);
     void			clearPicks(CallBacker*);
     void 			timeChanged(CallBacker*);
     void 			dispParPushed(CallBacker*);
     void 			dispPropChg(CallBacker*);
     void 			displayUserMsg(CallBacker*);
-    bool 			doCrossCheckWork(CallBacker*);
     bool 			doWork(CallBacker*);
     void			drawUserPick(CallBacker*);
     void 			editD2TPushed(CallBacker*);
