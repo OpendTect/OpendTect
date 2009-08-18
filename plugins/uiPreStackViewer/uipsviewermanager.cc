@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.47 2009-08-18 14:45:41 cvskris Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.48 2009-08-18 18:10:40 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -340,10 +340,17 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	viewer->setWidth( width );
     
     IOPar* flatviewpar = settings.subselect( sKeyFlatviewPars() );
+    bool showx1 = viewer->flatViewer()->appearance().annot_.x1_.showgridlines_;
+    bool showx2 = viewer->flatViewer()->appearance().annot_.x2_.showgridlines_;
     if ( flatviewpar )
+    {
 	viewer->flatViewer()->appearance().ddpars_.usePar( *flatviewpar );
-
+	viewer->flatViewer()->appearance().annot_.x1_.showgridlines_ = showx1;
+ 	viewer->flatViewer()->appearance().annot_.x2_.showgridlines_ = showx2;
+    }
+    
     viewer->flatViewer()->handleChange( FlatView::Viewer::VDPars );
+    viewer->flatViewer()->turnOnGridLines( showx1, showx2 );
 
     if ( viewer->getScene() )
 	viewer->getScene()->change.notifyIfNotNotified( 

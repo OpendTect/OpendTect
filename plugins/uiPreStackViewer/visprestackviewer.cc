@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.56 2009-08-10 14:36:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.57 2009-08-18 18:10:40 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -272,10 +272,11 @@ bool Viewer3D::setPosition( const BinID& nb )
 	else
 	    uiMSG().warning("No gather data at the picked location.");
 	
-    	if ( !hasdata && flatviewer_ )
+    	if ( !hasdata )
 	{
 	    flatviewer_->appearance().annot_.x1_.showgridlines_ = false;
 	    flatviewer_->appearance().annot_.x2_.showgridlines_ = false;
+	    flatviewer_->turnOnGridLines( false, false );
 	}
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.5 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.6 2009-08-18 18:10:40 cvsyuancheng Exp $";
 
 #include "uipsviewerappearancetab.h"
 
@@ -145,8 +145,11 @@ bool uiViewer3DAppearanceTab::acceptOK()
     if ( !vwr_ )
 	return true;
 
+    applyButPushedCB( 0 );
+
     IOPar flatviewpar;
     vwr_->appearance().ddpars_.fillPar( flatviewpar );
+    vwr_->appearance().annot_.fillPar( flatviewpar );
     if ( saveAsDefault() )
     {
 	Settings& settings = Settings::fetch( uiViewer3DMgr::sSettings3DKey() );
@@ -158,7 +161,6 @@ bool uiViewer3DAppearanceTab::acceptOK()
 	}
     }
 
-    applyButPushedCB( 0 );
     return true;
 }
 
