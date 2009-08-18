@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.46 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.47 2009-08-18 14:45:41 cvskris Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -129,7 +129,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &proptymenuitem_, true, false );
     	mAddMenuItem( menu, &viewermenuitem_, true, false ); 
     	mAddMenuItem( menu, &amplspectrumitem_, true, false ); 
-	if ( !posdialogs_[idxof] )
+	if ( !posdialogs_[idxof] || posdialogs_[idxof]->isHidden() )
 	    mAddMenuItem( menu, &positionmenuitem_, true, false )
     	mAddMenuItem( menu, &removemenuitem_, true, false ); 
     }
@@ -176,8 +176,8 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	visserv_->removeObject( psv, sceneid );
 	const int idx = viewers3d_.indexOf( psv );
-	viewers3d_.remove( idx )->unRef();
 	delete posdialogs_.remove( idx );
+	viewers3d_.remove( idx )->unRef();
     }
     else if ( mnuid==proptymenuitem_.id )
     {
@@ -191,11 +191,11 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	const int idx = viewers3d_.indexOf( psv );
 	if ( idx >= 0 )
 	{
-	    uiViewer3DPositionDlg* dlg = 0;
-	    if ( !posdialogs_[idx] )
+	    uiViewer3DPositionDlg* dlg = posdialogs_[idx];
+	    if ( !dlg )
 		dlg = mkNewPosDialog( menu, *psv );
 	    if ( dlg )
-		dlg->raise();
+		dlg->show();
 	}
     }
     else if ( mnuid==viewermenuitem_.id )
@@ -361,8 +361,6 @@ uiViewer3DPositionDlg* uiViewer3DMgr::mkNewPosDialog( const uiMenuHandler* menu,
 	    uiViewer3DPositionDlg( menu->getParent(), vwr ) );
     if ( dlg ) 
     {
-	dlg->setDeleteOnClose( true );
-	dlg->windowClosed.notify( mCB(this,uiViewer3DMgr,posDlgClose) );
 	const int newidx = posdialogs_.size() - 1;
 	setDlgPos( dlg, newidx );
 	posdialogs_.replace( newidx, dlg );
@@ -370,19 +368,6 @@ uiViewer3DPositionDlg* uiViewer3DMgr::mkNewPosDialog( const uiMenuHandler* menu,
     }
 
     return dlg;
-}
-
-
-void uiViewer3DMgr::posDlgClose( CallBacker* cb )
-{
-    for ( int idx=0; idx<posdialogs_.size(); idx++ )
-    {
-	if ( posdialogs_[idx] == cb )
-	{
-	    posdialogs_.replace( idx, 0 );
-	    return;
-	}
-    }
 }
 
 

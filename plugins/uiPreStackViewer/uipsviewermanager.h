@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.16 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.17 2009-08-18 14:45:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,6 @@ protected:
     void		surveyToBeChangedCB(CallBacker*);
     void		sessionRestoreCB(CallBacker*);
     void		sessionSaveCB(CallBacker*);
-    void		posDlgClose(CallBacker*);
     void		viewer2DClosedCB(CallBacker*);
     				//Saved 2DViewer for VD only.
 
