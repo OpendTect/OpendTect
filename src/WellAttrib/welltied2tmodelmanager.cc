@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.9 2009-07-29 10:18:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.10 2009-08-18 13:20:26 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -38,14 +38,14 @@ WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data* d,
 	, params_(pms)		   		
 {
     if ( !wd_ ) return;
-    if ( !wd_->d2TModel() || wd_->d2TModel()->size()<=2 )
+    if ( !wd_->d2TModel() || wd_->d2TModel()->size()< 2 )
     {
 	emptyoninit_ = true;
 	wd_->setD2TModel( new Well::D2TModel );
     }
     orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd_->d2TModel() );
 
-    if ( wd_->checkShotModel() || wd_->d2TModel()->size()<=2 )
+    if ( wd_->haveCheckShotModel() || wd_->d2TModel()->size()<2 )
 	setFromVelLog( params_->dpms_.currvellognm_ );
 } 
 
@@ -117,7 +117,7 @@ void WellTieD2TModelMGR::replaceTime( const Array1DImpl<float>& timevals )
 
 void WellTieD2TModelMGR::setAsCurrent( Well::D2TModel* d2t )
 {
-    if ( !d2t || d2t->size() < 1 )
+    if ( !d2t || d2t->size() < 1 || d2t->value(1)<0 )
     { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
 
     if ( prvd2t_ )
