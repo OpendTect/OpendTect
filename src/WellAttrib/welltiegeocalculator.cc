@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.24 2009-08-18 10:53:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.25 2009-08-18 13:17:24 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -277,10 +277,12 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
     if ( bordersz > filtersz ) return;
     const float df = FFT::getDf( params_.dpms_.timeintv_.step, filtersz );
 
+    Array1DImpl<float>* orgvals = new Array1DImpl<float>( filtersz );
     Array1DImpl<float>* filterborders = new Array1DImpl<float>( 2*bordersz );
     Array1DImpl<float>* freqarr = new Array1DImpl<float>( filtersz ); 
     Array1DImpl<float_complex>* cfreqoutp 
 				= new Array1DImpl<float_complex>(filtersz);
+    memcpy( orgvals->getData(), vals.getData(), sizeof(float)*filtersz );
     
     for ( int idx=0; idx<filtersz; idx++ )
     {
@@ -296,7 +298,8 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
     HilbertTransform hil;
     hil.setCalcRange( 0, filtersz, 0 );
     Array1DImpl<float_complex>* cvals =new Array1DImpl<float_complex>(filtersz);
-    mDoTransform( hil, true, &vals, cvals, filtersz );
+    mDoTransform( hil, true, orgvals, cvals, filtersz );
+    delete orgvals;
     
     window.apply( cvals );
     const float avg = computeAvg( cvals ).real();
@@ -321,8 +324,8 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 	    outpval = cfreqinp->get(idx);
 	    revoutpval = cfreqinp->get( revidx );
 	}
-	else if ( freqarr->get(idx)>supborderfreq 
-		&& freqarr->get(idx)<infborderfreq  )
+	else if ( freqarr->get(idx) < supborderfreq 
+		&& freqarr->get(idx) > infborderfreq  )
 	{
 	    outpval = cfreqinp->get(idx)*filterborders->get( idarray );
 	    revoutpval = cfreqinp->get(revidx)
@@ -475,12 +478,12 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
     Array1DImpl<float_complex>* cfreqfiltervals = 
 				new Array1DImpl<float_complex>( filtersz );
     mDoTransform( fft, true, cfiltervals, cfreqfiltervals, filtersz );
-    delete cfiltervals;
 
     Spectrogram spec;
     Array1DImpl<float_complex>* cspecfiltervals = 
 				new Array1DImpl<float_complex>( filtersz );
     mDoTransform( spec, true, cfiltervals, cspecfiltervals, filtersz );
+    delete cfiltervals;
 
     float_complex wholespec = 0;
     float_complex noise = mNoise/filtersz;
