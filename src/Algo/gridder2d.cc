@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.20 2009-08-17 14:42:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.21 2009-08-18 21:29:27 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -352,7 +352,6 @@ bool TriangulatedNeighborhoodGridder2D::init()
 
 	ParallelDTriangulator triangulator( *triangles_ );
 	triangulator.dataIsRandom( false );
-	triangulator.setCalcScope( Interval<int>( 0, points_->size()-1 ) );
 	if ( !triangulator.execute( false ) )
 	{
 	    delete triangles_;
@@ -491,7 +490,7 @@ bool TriangulatedGridder2D::init()
 	}
 	
 	ParallelDTriangulator triangulator( *triangles_ );
-	triangulator.dataIsRandom( true ); 
+	triangulator.dataIsRandom( false ); 
 	if ( !triangulator.execute( false ) )
 	{
 	    delete triangles_;
