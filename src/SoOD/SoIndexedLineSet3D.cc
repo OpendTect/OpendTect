@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.13 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.14 2009-08-18 20:42:06 cvskris Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
 #include <Inventor/SbLinear.h>
 #include <Inventor/SoPrimitiveVertex.h>
 #include <Inventor/actions/SoAction.h>
+#include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/bundles/SoTextureCoordinateBundle.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
@@ -22,6 +23,7 @@ static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.13 2009-07-22 16:01:3
 
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/elements/SoMaterialBindingElement.h>
+#include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/elements/SoViewingMatrixElement.h>
@@ -29,16 +31,29 @@ static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.13 2009-07-22 16:01:3
 #include <Inventor/elements/SoViewportRegionElement.h>
 #include <Inventor/system/gl.h>
 
+#include "SoCameraInfo.h"
+#include "SoCameraInfoElement.h"
+
 
 SO_NODE_SOURCE(SoIndexedLineSet3D);
 
 void SoIndexedLineSet3D::initClass()
 {
     SO_NODE_INIT_CLASS(SoIndexedLineSet3D, SoIndexedShape, "IndexedShape");
+    SO_ENABLE( SoGLRenderAction, SoCameraInfoElement );
+    SO_ENABLE( SoGLRenderAction, SoModelMatrixElement );
+    SO_ENABLE( SoGLRenderAction, SoViewportRegionElement );
+    SO_ENABLE( SoGLRenderAction, SoViewVolumeElement );
+    SO_ENABLE( SoGLRenderAction, SoCacheElement );
 }
 
 
 SoIndexedLineSet3D::SoIndexedLineSet3D()
+    : nodeid_( -1 )
+    , modelmatchinfo_( 0 )
+    , coordmatchinfo_( 0 )
+    , vvmatchinfo_( 0 )
+    , vpmatchinfo_( 0 )
 {
     SO_NODE_CONSTRUCTOR(SoIndexedLineSet3D);
     SO_NODE_ADD_FIELD( radius, (5.0) );
@@ -48,135 +63,155 @@ SoIndexedLineSet3D::SoIndexedLineSet3D()
 }
 
 
+SoIndexedLineSet3D::~SoIndexedLineSet3D()
+{
+    delete modelmatchinfo_;
+    delete coordmatchinfo_;
+    delete vvmatchinfo_;
+    delete vpmatchinfo_;
+}
+
+
+#define mRenderQuad( c1, c2, m12, c3, c4, m34, norm23, norm14 )\
+    mb.send(m12,true);\
+    if ( isreversed ) \
+    { \
+	glNormal3fv((norm23).getValue()); \
+	glVertex3fv((c2).getValue());\
+	glNormal3fv((norm14).getValue()); \
+	glVertex3fv((c1).getValue());\
+	mb.send(m34,true);\
+	glNormal3fv((norm14).getValue()); \
+	glVertex3fv((c4).getValue());\
+	glNormal3fv((norm23).getValue()); \
+	glVertex3fv((c3).getValue());\
+    } \
+    else \
+    { \
+	glNormal3fv((norm14).getValue()); \
+	glVertex3fv((c1).getValue());\
+	glNormal3fv((norm23).getValue()); \
+	glVertex3fv((c2).getValue());\
+	mb.send(m34,true);\
+	glNormal3fv((norm23).getValue()); \
+	glVertex3fv((c3).getValue());\
+	glNormal3fv((norm14).getValue()); \
+	glVertex3fv((c4).getValue());\
+    }
+
+
 void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
 {
     if ( !shouldGLRender(action) )
 	return;
 
-    generateTriangles(action, true );
-}
-
-
-void SoIndexedLineSet3D::generatePrimitives(SoAction* action)
-{
-    generateTriangles(action, false );
-}
-
-
-#define mSaveJoint(jointidx, center, vecs, dorev, jnormal ) \
-    if ( world )\
-    {\
-	corner1[jointidx] = center+vecs[0]*scaleby;\
-	corner2[jointidx] = center+vecs[1]*scaleby;\
-	corner3[jointidx] = center+vecs[2]*scaleby;\
-	corner4[jointidx] = center+vecs[3]*scaleby;\
-    }\
-    else\
-    {\
-	invmat.multVecMatrix( center+vecs[0]*scaleby, corner1[jointidx] );\
-	invmat.multVecMatrix( center+vecs[1]*scaleby, corner2[jointidx] );\
-	invmat.multVecMatrix( center+vecs[2]*scaleby, corner3[jointidx] );\
-	invmat.multVecMatrix( center+vecs[3]*scaleby, corner4[jointidx] ); \
-    } \
-    reverse[jointidx] = dorev; \
-    endnormals[jointidx] = jnormal
-
-void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
-	int startindex,
-	SbList<SbVec3f>& corner1, SbList<SbVec3f>& corner2,
-	SbList<SbVec3f>& corner3, SbList<SbVec3f>& corner4,
-	SbList<SbBool>& reverse, SbList<SbVec3f>& endnormals,
-	int& nrjoints, SbBool world)
-{
-    const int nrindex = coordIndex.getNum();
-    const int32_t* cindices = coordIndex.getValues(startindex);
-
     SoState* state = action->getState();
-    const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
-    const int nrcoords = celem->getNum();
 
-    const SbMatrix& mat = SoModelMatrixElement::get(state);
-    SbMatrix invmat = mat.inverse();
+    if ( !areCoordsValid(state) )
+	generateCoordinates( state );
 
-    nrjoints = 0;
-    const int32_t* stopptr = cindices+(nrindex-startindex);
-    int index1 = cindices>=stopptr ? -1 : *cindices++;
-    int index2 = cindices>=stopptr ? -1 : *cindices++;
-    if ( index1<0 || index2<0 ) return;
+    SoTextureCoordinateBundle tb(action, true, true);
+    SoMaterialBundle mb(action);
+    int matnr = 0;
+    SoMaterialBindingElement::Binding mbind =
+				SoMaterialBindingElement::get(state);
 
-    SbVec3f c1,c2;
-    mat.multVecMatrix(celem->get3(index1), c1 );
-    mat.multVecMatrix(celem->get3(index2), c2 );
+    const int32_t* cis = coordIndex.getValues(0);
+    const int32_t* materialindexes = materialIndex.getValues(0);
+    if ( !materialindexes &&
+	    mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
+	materialindexes = cis;
 
-    SbVec3f squarecoords1[4];
-    if ( !getEdgeStartCoords( c1, c2, squarecoords1, action->getState() ) )
-	return;
+    bool isreversed = rightHandSystem.getValue();
 
-    const float rad = radius.getValue();
-    const SbViewportRegion& vp = SoViewportRegionElement::get(state);
-    const float nsize = rad/ float(vp.getViewportSizePixels()[1]);
-    const SbViewVolume& vv = SoViewVolumeElement::get(state);
+    glPushMatrix();
+    SbMatrix m = SoViewingMatrixElement::get(state);
+    glLoadMatrixf(m[0]);
 
-    const bool doscreensize = screenSize.getValue();
-    const float maxradius = maxRadius.getValue();
-    float scaleby = rad;
-    if ( doscreensize )
+    for ( int idx=0; idx<sectionstarts_.getLength(); idx++ )
     {
-	scaleby  = rad * vv.getWorldToScreenScale(c1, nsize );
-	if ( maxradius>=0 && scaleby>maxradius )
-	   scaleby = maxradius; 
+	const int start = sectionstarts_[idx];
+	const int stop = idx==sectionstarts_.getLength()-1
+	    ? corner1_.getLength()-1
+	    : sectionstarts_[idx+1]-1;
+
+	mb.sendFirst();
+	glBegin(GL_QUADS);
+
+	int material1 = 0;
+	if ( mbind==SoMaterialBindingElement::PER_PART ||
+	     mbind==SoMaterialBindingElement::PER_FACE ||
+	     mbind==SoMaterialBindingElement::PER_VERTEX )
+	    material1 = matnr++;
+	else if ( mbind==SoMaterialBindingElement::PER_PART_INDEXED ||
+		  mbind==SoMaterialBindingElement::PER_FACE_INDEXED ||
+		  mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
+	    material1 = materialindexes[matnr++];
+
+	mRenderQuad( corner1_[start], corner2_[start], material1,
+		    corner3_[start], corner4_[start], material1,
+		    endnormals_[idx], endnormals_[idx] );
+
+	for ( int idy=start; idy<stop; idy++ )
+	{
+	    int material2 = 0;
+	    if ( mbind==SoMaterialBindingElement::PER_PART ||
+		 mbind==SoMaterialBindingElement::PER_FACE ||
+		 mbind==SoMaterialBindingElement::PER_VERTEX )
+		material2 = matnr++;
+	    else if ( mbind==SoMaterialBindingElement::PER_PART_INDEXED ||
+		      mbind==SoMaterialBindingElement::PER_FACE_INDEXED ||
+		      mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
+		material2 = materialindexes[matnr++]; //wher get matnr
+
+	    mRenderQuad(  corner2_[idy], corner1_[idy], material1,
+			corner1_[idy+1], corner2_[idy+1], material2,
+			cornernormal1_[idy], cornernormal2_[idy+1] );
+
+	    mRenderQuad(  corner3_[idy], corner2_[idy], material1,
+			corner2_[idy+1], corner3_[idy+1], material2,
+			cornernormal2_[idy], cornernormal3_[idy+1] );
+
+	    mRenderQuad(  corner4_[idy], corner3_[idy], material1,
+			corner3_[idy+1], corner4_[idy+1], material2, 
+		   	cornernormal3_[idy], cornernormal4_[idy+1] );
+
+	    mRenderQuad(  corner1_[idy], corner4_[idy], material1,
+			corner4_[idy+1], corner1_[idy+1], material2, 
+		   	cornernormal4_[idy], cornernormal1_[idy+1] );
+
+	    if ( isreversed_[idy+1] || idy==stop-1 )
+	    {
+		isreversed = !isreversed;
+		mRenderQuad(  corner1_[idy+1], corner2_[idy+1], material2,
+			    corner3_[idy+1], corner4_[idy+1], material2,
+			    endnormals_[idy+1], endnormals_[idy+1] );
+	    }
+
+	    material1 = material2;
+	}
+
+	matnr++; //compesate for -1
+
+	glEnd();
     }
 
-    mSaveJoint( nrjoints, c1, squarecoords1, false, c1-c2 );
-    nrjoints++;
-
-    while ( index2>=0 )
-    {
-	SbVec3f c2c1 = c2-c1;
-	c2c1.normalize();
-
-	SbVec3f jointplanenormal;
-	SbBool doreverse = false;;
-	SbVec3f c3;
-	const int index3 = cindices>=stopptr ? -1 : *cindices++;
-	if ( index3>=0 )
-	{
-	    mat.multVecMatrix(celem->get3(index3), c3 );
-	    SbVec3f c3c2 = c3-c2; c3c2.normalize();
-
-	    doreverse = c2c1.dot(c3c2)<-0.5;
-	    jointplanenormal = doreverse ? c2c1-c3c2 :c2c1+c3c2;
-	    if ( !jointplanenormal.length() )
-		jointplanenormal = c2c1;
-	}
-	else
-	    jointplanenormal = c2c1;
-
-	const SbPlane junctionplane( jointplanenormal, SbVec3f(0,0,0) );
-	SbVec3f squarecoords2[4];
-	for ( int idx=0; idx<4; idx++ )
-	{
-	    SbLine projline( squarecoords1[idx], squarecoords1[idx]+c2c1 );
-	    junctionplane.intersect(projline,squarecoords2[idx]);
-	}
-
-	if ( doscreensize )
-	{
-	    scaleby  = rad * vv.getWorldToScreenScale(c2, nsize );
-	    if ( maxradius>=0 && scaleby>maxradius )
-	       scaleby = maxradius; 
-	}
-
-	mSaveJoint( nrjoints, c2, squarecoords2, doreverse, jointplanenormal );
-	nrjoints++;
-
-	for ( int idx=0; idx<4; idx++ )
-	    squarecoords1[idx] = squarecoords2[idx];
-
-	index1 = index2; c1 = c2;
-	index2 = index3; c2 = c3;
-    }
+    glPopMatrix();
 }
+
+
+#define mSaveJoint( center, vecs, dorev, jnormal ) \
+    corner1_.append( center+vecs[0]*scaleby );\
+    corner2_.append( center+vecs[1]*scaleby );\
+    corner3_.append( center+vecs[2]*scaleby );\
+    corner4_.append( center+vecs[3]*scaleby );\
+    cornernormal1_.append( vecs[0] ); \
+    cornernormal2_.append( vecs[1] ); \
+    cornernormal3_.append( vecs[2] ); \
+    cornernormal4_.append( vecs[3] ); \
+    isreversed_.append( dorev ); \
+    endnormals_.append( jnormal ); \
+
 
 bool SoIndexedLineSet3D::getEdgeStartCoords( const SbVec3f& edgecoord,
 		const SbVec3f& coord2, SbVec3f* res, SoState* state )
@@ -215,109 +250,233 @@ bool SoIndexedLineSet3D::getEdgeStartCoords( const SbVec3f& edgecoord,
 }
 
 
-void SoIndexedLineSet3D::computeBBox( SoAction* action, SbBox3f& box,
-				       SbVec3f& center )
+bool SoIndexedLineSet3D::areCoordsValid( SoState* state ) const
 {
-    const int nrcoordindex = coordIndex.getNum();
-    int curindex = 0;
+    if ( nodeid_!=getNodeId() )
+	return false;
 
-    SbList<SbVec3f> corner1(nrcoordindex),  corner2(nrcoordindex),
-		    corner3(nrcoordindex), corner4(nrcoordindex),
-		    endnormals(nrcoordindex);
-    SbList<SbBool> reverse(nrcoordindex);
+#define mCheckElem( var, elem ) \
+    if ( var && \
+	 !var->matches(state->getConstElement( elem::getClassStackIndex() )) ) \
+	    return false;
 
-    bool boxinited = false;
+    mCheckElem( coordmatchinfo_, SoCoordinateElement );
 
-    while ( curindex<nrcoordindex )
+    if ( screenSize.getValue() )
     {
-	int nrjoints;
-	generateCoordinates( action, curindex, corner1, corner2, corner3,
-			     corner4, reverse, endnormals, nrjoints, false );
-	if ( nrjoints<2 )
+	const int32_t camerainfo = SoCameraInfoElement::get(state);
+	if ( !(camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE)) )
 	{
-	    curindex++;
-	    continue;
+	    mCheckElem( modelmatchinfo_, SoModelMatrixElement );
+	    mCheckElem( vpmatchinfo_, SoViewportRegionElement );
+	    mCheckElem( vvmatchinfo_, SoViewVolumeElement );
+	    SoCacheElement::invalidate( state );
 	}
-
-	for ( int idx=0; idx<nrjoints; idx++ )
-	{
-	    if ( !boxinited )
-	    {
-		boxinited = true;
-		box.getMin() = corner1[idx];
-		box.getMax() = corner1[idx];
-	    }
-	    else
-		box.extendBy(corner1[idx]);
-
-	    box.extendBy(corner2[idx]);
-	    box.extendBy(corner3[idx]);
-	    box.extendBy(corner4[idx]);
-	}
-
-	curindex += nrjoints+1;
     }
 
-    if ( boxinited )
-	center = box.getCenter();
+    return true;
 }
 
 
-#define mSendQuad(  c1, ci1, c2, ci2, m12, c3, ci3, c4, ci4, m34, norm23, \
-       norm14	)\
-    if ( render )\
-    {\
-	mb.send(m12,true);\
-	if ( isreversed ) \
-	{ \
-	    glNormal3fv((norm23).getValue()); \
-	    glVertex3fv((c2[ci2]).getValue());\
-	    glNormal3fv((norm14).getValue()); \
-	    glVertex3fv((c1[ci1]).getValue());\
-	    mb.send(m34,true);\
-	    glNormal3fv((norm14).getValue()); \
-	    glVertex3fv((c4[ci4]).getValue());\
-	    glNormal3fv((norm23).getValue()); \
-	    glVertex3fv((c3[ci3]).getValue());\
-	} \
-	else \
-	{ \
-	    glNormal3fv((norm14).getValue()); \
-	    glVertex3fv((c1[ci1]).getValue());\
-	    glNormal3fv((norm23).getValue()); \
-	    glVertex3fv((c2[ci2]).getValue());\
-	    mb.send(m34,true);\
-	    glNormal3fv((norm23).getValue()); \
-	    glVertex3fv((c3[ci3]).getValue());\
-	    glNormal3fv((norm14).getValue()); \
-	    glVertex3fv((c4[ci4]).getValue());\
-	} \
-    }\
-    else\
-    {\
-	pv.setNormal(norm14); \
-	pv.setMaterialIndex(m12);\
-	pv.setPoint(c1[ci1]);\
-	pointdetail.setCoordinateIndex(ci1); \
-	shapeVertex(&pv);\
-	pv.setNormal(norm23); \
-	pv.setPoint(c2[ci2]);\
-	pointdetail.setCoordinateIndex(ci2); \
-	shapeVertex(&pv);\
-	pv.setNormal(norm14); \
-	pv.setMaterialIndex(m34);\
-	pv.setPoint(c4[ci4]);\
-	pointdetail.setCoordinateIndex(ci4); \
-	shapeVertex(&pv);\
-	pv.setNormal(norm23); \
-	facedetail.incFaceIndex(); \
-	pv.setPoint(c3[ci3]);\
-	pointdetail.setCoordinateIndex(ci3); \
-	shapeVertex(&pv);\
-	facedetail.incFaceIndex(); \
+void SoIndexedLineSet3D::generatePrimitives(SoAction* action)
+{
+}
+
+
+void SoIndexedLineSet3D::rayPick( SoRayPickAction* action )
+{
+    SoState* state = action->getState();
+    SbBox3f box;
+    SbVec3f dummy;
+
+    computeBBox( action, box, dummy );
+    if ( !action->intersect(box,dummy) )
+	return;
+
+    const int nrindex = coordIndex.getNum();
+    if ( !nrindex ) 
+	return;
+
+    const int32_t* cindices = coordIndex.getValues(0);
+
+    const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
+    const int nrcoords = celem->getNum();
+
+    const int32_t* stopptr = cindices+nrindex;
+    while ( cindices<stopptr )
+    {
+	int index1 = *cindices++;
+	if ( index1<0 )
+	    continue;
+
+	SbVec3f c1 = celem->get3(index1);
+	while ( index1>=0 )
+	{
+	    const int index2 = *cindices++;
+	    if ( index2<0 )
+		break;
+	    const SbVec3f c2 = celem->get3( index2 );
+
+	    if ( action->intersect( c1, c2, dummy ) )
+	    {
+		SoPickedPoint* pickedpoint = action->addIntersection(dummy);
+		//Todo: Fill out pickedpoint
+	    }
+
+	    c1 = c2; index1 = index2;
+	}
+    }
+}
+
+
+void SoIndexedLineSet3D::generateCoordinates( SoState* state )
+{
+    const int nrindex = coordIndex.getNum();
+    const int32_t* cindices = coordIndex.getValues(0);
+
+    corner1_.truncate( 0, 0 );
+    corner2_.truncate( 0, 0 );
+    corner3_.truncate( 0, 0 );
+    corner4_.truncate( 0, 0 );
+    cornernormal1_.truncate( 0, 0 );
+    cornernormal2_.truncate( 0, 0 );
+    cornernormal3_.truncate( 0, 0 );
+    cornernormal4_.truncate( 0, 0 );
+    endnormals_.truncate( 0, 0 );
+    isreversed_.truncate( 0, 0 );
+    sectionstarts_.truncate( 0, 0 );
+
+    corner1_.ensureCapacity( nrindex );
+    corner2_.ensureCapacity( nrindex );
+    corner3_.ensureCapacity( nrindex );
+    corner4_.ensureCapacity( nrindex );
+    cornernormal1_.ensureCapacity( nrindex );
+    cornernormal2_.ensureCapacity( nrindex );
+    cornernormal3_.ensureCapacity( nrindex );
+    cornernormal4_.ensureCapacity( nrindex );
+    endnormals_.ensureCapacity( nrindex );
+    isreversed_.ensureCapacity( nrindex );
+
+    const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
+    const int nrcoords = celem->getNum();
+
+    const SbMatrix& mat = SoModelMatrixElement::get(state);
+
+    const float rad = radius.getValue();
+    const SbViewportRegion& vp = SoViewportRegionElement::get(state);
+    const float nsize = rad/ float(vp.getViewportSizePixels()[1]);
+    const SbViewVolume& vv = SoViewVolumeElement::get(state);
+
+    const bool doscreensize = screenSize.getValue();
+    const float maxradius = maxRadius.getValue();
+    float scaleby = rad;
+
+    int nrjoints = 0;
+    const int32_t* stopptr = cindices+nrindex;
+    int index1 = cindices>=stopptr ? -1 : *cindices++;
+    while ( index1>=0 )
+    {
+	int index2 = cindices>=stopptr ? -1 : *cindices++;
+	if ( index2<0 )
+	    break;
+
+	SbVec3f c1,c2;
+	mat.multVecMatrix( celem->get3(index1), c1 );
+	mat.multVecMatrix( celem->get3(index2), c2 );
+
+	SbVec3f squarecoords1[4];
+	if ( !getEdgeStartCoords( c1, c2, squarecoords1, state ) )
+	    return;
+
+	if ( doscreensize )
+	{
+	    scaleby  = rad * vv.getWorldToScreenScale(c1, nsize );
+	    if ( maxradius>=0 && scaleby>maxradius )
+	       scaleby = maxradius; 
+	}
+
+	mSaveJoint( c1, squarecoords1, false, c1-c2 );
+	sectionstarts_.append( nrjoints++ );
+
+	while ( index2>=0 )
+	{
+	    SbVec3f c2c1 = c2-c1;
+	    c2c1.normalize();
+
+	    SbVec3f jointplanenormal;
+	    SbBool doreverse = false;;
+	    SbVec3f c3;
+	    const int index3 = cindices>=stopptr ? -1 : *cindices++;
+	    if ( index3>=0 )
+	    {
+		mat.multVecMatrix(celem->get3(index3), c3 );
+		SbVec3f c3c2 = c3-c2; c3c2.normalize();
+
+		doreverse = c2c1.dot(c3c2)<-0.5;
+		jointplanenormal = doreverse ? c2c1-c3c2 :c2c1+c3c2;
+		if ( !jointplanenormal.length() )
+		    jointplanenormal = c2c1;
+	    }
+	    else
+		jointplanenormal = c2c1;
+
+	    const SbPlane junctionplane( jointplanenormal, SbVec3f(0,0,0) );
+	    SbVec3f squarecoords2[4];
+	    for ( int idx=0; idx<4; idx++ )
+	    {
+		SbLine projline( squarecoords1[idx], squarecoords1[idx]+c2c1 );
+		junctionplane.intersect(projline,squarecoords2[idx]);
+	    }
+
+	    if ( doscreensize )
+	    {
+		scaleby  = rad * vv.getWorldToScreenScale(c2, nsize );
+		if ( maxradius>=0 && scaleby>maxradius )
+		   scaleby = maxradius; 
+	    }
+
+	    mSaveJoint(c2,squarecoords2,doreverse,jointplanenormal);
+	    nrjoints++;
+
+	    for ( int idx=0; idx<4; idx++ )
+		squarecoords1[idx] = squarecoords2[idx];
+
+	    index1 = index2; c1 = c2;
+	    index2 = index3; c2 = c3;
+	}
+
+	index1 = cindices>=stopptr ? -1 : *cindices++;
     }
 
+    delete coordmatchinfo_; coordmatchinfo_ = celem->copyMatchInfo();
 
+#define mCopyMatchInfo( var, elem ) \
+    delete var; \
+    var = state->getConstElement( elem::getClassStackIndex() )->copyMatchInfo();
+
+    mCopyMatchInfo( modelmatchinfo_, SoModelMatrixElement );
+    mCopyMatchInfo( vpmatchinfo_, SoViewportRegionElement );
+    mCopyMatchInfo( vvmatchinfo_, SoViewVolumeElement );
+
+    nodeid_ = getNodeId();
+}
+
+
+/*
+void SoIndexedLineSet3D::computeBBox( SoAction* action, SbBox3f& box,
+				      SbVec3f& center )
+{
+    SoState* state = action->getState();
+    if ( !areCoordsValid(state) )
+	generateCoordinates( state );
+
+    box = bbox_;
+    center = center_;
+}
+*/
+
+
+/*
 void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 {
     const int nrcoordindex = coordIndex.getNum();
@@ -457,3 +616,5 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	curindex += nrjoints+1;
     }
 }
+
+*/

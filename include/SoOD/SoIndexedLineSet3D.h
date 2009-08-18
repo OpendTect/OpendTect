@@ -33,24 +33,37 @@ public:
 			//!<righthanded or not.
 
 protected:
+    			~SoIndexedLineSet3D();
     void		generatePrimitives(SoAction*);
     void		GLRender(SoGLRenderAction*);
-    void		computeBBox( SoAction*, SbBox3f&, SbVec3f& );
+    void		rayPick (SoRayPickAction *action);
 
 private:
     bool	getEdgeStartCoords( const SbVec3f& edgecoord,
 	    			    const SbVec3f& coord2,
 				    SbVec3f* res, SoState* );
-    void	generateTriangles( SoAction*, bool render );
-    void	generateCoordinates( SoAction*, int startindex,
-	    			     SbList<SbVec3f>&, SbList<SbVec3f>&,
-	    			     SbList<SbVec3f>&, SbList<SbVec3f>&,
-				     SbList<SbBool>&,
-				     SbList<SbVec3f>& endnormals, int&,
-				     SbBool world);
+    void	generateCoordinates( SoState* );
+    bool	areCoordsValid( SoState* ) const;
 
+    SbList<SbVec3f>		corner1_;
+    SbList<SbVec3f>		corner2_;
+    SbList<SbVec3f>		corner3_;
+    SbList<SbVec3f>		corner4_;
+    SbList<SbVec3f>		cornernormal1_;
+    SbList<SbVec3f>		cornernormal2_;
+    SbList<SbVec3f>		cornernormal3_;
+    SbList<SbVec3f>		cornernormal4_;
+    SbList<SbBool>		isreversed_;
+    SbList<SbVec3f>		endnormals_;
 
-    static bool	didwarn;
+    SbList<int>			sectionstarts_;
+
+    int				nodeid_;
+    SoElement*			modelmatchinfo_;
+    SoElement*			coordmatchinfo_;
+    SoElement*			vpmatchinfo_;
+    SoElement*			vvmatchinfo_;
+    bool			ismoving_;
 };
 
 
