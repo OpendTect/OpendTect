@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.65 2009-08-11 21:31:29 cvskris Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.66 2009-08-19 08:17:17 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -122,12 +122,15 @@ Well::Data::Data( const char* nm )
     , markerschanged(this)
     , trackchanged(this)
     , dispparschanged(this)
+    , tobedeleted(this)
 {
 }
 
 
 Well::Data::~Data()
 {
+    tobedeleted.trigger();
+
     delete &track_;
     delete &logs_;
     delete &disp_;

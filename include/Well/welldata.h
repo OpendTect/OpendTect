@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.20 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: welldata.h,v 1.21 2009-08-19 08:17:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,7 @@ public:
     Notifier<Well::Data>	markerschanged;
     Notifier<Well::Data>	trackchanged;
     Notifier<Well::Data>	dispparschanged;
+    Notifier<Well::Data>	tobedeleted;
 
 protected:
 
