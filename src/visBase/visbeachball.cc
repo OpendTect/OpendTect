@@ -7,20 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.4 2009-08-17 15:20:05 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.5 2009-08-19 15:36:10 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
-
 #include "iopar.h"
 
 #include "SoBeachBall.h"
 #include "color.h"
-#include "SoShapeScale.h"
 #include "UTMPosition.h"
-#include "visdrawstyle.h"
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoMaterialBinding.h>
 #include <Inventor/nodes/SoTranslation.h>
@@ -31,6 +29,9 @@ namespace visBase
 {
 
 const char* BeachBall::radiusstr()	{ return "Radius"; }
+const char* BeachBall::centerstr()	{ return "Center"; }
+const char* BeachBall::color1str()	{ return "Color1"; }
+const char* BeachBall::color2str()	{ return "Color2"; }
 
 
 BeachBall::BeachBall()
@@ -38,10 +39,11 @@ BeachBall::BeachBall()
     , ball_(new SoBeachBall)
     , material_(new SoMaterial)
     , translation_(new SoTranslation)
-    , xytranslation_(0)
-    , scale_(new SoShapeScale)
-    , style_ (0)
+    , xyTranslation_(0)
+    , scale_(new SoScale)
     , transformation_(0)
+    , radius_(1)
+    , zScale_(1)
 {
     material_->ref();
     material_->diffuseColor.setNum( 2 );
@@ -51,36 +53,31 @@ BeachBall::BeachBall()
 
     SoMaterialBinding* matbinding = new SoMaterialBinding;
     matbinding->ref();
-    matbinding->value = SoMaterialBinding::PER_PART;
+    matbinding->value = SoMaterialBinding::PER_PART_INDEXED;
     addChild( matbinding );
     
     translation_->ref();
     addChild( translation_ );
     
     scale_->ref();
-//    scale_->restoreProportions = true;
-//    scale_->screenSize.setValue( 5 ); // to do: check! cDefaultScreenSize();
     addChild( scale_ );
-
-    style_ = DrawStyle::create();
-    style_->ref();
-    style_->setDrawStyle( DrawStyle::Filled );
-    addChild( style_->getInventorNode() );
-
+    
     ball_->ref();
+//    ball_->materialIndex = 
     addChild( ball_ );
 }
 
 
 BeachBall::~BeachBall()
 {
-    material_->unref();
-    translation_->unref();
-    scale_->unref();
-    //transformation_->unRef(); 
-    // transformation_ is deleted even before control reaches here!
-//    ball_->unref();
-    // cannot unref scale_ and transformation_.
+    material_->unrefNoDelete();
+    translation_->unrefNoDelete();
+    scale_->unrefNoDelete();
+    if (xyTranslation_)
+	xyTranslation_->unrefNoDelete();
+    if (transformation_)
+	transformation_->unRef(); 
+    ball_->unrefNoDelete();
 }
 
 
@@ -92,30 +89,49 @@ Transformation* BeachBall::getDisplayTransformation()
 
 void BeachBall::setDisplayTransformation( Transformation* nt )
 {
-    const Coord3 pos = getCenterPosition();
-    if ( transformation_ ) transformation_->unRef();
+    Coord3 pos = getCenterPosition();
+    if ( transformation_ )
+    {
+	pos = transformation_->transformBack( pos );
+	transformation_->unRef();
+    }
     transformation_ = nt;
     if ( transformation_ ) transformation_->ref();
     setCenterPosition( pos );
 }
 
 
+void BeachBall::setZScale( float zScale )
+{
+    if (zScale == 0)
+	return;
+    scale_->scaleFactor.setValue( radius_, radius_, radius_/zScale );
+    zScale_ = zScale;
+}
+
+
+float BeachBall::getZScale() const
+{
+    return zScale_;
+}
+
+
+
 void BeachBall::setCenterPosition( Coord3 c )
 {
-    Coord3 pos( 607903, 6077213, 0.5 );
-//    Coord3 pos;
+    Coord3 pos( c );
     
-    if ( transformation_ ) pos = transformation_->transform( pos );
+    if ( transformation_ ) pos = transformation_->transform( c );
 
-    if ( !xytranslation_ && (fabs(pos.x)>1e5 || fabs(pos.y)>1e5) )
+    if ( !xyTranslation_ && (fabs(pos.x)>1e5 || fabs(pos.y)>1e5) )
     {
-	xytranslation_ = new UTMPosition;
-	insertChild( childIndex( translation_ ), xytranslation_ );
+	xyTranslation_ = new UTMPosition;
+	insertChild( childIndex( translation_ ), xyTranslation_ );
     }
 
-    if ( xytranslation_ )
+    if ( xyTranslation_ )
     {
-	xytranslation_->utmposition.setValue( pos.x, pos.y, 0 );
+	xyTranslation_->utmposition.setValue( pos.x, pos.y, 0 );
 	pos.x = 0; pos.y = 0;
     }
     translation_->translation.setValue( pos.x, pos.y, pos.z );
@@ -127,10 +143,10 @@ Coord3 BeachBall::getCenterPosition() const
     Coord3 res;
     SbVec3f pos = translation_->translation.getValue();
 
-    if ( xytranslation_ )
+    if ( xyTranslation_ )
     {
-	res.x = xytranslation_->utmposition.getValue()[0];
-	res.y = xytranslation_->utmposition.getValue()[1];
+	res.x = xyTranslation_->utmposition.getValue()[0];
+	res.y = xyTranslation_->utmposition.getValue()[1];
     }
     else
     {
@@ -146,15 +162,14 @@ Coord3 BeachBall::getCenterPosition() const
 
 void BeachBall::setRadius( float r )
 {
-    // to do! check
-    scale_->screenSize.setValue( r );
+    scale_->scaleFactor.setValue( r, r, r/zScale_ );
+    radius_ = r;
 }
 
 
 float BeachBall::getRadius() const
 {
-    // to do! check
-    return scale_->screenSize.getValue();
+    return radius_;
 }
 
 
@@ -189,17 +204,37 @@ void BeachBall::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     VisualObjectImpl::fillPar( par, saveids );
 
     par.set( radiusstr(), getRadius() );
+    par.set( centerstr(), getCenterPosition() );
+    par.set( color1str(), getColor1() );
+    par.set( color2str(), getColor2() );
 }
 
 
 int BeachBall::usePar( const IOPar& par )
 {
+    pErrMsg(" in usePar!");
     int res = VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
+    if ( res != 1 ) return res;
 
     float rd = getRadius();
-    par.get( radiusstr(), rd );
+    if ( !par.get( radiusstr(), rd ) )
+	return -1;
     setRadius( rd );
+
+    Coord3 center = getCenterPosition();
+    if ( !par.get( centerstr(), center ) )
+	return -1;
+    setCenterPosition( center );
+
+    Color col = getColor1();
+    if ( !par.get( color1str(), col ) )
+	return -1;
+    setColor1( col );
+
+    col = getColor2();
+    if ( !par.get( color2str(), col ) )
+	return -1;
+    setColor2( col );
 
     return 1;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Aug 2009
- RCS:           $Id: visbeachball.h,v 1.4 2009-08-17 15:20:52 cvskarthika Exp $
+ RCS:           $Id: visbeachball.h,v 1.5 2009-08-19 15:36:36 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,9 +18,10 @@ ________________________________________________________________________
 
 class SoBeachBall;
 class Color;
-class SoShapeScale;
+class SoScale;
 class UTMPosition;
 class SoTranslation;
+class SoDrawStyle;
 class SoMaterial;
 class SoMaterialBinding;
 
@@ -42,6 +43,8 @@ public:
 
     void             		setDisplayTransformation(Transformation*);
     Transformation*             getDisplayTransformation();
+    void			setZScale(float zScale);
+    float			getZScale() const;
     void			setCenterPosition(Coord3);
     Coord3			getCenterPosition() const;
     void			setRadius(float);
@@ -55,6 +58,9 @@ public:
     int				usePar(const IOPar&);
 
     static const char*		radiusstr();
+    static const char*		centerstr();
+    static const char*		color1str();	
+    static const char*		color2str();	
 
 protected:
     				~BeachBall();
@@ -62,10 +68,12 @@ protected:
     SoBeachBall*		ball_;
     SoMaterial*			material_;
     SoTranslation*      	translation_;
-    UTMPosition*        	xytranslation_;
-    SoShapeScale*		scale_;
-    DrawStyle*			style_;
+    UTMPosition*        	xyTranslation_;
+    SoScale*			scale_;
     Transformation*             transformation_;
+
+    float			radius_;
+    float			zScale_;
 };
 };
 
