@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.57 2009-07-27 11:51:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.58 2009-08-19 08:21:10 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -51,17 +51,17 @@ uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Well file management","Manage wells",
 				     "107.1.0").nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
-    , welldata(0)
-    , wellrdr(0)
-    , fname("")
+    , curwd_(0)
+    , currdr_(0)
+    , curfnm_("")
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
     uiGroup* logsgrp = new uiGroup( this, "Logs group" );
     uiLabel* lbl = new uiLabel( logsgrp, "Logs" );
-    logsfld = new uiListBox( logsgrp, "Available logs", true );
-    logsfld->attach( alignedBelow, lbl );
+    logsfld_ = new uiListBox( logsgrp, "Available logs", true );
+    logsfld_->attach( alignedBelow, lbl );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( logsgrp, "Logs buttons",
 	    					 false );
@@ -70,7 +70,7 @@ uiWellMan::uiWellMan( uiParent* p )
     uiPushButton* calclogsbut = new uiPushButton( logsbgrp, "&Create", false );
     calclogsbut->activated.notify( mCB(this,uiWellMan,calcLogs) );
     calclogsbut->attach( rightOf, addlogsbut );
-    logsbgrp->attach( centeredBelow, logsfld );
+    logsbgrp->attach( centeredBelow, logsfld_ );
 
     uiManipButGrp* butgrp = new uiManipButGrp( logsgrp );
     butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiWellMan,renameLogPush),
@@ -79,7 +79,7 @@ uiWellMan::uiWellMan( uiParent* p )
 	    	       "Remove selected log" );
     butgrp->addButton( "export.png", mCB(this,uiWellMan,exportLogs),
 	    	       "Export log" );
-    butgrp->attach( rightOf, logsfld );
+    butgrp->attach( rightOf, logsfld_ );
     logsgrp->attach( rightOf, selgrp );
 
     uiToolButton* welltrackbut = new uiToolButton( this, "Well Track",
@@ -114,8 +114,8 @@ uiWellMan::uiWellMan( uiParent* p )
 
 uiWellMan::~uiWellMan()
 {
-    delete welldata;
-    delete wellrdr;
+    delete curwd_;
+    delete currdr_;
 }
 
 
@@ -128,32 +128,32 @@ void uiWellMan::ownSelChg()
 
 void uiWellMan::getCurrentWell()
 {
-    fname = ""; 
-    delete wellrdr; wellrdr = 0;
-    delete welldata; welldata = 0;
+    curfnm_ = ""; 
+    delete currdr_; currdr_ = 0;
+    delete curwd_; curwd_ = 0;
     if ( !curioobj_ ) return;
     
     mDynamicCastGet(const IOStream*,iostrm,curioobj_)
     if ( !iostrm ) return;
     StreamProvider sp( iostrm->fileName() );
     sp.addPathIfNecessary( iostrm->dirName() );
-    fname = sp.fileName();
-    welldata = new Well::Data;
-    wellrdr = new Well::Reader( fname, *welldata );
-    wellrdr->getInfo();
+    curfnm_ = sp.fileName();
+    curwd_ = new Well::Data;
+    currdr_ = new Well::Reader( curfnm_, *curwd_ );
+    currdr_->getInfo();
 }
 
 
 void uiWellMan::fillLogsFld()
 {
-    logsfld->empty();
-    if ( !wellrdr ) return;
+    logsfld_->empty();
+    if ( !currdr_ ) return;
 
     BufferStringSet lognms;
-    wellrdr->getLogInfo( lognms );
+    currdr_->getLogInfo( lognms );
     for ( int idx=0; idx<lognms.size(); idx++)
-	logsfld->addItem( lognms.get(idx) );
-    logsfld->selectAll( false );
+	logsfld_->addItem( lognms.get(idx) );
+    logsfld_->selectAll( false );
 }
 
 
@@ -163,16 +163,16 @@ void uiWellMan::fillLogsFld()
 
 void uiWellMan::edMarkers( CallBacker* )
 {
-    if ( !welldata || !wellrdr ) return;
+    if ( !curwd_ || !currdr_ ) return;
 
     Well::Data* wd;
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
 	wd = Well::MGR().get( curioobj_->key() );
     else
     {
-	if ( welldata->markers().isEmpty() )
-	    wellrdr->getMarkers();
-	wd = welldata;
+	if ( curwd_->markers().isEmpty() )
+	    currdr_->getMarkers();
+	wd = curwd_;
     }
 
 
@@ -181,7 +181,7 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( !dlg.go() ) return;
 
     dlg.getMarkerSet( wd->markers() );
-    Well::Writer wtr( fname, *wd );
+    Well::Writer wtr( curfnm_, *wd );
     if ( !wtr.putMarkers() )
 	uiMSG().error( "Cannot write new markers to disk" );
 
@@ -191,18 +191,18 @@ void uiWellMan::edMarkers( CallBacker* )
 
 void uiWellMan::edWellTrack( CallBacker* )
 {
-    if ( !welldata || !wellrdr ) return;
+    if ( !curwd_ || !currdr_ ) return;
 
     Well::Data* wd;
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
 	wd = Well::MGR().get( curioobj_->key() );
     else
-	wd = welldata;
+	wd = curwd_;
 
     uiWellTrackDlg dlg( this, *wd );
     if ( !dlg.go() ) return;
 
-    Well::Writer wtr( fname, *wd );
+    Well::Writer wtr( curfnm_, *wd );
     if ( !wtr.putInfoAndTrack( ) )
 	uiMSG().error( "Cannot write new track to disk" );
 
@@ -225,18 +225,18 @@ void uiWellMan::edChckSh( CallBacker* )
 
 void uiWellMan::defD2T( bool chkshot )
 {
-    if ( !welldata || !wellrdr ) return;
+    if ( !curwd_ || !currdr_ ) return;
 
     Well::Data* wd;
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
 	wd = Well::MGR().get( curioobj_->key() );
     else
     {
-	if ( !chkshot && !welldata->d2TModel() )
-	    wellrdr->getD2T();
-	else if ( chkshot && !welldata->checkShotModel() )
-	    wellrdr->getCSMdl();
-	wd = welldata;
+	if ( !chkshot && !curwd_->d2TModel() )
+	    currdr_->getD2T();
+	else if ( chkshot && !curwd_->checkShotModel() )
+	    currdr_->getCSMdl();
+	wd = curwd_;
     }
 
     if ( !chkshot && !wd->d2TModel() )
@@ -246,22 +246,22 @@ void uiWellMan::defD2T( bool chkshot )
 
     uiD2TModelDlg dlg( this, *wd, chkshot );
     if ( !dlg.go() ) return;
-    Well::Writer wtr( fname, *wd );
+    Well::Writer wtr( curfnm_, *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
 	uiMSG().error( "Cannot write new model to disk" );
 }
 
 
 #define mDeleteLogs() \
-    while ( welldata->logs().size() ) \
-        delete welldata->logs().remove(0);
+    while ( curwd_->logs().size() ) \
+        delete curwd_->logs().remove(0);
 
 void uiWellMan::importLogs( CallBacker* )
 {
-    if ( !welldata || !wellrdr ) return;
+    if ( !curwd_ || !currdr_ ) return;
 
-    wellrdr->getLogs();
-    uiLoadLogsDlg dlg( this, *welldata );
+    currdr_->getLogs();
+    uiLoadLogsDlg dlg( this, *curwd_ );
     if ( dlg.go() )
 	writeLogs();
 }
@@ -269,10 +269,10 @@ void uiWellMan::importLogs( CallBacker* )
 
 void uiWellMan::calcLogs( CallBacker* )
 {
-    if ( !welldata || !wellrdr ) return;
+    if ( !curwd_ || !currdr_ ) return;
 
-    wellrdr->getLogs();
-    uiWellLogCalc dlg( this, welldata->logs() );
+    currdr_->getLogs();
+    uiWellLogCalc dlg( this, curwd_->logs() );
     dlg.go();
     if ( dlg.haveNewLogs() )
 	writeLogs();
@@ -281,7 +281,7 @@ void uiWellMan::calcLogs( CallBacker* )
 
 void uiWellMan::writeLogs()
 {
-    Well::Writer wtr( fname, *welldata );
+    Well::Writer wtr( curfnm_, *curwd_ );
     wtr.putLogs();
 
     fillLogsFld();
@@ -294,17 +294,17 @@ void uiWellMan::writeLogs()
 
 void uiWellMan::exportLogs( CallBacker* )
 {
-    if ( !logsfld->size() || !logsfld->nrSelected() ) return;
+    if ( !logsfld_->size() || !logsfld_->nrSelected() ) return;
 
     BoolTypeSet issel;
-    for ( int idx=0; idx<logsfld->size(); idx++ )
-	issel += logsfld->isSelected(idx);
+    for ( int idx=0; idx<logsfld_->size(); idx++ )
+	issel += logsfld_->isSelected(idx);
 
-    if ( !welldata->d2TModel() )
-	wellrdr->getD2T();
+    if ( !curwd_->d2TModel() )
+	currdr_->getD2T();
 
-    wellrdr->getLogs();
-    uiExportLogs dlg( this, *welldata, issel );
+    currdr_->getLogs();
+    uiExportLogs dlg( this, *curwd_, issel );
     dlg.go();
 
     mDeleteLogs();
@@ -313,30 +313,31 @@ void uiWellMan::exportLogs( CallBacker* )
 
 void uiWellMan::removeLogPush( CallBacker* )
 {
-    if ( !logsfld->size() || !logsfld->nrSelected() ) return;
+    if ( !logsfld_->size() || !logsfld_->nrSelected() ) return;
 
     BufferString msg;
-    msg = logsfld->nrSelected() == 1 ? "This log " : "These logs ";
+    msg = logsfld_->nrSelected() == 1 ? "This log " : "These logs ";
     msg += "will be removed from disk.\nDo you wish to continue?";
     if ( !uiMSG().askRemove(msg) )
 	return;
 
-    wellrdr->getLogs();
+    currdr_->getLogs();
+    Well::LogSet& wls = curwd_->logs();
     BufferStringSet logs2rem;
-    for ( int idx=0; idx<logsfld->size(); idx++ )
+    for ( int idx=0; idx<logsfld_->size(); idx++ )
     {
-	if ( logsfld->isSelected(idx) )
-	    logs2rem.add( welldata->logs().getLog(idx).name() );
+	if ( logsfld_->isSelected(idx) )
+	    logs2rem.add( wls.getLog(idx).name() );
     }
 
     for ( int idx=0; idx<logs2rem.size(); idx++ )
     {
 	BufferString& logname = logs2rem.get( idx );
-	for ( int logidx=0; logidx<welldata->logs().size(); logidx++ )
+	for ( int logidx=0; logidx<wls.size(); logidx++ )
 	{
-	    if ( logname == welldata->logs().getLog(logidx).name() )
+	    if ( logname == wls.getLog(logidx).name() )
 	    {
-		Well::Log* log = welldata->logs().remove( logidx );
+		Well::Log* log = wls.remove( logidx );
 		delete log;
 		break;
 	    }
@@ -345,9 +346,9 @@ void uiWellMan::removeLogPush( CallBacker* )
 
     logs2rem.erase();
 
-    if ( wellrdr->removeAll(Well::IO::sExtLog()) )
+    if ( currdr_->removeAll(Well::IO::sExtLog()) )
     {
-	Well::Writer wtr( fname, *welldata );
+	Well::Writer wtr( curfnm_, *curwd_ );
 	wtr.putLogs();
 	fillLogsFld();
     }
@@ -361,20 +362,21 @@ void uiWellMan::removeLogPush( CallBacker* )
 
 void uiWellMan::renameLogPush( CallBacker* )
 {
-    if ( !logsfld->size() || !logsfld->nrSelected() ) mErrRet("No log selected")
+    if ( !logsfld_->size() || !logsfld_->nrSelected() )
+	mErrRet("No log selected")
 
-    const int lognr = logsfld->currentItem() + 1;
-    FilePath fp( fname ); fp.setExtension( 0 );
+    const int lognr = logsfld_->currentItem() + 1;
+    FilePath fp( curfnm_ ); fp.setExtension( 0 );
     BufferString logfnm = Well::IO::mkFileName( fp.fullPath(),
 	    					Well::IO::sExtLog(), lognr );
     StreamProvider sp( logfnm );
     StreamData sdi = sp.makeIStream();
-    bool res = wellrdr->addLog( *sdi.istrm );
+    bool res = currdr_->addLog( *sdi.istrm );
     sdi.close();
     if ( !res ) 
 	mErrRet("Cannot read selected log")
 
-    Well::Log* log = welldata->logs().remove( 0 );
+    Well::Log* log = curwd_->logs().remove( 0 );
 
     BufferString titl( "Rename '" );
     titl += log->name(); titl += "'";
@@ -383,11 +385,11 @@ void uiWellMan::renameLogPush( CallBacker* )
     if ( !dlg.go() ) return;
 
     BufferString newnm = dlg.text();
-    if ( logsfld->isPresent(newnm) )
+    if ( logsfld_->isPresent(newnm) )
 	mErrRet("Name already in use")
 
     log->setName( newnm );
-    Well::Writer wtr( fname, *welldata );
+    Well::Writer wtr( curfnm_, *curwd_ );
     StreamData sdo = sp.makeOStream();
     wtr.putLog( *sdo.ostrm, *log );
     sdo.close();
@@ -400,7 +402,7 @@ void uiWellMan::renameLogPush( CallBacker* )
 
 void uiWellMan::mkFileInfo()
 {
-    if ( !welldata || !wellrdr || !curioobj_ )
+    if ( !curwd_ || !currdr_ || !curioobj_ )
     {
 	infofld->setText( "" );
 	return;
@@ -412,8 +414,8 @@ void uiWellMan::mkFileInfo()
     if ( !str.isEmpty() ) \
     { txt += key; txt += ": "; txt += str; txt += "\n"; }
 
-    const Well::Info& info = welldata->info();
-    const Well::Track& track = welldata->track();
+    const Well::Info& info = curwd_->info();
+    const Well::Track& track = curwd_->track();
 
     BufferString crdstr; info.surfacecoord.fill( crdstr.buf() );
     BufferString bidstr; SI().transform(info.surfacecoord).fill( bidstr.buf() );

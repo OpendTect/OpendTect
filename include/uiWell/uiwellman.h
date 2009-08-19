@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.15 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uiwellman.h,v 1.16 2009-08-19 08:21:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,11 +31,11 @@ public:
 
 protected:
 
-    uiListBox*			logsfld;
+    uiListBox*			logsfld_;
 
-    Well::Data*			welldata;
-    Well::Reader*		wellrdr;
-    BufferString		fname;
+    Well::Data*			curwd_;
+    Well::Reader*		currdr_;
+    BufferString		curfnm_;
 
     void			ownSelChg();
     void			getCurrentWell();
