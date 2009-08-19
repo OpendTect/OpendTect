@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.15 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.16 2009-08-19 18:37:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
     const ZAxisTransform*	getDataTransform() const;
 
 protected:
+    friend			class Horizon2DDisplayUpdater;
     				~Horizon2DDisplay();
     void			removeSectionDisplay(const EM::SectionID&);
     bool			addSection(const EM::SectionID&,TaskRunner*);
@@ -56,8 +57,8 @@ protected:
 	TypeSet<TypeSet<Interval<float> > >	zrgs;
     };
 
-    bool			withinRanges(const RowCol&,float z,
-					     const LineRanges& ) const;	
+    static bool			withinRanges(const RowCol&,float z,
+					     const LineRanges& );
     void			updateSection(int idx,const LineRanges* lr=0);
 					      
     void			emChangeCB(CallBacker*);

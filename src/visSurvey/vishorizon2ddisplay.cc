@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.24 2009-08-11 13:01:45 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.25 2009-08-19 18:37:27 cvskris Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -161,7 +161,7 @@ void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 
 
 bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z, 
-				     const LineRanges& linergs ) const
+				     const LineRanges& linergs )
 {
     if ( rc.row<linergs.trcrgs.size() && rc.row<linergs.zrgs.size() )
     {
@@ -177,22 +177,157 @@ bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z,
 }
 
 
-#define mSendLine \
-    BendPointFinder3D finder( positions, scale, eps ); \
-    finder.execute(); \
-    const TypeSet<int>& bendpoints = finder.bendPoints(); \
-\
-    for ( int idy=0; idy<bendpoints.size(); idy++ ) \
-    { \
-	pl->getCoordinates()->setPos( lcidx, positions[bendpoints[idy]] ); \
-	pl->setCoordIndex(ciidx++, lcidx++ ); \
-    } \
-\
-    positions.erase(); \
- \
-    if ( ciidx && pl->getCoordIndex(ciidx-1)!=-1 ) \
-	pl->setCoordIndex( ciidx++, -1 )
+class Horizon2DDisplayUpdater : public ParallelTask
+{
+public:
+Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
+		const Horizon2DDisplay::LineRanges* lr,
+		visBase::IndexedShape* shape, visBase::PointSet* points )
+    : surf_( rcs )
+    , lines_( shape )
+    , points_( points )
+    , lineranges_( lr )
+    , lineci_( 0 )
+    , linecii_( 0 )
+    , scale_( 1, 1, SI().zScale() )
+{
+    eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
+    eps_ = mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
 
+    rowrg_ = surf_->rowRange();
+    nriter_ = rowrg_.nrSteps()+1;
+}
+
+
+od_int64 nrIterations() const { return nriter_; }
+
+
+int getNextRow()
+{
+    Threads::MutexLocker lock( lock_ );
+    if ( curidx_>=nriter_ )
+	return mUdf(int);
+
+    const int res = rowrg_.atIndex( curidx_++ );
+    return res;
+}
+
+
+bool doPrepare( int nrthreads )
+{
+    curidx_ = 0;
+    nrthreads_ = nrthreads;
+    return true;
+}
+
+bool doFinish( bool res )
+{
+    lines_->removeCoordIndexAfter( linecii_-1 );
+    lines_->getCoordinates()->removeAfter( lineci_-1 );
+
+    return res;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    RowCol rc;
+    while ( true )
+    {
+	rc.row = getNextRow();
+	if ( mIsUdf(rc.row) )
+	    break;
+
+	TypeSet<Coord3> positions;
+	const StepInterval<int> colrg = surf_->colRange( rc.row );
+
+	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	{
+	    const Coord3 pos = surf_->getKnot( rc );
+
+	    // Skip if survey coordinates not available
+	    if ( !Coord(pos).isDefined() )
+		continue;
+
+	    if ( !pos.isDefined() || 
+		(lineranges_ &&
+		!Horizon2DDisplay::withinRanges(rc,pos.z,*lineranges_)) )
+	    {
+		if ( positions.size() )
+		    sendPositions( positions );
+	    }
+	    else 
+	    {
+		positions += pos;
+	    }
+	}
+
+	sendPositions( positions );
+    }
+
+    return true;
+}
+
+void sendPositions( TypeSet<Coord3>& positions )
+{
+    if ( !positions.size() )
+	return;
+
+    if ( positions.size()==1 )
+    {
+	points_->getCoordinates()->addPos( positions[0] );
+    }
+    else
+    {
+	BendPointFinder3D finder( positions, scale_, eps_ );
+	finder.execute(nrthreads_<2);
+	const TypeSet<int>& bendpoints = finder.bendPoints();
+	const int nrbendpoints = bendpoints.size();
+	if ( nrbendpoints )
+	{
+	    ArrPtrMan<Coord3> usedpos = new Coord3[nrbendpoints];
+
+	    for ( int idy=0; idy<nrbendpoints; idy++ )
+		usedpos[idy] = positions[bendpoints[idy]];
+
+	    ArrPtrMan<int> idxs = new int[nrbendpoints+1];
+
+	    lock_.lock();
+
+	    for ( int idy=0; idy<nrbendpoints; idy++ )
+		idxs[idy] = idy+lineci_;
+
+	    idxs[nrbendpoints] = -1;
+	    lines_->getCoordinates()->setPositions( usedpos.ptr(), nrbendpoints,
+						    lineci_ );
+	    lines_->setCoordIndices( idxs.ptr(), nrbendpoints+1, linecii_ );
+	    lineci_ += nrbendpoints;
+	    linecii_ += nrbendpoints+1;
+
+	    lock_.unLock();
+	}
+    }
+
+    positions.erase();
+}
+
+protected:
+    const Geometry::RowColSurface*	surf_;
+    const Horizon2DDisplay::LineRanges*	lineranges_;
+    visBase::IndexedShape*		lines_;
+    visBase::PointSet*			points_;
+    Threads::Mutex			lock_;
+    int					nrthreads_;
+
+    int					lineci_;
+    int					linecii_;
+
+    const Coord3			scale_;
+    float				eps_;
+    StepInterval<int>			rowrg_;
+    int					nriter_;
+    int					curidx_;
+};
 
 
 void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
@@ -203,61 +338,17 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 
     visBase::IndexedPolyLine3D* pl = lines_[idx];
     visBase::PointSet* ps = points_[idx];
-    
-    const StepInterval<int> rowrg = rcs->rowRange();
-    int lcidx = 0;
-    int pcidx = 0;
-    int ciidx = 0;
-    RowCol rc;
-
-    const Coord3 scale( 1, 1, SI().zScale() );
-    float eps = mMIN(SI().inlDistance(),SI().crlDistance());
-    eps = mMIN(eps,SI().zRange(true).step*scale.z )/4;
-
-    for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+   
+    if ( !ps ) 
     {
-	const StepInterval<int> colrg = rcs->colRange( rc.row );
-
-	TypeSet<Coord3> positions;
-	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
-	{
-	    const Coord3 pos = emobject_->getPos( sid, rc.getSerialized() );
-
-	    // Skip if survey coordinates not available
-	    if ( !Coord(pos).isDefined() )
-		continue;
-
-	    if ( !pos.isDefined() || 
-		 (lineranges && !withinRanges(rc,pos.z,*lineranges)) )
-	    {
-		if ( positions.size()==1 )
-		{
-		    if ( !ps )
-		    {
-			ps = visBase::PointSet::create();
-			ps->ref();
-			points_.replace( idx, ps );
-		    }
-
-		    ps->getCoordinates()->setPos( pcidx++, positions[0] );
-		    positions.erase();
-		}
-		else if ( ciidx && pl->getCoordIndex(ciidx-1)!=-1 )
-		{
-		    mSendLine;
-		}
-	    }
-	    else
-	    {
-		positions += pos;
-	    }
-	}
-
-	mSendLine;
+	ps = visBase::PointSet::create();
+	ps->ref();
+	points_.replace( idx, ps );
+	addChild( ps->getInventorNode() );
     }
 
-    pl->removeCoordIndexAfter( ciidx-1 );
-    pl->getCoordinates()->removeAfter( lcidx-1 );
+    Horizon2DDisplayUpdater updater( rcs, lineranges, pl, ps );
+    updater.execute();
 }
 
 
