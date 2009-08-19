@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.55 2009-08-17 12:00:21 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.56 2009-08-19 08:21:57 cvsbert Exp $
 
 
 
@@ -182,6 +182,10 @@ protected:
     static const char*		sKeyLog2Color;
     static const char*		sKeyLog2FillColor;
     static const char*		sKeyLog2SeisFillColor;
+
+    Well::Data*			getWD() const;
+    void                        welldataDelNotify(CallBacker* cb=0);
+
 };
 
 } // namespace visSurvey
