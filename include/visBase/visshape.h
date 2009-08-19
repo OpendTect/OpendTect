@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.23 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visshape.h,v 1.24 2009-08-19 01:58:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -165,6 +165,8 @@ public:
     void	setCoordIndices(int* idxs, int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
+    void	setCoordIndices(int* idxs, int sz, int start);
+    		/*!<\note idxs are copied */
     void	copyCoordIndicesFrom(const IndexedShape&);
     void	removeCoordIndexAfter(int);
     int		getCoordIndex(int) const;
@@ -174,6 +176,8 @@ public:
     void	setTextureCoordIndices(int* idxs,int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
+    void	setTextureCoordIndices(int* idxs, int sz, int start);
+    		/*!<\note idxs are copied */
     void	removeTextureCoordIndexAfter(int);
     int		getTextureCoordIndex(int) const;
 
@@ -182,6 +186,8 @@ public:
     void	setNormalIndices(int* idxs,int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
+    void	setNormalIndices(int* idxs, int sz, int start);
+    		/*!<\note idxs are copied */
     void	removeNormalIndexAfter(int);
     int		getNormalIndex(int) const;
 
@@ -190,6 +196,8 @@ public:
     void	setMaterialIndices(int* idxs,int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
+    void	setMaterialIndices(int* idxs, int sz, int start);
+    		/*!<\note idxs are copied */
     void	removeMaterialIndexAfter(int);
     int		getMaterialIndex(int) const;
 
