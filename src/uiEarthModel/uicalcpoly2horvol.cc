@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.5 2009-08-13 07:49:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.6 2009-08-19 11:48:24 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 
@@ -235,7 +235,7 @@ void uiCalcPoly2HorVol::dispVal( float m3 )
     float dispval = m3;
     if ( zinft_ ) dispval *= ft3conv;
     bool mega = false;
-    if ( dispval > 1e6 )
+    if ( fabs(dispval) > 1e6 )
 	{ mega = true; dispval /= 1e6; }
 
     BufferString txt( "", dispval, mega ? "M " : " " );
