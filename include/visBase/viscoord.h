@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.23 2009-08-06 02:42:55 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.24 2009-08-19 02:03:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,7 @@ public:
     Coord3		getPos(int,bool scenespace=false) const;
     bool		isDefined(int) const;
     void		setPos(int,const Coord3&);
-    void		setPositions(const TypeSet<Coord3>&,int start);
+    void		setPositions(const Coord3*,int sz,int start);
     void		insertPos(int,const Coord3&);
     void		removePos(int, bool keepidxafter=true );
     void		removeAfter(int);

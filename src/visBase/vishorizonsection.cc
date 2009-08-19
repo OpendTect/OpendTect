@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.69 2009-08-12 19:38:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.70 2009-08-19 02:03:44 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -2208,7 +2208,7 @@ void HorizonSectionTile::setWireframe( int res )
 
 void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 {
-    coords_->setPositions( pos, 0 );
+    coords_->setPositions( pos.arr(), pos.size(), 0 );
 
     nrdefinedpos_ = 0;
     for ( int idx=0; idx<pos.size(); idx++ )
