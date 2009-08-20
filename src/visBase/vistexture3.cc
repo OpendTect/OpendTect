@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture3.cc,v 1.29 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.30 2009-08-20 19:41:30 cvsyuancheng Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -22,6 +22,85 @@ mCreateFactoryEntry( visBase::Texture3 );
 
 namespace visBase
 {
+
+class Texture3CacheFiller: public ParallelTask
+{
+public: 
+
+Texture3CacheFiller( float* res, int sz0, int sz1, int sz2,
+		     const Array3D<float>& data )
+    : data_( data )
+    , res_( res ) 
+    , x0sz_( sz0 )
+    , x1sz_( sz1 )
+    , x2sz_( sz2 )		  
+{}
+
+od_int64 nrIterations() const { return x0sz_*x1sz_*x2sz_; }
+
+protected:
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    const int datax0sz = data_.info().getSize( 0 );
+    const int datax1sz = data_.info().getSize( 1 );
+    const int datax2sz = data_.info().getSize( 2 );
+    const float x0step = (datax0sz-1)/(float)(x0sz_-1);
+    const float x1step = (datax1sz-1)/(float)(x1sz_-1);
+    const float x2step = (datax2sz-1)/(float)(x2sz_-1);
+
+    const int facesz01 = x0sz_*x1sz_;
+
+    float v000, v001, v010, v011, v100, v101, v110, v111;
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	int curpos[3] = { (idx%facesz01)%x0sz_, (idx%facesz01)/x0sz_, 
+	    		  idx/facesz01 };
+
+	const float x2pos = curpos[2]*x2step;
+	const int x2idx = (int)x2pos;
+	const bool x2onedge = x2idx+1==datax2sz;
+	const float x2relpos = x2pos-x2idx;
+
+	const float x1pos = curpos[1]*x1step;
+	const int x1idx = (int)x1pos;
+	const bool x1onedge = x1idx+1==datax1sz;
+	const float x1relpos = x1pos-x1idx;
+
+	const float x0pos = curpos[0]*x0step;
+	const int x0idx = (int)x0pos;
+	const bool x0onedge = x0idx+1==datax0sz;
+	const float x0relpos = x0pos-x0idx;
+
+	v000 = data_.get( x0idx, x1idx, x2idx );
+	if ( !x1onedge )
+	    v010 = data_.get( x0idx, x1idx+1, x2idx );
+	if ( !x2onedge )
+	    v001 = data_.get( x0idx, x1idx, x2idx+1 );
+	if ( !x1onedge && !x2onedge )
+	    v011 = data_.get( x0idx, x1idx+1, x2idx+1 );
+	if ( !x0onedge )
+	    v100 = data_.get( x0idx+1, x1idx, x2idx );
+	if ( !x0onedge && !x1onedge )
+	    v110 = data_.get( x0idx+1, x1idx+1, x2idx );
+	if ( !x0onedge && !x2onedge )
+	    v101 = data_.get( x0idx+1, x1idx, x2idx+1 );
+	if ( !x0onedge && !x1onedge && !x2onedge )
+	    v111 = data_.get( x0idx+1, x1idx+1, x2idx+1 );
+
+	const float val = Interpolate::linearReg3DWithUdf( v000, v100, v010, 
+		v110, v001, v101, v011, v111, x0relpos, x1relpos, x2relpos );
+	res_[idx] = val;
+    }
+
+    return true;
+}
+
+    const Array3D<float>& 	data_;
+    float*			res_;
+    int				x0sz_, x1sz_, x2sz_;	    
+};
+
 
 Texture3::Texture3()
     : x0sz( -1 )
@@ -69,10 +148,6 @@ void Texture3::setData( const Array3D<float>* newdata, DataType sel )
 	return;
     }
 
-    const int datax0sz = newdata->info().getSize( 0 );
-    const int datax1sz = newdata->info().getSize( 1 );
-    const int datax2sz = newdata->info().getSize( 2 );
-
 #define mMaxTextSz 512
 #define mMinTextSz 64
 
@@ -114,9 +189,9 @@ void Texture3::setData( const Array3D<float>* newdata, DataType sel )
 
     }
 
-    int newx0 = nextPower2( datax0sz, mMinTextSz, maxsize0 );
-    int newx1 = nextPower2( datax1sz, mMinTextSz, maxsize1 );
-    int newx2 = nextPower2( datax2sz, mMinTextSz, maxsize2 );
+    int newx0 = nextPower2( newdata->info().getSize(0), mMinTextSz, maxsize0 );
+    int newx1 = nextPower2( newdata->info().getSize(1), mMinTextSz, maxsize1 );
+    int newx2 = nextPower2( newdata->info().getSize(2), mMinTextSz, maxsize2 );
     if ( resolution )
     {
 	newx0 *= resolution;
@@ -127,62 +202,10 @@ void Texture3::setData( const Array3D<float>* newdata, DataType sel )
     setTextureSize( newx0, newx1, newx2 );
 
     const int cachesz = newx0*newx1*newx2;
-    float* resized = new float[cachesz];
-	
-    const float x0step = (datax0sz-1)/(float)(x0sz-1);
-    const float x1step = (datax1sz-1)/(float)(x1sz-1);
-    const float x2step = (datax2sz-1)/(float)(x2sz-1);
-    
-    int idx=0;
-    float v000, v001, v010, v011, v100, v101, v110, v111;
-    for ( int x2=0; x2<x2sz; x2++ )
-    {
-	const float x2pos=x2*x2step;
-	const int x2idx = (int)x2pos;
-	const bool x2onedge = x2idx+1==datax2sz;
-	const float x2relpos = x2pos-x2idx;
+    mDeclareAndTryAlloc( float*,  resized, float[cachesz] );
 
-	for ( int x1=0; x1<x1sz; x1++ )
-	{
-	    const float x1pos=x1*x1step;
-	    const int x1idx = (int)x1pos;
-	    const bool x1onedge = x1idx+1==datax1sz;
-	    const float x1relpos = x1pos-x1idx;
-
-	    for ( int x0=0; x0<x0sz; x0++ )
-	    {
-		const float x0pos=x0*x0step;
-		const int x0idx = (int)x0pos;
-		const bool x0onedge = x0idx+1==datax0sz;
-		const float x0relpos = x0pos-x0idx;
-
-		v000 = newdata->get( x0idx, x1idx, x2idx );
-		if ( !x1onedge )
-		    v010 = newdata->get( x0idx, x1idx+1, x2idx );
-		if ( !x2onedge )
-		    v001 = newdata->get( x0idx, x1idx, x2idx+1 );
-		if ( !x1onedge && !x2onedge )
-		    v011 = newdata->get( x0idx, x1idx+1, x2idx+1 );
-		if ( !x0onedge )
-		    v100 = newdata->get( x0idx+1, x1idx, x2idx );
-		if ( !x0onedge && !x1onedge )
-		    v110 = newdata->get( x0idx+1, x1idx+1, x2idx );
-		if ( !x0onedge && !x2onedge )
-		    v101 = newdata->get( x0idx+1, x1idx, x2idx+1 );
-		if ( !x0onedge && !x1onedge && !x2onedge )
-		    v111 = newdata->get( x0idx+1, x1idx+1, x2idx+1 );
-
-		resized[idx++] =
-		    Interpolate::linearReg3DWithUdf(
-			    v000, v100, v010, v110, v001, v101, v011, v111,
-			    x0relpos, x1relpos, x2relpos );
-		/*!< Note that this is the coin-ordering, not
-		     the standard Array size
-		 */
-		    
-	    }
-	}
-    }
+    Texture3CacheFiller filler( resized, newx0, newx1, newx2, *newdata );
+    filler.execute();
 
     setResizedData( resized, cachesz, sel );
 }
