@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.5 2009-08-19 15:36:10 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.6 2009-08-20 19:40:33 cvsyuancheng Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -182,7 +182,7 @@ void BeachBall::setColor1( Color col )
 Color BeachBall::getColor1() const
 {
     SbColor col = material_->diffuseColor[0];
-    return Color( col[0], col[1], col[2] );
+    return Color( (int)col[0], (int)col[1], (int)col[2] );
 }
 
 
@@ -195,7 +195,7 @@ void BeachBall::setColor2( Color col )
 Color BeachBall::getColor2() const
 {
     SbColor col = material_->diffuseColor[1];
-    return Color( col[0], col[1], col[2] );
+    return Color( (int)col[0], (int)col[1], (int)col[2] );
 }
 
 
