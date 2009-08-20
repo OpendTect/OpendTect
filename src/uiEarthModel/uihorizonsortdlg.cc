@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.17 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.18 2009-08-20 04:08:23 cvsnanne Exp $";
 
 #include "uihorizonsortdlg.h"
 
@@ -87,11 +87,11 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	    loadids += horids[idx];
     }
 
-    Executor* horreader = EM::EMM().objectLoader( loadids );
-    if ( !horreader ) return false;
-
     ExecutorGroup execgrp("Reading horizons");
-    execgrp.add( horreader );
+
+    Executor* horreader = EM::EMM().objectLoader( loadids );
+    if ( horreader )
+	execgrp.add( horreader );
 
     HorizonSorter* horsorter = new HorizonSorter( horids, is2d_ );
     execgrp.add( horsorter );
