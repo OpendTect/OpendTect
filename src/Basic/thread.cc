@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.43 2009-08-14 10:34:23 cvsbert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.44 2009-08-20 06:57:30 cvsnanne Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -405,6 +405,8 @@ int Threads::getNrProcessors()
     if ( !GetEnvVarYN("OD_NO_MULTIPROC") )
     {
 	havesett = Settings::common().get( "Nr Processors", nrproc );
+	if ( !havesett )
+	    havesett = Settings::common().get( "dTect.Nr Processors", nrproc );
 	if ( !havesett )
 	    nrproc = QThread::idealThreadCount();
     }
