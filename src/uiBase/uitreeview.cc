@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.58 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.59 2009-08-20 06:36:01 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -101,7 +101,10 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent,
     setMouseTracking( true );
 
     if ( header() )
+    {
 	header()->setResizeMode( QHeaderView::Interactive );
+	header()->setMovable( false );
+    }
 }
 
 
@@ -796,7 +799,7 @@ void uiListViewItem::setChecked( bool yn, bool trigger )
 
 
 bool uiListViewItem::isChecked() const
-{ return qtreeitem_->checkState( 0 ) == Qt::Checked; }
+{ return qtreeitem_->checkState(0) == Qt::Checked; }
 
 
 void uiListViewItem::setToolTip( int column, const char*  txt )
