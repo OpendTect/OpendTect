@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.43 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.44 2009-08-20 07:01:20 cvsnanne Exp $";
 
 
 #include "uitextedit.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uitextedit.cc,v 1.43 2009-07-22 16:01:38 cvsber
 #include "uiobjbody.h"
 #include "uifont.h"
 #include "i_qtxtbrowser.h"
+#include "i_qtextedit.h"
 
 #include "ascstream.h"
 #include "strmdata.h"
@@ -35,10 +36,6 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     setPrefWidth( defaultwidth_ );
     setPrefHeight( defaultheight_ );
 }
-
-
-void uiTextEditBase::setText( const char* txt )
-{ qte().setText( txt ); }
 
 
 const char* uiTextEditBase::text() const
@@ -118,7 +115,7 @@ void uiTextEditBase::readFromFile( const char* src, int wraplen )
 	contents += newcontents;
 
     sd.close();
-    setText( contents );
+    qte().setText( contents.buf() );
 }
 
 
@@ -173,14 +170,19 @@ public:
 
                         uiTextEditBody(uiTextEdit&,uiParent*,
 				       const char* nm,bool ro);
+			~uiTextEditBody()	{ delete &messenger_; }
 
     void		append(const char*);
+
+protected:
+    i_TextEditMessenger& messenger_;
 };
 
 
 uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p, 
 				const char* nm, bool ro )
     : uiObjBodyImpl<uiTextEdit,QTextEdit>( handle, p, nm )
+    , messenger_(*new i_TextEditMessenger(this,&handle))
 {
     setReadOnly( ro );
     setStretch( 2, 2 );
@@ -198,6 +200,7 @@ void uiTextEditBody::append( const char* txt)
 
 uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
     : uiTextEditBase( parnt, nm, mkbody(parnt,nm,ro) )		
+    , textChanged(this)
 {
     setPrefWidth( defaultWidth() );
     setPrefHeight( defaultHeight() );
@@ -208,6 +211,14 @@ uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 { 
     body_= new uiTextEditBody( *this, parnt, nm, ro );
     return *body_; 
+}
+
+
+void uiTextEdit::setText( const char* txt, bool trigger_notif )
+{
+    NotifyStopper ns( textChanged );
+    if ( trigger_notif ) ns.restore();
+    qte().setText( txt );
 }
 
 
@@ -269,6 +280,10 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 
 
 QTextEdit& uiTextBrowser::qte()	{ return *body_; }
+
+
+void uiTextBrowser::setText( const char* txt )
+{ qte().setText( txt ); }
 
 
 const char* uiTextBrowser::source() const

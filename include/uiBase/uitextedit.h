@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.23 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uitextedit.h,v 1.24 2009-08-20 07:01:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,6 @@ class QTextEdit;
 mClass uiTextEditBase : public uiObject
 {
 public:
-			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
-
-    void		setText(const char*);
     void		readFromFile(const char*,int linecutlen=0);
     bool		saveToFile(const char*,int linelen=0,bool newlns=true);
 
@@ -40,6 +37,7 @@ public:
     bool		isModified() const;
 
 protected:
+			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
 
     virtual QTextEdit&	qte()			    = 0;
     const QTextEdit&	qte() const 
@@ -60,7 +58,9 @@ public:
                         uiTextEdit(uiParent* parnt,const char* nm="Text editor",
 				   bool readonly=false);
 
+    void		setText(const char*,bool trigger_notif=false);
     void		append(const char*); 
+    Notifier<uiTextEdit> textChanged;
 
 protected:
 
@@ -83,6 +83,7 @@ public:
 				      int maxlns=mUdf(int),
 				      bool forceplaintext=true );
 
+    void		setText(const char*);
     const char*		source() const;
     void		setSource(const char*); 
     void		setMaxLines(int);
