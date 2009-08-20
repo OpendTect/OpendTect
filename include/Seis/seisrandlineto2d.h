@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.h,v 1.6 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisrandlineto2d.h,v 1.7 2009-08-20 11:31:44 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class IOPar;
 class LineKey;
 class SeisTrcReader;
 class SeisTrcWriter;
+class SeisTrcBuf;
 
 namespace Seis { class TableSelData; }
 namespace Geometry { class RandomLine; }
@@ -50,6 +51,12 @@ protected:
 
     BinIDValueSet::Pos	pos_;
     Seis::TableSelData&	seldata_;
+
+private:
+
+    SeisTrcBuf*		buf_;
+
+    bool		writeTraces();
 };
 
 

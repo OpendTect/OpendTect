@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.12 2009-08-07 06:14:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.13 2009-08-20 11:31:22 cvsraman Exp $";
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.12 2009-08-07 06:14:27 
 #include "seisioobjinfo.h"
 #include "seisrandlineto2d.h"
 #include "randomlinegeom.h"
+#include "seisbuf.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
@@ -91,13 +92,48 @@ SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
 	rdr_->setSelData( new Seis::TableSelData(seldata_) );
 
     seldata_.binidValueSet().next( pos_ );
+    buf_ = new SeisTrcBuf( true );
 }
 
 
 SeisRandLineTo2D::~SeisRandLineTo2D()
 {
     delete rdr_; delete wrr_;
-    delete &seldata_;
+    delete &seldata_; delete buf_;
+}
+
+
+static void addTrcToBuffer( SeisTrc* trc, SeisTrcBuf* buf )
+{
+    if ( !trc || !buf ) return;
+
+    for ( int idx=0; idx<buf->size(); idx++ )
+    {
+	const SeisTrc* buftrc = buf->get( idx );
+	if ( buftrc->info().nr > trc->info().nr )
+	{
+	    buf->insert( trc, idx );
+	    return;
+	} 
+    }
+    
+    buf->add( trc );
+}
+
+
+bool SeisRandLineTo2D::writeTraces()
+{
+    if ( !buf_ || !wrr_ ) return false;
+
+    bool res = true;
+    for ( int idx=0; idx<buf_->size(); idx++ )
+    {
+	SeisTrc* trc = buf_->get( idx );
+	if ( !wrr_->put(*trc) )
+	    res = false;
+    }
+
+    return res;
 }
 
 
@@ -106,14 +142,15 @@ int SeisRandLineTo2D::nextStep()
     if ( !rdr_ || !wrr_ || !totnr_ )
 	return Executor::ErrorOccurred();
 
-    SeisTrc trc;
-    const int rv = rdr_->get( trc.info() );
-    if ( rv == 0 ) return Executor::Finished();
+    SeisTrc* trc = new SeisTrc;
+    const int rv = rdr_->get( trc->info() );
+    if ( rv == 0 ) return writeTraces() ? Executor::Finished()
+					: Executor::ErrorOccurred();
     else if ( rv !=1 ) return Executor::ErrorOccurred();
 
-    if ( !rdr_->get(trc) ) return Executor::ErrorOccurred();
+    if ( !rdr_->get(*trc) ) return Executor::ErrorOccurred();
 
-    BinID bid = trc.info().binid;
+    BinID bid = trc->info().binid;
     bool geommatching = false;
     do
     {
@@ -130,10 +167,9 @@ int SeisRandLineTo2D::nextStep()
     seldata_.binidValueSet().get( pos_, bid, vals );
     const Coord coord( vals[1], vals[2] );
     const int trcnr = mNINT( vals[3] );
-    trc.info().nr = trcnr;
-    trc.info().coord = coord;
-    if ( !wrr_->put(trc) )
-	return Executor::ErrorOccurred();
+    trc->info().nr = trcnr;
+    trc->info().coord = coord;
+    addTrcToBuffer( trc, buf_ );
 
     nrdone_++;
     while ( seldata_.binidValueSet().next(pos_) )
@@ -144,12 +180,11 @@ int SeisRandLineTo2D::nextStep()
 
 	seldata_.binidValueSet().get( pos_, bid, vals );
 	const Coord nextcoord( vals[1], vals[2] );
+	SeisTrc* nexttrc = new SeisTrc( *trc );
 	const int nexttrcnr = mNINT( vals[3] );
-	trc.info().nr = nexttrcnr;
-	trc.info().coord = nextcoord;
-	if ( !wrr_->put(trc) )
-	    return Executor::ErrorOccurred();
-
+	nexttrc->info().nr = nexttrcnr;
+	nexttrc->info().coord = nextcoord;
+	addTrcToBuffer( nexttrc, buf_ );
 	nrdone_++;
     }
 
