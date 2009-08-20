@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.76 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.77 2009-08-20 08:32:55 cvsbert Exp $";
 
 /*!
 
@@ -281,11 +281,11 @@ bool CBVSReader::readGeom()
     if ( info_.geom.step.crl == 0 ) info_.geom.step.crl = 1;
 
     strm_.read( buf, 6*sizeof(double) );
-    const bool useinf = GetEnvVarYN( "DTECT_CBVS_USE_STORED_SURVINFO" );
     RCol2Coord::RCTransform xtr, ytr;
     xtr.a = dinterp.get( buf, 0 ); xtr.b = dinterp.get( buf, 1 );
     xtr.c = dinterp.get( buf, 2 ); ytr.a = dinterp.get( buf, 3 );
     ytr.b = dinterp.get( buf, 4 ); ytr.c = dinterp.get( buf, 5 );
+    static const bool useinf = GetEnvVarYN( "DTECT_CBVS_USE_STORED_SURVINFO" );
     if ( useinf && xtr.valid(ytr) )
 	info_.geom.b2c.setTransforms( xtr, ytr );
     else

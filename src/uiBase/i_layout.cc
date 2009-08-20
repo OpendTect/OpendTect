@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: i_layout.cc,v 1.82 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: i_layout.cc,v 1.83 2009-08-20 08:32:55 cvsbert Exp $";
 
 #include "i_layout.h"
 #include "i_layoutitem.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: i_layout.cc,v 1.82 2009-07-22 16:01:37 cvsbert 
 
 #ifdef __debug__
 #define MAX_ITER	2000
+static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 #else
 #define MAX_ITER	10000
 #endif
@@ -115,7 +116,7 @@ QSize i_LayoutMngr::minimumSize() const
 	}
 
 #ifdef __debug__
-	if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") )
+	if ( lyoutdbg )
 	{
 	    BufferString msg;
 	    msg="Returning Minimum Size for ";
@@ -502,7 +503,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 
 
 #ifdef __debug__
-    if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") )
+    if ( lyoutdbg )
     {
 	std::cout << "(Re)sizing:" << NamedObject::name();
 	if ( isprefsz ) std::cout << " yes"; else 
@@ -544,7 +545,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     if ( !mFinalised() ) return;
 
 #ifdef __debug__
-    if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") )
+    if ( lyoutdbg )
     {
 	std::cout << "setGeometry called on: ";
 	std::cout << NamedObject::name() << std::endl;
@@ -570,7 +571,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 	store2prefpos = !prefposStored || (hdif<10 && vdif<10);
 
 #ifdef __debug__
-	if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") && !store2prefpos )
+	if ( lyoutdbg && !store2prefpos )
 	{
 	    std::cout << "setGeometry called with wrong size on: ";
 	    std::cout << NamedObject::name() << std::endl;

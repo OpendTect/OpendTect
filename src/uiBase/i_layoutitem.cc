@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: i_layoutitem.cc,v 1.14 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: i_layoutitem.cc,v 1.15 2009-08-20 08:32:55 cvsbert Exp $";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: i_layoutitem.cc,v 1.14 2009-07-22 16:01:37 cvsb
 
 #ifdef __debug__
 # define MAX_ITER	2000
+static bool lyoutdbg = GetEnvVarYN("DTECT_DEBUG_LAYOUT");
 #else
 # define MAX_ITER	10000
 #endif
@@ -78,7 +79,7 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 
     if ( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
 #ifdef __debug__
-    if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") )
+    if ( lyoutdbg )
     {
 	std::cout << "Setting layout on: ";
 	if( objLayouted() ) 
@@ -120,7 +121,7 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
     }
 
 #ifdef __debug__
-    if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") )
+    if ( lyoutdbg )
     {
 	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name() : "";
 

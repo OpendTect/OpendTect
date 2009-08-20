@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.92 2009-08-12 11:58:01 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.93 2009-08-20 08:32:55 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -47,6 +47,9 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 }
 
 
+static bool defnowrreg = GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION");
+static bool defsurvinfwr = GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE");
+
 SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 	: Translator(nm,unm)
 	, conn(0)
@@ -63,10 +66,8 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, read_mode(Seis::Prod)
     	, is_prestack(false)
     	, is_2d(false)
-    	, enforce_regular_write( // default true
-		!GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION"))
-    	, enforce_survinfo_write( // default false
-		GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE"))
+    	, enforce_regular_write(!defnowrreg) // default true
+    	, enforce_survinfo_write(defsurvinfwr)// default false
 	, compnms_(0)
 	, warnings_(*new BufferStringSet)
 {
