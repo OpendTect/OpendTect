@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_main.cc,v 1.21 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: od_main.cc,v 1.22 2009-08-20 08:47:08 cvsbert Exp $";
 
 
 
@@ -54,14 +54,14 @@ int main( int argc, char** argv )
 	std::cerr << GetFullODVersion() << std::endl;
     else
     {
-	if ( !isPromised("OD_I_AM_JUST_EVALUATING")		// Hmmm.
-	  && !isPromised("OD_I_AM_NOT_A_COMMERCIAL_USER")	// Good.
+	if ( !isPromised("OD_I_COMPLY_WITH_THE_LICENSE")	// Good.
 	  && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")		// Better.
 	  && !isPromised("OD_I_AM_AN_OPENDTECT_DEVELOPER") )	// Yo.
 	{
 	    static const char* msg =
-		"OpendTect is free for R&D, education or evaluation only.\n"
-		"In doubt, consult http://opendtect.org/rel/LICENSE.txt.";
+		"OpendTect can be run under one of three licenses:"
+		" (GPL, Commercial, Academic).\n"
+		"Please consult http://opendtect.org/OpendTect_license.txt.";
 
 	    std::cerr << msg << std::endl;
 	    if ( gLogFilesRedirectCode == 1 )
