@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture3.cc,v 1.31 2009-08-20 20:31:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.32 2009-08-20 20:38:08 cvskris Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -225,6 +225,11 @@ void Texture3::setData( const Array3D<float>* newdata, DataType sel )
 
     const int cachesz = newx0*newx1*newx2;
     mDeclareAndTryAlloc( float*,  resized, float[cachesz] );
+    if ( !resized )
+    {
+	setResizedData( 0, 0, sel );
+	return;
+    }
 
     Texture3InterpolFiller filler( resized, newx0, newx1, newx2, *newdata );
     filler.execute();
