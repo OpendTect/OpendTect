@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.70 2009-08-19 02:03:44 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.71 2009-08-20 14:41:30 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -113,6 +113,7 @@ protected:
     int				getNormalIdx(int crdidx,int res) const;
     				//!<Gives normal index in normals_
 
+    friend class		HorizonSectionTilePosSetup;
     friend class		HorizonSectionTileUpdater;			
     friend class		TileTesselator;			
     void			bgTesselationFinishCB(CallBacker*);
@@ -124,7 +125,8 @@ protected:
     void			setInvalidNormals(int row,int col);
     void			computeNormal(int normidx, int res);
     bool			usewireframe_;
-    bool			wireframeneedsupdate_[mHorSectNrRes];
+    char			wireframeneedsupdate_[mHorSectNrRes];
+    				//!<0 - updated, 1 - needs update, 2 - dont disp
     Material*			wireframematerial_;
 
     HorizonSectionTile*		neighbors_[9];
@@ -145,7 +147,8 @@ protected:
     int				desiredresolution_;
     bool			resolutionhaschanged_;
 
-    bool			needsretesselation_[mHorSectNrRes];
+    char			needsretesselation_[mHorSectNrRes];
+    				//!<0 - updated, 1 - needs update, 2 - dont disp
     ObjectSet<TileTesselator>	tesselationqueue_;
     Threads::ConditionVar	tesselationqueuelock_;
 
@@ -352,14 +355,13 @@ class HorizonSectionTilePosSetup: public ParallelTask
 {
 public:    
     HorizonSectionTilePosSetup( ObjectSet<HorizonSectionTile> tiles, 
-	    TypeSet<RowCol> start, const Geometry::BinIDSurface& geo,
+	    const Geometry::BinIDSurface& geo,
 	    StepInterval<int> rrg, StepInterval<int> crg, ZAxisTransform* zat )
 	: tiles_( tiles )
 	, geo_( geo )  
 	, rrg_( rrg )
 	, crg_( crg )			 	
         , zat_( zat )						
-	, start_( start )	
     {
 	if ( zat_ ) zat_->ref();
     }
@@ -382,10 +384,11 @@ protected:
 	       			   Coord3::udf() );
 	for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
 	{
+	    const RowCol& origin = tiles_[idx]->origin_;
 	    int coordidx = 0;
 	    for ( int rowidx=0; rowidx<mNrCoordsPerTileSide; rowidx++ )
 	    {
-		const int row = start_[idx].row + rowidx*rrg_.step;
+		const int row = origin.row + rowidx*rrg_.step;
 		const bool rowok = rrg_.includes(row);
 		const StepInterval<int> colrg( 
 			mMAX(geo_.colRange(row).start, crg_.start),
@@ -393,7 +396,7 @@ protected:
 		for ( int colidx=0; colidx<mNrCoordsPerTileSide;
 		      colidx++, coordidx++ )
 		{
-		    const int col = start_[idx].col + colidx*colrg.step;
+		    const int col = origin.col + colidx*colrg.step;
 		    Coord3 pos = rowok && colrg.includes(col)
 			? geo_.getKnot(RowCol(row,col),false) 
 			: Coord3::udf();
@@ -414,7 +417,6 @@ protected:
     }
 
     ObjectSet<HorizonSectionTile> 	tiles_;
-    TypeSet<RowCol>			start_;
     const Geometry::BinIDSurface&	geo_;
     StepInterval<int>			rrg_, crg_;
     ZAxisTransform*			zat_;
@@ -1030,12 +1032,12 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	return;
 
     const RowCol step( displayrrg_.step, displaycrg_.step );
-    ObjectSet<HorizonSectionTile> newtiles;
-    TypeSet<RowCol> tilestarts;
+    ObjectSet<HorizonSectionTile> fullupdatetiles;
 
-    ObjectSet<HorizonSectionTile> updatetiles;
+    ObjectSet<HorizonSectionTile> wfupdatetiles;
     const bool updatewireframe = usewireframe_ && desiredresolution_!=-1;
 
+    writeLock();
     if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
     {
 	origin_ = RowCol( displayrrg_.start, displaycrg_.start );
@@ -1045,7 +1047,10 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    nrBlocks( displaycrg_.nrSteps()+1, mNrCoordsPerTileSide, 1 );
 
 	if ( !tiles_.setSize( nrrows, nrcols ) )
+	{
+	    writeUnLock();
 	    return;
+	}
 
 	tiles_.setAll( 0 );
 
@@ -1053,17 +1058,12 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	{
 	    for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
 	    {
-		newtiles += createTile(tilerowidx, tilecolidx);
-		const int startrow = tilerowidx*mTileSideSize*step.row + 
-		    		     origin_.row;
-		const int startcol = tilecolidx*mTileSideSize*step.col + 
-		    		     origin_.col;
-		tilestarts += RowCol( startrow, startcol );
+		fullupdatetiles += createTile(tilerowidx, tilecolidx);
 	    }
 	}
 
 	if ( updatewireframe )
-	    updatetiles = newtiles;
+	    wfupdatetiles = fullupdatetiles;
     }
     else
     {
@@ -1088,14 +1088,9 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    if ( !tile ) 
 	    {
 		tile = createTile( tilerowidx, tilecolidx );
-		const int startrow = tilerowidx*mTileSideSize*step.row + 
-		    		     origin_.row;
-		const int startcol = tilecolidx*mTileSideSize*step.col + 
-		    		     origin_.col;
-		tilestarts += RowCol( startrow, startcol );
-		newtiles += tile;
+		fullupdatetiles += tile;
 	    }
-	    else
+	    else if ( fullupdatetiles.indexOf(tile)==-1 )
 	    {
     		for ( int res=0; res<=mLowestResIdx; res++ )
     		    tile->setAllNormalsInvalid( res, false );
@@ -1103,8 +1098,8 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 		tile->setPos( tilerow, tilecol, pos );
 	    }
 
-	    if ( updatewireframe && updatetiles.indexOf(tile)==-1 )
-  		updatetiles += tile;
+	    if ( updatewireframe && wfupdatetiles.indexOf(tile)==-1 )
+  		wfupdatetiles += tile;
 
 	    for ( int rowidx=-1; rowidx<=1; rowidx++ )
 	    {
@@ -1122,25 +1117,28 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 
 		    HorizonSectionTile* nbtile = 
 			tiles_.get( neighborrow,neighborcol );
-		    if ( !nbtile ) continue;
+		    if ( !nbtile || fullupdatetiles.indexOf(nbtile)!=-1)
+			continue;
 
 		    nbtile->setPos( tilerow-rowidx*mTileSideSize,
 			    	    tilecol-colidx*mTileSideSize, pos );
 
-		    if ( updatewireframe && updatetiles.indexOf(nbtile)==-1 )
-	  		updatetiles += nbtile;
+		    if ( updatewireframe && wfupdatetiles.indexOf(nbtile)==-1 )
+	  		wfupdatetiles += nbtile;
 		}
 	    }
 	}
     }
 
-    HorizonSectionTilePosSetup task( newtiles, tilestarts, *geometry_,
+    HorizonSectionTilePosSetup task( fullupdatetiles, *geometry_,
 	   displayrrg_, displaycrg_, zaxistransform_ );
     if ( tr ) tr->execute( task );
     else task.execute();
+  
+    for ( int idx=0; idx<wfupdatetiles.size(); idx++ )
+    	wfupdatetiles[idx]->turnOnWireframe( desiredresolution_ );
 
-    for ( int idx=0; idx<updatetiles.size(); idx++ )
-    	updatetiles[idx]->turnOnWireframe( desiredresolution_ );
+    writeUnLock();
 }
 
 
@@ -1276,9 +1274,7 @@ HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
 	}
     }
 
-    writeLock();    
     addChild( tile->getNodeRoot() );
-    writeUnLock();
 
     return tile;
 }
@@ -2021,10 +2017,11 @@ void HorizonSectionTile::tesselateResolution( int res )
 		mTerminateStrip;
 		if ( ridx<nrmyblocks && cidx<nrmyblocks && nbdef[m11] )
 		{
-		    const bool con12 = nbdef[m12];
-		    		       //&& rids && !nbdef[m01] && !nbdef[m02];
-		    const bool con21 = nbdef[m21];
-		    		      //cidx && && !nbdef[m10] && !nbdef[m20];
+		    const bool con12 = nbdef[m12] &&
+			(!ridx || (!nbdef[m01] && !nbdef[m02]) );
+		    const bool con21 = nbdef[m21] &&
+			(!cidx || (!nbdef[m10] && !nbdef[m20]) );
+
 		    if ( con12 || con21 )
     		    {
     			mAddIndex( ci11, mLine )
