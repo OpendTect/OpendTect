@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.97 2009-08-06 01:57:41 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.98 2009-08-20 12:09:47 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -459,14 +459,14 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	if ( !surface ) continue;
 
 	int startrow = surface->rowRange().start;
-	int nrrows = surface->rowRange().nrSteps();
+	int nrrows = surface->rowRange().nrSteps() +1 ;
 	int startcol = surface->colRange().start;
-	int nrcols = surface->colRange().nrSteps();
+	int nrcols = surface->colRange().nrSteps() + 1 ;
 
 	EMObjectSelectionRemoval selremoval( *this, sectionID(idx), selector,
 					     nrrows, nrcols, 
 					     startrow, startcol );
-	selremoval.execute();
+	selremoval.execute( tr );
 
 	TypeSet<EM::SubID> removallist = selremoval.getRemovelList();
 	for ( int sididx = 0; sididx < removallist.size(); sididx++ )

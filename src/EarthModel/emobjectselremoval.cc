@@ -5,12 +5,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.2 2009-07-22 16:01:31 cvsbert Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.3 2009-08-20 12:09:47 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emobjectselremoval.h"
+#include "parametricsurface.h"
 #include "emobject.h"
 
 namespace EM
@@ -37,20 +38,20 @@ EMObjectSelectionRemoval::~EMObjectSelectionRemoval()
 
 od_int64 EMObjectSelectionRemoval::nrIterations() const
 {
-    int nrthreads = ( nrrows_%16 ? (int)(nrrows_/16) : (int)(nrrows_/16) + 1 )
-     	* ( nrcols_%16 ? (int)(nrcols_/16) : (int)(nrcols_/16) + 1 );
+    int nriteration = ( nrrows_%16 ? (int)(nrrows_/16) + 1 : (int)(nrrows_/16) )
+     	* ( nrcols_%16 ? (int)(nrcols_/16) +1 : (int)(nrcols_/16) );
   
-    return nrthreads;
+    return nriteration;
 }
 
 
 bool EMObjectSelectionRemoval::doWork( od_int64 start, od_int64 stop, 
 				       int threadid )
 {
-    const int nrhorgroupboxes = nrcols_%16 ? (int)(nrcols_/16) 
-					: (int)(nrcols_/16) + 1;
-    const int nrvertgroupboxes = nrrows_%16 ? (int)(nrrows_/16) 
-					    : (int)(nrrows_/16) + 1;
+    const int nrhorgroupboxes = nrcols_%16 ? (int)(nrcols_/16) + 1
+					   : (int)(nrcols_/16);
+    const int nrvertgroupboxes = nrrows_%16 ? (int)(nrrows_/16) + 1
+					    : (int)(nrrows_/16);
 
     TypeSet<EM::SubID>   localremovelist;
 
@@ -59,19 +60,24 @@ bool EMObjectSelectionRemoval::doWork( od_int64 start, od_int64 stop,
 	if ( !shouldContinue() )
 	    return false;
 
-	const int boxrow = idx ? (idx%nrhorgroupboxes ? 
-		(int)(idx/nrhorgroupboxes): (int)(idx/nrhorgroupboxes)-1)
-	    		       : 1;
-	const int boxcol = idx ? (idx%nrhorgroupboxes ? nrvertgroupboxes - 1
-				  : idx%nrhorgroupboxes - 1)
-	    		       : 1;
+	const int boxrow = (int)(idx/nrhorgroupboxes);
+	const int boxcol = idx%nrhorgroupboxes;
 
-	const Interval<int> rowrg( startrow_ + boxrow * 16, startrow_ + ( 
-				   ((boxrow+1)==nrvertgroupboxes) ? nrrows_ -1 
-				   : (boxrow+1)*16 - 1) );
-	const Interval<int> colrg( startcol_ + boxcol * 16, startcol_ + (
-				   ((boxcol+1)==nrhorgroupboxes) ? nrcols_ - 1
-				   : (boxcol+1)*16 -1 ) );
+	const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+	if ( !ge ) continue;
+
+	mDynamicCastGet(const Geometry::ParametricSurface*,surface,ge);
+	if ( !surface ) continue;
+
+	int rowstep = surface->rowRange().step;
+	int colstep = surface->colRange().step;
+
+	const StepInterval<int> rowrg( startrow_ + rowstep * boxrow * 16,
+		startrow_ + rowstep * (((boxrow+1)==nrvertgroupboxes) ?
+		nrrows_ -1 : (boxrow+1)*16), rowstep );
+	const StepInterval<int> colrg( startcol_ + colstep* boxcol * 16, 
+		startcol_ + colstep * (((boxcol+1)==nrhorgroupboxes) ?
+		nrcols_ - 1 : (boxcol+1)*16), colstep );
 
 	HorSampling horsampling( true );
 	horsampling.set( rowrg, colrg );
@@ -88,8 +94,12 @@ bool EMObjectSelectionRemoval::doWork( od_int64 start, od_int64 stop,
 		    				  bid.getSerialized() );
 	    positions += examcor;
 	    ids += bid.getSerialized();
-	    if ( examcor < startcord ) startcord = examcor;
-	    if ( examcor > stopcord ) stopcord = examcor;
+	    if ( examcor.x < startcord.x ) startcord.x = examcor.x;
+	    if ( examcor.y < startcord.x ) startcord.y = examcor.y;
+	    if ( examcor.z < startcord.z ) startcord.z = examcor.z;
+	    if ( examcor.x > stopcord.x ) stopcord.x = examcor.x;
+	    if ( examcor.y > stopcord.y ) stopcord.y = examcor.y;
+	    if ( examcor.z > stopcord.z ) stopcord.z = examcor.z;
 	}
 
 	int sel = selector_.canDoRange() 
