@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          October 2008
- RCS:           $Id: SoLockableSeparator.h,v 1.6 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: SoLockableSeparator.h,v 1.7 2009-08-20 01:02:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #include "soodbasic.h"
 
-#define mImplFunc( func, action )		\
+#define mImplFunc( func, action, inherited )	\
 func( action* a )				\
 {						\
     if ( !lock.tryReadLock() )			\
@@ -34,26 +34,28 @@ func( action* a )				\
 
 mClass SoLockableSeparator : public SoSeparator
 {
-    typedef SoSeparator inherited;
     SO_NODE_HEADER(SoLockableSeparor);
 
 public:
     static void	initClass(void);
 		SoLockableSeparator();
 
-    void	mImplFunc( doAction, SoAction );
-    void	mImplFunc( GLRender, SoGLRenderAction );
-    void	mImplFunc( GLRenderBelowPath, SoGLRenderAction );
-    void	mImplFunc( GLRenderInPath, SoGLRenderAction );
-    void	mImplFunc( GLRenderOffPath, SoGLRenderAction );
-    void	mImplFunc( callback, SoCallbackAction );
-    void	mImplFunc( getBoundingBox, SoGetBoundingBoxAction );
-    void	mImplFunc( getMatrix, SoGetMatrixAction );
-    void	mImplFunc( handleEvent, SoHandleEventAction );
-    void	mImplFunc( rayPick, SoRayPickAction );
-    void	mImplFunc( search, SoSearchAction );
-    void	mImplFunc( getPrimitiveCount, SoGetPrimitiveCountAction );
-    void	mImplFunc( audioRender, SoAudioRenderAction );
+    void	mImplFunc( doAction, SoAction, SoSeparator );
+    void	mImplFunc( GLRender, SoGLRenderAction, SoSeparator );
+    void	mImplFunc( GLRenderBelowPath, SoGLRenderAction, SoSeparator );
+    void	mImplFunc( GLRenderInPath, SoGLRenderAction, SoSeparator );
+    void	mImplFunc( GLRenderOffPath, SoGLRenderAction, SoSeparator );
+    void	mImplFunc( callback, SoCallbackAction, SoSeparator );
+    void	mImplFunc( getBoundingBox, SoGetBoundingBoxAction, SoSeparator);
+    void	mImplFunc( getMatrix, SoGetMatrixAction, SoSeparator );
+    void	mImplFunc( handleEvent, SoHandleEventAction, SoSeparator );
+    void	mImplFunc( pick, SoPickAction, SoGroup );
+    void	mImplFunc( rayPick, SoRayPickAction, SoSeparator );
+    void	mImplFunc( search, SoSearchAction, SoSeparator );
+    void	mImplFunc( write, SoWriteAction, SoGroup );
+    void	mImplFunc( getPrimitiveCount, SoGetPrimitiveCountAction,
+	    		   SoSeparator );
+    void	mImplFunc( audioRender, SoAudioRenderAction, SoSeparator );
 
     SbRWMutex	lock;
 
