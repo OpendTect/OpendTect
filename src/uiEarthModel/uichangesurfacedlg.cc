@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.31 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.32 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -211,7 +211,7 @@ bool uiChangeSurfaceDlg::doProcessing()
 }
 
 
-#define mErrRet(msg) { uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
 bool uiChangeSurfaceDlg::saveHorizon()
 {
@@ -246,7 +246,7 @@ bool uiChangeSurfaceDlg::acceptOK( CallBacker* )
     const bool savetodisk = outputfld_;
     const bool saveasnew = savefld_ && savefld_->getBoolValue();
     if ( savetodisk && savefld_->getBoolValue() && !outputfld_->commitInput() )
-	mErrRet( "Please select output horizon" )
+	mErrRet( outputfld_->isEmpty() ? "Please select output horizon" : 0 )
 
     if ( !horizon_ && !readHorizon() )
 	mErrRet( "Cannot read horizon" )

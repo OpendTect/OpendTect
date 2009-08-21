@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.15 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.16 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -209,7 +209,7 @@ void horSel( CallBacker* )
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
+#define mErrRet(msg) { if ( msg ) uiMSG().error(msg); return false; }
 
 bool acceptOK( CallBacker* )
 {
@@ -232,7 +232,7 @@ bool acceptOK( CallBacker* )
     else
     {
 	if ( !objfld_->commitInput() )
-	    mErrRet("Please select output surface")
+	    mErrRet(objfld_->isEmpty() ? "Please select output surface" : 0)
 
 	const MultiID& outmid = ctio_->ioobj->key();
 	emobj->setMultiID( outmid );

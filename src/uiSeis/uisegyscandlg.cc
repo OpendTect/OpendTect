@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.24 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.25 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -102,7 +102,7 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 }
 
 
-#define mErrRet(s1,s2) { uiMSG().error(s1,s2); return false; }
+#define mErrRet(s1,s2) { if ( s1 ) uiMSG().error(s1,s2); return false; }
 
 
 bool uiSEGYScanDlg::doWork( const IOObj& )
@@ -118,7 +118,8 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	}
 
         if ( !outfld_->commitInput() )
-	    mErrRet("Please enter a name for the output data store file",0)
+	    mErrRet(outfld_->isEmpty() ?
+		    "Please enter a name for the output data store" : 0, 0)
 
 	pathnm = ctio_.ioobj->fullUserExpr( Conn::Write );
 	if ( lnmfld_ )

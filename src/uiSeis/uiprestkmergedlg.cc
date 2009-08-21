@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.17 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.18 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -219,12 +219,10 @@ bool uiPreStackMergeDlg::setSelectedVols()
 
     if ( !outpfld_->commitInput() )
     {
-	uiMSG().error( "Please enter an output data set name" );
+	if ( outpfld_->isEmpty() )
+	    uiMSG().error( "Please enter an output data set name" );
 	return false;
     }
-    else if ( outctio_.ioobj->implExists(false)
-	      && !uiMSG().askOverwrite("Output data set exists. Overwrite?") )
-	return false;
 
     outctio_.ioobj->pars().set( storagekey, storage );
     IOM().commitChanges( *outctio_.ioobj );
@@ -334,13 +332,10 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
 
     if ( !outpfld_->commitInput() )
     {
-	uiMSG().error( "Please enter an output data set name" );
+	if ( outpfld_->isEmpty() )
+	    uiMSG().error( "Please enter an output data set name" );
 	return false;
     }
-
-    if ( outctio_.ioobj->implExists(false)
-	      && !uiMSG().askOverwrite("Output data set exists. Overwrite?") )
-	return false;
 
     PtrMan<Seis::SelData> sd = 0;
     if ( !subselfld_->isAll() )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.55 2009-08-04 12:24:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.56 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -241,7 +241,8 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 {
     if ( !outfld->commitInput() )
     {
-	uiMSG().error( "Please choose a valid name for the output data" );
+	if ( outfld->isEmpty() )
+	    uiMSG().error( "Please choose a name for the output data" );
 	return false;
     }
 

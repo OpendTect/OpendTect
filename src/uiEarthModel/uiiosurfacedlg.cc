@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.46 2009-08-12 02:55:26 cvskris Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.47 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -204,13 +204,13 @@ void uiCopySurface::setInputKey( const char* key )
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
+#define mErrRet(msg) { if ( msg ) uiMSG().error(msg); return false; }
 
 bool uiCopySurface::acceptOK( CallBacker* )
 {
     if ( !inpfld->processInput() ) return false;
     if ( !outfld->commitInput() )
-	mErrRet("Please select output surface")
+	mErrRet(outfld->isEmpty() ? "Please select output surface" : 0)
 
     const IOObj* ioobj = inpfld->selIOObj();
     if ( !ioobj ) mErrRet("Cannot find surface")

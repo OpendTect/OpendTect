@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.36 2009-07-28 07:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.37 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uiimpfault.h"
 
@@ -260,7 +260,7 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
 
 
 #undef mErrRet
-#define mErrRet(msg) { uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
 bool uiImportFault::checkInpFlds()
 {
@@ -281,7 +281,7 @@ bool uiImportFault::checkInpFlds()
     }
 
     if ( !outfld_->commitInput() )
-	mErrRet( "Please select the output" )
+	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0)
 
     if ( !dataselfld_->commit() )
 	return false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.12 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.13 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -56,17 +56,17 @@ uiSeisRandTo2DBase::~uiSeisRandTo2DBase()
 { delete &inctio_; delete &outctio_; }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 bool uiSeisRandTo2DBase::checkInputs()
 {
     if ( !inpfld_->commitInput() )
-	mErrRet("Missing Input\nPlease select the input seismics")
+	mErrRet("Please select the input seismics")
     if ( !outpfld_->commitInput() )
-	mErrRet("Missing Output\nPlease select a lineset for output")
+	mErrRet(outpfld_->isEmpty() ? "Please select a lineset for output" : 0)
 
     BufferString attrnm = outpfld_->attrNm();
     if ( attrnm.isEmpty() )
-	mErrRet("Missing Attribute name")
+	mErrRet("Please provide the attribute name")
 
     return true;
 }
@@ -94,11 +94,11 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     BufferString attrnm = basegrp_->outpfld_->attrNm();
     BufferString linenm = linenmfld_->text();
     if ( linenm.isEmpty() )
-	mErrRet("Missing Line Name\nPlease enter a Line Name")
+	mErrRet("Please enter a Line Name")
 
     const int trcnrstart = trcnrfld_->getIntValue();
     if ( mIsUdf(trcnrstart) || trcnrstart <= 0 )
-	mErrRet("Please specify a valid starting trace number")
+	mErrRet("Please specify a valid start trace number")
 
     LineKey lk( linenm, attrnm );
     SeisRandLineTo2D exec( basegrp_->inctio_.ioobj, basegrp_->outctio_.ioobj,

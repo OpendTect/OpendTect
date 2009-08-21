@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirandlinegen.cc,v 1.16 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.17 2009-08-21 10:11:46 cvsbert Exp $";
 
 #include "uirandlinegen.h"
 
@@ -132,14 +132,15 @@ void uiGenRanLinesByContour::isrelChg( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 
 bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 {
     if ( !infld_->commitInput() )
 	mErrRet("Please select the input horizon")
     if ( !outfld_->commitInput() )
-	mErrRet("Please select the output random line set")
+	mErrRet(outfld_->isEmpty() ?
+		"Please select the output random line set" : 0)
 
     polyfld_->commitInput();
     PtrMan< ODPolygon<float> > poly = 0;
@@ -248,7 +249,8 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
     if ( !infld_->commitInput() )
 	mErrRet("Please select the input random line (set)")
     if ( !outfld_->commitInput() )
-	mErrRet("Please select the output random line (set)")
+	mErrRet(outfld_->isEmpty() ?
+		"Please select the output random line (set)" : 0)
 
     Geometry::RandomLineSet inprls; BufferString msg;
     if ( !RandomLineSetTranslator::retrieve(inprls,inctio_.ioobj,msg) )
@@ -326,7 +328,8 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
     if ( !infld_->commitInput() )
 	mErrRet("Please select the input polygon")
     if ( !outfld_->commitInput() )
-	mErrRet("Please select the output random line")
+	mErrRet(outfld_->isEmpty() ?
+		"Please select the output random line" : 0)
 
     PtrMan< ODPolygon<float> > poly = 0;
     BufferString msg;
