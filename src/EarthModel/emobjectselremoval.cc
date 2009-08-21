@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.3 2009-08-20 12:09:47 cvsumesh Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.4 2009-08-21 04:29:36 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,10 +88,21 @@ bool EMObjectSelectionRemoval::doWork( od_int64 start, od_int64 stop,
 
 	HorSamplingIterator iter( horsampling );
 	BinID bid;
+	int count = 0;
 	while ( iter.next(bid) )
 	{
 	    const Coord3 examcor = emobj_.getPos( sectionid_, 
 		    				  bid.getSerialized() );
+	    if ( !examcor.isDefined() )
+		continue;
+
+	    if ( !count )
+	    {
+		startcord = stopcord = examcor;
+		count++;
+		continue;
+	    }
+
 	    positions += examcor;
 	    ids += bid.getSerialized();
 	    if ( examcor.x < startcord.x ) startcord.x = examcor.x;
