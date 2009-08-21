@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.54 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.55 2009-08-21 12:41:02 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -219,7 +219,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 
 bool uiWellImportAsc::doWork()
 {
@@ -296,7 +296,7 @@ bool uiWellImportAsc::checkInpFlds()
     }
 
     if ( !outfld_->commitInput() )
-	mErrRet( "Please select output" )
+	mErrRet( outfld_->isEmpty() ? "Please enter a name for the well" : 0 )
 
     return true;
 }

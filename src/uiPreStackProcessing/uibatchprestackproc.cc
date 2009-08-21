@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.5 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.6 2009-08-21 12:41:02 cvsbert Exp $";
 
 #include "uibatchprestackproc.h"
 
@@ -84,7 +84,8 @@ bool uiBatchProcSetup::prepareProcessing()
 
     if ( !outputsel_->commitInput() )
     {
-	uiMSG().error("Please enter an output name");
+	if ( outputsel_->isEmpty() )
+	    uiMSG().error("Please enter an output name");
 	return false;
     }
 
