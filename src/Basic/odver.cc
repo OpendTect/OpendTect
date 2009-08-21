@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.4 2009-07-22 16:01:31 cvsbert Exp $
+ RCS:           $Id: odver.cc,v 1.5 2009-08-21 11:10:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.4 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.5 2009-08-21 11:10:10 cvsbert Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -18,7 +18,15 @@ static const char* rcsID = "$Id: odver.cc,v 1.4 2009-07-22 16:01:31 cvsbert Exp 
 #include "strmprov.h"
 #include "bufstring.h"
 #include <iostream>
+#include "odlic.h"
 
+#ifndef __isnotgpl__
+# define __isgpl__ true
+#else
+# define __isgpl__ false
+#endif
+
+mExternC bool OD_IS_GPL_License() { return __isgpl__; }
 
 extern "C" const char* GetFullODVersion()
 {
@@ -38,6 +46,8 @@ extern "C" const char* GetFullODVersion()
 	    res = "0.0.0";
     }
 
+    if ( OD_IS_GPL_License() )
+	res += " [GPL]";
     return res.buf();
 }
 
