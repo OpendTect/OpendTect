@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.39 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.40 2009-08-21 08:46:43 cvsbert Exp $";
 
 #include "helpview.h"
 
@@ -27,6 +27,9 @@ static const char* sBookHtml = "book1.htm";
 static const char* sNotFoundHtml = "notfound.html";
 static const char* sNotInstHtml = "docnotinst.html";
 static const char* sToDoHtml = "todo.html";
+
+static bool showhelpstuff = GetEnvVarYN("DTECT_SHOW_HELP")
+			 || GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
 
 
 static StreamData getStreamData( const char* fnm )
@@ -139,10 +142,10 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
 	UsrMsg( msg );
 	ptr = sMainIndex;
     }
-    else if ( GetEnvVarYN("DTECT_SHOW_HELP") )
+    if ( showhelpstuff )
     {
-	BufferString msg = inpwinid; msg += " -> "; msg += ptr;
-	UsrMsg( msg );
+	BufferString msg( "Window ID ", inpwinid, " -> Link name '" );
+	msg += ptr; msg += "'"; UsrMsg( msg );
     }
 
     sd.close();
@@ -196,11 +199,20 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* docdir)
 
     const char* fnm = htmlfnm.isEmpty() ? sIndexHtml : htmlfnm.buf();
     url = FilePath( docdir ).add( fnm ).fullPath();
-    if ( !File_exists(url) )
+    const bool doesexist = File_exists(url);
+    if ( showhelpstuff )
+    {
+	BufferString msg( "Link '", linknm, "' -> URL '" );
+	msg += url; msg += "'";
+	if ( !doesexist )
+	    { msg += " not there -> "; msg += GetDocFileDir( sNotFoundHtml ); }
+	UsrMsg( msg );
+    }
+
+    if ( !doesexist )
 	url = GetDocFileDir( sNotFoundHtml );
     else
-    { url += "#"; url += linknm; }
-
+	{ url += "#"; url += linknm; }
     return url;
 }
 

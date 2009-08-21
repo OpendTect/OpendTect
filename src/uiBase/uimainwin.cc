@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.185 2009-08-07 12:53:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.186 2009-08-21 08:46:43 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -763,7 +763,9 @@ QWidget* uiMainWin::qWidget() const
 void uiMainWin::provideHelp( const char* winid )
 {
     const BufferString fnm = HelpViewer::getURLForWinID( winid );
-    uiDesktopServices::openUrl( fnm );
+    static bool shwonly = GetEnvVarYN("DTECT_SHOW_HELPINFO_ONLY");
+    if ( !shwonly )
+	uiDesktopServices::openUrl( fnm );
 }
 
 void uiMainWin::showCredits( const char* winid )
