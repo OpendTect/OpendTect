@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.20 2009-08-11 09:46:05 cvsumesh Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.21 2009-08-21 12:47:26 cvsumesh Exp $";
 
 #include "autotracker.h"
 
@@ -58,7 +58,8 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	    {
 		stepcntapmtthesld_ = 0;
 		stepcntallowedvar_ = -1;
-		adjuster_->removeOnFailure( true );
+		if ( horadj->getAmplitudeThresholds().size() > 1 )
+		    adjuster_->removeOnFailure( true );
 		horadj->setAmplitudeThreshold(
 			horadj->getAmplitudeThresholds()[stepcntapmtthesld_] );
 	    }
@@ -67,7 +68,8 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	{ 
 	    stepcntallowedvar_ = 0;
 	    stepcntapmtthesld_ = -1;
-	    adjuster_->removeOnFailure( true );
+	    if ( horadj->getAllowedVariances().size()>1 )
+		adjuster_->removeOnFailure( true );
 	    horadj->setAllowedVariance(
 		    horadj->getAllowedVariances()[stepcntallowedvar_] );
 	    
