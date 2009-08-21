@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.63 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.64 2009-08-21 06:30:12 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -198,7 +198,9 @@ public:
 			uiToolButtonBody(uiButton& handle, 
 				     uiParent* parnt, const char* txt)
 			    : uiButtonTemplBody<QToolButton>(handle,parnt,txt)
-			    {}
+			    {
+				setFocusPolicy( Qt::ClickFocus );
+			    }
 
 
     virtual QAbstractButton&    qButton()		{ return *this; }
