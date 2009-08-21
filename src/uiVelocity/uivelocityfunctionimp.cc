@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.11 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.12 2009-08-21 12:45:33 cvsbert Exp $";
 
 #include "uivelocityfunctionimp.h"
 
@@ -83,7 +83,7 @@ void uiImportVelFunc::formatSel( CallBacker* )
 }
 
 
-#define mErrRet(msg) { uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
 bool uiImportVelFunc::acceptOK( CallBacker* )
 {
@@ -119,14 +119,14 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     sd.close();
 
     if ( !outfld_->commitInput() )
-	mErrRet( "Please select the output" )
+	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0)
 
     RefMan<StoredFunctionSource> functions = new StoredFunctionSource;
     functions->setData( bidvalset, desc, true ); //set ZisT
     if ( !functions->store( ctio_.ioobj->key() ) )
 	mErrRet( "Cannot store velocity functions" );
 
-    uiMSG().message( "Import finished successfully" );
+    uiMSG().message( "Import succeeded" );
     return false;
 }
 
