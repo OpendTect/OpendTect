@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.139 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.140 2009-08-21 07:59:43 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -381,6 +381,7 @@ bool uiIOObjSelGrp::processInput()
     int curitm = listfld_->currentItem();
     if ( !nmfld_ )
     {
+	// all 'forread' is handled here
 	if ( ismultisel_ )
 	{
 	    if ( nrSel() > 0 )
@@ -402,6 +403,7 @@ bool uiIOObjSelGrp::processInput()
 	return true;
     }
 
+    // for write here
     LineKey lk( nmfld_->text() );
     const BufferString seltxt( lk.lineName() );
     int itmidx = ioobjnms_.indexOf( seltxt.buf() );
@@ -701,7 +703,7 @@ bool uiIOObjSel::existingUsrName( const char* nm ) const
     { \
 	BufferString txt( inctio_.ctxt.forread \
 				    ? "Please select the " \
-				    : "Please enter a name for the " ); \
+				    : "Please enter a valid name for the " ); \
 	txt += setup_.seltxt_; \
 	uiMSG().error( txt ); \
     }
@@ -735,6 +737,10 @@ bool uiIOObjSel::commitInput()
 }
 
 
+#define mErrRet(s) \
+{ if ( s ) uiMSG().error(s); alreadyerr = true; return false; }
+
+
 bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 {
     alreadyerr = false;
@@ -754,15 +760,26 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
     {
 	if ( workctio_.ioobj )
 	{
+	    const bool isalreadyok = inctio_.ioobj
+			    && inctio_.ioobj->key() == workctio_.ioobj->key();
+	    if ( !isalreadyok && !workctio_.ctxt.forread )
+	    {
+		if ( workctio_.ioobj->implReadOnly() )
+		    mErrRet(BufferString("'",getInput(),
+					 "' exists and is read-only"))
+		if ( setup_.confirmoverwr_ && workctio_.ioobj->implExists(false)
+		  && !uiMSG().askGoOn(BufferString("'",getInput(),
+			   		"' already exists. Overwrite?")) )
+		    mErrRet(0)
+	    }
+
 	    inctio_.setObj( workctio_.ioobj->clone() );
 	    commitSucceeded(); return true;
 	}
 
-	BufferString msg( "'" ); msg += getInput();
-	msg += "' already exists.\nPlease enter another name.";
-	uiMSG().error( msg );
-	alreadyerr = true;
-	return false;
+	mErrRet(BufferString("'",getInput(),
+		    "' already exists as another object type."
+		    "\nPlease enter another name.") )
     }
     if ( workctio_.ctxt.forread ) return false;
 
@@ -782,7 +799,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg ) return;
     uiIOObjSelGrp* selgrp_ = dlg->selGrp();
-    if ( selgrp_ ) selgrp_->setConfirmOverwrite( setup_.confirmoverwr_ );
+    if ( selgrp_ ) selgrp_->setConfirmOverwrite( false ); // handle that here
 
     if ( !helpid_.isEmpty() )
 	dlg->setHelpID( helpid_ );
