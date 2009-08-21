@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.98 2009-08-20 12:09:47 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.99 2009-08-21 06:40:28 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -449,7 +449,10 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	return;
 
     removebypolyposbox_.setEmpty();
-/* //TODO multithreded part... need to make it work this way. 
+
+    insideselremoval_ = true;
+    EM::PosID dummypid( EM::PosID::udf() );
+//#ifdef    
     for ( int idx=0; idx<nrSections(); idx++ )
     {
 	const Geometry::Element* ge = sectionGeometry( sectionID(idx) );
@@ -472,6 +475,11 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	for ( int sididx = 0; sididx < removallist.size(); sididx++ )
 	{
 	    unSetPos( sectionID(idx), removallist[sididx], true );
+	    if ( !selremoving_ )
+		selremoving_ = true;
+
+	    dummypid = EM::PosID( id(), sectionID(idx), removallist[sididx] );
+
 	    BinID bid;
 	    bid.setSerialized( removallist[sididx] );
 	    const Coord3 pos = getPos( sectionID(idx), removallist[sididx] );
@@ -489,9 +497,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    }
 	} 
     }
-*/  
-    insideselremoval_ = true; 
-    EM::PosID dummypid( EM::PosID::udf() ); 
+/*#else
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
     while ( true )
     {
@@ -527,6 +533,8 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    }
 	}
     }
+#endif */
+
     selremoving_ = false;
     if ( !dummypid.isUdf() )
     {
@@ -535,7 +543,6 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    EMObjectCallbackData cbdata;
 	    cbdata.event = EMObjectCallbackData::PositionChange;		            cbdata.pid0 = dummypid;
 	    change.trigger( cbdata );						        }
-
     }
     insideselremoval_ = false;
 }
