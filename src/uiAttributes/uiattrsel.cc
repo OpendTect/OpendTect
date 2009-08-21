@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.44 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.45 2009-08-21 05:28:11 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -482,6 +482,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad )
 void uiAttrSel::setDescSet( const DescSet* ads )
 {
     attrdata_.setAttrSet( ads );
+    updateInput();
 }
 
 
