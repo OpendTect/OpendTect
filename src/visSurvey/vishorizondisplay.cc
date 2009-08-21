@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.108 2009-08-17 19:16:47 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.109 2009-08-21 15:12:31 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1326,7 +1326,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
  \
 	line->setCoordIndex(cii++, line->getCoordinates()->addPos(pos)); \
     } \
-    mEndLine;
+    mEndLine
 
 
 static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist, 
@@ -1627,7 +1627,6 @@ void HorizonDisplay::updateIntersectionLines(
 	}
 	    
 	visBase::IndexedShape* line = intersectionlines_[lineidx];
-	line->removeCoordIndexAfter(-1);
 	line->getCoordinates()->removeAfter(-1);
 	int cii = 0;
 
@@ -1656,6 +1655,8 @@ void HorizonDisplay::updateIntersectionLines(
 				        zaxistransform_, line, cii );
 	    }
 	}
+
+	line->removeCoordIndexAfter(cii-1);
     }
 }
 
