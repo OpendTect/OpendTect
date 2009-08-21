@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.140 2009-08-21 07:59:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.141 2009-08-21 09:18:47 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -764,13 +764,17 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 			    && inctio_.ioobj->key() == workctio_.ioobj->key();
 	    if ( !isalreadyok && !workctio_.ctxt.forread )
 	    {
-		if ( workctio_.ioobj->implReadOnly() )
-		    mErrRet(BufferString("'",getInput(),
-					 "' exists and is read-only"))
-		if ( setup_.confirmoverwr_ && workctio_.ioobj->implExists(false)
-		  && !uiMSG().askGoOn(BufferString("'",getInput(),
-			   		"' already exists. Overwrite?")) )
-		    mErrRet(0)
+		const bool exists = workctio_.ioobj->implExists( false );
+		if ( exists )
+		{
+		    if ( workctio_.ioobj->implReadOnly() )
+			mErrRet(BufferString("'",getInput(),
+					     "' exists and is read-only"))
+		    if ( setup_.confirmoverwr_ && !uiMSG().askGoOn(
+				BufferString("'",getInput(),
+				    	     "' already exists. Overwrite?")) )
+			mErrRet(0)
+		}
 	    }
 
 	    inctio_.setObj( workctio_.ioobj->clone() );
