@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.351 2009-08-18 09:29:53 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.352 2009-08-21 06:31:44 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1147,7 +1147,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
     const int selobjvisid = visserv_->getSelObjectId(); \
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,\
 	                        visserv_->getObject(selobjvisid));\
-    const EM::ObjectID& emid = emod->getObjectID(); \
+    const EM::ObjectID emid = emod ? emod->getObjectID() : -1; \
     const int trackerid = mpeserv_->getTrackerID(emid); \
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid ); 
 
