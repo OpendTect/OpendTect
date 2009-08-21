@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiworld2ui.cc,v 1.7 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiworld2ui.cc,v 1.8 2009-08-21 05:26:25 cvsnanne Exp $";
 
 #include "uiworld2ui.h"
 
@@ -89,6 +89,9 @@ void uiWorld2Ui::set( uiSize sz, const uiWorldRect& wr )
 
 void uiWorld2Ui::set( const uiRect& rc, const uiWorldRect& wr )
 {
+    if ( rc.hNrPics()<2 || rc.vNrPics()<2 )
+	return;
+
     uiSize sz( rc.hNrPics(), rc.vNrPics() );
     set( sz, wr );
     uiorigin = rc.topLeft();
