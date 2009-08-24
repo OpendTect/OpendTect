@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.73 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.74 2009-08-24 14:32:25 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -44,7 +44,6 @@ const char* TrcHeaderDef::sAzimByteSz()	{ return "Nr bytes for Azimuth"; }
 const char* TrcHeaderDef::sTrNrByteSz()	{ return "Nr bytes for trace number"; }
 }
 
-
 static bool sInfo2D = false;
 bool& SEGY::TxtHeader::info2D()  { return sInfo2D; }
 
@@ -53,6 +52,42 @@ static void Ascii2Ebcdic(unsigned char*,int);
 
 static const int cTxtHeadNrLines = 40;
 static const int cTxtHeadCharsPerLine = 80;
+
+
+static double glob_false_easting = 0; static double glob_false_northing = 0;
+static double glob_coord_scaling = 1;
+
+static void GetGlobCoordChanges()
+{
+    static bool stuff_got = false;
+    if ( stuff_got ) return;
+
+    stuff_got = true;
+    glob_false_easting = GetEnvVarDVal( "OD_SEGY_FALSE_EASTING", 0 );
+    glob_false_northing = GetEnvVarDVal( "OD_SEGY_FALSE_NORTHING", 0 );
+    if ( !mIsZero(glob_false_easting,1e-5)
+      || !mIsZero(glob_false_northing,1e-5) )
+    {
+	BufferString usrmsg(
+	"You have set OD_SEGY_FALSE_EASTING and/or OD_SEGY_FALSE_NORTHING."
+	"\n\t(" ); usrmsg += glob_false_easting; usrmsg += ",";
+		 usrmsg += glob_false_northing;
+	usrmsg += ") will be added when reading, subtracted when writing.";
+	UsrMsg( usrmsg );
+    }
+
+    glob_coord_scaling = GetEnvVarDVal( "OD_SEGY_COORDINATE_SCALING", 1 );
+    if ( mIsZero(glob_coord_scaling,1e-6) )
+	glob_coord_scaling = 1;
+    if ( !mIsZero(glob_coord_scaling-1,1e-5) )
+    {
+	BufferString usrmsg( "You have set OD_SEGY_COORDINATE_SCALING."
+		"\n\tCoordinates will be multiplied by " );
+	usrmsg += glob_coord_scaling;
+	usrmsg += " when reading, divided when writing";
+	UsrMsg( usrmsg );
+    }
+}
 
 
 SEGY::TxtHeader::TxtHeader( bool rev1 )
@@ -528,6 +563,7 @@ SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
     , isusable(true)
     , nonrectcoords(false)
 {
+    GetGlobCoordChanges();
 }
 
 
@@ -634,7 +670,9 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     mSTHPutShort(-10,70); // scalco
     Coord crd( ti.coord );
     if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
-    const int icx = mNINT(ti.coord.x*10); const int icy = mNINT(ti.coord.y*10);
+    crd.x /= glob_coord_scaling; crd.y /= glob_coord_scaling;
+    crd.x -= glob_false_easting; crd.y -= glob_false_northing;
+    const int icx = mNINT(crd.x*10); const int icy = mNINT(crd.y*10);
     mSTHPutInt(icx,hdef.xcoord-1);
     mSTHPutInt(icy,hdef.ycoord-1);
 
@@ -784,28 +822,10 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( isrev1 )
 	getRev1Flds( ti, buf, needswap );
 
-    double scale = getCoordScale( extcoordsc );
-    ti.coord.x *= scale;
-    ti.coord.y *= scale;
-
-    // Hack to enable shifts
-    static double false_easting = 0; static double false_northing = 0;
-    static bool false_stuff_got = false;
-    if ( !false_stuff_got )
-    {
-	false_stuff_got = true;
-	false_easting = GetEnvVarDVal( "OD_SEGY_FALSE_EASTING", 0 );
-	false_northing = GetEnvVarDVal( "OD_SEGY_FALSE_NORTHING", 0 );
-	if ( !mIsZero(false_easting,1e-5) || !mIsZero(false_northing,1e-5) )
-	{
-	    BufferString usrmsg( "For this OD run SEG-Y easting/northing " );
-	    usrmsg += false_easting; usrmsg += "/"; usrmsg += false_northing;
-	    usrmsg += " will be applied";
-	    UsrMsg( usrmsg );
-	}
-    }
-    ti.coord.x += false_easting;
-    ti.coord.y += false_northing;
+    const double scale = getCoordScale( extcoordsc );
+    ti.coord.x *= scale; ti.coord.y *= scale;
+    ti.coord.x *= glob_coord_scaling; ti.coord.y *= glob_coord_scaling;
+    ti.coord.x += glob_false_easting; ti.coord.y += glob_false_northing;
 }
 
 
