@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.182 2009-08-21 11:30:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.183 2009-08-24 07:29:09 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -34,7 +34,6 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.182 2009-08-21 11:30:59 cvsb
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
-#include "odlic.h"
 #include "pixmap.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -644,8 +643,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     actviewid_ = cointb_->addButton( "altpick.png",
 	    		mCB(this,uiODMenuMgr,toggViewMode),
 	    		"Switch view mode", false );
-    mAddTB(cointb_,OD_IS_GPL_License()?"home_happy.png":"home.png",
-	    			"To home position",false,toHomePos);
+    mAddTB(cointb_,"home.png","To home position",false,toHomePos);
     mAddTB(cointb_,"set_home.png","Save home position",false,saveHomePos);
     mAddTB(cointb_,"view_all.png","View all",false,viewAll);
     cameraid_ = mAddTB(cointb_,"perspective.png",
