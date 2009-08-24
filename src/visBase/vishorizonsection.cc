@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.71 2009-08-20 14:41:30 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.72 2009-08-24 20:12:48 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -168,7 +168,8 @@ protected:
     SoSwitch*			gluelowdimswitch_;
     SoIndexedLineSet3D*		gluelines_;
     SoDGBIndexedPointSet*	gluepoints_;
-    bool			glueneedsretesselation_;
+    char			glueneedsretesselation_;
+    				//!<0 - updated, 1 - needs update, 2 - dont disp
 
     CallBack			bgfinished_;
 
