@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.51 2009-08-17 12:00:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.52 2009-08-24 15:15:27 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -337,6 +337,11 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals,
 }
 
 
+#define mSclogval(val)\
+{\
+    val += 1;\
+    val = ::log( val );\
+}
 void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals, 
 			     const LogParams& lp )
 {
@@ -378,11 +383,16 @@ void Well::setFilledLogData( const TypeSet<Coord3Value>& crdvals,
     const float diffmaxval = maxval - newmaxval;
     Interval<float> selrg = lp.fillrange_;
     selrg.sort();
+    float rgstop = scaler.scale(selrg.stop-diffmaxval);
+    float rgstart = scaler.scale(selrg.start-diffminval);
+    if ( lp.islogarithmic_ )
+    {
+	mSclogval( rgstop ); 
+	mSclogval( rgstart ); 
+    }
     
     for ( int logidx=0; logidx<log_.size(); logidx++ )
-	log_[logidx]->setFillExtrValue( scaler.scale(selrg.stop-diffmaxval), 
-				        scaler.scale(selrg.start-diffminval), 
-				        lp.lognr_ );
+	log_[logidx]->setFillExtrValue( rgstop, rgstart, lp.lognr_ );
     showLog( true, lp.lognr_ );
 }
 
@@ -408,12 +418,8 @@ const float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx,
     }
     else if ( val < 0 )   val = 0;
     else if ( val > 100 ) val = 100;
+    if ( sclog ) mSclogval(val);
 
-    if ( sclog )
-    {
-	val += 1;
-	val = ::log( val );
-    }
     return val;
 }
 
