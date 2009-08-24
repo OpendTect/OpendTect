@@ -8,18 +8,18 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.6 2009-08-19 11:48:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.7 2009-08-24 09:41:36 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
+#include "poly2horvol.h"
 
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "pickset.h"
+#include "picksettr.h"
 #include "survinfo.h"
-#include "polygon.h"
-#include "gridder2d.h"
 
 #include "uiioobjsel.h"
 #include "uigeninput.h"
@@ -32,72 +32,111 @@ static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.6 2009-08-19 11:48:24 
 #include <math.h>
 
 
-uiCalcPoly2HorVol::uiCalcPoly2HorVol( uiParent* p, const Pick::Set& ps )
-	: uiDialog(p,Setup("Calculate volume",
-		    "Volume estimation: polygon to horizon", "104.4.5"))
-	, ps_(ps)
-	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
+uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
+	: uiDialog(p,Setup("Calculate volume",dlgtxt,"104.4.5"))
 	, zinft_(SI().depthsInFeetByDefault())
-	, curhor_(0)
 	, velfld_(0)
 {
     setCtrlStyle( LeaveOnly );
-    ctio_.ctxt.forread = true;
-    const CallBack chgcb( mCB(this,uiCalcPoly2HorVol,haveChg) );
-    const CallBack calccb( mCB(this,uiCalcPoly2HorVol,doCalc) );
+}
 
-    if ( ps_.size() < 3 )
-    {
-	new uiLabel( this, "Invalid polygon" );
-	return;
-    }
 
-    horsel_ = new uiIOObjSel( this, ctio_, "Calculate to" );
-    horsel_->selectiondone.notify( mCB(this,uiCalcPoly2HorVol,horSel) );
+uiGroup* uiCalcHorVol::mkStdGrp()
+{
+    const CallBack chgcb( mCB(this,uiCalcHorVol,haveChg) );
+    const CallBack calccb( mCB(this,uiCalcHorVol,calcReq) );
 
-    upwbox_ = new uiCheckBox( this, "Upward" );
+    uiGroup* grp = new uiGroup( this, "uiCalcHorVol group" );
+
+    upwbox_ = new uiCheckBox( grp, "Upward" );
     upwbox_->setChecked( true ); upwbox_->activated.notify( chgcb );
-    ignnegbox_ = new uiCheckBox( this, "Ignore negative thicknesses" );
+    ignnegbox_ = new uiCheckBox( grp, "Ignore negative thicknesses" );
     ignnegbox_->setChecked( true ); ignnegbox_->activated.notify( chgcb );
-    ignnegbox_->attach( alignedBelow, horsel_ );
     upwbox_->attach( leftOf, ignnegbox_ );
 
     uiObject* attobj = ignnegbox_;
     if ( SI().zIsTime() )
     {
 	const char* txt = zinft_ ? "Velocity (ft/s)" : "Velocity (m/s)";
-	velfld_ = new uiGenInput( this, txt, FloatInpSpec(zinft_?10000:3000) );
+	velfld_ = new uiGenInput( grp, txt, FloatInpSpec(zinft_?10000:3000) );
 	velfld_->attach( alignedBelow, ignnegbox_ );
 	velfld_->valuechanged.notify( calccb );
 	attobj = velfld_->attachObj();
     }
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    uiSeparator* sep = new uiSeparator( grp, "Hor sep" );
     sep->attach( stretchedBelow, attobj );
 
-    uiPushButton* calcbut = new uiPushButton( this,
+    uiPushButton* calcbut = new uiPushButton( grp,
 	    			"&Estimate volume", calccb, true);
     calcbut->attach( alignedBelow, attobj );
     calcbut->attach( ensureBelow, sep );
 
-    valfld_ = new uiGenInput( this, "==> Volume" );
+    valfld_ = new uiGenInput( grp, "==> Volume" );
     valfld_->attach( alignedBelow, calcbut );
     valfld_->setReadOnly( true );
+
+    grp->setHAlignObj( attobj );
+    return grp;
 }
 
 
-uiCalcPoly2HorVol::~uiCalcPoly2HorVol()
+void uiCalcHorVol::haveChg( CallBacker* )
 {
-    delete ctio_.ioobj; delete &ctio_;
-    if ( curhor_ )
-	curhor_->unRef();
+    valfld_->clear();
 }
 
 
-void uiCalcPoly2HorVol::horSel( CallBacker* cb )
+#define mErrRet(s) { uiMSG().error(s); return; }
+
+void uiCalcHorVol::calcReq( CallBacker* )
 {
-    if ( curhor_ )
-	{ curhor_->unRef(); curhor_ = 0; }
+    const Pick::Set* ps = getPickSet(); if ( !ps ) return;
+    const EM::Horizon3D* hor = getHorizon(); if ( !hor ) return;
+
+    float vel = 1;
+    if ( velfld_ )
+    {
+	vel = velfld_->getfValue();
+	if ( mIsUdf(vel) || vel < 0.1 )
+	    mErrRet("Please provide the velocity")
+	if ( zinft_ )
+	    vel *= mFromFeetFactor;
+    }
+
+    Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
+    float m3 = ph2v.getM3( vel, upwbox_->isChecked(), !ignnegbox_->isChecked());
+    valfld_->setText( ph2v.dispText(m3,zinft_) );
+}
+
+
+uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
+	: uiCalcHorVol(p,"Volume estimation: polygon to horizon")
+	, ps_(ps)
+	, hor_(0)
+{
+    if ( ps_.size() < 3 )
+	{ new uiLabel( this, "Invalid polygon" ); return; }
+
+    horsel_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
+	    			"Calculate to" );
+    horsel_->selectiondone.notify( mCB(this,uiCalcPolyHorVol,horSel) );
+
+    mkStdGrp()->attach( alignedBelow, horsel_ );
+}
+
+
+uiCalcPolyHorVol::~uiCalcPolyHorVol()
+{
+    if ( hor_ )
+	hor_->unRef();
+}
+
+
+void uiCalcPolyHorVol::horSel( CallBacker* cb )
+{
+    if ( hor_ )
+	{ hor_->unRef(); hor_ = 0; }
 
     horsel_->commitInput();
     const IOObj* ioobj = horsel_->ioobj();
@@ -112,7 +151,7 @@ void uiCalcPoly2HorVol::horSel( CallBacker* cb )
 	if ( hor )
 	{
 	    hor->ref();
-	    curhor_ = hor;
+	    hor_ = hor;
 	}
     }
 
@@ -120,132 +159,64 @@ void uiCalcPoly2HorVol::horSel( CallBacker* cb )
 }
 
 
-void uiCalcPoly2HorVol::haveChg( CallBacker* )
+const EM::Horizon3D* uiCalcPolyHorVol::getHorizon()
 {
-    valfld_->clear();
-}
 
-
-#define mErrRet(s) { uiMSG().error(s); return; }
-
-void uiCalcPoly2HorVol::doCalc( CallBacker* )
-{
-    float vel = 1;
-    if ( velfld_ )
-    {
-	vel = velfld_->getfValue();
-	if ( mIsUdf(vel) || vel < 0.1 )
-	    mErrRet("Please provide the velocity")
-	if ( zinft_ )
-	    vel *= mFromFeetFactor;
-    }
-
-    dispVal( getM3(vel) );
-}
-
-
-#define mPolyLoc(b) \
-	Geom::Point2D<float>( (float)b.inl, (float)(b.crl) )
-
-float uiCalcPoly2HorVol::getM3( float vel )
-{
-    if ( !curhor_ )
-    {
+    if ( !hor_ )
 	horSel( 0 );
-	if ( !curhor_ )
-	    return mUdf(float);
-    }
+    return hor_;
+}
 
-    ODPolygon<float> poly;
-    HorSampling hs;
-    const Pick::Location& pl0( ps_[0] );
-    TypeSet<Coord> pts; TypeSet<float> zvals;
-    for ( int idx=0; idx<ps_.size(); idx++ )
+
+uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
+	: uiCalcHorVol(p,"Volume estimation from horizon part")
+	, ps_(0)
+	, hor_(h)
+{
+    if ( hor_.nrSections() < 1 )
+	{ new uiLabel( this, "Invalid horizon" ); return; }
+
+    IOObjContext ctxt( mIOObjContext(PickSet) );
+    ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
+    pssel_ = new uiIOObjSel( this, ctxt, "Calculate from polygon" );
+    pssel_->selectiondone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
+
+    mkStdGrp()->attach( alignedBelow, pssel_ );
+}
+
+
+uiCalcHorPolyVol::~uiCalcHorPolyVol()
+{
+    delete ps_;
+}
+
+
+void uiCalcHorPolyVol::psSel( CallBacker* cb )
+{
+    bool havenew = ps_;
+    if ( ps_ ) delete ps_;
+    ps_ = 0;
+
+    const IOObj* ioobj = pssel_->ioobj();
+    if ( !ioobj )
+	uiMSG().error( "Please provide the polygon" );
+    else
     {
-	const Pick::Location& pl( ps_[idx] );
-	pts += pl.pos; zvals += pl.pos.z;
-	const BinID bid( SI().transform(pl.pos) );
-	poly.add( mPolyLoc(bid) );
-	if ( idx )
-	    hs.include( bid );
-	else
-	    hs.start = hs.stop = bid;
-    }
-
-    TriangulatedGridder2D grdr;
-    grdr.setPoints( pts ); grdr.setValues( zvals, false );
-    float avgz = 0;
-    for ( int idx=0; idx<zvals.size(); idx++ )
-	avgz += zvals[idx];
-    avgz /= zvals.size();
-
-    const bool upw = upwbox_->isChecked();
-    const bool useneg = !ignnegbox_->isChecked();
-
-    const int nrsect = curhor_->nrSections();
-    HorSamplingIterator iter( hs );
-    BinID bid; float totth = 0;
-    while ( iter.next(bid) )
-    {
-	if ( !poly.isInside(mPolyLoc(bid),true,1e-6) )
-	    continue;
-
-	const EM::SubID subid = bid.getSerialized();
-	const Coord coord( SI().transform(bid) );
-
-	for ( int isect=0; isect<nrsect; isect++ )
+	ps_ = new Pick::Set; BufferString msg; 
+	if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,msg) )
 	{
-	    const float horz = curhor_->getPos( isect, subid ).z;
-	    if ( mIsUdf(horz) )
-		continue;
-
-	    float polyz = avgz;
-	    bool useavgz = true;
-	    useavgz = !grdr.setGridPoint(coord) || !grdr.init();
-	    if ( useavgz )
-		polyz = avgz;
-	    else
-	    {
-		polyz = grdr.getValue();
-		if ( mIsUdf(polyz) )
-		    polyz = avgz;
-	    }
-
-	    const float th = upw ? polyz - horz : horz - polyz;
-	    if ( useneg || th > 0 )
-		{ totth += th; break; }
+	    uiMSG().error( msg );
+	    delete ps_; ps_ = 0;
 	}
     }
 
-    const float cellarea = SI().inlDistance() * hs.step.inl
-			 * SI().crlDistance() * hs.step.crl;
-    const float v = SI().zIsTime() ? vel * .5 : 1; // TWT
-    return cellarea * v * totth;
+    haveChg( cb );
 }
 
 
-void uiCalcPoly2HorVol::dispVal( float m3 )
+const Pick::Set* uiCalcHorPolyVol::getPickSet()
 {
-    static const float bblconv = 6.2898108;
-    static const float ft3conv = 35.314667;
-
-    if ( mIsUdf(m3) )
-	{ valfld_->clear(); return; }
-
-    float dispval = m3;
-    if ( zinft_ ) dispval *= ft3conv;
-    bool mega = false;
-    if ( fabs(dispval) > 1e6 )
-	{ mega = true; dispval /= 1e6; }
-
-    BufferString txt( "", dispval, mega ? "M " : " " );
-    txt += zinft_ ? "ft^3" : "m^3";
-    txt += " (";
-    dispval *= bblconv;
-    if ( zinft_ ) dispval /= ft3conv;
-    if ( dispval > 1e6 )
-	{ mega = true; dispval /= 1e6; }
-    txt += dispval; if ( mega ) txt += "M";
-    txt += " bbl)";
-    valfld_->setText( txt );
+    if ( !ps_ )
+	psSel( 0 );
+    return ps_;
 }

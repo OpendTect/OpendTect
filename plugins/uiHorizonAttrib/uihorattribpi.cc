@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.18 2009-08-10 14:45:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.19 2009-08-24 09:41:36 cvsbert Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -27,8 +27,8 @@ static const char* rcsID = "$Id: uihorattribpi.cc,v 1.18 2009-08-10 14:45:17 cvs
 #include "uivispartserv.h"
 #include "uipickpartserv.h"
 #include "attribsel.h"
-#include "emobject.h"
 #include "emmanager.h"
+#include "emhorizon3d.h"
 #include "plugins.h"
 
 
@@ -66,13 +66,15 @@ public:
     void		doIsopach(CallBacker*);
     void		doIsopachThruMenu(CallBacker*);
     void		doContours(CallBacker*);
-    void		calcVol(CallBacker*);
+    void		calcPolyVol(CallBacker*);
+    void		calcHorVol(CallBacker*);
 
     uiODMain*		appl_;
     uiVisMenuItemHandler flattenmnuitemhndlr_;
     uiVisMenuItemHandler isopachmnuitemhndlr_;
     uiVisMenuItemHandler contourmnuitemhndlr_;
-    uiVisMenuItemHandler volmnuitemhndlr_;
+    uiVisMenuItemHandler horvolmnuitemhndlr_;
+    uiVisMenuItemHandler polyvolmnuitemhndlr_;
 };
 
 
@@ -85,9 +87,10 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
     	, flattenmnuitemhndlr_(mMkPars("Write &Flattened cube ...",doFlattened))
     	, isopachmnuitemhndlr_(mMkPars("Calculate &Isopach ...",doIsopach))
 	, contourmnuitemhndlr_(mMkPars("Add &Contour Display",doContours),995)
-	, volmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
+    	, horvolmnuitemhndlr_(mMkPars("Calculate &Volume ...",calcHorVol))
+	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::getStaticClassName(),
 		*a->applMgr().visServer(),"Calculate &Volume ...",
-		mCB(this,uiHorAttribPIMgr,calcVol),996)
+		mCB(this,uiHorAttribPIMgr,calcPolyVol),996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mnumgr.dTectMnuChanged.notify(mCB(this,uiHorAttribPIMgr,updateMenu));
@@ -207,16 +210,31 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 }
 
 
-void uiHorAttribPIMgr::calcVol( CallBacker* )
+void uiHorAttribPIMgr::calcPolyVol( CallBacker* )
 {
-    const int displayid = volmnuitemhndlr_.getDisplayID();
+    const int displayid = polyvolmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl_->applMgr().visServer();
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 	    	    visserv->getObject(displayid))
     if ( !psd || !psd->getSet() )
 	{ pErrMsg("Can't get PickSetDisplay"); return; }
 
-    uiCalcPoly2HorVol dlg( appl_, *psd->getSet() );
+    uiCalcPolyHorVol dlg( appl_, *psd->getSet() );
+    dlg.go();
+}
+
+
+void uiHorAttribPIMgr::calcHorVol( CallBacker* )
+{
+    const int displayid = horvolmnuitemhndlr_.getDisplayID();
+    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
+    if ( !hd ) return;
+
+    EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    if ( !hor ) { uiMSG().error("Internal: cannot find horizon"); return; }
+    uiCalcHorPolyVol dlg( appl_, *hor );
     dlg.go();
 }
 
