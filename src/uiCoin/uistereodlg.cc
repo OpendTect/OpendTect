@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistereodlg.cc,v 1.9 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uistereodlg.cc,v 1.10 2009-08-24 14:36:22 cvsbert Exp $";
 
 #include "uistereodlg.h"
 #include "uisoviewer.h"
@@ -32,9 +32,12 @@ uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<uiSoViewer>& vwrs_ )
 void uiStereoDlg::doFinalise( CallBacker* )
 {
     float offset = vwrs[0]->getStereoOffset();
+    int minval = (int)(offset - 1000); minval /= 100; minval *= 100;
+    int maxval = (int)(offset + 1000); maxval /= 100; maxval *= 100;
+    if ( minval < 10 ) minval = 10;
 
-    sliderfld->sldr()->setMinValue( 10 );
-    sliderfld->sldr()->setMaxValue( 1000 );
+    sliderfld->sldr()->setMinValue( minval );
+    sliderfld->sldr()->setMaxValue( maxval );
     sliderfld->sldr()->setValue( offset );
 }
 
