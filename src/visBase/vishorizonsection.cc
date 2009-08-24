@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.72 2009-08-24 20:12:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.73 2009-08-24 20:17:13 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1779,7 +1779,10 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
      {
 	 updateBBox();
 	 const SbBox3f bbox = getBBox();
-	 if ( bbox.isEmpty() || SoCullElement::cullTest(state, bbox, true ) )
+	 if ( bbox.isEmpty() )
+	     newres = -1;
+	 else if ( !section_.ismoving_ &&
+		  SoCullElement::cullTest(state, bbox, true ) )
 	     newres = -1;
 	 else if ( desiredresolution_==-1 )
 	 {
@@ -1880,8 +1883,7 @@ int HorizonSectionTile::getAutoResolution( SoState* state )
     if ( bbox_.isEmpty() )
 	return -1;
 
-    const int32_t camerainfo = SoCameraInfoElement::get(state);
-    if ( camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE) )
+    if ( section_.ismoving_ )
 	return mLowestResIdx;
 
     SbVec2s screensize;
