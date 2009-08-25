@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture3.cc,v 1.32 2009-08-20 20:38:08 cvskris Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.33 2009-08-25 15:09:03 cvskris Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -77,21 +77,23 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( idx!=start )
 		x0 = 0;
 
+	    float x0pos = x0*x0step;
+	    int x0idx = (int)x0pos;
+	    v000 = data_.get( x0idx, x1idx, x2idx );
+	    if ( !x1onedge )
+		v010 = data_.get( x0idx, x1idx+1, x2idx );
+	    if ( !x2onedge )
+		v001 = data_.get( x0idx, x1idx, x2idx+1 );
+	    if ( !x1onedge && !x2onedge )
+		v011 = data_.get( x0idx, x1idx+1, x2idx+1 );
+
 	    for ( ; x0<x0sz_; x0++ )
 	    {
-		const float x0pos = x0*x0step;
-		const int x0idx = (int)x0pos;
+		x0pos = x0*x0step;
+		x0idx = (int)x0pos;
 		const bool x0onedge = x0idx+1==datax0sz;
 		const float x0relpos = x0pos-x0idx;
 
-
-		v000 = data_.get( x0idx, x1idx, x2idx );
-		if ( !x1onedge )
-		    v010 = data_.get( x0idx, x1idx+1, x2idx );
-		if ( !x2onedge )
-		    v001 = data_.get( x0idx, x1idx, x2idx+1 );
-		if ( !x1onedge && !x2onedge )
-		    v011 = data_.get( x0idx, x1idx+1, x2idx+1 );
 		if ( !x0onedge )
 		    v100 = data_.get( x0idx+1, x1idx, x2idx );
 		if ( !x0onedge && !x1onedge )
@@ -110,6 +112,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		idx++;
 		if ( idx>stop )
 		    return true;
+
+		v000 = v100;
+		v010 = v110;
+		v001 = v101;
+		v011 = v111;
 	    }
 	}
     }
