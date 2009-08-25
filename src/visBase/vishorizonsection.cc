@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.74 2009-08-25 19:47:19 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.75 2009-08-25 20:15:25 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -181,9 +181,8 @@ protected:
     SoDGBIndexedPointSet*	points_[mHorSectNrRes];
     ObjectSet<TesselationData>	tesselationdata_;
     Threads::Mutex		tesselationdatalock_;
-    SoSwitch*			wireframeswitch_[mHorSectNrRes];
-    SoSeparator*		wireframeseparator_[mHorSectNrRes];
-    Texture2*			wireframetexture_;
+    SoSwitch*			wireframeswitch_;
+    SoSeparator*		wireframeseparator_;
 
     SoIndexedTriangleStripSet*	gluetriangles_;
     SoSwitch*			gluelowdimswitch_;
@@ -1420,7 +1419,6 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     , resolutionhaschanged_( false )
     , needsupdatebbox_( false )
     , usewireframe_( false )
-    , wireframetexture_( visBase::Texture2::create() )		 
     , nrdefinedpos_( 0 )
     , bgfinished_( mCB( this, HorizonSectionTile, bgTesselationFinishCB ) )
     , origin_( origin )
@@ -1434,7 +1432,6 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     for ( int idx=0; idx<mTotalNormalSize; idx++ )
 	normals_->vector.set1Value(idx, SbVec3f(0,0,-1) );
 
-    wireframetexture_->ref();
 
     root_->addChild( coords_->getInventorNode() );
     root_->addChild( normals_ );
@@ -1453,6 +1450,12 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     gluelines_->radius = 2;
     gluelines_->screenSize = false;
 
+    wireframeseparator_ = new SoSeparator;
+    root_->addChild( wireframeseparator_ );
+    wireframeseparator_->addChild( wfmat );
+    wireframeswitch_ = new SoSwitch;
+    wireframeseparator_->addChild( wireframeswitch_ );
+
     root_->addChild( resswitch_ );
     for ( int idx=0; idx<mHorSectNrRes; idx++ )
     {
@@ -1464,28 +1467,22 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
 
 	triangles_[idx] = new SoIndexedTriangleStripSet;
 	triangles_[idx]->coordIndex.deleteValues( 0, -1 );
+	resolutions_[idx]->addChild( triangles_[idx] );
+
 	points_[idx] = new SoDGBIndexedPointSet;
 	points_[idx]->coordIndex.deleteValues( 0, -1 );
-	wireframeswitch_[idx] = new SoSwitch;
-	resolutions_[idx]->addChild( triangles_[idx] );
 	resolutions_[idx]->addChild( points_[idx] );
-	resolutions_[idx]->addChild( wireframeswitch_[idx] );
-
-	wireframeseparator_[idx] = new SoSeparator;	
-	wireframes_[idx] = new SoIndexedLineSet;
-	wireframes_[idx]->coordIndex.deleteValues( 0, -1 );
-	wireframeseparator_[idx]->addChild( wfmat );
-	wireframeseparator_[idx]->addChild( 
-		 wireframetexture_->getInventorNode() );
-	wireframeseparator_[idx]->addChild( wireframes_[idx] );
 
 	lines_[idx] = new SoIndexedLineSet3D;
 	lines_[idx]->rightHandSystem = true; 
 	lines_[idx]->radius = 2;
 	lines_[idx]->screenSize = false;
 	lines_[idx]->coordIndex.deleteValues( 0, -1 );
-	wireframeswitch_[idx]->addChild( wireframeseparator_[idx] );
-	wireframeswitch_[idx]->addChild( lines_[idx] );
+	resolutions_[idx]->addChild( lines_[idx] );
+
+	wireframes_[idx] = new SoIndexedLineSet;
+	wireframes_[idx]->coordIndex.deleteValues( 0, -1 );
+	wireframeswitch_->addChild( wireframes_[idx] );
 
 	tesselationdata_ += 0;
     }
@@ -1504,7 +1501,6 @@ HorizonSectionTile::~HorizonSectionTile()
     coords_->unRef();
     normals_->unref();
     root_->unref();
-    wireframetexture_->unRef();
     
     tesselationqueuelock_.lock();
     for ( int idx=tesselationqueue_.size()-1; idx>=0; idx-- )
@@ -1858,12 +1854,15 @@ int HorizonSectionTile::getAutoResolution( SoState* state )
 
 void HorizonSectionTile::setActualResolution( int resolution )
 {
-    if ( resolution==getActualResolution() ) 
-	return;
+    if ( resolution!=getActualResolution() )
+    {
+	resswitch_->whichChild.setValue( resolution );
+	resolutionhaschanged_ = true;
+    }
 
-    resswitch_->whichChild.setValue( resolution );
-
-    resolutionhaschanged_ = true;
+    const int newwfres = usewireframe_ ? resolution : -1;
+    if ( newwfres!=wireframeswitch_->whichChild.getValue() )
+	wireframeswitch_->whichChild.setValue( newwfres );
 }
 
 #define mStrip 3
