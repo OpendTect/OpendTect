@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.183 2009-08-24 07:29:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.184 2009-08-25 14:49:21 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -537,7 +537,10 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( settmnu_, "&Look and feel ...", mSettLkNFlMnuItm );
     mInsertItem( settmnu_, "&Mouse controls ...", mSettMouseMnuItm );
     mInsertItem( settmnu_, "&Keyboard shortcuts ...", mSettShortcutsMnuItm );
-    mInsertItem( settmnu_, "&Advanced ...", mSettGeneral );
+    uiPopupMenu* advmnu = new uiPopupMenu( &appl_, "&Advanced" );
+    mInsertItem( advmnu, "&Personal settings ...", mSettGeneral );
+    mInsertItem( advmnu, "&Survey defaults ...", mSettSurvey );
+    settmnu_->insertItem( advmnu );
 
     toolsmnu_ = new uiPopupMenu( &appl_, "&Tools" );
     utilmnu_->insertItem( toolsmnu_ );
@@ -886,7 +889,12 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
 
     case mSettGeneral: {
-	uiSettings dlg( &appl_, "Set a specific User Setting" );
+	uiSettings dlg( &appl_, "Set Personal Settings" );
+	dlg.go();
+    } break;
+    case mSettSurvey: {
+	uiSettings dlg( &appl_, "Set Survey default Settings",
+				uiSettings::sKeySurveyDefs() );
 	dlg.go();
     } break;
 

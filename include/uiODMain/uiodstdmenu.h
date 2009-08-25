@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.57 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.58 2009-08-25 14:49:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,6 +151,7 @@ ________________________________________________________________________
 #define mSettMouseMnuItm	(mUtilSettingMnu + 20)
 #define mSettLkNFlMnuItm	(mUtilSettingMnu + 30)
 #define mSettGeneral		(mUtilSettingMnu + 40)
+#define mSettSurvey		(mUtilSettingMnu + 41)
 #define mSettShortcutsMnuItm	(mUtilSettingMnu + 50)
 
 
