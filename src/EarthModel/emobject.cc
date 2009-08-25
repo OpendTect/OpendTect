@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.99 2009-08-21 06:40:28 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.100 2009-08-25 08:56:13 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -451,7 +451,6 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
     removebypolyposbox_.setEmpty();
 
     insideselremoval_ = true;
-    EM::PosID dummypid( EM::PosID::udf() );
 //#ifdef    
     for ( int idx=0; idx<nrSections(); idx++ )
     {
@@ -474,11 +473,9 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	TypeSet<EM::SubID> removallist = selremoval.getRemovelList();
 	for ( int sididx = 0; sididx < removallist.size(); sididx++ )
 	{
+	    if ( sididx == 0 )
+		setBurstAlert( true );
 	    unSetPos( sectionID(idx), removallist[sididx], true );
-	    if ( !selremoving_ )
-		selremoving_ = true;
-
-	    dummypid = EM::PosID( id(), sectionID(idx), removallist[sididx] );
 
 	    BinID bid;
 	    bid.setSerialized( removallist[sididx] );
@@ -495,6 +492,8 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 		removebypolyposbox_.hrg.include(bid);
 		removebypolyposbox_.zrg.include(pos.z);
 	    }
+	    if ( sididx == removallist.size()-1 )
+		setBurstAlert( false );
 	} 
     }
 /*#else
@@ -534,16 +533,6 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	}
     }
 #endif */
-
-    selremoving_ = false;
-    if ( !dummypid.isUdf() )
-    {
-	if ( !burstalertcount_ )
-	{
-	    EMObjectCallbackData cbdata;
-	    cbdata.event = EMObjectCallbackData::PositionChange;		            cbdata.pid0 = dummypid;
-	    change.trigger( cbdata );						        }
-    }
     insideselremoval_ = false;
 }
 

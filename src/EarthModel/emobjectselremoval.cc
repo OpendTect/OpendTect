@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.4 2009-08-21 04:29:36 cvsumesh Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.5 2009-08-25 08:56:13 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,10 +72,13 @@ bool EMObjectSelectionRemoval::doWork( od_int64 start, od_int64 stop,
 	int rowstep = surface->rowRange().step;
 	int colstep = surface->colRange().step;
 
-	const StepInterval<int> rowrg( startrow_ + rowstep * boxrow * 16,
+	int versft = boxrow ? 1 : 0;
+	int horsft = boxcol ? 1 : 0;
+
+	const StepInterval<int> rowrg( startrow_ + rowstep*boxrow*16 + versft,
 		startrow_ + rowstep * (((boxrow+1)==nrvertgroupboxes) ?
 		nrrows_ -1 : (boxrow+1)*16), rowstep );
-	const StepInterval<int> colrg( startcol_ + colstep* boxcol * 16, 
+	const StepInterval<int> colrg( startcol_ + colstep*boxcol*16 + horsft, 
 		startcol_ + colstep * (((boxcol+1)==nrhorgroupboxes) ?
 		nrcols_ - 1 : (boxcol+1)*16), colstep );
 
