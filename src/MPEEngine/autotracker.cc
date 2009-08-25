@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.21 2009-08-21 12:47:26 cvsumesh Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.22 2009-08-25 08:53:42 cvsumesh Exp $";
 
 #include "autotracker.h"
 
@@ -47,7 +47,7 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 
     trackingextriffail_ = adjuster_->removesOnFailure();
 
-    reCalculateTtalNr();
+    reCalculateTotalNr();
 
     mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster());
     if ( horadj )
@@ -60,8 +60,10 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 		stepcntallowedvar_ = -1;
 		if ( horadj->getAmplitudeThresholds().size() > 1 )
 		    adjuster_->removeOnFailure( true );
-		horadj->setAmplitudeThreshold(
-			horadj->getAmplitudeThresholds()[stepcntapmtthesld_] );
+		const float th = 
+		    horadj->getAmplitudeThresholds()[stepcntapmtthesld_];
+		horadj->setAmplitudeThreshold( th );
+		execmsg_ = "Step: "; execmsg_ += th;
 	    }
 	}
 	else if ( horadj->getAllowedVariances().size()>0 ) 
@@ -70,9 +72,9 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	    stepcntapmtthesld_ = -1;
 	    if ( horadj->getAllowedVariances().size()>1 )
 		adjuster_->removeOnFailure( true );
-	    horadj->setAllowedVariance(
-		    horadj->getAllowedVariances()[stepcntallowedvar_] );
-	    
+	    const float var = horadj->getAllowedVariances()[stepcntallowedvar_];
+	    horadj->setAllowedVariance( var );
+	    execmsg_ = "Step: "; execmsg_ += var*100; execmsg_ += "%";	    
 	}
     }
 }
@@ -87,7 +89,7 @@ AutoTracker::~AutoTracker()
 }
 
 
-void AutoTracker::reCalculateTtalNr()
+void AutoTracker::reCalculateTotalNr()
 {
     PtrMan<EM::EMObjectIterator>iterator =
 	emobject_.createIterator( sectionid_, &engine().activeVolume() );
@@ -244,10 +246,12 @@ int AutoTracker::nextStep()
 		(stepcntapmtthesld_+1) )
 		adjuster_->removeOnFailure( trackingextriffail_ );
 
-	    reCalculateTtalNr();
-	    horadj->setAmplitudeThreshold(
-		    horadj->getAmplitudeThresholds()[stepcntapmtthesld_] );
-
+	    reCalculateTotalNr();
+	    const float th =
+		horadj->getAmplitudeThresholds()[stepcntapmtthesld_];
+	    horadj->setAmplitudeThreshold( th );
+	    execmsg_ = "Step: "; execmsg_ += th;
+	    nrdone_ = 1;
 	    return MoreToDo();
 	}
 	else
@@ -266,10 +270,11 @@ int AutoTracker::nextStep()
 	    if ( horadj->getAllowedVariances().size() == (stepcntallowedvar_+1))
 		adjuster_->removeOnFailure( trackingextriffail_ );
 
-	    reCalculateTtalNr();
-	    horadj->setAllowedVariance(
-		    horadj->getAllowedVariances()[stepcntallowedvar_] );
-	    
+	    reCalculateTotalNr();
+	    const float var = horadj->getAllowedVariances()[stepcntallowedvar_];
+	    horadj->setAllowedVariance( var );
+	    execmsg_ = "Step: "; execmsg_ += var*100; execmsg_ += "%";
+	    nrdone_ = 1;	    
 	    return MoreToDo();
 	}
     }
@@ -299,6 +304,10 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
     currentseeds_ += pid.subID();
     return true;
 }
+
+
+const char* AutoTracker::message() const
+{ return execmsg_.buf(); }
 
 
 }; // namespace MPE

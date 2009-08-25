@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.31 2009-08-04 05:13:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.32 2009-08-25 08:54:08 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -570,18 +570,6 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     }
     if ( !inpfld ) return true;
 
-    
-    inpfld->processInput();
-    Attrib::SelSpec as;
-    inpfld->fillSelSpec( as );
-    if ( !as.id().isValid() )
-	mErrRet( "Please select the seismic data to track on" );
-    if ( !horadj_->getAttributeSel(0) || *horadj_->getAttributeSel(0)!=as )
-    {
-	fieldchange = true;
-	horadj_->setAttributeSel( 0, as );
-    }
-
     VSEvent::Type evtyp = cEventTypes()[ evfld->getIntValue() ];
     if ( horadj_->trackEvent() != evtyp )
     {
@@ -683,7 +671,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    int size = horadj_->getAmplitudeThresholds().size();
 	    fieldchange = true;
-	    horadj_->getAmplitudeThresholds().remove( idx+1, size-1 );
+	    horadj_->getAmplitudeThresholds().remove( idx, size-1 );
 	}
 
 	if ( idx==0 && horadj_->getAmplitudeThresholds().size() > 0 )
@@ -736,7 +724,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    int size = horadj_->getAllowedVariances().size();
 	    fieldchange = true;
-	    horadj_->getAllowedVariances().remove( idx+1, size-1 );
+	    horadj_->getAllowedVariances().remove( idx, size-1 );
 	}
 
 	if ( idx==0 && horadj_->getAllowedVariances().size()>0 )
@@ -750,6 +738,18 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	horadj_->removeOnFailure( rmonfail );
     }
 
+    inpfld->processInput();
+    Attrib::SelSpec as;
+    inpfld->fillSelSpec( as );
+    if ( !as.id().isValid() )
+	mErrRet( "Please select the seismic data to track on" );
+
+    if ( !horadj_->getAttributeSel(0) || *horadj_->getAttributeSel(0)!=as )
+    {
+	fieldchange = true;
+	horadj_->setAttributeSel( 0, as );
+    }
+    
     return true;
 }
 

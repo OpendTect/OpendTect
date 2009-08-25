@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.11 2009-08-11 09:46:00 cvsumesh Exp $
+ RCS:           $Id: autotracker.h,v 1.12 2009-08-25 08:53:34 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,10 +41,12 @@ public:
     od_int64			nrDone() const		{ return nrdone_; }
     od_int64			totalNr() const		{ return totalnr_; }
 
+    virtual const char*		message() const;
+
 protected:
     bool			addSeed(const EM::PosID&);
     void			manageCBbuffer(bool block);
-    void			reCalculateTtalNr();
+    void			reCalculateTotalNr();
     int				nrdone_;
     int				totalnr_;
     int				nrflushes_;
@@ -64,6 +66,8 @@ protected:
     SectionExtender*		extender_;
     SectionAdjuster*		adjuster_;
     Geometry::Element*          geomelem_;
+
+    BufferString		execmsg_;
 };
 
 
