@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2009
- RCS:		$Id: posimpexppars.h,v 1.1 2009-08-25 10:09:29 cvsbert Exp $
+ RCS:		$Id: posimpexppars.h,v 1.2 2009-08-25 13:25:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,14 +20,20 @@ class IOPar;
 /* Parameters to apply on import (add or multiply), and on export (subtract
    or divide).
 
-   On import, the 'scale' is applied before the 'offset', hence offset must be
-   in units of the scaled values. On export, the offset subtracted first (of
-   course).
+   On import (i.e. `inward', the 'scale' is applied before the 'offset', hence
+   offset must be in units of the scaled values. On export, the offset
+   subtracted first (of course).
  
  */
 
+#define mPIEP PosImpExpPars::SVY()
+#define mPIEPAdj(what,v,inw) PosImpExpPars::SVY().adjust##what(v,inw)
+
+
 class PosImpExpPars : public CallBacker
 {
+public:
+
     static const PosImpExpPars& SVY();
     void		refresh()		{ getSVY().getFromSI(); }
 
@@ -42,11 +48,16 @@ class PosImpExpPars : public CallBacker
     float		offsScale() const	{ return offsscale_; }
     float		offsOffset() const	{ return offsoffs_; }
 
-    void		adjustBinID(BinID&) const;
-    void		adjustTrcNr(int&) const;
-    void		adjustCoord(Coord&) const;
-    void		adjustZ(float&) const;
-    void		adjustOffset(float&) const;
+    void		adjustBinID(BinID&,bool inward) const;
+    void		adjustTrcNr(int&,bool inward) const;
+    void		adjustCoord(Coord&,bool inward) const;
+    void		adjustZ(float&,bool inward) const;
+    void		adjustOffset(float&,bool inward) const;
+
+    void		adjustInl(int&,bool inward) const;
+    void		adjustCrl(int&,bool inward) const;
+    void		adjustX(double&,bool inward) const;
+    void		adjustY(double&,bool inward) const;
 
 protected:
 
@@ -78,7 +89,7 @@ public:
     void		getFromSI();
     void		survChg( CallBacker* )	{ refresh(); }
 
-    static const char*	sKeyBase()		{ return "Seis.ImpExp"; }
+    static const char*	sKeyBase()		{ return "ImpExp"; }
     static const char*	sKeyOffset();		// sKey::Offset
     static const char*	sKeyScale();		// sKey::Scale
     static const char*	sKeyBinID()		{ return "BinID"; }

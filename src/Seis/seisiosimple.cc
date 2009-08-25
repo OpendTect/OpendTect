@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.15 2009-08-03 14:00:26 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.16 2009-08-25 13:25:36 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: seisiosimple.cc,v 1.15 2009-08-03 14:00:26 cvsb
 #include "scaler.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "posimpexppars.h"
 #include "msgh.h"
 
 #include <math.h>
@@ -384,6 +385,8 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    offsnr_++;
     }
 
+    mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
+    mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
     trc.info() = trc_.info();
     trc.reSize( data_.nrsamples_, 0 );
     trc.info().binid = bid;
@@ -446,6 +449,7 @@ int SeisIOSimple::writeExpTrc()
 	    SamplingData<float> datasd = trc_.info().sampling;
 	    if ( SI().zIsTime() )
 		{ datasd.start *= 1000; datasd.step *= 1000; }
+	    mPIEPAdj(Z,datasd.start,false); mPIEPAdj(Z,datasd.step,false);
 	    if ( data_.isasc_ )
 		*sd_.ostrm << datasd.start << '\t'
 			  << datasd.step << '\t'
@@ -464,7 +468,8 @@ int SeisIOSimple::writeExpTrc()
 
     if ( data_.havenr_ )
     {
-	const int nr = trc_.info().nr;
+	int nr = trc_.info().nr;
+	mPIEPAdj(TrcNr,nr,false);
 	if ( data_.isasc_ )
 	{
 	    *sd_.ostrm << nr;
@@ -479,7 +484,8 @@ int SeisIOSimple::writeExpTrc()
     {
 	if ( data_.isxy_ )
 	{
-	    const Coord coord = trc_.info().coord;
+	    Coord coord = trc_.info().coord;
+	    mPIEPAdj(Coord,coord,false);
 	    if ( data_.isasc_ )
 	    {
 		*sd_.ostrm << getStringFromDouble(0,coord.x) << ' ';
@@ -493,7 +499,8 @@ int SeisIOSimple::writeExpTrc()
 	}
 	else
 	{
-	    const BinID bid = trc_.info().binid;
+	    BinID bid = trc_.info().binid;
+	    mPIEPAdj(BinID,bid,false);
 	    if ( data_.isasc_ )
 		*sd_.ostrm << bid.inl << '\t' << bid.crl;
 	    else
@@ -508,7 +515,8 @@ int SeisIOSimple::writeExpTrc()
     {
 	if ( data_.haveoffs_ )
 	{
-	    const float offs = trc_.info().offset;
+	    float offs = trc_.info().offset;
+	    mPIEPAdj(Offset,offs,false);
 	    if ( data_.isasc_ )
 		*sd_.ostrm << offs << '\t';
 	    else

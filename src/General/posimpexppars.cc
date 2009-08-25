@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: posimpexppars.cc,v 1.1 2009-08-25 10:09:30 cvsbert Exp $";
+static const char* rcsID = "$Id: posimpexppars.cc,v 1.2 2009-08-25 13:25:36 cvsbert Exp $";
 
 #include "posimpexppars.h"
 #include "survinfo.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: posimpexppars.cc,v 1.1 2009-08-25 10:09:30 cvsb
 #include "iopar.h"
 
 
-const char* PosImpExpPars::sKeyOffset()	{ return sKey::Offset; }
+const char* PosImpExpPars::sKeyOffset()		{ return sKey::Offset; }
 const char* PosImpExpPars::sKeyScale()		{ return sKey::Scale; }
 const char* PosImpExpPars::sKeyTrcNr()		{ return sKey::TraceNr; }
 
@@ -67,33 +67,106 @@ void PosImpExpPars::usePar( const IOPar& iop )
 }
 
 
-void PosImpExpPars::adjustBinID( BinID& bid ) const
+#define mChkUdf(v) if ( mIsUdf(v) ) return
+
+
+void PosImpExpPars::adjustBinID( BinID& bid, bool inw ) const
 {
-    bid.inl *= binidscale_; bid.crl *= binidscale_;
-    bid += binidoffs_;
+    mChkUdf(bid.inl); mChkUdf(bid.crl);
+    if ( inw )
+    {
+	bid.inl *= binidscale_; bid.crl *= binidscale_;
+	bid += binidoffs_;
+    }
+    else
+    {
+	bid -= binidoffs_;
+	bid.inl /= binidscale_; bid.crl /= binidscale_;
+    }
 }
 
 
-void PosImpExpPars::adjustTrcNr( int& tnr ) const
+void PosImpExpPars::adjustTrcNr( int& tnr, bool inw ) const
 {
-    tnr *= trcnrscale_; tnr += trcnroffs_;
+    mChkUdf(tnr);
+    if ( inw )
+	{ tnr *= trcnrscale_; tnr += trcnroffs_; }
+    else
+	{ tnr -= trcnroffs_; tnr /= trcnrscale_; }
 }
 
 
-void PosImpExpPars::adjustCoord( Coord& crd ) const
+void PosImpExpPars::adjustCoord( Coord& crd, bool inw ) const
 {
-    crd.x *= coordscale_; crd.y *= coordscale_;
-    crd += coordoffs_;
+    mChkUdf(crd.x); mChkUdf(crd.y);
+    if ( inw )
+    {
+	crd.x *= coordscale_; crd.y *= coordscale_;
+	crd += coordoffs_;
+    }
+    else
+    {
+	crd -= coordoffs_;
+	crd.x /= coordscale_; crd.y /= coordscale_;
+    }
 }
 
 
-void PosImpExpPars::adjustZ( float& z ) const
+void PosImpExpPars::adjustZ( float& z, bool inw ) const
 {
-    z *= zscale_; z += zoffs_;
+    mChkUdf(z);
+    if ( inw )
+	{ z *= zscale_; z += zoffs_; }
+    else
+	{ z -= zoffs_; z /= zscale_; }
 }
 
 
-void PosImpExpPars::adjustOffset( float& offs ) const
+void PosImpExpPars::adjustOffset( float& offs, bool inw ) const
 {
-    offs *= offsscale_; offs += offsoffs_;
+    mChkUdf(offs);
+    if ( inw )
+	{ offs *= offsscale_; offs += offsoffs_; }
+    else
+	{ offs -= offsoffs_; offs /= offsscale_; }
+}
+
+
+void PosImpExpPars::adjustInl( int& inl, bool inw ) const
+{
+    mChkUdf(inl);
+    if ( inw )
+	{ inl *= binidscale_; inl += binidoffs_.inl; }
+    else
+	{ inl -= binidoffs_.inl; inl /= binidscale_; }
+}
+
+
+void PosImpExpPars::adjustCrl( int& crl, bool inw ) const
+{
+    mChkUdf(crl);
+    if ( inw )
+	{ crl *= binidscale_; crl += binidoffs_.crl; }
+    else
+	{ crl -= binidoffs_.crl; crl /= binidscale_; }
+}
+
+
+void PosImpExpPars::adjustX( double& x, bool inw ) const
+{
+    mChkUdf(x);
+    if ( inw )
+	{ x *= coordscale_; x += coordoffs_.x; }
+    else
+	{ x -= coordoffs_.x; x /= coordscale_; }
+}
+
+
+void PosImpExpPars::adjustY( double& y, bool inw ) const
+{
+    mChkUdf(y);
+    if ( inw )
+	{ y *= coordscale_; y += coordoffs_.y; }
+    else
+	{ y -= coordoffs_.y; y /= coordscale_; }
 }

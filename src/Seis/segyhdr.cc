@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.74 2009-08-24 14:32:25 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.75 2009-08-25 13:25:36 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.74 2009-08-24 14:32:25 cvsbert E
 #include "envvars.h"
 #include "timefun.h"
 #include "linekey.h"
+#include "posimpexppars.h"
+
 #include <string.h>
 #include <ctype.h>
 #include <iostream>
@@ -52,42 +54,6 @@ static void Ascii2Ebcdic(unsigned char*,int);
 
 static const int cTxtHeadNrLines = 40;
 static const int cTxtHeadCharsPerLine = 80;
-
-
-static double glob_false_easting = 0; static double glob_false_northing = 0;
-static double glob_coord_scaling = 1;
-
-static void GetGlobCoordChanges()
-{
-    static bool stuff_got = false;
-    if ( stuff_got ) return;
-
-    stuff_got = true;
-    glob_false_easting = GetEnvVarDVal( "OD_SEGY_FALSE_EASTING", 0 );
-    glob_false_northing = GetEnvVarDVal( "OD_SEGY_FALSE_NORTHING", 0 );
-    if ( !mIsZero(glob_false_easting,1e-5)
-      || !mIsZero(glob_false_northing,1e-5) )
-    {
-	BufferString usrmsg(
-	"You have set OD_SEGY_FALSE_EASTING and/or OD_SEGY_FALSE_NORTHING."
-	"\n\t(" ); usrmsg += glob_false_easting; usrmsg += ",";
-		 usrmsg += glob_false_northing;
-	usrmsg += ") will be added when reading, subtracted when writing.";
-	UsrMsg( usrmsg );
-    }
-
-    glob_coord_scaling = GetEnvVarDVal( "OD_SEGY_COORDINATE_SCALING", 1 );
-    if ( mIsZero(glob_coord_scaling,1e-6) )
-	glob_coord_scaling = 1;
-    if ( !mIsZero(glob_coord_scaling-1,1e-5) )
-    {
-	BufferString usrmsg( "You have set OD_SEGY_COORDINATE_SCALING."
-		"\n\tCoordinates will be multiplied by " );
-	usrmsg += glob_coord_scaling;
-	usrmsg += " when reading, divided when writing";
-	UsrMsg( usrmsg );
-    }
-}
 
 
 SEGY::TxtHeader::TxtHeader( bool rev1 )
@@ -563,7 +529,6 @@ SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
     , isusable(true)
     , nonrectcoords(false)
 {
-    GetGlobCoordChanges();
 }
 
 
@@ -621,8 +586,11 @@ unsigned short SEGY::TrcHeader::nrSamples() const
 #define mSTHPutUnsignedShort(memb,b) mSTHPut(memb,b,UnsignedShort,2)
 #define mSTHPutInt(memb,b) mSTHPut(memb,b,Int,4)
 
-void SEGY::TrcHeader::putSampling( SamplingData<float> sd, unsigned short ns )
+void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
 {
+    SamplingData<float> sd( sdin );
+    mPIEPAdj(Z,sd.start,false); mPIEPAdj(Z,sd.step,false);
+
     const float zfac = SI().zFactor();
     float drt = sd.start * zfac;
     short delrt = (short)mNINT(drt);
@@ -638,12 +606,14 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sd, unsigned short ns )
 static void putRev1Flds( const SeisTrcInfo& ti, unsigned char* buf,
 			 bool needswap )
 {
-    const int icx = mNINT(ti.coord.x*10); const int icy = mNINT(ti.coord.y*10);
+    Coord crd( ti.coord ); mPIEPAdj(Coord,crd,false);
+    const int icx = mNINT(crd.x*10); const int icy = mNINT(crd.y*10);
     mSTHPutInt(icx,180);
     mSTHPutInt(icy,184);
-    mSTHPutInt(ti.binid.inl,188);
-    mSTHPutInt(ti.binid.crl,192);
-    mSTHPutInt(ti.nr,196);
+    BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
+    mSTHPutInt(bid.inl,188); mSTHPutInt(bid.crl,192);
+    int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
+    mSTHPutInt(tnr,196);
 }
 
 
@@ -664,14 +634,16 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     mSTHPutInt(nr2put,0);
     mSTHPutInt(seqnr,4);
     seqnr++; lineseqnr++;
-    nr2put = is2d ? ti.nr : ti.binid.crl; mSTHPutInt(nr2put,16);
-    nr2put = is2d ? ti.binid.crl : ti.nr; mSTHPutInt(nr2put,20);
+    if ( is2d ) 
+	{ nr2put = ti.nr; mPIEPAdj(TrcNr,nr2put,false); }
+    else
+	{ nr2put = ti.binid.crl; mPIEPAdj(Inl,nr2put,false); }
+    mSTHPutInt(nr2put,20);
 
     mSTHPutShort(-10,70); // scalco
     Coord crd( ti.coord );
     if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
-    crd.x /= glob_coord_scaling; crd.y /= glob_coord_scaling;
-    crd.x -= glob_false_easting; crd.y -= glob_false_northing;
+    mPIEPAdj(Coord,crd,false);
     const int icx = mNINT(crd.x*10); const int icy = mNINT(crd.y*10);
     mSTHPutInt(icx,hdef.xcoord-1);
     mSTHPutInt(icy,hdef.ycoord-1);
@@ -685,10 +657,13 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 	    mSTHPutInt(timemb,hdef.hdmemb-1) \
     }
 
-    mSTHPutIntMemb(ti.binid.inl,inl);
-    mSTHPutIntMemb(ti.binid.crl,crl);
-    mSTHPutIntMemb(ti.nr,trnr);
-    int iv = mNINT( ti.offset ); mSTHPutIntMemb(iv,offs);
+    BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
+    mSTHPutIntMemb(bid.inl,inl);
+    mSTHPutIntMemb(bid.crl,crl);
+    int tinr = ti.nr; mPIEPAdj(TrcNr,tinr,false);
+    mSTHPutIntMemb(tinr,trnr);
+    float tioffs = ti.offset; mPIEPAdj(Offset,tioffs,false);
+    int iv = mNINT( tioffs ); mSTHPutIntMemb(iv,offs);
     iv = mNINT( ti.azimuth * 360 / M_PI ); mSTHPutIntMemb(iv,azim);
 
     const float zfac = SI().zFactor();
@@ -751,6 +726,9 @@ static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf,
 	const float fnr = ti.nr * (scalnr > 0 ? scalnr : -1./scalnr);
 	ti.nr = mNINT(fnr + .5);
     }
+    mPIEPAdj(Coord,ti.coord,true);
+    mPIEPAdj(BinID,ti.binid,true);
+    mPIEPAdj(TrcNr,ti.nr,true);
 }
 
 
@@ -783,11 +761,14 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.sampling.start = delrt * zfac;
     ti.sampling.step = IbmFormat::asUnsignedShort( mGetBytes(116,2) )
 			* zfac * 0.001;
+    mPIEPAdj(Z,ti.sampling.start,true);
+    mPIEPAdj(Z,ti.sampling.step,true);
 
     ti.pick = ti.refpos = mUdf(float);
     ti.nr = IbmFormat::asInt( mGetBytes(0,4) );
     if ( hdef.pick != 255 )
 	ti.pick = IbmFormat::asInt( mGetBytes(hdef.pick-1,4) ) * zfac;
+    mPIEPAdj(Z,ti.pick,true);
     ti.coord.x = ti.coord.y = 0;
     if ( hdef.xcoord != 255 )
 	ti.coord.x = IbmFormat::asInt( mGetBytes(hdef.xcoord-1,4));
@@ -803,6 +784,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.binid.inl = ti.binid.crl = 0;
     mGetIntVal(binid.inl,inl);
     mGetIntVal(binid.crl,crl);
+    mPIEPAdj(BinID,ti.binid,true);
     mGetIntVal(offset,offs);
     mGetIntVal(azimuth,azim);
     ti.azimuth *= M_PI / 360;
@@ -818,14 +800,14 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	    { seqnr = 1; const_cast<SEGY::TrcHeaderDef&>(hdef).trnr = 254; }
 	ti.nr = seqnr;
     }
+    mPIEPAdj(TrcNr,ti.nr,true);
 
     if ( isrev1 )
 	getRev1Flds( ti, buf, needswap );
 
     const double scale = getCoordScale( extcoordsc );
     ti.coord.x *= scale; ti.coord.y *= scale;
-    ti.coord.x *= glob_coord_scaling; ti.coord.y *= glob_coord_scaling;
-    ti.coord.x += glob_false_easting; ti.coord.y += glob_false_northing;
+    mPIEPAdj(Coord,ti.coord,true);
 }
 
 
