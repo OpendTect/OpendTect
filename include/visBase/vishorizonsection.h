@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.38 2009-08-07 16:27:55 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.39 2009-08-25 19:47:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -126,7 +126,6 @@ protected:
 	    				      int sectionid);
     void			updateAutoResolution(SoState*,TaskRunner*);
     static void			updateAutoResolution(void*,SoAction*);
-    void			turnOnWireframe(int res,TaskRunner*);
     void			updateTileTextureOrigin(const RowCol& texorig);
     void			updateTileArray();
     void			updateBBox(SoGetBoundingBoxAction* action);
@@ -138,7 +137,7 @@ protected:
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
     bool			userchangeddisplayrg_;
-    Threads::Mutex		geometrylock_;
+    Threads::Mutex		updatelock_;
     ObjectSet<BinIDValueSet>	cache_;
 
     TextureChannels*		channels_;
@@ -162,7 +161,9 @@ protected:
     double			sinanglexinl_;
     float			rowdistance_;
     float			coldistance_;
+    Material*			wireframematerial_;
 
+    bool			tesselationlock_;
     
     static ArrPtrMan<SbVec2f>	texturecoordptr_;				
     static const char*		sKeySectionID()	{ return "Section ID"; }
