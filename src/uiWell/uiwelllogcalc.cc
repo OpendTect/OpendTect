@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.8 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.9 2009-08-25 09:10:21 cvsbert Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -219,10 +219,25 @@ void uiWellLogCalc::feetSel( CallBacker* )
 void uiWellLogCalc::formSet( CallBacker* )
 {
     getMathExpr();
-    nrvars_ = expr_ ? expr_->nrUniqueVarNames() : 0;
+    const int totnrvars = expr_ ? expr_->nrVariables() : 0;
+    nrvars_ = 0; bool haveconst = false;
+    for ( int idx=0; idx<totnrvars; idx++ )
+    {
+	if ( expr_->getType(idx) == MathExpression::Constant )
+	{
+	    haveconst = true;
+	    uiMSG().error(
+		    BufferString("Constants not supported here:\n'",
+			expr_->fullVariableExpression(idx),
+			"'.\nPlease insert the value itself.") );
+	    break;
+	}
+    }
 
+    MathExpression* useexpr = haveconst ? 0 : expr_;
+    nrvars_ = useexpr ? useexpr->nrUniqueVarNames() : 0;
     for ( int idx=0; idx<inpdataflds_.size(); idx++ )
-	inpdataflds_[idx]->use( expr_ );
+	inpdataflds_[idx]->use( useexpr );
 
     inpSel( 0 );
 }
@@ -368,8 +383,7 @@ bool uiWellLogCalc::getRecInfo()
     uiGenInput* fld = new uiGenInput( &dlg,
 				     "Start values (comma separated)" );
     fld->attach( centeredBelow, lbl );
-    lbl = new uiLabel( &dlg,
-	    "These will be the first out[0], out[-1], ... values" );
+    lbl = new uiLabel( &dlg, "This will provide the first 'out' value(s)" );
     lbl->attach( centeredBelow, fld );
     if ( !dlg.go() )
 	return false;
