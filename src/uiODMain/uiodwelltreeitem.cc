@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.44 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.45 2009-08-25 16:11:28 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -306,16 +306,6 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 				*applMgr()->attrServer()->curDescSet(false) );
 	applMgr()->wellAttribServer()->createAttribLog( wellid, -1 );
     }
-    else if ( mnuid==sellogmnuitem_.id )
-    {
-	menu->setIsHandled( true );
-	Well::LogDisplayParSet* logparset = wd->getLogParSet();
-	if ( applMgr()->wellServer()->selectLogs(wellid,logparset) )
-	{
-	    wd->displayRightLog();
-	    wd->displayLeftLog();
-	}
-    }
     else if ( mnuid == propertiesmnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -346,18 +336,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == showlogmnuitem_.id )
     {
        	menu->setIsHandled( true );
-	if ( wd->getLogParSet()->getLeft()->name_ == "None" &&
-	     wd->getLogParSet()->getRight()->name_ == "None" )
-	{
-	    Well::LogDisplayParSet* logparset = wd->getLogParSet();
-	    if ( applMgr()->wellServer()->selectLogs(wellid,logparset) )
-	    {
-	        wd->displayRightLog();
-	        wd->displayLeftLog();
-	    }
-	}
-	else
-	    wd->showLogs( !wd->logsShown() );
+	wd->showLogs( !wd->logsShown() );
     }
     else if ( mnuid == storemnuitem_.id )
     {

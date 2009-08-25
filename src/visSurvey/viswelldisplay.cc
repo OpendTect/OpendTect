@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.108 2009-08-19 08:21:57 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.109 2009-08-25 16:11:28 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -47,27 +47,6 @@ namespace visSurvey
 
 const char* WellDisplay::sKeyEarthModelID      = "EarthModel ID";
 const char* WellDisplay::sKeyWellID	       = "Well ID";
-const char* WellDisplay::sKeyLog1Name	       = "Logname 1";
-const char* WellDisplay::sKeyLog2Name	       = "Logname 2";
-const char* WellDisplay::sKeyLog1Range	       = "Logrange 1";
-const char* WellDisplay::sKeyLog2Range	       = "Logrange 2";
-const char* WellDisplay::sKeyLog1Scale	       = "Loglogsc 1";
-const char* WellDisplay::sKeyLog2Scale	       = "Loglogsc 2";
-const char* WellDisplay::sKeyLog1Repeat	       = "Logrepeat 1";
-const char* WellDisplay::sKeyLog2Repeat	       = "Logrepeat 2";
-const char* WellDisplay::sKeyLog1Color	       = "Logcolor 1";
-const char* WellDisplay::sKeyLog2Color	       = "Logcolor 2";
-const char* WellDisplay::sKeyLog1FillColor     = "Logfillcolor 1";
-const char* WellDisplay::sKeyLog2FillColor     = "Logfillcolor 2";
-const char* WellDisplay::sKeyLog1SeisFillColor = "Seisfillcolor 1";
-const char* WellDisplay::sKeyLog2SeisFillColor = "Seisfillcolor 2";
-const char* WellDisplay::sKeyLog1Style	       = "Logstyle 1";
-const char* WellDisplay::sKeyLog2Style	       = "Logstyle 2";
-const char* WellDisplay::sKeyLog1Ovlap	       = "Logovlap 1";
-const char* WellDisplay::sKeyLog2Ovlap	       = "Logovlap 2";
-const char* WellDisplay::sKeyLog1Clip	       = "Cliprate 1";
-const char* WellDisplay::sKeyLog2Clip	       = "Cliprate 2";
-
 
 WellDisplay::WellDisplay()
     : VisualObjectImpl(true)
@@ -82,7 +61,6 @@ WellDisplay::WellDisplay()
     , picksallowed_(false)
     , group_(0)
     , pseudotrack_(0)
-    , logparset_(*new Well::LogDisplayParSet)
     , needsave_(false)
 {
     setMaterial(0);
@@ -98,7 +76,6 @@ WellDisplay::~WellDisplay()
     if ( transformation_ ) transformation_->unRef();
     if ( group_ )
 	removeChild( group_->getInventorNode() );
-    delete &logparset_;
 
     wd_ = 0;
     mGetWD(return);
@@ -556,6 +533,9 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     const int viswellid = well_->id();
     par.set( sKeyWellID, viswellid );
     if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
+
+    mGetWD(return);
+    wd->displayProperties().fillPar( par );
     
     fillSOPar( par );
 }
@@ -590,11 +570,8 @@ int WellDisplay::usePar( const IOPar& par )
 	return 1;
     }
     
-    BufferString logname;
-    Color col;
-    Interval<float> rg;
-    bool logsc;
-    bool stl;
+    mGetWD(return -1);
+    wd->displayProperties().usePar( par );
     displayLeftLog();
     displayRightLog();
 
@@ -606,12 +583,6 @@ int WellDisplay::usePar( const IOPar& par )
 	lst.fromString( linestyle );
 	setLineStyle( lst );
     }
-
-    bool wellnmshown;
-    if ( par.getYN(visBase::Well::showwelltopnmstr(),wellnmshown) )
-	showWellTopName( wellnmshown );
-    if ( par.getYN(visBase::Well::showwellbotnmstr(),wellnmshown) )
-	showWellBotName( wellnmshown );
 
     useSOPar( par );
     return 1;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.56 2009-08-19 08:21:57 cvsbert Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.57 2009-08-25 16:11:28 cvsbruno Exp $
 
 
 
@@ -94,7 +94,6 @@ public:
     void			displayRightLog();
     void			displayLeftLog();
     void			setOneLogDisplayed(bool);
-    Well::LogDisplayParSet*	getLogParSet() const	{ return &logparset_; }
     const Color&		logColor(int) const;
     void			setLogColor(const Color&,int);
     float			logLineWidth(int) const;
@@ -103,9 +102,6 @@ public:
     void			setLogWidth(int,int);
     bool			logsShown() const;
     void			showLogs(bool);
-    const char*			logName(bool left) const
-				{return left ? logparset_.getLeft()->name_						     : logparset_.getRight()->name_;}
-
     bool			logNameShown() const;
     void			showLogName(bool);
 
@@ -146,7 +142,6 @@ protected:
     visBase::EventCatcher*	eventcatcher_;
     visBase::DataObjectGroup*	group_;
     visBase::Well*		well_;
-    Well::LogDisplayParSet&	logparset_;
     Well::Track*		pseudotrack_;
     Well::Data*			wd_;
 
@@ -162,26 +157,6 @@ protected:
     
     static const char*		sKeyEarthModelID;
     static const char*		sKeyWellID;
-    static const char*		sKeyLog1Name;
-    static const char*		sKeyLog1Range;
-    static const char*		sKeyLog1Scale;
-    static const char*		sKeyLog1Repeat;
-    static const char*		sKeyLog1Ovlap;
-    static const char*		sKeyLog1Clip;
-    static const char*		sKeyLog1Style;
-    static const char*		sKeyLog1Color;
-    static const char*		sKeyLog1FillColor;
-    static const char*		sKeyLog1SeisFillColor;
-    static const char*		sKeyLog2Name;
-    static const char*		sKeyLog2Range;
-    static const char*		sKeyLog2Repeat;
-    static const char*		sKeyLog2Ovlap;
-    static const char*		sKeyLog2Clip;
-    static const char*		sKeyLog2Scale;
-    static const char*		sKeyLog2Style;
-    static const char*		sKeyLog2Color;
-    static const char*		sKeyLog2FillColor;
-    static const char*		sKeyLog2SeisFillColor;
 
     Well::Data*			getWD() const;
     void                        welldataDelNotify(CallBacker* cb=0);
