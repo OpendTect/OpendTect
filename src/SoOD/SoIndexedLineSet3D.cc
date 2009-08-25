@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.14 2009-08-18 20:42:06 cvskris Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.15 2009-08-25 19:16:54 cvskris Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -322,6 +322,9 @@ void SoIndexedLineSet3D::rayPick( SoRayPickAction* action )
 		SoPickedPoint* pickedpoint = action->addIntersection(dummy);
 		//Todo: Fill out pickedpoint
 	    }
+
+	    if ( cindices>=stopptr )
+		break;
 
 	    c1 = c2; index1 = index2;
 	}
