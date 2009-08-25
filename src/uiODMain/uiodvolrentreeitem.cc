@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.48 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.49 2009-08-25 14:22:56 cvsbert Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -305,7 +305,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-		uiDialog::Setup( "Iso value selection", 0, mTODOHelpID ) );
+		uiDialog::Setup( "Iso value selection", 0, mNoHelpID ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd) );
 	dlg.go();
 
@@ -484,7 +484,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 			visserv_->getObject(parent_->selectionKey()));
 
 	uiSingleGroupDlg dlg( getUiParent(),
-		uiDialog::Setup( "Iso value selection", 0, mTODOHelpID ) );
+		uiDialog::Setup( "Iso value selection", 0, mNoHelpID ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg, isosurface, vd) );
 	dlg.go();
 	updateColumnText(1);
