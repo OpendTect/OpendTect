@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.75 2009-08-25 20:15:25 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.76 2009-08-25 21:50:39 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1305,6 +1305,18 @@ void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
     }
 }
 
+#define mApplyTesselation \
+{ \
+    for ( int idx=0; idx<tilesz; idx++ ) \
+    { \
+	if ( tileptrs[idx] ) \
+	{ \
+	    tileptrs[idx]->applyTesselation( \
+	    tileptrs[idx]->getActualResolution() ); \
+	} \
+    } \
+}
+
 
 void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 {
@@ -1314,8 +1326,12 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
     const int tilesz = tiles_.info().getTotalSz();
     if ( !tilesz || !state ) return;
 
+    HorizonSectionTile** tileptrs = tiles_.getData();
     if ( desiredresolution_!=-1 )
+    {
+	mApplyTesselation;
 	return;
+    }
 
     const int32_t camerainfo = SoCameraInfoElement::get(state);
     bool ismoving = camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE);
@@ -1330,21 +1346,13 @@ void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
     else
 	task.execute();
 
-    HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetGlueNeedsUpdateFlag();
 
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
 
-    for ( int idx=0; idx<tilesz; idx++ )
-    {
-	if ( tileptrs[idx] )
-	{
-	    tileptrs[idx]->applyTesselation(
-	    tileptrs[idx]->getActualResolution() );
-	}
-    }
+    mApplyTesselation;
 }
 
 
