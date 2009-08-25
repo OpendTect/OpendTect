@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisettings.cc,v 1.33 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uisettings.cc,v 1.34 2009-08-25 14:47:53 cvsbert Exp $";
 
 #include "uisettings.h"
 
 #include "ptrman.h"
 #include "settings.h"
+#include "survinfo.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -22,11 +23,14 @@ static const char* rcsID = "$Id: uisettings.cc,v 1.33 2009-07-22 16:01:42 cvsber
 
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
-	: uiDialog(p,uiDialog::Setup(nm,"Default User Settings","0.2.1"))
-	, setts_(Settings::fetch(settskey))
+	: uiDialog(p,uiDialog::Setup(nm,"Set User Settings value","0.2.1"))
+        , issurvdefs_(settskey && !strcmp(settskey,sKeySurveyDefs()))
+	, setts_(issurvdefs_ ? SI().getPars() : Settings::fetch(settskey))
 {
+    if ( issurvdefs_ )
+	setTitleText( "Set Survey default value" );
     keyfld_ = new uiGenInput( this, "Settings keyword", StringInpSpec() );
-    uiButton* pb = new uiPushButton( this, "&Select",
+    uiButton* pb = new uiPushButton( this, "&Select existing",
 	    			     mCB(this,uiSettings,selPush), false );
     pb->setName( "Select Keyword" );
     pb->attach( rightOf, keyfld_ );
@@ -43,10 +47,11 @@ uiSettings::~uiSettings()
 
 void uiSettings::selPush( CallBacker* )
 {
-    PtrMan<IOPar> dtectsetts = setts_.subselect( "dTect" );
+    PtrMan<IOPar> iop = issurvdefs_ ? new IOPar( setts_ )
+				    : setts_.subselect( "dTect" );
     BufferStringSet keys;
-    for ( int idx=0; idx<dtectsetts->size(); idx++ )
-	keys.add( dtectsetts->getKey(idx) );
+    for ( int idx=0; idx<iop->size(); idx++ )
+	keys.add( iop->getKey(idx) );
     keys.sort();
     uiSelectFromList::Setup listsetup( "Setting selection", keys );
     listsetup.dlgtitle( keyfld_->text() );
@@ -58,7 +63,7 @@ void uiSettings::selPush( CallBacker* )
 
     const char* key = keys.get( selidx ).buf();
     keyfld_->setText( key );
-    valfld_->setText( dtectsetts->find(key) );
+    valfld_->setText( iop->find(key) );
 }
 
 
@@ -71,11 +76,20 @@ bool uiSettings::acceptOK( CallBacker* )
 	return false;
     }
 
-    setts_.set( IOPar::compKey("dTect",ky), valfld_->text() );
-    if ( !setts_.write() )
+    if ( issurvdefs_ )
     {
-	uiMSG().error( "Cannot write settings" );
-	return false;
+	setts_.set( ky, valfld_->text() );
+	SI().savePars();
+    }
+    else
+    {
+	mDynamicCastGet(Settings&,setts,setts_)
+	setts.set( IOPar::compKey("dTect",ky), valfld_->text() );
+	if ( !setts.write() )
+	{
+	    uiMSG().error( "Cannot write user settings" );
+	    return false;
+	}
     }
 
     return true;

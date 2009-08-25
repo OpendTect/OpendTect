@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.15 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:		$Id: uisettings.h,v 1.16 2009-08-25 14:47:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
+class IOPar;
 class Settings;
 class uiGenInput;
 struct LooknFeelSettings;
@@ -27,9 +28,13 @@ public:
 				   const char* settskey=0);
     virtual		~uiSettings();
 
+    			// Specify this to edit the survey defaults
+    static const char*	sKeySurveyDefs()	{ return "SurvDefs"; }
+
 protected:
 
-    Settings&		setts_;
+    bool		issurvdefs_; // must be before decl of setts_
+    IOPar&		setts_;
 
     uiGenInput*		keyfld_;
     uiGenInput*		valfld_;
