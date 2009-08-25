@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.10 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.11 2009-08-25 10:59:55 cvsraman Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -67,18 +67,12 @@ static void setHS( const ODPolygon<float>& poly, HorSampling& hs )
 
     const Interval<float> xrg( poly.getRange(true) );
     const Interval<float> yrg( poly.getRange(false) );
-#define mSetStart(xy,ic) \
-    hs.start.ic = (int)ceil( xy##rg.start - 1e-6 ); \
-    if ( hs.start.ic % hs.step.ic ) \
-	hs.start.ic += hs.step.ic - (hs.start.ic % hs.step.ic)
-    mSetStart(x,inl);
-    mSetStart(y,crl);
-#define mSetStop(xy,ic) \
-    hs.stop.ic = (int)floor( xy##rg.stop + 1e-6 ); \
-    if ( hs.stop.ic % hs.step.ic ) \
-	hs.stop.ic -= hs.step.ic - (hs.stop.ic % hs.step.ic)
-    mSetStop(x,inl);
-    mSetStop(y,crl);
+    hs.start.inl = (int)ceil( xrg.start - 1e-6 );
+    hs.start.crl = (int)ceil( yrg.start - 1e-6 );
+    hs.stop.inl = (int)floor( xrg.stop + 1e-6 );
+    hs.stop.crl = (int)floor( yrg.stop + 1e-6 );
+    SI().snap( hs.start, 1 );
+    SI().snap( hs.stop, -1 );
 }
 
 
