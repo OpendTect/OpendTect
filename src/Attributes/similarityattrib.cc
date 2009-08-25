@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.41 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.42 2009-08-25 10:41:53 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -138,8 +138,9 @@ Similarity::Similarity( Desc& desc_ )
     const float maxdist = dosteer_ ? 
 	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
     
-    desgate_ = Interval<float>( gate_.start-maxdist*mMAXDIPSECURE, 
-	    			gate_.stop+maxdist*mMAXDIPSECURE );
+    const float maxsecdip = maxSecureDip();
+    desgate_ = Interval<float>( gate_.start-maxdist*maxsecdip, 
+	    			gate_.stop+maxdist*maxsecdip );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: positionattrib.cc,v 1.30 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: positionattrib.cc,v 1.31 2009-08-25 10:41:53 cvshelene Exp $";
 
 
 #include "positionattrib.h"
@@ -111,8 +111,9 @@ Position::Position( Desc& desc_ )
 						   stepout_.crl*2+1 );
 
     const float maxso = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() );
-    desgate_ = Interval<float>( gate_.start-maxso*mMAXDIPSECURE, 
-	    			gate_.stop+maxso*mMAXDIPSECURE );
+    const float maxsecdip = maxSecureDip();
+    desgate_ = Interval<float>( gate_.start-maxso*maxsecdip, 
+	    			gate_.stop+maxso*maxsecdip );
 }
 
 

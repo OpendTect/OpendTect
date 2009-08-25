@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.79 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribprovider.h,v 1.80 2009-08-25 10:41:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ template <class T> class Array2DImpl;
 
 #define mMAXDIP 300 * 1e-6
 #define mMAXDIPSECURE 2000 * 1e-6
+#define mMAXDIPSECUREDEPTH 6
 
 namespace Attrib
 {
@@ -322,6 +323,9 @@ protected:
     float			dipFactor() const {return zIsTime() ? 1e6: 1e3;}
     float			inldist() const; 
     float			crldist() const;
+    float			maxSecureDip() const
+				{ return zIsTime() ? mMAXDIPSECURE
+						   : mMAXDIPSECUREDEPTH; }
 
     ObjectSet<Provider>		inputs;
     ObjectSet<Provider>		parents;
