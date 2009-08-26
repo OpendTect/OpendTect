@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.76 2009-08-25 21:50:39 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.77 2009-08-26 14:51:21 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1576,6 +1576,52 @@ void HorizonSectionTile::updateNormals( char res )
 }
 
 
+#define mGetGradient( rc, arrpos ) \
+    beforefound = false; afterfound = false; \
+    for ( int idx=spacing_[res]; idx>=0; idx-- ) \
+    { \
+        if ( !beforefound ) \
+        { \
+            const int cur##rc = rc-idx*step.rc; \
+            if ( cur##rc>=rc##range.start ) \
+            { \
+                const Coord3 pos =  \
+                    section_.geometry_->getKnot(arrpos,false); \
+                if ( pos.isDefined() ) \
+                { \
+                    beforepos.x = -idx*section_.rc##distance_; \
+                    beforepos.y = pos.z; \
+                    beforefound = true; \
+                } \
+            } \
+        } \
+ \
+        if ( idx && !afterfound ) \
+        { \
+            const int cur##rc = rc+idx*step.rc; \
+            if ( cur##rc<=rc##range.stop ) \
+            { \
+                const Coord3 pos =  \
+                    section_.geometry_->getKnot(arrpos,false); \
+                if ( pos.isDefined() ) \
+                { \
+                    afterpos.x = idx*section_.rc##distance_; \
+                    afterpos.y = pos.z; \
+                    afterfound = true; \
+                } \
+            } \
+        } \
+ \
+        if ( afterfound && beforefound ) \
+            break; \
+    } \
+ \
+    const double d##rc = afterfound && beforefound \
+        ? (afterpos.y-beforepos.y)/(afterpos.x-beforepos.x) \
+        : 0;
+
+
+
 void HorizonSectionTile::computeNormal( int nmidx, int res )
 {
     const RowCol step( section_.displayrrg_.step, section_.displaycrg_.step );
@@ -1587,60 +1633,16 @@ void HorizonSectionTile::computeNormal( int nmidx, int res )
     const int col = origin_.col + step.col * normalcol*spacing_[res];
 
     const StepInterval<int> rowrange = section_.geometry_->rowRange();
-    TypeSet<float> posarray, zarray;
-    for ( int idx=-spacing_[res]; idx<=spacing_[res]; idx++ )
-    {
-	const int currow = row+idx*step.row;
-	if ( currow<rowrange.start )
-	{
-	    idx += (rowrange.start-currow)/step.row-1;
-	    continue;
-	}
-	
-	if ( currow>rowrange.stop )
-	    break;
-	
-	const Coord3 pos = section_.geometry_->getKnot(RowCol(currow,col),false);
-	
-	if ( pos.isDefined() )
-	{
-	    posarray += idx*section_.rowdistance_;
-	    zarray += pos.z;
-	}
-    }
-	   
-    double drow = 0;
-    if ( zarray.size()>1 )
-	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &drow );
-
-    posarray.erase(); zarray.erase();    
     const StepInterval<int> colrange = section_.geometry_->colRange();
-    for ( int idx=-spacing_[res]; idx<=spacing_[res]; idx++ )
-    {
- 	const int curcol = col+idx*step.col;
-	if ( curcol<colrange.start )
-	{
-	    idx += (colrange.start-curcol)/step.col-1;
-	    continue;
-	}
-	
-	if ( curcol>colrange.stop )
-	    break;
-	
-	const Coord3 pos = section_.geometry_->getKnot(RowCol(row,curcol),false);
-	if ( pos.isDefined() )
-	{
-	    posarray += idx*section_.coldistance_;
-	    zarray += pos.z;
-	}
-    }
+    bool beforefound, afterfound;
+    Coord beforepos, afterpos;
 
-    double dcol = 0;
-    if ( zarray.size()>1 )
-	getGradient( posarray.arr(), zarray.arr(), zarray.size(), 0, 0, &dcol );
+    mGetGradient( row, RowCol(currow,col) );
+    mGetGradient( col, RowCol(row,curcol) );
  
-    const SbVec3f normal( drow*section_.cosanglexinl_+dcol*section_.sinanglexinl_,
-	    dcol*section_.cosanglexinl_-drow*section_.sinanglexinl_, -1 );
+    const SbVec3f normal(
+	drow*section_.cosanglexinl_+dcol*section_.sinanglexinl_,
+	dcol*section_.cosanglexinl_-drow*section_.sinanglexinl_, -1 );
     normals_->vector.set1Value( nmidx, normal );
 }
 
@@ -2060,11 +2062,6 @@ void HorizonSectionTile::tesselateResolution( char res )
     tesselateWireframe( res, wireframeci, wireframeni );
 
     tesselationdatalock_.lock();
-    if ( tesselationdata_[res] && res!=mLowestResIdx )
-    {
-	pErrMsg("Hmm");
-    }
-
     delete tesselationdata_.replace( res, td );
     tesselationdatalock_.unLock();
     
