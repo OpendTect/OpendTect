@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.78 2009-08-26 16:57:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.79 2009-08-26 18:14:15 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -161,7 +161,6 @@ protected:
     SoTextureComposer*		texture_;
     SoSwitch*			resswitch_;
     SoNormal*			normals_;
-    Threads::Mutex		normlock_;
 
     int				desiredresolution_;
     bool			resolutionhaschanged_;
@@ -171,7 +170,6 @@ protected:
     ObjectSet<TileTesselator>	tesselationqueue_;
     Threads::ConditionVar	tesselationqueuelock_;
 
-    TypeSet<int>		invalidnormals_[mHorSectNrRes];
     bool			allnormalsinvalid_[mHorSectNrRes];
 
     SoSeparator*		resolutions_[mHorSectNrRes];
@@ -179,8 +177,10 @@ protected:
     SoIndexedLineSet3D*		lines_[mHorSectNrRes];
     SoIndexedLineSet*		wireframes_[mHorSectNrRes];
     SoDGBIndexedPointSet*	points_[mHorSectNrRes];
+
+    TypeSet<int>		invalidnormals_[mHorSectNrRes];
     ObjectSet<TesselationData>	tesselationdata_;
-    Threads::Mutex		tesselationdatalock_;
+    Threads::Mutex		datalock_;
     SoSwitch*			wireframeswitch_;
     SoSeparator*		wireframeseparator_;
 
@@ -1557,10 +1557,16 @@ void HorizonSectionTile::updateNormals( char res )
     }
     else
     {
-	for ( int idx=0; idx<invalidnormals_[res].size(); idx++ )
+	datalock_.lock();
+	const int sz = invalidnormals_[res].size();
+	mAllocVarLenArr( int, invnormals, sz );
+	memcpy( invnormals, invalidnormals_[res].arr(), sz*sizeof(int) );
+	datalock_.unLock();
+	 
+	for ( int idx=0; idx<sz; idx++ )
 	{
 	    change = true;
-	    computeNormal( invalidnormals_[res][idx], res );
+	    computeNormal( invnormals[idx], res );
 	}
     }
 
@@ -1696,7 +1702,11 @@ void HorizonSectionTile::resetGlueNeedsUpdateFlag()
 
 
 void HorizonSectionTile::emptyInvalidNormalsList( int res )
-{ invalidnormals_[res].erase(); }
+{
+    datalock_.lock();
+    invalidnormals_[res].erase();
+    datalock_.unLock();
+}
 
 
 void HorizonSectionTile::setAllNormalsInvalid( int res, bool yn )
@@ -1737,6 +1747,7 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 	 {
 	     const int wantedres = getAutoResolution( state );
 	     newres = wantedres;
+	     datalock_.lock();
 	     for ( ; newres<mHorSectNrRes-1; newres++ )
 	     {
 		 if ( !needsretesselation_[newres] &&
@@ -1744,6 +1755,7 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 		      !invalidnormals_[newres].size() )
 		     break;
 	     }
+	     datalock_.unLock();
 
 	     if ( wantedres!=newres )
 	     {
@@ -2057,9 +2069,9 @@ void HorizonSectionTile::tesselateResolution( char res )
 
     tesselateWireframe( res, wireframeci, wireframeni );
 
-    tesselationdatalock_.lock();
+    datalock_.lock();
     delete tesselationdata_.replace( res, td );
-    tesselationdatalock_.unLock();
+    datalock_.unLock();
     
     needsretesselation_[res] = false;
 }
@@ -2080,7 +2092,7 @@ void HorizonSectionTile::applyTesselation( char res )
     if ( !tesselationdata_.validIdx( res ) )
        return;
  
-    Threads::MutexLocker lock( tesselationdatalock_ );
+    Threads::MutexLocker lock( datalock_ );
     if ( tesselationdata_[res] )
     {
 	mSetTesselationData( triangles_, strip );
@@ -2166,12 +2178,14 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 	    nrdefinedpos_++;
     }
 
+    datalock_.lock();
     for ( int idx=0; idx<mHorSectNrRes; idx++ )
     {
 	needsretesselation_[idx] = true;
 	allnormalsinvalid_[idx] = true;
 	invalidnormals_[idx].erase();
     }
+    datalock_.unLock();
 
     needsupdatebbox_ = true;
 }
@@ -2234,6 +2248,7 @@ void HorizonSectionTile::setInvalidNormals( int row, int col )
 	if ( rowstop<0 ) continue;
 	if ( rowstop>mTileSideSize ) rowstop = mTileLastIdx;
 
+	datalock_.lock();
 	for ( int rowidx=rowstart; rowidx<=rowstop; rowidx++ )
 	{
 	    if ( (rowidx%spacing_[res]) && (rowidx!=mTileLastIdx) ) continue;
@@ -2258,6 +2273,8 @@ void HorizonSectionTile::setInvalidNormals( int row, int col )
 		invalidnormals_[res].addIfNew( colstartni + nmcol );
 	    }
 	}
+
+	datalock_.unLock();
     }
 }
 
