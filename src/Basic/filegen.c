@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.82 2009-07-22 16:03:40 cvsbert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.83 2009-08-26 13:06:27 cvsbert Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -180,6 +180,17 @@ int File_getKbSize( const char* fnm )
 	res = - res * 2;
     return (int)(res + .5);
 
+}
+
+
+od_int64 File_getTimeInSeconds( const char* fnm )
+{
+    if ( !File_exists(fnm) )
+	return -1;
+#ifdef __win__
+    stat((char*)fnm,&statbuf);
+#endif
+    return (od_int64)statbuf.st_mtime;
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.25 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: filegen.h,v 1.26 2009-08-26 13:06:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,9 @@ mGlobal int File_setPermissions(const char*,const char* perms,int recursive);
 mGlobal int File_getKbSize(const char*);
 mGlobal int File_getFreeMBytes(const char*);
 
+/*! Modification time. The seconds are for compare, getTime for user display. */
 mGlobal const char*	File_getTime(const char*);
+mGlobal od_int64 	File_getTimeInSeconds(const char*);
 
 /*! Functions returning path */
 mGlobal const char* File_linkTarget(const char* linkname);
