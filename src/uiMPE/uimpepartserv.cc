@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.102 2009-08-26 06:13:44 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.103 2009-08-26 08:30:19 cvsbert Exp $";
 
 #include "uimpepartserv.h"
 
@@ -74,6 +74,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , seedhasbeenpicked_(false)
     , setupbeingupdated_(false)
     , rtnwtseedwtas_(false)
+    , setupgrp_(false)
 {
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
     MPE::engine().activevolumechange.notify(
@@ -105,7 +106,7 @@ uiMPEPartServer::~uiMPEPartServer()
     sendEvent( uiMPEPartServer::evEndSeedPick() );
     sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
-    setupgrp_->mainwin()->activateClose();
+    if ( setupgrp_ ) setupgrp_->mainwin()->activateClose();
 }
 
 
