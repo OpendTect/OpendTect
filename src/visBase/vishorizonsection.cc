@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.77 2009-08-26 14:51:21 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.78 2009-08-26 16:57:00 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -185,7 +185,6 @@ protected:
     SoSeparator*		wireframeseparator_;
 
     SoIndexedTriangleStripSet*	gluetriangles_;
-    SoSwitch*			gluelowdimswitch_;
     SoIndexedLineSet3D*		gluelines_;
     SoDGBIndexedPointSet*	gluepoints_;
     char			glueneedsretesselation_;
@@ -1418,7 +1417,6 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     , coords_( visBase::Coordinates::create() )
     , texture_( new SoTextureComposer )
     , resswitch_( new SoSwitch )	
-    , gluelowdimswitch_( new SoSwitch )					
     , gluetriangles_( new SoIndexedTriangleStripSet )
     , gluelines_( new SoIndexedLineSet3D )
     , glueneedsretesselation_( false )
@@ -1447,8 +1445,6 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
 
     root_->addChild( gluetriangles_ );
     root_->addChild( gluepoints_ );
-    root_->addChild( gluelowdimswitch_ );
-    gluelowdimswitch_->addChild( gluelines_ );
     
     gluetriangles_->coordIndex.deleteValues( 0, -1 );
     gluelines_->coordIndex.deleteValues( 0, -1 );
