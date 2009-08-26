@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2009
- RCS:		$Id: posimpexppars.h,v 1.3 2009-08-26 08:39:13 cvsbert Exp $
+ RCS:		$Id: posimpexppars.h,v 1.4 2009-08-26 09:32:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,12 @@ ________________________________________________________________________
 class IOPar;
 
 
-/* Parameters to apply on import (add or multiply), and on export (subtract
-   or divide).
+/* Holds scale and shift(s) for Coord, BinID, TrcNr, Z and Offset;
+   to apply on import (add or multiply), and on export (subtract or divide).
 
-   On import (i.e. `inward', the 'scale' is applied before the 'offset', hence
+   On import (i.e. `inward'), the 'scale' is applied before the 'offset', hence
    offset must be in units of the scaled values. On export, the offset
-   subtracted first (of course).
+   is subtracted first (of course).
  
  */
 
@@ -35,7 +35,7 @@ class PosImpExpPars : public CallBacker
 public:
 
     static const PosImpExpPars& SVY();
-    void		refresh()		{ getSVY().getFromSI(); }
+    static void		refresh()		{ getSVY().getFromSI(); }
 
     int			binidScale() const	{ return binidscale_; }
     BinID		binidOffset() const	{ return binidoffs_; }
@@ -98,7 +98,7 @@ public:
     static PosImpExpPars& getSVY();
     void		usePar(const IOPar&);
     void		getFromSI();
-    void		survChg( CallBacker* )	{ refresh(); }
+    void		survChg( CallBacker* )	{ getFromSI(); }
 
     static const char*	sKeyBase()		{ return "ImpExp"; }
     static const char*	sKeyOffset();		// sKey::Offset

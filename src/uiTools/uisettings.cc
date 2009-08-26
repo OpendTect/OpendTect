@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisettings.cc,v 1.34 2009-08-25 14:47:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uisettings.cc,v 1.35 2009-08-26 09:32:43 cvsbert Exp $";
 
 #include "uisettings.h"
 
 #include "ptrman.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "posimpexppars.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -80,6 +81,7 @@ bool uiSettings::acceptOK( CallBacker* )
     {
 	setts_.set( ky, valfld_->text() );
 	SI().savePars();
+	PosImpExpPars::refresh();
     }
     else
     {
