@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.42 2009-08-21 07:58:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.43 2009-08-26 08:44:34 cvsbert Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -198,7 +198,7 @@ bool uiImpExpPickSet::doExport()
     BufferString buf;
     for ( int locidx=0; locidx<ps.size(); locidx++ )
     {
-	ps[locidx].toString( buf );
+	ps[locidx].toString( buf, true );
 	*sdo.ostrm << buf.buf() << '\n';
     }
 

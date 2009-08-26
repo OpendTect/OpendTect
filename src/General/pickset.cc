@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.65 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.66 2009-08-26 08:44:34 cvsbert Exp $";
 
 #include "pickset.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: pickset.cc,v 1.65 2009-07-22 16:01:32 cvsbert E
 #include "separstr.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "posimpexppars.h"
 #include "unitofmeasure.h"
 #include <ctype.h>
 
@@ -161,23 +162,31 @@ bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
 }
 
 
-void Pick::Location::toString( BufferString& str ) const
+void Pick::Location::toString( BufferString& str, bool forexport ) const
 {
     str = "";
-    if ( text )
+    if ( text && *text )
     {
-	replaceCharacter( text->buf(), newlinechar, pipechar );
-
-	str = "\"";
-	str += *text;
-	str += "\"";
-	str += "\t";
+	BufferString txt( *text );
+	replaceCharacter( txt.buf(), newlinechar, pipechar );
+	str = "\""; str += txt; str += "\"\t";
     }
 
-    str += getStringFromDouble( 0, pos.x );
+    Coord3 usepos( pos );
+    if ( forexport )
+    {
+	mPIEPAdj(Coord,usepos,false);
+	if ( mPIEP.haveZChg() )
+	{
+	    float z = (float)usepos.z;
+	    mPIEPAdj(Z,z,false);
+	    usepos.z = z;
+	}
+    }
 
-    str += "\t"; str += getStringFromDouble( 0, pos.y );
-    str += "\t"; str += getStringFromDouble( 0, pos.z );
+    str += getStringFromDouble( 0, usepos.x );
+    str += "\t"; str += getStringFromDouble( 0, usepos.y );
+    str += "\t"; str += getStringFromDouble( 0, usepos.z );
 
     if ( hasDir() )
     {
@@ -543,16 +552,23 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
 	if ( mIsUdf(xread) || mIsUdf(yread) ) continue;
 
 	Coord pos( xread, yread );
+	mPIEPAdj(Coord,pos,true);
 	if ( !isXY() || !SI().isReasonable(pos) )
 	{
 	    BinID bid( mNINT(xread), mNINT(yread) );
+	    mPIEPAdj(BinID,bid,true);
 	    SI().snap( bid );
 	    pos = SI().transform( bid );
 	}
 
 	if ( !SI().isReasonable(pos) ) continue;
-	
-	const float zread = iszreq ? getfValue( 2 ) : constz;
+
+	float zread = constz;
+	if ( iszreq )
+	{
+	    zread = getfValue( 2 );
+	    mPIEPAdj(Z,zread,true);
+	}
 	Pick::Location ploc( pos, zread );
 	ps += ploc;
     }

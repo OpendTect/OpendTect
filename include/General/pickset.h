@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.42 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.43 2009-08-26 08:44:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
 	    			  bool checkdir=true);
     			/*!<If checkdir is true, a more rigourous test is done
 			    on dir. */
-    void		toString(BufferString&) const;
+    void		toString(BufferString&,bool forexport=false) const;
 
     Coord3		pos;
     Sphere		dir; /*!< Optional direction at location.
