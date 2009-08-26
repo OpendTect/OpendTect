@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.22 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.23 2009-08-26 13:06:01 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -456,7 +456,17 @@ int BufferStringSet::maxLength() const
 void BufferStringSet::sort( BufferStringSet* slave )
 {
     int* idxs = getSortIndexes();
+    useIndexes( idxs, slave );
+    delete [] idxs;
+}
+
+
+void BufferStringSet::useIndexes( int* idxs, BufferStringSet* slave )
+{
+    if ( !idxs ) return;
     const int sz = size();
+    if ( sz < 2 ) return;
+
     ObjectSet<BufferString> tmp;
     ObjectSet<BufferString>* tmpslave = slave ? new ObjectSet<BufferString> : 0;
     for ( int idx=0; idx<sz; idx++ )
@@ -476,7 +486,6 @@ void BufferStringSet::sort( BufferStringSet* slave )
 	    *slave += (*tmpslave)[ idxs[idx] ];
     }
 
-    delete [] idxs;
     delete tmpslave;
 }
 
@@ -487,13 +496,14 @@ int* BufferStringSet::getSortIndexes() const
     if ( sz < 1 ) return 0;
 
     mGetIdxArr(int,idxs,sz)
-    if ( !idxs ) return 0;
-
-    int tmp;
-    for ( int d=sz/2; d>0; d=d/2 )
-	for ( int i=d; i<sz; i++ )
-	    for ( int j=i-d; j>=0 && get(idxs[j])>get(idxs[j+d]); j-=d )
-		mSWAP( idxs[j+d], idxs[j], tmp )
+    if ( idxs && sz > 1 )
+    {
+	int tmp;
+	for ( int d=sz/2; d>0; d=d/2 )
+	    for ( int i=d; i<sz; i++ )
+		for ( int j=i-d; j>=0 && get(idxs[j])>get(idxs[j+d]); j-=d )
+		    mSWAP( idxs[j+d], idxs[j], tmp )
+    }
 
     return idxs;
 }
