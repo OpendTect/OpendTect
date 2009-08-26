@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2009
- RCS:		$Id: posimpexppars.h,v 1.2 2009-08-25 13:25:36 cvsbert Exp $
+ RCS:		$Id: posimpexppars.h,v 1.3 2009-08-26 08:39:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,17 @@ public:
     void		adjustCrl(int&,bool inward) const;
     void		adjustX(double&,bool inward) const;
     void		adjustY(double&,bool inward) const;
+
+    bool		haveBinIDChg() const;
+    bool		haveTrcNrChg() const;
+    bool		haveCoordChg() const;
+    bool		haveZChg() const;
+    bool		haveOffsetChg() const;
+
+    bool		haveInlChg() const;
+    bool		haveCrlChg() const;
+    bool		haveXChg() const;
+    bool		haveYChg() const;
 
 protected:
 

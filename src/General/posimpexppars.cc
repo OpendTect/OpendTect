@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: posimpexppars.cc,v 1.2 2009-08-25 13:25:36 cvsbert Exp $";
+static const char* rcsID = "$Id: posimpexppars.cc,v 1.3 2009-08-26 08:39:13 cvsbert Exp $";
 
 #include "posimpexppars.h"
 #include "survinfo.h"
@@ -169,4 +169,58 @@ void PosImpExpPars::adjustY( double& y, bool inw ) const
 	{ y *= coordscale_; y += coordoffs_.y; }
     else
 	{ y -= coordoffs_.y; y /= coordscale_; }
+}
+
+
+bool PosImpExpPars::haveBinIDChg() const
+{
+    return binidscale_ != 1 || binidoffs_.inl != 0 || binidoffs_.crl != 0;
+}
+
+
+bool PosImpExpPars::haveCoordChg() const
+{
+    return haveXChg() || haveYChg();
+}
+
+
+bool PosImpExpPars::haveTrcNrChg() const
+{
+    return trcnrscale_ != 1 || trcnroffs_ != 0;
+}
+
+
+bool PosImpExpPars::haveZChg() const
+{
+    return !mIsZero(zscale_-1,1e-6) || !mIsZero(zoffs_,1e-6);
+}
+
+
+bool PosImpExpPars::haveOffsetChg() const
+{
+    return !mIsZero(offsscale_-1,1e-6) || !mIsZero(offsoffs_,1e-6);
+}
+
+
+bool PosImpExpPars::haveInlChg() const
+{
+    return binidscale_ != 1 || binidoffs_.inl != 0;
+}
+
+
+bool PosImpExpPars::haveCrlChg() const
+{
+    return binidscale_ != 1 || binidoffs_.crl != 0;
+}
+
+
+bool PosImpExpPars::haveXChg() const
+{
+    return !mIsZero(coordscale_-1,1e-6) || !mIsZero(coordoffs_.x,1e-6);
+}
+
+
+bool PosImpExpPars::haveYChg() const
+{
+    return !mIsZero(coordscale_-1,1e-6) || !mIsZero(coordoffs_.y,1e-6);
 }
