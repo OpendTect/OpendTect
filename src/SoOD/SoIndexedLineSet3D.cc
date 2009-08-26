@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.15 2009-08-25 19:16:54 cvskris Exp $";
+static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.16 2009-08-26 10:22:18 cvskarthika Exp $";
 
 #include "SoIndexedLineSet3D.h"
 
@@ -31,9 +31,10 @@ static const char* rcsID = "$Id: SoIndexedLineSet3D.cc,v 1.15 2009-08-25 19:16:5
 #include <Inventor/elements/SoViewportRegionElement.h>
 #include <Inventor/system/gl.h>
 
+#include <Inventor/errors/SoDebugError.h>
+
 #include "SoCameraInfo.h"
 #include "SoCameraInfoElement.h"
-
 
 SO_NODE_SOURCE(SoIndexedLineSet3D);
 
@@ -54,6 +55,9 @@ SoIndexedLineSet3D::SoIndexedLineSet3D()
     , coordmatchinfo_( 0 )
     , vvmatchinfo_( 0 )
     , vpmatchinfo_( 0 )
+#ifdef USE_DISPLAYLIST_LINESET
+    , displaylist_( 0 )
+#endif
 {
     SO_NODE_CONSTRUCTOR(SoIndexedLineSet3D);
     SO_NODE_ADD_FIELD( radius, (5.0) );
@@ -69,6 +73,9 @@ SoIndexedLineSet3D::~SoIndexedLineSet3D()
     delete coordmatchinfo_;
     delete vvmatchinfo_;
     delete vpmatchinfo_;
+#ifdef USE_DISPLAYLIST_LINESET
+    displaylist_->unref();
+#endif
 }
 
 
@@ -107,9 +114,40 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
 
     SoState* state = action->getState();
 
-    if ( !areCoordsValid(state) )
+#ifdef USE_DISPLAYLIST_LINESET
+    if ( !displaylist_ )
+	displaylist_ = new SoGLDisplayList( state, 
+		SoGLDisplayList::DISPLAY_LIST );
+    displaylist_->ref();
+    if ( !displaylist_ )
+    {
+	SoDebugError::postWarning( "SoIndexedLineSet3D::GLRender",
+	       "Cannot create display list!" );
+	return;
+    }
+
+    if ( SoCacheElement::anyOpen( state ) )
+    {
+	SoDebugError::postWarning( "SoIndexedLineSet3D::GLRender",
+ 	"A cache is already open! Cannot generate coordinates now!" );
+	return;
+    }
+#endif
+
+    bool isvalid = areCoordsValid( state );
+
+    if ( !isvalid )
 	generateCoordinates( state );
 
+#ifdef USE_DISPLAYLIST_LINESET
+    if ( isvalid )
+    {
+	displaylist_->call( state );
+	return;
+    }
+    else
+        displaylist_->open( state );
+#endif	
     SoTextureCoordinateBundle tb(action, true, true);
     SoMaterialBundle mb(action);
     int matnr = 0;
@@ -197,6 +235,10 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
     }
 
     glPopMatrix();
+
+#ifdef USE_DISPLAYLIST_LINESET
+    displaylist_->close( state );
+#endif
 }
 
 

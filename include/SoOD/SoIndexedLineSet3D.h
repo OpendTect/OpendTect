@@ -5,8 +5,11 @@
 
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFBool.h>
+#include <Inventor/elements/SoGLDisplayList.h>
 
 #include "soodbasic.h"
+
+//#define USE_DISPLAYLIST_LINESET
 
 class SbBox3f;
 class SbVec3f;
@@ -64,6 +67,10 @@ private:
     SoElement*			vpmatchinfo_;
     SoElement*			vvmatchinfo_;
     bool			ismoving_;
+
+#ifdef USE_DISPLAYLIST_LINESET
+    SoGLDisplayList*		displaylist_;
+#endif
 };
 
 
