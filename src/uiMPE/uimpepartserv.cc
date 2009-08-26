@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.101 2009-08-18 09:27:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.102 2009-08-26 06:13:44 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -96,6 +96,16 @@ uiMPEPartServer::~uiMPEPartServer()
     MPE::engine().trackeraddremove.remove(
 	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
     EM::EMM().addRemove.remove( mCB(this,uiMPEPartServer,nrHorChangeCB) );
+
+    trackercurrentobject_ = -1;
+    initialundoid_ = mUdf(int);
+    seedhasbeenpicked_ = false;
+    setupbeingupdated_ = false;
+
+    sendEvent( uiMPEPartServer::evEndSeedPick() );
+    sendEvent( uiMPEPartServer::evShowToolbar() );
+    sendEvent( ::uiMPEPartServer::evSetupClosed() );
+    setupgrp_->mainwin()->activateClose();
 }
 
 
