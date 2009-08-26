@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.39 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.40 2009-08-26 09:48:47 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -67,19 +67,17 @@ void Math::updateDesc( Desc& desc )
     BufferStringSet varnms;
     for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
     {
-	MathExpression::VarType vtyp =
-	    MathExpressionParser::varTypeOf( formula->uniqueVarName(idx) );
+	const char* uvarnm = formula->uniqueVarName(idx);
+	MathExpression::VarType vtyp = MathExpressionParser::varTypeOf(uvarnm);
 	switch ( vtyp )
 	{
 	    case MathExpression::Variable :
 	    {
-		BufferString fvarexp = formula->fullVariableExpression( idx );
-		BufferString varnm = MathExpressionParser::varNameOf( fvarexp );
-		const int specidx = getSpecVars().indexOf(varnm);
+		const int specidx = getSpecVars().indexOf( uvarnm );
 		if ( specidx < 0 )
 		{
 		    nrvariables++;
-		    varnms.add( formula->uniqueVarName(idx) );
+		    varnms.add( uvarnm );
 		}
 		break;
 	    }
