@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.44 2009-08-20 06:57:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.45 2009-08-26 21:24:56 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -118,6 +118,18 @@ void Threads::ReadWriteLock::readLock()
 }
 
 
+bool Threads::ReadWriteLock::tryReadLock()
+{
+    Threads::MutexLocker lock( statuscond_ );
+    if ( status_==mWriteLocked )
+	return false;
+
+    nrreaders_++; 
+    return true;
+}
+
+
+
 void Threads::ReadWriteLock::readUnLock()
 {
     Threads::MutexLocker lock( statuscond_ );
@@ -144,6 +156,18 @@ void Threads::ReadWriteLock::writeLock()
 }
     
    
+bool Threads::ReadWriteLock::tryWriteLock()
+{
+    Threads::MutexLocker lock( statuscond_ );
+    if ( status_!=mUnLocked || nrreaders_ )
+	return false;
+
+    status_ = mWriteLocked;
+    return true;
+}
+
+
+
 void Threads::ReadWriteLock::writeUnLock()
 {
     Threads::MutexLocker lock( statuscond_ );

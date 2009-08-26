@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.38 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: thread.h,v 1.39 2009-08-26 21:24:56 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -160,8 +160,12 @@ public:
 
     void		readLock();
     			//!<No writers will be active.
+    bool		tryReadLock();
+			//!<No writers will be active.
     void		writeLock();
     			//!<No readers will be active.
+    bool		tryWriteLock();
+			//!<No readers will be active.
     void		permissiveWriteLock();
     			/*!<Same as readlock, but I'm guaranteed to convert to
 			    writelock without giving up my lock. Only one
