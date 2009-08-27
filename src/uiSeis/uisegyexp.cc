@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.19 2009-08-03 13:59:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.20 2009-08-27 09:58:01 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -359,13 +359,13 @@ bool doExp( const FilePath& fp )
 bool uiSEGYExp::acceptOK( CallBacker* )
 {
     if ( !seissel_->commitInput() )
-    {
-	uiMSG().error( "Please select the data to export" );
-	return false;
-    }
+	{ uiMSG().error( "Please select the data to export" ); return false; }
+    const SEGY::FileSpec sfs( fsfld_->getSpec() );
+    if ( sfs.fname_.isEmpty() )
+	{ uiMSG().error( "Please select the output file" ); return false; }
 
     const IOObj* inioobj = ctio_.ioobj;
-    PtrMan<IOObj> outioobj = fsfld_->getSpec().getIOObj( true );
+    PtrMan<IOObj> outioobj = sfs.getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );
     const bool is2d = Seis::is2D( geom_ );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
