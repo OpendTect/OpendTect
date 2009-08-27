@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.61 2009-08-04 05:11:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.62 2009-08-27 08:39:52 cvsnageswara Exp $";
 
 -*/
 
@@ -209,7 +209,7 @@ static void setAttrSelName( ObjectSet<uiAttrSel>& flds )
 void uiFingerPrintAttrib::initTable( int nrrows )
 {
     attribflds_.erase();
-    const uiAttrSelData asd( is2d_ );
+    const uiAttrSelData asd( is2d_, false );
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
@@ -225,7 +225,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
     const int newrow = table_->newCell().row;
-    const uiAttrSelData asd( is2d_ );
+    const uiAttrSelData asd( is2d_, false );
     uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
@@ -275,8 +275,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr, 
 	    	  IOObj* ioobj = IOM().get( MultiID(pickidstr) );
-		  if ( ioobj ) picksetfld_->setInput( *ioobj );
-	   	  picksetfld_->updateInput() )
+		  if ( ioobj ) picksetfld_->setInput( *ioobj ) );
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
 
@@ -290,6 +289,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     {
 	TypeSet<float> values;
 	mDescGetConstParamGroup(FloatParam,valueset,desc,FingerPrint::valStr())
+
+
 	for ( int idx=0; idx<valueset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*valueset)[idx];
