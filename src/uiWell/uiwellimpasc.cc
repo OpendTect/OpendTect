@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.55 2009-08-21 12:41:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.56 2009-08-27 14:05:29 cvsbruno Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.55 2009-08-21 12:41:02 cvsb
 #include "uitblimpexpdatasel.h"
 
 static const char* sHelpID = "107.0.0";
+static const char* nHelpID = "107.0.4";
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
@@ -142,7 +143,7 @@ public:
 
 uiWellImportAscOptDlg( uiWellImportAsc* p )
     : uiDialog(p,uiDialog::Setup("Import well: Advanced/Optional",
-				 "Advanced and Optional",sHelpID))
+				 "Advanced and Optional",nHelpID))
     , uwia_(p)
 {
     coordfld = new uiGenInput( this,
