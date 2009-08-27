@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.10 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.11 2009-08-27 21:48:34 cvsyuancheng Exp $";
 
 #include "vissplittexture2rectangle.h"
 
@@ -146,7 +146,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
     c10factors_.erase();
     c11factors_.erase();
 
-    if ( nrrowblocks_==0 || nrcolblocks_==0 )
+    if ( nrrowblocks_==0 || nrcolblocks_==0 || rowsz_==1 || colsz_==1 )
     {
 	c00factors_ += 1; c01factors_ += 0; c10factors_ += 0; c11factors_ += 0;
 	c00factors_ += 0; c01factors_ += 1; c10factors_ += 0; c11factors_ += 0;
@@ -215,17 +215,19 @@ void SplitTexture2Rectangle::updateFaceSets( )
 
 		const float rowstartmargin = 0.5/texturerowsz;
 		const float colstartmargin = 0.5/texturecolsz;
-		const float rowendmargin = (float)rowsz/texturerowsz-rowstartmargin;
-		const float colendmargin = (float)colsz/texturecolsz-colstartmargin;
+		const float rowendmargin = 
+		    (float)rowsz/texturerowsz-rowstartmargin;
+		const float colendmargin = 
+		    (float)colsz/texturecolsz-colstartmargin;
 
-		tc->point.set1Value( 0, SbVec2f(colstartmargin,rowstartmargin) );
+		tc->point.set1Value( 0, SbVec2f(colstartmargin,rowstartmargin));
 		tc->point.set1Value( 1, SbVec2f(colendmargin,rowstartmargin) );
 		tc->point.set1Value( 2, SbVec2f(colstartmargin,rowendmargin) );
 		tc->point.set1Value( 3, SbVec2f(colendmargin,rowendmargin) );
 
 		fs->coordIndex.set1Value( 0, row*(nrcolblocks_+1) + col );
 		fs->coordIndex.set1Value( 1, row*(nrcolblocks_+1) + col + 1 );
-		fs->coordIndex.set1Value( 2, (row+1)*(nrcolblocks_+1) + col + 1 );
+		fs->coordIndex.set1Value( 2, (row+1)*(nrcolblocks_+1) + col +1);
 		fs->coordIndex.set1Value( 3, (row+1)*(nrcolblocks_+1) + col );
 	    }
 	}

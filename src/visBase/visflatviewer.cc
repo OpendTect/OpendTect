@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.29 2009-08-18 18:12:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.30 2009-08-27 21:48:34 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
 
@@ -216,6 +216,7 @@ void FlatViewer::updateGridLines( bool x1 )
     }
 
     Interval<float> range; range.setFrom( posdata->range( x1 ) );
+    const float rgwidth = !range.width() ? 1 : range.width();
     SamplingData<float> sd = x1 ? appearance().annot_.x1_.sampling_
 				: appearance().annot_.x2_.sampling_;
     if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
@@ -226,7 +227,7 @@ void FlatViewer::updateGridLines( bool x1 )
     float pos = sd.start;
     while ( range.includes( pos ) )
     {
-	const float relpos = (pos-range.start)/range.width();
+	const float relpos = (pos-range.start)/rgwidth;
 
 	const Coord3 startpos = x1 
 	    ? c00_*(1-relpos)+c10_*relpos
