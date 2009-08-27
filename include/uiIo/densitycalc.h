@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: densitycalc.h,v 1.2 2009-08-12 08:09:02 cvssatyaki Exp $
+ RCS:           $Id: densitycalc.h,v 1.3 2009-08-27 07:15:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 {
     for ( od_int64 rid=start; rid<=stop; rid++ )
     {
-	nrdone_ = rid;
+	nrdone_++;
 	if ( dps_.isInactive(rid) || (curgrp_>0 && dps_.group(rid)!=curgrp_) )
 	    continue;
 

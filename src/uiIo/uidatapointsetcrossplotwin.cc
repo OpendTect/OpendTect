@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc";
 #include "uicolortable.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uigeninputdlg.h"
 #include "uigraphicsscene.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -59,25 +60,33 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			      uiToolBar::Left))
     , colortb_(*new uiToolBar(this,"DensityPlot Colorbar",uiToolBar::Top,true))
     , grpfld_(0)
+    , wantnormalplot_(false)
     , showSelPts(this)
 {
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
 
-    const int nrpts = uidps.pointSet().size();
-    const int eachrow = 1 + nrpts / cMinPtsForDensity;
+    Settings& setts = Settings::common();
+    if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
+	minptsfordensity_ = cMinPtsForDensity;
+    const int nrpts = plotter_.y2_.axis_ ? uidps.pointSet().nrActive()*2
+					 : uidps.pointSet().nrActive();
+    const float perc = (float)( 100/(1 + nrpts/minptsfordensity_) );
     uiGroup* dispgrp = new uiGroup( &disptb_, "Display grp" );
     
-    eachfld_ = new uiSpinBox( dispgrp, 0, "Each" );
-    eachfld_->setValue( eachrow );
-    eachfld_->setInterval( 1, mUdf(int), 1 );
+    eachfld_ = new uiSpinBox( dispgrp, 2, "Percentage" );
+    eachfld_->setValue( perc );
+    eachfld_->setInterval( StepInterval<float>((float)0,(float)100,0.10) );
     eachfld_->valueChanged.notify(
 	    		mCB(this,uiDataPointSetCrossPlotWin,eachChg) );
-    eachfld_->setSensitive( uidps_.pointSet().nrActive() < cMinPtsForDensity );
-    plotter_.eachrow_ = eachrow;
+    plotter_.plotperc_ = perc;
     
-    uiLabel* eachlabel = new uiLabel( dispgrp, "Plot each", eachfld_ );
+    uiLabel* eachlabel = new uiLabel( dispgrp, "% points displayed", eachfld_ );
     disptb_.addObject( dispgrp->attachObj() );
     
+    densityplottbid_ = disptb_.addButton( "densityplot.png",
+	    	  mCB(this,uiDataPointSetCrossPlotWin,setDensityPlot),
+		  "Show density plot", true );
+
     showy2tbid_ = disptb_.addButton( "showy2.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2),
 		  "Toggle show Y2", true );
@@ -114,7 +123,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     showselptswstbid_ = seltb_.addButton( "picks.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
 		  "Show selected points in workSpace", false );
-    seltb_.turnOn( setselecttbid_, true );
+    seltb_.turnOn( setselecttbid_, false );
 
     selmodechgtbid_ = seltb_.addButton( "rectangleselect.png",
 	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) ,
@@ -157,7 +166,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			    mCB(this,uiDataPointSetCrossPlotWin,grpChg) );
     }
 
-    seltb_.turnOn( setselecttbid_, false );
     setSelectable( 0 );
     plotter_.drawTypeChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,drawTypeChangedCB) );
@@ -165,6 +173,30 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    mCB(this,uiDataPointSetCrossPlotWin,coltabRgChangedCB) );
     plotter_.setPrefWidth( 700 );
     plotter_.setPrefHeight( 500 );
+}
+
+
+void uiDataPointSetCrossPlotWin::setPercDisp( float perc )
+{
+    eachfld_->setValue( perc );
+    plotter_.plotperc_ = perc;
+    plotter_.getRandRowids();
+}
+
+
+void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
+{
+    const bool ison = disptb_.isOn( densityplottbid_ );
+    disptb_.setToolTip( densityplottbid_, ison ? "Show normal plot"
+	    				       : "Show density plot" );
+    eachfld_->setSensitive( !ison );
+    if ( ison && plotter_.isY2Shown() )
+	uiMSG().message( "Y2 cannot be displayed in density plot" );
+    ison ?  eachfld_->setValue( 100 ) : eachfld_->setValue( plotter_.plotperc_);
+    plotter_.setDensityPlot( ison, disptb_.isOn(showy2tbid_) );
+    disptb_.setSensitive( showy2tbid_, !ison );
+    setSelComboSensitive( !ison );
+    plotter_.drawContent();
 }
 
 
@@ -226,7 +258,7 @@ void uiDataPointSetCrossPlotWin::deleteSelections( CallBacker* )
 void uiDataPointSetCrossPlotWin::closeNotif( CallBacker* )
 {
     defsetup_ = plotter_.setup();
-    plotter_.eachrow_ = mUdf(int); // Make sure eachChg knows we are closing
+    plotter_.plotperc_ = mUdf(int); // Make sure eachChg knows we are closing
 }
 
 
@@ -418,7 +450,6 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
     plotter_.setSceneSelectable( isoff );
     selfld_->setSensitive( plotter_.isY2Shown() ? isoff : false );
     seltb_.setSensitive( selmodechgtbid_, isoff );
-    seltb_.setSensitive( showselptswstbid_, isoff );
     seltb_.setSensitive( selsettingstbid_, isoff );
     seltb_.setSensitive( seltabletbid_, isoff );
     seltb_.setSensitive( seldeltbid_, isoff );
@@ -428,6 +459,7 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 				    ? uiGraphicsView::RubberBandDrag
 				    : uiGraphicsView::NoDrag )
 				: uiGraphicsView::ScrollHandDrag );
+    disptb_.turnOn( showy2tbid_, plotter_.isY2Shown() );
     plotter_.scene().setMouseEventActive( true );
 }
 
@@ -474,13 +506,53 @@ void uiDataPointSetCrossPlotWin::selOption( CallBacker* )
 void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger(MouseCursor::Wait);
-    if ( mIsUdf(plotter_.eachrow_) ) return; // window is closing
+    if ( mIsUdf(plotter_.plotperc_) ) return; // window is closing
 
-    int neweachrow = eachfld_->getValue();
-    if ( neweachrow < 1 ) neweachrow = 1;
-    if ( plotter_.eachrow_ == neweachrow )
+    float newperc = eachfld_->getFValue();
+    const float prevperc = plotter_.plotperc_;
+    if ( newperc < 1 ) newperc = 1;
+    if ( plotter_.plotperc_ == newperc )
 	return;
-    plotter_.eachrow_ = neweachrow;
+    plotter_.plotperc_ = newperc;
+
+    const int estpts =
+	mNINT( ((!disptb_.isOn(showy2tbid_) && !plotter_.y2_.axis_)
+	    ? uidps_.pointSet().nrActive()
+	    : uidps_.pointSet().nrActive()*2)*plotter_.plotperc_/(float)100 );
+    
+    Settings& setts = Settings::common();
+    if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
+	minptsfordensity_ = cMinPtsForDensity;
+
+    if ( estpts > minptsfordensity_ && !plotter_.isADensityPlot() )
+    {
+	BufferString msg( "It is a time consuming process & might freeze the ",
+			  "application due to large dataset size. " );
+	msg += "Do you want to go ahead with normal plot or have a ";
+	msg += "density plot which would be faster ?";
+	msg += "\nNote: Density plot cannot have Y2 axis";
+	const int res =
+	    uiMSG().askGoOnAfter( msg, "Cancel", "Normal Plot", "Density Plot");
+	if ( !res )
+	    wantnormalplot_ = true;
+	else if ( res ==1 )
+	    wantnormalplot_ = false;
+	else
+	{
+	    eachfld_->setValue( prevperc );
+	    return;
+	}
+	disptb_.turnOn( densityplottbid_, !wantnormalplot_ );
+	const bool ison = disptb_.isOn( densityplottbid_ );
+	disptb_.setToolTip( densityplottbid_, ison ? "Show normal plot"
+						   : "Show density plot" );
+	eachfld_->setSensitive( !ison );
+	if ( ison )
+	    eachfld_->setValue( 100 );
+	plotter_.setDensityPlot( !wantnormalplot_, disptb_.isOn(showy2tbid_) );
+    }
+
+    plotter_.getRandRowids();
     plotter_.drawContent( false );
 }
 
@@ -503,7 +575,6 @@ void uiDataPointSetCrossPlotWin::setSelComboSensitive( bool yn )
 
     bool status = plotter_.isSceneSelectable() &&
 		  !plotter_.isADensityPlot() ? yn : false;
-    seltb_.setSensitive( showy2tbid_, status );
     selfld_->setSensitive( status );
 }
 

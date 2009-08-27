@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.9 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.10 2009-08-27 07:15:03 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
 
 #include "linear.h"
+#include "settings.h"
 
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -22,6 +23,7 @@ static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.9 2009-07-22 16:01
 #include "uilineedit.h"
 #include "uimsg.h"
 
+static const int cMinPtsForDensity = 20000;
 
 struct uiDPSCPScalingTabAxFlds
 {
@@ -315,6 +317,41 @@ bool acceptOK()
 };
 
 
+class uiDPSDensPlotSetTab : public uiDlgGroup
+{
+public:
+
+uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
+    : uiDlgGroup(p->tabParent(),"Density Plot")
+    , plotter_(p->plotter())
+{
+    Settings& setts = Settings::common();
+    if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
+	minptsfordensity_ = cMinPtsForDensity;
+    BufferString msg( "Current Number of Points " );
+    msg += plotter_.totalNrItems();
+    uiLabel* lbl = new uiLabel( this, msg );
+    minptinpfld_ = new uiGenInput( this, "Set minimum points for Density Plot",
+	    			   IntInpSpec(minptsfordensity_) );
+    minptinpfld_->attach( rightAlignedBelow, lbl );
+}
+
+bool acceptOK()
+{
+    minptsfordensity_ = minptinpfld_->getIntValue();
+    Settings& setts = Settings::common();
+    setts.set( sKeyMinDPPts(), minptsfordensity_ );
+    return setts.write();
+}
+
+    uiDataPointSetCrossPlotter& plotter_;
+    uiGenInput*			minptinpfld_;
+    int				minptsfordensity_;
+    static const char*		sKeyMinDPPts()
+    				{ return "Minimum pts for Density Plot"; }
+};
+
+
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
 	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,mTODOHelpID))
@@ -327,6 +364,8 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     addGroup( statstab_ );
     userdeftab_ = new uiDPSUserDefTab( this );
     addGroup( userdeftab_ );
+    densplottab_ = new uiDPSDensPlotSetTab( this );
+    addGroup( densplottab_ );
 }
 
 
@@ -335,6 +374,7 @@ bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
     if ( scaletab_ ) scaletab_->acceptOK();
     if ( statstab_ ) statstab_->acceptOK();
     if ( userdeftab_ ) userdeftab_->acceptOK();
+    if ( densplottab_ ) densplottab_->acceptOK();
 
     plotter_.dataChanged();
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.50 2009-08-11 07:43:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.51 2009-08-27 07:15:03 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.50 2009-08-11 07:43:57 cv
 #include "oddirs.h"
 #include "unitofmeasure.h"
 #include "mousecursor.h"
+#include "settings.h"
 
 #include "uitable.h"
 #include "uilabel.h"
@@ -139,7 +140,7 @@ int uiDataPointSet::initVars()
 
     mCleanRunCalcs;
 
-    eachrow_ = dps_.size() / setup_.initialmaxnrlines_;
+    eachrow_ = dps_.nrActive() / setup_.initialmaxnrlines_;
     if ( eachrow_ < 1.0 ) eachrow_ = 1.0;
     percentage_ = (float)100/eachrow_;
 
@@ -240,7 +241,7 @@ void uiDataPointSet::calcIdxs()
     const int dpssz = dps_.size();
     if ( dpssz<0 )
     {
-	std::cerr << "DataPointSet too large" << std::endl;
+	uiMSG().message( "DataPointSet too large, choose a subselection" );
 	return;
     }
 
@@ -367,10 +368,15 @@ void uiDataPointSet::handleAxisColChg()
 {
     updColNames();
     if ( xplotwin_ )
+    {
 	xplotwin_->plotter().setCols( dColID(xcol_), dColID(ycol_),
 				      dColID(y2col_) );
+	xplotwin_->setButtonStatus();
+    }
+
     if ( ycol_ >= 0 && statswin_ )
 	showStats( dColID(ycol_) );
+    
 }
 
 
@@ -396,15 +402,51 @@ void uiDataPointSet::selYCol( CallBacker* )
     const TColID tid = tColID(); if ( tid < 0 ) return;
 
     const TColID prevy = ycol_; const TColID prevy2 = y2col_;
+    int minptsfordensity = cMinPtsForDensity;
+    Settings& setts = Settings::common();
+    setts.get( sKeyMinDPPts(), minptsfordensity );
+
     if ( ycol_ == -1 )
+    {
 	ycol_ = tid;
+	plotpercentage_ = (float)( 100 /(1+dps_.nrActive()/minptsfordensity) );
+    }
     else
-	y2col_ = dps_.nrActive() > cMinPtsForDensity ? -1 : tid;
+    {
+	if ( dps_.nrActive()*2 > minptsfordensity )
+	{
+	    BufferString msg( "DataPoint set too large. Percentage of points "
+		    	      "displayed should be modified to give better "
+			      "performance. Do you want to change 'Plot each' "
+		      	      "or do you want to continue with no Y2 ?" ); 
+
+	    if ( uiMSG().askGoOn(msg,"Change % Data displayed",
+				 "Continue with no Y2") )
+	    {
+		plotpercentage_ =
+		    (float)( 100 /(1+dps_.nrActive()*2/minptsfordensity) );
+		y2col_ = tid;
+	    }
+	    else
+	    {
+		plotpercentage_ =
+		    (float)( 100 /(1+dps_.nrActive()/minptsfordensity) );
+		y2col_ = -1;
+	    }		
+	}
+	else
+	    y2col_ = tid;
+    }
+    
+    if ( prevy != ycol_ || prevy2 != y2col_ )
+    {
+	if ( xplotwin_ )
+	    xplotwin_->setPercDisp( plotpercentage_ );
+	handleAxisColChg();
+    }
+ 
     if ( xplotwin_ && y2col_ == tid )
 	xplotwin_->setSelComboSensitive( true );
-
-    if ( prevy != ycol_ || prevy2 != y2col_ )
-	handleAxisColChg();
 }
 
 
@@ -419,9 +461,10 @@ void uiDataPointSet::unSelCol( CallBacker* )
     else
 	return;
 
+    handleAxisColChg();
+    
     if ( xplotwin_ && y2col_==-1 )
 	xplotwin_->setSelComboSensitive( false );
-    handleAxisColChg();
 }
 
 
@@ -512,6 +555,8 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
     }
 
     disptb_->setSensitive( xplottbid_, false );
+    xplotwin_->setPercDisp( plotpercentage_ );
+    disptb_->setSensitive( xplottbid_, false );
     handleAxisColChg();
     xplotwin_->showSelPts.notify( mCB(this,uiDataPointSet,getSelPts) );
     xplotwin_->show();
@@ -520,6 +565,8 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 
 void uiDataPointSet::showStatusMsg( CallBacker* )
 {
+    if ( !xplotwin_ || !&xplotwin_->plotter() )
+	return;
     BufferString msg( "Y Selected: ", xplotwin_->plotter().nrYSels() );
     if ( xplotwin_->plotter().isY2Shown() )
     {
@@ -605,7 +652,7 @@ void uiDataPointSet::xplotRemReq( CallBacker* )
 }
 
 
-void uiDataPointSet::redoAll()
+void uiDataPointSet::reDoTable()
 {
     calcIdxs();
 
@@ -618,6 +665,12 @@ void uiDataPointSet::redoAll()
 
     updColNames();
     tbl_->resizeRowsToContents();
+}
+
+
+void uiDataPointSet::redoAll()
+{
+    reDoTable();
 
     if ( statswin_ )
 	showStats( dColID(statscol_) );

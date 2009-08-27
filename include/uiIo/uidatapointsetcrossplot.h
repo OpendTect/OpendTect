@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.25 2009-08-12 08:09:02 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.26 2009-08-27 07:15:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ class uiGraphicsItemGroup;
 class uiGraphicsItem;
 class uiRect;
 template <class T> class ODPolygon;
+template <class T> class Array1D;
 
 /*!\brief Data Point Set Cross Plotter */
 
@@ -189,6 +190,7 @@ public:
     void 			drawContent( bool withaxis = true );
     bool			isY2Shown() const;
     bool			isADensityPlot() const { return isdensityplot_;}
+    void			setDensityPlot(bool yn,bool showy2);
     bool			isRectSelection() const	
     				{ return rectangleselection_; }
     void			setRectSelection( bool yn )
@@ -197,6 +199,9 @@ public:
 				    const ObjectSet<SelectionArea>&);
     void			setTRMsg( const char* msg )
 				{ trmsg_ = msg; }
+    int				totalNrItems() const;
+    void			getRandRowids();
+
 protected:
 
     uiDataPointSet&		uidps_;
@@ -226,7 +231,7 @@ protected:
     bool			mousepressed_;
     bool			rectangleselection_;
     bool                        isdensityplot_;
-    int				eachrow_;
+    float			plotperc_;
     int				eachcount_;
     int				curgrp_;
     int				selyitems_;
@@ -236,8 +241,8 @@ protected:
     DataPointSet::RowID		selrow_;
     Interval<int>		usedxpixrg_;
     TypeSet<RowCol>		selrowcols_;
-    TypeSet<int>		yrowidxs_;
-    TypeSet<int>		y2rowidxs_;
+    Array1D<char>*		yrowidxs_;
+    Array1D<char>*		y2rowidxs_;
     TypeSet<uiDataPointSet::DColID> modcolidxs_;
     bool			selrowisy2_;
 
@@ -252,6 +257,10 @@ protected:
     bool 			isSelectionValid(uiDataPointSet::DRowID);
     void			setWorldSelArea(int);
     void			reDrawSelArea();
+    bool			drawRID(uiDataPointSet::DRowID,
+	    				uiGraphicsItemGroup*,
+	    				const AxisData&,bool y2,
+	    				MarkerStyle2D&,int idmidx,bool rempt);
 
     bool			selNearest(const MouseEvent&);
     void 			reDraw(CallBacker*);

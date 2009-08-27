@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.15 2009-08-11 07:43:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.16 2009-08-27 07:15:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ public:
     Notifier<uiDataPointSetCrossPlotWin>	showSelPts;
 
     void 			setSelComboSensitive(bool);
+    void			setButtonStatus()	{ setSelectable(0); }
+    void			setPercDisp(float);
 
 protected:
 
@@ -51,6 +53,8 @@ protected:
     uiComboBox*			selfld_;
     uiColorTable*		coltabfld_;
 
+    bool			wantnormalplot_;
+    int				densityplottbid_;
     int				showy2tbid_;
     int				showselptswstbid_;
     int				selmodechgtbid_;
@@ -59,13 +63,17 @@ protected:
     int				seltabletbid_;
     int				setselecttbid_;
     int				selsettingstbid_;
+    int				minptsfordensity_;
 
+    static const char*		sKeyMinDPPts()
+    				{ return "Minimum pts for Density Plot"; }
     void			closeNotif(CallBacker*);
     void			showTableSel(CallBacker*);
     void			showY2(CallBacker*);
     void			showPtsInWorkSpace(CallBacker*);
     void			setSelectable(CallBacker*);
     void			setSelectionMode(CallBacker*);
+    void			setDensityPlot(CallBacker*);
     void			removeSelections(CallBacker*);
     void			deleteSelections(CallBacker*);
     void			setSelectionDomain(CallBacker*);
