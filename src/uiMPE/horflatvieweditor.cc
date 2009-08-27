@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.6 2009-07-24 06:42:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.7 2009-08-27 11:45:25 cvsumesh Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -26,6 +26,8 @@ static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.6 2009-07-24 06:42:36 
 #include "mousecursor.h"
 #include "mpeengine.h"
 #include "posinfo.h"
+#include "sectionadjuster.h"
+#include "sectiontracker.h"
 #include "seis2dline.h"
 #include "survinfo.h"
 #include "undo.h"
@@ -202,9 +204,14 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     }
     else
     {
-	if ( vdselspec_ && (*seedpicker->getSelSpec() == *vdselspec_) )
+	const MPE::SectionTracker* sectiontracker =
+	    tracker->getSectionTracker(seedpicker->getSectionID(), true);
+	const Attrib::SelSpec* trackedatsel =
+	    sectiontracker->adjuster()->getAttributeSel(0);
+
+	if ( vdselspec_ && (*trackedatsel == *vdselspec_) )
 	    pickinvd = true;
-	else if ( wvaselspec_ && (*seedpicker->getSelSpec() == *wvaselspec_) )
+	else if ( wvaselspec_ && (*trackedatsel == *wvaselspec_) )
 	    pickinvd = false;
 	else
 	{
