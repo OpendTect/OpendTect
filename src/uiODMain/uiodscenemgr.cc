@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.179 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.180 2009-08-27 09:58:39 cvsbert Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -577,7 +577,7 @@ protected:
 
 uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Specify snapshot",
-				   "Select area to take snapshot",mTODOHelpID) )
+				   "Select area to take snapshot","50.0.1") )
 {
     butgrp_ = new uiButtonGroup( this, "Area type" );
     butgrp_->setExclusive( true );

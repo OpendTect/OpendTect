@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.17 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.18 2009-08-27 09:58:39 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -37,7 +37,7 @@ mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiChain::factory );
 
 
 uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
-    : uiDialog( p, uiDialog::Setup("Edit step",stepnm,mTODOHelpID) )
+    : uiDialog( p, uiDialog::Setup("Edit step",stepnm,"103.6.1") )
     , step_(step)
 {
 }
@@ -90,7 +90,7 @@ const ioPixmap& uiChain::getPixmap()
 
 
 uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
-    : uiDialog( p, uiDialog::Setup("Volume Builder: Setup",0,mTODOHelpID)
+    : uiDialog( p, uiDialog::Setup("Volume Builder: Setup",0,"103.6.0")
 	    .menubar(true) )
     , chain_(chn)
 {

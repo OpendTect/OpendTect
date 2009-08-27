@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.10 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uidlggroup.h,v 1.11 2009-08-27 09:58:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,10 @@ public:
     void	setGroup( uiDlgGroup* grp )	{ grp_ = grp; }
 
 
-    const char*	helpID() const 			{ return grp_->helpID(); }
+    const char*	helpID() const
+			{ const char* hid = grp_->helpID();
+			  if ( !hid ) hid = uiDialog::helpID(); return hid; }
+
 protected:
     bool	acceptOK(CallBacker*)		{ return grp_->acceptOK(); }
     bool	rejectOK(CallBacker*)		{ return grp_->rejectOK(); }

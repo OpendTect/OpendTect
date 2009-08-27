@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.9 2009-07-23 06:25:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.10 2009-08-27 09:58:39 cvsbert Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -47,7 +47,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 					     "Window grabber"),
 				  (desktop ? "Specify image file" :
 					     "Specify window and image file"),
-				  mTODOHelpID) )
+				  desktop ? "50.0.11" : "50.0.10") )
     , windowfld_(0)
 {
     getTopLevelWindows( windowlist_ );

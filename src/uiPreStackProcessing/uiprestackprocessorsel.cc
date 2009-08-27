@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.6 2009-08-25 16:24:49 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.7 2009-08-27 09:58:39 cvsbert Exp $";
 
 #include "uiprestackprocessorsel.h"
 
@@ -83,7 +83,7 @@ void uiProcSel::editPushCB( CallBacker* )
 
     title += " prestack processing";
 
-    uiDialog dlg( this, uiDialog::Setup( title.buf(), 0, "od:103.2.14") );
+    uiDialog dlg( this, uiDialog::Setup( title.buf(), 0, "103.2.13") );
     dlg.enableSaveButton("Save on OK");
     dlg.setSaveButtonChecked( true );
     PreStack::uiProcessorManager* grp = new uiProcessorManager( &dlg, man );

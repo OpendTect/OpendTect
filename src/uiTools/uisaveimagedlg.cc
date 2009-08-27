@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.10 2009-07-23 06:25:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.11 2009-08-27 09:58:39 cvsbert Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -54,7 +54,7 @@ static StepInterval<float> maximum_pixel_size_range(1,9999,1);
 
 uiSaveImageDlg::uiSaveImageDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Create snapshot",
-				 "Enter image size and filename","50.0.1")
+				 "Enter image size and filename","50.0.9")
 	    	 .savebutton(true).savetext("Save settings on OK"))
     , sizesChanged(this)
     , heightfld_(0)
