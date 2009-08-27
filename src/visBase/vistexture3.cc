@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexture3.cc,v 1.33 2009-08-25 15:09:03 cvskris Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.34 2009-08-27 11:29:36 cvsraman Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -57,6 +57,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     int x2 = idx/facesz01;
 
     float v000, v001, v010, v011, v100, v101, v110, v111;
+    v000 = v001 = v010 = v011 = v100 = v101 = v110 = v111 = mUdf(float);
     for ( ; x2<x2sz_; x2++ )
     {
 	const float x2pos = x2*x2step;
