@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.40 2009-08-26 09:48:47 cvshelene Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.41 2009-08-27 14:08:04 cvshelene Exp $";
 
 #include "mathattrib.h"
 
@@ -328,8 +328,26 @@ void Math::setUpVarsSets()
 		}
 		else
 		{
-		    int inputidx = expression_->indexOfUnVarName( varnm.buf() )
-							    - nrcsts - nrspecs;
+		    const int indexvarnm =
+				expression_->indexOfUnVarName( varnm.buf() );
+		    int inputidx = -1;
+		    if ( indexvarnm>=0 )
+		    {
+			const int firstoccurvnm =
+				    expression_->firstOccurVarName( fvarexp);
+			if ( firstoccurvnm == idx )
+			    inputidx = indexvarnm - nrcsts - nrspecs;
+			else
+			{
+			    for ( int vidx=0; vidx<varstable_.size(); vidx++ )
+				if ( varstable_[vidx].varidx_ == firstoccurvnm )
+				{
+				    inputidx = varstable_[vidx].inputidx_;
+				    break;
+				}
+			}
+		    }
+
 		    if ( inputidx<0 && shift<maxshift_ )
 			maxshift_ = shift;
 		    varstable_ += VAR( idx, inputidx, shift );

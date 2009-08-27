@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.49 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.50 2009-08-27 14:08:04 cvshelene Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -524,6 +524,21 @@ void MathExpression::addIfOK( const char* str )
 }
 
 
+int MathExpression::firstOccurVarName( const char* fullvnm ) const
+{
+    BufferString varnm = MathExpressionParser::varNameOf( fullvnm );
+    for ( int idx=0; idx<nrVariables(); idx++ )
+    {
+	BufferString fullvar( fullVariableExpression(idx) );
+	BufferString checkvarnm = MathExpressionParser::varNameOf( fullvar );
+	if ( varnm == checkvarnm )
+	    return idx;
+    }
+
+    return -1; //error, should never happen
+}
+
+
 //--- Parser
 
 
@@ -1014,8 +1029,54 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     // random number
     mParseFunction( "rand", Random )
     mParseFunction( "randg", GaussRandom )
+/*
+    if ( !strncasecmp( str, "atan2(", 6 ) && str[len-1] == ')' )
+    {
+	TypeSet<int> argumentstop;
+	for ( int idx=6; idx<len; idx++ )
+	{
+	    absolute( str, idx, inabs)
+	    if ( inabs ) continue;
 
+	    parens(str, idx, parenslevel, len);
+	    if ( parenslevel ) continue;
 
+	    if ( str[idx] == ',' || str[idx] == ')' )
+	    {
+		if ( !idx ) return 0;
+
+		argumentstop += idx;
+		if ( str[idx] == ')' ) break;
+	    }
+	}
+
+	ObjectSet<MathExpression> inputs_;
+
+	int prevstop = 3;
+	for ( int idx=0; idx<argumentstop.size(); idx++ )
+	{
+	    ArrPtrMan<char> arg = new char[len+1];
+	    strncpy( arg, &str[prevstop+1], argumentstop[idx]-prevstop-1);
+	    arg[argumentstop[idx]-prevstop-1] = 0;
+	    prevstop = argumentstop[idx];
+	    
+	    MathExpression* inp = parse( arg );
+	    if ( !inp )
+	    {
+		deepErase( inputs_ );
+		return 0;
+	    }
+
+	    inputs_ += inp;
+	}
+
+	if ( inputs_.size() != 2 )
+	{
+	    deepErase( inputs_ );
+	    return 0;
+	}
+*/
+///////
     if ( (!strncasecmp( str, "min(", 4 ) || 
 	  !strncasecmp( str, "max(", 4 ) ||
 	  !strncasecmp( str, "sum(", 4 ) ||

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.15 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: mathexpression.h,v 1.16 2009-08-27 14:08:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
 				{ return varnms_.get(idx).buf(); }
     int				indexOfUnVarName( const char* nm )
 				{ return varnms_.indexOf( nm ); }
+    int				firstOccurVarName(const char*) const;
 
     enum VarType		{ Variable, Constant, Recursive };
     VarType			getType(int varidx) const;
