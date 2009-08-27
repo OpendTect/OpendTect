@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.75 2009-08-25 13:25:36 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.76 2009-08-27 09:06:39 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -67,28 +67,29 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
     buf = "Created by: "; buf += res;
     buf += "     ("; buf += Time_getFullDateString(); buf += ")";
     putAt( 1, 6, 75, buf );
-    putAt( 2, 6, 75, SI().name() );
+    putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
     BinID bid = SI().sampling(false).hrg.start;
     Coord coord = SI().transform( bid );
     coord.x = fabs(coord.x); coord.y = fabs(coord.y);
     if ( !mIsEqual(bid.inl,coord.x,mDefEps)
-      && !mIsEqual(bid.crl,coord.x,mDefEps)
-      && !mIsEqual(bid.inl,coord.y,mDefEps)
-      && !mIsEqual(bid.crl,coord.y,mDefEps) )
+      || !mIsEqual(bid.crl,coord.x,mDefEps)
+      || !mIsEqual(bid.inl,coord.y,mDefEps)
+      || !mIsEqual(bid.crl,coord.y,mDefEps) )
     {
+	putAt( 13, 6, 75, "Survey setup:" );
 	char* pbuf = buf.buf();
 	coord = SI().transform( bid );
 	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
-	putAt( 12, 6, 75, buf );
+	putAt( 14, 6, 75, buf );
 	bid.crl = SI().sampling(false).hrg.stop.crl;
 	coord = SI().transform( bid );
 	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
-	putAt( 13, 6, 75, buf );
+	putAt( 15, 6, 75, buf );
 	bid.inl = SI().sampling(false).hrg.stop.inl;
 	bid.crl = SI().sampling(false).hrg.start.crl;
 	coord = SI().transform( bid );
 	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
-	putAt( 14, 6, 75, buf );
+	putAt( 16, 6, 75, buf );
     }
 
     if ( !SI().zIsTime() )
@@ -151,65 +152,44 @@ void SEGY::TxtHeader::setUserInfo( const char* infotxt )
 }
 
 
-#define mPutBytePos(line,s,memb) \
-    buf = s; buf += (int)thd.memb; \
-    putAt( line, 6, 6+buf.size(), buf )
-#define mPutBytePosSize(line,s,memb) \
-    buf = s; buf += (int)thd.memb; \
-    buf += " ("; buf += (int)thd.memb##bytesz; buf += "-byte int)"; \
-    putAt( line, 6, 6+buf.size(), buf )
-
 void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
 {
-    BufferString buf;
-    buf = "Byte positions (in addition to REV. 1 standard positions):";
-    putAt( 5, 6, 6+buf.size(), buf );
-    mPutBytePos( 6, "X-coordinate: ", xcoord );
-    mPutBytePos( 7, "Y-coordinate: ", ycoord );
 
-    if ( sInfo2D )
+    putAt( 7, 6, 75, "Positions according to the SEG-Y Rev. 1 standard." );
+    if ( !sInfo2D ) return;
+
+    BufferString txt( "Trace number at byte: ", (int)thd.trnr, " (" );
+    txt += (int)thd.trnrbytesz; txt += " bytes)";
+    putAt( 8, 6, 6+txt.size(), txt.buf() );
+
+    if ( !thd.linename.isEmpty() )
     {
-	mPutBytePosSize( 8, "Trace number: ", trnr );
-	if ( !thd.linename.isEmpty() )
-	{
-	    LineKey lk( thd.linename );
-	    putAt( 3, 6, 20, "Line name:" );
-	    putAt( 3, 20, 75, lk.lineName() );
-	    putAt( 3, 45, 75, lk.attrName() );
-	}
-	if ( thd.pinfo )
-	{
-	    putAt( 4, 6, 20, "CDP range: " );
-	    BufferString posstr;
-	    posstr = thd.pinfo->crlrg.start;
-	    putAt( 4, 20, 30, posstr );
-	    posstr = thd.pinfo->crlrg.stop;
-	    putAt( 4, 30, 75, posstr );
-	}
-	buf = "2-D line";
+	LineKey lk( thd.linename );
+	putAt( 4, 6, 20, "Line name:" );
+	putAt( 4, 20, 75, lk.lineName() );
+	putAt( 4, 45, 75, lk.attrName() );
     }
-    else
+    if ( thd.pinfo )
     {
-	mPutBytePosSize( 8, "In-line:      ", inl );
-	mPutBytePosSize( 9, "X-line:       ", crl );
-	buf = "I/X bytes: "; buf += (int)thd.inl;
-	buf += " and "; buf += (int)thd.crl;
+	BufferString txt( "Trace number range: ",
+			  thd.pinfo->crlrg.start, " - " );
+	txt += thd.pinfo->crlrg.stop;
+	putAt( 5, 6, 75, txt );
     }
-    putAt( 36, 6, 75, buf );
+
+    putAt( 36, 6, 75, "2-D line" );
 }
 
 
 void SEGY::TxtHeader::setStartPos( float sp )
 {
-    BufferString buf;
-    if ( !mIsZero(sp,mDefEps) )
-    {
-	buf = "First sample ";
-	buf += SI().zIsTime() ? "time " : "depth ";
-	buf += SI().getZUnitString(); buf += ": ";
-	buf += sp * SI().zFactor();
-    }
-    putAt( 37, 6, 75, buf );
+    if ( mIsZero(sp,mDefEps) ) return;
+
+    BufferString txt( "First sample ", SI().zIsTime() ? "time " : "depth ",
+	    	      SI().getZUnitString() );
+    txt += ": "; txt += sp * SI().zFactor();
+    putAt( 10, 6, 75, txt );
+    putAt( 11, 10, 75, "(in bytes 109 (+) and 105 (-) of the trace header)");
 }
 
 
