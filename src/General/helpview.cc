@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.40 2009-08-21 08:46:43 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.41 2009-08-27 10:01:41 cvsbert Exp $";
 
 #include "helpview.h"
 
@@ -250,17 +250,30 @@ bool HelpViewer::getCreditsData( const char* fnm, IOPar& iop )
 }
 
 
-BufferString HelpViewer::getCreditsURLForWinID( const char* winid )
+const char* HelpViewer::getCreditsSpecificFileName( const char* winid )
 {
     IOPar iop;
     const BufferString cfnm( getCreditsFileName(winid) );
     if ( !getCreditsData(cfnm,iop) )
-	return BufferString( GetDocFileDir(sNotInstHtml) );
+	return 0;
 
-    const char* val = iop.find( unScoped(winid) );
-    if ( !val || !*val )
+    static BufferString ret; ret = iop.find( unScoped(winid) );
+    return ret.isEmpty() ? 0 : ret.buf();
+}
+
+
+BufferString HelpViewer::getCreditsURLForWinID( const char* winid )
+{
+    const char* fnm = getCreditsSpecificFileName( winid );
+    if ( !fnm || !*fnm )
 	return BufferString( GetDocFileDir(sNotFoundHtml) );
     
-    FilePath fp( cfnm ); fp.setFileName( val );
+    FilePath fp( getCreditsFileName(winid) ); fp.setFileName( fnm );
     return BufferString( fp.fullPath() );
+}
+
+
+bool HelpViewer::hasSpecificCredits( const char* winid )
+{
+    return getCreditsSpecificFileName(winid);
 }
