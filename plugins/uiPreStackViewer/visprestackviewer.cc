@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.57 2009-08-18 18:10:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.58 2009-08-27 21:42:04 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -507,6 +507,9 @@ void Viewer3D::dataChangedCB( CallBacker* )
 	offsetrange_.setFrom( fdp->posData().range( true ) );
 	zrg_.setFrom( fdp->posData().range( false ) );
     }
+
+    if ( !offsetrange_.width() )
+      	offsetrange_.stop = 25;
 
     Coord startpos( bid_.inl, bid_.crl );
     if ( seis2d_ )
