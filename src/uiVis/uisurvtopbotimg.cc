@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvtopbotimg.cc,v 1.5 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvtopbotimg.cc,v 1.6 2009-08-27 15:55:32 cvshelene Exp $";
 
 #include "uisurvtopbotimg.h"
 #include "vistopbotimage.h"
@@ -118,7 +118,7 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 					    visSurvey::Scene* scene )
     : uiDialog(p, uiDialog::Setup("Top/Bottom Images",
 				  "Set Top and/or Bottom Images",
-				  mTODOHelpID) )
+				  "50.0.13") )
     , scene_( scene )
 {
     setCtrlStyle( LeaveOnly );

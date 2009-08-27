@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.15 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.16 2009-08-27 15:55:32 cvshelene Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -203,7 +203,7 @@ uiReadMarkerFile( uiParent* p )
     fnmfld_->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, mTODOHelpID );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "107.1.9" );
     dataselfld_->attach( alignedBelow, fnmfld_ );
 
     replfld_ = new uiGenInput( this, "Existing markers (if any)",

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarrowdlg.cc,v 1.5 2009-07-22 16:01:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiarrowdlg.cc,v 1.6 2009-08-27 15:55:32 cvshelene Exp $";
 
 
 #include "uiarrowdlg.h"
@@ -22,7 +22,7 @@ static const char* arrowtypes[] = { "Top", "Bottom", "Both", 0 };
 
 
 uiArrowDialog::uiArrowDialog( uiParent* p )
-    : uiDialog(p,Setup("Arrow properties",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,Setup("Arrow properties",mNoDlgTitle,"50.0.14"))
     , propertyChange(this)
 {
     setCancelText(0);

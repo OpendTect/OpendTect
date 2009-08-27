@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.6 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.7 2009-08-27 15:55:32 cvshelene Exp $";
 
 #include "uiselectvelocityfunction.h"
 
@@ -170,7 +170,7 @@ void uiFunctionSel::colorChanged(CallBacker*)
 
 uiAddFunction::uiAddFunction( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Add velocity function source",0,
-				   "dgb:104.1.0") )
+				   "103.6.6") )
     , typesel_( 0 )
 {
     const BufferStringSet& sourceclasses =
@@ -221,7 +221,7 @@ bool uiAddFunction::acceptOK(CallBacker*)
 
 uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
     : uiDialog( p, uiDialog::Setup("Edit velocity functions",0,
-				   "dgb:104.1.1") )
+				   "103.6.9") )
     , dlggrp_( 0 )
 {
     dlggrp_ = uiFunctionSettings::factory().create( 0, this, vfs, false );

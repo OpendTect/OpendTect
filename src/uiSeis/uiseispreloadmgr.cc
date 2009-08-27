@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.17 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.18 2009-08-27 15:55:32 cvshelene Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -40,7 +40,7 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.17 2009-07-22 16:01:42 
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup("Pre-load manager","Pre-loaded seismic data",
-			mTODOHelpID))
+			"103.0.13"))
 {
     setCtrlStyle( LeaveOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
@@ -264,7 +264,7 @@ public:
 
 uiSeisPreLoadMgrSel2D( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Preload selection","Select lines/attributes",
-				 mTODOHelpID))
+				 "103.0.14"))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
     ctio_.ctxt.trglobexpr = "2D";

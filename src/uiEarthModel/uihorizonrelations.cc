@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.16 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.17 2009-08-27 15:55:32 cvshelene Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -36,7 +36,7 @@ static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.16 2009-08-21 10:11:4
 
 
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Horizon relations",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,Setup("Horizon relations",mNoDlgTitle,"104.2.2"))
     , is2d_( is2d )
 {
     read();
@@ -149,7 +149,7 @@ class HorizonModifyDlg : public uiDialog
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )
-    : uiDialog(p,Setup("Horizon relations","Solve crossings",mTODOHelpID))
+    : uiDialog(p,Setup("Horizon relations","Solve crossings","104.2.3"))
     , mid1_(mid1)
     , mid2_(mid2)
     , is2d_(is2d)

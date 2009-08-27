@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.23 2009-07-23 08:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.24 2009-08-27 15:55:32 cvshelene Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -55,7 +55,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    bool singlewell )
     : uiDialog(p,uiDialog::Setup("Create Attribute Log",
 				 "Specify parameters for the new attribute log",
-				 mTODOHelpID) )
+				 "107.3.2") )
     , nlamodel_(mdl)
     , wellnames_(wellnames)
     , singlewell_(singlewell)

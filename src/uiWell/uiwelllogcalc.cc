@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.9 2009-08-25 09:10:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelllogcalc.cc,v 1.10 2009-08-27 15:55:32 cvshelene Exp $";
 
 
 #include "uiwelllogcalc.h"
@@ -115,7 +115,7 @@ bool getInp( uiWellLogCalc::InpData& inpdata )
 uiWellLogCalc::uiWellLogCalc( uiParent* p, Well::LogSet& ls )
 	: uiDialog(p,uiDialog::Setup("Calculate new logs",
 				     "Specify inputs and outputs for new log",
-				     mTODOHelpID))
+				     "107.1.10"))
     	, wls_(ls)
     	, formfld_(0)
     	, nrvars_(0)

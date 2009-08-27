@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.65 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.66 2009-08-27 15:55:32 cvshelene Exp $";
 
 
 #include "uisurfaceman.h"
@@ -71,7 +71,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
                                      mGetManageStr(typ),
                                      "104.2.0").nrstatusflds(1),
 		   mGetIoContext(typ) )
-    , attribfld(0)
+    , attribfld_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
@@ -86,9 +86,9 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 
     if ( mGet(typ,true,true,true,false,false) )
     {
-	attribfld = new uiListBox( this, "Calculated attributes", true );
-	attribfld->attach( rightOf, selgrp );
-	attribfld->setToolTip( "Calculated attributes" );
+	attribfld_ = new uiListBox( this, "Calculated attributes", true );
+	attribfld_->attach( rightOf, selgrp );
+	attribfld_->setToolTip( "Calculated attributes" );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( this );
 	butgrp->addButton( uiManipButGrp::Remove,
@@ -97,7 +97,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	butgrp->addButton( uiManipButGrp::Rename,
 			   mCB(this,uiSurfaceMan,renameAttribCB),
 			   "Rename selected attribute" );
-	butgrp->attach( rightTo, attribfld );
+	butgrp->attach( rightTo, attribfld_ );
 
 	uiPushButton* stratbut =
 	    new uiPushButton( this, "&Stratigraphy", false );
@@ -107,10 +107,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	uiPushButton* relbut = new uiPushButton( this, "&Relations", false );
 	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
 	relbut->attach( rightTo, stratbut );
-	relbut->attach( ensureBelow, attribfld );
+	relbut->attach( ensureBelow, attribfld_ );
 	infofld->attach( ensureBelow, relbut );
     }
 
+    lvlfld_ = new uiStratLevelSel( this );
+    lvlfld_->attach( alignedBelow, infofld );
     selChg( this ); 
 }
 
@@ -180,7 +182,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
     }
 
     BufferStringSet attrnms;
-    attribfld->getSelectedItems( attrnms );
+    attribfld_->getSelectedItems( attrnms );
     if ( attrnms.isEmpty() || 
 	    !uiMSG().askRemove("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
@@ -205,13 +207,13 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    const char* attribnm = attribfld->getText();
+    const char* attribnm = attribfld_->getText();
     BufferString titl( "Rename '" ); titl += attribnm; titl += "'";
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(attribnm) );
     if ( !dlg.go() ) return;
 
     const char* newnm = dlg.text();
-    if ( attribfld->isPresent(newnm) )
+    if ( attribfld_->isPresent(newnm) )
 	mErrRet( "Name is already in use" )
 
     const BufferString filename =
@@ -268,12 +270,12 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 
 void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
 {
-    if ( !attribfld ) return;
+    if ( !attribfld_ ) return;
 
-    attribfld->empty();
+    attribfld_->empty();
     for ( int idx=0; idx<strs.size(); idx++)
-	attribfld->addItem( strs[idx]->buf() );
-    attribfld->selectAll( false );
+	attribfld_->addItem( strs[idx]->buf() );
+    attribfld_->selectAll( false );
 }
 
 
@@ -453,7 +455,7 @@ void uiSurfaceMan::stratSel( CallBacker* )
 
 uiSurface2DMan::uiSurface2DMan( uiParent* p, const SurfaceIOData& sd )
     :uiDialog(p,uiDialog::Setup("Surface file management","Manage 2D horizons",
-				mTODOHelpID))
+				"104.2.1"))
     , sd_(sd)
 {
     setCtrlStyle( LeaveOnly );

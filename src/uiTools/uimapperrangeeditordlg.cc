@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.11 2009-07-22 16:01:42 cvsbert Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.12 2009-08-27 15:55:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,8 @@ ________________________________________________________________________
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
        						DataPackMgr::ID dmid )
     : uiDialog( p,uiDialog::Setup("Histogram",
-				  mNoDlgTitle,mTODOHelpID).modal(false)
-	    						  .menubar(true) )
+				  mNoDlgTitle,"50.0.12").modal(false)
+	    						.menubar(true) )
     , activeattrbid_(-1)
     , activectbmapper_(0)	      
     , rangeChange(this)

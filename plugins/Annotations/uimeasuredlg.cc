@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.14 2009-08-03 12:10:42 cvsraman Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.15 2009-08-27 15:55:32 cvshelene Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.14 2009-08-03 12:10:42 cvsr
 
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
-    : uiDialog( p, Setup("Measured Distance",mNoDlgTitle,mTODOHelpID)
+    : uiDialog( p, Setup("Measured Distance",mNoDlgTitle,"50.0.15")
 	    		.modal(false) )
     , ls_(*new LineStyle)
     , appvelfld_(0)
