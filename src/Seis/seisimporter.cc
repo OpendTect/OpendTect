@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.22 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.23 2009-08-27 13:45:02 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -376,9 +376,12 @@ int doFinal()
     if ( !File_remove(targetfnm_,mFile_NotRecursive)
       || !File_rename(tmpfnm,targetfnm_) )
     {
-	errmsg_ = "Cannot rename the swapped in/crossline cube";
-	errmsg_ += "Please rename (by hand):\n";
-	errmsg_ += tmpfnm; errmsg_ += "\nto:"; errmsg_ += targetfnm_;
+	errmsg_ = "Your input data is cross-line sorted.\n"
+	    	  "OpendTect has re-sorted to in-line sorting.\n"
+		  "Unfortunately, the last step in the process failed.\n"
+		  "Could not rename: '";
+	errmsg_ += tmpfnm; errmsg_ += "'\nto: '"; errmsg_ += targetfnm_;
+	errmsg_ += "'\nPlease do this yourself, by hand.";
 	return Executor::ErrorOccurred();
     }
 
