@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.63 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.64 2009-08-27 17:08:10 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -80,6 +80,7 @@ public:
     inline			Array1DImpl(const Array1DImpl<T>&);
     inline			~Array1DImpl();
 
+    inline bool			isOK() const { return stor_ && stor_->isOK(); }
     inline void			copyFrom(const Array1D<T>&);
     inline bool			setStorage(ValueSeries<T>*);
     inline bool			canSetStorage() const		{ return true; }
@@ -115,6 +116,7 @@ public:
 			Array2DImpl(const Array2DImpl<T>&);
 			~Array2DImpl();
 
+    inline bool		isOK() const { return stor_ && stor_->isOK(); }
     bool		canSetStorage() const			{ return true; }
     bool		setStorage(ValueSeries<T>*);
 
@@ -150,6 +152,7 @@ public:
 
     inline			~Array3DImpl();
 
+    inline bool			isOK() const { return stor_ && stor_->isOK(); }
     inline bool			canSetStorage() const		{ return true; }
     inline bool			setStorage(ValueSeries<T>*);
 
@@ -181,6 +184,7 @@ public:
     inline			ArrayNDImpl(const ArrayNDImpl<T>&,bool f=false);
     inline			~ArrayNDImpl();
 
+    inline bool			isOK() const { return stor_ && stor_->isOK(); }
     inline bool			canSetStorage() const		{ return true; }
     inline bool			setStorage(ValueSeries<T>*);
 
