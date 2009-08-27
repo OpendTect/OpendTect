@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Aug 2009
- RCS:		$Id: posimpexppars.h,v 1.4 2009-08-26 09:32:43 cvsbert Exp $
+ RCS:		$Id: posimpexppars.h,v 1.5 2009-08-27 03:05:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class IOPar;
 #define mPIEPAdj(what,v,inw) PosImpExpPars::SVY().adjust##what(v,inw)
 
 
-class PosImpExpPars : public CallBacker
+mClass PosImpExpPars : public CallBacker
 {
 public:
 
