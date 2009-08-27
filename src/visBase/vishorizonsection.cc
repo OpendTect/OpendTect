@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.79 2009-08-26 18:14:15 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.80 2009-08-27 13:34:09 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -722,6 +722,10 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zshift,
     {
 	const BinID bid = geometry_->getKnotRowCol(idx);
 	if ( !displayrrg_.includes(bid.inl) || !displaycrg_.includes(bid.crl) )
+	    continue;
+
+	if ( ((bid.inl-displayrrg_.start)%displayrrg_.step) ||
+	     ((bid.crl-displaycrg_.start)%displaycrg_.step) )
 	    continue;
 
 	const Coord3 pos = geometry_->getKnot(bid,false);
