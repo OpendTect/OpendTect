@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.19 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.20 2009-08-27 19:47:22 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -186,8 +186,17 @@ bool BinIDSurface::removeRow( int start, int stop )
 
     const int nrremoved = stopidx-startidx+1;
 
-    Array2D<float>* newpositions = 
-	depths_ ? new Array2DImpl<float>( curnrrows-nrremoved, curnrcols ) : 0;
+    Array2D<float>* newpositions =  0;
+    if ( depths_ )
+    {
+	mTryAlloc( newpositions,
+		   Array2DImpl<float>( curnrrows-nrremoved, curnrcols ) );
+	if ( !newpositions || !newpositions->isOK() )
+	{
+	    delete newpositions;
+	    return false; //out of memory
+	}
+    }
     
     for ( int idx=0; newpositions && idx<curnrrows-nrremoved; idx++ )
     {
@@ -221,8 +230,17 @@ bool BinIDSurface::removeCol( int start, int stop )
 
     const int nrremoved = stopidx-startidx+1;
 
-    Array2D<float>* newpositions = 
-	depths_ ? new Array2DImpl<float>( curnrrows, curnrcols-nrremoved ) : 0;
+    Array2D<float>* newpositions =  0;
+    if ( depths_ )
+    {
+	mTryAlloc( newpositions,
+		   Array2DImpl<float>( curnrrows, curnrcols-nrremoved ) );
+	if ( !newpositions || !newpositions->isOK() )
+	{
+	    delete newpositions;
+	    return false; //out of memory
+	}
+    }
 
     for ( int idx=0; newpositions && idx<curnrrows; idx++ )
     {
@@ -262,8 +280,11 @@ bool BinIDSurface::expandWithUdf( const RCol& start, const RCol& stop )
 
     if ( oldnrrows==newnrrows && oldnrcols==newnrcols )
 	return true;
-    
-    Array2D<float>* newdepths = new Array2DImpl<float>( newnrrows, newnrcols );
+   
+    mDeclareAndTryAlloc( Array2D<float>*, newdepths,
+	    		 Array2DImpl<float>( newnrrows, newnrcols ) );
+    if ( !newdepths || !newdepths->isOK() )
+	return false;
 
     for ( int idx=0; newdepths && idx<newnrrows; idx++ )
     {
