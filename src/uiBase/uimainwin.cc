@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.186 2009-08-21 08:46:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.187 2009-08-27 10:14:24 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.186 2009-08-21 08:46:43 cvsber
 #include "oddirs.h"
 #include "pixmap.h"
 #include "timer.h"
+#include "iopar.h"
 
 #include <iostream>
 
@@ -1182,9 +1183,7 @@ public:
     void		setSeparator( bool yn )	{ setup.separator_ = yn; }
     bool		separator() const	{ return setup.separator_; }
     void		setHelpID( const char* id ) { setup.helpid_ = id; }
-    void		setHaveCredits( bool yn ) { setup.havecredits_ = yn;}
     const char*		helpID() const		{ return setup.helpid_; }
-    bool		haveCredits() const	{ return setup.havecredits_; }
 
     void		setDlgGrp( uiGroup* cw )	{ dlgGroup=cw; }
 
@@ -1596,6 +1595,14 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 }
 
 
+bool uiDialog::haveCredits() const
+{
+    return HelpViewer::hasSpecificCredits( helpID() );
+}
+
+
+
+
 int uiDialog::go()				{ return mBody->exec(); }
 const uiDialog::Setup& uiDialog::setup() const	{ return mBody->getSetup(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
@@ -1613,8 +1620,6 @@ uiButton* uiDialog::button(Button b)		{ return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
 void uiDialog::setHelpID( const char* id )	{ mBody->setHelpID(id); }
-void uiDialog::setHaveCredits( bool yn )	{ mBody->setHaveCredits(yn); }
-bool uiDialog::haveCredits() const		{ return mBody->haveCredits(); }
 const char* uiDialog::helpID() const		{ return mBody->helpID(); }
 int uiDialog::uiResult() const			{ return mBody->uiResult(); }
 void uiDialog::setButtonSensitive(uiDialog::Button b, bool s ) 

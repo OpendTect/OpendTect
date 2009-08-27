@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.52 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.53 2009-08-27 10:14:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
 			, savebutton_(false), savebutispush_(false)
 			, separator_(true), menubar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
-			, fixedsize_(false), havecredits_(false)
+			, fixedsize_(false)
 			{}
 
 	mDefSetupMemb(BufferString,wintitle)
@@ -77,7 +77,6 @@ public:
 	mDefSetupMemb(bool,menubar)
 	mDefSetupMemb(bool,mainwidgcentered)
 	mDefSetupMemb(bool,fixedsize)
-	mDefSetupMemb(bool,havecredits)
 	mDefSetupMemb(int,nrstatusflds)
 	    //! nrstatusflds == -1: Make a statusbar, but don't add msg fields.
 
@@ -148,7 +147,6 @@ public:
     bool		separator() const;
     void		setHelpID(const char*);
     virtual const char*	helpID() const;
-    void		setHaveCredits(bool);
     bool		haveCredits() const;
 
 protected:
@@ -159,6 +157,7 @@ protected:
 
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;
+
 };
 
 #endif

@@ -1,11 +1,10 @@
-
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.18 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.19 2009-08-27 10:14:24 cvsbert Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -33,8 +32,6 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     	, geom_(gt)
     	, tst_(*new Tut::SeisTools)
 {
-    setHaveCredits( true );
-
     const CallBack choicecb( mCB(this,uiTutSeisTools,choiceSel) );
     const CallBack inpcb( mCB(this,uiTutSeisTools,inpSel) );
 

@@ -1,11 +1,10 @@
-
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.32 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.33 2009-08-27 10:14:24 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -46,7 +45,6 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     setCtrlStyle( uiDialog::DoAndStay );
     setHelpID( "103.5.0" );
     addStdFields( false, false, true );
-    setHaveCredits( true );
     createMenus();
 
     uiGroup* maingrp = new uiGroup( uppgrp_, "Main group" );
