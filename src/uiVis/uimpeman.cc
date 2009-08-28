@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.176 2009-08-13 11:58:16 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.177 2009-08-28 07:25:06 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.176 2009-08-13 11:58:16 cvsnage
 #include "mousecursor.h"
 #include "mpeengine.h"
 #include "pixmap.h"
+#include "sectionadjuster.h"
 #include "sectiontracker.h"
 #include "selector.h"
 #include "survinfo.h"
@@ -274,11 +275,28 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
 	return;
 
+    const Attrib::SelSpec* clickedas = 
+	clickcatcher->info().getObjDataSelSpec();
+
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker || !seedpicker->canSetSectionID() ||
 	 !seedpicker->setSectionID(emobj->sectionID(0)) ) 
     {
 	return;
+    }
+
+    if ( seedpicker->nrSeeds() > 0 )
+    {
+	const MPE::SectionTracker* sectiontracker =
+	    tracker->getSectionTracker(emobj->sectionID(0), true);
+	const Attrib::SelSpec* trackedatsel = sectiontracker
+	    ? sectiontracker->adjuster()->getAttributeSel(0) : 0;
+
+	if ( trackedatsel && (trackedatsel !=clickedas) )
+	{
+	    uiMSG().error( "Horizon has been tracked on different attribute ");
+	    return;
+	}
     }
 
     Coord3 seedpos;
@@ -310,19 +328,18 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
 	DataPack::ID datapackid = clickcatcher->info().getObjDataPackID();
-	const Attrib::SelSpec* as = clickcatcher->info().getObjDataSelSpec();
 
-	if ( as && h2dsp )
-	    h2dsp->setSelSpec( as );
+	if ( clickedas && h2dsp )
+	    h2dsp->setSelSpec( clickedas );
 
-	if ( !as || !h2dsp || !h2dsp->canAddSeed(*as) )
+	if ( !clickedas || !h2dsp || !h2dsp->canAddSeed(*clickedas) )
 	{
 	    uiMSG().error( "2D tracking requires attribute from setup "
 			   "to be displayed" );
 	    return;
 	}
 	if ( datapackid > DataPack::cNoID() )
-	    engine.setAttribData( *as, datapackid );
+	    engine.setAttribData( *clickedas, datapackid );
 
 	h2dsp->setLine( lset, lname );
 	if ( !h2dsp->startSeedPick() )
@@ -363,8 +380,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.setActiveVolume( newvolume );
 	    notifystopper.restore();
 
-	    const Attrib::SelSpec* clickedas = 
-				   clickcatcher->info().getObjDataSelSpec();
 	    if ( clickedas && !engine.cacheIncludes(*clickedas,newvolume) )
 	    {
 		DataPack::ID datapackid =
