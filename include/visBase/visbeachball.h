@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Aug 2009
- RCS:           $Id: visbeachball.h,v 1.5 2009-08-19 15:36:36 cvskarthika Exp $
+ RCS:           $Id: visbeachball.h,v 1.6 2009-08-28 12:42:41 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ protected:
 
     SoBeachBall*		ball_;
     SoMaterial*			material_;
+    SoMaterialBinding*		matbinding_;
     SoTranslation*      	translation_;
     UTMPosition*        	xyTranslation_;
     SoScale*			scale_;
