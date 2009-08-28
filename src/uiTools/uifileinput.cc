@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.47 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.48 2009-08-28 13:15:24 cvsbert Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -102,12 +102,15 @@ void uiFileInput::doSelect( CallBacker* )
     BufferString oldfltr = selfltr_;
     if ( fname.isEmpty() )	fname = defseldir_;
 
-    PtrMan<uiFileDialog> dlg = filedlgtype_ == uiFileDialog::Gen
+    const bool usegendlg = selmode_ == uiFileDialog::Directory
+			|| selmode_ == uiFileDialog::DirectoryOnly
+			|| filedlgtype_ == uiFileDialog::Gen;
+    PtrMan<uiFileDialog> dlg = usegendlg
 	? new uiFileDialog( this, forread_, fname, filter_ )
 	: new uiFileDialog( this, filedlgtype_, fname );
 
     dlg->setSelectedFilter( selfltr_ );
-    if ( filedlgtype_ == uiFileDialog::Gen )
+    if ( usegendlg )
     {
 	dlg->setAllowAllExts( addallexts_ );
 	if ( selmodset_ )
