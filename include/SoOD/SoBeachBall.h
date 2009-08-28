@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include <Inventor/SbColor.h>
 #include <Inventor/fields/SoSFFloat.h>
+#include <Inventor/fields/SoMFInt32.h>
 #include <Inventor/nodes/SoShape.h>
 #include "soodbasic.h"
 
@@ -24,6 +25,9 @@ class SoBeachBall : public SoShape
     SO_NODE_HEADER(SoBeachBall);
 
 public:
+    // field for specifying material indices for indexed binding
+    SoMFInt32			materialIndex;
+
     				SoBeachBall();
     static void			initClass();
 
@@ -52,6 +56,8 @@ protected:
     virtual void 		generatePrimitives(SoAction *action);
     virtual void 		computeBBox(SoAction *action, SbBox3f &box, 
 	    				    SbVec3f &center);
+    virtual void                rayPick(SoRayPickAction*);
+         
     virtual			~SoBeachBall();
     
     static void			initTriangles();
@@ -88,6 +94,8 @@ protected:
 	   					SbList<SbVec3f>* pNormalsList,
 						SbBool sendNormals);
     SbBool			testNumColors( SoState *state );
+    static void			tryAddIntersection(SoRayPickAction* action,
+	    					   const SbVec3f& pt);
     static void			printDebugInfo();
     static void			printTriangles(SbList<int>& triList,
 	    		  		       SbList<SbVec3f>& normalsList);
