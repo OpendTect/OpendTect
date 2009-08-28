@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.7 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.8 2009-08-28 15:13:16 cvsjaap Exp $";
 
 #include "vispolygonselection.h"
 
@@ -174,23 +174,14 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 	    coords[idx] = transformation_->transform( coords[idx] );
     }
 
-    Interval<double> xrg, yrg;
-    Coord screenpts[8];
+    ODPolygon<double> screenpts;
+
     for ( int idx=0; idx<8; idx++ )
     {
 	const SbVec2f pt = selector_->projectPoint(
 	    SbVec3f(coords[idx].x,coords[idx].y,coords[idx].z ) );
-	screenpts[idx] = Coord( pt[0], pt[1] );
-	if ( !idx )
-	{
-	    xrg.start = xrg.stop = pt[0];
-	    yrg.start = yrg.stop = pt[1];
-	}
-	else
-	{
-	    xrg.include( pt[0] );
-	    yrg.include( pt[1] );
-	}
+
+	screenpts.add( Coord(pt[0],pt[1]) );
     }
 
     polygonlock_.readLock();
@@ -207,28 +198,12 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 	polygonlock_.convWriteToReadLock();
     }
 
-    if ( !polygon_->windowOverlaps( xrg, yrg, 1e-3 ) )
-    {
-	polygonlock_.readUnLock();
-	return 0;
-    }
-
-    bool allin = true;
-    bool somein = false;
-    for ( int idx=0; idx<8; idx++ )
-    {
-	if ( polygon_->isInside( screenpts[idx], true, 1e-3 ) )
-	    somein = true;
-	else
-	    allin = false;
-    }
+    screenpts.convexHull();
+    const bool res = polygon_->isInside( screenpts );
 
     polygonlock_.readUnLock();
 
-    if ( !somein )
-	return 0;
-
-    return allin ? 2 : 1;
+    return res; 
 }
 
 
