@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.15 2009-08-28 10:44:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.16 2009-08-28 15:58:22 cvsbruno Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.15 2009-08-28 10:44:31 cvsb
 
 
 uiSEGYDefDlg::Setup::Setup()
-    : uiDialog::Setup("SEG-Y: first step","Specify basic properties",mTODOHelpID)
+    : uiDialog::Setup("SEG-Y tool","Specify basic properties","103.0.6")
     , defgeom_(Seis::Vol)
 {
 }

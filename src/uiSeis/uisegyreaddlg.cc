@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.9 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.10 2009-08-28 15:58:22 cvsbruno Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.9 2009-07-22 16:01:41 cvsb
 
 
 uiSEGYReadDlg::Setup::Setup( Seis::GeomType gt )
-    : uiDialog::Setup("SEG-Y Scan",mNoDlgTitle,mTODOHelpID)
+    : uiDialog::Setup("SEG-Y Scan",mNoDlgTitle,"103.0.9")
     , geom_(gt) 
     , rev_(uiSEGYRead::Rev0)
 {

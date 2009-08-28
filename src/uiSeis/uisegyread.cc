@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.36 2009-08-28 10:44:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.37 2009-08-28 15:58:22 cvsbruno Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -223,7 +223,7 @@ class uiSEGYReadPreScanner : public uiDialog
 public:
 
 uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
-    : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0,mNoHelpID))
+    : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0,"103.0.10"))
     , pars_(pars)
     , geom_(gt)
     , scanner_(0)
@@ -337,7 +337,7 @@ class uiSEGYReadRev1Question : public uiDialog
 public:
 
 uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d )
-    : uiDialog(p,Setup("Determine SEG-Y revision",rev1info,mNoHelpID)
+    : uiDialog(p,Setup("Determine SEG-Y revision",rev1info,"103.0.8")
 	    	.modal(false) )
     , initialpol_(pol)
 {

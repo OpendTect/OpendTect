@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.20 2009-08-27 09:58:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.21 2009-08-28 15:58:22 cvsbruno Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -50,7 +50,7 @@ class uiSEGYExpTxtHeaderDlg : public uiDialog
 public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
-    : uiDialog(p,Setup("Define SEG-Y Text Header",txtheadtxt,mTODOHelpID))
+    : uiDialog(p,Setup("Define SEG-Y Text Header",txtheadtxt,"103.0.7"))
     , hdr_(hdr)
     , autogen_(ag)
 {
