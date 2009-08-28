@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.49 2009-08-25 14:22:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.50 2009-08-28 09:29:38 cvshelene Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -305,7 +305,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-		uiDialog::Setup( "Iso value selection", 0, mNoHelpID ) );
+		uiDialog::Setup( "Iso value selection", 0, "50.0.16" ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd) );
 	dlg.go();
 
