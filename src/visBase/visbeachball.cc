@@ -7,15 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.6 2009-08-20 19:40:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.7 2009-08-28 12:42:03 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
+#include "color.h"
+#include "UTMPosition.h"
 #include "iopar.h"
 
 #include "SoBeachBall.h"
-#include "color.h"
-#include "UTMPosition.h"
+
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoDrawStyle.h>
@@ -38,6 +39,7 @@ BeachBall::BeachBall()
     : VisualObjectImpl(true) 
     , ball_(new SoBeachBall)
     , material_(new SoMaterial)
+    , matbinding_(new SoMaterialBinding)
     , translation_(new SoTranslation)
     , xyTranslation_(0)
     , scale_(new SoScale)
@@ -51,10 +53,9 @@ BeachBall::BeachBall()
     material_->diffuseColor.set1Value( 1, SbColor( 1, 0, 0 ) );
     addChild( material_ );
 
-    SoMaterialBinding* matbinding = new SoMaterialBinding;
-    matbinding->ref();
-    matbinding->value = SoMaterialBinding::PER_PART_INDEXED;
-    addChild( matbinding );
+    matbinding_->ref();
+    matbinding_->value = SoMaterialBinding::PER_PART;
+    addChild( matbinding_ );
     
     translation_->ref();
     addChild( translation_ );
@@ -63,7 +64,7 @@ BeachBall::BeachBall()
     addChild( scale_ );
     
     ball_->ref();
-//    ball_->materialIndex = 
+    // Specify the materialIndex of ball_ if matbinding is PER_PART_INDEXED.
     addChild( ball_ );
 }
 
@@ -71,6 +72,7 @@ BeachBall::BeachBall()
 BeachBall::~BeachBall()
 {
     material_->unrefNoDelete();
+    matbinding_->unrefNoDelete();
     translation_->unrefNoDelete();
     scale_->unrefNoDelete();
     if (xyTranslation_)
@@ -175,27 +177,37 @@ float BeachBall::getRadius() const
 
 void BeachBall::setColor1( Color col )
 {
-    material_->diffuseColor.set1Value( 0, col.r(), col.g(), col.b() );
+    float r, g, b;
+    r = col.r()/255.0;
+    g = col.g()/255.0;
+    b = col.b()/255.0;
+    material_->diffuseColor.set1Value( 0, r, g, b );
 }
 
 
 Color BeachBall::getColor1() const
 {
     SbColor col = material_->diffuseColor[0];
-    return Color( (int)col[0], (int)col[1], (int)col[2] );
+    return Color( (unsigned char) (col[0]*255), (unsigned char) (col[1]*255), 
+	    (unsigned char) (col[2]*255) );
 }
 
 
 void BeachBall::setColor2( Color col )
 {
-    material_->diffuseColor.set1Value( 1, col.r(), col.g(), col.b() );
+    float r, g, b;
+    r = col.r()/255.0;
+    g = col.g()/255.0;
+    b = col.b()/255.0;
+    material_->diffuseColor.set1Value( 1, r, g, b );
 }
 
 
 Color BeachBall::getColor2() const
 {
     SbColor col = material_->diffuseColor[1];
-    return Color( (int)col[0], (int)col[1], (int)col[2] );
+    return Color( (unsigned char) (col[0]*255), (unsigned char) (col[1]*255), 
+	    (unsigned char) (col[2]*255) );
 }
 
 
@@ -212,7 +224,7 @@ void BeachBall::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int BeachBall::usePar( const IOPar& par )
 {
-    pErrMsg(" in usePar!");
+    pErrMsg("In usePar!");
     int res = VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
