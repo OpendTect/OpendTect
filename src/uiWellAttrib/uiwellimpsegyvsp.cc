@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.10 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.11 2009-08-28 10:43:00 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.10 2009-07-22 16:01:44 
 #include "keystrs.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "timer.h"
 
 
 class uiSEGYVSPBasicPars : public uiCompoundParSel
@@ -50,9 +51,22 @@ uiSEGYVSPBasicPars( uiWellImportSEGYVSP* p )
     : uiCompoundParSel( p, "SEG-Y input" )
     , imp_(*p)
     , fnm_("-")
+    , timr_(0)
 {
     butPush.notify( mCB(this,uiSEGYVSPBasicPars,selPush) );
-    finaliseDone.notify( mCB(this,uiSEGYVSPBasicPars,doSel) );
+    finaliseDone.notify( mCB(this,uiSEGYVSPBasicPars,initWin) );
+}
+
+~uiSEGYVSPBasicPars()
+{
+    delete timr_;
+}
+
+void initWin( CallBacker* )
+{
+    timr_ = new Timer( "uiSEGYVSPBasicPars: initial setup popup" );
+    timr_->tick.notify( mCB(this,uiSEGYVSPBasicPars,doSel) );
+    timr_->start( 100, true );
 }
 
 void selPush( CallBacker* )
@@ -112,6 +126,7 @@ BufferString getSummary() const
 
     uiWellImportSEGYVSP& imp_;
     BufferString	fnm_;
+    Timer*		timr_;
 
 };
 
@@ -119,7 +134,7 @@ BufferString getSummary() const
 uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Zero-offset VSP",
 				 "Import Zero-offset VSP as Well Log",
-				 mTODOHelpID) )
+				 "107.0.3") )
     , istimefld_(0)
     , unitfld_(0)
     , ctio_(*mMkCtxtIOObj(Well))
