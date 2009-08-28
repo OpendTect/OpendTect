@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.26 2009-07-30 09:47:24 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.27 2009-08-28 13:38:55 cvshelene Exp $";
 
 #include "uiseislinesel.h"
 
@@ -209,7 +209,7 @@ void uiSeis2DLineNameSel::setLineSet( const MultiID& ky )
 
 uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
-				   mNoDlgTitle,mTODOHelpID) )
+				   mNoDlgTitle,"50.0.17") )
     , lsctio_(lsctio)
 {
     linesetfld_ = new uiSeisSel( this, lsctio_,

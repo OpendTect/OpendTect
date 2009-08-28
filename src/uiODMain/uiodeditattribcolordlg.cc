@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodeditattribcolordlg.cc,v 1.15 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodeditattribcolordlg.cc,v 1.16 2009-08-28 13:38:55 cvshelene Exp $";
 
 #include "uiodeditattribcolordlg.h"
 
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: uiodeditattribcolordlg.cc,v 1.15 2009-07-22 16:
 uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 						ObjectSet<uiTreeItem>& set,
 						const char* attrnm )
-    : uiDialog(p,uiDialog::Setup("Color Settings",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("Color Settings",mNoDlgTitle,"50.1.5"))
     , items_(set)
     , uicoltab_( 0 )
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.4 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.5 2009-08-28 13:38:55 cvshelene Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -55,6 +55,7 @@ uiContourParsDlg( uiParent* p, const Interval<float>& rg,
 {
     setCaption( "Contour Display Options" );
     setTitleText( mNoDlgTitle );
+    setHelpID( "104.3.2" );
     BufferString lbltxt = "Z Range "; lbltxt += SI().getZUnitString();
     lbltxt += ": "; lbltxt += mNINT( rg.start );
     lbltxt += " to "; lbltxt += mNINT( rg.stop );
