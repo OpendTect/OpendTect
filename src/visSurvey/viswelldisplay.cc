@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.109 2009-08-25 16:11:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.110 2009-08-28 12:45:12 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 
@@ -95,10 +95,18 @@ Well::Data* WellDisplay::getWD() const
     if ( !wd_ )
     {
 	WellDisplay* self = const_cast<WellDisplay*>( this );
-	self->wd_ = Well::MGR().get( wellid_, false );
-	if ( self->wd_ )
-	    self->wd_->tobedeleted.notify(
+	Well::Data* wd = Well::MGR().get( wellid_, false );
+	self->wd_ = wd;
+	if ( wd )
+	{
+	    wd->tobedeleted.notify(
 		    mCB(self,WellDisplay,welldataDelNotify) );
+	    wd->trackchanged.notify( mCB(self,WellDisplay,fullRedraw) );
+	    wd->markerschanged.notify( mCB(self,WellDisplay,updateMarkers) );
+	    wd->dispparschanged.notify( mCB(self,WellDisplay,fullRedraw) );
+	    if ( zistime_ )
+		wd->d2tchanged.notify( mCB(self,WellDisplay,fullRedraw) );
+	}
     }
     return wd_;
 }
@@ -209,14 +217,10 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
     {
 	if ( !d2t )
 	    mErrRet( "No depth to time model defined" )
-	wd->d2tchanged.notify( mCB(this,WellDisplay,fullRedraw) );
     }
 
     wellid_ = multiid;
     fullRedraw(0);
-    wd->trackchanged.notify( mCB(this,WellDisplay,fullRedraw) );
-    wd->markerschanged.notify( mCB(this,WellDisplay,updateMarkers) );
-    wd->dispparschanged.notify( mCB(this,WellDisplay,fullRedraw) );
 
     return true;
 }
