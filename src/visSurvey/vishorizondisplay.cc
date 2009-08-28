@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.111 2009-08-28 02:32:59 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.112 2009-08-28 20:57:06 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1262,10 +1262,34 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( !mIsUdf(fval) )
 	{
 	    val = fval;
-	    if ( as_.size() > 1 )
+	    float attribshift = 0;
+	    const TypeSet<float>& attribshifts = *shifts_[idx];
+	    const int version = selectedTexture( idx );
+	    if ( attribshifts.validIdx(version) )
+		attribshift = attribshifts[version] * SI().zFactor();
+
+	    const float zshift = getTranslation().z*SI().zFactor();
+
+	    const bool hasshift = !mIsZero(attribshift,0.1) ||
+				  !mIsZero(zshift,0.1);
+ 	    if ( as_.size() > 1 || hasshift )
 	    {
 		BufferString channelstr = "(";
-		channelstr += as_[idx]->userRef();
+		bool first = true;
+		if ( as_.size()>1 )
+		{
+		    channelstr += as_[idx]->userRef();
+		    first = false;
+		}
+
+		if ( hasshift )
+		{
+		    if ( !first )
+			channelstr += ", ";
+		    channelstr += "shift=";
+		    channelstr += attribshift;
+		}
+
 		channelstr += ")";
 		val.replaceAt( cValNameOffset(), channelstr );
 	    }
