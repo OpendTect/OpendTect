@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.80 2009-08-27 13:34:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.81 2009-08-28 01:49:06 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -733,17 +733,24 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zshift,
 	    continue;
 
 	float zval = pos.z;
-	if ( zaxistransform_ && zshift )
+	if ( zshift )
 	{
-	    zval = zaxistransform_->transform( BinIDValue(bid,zval) );
-	    if ( mIsUdf(zval) )
-		continue;
+	    if ( zaxistransform_ )
+	    {
+		zval = zaxistransform_->transform( BinIDValue(bid,zval) );
+		if ( mIsUdf(zval) )
+		    continue;
 
-	    zval += zshift;
-	    zval = zaxistransform_->transformBack( BinIDValue(bid,zval) );
+		zval += zshift;
+		zval = zaxistransform_->transformBack( BinIDValue(bid,zval) );
 
-	    if ( mIsUdf(zval) )
-		continue;
+		if ( mIsUdf(zval) )
+		    continue;
+	    }
+	    else
+	    {
+		zval += zshift;
+	    }
 	}
 
 	vals[0] = zval;
