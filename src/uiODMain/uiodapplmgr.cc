@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.352 2009-08-21 06:31:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.353 2009-08-28 19:04:47 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -553,9 +553,13 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 		return false;
 	    DPM( DataPackMgr::PointID() ).addAndObtain( data );
 
-	    emserv_->getAuxData( emid, auxdatanr, *data );
+	    TypeSet<float> shifts( 1, 0 );
+	    emserv_->getAuxData( emid, auxdatanr, *data, shifts[0] );
 	    createAndSetMapDataPack( visid, attrib, *data, 2 );
 	    DPM( DataPackMgr::PointID() ).release( data->id() );
+	    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
+			    visserv_->getObject(visid) );
+	    vishor->setAttribShift( attrib, shifts );
 	}
 
 	return auxdatanr>=0;
@@ -579,6 +583,11 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     //Use the first value stored in the set, what else? (0 stands for Z)
     createAndSetMapDataPack( visid, attrib, *data, firstcol );
     DPM( DataPackMgr::PointID() ).release( data->id() );
+
+    TypeSet<float> shifts( 1, visserv_->getTranslation(visid).z );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
+		    visserv_->getObject(visid) );
+    vishor->setAttribShift( attrib, shifts );
 
     return true;
 }
@@ -968,11 +977,12 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
     {
 	const int textureidx = emattrserv_->textureIdx();
 	visserv_->setTranslation( visid, Coord3(0,0,emattrserv_->getShift()) );
-	for ( int idx=0; idx<visserv_->getNrAttribs(visid); idx++ )
-	    visserv_->enableAttrib( visid, idx, idx==attribidx );
-
 	if ( !mIsUdf(attribidx) )
 	    visserv_->selectTexture( visid, attribidx, textureidx );
+
+	uiTreeItem* parent = sceneMgr().findItem( visid );
+	if ( parent )
+	    parent->updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( evid == uiEMAttribPartServer::evStoreShiftHorizons() )
     {
@@ -1070,11 +1080,6 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 		    }
 
 		    visserv_->setRandomPosData( visid, attribidx, &data );
-		}
-		else
-		{
-		    visserv_->enableAttrib( visid, idx, 
-			calcRandomPosAttrib(visid,idx) && enableattrib[idx] );
 		}
 	    }
 	}
