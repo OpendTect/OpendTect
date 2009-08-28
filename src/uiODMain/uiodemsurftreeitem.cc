@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.63 2009-08-24 20:11:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.64 2009-08-28 19:02:07 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.63 2009-08-24 20:11:5
 #include "uivisemobj.h"
 #include "uivispartserv.h"
 #include "visemobjdisplay.h"
+#include "vishorizondisplay.h"
 
 
 uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
@@ -288,22 +289,15 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<DataPointSet::DataRow> pts;
 	DataPointSet vals( pts, attrnms, false, true );
 	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
-	if ( shifts.size()<1 )
-	    return;
-
-	const float curshift = visserv->getTranslation( visid ).z;
-	if ( !mIsEqual(curshift,shifts[0],SI().zRange(true).step) )
-	{
-	    uiMSG().error( "Selected attribute has a different shift than "
-		    "the Horizon" );
-	    return;
-	}
-
 	FixedString attrnm = vals.colDef( 0 ).name_.buf();
 	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->createAndDispDataPack( visid, attribnr, &vals );
 	visserv->selectTexture( visid, attribnr, 0 );
+
+	mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
+			visserv->getObject(visid) );
+	vishor->setAttribShift( attribnr, shifts );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
