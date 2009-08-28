@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.8 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.9 2009-08-28 12:30:38 cvshelene Exp $";
 
 #include "uiseismulticubeps.h"
 #include "uilistbox.h"
@@ -39,7 +39,7 @@ public:
 
 uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
 	: uiDialog(p, uiDialog::Setup("MultiCube Pre-Stack data store",
-		   "Create MultiCube Pre-Stack data store",mTODOHelpID))
+		   "Create MultiCube Pre-Stack data store","103.1.7"))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)
 	, curselidx_(-1)
