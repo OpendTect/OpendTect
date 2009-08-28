@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.58 2009-08-04 12:20:24 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.59 2009-08-28 12:50:10 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -46,7 +46,8 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.58 2009-08-04 12:20:24 c
 	, extendtrctosi_( false ) \
     	, is3d_(true) \
 { \
-    if ( !mkWriter(out) ) return
+    if ( !mkWriter(out) ) return; \
+    worktrc_ = &intrc_;
 
 
 
