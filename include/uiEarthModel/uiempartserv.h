@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.91 2009-08-12 02:55:26 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.92 2009-08-28 18:46:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ public:
 	    			   DataPointSet&,const char* nm,int valnr,
 				   float shift);
     bool		getAuxData(const EM::ObjectID&,int auxdatanr,
-	    			   DataPointSet&) const;
+	    			   DataPointSet&, float& shift) const;
     bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
 	    			      TypeSet<float>* shfs=0) const;
     BinIDValueSet*	interpolateAuxData(const EM::ObjectID&,const char* nm);

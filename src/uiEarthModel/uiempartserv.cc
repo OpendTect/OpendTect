@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.186 2009-08-12 02:55:26 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.187 2009-08-28 18:46:57 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -701,7 +701,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 
 
 bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
-				 DataPointSet& auxdata ) const
+				 DataPointSet& auxdata, float& shift ) const
 {
     mDynamicCastAll(oid);
     if ( !hor3d || !hor3d->auxdata.auxDataName(auxdatanr) )
@@ -709,6 +709,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 
     auxdata.setName( hor3d->auxdata.auxDataName( auxdatanr ) );
     auxdata.bivSet().setNrVals( 2 );
+    shift = hor3d->auxdata.auxDataShift( auxdatanr );
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->sectionID( idx );
