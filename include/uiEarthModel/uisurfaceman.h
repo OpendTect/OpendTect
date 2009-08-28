@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.22 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.23 2009-08-28 12:45:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,9 @@ class BufferStringSet;
 namespace EM { class SurfaceIOData; }
 
 class uiListBox;
+class uiStratLevelSel;
 class uiTextEdit;
 class uiToolButton;
-
 
 mClass uiSurfaceMan : public uiObjFileMan
 {
@@ -29,7 +29,8 @@ public:
 
 protected:
 
-    uiListBox*		attribfld;
+    uiListBox*		attribfld_;
+    uiStratLevelSel*	lvlfld_;
 
     bool		isCur2D() const;
     bool		isCurFault() const;
