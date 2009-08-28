@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.8 2009-08-12 02:57:36 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.9 2009-08-28 20:57:38 cvskris Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -37,7 +37,6 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    bool cancalcattrib )
     : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,mNoHelpID).
 	    			  modal(false) )
-    , shiftrg_(-100,100,10)
     , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
     , emhor3d_(0)
     , emid_(emid)
@@ -48,6 +47,9 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     , calcAttribPushed(this)
     , horShifted(this)
 {
+    const float curshift = initialshift*SI().zFactor();
+    shiftrg_ = StepInterval<float> (curshift-100,curshift+100,10);
+
     rangeinpfld_ = new uiGenInput( this, "Shift Range",
 	    			   FloatInpIntervalSpec(shiftrg_) );
     rangeinpfld_->valuechanged.notify(
@@ -60,9 +62,9 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     uiSlider* sldr = slider_->sldr();
 
     // TODO: Calculate slider range from horizon's z-range
-    sldr->setScale( shiftrg_.step, 0 );
-    sldr->setInterval( shiftrg_ );
-    sldr->setValue( initialshift*SI().zFactor() );
+    slider_->sldr()->setScale( shiftrg_.step, shiftrg_.start );
+    slider_->sldr()->setInterval( shiftrg_ );
+    slider_->sldr()->setValue( curshift );
     sldr->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -144,7 +146,9 @@ void uiHorizonShiftDialog::attribChangeCB( CallBacker* )
 
 void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
 {
-    const StepInterval<float> intv = rangeinpfld_->getFStepInterval();
+    StepInterval<float> intv = rangeinpfld_->getFStepInterval();
+    intv.stop = intv.snap( intv.stop );
+
     if ( shiftrg_ == intv )
 	return;
 
@@ -155,17 +159,6 @@ void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
     }
 
     shiftrg_ = intv;
-
-    if ( !mIsZero((int)shiftrg_.start%(int)shiftrg_.step,mDefEps) )
-    {
-	const int fac = (int)shiftrg_.start/(int)shiftrg_.step;
-	shiftrg_.start = shiftrg_.step * fac;
-    }
-    if ( !mIsZero((int)shiftrg_.stop%(int)shiftrg_.step,mDefEps) )
-    {
-	const int fac = (int)shiftrg_.stop/(int)shiftrg_.step;
-	shiftrg_.stop = shiftrg_.step * fac;
-    }
 
     rangeinpfld_->setValue( shiftrg_ );
     
@@ -179,7 +172,7 @@ void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
 	}
     }
 
-    slider_->sldr()->setScale( shiftrg_.step, 0 );
+    slider_->sldr()->setScale( shiftrg_.step, shiftrg_.start );
     slider_->sldr()->setInterval( shiftrg_ );
     rangeinpfld_->setValue( shiftrg_ );
 }
