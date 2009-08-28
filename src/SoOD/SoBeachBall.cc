@@ -12,8 +12,10 @@ ___________________________________________________________________
 
 #include <Inventor/system/gl.h>
 #include <Inventor/SbBox.h>
+#include <Inventor/SoPickedPoint.h>
 #include <Inventor/SoPrimitiveVertex.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/elements/SoElement.h>
 #include <Inventor/elements/SoLightModelElement.h>
@@ -51,6 +53,7 @@ void SoBeachBall::initClass()
 SoBeachBall::SoBeachBall() 
 {
     SO_NODE_CONSTRUCTOR(SoBeachBall);
+    SO_NODE_ADD_FIELD(materialIndex, (-1));
 }
 
 
@@ -414,7 +417,12 @@ void SoBeachBall::GLRender( SoGLRenderAction *action )
         SoLightModelElement::BASE_COLOR );
 
     SoMaterialBundle mb( action );
-    mb.sendFirst();
+    if ( binding == SoMaterialBindingElement::PER_PART )
+	mb.sendFirst();
+    else if ( ( binding == SoMaterialBindingElement::PER_PART_INDEXED )
+	      && ( materialIndex.getNum() > 0 ) )
+	mb.send( materialIndex[0], FALSE );
+        // Note: mb.sendFirst is not called in this case!   
 
     SbList<int>* pTriList1 = 0; 
     SbList<int>* pTriList2 = 0;
@@ -427,7 +435,11 @@ void SoBeachBall::GLRender( SoGLRenderAction *action )
     
     if ( testNumColors( state ) )
     {
-	mb.send( 1, FALSE );
+	if ( binding == SoMaterialBindingElement::PER_PART )
+	    mb.send( 1, FALSE );
+	else if ( ( binding == SoMaterialBindingElement::PER_PART_INDEXED )
+		&& ( materialIndex.getNum() > 1 ) )
+	    mb.send( materialIndex[1], FALSE );
         renderTriangles( pTriList2, pNormalsList2, sendNormals );
     }
     endSolidShape( action );
@@ -585,8 +597,8 @@ SbBool SoBeachBall::testNumColors( SoState* state )
     if ( elem && ( ((SoLazyElement*) elem)->getNumDiffuse() >= 2 ) )
     {
 	return true;
-	// do we need to check if the diffuse color is ignored and the
-	// override flag?
+	// later: can check if the diffuse color is ignored and the value of
+	// the override flag
     }
     else
 	return false;
@@ -601,6 +613,39 @@ void SoBeachBall::computeBBox( SoAction *, SbBox3f &box, SbVec3f &center )
  
     box.setBounds( SbVec3f( -1, -1, -1 ), SbVec3f( 1, 1, 1 ) );
     center.setValue( 0.0, 0.0, 0.0 );
+}
+
+
+// Computes the bounding box and center of the beachball.
+void SoBeachBall::rayPick( SoRayPickAction* action )
+{
+    if ( !shouldRayPick( action ) )
+	return;
+    action->setObjectSpace();
+    const SbLine & line = action->getLine();
+    SbSphere sphere( SbVec3f( 0.0f, 0.0f, 0.0f ), 1.0f );
+    SbVec3f enter, exit;
+    if ( sphere.intersect( line, enter, exit ) ) 
+    {
+	tryAddIntersection( action, enter );
+	if ( exit != enter )
+	   tryAddIntersection( action, exit );
+    }
+}
+
+// Adds an intersection to the ray pick action.
+void SoBeachBall::tryAddIntersection(SoRayPickAction* action, const SbVec3f& pt)
+{
+    if ( action->isBetweenPlanes( pt ) ) 
+    {
+	SoPickedPoint * pp = action->addIntersection( pt );
+	if (pp)
+	{
+	    SbVec3f normal = pt;
+	    normal.normalize();
+	    pp->setObjectNormal( normal ); 
+	}
+    }
 }
 
 
@@ -665,4 +710,8 @@ void SoBeachBall::printTriangles( SbList<int>& triList,
        i++;
     }
 }
+
+
+
+
 
