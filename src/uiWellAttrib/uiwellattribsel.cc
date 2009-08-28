@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.26 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.27 2009-08-28 08:17:55 cvshelene Exp $";
 
 #include "uiwellattribsel.h"
 
@@ -35,7 +35,7 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
        				  const NLAModel* mdl )
     : uiDialog(p,uiDialog::Setup("Attributes",
 				 "Attribute selection",
-				 "107.3.0"))
+				 "mNoHelpID"))
     , attrset_(as)
     , nlamodel_(mdl)
     , wd_(wd)
