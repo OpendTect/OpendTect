@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.46 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.47 2009-08-28 18:21:23 cvsyuancheng Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -973,7 +973,22 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     {
 	sel.sellinenames = newsel->sellinenames;
 	sel.seltrcranges = newsel->seltrcranges;
-	sel.rg = newsel->rg;
+	
+	sel.rg.start.inl = sel.rg.inlRange().limitValue(
+		sel.rg.inlRange().snap( newsel->rg.inlRange().start ) );
+	sel.rg.start.crl = sel.rg.crlRange().limitValue(
+		sel.rg.crlRange().snap( newsel->rg.crlRange().start ) );
+	sel.rg.stop.inl = sel.rg.inlRange().limitValue(
+		sel.rg.inlRange().snap( newsel->rg.inlRange().stop ) );
+	sel.rg.stop.crl = sel.rg.crlRange().limitValue(
+		sel.rg.crlRange().snap( newsel->rg.crlRange().stop ) );
+	int stepfactorinl = mNINT(((float)newsel->rg.step.inl/sel.rg.step.inl));
+	if ( stepfactorinl<1 ) stepfactorinl = 1;
+	sel.rg.step.inl *= stepfactorinl;
+	int stepfactorcrl = mNINT(((float)newsel->rg.step.crl/sel.rg.step.crl));
+	if ( stepfactorcrl<1 ) stepfactorcrl = 1;
+	sel.rg.step.crl *= stepfactorcrl;
+
 	sel.selvalues = newsel->selvalues;
 	if ( !newsel->selsections.isEmpty() )
 	    sel.selsections = newsel->selsections;
