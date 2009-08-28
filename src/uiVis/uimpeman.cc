@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.177 2009-08-28 07:25:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.178 2009-08-28 11:13:40 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -292,7 +292,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	const Attrib::SelSpec* trackedatsel = sectiontracker
 	    ? sectiontracker->adjuster()->getAttributeSel(0) : 0;
 
-	if ( trackedatsel && (trackedatsel !=clickedas) )
+	if ( trackedatsel && (*trackedatsel != *clickedas) )
 	{
 	    uiMSG().error( "Horizon has been tracked on different attribute ");
 	    return;
