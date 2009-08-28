@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.110 2009-08-25 16:44:20 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.111 2009-08-28 02:32:59 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -85,6 +85,7 @@ HorizonDisplay::HorizonDisplay()
     BufferStringSet* aatrnms = new BufferStringSet();
     aatrnms->allowNull();
     userrefs_ += aatrnms;
+    shifts_ += new TypeSet<float>;
     enabled_ += true;
     datapackids_ += -1;
 }
@@ -121,6 +122,8 @@ HorizonDisplay::~HorizonDisplay()
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
+
+    deepErase( shifts_ );
 }
 
 
@@ -512,6 +515,12 @@ bool HorizonDisplay::canRemoveAttrib() const
 }
 
 
+void HorizonDisplay::setAttribShift( int channel, const TypeSet<float>& shifts )
+{
+    (*shifts_[channel]) = shifts;
+}
+
+
 bool HorizonDisplay::addAttrib()
 {
     as_ += new Attrib::SelSpec;
@@ -522,6 +531,7 @@ bool HorizonDisplay::addAttrib()
     aatrnms->allowNull();
     userrefs_ += aatrnms;
     enabled_ += true;
+    shifts_ += new TypeSet<float>;
     datapackids_ += -1;
     coltabmappersetups_ += ColTab::MapperSetup();
     coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
@@ -552,6 +562,7 @@ bool HorizonDisplay::removeAttrib( int channel )
     curshiftidx_.remove( channel );
     userrefs_.remove( channel );
     enabled_.remove( channel );
+    delete shifts_.remove( channel );
     DPM( DataPackMgr::FlatID() ).release( datapackids_[channel] );
     datapackids_.remove( channel );
     coltabmappersetups_.remove( channel );
@@ -579,6 +590,7 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
 
     as_.swap( a0, a1 );
     enabled_.swap( a0, a1 );
+    shifts_.swap( a0, a1 );
     curshiftidx_.swap( a0, a1 );
     userrefs_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );

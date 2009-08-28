@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.51 2009-08-07 18:56:15 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.52 2009-08-28 02:32:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -154,6 +154,10 @@ public:
     bool                        isVerticalPlane() const		{ return false;}
     
     bool			shouldUseTexture() const;
+    void			setAttribShift(int channel,
+	    				       const TypeSet<float>& shifts);
+    				/*!<Gives the shifts for all versions of an 
+				    attrib. */
 
     const ObjectSet<visBase::IndexedShape>& getIntersectionLines() const;
         
@@ -213,7 +217,7 @@ protected:
     TypeSet<DataPack::ID>		datapackids_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
-    TypeSet< TypeSet<float> >		shifts_;
+    ObjectSet< TypeSet<float> >		shifts_;
     bool				validtexture_;
 
     static const char*			sKeyTexture();
