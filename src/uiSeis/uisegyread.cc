@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.35 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.36 2009-08-28 10:44:31 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -478,7 +478,8 @@ void uiSEGYRead::setupScan()
 
 void uiSEGYRead::setupImport()
 {
-    uiSEGYImpDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
+    uiSEGYImpDlg::Setup su( geom_ );
+    su.rev( rev_ ).modal(false).wintitle("Import SEG-Y");
     impdlg_ = new uiSEGYImpDlg( parent_, su, pars_ );
     impdlg_->mSetreadReqCB();
     impdlg_->mSetwriteReqCB();
