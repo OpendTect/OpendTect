@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.16 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.17 2009-08-28 06:57:42 cvsraman Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -287,6 +287,14 @@ void uiImportHorizon2D::addHor( CallBacker* )
     if ( !dlg.go() ) return;
 
     const char* hornm = dlg.text();
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    if ( IOM().getLocal(hornm) )
+    {
+	uiMSG().error( "Failed to add: a surface already exists with name ",
+			hornm );
+	return;
+    }
+
     horselfld_->addItem( hornm );
     const int idx = horselfld_->size() - 1;
     horselfld_->setSelected( idx, true );
