@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.81 2009-08-28 01:49:06 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.82 2009-08-28 19:16:39 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1996,7 +1996,7 @@ void HorizonSectionTile::tesselateResolution( char res )
 	    if ( defsum<3 ) 
 	    {
 		mTerminateStrip;
-		if ( ridx<nrmyblocks && cidx<nrmyblocks && nbdef[m11] )
+		if ( defsum==2 && nbdef[m11] )
 		{
 		    const bool con12 = nbdef[m12] &&
 			(!ridx || (!nbdef[m01] && !nbdef[m02]) );
@@ -2020,8 +2020,8 @@ void HorizonSectionTile::tesselateResolution( char res )
 
 		    }
 		}
-		else if ( nbdef[m11] && !nbdef[m10] && !nbdef[m12] && 
-			 !nbdef[m01] && !nbdef[m21] )
+		else if ( defsum==1 && nbdef[m11] && !nbdef[m10] && 
+			!nbdef[m12] && !nbdef[m01] && !nbdef[m21] )
 		{
 		    mAddIndex( ci11, mPoint );
 		} 
