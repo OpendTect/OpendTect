@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.15 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.16 2009-08-28 14:59:55 cvshelene Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -30,7 +30,7 @@ static const char* sNoLithoTxt      = "---None---";
 uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
     : uiDialog(p,uiDialog::Setup("Stratigraphic Unit Properties",
 				 "Specify properties of a new unit",
-				 mTODOHelpID))
+				 "110.0.1"))
     , uistratmgr_(uistratmgr)
 {
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
@@ -106,7 +106,7 @@ void uiStratUnitDlg::setUnitIsLeaf( bool yn )
 
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p, uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Select Lithology",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("Select Lithology",mNoDlgTitle,"110.0.4"))
     , uistratmgr_(uistratmgr)
     , prevlith_(0)
     , nmfld_(0)
@@ -254,7 +254,7 @@ bool uiStratLithoDlg::acceptOK( CallBacker* )
 
 
 uiStratLevelDlg::uiStratLevelDlg( uiParent* p, uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,"110.0.2"))
     , uistratmgr_( uistratmgr )
 {
     lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
@@ -335,7 +335,7 @@ bool uiStratLevelDlg::acceptOK( CallBacker* )
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, const char* urcode,
        					      uiStratMgr* uistratmgr )
     : uiDialog(p,uiDialog::Setup("Link levels and stratigraphic unit",
-				mNoDlgTitle,mTODOHelpID))
+				mNoDlgTitle,"110.0.3"))
     , uistratmgr_(uistratmgr)
 {
     BufferStringSet lvlnms;
