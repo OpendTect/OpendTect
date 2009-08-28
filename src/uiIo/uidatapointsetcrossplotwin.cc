@@ -189,6 +189,7 @@ void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
     const bool ison = disptb_.isOn( densityplottbid_ );
     disptb_.setToolTip( densityplottbid_, ison ? "Show normal plot"
 	    				       : "Show density plot" );
+    disptb_.setPixmap( densityplottbid_,ison ? "xplot.png" : "densityplot.png");
     eachfld_->setSensitive( !ison );
     if ( ison && plotter_.isY2Shown() )
 	uiMSG().message( "Y2 cannot be displayed in density plot" );
@@ -509,10 +510,21 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
     if ( mIsUdf(plotter_.plotperc_) ) return; // window is closing
 
     float newperc = eachfld_->getFValue();
-    const float prevperc = plotter_.plotperc_;
-    if ( newperc < 1 ) newperc = 1;
-    if ( plotter_.plotperc_ == newperc )
+
+    if ( plotter_.isADensityPlot() )
+    {
+	if ( !mIsEqual(newperc,100,mDefEps) )
+	{
+	    uiMSG().message( "Density Plot will always display all data" );
+	    eachfld_->setValue( (float)100 );
+	}
 	return;
+    }
+    
+    const float prevperc = plotter_.plotperc_;
+    if ( mIsEqual(plotter_.plotperc_,newperc,mDefEps) )
+	return;
+
     plotter_.plotperc_ = newperc;
 
     const int estpts =

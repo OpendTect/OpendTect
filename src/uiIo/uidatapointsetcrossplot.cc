@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.51 2009-08-27 07:15:03 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.52 2009-08-28 07:12:50 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.51 2009-08-27 07:15:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.52 2009-08-28 07:12:50 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -173,6 +173,7 @@ void uiDataPointSetCrossPlotter::showY2( bool yn )
 {
     if ( y2ptitems_ )
 	y2ptitems_->setVisible( yn );
+    drawContent();
 }
 
 
@@ -259,8 +260,10 @@ void uiDataPointSetCrossPlotter::deleteSelections()
 	for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
 	{
 	    checkSelection( rid, 0, false, y_, true );
-	    checkSelection( rid, 0, true, y2_, true );
+	    if ( y2_.axis_ && doy2_ ) 
+		checkSelection( rid, 0, true, y2_, true );
 	}
+
 	drawData( y_, false, true );
 	if ( y2_.axis_ && doy2_ )
 	    drawData( y2_ , true, true );
@@ -832,7 +835,7 @@ void uiDataPointSetCrossPlotter::setItem( uiGraphicsItem* item, bool isy2,
 	const uiPoint& pt )
 {
     item->setPos( pt.x, pt.y ); 
-    item->setVisible( isy2 ? isY2Shown() : true ); 
+    item->setVisible( isy2 ? doy2_ && isY2Shown() : true ); 
 }
 
 
@@ -1109,7 +1112,6 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
     pixmap->fill( Color::White() );
     setPixmap( *pixmap );
     draw();
-    curitmgrp->setVisible( true );
 
     int itmidx = 0;
     usedxpixrg_ = Interval<int>(0,0);
