@@ -17,6 +17,27 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoShape.h>
 #include "soodbasic.h"
 
+
+// This class stores all info about a level of detail of the beachball, except
+// the coordinate info (which is stored by res2coords_).
+// 
+class LODInfo
+{
+public:
+    
+    // Triangle info - 2 lists of indices, one list for every 2 stripes of same
+    // color. Indices are stored in the form of triplets for every triangle.
+    SbList<int>			tricoordindices_[2];
+    // normals for all the triangles
+    SbList<SbVec3f>		normals_[2];
+
+    				LODInfo() { };
+				~LODInfo() { clear(); }
+    void			clear();
+
+};
+
+
 // SoBeachBall class for drawing a sphere with 4 stripes colored according to 
 // 2 materials. Varying levels of detail of the beachball are supported.
 class SoBeachBall : public SoShape 
@@ -26,7 +47,7 @@ class SoBeachBall : public SoShape
 
 public:
     // field for specifying material indices for indexed binding
-    SoMFInt32			materialIndex;
+    SoMFInt32			materialindex;
 
     				SoBeachBall();
     static void			initClass();
@@ -34,22 +55,13 @@ public:
 protected:
     // info about the vertices of the triangles for every level of detail.
     // X, Y, Z coordinates of the vertices of the highest level of detail.  
-    // Vertices of lower levels of detail are subsets of this array.
-    static SbList<SbVec3f>	res2Coords_;
-    
-    // info  about triangles in each level - 2 lists of indices per level of
-    // detail into res2coords_, one list for every 2 stripes of same color.
-    // Indices are stored in the form of triplets for every triangle.
-    static SbList<int>		res0TriCoordIndices_[2];
-    static SbList<int>		res1TriCoordIndices_[2];
-    static SbList<int>		res2TriCoordIndices_[2];
+    // vertices of lower levels of detail are subsets of this array.
+    static SbList<SbVec3f>	res2coords_;
+   
+    // list of info about every level of detail supported
+    static SbList<LODInfo>	lodinfo_;
 
-    // normals for all the triangles
-    static SbList<SbVec3f>	res0Normals_[2];
-    static SbList<SbVec3f>	res1Normals_[2];
-    static SbList<SbVec3f>	res2Normals_[2];
-
-    static SbBool		hasError_;
+    static SbBool		haserror_;
 
     // methods
     virtual void 		GLRender(SoGLRenderAction *action);
@@ -60,39 +72,39 @@ protected:
          
     virtual			~SoBeachBall();
     
-    static void			initTriangles();
-    static void			initVertices();
-    static void 		tessellate(int iLevel, int endIndex, 
-	    				   SbList<int>& prevLvlEdges,
-					   SbList<int>& currLvlEdges,
-					   SbList<int>& prevLvlFaces1,
-					   SbList<int>& prevLvlFaces2,
-					   SbList<int>& currLvlFaces1,
-					   SbList<int>& currLvlFaces2);
-    static void 		processFaces(SbList<int>& prevLvlEdges,
-	    				     SbList<int>& currLvlEdges,
-					     SbList<int>& prevLvlFaces,
-					     SbList<int>& currLvlFaces,
-					     SbList<int>& newVertIndices);
+    static void			initTriangles(int numlevels);
+    static void			initVertices(int numlevels);
+    static void 		tessellate(int ilevel, int endindex, 
+	    				   SbList<int>& prevlvledges,
+					   SbList<int>& currlvledges,
+					   SbList<int>& prevlvlfaces1,
+					   SbList<int>& prevlvlfaces2,
+					   SbList<int>& currlvlfaces1,
+					   SbList<int>& currlvlfaces2);
+    static void 		processFaces(SbList<int>& prevlvledges,
+	    				     SbList<int>& currlvledges,
+					     SbList<int>& prevlvlfaces,
+					     SbList<int>& currlvlfaces,
+					     int startnewv, int endnewv);
     static int			findNewVertex(SbList<int>& edges, 
-	    				      SbList<int>& newVertices, 
-					      int v1, int v2);
+	    					int startnewv, int endnewv, 
+						int v1, int v2);
     static int			checkEdge(SbList<int>& edges, int v1, int v2, 
 	    				  int index);
-    static void			addFace(SbList<int>& faces, int p, int q, 
+    static void			addFace(SbList<int>& faces, int p, int q,  
 	    				int r);
-    static void			calculateNormals();
-    static void			calculateNormals(SbList<int>* pTriList,
-	    					 SbList<SbVec3f>* pNormalsList);
+    static void			calculateNormals( int numlevels );
+    static void			calculateNormals(SbList<int>* ptrilist,
+	    					 SbList<SbVec3f>* pnormalslist);
     static void			clearData();
-    static void			getTriangleInfo(SbList<int>** pTriList1, 
-	    					SbList<int>** pTriList2,
-						SbList<SbVec3f>** pNormalsList1,
-						SbList<SbVec3f>** pNormalsList2
+    static void			getTriangleInfo(SbList<int>** ptrilist1, 
+	    					SbList<int>** ptrilist2,
+						SbList<SbVec3f>** pnormalslist1,
+						SbList<SbVec3f>** pnormalslist2
 						);
-    static void 		renderTriangles(SbList<int>* pTriList,
-	   					SbList<SbVec3f>* pNormalsList,
-						SbBool sendNormals);
+    static void 		renderTriangles(SbList<int>* ptrilist,
+	   					SbList<SbVec3f>* pnormalslist,
+						SbBool sendnormals);
     SbBool			testNumColors( SoState *state );
     static void			tryAddIntersection(SoRayPickAction* action,
 	    					   const SbVec3f& pt);
