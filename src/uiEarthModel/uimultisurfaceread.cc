@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.23 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.24 2009-08-31 14:48:03 cvshelene Exp $";
 
 #include "uimultisurfaceread.h"
 
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.23 2009-07-22 16:01:3
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type ) 
     : uiDialog(p,uiDialog::Setup( BufferString( type," selection" ),
 				  BufferString( "Select Input ",type,"(s)" ),
-				  "104.3.1").nrstatusflds(1) )
+				  "104.3.0").nrstatusflds(1) )
 {
     surfacefld_ = new uiMultiSurfaceRead( this, type );
     surfacefld_->objselGrp()->newStatusMsg.notify( 

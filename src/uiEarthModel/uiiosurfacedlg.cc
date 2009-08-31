@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.47 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.48 2009-08-31 14:48:02 cvshelene Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -73,8 +73,9 @@ bool uiWriteSurfaceDlg::replaceInTree() const
 }
 
 
+//Not used anymore, keep it?
 uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup("Input selection",mNoDlgTitle,"104.3.0"))
+    : uiDialog(p,uiDialog::Setup("Input selection",mNoDlgTitle,mNoHelpID))
 {
     iogrp_ = new uiSurfaceRead( this,
 	    uiSurfaceRead::Setup(typ).withattribfld(false) );
@@ -102,7 +103,7 @@ void uiReadSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 
 uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
     : uiDialog(p,uiDialog::Setup("Output selection","Specify attribute name",
-				 "104.3.2"))
+				 "104.4.6"))
     , surface_(surf)
 {
     attrnmfld_ = new uiGenInput( this, "Attribute" );
