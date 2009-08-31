@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: i_qtable.h,v 1.4 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:		$Id: i_qtable.h,v 1.5 2009-08-31 13:04:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ protected:
 i_tableMessenger( QTableWidget*  sender, uiTable* receiver )
     : sender_(sender)
     , receiver_(receiver)
+    , lastpressedheaderidx_(-1)
 { 
     connect( sender, SIGNAL(cellChanged(int,int)),
 	     this, SLOT(valueChanged(int,int)) );
@@ -41,16 +42,32 @@ i_tableMessenger( QTableWidget*  sender, uiTable* receiver )
     connect( sender, SIGNAL(cellClicked(int,int)),
 	     this, SLOT(clicked(int,int)) );
 
+    connect( sender, SIGNAL(cellPressed(int,int)),
+	     this, SLOT(cellPressed(int,int)) );
+
     connect( sender, SIGNAL(cellDoubleClicked(int,int)),
 	     this, SLOT(doubleClicked(int,int)) );
 
     connect( sender, SIGNAL(itemSelectionChanged()),
 	     this, SLOT(itemSelectionChanged()) );
 
+    connect( sender, SIGNAL(cellEntered(int,int)),
+	     this, SLOT(cellEntered(int,int)) );
+
     connect( sender->verticalHeader(), SIGNAL(sectionClicked(int)),
 	     this, SLOT(rowClicked(int)) );
     connect( sender->horizontalHeader(), SIGNAL(sectionClicked(int)),
 	     this, SLOT(columnClicked(int)) );
+
+    connect( sender->verticalHeader(), SIGNAL(sectionPressed(int)),
+	     this, SLOT(rowPressed(int)) );
+    connect( sender->horizontalHeader(), SIGNAL(sectionPressed(int)),
+	     this, SLOT(columnPressed(int)) );
+
+    connect( sender->verticalHeader(), SIGNAL(sectionDoubleClicked(int)),
+	     this, SLOT(rowDoubleClicked(int)) );
+    connect( sender->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)),
+	     this, SLOT(columnDoubleClicked(int)) );
 }
 
     virtual		~i_tableMessenger() {}
@@ -59,38 +76,113 @@ private:
 
     uiTable* 		receiver_;
     QTableWidget*  	sender_;
+    int			lastpressedheaderidx_;
 
 private slots:
+
+#define mTriggerBody( notifier, row, col, triggerstatement ) \
+{ \
+    BufferString msg = #notifier; \
+    msg += " "; msg += row;  \
+    msg += " "; msg += col; \
+    const int refnr = receiver_->beginCmdRecEvent( msg ); \
+    triggerstatement; \
+    receiver_->endCmdRecEvent( refnr, msg ); \
+}
+
+#define mNoTrigger( notifier, row, col ) \
+    mTriggerBody( notifier, row, col, )
+
+#define mTrigger( notifier, row, col ) \
+    mTriggerBody( notifier, row, col, receiver_->notifier.trigger(*receiver_) )
+
+#define mHeaderTriggerBody( notifier, idx, vertical, triggerstatement ) \
+    mTriggerBody( notifier, (vertical ? idx : -1), (vertical ? -1 : idx), \
+		  triggerstatement )
+
+#define mNoHeaderTrigger( notifier, idx, vertical ) \
+    mHeaderTriggerBody( notifier, idx, vertical, )
+
+#define mHeaderTrigger( notifier, idx, vertical ) \
+    mHeaderTriggerBody( notifier, idx, vertical, \
+			receiver_->notifier.trigger(idx, *receiver_ ) )
+
 
 void valueChanged( int row, int col )
 {
     receiver_->notifcell_ = RowCol(row,col);
-    receiver_->valueChanged.trigger(*receiver_);
+    mTrigger( valueChanged, row, col );
 }
+
 
 void clicked( int row, int col )
 {
     receiver_->notifcell_ = RowCol(row,col);
     if ( receiver_->buttonstate_ == OD::RightButton )
-	receiver_->rightClicked.trigger( *receiver_ );
+	mTrigger( rightClicked, row, col )
     else if ( receiver_->buttonstate_ == OD::LeftButton )
-	receiver_->leftClicked.trigger( *receiver_ );
+	mTrigger( leftClicked, row, col );
 }
+
 
 void doubleClicked( int row, int col )
 {
     receiver_->notifcell_ = RowCol(row,col);
-    receiver_->doubleClicked.trigger( *receiver_ );
+    mTrigger( doubleClicked, row, col );
 }
 
+
 void itemSelectionChanged()
-{ receiver_->selectionChanged.trigger( *receiver_ ); }
+{ mTrigger( selectionChanged, -1, -1 ); }
+
+
+void cellPressed( int row, int col )
+{ mNoTrigger( cellPressed, row, col ); }
+
+
+void cellEntered( int row, int col )
+{ mNoTrigger( cellEntered, row, col ); }
+
 
 void rowClicked( int idx )
-{ receiver_->rowClicked.trigger( idx, *receiver_ ); }
+{
+    // Trigger is conditional to repair Qt inconsistency. Unlike tables and
+    // and lists, the header signals a final click after mouse dragging.
+    if ( idx == lastpressedheaderidx_ )
+	mHeaderTrigger( rowClicked, idx, true );
+} 
+
 
 void columnClicked( int idx )
-{ receiver_->columnClicked.trigger( idx, *receiver_ ); }
+{
+    // Trigger is conditional to repair Qt inconsistency. Unlike tables and
+    // and lists, the header signals a final click after mouse dragging.
+    if ( idx == lastpressedheaderidx_ )
+	mHeaderTrigger( columnClicked, idx, false );
+}
+
+
+void rowPressed( int idx )
+{
+    lastpressedheaderidx_ = idx;
+    mNoHeaderTrigger( rowPressed, idx, true );
+} 
+
+
+void columnPressed( int idx )
+{
+    lastpressedheaderidx_ = idx;
+    mNoHeaderTrigger( columnPressed, idx, false );
+}
+
+
+void rowDoubleClicked( int idx )
+{ mNoHeaderTrigger( rowDoubleClicked, idx, true ); }
+
+
+void columnDoubleClicked( int idx )
+{ mNoHeaderTrigger( columnDoubleClicked, idx, false ); }
+
 
 };
 
