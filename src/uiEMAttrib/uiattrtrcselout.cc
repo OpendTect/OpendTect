@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.55 2009-08-31 13:21:37 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.56 2009-08-31 14:16:28 cvshelene Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -58,8 +58,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , nrsampfld_(0)
     , xparsdlg_(0)
 {
-    if ( usesinglehor_)
-	setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
+    setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
 
     if ( usesinglehor_ )
 	createSingleHorUI();
