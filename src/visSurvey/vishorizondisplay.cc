@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.112 2009-08-28 20:57:06 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.113 2009-08-31 03:49:46 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -88,6 +88,8 @@ HorizonDisplay::HorizonDisplay()
     shifts_ += new TypeSet<float>;
     enabled_ += true;
     datapackids_ += -1;
+
+    material_->setAmbience( 0.3 );
 }
 
 
