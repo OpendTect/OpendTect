@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.179 2009-08-31 05:40:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.180 2009-08-31 12:53:06 cvsnageswara Exp $";
 
 #include "uimpeman.h"
 
@@ -1139,12 +1139,12 @@ public:
     uiVisColTabEd&              editor()        { return *coltbl_; }
     int				selAttrib() const
 				{ return attribfld_->currentItem(); }
+    void			updateAttribNames();
 
 protected:
     void			transpChg(CallBacker*);
     void			colSeqChange(CallBacker*);
     void			colMapperChange(CallBacker*);
-    void			updateAttribNames();
     void			updateSelectedAttrib();
     void			updateDisplayList();
 
@@ -1345,6 +1345,7 @@ void uiMPEMan::setColorbarCB( CallBacker* )
 
     propdlg_->editor().setColTab( displays[0]->getColTabSequence(0), true,
 				  displays[0]->getColTabMapperSetup(0), false);
+    propdlg_->updateAttribNames();
     propdlg_->show();
     toolbar->setSensitive( clrtabidx, false );
 }
