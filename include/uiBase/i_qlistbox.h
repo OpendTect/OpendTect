@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.14 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.15 2009-08-31 12:58:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ private:
 	msg += " "; msg += qlwi->listWidget()->row( qlwi ); \
     } \
     const int refnr = receiver_->beginCmdRecEvent( msg ); \
-    receiver_->notifier.trigger( receiver_ ); \
+    receiver_->notifier.trigger( *receiver_ ); \
     receiver_->endCmdRecEvent( refnr, msg ); \
 }
 
