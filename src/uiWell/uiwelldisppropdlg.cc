@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.17 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.18 2009-08-31 09:38:03 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -29,7 +29,8 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 	, wd_(d)
 	, props_(d.displayProperties())
 	, applyAllReq(this)
-	, savedefault_(false)		   
+	, savedefault_(false)
+	, needdeletenotifyers_(true)  		     
 {
     setCtrlStyle( LeaveOnly );
     wd_.dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
@@ -66,13 +67,17 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
     uiPushButton* applbut = new uiPushButton( this, "&Apply to all wells",
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
-
+    wd_.tobedeleted.notify( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
-    wd_.dispparschanged.remove( mCB(this,uiWellDispPropDlg,wdChg) );
+    if ( needdeletenotifyers_ )
+    {
+	wd_.dispparschanged.remove( mCB(this,uiWellDispPropDlg,wdChg) );
+	wd_.tobedeleted.remove( mCB(this,uiWellDispPropDlg,close) );
+    }
 }
 
 
@@ -88,6 +93,7 @@ void uiWellDispPropDlg::putToScreen()
     for ( int idx=0; idx<propflds_.size(); idx++ )
 	propflds_[idx]->putToScreen();
 }
+
 
 void uiWellDispPropDlg::wdChg( CallBacker* )
 {
@@ -109,7 +115,14 @@ void uiWellDispPropDlg::applyAllPush( CallBacker* )
     applyAllReq.trigger();
 }
 
-//TODO remove function
+
+void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
+{
+    needdeletenotifyers_ = false;
+    close();
+}
+
+
 bool uiWellDispPropDlg::rejectOK( CallBacker* )
 {
     if ( saveButtonChecked() )

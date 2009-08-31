@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.6 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.7 2009-08-31 09:38:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ public:
  
 protected:
 
+    bool			needdeletenotifyers_;
+
     Well::Data&			wd_;
     Well::DisplayProperties&	props_;
     Well::DisplayProperties*	orgprops_;
@@ -44,14 +46,14 @@ protected:
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
 
-
     void			getFromScreen();
     void			putToScreen();
 
-    void			propChg(CallBacker*);
-    void			wdChg(CallBacker*);
     void			applyAllPush(CallBacker*);
+    void			propChg(CallBacker*);
     bool			rejectOK(CallBacker*);
+    void			wdChg(CallBacker*);
+    void			welldataDelNotify(CallBacker*);
 };
 
 
