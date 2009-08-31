@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.84 2009-08-11 12:04:47 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.85 2009-08-31 10:20:31 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -64,7 +64,8 @@ DescID DescSet::ensureDefStoredPresent() const
 	if ( allstored )
 	    const_cast<DescSet*>(this)->removeAll( false );
 
-	retid = const_cast<DescSet*>(this)->getStoredID( idstr.buf(), 0 );
+	retid = const_cast<DescSet*>(this)->getStoredID( idstr.buf(), 0, true,
+	       						 true );
     }
 
     return retid;
@@ -748,7 +749,8 @@ DescID DescSet::getFreeID() const
 }
 
 
-DescID DescSet::getStoredID( const char* lk, int selout, bool create )
+DescID DescSet::getStoredID( const char* lk, int selout, bool create,
+			     bool blindcomp, const char* blindcompnm )
 {
     TypeSet<int> outsreadyforthislk;
     TypeSet<DescID> outsreadyids;
@@ -770,6 +772,10 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 
     if ( !create )
 	return DescID::undef();
+
+    if ( blindcomp )
+	return createStoredDesc( lk, selout, BufferString(
+					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
     BufferStringSet bss; SeisIOObjInfo::getCompNames( lk, bss );
