@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.6 2009-07-28 07:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.7 2009-08-31 14:59:39 cvshelene Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -58,7 +58,7 @@ static BufferString getDefTempStorDir()
 
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
        				    const char* prognm, const char* parfnm )
-    : uiDialog(p,uiDialog::Setup("Cluster job generator","","")
+    : uiDialog(p,uiDialog::Setup("Cluster job generator","","101.2.2")
 	    		   .oktext("Continue"))
     , prognm_(prognm)
     , tempstordir_(getDefTempStorDir())
