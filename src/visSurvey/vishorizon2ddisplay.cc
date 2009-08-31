@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.25 2009-08-19 18:37:27 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.26 2009-08-31 03:50:39 cvsnanne Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -195,7 +195,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     eps_ = mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
 
     rowrg_ = surf_->rowRange();
-    nriter_ = rowrg_.nrSteps()+1;
+    nriter_ = rowrg_.isRev() ? 0 : rowrg_.nrSteps()+1;
 }
 
 
