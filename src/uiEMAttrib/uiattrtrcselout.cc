@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.54 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.55 2009-08-31 13:21:37 cvshelene Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -496,6 +496,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* cb )
 		    seissubselfld_->setInput( *ioobj );
 	    }
 	}
+	singLineSel(0);
     }
 }
 
