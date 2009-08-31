@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.45 2009-08-25 16:11:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.46 2009-08-31 09:31:01 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -309,6 +309,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == propertiesmnuitem_.id )
     {
 	menu->setIsHandled( true );
+	wd->restoreDispProp();
 	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.57 2009-08-25 16:11:28 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.58 2009-08-31 09:31:01 cvsbruno Exp $
 
 
 
@@ -22,8 +22,6 @@ ________________________________________________________________________
 #include "welllogdisp.h"
 
 class LineStyle;
-namespace Well { class Log; class LogDisplayPars; class LogDisplayParSet; }
-
 
 namespace visBase
 {
@@ -36,9 +34,9 @@ namespace visBase
 namespace Well
 {
     class Data;
+    class DisplayProperties;
     class Log;
     class LogDisplayPars;
-    class LogDisplayParSet;
     class Track;
 }
 
@@ -121,6 +119,7 @@ public:
     void			setChanged( bool yn )	{ needsave_ = yn; }
     void			setupPicking(bool);
     void			showKnownPositions();
+    void                        restoreDispProp();
     
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
@@ -135,6 +134,11 @@ protected:
     void			displayLog(Well::LogDisplayPars*,int);
     void			setLogProperties(visBase::Well::LogParams&);
     void                        pickCB(CallBacker* cb=0);
+    void                        welldataDelNotify(CallBacker* cb=0);
+    void 			saveDispProp( const Well::Data* wd );
+    
+    Well::Data*			getWD() const;
+    Well::DisplayProperties* 	dispprop_;
 
     Coord3                      mousepressposition_;
     mVisTrans*			transformation_;
@@ -154,13 +158,8 @@ protected:
     bool			picksallowed_;
     const bool			zistime_;
     const bool			zinfeet_;
-    
     static const char*		sKeyEarthModelID;
     static const char*		sKeyWellID;
-
-    Well::Data*			getWD() const;
-    void                        welldataDelNotify(CallBacker* cb=0);
-
 };
 
 } // namespace visSurvey

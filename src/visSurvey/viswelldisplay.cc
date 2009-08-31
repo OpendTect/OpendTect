@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.110 2009-08-28 12:45:12 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.111 2009-08-31 09:31:01 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -62,6 +62,7 @@ WellDisplay::WellDisplay()
     , group_(0)
     , pseudotrack_(0)
     , needsave_(false)
+    , dispprop_(0)			      
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -80,12 +81,14 @@ WellDisplay::~WellDisplay()
     wd_ = 0;
     mGetWD(return);
     wd->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
-    Well::MGR().release( wellid_ );
+    delete dispprop_;
+    delete Well::MGR().release( wellid_ );
 }
 
 
 void WellDisplay::welldataDelNotify( CallBacker* )
 {
+    saveDispProp( wd_ );
     wd_ = 0;
 }
 
@@ -109,6 +112,22 @@ Well::Data* WellDisplay::getWD() const
 	}
     }
     return wd_;
+}
+
+
+void WellDisplay::saveDispProp( const Well::Data* wd )
+{
+    if ( !wd ) return;
+    dispprop_ = new Well::DisplayProperties( wd->displayProperties() );
+}
+
+
+void WellDisplay::restoreDispProp()
+{
+    if ( !dispprop_ )
+	return;
+    mGetWD();
+    wd->displayProperties() = *dispprop_;
 }
 
 
