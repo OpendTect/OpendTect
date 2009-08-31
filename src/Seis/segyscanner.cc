@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.24 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.25 2009-08-31 07:38:13 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -163,6 +163,9 @@ int SEGY::Scanner::nextStep()
 
 int SEGY::Scanner::readNext()
 {
+    if ( curfidx_ < 0 || curfidx_ >= fds_.size() )
+	return finish( true );
+
     SEGY::FileData& fd = *fds_[curfidx_];
     if ( !tr_->read(trc_) )
     {
@@ -228,7 +231,6 @@ int SEGY::Scanner::openNext()
     if ( !tr_->initRead(new StreamConn(sd),Seis::Scan) )
     {
 	addFailed( tr_->errMsg() );
-	closeTr();
 	return Executor::MoreToDo();
     }
 
@@ -251,6 +253,7 @@ void SEGY::Scanner::addFailed( const char* errmsg )
     failedfnms_ += bs;
     fnms_ -= bs;
     curfidx_--;
+    closeTr();
 }
 
 
@@ -278,7 +281,7 @@ void SEGY::Scanner::initFileData()
 	emsg += "(must be same as first file: ";
 	emsg += fds_[0]->trcsz_; emsg += ")";
 	addFailed( tr_->errMsg() );
-	delete newfd; closeTr();
+	delete newfd;
 	return;
     }
 
