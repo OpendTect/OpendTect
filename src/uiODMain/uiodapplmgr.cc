@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.353 2009-08-28 19:04:47 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.354 2009-08-31 05:40:39 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1500,18 +1500,19 @@ void uiODApplMgr::cleanPreview()
 void uiODApplMgr::storeEMObject()
 {
     const int trackerid = mpeserv_->activeTrackerID();
-    const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
-    emserv_->storeObject( emid, true );
-    const MultiID mid = emserv_->getStorageID(emid);
-    
+    const EM::ObjectID emid = mpeserv_->getEMObjectID( trackerid );
+    MultiID mid = emserv_->getStorageID( emid );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    const bool saveas = mid.isEmpty() || !ioobj;
+    emserv_->storeObject( emid, saveas );
+
     TypeSet<int> ids;
+    mid = emserv_->getStorageID( emid );
     visserv_->findObject( mid, ids );
     
     for ( int idx=0; idx<ids.size(); idx++ )
-    {
-	visserv_->setObjectName( ids[idx],
-				 (const char*) emserv_->getName(emid) );
-    }
+	visserv_->setObjectName( ids[idx], emserv_->getName(emid).buf() );
+
     mpeserv_->saveSetup( mid );
     sceneMgr().updateTrees();
 }

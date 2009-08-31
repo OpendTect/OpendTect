@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.178 2009-08-28 11:13:40 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.179 2009-08-31 05:40:39 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -867,17 +867,7 @@ void uiMPEMan::savePush( CallBacker* )
     if ( !tracker )
 	return;
 
-    bool proceedsaving = 
-	EM::EMM().getMultiID( tracker->objectID() ).isEmpty();
-    if ( !proceedsaving )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(
-		    					tracker->objectID()) );
-	proceedsaving = !ioobj;
-    }
-
-    if ( proceedsaving )
-	visserv->fireFromMPEManStoreEMObject();
+    visserv->fireFromMPEManStoreEMObject();
 }
 
 
@@ -1373,7 +1363,10 @@ void uiMPEMan::movePlaneCB( CallBacker* )
     engine().setTrackMode( ison ? TrackPlane::Move : TrackPlane::None );
 
     if ( ison )
+    {
 	toolbar->setToolTip( moveplaneidx, "Hide QC plane" );
+	attribSel(0);
+    }
 }
 
 
