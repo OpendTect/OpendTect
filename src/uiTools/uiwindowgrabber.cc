@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.10 2009-08-27 09:58:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.11 2009-08-31 05:12:52 cvsnanne Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -73,7 +73,9 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 	fileinputfld_->attach( alignedBelow, windowfld_ ); 
     updateFilter();
 
-    qualityfld_ = new uiSliderExtra( this, "Image quality", "Quality slider" );
+    qualityfld_ = new uiSliderExtra( this,
+	    uiSliderExtra::Setup("Image quality").withedit(true),
+	    "Quality slider" );
     qualityfld_->attach( alignedBelow, fileinputfld_ );
     qualityfld_->sldr()->setInterval( StepInterval<float>(0,100,1) );
     qualityfld_->sldr()->setValue(50);
