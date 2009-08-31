@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.82 2009-08-28 19:16:39 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.83 2009-08-31 22:16:42 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -47,6 +47,9 @@ static const char* rcsID = "$Id: vishorizonsection.cc,v 1.82 2009-08-28 19:16:39
 #include <Inventor/nodes/SoTextureCoordinate2.h>
 
 mCreateFactoryEntry( visBase::HorizonSection );
+
+#define mMaxLineRadius 20
+#define mLineRadius 1.5
 
 #define mNrCoordsPerTileSide	64
 #define mTotalNrCoordsPerTile	4096
@@ -1462,8 +1465,9 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     gluepoints_->coordIndex.deleteValues( 0, -1 );
 
     gluelines_->rightHandSystem = true ;
-    gluelines_->radius = 2;
-    gluelines_->screenSize = false;
+    gluelines_->radius = mLineRadius;
+    gluelines_->maxRadius = mMaxLineRadius;
+    gluelines_->screenSize = true;
 
     wireframeseparator_ = new SoSeparator;
     root_->addChild( wireframeseparator_ );
@@ -1490,8 +1494,9 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
 
 	lines_[idx] = new SoIndexedLineSet3D;
 	lines_[idx]->rightHandSystem = true; 
-	lines_[idx]->radius = 2;
-	lines_[idx]->screenSize = false;
+	lines_[idx]->radius = mLineRadius;
+	lines_[idx]->maxRadius = mMaxLineRadius;
+	lines_[idx]->screenSize = true;
 	lines_[idx]->coordIndex.deleteValues( 0, -1 );
 	resolutions_[idx]->addChild( lines_[idx] );
 
