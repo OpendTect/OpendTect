@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.42 2009-08-28 20:39:41 cvskris Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.43 2009-09-01 04:02:27 cvsnanne Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -140,8 +140,10 @@ float uiSlider::getLinearFraction() const
 
 void uiSlider::setScale( float fact, float constant )
 {
+    const float userval = getValue();
     scaler_->factor = fact;
     scaler_->constant = constant;
+    setValue( userval );
 }
 
 
