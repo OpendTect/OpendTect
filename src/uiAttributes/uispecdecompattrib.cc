@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.25 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.26 2009-09-01 03:43:59 cvsnanne Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.25 2009-07-22 16:01:3
 #include "uispinbox.h"
 
 using namespace Attrib;
-
 
 mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp())
 
@@ -87,12 +86,11 @@ void uiSpecDecompAttrib::inputSel( CallBacker* )
     nyqfreq_ = 0.5 / ds_;
 
     const float freqscale = zIsTime() ? 1 : 1000;
+    const float scalednyqfreq = nyqfreq_ * freqscale;
     outpfld_->box()->setMinValue( stepfld_->box()->getFValue() );
-    outpfld_->box()->setMaxValue( nyqfreq_*freqscale );
-    stepfld_->box()->setInterval( (float)1, nyqfreq_*freqscale );
-    stepfld_->box()->setMaxValue( nyqfreq_/2 );
+    outpfld_->box()->setMaxValue( scalednyqfreq );
+    stepfld_->box()->setInterval( (float)0.5, scalednyqfreq/2 );
     stepfld_->box()->setStep( (float)0.5, true );
-
 }
 
 
