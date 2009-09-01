@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.27 2009-07-28 07:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.28 2009-09-01 13:28:09 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -921,5 +921,7 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 	iop.removeWithKey( SEGY::FileReadOpts::sKeySampleIntv() );
     }
 
+    if ( setup_.revtype_ == uiSEGYRead::Rev0 )
+	iop.setYN( SEGY::FileDef::sKeyForceRev0(), true );
     return true;
 }
