@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.35 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.36 2009-09-01 16:14:19 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -460,7 +460,7 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 
 void ExplFaultStickSurface::updateTextureCoords()
 {
-    SortedTable<Coord3> texturecoords;
+    SortedTable<int,Coord3> texturecoords;
 
     for ( int stickidx=0; stickidx<sticks_.size(); stickidx++ )
     {
@@ -490,7 +490,7 @@ void ExplFaultStickSurface::updateTextureCoords()
 	if ( !triangles )
 	    continue;
 
-	SortedTable<int> texturecoordindices;
+	SortedTable<int,int> texturecoordindices;
 	for ( int idx=0; idx<triangles->coordindices_.size(); idx++ )
 	{
 	    const int ci = triangles->coordindices_[idx];

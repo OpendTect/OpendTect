@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedtable.h,v 1.5 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: sortedtable.h,v 1.6 2009-09-01 16:14:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,78 +23,79 @@ only be present once.
 
 */
 
-template <class T>
+template <class IDT, class T>
 class SortedTable
 {
 public:
     			SortedTable();
 
-    int 		size() const { return vals.size(); }
-    void		set( int id, T val );
+    int 		size() const { return vals_.size(); }
+    void		set( IDT id, T val );
     			/*<! If id is set twice, it the old value will
 			     be replaced by the new one 
 			*/
-    bool		get( int id, T& val ) const;
+    bool		get( IDT id, T& val ) const;
     			/*!< If id is not found, val is unchanged and
 			     false is returned. If id is found, val is set
 			     and true is returned.
 			*/
 
-    int			id( int pos ) const { return ids[pos]; }
+    const IDT&		id(int pos) const { return ids_[pos]; }
 
-    bool		remove( int id );
+    bool		remove(IDT id);
+    void		erase()  { vals_.erase(); ids_.erase(); }
 
 private:
-    TypeSet<T>		vals;
-    SortedList<int>	ids;
+    TypeSet<T>		vals_;
+    SortedList<IDT>	ids_;
 };
 
 
-template <class T> inline
-SortedTable<T>::SortedTable()
-    : ids( false )
+template <class IDT, class T> inline
+SortedTable<IDT,T>::SortedTable()
+    : ids_( false )
 {}
 
 
-template <class T> inline
-void	SortedTable<T>::set( int id_, T val )
+template <class IDT, class T> inline
+void SortedTable<IDT,T>::set( IDT theid, T val )
 {
-    int newpos = ids.indexOf( id_ );
+    int newpos = ids_.indexOf( theid );
 
     if ( newpos==-1 )
     {
-	ids += id_;
+	ids_ += theid;
 
-	newpos = ids.indexOf( id_ );
-	vals.insert( newpos, val );
+	newpos = ids_.indexOf( theid );
+	vals_.insert( newpos, val );
     }
 
-    vals[newpos] = val;
+    vals_[newpos] = val;
 }
 
 
-template <class T> inline
-bool	SortedTable<T>::get( int id_, T& v ) const
+template <class IDT, class T> inline
+bool SortedTable<IDT,T>::get( IDT theid, T& v ) const
 {
-    int pos = ids.indexOf( id_ );
+    int pos = ids_.indexOf( theid );
 
     if ( pos==-1 )
 	return false;
 
-    v = vals[pos];
+    v = vals_[pos];
     return true;
 }
 
 
-template <class T> inline
-bool  SortedTable<T>::remove(int id_)
+template <class IDT, class T> inline
+bool  SortedTable<IDT,T>::remove(IDT theid)
 {
-    int pos = ids.indexOf( id_ );
+    int pos = ids_.indexOf( theid );
 
     if ( pos==-1 ) return false;
 
-    vals.remove( pos );
-    ids.remove( pos );
+    vals_.remove( pos );
+    ids_.remove( pos );
 
     return true;
 }
