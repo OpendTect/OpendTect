@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emundo.cc,v 1.5 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: emundo.cc,v 1.6 2009-09-01 21:54:20 cvskris Exp $";
 
 #include "emundo.h"
 
@@ -94,6 +94,17 @@ EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
     , sid_( sid )
     , oldorigin_( hor->geometry().sectionGeometry(sid)->rowRange().start,
 		  hor->geometry().sectionGeometry(sid)->colRange().start )
+{}
+
+
+EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
+				EM::SectionID sid, Array2D<float>* oldarr,
+				const RowCol& oldorigin )
+    : horizon_( hor )
+    , oldarr_( oldarr )
+    , newarr_( 0 )
+    , sid_( sid )
+    , oldorigin_( oldorigin )
 {}
 
 

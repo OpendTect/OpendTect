@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emundo.h,v 1.5 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emundo.h,v 1.6 2009-09-01 21:54:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,9 @@ mClass SetAllHor3DPosUndoEvent : public UndoEvent
 {
 public:
 			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
-						Array2D<float>*);
+				    Array2D<float>*);
+			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
+				    Array2D<float>*,const RowCol& oldorigin);
 
     const char*		getStandardDesc() const;
     bool		unDo();
