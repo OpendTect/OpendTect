@@ -8,9 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoBeachBall.cc,v 1.5 2009-09-01 09:13:07 cvshelene Exp $";
+static const char* rcsID = "$Id: SoBeachBall.cc,v 1.6 2009-09-01 09:24:15 cvskarthika Exp $";
 
 #include "SoBeachBall.h"
+#include "SoCameraInfoElement.h"
+#include "SoCameraInfo.h"
 
 #include <Inventor/system/gl.h>
 #include <Inventor/SbBox.h>
@@ -22,6 +24,7 @@ static const char* rcsID = "$Id: SoBeachBall.cc,v 1.5 2009-09-01 09:13:07 cvshel
 #include <Inventor/elements/SoElement.h>
 #include <Inventor/elements/SoLightModelElement.h>
 #include <Inventor/elements/SoMaterialBindingElement.h>
+#include <Inventor/elements/SoComplexityElement.h>
 #include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/misc/SoState.h>
@@ -61,7 +64,7 @@ void SoBeachBall::initClass()
 }
 
 
-SoBeachBall::SoBeachBall() 
+SoBeachBall::SoBeachBall() : currlod_(0)
 {
     SO_NODE_CONSTRUCTOR(SoBeachBall);
     SO_NODE_ADD_FIELD(materialindex, (-1));
@@ -181,7 +184,7 @@ void SoBeachBall::initVertices( int numlevels )
 		newlevelinfo.tricoordindices_[1] );
 	edgeindices.append( newresedgeindices );
 	lodinfo_.append( newlevelinfo );
-	  // note: normals will be filled in later
+	  // note: normals will be filled in by method calculateNormals
 
 	// Number of vertices at every level (greater than 0) is
 	// v(ilvl) = v(ilvl-1) + e(ilvl-1)
@@ -406,7 +409,7 @@ void SoBeachBall::clearData()
 }
 
 // The rendering method of this shape.
-void SoBeachBall::GLRender( SoGLRenderAction *action )
+void SoBeachBall::GLRender( SoGLRenderAction* action )
 {
     if ( res2coords_ == 0 )
         return;   
@@ -428,7 +431,8 @@ void SoBeachBall::GLRender( SoGLRenderAction *action )
     SbList<SbVec3f>* pnormalslist1 = 0;
     SbList<SbVec3f>* pnormalslist2 = 0;
     
-    getTriangleInfo( &ptrilist1, &ptrilist2, &pnormalslist1, &pnormalslist2 );
+    getTriangleInfo( state, &ptrilist1, &ptrilist2, &pnormalslist1, 
+	    &pnormalslist2 );
     
     if ( !ptrilist1 || !ptrilist2 || !pnormalslist1 || !pnormalslist2 )
 	return;
@@ -462,22 +466,19 @@ void SoBeachBall::GLRender( SoGLRenderAction *action )
 
 
 // Finds the data structures for the desired level of detail.
-void SoBeachBall::getTriangleInfo( SbList<int>** ptrilist1, 
+void SoBeachBall::getTriangleInfo( SoState* state, SbList<int>** ptrilist1, 
 	SbList<int>** ptrilist2, SbList<SbVec3f>** pnormalslist1,
 	SbList<SbVec3f>** pnormalslist2 )
 {
-    // For now, we use an internal float to specify the level of detail
-    // This must later be retrieved from the SoDetail class
-    const float levelofdetail = 1.0;
-    int level = (int) floor ( levelofdetail * mMaxLevelOfDetail );
+    this->computeResolution( state );
 
-    level = ( level < 0 ) ? 0 : level;
-    level = ( level >= mMaxLevelOfDetail ) ? mMaxLevelOfDetail-1 : level;
+    if ( currlod_ == -1 )
+	return;
 
-    *ptrilist1 = &(lodinfo_[level].tricoordindices_[0]);
-    *ptrilist2 = &(lodinfo_[level].tricoordindices_[1]);
-    *pnormalslist1 = &(lodinfo_[level].normals_[0]);
-    *pnormalslist2 = &(lodinfo_[level].normals_[1]);
+    *ptrilist1 = &(lodinfo_[currlod_].tricoordindices_[0]);
+    *ptrilist2 = &(lodinfo_[currlod_].tricoordindices_[1]);
+    *pnormalslist1 = &(lodinfo_[currlod_].normals_[0]);
+    *pnormalslist2 = &(lodinfo_[currlod_].normals_[1]);
 }
 
 
@@ -500,7 +501,7 @@ void SoBeachBall::renderTriangles( SbList<int>* ptrilist,
 
 
 // Generates triangles representing the sphere.
-void SoBeachBall::generatePrimitives( SoAction *action )
+void SoBeachBall::generatePrimitives( SoAction* action )
 {
     // Depending on the level of detail desired, triangles are generated to
     // approximate a sphere
@@ -522,7 +523,8 @@ void SoBeachBall::generatePrimitives( SoAction *action )
     SbList<SbVec3f>* pnormalslist1 = 0;
     SbList<SbVec3f>* pnormalslist2 = 0;
     
-    getTriangleInfo( &ptrilist1, &ptrilist2, &pnormalslist1, &pnormalslist2 );
+    getTriangleInfo( state, &ptrilist1, &ptrilist2, &pnormalslist1, 
+	    &pnormalslist2 );
         
     if ( !ptrilist1 || !ptrilist2 || !pnormalslist1 || !pnormalslist2 )
 	return;
@@ -609,13 +611,56 @@ SbBool SoBeachBall::testNumColors( SoState* state )
 
 
 // Computes the bounding box and center of the beachball.
-void SoBeachBall::computeBBox( SoAction *, SbBox3f &box, SbVec3f &center )
+void SoBeachBall::computeBBox( SoAction*, SbBox3f& box, SbVec3f &center )
 {
     if ( res2coords_ == 0 )
         return;   
  
     box.setBounds( SbVec3f( -1, -1, -1 ), SbVec3f( 1, 1, 1 ) );
     center.setValue( 0.0, 0.0, 0.0 );
+}
+
+
+// Computes the level of detail depending on the value of SoComplexity node
+// and the screen space occupied.
+void SoBeachBall::computeResolution( SoState* state )
+{
+    SbBox3f bbox;
+    SbVec3f dummy;
+
+//    computeBBox( 0, bbox, dummy );
+    bbox.setBounds( SbVec3f( -1, -1, -1 ), SbVec3f( 1, 1, 1 ) );
+ 
+    const int32_t camerainfo = SoCameraInfoElement::get(state);
+    if ( (camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE)) )
+	return;
+
+    int desiredres = 0;
+    {
+	SbVec2s screensize;
+	SoShape::getScreenSize( state, bbox, screensize );
+	const float complexity = 
+	    SbClamp(SoComplexityElement::get(state), 0.0f, 1.0f);
+
+	// maximum number of pixels per triangle
+	const int numpixelspertriangle = 10; 
+	// find the minimum number of triangles to be rendered
+	const float wantednumtriangles = 
+	    complexity*screensize[0]*screensize[1]/numpixelspertriangle;
+
+	if (wantednumtriangles >= 0)
+	{
+	    // Number of triangles or faces in a level is
+	    // f(l) = power(4, l) * 8 (assuming l runs from 0 to max-1)
+	    desiredres = int (floor(log(wantednumtriangles/8)/log(4)));
+
+	    if ( desiredres >= mMaxLevelOfDetail )
+		desiredres = mMaxLevelOfDetail - 1;
+	    else if ( desiredres < 0 )
+		desiredres = 0;
+	}
+    }
+    this->currlod_ = (char) desiredres;
 }
 
 
