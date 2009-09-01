@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.45 2009-08-26 21:24:56 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.46 2009-09-01 15:23:33 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -287,6 +287,8 @@ void Threads::Barrier::setNrThreads( int nthreads )
 	pErrMsg("Thread waiting. Should never happen");
 	return;
     }
+
+    nrthreads_ = nthreads;
 }
 
 
