@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.30 2009-07-30 10:08:38 cvsjaap Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.31 2009-09-01 08:46:39 cvshelene Exp $";
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -146,7 +146,7 @@ public:
 
 uiCmdRecordInps( uiParent* p, CmdRecorder& cmdrec )
         : uiDialog(p,Setup("Command recording", "Specify output command file",
-			   "0.0.0"))
+			   "0.4.9"))
 	, rec_(cmdrec)
 {
     outfld_ = new uiFileInput( this, "Output command file",
