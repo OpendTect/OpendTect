@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.19 2009-09-01 18:20:15 cvskris Exp $
+ RCS:           $Id: sectionextender.h,v 1.20 2009-09-01 22:06:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,9 @@ public:
 
     const char*			errMsg() const;
     virtual void		fillPar(IOPar&) const {}
-    virtual bool		usePar(const IOPar&) { return true; }
+    virtual bool		usePar(const IOPar&) 	{ return true; }
+
+    void			setUndo(bool yn)	{ setundo_ = yn; }
 
 protected:
     void			addTarget(const EM::SubID& target,
@@ -79,9 +81,9 @@ protected:
 
     const EM::SectionID		sid_;
     BufferString		errmsg;
+    bool			setundo_;
 };
 
 };
 
 #endif
-

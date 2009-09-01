@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.14 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.15 2009-09-01 22:06:02 cvskris Exp $";
 
 #include "horizon3dextender.h"
 
@@ -124,7 +124,7 @@ int Horizon3DExtender::nextStep()
 		    if ( cursrc.sqDistTo( dst )<olddist ) 
 		    {
 			addedpossrc_[previndex] = srcbid.getSerialized();
-			surface.setPos( neighbor, Coord3(0,0,depth), true );
+			surface.setPos( neighbor, Coord3(0,0,depth), setundo_ );
 		    }
 		    continue;
 		}
@@ -136,7 +136,7 @@ int Horizon3DExtender::nextStep()
 
 
 		if ( !isExcludedPos(neighbor.subID()) &&
-		     surface.setPos(neighbor, Coord3(0,0,depth), true) )
+		     surface.setPos(neighbor, Coord3(0,0,depth), setundo_) )
 		{
 		    addTarget( neighbor.subID(), srcbid.getSerialized() );
 		    change = true;
