@@ -8,6 +8,8 @@ ___________________________________________________________________
 
 -*/
 
+static const char* rcsID = "$Id: SoBeachBall.cc,v 1.5 2009-09-01 09:13:07 cvshelene Exp $";
+
 #include "SoBeachBall.h"
 
 #include <Inventor/system/gl.h>
