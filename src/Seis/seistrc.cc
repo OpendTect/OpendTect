@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.42 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.43 2009-09-01 13:57:06 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -193,13 +193,12 @@ bool SeisTrc::isWriteReady() const
 
 void SeisTrc::getWriteReady( SeisTrc& trc ) const
 {
+    trc = *this;
     if ( isWriteReady() )
-	{ trc = *this; return; }
+	return;
 
     const int sz = size();
     const int nrcomps = nrComponents();
-    trc.info_ = info_;
-    trc.reSize( sz, false );
     const int nsr = mNINT( info_.sampling.start / info_.sampling.step );
     trc.info_.sampling.start = nsr * info_.sampling.step;
     if ( sz < 2 )
