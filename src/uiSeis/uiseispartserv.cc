@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.111 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.112 2009-09-01 08:38:18 cvshelene Exp $";
 
 #include "uiseispartserv.h"
 
@@ -169,6 +169,7 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
 
     uiSelectFromList::Setup setup( "Select 2D Lines", linenames );
     uiSelectFromList dlg( appserv().parent(), setup );
+    dlg.setHelpID("50.0.17");
     if ( dlg.selFld() )
     {
 	dlg.selFld()->setMultiSelect();
