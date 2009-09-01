@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.22 2009-08-25 08:53:42 cvsumesh Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.23 2009-09-01 06:47:37 cvsnanne Exp $";
 
 #include "autotracker.h"
 
@@ -252,7 +252,6 @@ int AutoTracker::nextStep()
 	    horadj->setAmplitudeThreshold( th );
 	    execmsg_ = "Step: "; execmsg_ += th;
 	    nrdone_ = 1;
-	    return MoreToDo();
 	}
 	else
 	{
@@ -275,8 +274,11 @@ int AutoTracker::nextStep()
 	    horadj->setAllowedVariance( var );
 	    execmsg_ = "Step: "; execmsg_ += var*100; execmsg_ += "%";
 	    nrdone_ = 1;	    
-	    return MoreToDo();
 	}
+
+	blacklist_.erase();
+	blacklistscore_.erase();
+	return MoreToDo();
     }
 
     return status;
