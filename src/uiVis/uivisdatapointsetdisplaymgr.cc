@@ -7,15 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.5 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.6 2009-09-01 06:14:51 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
 #include "uimenuhandler.h"
 #include "uivispartserv.h"
 #include "uimaterialdlg.h"
+#include "uicreatepicks.h"
+#include "uiioobj.h"
+#include "uimsg.h"
+#include "ctxtioobj.h"
 #include "emrandomposbody.h"
 #include "emmanager.h"
+#include "pickset.h"
+#include "picksettr.h"
 #include "visdata.h"
 #include "visrandomposbodydisplay.h"
 #include "vissurvscene.h"
@@ -25,6 +31,8 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     : visserv_( serv )
     , vismenu_( visserv_.getMenuHandler() )
     , createbodymnuitem_( "Create Body ..." )
+    , storepsmnuitem_( "Save as Pickset ..." )
+    , removemnuitem_( "Remove selected points" )
     , treeToBeAdded( this )
 {
     vismenu_->createnotifier.notify(
@@ -65,6 +73,8 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
     if ( !dispcorrect ) return;
 
      mAddMenuItem( menu, &createbodymnuitem_, true, false );
+     mAddMenuItem( menu, &storepsmnuitem_, true, false );
+     mAddMenuItem( menu, &removemnuitem_, true, false );
 }
 
 
@@ -106,6 +116,38 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	emps->copyFrom( data, true );
 	emps->setPreferredColor( display->getColor() );
 	treeToBeAdded.trigger( emps->id() );
+    }
+    else if ( mnuid == storepsmnuitem_.id )
+    {
+	uiCreatePicks dlg( visserv_.appserv().parent() );
+	if ( !dlg.go() )
+	return;
+
+	Pick::Set& pickset = *dlg.getPickSet();
+
+	const DataPointSet& data = display->getDataPack();
+	for ( int rid=0; rid<data.size(); rid++ )
+	{
+	    if ( data.isSelected(rid) )
+	    pickset += Pick::Location( Coord3(data.coord(rid),data.z(rid)));
+	}
+
+	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
+	ctio->setName( pickset.name() );
+
+	if ( uiIOObj::fillCtio(*ctio,true) )
+	{
+	    BufferString bs;
+	    if ( !PickSetTranslator::store( pickset, ctio->ioobj, bs ) )
+	    uiMSG().error(bs);
+	}
+    }
+    else if ( mnuid == removemnuitem_.id )
+    {
+	visSurvey::Scene* scene = display->getScene();
+	if ( !scene || !scene->getSelector() )
+	    return;
+	display->removeSelection( *scene->getSelector() );
     }
 }
 

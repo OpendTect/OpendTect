@@ -4,8 +4,9 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.5 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.6 2009-09-01 06:14:51 cvssatyaki Exp $";
 
+#include "selector.h"
 #include "viscoord.h"
 #include "vispointsetdisplay.h"
 
@@ -47,17 +48,44 @@ Color PointSetDisplay::getColor() const
 bool PointSetDisplay::setDataPack( const DataPointSet& dps )
 {
     data_ = dps;
+    update();
+
+    return true;
+}
+
+
+void PointSetDisplay::update()
+{
     pointset_->getCoordinates()->removeAfter(-1);
     getMaterial()->setColor( Color::DgbColor() );
 
-    for ( int idx=0; idx<dps.size(); idx++ )
+    for ( int idx=0; idx<data_.size(); idx++ )
     {
-	if ( dps.isSelected(idx) )
+	if ( data_.isSelected(idx) )
 	    pointset_->getCoordinates()->addPos(
-		    Coord3(dps.coord(idx),dps.z(idx)) );
+		    Coord3(data_.coord(idx),data_.z(idx)) );
+    }
+}
+
+
+void PointSetDisplay::removeSelection( const Selector<Coord3>& selector )
+{
+    if ( !selector.isOK() )
+	return;
+
+    for ( int idx=0; idx<pointset_->getCoordinates()->size(true); idx++ )
+    {
+	Coord3 pos = pointset_->getCoordinates()->getPos( idx );
+	if ( selector.includes(pos) )
+	{
+	    DataPointSet::RowID rid = data_.find( DataPointSet::Pos(pos) );
+	    if ( rid < 0 )
+		continue;
+	    data_.setSelected( rid, false );
+	}
     }
 
-    return true;
+    update();
 }
 
 

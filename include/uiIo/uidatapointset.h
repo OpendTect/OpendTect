@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.24 2009-08-27 07:15:03 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.25 2009-09-01 06:14:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,6 +185,7 @@ protected:
     void			delSelRows(CallBacker*);
     void			getSelPts(CallBacker*);
     void			showStatusMsg(CallBacker*);
+    void			closeNotify(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

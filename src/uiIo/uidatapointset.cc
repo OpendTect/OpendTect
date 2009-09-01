@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.51 2009-08-27 07:15:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.52 2009-09-01 06:14:51 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -89,6 +89,8 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, statswin_(0)
 	, iotb_(0)
 {
+    windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
+
     if ( mDPM.haveID(dps_.id()) )
 	mDPM.obtain( dps_.id() );
     setCtrlStyle( LeaveOnly );
@@ -154,6 +156,10 @@ int uiDataPointSet::initVars()
 uiDataPointSet::~uiDataPointSet()
 {
 }
+
+
+void uiDataPointSet::closeNotify( CallBacker* )
+{ plotpercentage_ = mUdf(float); }
 
 
 void uiDataPointSet::mkToolBars()
@@ -409,7 +415,8 @@ void uiDataPointSet::selYCol( CallBacker* )
     if ( ycol_ == -1 )
     {
 	ycol_ = tid;
-	plotpercentage_ = (float)( 100 /(1+dps_.nrActive()/minptsfordensity) );
+	plotpercentage_ =
+	    (float)100 / (float)(1+dps_.nrActive()/minptsfordensity);
     }
     else
     {
@@ -424,13 +431,13 @@ void uiDataPointSet::selYCol( CallBacker* )
 				 "Continue with no Y2") )
 	    {
 		plotpercentage_ =
-		    (float)( 100 /(1+dps_.nrActive()*2/minptsfordensity) );
+		    (float)100 / (float)(1+dps_.nrActive()*2/minptsfordensity);
 		y2col_ = tid;
 	    }
 	    else
 	    {
 		plotpercentage_ =
-		    (float)( 100 /(1+dps_.nrActive()/minptsfordensity) );
+		    (float)100 / (float)(1+dps_.nrActive()/minptsfordensity);
 		y2col_ = -1;
 	    }		
 	}
@@ -858,6 +865,8 @@ void uiDataPointSet::valChg( CallBacker* )
 
 void uiDataPointSet::eachChg( CallBacker* )
 {
+    if ( mIsUdf(plotpercentage_) ) return;
+
     float newpercentage = percfld_->getFValue();
     if ( newpercentage < 0 ) newpercentage = 0;
     if ( newpercentage == percentage_ )
