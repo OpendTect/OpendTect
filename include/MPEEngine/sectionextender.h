@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.18 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: sectionextender.h,v 1.19 2009-09-01 18:20:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "sets.h"
 #include "cubesampling.h"
+#include "sortedlist.h"
 
 class BinID;
 class BinIDValue;
@@ -67,6 +68,7 @@ protected:
     void			addTarget(const EM::SubID& target,
 	    				  const EM::SubID& src );
 
+    SortedList<EM::SubID>	sortedaddedpos_;
     TypeSet<EM::SubID>		addedpos_;
     TypeSet<EM::SubID>		addedpossrc_;
     TypeSet<EM::SubID>		startpos_;

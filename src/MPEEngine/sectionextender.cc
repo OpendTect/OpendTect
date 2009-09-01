@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.11 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.12 2009-09-01 18:20:15 cvskris Exp $";
 
 #include "sectionextender.h"
 #include "mpeengine.h"
@@ -22,6 +22,7 @@ SectionExtender::SectionExtender( const EM::SectionID& si)
     : sid_( si )
     , extboundary_( false )
     , excludedpos_( 0 )
+    , sortedaddedpos_( false )
 {}
 
 
@@ -108,11 +109,12 @@ void SectionExtender::unsetExtBoundary()
 void SectionExtender::addTarget( const EM::SubID& target,
 			         const EM::SubID& src )
 {
-    if ( addedpos_.indexOf(target)!=-1 || isExcludedPos(target) )
+    if ( sortedaddedpos_.indexOf(target)!=-1 || isExcludedPos(target) )
 	return;
 
     addedpossrc_ += src;
     addedpos_ += target;
+    sortedaddedpos_ += target;
 }
 
 
