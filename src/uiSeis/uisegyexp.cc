@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.21 2009-08-28 15:58:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.22 2009-09-01 08:30:04 cvshelene Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -416,6 +416,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	    BufferStringSet cnms; oinf.getComponentNames( cnms, lk );
 	    uiSelectFromList dlg( this,
 		uiSelectFromList::Setup("Please select the component",cnms) );
+	    dlg.setHelpID("103.0.15");
 	    if ( !dlg.go() )
 		return false;
 	    selcomp_ = dlg.selection();
