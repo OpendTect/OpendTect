@@ -1,11 +1,12 @@
-dTect V2.4
+dTect V4.1
 Default settings
-Wed Jun 28 15:42:01 2006
+Tue Sep 1 12:19:19 2009
 !
+Common
 Ui.ToolTips.enable:		Yes
-dTect.Dump OI Menu:		No
+dTect.Dump OI Menu:		Yes
 dTect.Use shading:		Yes
-dTect.Color table.Name:		Red-White-Black
+dTect.Color table.Name:		Seismics
 dTect.Disp.Default clip perc:	1
 dTect.ColorBar.show vertical:	No
 dTect.ColorBar.show on top:	No
@@ -20,7 +21,10 @@ dTect.Ask store attributeset:	Yes
 dTect.Zoom factor:		1
 dTect.Icons.size:		32
 dTect.Average even median:	No
-Seg-Y headers:			/tmp/sgy_dump.txt
+dTect.No shading:		No
+dTect.Use VolRen shading:	No
+dTect.Select Plugins:		Yes
+MultiMachine.Nr inline per job:	3
 Company:			
 Font.def.Control:		Helvetica`8`Normal`No
 Font.def.Small control: 	Helvetica`6`Normal`No
