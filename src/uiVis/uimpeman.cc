@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.180 2009-08-31 12:53:06 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.181 2009-09-01 06:09:26 cvsnageswara Exp $";
 
 #include "uimpeman.h"
 
@@ -1366,7 +1366,7 @@ void uiMPEMan::movePlaneCB( CallBacker* )
     if ( ison )
     {
 	toolbar->setToolTip( moveplaneidx, "Hide QC plane" );
-	attribSel(0);
+//	attribSel(0);
     }
 }
 
