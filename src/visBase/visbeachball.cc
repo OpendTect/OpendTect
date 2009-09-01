@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.7 2009-08-28 12:42:03 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.8 2009-09-01 09:18:25 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: visbeachball.cc,v 1.7 2009-08-28 12:42:03 cvska
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoMaterialBinding.h>
 #include <Inventor/nodes/SoTranslation.h>
+#include <Inventor/nodes/SoComplexity.h>
 
 mCreateFactoryEntry( visBase::BeachBall );
 
@@ -40,6 +41,7 @@ BeachBall::BeachBall()
     , ball_(new SoBeachBall)
     , material_(new SoMaterial)
     , matbinding_(new SoMaterialBinding)
+    , complexity_(new SoComplexity)
     , translation_(new SoTranslation)
     , xyTranslation_(0)
     , scale_(new SoScale)
@@ -57,6 +59,12 @@ BeachBall::BeachBall()
     matbinding_->value = SoMaterialBinding::PER_PART;
     addChild( matbinding_ );
     
+    complexity_->ref();
+    complexity_->type = SoComplexity::SCREEN_SPACE;
+    complexity_->value = 1.0;
+    
+    addChild( complexity_ );
+
     translation_->ref();
     addChild( translation_ );
     
@@ -73,6 +81,7 @@ BeachBall::~BeachBall()
 {
     material_->unrefNoDelete();
     matbinding_->unrefNoDelete();
+    complexity_->unrefNoDelete();
     translation_->unrefNoDelete();
     scale_->unrefNoDelete();
     if (xyTranslation_)
