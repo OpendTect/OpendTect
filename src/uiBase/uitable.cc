@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.86 2009-08-31 13:04:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.87 2009-09-01 12:03:52 cvsbert Exp $";
 
 
 #include "uitable.h"
@@ -989,7 +989,7 @@ int uiTable::getIntValue( const RowCol& rc ) const
     const char* str = text( rc );
     if ( !str || !*str ) return mUdf(int);
 
-    return Conv::to<int>( text(rc) );
+    return Conv::to<int>( str );
 }
 
 
@@ -1013,19 +1013,32 @@ float uiTable::getfValue( const RowCol& rc ) const
 
 void uiTable::setValue( const RowCol& rc, int i )
 {
-    setText( rc, Conv::to<const char*>(i) );
+    BufferString txt( Conv::to<const char*>(i) );
+    setText( rc, txt.buf() );
 }
 
 
 void uiTable::setValue( const RowCol& rc, float f )
 {
-    setText( rc, mIsUdf(f) ? "" : Conv::to<const char*>(f) );
+    if ( mIsUdf(f) )
+	setText( rc, "" );
+    else
+    {
+	BufferString txt( Conv::to<const char*>(f) );
+	setText( rc, txt.buf() );
+    }
 }
 
 
 void uiTable::setValue( const RowCol& rc, double d )
 {
-    setText( rc, mIsUdf(d) ? "" : Conv::to<const char*>(d) );
+    if ( mIsUdf(d) )
+	setText( rc, "" );
+    else
+    {
+	BufferString txt( Conv::to<const char*>(d) );
+	setText( rc, txt.buf() );
+    }
 }
 
 
