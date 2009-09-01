@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.7 2009-08-31 09:38:03 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.8 2009-09-01 14:20:57 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,13 +25,13 @@ namespace Well { class Data; class DisplayProperties; };
 mClass uiWellDispPropDlg : public uiDialog
 {
 public:
-				uiWellDispPropDlg(uiParent*,Well::Data&);
+				uiWellDispPropDlg(uiParent*,Well::Data*);
 				~uiWellDispPropDlg();
 
     Notifier<uiWellDispPropDlg>	applyAllReq;
 
-    Well::Data&			wellData()		{ return wd_; }
-    const Well::Data&		wellData() const	{ return wd_; }
+    Well::Data*			wellData()		{ return wd_; }
+    const Well::Data*		wellData() const	{ return wd_; }
 
     bool 			savedefault_;
  
@@ -39,7 +39,7 @@ protected:
 
     bool			needdeletenotifyers_;
 
-    Well::Data&			wd_;
+    Well::Data*			wd_;
     Well::DisplayProperties&	props_;
     Well::DisplayProperties*	orgprops_;
 

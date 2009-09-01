@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.13 2009-07-28 10:09:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.14 2009-09-01 14:20:57 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -48,7 +48,7 @@ static const char* sKeyPlsSel = "Please select";
 uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
        			    	  const Attrib::DescSet& attrset )
 	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
-		"Select Data to tie Well to Seismic",mTODOHelpID)
+		"Select Data to tie Well to Seismic","107.4.0")
 		.savetext("Save as default").savebutton(true).savechecked(false))
 	, wtsetup_(wtsetup)
 	, attrset_(attrset)
@@ -88,7 +88,7 @@ uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
 
 uiWellTieMGRDlg::~uiWellTieMGRDlg()
 {
-    deepErase( welltiedlgset_ );
+    deepErase( welltiedlgsetcpy_ );
 }
 
 
@@ -180,10 +180,15 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
     if ( !strcmp( wtsetup_.denlognm_, sKeyPlsSel ) )
 	mErrRet("Please select a Density log")
     
-    if ( !wvltfld_->commitInput() )
-	 mErrRet("Please select an initial wavelet")
-    if ( !wvltfld_->ctxtIOObj().ioobj )
-	mErrRet("Please select an valid wavelet")
+    if ( !wvltfld_->commitInput() || !wvltfld_->ctxtIOObj().ioobj )
+	mErrRet("Please select a valid wavelet")
+
+    Well::Data* wd = Well::MGR().get( wtsetup_.wellid_, false );
+    if ( !wd ) mErrRet( "can not find well data" );
+
+    WellTieParams dpms( wtsetup_, wd, attrset_ );
+    if ( !dpms.getUnits().denFactor() || !dpms.getUnits().velFactor()  )
+	mErrRet( "invalid log units, please check your input logs" );
 
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
     wtsetup_.wvltid_ = wvltfld_->ctxtIOObj().ioobj->key();
@@ -204,8 +209,16 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
 	    mErrRet( errmsg )
 	}
     }
+    for ( int idx = welltiedlgsetcpy_.size()-1; idx>=0; idx-- )
+    {
+	if ( welltiedlgsetcpy_[idx]->Setup().wellid_ == wtsetup_.wellid_ )
+	    delete welltiedlgsetcpy_.remove( idx );
+    }
 
-    welltiedlgset_ += new uiWellTieToSeismicDlg(this, wtsetup_, attrset_ );
+    uiWellTieToSeismicDlg* wtdlg 
+		= new uiWellTieToSeismicDlg( this, wtsetup_, attrset_ );
+    welltiedlgset_ += wtdlg;
+    welltiedlgsetcpy_ += wtdlg;
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
 	    			mCB(this,uiWellTieMGRDlg,wellTieDlgClosed) );
     return false;

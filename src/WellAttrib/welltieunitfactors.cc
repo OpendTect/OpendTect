@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.22 2009-08-18 07:49:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.23 2009-09-01 14:20:58 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -55,8 +55,6 @@ WellTieUnitFactors::WellTieUnitFactors( const WellTieSetup* wtsetup )
 
     velfactor_  = calcVelFactor( veluom_->symbol(), wtsetup->issonic_ );
     denfactor_ = calcDensFactor( denuom_->symbol() );
-
-    Well::MGR().release( wtsetup->wellid_ ); 
 }
 
 
@@ -97,6 +95,8 @@ WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
 		, ads_(ads)	  
 		, factors_(WellTieUnitFactors(&wts))
 {
+    if ( !getUnits().denFactor() || !getUnits().velFactor() )
+	return;
     dpms_.corrstartdah_ = wd_.track().dah(0);
     dpms_.corrstopdah_  = wd_.track().dah(wd_.track().size()-1);
     dpms_.currvellognm_ = wts.vellognm_;
@@ -150,6 +150,7 @@ void WellTieParams::resetVellLognm()
 
 #define mMaxWorkArraySize (int)1.e5
 #define mComputeStepFactor (SI().zStep()/step_)
+#define mMinWorkArraySize (int)20
 
 bool WellTieParams::DataParams::resetDataParams()
 {
@@ -163,6 +164,8 @@ bool WellTieParams::DataParams::resetDataParams()
     //TODO: change structure to get time and corrtime ALWAYS start at 0.
     //->no use to update startintv anymore!
     timeintv_.start = 0;
+    if ( corrtimeintv_.start<0 ) corrtimeintv_.start = 0; 
+    if ( corrtimeintv_.stop>timeintv_.stop ) corrtimeintv_.stop=timeintv_.stop;
 
     worksize_ = (int) ( (timeintv_.stop-timeintv_.start)/timeintv_.step );
     dispsize_ = (int) ( worksize_/step_ )-1;
@@ -171,6 +174,7 @@ bool WellTieParams::DataParams::resetDataParams()
 
     if ( corrsize_>dispsize_ ) corrsize_ = dispsize_;
     if ( worksize_ > mMaxWorkArraySize ) return false;
+    if ( worksize_ < mMinWorkArraySize || dispsize_ < 2 ) return false;
     
     return true;
 }
@@ -234,7 +238,4 @@ WellTieParams::uiParams::uiParams( const Well::Data* d)
 	, iszinft_(false)
 	, iszintime_(true)		 
 {}
-
-
-
 

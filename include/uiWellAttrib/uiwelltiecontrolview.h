@@ -27,10 +27,11 @@ public:
 			    		     uiFlatViewer*);
 			~uiWellTieControlView(){};
    
+    const bool 		isZoomAtStart() const;
     void 		setEditOn(bool);
     void		setPickSetMGR(WellTiePickSetMGR* pmgr)
     			{ picksetmgr_ = pmgr; }
-    void		setSelView(bool isnewsel = true );
+    void		setSelView(bool isnewsel = true, bool viewall=false );
     
 protected:
     

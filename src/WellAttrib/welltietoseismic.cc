@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.24 2009-08-18 10:53:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.25 2009-09-01 14:20:57 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -188,12 +188,10 @@ void WellTieToSeismic::createDispLogs()
 
 bool WellTieToSeismic::extractSeismics()
 {
-    MouseCursorManager::setOverride( MouseCursor::Wait );
     Attrib::EngineMan aem; BufferString errmsg;
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps_, ads_, errmsg,
 						       dps_->nrCols()-1 );
     if ( !tabextr ) return false;
-    MouseCursorManager::restoreOverride();
     if (!tr_->execute( *tabextr )) return false;
     dps_->dataChanged();
 
@@ -209,7 +207,7 @@ void WellTieToSeismic::convolveWavelet()
     IOObj* ioobj = IOM().get( wtsetup_.wvltid_ );
     Wavelet* wvlt = new Wavelet( *Wavelet::get( ioobj ) );
     const int wvltsz = wvlt->size();
-    if ( !wvlt || wvltsz <= 0 ) return;
+    if ( !wvlt || wvltsz <= 0 || wvltsz > params_.dispsize_ ) return;
     Array1DImpl<float> wvltvals( wvlt->size() );
     memcpy( wvltvals.getData(), wvlt->samples(), wvltsz*sizeof(float) );
 
@@ -226,7 +224,7 @@ bool WellTieToSeismic::estimateWavelet()
     //copy initial wavelet
     Wavelet* wvlt = new Wavelet( *Wavelet::get(IOM().get(wtsetup_.wvltid_)) );
     const int wvltsz = wvlt->size();
-    if ( datasz < wvltsz )
+    if ( datasz < wvltsz +1 )
        return false;
 
     const bool iswvltodd = wvltsz%2;
@@ -247,7 +245,6 @@ bool WellTieToSeismic::estimateWavelet()
     window.apply( &wvltvals );
     memcpy( wvlt->samples(), wvltvals.getData(), wvltsz*sizeof(float) );
 
-    //geocalc_->reverseWavelet( *wvlt );
     wtdata_.wvltest_ = *wvlt;
     return true;
 }

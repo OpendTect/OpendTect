@@ -57,9 +57,6 @@ public:
     void 	      	createDispLogs();
    
     //D2TModelmanager operations
-    void 		setd2TModelFromData()
-    			{ d2tmgr_->setFromData(*dispdata_.get(params_.timenm_),
-				              *dispdata_.get(params_.dptnm_)); }
     void 		computeD2TModel()
 			{ d2tmgr_->setFromVelLog(params_.currvellognm_); }
     bool 		saveD2TModel(const char* fname)

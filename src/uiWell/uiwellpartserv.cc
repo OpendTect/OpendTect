@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.48 2009-07-24 04:50:13 cvsraman Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.49 2009-09-01 14:20:57 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -105,7 +105,7 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     
     if (isdisppropopened_ == false )
     {
-	uiwellpropdlg_ = new uiWellDispPropDlg( parent(), *wd );
+	uiwellpropdlg_ = new uiWellDispPropDlg( parent(), wd );
 	isdisppropopened_ = true;
 	uiwellpropdlg_->applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
 	uiwellpropdlg_->windowClosed.notify(mCB(this,uiWellPartServer,
@@ -121,13 +121,14 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
 {
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
-    const Well::Data& edwd = dlg->wellData();
-    const Well::DisplayProperties& edprops = edwd.displayProperties();
+    const Well::Data* edwd = dlg->wellData();
+    if ( !edwd ) { pErrMsg("well data has been deleted"); return; }
+    const Well::DisplayProperties& edprops = edwd->displayProperties();
 
     if ( dlg->savedefault_ == true )
     {
 	edprops.defaults() = edprops;
-	saveWellDispProps( allapplied_ ? 0 : &edwd );
+	saveWellDispProps( allapplied_ ? 0 : edwd );
 	edprops.commitDefaults();
     }
 
@@ -163,14 +164,14 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 {
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
-    const Well::Data& edwd = dlg->wellData();
-    const Well::DisplayProperties& edprops = edwd.displayProperties();
+    const Well::Data* edwd = dlg->wellData();
+    const Well::DisplayProperties& edprops = edwd->displayProperties();
 
     ObjectSet<Well::Data>& wds = Well::MGR().wells();
     for ( int iwll=0; iwll<wds.size(); iwll++ )
     {
 	Well::Data& wd = *wds[iwll];
-	if ( &wd != &edwd )
+	if ( &wd != edwd )
 	{
 	    wd.displayProperties() = edprops;
 	    wd.dispparschanged.trigger();

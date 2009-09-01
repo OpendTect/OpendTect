@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.22 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.23 2009-09-01 14:20:57 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -229,7 +229,7 @@ void uiWellTieWaveletView::saveWvltPushed( CallBacker* )
 uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p, 
 						  const Wavelet* wvlt,
        						  const WellTieDataHolder* dh )
-	: uiDialog( p,Setup("Wavelet Properties","",mTODOHelpID).modal(false))
+	: uiDialog( p,Setup("Wavelet Properties","","107.4.3").modal(false))
 	, wvlt_(wvlt)  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, wvltsz_(0)
@@ -305,7 +305,11 @@ void uiWellTieWaveletDispDlg::setValArrays()
     Array1DImpl<float_complex> czeropaddedarr( zpadsz );
     Array1DImpl<float_complex> cfreqarr( zpadsz );
 
-    geocalc_.zeroPadd( carr, czeropaddedarr );
+    for ( int idx=0; idx<zpadsz; idx++ )
+	czeropaddedarr.set( idx, 0 );
+    for ( int idx=0; idx<wvltsz_; idx++ )
+	czeropaddedarr.set( idx+wvltsz_, carr.get(idx) );
+
     mDoTransform( fft_, true, czeropaddedarr, cfreqarr, zpadsz );
     for ( int idx=0; idx<zpadsz; idx++ )
     {

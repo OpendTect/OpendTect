@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.46 2009-08-18 08:33:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.47 2009-09-01 14:20:57 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.46 2009-08-18 08:3
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "ctxtioobj.h"
+#include "pixmap.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
@@ -47,12 +48,13 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.46 2009-08-18 08:3
 #include "wellmarker.h"
 
 #include "welltiedata.h"
-#include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 #include "welltiesetup.h"
 #include "welltietoseismic.h"
 #include "welltieunitfactors.h"
 
+
+static const char*  helpid = "107.4.1";
 static const char*  eventtypes[] = { "None","Extrema","Maxima",
 				     "Minima","Zero-crossings",0 };
 #define mErrRet(msg) \
@@ -62,12 +64,14 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 					      const Attrib::DescSet& ads )
 	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
 						.withhanddrag(true)
-						.deleteonclose(true))
+						.deleteonclose(false))
     	, setup_(WellTieSetup(wts))
 	, wd_(Well::MGR().get(wts.wellid_))
-	, dataplayer_(0)
-	, datadrawer_(0)
     	, controlview_(0)
+	, datadrawer_(0)
+	, dataholder_(0)
+	, dataplayer_(0)
+	, eventstretcher_(0)					
     	, infodlg_(0)
 	, params_(0)       		 
 {
@@ -83,8 +87,8 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
     uiTaskRunner* tr = new uiTaskRunner( p );
     params_ 	     = new WellTieParams( setup_, wd_, ads );
     dataholder_      = new WellTieDataHolder( params_, wd_, setup_ );
-    infodlg_ 	     = new uiWellTieInfoDlg( this, dataholder_ );
     dataplayer_      = new WellTieToSeismic( dataholder_, ads, tr );
+    infodlg_ 	     = new uiWellTieInfoDlg( this, dataholder_ );
     datadrawer_      = new uiWellTieView( this, &viewer(), 
 	    				  dataholder_, &logsdisp_ );
     eventstretcher_  = new uiWellTieEventStretch( this, dataholder_,
@@ -118,6 +122,8 @@ uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
     if ( datadrawer_ )     delete datadrawer_;
     if ( dataplayer_ )     delete dataplayer_;
     if ( dataholder_ ) 	   delete dataholder_;
+
+    delete  Well::MGR().release( setup_.wellid_ );
 }
 
 
@@ -199,8 +205,9 @@ void uiWellTieToSeismicDlg::resetInfoDlg()
 
 void uiWellTieToSeismicDlg::drawData()
 {
+    const bool viewall = controlview_->isZoomAtStart();
     datadrawer_->fullRedraw();
-    controlview_->setSelView( false );
+    controlview_->setSelView( false, viewall );
 }
 
 
@@ -210,7 +217,6 @@ void uiWellTieToSeismicDlg::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
     mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
-    mAddButton( "saveflow.png",saveD2TPushed, "Save Model" );
 }    
 
 
@@ -250,11 +256,24 @@ void uiWellTieToSeismicDlg::drawFields()
 	      		mCB(this,uiWellTieToSeismicDlg,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
+    const ioPixmap pixmap( "contexthelp.png" );
+    uiToolButton* helpbut = new uiToolButton( this, 0, pixmap,
+			mCB(this,uiWellTieToSeismicDlg,provideWinHelp) );
+    helpbut->setToolTip( helpid );
+    helpbut->setPrefWidthInChar( 5 );
+    helpbut->attach( rightOf, infobut );
+    helpbut->attach( ensureBelow, horSepar );
     uiPushButton* cancelbut = new uiPushButton( this, "&Cancel",
 	      		mCB(this,uiWellTieToSeismicDlg,rejectOK), true );
     cancelbut->attach( rightBorder );
     cancelbut->attach( ensureBelow, horSepar );
     
+}
+
+
+void uiWellTieToSeismicDlg::provideWinHelp( CallBacker* )
+{
+    provideHelp( helpid );
 }
 
 
@@ -390,27 +409,9 @@ void uiWellTieToSeismicDlg::editD2TPushed( CallBacker* )
 {
     uiD2TModelDlg d2tmdlg( this, *wd_, false );
     if ( d2tmdlg.go() )
-    {
-	applybut_->setSensitive( true );
-	undobut_ ->setSensitive( true );
-    }
+	doWork(0);
 }
 
-
-bool uiWellTieToSeismicDlg::saveD2TPushed( CallBacker* )
-{
-    uiFileDialog* uifiledlg =
-	new uiFileDialog( this, false,"","", "Save depth/time table" );
-    uifiledlg->setDirectory(IOObjContext::getDataDirName(IOObjContext::WllInf));
-    if ( uifiledlg->go() );
-    {
-	if ( !dataplayer_->saveD2TModel(uifiledlg->fileName()) )
-	    return true;
-    }
-    delete uifiledlg;
-    return true;
-}
-	
 
 void uiWellTieToSeismicDlg::eventTypeChg( CallBacker* )
 {
@@ -495,7 +496,7 @@ bool uiWellTieToSeismicDlg::acceptOK( CallBacker* )
 
 uiWellTieInfoDlg::uiWellTieInfoDlg( uiParent* p, WellTieDataHolder* dh )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
-				     mTODOHelpID).modal(false))
+				     "107.4.2").modal(false))
 	, dataholder_(dh)
 	, wd_(dh->wd())		 
 	, params_(dataholder_->dpms()) 

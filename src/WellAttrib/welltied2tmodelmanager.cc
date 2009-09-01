@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.10 2009-08-18 13:20:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.11 2009-09-01 14:20:57 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -32,6 +32,7 @@ WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data* d,
 					const WellTieParams* pms)
 	: wd_(d)
 	, geocalc_(*new WellTieGeoCalculator(pms,d))
+	, orgd2t_(0)					    
 	, prvd2t_(0)
 	, emptyoninit_(false)
 	, wtsetup_(pms->getSetup())	
@@ -53,7 +54,6 @@ WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data* d,
 WellTieD2TModelMGR::~WellTieD2TModelMGR()
 {
     if ( prvd2t_ ) delete prvd2t_;
-    if ( orgd2t_ && !emptyoninit_ ) delete orgd2t_;
 }
 
 
@@ -65,11 +65,6 @@ Well::D2TModel& WellTieD2TModelMGR::d2T()
 
 void WellTieD2TModelMGR::setFromVelLog( const char* lognm,  bool docln )
 {setAsCurrent( geocalc_.getModelFromVelLog(lognm,docln) );}
-
-
-void WellTieD2TModelMGR::setFromData( const Array1DImpl<float>& time,
-				      const Array1DImpl<float>& dpt )
-{setAsCurrent( geocalc_.getModelFromVelLogData( time, dpt) );}
 
 
 void WellTieD2TModelMGR::shiftModel( float shift)
@@ -87,7 +82,7 @@ void WellTieD2TModelMGR::shiftModel( float shift)
     //replace by shifted one
     d2t->erase();
     //set KB depth
-    d2t->add ( -wd_->track().value(0) , 0 );
+    d2t->add ( wd_->track().dah(0)-wd_->track().value(0) , 0 );
     for ( int dahidx=1; dahidx<dah.size(); dahidx++ )
 	d2t->add( dah[dahidx], time[dahidx] + shift );
 
@@ -107,7 +102,7 @@ void WellTieD2TModelMGR::replaceTime( const Array1DImpl<float>& timevals )
     }
     d2t->erase();
     //set KB depth
-    d2t->add ( -wd_->track().value(0) , 0 );
+    d2t->add ( wd_->track().dah(0)-wd_->track().value(0) , 0 );
     for ( int dahidx=1; dahidx<dah.size(); dahidx++ )
 	d2t->add( dah[dahidx], timevals[dahidx]);
 
@@ -139,12 +134,10 @@ bool WellTieD2TModelMGR::undo()
 bool WellTieD2TModelMGR::cancel()
 {
     if ( emptyoninit_ )
-    {
 	wd_->d2TModel()->erase();	
-	wd_->d2tchanged.trigger();
-    }
     else
 	setAsCurrent( orgd2t_ );
+    wd_->d2tchanged.trigger();
     return true;
 }
 
@@ -172,6 +165,8 @@ bool WellTieD2TModelMGR::commitToWD()
 	return false;
 
     wd_->d2tchanged.trigger();
+    if ( orgd2t_ && !emptyoninit_ )
+	delete orgd2t_;
 
     return true;
 }

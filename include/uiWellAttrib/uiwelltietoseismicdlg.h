@@ -116,6 +116,7 @@ protected:
     void			drawUserPick(CallBacker*);
     void 			editD2TPushed(CallBacker*);
     void 			infoPushed(CallBacker*);
+    void 			provideWinHelp(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
     bool			saveD2TPushed(CallBacker*);

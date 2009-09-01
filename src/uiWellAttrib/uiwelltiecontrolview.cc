@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.20 2009-07-29 10:05:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.21 2009-09-01 14:20:57 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.20 2009-07-29 10:05
 
 #include "uibutton.h"
 #include "uiflatviewer.h"
-#include "uimainwin.h"
 #include "uimsg.h"
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
@@ -150,7 +149,7 @@ void uiWellTieControlView::keyPressCB( CallBacker* )
 }
 
 
-void uiWellTieControlView::setSelView( bool isnewsel )
+void uiWellTieControlView::setSelView( bool isnewsel, bool viewall )
 {
     const uiRect viewarea = isnewsel ? 
 	*vwr_.rgbCanvas().getSelectedArea() : getViewRect( &vwr_ );
@@ -161,6 +160,8 @@ void uiWellTieControlView::setSelView( bool isnewsel )
 
     const uiWorldRect bbox = vwr_.boundingBox();
     Interval<double> zrg( wr.top() , wr.bottom() );
+    if ( viewall )
+	zrg.set( bbox.top(), bbox.bottom() );
     wr.setTopBottom( zrg );
     Interval<double> xrg( bbox.left(), bbox.right());
     wr.setLeftRight( xrg );
@@ -173,51 +174,14 @@ void uiWellTieControlView::setSelView( bool isnewsel )
 }
 
 
+const bool uiWellTieControlView::isZoomAtStart() const
+{ return zoommgr_.atStart(); }
+
+
 void uiWellTieControlView::setEditOn( bool yn )
 {
     editbut_->setOn( yn );
     editCB( 0 );
 }
-
-/*
-void uiWellTieControlView::stateCB( CallBacker* )
-{
-    if ( !manipdrawbut_ ) return;
-    if ( manip_ ) 
-	manip_ = 0;
-    else
-	manip_ = 1;
-    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
-    vwr_.setRubberBandingOn( !manip_ );
-    vwr_.rgbCanvas().setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
-					  : uiGraphicsViewBase::ScrollHandDrag);
-    if ( editbut_ )
-	editbut_->setOn( false );
-    MouseCursor cursor;
-    if ( manip_ )
-	cursor.shape_ = MouseCursor::Arrow;
-    else
-    {
-	cursor.shape_ = MouseCursor::Bitmap;
-	cursor.filename_ = "zoomforward.png";
-	cursor.hotx_ = 8;
-	cursor.hoty_ = 6;
-    }
-    vwr_.setCursor( cursor );
-}
-
-
-void uiFlatViewStdControl::editCB( CallBacker* )
-{
-    uiGraphicsViewBase::ODDragMode mode;
-    if ( editbut_->isOn() )
-	mode = uiGraphicsViewBase::NoDrag;
-    else
-	mode = manip_ ? uiGraphicsViewBase::ScrollHandDrag
-					  : uiGraphicsViewBase::RubberBandDrag;
-
-    vwr_.rgbCanvas().setDragMode( mode );
-}
-*/
 
 

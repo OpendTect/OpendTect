@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.18 2009-08-31 09:38:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.19 2009-09-01 14:20:57 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -21,19 +21,19 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.18 2009-08-31 09:38:03
 #include "keystrs.h"
 
 
-uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
 	   "",mTODOHelpID).savetext("Save as default").savebutton(true)
 					.savechecked(false)
 				       	.modal(false))
 	, wd_(d)
-	, props_(d.displayProperties())
+	, props_(d->displayProperties())
 	, applyAllReq(this)
 	, savedefault_(false)
 	, needdeletenotifyers_(true)  		     
 {
     setCtrlStyle( LeaveOnly );
-    wd_.dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
+    wd_->dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
     ObjectSet<uiGroup> tgs;
@@ -47,9 +47,9 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
     propflds_ += new uiWellMarkersDispProperties( tgs[1],
 		    uiWellDispProperties::Setup( "Marker size", "Marker color" )		    ,props_.markers_ );
     propflds_ += new uiWellLogDispProperties( tgs[2],
-		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props_.left_, &(wd_.logs()) );
+		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props_.left_, &(wd_->logs()) );
     propflds_ += new uiWellLogDispProperties( tgs[3],
-		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props_.right_, &(wd_.logs()) );
+		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props_.right_, &(wd_->logs()) );
   
     bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
@@ -67,18 +67,12 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
     uiPushButton* applbut = new uiPushButton( this, "&Apply to all wells",
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
-    wd_.tobedeleted.notify( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
+    wd_->tobedeleted.notify( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
-{
-    if ( needdeletenotifyers_ )
-    {
-	wd_.dispparschanged.remove( mCB(this,uiWellDispPropDlg,wdChg) );
-	wd_.tobedeleted.remove( mCB(this,uiWellDispPropDlg,close) );
-    }
-}
+{}
 
 
 void uiWellDispPropDlg::getFromScreen()
@@ -97,7 +91,7 @@ void uiWellDispPropDlg::putToScreen()
 
 void uiWellDispPropDlg::wdChg( CallBacker* )
 {
-    NotifyStopper ns( wd_.dispparschanged );
+    NotifyStopper ns( wd_->dispparschanged );
     putToScreen();
 }
 
@@ -105,7 +99,7 @@ void uiWellDispPropDlg::wdChg( CallBacker* )
 void uiWellDispPropDlg::propChg( CallBacker* )
 {
     getFromScreen();
-    wd_.dispparschanged.trigger();
+    wd_->dispparschanged.trigger();
 }
 
 
@@ -118,7 +112,7 @@ void uiWellDispPropDlg::applyAllPush( CallBacker* )
 
 void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 {
-    needdeletenotifyers_ = false;
+    wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,close) );
     close();
 }
 
@@ -129,6 +123,7 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 	savedefault_ = true;
     else 
 	savedefault_ = false;
+    wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,close) );
     return true;
 }
 
