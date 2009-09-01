@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.36 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.37 2009-09-01 07:56:42 cvshelene Exp $";
 
 #include "uistrattreewin.h"
 
@@ -151,6 +151,11 @@ void uiStratTreeWin::createToolBar()
     lockbut_->setToggleButton( true );
 //    mDefBut(openbut_,"openset.png",openCB,"Open"); not implemented yet
     mDefBut(savebut_,"saveset.png",saveCB,"Save");
+    uiToolButton* helpbut = new uiToolButton( tb_, 0,
+					      ioPixmap("contexthelp.png"),
+					      mCB(this,uiStratTreeWin,helpCB) );
+    helpbut->setToolTip( "Help" );
+    tb_->addObject( helpbut );
 }
 
 
@@ -406,5 +411,11 @@ void uiStratTreeWin::lithRemovedCB( CallBacker* cb )
 {
     uitree_->updateLithoCol();
     lithRemoved.trigger();
+}
+
+
+void uiStratTreeWin::helpCB( CallBacker* )
+{
+    uiMainWin::provideHelp( "110.0.0" );
 }
 

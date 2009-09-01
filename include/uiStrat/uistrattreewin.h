@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.24 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.25 2009-09-01 07:56:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ protected:
     void			unitRenamedCB(CallBacker*);
     void			moveUnitCB(CallBacker*);
     void			forceCloseCB(CallBacker*);
+    void			helpCB(CallBacker*);
 
 
     uiStratMgr*			uistratmgr_;
