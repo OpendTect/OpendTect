@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.12 2009-08-25 08:53:34 cvsumesh Exp $
+ RCS:           $Id: autotracker.h,v 1.13 2009-09-01 17:54:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "executor.h"
 #include "sets.h"
+#include "sortedtable.h"
 #include "cubesampling.h"
 
 namespace EM { class EMObject; };
@@ -58,8 +59,7 @@ protected:
     bool			burstalertactive_;
 
     const EM::SectionID		sectionid_;
-    TypeSet<EM::SubID>		blacklist_;
-    TypeSet<int>		blacklistscore_;
+    SortedTable<EM::SubID,char>	blacklist_;
     TypeSet<EM::SubID>		currentseeds_;
     EM::EMObject&		emobject_;
     SectionTracker*		sectiontracker_;

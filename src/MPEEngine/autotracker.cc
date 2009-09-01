@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.23 2009-09-01 06:47:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.24 2009-09-01 17:54:28 cvskris Exp $";
 
 #include "autotracker.h"
 
@@ -142,6 +142,79 @@ void AutoTracker::setNewSeeds( const TypeSet<EM::PosID>& seeds )
 }
 
 
+class AutoTrackerRemoveBlackListed : public ParallelTask
+{
+public:
+    AutoTrackerRemoveBlackListed( EM::EMObject& emobj,
+				  EM::SectionID sid,
+				  TypeSet<EM::SubID>& list,
+				  TypeSet<EM::SubID>& srclist,
+				  const SortedTable<EM::SubID,char>& bl )
+	: list_( list )
+	, sectionid_( sid )
+	, emobject_( emobj )
+	, srclist_( srclist )
+	, blacklist_( bl )
+    {}
+
+    int	minThreadSize() const		{ return 20; }
+    od_int64  nrIterations() const	{ return list_.size(); }
+
+    bool doPrepare(int nrthreads)
+    {
+	barrier_.setNrThreads( nrthreads );
+	return true;
+    }
+
+    bool doWork( od_int64 start, od_int64 stop, int )
+    {
+	TypeSet<EM::SubID> newlist;
+	TypeSet<EM::SubID> newsrclist;
+	TypeSet<EM::SubID> removelist;
+	for ( int idx=start; idx<=stop; idx++ )
+	{
+	    char count;
+	    if ( blacklist_.get( list_[idx], count ) && count>7 )
+	    {
+		removelist += list_[idx];
+		continue;
+	    }
+
+	    newlist += list_[idx];
+	    newsrclist += srclist_[idx];
+	}
+
+	if ( barrier_.waitForAll(false) )
+	{
+	    srclist_.erase();
+	    list_.erase();
+	}
+
+	list_.append( newlist );
+	srclist_.append( newsrclist );
+	for ( int idx=0; idx<removelist.size(); idx++ )
+	{
+	    const EM::PosID pid( emobject_.id(), sectionid_, removelist[idx] );
+	    emobject_.unSetPos(pid,false);
+	}
+
+	barrier_.mutex().unLock();
+
+	return true;
+    }
+
+protected:
+    EM::SectionID			sectionid_;
+    EM::EMObject&			emobject_;
+    TypeSet<EM::SubID>&			list_;
+    TypeSet<EM::SubID>&			srclist_;
+    const SortedTable<EM::SubID,char>	blacklist_;
+
+    Threads::Barrier			barrier_;
+};
+
+
+
 int AutoTracker::nextStep()
 {
     manageCBbuffer( true );
@@ -168,19 +241,9 @@ int AutoTracker::nextStep()
     TypeSet<EM::SubID> addedpossrc = extender_->getAddedPositionsSource();
 
     //Remove nodes that have failed 8 times before
-    for ( int idx=0; idx<addedpos.size(); idx++ )
-    {
-	const int blacklistidx = blacklist_.indexOf(addedpos[idx]);
-	if ( blacklistidx<0 ) continue;
-	if ( blacklistscore_[blacklistidx]>7 )
-	{
-	    const EM::PosID pid( emobject_.id(), sectionid_, addedpos[idx] );
-	    emobject_.unSetPos(pid,false);
-	    addedpos.remove(idx);
-	    addedpossrc.remove(idx);
-	    idx--;
-	}
-    }
+    AutoTrackerRemoveBlackListed blacklistshrubber( emobject_, sectionid_,
+	    addedpos, addedpossrc, blacklist_ );
+    blacklistshrubber.execute();
 
     adjuster_->reset();    
     adjuster_->setPositions(addedpos, &addedpossrc);
@@ -196,16 +259,10 @@ int AutoTracker::nextStep()
 	const EM::PosID pid( emobject_.id(), sectionid_, addedpos[idx] );
 	if ( !emobject_.isDefined(pid) )
 	{
-	    const int blacklistidx = blacklist_.indexOf(addedpos[idx]);
-	    if ( blacklistidx!=-1 ) blacklistscore_[blacklistidx]++;
-	    else
-	    {
-		blacklist_ += addedpos[idx];
-		blacklistscore_ += 1;
-	    }
-
+	    char count = 0;
+	    blacklist_.get( addedpos[idx], count );
+	    blacklist_.set( addedpos[idx], count+1 );
 	    addedpos.remove(idx);
-	    idx--;
 	}
     }
 
@@ -277,7 +334,6 @@ int AutoTracker::nextStep()
 	}
 
 	blacklist_.erase();
-	blacklistscore_.erase();
 	return MoreToDo();
     }
 
