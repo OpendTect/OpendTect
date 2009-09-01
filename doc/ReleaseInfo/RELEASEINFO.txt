@@ -1,20 +1,22 @@
-Opendtect 3.2 release info
+Opendtect 4.0 release info
 
 Build platforms/distributions:
 
-Linux 32: Fedora Core 3
-Linux 64: CentOS 4.5 (CentOS is a RH-clone)
-Mac:	  Mac OS X 10.5.7 (Leopard, Intel)
-Solaris:  SunOS 5.8
-Windows:  CYGWIN_NT-5.1
+Linux 32   : Fedora Core 3
+Linux 64   : CentOS 4.5 (CentOS is a RH-clone)
+Mac	   : Mac OS X 10.5.7 (Leopard, Intel)
+Windows 32 : Windows XP Professional SP3
+Windows 64 : Windows XP Professional x64 SP2
+
+
+Compiler:
+
+Linux: gcc/g++ 3.4.4
+Mac: gcc/g++ 4.0.1
+Windows: Visual C++ 8.0
 
 
 OpenSource packages/versions used:
-
-gcc/g++ compiler:
-Linux and Windows: 3.4.4
-Solaris: 3.4.2
-Mac:  4.0.1
 
 Coin et al:
 Coin 3.0.0
@@ -22,8 +24,8 @@ SoQt 1.4.2a
 simage 1.6.2a
 SIMVoleon 2.0.2a
 
-Qt: 4.5.1
+Qt: 4.4.3
 
-FFTW: 3.2.1
+FFTW: 3.2.1 (Linux, Mac), 3.2.2 (Windows)
 
-# $Id: RELEASEINFO.txt,v 1.6 2009-05-21 09:40:35 cvsnanne Exp $
+# $Id: RELEASEINFO.txt,v 1.7 2009-09-01 03:41:00 cvsnanne Exp $
