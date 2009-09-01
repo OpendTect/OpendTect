@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Karthika
  Date:		July 2009
- RCS:		
+ RCS:		$Id: SoBeachBall.h,v 1.4 2009-09-01 09:21:25 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,11 +63,13 @@ protected:
 
     static SbBool		haserror_;
 
+    char			currlod_;
+
     // methods
-    virtual void 		GLRender(SoGLRenderAction *action);
-    virtual void 		generatePrimitives(SoAction *action);
-    virtual void 		computeBBox(SoAction *action, SbBox3f &box, 
-	    				    SbVec3f &center);
+    virtual void 		GLRender(SoGLRenderAction* action);
+    virtual void 		generatePrimitives(SoAction* action);
+    virtual void 		computeBBox(SoAction* action, SbBox3f& box, 
+	    				    SbVec3f& center);
     virtual void                rayPick(SoRayPickAction*);
          
     virtual			~SoBeachBall();
@@ -97,7 +99,8 @@ protected:
     static void			calculateNormals(SbList<int>* ptrilist,
 	    					 SbList<SbVec3f>* pnormalslist);
     static void			clearData();
-    static void			getTriangleInfo(SbList<int>** ptrilist1, 
+    void			getTriangleInfo(SoState*state,
+	    					SbList<int>** ptrilist1, 
 	    					SbList<int>** ptrilist2,
 						SbList<SbVec3f>** pnormalslist1,
 						SbList<SbVec3f>** pnormalslist2
@@ -105,7 +108,8 @@ protected:
     static void 		renderTriangles(SbList<int>* ptrilist,
 	   					SbList<SbVec3f>* pnormalslist,
 						SbBool sendnormals);
-    SbBool			testNumColors( SoState *state );
+    static SbBool		testNumColors(SoState* state);
+    void			computeResolution(SoState* state);
     static void			tryAddIntersection(SoRayPickAction* action,
 	    					   const SbVec3f& pt);
     static void			printDebugInfo();
