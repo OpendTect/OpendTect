@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.10 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.11 2009-09-01 08:57:11 cvshelene Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -26,7 +26,7 @@ static const int cPrefWidth = 75;
 uiPickSetMan::uiPickSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("PickSet file management",
 				     "Manage picksets",
-				     "107.1.0").nrstatusflds(1),
+				     "105.0.6").nrstatusflds(1),
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
