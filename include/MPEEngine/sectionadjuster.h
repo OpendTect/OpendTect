@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.20 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.21 2009-09-01 21:59:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
+    void			setUndo(bool yn) { setundo_ = yn; }
+
 protected:
     TypeSet<EM::SubID>		pids_;
     TypeSet<EM::SubID>		pidsrc_;
@@ -77,6 +79,7 @@ protected:
     bool			removeonfailure_;
 
     const EM::SubID*		refpos_;
+    bool			setundo_;
     
     static const char*		sKeyAdjuster();
     static const char*		sKeyThreshold();

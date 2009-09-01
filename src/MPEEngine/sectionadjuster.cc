@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: sectionadjuster.cc,v 1.13 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: sectionadjuster.cc,v 1.14 2009-09-01 21:59:25 cvskris Exp $";
 
 
 #include "sectionadjuster.h"
@@ -28,6 +28,7 @@ SectionAdjuster::SectionAdjuster( const EM::SectionID& sid )
     , removeonfailure_(true)
     , thresholdval_(0.5)
     , refpos_(0)
+    , setundo_( true )
 {}
 
 

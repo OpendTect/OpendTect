@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.59 2009-08-04 05:13:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.60 2009-09-01 21:59:25 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -322,7 +322,7 @@ void HorizonAdjuster::setHorizonPick(const BinID&  bid, float val )
 {
     Coord3 pos = horizon_.getPos( sectionid_, bid.getSerialized() );
     pos.z = val;
-    horizon_.setPos( sectionid_, bid.getSerialized(), pos, true );
+    horizon_.setPos( sectionid_, bid.getSerialized(), pos, setundo_ );
 }
 
 
