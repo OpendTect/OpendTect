@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.13 2009-09-01 17:54:28 cvskris Exp $
+ RCS:           $Id: autotracker.h,v 1.14 2009-09-01 22:15:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 namespace EM { class EMObject; };
 namespace Attrib { class SelSpec; }
 namespace Geometry { class Element; }
+template <class T> class Array2D;
+
 
 namespace MPE
 {
@@ -66,6 +68,9 @@ protected:
     SectionExtender*		extender_;
     SectionAdjuster*		adjuster_;
     Geometry::Element*          geomelem_;
+
+    Array2D<float>*		horizon3dundoinfo_;
+    RowCol			horizon3dundoorigin_;
 
     BufferString		execmsg_;
 };

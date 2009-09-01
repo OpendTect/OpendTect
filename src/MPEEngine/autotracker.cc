@@ -8,12 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.24 2009-09-01 17:54:28 cvskris Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.25 2009-09-01 22:15:15 cvskris Exp $";
 
 #include "autotracker.h"
 
+#include "arraynd.h"
 #include "emmanager.h"
-#include "emobject.h"
+#include "emhorizon3d.h"
+#include "emundo.h"
 #include "emtracker.h"
 #include "horizonadjuster.h"
 #include "mpeengine.h"
@@ -40,6 +42,7 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     , stepcntapmtthesld_(-1)
     , trackingextriffail_(false)
     , burstalertactive_(false)
+    , horizon3dundoinfo_( 0 )
 {
     geomelem_ = emobject_.sectionGeometry(sectionid_);
     extender_ = sectiontracker_->extender();
@@ -77,6 +80,16 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	    execmsg_ = "Step: "; execmsg_ += var*100; execmsg_ += "%";	    
 	}
     }
+
+    mDynamicCastGet( EM::Horizon3D*, hor, &emobject_ );
+    if ( hor )
+    {
+	horizon3dundoinfo_ = hor->createArray2D( sectionid_ );
+	horizon3dundoorigin_.row =
+	    hor->geometry().sectionGeometry(sid)->rowRange().start;
+	horizon3dundoorigin_.col =
+	    hor->geometry().sectionGeometry(sid)->colRange().start;
+    }
 }
 
 
@@ -85,7 +98,19 @@ AutoTracker::~AutoTracker()
     manageCBbuffer( false );
     geomelem_->trimUndefParts();
     emobject_.setBurstAlert( false );
+
+    if ( horizon3dundoinfo_ ) //TODO check for real change?
+    {
+	mDynamicCastGet( EM::Horizon3D*, hor, &emobject_ );
+	UndoEvent* undo = new EM::SetAllHor3DPosUndoEvent( hor, sectionid_,
+				    horizon3dundoinfo_, horizon3dundoorigin_ );
+	EM::EMM().undo().addEvent( undo, "Auto tracking" );
+	horizon3dundoinfo_ = 0;
+    }
+
     burstalertactive_ = false;
+
+    delete horizon3dundoinfo_;
 }
 
 
@@ -228,6 +253,8 @@ int AutoTracker::nextStep()
 	}
 
 	extender_->preallocExtArea();
+	extender_->setUndo( !horizon3dundoinfo_ );
+	adjuster_->setUndo( !horizon3dundoinfo_ );
     }
 
     extender_->reset();
