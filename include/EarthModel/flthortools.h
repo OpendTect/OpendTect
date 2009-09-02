@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.10 2009-07-22 14:26:28 bert Exp $
+ RCS:		$Id: flthortools.h,v 1.11 2009-09-02 06:05:38 raman Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ public:
     const char*		lineName() const	{ return linenm_; }
     const char		getPos(int trcnr,float z) const;
     const CubeSampling&	area() const		{ return cs_; }
+    int			getTrcNrOnFault(float zval) const;
 
     static char		sOutside()		{ return '0'; }
     static char		sInsideNeg()		{ return '1'; }
@@ -92,6 +93,8 @@ protected:
 
     int				sticknr_;
     BufferString		linenm_;
+    FaultStickSubSampler*	fltsampler_;
+    TypeSet<int>		flttrcnrs_;
 };
 
 

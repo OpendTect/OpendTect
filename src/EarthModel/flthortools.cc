@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.16 2009-07-22 14:30:30 bert Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.17 2009-09-02 06:05:38 raman Exp $";
 
 #include "flthortools.h"
 
@@ -196,6 +196,8 @@ FaultHorizon2DLocationField::FaultHorizon2DLocationField(
     flt_.ref();
     tophor_.ref();
     bothor_.ref();
+    fltsampler_ = new FaultStickSubSampler( flt_, sticknr_, SI().zStep() / 4 );
+    fltsampler_->execute();
 
     linenm_ = flt.geometry().lineName( EM::SectionID(0), sticknr_ );
 }
@@ -211,9 +213,8 @@ FaultHorizon2DLocationField::~FaultHorizon2DLocationField()
 
 bool FaultHorizon2DLocationField::calculate()
 {
-    FaultStickSubSampler sampler( flt_, sticknr_, SI().zStep() );
-    sampler.execute();
-    TypeSet<Coord3> crds = sampler.getCoordList();
+    TypeSet<Coord3> crds = fltsampler_->getCoordList();
+    flttrcnrs_.erase();
 
     EM::SectionID sid( 0 );
     const MultiID* lsid = flt_.geometry().lineSet( sid, sticknr_ );
@@ -232,8 +233,11 @@ bool FaultHorizon2DLocationField::calculate()
     Interval<int> trcrg( mUdf(int), -mUdf(int) );
     for ( int idx=0; idx<crds.size(); idx++ )
     {
-	if ( lineposinfo.getPos(crds[idx],pos2d) )
-	    trcrg.include( pos2d.nr_, false );
+	if ( !lineposinfo.getPos(crds[idx],pos2d) )
+	    continue;
+	
+	trcrg.include( pos2d.nr_, false );
+	flttrcnrs_ += pos2d.nr_;
     }
 
     if ( mIsUdf(trcrg.start) )
@@ -248,6 +252,7 @@ bool FaultHorizon2DLocationField::calculate()
     zrg.include( bothor_.geometry().sectionGeometry(sid)->zRange(lidxbot) );
     SI().snapZ( zrg.start, -1 ); SI().snapZ( zrg.stop, 1 );
     cs_.zrg.setFrom( zrg );
+    cs_.zrg.step = SI().zStep() / 4;
     setSize( cs_.nrCrl(), cs_.nrZ() );
 
     if ( GetEnvVarYN("OD_PRINT_FAULTFIELD") )
@@ -266,7 +271,7 @@ bool FaultHorizon2DLocationField::calculate()
 		set( crlidx, zidx, sOutside() );
 	    else
 	    {
-		const Coord3 fltcrd = sampler.getCoord( zval );
+		const Coord3 fltcrd = fltsampler_->getCoord( zval );
 		PosInfo::Line2DPos fltpos;
 		const bool res = lineposinfo.getPos( fltcrd, fltpos );
 		if ( !res )
@@ -300,8 +305,25 @@ const char FaultHorizon2DLocationField::getPos( int trcnr, float z ) const
 	return sOutside();
 
     const int idx0 = cs_.crlIdx( trcnr );
-    const int idx1 = cs_.zIdx( z );
+    const int idx1 = cs_.zrg.nearestIndex( z );
     return get( idx0, idx1 );
+}
+
+
+int FaultHorizon2DLocationField::getTrcNrOnFault( float zval ) const
+{
+    TypeSet<Coord3> crds = fltsampler_->getCoordList();
+    if ( flttrcnrs_.size() != crds.size() )
+	return -1;
+
+    if ( zval < crds.first().z || zval > crds.last().z )
+	return -1;
+
+    const float diff = zval - crds[0].z;
+    const float zstep = SI().zStep() / 4;
+    const float fidx = diff / zstep;
+    const int idx = mNINT( fidx );
+    return flttrcnrs_.validIdx( idx ) ? flttrcnrs_[idx] : -1;
 }
 
 
