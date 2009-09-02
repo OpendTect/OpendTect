@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.17 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.18 2009-09-02 08:51:27 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,9 +20,10 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "multiid.h"
 
+class uiCheckBox;
+class uiComboBox;
 class uiLabeledSpinBox;
 class uiListBox;
-class uiComboBox;
 class uiSeisSel;
 class uiSelNrRange;
 
@@ -99,6 +100,7 @@ protected:
     BufferStringSet 			sellines_;
     uiSeisSel*  			linesetfld_;
     uiListBox*  			lnmsfld_;
+    uiCheckBox*				allfld_;
     uiSelNrRange*			trcrgfld_;
     CtxtIOObj&				lsctio_;
 
@@ -108,7 +110,9 @@ protected:
     void				finalised(CallBacker*);
     void 				lineSetSel(CallBacker*);
     void 				lineSel(CallBacker*);
+    void 				lineChk(CallBacker*);
     void				trcChanged(CallBacker*);
+    void				allSel(CallBacker*);
 
     virtual bool        		acceptOK(CallBacker*);
 };

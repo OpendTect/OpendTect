@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.27 2009-08-28 13:38:55 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.28 2009-09-02 08:50:52 cvsraman Exp $";
 
 #include "uiseislinesel.h"
 
 #include "uiseissel.h"
 #include "uilistbox.h"
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uiselsurvranges.h"
 #include "uiselsimple.h"
@@ -221,11 +222,15 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     lnmsfld_ = llb->box();
     lnmsfld_->setItemsCheckable( true );
     lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DLineSubSel,lineSel) );
+    lnmsfld_->leftButtonClicked.notify( mCB(this,uiSeis2DLineSubSel,lineChk) );
+
+    allfld_ = new uiCheckBox( this, "All", mCB(this,uiSeis2DLineSubSel,allSel));
+    allfld_->attach( alignedBelow, llb );
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
 	   			  false, "Trace" );
     trcrgfld_->rangeChanged.notify( mCB(this,uiSeis2DLineSubSel,trcChanged) );
-    trcrgfld_->attach( alignedBelow, llb );
+    trcrgfld_->attach( alignedBelow, allfld_ );
 
     lineSetSel( 0 );
 
@@ -310,6 +315,8 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 	trcrgs_ += globtrcrg;
     }
 
+    allfld_->setChecked( true );
+    allfld_->setSensitive( lnms.size() > 1 );
     lineSel(0);
 }
 
@@ -324,12 +331,26 @@ Interval<int> uiSeis2DLineSubSel::getTrcRange( const char* nm ) const
 void uiSeis2DLineSubSel::lineSel( CallBacker* )
 {
     NotifyStopper ns( trcrgfld_->rangeChanged );
-    const int curitm = lnmsfld_->currentItem(); 
+    const int curitm = lnmsfld_->currentItem();
     if ( trcrgs_.isEmpty() || curitm<0 )
 	return;
 
     trcrgfld_->setLimitRange( maxtrcrgs_[curitm] );
     trcrgfld_->setRange( trcrgs_[curitm] );
+}
+
+
+void uiSeis2DLineSubSel::lineChk( CallBacker* )
+{
+    allfld_->activated.disable();
+    allfld_->setChecked( lnmsfld_->nrChecked() == lnmsfld_->size() );
+    allfld_->activated.enable();
+}
+
+
+void uiSeis2DLineSubSel::allSel( CallBacker* )
+{
+    lnmsfld_->setItemsChecked( allfld_->isChecked() );
 }
 
 
