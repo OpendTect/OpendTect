@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.26 2009-09-01 14:20:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.27 2009-09-02 09:03:51 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -114,6 +114,8 @@ void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 
 void WellTieGeoCalculator::stretch()
 {
+    sd_.stretchfac_ = (sd_.pick2_-sd_.start_)/(float)(sd_.pick1_-sd_.start_);
+    sd_.squeezefac_ = (sd_.stop_-sd_.pick2_ )/(float)(sd_.stop_-sd_.pick1_);
     doStretch( sd_.start_, sd_.pick2_, sd_.stretchfac_ );
     doStretch( sd_.pick2_, sd_.stop_, sd_.squeezefac_ );
 }
@@ -124,12 +126,12 @@ void WellTieGeoCalculator::doStretch( int start, int stop, float factor )
     const int datasz = sd_.inp_->info().getSize(0);
     for ( int idx=start; idx<stop; idx++ )
     {
-	float v = factor > 1 ? start : stop;
+	float v = factor < 1 ? start : stop;
 	const float curval = Interpolate::linearReg1D( v, (float)idx, factor );
 	const int curidx = (int) curval;
 	if ( curidx >= datasz-1 || curidx < 0 ) continue;
 	const float newval = Interpolate::linearReg1D( sd_.inp_->get(curidx),
-						       sd_.outp_->get(curidx+1),
+						       sd_.inp_->get(curidx+1),
 						       curval-curidx);
 	sd_.outp_->setValue( idx , newval );
     }
