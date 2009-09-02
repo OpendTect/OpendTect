@@ -80,7 +80,7 @@ protected:
     ObjectSet<uiWellLogDisplay> logsdisp_;
 
     uiWellTieControlView* 	controlview_;
-    uiWellTieEventStretch* 	eventstretcher_;
+    uiWellTieEventStretch* 	stretcher_;
     uiWellTieInfoDlg* 		infodlg_; 
     uiWellTieView*		datadrawer_;
     
