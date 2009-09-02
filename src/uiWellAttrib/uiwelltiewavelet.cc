@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.23 2009-09-01 14:20:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.24 2009-09-02 09:08:54 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -189,7 +189,7 @@ public:
 
 uiWellTieWvltSaveDlg( uiParent* p, const Wavelet* wvlt )
             : uiDialog(p,uiDialog::Setup("Save Estimated Wavelet",
-	    "Specify wavelet name",mTODOHelpID))
+	    "Specify wavelet name","107.4.4"))
 	    , wvltctio_(*mMkCtxtIOObj(Wavelet))
 	    , wvlt_(wvlt)				       
 {
