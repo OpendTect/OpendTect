@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.35 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.36 2009-09-02 18:34:04 cvsyuancheng Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -42,6 +42,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 HorizonScanner::~HorizonScanner()
 {
     delete &dtctor_;
+    deepErase( sections_ );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.123 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.124 2009-09-02 18:34:04 cvsyuancheng Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -309,7 +309,8 @@ bool uiImportHorizon::doImport()
 
     if ( !scanner_ && !doScan() ) return false;
 
-    ObjectSet<BinIDValueSet> sections = scanner_->getSections();
+    ManagedObjectSet<BinIDValueSet> sections(false);
+    deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )
     {
@@ -345,7 +346,6 @@ bool uiImportHorizon::doImport()
 
     uiTaskRunner taskrunner( this );
     const bool success = taskrunner.execute( importer );
-    deepErase( sections );
     if ( !success )
 	mErrRetUnRef("Cannot import horizon")
 
