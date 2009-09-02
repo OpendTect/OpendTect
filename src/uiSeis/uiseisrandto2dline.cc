@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.13 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.14 2009-09-02 06:20:59 cvsraman Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -342,7 +342,14 @@ bool uiSeisRandTo2DGridDlg::createLines()
     const double mindist = (maxcoord.x - mincoord.x) / 200;
     const double dist = (double) distfld_->getIntValue();
     if ( dist < mindist || dist > maxdist )
-	mErrRet("Grid spacing is either too small or too large");
+    {
+	BufferString msg = "Grid spacing is either too small or too large.\n";
+	msg += "It should be between ";
+	msg += ceil(mindist); msg += " and ";
+	msg += floor(maxdist); msg += " for this survey";
+	uiMSG().error( msg.buf() );
+	return false;
+    }
 
     delete parallelset_;
     delete perpset_;
