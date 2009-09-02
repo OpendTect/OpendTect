@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.47 2009-09-01 14:20:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.48 2009-09-02 09:25:26 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -71,12 +71,11 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	, datadrawer_(0)
 	, dataholder_(0)
 	, dataplayer_(0)
-	, eventstretcher_(0)					
+	, stretcher_(0)					
     	, infodlg_(0)
 	, params_(0)       		 
 {
     setTitle( ads );
-    viewer().setHandDrag( true );
     
     for ( int idx=0; idx<2; idx++ )
     { 
@@ -85,43 +84,32 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
     }
 
     uiTaskRunner* tr = new uiTaskRunner( p );
-    params_ 	     = new WellTieParams( setup_, wd_, ads );
-    dataholder_      = new WellTieDataHolder( params_, wd_, setup_ );
-    dataplayer_      = new WellTieToSeismic( dataholder_, ads, tr );
-    infodlg_ 	     = new uiWellTieInfoDlg( this, dataholder_ );
-    datadrawer_      = new uiWellTieView( this, &viewer(), 
-	    				  dataholder_, &logsdisp_ );
-    eventstretcher_  = new uiWellTieEventStretch( this, dataholder_,
-	    					  *datadrawer_ );
-    infodlg_->applyPushed.notify(
-	    		mCB(this,uiWellTieToSeismicDlg,compute) );
-    eventstretcher_->timeChanged.notify(
-	    		mCB(this,uiWellTieToSeismicDlg,timeChanged) );
-    eventstretcher_->pickadded.notify(
-	    		mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
+    params_	= new WellTieParams( setup_, wd_, ads );
+    dataholder_ = new WellTieDataHolder( params_, wd_, setup_ );
+    dataplayer_ = new WellTieToSeismic( dataholder_, ads, tr );
+    infodlg_    = new uiWellTieInfoDlg( this, dataholder_ );
+    datadrawer_ = new uiWellTieView( this, &viewer(), dataholder_, &logsdisp_ );
+    stretcher_  = new uiWellTieEventStretch( this, dataholder_, *datadrawer_ );
+
+    infodlg_->applyPushed.notify( mCB(this,uiWellTieToSeismicDlg,compute) );
+    stretcher_->pickadded.notify( mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
+    stretcher_->timeChanged.notify(mCB(this,uiWellTieToSeismicDlg,timeChanged));
+    
     initAll();
 }
 
 
 uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
 {
-    if ( eventstretcher_ )
-    {
-	eventstretcher_->timeChanged.remove(
-			    mCB(this,uiWellTieToSeismicDlg,timeChanged) );
-	eventstretcher_->pickadded.remove(
-			    mCB(this,uiWellTieToSeismicDlg,checkIfPick) );
-	delete eventstretcher_;
-    }
-    if ( infodlg_ )
-    {
-	infodlg_->applyPushed.remove(
-	    		mCB(this,uiWellTieToSeismicDlg,compute) );
-	delete infodlg_;
-    }
-    if ( datadrawer_ )     delete datadrawer_;
-    if ( dataplayer_ )     delete dataplayer_;
-    if ( dataholder_ ) 	   delete dataholder_;
+    stretcher_->timeChanged.remove(mCB(this,uiWellTieToSeismicDlg,timeChanged));
+    stretcher_->pickadded.remove(mCB(this,uiWellTieToSeismicDlg,checkIfPick));
+    infodlg_->applyPushed.remove( mCB(this,uiWellTieToSeismicDlg,compute) );
+    
+    delete stretcher_;
+    delete infodlg_;
+    delete datadrawer_;
+    delete dataplayer_;
+    delete dataholder_;
 
     delete  Well::MGR().release( setup_.wellid_ );
 }
@@ -133,7 +121,6 @@ void uiWellTieToSeismicDlg::setTitle( const Attrib::DescSet& ads )
     if ( !ad ) return;
 
     BufferString attrnm = ad->userRef();
-
     BufferString wname = "Tie ";
     wname += wd_->name();
     wname += " to ";
@@ -422,9 +409,9 @@ void uiWellTieToSeismicDlg::eventTypeChg( CallBacker* )
 
 void uiWellTieToSeismicDlg::applyPushed( CallBacker* cb )
 {
-    eventstretcher_->doWork(0);
+    stretcher_->doWork( cb );
     doWork( cb );
-    clearPicks(0);
+    clearPicks( cb );
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
 }
@@ -461,7 +448,7 @@ bool uiWellTieToSeismicDlg::undoPushed( CallBacker* cb )
 {
     if ( !dataplayer_->undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
-    clearPicks( 0 );
+    clearPicks( cb );
     doWork( cb );
     
     undobut_->setSensitive( false );
