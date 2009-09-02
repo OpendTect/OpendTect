@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.8 2009-09-01 14:20:57 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.9 2009-09-02 06:57:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,6 @@ public:
     bool 			savedefault_;
  
 protected:
-
-    bool			needdeletenotifyers_;
 
     Well::Data*			wd_;
     Well::DisplayProperties&	props_;

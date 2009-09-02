@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.19 2009-09-01 14:20:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.20 2009-09-02 06:57:40 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -30,7 +30,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
 	, props_(d->displayProperties())
 	, applyAllReq(this)
 	, savedefault_(false)
-	, needdeletenotifyers_(true)  		     
 {
     setCtrlStyle( LeaveOnly );
     wd_->dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
