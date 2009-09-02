@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.66 2009-08-19 08:17:17 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.67 2009-09-02 11:48:27 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -32,6 +32,12 @@ const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
 const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
+
+
+int Well::DahObj::indexOf( float dah ) const
+{
+    return IdxAble::indexOf( dah_.arr(), dah_.size(), dah, -1 );
+}
 
 
 float Well::DahObj::dahStep( bool ismin ) const
