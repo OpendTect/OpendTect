@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.8 2009-09-01 09:18:25 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.9 2009-09-02 15:40:39 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
 #include "color.h"
 #include "UTMPosition.h"
 #include "iopar.h"
+#include "beachballdata.h"
 
 #include "SoBeachBall.h"
 
@@ -258,6 +259,25 @@ int BeachBall::usePar( const IOPar& par )
     setColor2( col );
 
     return 1;
+}
+
+
+void BeachBall::setBallProperties(const visBeachBall::BallProperties& bp)
+{
+    setRadius( bp.getRadius() );
+    setColor1( bp.getColor1() );
+    setColor2( bp.getColor2() );
+    setCenterPosition( bp.getPos() );
+    // to do: use the elasticity later!
+}
+
+
+visBeachBall::BallProperties BeachBall::getBallProperties() const
+{
+    visBeachBall::BallProperties bp( "", getRadius(), getColor1(), getColor2(),
+	    getCenterPosition() );
+    // to do: use the elasticity later!
+    return bp;
 }
 
 
