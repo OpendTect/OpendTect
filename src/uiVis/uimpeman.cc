@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.181 2009-09-01 06:09:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.182 2009-09-02 12:13:07 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -277,6 +277,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
     const Attrib::SelSpec* clickedas = 
 	clickcatcher->info().getObjDataSelSpec();
+    if ( !clickedas ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker || !seedpicker->canSetSectionID() ||
