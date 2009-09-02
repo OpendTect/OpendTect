@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Aug 2009
- RCS:           $Id: visbeachball.h,v 1.7 2009-09-01 09:18:55 cvskarthika Exp $
+ RCS:           $Id: visbeachball.h,v 1.8 2009-09-02 15:41:16 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ class SoMaterial;
 class SoMaterialBinding;
 class SoComplexity;
 
+namespace visBeachBall { class BallProperties; }
 namespace visBase
 {
 class Transformation;
@@ -41,6 +42,10 @@ public:
 
     static BeachBall*		create()
     				mCreateDataObj(BeachBall);
+
+    void			setBallProperties(const 
+	    				visBeachBall::BallProperties&);
+    visBeachBall::BallProperties getBallProperties() const;
 
     void             		setDisplayTransformation(Transformation*);
     Transformation*             getDisplayTransformation();
