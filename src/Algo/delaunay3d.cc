@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.21 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.22 2009-09-03 21:38:34 cvsyuancheng Exp $";
 
 #include "delaunay3d.h"
 
@@ -1049,7 +1049,7 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 			    tetrahedras_[ti].neighbors_[3] };
 
 	int checkti = cNoTetrahedra();
-	int newpt;
+	int newpt = cNoVertex();
 	for ( int idx=0; idx<4; idx++ )
 	{
 	    if ( crds[idx]!=v0 && crds[idx]!=v1 && crds[idx]!=v2 )
@@ -1077,7 +1077,7 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 	    }
 	}
 
-	if ( checkti==cNoTetrahedra() ) continue;
+	if ( checkti==cNoTetrahedra() || newpt==cNoVertex() ) continue;
 	if ( checkti==ti )
 	{
 	    pErrMsg("Checkti duplicate");
