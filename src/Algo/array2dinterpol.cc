@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.17 2009-08-14 19:33:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.18 2009-09-03 15:25:13 cvsyuancheng Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -1199,7 +1199,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     }
 
     //Get defined nodes to triangulate
-    coordlist_.erase();
+    TypeSet<Coord>* coordlist = new TypeSet<Coord>;
     coordlistindices_.erase();
     ptr = curdefined_;
     idx = 0;
@@ -1238,8 +1238,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 	    if ( dotriangulate )
 	    {
 		mSetRange;
-		const Coord crd(rowstep_*row, colstep_*col);
-		coordlist_ += crd;
+		(*coordlist) += Coord(rowstep_*row, colstep_*col);
 		coordlistindices_ += idx;
 	    }
 	}
@@ -1248,7 +1247,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 	ptr++;
     }
 
-    if ( coordlist_.isEmpty() )
+    if ( coordlist->isEmpty() )
 	return false;
 
     if ( triangulation_ )
@@ -1256,7 +1255,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 
     triangulation_ = new DAGTriangleTree;
     if ( !triangulation_ ||
-	 !triangulation_->setCoordList( &coordlist_, OD::UsePtr ) )
+	 !triangulation_->setCoordList( coordlist, OD::TakeOverPtr ) )
 	return false;
 
     if ( !triangulation_->setBBox(
@@ -1266,7 +1265,6 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 
     ParallelDTriangulator triangulator( *triangulation_ );
     triangulator.dataIsRandom( false );
-    triangulator.setCalcScope( Interval<int>( 0, coordlist_.size()-1 ) );
 
     if ( (tr && !tr->execute(triangulator)) || !triangulator.execute() )
 	return false;
@@ -1286,11 +1284,6 @@ bool TriangulationArray2DInterpol::doPrepare( int nrthreads )
 	return false;
 
     curnode_ = 0;
-    firstthreadtestpos_ = coordlist_.size();
-
-    for ( int idx=0; idx<nrthreads; idx++ )
-	coordlist_ += Coord::udf();
-
     return true;
 }
 
@@ -1320,7 +1313,6 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 
     TypeSet<int> neighbors;
     int dupid = -1;
-    const int testidx = firstthreadtestpos_+thread;
     TypeSet<od_int64> currenttask;
 
     while ( shouldContinue() )

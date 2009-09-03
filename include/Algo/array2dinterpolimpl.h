@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.8 2009-08-14 19:33:05 cvsyuancheng Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.9 2009-09-03 15:25:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -148,9 +148,7 @@ protected:
     				//triangulation stuff
     DAGTriangleTree*		triangulation_;
     Triangle2DInterpolator*	triangleinterpolator_;
-    TypeSet<Coord>		coordlist_;
     TypeSet<int>		coordlistindices_;
-    int				firstthreadtestpos_;
 
     				//Working arrays
     bool*			curdefined_;
