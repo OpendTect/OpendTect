@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.83 2009-08-31 22:16:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.84 2009-09-03 18:45:10 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -843,11 +843,15 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	    continue;
 
 	const BinID bid = data->getBinID( pos );
+	if ( !displayrrg_.includes(bid.inl) || !displaycrg_.includes(bid.crl) )
+	    continue;
 
 	const int inlidx = displayrrg_.nearestIndex(bid.inl);
 	const int crlidx = displaycrg_.nearestIndex(bid.crl);
 
 	const int offset = inlidx*nrcols + crlidx;
+	if ( offset>=nrcells )
+	    continue;
 
 	for ( int idx=0; idx<nrversions; idx++ )
 	    versiondata[idx][offset] = ptr[idx+startsourceidx];
