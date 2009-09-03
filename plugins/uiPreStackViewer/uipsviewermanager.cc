@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.50 2009-08-18 21:47:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.51 2009-09-03 17:23:31 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -284,8 +284,6 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     viewer->ref();
     viewer->setMultiID( ioobj->key() );
     visserv_->addObject( viewer, sceneid, false );
-    viewers3d_ += viewer;
-    posdialogs_ += 0;
    
     const Coord3 pickedpos = menu->getPickedPos();
     
@@ -317,7 +315,11 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     }
     
     if ( !settingok )
+    {
+	visserv_->removeObject( viewer, sceneid );
+	viewer->unRef();
 	return false;
+    }
 
     //set viewer angle.
     const uiSoViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );
@@ -361,6 +363,8 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	viewer->getScene()->change.notifyIfNotNotified( 
 		mCB( this, uiViewer3DMgr, sceneChangeCB ) );
 
+    viewers3d_ += viewer;
+    posdialogs_ += 0;
     mkNewPosDialog( menu, *viewer );
     return true;
 }
