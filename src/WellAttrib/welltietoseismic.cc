@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.25 2009-09-01 14:20:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.26 2009-09-03 09:41:40 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -24,7 +24,6 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.25 2009-09-01 14:20:57 
 #include "posvecdataset.h"
 #include "survinfo.h"
 #include "task.h"
-#include "unitofmeasure.h"
 #include "wavelet.h"
 
 #include "welldata.h"
@@ -34,15 +33,18 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.25 2009-09-01 14:20:57 
 #include "welltrack.h"
 
 #include "welltiedata.h"
-#include "welltied2tmodelmanager.h"
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
 #include "welltiesetup.h"
 #include "welltieunitfactors.h"
 
-WellTieToSeismic::WellTieToSeismic( WellTieDataHolder* dh, 
-				    const Attrib::DescSet& ads,
-       				    TaskRunner* tr ) 
+
+namespace WellTie
+{
+
+DataPlayer::DataPlayer( WellTie::DataHolder* dh, 
+			const Attrib::DescSet& ads,
+			TaskRunner* tr ) 
     	: wtsetup_(dh->setup())
 	, ads_(ads)
 	, wd_(*dh->wd()) 
@@ -57,11 +59,11 @@ WellTieToSeismic::WellTieToSeismic( WellTieDataHolder* dh,
 	, dps_(new DataPointSet(false, false))	   
 {
     dps_->dataSet().add( new DataColDef( params_.attrnm_ ) );
-    geocalc_ = new WellTieGeoCalculator( dh->params(), &wd_ );
+    geocalc_ = new WellTie::GeoCalculator( dh->params(), &wd_ );
 } 
 
 
-WellTieToSeismic::~WellTieToSeismic()
+DataPlayer::~DataPlayer()
 {
     if ( geocalc_ ) delete geocalc_;
     if ( tr_ ) 	    delete tr_;
@@ -69,7 +71,7 @@ WellTieToSeismic::~WellTieToSeismic()
 }
 
 
-bool WellTieToSeismic::computeAll()
+bool DataPlayer::computeAll()
 {
     //setUpData 
     datamgr_.resetData();
@@ -97,14 +99,14 @@ bool WellTieToSeismic::computeAll()
 }
 
 
-bool WellTieToSeismic::extractWellTrack()
+bool DataPlayer::extractWellTrack()
 {
     dps_->bivSet().empty();
     dps_->dataChanged();
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     
-    WellTieExtractTrack wtextr( *dps_, &wd_ );
+    WellTie::TrackExtractor wtextr( *dps_, &wd_ );
     wtextr.timeintv_ = params_.getTimeScale();
     wtextr.timeintv_.step = params_.timeintv_.step*params_.step_;
     if ( !tr_->execute( wtextr ) ) return false;
@@ -116,7 +118,7 @@ bool WellTieToSeismic::extractWellTrack()
 }
 
 
-bool WellTieToSeismic::resampleLogs()
+bool DataPlayer::resampleLogs()
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
 
@@ -130,19 +132,19 @@ bool WellTieToSeismic::resampleLogs()
 }
 
 
-bool WellTieToSeismic::resLogExecutor( const char* logname )
+bool DataPlayer::resLogExecutor( const char* logname )
 {
     const Well::Log* log =  wd_.logs().getLog( logname );
     if ( !log  ) return false;
 
-    WellTieResampleLog reslog( workdata_, *log, &wd_, *geocalc_ );
-    reslog.timenm_ = params_.timenm_; reslog.dptnm_ = params_.dptnm_;
-    reslog.timeintv_ = params_.getTimeScale();
-    return tr_->execute( reslog );
+    WellTie::LogResampler logres( workdata_, *log, &wd_, *geocalc_ );
+    logres.timenm_ = params_.timenm_; logres.dptnm_ = params_.dptnm_;
+    logres.timeintv_ = params_.getTimeScale();
+    return tr_->execute( logres );
 }
 
 
-bool WellTieToSeismic::computeSynthetics()
+bool DataPlayer::computeSynthetics()
 { 
     geocalc_->computeAI( *workdata_.get(params_.currvellognm_),
 	      		 *workdata_.get(wtsetup_.denlognm_),
@@ -160,7 +162,7 @@ bool WellTieToSeismic::computeSynthetics()
 }
 
 
-void WellTieToSeismic::createDispLogs()
+void DataPlayer::createDispLogs()
 {
     for ( int logidx=0; logidx<params_.colnms_.size(); logidx++ )
     {
@@ -186,7 +188,7 @@ void WellTieToSeismic::createDispLogs()
 }
 
 
-bool WellTieToSeismic::extractSeismics()
+bool DataPlayer::extractSeismics()
 {
     Attrib::EngineMan aem; BufferString errmsg;
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps_, ads_, errmsg,
@@ -202,7 +204,7 @@ bool WellTieToSeismic::extractSeismics()
 }
 
 
-void WellTieToSeismic::convolveWavelet()
+void DataPlayer::convolveWavelet()
 {
     IOObj* ioobj = IOM().get( wtsetup_.wvltid_ );
     Wavelet* wvlt = new Wavelet( *Wavelet::get( ioobj ) );
@@ -218,7 +220,7 @@ void WellTieToSeismic::convolveWavelet()
 }
 
 
-bool WellTieToSeismic::estimateWavelet()
+bool DataPlayer::estimateWavelet()
 {
     const int datasz = params_.corrsize_; 
     //copy initial wavelet
@@ -250,7 +252,7 @@ bool WellTieToSeismic::estimateWavelet()
 }
 
 
-bool WellTieToSeismic::computeCrossCorrel()
+bool DataPlayer::computeCrossCorrel()
 {
     geocalc_->crosscorr( *corrdata_.get(params_.synthnm_), 
 	    		 *corrdata_.get(params_.attrnm_), 
@@ -266,3 +268,4 @@ bool WellTieToSeismic::computeCrossCorrel()
     return true;
 }
 
+}; //namespace WellTie

@@ -17,20 +17,28 @@ ________________________________________________________________________
 #include "geometry.h"
 
 class DataPointSet;
-class WellTieGeoCalculator;
-class WellTieDataSet;
 namespace Well 
 {
     class Data;
     class Log;
 };
 
-mClass WellTieExtractTrack : public Executor
+namespace WellTie
+{
+
+class GeoCalculator;
+class DataSet;
+
+mClass TrackExtractor : public Executor
 {
 public:
-			WellTieExtractTrack(DataPointSet&,const Well::Data*);
-			~WellTieExtractTrack() {};
-
+			TrackExtractor(DataPointSet& dps,const Well::Data* d)
+			    : Executor("Extracting Well track positions")
+			    , dps_(dps)
+			    , wd_(*d)
+			    , nrdone_(0)
+			    , timeintv_(0,0,0)
+			    {}
 
     StepInterval<double> timeintv_;
 
@@ -49,12 +57,12 @@ protected:
 
 
 
-mClass WellTieResampleLog : public Executor
+mClass LogResampler : public Executor
 {
 public:
-			WellTieResampleLog(WellTieDataSet&,const Well::Log&,
-					const Well::Data*,WellTieGeoCalculator&);
-			~WellTieResampleLog() {};
+			LogResampler(WellTie::DataSet&,const Well::Log&,
+				    const Well::Data*,WellTie::GeoCalculator&);
+			~LogResampler() {};
 
 
     StepInterval<double> timeintv_;
@@ -71,7 +79,7 @@ public:
 
 protected:
 
-    WellTieDataSet&     workdata_;		
+    WellTie::DataSet&   workdata_;		
     const char* 	logname_;
     TypeSet<float> 	val_;
     TypeSet<float> 	dah_;
@@ -83,5 +91,6 @@ protected:
     void        	fillProcLog(const Well::Log&);
 };
 
+};//namespace WellTie
 
 #endif

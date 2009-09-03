@@ -15,9 +15,6 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
-class WellTieSetup;
-class WellTieParams;
-class WellTieGeoCalculator;
 class DataPointSet;
 namespace Well
 {
@@ -31,12 +28,17 @@ class uiFunctionDisplay;
 class uiGenInput;
 class uiLabel;
 
+namespace WellTie
+{
+    class Setup;
+    class Params;
+    class GeoCalculator;
 
-mClass WellTieCSCorr  
+mClass CheckShotCorr  
 {
 public:
-		    WellTieCSCorr(Well::Data&,const WellTieParams&);
-		    ~WellTieCSCorr() {};			
+		    CheckShotCorr(Well::Data&,const WellTie::Params&);
+		    ~CheckShotCorr() {};			
 
     const Well::Log& 		corrLog()              { return *log_; }
 
@@ -47,9 +49,10 @@ protected:
     Well::D2TModel* 		cs_;
 
     void 			setCSToLogScale(TypeSet<float>&,double, 
-						WellTieGeoCalculator&);
-    void 			fitCS(const TypeSet<float>&,
-	    				WellTieGeoCalculator&);
+						WellTie::GeoCalculator&);
+    void 			calibrateLogToCS(const TypeSet<float>&,
+						WellTie::GeoCalculator&);
 };
 
+}; //namespace WellTie
 #endif

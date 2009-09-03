@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.18 2009-08-18 08:40:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.19 2009-09-03 09:41:40 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -20,30 +20,22 @@ static const char* rcsID = "$Id: welltiepickset.cc,v 1.18 2009-08-18 08:40:29 cv
 #include "welldata.h"
 #include "welld2tmodel.h"
 
-WellTiePickSetMGR::WellTiePickSetMGR( const Well::Data* wd )
-	: CallBacker(CallBacker::CallBacker())
-    	, wd_(wd)
-	, evtype_ (VSEvent::Extr)
+namespace WellTie
 {
-}
 
-WellTiePickSetMGR::~WellTiePickSetMGR()
-{}
-
-
-void WellTiePickSetMGR::setDataParams( const WellTieParams::DataParams* dpms )
+void PickSetMGR::setDataParams( const WellTie::Params::DataParams* dpms )
 {
     datapms_ = dpms;			    
 }
 
 
-void WellTiePickSetMGR::setData( const WellTieDataSet* data )
+void PickSetMGR::setData( const WellTie::DataSet* data )
 {
     dispdata_ = data;
 }
 
 
-void WellTiePickSetMGR::setEventType( int seltype )
+void PickSetMGR::setEventType( int seltype )
 {
     if ( seltype==1 )
 	evtype_ = VSEvent::Extr;
@@ -58,7 +50,7 @@ void WellTiePickSetMGR::setEventType( int seltype )
 }
 
 
-void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop, 
+void PickSetMGR::addPick( float vwrszstart, float vwrszstop, 
 				 float xpos, float zpos )
 {
     const int seissz = seispickset_.getSize();
@@ -84,7 +76,7 @@ void WellTiePickSetMGR::addPick( float vwrszstart, float vwrszstop,
 
 
 #define mTimeGate 0.02
-float WellTiePickSetMGR::findEvent( float zpos, bool issynth )
+float PickSetMGR::findEvent( float zpos, bool issynth )
 {
     zpos *= 0.001;
     if ( evtype_ == VSEvent::None ) return zpos;
@@ -109,7 +101,7 @@ float WellTiePickSetMGR::findEvent( float zpos, bool issynth )
 }
 
 
-void WellTiePickSetMGR::updateShift( int vwridx, float curpos )
+void PickSetMGR::updateShift( int vwridx, float curpos )
 {
     //TODO ???
     /*used only for log stretch and squueze...
@@ -118,7 +110,7 @@ void WellTiePickSetMGR::updateShift( int vwridx, float curpos )
 }
 
 
-void WellTiePickSetMGR::clearAllPicks()
+void PickSetMGR::clearAllPicks()
 {
     logpickset_.clearAll();
     seispickset_.clearAll();
@@ -126,7 +118,7 @@ void WellTiePickSetMGR::clearAllPicks()
 }
 
 
-void WellTiePickSetMGR::clearLastPicks()
+void PickSetMGR::clearLastPicks()
 {
     if ( seispickset_.getSize() == synthpickset_.getSize() )
     {
@@ -142,19 +134,19 @@ void WellTiePickSetMGR::clearLastPicks()
 }
 
 
-bool WellTiePickSetMGR::isPick()
+bool PickSetMGR::isPick()
 {
     return ( seispickset_.getSize() || synthpickset_.getSize() );
 }
 
 
-bool WellTiePickSetMGR::isSameSize()
+bool PickSetMGR::isSameSize()
 {
     return ( seispickset_.getSize() == synthpickset_.getSize() );
 }
 
 
-void WellTiePickSetMGR::sortByPos( WellTiePickSet& pickset )
+void PickSetMGR::sortByPos( PickSet& pickset )
 {
     const int sz = pickset.getSize();
     TypeSet<float> zvals;
@@ -173,23 +165,14 @@ void WellTiePickSetMGR::sortByPos( WellTiePickSet& pickset )
 
 
 
-
-WellTiePickSet::WellTiePickSet()
-	: mousepos_(0)
-	, nrpickstotal_(0)
-   	, pickadded(this)
-{
-}
-
-
-WellTiePickSet::~WellTiePickSet()
+PickSet::~PickSet()
 {
     for ( int idx=pickset_.size()-1; idx>=0; idx-- )
 	delete ( pickset_.remove(idx) );
 }
 
 
-void WellTiePickSet::add( int vwridx, float xpos, float zpos )
+void PickSet::add( int vwridx, float xpos, float zpos )
 {
     UserPick* pick = new UserPick();
     pick->vidx_ = vwridx; pick->color_ = Color::DgbColor();
@@ -200,17 +183,17 @@ void WellTiePickSet::add( int vwridx, float xpos, float zpos )
 }
 
 
-void WellTiePickSet::clear( int idx )
+void PickSet::clear( int idx )
 {
     if ( pickset_.size() )
 	delete ( pickset_.remove(idx) );
 }
 
 
-void WellTiePickSet::clearAll()
+void PickSet::clearAll()
 {
     for ( int idx=pickset_.size()-1; idx>=0; idx-- )
 	delete ( pickset_.remove(idx) );
 }
 
-
+}; //namespace WellTie

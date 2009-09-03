@@ -7,14 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.23 2009-09-01 14:20:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.24 2009-09-03 09:41:40 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
-#include "math.h"
 #include "unitofmeasure.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
@@ -28,12 +27,14 @@ static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.23 2009-09-01 14:20:5
 #include "welltiecshot.h"
 #include "welltiesetup.h"
 
+namespace WellTie
+{
 
-WellTieUnitFactors::WellTieUnitFactors( const WellTieSetup* wtsetup )
-	    : velfactor_(0)
-	    , denfactor_(0)
-	    , veluom_(0)		    
-	    , denuom_(0)
+UnitFactors::UnitFactors( const WellTie::Setup* wtsetup )
+	: velfactor_(0)
+	, denfactor_(0)
+	, veluom_(0)		    
+	, denuom_(0)
 {
     if ( !wtsetup ) return; 
 
@@ -58,27 +59,27 @@ WellTieUnitFactors::WellTieUnitFactors( const WellTieSetup* wtsetup )
 }
 
 
-double WellTieUnitFactors::calcVelFactor( const char* velunit, bool issonic )
+double UnitFactors::calcVelFactor( const char* velunit, bool issonic )
 {
     return ( issonic ? calcSonicVelFactor( velunit ):calcVelFactor( velunit ) );
 }
 
 
-double WellTieUnitFactors::calcSonicVelFactor( const char* velunit )
+double UnitFactors::calcSonicVelFactor( const char* velunit )
 {
     const UnitOfMeasure* um = UoMR().get( velunit );
     return um ? um->userValue( 1.0 ) : 0.001*mFromFeetFactor;
 }
 
 
-double WellTieUnitFactors::calcVelFactor( const char* velunit )
+double UnitFactors::calcVelFactor( const char* velunit )
 {
     const UnitOfMeasure* um = UoMR().get( velunit );
     return um ? um->userValue( 1.0 ) : 1000/mFromFeetFactor;
 }
 
 
-double WellTieUnitFactors::calcDensFactor( const char* densunit )
+double UnitFactors::calcDensFactor( const char* densunit )
 {
     const UnitOfMeasure* um = UoMR().get( densunit );
     return um ? um->userValue(1.0) : 1000;
@@ -86,14 +87,14 @@ double WellTieUnitFactors::calcDensFactor( const char* densunit )
 
 
 
-WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
-			      const Attrib::DescSet& ads )
-		: wtsetup_(wts)
-		, uipms_(wd)				    
-		, dpms_(wd,wts)				    
-		, wd_(*wd)
-		, ads_(ads)	  
-		, factors_(WellTieUnitFactors(&wts))
+Params::Params( const WellTie::Setup& wts, Well::Data* wd,
+		const Attrib::DescSet& ads )
+	: wtsetup_(wts)
+	, uipms_(wd)				    
+	, dpms_(wd,wts)				    
+	, wd_(*wd)
+	, ads_(ads)	  
+	, factors_(WellTie::UnitFactors(&wts))
 {
     if ( !getUnits().denFactor() || !getUnits().velFactor() )
 	return;
@@ -104,7 +105,7 @@ WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
     if ( wd_.checkShotModel() )
     {
 	dpms_.currvellognm_ = wtsetup_.corrvellognm_;
-	WellTieCSCorr cscorr( wd_, *this );
+	WellTie::CheckShotCorr cscorr( wd_, *this );
     }
     dpms_.createColNames();
 
@@ -112,7 +113,7 @@ WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
 }
 
 
-BufferString WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
+BufferString Params::getAttrName( const Attrib::DescSet& ads ) const
 {
     const Attrib::Desc* ad = ads.getDesc( wtsetup_.attrid_ );
     if ( !ad ) return 0;
@@ -126,7 +127,7 @@ BufferString WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
     return SeisIOObjInfo::defKey2DispName(defkey,attrnm);
 }
 
-bool WellTieParams::resetParams()
+bool Params::resetParams()
 {
     if ( !dpms_.resetDataParams() )
 	return false;
@@ -139,7 +140,7 @@ bool WellTieParams::resetParams()
 }
 
 
-void WellTieParams::resetVellLognm()
+void Params::resetVellLognm()
 {
     dpms_.currvellognm_ = uipms_.iscscorr_? wtsetup_.corrvellognm_
 					  : wtsetup_.vellognm_;
@@ -152,7 +153,7 @@ void WellTieParams::resetVellLognm()
 #define mComputeStepFactor (SI().zStep()/step_)
 #define mMinWorkArraySize (int)20
 
-bool WellTieParams::DataParams::resetDataParams()
+bool Params::DataParams::resetDataParams()
 {
     const float startdah = wd_.track().dah(0);
     const float stopdah  = wd_.track().dah(wd_.track().size()-1);
@@ -180,7 +181,7 @@ bool WellTieParams::DataParams::resetDataParams()
 }
 
 
-bool WellTieParams::DataParams::setTimes( StepInterval<double>& timeintv, 
+bool Params::DataParams::setTimes( StepInterval<double>& timeintv, 
 			      float startdah, float stopdah )
 {
     const Well::D2TModel* d2t = wd_.d2TModel();
@@ -198,7 +199,7 @@ bool WellTieParams::DataParams::setTimes( StepInterval<double>& timeintv,
 }
 
 
-bool WellTieParams::DataParams::setDepths( const StepInterval<double>& timeintv,					   StepInterval<double>& dptintv )
+bool Params::DataParams::setDepths( const StepInterval<double>& timeintv,					   StepInterval<double>& dptintv )
 {
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return false;
@@ -209,7 +210,7 @@ bool WellTieParams::DataParams::setDepths( const StepInterval<double>& timeintv,
 }
 
 
-void WellTieParams::DataParams::createColNames()
+void Params::DataParams::createColNames()
 {
     colnms_.add ( dptnm_ = "Depth" );	
     colnms_.add( timenm_ = "Time" );
@@ -228,14 +229,4 @@ void WellTieParams::DataParams::createColNames()
     corrvellognm_ += add2name;
 }
 
-
-WellTieParams::uiParams::uiParams( const Well::Data* d)
-    	: wd_(*d)
-	, iscsavailable_(d->haveCheckShotModel())
-	, iscscorr_(d->haveCheckShotModel())
-	, iscsdisp_(false)
-	, ismarkerdisp_(d->haveMarkers())
-	, iszinft_(false)
-	, iszintime_(true)		 
-{}
-
+}; //namespace WellTie

@@ -19,9 +19,6 @@ ________________________________________________________________________
 template <class T> class Array1DImpl;
 class CtxtIOObj;
 class FFT;
-class WellTieGeoCalculator;
-class WellTieDataHolder;
-class WellTieSetup;
 class Wavelet;
 
 class uiFlatViewer;
@@ -29,22 +26,28 @@ class uiFunctionDisplay;
 class uiPushButton;
 class uiIOObjSel;
 class uiTextEdit;
-class uiWellTieWaveletDispDlg;
 
-mClass uiWellTieWaveletView : public uiGroup
+namespace WellTie
+{
+
+class GeoCalculator;
+class DataHolder;
+class Setup;
+class uiWaveletDispDlg;
+
+mClass uiWaveletView : public uiGroup
 {
 public:
 
-	    uiWellTieWaveletView(uiParent*,const WellTieDataHolder*); 
-	    ~uiWellTieWaveletView();
+	    uiWaveletView(uiParent*,const DataHolder*); 
+	    ~uiWaveletView();
 
     void 		initWavelets();
-    //Notifier<uiWellTieWaveletView>      wvltChanged;
 
 protected:
 
-    const WellTieDataHolder*	dataholder_;
-    const WellTieSetup&		twtss_;
+    const WellTie::DataHolder*	dataholder_;
+    const WellTie::Setup&	twtss_;
     CtxtIOObj&          	wvltctio_;
 
     ObjectSet<uiPushButton> 	wvltbuts_;
@@ -52,8 +55,8 @@ protected:
     uiIOObjSel*			wvltfld_;
     uiTextEdit*			infofld_;
     ObjectSet<const Wavelet>  	wvlts_;
-    uiWellTieWaveletDispDlg*    wvltestdlg_;
-    uiWellTieWaveletDispDlg*    wvltinitdlg_;
+    WellTie::uiWaveletDispDlg*  wvltestdlg_;
+    WellTie::uiWaveletDispDlg*  wvltinitdlg_;
 
     void			initWaveletViewer(int);
     void 			createWaveletFields(uiGroup*);	   
@@ -67,12 +70,12 @@ protected:
 
 
 
-class uiWellTieWaveletDispDlg : public uiDialog
+class uiWaveletDispDlg : public uiDialog
 {
 public:
-			    uiWellTieWaveletDispDlg(uiParent*,const Wavelet*,
-				    		const WellTieDataHolder*);
-			    ~uiWellTieWaveletDispDlg();
+			    uiWaveletDispDlg(uiParent*,const Wavelet*,
+				    		const WellTie::DataHolder*);
+			    ~uiWaveletDispDlg();
 
     void				setValArrays();
     void                                setDispCurves();
@@ -86,9 +89,10 @@ protected:
     FFT*				fft_;
     ObjectSet<uiFunctionDisplay>        wvltdisps_;
     const Wavelet*			wvlt_;
-    WellTieGeoCalculator&		geocalc_;
+    WellTie::GeoCalculator&		geocalc_;
 
 };
 
+}; //namespace WellTie
 #endif
 

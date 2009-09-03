@@ -21,14 +21,9 @@ ________________________________________________________________________
 #include "welltieunitfactors.h"
 
 template <class T> class Array1DImpl;
-class BufferStringSet;
 class DataPointSet;
 class TaskRunner;
 class Wavelet;
-class WellTieSetup;
-class WellTieD2TModelMGR;
-class WellTieSynthetics;
-class WellTieParams;
 
 namespace Attrib { class DescSet; }
 namespace Well 
@@ -37,13 +32,21 @@ namespace Well
     class D2TModel;
 };
 
-mClass WellTieToSeismic
+namespace WellTie
+{
+    class Setup;
+    class D2TModelMGR;
+    class Synthetics;
+    class Params;
+
+
+mClass DataPlayer
 {
 public:
-			WellTieToSeismic(WellTieDataHolder*,
-					 const Attrib::DescSet&, 
-					 TaskRunner*);
-			~WellTieToSeismic();
+			DataPlayer(WellTie::DataHolder*,
+				     const Attrib::DescSet&, 
+				     TaskRunner*);
+			~DataPlayer();
 
     //TODO put back as private
     bool 		computeAll();
@@ -77,17 +80,17 @@ protected:
     DataPointSet* 		dps_;
     const Attrib::DescSet& 	ads_;
     Well::Data& 		wd_;
-    WellTieData& 		wtdata_;     
-    WellTieDataSetMGR& 		datamgr_;     
-    WellTieDataSet& 		workdata_;
-    WellTieDataSet& 		dispdata_;
-    WellTieDataSet& 		corrdata_;
-    const WellTieParams::DataParams& params_;	
-    const WellTieSetup&		wtsetup_;	
+    WellTie::Data& 		wtdata_;     
+    WellTie::DataSetMGR& 	datamgr_;     
+    WellTie::DataSet& 		workdata_;
+    WellTie::DataSet& 		dispdata_;
+    WellTie::DataSet& 		corrdata_;
+    const WellTie::Params::DataParams& params_;	
+    const WellTie::Setup&	wtsetup_;	
 
-    WellTieD2TModelMGR*		d2tmgr_;
-    WellTieGeoCalculator*	geocalc_;
-    WellTieSynthetics*		wtsynth_;
+    WellTie::D2TModelMGR*	d2tmgr_;
+    WellTie::GeoCalculator*	geocalc_;
+    WellTie::Synthetics*	wtsynth_;
     
     void			checkShotCorr();
     void  			convolveWavelet();
@@ -95,4 +98,5 @@ protected:
     bool 	      		resLogExecutor(const char*);
 };
 
+};//namespace WellTie
 #endif

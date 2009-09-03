@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.27 2009-09-02 09:03:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.28 2009-09-03 09:41:40 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -35,8 +35,11 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.27 2009-09-02 09:03
 #include <complex>
 #include <algorithm>
 
-WellTieGeoCalculator::WellTieGeoCalculator( const WellTieParams* p,
-					    const Well::Data* wd )
+namespace WellTie
+{
+
+GeoCalculator::GeoCalculator( const WellTie::Params* p,
+			      const Well::Data* wd )
 		: params_(*p)
 		, wtsetup_(p->getSetup())	
 		, wd_(*wd)
@@ -50,7 +53,7 @@ WellTieGeoCalculator::WellTieGeoCalculator( const WellTieParams* p,
 //each sample is converted to a time using the travel time log
 //the correspondance between samples and depth values provides a first
 //TWT approx.
-Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( const char* vellog,
+Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
 							  bool doclean )
 {
     const Well::Log& log = *wd_.logs().getLog( vellog );
@@ -86,7 +89,7 @@ Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( const char* vellog,
 
 //Small TWT/Interval Velocity converter
 #define mFactor 10e6
-void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
+void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 				     const TypeSet<float>& dpt,	
 				     TypeSet<float>& outp, bool t2vel  )
 {
@@ -112,7 +115,7 @@ void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 }
 
 
-void WellTieGeoCalculator::stretch()
+void GeoCalculator::stretch()
 {
     sd_.stretchfac_ = (sd_.pick2_-sd_.start_)/(float)(sd_.pick1_-sd_.start_);
     sd_.squeezefac_ = (sd_.stop_-sd_.pick2_ )/(float)(sd_.stop_-sd_.pick1_);
@@ -121,7 +124,7 @@ void WellTieGeoCalculator::stretch()
 }
 
 
-void WellTieGeoCalculator::doStretch( int start, int stop, float factor )
+void GeoCalculator::doStretch( int start, int stop, float factor )
 {
     const int datasz = sd_.inp_->info().getSize(0);
     for ( int idx=start; idx<stop; idx++ )
@@ -138,7 +141,7 @@ void WellTieGeoCalculator::doStretch( int start, int stop, float factor )
 }
 
 //only for ascending arrays
-const int WellTieGeoCalculator::getIdx( const Array1DImpl<float>& inp, 
+const int GeoCalculator::getIdx( const Array1DImpl<float>& inp, 
 					float pos ) const
 {
     int idx = 0;
@@ -155,7 +158,7 @@ const int WellTieGeoCalculator::getIdx( const Array1DImpl<float>& inp,
 //Small Data Interpolator, specially designed for log (dah) data
 //assumes no possible negative values in dens or vel log
 //will replace them by interpolated values if so. 
-void WellTieGeoCalculator::interpolateLogData( TypeSet<float>& data,
+void GeoCalculator::interpolateLogData( TypeSet<float>& data,
 					       float dahstep, bool isdah )
 {
     int startidx = getFirstDefIdx( data );
@@ -177,7 +180,7 @@ void WellTieGeoCalculator::interpolateLogData( TypeSet<float>& data,
 }
 
 
-void WellTieGeoCalculator::removeSpikes( TypeSet<float>& logdata )
+void GeoCalculator::removeSpikes( TypeSet<float>& logdata )
 {
     const int winsize = 6;
     if ( logdata.size() < 2*winsize ) 
@@ -198,7 +201,7 @@ void WellTieGeoCalculator::removeSpikes( TypeSet<float>& logdata )
 }
 
 
-int WellTieGeoCalculator::getFirstDefIdx( const TypeSet<float>& logdata )
+int GeoCalculator::getFirstDefIdx( const TypeSet<float>& logdata )
 {
     int idx = 0;
     while ( mIsUdf(logdata[idx]) )
@@ -207,7 +210,7 @@ int WellTieGeoCalculator::getFirstDefIdx( const TypeSet<float>& logdata )
 }
 
 
-int WellTieGeoCalculator::getLastDefIdx( const TypeSet<float>& logdata )
+int GeoCalculator::getLastDefIdx( const TypeSet<float>& logdata )
 {
     int idx = logdata.size()-1;
     while ( mIsUdf( logdata[idx] ) )
@@ -216,7 +219,7 @@ int WellTieGeoCalculator::getLastDefIdx( const TypeSet<float>& logdata )
 }
 
 
-bool WellTieGeoCalculator::isValidLogData( const TypeSet<float>& logdata )
+bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
 {
     if ( !logdata.size() || getFirstDefIdx(logdata) >=logdata.size() )
 	return false;
@@ -234,7 +237,7 @@ bool WellTieGeoCalculator::isValidLogData( const TypeSet<float>& logdata )
     tf.init();\
     tf.transform(*inp,*outp);\
 }
-void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
+void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 {
     const int filtersz = vals.info().getSize(0);
     if ( filtersz < 10 ) return;
@@ -321,7 +324,7 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 
 //resample data. If higher step, linear interpolation
 //else nearest sample
-void WellTieGeoCalculator::resampleData( const Array1DImpl<float>& invals,
+void GeoCalculator::resampleData( const Array1DImpl<float>& invals,
 				 Array1DImpl<float>& outvals, float step )
 {
     int datasz = invals.info().getSize(0);
@@ -343,7 +346,7 @@ void WellTieGeoCalculator::resampleData( const Array1DImpl<float>& invals,
 }
 
 
-void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
+void GeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 				   const Array1DImpl<float>& denvals,
 				   Array1DImpl<float>& aivals )
 {
@@ -364,7 +367,7 @@ void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 
 
 //Compute reflectivity values at display sample step (Survey step)
-void WellTieGeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
+void GeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 					       Array1DImpl<float>& reflvals,
 					       int shiftstep )
 {
@@ -390,7 +393,7 @@ void WellTieGeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 }
 
 
-void WellTieGeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
+void GeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
 					const Array1DImpl<float>& reflvals,
 					Array1DImpl<float>& synvals, int widx )
 {
@@ -408,7 +411,7 @@ void WellTieGeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
 
 
 #define mNoise 0.05
-void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
+void GeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
 				       const Array1DImpl<float>& tfiltervals,
 				       Array1DImpl<float>& deconvals, 
 				       int wvltsz )
@@ -501,7 +504,7 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
 }
 
 
-void WellTieGeoCalculator::crosscorr( const Array1DImpl<float>& seisvals, 
+void GeoCalculator::crosscorr( const Array1DImpl<float>& seisvals, 
 				     const Array1DImpl<float>& synthvals,
        				     Array1DImpl<float>& outpvals	)
 {
@@ -513,3 +516,5 @@ void WellTieGeoCalculator::crosscorr( const Array1DImpl<float>& seisvals,
     memcpy( outpvals.getData(), outp, datasz*sizeof(float));
     delete outp;
 }
+
+}; //namespace WellTie

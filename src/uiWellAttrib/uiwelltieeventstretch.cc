@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.16 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.17 2009-09-03 09:41:40 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -22,43 +22,45 @@ static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.16 2009-07-22 16:0
 #include "welltiesetup.h"
 #include "uiwelltieview.h"
 
-uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p, 
-					      WellTieDataHolder* dh, 
-			 		      uiWellTieView& v )
+namespace WellTie
+{
+
+uiEventStretch::uiEventStretch( uiParent* p, WellTie::DataHolder* dh, 
+				WellTie::uiTieView& v )
         : d2tmgr_(dh->d2TMGR())
   	, pmgr_(*dh->pickmgr())  
 	, pickadded(this)
 	, synthpickset_(*dh->pickmgr()->getSynthPickSet())
 	, seispickset_(*dh->pickmgr()->getSeisPickSet())
-	, uiWellTieStretch(p,dh,v)
+	, WellTie::uiStretch(p,dh,v)
 {
-    synthpickset_.pickadded.notify(mCB(this,uiWellTieEventStretch,addSyntPick));
-    seispickset_.pickadded.notify(mCB(this,uiWellTieEventStretch,addSeisPick));
+    synthpickset_.pickadded.notify(mCB(this,uiEventStretch,addSyntPick));
+    seispickset_.pickadded.notify(mCB(this,uiEventStretch,addSeisPick));
 } 
 
 
-uiWellTieEventStretch::~uiWellTieEventStretch()
+uiEventStretch::~uiEventStretch()
 {
-    synthpickset_.pickadded.remove(mCB(this,uiWellTieEventStretch,addSyntPick));
-    seispickset_.pickadded.remove(mCB(this,uiWellTieEventStretch,addSeisPick));
+    synthpickset_.pickadded.remove(mCB(this,uiEventStretch,addSyntPick));
+    seispickset_.pickadded.remove(mCB(this,uiEventStretch,addSeisPick));
 }
 
 
-void uiWellTieEventStretch::addSyntPick( CallBacker* )
-{
-    dataviewer_.drawUserPicks();
-    pickadded.trigger();
-}
-
-
-void uiWellTieEventStretch::addSeisPick( CallBacker* )
+void uiEventStretch::addSyntPick( CallBacker* )
 {
     dataviewer_.drawUserPicks();
     pickadded.trigger();
 }
 
 
-void uiWellTieEventStretch::doWork( CallBacker* )
+void uiEventStretch::addSeisPick( CallBacker* )
+{
+    dataviewer_.drawUserPicks();
+    pickadded.trigger();
+}
+
+
+void uiEventStretch::doWork( CallBacker* )
 {
     pmgr_.sortByPos( seispickset_ ); 	
     pmgr_.sortByPos( synthpickset_ );
@@ -67,7 +69,7 @@ void uiWellTieEventStretch::doWork( CallBacker* )
 }
 
 
-void uiWellTieEventStretch::doStretchWork()
+void uiEventStretch::doStretchWork()
 {
     Well::D2TModel d2t = *wd_->d2TModel();
     const int d2tsz = d2t.size();
@@ -106,10 +108,10 @@ void uiWellTieEventStretch::doStretchWork()
 }
 
 
-void uiWellTieEventStretch::updatePicksPos( const Array1DImpl<float>& curtime,
-					    const Array1DImpl<float>& prevtime,
-					    WellTiePickSet& pickset, 
-					    int startidx )
+void uiEventStretch::updatePicksPos( const Array1DImpl<float>& curtime,
+				    const Array1DImpl<float>& prevtime,
+				    WellTie::PickSet& pickset, 
+				    int startidx )
 {
     for ( int pickidx=startidx; pickidx<pickset.getSize(); pickidx++ )
     {
@@ -120,4 +122,4 @@ void uiWellTieEventStretch::updatePicksPos( const Array1DImpl<float>& curtime,
     }
 }
 
-
+}; //namespace WellTie

@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "welltiegeocalculator.h"
 
 class MultiID;
-class WellTieSetup;
-class WellTieLogUnitFactors;
 namespace Well
 {
     class Data;
@@ -27,12 +25,18 @@ namespace Well
 
 /*!\brief Manages the D2T models used during TWTS. */
 
-mClass WellTieD2TModelMGR
+namespace WellTie
+{
+
+class Setup;
+class LogUnitFactors;
+
+mClass D2TModelMGR
 {
 public:
-				WellTieD2TModelMGR(Well::Data*,
-						   const WellTieParams*);
-				~WellTieD2TModelMGR();
+				D2TModelMGR(Well::Data*,
+					   const WellTie::Params*);
+				~D2TModelMGR();
 
     bool 		save(const char* filenm);
 
@@ -56,10 +60,12 @@ protected:
     Well::D2TModel& 		d2T();
     Well::D2TModel* 		prvd2t_;
     Well::D2TModel* 		orgd2t_;
-    WellTieGeoCalculator&	geocalc_;
-    const WellTieParams*	params_;
-    const WellTieSetup&		wtsetup_;
+    WellTie::GeoCalculator&	geocalc_;
+    const WellTie::Params*	params_;
+    const WellTie::Setup&	wtsetup_;
     bool			emptyoninit_;
 };
+
+}; //namespace WellTie
 
 #endif

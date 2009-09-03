@@ -20,13 +20,11 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 #include "welltieunitfactors.h"
 
-class UserPick;
-class WellTieDataSet;
-class WellTieDataHolder;
-namespace Well
+namespace Well{ class Data; }
+namespace WellTie
 {
-    class Data;
-}
+    class UserPick;
+    class DataSet;
 
 mClass UserPick
 {
@@ -41,14 +39,17 @@ mClass UserPick
 };
 
 
-mClass WellTiePickSet : public CallBacker
+mClass PickSet : public CallBacker
 {
 public:
 
-			WellTiePickSet();
-			~WellTiePickSet();
+			PickSet()
+			    : mousepos_(0)
+			    , pickadded(this)
+			    {}
+			~PickSet();
 			    
-			WellTiePickSet( const WellTiePickSet& wps )
+			PickSet( const PickSet& wps )
 			    : mousepos_(wps.mousepos_)
 			    , nrpickstotal_(wps.nrpickstotal_)
 			    , pickadded(wps.pickadded)		
@@ -56,17 +57,16 @@ public:
 				deepCopy(pickset_,wps.pickset_);
 			    }
 
-    Notifier<WellTiePickSet> pickadded;
+    Notifier<WellTie::PickSet> pickadded;
 
     void                add(UserPick* pick) { pickset_ += pick; };
     void                add(int,float,float);
     void 		clear(int idx);
     void 		clearAll();
     const float         getMousePos() const    { return mousepos_; }
-    UserPick*           get(int idx)  	       { return pickset_[idx]; }
-    const UserPick*     get(int idx) const     { return pickset_[idx]; }
-    UserPick*           getLast()  	       { return pickset_[getSize()-1]; }
-    const UserPick*     getLast(int idx) const { return pickset_[getSize()-1]; }
+    WellTie::UserPick*  get(int idx)  	       { return pickset_[idx]; }
+    const WellTie::UserPick* get(int idx) const { return pickset_[idx]; }
+    WellTie::UserPick*  getLast()  	       { return pickset_[getSize()-1]; }
     const int           getTotalNr() const     { return nrpickstotal_; }
     const int           getSize() const        { return pickset_.size(); }
     float 		getPos( int idx )     
@@ -76,7 +76,8 @@ public:
     const float 	getLastPos() 		 
     			{ return getLast()->zpos_; }
    
-    UserPick*		remove(int idx) { return pickset_.remove(idx); }
+    WellTie::UserPick*	remove(int idx) { return pickset_.remove(idx); }
+
     void         	setMousePos( float mp ) { mousepos_ = mp; }
     void		setPos( int idx, float pos ) 
     			{ get(idx)->zpos_= pos; }
@@ -85,27 +86,27 @@ public:
 
 protected:
 
-    ObjectSet<UserPick> pickset_;
-
     float               mousepos_;
     int                 nrpickstotal_;
+    ObjectSet<WellTie::UserPick> pickset_;
 };
 
 
-mClass WellTiePickSetMGR : public CallBacker
+mClass PickSetMGR : public CallBacker
 {
 public:
-    
 
-			WellTiePickSetMGR(const Well::Data*);
-			~WellTiePickSetMGR();
+			PickSetMGR(const Well::Data* wd)
+			    : CallBacker(CallBacker::CallBacker())
+			    , wd_(wd)
+			    , evtype_ (VSEvent::Extr)
+			    {}
     
     enum TrackType      { Maxima, Minima, ZeroCrossings };
 			DeclareEnumUtils(TrackType)
 
-    WellTiePickSet* 	getLogPickSet()   { return &logpickset_; }
-    WellTiePickSet* 	getSynthPickSet() { return &synthpickset_; }
-    WellTiePickSet* 	getSeisPickSet()  { return &seispickset_; }
+    WellTie::PickSet* 	getSynthPickSet() { return &synthpickset_; }
+    WellTie::PickSet* 	getSeisPickSet()  { return &seispickset_; }
 
     const Well::Data* 	wd_;
     bool		lastpicksynth_;
@@ -117,22 +118,24 @@ public:
     bool 	   	isPick();
     bool 	   	isSameSize();
     float 	   	findEvent(float,bool);
-    void 	   	setData(const WellTieDataSet*);
-    void 	   	setDataParams(const WellTieParams::DataParams*);
+    void 	   	setData(const WellTie::DataSet*);
+    void 	   	setDataParams(const WellTie::Params::DataParams*);
     void 	   	setEventType(int);
-    void 	   	sortByPos(WellTiePickSet&);
+    void 	   	sortByPos(WellTie::PickSet&);
     void           	updateShift(int,float);
 
 
 protected:
 
-    const WellTieDataSet* dispdata_;
-    const WellTieParams::DataParams* datapms_;
+    const WellTie::DataSet* dispdata_;
+    const WellTie::Params::DataParams* datapms_;
 
-    WellTiePickSet 	logpickset_;
-    WellTiePickSet 	synthpickset_;
-    WellTiePickSet 	seispickset_;
+    WellTie::PickSet 	logpickset_;
+    WellTie::PickSet 	synthpickset_;
+    WellTie::PickSet 	seispickset_;
 };
+
+}; //namespace WellTie
 
 #endif
 

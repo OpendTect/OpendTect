@@ -7,18 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.24 2009-09-02 09:08:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.25 2009-09-03 09:41:40 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
-#include "arrayndimpl.h"
 #include "ctxtioobj.h"
 #include "flatposdata.h"
 #include "fft.h"
 #include "hilberttransform.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "math.h"
 #include "survinfo.h"
 #include "statruncalc.h"
 #include "wavelet.h"
@@ -37,11 +35,12 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.24 2009-09-02 09:08:54 
 
 #include <complex>
 
+namespace WellTie
+{
 
 #define mErrRet(msg) \
 { uiMSG().error(msg); return false; }
-uiWellTieWaveletView::uiWellTieWaveletView( uiParent* p,
-					    const WellTieDataHolder* dh )
+uiWaveletView::uiWaveletView( uiParent* p, const WellTie::DataHolder* dh )
 	: uiGroup(p)
 	, dataholder_(dh)  
 	, twtss_(dh->setup())
@@ -58,7 +57,7 @@ uiWellTieWaveletView::uiWellTieWaveletView( uiParent* p,
 } 
 
 
-uiWellTieWaveletView::~uiWellTieWaveletView()
+uiWaveletView::~uiWaveletView()
 {
     for ( int vwridx=0; vwridx<2; vwridx++ )
     {
@@ -73,7 +72,7 @@ uiWellTieWaveletView::~uiWellTieWaveletView()
 }
 
 
-void uiWellTieWaveletView::initWaveletViewer( int vwridx )
+void uiWaveletView::initWaveletViewer( int vwridx )
 {
     FlatView::Appearance& app = viewer_[vwridx]->appearance();
     app.annot_.x1_.name_ = "Amplitude";
@@ -93,7 +92,7 @@ void uiWellTieWaveletView::initWaveletViewer( int vwridx )
 }
 
 
-void uiWellTieWaveletView::createWaveletFields( uiGroup* grp )
+void uiWaveletView::createWaveletFields( uiGroup* grp )
 {
     grp->setHSpacing( 40 );
     
@@ -102,11 +101,11 @@ void uiWellTieWaveletView::createWaveletFields( uiGroup* grp )
     wvltlbl->attach( alignedAbove, viewer_[0] );
     wvltestlbl->attach( alignedAbove, viewer_[1] );
     wvltbuts_ += new uiPushButton( grp,  "Properties", 
-	    mCB(this,uiWellTieWaveletView,viewInitWvltPropPushed),false);
+	    mCB(this,uiWaveletView,viewInitWvltPropPushed),false);
     wvltbuts_ += new uiPushButton( grp, "Properties", 
-	    mCB(this,uiWellTieWaveletView,viewEstWvltPropPushed),false);
+	    mCB(this,uiWaveletView,viewEstWvltPropPushed),false);
     wvltbuts_ += new uiPushButton( grp, "Save Estimated Wavelet", 
-	    mCB(this,uiWellTieWaveletView,saveWvltPushed),false);
+	    mCB(this,uiWaveletView,saveWvltPushed),false);
 
     wvltbuts_[0]->attach( alignedBelow, viewer_[0] );
     wvltbuts_[1]->attach( alignedBelow, viewer_[1] );
@@ -121,7 +120,7 @@ void uiWellTieWaveletView::createWaveletFields( uiGroup* grp )
 }
 
 
-void uiWellTieWaveletView::initWavelets( )
+void uiWaveletView::initWavelets( )
 {
     for ( int idx=wvlts_.size()-1; idx>=0; idx-- )
 	delete wvlts_.remove(idx);
@@ -143,13 +142,13 @@ void uiWellTieWaveletView::initWavelets( )
 	drawWavelet( wvlts_[idx], idx );
     
     delete wvltinitdlg_; wvltinitdlg_=0;
-    wvltinitdlg_ = new uiWellTieWaveletDispDlg( this, wvlts_[0], dataholder_);
+    wvltinitdlg_ = new WellTie::uiWaveletDispDlg( this, wvlts_[0], dataholder_);
     delete wvltestdlg_; wvltestdlg_=0;
-    wvltestdlg_  = new uiWellTieWaveletDispDlg( this, wvlts_[1], dataholder_);
+    wvltestdlg_  = new WellTie::uiWaveletDispDlg( this, wvlts_[1], dataholder_);
 }
 
 
-void uiWellTieWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
+void uiWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
 {
     const int wvltsz = wvlt->size();
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
@@ -169,25 +168,25 @@ void uiWellTieWaveletView::drawWavelet( const Wavelet* wvlt, int vwridx )
 }
 
 
-void uiWellTieWaveletView::viewInitWvltPropPushed( CallBacker* )
+void uiWaveletView::viewInitWvltPropPushed( CallBacker* )
 {
     if ( wvltinitdlg_ )
 	wvltinitdlg_->go();
 }
 
 
-void uiWellTieWaveletView::viewEstWvltPropPushed( CallBacker* )
+void uiWaveletView::viewEstWvltPropPushed( CallBacker* )
 {
     if ( wvltestdlg_ )
 	wvltestdlg_->go();
 }
 
 
-class uiWellTieWvltSaveDlg : public uiDialog
+class uiWvltSaveDlg : public uiDialog
 {
 public:
 
-uiWellTieWvltSaveDlg( uiParent* p, const Wavelet* wvlt )
+uiWvltSaveDlg( uiParent* p, const Wavelet* wvlt )
             : uiDialog(p,uiDialog::Setup("Save Estimated Wavelet",
 	    "Specify wavelet name","107.4.4"))
 	    , wvltctio_(*mMkCtxtIOObj(Wavelet))
@@ -218,22 +217,21 @@ bool acceptOK( CallBacker* )
 };
 
 
-void uiWellTieWaveletView::saveWvltPushed( CallBacker* )
+void uiWaveletView::saveWvltPushed( CallBacker* )
 {
-    uiWellTieWvltSaveDlg dlg( this, wvlts_[1] );
+    WellTie::uiWvltSaveDlg dlg( this, wvlts_[1] );
     if ( !dlg.go() ) return;
 }
 
 
 #define mPaddFac 3
-uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p, 
-						  const Wavelet* wvlt,
-       						  const WellTieDataHolder* dh )
+uiWaveletDispDlg::uiWaveletDispDlg( uiParent* p, const Wavelet* wvlt,
+				  const WellTie::DataHolder* dh )
 	: uiDialog( p,Setup("Wavelet Properties","","107.4.3").modal(false))
 	, wvlt_(wvlt)  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, wvltsz_(0)
-	, geocalc_(*new WellTieGeoCalculator(dh->params(),dh->wd()))	    
+	, geocalc_(*new WellTie::GeoCalculator(dh->params(),dh->wd()))	    
 	, fft_(new FFT())
 {
     setCtrlStyle( LeaveOnly );
@@ -267,7 +265,7 @@ uiWellTieWaveletDispDlg::uiWellTieWaveletDispDlg( uiParent* p,
 }
 
 
-uiWellTieWaveletDispDlg::~uiWellTieWaveletDispDlg()
+uiWaveletDispDlg::~uiWaveletDispDlg()
 {
     deepErase( proparrays_ );
     delete fft_;
@@ -281,7 +279,7 @@ uiWellTieWaveletDispDlg::~uiWellTieWaveletDispDlg()
             tf->init();\
             tf->transform(inp,outp);\
 }
-void uiWellTieWaveletDispDlg::setValArrays()
+void uiWaveletDispDlg::setValArrays()
 {
     memcpy(proparrays_[0]->getData(),wvlt_->samples(),wvltsz_*sizeof(float));
 
@@ -320,7 +318,7 @@ void uiWellTieWaveletDispDlg::setValArrays()
 }
 
 
-void uiWellTieWaveletDispDlg::setDispCurves()
+void uiWaveletDispDlg::setDispCurves()
 {
     TypeSet<float> xvals;
     for ( int idx=0; idx<wvltsz_; idx++ )
@@ -336,3 +334,5 @@ void uiWellTieWaveletDispDlg::setDispCurves()
 			    proparrays_[2]->arr(), 
 			    mPaddFac*wvltsz_/2 );
 }
+
+}; //namespace WellTie

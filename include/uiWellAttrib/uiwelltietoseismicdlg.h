@@ -19,9 +19,6 @@ ________________________________________________________________________
 #include "welltieunitfactors.h"
 #include "bufstringset.h"
 
-class WellTieDataHolder;
-class WellTieToSeismic;
-
 class uiGroup;
 class uiToolBar;
 class uiGenInput;
@@ -30,39 +27,39 @@ class uiLabeledComboBox;
 class uiCheckBox;
 class uiWellLogDisplay;
 
-class uiWellTieView;
-class uiWellTieControlView;
-class uiWellTieCorrView;
-class uiWellTieInfoDlg;
-class uiWellTieWaveletView;
-class uiWellTieEventStretch;
-class uiWellTieLogStretch;
-
 namespace Attrib { class DescSet; }
-namespace Well
-{
-    class Data;
-}
+namespace Well	 { class Data; }
 
-mClass uiWellTieToSeismicDlg : public uiFlatViewMainWin
+namespace WellTie
+{
+
+class DataHolder;
+class DataPlayer;
+class uiTieView;
+class uiControlView;
+class uiCorrView;
+class uiInfoDlg;
+class uiWaveletView;
+class uiEventStretch;
+
+mClass uiTieWin : public uiFlatViewMainWin
 {
 public:
 
-				uiWellTieToSeismicDlg(uiParent*,
-						      const WellTieSetup&,
-						      const Attrib::DescSet&); 
-				~uiWellTieToSeismicDlg();
+				uiTieWin(uiParent*,const WellTie::Setup&,
+					  const Attrib::DescSet&); 
+				~uiTieWin();
 
 
-    const WellTieSetup&		Setup()		{ return setup_; }
+    const WellTie::Setup&		Setup()		{ return setup_; }
 	
 protected:
 
     Well::Data*			wd_;
-    WellTieSetup		setup_;
-    WellTieDataHolder*		dataholder_;
-    WellTieParams*		params_;
-    WellTieToSeismic*   	dataplayer_;
+    WellTie::Setup		setup_;
+    WellTie::DataHolder*	dataholder_;
+    WellTie::Params*		params_;
+    WellTie::DataPlayer*   	dataplayer_;
     
     uiCheckBox* 		cscorrfld_;
     uiCheckBox* 		csdispfld_;
@@ -79,10 +76,10 @@ protected:
     uiToolBar*          	toolbar_;
     ObjectSet<uiWellLogDisplay> logsdisp_;
 
-    uiWellTieControlView* 	controlview_;
-    uiWellTieEventStretch* 	stretcher_;
-    uiWellTieInfoDlg* 		infodlg_; 
-    uiWellTieView*		datadrawer_;
+    WellTie::uiControlView* 	controlview_;
+    WellTie::uiInfoDlg* 	infodlg_; 
+    WellTie::uiTieView*		datadrawer_;
+    WellTie::uiEventStretch* 	stretcher_;
     
     void			addControl();
     void 			addToolBarTools();
@@ -128,14 +125,14 @@ protected:
 
 
 
-mClass uiWellTieInfoDlg : public uiDialog
+mClass uiInfoDlg : public uiDialog
 {
 public:		
     		
-    		uiWellTieInfoDlg(uiParent*,WellTieDataHolder*);
-    		~uiWellTieInfoDlg();
+    		uiInfoDlg(uiParent*,WellTie::DataHolder*);
+    		~uiInfoDlg();
 
-    Notifier<uiWellTieInfoDlg>  applyPushed;
+    Notifier<uiInfoDlg>  applyPushed;
 
     bool 			setUserDepths();
     void 			setXCorrel();
@@ -145,8 +142,8 @@ protected:
    
     BufferStringSet             markernames_;
     Well::Data*                 wd_;
-    WellTieDataHolder*		dataholder_;
-    WellTieParams::DataParams*	params_;
+    WellTie::DataHolder*	dataholder_;
+    WellTie::Params::DataParams* params_;
 
     uiGenInput*			botmrkfld_;
     uiGenInput*                 corrcoefffld_;
@@ -154,13 +151,14 @@ protected:
     uiPushButton*               applymarkerbut_;
     uiPushButton*               applymrkbut_;
     uiPushButton*               savewvltestbut_;
-    uiWellTieCorrView*          crosscorr_;
-    uiWellTieWaveletView*       wvltdraw_;
+    WellTie::uiCorrView*      	crosscorr_;
+    WellTie::uiWaveletView*     wvltdraw_;
     
     void 			applyMarkerPushed(CallBacker*);
     void 			userDepthsChanged(CallBacker*);
 };
 
+}; //namespace WellTie
 
 #endif
 

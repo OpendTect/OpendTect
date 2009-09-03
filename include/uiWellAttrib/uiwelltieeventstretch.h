@@ -15,35 +15,31 @@ ________________________________________________________________________
 
 #include "uiwelltiestretch.h"
 
-class WellTieDataHolder;
-class WellTieSetup;
-class WellTieParams;
-class WellTieDataSet;
-class WellTieParams;
-class WellTieDataMGR;
-class WellTieD2TModelMGR;
-class WellTiePickSetMGR;
-class WellTiePickSet;
+namespace WellTie
+{
 
-class uiWellTieView;
+class DataHolder;
+class D2TModelMGR;
+class PickSetMGR;
+class PickSet;
+class uiTieView;
 
-mClass uiWellTieEventStretch : public uiWellTieStretch
+mClass uiEventStretch : public uiStretch
 {
 public:
-			uiWellTieEventStretch(uiParent*,WellTieDataHolder*,
-					      uiWellTieView&);
-			~uiWellTieEventStretch();
+			uiEventStretch(uiParent*,WellTie::DataHolder*,
+				   WellTie::uiTieView&);
+			~uiEventStretch();
 
-    Notifier<uiWellTieEventStretch> 	pickadded;
-    
+    Notifier<uiEventStretch> 		pickadded;
     void 				doWork(CallBacker*); 
     
 protected:
 
-    WellTieD2TModelMGR*			d2tmgr_;
-    WellTiePickSet& 			seispickset_;
-    WellTiePickSet& 			synthpickset_;
-    WellTiePickSetMGR& 			pmgr_;
+    WellTie::D2TModelMGR*		d2tmgr_;
+    WellTie::PickSet& 			seispickset_;
+    WellTie::PickSet& 			synthpickset_;
+    WellTie::PickSetMGR& 		pmgr_;
 
     void 				addSyntPick(CallBacker*);
     void 				addSeisPick(CallBacker*);
@@ -55,7 +51,9 @@ protected:
     void				updatePicksPos(
 	    					const Array1DImpl<float>&,
 						const Array1DImpl<float>&,
-						WellTiePickSet&,int);
+						WellTie::PickSet&,int);
 };
+
+}; //namespace WellTie
 
 #endif

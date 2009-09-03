@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.6 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: welltiesetup.h,v 1.7 2009-09-03 09:41:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,11 +23,13 @@ ________________________________________________________________________
 class IOPar;
 class MultiID;
 
+namespace WellTie
+{
 
-mClass WellTieSetup
+mClass Setup
 {
 public:
-			WellTieSetup()
+			Setup()
 			    : wellid_(*new MultiID())
 			    , attrid_(*new Attrib::DescID())
 			    , wvltid_(*new MultiID())
@@ -37,7 +39,7 @@ public:
 			    {}
 
 
-			WellTieSetup( const WellTieSetup& setup ) 
+			Setup( const Setup& setup ) 
 			    : wellid_(setup.wellid_)
 			    , attrid_(setup.attrid_)
 			    , wvltid_(setup.wvltid_)
@@ -60,7 +62,7 @@ public:
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;
 
-    static WellTieSetup&	defaults();
+    static Setup&		defaults();
     static void                 commitDefaults();
 
 protected:
@@ -68,10 +70,10 @@ protected:
 };
 
 
-mClass WellTieIO : public Well::IO
+mClass IO : public Well::IO
 {
 public:
-    				WellTieIO(const char* f,bool isrd)
+    				IO(const char* f,bool isrd)
 				: Well::IO(f,isrd)
 				{}
 
@@ -81,26 +83,32 @@ public:
 
 
 
-mClass WellTieWriter : public WellTieIO
+mClass Writer : public IO
 {
 public:
-				WellTieWriter(const char* f,const WellTieSetup&);
+				Writer(const char* f,const WellTie::Setup& s)
+				    : IO(f,false)
+				    , wts_(s)
+				    {}
 
     bool          	        putWellTieSetup() const;  
     bool 			putWellTieSetup(std::ostream&) const;
 
 protected:
    
-    const WellTieSetup& 	wts_;
+    const WellTie::Setup& 	wts_;
     bool                	wrHdr(std::ostream&,const char*) const;
 
 };
 
 
-mClass WellTieReader : public WellTieIO
+mClass Reader : public IO
 {
 public:
-				WellTieReader(const char* f,WellTieSetup&);
+				Reader(const char* f,WellTie::Setup& s)
+				    : IO(f,true)
+				    , wts_(s)
+				    {}
   
     bool               		getWellTieSetup() const;	
     bool                	getWellTieSetup(std::istream&) const;
@@ -108,7 +116,8 @@ public:
 
 protected:
    
-    WellTieSetup& 	wts_;
+    WellTie::Setup& 	wts_;
 };
 
+}; //namespace WellTie
 #endif

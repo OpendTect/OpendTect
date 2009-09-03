@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiesetup.cc,v 1.2 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: welltiesetup.cc,v 1.3 2009-09-03 09:41:40 cvsbruno Exp $";
 
 
 #include "welltiesetup.h"
@@ -17,6 +17,9 @@ static const char* rcsID = "$Id: welltiesetup.cc,v 1.2 2009-07-22 16:01:44 cvsbe
 #include "ascstream.h"
 #include <iostream>
 
+namespace WellTie
+{
+
 static const char* sKeyAttrID = "ID of selected attribute";
 static const char* sKeyVelLogName = "Velocity log name";
 static const char* sKeyDensLogName = "Density log name";
@@ -24,7 +27,7 @@ static const char* sKeyWavltID = "ID of selected wavelet";
 static const char* sKeyIsSonic = "Provided TWT log is sonic";
 
 
-void WellTieSetup::usePar( const IOPar& iop )
+void Setup::usePar( const IOPar& iop )
 {
     iop.get( IOPar::compKey("",sKeyAttrID), attrid_.asInt() );
     iop.get( IOPar::compKey("",sKeyVelLogName), denlognm_ );
@@ -34,7 +37,7 @@ void WellTieSetup::usePar( const IOPar& iop )
 }
 
 
-void WellTieSetup::fillPar( IOPar& iop ) const
+void Setup::fillPar( IOPar& iop ) const
 {
     iop.set( IOPar::compKey("",sKeyAttrID), attrid_.asInt() );
     iop.set( IOPar::compKey("",sKeyVelLogName), denlognm_ );
@@ -44,14 +47,14 @@ void WellTieSetup::fillPar( IOPar& iop ) const
 }
 
 
-WellTieSetup& WellTieSetup::defaults()
+Setup& Setup::defaults()
 {
-    static WellTieSetup* ret = 0;
+    static Setup* ret = 0;
 
     if ( !ret )
     {
 	Settings& setts = Settings::fetch( "welltie" );
-	ret = new WellTieSetup;
+	ret = new Setup;
 	ret->usePar( setts );
     }
 
@@ -59,7 +62,7 @@ WellTieSetup& WellTieSetup::defaults()
 }
 
 
-void WellTieSetup::commitDefaults()
+void Setup::commitDefaults()
 {
     Settings& setts = Settings::fetch( "welltie" );
     defaults().fillPar( setts );
@@ -67,15 +70,7 @@ void WellTieSetup::commitDefaults()
 }
 
 
-
-WellTieWriter::WellTieWriter( const char* f, const WellTieSetup& wts )
-            : WellTieIO(f,false)
-	    , wts_(wts)
-{
-}
-
-
-bool WellTieWriter::wrHdr( std::ostream& strm, const char* fileky ) const
+bool Writer::wrHdr( std::ostream& strm, const char* fileky ) const
 {
     ascostream astrm( strm );
     if ( !astrm.putHeader(fileky) )
@@ -90,7 +85,7 @@ bool WellTieWriter::wrHdr( std::ostream& strm, const char* fileky ) const
 }
 
 
-bool WellTieWriter::putWellTieSetup() const
+bool Writer::putWellTieSetup() const
 {
     StreamData sd = mkSD( sExtWellTieSetup() );
     if ( !sd.usable() ) return false;
@@ -101,7 +96,7 @@ bool WellTieWriter::putWellTieSetup() const
 }
 
 
-bool WellTieWriter::putWellTieSetup( std::ostream& strm ) const
+bool Writer::putWellTieSetup( std::ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyWellTieSetup()) ) return false;
 
@@ -129,17 +124,11 @@ static const char* rdHdr( std::istream& strm, const char* fileky )
 }
 
 
-const char* WellTieIO::sKeyWellTieSetup()   { return "Well Tie Setup"; }
-const char* WellTieIO::sExtWellTieSetup()   { return ".tie"; }
-
-WellTieReader::WellTieReader( const char* f, WellTieSetup& wts )
-            : WellTieIO(f,true)
-	    , wts_(wts)
-{
-}
+const char* IO::sKeyWellTieSetup()   { return "Well Tie Setup"; }
+const char* IO::sExtWellTieSetup()   { return ".tie"; }
 
 
-bool WellTieReader::getWellTieSetup() const
+bool Reader::getWellTieSetup() const
 {
     StreamData sd = mkSD( sExtWellTieSetup() );
     if ( !sd.usable() ) return false;
@@ -150,7 +139,7 @@ bool WellTieReader::getWellTieSetup() const
 }
 
 
-bool WellTieReader::getWellTieSetup( std::istream& strm ) const
+bool Reader::getWellTieSetup( std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyWellTieSetup()) )
     return false;
@@ -160,4 +149,5 @@ bool WellTieReader::getWellTieSetup( std::istream& strm ) const
     wts_.usePar( iop );
     return true;
 }
-             
+
+}; // namespace WellTie

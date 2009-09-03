@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.9 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.10 2009-09-03 09:41:40 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -24,20 +24,14 @@ static const char* rcsID = "$Id: welltieextractdata.cc,v 1.9 2009-07-22 16:01:44
 #include "wellextractdata.h"
 #include "welltrack.h"
 
-WellTieExtractTrack::WellTieExtractTrack(  DataPointSet& dps,
-					   const Well::Data* d)
-    	: Executor("Extracting Well track positions") 
-	, dps_(dps) 
-	, wd_(*d)	    
-	, nrdone_(0)
-	, timeintv_(0,0,0)
+
+namespace WellTie
 {
-} 
 
 
 #define mAddRow(bv,pos) \
     dr.pos_.z_ = pos.z; dr.pos_.set( bid, pos ); dps_.addRow( dr )
-int WellTieExtractTrack::nextStep()
+int TrackExtractor::nextStep()
 {
     double time = timeintv_.atIndex( nrdone_ );
 
@@ -64,9 +58,9 @@ int WellTieExtractTrack::nextStep()
 
 
 #define mErrRet(s) { errmsg = s; return; }
-WellTieResampleLog::WellTieResampleLog( WellTieDataSet& arr, 
-					const Well::Log& l, const Well::Data* d,
-					WellTieGeoCalculator& geocalc )
+LogResampler::LogResampler( WellTie::DataSet& arr, 
+			    const Well::Log& l, const Well::Data* d,
+			    WellTie::GeoCalculator& geocalc )
     	: Executor("Processing log data") 
 	, workdata_(arr)
 	, wd_(*d)	   
@@ -88,7 +82,7 @@ WellTieResampleLog::WellTieResampleLog( WellTieDataSet& arr,
 }
 
 
-void WellTieResampleLog::fillProcLog( const Well::Log& log )
+void LogResampler::fillProcLog( const Well::Log& log )
 {
     for ( int idx=0; idx<log.size(); idx++ )
     {
@@ -98,7 +92,7 @@ void WellTieResampleLog::fillProcLog( const Well::Log& log )
 }
 
 
-int WellTieResampleLog::nextStep()
+int LogResampler::nextStep()
 {
     float curtime = timeintv_.atIndex( nrdone_ );
     float curdah = wd_.d2TModel()->getDepth( curtime );
@@ -139,7 +133,7 @@ int WellTieResampleLog::nextStep()
 }
 
 
-void WellTieResampleLog::updateLogIdx( float curdah, int& logidx  )
+void LogResampler::updateLogIdx( float curdah, int& logidx  )
 {
     int tmpidx = logidx;
     while ( tmpidx < val_.size() && curdah >= dah_[tmpidx] )
@@ -148,3 +142,4 @@ void WellTieResampleLog::updateLogIdx( float curdah, int& logidx  )
     logidx = tmpidx;
 }
 
+}; //namespace WellTie

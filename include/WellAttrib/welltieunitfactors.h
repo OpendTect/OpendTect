@@ -20,16 +20,18 @@ ________________________________________________________________________
 #include "welldata.h"
 
 class UnitOfMeasure;
-class WellTieSetup;
 namespace Attrib { class DescSet; }
 
+namespace WellTie
+{
+    class Setup;
 
-mClass WellTieUnitFactors
+mClass UnitFactors
 {
 public:
 
-		    WellTieUnitFactors(const WellTieSetup*);
-		    ~WellTieUnitFactors() {};
+		    UnitFactors(const WellTie::Setup*);
+		    ~UnitFactors() {};
 
    
     const double 	velFactor() const          { return velfactor_; }
@@ -54,17 +56,25 @@ protected:
 
 
 /*!\collects the parameters used for TWTS, linked to ui and data computation*/
-mClass WellTieParams
+mClass Params
 {
 public :
-				WellTieParams(const WellTieSetup&,
-					      Well::Data*,
-					      const Attrib::DescSet&);
-				~WellTieParams(){};
+				Params(const WellTie::Setup&,
+				      Well::Data*,
+				      const Attrib::DescSet&);
+				~Params(){};
 
     mStruct uiParams
     {
-			    uiParams(const Well::Data*);
+			    uiParams(const Well::Data* d)
+				: wd_(*d)
+				, iscsavailable_(d->haveCheckShotModel())
+				, iscscorr_(d->haveCheckShotModel())
+				, iscsdisp_(false)
+				, ismarkerdisp_(d->haveMarkers())
+				, iszinft_(false)
+				, iszintime_(true)
+				{}
 
 	bool                    iscsavailable_;
 	bool                    iscscorr_;
@@ -73,13 +83,12 @@ public :
 	bool                    iszinft_;
 	bool                    iszintime_;
 	const Well::Data&	wd_;
-	
-	friend class 		WellTieParams;
     };
 
     mStruct DataParams
     {
-			   DataParams(const Well::Data* d,const WellTieSetup& w)
+			   DataParams(const Well::Data* d,
+				      const WellTie::Setup& w)
 				: wd_(*d)
 				, wts_(w)  
 				, nrdatacols_(10)
@@ -114,7 +123,7 @@ public :
 	BufferString		synthnm_;
 	BufferString		crosscorrnm_;
     
-	const WellTieSetup&	wts_;
+	const WellTie::Setup&	wts_;
 	const Well::Data&	wd_;
 	void	 		createColNames();
 	bool			resetDataParams();
@@ -122,8 +131,6 @@ public :
 	bool			setDepths(const StepInterval<double>&,
 						StepInterval<double>&);
     	const StepInterval<double>&  getTimeScale() const { return timeintv_; } 
-
-	friend class WellTieParams;
     };
 
     uiParams			uipms_;
@@ -131,17 +138,19 @@ public :
 
     const Attrib::DescSet& 	ads_;
 
-    const WellTieSetup& 	getSetup() const   { return wtsetup_; }
-    const WellTieUnitFactors& 	getUnits() const   { return factors_; }
+    const WellTie::Setup& 	getSetup() const   { return wtsetup_; }
+    const WellTie::UnitFactors& getUnits() const   { return factors_; }
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
     bool			resetParams(); 
     void			resetVellLognm();
 
 protected :
 
-    const WellTieSetup&		wtsetup_;
+    const WellTie::Setup&	wtsetup_;
     Well::Data&			wd_;
-    const WellTieUnitFactors    factors_;
+    const WellTie::UnitFactors  factors_;
 };
+
+};//namespace WellTie
 
 #endif

@@ -18,9 +18,6 @@ ________________________________________________________________________
 #include "welltieunitfactors.h"
 #include "welltiedata.h"
 
-template <class T> class Array1DImpl;
-class WellTieSetup; 
-class WellTiePickSet; 
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcBufDataPack;
@@ -35,13 +32,19 @@ namespace Well
     class Marker;
     class Data;
 };
-mClass uiWellTieView : public CallBacker
+
+namespace WellTie
+{
+    class Setup; 
+    class PickSet; 
+
+mClass uiTieView : public CallBacker
 {
 public:
-			    	uiWellTieView(uiParent*,uiFlatViewer*,
-					      WellTieDataHolder*,
-					      ObjectSet<uiWellLogDisplay>*);
-				~uiWellTieView();
+			    	uiTieView(uiParent*,uiFlatViewer*,
+					  WellTie::DataHolder*,
+					  ObjectSet<uiWellLogDisplay>*);
+				~uiTieView();
 
     void        		fullRedraw();
     void        		drawUserPicks();
@@ -53,14 +56,14 @@ protected:
     uiFlatViewer*		vwr_;
 
     ObjectSet<uiWellLogDisplay>& logsdisp_;
-    WellTieDataSetMGR&		datamgr_; 		
-    WellTieDataSet&  		data_;
-    WellTieDataHolder*  	dataholder_;
+    WellTie::DataSetMGR&		datamgr_; 		
+    WellTie::DataSet&  		data_;
+    WellTie::DataHolder*  	dataholder_;
     const Well::Data& 		wd_;		
-    const WellTieSetup& 	wtsetup_;
-    const WellTieParams::DataParams* params_;
-    WellTiePickSet*		seispickset_;
-    WellTiePickSet*		synthpickset_;
+    const WellTie::Setup& 	wtsetup_;
+    const WellTie::Params::DataParams* params_;
+    WellTie::PickSet*		seispickset_;
+    WellTie::PickSet*		synthpickset_;
 
     SeisTrcBuf*			trcbuf_;
     SeisTrcBufDataPack*		seistrcdp_;
@@ -77,7 +80,7 @@ protected:
     void        		drawDenLog();
     void        		drawRefLog();
     void        		drawTraces();
-    void			drawUserPicks(const WellTiePickSet*);
+    void			drawUserPicks(const WellTie::PickSet*);
     void        		drawMarker(FlatView::Annotation::AuxData*,
 					    int,float,float,Color,bool);
     void        		drawWellMarkers();
@@ -96,23 +99,24 @@ protected:
 
 
 
-mClass uiWellTieCorrView : uiGroup
+mClass uiCorrView : uiGroup
 {
 public:
 
-				uiWellTieCorrView(uiParent*,WellTieDataHolder*);
-				~uiWellTieCorrView();
+				uiCorrView(uiParent*,WellTie::DataHolder*);
+				~uiCorrView();
 
     void                	setCrossCorrelation();
 
 protected:
 
     uiLabel* 			corrlbl_;
-    WellTieDataSet& 		corrdata_;
-    const WellTieData& 		welltiedata_;
-    const WellTieParams::DataParams& params_;
+    WellTie::DataSet& 		corrdata_;
+    const WellTie::Data& 	welltiedata_;
+    const WellTie::Params::DataParams& params_;
     ObjectSet<uiFunctionDisplay>  corrdisps_;
 };
 
+}; //namespace WellTie
 #endif
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.12 2009-09-02 09:03:51 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.13 2009-09-03 09:41:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,28 +22,28 @@ ________________________________________________________________________
   brief class to perform the computations needed by TWTS  
 */   
 
-class WellTieSetup;
-class Wavelet;
-class WellTieParams;
-class IOPar;
 namespace Well
 {
-    class MGR; 
     class Data;
     class D2TModel;
 }
 
+namespace WellTie
+{
+    class Setup;
+    class Params;
 
-mClass WellTieGeoCalculator
+
+mClass GeoCalculator
 {
 public:
-			WellTieGeoCalculator(const WellTieParams*,
-					     const Well::Data*);
-			~WellTieGeoCalculator() {};
+			GeoCalculator(const WellTie::Params*,
+				      const Well::Data*);
+			~GeoCalculator() {};
 
 //d2tm operations
     Well::D2TModel* 	getModelFromVelLog(const char*, bool);
-     void 		TWT2Vel(const TypeSet<float>&,
+    void 		TWT2Vel(const TypeSet<float>&,
 	     			const TypeSet<float>&,
 				TypeSet<float>&,bool);
 
@@ -104,10 +104,12 @@ protected:
     double 		denfactor_;
     double 		velfactor_;
     const Well::Data&	wd_;
-    const WellTieSetup& wtsetup_;
-    const WellTieParams& params_;
+    const WellTie::Setup& wtsetup_;
+    const WellTie::Params& params_;
+
     StretchData		sd_;
 
 };
 
+}; //namespace WellTie
 #endif

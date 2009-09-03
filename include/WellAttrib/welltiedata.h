@@ -20,9 +20,6 @@ ________________________________________________________________________
 
 
 template <class T> class Array1DImpl;
-class WellTieD2TModelMGR;   
-class WellTieDataSet;   
-class WellTiePickSetMGR;   
 class DataPointSet;
 namespace Well
 {
@@ -30,29 +27,35 @@ namespace Well
     class Log;
 }
 
-// brief structure containing datasets and data used for TWTS
-mStruct WellTieData
+namespace WellTie
 {
-			WellTieData()
-			    : nrdataset_(3) 
-			    {}
+    class D2TModelMGR;   
+    class DataSet;   
+    class PickSetMGR;   
+
+// brief structure containing datasets and data used for TWTS
+mStruct Data
+{
+			Data()
+			: nrdataset_(3) 
+			{}
 
     int 		nrdataset_;
     float		corrcoeff_;
     Wavelet		wvltest_;
     
-    ObjectSet<WellTieDataSet> datasets_;
+    ObjectSet<WellTie::DataSet> datasets_;
     ObjectSet<Well::Log> logset_;
 };
 
 
-mClass WellTieDataSet
+mClass DataSet
 {
 public:
-			WellTieDataSet(){};
-			~WellTieDataSet(){};
+			DataSet(){};
+			~DataSet(){};
 
-			WellTieDataSet( const WellTieDataSet& ds )
+			DataSet( const DataSet& ds )
 			    : colnr_(ds.colnr_)
 			    , datasz_(ds.datasz_)
 			    , colnameset_(ds.colnameset_)
@@ -99,76 +102,79 @@ protected:
 
 /*!\brief Manages the datasets used during TWTS. */
 
-mClass WellTieDataSetMGR
+mClass DataSetMGR
 {
 public:
-			WellTieDataSetMGR(const WellTieParams::DataParams*,
-						WellTieData*);
-			~WellTieDataSetMGR();
+			DataSetMGR(const WellTie::Params::DataParams*,
+				    WellTie::Data*);
+			~DataSetMGR();
 
     void 		resetData();
-    void 		resetData(WellTieDataSet&,int);
+    void 		resetData(WellTie::DataSet&,int);
     void		clearData();
     void 		setWork2DispData();
-    void                rescaleData(const WellTieDataSet&,WellTieDataSet&,
+    void                rescaleData(const WellTie::DataSet&,WellTie::DataSet&,
 	    				int,int);
-    void                rescaleData(const WellTieDataSet&,WellTieDataSet&,
+    void                rescaleData(const WellTie::DataSet&,WellTie::DataSet&,
 	    				int,float,float);
     void 		getSortedDPSDataAlongZ( const DataPointSet&,
 	   				        Array1DImpl<float>& );
     
 protected:
 
-    const WellTieParams::DataParams& params_;
-    ObjectSet<WellTieDataSet>& datasets_;
+    const WellTie::Params::DataParams& params_;
+    ObjectSet<WellTie::DataSet>& datasets_;
 };
 
 
 //brief contains all the data, params and mgrs needed by TWTS
-mClass WellTieDataHolder 
+mClass DataHolder 
 {
 public:    
-			WellTieDataHolder(WellTieParams*,Well::Data*,
-					  const WellTieSetup&);
-			~WellTieDataHolder();
+			DataHolder(WellTie::Params*,Well::Data*,
+				  const WellTie::Setup&);
+			~DataHolder();
 
-    const WellTieParams*  params() const   { return params_; }   
-    WellTieParams::uiParams* uipms()       { return &params_->uipms_;  }
-    const WellTieParams::uiParams* uipms() const { return &params_->uipms_;  }
-    WellTieParams::DataParams* dpms() 	    { return &params_->dpms_; }
-    const WellTieParams::DataParams* dpms() const { return &params_->dpms_; }
-    const WellTieSetup&	  setup()  const   { return setup_; }
-    WellTieData&	  data()   	   { return data_; }
-    const WellTieData&	  data()   const   { return data_; }
+    const WellTie::Params*  	params() const   { return params_; }   
+    WellTie::Params::uiParams* 	uipms()       { return &params_->uipms_;  }
+    const WellTie::Params::uiParams* uipms() const { return &params_->uipms_;  }
+    WellTie::Params::DataParams* dpms() 	    { return &params_->dpms_; }
+    const WellTie::Params::DataParams* dpms() const { return &params_->dpms_; }
+    const WellTie::Setup& setup()  const   { return setup_; }
+    WellTie::Data&	  data()   	   { return data_; }
+    const WellTie::Data&  data()   const   { return data_; }
     Well::Data* 	  wd()        	   { return wd_; }	
     const Well::Data* 	  wd()     const   { return wd_; }	
-    WellTieD2TModelMGR*   d2TMGR()	   { return d2tmgr_; }   
-    const WellTieD2TModelMGR* d2TMGR() const { return d2tmgr_; }   
-    WellTiePickSetMGR*    pickmgr()   	   { return pickmgr_; }
-    const WellTiePickSetMGR* pickmgr() const { return pickmgr_; }
-    WellTieDataSetMGR* 	   datamgr()	   { return datamgr_; }
-    const WellTieDataSetMGR* datamgr() const { return datamgr_; }
-    WellTieDataSet*	  extrData() 	   { return data_.datasets_[0]; }
-    const WellTieDataSet* extrData() const { return data_.datasets_[0]; }
-    WellTieDataSet*	  dispData() 	   { return data_.datasets_[1]; }
-    const WellTieDataSet* dispData() const { return data_.datasets_[1]; }
-    WellTieDataSet*	  corrData()  	   { return data_.datasets_[2]; } 
-    const WellTieDataSet* corrData() const { return data_.datasets_[2]; } 
+    WellTie::D2TModelMGR* d2TMGR()	   { return d2tmgr_; }   
+    const WellTie::D2TModelMGR* d2TMGR() const { return d2tmgr_; }   
+    WellTie::PickSetMGR*  pickmgr()   	   { return pickmgr_; }
+    const WellTie::PickSetMGR* pickmgr() const { return pickmgr_; }
+    WellTie::DataSetMGR*  datamgr()	   { return datamgr_; }
+    const WellTie::DataSetMGR* 	datamgr() const { return datamgr_; }
+    WellTie::DataSet* 	  extrData() 	   { return data_.datasets_[0]; }
+    const WellTie::DataSet* extrData() const { return data_.datasets_[0]; }
+    WellTie::DataSet*	  dispData() 	   { return data_.datasets_[1]; }
+    const WellTie::DataSet* dispData() const { return data_.datasets_[1]; }
+    WellTie::DataSet*	  corrData()  	   { return data_.datasets_[2]; } 
+    const WellTie::DataSet* corrData() const { return data_.datasets_[2]; } 
     Wavelet*              getEstimatedWvlt()  { return &data_.wvltest_; } 
     const Wavelet*        getEstimatedWvlt() const { return &data_.wvltest_; } 
 
     
 private:
 
-    Well::Data*          wd_;
-    const WellTieSetup&	 setup_;
-    WellTieData	 	 data_;
-    WellTieD2TModelMGR*	 d2tmgr_;
-    WellTiePickSetMGR*   pickmgr_;
-    WellTieDataSetMGR*	 datamgr_;
-    WellTieParams::uiParams* uipms_;
-    WellTieParams::DataParams* dpms_;
-    WellTieParams* 	 params_; //becomes mine
+    Well::Data*          	wd_;
+
+    WellTie::Data	 	data_;
+    WellTie::DataSetMGR*	datamgr_;
+    WellTie::D2TModelMGR*	d2tmgr_;
+    WellTie::Params::uiParams* 	uipms_;
+    WellTie::Params* 	 	params_; //becomes mine
+    WellTie::Params::DataParams* dpms_;
+    WellTie::PickSetMGR*   	pickmgr_;
+    const WellTie::Setup&	setup_;
 
 };
+
+}; //namespace WellTie
 #endif

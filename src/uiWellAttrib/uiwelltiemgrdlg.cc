@@ -7,25 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.14 2009-09-01 14:20:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.15 2009-09-03 09:41:40 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
 #include "attribdesc.h"
-#include "attribdescset.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "multiid.h"
-#include "survinfo.h"
-#include "strmdata.h"
 #include "strmprov.h"
 #include "iostrm.h"
-#include "datacoldef.h"
 #include "attribdescset.h"
 #include "attribsel.h"
 #include "wavelet.h"
-#include "ctxtioobj.h"
-
 #include "welldata.h"
 #include "wellman.h"
 #include "welltransl.h"
@@ -33,19 +26,20 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.14 2009-09-01 14:20:57 c
 #include "wellreader.h"
 
 #include "uiattrsel.h"
-#include "uiwelltietoseismicdlg.h"
-#include "uiwaveletextraction.h"
+#include "uibutton.h"
+#include "uicombobox.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
-#include "uicombobox.h"
-#include "uibutton.h"
 #include "uimsg.h"
-#include "uiioobjsel.h"
+#include "uiwaveletextraction.h"
+#include "uiwelltietoseismicdlg.h"
 
 static const char* sKeyPlsSel = "Please select";
 
+namespace WellTie
+{
 
-uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
+uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup,
        			    	  const Attrib::DescSet& attrset )
 	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
 		"Select Data to tie Well to Seismic","107.4.0")
@@ -60,7 +54,7 @@ uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
     if ( !wtsetup_.wellid_.isEmpty() )
 	wllctio_.setObj( wtsetup_.wellid_ );
     wellfld_ = new uiIOObjSel( this, wllctio_ );
-    wellfld_->selectiondone.notify( mCB(this,uiWellTieMGRDlg,wellSel) );
+    wellfld_->selectiondone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
 
     attrfld_ = new uiAttrSel( this, "Seismic data", uiAttrSelData(attrset_) );
     attrfld_->attach( alignedBelow, wellfld_ );
@@ -79,14 +73,14 @@ uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
     wvltfld_ = new uiIOObjSel( this, wvltctio_, "Reference wavelet" );
     wvltfld_->attach(alignedBelow, llbl2);
     uiPushButton* crwvltbut = new uiPushButton( this, "Extract",
-	    			mCB(this,uiWellTieMGRDlg,extrWvlt), false );
+	    			mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
-    finaliseDone.notify( mCB(this,uiWellTieMGRDlg,wellSel) );
+    finaliseDone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
 }
 
 
-uiWellTieMGRDlg::~uiWellTieMGRDlg()
+uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
     deepErase( welltiedlgsetcpy_ );
 }
@@ -100,7 +94,7 @@ static void fillLogNms( uiComboBox* fld, const BufferStringSet& nms )
 }
 
 
-void uiWellTieMGRDlg::wellSel( CallBacker* )
+void uiTieWinMGRDlg::wellSel( CallBacker* )
 {
     if ( !wellfld_->commitInput() )
 	return;
@@ -122,7 +116,7 @@ void uiWellTieMGRDlg::wellSel( CallBacker* )
 }
 
 
-void uiWellTieMGRDlg::extrWvlt( CallBacker* )
+void uiTieWinMGRDlg::extrWvlt( CallBacker* )
 {
     uiWaveletExtraction dlg( this );
     if ( dlg.go() )
@@ -130,14 +124,14 @@ void uiWellTieMGRDlg::extrWvlt( CallBacker* )
 }
 
 
-bool uiWellTieMGRDlg::getDefaults()
+bool uiTieWinMGRDlg::getDefaults()
 {
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
     mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
     StreamProvider sp( iostrm->fileName() );
     sp.addPathIfNecessary( iostrm->dirName() );
     BufferString fname( sp.fileName() );
-    WellTieReader wtr( fname, wtsetup_ );
+    WellTie::Reader wtr( fname, wtsetup_ );
     wtr.getWellTieSetup();
 
     const Attrib::Desc* ad = attrset_.getDesc( 
@@ -153,10 +147,10 @@ bool uiWellTieMGRDlg::getDefaults()
 }
 
 
-void uiWellTieMGRDlg::saveWellTieSetup( const MultiID& key,
-					const WellTieSetup& wts )
+void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
+				      const WellTie::Setup& wts )
 {
-    WellTieWriter wtr( Well::IO::getMainFileName(key), wts );
+    WellTie::Writer wtr( Well::IO::getMainFileName(key), wts );
     if ( !wtr.putWellTieSetup() )
 	uiMSG().error( "Could not write parameters" );
 }
@@ -165,7 +159,7 @@ void uiWellTieMGRDlg::saveWellTieSetup( const MultiID& key,
 #undef mErrRet
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 
-bool uiWellTieMGRDlg::acceptOK( CallBacker* )
+bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 {
     if ( !wellfld_->commitInput() )
 	 mErrRet("Please select a well")
@@ -186,7 +180,7 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
     Well::Data* wd = Well::MGR().get( wtsetup_.wellid_, false );
     if ( !wd ) mErrRet( "can not find well data" );
 
-    WellTieParams dpms( wtsetup_, wd, attrset_ );
+    WellTie::Params dpms( wtsetup_, wd, attrset_ );
     if ( !dpms.getUnits().denFactor() || !dpms.getUnits().velFactor()  )
 	mErrRet( "invalid log units, please check your input logs" );
 
@@ -215,19 +209,18 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
 	    delete welltiedlgsetcpy_.remove( idx );
     }
 
-    uiWellTieToSeismicDlg* wtdlg 
-		= new uiWellTieToSeismicDlg( this, wtsetup_, attrset_ );
+    WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, wtsetup_, attrset_);
     welltiedlgset_ += wtdlg;
     welltiedlgsetcpy_ += wtdlg;
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
-	    			mCB(this,uiWellTieMGRDlg,wellTieDlgClosed) );
+	    			mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
     return false;
 }
 
 
-void uiWellTieMGRDlg::wellTieDlgClosed( CallBacker* cb )
+void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 {
-    mDynamicCastGet(uiWellTieToSeismicDlg*,dlg,cb)
+    mDynamicCastGet(WellTie::uiTieWin*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
@@ -235,3 +228,5 @@ void uiWellTieMGRDlg::wellTieDlgClosed( CallBacker* cb )
 	     welltiedlgset_.remove(idx); 
     }
 }
+
+}; //namespace

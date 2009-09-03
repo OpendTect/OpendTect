@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.21 2009-09-01 14:20:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.22 2009-09-03 09:41:39 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -26,18 +26,21 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.21 2009-09-01 14:20
 #include "uitoolbar.h"
 #include "uiworld2ui.h"
 
+
+namespace WellTie
+{
+
 #define mErrRet(msg) \
 { uiMSG().error(msg); return false; }
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton( toolbar_, 0, ioPixmap(fnm), \
-			    mCB(this,uiWellTieControlView,cbnm) ); \
+			    mCB(this,uiControlView,cbnm) ); \
     but->setToolTip( tt ); \
     toolbar_->addObject( but );
 
-uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
-       					    uiFlatViewer* vwr)
+uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
-	    						.withcoltabed(false))
+						    .withcoltabed(false))
     , toolbar_(toolbar)
     , manip_(true)
 {
@@ -56,26 +59,26 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
     editbut_->setToggleButton( true );
 
     vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
-	                    mCB(this,uiWellTieControlView,keyPressCB) );
+	                    mCB(this,uiControlView,keyPressCB) );
     toolbar_->addSeparator();
 }
 
 
-void uiWellTieControlView::finalPrepare()
+void uiControlView::finalPrepare()
 {
     updatePosButtonStates();
     MouseEventHandler& mevh =
 	vwr_.rgbCanvas().getNavigationMouseEventHandler();
-    mevh.wheelMove.notify( mCB(this,uiWellTieControlView,wheelMoveCB) );
+    mevh.wheelMove.notify( mCB(this,uiControlView,wheelMoveCB) );
     mevh.buttonPressed.notify(
-	mCB(this,uiWellTieControlView,handDragStarted));
+	mCB(this,uiControlView,handDragStarted));
     mevh.buttonReleased.notify(
-	mCB(this,uiWellTieControlView,handDragged));
-    mevh.movement.notify( mCB(this,uiWellTieControlView,handDragging));
+	mCB(this,uiControlView,handDragged));
+    mevh.movement.notify( mCB(this,uiControlView,handDragging));
 }
 
 
-bool uiWellTieControlView::handleUserClick()
+bool uiControlView::handleUserClick()
 {
     const MouseEvent& ev = mouseEventHandler(0).event();
     uiWorld2Ui w2u; vwr_.getWorld2Ui(w2u);
@@ -92,7 +95,7 @@ bool uiWellTieControlView::handleUserClick()
 }
 
 
-bool uiWellTieControlView::checkIfInside( double xpos, double zpos )
+bool uiControlView::checkIfInside( double xpos, double zpos )
 {
     const uiWorldRect& bbox = vwr_.boundingBox();
     const Interval<double> xrg( bbox.left(), bbox.right() ),
@@ -103,13 +106,13 @@ bool uiWellTieControlView::checkIfInside( double xpos, double zpos )
 }
 
 
-void uiWellTieControlView::rubBandCB( CallBacker* cb )
+void uiControlView::rubBandCB( CallBacker* cb )
 {
     setSelView();
 }
 
 
-void uiWellTieControlView::altZoomCB( CallBacker* but )
+void uiControlView::altZoomCB( CallBacker* but )
 {
     const uiWorldRect& bbox = vwr_.boundingBox();
     const Interval<double> xrg( bbox.left(), bbox.right());
@@ -122,7 +125,7 @@ void uiWellTieControlView::altZoomCB( CallBacker* but )
 }
 
 
-void uiWellTieControlView::wheelMoveCB( CallBacker* )
+void uiControlView::wheelMoveCB( CallBacker* )
 {
     if ( !vwr_.rgbCanvas().
 	getNavigationMouseEventHandler().hasEvent() )
@@ -137,7 +140,7 @@ void uiWellTieControlView::wheelMoveCB( CallBacker* )
 }
 
 
-void uiWellTieControlView::keyPressCB( CallBacker* )
+void uiControlView::keyPressCB( CallBacker* )
 {
     const KeyboardEvent& ev =
 	vwr_.rgbCanvas().getKeyboardEventHandler().event();
@@ -149,7 +152,7 @@ void uiWellTieControlView::keyPressCB( CallBacker* )
 }
 
 
-void uiWellTieControlView::setSelView( bool isnewsel, bool viewall )
+void uiControlView::setSelView( bool isnewsel, bool viewall )
 {
     const uiRect viewarea = isnewsel ? 
 	*vwr_.rgbCanvas().getSelectedArea() : getViewRect( &vwr_ );
@@ -174,14 +177,14 @@ void uiWellTieControlView::setSelView( bool isnewsel, bool viewall )
 }
 
 
-const bool uiWellTieControlView::isZoomAtStart() const
+const bool uiControlView::isZoomAtStart() const
 { return zoommgr_.atStart(); }
 
 
-void uiWellTieControlView::setEditOn( bool yn )
+void uiControlView::setEditOn( bool yn )
 {
     editbut_->setOn( yn );
     editCB( 0 );
 }
 
-
+}; //namespace 
