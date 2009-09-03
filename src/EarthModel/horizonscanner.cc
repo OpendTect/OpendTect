@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.37 2009-09-03 08:17:02 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.38 2009-09-03 11:39:03 cvsumesh Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -34,6 +34,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , bvalset_(0)
     , fileidx_(0)
     , curmsg_("Scanning")
+    , nrdone_(0)
 {
     filenames_ = fnms;
     init();
@@ -273,7 +274,21 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 int HorizonScanner::nextStep()
 {
     if ( fileidx_ >= filenames_.size() )
-	{ dtctor_.finish(); return Executor::Finished(); }
+    {
+	for ( int idx=0; idx<sections_.size(); idx++ )
+	{
+	    const BinIDValueSet& bivs = *sections_[idx];
+	    BinID bid;
+	    BinIDValueSet::Pos pos;
+	    while ( bivs.next(pos) )
+	    {
+		bid = bivs.getBinID( pos );
+		dtctor_.add( SI().transform(bid), bid );
+	    }
+	}
+	dtctor_.finish(); 
+	return Executor::Finished(); 
+    }
 
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
 	mErrRet("Error during initialization."
@@ -343,7 +358,7 @@ int HorizonScanner::nextStep()
 
     if ( validpos )
     {
-	dtctor_.add( crd, bid );
+	//dtctor_.add( crd, bid );
 	bvalset_->add( bid, data.arr()+2 );
     }
 
@@ -357,12 +372,13 @@ int HorizonScanner::nextStep()
     }
 
     firsttime_ = false;
+    nrdone_++;
     return Executor::MoreToDo();
 }
 
 
 int HorizonScanner::nrPositions() const
-{ return dtctor_.nrPositions(); }
+{ return nrdone_; }
 
 StepInterval<int> HorizonScanner::inlRg() const
 { return dtctor_.getRange(true); }

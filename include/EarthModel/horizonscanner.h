@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.16 2009-09-03 08:17:02 cvsbert Exp $
+ RCS:		$Id: horizonscanner.h,v 1.17 2009-09-03 11:38:12 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ protected:
     void		init();
 
     mutable int		totalnr_;
+    int			nrdone_;
     PosInfo::Detector&	dtctor_;
     EM::Horizon3DAscIO*	ascio_;
     BufferStringSet	filenames_;
