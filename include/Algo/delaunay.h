@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.27 2009-08-14 18:46:54 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.28 2009-09-03 15:24:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,9 +56,6 @@ public:
     bool		getTriangle(const Coord&,int& dupid,
 	    			    TypeSet<int>& vertexindices) const;
     			/*!<search triangle contains the point.return crds. */
-    bool		getTriangle(int crdidx,int& dupid,
-	    			    TypeSet<int>& vertexindices) const;
-    			/*!<search triangle contains the point.return crds. */
     bool		getCoordIndices(TypeSet<int>&) const;
     			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle
@@ -67,20 +64,22 @@ public:
     			/*!Points on the edge of the geometry shape. */
 
     bool		getConnections(int pointidx,TypeSet<int>&) const;
-    bool		getConnectionAndWeights(int ptidx,TypeSet<int>& conns,
-	    				     TypeSet<double>& weights,
-					     bool normailze=true) const;
     bool		getWeights(int pointidx,const TypeSet<int>& conns,
 				   TypeSet<double>& weights,
 				   bool normailze=true) const;
     			/*!Calculate inverse distance weight for each conns.*/
+    bool		getConnectionAndWeights(int ptidx,TypeSet<int>& conns,
+	    				     TypeSet<double>& weights,
+					     bool normailze=true) const;
     void		setEpsilon(double err)	{ epsilon_ = err; }
 
     void		dumpTo(std::ostream&) const;
     			//!<Dumps all triangles to stream;
 
     static int		cNoVertex()	{ return -1; }
+
 protected:
+
     static char		cIsOnEdge() 	{ return 0; }
     static char		cNotOnEdge() 	{ return 1; }
     static char		cIsInside()	{ return 2; }
@@ -95,10 +94,11 @@ protected:
 
     char	getCommonEdge(int ti0,int ti1) const;
     		/*!return the common edge in ti0. */
-    char	searchTriangle(int ci,int start, int& t0,int& t1,
+    char	searchTriangle(const Coord& pt,int start, int& t0,int& t1,
 	    		       int& dupid) const;
-    char	searchFurther( int ci,int& nti0,int& nti1, int& dupid) const;
-    char	searchTriangleOnEdge(int ci,int ti,int& resti,
+    char	searchFurther(const Coord& pt,int& nti0,int& nti1,
+	    		      int& dupid) const;
+    char	searchTriangleOnEdge(const Coord& pt,int ti,int& resti,
 	    			     char& edge, int& did) const;
    		/*!<assume ci is on the edge of ti.*/
     int		searchNeighbor(int ti,char edge) const;
@@ -116,7 +116,7 @@ protected:
     int		searchChild(int v0,int v1,int ti) const;
     char	isOnEdge(const Coord& p,const Coord& a,const Coord& b,
 			 bool& duponfirst,double& signedsqdist ) const;
-    char	isInside(int ci,int ti,char& edge,double& disttoedge,
+    char	isInside(const Coord& pt,int ti,char& edge,double& disttoedge,
 	    		 int& dupid) const;
 
     struct DAGTriangle
