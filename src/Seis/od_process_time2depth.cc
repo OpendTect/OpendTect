@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.3 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.4 2009-09-03 15:03:10 cvskris Exp $";
 
 #include "batchprog.h"
 #include "process_time2depth.h"
@@ -23,10 +23,7 @@ bool BatchProgram::go( std::ostream& strm )
 { 
     CubeSampling cs;
     if ( !cs.usePar( pars() ) )
-    {
-	strm << "Cannot read output range";
-	return false;
-    }
+    { cs.init( true ); }
 
     MultiID inputmid;
     if ( !pars().get( ProcessTime2Depth::sKeyInputVolume(), inputmid) )
