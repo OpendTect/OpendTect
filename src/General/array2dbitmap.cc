@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.35 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.36 2009-09-03 09:52:46 cvssatyaki Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -122,6 +122,13 @@ void A2DBitMapPosSetup::setDim1Positions( float start, float stop )
 }
 
 
+void A2DBitMapPosSetup::setPixSizes( int xpix, int ypix )
+{
+    availablenrxpix_ = xpix;
+    availablenrypix_ = ypix;
+}
+
+
 void A2DBitMapPosSetup::setBitMapSizes( int n0, int n1 ) const
 {
     A2DBitMapPosSetup& self = *(const_cast<A2DBitMapPosSetup*>(this));
@@ -184,6 +191,13 @@ void A2DBitMapGenerator::setBitMap( A2DBitMap& bm )
 {
     bitmap_ = &bm;
     setup_.setBitMapSizes( bitmapSize(0), bitmapSize(1) );
+}
+
+
+void A2DBitMapGenerator::setPixSizes( int xpix, int ypix )
+{
+    A2DBitMapPosSetup& su = const_cast<A2DBitMapPosSetup&>(setup_);
+    su.setPixSizes( xpix, ypix );
 }
 
 
@@ -258,7 +272,7 @@ WVAA2DBitMapGenerator::WVAA2DBitMapGenerator( const A2DBitMapInpData& d,
 
 int WVAA2DBitMapGenerator::dim0SubSampling() const
 {
-    const float nrpixperdim0 = setup_.nrXPix() / ((float)szdim0_);
+    const float nrpixperdim0 = setup_.availableXPix() / ((float)szdim0_);
     float fret = gtPars().minpixperdim0_ / nrpixperdim0;
     int ret = mNINT( fret );
     return ret < 2 ? 1 : ret;

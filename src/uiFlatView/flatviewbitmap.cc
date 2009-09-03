@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.30 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.31 2009-09-03 09:52:46 cvssatyaki Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -128,7 +128,8 @@ Geom::Point2D<int> FlatView::BitMapMgr::dataOffs(
 
 
 bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
-				    const Geom::Size2D<int>& sz )
+				    const Geom::Size2D<int>& sz,
+				    const Geom::Size2D<int>& availsz )
 {
     if ( !gen_ )
 	return true;
@@ -155,6 +156,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     wr_ = wr; sz_ = sz;
     A2DBitMapGenerator::initBitMap( *bmp_ );
     gen_->setBitMap( *bmp_ );
+    gen_->setPixSizes( availsz.width(), availsz.height() );
     gen_->fill();
 
     DPM(DataPackMgr::FlatID()).release(pack);

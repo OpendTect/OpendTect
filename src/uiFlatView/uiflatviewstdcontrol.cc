@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.27 2009-07-22 23:03:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.28 2009-09-03 09:52:46 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -323,6 +323,7 @@ void uiFlatViewStdControl::stateCB( CallBacker* )
     manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
     vwr_.rgbCanvas().setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
 	   				  : uiGraphicsViewBase::ScrollHandDrag);
+    vwr_.rgbCanvas().scene().setMouseEventActive( true );
     if ( editbut_ )
 	editbut_->setOn( false );
 }
@@ -338,6 +339,7 @@ void uiFlatViewStdControl::editCB( CallBacker* )
 	    	      : uiGraphicsViewBase::RubberBandDrag;
 
     vwr_.rgbCanvas().setDragMode( mode );
+    vwr_.rgbCanvas().scene().setMouseEventActive( true );
 }
 
 

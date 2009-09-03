@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbitmapmgr.h,v 1.5 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: flatviewbitmapmgr.h,v 1.6 2009-09-03 09:52:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,9 @@ public:
 	    			 const Geom::Size2D<int>&) const;
     			//!< Returns mUdf(int)'s when outside or incompatible
 
-    bool		generate(const Geom::PosRectangle<double>&,
-	    			 const Geom::Size2D<int>&);
+    bool		generate(const Geom::PosRectangle<double>& wr,
+	    			 const Geom::Size2D<int>& bufwrsz,
+				 const Geom::Size2D<int>& availpixels);
 			//!< fails only when isufficient memory
     const A2DBitMap*	bitMap() const			{ return bmp_; }
     const A2DBitMapGenerator*	bitMapGen() const	{ return gen_; }

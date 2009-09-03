@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.94 2009-08-17 05:56:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.95 2009-09-03 09:52:46 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -68,6 +68,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     , dispParsChanged(this)
     , control_(0)
 {
+    canvas_.scene().setMouseEventActive( true );
     canvas_.setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
     canvas_.setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
     setStretch( 2, 2 ); canvas_.setStretch( 2, 2 );
@@ -136,6 +137,7 @@ void uiFlatViewer::setRubberBandingOn( bool yn )
 {
     canvas_.setDragMode( yn ? uiGraphicsView::RubberBandDrag
 	   		    : uiGraphicsView::NoDrag );
+    canvas_.scene().setMouseEventActive( true );
 }
 
 
@@ -432,8 +434,8 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
 
     if ( DBG::isOn(DBG_DBG) )
 	DBG::message( "Re-generating bitmaps" );
-    if ( !wvabmpmgr_->generate(bufwr,bufsz)
-      || !vdbmpmgr_->generate(bufwr,bufsz) )
+    if ( !wvabmpmgr_->generate(bufwr,bufsz,uisz)
+      || !vdbmpmgr_->generate(bufwr,bufsz,uisz) )
 	return false;
 
     offs = wvabmpmgr_->dataOffs( wr_, uisz );
@@ -538,6 +540,10 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
     const bool showanyx2annot = ad2.showannot_ || ad2.showgridlines_;
     
     const uiRect datarect( drawarea );
+    LineStyle ls( LineStyle::Solid, 1, annot.color_ );
+    axesdrawer_.setXLineStyle( ls );
+    axesdrawer_.setYLineStyle( ls );
+    axesdrawer_.setGridLineStyle( ls );
     axesdrawer_.draw( datarect, wr );
    
     if ( (!showanyx1annot && !showanyx2annot) )
@@ -558,7 +564,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
     else
 	rectitem_->setRect( datarect.left(), datarect.top(),
 			    datarect.width(), datarect.height() );
-    rectitem_->setPenStyle( LineStyle(LineStyle::Solid, 3, Color::Black()) );
+    rectitem_->setPenStyle( LineStyle(LineStyle::Solid, 3, annot.color_) );
     rectitem_->setZValue(1);
 
     const uiSize totsz( canvas_.width(), canvas_.height() );
@@ -576,6 +582,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 		    new uiArrowItem(from,to,arrowstyle) );
 	    arrowitem1_->setZValue( 1 );
 	}
+	arrowitem1_->setPenColor( annot.color_ );
 	arrowitem1_->setTailHeadPos( from, to );
 
 	if ( !axis1nm_ )
@@ -587,6 +594,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	else
 	    axis1nm_->setText( ad1.name_ );
 
+	axis1nm_->setTextColor( annot.color_ );
 	axis1nm_->setPos( uiPoint(datarect.right()-20,ynameannpos) );
     }
 
@@ -602,6 +610,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 		    new uiArrowItem(from,to,arrowstyle) );
 	    arrowitem2_->setZValue( 1 ); 
 	}
+	arrowitem2_->setPenColor( annot.color_ );
 	arrowitem2_->setTailHeadPos( from, to );
 
 	if ( !axis2nm_ )
@@ -612,6 +621,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble, const uiRect& drawarea,
 	}
 	else
 	    axis2nm_->setText( ad2.name_ );
+	axis2nm_->setTextColor( annot.color_ );
 	axis2nm_->setPos( uiPoint(left+10,ynameannpos) );
     }
 }

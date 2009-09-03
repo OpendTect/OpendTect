@@ -7,11 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.13 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.14 2009-09-03 09:52:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "draw.h"
 #include "ranges.h"
 #include "samplingdata.h"
 #include "uigeom.h"
@@ -21,7 +22,6 @@ class uiGraphicsView;
 class uiGraphicsItemGroup;
 class uiRectItem;
 class uiLineItem;
-class LineStyle;
 template <class T> class StepInterval;
 
 /*\!Draw simple axis for 2D axis.
@@ -106,6 +106,10 @@ protected:
 
     Interval<double>	xrg_;
     Interval<double>	yrg_;
+
+    LineStyle		xls_;
+    LineStyle		yls_;
+    LineStyle		gridls_;
 
     SamplingData<double> xaxis_;
     SamplingData<double> yaxis_;

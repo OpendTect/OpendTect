@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.19 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.20 2009-09-03 09:52:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,9 @@ public:
     void		setBitMapSizes(int,int) const;
     inline int		nrXPix() const		{ return nrxpix_; }
     inline int		nrYPix() const		{ return nrypix_; }
+    void		setPixSizes(int,int);
+    int			availableXPix() const	{ return availablenrxpix_; }
+    int			availableYPix() const	{ return availablenrypix_; }
 
     inline float	getPixPerDim( int dim ) const
 			{ return dim ? pixperdim1_ : pixperdim0_; }
@@ -167,6 +170,8 @@ protected:
     // Vars for current bitmap
     int			nrxpix_;
     int			nrypix_;
+    int			availablenrxpix_;
+    int			availablenrypix_;
     float		pixperdim0_;
     float		pixperdim1_;
 
@@ -189,6 +194,7 @@ public:
     static void		initBitMap(A2DBitMap&);	//!< with cNoFill
     void		initBitMap()
     			{ if ( bitmap_ ) initBitMap( *bitmap_ ); }
+    void		setPixSizes(int,int);
 
     void		fill();
     bool		dump(std::ostream&) const;
