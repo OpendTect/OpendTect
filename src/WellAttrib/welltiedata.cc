@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.15 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.16 2009-09-03 14:09:28 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
@@ -236,8 +236,8 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
 
 DataHolder::~DataHolder()
 {
-    delete data_;
     delete datamgr_;
+    delete data_;
     delete pickmgr_;
     delete d2tmgr_;
     delete params_;
