@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.36 2009-09-02 18:34:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.37 2009-09-03 08:17:02 cvsbert Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -33,6 +33,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , selxy_(false)
     , bvalset_(0)
     , fileidx_(0)
+    , curmsg_("Scanning")
 {
     filenames_ = fnms;
     init();
@@ -58,7 +59,7 @@ void HorizonScanner::init()
 
 const char* HorizonScanner::message() const
 {
-    return "Scanning";
+    return curmsg_.buf();
 }
 
 
@@ -263,17 +264,26 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 }
 
 
+#define mErrRet(s) \
+    { \
+	curmsg_ = s; dtctor_.finish(); \
+	return Executor::ErrorOccurred(); \
+    }
+
 int HorizonScanner::nextStep()
 {
     if ( fileidx_ >= filenames_.size() )
 	{ dtctor_.finish(); return Executor::Finished(); }
 
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
-	return Executor::ErrorOccurred();
+	mErrRet("Error during initialization."
+		"\nPlease check the format definition")
 
     TypeSet<float> data;
     const int ret = ascio_->getNextLine( data );
-    if ( ret < 0 ) return Executor::ErrorOccurred();
+    if ( ret < 0 )
+	mErrRet("Error during data interpretation."
+		"\nPlease check the format definition")
     if ( ret == 0 ) 
     {
 	fileidx_++;
@@ -284,7 +294,8 @@ int HorizonScanner::nextStep()
 	return Executor::MoreToDo();
     }
 
-    if ( data.size() < 3 ) return Executor::ErrorOccurred();
+    if ( data.size() < 3 )
+	mErrRet("Not enough data read to analyze")
 
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size()-2, false );
 

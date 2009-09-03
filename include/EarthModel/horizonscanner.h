@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.15 2009-09-02 18:34:03 cvsyuancheng Exp $
+ RCS:		$Id: horizonscanner.h,v 1.16 2009-09-03 08:17:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     const ObjectSet<BinIDValueSet>& getSections()	{ return sections_; }
 
 protected:
+
     virtual int		nextStep();
 
     void		init();
@@ -73,6 +74,8 @@ protected:
 
     BinIDValueSet*	bvalset_;
     ObjectSet<BinIDValueSet> sections_;
+
+    mutable BufferString	curmsg_;
 };
 
 
