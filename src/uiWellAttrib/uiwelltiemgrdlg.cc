@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.15 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.16 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -177,11 +177,8 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !wvltfld_->commitInput() || !wvltfld_->ctxtIOObj().ioobj )
 	mErrRet("Please select a valid wavelet")
 
-    Well::Data* wd = Well::MGR().get( wtsetup_.wellid_, false );
-    if ( !wd ) mErrRet( "can not find well data" );
-
-    WellTie::Params dpms( wtsetup_, wd, attrset_ );
-    if ( !dpms.getUnits().denFactor() || !dpms.getUnits().velFactor()  )
+    WellTie::UnitFactors units( &wtsetup_ );
+    if ( !units.denFactor() || !units.velFactor()  )
 	mErrRet( "invalid log units, please check your input logs" );
 
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();

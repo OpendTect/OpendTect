@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.14 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.15 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "datapointset.h"
@@ -27,12 +27,11 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.14 2009-09-03 09:41:40 cvsbr
 namespace WellTie
 {
 
-DataSetMGR::DataSetMGR( const WellTie::Params::DataParams* pms, 
-			  WellTie::Data* data ) 
-    		: params_(*pms)
-		, datasets_(data->datasets_)  
+DataSetMGR::DataSetMGR( WellTie::DataHolder& dh ) 
+    		: params_(*dh.dpms())
+		, datasets_(dh.data().datasets_)  
 {
-    for ( int idx=0; idx<data->nrdataset_; idx++ )
+    for ( int idx=0; idx<dh.data().nrdataset_; idx++ )
 	datasets_ += new WellTie::DataSet();
 
     for ( int idx=0; idx<datasets_.size(); idx++ )
@@ -222,18 +221,22 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
 			const WellTie::Setup& s )
     	: params_(params)	
 	, wd_(wd) 
-	, setup_(s)	  
+	, setup_(s)
+	, factors_(s.unitfactors_) 	   
 {
     uipms_   = &params_->uipms_;
     dpms_    = &params_->dpms_;
+    data_    = new WellTie::Data();
     pickmgr_ = new WellTie::PickSetMGR( wd_ );
-    d2tmgr_  = new WellTie::D2TModelMGR( wd_, params_ );
-    datamgr_ = new WellTie::DataSetMGR( &params_->dpms_, &data_ );
+    geocalc_ = new WellTie::GeoCalculator( *this );
+    d2tmgr_  = new WellTie::D2TModelMGR( *this );
+    datamgr_ = new WellTie::DataSetMGR( *this );
 }
 
 
 DataHolder::~DataHolder()
 {
+    delete data_;
     delete datamgr_;
     delete pickmgr_;
     delete d2tmgr_;

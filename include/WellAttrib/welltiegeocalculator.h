@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.13 2009-09-03 09:41:39 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.14 2009-09-03 14:04:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,15 +30,14 @@ namespace Well
 
 namespace WellTie
 {
+    class DataHolder;
     class Setup;
     class Params;
-
 
 mClass GeoCalculator
 {
 public:
-			GeoCalculator(const WellTie::Params*,
-				      const Well::Data*);
+			GeoCalculator(const WellTie::DataHolder&);
 			~GeoCalculator() {};
 
 //d2tm operations
@@ -67,10 +66,6 @@ public:
 				    Array1DImpl<float>&,int);
 
 //stretch/squeeze
-    void		stretch();
-    void 		doStretch(int,int,float);
-    const int 		getIdx(const Array1DImpl<float>&,float) const;
-
     mStruct StretchData
     {			StretchData()
 			    : inp_(0)
@@ -85,11 +80,15 @@ public:
 	int		stop_;
     	int 		pick1_;	
     	int 		pick2_;	
+
 	float		stretchfac_;
 	float		squeezefac_;
     };
 
-    StretchData& 	getStretchData() { return sd_; }
+    void		stretch(WellTie::GeoCalculator::StretchData&) const;
+    void 		stretch(const WellTie::GeoCalculator::StretchData&,
+	    			float) const;
+    const int 		getIdx(const Array1DImpl<float>&,float) const;
 
 //others   
     void 		crosscorr( const Array1DImpl<float>&,
@@ -104,11 +103,8 @@ protected:
     double 		denfactor_;
     double 		velfactor_;
     const Well::Data&	wd_;
-    const WellTie::Setup& wtsetup_;
+    const WellTie::Setup& setup_;
     const WellTie::Params& params_;
-
-    StretchData		sd_;
-
 };
 
 }; //namespace WellTie

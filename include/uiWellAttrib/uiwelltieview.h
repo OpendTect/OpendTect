@@ -36,13 +36,14 @@ namespace Well
 namespace WellTie
 {
     class Setup; 
+    class DataHolder; 
     class PickSet; 
 
 mClass uiTieView : public CallBacker
 {
 public:
 			    	uiTieView(uiParent*,uiFlatViewer*,
-					  WellTie::DataHolder*,
+					  WellTie::DataHolder&,
 					  ObjectSet<uiWellLogDisplay>*);
 				~uiTieView();
 
@@ -50,15 +51,14 @@ public:
     void        		drawUserPicks();
     bool        		isEmpty() { return data_.isEmpty(); }
 
-
 protected:
 
     uiFlatViewer*		vwr_;
 
     ObjectSet<uiWellLogDisplay>& logsdisp_;
-    WellTie::DataSetMGR&		datamgr_; 		
-    WellTie::DataSet&  		data_;
-    WellTie::DataHolder*  	dataholder_;
+    WellTie::DataSetMGR&	datamgr_; 		
+    const WellTie::DataSet&  	data_;
+    const WellTie::DataHolder&  dataholder_;
     const Well::Data& 		wd_;		
     const WellTie::Setup& 	wtsetup_;
     const WellTie::Params::DataParams* params_;
@@ -103,7 +103,8 @@ mClass uiCorrView : uiGroup
 {
 public:
 
-				uiCorrView(uiParent*,WellTie::DataHolder*);
+				uiCorrView(uiParent*,
+					const WellTie::DataHolder&);
 				~uiCorrView();
 
     void                	setCrossCorrelation();
@@ -111,7 +112,7 @@ public:
 protected:
 
     uiLabel* 			corrlbl_;
-    WellTie::DataSet& 		corrdata_;
+    const WellTie::DataSet& 	corrdata_;
     const WellTie::Data& 	welltiedata_;
     const WellTie::Params::DataParams& params_;
     ObjectSet<uiFunctionDisplay>  corrdisps_;

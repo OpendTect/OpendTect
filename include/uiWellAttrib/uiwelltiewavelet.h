@@ -89,8 +89,6 @@ protected:
     FFT*				fft_;
     ObjectSet<uiFunctionDisplay>        wvltdisps_;
     const Wavelet*			wvlt_;
-    WellTie::GeoCalculator&		geocalc_;
-
 };
 
 }; //namespace WellTie

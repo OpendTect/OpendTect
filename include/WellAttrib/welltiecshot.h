@@ -30,14 +30,13 @@ class uiLabel;
 
 namespace WellTie
 {
-    class Setup;
-    class Params;
+    class DataHolder;
     class GeoCalculator;
 
 mClass CheckShotCorr  
 {
 public:
-		    CheckShotCorr(Well::Data&,const WellTie::Params&);
+		    CheckShotCorr(WellTie::DataHolder&);
 		    ~CheckShotCorr() {};			
 
     const Well::Log& 		corrLog()              { return *log_; }
@@ -46,7 +45,7 @@ public:
 protected:
 
     Well::Log* 			log_;
-    Well::D2TModel* 		cs_;
+    const Well::D2TModel* 	cs_;
 
     void 			setCSToLogScale(TypeSet<float>&,double, 
 						WellTie::GeoCalculator&);

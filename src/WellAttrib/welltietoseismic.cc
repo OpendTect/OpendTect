@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.26 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.27 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -59,15 +59,15 @@ DataPlayer::DataPlayer( WellTie::DataHolder* dh,
 	, dps_(new DataPointSet(false, false))	   
 {
     dps_->dataSet().add( new DataColDef( params_.attrnm_ ) );
-    geocalc_ = new WellTie::GeoCalculator( dh->params(), &wd_ );
+    geocalc_ = new WellTie::GeoCalculator(*dh);
 } 
 
 
 DataPlayer::~DataPlayer()
 {
-    if ( geocalc_ ) delete geocalc_;
-    if ( tr_ ) 	    delete tr_;
-    if ( dps_ )	    delete dps_;
+    delete geocalc_;
+    delete tr_;
+    delete dps_;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.10 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.11 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -67,7 +67,6 @@ LogResampler::LogResampler( WellTie::DataSet& arr,
 	, nrdone_(0)
 	, curlogsample_(0)	    
 	, logname_(l.name())
-
 {
     BufferString exnm = "Processing "; exnm += logname_; exnm += " Data"; 
     setName( exnm );

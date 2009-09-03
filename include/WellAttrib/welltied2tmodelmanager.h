@@ -34,8 +34,7 @@ class LogUnitFactors;
 mClass D2TModelMGR
 {
 public:
-				D2TModelMGR(Well::Data*,
-					   const WellTie::Params*);
+				D2TModelMGR(WellTie::DataHolder&);
 				~D2TModelMGR();
 
     bool 		save(const char* filenm);
@@ -61,7 +60,6 @@ protected:
     Well::D2TModel* 		prvd2t_;
     Well::D2TModel* 		orgd2t_;
     WellTie::GeoCalculator&	geocalc_;
-    const WellTie::Params*	params_;
     const WellTie::Setup&	wtsetup_;
     bool			emptyoninit_;
 };

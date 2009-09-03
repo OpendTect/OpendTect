@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.28 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.29 2009-09-03 14:04:30 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.28 2009-09-03 09:41
 #include "wellman.h"
 #include "welltrack.h"
 #include "welltiesetup.h"
+#include "welltiedata.h"
 #include "welld2tmodel.h"
 #include "survinfo.h"
 
@@ -38,16 +39,15 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.28 2009-09-03 09:41
 namespace WellTie
 {
 
-GeoCalculator::GeoCalculator( const WellTie::Params* p,
-			      const Well::Data* wd )
-		: params_(*p)
-		, wtsetup_(p->getSetup())	
-		, wd_(*wd)
+GeoCalculator::GeoCalculator( const WellTie::DataHolder& dh )
+		: params_(*dh.params())
+		, setup_(dh.setup())	
+		, wd_(*dh.wd())
 		, denfactor_(0)	   
 		, velfactor_(0)	   
 {
-    denfactor_ = params_.getUnits().denFactor();
-    velfactor_ = params_.getUnits().velFactor();
+    denfactor_ = dh.getUnits().denFactor();
+    velfactor_ = dh.getUnits().velFactor();
 }    
 
 //each sample is converted to a time using the travel time log
@@ -90,8 +90,8 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
 //Small TWT/Interval Velocity converter
 #define mFactor 10e6
 void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
-				     const TypeSet<float>& dpt,	
-				     TypeSet<float>& outp, bool t2vel  )
+			     const TypeSet<float>& dpt,	
+			     TypeSet<float>& outp, bool t2vel  )
 {
     outp += 0;
     if ( t2vel )
@@ -103,7 +103,7 @@ void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
     }
     else 
     {
-	const bool issonic = params_.getSetup().issonic_;
+	const bool issonic = setup_.issonic_;
 	for ( int idx=1; idx<timevel.size(); idx++ )
 	{
 	    const float velval = issonic ? timevel[idx] : 1/timevel[idx];
@@ -115,28 +115,32 @@ void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 }
 
 
-void GeoCalculator::stretch()
+void GeoCalculator::stretch( WellTie::GeoCalculator::StretchData& sd ) const
 {
-    sd_.stretchfac_ = (sd_.pick2_-sd_.start_)/(float)(sd_.pick1_-sd_.start_);
-    sd_.squeezefac_ = (sd_.stop_-sd_.pick2_ )/(float)(sd_.stop_-sd_.pick1_);
-    doStretch( sd_.start_, sd_.pick2_, sd_.stretchfac_ );
-    doStretch( sd_.pick2_, sd_.stop_, sd_.squeezefac_ );
+    sd.stretchfac_ = (sd.pick2_-sd.start_)/(float)(sd.pick1_-sd.start_);
+    stretch( sd, sd.stretchfac_ ); 
+
+    sd.squeezefac_ = (sd.stop_-sd.pick2_ )/(float)(sd.stop_-sd.pick1_);
+    stretch( sd, sd.squeezefac_ );
 }
 
 
-void GeoCalculator::doStretch( int start, int stop, float factor )
+void GeoCalculator::stretch( const WellTie::GeoCalculator::StretchData& sd, 
+			     float factor ) const
 {
-    const int datasz = sd_.inp_->info().getSize(0);
+    int start = factor < 1 ? sd.start_ : sd.pick2_; 
+    int stop = factor < 1 ? sd.pick2_ : sd.stop_; 
+    const int datasz = sd.inp_->info().getSize(0);
     for ( int idx=start; idx<stop; idx++ )
     {
 	float v = factor < 1 ? start : stop;
 	const float curval = Interpolate::linearReg1D( v, (float)idx, factor );
 	const int curidx = (int) curval;
 	if ( curidx >= datasz-1 || curidx < 0 ) continue;
-	const float newval = Interpolate::linearReg1D( sd_.inp_->get(curidx),
-						       sd_.inp_->get(curidx+1),
+	const float newval = Interpolate::linearReg1D( sd.inp_->get(curidx),
+						       sd.inp_->get(curidx+1),
 						       curval-curidx);
-	sd_.outp_->setValue( idx , newval );
+	sd.outp_->setValue( idx , newval );
     }
 }
 
@@ -347,11 +351,11 @@ void GeoCalculator::resampleData( const Array1DImpl<float>& invals,
 
 
 void GeoCalculator::computeAI( const Array1DImpl<float>& velvals,
-				   const Array1DImpl<float>& denvals,
-				   Array1DImpl<float>& aivals )
+			       const Array1DImpl<float>& denvals,
+			       Array1DImpl<float>& aivals )
 {
     const int datasz = aivals.info().getSize(0);
-    const bool issonic = params_.getSetup().issonic_;
+    const bool issonic = setup_.issonic_;
     float prevval = 0;
     for ( int idx=0; idx<datasz; idx++ )
     {
@@ -368,8 +372,7 @@ void GeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 
 //Compute reflectivity values at display sample step (Survey step)
 void GeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
-					       Array1DImpl<float>& reflvals,
-					       int shiftstep )
+				   Array1DImpl<float>& reflvals,int shiftstep )
 {
     float prevval, ai1, ai2, rval = 0; 
     const int sz = reflvals.info().getSize(0);
@@ -394,8 +397,8 @@ void GeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 
 
 void GeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
-					const Array1DImpl<float>& reflvals,
-					Array1DImpl<float>& synvals, int widx )
+				     const Array1DImpl<float>& reflvals,
+				     Array1DImpl<float>& synvals, int widx )
 {
     int reflsz = reflvals.info().getSize(0);
     int wvltsz = wvltvals.info().getSize(0);

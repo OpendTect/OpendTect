@@ -106,7 +106,9 @@ public:
 			DeclareEnumUtils(TrackType)
 
     WellTie::PickSet* 	getSynthPickSet() { return &synthpickset_; }
+    const WellTie::PickSet* getSynthPickSet() const { return &synthpickset_; } 
     WellTie::PickSet* 	getSeisPickSet()  { return &seispickset_; }
+    const WellTie::PickSet* getSeisPickSet() const { return &seispickset_; }
 
     const Well::Data* 	wd_;
     bool		lastpicksynth_;
@@ -130,7 +132,6 @@ protected:
     const WellTie::DataSet* dispdata_;
     const WellTie::Params::DataParams* datapms_;
 
-    WellTie::PickSet 	logpickset_;
     WellTie::PickSet 	synthpickset_;
     WellTie::PickSet 	seispickset_;
 };

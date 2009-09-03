@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.12 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.13 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -25,21 +25,19 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.12 2009-09-03 09:
 #include "wellwriter.h"
 
 #include "welltiegeocalculator.h"
+#include "welltiedata.h"
 #include "welltiesetup.h"
-#include "welltieunitfactors.h"
-
 
 namespace WellTie
 {
 
-D2TModelMGR::D2TModelMGR( Well::Data* d, const WellTie::Params* pms)
-	: wd_(d)
-	, geocalc_(*new WellTie::GeoCalculator(pms,d))
+D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
+	: wd_(dh.wd())
+	, geocalc_(*dh.geoCalc())
 	, orgd2t_(0)					    
 	, prvd2t_(0)
 	, emptyoninit_(false)
-	, wtsetup_(pms->getSetup())	
-	, params_(pms)		   		
+	, wtsetup_(dh.setup())	
 {
     if ( !wd_ ) return;
     if ( !wd_->d2TModel() || wd_->d2TModel()->size()< 2 )
@@ -50,7 +48,7 @@ D2TModelMGR::D2TModelMGR( Well::Data* d, const WellTie::Params* pms)
     orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd_->d2TModel() );
 
     if ( wd_->haveCheckShotModel() || wd_->d2TModel()->size()<2 )
-	setFromVelLog( params_->dpms_.currvellognm_ );
+	setFromVelLog( dh.params()->dpms_.currvellognm_ );
 } 
 
 

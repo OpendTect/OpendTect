@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.9 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.10 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: welltiecshot.cc,v 1.9 2009-09-03 09:41:40 cvsbr
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
+#include "welltiedata.h"
 #include "welld2tmodel.h"
 #include "welltiesetup.h"
 #include "welltieunitfactors.h"
@@ -23,20 +24,20 @@ static const char* rcsID = "$Id: welltiecshot.cc,v 1.9 2009-09-03 09:41:40 cvsbr
 namespace WellTie
 {
 
-CheckShotCorr::CheckShotCorr( Well::Data& d, const WellTie::Params& pms )
-	: log_(new Well::Log(*d.logs().getLog(pms.getSetup().vellognm_)))
-	, cs_(d.checkShotModel())
+CheckShotCorr::CheckShotCorr( WellTie::DataHolder& dh )
+	: log_(new Well::Log(*dh.wd()->logs().getLog(dh.setup().vellognm_)))
+	, cs_(dh.wd()->checkShotModel())
 {
     if ( !cs_ || !cs_->size() )
 	return;
     
     TypeSet<float> newcsvals; 
 
-    WellTie::GeoCalculator geocalc( &pms, &d );
-    setCSToLogScale( newcsvals, pms.getUnits().velFactor(), geocalc );
+    WellTie::GeoCalculator geocalc( dh );
+    setCSToLogScale( newcsvals, dh.getUnits().velFactor(), geocalc );
     calibrateLogToCS( newcsvals, geocalc );
-    log_->setName( pms.getSetup().corrvellognm_ );
-    d.logs().add( log_ );
+    log_->setName( dh.setup().corrvellognm_ );
+    dh.wd()->logs().add( log_ );
 }
 
 

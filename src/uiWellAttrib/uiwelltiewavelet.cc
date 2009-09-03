@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.25 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.26 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -231,7 +231,6 @@ uiWaveletDispDlg::uiWaveletDispDlg( uiParent* p, const Wavelet* wvlt,
 	, wvlt_(wvlt)  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, wvltsz_(0)
-	, geocalc_(*new WellTie::GeoCalculator(dh->params(),dh->wd()))	    
 	, fft_(new FFT())
 {
     setCtrlStyle( LeaveOnly );

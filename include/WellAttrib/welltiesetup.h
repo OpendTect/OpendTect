@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.7 2009-09-03 09:41:39 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.8 2009-09-03 14:04:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "attribdescid.h"
 #include "multiid.h"
+#include "welltieunitfactors.h"
 
 #include "wellio.h"
 #include <iosfwd>
@@ -36,6 +37,7 @@ public:
 			    , issonic_(true)
 			    , isinitdlg_(true)
 			    , corrvellognm_("CS Corrected ")
+			    , unitfactors_(0)
 			    {}
 
 
@@ -48,6 +50,7 @@ public:
 			    , vellognm_(setup.vellognm_)
 			    , denlognm_(setup.denlognm_)
 			    , corrvellognm_(setup.corrvellognm_)
+			    , unitfactors_(setup.unitfactors_)
 			    {}	
 	
     MultiID			wellid_;
@@ -58,6 +61,8 @@ public:
     MultiID               	wvltid_;
     bool                	issonic_;
     bool 			isinitdlg_;
+    
+    WellTie::UnitFactors 	unitfactors_;
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.49 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.50 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -84,8 +84,9 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts,
     dataholder_ = new WellTie::DataHolder( params_, wd_, setup_ );
     dataplayer_ = new WellTie::DataPlayer( dataholder_, ads, tr );
     infodlg_    = new WellTie::uiInfoDlg( this, dataholder_ );
-    datadrawer_ = new WellTie::uiTieView(this,&viewer(),dataholder_,&logsdisp_);
     stretcher_  = new WellTie::uiEventStretch( this,dataholder_,*datadrawer_ );
+    datadrawer_ = new WellTie::uiTieView(
+	    			this,&viewer(),*dataholder_,&logsdisp_ );
 
     infodlg_->applyPushed.notify( mCB(this,uiTieWin,compute) );
     stretcher_->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
@@ -495,7 +496,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh )
 
     uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
     corrgrp->attach( rightOf, wvltgrp );
-    crosscorr_ = new WellTie::uiCorrView( corrgrp, dataholder_ );
+    crosscorr_ = new WellTie::uiCorrView( corrgrp, *dataholder_ );
 
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedAbove, viewersgrp );

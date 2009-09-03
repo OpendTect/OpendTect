@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.19 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.20 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -112,7 +112,6 @@ void PickSetMGR::updateShift( int vwridx, float curpos )
 
 void PickSetMGR::clearAllPicks()
 {
-    logpickset_.clearAll();
     seispickset_.clearAll();
     synthpickset_.clearAll();
 }

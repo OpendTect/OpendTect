@@ -138,8 +138,6 @@ public :
 
     const Attrib::DescSet& 	ads_;
 
-    const WellTie::Setup& 	getSetup() const   { return wtsetup_; }
-    const WellTie::UnitFactors& getUnits() const   { return factors_; }
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
     bool			resetParams(); 
     void			resetVellLognm();
@@ -148,7 +146,6 @@ protected :
 
     const WellTie::Setup&	wtsetup_;
     Well::Data&			wd_;
-    const WellTie::UnitFactors  factors_;
 };
 
 };//namespace WellTie

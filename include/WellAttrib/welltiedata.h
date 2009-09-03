@@ -30,7 +30,9 @@ namespace Well
 namespace WellTie
 {
     class D2TModelMGR;   
-    class DataSet;   
+    class DataSet;
+    class DataHolder;
+    class GeoCalculator;   
     class PickSetMGR;   
 
 // brief structure containing datasets and data used for TWTS
@@ -105,8 +107,7 @@ protected:
 mClass DataSetMGR
 {
 public:
-			DataSetMGR(const WellTie::Params::DataParams*,
-				    WellTie::Data*);
+			DataSetMGR(WellTie::DataHolder&);
 			~DataSetMGR();
 
     void 		resetData();
@@ -136,13 +137,13 @@ public:
 			~DataHolder();
 
     const WellTie::Params*  	params() const   { return params_; }   
-    WellTie::Params::uiParams* 	uipms()       { return &params_->uipms_;  }
+    WellTie::Params::uiParams* 	uipms()    { return &params_->uipms_;  }
     const WellTie::Params::uiParams* uipms() const { return &params_->uipms_;  }
-    WellTie::Params::DataParams* dpms() 	    { return &params_->dpms_; }
+    WellTie::Params::DataParams* dpms()    { return &params_->dpms_; }
     const WellTie::Params::DataParams* dpms() const { return &params_->dpms_; }
     const WellTie::Setup& setup()  const   { return setup_; }
-    WellTie::Data&	  data()   	   { return data_; }
-    const WellTie::Data&  data()   const   { return data_; }
+    WellTie::Data&	  data()   	   { return *data_; }
+    const WellTie::Data&  data()   const   { return *data_; }
     Well::Data* 	  wd()        	   { return wd_; }	
     const Well::Data* 	  wd()     const   { return wd_; }	
     WellTie::D2TModelMGR* d2TMGR()	   { return d2tmgr_; }   
@@ -151,27 +152,32 @@ public:
     const WellTie::PickSetMGR* pickmgr() const { return pickmgr_; }
     WellTie::DataSetMGR*  datamgr()	   { return datamgr_; }
     const WellTie::DataSetMGR* 	datamgr() const { return datamgr_; }
-    WellTie::DataSet* 	  extrData() 	   { return data_.datasets_[0]; }
-    const WellTie::DataSet* extrData() const { return data_.datasets_[0]; }
-    WellTie::DataSet*	  dispData() 	   { return data_.datasets_[1]; }
-    const WellTie::DataSet* dispData() const { return data_.datasets_[1]; }
-    WellTie::DataSet*	  corrData()  	   { return data_.datasets_[2]; } 
-    const WellTie::DataSet* corrData() const { return data_.datasets_[2]; } 
-    Wavelet*              getEstimatedWvlt()  { return &data_.wvltest_; } 
-    const Wavelet*        getEstimatedWvlt() const { return &data_.wvltest_; } 
-
+    WellTie::DataSet* 	  extrData() 	   { return data_->datasets_[0]; }
+    const WellTie::DataSet* extrData() const { return data_->datasets_[0]; }
+    WellTie::DataSet*	  dispData() 	   { return data_->datasets_[1]; }
+    const WellTie::DataSet* dispData() const { return data_->datasets_[1]; }
+    WellTie::DataSet*	  corrData()  	   { return data_->datasets_[2]; } 
+    const WellTie::DataSet* corrData() const { return data_->datasets_[2]; } 
+    Wavelet*              getEstimatedWvlt()  { return &data_->wvltest_; } 
+    const Wavelet*        getEstimatedWvlt() const { return &data_->wvltest_; } 
+    const WellTie::UnitFactors& getUnits() const   { return factors_; }
+    WellTie::GeoCalculator* geoCalc()	{ return geocalc_; } 
+    const WellTie::GeoCalculator* geoCalc() const { return geocalc_; } 
     
 private:
 
     Well::Data*          	wd_;
 
-    WellTie::Data	 	data_;
+    WellTie::UnitFactors	factors_;
+    WellTie::Data*	 	data_;
     WellTie::DataSetMGR*	datamgr_;
     WellTie::D2TModelMGR*	d2tmgr_;
-    WellTie::Params::uiParams* 	uipms_;
     WellTie::Params* 	 	params_; //becomes mine
+    WellTie::Params::uiParams* 	uipms_;
     WellTie::Params::DataParams* dpms_;
     WellTie::PickSetMGR*   	pickmgr_;
+    WellTie::GeoCalculator* 	geocalc_;
+
     const WellTie::Setup&	setup_;
 
 };

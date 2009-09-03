@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.42 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.43 2009-09-03 14:04:30 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -40,18 +40,18 @@ namespace WellTie
 {
 
 uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, 
-		      WellTie::DataHolder* dhr,
+		      WellTie::DataHolder& dh,
 		      ObjectSet<uiWellLogDisplay>* ldis )  
-	: wd_(*dhr->wd()) 
+	: wd_(*dh.wd()) 
 	, vwr_(vwr)  
 	, logsdisp_(*ldis)	     
-	, dataholder_(dhr)  
-	, params_(dhr->dpms())     	
-	, wtsetup_(dhr->setup())	
-    	, data_(*dhr->dispData())
-	, datamgr_(*dhr->datamgr())
-	, synthpickset_(dhr->pickmgr()->getSynthPickSet())
-	, seispickset_(dhr->pickmgr()->getSeisPickSet())
+	, dataholder_(dh)  
+	, params_(dh.dpms())     	
+	, wtsetup_(dh.setup())	
+    	, data_(*dh.dispData())
+	, datamgr_(*dh.datamgr())
+	, synthpickset_(dh.pickmgr()->getSynthPickSet())
+	, seispickset_(dh.pickmgr()->getSeisPickSet())
 	, trcbuf_(0)
 	, checkshotitm_(0)
     	, seistrcdp_(0)
@@ -129,7 +129,7 @@ void uiTieView::setLogsParams()
 {
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return;
-    WellTie::Params::uiParams* uipms = dataholder_->uipms();
+    const WellTie::Params::uiParams* uipms = dataholder_.uipms();
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
 	logsdisp_[idx]->setD2TModel( d2tm );
@@ -264,7 +264,7 @@ void uiTieView::setLogsRanges( float start, float stop )
 {
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return; 
-    if ( dataholder_->uipms()->iszintime_ )
+    if ( dataholder_.uipms()->iszintime_ )
     {
 	start = d2tm->getTime( start )*1000;
 	stop = d2tm->getTime( stop )*1000;
@@ -343,7 +343,7 @@ void uiTieView::drawWellMarkers()
 	
 	//drawMarker( auxdata, 0, 0, zpos, col, false );
     }
-    bool ismarkerdisp = dataholder_->uipms()->ismarkerdisp_;
+    bool ismarkerdisp = dataholder_.uipms()->ismarkerdisp_;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
 	logsdisp_[idx]->setMarkers( ismarkerdisp ? &wd_.markers() : 0 );
 }	
@@ -394,14 +394,14 @@ void uiTieView::drawCShot()
     uiGraphicsScene& scene = logsdisp_[0]->scene();
     scene.removeItem( checkshotitm_ );
     delete checkshotitm_; checkshotitm_=0;
-    if ( !dataholder_->uipms()->iscsdisp_ ) 
+    if ( !dataholder_.uipms()->iscsdisp_ ) 
 	return;
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
     const int sz = cs->size();
     if ( sz < 2 ) return;
     
-    WellTie::GeoCalculator geocalc( dataholder_->params(), &wd_ );
+    WellTie::GeoCalculator geocalc( dataholder_ );
 
     TypeSet<float> csvals, cstolog, dpt;
     for ( int idx=0; idx<sz; idx++ )
@@ -417,7 +417,7 @@ void uiTieView::drawCShot()
     uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData();
     Interval<float> zrg = ld.zrg_;
 
-    const bool dispintime = dataholder_->uipms()->iszintime_;
+    const bool dispintime = dataholder_.uipms()->iszintime_;
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( dispintime && !d2tm ) return; 
 
@@ -432,7 +432,7 @@ void uiTieView::drawCShot()
 	else if ( zpos > zrg.stop )
 	    break;
 	
-	if ( dataholder_->uipms()->iszinft_ ) zpos *= mToFeetFactor;
+	if ( dataholder_.uipms()->iszinft_ ) zpos *= mToFeetFactor;
 	pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(zpos) );
     }
     if ( pts.isEmpty() ) return;
@@ -446,11 +446,11 @@ void uiTieView::drawCShot()
 
 
 
-uiCorrView::uiCorrView( uiParent* p, WellTie::DataHolder* dh)
+uiCorrView::uiCorrView( uiParent* p, const WellTie::DataHolder& dh)
 	: uiGroup(p)
-    	, params_(*dh->dpms())  
-	, corrdata_(*dh->corrData())
-	, welltiedata_(dh->data())			
+    	, params_(*dh.dpms())  
+	, welltiedata_(dh.data())			
+	, corrdata_(*dh.corrData())
 {
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
 
@@ -492,7 +492,6 @@ void uiCorrView::setCrossCorrelation()
 	else
 	    corrvals += val;
     }
-
 
     for (int idx=0; idx<corrdisps_.size(); idx++)
 	corrdisps_[idx]->setVals( xvals.arr(), corrvals.arr(), xvals.size() );
