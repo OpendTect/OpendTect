@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.124 2009-09-02 18:34:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.125 2009-09-03 08:17:18 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -214,8 +214,8 @@ void uiImportHorizon::scanPush( CallBacker* )
 {
     if ( !isgeom_ && !attrlistfld_->box()->nrSelected() )
     { uiMSG().error("Please select at least one attribute"); return; }
-    if ( !dataselfld_->commit() ) return;
-    if ( !scanner_ && !doScan() ) return;
+    if ( !dataselfld_->commit() || !doScan() )
+	return;
 
     if ( isgeom_ ) 
     {
