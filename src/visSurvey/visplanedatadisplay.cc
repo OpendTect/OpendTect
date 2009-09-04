@@ -4,11 +4,12 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.223 2009-09-04 09:39:14 cvshelene Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.224 2009-09-04 20:08:11 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
 #include "arrayndimpl.h"
+#include "array2dresample.h"
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
@@ -479,12 +480,19 @@ NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
 
 int PlaneDataDisplay::nrResolutions() const
 {
-    return 1;
+    return 3;
 }
 
 
 void PlaneDataDisplay::setResolution( int res, TaskRunner* tr )
 {
+    if ( res==resolution_ )
+	return;
+
+    resolution_ = res;
+
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+	updateFromDisplayIDs( idx, tr );
 }
 
 
@@ -535,8 +543,6 @@ void PlaneDataDisplay::swapCache( int a0, int a1 )
     volumecache_.swap( a0, a1 );
     rposcache_.swap( a0, a1 );
     displaycache_.swap( a0, a1 );
-    for ( int idx=0; idx<displaycache_.size(); idx++ )
-	updateFromDisplayIDs( idx, 0 );
 }
 
 
@@ -881,10 +887,15 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	const float* arr = dparr.getData();
 	OD::PtrPolicy cp = OD::UsePtr;
 
-	if ( !arr )
+	int sz0 = dparr.info().getSize(0);
+	int sz1 = dparr.info().getSize(1);
+
+	if ( !arr || resolution_>0 )
 	{
-	    const od_int64 totalsz =
-		dparr.info().getSize(0) * dparr.info().getSize(1);
+	    sz0 *= (resolution_+1);
+	    sz1 *= (resolution_+1);
+
+	    const od_int64 totalsz = sz0*sz1;
 	    mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
 
 	    if ( !tmparr )
@@ -893,22 +904,33 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 		continue;
 	    }
 
-	    dparr.getAll( tmparr );
+	    if ( resolution_<1 )
+		dparr.getAll( tmparr );
+	    else
+	    	interpolArray( attrib, tmparr, sz0, sz1, dparr, tr );
+
 	    arr = tmparr;
 	    cp = OD::TakeOverPtr;
 	}
 
-	channels_->setSize( 1, dparr.info().getSize(0),
-			       dparr.info().getSize(1) );
+	channels_->setSize( 1, sz0, sz1 );
 	channels_->setUnMappedData( attrib, idx, arr, cp, tr );
 
-	rectangle_->setOriginalTextureSize( dparr.info().getSize(0),
-					    dparr.info().getSize(1) );
-	
+	rectangle_->setOriginalTextureSize( sz0, sz1 );
 	DPM(DataPackMgr::FlatID()).release( dpid );
     }
    
     channels_->turnOn( true );
+}
+
+
+void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
+			      const Array2D<float>& inp, TaskRunner* tr ) const
+{
+    Array2DReSampler<float,float> resampler( inp, res, sz0, sz1, true );
+    resampler.setInterpolate( !isClassification( attrib ) );
+    if ( tr ) tr->execute( resampler );
+    else resampler.execute();
 }
 
 
@@ -1208,9 +1230,7 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	gridlines_ = gl;
 	gridlines_->ref();
 	gridlines_->setPlaneCubeSampling( cs );
-	int childidx = texture_ 
-	    ? childIndex(texture_->getInventorNode())
-	    : childIndex( channels_->getInventorNode() );
+	int childidx = childIndex( channels_->getInventorNode() );
 	insertChild( childidx, gridlines_->getInventorNode() );
     }
 
