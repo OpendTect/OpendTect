@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.64 2009-09-04 01:35:35 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.65 2009-09-04 10:04:18 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class Color;
 class MouseCursor;
+class TaskRunner;
 class ZAxisTransform;
 template <class T> class Selector;
 
