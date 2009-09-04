@@ -7,16 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.9 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.10 2009-09-04 19:48:40 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "visobject.h"
+#include "coltabsequence.h"
 
 class LegendKit;
 class Color;
-namespace ColTab { struct MapperSetup; class Sequence; }
+namespace ColTab { struct MapperSetup; }
 
 namespace visBase
 {
@@ -34,11 +35,15 @@ public:
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
     void		setDisplayTransformation(Transformation*) {}
+    void		turnOn(bool);
 
 protected:
 			~SceneColTab();
+    void		updateVis();			
 
     LegendKit*		legendkit_;
+    ColTab::Sequence	sequence_;
+    Interval<float>	rg_;
 };
 
 } // class visBase
