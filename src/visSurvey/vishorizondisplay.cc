@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.114 2009-09-04 01:35:35 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.115 2009-09-04 08:24:00 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -898,7 +898,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     RefMan<visBase::HorizonSection> surf = visBase::HorizonSection::create();
     surf->ref();
     surf->setDisplayTransformation( transformation_ );
-    surf->setZAxisTransform( zaxistransform_ );
+    surf->setZAxisTransform( zaxistransform_, tr );
 
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     Geometry::BinIDSurface* bidsurf = horizon->geometry().sectionGeometry(sid);

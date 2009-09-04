@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.84 2009-09-03 18:45:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.85 2009-09-04 08:24:00 cvsnanne Exp $";
 
 #include "vishorizonsection.h"
 
@@ -622,7 +622,7 @@ Transformation* HorizonSection::getDisplayTransformation()
 { return transformation_; }
 
 
-void HorizonSection::setZAxisTransform( ZAxisTransform* zt )
+void HorizonSection::setZAxisTransform( ZAxisTransform* zt, TaskRunner* )
 {
     if ( zaxistransform_==zt ) 
 	return;
