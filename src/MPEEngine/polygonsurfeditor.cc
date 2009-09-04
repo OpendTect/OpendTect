@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.8 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.9 2009-09-04 20:14:09 cvsyuancheng Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -251,6 +251,17 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 }
 
 
+#define mRetNotInsideNext \
+    if ( !nextdefined || (!sameSide3D(curpos,nextpos,v0,v1,0) && \
+			  !sameSide3D(v0,v1,curpos,nextpos,0)) ) \
+	return false;
+
+#define mRetNotInsidePrev \
+    if ( !prevdefined || (!sameSide3D(curpos,prevpos,v0,v1,0) && \
+			  !sameSide3D(v0,v1,curpos,prevpos,0)) ) \
+	return false;
+
+
 bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 {
     if ( !mpos.isDefined() ) return false;
@@ -282,9 +293,12 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     
     Coord3 curpos = mpos; curpos.z *= zscale;
     Coord3 prevpos = surface->getKnot( RowCol(rc.r(), previdx) );
-    prevpos.z *= zscale; 
     Coord3 nextpos = surface->getKnot( RowCol(rc.r(), nextidx) );
-    nextpos.z *= zscale;
+    
+    const bool prevdefined = prevpos.isDefined();
+    const bool nextdefined = nextpos.isDefined();
+    if ( prevdefined ) prevpos.z *= zscale; 
+    if ( nextdefined ) nextpos.z *= zscale;
 
     for ( int knot=colrg.start; knot<=colrg.stop; knot += colrg.step )
     {
@@ -292,25 +306,26 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	if ( knot==previdx || knot==rc.c() )
 	    continue;
 
-	Coord3 v0 = surface->getKnot( RowCol(rc.r(), knot) ); v0.z *= zscale;
-	Coord3 v1 = surface->getKnot( RowCol(rc.r(),nextknot)); v1.z *= zscale;
+	Coord3 v0 = surface->getKnot( RowCol(rc.r(), knot) ); 
+	Coord3 v1 = surface->getKnot( RowCol(rc.r(),nextknot));
+	if ( !v0.isDefined() || !v1.isDefined() )
+ 	    return false;
+
+	v0.z *= zscale;
+	v1.z *= zscale;
 	if ( previdx==nextknot )
 	{
-	    if ( !sameSide3D(curpos, nextpos, v0, v1, 0) &&
-		 !sameSide3D(v0, v1,curpos, nextpos, 0) )
-		return false;
+	    mRetNotInsideNext
 	}
 	else if ( knot==nextidx ) 
 	{
-	    if ( !sameSide3D(curpos, prevpos, v0, v1, 0) &&
-		 !sameSide3D(v0, v1, curpos, prevpos, 0) )
-		return false;
+	    mRetNotInsidePrev
 	} 
-	else if ( (!sameSide3D(curpos, prevpos, v0, v1, 0) && 
-       		   !sameSide3D(v0, v1, curpos, prevpos, 0)) ||
-   		  (!sameSide3D(curpos, nextpos, v0, v1, 0) &&
-      		   !sameSide3D(v0, v1, curpos, nextpos, 0)) )
-	    return false;
+	else 
+	{
+	    mRetNotInsidePrev
+	    mRetNotInsideNext
+	}
     }
 
     return emobject.setPos( pid, mpos, addtoundo );
@@ -378,9 +393,14 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     for ( int knotidx=0; knotidx<knots.size(); knotidx++ )
     {
 	const int col = knots[knotidx];
-	const Coord3 p0 = mCompareCoord(surface->getKnot(RowCol(polygon,col)));
-	const Coord3 p1 = mCompareCoord( surface->getKnot( RowCol(polygon,
-			knots [ knotidx<knots.size()-1 ? knotidx+1 : 0 ]) ) );
+	Coord3 p0 = surface->getKnot(RowCol(polygon,col));
+	Coord3 p1 = surface->getKnot( RowCol(polygon,
+		    knots [ knotidx<knots.size()-1 ? knotidx+1 : 0 ]) );
+	if ( !p0.isDefined() || !p1.isDefined() )
+  	    continue;
+
+	p0.z *= zfactor;
+  	p1.z *= zfactor;
 
 	const double t = (mp-p0).dot(p1-p0)/(p1-p0).sqAbs();
 	if ( t<0 || t>1 )
@@ -429,12 +449,17 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     }
     else  //use nearknotidx only
     {
-	const Coord3 prevpos = mCompareCoord(surface->getKnot( RowCol(polygon,
-		    knots[nearknotidx ? nearknotidx-1 : knots.size()-1]) ) );
-	const Coord3 nextpos = mCompareCoord(surface->getKnot( RowCol(polygon,
-		    knots[nearknotidx<knots.size()-1 ? nearknotidx+1 : 0]) ));
+	Coord3 prevpos = surface->getKnot( RowCol(polygon,
+		    knots[nearknotidx ? nearknotidx-1 : knots.size()-1]) );
+	Coord3 nextpos = surface->getKnot( RowCol(polygon,
+		    knots[nearknotidx<knots.size()-1 ? nearknotidx+1 : 0]) );
+	const bool prevdefined = prevpos.isDefined();
+  	const bool nextdefined = nextpos.isDefined();	
+	if ( prevdefined ) prevpos.z *= zfactor;
+   	if ( nextdefined ) nextpos.z *= zfactor;
 
-	if ( sameSide3D(mp, prevpos, nearpos, nextpos, 1e-3) ) //insert prevpt
+	if ( prevdefined && nextdefined &&
+	     sameSide3D(mp,prevpos,nearpos,nextpos,1e-3) ) 
 	{
 	    if ( nearknotidx )
 	    {
