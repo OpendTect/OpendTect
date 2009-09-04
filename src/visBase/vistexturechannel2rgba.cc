@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.29 2009-09-04 19:47:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.30 2009-09-04 20:57:20 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -230,8 +230,10 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
     if ( channel>=coltabs_.size() )
 	adjustNrChannels();
 
+    if ( *coltabs_[channel] == seq )
+	return;
+    
     *coltabs_[channel] = seq;
-
     update();
 }
 
@@ -273,6 +275,9 @@ void ColTabTextureChannel2RGBA::setTransparency(int ch,unsigned char t)
     if ( ch>=opacity_.size() )
 	adjustNrChannels();
 
+    if ( opacity_[ch] == 255-t )
+	return;
+
     opacity_[ch] = 255-t;
     update();
 }
@@ -289,6 +294,9 @@ unsigned char ColTabTextureChannel2RGBA::getTransparency(int ch) const
 
 void ColTabTextureChannel2RGBA::allowShading( bool yn )
 {
+    if ( shadingallowed_==yn )
+	return;
+
     TextureChannel2RGBA::allowShading( yn );
     update();
 }
