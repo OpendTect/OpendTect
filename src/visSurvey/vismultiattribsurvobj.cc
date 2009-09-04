@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.44 2009-08-26 21:28:21 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.45 2009-09-04 01:35:35 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -66,7 +66,7 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
 MultiTextureSurveyObject::~MultiTextureSurveyObject()
 {
     deepErase( as_ );
-    setDataTransform( 0 );
+    setDataTransform( 0, 0 );
     if ( texture_ )
 	texture_->unRef();
     else

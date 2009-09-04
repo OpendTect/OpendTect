@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.221 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.222 2009-09-04 01:35:35 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -307,7 +307,7 @@ float PlaneDataDisplay::maxDist() const
 }
 
 
-bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
+bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )

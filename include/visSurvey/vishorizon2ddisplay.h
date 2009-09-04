@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.16 2009-08-19 18:37:27 cvskris Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.17 2009-09-04 01:35:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,7 +42,7 @@ public:
 
     EM::SectionID		getSectionID(int visid) const;
 
-    bool			setDataTransform(ZAxisTransform*);
+    bool			setDataTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getDataTransform() const;
 
 protected:

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.111 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.112 2009-09-04 01:35:35 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -190,7 +190,7 @@ void VolumeDisplay::updateIsoSurfColor()
 }
 
 
-bool VolumeDisplay::setDataTransform( ZAxisTransform* zat )
+bool VolumeDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )

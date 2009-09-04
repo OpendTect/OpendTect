@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.36 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.37 2009-09-04 01:35:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -109,7 +109,7 @@ public:
     Coord			getCoord(int trcnr) const;
     Coord			getNormal(int trcnr) const;
 
-    bool			setDataTransform(ZAxisTransform*);
+    bool			setDataTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getDataTransform() const;
 
     void			clearTexture(int);

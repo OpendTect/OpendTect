@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.113 2009-08-31 03:49:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.114 2009-09-04 01:35:35 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -144,7 +144,7 @@ void HorizonDisplay::setDisplayTransformation( mVisTrans* nt )
 }
 
 
-bool HorizonDisplay::setDataTransform( ZAxisTransform* nz )
+bool HorizonDisplay::setDataTransform( ZAxisTransform* nz, TaskRunner* tr )
 {
     if ( zaxistransform_ ) zaxistransform_->unRef();
 
@@ -152,7 +152,7 @@ bool HorizonDisplay::setDataTransform( ZAxisTransform* nz )
     if ( zaxistransform_ ) zaxistransform_->ref();
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setZAxisTransform( nz );
+	sections_[idx]->setZAxisTransform( nz, tr );
 
     return true;
 }

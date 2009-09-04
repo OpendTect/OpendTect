@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.124 2009-07-27 05:26:41 cvsraman Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.125 2009-09-04 01:35:35 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -497,7 +497,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
 }
 
 
-void Scene::setDataTransform( ZAxisTransform* zat )
+void Scene::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     if ( datatransform_==zat ) return;
 

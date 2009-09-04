@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.73 2009-07-22 21:49:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.74 2009-09-04 01:35:35 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -944,7 +944,7 @@ Coord Seis2DDisplay::getNormal( int trcnr ) const
 }
 
 
-bool Seis2DDisplay::setDataTransform( ZAxisTransform* zat )
+bool Seis2DDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
