@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.38 2009-09-03 11:39:03 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.39 2009-09-04 04:10:38 cvsumesh Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -72,7 +72,7 @@ const char* HorizonScanner::nrDoneText() const
 
 od_int64 HorizonScanner::nrDone() const
 {
-    return dtctor_.nrPositions(false);
+    return nrdone_;
 }
 
 
