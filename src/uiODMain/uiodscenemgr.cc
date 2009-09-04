@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.180 2009-08-27 09:58:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.181 2009-09-04 09:51:40 cvshelene Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.180 2009-08-27 09:58:39 cvs
 #include "uiattribpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vissurvscene.h"
+#include "visplanedatadisplay.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
@@ -40,6 +41,8 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.180 2009-08-27 09:58:39 cvs
 #include "uiwindowgrabber.h"
 #include "uiodviewer2d.h"
 
+#include "attribdatacubes.h"
+#include "attribdatapack.h"
 #include "ptrman.h"
 #include "pickset.h"
 #include "settings.h"
@@ -239,7 +242,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( zt )
     {
 	mDynamicCastGet(visSurvey::Scene*,scene, visServ().getObject(sceneid));
-	scene->setDataTransform( zt );
+	scene->setDataTransform( zt,0 );
     }
 
     return sceneid;
@@ -1042,6 +1045,32 @@ uiODViewer2D* uiODSceneMgr::find2DViewer( int visid )
     {
 	if ( viewers2d_[idx]->visid_ != visid )
 	    continue;
+
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+			visServ().getObject(visid));
+	FlatDataPack* dtpack = const_cast<FlatDataPack*>(
+			viewers2d_[idx]->viewwin_->viewer().pack(true));
+	mDynamicCastGet(Attrib::Flat3DDataPack*,f3ddpack,dtpack)
+	if ( !f3ddpack )
+	{
+	    dtpack = const_cast<FlatDataPack*>(
+			    viewers2d_[idx]->viewwin_->viewer().pack(false));
+	    f3ddpack = dynamic_cast< Attrib::Flat3DDataPack* >(dtpack);
+	}
+
+	if ( pdd && f3ddpack )
+	{
+	    CubeSampling csamppack = f3ddpack->cube().cubeSampling();
+	    CubeSampling csampplane = pdd->getCubeSampling();
+	    CubeSampling::Dir csampdir = f3ddpack->dataDir();
+	    if ( (csampdir == CubeSampling::Inl
+		    && csamppack.hrg.inlRange()!= csampplane.hrg.inlRange())
+		|| (csampdir == CubeSampling::Crl
+		    && csamppack.hrg.crlRange()!= csampplane.hrg.crlRange())
+		|| (csampdir == CubeSampling::Z
+		    && csamppack.zrg!= csampplane.zrg) )
+		continue;
+	}
 	curvwr = viewers2d_[idx];
 	break;
     }

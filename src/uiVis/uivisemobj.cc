@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.85 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.86 2009-09-04 09:51:53 cvshelene Exp $";
 
 #include "uivisemobj.h"
 
@@ -171,7 +171,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
-    emod->setDataTransform( scene->getDataTransform() );
+    emod->setDataTransform( scene->getDataTransform(),0 );
 
     uiTaskRunner dlg( uiparent_ );
     if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
