@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.125 2009-09-04 01:35:35 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.126 2009-09-04 09:39:14 cvshelene Exp $";
 
 #include "vissurvscene.h"
 
@@ -281,7 +281,7 @@ void Scene::addObject( visBase::DataObject* obj )
 	addUTMObject( vo );
 
     if ( so && datatransform_ )
-	so->setDataTransform( datatransform_ );
+	so->setDataTransform( datatransform_,0 );
 
     if ( so )
 	objectMoved(0);
@@ -510,7 +510,7 @@ void Scene::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
 	if ( !so ) continue;
 
-	so->setDataTransform( zat );
+	so->setDataTransform( zat,0 );
     }
 
     CubeSampling cs = SI().sampling( true );
@@ -727,7 +727,7 @@ int Scene::usePar( const IOPar& par )
 	const char* nm = transpar->find( sKey::Name );
 	RefMan<ZAxisTransform> transform = ZATF().create( nm );
 	if ( transform && transform->usePar( *transpar ) )
-	    setDataTransform( transform );
+	    setDataTransform( transform,0 );
     }
 
     res = getImageFromPar( par,sKeyTopImageID(), topimg_ );

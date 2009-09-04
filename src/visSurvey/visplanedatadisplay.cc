@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.222 2009-09-04 01:35:35 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.223 2009-09-04 09:39:14 cvshelene Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -139,7 +139,7 @@ PlaneDataDisplay::~PlaneDataDisplay()
 	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
 
     deepErase( rposcache_ );
-    setDataTransform( 0 );
+    setDataTransform( 0,0 );
 
     for ( int idx=volumecache_.size()-1; idx>=0; idx-- )
 	DPM(DataPackMgr::FlatID()).release( volumecache_[idx] );

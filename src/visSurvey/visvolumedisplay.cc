@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.112 2009-09-04 01:35:35 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.113 2009-09-04 09:39:15 cvshelene Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -134,7 +134,7 @@ VolumeDisplay::~VolumeDisplay()
     voltrans_->unRef();
     scalarfield_->unRef();
 
-    setDataTransform( 0 );
+    setDataTransform( 0,0 );
 }
 
 

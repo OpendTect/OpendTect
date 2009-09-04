@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.74 2009-09-04 01:35:35 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.75 2009-09-04 09:39:14 cvshelene Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -201,7 +201,7 @@ Seis2DDisplay::~Seis2DDisplay()
 	dpman.release( datapackids_[idx] );
     
     triangles_->unRef();
-    setDataTransform( 0 );
+    setDataTransform( 0,0 );
 }
 
 
