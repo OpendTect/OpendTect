@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.28 2009-07-22 22:02:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.29 2009-09-04 19:47:17 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -250,6 +250,9 @@ void ColTabTextureChannel2RGBA::setEnabled(int ch,bool yn)
 {
     if ( ch>=coltabs_.size() )
 	adjustNrChannels();
+
+    if ( enabled_[ch]==yn )
+	return;
 
     enabled_[ch] = yn;
     update();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.11 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.12 2009-09-04 19:47:17 cvsyuancheng Exp $";
 
 #include "visscenecoltab.h"
 
@@ -54,9 +54,22 @@ void SceneColTab::setLegendColor( const Color& col )
 
 void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
 {
+    if ( sequence_==ctseq )
+	return;
+    
+    sequence_ = ctseq;
+    updateVis();
+}
+
+
+void SceneColTab::updateVis()
+{
+    if ( !isOn() )
+	return;
+
     const int nrcols = 256;
     legendkit_->clearColors();
-    ColTab::IndexedLookUpTable table( ctseq, nrcols );
+    ColTab::IndexedLookUpTable table( sequence_, nrcols );
     for ( int idx=0; idx<nrcols; idx++ )
     {
 	Color col = table.colorForIndex( idx );
@@ -66,15 +79,10 @@ void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
 		        (col.t()&0xff);
 	legendkit_->addDiscreteColor( double(idx)/256., val );
     }
-}
-
-
-void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
-{
-    Interval<float> rg( ms.start_, ms.start_+ms.width_ );
+    
     legendkit_->clearTicks();
-    AxisLayout al; al.setDataRange( rg );
-    LinScaler scaler( rg.start, 0, rg.stop, 1 );
+    AxisLayout al; al.setDataRange( rg_ );
+    LinScaler scaler( rg_.start, 0, rg_.stop, 1 );
 
     int idx = 0;
     while ( true )
@@ -88,8 +96,26 @@ void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 	idx++;
     }
 
-    legendkit_->minvalue = toString( rg.start );
-    legendkit_->maxvalue = toString( rg.stop );
+    legendkit_->minvalue = toString( rg_.start );
+    legendkit_->maxvalue = toString( rg_.stop );
+}
+
+
+void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
+{
+    Interval<float> rg( ms.start_, ms.start_+ms.width_ );
+    if ( rg==rg_ )
+	return;
+    
+    rg_ = rg;
+    updateVis();
+}
+
+
+void SceneColTab::turnOn( bool yn )
+{
+    VisualObjectImpl::turnOn( yn );
+    updateVis();
 }
 
 

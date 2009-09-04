@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.45 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.46 2009-09-04 19:47:17 cvsyuancheng Exp $";
 
 #include "visobject.h"
 
@@ -134,12 +134,16 @@ bool VisualObjectImpl::tryWriteLock()
 
 void VisualObjectImpl::turnOn( bool yn )
 {
-    if ( onoff_ ) onoff_->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+    if ( onoff_ ) 
+    {
+	const int newval = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+ 	if ( newval!=onoff_->whichChild.getValue() )
+ 	    onoff_->whichChild = newval;
+    }
     else if ( !yn )
     {
 	pErrMsg( "Turning off object without switch");
     }
-
 }
 
 

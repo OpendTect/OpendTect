@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.27 2009-08-10 09:47:06 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.28 2009-09-04 19:47:17 cvsyuancheng Exp $";
 
 #include "vistexturechannels.h"
 
@@ -437,7 +437,9 @@ int TextureChannels::getSize( int dim ) const
 bool TextureChannels::turnOn( bool yn )
 {
     const bool res = isOn();
-    onoff_->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+    const int newval = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+    if ( newval!=onoff_->whichChild.getValue() )
+	onoff_->whichChild = newval;
     return res;
 }
 
