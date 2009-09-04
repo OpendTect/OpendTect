@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.30 2009-08-07 12:11:44 cvsnageswara Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.31 2009-09-04 18:02:18 cvskris Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -268,20 +268,34 @@ Interval<int> BinIDValueSet::crlRange( int inl ) const
     if ( inlidx >= 0 )
     {
 	const TypeSet<int>& crlset = getCrlSet(inlidx);
-	for ( int idx=0; idx<crlset.size(); idx++ )
-	    ret.include( crlset[idx], false );
-	return ret;
+	const int nrcrl = crlset.size();
+	if ( nrcrl>=1 )
+	    ret.start = ret.stop = crlset[0];
+	if ( nrcrl>1 )
+	    ret.include( crlset[nrcrl-1], false );
+
     }
-    
-    Pos pos; BinID bid;
-    bool first = true;
-    while ( next(pos) )
+    else
     {
-	get( pos, bid );
-	if ( first )
-	    { ret.start = ret.stop = bid.crl; first = false; }
-	else
-	    ret.include( bid.crl, false );
+	bool found = false;
+	for ( int idx=0; idx<inls_.size(); idx++ )
+	{
+	    const TypeSet<int>& crlset = getCrlSet(idx);
+	    const int nrcrl = crlset.size();
+	    if ( nrcrl>=1 )
+	    {
+		if ( found )
+		    ret.include( crlset[0], false );
+		else
+		{
+		    ret.start = ret.stop = crlset[0];
+		    found = true;
+		}
+	    }
+
+	    if ( nrcrl>1 )
+		ret.include( crlset[nrcrl-1], false );
+	}
     }
 
     return ret;
