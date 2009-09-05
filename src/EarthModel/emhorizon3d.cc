@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.121 2009-08-12 03:11:51 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.122 2009-09-05 02:14:46 cvskris Exp $";
 
 #include "emhorizon3d.h"
 
@@ -176,7 +176,18 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	    { msg_ = "Incompatible sections"; return; }
 
 	totalnr_ += bvs.totalSize();
-	horizon_.geometry().addSection( 0, false );
+	EM::SectionID sid = horizon_.geometry().addSection( 0, false );
+
+	Geometry::BinIDSurface* geom = horizon_.geometry().sectionGeometry(sid);
+	HorSampling sectrg;
+	sectrg.set( bvs.inlRange(), bvs.crlRange(-1) );
+	sectrg.step = step;
+	sectrg.limitTo( hs_ );
+	mDeclareAndTryAlloc( Array2D<float>*, arr,
+		Array2DImpl<float>( sectrg.nrInl(), sectrg.nrCrl() ) );
+	arr->setAll( mUdf(float) );
+	geom->setArray( sectrg.start, sectrg.step, arr, true );
+
     }
 
     horizon_.enableGeometryChecks( false );
@@ -199,18 +210,29 @@ int nextStep()
     }
 
     const BinIDValueSet& bvs = *bvss_[sectionidx_];
-    if ( !bvs.next(pos_) )
-	{ sectionidx_++; pos_.reset(); return MoreToDo(); }
+    const EM::SectionID sid = horizon_.sectionID( sectionidx_ );
+    Geometry::BinIDSurface* surf = horizon_.geometry().sectionGeometry( sid );
+    if ( !surf )
+	return ErrorOccurred();
 
-    BinID bid; bvs.get( pos_, bid );
-    if ( !hs_.includes(bid) )
-	return MoreToDo();
-
-    const PosID posid( horizon_.id(), horizon_.sectionID(sectionidx_),
-			bid.getSerialized() );
-    const float z = bvs.getVals(pos_)[ 0 ];
-    if ( horizon_.setPos( posid, Coord3(0,0,z), false ) )
+    BinID bid;
+    for ( int idx=0; idx<10000; idx++ )
+    {
 	nrdone_++;
+	if ( !bvs.next(pos_) )
+	{
+	    sectionidx_++;
+	    pos_.reset();
+	    return MoreToDo();
+	}
+
+	bvs.get( pos_, bid );
+	if ( !hs_.includes(bid) )
+	    continue;
+
+	const float z = bvs.getVals(pos_)[ 0 ];
+	surf->setKnot( bid, Coord3(0,0,z) );
+    }
 
     return MoreToDo();
 }
@@ -386,7 +408,7 @@ const IOObjContext& Horizon3D::getIOObjContext() const
 
 
 Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections, 
-			       const HorSampling& hs )
+			   const HorSampling& hs )
 {
     removeAll();
     return new HorizonImporter( *this, sections, hs );
