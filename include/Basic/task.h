@@ -7,14 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.23 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: task.h,v 1.24 2009-09-05 02:05:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
+#include "objectset.h"
+#include "thread.h"
 
-namespace Threads { class ThreadWorkManager; class Mutex; class ConditionVar; }
+
+namespace Threads { class ThreadWorkManager; }
 
 class ProgressMeter;
 
@@ -61,6 +64,37 @@ protected:
     Threads::ConditionVar*		workcontrolcondvar_;
     Task::Control			control_;
 };
+
+
+/*! A collection of tasks, that behave as a single task. */
+mClass TaskGroup : public Task
+{
+    			~TaskGroup() { deepErase( tasks_ ); }
+    void		addTask( Task* );
+    			//Becomes mine
+
+    void		setProgressMeter(ProgressMeter*);
+    virtual void	enableNrDoneCounting( bool yn );
+    virtual od_int64	nrDone() const;
+    virtual od_int64	totalNr() const;
+
+    virtual const char*	message() const;
+    virtual const char*	nrDoneText() const;
+
+    virtual bool	execute();
+
+    void		enableWorkControl(bool=true);
+    virtual void	controlWork(Control);
+    virtual Control	getState() const;
+
+protected:
+
+    ObjectSet<Task>		tasks_;
+    int				curtask_;
+
+    mutable Threads::Mutex	lock_;
+};
+
 
 
 /*!The generalization of something (e.g. a computation) where the steps must

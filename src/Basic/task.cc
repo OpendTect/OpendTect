@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.21 2009-09-01 19:18:28 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.22 2009-09-05 02:05:12 cvskris Exp $";
 
 #include "task.h"
 
@@ -95,6 +95,100 @@ bool Task::shouldContinue()
     workcontrolcondvar_->unLock();
     return shouldcont;
 }
+
+
+void TaskGroup::addTask( Task* t )
+{ tasks_ += t; }
+
+
+void TaskGroup::setProgressMeter( ProgressMeter* p )
+{
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	tasks_[idx]->setProgressMeter( p );
+}
+
+
+void TaskGroup::enableNrDoneCounting( bool yn )
+{
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	tasks_[idx]->enableNrDoneCounting( yn );
+}
+
+
+od_int64 TaskGroup::nrDone() const
+{
+    lock_.lock();
+    const od_int64 res = tasks_[curtask_]->nrDone();
+    lock_.unLock();
+    return res;
+}
+
+
+od_int64 TaskGroup::totalNr() const
+{
+    lock_.lock();
+    return tasks_[curtask_]->totalNr();
+    lock_.unLock();
+}
+
+
+const char* TaskGroup::message() const
+{
+    lock_.lock();
+    return tasks_[curtask_]->message();
+    lock_.unLock();
+}
+
+
+const char* TaskGroup::nrDoneText() const
+{
+    lock_.lock();
+    return tasks_[curtask_]->nrDoneText();
+    lock_.unLock();
+}
+
+
+bool TaskGroup::execute()
+{
+    lock_.lock();
+    for ( curtask_=0; curtask_<tasks_.size(); curtask_++ )
+    {
+	lock_.unLock();
+	if ( !tasks_[curtask_]->execute() )
+	    return false;
+
+	lock_.lock();
+    }
+
+    lock_.unLock();
+
+    return true;
+}
+
+
+void TaskGroup::enableWorkControl( bool yn )
+{
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	tasks_[idx]->enableWorkControl( yn );
+}
+
+
+void TaskGroup::controlWork( Task::Control t )
+{
+    lock_.lock();
+    tasks_[curtask_]->controlWork( t );
+    lock_.unLock();
+}
+
+
+Task::Control TaskGroup::getState() const
+{
+    lock_.lock();
+    Task::Control res = tasks_[curtask_]->getState();
+    lock_.unLock();
+    return res;
+}
+
 
 
 void SequentialTask::setProgressMeter( ProgressMeter* pm )
