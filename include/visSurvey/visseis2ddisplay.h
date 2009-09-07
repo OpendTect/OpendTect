@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.37 2009-09-04 01:35:35 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.38 2009-09-07 11:18:26 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -51,9 +51,9 @@ public:
     void			setZRange(const Interval<float>&);
     Interval<float>		getZRange(bool displayspace) const;
 
-    void			setTraceNrRange(const Interval<int>&);
-    const Interval<int>&	getTraceNrRange() const;
-    const Interval<int>&	getMaxTraceNrRange() const;
+    void			setTraceNrRange(const StepInterval<int>&);
+    const StepInterval<int>&	getTraceNrRange() const;
+    const StepInterval<int>&	getMaxTraceNrRange() const;
 
     bool			setDataPackID(int attrib,DataPack::ID,
 	    				      TaskRunner*);
@@ -158,8 +158,8 @@ protected:
 
     PosInfo::Line2DData&			geometry_;
     Interval<float>				curzrg_;
-    Interval<int>				trcnrrg_;
-    Interval<int>				maxtrcnrrg_;
+    StepInterval<int>				trcnrrg_;
+    StepInterval<int>				maxtrcnrrg_;
 
     visBase::Transformation*			transformation_;
     visBase::Text2*				linename_;

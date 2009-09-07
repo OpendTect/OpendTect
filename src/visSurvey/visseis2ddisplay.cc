@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.75 2009-09-04 09:39:14 cvshelene Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.76 2009-09-07 11:18:26 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -71,7 +71,7 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
 {
     const int trnrsz = s2d_.geometry_.posns_.size();
     for ( int idx=0; idx<trnrsz; idx++ )
- 	trcnrs_ += s2d_.geometry_.posns_[idx].nr_;
+	trcnrs_ += s2d_.geometry_.posns_[idx].nr_;
     
     quickSort( trcnrs_.arr() , trnrsz );
 }
@@ -112,17 +112,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    continue;
 	}
 
-	int trcidx = 0;
-	while ( trcnr>trcnrs_[trcidx] && trcidx<trcsz-1 )
-  	    trcidx++;
-
 	const DataHolder* dh = data2dh_.dataset_[idx];
-	if ( !dh )
+	const int trcidx = s2d_.trcnrrg_.getIndex( trcnr );
+	if ( !dh ||  trcidx < 0 || trcidx >= arr_.info().getSize(0) )
 	{
 	    addToNrDone( 1 );
 	    continue;
 	}
-	
+
 	const ValueSeries<float>* dataseries = dh->series( valseridx_ );
 	for ( int idy=0; idy<nrsamp; idy++ )
 	{
@@ -160,8 +157,8 @@ Seis2DDisplay::Seis2DDisplay()
     , geometry_(*new PosInfo::Line2DData)
     , triangles_( visBase::SplitTextureSeis2D::create() )	 
     , geomchanged_(this)
-    , maxtrcnrrg_(INT_MAX,INT_MIN)
-    , trcnrrg_(-1,-1)
+    , maxtrcnrrg_(INT_MAX,INT_MIN,1)
+    , trcnrrg_(-1,-1,1)
     , datatransform_(0)
     , voiidx_(-1)
     , prevtrcidx_(0)
@@ -221,7 +218,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 {
     geometry_ = geometry;
     const TypeSet<PosInfo::Line2DPos>& linepositions = geometry.posns_;
-    maxtrcnrrg_.set( INT_MAX, INT_MIN );
+    maxtrcnrrg_.set( INT_MAX, INT_MIN, 1 );
 
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
 	maxtrcnrrg_.include( linepositions[idx].nr_, false );
@@ -282,7 +279,7 @@ const Interval<int> Seis2DDisplay::getSampleRange() const
 }
 
 
-void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
+void Seis2DDisplay::setTraceNrRange( const StepInterval<int>& trcrg )
 {
     if ( maxtrcnrrg_.isRev() )
     {
@@ -302,11 +299,11 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 }
 
 
-const Interval<int>& Seis2DDisplay::getTraceNrRange() const
+const StepInterval<int>& Seis2DDisplay::getTraceNrRange() const
 { return trcnrrg_; }
 
 
-const Interval<int>& Seis2DDisplay::getMaxTraceNrRange() const
+const StepInterval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 { return maxtrcnrrg_; }
 
 
@@ -382,7 +379,7 @@ void Seis2DDisplay::setData( int attrib,
 	    			mNINT(arrayzrg.stop/sd.step), 1 );
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
-	    Array2DImpl<float>( geometry_.posns_.size(), arrzsz ) );
+	    Array2DImpl<float>( trcnrrg_.width()+1, arrzsz ) );
     if ( !arr->isOK() )
 	return;
 
