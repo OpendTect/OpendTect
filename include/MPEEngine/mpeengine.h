@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.48 2009-08-06 02:27:23 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.49 2009-09-07 10:35:57 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,9 @@ public:
     const CubeSampling&	activeVolume() const;
     void		setActiveVolume(const CubeSampling&);
     static CubeSampling	getDefaultActiveVolume();
+    void		setActiveVolShown(bool bn)	
+    			{ isactivevolshown_ = bn; }
+    bool		isActiveVolShown()	{ return isactivevolshown_; }
     Notifier<Engine>	activevolumechange;
 
     void		setActive2DLine(const MultiID& linesetid,
@@ -142,6 +145,7 @@ protected:
     BufferString		errmsg_;
     CubeSampling		activevolume_;
     TrackPlane			trackplane_;
+    bool			isactivevolshown_;
 
     MultiID			active2dlinesetid_;
     BufferString		active2dlinename_;
