@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2009
- RCS:           $Id: horflatvieweditor.h,v 1.4 2009-07-24 06:42:03 cvsumesh Exp $
+ RCS:           $Id: horflatvieweditor.h,v 1.5 2009-09-07 10:41:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,9 @@ public:
 				{ lsetid_ = lsetid; }
     void			setMouseEventHandler(MouseEventHandler*);
     void			setSeedPickingStatus(bool);
+    void			setTrackerSetupActive(bool bn)
+    				{ trackersetupactive_ = bn; }
+
     Notifier<HorizonFlatViewEditor> updateoldactivevolinuimpeman;
     Notifier<HorizonFlatViewEditor> restoreactivevolinuimpeman;
     Notifier<HorizonFlatViewEditor> updateseedpickingstatus;
@@ -67,6 +70,7 @@ protected:
 
     bool			is2d_;
     bool			seedpickingon_;
+    bool			trackersetupactive_;
 };
 
 } // namespace MPE
