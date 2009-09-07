@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.103 2009-08-26 08:30:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.104 2009-09-07 10:45:04 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -964,6 +964,9 @@ bool uiMPEPartServer::activeVolumeIsDefault() const
 
 void uiMPEPartServer::expandActiveVolume(const CubeSampling& seedcs)
 {
+    if ( MPE::engine().isActiveVolShown() )
+	return;
+
     const CubeSampling activecs = MPE::engine().activeVolume();
     const bool isdefault = activeVolumeIsDefault();
 

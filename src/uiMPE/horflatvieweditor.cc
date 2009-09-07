@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.8 2009-08-28 07:25:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.9 2009-09-07 10:45:04 cvsumesh Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -51,6 +51,7 @@ HorizonFlatViewEditor::HorizonFlatViewEditor( FlatView::AuxDataEditor* ed )
     , updateoldactivevolinuimpeman(this)
     , restoreactivevolinuimpeman(this)
     , updateseedpickingstatus(this)
+    , trackersetupactive_(false)
 {
     curcs_.setEmpty();
     editor_->movementFinished.notify(
@@ -201,13 +202,30 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 	    uiMSG().error( "No data to choose from" );
 	    return;
 	}
+
+	as = pickinvd ? vdselspec_ : wvaselspec_;
+
+	const MPE::SectionTracker* sectiontracker =
+	    tracker->getSectionTracker(emobj->sectionID(0), true);
+	const Attrib::SelSpec* trackedatsel = sectiontracker
+	    ? sectiontracker->adjuster()->getAttributeSel(0)
+	    :0;
+
+	if ( !trackersetupactive_ && as && trackedatsel && (*trackedatsel!=*as))
+	{
+	    uiMSG().error( "Saved setup has different attribute. \n"
+		    	   "Either change setup attribute or change\n"
+			   "display attribute you want to track on" );
+	    return;
+	}
     }
     else
     {
 	const MPE::SectionTracker* sectiontracker =
 	    tracker->getSectionTracker(emobj->sectionID(0), true);
 	const Attrib::SelSpec* trackedatsel = sectiontracker
-	    ? sectiontracker->adjuster()->getAttributeSel(0) : 0;
+	    ? sectiontracker->adjuster()->getAttributeSel(0)
+	    : 0;
 
 	if ( vdselspec_ && trackedatsel && (*trackedatsel == *vdselspec_) )
 	    pickinvd = true;
@@ -231,10 +249,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     Coord3 clickedcrd = dp->getCoord( ix.nearest_, iy.nearest_ );
     clickedcrd.z = wp.y;
 
-    if ( pickinvd )
-	as = vdselspec_;
-    else
-	as = wvaselspec_;
+    as = pickinvd ? vdselspec_ : wvaselspec_;
 
     if ( tracker->is2D() )
     {
