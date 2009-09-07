@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.58 2009-08-25 14:49:21 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.59 2009-09-07 11:30:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ ________________________________________________________________________
 #define mImpPickMnuItm		(mFileImpMnu + 60)
 #define mImpWvltMnuItm		(mFileImpMnu + 70)
 #define mImpMuteDefMnuItm	(mFileImpMnu + 80)
-#define mImpVelocityMnuItm       (mFileImpMnu + 90)
+#define mImpVelocityMnuItm	(mFileImpMnu + 90)
 #define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 10)
 #define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 11)
 #define mExpSeisSimple3DMnuItm	(mFileExpMnu + 14)
@@ -75,7 +75,8 @@ ________________________________________________________________________
 #define mExpFltSSAsciiMnuItm	(mFileExpMnu + 31)
 #define mExpPickMnuItm		(mFileExpMnu + 50)
 #define mExpMuteDefMnuItm	(mFileExpMnu + 60)
-#define mManSeisMnuItm		(mFileManMnu + 10)
+#define mManSeis3DMnuItm	(mFileManMnu + 10)
+#define mManSeis2DMnuItm	(mFileManMnu + 11)
 #define mManHor3DMnuItm		(mFileManMnu + 20)
 #define mManHor2DMnuItm		(mFileManMnu + 21)
 #define mManFaultMnuItm		(mFileManMnu + 30)

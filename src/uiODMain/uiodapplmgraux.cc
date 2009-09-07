@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.10 2009-08-13 09:19:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.11 2009-09-07 11:30:32 cvsraman Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -91,7 +91,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	mCase(Imp):	am_.seisserv_->importSeis( opt );	break;
 	mCase(Exp):	am_.seisserv_->exportSeis( opt );	break;
-	mCase(Man):	am_.seisserv_->manageSeismics();	break;
+	mCase(Man):	am_.seisserv_->manageSeismics(opt==1);	break;
 	}
     break;
     mCase(Hor):

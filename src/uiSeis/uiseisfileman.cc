@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.90 2009-08-04 12:23:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.91 2009-09-07 11:29:28 cvsraman Exp $";
 
 
 #include "uiseisfileman.h"
@@ -47,58 +47,44 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.90 2009-08-04 12:23:16 cvs
 
 static const int cPrefWidth = 50;
 
-uiSeisFileMan::uiSeisFileMan( uiParent* p )
+uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
                                      "Manage seismic data",
                                      "103.1.0").nrstatusflds(1),
 	    	   SeisTrcTranslatorGroup::ioContext())
+    , is2d_(is2d)
 {
-    ctxt_.trglobexpr = "CBVS`2D";
+    ctxt_.trglobexpr = is2d_ ? "2D" : "CBVS";
     createDefaultUI();
 
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
-    cpym2dbut = manipgrp->addButton( ioPixmap("copyobj.png"),
-	    			     mCB(this,uiSeisFileMan,copyMan2DPush),
-	    			     "Copy cube" );
-    manipgrp->setAlternative( cpym2dbut, ioPixmap("man2d.png"), "Manage lines");
+    manipgrp->addButton( ioPixmap("copyobj.png"),
+	    		 mCB(this,uiSeisFileMan,copyPush),
+			 is2d ? "Copy lineset" : "Copy cube" );
+    if ( is2d )
+    {
+	manipgrp->addButton( ioPixmap("man2d.png"),
+			     mCB(this,uiSeisFileMan,man2DPush), "Manage lines");
+	manipgrp->addButton( ioPixmap("dumpgeom.png"),
+			     mCB(this,uiSeisFileMan,dump2DPush),
+			     "Dump geometry" );
+    }
+    else
+    {
+	manipgrp->addButton( ioPixmap("mergeseis.png"),
+			     mCB(this,uiSeisFileMan,mergePush),
+			     "Merge blocks of inlines into cube" );
+	manipgrp->addButton( ioPixmap("browseseis.png"),
+			     mCB(this,uiSeisFileMan,browsePush),
+			     "Browse/edit this cube" );
+    }
 
-    mrgdmpbut = manipgrp->addButton( ioPixmap("mergeseis.png"),
-	    			     mCB(this,uiSeisFileMan,mergeDump2DPush),
-	    			     "Merge blocks of inlines into cube" );
-    manipgrp->setAlternative( mrgdmpbut, ioPixmap("dumpgeom.png"),
-			      "Dump geometry" );
-
-    browsebut = manipgrp->addButton( ioPixmap("browseseis.png"),
-				     mCB(this,uiSeisFileMan,browsePush),
-				     "Browse/edit this cube" );
+    manipgrp->addButton( ioPixmap("man_ps.png"), mCB(this,uiSeisFileMan,manPS),
+	    		 "Manage Pre-Stack data" );
 
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
-
-    const bool have2d = SI().has2D();
-    const bool have3d = SI().has3D();
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "PS buttons" );
-    if ( have3d )
-    {
-	const char* ttt = have2d ? "Manage 3D Pre-Stack data"
-	    			 : "Manage Pre-Stack data";
-	uiToolButton* tb = new uiToolButton( bgrp, ttt,
-			   ioPixmap(have2d ? "man_ps3d.png" : "man_ps.png"),
-			   mCB(this,uiSeisFileMan,manPS3D) );
-	tb->setToolTip( ttt );
-    }
-    if ( have2d )
-    {
-	const char* ttt = have3d ? "Manage 2D Pre-Stack data"
-	    			 : "Manage Pre-Stack data";
-	uiToolButton* tb = new uiToolButton( bgrp, ttt,
-			   ioPixmap(have3d ? "man_ps2d.png" : "man_ps.png"),
-			   mCB(this,uiSeisFileMan,manPS2D) );
-	tb->setToolTip( ttt );
-    }
-    bgrp->attach( centeredRightOf, selgrp );
-    bgrp->displayFrame( true );
 
     selChg(0);
 }
@@ -106,26 +92,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 
 uiSeisFileMan::~uiSeisFileMan()
 {
-}
-
-
-const char* uiSeisFileMan::getDefKey() const
-{
-    const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
-    return is2d ? sKey::DefLineSet : sKey::DefCube;
-}
-
-
-void uiSeisFileMan::ownSelChg()
-{
-    if ( !curioobj_ ) return;
-
-    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
-    const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
-    manipgrp->useAlternative( cpym2dbut, is2d );
-    manipgrp->useAlternative( mrgdmpbut, is2d );
-    cpym2dbut->setSensitive( is2d || curimplexists_ );
-    browsebut->setSensitive( !is2d && curimplexists_ );
 }
 
 
@@ -137,8 +103,7 @@ void uiSeisFileMan::mkFileInfo()
     if ( oinf.isOK() )
     {
 
-    const bool is2d = oinf.is2D();
-    if ( is2d )
+    if ( is2d_ )
     {
 	BufferString fnm( curioobj_->fullUserExpr(true) );
 	Seis2DLineSet lset( fnm );
@@ -154,7 +119,7 @@ void uiSeisFileMan::mkFileInfo()
     txt += SI().zIsTime() ? mNINT(1000*memb) : memb
 
     CubeSampling cs;
-    if ( !is2d )
+    if ( !is2d_ )
     {
 	if ( oinf.getRanges(cs) )
 	{
@@ -235,22 +200,23 @@ double uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 }
 
 
-void uiSeisFileMan::mergeDump2DPush( CallBacker* )
+void uiSeisFileMan::mergePush( CallBacker* )
 {
     if ( !curioobj_ ) return;
-    const bool is2d = SeisTrcTranslator::is2D( *curioobj_ );
-    if ( is2d )
-    {
-	uiSeisDump2DGeom dlg( this, curioobj_ );
-	dlg.go();
-    }
-    else
-    {
-	const MultiID key( curioobj_->key() );
-	uiMergeSeis dlg( this );
-	dlg.go();
-	selgrp->fullUpdate( key );
-    }
+
+    const MultiID key( curioobj_->key() );
+    uiMergeSeis dlg( this );
+    dlg.go();
+    selgrp->fullUpdate( key );
+}
+
+
+void uiSeisFileMan::dump2DPush( CallBacker* )
+{
+    if ( !curioobj_ ) return;
+
+    uiSeisDump2DGeom dlg( this, curioobj_ );
+    dlg.go();
 }
 
 
@@ -553,40 +519,42 @@ protected:
 };
 
 
-void uiSeisFileMan::copyMan2DPush( CallBacker* )
+void uiSeisFileMan::man2DPush( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    const bool is2d = SeisTrcTranslator::is2D( *curioobj_ );
     const MultiID key( curioobj_->key() );
-
-    if ( is2d )
-    {
-	uiSeis2DMan dlg( this, *curioobj_ );
-	dlg.go();
-    }
-    else
-    {
-	mDynamicCastGet(const IOStream*,iostrm,curioobj_)
-	if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
-
-	uiSeisImpCBVS dlg( this, iostrm );
-	dlg.go();
-    }
+    uiSeis2DMan dlg( this, *curioobj_ );
+    dlg.go();
 
     selgrp->fullUpdate( key );
 }
 
 
-void uiSeisFileMan::manPS3D( CallBacker* )
+void uiSeisFileMan::copyPush( CallBacker* )
 {
-    uiSeisPreStackMan dlg( this, false );
+    if ( !curioobj_ ) return;
+
+    if ( is2d_ )
+    {
+	uiMSG().message("Coming soon ... " );
+	return;	// TODO
+    }
+
+    const MultiID key( curioobj_->key() );
+    mDynamicCastGet(const IOStream*,iostrm,curioobj_)
+    if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
+
+    uiSeisImpCBVS dlg( this, iostrm );
     dlg.go();
+
+    selgrp->fullUpdate( key );
 }
 
 
-void uiSeisFileMan::manPS2D( CallBacker* )
+void uiSeisFileMan::manPS( CallBacker* )
 {
-    uiSeisPreStackMan dlg( this, true );
+    uiSeisPreStackMan dlg( this, is2d_ );
     dlg.go();
 }
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.112 2009-09-01 08:38:18 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.113 2009-09-07 11:29:28 cvsraman Exp $";
 
 #include "uiseispartserv.h"
 
@@ -106,9 +106,9 @@ bool uiSeisPartServer::exportSeis( int opt )
 { return ioSeis( opt, false ); }
 
 
-void uiSeisPartServer::manageSeismics()
+void uiSeisPartServer::manageSeismics( bool is2d )
 {
-    uiSeisFileMan dlg( appserv().parent() );
+    uiSeisFileMan dlg( appserv().parent(), is2d );
     dlg.go();
 }
 

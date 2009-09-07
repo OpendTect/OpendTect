@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.18 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.19 2009-09-07 11:29:51 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,24 +18,20 @@ class uiToolButton;
 mClass uiSeisFileMan : public uiObjFileMan
 {
 public:
-			uiSeisFileMan(uiParent*);
+			uiSeisFileMan(uiParent*,bool);
 			~uiSeisFileMan();
 
 protected:
 
-    uiToolButton*	mrgdmpbut;
-    uiToolButton*	cpym2dbut;
-    uiToolButton*	browsebut;
+    bool		is2d_;
 
-    void		ownSelChg();
-
-    void		mergeDump2DPush(CallBacker*);
+    void		mergePush(CallBacker*);
+    void		dump2DPush(CallBacker*);
     void		browsePush(CallBacker*);
-    void		copyMan2DPush(CallBacker*);
-    void		manPS3D(CallBacker*);
-    void		manPS2D(CallBacker*);
+    void		copyPush(CallBacker*);
+    void		man2DPush(CallBacker*);
+    void		manPS(CallBacker*);
     void		makeDefault(CallBacker*);
-    const char*		getDefKey() const;
 
     void		mkFileInfo();
     double		getFileSize(const char*,int&) const;

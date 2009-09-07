@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.184 2009-08-25 14:49:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.185 2009-09-07 11:30:32 cvsraman Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -303,7 +303,8 @@ void uiODMenuMgr::fillManMenu()
 	mInsertItem( manmnu_, "Horizons &2D ...", mManHor2DMnuItm );
     }
     mInsertItem( manmnu_, "&PickSets ...", mManPickMnuItm );
-    mInsertItem( manmnu_, "&Seismics ...", mManSeisMnuItm );
+    create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm );
+
     mInsertItem( manmnu_, "Strati&graphy ...", mManStratMnuItm );
     mInsertItem( manmnu_, "Wa&velets ...", mManWvltMnuItm );
     mInsertItem( manmnu_, "&Wells ...", mManWellMnuItm );
@@ -607,6 +608,14 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm , mCB(this,uiODMenuMgr,fn), txt, togg )
 
+#define mAddPopUp( nm, txt1, txt2, itm1, itm2, mnuid ) \
+    popmnu = new uiPopupMenu( &appl_, nm ); \
+    popmnu->insertItem( new uiMenuItem(txt1, \
+		       mCB(this,uiODMenuMgr,handleClick)), itm1 ); \
+    popmnu->insertItem( new uiMenuItem(txt2, \
+		       mCB(this,uiODMenuMgr,handleClick)), itm2 ); \
+    mantb_ ->setButtonMenu( mnuid, popmnu );
+
 void uiODMenuMgr::fillManTB()
 {
     const int seisid =
@@ -621,12 +630,11 @@ void uiODMenuMgr::fillManTB()
  
     if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
     {
-	uiPopupMenu* mnuhr = new uiPopupMenu( &appl_, "horizon Menu" );
-	mnuhr->insertItem( new uiMenuItem("2D Horizons",
-		    mCB(this,uiODMenuMgr,handleClick)), mManHor2DMnuItm );
-	mnuhr->insertItem( new uiMenuItem("3D Horizons",
-		    mCB(this,uiODMenuMgr,handleClick)), mManHor3DMnuItm );
-	mantb_ ->setButtonMenu( horid, mnuhr );
+	uiPopupMenu* popmnu = 0;
+	mAddPopUp( "horizon Menu", "2D Horizons", "3D Horizons",
+		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
+	mAddPopUp( "seismics Menu", "2D Seismics", "3D Seismics",
+		   mManSeis2DMnuItm, mManSeis3DMnuItm, seisid );
     }
 }
 
@@ -821,7 +829,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpMuteDefMnuItm:     mDoOp(Exp,MDef,0); break;
     case mImpVelocityMnuItm:	mDoOp(Imp,Vel,0); break;			
 
-    case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
+    case mManSeis3DMnuItm: 	mDoOp(Man,Seis,2); break;
+    case mManSeis2DMnuItm: 	mDoOp(Man,Seis,1); break;
     case mManHor3DMnuItm: 	mDoOp(Man,Hor,2); break;
     case mManHor2DMnuItm: 	mDoOp(Man,Hor,1); break;
     case mManFaultStickMnuItm:	mDoOp(Man,Flt,1); break;
@@ -956,10 +965,20 @@ void uiODMenuMgr::manHor( CallBacker* )
     mDoOp(Man,Hor,opt);
 }
 
+
+void uiODMenuMgr::manSeis( CallBacker* )
+{
+    int opt = 0;
+    if ( SI().getSurvDataType() == SurveyInfo::No2D )
+	opt = 2;
+    else if ( SI().getSurvDataType() == SurveyInfo::Only2D )
+	opt = 1;
+    mDoOp(Man,Seis,opt);
+}
+
 #define mDefManCBFn(typ) \
     void uiODMenuMgr::man##typ( CallBacker* ) { mDoOp(Man,typ,0); }
 
-mDefManCBFn(Seis)
 mDefManCBFn(Flt)
 mDefManCBFn(Wll)
 mDefManCBFn(Pick)
