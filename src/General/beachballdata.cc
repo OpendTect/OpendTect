@@ -5,7 +5,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: beachballdata.cc,v 1.1 2009-09-02 15:45:13 cvskarthika Exp $";
+static const char* rcsID = "$Id: beachballdata.cc,v 1.2 2009-09-07 22:31:53 cvskarthika Exp $";
 
 #include "beachballdata.h"
 
@@ -82,6 +82,22 @@ float BallProperties::getElasticity() const
 void BallProperties::setElasticity( float el )
 {
     elasticity_ = el;
+}
+
+
+bool BallProperties::operator == ( const BallProperties& bp ) const
+{
+    if ( radius_ == bp.getRadius() && color1_ == bp.getColor1() 
+	 && color2_ == bp.getColor2() && pos_ == bp.getPos()
+	 && elasticity_ == bp.getElasticity() )
+	return true;
+    else return false;
+}
+
+
+bool BallProperties::operator != ( const BallProperties& bp ) const
+{
+    return ! (*this == bp);
 }
 
 };

@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: beachballdata.h,v 1.1 2009-09-02 15:46:30 cvskarthika Exp $
+ * ID       : $Id: beachballdata.h,v 1.2 2009-09-07 22:32:11 cvskarthika Exp $
 -*/
 
 #include "color.h"
@@ -48,6 +48,9 @@ public:
 
     float			getElasticity() const;
     void			setElasticity(float);
+
+    bool			operator == (const BallProperties& bp) const;
+    bool			operator != (const BallProperties& bp) const;
 
 protected:
 
