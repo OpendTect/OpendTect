@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.20 2009-09-02 06:57:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.21 2009-09-07 14:44:09 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.20 2009-09-02 06:57:40
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
-	   "",mTODOHelpID).savetext("Save as default").savebutton(true)
+	   "","107.2.0").savetext("Save as default").savebutton(true)
 					.savechecked(false)
 				       	.modal(false))
 	, wd_(d)
