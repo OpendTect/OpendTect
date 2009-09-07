@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoBeachBall.cc,v 1.6 2009-09-01 09:24:15 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoBeachBall.cc,v 1.7 2009-09-07 21:26:19 cvskarthika Exp $";
 
 #include "SoBeachBall.h"
 #include "SoCameraInfoElement.h"
@@ -30,7 +30,7 @@ static const char* rcsID = "$Id: SoBeachBall.cc,v 1.6 2009-09-01 09:24:15 cvskar
 #include <Inventor/misc/SoState.h>
 #include "iostream"
 
-#define mMaxLevelOfDetail 5 
+#define mMaxLevelOfDetail 7 
 
 SbList<SbVec3f> SoBeachBall::res2coords_;
 SbList<LODInfo> SoBeachBall::lodinfo_;
