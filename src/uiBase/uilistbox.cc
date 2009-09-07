@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.104 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.105 2009-09-07 14:55:11 cvsbert Exp $";
 
 #include "uilistbox.h"
 
@@ -423,9 +423,9 @@ void uiListBox::addItem( const char* text, const Color& col )
 void uiListBox::addItems( const char** textList ) 
 {
     int curidx = currentItem();
-    const char* pt_cur = *textList;
-    while ( pt_cur )
-        addItem( pt_cur++ );
+    const char** pt_cur = textList;
+    while ( *pt_cur )
+	addItem( *pt_cur++ );
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
