@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.43 2009-08-07 12:48:40 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.44 2009-09-07 14:18:12 cvshelene Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -204,6 +204,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     uiSelectFromList::Setup setup( "Survey", *dirlist );
     setup.dlgtitle( "Select survey" );
     uiSelectFromList dlg( this, setup );
+    dlg.setHelpID("0.3.11");
     if ( !dlg.go() ) return;
 
     FilePath fp( basedatadir ); fp.add( dlg.selFld()->getText() );
