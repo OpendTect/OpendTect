@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.90 2009-08-04 07:28:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.91 2009-09-07 14:08:57 cvshelene Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -1017,6 +1017,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
     uiSelectFromList::Setup setup( "Survey", survlist );
     setup.dlgtitle( "Select survey" );
     uiSelectFromList dlg( this, setup );
+    dlg.setHelpID("0.3.5");
     if ( dlg.go() )
     {
 	FilePath fp( basedir ); fp.add( dlg.selFld()->getText() );
