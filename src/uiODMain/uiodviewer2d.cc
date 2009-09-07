@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.13 2009-08-13 11:19:54 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.14 2009-09-07 10:46:45 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -291,6 +291,8 @@ void uiODViewer2D::updateHorFlatViewerSeedPickStatus( CallBacker* )
 {
     horfveditor_->setSeedPickingStatus(
 	    appl_.applMgr().visServer()->isPicking() );
+    horfveditor_->setTrackerSetupActive(
+	    appl_.applMgr().visServer()->isTrackingSetupActive() );
 }
 
 
