@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.9 2009-08-11 21:16:45 cvskris Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.10 2009-09-07 11:14:13 cvsnanne Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -141,26 +141,25 @@ void SplitTextureSeis2D::setDisplayTransformation( mVisTrans* nt )
 
 void SplitTextureSeis2D::updateHorSplit()
 {
-    const int nrhorpixels = path_.size();
-
-    if ( !trcrg_.width() || !path_.size() ) 
+    const int geomsz = path_.size();
+    if ( !trcrg_.width() || !geomsz ) 
 	return;
 
     deepErase( horblocktrcindices_ );
     int diff = 0;
-    while ( trcrg_.start>trcnrs_[diff] && diff<nrhorpixels-1 )
+    while ( trcrg_.start>trcnrs_[diff] && diff<geomsz-1 )
 	diff++;
     
-    if ( diff>=nrhorpixels-1 )
+    if ( diff>=geomsz-1 )
 	return;
 
-    const int nrhorblocks = nrBlocks( nrhorpixels, mMaxHorSz, 1 );
-
+    const int nrtrcs = trcrg_.width()+1;
+    const int nrhorblocks = nrBlocks( nrtrcs, mMaxHorSz, 1 );
     for ( int idx=0; idx<nrhorblocks; idx++ )
     {
 	Interval<int> blockidxrg( idx*(mMaxHorSz-1), (idx+1)*(mMaxHorSz-1) );
-	if ( blockidxrg.stop>=nrhorpixels || nrhorblocks==1 ) 
-	    blockidxrg.stop = nrhorpixels-1;
+	if ( blockidxrg.stop>=nrtrcs || nrhorblocks==1 ) 
+	    blockidxrg.stop = nrtrcs-1;
 
 	const int pathsize = blockidxrg.width()+1;
 	const int offset = blockidxrg.start+diff;
