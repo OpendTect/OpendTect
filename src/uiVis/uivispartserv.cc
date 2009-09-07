@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.432 2009-08-13 12:05:45 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.433 2009-09-07 08:36:15 cvssatyaki Exp $";
 
 #include "uivispartserv.h"
 
@@ -836,21 +836,33 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
 
 
 void uiVisPartServer::fillDispPars( int id, int attrib,
-				    FlatView::DataDispPars& pars ) const
+				    FlatView::DataDispPars& common,
+				    bool wva ) const
 {
     const ColTab::MapperSetup* mapper = getColTabMapperSetup( id, attrib );
     const ColTab::Sequence* seq = getColTabSequence( id, attrib );
     if ( !mapper || !seq )
 	return;
 
-    pars.vd_.ctab_ = seq->name();
-    pars.vd_.clipperc_ = pars.wva_.clipperc_ =
-	Interval<float>( mapper->cliprate_*100, mUdf(float) );
-    pars.vd_.autoscale_ = pars.wva_.autoscale_ =
-	mapper->type_!=ColTab::MapperSetup::Fixed;
-    pars.vd_.rg_ = pars.wva_.rg_ = Interval<float>( mapper->start_,
-	    mapper->start_+mapper->width_ );
-    pars.vd_.symmidvalue_ = pars.wva_.symmidvalue_ = mapper->symmidval_;
+    FlatView::DataDispPars::Common* compars;
+    if ( wva )
+	compars = &common.wva_;
+    else
+	compars = &common.vd_;
+
+    if ( !wva )
+    {
+	common.vd_.ctab_ = seq->name();
+	common.vd_.show_ = true;
+    }
+    else
+	common.wva_.show_ = true;
+
+    compars->clipperc_ = Interval<float>( mapper->cliprate_*100, mUdf(float) );
+    compars->autoscale_ = mapper->type_!=ColTab::MapperSetup::Fixed;
+    compars->rg_ =
+	Interval<float>( mapper->start_, mapper->start_+mapper->width_ );
+    compars->symmidvalue_ = mapper->symmidval_;
 }
 
 

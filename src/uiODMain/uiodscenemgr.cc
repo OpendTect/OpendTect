@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.182 2009-09-04 12:04:58 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.183 2009-09-07 08:36:15 cvssatyaki Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1030,7 +1030,7 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva );
     curvwr->setSelSpec( visServ().getSelSpec(visid,attribid), dowva );
     appl_.applMgr().visServer()->fillDispPars( visid, attribid,
-	    curvwr->viewwin_->viewer().appearance().ddpars_ );
+	    curvwr->viewwin_->viewer().appearance().ddpars_, dowva );
     curvwr->viewwin_->viewer().handleChange( FlatView::Viewer::All );
 }
 

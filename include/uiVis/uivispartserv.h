@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.247 2009-08-12 06:56:08 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.248 2009-09-07 08:36:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -242,7 +242,7 @@ public:
 
     				// ColorTable stuff
     void			fillDispPars(int id,int attrib,
-	    				     FlatView::DataDispPars&) const;
+					 FlatView::DataDispPars&,bool) const;
     const ColTab::MapperSetup*	getColTabMapperSetup(int id,int attrib,
 						 int version=mUdf(int)) const;
     void			setColTabMapperSetup(int id,int attrib,
