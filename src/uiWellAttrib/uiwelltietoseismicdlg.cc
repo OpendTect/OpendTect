@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.50 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.51 2009-09-07 06:27:10 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -251,7 +251,6 @@ void uiTieWin::drawFields()
 	      		mCB(this,uiTieWin,rejectOK), true );
     cancelbut->attach( rightBorder );
     cancelbut->attach( ensureBelow, horSepar );
-    
 }
 
 
@@ -301,10 +300,10 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
 {
     dispgrp->setHSpacing( 50 );
     cscorrfld_ = new uiCheckBox( dispgrp, "use checkshot corrections" );
-    cscorrfld_->display( params_->uipms_.iscsavailable_ );
+    cscorrfld_->display( wd_->haveCheckShotModel() );
 
     csdispfld_ = new uiCheckBox( dispgrp, "display checkshot related curve" );
-    csdispfld_->display( params_->uipms_.iscsavailable_ );
+    csdispfld_->display( wd_->haveCheckShotModel() );
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
     zinftfld_ ->attach( rightOf, csdispfld_);
@@ -333,7 +332,6 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
 void uiTieWin::getDispParams()
 {
     WellTie::Params::uiParams* uipms = dataholder_->uipms();
-    WellTie::Params::DataParams* dpms = dataholder_->dpms();
     uipms->iscscorr_ = cscorrfld_->isChecked();
     uipms->iscsdisp_ = csdispfld_->isChecked();
     uipms->iszinft_ = zinftfld_->isChecked();
@@ -368,11 +366,10 @@ void uiTieWin::timeChanged( CallBacker* )
 }
 
 
-void uiTieWin::csCorrChanged( CallBacker* )
+void uiTieWin::csCorrChanged( CallBacker* cb )
 {
     getDispParams();
     WellTie::Params::uiParams* pms = dataholder_->uipms();
-    params_->resetVellLognm();
     if ( pms->iscscorr_ )
 	dataplayer_->computeD2TModel();
     else  
@@ -380,7 +377,7 @@ void uiTieWin::csCorrChanged( CallBacker* )
     if ( wd_->haveD2TModel() && wd_->d2TModel()->size()<3 )
 	dataplayer_->computeD2TModel();
 
-    doWork(0);
+    doWork( cb );
 }
 
 void uiTieWin::infoPushed( CallBacker* )
@@ -389,11 +386,11 @@ void uiTieWin::infoPushed( CallBacker* )
 }
 
 
-void uiTieWin::editD2TPushed( CallBacker* )
+void uiTieWin::editD2TPushed( CallBacker* cb )
 {
     uiD2TModelDlg d2tmdlg( this, *wd_, false );
     if ( d2tmdlg.go() )
-	doWork(0);
+	doWork( cb );
 }
 
 

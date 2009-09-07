@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.25 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.26 2009-09-07 06:27:10 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -98,7 +98,7 @@ Params::Params( const WellTie::Setup& wts, Well::Data* wd,
     dpms_.corrstartdah_ = wd_.track().dah(0);
     dpms_.corrstopdah_  = wd_.track().dah(wd_.track().size()-1);
     dpms_.currvellognm_ = wts.vellognm_;
-    dpms_.attrnm_ = getAttrName(ads);
+    dpms_.attrnm_ = getAttrName( ads );
     if ( wd_.checkShotModel() )
 	dpms_.currvellognm_ = wtsetup_.corrvellognm_;
     dpms_.createColNames();
@@ -121,25 +121,10 @@ BufferString Params::getAttrName( const Attrib::DescSet& ads ) const
     return SeisIOObjInfo::defKey2DispName(defkey,attrnm);
 }
 
+
 bool Params::resetParams()
 {
-    if ( !dpms_.resetDataParams() )
-	return false;
-
-    resetVellLognm();
-    //TODO this should be an easiest way to set the vellognm than using 
-    // one name for display and one for data!
-
-    return true;
-}
-
-
-void Params::resetVellLognm()
-{
-    dpms_.currvellognm_ = uipms_.iscscorr_? wtsetup_.corrvellognm_
-					  : wtsetup_.vellognm_;
-    dpms_.dispcurrvellognm_ = uipms_.iscscorr_? dpms_.corrvellognm_
-					      : dpms_.vellognm_;
+    return dpms_.resetDataParams();
 }
 
 
@@ -206,21 +191,20 @@ bool Params::DataParams::setDepths( const StepInterval<double>& timeintv,					  
 
 void Params::DataParams::createColNames()
 {
-    colnms_.add ( dptnm_ = "Depth" );	
+    BufferString add2name = "'"; 
+    colnms_.add( dptnm_ = "Depth" );	
     colnms_.add( timenm_ = "Time" );
     colnms_.add( corrvellognm_ = wts_.corrvellognm_ );
+    corrvellognm_ += add2name;
     colnms_.add( vellognm_ = wts_.vellognm_ );
+    vellognm_ += add2name;
     colnms_.add( denlognm_ = wts_.denlognm_ );
+    denlognm_ += add2name;		
     colnms_.add( ainm_ = "Computed AI" );     
     colnms_.add( refnm_ ="Computed Reflectivity" );
     colnms_.add( synthnm_ = "Synthetics" );
     colnms_.add( crosscorrnm_ = "Cross Correlation" );
     colnms_.add( attrnm_ );
-
-    BufferString add2name = "'"; 
-    vellognm_ += add2name;
-    denlognm_ += add2name;		
-    corrvellognm_ += add2name;
 }
 
 }; //namespace WellTie
