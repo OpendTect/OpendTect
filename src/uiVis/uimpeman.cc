@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.182 2009-09-02 12:13:07 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.183 2009-09-07 10:39:57 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -286,12 +286,29 @@ void uiMPEMan::seedClick( CallBacker* )
 	return;
     }
 
+    if ( !visserv->isTrackingSetupActive() && (seedpicker->nrSeeds()==0) )
+    {
+	const MPE::SectionTracker* sectiontracker =
+	    tracker->getSectionTracker(emobj->sectionID(0), true);
+	const Attrib::SelSpec* trackedatsel = sectiontracker
+	    ? sectiontracker->adjuster()->getAttributeSel(0)
+	    : 0;
+	if ( trackedatsel && (*trackedatsel != *clickedas) )
+	{
+	    uiMSG().error( "Saved setup has different attribute. \n"
+		    	   "Either change setup attribute or change\n"
+			   "display attribute you want to track on" );
+	    return; 
+	}
+    }
+
     if ( seedpicker->nrSeeds() > 0 )
     {
 	const MPE::SectionTracker* sectiontracker =
 	    tracker->getSectionTracker(emobj->sectionID(0), true);
 	const Attrib::SelSpec* trackedatsel = sectiontracker
-	    ? sectiontracker->adjuster()->getAttributeSel(0) : 0;
+	    ? sectiontracker->adjuster()->getAttributeSel(0)
+	    : 0;
 
 	if ( trackedatsel && (*trackedatsel != *clickedas) )
 	{
@@ -691,6 +708,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
 
     toolbar->setToolTip( showcubeidx, isshown ? "Hide track area"
 					      : "Show track area" );
+    MPE::engine().setActiveVolShown( isshown );
 }
 
 
