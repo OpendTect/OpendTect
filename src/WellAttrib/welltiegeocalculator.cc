@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.29 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.30 2009-09-08 07:12:54 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -56,19 +56,20 @@ GeoCalculator::GeoCalculator( const WellTie::DataHolder& dh )
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
 							  bool doclean )
 {
-    const Well::Log& log = *wd_.logs().getLog( vellog );
+    const Well::Log* log = wd_.logs().getLog( vellog );
+    if ( !log ) return 0;
     TypeSet<float> vals, dpt, time;
 
-    for ( int idx=0; idx<log.size(); idx++ )
+    for ( int idx=0; idx<log->size(); idx++ )
     {
-	vals += log.valArr()[idx];
-	dpt  += log.dah( idx );
+	vals += log->valArr()[idx];
+	dpt  += log->dah( idx );
     }
 
     if ( doclean )
     {
-	interpolateLogData( dpt, log.dahStep(true), true );
-	interpolateLogData( vals, log.dahStep(true), false );
+	interpolateLogData( dpt, log->dahStep(true), true );
+	interpolateLogData( vals, log->dahStep(true), false );
 	removeSpikes( vals );
     }
 

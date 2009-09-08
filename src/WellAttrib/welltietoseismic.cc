@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.27 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.28 2009-09-08 07:12:54 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -107,7 +107,7 @@ bool DataPlayer::extractWellTrack()
     MouseCursorManager::setOverride( MouseCursor::Wait );
     
     WellTie::TrackExtractor wtextr( *dps_, &wd_ );
-    wtextr.timeintv_ = params_.getTimeScale();
+    wtextr.timeintv_ = params_.getTimeIntv();
     wtextr.timeintv_.step = params_.timeintv_.step*params_.step_;
     if ( !tr_->execute( wtextr ) ) return false;
 
@@ -139,7 +139,7 @@ bool DataPlayer::resLogExecutor( const char* logname )
 
     WellTie::LogResampler logres( workdata_, *log, &wd_, *geocalc_ );
     logres.timenm_ = params_.timenm_; logres.dptnm_ = params_.dptnm_;
-    logres.timeintv_ = params_.getTimeScale();
+    logres.timeintv_ = params_.getTimeIntv();
     return tr_->execute( logres );
 }
 

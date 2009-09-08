@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.16 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.17 2009-09-08 07:12:54 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -184,6 +184,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
     wtsetup_.wvltid_ = wvltfld_->ctxtIOObj().ioobj->key();
     wtsetup_.issonic_ = !isvelbox_->isChecked();
+    wtsetup_.unitfactors_ = units;
 
     if ( saveButtonChecked() )
     {

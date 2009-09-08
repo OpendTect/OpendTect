@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.51 2009-09-07 06:27:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.52 2009-09-08 07:12:54 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -84,9 +84,9 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts,
     dataholder_ = new WellTie::DataHolder( params_, wd_, setup_ );
     dataplayer_ = new WellTie::DataPlayer( dataholder_, ads, tr );
     infodlg_    = new WellTie::uiInfoDlg( this, dataholder_ );
+    datadrawer_ = new WellTie::uiTieView( this, &viewer(), *dataholder_, 
+	    				&logsdisp_ );
     stretcher_  = new WellTie::uiEventStretch( this,dataholder_,*datadrawer_ );
-    datadrawer_ = new WellTie::uiTieView(
-	    			this,&viewer(),*dataholder_,&logsdisp_ );
 
     infodlg_->applyPushed.notify( mCB(this,uiTieWin,compute) );
     stretcher_->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
@@ -331,12 +331,12 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
 
 void uiTieWin::getDispParams()
 {
-    WellTie::Params::uiParams* uipms = dataholder_->uipms();
-    uipms->iscscorr_ = cscorrfld_->isChecked();
-    uipms->iscsdisp_ = csdispfld_->isChecked();
-    uipms->iszinft_ = zinftfld_->isChecked();
-    uipms->iszintime_ = zintimefld_->isChecked();
-    uipms->ismarkerdisp_ = markerfld_->isChecked();
+    WellTie::Params::uiParams* pms = dataholder_->uipms();
+    pms->iscscorr_ = cscorrfld_->isChecked();
+    pms->iscsdisp_ = csdispfld_->isChecked();
+    pms->iszinft_ = zinftfld_->isChecked();
+    pms->iszintime_ = zintimefld_->isChecked();
+    pms->ismarkerdisp_ = markerfld_->isChecked();
 }
 
 
@@ -370,6 +370,7 @@ void uiTieWin::csCorrChanged( CallBacker* cb )
 {
     getDispParams();
     WellTie::Params::uiParams* pms = dataholder_->uipms();
+    params_->resetVelLogNm();
     if ( pms->iscscorr_ )
 	dataplayer_->computeD2TModel();
     else  
@@ -379,6 +380,7 @@ void uiTieWin::csCorrChanged( CallBacker* cb )
 
     doWork( cb );
 }
+
 
 void uiTieWin::infoPushed( CallBacker* )
 {

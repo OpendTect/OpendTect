@@ -68,7 +68,6 @@ public :
     {
 			    uiParams(const Well::Data* d)
 				: wd_(*d)
-				, iscsavailable_(d->haveCheckShotModel())
 				, iscscorr_(d->haveCheckShotModel())
 				, iscsdisp_(false)
 				, ismarkerdisp_(d->haveMarkers())
@@ -130,17 +129,18 @@ public :
 	bool			setTimes(StepInterval<double>&,float,float);
 	bool			setDepths(const StepInterval<double>&,
 						StepInterval<double>&);
-    	const StepInterval<double>&  getTimeScale() const { return timeintv_; } 
+	int 			getArraySize(StepInterval<double>&) const;
+    	const StepInterval<double>&  getTimeIntv() const { return timeintv_; } 
+
     };
 
     uiParams			uipms_;
     DataParams			dpms_;
-
     const Attrib::DescSet& 	ads_;
 
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
-    bool			resetParams(); 
-    void			resetVellLognm();
+    bool			resetParams() {return dpms_.resetDataParams();} 
+    void			resetVelLogNm();
 
 protected :
 
