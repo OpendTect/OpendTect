@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.81 2009-07-31 10:19:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.82 2009-09-08 09:43:41 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -232,8 +232,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
     comm = "@";
     comm += FilePath(GetBinPlfDir()).add(progname_).fullPath();
-    comm += " ";
+    comm += " \"";
     comm += parfname_;
+    comm += "\"";
 #else
 
     comm += " --inbg ";
