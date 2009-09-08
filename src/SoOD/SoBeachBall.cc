@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoBeachBall.cc,v 1.7 2009-09-07 21:26:19 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoBeachBall.cc,v 1.8 2009-09-08 09:38:59 cvsranojay Exp $";
 
 #include "SoBeachBall.h"
 #include "SoCameraInfoElement.h"
@@ -652,7 +652,7 @@ void SoBeachBall::computeResolution( SoState* state )
 	{
 	    // Number of triangles or faces in a level is
 	    // f(l) = power(4, l) * 8 (assuming l runs from 0 to max-1)
-	    desiredres = int (floor(log(wantednumtriangles/8)/log(4)));
+	    desiredres = int (floor(log(float(wantednumtriangles/8))/log(4.)));
 
 	    if ( desiredres >= mMaxLevelOfDetail )
 		desiredres = mMaxLevelOfDetail - 1;
