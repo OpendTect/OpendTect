@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.10 2009-09-08 09:07:24 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.11 2009-09-08 23:41:12 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -265,10 +265,10 @@ int BeachBall::usePar( const IOPar& par )
 
 void BeachBall::setBallProperties(const visBeachBall::BallProperties& bp)
 {
-    setRadius( bp.getRadius() );
-    setColor1( bp.getColor1() );
-    setColor2( bp.getColor2() );
-    setCenterPosition( bp.getPos() );
+    setRadius( bp.radius() );
+    setColor1( bp.color1() );
+    setColor2( bp.color2() );
+    setCenterPosition( bp.pos() );
     // to do: use the elasticity later!
 }
 
