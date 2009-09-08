@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.9 2009-09-02 15:40:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.10 2009-09-08 09:07:24 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -48,7 +48,7 @@ BeachBall::BeachBall()
     , scale_(new SoScale)
     , transformation_(0)
     , radius_(1)
-    , zScale_(1)
+    , zScale_(2)
 {
     material_->ref();
     material_->diffuseColor.setNum( 2 );
@@ -117,7 +117,8 @@ void BeachBall::setZScale( float zScale )
 {
     if (zScale == 0)
 	return;
-    scale_->scaleFactor.setValue( radius_, radius_, radius_/zScale );
+    scale_->scaleFactor.setValue( radius_, radius_, radius_/(2*zScale) );
+    	// factor of 2 for 2-way time
     zScale_ = zScale;
 }
 
