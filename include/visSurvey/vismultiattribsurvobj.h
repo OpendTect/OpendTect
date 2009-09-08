@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.27 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.28 2009-09-08 21:50:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -103,9 +103,10 @@ protected:
 				~MultiTextureSurveyObject();
     void			getValueString(const Coord3&,
 	    				       BufferString&) const;
-
+    				//!<Coord is in ztransformed space
     virtual bool		getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const = 0;
+    				//!<Coord is in attribute space
 
     void			updateMainSwitch();
     virtual void		addCache()				= 0;
