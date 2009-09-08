@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.17 2009-08-18 14:45:41 cvskris Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.18 2009-09-08 22:07:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ protected:
 
     MenuItem		selectpsdatamenuitem_;
     MenuItem		proptymenuitem_;
+    MenuItem		resolutionmenuitem_;
     MenuItem		positionmenuitem_;
     MenuItem		viewermenuitem_;
     MenuItem		amplspectrumitem_;
