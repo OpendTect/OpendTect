@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: beachballdata.h,v 1.2 2009-09-07 22:32:11 cvskarthika Exp $
+ * ID       : $Id: beachballdata.h,v 1.3 2009-09-08 23:42:53 cvskarthika Exp $
 -*/
 
 #include "color.h"
@@ -24,31 +24,32 @@ public:
 						float r=500, 
 						Color c1=Color(255,0,0),
 						Color c2=Color::White(),
-						Coord3 pos=Coord3(0, 0, 0),
+						Coord3 p=Coord3(0, 0, 0),
 						float el=0.5) 
 					: ::NamedObject(nm)
 					, radius_(r) 
 					, color1_(c1), color2_(c2)
-					,  pos_(pos), elasticity_(el)	{}
+					,  pos_(p), elasticity_(el)	{}
 
     BallProperties		get() const;
     void			set(const BallProperties&);
     
-    float			getRadius() const;
+    float			radius() const;
     void			setRadius(float);
 
-    Color			getColor1() const;
+    Color			color1() const;
     void			setColor1(Color);
 
-    Color			getColor2() const;
+    Color			color2() const;
     void			setColor2(Color);
 
-    Coord3			getPos() const;
+    Coord3			pos() const;
     void			setPos(Coord3);
 
-    float			getElasticity() const;
+    float			elasticity() const;
     void			setElasticity(float);
 
+    BallProperties&		operator = (const BallProperties& bp);
     bool			operator == (const BallProperties& bp) const;
     bool			operator != (const BallProperties& bp) const;
 
@@ -78,13 +79,24 @@ public:
     BallDynamics		get() const;
     void			set(const BallDynamics&);
     
-    void			getVelocity(float* speed, 
-	    				    Coord3* directionvec) const;
-    void			setVelocity(float speed, 
-	    				    Coord3 directionvec);
+    float			speed() const;
+    void			setSpeed(const float&); 
+    
+    Coord3			directionvector() const;
+    void			setDirectionVector(const Coord3&);
+
+    void			velocity(float*, Coord3*) const;
+    void			setVelocity(float, Coord3); 
+
+    BallDynamics&		operator = (const BallDynamics& bd);
+    bool			operator == (const BallDynamics& bd) const;
+    bool			operator != (const BallDynamics& bd) const;
 
 protected:
+
     float			speed_;
+    // Vector from origin to the point stored in directionvec_ gives the 
+    // direction of movement.
     Coord3			directionvec_;
 
 };
