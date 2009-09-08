@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.12 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: strmoper.h,v 1.13 2009-09-08 15:16:33 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -28,6 +28,7 @@ namespace StrmOper
     mGlobal bool getNextChar(std::istream&,char&);
     mGlobal bool wordFromLine(std::istream&,char*,int maxnrchars);
     mGlobal bool readLine(std::istream&,BufferString* b=0);
+    mGlobal bool readFile(std::istream&,BufferString&);
 
 }
 

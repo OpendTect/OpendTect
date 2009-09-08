@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.17 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.18 2009-09-08 15:16:18 cvsbert Exp $";
 
 #include "strmoper.h"
 #include "timefun.h"
@@ -93,6 +93,28 @@ bool StrmOper::getNextChar( std::istream& strm, char& ch )
 }
 
 
+bool StrmOper::wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
+{
+    if ( !ptr ) return false;
+    *ptr = '\0';
+
+    char ch;
+    char* start = ptr;
+    while ( getNextChar(strm,ch) && ch != '\n' )
+    {
+	if ( !isspace(ch) )
+	    *ptr++ = ch;
+	else if ( ch == '\n' || *start )
+	    break;
+
+	maxnrchars--; if ( maxnrchars == 0 ) break;
+    }
+
+    *ptr = '\0';
+    return ptr != start;
+}
+
+
 bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 {
     static char bsbuf[1024+1];
@@ -124,23 +146,19 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
 }
 
 
-bool StrmOper::wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
+bool StrmOper::readFile( std::istream& strm, BufferString& bs )
 {
-    if ( !ptr ) return false;
-    *ptr = '\0';
+    while ( readLine(strm,&bs) )
+	bs += "\n";
 
-    char ch;
-    char* start = ptr;
-    while ( getNextChar(strm,ch) && ch != '\n' )
+    if ( bs.isEmpty() )
+	return false;
+    else
     {
-	if ( !isspace(ch) )
-	    *ptr++ = ch;
-	else if ( ch == '\n' || *start )
-	    break;
-
-	maxnrchars--; if ( maxnrchars == 0 ) break;
+	const int sz = bs.size();
+	if ( sz > 1 && bs[sz-1] == '\n' )
+	    bs[sz-1] = '\0';
     }
 
-    *ptr = '\0';
-    return ptr != start;
+    return true;
 }
