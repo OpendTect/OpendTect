@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.14 2009-08-10 22:10:15 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.15 2009-09-08 19:53:15 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -165,12 +165,14 @@ public:
 				    SeisTrcReader& reader,
 				    const CubeSampling& readcs,
 				    const VelocityDesc& vd,
+				    const SamplingData<double>& voisd,
 				    bool velintime,
 				    bool voiintime )
 		    : arr_( arr )
 		    , reader_( reader )
 		    , readcs_( readcs )
 		    , hiter_( readcs.hrg )
+		    , voisd_( voisd )
 		    , veldesc_( vd )
 		    , velintime_( velintime )
 		    , voiintime_( voiintime )
@@ -217,7 +219,7 @@ protected:
 
 	if ( voiintime_ )
 	{
-	    if ( !tdc_.calcDepths(arrvs,nrz,SamplingData<double>(readcs_.zrg)))
+	    if ( !tdc_.calcDepths(arrvs,nrz,voisd_) )
 	    {
 		Time2DepthStretcher::udfFill( arrvs, nrz );
 		return MoreToDo();
@@ -225,7 +227,7 @@ protected:
 	}
 	else
 	{
-	    if ( !tdc_.calcTimes(arrvs,nrz, SamplingData<double>(readcs_.zrg)))
+	    if ( !tdc_.calcTimes(arrvs,nrz,voisd_) )
 	    {
 		Time2DepthStretcher::udfFill( arrvs, nrz );
 		return MoreToDo();
@@ -235,17 +237,19 @@ protected:
 	return MoreToDo();
     }
 
-    CubeSampling        readcs_;
-    SeisTrcReader&      reader_;
-    Array3D<float>&     arr_;
-    TimeDepthConverter  tdc_;
-    VelocityDesc        veldesc_;
-    bool                velintime_;
-    bool                voiintime_;
-    BinID               curbid_;
-    int                 nrdone_;
+    CubeSampling        	readcs_;
+    SeisTrcReader&      	reader_;
+    Array3D<float>&     	arr_;
+    TimeDepthConverter  	tdc_;
+    VelocityDesc        	veldesc_;
+    bool                	velintime_;
+    bool                	voiintime_;
+    BinID               	curbid_;
+    int                 	nrdone_;
 
-    HorSamplingIterator hiter_;
+    SamplingData<double>	voisd_;
+
+    HorSamplingIterator		hiter_;
 };
 
 
@@ -264,26 +268,32 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
     if ( idx<0 )
 	return false;
 
-    CubeSampling readcs( voivols_[idx] );
+    const CubeSampling& voi( voivols_[idx] );
+    CubeSampling readcs( voi );
 
     const StepInterval<float> filezrg = veltranslator->packetInfo().zrg;
     const int nrsamplesinfile = filezrg.nrSteps()+1;
-    int zstartidx = (int) filezrg.getIndex( readcs.zrg.start );
-    if ( zstartidx<0 ) zstartidx = 0;
-    int zstopidx = (int) filezrg.getIndex( readcs.zrg.stop )+1;
-    if ( zstopidx>=nrsamplesinfile )
-	zstopidx = nrsamplesinfile-1;
+    if ( velintime_!=voiintime_[idx] )
+    {
+	int zstartidx = (int) filezrg.getIndex( readcs.zrg.start );
+	if ( zstartidx<0 ) zstartidx = 0;
+	int zstopidx = (int) filezrg.getIndex( readcs.zrg.stop )+1;
+	if ( zstopidx>=nrsamplesinfile )
+	    zstopidx = nrsamplesinfile-1;
 
-    readcs.zrg.start = filezrg.atIndex( zstartidx );
-    readcs.zrg.stop = filezrg.atIndex( zstopidx );
-    readcs.zrg.step = filezrg.step;
+	readcs.zrg.start = filezrg.atIndex( zstartidx );
+	readcs.zrg.stop = filezrg.atIndex( zstopidx );
+	readcs.zrg.step = filezrg.step;
+    }
+    else
+    {
+	readcs.zrg.setFrom( filezrg );
+    }
 
     Array3D<float>* arr = voidata_[idx];
     if ( !arr )
     {
-	const int nrz = readcs.nrZ();
-	arr =
-	    new Array3DImpl<float>(readcs.nrInl(),readcs.nrCrl(),readcs.nrZ());
+	arr = new Array3DImpl<float>(voi.nrInl(),voi.nrCrl(),voi.nrZ());
 	if ( !arr->isOK() )
 	    return false;
 
@@ -291,7 +301,9 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
     }
 
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
-				velintime_, voiintime_[idx] );
+	    SamplingData<double>(voi.zrg), velintime_, voiintime_[idx] );
+
+
     if ( (tr && !tr->execute( loader ) ) || !loader.execute() )
 	return false;
 
