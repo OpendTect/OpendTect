@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.25 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.26 2009-09-08 22:16:10 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -441,15 +441,17 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	bool found = false;
 	for ( int idx=1; idx<size()-2; idx+=2 )
 	{
-	    if ( position(idx+1)-position(idx) > 1.01*mEps )
+	    if ( position(idx+1)-position(idx) <= 1.01*mEps )
 	    {
+		removeColor( idx );
 		found = true;
-		break;
 	    }
 	}
 
-	if ( !found )
-	    nrsegments_ = size()/2;
+	if ( found )
+	{
+	    nrsegments_ = -1;
+	}
     }
 
     triggerAll();
