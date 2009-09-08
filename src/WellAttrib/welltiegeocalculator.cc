@@ -7,34 +7,24 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.30 2009-09-08 07:12:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.31 2009-09-08 11:36:36 cvsbruno Exp $";
 
 
-#include "arraynd.h"
+#include "welltiegeocalculator.h"
+
 #include "arrayndutils.h"
-#include "arrayndimpl.h"
-
 #include "fft.h"
-#include "sorting.h"
-#include "wavelet.h"
 #include "hilberttransform.h"
 #include "genericnumer.h"
-#include "interpol1d.h"
-#include "welltiegeocalculator.h"
-#include "welltieunitfactors.h"
-#include "welldata.h"
-#include "welld2tmodel.h"
+#include "survinfo.h"
+#include "wavelet.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellman.h"
 #include "welltrack.h"
-#include "welltiesetup.h"
 #include "welltiedata.h"
 #include "welld2tmodel.h"
-#include "survinfo.h"
 
 #include <complex>
-#include <algorithm>
 
 namespace WellTie
 {
