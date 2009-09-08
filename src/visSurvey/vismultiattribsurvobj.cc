@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.45 2009-09-04 01:35:35 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.46 2009-09-08 21:52:21 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.45 2009-09-04 01:3
 #include "iopar.h"
 #include "keystrs.h"
 #include "math2.h"
+#include "zaxistransform.h"
 
 
 namespace visSurvey {
@@ -740,6 +741,15 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
     mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, ctab,
 	    channels_ ? channels_->getChannels2RGBA() : 0 );
 
+    Coord3 attribpos = pos;
+    RefMan<const ZAxisTransform> datatrans = getDataTransform();
+    if ( datatrans ) //TODO check for allready transformed data.
+    {
+	attribpos.z = datatrans->transformBack( pos );
+	if ( !attribpos.isDefined() )
+	    return;
+    }
+
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
 	if ( !isAttribEnabled(idx) )
@@ -765,7 +775,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	}
 
 	float fval;
-	if ( !getCacheValue(idx, version, pos, fval ) )
+	if ( !getCacheValue(idx, version, attribpos, fval ) )
 	    continue;
 
 	if ( !Math::IsNormalNumber(fval) )
