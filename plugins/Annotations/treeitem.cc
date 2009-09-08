@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.46 2009-07-22 16:01:25 cvsbert Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.47 2009-09-08 05:26:15 cvsnanne Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -967,56 +967,37 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
 
 bool ImageSubItem::init()
 {
+    ImageDisplay* id = 0;
     if (  displayid_==-1 )
     {
-	ImageDisplay* id = ImageDisplay::create();
+	id = ImageDisplay::create();
 	visserv_->addObject( id, sceneID(), true );
 	displayid_ = id->id();
 	id->setName( name_ );
     }
+    else
+    {
+	mDynamicCast(ImageDisplay*,id,visserv_->getObject(displayid_))
+    }
 
-    mDynamicCastGet(ImageDisplay*,id,visserv_->getObject(displayid_))
     if ( !id ) return false;
 
     id->needFileName.notifyIfNotNotified(
 			mCB(this,ImageSubItem,retrieveFileName) );
 
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-
-    const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    if ( ioobj )
+    BufferString filename;
+    set_->pars_.get( sKey::FileName, filename );
+    if ( filename.isEmpty() )
     {
-	BufferString filename;
-	if ( !ioobj->pars().get(sKey::FileName, filename) )
-	{
-	    //Old format
-	    if ( set_->size() && (*set_)[0].getText("T",filename) )
-	    {
-		const Coord3 inldirvec( SI().binID2Coord().colDir(), 0 );
-		const Coord3 crldirvec( SI().binID2Coord().rowDir(), 0 );
-		const Sphere inldir = cartesian2Spherical( inldirvec, true );
-		const Sphere crldir = cartesian2Spherical( crldirvec, true );
-		for ( int idx=set_->size()-1; idx>=0; idx-- )
-		{
-		    BufferString orientation;
-		    if ( (*set_)[idx].getText("O", orientation ) )
-		    {
-			if ( orientation[0] == '1' )
-			    (*set_)[idx].dir = crldir;
-			else 
-			    (*set_)[idx].dir = inldir;
-		    }
-
-		    delete (*set_)[idx].text;
-		    (*set_)[idx].text = 0;
-		}
-	    }
-	}
-
-	if ( !filename.isEmpty() )
-	    id->setFileName( filename.buf() );
+	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
+	const int setidx = mgr.indexOf( *set_ );
+	PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
+	if ( ioobj )
+	    ioobj->pars().get(sKey::FileName, filename );
     }
+
+    if ( !filename.isEmpty() )
+	id->setFileName( filename.buf() );
 
     return SubItem::init();
 }
