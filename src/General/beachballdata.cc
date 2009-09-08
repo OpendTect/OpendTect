@@ -5,7 +5,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: beachballdata.cc,v 1.2 2009-09-07 22:31:53 cvskarthika Exp $";
+static const char* rcsID = "$Id: beachballdata.cc,v 1.3 2009-09-08 23:42:33 cvskarthika Exp $";
 
 #include "beachballdata.h"
 
@@ -14,18 +14,30 @@ namespace visBeachBall
 
 BallProperties BallProperties::get()const
 {
-    BallProperties bp(*this);
+    //BallProperties bp( *this );
+    BallProperties bp;
+    bp.setName( name_->buf() );
+    bp.setRadius( radius_ );
+    bp.setColor1( color1_ );
+    bp.setColor2( color2_ );
+    bp.setPos( pos_ );
+    bp.setElasticity( elasticity_ );
     return bp;
 }
 
 
 void BallProperties::set( const BallProperties& bp )
 {
-    *this = bp;
+    setName( bp.name() );    
+    radius_ = bp.radius();
+    color1_ = bp.color1();
+    color2_ = bp.color2();
+    pos_ = bp.pos();
+    elasticity_ = bp.elasticity();
 }
 
 
-float BallProperties::getRadius() const
+float BallProperties::radius() const
 {
     return radius_;
 }
@@ -37,7 +49,7 @@ void BallProperties::setRadius( float r)
 }
 
 
-Color BallProperties::getColor1() const
+Color BallProperties::color1() const
 {
     return color1_;
 }
@@ -49,7 +61,7 @@ void BallProperties::setColor1( Color c )
 }
 
 
-Color BallProperties::getColor2() const
+Color BallProperties::color2() const
 {
     return color2_;
 }
@@ -61,19 +73,19 @@ void BallProperties::setColor2( Color c )
 }
 
     
-Coord3 BallProperties::getPos() const
+Coord3 BallProperties::pos() const
 {
     return pos_;
 }
 
 
-void BallProperties::setPos( Coord3 pos )
+void BallProperties::setPos( Coord3 p )
 {
-    pos_ = pos;
+    pos_ = p;
 }
 
 
-float BallProperties::getElasticity() const
+float BallProperties::elasticity() const
 {
     return elasticity_;
 }
@@ -85,12 +97,29 @@ void BallProperties::setElasticity( float el )
 }
 
 
+BallProperties& BallProperties::operator = ( const BallProperties& bp )
+{
+    if ( this == &bp )
+	return *this;
+
+//    this->NamedObject::operator = ( bp );
+    // Fix this! Crashes! Properly copy base class data! 
+    setName( bp.name() );
+    radius_ = bp.radius();
+    color1_ = bp.color1();
+    color2_ = bp.color2();
+    pos_ = bp.pos();
+    elasticity_ = bp.elasticity();
+    return *this;
+}
+
+
 bool BallProperties::operator == ( const BallProperties& bp ) const
 {
-    if ( radius_ == bp.getRadius() && color1_ == bp.getColor1() 
-	 && color2_ == bp.getColor2() && pos_ == bp.getPos()
-	 && elasticity_ == bp.getElasticity() )
-	return true;
+    if ( radius_ == bp.radius() && color1_ == bp.color1() 
+	 && color2_ == bp.color2() && pos_ == bp.pos()
+	 && elasticity_ == bp.elasticity() )
+	return NamedObject::operator ==( bp );
     else return false;
 }
 
@@ -98,6 +127,95 @@ bool BallProperties::operator == ( const BallProperties& bp ) const
 bool BallProperties::operator != ( const BallProperties& bp ) const
 {
     return ! (*this == bp);
+}
+
+
+BallDynamics BallDynamics::get() const
+{
+    //BallDynamics bd( *this );
+    BallDynamics bd;
+    bd.setName( name_->buf() );
+    bd.setSpeed( speed_ );
+    bd.setDirectionVector( directionvec_ );
+    return bd;
+}
+
+
+void BallDynamics::set( const BallDynamics&bd )
+{
+    setName( bd.name() );    
+    speed_ = bd.speed();
+    directionvec_ = bd.directionvector();
+}
+
+
+float BallDynamics::speed() const
+{
+    return speed_;
+}
+
+
+void BallDynamics::setSpeed( const float& sp )
+{
+   speed_ = sp;
+}
+
+    
+Coord3 BallDynamics::directionvector() const
+{
+    return directionvec_;
+}
+
+
+void BallDynamics::setDirectionVector( const Coord3& dv )
+{
+    directionvec_ = dv;
+}
+
+
+void BallDynamics::velocity( float* sp, Coord3* directionvec ) const
+{
+    if ( !sp )
+	sp = new float;
+    *sp = speed_;
+
+    if ( !directionvec )
+	directionvec = new Coord3;
+    *directionvec = directionvec_;
+}
+
+
+void BallDynamics::setVelocity( float sp, Coord3 directionvec )
+{
+    speed_ = sp;
+    directionvec_ = directionvec;
+}
+
+
+BallDynamics& BallDynamics::operator = (const BallDynamics& bd)
+{
+    if ( this == &bd )
+	return *this;
+
+//    this->NamedObject::operator = ( bd );
+    setName( bd.name() );
+    speed_ = bd.speed();
+    directionvec_ = bd.directionvector();
+    return *this;
+}
+
+
+bool BallDynamics::operator == (const BallDynamics& bd) const
+{
+    if ( speed_ == bd.speed() && directionvec_ == bd.directionvector() )
+	return NamedObject::operator ==( bd );
+    else return false;
+}
+
+
+bool BallDynamics::operator != (const BallDynamics& bd) const
+{
+    return ! (*this == bd);
 }
 
 };
