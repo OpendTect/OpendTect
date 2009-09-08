@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.20 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.21 2009-09-08 12:04:36 cvshelene Exp $";
 
 
 #include "uiprestackattrib.h"
@@ -89,8 +89,9 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     RefMan<Attrib::PSAttrib> aps = new Attrib::PSAttrib( *tmpdesc );
 
     inpfld_->setInput( aps->psID() );
-    dopreprocessfld_->setValue( !aps->preProcID().isEmpty() );
-    preprocsel_->setSel( aps->preProcID() );
+    const MultiID ppid = aps->preProcID();
+    dopreprocessfld_->setValue( !ppid.isEmpty() && ppid.ID(0)!=0 );
+    preprocsel_->setSel( ppid );
     offsrgfld_->setValue( aps->setup().offsrg_ );
     calctypefld_->setValue( (int)aps->setup().calctype_ );
     stattypefld_->setValue( (int)aps->setup().stattype_ );
