@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.40 2009-09-04 04:23:17 cvsumesh Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.41 2009-09-08 03:36:30 cvsnanne Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -357,10 +357,7 @@ int HorizonScanner::nextStep()
 	validpos = false;
 
     if ( validpos )
-    {
-	//dtctor_.add( crd, bid );
 	bvalset_->add( bid, data.arr()+2 );
-    }
 
     else if ( rejectedlines_.size()<1024 )
     {
