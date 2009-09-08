@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoAxes.cc,v 1.7 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoAxes.cc,v 1.8 2009-09-08 09:38:13 cvsranojay Exp $";
 
 
 #include "SoAxes.h"
@@ -79,13 +79,14 @@ void SoAxes::GLRender( SoGLRenderAction* action )
     GLint unpack;
     glGetIntegerv( GL_UNPACK_ALIGNMENT, &unpack );
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-    glColor3f( 1.0, 1.0, 1.0 );
+
  
     glDisable( GL_LIGHTING );
     
     const char* ret = getenv( "OD_AXES_SHOW_TRIANGLE" );
     if ( ret )
-    {
+    {    
+	glColor3f( 1.0, 1.0, 1.0 );
 	glBegin( GL_TRIANGLES ) ;
 	glVertex2f( 0, 0 );
 	glVertex2f( length - 0.4, 0 );
@@ -123,7 +124,6 @@ void SoAxes::drawArrow( int typ, float lnt, float rad )
     glEnable( GL_LIGHT0 );						
     glEnable( GL_LIGHTING );						
     glEnable( GL_COLOR_MATERIAL );
-    glFrontFace( GL_CCW );
 
     if ( typ == 1 )
     {
@@ -378,7 +378,6 @@ void SoAxes::drawSphere( float rad, float u, float v, float w )
     glEnable( GL_LIGHT0 );						
     glEnable( GL_LIGHTING );						
     glEnable( GL_COLOR_MATERIAL );
-    glFrontFace( GL_CCW );
 
     glColor3ub( 255, 255, 0 );
 
