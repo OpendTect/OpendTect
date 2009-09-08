@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.19 2009-08-04 07:28:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.20 2009-09-08 09:43:07 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -275,7 +275,7 @@ static int getBundleLocation( char* dirnm )
 
 const char* GetSoftwareDir( int acceptnone )
 {
-    static FileNameString dirnm;
+    static char dirnm[1024];
     char* chptr1; char* chptr2;
     const char* dir = 0;
     static const char* ret = 0;
@@ -293,7 +293,7 @@ const char* GetSoftwareDir( int acceptnone )
 #ifdef __msvc__
     if ( !dir || !*dir )
     {
-	GetShortPathName(_getcwd(NULL,0),dirnm,strlen(_getcwd(NULL,0)));
+	GetShortPathName(_getcwd(NULL,0),dirnm,sizeof(dirnm));
 	termidx = strlen(dirnm) - 10; // remove \bin\win%%
 	if ( termidx > 0 )
 	{
