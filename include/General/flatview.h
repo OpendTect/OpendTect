@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.43 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.44 2009-09-08 09:42:14 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,13 +124,13 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static const char*	sKeyAxes;
-    static const char*	sKeyX1Sampl;
-    static const char*	sKeyX2Sampl;
-    static const char*	sKeyShwAnnot;
-    static const char*	sKeyShwGridLines;
-    static const char*	sKeyIsRev;
-    static const char*	sKeyShwAux;
+    static const char*	sKeyAxes();
+    static const char*	sKeyX1Sampl();
+    static const char*	sKeyX2Sampl();
+    static const char*	sKeyShwAnnot();
+    static const char*	sKeyShwGridLines();
+    static const char*	sKeyIsRev();
+    static const char*	sKeyShwAux();
 
 };
 

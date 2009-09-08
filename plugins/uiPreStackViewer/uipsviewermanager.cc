@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.51 2009-09-03 17:23:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.52 2009-09-08 09:44:22 cvsranojay Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -350,8 +350,8 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( flatviewpar )
     {
 	viewer->flatViewer()->appearance().ddpars_.usePar( *flatviewpar );
-	flatviewpar->getYN( IOPar::compKey( FlatView::Annotation::sKeyAxes,
-		    FlatView::Annotation::sKeyShwGridLines), showx1, showx2 );
+	flatviewpar->getYN( IOPar::compKey( FlatView::Annotation::sKeyAxes(),
+		    FlatView::Annotation::sKeyShwGridLines()), showx1, showx2 );
 	viewer->flatViewer()->appearance().annot_.x1_.showgridlines_ = showx1;
  	viewer->flatViewer()->appearance().annot_.x2_.showgridlines_ = showx2;
     }

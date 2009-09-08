@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.53 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.54 2009-09-08 09:43:25 cvsranojay Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -23,13 +23,14 @@ static const char* rcsID = "$Id: flatview.cc,v 1.53 2009-07-22 16:01:32 cvsbert 
 namespace FlatView
 {
 
-const char* Annotation::sKeyAxes = "Axes";
-const char* Annotation::sKeyX1Sampl = "Axis 1 Sampling";
-const char* Annotation::sKeyX2Sampl = "Axis 2 Sampling";
-const char* Annotation::sKeyShwAnnot = "Show annotation";
-const char* Annotation::sKeyShwGridLines = "Show grid lines";
-const char* Annotation::sKeyIsRev = "Reversed";
-const char* Annotation::sKeyShwAux = "Show aux data";
+const char* Annotation::sKeyAxes()	    { return "Axes"; }
+const char* Annotation::sKeyX1Sampl()	    { return "Axis 1 Sampling"; }
+const char* Annotation::sKeyX2Sampl()	    { return "Axis 2 Sampling"; }
+const char* Annotation::sKeyShwAnnot()	    { return "Show annotation"; }
+const char* Annotation::sKeyShwGridLines()  { return "Show grid lines"; }
+const char* Annotation::sKeyIsRev()	    { return "Reversed"; }
+const char* Annotation::sKeyShwAux()	    { return "Show aux data"; }
+
 const char* DataDispPars::sKeyVD = "VD";
 const char* DataDispPars::sKeyWVA = "WVA";
 const char* DataDispPars::sKeyShow = "Show";
@@ -214,34 +215,34 @@ bool FlatView::Annotation::haveAux() const
 }
 
 #define mIOPDoAxes(fn,keynm,memb) \
-    iop.fn( IOPar::compKey(sKeyAxes,keynm), memb )
+    iop.fn( IOPar::compKey(sKeyAxes(),keynm), memb )
 #define mIOPDoAxes2(fn,keynm,memb1,memb2) \
-    iop.fn( IOPar::compKey(sKeyAxes,keynm), memb1, memb2 )
+    iop.fn( IOPar::compKey(sKeyAxes(),keynm), memb1, memb2 )
 
 
 void FlatView::Annotation::fillPar( IOPar& iop ) const
 {
     mIOPDoAxes( set, sKey::Color, color_ );
-    mIOPDoAxes( set, sKeyX1Sampl, x1_.sampling_ );
-    mIOPDoAxes( set, sKeyX2Sampl, x2_.sampling_ );
+    mIOPDoAxes( set, sKeyX1Sampl(), x1_.sampling_ );
+    mIOPDoAxes( set, sKeyX2Sampl(), x2_.sampling_ );
     mIOPDoAxes2( set, sKey::Name, x1_.name_, x2_.name_ );
-    mIOPDoAxes2( setYN, sKeyShwAnnot, x1_.showannot_, x2_.showannot_ );
-    mIOPDoAxes2( setYN, sKeyShwGridLines,x1_.showgridlines_,x2_.showgridlines_);
-    mIOPDoAxes2( setYN, sKeyIsRev, x1_.reversed_, x2_.reversed_ );
-    iop.setYN( sKeyShwAux, showaux_ );
+    mIOPDoAxes2( setYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
+    mIOPDoAxes2( setYN, sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
+    mIOPDoAxes2( setYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
+    iop.setYN( sKeyShwAux(), showaux_ );
 }
 
 
 void FlatView::Annotation::usePar( const IOPar& iop )
 {
     mIOPDoAxes( get, sKey::Color, color_ );
-    mIOPDoAxes( get, sKeyX1Sampl, x1_.sampling_ );
-    mIOPDoAxes( get, sKeyX2Sampl, x2_.sampling_ );
+    mIOPDoAxes( get, sKeyX1Sampl(), x1_.sampling_ );
+    mIOPDoAxes( get, sKeyX2Sampl(), x2_.sampling_ );
     mIOPDoAxes2( get, sKey::Name, x1_.name_, x2_.name_ );
-    mIOPDoAxes2( getYN, sKeyShwAnnot, x1_.showannot_, x2_.showannot_ );
-    mIOPDoAxes2( getYN, sKeyShwGridLines,x1_.showgridlines_,x2_.showgridlines_);
-    mIOPDoAxes2( getYN, sKeyIsRev, x1_.reversed_, x2_.reversed_ );
-    iop.getYN( sKeyShwAux, showaux_ );
+    mIOPDoAxes2( getYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
+    mIOPDoAxes2( getYN, sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
+    mIOPDoAxes2( getYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
+    iop.getYN( sKeyShwAux(), showaux_ );
 }
 
 
