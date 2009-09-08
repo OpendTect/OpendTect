@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.73 2009-08-07 12:53:11 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.74 2009-09-08 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,17 +95,6 @@ public:
     void                close();
     void		raise();
 
-    			 //! Force activation in GUI thread
-    void		activateClose();
-    void		activateShow(int minnormmax);
-    void		activateQDlg(int retval);
-    void		activateGrab(const char* filenm,int zoom=1,
-				     const char* format=0,int quality=-1);
-    void		activateCmdCursor(MouseCursor::Shape);
-    void		activateQtSyncDisplayToggle(uiObject* dummyobj);
-
-    Notifier<uiMainWin> activatedone;
-
     bool		isMaximized() const;
     bool		isMinimized() const;
     bool		isHidden() const;
@@ -176,6 +165,19 @@ protected:
     uiParent*		parent_;
 
     PopupArea		popuparea_;
+
+public:
+    			//! Force activation in GUI thread
+    			//! Not for casual use
+    void		activateClose();
+    void		activateShow(int minnormmax);
+    void		activateQDlg(int retval);
+    void		activateGrab(const char* filenm,int zoom=1,
+				     const char* format=0,int quality=-1);
+    void		activateCmdCursor(MouseCursor::Shape);
+    void		activateQtSyncDisplayToggle(uiObject* dummyobj);
+    Notifier<uiMainWin> activatedone;
+
 };
 
 #endif

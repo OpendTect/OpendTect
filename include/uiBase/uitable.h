@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.55 2009-08-31 13:04:00 cvsjaap Exp $
+ RCS:           $Id: uitable.h,v 1.56 2009-09-08 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,13 +274,6 @@ public:
     SelectionBehavior	getSelBehavior() const;
     int			maxSelectable() const;
 
-    			//! Force activation in GUI thread
-    void		activateClick(const RowCol&,bool leftclick=true,
-				bool doubleclick=false,bool ctrlclick=false);
-    void		activateFill(const RowCol&,const char* txt);
-    void		activateSelect(const TypeSet<RowCol>&);
-    Notifier<uiTable>	activatedone;
-
 protected:
 
     mutable ObjectSet<SelectionRange> selranges_;
@@ -304,6 +297,15 @@ private:
     uiTableBody&	mkbody(uiParent*,const char*,int,int);
 
     mutable uiSize	lastsz;
+
+public:
+    			//! Force activation in GUI thread
+    			//! Not for casual use
+    void		activateClick(const RowCol&,bool leftclick=true,
+				bool doubleclick=false,bool ctrlclick=false);
+    void		activateFill(const RowCol&,const char* txt);
+    void		activateSelect(const TypeSet<RowCol>&);
+    Notifier<uiTable>	activatedone;
 
 };
 

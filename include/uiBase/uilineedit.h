@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.22 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uilineedit.h,v 1.23 2009-09-08 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,9 +82,6 @@ public:
     Notifier<uiLineEdit> returnPressed;	
     Notifier<uiLineEdit> textChanged;	
 
-    			//! Force activation in GUI thread
-    void                activate(const char* txt=0,bool enter=true);
-    Notifier<uiLineEdit> activatedone;
 
     virtual const char*	getvalue_() const;
     virtual void	setvalue_( const char* );
@@ -103,5 +100,12 @@ private:
 
     mutable BufferString result_;
     int			nrdecimals_;
+
+public:
+    			//! Force activation in GUI thread
+    			//! Not for casual use
+    void                activate(const char* txt=0,bool enter=true);
+    Notifier<uiLineEdit> activatedone;
+
 };
 #endif

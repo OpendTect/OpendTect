@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.32 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uibutton.h,v 1.33 2009-09-08 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,11 @@ public:
 
     Notifier<uiButton>	activated;
 
+protected:
+
+public:
     			//! Force activation in GUI thread
+    			//! Not for casual use
     void		activate();
     Notifier<uiButton>	activatedone;
     QAbstractButton*	qButton();

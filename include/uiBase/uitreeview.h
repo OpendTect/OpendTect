@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.38 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uitreeview.h,v 1.39 2009-09-08 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,12 +138,6 @@ public:
     Notifier<uiListView> collapsed;
     Notifier<uiListView> unusedKey;
 
-    			//! Force activation in GUI thread
-    void		activateClick(uiListViewItem&,int column,
-				      bool leftclick=true);
-    void		activateButton(uiListViewItem&,bool expand);
-    Notifier<uiListView> activatedone;
-
 protected:
 
     mutable BufferString rettxt;
@@ -162,6 +156,14 @@ protected:
 private:
 
     uiListViewBody*	body_;
+
+public:
+    			//! Force activation in GUI thread
+    			//! Not for casual use
+    void		activateClick(uiListViewItem&,int column,
+				      bool leftclick=true);
+    void		activateButton(uiListViewItem&,bool expand);
+    Notifier<uiListView> activatedone;
 
 };
 

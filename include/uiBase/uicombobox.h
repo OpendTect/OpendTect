@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.28 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uicombobox.h,v 1.29 2009-09-08 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,11 +64,6 @@ public:
 
     void		notifyHandler(bool selectionchanged);
 
-			//! Force activation in GUI thread
-    void		activate(int idx);
-    void		activateField(const char* txt=0,bool enter=true);
-    Notifier<uiComboBox> activatedone; 
-
     virtual void        setReadOnly( bool = true );
     virtual bool        isReadOnly() const;
 
@@ -93,6 +88,14 @@ private:
 
     uiComboBoxBody*	body_;
     uiComboBoxBody&	mkbody(uiParent*,const char*);
+
+public:
+    			//! Force activation in GUI thread
+    			//! Not for casual use
+    void		activate(int idx);
+    void		activateField(const char* txt=0,bool enter=true);
+    Notifier<uiComboBox> activatedone; 
+
 };
 
 

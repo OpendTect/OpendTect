@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.21 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uispinbox.h,v 1.22 2009-09-08 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,11 +89,6 @@ public:
 
     void		notifyHandler( bool editingfinished );
 
-    			//! Force activation in GUI thread
-    void		activateField(const char* txt=0,bool enter=true);
-    void		activateStep(int nrsteps);
-    Notifier<uiSpinBox> activatedone;
-
 private:
 
     float		oldvalue_;
@@ -105,6 +100,14 @@ private:
     bool		dosnap_; /*!< If true, value in spinbox will be snapped 
 				  to a value equal to N*step. */
     void		snapToStep(CallBacker*);
+
+public:
+    			//! Force activation in GUI thread
+    			//! Not for casual use
+    void		activateField(const char* txt=0,bool enter=true);
+    void		activateStep(int nrsteps);
+    Notifier<uiSpinBox> activatedone;
+
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.18 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uitabbar.h,v 1.19 2009-09-08 15:17:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,16 +48,19 @@ public:
     int			indexOf(const uiTab*) const;
     uiGroup*		page(int idx) const;
 
-    			//! Force activation in GUI thread
-    void		activate(int idx);
-    Notifier<uiTabBar>	activatedone;
-
 protected:
 
     uiTabBarBody*	body_;
     uiTabBarBody&	mkbody(uiParent*,const char*);
 
     ObjectSet<uiTab>	tabs_;
+
+public:
+    			//! Force activation in GUI thread
+    			//! Not for casual use
+    void		activate(int idx);
+    Notifier<uiTabBar>	activatedone;
+
 };
 
 
