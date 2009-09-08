@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.33 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: simpnumer.h,v 1.34 2009-09-08 21:40:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -28,8 +28,8 @@ inline int getPrevSample( float target, int size, float& relpos )
     relpos = target-sampl;
     if ( sampl==-1 && mIsEqual(relpos,1,1e-3) )
     { sampl = 0; relpos = 0; }
-    else if ( sampl==size && mIsZero(relpos,1e-3) )
-    { sampl = size-1; relpos = 1; }
+    else if ( sampl==size-1 && mIsZero(relpos,1e-3) )
+    { sampl = size-2; relpos = 1; }
 
     return sampl;
 }
