@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.13 2009-08-18 18:12:46 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.h,v 1.14 2009-09-08 22:07:14 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,12 @@ public:
     				/*!<Replaces internal texture. The new texture 
 				  will not be added to the scene. */
     Interval<float>		getDataRange(bool iswva) const;  
-    const SamplingData<float>	getDefaultGridSampling(bool x1) const; 
+    const SamplingData<float>	getDefaultGridSampling(bool x1) const;
+
+    int				nrResolutions() const;
+    void			setResolution(int res);
+    int				getResolution() const	{ return resolution_; } 
+    BufferString		getResolutionName(int) const;
 
 protected:
     				~FlatViewer();
@@ -55,6 +60,7 @@ protected:
     visBase::IndexedPolyLine*	x1gridlines_;
     visBase::IndexedPolyLine*	x2gridlines_;
 
+    int				resolution_;
     Coord3			c00_, c01_, c10_, c11_;
 };
 

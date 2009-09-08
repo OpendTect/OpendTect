@@ -7,16 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.30 2009-08-27 21:48:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.31 2009-09-08 22:07:14 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
 
+#include "array2dresample.h"
 #include "arraynd.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "dataclipper.h"
 #include "flatposdata.h"
 #include "linear.h"
+#include "simpnumer.h"
 #include "survinfo.h"
 #include "viscoord.h"
 #include "vismaterial.h"
@@ -24,6 +26,8 @@ static const char* rcsID = "$Id: visflatviewer.cc,v 1.30 2009-08-27 21:48:34 cvs
 #include "vistexturechannels.h"
 #include "vissplittexture2rectangle.h"
 #include "vistexturechannel2rgba.h"
+
+#define mNrResolutions 3
 
 mCreateFactoryEntry( visBase::FlatViewer );
 
@@ -38,6 +42,7 @@ FlatViewer::FlatViewer()
     , rectangle_( SplitTexture2Rectangle::create() )
     , x1gridlines_( visBase::IndexedPolyLine::create() )
     , x2gridlines_( visBase::IndexedPolyLine::create() )
+    , resolution_( 0 )							
 {
     channel2rgba_->ref();
     channel2rgba_->allowShading( true );
@@ -105,32 +110,46 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 		else
 		{
 		    const Array2D<float>& dparr = dp->data();
-		    channels_->setSize( 1, dparr.info().getSize(0),
-					   dparr.info().getSize(1) );
-		    if ( !dparr.getData() )
+		    const float* arr = dparr.getData();
+		    OD::PtrPolicy cp = OD::UsePtr;
+		    
+		    int rowsz = dparr.info().getSize(0);
+		    int colsz = dparr.info().getSize(1);
+		    
+		    if ( !arr || resolution_!=0 )
 		    {
-			const int bufsz = dparr.info().getTotalSz();
-			mDeclareAndTryAlloc(float*,ptr, float[bufsz]);
-			if ( !ptr )
+			rowsz *= (resolution_+1);
+			colsz *= (resolution_+1);
+			
+			const od_int64 totalsz = rowsz*colsz;
+			mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
+			
+			if ( !tmparr )
+			{
 			    channels_->turnOn( false );
+			    return;
+			}
+			
+			if ( resolution_==0 )
+			    dparr.getAll( tmparr );
 			else
 			{
-			    dparr.getAll( ptr );
-			    channels_->setUnMappedData( 0, 0, ptr,
-							OD::TakeOverPtr, 0 );
+			    Array2DReSampler<float,float> resampler( dparr,
+				    tmparr, rowsz, colsz, true );
+			    resampler.setInterpolate( true );
+			    resampler.execute();
 			}
+			
+			arr = tmparr;
+			cp = OD::TakeOverPtr;
 		    }
-		    else 
-		    {
-			channels_->setUnMappedData( 0, 0, dparr.getData(),
-						    OD::UsePtr, 0 );
-		    }
+
+		    channels_->setSize( 1, rowsz, colsz );
+		    channels_->setUnMappedData( 0, 0, arr, cp, 0 );
 
 		    appearance().ddpars_.vd_.ctab_ =
 			channel2rgba_->getSequence(0)->name();
-		    rectangle_->setOriginalTextureSize( 
-				dparr.info().getSize(0),
-				dparr.info().getSize(1) );
+		    rectangle_->setOriginalTextureSize( rowsz, colsz );
 		    channels_->turnOn( appearance().ddpars_.vd_.show_ );
 
 		    dataChange.trigger();
@@ -301,6 +320,31 @@ Interval<float> FlatViewer::getDataRange( bool wva ) const
 
     return res;
 }
+
+
+int FlatViewer::nrResolutions() const
+{
+    return mNrResolutions; 
+}
+
+
+void FlatViewer::setResolution( int res )
+{
+    if ( res==resolution_ )
+	return;
+    
+    resolution_ = res;
+    handleChange( Viewer::VDData );
+}
+
+    
+BufferString FlatViewer::getResolutionName( int res ) const
+{
+    if ( res == 1 ) return "Moderate";
+    if ( res == 2 ) return "High";
+    else return "Default";
+}
+
 
 
 }; // Namespace
