@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.18 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.19 2009-09-08 08:41:20 cvskarthika Exp $";
 
 
 #include "initvisbase.h"
@@ -75,6 +75,7 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.18 2009-07-22 16:01:44 cvsbe
 #include "visvolren.h"
 #include "visvolrenscalarfield.h"
 #include "viswell.h"
+#include "visbeachball.h"
 
 
 namespace visBase
@@ -158,6 +159,7 @@ void initStdClasses()
     VolumeRenderScalarField::initClass();
     Well::initClass();
     TopBotImage::initClass();
+    BeachBall::initClass();
 }
 
 }; // namespace visBase
