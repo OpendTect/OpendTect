@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.56 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: ranges.h,v 1.57 2009-09-08 09:28:04 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -512,7 +512,7 @@ cloneTp* StepInterval<T>::clone() const
 
 template <class T> inline
 void StepInterval<T>::set( const T& t1, const T& t2, const T& t3 )
-{ set( t1, t2 ); step = t3; }
+{ Interval<T>::set( t1, t2 ); step = t3; }
 
 template <class T> inline
 bool StepInterval<T>::isEqual( const StepInterval<T>& i, const T& eps ) const
