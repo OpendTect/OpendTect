@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.57 2009-09-08 09:28:04 cvssatyaki Exp $
+ RCS:		$Id: ranges.h,v 1.58 2009-09-08 15:16:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,7 @@ public:
     inline void		scale(const T&);
 
     inline bool		isCompatible(const StepInterval<T>&,
-	    			     T eps=mDefEps) const;
+	    			     float eps=mDefEps) const;
 			/*!< epsilon refers to the steps,
 			  	i.e eps=0.1 allows b to be 0.1 steps apart.
 			*/
@@ -591,23 +591,13 @@ T StepInterval<T>::snapStep( const T& inputstep ) const
 }
 
 
-#define mDefIntNrSteps(typ) \
-template <> \
-inline int StepInterval<typ>::nrSteps() const \
-{ \
-    if ( !step ) return 0; \
-    int ret = ((int)start - stop) / step; \
-    return ret < 0 ? -ret : ret; \
+template <class T>
+inline int StepInterval<T>::nrSteps() const
+{
+    if ( !step ) return 0;
+    int ret = (((int)this->start) - this->stop) / step;
+    return ret < 0 ? -ret : ret;
 }
-
-mDefIntNrSteps(int)
-mDefIntNrSteps(long)
-mDefIntNrSteps(short)
-mDefIntNrSteps(char)
-mDefIntNrSteps(unsigned int)
-mDefIntNrSteps(unsigned long)
-mDefIntNrSteps(unsigned short)
-mDefIntNrSteps(unsigned char)
 
 #define mDefFNrSteps(typ,eps) \
 template <> \
@@ -623,32 +613,25 @@ inline int StepInterval<typ>::nrSteps() const \
 mDefFNrSteps(float,1e-4)
 mDefFNrSteps(double,1e-8)
 
-#define mDefIntisCompat(typ) \
-template <> \
-inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
-	typ ) const \
-{ \
-    if ( step>b.step || b.step%step ) return false; \
-\
-    const typ diff = start - b.start; \
-    return !(diff%step);	\
+template <class T>
+inline bool StepInterval<T>::isCompatible( const StepInterval<T>& b,
+					   float ) const
+{
+    if ( step>b.step || b.step%step )
+	return false;
+
+    // const T diff = static_cast<const Interval<T>*>(this)->start - b.start;
+    const T diff = this->start - b.start;
+    return !(diff%step);
 }
 
-mDefIntisCompat(int)
-mDefIntisCompat(long)
-mDefIntisCompat(short)
-mDefIntisCompat(char)
-mDefIntisCompat(unsigned int)
-mDefIntisCompat(unsigned long)
-mDefIntisCompat(unsigned short)
-mDefIntisCompat(unsigned char)
 
 #define mDefFltisCompat(typ) \
 template <> \
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
-			typ eps ) const \
+			float eps ) const \
 { \
-    if ( !mIsEqual(step,b.step,mDefEps) ) return false; \
+    if ( !mIsEqual(step,b.step,eps) ) return false; \
  \
     typ nrsteps = (start - b.start) / step; \
     int nrstepsi = mNINT( nrsteps ); \
