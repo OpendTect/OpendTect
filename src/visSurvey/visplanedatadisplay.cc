@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.224 2009-09-04 20:08:11 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.225 2009-09-08 21:52:55 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -975,72 +975,6 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 {
     info = getManipulationString();
     getValueString( pos, val );
-    /*
-    val = "undef";
-    BufferString valname;
-
-    BinIDValue bidv( SI().transform(pos), pos.z );
-    if ( datatransform_ ) bidv.value = datatransform_->transformBack( bidv );
-    for ( int idx=as_.size()-1; idx>=0; idx-- )
-    {
-	if ( !isAttribEnabled(idx) ||
-		texture_->getTextureTransparency(idx)==255 )
-	    continue;
-
-	const int version = texture_->currentVersion(idx);
-	float fval = mUdf(float);
-
-	if ( idx<volumecache_.size() && volumecache_[idx] )
-	{
-	    const Attrib::DataCubes* vc = volumecache_[idx];
-
-	    if ( !vc->getValue(version,bidv,&fval,false) )
-		continue;
-	}
-
-	if ( idx<rposcache_.size() && rposcache_[idx] )
-	{
-	    const BinIDValueSet& set = *rposcache_[idx];
-	    const BinIDValueSet::Pos setpos = set.findFirst( bidv.binid );
-	    if ( setpos.i==-1 || setpos.j==-1 )
-		continue;
-
-	    fval = set.getVals(setpos)[version+1];
-	}
-
-	bool islowest = true;
-	for ( int idy=idx-1; idy>=0; idy-- )
-	{
-	    if ( (!volumecache_[idy] && !rposcache_[idy]) || 
-		 !isAttribEnabled(idy) ||
-		 texture_->getTextureTransparency(idy)==255 )
-		continue;
-
-	    islowest = false;
-	    break;
-	}    
-
-	if ( !islowest )
-	{
-	    const Color col = texture_->getColorTab(idx).color(fval);
-	    if ( col.t()==255 )
-		continue;
-	}
-
-	if ( !mIsUdf(fval) )
-	    val = fval;
-
-	if ( volumecache_.size()>1 )
-	{
-	    BufferString attribstr = "(";
-	    attribstr += as_[idx]->userRef();
-	    attribstr += ")";
-	    val.replaceAt( cValNameOffset(), (const char*)attribstr);
-	}
-
-	return;
-    }
-    */
 }
 
 
