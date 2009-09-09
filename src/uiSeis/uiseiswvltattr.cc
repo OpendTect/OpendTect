@@ -7,15 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.1 2009-09-09 07:46:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.2 2009-09-09 09:23:18 cvsbruno Exp $";
 
 
+#include "uibutton.h"
 #include "uiseiswvltattr.h"
 #include "uislider.h"
 
 #include "arrayndimpl.h"
 #include "wavelet.h"
-
 
 uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet* wvlt )
     : uiDialog(p,uiDialog::Setup("Phase Rotation","",mTODOHelpID))
@@ -23,10 +23,9 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet* wvlt )
     , sliderfld_(0) 
     , phaserotating(this)		    
 {
-   // setCtrlStyle( LeaveOnly );
-    
     hilbert_ = new HilbertTransform();
-    sliderfld_ = new uiSliderExtra( this, uiSliderExtra::Setup("Phase Rotation")
+    sliderfld_ = new uiSliderExtra( this, uiSliderExtra::Setup(
+				    "Rotation (degree)")
 				    .withedit(true)
 				    .sldrsize(250)
 				    .isvertical(true),
@@ -35,6 +34,7 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet* wvlt )
     sliderfld_->sldr()->setInterval( sintv );
     sliderfld_->sldr()->valueChanged.notify( 
 	    		mCB(this,uiSeisWvltRotDlg,sliderMove) );
+    sliderfld_->attach( hCentered );
 }     
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.1 2009-09-09 07:46:05 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.2 2009-09-09 09:23:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,12 @@ public:
     Notifier<uiSeisWvltRotDlg>	phaserotating;
     const Wavelet*              getWavelet() const  { return wvlt_; }
 
-    void			sliderMove(CallBacker*);
-
 protected:
 
     void			rotatePhase(float);
+
+    void			sliderMove(CallBacker*);
+
 
     uiSliderExtra*		sliderfld_;
     Wavelet* 			wvlt_;
