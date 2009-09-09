@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbeachball.cc,v 1.11 2009-09-08 23:41:12 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbeachball.cc,v 1.12 2009-09-09 07:43:18 cvskarthika Exp $";
 
 #include "visbeachball.h"
 #include "vistransform.h"
@@ -103,10 +103,7 @@ void BeachBall::setDisplayTransformation( Transformation* nt )
 {
     Coord3 pos = getCenterPosition();
     if ( transformation_ )
-    {
-	pos = transformation_->transformBack( pos );
 	transformation_->unRef();
-    }
     transformation_ = nt;
     if ( transformation_ ) transformation_->ref();
     setCenterPosition( pos );
@@ -168,7 +165,7 @@ Coord3 BeachBall::getCenterPosition() const
     }
 
     res.z = pos[2];
-
+    if ( transformation_ ) res = transformation_->transformBack( res );
     return res;
 }
 
