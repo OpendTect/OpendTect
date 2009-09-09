@@ -5,7 +5,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: uibouncysettingsdlg.cc,v 1.1 2009-09-08 09:03:07 cvskarthika Exp $";
+static const char* rcsID = "$Id: uibouncysettingsdlg.cc,v 1.2 2009-09-09 07:59:14 cvskarthika Exp $";
 
 #include "uibouncysettingsdlg.h"
 #include "uigeninput.h"
@@ -165,10 +165,10 @@ visBeachBall::BallProperties uiBouncySettingsDlg::getBallProperties() const
 void uiBouncySettingsDlg::setBallProperties( 
 	const visBeachBall::BallProperties& bp )
 {
-    radiusfld_->setValue( bp.getRadius() );
-    color1sel_->setColor( bp.getColor1() );
-    color2sel_->setColor( bp.getColor2() );
-    Coord3 pos = bp.getPos();
+    radiusfld_->setValue( bp.radius() );
+    color1sel_->setColor( bp.color1() );
+    color2sel_->setColor( bp.color2() );
+    Coord3 pos = bp.pos();
     xfld_->setValue( pos.x );
     yfld_->setValue( pos.y );
     x_yChangedCB( 0 );
