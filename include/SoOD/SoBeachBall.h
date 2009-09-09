@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Karthika
  Date:		July 2009
- RCS:		$Id: SoBeachBall.h,v 1.5 2009-09-09 05:38:55 cvsranojay Exp $
+ RCS:		$Id: SoBeachBall.h,v 1.6 2009-09-09 07:51:03 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 // This class stores all info about a level of detail of the beachball, except
 // the coordinate info (which is stored by res2coords_).
 // 
-class LODInfo
+mClass LODInfo
 {
 public:
     
