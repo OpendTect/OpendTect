@@ -4,24 +4,24 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: bouncycontroller.h,v 1.2 2009-09-09 11:44:37 cvskarthika Exp $
+ * ID       : $Id: bouncycontroller.h,v 1.3 2009-09-09 15:22:38 cvskarthika Exp $
 -*/
 
-#include "executor.h"
 #include "position.h"
+#include "timer.h"
 
 namespace Bouncy
 {
 
-mClass BouncyController : public Executor
+mClass BouncyController : public CallBacker
 {
 public:
 
-				BouncyController(const char*);
+			        BouncyController();
     virtual			~BouncyController();
     
-    void			init(Coord3);
-    int				nextStep();
+    void			init(Coord3 pos, Coord minpos, 
+	    			     Coord maxpos, bool simulategame=false);
     void			stop();
 
     void			setPos(const Coord3&);
@@ -30,13 +30,18 @@ public:
     Notifier<BouncyController>	newPosAvailable;
 
 protected:
-    
+
+    void			simulateCB(CallBacker*);
+    void 			runCB(CallBacker*);
+
     Coord3			currpos_;
     Coord3			newposdelta_;  
-        // to do: check if it needs to be a queue
-
     Coord3			targetpos_;
+    Coord			minpos_;
+    Coord			maxpos_;
     int				numlives_;
+    Timer			updatetimer_;
+    bool			simulate_;
 
 };
 
