@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.44 2009-09-07 14:18:12 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.45 2009-09-09 07:46:05 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltgen.h"
+#include "uiseiswvltattr.h"
 #include "uiwaveletextraction.h"
 #include "wavelet.h"
 #include "ioobj.h"
@@ -36,6 +37,7 @@ static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.44 2009-09-07 14:18:12 cvs
 #include "uilistbox.h"
 #include "uiselsimple.h"
 #include "uigeninput.h"
+#include "uislider.h"
 #include "uimsg.h"
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
@@ -52,6 +54,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 	mCB(this,uiSeisWvltMan,getFromOtherSurvey), "Get from other survey" );
     selgrp->getManipGroup()->addButton( "revpol.png",
 	mCB(this,uiSeisWvltMan,reversePolarity), "Reverse polarity" );
+    selgrp->getManipGroup()->addButton( "phase.png",
+	mCB(this,uiSeisWvltMan,rotatePhase), "Rotate phase" );
 
     uiGroup* butgrp = new uiGroup( this, "Imp/Create buttons" );
     uiPushButton* impbut = new uiPushButton( butgrp, "&Import", false );
@@ -76,8 +80,9 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
     app.ddpars_.wva_.clipperc_.start = app.ddpars_.wva_.clipperc_.stop = 0;
-    app.ddpars_.wva_.left_ = Color( 250, 250, 0 );
-    app.ddpars_.wva_.mid_ = Color( 150, 150, 150 );
+    app.ddpars_.wva_.left_ = Color::NoColor();
+    app.ddpars_.wva_.right_ = Color::Black();
+    app.ddpars_.wva_.mid_ = Color::Black();
     app.ddpars_.wva_.symmidvalue_ = mUdf(float);
     app.setDarkBG( false );
 
@@ -147,6 +152,7 @@ void uiSeisWvltMan::closeDlg( CallBacker* )
    wvltext_->close();
 }
 
+
 void uiSeisWvltMan::mkFileInfo()
 {
     BufferString txt;
@@ -156,21 +162,11 @@ void uiSeisWvltMan::mkFileInfo()
     curid_ = DataPack::cNoID();
     if ( wvlt )
     {
-	const int wvltsz = wvlt->size();
+	setViewerData( wvlt );
+
 	const float zfac = SI().zFactor();
-
-	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
-	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
-	memcpy( fva2d->getData(), wvlt->samples(), wvltsz * sizeof(float) );
-	dp->setName( wvlt->name() );
-	DPM( DataPackMgr::FlatID() ).add( dp );
-	curid_ = dp->id();
-	StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
-	if ( SI().zIsTime() ) posns.scale( zfac );
-	dp->posData().setRange( false, posns );
-
 	Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
-	rc.addValues( wvltsz, wvlt->samples() );
+	rc.addValues( wvlt->size(), wvlt->samples() );
 
 	BufferString tmp;
 	tmp += "Number of samples: "; tmp += wvlt->size(); tmp += "\n";
@@ -189,6 +185,24 @@ void uiSeisWvltMan::mkFileInfo()
     txt += getFileInfo();
     infofld->setText( txt );
 }
+
+
+void uiSeisWvltMan::setViewerData( const Wavelet* wvlt )
+{
+    const int wvltsz = wvlt->size();
+    const float zfac = SI().zFactor();
+
+    Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
+    FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
+    memcpy( fva2d->getData(), wvlt->samples(), wvltsz * sizeof(float) );
+    dp->setName( wvlt->name() );
+    DPM( DataPackMgr::FlatID() ).add( dp );
+    curid_ = dp->id();
+    StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
+    if ( SI().zIsTime() ) posns.scale( zfac );
+    dp->posData().setRange( false, posns );
+}
+
 
 #define mRet(s) \
 	{ ctio.setObj(0); delete &ctio; if ( s ) uiMSG().error(s); return; }
@@ -262,3 +276,38 @@ void uiSeisWvltMan::reversePolarity( CallBacker* )
 
     delete wvlt;
 }
+
+
+void uiSeisWvltMan::rotatePhase( CallBacker* )
+{
+    Wavelet* wvlt = Wavelet::get( curioobj_ );
+    if ( !wvlt ) return;
+    
+    uiSeisWvltRotDlg dlg( this, wvlt );
+    dlg.phaserotating.notify( mCB(this,uiSeisWvltMan,updateViewer) );
+    if ( dlg.go() )
+    {	
+	if ( !wvlt->put(curioobj_) )
+	    uiMSG().error("Cannot write rotated phase wavelet to disk");
+	else
+	    selgrp->fullUpdate( curioobj_->key() );
+    }
+    mkFileInfo();
+
+    delete wvlt;
+}
+
+#define mErr() uiMSG().error("Cannot draw wavelet");
+void uiSeisWvltMan::updateViewer( CallBacker* cb )
+{
+    mDynamicCastGet(uiSeisWvltRotDlg*,dlg,cb);
+    if ( !dlg ) mErr();
+
+    const Wavelet* wvlt = dlg->getWavelet();
+    if ( !wvlt ) mErr();
+
+    setViewerData( wvlt );
+    wvltfld->setPack( true, curid_, false );
+    wvltfld->handleChange( uiFlatViewer::All );
+}
+
