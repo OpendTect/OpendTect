@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.64 2009-08-28 19:02:07 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.65 2009-09-09 22:03:17 cvsyuancheng Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -258,6 +258,12 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
 	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals, 
 		    name_, validx, shift );
+	    if ( auxnr<0 )
+	    {
+		pErrMsg( "Cannot find data." );
+		return;
+	    }
+
 	    BufferString auxdatanm;
 	    const bool saved =
 		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );
