@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.2 2009-09-09 09:23:18 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.3 2009-09-09 13:55:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ protected:
 
     uiSliderExtra*		sliderfld_;
     Wavelet* 			wvlt_;
+    Wavelet* 			orgwvlt_;
     HilbertTransform* 		hilbert_;
 };
 
