@@ -4,7 +4,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: bouncycontroller.cc,v 1.2 2009-09-09 07:56:07 cvskarthika Exp $";
+static const char* rcsID = "$Id: bouncycontroller.cc,v 1.3 2009-09-09 11:44:37 cvskarthika Exp $";
 
 #include "bouncycontroller.h"
 
@@ -16,7 +16,7 @@ BouncyController::BouncyController(const char* title)
     , newPosAvailable(this)  
     , currpos_(Coord3(0,0,0))  
     , newposdelta_(Coord3(0,0,0))
-    , targetpos_(Coord3(300,300,0.5))
+    , targetpos_(Coord3(3000,3000,0.5))
     , numlives_(3)
 {
 }
@@ -36,7 +36,7 @@ void BouncyController::init( Coord3 pos )
 
 int BouncyController::nextStep()
 {
-    static int numMoves = 50;
+    static int numMoves = 100;
 
     // This method will become complex later...
 
@@ -49,6 +49,7 @@ int BouncyController::nextStep()
 	newposdelta_ = (targetpos_ - currpos_)/numMoves;
     
     // make ball move one step!
+    currpos_ += newposdelta_;
     newPosAvailable.trigger();
    
     numMoves--;
@@ -61,18 +62,15 @@ void BouncyController::stop()
 }
 
 
-Coord3 BouncyController::findNewPos( Coord3 pos )
+void BouncyController::setPos( const Coord3& pos )
 {
-    Coord3 result = currpos_ + newposdelta_;
-    currpos_ = result;
-    /*BufferString bs;
-    bs = toString( result.x );
-    pErrMsg( bs );
-    bs = toString( result.y );
-    pErrMsg( bs );
-    bs = toString( result.z );
-    pErrMsg( bs );*/
-    return result;
+    currpos_ = pos;
+}
+
+
+Coord3 BouncyController::getPos() const
+{
+    return currpos_;
 }
 
 

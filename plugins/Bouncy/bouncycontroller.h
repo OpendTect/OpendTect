@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: bouncycontroller.h,v 1.1 2009-09-08 08:44:31 cvskarthika Exp $
+ * ID       : $Id: bouncycontroller.h,v 1.2 2009-09-09 11:44:37 cvskarthika Exp $
 -*/
 
 #include "executor.h"
@@ -24,7 +24,8 @@ public:
     int				nextStep();
     void			stop();
 
-    Coord3			findNewPos(Coord3);
+    void			setPos(const Coord3&);
+    Coord3			getPos() const;
 
     Notifier<BouncyController>	newPosAvailable;
 
