@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.45 2009-09-09 07:46:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.46 2009-09-09 13:03:07 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -292,6 +292,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 	else
 	    selgrp->fullUpdate( curioobj_->key() );
     }
+    dlg.phaserotating.remove( mCB(this,uiSeisWvltMan,updateViewer) );
     mkFileInfo();
 
     delete wvlt;
