@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.46 2009-09-08 21:52:21 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.47 2009-09-09 05:37:24 cvsranojay Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -328,7 +328,7 @@ void MultiTextureSurveyObject::setSelSpec( int attrib,
 	if ( texture_ )
 	    texture_->enableTexture( attrib, false );
 	else
-	    channels_->getChannels2RGBA()->setEnabled( attrib, false );
+	    channels_->getChannels2RGBA()->setEnabled( attrib, true );
     }
 }
 

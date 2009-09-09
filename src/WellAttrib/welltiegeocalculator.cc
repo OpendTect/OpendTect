@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.31 2009-09-08 11:36:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.32 2009-09-09 05:37:24 cvsranojay Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -365,7 +365,7 @@ void GeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 void GeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 				   Array1DImpl<float>& reflvals,int shiftstep )
 {
-    float prevval, ai1, ai2, rval = 0; 
+    float prevval=0, ai1, ai2, rval = 0; 
     const int sz = reflvals.info().getSize(0);
     if ( sz<2 ) return;
 

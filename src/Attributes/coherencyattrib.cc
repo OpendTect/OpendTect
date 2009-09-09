@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.28 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.29 2009-09-09 05:37:24 cvsranojay Exp $";
 
 
 #include "coherencyattrib.h"
@@ -245,7 +245,7 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
     {
 	float cursamp = z0 + idx;
 	float maxcoh = 0;
-	float dipatmax;
+	float dipatmax = 0;
 
 	float curdip = -maxdip_;
 	const bool is2d = desc.is2D();

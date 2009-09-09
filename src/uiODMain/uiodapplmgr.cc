@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.354 2009-08-31 05:40:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.355 2009-09-09 05:37:24 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -384,7 +384,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
 	    if ( newid == DataPack::cNoID() )
 	    {
-		visserv_->setCubeData( visid, attrib, 0 );
+		visserv_->setSelSpec( visid, attrib, Attrib::SelSpec() ); // clearing texture
+		visserv_->setSelSpec( visid, attrib, myas ); // set back original selspec
 		return false;
 	    }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.135 2009-08-07 11:25:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.136 2009-09-09 05:37:24 cvsranojay Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -550,7 +550,7 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
     mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
     if ( fdp ) cache = &fdp->cube();
     const DataCubes* output = createOutput( cs, cache );
-    if ( !output || !output->nrCubes() ) return -1;
+    if ( !output || !output->nrCubes() )  return DataPack::cNoID();
 
     const bool isflat = cs.isFlat();
     DataPack* newpack;
