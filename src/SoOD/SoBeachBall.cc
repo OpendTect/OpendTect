@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoBeachBall.cc,v 1.8 2009-09-08 09:38:59 cvsranojay Exp $";
+static const char* rcsID = "$Id: SoBeachBall.cc,v 1.9 2009-09-09 08:01:46 cvskarthika Exp $";
 
 #include "SoBeachBall.h"
 #include "SoCameraInfoElement.h"
@@ -622,7 +622,7 @@ void SoBeachBall::computeBBox( SoAction*, SbBox3f& box, SbVec3f &center )
 
 
 // Computes the level of detail depending on the value of SoComplexity node
-// and the screen space occupied.
+// and the screen space occupied. (Only screen space complexity is implemented.)
 void SoBeachBall::computeResolution( SoState* state )
 {
     SbBox3f bbox;
@@ -643,7 +643,7 @@ void SoBeachBall::computeResolution( SoState* state )
 	    SbClamp(SoComplexityElement::get(state), 0.0f, 1.0f);
 
 	// maximum number of pixels per triangle
-	const int numpixelspertriangle = 10; 
+	const int numpixelspertriangle = 7; 
 	// find the minimum number of triangles to be rendered
 	const float wantednumtriangles = 
 	    complexity*screensize[0]*screensize[1]/numpixelspertriangle;
