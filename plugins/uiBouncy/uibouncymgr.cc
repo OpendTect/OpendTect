@@ -5,7 +5,7 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID = "$Id: uibouncymgr.cc,v 1.2 2009-09-09 08:00:31 cvskarthika Exp $";
+static const char* rcsID = "$Id: uibouncymgr.cc,v 1.3 2009-09-09 15:23:56 cvskarthika Exp $";
 
 #include "uibouncymgr.h"
 #include "beachballdata.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uibouncymgr.cc,v 1.2 2009-09-09 08:00:31 cvskar
 #include "uimenu.h"
 #include "uiodmenumgr.h"
 #include "uimsg.h"
+#include "survinfo.h"
 
 namespace uiBouncy
 {
@@ -157,9 +158,10 @@ void uiBouncyMgr::doWork( CallBacker *cb )
     {
 	if ( firsttime )
 	{
-	/*    uiMSG().message( "Welcome to the Bouncy game, ", 
-		    maindlg_->getPlayerName(), " !" );*/
-	    addBeachBall();
+	    uiMSG().message( "Welcome to the Bouncy game, ", 
+		    maindlg_->getPlayerName(), " !" );
+	    if ( !vbb_ )
+		addBeachBall();
 	    startGame();
 	}
     }
@@ -176,10 +178,10 @@ void uiBouncyMgr::doWork( CallBacker *cb )
 
 void uiBouncyMgr::startGame()
 {
-    gamectr_ = new Bouncy::BouncyController( "Starting game..." );
-    gamectr_->init( vbb_->getCenterPosition() );
+    gamectr_ = new Bouncy::BouncyController();
+    gamectr_->init( vbb_->getCenterPosition(), SI().minCoord( true ),
+	    SI().maxCoord( true ), true );
     gamectr_->newPosAvailable.notify(mCB(this, uiBouncyMgr, newPosAvailableCB));
-    gamectr_->execute();
 }
 
 
@@ -193,11 +195,7 @@ void uiBouncyMgr::stopGame()
 void uiBouncyMgr::newPosAvailableCB( CallBacker* )
 {
     if ( vbb_ )
-    {
-	vbb_->setCenterPosition( gamectr_->findNewPos
-		( vbb_->getCenterPosition() ) );
-	// give rolling effect - add rotate transform
-    }
+	vbb_->setCenterPosition( gamectr_->getPos() );
 }
 
 
