@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.48 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.49 2009-09-09 09:34:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,6 +146,7 @@ protected:
     uiMenuItem*		addtimedepthsceneitm_;
     int			axisid_, actviewid_, cameraid_, soloid_;
     int			coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
+    int			viewinlid_, viewcrlid_, viewzid_, viewnid_, viewnzid_;
     int			removeselectionid_;
     bool		inviewmode_;
 

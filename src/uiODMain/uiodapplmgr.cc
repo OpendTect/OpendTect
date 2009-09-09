@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.355 2009-09-09 05:37:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.356 2009-09-09 09:34:04 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1518,6 +1518,8 @@ void uiODApplMgr::storeEMObject()
     sceneMgr().updateTrees();
 }
 
+void uiODApplMgr::tieWellToSeismic( CallBacker* )
+{ wellattrserv_->createD2TModel(MultiID()); }
 
 void uiODApplMgr::doVolProc( CallBacker* )
 { attrserv_->doVolProc(); }

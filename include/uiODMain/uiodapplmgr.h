@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.92 2009-08-12 06:56:15 cvsumesh Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.93 2009-09-09 09:34:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,6 +155,7 @@ public:
     void			editAttr3DCB(CallBacker*)
 				    { editAttribSet(false);}
     void			doVolProc(CallBacker*);
+    void			tieWellToSeismic(CallBacker*);
 
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);

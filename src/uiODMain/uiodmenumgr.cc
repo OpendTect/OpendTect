@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.185 2009-09-07 11:30:32 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.186 2009-09-09 09:34:04 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -35,6 +35,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.185 2009-09-07 11:30:32 cvsr
 #include "ioman.h"
 #include "oddirs.h"
 #include "pixmap.h"
+#include "settings.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "thread.h"
@@ -399,6 +400,13 @@ void uiODMenuMgr::fillAnalMenu()
     mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
     mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
     analmnu_->insertItem( crsplot );
+
+    if (  SI().zIsTime() )
+    {
+	const ioPixmap wtiepixmap( "well_tie.png" );
+	analmnu_->insertItem( new uiMenuItem( "&Tie Well to Seismic ...",
+	    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), &wtiepixmap ) );
+    }
 }
 
 
@@ -660,18 +668,35 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     cameraid_ = mAddTB(cointb_,"perspective.png",
 	    	       "Switch to orthographic camera",false,switchCameraType);
     
-    curviewmode_ = 0;
-    viewselectid_ = cointb_->addButton( "cube_inl.png",
-					mCB(this,uiODMenuMgr,handleViewClick),
-					"View Inline", false );
+    curviewmode_ = uiSoViewer::Inl;
+    bool separateviewbuttons = false;
+    Settings::common().getYN( "dTect.SeparateViewButtons", separateviewbuttons);
+    if ( !separateviewbuttons )
+    {
+	viewselectid_ = cointb_->addButton( "cube_inl.png",
+				mCB(this,uiODMenuMgr,handleViewClick),
+				"View Inline", false );
 
-    uiPopupMenu* vwmnu = new uiPopupMenu( &appl_, "View Menu" );
-    mAddMnuItm( vwmnu, "View Inline", handleViewClick, "cube_inl.png", 0 );
-    mAddMnuItm( vwmnu, "View Crossline", handleViewClick, "cube_crl.png", 1 );
-    mAddMnuItm( vwmnu, "View Z", handleViewClick, "cube_z.png", 2 );
-    mAddMnuItm( vwmnu, "View North", handleViewClick, "view_N.png", 3 );
-    mAddMnuItm( vwmnu, "View North - Z", handleViewClick, "view_NZ.png", 4 );
-    cointb_->setButtonMenu( viewselectid_, vwmnu );
+	uiPopupMenu* vwmnu = new uiPopupMenu( &appl_, "View Menu" );
+	mAddMnuItm( vwmnu, "View Inline", handleViewClick, "cube_inl.png",0);
+	mAddMnuItm( vwmnu, "View Crossline", handleViewClick, "cube_crl.png",1);
+	mAddMnuItm( vwmnu, "View Z", handleViewClick, "cube_z.png",2);
+	mAddMnuItm( vwmnu, "View North", handleViewClick, "view_N.png",3);
+	mAddMnuItm( vwmnu, "View North - Z", handleViewClick, "view_NZ.png",4);
+	cointb_->setButtonMenu( viewselectid_, vwmnu );
+	viewinlid_ = viewcrlid_ = viewzid_ = viewnid_ = viewnzid_ = -1;
+    }
+    else
+    {
+#define mAddVB(img,txt) cointb_->addButton( img, \
+	mCB(this,uiODMenuMgr,handleViewClick), txt, false );
+	viewinlid_ = mAddVB( "cube_inl.png", "View Inline" );
+	viewcrlid_ = mAddVB( "cube_crl.png", "View Crossline" );
+	viewzid_ = mAddVB( "cube_z.png", "View Z" );
+	viewnid_ = mAddVB( "view_N.png", "View North" );
+	viewnzid_ = mAddVB( "view_NZ.png", "View North Z" );
+	viewselectid_ = -1;
+    }
 
     axisid_ = mAddTB(cointb_,"axis.png","Display orientation axis",
 	    	     true,showRotAxis);
@@ -697,6 +722,17 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuItem*,itm,cb)
     mDynamicCastGet(uiToolButton*,tb,cb)
+
+    if ( viewselectid_ < 0 )
+    {
+	if ( !tb ) return;
+	const int clickid = tb->id();
+	if ( clickid == viewinlid_ ) curviewmode_ = uiSoViewer::Inl;
+	if ( clickid == viewcrlid_ ) curviewmode_ = uiSoViewer::Crl;
+	if ( clickid == viewzid_ ) curviewmode_ = uiSoViewer::Z;
+	if ( clickid == viewnid_ ) curviewmode_ = uiSoViewer::Y;
+	if ( clickid == viewnzid_ ) curviewmode_ = uiSoViewer::YZ;
+    }
 
     if ( tb )
     {
