@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: beachballdata.h,v 1.4 2009-09-09 05:38:55 cvsranojay Exp $
+ * ID       : $Id: beachballdata.h,v 1.5 2009-09-09 07:52:29 cvskarthika Exp $
 -*/
 
 #include "color.h"
@@ -65,7 +65,7 @@ protected:
 
 
 // class for the dynamic properties of the ball
-class BallDynamics: public ::NamedObject
+mClass BallDynamics: public ::NamedObject
 {
 public:
 			
