@@ -5,7 +5,7 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID = "$Id: uibouncymgr.cc,v 1.1 2009-09-08 09:03:59 cvskarthika Exp $";
+static const char* rcsID = "$Id: uibouncymgr.cc,v 1.2 2009-09-09 08:00:31 cvskarthika Exp $";
 
 #include "uibouncymgr.h"
 #include "beachballdata.h"
@@ -131,7 +131,7 @@ int uiBouncyMgr::removeBeachBall()
 
 void uiBouncyMgr::doWork( CallBacker *cb )
 {
-    static bool newgame = true;
+    bool firsttime = ( !vbb_ );
 
     sceneid_ = ODMainWin()->sceneMgr().getActiveSceneID();
     mDynamicCastGet( visSurvey::Scene*, scene, 
@@ -155,25 +155,22 @@ void uiBouncyMgr::doWork( CallBacker *cb )
         currbp = vbb_->getBallProperties();
     if ( maindlg_->go() )
     {
-	if ( newgame )
+	if ( firsttime )
 	{
 	/*    uiMSG().message( "Welcome to the Bouncy game, ", 
 		    maindlg_->getPlayerName(), " !" );*/
 	    addBeachBall();
-	    newgame = false;
-
 	    startGame();
 	}
     }
     else
     {
-	if ( newgame )
+	if ( firsttime )
 	    // remove beachball added for preview
 	    removeBeachBall();
 	else 
 	    // revert settings as user might have changed something
             vbb_->setBallProperties( currbp );
-	    // seg fault at dtor of currbp! Fix it!
     }
 }
 
