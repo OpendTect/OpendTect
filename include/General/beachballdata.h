@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: beachballdata.h,v 1.3 2009-09-08 23:42:53 cvskarthika Exp $
+ * ID       : $Id: beachballdata.h,v 1.4 2009-09-09 05:38:55 cvsranojay Exp $
 -*/
 
 #include "color.h"
@@ -16,7 +16,7 @@ namespace visBeachBall
 // Classes for communicating properties between plugin and visBase.
 
 // Class for the basic properties of the ball
-class BallProperties: public ::NamedObject
+mClass BallProperties: public ::NamedObject
 {
 public:
 

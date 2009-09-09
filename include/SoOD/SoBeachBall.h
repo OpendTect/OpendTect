@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Karthika
  Date:		July 2009
- RCS:		$Id: SoBeachBall.h,v 1.4 2009-09-01 09:21:25 cvskarthika Exp $
+ RCS:		$Id: SoBeachBall.h,v 1.5 2009-09-09 05:38:55 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
 
 // SoBeachBall class for drawing a sphere with 4 stripes colored according to 
 // 2 materials. Varying levels of detail of the beachball are supported.
-class SoBeachBall : public SoShape 
+mClass SoBeachBall : public SoShape 
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoBeachBall);
