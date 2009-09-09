@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.58 2009-08-27 21:42:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.59 2009-09-09 16:52:46 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -509,7 +509,7 @@ void Viewer3D::dataChangedCB( CallBacker* )
     }
 
     if ( !offsetrange_.width() )
-      	offsetrange_.stop = 25;
+      	offsetrange_.stop = mDefaultWidth;
 
     Coord startpos( bid_.inl, bid_.crl );
     if ( seis2d_ )
@@ -899,12 +899,12 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
     if ( SI().inlDistance()==0 || SI().crlDistance()==0 || width_==0 )
 	return;
 
-    float start = posdata.range( true ).start;
-    float cal = posdata.width(true)*distance/width_;
+    const StepInterval<double>& rg = posdata.range( true );
+    const float cal = posdata.width(true)*distance/width_;
     if ( section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline )
-	offset = cal*SI().inlDistance()+start;
+	offset = cal*SI().inlDistance()+rg.start;
     else
-	offset= cal*SI().crlDistance()+start;
+	offset= cal*SI().crlDistance()+rg.start;
    
     int offsetsample;
     float traceoffset;
@@ -924,8 +924,12 @@ void Viewer3D::getMousePosInfo( const visBase::EventInfo& ei,
     }
     else
     {
-	const StepInterval<double>& rg = posdata.range( true );
 	offsetsample = rg.nearestIndex( offset );
+	if ( offsetsample<0 )
+    	    offsetsample = 0;
+    	else if ( offsetsample>rg.nrSteps() )
+ 	    offsetsample = rg.nrSteps();
+
 	traceoffset = rg.atIndex( offsetsample );
     }
 
