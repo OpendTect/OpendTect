@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.29 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.30 2009-09-09 09:29:16 cvsnanne Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -265,8 +265,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &usewellsmnuitem_, !islocked, false );
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
     mAddMenuItem( menu, &saveas2dmnuitem_, true, false );
-    if ( rtd->nrKnots() == 2 )
-	mAddMenuItem( menu, &create2dgridmnuitem_, true, false );
+    mAddMenuItem( menu, &create2dgridmnuitem_, true, false );
 }
 
 
@@ -299,7 +298,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     else
     {
 	TypeSet<BinID> bids; rtd->getAllKnotPos( bids );
-	Geometry::RandomLine* rln = new Geometry::RandomLine;
+	PtrMan<Geometry::RandomLine> rln = new Geometry::RandomLine;
 	rln->setZRange( rtd->getDepthInterval() );
 	for ( int idx=0; idx<bids.size(); idx++ )
 	    rln->addNode( bids[idx] );
@@ -310,9 +309,8 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    ctio->ctxt.forread = false;
 	    ctio->setName( rtd->name() );
 	    uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
-	    if ( !dlg.go() )
-		{ delete rln; return; }
-		
+	    if ( !dlg.go() ) return;
+
 	    Geometry::RandomLineSet lset; lset.addLine( rln );
 	    BufferString bs;
 	    if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
@@ -328,13 +326,18 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    rln->setName( rtd->name() );
 	    applMgr()->seisServer()->storeRlnAs2DLine( *rln );
-	    delete rln;
 	}
 	else if ( mnuid == create2dgridmnuitem_.id )
 	{
+	    if ( rtd->nrKnots() > 2 )
+	    {
+		uiMSG().error( "Grids can only be created from Random Lines\n"
+			       "with only 2 nodes" );
+		return;
+	    }
+
 	    rln->setName( rtd->name() );
 	    applMgr()->seisServer()->create2DGridFromRln( *rln );
-	    delete rln;
 	}
     }
 }
