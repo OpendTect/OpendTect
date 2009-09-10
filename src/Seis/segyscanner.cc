@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.25 2009-08-31 07:38:13 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.26 2009-09-10 13:21:23 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -181,6 +181,12 @@ int SEGY::Scanner::readNext()
 
     const SeisTrcInfo& ti = trc_.info();
     dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
+    for ( int idx=0; idx<trc_.size(); idx++ )
+	clipsmplr_.add( trc_.get(idx,0) );
+    nrdone_++;
+
+    if ( notrcinfo_ )
+	return Executor::MoreToDo();
 
     SEGY::TraceInfo* sgyti = richinfo_ ? new SEGY::RichTraceInfo( geom_ )
 				       : new SEGY::TraceInfo( geom_ );
@@ -188,17 +194,14 @@ int SEGY::Scanner::readNext()
     sgyti->usable_ = tr_->trcHeader().isusable;
     if ( richinfo_ )
     {
-	SEGY::RichTraceInfo* rti = static_cast<SEGY::RichTraceInfo*>( sgyti );
+	SEGY::RichTraceInfo* rti = static_cast<SEGY::RichTraceInfo*>(sgyti);
 	rti->coord_ = ti.coord;
 	rti->null_ = trc_.isNull();
 	if ( Seis::isPS(geom_) )
 	    rti->azimuth_ = ti.azimuth;
-	for ( int idx=0; idx<trc_.size(); idx++ )
-	    clipsmplr_.add( trc_.get(idx,0) );
     }
     fd += sgyti;
 
-    nrdone_++;
     return Executor::MoreToDo();
 }
 
