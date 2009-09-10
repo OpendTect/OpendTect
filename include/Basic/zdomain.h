@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra & K. Tingdahl
  Date:		April 2009
- RCS:		$Id: zdomain.h,v 1.5 2009-07-25 01:09:11 cvskris Exp $
+ RCS:		$Id: zdomain.h,v 1.6 2009-09-10 13:02:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "gendefs.h"
 #include "fixedstring.h"
+class IOPar;
+
 
 namespace ZDomain
 {
@@ -22,6 +23,9 @@ namespace ZDomain
     mBasicExtern FixedString	sKeyTWT();
     mBasicExtern FixedString	sKeyDepth();
     mBasicExtern FixedString	getDefault();
+
+    mBasicExtern bool		isSIDomain(const IOPar&);
+    mBasicExtern void		setSIDomain(IOPar&,bool);
 };
 
 
