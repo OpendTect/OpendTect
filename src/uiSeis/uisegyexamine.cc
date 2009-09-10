@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.15 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.16 2009-09-10 14:39:27 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -41,7 +41,7 @@ const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
 
 uiSEGYExamine::Setup::Setup( int nrtraces )
-    : uiDialog::Setup("SEG-Y Examiner",mNoDlgTitle,mNoHelpID)
+    : uiDialog::Setup("SEG-Y Examiner",mNoDlgTitle,"103.0.5")
     , nrtrcs_(nrtraces)
     , fp_(true)
 {

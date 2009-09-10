@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.24 2009-09-10 14:08:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.25 2009-09-10 14:39:27 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -212,13 +212,12 @@ public:
 
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-export",
-		    		     "Specify file details","103.0.7"))
+		    		     "Specify file details","103.0.2"))
 	, inioobj_(ii)
 	, outioobj_(oi)
 	, segyexp_(p)
 	, attrnm_(anm)
 {
-    setHelpID( "103.0.7" );
     const BufferString fnm( outioobj_.fullUserExpr(false) );
     FilePath fp( fnm );
     BufferString ext = fp.extension();
