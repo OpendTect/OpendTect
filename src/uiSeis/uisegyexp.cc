@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.22 2009-09-01 08:30:04 cvshelene Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.23 2009-09-10 13:38:50 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -39,6 +39,7 @@ static const char* rcsID = "$Id: uisegyexp.cc,v 1.22 2009-09-01 08:30:04 cvshele
 #include "pixmap.h"
 #include "filepath.h"
 #include "filegen.h"
+#include "zdomain.h"
 
 static const char* txtheadtxt =
 "Define the SEG-Y text header. Note that:"
@@ -397,12 +398,21 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	return false;
 
+    const IOObj* useoutioobj = &outioobj; IOObj* newioobj = 0;
+    const bool inissidom = ZDomain::isSIDomain( inioobj.pars() );
+    if ( !inissidom )
+    {
+	newioobj = outioobj.clone();
+	ZDomain::setSIDomain( newioobj->pars(), false );
+	useoutioobj = newioobj;
+    }
+
     SEGY::TxtHeader::info2D() = is2d;
-    Executor* exec = transffld_->getTrcProc( inioobj, outioobj,
+    Executor* exec = transffld_->getTrcProc( inioobj, *useoutioobj,
 				    "Export seismic data", "Putting traces",
 				    attrnm, linenm );
     if ( !exec )
-	return false;
+	{ delete newioobj; return false; }
     PtrMan<Executor> execptrman = exec;
 
     mDynamicCastGet(SeisSingleTraceProc*,sstp,exec)
@@ -450,6 +460,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     rv = dlg.execute( *exec );
     execptrman.erase();
 
+    delete newioobj;
     SEGY::TxtHeader::info2D() = false;
     return rv;
 }
