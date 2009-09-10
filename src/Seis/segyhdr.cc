@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.77 2009-09-01 13:11:28 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.78 2009-09-10 13:26:22 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -458,9 +458,9 @@ void SEGY::BinHeader::dump( std::ostream& strm ) const
     mPrHead( reno, 8, "reel number" )
     mPrHead( ntrpr, 12, "number of data traces per record" )
     mPrHead( nart, 14, "number of auxiliary traces per record" )
-    mPrHead( hdt, 16, "sample interval in micro secs for this reel" )
+    mPrHead( hdt, 16, "sample interval (micro secs or mm)" )
     mPrHead( dto, 18, "same for original field recording" )
-    mPrHead( hns, 20, "number of samples per trace for this reel" )
+    mPrHead( hns, 20, "number of samples per trace" )
     mPrHead( nso, 22, "same for original field recording" )
     mPrHead( format, 24, "sample format (1=float, 3=16 bit, 8=8-bit)" )
     mPrHead( fold, 26, "CDP fold expected per CDP ensemble" )
