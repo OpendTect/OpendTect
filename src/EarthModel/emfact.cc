@@ -4,7 +4,32 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: emfact.cc,v 1.3 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emfact.cc,v 1.4 2009-09-10 13:22:57 cvsbert Exp $";
 
 
-#include "emfact.h"
+#include "emsurfacetr.h"
+defineTranslatorGroup(EMHorizon2D,EMHorizon2DTranslatorGroup::keyword());
+defineTranslatorGroup(EMHorizon3D,EMHorizon3DTranslatorGroup::keyword());
+defineTranslatorGroup(EMAnyHorizon,EMAnyHorizonTranslatorGroup::keyword());
+defineTranslatorGroup(EMFaultStickSet,EMFaultStickSetTranslatorGroup::keyword());
+defineTranslatorGroup(EMFault3D,EMFault3DTranslatorGroup::keyword());
+
+defineTranslator(dgb,EMHorizon2D,mDGBKey);
+defineTranslator(dgb,EMHorizon3D,mDGBKey);
+defineTranslator(dgb,EMFaultStickSet,mDGBKey);
+defineTranslator(dgb,EMFault3D,mDGBKey);
+
+#include "lmkemfaulttransl.h"
+defineTranslator(lmk,EMFault3D,"Landmark");
+
+//#include "emsticksettransl.h"
+//defineTranslatorGroup(EMStickSet,EMStickSetTranslatorGroup::keyword);
+//defineTranslator(lmk,EMStickSet,"Landmark");
+
+
+#include "embodytr.h"
+defineTranslatorGroup(EMBody,EMBodyTranslatorGroup::sKeyword());
+defineTranslator(mc,EMBody,mcEMBodyTranslator::sKeyUserName());
+defineTranslator(randpos,EMBody,randposEMBodyTranslator::sKeyUserName());
+defineTranslator(polygon,EMBody,polygonEMBodyTranslator::sKeyUserName());
+defineTranslator(dGB,EMBody,dGBEMBodyTranslator::sKeyUserName() );
