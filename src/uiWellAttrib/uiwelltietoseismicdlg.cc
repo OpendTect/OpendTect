@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.52 2009-09-08 07:12:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.53 2009-09-10 09:30:03 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -83,12 +83,13 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts,
     params_	= new WellTie::Params( setup_, wd_, ads );
     dataholder_ = new WellTie::DataHolder( params_, wd_, setup_ );
     dataplayer_ = new WellTie::DataPlayer( dataholder_, ads, tr );
-    infodlg_    = new WellTie::uiInfoDlg( this, dataholder_ );
+    infodlg_    = new WellTie::uiInfoDlg( this, dataholder_, dataplayer_ );
     datadrawer_ = new WellTie::uiTieView( this, &viewer(), *dataholder_, 
 	    				&logsdisp_ );
     stretcher_  = new WellTie::uiEventStretch( this,dataholder_,*datadrawer_ );
 
     infodlg_->applyPushed.notify( mCB(this,uiTieWin,compute) );
+    infodlg_->redrawNeeded.notify( mCB(this,uiTieWin,drawData) );
     stretcher_->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
     stretcher_->timeChanged.notify(mCB(this,uiTieWin,timeChanged));
     
@@ -101,6 +102,7 @@ uiTieWin::~uiTieWin()
     stretcher_->timeChanged.remove(mCB(this,uiTieWin,timeChanged));
     stretcher_->pickadded.remove(mCB(this,uiTieWin,checkIfPick));
     infodlg_->applyPushed.remove( mCB(this,uiTieWin,compute) );
+    infodlg_->redrawNeeded.remove( mCB(this,uiTieWin,drawData) );
     
     delete stretcher_;
     delete infodlg_;
@@ -440,7 +442,6 @@ void uiTieWin::checkIfPick( CallBacker* )
 
 
 bool uiTieWin::undoPushed( CallBacker* cb )
-
 {
     if ( !dataplayer_->undoD2TModel() )
     	mErrRet( "Cannot go back to previous model" );
@@ -477,21 +478,26 @@ bool uiTieWin::acceptOK( CallBacker* )
 
 
 
-uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh )
+uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh, 
+		      WellTie::DataPlayer* dp )
 	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
 				     "107.4.2").modal(false))
 	, dataholder_(dh)
+	, dataplayer_(dp)		 
 	, wd_(dh->wd())		 
 	, params_(dataholder_->dpms()) 
       	, crosscorr_(0)	       
 	, wvltdraw_(0)
 	, applyPushed(this)
+	, redrawNeeded(this)
 {
     setCtrlStyle( LeaveOnly );
     
     uiGroup* viewersgrp = new uiGroup( this, "Viewers group" );
     uiGroup* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, dataholder_ );
+    wvltdraw_->activewvltChged.notify( 
+	    mCB( this, WellTie::uiInfoDlg, wvltChanged) );
 
     uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
     corrgrp->attach( rightOf, wvltgrp );
@@ -535,8 +541,10 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh )
 
 uiInfoDlg::~uiInfoDlg()
 {
-    if ( crosscorr_ ) delete crosscorr_;
-    if ( wvltdraw_ ) delete wvltdraw_;
+    delete crosscorr_;
+    wvltdraw_->activewvltChged.remove( 
+	    mCB( this, WellTie::uiInfoDlg, wvltChanged) );
+    delete wvltdraw_;
 }
 
 
@@ -592,5 +600,14 @@ void uiInfoDlg::setWvlts()
 {
     wvltdraw_->initWavelets();
 }
+
+
+void uiInfoDlg::wvltChanged( CallBacker* cb )
+{
+    dataplayer_->computeSynthetics();
+    redrawNeeded.trigger();
+}
+
+
 
 }; //namespace Well

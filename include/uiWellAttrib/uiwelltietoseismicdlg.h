@@ -129,10 +129,11 @@ mClass uiInfoDlg : public uiDialog
 {
 public:		
     		
-    		uiInfoDlg(uiParent*,WellTie::DataHolder*);
+    		uiInfoDlg(uiParent*,WellTie::DataHolder*,WellTie::DataPlayer*);
     		~uiInfoDlg();
 
     Notifier<uiInfoDlg>  applyPushed;
+    Notifier<uiInfoDlg>  redrawNeeded;
 
     bool 			setUserDepths();
     void 			setXCorrel();
@@ -153,9 +154,11 @@ protected:
     uiPushButton*               savewvltestbut_;
     WellTie::uiCorrView*      	crosscorr_;
     WellTie::uiWaveletView*     wvltdraw_;
+    WellTie::DataPlayer*   	dataplayer_;
     
     void 			applyMarkerPushed(CallBacker*);
     void 			userDepthsChanged(CallBacker*);
+    void 			wvltChanged(CallBacker*);
 };
 
 }; //namespace WellTie
