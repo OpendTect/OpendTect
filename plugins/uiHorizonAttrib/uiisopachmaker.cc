@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.9 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.10 2009-09-10 19:30:54 cvsyuancheng Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -143,6 +143,21 @@ od_int64 totalNr() const	{ return totnr_; }
 
 int nextStep()
 {
+    const DataColDef sidcol( "Section ID" );
+    if ( dps_.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
+	dps_.dataSet().add( new DataColDef(sidcol) );
+    const int nrfixedcols = dps_.nrFixedCols();
+    const int sidcolidx =  dps_.dataSet().findColDef(
+	    sidcol, PosVecDataSet::NameExact ) - nrfixedcols;
+    
+    BinIDValueSet& bivs = dps_.bivSet();
+    mAllocVarLenArr( float, vals, bivs.nrVals() );
+    for ( int idx=0; idx<bivs.nrVals(); idx++ )
+	vals[idx] = mUdf(float);
+    
+    vals[sidcolidx+nrfixedcols] = sectid1_;
+    const int startsourceidx = nrfixedcols + (sidcolidx ? 0 : 1);
+
     for ( int idx=0; idx<1000; idx++ )
     {
 	const EM::PosID posid = iter_->next();
@@ -168,9 +183,9 @@ int nextStep()
 	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, th*SI().zFactor() );
 
 	const DataPointSet::Pos dpspos( pos1 );
-	DataPointSet::DataRow dr( dpspos );
-	dr.data_ += th;
-	dps_.addRow( dr );
+	vals[0] = z1;
+	vals[startsourceidx] = th;
+	bivs.add( dpspos.binID(), vals );
     }
 
     dps_.dataChanged();
