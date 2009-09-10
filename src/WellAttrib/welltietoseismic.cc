@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.28 2009-09-08 07:12:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.29 2009-09-10 09:33:16 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -207,7 +207,8 @@ bool DataPlayer::extractSeismics()
 void DataPlayer::convolveWavelet()
 {
     IOObj* ioobj = IOM().get( wtsetup_.wvltid_ );
-    Wavelet* wvlt = new Wavelet( *Wavelet::get( ioobj ) );
+    Wavelet* wvlt = new Wavelet( params_.isinitwvltactive_ ? 
+	    *Wavelet::get( IOM().get(wtsetup_.wvltid_)) : wtdata_.wvltest_  );
     const int wvltsz = wvlt->size();
     if ( !wvlt || wvltsz <= 0 || wvltsz > params_.dispsize_ ) return;
     Array1DImpl<float> wvltvals( wvlt->size() );
@@ -224,7 +225,10 @@ bool DataPlayer::estimateWavelet()
 {
     const int datasz = params_.corrsize_; 
     //copy initial wavelet
-    Wavelet* wvlt = new Wavelet( *Wavelet::get(IOM().get(wtsetup_.wvltid_)) );
+    Wavelet* wvlt = new Wavelet( *Wavelet::get( IOM().get(wtsetup_.wvltid_) ) );
+    if ( !wvlt ) return false;
+
+    wvlt->setName( "Estimated Wavelet" );
     const int wvltsz = wvlt->size();
     if ( datasz < wvltsz +1 )
        return false;

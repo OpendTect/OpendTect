@@ -23,7 +23,8 @@ class Wavelet;
 
 class uiFlatViewer;
 class uiFunctionDisplay;
-class uiPushButton;
+class uiGenInput;
+class uiToolButton;
 class uiIOObjSel;
 class uiTextEdit;
 
@@ -33,62 +34,73 @@ namespace WellTie
 class GeoCalculator;
 class DataHolder;
 class Setup;
-class uiWaveletDispDlg;
+class uiWaveletDispPropDlg;
+class uiWavelet;
 
 mClass uiWaveletView : public uiGroup
 {
 public:
 
-	    uiWaveletView(uiParent*,const DataHolder*); 
+	    uiWaveletView(uiParent*,DataHolder*); 
 	    ~uiWaveletView();
 
-    void 		initWavelets();
+    void 			initWavelets();
+
+    Notifier<uiWaveletView> 	activewvltChged;
 
 protected:
 
-    const WellTie::DataHolder*	dataholder_;
-    const WellTie::Setup&	twtss_;
+    WellTie::DataHolder*	dataholder_;
     CtxtIOObj&          	wvltctio_;
 
-    ObjectSet<uiPushButton> 	wvltbuts_;
-    ObjectSet<uiFlatViewer> 	viewer_;	   
-    uiIOObjSel*			wvltfld_;
-    uiTextEdit*			infofld_;
-    ObjectSet<const Wavelet>  	wvlts_;
-    WellTie::uiWaveletDispDlg*  wvltestdlg_;
-    WellTie::uiWaveletDispDlg*  wvltinitdlg_;
+    uiGenInput*			activewvltfld_;
+    ObjectSet<WellTie::uiWavelet> uiwvlts_;
 
-    void			initWaveletViewer(int);
     void 			createWaveletFields(uiGroup*);	   
-    void			drawWavelet(const Wavelet*,int);
-    
-    void			saveWvltPushed(CallBacker*);
-    void 			viewInitWvltPropPushed(CallBacker*);
-    void 			viewEstWvltPropPushed(CallBacker*);
-    void 			wvtSel(CallBacker*);
+    void 			activeWvltChanged(CallBacker*);
 };
 
 
+class uiWavelet : public uiGroup
+{
 
-class uiWaveletDispDlg : public uiDialog
+public: 
+    				uiWavelet(uiParent*,Wavelet*);
+				~uiWavelet();
+
+protected:				    
+
+    Wavelet*			wvlt_; 	
+    ObjectSet<uiToolButton>     wvltbuts_;
+    uiFlatViewer*               viewer_;
+    WellTie::uiWaveletDispPropDlg*  wvltpropdlg_;
+
+    void			initWaveletViewer();
+    void			drawWavelet();
+
+    void			rotatePhase(CallBacker*);
+    void 			viewWvltPropPushed(CallBacker*);
+
+};				
+
+
+class uiWaveletDispPropDlg : public uiDialog
 {
 public:
-			    uiWaveletDispDlg(uiParent*,const Wavelet*,
-				    		const WellTie::DataHolder*);
-			    ~uiWaveletDispDlg();
+			    	uiWaveletDispPropDlg(uiParent*,const Wavelet*);
+			    	~uiWaveletDispPropDlg();
 
-    void				setValArrays();
-    void                                setDispCurves();
+    void			setValArrays();
+    void                        setDispCurves();
 
 protected:
 
+    int                         wvltsz_;
+    CtxtIOObj&			wvltctio_;
+    FFT*			fft_;
+    const Wavelet*		wvlt_;
+    ObjectSet<uiFunctionDisplay> wvltdisps_;
     ObjectSet< Array1DImpl<float> >     proparrays_;
-    
-    int                                 wvltsz_;
-    CtxtIOObj&                          wvltctio_;
-    FFT*				fft_;
-    ObjectSet<uiFunctionDisplay>        wvltdisps_;
-    const Wavelet*			wvlt_;
 };
 
 }; //namespace WellTie
