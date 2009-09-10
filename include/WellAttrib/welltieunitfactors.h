@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 
 #include "namedobj.h"
+#include "multiid.h"
 #include "ranges.h"
 #include "bufstringset.h"
 #include "welldata.h"
@@ -95,7 +96,8 @@ public :
 				, timeintv_(0,0,0)
 				, dispsize_(0)  
 				, corrsize_(0)  
-				, worksize_(0) 
+				, worksize_(0)
+				, isinitwvltactive_(true) 	      
 				{}
 
 	int           		worksize_;
@@ -121,6 +123,7 @@ public :
 	BufferString		dptnm_;
 	BufferString		synthnm_;
 	BufferString		crosscorrnm_;
+	bool			isinitwvltactive_;
     
 	const WellTie::Setup&	wts_;
 	const Well::Data&	wd_;
