@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.84 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.85 2009-09-10 13:34:29 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -25,16 +25,21 @@ static const char* rcsID = "$Id: segytr.cc,v 1.84 2009-07-22 16:01:34 cvsbert Ex
 #include "separstr.h"
 #include "keystrs.h"
 #include "settings.h"
+#include "zdomain.h"
 #include <math.h>
 #include <ctype.h>
 
 #define mBPS(cd) (int)cd->datachar.nrBytes()
+#define mZStepFac \
+    ( (!othdomain_ && SI().zIsTime()) || (othdomain_ && !SI().zIsTime()) \
+      	? 1e-6 : 0.001)
 
 static const int cSEGYWarnBadFmt = 1;
 static const int cSEGYWarnPos = 2;
 static const int cSEGYWarnZeroSampIntv = 3;
 static const int cSEGYWarnDataReadIncomplete = 4;
 static const int cSEGYWarnNonrectCoord = 5;
+static const int cMaxNrSamples = 1000000;
 static int maxnrconsecutivebadtrcs = -1;
 static const char* sKeyMaxConsBadTrcs = "SEGY.Max Bad Trace Block";
 
@@ -60,6 +65,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, prevoffs(0)
 	, offsdef(0,1)
 	, iotype(StreamConn::File)
+	, othdomain_(false)
 {
     if ( maxnrconsecutivebadtrcs < 0 )
     {
@@ -148,7 +154,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
     txthead_->getText( pinfo.usrinfo );
     pinfo.nr = binhead_.lino;
-    pinfo.zrg.step = binhead_.hdt * (0.001 / SI().zFactor());
+    pinfo.zrg.step = binhead_.hdt * mZStepFac;
     insd.step = binhead_dpos_ = pinfo.zrg.step;
     innrsamples = binhead_ns_ = binhead_.hns;
 
@@ -202,6 +208,8 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
     SeisTrcInfo info; trchead_.fill( info, fileopts_.coordscale_ );
+    if ( othdomain_ )
+	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001;
 
     insd.start = info.sampling.start;
     insd.step = binhead_dpos_;
@@ -217,13 +225,13 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 	insd.step = fileopts_.sampleintv_;
 
     innrsamples = filepars_.ns_;
-    if ( innrsamples <= 0 )
+    if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
     {
 	innrsamples = binhead_ns_;
-	if ( innrsamples <= 0 )
+	if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
 	{
 	    innrsamples = trchead_.nrSamples();
-	    if ( innrsamples <= 0 )
+	    if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
 		innrsamples = SI().zRange(false).nrSteps() + 1;
 	}
     }
@@ -248,6 +256,9 @@ int SEGYSeisTrcTranslator::nrSamplesRead() const
 void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
     trchead_.fill( ti, fileopts_.coordscale_ );
+    if ( othdomain_ )
+	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001;
+
     if ( is_prestack && fileopts_.psdef_ == SEGY::FileReadOpts::SrcRcvCoords )
     {
 	Coord c1( trchead_.getCoord(true,fileopts_.coordscale_) );
@@ -307,7 +318,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     static int jobid = 0;
     binhead.jobid = ++jobid;
     binhead.hns = (short)outnrsamples;
-    binhead.hdt = (short)(outsd.step * SI().zFactor() * 1e3 + .5);
+    binhead.hdt = (short)(outsd.step / mZStepFac + .5);
     binhead.tsort = is_prestack ? 0 : 4; // To make Strata users happy
     unsigned char binheadbuf[400];
     binhead.putTo( binheadbuf );
@@ -321,10 +332,13 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 {
     trchead_.use( trc.info() );
-    if ( useinpsd )
-	trchead_.putSampling( trc.info().sampling, trc.size() );
-    else
-	trchead_.putSampling( outsd, outnrsamples );
+
+    SamplingData<float> sdtoput( useinpsd ? trc.info().sampling : outsd );
+    const int nstoput = useinpsd ? trc.size() : outnrsamples;
+    if ( othdomain_ )
+	sdtoput.step *= SI().zIsTime() ? 0.001 : 1000;
+
+    trchead_.putSampling( sdtoput, nstoput );
 }
 
 
@@ -337,6 +351,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
 
     iopar.getYN( SEGY::FileDef::sKeyForceRev0(), forcerev0_ );
+    othdomain_ = !ZDomain::isSIDomain( iopar );
 }
 
 
@@ -458,6 +473,11 @@ bool SEGYSeisTrcTranslator::initRead_()
 
     if ( tarcds.isEmpty() )
 	updateCDFromBuf();
+
+    if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
+	mErrRet(BufferString("Cannot find a reasonable number of samples."
+		    	     "\nFound: ",innrsamples,
+			     ".\nPlease 'Overrule' to set something usable"))
     return true;
 }
 

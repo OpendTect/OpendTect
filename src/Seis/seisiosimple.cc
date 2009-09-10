@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.16 2009-08-25 13:25:36 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.17 2009-09-10 13:34:29 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: seisiosimple.cc,v 1.16 2009-08-25 13:25:36 cvsb
 #include "keystrs.h"
 #include "linekey.h"
 #include "posimpexppars.h"
+#include "zdomain.h"
 #include "msgh.h"
 
 #include <math.h>
@@ -156,9 +157,12 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	, offsnr_(0)
 	, prevbid_(mUdf(int),0)
 	, prevnr_(mUdf(int))
+	, zistm_(SI().zIsTime())
 {
     PtrMan<IOObj> ioobj = IOM().get( data_.seiskey_ );
     if ( !ioobj ) return;
+    const bool issidomain = ZDomain::isSIDomain( ioobj->pars() );
+    zistm_ = (issidomain && SI().zIsTime()) || (!issidomain && !SI().zIsTime());
 
     SeisStoreAccess* sa;
     if ( isimp_ )
@@ -242,7 +246,7 @@ void SeisIOSimple::startImpRead()
 	}
 	if ( !sd_.istrm->good() )
 	    { errmsg_ = "Input file contains no data"; return; }
-	if ( SI().zIsTime() )
+	if ( zistm_ )
 	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
     }
 
@@ -447,7 +451,7 @@ int SeisIOSimple::writeExpTrc()
 	if ( data_.havesd_ )
 	{
 	    SamplingData<float> datasd = trc_.info().sampling;
-	    if ( SI().zIsTime() )
+	    if ( zistm_ )
 		{ datasd.start *= 1000; datasd.step *= 1000; }
 	    mPIEPAdj(Z,datasd.start,false); mPIEPAdj(Z,datasd.step,false);
 	    if ( data_.isasc_ )

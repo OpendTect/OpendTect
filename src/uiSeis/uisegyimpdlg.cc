@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.21 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.22 2009-09-10 13:34:29 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -35,6 +35,7 @@ static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.21 2009-08-21 10:11:46 cvsb
 #include "dirlist.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "zdomain.h"
 #include "pixmap.h"
 
 
@@ -244,11 +245,26 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     const char* lnm = is2d && transffld_->selFld2D() ?
 		      transffld_->selFld2D()->selectedLine() : 0;
 
-    if ( !morebut_ || !morebut_->isChecked() )
-	return impFile( inioobj, outioobj, lnm, attrnm );
+    const IOObj* useinioobj = &inioobj; IOObj* newioobj = 0;
+    const bool outissidom = ZDomain::isSIDomain( outioobj.pars() );
+    if ( !outissidom )
+    {
+	newioobj = inioobj.clone();
+	ZDomain::setSIDomain( newioobj->pars(), false );
+	useinioobj = newioobj;
+    }
 
-    uiSEGYImpSimilarDlg dlg( this, inioobj, outioobj, attrnm );
-    return dlg.go();
+    bool retval;
+    if ( !morebut_ || !morebut_->isChecked() )
+	retval = impFile( *useinioobj, outioobj, lnm, attrnm );
+    else
+    {
+	uiSEGYImpSimilarDlg dlg( this, *useinioobj, outioobj, attrnm );
+	retval = dlg.go();
+    }
+    delete newioobj;
+
+    return retval;
 }
 
 

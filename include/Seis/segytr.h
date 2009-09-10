@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.33 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.34 2009-09-10 13:34:29 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -119,6 +119,7 @@ protected:
     BinID		curbinid, prevbinid;
     float		curoffs, prevoffs;
     int			estnrtrcs_;
+    bool		othdomain_;
 
 };
 

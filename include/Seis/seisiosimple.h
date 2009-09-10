@@ -110,6 +110,7 @@ protected:
     int			prevnr_;
     BinID		prevbid_;
     BufferString	errmsg_;
+    bool		zistm_;
 
     void		startImpRead();
     int			readImpTrc(SeisTrc&);
