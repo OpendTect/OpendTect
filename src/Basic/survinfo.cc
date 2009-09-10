@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.127 2009-07-25 01:09:11 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.128 2009-09-10 13:01:02 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -50,6 +50,23 @@ FixedString ZDomain::sKeyTWT()		{ return FixedString("TWT"); }
 FixedString ZDomain::sKeyDepth()	{ return FixedString("Depth"); }
 FixedString ZDomain::getDefault(){return FixedString(SI().getZDomainString()); }    
 
+namespace ZDomain
+{
+bool isSIDomain( const IOPar& iop )
+{
+    const char* domstr = iop.find( sKey() );
+    if ( !domstr || !*domstr ) return true;
+    return *domstr == *(SI().zIsTime() ? sKeyTWT() : sKeyDepth());
+}
+
+void setSIDomain( IOPar& iop, bool yn )
+{
+    if ( yn )
+	iop.removeWithKey( ZDomain::sKey() );
+    else
+	iop.set( sKey(), SI().zIsTime() ? sKeyDepth() : sKeyTWT() );
+}
+}
 
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
