@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.15 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.16 2009-09-10 11:11:49 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,8 @@ public:
     const Viewer&	viewer() const	{ return viewer_; }
     Viewer&		viewer()	{ return viewer_; }
 
+    void			setSelActive( bool yn ) { isselactive_ = yn; }
+    bool			isSelActive() const	{ return isselactive_; }
     const TypeSet<int>&				getIds() const;
     const ObjectSet<Annotation::AuxData>&	getAuxData() const;
 
@@ -125,6 +127,7 @@ protected:
     ObjectSet<Annotation::AuxData>	polygonsel_;
     LineStyle				polygonsellst_;
     bool				polygonselrect_;
+    bool				isselactive_;
     Annotation::AuxData*		feedback_;
     Geom::Point2D<int>			prevpt_;
 

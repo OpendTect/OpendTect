@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.28 2009-09-03 09:52:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.29 2009-09-10 11:11:49 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -92,6 +92,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
+    vwr_.appearance().annot_.editable_ = false;
 
     new uiFlatViewThumbnail( this, vwr );
     //TODO attach keyboard events to panCB
@@ -324,6 +325,7 @@ void uiFlatViewStdControl::stateCB( CallBacker* )
     vwr_.rgbCanvas().setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
 	   				  : uiGraphicsViewBase::ScrollHandDrag);
     vwr_.rgbCanvas().scene().setMouseEventActive( true );
+    vwr_.appearance().annot_.editable_ = false;
     if ( editbut_ )
 	editbut_->setOn( false );
 }
@@ -340,6 +342,7 @@ void uiFlatViewStdControl::editCB( CallBacker* )
 
     vwr_.rgbCanvas().setDragMode( mode );
     vwr_.rgbCanvas().scene().setMouseEventActive( true );
+    vwr_.appearance().annot_.editable_ = editbut_->isOn();
 }
 
 

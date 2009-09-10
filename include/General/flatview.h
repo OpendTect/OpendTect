@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.44 2009-09-08 09:42:14 cvsranojay Exp $
+ RCS:           $Id: flatview.h,v 1.45 2009-09-10 11:11:49 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,6 +106,7 @@ public:
     AxisData			x2_;
     ObjectSet<AuxData>		auxdata_;
     bool			showaux_;
+    bool			editable_;
 
     inline void		setAxesAnnot( bool yn ) //!< Convenience all or nothing
 			{ x1_.showAll(yn); x2_.showAll(yn); }

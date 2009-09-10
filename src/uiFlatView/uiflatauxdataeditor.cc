@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatauxdataeditor.cc,v 1.9 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatauxdataeditor.cc,v 1.10 2009-09-10 11:11:49 cvssatyaki Exp $";
 
 #include "uiflatauxdataeditor.h"
 
@@ -44,7 +44,7 @@ void uiFlatViewAuxDataEditor::viewChangeCB( CallBacker* cb )
     mDynamicCastGet(uiFlatViewer*,uivw,&viewer_);
     if ( uivw ) curview_ = uivw->curView();
 
-    sizeChangeCB( cb );
+    mousearea_ = uivw->rgbCanvas().arrArea();
 }
 
 

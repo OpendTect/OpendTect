@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.14 2009-09-07 10:46:45 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.15 2009-09-10 11:11:49 cvssatyaki Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.14 2009-09-07 10:46:45 cvsu
 #include "uiodmain.h"
 #include "uiodscenemgr.h"
 #include "uirgbarraycanvas.h"
+#include "uitoolbar.h"
+#include "uimenu.h"
 #include "uivispartserv.h"
 
 #include "attribdatacubes.h"
@@ -31,6 +33,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.14 2009-09-07 10:46:45 cvsu
 #include "emhorizonpainter.h"
 #include "emmanager.h"
 #include "horflatvieweditor.h"
+#include "pixmap.h"
 #include "settings.h"
 
 #include "visseis2ddisplay.h"
@@ -137,6 +140,10 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 }
 
 
+#define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
+    uiMenuItem* itm = new uiMenuItem( txt, mCB(this,uiODViewer2D,fn) ); \
+    mnu->insertItem( itm, idx ); itm->setPixmap( ioPixmap(fnm) ); }
+
 void uiODViewer2D::createViewWin( bool isvert )
 {    
     bool wantdock = false;
@@ -171,11 +178,24 @@ void uiODViewer2D::createViewWin( bool isvert )
 	vwr.appearance().annot_.setAxesAnnot(true);
 	if ( ivwr == 0 )
 	{
-	    viewwin_->addControl( new uiFlatViewStdControl(vwr,
-		uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
-		.withedit(true)) );
+	    viewstdcontrol_ = new uiFlatViewStdControl( vwr,
+		    uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
+							      .withedit(true) );
+	    seltbid_ = viewstdcontrol_->toolBar()->addButton(
+		    "rectangleselect.png",
+		    mCB(this,uiODViewer2D,fvselModeChangedCB),
+		    "Rectangular selection mode", true );
+	    uiPopupMenu* mnu =
+		new uiPopupMenu( viewwin_->viewerParent(), "Menu" );
+	    mAddMnuItm( mnu, "Polygon selection mode", fvselModeChangedCB,
+		    	"polygonselect.png", 0 );
+	    mAddMnuItm( mnu, "Rectangular selection mode", fvselModeChangedCB,
+		    	"rectangleselect.png", 1 );
+	    viewstdcontrol_->toolBar()->setButtonMenu( seltbid_, mnu );
+	    viewwin_->addControl( viewstdcontrol_ );
 	    horpainter_ = new EM::HorizonPainter( vwr );
 	    auxdataeditor_ = new uiFlatViewAuxDataEditor( vwr );
+	    auxdataeditor_->setSelActive( false );
 	    horfveditor_ = new MPE::HorizonFlatViewEditor( auxdataeditor_ );
 	    horfveditor_->updateoldactivevolinuimpeman.notify(
 		    mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
@@ -284,6 +304,22 @@ void uiODViewer2D::restoreActiveVolInUiMPEManCB( CallBacker* )
 {
     if ( !appl_.applMgr().visServer()->isTrackingSetupActive() )
 	appl_.applMgr().visServer()->restoreActiveVolInuiMPEMan();
+}
+
+
+void uiODViewer2D::fvselModeChangedCB( CallBacker* cb )
+{
+    auxdataeditor_->setSelActive( viewstdcontrol_->toolBar()->isOn(seltbid_) );
+
+    mDynamicCastGet(uiMenuItem*,itm,cb)
+    if ( !itm ) return;
+
+    const bool ispoly = itm->id() == 0;
+    viewstdcontrol_->toolBar()->setPixmap( seltbid_,
+	    ispoly ? "polygonselect.png" : "rectangleselect.png" );
+    viewstdcontrol_->toolBar()->setToolTip( seltbid_,
+	    ispoly ? "Polygon Selection mode" : "Rectangle Selection mode" );
+    auxdataeditor_->setSelectionPolygonRectangle( !ispoly );
 }
 
 

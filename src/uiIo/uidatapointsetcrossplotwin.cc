@@ -194,6 +194,7 @@ void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* cb )
     if ( ison && plotter_.isY2Shown() )
 	uiMSG().message( "Y2 cannot be displayed in density plot" );
     ison ?  eachfld_->setValue( 100 ) : eachfld_->setValue( plotter_.plotperc_);
+    eachfld_->setSensitive( !ison );
     plotter_.setDensityPlot( ison, disptb_.isOn(showy2tbid_) );
     disptb_.setSensitive( showy2tbid_, !ison );
     setSelComboSensitive( !ison );
@@ -552,6 +553,7 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	else
 	{
 	    eachfld_->setValue( prevperc );
+	    eachfld_->setSensitive( true );
 	    return;
 	}
 	disptb_.turnOn( densityplottbid_, !wantnormalplot_ );
@@ -561,6 +563,7 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	eachfld_->setSensitive( !ison );
 	if ( ison )
 	    eachfld_->setValue( 100 );
+	eachfld_->setSensitive( !ison );
 	plotter_.setDensityPlot( !wantnormalplot_, disptb_.isOn(showy2tbid_) );
     }
 

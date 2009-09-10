@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.54 2009-09-08 09:43:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.55 2009-09-10 11:11:49 cvssatyaki Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -187,6 +187,7 @@ void FlatView::Annotation::AxisData::showAll( bool yn )
 FlatView::Annotation::Annotation( bool drkbg )
     : color_(drkbg ? Color::White() : Color::Black())
     , showaux_(true)
+    , editable_(true)
 {
     x1_.name_ = "X1";
     x2_.name_ = "X2";

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.17 2009-08-12 13:51:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.18 2009-09-10 11:11:49 cvssatyaki Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -56,6 +56,7 @@ KeyboardEventHandler& keyboardEventHandler()
 
     void		activateMenu();
     bool		event(QEvent*);
+    const uiPoint&	getStartPos() const	{ return *startpos_; }
 
 protected:
 
@@ -257,7 +258,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
 {
     setScene( *new uiGraphicsScene(nm) );
     setDragMode( uiGraphicsViewBase::NoDrag );
-    getNavigationMouseEventHandler().buttonReleased.notify(
+    getMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiGraphicsViewBase,rubberBandCB) );
 }
 
@@ -309,7 +310,7 @@ void uiGraphicsViewBase::rubberBandCB( CallBacker* )
     if ( !isRubberBandingOn() )
 	return;
 
-    selectedarea_ = new uiRect( scene().getSelectedArea() );
+    selectedarea_ = new uiRect( body_->getStartPos(), getCursorPos() );
     rubberBandUsed.trigger();
 }
 

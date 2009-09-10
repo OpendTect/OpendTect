@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.27 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.28 2009-09-10 11:11:49 cvssatyaki Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -33,6 +33,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , seldatasetidx_( -1 )
     , polygonsellst_( LineStyle::Solid, 1, Color( 255, 0, 0 ) )
     , polygonselrect_( true )
+    , isselactive_( true )
     , movementlimit_( 0 )
     , menuhandler_( 0 )
 {
@@ -319,7 +320,7 @@ MenuHandler* AuxDataEditor::getMenuHandler()
 
 void AuxDataEditor::mousePressCB( CallBacker* cb )
 {
-    if ( mousehandler_.isHandled() ) 
+    if ( mousehandler_.isHandled() || !viewer_.appearance().annot_.editable_ ) 
 	return; 
 
     const MouseEvent& ev = mousehandler_.event(); 
@@ -384,7 +385,7 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 
 void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 {
-    if ( !mousedown_ )
+    if ( !mousedown_ || !viewer_.appearance().annot_.editable_ )
 	return;
 
     if ( mousehandler_.isHandled() ) 
@@ -471,7 +472,8 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 
 void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 {
-    if ( !mousedown_ || mousehandler_.isHandled() ) 
+    if ( !mousedown_ || mousehandler_.isHandled() ||
+         !viewer_.appearance().annot_.editable_ ) 
 	return; 
 
     if ( seldatasetidx_!=-1 && !allowmove_[seldatasetidx_] )
@@ -549,31 +551,34 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	const int polyidx = polygonsel_.size()-1;
 
 	const Point pt = trans.transform( RowCol(ev.pos().x,ev.pos().y) );
-	if ( polygonselrect_ )
+	if ( isselactive_ )
 	{
-	    if ( polygonsel_[polyidx]->poly_.size()>1 )
+	    if ( polygonselrect_ )
 	    {
-		polygonsel_[polyidx]->poly_.remove( 1,
-			polygonsel_[polyidx]->poly_.size()-1 );
-	    }
+		if ( polygonsel_[polyidx]->poly_.size()>1 )
+		{
+		    polygonsel_[polyidx]->poly_.remove( 1,
+			    polygonsel_[polyidx]->poly_.size()-1 );
+		}
 
-	    const Point& startpt = polygonsel_[polyidx]->poly_[0];
+		const Point& startpt = polygonsel_[polyidx]->poly_[0];
 
-	    polygonsel_[polyidx]->poly_ += Point(pt.x,startpt.y);
-	    polygonsel_[polyidx]->poly_ += pt;
-	    polygonsel_[polyidx]->poly_ += Point(startpt.x,pt.y);
-	    polygonsel_[polyidx]->close_ = true;
-	    viewer_.handleChange( Viewer::Annot );
-	}
-	else
-	{
-	    polygonsel_[polyidx]->poly_ += pt;
-	    if ( polygonsel_[polyidx]->poly_.size()==3 )
+		polygonsel_[polyidx]->poly_ += Point(pt.x,startpt.y);
+		polygonsel_[polyidx]->poly_ += pt;
+		polygonsel_[polyidx]->poly_ += Point(startpt.x,pt.y);
 		polygonsel_[polyidx]->close_ = true;
-	    viewer_.handleChange( Viewer::Annot );
+		viewer_.handleChange( Viewer::Annot );
+	    }
+	    else
+	    {
+		polygonsel_[polyidx]->poly_ += pt;
+		if ( polygonsel_[polyidx]->poly_.size()==3 )
+		    polygonsel_[polyidx]->close_ = true;
+		viewer_.handleChange( Viewer::Annot );
+	    }
 	}
 
-	prevpt_ = ev.pos();
+	    prevpt_ = ev.pos();
 	mousehandler_.setHandled( true );
     }
 

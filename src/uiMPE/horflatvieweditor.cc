@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.9 2009-09-07 10:45:04 cvsumesh Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.10 2009-09-10 11:11:49 cvssatyaki Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -131,7 +131,9 @@ void HorizonFlatViewEditor::mousePressCB( CallBacker* )
 
 void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 {
-    if ( curcs_.isEmpty() ) return;
+    if ( curcs_.isEmpty() || !editor_->viewer().appearance().annot_.editable_
+	    || editor_->isSelActive() )
+	return;
 
     updateseedpickingstatus.trigger();
     if ( !seedpickingon_ ) return;
