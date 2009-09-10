@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.24 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.25 2009-09-10 21:47:56 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -196,8 +196,10 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     }
 
     double offset;
-    posData().setX1Pos( tbuf->getHdrVals(SeisTrcInfo::Offset, offset),
-	   		tbuf->size(), offset );
+    float* offsets = tbuf->getHdrVals(SeisTrcInfo::Offset, offset);
+    if ( !offsets )
+	return false;
+    posData().setX1Pos( offsets, tbuf->size(), offset );
     posData().setRange( false, zrg );
 
     offsetisangle_ = false;
