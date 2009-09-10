@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.28 2009-09-01 13:28:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.29 2009-09-10 15:09:06 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uisegydef.cc,v 1.28 2009-09-01 13:28:09 cvsbert
 #include "envvars.h"
 #include "settings.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "seisioobjinfo.h"
 
 #include "uifileinput.h"
@@ -37,6 +38,8 @@ const char* uiSEGYFileSpec::sKeyLineNmToken = "#L";
 static const char* sgyfileflt = "SEG-Y files (*.sgy *.SGY *.segy)";
 static const char* sKeyEnableByteSwapWrite = "Enable SEG-Y byte swap writing";
 static int enabbyteswapwrite = -1;
+static BufferString lastreaddir;
+static BufferString lastwritedir;
 
 
 //--- uiSEGYFileSpec ----
@@ -56,7 +59,9 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     fnmfld_ = new uiFileInput( this, disptxt,
 		uiFileInput::Setup(uiFileDialog::Gen)
 		.forread(forread_).filter(sgyfileflt) );
-    fnmfld_->setDefaultSelectionDir( GetDataDir() );
+    BufferString defdir( forread_ ? lastreaddir : lastwritedir );
+    if ( defdir.isEmpty() ) defdir = GetDataDir();
+    fnmfld_->setDefaultSelectionDir( defdir );
 
     if ( canbemulti )
     {
@@ -99,7 +104,7 @@ bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 
     if ( !perm )
     {
-	    if ( spec.fname_.isEmpty() )
+	if ( spec.fname_.isEmpty() )
 	    mErrRet("No file name specified")
 
 	if ( forread_ )
@@ -114,6 +119,7 @@ bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 	}
     }
 
+    (forread_ ? lastreaddir : lastwritedir) = FilePath(spec.fname_).pathOnly();
     spec.fillPar( iop );
     return true;
 }
