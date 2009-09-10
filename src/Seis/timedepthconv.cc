@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.15 2009-09-08 19:53:15 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.16 2009-09-10 16:27:30 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -311,6 +311,48 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 }
 
 
+class Time2DepthStretcherProcessor : public ParallelTask
+{
+public:
+Time2DepthStretcherProcessor( FloatMathFunction& func,
+    const StepInterval<float>& zrg, const Interval<float>& trg,
+    const SamplingData<float>& sd, float* res, int nriter )
+    : samplfunc_( func )
+    , zrg_( zrg )
+    , trg_( trg )
+    , sd_( sd )
+    , res_( res )
+    , nriter_( nriter )
+{}
+
+
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    float depth = 0;
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	const float t = sd_.atIndex( idx );
+	res_[idx] = trg_.includes(t) &&
+		findValue( samplfunc_, zrg_.start, zrg_.stop, depth, t )
+	? res_[idx] = depth : mUdf(float);
+    }
+
+    return true;
+}
+
+od_int64 nrIterations() const	{ return nriter_; }
+
+int minThreadSize() const	{ return 50; }
+
+    FloatMathFunction&		samplfunc_;
+    const StepInterval<float>	zrg_;
+    Interval<float>		trg_;
+    const SamplingData<float>	sd_;
+    float*			res_;
+    int				nriter_;
+};
+
+
 void Time2DepthStretcher::transform(const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
@@ -372,16 +414,9 @@ void Time2DepthStretcher::transform(const BinID& bid,
     }
     else
     {
-	const Interval<float> trg( vs[0], vs[zsz-1] );
-	float depth;
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    const float t = sd.atIndex( idx );
-	    res[idx] = trg.includes(t) &&
-		    findValue( samplfunc, zrg.start, zrg.stop, depth, t )
-		?  res[idx] = depth : mUdf(float);
-	}
-	    
+	Time2DepthStretcherProcessor proc( samplfunc, zrg,
+	               Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
+	proc.execute();
     }
 }
 
@@ -447,15 +482,9 @@ void Time2DepthStretcher::transformBack(const BinID& bid,
     }
     else
     {
-	const Interval<float> drg( vs[0], vs[zsz-1] );
-	float time;
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    const float d = sd.atIndex( idx );
-	    res[idx] = drg.includes(d) &&
-		    findValue( samplfunc, zrg.start, zrg.stop, time, d )
-		?  res[idx] = time : mUdf(float);
-	}
+	Time2DepthStretcherProcessor proc( samplfunc, zrg,
+	               Interval<float>( vs[0],vs[zsz-1]), sd, res, sz );
+	proc.execute();
     }
 }
 
