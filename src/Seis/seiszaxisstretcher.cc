@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.5 2009-09-10 16:53:27 cvskris Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -55,12 +55,15 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 
     seiswriter_ = new SeisTrcWriter( &out );
 
-    SamplingData<double> sd( outcs_.zrg );
+    StepInterval<float> trcrg = ztransform_.getZInterval( !forward_ );
+    trcrg.step = ztransform_.getGoodZStep();
+
+    SamplingData<double> sd( trcrg );
     sampler_ =  new ZAxisTransformSampler(ztransform_,forward_,BinID(0,0),sd);
 
-    outtrc_ = new SeisTrc( outcs_.nrZ() );
-    outtrc_->setStartPos( outcs_.zrg.start );
-    outputptr_ = new float[outcs_.nrZ()];
+    outtrc_ = new SeisTrc( trcrg.nrSteps()+1 );
+    outtrc_->info().sampling = sd;
+    outputptr_ = new float[trcrg.nrSteps()+1];
 }
 
 
@@ -168,9 +171,9 @@ void SeisZAxisStretcher::nextChunk()
     cs.hrg = curhrg_;
 
     if ( voiid_<0 )
-	voiid_ = ztransform_.addVolumeOfInterest( cs, forward_ );
+	voiid_ = ztransform_.addVolumeOfInterest( cs, !forward_ );
     else
-	ztransform_.setVolumeOfInterest( voiid_, cs, forward_ );
+	ztransform_.setVolumeOfInterest( voiid_, cs, !forward_ );
 
     ztransform_.loadDataIfMissing( voiid_ );
 }
