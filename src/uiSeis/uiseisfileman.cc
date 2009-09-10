@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.91 2009-09-07 11:29:28 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.92 2009-09-10 13:43:59 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -110,13 +110,16 @@ void uiSeisFileMan::mkFileInfo()
 	txt += "Number of lines: "; txt += lset.nrLines();
     }
 
-
 #define mRangeTxt(line) \
     txt += cs.hrg.start.line; txt += " - "; txt += cs.hrg.stop.line; \
     txt += " ["; txt += cs.hrg.step.line; txt += "]"
 
-#define mZRangeTxt(memb) \
-    txt += SI().zIsTime() ? mNINT(1000*memb) : memb
+    const bool issidomain = ZDomain::isSIDomain( curioobj_->pars() );
+    const bool zistm = (SI().zIsTime() && issidomain)
+		    || (!SI().zIsTime() && !issidomain);
+
+#define mAddZRangeTxt(memb) \
+    txt += zistm ? mNINT(1000*memb) : memb
 
     CubeSampling cs;
     if ( !is2d_ )
@@ -129,8 +132,9 @@ void uiSeisFileMan::mkFileInfo()
 	    if ( !mIsUdf(cs.hrg.stop.crl) )
 		{ txt += "\nCrossline range: "; mRangeTxt(crl); }
 	    txt += "\nZ-range: "; 
-	    mZRangeTxt(cs.zrg.start); txt += " - "; mZRangeTxt(cs.zrg.stop); 
-	    txt += " ["; mZRangeTxt(cs.zrg.step); txt += "]";
+	    mAddZRangeTxt(cs.zrg.start); txt += " - ";
+	    mAddZRangeTxt(cs.zrg.stop); 
+	    txt += " ["; mAddZRangeTxt(cs.zrg.step); txt += "]";
 	}
     }
 
@@ -149,8 +153,9 @@ void uiSeisFileMan::mkFileInfo()
 	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
 	    txt += typstr ? typstr : "<unknown>";
 	}
-	if ( curioobj_->pars().hasKey(ZDomain::sKey()) )
-	{ txt += "\nDomain: "; txt += curioobj_->pars().find(ZDomain::sKey()); }
+	if ( !issidomain )
+	    { txt += "\nDomain: "; txt += zistm ? ZDomain::sKeyTWT()
+						: ZDomain::sKeyDepth(); }
     }
 
     if ( !strcmp(curioobj_->translator(),"CBVS") )
@@ -249,6 +254,8 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,uiDialog::Setup("Seismic file management",
 				 "Manage 2D seismic lines",
 				 "103.1.3"))
+    , issidomain(ZDomain::isSIDomain( ioobj.pars() ))
+    , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
 {
     setCtrlStyle( LeaveOnly );
 
@@ -381,9 +388,9 @@ void attribSel( CallBacker* )
     txt += "\nLast trace: "; txt += lastpos.nr_;
     txt += " ("; txt += lastpos.coord_.x;
     txt += ","; txt += lastpos.coord_.y; txt += ")";
-    txt += "\nZ-range: "; mZRangeTxt(l2dd.zrg_.start); txt += " - ";
-    mZRangeTxt(l2dd.zrg_.stop);
-    txt += " ["; mZRangeTxt(l2dd.zrg_.step); txt += "]";
+    txt += "\nZ-range: "; mAddZRangeTxt(l2dd.zrg_.start); txt += " - ";
+    mAddZRangeTxt(l2dd.zrg_.stop);
+    txt += " ["; mAddZRangeTxt(l2dd.zrg_.step); txt += "]";
 
     const IOPar& iopar = lineset->getInfo( lineidx );
     BufferString fname(iopar.find(sKey::FileName) );
@@ -515,6 +522,8 @@ protected:
 
     Seis2DLineSet*	lineset;
     uiSeisIOObjInfo*	objinfo;
+    const bool		issidomain;
+    const bool		zistm;
 
 };
 
