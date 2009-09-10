@@ -7,25 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.47 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.48 2009-09-10 11:37:23 cvshelene Exp $";
 
 #include "uiseisbrowser.h"
 
+#include "uiamplspectrum.h"
 #include "uibutton.h"
-#include "uitaskrunner.h"
-#include "uilabel.h"
-#include "uimsg.h"
-#include "uigeninput.h"
+#include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
-#include "uiseistrcbufviewer.h"
-#include "uitable.h"
-#include "uitoolbar.h"
-#include "uitextedit.h"
-#include "uiseparator.h"
-#include "uiamplspectrum.h"
 #include "uifunctiondisplay.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uiseistrcbufviewer.h"
+#include "uiseparator.h"
+#include "uitable.h"
+#include "uitaskrunner.h"
+#include "uitextedit.h"
+#include "uitoolbar.h"
 
 #include "cbvsreadmgr.h"
 #include "cubesampling.h"
@@ -185,6 +186,8 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
 	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
 					   Seis::is2D(setup.geom_), &emsg );
+	if ( setup.linekey_.attrName() == sKey::Steering )
+	    compnr_ = 1;
     }
     else
     {
@@ -224,6 +227,15 @@ void uiSeisBrowser::createMenuAndToolBar()
     mAddButton( "rightarrow.png",rightArrowPush,"Move right",false );
     showwgglbutidx_ = mAddButton( "viewflat.png",showWigglePush,
 	    			  "Show Wiggles",false );
+    tr_->getComponentNames( compnms_ );
+    if ( compnms_.size()>1 )
+    {
+	selcompnmfld_ = new uiComboBox( uitb_, compnms_, "Component name" );
+	uitb_->addObject( selcompnmfld_ );
+	selcompnmfld_->setCurrentItem( compnr_ );
+	selcompnmfld_->selectionChanged.notify( 
+					mCB(this,uiSeisBrowser,chgCompNrCB) );
+    }
 }
 
 
@@ -765,6 +777,13 @@ void uiSeisBrowser::setTrcBufViewTitle()
 
     trcbufvwr_->setWinTitle( title );
 
+}
+
+
+void uiSeisBrowser::chgCompNrCB( CallBacker* )
+{
+    compnr_ = selcompnmfld_ ? selcompnmfld_->currentItem() : 0;
+    fillTable();
 }
 
 

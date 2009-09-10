@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.19 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.20 2009-09-10 11:37:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "bufstringset.h"
 #include "multiid.h"
 #include "seistype.h"
 #include "samplingdata.h"
@@ -24,8 +25,8 @@ class SeisTrc;
 class SeisTrcBuf;
 class uiSeisTrcBufViewer;
 class SeisTrcBufDataPack;
+class uiComboBox;
 class uiTable;
-class uiGenInput;
 class uiSeisBrowserInfoVwr;
 
 
@@ -65,6 +66,7 @@ public :
 
     const BinID&	curBinID() const;
     const float		curZ() const;
+    void		setCompNr( int compnr )		{ compnr_ = compnr; }
 
 protected:
 
@@ -82,6 +84,7 @@ protected:
     bool		crlwise_;
     int			crlwisebutidx_;
     int			showwgglbutidx_;
+    uiComboBox*		selcompnmfld_;
 
     int			stepout_;
 
@@ -89,6 +92,7 @@ protected:
     uiToolBar*		uitb_;
     int			compnr_;
     int			nrcomps_;
+    BufferStringSet	compnms_;
     int			nrsamples_;
     SamplingData<float>	sd_;
 
@@ -114,6 +118,7 @@ protected:
     void		trcbufViewerClosed(CallBacker*);
     void		trcselectionChanged(CallBacker*);
     void		valChgReDraw(CallBacker*);
+    void		chgCompNrCB(CallBacker*);
 
 private:
 
