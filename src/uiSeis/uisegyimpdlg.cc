@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.22 2009-09-10 13:34:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.23 2009-09-10 14:11:47 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -112,7 +112,7 @@ public:
 uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio,
 		     const char* anm )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-import",
-		    		     "Specify file details","103.0.6"))
+		    		     "Specify file details","103.0.4"))
 	, inioobj_(iio)
 	, outioobj_(oio)
 	, impdlg_(p)
