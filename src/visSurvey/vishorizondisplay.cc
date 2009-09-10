@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.115 2009-09-04 08:24:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.116 2009-09-10 02:01:07 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -74,6 +74,7 @@ HorizonDisplay::HorizonDisplay()
     , maxintersectionlinethickness_( 40 )
     , allowshading_( true )					
     , intersectionlinematerial_( 0 )	
+    , displayintersectionlines_( true )	
 {
     as_ += new Attrib::SelSpec;
     coltabmappersetups_ += ColTab::MapperSetup();
@@ -126,6 +127,21 @@ HorizonDisplay::~HorizonDisplay()
 	dpman.release( datapackids_[idx] );
 
     deepErase( shifts_ );
+}
+
+
+void HorizonDisplay::displayIntersectionLines( bool yn )
+{
+    displayintersectionlines_ = yn;
+
+    hasmoved.trigger();
+    changedisplay.trigger();
+}
+
+
+bool HorizonDisplay::displaysIntersectionLines() const
+{
+    return displayintersectionlines_;
 }
 
 
@@ -949,8 +965,9 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
     
     if ( yn && !intersectionlinematerial_ )
     {
-    	visBase::Material* linemat = visBase::Material::create();
+    	RefMan<visBase::Material> linemat = visBase::Material::create();
     	linemat->setFrom( *material_ );
+	linemat->setColor( nontexturecol_ );
     	linemat->setDiffIntensity( 1 );
     	linemat->setAmbience( 1 );
     	
@@ -963,7 +980,7 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 
 visBase::Material* HorizonDisplay::getMaterial()
 {
-    return displayonlyatsections_ ? intersectionlinematerial_ : material_;
+    return material_;
 }
 
 
@@ -1504,7 +1521,7 @@ void HorizonDisplay::updateIntersectionLines(
     TypeSet<int> linestoupdate;
     BoolTypeSet lineshouldexist( intersectionlineids_.size(), false );
 
-    if ( displayonlyatsections_ )
+    if ( displayonlyatsections_ || displayintersectionlines_ )
     {
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
