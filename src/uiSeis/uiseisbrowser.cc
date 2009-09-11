@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.48 2009-09-10 11:37:23 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.49 2009-09-11 09:03:32 cvshelene Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -782,6 +782,8 @@ void uiSeisBrowser::setTrcBufViewTitle()
 
 void uiSeisBrowser::chgCompNrCB( CallBacker* )
 {
+    NotifyStopper notifstop( tbl_->valueChanged );
+    commitChanges();
     compnr_ = selcompnmfld_ ? selcompnmfld_->currentItem() : 0;
     fillTable();
 }
