@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: lmkemfaulttransl.h,v 1.2 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: lmkemfaulttransl.h,v 1.3 2009-09-11 08:39:55 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ public:
     			lmkEMFault3DTranslator(const char* nm,
 					     const char* unm)
 			    : EMSurfaceTranslator(nm,unm)	{}
+    virtual		~lmkEMFault3DTranslator();
 
     virtual Executor*	reader(EM::Fault3D&,Conn*,const char* formatfilename );
     virtual Executor*	writer(const EM::Fault3D&,Conn*,

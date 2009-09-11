@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.4 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.5 2009-09-11 08:39:55 cvsbert Exp $";
 
 #include "lmkemfaulttransl.h"
 
@@ -259,6 +259,11 @@ int lmkEMFault3DReader::nextStep()
 const char* lmkEMFault3DReader::message() const
 {
     return msg.isEmpty() ? "Reading Fault" : msg.buf();
+}
+
+
+lmkEMFault3DTranslator::~lmkEMFault3DTranslator()
+{
 }
 
 

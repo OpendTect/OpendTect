@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: emfact.cc,v 1.4 2009-09-10 13:22:57 cvsbert Exp $";
+static const char* rcsID = "$Id: emfact.cc,v 1.5 2009-09-11 08:39:55 cvsbert Exp $";
 
 
 #include "emsurfacetr.h"
@@ -21,11 +21,6 @@ defineTranslator(dgb,EMFault3D,mDGBKey);
 
 #include "lmkemfaulttransl.h"
 defineTranslator(lmk,EMFault3D,"Landmark");
-
-//#include "emsticksettransl.h"
-//defineTranslatorGroup(EMStickSet,EMStickSetTranslatorGroup::keyword);
-//defineTranslator(lmk,EMStickSet,"Landmark");
-
 
 #include "embodytr.h"
 defineTranslatorGroup(EMBody,EMBodyTranslatorGroup::sKeyword());
