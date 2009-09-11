@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.183 2009-09-07 08:36:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.184 2009-09-11 10:41:03 cvshelene Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -477,6 +477,7 @@ void uiODSceneMgr::setKeyBindings()
     StringListInpSpec* inpspec = new StringListInpSpec( keyset );
     inpspec->setText( scenes_[0]->sovwr_->getCurrentKeyBindings(), 0 );
     uiGenInputDlg dlg( &appl_, "Select Mouse Controls", "Select", inpspec );
+    dlg.setHelpID("0.2.7");
     if ( dlg.go() )
 	mDoAllScenes(sovwr_,setKeyBindings,dlg.text());
 }
