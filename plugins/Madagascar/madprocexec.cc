@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.11 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.12 2009-09-11 11:12:55 cvsraman Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -36,6 +36,7 @@ ODMad::ProcExec::ProcExec( const IOPar& pars, std::ostream& reportstrm )
     , procstream_(*new StreamData)
     , plotstream_(*new StreamData)
     , progmeter_(0)
+    , trc_(0)      
 {
     const char* str = pars_.find( sKeyFlowStage() );
     if ( str && *str )
