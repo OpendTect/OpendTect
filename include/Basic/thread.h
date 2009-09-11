@@ -7,17 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.39 2009-08-26 21:24:56 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.40 2009-09-11 21:06:08 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 #include "callback.h"
 
-
+#ifndef OD_NO_QT
 class QThread;
 class QMutex;
 class QWaitCondition;
+#endif
 
 /*!\brief interface to threads that should be portable.
 
@@ -55,7 +56,9 @@ public:
 
 protected:
 
+#ifndef OD_NO_QT
     QMutex*		qmutex_;
+#ifndef OD_NO_QT
 };
 
 
@@ -142,7 +145,9 @@ public:
 
 protected:
 
+#ifndef OD_NO_QT
     QWaitCondition*		cond_;
+#endif
 };
 
 
@@ -257,7 +262,9 @@ public:
 
 protected:
 
+#ifndef OD_NO_QT
     QThread*			thread_;
+#endif
 };
 
 /*! Fetches number of processors from operating system, unless:
