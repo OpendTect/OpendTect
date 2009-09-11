@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.46 2009-09-01 15:23:33 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.47 2009-09-11 21:16:03 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -25,37 +25,51 @@ static const char* rcsID = "$Id: thread.cc,v 1.46 2009-09-01 15:23:33 cvskris Ex
 
 
 Threads::Mutex::Mutex( bool recursive )
+#ifndef OD_NO_QT
     : qmutex_( new QMutex(QMutex::NonRecursive) )
+#endif
 {}
 
 
 //!Implemented since standard copy constuctor will hang the system
 Threads::Mutex::Mutex( const Mutex& m )
+#ifndef OD_NO_QT
     : qmutex_( new QMutex )
+#endif
 { }
 
 
 Threads::Mutex::~Mutex()
 {
+#ifndef OD_NO_QT
     delete qmutex_;
+#endif
 }
 
 
 void Threads::Mutex::lock()
 { 
+#ifndef OD_NO_QT
     qmutex_->lock();
+#endif
 }
 
 
 void Threads::Mutex::unLock()
 {
+#ifndef OD_NO_QT
     qmutex_->unlock();
+#endif
 }
 
 
 bool Threads::Mutex::tryLock()
 {
+#ifndef OD_NO_QT
     return qmutex_->tryLock();
+#else
+    return true;
+#endif
 }
 
 
@@ -340,36 +354,49 @@ void Threads::Barrier::releaseAll()
 
 Threads::ConditionVar::ConditionVar()
     : Mutex( false )
+#ifndef OD_NO_QT
     , cond_( new QWaitCondition )
+#endif
 { }
 
 
 //!Implemented since standard copy constuctor will hang the system
 Threads::ConditionVar::ConditionVar( const ConditionVar& )
     : Mutex( false )
+#ifndef OD_NO_QT
     , cond_( new QWaitCondition )
+#endif
 { }
 
 
 Threads::ConditionVar::~ConditionVar()
 {
+#ifndef OD_NO_QT
     delete cond_;
+#endif
 }
 
 
 void Threads::ConditionVar::wait()
-{ cond_->wait( qmutex_ ); }
+{
+#ifndef OD_NO_QT
+    cond_->wait( qmutex_ );
+#endif
+}
 
 
 void Threads::ConditionVar::signal(bool all)
 {
+#ifndef OD_NO_QT
     if ( all ) cond_->wakeAll();
     else cond_->wakeOne();
+#endif
 }
 
 
 typedef void (*ThreadFunc)(void*);
 
+#ifndef OD_NO_QT
 class ThreadBody : public QThread
 {
 public:
@@ -394,29 +421,44 @@ protected:
     ThreadFunc		func_;
     CallBack		cb_;
 };
+#endif
 
 
 
 Threads::Thread::Thread( void (func)(void*) )
+#ifndef OD_NO_QT
     : thread_( new ThreadBody( func ) )
-{ thread_->start(); }
+#endif
+{
+#ifndef OD_NO_QT
+    thread_->start();
+#endif
+}
 
 
 Threads::Thread::~Thread()
-{ delete thread_; }
+{
+#ifndef OD_NO_QT
+    delete thread_;
+#endif
+}
 
 
 Threads::Thread::Thread( const CallBack& cb )
 {
     if ( !cb.willCall() ) return;
+#ifndef OD_NO_QT
     thread_ = new ThreadBody( cb );
     thread_->start();
+#endif
 }
 
 
 void Threads::Thread::stop()
 {
+#ifndef OD_NO_QT
     thread_->wait();
+#endif
 }
 
 

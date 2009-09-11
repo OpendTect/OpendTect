@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.40 2009-09-11 21:06:08 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.41 2009-09-11 21:16:03 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -58,7 +58,7 @@ protected:
 
 #ifndef OD_NO_QT
     QMutex*		qmutex_;
-#ifndef OD_NO_QT
+#endif
 };
 
 
