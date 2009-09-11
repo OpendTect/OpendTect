@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.11 2009-08-25 16:11:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.12 2009-09-11 09:43:17 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -15,6 +15,8 @@ static const char* sKeyTrackNmIsBelow = "Track Name Below";
 static const char* sKeyTrackNmSize = "Track Name Size";
 static const char* sKeyMarkerIsCircle = "Markeriscircular";
 static const char* sKeyMarkerNmSize = "Marker Name Size";
+static const char* sKeyMarkerNmColor = "Marker Name Color";
+static const char* sKeyMarkerNmSameColor = "Marker Name Color Same as Marker";
 static const char* sKeyMarkerSingleColor = "Single Marker Color";
 static const char* sKeyLeftColor = "Left Log Color";
 static const char* sKeyLeftSize = "Left Log Size";
@@ -116,6 +118,8 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
     par.getYN(IOPar::compKey(subjectName(),sKeyMarkerSingleColor),issinglecol_);
     par.getYN( IOPar::compKey(subjectName(),sKeyMarkerIsCircle), circular_ );
     par.get( IOPar::compKey(subjectName(),sKeyMarkerNmSize), nmsize_ );
+    par.getYN( IOPar::compKey(subjectName(),sKeyMarkerNmSameColor), samenmcol_);
+    par.get( IOPar::compKey(subjectName(),sKeyMarkerNmColor), nmcol_ );
 }
 
 
@@ -124,6 +128,8 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
     par.setYN(IOPar::compKey(subjectName(),sKeyMarkerSingleColor),issinglecol_);
     par.setYN( IOPar::compKey(subjectName(),sKeyMarkerIsCircle), circular_ );
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmSize), nmsize_ );
+    par.setYN( IOPar::compKey(subjectName(),sKeyMarkerNmSameColor), samenmcol_);
+    par.set( IOPar::compKey(subjectName(),sKeyMarkerNmColor), nmcol_ );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.111 2009-08-31 09:31:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.112 2009-09-11 09:43:17 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -161,7 +161,9 @@ void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
     mp.col_ 		= dpp( markers_.color_  );
     mp.iscircular_ 	= dpp( markers_.circular_ );
     mp.issinglecol_ 	= dpp( markers_.issinglecol_ );
+    mp.issamenmcol_ 	= dpp( markers_.samenmcol_ );
     mp.namesize_ 	= dpp( markers_.nmsize_ );
+    mp.namecol_ 	= dpp( markers_.nmcol_ );
     mp.size_ 		= dpp( markers_.size_ );
 }
 
@@ -295,7 +297,9 @@ void WellDisplay::updateMarkers( CallBacker* )
 	    mMeter2Feet(pos.z)
 	mp.pos_ = &pos;	mp.name_ = wellmarker->name();	
 
-	const Color& col = mp.issinglecol_ ? mp.col_ : wellmarker->color();
+	if ( !mp.issinglecol_ ) mp.col_  = wellmarker->color();
+	if ( mp.issamenmcol_ ) mp.namecol_  = mp.col_;
+
 	well_->addMarker( mp );
     }
 }

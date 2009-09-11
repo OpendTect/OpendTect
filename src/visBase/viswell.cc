@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.52 2009-08-24 15:15:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.53 2009-09-11 09:43:17 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -203,7 +203,16 @@ void Well::addMarker( const MarkerParams& mp )
     SoCoordinate3* markercoords= new SoCoordinate3;
     markershapesep->addChild(markercoords);
 
-    if ( !mp.iscircular_ )
+    if ( mp.iscircular_ )
+    {
+	marker->setType( MarkerStyle3D::Cylinder );
+	SoCylinder* markershape = new SoCylinder;
+	markershape->height.setValue(0);
+	markershape->radius.setValue(1);
+	markershape->parts.setValue(SoCylinder::BOTTOM);
+	markershapesep->addChild(markershape);
+    }
+    else
     {
 	marker->setType( MarkerStyle3D::Cube );
 	SoFaceSet* markershape = new SoFaceSet;
@@ -212,15 +221,6 @@ void Well::addMarker( const MarkerParams& mp )
 	markercoords->point.set1Value(2, 1, 1,0);
 	markercoords->point.set1Value(3, 1,-1,0);
 	markershape->numVertices.setValue(4);
-	markershapesep->addChild(markershape);
-    }
-    else
-    {
-	marker->setType( MarkerStyle3D::Cylinder );
-	SoCylinder* markershape = new SoCylinder;
-	markershape->height.setValue(0);
-	markershape->radius.setValue(1);
-	markershape->parts.setValue(SoCylinder::BOTTOM);
 	markershapesep->addChild(markershape);
     }	
 
@@ -241,6 +241,7 @@ void Well::addMarker( const MarkerParams& mp )
     markernm->setSize( mp.namesize_ );
     markernm->setPosition( *mp.pos_ );
     markernm->setJustification( Text::Left );
+    markernm->getMaterial()->setColor( mp.namecol_ );
     markernames_->addObject( markernm );
 }
 

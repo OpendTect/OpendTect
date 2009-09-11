@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.17 2009-08-17 12:00:21 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.18 2009-09-11 09:43:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,12 +87,15 @@ public:
 			    , circular_(false)	
 			    , issinglecol_(false)
 			    , nmsize_(10)
+			    , samenmcol_(false)		 
 			    {}
 
 	virtual const char* subjectName() const	{ return "Markers"; }
 	bool		circular_;
 	bool 		issinglecol_;
 	int 		nmsize_;
+	Color		nmcol_;
+	bool		samenmcol_;
 
     protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.16 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.17 2009-09-11 09:43:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,11 +106,13 @@ protected:
     virtual void	doPutToScreen();
     virtual void	doGetFromScreen();
     void                setMarkerColSel(CallBacker*);
+    void                setMarkerNmColSel(CallBacker*);
 
     uiGenInput*		circfld_;
     uiCheckBox*		singlecolfld_;
     uiLabeledSpinBox*	nmsizefld_;
-
+    uiCheckBox*		samecolasmarkerfld_;
+    uiColorInput*	nmcolfld_;
 };
 
 mClass uiWellLogDispProperties : public uiWellDispProperties

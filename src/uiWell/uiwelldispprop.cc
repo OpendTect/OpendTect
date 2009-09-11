@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.29 2009-07-23 08:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.30 2009-09-11 09:43:17 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -139,11 +139,26 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     singlecolfld_->activated.notify(
 	    mCB(this,uiWellMarkersDispProperties,setMarkerColSel));
    
-    nmsizefld_ = new uiLabeledSpinBox( this, "Name size" );
+    nmsizefld_ = new uiLabeledSpinBox( this, "Names size" );
     nmsizefld_->box()->setInterval(10,30,6);
     nmsizefld_->box()->valueChanging.notify(
 	    mCB(this,uiWellMarkersDispProperties,propChg) );
     nmsizefld_->attach( alignedBelow, circfld_ );
+    
+    uiColorInput::Setup csu( mrkprops().color_ );
+    BufferString dlgtxt( "Names color" );
+    csu.lbltxt( dlgtxt ).withalpha( false );
+    nmcolfld_ = new uiColorInput( this, csu, dlgtxt );
+    nmcolfld_->attach( alignedBelow, nmsizefld_ );
+    nmcolfld_->colorchanged.notify( 
+	    		mCB(this,uiWellMarkersDispProperties,propChg) );
+
+    samecolasmarkerfld_ = new uiCheckBox( this, "same as markers");
+    samecolasmarkerfld_->attach( rightOf, nmcolfld_); 
+    samecolasmarkerfld_->activated.notify(
+	    mCB(this,uiWellMarkersDispProperties,propChg) );
+    samecolasmarkerfld_->activated.notify(
+	    mCB(this,uiWellMarkersDispProperties,setMarkerNmColSel));
    
     doPutToScreen();
 }
@@ -156,11 +171,19 @@ void uiWellMarkersDispProperties::setMarkerColSel( CallBacker*  )
 }
 
 
+void uiWellMarkersDispProperties::setMarkerNmColSel( CallBacker*  )
+{
+    bool issel = samecolasmarkerfld_->isChecked();
+    nmcolfld_->setSensitive( !issel );
+}
+
 void uiWellMarkersDispProperties::doPutToScreen()
 {
     circfld_->setValue( mrkprops().circular_ );
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
     nmsizefld_->box()->setValue( mrkprops().nmsize_ );
+    samecolasmarkerfld_->setChecked( mrkprops().samenmcol_ );
+    nmcolfld_->setColor( mrkprops().nmcol_ );
 }
 
 
@@ -169,6 +192,8 @@ void uiWellMarkersDispProperties::doGetFromScreen()
     mrkprops().circular_ = circfld_->getBoolValue();
     mrkprops().issinglecol_ = singlecolfld_->isChecked();
     mrkprops().nmsize_ =  nmsizefld_->box()->getValue();
+    mrkprops().samenmcol_ = samecolasmarkerfld_->isChecked();
+    mrkprops().nmcol_ =  nmcolfld_->color();
 }
 
 
@@ -177,8 +202,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 				Well::DisplayProperties::Log& lp, 
 				Well::LogSet* wl)
     : uiWellDispProperties(p,su,lp)
+    , wl_(wl)
 {
-    wl_ = wl;
     stylefld_ = new uiGenInput( this, "Style", 
 			        BoolInpSpec(true,"Well log","Seismic") );
     stylefld_->attach( alignedAbove, szfld_ );

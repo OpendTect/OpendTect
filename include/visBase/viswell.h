@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.32 2009-08-17 12:00:21 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.33 2009-09-11 09:43:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,9 @@ public:
 				{}
 	bool 			iscircular_; 
 	bool 			issinglecol_; 
+	bool 			issamenmcol_; 
 	int			namesize_;			
+	Color			namecol_;			
 	Coord3* 		pos_;
     };
 
