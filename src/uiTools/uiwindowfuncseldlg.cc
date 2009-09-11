@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.14 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.15 2009-09-11 13:17:28 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.14 2009-07-22 16:01:4
 #include "uigraphicsview.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uigroup.h"
 #include "uilistbox.h"
 #include "uiworld2ui.h"
 #include "iodraw.h"
@@ -27,45 +28,25 @@ static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.14 2009-07-22 16:01:4
 #define mTransHeight    250
 #define mTransWidth     500
 
-uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
-	float variable )
-    : uiDialog( p, uiDialog::Setup("Window/Taper display",0,mNoHelpID) )
+uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const char* funcnm )
+    : uiGroup(p)
     , transform_(new uiWorld2Ui())
-    , variable_(variable)
     , polyitemgrp_(0)
     , borderrectitem_(0)
+    , funclistselChged(this)
 {
-    setCtrlStyle( LeaveOnly );
+    funclistfld_ = new uiListBox( this );
+    funclistfld_->attach( topBorder, 0 );
+    funclistfld_->setMultiSelect();
     
-    taperlistfld_ = new uiListBox( this );
-    taperlistfld_->attach( topBorder, 0 );
-    taperlistfld_->setMultiSelect();
-    
-    BufferStringSet funcnames = WinFuncs().getNames();
-    for ( int idx=0; idx<funcnames.size(); idx++ )
-    {
-	winfunc_ += WinFuncs().create( funcnames[idx]->buf() );
-	linesetcolor_ += Color::stdDrawColor( idx );
-	taperlistfld_->addItem( funcnames[idx]->buf(), linesetcolor_[idx] );
-    }
-
-    taperlistfld_->setCurrentItem( windowname );
-
-    varinpfld_ = new uiGenInput( this, "Taper Length (%)", FloatInpSpec() );
-    varinpfld_->attach( rightAlignedBelow, taperlistfld_ );
-    !strcmp(windowname,"CosTaper") ? varinpfld_->display( true ) : 
-				     varinpfld_->display( false );
-    varinpfld_->setValue( variable_ * 100 );
-    varinpfld_->valuechanged.notify(
-	    mCB(this,uiWindowFuncSelDlg,taperSelChg) );
-
-    view_ = new uiGraphicsView( this, "Window/Taper view" );
+    view_ = new uiGraphicsView( this, "Function view" );
     view_->setPrefHeight( mTransHeight );
     view_->setPrefWidth( mTransWidth );
     view_->setStretch(0,0);
-    view_->attach( rightOf, taperlistfld_ );
-    taperlistfld_->selectionChanged.notify( 
-	mCB(this,uiWindowFuncSelDlg,taperSelChg) );
+    view_->attach( rightOf, funclistfld_ );
+    
+    funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
+
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
 		     uiWorldRect(-1.2,1,1.2,0) );
 
@@ -80,16 +61,15 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
     asu.side( uiRect::Left );
     yax_ = new uiAxisHandler( &view_->scene(), asu );
     xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
+
     float annotstart = -1;
     xax_->setRange( StepInterval<float>(-1.2,1.2,0.25), &annotstart );
     yax_->setRange( StepInterval<float>(0,1,0.25),0 );
 
-    setCurrentWindowFunc( windowname, variable );
-    taperSelChg(0);
 }
 
 
-uiWindowFuncSelDlg::~uiWindowFuncSelDlg()
+uiFuncSelDraw::~uiFuncSelDraw()
 {
     delete transform_;
     pointlistset_.erase();
@@ -97,7 +77,21 @@ uiWindowFuncSelDlg::~uiWindowFuncSelDlg()
 }
 
 
-void uiWindowFuncSelDlg::createLine(const WindowFunction& winfunc,bool replace)
+void uiFuncSelDraw::addToList( const char* fcname )
+{
+    const int curidx = funclistfld_->size();
+    linesetcolor_ += Color::stdDrawColor( curidx );
+    funclistfld_->addItem( fcname, linesetcolor_[curidx] );
+}
+
+
+void uiFuncSelDraw::addToListAsCurrent( const char* fcname )
+{
+    funclistfld_->setCurrentItem( fcname );
+}
+
+
+void uiFuncSelDraw::createLine( const FloatMathFunction& mathfunc )
 {
     TypeSet<uiPoint> pointlist;
 
@@ -108,27 +102,15 @@ void uiWindowFuncSelDlg::createLine(const WindowFunction& winfunc,bool replace)
     for ( int idx=0; idx<xrg.nrSteps(); idx++ )
     {
 	const float x = xrg.atIndex( idx );
-	const float y = winfunc.getValue( x );
+	const float y = mathfunc.getValue( x );
 	pointlist += uiPoint( transform_->transform(uiWorldPoint(x,y)) );
     }
 
-    if ( replace )
-    {
-	for ( int idx=0; idx<winfunc_.size(); idx++ )
-	{
-	    if ( !strcmp(winfunc_[idx]->name(),winfunc.name()) )
-	    {
-		pointlistset_[ idx ] = pointlist;
-	    }
-	}
-    }
-    else
-	pointlistset_ += pointlist;
-
+    pointlistset_ += pointlist;
 }
 
 
-void uiWindowFuncSelDlg::draw()
+void uiFuncSelDraw::draw()
 {
     xax_->setNewDevSize( mTransWidth, mTransHeight );
     yax_->setNewDevSize( mTransHeight , mTransWidth );
@@ -153,95 +135,122 @@ void uiWindowFuncSelDlg::draw()
     }
     else
 	polyitemgrp_->removeAll( true );
-    taperlistfld_->getSelectedItems( selecteditems );
+    funclistfld_->getSelectedItems( selecteditems );
     for ( int idx=0; idx<pointlistset_.size(); idx++ )
     {
 	uiPolyLineItem* polyitem = new uiPolyLineItem();
 	polyitem->setPolyLine( pointlistset_[idx] );
 	LineStyle ls;
 	ls.width_ = 2;
-	if ( selsz == 1 )
-	{
-	    Color col( linesetcolor_[taperlistfld_->currentItem()] );
-	    ls.color_ = col;
-	    polyitem->setPenStyle( ls );
-	}
-	else
-	{
-	    Color col( linesetcolor_[selecteditems[idx]] );
-	    ls.color_ = col;
-	    polyitem->setPenStyle( ls );
-	}
+	ls.color_ = linesetcolor_[ selsz==1 ? funclistfld_->currentItem() 
+					    : selecteditems[idx]];
+	polyitem->setPenStyle( ls );
 	polyitemgrp_->add( polyitem );
     }
 }
 
 
-void uiWindowFuncSelDlg::setCurrentWindowFunc( const char* nm, float variable )
+void uiFuncSelDraw::funcSelChg( CallBacker* )
 {
-    variable_ = variable;
-    taperlistfld_->setCurrentItem( nm );
-    taperSelChg(0);
+    funclistselChged.trigger();
+    pointlistset_.erase();
+    for ( int idx=0; idx<funclistfld_->size(); idx++ )
+    {
+	if ( !funclistfld_->isSelected(idx) )
+	    continue;
+	createLine( *mathfunc_[idx] );
+    }
+
+    draw();
 }
 
 
-bool uiWindowFuncSelDlg::getCurrentWindowName( BufferString& windowname )
+void uiFuncSelDraw::addFunction( FloatMathFunction* mfunc )
+{ 
+    if (!mfunc ) return; 
+    mathfunc_ += mfunc; 
+}
+
+
+int uiFuncSelDraw::getCurrentListSize() const
+{ 
+    return funclistfld_->size();
+}
+
+
+const char* uiFuncSelDraw::getCurrentListName() const
 {
-    if ( taperlistfld_->nrSelected() == 1 )
+    if ( funclistfld_->nrSelected() == 1 )
+	return funclistfld_->textOfItem( funclistfld_->currentItem() );
+    return 0;
+}
+
+
+
+uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
+					float variable )
+    : uiDialog( p, uiDialog::Setup("Window/Taper display",0,mNoHelpID) )
+    , variable_(variable)
+    , funcdrawer_(0)			 
+{
+    setCtrlStyle( LeaveOnly );
+   
+    funcdrawer_ = new uiFuncSelDraw( this, windowname );
+    BufferStringSet funcnames = WinFuncs().getNames();
+    for ( int idx=0; idx<funcnames.size(); idx++ )
     {
-	windowname = taperlistfld_->textOfItem( taperlistfld_->currentItem() );
-	return true;
+	winfunc_ += WinFuncs().create( funcnames[idx]->buf() );
+	funcdrawer_->addToList( funcnames[idx]->buf());
+	funcdrawer_->addFunction( winfunc_[idx]  );
     }
-    else
-	return false;
+
+    funcdrawer_->funclistselChged.notify(mCB(this,uiWindowFuncSelDlg,funcSelChg));
+
+    varinpfld_ = new uiGenInput( this, "Taper Length (%)", FloatInpSpec() );
+    varinpfld_->attach( leftAlignedBelow, funcdrawer_ );
+    varinpfld_->setValue( variable_ * 100 );
+    varinpfld_->valuechanged.notify( mCB(this,uiWindowFuncSelDlg,funcSelChg) );
+
+    setCurrentWindowFunc( windowname, variable );
+    funcSelChg(0);
+}
+
+
+uiWindowFuncSelDlg::~uiWindowFuncSelDlg()
+{
+    delete funcdrawer_;
 }
 
 
 float uiWindowFuncSelDlg::getVariable()
 {
-    BufferString winname;
-    getCurrentWindowName( winname );
-    for ( int idx=0; idx<winfunc_.size(); idx++ )
-    {
-	if( !strcmp(winname.buf(),winfunc_[idx]->name()) )
-	{
-	    if( winfunc_[idx]->hasVariable() ) 
-		return variable_;
-	}
-    }
-    return mUdf(float);
+    WindowFunction* wf = getCurrentWindowFunc();
+    if ( wf && wf->hasVariable() )
+	return variable_;
+    return -1;
 }
 
 
-void uiWindowFuncSelDlg::taperSelChg( CallBacker* )
+void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
 {
-    pointlistset_.erase();
+    NotifyStopper nsf( funcdrawer_->funclistselChged );
     bool isvartappresent = false;
-    for ( int idx=0; idx<taperlistfld_->size(); idx++ )
-    {
-	if ( !taperlistfld_->isSelected(idx) )
-	    continue;
 
-	if ( winfunc_[ idx ]->hasVariable() )
-	{
-	    isvartappresent = true;
-	    float prevvariable = variable_;
-	    mIsUdf(variable_) ? variable_ = 0.05 : 
-		 		variable_ = varinpfld_->getfValue(0)/100;
-	    variable_ > 1 ? varinpfld_->setValue( prevvariable * 100 ) :
-			      varinpfld_->setValue( variable_ * 100 );
-	    if ( variable_ > 1 )
-	       	variable_ = prevvariable; 
-	    winfunc_[ idx ]->setVariable( 1.0 - variable_ );
-	    varinpfld_->setValue( variable_ * 100 );
-	}
-	createLine( *winfunc_[idx] );
+    WindowFunction* wf = getCurrentWindowFunc();
+    if ( wf && wf->hasVariable() )
+    {
+	isvartappresent = true;
+	float prevvariable = variable_;
+	variable_ = mIsUdf(variable_) ? 0.05 : varinpfld_->getfValue(0)/100;
+	if ( variable_ > 1 || mIsUdf(variable_) )
+	    variable_ = prevvariable; 
+	wf->setVariable( 1.0 - variable_ );
+	varinpfld_->setValue( variable_ * 100 );
     }
 
-    isvartappresent ? varinpfld_->display( true ) :
-		      varinpfld_->display( false );
+    varinpfld_->display( isvartappresent );
+    funcdrawer_->funcSelChg(0);
     //canvas_->update();
-    draw();
 }
 
 
@@ -253,5 +262,31 @@ void uiWindowFuncSelDlg::setVariable( float variable )
        		    varinpfld_->setValue( variable_ * 100 );
     if ( variable_ > 1 )
 	variable_ = prevvariable; 
-    taperSelChg(0);
+    funcSelChg(0);
 }
+
+
+void uiWindowFuncSelDlg::setCurrentWindowFunc( const char* nm, float variable )
+{
+    variable_ = variable;
+    funcdrawer_->addToListAsCurrent( nm );
+    funcSelChg(0);
+}
+
+
+WindowFunction* uiWindowFuncSelDlg::getCurrentWindowFunc()
+{
+    BufferString winname = getCurrentWindowName();
+    BufferStringSet funcnames = WinFuncs().getNames();
+    if ( winname )
+	return winfunc_[funcnames.indexOf(winname)];
+    return 0;
+
+}
+
+
+const char* uiWindowFuncSelDlg::getCurrentWindowName() const
+{
+    return funcdrawer_->getCurrentListName();
+}
+

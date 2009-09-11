@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.8 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.9 2009-09-11 13:17:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,9 @@ ________________________________________________________________________
 
 
 #include "uidialog.h"
+#include "uigroup.h"
 #include "color.h"
+#include "mathfunc.h"
 
 class uiAxisHandler;
 class uiGraphicsItemGroup;
@@ -26,8 +28,45 @@ class uiRectItem;
 class uiWorld2Ui;
 class WindowFunction;
 
-/*!brief Displays a windowfunction. */
+/*!brief Displays a mathfunction. */
 
+mClass uiFuncSelDraw : public uiGroup
+{
+
+public:
+			uiFuncSelDraw(uiParent*,const char*);
+			~uiFuncSelDraw();
+
+    Notifier<uiFuncSelDraw> funclistselChged;
+
+    void		addFunction(FloatMathFunction*); 
+    void		addToList(const char*); 
+    void		addToListAsCurrent(const char*); 
+    const char*		getCurrentListName() const;
+    int			getCurrentListSize() const; 
+    void		createLine(const FloatMathFunction&);
+    
+    void		funcSelChg(CallBacker*);
+
+protected:
+				
+    uiGraphicsItemGroup* polyitemgrp_;
+    uiGraphicsView*	view_;
+    uiListBox*		funclistfld_;
+    uiWorld2Ui*		transform_;
+    uiAxisHandler*	xax_;
+    uiAxisHandler*	yax_;
+    uiRectItem*		borderrectitem_;
+    TypeSet< TypeSet<uiPoint> >	pointlistset_;
+    TypeSet<Color>		linesetcolor_;
+    ObjectSet<FloatMathFunction> mathfunc_;
+    
+    void		draw();
+
+};
+
+
+/*!brief Displays a windowfunction. */
 mClass uiWindowFuncSelDlg : public uiDialog
 {
 
@@ -35,32 +74,24 @@ public:
 			uiWindowFuncSelDlg(uiParent*,const char*,float);
 			~uiWindowFuncSelDlg();
 
+    const char*		getCurrentWindowName() const;
     void		setCurrentWindowFunc(const char*,float);
-    bool		getCurrentWindowName(BufferString&);
     void		setVariable(float); 
     float		getVariable();
-    void		createLine(const WindowFunction&,bool replace=false);
 
 protected:
 				
-    void		draw();
-    void		taperSelChg(CallBacker*);
-    void		variableChanged(CallBacker*);
     //bool		rejectOK(CallBacker*);
-
-    uiGraphicsItemGroup* polyitemgrp_;
-    uiGraphicsView*	view_;
     uiGenInput*		varinpfld_;
-    uiListBox*		taperlistfld_;
-    uiWorld2Ui*		transform_;
-    uiAxisHandler*	xax_;
-    uiAxisHandler*	yax_;
-    uiRectItem*		borderrectitem_;
     float		variable_;
-    TypeSet< TypeSet<uiPoint> >	pointlistset_;
-    TypeSet<Color>		linesetcolor_;
+    uiFuncSelDraw*	funcdrawer_;
     ObjectSet<WindowFunction>	winfunc_;
+    
+    WindowFunction*	getCurrentWindowFunc();
+    void		funcSelChg(CallBacker*);
 
 };
+
+
 
 #endif
