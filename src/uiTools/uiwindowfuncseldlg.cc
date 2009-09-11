@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.15 2009-09-11 13:17:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.16 2009-09-11 13:56:16 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -196,11 +196,11 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
     setCtrlStyle( LeaveOnly );
    
     funcdrawer_ = new uiFuncSelDraw( this, windowname );
-    BufferStringSet funcnames = WinFuncs().getNames();
-    for ( int idx=0; idx<funcnames.size(); idx++ )
+    funcnames_ = WinFuncs().getNames();
+    for ( int idx=0; idx<funcnames_.size(); idx++ )
     {
-	winfunc_ += WinFuncs().create( funcnames[idx]->buf() );
-	funcdrawer_->addToList( funcnames[idx]->buf());
+	winfunc_ += WinFuncs().create( funcnames_[idx]->buf() );
+	funcdrawer_->addToList( funcnames_[idx]->buf());
 	funcdrawer_->addFunction( winfunc_[idx]  );
     }
 
@@ -216,41 +216,38 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
 }
 
 
-uiWindowFuncSelDlg::~uiWindowFuncSelDlg()
-{
-    delete funcdrawer_;
-}
-
-
-float uiWindowFuncSelDlg::getVariable()
-{
-    WindowFunction* wf = getCurrentWindowFunc();
-    if ( wf && wf->hasVariable() )
-	return variable_;
-    return -1;
-}
-
-
 void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
 {
     NotifyStopper nsf( funcdrawer_->funclistselChged );
     bool isvartappresent = false;
 
-    WindowFunction* wf = getCurrentWindowFunc();
-    if ( wf && wf->hasVariable() )
+    for ( int idx=0; idx<funcnames_.size(); idx++ )
     {
-	isvartappresent = true;
-	float prevvariable = variable_;
-	variable_ = mIsUdf(variable_) ? 0.05 : varinpfld_->getfValue(0)/100;
-	if ( variable_ > 1 || mIsUdf(variable_) )
-	    variable_ = prevvariable; 
-	wf->setVariable( 1.0 - variable_ );
-	varinpfld_->setValue( variable_ * 100 );
+ 	WindowFunction* wf = getWindowFuncByName( funcnames_[idx]->buf() );
+	if ( wf && wf->hasVariable() )
+	{
+	    isvartappresent = true;
+	    float prevvariable = variable_;
+	    variable_ = mIsUdf(variable_) ? 0.05 : varinpfld_->getfValue(0)/100;
+	    if ( variable_ > 1 || mIsUdf(variable_) )
+		variable_ = prevvariable; 
+	    wf->setVariable( 1.0 - variable_ );
+	    varinpfld_->setValue( variable_ * 100 );
+	}
     }
 
     varinpfld_->display( isvartappresent );
     funcdrawer_->funcSelChg(0);
     //canvas_->update();
+}
+
+
+float uiWindowFuncSelDlg::getVariable()
+{
+    const WindowFunction* wf = getWindowFuncByName( getCurrentWindowName() );
+    if ( wf && wf->hasVariable() )
+	return variable_;
+    return -1;
 }
 
 
@@ -270,18 +267,15 @@ void uiWindowFuncSelDlg::setCurrentWindowFunc( const char* nm, float variable )
 {
     variable_ = variable;
     funcdrawer_->addToListAsCurrent( nm );
-    funcSelChg(0);
-}
+    funcSelChg(0); }
 
 
-WindowFunction* uiWindowFuncSelDlg::getCurrentWindowFunc()
+WindowFunction* uiWindowFuncSelDlg::getWindowFuncByName( const char* nm )
 {
-    BufferString winname = getCurrentWindowName();
-    BufferStringSet funcnames = WinFuncs().getNames();
-    if ( winname )
-	return winfunc_[funcnames.indexOf(winname)];
+    const int idx = funcnames_.indexOf(nm);
+    if ( idx >=0 )
+	return winfunc_[funcnames_.indexOf(nm)];
     return 0;
-
 }
 
 

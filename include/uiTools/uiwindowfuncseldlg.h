@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.9 2009-09-11 13:17:28 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.10 2009-09-11 13:56:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "uigroup.h"
+#include "bufstringset.h"
 #include "color.h"
 #include "mathfunc.h"
 
@@ -72,7 +73,6 @@ mClass uiWindowFuncSelDlg : public uiDialog
 
 public:
 			uiWindowFuncSelDlg(uiParent*,const char*,float);
-			~uiWindowFuncSelDlg();
 
     const char*		getCurrentWindowName() const;
     void		setCurrentWindowFunc(const char*,float);
@@ -82,12 +82,13 @@ public:
 protected:
 				
     //bool		rejectOK(CallBacker*);
+    BufferStringSet	funcnames_;
     uiGenInput*		varinpfld_;
     float		variable_;
     uiFuncSelDraw*	funcdrawer_;
     ObjectSet<WindowFunction>	winfunc_;
     
-    WindowFunction*	getCurrentWindowFunc();
+    WindowFunction* 	getWindowFuncByName(const char*); 
     void		funcSelChg(CallBacker*);
 
 };
