@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.47 2009-09-11 21:16:03 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.48 2009-09-11 21:51:50 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -309,6 +309,11 @@ void Threads::Barrier::setNrThreads( int nthreads )
 bool Threads::Barrier::waitForAll( bool unlock )
 {
     condvar_.lock();
+
+    //Check of all threads our out of previous iteration
+    while ( threadcount_ && dorelease_ )
+	condvar_.wait();
+
     threadcount_++;
     if ( threadcount_==nrthreads_ )
     {
@@ -317,20 +322,27 @@ bool Threads::Barrier::waitForAll( bool unlock )
 	    releaseAllNoLock();
 
 	if ( !threadcount_ )
+	{
 	    dorelease_ = false;
+	    condvar_.signal( true );
+	}
 
 	if ( unlock ) condvar_.unLock();
 	return true;
     }
     else
     {
+	dorelease_ = false;
 	while ( !dorelease_ )
 	    condvar_.wait();
     }
 
     threadcount_--;
     if ( !threadcount_ )
+    {
 	dorelease_ = false;
+	condvar_.signal( true );
+    }
 
     if ( unlock ) condvar_.unLock();
     return false;
