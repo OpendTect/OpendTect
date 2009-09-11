@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.27 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.28 2009-09-11 09:44:11 cvsbert Exp $";
 
 
 #include "dataclipper.h"
@@ -292,8 +292,8 @@ void DataClipSampler::add( float val )
 	vals_[count_] = val;
     else
     {
-	float fidx = Stats::RandGen::get() * count_ - .5;
-	const int idx = fidx < 0 ? 0 : (int)(fidx + .5);
+	const float fidx = Stats::RandGen::get() * count_ - .5;
+	const od_int64 idx = fidx < 0 ? 0 : (od_int64)(fidx + .5);
 	if ( idx < maxnrvals_ )
 	    vals_[idx] = val;
     }
