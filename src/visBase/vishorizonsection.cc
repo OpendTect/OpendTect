@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.86 2009-09-11 21:56:35 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.87 2009-09-11 22:02:01 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -238,7 +238,7 @@ const char* nrDoneText() const { return "Parts completed"; }
 
 bool doPrepare( int nrthreads )
 {
-    nrthreads_ = nrthreads;
+    barrier_.setNrThreads( nrthreads );
     nrthreadsfinishedwithres_ = 0;
 
     mAllocVarLenArr( int, arr, nrtiles_ );
@@ -264,11 +264,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		tiles_[realidx]->updateAutoResolution( state_ );
 	}
 
-	controlcond_.lock();
-	nrthreadsfinishedwithres_++;
-	if ( nrthreadsfinishedwithres_==nrthreads_ )
-	    controlcond_.signal( true ); 
-	controlcond_.unLock();
+	barrier_.waitForAll();
     }
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
@@ -301,12 +297,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     }	
 
     if ( state_ )
-    {
-	controlcond_.lock();
-	while ( nrthreadsfinishedwithres_!=nrthreads_ && shouldContinue() )
-	    controlcond_.wait();
-	controlcond_.unLock();
-    }
+	barrier_.waitForAll();
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -329,7 +320,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     int				resolution_;
     int				nrthreads_;
     int				nrthreadsfinishedwithres_;
-    Threads::ConditionVar	controlcond_;
+    Threads::Barrier		barrier_;
 };
 
 
@@ -341,6 +332,7 @@ public:
 
     int	nextStep()
     {
+	tile_->updateNormals( res_ );
 	tile_->tesselateResolution( res_, false );
 	return SequentialTask::Finished();
     }
