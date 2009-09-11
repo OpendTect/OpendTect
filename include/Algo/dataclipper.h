@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.15 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: dataclipper.h,v 1.16 2009-09-11 09:56:28 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -148,7 +148,7 @@ protected:
 
     float*		vals_;
     const int		maxnrvals_;
-    int			count_;
+    od_int64		count_;
     bool		finished_;
 
     const char*		getClipRgStr(float) const;
