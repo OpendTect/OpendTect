@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.4 2009-09-14 14:14:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.5 2009-09-14 14:36:30 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -169,7 +169,6 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
 uiSeisWvltMerge::~uiSeisWvltMerge()
 {
     wvltdrawer_->funclistselChged.remove( mCB(this,uiSeisWvltMerge,funcSelChg));
-    if ( stackedwvlt_ ) delete stackedwvlt_;
     deepErase( wvltset_ );
     deepErase( wvltfuncset_ );
 }
@@ -194,6 +193,7 @@ void uiSeisWvltMerge::clearStackedWvlt()
 {
     if ( stackedwvlt_ )
     {
+	wvltset_.remove( wvltset_.size()-1 );
 	delete wvltfuncset_.remove( wvltdrawer_->removeLastItem() );
 	delete stackedwvlt_; stackedwvlt_=0;
     }
@@ -206,6 +206,7 @@ void uiSeisWvltMerge::stackWvlts( TypeSet<int>& selitems )
 
     const char* wvltname = "Stacked Wavelet";
     stackedwvlt_ = new Wavelet( wvltname );
+    wvltset_ += stackedwvlt_;
     stackedwvlt_->reSize( maxwvltsize_ );
     for ( int idx=0; idx<maxwvltsize_; idx++ )
 	stackedwvlt_->samples()[idx] = 0;
