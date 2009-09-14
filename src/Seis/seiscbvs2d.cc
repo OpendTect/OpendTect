@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.49 2009-08-12 11:58:01 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.50 2009-09-14 13:18:37 cvshelene Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -276,11 +276,55 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 }
 
 
-class SeisCBVS2DLinePutter : public Seis2DLinePutter
-{
-public:
+#undef mErrRet
+#define mErrRet(s) { pErrMsg( s ); return 0; }
 
-SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
+Seis2DLinePutter* SeisCBVS2DLineIOProvider::getReplacer(
+				const IOPar& iop )
+{
+    if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
+
+    const char* res = iop.find( sKey::FileName );
+    if ( !res )
+	mErrRet("Knurft")
+
+    return new SeisCBVS2DLinePutter( res, iop );
+}
+
+
+Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
+						      const IOPar* previop,
+						      const char* lsetnm )
+{
+    if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
+
+    BufferString fnm = iop.find( sKey::FileName ).buf();
+    if ( fnm.isEmpty() )
+    {
+	if ( previop )
+	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName)).buf();
+	else
+	{
+	    if ( lsetnm && *lsetnm )
+		fnm = lsetnm;
+	    else
+		fnm = iop.name();
+	    fnm += ".cbvs";
+	    cleanupString( fnm.buf(), mC_False, mC_True, mC_True );
+	}
+	const char* prevfnm = previop ? previop->find(sKey::FileName) : 0;
+	const int prevlnr = CBVSIOMgr::getFileNr( prevfnm );
+	fnm = CBVSIOMgr::getFileName( fnm, previop ? prevlnr+1 : 0 );
+	iop.set( sKey::FileName, fnm );
+    }
+
+    return new SeisCBVS2DLinePutter( fnm.buf(), iop );
+}
+
+
+//-------------------SeisCBVS2DLinePutter-----------------
+
+SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
     	: nrwr(0)
 	, fname(gtFileName(fnm))
 	, tr(CBVSSeisTrcTranslator::getInstance())
@@ -294,16 +338,13 @@ SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
 }
 
 
-~SeisCBVS2DLinePutter()
+SeisCBVS2DLinePutter::~SeisCBVS2DLinePutter()
 {
     delete tr;
 }
 
-const char* errMsg() const	{ return errmsg.buf(); }
-int nrWritten() const		{ return nrwr; }
 
-
-bool put( const SeisTrc& trc )
+bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
     bid.crl = info.nr;
@@ -350,7 +391,7 @@ bool put( const SeisTrc& trc )
     return true;
 }
 
-bool close()
+bool SeisCBVS2DLinePutter::close()
 {
     if ( !tr ) return true;
     tr->setIs2D( true );
@@ -359,57 +400,3 @@ bool close()
     return ret; 
 }
 
-    int			nrwr;
-    BufferString	fname;
-    BufferString	errmsg;
-    CBVSSeisTrcTranslator* tr;
-    BinID		bid;
-    DataCharacteristics::UserType preseldt;
-
-};
-
-
-#undef mErrRet
-#define mErrRet(s) { pErrMsg( s ); return 0; }
-
-Seis2DLinePutter* SeisCBVS2DLineIOProvider::getReplacer(
-				const IOPar& iop )
-{
-    if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
-
-    const char* res = iop.find( sKey::FileName );
-    if ( !res )
-	mErrRet("Knurft")
-
-    return new SeisCBVS2DLinePutter( res, iop );
-}
-
-
-Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
-						      const IOPar* previop,
-						      const char* lsetnm )
-{
-    if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
-
-    BufferString fnm = iop.find( sKey::FileName ).buf();
-    if ( fnm.isEmpty() )
-    {
-	if ( previop )
-	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName)).buf();
-	else
-	{
-	    if ( lsetnm && *lsetnm )
-		fnm = lsetnm;
-	    else
-		fnm = iop.name();
-	    fnm += ".cbvs";
-	    cleanupString( fnm.buf(), mC_False, mC_True, mC_True );
-	}
-	const char* prevfnm = previop ? previop->find(sKey::FileName) : 0;
-	const int prevlnr = CBVSIOMgr::getFileNr( prevfnm );
-	fnm = CBVSIOMgr::getFileName( fnm, previop ? prevlnr+1 : 0 );
-	iop.set( sKey::FileName, fnm );
-    }
-
-    return new SeisCBVS2DLinePutter( fnm.buf(), iop );
-}

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.98 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.99 2009-09-14 13:18:37 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.98 2009-07-22 16:01:29 cvsb
 #include "ptrman.h"
 #include "scaler.h"
 #include "seisbuf.h"
+#include "seiscbvs.h"
+#include "seiscbvs2d.h"
 #include "seistrc.h"
 #include "seisselectionimpl.h"
 #include "seistrctr.h"
@@ -501,24 +503,37 @@ void SeisTrcStorOutput::writeTrc()
     
     if ( !storinited_ )
     {
+	SeisTrcTranslator* transl = 0;
 	if ( writer_->is2D() )
 	{
 	    if ( IOObj::isKey(attribname_) )
 		attribname_ = IOM().nameOf(attribname_);
 
 	    writer_->setLineKeyProvider( 
-		new COLineKeyProvider( attribname_, 
-		    		       curLineKey().lineName()) );
+		new COLineKeyProvider( attribname_, curLineKey().lineName()) );
 	}
-
-	SeisTrcTranslator* transl = writer_->seisTranslator();
-	if ( transl )
-	    transl->setComponentNames( outpnames_ );
+	else
+	{
+	    transl = writer_->seisTranslator();
+	    if ( transl )
+		transl->setComponentNames( outpnames_ );
+	}
 
 	if ( !writer_->prepareWork(*usetrc) )
 	    { errmsg_ = writer_->errMsg(); return; }
 
-	if ( transl && !writer_->is2D() )
+	if ( writer_->is2D() )
+	{
+	    if ( writer_->linePutter() )
+	    {
+		mDynamicCastGet( SeisCBVS2DLinePutter*, lp,
+				 writer_->linePutter() )
+		if ( lp && lp->tr )
+		    lp->tr->setComponentNames( outpnames_ );
+	    }
+	}
+
+	if ( transl )
 	{
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& cis
 		             = transl->componentInfo();
