@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.17 2009-09-14 14:01:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.18 2009-09-14 15:06:12 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -88,6 +88,12 @@ void uiFuncSelDraw::addToList( const char* fcname )
 int uiFuncSelDraw::getListSize() const
 {
     return funclistfld_->size();
+}
+
+
+int uiFuncSelDraw::getNrSel() const
+{
+    return funclistfld_->nrSelected();
 }
 
 

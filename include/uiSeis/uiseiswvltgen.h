@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltgen.h,v 1.3 2009-09-14 14:01:46 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltgen.h,v 1.4 2009-09-14 15:06:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ protected:
     ObjectSet<Wavelet>  wvltset_;
 
     void 		clearStackedWvlt();    
-    void 		stackWvlts(TypeSet<int>&);    
+    void 		stackWvlts();    
     bool		acceptOK(CallBacker*);
     void 		funcSelChg(CallBacker*);    
 };

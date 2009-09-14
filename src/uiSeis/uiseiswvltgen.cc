@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.5 2009-09-14 14:36:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.6 2009-09-14 15:06:12 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -177,15 +177,16 @@ uiSeisWvltMerge::~uiSeisWvltMerge()
 void uiSeisWvltMerge::funcSelChg( CallBacker* )
 {
     NotifyStopper nsf( wvltdrawer_->funclistselChged );
-    TypeSet<int> selitems;
-    wvltdrawer_->getSelectedItems( selitems );
-    const int selsz = selitems.size();
+    const int selsz = wvltdrawer_->getNrSel();
     if ( selsz ==1 && wvltdrawer_->isSelected( wvltdrawer_->getListSize()-1 ) ) 
 	return;
+
     clearStackedWvlt();
+
     wvltfld_->setSensitive( selsz > 1 );
     if ( selsz <= 1 ) return;
-    stackWvlts( selitems );
+
+    stackWvlts();
 }
 
 
@@ -200,8 +201,10 @@ void uiSeisWvltMerge::clearStackedWvlt()
 }
 
 
-void uiSeisWvltMerge::stackWvlts( TypeSet<int>& selitems )
+void uiSeisWvltMerge::stackWvlts()
 {
+    TypeSet<int> selitems;
+    wvltdrawer_->getSelectedItems( selitems );
     const int selsize = selitems.size();
 
     const char* wvltname = "Stacked Wavelet";
@@ -210,6 +213,7 @@ void uiSeisWvltMerge::stackWvlts( TypeSet<int>& selitems )
     stackedwvlt_->reSize( maxwvltsize_ );
     for ( int idx=0; idx<maxwvltsize_; idx++ )
 	stackedwvlt_->samples()[idx] = 0;
+
 
     for ( int selidx=0; selidx<selsize; selidx++ )
     {
