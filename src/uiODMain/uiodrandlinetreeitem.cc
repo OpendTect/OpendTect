@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.30 2009-09-09 09:29:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.31 2009-09-14 21:49:19 cvskris Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -312,6 +312,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( !dlg.go() ) return;
 
 	    Geometry::RandomLineSet lset; lset.addLine( rln );
+	    rln.set( 0, false ); //rln belongs to lset now.
 	    BufferString bs;
 	    if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
 		uiMSG().error( bs );
