@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.3 2009-09-14 14:01:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.4 2009-09-14 14:14:42 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -168,8 +168,8 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
 
 uiSeisWvltMerge::~uiSeisWvltMerge()
 {
-    if ( stackedwvlt_ ) clearStackedWvlt();
     wvltdrawer_->funclistselChged.remove( mCB(this,uiSeisWvltMerge,funcSelChg));
+    if ( stackedwvlt_ ) delete stackedwvlt_;
     deepErase( wvltset_ );
     deepErase( wvltfuncset_ );
 }
@@ -178,12 +178,13 @@ uiSeisWvltMerge::~uiSeisWvltMerge()
 void uiSeisWvltMerge::funcSelChg( CallBacker* )
 {
     NotifyStopper nsf( wvltdrawer_->funclistselChged );
-    clearStackedWvlt();
     TypeSet<int> selitems;
     wvltdrawer_->getSelectedItems( selitems );
     const int selsz = selitems.size();
+    if ( selsz ==1 && wvltdrawer_->isSelected( wvltdrawer_->getListSize()-1 ) ) 
+	return;
+    clearStackedWvlt();
     wvltfld_->setSensitive( selsz > 1 );
-    const int listsz = wvltdrawer_->getListSize()-1;
     if ( selsz <= 1 ) return;
     stackWvlts( selitems );
 }
