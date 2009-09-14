@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.48 2009-09-11 21:51:50 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.49 2009-09-14 22:19:15 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -451,6 +451,7 @@ Threads::Thread::Thread( void (func)(void*) )
 Threads::Thread::~Thread()
 {
 #ifndef OD_NO_QT
+    thread_->wait();
     delete thread_;
 #endif
 }
@@ -462,6 +463,16 @@ Threads::Thread::Thread( const CallBack& cb )
 #ifndef OD_NO_QT
     thread_ = new ThreadBody( cb );
     thread_->start();
+#endif
+}
+
+
+void* Threads::Thread::currentThread()
+{
+#ifndef OD_NO_QT
+    return QThread::currentThread();
+#else
+    return 0;
 #endif
 }
 

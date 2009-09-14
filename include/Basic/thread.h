@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.41 2009-09-11 21:16:03 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.42 2009-09-14 22:19:15 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -255,6 +255,8 @@ public:
 				Thread(void (*)(void*));
 				Thread(const CallBack&);
     virtual			~Thread();
+
+    static void*		currentThread();
 
     void			stop();
     				/*!< Stop the thread with this function.
