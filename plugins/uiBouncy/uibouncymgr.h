@@ -4,19 +4,19 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Aug 2009
- * ID       : $Id: uibouncymgr.h,v 1.2 2009-09-09 07:57:55 cvskarthika Exp $
+ * ID       : $Id: uibouncymgr.h,v 1.3 2009-09-14 22:51:34 cvskarthika Exp $
 -*/
 
 #include "callback.h"
 
 class uiODMain;
-namespace visBase { class BeachBall; }
 namespace Bouncy { class BouncyController; }
 
 namespace uiBouncy
 {
 class uiBouncyMain;
 class uiBouncySettingsDlg;
+class BouncyDisplay;
 
 mClass uiBouncyMgr : public CallBacker
 {
@@ -25,21 +25,23 @@ public:
     				uiBouncyMgr(uiODMain*);
 				~uiBouncyMgr();
     void			doWork(CallBacker*);
-    void			addBeachBall();
-    int				removeBeachBall();
+
+protected:
+
+    void			createBouncy();
+    void			destroyBouncy();
+    void			destroyAllBounciesCB(CallBacker*);
+
+    void			startGame();
+    void			stopGame();
+    void			pauseGame(bool);
 
     // callbacker to show preview of settings change
     void			propertyChangeCB(CallBacker*);
     // callbacker to update ball's position and orientation
     void			newPosAvailableCB(CallBacker*);
-
-protected:
-
-    void			removeAllBeachBalls(CallBacker*);
-    void			zScaleCB(CallBacker*);
-    void			setBallScale();
-    void			startGame();
-    void			stopGame();
+    // callbacker to handle events
+    void			neweventCB(CallBacker*);
 
     void                        sessionSaveCB(CallBacker*);
     void                        sessionRestoreCB(CallBacker*);
@@ -47,12 +49,11 @@ protected:
     void                        surveyChangeCB(CallBacker*);
     void                        shutdownCB(CallBacker*);
 
-    visBase::BeachBall*		vbb_;
+    BouncyDisplay*		bouncydisp_;
     uiODMain*			appl_;
-    int				sceneid_;
     uiBouncyMain*		maindlg_;
     uiBouncySettingsDlg*        settingsdlg_;
-    Bouncy::BouncyController*	gamectr_;
+    Bouncy::BouncyController*	gamecontroller_;
 };
 
 }; // namespace
