@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.16 2009-09-11 13:56:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.17 2009-09-14 14:01:46 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.16 2009-09-11 13:56:1
 #define mTransHeight    250
 #define mTransWidth     500
 
-uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const char* funcnm )
+uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const Setup& su )
     : uiGroup(p)
     , transform_(new uiWorld2Ui())
     , polyitemgrp_(0)
@@ -48,7 +48,8 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const char* funcnm )
     funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
 
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
-		     uiWorldRect(-1.2,1,1.2,0) );
+		     uiWorldRect( su.xaxrg_.start, su.yaxrg_.stop, 
+				  su.xaxrg_.stop, su.yaxrg_.start ) );
 
     uiBorder border(10,10,10,10);
     
@@ -57,15 +58,14 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const char* funcnm )
     asu.border_ = border;
 
     xax_ = new uiAxisHandler( &view_->scene(), asu );
+    float annotstart = -1;
+    xax_->setRange( su.xaxrg_, &annotstart );
 
     asu.side( uiRect::Left );
     yax_ = new uiAxisHandler( &view_->scene(), asu );
+    yax_->setRange( su.yaxrg_, 0 );
+
     xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
-
-    float annotstart = -1;
-    xax_->setRange( StepInterval<float>(-1.2,1.2,0.25), &annotstart );
-    yax_->setRange( StepInterval<float>(0,1,0.25),0 );
-
 }
 
 
@@ -85,9 +85,24 @@ void uiFuncSelDraw::addToList( const char* fcname )
 }
 
 
-void uiFuncSelDraw::addToListAsCurrent( const char* fcname )
+int uiFuncSelDraw::getListSize() const
+{
+    return funclistfld_->size();
+}
+
+
+void uiFuncSelDraw::setAsCurrent( const char* fcname )
 {
     funclistfld_->setCurrentItem( fcname );
+}
+
+
+int uiFuncSelDraw::removeLastItem()
+{
+    const int curidx = funclistfld_->size()-1;
+    funclistfld_->removeItem( curidx );
+    mathfunc_.remove( curidx );
+    return curidx;
 }
 
 
@@ -98,7 +113,9 @@ void uiFuncSelDraw::createLine( const FloatMathFunction& mathfunc )
     uiRect borderrect( xax_->pixBefore(), 10, mTransWidth - 10,
 	    	       mTransHeight - yax_->pixBefore() );
     transform_->resetUiRect( borderrect );
-    const StepInterval<float> xrg( -1.2, 1.2, 0.01 );
+
+    StepInterval<float> xrg( xax_->range() );
+    xrg.step = 0.01;
     for ( int idx=0; idx<xrg.nrSteps(); idx++ )
     {
 	const float x = xrg.atIndex( idx );
@@ -172,9 +189,15 @@ void uiFuncSelDraw::addFunction( FloatMathFunction* mfunc )
 }
 
 
-int uiFuncSelDraw::getCurrentListSize() const
+void uiFuncSelDraw::getSelectedItems( TypeSet<int>& selitems ) const
 { 
-    return funclistfld_->size();
+    return funclistfld_->getSelectedItems( selitems );
+}
+
+
+bool uiFuncSelDraw::isSelected( int idx) const
+{ 
+    return funclistfld_->isSelected(idx);
 }
 
 
@@ -194,8 +217,9 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
     , funcdrawer_(0)			 
 {
     setCtrlStyle( LeaveOnly );
-   
-    funcdrawer_ = new uiFuncSelDraw( this, windowname );
+  
+    uiFuncSelDraw::Setup su; su.name_ = windowname;  
+    funcdrawer_ = new uiFuncSelDraw( this, su );
     funcnames_ = WinFuncs().getNames();
     for ( int idx=0; idx<funcnames_.size(); idx++ )
     {
@@ -221,9 +245,12 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
     NotifyStopper nsf( funcdrawer_->funclistselChged );
     bool isvartappresent = false;
 
-    for ( int idx=0; idx<funcnames_.size(); idx++ )
+    TypeSet<int> selitems; 
+    funcdrawer_->getSelectedItems( selitems );
+    for ( int idx=0; idx<selitems.size(); idx++ )
     {
- 	WindowFunction* wf = getWindowFuncByName( funcnames_[idx]->buf() );
+	const BufferString& winname = funcnames_[selitems[idx]]->buf();
+ 	WindowFunction* wf = getWindowFuncByName( winname );
 	if ( wf && wf->hasVariable() )
 	{
 	    isvartappresent = true;
@@ -266,8 +293,9 @@ void uiWindowFuncSelDlg::setVariable( float variable )
 void uiWindowFuncSelDlg::setCurrentWindowFunc( const char* nm, float variable )
 {
     variable_ = variable;
-    funcdrawer_->addToListAsCurrent( nm );
-    funcSelChg(0); }
+    funcdrawer_->setAsCurrent( nm );
+    funcSelChg(0); 
+}
 
 
 WindowFunction* uiWindowFuncSelDlg::getWindowFuncByName( const char* nm )

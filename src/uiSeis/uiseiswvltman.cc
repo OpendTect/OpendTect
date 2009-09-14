@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.46 2009-09-09 13:03:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.47 2009-09-14 14:01:46 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -60,15 +60,19 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     uiGroup* butgrp = new uiGroup( this, "Imp/Create buttons" );
     uiPushButton* impbut = new uiPushButton( butgrp, "&Import", false );
     impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
-    impbut->setPrefWidthInChar( 15 );
+    impbut->setPrefWidthInChar( 12 );
     uiPushButton* crbut = new uiPushButton( butgrp, "&Generate", false );
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
     crbut->attach( rightOf, impbut );
-    crbut->setPrefWidthInChar( 15 );
+    crbut->setPrefWidthInChar( 12 );
+    uiPushButton* mergebut = new uiPushButton( butgrp, "&Merge", false );
+    mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
+    mergebut->attach( rightOf, crbut );
+    mergebut->setPrefWidthInChar( 12 );
     uiPushButton* extractbut = new uiPushButton( butgrp, "&Extract", false );
     extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
-    extractbut->attach( rightOf, crbut );
-    extractbut->setPrefWidthInChar( 15 );
+    extractbut->attach( rightOf, mergebut );
+    extractbut->setPrefWidthInChar( 12 );
     butgrp->attach( centeredBelow, selgrp );
 
     wvltfld = new uiFlatViewer( this );
@@ -123,6 +127,14 @@ void uiSeisWvltMan::impPush( CallBacker* )
 void uiSeisWvltMan::crPush( CallBacker* )
 {
     uiSeisWvltGen dlg( this );
+    if ( dlg.go() )
+	selgrp->fullUpdate( dlg.storeKey() );
+}
+
+
+void uiSeisWvltMan::mrgPush( CallBacker* )
+{
+    uiSeisWvltMerge dlg( this, curioobj_->name() );
     if ( dlg.go() )
 	selgrp->fullUpdate( dlg.storeKey() );
 }

@@ -6,38 +6,89 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltgen.h,v 1.2 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiseiswvltgen.h,v 1.3 2009-09-14 14:01:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "multiid.h"
+#include "mathfunc.h"
+
 class CtxtIOObj;
+class Wavelet;
 class uiGenInput;
 class uiIOObjSel;
+class uiFuncSelDraw;
 
 
-mClass uiSeisWvltGen : public uiDialog
+mClass uiSeisWvltCreate : public uiDialog
 {
 public:
-			uiSeisWvltGen(uiParent*);
-			~uiSeisWvltGen();
+			uiSeisWvltCreate(uiParent*,uiDialog::Setup);
+			~uiSeisWvltCreate();
 
     MultiID		storeKey() const;
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		putWvlt(const Wavelet&);
 
     CtxtIOObj&		ctio_;
+    uiIOObjSel*		wvltfld_;
+};
+
+
+mClass uiSeisWvltGen : public uiSeisWvltCreate
+{
+public:
+			uiSeisWvltGen(uiParent*);
+			~uiSeisWvltGen(){};
+
+protected:
+
     uiGenInput*		isrickfld_;
     uiGenInput*		freqfld_;
     uiGenInput*		srfld_;
     uiGenInput*		peakamplfld_;
-    uiIOObjSel*		wvltfld_;
-
+    
+    bool		acceptOK(CallBacker*);
 };
+
+
+mClass uiSeisWvltMerge : public uiSeisWvltCreate
+{
+public:
+
+    mClass WvltMathFunction : public FloatMathFunction
+    {
+    public:
+			WvltMathFunction(const Wavelet*);
+
+	int 		size_;
+	const float*    samples_;
+	float 		getValue() const;    
+	
+	float 		getValue(float) const;
+    };
+
+			uiSeisWvltMerge(uiParent*,const char* curwvltnm=0);
+			~uiSeisWvltMerge();
+
+protected:
+
+    int 		maxwvltsize_;			
+    uiFuncSelDraw* 	wvltdrawer_;
+    Wavelet*		stackedwvlt_;
+    ObjectSet<WvltMathFunction>  wvltfuncset_;
+    ObjectSet<Wavelet>  wvltset_;
+
+    void 		clearStackedWvlt();    
+    void 		stackWvlts(TypeSet<int>&);    
+    bool		acceptOK(CallBacker*);
+    void 		funcSelChg(CallBacker*);    
+};
+
 
 
 #endif

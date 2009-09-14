@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.10 2009-09-11 13:56:16 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.11 2009-09-14 14:01:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,17 +35,33 @@ mClass uiFuncSelDraw : public uiGroup
 {
 
 public:
-			uiFuncSelDraw(uiParent*,const char*);
+
+    mStruct Setup
+    {
+			Setup()
+			    : xaxrg_(-1.2,1.2,0.25)
+			    , yaxrg_(0,1,0.25) {}
+					      
+
+	mDefSetupMemb(StepInterval<float>,xaxrg)			      
+	mDefSetupMemb(StepInterval<float>,yaxrg)	
+	mDefSetupMemb(const char*,name)	
+    };	
+
+			uiFuncSelDraw(uiParent*,const Setup&);
 			~uiFuncSelDraw();
 
     Notifier<uiFuncSelDraw> funclistselChged;
 
     void		addFunction(FloatMathFunction*); 
-    void		addToList(const char*); 
-    void		addToListAsCurrent(const char*); 
-    const char*		getCurrentListName() const;
-    int			getCurrentListSize() const; 
+    void		addToList(const char*);
+    int			getListSize() const;
+    void		setAsCurrent(const char*); 
+    int			removeLastItem(); 
     void		createLine(const FloatMathFunction&);
+    const char*		getCurrentListName() const;
+    void		getSelectedItems(TypeSet<int>&) const; 
+    bool		isSelected(int) const;
     
     void		funcSelChg(CallBacker*);
 
