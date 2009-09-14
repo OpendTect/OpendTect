@@ -4,10 +4,16 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: bouncycontroller.cc,v 1.4 2009-09-09 15:22:38 cvskarthika Exp $";
+static const char* rcsID = "$Id: bouncycontroller.cc,v 1.5 2009-09-14 22:55:22 cvskarthika Exp $";
 
 #include "bouncycontroller.h"
 #include "statrand.h"
+
+// number of moves to reach target
+#define mMaxNumMoves 50
+
+// animation timer interval in msec
+#define mTimerInterval 10
 
 namespace Bouncy
 {
@@ -19,9 +25,12 @@ BouncyController::BouncyController()
     , targetpos_(Coord3(3000,3000,0.5))
     , minpos_(Coord(0,0))
     , maxpos_(Coord(10000,10000))
+    , zStart_(0)
+    , zStop_(2) 
     , numlives_(3)
     , updatetimer_(0)
     , simulate_(true)
+    , nummovesrem_(mMaxNumMoves)		    
 {
 }
 
@@ -33,13 +42,17 @@ BouncyController::~BouncyController()
 
 
 void BouncyController::init( Coord3 pos, Coord minpos, Coord maxpos,
-			     bool simulategame )
+			     float zStart, float zStop, bool simulategame )
 {
     currpos_ = pos;
     minpos_ = minpos;
     maxpos_ = maxpos;
+    zStart_ = zStart;
+    zStop_ = zStop;
     simulate_ = simulategame;
 
+    nummovesrem_ = mMaxNumMoves;
+    
     if ( updatetimer_.isActive() )
 	updatetimer_.stop();
     
@@ -48,7 +61,7 @@ void BouncyController::init( Coord3 pos, Coord minpos, Coord maxpos,
     else
         updatetimer_.tick.notify( mCB(this,BouncyController,runCB) );
     
-    updatetimer_.start( 10, false );
+    updatetimer_.start( mTimerInterval, false );
 }
 
 
@@ -58,34 +71,50 @@ void BouncyController::runCB( CallBacker* )
 }
 
 
+// Callback of the animation timer. This runs a simulation of the ball within
+// the box defined by the min and max coordinates of the survey. The ball
+// deflects from imaginary objects in its path!
 void BouncyController::simulateCB( CallBacker* )
 {
-    const int maxnummoves = 50;
-    static int nummovesrem = maxnummoves;
-
-    if ( nummovesrem == maxnummoves )
+    if ( nummovesrem_ == mMaxNumMoves )
     {
 	Stats::RandGen::init();
 
 	int randx = Stats::RandGen::getIndex(int(maxpos_.x - minpos_.x));
 	int randy = Stats::RandGen::getIndex(int(maxpos_.y - minpos_.y));
+	int randz = Stats::RandGen::getIndex(int((zStop_-zStart_)*100));
+	  // multiply by 100 and later divide by 100 to get more precision
+
+	// Later: to be more correct, subtract the ball's radius to get rid 
+	// of the overshoot.
 	
-        targetpos_ = Coord3( minpos_.x+randx, minpos_.y+randy, 0.5 );
-	newposdelta_ = (targetpos_ - currpos_)/maxnummoves;
+        targetpos_ = Coord3( minpos_.x+randx, minpos_.y+randy, 
+		zStart_+randz/100.0 );
+	newposdelta_ = (targetpos_ - currpos_)/mMaxNumMoves;
     }    
-    else if ( nummovesrem < 0 )
-	nummovesrem = maxnummoves+1;
+    else if ( nummovesrem_ < 0 )
+	nummovesrem_ = mMaxNumMoves+1;
     
     // make ball move one step
     currpos_ += newposdelta_;
     newPosAvailable.trigger();
    
-    nummovesrem--;
+    nummovesrem_--;
 }
 
 
 void BouncyController::stop()
 {
+    updatetimer_.stop();
+}
+
+
+void BouncyController::pause( bool pause )
+{
+    if ( pause )
+	updatetimer_.start( mTimerInterval, false );
+    else 
+	updatetimer_.stop();
 }
 
 
