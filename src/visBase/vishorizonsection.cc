@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.87 2009-09-11 22:02:01 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.88 2009-09-14 12:45:49 cvshelene Exp $";
 
 #include "vishorizonsection.h"
 
@@ -136,7 +136,7 @@ protected:
     void			setWireframe(int res);
     void			setInvalidNormals(int row,int col);
     void			computeNormal(int normidx, int res,
-	    				      SbVec3f& res) const;
+	    				      SbVec3f& normal) const;
 
     struct TesselationData
     {
