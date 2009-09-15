@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.10 2009-09-07 11:14:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.11 2009-09-15 12:10:37 cvsraman Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -153,7 +153,7 @@ void SplitTextureSeis2D::updateHorSplit()
     if ( diff>=geomsz-1 )
 	return;
 
-    const int nrtrcs = trcrg_.width()+1;
+    const int nrtrcs = geomsz - diff; 
     const int nrhorblocks = nrBlocks( nrtrcs, mMaxHorSz, 1 );
     for ( int idx=0; idx<nrhorblocks; idx++ )
     {
