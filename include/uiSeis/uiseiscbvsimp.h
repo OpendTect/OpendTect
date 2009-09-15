@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.12 2009-08-04 12:24:41 cvsbert Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.13 2009-09-15 09:46:51 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,10 @@ class IOObj;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
+class uiScaler;
 class uiSeisSel;
 class uiSeisTransfer;
+class uiSelection2DParSel;
 class uiLabeledComboBox;
 
 /*!\brief Actually imports or just transfers data through selection */
@@ -61,6 +63,27 @@ protected:
 private:
 
     void		init(bool);
+
+};
+
+
+mClass uiSeisCopyLineSet : public uiDialog
+{
+public:
+
+			uiSeisCopyLineSet(uiParent*,const IOObj*);
+			~uiSeisCopyLineSet();
+
+protected:
+
+    CtxtIOObj&		outctio_;
+
+    uiSelection2DParSel*	inpfld_;
+
+    uiScaler*		scalefld_;
+    uiSeisSel*		outpfld_;
+
+    bool		acceptOK(CallBacker*);
 
 };
 
