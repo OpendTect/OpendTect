@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.84 2009-09-10 13:34:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.85 2009-09-15 09:47:33 cvsraman Exp $";
 
 #include "uiseissel.h"
 
@@ -178,7 +178,12 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 	    		 allowcnstrsabsent_, include_ );
 
     if ( selgrp_->getCtxtIOObj().ctxt.forread )
+    {
+	const int defidx = nms.indexOf( LineKey::sKeyDefAttrib() );
 	attrfld_->newSpec( StringListInpSpec(nms), 0 );
+	if ( defidx >= 0 )
+	    attrfld_->setValue( defidx );
+    }
     else
     {
 	const BufferString attrnm( attrfld_->text() );
