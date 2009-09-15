@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.92 2009-09-10 13:43:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.93 2009-09-15 09:47:55 cvsraman Exp $";
 
 
 #include "uiseisfileman.h"
@@ -544,18 +544,20 @@ void uiSeisFileMan::copyPush( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
+    const MultiID key( curioobj_->key() );
     if ( is2d_ )
     {
-	uiMSG().message("Coming soon ... " );
-	return;	// TODO
+	uiSeisCopyLineSet dlg2d( this, curioobj_ );
+	dlg2d.go();
     }
+    else
+    {
+	mDynamicCastGet(const IOStream*,iostrm,curioobj_)
+	if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
 
-    const MultiID key( curioobj_->key() );
-    mDynamicCastGet(const IOStream*,iostrm,curioobj_)
-    if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
-
-    uiSeisImpCBVS dlg( this, iostrm );
-    dlg.go();
+	uiSeisImpCBVS dlg( this, iostrm );
+	dlg.go();
+    }
 
     selgrp->fullUpdate( key );
 }

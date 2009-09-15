@@ -7,15 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.56 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.57 2009-09-15 09:47:55 cvsraman Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "seistrctr.h"
 #include "seisread.h"
+#include "seiswrite.h"
 #include "seisselection.h"
 #include "seissingtrcproc.h"
+#include "seisselectionimpl.h"
+#include "seistrc.h"
+#include "seistrcprop.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"
@@ -27,15 +31,19 @@ static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.56 2009-08-21 10:11:46 cvs
 #include "oddirs.h"
 #include "keystrs.h"
 #include "executor.h"
+#include "scaler.h"
 
 #include "uibutton.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uicombobox.h"
 #include "uimsg.h"
+#include "uiscaler.h"
 #include "uiseissel.h"
 #include "uiseisioobjinfo.h"
 #include "uiseistransf.h"
+#include "uiseislinesel.h"
+#include "uiseisfmtscale.h"
 #include "uitaskrunner.h"
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
@@ -311,4 +319,187 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
     rmTmpIOObj();
     return rv;
+}
+
+
+
+class Seis2DCopier : public Executor
+{
+public:
+Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
+    : Executor("Copying 2D Seismic Data")
+    , lineidx_(-1)
+    , inobj_(inobj),outobj_(outobj)
+    , rdr_(0),wrr_(0)
+    , doscale_(false)
+{
+    inattrnm_ = par.find( sKey::Attribute );
+    PtrMan<IOPar> lspar = par.subselect( sKey::LineKey );
+    if ( !lspar ) return;
+
+    for ( int idx=0; idx<1024; idx++ )
+    {
+	PtrMan<IOPar> linepar = lspar->subselect( idx );
+	if ( !linepar )
+	    break;
+
+	FixedString lnm = linepar->find( sKey::Name );
+	StepInterval<int> trcrg;
+	if ( !lnm || !linepar->get(sKey::TrcRange,trcrg) )
+	    continue;
+
+	sellines_.add( lnm );
+	trcrgs_ += trcrg;
+    }
+
+    FixedString scalestr = par.find( sKey::Scale );
+    if ( scalestr )
+    {
+	doscale_ = true;
+	scaler_.fromString( scalestr );
+    }
+
+    StepInterval<float> zrg;
+    if ( !par.get(sKey::ZRange,zrg) )
+	zrg = SI().zRange( false );
+
+    outattrnm_ = par.find( IOPar::compKey(sKey::Output,sKey::Attribute) );
+    sd_.cubeSampling().zrg = zrg;
+    sd_.lineKey().setAttrName( inattrnm_.buf() );
+}
+
+
+~Seis2DCopier()
+{
+    delete rdr_; delete wrr_;
+}
+
+
+bool initNextLine()
+{
+    delete rdr_; delete wrr_;
+    rdr_ = 0; wrr_ = 0;
+    if ( inobj_ )
+	rdr_ = new SeisTrcReader( inobj_ );
+
+    if ( outobj_ )
+	wrr_ = new SeisTrcWriter( outobj_ );
+
+    if ( !rdr_ || !wrr_ )
+	return false;
+
+    lineidx_++;
+    if ( lineidx_ >= sellines_.size() || lineidx_ >= trcrgs_.size() )
+	return false;
+
+    sd_.cubeSampling().hrg.setCrlRange( trcrgs_[lineidx_] );
+    sd_.lineKey().setLineName( sellines_.get(lineidx_).buf() );
+    rdr_->setSelData( sd_.clone() );
+    Seis::SelData* wrrsd = sd_.clone();
+    wrrsd->setIsAll( true );
+    wrrsd->lineKey().setAttrName( outattrnm_.buf() );
+    wrr_->setSelData( wrrsd );
+    rdr_->prepareWork();
+    return true;
+}
+
+
+od_int64 totalNr() const
+{
+    od_int64 nr = 0;
+    for ( int idx=0; idx<trcrgs_.size(); idx++ )
+	nr += ( trcrgs_[idx].nrSteps() + 1 );
+
+    return nr;
+}
+
+
+od_int64 nrDone() const
+{ return nrdone_; }
+
+const char* nrDoneText() const
+{ return "No. of traces copied"; }
+
+protected:
+
+    const IOObj*		inobj_;
+    const IOObj*		outobj_;
+    SeisTrcReader*		rdr_;
+    SeisTrcWriter*		wrr_;
+    Seis::RangeSelData		sd_;
+
+    BufferStringSet		sellines_;
+    TypeSet<StepInterval<int> > trcrgs_;
+    LinScaler			scaler_;
+    bool			doscale_;
+    int				lineidx_;
+    int				nrdone_;
+    BufferString		inattrnm_;
+    BufferString		outattrnm_;
+
+int nextStep()
+{
+    if ( lineidx_ < 0 && !initNextLine() )
+	return ErrorOccurred();
+
+    SeisTrc trc;
+    const int res = rdr_->get( trc.info() );
+    if ( res < 0 ) return ErrorOccurred();
+    if ( res == 0 ) return initNextLine() ? MoreToDo() : Finished();
+
+    if ( !rdr_->get(trc) )
+	return ErrorOccurred();
+
+    if ( doscale_ )
+    {
+	SeisTrcPropChg stpc( trc );
+	stpc.scale( scaler_.factor, scaler_.constant );
+    }
+
+    if ( !wrr_->put(trc) )
+	return ErrorOccurred();
+
+    nrdone_++;
+    return MoreToDo();
+}
+
+
+};
+
+
+uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
+    : uiDialog(p,Setup("Copy 2D Seismic Data","",mTODOHelpID))
+    , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Line,false))
+{
+    inpfld_ = new uiSelection2DParSel( this, true, true );
+    if ( obj )
+	inpfld_->setIOObj( obj->key() );
+
+    scalefld_ = new uiScaler( this, "Scale values", true );
+    scalefld_->attach( alignedBelow, inpfld_ );
+
+    outpfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Line) );
+    outpfld_->attach( alignedBelow, scalefld_ );
+}
+
+
+uiSeisCopyLineSet::~uiSeisCopyLineSet()
+{
+    delete &outctio_;
+}
+
+
+bool uiSeisCopyLineSet::acceptOK( CallBacker* )
+{
+    IOPar par;
+    inpfld_->fillPar( par );
+    Scaler* scaler = scalefld_->getScaler();
+    if ( scaler )
+	par.set( sKey::Scale, scaler->toString() );
+
+    par.set( IOPar::compKey(sKey::Output,sKey::Attribute), outpfld_->attrNm() );
+    Seis2DCopier exec( inpfld_->getIOObj(), outpfld_->ioobj(), par );
+    uiTaskRunner dlg( this );
+
+    return dlg.execute( exec );
 }

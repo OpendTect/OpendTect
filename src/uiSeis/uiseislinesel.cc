@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.28 2009-09-02 08:50:52 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.29 2009-09-15 09:47:55 cvsraman Exp $";
 
 #include "uiseislinesel.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiseislinesel.cc,v 1.28 2009-09-02 08:50:52 cvs
 #include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "survinfo.h"
 #include "transl.h"
 #include "ioman.h"
 #include "iodir.h"
@@ -208,21 +209,32 @@ void uiSeis2DLineNameSel::setLineSet( const MultiID& ky )
 
 
 
-uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
+uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio,
+       					bool withz, bool withattr )
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
 				   mNoDlgTitle,"50.0.17") )
     , lsctio_(lsctio)
+    , zfld_(0)
+    , withattr_(withattr)
 {
-    linesetfld_ = new uiSeisSel( this, lsctio_,
-	    			 uiSeisSel::Setup(Seis::Line).selattr(false) );
+    linesetfld_ = new uiSeisSel( this, lsctio_, uiSeisSel::Setup(Seis::Line)
+						.selattr(withattr_) );
     linesetfld_->selectiondone.notify( mCB(this,uiSeis2DLineSubSel,lineSetSel));
 
+    if ( withz )
+    {
+	zfld_ = new uiSelZRange( this, false );
+	zfld_->attach( alignedBelow, linesetfld_ );
+    }
+
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", false );
-    llb->attach( alignedBelow, linesetfld_ );
+    llb->attach( alignedBelow, zfld_ ? (uiObject*)zfld_
+	    			     : (uiObject*)linesetfld_ );
     lnmsfld_ = llb->box();
     lnmsfld_->setItemsCheckable( true );
     lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DLineSubSel,lineSel) );
     lnmsfld_->leftButtonClicked.notify( mCB(this,uiSeis2DLineSubSel,lineChk) );
+    lnmsfld_->rightButtonClicked.notify( mCB(this,uiSeis2DLineSubSel,lineChk) );
 
     allfld_ = new uiCheckBox( this, "All", mCB(this,uiSeis2DLineSubSel,allSel));
     allfld_->attach( alignedBelow, llb );
@@ -232,8 +244,6 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     trcrgfld_->rangeChanged.notify( mCB(this,uiSeis2DLineSubSel,trcChanged) );
     trcrgfld_->attach( alignedBelow, allfld_ );
 
-    lineSetSel( 0 );
-
     finaliseDone.notify( mCB(this,uiSeis2DLineSubSel,finalised) );
 }
 
@@ -241,7 +251,27 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
 void uiSeis2DLineSubSel::finalised( CallBacker* )
 {
     if ( !lsctio_.ioobj )
+    {
 	linesetfld_->doSel( 0 );
+	lineSetSel( 0 );
+    }
+
+    lineChk(0);
+}
+
+
+void uiSeis2DLineSubSel::setLineSet( const MultiID& key )
+{
+    linesetfld_->setInput( key );
+    lineSetSel( 0 );
+    lineChk(0);
+}
+
+
+void uiSeis2DLineSubSel::setAttrName( const char* nm )
+{
+    if ( withattr_ )
+	linesetfld_->setAttrNm( nm );
 }
 
 
@@ -249,6 +279,21 @@ void uiSeis2DLineSubSel::setSelLines( const BufferStringSet& sellines )
 { 
     sellines_ = sellines; 
     lnmsfld_->setCheckedItems( sellines_ );
+}
+
+
+void uiSeis2DLineSubSel::setTrcRange( const StepInterval<int>& rg,
+				      const char* lnm )
+{
+    const int idx = lnmsfld_->indexOf( lnm );
+    if ( idx >=0 ) trcrgs_[idx] = rg;
+}
+
+
+void uiSeis2DLineSubSel::setZRange( const StepInterval<float>& rg )
+{
+    if ( zfld_ )
+	zfld_->setRange( rg );
 }
 
 
@@ -283,26 +328,35 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
     BufferStringSet lnms;
     oinf.getLineNames( lnms );   
     lnmsfld_->empty();
-    lnmsfld_->addItems( lnms );
-    lnmsfld_->setItemsChecked( true );
     maxtrcrgs_.erase();
     trcrgs_.erase();
+    CubeSampling cs;
+    if ( oinf.getRanges(cs) )
+	setZRange( cs.zrg );
+
+    BufferString selattrnm = linesetfld_->attrNm();
 
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
+	const char* lnm = lnms.get(idx).buf();
 	BufferStringSet attrbnms;
-	oinf.getAttribNamesForLine( lnms.get(idx).buf(), attrbnms );
+	oinf.getAttribNamesForLine( lnm, attrbnms );
 	StepInterval<int> globtrcrg( 0, 0, 1 );
 	int startidx=0; int maxattridx = attrbnms.size() - 1;
 	const int defidx = attrbnms.indexOf( LineKey::sKeyDefAttrib() );
-	if ( defidx>=0 ) { startidx=maxattridx=defidx; }
+	if ( defidx>=0 && !withattr_ )
+	    startidx = maxattridx = defidx;
 
 	int maxnrtrcs = 0;
 	for ( int attridx=startidx; attridx<=maxattridx; attridx++ )
 	{
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
-	    LineKey lk( lnms.get(idx).buf(), attrbnms.get(attridx) );
+	    const char* attrnm = attrbnms.get( attridx );
+	    if ( withattr_ && selattrnm != attrnm )
+		continue;
+
+	    LineKey lk( lnm, attrnm );
 	    oinf.getRanges( lk, trcrg, zrg );
 	    if ( trcrg.nrSteps() > maxnrtrcs )
 	    {
@@ -311,20 +365,37 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 	    }
 	}
 
+	if ( !maxnrtrcs )
+	    continue;
+	
+	lnmsfld_->addItem( lnm );
 	maxtrcrgs_ += globtrcrg;
 	trcrgs_ += globtrcrg;
     }
 
+    lnmsfld_->setItemsChecked( true );
     allfld_->setChecked( true );
     allfld_->setSensitive( lnms.size() > 1 );
     lineSel(0);
 }
 
 
-Interval<int> uiSeis2DLineSubSel::getTrcRange( const char* nm ) const
+const char* uiSeis2DLineSubSel::getAttrName() const
+{
+    return withattr_ ? linesetfld_->attrNm() : 0;
+}
+
+
+StepInterval<int> uiSeis2DLineSubSel::getTrcRange( const char* nm ) const
 {
     const int idx = lnmsfld_->indexOf( nm );
     return idx<0 ? Interval<int>(0,0) : (Interval<int>)trcrgs_[idx];
+}
+
+
+StepInterval<float> uiSeis2DLineSubSel::getZRange() const
+{
+    return zfld_ ? zfld_->getRange() : SI().zRange( false );
 }
 
 
@@ -343,7 +414,8 @@ void uiSeis2DLineSubSel::lineSel( CallBacker* )
 void uiSeis2DLineSubSel::lineChk( CallBacker* )
 {
     allfld_->activated.disable();
-    allfld_->setChecked( lnmsfld_->nrChecked() == lnmsfld_->size() );
+    allfld_->setChecked( lnmsfld_->size() &&
+	    lnmsfld_->nrChecked() == lnmsfld_->size() );
     allfld_->activated.enable();
 }
 
@@ -372,11 +444,14 @@ bool uiSeis2DLineSubSel::acceptOK( CallBacker* )
 }
 
 
-uiSelection2DParSel::uiSelection2DParSel( uiParent* p )
+uiSelection2DParSel::uiSelection2DParSel( uiParent* p, bool withz,
+					  bool withattr )
     : uiCompoundParSel(p,"LineSet/LineName","Select")
     , lsctio_(mMkCtxtIOObj(SeisTrc))
-    , linesel_(0)
-{ butPush.notify( mCB(this,uiSelection2DParSel,doDlg) ); }
+{
+    butPush.notify( mCB(this,uiSelection2DParSel,doDlg) );
+    linesel_ = new uiSeis2DLineSubSel( this, *lsctio_, withz, withattr );
+}
 
 
 uiSelection2DParSel::~uiSelection2DParSel()
@@ -388,33 +463,43 @@ uiSelection2DParSel::~uiSelection2DParSel()
 
 BufferString uiSelection2DParSel::getSummary() const
 {
-    if ( !linesel_ )
-	return BufferString();
     return linesel_->getSummary();
 }
 
 
 void uiSelection2DParSel::doDlg( CallBacker* )
 {
-    linesel_ = new uiSeis2DLineSubSel( this, *lsctio_ );
-    linesel_->setSelLines( sellines_ );
-    linesel_->go();
+    if ( !linesel_ || !linesel_->go() )
+	return;
+
     sellines_ = linesel_->getSelLines();
+    trcrgs_.erase();
+    for ( int idx=0; idx<sellines_.size(); idx++ )
+    {
+	StepInterval<int> trcrg = linesel_->getTrcRange( sellines_.get(idx) );
+	trcrgs_ += trcrg;
+    }
 }
 
 
-void uiSelection2DParSel::fillPar( IOPar& par )
+void uiSelection2DParSel::fillPar( IOPar& par ) const
 {
-    par.set( "LineSet.ID", getIOObj()->key() );
+    if ( !lsctio_->ioobj )
+	return;
+    
+    par.set( "LineSet.ID", lsctio_->ioobj->key() );
+    const char* attrnm = linesel_->getAttrName();
+    if ( attrnm && *attrnm )
+	par.set( sKey::Attribute, attrnm );
 
+    par.set( sKey::ZRange, linesel_->getZRange() );
     BufferString mergekey;
     IOPar lspar;
     for ( int idx=0; idx<sellines_.size(); idx++ )
     {
 	IOPar linepar;
 	linepar.set( sKey::Name, sellines_[idx]->buf() );
-	Interval<int> trcrg = linesel_->getTrcRange( sellines_.get(idx) );
-	linepar.set( sKey::TrcRange, trcrg );
+	linepar.set( sKey::TrcRange, trcrgs_[idx] );
 	mergekey = idx;
 	lspar.mergeComp( linepar, mergekey );
     }
@@ -423,5 +508,54 @@ void uiSelection2DParSel::fillPar( IOPar& par )
 }
 
 
+void uiSelection2DParSel::usePar( const IOPar& par )
+{
+    MultiID lsetkey;
+    if ( par.get("LineSet.ID",lsetkey) )
+	setIOObj( lsetkey );
+
+    FixedString attrnm = par.find( sKey::Attribute );
+    if ( attrnm )
+	linesel_->setAttrName( attrnm );
+
+    StepInterval<float> zrg;
+    if ( par.get(sKey::ZRange, zrg) )
+	linesel_->setZRange( zrg );
+
+    PtrMan<IOPar> lspar = par.subselect( sKey::LineKey );
+    if ( !lspar ) return;
+
+    for ( int idx=0; idx<1024; idx++ )
+    {
+	PtrMan<IOPar> linepar = lspar->subselect( idx );
+	if ( !linepar )
+	    break;
+
+	FixedString lnm = linepar->find( sKey::Name );
+	StepInterval<int> trcrg;
+	if ( !lnm || !linepar->get(sKey::TrcRange,trcrg) )
+	    continue;
+
+	sellines_.add( lnm );
+	trcrgs_ += trcrg;
+    }
+    
+    if ( !linesel_ ) return;
+
+    linesel_->setSelLines( sellines_ );
+    for ( int idx=0; idx<sellines_.size(); idx++ )
+	linesel_->setTrcRange( trcrgs_[idx], sellines_.get(idx) );
+}
+
+
 IOObj* uiSelection2DParSel::getIOObj()
 { return lsctio_->ioobj; }
+
+
+void uiSelection2DParSel::setIOObj( const MultiID& key )
+{
+    deepErase( sellines_ );
+    trcrgs_.erase();
+    linesel_->setLineSet( key );
+    lsctio_->setObj( key );
+}
