@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.78 2009-09-10 13:26:22 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.79 2009-09-15 09:10:46 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -185,9 +185,7 @@ void SEGY::TxtHeader::setStartPos( float sp )
 {
     if ( mIsZero(sp,mDefEps) ) return;
 
-    BufferString txt( "First sample ", SI().zIsTime() ? "time " : "depth ",
-	    	      SI().getZUnitString() );
-    txt += ": "; txt += sp * SI().zFactor();
+    BufferString txt( "First sample at:", sp );
     putAt( 10, 6, 75, txt );
     putAt( 11, 10, 75, "(in bytes 109 (+) and 105 (-) of the trace header)");
 }
