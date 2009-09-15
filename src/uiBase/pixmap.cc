@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.35 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.36 2009-09-15 11:40:56 cvsnanne Exp $";
 
 #include "pixmap.h"
 
@@ -195,3 +195,11 @@ ioBitmap::ioBitmap( const char* filenm, const char * format )
 
 QBitmap* ioBitmap::Bitmap() { return (QBitmap*)qpixmap_; }
 const QBitmap* ioBitmap::Bitmap() const { return (const QBitmap*)qpixmap_; }
+
+
+void supportedImageFormats( BufferStringSet& imageformats )
+{
+    QList<QByteArray> imgfrmts = QImageWriter::supportedImageFormats();
+    for ( int idx=0; idx<imgfrmts.size(); idx++ )
+	imageformats.add( imgfrmts[idx].data() );
+}

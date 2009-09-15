@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.22 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: pixmap.h,v 1.23 2009-09-15 11:40:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,9 @@ public:
     QBitmap* 		Bitmap();
     const QBitmap*  	Bitmap() const;
 };
+
+
+mGlobal void supportedImageFormats(BufferStringSet&);
 
 
 #endif
