@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.29 2009-09-10 11:11:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.30 2009-09-15 09:18:32 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -245,8 +245,6 @@ void uiFlatViewStdControl::handDragging( CallBacker* )
     centre = wr.centre();
     newsz = vwrs_[0]->curView().size();
     wr = getNewWorldRect( centre, newsz, vwrs_[0]->curView(), getBoundingBox());
-    if ( wr == vwrs_[0]->curView() )
-	return;
     vwrs_[0]->drawAnnot( viewarea, wr );
     vwrs_[0]->viewChanging.trigger( wr );
 }
@@ -268,8 +266,6 @@ void uiFlatViewStdControl::handDragged( CallBacker* )
     uiRect viewarea = getViewRect( vwrs_[0] );
     uiWorldRect wr = w2ui.transform( viewarea );
     centre = wr.centre();
-    if ( centre == vwrs_[0]->curView().centre() )
-	return;
     newsz = vwrs_[0]->curView().size();
 
     setNewView( centre, newsz );

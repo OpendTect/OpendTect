@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.36 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.37 2009-09-15 09:18:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,9 +75,9 @@ public:
 
     uiFlatViewControl*	control()	{ return control_; }
     Interval<float>     getDataRange(bool) const;
-    void		drawBitMaps();
-    void		drawAnnot(const uiRect&,const uiWorldRect&);
-    void		drawAnnot();
+    bool		drawBitMaps();
+    bool		drawAnnot(const uiRect&,const uiWorldRect&);
+    bool		drawAnnot();
 
     void		setNoViewDone()			
     			{ anysetviewdone_  = false; }

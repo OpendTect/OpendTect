@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.47 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.48 2009-09-15 09:18:32 cvssatyaki Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -159,8 +159,6 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
     uiWorldRect br = getBoundingBox();
     br.checkCorners();
     const uiWorldRect& wr = getNewWorldRect( centre, sz,vwrs_[0]->curView(),br);
-    if ( wr == vwrs_[0]->curView() )
-	return;
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setView( wr );

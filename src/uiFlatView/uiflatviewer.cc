@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.95 2009-09-03 09:52:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.96 2009-09-15 09:18:32 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -258,11 +258,13 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 	wr_.swapVer();
 
     anysetviewdone_ = true;
-    drawBitMaps();
-    drawAnnot();
-    if ( enabhaddrag_ )
-	canvas_.centreOn( viewarea.centre() );
-    viewChanged.trigger();
+    if ( drawBitMaps() )
+    {
+	drawAnnot();
+	if ( enabhaddrag_ )
+	    canvas_.centreOn( viewarea.centre() );
+	viewChanged.trigger();
+    }
 }
 
 
@@ -291,7 +293,6 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
     canvas_.setBorder( actborder );
     if ( dofill )
 	canvas_.reDrawNeeded.trigger();
-
 }
 
 
@@ -309,7 +310,7 @@ void uiFlatViewer::reset()
 }
 
 
-void uiFlatViewer::drawBitMaps()
+bool uiFlatViewer::drawBitMaps()
 {
     if ( enabhaddrag_ )
     {
@@ -343,7 +344,7 @@ void uiFlatViewer::drawBitMaps()
     reportedchanges_.erase();
 
     if ( !datachgd && !parschanged && annotchanged )
-	return;
+	return false;
 
     if ( datachgd )
 	dataChanged.trigger();
@@ -373,7 +374,7 @@ void uiFlatViewer::drawBitMaps()
 	if ( !mkBitmaps(offs) )
 	{
 	    delete wvabmpmgr_; wvabmpmgr_ = 0; delete vdbmpmgr_; vdbmpmgr_ = 0;
-	    return;
+	    return false;
 	}
 	if ( vdbmpmgr_->bitMapGen() )
 	{
@@ -403,6 +404,7 @@ void uiFlatViewer::drawBitMaps()
 
     canvas_.setPixmap( *pixmap );
     canvas_.draw();
+    return true;
 }
 
 
@@ -445,14 +447,14 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
 }
 
 
-void uiFlatViewer::drawAnnot()
-{ drawAnnot( canvas_.arrArea(), wr_ ); }
+bool uiFlatViewer::drawAnnot()
+{ return drawAnnot( canvas_.arrArea(), wr_ ); }
 
 
-void uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
+bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 {
     if ( mainwin() && !mainwin()->finalised() )
-	return;
+	return false;
 
     const FlatView::Annotation& annot = appearance().annot_;
 
@@ -481,6 +483,7 @@ void uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
     }
     else
     { mRemoveAnnotItem( titletxtitem_ ); }
+    return true;
 }
 
 
@@ -761,8 +764,6 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 
 	addatanm_->setPos( ptlist[listpos] );
     }
-
-    canvas_.draw();
 }
 
 
