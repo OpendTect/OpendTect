@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.h,v 1.6 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uifingerprintcalcobj.h,v 1.7 2009-09-15 07:58:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "multiid.h"
 #include "ranges.h"
 #include "statruncalc.h"
-#include "multiid.h"
 
 class uiParent;
 class BinIDValueSet;
