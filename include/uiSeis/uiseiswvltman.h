@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseiswvltman.h,v 1.16 2009-09-14 14:01:46 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.17 2009-09-15 13:36:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class uiFlatViewer;
 class uiWaveletExtraction;
+class uiWaveletDispPropDlg;
 class Wavelet;
 template <class T> class Array2D;
 
@@ -31,21 +32,22 @@ protected:
     uiFlatViewer*		wvltfld;
     DataPack::ID		curid_;
     uiWaveletExtraction*  	wvltext_;
+    uiWaveletDispPropDlg*	wvltpropdlg_;
 
     void			mkFileInfo();
     void			setViewerData(const Wavelet*);
     
-    void			impPush(CallBacker*);
+    void                	closeDlg(CallBacker*);
     void			crPush(CallBacker*);
+    void			dispProperties(CallBacker*);
+    void			impPush(CallBacker*);
     void			mrgPush(CallBacker*);
     void			extractPush(CallBacker*);
     void			getFromOtherSurvey(CallBacker*);
     void			reversePolarity(CallBacker*);
     void			rotatePhase(CallBacker*);
     void                	updateCB(CallBacker*);
-    void                	closeDlg(CallBacker*);
     void 			updateViewer(CallBacker*);
-
 };
 
 

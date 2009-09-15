@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.47 2009-09-14 14:01:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.48 2009-09-15 13:36:21 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -40,6 +40,8 @@ static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.47 2009-09-14 14:01:46 cvs
 #include "uislider.h"
 #include "uimsg.h"
 
+
+#define mErrRet(s) { uiMSG().error(s); return; }
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Wavelet management",
                                      "Manage wavelets",
@@ -47,11 +49,14 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 	    	   WaveletTranslatorGroup::ioContext() )
     , curid_(DataPack::cNoID())
     , wvltext_(0)
+    , wvltpropdlg_(0)			 
 {
     createDefaultUI();
 
     selgrp->getManipGroup()->addButton( "wvltfromothsurv.png",
 	mCB(this,uiSeisWvltMan,getFromOtherSurvey), "Get from other survey" );
+    selgrp->getManipGroup()->addButton( "info.png",
+	mCB(this,uiSeisWvltMan,dispProperties), "Display properties" );
     selgrp->getManipGroup()->addButton( "revpol.png",
 	mCB(this,uiSeisWvltMan,reversePolarity), "Reverse polarity" );
     selgrp->getManipGroup()->addButton( "phase.png",
@@ -111,8 +116,10 @@ uiSeisWvltMan::~uiSeisWvltMan()
 	wvltext_->close();
 	wvltext_->extractionDone.remove( mCB(this,uiSeisWvltMan,updateCB) );
     }
-    
     delete wvltext_;
+
+    if ( wvltpropdlg_ )
+	delete wvltpropdlg_;
 }
 
 
@@ -134,7 +141,9 @@ void uiSeisWvltMan::crPush( CallBacker* )
 
 void uiSeisWvltMan::mrgPush( CallBacker* )
 {
-    uiSeisWvltMerge dlg( this, curioobj_->name() );
+    if ( selgrp->getListField()->size()<2 )
+	mErrRet( "At least two wavelets are needed to merge wavelets" );
+    uiSeisWvltMerge dlg( this, curioobj_ ? curioobj_->name() : 0 );
     if ( dlg.go() )
 	selgrp->fullUpdate( dlg.storeKey() );
 }
@@ -213,6 +222,19 @@ void uiSeisWvltMan::setViewerData( const Wavelet* wvlt )
     StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
     if ( SI().zIsTime() ) posns.scale( zfac );
     dp->posData().setRange( false, posns );
+}
+
+
+void uiSeisWvltMan::dispProperties( CallBacker* )
+{
+    Wavelet* wvlt = Wavelet::get( curioobj_ );
+    if ( !wvlt ) return;
+
+    wvltpropdlg_ = new uiWaveletDispPropDlg( this, wvlt );
+    if ( wvltpropdlg_ ->go() )
+    { delete wvltpropdlg_; wvltpropdlg_ = 0; }
+
+    delete wvlt;
 }
 
 
@@ -310,7 +332,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
     delete wvlt;
 }
 
-#define mErr() uiMSG().error("Cannot draw wavelet");
+#define mErr() mErrRet("Cannot draw wavelet");
 void uiSeisWvltMan::updateViewer( CallBacker* cb )
 {
     mDynamicCastGet(uiSeisWvltRotDlg*,dlg,cb);
