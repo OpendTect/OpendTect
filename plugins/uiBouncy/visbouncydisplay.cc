@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.1 2009-09-14 22:50:45 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.2 2009-09-15 14:40:46 cvskarthika Exp $";
 
 #include "visbouncydisplay.h"
 #include "visbeachball.h"
@@ -15,10 +15,14 @@ static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.1 2009-09-14 22:50:45 c
 
 #include "vissurvscene.h"
 #include "uivispartserv.h"
+#include "survinfo.h"
 #include "uiodscenemgr.h"
 #include "visevent.h"
 
 #include <Inventor/nodes/SoRotation.h>
+#include <Inventor/nodes/SoCube.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoTransform.h>
 
 mCreateFactoryEntry( uiBouncy::BouncyDisplay );
 
@@ -29,12 +33,34 @@ BouncyDisplay::BouncyDisplay()
     : VisualObjectImpl(false) 
     , bb_(visBase::BeachBall::create())
     , rotation_(new SoRotation)
+    , paddle_(new SoCube)
+    , paddletransform_(new SoTransform)
     , sceneid_(0)
     , eventcatcher_(0)
     , newEvent(this)
     , ispaused_(false)
     , isstopped_(true)
 {
+    SoSeparator* sep = new SoSeparator;
+    addChild( sep );
+    
+    paddletransform_->ref();
+    bool work = true;
+    Coord min = SI().minCoord( work );
+    Coord max = SI().maxCoord( work );
+    float z = SI().zRange( work ).start + 
+	(SI().zRange( work ).stop - SI().zRange( work ).start) * 0.5;
+    paddletransform_->translation = SbVec3f( 
+	    min.x+(max.x-min.x)*0.5,
+	    min.y+(max.y-min.y)*0.5,
+	    z );
+    sep->addChild(paddletransform_);
+    paddle_->ref();
+    paddle_->width = 2000;
+    paddle_->height = 500;
+    paddle_->depth = 800;
+    sep->addChild( paddle_ );
+
     rotation_->ref();  // use RotationDragger instead?
     addChild( rotation_ );
    
@@ -46,6 +72,7 @@ BouncyDisplay::BouncyDisplay()
 BouncyDisplay::~BouncyDisplay()
 {
     removeBouncy();
+    setSceneEventCatcher( 0 );
 }
 
 
@@ -87,6 +114,7 @@ int BouncyDisplay::sceneid() const
 
 void BouncyDisplay::addBouncy( visBeachBall::BallProperties bp )
 {
+    pErrMsg("addBouncy");
     mDynamicCastGet( visSurvey::Scene*, scene,
 	    ODMainWin()->applMgr().visServer()->getObject( sceneid_ ) );
 
@@ -115,6 +143,19 @@ void BouncyDisplay::removeBouncy()
     {
 	rotation_->unrefNoDelete();
 	rotation_ = 0;
+    }
+
+    // later: common paddle for all the balls
+    if ( paddle_ )
+    {
+	paddle_->unrefNoDelete();
+	paddle_ = 0;
+    }
+
+    if ( paddletransform_ )
+    {
+	paddletransform_->unrefNoDelete();
+	paddletransform_ = 0;
     }
 
     if ( bb_ )
@@ -163,6 +204,7 @@ bool BouncyDisplay::isstopped() const
 
 void BouncyDisplay::setSceneEventCatcher( visBase::EventCatcher* nev )
 {
+    pErrMsg("Oh");
     if ( eventcatcher_ )
     {
 	eventcatcher_->eventhappened.remove( 
@@ -183,56 +225,57 @@ void BouncyDisplay::setSceneEventCatcher( visBase::EventCatcher* nev )
 
 void BouncyDisplay::eventCB( CallBacker* cb )
 {
-     if ( eventcatcher_->isHandled() ) return;
+    pErrMsg("hi");
+    if ( isstopped_ || eventcatcher_->isHandled() ) return;
 
-     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
-     if ( eventinfo.type == visBase::MouseMovement )
-     {
-         // move the paddle horizontally with the mouse   
-     }
-     else if ( eventinfo.type == visBase::Keyboard )
-     {
-	 switch ( eventinfo.key )
-	 {
-	     case ' ':
-		 {
-		     // pause/resume
-		     ispaused_ = !ispaused_;
-		     break;
-		 }
-	     case OD::Escape:
-		 {
-		     // quit
-		     isstopped_ = true;
-		     break;
-		 }
-	     case OD::Left:
-		 {
-		     break;
-		 }
-	     case OD::Right:
-		 {
-		     break;
-		 }
-	     case OD::Plus:
-		 {
-		     // increase speed
-		     break;
-		 }
-	     case OD::Minus:
-		 {
-		     // decrease speed
-		     break;
-		 }
-	 }
-     }
-     else
-	 return;
+    if ( eventinfo.type == visBase::MouseMovement )
+    {
+        // move the paddle horizontally with the mouse   
+    }
+    else if ( eventinfo.type == visBase::Keyboard )
+    {
+        switch ( eventinfo.key )
+	{
+	    case ' ':
+	    {
+		// pause/resume
+		ispaused_ = !ispaused_;
+		break;
+	    }
+	    case OD::Escape:
+	    {
+	        // quit
+	        isstopped_ = true;
+		break;
+	    }
+	    case OD::Left:
+	    {
+	        break;
+	    }
+	    case OD::Right:
+	    {
+	        break;
+	    }
+	    case OD::Plus:
+	    {
+	        // increase speed
+		break;
+	    }
+	    case OD::Minus:
+	    {
+	        // decrease speed
+		break;
+	    }
+        }
+    }
+    else
+        return;
 
      
-     eventcatcher_->setHandled();
-     newEvent.trigger();
+    eventcatcher_->setHandled();
+    newEvent.trigger();
 }
 
 }
