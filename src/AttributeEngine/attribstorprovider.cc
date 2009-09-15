@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.92 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.93 2009-09-15 10:17:01 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -463,6 +463,12 @@ bool StorageProvider::setTableSelData()
 	seldata->lineKey().setAttrName( lk.attrName() );
     }
     reader.setSelData( seldata );
+    SeisTrcTranslator* transl = reader.seisTranslator();
+    for ( int idx=0; idx<outputinterest.size(); idx++ )
+    {
+	if ( !outputinterest[idx] ) 
+	    transl->componentInfo()[idx]->destidx = -1;
+    }
     return true;
 }
 
@@ -746,14 +752,19 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
     while ( idx<trc->size() && foundneed )
     {
 	foundneed = false;
+	int compidx = -1;
 	for ( int ido=0; ido<outputinterest.size(); ido++ )
 	{
-	    if ( outputinterest[ido] && isclass[ido] )
+	    if ( outputinterest[ido] )
 	    {
-		foundneed = true;
-		const float val  = trc->get( idx, ido );
-		if ( !holdsClassValue( val) )
-		    isclass[ido] = false;
+		compidx++;
+		if ( isclass[ido] )
+		{
+		    foundneed = true;
+		    const float val  = trc->get( idx, compidx );
+		    if ( !holdsClassValue( val) )
+			isclass[ido] = false;
+		}
 	    }
 	}
 	idx++;
