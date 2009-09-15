@@ -7,15 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: visbouncydisplay.h,v 1.1 2009-09-14 22:50:45 cvskarthika Exp $
+ RCS:           $Id: visbouncydisplay.h,v 1.2 2009-09-15 14:40:13 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "vissurvobj.h"
 #include "visobject.h"
 
 class SoRotation;
+class SoCube;
+class SoTransform;
 
 namespace visBase { class BeachBall; class EventCatcher; }
 namespace visBeachBall { class BallProperties; }
@@ -25,13 +28,18 @@ namespace uiBouncy
 
 /*! \brief 
 Display a bouncing beachball. 
-Controls: 
+Mouse control: 
+X, Y axes of mouse correspond to the cross-line and in-line axes respectively.
+Keyboard controls:
+Left & right arrow keys - cross-line axis
+Up & down keys - in-line axis
 ESC - quit game
 Space - pause/resume
 Mouse move - move paddle
 +/- - increase/decrease speed of ball
 */
-mClass BouncyDisplay : public visBase::VisualObjectImpl
+mClass BouncyDisplay : public visBase::VisualObjectImpl,
+		       public visSurvey::SurveyObject
 {
 public:
 
@@ -64,6 +72,8 @@ protected:
 
     visBase::BeachBall*		bb_;
     SoRotation*			rotation_;
+    SoCube*			paddle_;
+    SoTransform*		paddletransform_;
     int				sceneid_;
     visBase::EventCatcher*	eventcatcher_;
     bool			ispaused_;
