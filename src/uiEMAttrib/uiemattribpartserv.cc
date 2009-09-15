@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.14 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.15 2009-09-15 09:48:49 cvsbert Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -160,7 +160,6 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 	DataPointSet* dps = new DataPointSet( drset, nmset, false, true );
 
 	dps->dataSet().add( new DataColDef( siddef_ ) );
-	dps->bivSet().setNrVals( 3 );
 	dpsset += dps;
     }
 
