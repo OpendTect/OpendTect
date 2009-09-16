@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: visbouncydisplay.h,v 1.2 2009-09-15 14:40:13 cvskarthika Exp $
+ RCS:           $Id: visbouncydisplay.h,v 1.3 2009-09-16 14:24:21 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,13 @@ ________________________________________________________________________
 #include "visobject.h"
 
 class SoRotation;
-class SoCube;
-class SoTransform;
 
-namespace visBase { class BeachBall; class EventCatcher; }
+namespace visBase { 
+    class BeachBall; 
+    class EventCatcher; 
+    class Cube; 
+    class Transformation;
+}
 namespace visBeachBall { class BallProperties; }
 
 namespace uiBouncy
@@ -33,7 +36,7 @@ X, Y axes of mouse correspond to the cross-line and in-line axes respectively.
 Keyboard controls:
 Left & right arrow keys - cross-line axis
 Up & down keys - in-line axis
-ESC - quit game
+Q - quit game
 Space - pause/resume
 Mouse move - move paddle
 +/- - increase/decrease speed of ball
@@ -49,31 +52,48 @@ public:
     void			setSceneID(const int);
     int				sceneid() const;
 
-    visBase::BeachBall*		beachball() const;
-
     void                        addBouncy(visBeachBall::BallProperties);
     void			removeBouncy();
-    void                        setBallScale();
+    void                        setScale();
     void			start();
     void			stop();
     bool			ispaused() const;
     bool			isstopped() const;
 
-    Notifier<BouncyDisplay>	newEvent;
+    Notifier<BouncyDisplay>	newEvent;    
+
+    // beachball access methods
+    void                        setBallProperties(const
+	    				visBeachBall::BallProperties&);
+    visBeachBall::BallProperties getBallProperties() const;
+
+    void			setBallPosition(const Coord3&);
+    Coord3                      getBallPosition() const;
+
+    void			setPaddlePosition(const Coord3&);
+    Coord3			getPaddlePosition() const;
+
+    void                        setDisplayTransformation(
+	    				visBase::Transformation*);
+    visBase::Transformation*    getDisplayTransformation();  
 
 protected:
     				
-    ~BouncyDisplay();
+				~BouncyDisplay();
 
     void			zScaleCB(CallBacker*);
     void			eventCB(CallBacker*);
     void			keyPressCB(CallBacker*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
+    void			movePaddleLeft();
+    void			movePaddleRight();
+    void			movePaddleUp();
+    void			movePaddleDown();
+    
     visBase::BeachBall*		bb_;
     SoRotation*			rotation_;
-    SoCube*			paddle_;
-    SoTransform*		paddletransform_;
+    visBase::Cube*		paddle_;
     int				sceneid_;
     visBase::EventCatcher*	eventcatcher_;
     bool			ispaused_;
