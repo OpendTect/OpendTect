@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibinidtable.cc,v 1.18 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uibinidtable.cc,v 1.19 2009-09-16 06:50:24 cvsnanne Exp $";
 
 #include "uibinidtable.h"
 #include "uigeninput.h"
@@ -52,8 +52,10 @@ void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
     for ( int idx=0; idx<nrbids; idx++ )
     {
 	const BinID bid = bids[idx];
-	table_->setText( RowCol(idx,0), toString(bid.inl) );
-	table_->setText( RowCol(idx,1), toString(bid.crl) );
+	BufferString txt = toString(bid.inl);
+	table_->setText( RowCol(idx,0), txt );
+	txt = toString(bid.crl);
+	table_->setText( RowCol(idx,1), txt );
     }
 }
 
