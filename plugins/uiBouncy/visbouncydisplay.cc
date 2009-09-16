@@ -7,22 +7,27 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.2 2009-09-15 14:40:46 cvskarthika Exp $";
+static const char* rcsID = "$Id: visbouncydisplay.cc,v 1.3 2009-09-16 14:23:37 cvskarthika Exp $";
 
 #include "visbouncydisplay.h"
-#include "visbeachball.h"
 #include "beachballdata.h"
+#include "visbeachball.h"
+#include "viscube.h"
 
 #include "vissurvscene.h"
 #include "uivispartserv.h"
 #include "survinfo.h"
 #include "uiodscenemgr.h"
 #include "visevent.h"
+#include "vistransform.h"
 
 #include <Inventor/nodes/SoRotation.h>
-#include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoTransform.h>
+#include <Inventor/events/SoMouseButtonEvent.h>
+#include <Inventor/events/SoKeyboardEvent.h>
+
+#define mPaddleSize Coord3( 2500, 1000, 800 )
+#define mPaddleStep 500
 
 mCreateFactoryEntry( uiBouncy::BouncyDisplay );
 
@@ -33,8 +38,7 @@ BouncyDisplay::BouncyDisplay()
     : VisualObjectImpl(false) 
     , bb_(visBase::BeachBall::create())
     , rotation_(new SoRotation)
-    , paddle_(new SoCube)
-    , paddletransform_(new SoTransform)
+    , paddle_(visBase::Cube::create())
     , sceneid_(0)
     , eventcatcher_(0)
     , newEvent(this)
@@ -44,22 +48,8 @@ BouncyDisplay::BouncyDisplay()
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
     
-    paddletransform_->ref();
-    bool work = true;
-    Coord min = SI().minCoord( work );
-    Coord max = SI().maxCoord( work );
-    float z = SI().zRange( work ).start + 
-	(SI().zRange( work ).stop - SI().zRange( work ).start) * 0.5;
-    paddletransform_->translation = SbVec3f( 
-	    min.x+(max.x-min.x)*0.5,
-	    min.y+(max.y-min.y)*0.5,
-	    z );
-    sep->addChild(paddletransform_);
     paddle_->ref();
-    paddle_->width = 2000;
-    paddle_->height = 500;
-    paddle_->depth = 800;
-    sep->addChild( paddle_ );
+    sep->addChild( paddle_->getInventorNode() );
 
     rotation_->ref();  // use RotationDragger instead?
     addChild( rotation_ );
@@ -76,32 +66,26 @@ BouncyDisplay::~BouncyDisplay()
 }
 
 
-visBase::BeachBall* BouncyDisplay::beachball() const
-{
-    return bb_;
-}
-
-
 void BouncyDisplay::zScaleCB( CallBacker* )
 {
-    setBallScale();
+    setScale();
 }
 
 
 void BouncyDisplay::setSceneID( const int newid )
 {
+    mDynamicCastGet( visSurvey::Scene*, newscene,
+	    ODMainWin()->applMgr().visServer()->getObject( newid ) );
+    if ( !newscene )
+	return;
+   
     mDynamicCastGet( visSurvey::Scene*, scene,
 	    ODMainWin()->applMgr().visServer()->getObject( sceneid_ ) );
     if ( scene )
-	scene->zstretchchange.remove( mCB(this,BouncyDisplay,zScaleCB) );
+	scene->zstretchchange.remove( mCB(this,BouncyDisplay,zScaleCB) );   
 
-    mDynamicCastGet( visSurvey::Scene*, newscene,
-	    ODMainWin()->applMgr().visServer()->getObject( newid ) );
-    if ( newscene )
-    {
-	newscene->zstretchchange.notify( mCB(this,BouncyDisplay,zScaleCB) );
-        sceneid_ = newid;
-    }
+    newscene->zstretchchange.notify( mCB(this,BouncyDisplay,zScaleCB) );
+    sceneid_ = newid;
 }
 
 
@@ -111,51 +95,48 @@ int BouncyDisplay::sceneid() const
 }
 
 
-
 void BouncyDisplay::addBouncy( visBeachBall::BallProperties bp )
 {
-    pErrMsg("addBouncy");
     mDynamicCastGet( visSurvey::Scene*, scene,
 	    ODMainWin()->applMgr().visServer()->getObject( sceneid_ ) );
 
     if ( scene )
 	scene->zstretchchange.notify( mCB(this, BouncyDisplay, zScaleCB ) );
-
+    
     bb_->setDisplayTransformation( scene->getUTM2DisplayTransform() );
-    setBallScale();
+    paddle_->setDisplayTransformation( scene->getUTM2DisplayTransform() );
     bb_->setBallProperties( bp );
-    ODMainWin()->applMgr().visServer()->addObject( bb_, sceneid_, true );
+    paddle_->setWidth( mPaddleSize );
+    setScale();
+    
+    bool work = true;
+    Coord min = SI().minCoord( work );
+    Coord max = SI().maxCoord( work );
+    float z = SI().zRange( work ).stop;
+    
+    Coord3 c( min.x+(max.x-min.x)*0.5, min.y+(max.y-min.y)*0.5, z );  
+    paddle_->setCenterPos( c );
 }
 
 
 void BouncyDisplay::removeBouncy()
 {
-    if ( !rotation_ || !bb_ )
-	return;
-
     mDynamicCastGet( visSurvey::Scene*, scene,
 	    ODMainWin()->applMgr().visServer()->getObject( sceneid_ ) );
     if ( scene )
 	scene->zstretchchange.remove( mCB(this, BouncyDisplay, zScaleCB ) );
-    ODMainWin()->applMgr().visServer()->removeObject( bb_, sceneid_ );
-    
-    if ( rotation_ )
-    {
-	rotation_->unrefNoDelete();
-	rotation_ = 0;
-    }
 
     // later: common paddle for all the balls
     if ( paddle_ )
     {
-	paddle_->unrefNoDelete();
+	paddle_->unRefNoDelete();
 	paddle_ = 0;
     }
 
-    if ( paddletransform_ )
+    if ( rotation_ )
     {
-	paddletransform_->unrefNoDelete();
-	paddletransform_ = 0;
+	rotation_->unrefNoDelete();
+	rotation_ = 0;
     }
 
     if ( bb_ )
@@ -166,14 +147,19 @@ void BouncyDisplay::removeBouncy()
 }
 
 
-void BouncyDisplay::setBallScale()
+void BouncyDisplay::setScale()
 {
-    if ( !bb_ ) return;
-    
     mDynamicCastGet( visSurvey::Scene*, scene,
 	    ODMainWin()->applMgr().visServer()->getObject( sceneid_ ) );    
     const float zscale = scene ? scene->getZStretch()*scene->getZScale() : 1;
-    bb_->setZScale( zscale );
+    if ( bb_ ) 
+        bb_->setZScale( zscale );
+    if ( paddle_ )
+    {
+	Coord3 ps = paddle_->width();
+	ps.z /= (2*zscale);
+	paddle_->setWidth( ps );
+    }
 }
 
 
@@ -190,21 +176,8 @@ void BouncyDisplay::stop()
 }
 
 
-bool BouncyDisplay::ispaused() const
-{
-    return ispaused_;
-}
-
-
-bool BouncyDisplay::isstopped() const
-{
-    return isstopped_;
-}
-
-
 void BouncyDisplay::setSceneEventCatcher( visBase::EventCatcher* nev )
 {
-    pErrMsg("Oh");
     if ( eventcatcher_ )
     {
 	eventcatcher_->eventhappened.remove( 
@@ -225,16 +198,28 @@ void BouncyDisplay::setSceneEventCatcher( visBase::EventCatcher* nev )
 
 void BouncyDisplay::eventCB( CallBacker* cb )
 {
-    pErrMsg("hi");
+    // check if the bat is selected; otherwise, the entire cube moves!
     if ( isstopped_ || eventcatcher_->isHandled() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
-    if ( eventinfo.type == visBase::MouseMovement )
+    if ( eventinfo.type == visBase::MouseClick )
     {
-        // move the paddle horizontally with the mouse   
+	if ( !eventinfo.pressed || !eventinfo.worldpickedpos.isDefined() )
+	    return;
+        pErrMsg( "finally" );
+        // move the paddle with the mouse
+	BinID bid;
+	bid = SI().transform( eventinfo.worldpickedpos );
+//	if ( !SI().isInside( bid, true ) )
+	if ( !SI().inlRange(true).includes( bid.inl ) ||
+		    !SI().crlRange(true).includes( bid.crl ) )           
+	    return;
+
+	setPaddlePosition( Coord3( eventinfo.worldpickedpos.x, 
+		    eventinfo.worldpickedpos.y, SI().zRange( true ).stop ) );
     }
-    else if ( eventinfo.type == visBase::Keyboard )
+    else if ( eventinfo.type == visBase::Keyboard && eventinfo.pressed )
     {
         switch ( eventinfo.key )
 	{
@@ -244,19 +229,31 @@ void BouncyDisplay::eventCB( CallBacker* cb )
 		ispaused_ = !ispaused_;
 		break;
 	    }
-	    case OD::Escape:
+	    case OD::Q:
 	    {
 	        // quit
 	        isstopped_ = true;
 		break;
 	    }
-	    case OD::Left:
+	    case SoKeyboardEvent::LEFT_ARROW:
 	    {
+		movePaddleLeft();
 	        break;
 	    }
-	    case OD::Right:
+	    case SoKeyboardEvent::RIGHT_ARROW:
 	    {
+		movePaddleRight();
 	        break;
+	    }
+	    case SoKeyboardEvent::UP_ARROW:
+	    {
+		movePaddleUp();
+		break;
+	    }
+	    case SoKeyboardEvent::DOWN_ARROW:
+	    {
+		movePaddleDown();
+		break;
 	    }
 	    case OD::Plus:
 	    {
@@ -272,11 +269,111 @@ void BouncyDisplay::eventCB( CallBacker* cb )
     }
     else
         return;
-
-     
+    
     eventcatcher_->setHandled();
     newEvent.trigger();
 }
 
+
+void BouncyDisplay::movePaddleLeft()
+{
+    // Later: To be more correct, subtract the paddle's width to prevent the 
+    // overshoot.
+    Coord3 pos = getPaddlePosition();
+    pos.x = ( pos.x-mPaddleStep ) < SI().minCoord( true ).x 
+	? SI().minCoord( true ).x : pos.x-mPaddleStep;
+    setPaddlePosition( pos );
 }
+
+
+void BouncyDisplay::movePaddleRight()
+{
+    Coord3 pos = getPaddlePosition();
+    pos.x = ( pos.x+mPaddleStep ) > SI().maxCoord( true ).x 
+	? SI().maxCoord( true ).x : pos.x+mPaddleStep;
+    setPaddlePosition( pos );
+}
+
+
+void BouncyDisplay::movePaddleUp()
+{
+    Coord3 pos = getPaddlePosition();
+    pos.y = ( pos.y+mPaddleStep ) > SI().maxCoord( true ).y 
+	? SI().maxCoord( true ).y : pos.y+mPaddleStep;
+    setPaddlePosition( pos );
+}
+
+
+void BouncyDisplay::movePaddleDown()
+{
+    Coord3 pos = getPaddlePosition();
+    pos.y = ( pos.y-mPaddleStep ) < SI().minCoord( true ).y 
+	? SI().minCoord( true ).y : pos.y-mPaddleStep;
+    setPaddlePosition( pos );
+}
+
+
+visBase::Transformation* BouncyDisplay::getDisplayTransformation()
+{
+    return bb_->getDisplayTransformation();
+}
+
+
+void BouncyDisplay::setDisplayTransformation( visBase::Transformation* nt )
+{
+    bb_->setDisplayTransformation( nt );
+    paddle_->setDisplayTransformation( nt );
+}
+
+
+void BouncyDisplay::setBallProperties( const visBeachBall::BallProperties& bp )
+{
+    bb_->setBallProperties( bp );
+}
+   
+
+visBeachBall::BallProperties BouncyDisplay::getBallProperties() const
+{
+    return bb_->getBallProperties();
+}
+   
+
+void BouncyDisplay::setBallPosition( const Coord3& centerpos )
+{
+    bb_->setCenterPosition( centerpos );
+}
+
+
+Coord3 BouncyDisplay::getBallPosition() const
+{
+    return bb_->getCenterPosition();
+}
+
+
+void BouncyDisplay::setPaddlePosition( const Coord3& pos )
+{
+    paddle_->setCenterPos( pos );
+}
+
+
+Coord3 BouncyDisplay::getPaddlePosition() const
+{
+    return paddle_->centerPos();
+}
+
+
+bool BouncyDisplay::ispaused() const
+{
+    return ispaused_;
+}
+
+
+bool BouncyDisplay::isstopped() const
+{
+    return isstopped_;
+}
+
+
+}
+
 
