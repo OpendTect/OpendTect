@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.12 2009-09-14 15:06:12 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.13 2009-09-16 10:41:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,12 +57,15 @@ public:
     void		addToList(const char*);
     int			getListSize() const;
     int			getNrSel() const;
-    void		setAsCurrent(const char*); 
-    int			removeLastItem(); 
-    void		createLine(const FloatMathFunction&);
     const char*		getCurrentListName() const;
     void		getSelectedItems(TypeSet<int>&) const; 
     bool		isSelected(int) const;
+    void		removeItem(int); 
+    int			removeLastItem(); 
+    void		setAsCurrent(const char*); 
+    void		setSelected(int);
+
+    void		createLine(const FloatMathFunction*);
     
     void		funcSelChg(CallBacker*);
 

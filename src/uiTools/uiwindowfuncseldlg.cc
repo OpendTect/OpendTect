@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.18 2009-09-14 15:06:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.19 2009-09-16 10:41:18 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -112,8 +112,16 @@ int uiFuncSelDraw::removeLastItem()
 }
 
 
-void uiFuncSelDraw::createLine( const FloatMathFunction& mathfunc )
+void uiFuncSelDraw::removeItem( int idx )
 {
+    funclistfld_->removeItem( idx );
+    mathfunc_.remove( idx );
+}
+
+
+void uiFuncSelDraw::createLine( const FloatMathFunction* mathfunc )
+{
+    if ( !mathfunc ) return;
     TypeSet<uiPoint> pointlist;
 
     uiRect borderrect( xax_->pixBefore(), 10, mTransWidth - 10,
@@ -125,7 +133,7 @@ void uiFuncSelDraw::createLine( const FloatMathFunction& mathfunc )
     for ( int idx=0; idx<xrg.nrSteps(); idx++ )
     {
 	const float x = xrg.atIndex( idx );
-	const float y = mathfunc.getValue( x );
+	const float y = mathfunc->getValue( x );
 	pointlist += uiPoint( transform_->transform(uiWorldPoint(x,y)) );
     }
 
@@ -181,7 +189,7 @@ void uiFuncSelDraw::funcSelChg( CallBacker* )
     {
 	if ( !funclistfld_->isSelected(idx) )
 	    continue;
-	createLine( *mathfunc_[idx] );
+	createLine( mathfunc_[idx] );
     }
 
     draw();
@@ -204,6 +212,12 @@ void uiFuncSelDraw::getSelectedItems( TypeSet<int>& selitems ) const
 bool uiFuncSelDraw::isSelected( int idx) const
 { 
     return funclistfld_->isSelected(idx);
+}
+
+
+void uiFuncSelDraw::setSelected( int idx ) 
+{ 
+    funclistfld_->setSelected(idx);
 }
 
 
