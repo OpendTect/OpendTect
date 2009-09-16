@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: beachballdata.h,v 1.5 2009-09-09 07:52:29 cvskarthika Exp $
+ * ID       : $Id: beachballdata.h,v 1.6 2009-09-16 14:46:14 cvskarthika Exp $
 -*/
 
 #include "color.h"
@@ -44,7 +44,7 @@ public:
     void			setColor2(Color);
 
     Coord3			pos() const;
-    void			setPos(Coord3);
+    void			setPos(const Coord3&);
 
     float			elasticity() const;
     void			setElasticity(float);
@@ -86,7 +86,7 @@ public:
     void			setDirectionVector(const Coord3&);
 
     void			velocity(float*, Coord3*) const;
-    void			setVelocity(float, Coord3); 
+    void			setVelocity(float, const Coord3&); 
 
     BallDynamics&		operator = (const BallDynamics& bd);
     bool			operator == (const BallDynamics& bd) const;
