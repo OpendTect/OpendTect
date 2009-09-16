@@ -5,12 +5,13 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.33 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.34 2009-09-16 16:11:58 cvsbruno Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
 #include "wvltfact.h"
 #include "ascstream.h"
+#include "statruncalc.h"
 #include "streamconn.h"
 #include "survinfo.h"
 #include "ioobj.h"
@@ -167,6 +168,27 @@ void Wavelet::transform( float constant, float factor )
 {
     for ( int idx=0; idx<sz; idx++ )
 	samps[idx] = constant + samps[idx] * factor;
+}
+
+
+void Wavelet::normalize()
+{
+    float max = getExtr(true), min = getExtr(false); 
+    const float extrval = fabs(min)>fabs(max) ? min : max;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( mIsEqual(extrval,samps[idx],mDefEps) )
+	{ transform( 0, 1/samps[idx] ); break; }
+    }
+}
+
+
+float Wavelet::getExtr( bool ismax ) const
+{
+    Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
+    rc.addValues( sz, samps );
+    const float val = ismax ? rc.max() : rc.min();
+    return val;
 }
 
 
