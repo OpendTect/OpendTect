@@ -4,7 +4,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: bouncycontroller.cc,v 1.5 2009-09-14 22:55:22 cvskarthika Exp $";
+static const char* rcsID = "$Id: bouncycontroller.cc,v 1.6 2009-09-16 14:25:06 cvskarthika Exp $";
 
 #include "bouncycontroller.h"
 #include "statrand.h"
@@ -112,9 +112,9 @@ void BouncyController::stop()
 void BouncyController::pause( bool pause )
 {
     if ( pause )
-	updatetimer_.start( mTimerInterval, false );
-    else 
 	updatetimer_.stop();
+    else 
+	updatetimer_.start( mTimerInterval, false );
 }
 
 
