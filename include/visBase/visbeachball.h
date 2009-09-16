@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Aug 2009
- RCS:           $Id: visbeachball.h,v 1.8 2009-09-02 15:41:16 cvskarthika Exp $
+ RCS:           $Id: visbeachball.h,v 1.9 2009-09-16 14:27:09 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     Transformation*             getDisplayTransformation();
     void			setZScale(float zScale);
     float			getZScale() const;
-    void			setCenterPosition(Coord3);
+    void			setCenterPosition(const Coord3&);
     Coord3			getCenterPosition() const;
     void			setRadius(float);
     float			getRadius() const;
