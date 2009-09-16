@@ -5,7 +5,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: beachballdata.cc,v 1.3 2009-09-08 23:42:33 cvskarthika Exp $";
+static const char* rcsID = "$Id: beachballdata.cc,v 1.4 2009-09-16 14:46:54 cvskarthika Exp $";
 
 #include "beachballdata.h"
 
@@ -79,7 +79,7 @@ Coord3 BallProperties::pos() const
 }
 
 
-void BallProperties::setPos( Coord3 p )
+void BallProperties::setPos( const Coord3& p )
 {
     pos_ = p;
 }
@@ -185,7 +185,7 @@ void BallDynamics::velocity( float* sp, Coord3* directionvec ) const
 }
 
 
-void BallDynamics::setVelocity( float sp, Coord3 directionvec )
+void BallDynamics::setVelocity( float sp, const Coord3& directionvec )
 {
     speed_ = sp;
     directionvec_ = directionvec;
