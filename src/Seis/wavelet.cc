@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.34 2009-09-16 16:11:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.35 2009-09-16 16:33:11 cvsbruno Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -173,13 +173,7 @@ void Wavelet::transform( float constant, float factor )
 
 void Wavelet::normalize()
 {
-    float max = getExtr(true), min = getExtr(false); 
-    const float extrval = fabs(min)>fabs(max) ? min : max;
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	if ( mIsEqual(extrval,samps[idx],mDefEps) )
-	{ transform( 0, 1/samps[idx] ); break; }
-    }
+    transform( 0, 1/mMAX( fabs(getExtr(true)), fabs(getExtr(false)) ) );
 }
 
 
@@ -187,8 +181,7 @@ float Wavelet::getExtr( bool ismax ) const
 {
     Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
     rc.addValues( sz, samps );
-    const float val = ismax ? rc.max() : rc.min();
-    return val;
+    return ismax ? rc.max() : rc.min();
 }
 
 
