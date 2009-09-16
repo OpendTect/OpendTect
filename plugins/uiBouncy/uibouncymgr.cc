@@ -5,7 +5,7 @@
  * DATE     : Aug 2009
 -*/
 
-static const char* rcsID = "$Id: uibouncymgr.cc,v 1.4 2009-09-14 22:51:34 cvskarthika Exp $";
+static const char* rcsID = "$Id: uibouncymgr.cc,v 1.5 2009-09-16 14:21:51 cvskarthika Exp $";
 
 #include "uibouncymgr.h"
 #include "beachballdata.h"
@@ -71,6 +71,8 @@ void uiBouncyMgr::createBouncy()
     bouncydisp_->ref();
     bouncydisp_->setSceneID( ODMainWin()->sceneMgr().getActiveSceneID() );
     bouncydisp_->addBouncy( settingsdlg_->getBallProperties() );
+    ODMainWin()->applMgr().visServer()->addObject( 
+	    bouncydisp_, bouncydisp_->sceneid(), true );
 }
 
 
@@ -79,6 +81,8 @@ void uiBouncyMgr::destroyBouncy()
     if ( bouncydisp_ )
     {
 	bouncydisp_->removeBouncy();
+	ODMainWin()->applMgr().visServer()->removeObject( 
+		bouncydisp_, bouncydisp_->sceneid() );
 	bouncydisp_->unRef();
 	bouncydisp_->newEvent.remove( mCB(this, uiBouncyMgr, neweventCB) );
 	bouncydisp_ = 0;
@@ -109,7 +113,7 @@ void uiBouncyMgr::doWork( CallBacker *cb )
 
     visBeachBall::BallProperties currbp;
     if ( bouncydisp_ )
-        currbp = bouncydisp_->beachball()->getBallProperties();
+        currbp = bouncydisp_->getBallProperties();
 
     if ( maindlg_->go() )
     {
@@ -131,7 +135,7 @@ void uiBouncyMgr::doWork( CallBacker *cb )
 	}
 	else 
 	    // revert settings as user might have changed something
-            bouncydisp_->beachball()->setBallProperties( currbp );
+            bouncydisp_->setBallProperties( currbp );
     }
 }
 
@@ -142,7 +146,7 @@ void uiBouncyMgr::startGame()
 	return;
 
     bool work = true;
-    gamecontroller_->init( bouncydisp_->beachball()->getCenterPosition(), 
+    gamecontroller_->init( bouncydisp_->getBallPosition(), 
 	    SI().minCoord( work ), SI().maxCoord( work ), 
 	    SI().zRange( work ).start, SI().zRange( work ).stop, true );
     gamecontroller_->newPosAvailable.notify(
@@ -172,7 +176,7 @@ void uiBouncyMgr::pauseGame( bool pause )
 void uiBouncyMgr::newPosAvailableCB( CallBacker* )
 {
     if ( bouncydisp_ )
-	bouncydisp_->beachball()->setCenterPosition( gamecontroller_->getPos() );
+	bouncydisp_->setBallPosition( gamecontroller_->getPos() );
 }
 
 
@@ -182,9 +186,9 @@ void uiBouncyMgr::propertyChangeCB( CallBacker* )
 	createBouncy();
     else
     {
-	if ( bouncydisp_->beachball()->getBallProperties() != 
+	if ( bouncydisp_->getBallProperties() != 
 		settingsdlg_->getBallProperties() )
-	    bouncydisp_->beachball()->setBallProperties( 
+	    bouncydisp_->setBallProperties( 
 		    settingsdlg_->getBallProperties() );
     }
 }
@@ -196,9 +200,15 @@ void uiBouncyMgr::neweventCB( CallBacker* )
 	return;
 
     if ( bouncydisp_->isstopped() )
+    {
 	stopGame();
+	pErrMsg( "stopped game" );
+    }
     else if ( bouncydisp_->ispaused() )
+    {
 	pauseGame( bouncydisp_->ispaused() );
+	pErrMsg( " pause/resume" );
+    }
 }
 
 
