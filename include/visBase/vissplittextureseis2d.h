@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.7 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.8 2009-09-16 21:05:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 
     void			setTextureZPixels(int);
     				//!<\note Horizontal size is trcrg.width()+1, 
+    void			setTextureZPixelsAndPathScale(int zsz,int);
 
     void			setPath(const TypeSet<PosInfo::Line2DPos>&);
     				//!<Is assumed to remain in memory
@@ -61,6 +62,7 @@ protected:
     Interval<float>		zrg_;
     Interval<int>		trcrg_;
     int				nrzpixels_;
+    int				horscale_;
     ObjectSet<TypeSet<int> > 	horblocktrcindices_;
 
     Coordinates*		coords_;

@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.76 2009-09-07 11:18:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.77 2009-09-16 21:05:30 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.76 2009-09-07 11:18:26 
 #include "vistransform.h"
 #include "vissplittextureseis2d.h"
 
+#include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "attribdataholder.h"
@@ -463,16 +464,29 @@ void Seis2DDisplay::setData( int attrib,
 		texture_->splitTexture( true );
     		texture_->setData( attrib, sidx, &slice, true );
 	    }
+
+	    triangles_->setTextureZPixels( slice.info().getSize(0) );
 	}
 	else
 	{
-	    channels_->setSize( 1, slice.info().getSize(1),
-		    		   slice.info().getSize(0) );
-	    channels_->setUnMappedData( attrib, sidx, usedarr->getData(), 
-		    			OD::CopyPtr, tr );
+	    const int sz0 = usedarr->info().getSize(0) * (resolution_+1);
+	    const int sz1 = usedarr->info().getSize(1) * (resolution_+1);
+	    mDeclareAndTryAlloc( float*, tarr, float[sz0*sz1] );
+	    
+	    if ( resolution_==0 )
+		usedarr->getAll( tarr );
+	    else
+	    {
+		Array2DReSampler<float,float> 
+		    resampler( *usedarr, tarr, sz0, sz1, true );
+		resampler.setInterpolate( true );
+		resampler.execute();
+	    }
+
+	    channels_->setSize( 1, sz0, sz1 );
+	    channels_->setUnMappedData(attrib, sidx, tarr, OD::TakeOverPtr, tr);
+	    triangles_->setTextureZPixelsAndPathScale( sz1, resolution_+1 );
 	}
-    
-	triangles_->setTextureZPixels( slice.info().getSize(0) );
     }
 
     if ( texture_ )

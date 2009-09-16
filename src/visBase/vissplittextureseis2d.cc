@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.11 2009-09-15 12:10:37 cvsraman Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.12 2009-09-16 21:05:30 cvsyuancheng Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -38,6 +38,7 @@ SplitTextureSeis2D::SplitTextureSeis2D()
     , zrg_( 0, 0 )
     , trcrg_( 0, 0 )
     , nrzpixels_( 0 )
+    , horscale_( 1 )		     
 {
     coords_ = visBase::Coordinates::create();
     coords_->ref();
@@ -114,6 +115,17 @@ void SplitTextureSeis2D::setDisplayedGeometry( const Interval<int>& trcrg,
     }
     else
 	updateDisplay();
+}
+
+
+void SplitTextureSeis2D::setTextureZPixelsAndPathScale( int zsz, int scale )
+{
+    if ( nrzpixels_ == zsz && horscale_==scale )
+	return;
+    
+    nrzpixels_ = zsz;
+    horscale_ = scale;
+    updateDisplay();
 }
 
 
@@ -253,6 +265,7 @@ void SplitTextureSeis2D::updateDisplay( )
     const float inithorpos = (*horblocktrcindices_[0])[0];
     for ( int horidx=0; horidx<horblocktrcindices_.size(); horidx++ )
     {
+	const int starthorpixel = horidx * (mMaxVerSz-1) * horscale_;
 	TypeSet<int>* horblockrg = horblocktrcindices_[ horidx ];
 	for ( int idz=0; idz<verblocks; idz++ )
 	{
@@ -279,15 +292,15 @@ void SplitTextureSeis2D::updateDisplay( )
 		stopzpixel = nrzpixels_-1;
 	    
 	    const int bpsz = (*horblockrg).size();
-	    const int horsz = (*horblockrg)[bpsz-1]-(*horblockrg)[0]+1;
+	    const int horsz = 
+		( (*horblockrg)[bpsz-1]-(*horblockrg)[0]+1 ) * horscale_;
 	    const int versz = stopzpixel-startzpixel+1;
 	    const int texturehorsz = nextPower( horsz, 2 );
 	    const int textureversz = nextPower( versz, 2 );
 	    
 	    if ( tcomp )
 	    {
-		tcomp->origin.setValue( 0, 
-			(*horblockrg)[0]-firstpathidx, startzpixel );
+		tcomp->origin.setValue( 0, starthorpixel, startzpixel );
 		tcomp->size.setValue( 1, texturehorsz, textureversz );
 	    }
 	 
@@ -299,7 +312,7 @@ void SplitTextureSeis2D::updateDisplay( )
 		for ( int idx=0; idx<bpsz; idx++ )
 		{
 		    const float dist = (*horblockrg)[idx]-(*horblockrg)[0];
-		    const float tcrd = (0.5+dist)/texturehorsz;
+		    const float tcrd = (0.5+dist*horscale_)/texturehorsz;
 	
 		    tc->point.set1Value( tcidx, SbVec2f(tcstart,tcrd) );
 		    tcidx++;
