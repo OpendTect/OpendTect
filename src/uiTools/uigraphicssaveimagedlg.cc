@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.9 2009-07-23 06:25:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.10 2009-09-16 06:42:23 cvssatyaki Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.9 2009-07-23 06:2
 
 #include "iopar.h"
 #include "filepath.h"
+#include "pixmap.h"
 #include "settings.h"
 
 static const char* sKeySnapshot = "snapshot";
@@ -59,7 +60,8 @@ void uiGraphicsSaveImageDlg::getSupportedFormats( const char** imagefrmt,
 						  const char** frmtdesc,
 						  BufferString& filters )
 {
-    BufferStringSet supportedformats = scene_->supportedImageFormat();
+    BufferStringSet supportedformats;
+    supportedImageFormats( supportedformats );
     int idy = 0;
     while ( imagefrmt[idy] )
     {

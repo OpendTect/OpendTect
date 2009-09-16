@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.11 2009-08-31 05:12:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.12 2009-09-16 06:42:23 cvssatyaki Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.11 2009-08-31 05:12:52 c
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
+#include "pixmap.h"
 #include "settings.h"
 #include "timefun.h"
 
@@ -101,6 +102,8 @@ void uiWindowGrabDlg::updateFilter()
     BufferString deftype = imageformats[0];
     if ( iopar ) iopar->get( "File type", deftype );
 
+    BufferStringSet supportedformats;
+    supportedImageFormats( supportedformats );
     int idx = 0;
     while ( imageformats[idx] )
     {
@@ -110,7 +113,8 @@ void uiWindowGrabDlg::updateFilter()
 	    continue;
 	}
 
-	fileinputfld_->setSelectedFilter( filters[idx] );
+	if ( supportedformats.indexOf(imageformats[idx]) >= 0 )
+	    fileinputfld_->setSelectedFilter( filters[idx] );
 	break;
     }
 
@@ -118,8 +122,12 @@ void uiWindowGrabDlg::updateFilter()
     idx = 0;
     while ( imageformats[idx] )
     {
-	if ( !filter.isEmpty() ) filter += ";;";
-	filter += filters[idx];
+	const int idy = supportedformats.indexOf( imageformats[idx] );
+	if ( idy>=0 )
+	{
+	    if ( !filter.isEmpty() ) filter += ";;";
+	    filter += filters[idx];
+	}
 	idx++;
     }
 

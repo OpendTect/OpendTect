@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.34 2009-08-11 07:10:20 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.35 2009-09-16 06:42:23 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -158,16 +158,6 @@ uiGraphicsScene::~uiGraphicsScene()
 int uiGraphicsScene::nrItems() const
 {
     return odgraphicsscene_->items().size();
-}
-
-
-BufferStringSet uiGraphicsScene::supportedImageFormat()
-{
-    BufferStringSet imageformats;
-    QList<QByteArray> imgfrmts = QImageWriter::supportedImageFormats();
-    for ( int idx=0; idx<imgfrmts.size(); idx++ )
-	imageformats.add( imgfrmts[idx].data() );
-    return imageformats;
 }
 
 
