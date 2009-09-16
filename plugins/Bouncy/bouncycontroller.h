@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Karthika
  * DATE     : Sep 2009
- * ID       : $Id: bouncycontroller.h,v 1.4 2009-09-14 22:55:22 cvskarthika Exp $
+ * ID       : $Id: bouncycontroller.h,v 1.5 2009-09-16 14:34:59 cvskarthika Exp $
 -*/
 
 #include "position.h"
@@ -20,7 +20,8 @@ public:
 			        BouncyController();
     virtual			~BouncyController();
     
-    void			init(Coord3 pos, Coord minpos, Coord maxpos, 
+    void			init(const Coord3& pos, const Coord& minpos, 
+	    			     const Coord& maxpos, 
 	    			     float zStart, float zStop, 
 	    			     bool simulategame=false);
     void			stop();

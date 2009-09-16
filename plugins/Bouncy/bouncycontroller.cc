@@ -4,7 +4,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: bouncycontroller.cc,v 1.6 2009-09-16 14:25:06 cvskarthika Exp $";
+static const char* rcsID = "$Id: bouncycontroller.cc,v 1.7 2009-09-16 14:34:59 cvskarthika Exp $";
 
 #include "bouncycontroller.h"
 #include "statrand.h"
@@ -41,8 +41,9 @@ BouncyController::~BouncyController()
 }
 
 
-void BouncyController::init( Coord3 pos, Coord minpos, Coord maxpos,
-			     float zStart, float zStop, bool simulategame )
+void BouncyController::init( const Coord3& pos, const Coord& minpos, 
+			     const Coord& maxpos, float zStart, float zStop, 
+			     bool simulategame )
 {
     currpos_ = pos;
     minpos_ = minpos;
