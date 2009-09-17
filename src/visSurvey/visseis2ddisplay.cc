@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.78 2009-09-17 16:01:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.79 2009-09-17 17:43:56 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.78 2009-09-17 16:01:54 
 #include "genericnumer.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "mousecursor.h"
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "posinfo.h"
@@ -395,6 +396,7 @@ void Seis2DDisplay::setData( int attrib,
     else
 	channels_->setNrVersions( attrib, nrseries );
 
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     for ( int sidx=0; sidx<nrseries; sidx++ )
     {
 	arr->setAll( mUdf(float) );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.8 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.9 2009-09-17 17:43:56 cvsyuancheng Exp $";
 
 #include "vissplittexturerandomline.h"
 
@@ -35,6 +35,7 @@ SplitTextureRandomLine::SplitTextureRandomLine()
     : VisualObjectImpl( false )
     , nrzpixels_( 0 )
     , zrg_( 0, 0 )
+    , pathpixelscale_( 1 )		  
 {
     coords_ = visBase::Coordinates::create();
     coords_->ref();
@@ -64,11 +65,12 @@ SplitTextureRandomLine::~SplitTextureRandomLine()
 }
 
 
-void SplitTextureRandomLine::setTexturePath( const TypeSet<BinID>& path, 
-					     int nrzpixels )
+void SplitTextureRandomLine::setTexturePathAndPixels( 
+	const TypeSet<BinID>& path, int pathsizescale, int nrzpixels )
 {
     path_ = path;
     nrzpixels_ = nrzpixels;
+    pathpixelscale_ = pathsizescale;
 
     updateDisplay();
 }
@@ -220,14 +222,15 @@ void SplitTextureRandomLine::updateDisplay( )
 	    if ( stopzpixel>=nrzpixels_ || nrverblocks==1 ) 
 		stopzpixel = nrzpixels_ ? nrzpixels_-1 : 0;
 	    
-	    const int horsz = lastpathidx-startpathidx+1;
+	    const int horsz = (lastpathidx-startpathidx+1) * pathpixelscale_;
 	    const int versz = stopzpixel-startzpixel+1;
 	    const int texturepathsz = nextPower(horsz,2);
 	    const int texturezsz = nextPower(versz,2);
 
 	    if ( tcomp )
 	    {
-		tcomp->origin.setValue( 0, startpathidx, startzpixel );
+		tcomp->origin.setValue( 0, startpathidx * pathpixelscale_, 
+					startzpixel );
 		tcomp->size.setValue( 1, texturepathsz, texturezsz );
 	    }
 
@@ -239,7 +242,8 @@ void SplitTextureRandomLine::updateDisplay( )
 		for ( int idx=0; idx<knots.size(); idx++ )
     		{
 		    const int posid = path_.indexOf(knots[idx]);
-		    const float tcrd = (posid-startpathidx+0.5)/texturepathsz;
+		    const float tcrd = ((posid-startpathidx) * pathpixelscale_
+			    		+ 0.5)/texturepathsz;
 		    tc->point.set1Value( textureidx, SbVec2f(tcstart,tcrd) );
 		    textureidx++;
 

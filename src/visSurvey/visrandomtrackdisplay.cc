@@ -7,11 +7,12 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.113 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.114 2009-09-17 17:43:56 cvsyuancheng Exp $";
 
 
 #include "visrandomtrackdisplay.h"
 
+#include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
@@ -22,6 +23,8 @@ static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.113 2009-07-22 16:
 #include "interpol1d.h"
 #include "scaler.h"
 #include "keystrs.h"
+#include "mousecursor.h"
+#include "simpnumer.h"
 #include "survinfo.h"
 #include "ptrman.h"
 
@@ -155,6 +158,26 @@ void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
 Interval<float> RandomTrackDisplay::getDepthInterval() const
 {
     return triangles_->getDepthRange();
+}
+
+
+void RandomTrackDisplay::setResolution( int res, TaskRunner* tr )
+{
+    if ( res==resolution_ )
+	return;
+    
+    if ( texture_ )
+	texture_->clearAll();
+    
+    resolution_ = res;
+    
+    for ( int idx=0; idx<cache_.size(); idx++ )
+    {
+	if ( !cache_[idx] || !cache_[idx]->size() )
+	    continue;
+	
+	setData( idx, *cache_[idx] );
+    }
 }
 
 
@@ -431,13 +454,16 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     else
 	channels_->setNrVersions( attrib, nrslices );
 
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, array,
+	    Array2DImpl<float>( path.size(), nrsamp ) );
+    if ( !array->isOK() )
+	return;
+
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     for ( int sidx=0; sidx<nrslices; sidx++ )
     {
-	Array2DImpl<float> array( path.size(), nrsamp );
-	float* dataptr = array.getData();
-
-	for ( int idx=array.info().getTotalSz()-1; idx>=0; idx-- )
-	    dataptr[idx] = mUdf(float);
+	array->setAll( mUdf(float) );
+	float* dataptr = array->getData();
 
 	for ( int posidx=path.size()-1; posidx>=0; posidx-- )
 	{
@@ -450,7 +476,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	    if ( !trc || sidx>trc->nrComponents() )
 		continue;
 
-	    float* arrptr = dataptr + array.info().getOffset( posidx, 0 );
+	    float* arrptr = dataptr + array->info().getOffset( posidx, 0 );
 
 	    if ( !datatransform_ )
 	    {
@@ -469,20 +495,38 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	    }
 	}
 
+	const int sz0 = array->info().getSize(0) * (resolution_+1);
+	const int sz1 = array->info().getSize(1) * (resolution_+1);
  	if ( texture_ )
 	{
-	    texture_->splitTexture( true );
-	    texture_->setData( attrib, sidx, &array, true );
+	    if ( resolution_ )
+		texture_->setDataOversample( attrib, sidx, resolution_,
+			!isClassification(attrib), array, true );
+	    else
+	    {
+    		texture_->splitTexture( true );
+    		texture_->setData( attrib, sidx, array, true );
+	    }
 	}
 	else
 	{
-	    channels_->setSize( 1, array.info().getSize(0),
-				   array.info().getSize(1) );
-	    channels_->setUnMappedData( attrib, sidx, dataptr, OD::CopyPtr, 0 );
+	    channels_->setSize( 1, sz0, sz1 );
+	    
+	    if ( resolution_==0 )
+		channels_->setUnMappedData(attrib,sidx,dataptr,OD::CopyPtr,0);
+	    else
+	    {
+		mDeclareAndTryAlloc( float*, arr, float[sz0*sz1] );
+		Array2DReSampler<float,float>
+		    resampler( *array, arr, sz0, sz1, true );
+		resampler.setInterpolate( true );
+		resampler.execute();
+		channels_->setUnMappedData(attrib,sidx,arr,OD::TakeOverPtr,0);
+	    }
         }
 
 	triangles_->setDepthRange( zrg );
-	triangles_->setTexturePath( path, nrsamp );
+	triangles_->setTexturePathAndPixels( path, resolution_+1, sz1 );
     }
     
     if ( texture_ )
