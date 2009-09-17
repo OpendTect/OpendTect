@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.48 2009-09-15 13:36:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.49 2009-09-17 13:52:24 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.48 2009-09-15 13:36:21 cvs
 #include "oddirs.h"
 #include "dirlist.h"
 #include "survinfo.h"
-#include "statruncalc.h"
 #include "arrayndimpl.h"
 #include "flatposdata.h"
 
@@ -186,15 +185,14 @@ void uiSeisWvltMan::mkFileInfo()
 	setViewerData( wvlt );
 
 	const float zfac = SI().zFactor();
-	Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
-	rc.addValues( wvlt->size(), wvlt->samples() );
 
 	BufferString tmp;
 	tmp += "Number of samples: "; tmp += wvlt->size(); tmp += "\n";
 	tmp += "Sample interval "; tmp += SI().getZUnitString(true);tmp += ": ";
 	tmp += wvlt->sampleRate() * zfac; tmp += "\n";
 	tmp += "Min/Max amplitude: ";
-	tmp += rc.min(); tmp += "/"; tmp += rc.max(); tmp += "\n";
+	tmp += wvlt->getExtr(false); tmp += "/"; tmp += wvlt->getExtr(); 
+	tmp += "\n";
 	txt += tmp;
 
 	delete wvlt;
