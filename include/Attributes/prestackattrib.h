@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.11 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: prestackattrib.h,v 1.12 2009-09-17 17:23:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ protected:
 			~PSAttrib();
     static Provider*    createInstance(Desc&);
 
-    bool		allowParallelComputation() const	{ return false;}
+    bool		allowParallelComputation() const	{ return true;}
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
