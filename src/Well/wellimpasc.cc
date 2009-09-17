@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.61 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.62 2009-09-17 11:10:18 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -19,6 +19,19 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.61 2009-07-22 16:01:37 cvsber
 #include "survinfo.h"
 #include "tabledef.h"
 #include <iostream>
+
+
+static bool convToDah( const Well::Track& trck, float& val,
+			float prev=mUdf(float) )
+{
+    const Interval<int> trckzrg( trck.pos(0).z - 1e-6,
+	    			 trck.pos(trck.size()-1).z + 1e-6 );
+    if ( !trckzrg.includes(val) )
+	return false;
+
+    val = trck.getDahForTVD( val, prev );
+    return !mIsUdf(val);
+}
 
 
 inline static StreamData getSD( const char* fnm )
@@ -339,8 +352,10 @@ const char* Well::LASImporter::getLogData( std::istream& strm,
 	}
 	if ( selvals.isEmpty() ) continue;
 
-	const float z = istvd ? wd.track().getDahForTVD( dpth, prevdpth )
-	    		      : dpth;
+	float z = dpth;
+	if ( istvd && !convToDah(wd.track(),z,prevdpth) )
+	    continue;
+
 	for ( int idx=0; idx<selvals.size(); idx++ )
 	    wd.logs().getLog(addstartidx+idx).addValue( z, selvals[idx] );
 
@@ -483,10 +498,11 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 
 	float dah = getfValue( 0 );
 	BufferString namepart = text( 1 );
-	if ( mIsUdf(dah) || namepart.isEmpty() ) continue;
+	if ( mIsUdf(dah) || namepart.isEmpty() )
+	    continue;
+	if ( formOf(false,0) == 1 && !convToDah(trck,dah) )
+	    continue;
 
-	if ( formOf(false,0) == 1 )
-	    dah = trck.getDahForTVD( dah );
 	BufferString fullnm( namepart );
 	for ( int icol=nmcol+1; ; icol++ )
 	{
@@ -556,6 +572,7 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
        				const Well::Track& trck ) const
 {
     d2t.erase();
+    if ( trck.isEmpty() ) return true;
 
     while ( true )
     {
@@ -565,10 +582,11 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 
 	float dah = getfValue( 0 );
 	const float time = getfValue( 1 );
-	if ( mIsUdf(dah) || mIsUdf(time) ) continue;
+	if ( mIsUdf(dah) || mIsUdf(time) )
+	    continue;
+	if ( formOf(false,0) == 1 && !convToDah(trck,dah) )
+	    continue;
 
-	if ( formOf(false,0) == 1 )
-	    dah = trck.getDahForTVD( dah );
 	d2t.add( dah, time );
     }
 

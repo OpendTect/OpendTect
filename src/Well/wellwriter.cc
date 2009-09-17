@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.22 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.23 2009-09-17 11:10:18 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -76,8 +76,11 @@ bool Well::Writer::putInfoAndTrack( std::ostream& strm ) const
     astrm.put( Well::Info::sKeyoper(), wd.info().oper );
     astrm.put( Well::Info::sKeystate(), wd.info().state );
     astrm.put( Well::Info::sKeycounty(), wd.info().county );
-    char str[80]; wd.info().surfacecoord.fill( str );
-    astrm.put( Well::Info::sKeycoord(), str );
+    if ( wd.info().surfacecoord != Coord(0,0) )
+    {
+	char str[80]; wd.info().surfacecoord.fill( str );
+	astrm.put( Well::Info::sKeycoord(), str );
+    }
     astrm.put( Well::Info::sKeyelev(), wd.info().surfaceelev );
     astrm.newParagraph();
 

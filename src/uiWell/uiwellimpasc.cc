@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.56 2009-08-27 14:05:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.57 2009-09-17 11:10:18 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -216,7 +216,13 @@ void uiWellImportAsc::doAdvOpt( CallBacker* )
 
 bool uiWellImportAsc::acceptOK( CallBacker* )
 {
-    return checkInpFlds() && doWork();
+    if ( checkInpFlds() )
+    {
+	doWork();
+	wd_.info().surfacecoord.x = wd_.info().surfacecoord.y = 0;
+	wd_.info().surfaceelev = 0;
+    }
+    return false;
 }
 
 

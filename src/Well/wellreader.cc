@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.37 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.38 2009-09-17 11:10:18 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -242,7 +242,12 @@ bool Well::Reader::getTrack( std::istream& strm ) const
 	if ( !strm || c.distTo(c0) < 1 ) break;
 	wd.track().addPoint( c, c.z, dah );
     }
-    return wd.track().size();
+    if ( wd.track().isEmpty() )
+	return false;
+
+    if ( wd.info().surfacecoord == Coord(0,0) )
+	wd.info().surfacecoord = wd.track().pos(0);
+    return true;
 }
 
 
