@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: repos.cc,v 1.6 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: repos.cc,v 1.7 2009-09-17 13:05:26 cvskris Exp $";
 
 #include "repos.h"
 #include "filepath.h"
@@ -61,10 +61,10 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
 	mSetRet(GetSettingsDir,false);
     } break;
     case Repos::ApplSetup: {
-	ret = GetSetupDataFileName( ODSetupLoc_ApplSetupOnly, basenm_ );
+	ret = GetSetupDataFileName( ODSetupLoc_ApplSetupOnly, basenm_, 0 );
     } break;
     case Repos::Rel: {
-	ret = GetSetupDataFileName( ODSetupLoc_SWDirOnly, basenm_ );
+	ret = GetSetupDataFileName( ODSetupLoc_SWDirOnly, basenm_, 0 );
     } break;
     }
 

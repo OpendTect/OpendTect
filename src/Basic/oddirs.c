@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.20 2009-09-08 09:43:07 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.21 2009-09-17 13:05:26 cvskris Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -313,10 +313,10 @@ const char* GetSoftwareDir( int acceptnone )
 	    dir = dirnm;
 	if ( !dir || !*dir )
 	{
-	    fprintf( stderr, "Cannot determine OpendTect location\n" );
 	    if ( acceptnone )
 		return 0;
 
+	    fprintf( stderr, "Cannot determine OpendTect location\n" );
 	    ExitProgram( 1 );
 	}
     }
@@ -364,12 +364,12 @@ const char* GetApplSetupDir()
 }
 
 
-const char* GetSetupDataFileDir( ODSetupLocType lt )
+const char* GetSetupDataFileDir( ODSetupLocType lt, int acceptnone )
 {
     static FileNameString dirnm;
     const char* appldir;
     if ( lt > ODSetupLoc_ApplSetupPref )
-	strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"data") );
+	strcpy( dirnm, mkFullPath(GetSoftwareDir(acceptnone),"data") );
     else
     {
 	appldir = GetApplSetupDir();
@@ -380,36 +380,36 @@ const char* GetSetupDataFileDir( ODSetupLocType lt )
 }
 
 
-const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm )
+const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm, int acceptnone )
 {
     static FileNameString filenm;
     const char* appldir;
 
     if ( lt == ODSetupLoc_SWDirOnly )
     {
-	strcpy( filenm, mkFullPath( GetSetupDataFileDir(lt), fnm ) );
+	strcpy( filenm, mkFullPath( GetSetupDataFileDir(lt, acceptnone), fnm ) );
 	return filenm;
     }
 
-    appldir = GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly);
+    appldir = GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly, acceptnone);
     if ( !appldir )
 	return lt == ODSetupLoc_ApplSetupOnly ? 0
-	     : GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm);
+	     : GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm, acceptnone);
 
-    strcpy( filenm, mkFullPath( GetSetupDataFileDir(lt), fnm ) );
+    strcpy( filenm, mkFullPath( GetSetupDataFileDir(lt, acceptnone), fnm ) );
 
     if ( (lt == ODSetupLoc_ApplSetupPref || lt == ODSetupLoc_SWDirPref)
 	&& !File_exists(filenm) )
     {
 	/* try 'other' file */
 	GetSetupDataFileName( lt == ODSetupLoc_ApplSetupPref
-		? ODSetupLoc_SWDirOnly : ODSetupLoc_ApplSetupOnly, fnm );
+		? ODSetupLoc_SWDirOnly : ODSetupLoc_ApplSetupOnly, fnm, acceptnone );
 	if ( File_exists(filenm) )
 	    return filenm;
 
 	/* 'other' file also doesn't exist: revert */
 	GetSetupDataFileName( lt == ODSetupLoc_ApplSetupPref
-		? ODSetupLoc_ApplSetupOnly : ODSetupLoc_SWDirOnly, fnm );
+		? ODSetupLoc_ApplSetupOnly : ODSetupLoc_SWDirOnly, fnm, acceptnone );
     }
 
     return filenm;

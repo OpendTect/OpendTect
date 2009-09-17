@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.5 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.6 2009-09-17 13:05:26 cvskris Exp $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -22,7 +22,7 @@ const char* Usage::Server::sKeyPort()		{ return "Port"; }
 const char* Usage::Server::sKeyFileBase()	{ return "Usage"; }
 int Usage::Server::cDefaulPort()		{ return mUsgServDefaulPort; }
 #define mBaseFileName \
-    	GetSetupDataFileName(ODSetupLoc_ApplSetupPref,sKeyFileBase())
+    	GetSetupDataFileName(ODSetupLoc_ApplSetupPref,sKeyFileBase(),0)
 
 
 Usage::Server::Server( const IOPar* pars, std::ostream& strm )
@@ -39,7 +39,7 @@ Usage::Server::Server( const IOPar* pars, std::ostream& strm )
 
     if ( pars_.isEmpty() )
     {
-	logstrm_ << "Cannot start OpendTect Usage server (" << "$Revision: 1.5 $"
+	logstrm_ << "Cannot start OpendTect Usage server (" << "$Revision: 1.6 $"
 	    	 << "):\n";
 	if ( pars )
 	    logstrm_ << "No input parameters" << std::endl;

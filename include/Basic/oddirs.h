@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.17 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.18 2009-09-17 13:05:26 cvskris Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -64,21 +64,25 @@ typedef enum
     ODSetupLoc_SWDirOnly
 } ODSetupLocType;
 
-mGlobal const char* GetSetupDataFileDir(ODSetupLocType);
+mGlobal const char* GetSetupDataFileDir(ODSetupLocType,int acceptnone);
 /*!< Returns the name of the "data" subdir of the release or the
      site setup directory.
+     If acceptnone is false, program will terminate if none is found.
 */
-#define mGetApplSetupDataDir() GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly)
-#define mGetSWDirDataDir() GetSetupDataFileDir(ODSetupLoc_SWDirOnly)
+#define mGetApplSetupDataDir() GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,0)
+#define mGetSWDirDataDir() GetSetupDataFileDir(ODSetupLoc_SWDirOnly,0)
 
-mGlobal const char* GetSetupDataFileName(ODSetupLocType,const char*);
+mGlobal const char* GetSetupDataFileName(ODSetupLocType,const char*,
+					 int acceptnone);
 /*!< Returns the name of a file in the "data" subdir of the release or the
      appl setup directory.
 
      For the 'Pref' types, it returns the first existing
      file.
+
+     If acceptnone is false, program will terminate if none is found.
 */
-#define mGetSetupFileName(x) GetSetupDataFileName(ODSetupLoc_ApplSetupPref,x)
+#define mGetSetupFileName(x) GetSetupDataFileName(ODSetupLoc_ApplSetupPref,x,0)
 /*!< Usual choice: first look in ApplSetup, if not there, look in release */
 
 mGlobal const char* GetPlfSubDir(void);

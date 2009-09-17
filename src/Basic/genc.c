@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.103 2009-07-22 16:03:40 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.104 2009-09-17 13:05:26 cvskris Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -232,9 +232,9 @@ const char* GetEnvVar( const char* env )
     {
 	filesread = 1;
 	loadEntries( GetSettingsFileName("envvars"), &nrentries, entries );
-	loadEntries( GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"EnvVars"),
+	loadEntries( GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"EnvVars",1),
 		     &nrentries, entries );
-	loadEntries( GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars"),
+	loadEntries( GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1),
 		     &nrentries, entries );
     }
 

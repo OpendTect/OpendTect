@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgadm.cc,v 1.5 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgadm.cc,v 1.6 2009-09-17 13:05:26 cvskris Exp $";
 
 #include "odusgbaseadmin.h"
 #include "odusginfo.h"
@@ -67,7 +67,7 @@ void Usage::Administrator::readPars()
 {
     deepErase( pars_ );
     const BufferString filenm( Usage::Server::sKeyFileBase(), ".", name() );
-    addPars( GetSetupDataFileDir(ODSetupLoc_ApplSetupPref), filenm );
+    addPars( GetSetupDataFileDir(ODSetupLoc_ApplSetupPref,0), filenm );
     addPars( GetSettingsDir(), filenm );
 }
 
