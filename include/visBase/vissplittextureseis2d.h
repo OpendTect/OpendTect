@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.8 2009-09-16 21:05:30 cvsyuancheng Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.9 2009-09-17 16:38:29 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,9 +36,9 @@ public:
     static SplitTextureSeis2D*	create()
 				mCreateDataObj(SplitTextureSeis2D);
 
-    void			setTextureZPixels(int);
-    				//!<\note Horizontal size is trcrg.width()+1, 
     void			setTextureZPixelsAndPathScale(int zsz,int);
+    				//!<\note Horizontal size is trcrg.width()+1, 
+				//!<\but need scale if set resolution. 
 
     void			setPath(const TypeSet<PosInfo::Line2DPos>&);
     				//!<Is assumed to remain in memory
