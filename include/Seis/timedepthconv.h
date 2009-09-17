@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.12 2009-08-10 22:10:15 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.13 2009-09-17 13:07:54 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -127,6 +127,7 @@ public:
     const char*		getToZDomainString() const;
     const char*		getFromZDomainString() const;
     const char*		getZDomainID() const;
+    float		getZFactor() const			{ return 1000; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
