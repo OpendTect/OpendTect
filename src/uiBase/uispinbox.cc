@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.38 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.39 2009-09-17 03:33:20 cvsnageswara Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -187,9 +187,9 @@ void uiSpinBox::snapToStep( CallBacker* )
 {
     if ( !dosnap_ ) return;
 
-    const float diff = getFValue() - minFValue();
-    const float step = fstep();
-    const int ratio =  int (diff / step);
+    const double diff = body_->value() - body_->minimum();
+    const double step = body_->singleStep();
+    const int ratio =  mNINT( diff / step );
     const float newval = minFValue() + ratio * step;
     setValue( newval );
 }
