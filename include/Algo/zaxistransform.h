@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.23 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: zaxistransform.h,v 1.24 2009-09-17 13:07:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,8 @@ public:
     				/*!\returns a name for the untransformed
 				    z-domain, such as "TWT", "Depth" ... */
     virtual const char*		getZDomainID() const			= 0;
+    virtual float		getZFactor() const		{ return 1; }
+    				//!\Should be used in user interfaces
 
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }
