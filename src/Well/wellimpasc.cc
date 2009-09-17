@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.62 2009-09-17 11:10:18 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.63 2009-09-17 13:44:21 cvskris Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.62 2009-09-17 11:10:18 cvsber
 static bool convToDah( const Well::Track& trck, float& val,
 			float prev=mUdf(float) )
 {
-    const Interval<int> trckzrg( trck.pos(0).z - 1e-6,
+    const Interval<float> trckzrg( trck.pos(0).z - 1e-6,
 	    			 trck.pos(trck.size()-1).z + 1e-6 );
     if ( !trckzrg.includes(val) )
 	return false;
