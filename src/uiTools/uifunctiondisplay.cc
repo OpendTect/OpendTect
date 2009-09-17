@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.46 2009-07-28 07:42:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.47 2009-09-17 11:02:04 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -222,7 +222,7 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
 void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 {
     const int nrpts = y2 ? y2xvals_.size() : xvals_.size();
-    const uiPoint closept( xax_->getPix(xax_->range().start),
+    const uiPoint closept( xax_->getPix(xax_->range().stop),
 	    		   y2 ? y2ax_->getPix(yax_->range().start)
 	   		      : yax_->getPix(yax_->range().start) );
     if ( y2 ? setup_.fillbelowy2_ : setup_.fillbelow_ )

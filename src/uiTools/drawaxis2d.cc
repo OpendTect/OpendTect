@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.27 2009-09-03 09:52:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.28 2009-09-17 11:02:04 cvssatyaki Exp $";
 
 #include "drawaxis2d.h"
 
@@ -343,7 +343,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	yaxgriditmgrp_->setZValue( zValue_ );
     }
     else
-    { mRemoveGraphicsItem( xaxgriditmgrp_ ); }
+    { mRemoveGraphicsItem( yaxgriditmgrp_ ); }
 }
 
 

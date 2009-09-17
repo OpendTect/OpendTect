@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.96 2009-09-15 09:18:32 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.97 2009-09-17 11:02:04 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -509,7 +509,10 @@ void uiFlatViewer::setAnnotChoice( int sel )
     BufferStringSet bss; getAnnotChoices( bss );
     if ( sel >= 0 && sel < bss.size()
       && bss.get(sel) == appearance().annot_.x1_.name_ )
-	mSetUdf(sel);
+	return;
+
+    if ( !mIsUdf(sel) )
+	appearance().annot_.x1_.name_ = bss.get( sel );
     axesdrawer_.altdim0_ = sel;
 }
 
