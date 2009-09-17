@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.125 2009-09-03 08:17:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.126 2009-09-17 05:51:08 cvsnanne Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -67,9 +67,10 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , fd_(*EM::Horizon3DAscIO::getDesc())
     , scanner_(0)
 {
-    inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
-					    .withexamine(true)
-					    .forread(true) );
+    BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
+    inpfld_ = new uiFileInput( this, "Input ASCII File",
+	    uiFileInput::Setup(uiFileDialog::Gen)
+	    .withexamine(true).forread(true).filter(fltr) );
     inpfld_->setDefaultSelectionDir( 
 			    IOObjContext::getDataDirName(IOObjContext::Surf) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
