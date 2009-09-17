@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackprop.cc,v 1.2 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackprop.cc,v 1.3 2009-09-17 17:01:37 cvskris Exp $";
 
 #include "prestackprop.h"
 
@@ -132,19 +132,23 @@ float PropCalc::getVal( float z ) const
     const int nrz = gather_->size( !gather_->zDim() );
 
     TypeSet<float> offs, vals;
+    vals.setCapacity( nroffsets );
+    if ( setup_.calctype_ != Stats )
+	offs.setCapacity( nroffsets );
+
     const StepInterval<double> si = gather_->posData().range(!gather_->zDim());
-    for ( int ishft=-setup_.aperture_; ishft<=setup_.aperture_; ishft++ )
+    for ( int itrc=0; itrc<nroffsets; itrc++ )
     {
-	for ( int itrc=0; itrc<nroffsets; itrc++ )
+	const float offset = gather_->getOffset(itrc);
+	if ( !offsrg.includes( offset ) )
+	    continue;
+
+	const float* seisdata = gather_->data().getData() +
+	    gather_->data().info().getOffset(itrc,0);
+
+	for ( int ishft=-setup_.aperture_; ishft<=setup_.aperture_; ishft++ )
 	{
-	    const float offset = gather_->getOffset(itrc);
-	    if ( !offsrg.includes( offset ) )
-		continue;
-
-	    const float* seisdata = gather_->data().getData() +
-		gather_->data().info().getOffset(itrc,0);
-
-	    const float cursamp = ishft+si.getIndex( z );
+	    const float cursamp = ishft+si.getfIndex( z );
 	    const float val = cursamp<0 || cursamp>=nrz
 		? mUdf(float)
 		: IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
