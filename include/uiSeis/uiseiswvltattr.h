@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.4 2009-09-15 13:36:21 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.5 2009-09-17 13:49:50 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 template <class T> class Array1DImpl;
 class FFT;
 class Wavelet;
-class uiComboBox;
 class uiSliderExtra;
 class uiFunctionDisplay;
 
@@ -52,7 +51,6 @@ public:
 
 protected:
 
-    uiComboBox*                 attrfld_;
     int                         wvltsz_;
     FFT*                        fft_;
     const Wavelet*              wvlt_;
@@ -62,7 +60,6 @@ protected:
     void			addAttrDisp(bool);
     void                        setAttrArrays();
     void                        setDispCurves();
-    void 			attrSel(CallBacker*);
 };
 
 

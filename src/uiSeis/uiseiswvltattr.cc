@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.4 2009-09-15 13:36:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.5 2009-09-17 13:49:50 cvsbruno Exp $";
 
 
 #include "uiaxishandler.h"
@@ -88,26 +88,21 @@ void uiSeisWvltRotDlg::rotatePhase( float dphase )
 #define mPaddFac 3
 static const char* attrnms[] = { "Amplitude", "Frequency", "Phase", 0 };
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet* wvlt )
-            : uiDialog( p,Setup("Wavelet Properties","","107.4.3").modal(false))
+            : uiDialog(p,Setup("Wavelet Properties","","107.4.3").modal(false))
 	    , wvlt_(wvlt)
 	    , wvltsz_(0)
 	    , fft_(new FFT())
 {
     setCtrlStyle( LeaveOnly );
+    BufferString winname( wvlt->name() ); winname += " properties";
+    setCaption( winname );
 
     if ( !wvlt ) return;
     wvltsz_ = wvlt->size();
 
-    attrfld_ = new uiComboBox( this, attrnms, "Compute" );
-    attrfld_->setCurrentItem( 0 );
-    attrfld_->selectionChanged.notify( mCB(this,uiWaveletDispPropDlg,attrSel) );
-    attrfld_->attach( hCentered );
-
     for ( int iattr=0; attrnms[iattr]; iattr++ )
 	addAttrDisp( iattr == 1 );
     
-    attrfld_->attach( centeredAbove, attrdisps_[0] );
-
     setAttrArrays();
     setDispCurves();
 }
@@ -201,15 +196,5 @@ void uiWaveletDispPropDlg::setDispCurves()
 	attrdisps_[idx]->setVals( intv, attrarrays_[idx]->arr(), 
 				  idx == 1 ? mPaddFac*wvltsz_/2 : wvltsz_ );
     }
-}
-
-
-void uiWaveletDispPropDlg::attrSel( CallBacker* )
-{
-    if ( !attrfld_ ) return;
-
-    const int attr = attrfld_->currentItem();
-    if ( attr >= 0 )
-	attrdisps_[attr]->display(false);
 }
 
