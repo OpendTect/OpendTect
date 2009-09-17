@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.77 2009-09-16 21:05:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.78 2009-09-17 16:01:54 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -448,14 +448,16 @@ void Seis2DDisplay::setData( int attrib,
 	    }
 	}
 
-	Array2DSlice<float> slice( *usedarr );
-	slice.setDimMap( 0, 1 );
-	slice.setDimMap( 1, 0 );
-	if ( !slice.init() )
-	    continue;
-
+	const int sz0 = usedarr->info().getSize(0) * (resolution_+1);
+	const int sz1 = usedarr->info().getSize(1) * (resolution_+1);
 	if ( texture_ )
 	{
+	    Array2DSlice<float> slice( *usedarr );
+	    slice.setDimMap( 0, 1 );
+	    slice.setDimMap( 1, 0 );
+	    if ( !slice.init() )
+		continue;
+
 	    if ( resolution_ )
 		texture_->setDataOversample( attrib, sidx, resolution_, 
 			!isClassification(attrib), &slice, true );
@@ -464,13 +466,9 @@ void Seis2DDisplay::setData( int attrib,
 		texture_->splitTexture( true );
     		texture_->setData( attrib, sidx, &slice, true );
 	    }
-
-	    triangles_->setTextureZPixels( slice.info().getSize(0) );
 	}
 	else
 	{
-	    const int sz0 = usedarr->info().getSize(0) * (resolution_+1);
-	    const int sz1 = usedarr->info().getSize(1) * (resolution_+1);
 	    mDeclareAndTryAlloc( float*, tarr, float[sz0*sz1] );
 	    
 	    if ( resolution_==0 )
@@ -485,8 +483,9 @@ void Seis2DDisplay::setData( int attrib,
 
 	    channels_->setSize( 1, sz0, sz1 );
 	    channels_->setUnMappedData(attrib, sidx, tarr, OD::TakeOverPtr, tr);
-	    triangles_->setTextureZPixelsAndPathScale( sz1, resolution_+1 );
 	}
+	    
+	triangles_->setTextureZPixelsAndPathScale( sz1, resolution_+1 );
     }
 
     if ( texture_ )
@@ -607,20 +606,17 @@ bool Seis2DDisplay::lineNameShown() const
 
 
 int Seis2DDisplay::nrResolutions() const
-{
-    return texture_ ? (texture_->usesShading() ? 1 : 3) : 1;
-}
+{ return 3; }
 
 
 void Seis2DDisplay::setResolution( int res, TaskRunner* tr )
 {
-    if ( !texture_ || texture_->canUseShading() )
-	return;
-
     if ( res==resolution_ )
 	return;
 
-    texture_->clearAll();
+    if ( texture_ )
+    	texture_->clearAll();
+
     resolution_ = res;
     updateDataFromCache( tr );
 }
