@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.88 2009-09-14 12:45:49 cvshelene Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.89 2009-09-18 14:47:24 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -124,8 +124,8 @@ protected:
     				//!<Gives normal index in normals_
 
     friend class		HorizonSectionTilePosSetup;
-    friend class		HorizonSectionTileUpdater;			
-    friend class		TileTesselator;			
+    friend class		TileTesselator;		
+    friend class		HorizonSection;    
     void			bgTesselationFinishCB(CallBacker*);
     void			setActualResolution(int);
     int				getAutoResolution(SoState*);
@@ -217,10 +217,10 @@ const char HorizonSectionTile::spacing_[] = { 1, 2, 4, 8, 16, 32 };
 const short HorizonSectionTile::nrcells_[] = { 4096, 1024, 256, 64, 16, 4 };
 
 
-class HorizonSectionTileUpdater: public ParallelTask
+class HorizonTileRenderPreparer: public ParallelTask
 {
 public: 
-HorizonSectionTileUpdater( HorizonSection& section, SoState* state, int res )
+HorizonTileRenderPreparer( HorizonSection& section, SoState* state, int res )
     : section_( section )
     , state_( state )
     , tiles_( section.tiles_.getData() )
@@ -238,6 +238,9 @@ const char* nrDoneText() const { return "Parts completed"; }
 
 bool doPrepare( int nrthreads )
 {
+    if ( !state_ )
+	return false;
+
     barrier_.setNrThreads( nrthreads );
     nrthreadsfinishedwithres_ = 0;
 
@@ -255,17 +258,14 @@ bool doPrepare( int nrthreads )
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    if ( state_ )
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-	{
-	    const int realidx = permutation_[idx];
-	    if ( tiles_[realidx] ) 
-		tiles_[realidx]->updateAutoResolution( state_ );
-	}
-
-	barrier_.waitForAll();
+	const int realidx = permutation_[idx];
+	if ( tiles_[realidx] ) 
+	    tiles_[realidx]->updateAutoResolution( state_ );
     }
+
+    barrier_.waitForAll();
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -273,31 +273,20 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	HorizonSectionTile* tile = tiles_[realidx];
 	if ( tile )
 	{
-	    if ( state_ ) 
-	    {
-		int res = tile->getActualResolution();
-		if ( res==-1 ) res = resolution_;
-		tile->updateNormals( res );
-	    }
-
-	    if ( state_ )
-	    {
-		const int actualres = tile->getActualResolution();
-		if ( actualres!=-1 )
-		    tile->tesselateResolution( actualres, true );
-	    }
-	    else
-	    {
-		tile->tesselateResolution( resolution_, false );
-		tile->setActualResolution( resolution_ );
-	    }
+	    int res = tile->getActualResolution();
+	    if ( res==-1 ) res = resolution_;
+	    tile->updateNormals( res );
+	    const int actualres = tile->getActualResolution();
+	    if ( actualres!=-1 )
+		tile->tesselateResolution( actualres, true );
 	}
 
 	addToNrDone( 1 );
     }	
-
-    if ( state_ )
-	barrier_.waitForAll();
+    
+    barrier_.waitForAll();
+    if ( !shouldContinue() )
+	return false;
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -372,12 +361,11 @@ protected:
 
     bool doWork( od_int64 start, od_int64 stop, int threadid )
     {
-	TypeSet<Coord3> positions( mNrCoordsPerTileSide*mNrCoordsPerTileSide,
-	       			   Coord3::udf() );
 	for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
 	{
 	    const RowCol& origin = tiles_[idx]->origin_;
-	    int coordidx = 0;
+	    TypeSet<Coord3> positions;
+	    positions.setCapacity( mNrCoordsPerTileSide*mNrCoordsPerTileSide );
 	    for ( int rowidx=0; rowidx<mNrCoordsPerTileSide; rowidx++ )
 	    {
 		const int row = origin.row + rowidx*rrg_.step;
@@ -385,16 +373,15 @@ protected:
 		const StepInterval<int> colrg( 
 			mMAX(geo_.colRange(row).start, crg_.start),
 		        mMIN(geo_.colRange(row).stop, crg_.stop), crg_.step );
-		for ( int colidx=0; colidx<mNrCoordsPerTileSide;
-		      colidx++, coordidx++ )
+
+		for ( int colidx=0; colidx<mNrCoordsPerTileSide; colidx++ )
 		{
 		    const int col = origin.col + colidx*colrg.step;
 		    Coord3 pos = rowok && colrg.includes(col)
 			? geo_.getKnot(RowCol(row,col),false) 
 			: Coord3::udf();
-		    if ( zat_ ) pos.z = zat_->transform( pos );
-		
-	    	    positions[coordidx] = pos;
+		    if ( zat_ ) pos.z = zat_->transform( pos );		
+	    	    positions += pos;
 		}
 	    }
 
@@ -1033,6 +1020,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 
     const RowCol step( displayrrg_.step, displaycrg_.step );
     ObjectSet<HorizonSectionTile> fullupdatetiles;
+    ObjectSet<HorizonSectionTile> oldupdatetiles;
 
     const bool updatewireframe = usewireframe_ && desiredresolution_!=-1;
 
@@ -1079,7 +1067,8 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    const int tilecol = rc.col%mTileSideSize;
 
 	    const Coord3 pos = geometry_->getKnot(absrc,false);
-
+	    
+	    bool addoldtile = false;
 	    HorizonSectionTile* tile = tiles_.get( tilerowidx, tilecolidx );
 	    if ( !tile ) 
 	    {
@@ -1092,6 +1081,12 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     		    tile->setAllNormalsInvalid( res, false );
 	    
 		tile->setPos( tilerow, tilecol, pos );
+		if ( desiredresolution_!=-1 )
+		{
+		    addoldtile = true;
+		    if ( oldupdatetiles.indexOf(tile)==-1 )
+			oldupdatetiles += tile;		    
+		}
 	    }
 
 	    for ( int rowidx=-1; rowidx<=1; rowidx++ )
@@ -1115,6 +1110,24 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 
 		    nbtile->setPos( tilerow-rowidx*mTileSideSize,
 			    	    tilecol-colidx*mTileSideSize, pos );
+
+		    if ( addoldtile && rowidx+colidx<0 && 
+			    desiredresolution_!=-1)
+		    {
+			if ( !tilerow && rowidx==-1 )
+			{
+			    if ( !tilecol && colidx==-1 &&
+				    oldupdatetiles.indexOf(nbtile)==-1 )
+				oldupdatetiles += nbtile;
+			    
+			    if ( !colidx && oldupdatetiles.indexOf(nbtile)==-1 )
+				oldupdatetiles += nbtile;
+			}
+			
+			if ( !tilecol && !rowidx && colidx==-1 &&
+				oldupdatetiles.indexOf(nbtile)==-1 )
+			    oldupdatetiles += nbtile;
+		    }
 		}
 	    }
 	}
@@ -1124,8 +1137,24 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	   displayrrg_, displaycrg_, zaxistransform_ );
     if ( tr ) tr->execute( task );
     else task.execute();
+
+    //Only for fixed resolutions, which won't be tesselated at render.
+    if ( oldupdatetiles.size() )
+    {
+	ObjectSet<SequentialTask> work;
+	for ( int idx=0; idx<oldupdatetiles.size(); idx++ )
+	{
+	    TileTesselator* tt =
+		new TileTesselator( oldupdatetiles[idx], desiredresolution_ );
+	    work += tt;
+	}
+
+	ParallelTask::twm().addWork( work );
+	deepErase( work );
+    }
   
     tesselationlock_ = false;
+    shapehints_->touch(); //trigger rerender
 }
 
 
@@ -1313,7 +1342,7 @@ void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
     }
 }
 
-#define mApplyTesselation \
+#define mApplyTesselation( extra ) \
 { \
     for ( int idx=0; idx<tilesz; idx++ ) \
     { \
@@ -1321,6 +1350,7 @@ void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
 	{ \
 	    tileptrs[idx]->applyTesselation( \
 	    tileptrs[idx]->getActualResolution() ); \
+	    extra; \
 	} \
     } \
 }
@@ -1328,39 +1358,38 @@ void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
 
 void HorizonSection::updateAutoResolution( SoState* state, TaskRunner* tr )
 {
-    if ( tesselationlock_ )
-	return;
-
     const int tilesz = tiles_.info().getTotalSz();
     if ( !tilesz || !state ) return;
 
     HorizonSectionTile** tileptrs = tiles_.getData();
     if ( desiredresolution_!=-1 )
     {
-	mApplyTesselation;
-	return;
+	mApplyTesselation( tileptrs[idx]->updateGlue() );
     }
-
-    const int32_t camerainfo = SoCameraInfoElement::get(state);
-    bool ismoving = camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE);
-    if ( ismoving_ && ismoving )
-	return;
-
-    ismoving_ = ismoving;
-
-    HorizonSectionTileUpdater task( *this, state, desiredresolution_ );
-    if ( tr )
-	tr->execute(task);
     else
-	task.execute();
+    {
+	const int32_t camerainfo = SoCameraInfoElement::get(state);
+	bool ismoving = 
+	    camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE);
+	if ( ismoving_ && ismoving )
+	    return;
+
+	ismoving_ = ismoving;
+
+	HorizonTileRenderPreparer task( *this, state, desiredresolution_ );
+	if ( tr )
+	    tr->execute(task);
+	else
+	    task.execute();
+    
+	mApplyTesselation();
+    }
 
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetGlueNeedsUpdateFlag();
 
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
-
-    mApplyTesselation;
 }
 
 
@@ -1385,17 +1414,18 @@ void HorizonSection::setResolution( int res, TaskRunner* tr )
     if ( res==-1 )
 	return;
 
-    HorizonSectionTileUpdater task( *this, 0, res );
-    if ( tr )
-	tr->execute(task);
-    else
-	task.execute();
-
+    ObjectSet<SequentialTask> work;
     for ( int idx=0; idx<tilesz; idx++ )
-	if ( tileptrs[idx] ) tileptrs[idx]->resetGlueNeedsUpdateFlag();
-
-    for ( int idx=0; idx<tilesz; idx++ )
-	if ( tileptrs[idx] ) tileptrs[idx]->resetResolutionChangeFlag();
+    {
+	if ( !tileptrs[idx] )
+	    continue;
+	
+	tileptrs[idx]->setActualResolution( res );
+	work += new TileTesselator( tileptrs[idx], res );
+    }
+    
+    ParallelTask::twm().addWork( work );
+    deepErase( work );
 }
 
 

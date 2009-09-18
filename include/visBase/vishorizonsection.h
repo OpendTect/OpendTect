@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.40 2009-09-04 08:24:00 cvsnanne Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.41 2009-09-18 14:47:24 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -115,7 +115,7 @@ public:
 protected:
     				~HorizonSection();
     friend class		HorizonSectionTile;			
-    friend class		HorizonSectionTileUpdater;			
+    friend class		HorizonTileRenderPreparer;			
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,
 	    				      TaskRunner*);
