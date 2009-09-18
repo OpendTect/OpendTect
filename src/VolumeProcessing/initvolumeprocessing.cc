@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.8 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.9 2009-09-18 18:13:43 cvskris Exp $";
 
 #include "initvolumeprocessing.h"
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: initvolumeprocessing.cc,v 1.8 2009-07-22 16:01:
 #include "volprocattrib.h"
 #include "volproclateralsmoother.h"
 #include "volprocsmoother.h"
-#include "volprocmarchingcubes.h"
+#include "volprocbodyfiller.h"
 #include "volprocvolreader.h"
 
 
@@ -26,7 +26,7 @@ void VolumeProcessing::initStdClasses()
     VolProc::LateralSmoother::initClass();
     VolProc::Smoother::initClass();
     VolProc::ExternalAttribCalculator::initClass();
-    VolProc::MarchingCubes::initClass();
+    VolProc::BodyFiller::initClass();
     VolProc::VelGriddingStep::initClass();
     VolProc::VolumeReader::initClass();
 }

@@ -7,21 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituivolumeprocessing.cc,v 1.8 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: inituivolumeprocessing.cc,v 1.9 2009-09-18 18:13:43 cvskris Exp $";
 
 #include "inituivolumeprocessing.h"
 
 #include "uivelocitygridder.h"
 #include "uivolprochorinterfiller.h"
 #include "uivolproclateralsmoother.h"
-#include "uivolprocmarchingcubes.h"
+#include "uivolprocbodyfiller.h"
 #include "uivolprocsmoother.h"
 #include "uivolprocvolreader.h"
 
 void uiVolumeProcessing::initStdClasses()
 {
     VolProc::uiHorInterFiller::initClass();
-    VolProc::uiMarchingCubes::initClass();
+    VolProc::uiBodyFiller::initClass();
     VolProc::uiLateralSmoother::initClass();
     VolProc::uiSmoother::initClass();
     VolProc::uiVelocityGridder::initClass();
