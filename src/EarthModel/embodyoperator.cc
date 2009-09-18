@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.11 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.12 2009-09-18 17:34:54 cvskris Exp $";
 
 #include "embodyoperator.h"
 
@@ -246,7 +246,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    if ( mindist>dist ) mindist = dist;
 	}
 
-	arr_.set( p[0], p[1], p[2], isinside ? -mindist : mindist );
+	arr_.set( p[0], p[1], p[2], isinside ? mindist : -mindist );
     }
 
     return true;
