@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.112 2009-09-11 09:43:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.113 2009-09-18 11:35:31 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -57,6 +57,7 @@ WellDisplay::WellDisplay()
     , zinfeet_(SI().zInFeet())
     , eventcatcher_(0)
     , changed_(this)
+    , logsnumber_(0)		    
     , transformation_(0)
     , picksallowed_(false)
     , group_(0)
@@ -194,10 +195,8 @@ void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
 #define mTryDispLog( side, Side )\
 { \
     BufferString& logname = dpp( side.name_ );\
-    if ( logname.size() )\
+    if ( wd->logs().indexOf( logname ) >= 0 )\
     {\
-	const int repeat = dpp(side.repeat_);\
-	logsnumber_ = repeat;\
 	display##Side##Log();\
     }\
 }
@@ -215,9 +214,13 @@ void WellDisplay::fullRedraw( CallBacker* )
     tp.name_ = wd->name(); 
     well_->setWellName( tp ); 
 
+    logsnumber_ = mMAX( dpp( right_.repeat_ ), dpp( left_.repeat_ ) );
     updateMarkers(0);
-
-    logsnumber_ = 0;
+    if ( well_ )
+    {
+	well_->removeLogs();
+	well_->setRepeat( logsnumber_ );
+    }
     mTryDispLog( left_, Left );
     mTryDispLog( right_, Right ); 
 }
@@ -449,13 +452,10 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 {  
     const int lognr = lp.lognr_;
 
-    well_->removeLog( logsnumber_, lognr );
-    well_->setRepeat( logsnumber_ );
     well_->setOverlapp( lp.ovlap_, lognr );
     well_->setLogStyle( lp.iswelllog_, lognr ); 
     well_->setLogFill( lp.isfilled_, lognr ); 
     well_->setLogFillColorTab( lp, lognr );
-    well_->setLogTransparency( lognr );
     well_->setLogLineDisplayed( lp.size_, lognr );
 
     setLogColor( lp.col_, lognr );

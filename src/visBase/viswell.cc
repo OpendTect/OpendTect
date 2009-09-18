@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.53 2009-09-11 09:43:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.54 2009-09-18 11:35:31 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -120,6 +120,8 @@ Well::~Well()
     markernames_->removeAll();
     removeChild( markernames_->getInventorNode() );
     markernames_->unRef();
+
+    removeLogs();
 }
 
 
@@ -439,19 +441,13 @@ void Well::hideUnwantedLogs( int lognr, int rpt )
 }
 
 
-void Well::removeLog( const int rpt, int lognr)
+void Well::removeLogs()
 {
-    int lz=log_.size();
-
-    for ( int idx=0; idx<lz; idx++)
-	log_[idx]->resetLogData( lognr );
-
-    for ( int idx=1; idx<=lz-rpt; idx++ )
+    for ( int idx=log_.size()-1; idx>=0; idx-- )
     {
-	log_[lz-idx]->clearLog(1);
-	log_[lz-idx]->clearLog(2);
-	removeChild( log_[lz-idx] );
-	log_.remove( lz-idx );
+	log_[idx]->unrefNoDelete();
+	removeChild( log_[idx]  );
+	log_.remove( idx );
     }
 }
 
@@ -459,15 +455,12 @@ void Well::removeLog( const int rpt, int lognr)
 void Well::setRepeat( int rpt )
 {
     if ( rpt < 0 || mIsUdf(rpt) ) rpt = 0; 
-    int lz=log_.size();
+    const int lz=log_.size();
 
-    if (rpt > lz)   
+    for ( int idx=lz; idx<rpt; idx++ )
     {
-	for ( int idx=lz; idx<rpt; idx++ )
-	{
-	    log_ += new SoPlaneWellLog;
-	    addChild( log_[idx] );
-	}
+	log_ += new SoPlaneWellLog;
+	addChild( log_[idx] );
     }
 }
 
@@ -504,13 +497,6 @@ void Well::setLogColor( const Color& col, int lognr )
 }
 
 
-void Well::setLogTransparency( int lognr )
-{
-    for ( int idx=0; idx<log_.size(); idx++ )
-	log_[idx]->setLineTransparency( lognr );
-}
-
-
 const Color& Well::logColor( int lognr ) const
 {
     static Color color;
@@ -531,10 +517,7 @@ void Well::setLogFillColorTab( const LogParams& lp, int lognr )
     if ( idx<0 || mIsUdf(idx) ) idx = 0;
     const ColTab::Sequence* seq = ColTab::SM().get( idx );
 
-    float colors[257][3];
-    for ( int idz=0; idz<3; idz++ )  
-	colors[256][idz] = 0;
-
+    float colors[256][3];
     for (int idx=0; idx<256; idx++ )
     {
 	const bool issinglecol = ( !lp.iswelllog_ || 

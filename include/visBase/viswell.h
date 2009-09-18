@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.33 2009-09-11 09:43:17 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.34 2009-09-18 11:35:31 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,7 +140,6 @@ public:
 	    				 const LinScaler&) const;
     const Coord3 		getPos(const TypeSet<Coord3Value>&,int) const;
     void			setLogColor(const Color&,int);
-    void			setLogTransparency(int);
     const Color&		logColor(int) const;
     const Color&		logFillColor(int) const;
     void			clearLog(int);
@@ -159,7 +158,7 @@ public:
     void			setLogFill(bool,int);
     void			setOverlapp(float,int);
     void			setRepeat(int);
-    void			removeLog(const int, int);
+    void			removeLogs();
     void			hideUnwantedLogs(int,int);
     void			showOneLog(bool,int,int);
     void 			setTrackProperties(Color&,int);

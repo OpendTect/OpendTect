@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.36 2009-08-17 12:00:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.37 2009-09-18 11:35:31 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -27,7 +27,6 @@ static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.36 2009-08-17 12:00:21 cv
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoLineSet.h>
-#include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoMaterialBinding.h>
 #include <Inventor/sensors/SoFieldSensor.h>
@@ -66,62 +65,50 @@ SoPlaneWellLog::SoPlaneWellLog()
     			     group1,lineshape1,false);
     SO_KIT_ADD_CATALOG_ENTRY(lineshape1,SoSeparator,false,
     			     group1,"",false);
-    SO_KIT_ADD_CATALOG_ENTRY(linehints1,SoShapeHints,false,
-    				lineshape1, linematerial1,false);
-    SO_KIT_ADD_CATALOG_ENTRY(linematerial1,SoMaterial,false,
-    				lineshape1, linembinding1,false);
-    SO_KIT_ADD_CATALOG_ENTRY(linembinding1,SoMaterialBinding,false,
-    				lineshape1, col1,false);
     SO_KIT_ADD_CATALOG_ENTRY(col1,SoBaseColor,false,
-    				lineshape1,drawstyle1,false);
+			     lineshape1,drawstyle1,false);
     SO_KIT_ADD_CATALOG_ENTRY(drawstyle1,SoDrawStyle,false,
-    				lineshape1,coords1,false);
+			     lineshape1,coords1,false);
     SO_KIT_ADD_CATALOG_ENTRY(coords1,SoCoordinate3,false,
-    				lineshape1,lineset1,false);
-    SO_KIT_ADD_CATALOG_ENTRY(lineset1,SoIndexedLineSet,false,
-    				lineshape1, "",false);
+			     lineshape1,lineset1,false);
+    SO_KIT_ADD_CATALOG_ENTRY(lineset1,SoLineSet,false,
+			     lineshape1, "",false);
     SO_KIT_ADD_CATALOG_ENTRY(hints1,SoShapeHints,false,
-    				trishape1, material1,false);
+			     trishape1, material1,false);
     SO_KIT_ADD_CATALOG_ENTRY(material1,SoMaterial,false,
-    				trishape1, mbinding1,false);
+			     trishape1, mbinding1,false);
     SO_KIT_ADD_CATALOG_ENTRY(mbinding1,SoMaterialBinding,false,
-    				trishape1, coordtri1,false);
+			     trishape1, coordtri1,false);
     SO_KIT_ADD_CATALOG_ENTRY(coordtri1,SoCoordinate3,false,
-    				trishape1,triset1,false);
+ 			     trishape1,triset1,false);
     SO_KIT_ADD_CATALOG_ENTRY(triset1,SoIndexedTriangleStripSet,false,
-    				trishape1, "",false);
+			     trishape1, "",false);
 
 
     SO_KIT_ADD_CATALOG_ENTRY(group2,SoSeparator,false,
-    				line2Switch, "",false);
+			     line2Switch, "",false);
     SO_KIT_ADD_CATALOG_ENTRY(trishape2,SoSeparator,false,
-    				group2,lineshape2,false);
+			     group2,lineshape2,false);
     SO_KIT_ADD_CATALOG_ENTRY(lineshape2,SoSeparator,false,
-    				group2,"",false);
-    SO_KIT_ADD_CATALOG_ENTRY(linehints2,SoShapeHints,false,
-    				lineshape2, linematerial2,false);
-    SO_KIT_ADD_CATALOG_ENTRY(linematerial2,SoMaterial,false,
-    				lineshape2, linembinding2,false);
-    SO_KIT_ADD_CATALOG_ENTRY(linembinding2,SoMaterialBinding,false,
-    				lineshape2, col2,false);
+			     group2,"",false);
     SO_KIT_ADD_CATALOG_ENTRY(col2,SoBaseColor,false,
-    				lineshape2,drawstyle2,false);
+			     lineshape2,drawstyle2,false);
     SO_KIT_ADD_CATALOG_ENTRY(drawstyle2,SoDrawStyle,false,
-    				lineshape2,coords2,false);
+			     lineshape2,coords2,false);
     SO_KIT_ADD_CATALOG_ENTRY(coords2,SoCoordinate3,false,
-    				lineshape2,lineset2,false);
-    SO_KIT_ADD_CATALOG_ENTRY(lineset2,SoIndexedLineSet,false,
-    				lineshape2, "",false);
+			     lineshape2,lineset2,false);
+    SO_KIT_ADD_CATALOG_ENTRY(lineset2,SoLineSet,false,
+			     lineshape2, "",false);
     SO_KIT_ADD_CATALOG_ENTRY(hints2,SoShapeHints,false,
-    				trishape2, material2,false);
+			     trishape2, material2,false);
     SO_KIT_ADD_CATALOG_ENTRY(material2,SoMaterial,false,
-    				trishape2, mbinding2,false);
+			     trishape2, mbinding2,false);
     SO_KIT_ADD_CATALOG_ENTRY(mbinding2,SoMaterialBinding,false,
-    				trishape2, coordtri2,false);
+			     trishape2, coordtri2,false);
     SO_KIT_ADD_CATALOG_ENTRY(coordtri2,SoCoordinate3,false,
-    				trishape2,triset2,false);
+			     trishape2,triset2,false);
     SO_KIT_ADD_CATALOG_ENTRY(triset2,SoIndexedTriangleStripSet,false,
-    				trishape2, "",false);
+			     trishape2, "",false);
 
 
     SO_KIT_INIT_INSTANCE();
@@ -185,8 +172,6 @@ void SoPlaneWellLog::setLineColor( const SbVec3f& col, int lognr )
     SoBaseColor* color = SO_GET_ANY_PART( this,
 	    lognr==1 ? "col1" : "col2", SoBaseColor );
     color->rgb.setValue( col );
-
-    setLineTransparency( lognr );
 }
 
 
@@ -199,40 +184,6 @@ const SbVec3f& SoPlaneWellLog::lineColor( int lognr ) const
 }
 
 
-void SoPlaneWellLog::setLineTransparency( int lognr )
-{
-    SoMaterialBinding* mbinding  = SO_GET_ANY_PART( this,
-	     lognr==1 ? "mbinding1" : "mbinding2", SoMaterialBinding );
-    mbinding->value.setValue(SoMaterialBindingElement::PER_VERTEX_INDEXED);
-  
-    SoShapeHints* linehints  = SO_GET_ANY_PART( this,
-	     lognr==1 ? "linehints1":"linehints2", SoShapeHints );
-    linehints->vertexOrdering.setValue( SoShapeHints::COUNTERCLOCKWISE );
-
-    SoMaterial* linematerial  = SO_GET_ANY_PART( this,
-	     	lognr==1 ? "linematerial1" : "linematerial2", SoMaterial );
-    float linevals[2];
-    linevals[0] = 0;
-    linevals[1] = 1;
-    linematerial->transparency.setValues(0, 2, linevals);
-    
-    SoMaterialBinding* linembinding  = SO_GET_ANY_PART( this,
-	      lognr==1? "linembinding1" : "linembinding2" , SoMaterialBinding );
-    linembinding->value.setValue(SoMaterialBindingElement::PER_VERTEX_INDEXED);
-}
-
-
-void SoPlaneWellLog::setLogFillTransparency( int lognr )
-{
-    SoMaterial* material  = SO_GET_ANY_PART( this,
-	     lognr==1 ? "material1" : "material2", SoMaterial );
-    float vals[257];
-    for ( int idx = 0; idx<257; idx++ )
-	vals[idx] = idx < 256 ? 0 : 1 ;
-    material->transparency.setValues(0, 257, vals);
-}
-
-
 void SoPlaneWellLog::setFilledLogColorTab( const float colors[][3], int lognr )
 {
     SoShapeHints* hints  = SO_GET_ANY_PART( this,
@@ -241,9 +192,11 @@ void SoPlaneWellLog::setFilledLogColorTab( const float colors[][3], int lognr )
 
     SoMaterial* material  = SO_GET_ANY_PART( this,
 	     lognr==1 ? "material1" : "material2", SoMaterial );
-    material->diffuseColor.setValues(0, 257, colors );
+    material->diffuseColor.setValues(0, 256, colors );
 
-    setLogFillTransparency( lognr );
+    SoMaterialBinding* mbinding  = SO_GET_ANY_PART( this,
+	     lognr==1 ? "mbinding1" : "mbinding2", SoMaterialBinding );
+    mbinding->value.setValue(SoMaterialBindingElement::PER_VERTEX_INDEXED);
 }
 
 
@@ -348,11 +301,6 @@ void SoPlaneWellLog::buildLog(int lognr, const SbVec3f& projdir, int res )
 	    lognr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
     coordtri->point.deleteValues(0);
    
-    SoIndexedLineSet* lineset = SO_GET_ANY_PART( this,
-	     lognr==1 ? "lineset1":"lineset2" , SoIndexedLineSet );
-    lineset->coordIndex.deleteValues(0,-1);
-    lineset->materialIndex.deleteValues(0,-1);
-	
     SoIndexedTriangleStripSet* triset = SO_GET_ANY_PART( this,
 	    lognr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
     triset->coordIndex.deleteValues(0,-1);
@@ -377,8 +325,8 @@ void SoPlaneWellLog::buildLog(int lognr, const SbVec3f& projdir, int res )
 #define sMaxNrSamplesRot 15
 void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res) 
 {
-    SoIndexedLineSet* lineset = SO_GET_ANY_PART( this,
-	     lognr==1 ? "lineset1":"lineset2" , SoIndexedLineSet );
+    SoLineSet* lineset = SO_GET_ANY_PART( this,
+	     lognr==1 ? "lineset1":"lineset2" , SoLineSet );
 
     SoCoordinate3* coords = SO_GET_ANY_PART( this,
              lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
@@ -389,7 +337,6 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
     
     bool& revscale = lognr==1 ? revscale1 : revscale2;
     const int pathsz = path.getNum();
-    float prevval = 0;
     int nrsamp = pathsz;
     float step = 1;
     
@@ -404,12 +351,7 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
 	int index = int(idx*step+.5);
 	float logval = log[index];
 	if ( logval > 100 )
-	{
-	    lineset->materialIndex.set1Value( idx, 1 );
-	    logval = prevval;
-	}
-	else 
-	    lineset->materialIndex.set1Value( idx, 0 );
+	    logval = 0;
 	
 	if ( revscale ) logval = maxval.getValue() - logval;
 	
@@ -418,8 +360,8 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res)
 				        maxval, logval, lognr );
         SbVec3f linecrd = newcrd + normal; 
 	coords->point.set1Value( idx, linecrd );
-	lineset->coordIndex.set1Value( idx, idx );
-	prevval = logval;
+	const int nrcrds = coords->point.getNum();
+	lineset->numVertices.setValue( nrcrds );
     }
     currentres = res;
 }
@@ -433,8 +375,8 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     SoCoordinate3* coordtri = SO_GET_ANY_PART( this,
 	    lognr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
 	
-    SoIndexedLineSet* lineset = SO_GET_ANY_PART( this,
-	     lognr==1 ? "lineset1":"lineset2" , SoIndexedLineSet );
+    SoLineSet* lineset = SO_GET_ANY_PART( this,
+	     lognr==1 ? "lineset1":"lineset2" , SoLineSet );
     
     SoIndexedTriangleStripSet* triset = SO_GET_ANY_PART( this,
 	    lognr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
@@ -454,7 +396,7 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     const int pathsz = path.getNum();
     int nrsamp = pathsz;
     float step = 1;
-    float prevval =0.0;
+    float prevval = 0;
 
     if ( !res && nrsamp > sMaxNrSamplesRot )
     {
@@ -518,8 +460,8 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 	    else
 		coordtri->point.set1Value( 2*idx+1, seisfillcrd );
 	}
-	lineset->coordIndex.set1Value( idx, idx );
-	lineset->materialIndex.set1Value( idx, 0 );
+	const int nrcrds = coords->point.getNum();
+	lineset->numVertices.setValue( nrcrds );
 	prevval = logval;
     }
     triset->coordIndex.setValues( 0, 2*nrsamp, indices );
@@ -561,7 +503,6 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
     const int pathsz = path.getNum();
     int nrsamp = pathsz;
     float step = 1;
-    float prevval = 0.0;
 	
     if ( !res && nrsamp > sMaxNrSamplesRot )
     {
@@ -581,10 +522,8 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	}
 	else
 	    colindex = (int)((filllogval-fillminvalF)/colstep);
-	if ( colindex > 255 )
-	    colindex = 255;
-	else if ( colindex < 0 )
-	    colindex = 0;
+	if ( colindex > 255 ) colindex = 255;
+	else if ( colindex < 0 ) colindex = 0;
 
 	if ( logval <= 100 &&  filllogval <= 100 )
 	{
@@ -592,11 +531,7 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	    triset->materialIndex.set1Value( 2*idx+1, colindex );
 	}
 	else
-	{
-	    triset->materialIndex.set1Value( 2*idx, 256 );
-	    triset->materialIndex.set1Value( 2*idx+1, 256 );
-	    logval = prevval;
-	}
+	    logval = 0;
 	SbVec3f newcrd = path[index];
 	SbVec3f normal = getProjCoords( path, index, projdir, 
 				    maxval, logval, lognr );
@@ -606,8 +541,6 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	coordtri->point.set1Value( 2*idx+1, linecrd );
 	triset->coordIndex.set1Value( 2*idx, 2*idx );
 	triset->coordIndex.set1Value( 2*idx+1, 2*idx+1 );
-    
-	prevval = logval;
     }
     
     currentres = res;
