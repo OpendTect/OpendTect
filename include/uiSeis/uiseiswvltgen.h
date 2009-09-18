@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltgen.h,v 1.5 2009-09-18 15:04:16 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltgen.h,v 1.6 2009-09-18 16:10:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ protected:
 
     bool		acceptOK(CallBacker*);
     void 		funcSelChg(CallBacker*);    
-    void 		reloadAll(CallBacker*);\
+    void 		reloadAll(CallBacker*);
 };
 
 
