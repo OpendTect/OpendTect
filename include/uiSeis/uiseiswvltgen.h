@@ -6,17 +6,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltgen.h,v 1.4 2009-09-14 15:06:12 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltgen.h,v 1.5 2009-09-18 15:04:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "multiid.h"
+#include "bufstringset.h"
 #include "mathfunc.h"
 
 class CtxtIOObj;
 class Wavelet;
+class uiCheckBox;
+class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
 class uiFuncSelDraw;
@@ -65,11 +68,11 @@ public:
     public:
 			WvltMathFunction(const Wavelet*);
 
+	StepInterval<float> samppos_;
 	int 		size_;
 	const float*    samples_;
-	float 		getValue() const;    
-	
 	float 		getValue(float) const;
+	float 		getIntValue(float) const;
     };
 
 			uiSeisWvltMerge(uiParent*,const char* curwvltnm=0);
@@ -77,16 +80,28 @@ public:
 
 protected:
 
+    BufferString 	curwvltnm_;
     int 		maxwvltsize_;			
-    uiFuncSelDraw* 	wvltdrawer_;
+    BufferStringSet	namelist_;
     Wavelet*		stackedwvlt_;
-    ObjectSet<WvltMathFunction>  wvltfuncset_;
+    ObjectSet<WvltMathFunction> wvltfuncset_;
+    ObjectSet<uiFuncSelDraw> wvltdrawer_;
     ObjectSet<Wavelet>  wvltset_;
 
-    void 		clearStackedWvlt();    
-    void 		stackWvlts();    
+    uiCheckBox*		normalizefld_;
+    uiCheckBox*		centerfld_;
+    uiComboBox*		centerchoicefld_;
+
+    void 		constructDrawer(bool);
+    void 		clearStackedWvlt(uiFuncSelDraw*);   
+    uiFuncSelDraw* 	getCurrentDrawer(); 
+    void 		makeStackedWvlt();    
+    void 		reloadWvlts();
+    void 		reloadFunctions();
+
     bool		acceptOK(CallBacker*);
     void 		funcSelChg(CallBacker*);    
+    void 		reloadAll(CallBacker*);\
 };
 
 
