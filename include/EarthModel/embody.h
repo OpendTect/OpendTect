@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embody.h,v 1.7 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: embody.h,v 1.8 2009-09-18 17:33:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,6 +31,7 @@ mStruct ImplicitBody
 
     Array3D<float>*		arr_;
     float 			threshold_;
+    				//Any value above threshold is inside
     SamplingData<int>		inlsampling_;
     SamplingData<int>		crlsampling_;
     SamplingData<float>		zsampling_;
