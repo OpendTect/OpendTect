@@ -73,35 +73,13 @@ protected:
     Wavelet*			wvlt_; 	
     ObjectSet<uiToolButton>     wvltbuts_;
     uiFlatViewer*               viewer_;
-    WellTie::uiWaveletDispPropDlg*  wvltpropdlg_;
 
     void			initWaveletViewer();
     void			drawWavelet();
 
     void			rotatePhase(CallBacker*);
-    void 			viewWvltPropPushed(CallBacker*);
-
 };				
 
-
-class uiWaveletDispPropDlg : public uiDialog
-{
-public:
-			    	uiWaveletDispPropDlg(uiParent*,const Wavelet*);
-			    	~uiWaveletDispPropDlg();
-
-    void			setValArrays();
-    void                        setDispCurves();
-
-protected:
-
-    int                         wvltsz_;
-    CtxtIOObj&			wvltctio_;
-    FFT*			fft_;
-    const Wavelet*		wvlt_;
-    ObjectSet<uiFunctionDisplay> wvltdisps_;
-    ObjectSet< Array1DImpl<float> >     proparrays_;
-};
 
 }; //namespace WellTie
 #endif
