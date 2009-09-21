@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.116 2009-09-10 02:01:07 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.117 2009-09-21 15:55:40 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1476,6 +1476,9 @@ static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zshift,
 {
     const Array2D<float>* field = 
 			hor->geometry().sectionGeometry(sid)->getArray(); 
+    if ( !field )
+	return;
+
     if ( zaxistransform )
 	field = hor->createArray2D( sid, zaxistransform );
 
