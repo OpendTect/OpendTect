@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.49 2009-09-01 14:20:57 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.50 2009-09-21 11:27:16 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -30,7 +30,6 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.49 2009-09-01 14:20:57 cv
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiwelldlgs.h"
-#include "uilogselectdlg.h"
 #include "ptrman.h"
 #include "color.h"
 #include "errh.h"
@@ -178,18 +177,6 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 	}
     }
     allapplied_ = true;
-}
-
-
-bool uiWellPartServer::selectLogs( const MultiID& wellid, 
-					Well::LogDisplayParSet*& logparset ) 
-{
-    ObjectSet<Well::LogDisplayParSet> logparsets;
-    logparsets += logparset;
-    ObjectSet<MultiID> wellids;
-    MultiID wellmultiid( wellid ); wellids += &wellmultiid;
-    uiLogSelectDlg dlg( parent(), wellids, logparsets );
-    return dlg.go();
 }
 
 
