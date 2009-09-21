@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltgen.h,v 1.7 2009-09-21 11:23:27 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltgen.h,v 1.8 2009-09-21 12:26:31 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ protected:
     void 		constructDrawer(bool);
     void 		clearStackedWvlt(uiFuncSelDraw*);   
     uiFuncSelDraw* 	getCurrentDrawer(); 
-    void 		setToMaxEnerPos(Wavelet*); 
+    void 		setToMaxEnergyPos(Wavelet*); 
     void 		setToMaxAmplPos(Wavelet*); 
     void 		makeStackedWvlt();    
     void 		reloadWvlts();
