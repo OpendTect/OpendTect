@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.434 2009-09-17 13:08:44 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.435 2009-09-21 07:12:39 cvskarthika Exp $";
 
 #include "uivispartserv.h"
 
@@ -38,6 +38,7 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.434 2009-09-17 13:08:44 cv
 #include "uitoolbar.h"
 #include "uivispickretriever.h"
 #include "uiviszstretchdlg.h"
+#include "uivisdirlightdlg.h"
 #include "uisurvtopbotimg.h"
 
 #include "visdataman.h"
@@ -1104,6 +1105,13 @@ void uiVisPartServer::setZStretch()
     uiZStretchDlg dlg( appserv().parent() );
     dlg.vwallcb = mCB(this,uiVisPartServer,vwAll);
     dlg.homecb = mCB(this,uiVisPartServer,toHome);
+    dlg.go();
+}
+
+
+void uiVisPartServer::setDirectionalLight()
+{
+    uiDirLightDlg dlg( appserv().parent() );
     dlg.go();
 }
 

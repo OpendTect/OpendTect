@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.248 2009-09-07 08:36:15 cvssatyaki Exp $
+ RCS:           $Id: uivispartserv.h,v 1.249 2009-09-21 07:12:54 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,6 +263,7 @@ public:
 				//General stuff
     bool			deleteAllObjects();
     void			setZStretch();
+    void			setDirectionalLight();
     bool			setWorkingArea();
     static const int		evViewModeChange();
     void			setViewMode(bool yn,bool notify=true);
