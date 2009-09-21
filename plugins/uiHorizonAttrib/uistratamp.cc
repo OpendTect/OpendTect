@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.10 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.11 2009-09-21 04:04:46 cvsnanne Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -187,10 +187,19 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
     HorSampling inhs = rangefld_->envelope().hrg;
     hs.limitTo( inhs );
     const EM::Horizon3D* tophor = loadHor( horctio1_.ioobj, hs );
-    if ( !tophor ) mErrRet( "Error loading horizon" );
+    if ( !tophor )
+    {
+	uiMSG().error( "Error loading horizon ", horctio1_.ioobj->name() );
+	return false;
+    }
 
     const EM::Horizon3D* bothor = usesingle_ ? 0 : loadHor(horctio2_.ioobj,hs);
-    if ( !usesingle_ && !bothor )  mErrRet( "Error loading horizon" );
+    if ( !usesingle_ && !bothor )
+    {
+	if ( tophor ) tophor->unRef();
+	uiMSG().error( "Error loading horizon ", horctio2_.ioobj->name() );
+	return false;
+    }
 
     Stats::Type typ = eEnum( Stats::Type, ampoptionfld_->box()->text() );
     StratAmpCalc exec( *seisctio_.ioobj, tophor, usesingle_ ? 0 : bothor,
@@ -238,17 +247,17 @@ EM::Horizon3D* uiStratAmpCalc::loadHor( const IOObj* ioobj,
     sdsel.rg = hs;
     TypeSet<MultiID> mids; mids += ioobj->key();
     PtrMan<Executor> exec = em.objectLoader( mids, &sdsel );
-    if ( !exec )
+    bool res = true;
+    if ( exec )
     {
-	BufferString errmsg = "Cannot load ";
-        errmsg += ioobj->name();
-        uiMSG().error( errmsg );
-	return 0;
+	uiTaskRunner taskrunner( this );
+	res = taskrunner.execute( *exec );
     }
 
-    uiTaskRunner taskrunner( this );
-    taskrunner.execute( *exec );
+    if ( !res ) return 0;
+
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
+    if ( !emobj ) return 0;
     emobj->ref();
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     return horizon;
