@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.19 2009-09-16 10:41:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.20 2009-09-21 12:25:34 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -77,10 +77,10 @@ uiFuncSelDraw::~uiFuncSelDraw()
 }
 
 
-void uiFuncSelDraw::addToList( const char* fcname )
+void uiFuncSelDraw::addToList( const char* fcname, bool withcolor )
 {
     const int curidx = funclistfld_->size();
-    linesetcolor_ += Color::stdDrawColor( curidx );
+    linesetcolor_ += withcolor ? Color::stdDrawColor( curidx ) : Color::Black();
     funclistfld_->addItem( fcname, linesetcolor_[curidx] );
 }
 

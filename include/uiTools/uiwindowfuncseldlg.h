@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.13 2009-09-16 10:41:18 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.14 2009-09-21 12:25:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
     Notifier<uiFuncSelDraw> funclistselChged;
 
     void		addFunction(FloatMathFunction*); 
-    void		addToList(const char*);
+    void		addToList(const char*,bool withcolor=true);
     int			getListSize() const;
     int			getNrSel() const;
     const char*		getCurrentListName() const;
