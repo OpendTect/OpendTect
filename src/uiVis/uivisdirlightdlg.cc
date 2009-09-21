@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.1 2009-09-21 07:11:21 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.2 2009-09-21 21:47:14 cvskris Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -130,19 +130,25 @@ void uiDirLightDlg::setDirLight()
 	mDynamicCastGet(visSurvey::Scene*,scene,
 			visBase::DM().getObject(sceneids_[idx]));
 
-	float x = cos( azimuthsliderfld_->sldr()->getValue() ) * 
-	          cos( dipsliderfld_->sldr()->getValue() ) * M_PI / 180.0;
-	float y = sin( azimuthsliderfld_->sldr()->getValue() ) * 
-	          cos( dipsliderfld_->sldr()->getValue() ) * M_PI / 180.0;
-       	float z = sin (dipsliderfld_->sldr()->getValue() ) * M_PI / 180.0;
+	static const float deg2rad = M_PI / 180.0;
 
-	visBase::DirectionalLight *dl = visBase::DirectionalLight::create();
-	dl->ref();
+	float x = cos( azimuthsliderfld_->sldr()->getValue()*deg2rad ) * 
+	          cos( dipsliderfld_->sldr()->getValue()*deg2rad );
+	float y = sin( azimuthsliderfld_->sldr()->getValue()*deg2rad ) * 
+	          cos( dipsliderfld_->sldr()->getValue()*deg2rad );
+       	float z = sin (dipsliderfld_->sldr()->getValue()*deg2rad );
+
+	if ( !getCurrentDirLight() )
+	{
+	    RefMan<visBase::DirectionalLight> dl =
+		visBase::DirectionalLight::create();
+	    scene->setDirectionalLight( *dl );
+	}
+
+	RefMan<visBase::DirectionalLight> dl = getCurrentDirLight();
+
 	dl->setDirection( x, y, z ); 
  	dl->setIntensity( intensityfld_->getfValue() );
-	dl->turnOn( true );
-	scene->setDirectionalLight( *dl );
-	dl->unRefNoDelete();
     }
 }
 
