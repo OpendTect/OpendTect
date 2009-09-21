@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 
-template <class T> class Array1DImpl;
 class CtxtIOObj;
 class FFT;
 class Wavelet;
