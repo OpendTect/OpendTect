@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoSplitTexture2.cc,v 1.18 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoSplitTexture2.cc,v 1.19 2009-09-21 20:16:55 cvskris Exp $";
 
 
 #include "SoSplitTexture2.h"
@@ -20,7 +20,9 @@ static const char* rcsID = "$Id: SoSplitTexture2.cc,v 1.18 2009-07-22 16:01:35 c
 #include <Inventor/elements/SoTextureUnitElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/elements/SoGLTextureImageElement.h>
+#if COIN_MAJOR_VERSION <= 3
 #include <Inventor/elements/SoGLTexture3EnabledElement.h>
+#endif
 #include <Inventor/elements/SoGLTextureEnabledElement.h>
 #include <Inventor/elements/SoGLMultiTextureImageElement.h>
 #include <Inventor/elements/SoGLMultiTextureEnabledElement.h>
@@ -91,22 +93,25 @@ void SoSplitTexture2Part::initClass()
     SO_ENABLE( SoGLRenderAction, SoSplitTexture2Element);
     SO_ENABLE( SoGLRenderAction, SoCacheElement );
     SO_ENABLE( SoGLRenderAction, SoTextureImageElement );
-    SO_ENABLE( SoGLRenderAction, SoGLTexture3EnabledElement );
     SO_ENABLE( SoGLRenderAction, SoGLTextureEnabledElement );
 
-    SO_ENABLE( SoCallbackAction, SoTexture3EnabledElement );
     SO_ENABLE( SoCallbackAction, SoTextureImageElement );
     SO_ENABLE( SoCallbackAction, SoTextureEnabledElement );
     SO_ENABLE( SoCallbackAction, SoTextureOverrideElement );
     SO_ENABLE( SoCallbackAction, SoMultiTextureImageElement );
     SO_ENABLE( SoCallbackAction, SoMultiTextureEnabledElement );
 
-    SO_ENABLE( SoRayPickAction, SoTexture3EnabledElement );
     SO_ENABLE( SoRayPickAction, SoTextureImageElement );
     SO_ENABLE( SoRayPickAction, SoTextureEnabledElement );
     SO_ENABLE( SoRayPickAction, SoTextureOverrideElement );
     SO_ENABLE( SoRayPickAction, SoMultiTextureImageElement );
     SO_ENABLE( SoRayPickAction, SoMultiTextureEnabledElement );
+
+#if COIN_MAJOR_VERSION <= 3
+    SO_ENABLE( SoRayPickAction, SoTexture3EnabledElement );
+    SO_ENABLE( SoCallbackAction, SoTexture3EnabledElement );
+    SO_ENABLE( SoGLRenderAction, SoGLTexture3EnabledElement );
+#endif
 }
 
 
@@ -325,8 +330,13 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 	SoGLTextureImageElement::set( state, this, 
 					   imagedata->glimage_, glmodel,
 					   SbColor(1,1,1) );
+#if COIN_MAJOR_VERSION <= 3
 	SoGLTexture3EnabledElement::set(state, this, false );
 	SoGLTextureEnabledElement::set( state, this, quality > 0.0f);
+#else
+	SoGLMultiTextureEnabledElement::set( state, this, unit,
+					     quality > 0.0f);
+#endif
 	if ( isOverride() )
 	    SoTextureOverrideElement::setImageOverride( state, true );
     }
@@ -366,13 +376,20 @@ void SoSplitTexture2Part::doActionUnit( int unit, SoState* state )
 
     if ( !unit )
     {
+#if COIN_MAJOR_VERSION <= 3
 	SoTexture3EnabledElement::set(state, this, false );
+#endif
 	if ( sz!=SbVec2s(0,0) )
 	{
 	    SoTextureImageElement::set(state, this, sz, nc, bytes,
 				    0, 0, SoTextureImageElement::MODULATE,
 				    SbColor( 1, 1, 1 ) );
+#if COIN_MAJOR_VERSION <= 3
 	    SoTextureEnabledElement::set(state, this, true );
+#else
+	    SoMultiTextureEnabledElement::set(state, this, unit, true );
+#endif
+
 	}
 	else
 	{

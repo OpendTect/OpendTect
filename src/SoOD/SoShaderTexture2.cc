@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoShaderTexture2.cc,v 1.8 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoShaderTexture2.cc,v 1.9 2009-09-21 20:16:55 cvskris Exp $";
 
 
 #include "SoShaderTexture2.h"
@@ -20,7 +20,9 @@ static const char* rcsID = "$Id: SoShaderTexture2.cc,v 1.8 2009-07-22 16:01:35 c
 #include <Inventor/elements/SoGLMultiTextureEnabledElement.h>
 #include <Inventor/elements/SoGLTextureImageElement.h>
 #include <Inventor/elements/SoGLTextureEnabledElement.h>
+#if COIN_MAJOR_VERSION <= 3
 #include <Inventor/elements/SoGLTexture3EnabledElement.h>
+#endif
 #include <Inventor/elements/SoTextureQualityElement.h>
 #include "Inventor/elements/SoGLDisplayList.h"
 #include "Inventor/actions/SoGLRenderAction.h"
@@ -118,8 +120,12 @@ void SoShaderTexture2::GLRender( SoGLRenderAction* action )
     {  
 	SoGLTextureImageElement::set( state, this, glimage_,
 				  SoTextureImageElement::REPLACE, SbColor() );
+#if COIN_MAJOR_VERSION <= 3
 	SoGLTexture3EnabledElement::set( state, this, false );
 	SoGLTextureEnabledElement::set( state, this, true );	  
+#else
+	SoGLMultiTextureEnabledElement::set(state, this, unit, true );
+#endif
 
 	if ( isOverride() ) 
 	    SoTextureOverrideElement::setImageOverride( state, true );

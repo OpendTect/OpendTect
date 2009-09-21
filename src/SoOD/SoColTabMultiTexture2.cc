@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.6 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.7 2009-09-21 20:16:54 cvskris Exp $";
 
 #include "SoColTabMultiTexture2.h"
 
@@ -15,7 +15,9 @@ static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.6 2009-07-22 16:01
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/elements/SoGLTextureEnabledElement.h>
+#if COIN_MAJOR_VERSION <= 3
 #include <Inventor/elements/SoGLTexture3EnabledElement.h>
+#endif
 #include <Inventor/elements/SoGLTextureImageElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
 #include <Inventor/elements/SoTextureOverrideElement.h>
@@ -377,7 +379,6 @@ void SoColTabMultiTexture2::initClass()
 
     SO_ENABLE(SoGLRenderAction, SoGLTextureImageElement);
     SO_ENABLE(SoGLRenderAction, SoGLTextureEnabledElement);
-    SO_ENABLE(SoGLRenderAction, SoGLTexture3EnabledElement);
 
     SO_ENABLE(SoGLRenderAction, SoGLMultiTextureImageElement);
     SO_ENABLE(SoGLRenderAction, SoGLMultiTextureEnabledElement);
@@ -386,11 +387,15 @@ void SoColTabMultiTexture2::initClass()
     SO_ENABLE(SoCallbackAction, SoTextureEnabledElement);
     SO_ENABLE(SoCallbackAction, SoMultiTextureEnabledElement);
     SO_ENABLE(SoCallbackAction, SoMultiTextureImageElement);
+
+#if COIN_MAJOR_VERSION <= 3
     SO_ENABLE(SoCallbackAction, SoTexture3EnabledElement);
+    SO_ENABLE(SoGLRenderAction, SoGLTexture3EnabledElement);
+    SO_ENABLE(SoRayPickAction, SoTexture3EnabledElement);
+#endif
 
     SO_ENABLE(SoRayPickAction, SoTextureImageElement);
     SO_ENABLE(SoRayPickAction, SoTextureEnabledElement);
-    SO_ENABLE(SoRayPickAction, SoTexture3EnabledElement);
     SO_ENABLE(SoRayPickAction, SoMultiTextureEnabledElement);
     SO_ENABLE(SoRayPickAction, SoMultiTextureImageElement);
 }
@@ -576,8 +581,13 @@ void SoColTabMultiTexture2::GLRender( SoGLRenderAction * action )
     {
 	SoGLTextureImageElement::set( state, this, glimagevalid_ ? glimage_ : 0,
 				      glmodel, SbColor(0,0,0) );
+#if COIN_MAJOR_VERSION <= 3
 	SoGLTexture3EnabledElement::set( state, this, false );
 	SoGLTextureEnabledElement::set(state, this, glimagevalid_ && quality );
+#else
+	SoGLMultiTextureEnabledElement::set( state, this, unit,
+					     glimagevalid_ && quality );
+#endif
 
 	if ( isOverride() )
 	    SoTextureOverrideElement::setImageOverride( state, true );
@@ -604,7 +614,9 @@ void SoColTabMultiTexture2::doAction( SoAction* action )
 
     if ( !unit )
     {
+#if COIN_MAJOR_VERSION <= 3
 	SoTexture3EnabledElement::set(state, this, false );
+#endif
 	if ( imagesize_[0] && imagesize_[1] )
 	{
 	    SoTextureImageElement::set( state, this, imagesize_, imagenc_,

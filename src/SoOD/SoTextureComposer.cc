@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.17 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.18 2009-09-21 20:16:55 cvskris Exp $";
 
 
 #include "SoTextureComposer.h"
@@ -21,7 +21,9 @@ static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.17 2009-07-22 16:01:35
 #include <Inventor/elements/SoTextureUnitElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/elements/SoGLTextureImageElement.h>
+#if COIN_MAJOR_VERSION <= 3
 #include <Inventor/elements/SoGLTexture3EnabledElement.h>
+#endif
 #include <Inventor/elements/SoGLTextureEnabledElement.h>
 #include <Inventor/elements/SoGLMultiTextureImageElement.h>
 #include <Inventor/elements/SoGLMultiTextureEnabledElement.h>
@@ -41,11 +43,9 @@ void SoTextureComposer::initClass()
     SO_ENABLE( SoGLRenderAction, SoTextureChannelSetElement );
     SO_ENABLE( SoGLRenderAction, SoCacheElement );
     SO_ENABLE( SoGLRenderAction, SoTextureImageElement );
-    SO_ENABLE( SoGLRenderAction, SoGLTexture3EnabledElement );
     SO_ENABLE( SoGLRenderAction, SoGLTextureEnabledElement );
     SO_ENABLE( SoGLRenderAction, SoTextureComposerElement );
 
-    SO_ENABLE( SoCallbackAction, SoTexture3EnabledElement );
     SO_ENABLE( SoCallbackAction, SoTextureImageElement );
     SO_ENABLE( SoCallbackAction, SoTextureEnabledElement );
     SO_ENABLE( SoCallbackAction, SoTextureOverrideElement );
@@ -53,13 +53,18 @@ void SoTextureComposer::initClass()
     SO_ENABLE( SoCallbackAction, SoMultiTextureEnabledElement );
     SO_ENABLE( SoCallbackAction, SoTextureComposerElement );
 
-    SO_ENABLE( SoRayPickAction, SoTexture3EnabledElement );
     SO_ENABLE( SoRayPickAction, SoTextureImageElement );
     SO_ENABLE( SoRayPickAction, SoTextureEnabledElement );
     SO_ENABLE( SoRayPickAction, SoTextureOverrideElement );
     SO_ENABLE( SoRayPickAction, SoMultiTextureImageElement );
     SO_ENABLE( SoRayPickAction, SoMultiTextureEnabledElement );
     SO_ENABLE( SoRayPickAction, SoTextureComposerElement );
+
+#if COIN_MAJOR_VERSION <= 3
+    SO_ENABLE( SoRayPickAction, SoTexture3EnabledElement );
+    SO_ENABLE( SoCallbackAction, SoTexture3EnabledElement );
+    SO_ENABLE( SoGLRenderAction, SoGLTexture3EnabledElement );
+#endif
 }
 
 
@@ -345,8 +350,12 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
     {
 	SoGLTextureImageElement::set( state, this, texturedata->glimage_,
 				      glmodel, SbColor(1,1,1) );
+#if COIN_MAJOR_VERSION <= 3
 	SoGLTexture3EnabledElement::set(state, this, false );
 	SoGLTextureEnabledElement::set(state, this, quality > 0.0f );
+#else
+	SoGLMultiTextureEnabledElement::set( state, this, unit, quality > 0.0f);
+#endif
 	if ( isOverride() )
 	    SoTextureOverrideElement::setImageOverride( state, true );
     }
@@ -385,7 +394,9 @@ void SoTextureComposer::doActionUnit( int unit, SoState* state )
 
     if ( !unit )
     {
+#if COIN_MAJOR_VERSION <= 3
 	SoTexture3EnabledElement::set(state, this, false );
+#endif
 	if ( sz!=SbVec3s(0,0,0) )
 	{
 	    if ( sz[0]==1 )
@@ -401,12 +412,20 @@ void SoTextureComposer::doActionUnit( int unit, SoState* state )
 			SbColor( 1, 1, 1 ) );
 	    }
 
+#if COIN_MAJOR_VERSION <= 3
 	    SoTextureEnabledElement::set(state, this, true );
+#else
+	    SoMultiTextureEnabledElement::set(state, this, unit, true );
+#endif
 	}
 	else
 	{
 	    SoTextureImageElement::setDefault(state, this);
+#if COIN_MAJOR_VERSION <= 3
 	    SoTextureEnabledElement::set(state, this, false );
+#else
+	    SoMultiTextureEnabledElement::set(state, this, unit, false );
+#endif
 	}
 
 	if ( isOverride() )
