@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.5 2009-09-17 13:49:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.6 2009-09-21 07:19:13 cvsbruno Exp $";
 
 
 #include "uiaxishandler.h"
@@ -167,7 +167,7 @@ void uiWaveletDispPropDlg::setAttrArrays()
     Array1DImpl<float_complex> czeropaddedarr( zpadsz );
     Array1DImpl<float_complex> cfreqarr( zpadsz );
 
-    removeBias( &czeropaddedarr );
+    removeBias( &carr );
 
     for ( int idx=0; idx<zpadsz; idx++ )
 	czeropaddedarr.set( idx, 0 );
