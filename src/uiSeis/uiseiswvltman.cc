@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.49 2009-09-17 13:52:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.50 2009-09-21 11:22:35 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -191,7 +191,8 @@ void uiSeisWvltMan::mkFileInfo()
 	tmp += "Sample interval "; tmp += SI().getZUnitString(true);tmp += ": ";
 	tmp += wvlt->sampleRate() * zfac; tmp += "\n";
 	tmp += "Min/Max amplitude: ";
-	tmp += wvlt->getExtr(false); tmp += "/"; tmp += wvlt->getExtr(); 
+	tmp += wvlt->getExtrValue(false); tmp += "/"; 
+	tmp += wvlt->getExtrValue(); 
 	tmp += "\n";
 	txt += tmp;
 

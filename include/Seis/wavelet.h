@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.18 2009-09-16 16:11:58 cvsbruno Exp $
+ RCS:		$Id: wavelet.h,v 1.19 2009-09-21 11:22:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ public:
 
     void		transform(float,float);
     void		normalize();
-    float		getExtr(bool ismax = true) const;
+    float		getExtrValue(bool ismax = true) const;
 
 
 protected:
