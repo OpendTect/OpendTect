@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.186 2009-09-09 09:34:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.187 2009-09-21 07:09:39 cvskarthika Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -607,6 +607,9 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		"Volume Builder",false,doVolProc);
     }
     mAddTB(dtecttb_,"xplot.png","Crossplot Attribute vs Well data",false,xPlot);
+    mAddTB( dtecttb_, "xplot.png", "Directional light", false, 
+	    doDirectionalLight);
+    // to do: put proper pixmap
 
     dTectTBChanged.trigger();
 }
