@@ -6,19 +6,41 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.5 2009-09-17 13:49:50 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.6 2009-09-21 11:23:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+
 #include "hilberttransform.h"
 
-template <class T> class Array1DImpl;
-class FFT;
 class Wavelet;
 class uiSliderExtra;
 class uiFunctionDisplay;
+class FFT;
+
+template <class T> class Array1DImpl;
+class WaveletAttrib
+{
+public:
+				WaveletAttrib(const Wavelet*);
+				~WaveletAttrib();
+
+    void 			getHilbert(Array1DImpl<float>&);
+    void 			getPhase(Array1DImpl<float>&);
+    void 			getFrequency(Array1DImpl<float>&, 
+					     bool ispad=true);
+
+protected:
+
+    HilbertTransform*		hilbert_;
+    FFT*			fft_;
+    int                         wvltsz_;
+    Array1DImpl<float>*  	wvltarr_;
+
+};
+
 
 mClass uiSeisWvltRotDlg : public uiDialog 
 {
@@ -32,14 +54,13 @@ public:
 protected:
 
     void			rotatePhase(float);
-
     void			sliderMove(CallBacker*);
 
 
+    WaveletAttrib*		wvltattr_;
     uiSliderExtra*		sliderfld_;
     Wavelet* 			wvlt_;
-    Wavelet* 			orgwvlt_;
-    HilbertTransform* 		hilbert_;
+    const Wavelet* 		orgwvlt_;
 };
 
 
@@ -52,15 +73,13 @@ public:
 protected:
 
     int                         wvltsz_;
-    FFT*                        fft_;
     const Wavelet*              wvlt_;
+    WaveletAttrib*		wvltattr_;
     ObjectSet<uiFunctionDisplay> attrdisps_;
     ObjectSet< Array1DImpl<float> > attrarrays_;
 
     void			addAttrDisp(bool);
-    void                        setAttrArrays();
-    void                        setDispCurves();
+    void                        setAttrCurves();
 };
-
 
 #endif

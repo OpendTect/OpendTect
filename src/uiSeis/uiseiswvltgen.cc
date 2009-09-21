@@ -7,12 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.7 2009-09-18 15:04:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.8 2009-09-21 11:23:27 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
 
+#include "arrayndimpl.h"
 #include "ctxtioobj.h"
+#include "fft.h"
 #include "ioobj.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -26,6 +28,7 @@ static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.7 2009-09-18 15:04:16 cvsb
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiwindowfuncseldlg.h"
+#include "uiseiswvltattr.h"
 #include "uiworld2ui.h"
 #include "uimsg.h"
 
@@ -117,7 +120,7 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
 }
 
 
-static const char* centernms[] = { "maximum amplitude", "maximum Energy" };
+static const char* centernms[] = { "maximum amplitude", "maximum Energy", 0 };
 uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     : uiSeisWvltCreate(p,uiDialog::Setup("Merge Wavelets",
 				 "Select two ore more wavelets to be stacked",
@@ -128,11 +131,16 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
 {
     normalizefld_ = new uiCheckBox( this, "Normalize wavelets" );
     normalizefld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
-    centerfld_ = new uiCheckBox( this, "Center wavelets at" );
+    centerfld_ = new uiCheckBox( this, "Center wavelets" );
+    centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,centerChged) );
     centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
     centerfld_->attach( rightOf, normalizefld_ );
-    centerchoicefld_ = new uiComboBox( this, centernms, "Center choice" );
+    centerchoicefld_ = new uiLabeledComboBox( this, "at" );
+    centerchoicefld_->box()->addItems( centernms );
+    centerchoicefld_->box()->selectionChanged.notify( 
+	    				mCB(this,uiSeisWvltMerge,reloadAll) );
     centerchoicefld_->attach( rightOf, centerfld_ );
+    centerchoicefld_->display( false );
 
     reloadWvlts();
     constructDrawer( false );
@@ -235,8 +243,8 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
 	Wavelet* wvlt = wvltset_[wvltidx];
 	if ( isnormalized ) wvlt->normalize();
 	const int wvltsz = wvlt->size();
-	const float minval = wvlt->getExtr(false);
-	const float maxval = wvlt->getExtr(true);
+	const float minval = wvlt->getExtrValue(false);
+	const float maxval = wvlt->getExtrValue(true);
 	if ( wvltsz > maxwvltsize_ ) maxwvltsize_ = wvltsz;
 	if ( minval < minhght ) minhght = minval;
 	if ( maxval > maxhght ) maxhght = maxval;
@@ -270,8 +278,14 @@ void uiSeisWvltMerge::reloadWvlts()
 	wvltset_ += wvlt;
 	if ( normalizefld_->isChecked() )
 	    wvlt->normalize();
+	if ( centerfld_->isChecked() )
+	{
+	    if ( centerchoicefld_->box()->currentItem() )
+		setToMaxEnerPos( wvlt );
+	    else
+		setToMaxAmplPos( wvlt );
+	}
 	namelist_.add( ioobj->name() );
-	//if ( centerfld_->isChecked() )
     }
 }
 
@@ -308,6 +322,52 @@ void uiSeisWvltMerge::reloadAll( CallBacker* )
     funcSelChg( 0 );
     wvltdrawer_[0]->display( !normalizefld_->isChecked() );
     wvltdrawer_[1]->display( normalizefld_->isChecked() );
+}
+
+
+void uiSeisWvltMerge::setToMaxEnerPos( Wavelet* wvlt )
+{
+    WaveletAttrib wvltattr( wvlt );
+    Array1DImpl<float> hilb ( wvlt->size() );
+    wvltattr.getHilbert( hilb );
+
+    float max = 0; 	int centeridx = 0;
+    for ( int idx=0; idx<wvlt->size(); idx++ )
+    {
+	float val = fabs( hilb.get(idx) );
+	if ( max < val )
+	{
+	    max = val; 
+	    centeridx = idx;
+	}
+    }
+    wvlt->set( centeridx, wvlt->sampleRate() );
+}
+
+
+void uiSeisWvltMerge::setToMaxAmplPos( Wavelet* wvlt )
+{
+    int centeridx = 0;
+    float extrval = wvlt->getExtrValue( true );
+    const float minval = wvlt->getExtrValue( false );
+    if ( fabs(minval) > fabs(extrval) )
+	extrval = minval;
+
+    for ( int idx=0; idx<wvlt->size(); idx++ )
+    {
+	if ( mIsEqual(wvlt->samples()[idx],extrval,mDefEps) )
+	{
+	    centeridx = idx;
+	    break;
+	}
+    }
+    wvlt->set( centeridx, wvlt->sampleRate() );
+}
+
+
+void uiSeisWvltMerge::centerChged( CallBacker* )
+{
+    centerchoicefld_->display( centerfld_->isChecked() );
 }
 
 

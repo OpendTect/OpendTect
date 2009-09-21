@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltgen.h,v 1.6 2009-09-18 16:10:09 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltgen.h,v 1.7 2009-09-21 11:23:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class Wavelet;
 class uiCheckBox;
-class uiComboBox;
+class uiLabeledComboBox;
 class uiGenInput;
 class uiIOObjSel;
 class uiFuncSelDraw;
@@ -90,16 +90,19 @@ protected:
 
     uiCheckBox*		normalizefld_;
     uiCheckBox*		centerfld_;
-    uiComboBox*		centerchoicefld_;
+    uiLabeledComboBox*	centerchoicefld_;
 
     void 		constructDrawer(bool);
     void 		clearStackedWvlt(uiFuncSelDraw*);   
     uiFuncSelDraw* 	getCurrentDrawer(); 
+    void 		setToMaxEnerPos(Wavelet*); 
+    void 		setToMaxAmplPos(Wavelet*); 
     void 		makeStackedWvlt();    
     void 		reloadWvlts();
     void 		reloadFunctions();
 
     bool		acceptOK(CallBacker*);
+    void 		centerChged(CallBacker*);
     void 		funcSelChg(CallBacker*);    
     void 		reloadAll(CallBacker*);
 };

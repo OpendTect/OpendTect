@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.6 2009-09-21 07:19:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.7 2009-09-21 11:23:27 cvsbruno Exp $";
 
 
 #include "uiaxishandler.h"
@@ -31,9 +31,9 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet* wvlt )
     , wvlt_(wvlt)
     , orgwvlt_(new Wavelet(*wvlt))
     , sliderfld_(0) 
-    , phaserotating(this)		    
+    , phaserotating(this)
+    , wvltattr_(new WaveletAttrib(wvlt)) 			 
 {
-    hilbert_ = new HilbertTransform();
     sliderfld_ = new uiSliderExtra( this, uiSliderExtra::Setup(
 				    "Rotation (degree)")
 				    .withedit(true)
@@ -52,7 +52,7 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet* wvlt )
 uiSeisWvltRotDlg::~uiSeisWvltRotDlg()
 {
     delete orgwvlt_;
-    delete hilbert_;
+    delete wvltattr_;
 }
 
 
@@ -65,20 +65,15 @@ void uiSeisWvltRotDlg::sliderMove( CallBacker* )
 
 void uiSeisWvltRotDlg::rotatePhase( float dphase )
 {
-    const int wvltsz = wvlt_->size();
-    Array1DImpl<float> hilsamps ( wvltsz ), samps ( wvltsz  );
     float* wvltsamps = wvlt_->samples();
-    memcpy( samps.getData(), orgwvlt_->samples(), wvltsz*sizeof(float) );
-
-    hilbert_->setInputInfo(Array1DInfoImpl( wvltsz ));
-    hilbert_->setCalcRange( 0, wvltsz, 0 );
-    hilbert_->setDir( true );
-    hilbert_->init();
-    hilbert_->transform( samps, hilsamps );
+    const float* orgwvltsamps = orgwvlt_->samples();
+    const int wvltsz = wvlt_->size();
+    Array1DImpl<float> hilsamps( wvltsz );
+    wvltattr_->getHilbert( hilsamps );
 
     for ( int idx=0; idx<wvltsz; idx++ )
-	wvltsamps[idx] = samps.get(idx)*cos( dphase*M_PI/180 ) 
-			- hilsamps.get(idx)*sin( dphase*M_PI/180 );
+	wvltsamps[idx] = orgwvltsamps[idx]*cos( dphase*M_PI/180 ) 
+		       - hilsamps.get(idx)*sin( dphase*M_PI/180 );
     phaserotating.trigger();
 }
 
@@ -89,9 +84,8 @@ void uiSeisWvltRotDlg::rotatePhase( float dphase )
 static const char* attrnms[] = { "Amplitude", "Frequency", "Phase", 0 };
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet* wvlt )
             : uiDialog(p,Setup("Wavelet Properties","","107.4.3").modal(false))
-	    , wvlt_(wvlt)
+	    , wvltattr_(new WaveletAttrib(wvlt)) 			 
 	    , wvltsz_(0)
-	    , fft_(new FFT())
 {
     setCtrlStyle( LeaveOnly );
     BufferString winname( wvlt->name() ); winname += " properties";
@@ -103,15 +97,15 @@ uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet* wvlt )
     for ( int iattr=0; attrnms[iattr]; iattr++ )
 	addAttrDisp( iattr == 1 );
     
-    setAttrArrays();
-    setDispCurves();
+    memcpy( attrarrays_[0]->getData(), wvlt->samples(), wvltsz_*sizeof(float) );
+
+    setAttrCurves();
 }
 
 
 uiWaveletDispPropDlg::~uiWaveletDispPropDlg()
 {
     deepErase( attrarrays_ );
-    delete fft_;
 }
 
 
@@ -138,57 +132,14 @@ void uiWaveletDispPropDlg::addAttrDisp( bool isfreq )
 }
 
 
-#define mDoTransform(tf,isstraight,inp,outp,sz) \
-{   \
-	tf->setInputInfo(Array1DInfoImpl(sz));\
-	tf->setDir(isstraight);\
-	tf->init();\
-	tf->transform(inp,outp);\
-}
-void uiWaveletDispPropDlg::setAttrArrays()
+void uiWaveletDispPropDlg::setAttrCurves()
 {
-    memcpy(attrarrays_[0]->getData(),wvlt_->samples(),wvltsz_*sizeof(float));
+    wvltattr_->getFrequency( *attrarrays_[1], 3 );
+    wvltattr_->getPhase( *attrarrays_[2] );
 
-    HilbertTransform* hil = new HilbertTransform();
-    Array1DImpl<float_complex> carr( wvltsz_ );
-    hil->setCalcRange( 0, wvltsz_, 0 );
-    mDoTransform( hil, true, *attrarrays_[0], carr, wvltsz_ );
-    delete hil;
-
-    for ( int idx=0; idx<wvltsz_; idx++ )
-    {
-	float phase = 0;
-	if ( carr.get(idx).real() )
-	    phase = atan2( carr.get(idx).imag(), carr.get(idx).real() );
-	attrarrays_[2]->set( idx, phase );
-    }
-
-    const int zpadsz = mPaddFac*wvltsz_;
-    Array1DImpl<float_complex> czeropaddedarr( zpadsz );
-    Array1DImpl<float_complex> cfreqarr( zpadsz );
-
-    removeBias( &carr );
-
-    for ( int idx=0; idx<zpadsz; idx++ )
-	czeropaddedarr.set( idx, 0 );
-    for ( int idx=0; idx<wvltsz_; idx++ )
-	czeropaddedarr.set( idx+wvltsz_, carr.get(idx) );
-
-    mDoTransform( fft_, true, czeropaddedarr, cfreqarr, zpadsz );
-    for ( int idx=0; idx<zpadsz; idx++ )
-    {
-	float val = abs( cfreqarr.get(idx) );
-	attrarrays_[1]->set( zpadsz-idx-1, val );
-    }
-}
-
-
-void uiWaveletDispPropDlg::setDispCurves()
-{
     float zstep = SI().zStep();
-    float maxfreq = fft_->getNyqvist( zstep );
-    if ( SI().zIsTime() )
-	maxfreq = mNINT( maxfreq );
+    float maxfreq = 0.5/zstep;
+    if ( SI().zIsTime() )maxfreq = mNINT( maxfreq );
 
     for ( int idx=0; idx<attrarrays_.size(); idx++ )
     {
@@ -198,3 +149,75 @@ void uiWaveletDispPropDlg::setDispCurves()
     }
 }
 
+
+
+
+WaveletAttrib::WaveletAttrib( const Wavelet* wvlt ) 
+    : wvltsz_(wvlt->size())  
+    , wvltarr_(new Array1DImpl<float>(wvltsz_))
+    , fft_(new FFT(false))		      
+    , hilbert_(new HilbertTransform())					      
+{
+    if ( !wvlt ) return;
+    memcpy( wvltarr_->getData(), wvlt->samples(), wvltsz_*sizeof(float) );
+}
+
+
+WaveletAttrib::~WaveletAttrib() 
+{
+    delete wvltarr_;
+    delete hilbert_;
+    delete fft_;
+}
+
+
+#define mDoTransform(tf,isstraight,inp,outp,sz) \
+{   \
+	tf->setInputInfo(Array1DInfoImpl(sz));\
+	tf->setDir(isstraight);\
+	tf->init();\
+	tf->transform(inp,outp);\
+}
+void WaveletAttrib::getHilbert( Array1DImpl<float>& hilb )
+{
+    hilbert_->setCalcRange( 0, wvltsz_, 0 );
+    mDoTransform( hilbert_, true, *wvltarr_, hilb, wvltsz_ );
+}
+
+
+void WaveletAttrib::getPhase( Array1DImpl<float>& phase )
+{
+    Array1DImpl<float_complex> hilb ( wvltsz_ );
+    hilbert_->setCalcRange( 0, wvltsz_, 0 );
+    mDoTransform( hilbert_, true, *wvltarr_, hilb, wvltsz_ );
+    for ( int idx=0; idx<wvltsz_; idx++ )
+    {
+	float ph = 0;
+	if ( hilb.get(idx).real() )
+	    ph = atan2( hilb.get(idx).imag(), hilb.get(idx).real() );
+	phase.set( idx, ph );
+    }
+}
+
+
+void WaveletAttrib::getFrequency( Array1DImpl<float>& padfreq, bool ispadding )
+{
+    const int padfac = ispadding ? 3 : 1;
+    const int zpadsz = padfac*wvltsz_;
+
+    Array1DImpl<float_complex> czeropaddedarr( zpadsz );
+    Array1DImpl<float_complex> cfreqarr( zpadsz );
+
+    for ( int idx=0; idx<zpadsz; idx++ )
+	czeropaddedarr.set( idx, 0 );
+    for ( int idx=0; idx<wvltsz_; idx++ )
+	czeropaddedarr.set( ispadding ? idx+wvltsz_ : idx, wvltarr_->get(idx) );
+
+    mDoTransform( fft_, true, czeropaddedarr, cfreqarr, zpadsz );
+
+    for ( int idx=0; idx<zpadsz; idx++ )
+    {
+	float fq = abs( cfreqarr.get(idx) );
+	padfreq.set( zpadsz-idx-1, fq );
+    }
+}
