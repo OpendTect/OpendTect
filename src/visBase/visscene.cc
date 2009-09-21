@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscene.cc,v 1.39 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.40 2009-09-21 07:10:10 cvskarthika Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: visscene.cc,v 1.39 2009-07-22 16:01:45 cvsbert 
 #include "visevent.h"
 #include "vismarker.h"
 #include "vispolygonoffset.h"
+#include "vislight.h"
 
 #include <Inventor/nodes/SoEnvironment.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -29,6 +30,7 @@ Scene::Scene()
     : selroot_( new SoGroup )
     , environment_( new SoEnvironment )
     , polygonoffset_( PolygonOffset::create() )
+    , directionallight_( 0 )  
     , events_( *EventCatcher::create() )
     , mousedownid_( -1 )
     , blockmousesel_( false )
@@ -57,6 +59,8 @@ Scene::~Scene()
 
     polygonoffset_->unRef();
     selroot_->unref();
+    if (directionallight_ )
+	directionallight_->unRef();
 }
 
 
@@ -85,6 +89,28 @@ void Scene::setAmbientLight( float n )
 float Scene::ambientLight() const
 {
     return environment_->ambientIntensity.getValue();
+}
+
+ 
+void Scene::setDirectionalLight( const DirectionalLight& dl )
+{
+    if ( !directionallight_ )
+    {
+	directionallight_ = DirectionalLight::create();
+	directionallight_->ref();
+        insertObject( 0, directionallight_ );
+    }
+    
+    directionallight_->setIntensity( dl.intensity() );
+    directionallight_->setDirection( dl.direction( 0 ), dl.direction( 1 ),
+	    dl.direction( 2 ) );
+    directionallight_->turnOn( dl.isOn() );
+}
+ 
+
+DirectionalLight* Scene::getDirectionalLight() const
+{
+    return directionallight_;
 }
 
 

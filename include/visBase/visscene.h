@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.18 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: visscene.h,v 1.19 2009-09-21 07:10:27 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ namespace visBase
     class SelectionManager;
     class EventCatcher;
     class PolygonOffset;
+    class DirectionalLight;
 
 /*!\brief
     Scene manages all DataObjects and has some managing
@@ -43,6 +44,10 @@ public:
     void		setAmbientLight(float);
     float		ambientLight() const;
 
+    void		setDirectionalLight(const DirectionalLight&);
+    void		setDirectionalLight(int, int, float);
+    DirectionalLight*	getDirectionalLight() const;
+
     bool		blockMouseSelection(bool yn);
     			/*!<\returns previous status. */
 
@@ -60,6 +65,7 @@ private:
 
     SoEnvironment*	environment_;
     PolygonOffset*	polygonoffset_;
+    DirectionalLight*	directionallight_;
     SoGroup*		selroot_;
     bool		blockmousesel_;
 };
