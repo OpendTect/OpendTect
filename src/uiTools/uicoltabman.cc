@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.39 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.40 2009-09-21 09:50:46 cvsnanne Exp $";
 
 #include "uicoltabman.h"
 
@@ -74,7 +74,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     LineStyle ls( LineStyle::Solid, 1, Color::LightGrey() );
     uiFunctionDisplay::Setup su;
     su.border(uiBorder(2,5,3,5)).xrg(Interval<float>(0,1)).editable(true)
-      .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(false)
+      .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(true)
       .canvasheight(mTransHeight).drawscattery1(true) .ycol(Color(255,0,0))
       .y2col(Color(190,190,190)).drawliney2(false).fillbelowy2(true)
       .pointsz(3).ptsnaptol(0.08).noxaxis(true).noyaxis(true).noy2axis(true)

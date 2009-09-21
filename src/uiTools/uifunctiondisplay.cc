@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.47 2009-09-17 11:02:04 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.48 2009-09-21 09:50:46 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -222,33 +222,35 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
 void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 {
     const int nrpts = y2 ? y2xvals_.size() : xvals_.size();
-    const uiPoint closept( xax_->getPix(xax_->range().stop),
-	    		   y2 ? y2ax_->getPix(yax_->range().start)
+    const uiPoint closept( xax_->getPix(xax_->range().start),
+	    		   y2 ? y2ax_->getPix(y2ax_->range().start)
 	   		      : yax_->getPix(yax_->range().start) );
-    if ( y2 ? setup_.fillbelowy2_ : setup_.fillbelow_ )
+    const bool fillbelow = y2 ? setup_.fillbelowy2_ : setup_.fillbelow_;
+    if ( fillbelow )
 	ptlist += closept;
 
+    const Interval<int> xpixintv( xax_->getPix(xax_->range().start),
+				  xax_->getPix(xax_->range().stop) );
+    const Interval<int> ypixintv( y2 ? y2ax_->getPix(y2ax_->range().start)
+				     : yax_->getPix(yax_->range().start),
+				  y2 ? y2ax_->getPix(y2ax_->range().stop)
+				     : yax_->getPix(yax_->range().stop) );
+    uiPoint pt = closept;
     for ( int idx=0; idx<nrpts; idx++ )
     {
-	const int xpix = xax_->getPix( y2 ? y2xvals_[idx]
-					  : xvals_[idx] );
-	const int ypix = y2 ? ( y2ax_->getPix(y2yvals_[idx]) )
-	    		    : ( yax_->getPix(yvals_[idx]) );
-	const uiPoint pt( xpix, y2 ? y2ax_->getPix(y2yvals_[idx])
-	       			   : yax_->getPix(yvals_[idx]) );
-	Interval<int> xpixintv( xax_->getPix(xax_->range().start),
-				xax_->getPix(xax_->range().stop) );
-	Interval<int> ypixintv( y2 ? y2ax_->getPix(y2ax_->range().start)
-				   : yax_->getPix(yax_->range().start),
-				y2 ? y2ax_->getPix(y2ax_->range().stop)
-				   : yax_->getPix(yax_->range().stop) );
+	const int xpix = xax_->getPix( y2 ? y2xvals_[idx] : xvals_[idx] );
+	const int ypix = y2 ? y2ax_->getPix(y2yvals_[idx]) 
+			    : yax_->getPix(yvals_[idx]);
 	if ( xpixintv.includes(xpix) && ypixintv.includes(ypix) )
+	{
+	    pt.x = xpix;
+	    pt.y = ypix;
 	    ptlist += pt;
-	
-	if ( idx == nrpts-1 && setup_.closepolygon_)
-	    ptlist += uiPoint( pt.x, closept.y );
+	}
     }
-    
+	
+    if ( setup_.closepolygon_ && fillbelow )
+	ptlist += uiPoint( pt.x, closept.y );
 }
 
 
