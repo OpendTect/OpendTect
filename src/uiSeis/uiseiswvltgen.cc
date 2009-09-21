@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.8 2009-09-21 11:23:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.9 2009-09-21 12:25:56 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -229,7 +229,7 @@ void uiSeisWvltMerge::makeStackedWvlt()
     }
     WvltMathFunction* stackedfunc = new WvltMathFunction( stackedwvlt_ );
     wvltfuncset_ += stackedfunc;
-    wd->addToList( wvltname );
+    wd->addToList( wvltname, false );
     wd->addFunction( stackedfunc );
     wd->setAsCurrent( wvltname );
 }
@@ -281,7 +281,7 @@ void uiSeisWvltMerge::reloadWvlts()
 	if ( centerfld_->isChecked() )
 	{
 	    if ( centerchoicefld_->box()->currentItem() )
-		setToMaxEnerPos( wvlt );
+		setToMaxEnergyPos( wvlt );
 	    else
 		setToMaxAmplPos( wvlt );
 	}
@@ -325,7 +325,7 @@ void uiSeisWvltMerge::reloadAll( CallBacker* )
 }
 
 
-void uiSeisWvltMerge::setToMaxEnerPos( Wavelet* wvlt )
+void uiSeisWvltMerge::setToMaxEnergyPos( Wavelet* wvlt )
 {
     WaveletAttrib wvltattr( wvlt );
     Array1DImpl<float> hilb ( wvlt->size() );
