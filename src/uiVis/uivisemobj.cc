@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.86 2009-09-04 09:51:53 cvshelene Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.87 2009-09-22 16:41:11 cvsyuancheng Exp $";
 
 #include "uivisemobj.h"
 
@@ -88,8 +88,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
 	    if ( hordisp )
 	    {
-		const StepInterval<int> rowrg = hordisp->displayedRowRange();
-		const StepInterval<int> colrg = hordisp->displayedColRange();
+		const StepInterval<int> rowrg = hordisp->geometryRowRange();
+		const StepInterval<int> colrg = hordisp->geometryColRange();
 		if ( rowrg.step!=-1 && colrg.step!=-1 )
 		{
 		    sel.rg.start.inl = rowrg.start;

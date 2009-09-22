@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.37 2009-08-06 02:14:30 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.38 2009-09-22 16:41:11 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -247,16 +247,15 @@ bool uiODHorizonTreeItem::init()
     if ( !createUiVisObj() )
 	return false;
 
+    mDynamicCastGet( visSurvey::HorizonDisplay*,
+	    hd, visserv_->getObject(displayid_) );
+
     if ( rgba_ )
     {
-	mDynamicCastGet(visSurvey::HorizonDisplay*,
-	hd,visserv_->getObject(displayid_));
-	if ( !hd )
-	    return false;
+	if ( !hd ) return false;
 
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
 			hd->getChannel2RGBA() );
-
 	if ( !rgba )
 	{
 	    if ( !hd->setChannel2RGBA(
@@ -267,6 +266,13 @@ bool uiODHorizonTreeItem::init()
 	    hd->addAttrib();
 	    hd->addAttrib();
 	}
+    }
+
+    visBase::HorizonSection* hor3d = hd ? hd->getHorizonSection(0) : 0;
+    if ( hor3d )
+    {
+	const HorSampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
+	hor3d->setDisplayRange( rg.inlRange(), rg.crlRange() );
     }
 
     return uiODEarthModelSurfaceTreeItem::init();
@@ -386,8 +392,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	uiPosProvider pp( &dlg, setup );
 
 	IOPar displaypar;
-	pp.fillPar( displaypar ); //Get display type
-	curcs.fillPar( displaypar ); //Get display ranges
+	pp.fillPar( displaypar );	//Get display type
+	curcs.fillPar( displaypar );	//Get display ranges
 	pp.usePar( displaypar );
 
 	if ( !dlg.go() )
@@ -401,8 +407,9 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    newcs = maxcs;
 	else
 	    newcs.usePar( displaypar );
-	section->setDisplayRange( newcs.hrg.inlRange(), 
-				  newcs.hrg.crlRange(), true );
+
+	section->setDisplayRange( newcs.hrg.inlRange(), newcs.hrg.crlRange() );
+	emserv->setHorizon3DDisplayRange( newcs.hrg );
 	
 	for ( int idx=0; idx<hd->nrAttribs(); idx++ )
 	{

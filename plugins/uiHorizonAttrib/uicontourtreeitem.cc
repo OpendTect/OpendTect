@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.5 2009-08-28 13:38:55 cvshelene Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.6 2009-09-22 16:41:11 cvsyuancheng Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -346,8 +346,8 @@ void uiContourTreeItem::computeContours()
 	return;
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    StepInterval<int> rowrg = hd->displayedRowRange();
-    StepInterval<int> colrg = hd->displayedColRange();
+    StepInterval<int> rowrg = hd->geometryRowRange();
+    StepInterval<int> colrg = hd->geometryColRange();
     const int nrbids = ( rowrg.nrSteps() + 1 ) * ( colrg.nrSteps() + 1 );
 
     createLines();
