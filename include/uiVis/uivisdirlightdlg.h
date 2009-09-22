@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.2 2009-09-22 09:55:32 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.3 2009-09-22 11:27:04 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ public:
 				uiDirLightDlg(uiParent*);
 
     bool			valueChanged() const;
+    virtual void		show();
 
 protected:
 
@@ -36,7 +37,6 @@ protected:
     bool			rejectOK(CallBacker*);
     void			sceneSel(CallBacker*);
     void			fieldChangedCB(CallBacker*);
-    virtual void		show();
     
     uiLabeledComboBox*		scenefld_;
     uiSliderExtra*		azimuthsldrfld_;
