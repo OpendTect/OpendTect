@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.2 2009-09-21 21:47:14 cvskris Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.3 2009-09-22 09:54:08 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -22,23 +22,21 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.2 2009-09-21 21:47:14 c
 #include "vissurvscene.h"
 #include "math.h"
 
-
 uiDirLightDlg::uiDirLightDlg( uiParent* p )
     : uiDialog(p,
 	       uiDialog::Setup("Directional light",
-		   "Set directional light properties", mNoHelpID)
+		   "Set directional light properties", mNoHelpID).modal(false))
 	       // to do: specify proper help ID
-	       .canceltext(""))
     , scenefld_(0)
-    , azimuthsliderfld_(0)
-    , dipsliderfld_(0)
+    , azimuthsldrfld_(0)
+    , dipsldrfld_(0)
     , intensityfld_(0)
     , valchgd_(false)      
 {
     visBase::DM().getIds( typeid(visSurvey::Scene), sceneids_ );
     if ( sceneids_.size() == 0 )
     {
-	uiLabel* lbl = new uiLabel( this, "No scenes available" );
+	uiLabel* lbl = new uiLabel( this, "No scene available!" );
 	return;
     }
 
@@ -61,31 +59,30 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p )
 
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
-    // to do: add validation
-    azimuthsliderfld_ = new uiSliderExtra( this,
+    azimuthsldrfld_ = new uiSliderExtra( this,
       uiSliderExtra::Setup("Azimuth (degrees)").withedit(true).nrdec(1).
       logscale(false), "Azimuth slider" );
     if ( sceneids_.size() > 1 )
-	azimuthsliderfld_->attach( alignedBelow, scenefld_ );
-    azimuthsliderfld_->sldr()->setMinValue( 0 );
-    azimuthsliderfld_->sldr()->setMaxValue( 360 );
-    azimuthsliderfld_->sldr()->setStep( 1 );
-    azimuthsliderfld_->sldr()->setValue( 180 );
-    azimuthsliderfld_->sldr()->valueChanged.notify( chgCB );
+	azimuthsldrfld_->attach( alignedBelow, scenefld_ );
+    azimuthsldrfld_->sldr()->setMinValue( 0 );
+    azimuthsldrfld_->sldr()->setMaxValue( 360 );
+    azimuthsldrfld_->sldr()->setStep( 1 );
+    azimuthsldrfld_->sldr()->setValue( 180 );
+    azimuthsldrfld_->sldr()->valueChanged.notify( chgCB );
 
-    dipsliderfld_ = new uiSliderExtra( this,
+    dipsldrfld_ = new uiSliderExtra( this,
       uiSliderExtra::Setup("Dip (degrees)").withedit(true).nrdec(1).logscale(
 	  false), "Dip slider" );
-    dipsliderfld_->attach( alignedBelow, azimuthsliderfld_ );
-    dipsliderfld_->sldr()->setMinValue( 0 );
-    dipsliderfld_->sldr()->setMaxValue( 90 );
-    dipsliderfld_->sldr()->setStep( 1 );
-    dipsliderfld_->sldr()->setValue( 45 );
-    dipsliderfld_->sldr()->valueChanged.notify( chgCB ); 
+    dipsldrfld_->attach( alignedBelow, azimuthsldrfld_ );
+    dipsldrfld_->sldr()->setMinValue( 0 );
+    dipsldrfld_->sldr()->setMaxValue( 90 );
+    dipsldrfld_->sldr()->setStep( 1 );
+    dipsldrfld_->sldr()->setValue( 45 );
+    dipsldrfld_->sldr()->valueChanged.notify( chgCB ); 
 
     intensityfld_ = new uiGenInput( this, "Intensity (0..1)", 
-	    FloatInpSpec( 0.75 ) );
-    intensityfld_->attach( alignedBelow, dipsliderfld_ );
+	    FloatInpSpec( 1 ) );
+    intensityfld_->attach( alignedBelow, dipsldrfld_ );
     intensityfld_->valuechanged.notify( chgCB ); 
 }
 
@@ -98,29 +95,51 @@ bool uiDirLightDlg::valueChanged() const
 
 void uiDirLightDlg::sceneSel( CallBacker* )
 {
-    updateWidgets();
+    updateWidgets( false );
 }
 
 
-void uiDirLightDlg::updateWidgets()
+void uiDirLightDlg::updateWidgets( bool initvalues )
 {
     visBase::DirectionalLight* dl = getCurrentDirLight();
     if ( !dl )
+    {
+	if ( initvalues )
+	{
+	    initazimuthval_ = 0;
+	    initdipval_ = 0;
+	    initintensityval_ = 1;
+	}
 	return;
+    }
+
     float x = dl->direction( 0 );
     float y = dl->direction( 1 );
     float z = dl->direction( 2 );
     float dip = asin( z );
+    float azimuth = acos( x / cos( dip ) ) ;
+    dip *= 180.0 / M_PI;
+    azimuth *= 180.0 / M_PI;
 
-    azimuthsliderfld_->sldr()->setValue( acos( x / cos( dip ) ) * 180.0 / M_PI );
-    dipsliderfld_->sldr()->setValue( dip * 180.0 / M_PI );
+    azimuthsldrfld_->sldr()->setValue( azimuth );
+    dipsldrfld_->sldr()->setValue( dip );
     intensityfld_->setValue( dl->intensity() );
+
+    if ( initvalues)
+    {
+	    initazimuthval_ = azimuth;
+	    initdipval_ = dip;
+	    initintensityval_ = dl->intensity();
+    }
 }
 
 
 void uiDirLightDlg::setDirLight()
 {
+    validateInput();
+
     const bool lightall = scenefld_ && scenefld_->box()->currentItem()==0;
+    
     for ( int idx=0; idx<sceneids_.size(); idx++ )
     {
 	bool dolight = !scenefld_ || lightall ||
@@ -132,11 +151,11 @@ void uiDirLightDlg::setDirLight()
 
 	static const float deg2rad = M_PI / 180.0;
 
-	float x = cos( azimuthsliderfld_->sldr()->getValue()*deg2rad ) * 
-	          cos( dipsliderfld_->sldr()->getValue()*deg2rad );
-	float y = sin( azimuthsliderfld_->sldr()->getValue()*deg2rad ) * 
-	          cos( dipsliderfld_->sldr()->getValue()*deg2rad );
-       	float z = sin (dipsliderfld_->sldr()->getValue()*deg2rad );
+	float x = cos( azimuthsldrfld_->sldr()->getValue()*deg2rad ) * 
+	          cos( dipsldrfld_->sldr()->getValue()*deg2rad );
+	float y = sin( azimuthsldrfld_->sldr()->getValue()*deg2rad ) * 
+	          cos( dipsldrfld_->sldr()->getValue()*deg2rad );
+       	float z = sin (dipsldrfld_->sldr()->getValue()*deg2rad );
 
 	if ( !getCurrentDirLight() )
 	{
@@ -156,7 +175,6 @@ void uiDirLightDlg::setDirLight()
 visBase::DirectionalLight* uiDirLightDlg::getCurrentDirLight() const
 {
     if ( sceneids_.size() == 0 )
-	//return visSurvey::STM().defDirLight();
 	return 0;
 
     int sceneidx = scenefld_ ? scenefld_->box()->currentItem()-1 : 0;
@@ -167,15 +185,31 @@ visBase::DirectionalLight* uiDirLightDlg::getCurrentDirLight() const
 }
 
 
+void uiDirLightDlg::validateInput()
+{
+    const float az = azimuthsldrfld_->sldr()->getValue();
+    if ( ( az < 0 ) || ( az > 360 ) )
+	azimuthsldrfld_->sldr()->setValue( 0 );
+    
+    const float dip = dipsldrfld_->sldr()->getValue();
+    if ( ( dip < 0 ) || ( dip > 90 ) )
+	dipsldrfld_->sldr()->setValue( 0 );
+    
+    const float intensity = intensityfld_->getfValue();
+    if ( ( intensity < 0 ) || ( intensity > 1 ) )
+	intensityfld_->setValue( 1 );
+}
+
+
 bool uiDirLightDlg::acceptOK( CallBacker* )
 {
-    if ( !azimuthsliderfld_ )
+    if ( !azimuthsldrfld_ )
 	return true;
 
-    azimuthsliderfld_->processInput();
-    dipsliderfld_->processInput();
-    valchgd_ = ( ( azimuthsliderfld_->sldr()->getValue() != initazimuthval_ ) 
-	         || ( dipsliderfld_->sldr()->getValue() != initdipval_ )
+    azimuthsldrfld_->processInput();
+    dipsldrfld_->processInput();
+    valchgd_ = ( ( azimuthsldrfld_->sldr()->getValue() != initazimuthval_ ) 
+	         || ( dipsldrfld_->sldr()->getValue() != initdipval_ )
 		 || ( intensityfld_->getfValue() != initintensityval_ ) )
 	       ? true : false;
 
@@ -186,9 +220,31 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
 }
 
 
+bool uiDirLightDlg::rejectOK( CallBacker* )
+{
+    valchgd_ = false;
+    
+    azimuthsldrfld_->sldr()->setValue( initazimuthval_ );
+    dipsldrfld_->sldr()->setValue( initdipval_ );
+    intensityfld_->setValue( initintensityval_ );
+
+    setDirLight();
+
+    return true;
+}
+
+
 void uiDirLightDlg::fieldChangedCB( CallBacker* )
 {
     setDirLight();
 }
+
+
+void uiDirLightDlg::show()
+{
+    updateWidgets( true );
+    uiDialog::show();
+}
+
 
 
