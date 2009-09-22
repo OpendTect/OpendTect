@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.43 2009-08-06 02:04:14 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.44 2009-09-22 08:50:51 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,8 @@ public:
     				/*!<\returns the userRef, "None" if
 				     selspec.id==NoAttrib, or a zeropointer 
 				     if selspec.id==notsel */ 
+    const Attrib::SelSpec*	getSelSpec(int) const
+    				{ return &as_; }
     void			updateTexture();
     void			updateBoxSpace();
     void			freezeBoxPosition(bool yn);
@@ -163,7 +165,7 @@ protected:
     static const Color		extendColor;
 };
 
-};
+}; // namespace visSurvey
 
 
 #endif
