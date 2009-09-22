@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.435 2009-09-21 07:12:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.436 2009-09-22 09:54:26 cvskarthika Exp $";
 
 #include "uivispartserv.h"
 
@@ -111,6 +111,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , multirgeditwin_(0)
     , mapperrgeditordisplayid_(-1)
     , mapperrgeditinact_(false)	  
+    , dirlightdlg_(0)			  
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -146,6 +147,9 @@ uiVisPartServer::~uiVisPartServer()
     menu_.unRef();
     pickretriever_->unRef();
     delete multirgeditwin_;
+
+    if ( dirlightdlg_ )
+	delete dirlightdlg_;
 }
 
 
@@ -1111,8 +1115,11 @@ void uiVisPartServer::setZStretch()
 
 void uiVisPartServer::setDirectionalLight()
 {
-    uiDirLightDlg dlg( appserv().parent() );
-    dlg.go();
+    if ( !dirlightdlg_ )
+    {
+	dirlightdlg_ = new uiDirLightDlg( appserv().parent() );
+    }
+    dirlightdlg_->show();
 }
 
 
