@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.117 2009-09-21 15:55:40 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.118 2009-09-22 16:38:54 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -316,7 +316,7 @@ bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 }
 
 
-StepInterval<int> HorizonDisplay::displayedRowRange() const
+StepInterval<int> HorizonDisplay::geometryRowRange() const
 {
     mDynamicCastGet(const EM::Horizon3D*, surface, emobject_ );
     if ( !surface ) return parrowrg_;
@@ -325,7 +325,7 @@ StepInterval<int> HorizonDisplay::displayedRowRange() const
 }
 
 
-StepInterval<int> HorizonDisplay::displayedColRange() const
+StepInterval<int> HorizonDisplay::geometryColRange() const
 {
     mDynamicCastGet(const EM::Horizon3D*, surface, emobject_ );
     if ( !surface ) return parcolrg_;
@@ -354,7 +354,7 @@ void HorizonDisplay::updateFromMPE()
 	//useTexture( false );
     //}
 
-    if ( displayedRowRange().nrSteps()<=1 || displayedColRange().nrSteps()<=1 )
+    if ( geometryRowRange().nrSteps()<=1 || geometryColRange().nrSteps()<=1 )
 	setResolution( 0, 0 ); //Automatic resolution
 
     EMObjectDisplay::updateFromMPE();
@@ -917,14 +917,10 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->setZAxisTransform( zaxistransform_, tr );
 
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
-    Geometry::BinIDSurface* bidsurf = horizon->geometry().sectionGeometry(sid);
-    surf->setSurface( bidsurf, true, tr );
-    const HorSampling& hs = horizon->geometry().getDisplayRange();
-    const bool unchanged = hs.inlRange()==bidsurf->rowRange() && 
-			   hs.crlRange()==bidsurf->colRange();
-    surf->setDisplayRange( hs.inlRange(), hs.crlRange(), !unchanged );
-
-    while ( surf->nrChannels()<nrAttribs() ) surf->addChannel();
+    surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
+   
+    while ( surf->nrChannels()<nrAttribs() ) 
+	surf->addChannel();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
@@ -1848,8 +1844,8 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     if ( emobject_ && !emobject_->isFullyLoaded() )
     {
-	par.set( sKeyRowRange(), displayedRowRange() );
-	par.set( sKeyColRange(), displayedColRange() );
+	par.set( sKeyRowRange(), geometryRowRange() );
+	par.set( sKeyColRange(), geometryColRange() );
     }
 
     par.setYN( sKeyTexture(), usesTexture() );
