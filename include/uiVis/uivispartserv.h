@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.249 2009-09-21 07:12:54 cvskarthika Exp $
+ RCS:           $Id: uivispartserv.h,v 1.250 2009-09-22 09:54:49 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ class uiSlicePos3DDisp;
 class uiToolBar;
 class uiVisModeMgr;
 class uiVisPickRetriever;
+class uiDirLightDlg;
 template <class T> class Selector;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
@@ -419,6 +420,8 @@ protected:
     bool			blockmenus_;
     uiVisPickRetriever*		pickretriever_;
     Notifier<uiVisPartServer>	nrsceneschange_;
+
+    uiDirLightDlg*		dirlightdlg_;
 };
 
 
