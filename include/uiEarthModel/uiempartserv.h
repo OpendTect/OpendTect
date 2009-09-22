@@ -7,16 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.92 2009-08-28 18:46:57 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.93 2009-09-22 16:40:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emposid.h"
+#include "horsampling.h"
 #include "multiid.h"
 #include "uiapplserv.h"
 #include "position.h"
-
 
 class BinID;
 class HorSampling;
@@ -72,6 +72,10 @@ public:
     			/*!< If object has changed, user is asked whether
 			    to save it or not, and if so, the object is saved.
 			    Returns false when save option is cancelled. */
+
+    HorSampling		horizon3DDisplayRange() const	{ return selectedrg_; }
+    void		setHorizon3DDisplayRange(const HorSampling&);
+    			/*!<Users can change the display range, hor 3D only. */
 
     void		selectHorizons(ObjectSet<EM::EMObject>&,bool is2d);
     			//!<Returned set is reffed and must be unrefed by caller
@@ -147,7 +151,8 @@ protected:
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
-    
+
+    HorSampling		selectedrg_;    
     bool		disponcreation_;
 };
 

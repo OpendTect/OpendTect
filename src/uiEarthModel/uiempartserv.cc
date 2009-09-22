@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.187 2009-08-28 18:46:57 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.188 2009-09-22 16:40:12 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -94,6 +94,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , selemid_(-1)
     , em_(EM::EMM())
     , disponcreation_(false)
+    , selectedrg_( false )			    
 {
     em_.syncGeomReq.notify( mCB(this,uiEMPartServer,syncGeometry) );
 }
@@ -421,6 +422,9 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     dlg.iogrp()->getSurfaceSelection( sel );
 
     const bool hor3d = typ==EMHorizon3DTranslatorGroup::keyword();
+    if ( hor3d )
+      	selectedrg_ = sel.rg; 
+
     PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &orisel : &sel);
     if ( !exec )
     {
@@ -445,11 +449,6 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 	obj->ref();
 	obj->setBurstAlert( true );
 	objs += obj;
-	if ( hor3d )
-	{
-	    mDynamicCastGet( EM::Horizon3D*, hor, obj );
-	    if ( hor ) hor->geometry().setDisplayRange( sel.rg );
-	}
     }
 
     if ( exec )
@@ -462,6 +461,10 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     for ( int idx=0; idx<objs.size(); idx++ )
 	objs[idx]->setBurstAlert( false );
 }
+
+
+void uiEMPartServer::setHorizon3DDisplayRange( const HorSampling& hs )
+{ selectedrg_ = hs; }
 
 
 bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
