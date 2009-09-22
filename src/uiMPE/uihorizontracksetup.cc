@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.32 2009-08-25 08:54:08 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.33 2009-09-22 08:08:20 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -667,16 +667,19 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	    }
 	}
 
-	if ( horadj_->getAmplitudeThresholds().size() > idx+1 )
+	if ( idx==0 && horadj_->getAmplitudeThresholds().size() > 0 )
+	{
+	    horadj_->getAmplitudeThresholds()[idx] =
+				horadj_->amplitudeThreshold();
+	    idx++;
+	}
+
+	if ( horadj_->getAmplitudeThresholds().size() > idx )
 	{
 	    int size = horadj_->getAmplitudeThresholds().size();
 	    fieldchange = true;
 	    horadj_->getAmplitudeThresholds().remove( idx, size-1 );
 	}
-
-	if ( idx==0 && horadj_->getAmplitudeThresholds().size() > 0 )
-	    horadj_->getAmplitudeThresholds()[idx] =
-				horadj_->amplitudeThreshold();
     }
     else
     {
@@ -720,15 +723,18 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	    }
 	}
 
-	if (  horadj_->getAllowedVariances().size() > idx+1 )
+	if ( idx==0 && horadj_->getAllowedVariances().size()>0 )
+	{
+	    horadj_->getAllowedVariances()[idx] = horadj_->allowedVariance();
+	    idx++;
+	}
+
+	if (  horadj_->getAllowedVariances().size() > idx )
 	{
 	    int size = horadj_->getAllowedVariances().size();
 	    fieldchange = true;
 	    horadj_->getAllowedVariances().remove( idx, size-1 );
 	}
-
-	if ( idx==0 && horadj_->getAllowedVariances().size()>0 )
-	    horadj_->getAllowedVariances()[idx] = horadj_->allowedVariance();
     }
 
     const bool rmonfail = !extriffailfld->getBoolValue();
