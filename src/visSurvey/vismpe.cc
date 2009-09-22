@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.77 2009-08-06 02:47:31 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.78 2009-09-22 08:51:22 cvsumesh Exp $";
 
 #include "vismpe.h"
 
@@ -212,7 +212,9 @@ CubeSampling MPEDisplay::getBoxPosition() const
     cube.zrg.start = center.z - width.z / 2;
     cube.zrg.stop = center.z + width.z / 2;
     cube.zrg.step = SI().zStep();
-    cube.snapToSurvey();
+    cube.hrg.snapToSurvey();
+    SI().snapZ( cube.zrg.start, 0 );
+    SI().snapZ( cube.zrg.stop, 0 );
     return cube;
 }
 
