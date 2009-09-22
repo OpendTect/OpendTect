@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.89 2009-09-18 14:47:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.90 2009-09-22 16:37:58 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -415,7 +415,6 @@ HorizonSection::HorizonSection()
     , geometry_( 0 )
     , displayrrg_( -1, -1, 0 )
     , displaycrg_( -1, -1, 0 )
-    , userchangeddisplayrg_( false )			      
     , channels_( TextureChannels::create() )		   
     , channel2rgba_( ColTabTextureChannel2RGBA::create() ) 
     , tiles_( 0, 0 )					  
@@ -924,12 +923,6 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
        				 TaskRunner* tr )
 {
     if ( !surf ) return;
-   
-    if ( !userchangeddisplayrg_ )
-    {	
-    	displayrrg_ = surf->rowRange();
-    	displaycrg_ = surf->colRange();
-    }
 
     origin_.row = displayrrg_.start;
     origin_.col = displaycrg_.start;
@@ -949,19 +942,15 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
 
 
 void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
-	const StepInterval<int>& crg, bool userchange )
+				      const StepInterval<int>& crg )
 {
-    const bool usegeo = !userchange && geometry_;
-    if ( (!usegeo && displayrrg_==rrg && displaycrg_==crg) || 
-	 (usegeo && displayrrg_==geometry_->rowRange() && 
-	  	    displaycrg_==geometry_->colRange()) )
+    if ( displayrrg_==rrg && displaycrg_==crg ) 
 	return;
 
-    displayrrg_ = usegeo ? geometry_->rowRange() : rrg;
-    displaycrg_ = usegeo ? geometry_->colRange() : crg;
+    displayrrg_ = rrg;
+    displaycrg_ = crg;
     origin_.row = displayrrg_.start;
     origin_.col = displayrrg_.start;
-    userchangeddisplayrg_ = userchange;
 
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
@@ -1009,10 +998,10 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    return;
     }
   
-    if ( !userchangeddisplayrg_ )
+    if ( displayrrg_.start==-1 )   
     {
 	displayrrg_ = geometry_->rowRange();
-	displaycrg_ = geometry_->colRange();
+    	displaycrg_ = geometry_->colRange();
     }
 
     if ( displayrrg_.width(false)<0 || displaycrg_.width(false)<0 )

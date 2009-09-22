@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.66 2009-08-12 03:11:51 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.67 2009-09-22 16:39:26 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -70,16 +70,12 @@ public:
 
     EMObjectIterator*   	createIterator(const EM::SectionID&,
 					       const CubeSampling* =0) const;
-    void			setDisplayRange(const HorSampling&);
-    HorSampling			getDisplayRange() const	{ return selection_; }
-
 protected:
     Geometry::BinIDSurface*	createSectionGeometry() const;
 
     RowCol			loadedstep_;
     RowCol			step_;
     bool			checksupport_;
-    HorSampling			selection_;
 };
 
 

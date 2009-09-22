@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.41 2009-09-18 14:47:24 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.42 2009-09-22 16:37:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -100,8 +100,7 @@ public:
     const StepInterval<int>&	displayedRowRange() const;
     const StepInterval<int>&	displayedColRange() const;
     void			setDisplayRange(const StepInterval<int>&,
-	    					const StepInterval<int>&,
-						bool userchangedisplayrg);
+	    					const StepInterval<int>&);
 
     void			useWireframe(bool);
     bool			usesWireframe() const;
@@ -136,7 +135,6 @@ protected:
 
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
-    bool			userchangeddisplayrg_;
     Threads::Mutex		updatelock_;
     ObjectSet<BinIDValueSet>	cache_;
 

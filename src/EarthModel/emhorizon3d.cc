@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.122 2009-09-05 02:14:46 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.123 2009-09-22 16:39:26 cvsyuancheng Exp $";
 
 #include "emhorizon3d.h"
 
@@ -427,7 +427,6 @@ Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
     : HorizonGeometry( surf ) 
     , step_( SI().inlStep(), SI().crlStep() )
-    , selection_( SI().sampling(true).hrg )			     
     , loadedstep_( SI().inlStep(), SI().crlStep() )
     , checksupport_( true )
 {}
@@ -736,10 +735,6 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
     const StepInterval<int> colrg = cs->hrg.crlRange();
     return new RowColIterator( surface_, sid, rowrg, colrg );
 }
-
-
-void Horizon3DGeometry::setDisplayRange( const HorSampling& hs )
-{ selection_ = hs; }
 
 
 Table::FormatDesc* Horizon3DAscIO::getDesc() 
