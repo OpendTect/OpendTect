@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifont.cc,v 1.28 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uifont.cc,v 1.29 2009-09-23 11:17:31 cvsbert Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"
@@ -163,7 +163,8 @@ uiFontList::~uiFontList()
 
 uiFontList& uiFontList::getInst()
 {
-    static PtrMan<uiFontList> fl = new uiFontList;
+    static uiFontList* fl = 0;
+    if ( !fl ) fl = new uiFontList;
     return *fl;
 }
 
