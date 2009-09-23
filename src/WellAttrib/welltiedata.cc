@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.17 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.18 2009-09-23 13:27:47 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -130,7 +130,8 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
 	, setup_(s)
 	, factors_(s.unitfactors_) 	   
 {
-    wvltset_ += Wavelet::get( IOM().get(s.wvltid_) ); 
+    for ( int idx =0; idx<2; idx++ )
+	wvltset_ += Wavelet::get( IOM().get(s.wvltid_) ); 
     uipms_   = &params_->uipms_;
     dpms_    = &params_->dpms_;
     pickmgr_ = new WellTie::PickSetMGR( wd_ );

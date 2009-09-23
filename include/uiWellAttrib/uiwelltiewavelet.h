@@ -64,22 +64,27 @@ class uiWavelet : public uiGroup
 {
 
 public: 
-    				uiWavelet(uiParent*,Wavelet*);
+    				uiWavelet(uiParent*,Wavelet*,bool);
 				~uiWavelet();
+    
+    Notifier<uiWavelet> 	wvltChged;
+    void			setAsActive(bool);
 
 protected:				    
 
+    bool			isactive_;
+  
     Wavelet*			wvlt_; 	
     ObjectSet<uiToolButton>     wvltbuts_;
     uiFlatViewer*               viewer_;
     uiWaveletDispPropDlg*  	wvltpropdlg_;
-    uiParent*			par_;
 
     void			initWaveletViewer();
     void			drawWavelet();
 
-    void			rotatePhase(CallBacker*);
     void 			dispProperties(CallBacker*);
+    void			rotatePhase(CallBacker*);
+    void 			wvltChanged(CallBacker*);
 };				
 
 

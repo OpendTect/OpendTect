@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.30 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.31 2009-09-23 13:27:47 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -206,8 +206,8 @@ bool DataPlayer::convolveWavelet()
 bool DataPlayer::estimateWavelet()
 {
     const int datasz = params_.corrsize_; 
-    //copy initial wavelet
-    Wavelet* wvlt = new Wavelet( *wvltset_[0] );
+
+    Wavelet* wvlt = wvltset_[1];
     if ( !wvlt ) return false;
 
     wvlt->setName( "Estimated Wavelet" );
@@ -232,9 +232,7 @@ bool DataPlayer::estimateWavelet()
     ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
     window.apply( &wvltvals );
     memcpy( wvlt->samples(), wvltvals.getData(), wvltsz*sizeof(float) );
-
-    if ( wvltset_.size()>1 ) delete wvltset_.remove(1);  
-    wvltset_ += wvlt;
+  
     return true;
 }
 

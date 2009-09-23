@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.29 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.30 2009-09-23 13:27:47 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -48,7 +48,10 @@ uiWaveletView::uiWaveletView( uiParent* p, WellTie::DataHolder* dh )
 
 uiWaveletView::~uiWaveletView()
 {
-    deepErase( uiwvlts_  );
+    for ( int idx=0; idx<uiwvlts_.size(); idx++ )
+	uiwvlts_[idx]->wvltChged.remove( 
+				mCB(this,uiWaveletView,activeWvltChanged) );
+    deepErase( uiwvlts_ );
 }
 
 
@@ -67,29 +70,34 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
 void uiWaveletView::initWavelets( )
 {
     deepErase( uiwvlts_ );
-    IOObj* ioobj = IOM().get( MultiID( dataholder_->setup().wvltid_ ) );
     for ( int idx=0; idx<dataholder_->wvltset().size(); idx++ )
     {
-	uiwvlts_ += new uiWavelet( this, dataholder_->wvltset()[idx] );
+	uiwvlts_ += new uiWavelet( this, dataholder_->wvltset()[idx], idx==0 );
 	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
 	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
+	uiwvlts_[idx]->wvltChged.notify( 
+				mCB(this,uiWaveletView,activeWvltChanged) );
     }
 }
 
 
 void uiWaveletView::activeWvltChanged( CallBacker* )
 {
+    const bool isinitactive = activewvltfld_->getBoolValue();
     dataholder_->dpms()->isinitwvltactive_ = activewvltfld_->getBoolValue();
+    uiwvlts_[0]->setAsActive( isinitactive );
+    uiwvlts_[1]->setAsActive( !isinitactive );
     activeWvltChged.trigger();
 }
 
 
 
-uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt )
+uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     : uiGroup(p)
-    , par_(p)  
+    , isactive_(isactive)  
     , wvlt_(wvlt)
     , wvltpropdlg_(new uiWaveletDispPropDlg(this,wvlt))		 
+    , wvltChged(this)							 
 {
     viewer_ = new uiFlatViewer( this );
     uiLabel* wvltlbl = new uiLabel( this, wvlt->name() );
@@ -143,23 +151,32 @@ void uiWavelet::rotatePhase( CallBacker* cb )
 {
     Wavelet* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltRotDlg dlg( this, wvlt_ );
-    dlg.phaserotating.notify( mCB(this,WellTie::uiWavelet,drawWavelet) );
-    dlg.phaserotating.notify( mCB(
-			par_,WellTie::uiWaveletView,activeWvltChanged) );
+    dlg.phaserotating.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {
-	delete wvlt_;
-	wvlt_ = orgwvlt;
+	memcpy(wvlt_->samples(),orgwvlt->samples(),wvlt_->size()*sizeof(float));
+	wvltChanged(0);
     }
-    dlg.phaserotating.remove( 
-	    		mCB(par_,WellTie::uiWaveletView,activeWvltChanged) );
-    dlg.phaserotating.remove( mCB(this,uiWavelet,drawWavelet) );
+    dlg.phaserotating.remove( mCB(this,uiWavelet,wvltChanged) );
+}
+
+
+void uiWavelet::wvltChanged( CallBacker* )
+{
+    drawWavelet();
+    if ( isactive_ ) wvltChged.trigger();
 }
 
 
 void uiWavelet::dispProperties( CallBacker* )
 {
     wvltpropdlg_ ->go();
+}
+
+
+void uiWavelet::setAsActive( bool isactive )
+{
+    isactive_ = isactive;
 }
 
 
