@@ -4,13 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.9 2009-08-07 12:34:55 cvsnageswara Exp $
+ RCS:		$Id: uiwaveletextraction.h,v 1.10 2009-09-23 05:56:05 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include <complex>
 
 class uiGenInput;
 class uiIOObjSel;
@@ -23,7 +22,7 @@ class CtxtIOObj;
 class IOPar;
 class MultiID;
 namespace Seis { class SelData; class TableSelData; }
-template <class T> class Array1DImpl;
+
 
 mClass uiWaveletExtraction : public uiDialog
 {
@@ -50,6 +49,7 @@ protected:
     uiGenInput*			zextraction_;
     uiGenInput*			wtlengthfld_;
     uiGenInput*			wvltphasefld_;
+    uiGenInput*			taperfld_;
     uiIOObjSel*			outputwvltfld_;
     uiSeisSel*			seisselfld_;
     uiSelZRange*		zrangefld_;

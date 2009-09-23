@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.10 2009-08-28 09:01:45 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.11 2009-09-23 05:56:05 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -68,13 +68,13 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p )
 					       ,inputSel) );
 
     subselfld_ = new uiSeis3DSubSel( this, Seis::SelSetup( false,false)
-	    				   .onlyrange(false)
+	    				   .onlyrange(true)
 					   .withstep(true)
 	   				   .withoutz(true) );
     subselfld_->attach( alignedBelow, seisselfld_ );
 
     zextraction_ = new uiGenInput( this, "Vertical Extraction",
-	    			   BoolInpSpec(true,"Z range","Horizons") );
+	    			   BoolInpSpec(false,"Z range","Horizons") );
     zextraction_->valuechanged.notify(
 				mCB(this,uiWaveletExtraction,choiceSel) );
     zextraction_->attach( alignedBelow, subselfld_ );
@@ -88,17 +88,23 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p )
 	   		 uiPosProvGroup::Setup(false,false,true) );
     surfacesel_->attach( alignedBelow, zextraction_ );
 
-    wvltphasefld_ = new uiGenInput( this, "Phase (Degrees)", IntInpSpec(0) );
-    wvltphasefld_->attach( alignedBelow, surfacesel_ );
-
     BufferString lbl = "Wavelet Length ";
     lbl += SI().getZUnitString();
     wtlengthfld_ = new uiGenInput( this, lbl, IntInpSpec(120) );
-    wtlengthfld_->attach( alignedBelow, wvltphasefld_ );
+    wtlengthfld_->attach( alignedBelow, surfacesel_ );
+
+    BufferString taperlbl = "Taper length ";
+    taperlbl += SI().getZUnitString();
+    taperfld_ = new uiGenInput( this, taperlbl, IntInpSpec(5) );
+    taperfld_->attach( alignedBelow, wtlengthfld_ );
+
+    wvltphasefld_ = new uiGenInput( this, "Phase (Degrees)", IntInpSpec(0) );
+    wvltphasefld_->attach( alignedBelow, taperfld_ );
 
     wvltctio_.ctxt.forread = false;
     outputwvltfld_ = new uiIOObjSel( this, wvltctio_, "Output wavelet" );
-    outputwvltfld_->attach( alignedBelow, wtlengthfld_ );
+    outputwvltfld_->attach( alignedBelow, wvltphasefld_ );
+
 
     finaliseDone.notify( mCB(this,uiWaveletExtraction,choiceSel) );
 }     
@@ -151,7 +157,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	int range = 1 + mNINT( (zrg.stop - zrg.start) / SI().zStep() );
 	if ( range < wvltsize_ )
 	{
-	    uiMSG().message( "Time window size should be more",
+	    uiMSG().message( "Selection window size should be more",
 		   	     " than Wavelet Size" );
 	    return false;
 	}
@@ -168,9 +174,9 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( wvltphasefld_->getfValue()<0 || wvltphasefld_->getfValue() >360 )
+    if ( wvltphasefld_->getfValue()<-180 || wvltphasefld_->getfValue() >180 )
     {
-	uiMSG().error( "Please enter Phase between 0-360" );
+	uiMSG().error( "Please enter Phase between -180 and 180" );
 	wvltphasefld_->setValue( 0 );
 	return false;
     }
@@ -187,11 +193,13 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 				     const IOPar& surfacepar )
 {
     int phase = mNINT(wvltphasefld_->getfValue());
+    int taperlength = mNINT(taperfld_->getfValue());
 
     if ( !readInputData( rangepar, surfacepar ) || !sd_ )
 	return false;
 
-    WaveletExtract extract( seisctio_.ioobj, sd_, wvltsize_ );
+    WaveletExtractor extract( *seisctio_.ioobj, *sd_, wvltsize_ );
+    extract.setParamVal( taperlength );
     extract.setOutputPhase( phase );
 
     uiTaskRunner taskrunner( this );
@@ -229,10 +237,11 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 
     if ( !betweenhors )
     {
-	int size = int (1+(extz.stop-extz.start)/SI().zStep());
+	int size = int ( 1+(extz.stop-extz.start)/SI().zStep() );
 	if ( size < wvltsize_ )
 	{
-	    uiMSG().error("Time window size should be more than Wavelet size");
+	    uiMSG().error( "Selection window size should be",
+		           " more than Wavelet size" );
 	    return false;
 	}
     }
@@ -303,7 +312,7 @@ bool uiWaveletExtraction::readInputData( const IOPar& rangepar,
 	if ( !sd_ ) return false;
 
 	StepInterval<float> zrg = zrangefld_->getRange();
-    	sd_->setZRange( zrg );
+	sd_->setZRange( zrg );
     }
 
     else
