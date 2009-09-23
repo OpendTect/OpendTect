@@ -7,18 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.40 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.41 2009-09-23 11:20:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 #include "bufstringset.h"
-class UserIDSet;
+class IOPar;
 class uiLabel;
+class uiCheckBox;
 class uiComboBox;
 class uiPushButton;
-class IOPar;
 
 
 /*! \brief UI element for selection of data objects */
@@ -34,11 +34,13 @@ public:
 			    : seltxt_(seltext)
 			    , withclear_(false)
 			    , buttontxt_("&Select")
+			    , optional_(false)
 			    , keepmytxt_(false)		{}
 
 	mDefSetupMemb(BufferString,seltxt)
 	mDefSetupMemb(BufferString,buttontxt)
 	mDefSetupMemb(bool,withclear)
+	mDefSetupMemb(bool,optional)
 	mDefSetupMemb(bool,keepmytxt)
     };
 
@@ -57,6 +59,7 @@ public:
     int			getCurrentItem() const;
     void		setCurrentItem(int);
     const char*		getItem(int) const;
+    bool		isChecked() const; //!< useful when optional_
 
     void		addSpecialItem(const char* key,const char* value=0);
 			//!< If value is null, add value same as key
@@ -90,9 +93,11 @@ protected:
     bool		keepmytxt_;
 
     uiComboBox*		inp_;
-    uiLabel*		lbl_;
     uiPushButton*	selbut_;
+    uiLabel*		lbl_;
+    uiCheckBox*		optbox_;
 
+    void		optCheck(CallBacker*);
     void		selDone(CallBacker*);
 			//!< Subclass must call it - base class can't
 			//!< determine whether a selection was successful.

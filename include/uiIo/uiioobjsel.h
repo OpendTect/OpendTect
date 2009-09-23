@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.65 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.66 2009-09-23 11:20:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,11 +166,9 @@ public:
 			Setup( const char* seltext=0 )
 			    : uiIOSelect::Setup(seltext)
 			    , confirmoverwr_(true)
-			    , mandatory_(true)
 			    , filldef_(true)		{}
 
 	mDefSetupMemb(bool,confirmoverwr)
-	mDefSetupMemb(bool,mandatory)
 	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
     };
 
@@ -234,7 +232,7 @@ You *have* to do commitInput() to get any selection! Other functions like
 processInput() are special stuff for special situations.
 
 You have to check commitInput() and issue and error message if necessary. In
-the new style, this is done if the setup.mandatory_ flag is true (this is the
+the new style, this is done if the setup.optional_ flag is false (this is the
 default).
 */
 

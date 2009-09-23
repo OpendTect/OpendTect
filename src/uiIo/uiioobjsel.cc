@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.141 2009-08-21 09:18:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.142 2009-09-23 11:20:05 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -554,7 +554,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const char* txt )
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
 			const uiIOObjSel::Setup& su )
-    : uiIOSelect(p,uiIOSelect::Setup(su.seltxt_),mCB(this,uiIOObjSel,doObjSel))
+    : uiIOSelect(p,su,mCB(this,uiIOObjSel,doObjSel))
     , inctio_(*new CtxtIOObj(c))
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
@@ -579,7 +579,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
-    : uiIOSelect(p,uiIOSelect::Setup(su.seltxt_),mCB(this,uiIOObjSel,doObjSel))
+    : uiIOSelect(p,su,mCB(this,uiIOObjSel,doObjSel))
     , inctio_(c)
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
@@ -699,7 +699,7 @@ bool uiIOObjSel::existingUsrName( const char* nm ) const
 #define mDoCommit() \
     bool alreadyerr = false; \
     const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr); \
-    if ( setup_.mandatory_ && !noerr && !inctio_.ioobj && !alreadyerr ) \
+    if ( !setup_.optional_ && !noerr && !inctio_.ioobj && !alreadyerr ) \
     { \
 	BufferString txt( inctio_.ctxt.forread \
 				    ? "Please select the " \
