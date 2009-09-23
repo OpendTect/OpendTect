@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.10 2009-09-23 13:44:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.11 2009-09-23 14:02:26 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -240,7 +240,7 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
     float minhght=0; float maxhght=0;
     for ( int wvltidx=0; wvltidx<wvltset_.size(); wvltidx++ )
     {
-	Wavelet* wvlt = wvltset_[wvltidx];
+	Wavelet* wvlt = new Wavelet( *wvltset_[wvltidx] );
 	if ( isnormalized ) wvlt->normalize();
 	const int wvltsz = wvlt->size();
 	const float minval = wvlt->getExtrValue(false);
@@ -248,6 +248,7 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
 	if ( wvltsz > maxwvltsize_ ) maxwvltsize_ = wvltsz;
 	if ( minval < minhght ) minhght = minval;
 	if ( maxval > maxhght ) maxhght = maxval;
+	delete wvlt;
     }
     const float stopx = SI().zStep()*maxwvltsize_*5; 
     const float startx = -stopx;
