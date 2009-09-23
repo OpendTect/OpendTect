@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.18 2009-09-03 15:25:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.19 2009-09-23 18:27:06 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -212,8 +212,10 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	for ( int icol=colrg.start; icol<=colrg.stop; icol++ )
 	{
 	    pt.y = icol;
-	    int irow = prevstart;
-	    pt.x = irow;
+	    int irow = pt.x = prevstart;
+	    if ( icol!=colrg.start && !poly.isInside( pt, true, 0 ) )
+		irow = pt.x = rowrg.start;
+
 	    bool hadaninside = false;
 	    bool isinside;
 	    while ( true )
