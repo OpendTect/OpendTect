@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirandlinegen.cc,v 1.17 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.18 2009-09-23 11:44:38 cvsbert Exp $";
 
 #include "uirandlinegen.h"
 
@@ -49,7 +49,8 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     polyctio_.ctxt.allowcnstrsabsent = false;
 
     infld_ = new uiIOObjSel( this, horctio_, "Input Horizon" );
-    polyfld_ = new uiIOObjSel( this, polyctio_, "Within polygon (optional)" );
+    uiIOObjSel::Setup osu( "Within polygon" ); osu.optional( true );
+    polyfld_ = new uiIOObjSel( this, polyctio_, osu );
     polyfld_->attach( alignedBelow, infld_ );
 
     StepInterval<float> sizrg( SI().zRange(true) );
@@ -142,12 +143,15 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 	mErrRet(outfld_->isEmpty() ?
 		"Please select the output random line set" : 0)
 
-    polyfld_->commitInput();
     PtrMan< ODPolygon<float> > poly = 0;
-    if ( polyctio_.ioobj )
+    if ( polyfld_->isChecked() )
     {
+	polyfld_->commitInput();
 	BufferString msg;
-	poly = PickSetTranslator::getPolygon( *polyctio_.ioobj, msg );
+	if ( polyctio_.ioobj )
+	    poly = PickSetTranslator::getPolygon( *polyctio_.ioobj, msg );
+	else
+	    msg = "Please select the polygon, or uncheck";
 	if ( !poly )
 	   mErrRet(msg)
     }
