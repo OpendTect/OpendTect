@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.5 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.6 2009-09-23 20:31:02 cvskris Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -13,8 +13,6 @@ static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.5 2009-07-22 16:01:39
 #include <Inventor/lists/SbStringList.h>
 #include <Inventor/nodes/SoSeparator.h>
 
-#include "filegen.h"
-#include "uifiledlg.h"
 
 #ifdef __msvc__
 # include "winmain.h"
@@ -22,6 +20,8 @@ static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.5 2009-07-22 16:01:39
 
 #ifdef USESOODCLASSES
 #include "initsood.h"
+#include "filegen.h"
+#include "uifiledlg.h"
 #endif
 
 int main( int narg, char** argv )
@@ -34,11 +34,13 @@ int main( int narg, char** argv )
 
     if ( myWindow==NULL ) return 1;
 
-    BufferString filename;
+    const char* filename = 0;
     if ( narg==2 )
 	filename = argv[1];
+#ifdef USESOODCLASSES
+    BufferString filebuf = filename;
 
-    while ( filename.isEmpty() || !File_exists( filename.buf() ) )
+    while ( filebuf.isEmpty() || !File_exists( filebuf.buf() ) )
     {
 	uiFileDialog dlg( 0, uiFileDialog::ExistingFile, 0,
 			  "IV files (*.iv)", "Select file to view" );
@@ -46,17 +48,24 @@ int main( int narg, char** argv )
 	if ( !dlg.go() )
 	    return 1;
 
-	filename = dlg.fileName();
+	filename = filebuf = dlg.fileName();
+    }
+#endif
+
+    if ( !filename || !*filename )
+    {
+	printf( "No filename given" );
+	exit( 1 );
     }
 
     SoInput mySceneInput;
     //SoInput::addDirectoryFirst( "." ); // Add additional directories.
     SbStringList dirlist = SoInput::getDirectories();
     for ( int idx=0; idx<dirlist.getLength(); idx++ )
-	printf( "Looking for \"%s\" in %s\n", filename.buf(),
+	printf( "Looking for \"%s\" in %s\n", filename,
 		dirlist[idx]->getString() );
 
-    if ( !mySceneInput.openFile(filename.buf()) )
+    if ( !mySceneInput.openFile(filename) )
 	return 1;
 
     SoSeparator* myGraph = SoDB::readAll( &mySceneInput );
@@ -64,7 +73,7 @@ int main( int narg, char** argv )
     mySceneInput.closeFile();
 
     SoQtExaminerViewer* myViewer = new SoQtExaminerViewer( myWindow );
-    myViewer->setTitle( filename.buf() );
+    myViewer->setTitle( filename );
     myViewer->setTransparencyType( SoGLRenderAction::SORTED_OBJECT_BLEND );
 
     myViewer->setSceneGraph( myGraph );
