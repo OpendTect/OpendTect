@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.57 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.58 2009-09-23 11:18:41 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -32,23 +32,37 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	, selectiondone(this)
 	, specialitems(*new IOPar)
     	, keepmytxt_(su.keepmytxt_)
+    	, lbl_(0)
+    	, optbox_(0)
 {
     if ( su.withclear_ ) addSpecialItem( "" );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, su.seltxt_,
-	    						  su.seltxt_ );
-    inp_ = lcb->box(); lbl_ = lcb->label();
-    inp_->setReadOnly( false );
-    inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
-    lbl_->setAlignment( Alignment::Right );
+    uiObject* alobj = 0;
+#define mComboName BufferString("Select ",su.seltxt_.buf())
+    if ( su.optional_ )
+    {
+	alobj = inp_ = new uiComboBox( this, mComboName );
+	optbox_ = new uiCheckBox( this, su.seltxt_ );
+	optbox_->activated.notify( mCB(this,uiIOSelect,optCheck) );
+	optbox_->attach( leftOf, inp_ );
+    }
+    else
+    {
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, su.seltxt_,
+							mComboName );
+	inp_ = lcb->box(); lbl_ = lcb->label(); alobj = lcb->attachObj();
+	inp_->setReadOnly( false );
+	inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
+	lbl_->setAlignment( Alignment::Right );
+    }
 
     selbut_ = new uiPushButton( this, su.buttontxt_, false );
     selbut_->setName( BufferString( su.buttontxt_, " ", su.seltxt_ ) );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
-    selbut_->attach( rightOf, lcb );
+    selbut_->attach( rightOf, alobj );
 
-    setHAlignObj( lcb );
-    setHCentreObj( lcb );
+    setHAlignObj( alobj );
+    setHCentreObj( alobj );
     mainObject()->finaliseStart.notify( mCB(this,uiIOSelect,doFinalise) );
 }
 
@@ -66,9 +80,10 @@ void uiIOSelect::stretchHor( bool yn )
 }
 
 
-void uiIOSelect::doFinalise( CallBacker* )
+void uiIOSelect::doFinalise( CallBacker* cb )
 {
     updateFromEntries();
+    optCheck( cb );
 }
 
 
@@ -284,6 +299,23 @@ const char* uiIOSelect::getItem( int idx ) const
 }
 
 
+bool uiIOSelect::isChecked() const
+{
+    return !optbox_ || optbox_->isChecked();
+}
+
+
+void uiIOSelect::optCheck( CallBacker* )
+{
+    if ( optbox_ )
+    {
+	const bool isch = isChecked();
+	inp_->setSensitive( isch );
+	selbut_->setSensitive( isch );
+    }
+}
+
+
 void uiIOSelect::doSel( CallBacker* )
 {
     processInput();
@@ -323,14 +355,19 @@ void uiIOSelect::setReadOnly( bool yn )
 
 const char* uiIOSelect::labelText() const
 {
-    return lbl_->text();
+    return lbl_ ? lbl_->text() : optbox_->text();
 }
 
 
 void uiIOSelect::setLabelText( const char* s )
 {
-    lbl_->setPrefWidthInChar( strlen(s)+1 );
-    return lbl_->setText( s );
+    if ( lbl_ )
+    {
+	lbl_->setPrefWidthInChar( strlen(s)+1 );
+	return lbl_->setText( s );
+    }
+    else
+	optbox_->setText( s );
 }
 
 

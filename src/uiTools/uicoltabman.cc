@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.40 2009-09-21 09:50:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.41 2009-09-23 11:18:41 cvsbert Exp $";
 
 #include "uicoltabman.h"
 
@@ -140,7 +140,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     removebut_->activated.notify( mCB(this,uiColorTableMan,removeCB) );
     removebut_->attach( alignedBelow, splitter );
 
-    importbut_ = new uiPushButton( this, "&Import", false );
+    importbut_ = new uiPushButton( this, "&From other user", false );
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );
     importbut_->attach( centeredRightOf, removebut_ ); 
     
