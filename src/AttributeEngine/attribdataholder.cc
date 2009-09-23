@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.14 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.15 2009-09-23 14:52:08 cvshelene Exp $";
 
 #include "attribdataholder.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: attribdataholder.cc,v 1.14 2009-07-22 16:01:29 
 #include "interpol1d.h"
 #include "seisinfo.h"
 #include "simpnumer.h"
+#include "survinfo.h"
 
 namespace Attrib
 {
@@ -139,12 +140,14 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
 {
     //Workaround to avoid conversion problems, 1e7 to get 1e6 precision
-    const int extrazem7 = (int)(exactz*1e7)%(int)(refzstep*1e7);
-    const int extrazem7noprec = (int)(refzstep*1e7) - 5;
-    const int leftem3 = (int)(exactz*1e7) - extrazem7;
-    const int extrazem3 = (int)(leftem3*1e-3)%(int)(refzstep*1e3);
+    //in case the survey is in depth z*1e7 might exceed maximum int: we use 1e4
+    const int fact = SI().zIsTime() ? 1e7 : 1e4;
+    const int extrazem7 = (int)(exactz*fact)%(int)(refzstep*fact);
+    const int extrazem7noprec = (int)(refzstep*fact) - 5;
+    const int leftem3 = (int)(exactz*fact) - extrazem7;
+    const int extrazem3 = (int)(leftem3*1e-3)%(int)(refzstep*SI().zFactor());
     if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
-	return extrazem3*1e-3 + extrazem7*1e-7;
+	return extrazem3*1e-3 + extrazem7 * (SI().zIsTime() ? 1e-7 : 1e-4);
 
     return 0;
 }
