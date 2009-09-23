@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.28 2009-09-18 15:06:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.29 2009-09-23 11:50:08 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.28 2009-09-18 15:06:25 
 #include "survinfo.h"
 #include "wavelet.h"
 #include "welltiedata.h"
+#include "welltiesetup.h"
 #include "welltiegeocalculator.h"
 
 #include "uiaxishandler.h"
@@ -39,7 +40,7 @@ uiWaveletView::uiWaveletView( uiParent* p, WellTie::DataHolder* dh )
 	: uiGroup(p)
 	, dataholder_(dh)  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
-	, activewvltChged(this)		
+	, activeWvltChged(this)		
 {
     createWaveletFields( this );
 } 
@@ -67,34 +68,37 @@ void uiWaveletView::initWavelets( )
 {
     deepErase( uiwvlts_ );
     IOObj* ioobj = IOM().get( MultiID( dataholder_->setup().wvltid_ ) );
-    uiwvlts_ += new uiWavelet( this, Wavelet::get( ioobj) );
-    uiwvlts_ += new uiWavelet( this, dataholder_->getEstimatedWvlt() );
-    uiwvlts_[0]->attach( ensureBelow, activewvltfld_ );
-    uiwvlts_[1]->attach( rightOf, uiwvlts_[0] );
+    for ( int idx=0; idx<dataholder_->wvltset().size(); idx++ )
+    {
+	uiwvlts_ += new uiWavelet( this, dataholder_->wvltset()[idx] );
+	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
+	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
+    }
 }
 
 
 void uiWaveletView::activeWvltChanged( CallBacker* )
 {
     dataholder_->dpms()->isinitwvltactive_ = activewvltfld_->getBoolValue();
-    activewvltChged.trigger();
+    activeWvltChged.trigger();
 }
 
 
 
 uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt )
     : uiGroup(p)
+    , par_(p)  
     , wvlt_(wvlt)
+    , wvltpropdlg_(new uiWaveletDispPropDlg(this,wvlt))		 
 {
     viewer_ = new uiFlatViewer( this );
     uiLabel* wvltlbl = new uiLabel( this, wvlt->name() );
     wvltlbl->attach( alignedAbove, viewer_);
     
     wvltbuts_ += new uiToolButton( this, "Properties", "info.png",
-	    mCB(this,uiWavelet,rotatePhase) );
+	    mCB(this,uiWavelet,dispProperties) );
     wvltbuts_[0]->setToolTip( "Properties" );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
-
 
     wvltbuts_ += new uiToolButton( this, "Rotate", "phase.png",
 	    mCB(this,uiWavelet,rotatePhase) );
@@ -111,6 +115,7 @@ uiWavelet::~uiWavelet()
     const TypeSet<DataPack::ID> ids = viewer_->availablePacks();
     for ( int idx=ids.size()-1; idx>=0; idx-- )
 	DPM( DataPackMgr::FlatID() ).release( ids[idx] );
+    delete wvltpropdlg_;
 }
 
 
@@ -136,9 +141,25 @@ void uiWavelet::initWaveletViewer()
 
 void uiWavelet::rotatePhase( CallBacker* cb )
 {
+    Wavelet* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltRotDlg dlg( this, wvlt_ );
-    //dlg.phaserotating.notify( mCB(this,WellTie::uiWavelet,drawWavelet) );
-    //dlg.phaserotating.remove( mCB(this,WellTie::uiWaveletView,updateViewer) );
+    dlg.phaserotating.notify( mCB(this,WellTie::uiWavelet,drawWavelet) );
+    dlg.phaserotating.notify( mCB(
+			par_,WellTie::uiWaveletView,activeWvltChanged) );
+    if ( !dlg.go() )
+    {
+	delete wvlt_;
+	wvlt_ = orgwvlt;
+    }
+    dlg.phaserotating.remove( 
+	    		mCB(par_,WellTie::uiWaveletView,activeWvltChanged) );
+    dlg.phaserotating.remove( mCB(this,uiWavelet,drawWavelet) );
+}
+
+
+void uiWavelet::dispProperties( CallBacker* )
+{
+    wvltpropdlg_ ->go();
 }
 
 

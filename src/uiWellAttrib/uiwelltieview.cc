@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.43 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.44 2009-09-23 11:50:08 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -48,8 +48,7 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr,
 	, dataholder_(dh)  
 	, params_(dh.dpms())     	
 	, wtsetup_(dh.setup())	
-    	, data_(*dh.dispData())
-	, datamgr_(*dh.datamgr())
+    	, data_(*dh.logsset())
 	, synthpickset_(dh.pickmgr()->getSynthPickSet())
 	, seispickset_(dh.pickmgr()->getSeisPickSet())
 	, trcbuf_(0)
@@ -76,15 +75,20 @@ void uiTieView::fullRedraw()
     drawDenLog();
     drawAILog();
     drawRefLog();
-    drawTraces();
     drawWellMarkers();
-    drawUserPicks();
     drawCShot();
-    for ( int idx =0; idx<logsdisp_.size(); idx++ )
+    for ( int idx =0; idx<logsdisp_.isEmpty(); idx++ )
 	logsdisp_[idx]->dataChanged();
-    vwr_->handleChange( FlatView::Viewer::Annot );    
+    redrawViewer();
 }
 
+
+void uiTieView::redrawViewer()
+{
+    drawTraces();
+    drawUserPicks();
+    vwr_->handleChange( FlatView::Viewer::Annot );    
+}
 
 
 void uiTieView::initLogViewers()
@@ -144,7 +148,7 @@ void uiTieView::setLogsParams()
 void uiTieView::drawVelLog()
 {
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[0]->logData( true );
-    wldld1.wl_ = wd_.logs().getLog( params_->dispcurrvellognm_ );
+    wldld1.wl_ = data_.getLog( params_->dispcurrvellognm_ );
     wldld1.xrev_ = !wtsetup_.issonic_;
     wldld1.linestyle_.color_ = Color::stdDrawColor(0);
 }
@@ -153,7 +157,7 @@ void uiTieView::drawVelLog()
 void uiTieView::drawDenLog()
 {
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[0]->logData( false );
-    wldld2.wl_ = wd_.logs().getLog( params_->denlognm_ );
+    wldld2.wl_ = data_.getLog( params_->denlognm_ );
     wldld2.linestyle_.color_ = Color::stdDrawColor(1);
 }
 
@@ -161,8 +165,7 @@ void uiTieView::drawDenLog()
 void uiTieView::drawAILog()
 {
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[1]->logData( true );
-    wldld1.wl_ = wd_.logs().getLog( params_->ainm_ );
-    //wldld2.xrev_ = true;
+    wldld1.wl_ = data_.getLog( params_->ainm_ );
     wldld1.linestyle_.color_ = Color::stdDrawColor(0);
 }
 
@@ -170,7 +173,7 @@ void uiTieView::drawAILog()
 void uiTieView::drawRefLog()
 {
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[1]->logData( false );
-    wldld2.wl_ = wd_.logs().getLog( params_->refnm_ );
+    wldld2.wl_ = data_.getLog( params_->refnm_ );
     wldld2.linestyle_.color_ = Color::stdDrawColor(1);
 }
 
@@ -190,7 +193,7 @@ void uiTieView::drawTraces()
 void uiTieView::setUpTrcBuf( SeisTrcBuf* trcbuf, const char* varname, 
 				  int nrtraces )
 {
-    const int varsz = data_.getLength();
+    const int varsz = params_->dispsize_;
     SeisTrc valtrc;
     SeisTrc udftrc;
 
@@ -448,9 +451,8 @@ void uiTieView::drawCShot()
 
 uiCorrView::uiCorrView( uiParent* p, const WellTie::DataHolder& dh)
 	: uiGroup(p)
-    	, params_(*dh.dpms())  
-	, welltiedata_(dh.data())			
-	, corrdata_(*dh.corrData())
+    	, dataholder_(dh)  
+	, data_(*dh.logsset())
 {
     uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
 
@@ -474,30 +476,28 @@ uiCorrView::~uiCorrView()
 
 void uiCorrView::setCrossCorrelation()
 {
-    const int datasz = corrdata_.get(params_.crosscorrnm_)->info().getSize(0);
+    const WellTie::Params::DataParams& params = *dataholder_.dpms(); 
+    const int datasz = data_.getLog(params.crosscorrnm_)->size();
     
-    const float corrcoeff = welltiedata_.corrcoeff_; 
-    float normalfactor = corrcoeff/corrdata_.get(params_.crosscorrnm_,datasz/2);
+    const float normalfactor = dataholder_.corrcoeff()
+			     / data_.get(params.crosscorrnm_,datasz/2);
     TypeSet<float> xvals,corrvals;
     for ( int idx=-datasz/2; idx<datasz/2; idx++)
     {
-	float xaxistime = idx*params_.timeintv_.step*params_.step_*1000;
+	float xaxistime = idx*params.timeintv_.step*params.step_*1000;
 	if ( fabs( xaxistime ) > 200  )
 	    continue;
 	xvals += xaxistime;
-	float val = corrdata_.get(params_.crosscorrnm_, idx+datasz/2);
+	float val = data_.get(params.crosscorrnm_, idx+datasz/2);
 	val *= normalfactor;
-	if ( fabs(val)>1 )
-	    corrvals += 0;
-	else
-	    corrvals += val;
+	corrvals += fabs(val)>1 ? 0 : val;
     }
 
     for (int idx=0; idx<corrdisps_.size(); idx++)
 	corrdisps_[idx]->setVals( xvals.arr(), corrvals.arr(), xvals.size() );
     
     BufferString corrbuf = "Cross-Correlation Coefficient: ";
-    corrbuf += corrcoeff;
+    corrbuf += dataholder_.corrcoeff();
     corrlbl_->setPrefWidthInChar(50);
     corrlbl_->setText( corrbuf );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.27 2009-09-08 07:12:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.28 2009-09-23 11:50:08 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -150,7 +150,7 @@ bool Params::DataParams::resetDataParams()
 
     worksize_ = getArraySize( timeintv_ );
     corrsize_ = getArraySize( corrtimeintv_ );
-    dispsize_ = (int) ( worksize_/step_ )-1;
+    dispsize_ = (int) ( worksize_/step_ );
 
     if ( corrsize_>dispsize_ ) corrsize_ = dispsize_;
     if ( worksize_ > mMaxWorkSize || worksize_ < mMinWorkSize ) return false;
@@ -190,15 +190,9 @@ int Params::DataParams::getArraySize( StepInterval<double>& timeintv ) const
 
 void Params::DataParams::createColNames()
 {
-    BufferString add2name = "'"; 
-    colnms_.add( dptnm_ = "Depth" );	
-    colnms_.add( timenm_ = "Time" );
     colnms_.add( corrvellognm_ = wts_.corrvellognm_ );
-    corrvellognm_ += add2name;
     colnms_.add( vellognm_ = wts_.vellognm_ );
-    vellognm_ += add2name;
     colnms_.add( denlognm_ = wts_.denlognm_ );
-    denlognm_ += add2name;		
     colnms_.add( ainm_ = "Computed AI" );     
     colnms_.add( refnm_ ="Computed Reflectivity" );
     colnms_.add( synthnm_ = "Synthetics" );

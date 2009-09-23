@@ -24,7 +24,7 @@ namespace Well{ class Data; }
 namespace WellTie
 {
     class UserPick;
-    class DataSet;
+    class LogSet;
 
 mClass UserPick
 {
@@ -120,7 +120,7 @@ public:
     bool 	   	isPick();
     bool 	   	isSameSize();
     float 	   	findEvent(float,bool);
-    void 	   	setData(const WellTie::DataSet*);
+    void 	   	setData(const WellTie::LogSet*);
     void 	   	setDataParams(const WellTie::Params::DataParams*);
     void 	   	setEventType(int);
     void 	   	sortByPos(WellTie::PickSet&);
@@ -129,7 +129,7 @@ public:
 
 protected:
 
-    const WellTie::DataSet* dispdata_;
+    const WellTie::LogSet* logsset_;
     const WellTie::Params::DataParams* datapms_;
 
     WellTie::PickSet 	synthpickset_;

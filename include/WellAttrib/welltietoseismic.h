@@ -26,38 +26,28 @@ class TaskRunner;
 class Wavelet;
 
 namespace Attrib { class DescSet; }
-namespace Well 
-{
-    class Data;
-    class D2TModel;
-};
 
 namespace WellTie
 {
     class Setup;
     class D2TModelMGR;
-    class Synthetics;
     class Params;
-
+    class LogSet; 
 
 mClass DataPlayer
 {
 public:
 			DataPlayer(WellTie::DataHolder*,
-				     const Attrib::DescSet&, 
-				     TaskRunner*);
+				   const Attrib::DescSet&,TaskRunner*);
 			~DataPlayer();
 
     //TODO put back as private
     bool 		computeAll();
     bool		computeCrossCorrel();
-    bool		computeSynthetics();
+    bool  		convolveWavelet();
     bool		extractSeismics();
     bool		extractWellTrack();
     bool  		estimateWavelet();
-    bool 	      	resampleLogs();
-    void 	      	setWorkData();
-    void 	      	createDispLogs();
    
     //D2TModelmanager operations
     void 		computeD2TModel()
@@ -75,27 +65,26 @@ public:
     
 protected:
 
-    TaskRunner*			tr_;      //becomes mine  
+    TaskRunner*		tr_;      //becomes mine  
 
-    DataPointSet* 		dps_;
-    const Attrib::DescSet& 	ads_;
-    Well::Data& 		wd_;
-    WellTie::Data& 		wtdata_;     
-    WellTie::DataSetMGR& 	datamgr_;     
-    WellTie::DataSet& 		workdata_;
-    WellTie::DataSet& 		dispdata_;
-    WellTie::DataSet& 		corrdata_;
+    DataPointSet* 	dps_;
+    Well::Data& 	wd_;
+    WellTie::LogSet& 	logsset_;
+
+    const Attrib::DescSet& ads_;
     const WellTie::Params::DataParams& params_;	
-    const WellTie::Setup&	wtsetup_;	
+    const WellTie::Setup& wtsetup_;	
 
-    WellTie::D2TModelMGR*	d2tmgr_;
-    WellTie::GeoCalculator*	geocalc_;
-    WellTie::Synthetics*	wtsynth_;
-    
-    void			checkShotCorr();
-    void  			convolveWavelet();
-    void 			reverseWavelet(Wavelet&);
-    bool 	      		resLogExecutor(const char*);
+    WellTie::DataHolder* dataholder_;
+    WellTie::D2TModelMGR* d2tmgr_;
+    WellTie::GeoCalculator* geocalc_;
+    ObjectSet<Wavelet>& wvltset_;
+
+    void		checkShotCorr();
+    bool		computeReflectivity();
+    void 		getDPSZData(const DataPointSet&,Array1DImpl<float>&);
+    bool 	      	resampleLogs();
+    bool 	      	resLogExecutor(const char*);
 };
 
 };//namespace WellTie

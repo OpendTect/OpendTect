@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.11 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.12 2009-09-23 11:50:08 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -58,11 +58,11 @@ int TrackExtractor::nextStep()
 
 
 #define mErrRet(s) { errmsg = s; return; }
-LogResampler::LogResampler( WellTie::DataSet& arr, 
-			    const Well::Log& l, const Well::Data* d,
-			    WellTie::GeoCalculator& geocalc )
+LogResampler::LogResampler( WellTie::Log& tl, const Well::Log& l, 
+			    const Well::Data* d, WellTie::DataHolder& dh )
     	: Executor("Processing log data") 
-	, workdata_(arr)
+	, tielog_(tl)
+	, maxnrdone_(dh.dpms()->worksize_)	     
 	, wd_(*d)	   
 	, nrdone_(0)
 	, curlogsample_(0)	    
@@ -74,10 +74,10 @@ LogResampler::LogResampler( WellTie::DataSet& arr,
 
     BufferString errmsg;
     errmsg += "no valid "; errmsg += l.name();  errmsg += " log selected";
-    if ( !geocalc.isValidLogData( val_ ) ) mErrRet(errmsg);
+    if ( !dh.geoCalc()->isValidLogData( val_ ) ) mErrRet(errmsg);
 
-    geocalc.interpolateLogData( dah_, l.dahStep(true), true );
-    geocalc.interpolateLogData( val_, l.dahStep(true), false );
+    dh.geoCalc()->interpolateLogData( dah_, l.dahStep(true), true );
+    dh.geoCalc()->interpolateLogData( val_, l.dahStep(true), false );
 }
 
 
@@ -100,7 +100,7 @@ int LogResampler::nextStep()
     updateLogIdx( curdah, tmpidx  );
     curlogsample_ = tmpidx;
     
-    if ( curtime > timeintv_.stop ||  nrdone_ >= workdata_.getLength() )
+    if ( curtime >= timeintv_.stop || nrdone_ >= maxnrdone_)
 	return Executor::Finished();
    
     if ( curdah < dah_[0] )
@@ -110,22 +110,12 @@ int LogResampler::nextStep()
     else
     {
 	if ( tmpidx>1 && tmpidx<dah_.size()-2 )
-	{
-    //	Interpolate::PolyReg1DWithUdf<float> pr;
-    //	pr.set( val_[tmpidx], val_[tmpidx], val_[tmpidx+1], val_[tmpidx+1]);
-    //	curval += pr.apply( ( curdah - dah_[tmpidx] )
-    //			  / ( dah_[tmpidx+1] - dah_[tmpidx] ) );
-
-    //3 points avg seems to work better than the polynomial interpolation
+	//3 points avg seems to work better than the polynomial interpolation
 	    curval += ( (val_[tmpidx+1]+val_[tmpidx-1]+val_[tmpidx])*1/3 );
-	}
 	else
 	    curval = val_[curlogsample_];
     }
-
-    workdata_.get(logname_)->setValue( nrdone_, curval );
-    workdata_.get(dptnm_)->setValue( nrdone_, curdah );
-    workdata_.get(timenm_)->setValue( nrdone_, curtime );
+    tielog_.addValue( curdah, curval );
 
     nrdone_++;
     return Executor::MoreToDo();

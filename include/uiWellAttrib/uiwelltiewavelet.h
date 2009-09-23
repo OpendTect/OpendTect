@@ -26,6 +26,7 @@ class uiGenInput;
 class uiToolButton;
 class uiIOObjSel;
 class uiTextEdit;
+class uiWaveletDispPropDlg;
 
 namespace WellTie
 {
@@ -33,7 +34,6 @@ namespace WellTie
 class GeoCalculator;
 class DataHolder;
 class Setup;
-class uiWaveletDispPropDlg;
 class uiWavelet;
 
 mClass uiWaveletView : public uiGroup
@@ -45,7 +45,8 @@ public:
 
     void 			initWavelets();
 
-    Notifier<uiWaveletView> 	activewvltChged;
+    Notifier<uiWaveletView> 	activeWvltChged;
+    void 			activeWvltChanged(CallBacker*);
 
 protected:
 
@@ -56,7 +57,6 @@ protected:
     ObjectSet<WellTie::uiWavelet> uiwvlts_;
 
     void 			createWaveletFields(uiGroup*);	   
-    void 			activeWvltChanged(CallBacker*);
 };
 
 
@@ -72,11 +72,14 @@ protected:
     Wavelet*			wvlt_; 	
     ObjectSet<uiToolButton>     wvltbuts_;
     uiFlatViewer*               viewer_;
+    uiWaveletDispPropDlg*  	wvltpropdlg_;
+    uiParent*			par_;
 
     void			initWaveletViewer();
     void			drawWavelet();
 
     void			rotatePhase(CallBacker*);
+    void 			dispProperties(CallBacker*);
 };				
 
 

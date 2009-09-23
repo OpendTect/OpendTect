@@ -48,6 +48,7 @@ public:
 				~uiTieView();
 
     void        		fullRedraw();
+    void 			redrawViewer();
     void        		drawUserPicks();
     bool        		isEmpty() { return data_.isEmpty(); }
 
@@ -56,8 +57,7 @@ protected:
     uiFlatViewer*		vwr_;
 
     ObjectSet<uiWellLogDisplay>& logsdisp_;
-    WellTie::DataSetMGR&	datamgr_; 		
-    const WellTie::DataSet&  	data_;
+    const WellTie::LogSet&  	data_;
     const WellTie::DataHolder&  dataholder_;
     const Well::Data& 		wd_;		
     const WellTie::Setup& 	wtsetup_;
@@ -112,9 +112,8 @@ public:
 protected:
 
     uiLabel* 			corrlbl_;
-    const WellTie::DataSet& 	corrdata_;
-    const WellTie::Data& 	welltiedata_;
-    const WellTie::Params::DataParams& params_;
+    const WellTie::LogSet& 	data_;
+    const WellTie::DataHolder& 	dataholder_;
     ObjectSet<uiFunctionDisplay>  corrdisps_;
 };
 

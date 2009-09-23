@@ -13,118 +13,64 @@ ________________________________________________________________________
 -*/
 
 #include "namedobj.h"
-#include "wavelet.h"
-#include "bufstringset.h"
-#include "welltiesetup.h"
+#include "arrayndimpl.h"
+#include "welllog.h"
+#include "welllogset.h"
 #include "welltieunitfactors.h"
 
-
-template <class T> class Array1DImpl;
 class DataPointSet;
-namespace Well
-{
-    class Data;
-    class Log;
-}
+class Wavelet;
+namespace Well { class Data; }
 
 namespace WellTie
 {
     class D2TModelMGR;   
-    class DataSet;
     class DataHolder;
     class GeoCalculator;   
-    class PickSetMGR;   
+    class PickSetMGR;  
+    class Setup;
 
-// brief structure containing datasets and data used for TWTS
-mStruct Data
+mClass Log : public Well::Log
 {
-			Data()
-			: nrdataset_(3) 
-			{}
-
-    int 		nrdataset_;
-    float		corrcoeff_;
-    Wavelet		wvltest_;
-    
-    ObjectSet<WellTie::DataSet> datasets_;
-    ObjectSet<Well::Log> logset_;
-};
+public :
+    			Log(const char*);
+			~Log();
 
 
-mClass DataSet
-{
-public:
-			DataSet(){};
-			~DataSet(){};
+    const Array1DImpl<float>* getDah();
+    const Array1DImpl<float>* getVal();
+    void		setDah(const Array1DImpl<float>*);
+    void		setVal(const Array1DImpl<float>*);
 
-			DataSet( const DataSet& ds )
-			    : colnr_(ds.colnr_)
-			    , datasz_(ds.datasz_)
-			    , colnameset_(ds.colnameset_)
-			    {
-				deepCopy(data_,ds.data_);
-			    }
-
-    ObjectSet< Array1DImpl<float> >& getSet()       { return data_; }
-    Array1DImpl<float>* get(int idx)        	    { return data_[idx]; }
-    const Array1DImpl<float>* get(int idx) const  { return data_[idx]; }
-    Array1DImpl<float>* get(const char* colname)
-				    { return data_[getColIdx(colname)]; }
-    const Array1DImpl<float>* get(const char* colname) const
-				    { return data_[getColIdx(colname)]; }
-
-    const bool          isEmpty() const		{ return data_.isEmpty(); }
-    const int           getLength() const           { return datasz_; }
-    void                setLength( int datasz )     { datasz_ = datasz; }
-    void                setColNr( int colnr)        { colnr_ = colnr; }
-    void                setColNames( BufferStringSet nms ) 
-    						    { colnameset_ = nms; }
-    void                clearData();
-    void                createDataArrays();
-    const float 	getExtremVal(const char*, bool) const;
-    void 		setArrayBetweenIdxs(const Array1DImpl<float>&,
-				Array1DImpl<float>&,int,int);
-    const int           getIdx(float time) const;
-    const int           getIdxFromDah(float) const;
-    const float         get(const char*,int) const;
-    const float         get(int,int) const;
-    const int           getColIdx(const char*) const;
-    void         	set(const char*,int,float);
+    void		resample( int step );
 
 protected:
 
-    int                 colnr_;
-    int                 datasz_;
-
-    BufferStringSet     colnameset_;
-    ObjectSet< Array1DImpl<float> > data_;
+    Array1DImpl<float>* arr_;
 };
-
 
 
 /*!\brief Manages the datasets used during TWTS. */
-
-mClass DataSetMGR
+#define mDynCast(nm,act)\
+    mDynamicCastGet(WellTie::Log*,l,gtLog(nm)); if (!l) act;
+mClass LogSet : public Well::LogSet
 {
 public:
-			DataSetMGR(WellTie::DataHolder&);
-			~DataSetMGR();
+			LogSet(WellTie::DataHolder&){};
+			~LogSet();
 
-    void 		resetData();
-    void 		resetData(WellTie::DataSet&,int);
-    void		clearData();
-    void 		setWork2DispData();
-    void                rescaleData(const WellTie::DataSet&,WellTie::DataSet&,
-	    				int,int);
-    void                rescaleData(const WellTie::DataSet&,WellTie::DataSet&,
-	    				int,float,float);
-    void 		getSortedDPSDataAlongZ( const DataPointSet&,
-	   				        Array1DImpl<float>& );
-    
-protected:
-
-    const WellTie::Params::DataParams& params_;
-    ObjectSet<WellTie::DataSet>& datasets_;
+    void 		resetData(const WellTie::Params::DataParams&);
+    const Array1DImpl<float>* getDah(const char* nm) const
+			{ mDynCast(nm,return 0); return l->getDah(); }
+    const Array1DImpl<float>* getVal(const char* nm) const
+			{ mDynCast(nm,return 0); return l->getVal(); }
+    void		setDah(const char* nm,const Array1DImpl<float>* dah)
+			{ mDynCast(nm,return); l->setDah(dah); }
+    void		setVal(const char* nm,const Array1DImpl<float>* val)
+			{ mDynCast(nm,return); l->setVal(val); }
+    float		get(const char* nm,int idx) const
+			{ return (getVal(nm)) ? getVal(nm)->get(idx):0; }
+    float 		getExtremVal(const char*,bool) const;
 };
 
 
@@ -136,41 +82,45 @@ public:
 				  const WellTie::Setup&);
 			~DataHolder();
 
+//WellData			
+    Well::Data* 	  wd()        	   { return wd_; }	
+    const Well::Data* 	  wd()     const   { return wd_; }	
+
+//logs 
+    WellTie::LogSet*  	  logsset() 	{ return logsset_; }
+    const WellTie::LogSet* logsset() const { return logsset_; }
+
+//Wavelet
+    ObjectSet<Wavelet>&		wvltset() { return wvltset_; }
+
+//Params
+    const WellTie::Setup& setup()  const   { return setup_; }
     const WellTie::Params*  	params() const   { return params_; }   
     WellTie::Params::uiParams* 	uipms()    { return &params_->uipms_;  }
     const WellTie::Params::uiParams* uipms() const { return &params_->uipms_;  }
     WellTie::Params::DataParams* dpms()    { return &params_->dpms_; }
     const WellTie::Params::DataParams* dpms() const { return &params_->dpms_; }
-    const WellTie::Setup& setup()  const   { return setup_; }
-    WellTie::Data&	  data()   	   { return *data_; }
-    const WellTie::Data&  data()   const   { return *data_; }
-    Well::Data* 	  wd()        	   { return wd_; }	
-    const Well::Data* 	  wd()     const   { return wd_; }	
+    const WellTie::UnitFactors& getUnits() const   { return factors_; }
+
+//MGRs
     WellTie::D2TModelMGR* d2TMGR()	   { return d2tmgr_; }   
     const WellTie::D2TModelMGR* d2TMGR() const { return d2tmgr_; }   
     WellTie::PickSetMGR*  pickmgr()   	   { return pickmgr_; }
     const WellTie::PickSetMGR* pickmgr() const { return pickmgr_; }
-    WellTie::DataSetMGR*  datamgr()	   { return datamgr_; }
-    const WellTie::DataSetMGR* 	datamgr() const { return datamgr_; }
-    WellTie::DataSet* 	  extrData() 	   { return data_->datasets_[0]; }
-    const WellTie::DataSet* extrData() const { return data_->datasets_[0]; }
-    WellTie::DataSet*	  dispData() 	   { return data_->datasets_[1]; }
-    const WellTie::DataSet* dispData() const { return data_->datasets_[1]; }
-    WellTie::DataSet*	  corrData()  	   { return data_->datasets_[2]; } 
-    const WellTie::DataSet* corrData() const { return data_->datasets_[2]; } 
-    Wavelet*              getEstimatedWvlt()  { return &data_->wvltest_; } 
-    const Wavelet*        getEstimatedWvlt() const { return &data_->wvltest_; } 
-    const WellTie::UnitFactors& getUnits() const   { return factors_; }
-    WellTie::GeoCalculator* geoCalc()	{ return geocalc_; } 
+
+//Others    
+    float&		corrcoeff() 	   { return corrcoeff_; }
+    const float&	corrcoeff() const  { return corrcoeff_; }
+    WellTie::GeoCalculator* geoCalc()	   { return geocalc_; } 
     const WellTie::GeoCalculator* geoCalc() const { return geocalc_; } 
     
 private:
 
+    float 			corrcoeff_;
     Well::Data*          	wd_;
 
     WellTie::UnitFactors	factors_;
-    WellTie::Data*	 	data_;
-    WellTie::DataSetMGR*	datamgr_;
+    WellTie::LogSet*		logsset_;
     WellTie::D2TModelMGR*	d2tmgr_;
     WellTie::Params* 	 	params_; //becomes mine
     WellTie::Params::uiParams* 	uipms_;
@@ -179,7 +129,7 @@ private:
     WellTie::GeoCalculator* 	geocalc_;
 
     const WellTie::Setup&	setup_;
-
+    ObjectSet<Wavelet>		wvltset_;
 };
 
 }; //namespace WellTie

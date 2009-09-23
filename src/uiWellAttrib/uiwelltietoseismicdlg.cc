@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.53 2009-09-10 09:30:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.54 2009-09-23 11:50:08 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -89,7 +89,7 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts,
     stretcher_  = new WellTie::uiEventStretch( this,dataholder_,*datadrawer_ );
 
     infodlg_->applyPushed.notify( mCB(this,uiTieWin,compute) );
-    infodlg_->redrawNeeded.notify( mCB(this,uiTieWin,drawData) );
+    infodlg_->redrawNeeded.notify( mCB(datadrawer_,uiTieView,redrawViewer) );
     stretcher_->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
     stretcher_->timeChanged.notify(mCB(this,uiTieWin,timeChanged));
     
@@ -102,7 +102,7 @@ uiTieWin::~uiTieWin()
     stretcher_->timeChanged.remove(mCB(this,uiTieWin,timeChanged));
     stretcher_->pickadded.remove(mCB(this,uiTieWin,checkIfPick));
     infodlg_->applyPushed.remove( mCB(this,uiTieWin,compute) );
-    infodlg_->redrawNeeded.remove( mCB(this,uiTieWin,drawData) );
+    infodlg_->redrawNeeded.remove( mCB(datadrawer_,uiTieView,redrawViewer) );
     
     delete stretcher_;
     delete infodlg_;
@@ -136,7 +136,7 @@ void uiTieWin::initAll()
     infodlg_->setUserDepths();
     doWork( 0 );
     dataholder_->pickmgr()->setDataParams( dataholder_->dpms() );
-    dataholder_->pickmgr()->setData( dataholder_->dispData() );
+    dataholder_->pickmgr()->setData( dataholder_->logsset() );
     show();
     dispPropChg( 0 );
 }
@@ -203,6 +203,7 @@ void uiTieWin::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
     mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
+    mAddButton( "save.png", editD2TPushed, "Save Data" );
 }    
 
 
@@ -496,8 +497,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh,
     uiGroup* viewersgrp = new uiGroup( this, "Viewers group" );
     uiGroup* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, dataholder_ );
-    wvltdraw_->activewvltChged.notify( 
-	    mCB( this, WellTie::uiInfoDlg, wvltChanged) );
+    wvltdraw_->activeWvltChged.notify(mCB(this,WellTie::uiInfoDlg,wvltChanged));
 
     uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
     corrgrp->attach( rightOf, wvltgrp );
@@ -542,7 +542,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh,
 uiInfoDlg::~uiInfoDlg()
 {
     delete crosscorr_;
-    wvltdraw_->activewvltChged.remove( 
+    wvltdraw_->activeWvltChged.remove( 
 	    mCB( this, WellTie::uiInfoDlg, wvltChanged) );
     delete wvltdraw_;
 }
@@ -604,10 +604,11 @@ void uiInfoDlg::setWvlts()
 
 void uiInfoDlg::wvltChanged( CallBacker* cb )
 {
-    dataplayer_->computeSynthetics();
+    dataplayer_->convolveWavelet();
+    dataplayer_->estimateWavelet();
+    dataplayer_->computeCrossCorrel();
+    crosscorr_->setCrossCorrelation();
     redrawNeeded.trigger();
 }
-
-
 
 }; //namespace Well

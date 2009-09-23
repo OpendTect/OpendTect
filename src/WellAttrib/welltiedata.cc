@@ -7,19 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.16 2009-09-03 14:09:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.17 2009-09-23 11:50:08 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
-#include "datapointset.h"
-#include "posvecdataset.h"
+#include "ioman.h"
 #include "survinfo.h"
-#include "sorting.h"
+#include "wavelet.h"
 
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
 
 #include "welltiedata.h"
+#include "welltiesetup.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 #include "welltieunitfactors.h"
@@ -27,153 +27,91 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.16 2009-09-03 14:09:28 cvsbr
 namespace WellTie
 {
 
-DataSetMGR::DataSetMGR( WellTie::DataHolder& dh ) 
-    		: params_(*dh.dpms())
-		, datasets_(dh.data().datasets_)  
+Log::Log( const char* nm )
+    : Well::Log(nm)
+    , arr_(0)
 {
-    for ( int idx=0; idx<dh.data().nrdataset_; idx++ )
-	datasets_ += new WellTie::DataSet();
-
-    for ( int idx=0; idx<datasets_.size(); idx++ )
-	datasets_[idx]->setColNames(params_.colnms_);
 }
 
 
-DataSetMGR::~DataSetMGR()
+Log::~Log()
 {
-    for ( int idx=datasets_.size()-1; idx>=0; idx-- )
-	datasets_[idx]->clearData();
-    deepErase( datasets_ );
+    delete arr_;
 }
 
 
-void DataSetMGR::resetData()
+const Array1DImpl<float>* Log::getVal() 
 {
-    int size[] = { params_.worksize_, params_.dispsize_, params_.corrsize_, 0 };
-
-    for ( int idx=0; idx<datasets_.size(); idx++ )
-	resetData( *datasets_[idx], size[idx] );
+    delete arr_; arr_ = 0;
+    if ( size() ) arr_ = new Array1DImpl<float>( size() );
+    for ( int idx=0; idx<size(); idx++ )
+	arr_->set( idx, valArr()[idx] );
+    return arr_;
 }
 
 
-void DataSetMGR::resetData( WellTie::DataSet& dataset, int size )
+const Array1DImpl<float>* Log::getDah()
 {
-    dataset.clearData();
-    dataset.setColNr( params_.nrdatacols_ );
-    dataset.setLength( size );
-    dataset.createDataArrays();
-}
-
-//resampledata at "step" sampling rate
-void DataSetMGR::rescaleData( const WellTie::DataSet& olddata,
-			      WellTie::DataSet& newdata,	
-			      int colnr, int step  )
-{
-    for ( int colidx=0; colidx<colnr; colidx++)
-    {
-	for ( int idx=0; idx<newdata.getLength(); idx++)
-	{
-	    const float val = olddata.get( colidx )->get( (int)step*idx );
-	    newdata.get(colidx)->setValue( idx, val );
-	}
-    }
+    delete arr_; arr_ = 0;
+    if ( size() ) arr_ = new Array1DImpl<float>( size() );
+    for ( int idx=0; idx<size(); idx++ )
+	arr_->set( idx, dah(idx) );
+    return arr_;
 }
 
 
-//recompute data between timestart and timestop
-void DataSetMGR::rescaleData( const WellTie::DataSet& olddata,
-			     WellTie::DataSet& newdata, int colnr, 
-			     float timestart, float timestop )
+void Log::setVal( const Array1DImpl<float>* arr )
 {
-    int startidx = olddata.getIdx( timestart );
-    int stopidx  = olddata.getIdx( timestop  );
-    if ( startidx<0 || startidx>=stopidx  )
-	return;
+    if ( !arr ) return;
 
-    for ( int idx=0; idx<colnr; idx++)
-	newdata.setArrayBetweenIdxs( *olddata.get(idx), 
-				     *newdata.get(idx), 
-				     startidx, stopidx );
+    val_.erase();
+    for ( int idx=0; idx<size(); idx++ )
+	val_.add( arr->get( idx ) );
 }
 
 
-void DataSetMGR::getSortedDPSDataAlongZ( const DataPointSet& dps,
-					 Array1DImpl<float>& vals )
+void Log::setDah( const Array1DImpl<float>* arr )
 {
-    TypeSet<float> zvals, tmpvals;
-    for ( int idx=0; idx<dps.size(); idx++ )
-	zvals += dps.z(idx);
+    if ( !arr ) return;
 
-    const int sz = zvals.size();
-    mAllocVarLenArr( int, zidxs, sz );
-    for ( int idx=0; idx<sz; idx++ )
-	zidxs[idx] = idx;
-
-    sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
-
-    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	    tmpvals += dps.getValues(zidxs[idx])[colidx];
-    }
-
-    memcpy(vals.getData(), tmpvals.arr(), vals.info().getSize(0)*sizeof(float));
+    dah_.erase(); 
+    for ( int idx=0; idx<arr->info().getSize(0); idx++ )
+	dah_.add( arr->get( idx ) );
 }
 
 
-
-const int DataSet::getIdxFromDah( float dah ) const
+void Log::resample( int step )
 {
-    int idx=0;
-    while ( get(0,idx)<dah )
-	idx++;
-    return idx;	
+    const int orgsize = size();
+
+    const float* orgvals = valArr();	const float* orgdah = dah_.arr();
+    val_.erase();			dah_.erase();
+
+    for ( int idx=0; idx<int(orgsize/step); idx ++ )
+	addValue( orgdah[idx*step], orgvals[idx*step] );
 }
 
 
-void DataSet::clearData()
+LogSet::~LogSet()
 {
-    deepErase( data_ );
+    deepErase( logs );
 }
 
 
-void DataSet::createDataArrays()
+void LogSet::resetData( const WellTie::Params::DataParams& params )
 {
-    for ( int idx=0; idx<colnr_; idx++)
-	data_ += new Array1DImpl<float>( datasz_ );
+    deepErase( logs );
+    for ( int idx=0; idx<params.colnms_.size(); idx++ )
+	logs += new WellTie::Log( params.colnms_.get(idx) );
 }
 
 
-const int DataSet::getIdx( float time ) const
-{
-    const float step = SI().zStep();
-    const int idx = int ( (time-data_[1]->get(0))/step );
-    return idx;
-}
-
-
-const float DataSet::get( const char* colnm, int idx ) const  
-{
-    if ( get(colnm) )
-	return get(colnm)->get(idx);
-    return 0;
-}
-
-
-const float DataSet::get( int colidx, int validx ) const
-{
-    if ( get(colidx) )
-	return get(colidx)->get(validx);
-    return 0;
-}
-
-
-const float DataSet::getExtremVal( const char* colnm, bool ismax ) const
+float LogSet::getExtremVal( const char* colnm, bool ismax ) const
 {
     float maxval,             minval;
     maxval = get(colnm, 0);   minval = maxval;
 
-    for ( int idz=0; idz<datasz_; idz++)
+    for ( int idz=0; idz<getLog(colnm)->size(); idz++)
     {
 	float val =  get(colnm, idz);
 	if ( maxval < val && !mIsUdf( val ) )
@@ -185,38 +123,6 @@ const float DataSet::getExtremVal( const char* colnm, bool ismax ) const
 }
 
 
-const int DataSet::getColIdx( const char* colname ) const
-{ return colnameset_.indexOf( colname  ); }
-
-
-void DataSet::setArrayBetweenIdxs( const Array1DImpl<float>& olddata,
-				  Array1DImpl<float>& newdata,
-				  int startidx, int stopidx )
-{
-    const int olddatasz = olddata.info().getSize(0);
-    const int newdatasz = newdata.info().getSize(0);
-    for ( int idx=0; idx<newdatasz; idx++ )
-    {
-	float val = 0;
-	if ( idx+startidx < olddatasz )
-	    val = olddata.get( idx + startidx );
-	if ( mIsUdf(val) )
-	    newdata.setValue( idx, 0 );
-	else
-	    newdata.setValue( idx, val ); 
-    }
-}
-
-
-void DataSet::set( const char* colnm, int idx, float val )
-{
-    if ( get(colnm) )
-	get(colnm)->set(idx, val);
-}
-
-
-
-
 DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd, 
 			const WellTie::Setup& s )
     	: params_(params)	
@@ -224,20 +130,19 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
 	, setup_(s)
 	, factors_(s.unitfactors_) 	   
 {
+    wvltset_ += Wavelet::get( IOM().get(s.wvltid_) ); 
     uipms_   = &params_->uipms_;
     dpms_    = &params_->dpms_;
-    data_    = new WellTie::Data();
     pickmgr_ = new WellTie::PickSetMGR( wd_ );
     geocalc_ = new WellTie::GeoCalculator( *this );
     d2tmgr_  = new WellTie::D2TModelMGR( *this );
-    datamgr_ = new WellTie::DataSetMGR( *this );
+    logsset_ = new WellTie::LogSet( *this );
 }
 
 
 DataHolder::~DataHolder()
 {
-    delete datamgr_;
-    delete data_;
+    delete logsset_;
     delete pickmgr_;
     delete d2tmgr_;
     delete params_;

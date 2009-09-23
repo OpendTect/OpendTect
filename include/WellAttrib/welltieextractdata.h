@@ -26,8 +26,8 @@ namespace Well
 namespace WellTie
 {
 
-class GeoCalculator;
-class DataSet;
+class DataHolder;
+class Log;
 
 mClass TrackExtractor : public Executor
 {
@@ -60,8 +60,8 @@ protected:
 mClass LogResampler : public Executor
 {
 public:
-			LogResampler(WellTie::DataSet&,const Well::Log&,
-				    const Well::Data*,WellTie::GeoCalculator&);
+			LogResampler(WellTie::Log&,const Well::Log&,
+				const Well::Data*, WellTie::DataHolder&);
 			~LogResampler() {};
 
 
@@ -79,12 +79,13 @@ public:
 
 protected:
 
-    WellTie::DataSet&   workdata_;		
+    WellTie::Log&   	tielog_;		
     const char* 	logname_;
     TypeSet<float> 	val_;
     TypeSet<float> 	dah_;
     const Well::Data& 	wd_;
     int                 nrdone_;
+    int                 maxnrdone_;
     int                 curlogsample_;
 
     void      	 	updateLogIdx(float,int&);
