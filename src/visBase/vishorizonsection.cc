@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.90 2009-09-22 16:37:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.91 2009-09-23 19:31:55 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -924,11 +924,6 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
 {
     if ( !surf ) return;
 
-    origin_.row = displayrrg_.start;
-    origin_.col = displaycrg_.start;
-    rowdistance_ = displayrrg_.step*SI().inlDistance();
-    coldistance_ = displaycrg_.step*SI().crlDistance();
-
     if ( connect )
     {
 	geometry_ = surf;
@@ -950,7 +945,9 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
     displayrrg_ = rrg;
     displaycrg_ = crg;
     origin_.row = displayrrg_.start;
-    origin_.col = displayrrg_.start;
+    origin_.col = displaycrg_.start;
+    rowdistance_ = displayrrg_.step*SI().inlDistance();
+    coldistance_ = displaycrg_.step*SI().crlDistance();
 
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
@@ -998,10 +995,14 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    return;
     }
   
-    if ( displayrrg_.start==-1 )   
+    if ( displayrrg_.start==-1 )
     {
 	displayrrg_ = geometry_->rowRange();
-    	displaycrg_ = geometry_->colRange();
+	displaycrg_ = geometry_->colRange();
+	origin_.row = displayrrg_.start;
+    	origin_.col = displaycrg_.start;
+	rowdistance_ = displayrrg_.step*SI().inlDistance();
+	coldistance_ = displaycrg_.step*SI().crlDistance();
     }
 
     if ( displayrrg_.width(false)<0 || displaycrg_.width(false)<0 )
@@ -1801,7 +1802,6 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 		 }
 
 		 tesselationqueuelock_.unLock();
-		 newres = wantedres;
 	     }
 	 }
      }
@@ -2263,7 +2263,6 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 	    nrdefinedpos_ ++;
 	else if ( !newdefined && olddefined )
 	    nrdefinedpos_--;
-
 
 	for ( int res=0; res<mHorSectNrRes; res++ )
 	{
