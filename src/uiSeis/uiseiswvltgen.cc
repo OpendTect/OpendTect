@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.9 2009-09-21 12:25:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.10 2009-09-23 13:44:42 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -275,6 +275,7 @@ void uiSeisWvltMerge::reloadWvlts()
 	const IOObj* ioobj = del[delidx]->ioobj;
 	if ( !ioobj ) continue;
 	Wavelet* wvlt = Wavelet::get( ioobj );
+	if ( !wvlt ) continue;
 	wvltset_ += wvlt;
 	if ( normalizefld_->isChecked() )
 	    wvlt->normalize();
