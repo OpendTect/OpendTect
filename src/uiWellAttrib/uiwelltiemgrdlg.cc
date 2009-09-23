@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.17 2009-09-08 07:12:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.18 2009-09-23 14:09:04 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -174,7 +174,9 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !strcmp( wtsetup_.denlognm_, sKeyPlsSel ) )
 	mErrRet("Please select a Density log")
     
-    if ( !wvltfld_->commitInput() || !wvltfld_->ctxtIOObj().ioobj )
+    if ( !wvltfld_->commitInput() )
+	mErrRet("Please select an initial wavelet")
+    if ( !Wavelet::get(wvltfld_->ctxtIOObj().ioobj) )
 	mErrRet("Please select a valid wavelet")
 
     WellTie::UnitFactors units( &wtsetup_ );
