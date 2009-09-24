@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.3 2009-09-22 09:54:08 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.4 2009-09-24 09:53:20 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -33,41 +33,23 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p )
     , intensityfld_(0)
     , valchgd_(false)      
 {
-    visBase::DM().getIds( typeid(visSurvey::Scene), sceneids_ );
-    if ( sceneids_.size() == 0 )
-    {
-	uiLabel* lbl = new uiLabel( this, "No scene available!" );
-	return;
-    }
 
-    if ( sceneids_.size() > 1 )
-    {
-	BufferStringSet scenenms;
-	scenenms.add( "All" );
-	for ( int idx=0; idx<sceneids_.size(); idx++ )
-	{
-	    mDynamicCastGet(visSurvey::Scene*,scene,
-		    	    visBase::DM().getObject(sceneids_[idx]))
-	    scenenms.add( scene->name() );
-	}
-
-	scenefld_ = new uiLabeledComboBox( this, scenenms, "Apply light to" );
-	scenefld_->box()->setCurrentItem( 1 );
-	scenefld_->box()->selectionChanged.notify( 
+    scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
+    scenefld_->box()->selectionChanged.notify( 
 					mCB(this,uiDirLightDlg,sceneSel) );
-    }
+
+    int scenesavl = updateSceneSelector();
 
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
     azimuthsldrfld_ = new uiSliderExtra( this,
       uiSliderExtra::Setup("Azimuth (degrees)").withedit(true).nrdec(1).
       logscale(false), "Azimuth slider" );
-    if ( sceneids_.size() > 1 )
-	azimuthsldrfld_->attach( alignedBelow, scenefld_ );
+    azimuthsldrfld_->attach( alignedBelow, scenefld_ );
     azimuthsldrfld_->sldr()->setMinValue( 0 );
     azimuthsldrfld_->sldr()->setMaxValue( 360 );
     azimuthsldrfld_->sldr()->setStep( 1 );
-    azimuthsldrfld_->sldr()->setValue( 180 );
+    azimuthsldrfld_->sldr()->setValue( 0 );
     azimuthsldrfld_->sldr()->valueChanged.notify( chgCB );
 
     dipsldrfld_ = new uiSliderExtra( this,
@@ -77,7 +59,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p )
     dipsldrfld_->sldr()->setMinValue( 0 );
     dipsldrfld_->sldr()->setMaxValue( 90 );
     dipsldrfld_->sldr()->setStep( 1 );
-    dipsldrfld_->sldr()->setValue( 45 );
+    dipsldrfld_->sldr()->setValue( 0 );
     dipsldrfld_->sldr()->valueChanged.notify( chgCB ); 
 
     intensityfld_ = new uiGenInput( this, "Intensity (0..1)", 
@@ -95,55 +77,108 @@ bool uiDirLightDlg::valueChanged() const
 
 void uiDirLightDlg::sceneSel( CallBacker* )
 {
-    updateWidgets( false );
+    updateWidgetValues( false );
 }
 
 
-void uiDirLightDlg::updateWidgets( bool initvalues )
+int uiDirLightDlg::updateSceneSelector()
 {
-    visBase::DirectionalLight* dl = getCurrentDirLight();
-    if ( !dl )
+    TypeSet<int>                sceneids;
+
+    visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
+
+    if ( sceneids == sceneids_ )
     {
-	if ( initvalues )
-	{
-	    initazimuthval_ = 0;
-	    initdipval_ = 0;
-	    initintensityval_ = 1;
-	}
-	return;
+	sceneids_ = sceneids;
+	return ( ( sceneids_.size() == 0 ) ? 0 : 1  );
+    }
+    
+    sceneids_ = sceneids;
+    scenefld_->box()->empty();
+    
+    if ( sceneids_.size() == 0 )
+    {
+        scenefld_->label()->setText( "No scene!" );
+	return 0;
     }
 
-    float x = dl->direction( 0 );
-    float y = dl->direction( 1 );
-    float z = dl->direction( 2 );
-    float dip = asin( z );
-    float azimuth = acos( x / cos( dip ) ) ;
-    dip *= 180.0 / M_PI;
-    azimuth *= 180.0 / M_PI;
-
-    azimuthsldrfld_->sldr()->setValue( azimuth );
-    dipsldrfld_->sldr()->setValue( dip );
-    intensityfld_->setValue( dl->intensity() );
-
-    if ( initvalues)
+    if ( sceneids_.size() >= 1 )
     {
-	    initazimuthval_ = azimuth;
+	BufferStringSet scenenms;
+	if ( sceneids_.size() > 1 )
+	    scenenms.add( "All" );
+	for ( int idx=0; idx<sceneids_.size(); idx++ )
+	{
+	    mDynamicCastGet(visSurvey::Scene*,scene,
+		    	    visBase::DM().getObject(sceneids_[idx]))
+	    scenenms.add( scene->name() );
+	}
+
+	scenefld_->label()->setText( "Apply light to" );
+	scenefld_->box()->addItems( scenenms );
+	scenefld_->box()->setCurrentItem( 1 );
+    }
+
+    return 1;
+}
+
+
+void uiDirLightDlg::updateWidgetValues( bool reset )
+{
+    bool updateall = sceneids_.size() > 0 
+		     && scenefld_->box()->currentItem() == 0;
+
+    for ( int idx=0; idx<sceneids_.size(); idx++ )
+    {
+	bool doupd = updateall || idx == scenefld_->box()->currentItem()-1;
+	if ( !doupd ) continue;
+
+        visBase::DirectionalLight* dl = getDirLight( idx );
+        if ( !dl )
+        {
+   	    if ( reset )
+	    {
+	        initazimuthval_ = 0;
+	        initdipval_ = 0;
+    	        initintensityval_ = 1;
+	    }
+	    continue;
+        }
+
+        float x = dl->direction( 0 );
+        float y = dl->direction( 1 );
+        float z = dl->direction( 2 );
+        float dip = asin( z );
+        float azimuth = acos( x / cos( dip ) ) ;
+        dip *= 180.0 / M_PI;
+        azimuth *= 180.0 / M_PI;
+
+        azimuthsldrfld_->sldr()->setValue( azimuth );
+        dipsldrfld_->sldr()->setValue( dip );
+        intensityfld_->setValue( dl->intensity() );
+
+        if ( reset )
+        {
+    	    initazimuthval_ = azimuth;
 	    initdipval_ = dip;
 	    initintensityval_ = dl->intensity();
+        }
     }
 }
 
 
 void uiDirLightDlg::setDirLight()
 {
+    if  ( !sceneids_.size() )
+	return;
+
     validateInput();
 
-    const bool lightall = scenefld_ && scenefld_->box()->currentItem()==0;
+    const bool lightall = scenefld_->box()->currentItem()==0;
     
     for ( int idx=0; idx<sceneids_.size(); idx++ )
     {
-	bool dolight = !scenefld_ || lightall ||
-		       idx == scenefld_->box()->currentItem()-1;
+	bool dolight = lightall || idx == scenefld_->box()->currentItem()-1;
 	if ( !dolight ) continue;
 
 	mDynamicCastGet(visSurvey::Scene*,scene,
@@ -157,14 +192,16 @@ void uiDirLightDlg::setDirLight()
 	          cos( dipsldrfld_->sldr()->getValue()*deg2rad );
        	float z = sin (dipsldrfld_->sldr()->getValue()*deg2rad );
 
-	if ( !getCurrentDirLight() )
+
+
+	if ( !getDirLight( idx ) )
 	{
 	    RefMan<visBase::DirectionalLight> dl =
 		visBase::DirectionalLight::create();
 	    scene->setDirectionalLight( *dl );
 	}
 
-	RefMan<visBase::DirectionalLight> dl = getCurrentDirLight();
+	RefMan<visBase::DirectionalLight> dl = getDirLight( idx );
 
 	dl->setDirection( x, y, z ); 
  	dl->setIntensity( intensityfld_->getfValue() );
@@ -172,13 +209,8 @@ void uiDirLightDlg::setDirLight()
 }
 
 
-visBase::DirectionalLight* uiDirLightDlg::getCurrentDirLight() const
+visBase::DirectionalLight* uiDirLightDlg::getDirLight( int sceneidx ) const
 {
-    if ( sceneids_.size() == 0 )
-	return 0;
-
-    int sceneidx = scenefld_ ? scenefld_->box()->currentItem()-1 : 0;
-    if ( sceneidx < 0 ) sceneidx = 0;
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    visBase::DM().getObject(sceneids_[sceneidx]))
     return scene->getDirectionalLight();
@@ -242,9 +274,27 @@ void uiDirLightDlg::fieldChangedCB( CallBacker* )
 
 void uiDirLightDlg::show()
 {
-    updateWidgets( true );
+    if ( updateSceneSelector() )
+    {
+    	updateWidgetValues( true );
+        showWidgets( true );
+    }
+    else
+	showWidgets( false );
+    
     uiDialog::show();
 }
+
+
+void uiDirLightDlg::showWidgets( bool showAll )
+{
+    if ( scenefld_ )
+        scenefld_->display( showAll );
+    azimuthsldrfld_->setSensitive( showAll );
+    dipsldrfld_->setSensitive( showAll );
+    intensityfld_->setSensitive ( showAll );
+}
+
 
 
 
