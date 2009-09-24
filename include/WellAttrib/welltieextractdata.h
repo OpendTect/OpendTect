@@ -40,7 +40,7 @@ public:
 			    , timeintv_(0,0,0)
 			    {}
 
-    StepInterval<double> timeintv_;
+    StepInterval<float> timeintv_;
 
     int                 nextStep();
     od_int64            totalNr() const		{ return timeintv_.nrSteps(); }
@@ -60,12 +60,12 @@ protected:
 mClass LogResampler : public Executor
 {
 public:
-			LogResampler(WellTie::Log&,const Well::Log&,
-				const Well::Data*, WellTie::DataHolder&);
+			LogResampler(WellTie::Log*, const Well::Log&,
+				const Well::Data*, WellTie::DataHolder* d=0);
 			~LogResampler() {};
 
 
-    StepInterval<double> timeintv_;
+    StepInterval<float> timeintv_;
 
     int                 nextStep();
     int           	colnr_;
@@ -73,22 +73,21 @@ public:
     od_int64            nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Points done"; }
-    const char* 	dptnm_;
-    const char* 	timenm_;
 
+    bool 		isavg_;
 
 protected:
 
-    WellTie::Log&   	tielog_;		
-    const char* 	logname_;
+    WellTie::Log*   	newlog_;		
+    const Well::Log& 	orglog_;
+    const Well::Data& 	wd_;
+
     TypeSet<float> 	val_;
     TypeSet<float> 	dah_;
-    const Well::Data& 	wd_;
-    int                 nrdone_;
-    int                 maxnrdone_;
-    int                 curlogsample_;
 
-    void      	 	updateLogIdx(float,int&);
+    int                 nrdone_;
+    int                 curidx_;
+
     void        	fillProcLog(const Well::Log&);
 };
 

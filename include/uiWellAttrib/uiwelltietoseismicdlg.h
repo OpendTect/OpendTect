@@ -116,7 +116,7 @@ protected:
     void 			provideWinHelp(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
-    bool			saveD2TPushed(CallBacker*);
+    void 			saveDataPushed(CallBacker*);
     void			eventTypeChg(CallBacker*);
     bool 			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);
@@ -132,7 +132,6 @@ public:
     		uiInfoDlg(uiParent*,WellTie::DataHolder*,WellTie::DataPlayer*);
     		~uiInfoDlg();
 
-    Notifier<uiInfoDlg>  applyPushed;
     Notifier<uiInfoDlg>  redrawNeeded;
 
     bool 			setUserDepths();
@@ -149,8 +148,6 @@ protected:
     uiGenInput*			botmrkfld_;
     uiGenInput*                 corrcoefffld_;
     uiGenInput*			topmrkfld_;
-    uiPushButton*               applymarkerbut_;
-    uiPushButton*               applymrkbut_;
     uiPushButton*               savewvltestbut_;
     WellTie::uiCorrView*      	crosscorr_;
     WellTie::uiWaveletView*     wvltdraw_;

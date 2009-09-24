@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.28 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.29 2009-09-24 15:29:09 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -95,8 +95,6 @@ Params::Params( const WellTie::Setup& wts, Well::Data* wd,
 	, wd_(*wd)
 	, ads_(ads)	  
 {
-    dpms_.corrstartdah_ = wd_.track().dah(0);
-    dpms_.corrstopdah_  = wd_.track().dah(wd_.track().size()-1);
     dpms_.currvellognm_ = wts.vellognm_;
     dpms_.attrnm_ = getAttrName( ads );
     if ( wd_.checkShotModel() )
@@ -132,59 +130,31 @@ void Params::resetVelLogNm()
 }
 
 
+#define mComputeFactor (SI().zStep())
 #define mMaxWorkSize (int)1.e5
-#define mComputeStepFactor (SI().zStep()/step_)
 #define mMinWorkSize (int)20
-bool Params::DataParams::resetDataParams()
+#define mTime(dah) d2t->getTime(dah)
+bool Params::DataParams::resetTimeParams()
 {
-    const float startdah = wd_.track().dah(0);
+    const Well::D2TModel* d2t = wd_.d2TModel(); 
+    if ( !d2t ) return false;
     const float stopdah  = wd_.track().dah(wd_.track().size()-1);
 
-    setTimes( timeintv_, startdah, stopdah );
-    setTimes( corrtimeintv_, corrstartdah_, corrstopdah_ );
-    timeintv_.start = 0;
-    setDepths( timeintv_, dptintv_ );
+    if ( !corrdahs_.start ) corrdahs_.start = 0;
+    if ( !corrdahs_.stop ) corrdahs_.stop = stopdah;
 
-    if ( corrtimeintv_.start<0 ) corrtimeintv_.start = 0; 
-    if ( corrtimeintv_.stop>timeintv_.stop ) corrtimeintv_.stop=timeintv_.stop;
+    timeintvs_.erase(); 
+    timeintvs_ += StepInterval<float>( 0, mTime(stopdah), mComputeFactor/step_ );
+    timeintvs_ += StepInterval<float>(timeintvs_[0]); timeintvs_[1].step*=step_;
+    timeintvs_ += StepInterval<float>( mTime(corrdahs_.start), 
+				       mTime(corrdahs_.stop), mComputeFactor);
 
-    worksize_ = getArraySize( timeintv_ );
-    corrsize_ = getArraySize( corrtimeintv_ );
-    dispsize_ = (int) ( worksize_/step_ );
-
-    if ( corrsize_>dispsize_ ) corrsize_ = dispsize_;
-    if ( worksize_ > mMaxWorkSize || worksize_ < mMinWorkSize ) return false;
-    if ( dispsize_ < 2 || timeintv_.step < 1e-6 ) return false;
-    
-    return true;
-}
-
-#define mGetD2T(act) const Well::D2TModel* d2t = wd_.d2TModel(); if (!d2t) act;
-bool Params::DataParams::setTimes( StepInterval<double>& timeintv, 
-			      float startdah, float stopdah )
-{
-    mGetD2T( return false )
-    timeintv.start = d2t->getTime( startdah );
-    timeintv.stop  = d2t->getTime( stopdah );
-    timeintv.step  = mComputeStepFactor;
-    timeintv.sort();
+    if ( timeintvs_[2].start<0 ) 
+	timeintvs_[2].start = 0;
+    if ( timeintvs_[2].stop > timeintvs_[0].stop )
+	timeintvs_[2].stop = timeintvs_[0].stop;
 
     return true;
-}
-
-
-bool Params::DataParams::setDepths( const StepInterval<double>& timeintv,					   StepInterval<double>& dptintv )
-{
-    mGetD2T( return false )
-    dptintv.start = d2t->getDepth( timeintv.start );
-    dptintv.stop  = d2t->getDepth( timeintv.stop );
-    return true;
-}
-
-
-int Params::DataParams::getArraySize( StepInterval<double>& timeintv ) const 
-{
-    return (int) ( (timeintv_.stop-timeintv_.start)/timeintv_.step );
 }
 
 

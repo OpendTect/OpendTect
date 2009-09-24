@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.44 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.45 2009-09-24 15:29:08 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -140,8 +140,9 @@ void uiTieView::setLogsParams()
 	logsdisp_[idx]->setZDispInFeet( uipms->iszinft_ );
 	logsdisp_[idx]->setZInTime( uipms->iszintime_ );
     }
-    setLogsRanges( params_->dptintv_.start, params_->dptintv_.stop );
-
+    const float startdah = d2tm->getDepth( params_->timeintvs_[0].start );
+    const float stopdah = d2tm->getDepth( params_->timeintvs_[0].stop );
+    setLogsRanges( startdah, stopdah );
 }
 
 
@@ -193,9 +194,8 @@ void uiTieView::drawTraces()
 void uiTieView::setUpTrcBuf( SeisTrcBuf* trcbuf, const char* varname, 
 				  int nrtraces )
 {
-    const int varsz = params_->dispsize_;
-    SeisTrc valtrc;
-    SeisTrc udftrc;
+    const int varsz = params_->timeintvs_[1].nrSteps();
+    SeisTrc valtrc, udftrc;
 
     valtrc.reSize( varsz, false );
     udftrc.reSize( varsz, false ) ;
@@ -336,8 +336,8 @@ void uiTieView::drawWellMarkers()
 	float zpos = d2tm->getTime( marker->dah() ); 
 	const Color col = marker->color();
 	
-	if ( zpos < params_->timeintv_.start || zpos > params_->timeintv_.stop 
-		|| col == Color::NoColor() || col.rgb() == 16777215 )
+	if ( col == Color::NoColor() || col.rgb() == 16777215 || zpos < 
+	    params_->timeintvs_[1].start || zpos > params_->timeintvs_[1].stop )
 	    continue;
 	
 	FlatView::Annotation::AuxData* auxdata = 0;
@@ -484,7 +484,7 @@ void uiCorrView::setCrossCorrelation()
     TypeSet<float> xvals,corrvals;
     for ( int idx=-datasz/2; idx<datasz/2; idx++)
     {
-	float xaxistime = idx*params.timeintv_.step*params.step_*1000;
+	float xaxistime = idx*params.timeintvs_[1].step*1000;
 	if ( fabs( xaxistime ) > 200  )
 	    continue;
 	xvals += xaxistime;

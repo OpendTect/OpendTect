@@ -31,7 +31,6 @@ namespace WellTie
 {
     class Setup;
     class D2TModelMGR;
-    class Params;
     class LogSet; 
 
 mClass DataPlayer
@@ -43,11 +42,7 @@ public:
 
     //TODO put back as private
     bool 		computeAll();
-    bool		computeCrossCorrel();
-    bool  		convolveWavelet();
-    bool		extractSeismics();
-    bool		extractWellTrack();
-    bool  		estimateWavelet();
+    bool 		computeWvltPack();
    
     //D2TModelmanager operations
     void 		computeD2TModel()
@@ -80,11 +75,17 @@ protected:
     WellTie::GeoCalculator* geocalc_;
     ObjectSet<Wavelet>& wvltset_;
 
+    bool		computeCrossCorrel();
+    bool  		convolveWavelet();
+    bool		extractSeismics();
+    bool		extractWellTrack();
+    bool  		estimateWavelet();
     void		checkShotCorr();
     bool		computeReflectivity();
     void 		getDPSZData(const DataPointSet&,Array1DImpl<float>&);
+    bool 	      	resLogExecutor(const BufferStringSet&,bool,
+				     const StepInterval<float>&);
     bool 	      	resampleLogs();
-    bool 	      	resLogExecutor(const char*);
 };
 
 };//namespace WellTie

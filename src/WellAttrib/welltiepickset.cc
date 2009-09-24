@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.21 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.22 2009-09-24 15:29:09 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -82,7 +82,7 @@ float PickSetMGR::findEvent( float zpos, bool issynth )
     if ( evtype_ == VSEvent::None ) return zpos;
 
     const char* colnm = issynth ? datapms_->synthnm_ : datapms_->attrnm_; 
-    const int maxidx = datapms_->dispsize_;
+    const int maxidx = datapms_->timeintvs_[0].nrSteps();
     Interval<float> intvup ( zpos, zpos - mTimeGate );
     Interval<float> intvdown ( zpos, zpos + mTimeGate );
     SamplingData<float> sd; sd.start = 0; sd.step = SI().zStep();

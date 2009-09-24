@@ -37,12 +37,8 @@ public :
 			~Log();
 
 
-    const Array1DImpl<float>* getDah();
-    const Array1DImpl<float>* getVal();
-    void		setDah(const Array1DImpl<float>*);
-    void		setVal(const Array1DImpl<float>*);
-
-    void		resample( int step );
+    const Array1DImpl<float>* getVal(const Interval<float>*,bool);
+    void		setVal(const Array1DImpl<float>*,bool);
 
 protected:
 
@@ -60,14 +56,11 @@ public:
 			~LogSet();
 
     void 		resetData(const WellTie::Params::DataParams&);
-    const Array1DImpl<float>* getDah(const char* nm) const
-			{ mDynCast(nm,return 0); return l->getDah(); }
-    const Array1DImpl<float>* getVal(const char* nm) const
-			{ mDynCast(nm,return 0); return l->getVal(); }
-    void		setDah(const char* nm,const Array1DImpl<float>* dah)
-			{ mDynCast(nm,return); l->setDah(dah); }
-    void		setVal(const char* nm,const Array1DImpl<float>* val)
-			{ mDynCast(nm,return); l->setVal(val); }
+    const Array1DImpl<float>* getVal(const char*,bool isdah=false,
+	    			     const Interval<float>* st=0) const;
+    void		setVal(const char* nm,const Array1DImpl<float>* val,
+			       bool isdah = false)
+			{ mDynCast(nm,return); l->setVal(val,isdah); }
     float		get(const char* nm,int idx) const
 			{ return (getVal(nm)) ? getVal(nm)->get(idx):0; }
     float 		getExtremVal(const char*,bool) const;
@@ -92,6 +85,7 @@ public:
 
 //Wavelet
     ObjectSet<Wavelet>&		wvltset() { return wvltset_; }
+    const ObjectSet<Wavelet>&	wvltset() const { return wvltset_; }
 
 //Params
     const WellTie::Setup& setup()  const   { return setup_; }

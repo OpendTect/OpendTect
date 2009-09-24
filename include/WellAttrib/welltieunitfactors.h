@@ -91,25 +91,15 @@ public :
 				      const WellTie::Setup& w)
 				: wd_(*d)
 				, wts_(w)  
-				, nrdatacols_(10)
 				, step_(20)
-				, timeintv_(0,0,0)
-				, dispsize_(0)  
-				, corrsize_(0)  
-				, worksize_(0)
-				, isinitwvltactive_(true) 	      
+				, isinitwvltactive_(true) 	     
+				, corrdahs_(0,0) 
 				{}
 
-	int           		worksize_;
-	int           		dispsize_;
-	int           		corrsize_;
-	int           		nrdatacols_;
-	StepInterval<double> 	timeintv_;
-	StepInterval<double> 	dptintv_;
-	StepInterval<double> 	corrtimeintv_;
-	float			corrstartdah_;
-	float			corrstopdah_;
+	Interval<float> 		corrdahs_;
+	TypeSet< StepInterval<float> > timeintvs_;
 	int 			step_;
+
 	BufferStringSet		colnms_;
 	BufferString		denlognm_;
 	BufferString		vellognm_;
@@ -123,18 +113,13 @@ public :
 	BufferString		dptnm_;
 	BufferString		synthnm_;
 	BufferString		crosscorrnm_;
+
 	bool			isinitwvltactive_;
     
 	const WellTie::Setup&	wts_;
 	const Well::Data&	wd_;
 	void	 		createColNames();
-	bool			resetDataParams();
-	bool			setTimes(StepInterval<double>&,float,float);
-	bool			setDepths(const StepInterval<double>&,
-						StepInterval<double>&);
-	int 			getArraySize(StepInterval<double>&) const;
-    	const StepInterval<double>&  getTimeIntv() const { return timeintv_; } 
-
+	bool			resetTimeParams();
     };
 
     uiParams			uipms_;
@@ -142,7 +127,7 @@ public :
     const Attrib::DescSet& 	ads_;
 
     BufferString	 	getAttrName(const Attrib::DescSet&) const;
-    bool			resetParams() {return dpms_.resetDataParams();} 
+    bool			resetParams() {return dpms_.resetTimeParams();} 
     void			resetVelLogNm();
 
 protected :

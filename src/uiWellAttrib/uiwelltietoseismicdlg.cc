@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.54 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.55 2009-09-24 15:29:08 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.54 2009-09-23 11:5
 #include "uiwelltiestretch.h"
 #include "uiwelltieview.h"
 #include "uiwelltiewavelet.h"
+#include "uiwelltiesavedatadlg.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -88,7 +89,6 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts,
 	    				&logsdisp_ );
     stretcher_  = new WellTie::uiEventStretch( this,dataholder_,*datadrawer_ );
 
-    infodlg_->applyPushed.notify( mCB(this,uiTieWin,compute) );
     infodlg_->redrawNeeded.notify( mCB(datadrawer_,uiTieView,redrawViewer) );
     stretcher_->pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
     stretcher_->timeChanged.notify(mCB(this,uiTieWin,timeChanged));
@@ -101,7 +101,6 @@ uiTieWin::~uiTieWin()
 {
     stretcher_->timeChanged.remove(mCB(this,uiTieWin,timeChanged));
     stretcher_->pickadded.remove(mCB(this,uiTieWin,checkIfPick));
-    infodlg_->applyPushed.remove( mCB(this,uiTieWin,compute) );
     infodlg_->redrawNeeded.remove( mCB(datadrawer_,uiTieView,redrawViewer) );
     
     delete stretcher_;
@@ -163,21 +162,15 @@ void uiTieWin::displayUserMsg( CallBacker* )
 
 bool uiTieWin::doWork( CallBacker* )
 {
-    if ( !compute(0) )
-	return false;
-    drawData();
-    return true;
-}
-
-
-bool uiTieWin::compute( CallBacker* )
-{
     getDispParams();
+
     if ( !params_->resetParams() )
 	 mErrRet( "unable to handle log data, please check your input logs" );
     if ( !dataplayer_->computeAll() )
 	mErrRet( "unable to compute data, please check your input data" ); 
+
     resetInfoDlg();
+    drawData();
     return true;
 }
 
@@ -203,7 +196,7 @@ void uiTieWin::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right ); 
     mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
-    mAddButton( "save.png", editD2TPushed, "Save Data" );
+    mAddButton( "save.png", saveDataPushed, "Save Data" );
 }    
 
 
@@ -399,6 +392,13 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
 }
 
 
+void uiTieWin::saveDataPushed( CallBacker* cb )
+{
+    uiSaveDataDlg dlg( this, dataholder_ );
+    dlg.go();
+}
+
+
 void uiTieWin::eventTypeChg( CallBacker* )
 {
     dataholder_->pickmgr()->setEventType(eventtypefld_->box()->currentItem());
@@ -489,7 +489,6 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh,
 	, params_(dataholder_->dpms()) 
       	, crosscorr_(0)	       
 	, wvltdraw_(0)
-	, applyPushed(this)
 	, redrawNeeded(this)
 {
     setCtrlStyle( LeaveOnly );
@@ -531,11 +530,6 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh,
     botmrkfld_->setElemSzPol( uiObject::Medium );
     botmrkfld_->valuechanged.notify(
 			mCB(this,uiInfoDlg,userDepthsChanged));
-    
-    applymrkbut_ = new uiPushButton( markergrp, "&Apply",
-	       mCB(this,uiInfoDlg,applyMarkerPushed), true );
-    applymrkbut_->setSensitive( false );
-    applymrkbut_->attach( rightOf, botmrkfld_ );
 }
 
 
@@ -545,13 +539,6 @@ uiInfoDlg::~uiInfoDlg()
     wvltdraw_->activeWvltChged.remove( 
 	    mCB( this, WellTie::uiInfoDlg, wvltChanged) );
     delete wvltdraw_;
-}
-
-
-void uiInfoDlg::applyMarkerPushed( CallBacker* )
-{
-    applymrkbut_->setSensitive( false );
-    applyPushed.trigger();
 }
 
 
@@ -576,8 +563,7 @@ bool uiInfoDlg::setUserDepths()
     if ( startdah > stopdah )
     { float tmp; mSWAP( startdah, stopdah, tmp ); }
     
-    params_->corrstartdah_ = startdah;
-    params_->corrstopdah_  = stopdah;
+    params_->corrdahs_.set( startdah, stopdah );
 
     return true;
 }
@@ -585,8 +571,9 @@ bool uiInfoDlg::setUserDepths()
 
 void uiInfoDlg::userDepthsChanged( CallBacker* )
 {
-    applymrkbut_->setSensitive(true);
     setUserDepths();
+    params_->resetTimeParams();
+    wvltChanged(0);
 }
 
 
@@ -604,9 +591,7 @@ void uiInfoDlg::setWvlts()
 
 void uiInfoDlg::wvltChanged( CallBacker* cb )
 {
-    dataplayer_->convolveWavelet();
-    dataplayer_->estimateWavelet();
-    dataplayer_->computeCrossCorrel();
+    dataplayer_->computeWvltPack();
     crosscorr_->setCrossCorrelation();
     redrawNeeded.trigger();
 }

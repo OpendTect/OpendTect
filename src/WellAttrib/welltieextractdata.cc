@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.12 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.13 2009-09-24 15:29:09 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -58,26 +58,32 @@ int TrackExtractor::nextStep()
 
 
 #define mErrRet(s) { errmsg = s; return; }
-LogResampler::LogResampler( WellTie::Log& tl, const Well::Log& l, 
-			    const Well::Data* d, WellTie::DataHolder& dh )
+LogResampler::LogResampler( WellTie::Log* tl, const Well::Log& l, 
+			    const Well::Data* d, WellTie::DataHolder* dh )
     	: Executor("Processing log data") 
-	, tielog_(tl)
-	, maxnrdone_(dh.dpms()->worksize_)	     
+	, newlog_(tl)
+	, orglog_(l)	     
 	, wd_(*d)	   
 	, nrdone_(0)
-	, curlogsample_(0)	    
-	, logname_(l.name())
+	, curidx_(0)
+	, isavg_(true) 
 {
-    BufferString exnm = "Processing "; exnm += logname_; exnm += " Data"; 
+    newlog_->erase();
+
+    BufferString exnm = "Processing "; exnm += l.name(); exnm += " Data"; 
     setName( exnm );
+
     fillProcLog( l );
 
     BufferString errmsg;
     errmsg += "no valid "; errmsg += l.name();  errmsg += " log selected";
-    if ( !dh.geoCalc()->isValidLogData( val_ ) ) mErrRet(errmsg);
 
-    dh.geoCalc()->interpolateLogData( dah_, l.dahStep(true), true );
-    dh.geoCalc()->interpolateLogData( val_, l.dahStep(true), false );
+    if ( dh )
+    {
+	if ( !dh->geoCalc()->isValidLogData( val_ ) ) mErrRet(errmsg);
+	dh->geoCalc()->interpolateLogData( dah_, l.dahStep(true), true );
+	dh->geoCalc()->interpolateLogData( val_, l.dahStep(true), false );
+    }
 }
 
 
@@ -95,40 +101,26 @@ int LogResampler::nextStep()
 {
     float curtime = timeintv_.atIndex( nrdone_ );
     float curdah = wd_.d2TModel()->getDepth( curtime );
-    float curval = 0;
-    int tmpidx = curlogsample_;
-    updateLogIdx( curdah, tmpidx  );
-    curlogsample_ = tmpidx;
+    curidx_ = orglog_.indexOf( curdah );
+    if ( curidx_ < 0 ) curidx_ = 0; 
     
-    if ( curtime >= timeintv_.stop || nrdone_ >= maxnrdone_)
+    if ( curtime >= timeintv_.stop || nrdone_ >= timeintv_.nrSteps() )
 	return Executor::Finished();
    
+    float curval = 0;
     if ( curdah < dah_[0] )
 	curval = val_[0];
     else if ( curdah > dah_[dah_.size()-1] )
-	curval = mUdf(float);
+	curval = dah_[dah_.size()-1];
+    else if ( curidx_>1 && curidx_<dah_.size()-2 && isavg_ )
+	curval += ( val_[curidx_+1] + val_[curidx_-1] + val_[curidx_] )/3;
     else
-    {
-	if ( tmpidx>1 && tmpidx<dah_.size()-2 )
-	//3 points avg seems to work better than the polynomial interpolation
-	    curval += ( (val_[tmpidx+1]+val_[tmpidx-1]+val_[tmpidx])*1/3 );
-	else
-	    curval = val_[curlogsample_];
-    }
-    tielog_.addValue( curdah, curval );
+	curval = val_[curidx_];
+
+    newlog_->addValue( curdah, curval );
 
     nrdone_++;
     return Executor::MoreToDo();
-}
-
-
-void LogResampler::updateLogIdx( float curdah, int& logidx  )
-{
-    int tmpidx = logidx;
-    while ( tmpidx < val_.size() && curdah >= dah_[tmpidx] )
-	tmpidx++;
-    
-    logidx = tmpidx;
 }
 
 }; //namespace WellTie

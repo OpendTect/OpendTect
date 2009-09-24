@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.18 2009-09-23 13:27:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.19 2009-09-24 15:29:09 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -40,61 +40,46 @@ Log::~Log()
 }
 
 
-const Array1DImpl<float>* Log::getVal() 
+const Array1DImpl<float>* Log::getVal( const Interval<float>* si, bool dah )
 {
     delete arr_; arr_ = 0;
-    if ( size() ) arr_ = new Array1DImpl<float>( size() );
+    TypeSet<float> vals;
     for ( int idx=0; idx<size(); idx++ )
-	arr_->set( idx, valArr()[idx] );
+    {
+	if ( si && dah_[idx]<si->start )
+	    continue;
+	float val = dah ? dah_[idx] : valArr()[idx];
+	if ( si && dah_[idx]>=si->stop )
+	    val =0;
+	vals += val;
+    }
+    arr_ = new Array1DImpl<float> ( vals.size() );
+    memcpy( arr_->getData(), vals.arr(), vals.size()*sizeof(float) );
     return arr_;
 }
 
 
-const Array1DImpl<float>* Log::getDah()
-{
-    delete arr_; arr_ = 0;
-    if ( size() ) arr_ = new Array1DImpl<float>( size() );
-    for ( int idx=0; idx<size(); idx++ )
-	arr_->set( idx, dah(idx) );
-    return arr_;
-}
-
-
-void Log::setVal( const Array1DImpl<float>* arr )
+void Log::setVal( const Array1DImpl<float>* arr, bool isdah )
 {
     if ( !arr ) return;
 
-    val_.erase();
-    for ( int idx=0; idx<size(); idx++ )
-	val_.add( arr->get( idx ) );
-}
-
-
-void Log::setDah( const Array1DImpl<float>* arr )
-{
-    if ( !arr ) return;
-
-    dah_.erase(); 
+    TypeSet<float>& val = isdah ? dah_ : val_;
+    val.erase();
     for ( int idx=0; idx<arr->info().getSize(0); idx++ )
-	dah_.add( arr->get( idx ) );
-}
-
-
-void Log::resample( int step )
-{
-    const int orgsize = size();
-
-    const float* orgvals = valArr();	const float* orgdah = dah_.arr();
-    val_.erase();			dah_.erase();
-
-    for ( int idx=0; idx<int(orgsize/step); idx ++ )
-	addValue( orgdah[idx*step], orgvals[idx*step] );
+	val.add( arr->get( idx ) );
 }
 
 
 LogSet::~LogSet()
 {
     deepErase( logs );
+}
+
+
+const Array1DImpl<float>* LogSet::getVal( const char* nm, bool isdah, 
+					  const Interval<float>* st ) const
+{
+    mDynCast(nm,return 0); return l->getVal(st,isdah);
 }
 
 

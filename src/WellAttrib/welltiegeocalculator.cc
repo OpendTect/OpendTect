@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.33 2009-09-23 11:50:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.34 2009-09-24 15:29:09 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -240,7 +240,7 @@ void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 
     const int bordersz = 51*20;
     if ( bordersz > filtersz ) return;
-    const float df = FFT::getDf( params_.dpms_.timeintv_.step, filtersz );
+    const float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
 
     Array1DImpl<float>* borders = new Array1DImpl<float>( 2*bordersz );
     Array1DImpl<float>* freq = new Array1DImpl<float>( filtersz );
@@ -346,7 +346,7 @@ void GeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 			       const Array1DImpl<float>& denvals,
 			       Array1DImpl<float>& aivals )
 {
-    const int datasz = aivals.info().getSize(0);
+    const int datasz = velvals.info().getSize(0);
     const bool issonic = setup_.issonic_;
     float prevval = 0;
     for ( int idx=0; idx<datasz; idx++ )
