@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.187 2009-09-21 07:09:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.188 2009-09-24 04:31:57 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -619,13 +619,13 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm , mCB(this,uiODMenuMgr,fn), txt, togg )
 
-#define mAddPopUp( nm, txt1, txt2, itm1, itm2, mnuid ) \
-    popmnu = new uiPopupMenu( &appl_, nm ); \
+#define mAddPopUp( nm, txt1, txt2, itm1, itm2, mnuid ) { \
+    uiPopupMenu* popmnu = new uiPopupMenu( &appl_, nm ); \
     popmnu->insertItem( new uiMenuItem(txt1, \
 		       mCB(this,uiODMenuMgr,handleClick)), itm1 ); \
     popmnu->insertItem( new uiMenuItem(txt2, \
 		       mCB(this,uiODMenuMgr,handleClick)), itm2 ); \
-    mantb_ ->setButtonMenu( mnuid, popmnu );
+    mantb_ ->setButtonMenu( mnuid, popmnu ); }
 
 void uiODMenuMgr::fillManTB()
 {
@@ -640,13 +640,12 @@ void uiODMenuMgr::fillManTB()
     mAddTB(mantb_,"man_strat.png","Manage Stratigraphy",false,manStrat);
  
     if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
-    {
-	uiPopupMenu* popmnu = 0;
-	mAddPopUp( "horizon Menu", "2D Horizons", "3D Horizons",
-		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
-	mAddPopUp( "seismics Menu", "2D Seismics", "3D Seismics",
+	mAddPopUp( "Seismics Menu", "2D Seismics", "3D Seismics",
 		   mManSeis2DMnuItm, mManSeis3DMnuItm, seisid );
-    }
+ 
+    if ( SI().getSurvDataType() != SurveyInfo::No2D )
+	mAddPopUp( "Horizon Menu", "2D Horizons", "3D Horizons",
+		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 }
 
 
