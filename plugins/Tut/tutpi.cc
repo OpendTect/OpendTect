@@ -5,19 +5,19 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tutpi.cc,v 1.5 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: tutpi.cc,v 1.6 2009-09-24 10:42:40 cvsnanne Exp $";
 
 #include "tutseistools.h"
 #include "tutorialattrib.h"
 #include "plugins.h"
 
-mExternC mGlobal int GetTutPluginType()
+mExternC int GetTutPluginType()
 {
     return PI_AUTO_INIT_EARLY;
 }
 
 
-mExternC mGlobal PluginInfo* GetTutPluginInfo()
+mExternC PluginInfo* GetTutPluginInfo()
 {
     static PluginInfo retpi = {
 	"Tutorial plugin development (Non-UI)",
@@ -28,7 +28,7 @@ mExternC mGlobal PluginInfo* GetTutPluginInfo()
 }
 
 
-mExternC mGlobal const char* InitTutPlugin( int, char** )
+mExternC const char* InitTutPlugin( int, char** )
 {
     Attrib::Tutorial::initClass();
 
