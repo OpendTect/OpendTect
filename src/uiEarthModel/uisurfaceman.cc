@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.66 2009-08-27 15:55:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.67 2009-09-24 04:32:20 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -111,8 +111,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 	infofld->attach( ensureBelow, relbut );
     }
 
-    lvlfld_ = new uiStratLevelSel( this );
-    lvlfld_->attach( alignedBelow, infofld );
     selChg( this ); 
 }
 
