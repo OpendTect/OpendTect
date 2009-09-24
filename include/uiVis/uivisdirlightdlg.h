@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.3 2009-09-22 11:27:04 cvsbruno Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.4 2009-09-24 09:53:42 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,11 @@ public:
 
 protected:
 
-    visBase::DirectionalLight*	getCurrentDirLight() const;
-    void			updateWidgets(bool);
+    visBase::DirectionalLight*	getDirLight(int) const;
+    void			setDirLight();
+    int				updateSceneSelector();	
+    void			updateWidgetValues(bool);
+    void			showWidgets(bool);
     void			validateInput();
 
     bool			acceptOK(CallBacker*);
@@ -48,8 +51,6 @@ protected:
     float			initazimuthval_;
     float			initdipval_;
     float			initintensityval_;
-
-    void			setDirLight();
 
 };
 
