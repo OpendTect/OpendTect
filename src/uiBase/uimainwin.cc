@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.187 2009-08-27 10:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.188 2009-09-24 07:35:28 cvsranojay Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -594,7 +594,11 @@ void uiMainWinBody::removeDockWin( uiDockWin* dwin )
 
 void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
 {
-    addDockWidget( Qt::LeftDockWidgetArea, dwin.qwidget() );
+    Qt::DockWidgetArea dwa = Qt::LeftDockWidgetArea;
+    if ( dock == uiMainWin::Right ) dwa = Qt::RightDockWidgetArea;
+    else if ( dock == uiMainWin::Top ) dwa = Qt::TopDockWidgetArea;
+    else if ( dock == uiMainWin::Bottom ) dwa = Qt::BottomDockWidgetArea;
+    addDockWidget( dwa, dwin.qwidget() );
     if ( dock == uiMainWin::TornOff )
 	dwin.setFloating( true );
     dockwins_ += &dwin;
