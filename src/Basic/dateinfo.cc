@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.9 2009-09-03 11:33:56 cvsbert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.10 2009-09-24 09:21:59 cvsbert Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -28,6 +28,11 @@ DefineEnumNames(DateInfo,Day,2,"Week day") {
 };
 
 DefineEnumNames(DateInfo,Month,3,"Month") {
+	"jan", "feb", "mar", "apr", "may", "jun",
+	"jul", "aug", "sep", "oct", "nov", "dec",
+	0
+};
+static const char* fullmonths[] = {
 	"January",
 	"February",
 	"March",
@@ -42,6 +47,7 @@ DefineEnumNames(DateInfo,Month,3,"Month") {
 	"December",
 	0
 };
+const char** DateInfo::sFullMonths()	{ return fullmonths; }
 
 
 DateInfo::DateInfo()
@@ -53,74 +59,83 @@ DateInfo::DateInfo()
 
 DateInfo::DateInfo( int yr, int mn, int dy )
 	: year_(yr-1996)
-	, month_((Month)(mn-1))
-	, day_(dy-1)
+	, day_(dy > 0 ? dy-1 : 0)
+	, days96_(0)
 {
-    calcDays96();
+    setMonth( mn );
 }
 
 
 DateInfo::DateInfo( int yr, DateInfo::Month m, int dy )
 	: year_(yr-1996)
 	, month_(m)
-	, day_(dy-1)
 {
-    calcDays96();
+    setDay( dy );
 }
 
 
 DateInfo::DateInfo( int yr, const char* mn, int dy )
 	: year_(yr-1996)
 	, month_(eEnum(DateInfo::Month,mn))
-	, day_(dy-1)
 {
-    calcDays96();
+    setDay( dy );
+}
+
+
+DateInfo::DateInfo( const char* str )
+	: year_(mUdf(int))
+	, month_(Jan)
+	, day_(0)
+	, days96_(0)
+{
+    fromString( str );
 }
 
 
 void DateInfo::setDay( int dy )
 {
+    if ( dy < 1 ) dy = 1; if ( dy > 31 ) dy = 31;
     day_ = dy - 1;
-    if ( isUdf() ) return;
-    calcDays96();
+    if ( !isUdf() )
+	calcDays96();
 }
 
 
 void DateInfo::setMonth( DateInfo::Month mn )
 {
     month_ = mn;
-    if ( isUdf() ) return;
-    calcDays96();
+    if ( !isUdf() )
+	calcDays96();
+}
+
+
+void DateInfo::setMonth( int mn )
+{
+    if ( mn < 1 ) mn = 1; if ( mn > 12 ) mn = 12;
+    setMonth( (Month)(mn-1) );
 }
 
 
 void DateInfo::setYear( int yr )
 {
     year_ = yr - 1996;
-    if ( isUdf() ) return;
-    calcDays96();
+    if ( !isUdf() )
+	calcDays96();
 }
 
 
 DateInfo& DateInfo::operator +=( int dys )
 {
     if ( !isUdf() )
-    {
-	days96_ += dys;
-	calcDMY();
-    }
+	{ days96_ += dys; calcDMY(); }
     return *this;
 }
 
 
-DateInfo& DateInfo::operator -=( int dys )
+DateInfo::Month DateInfo::usrMonth2Month( int usrmnth )
 {
-    if ( !isUdf() )
-    {
-	days96_ -= dys;
-	calcDMY();
-    }
-    return *this;
+    if ( usrmnth < 1 ) usrmnth = 1; if ( usrmnth > 12 ) usrmnth = 12;
+    return (Month)(usrmnth-1);
 }
 
 
@@ -149,11 +164,30 @@ void DateInfo::addMonths( int mns )
 }
 
 
-const char* DateInfo::weekDayName() const
+int DateInfo::weekDay() const
 {
     int nr = days96_ % 7 + 1;
     if ( nr > 6 ) nr = 0;
+    return nr + 1;
+}
+
+
+const char* DateInfo::weekDayName() const
+{
+    const int nr = weekDay() - 1;
     return eString(Day,nr);
+}
+
+
+const char* DateInfo::fullMonthName( DateInfo::Month mnth )
+{
+    return fullmonths[ (int)mnth ];
+}
+
+
+const char* DateInfo::fullMonthName( int usrmnth )
+{
+    return fullMonthName( usrMonth2Month(usrmnth) );
 }
 
 
@@ -273,7 +307,7 @@ void DateInfo::getRel( const DateInfo& reld ) const
 	}
     }
 
-    buf = monthName();
+    buf = fullMonthName();
     buf += " the ";
     addDay();
     if ( reld.year_ != year_ ) { buf += ", "; buf += year(); }
@@ -334,7 +368,7 @@ void DateInfo::getRelToday() const
     }
 
     buf = day(); buf += " ";
-    buf += monthName();
+    buf += fullMonthName();
     if ( today.year_ != year_ ) { buf += " "; buf += year(); }
 }
 
@@ -356,14 +390,10 @@ void DateInfo::toString( BufferString& str ) const
     if ( isUdf() )
 	{ str = sKey::Undef; return; }
 
-    str.setEmpty(); str += day();
-
-    str += "-";
-    buf = eString(DateInfo::Month,month()+1); buf[3] = '\0';
-    buf[0] = tolower( buf[0] );
-    str += buf;
-
-    str += "-"; str += year();
+    str.setEmpty();
+    str += day(); str += "-";
+    str += eString(DateInfo::Month,month_); str += "-";
+    str += year();
 }
 
 
@@ -375,8 +405,9 @@ bool DateInfo::fromString( const char* str )
     if ( !isdigit(*dayptr) ) return false;
 
     day_ = atoi( dayptr );
-    month_ = eEnum(DateInfo::Month,ss[1]);   
-    year_ = atoi( ss[2] );
+    if ( day_ > 0 ) day_--;
+    month_ = eEnum(DateInfo::Month,ss[1]);
+    year_ = atoi( ss[2] ) - 1996;
     calcDays96();
     return true;
 }
@@ -386,8 +417,7 @@ void DateInfo::getFullDisp( BufferString& disp, bool withtime ) const
 {
     if ( isUdf() ) { disp = sKey::Undef; return; }
 
-    disp = eString(DateInfo::Month,month());
-    *(disp.buf() + 3) = ' '; *(disp.buf() + 4) = '\0';
+    disp = fullMonthName();
     disp += day(); disp += " ";
     disp += year(); disp += " ";
 
