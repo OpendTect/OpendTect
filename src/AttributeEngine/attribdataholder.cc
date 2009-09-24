@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.15 2009-09-23 14:52:08 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.16 2009-09-24 15:25:41 cvsbruno Exp $";
 
 #include "attribdataholder.h"
 
@@ -141,7 +141,7 @@ float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
 {
     //Workaround to avoid conversion problems, 1e7 to get 1e6 precision
     //in case the survey is in depth z*1e7 might exceed maximum int: we use 1e4
-    const int fact = SI().zIsTime() ? 1e7 : 1e4;
+    const int fact = SI().zIsTime() ? (int)1e7 : (int)1e4;
     const int extrazem7 = (int)(exactz*fact)%(int)(refzstep*fact);
     const int extrazem7noprec = (int)(refzstep*fact) - 5;
     const int leftem3 = (int)(exactz*fact) - extrazem7;
