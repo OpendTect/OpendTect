@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.18 2009-07-28 07:10:38 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.19 2009-09-24 17:49:26 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -32,6 +32,11 @@ bool BatchProgram::go( std::ostream& strm )
     MultiID chainid;
     pars().get( VolProcessingTranslatorGroup::sKeyChainID(), chainid );
     PtrMan<IOObj> ioobj = IOM().get( chainid );
+    if ( !ioobj )
+    {
+	strm << "Could not find volume processing ID: \"" << chainid << "\"\n";
+	return false;
+    }
     
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
     BufferString errmsg;
