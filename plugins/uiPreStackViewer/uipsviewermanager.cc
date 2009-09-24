@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.53 2009-09-08 22:07:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.54 2009-09-24 10:41:50 cvsnanne Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -450,8 +450,8 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
     }
 
     vwr.setPack( false, dpid, false, true );
-    int pw = 200 + 10 * fdp->data().info().getSize( 1 );
-    if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
+    int pw = 100 + 5 * fdp->data().info().getSize( 0 );
+    if ( pw > 800 ) pw = 800;
     
     vwr.setInitialSize( uiSize(pw,500) );  
     viewwin->addControl( new uiFlatViewStdControl( vwr,
