@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.13 2009-09-17 16:38:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.14 2009-09-24 17:49:45 cvsyuancheng Exp $";
 
 #include "vissplittextureseis2d.h"
 
@@ -148,14 +148,18 @@ void SplitTextureSeis2D::updateHorSplit()
 	return;
 
     deepErase( horblocktrcindices_ );
-    int diff = 0;
-    while ( trcrg_.start>trcnrs_[diff] && diff<geomsz-1 )
-	diff++;
+    int startidx = 0;
+    while ( trcrg_.start>trcnrs_[startidx] && startidx<geomsz-1 )
+	startidx++;
     
-    if ( diff>=geomsz-1 )
+    if ( startidx>=geomsz-1 )
 	return;
 
-    const int nrtrcs = geomsz - diff; 
+    int stopidx = startidx;
+    while ( trcrg_.stop>trcnrs_[stopidx] && stopidx<geomsz-1 )
+	stopidx++;
+    
+    const int nrtrcs = stopidx - startidx + 1; 
     const int nrhorblocks = nrBlocks( nrtrcs, mMaxHorSz, 1 );
     for ( int idx=0; idx<nrhorblocks; idx++ )
     {
@@ -164,7 +168,7 @@ void SplitTextureSeis2D::updateHorSplit()
 	    blockidxrg.stop = nrtrcs-1;
 
 	const int pathsize = blockidxrg.width()+1;
-	const int offset = blockidxrg.start+diff;
+	const int offset = blockidxrg.start+startidx;
 	BendPointFinder2D finder( path_.arr()+offset, pathsize, 0.5 );
 	finder.execute();
 
