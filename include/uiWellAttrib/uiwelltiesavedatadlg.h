@@ -59,7 +59,7 @@ public:
 						const Setup&);
     				~uiSaveDataTable(){};
 
-    bool 			saveData(BufferStringSet&);
+    bool 			getNamesToBeSaved(BufferStringSet&);
     const int			indexOf( const char* nm ) const
 				{ return names_.indexOf(nm); }
 
@@ -70,7 +70,7 @@ protected:
     CtxtIOObj&          	ctio_;
     ObjectSet<uiCheckBox> 	chckboxfld_;
     ObjectSet<uiIOObjSel>  	ioobjselflds_;
-    const BufferStringSet&	names_;
+    const BufferStringSet	names_;
     int 			nrtimessaved_;
 
     void			initTable();
@@ -93,7 +93,7 @@ public:
 
 protected:
 
-    bool 			acceptOK();
+    bool 			acceptOK(CallBacker*);
 };
 
 }; //namespace WellTie

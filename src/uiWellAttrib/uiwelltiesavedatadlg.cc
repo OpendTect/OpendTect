@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.2 2009-09-25 15:21:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.3 2009-09-25 16:17:30 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -57,20 +57,20 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
 }
 
 
-bool uiSaveDataDlg::acceptOK()
+bool uiSaveDataDlg::acceptOK( CallBacker* )
 {
     if ( !logstablefld_ || !wvltstablefld_ ) 
 	return false;
     BufferStringSet lognms, wvltnms;
-    if ( !logstablefld_->saveData( lognms) 
-	    	&& !wvltstablefld_->saveData( wvltnms  ) )
+    if ( !logstablefld_->getNamesToBeSaved( lognms) 
+	    	&& !wvltstablefld_->getNamesToBeSaved( wvltnms  ) )
 	return false;
     if ( lognms.isEmpty() && wvltnms.isEmpty() )
 	mErrRet( "No Data to save" );
 
     for ( int idx=0; idx<wvltnms.size(); idx++ )
     {
-	const int wvltidx = logstablefld_->indexOf( wvltnms.get(idx) );
+	const int wvltidx = wvltstablefld_->indexOf( wvltnms.get(idx) );
 	if ( wvltidx <=0 ) continue;
 	if ( !dataholder_->wvltset()[wvltidx]->put( wvltctio_.ioobj ) )
 	{
@@ -82,12 +82,12 @@ bool uiSaveDataDlg::acceptOK()
 
     for ( int idx=0; idx<lognms.size(); idx++)
     {
-        const Well::Log* log = dataholder_->logsset()->getLog(lognms.get(idx));
-	Well::Log* newlog = new Well::Log( *log );
+        const Well::Log* l = dataholder_->logsset()->getLog(lognms.get(idx));
+	if ( !l ) continue;
+	Well::Log* newlog = new Well::Log( *l );
 	Well::LogSet& logsset = 
 	    const_cast<Well::LogSet&>(dataholder_->wd()->logs());
 	logsset.add( newlog );
-	lognms.add( log->name() );
     }
     mDynamicCastGet(const IOStream*,iostrm,IOM().get(
 		dataholder_->setup().wellid_));
@@ -135,10 +135,10 @@ void uiSaveDataTable::initTable()
     {
 	BufferString objnm(names_.get(idx)); 
 	if (nrtimessaved_) objnm+=(const char*)nrtimessaved_;
-	ioobjselflds_ += new uiIOObjSel( this, ctio_, "" );
+	ioobjselflds_ += new uiIOObjSel( 0, ctio_, "" );
 	ioobjselflds_[idx]->setInputText( objnm );
-	chckboxfld_ += new uiCheckBox( this, "" );
-	labelsfld_ += new uiLabel( this, names_.get(idx) );
+	chckboxfld_ += new uiCheckBox( 0, "" );
+	labelsfld_ += new uiLabel( 0, names_.get(idx) );
 	table_->setCellObject( RowCol(idx,0), chckboxfld_[idx]  );
 	table_->setCellObject( RowCol(idx,1), labelsfld_[idx] );
 	table_->setCellGroup( RowCol(idx,2), ioobjselflds_[idx] );
@@ -147,7 +147,7 @@ void uiSaveDataTable::initTable()
 }
 
 
-bool uiSaveDataTable::saveData( BufferStringSet& nms )
+bool uiSaveDataTable::getNamesToBeSaved( BufferStringSet& nms )
 {
     deepErase( nms );
     for ( int idx=0; idx<names_.size(); idx++ )
@@ -160,7 +160,7 @@ bool uiSaveDataTable::saveData( BufferStringSet& nms )
 	    msg += names_.get(idx);
 	    mErrRet( msg );
 	}
-	nms.add( name_[idx] );
+	nms.add( names_.get(idx) );
     }
     return true;
 }
