@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.188 2009-09-24 04:31:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.189 2009-09-25 10:58:06 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -168,10 +168,11 @@ void uiODMenuMgr::enableActButton( bool yn )
 
 void uiODMenuMgr::fillSurveyMenu()
 {
-    ioPixmap surveypm( "survey.png" );
-    mInsertPixmapItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm, &surveypm );
+    const ioPixmap surveypm( "survey.png" );
+    mInsertPixmapItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm,
+	    	       &surveypm );
 
-    uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession");
+    uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession" );
     mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
     mInsertItem( sessionitm, "&Restore ...", mSessRestMnuItm );
     mInsertItem( sessionitm, "&Auto ...", mSessAutoMnuItm );
@@ -300,9 +301,12 @@ void uiODMenuMgr::fillManMenu()
 	mInsertItem( manmnu_, "&Horizons ...", mManHor3DMnuItm );
     else
     {
-	mInsertItem( manmnu_, "&Horizons 3D ...", mManHor3DMnuItm );
-	mInsertItem( manmnu_, "Horizons &2D ...", mManHor2DMnuItm );
+	uiPopupMenu* mnu = new uiPopupMenu( &appl_, "&Horizons" );
+	mInsertItem( mnu, "&2D ...", mManHor2DMnuItm );
+	mInsertItem( mnu, "&3D ...", mManHor3DMnuItm );
+	manmnu_->insertItem( mnu );
     }
+
     mInsertItem( manmnu_, "&PickSets ...", mManPickMnuItm );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm );
 
@@ -370,21 +374,20 @@ void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
     SurveyInfo::Pol2D survtype = SI().getSurvDataType();
+    const ioPixmap attrpm( "attributes.png" );
     if ( survtype == SurveyInfo::Both2DAnd3D )
     {
-	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "&Attributes" );
-	ioPixmap attr2d("attributes_2d.png");
-	ioPixmap attr3d("attributes_3d.png");
-	mInsertPixmapItem( aitm, "&2D ...", mEdit2DAttrMnuItm, &attr2d );
-	mInsertPixmapItem( aitm, "&3D ...", mEdit3DAttrMnuItm, &attr3d );
+	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "&Attributes", &attrpm );
+	mInsertItem( aitm, "&2D ...", mEdit2DAttrMnuItm );
+	mInsertItem( aitm, "&3D ...", mEdit3DAttrMnuItm );
 
 	analmnu_->insertItem( aitm );
 	analmnu_->insertSeparator();
     }
     else
     {
-	ioPixmap attr("attributes.png");
-       	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm,&attr );
+       	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm,
+			   &attrpm );
 	analmnu_->insertSeparator();
     }
 
@@ -395,8 +398,8 @@ void uiODMenuMgr::fillAnalMenu()
 		    &VolProc::uiChain::getPixmap() ) );
     }
 
-    const ioPixmap xplotpixmap( "xplot.png" );
-    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot",&xplotpixmap);
+    const ioPixmap xplotpm( "xplot.png" );
+    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot", &xplotpm );
     mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
     mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
     analmnu_->insertItem( crsplot );
