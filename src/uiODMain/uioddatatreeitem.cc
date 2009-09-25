@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.42 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.43 2009-09-25 09:22:58 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -206,16 +206,17 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     }
 
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
-    if ( dpid > DataPack::cNoID() )
-    {
+    const bool hasdatapack = dpid>DataPack::cNoID();
+    const bool isvert = visserv->isVerticalDisp( displayID() );
+    if ( hasdatapack )
 	mAddMenuItem( menu, &statisticsitem_, true, false )
-	mAddMenuItem( menu, &amplspectrumitem_, true, false )
-    }
     else
-    {
 	mResetMenuItem( &statisticsitem_ )
+
+    if ( hasdatapack && isvert )
+	mAddMenuItem( menu, &amplspectrumitem_, true, false )
+    else
 	mResetMenuItem( &amplspectrumitem_ )
-    }
 
     mAddMenuItem( menu, &removemnuitem_,
 		  !islocked && visserv->canRemoveAttrib( displayID()), false );
@@ -235,7 +236,11 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );
 	const bool hasattrib = as && as->id()!=Attrib::SelSpec::cAttribNotSel();
-	mAddMenuItem( &addto2dvieweritem_, &view2dwvaitem_, hasattrib, false )
+	if ( isvert )
+	    mAddMenuItem(&addto2dvieweritem_, &view2dwvaitem_, hasattrib, false)
+	else
+	    mResetMenuItem( &view2dwvaitem_ );
+
 	mAddMenuItem( &addto2dvieweritem_, &view2dvditem_, hasattrib, false )
 	mAddMenuItem( menu, &addto2dvieweritem_, hasattrib, false )
     }
