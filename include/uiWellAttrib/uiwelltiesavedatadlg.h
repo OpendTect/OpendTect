@@ -14,39 +14,86 @@ ________________________________________________________________________
 -*/
 
 #include "uidialog.h"
+#include "uigroup.h"
 #include "bufstringset.h"
 #include "welltieunitfactors.h"
 
+class CtxtIOObj;
+class IOObj;
+class IOObjSel;
 class uiListBox;
 class uiIOObjSel;
 class uiTable;
+class uiLabel;
+class uiCheckBox;
+class Wavelet;
+
+namespace Well
+{
+    class Log;
+}
 
 namespace WellTie
 {
     class DataHolder;
+    class Log;
+
+mClass uiSaveDataTable : public uiGroup
+{
+public:
+
+      mClass Setup
+      {
+	      public:
+				Setup()
+				    : nrtimes_(0)
+				    , colnm_("Log")   
+				    {}	  
+			
+        mDefSetupMemb(BufferString,colnm)
+        mDefSetupMemb(BufferStringSet,itemnames)
+        mDefSetupMemb(int,nrtimes)
+      };
+
+    				uiSaveDataTable(uiParent*,CtxtIOObj&,
+						const Setup&);
+    				~uiSaveDataTable(){};
+
+    bool 			saveData(BufferStringSet&);
+    const int			indexOf( const char* nm ) const
+				{ return names_.indexOf(nm); }
+
+protected:
+
+    uiTable* 			table_;
+    ObjectSet<uiLabel> 		labelsfld_;
+    CtxtIOObj&          	ctio_;
+    ObjectSet<uiCheckBox> 	chckboxfld_;
+    ObjectSet<uiIOObjSel>  	ioobjselflds_;
+    const BufferStringSet&	names_;
+    int 			nrtimessaved_;
+
+    void			initTable();
+};
+
 
 mClass uiSaveDataDlg : public uiDialog
 {
 public: 
-			uiSaveDataDlg(uiParent*,const WellTie::DataHolder*);
-			~uiSaveDataDlg(){};
+				uiSaveDataDlg(uiParent*,WellTie::DataHolder*);
+				~uiSaveDataDlg(){};
 
+    CtxtIOObj&          	wellctio_;
+    CtxtIOObj&          	wvltctio_; 
+
+    const WellTie::DataHolder* 	dataholder_;
+    uiSaveDataTable* 		logstablefld_;
+    uiSaveDataTable* 		wvltstablefld_;
+    int 			nrtimessaved_;
 
 protected:
 
-    ObjectSet<uiTable> 	tableset_;
-    BufferStringSet	nameslist_;
-    ObjectSet<uiIOObjSel> ioobjselset_;
-
-    const WellTie::Params::DataParams& params_;
-
-    void 		selDone(CallBacker*);    
-
-/*
-    void                fillListBox();
-    void		createSelectButtons();
-    const TypeSet<MultiID>&     getSelWells() const { return selwellsids_; }*/
-
+    bool 			acceptOK();
 };
 
 }; //namespace WellTie

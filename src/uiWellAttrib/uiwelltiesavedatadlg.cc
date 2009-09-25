@@ -8,48 +8,161 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.1 2009-09-24 15:29:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.2 2009-09-25 15:21:15 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
+#include "ioman.h"
+#include "iostrm.h"
+#include "strmprov.h"
 #include "wavelet.h"
 #include "welltiedata.h"
-#include "uitable.h"
+#include "welltiesetup.h"
+#include "wellwriter.h"
+#include "welltransl.h"
 
-static const char* colnms[] = { "Log Name", "Wavelet Name", 0 };
+#include "uibutton.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uitable.h"
+#include "uimsg.h"
+
+
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
 namespace WellTie
 {
 
-uiSaveDataDlg::uiSaveDataDlg( uiParent* p, const WellTie::DataHolder* dh )
-    : uiDialog( p, uiDialog::Setup("Save current data","",mTODOHelpID) )
-    , params_(*dh->dpms())  
+uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
+    : uiDialog( p, uiDialog::Setup("Save current data",
+		"Check the items to be saved",mTODOHelpID) )
+    , wvltctio_(*mMkCtxtIOObj(Wavelet))
+    , wellctio_(*mMkCtxtIOObj(Well))
+    , dataholder_(dh)				    
+    , nrtimessaved_(0)				     
 {
-    for ( int idx=0; colnms[idx]; idx++ )
-    {
-	tableset_ += new uiTable( this, uiTable::Setup()
-				        .selmode(uiTable::SelectionMode(3)),
-	       				"data table" );
-	tableset_[idx]->setNrCols( 3 );
-	tableset_[idx]->setColumnLabel( 0, colnms[idx] );
-	tableset_[idx]->setColumnLabel( 1, "Specify name" );
-	tableset_[idx]->setNrRows( 3 );
-	tableset_[idx]->setColumnWidth(0,90);
-	tableset_[idx]->setColumnWidth(1,90);
-	tableset_[idx]->setTableReadOnly(true);
-	if ( idx ) tableset_[idx]->attach( alignedBelow, tableset_[idx-1] );
-    }
+    BufferStringSet lognms; 	BufferStringSet wvltnms;
 
-    BufferStringSet nms;
+    for ( int idx=0; idx<dh->wvltset().size(); idx++)
+	wvltnms.add( dh->wvltset()[idx]->name() );
 
-    nms.add( params_.ainm_ ); 	 	nms.add( dh->wvltset()[0]->name() ); 	
-    nms.add( params_.refnm_ ); 		nms.add( dh->wvltset()[1]->name() );
-    nms.add( params_.synthnm_ ); 
+    for ( int idx=4; idx<dh->logsset()->size()-1; idx++)
+	lognms.add( dh->logsset()->getLog(idx).name() );
 
+    uiSaveDataTable::Setup su; su.nrtimes(nrtimessaved_); su.itemnames_=lognms;
+    logstablefld_ = new uiSaveDataTable( this, wellctio_, su );
+
+    su.colnm("Wavalet"); su.itemnames_ = wvltnms;
+    wvltstablefld_ = new uiSaveDataTable( this, wvltctio_, su );
+    wvltstablefld_->attach( alignedBelow, logstablefld_ );
 }
 
 
-void uiSaveDataDlg::selDone( CallBacker* )
+bool uiSaveDataDlg::acceptOK()
 {
+    if ( !logstablefld_ || !wvltstablefld_ ) 
+	return false;
+    BufferStringSet lognms, wvltnms;
+    if ( !logstablefld_->saveData( lognms) 
+	    	&& !wvltstablefld_->saveData( wvltnms  ) )
+	return false;
+    if ( lognms.isEmpty() && wvltnms.isEmpty() )
+	mErrRet( "No Data to save" );
+
+    for ( int idx=0; idx<wvltnms.size(); idx++ )
+    {
+	const int wvltidx = logstablefld_->indexOf( wvltnms.get(idx) );
+	if ( wvltidx <=0 ) continue;
+	if ( !dataholder_->wvltset()[wvltidx]->put( wvltctio_.ioobj ) )
+	{
+	    BufferString errmsg( "cannot save " ); 
+	    errmsg += wvltnms.get(idx);
+	    mErrRet( errmsg );
+	}
+    }
+
+    for ( int idx=0; idx<lognms.size(); idx++)
+    {
+        const Well::Log* log = dataholder_->logsset()->getLog(lognms.get(idx));
+	Well::Log* newlog = new Well::Log( *log );
+	Well::LogSet& logsset = 
+	    const_cast<Well::LogSet&>(dataholder_->wd()->logs());
+	logsset.add( newlog );
+	lognms.add( log->name() );
+    }
+    mDynamicCastGet(const IOStream*,iostrm,IOM().get(
+		dataholder_->setup().wellid_));
+    if ( !iostrm ) return false;
+
+    StreamProvider sp( iostrm->fileName() );
+    sp.addPathIfNecessary( iostrm->dirName() );
+    BufferString fname = sp.fileName();
+    Well::Writer wtr( fname, *dataholder_->wd() );
+    wtr.putLogs();
+
+    nrtimessaved_++;
+    return true;
+}
+
+
+
+uiSaveDataTable::uiSaveDataTable( uiParent* p, CtxtIOObj& ctio, const Setup& s )
+    : uiGroup(p)
+    , ctio_(ctio)
+    , names_(s.itemnames_)
+    , nrtimessaved_(s.nrtimes_)		   
+{
+    ctio_.ctxt.forread = false;
+    table_ = new uiTable( this, uiTable::Setup()
+				    .rowgrow(true),
+				    "data table" );
+    table_->setNrCols( 3 );
+    table_->setColumnLabel( 0, "" );
+    table_->setColumnLabel( 1, s.colnm_ );
+    table_->setColumnLabel( 2, "Specify output name" );
+    table_->setColumnResizeMode( uiTable::ResizeToContents );
+    table_->setColumnStretchable( 2, true );
+    table_->setColumnStretchable( 1, true );
+    table_->setNrRows( names_.size() );
+
+    initTable();
+}
+
+
+void uiSaveDataTable::initTable()
+{
+    deepErase( ioobjselflds_ );
+    for ( int idx=0; idx<names_.size(); idx++ )
+    {
+	BufferString objnm(names_.get(idx)); 
+	if (nrtimessaved_) objnm+=(const char*)nrtimessaved_;
+	ioobjselflds_ += new uiIOObjSel( this, ctio_, "" );
+	ioobjselflds_[idx]->setInputText( objnm );
+	chckboxfld_ += new uiCheckBox( this, "" );
+	labelsfld_ += new uiLabel( this, names_.get(idx) );
+	table_->setCellObject( RowCol(idx,0), chckboxfld_[idx]  );
+	table_->setCellObject( RowCol(idx,1), labelsfld_[idx] );
+	table_->setCellGroup( RowCol(idx,2), ioobjselflds_[idx] );
+    }
+    table_->resizeColumnsToContents();
+}
+
+
+bool uiSaveDataTable::saveData( BufferStringSet& nms )
+{
+    deepErase( nms );
+    for ( int idx=0; idx<names_.size(); idx++ )
+    {
+	if ( !chckboxfld_[idx]->isChecked() )
+	    continue;
+	if ( !ioobjselflds_[idx]->commitInput() )
+	{
+	    BufferString msg = "Please enter a name for the ";
+	    msg += names_.get(idx);
+	    mErrRet( msg );
+	}
+	nms.add( name_[idx] );
+    }
+    return true;
 }
 
 }; //namespace Well Tie
