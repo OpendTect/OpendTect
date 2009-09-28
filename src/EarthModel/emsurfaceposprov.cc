@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.8 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.9 2009-09-28 13:27:32 cvsbert Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -36,6 +36,7 @@ Pos::EMSurfaceProvider::EMSurfaceProvider()
     , iterator_(0)
     , curz_(mUdf(float))
     , curzrg_(0,0)
+    , estnrpos_(-1)
 {
 }
 
@@ -69,6 +70,7 @@ void Pos::EMSurfaceProvider::copyFrom( const Pos::EMSurfaceProvider& pp )
     id2_ = pp.id2_;
     hs_ = pp.hs_;
     zrg1_ = pp.zrg1_; zrg2_ = pp.zrg2_;
+    estnrpos_ = -1;
 }
 
 
@@ -79,7 +81,7 @@ const char* Pos::EMSurfaceProvider::type() const
 
 
 static void getSurfRanges( const EM::Surface& surf, HorSampling& hs,
-			   Interval<float>& zrg )
+			   Interval<float>& zrg, od_int64& estnrpos )
 {
     bool veryfirst = true;
     for ( int idx=0; idx<surf.nrSections(); idx++ )
@@ -102,6 +104,8 @@ static void getSurfRanges( const EM::Surface& surf, HorSampling& hs,
 		if ( coord.z > zrg.stop ) zrg.stop = coord.z;
 		hs.include( bid );
 	    }
+	    estnrpos++;
+
 	    posid = it.next();
 	}
     }
@@ -119,7 +123,7 @@ bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
     if ( !surf1 ) return false;
     surf1_ = surf1; surf1_->ref();
 
-    getSurfRanges( *surf1_, hs_, zrg1_ );
+    getSurfRanges( *surf1_, hs_, zrg1_, estnrpos_ );
 
     if ( !id2_.isEmpty() )
     {
@@ -130,7 +134,10 @@ bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
 	HorSampling hs( hs_ );
-	getSurfRanges( *surf2_, hs, zrg2_ );
+	od_int64 estnrpos2 = estnrpos_;
+	getSurfRanges( *surf2_, hs, zrg2_, estnrpos2 );
+	if ( estnrpos2 < estnrpos_ )
+	    estnrpos_ = estnrpos2;
 	hs_.limitTo( hs );
     }
 
@@ -263,12 +270,6 @@ void Pos::EMSurfaceProvider::getZRange( Interval<float>& zrg ) const
 	if ( zrg2_.start < zrg.start ) zrg.start = zrg2_.start;
 	if ( zrg2_.stop > zrg.stop ) zrg.stop = zrg2_.stop;
     }
-}
-
-
-int Pos::EMSurfaceProvider::estNrPos() const
-{
-    return !surf1_ ? 0 : hs_.totalNr();
 }
 
 

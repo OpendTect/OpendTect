@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.6 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.7 2009-09-28 13:27:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
 
     virtual void	getExtent(BinID& start,BinID& stop) const;
     virtual void	getZRange(Interval<float>&) const;
-    virtual int		estNrPos() const;
+    virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const;
 
     CubeSampling&	sampling()		{ return cs_; }
@@ -100,7 +100,7 @@ public:
 			{ assign( rg, rg_ ); }
     virtual void	getZRange( Interval<float>& rg ) const
 			{ assign( rg, zrg_ ); }
-    virtual int		estNrPos() const
+    virtual od_int64	estNrPos() const
 			{ return rg_.nrSteps() + 1; }
     virtual int		estNrZPerPos() const
 			{ return zrg_.nrSteps() + 1; }

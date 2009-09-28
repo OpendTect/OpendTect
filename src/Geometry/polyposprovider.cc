@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.11 2009-08-25 10:59:55 cvsraman Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.12 2009-09-28 13:27:32 cvsbert Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -211,10 +211,11 @@ void Pos::PolyProvider3D::getZRange( Interval<float>& zrg ) const
 }
 
 
-int Pos::PolyProvider3D::estNrPos() const
+od_int64 Pos::PolyProvider3D::estNrPos() const
 {
-    float fnr = poly_.area() / (hs_.step.inl * hs_.step.crl);
-    return mNINT(fnr);
+    float fnr = poly_.area() / hs_.step.inl;
+    fnr /= hs_.step.crl;
+    return mRounded(od_int64,fnr);
 }
 
 

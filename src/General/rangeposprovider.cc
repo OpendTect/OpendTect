@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.11 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.12 2009-09-28 13:27:32 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -134,7 +134,7 @@ void Pos::RangeProvider3D::getZRange( Interval<float>& zrg ) const
 }
 
 
-int Pos::RangeProvider3D::estNrPos() const
+od_int64 Pos::RangeProvider3D::estNrPos() const
 {
     return cs_.hrg.totalNr();
 }

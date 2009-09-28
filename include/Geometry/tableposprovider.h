@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: tableposprovider.h,v 1.5 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: tableposprovider.h,v 1.6 2009-09-28 13:27:32 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -51,7 +51,7 @@ public:
 
     void		getExtent(BinID&,BinID&) const;
     void		getZRange(Interval<float>&) const;
-    int			estNrPos() const	{ return bvs_.totalSize(); }
+    od_int64		estNrPos() const	{ return bvs_.totalSize(); }
     int			estNrZPerPos() const	{ return 1; }
 
     BinIDValueSet&	binidValueSet()		{ return bvs_; }

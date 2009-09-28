@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.16 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.17 2009-09-28 13:27:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ public:
     virtual float	curZ() const				= 0;
 
     virtual void	getZRange(Interval<float>&) const	= 0;
-    virtual int		estNrPos() const			= 0;
+    virtual od_int64	estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
     mGlobal virtual float	estRatio(const Provider&) const;

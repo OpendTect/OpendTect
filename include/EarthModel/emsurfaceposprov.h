@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.6 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.7 2009-09-28 13:27:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ public:
     virtual void	getSummary(BufferString&) const;
 
     virtual void	getZRange(Interval<float>&) const;
-    virtual int		estNrPos() const;
+    virtual od_int64	estNrPos() const { return estnrpos_; }
     virtual int		estNrZPerPos() const;
 
     int			nrSurfaces() const;
@@ -88,6 +88,7 @@ protected:
     HorSampling		hs_;
     Interval<float>	zrg1_;
     Interval<float>	zrg2_;
+    od_int64		estnrpos_;
 
     EM::RowColIterator*	iterator_;
     EM::PosID		curpos_;
@@ -111,8 +112,7 @@ protected:
 			{ return EMSurfaceProvider::curZ(); } \
     virtual void	getZRange(Interval<float>& rg ) const \
 			{ return EMSurfaceProvider::getZRange(rg); } \
-    virtual int		estNrPos() const \
-			{ return EMSurfaceProvider::estNrPos(); } \
+    virtual od_int64	estNrPos() const { return estnrpos_; }
 
 /*!\brief EMSurfaceProvider for 3D positioning */
 

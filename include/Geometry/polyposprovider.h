@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: polyposprovider.h,v 1.8 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: polyposprovider.h,v 1.9 2009-09-28 13:27:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ public:
 
     virtual void	getExtent(BinID&,BinID&) const;
     virtual void	getZRange(Interval<float>&) const;
-    virtual int		estNrPos() const;
+    virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const	{ return zrg_.nrSteps()+1; }
 
     ODPolygon<float>&	polygon()		{ return poly_; }
