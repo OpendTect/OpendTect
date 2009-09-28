@@ -7,31 +7,44 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.15 2009-08-27 15:55:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.16 2009-09-28 11:58:16 cvsnanne Exp $";
 
 #include "uimeasuredlg.h"
 
 #include "bufstring.h"
 #include "draw.h"
 #include "position.h"
+#include "settings.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
+#include "uicolor.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uisellinest.h"
+#include "uispinbox.h"
+
+
+static const char* sKeyLineStyle = "Measure LineStyle";
 
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog( p, Setup("Measured Distance",mNoDlgTitle,"50.0.15")
 	    		.modal(false) )
-    , ls_(*new LineStyle)
+    , ls_(*new LineStyle(LineStyle::Solid,3))
     , appvelfld_(0)
+    , velocity_(2000)
     , lineStyleChange(this)
     , clearPressed(this)
+    , velocityChange(this)
 {
     setOkText( "" );
     setCancelText( "" );
+
+    BufferString str;
+    mSettUse(get,"dTect",sKeyLineStyle,str);
+    if ( !str.isEmpty() )
+	ls_.fromString( str.buf() );
 
     uiGroup* topgrp = new uiGroup( this, "Info fields" );
     BufferString hdistlbl ( "Horizontal Distance ", SI().getXYUnitString() );
@@ -47,7 +60,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     {
 	BufferString lbl( "(", SI().getXYUnitString(false), "/sec)" );
 	BufferString vellbl( "Velocity ", lbl );
-	appvelfld_ = new uiGenInput( topgrp, vellbl, FloatInpSpec(2000) );
+	appvelfld_ = new uiGenInput( topgrp, vellbl, FloatInpSpec(velocity_) );
 	appvelfld_->valuechanged.notify( mCB(this,uiMeasureDlg,velocityChgd) );
 	appvelfld_->attach( alignedBelow, zdistfld_ );
     }
@@ -83,7 +96,14 @@ uiMeasureDlg::~uiMeasureDlg()
 
 void uiMeasureDlg::lsChangeCB( CallBacker* cb )
 {
-    ls_ = linestylefld_->getStyle();
+    mDynamicCastGet(uiColorInput*,uicol,cb)
+    mDynamicCastGet(uiSpinBox*,uisb,cb)
+    if ( !uicol && !uisb ) return;
+
+    if ( uicol )
+	ls_.color_ = uicol->color();
+    else if ( uisb )
+	ls_.width_ = uisb->getValue();
     lineStyleChange.trigger( cb );
 }
 
@@ -96,19 +116,28 @@ void uiMeasureDlg::stylebutCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Line Style",mNoDlgTitle,mNoHelpID) );
     dlg.setCtrlStyle( uiDialog::LeaveOnly );
-    linestylefld_ = new uiSelLineStyle( &dlg, ls_, "", false, true, true );
-    linestylefld_->changed.notify( mCB(this,uiMeasureDlg,lsChangeCB) );
+    uiSelLineStyle* linestylefld =
+	new uiSelLineStyle( &dlg, ls_, "", false, true, true );
+    linestylefld->changed.notify( mCB(this,uiMeasureDlg,lsChangeCB) );
     dlg.go();
+
+    BufferString str;
+    ls_.toString( str );
+    mSettUse(set,"dTect",sKeyLineStyle,str);
+    mSettWrite();
 }
-
-
-void uiMeasureDlg::setLineStyle( const LineStyle& ls )
-{ ls_ = ls; }
 
 
 void uiMeasureDlg::velocityChgd( CallBacker* )
 {
-    pErrMsg( "Not implemented yet" );
+    if ( !appvelfld_ ) return;
+
+    const float newvel = appvelfld_->getfValue();
+    if ( mIsEqual(velocity_,newvel,mDefEps) )
+	return;
+
+    velocity_ = newvel;
+    velocityChange.trigger();
 }
 
 
@@ -116,8 +145,8 @@ void uiMeasureDlg::reset()
 {
     hdistfld_->setValue( 0 );
     zdistfld_->setValue( 0 );
-    if ( SI().zIsTime() )
-    	appvelfld_->setValue( 2000 );
+    if ( appvelfld_ )
+    	appvelfld_->setValue( velocity_ );
     distfld_->setValue( 0 );
     inlcrldistfld_->setValue( Interval<int>(0,0) );
 }
@@ -126,9 +155,9 @@ void uiMeasureDlg::reset()
 static const double cM2Ft2 = 10.76391;
 static const double cFt2M2 = 0.09290304;
 
-void uiMeasureDlg::fill( TypeSet<Coord3>& points )
+void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 {
-    const float velocity = SI().zIsTime() ? appvelfld_->getfValue() : 0 ;
+    const float velocity = appvelfld_ ? appvelfld_->getfValue() : 0 ;
     const int size = points.size();
     if ( size<2 )
     {
@@ -154,7 +183,7 @@ void uiMeasureDlg::fill( TypeSet<Coord3>& points )
     
 	if ( SI().zIsTime() )
 	    totrealdist += 
-		Math::Sqrt( hdist*hdist + velocity*velocity*zdist*zdist / 4 );
+		Math::Sqrt( hdist*hdist + velocity*velocity*zdist*zdist/4 );
 	else if ( SI().zInMeter() )
 	{
 	   if ( SI().xyInFeet() )

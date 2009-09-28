@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: measuretoolman.cc,v 1.11 2009-07-24 05:53:18 cvsnageswara Exp $";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.12 2009-09-28 11:58:16 cvsnanne Exp $";
 
 
 #include "measuretoolman.h"
@@ -38,7 +38,7 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
 
     TypeSet<int> sceneids;
     appl.applMgr().visServer()->getChildIds( -1, sceneids );
-    for( int ids=0; ids<sceneids.size(); ids++ )
+    for ( int ids=0; ids<sceneids.size(); ids++ )
 	addScene( sceneids[ids] );
 
     appl.sceneMgr().treeToBeAdded.notify(
@@ -82,10 +82,14 @@ void MeasureToolMan::manageDlg( bool show )
 	    measuredlg_ = new uiMeasureDlg( &appl_ );
 	    measuredlg_->lineStyleChange.notify(
 				mCB(this,MeasureToolMan,lineStyleChangeCB) );
+	    measuredlg_->velocityChange.notify(
+		    		mCB(this,MeasureToolMan,velocityChangeCB) );
 	    measuredlg_->clearPressed.notify( mCB(this,MeasureToolMan,clearCB));
 	    measuredlg_->windowClosed.notify( 
 		    		mCB(this,MeasureToolMan,dlgClosed) );
+	    lineStyleChangeCB(0);
 	}
+
 	measuredlg_->show();
 	appl_.sceneMgr().setToViewMode( false );
     }
@@ -197,6 +201,17 @@ void MeasureToolMan::changeCB( CallBacker* cb )
 	chgdset.remove( cd->loc_ );
 
     giveCoordsToDialog( chgdset, *measuredlg_ );
+}
+
+
+void MeasureToolMan::velocityChangeCB( CallBacker* )
+{
+    const int sceneid = appl_.sceneMgr().getActiveSceneID();
+    const int sceneidx = sceneids_.indexOf( sceneid );
+    if ( !displayobjs_.validIdx(sceneidx) ) return;
+
+    if ( displayobjs_[sceneidx]->getSet() && measuredlg_ )
+	giveCoordsToDialog( *displayobjs_[sceneidx]->getSet(), *measuredlg_ );
 }
 
 

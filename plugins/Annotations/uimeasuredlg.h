@@ -4,7 +4,7 @@ ________________________________________________________________________
     (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
     Author:        Nageswara
     Date:          July 2008
-    RCS:           $Id: uimeasuredlg.h,v 1.5 2009-07-22 16:01:26 cvsbert Exp $
+    RCS:           $Id: uimeasuredlg.h,v 1.6 2009-09-28 11:58:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,17 +22,18 @@ public:
 				uiMeasureDlg(uiParent*);
 				~uiMeasureDlg();
 
-    void			setLineStyle(const LineStyle&);
     const LineStyle&		getLineStyle() const	{ return ls_; }
 
-    void			fill(TypeSet<Coord3>&);
+    void			fill(const TypeSet<Coord3>&);
     void			reset();
 
     Notifier<uiMeasureDlg>	lineStyleChange;
     Notifier<uiMeasureDlg>	clearPressed;
+    Notifier<uiMeasureDlg>	velocityChange;
 
 protected:
 
+    float			velocity_;
     LineStyle&			ls_;
 
     uiGenInput*			hdistfld_;
@@ -40,7 +41,6 @@ protected:
     uiGenInput*			appvelfld_;
     uiGenInput*			distfld_;
     uiGenInput*			inlcrldistfld_;
-    uiSelLineStyle*		linestylefld_;
 
     void			lsChangeCB(CallBacker*);
     void			clearCB(CallBacker*);
