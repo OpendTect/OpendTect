@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.12 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: convert.h,v 1.13 2009-09-28 13:25:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,51 +153,51 @@ inline void set( bool& _to, const char* const& s )
 
 template <>
 inline void set( od_int32& _to, const float& f )
-    { _to = mNINT(f); }
+    { _to = mRounded(od_int32,f); }
 
 template <>
 inline void set( od_int64& _to, const float& f )
-    { _to = mNINT(f); }
+    { _to = mRounded(od_int64,f); }
 
 template <>
 inline void set( short& _to, const float& f )
-    { _to = (short)mNINT(f); }
+    { _to = mRounded(short,f); }
 
 template <>
 inline void set( unsigned short& _to, const float& f )
-    { _to = (unsigned short)mNINT(f); }
-
-template <>
-inline void set( od_int32& _to, const double& f )
-    { _to = mNINT(f); }
-
-template <>
-inline void set( od_int64& _to, const double& f )
-    { _to = mNINT(f); }
-
-template <>
-inline void set( short& _to, const double& f )
-    { _to = (short)mNINT(f); }
-
-template <>
-inline void set( unsigned short& _to, const double& f )
-    { _to = (unsigned short)mNINT(f); }
+    { _to = mRounded(unsigned short,f); }
 
 template <>
 inline void set( od_uint32& _to, const float& f )
-    { _to = mNINT(f); }
+    { _to = mRounded(od_uint32,f); }
 
 template <>
 inline void set( od_uint64& _to, const float& f )
-    { _to = mNINT(f); }
+    { _to = mRounded(od_uint64,f); }
+
+template <>
+inline void set( od_int32& _to, const double& f )
+    { _to = mRounded(od_int32,f); }
+
+template <>
+inline void set( od_int64& _to, const double& f )
+    { _to = mRounded(od_int64,f); }
+
+template <>
+inline void set( short& _to, const double& f )
+    { _to = mRounded(short,f); }
+
+template <>
+inline void set( unsigned short& _to, const double& f )
+    { _to = mRounded(unsigned short,f); }
 
 template <>
 inline void set( od_uint32& _to, const double& f )
-    { _to = mNINT(f); }
+    { _to = mRounded(od_uint32,f); }
 
 template <>
 inline void set( od_uint64& _to, const double& f )
-    { _to = mNINT(f); }
+    { _to = mRounded(od_uint64,f); }
 
 template <>
 inline void set( bool& _to, const int& i )
