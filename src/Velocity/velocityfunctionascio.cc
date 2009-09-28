@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.5 2009-09-28 12:25:40 cvskris Exp $";
 
 #include "velocityfunctionascio.h"
 
@@ -24,11 +24,11 @@ namespace Vel
 
 FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
 			      std::istream& stm,
-       			      int nrbytes )
+       			      od_int64 nrkbytes )
     : Table::AscIO(fd)
     , strm_(stm)
     , nrdone_( 0 )
-    , nrbytes_( nrbytes )
+    , nrkbytes_( nrkbytes )
     , output_( 0 )
     , first_( true )
 {}
