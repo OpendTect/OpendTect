@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.5 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:           $Id: horsampling.h,v 1.6 2009-09-28 13:25:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ public:
 					start.crl + i1*step.crl ); }
     int			nrInl() const;
     int			nrCrl() const;
-    inline int		totalNr() const	{ return nrInl() * nrCrl(); }
+    inline od_int64	totalNr() const	{ return ((od_int64)nrInl())*nrCrl(); }
     inline bool		isEmpty() const { return nrInl() < 1 || nrCrl() < 1; }
 
     void		init(bool settoSI=true);
