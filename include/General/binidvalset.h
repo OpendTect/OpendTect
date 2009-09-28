@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.24 2009-08-07 12:11:44 cvsnageswara Exp $
+ RCS:		$Id: binidvalset.h,v 1.25 2009-09-28 13:26:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ class IOPar;
   The iteration through the set should be done using the Pos iterator class.
   All positioning is already done with Pos, but you can in theory still use
   \code
-  const int sz = totalSize();
-  for ( int idx=0; idx<sz; idx++ ) 
+  const od_int64 sz = totalSize();
+  for ( od_int64 idx=0; idx<sz; idx++ ) 
   {
       BinIDValueSet::Pos pos = bivs.getPos( idx );
       // etc.
@@ -104,7 +104,7 @@ public:
 
     void		get(const Pos&,BinID&,float* v=0,int mxnrvals=-1) const;
     BinID		getBinID(const Pos&) const;
-    Pos			getPos(int global_idx) const;
+    Pos			getPos(od_int64 global_idx) const;
     			//!< Slow. And 0 < global_idx < totalNr() is not checked
     Pos			add(const BinID&,const float* vs=0);
     			//!< Either pass sufficient data or pass null
@@ -124,7 +124,7 @@ public:
     inline bool		includes( const BinID& b ) const
     						{ return findFirst(b).j > -1; }
     int			nrPos(int inlidx) const;
-    int			totalSize() const;
+    od_int64		totalSize() const;
     bool		hasInl(int) const;
     bool		hasCrl(int) const;
     BinID		firstPos() const; //!< if empty, returns BinID(0,0)
@@ -142,7 +142,7 @@ public:
     int			nrDuplicateBinIDs() const;
     void		sortDuplicateBids(int value_nr,bool ascending=true);
     void		removeDuplicateBids();
-    void		randomSubselect(int maxnr);
+    void		randomSubselect(od_int64 maxnr);
 
     void		extend(const BinID& stepout,const BinID& stepoutstep);
     			//!< Adds only BinID postions not yet in set

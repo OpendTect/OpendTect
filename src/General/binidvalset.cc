@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.31 2009-09-04 18:02:18 cvskris Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.32 2009-09-28 13:26:51 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -131,20 +131,20 @@ void BinIDValueSet::remove( const BinIDValueSet& removebids )
 } 
 
 
-void BinIDValueSet::randomSubselect( int maxsz )
+void BinIDValueSet::randomSubselect( od_int64 maxsz )
 {
-    const int orgsz = totalSize();
+    const od_int64 orgsz = totalSize();
     if ( orgsz <= maxsz )
 	return;
     if ( maxsz == 0 )
 	{ empty(); return; }
 
-    mGetIdxArr(int,idxs,orgsz);
+    mGetIdxArr(od_int64,idxs,orgsz);
     if ( !idxs ) { empty(); return; }
 
     Stats::RandGen::subselect( idxs, orgsz, maxsz );
     TypeSet<Pos> poss;
-    for ( int idx=maxsz; idx<orgsz; idx++ )
+    for ( od_int64 idx=maxsz; idx<orgsz; idx++ )
 	poss += getPos( idxs[idx] );
 
     delete [] idxs;
@@ -448,15 +448,15 @@ BinID BinIDValueSet::getBinID( const Pos& pos ) const
 }
 
 
-BinIDValueSet::Pos BinIDValueSet::getPos( int glidx ) const
+BinIDValueSet::Pos BinIDValueSet::getPos( od_int64 glidx ) const
 {
-    int firstidx = 0; Pos pos;
+    od_int64 firstidx = 0; Pos pos;
     for ( pos.i=0; pos.i<inls_.size(); pos.i++ )
     {
 	const TypeSet<int>& crls = getCrlSet(pos);
 	if ( firstidx + crls.size() > glidx )
 	{
-	    pos.j = glidx - firstidx;
+	    pos.j = (int)(glidx - firstidx);
 	    return pos;
 	}
 	firstidx += crls.size();
@@ -556,9 +556,9 @@ int BinIDValueSet::nrPos( int inlidx ) const
 }
 
 
-int BinIDValueSet::totalSize() const
+od_int64 BinIDValueSet::totalSize() const
 {
-    int nr = 0;
+    od_int64 nr = 0;
     for ( int idx=0; idx<inls_.size(); idx++ )
 	nr += getCrlSet(idx).size();
     return nr;
