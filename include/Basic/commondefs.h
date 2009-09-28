@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.27 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.28 2009-09-28 13:24:59 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -17,7 +17,8 @@ ________________________________________________________________________
 #include "plfdefs.h"
 
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
-#define mNINT(x)		( (int)((x)>0 ? (x)+.5 : (x)-.5) )
+#define mRounded(typ,x)		( (typ)((x)>0 ? (x)+.5 : (x)-.5) )
+#define mNINT(x)		mRounded(int,x)
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
 
