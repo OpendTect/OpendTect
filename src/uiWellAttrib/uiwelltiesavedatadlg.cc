@@ -8,22 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.5 2009-09-29 12:13:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.6 2009-09-29 15:15:34 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
-#include "ioman.h"
-#include "iostrm.h"
-#include "strmprov.h"
-#include "seistrc.h"
-#include "seistrctr.h"
-#include "seiswrite.h"
-#include "survinfo.h"
 #include "wavelet.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
-#include "welltieextractdata.h"
-#include "wellwriter.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -41,9 +32,10 @@ namespace WellTie
 uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
     : uiDialog( p, uiDialog::Setup("Save current data",
 		"Check the items to be saved",mTODOHelpID) )
-    , wvltctio_(*mMkCtxtIOObj(Wavelet))
-    , seisctio_(*mMkCtxtIOObj(SeisTrc))
-    , dataholder_(dh)				    
+    , wvltctio_(dh->wvltCtxt())
+    , seisctio_(dh->seisCtxt())
+    , dataholder_(dh)
+    , datawriter_(new WellTie::DataWriter(dh))	     
     , nrtimessaved_(0)				     
 {
     seisctio_.ctxt.forread = false;
@@ -73,6 +65,13 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
 }
 
 
+uiSaveDataDlg::~uiSaveDataDlg()
+{
+    delete datawriter_;
+}
+
+#define mCanNotWriteLogs(msg)\
+    mErrRet( "Cannot write logs" );
 bool uiSaveDataDlg::acceptOK( CallBacker* )
 {
     if ( !savelogsfld_ || !savewvltsfld_ ) 
@@ -83,7 +82,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	return false;
 
     if ( lognms.isEmpty() && wvltnms.isEmpty() )
-	mErrRet( "No Data to save" );
+	mErrRet( "Please check at least one item to be saved" );
 
     for ( int idx=0; idx<wvltnms.size(); idx++ )
     {
@@ -97,93 +96,27 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	}
     }
 
-    //TODO Create Well tie writer class instead
-    Well::LogSet& logsset =const_cast<Well::LogSet&>(dataholder_->wd()->logs());
+    Well::LogSet logsset;
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Well::Log* l =dataholder_->logsset()->getLog(lognms.get(idx));
+	const Well::Log* l = dataholder_->logsset()->getLog(lognms.get(idx));
 	if ( !l ) continue;
 	Well::Log* newlog = new Well::Log( *l );
 	logsset.add( newlog );
     }
 
+    BufferString errmsg( "Cannot write new " );
     if ( saveasfld_->getBoolValue() )
     {
-	mDynamicCastGet(const IOStream*,iostrm,IOM().get(
-					    dataholder_->setup().wellid_) );
-	if ( !iostrm ) return false;
-
-	StreamProvider sp( iostrm->fileName() );
-	sp.addPathIfNecessary( iostrm->dirName() );
-	BufferString fname = sp.fileName();
-	Well::Writer wtr( fname, *dataholder_->wd() );
-	wtr.putLogs();
+	if ( !datawriter_->writeLogs( logsset ) )
+	    mCanNotWriteLogs();
     }
-    else
-	writeLogs2Cube( logsset );
+    else if ( !datawriter_->writeLogs2Cube( logsset ) )
+	mCanNotWriteLogs();
 
     nrtimessaved_++;
     return true;
 }
-
-
-bool uiSaveDataDlg::writeLogs2Cube( const Well::LogSet& logset )
-{
-    for ( int idx=0; idx<logset.size(); idx++ )
-    {
-	WellTie::TrackExtractor wtextr( 0, dataholder_->wd() );
-	wtextr.timeintv_ = dataholder_->dpms()->timeintvs_[1];
-	if ( !wtextr.execute() )
-	    mErrRet( "unable to  track extract position" );
-
-	const Well::Log& log = logset.getLog(idx);
-	const int datasz = log.size();
-	
-	TypeSet<BinID> bids;
-	for ( int idx=0; idx<datasz; idx++ )
-	    bids += wtextr.getBIDValues()[idx];
-
-	writeLog2Cube( log, bids );
-    }
-    return true;
-}
-
-
-bool uiSaveDataDlg::writeLog2Cube( const Well::Log& log, 
-				   const TypeSet<BinID>& bids )
-{
-    SeisTrcWriter writer( seisctio_.ioobj );
-
-    ObjectSet<SeisTrc> trcset;
-    SeisTrc* curtrc = 0;
-    const int datasz = log.size();
-    BinID prevbid( bids[0] );
-    for ( int idx=0; idx<datasz; idx++ )
-    {
-	const BinID bid( bids[idx] );
-	if ( idx && bid == prevbid )
-	    curtrc->set( idx, log.value(idx), 0 );
-	else
-	{
-	    SeisTrc* newtrc = new SeisTrc( datasz );
-	    trcset += newtrc;
-	    for ( int sidx=0; sidx<datasz; sidx++ )
-		newtrc->set( sidx, idx ? 0 : log.value(idx), 0 );
-	    newtrc->info().sampling.step = SI().zStep();
-	    newtrc->info().binid = bid;
-	    curtrc = newtrc;
-	}
-	prevbid = bid;
-    }
-    for ( int idx=0; idx<trcset.size(); idx++ )
-    {
-	if ( !writer.put(*trcset[idx]) )
-	    mErrRet( "cannot write new trace" );
-    }
-    deepErase(trcset);
-    return true;
-}
-
 
 
 uiSaveDataGroup::uiSaveDataGroup( uiParent* p, CtxtIOObj& ctio, const Setup& s )
@@ -252,7 +185,7 @@ bool uiSaveDataGroup::getNamesToBeSaved( BufferStringSet& nms )
     {
 	if ( !boxflds_[idx]->isChecked() )
 	    continue;
-	if ( !ioobjselflds_[idx]->commitInput() )
+	if ( !saveaslog_ && !ioobjselflds_[idx]->commitInput() )
 	{
 	    BufferString msg = "Please enter a name for the ";
 	    msg += names_.get(idx);

@@ -7,18 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.19 2009-09-24 15:29:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.20 2009-09-29 15:15:34 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
+#include "iostrm.h"
+#include "strmprov.h"
+#include "survinfo.h"
+#include "seistrctr.h"
+#include "seistrc.h"
+#include "seiswrite.h"
 #include "survinfo.h"
 #include "wavelet.h"
 
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "wellwriter.h"
 
 #include "welltiedata.h"
+#include "welltieextractdata.h"
 #include "welltiesetup.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
@@ -113,7 +121,10 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
     	: params_(params)	
 	, wd_(wd) 
 	, setup_(s)
-	, factors_(s.unitfactors_) 	   
+	, factors_(s.unitfactors_) 	  
+	, wvltctio_(*mMkCtxtIOObj(Wavelet))
+	, seisctio_(*mMkCtxtIOObj(SeisTrc))
+
 {
     for ( int idx =0; idx<2; idx++ )
 	wvltset_ += Wavelet::get( IOM().get(s.wvltid_) ); 
@@ -132,6 +143,118 @@ DataHolder::~DataHolder()
     delete pickmgr_;
     delete d2tmgr_;
     delete params_;
+    delete seisctio_.ioobj; delete &seisctio_;
+    delete wvltctio_.ioobj; delete &wvltctio_;
 }
+
+
+DataWriter::DataWriter( WellTie::DataHolder* dh )
+	: holder_(dh)
+        , seisctio_(dh->seisCtxt()) 
+{
+}
+
+
+const Well::Writer* DataWriter::getWellWriter() const
+{
+    const MultiID& wid = holder_->setup().wellid_;
+    mDynamicCastGet( const IOStream*, iostrm, IOM().get(wid) );
+    if ( !iostrm ) return 0;
+
+    StreamProvider sp( iostrm->fileName() );
+    sp.addPathIfNecessary( iostrm->dirName() );
+    BufferString fname = sp.fileName();
+    return new Well::Writer( fname, *holder_->wd() );
+}
+
+
+bool DataWriter::writeD2TM() const
+{
+    const Well::Writer* wr = getWellWriter();
+    if ( wr && wr->putLogs() )
+    { delete wr; return true; }
+
+    return false;
+}
+
+
+bool DataWriter::writeLogs( const Well::LogSet& logset ) const
+{
+    Well::LogSet& wdlogset = const_cast<Well::LogSet&>( holder_->wd()->logs() );
+    for ( int idx=0; idx<logset.size(); idx++ )
+    {
+	Well::Log* log = const_cast<Well::Log*>( &logset.getLog(idx) );
+	wdlogset.add( log );
+    }
+
+    const Well::Writer* wr = getWellWriter();
+    if ( wr && wr->putLogs() )
+    {
+	delete wr;
+	return true;
+    }
+    return false;
+}
+
+
+bool DataWriter::writeLogs2Cube( const Well::LogSet& logset ) const
+{
+    for ( int idx=0; idx<logset.size(); idx++ )
+    {
+	WellTie::TrackExtractor wtextr( 0, holder_->wd() );
+	wtextr.timeintv_ = holder_->dpms()->timeintvs_[1];
+	if ( !wtextr.execute() )
+	    pErrMsg( "unable to  track extract position" );
+
+	const Well::Log& log = logset.getLog(idx);
+	const int datasz = log.size();
+
+	TypeSet<BinID> bids;
+	for ( int idx=0; idx<datasz; idx++ )
+	bids += wtextr.getBIDValues()[idx];
+
+	writeLog2Cube( log, bids );
+										    }
+    return true;
+}
+
+
+bool DataWriter::writeLog2Cube( const Well::Log& log, const TypeSet<BinID>& bids ) const
+{
+    SeisTrcWriter writer( seisctio_.ioobj );
+
+    ObjectSet<SeisTrc> trcset;
+    SeisTrc* curtrc = 0;
+    const int datasz = log.size();
+    BinID prevbid( bids[0] );
+    for ( int idx=0; idx<datasz; idx++ )
+    {
+	const BinID bid( bids[idx] );
+	if ( idx && bid == prevbid )
+	    curtrc->set( idx, log.value(idx), 0 );
+	else
+	{
+	    SeisTrc* newtrc = new SeisTrc( datasz );
+	    trcset += newtrc;
+	    for ( int sidx=0; sidx<datasz; sidx++ )
+		newtrc->set( sidx, idx ? mUdf(float) : log.value(idx), 0 );
+	    newtrc->info().sampling.step = SI().zStep();
+	    newtrc->info().binid = bid;
+	    curtrc = newtrc;
+	}
+	prevbid = bid;
+    }
+    for ( int idx=0; idx<trcset.size(); idx++ )
+    {
+	if ( !writer.put(*trcset[idx]) )
+	    pErrMsg( "cannot write new trace" );
+    }
+    deepErase( trcset );
+
+    return true;
+}
+
+
+
 
 }; //namespace WellTie

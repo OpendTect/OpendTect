@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "welltieunitfactors.h"
 
-class BinID;
 class CtxtIOObj;
 class IOObj;
 class IOObjSel;
@@ -38,6 +37,7 @@ namespace Well
 namespace WellTie
 {
     class DataHolder;
+    class DataWriter;
     class Log;
 
 mClass uiSaveDataGroup : public uiGroup
@@ -90,7 +90,7 @@ mClass uiSaveDataDlg : public uiDialog
 {
 public: 
 				uiSaveDataDlg(uiParent*,WellTie::DataHolder*);
-				~uiSaveDataDlg(){};
+				~uiSaveDataDlg();
 
 protected :
 
@@ -102,10 +102,8 @@ protected :
     uiSaveDataGroup* 		savewvltsfld_;
     uiGenInput* 		saveasfld_;
     const WellTie::DataHolder* 	dataholder_;
+    WellTie::DataWriter*	datawriter_;
 
-    bool 			writeLogs2Cube(const Well::LogSet&);
-    bool 			writeLog2Cube(const Well::Log&,
-					      const TypeSet<BinID>&);
     bool 			acceptOK(CallBacker*);
 };
 

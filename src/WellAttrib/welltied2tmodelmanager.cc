@@ -7,22 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.13 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.14 2009-09-29 15:15:34 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
-#include "ioman.h"
-#include "iostrm.h"
 #include "filegen.h"
-#include "filepath.h"
-#include "strmprov.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "wellman.h"
 #include "welllogset.h"
 #include "welltrack.h"
-#include "wellwriter.h"
 
 #include "welltiegeocalculator.h"
 #include "welltiedata.h"
@@ -38,6 +33,7 @@ D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
 	, prvd2t_(0)
 	, emptyoninit_(false)
 	, wtsetup_(dh.setup())	
+	, datawriter_(new WellTie::DataWriter(&dh))			
 {
     if ( !wd_ ) return;
     if ( !wd_->d2TModel() || wd_->d2TModel()->size()< 2 )
@@ -54,6 +50,7 @@ D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
 
 D2TModelMGR::~D2TModelMGR()
 {
+    delete datawriter_;
     if ( prvd2t_ ) delete prvd2t_;
 }
 
@@ -154,15 +151,7 @@ bool D2TModelMGR::updateFromWD()
 
 bool D2TModelMGR::commitToWD()
 {
-    mDynamicCastGet(const IOStream*,iostrm,IOM().get(wtsetup_.wellid_))
-    if ( !iostrm ) 
-	return false;
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
-    BufferString fname = sp.fileName();
-
-    Well::Writer wtr( fname, *wd_ );
-    if ( !wtr.putD2T() ) 
+    if ( !datawriter_->writeD2TM() ) 
 	return false;
 
     wd_->d2tchanged.trigger();
@@ -172,27 +161,5 @@ bool D2TModelMGR::commitToWD()
     return true;
 }
 
-
-bool D2TModelMGR::save( const char* filename )
-{
-    StreamData sdo = StreamProvider( filename ).makeOStream();
-    if ( !sdo.usable() )
-    {
-	sdo.close();
-	return false;
-    }
-
-    const Well::D2TModel& d2t = d2T();
-    for ( int idx=0; idx< d2t.size(); idx++ )
-    {
-	*sdo.ostrm <<  d2t.dah(idx); 
-	*sdo.ostrm << '\t';
-       	*sdo.ostrm <<  d2t.value(idx);
-	*sdo.ostrm << '\n';
-    }
-    sdo.close();
-
-    return true;
-}
 
 }; //namespace WellTie

@@ -28,6 +28,7 @@ namespace Well
 namespace WellTie
 {
 
+class DataWriter;
 class Setup;
 class LogUnitFactors;
 
@@ -36,8 +37,6 @@ mClass D2TModelMGR
 public:
 				D2TModelMGR(WellTie::DataHolder&);
 				~D2TModelMGR();
-
-    bool 		save(const char* filenm);
 
     			// operations
     bool 		undo();
@@ -61,6 +60,7 @@ protected:
     Well::D2TModel* 		orgd2t_;
     WellTie::GeoCalculator&	geocalc_;
     const WellTie::Setup&	wtsetup_;
+    const WellTie::DataWriter*	datawriter_;
     bool			emptyoninit_;
 };
 

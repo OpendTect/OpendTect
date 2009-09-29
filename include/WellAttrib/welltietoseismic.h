@@ -47,8 +47,6 @@ public:
     //D2TModelmanager operations
     void 		computeD2TModel()
 			{ d2tmgr_->setFromVelLog(params_.currvellognm_); }
-    bool 		saveD2TModel(const char* fname)
-    			{ return d2tmgr_->save( fname ); }
     bool 		undoD2TModel()
 			{ return d2tmgr_->undo(); }
     bool 		cancelD2TModel()

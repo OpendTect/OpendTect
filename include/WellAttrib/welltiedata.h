@@ -19,8 +19,10 @@ ________________________________________________________________________
 #include "welltieunitfactors.h"
 
 class DataPointSet;
+class BinID;
 class Wavelet;
-namespace Well { class Data; }
+class CtxtIOObj;
+namespace Well { class Data; class Log; class Writer; }
 
 namespace WellTie
 {
@@ -71,17 +73,17 @@ public:
 mClass DataHolder 
 {
 public:    
-			DataHolder(WellTie::Params*,Well::Data*,
-				  const WellTie::Setup&);
-			~DataHolder();
+				DataHolder(WellTie::Params*,Well::Data*,
+				  		const WellTie::Setup&);
+				~DataHolder();
 
 //WellData			
-    Well::Data* 	  wd()        	   { return wd_; }	
-    const Well::Data* 	  wd()     const   { return wd_; }	
+    Well::Data* 		wd()        	   { return wd_; }	
+    const Well::Data* 		wd()     const   { return wd_; }	
 
 //logs 
-    WellTie::LogSet*  	  logsset() 	{ return logsset_; }
-    const WellTie::LogSet* logsset() const { return logsset_; }
+    WellTie::LogSet*  	  	logsset() 	{ return logsset_; }
+    const WellTie::LogSet* 	logsset() const { return logsset_; }
 
 //Wavelet
     ObjectSet<Wavelet>&		wvltset() { return wvltset_; }
@@ -102,16 +104,23 @@ public:
     WellTie::PickSetMGR*  pickmgr()   	   { return pickmgr_; }
     const WellTie::PickSetMGR* pickmgr() const { return pickmgr_; }
 
+//CtxtIobj
+    CtxtIOObj&	seisCtxt()		{ return seisctio_; }
+    CtxtIOObj&	wvltCtxt() 		{ return wvltctio_; }
+
 //Others    
-    float&		corrcoeff() 	   { return corrcoeff_; }
-    const float&	corrcoeff() const  { return corrcoeff_; }
-    WellTie::GeoCalculator* geoCalc()	   { return geocalc_; } 
+    float&			corrcoeff() 	   { return corrcoeff_; }
+    const float&		corrcoeff() const  { return corrcoeff_; }
+    WellTie::GeoCalculator* 	geoCalc()	   { return geocalc_; } 
     const WellTie::GeoCalculator* geoCalc() const { return geocalc_; } 
     
 private:
 
     float 			corrcoeff_;
     Well::Data*          	wd_;
+
+    CtxtIOObj&                  seisctio_;
+    CtxtIOObj&                  wvltctio_;
 
     WellTie::UnitFactors	factors_;
     WellTie::LogSet*		logsset_;
@@ -124,6 +133,27 @@ private:
 
     const WellTie::Setup&	setup_;
     ObjectSet<Wavelet>		wvltset_;
+};
+
+
+mClass DataWriter 
+{	
+public:    
+				DataWriter(WellTie::DataHolder*);
+				~DataWriter(){};
+   
+    bool 			writeD2TM() const;		
+    bool                        writeLogs(const Well::LogSet&) const;
+    bool                        writeLogs2Cube(const Well::LogSet&) const;
+
+protected:
+
+    CtxtIOObj&			seisctio_;
+    WellTie::DataHolder*	holder_;
+
+    const Well::Writer* 	getWellWriter() const;
+    bool                        writeLog2Cube(const Well::Log&, 
+					      const TypeSet<BinID>&) const;
 };
 
 }; //namespace WellTie
