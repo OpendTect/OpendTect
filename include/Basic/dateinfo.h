@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-3-1996
- RCS:		$Id: dateinfo.h,v 1.11 2009-09-29 10:11:06 cvsbert Exp $
+ RCS:		$Id: dateinfo.h,v 1.12 2009-09-29 10:34:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,14 +15,17 @@ ________________________________________________________________________
 #include "undefval.h"
 class BufferString;
 
-/*!\brief A date info class. Has nice 'relative' printouts.
+/*!\brief A date info class.
 
-Class does not work before 1900 or after 2099. Non-default constructors
-are for dates other than today. Constructors accept numbers as in normal usage.
+Class does not work before 1900. Non-default constructors are for dates
+other than today. Constructors accept numbers as in normal usage.
 
 Parsing: toString/fromString format is [n]n-xxx-nnnn, like 14-nov-2008.
 fromStdDateString() reads the 'file' standard, like 'Wed Nov 14 12:50:15 2008'.
-fromNumString() reads '2008-11-14' or '14-11-2008' or the same with slashes.
+fromNumString() reads '2008-11-14' or '14-11-2008' or the same with slashes,
+dots or colons.
+
+The class has some kewl 'relative' printouts.
 
 */
 
@@ -35,7 +38,7 @@ public:
     enum Month		{ Jan=0, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep,
 			  Oct, Nov, Dec };
 			DeclareEnumUtils(Month)	//!< Uses "jan", "feb" etc.
-    static const char**	sFullMonths();		//!< just cast enum to int
+    static const char**	sFullMonths();		//!< str = sFullMonths()[Month]
 
 			DateInfo();		//!< Today
 			DateInfo(int usryr,int usrmnth,int usrdy);
@@ -55,12 +58,12 @@ public:
     void		setMonth(Month);
     void		setYear(int);
 
-    int			operator ==( const DateInfo& di ) const
-			{ return days1900_ == di.days1900_; }
-    int			operator <( const DateInfo& di ) const
-			{ return days1900_ < di.days1900_; }
-    int			operator <=( const DateInfo& di ) const
-			{ return days1900_ <= di.days1900_; }
+    bool		operator ==(const DateInfo&) const;
+    bool		operator !=(const DateInfo&) const;
+    bool		operator <(const DateInfo&) const;
+    bool		operator <=(const DateInfo&) const;
+    bool		operator >(const DateInfo&) const;
+    bool		operator >=(const DateInfo&) const;
     DateInfo&		operator +=(int);
     DateInfo&		operator -=( int dys )	{ *this += -dys; return *this; }
     friend int		operator -(const DateInfo&,const DateInfo&);
@@ -105,6 +108,24 @@ public:
 
 };
 
+
+inline bool DateInfo::operator ==( const DateInfo& di ) const
+{ return days1900_ == di.days1900_; }
+
+inline bool DateInfo::operator !=( const DateInfo& di ) const
+{ return days1900_ != di.days1900_; }
+
+inline bool DateInfo::operator <( const DateInfo& di ) const
+{ return days1900_ < di.days1900_; }
+
+inline bool DateInfo::operator <=( const DateInfo& di ) const
+{ return days1900_ <= di.days1900_; }
+
+inline bool DateInfo::operator >( const DateInfo& di ) const
+{ return days1900_ > di.days1900_; }
+
+inline bool DateInfo::operator >=( const DateInfo& di ) const
+{ return days1900_ >= di.days1900_; }
 
 inline int operator -( const DateInfo& di1, const DateInfo& di2 )
 { return di1.days1900_ - di2.days1900_; }
