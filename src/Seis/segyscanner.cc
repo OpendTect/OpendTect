@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.26 2009-09-10 13:21:23 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.27 2009-09-29 13:43:57 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -253,7 +253,7 @@ void SEGY::Scanner::addFailed( const char* errmsg )
 {
     failerrmsgs_.add( errmsg );
     BufferString* bs = fnms_[curfidx_];
-    failedfnms_ += bs;
+    failedfnms_ += new BufferString( *bs );
     fnms_ -= bs;
     curfidx_--;
     closeTr();
