@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.93 2009-09-15 10:17:01 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.94 2009-09-29 12:33:03 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -464,9 +464,10 @@ bool StorageProvider::setTableSelData()
     }
     reader.setSelData( seldata );
     SeisTrcTranslator* transl = reader.seisTranslator();
+    if ( !transl ) return false;
     for ( int idx=0; idx<outputinterest.size(); idx++ )
     {
-	if ( !outputinterest[idx] ) 
+	if ( !outputinterest[idx] && transl->componentInfo().size()>idx ) 
 	    transl->componentInfo()[idx]->destidx = -1;
     }
     return true;
