@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.32 2009-09-24 15:29:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.33 2009-09-29 12:13:11 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -102,7 +102,7 @@ bool DataPlayer::extractWellTrack()
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     
-    WellTie::TrackExtractor wtextr( *dps_, &wd_ );
+    WellTie::TrackExtractor wtextr( dps_, &wd_ );
     wtextr.timeintv_ = params_.timeintvs_[1];
     if ( !tr_->execute( wtextr ) ) return false;
 

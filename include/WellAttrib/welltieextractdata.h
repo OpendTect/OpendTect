@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "geometry.h"
 
 class DataPointSet;
+class BinID;
 namespace Well 
 {
     class Data;
@@ -32,7 +33,7 @@ class Log;
 mClass TrackExtractor : public Executor
 {
 public:
-			TrackExtractor(DataPointSet& dps,const Well::Data* d)
+			TrackExtractor(DataPointSet* dps,const Well::Data* d)
 			    : Executor("Extracting Well track positions")
 			    , dps_(dps)
 			    , wd_(*d)
@@ -47,10 +48,12 @@ public:
     od_int64            nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Points done"; }
+    const BinID*	getBIDValues() const	{ return bidvalset_.arr(); }
 
 protected:
 
-    DataPointSet& 	dps_;
+    TypeSet<BinID>	bidvalset_;
+    DataPointSet* 	dps_;
     const Well::Data& 	wd_;	 
     int                 nrdone_;
 };

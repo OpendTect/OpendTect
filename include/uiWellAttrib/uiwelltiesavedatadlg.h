@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "welltieunitfactors.h"
 
+class BinID;
 class CtxtIOObj;
 class IOObj;
 class IOObjSel;
@@ -31,6 +32,7 @@ class Wavelet;
 namespace Well
 {
     class Log;
+    class LogSet;
 }
 
 namespace WellTie
@@ -64,7 +66,7 @@ public:
     bool 			getNamesToBeSaved(BufferStringSet&);
     const int			indexOf( const char* nm ) const
 				{ return names_.indexOf(nm); }
-    void 			showLogAsAttrSel(CallBacker*);
+    void 			changeLogUIOutput(CallBacker*);
 
 protected:
 
@@ -92,7 +94,7 @@ public:
 
 protected :
 
-    CtxtIOObj&          	wellctio_;
+    CtxtIOObj&          	seisctio_;
     CtxtIOObj&          	wvltctio_; 
 
     int 			nrtimessaved_;
@@ -101,6 +103,9 @@ protected :
     uiGenInput* 		saveasfld_;
     const WellTie::DataHolder* 	dataholder_;
 
+    bool 			writeLogs2Cube(const Well::LogSet&);
+    bool 			writeLog2Cube(const Well::Log&,
+					      const TypeSet<BinID>&);
     bool 			acceptOK(CallBacker*);
 };
 

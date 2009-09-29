@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.13 2009-09-24 15:29:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.14 2009-09-29 12:13:11 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -30,7 +30,7 @@ namespace WellTie
 
 
 #define mAddRow(bv,pos) \
-    dr.pos_.z_ = pos.z; dr.pos_.set( bid, pos ); dps_.addRow( dr )
+    dr.pos_.z_ = pos.z; dr.pos_.set( bid, pos ); dps_->addRow( dr )
 int TrackExtractor::nextStep()
 {
     double time = timeintv_.atIndex( nrdone_ );
@@ -48,9 +48,12 @@ int TrackExtractor::nextStep()
     if ( time>timeintv_.stop )
 	return Executor::Finished();
     DataPointSet::DataRow dr;
-    mAddRow( bid, pos );
-    
-    dps_.dataChanged();
+    if ( dps_ )
+    {
+	mAddRow( bid, pos );
+	dps_->dataChanged();
+    }
+    bidvalset_ += bid;
 
     nrdone_ ++;
     return Executor::MoreToDo();
