@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.16 2009-09-28 11:58:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.17 2009-09-29 12:47:52 cvsbert Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -124,7 +124,7 @@ void uiMeasureDlg::stylebutCB( CallBacker* )
     BufferString str;
     ls_.toString( str );
     mSettUse(set,"dTect",sKeyLineStyle,str);
-    mSettWrite();
+    Settings::common().write();
 }
 
 
