@@ -21,9 +21,9 @@ ________________________________________________________________________
 class CtxtIOObj;
 class IOObj;
 class IOObjSel;
+class uiGenInput;
 class uiListBox;
 class uiIOObjSel;
-class uiTable;
 class uiLabel;
 class uiCheckBox;
 class Wavelet;
@@ -38,7 +38,7 @@ namespace WellTie
     class DataHolder;
     class Log;
 
-mClass uiSaveDataTable : public uiGroup
+mClass uiSaveDataGroup : public uiGroup
 {
 public:
 
@@ -48,32 +48,39 @@ public:
 				Setup()
 				    : nrtimes_(0)
 				    , colnm_("Log")   
+				    , saveaslog_(true)   
 				    {}	  
 			
         mDefSetupMemb(BufferString,colnm)
         mDefSetupMemb(BufferStringSet,itemnames)
         mDefSetupMemb(int,nrtimes)
+        mDefSetupMemb(bool,saveaslog)
       };
 
-    				uiSaveDataTable(uiParent*,CtxtIOObj&,
+    				uiSaveDataGroup(uiParent*,CtxtIOObj&,
 						const Setup&);
-    				~uiSaveDataTable(){};
+    				~uiSaveDataGroup(){};
 
     bool 			getNamesToBeSaved(BufferStringSet&);
     const int			indexOf( const char* nm ) const
 				{ return names_.indexOf(nm); }
+    void 			showLogAsAttrSel(CallBacker*);
 
 protected:
 
-    uiTable* 			table_;
-    ObjectSet<uiLabel> 		labelsfld_;
     CtxtIOObj&          	ctio_;
-    ObjectSet<uiCheckBox> 	chckboxfld_;
+    ObjectSet<uiGroup> 		objgrps_;
+    ObjectSet<uiLabel> 		titlelblflds_;
+    ObjectSet<uiLabel> 		lblflds_;
+    ObjectSet<uiGenInput> 	nameflds_;
+    ObjectSet<uiCheckBox> 	boxflds_;
     ObjectSet<uiIOObjSel>  	ioobjselflds_;
+
     const BufferStringSet	names_;
     int 			nrtimessaved_;
+    bool 			saveaslog_;
 
-    void			initTable();
+    void			init();
 };
 
 
@@ -83,15 +90,16 @@ public:
 				uiSaveDataDlg(uiParent*,WellTie::DataHolder*);
 				~uiSaveDataDlg(){};
 
+protected :
+
     CtxtIOObj&          	wellctio_;
     CtxtIOObj&          	wvltctio_; 
 
-    const WellTie::DataHolder* 	dataholder_;
-    uiSaveDataTable* 		logstablefld_;
-    uiSaveDataTable* 		wvltstablefld_;
     int 			nrtimessaved_;
-
-protected:
+    uiSaveDataGroup* 		savelogsfld_;
+    uiSaveDataGroup* 		savewvltsfld_;
+    uiGenInput* 		saveasfld_;
+    const WellTie::DataHolder* 	dataholder_;
 
     bool 			acceptOK(CallBacker*);
 };
