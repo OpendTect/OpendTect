@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.136 2009-09-09 05:37:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.137 2009-09-29 09:32:15 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1198,10 +1198,12 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	SeisIOObjInfo::getCompNames( idlkey, complist );
 	if ( complist.size()>1 )
 	{
+	    TypeSet<int> selcomps;
 	    if ( !handleMultiComp( idlkey, is2d, issteering, complist,
-				   attribid, dousemulticomp ) )
+				   attribid, selcomps ) )
 		return false;
 
+	    dousemulticomp = selcomps.size()>1;
 	    if ( dousemulticomp )
 		return true;
 	}
@@ -1244,7 +1246,7 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 					  bool issteering,
 					  BufferStringSet& complist,
 					  DescID& attribid,
-					  bool& dousemulticomp )
+					  TypeSet<int>& selectedcomps )
 {
     //Trick for old steering cubes: fake good component names
     if ( !is2d && issteering && complist.indexOf("Component 1")>=0 )
@@ -1257,7 +1259,7 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
     uiMultCompDlg compdlg( parent(), complist );
     if ( compdlg.go() )
     {
-	TypeSet<int> selectedcomps;
+	selectedcomps.erase();
 	compdlg.getCompNrs( selectedcomps );
 	if ( !selectedcomps.size() ) return false;
 
@@ -1275,39 +1277,45 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 		mFakeCompName( "Component 2", "Crossline Dip" );
 	    }
 
-	    dousemulticomp = false;
 	    return true;
 	}
-
-	targetspecs_.erase();
-	for ( int idx=0; idx<selectedcomps.size(); idx++ )
-	{
-	    DescID did = adsman->descSet()->getStoredID(
-					idlkey, selectedcomps[idx], true );
-	    SelSpec as( 0, did );
-	    BufferString bfs;
-	    Attrib::Desc* desc = adsman->descSet()->getDesc(did);
-	    if ( !desc ) return false;
-
-	    desc->getDefStr(bfs);
-	    as.setDefString(bfs.buf());
-	    //Trick for old steering cubes: fake good component names
-	    if ( !is2d && issteering )
-	    {
-		mFakeCompName( "Component 1", "Inline Dip" );
-		mFakeCompName( "Component 2", "Crossline Dip" );
-	    }
-	    as.setRefFromID( *adsman->descSet() );
-	    as.set2DFlag( is2d );
-	    targetspecs_ += as;
-	}
-	dousemulticomp = true;
-	set2DEvent( is2d );
-	return true;
+	prepMultCompSpecs( selectedcomps, idlkey, is2d, issteering );
     }
     else
 	return false;
 
+    return true;
+}
+
+
+bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
+					    const LineKey& idlkey, bool is2d,
+					    bool issteering )
+{
+    targetspecs_.erase();
+    DescSetMan* adsman = getAdsMan( is2d );
+    for ( int idx=0; idx<selectedcomps.size(); idx++ )
+    {
+	DescID did = adsman->descSet()->getStoredID(
+				    idlkey, selectedcomps[idx], true );
+	SelSpec as( 0, did );
+	BufferString bfs;
+	Attrib::Desc* desc = adsman->descSet()->getDesc(did);
+	if ( !desc ) return false;
+
+	desc->getDefStr(bfs);
+	as.setDefString(bfs.buf());
+	//Trick for old steering cubes: fake good component names
+	if ( !is2d && issteering )
+	{
+	    mFakeCompName( "Component 1", "Inline Dip" );
+	    mFakeCompName( "Component 2", "Crossline Dip" );
+	}
+	as.setRefFromID( *adsman->descSet() );
+	as.set2DFlag( is2d );
+	targetspecs_ += as;
+    }
+    set2DEvent( is2d );
     return true;
 }
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.70 2009-07-30 13:30:04 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.71 2009-09-29 09:32:15 cvshelene Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -38,12 +38,14 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.70 2009-07-30 13:30:0
 #include "linekey.h"
 #include "keystrs.h"
 #include "posinfo.h"
+#include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "viscolortab.h"
 
 
 static const char* sKeyUnselected = "<Unselected>";
 static const char* sKeyRightClick = "<right-click>";
+static TypeSet<int> selcomps;
 
 uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()
     : uiODTreeItem("2D Seismics" )
@@ -349,6 +351,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     bool usemcomp = false;
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
+	selcomps.erase();
 	menu->setIsHandled( true );
 	const char itmidx = storeditm_.itemIndex( mnuid );
 	const char* attribnm = storeditm_.getItem(itmidx)->text;
@@ -360,6 +363,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( steeringitm_.itemIndex(mnuid)!=-1 )
     {
+	selcomps.erase();
 	menu->setIsHandled( true );
 	const char itmidx = steeringitm_.itemIndex( mnuid );
 	const char* attribnm = steeringitm_.getItem(itmidx)->text;
@@ -891,6 +895,7 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 
 void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 {
+    selcomps.erase();
     uiODAttribTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller);
@@ -934,7 +939,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 						 int component )
 {
-    const uiVisPartServer* visserv = applMgr()->visServer();
+    uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject( displayID() ))
     if ( !s2d ) return false;
@@ -943,7 +948,36 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     LineKey lk( s2d->lineSetID(), attribnm );
     //First time to ensure all components are available
     Attrib::DescID attribid = attrserv->getStoredID( lk, true );
-    if ( component > 0 )
+
+    BufferStringSet complist;
+    SeisIOObjInfo::getCompNames( lk, complist );
+    if ( complist.size()>1 && component<0 )
+    {
+	if ( ( !selcomps.size() &&
+	       !attrserv->handleMultiComp( lk, true, false, complist,
+					   attribid, selcomps ) )
+	     || ( selcomps.size() &&
+		  !attrserv->prepMultCompSpecs( selcomps, lk, true, false ) ) )
+	    return false;
+
+
+	if ( selcomps.size()>1 )
+	{
+	    const bool needsetattrid = visserv->getSelAttribNr() != attribNr();
+	    Attrib::SelSpec mtas( "Multi-Textures",
+				Attrib::SelSpec::cOtherAttrib() );
+	    if ( needsetattrid )
+		visserv->setSelObjectId( displayID(), attribNr() );
+
+	    const bool rescalc = applMgr()->calcMultipleAttribs( mtas );
+
+	    if ( needsetattrid )
+		visserv->setSelObjectId( displayID(), -1 );
+
+	    return rescalc;
+	}
+    }
+    else
 	attribid = attrserv->getStoredID( lk, true, component );
 
     if ( !attribid.isValid() ) return false;
