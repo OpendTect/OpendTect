@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.30 2009-07-28 09:16:02 cvshelene Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.31 2009-09-29 09:18:01 cvshelene Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -487,7 +487,7 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
     {
 	PtrMan<Seis2DLineSet> lset = new Seis2DLineSet(
 						ioobj_->fullUserExpr(true));
-	if ( lset->nrLines() == 0 )
+	if ( !lset || lset->nrLines() == 0 )
 	    return 0;
 	int lidx = 0;
 	const bool haveline = !lk.lineName().isEmpty();
@@ -503,7 +503,7 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 	if ( lidx < 0 ) lidx = 0;
 	SeisTrcBuf tbuf( true );
 	Executor* ex = lset->lineFetcher( lidx, tbuf, 1 );
-	ex->doStep();
+	if ( ex ) ex->doStep();
 	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
 	if ( nms )
 	{
@@ -515,7 +515,7 @@ int SeisIOObjInfo::getComponentInfo( LineKey lk, BufferStringSet* nms ) const
 	    }
 	    else
 	    {
-		ret = lg->tr->componentInfo().size();
+		ret = lg->tr ? lg->tr->componentInfo().size() : 0;
 		if ( nms )
 		{
 		    for ( int icomp=0; icomp<ret; icomp++ )
