@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.6 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.7 2009-09-29 10:11:06 cvsbert Exp $";
 
 #include "safefileio.h"
 #include "filegen.h"
@@ -208,7 +208,7 @@ void SafeFileIO::mkLock( bool forread )
     StreamData sd = StreamProvider(lockfnm_).makeOStream();
     if ( sd.usable() )
     {
-	DateInfo di; BufferString datestr; di.getFullDisp( datestr );
+	DateInfo di; BufferString datestr; di.getUsrDisp( datestr, true );
 	*sd.ostrm << "Type: " << (forread ? "Read\n" : "Write\n");
 	*sd.ostrm << "Date: " << datestr << " (" << di.key() << ")\n";
 	*sd.ostrm << "Host: " << HostData::localHostName() << '\n';

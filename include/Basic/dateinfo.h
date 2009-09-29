@@ -5,20 +5,24 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
- Date:		12-3-96
- RCS:		$Id: dateinfo.h,v 1.10 2009-09-24 09:21:59 cvsbert Exp $
+ Date:		12-3-1996
+ RCS:		$Id: dateinfo.h,v 1.11 2009-09-29 10:11:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
-#include "bufstring.h"
 #include "undefval.h"
+class BufferString;
 
-/*!\brief Clumsy date info class. Has nice 'relative' printouts.
+/*!\brief A date info class. Has nice 'relative' printouts.
 
-Class does not work before 1996 or after 2099. Non-default constructors
+Class does not work before 1900 or after 2099. Non-default constructors
 are for dates other than today. Constructors accept numbers as in normal usage.
+
+Parsing: toString/fromString format is [n]n-xxx-nnnn, like 14-nov-2008.
+fromStdDateString() reads the 'file' standard, like 'Wed Nov 14 12:50:15 2008'.
+fromNumString() reads '2008-11-14' or '14-11-2008' or the same with slashes.
 
 */
 
@@ -34,28 +38,29 @@ public:
     static const char**	sFullMonths();		//!< just cast enum to int
 
 			DateInfo();		//!< Today
-			DateInfo(int usryr,Month,int usrdy);
 			DateInfo(int usryr,int usrmnth,int usrdy);
+			DateInfo(int usryr,Month,int usrdy);
 			DateInfo(int usryr,const char* mnth,int usrdy);
 			DateInfo(const char*);
 
-    bool		isUdf() const		{ return mIsUdf(days96_); }
-    void		setUdf()		{ days96_ = mUdf(int); }
-    int			day() const		{ return day_  + 1; }
-    Month		month() const		{ return month_; }
-    int			year() const		{ return year_ + 1996; }
-    int			usrMonth() const	{ return (int)month_ + 1; }
+    bool		isUdf() const		{ return mIsUdf(days1900_); }
+    void		setUdf(bool yn=true);
+
+    int			day() const		{ return days_  + 1; }
+    Month		month() const		{ return (Month)months_; }
+    int			year() const		{ return 1900 + years_; }
+    int			usrMonth() const	{ return (int)months_ + 1; }
     void		setDay(int);
     void		setMonth(int);
     void		setMonth(Month);
     void		setYear(int);
 
     int			operator ==( const DateInfo& di ) const
-			{ return days96_ == di.days96_; }
+			{ return days1900_ == di.days1900_; }
     int			operator <( const DateInfo& di ) const
-			{ return days96_ < di.days96_; }
+			{ return days1900_ < di.days1900_; }
     int			operator <=( const DateInfo& di ) const
-			{ return days96_ <= di.days96_; }
+			{ return days1900_ <= di.days1900_; }
     DateInfo&		operator +=(int);
     DateInfo&		operator -=( int dys )	{ *this += -dys; return *this; }
     friend int		operator -(const DateInfo&,const DateInfo&);
@@ -63,15 +68,17 @@ public:
 
     int		 	weekDay() const;	//!< Sunday => 1
     const char*		weekDayName() const;
-    const char*		monthName() const	{ return eString(Month,month_);}
+    const char*		monthName() const      { return eString(Month,month());}
     const char*		whenRelative(const DateInfo* di=0) const;
     static const char*	fullMonthName(int);
     static const char*	fullMonthName(Month);
-    const char*		fullMonthName() const	{ return fullMonthName(month_);}
+    const char*		fullMonthName() const  { return fullMonthName(month());}
 
     void		toString(BufferString&) const;
     bool		fromString(const char*);
-    void		getFullDisp(BufferString&,bool withtime=true) const;
+    bool		fromStdDateString(const char*);
+    bool		fromNumString(const char*,bool yearfirst);
+    void		getUsrDisp(BufferString&,bool withcurtime) const;
 
     static int		daysInMonth(int yr,Month);
     static int		daysInYear( int yr )	{ return yr%4 ? 365 : 366; }
@@ -79,28 +86,28 @@ public:
 
 private:
 
-    int			days96_;
-    int			day_;
-    Month		month_;
-    int			year_;
+    int			days1900_;
+    int			years_;
+    int			months_;
+    int			days_;
 
-    void		getDayMonth(int,int,int&,Month&);
+    void		getDaysMonths(int,int,int&,int&);
     void		calcDMY();
-    void		calcDays96();
-    void		getRel(const DateInfo&) const;
-    void		getRelToday() const;
-    void		addDay() const;
+    void		calcDays1900();
+    void		getRel(const DateInfo&,BufferString&) const;
+    void		getRelToday(BufferString&) const;
+    void		addDay(BufferString&) const;
 
 public:
 
-    int			key() const		{ return days96_; }
+    int			key() const		{ return days1900_; }
 			DateInfo(int the_key);
 
 };
 
 
 inline int operator -( const DateInfo& di1, const DateInfo& di2 )
-{ return di1.days96_ - di2.days96_; }
+{ return di1.days1900_ - di2.days1900_; }
 
 
 #endif

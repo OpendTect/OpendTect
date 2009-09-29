@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.10 2009-09-24 09:21:59 cvsbert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.11 2009-09-29 10:11:06 cvsbert Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -13,8 +13,12 @@ static const char* rcsID = "$Id: dateinfo.cc,v 1.10 2009-09-24 09:21:59 cvsbert 
 #include "separstr.h"
 #include <time.h>
 
-static int normdaycount[] = { 31,59,90,120,151,181,212,243,273,304,334,365 };
-static int leapdaycount[] = { 31,60,91,121,152,182,213,244,274,305,335,366 };
+	//  0   1   2   3    4    5    6    7    8    9   10   11   12
+static const int normdaycount[]
+	= { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+static const int leapdaycount[]
+	= { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
+
 
 DefineEnumNames(DateInfo,Day,2,"Week day") {
 	"Sunday",
@@ -52,60 +56,71 @@ const char** DateInfo::sFullMonths()	{ return fullmonths; }
 
 DateInfo::DateInfo()
 {
-    days96_ = (time(0) - 820454400L)/86400L;
+    static const od_int64 days1900_to_1970 = 25568;
+    const int days1970 = (int)(time(0) / 86400L);
+    days1900_ = days1970 + days1900_to_1970;
     calcDMY();
 }
 
 
 DateInfo::DateInfo( int yr, int mn, int dy )
-	: year_(yr-1996)
-	, day_(dy > 0 ? dy-1 : 0)
-	, days96_(0)
+	: years_(yr-1900)
+	, days_(dy > 0 ? dy-1 : 0)
+	, days1900_(0)
 {
     setMonth( mn );
 }
 
 
 DateInfo::DateInfo( int yr, DateInfo::Month m, int dy )
-	: year_(yr-1996)
-	, month_(m)
+	: years_(yr-1900)
+	, months_((int)m)
 {
     setDay( dy );
 }
 
 
 DateInfo::DateInfo( int yr, const char* mn, int dy )
-	: year_(yr-1996)
-	, month_(eEnum(DateInfo::Month,mn))
+	: years_(yr-1900)
+	, months_((int)eEnum(DateInfo::Month,mn))
 {
     setDay( dy );
 }
 
 
 DateInfo::DateInfo( const char* str )
-	: year_(mUdf(int))
-	, month_(Jan)
-	, day_(0)
-	, days96_(0)
+	: years_(mUdf(int))
+	, months_(0)
+	, days_(0)
+	, days1900_(0)
 {
     fromString( str );
+}
+
+
+void DateInfo::setUdf( bool yn )
+{
+    if ( yn )
+	days1900_ = mUdf(int);
+    else
+	calcDays1900();
 }
 
 
 void DateInfo::setDay( int dy )
 {
     if ( dy < 1 ) dy = 1; if ( dy > 31 ) dy = 31;
-    day_ = dy - 1;
+    days_ = dy - 1;
     if ( !isUdf() )
-	calcDays96();
+	calcDays1900();
 }
 
 
 void DateInfo::setMonth( DateInfo::Month mn )
 {
-    month_ = mn;
+    months_ = (int)mn;
     if ( !isUdf() )
-	calcDays96();
+	calcDays1900();
 }
 
 
@@ -118,16 +133,16 @@ void DateInfo::setMonth( int mn )
 
 void DateInfo::setYear( int yr )
 {
-    year_ = yr - 1996;
+    years_ = yr - 1900;
     if ( !isUdf() )
-	calcDays96();
+	calcDays1900();
 }
 
 
 DateInfo& DateInfo::operator +=( int dys )
 {
     if ( !isUdf() )
-	{ days96_ += dys; calcDMY(); }
+	{ days1900_ += dys; calcDMY(); }
     return *this;
 }
 
@@ -143,30 +158,30 @@ void DateInfo::addMonths( int mns )
 {
     if ( isUdf() || mns < 1 ) return;
 
-    int nr = (int)month_ + mns;
+    int nr = months_ + mns;
     if ( mns > 0 )
     {
-	year_ += nr / 12;
-	month_ = (Month)(nr % 12);
+	years_ += nr / 12;
+	months_ = nr % 12;
     }
     else
     {
 	if ( nr >= 0 )
-	    month_ = (Month)nr;
+	    months_ = nr;
 	else
 	{
-	    year_ += nr / 12 - 1;
+	    years_ += nr / 12 - 1;
 	    nr = (-nr) % 12;
-	    month_ = (Month)(12 - nr);
+	    months_ = 12 - nr;
 	}
     }
-    calcDays96();
+    calcDays1900();
 }
 
 
 int DateInfo::weekDay() const
 {
-    int nr = days96_ % 7 + 1;
+    int nr = days1900_ % 7 + 1;	// 1-jan-1900 was a Monday
     if ( nr > 6 ) nr = 0;
     return nr + 1;
 }
@@ -193,194 +208,194 @@ const char* DateInfo::fullMonthName( int usrmnth )
 
 int DateInfo::daysInMonth( int yr, DateInfo::Month m )
 {
-    int* d = yr % 4 ? normdaycount : leapdaycount;
-    int nr = d[m];
-    if ( m != Jan ) nr -= d[m-1];
-    return nr;
+    const int* d = yr % 4 ? normdaycount : leapdaycount;
+    return d[ (int)m + 1 ] - d[ (int)m ];
 }
 
 
-void DateInfo::getDayMonth( int yr, int ndays, int& dy, DateInfo::Month& mn )
+void DateInfo::getDaysMonths( int yr, int ndays, int& dys, int& mns )
 {
-    int* d = yr % 4 ? normdaycount : leapdaycount;
-    int mnth = 0;
-    while ( ndays >= d[mnth] ) mnth++;
-    dy = mnth ? ndays - d[mnth-1] : ndays;
-    mn = (Month)mnth;
+    const int* d = yr % 4 ? normdaycount : leapdaycount;
+    if ( ndays > d[12] || ndays <= 0 )
+	{ dys = mns = 0; return; }
+
+    mns = 0;
+    while ( ndays >= d[mns+1] )
+	mns++;
+    dys = ndays - d[mns];
 }
 
 
 void DateInfo::calcDMY()
 {
-    int yrqtets = days96_ / 1461;
-    int qtetrest = days96_ % 1461;
-    year_ = 4 * yrqtets;
-    if ( qtetrest > 1095 )	{ year_ += 3; qtetrest -= 1096; }
-    else if ( qtetrest > 730 )	{ year_ += 2; qtetrest -= 731; }
-    else if ( qtetrest > 365 )	{ year_ += 1; qtetrest -= 366; }
+    int yrqtets = days1900_ / 1461;
+    int qtetrest = days1900_ % 1461;
+    years_ = 4 * yrqtets;
+    if ( qtetrest > 1095 )	{ years_ += 3; qtetrest -= 1096; }
+    else if ( qtetrest > 730 )	{ years_ += 2; qtetrest -= 731; }
+    else if ( qtetrest > 365 )	{ years_ += 1; qtetrest -= 366; }
 
-    getDayMonth( year_, qtetrest, day_, month_ );
+    getDaysMonths( years_, qtetrest, days_, months_ );
 }
 
 
-void DateInfo::calcDays96()
+void DateInfo::calcDays1900()
 {
-    days96_ = (year_/4) * 1461;
-    int rest = year_ % 4;
-    if ( rest )	{ days96_ += 366; rest--; }
-    if ( rest )	{ days96_ += 365; rest--; }
-    if ( rest )	days96_ += 365;
-    if ( month_ != Jan )
+    days1900_ = (years_/4) * 1461;
+    int rest = years_ % 4;
+    if ( rest )
     {
-	int* d = year_ % 4 ? normdaycount : leapdaycount;
-	days96_ += d[((int)month_)-1];
+	days1900_ += 366; rest--;
+	if ( rest )
+	    days1900_ += rest * 365;
     }
-    days96_ += day_;
+
+    if ( months_ )
+    {
+	const int* nrdys4month = years_ % 4 ? normdaycount : leapdaycount;
+	days1900_ += nrdys4month[ months_ ];
+    }
+    days1900_ += days_;
 }
 
 
-static BufferString buf;
 
 const char* DateInfo::whenRelative( const DateInfo* di ) const
 {
+    static BufferString ret;
 
-    if ( di )	getRel( *di );
-    else	getRelToday();
+    if ( di )	getRel( *di, ret );
+    else	getRelToday( ret );
 
-    return buf.buf();
+    return ret.buf();
 }
 
 
-#define mRet(s) { buf = s; return; }
+#define mRet(s) { bs = s; return; }
 
-void DateInfo::getRel( const DateInfo& reld ) const
+void DateInfo::getRel( const DateInfo& reld, BufferString& bs ) const
 {
     if ( isUdf() || reld.isUdf() )
 	mRet(sKey::Undef)
-    else if ( reld.days96_ == days96_ )
+    else if ( reld.days1900_ == days1900_ )
 	mRet("that day")
 
-    const int diff = days96_ - reld.days96_;
-    buf.setEmpty();
-    if ( diff < 0 )
+    const int nrdays = days1900_ - reld.days1900_;
+    bs.setEmpty();
+    if ( nrdays < 0 )
     {
-	if ( diff == -1 ) mRet("the previous day")
-	if ( diff == -7 ) mRet("one week earlier")
-	if ( diff == -14 ) mRet("two weeks earlier")
-	if ( diff == -21 ) mRet("three weeks earlier")
-	if ( diff > -21 ) { buf += (-diff); buf += " days earlier"; return; }
+	if ( nrdays == -1 )	mRet("the previous day")
+	if ( nrdays == -7 )	mRet("one week earlier")
+	if ( nrdays == -14 )	mRet("two weeks earlier")
+	if ( nrdays == -21 )	mRet("three weeks earlier")
+	if ( nrdays > -21 )
+	    { bs += (-nrdays); bs += " days earlier"; return; }
     }
     else
     {
-	if ( diff == 1 ) mRet("the next day")
-	if ( diff == 7 ) mRet("one week later")
-	if ( diff == 14 ) mRet("two weeks later")
-	if ( diff == 21 ) mRet("three weeks later")
-	if ( diff < 21 ) { buf += diff; buf += " days later"; return; }
+	if ( nrdays == 1 )	mRet("the next day")
+	if ( nrdays == 7 )	mRet("one week later")
+	if ( nrdays == 14 )	mRet("two weeks later")
+	if ( nrdays == 21 )	mRet("three weeks later")
+	if ( nrdays < 21 )
+	    { bs += nrdays; bs += " days later"; return; }
     }
 
-    if ( reld.month_ == month_ && reld.day_ == day_ )
+    if ( reld.months_ == months_ && reld.days_ == days_ )
     {
-	buf = "exactly ";
-	int difference = year_ - reld.year_;
-	buf += abs(difference);
-	buf += " year";
-	if ( abs(difference) != 1 ) buf += "s";
-	buf += difference > 0 ? " later" : " earlier";
+	int nryrs = years_ - reld.years_;
+	bs = "exactly "; bs += abs(nryrs); bs += " year";
+	if ( abs(nryrs) != 1 ) bs += "s";
+	bs += nryrs > 0 ? " later" : " earlier";
 	return;
     }
 
-    if ( reld.year_ == year_ )
+    if ( reld.years_ == years_ )
     {
-	int difference = month_ - reld.month_;
-	if ( difference > -2 && difference < 2 )
+	int nrmnths = months_ - reld.months_;
+	if ( nrmnths > -2 && nrmnths < 2 )
 	{
-	    if ( reld.day_ == day_ )
-		mRet(difference<0?"one month earlier":"one month later")
-	    buf = "the ";
-	    addDay();
-	    buf += " of ";
-	    buf += difference ? (difference > 0 ? "the following"
-		    				: "the previous") : "that";
-	    buf += " month";
+	    if ( reld.days_ == days_ )
+		mRet(nrmnths<0?"one month earlier":"one month later")
+	    bs = "the "; addDay( bs ); bs += " of ";
+	    bs += nrmnths ? (nrmnths > 0 ? "the following" : "the previous")
+			  : "that";
+	    bs += " month";
 	    return;
 	}
     }
 
-    buf = fullMonthName();
-    buf += " the ";
-    addDay();
-    if ( reld.year_ != year_ ) { buf += ", "; buf += year(); }
+    bs = fullMonthName();
+    bs += " the "; addDay( bs );
+    if ( reld.years_ != years_ ) { bs += ", "; bs += year(); }
 }
 
 
-void DateInfo::getRelToday() const
+void DateInfo::getRelToday( BufferString& bs ) const
 {
     if ( isUdf() ) mRet(sKey::Undef)
 
     DateInfo today;
 
-    if ( today.days96_ == days96_ ) mRet("today")
-    int diff = days96_ - today.days96_;
-    if ( diff < 0 )
+    if ( today.days1900_ == days1900_ ) mRet("today")
+    int nrdays = days1900_ - today.days1900_;
+    if ( nrdays < 0 )
     {
-	if ( diff == -1 ) mRet("yesterday")
-	if ( diff == -2 ) mRet("the day before yesterday")
-	if ( diff == -7 ) mRet("One week ago")
-	if ( diff == -14 ) mRet("two weeks ago")
-	if ( diff == -21 ) mRet("three weeks ago")
-	if ( diff > -21 ) { buf = (-diff); buf += " days ago"; return; }
+	if ( nrdays == -1 ) mRet("yesterday")
+	if ( nrdays == -2 ) mRet("the day before yesterday")
+	if ( nrdays == -7 ) mRet("One week ago")
+	if ( nrdays == -14 ) mRet("two weeks ago")
+	if ( nrdays == -21 ) mRet("three weeks ago")
+	if ( nrdays > -21 ) { bs = (-nrdays); bs += " days ago"; return; }
     }
     else
     {
-	if ( diff == 1 ) mRet("tomorrow")
-	if ( diff == 2 ) mRet("the day after tomorrow")
-	if ( diff == 7 ) mRet("next week")
-	if ( diff == 14 ) mRet("two weeks from now")
-	if ( diff == 21 ) mRet("three weeks from now")
-	if ( diff < 21 ) { buf = (-diff); buf += " days from now"; return; }
+	if ( nrdays == 1 ) mRet("tomorrow")
+	if ( nrdays == 2 ) mRet("the day after tomorrow")
+	if ( nrdays == 7 ) mRet("next week")
+	if ( nrdays == 14 ) mRet("two weeks from now")
+	if ( nrdays == 21 ) mRet("three weeks from now")
+	if ( nrdays < 21 ) { bs = (-nrdays); bs += " days from now"; return; }
     }
 
-    if ( today.month_ == month_ && today.day_ == day_ )
+    if ( today.months_ == months_ && today.days_ == days_ )
     {
-	buf = "exactly ";
-	int difference = year_ - today.year_;
-	buf += abs(difference);
-	buf += " years ";
-	buf += difference > 0 ? "from now" : "ago";
+	bs = "exactly ";
+	int nryrs = years_ - today.years_;
+	bs += abs(nryrs);
+	bs += " years ";
+	bs += nryrs > 0 ? "from now" : "ago";
 	return;
     }
 
-    if ( today.year_ == year_ )
+    if ( today.years_ == years_ )
     {
-	int difference = month_ - today.month_;
-	if ( difference > -2 && difference < 2 )
+	int nrmnths = months_ - today.months_;
+	if ( nrmnths > -2 && nrmnths < 2 )
 	{
-	    if ( today.day_ == day_ )
-		mRet(difference<0?"one month ago":"one month from now")
-	    buf = "the ";
-	    addDay();
-	    buf += " of ";
-	    buf += difference ? (difference > 0 ? "next" : "last") : "this";
-	    buf += " month";
+	    if ( today.days_ == days_ )
+		mRet(nrmnths<0?"one month ago":"one month from now")
+	    bs = "the "; addDay( bs ); bs += " of ";
+	    bs += nrmnths ? (nrmnths > 0 ? "next" : "last") : "this";
+	    bs += " month";
 	    return;
 	}
     }
 
-    buf = day(); buf += " ";
-    buf += fullMonthName();
-    if ( today.year_ != year_ ) { buf += " "; buf += year(); }
+    bs = day(); bs += " ";
+    bs += fullMonthName();
+    if ( today.years_ != years_ ) { bs += " "; bs += year(); }
 }
 
 
-void DateInfo::addDay() const
+void DateInfo::addDay( BufferString& bs ) const
 {
-    buf += day();
-    int swdy = day_ > 12 ? day_%10 : day_;
-    switch ( swdy )
+    bs += day();
+    const int ranknr = days_ > 12 ? days_%10 : days_;
+    switch ( ranknr )
     {
-    case 0: buf += "st"; break; case 1: buf += "nd"; break;
-    case 2: buf += "rd"; break; default: buf += "th"; break;
+    case 0: bs += "st"; break; case 1: bs += "nd"; break;
+    case 2: bs += "rd"; break; default: bs += "th"; break;
     }
 }
 
@@ -392,28 +407,80 @@ void DateInfo::toString( BufferString& str ) const
 
     str.setEmpty();
     str += day(); str += "-";
-    str += eString(DateInfo::Month,month_); str += "-";
+    str += eString(DateInfo::Month,month()); str += "-";
     str += year();
 }
 
 
-bool DateInfo::fromString( const char* str )
+bool DateInfo::fromString( const char* inp )
 {
-    setUdf(); if ( !str || !*str ) return false;
-    SeparString ss( str, '-' );
+    setUdf(); if ( !inp || !*inp ) return false;
+    SeparString ss( inp, '-' );
     const char* dayptr = ss[0];
     if ( !isdigit(*dayptr) ) return false;
 
-    day_ = atoi( dayptr );
-    if ( day_ > 0 ) day_--;
-    month_ = eEnum(DateInfo::Month,ss[1]);
-    year_ = atoi( ss[2] ) - 1996;
-    calcDays96();
+    days_ = atoi( dayptr );
+    if ( days_ > 0 ) days_--;
+    months_ = (int)eEnum(DateInfo::Month,ss[1]);
+    days1900_ = 0; setYear( atoi(ss[2]) );
+
     return true;
 }
 
 
-void DateInfo::getFullDisp( BufferString& disp, bool withtime ) const
+bool DateInfo::fromStdDateString( const char* inp )
+{
+    setUdf(); if ( !inp || !*inp ) return false;
+
+    char buf[1024];
+    const char* ptr = getNextWord( inp, buf );
+    if ( !ptr ) return false;
+    ptr = getNextWord( ptr, buf );
+    if ( !ptr ) return false;
+
+    buf[0] = tolower( buf[0] );
+    months_ = (int)eEnum(DateInfo::Month,buf);
+
+    ptr = getNextWord( ptr, buf );
+    if ( !ptr ) return false;
+    days_ = atoi( buf );
+    if ( days_ > 0 ) days_--;
+
+    ptr = strrchr( ptr, ' ' );
+    if ( !ptr ) return false;
+    days1900_ = 0; setYear( atoi(ptr+1) );
+
+    calcDays1900();
+    return true;
+}
+
+
+bool DateInfo::fromNumString( const char* inp, bool yrfirst )
+{
+    setUdf(); if ( !inp || !*inp ) return false;
+    SeparString ss( inp, '-' );
+
+#define mGetV(nr) \
+    const char* ptr##nr = ss[nr]; \
+    if ( !ptr##nr || !isdigit(*ptr##nr) ) return false; \
+    const int v##nr = atoi( ptr##nr )
+
+    mGetV(0); mGetV(1); mGetV(2);
+
+    if ( yrfirst )
+	{ years_ = v0; days_ = v2; }
+    else
+	{ years_ = v2; days_ = v0; }
+
+    if ( days_ > 0 ) days_--;
+    years_ -= 1900;
+    days1900_ = 0; setMonth( v1 );
+
+    return true;
+}
+
+
+void DateInfo::getUsrDisp( BufferString& disp, bool withcurtime ) const
 {
     if ( isUdf() ) { disp = sKey::Undef; return; }
 
@@ -421,7 +488,7 @@ void DateInfo::getFullDisp( BufferString& disp, bool withtime ) const
     disp += day(); disp += " ";
     disp += year(); disp += " ";
 
-    if ( withtime )
+    if ( withcurtime )
     {
 	const int cursecs = Time_getMilliSeconds() / 1000;
 	const int hrs = cursecs / 3600;
