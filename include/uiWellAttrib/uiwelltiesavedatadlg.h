@@ -48,14 +48,12 @@ public:
       {
 	      public:
 				Setup()
-				    : nrtimes_(0)
-				    , labelcolnm_("Log")   
+				    : labelcolnm_("Log")   
 				    , uselabelsel_(true)
 				    {}	  
 			
         mDefSetupMemb(BufferString,labelcolnm)
         mDefSetupMemb(BufferStringSet,itemnames)
-        mDefSetupMemb(int,nrtimes)
         mDefSetupMemb(bool,uselabelsel)
         mDefSetupMemb(BufferString,wellname)
     	mDefSetupMemb(ObjectSet<CtxtIOObj>,ctio);
@@ -81,7 +79,6 @@ protected:
     ObjectSet<uiIOObjSel>  	ioobjselflds_;
 
     const BufferStringSet	names_;
-    int 			nrtimessaved_;
     bool 			uselabelsel_;
 
     void			checkAll(CallBacker*);
@@ -99,7 +96,6 @@ protected :
     ObjectSet<CtxtIOObj>       	wvltctio_;
     ObjectSet<CtxtIOObj>       	seisctio_;
 
-    int 			nrtimessaved_;
     uiSaveDataGroup* 		savelogsfld_;
     uiSaveDataGroup* 		savewvltsfld_;
     uiGenInput* 		saveasfld_;

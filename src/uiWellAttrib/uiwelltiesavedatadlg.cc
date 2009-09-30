@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.7 2009-09-30 11:00:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.8 2009-09-30 11:16:39 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -34,7 +34,6 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
 		"Check the items to be saved",mTODOHelpID) )
     , dataholder_(dh)
     , datawriter_(new WellTie::DataWriter(dh))	     
-    , nrtimessaved_(0)
 {
     setCtrlStyle( DoAndStay );
 
@@ -52,7 +51,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
 	lognms.add( dh->logsset()->getLog(idx).name() );
     }
 
-    uiSaveDataGroup::Setup su; su.nrtimes(nrtimessaved_); su.itemnames_=lognms;
+    uiSaveDataGroup::Setup su; su.itemnames_=lognms;
     su.wellname(dataholder_->wd()->name()); su.ctio_ = seisctio_;
     savelogsfld_ = new uiSaveDataGroup( this, su );
 
@@ -131,7 +130,6 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	    mCanNotWriteLogs();
     }
 
-    nrtimessaved_++;
     uiMSG().message( "Successfully saved the selected items" );
 
     return false;
@@ -142,7 +140,6 @@ uiSaveDataGroup::uiSaveDataGroup( uiParent* p, const Setup& s )
     : uiGroup( p, "Save objects")
     , names_(s.itemnames_)
     , ctio_(s.ctio_)			  
-    , nrtimessaved_(s.nrtimes_)
     , uselabelsel_(s.uselabelsel_)		       
 {
     for ( int idx=0; idx<3; idx++ )
@@ -159,7 +156,6 @@ uiSaveDataGroup::uiSaveDataGroup( uiParent* p, const Setup& s )
     {
 	objgrps_ += new uiGroup( this, "Object Group");
 	BufferString objnm(names_.get(idx)); 
-	if ( nrtimessaved_ ) objnm += (const char*)nrtimessaved_;
 	
 	boxflds_ += new uiCheckBox( objgrps_[0], 0 );
 	lblflds_ += new uiLabel( objgrps_[1], names_.get(idx) );
