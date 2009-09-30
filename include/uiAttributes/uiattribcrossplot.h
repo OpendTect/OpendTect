@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.13 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.14 2009-09-30 14:26:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ protected:
     uiDataPointSet*			uidps_;
 
     void				adsChg();
+    void				useLineName(bool);
+    void				initWin(CallBacker*);
     void				lnmChg(CallBacker*);
     void				showSelPts(CallBacker*);
     void				removeSelPts(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.40 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.41 2009-09-30 14:26:14 cvsbert Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -79,6 +79,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     posfiltfld_->attach( alignedBelow, posprovfld_ );
 
     setDescSet( d );
+    finaliseDone.notify( mCB(this,uiAttribCrossPlot,initWin) );
 }
 
 
@@ -131,10 +132,21 @@ uiAttribCrossPlot::~uiAttribCrossPlot()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return; }
-
+void uiAttribCrossPlot::initWin( CallBacker* )
+{
+    useLineName( false );
+}
 
 void uiAttribCrossPlot::lnmChg( CallBacker* )
+{
+    useLineName( true );
+}
+
+
+
+#define mErrRet(s) { if ( emiterr ) uiMSG().error(s); return; }
+
+void uiAttribCrossPlot::useLineName( bool emiterr )
 {
     delete l2ddata_; l2ddata_ = 0;
     if ( !lnmfld_ ) return;
