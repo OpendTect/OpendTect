@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.63 2009-09-29 09:32:15 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.64 2009-09-30 13:00:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,7 +195,8 @@ protected:
     MenuItem            steering3dmnuitem_;
     MenuItem            multcomp2d_;
     MenuItem            multcomp3d_;
-    ObjectSet<MenuItem> linesets2dmnuitem_;
+    ObjectSet<MenuItem> linesets2dstoredmnuitem_;
+    ObjectSet<MenuItem> linesets2dsteeringmnuitem_;
 
     Attrib::DescSetMan*	adsman2d_;
     Attrib::DescSetMan*	adsman3d_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.137 2009-09-29 09:32:15 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.138 2009-09-30 13:00:57 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -128,7 +128,8 @@ uiAttribPartServer::~uiAttribPartServer()
     delete adsman3d_;
     delete attrsetdlg_;
     if ( volprocchain_ ) volprocchain_->unRef();
-    deepErase( linesets2dmnuitem_ );
+    deepErase( linesets2dstoredmnuitem_ );
+    deepErase( linesets2dsteeringmnuitem_ );
 }
 
 
@@ -855,11 +856,13 @@ void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
 {
     mnu->checkable = true;
     mnu->enabled = bfset.size();
+    ObjectSet<MenuItem>* lsets2dmnuitem = issteer ? &linesets2dsteeringmnuitem_
+						  : &linesets2dstoredmnuitem_;
     if ( usesubmnu )
     {
-	while ( linesets2dmnuitem_.size() )
+	while ( lsets2dmnuitem->size() )
 	{
-	    MenuItem* olditm = linesets2dmnuitem_.remove(0);
+	    MenuItem* olditm = lsets2dmnuitem->remove(0);
 	    delete olditm;
 	}
     }	    
@@ -878,7 +881,7 @@ void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
 	    const MultiID mid( attrinf.ioobjids.get(idx) );
 	    BufferStringSet nms = get2DStoredItems( mid, issteer, onlymultcomp);
 	    if ( nms.isEmpty() ) continue;
-	    linesets2dmnuitem_ += itm;
+	    *lsets2dmnuitem += itm;
 	    insert2DStoredItems( nms, 0, nms.size(), correcttype,
 				 itm, as, false, issteer, onlymultcomp );
 	}
@@ -1126,6 +1129,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     const MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
     const MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_
 					      : &zdomain3dmnuitem_;
+    ObjectSet<MenuItem>* ls2dmnuitm = issteering ? &linesets2dsteeringmnuitem_
+						 : &linesets2dstoredmnuitem_;
 
     DescID attribid = SelSpec::cAttribNotSel();
     int outputnr = -1;
@@ -1145,7 +1150,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else if ( stored2dmnuitem_.findItem(mnuid) ||
 	      steering2dmnuitem_.findItem(mnuid) )
     {
-	if ( linesets2dmnuitem_.isEmpty() )
+	if ( ls2dmnuitm->isEmpty() )
 	{
 	    const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
 	    if ( !item ) item = steering2dmnuitem_.findItem(mnuid);
@@ -1156,12 +1161,11 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	}
 	else
 	{
-	    for ( int idx=0; idx<linesets2dmnuitem_.size(); idx++ )
+	    for ( int idx=0; idx<ls2dmnuitm->size(); idx++ )
 	    {
-		if ( linesets2dmnuitem_[idx]->findItem(mnuid) )
+		if ( (*ls2dmnuitm)[idx]->findItem(mnuid) )
 		{
-		    const MenuItem* item =
-				    linesets2dmnuitem_[idx]->findItem(mnuid);
+		    const MenuItem* item = (*ls2dmnuitm)[idx]->findItem(mnuid);
 		    const MultiID mid( attrinf.ioobjids.get(idx) );
 		    idlkey = LineKey( mid, item->text );
 		    attribid = adsman->descSet()->getStoredID( idlkey );
