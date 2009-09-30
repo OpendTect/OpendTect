@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.34 2009-09-24 15:29:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.35 2009-09-30 13:15:50 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -180,7 +180,7 @@ void GeoCalculator::removeSpikes( TypeSet<float>& logdata )
 {
     const int winsize = 6;
     if ( logdata.size() < 2*winsize ) 
-    return;
+	return;
     float prevval = logdata[0];
     for ( int idx = winsize/2; idx<logdata.size()-winsize; idx = idx+winsize  ) 
     {
@@ -190,7 +190,7 @@ void GeoCalculator::removeSpikes( TypeSet<float>& logdata )
 	for ( int winidx = idx-winsize/2; winidx<idx+winsize/2; winidx++ )
 	{
 	    if ( logdata[winidx] > 5*avg )
-	    logdata[winidx] = prevval;
+		logdata[winidx] = prevval;
 	    prevval = logdata[winidx];
 	}
     }
