@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2009
- RCS:		$Id: basemap.h,v 1.2 2009-09-30 07:15:49 cvskris Exp $
+ RCS:		$Id: basemap.h,v 1.3 2009-09-30 07:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,12 +66,6 @@ public:
     virtual void		addObject(BaseMapObject*) 		= 0;
     				/*!<Object maintained by caller */
     virtual void		removeObject(BaseMapObject*) 		= 0;
-
-    static BaseMap*		getImpl() { return impl_; }
-    static void			setImpl(BaseMap* i) { delete impl_; impl=i; }
-protected:
-
-    static BaseMap*		impl_;
 };
 
 
