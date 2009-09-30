@@ -65,7 +65,6 @@ public:
 			{ mDynCast(nm,return); l->setVal(val,isdah); }
     float		get(const char* nm,int idx) const
 			{ return (getVal(nm)) ? getVal(nm)->get(idx):0; }
-    float 		getExtremVal(const char*,bool) const;
 };
 
 
@@ -139,21 +138,36 @@ private:
 mClass DataWriter 
 {	
 public:    
-				DataWriter(WellTie::DataHolder*);
+				DataWriter(WellTie::DataHolder* dh)
+				    : holder_(dh)
+				    {}
 				~DataWriter(){};
    
+    mStruct LogData
+    {
+	public:
+				LogData( const Well::LogSet& logset )
+				: logset_(logset)
+				{}
+
+	 ObjectSet<CtxtIOObj> 	seisctioset_;    
+	 const Well::LogSet& 	logset_;			    
+	 TypeSet<BinID> 	bids_;
+
+	 const Well::Log*	curlog_;	 
+	 CtxtIOObj*		curctio_;	 
+    };			    
+
     bool 			writeD2TM() const;		
     bool                        writeLogs(const Well::LogSet&) const;
-    bool                        writeLogs2Cube(const Well::LogSet&) const;
+    bool                        writeLogs2Cube(LogData&) const;
 
 protected:
 
-    CtxtIOObj&			seisctio_;
     WellTie::DataHolder*	holder_;
 
     const Well::Writer* 	getWellWriter() const;
-    bool                        writeLog2Cube(const Well::Log&, 
-					      const TypeSet<BinID>&) const;
+    bool                        writeLog2Cube(LogData&) const;
 };
 
 }; //namespace WellTie

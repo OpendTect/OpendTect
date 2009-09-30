@@ -49,18 +49,19 @@ public:
 	      public:
 				Setup()
 				    : nrtimes_(0)
-				    , colnm_("Log")   
-				    , saveaslog_(true)   
+				    , labelcolnm_("Log")   
+				    , uselabelsel_(true)
 				    {}	  
 			
-        mDefSetupMemb(BufferString,colnm)
+        mDefSetupMemb(BufferString,labelcolnm)
         mDefSetupMemb(BufferStringSet,itemnames)
         mDefSetupMemb(int,nrtimes)
-        mDefSetupMemb(bool,saveaslog)
+        mDefSetupMemb(bool,uselabelsel)
+        mDefSetupMemb(BufferString,wellname)
+    	mDefSetupMemb(ObjectSet<CtxtIOObj>,ctio);
       };
 
-    				uiSaveDataGroup(uiParent*,CtxtIOObj&,
-						const Setup&);
+    				uiSaveDataGroup(uiParent*,const Setup&);
     				~uiSaveDataGroup(){};
 
     bool 			getNamesToBeSaved(BufferStringSet&);
@@ -70,7 +71,8 @@ public:
 
 protected:
 
-    CtxtIOObj&          	ctio_;
+    ObjectSet<CtxtIOObj>       	ctio_;
+    uiCheckBox*			checkallfld_;
     ObjectSet<uiGroup> 		objgrps_;
     ObjectSet<uiLabel> 		titlelblflds_;
     ObjectSet<uiLabel> 		lblflds_;
@@ -80,9 +82,9 @@ protected:
 
     const BufferStringSet	names_;
     int 			nrtimessaved_;
-    bool 			saveaslog_;
+    bool 			uselabelsel_;
 
-    void			init();
+    void			checkAll(CallBacker*);
 };
 
 
@@ -94,8 +96,8 @@ public:
 
 protected :
 
-    CtxtIOObj&          	seisctio_;
-    CtxtIOObj&          	wvltctio_; 
+    ObjectSet<CtxtIOObj>       	wvltctio_;
+    ObjectSet<CtxtIOObj>       	seisctio_;
 
     int 			nrtimessaved_;
     uiSaveDataGroup* 		savelogsfld_;

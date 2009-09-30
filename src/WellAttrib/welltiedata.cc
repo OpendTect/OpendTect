@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.20 2009-09-29 15:15:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.21 2009-09-30 11:00:13 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -99,23 +99,6 @@ void LogSet::resetData( const WellTie::Params::DataParams& params )
 }
 
 
-float LogSet::getExtremVal( const char* colnm, bool ismax ) const
-{
-    float maxval,             minval;
-    maxval = get(colnm, 0);   minval = maxval;
-
-    for ( int idz=0; idz<getLog(colnm)->size(); idz++)
-    {
-	float val =  get(colnm, idz);
-	if ( maxval < val && !mIsUdf( val ) )
-	    maxval = val;
-	if ( minval > val && !mIsUdf(val) )
-	    minval = val;
-    }
-    return ismax? maxval:minval;
-}
-
-
 DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd, 
 			const WellTie::Setup& s )
     	: params_(params)	
@@ -126,8 +109,12 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
 	, seisctio_(*mMkCtxtIOObj(SeisTrc))
 
 {
+    seisctio_.ctxt.forread = false;
+    wvltctio_.ctxt.forread = false;
+
     for ( int idx =0; idx<2; idx++ )
 	wvltset_ += Wavelet::get( IOM().get(s.wvltid_) ); 
+
     uipms_   = &params_->uipms_;
     dpms_    = &params_->dpms_;
     pickmgr_ = new WellTie::PickSetMGR( wd_ );
@@ -148,12 +135,6 @@ DataHolder::~DataHolder()
 }
 
 
-DataWriter::DataWriter( WellTie::DataHolder* dh )
-	: holder_(dh)
-        , seisctio_(dh->seisCtxt()) 
-{
-}
-
 
 const Well::Writer* DataWriter::getWellWriter() const
 {
@@ -168,13 +149,14 @@ const Well::Writer* DataWriter::getWellWriter() const
 }
 
 
+#define mStop(act) delete wr; act;
 bool DataWriter::writeD2TM() const
 {
     const Well::Writer* wr = getWellWriter();
     if ( wr && wr->putLogs() )
-    { delete wr; return true; }
-
-    return false;
+	mStop( return true );
+    
+    mStop( return false );
 }
 
 
@@ -183,61 +165,63 @@ bool DataWriter::writeLogs( const Well::LogSet& logset ) const
     Well::LogSet& wdlogset = const_cast<Well::LogSet&>( holder_->wd()->logs() );
     for ( int idx=0; idx<logset.size(); idx++ )
     {
-	Well::Log* log = const_cast<Well::Log*>( &logset.getLog(idx) );
+	Well::Log* log = new Well::Log( logset.getLog(idx) );
 	wdlogset.add( log );
     }
 
     const Well::Writer* wr = getWellWriter();
     if ( wr && wr->putLogs() )
-    {
-	delete wr;
-	return true;
-    }
-    return false;
+	mStop( return true );
+
+    mStop( return false );
 }
 
 
-bool DataWriter::writeLogs2Cube( const Well::LogSet& logset ) const
+bool DataWriter::writeLogs2Cube( LogData& ldset ) const
 {
-    for ( int idx=0; idx<logset.size(); idx++ )
+    bool allsucceeded = true;
+    for ( int idx=0; idx<ldset.logset_.size(); idx++ )
     {
 	WellTie::TrackExtractor wtextr( 0, holder_->wd() );
 	wtextr.timeintv_ = holder_->dpms()->timeintvs_[1];
 	if ( !wtextr.execute() )
 	    pErrMsg( "unable to  track extract position" );
 
-	const Well::Log& log = logset.getLog(idx);
-	const int datasz = log.size();
+	ldset.curlog_ = &ldset.logset_.getLog( idx );
+	ldset.curctio_ = ldset.seisctioset_[idx];
+	const int datasz = ldset.curlog_->size();
 
-	TypeSet<BinID> bids;
+	ldset.bids_.erase();
 	for ( int idx=0; idx<datasz; idx++ )
-	bids += wtextr.getBIDValues()[idx];
+	    ldset.bids_ += wtextr.getBIDValues()[idx];
 
-	writeLog2Cube( log, bids );
-										    }
-    return true;
+	if ( !writeLog2Cube( ldset ) )
+	    allsucceeded = false;
+    }
+    return allsucceeded;
 }
 
 
-bool DataWriter::writeLog2Cube( const Well::Log& log, const TypeSet<BinID>& bids ) const
+bool DataWriter::writeLog2Cube( LogData& ld) const
 {
-    SeisTrcWriter writer( seisctio_.ioobj );
+    SeisTrcWriter writer( ld.curctio_->ioobj );
 
+    TypeSet<BinID> bids = ld.bids_;
     ObjectSet<SeisTrc> trcset;
     SeisTrc* curtrc = 0;
-    const int datasz = log.size();
+    const int datasz = ld.curlog_->size();
     BinID prevbid( bids[0] );
     for ( int idx=0; idx<datasz; idx++ )
     {
 	const BinID bid( bids[idx] );
 	if ( idx && bid == prevbid )
-	    curtrc->set( idx, log.value(idx), 0 );
+	    curtrc->set( idx, ld.curlog_->value(idx), 0 );
 	else
 	{
 	    SeisTrc* newtrc = new SeisTrc( datasz );
 	    trcset += newtrc;
 	    for ( int sidx=0; sidx<datasz; sidx++ )
-		newtrc->set( sidx, idx ? mUdf(float) : log.value(idx), 0 );
+		newtrc->set( sidx, idx ? mUdf(float):ld.curlog_->value(idx),0 );
 	    newtrc->info().sampling.step = SI().zStep();
 	    newtrc->info().binid = bid;
 	    curtrc = newtrc;
@@ -253,8 +237,5 @@ bool DataWriter::writeLog2Cube( const Well::Log& log, const TypeSet<BinID>& bids
 
     return true;
 }
-
-
-
 
 }; //namespace WellTie

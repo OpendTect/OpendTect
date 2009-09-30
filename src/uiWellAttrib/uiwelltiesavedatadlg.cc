@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.6 2009-09-29 15:15:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.7 2009-09-30 11:00:13 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -32,23 +32,29 @@ namespace WellTie
 uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
     : uiDialog( p, uiDialog::Setup("Save current data",
 		"Check the items to be saved",mTODOHelpID) )
-    , wvltctio_(dh->wvltCtxt())
-    , seisctio_(dh->seisCtxt())
     , dataholder_(dh)
     , datawriter_(new WellTie::DataWriter(dh))	     
-    , nrtimessaved_(0)				     
+    , nrtimessaved_(0)
 {
-    seisctio_.ctxt.forread = false;
+    setCtrlStyle( DoAndStay );
+
     BufferStringSet lognms; 	BufferStringSet wvltnms;
 
     for ( int idx=0; idx<dh->wvltset().size(); idx++)
+    {
+	wvltctio_ += new CtxtIOObj( dh->wvltCtxt() );
 	wvltnms.add( dh->wvltset()[idx]->name() );
+    }
 
     for ( int idx=3; idx<dh->logsset()->size()-2; idx++)
+    {
+	seisctio_ += new CtxtIOObj( dh->seisCtxt() );
 	lognms.add( dh->logsset()->getLog(idx).name() );
+    }
 
     uiSaveDataGroup::Setup su; su.nrtimes(nrtimessaved_); su.itemnames_=lognms;
-    savelogsfld_ = new uiSaveDataGroup( this, seisctio_, su );
+    su.wellname(dataholder_->wd()->name()); su.ctio_ = seisctio_;
+    savelogsfld_ = new uiSaveDataGroup( this, su );
 
     saveasfld_ = new uiGenInput( this, "Save as", 
 	    			BoolInpSpec( true, "Log", "Seismic cube") );
@@ -57,10 +63,11 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
 			mCB(savelogsfld_,uiSaveDataGroup,changeLogUIOutput) );
 
     uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( ensureBelow, saveasfld_ );
+    horSepar->attach( stretchedBelow, saveasfld_ );
 
-    su.colnm("Wavalet"); su.itemnames_ = wvltnms; su.saveaslog_ = false;
-    savewvltsfld_ = new uiSaveDataGroup( this, wvltctio_, su );
+    su.labelcolnm("Wavalet"); su.itemnames_ = wvltnms; su.uselabelsel_ = false;
+    su.ctio_ = wvltctio_;
+    savewvltsfld_ = new uiSaveDataGroup( this, su );
     savewvltsfld_->attach( stretchedBelow, horSepar );
 }
 
@@ -68,7 +75,13 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
 uiSaveDataDlg::~uiSaveDataDlg()
 {
     delete datawriter_;
+    for ( int idx=0; idx<wvltctio_.size(); idx++ )
+	delete wvltctio_[idx]->ioobj;
+    for ( int idx=0; idx<seisctio_.size(); idx++ )
+	delete seisctio_[idx]->ioobj;
+    deepErase( seisctio_ ); deepErase( wvltctio_ );
 }
+
 
 #define mCanNotWriteLogs(msg)\
     mErrRet( "Cannot write logs" );
@@ -77,8 +90,9 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     if ( !savelogsfld_ || !savewvltsfld_ ) 
 	return false;
     BufferStringSet lognms, wvltnms;
-    if ( !savelogsfld_->getNamesToBeSaved( lognms) 
-	    	&& !savewvltsfld_->getNamesToBeSaved( wvltnms  ) )
+    if ( !savelogsfld_->getNamesToBeSaved( lognms) )
+       return false;	
+    if ( !savewvltsfld_->getNamesToBeSaved( wvltnms  ) )
 	return false;
 
     if ( lognms.isEmpty() && wvltnms.isEmpty() )
@@ -88,7 +102,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     {
 	const int wvltidx = savewvltsfld_->indexOf( wvltnms.get(idx) );
 	if ( wvltidx <=0 ) continue;
-	if ( !dataholder_->wvltset()[wvltidx]->put( wvltctio_.ioobj ) )
+	if ( !dataholder_->wvltset()[wvltidx]->put( wvltctio_[idx]->ioobj ) )
 	{
 	    BufferString errmsg( "cannot save " ); 
 	    errmsg += wvltnms.get(idx);
@@ -96,43 +110,50 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	}
     }
 
-    Well::LogSet logsset;
+    Well::LogSet logset;
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	const Well::Log* l = dataholder_->logsset()->getLog(lognms.get(idx));
 	if ( !l ) continue;
 	Well::Log* newlog = new Well::Log( *l );
-	logsset.add( newlog );
+	logset.add( newlog );
     }
 
-    BufferString errmsg( "Cannot write new " );
     if ( saveasfld_->getBoolValue() )
     {
-	if ( !datawriter_->writeLogs( logsset ) )
+	if ( !datawriter_->writeLogs( logset ) )
 	    mCanNotWriteLogs();
     }
-    else if ( !datawriter_->writeLogs2Cube( logsset ) )
-	mCanNotWriteLogs();
+    else 
+    {
+	DataWriter::LogData lds( logset ); lds.seisctioset_ = seisctio_;
+	if ( !datawriter_->writeLogs2Cube( lds ) )
+	    mCanNotWriteLogs();
+    }
 
     nrtimessaved_++;
-    return true;
+    uiMSG().message( "Successfully saved the selected items" );
+
+    return false;
 }
 
 
-uiSaveDataGroup::uiSaveDataGroup( uiParent* p, CtxtIOObj& ctio, const Setup& s )
+uiSaveDataGroup::uiSaveDataGroup( uiParent* p, const Setup& s )
     : uiGroup( p, "Save objects")
-    , ctio_(ctio)
     , names_(s.itemnames_)
+    , ctio_(s.ctio_)			  
     , nrtimessaved_(s.nrtimes_)
-    , saveaslog_(s.saveaslog_)		       
+    , uselabelsel_(s.uselabelsel_)		       
 {
     for ( int idx=0; idx<3; idx++ )
     {
 	objgrps_ += new uiGroup( this, "Object Group");
 	if (idx) objgrps_[idx]->attach( rightOf, objgrps_[idx-1] );
     }
-    titlelblflds_ += new uiLabel( this, s.colnm_ );
+    titlelblflds_ += new uiLabel( this, s.labelcolnm_ );
     titlelblflds_ += new uiLabel( this, "Specify output name : " );
+    checkallfld_ = new uiCheckBox( this, 0 );
+    checkallfld_->activated.notify( mCB(this,uiSaveDataGroup,checkAll) );
 
     for ( int idx=0; idx<names_.size(); idx++ )
     {
@@ -140,15 +161,14 @@ uiSaveDataGroup::uiSaveDataGroup( uiParent* p, CtxtIOObj& ctio, const Setup& s )
 	BufferString objnm(names_.get(idx)); 
 	if ( nrtimessaved_ ) objnm += (const char*)nrtimessaved_;
 	
-	boxflds_ += new uiCheckBox( objgrps_[0], "" );
+	boxflds_ += new uiCheckBox( objgrps_[0], 0 );
 	lblflds_ += new uiLabel( objgrps_[1], names_.get(idx) );
-	ioobjselflds_ += new uiIOObjSel( objgrps_[2], ctio_, "" ); 
-	ioobjselflds_[idx]->setInputText( objnm );
 	nameflds_ += new uiGenInput( objgrps_[2], "", StringInpSpec() );
 	nameflds_[idx]->setText( objnm );
+	ioobjselflds_ += new uiIOObjSel( objgrps_[2], *ctio_[idx], "" ); 
 
-	nameflds_[idx]->display( saveaslog_ );
-	ioobjselflds_[idx]->display( !saveaslog_ );
+	nameflds_[idx]->display( uselabelsel_ );
+	ioobjselflds_[idx]->display( !uselabelsel_ );
 	
 	if ( idx )
 	{	    
@@ -157,6 +177,8 @@ uiSaveDataGroup::uiSaveDataGroup( uiParent* p, CtxtIOObj& ctio, const Setup& s )
 	    lblflds_[idx]->attach( ensureBelow, lblflds_[idx-1] );
 	    boxflds_[idx]->attach( ensureBelow, boxflds_[idx-1] );
 	}
+	objnm += "_"; objnm += s.wellname_;
+	ioobjselflds_[idx]->setInputText( objnm );
     }
     for ( int idx=0; idx<titlelblflds_.size(); idx++ )
 	titlelblflds_[idx]->attach( alignedAbove, objgrps_[idx+1]  );
@@ -168,13 +190,21 @@ void uiSaveDataGroup::changeLogUIOutput( CallBacker* cb )
     mDynamicCastGet( uiGenInput*, cber, cb );
     if ( !cber ) return;
 
-    saveaslog_ = cber->getBoolValue();
+    uselabelsel_ = cber->getBoolValue();
 
     for ( int idx=0; idx<names_.size(); idx++ )
     {
-	nameflds_[idx]->display( saveaslog_ );
-	ioobjselflds_[idx]->display( !saveaslog_ );
+	nameflds_[idx]->display( uselabelsel_ );
+	ioobjselflds_[idx]->display( !uselabelsel_ );
     }
+}
+
+
+void uiSaveDataGroup::checkAll( CallBacker* )
+{
+    bool arechecked = checkallfld_->isChecked(); 
+    for ( int idx=0; idx<boxflds_.size(); idx++ )
+	boxflds_[idx]->setChecked( arechecked );
 }
 
 
@@ -185,7 +215,7 @@ bool uiSaveDataGroup::getNamesToBeSaved( BufferStringSet& nms )
     {
 	if ( !boxflds_[idx]->isChecked() )
 	    continue;
-	if ( !saveaslog_ && !ioobjselflds_[idx]->commitInput() )
+	if ( !uselabelsel_ && !ioobjselflds_[idx]->commitInput() )
 	{
 	    BufferString msg = "Please enter a name for the ";
 	    msg += names_.get(idx);
