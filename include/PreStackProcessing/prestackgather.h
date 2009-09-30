@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.20 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackgather.h,v 1.21 2009-09-30 21:07:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,15 @@ public:
 					 BufferString* errmsg=0);
 
     const Coord&		getCoord() const	{ return coord_; }
+
+    void                        detectOuterMutes(int* depths,
+						 int taperlen=0) const;
+				/*!<For each trace, find the depth where the
+				    last outer-mute-affecte value is*/
+    void                        detectInnerMutes(int* depths,
+						 int taperlen=0) const;
+	                        /*<!For each trace, try to detect the first
+				   inner-mute affected value. */
 
     				//for 3d only
     const BinID&		getBinID() const 	{ return binid_; }
