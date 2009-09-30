@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.95 2009-09-22 09:09:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.96 2009-09-30 07:16:01 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -441,14 +441,9 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 
 DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 {
-    DataPack::ID datapackid= DataPack::cNoID();
     const int idx = getCacheIndexOf(as);
-    if ( !attribcachedatapackids_.validIdx(idx) )
-	return datapackid;
-    
-    datapackid = attribcachedatapackids_[idx];
-    
-    return datapackid;
+    return attribcachedatapackids_.validIdx(idx)
+	? attribcachedatapackids_[idx] : DataPack::cNoID();
 }
 
 
