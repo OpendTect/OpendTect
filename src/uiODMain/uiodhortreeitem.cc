@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.40 2009-10-01 21:59:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.41 2009-10-01 22:04:02 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -272,8 +272,8 @@ bool uiODHorizonTreeItem::init()
     if ( hor3d )
     {
 	const HorSampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
-	const bool userchanged = rg.inlRange()==hd->geometryRowRange() &&
-	    			 rg.crlRange()==hd->geometryColRange();
+	const bool userchanged = rg.inlRange()!=hd->geometryRowRange() ||
+	    			 rg.crlRange()!=hd->geometryColRange();
 	if ( rg.isDefined() )
     	    hor3d->setDisplayRange( rg.inlRange(), rg.crlRange(), userchanged );
     }
