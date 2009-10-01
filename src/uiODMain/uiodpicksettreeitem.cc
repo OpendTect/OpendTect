@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.62 2009-08-06 02:14:30 cvskris Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.63 2009-10-01 13:10:41 cvsbert Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -33,7 +33,7 @@ static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.62 2009-08-06 02:14:
 #include "vispolylinedisplay.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODTreeItem("PickSet")
+    : uiODTreeItem("PickSet/Polygon")
     , display_on_add(false)
 {
     Pick::Mgr().setAdded.notify( mCB(this,uiODPickSetParentTreeItem,setAdd) );
