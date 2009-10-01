@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.29 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.30 2009-10-01 13:29:03 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -46,6 +46,13 @@ void DataPointSet::Pos::setOffs( const Coord& c )
     const Coord sc( SI().transform(binid_) );
     offsx_ = c.x - sc.x;
     offsy_ = c.y - sc.y;
+}
+
+
+void DataPointSet::Pos::set( const Coord& c )
+{
+    binid_ = SI().transform( c );
+    setOffs( c );
 }
 
 

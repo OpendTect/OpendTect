@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.30 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.31 2009-10-01 13:29:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,9 @@ public:
 	Coord		coord() const;
 	float		z() const	{ return z_; }
 
+	void		set( const BinID& bid )
+	    		{ binid_ = bid; offsx_ = offsy_ = 0; }
+	void		set(const Coord&);
 	void		set(const BinID&,const Coord&);
 	void		set(const BinID&,const Coord3&);
 
