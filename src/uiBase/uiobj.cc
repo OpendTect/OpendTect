@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.88 2009-08-04 05:05:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.89 2009-10-01 07:20:50 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -258,7 +258,9 @@ void uiObject::doSetToolTip()
 	BufferString namestr = "\"";
 	namestr += !name().isEmpty() ? name().buf() : normaltooltiptxt_.buf();
 	namestr += "\"";
+	replaceString( namestr.buf(), "&&", "\a" );
 	removeCharacter( namestr.buf(), '&' );
+	replaceCharacter( namestr.buf(), '\a', '&' );
 	mBody()->setToolTip( namestr );
     }
     else
