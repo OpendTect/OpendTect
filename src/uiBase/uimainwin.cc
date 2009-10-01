@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.188 2009-09-24 07:35:28 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.189 2009-10-01 07:26:24 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -706,6 +706,7 @@ void uiMainWinBody::readSettings()
 
 
 // ----- uiMainWin -----
+
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     : uiParent(setup.caption_,0)
     , body_(0)
@@ -749,6 +750,8 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
 {}
 
 
+static ObjectSet<uiMainWin> orderoflastappearance_;
+
 uiMainWin::~uiMainWin()
 {
     while ( body_->toolbars_.size() )
@@ -759,6 +762,7 @@ uiMainWin::~uiMainWin()
 	body_->deletefromod_ = true;
 	delete body_;
     }
+    orderoflastappearance_ -= this;
 }
 
 
@@ -782,7 +786,13 @@ void uiMainWin::showCredits( const char* winid )
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 
-void uiMainWin::show()				{ body_->go(); }
+void uiMainWin::show()
+{
+    orderoflastappearance_ -= this;
+    orderoflastappearance_ += this;
+    body_->go();
+}
+
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::activateClose()			{ body_->activateClose(); }
 void uiMainWin::activateQDlg( int retval )	{ body_->activateQDlg(retval); }
@@ -1037,6 +1047,12 @@ void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist )
 	    if ( uimwb )
 		windowlist += &uimwb->handle();
 	}
+    }
+    for ( int idy=orderoflastappearance_.size()-1; idy>=0; idy-- )
+    {
+	const int curidx = windowlist.indexOf( orderoflastappearance_[idy] );
+	if ( curidx >= 0 )
+	    windowlist.insertAt( windowlist.remove(curidx), 0 );
     }
 }
 
