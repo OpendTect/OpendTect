@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.91 2009-09-23 19:31:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.92 2009-10-01 21:59:05 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -415,6 +415,7 @@ HorizonSection::HorizonSection()
     , geometry_( 0 )
     , displayrrg_( -1, -1, 0 )
     , displaycrg_( -1, -1, 0 )
+    , userchangedisplayrg_( false )			      
     , channels_( TextureChannels::create() )		   
     , channel2rgba_( ColTabTextureChannel2RGBA::create() ) 
     , tiles_( 0, 0 )					  
@@ -937,17 +938,19 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
 
 
 void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
-				      const StepInterval<int>& crg )
+	const StepInterval<int>& crg, bool userchange )
 {
     if ( displayrrg_==rrg && displaycrg_==crg ) 
 	return;
 
-    displayrrg_ = rrg;
-    displaycrg_ = crg;
+    displayrrg_ = !userchange && geometry_ ? geometry_->rowRange() : rrg;
+    displaycrg_ = !userchange && geometry_ ? geometry_->colRange() : crg;
     origin_.row = displayrrg_.start;
     origin_.col = displaycrg_.start;
     rowdistance_ = displayrrg_.step*SI().inlDistance();
     coldistance_ = displaycrg_.step*SI().crlDistance();
+
+    userchangedisplayrg_ = userchange;
 
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
@@ -995,7 +998,7 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	    return;
     }
   
-    if ( displayrrg_.start==-1 )
+    if ( !userchangedisplayrg_ )
     {
 	displayrrg_ = geometry_->rowRange();
 	displaycrg_ = geometry_->colRange();
