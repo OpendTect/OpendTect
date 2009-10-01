@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.52 2009-08-07 12:53:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.53 2009-10-01 07:33:12 cvsjaap Exp $";
 
 
 #include "uimsg.h"
@@ -188,10 +188,9 @@ void uiMsg::errorWithDetails( const BufferStringSet& bss, const char* before )
 {
     FileMultiString fms;
     if ( before && *before )
-	fms += before;
+	fms = before;
 
-    for ( int idx=0; idx<bss.size(); idx++ )
-	fms += bss.get( idx );
+    fms += bss;
 
     errorWithDetails( fms );
 }

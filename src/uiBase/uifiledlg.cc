@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.48 2009-08-07 12:53:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.49 2009-10-01 07:33:12 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -425,9 +425,7 @@ void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
     if ( ok )
     {
 	FileMultiString fms;
-	for ( int idx=0; idx<filenames.size(); idx++ )
-	    fms += filenames.get( idx );
-
+	fms += filenames;
 	msg += " \""; msg += fms; msg += "\"";
     }
 

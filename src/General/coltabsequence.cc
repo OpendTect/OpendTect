@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.27 2009-09-17 13:05:26 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.28 2009-10-01 07:33:12 cvsjaap Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -363,7 +363,8 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
     fms += (int)markcolor_.r(); fms += (int)markcolor_.g();
     fms += (int)markcolor_.b(); fms += (int)markcolor_.t();
     iopar.set( sKeyMarkColor, fms );
-    fms = (int)undefcolor_.r(); fms += (int)undefcolor_.g();
+    fms.setEmpty();
+    fms += (int)undefcolor_.r(); fms += (int)undefcolor_.g();
     fms += (int)undefcolor_.b(); fms += (int)undefcolor_.t();
     iopar.set( sKeyUdfColor, fms );
     iopar.set( sKeyNrSegments, nrsegments_ );

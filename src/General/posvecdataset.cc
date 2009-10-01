@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.21 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.22 2009-10-01 07:33:12 cvsjaap Exp $";
 
 #include "posvecdataset.h"
 
@@ -48,7 +48,7 @@ DataColDef::MatchLevel DataColDef::compare( const DataColDef& cd,
 void DataColDef::putTo( BufferString& bs ) const
 {
     FileMultiString fms( name_ );
-    fms += ref_;
+    fms += FileMultiString( ref_ );
     if ( unit_ ) fms += unit_->name();
     bs = fms;
 }

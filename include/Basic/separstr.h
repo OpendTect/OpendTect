@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.22 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: separstr.h,v 1.23 2009-10-01 07:33:12 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
 #include "convert.h"
+
 class BufferStringSet;
 
 
@@ -22,30 +23,31 @@ class BufferStringSet;
 
 SeparString is a list encoded in a string where the items are separated by
 a user chosen separator. The separator in the input is escaped with a backslash.
-A `\' is encoded as `\\' . Elements can have any size.
+A `\' is encoded as `\\' . Elements can have any size.  Input and output of
+elements is done unescaped. Input and output of whole (sub)strings is done
+escaped.
 
 */
 
 mClass SeparString
 {
 public:
-			SeparString( const char* s=0, char separ=',' )
-			{ initSep( separ ); addStr( s ); }
-			SeparString( const SeparString& s )
-			: rep_(s.rep_) { initSep( s.sep_[0] ); }
+			SeparString( const SeparString& ss )
+			: rep_(ss.rep_) { initSep( ss.sep_[0] ); }
+
+			SeparString( const char* escapedstr=0, char separ=',' )
+			{ initSep( separ ); initRep( escapedstr ); } 
 
     SeparString&	operator=(const SeparString&);
-    SeparString&	operator=(const char*);
-    template <class T>
-    inline SeparString&	operator=( T t )
-    			{ return operator=( Conv::to<const char*>(t)); }
+    SeparString&	operator=(const char* escapedstr);
 
     inline bool		isEmpty() const		{ return rep_.isEmpty(); }
     inline void		setEmpty()		{ rep_.setEmpty(); }
 
     int			size() const;
-    const char*		operator[](int) const;
-    const char*		from(int) const;
+    const char*		operator[](int) const;		//!< Output unescaped
+    const char*		from(int) const;		//!< Output escaped
+
     int			getIValue(int) const;
     od_uint32		getUIValue(int) const;
     od_int64		getI64Value(int) const;
@@ -53,32 +55,53 @@ public:
     float		getFValue(int) const;
     double		getDValue(int) const;
     bool		getYN(int) const;
-    int			indexOf(const char*) const;
 
-    SeparString&	add(const char*);
-    inline SeparString&	operator +=( const char* s )	{ return add( s ); }
+    int			indexOf(const char* unescapedstr) const;
+
+    SeparString&	add(const BufferStringSet&);	//!< Concatenation
+    SeparString&	add(const SeparString&);	//!< Concatenation
+    SeparString&	add(const char* unescapedstr);		
     template <class T>
-    SeparString&	operator +=( T t )
-    				{ return add( Conv::to<const char*>(t) ); }
-    SeparString&	operator +=(const BufferStringSet&);
+    SeparString&	add( T t )
+			{ return add( Conv::to<const char*>(t) ); }
 
-    inline		operator const char*() const	{ return buf(); }
+    template <class T>
+    SeparString&	operator +=( T t )	{ return add( t ); }
+
+    inline		operator const char*() const
+						{ return buf(); }
+
     inline char*	buf()			{ return rep_.buf(); }
+							//!< Output escaped
     inline const char*	buf() const		{ return rep_.buf(); }
+							//!< Output escaped
+    BufferString&	rep()			{ return rep_; }
+							//!< Output escaped
+    const BufferString&	rep() const		{ return rep_; }
+							//!< Output escaped
+
+    inline const char*	unescapedStr() const	{ return getUnescaped(buf()); }
+    			/*!< Use with care! Distinction between separ-chars
+			     and escaped separ-chars will get lost. */
+
     inline char		sepChar() const		{ return *sep_; }
     void		setSepChar(char);
-
-    BufferString&	rep()			{ return rep_; }
-    const BufferString&	rep() const		{ return rep_; }
 
 private:
 
     char		sep_[2];
     BufferString	rep_;
 
-    void		addStr(const char*);
+    void		initRep(const char*);
     inline void		initSep( char s )	{ sep_[0] = s; sep_[1] = '\0'; }
 
+    mutable BufferString retstr_;
+
+    const char*		getEscaped(const char* unescapedstr,char sep) const;
+    const char*		getUnescaped(const char* escapedstartptr,
+				     const char* nextsep=0) const;
+
+    const char*		findSeparator(const char*) const;
 };
 
 mGlobal std::ostream& operator <<(std::ostream&,const SeparString&);
@@ -92,18 +115,22 @@ mClass FileMultiString : public SeparString
 {
 public:
 
-			FileMultiString( const char* str=0 )
-			    : SeparString(str,'`')		{}
+			FileMultiString(const char* escapedstr=0)
+			    : SeparString(escapedstr,'`')		{} 
     template <class T>	FileMultiString( T t )
-			    : SeparString(t,'`')		{}
+			    : SeparString(t,'`')			{}
 
-    FileMultiString&	operator=( const FileMultiString& fms )
-			{ SeparString::operator=( fms ); return *this; }
+    // The function template overloading add(const SeparString&) in the base
+    // class needs an exact match! Passing a derived object would make the
+    // template function convert it to (const char*).
+    FileMultiString&	add(const FileMultiString& fms)
+			{ return add( (SeparString) fms ); }
     template <class T>
-    FileMultiString&	operator=( T t )
-    			{ SeparString::operator=( t ); return *this; }
+    FileMultiString&	add( T t )
+			{ SeparString::add( t ); return *this; }
+    template <class T>
+    FileMultiString&	operator +=( T t )		{ return add( t ); }
 
 };
-
 
 #endif

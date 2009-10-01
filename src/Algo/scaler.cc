@@ -5,7 +5,7 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.10 2009-07-23 08:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.11 2009-10-01 07:33:12 cvsjaap Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
@@ -46,7 +46,7 @@ Scaler* Scaler::get( const char* str )
 void Scaler::put( char* str ) const
 {
     FileMultiString fs( type() );
-    fs += toString();
+    fs += FileMultiString( toString() );
     strcpy( str, fs );
 }
 
