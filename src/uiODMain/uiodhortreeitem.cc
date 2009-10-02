@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.41 2009-10-01 22:04:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.42 2009-10-02 21:07:05 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -276,6 +276,9 @@ bool uiODHorizonTreeItem::init()
 	    			 rg.crlRange()!=hd->geometryColRange();
 	if ( rg.isDefined() )
     	    hor3d->setDisplayRange( rg.inlRange(), rg.crlRange(), userchanged );
+	else
+	    hor3d->setDisplayRange( SI().inlRange(true), SI().crlRange(true), 
+		    		    true );
     }
 
     return uiODEarthModelSurfaceTreeItem::init();
