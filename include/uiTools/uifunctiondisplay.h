@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.24 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.25 2009-10-02 08:20:37 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,10 +48,11 @@ public:
 				    , ymarkcol_(150,0,0)
 				    , canvaswidth_(400)
 				    , canvasheight_(250)
-				    , border_(20,10,20,10)
+				    , bnrder_(20,10,20,10)
 				    , annotx_(true)
 				    , annoty_(true)
 				    , annoty2_(true)
+				    , epsaroundzero_(1e-100)	    
 				    , noxaxis_(false)
 				    , noyaxis_(false)
 				    , noy2axis_(false)
@@ -107,6 +108,7 @@ public:
 	mDefSetupMemb(bool,drawborder)
 	mDefSetupMemb(LineStyle,borderstyle)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
+	mDefSetupMemb(float,epsaroundzero)
 
 	Setup&		drawline( bool yn )
 			{ drawliney_ = drawliney_ = yn; return *this; }

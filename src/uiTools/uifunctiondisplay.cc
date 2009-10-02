@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.48 2009-09-21 09:50:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.49 2009-10-02 08:20:37 cvsbruno Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -53,6 +53,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annotx_ );
     asu.nogridline( asu.noaxisline_ ? true : setup_.noxgridline_ );
     asu.border_ = setup_.border_;
+    asu.epsaroundzero_ = setup_.epsaroundzero_;
     xax_ = new uiAxisHandler( &scene(), asu );
     asu.noaxisline( setup_.noyaxis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty_ );

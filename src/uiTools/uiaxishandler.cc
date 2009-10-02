@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.36 2009-08-12 08:09:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.37 2009-10-02 08:20:38 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -103,7 +103,13 @@ void uiAxisHandler::reCalc()
     for ( int idx=0; idx<=nrsteps; idx++ )
     {
 	float pos = annotrg.start + idx * rg_.step;
-	str = pos; strs_.add( str );
+	if ( mIsZero( pos, setup_.epsaroundzero_ ) ) 
+	    pos = 0;
+	if ( setup_.maxnumberdigitsprecision_ )
+	    sprintf( str.buf(), "%.*g", setup_.maxnumberdigitsprecision_, pos );
+	else
+	    str = pos; 
+	strs_.add( str );
 	float relpos = pos - rg_.start;
 	if ( rgisrev_ ) relpos = -relpos;
 	relpos /= rgwidth_;
