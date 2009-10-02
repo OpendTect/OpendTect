@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.436 2009-09-22 09:54:26 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.437 2009-10-02 15:44:53 cvskarthika Exp $";
 
 #include "uivispartserv.h"
 
@@ -74,6 +74,9 @@ const int uiVisPartServer::evColorTableChange()	    { return 17; }
 const int uiVisPartServer::evLoadAttribDataInMPEServ()	{ return 18; }
 const int uiVisPartServer::evPostponedLoadingData()	{ return 19; }
 const int uiVisPartServer::evFromMPEManStoreEMObject()	{ return 20; }
+const int uiVisPartServer::evGetHeadOnIntensity()	{ return 21; }
+const int uiVisPartServer::evSetHeadOnIntensity()	{ return 22; }
+
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -1113,13 +1116,44 @@ void uiVisPartServer::setZStretch()
 }
 
 
+// Directional light-related
 void uiVisPartServer::setDirectionalLight()
 {
     if ( !dirlightdlg_ )
     {
-	dirlightdlg_ = new uiDirLightDlg( appserv().parent() );
+	dirlightdlg_ = new uiDirLightDlg( appserv().parent(), this );
     }
     dirlightdlg_->show();
+}
+
+
+// Headon light-related
+float uiVisPartServer::sendGetHeadOnIntensityEvent( int sceneid )
+{
+    eventmutex_.lock();
+    eventobjid_ = sceneid;
+    return sendEvent( evGetHeadOnIntensity() );
+}
+
+
+void uiVisPartServer::sendSetHeadOnIntensityEvent( int scenid, float val )
+{
+    eventmutex_.lock();
+    eventobjid_ = scenid;
+    sendEvent( evSetHeadOnIntensity() );
+}
+
+
+float uiVisPartServer::getHeadOnIntensity() const
+{
+    return ( dirlightdlg_ ) ? dirlightdlg_->getHeadOnIntensity() : 0;
+}
+
+
+void uiVisPartServer::setHeadOnIntensity( float val )
+{
+    if ( dirlightdlg_ )
+	dirlightdlg_->setHeadOnIntensity( val );
 }
 
 
@@ -2001,3 +2035,5 @@ bool uiVisModeMgr::allowTurnOn( int id, bool doclean )
 
     return false;
 }
+
+
