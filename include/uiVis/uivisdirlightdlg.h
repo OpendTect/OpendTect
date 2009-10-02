@@ -6,13 +6,15 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.4 2009-09-24 09:53:42 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.5 2009-10-02 15:48:11 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "uipolardiagram.h"
 
+class uiVisPartServer;
 class uiSliderExtra;
 class uiLabeledComboBox;
 class uiGenInput;
@@ -22,15 +24,19 @@ namespace visBase { class DirectionalLight; }
 mClass uiDirLightDlg : public uiDialog
 {
 public:
-				uiDirLightDlg(uiParent*);
+				uiDirLightDlg(uiParent*, uiVisPartServer*);
+				~uiDirLightDlg();
 
     bool			valueChanged() const;
-    virtual void		show();
+    float			getHeadOnIntensity() const;
+    void			setHeadOnIntensity(float);
 
 protected:
 
     visBase::DirectionalLight*	getDirLight(int) const;
     void			setDirLight();
+    float			getHeadOnLight(int) const;
+    void			setHeadOnLight();
     int				updateSceneSelector();	
     void			updateWidgetValues(bool);
     void			showWidgets(bool);
@@ -40,17 +46,25 @@ protected:
     bool			rejectOK(CallBacker*);
     void			sceneSel(CallBacker*);
     void			fieldChangedCB(CallBacker*);
+    void			headOnChangedCB(CallBacker*);
+    void			nrScenesChangedCB(CallBacker*);
+    void			activeSceneChangedCB(CallBacker*);
     
+    uiVisPartServer*		visserv_;
     uiLabeledComboBox*		scenefld_;
-    uiSliderExtra*		azimuthsldrfld_;
-    uiSliderExtra*		dipsldrfld_;
-    uiGenInput*			intensityfld_;
+    uiSliderExtra*		azimuthfld_;
+    uiSliderExtra*		dipfld_;
+    uiSliderExtra*		intensityfld_;
+    uiSliderExtra*		headonintensityfld_;
 
     TypeSet<int>		sceneids_;
     bool			valchgd_;
     float			initazimuthval_;
     float			initdipval_;
     float			initintensityval_;
+    float			initheadonval_;
+
+    uiPolarDiagram*		pd_;
 
 };
 
