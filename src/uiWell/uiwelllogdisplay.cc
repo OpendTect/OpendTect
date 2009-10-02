@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.11 2009-08-18 13:15:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.12 2009-10-02 08:22:00 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -122,6 +122,12 @@ void uiWellLogDisplay::gatherInfo()
     setAxisRanges( true );
     setAxisRanges( false );
 
+    ld1_.xax_.setup().maxnumberdigitsprecision_ = 3;
+    ld2_.xax_.setup().maxnumberdigitsprecision_ = 3;
+    ld1_.xax_.setup().epsaroundzero_ = 1e-5;
+    ld2_.xax_.setup().epsaroundzero_ = 1e-5;
+
+    ld2_.yax_.setup().islog( ld2_.logarithmic_ );
     ld1_.yax_.setup().islog( ld1_.logarithmic_ );
     ld2_.yax_.setup().islog( ld2_.logarithmic_ );
 
