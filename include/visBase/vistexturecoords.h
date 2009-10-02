@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexturecoords.h,v 1.8 2009-08-06 02:42:55 cvskris Exp $
+ RCS:		$Id: vistexturecoords.h,v 1.9 2009-10-02 21:11:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,7 @@ public:
     void		set(int id,const Coord3&);
     int			add(const Coord3&);
     void		remove(int id);
+    int			getSize() const	{ return texturecoords_.size(); }
 
 protected:
     			~TextureCoordListAdapter();

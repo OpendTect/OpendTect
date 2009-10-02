@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.24 2009-08-19 02:03:44 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.25 2009-10-02 21:11:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -112,6 +112,7 @@ public:
     void	set(int,const Coord3&);
     void	remove(int);
     bool	isDefined(int) const;
+    int		getSize() const	{ return coords_.size(); }
 
 protected:
     virtual		~CoordListAdapter();
