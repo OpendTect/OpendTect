@@ -92,11 +92,10 @@ public :
 				: wd_(*d)
 				, wts_(w)  
 				, step_(20)
-				, isinitwvltactive_(true) 	     
-				, corrdahs_(0,0) 
+				, isinitwvltactive_(true) 	  
+				, estwvltlength_(0) 	  
 				{}
 
-	Interval<float> 		corrdahs_;
 	TypeSet< StepInterval<float> > timeintvs_;
 	int 			step_;
 
@@ -115,9 +114,12 @@ public :
 	BufferString		crosscorrnm_;
 
 	bool			isinitwvltactive_;
+	int			estwvltlength_;
     
 	const WellTie::Setup&	wts_;
 	const Well::Data&	wd_;
+	float			d2T(float,bool istime = true) const;
+	Interval<float>		d2T(Interval<float>,bool time = true) const;
 	void	 		createColNames();
 	bool			resetTimeParams();
     };

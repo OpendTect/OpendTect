@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.21 2009-09-30 11:00:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.22 2009-10-02 13:43:20 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -35,20 +35,13 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.21 2009-09-30 11:00:13 cvsbr
 namespace WellTie
 {
 
-Log::Log( const char* nm )
-    : Well::Log(nm)
-    , arr_(0)
-{
-}
-
-
 Log::~Log()
 {
     delete arr_;
 }
 
 
-const Array1DImpl<float>* Log::getVal( const Interval<float>* si, bool dah )
+const Array1DImpl<float>* Log::getVal( const Interval<float>* si, bool isdah )
 {
     delete arr_; arr_ = 0;
     TypeSet<float> vals;
@@ -56,9 +49,10 @@ const Array1DImpl<float>* Log::getVal( const Interval<float>* si, bool dah )
     {
 	if ( si && dah_[idx]<si->start )
 	    continue;
-	float val = dah ? dah_[idx] : valArr()[idx];
-	if ( si && dah_[idx]>=si->stop )
-	    val =0;
+	if ( si && idx<size()-1 && dah_[idx+1]>si->stop )
+	    break;
+
+	float val = isdah ? dah_[idx] : valArr()[idx];
 	vals += val;
     }
     arr_ = new Array1DImpl<float> ( vals.size() );
@@ -81,13 +75,6 @@ void Log::setVal( const Array1DImpl<float>* arr, bool isdah )
 LogSet::~LogSet()
 {
     deepErase( logs );
-}
-
-
-const Array1DImpl<float>* LogSet::getVal( const char* nm, bool isdah, 
-					  const Interval<float>* st ) const
-{
-    mDynCast(nm,return 0); return l->getVal(st,isdah);
 }
 
 
@@ -185,7 +172,7 @@ bool DataWriter::writeLogs2Cube( LogData& ldset ) const
 	WellTie::TrackExtractor wtextr( 0, holder_->wd() );
 	wtextr.timeintv_ = holder_->dpms()->timeintvs_[1];
 	if ( !wtextr.execute() )
-	    pErrMsg( "unable to  track extract position" );
+	    pErrMsg( "unable to extract position" );
 
 	ldset.curlog_ = &ldset.logset_.getLog( idx );
 	ldset.curctio_ = ldset.seisctioset_[idx];

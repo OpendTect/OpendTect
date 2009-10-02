@@ -35,7 +35,10 @@ namespace WellTie
 mClass Log : public Well::Log
 {
 public :
-    			Log(const char*);
+    			Log(const char* nm)
+			    : Well::Log(nm)
+			    , arr_(0)
+			    {}  
 			~Log();
 
 
@@ -58,13 +61,12 @@ public:
 			~LogSet();
 
     void 		resetData(const WellTie::Params::DataParams&);
-    const Array1DImpl<float>* getVal(const char*,bool isdah=false,
-	    			     const Interval<float>* st=0) const;
+    const Array1DImpl<float>* getVal(const char* nm,bool isdah=false,
+	    			     const Interval<float>* st=0) const
+			{ mDynCast(nm,return 0); return l->getVal(st,isdah); }
     void		setVal(const char* nm,const Array1DImpl<float>* val,
 			       bool isdah = false)
 			{ mDynCast(nm,return); l->setVal(val,isdah); }
-    float		get(const char* nm,int idx) const
-			{ return (getVal(nm)) ? getVal(nm)->get(idx):0; }
 };
 
 

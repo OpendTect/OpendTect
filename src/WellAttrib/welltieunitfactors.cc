@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.29 2009-09-24 15:29:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.30 2009-10-02 13:43:20 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -95,13 +95,13 @@ Params::Params( const WellTie::Setup& wts, Well::Data* wd,
 	, wd_(*wd)
 	, ads_(ads)	  
 {
-    dpms_.currvellognm_ = wts.vellognm_;
     dpms_.attrnm_ = getAttrName( ads );
-    if ( wd_.checkShotModel() )
-	dpms_.currvellognm_ = wtsetup_.corrvellognm_;
+    dpms_.currvellognm_ = uipms_.iscscorr_ ? wts.corrvellognm_ : wts.vellognm_;
     dpms_.createColNames();
     resetVelLogNm();
 
+    for ( int  idx=0; idx<3; idx++ )
+	dpms_.timeintvs_ += StepInterval<float>(0,0,0); 
     resetParams();
 }
 
@@ -133,30 +133,48 @@ void Params::resetVelLogNm()
 #define mComputeFactor (SI().zStep())
 #define mMaxWorkSize (int)1.e5
 #define mMinWorkSize (int)20
-#define mTime(dah) d2t->getTime(dah)
 bool Params::DataParams::resetTimeParams()
 {
-    const Well::D2TModel* d2t = wd_.d2TModel(); 
-    if ( !d2t ) return false;
-    const float stopdah  = wd_.track().dah(wd_.track().size()-1);
+    float stopdah  = wd_.track().dah(wd_.track().size()-1);
 
-    if ( !corrdahs_.start ) corrdahs_.start = 0;
-    if ( !corrdahs_.stop ) corrdahs_.stop = stopdah;
-
-    timeintvs_.erase(); 
-    timeintvs_ += StepInterval<float>( 0, mTime(stopdah), mComputeFactor/step_ );
-    timeintvs_ += StepInterval<float>(timeintvs_[0]); timeintvs_[1].step*=step_;
-    timeintvs_ += StepInterval<float>( mTime(corrdahs_.start), 
-				       mTime(corrdahs_.stop), mComputeFactor);
+    timeintvs_[0]=StepInterval<float>( 0, d2T(stopdah), mComputeFactor/step_ );
+    timeintvs_[1]=StepInterval<float>(timeintvs_[0]); timeintvs_[1].step*=step_;
+    timeintvs_[2].step = timeintvs_[1].step;
 
     if ( timeintvs_[2].start<0 ) 
 	timeintvs_[2].start = 0;
     if ( timeintvs_[2].stop > timeintvs_[0].stop )
 	timeintvs_[2].stop = timeintvs_[0].stop;
+    if ( timeintvs_[2].stop == 0 )
+	timeintvs_[2].stop = timeintvs_[0].stop;
 
     return true;
 }
 
+
+float Params::DataParams::d2T( float zval, bool istime ) const
+{
+    const Well::D2TModel* d2t = wd_.d2TModel(); 
+    if ( !d2t ) return 0;
+    
+    return istime?  d2t->getTime( zval ) : d2t->getDepth( zval );
+}
+
+
+Interval<float> Params::DataParams::d2T( Interval<float> zintv, bool istime ) const
+{
+    Interval<float> zret( 0, 0);
+    const Well::D2TModel* d2t = wd_.d2TModel(); 
+    if ( !d2t ) return zret;
+
+    if ( istime )
+	zret.set( d2T( zintv.start ), d2T( zintv.stop ) );
+    else
+	zret.set( d2T( zintv.start, false ), d2T( zintv.stop, false ) );
+
+    return zret;
+} 
+			  
 
 void Params::DataParams::createColNames()
 {

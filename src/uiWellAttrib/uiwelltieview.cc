@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.45 2009-09-24 15:29:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.46 2009-10-02 13:43:20 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -70,11 +70,11 @@ uiTieView::~uiTieView()
 
 void uiTieView::fullRedraw()
 {
-    setLogsParams();
     drawVelLog();
     drawDenLog();
     drawAILog();
     drawRefLog();
+    setLogsParams();
     drawWellMarkers();
     drawCShot();
     for ( int idx =0; idx<logsdisp_.isEmpty(); idx++ )
@@ -107,7 +107,7 @@ void uiTieView::initLogViewers()
 void uiTieView::initFlatViewer()
 {
     BufferString nm("Synthetics<------------------------------------>Seismics");
-    vwr_->setInitialSize( uiSize(490,540) );
+    vwr_->setInitialSize( uiSize(520,540) );
     vwr_->setExtraBorders( uiSize(0,0), uiSize(0,20) );
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
     FlatView::Appearance& app = vwr_->appearance();
@@ -222,9 +222,10 @@ void uiTieView::setUpUdfTrc( SeisTrc& trc, const char* varname, int varsz )
 
 void uiTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
 {
+    Array1DImpl<float> vals = *data_.getVal( varname );
     for ( int idx=0; idx<varsz; idx++)
     {
-	float val = data_.get( varname, idx );
+	float val = vals.get( idx );
 	if ( mIsUdf(val) )
 	    val = 0;
 	trc.set( idx, val, 0 );
@@ -454,7 +455,9 @@ uiCorrView::uiCorrView( uiParent* p, const WellTie::DataHolder& dh)
     	, dataholder_(dh)  
 	, data_(*dh.logsset())
 {
-    uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
+    uiFunctionDisplay::Setup fdsu; 
+    fdsu.border_.setLeft( 2 );		fdsu.border_.setRight( 0 );
+    fdsu.epsaroundzero_ = 1e-3;
 
     for (int idx=0; idx<1; idx++)
     {
@@ -477,18 +480,19 @@ uiCorrView::~uiCorrView()
 void uiCorrView::setCrossCorrelation()
 {
     const WellTie::Params::DataParams& params = *dataholder_.dpms(); 
-    const int datasz = data_.getLog(params.crosscorrnm_)->size();
+    const Interval<float> itv = params.d2T( params.timeintvs_[2], false );
+    Array1DImpl<float> corrarr = *data_.getVal(params.crosscorrnm_,false,&itv );
+    const int datasz = corrarr.info().getSize(0);
     
-    const float normalfactor = dataholder_.corrcoeff()
-			     / data_.get(params.crosscorrnm_,datasz/2);
+    const float normalfactor = dataholder_.corrcoeff() / corrarr.get(datasz/2);
     TypeSet<float> xvals,corrvals;
     for ( int idx=-datasz/2; idx<datasz/2; idx++)
     {
-	float xaxistime = idx*params.timeintvs_[1].step*1000;
+	float xaxistime = idx*params.timeintvs_[2].step*1000;
 	if ( fabs( xaxistime ) > 200  )
 	    continue;
 	xvals += xaxistime;
-	float val = data_.get(params.crosscorrnm_, idx+datasz/2);
+	float val = corrarr.get(idx+datasz/2);
 	val *= normalfactor;
 	corrvals += fabs(val)>1 ? 0 : val;
     }

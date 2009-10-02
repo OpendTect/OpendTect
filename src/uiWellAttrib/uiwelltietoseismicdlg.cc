@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.55 2009-09-24 15:29:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.56 2009-10-02 13:43:20 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.55 2009-09-24 15:2
 #include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigroup.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uiseparator.h"
@@ -35,6 +36,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.55 2009-09-24 15:2
 #include "ctxtioobj.h"
 #include "pixmap.h"
 #include "survinfo.h"
+#include "wavelet.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"
@@ -47,7 +49,6 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.55 2009-09-24 15:2
 #include "welltiesetup.h"
 #include "welltietoseismic.h"
 #include "welltieunitfactors.h"
-
 
 namespace WellTie
 {
@@ -76,7 +77,8 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts,
     
     for ( int idx=0; idx<2; idx++ )
     { 
-	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3).border(5);
+	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
+	wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
 	logsdisp_ += new uiWellLogDisplay( this, wldsu );
     }
 
@@ -132,7 +134,6 @@ void uiTieWin::initAll()
 {
     drawFields();
     addControl();
-    infodlg_->setUserDepths();
     doWork( 0 );
     dataholder_->pickmgr()->setDataParams( dataholder_->dpms() );
     dataholder_->pickmgr()->setData( dataholder_->logsset() );
@@ -169,16 +170,8 @@ bool uiTieWin::doWork( CallBacker* )
     if ( !dataplayer_->computeAll() )
 	mErrRet( "unable to compute data, please check your input data" ); 
 
-    resetInfoDlg();
     drawData();
     return true;
-}
-
-
-void uiTieWin::resetInfoDlg()
-{
-    infodlg_->setXCorrel();
-    infodlg_->setWvlts();
 }
 
 
@@ -187,6 +180,7 @@ void uiTieWin::drawData()
     const bool viewall = controlview_->isZoomAtStart();
     datadrawer_->fullRedraw();
     controlview_->setSelView( false, viewall );
+    infodlg_->drawData();
 }
 
 
@@ -495,19 +489,33 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh,
     
     uiGroup* viewersgrp = new uiGroup( this, "Viewers group" );
     uiGroup* wvltgrp = new uiGroup( viewersgrp, "wavelet group" );
+    uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
+
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, dataholder_ );
     wvltdraw_->activeWvltChged.notify(mCB(this,WellTie::uiInfoDlg,wvltChanged));
+    estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)");
+    estwvltlengthfld_ ->attach( centeredBelow, wvltdraw_ );
+    estwvltlengthfld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
+    estwvltlengthfld_->setValue( 
+		    dataholder_->wvltset()[0]->samplePositions().width()*1000 );
 
-    uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
-    corrgrp->attach( rightOf, wvltgrp );
+    uiSeparator* verSepar = new uiSeparator( viewersgrp, false );
+    verSepar->attach( rightTo, wvltgrp );
+
+    corrgrp->attach( rightOf, verSepar );
     crosscorr_ = new WellTie::uiCorrView( corrgrp, *dataholder_ );
 
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedAbove, viewersgrp );
-
-    uiGroup* markergrp =  new uiGroup( this, "User Position Group" );
+    
+    uiGroup* markergrp =  new uiGroup( this, "User Z Range Group" );
     markergrp->attach( centeredAbove, horSepar );
 
+    const char* choice[] = { "Markers", "Times", "Depths", 0 };
+    choicefld_ = new uiGenInput( markergrp, "Compute Data between", 
+	    				StringListInpSpec(choice) );
+    choicefld_->valuechanged.notify( mCB(this,uiInfoDlg,propChanged) );
+    
     markernames_.add( Well::TrackSampler::sKeyDataStart() );
     if ( wd_->haveMarkers() )
     {
@@ -516,83 +524,115 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh,
     }
     markernames_.add( Well::TrackSampler::sKeyDataEnd() );
     StringListInpSpec slis( markernames_ );
+    const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
+    const char* units[] = { "", "seconds", "meters", 0 };
 
-    topmrkfld_ = new uiGenInput( markergrp, "Compute data between",
-	    			 slis.setName("Top Marker") );
-    topmrkfld_->setValue( (int)0 );
-    topmrkfld_->setElemSzPol( uiObject::Medium );
-    topmrkfld_->valuechanged.notify(
-			mCB(this,uiInfoDlg,userDepthsChanged));
-    
-    botmrkfld_ = new uiGenInput( markergrp, "", slis.setName("Bottom Marker") );
-    botmrkfld_->attach( rightOf, topmrkfld_ );
-    botmrkfld_->setValue( markernames_.size()-1 );
-    botmrkfld_->setElemSzPol( uiObject::Medium );
-    botmrkfld_->valuechanged.notify(
-			mCB(this,uiInfoDlg,userDepthsChanged));
+    for ( int idx=0; choice[idx]; idx++ )
+    {
+	
+	if ( !idx )
+	{
+	    zrangeflds_ += new uiGenInput( markergrp, "", 
+				slis.setName(markernms[0]),
+				slis.setName(markernms[1]) ); 
+	    zrangeflds_[idx]->setValue( markernames_.size()-1, 1 );
+	}
+	else
+	    zrangeflds_ += new uiGenInput( markergrp, "",
+					    FloatInpIntervalSpec() );
+	zrangeflds_[idx]->valuechanged.notify(mCB(this,uiInfoDlg,propChanged));
+	zrangeflds_[idx]->attach( rightOf, choicefld_ );
+	zlabelflds_ += new uiLabel( markergrp, units[idx] );
+	zlabelflds_[idx]->attach( rightOf, zrangeflds_[idx] );
+    }
+    finaliseDone.notify( mCB(this,uiInfoDlg,propChanged) );
 }
 
 
 uiInfoDlg::~uiInfoDlg()
 {
     delete crosscorr_;
-    wvltdraw_->activeWvltChged.remove( 
-	    mCB( this, WellTie::uiInfoDlg, wvltChanged) );
+    wvltdraw_->activeWvltChged.remove(mCB(this,WellTie::uiInfoDlg,wvltChanged));
+    wvltdraw_->activeWvltChged.remove(mCB(this,WellTie::uiInfoDlg,propChanged));
     delete wvltdraw_;
 }
 
 
-bool uiInfoDlg::setUserDepths()
+bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
 {
-    float startdah = wd_->d2TModel()->getDepth( 0 );
-    float stopdah = wd_->track().dah( wd_->track().size()-1 );
+    zrg.start = wd_->d2TModel()->getDepth( 0 );
+    zrg.stop = wd_->track().dah( wd_->track().size()-1 );
 
-    if ( topmrkfld_->getIntValue() == botmrkfld_->getIntValue() )
-	return false;
-
+    const Interval<int> mintv = zrangeflds_[0]->getIInterval();
     const bool zinft = SI().depthsInFeetByDefault();
-    const Well::Marker* topmarkr = wd_->markers().getByName(topmrkfld_->text());
-    const Well::Marker* botmarkr = wd_->markers().getByName(botmrkfld_->text());
+    const Well::Marker* topmarkr = 
+			wd_->markers().getByName( zrangeflds_[0]->text(0) );
+    const Well::Marker* botmarkr = 
+			wd_->markers().getByName( zrangeflds_[0]->text(1) );
+
+    if ( mintv.start == mintv.stop )
+    { topmarkr = 0; botmarkr = 0; }
 
     if ( topmarkr )
-	startdah = topmarkr->dah();
+	zrg.start = topmarkr->dah();
 
     if ( botmarkr )
-	stopdah = botmarkr->dah();
+	zrg.stop = botmarkr->dah();
 
-    if ( startdah > stopdah )
-    { float tmp; mSWAP( startdah, stopdah, tmp ); }
-    
-    params_->corrdahs_.set( startdah, stopdah );
-
+    zrg.sort();
+	
     return true;
 }
 
 
-void uiInfoDlg::userDepthsChanged( CallBacker* )
+void uiInfoDlg::propChanged( CallBacker* )
 {
-    setUserDepths();
+    const int selidx = choicefld_->getIntValue();
+    Interval<float> zrg = zrangeflds_[selidx]->getFInterval();
+    if ( !selidx ) getMarkerDepths( zrg );
+
+    for ( int idx=0; idx<zrangeflds_.size(); idx++ )
+    {
+	zrangeflds_[idx]->display( idx == selidx );
+	zlabelflds_[idx]->display( idx == selidx );
+    }
+
+    if ( !selidx )
+	zrangeflds_[2]->setValue( zrg );
+    else if ( selidx == 1 )
+	zrangeflds_[2]->setValue( params_->d2T( zrg, false ) );
+    else if ( !selidx || selidx == 2 )
+	zrangeflds_[1]->setValue( params_->d2T( zrg ) );
+
+    const Interval<float> timerg = selidx==1 ? zrg : params_->d2T( zrg );
+    const double wvltlgth = (double)estwvltlengthfld_->getIntValue()/1000;
+    if ( wvltlgth >= timerg.width() )
+    { 
+	uiMSG().error("the wavelet must be shorter than the computation time"); 
+	return; 
+    }
+    
+    params_->estwvltlength_ = (int)round(wvltlgth/SI().zStep());
+    params_->timeintvs_[2]= timerg;
     params_->resetTimeParams();
+
     wvltChanged(0);
 }
 
 
-void uiInfoDlg::setXCorrel()
+void uiInfoDlg::drawData()
 {
+    wvltdraw_->redrawWavelets();
     crosscorr_->setCrossCorrelation();
-}
-
-
-void uiInfoDlg::setWvlts()
-{
-    wvltdraw_->initWavelets();
 }
 
 
 void uiInfoDlg::wvltChanged( CallBacker* cb )
 {
-    dataplayer_->computeWvltPack();
-    crosscorr_->setCrossCorrelation();
+    if ( !dataplayer_->computeWvltPack() ) 
+	return;
+
+    drawData();
     redrawNeeded.trigger();
 }
 

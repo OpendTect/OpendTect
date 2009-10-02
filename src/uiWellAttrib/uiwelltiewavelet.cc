@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.30 2009-09-23 13:27:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.31 2009-10-02 13:43:20 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -43,6 +43,15 @@ uiWaveletView::uiWaveletView( uiParent* p, WellTie::DataHolder* dh )
 	, activeWvltChged(this)		
 {
     createWaveletFields( this );
+
+    for ( int idx=0; idx<dataholder_->wvltset().size(); idx++ )
+    {
+	uiwvlts_ += new uiWavelet( this, dataholder_->wvltset()[idx], idx==0 );
+	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
+	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
+	uiwvlts_[idx]->wvltChged.notify( mCB( 
+				    this,uiWaveletView,activeWvltChanged ) );
+    }
 } 
 
 
@@ -67,17 +76,10 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
 }
 
 
-void uiWaveletView::initWavelets( )
+void uiWaveletView::redrawWavelets()
 {
-    deepErase( uiwvlts_ );
-    for ( int idx=0; idx<dataholder_->wvltset().size(); idx++ )
-    {
-	uiwvlts_ += new uiWavelet( this, dataholder_->wvltset()[idx], idx==0 );
-	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
-	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
-	uiwvlts_[idx]->wvltChged.notify( 
-				mCB(this,uiWaveletView,activeWvltChanged) );
-    }
+    for ( int idx=0; idx<uiwvlts_.size(); idx++ )
+	uiwvlts_[idx]->drawWavelet();
 }
 
 
@@ -182,7 +184,7 @@ void uiWavelet::setAsActive( bool isactive )
 
 void uiWavelet::drawWavelet()
 {
-    if ( !wvlt_) return;
+    if ( !wvlt_ ) return;
 
     const int wvltsz = wvlt_->size();
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
@@ -201,49 +203,5 @@ void uiWavelet::drawWavelet()
     viewer_->handleChange( uiFlatViewer::All );
 }
 
-
-
-
-/*
-class uiWvltSaveDlg : public uiDialog
-{
-public:
-
-uiWvltSaveDlg( uiParent* p, const Wavelet* wvlt )
-            : uiDialog(p,uiDialog::Setup("Save Estimated Wavelet",
-	    "Specify wavelet name","107.4.4"))
-	    , wvltctio_(*mMkCtxtIOObj(Wavelet))
-	    , wvlt_(wvlt)				       
-{
-    wvltctio_.ctxt.forread = false;
-    wvltfld_ = new uiIOObjSel( this, wvltctio_, "Output wavelet" );
-}
-
-
-bool acceptOK( CallBacker* )
-{
-    if ( !wvltfld_->commitInput() )
-	mErrRet( "Please enter a name for the new Wavelet", return false );
-
-    const int wvltsize = wvlt_->size();
-    Wavelet wvlt( wvltfld_->getInput(), -wvltsize/2, SI().zStep() );
-    wvlt.reSize( wvltsize );
-    for( int idx=0; idx<wvltsize; idx++ )
-	wvlt.samples()[idx] = wvlt_->samples()[idx];
-    wvlt.put( wvltctio_.ioobj );
-    return true;
-}
-
-    CtxtIOObj&  	wvltctio_;
-    uiIOObjSel* 	wvltfld_;
-    const Wavelet* 	wvlt_;
-};
-
-void uiWaveletView::saveWvltPushed( CallBacker* )
-{
-    WellTie::uiWvltSaveDlg dlg( this, wvlts_[1] );
-    if ( !dlg.go() ) return;
-}
-*/
 
 }; //namespace WellTie

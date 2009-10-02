@@ -23,6 +23,7 @@ class uiGroup;
 class uiToolBar;
 class uiGenInput;
 class uiPushButton;
+class uiLabel;
 class uiLabeledComboBox;
 class uiCheckBox;
 class uiWellLogDisplay;
@@ -134,9 +135,8 @@ public:
 
     Notifier<uiInfoDlg>  redrawNeeded;
 
-    bool 			setUserDepths();
-    void 			setXCorrel();
-    void 			setWvlts();
+    void 			drawData();
+    bool 			getMarkerDepths(Interval<float>& zrg );
 
 protected:
    
@@ -145,16 +145,17 @@ protected:
     WellTie::DataHolder*	dataholder_;
     WellTie::Params::DataParams* params_;
 
-    uiGenInput*			botmrkfld_;
-    uiGenInput*                 corrcoefffld_;
-    uiGenInput*			topmrkfld_;
+    ObjectSet<uiGenInput>	zrangeflds_;
+    ObjectSet<uiLabel>		zlabelflds_;
+    uiGenInput*                 choicefld_;
+    uiGenInput*                 estwvltlengthfld_;
     uiPushButton*               savewvltestbut_;
     WellTie::uiCorrView*      	crosscorr_;
     WellTie::uiWaveletView*     wvltdraw_;
     WellTie::DataPlayer*   	dataplayer_;
     
     void 			applyMarkerPushed(CallBacker*);
-    void 			userDepthsChanged(CallBacker*);
+    void 			propChanged(CallBacker*);
     void 			wvltChanged(CallBacker*);
 };
 

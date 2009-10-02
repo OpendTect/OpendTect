@@ -43,7 +43,7 @@ public:
 	    uiWaveletView(uiParent*,DataHolder*); 
 	    ~uiWaveletView();
 
-    void 			initWavelets();
+    void 			redrawWavelets();
 
     Notifier<uiWaveletView> 	activeWvltChged;
     void 			activeWvltChanged(CallBacker*);
@@ -68,6 +68,7 @@ public:
 				~uiWavelet();
     
     Notifier<uiWavelet> 	wvltChged;
+    void			drawWavelet();
     void			setAsActive(bool);
 
 protected:				    
@@ -80,7 +81,6 @@ protected:
     uiWaveletDispPropDlg*  	wvltpropdlg_;
 
     void			initWaveletViewer();
-    void			drawWavelet();
 
     void 			dispProperties(CallBacker*);
     void			rotatePhase(CallBacker*);

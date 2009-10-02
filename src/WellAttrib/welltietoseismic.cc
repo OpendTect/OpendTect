@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.33 2009-09-29 12:13:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.34 2009-10-02 13:43:20 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -76,11 +76,9 @@ bool DataPlayer::computeAll()
   
     if ( !resampleLogs() ) 	   return false;
     if ( !computeReflectivity() )  return false;
-
     if ( !extractWellTrack() )     return false;
     if ( !extractSeismics() ) 	   return false;
-
-    if ( !computeWvltPack() ) return false;
+    if ( !computeWvltPack() ) 	   return false;
 
     return true;	
 }
@@ -88,9 +86,11 @@ bool DataPlayer::computeAll()
 
 bool DataPlayer::computeWvltPack()
 {
+    if ( !logsset_.size() ) 	   return false;
     if ( !convolveWavelet() ) 	   return false;
     if ( !estimateWavelet() )	   return false;
     if ( !computeCrossCorrel() )   return false;
+
     return true;
 }
 
@@ -219,16 +219,17 @@ bool DataPlayer::convolveWavelet()
 bool DataPlayer::estimateWavelet()
 {
     const StepInterval<float> si = params_.timeintvs_[2];
-    const Well::D2TModel& d2t = *wd_.d2TModel();
-    Interval<float> dhrg( d2t.getDepth(si.start), d2t.getDepth(si.stop) );
-
     const int datasz = si.nrSteps(); 
+    const Interval<float> dhrg = params_.d2T( params_.timeintvs_[2], false );
 
-    Wavelet* wvlt = wvltset_[1];
+    delete wvltset_.remove(1); 
+    Wavelet* wvlt = new Wavelet( *wvltset_[0] );
+    wvltset_ += wvlt;
     if ( !wvlt ) return false;
 
+
     wvlt->setName( "Estimated Wavelet" );
-    const int wvltsz = wvlt->size();
+    const int wvltsz = params_.estwvltlength_;
     if ( datasz < wvltsz +1 )
        return false;
 
@@ -257,15 +258,14 @@ bool DataPlayer::estimateWavelet()
 bool DataPlayer::computeCrossCorrel()
 {
     const StepInterval<float> si = params_.timeintvs_[2];
-    const Well::D2TModel& d2t = *wd_.d2TModel();
-    Interval<float> dhrg( d2t.getDepth(si.start), d2t.getDepth(si.stop) );
+    const Interval<float> itv = params_.d2T( params_.timeintvs_[2], false );
     const int sz = si.nrSteps();
 
     Array1DImpl<float> tmpcrosscorr( sz );
-    const Array1DImpl<float> syn = 
-			*logsset_.getVal( params_.synthnm_, false, &dhrg);
-    const Array1DImpl<float> attr = 
-			*logsset_.getVal( params_.attrnm_, false, &dhrg );
+    const Array1DImpl<float> syn = *logsset_.getVal( 
+						params_.synthnm_, false, &itv );
+    const Array1DImpl<float> attr =  *logsset_.getVal( 
+						params_.attrnm_, false, &itv );
 
     geocalc_->crosscorr( syn, attr, tmpcrosscorr );
 
