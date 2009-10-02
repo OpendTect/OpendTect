@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.250 2009-09-22 09:54:49 cvskarthika Exp $
+ RCS:           $Id: uivispartserv.h,v 1.251 2009-10-02 15:48:34 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -283,6 +283,15 @@ public:
     bool			canDuplicate(int) const;
     int				duplicateObject(int id,int sceneid);
     				/*!< \returns id of new object */
+
+    				// Headon intensity event-related
+    float			sendGetHeadOnIntensityEvent(int sceneid);
+    void			sendSetHeadOnIntensityEvent(int scenid, 
+	    						    float val);
+    float			getHeadOnIntensity() const;
+    void			setHeadOnIntensity(float val);
+    static const int		evGetHeadOnIntensity();
+    static const int		evSetHeadOnIntensity();
 
     				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
