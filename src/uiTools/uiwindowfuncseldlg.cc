@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.20 2009-09-21 12:25:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.21 2009-10-05 15:12:03 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -55,6 +55,12 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const Setup& su )
     
     uiAxisHandler::Setup asu( uiRect::Bottom, view_->width(), view_->height() );
     asu.style( LineStyle::None );
+
+    asu.maxnumberdigitsprecision_ = 2;
+    asu.maxnumberdigitsprecision_ = 2;
+    asu.epsaroundzero_ = 1e-3;
+    asu.epsaroundzero_ = 1e-3;
+
     asu.border_ = border;
 
     xax_ = new uiAxisHandler( &view_->scene(), asu );
@@ -65,7 +71,8 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const Setup& su )
     yax_ = new uiAxisHandler( &view_->scene(), asu );
     yax_->setRange( su.yaxrg_, 0 );
 
-    xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
+    xax_->setBegin( yax_ ); 		yax_->setBegin( xax_ );
+    xax_->setBounds( su.xaxrg_ ); 	yax_->setBounds( su.yaxrg_ );
 }
 
 
