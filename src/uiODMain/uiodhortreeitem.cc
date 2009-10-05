@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.42 2009-10-02 21:07:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.43 2009-10-05 06:10:13 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -31,9 +31,9 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.42 2009-10-02 21:07:05 c
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiposprovider.h"
+#include "uitaskrunner.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
-#include "uitaskrunner.h"
 
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
@@ -42,6 +42,14 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.42 2009-10-02 21:07:05 c
 #include "visrgbatexturechannel2rgba.h"
 #include "zaxistransform.h"
 
+
+#define mLoadIdx	0
+#define mLoadCBIdx	1
+#define mNewIdx		2
+#define mSectIdx	3
+#define mFullIdx	4
+#define mSectFullIdx	5
+#define mSortIdx	6
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem( "Horizon" )
@@ -56,37 +64,43 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getDataTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&Load &color blended..."), 4 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), mLoadIdx );
+    mnu.insertItem( new uiMenuItem("Load &color blended..."), mLoadCBIdx );
 
     uiMenuItem* newmenu = new uiMenuItem("&New ...");
-    mnu.insertItem( newmenu, 1 );
+    mnu.insertItem( newmenu, mNewIdx );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("&Display all only at sections"), 2 );
-	mnu.insertItem( new uiMenuItem("&Show all in full"), 3 );
-	mnu.insertItem( new uiMenuItem("Sort"), 4 );
+	uiPopupMenu* displaymnu =
+		new uiPopupMenu( getUiParent(), "&Display all" );
+	displaymnu->insertItem( new uiMenuItem("&Only at sections"),
+				mSectIdx );
+	displaymnu->insertItem( new uiMenuItem("&In full"), mFullIdx );
+	displaymnu->insertItem( new uiMenuItem("&At sections and in full"),
+				mSectFullIdx );
+	mnu.insertItem( displaymnu );
+	mnu.insertItem( new uiMenuItem("Sort"), mSortIdx );
     }
 
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == 0 || mnuid==4 )
+    if ( mnuid == mLoadIdx || mnuid==mLoadCBIdx )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false ); 
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    uiODHorizonTreeItem* itm =
-		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==4 );
+		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mLoadCBIdx );
 	    addChild( itm, false, false );
 	}
 
 	deepUnRef( objs );
     }
-    else if ( mnuid == 1 )
+    else if ( mnuid == mNewIdx )
     {
 	if ( !applMgr()->visServer()->
 			 clickablesInScene(EM::Horizon3D::typeStr(),sceneID()) )
@@ -100,20 +114,27 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	mps->addTracker( EM::Horizon3D::typeStr(), sceneID() );
 	return true;
     }
-    else if ( mnuid == 2 || mnuid == 3 )
+    else if ( mnuid == mSectIdx || mnuid == mFullIdx || mnuid == mSectFullIdx )
     {
-	const bool onlyatsection = mnuid == 2;
+	const bool onlyatsection = mnuid == mSectIdx;
+	const bool both = mnuid == mSectFullIdx;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm,children_[idx])
 	    if ( itm )
 	    {
-		itm->visEMObject()->setOnlyAtSectionsDisplay( onlyatsection );
+		const int displayid = itm->visEMObject()->id();
+		mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+				applMgr()->visServer()->getObject(displayid))
+		if ( !hd ) continue;
+
+		hd->displayIntersectionLines( both );
+		hd->setOnlyAtSectionsDisplay( onlyatsection );
 		itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	    }
 	}
     }
-    else if ( mnuid==4 )
+    else if ( mnuid==mSortIdx )
 	sort();
     else
 	handleStandardItems( mnuid );
@@ -345,7 +366,6 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     const int visid = displayID();
-
     uiEMPartServer* emserv = applMgr()->EMServer();
     uiEMAttribPartServer* emattrserv = applMgr()->EMAttribServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -383,8 +403,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    maxcs.zrg.stop = zintv.stop;
 	}
 
-        CubeSampling curcs;
-        curcs.zrg.setFrom( SI().zRange(true) );
+	CubeSampling curcs;
+	curcs.zrg.setFrom( SI().zRange(true) );
 	curcs.hrg.set( section->displayedRowRange(),
 		       section->displayedColRange() );
 
@@ -408,7 +428,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	pp.fillPar( displaypar );
 	
-        CubeSampling newcs;
+	CubeSampling newcs;
 	if ( pp.isAll() )
 	    newcs = maxcs;
 	else
@@ -431,9 +451,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	BoolTypeSet isenabled;
 	const int nrattrib = visserv_->getNrAttribs( visid );
 	for ( int idx=0; idx<nrattrib; idx++ )
-	{
 	    isenabled += visserv_->isAttribEnabled( visid, idx ); 
-	}
 
 	float curshift = visserv_->getTranslation( visid ).z;
 	if ( mIsUdf( curshift ) ) curshift = 0;
