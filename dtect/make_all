@@ -3,7 +3,6 @@
 set mods=.mods
 set shallow=no
 set dodeps=yes
-set docpdeps=yes
 set doupd=yes
 set dodoc=no
 set nrcpus=1
@@ -23,7 +22,6 @@ else if ( "$1" == "--nodep" ) then
     set dodeps=no
 else if ( "$1" == "--mkdep" ) then
     set dodeps=yes
-    set docpdeps=no
 else if ( "$1" == "--noupd" ) then
     set doupd=no
 else if ( "$1" == "--od" ) then
@@ -78,6 +76,7 @@ if ( $hostnm == dgb26 ) then
     cdw; cd plugins; ./cpdeps
     cdw; cd spec; ./cpdeps
     set mods=.mods.noui
+    set dodeps=no
 endif
 
 if ( ! -d $WORK/dtect/build ) then
