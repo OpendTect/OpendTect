@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.49 2009-09-11 09:03:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.50 2009-10-05 05:43:21 cvsnanne Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -579,11 +579,12 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
     if ( tbufchgdtrcs_.isEmpty() )
 	return true;
 
-    if ( uiMSG().askSave(" Do you want to save the changes permanently? ",
-	          	   true));
-	storeChgdData();
-    //TODO store traces if user wants to
-    return true;
+    const int res =
+	uiMSG().askSave( "Do you want to save the changes permanently?", true );
+    if ( res == 1 )
+	return storeChgdData();
+
+    return res == 0;
 }
 
 
@@ -700,9 +701,8 @@ int nextStep()
 
 bool uiSeisBrowser::storeChgdData()
 {
-    
-    uiSeisBrowseWriter* wrtr = new uiSeisBrowseWriter( setup_, tbufchgdtrcs_,
-	    					       is2D() );
+    PtrMan<uiSeisBrowseWriter> wrtr =
+	new uiSeisBrowseWriter( setup_, tbufchgdtrcs_, is2D() );
     uiTaskRunner dlg( this );
     return dlg.execute( *wrtr );
 }
