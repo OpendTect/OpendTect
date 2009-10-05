@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.11 2009-09-23 14:02:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.12 2009-10-05 15:34:07 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -222,7 +222,8 @@ void uiSeisWvltMerge::makeStackedWvlt()
 	WvltMathFunction* func = wvltfuncset_[selitems[selidx]];
 	for ( int idx=0; idx<maxwvltsize_; idx++ )
 	{
-	    const float coeff = 2*idx-maxwvltsize_+1;
+	    const int shift = maxwvltsize_%2 ? 1 : 0;
+	    const float coeff = 2*idx-maxwvltsize_ + shift;
 	    const float val = func->getValue( coeff*5*SI().zStep());
 	    stackedwvlt_->samples()[idx] += val/selsize; 
 	}
@@ -252,11 +253,13 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
     }
     const float stopx = SI().zStep()*maxwvltsize_*5; 
     const float startx = -stopx;
-    const StepInterval<float> xaxrg( startx, stopx, 1 );
-    const StepInterval<float> yaxrg( minhght, maxhght,
-				     (maxhght-minhght)/8);
-    uiFuncSelDraw::Setup su; su.name_ = "Wavelet Stacking";
-    su.xaxrg_ = xaxrg; su.yaxrg_ = yaxrg;
+    const StepInterval<float> xaxrg( startx, stopx, ( stopx - startx)/20 );
+    const StepInterval<float> yaxrg( minhght, maxhght, (maxhght-minhght)/8);
+
+    uiFuncSelDraw::Setup su; 	su.name_ = "Wavelet Stacking";
+    su.xaxrg_ = xaxrg; 		su.yaxrg_ = yaxrg;
+    su.xaxname_ = "time (s)"; 	su.yaxname_ = "Amplitude";
+
     wvltdrawer_ += new uiFuncSelDraw( this, su );
 }
 
@@ -283,9 +286,9 @@ void uiSeisWvltMerge::reloadWvlts()
 	if ( centerfld_->isChecked() )
 	{
 	    if ( centerchoicefld_->box()->currentItem() )
-		setToMaxEnergyPos( wvlt );
+		centerToMaxEnergyPos( wvlt );
 	    else
-		setToMaxAmplPos( wvlt );
+		centerToMaxAmplPos( wvlt );
 	}
 	namelist_.add( ioobj->name() );
     }
@@ -327,7 +330,7 @@ void uiSeisWvltMerge::reloadAll( CallBacker* )
 }
 
 
-void uiSeisWvltMerge::setToMaxEnergyPos( Wavelet* wvlt )
+void uiSeisWvltMerge::centerToMaxEnergyPos( Wavelet* wvlt )
 {
     WaveletAttrib wvltattr( wvlt );
     Array1DImpl<float> hilb ( wvlt->size() );
@@ -347,7 +350,7 @@ void uiSeisWvltMerge::setToMaxEnergyPos( Wavelet* wvlt )
 }
 
 
-void uiSeisWvltMerge::setToMaxAmplPos( Wavelet* wvlt )
+void uiSeisWvltMerge::centerToMaxAmplPos( Wavelet* wvlt )
 {
     int centeridx = 0;
     float extrval = wvlt->getExtrValue( true );
