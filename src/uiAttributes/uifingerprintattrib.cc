@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.62 2009-08-27 08:39:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.63 2009-10-05 06:22:38 cvsnanne Exp $";
 
 -*/
 
@@ -52,15 +52,6 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.62 2009-08-27 08:39:
 using namespace Attrib;
 
 static const int cInitNrRows = 4;
-
-static const char* valinpstrs[] =
-{
-	"Mamual",
-	"Reference Position",
-	"Pickset",
-	0
-};
-
 
 static const char* statstrs[] =
 {
