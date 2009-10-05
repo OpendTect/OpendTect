@@ -38,7 +38,6 @@ namespace WellTie
 {
     class DataHolder;
     class DataWriter;
-    class Log;
 
 mClass uiSaveDataGroup : public uiGroup
 {

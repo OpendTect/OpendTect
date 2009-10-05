@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.31 2009-10-02 13:43:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.32 2009-10-05 15:35:27 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -98,7 +98,7 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     : uiGroup(p)
     , isactive_(isactive)  
     , wvlt_(wvlt)
-    , wvltpropdlg_(new uiWaveletDispPropDlg(this,wvlt))		 
+    , wvltpropdlg_(0)		 
     , wvltChged(this)							 
 {
     viewer_ = new uiFlatViewer( this );
@@ -172,6 +172,8 @@ void uiWavelet::wvltChanged( CallBacker* )
 
 void uiWavelet::dispProperties( CallBacker* )
 {
+    delete wvltpropdlg_; wvltpropdlg_=0;
+    wvltpropdlg_ = new uiWaveletDispPropDlg( this, wvlt_ );
     wvltpropdlg_ ->go();
 }
 

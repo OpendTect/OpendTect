@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.9 2009-10-02 13:43:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.10 2009-10-05 15:35:27 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -45,10 +45,10 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
 	wvltnms.add( dh->wvltset()[idx]->name() );
     }
 
-    for ( int idx=3; idx<dh->logsset()->size()-2; idx++)
+    for ( int idx=3; idx<dh->logset()->size()-2; idx++)
     {
 	seisctio_ += new CtxtIOObj( dh->seisCtxt() );
-	lognms.add( dh->logsset()->getLog(idx).name() );
+	lognms.add( dh->logset()->getLog(idx).name() );
     }
 
     uiSaveDataGroup::Setup su; su.itemnames_=lognms;
@@ -112,7 +112,7 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     Well::LogSet logset;
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Well::Log* l = dataholder_->logsset()->getLog(lognms.get(idx));
+	const Well::Log* l = dataholder_->logset()->getLog(lognms.get(idx));
 	if ( !l ) continue;
 	Well::Log* newlog = new Well::Log( *l );
 	logset.add( newlog );

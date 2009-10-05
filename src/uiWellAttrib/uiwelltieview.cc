@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.46 2009-10-02 13:43:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.47 2009-10-05 15:35:27 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -48,7 +48,6 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr,
 	, dataholder_(dh)  
 	, params_(dh.dpms())     	
 	, wtsetup_(dh.setup())	
-    	, data_(*dh.logsset())
 	, synthpickset_(dh.pickmgr()->getSynthPickSet())
 	, seispickset_(dh.pickmgr()->getSeisPickSet())
 	, trcbuf_(0)
@@ -149,7 +148,7 @@ void uiTieView::setLogsParams()
 void uiTieView::drawVelLog()
 {
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[0]->logData( true );
-    wldld1.wl_ = data_.getLog( params_->dispcurrvellognm_ );
+    wldld1.wl_ = dataholder_.logset()->getLog( params_->dispcurrvellognm_ );
     wldld1.xrev_ = !wtsetup_.issonic_;
     wldld1.linestyle_.color_ = Color::stdDrawColor(0);
 }
@@ -158,7 +157,7 @@ void uiTieView::drawVelLog()
 void uiTieView::drawDenLog()
 {
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[0]->logData( false );
-    wldld2.wl_ = data_.getLog( params_->denlognm_ );
+    wldld2.wl_ = dataholder_.logset()->getLog( params_->denlognm_ );
     wldld2.linestyle_.color_ = Color::stdDrawColor(1);
 }
 
@@ -166,7 +165,7 @@ void uiTieView::drawDenLog()
 void uiTieView::drawAILog()
 {
     uiWellLogDisplay::LogData& wldld1 = logsdisp_[1]->logData( true );
-    wldld1.wl_ = data_.getLog( params_->ainm_ );
+    wldld1.wl_ = dataholder_.logset()->getLog( params_->ainm_ );
     wldld1.linestyle_.color_ = Color::stdDrawColor(0);
 }
 
@@ -174,7 +173,7 @@ void uiTieView::drawAILog()
 void uiTieView::drawRefLog()
 {
     uiWellLogDisplay::LogData& wldld2 = logsdisp_[1]->logData( false );
-    wldld2.wl_ = data_.getLog( params_->refnm_ );
+    wldld2.wl_ = dataholder_.logset()->getLog( params_->refnm_ );
     wldld2.linestyle_.color_ = Color::stdDrawColor(1);
 }
 
@@ -222,7 +221,7 @@ void uiTieView::setUpUdfTrc( SeisTrc& trc, const char* varname, int varsz )
 
 void uiTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
 {
-    Array1DImpl<float> vals = *data_.getVal( varname );
+    Array1DImpl<float> vals = *dataholder_.getLogVal( varname );
     for ( int idx=0; idx<varsz; idx++)
     {
 	float val = vals.get( idx );
@@ -450,10 +449,9 @@ void uiTieView::drawCShot()
 
 
 
-uiCorrView::uiCorrView( uiParent* p, const WellTie::DataHolder& dh)
+uiCorrView::uiCorrView( uiParent* p, WellTie::DataHolder& dh)
 	: uiGroup(p)
     	, dataholder_(dh)  
-	, data_(*dh.logsset())
 {
     uiFunctionDisplay::Setup fdsu; 
     fdsu.border_.setLeft( 2 );		fdsu.border_.setRight( 0 );
@@ -480,8 +478,7 @@ uiCorrView::~uiCorrView()
 void uiCorrView::setCrossCorrelation()
 {
     const WellTie::Params::DataParams& params = *dataholder_.dpms(); 
-    const Interval<float> itv = params.d2T( params.timeintvs_[2], false );
-    Array1DImpl<float> corrarr = *data_.getVal(params.crosscorrnm_,false,&itv );
+    Array1DImpl<float> corrarr = *dataholder_.getLogVal( params.crosscorrnm_ );
     const int datasz = corrarr.info().getSize(0);
     
     const float normalfactor = dataholder_.corrcoeff() / corrarr.get(datasz/2);

@@ -50,15 +50,15 @@ public:
     void        		fullRedraw();
     void 			redrawViewer();
     void        		drawUserPicks();
-    bool        		isEmpty() { return data_.isEmpty(); }
+    bool        		isEmpty() 
+    				{ return dataholder_.logset()->isEmpty(); }
 
 protected:
 
     uiFlatViewer*		vwr_;
 
     ObjectSet<uiWellLogDisplay>& logsdisp_;
-    const WellTie::LogSet&  	data_;
-    const WellTie::DataHolder&  dataholder_;
+    WellTie::DataHolder&  	dataholder_;
     const Well::Data& 		wd_;		
     const WellTie::Setup& 	wtsetup_;
     const WellTie::Params::DataParams* params_;
@@ -103,8 +103,7 @@ mClass uiCorrView : uiGroup
 {
 public:
 
-				uiCorrView(uiParent*,
-					const WellTie::DataHolder&);
+				uiCorrView(uiParent*,WellTie::DataHolder&);
 				~uiCorrView();
 
     void                	setCrossCorrelation();
@@ -112,8 +111,7 @@ public:
 protected:
 
     uiLabel* 			corrlbl_;
-    const WellTie::LogSet& 	data_;
-    const WellTie::DataHolder& 	dataholder_;
+    WellTie::DataHolder& 	dataholder_;
     ObjectSet<uiFunctionDisplay>  corrdisps_;
 };
 

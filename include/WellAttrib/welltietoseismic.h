@@ -20,18 +20,13 @@ ________________________________________________________________________
 #include "welltiedata.h"
 #include "welltieunitfactors.h"
 
-template <class T> class Array1DImpl;
 class DataPointSet;
 class TaskRunner;
-class Wavelet;
 
 namespace Attrib { class DescSet; }
 
 namespace WellTie
 {
-    class Setup;
-    class D2TModelMGR;
-    class LogSet; 
 
 mClass DataPlayer
 {
@@ -62,16 +57,16 @@ protected:
 
     DataPointSet* 	dps_;
     Well::Data& 	wd_;
-    WellTie::LogSet& 	logsset_;
+    Well::LogSet& 	logset_;
 
     const Attrib::DescSet& ads_;
     const WellTie::Params::DataParams& params_;	
     const WellTie::Setup& wtsetup_;	
 
-    WellTie::DataHolder* dataholder_;
+    WellTie::DataHolder* dholder_;
     WellTie::D2TModelMGR* d2tmgr_;
     WellTie::GeoCalculator* geocalc_;
-    ObjectSet<Wavelet>& wvltset_;
+    ObjectSet<Wavelet>* wvltset_;
 
     bool		computeCrossCorrel();
     bool  		convolveWavelet();

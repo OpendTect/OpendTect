@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.15 2009-09-30 13:15:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.16 2009-10-05 15:35:27 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -61,32 +61,40 @@ int TrackExtractor::nextStep()
 
 
 #define mErrRet(s) { errmsg = s; return; }
-LogResampler::LogResampler( WellTie::Log* tl, const Well::Log& l, 
+LogResampler::LogResampler( Well::Log* newl, const Well::Log& orgl, 
 			    const Well::Data* d, WellTie::DataHolder* dh )
     	: Executor("Processing log data") 
-	, newlog_(tl)
-	, orglog_(l)	     
+	, newlog_(newl)
+	, orglog_(orgl)	     
 	, wd_(*d)	   
 	, nrdone_(0)
 	, curidx_(0)
 	, isavg_(true) 
+	, vals_(0)	       
+	, dahs_(0)	       
 {
-    newlog_->erase();
+    if ( newlog_ ) newlog_->erase();
 
-    BufferString exnm = "Processing "; exnm += l.name(); exnm += " Data"; 
+    BufferString exnm = "Processing "; exnm += orgl.name(); exnm += " Data"; 
     setName( exnm );
 
-    fillProcLog( l );
+    fillProcLog( orgl );
 
     BufferString errmsg;
-    errmsg += "no valid "; errmsg += l.name();  errmsg += " log selected";
+    errmsg += "no valid "; errmsg += orgl.name();  errmsg += " log selected";
 
     if ( dh )
     {
 	if ( !dh->geoCalc()->isValidLogData( val_ ) ) mErrRet(errmsg);
-	dh->geoCalc()->interpolateLogData( dah_, l.dahStep(true), true );
-	dh->geoCalc()->interpolateLogData( val_, l.dahStep(true), false );
+	dh->geoCalc()->interpolateLogData( dah_, orgl.dahStep(true), true );
+	dh->geoCalc()->interpolateLogData( val_, orgl.dahStep(true), false );
     }
+}
+
+
+LogResampler::~LogResampler() 
+{
+    delete vals_; delete dahs_;
 }
 
 
@@ -103,13 +111,14 @@ void LogResampler::fillProcLog( const Well::Log& log )
 int LogResampler::nextStep()
 {
     float curtime = timeintv_.atIndex( nrdone_ );
-    float curdah = wd_.d2TModel()->getDepth( curtime );
-    curidx_ = orglog_.indexOf( curdah );
-    if ( curidx_ < 0 ) curidx_ = 0; 
-    
     if ( curtime >= timeintv_.stop || nrdone_ >= timeintv_.nrSteps() )
 	return Executor::Finished();
    
+    float curdah = wd_.d2TModel()->getDepth( curtime );
+    curidx_ = orglog_.indexOf( curdah );
+    if ( curidx_ < 0 ) 
+	curidx_ = 0;
+    
     float curval = 0;
     if ( curdah < dah_[0] )
 	curval = val_[0];
@@ -120,10 +129,23 @@ int LogResampler::nextStep()
     else
 	curval = val_[curidx_];
 
-    newlog_->addValue( curdah, curval );
+    if ( newlog_ )
+	newlog_->addValue( curdah, curval );
+    if ( nrdone_ < dahs_->info().getSize(0) )
+    {
+	dahs_->set( nrdone_, curdah );
+	vals_->set( nrdone_, curval );
+    }
 
     nrdone_++;
     return Executor::MoreToDo();
+}
+
+void LogResampler::setTimeIntv( const StepInterval<float>& itv )
+{
+    timeintv_ = itv;
+    vals_ = new Array1DImpl<float>( itv.nrSteps() );
+    dahs_ = new Array1DImpl<float>( itv.nrSteps() );
 }
 
 }; //namespace WellTie

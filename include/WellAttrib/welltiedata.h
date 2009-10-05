@@ -22,7 +22,7 @@ class DataPointSet;
 class BinID;
 class Wavelet;
 class CtxtIOObj;
-namespace Well { class Data; class Log; class Writer; }
+namespace Well { class Data; class Log; class LogSet; class Writer; }
 
 namespace WellTie
 {
@@ -31,43 +31,6 @@ namespace WellTie
     class GeoCalculator;   
     class PickSetMGR;  
     class Setup;
-
-mClass Log : public Well::Log
-{
-public :
-    			Log(const char* nm)
-			    : Well::Log(nm)
-			    , arr_(0)
-			    {}  
-			~Log();
-
-
-    const Array1DImpl<float>* getVal(const Interval<float>*,bool);
-    void		setVal(const Array1DImpl<float>*,bool);
-
-protected:
-
-    Array1DImpl<float>* arr_;
-};
-
-
-/*!\brief Manages the datasets used during TWTS. */
-#define mDynCast(nm,act)\
-    mDynamicCastGet(WellTie::Log*,l,gtLog(nm)); if (!l) act;
-mClass LogSet : public Well::LogSet
-{
-public:
-			LogSet(WellTie::DataHolder&){};
-			~LogSet();
-
-    void 		resetData(const WellTie::Params::DataParams&);
-    const Array1DImpl<float>* getVal(const char* nm,bool isdah=false,
-	    			     const Interval<float>* st=0) const
-			{ mDynCast(nm,return 0); return l->getVal(st,isdah); }
-    void		setVal(const char* nm,const Array1DImpl<float>* val,
-			       bool isdah = false)
-			{ mDynCast(nm,return); l->setVal(val,isdah); }
-};
 
 
 //brief contains all the data, params and mgrs needed by TWTS
@@ -83,8 +46,13 @@ public:
     const Well::Data* 		wd()     const   { return wd_; }	
 
 //logs 
-    WellTie::LogSet*  	  	logsset() 	{ return logsset_; }
-    const WellTie::LogSet* 	logsset() const { return logsset_; }
+    Well::LogSet*  	  	logset() 	{ return logset_; }
+    const Well::LogSet* 	logset() const { return logset_; }
+    Array1DImpl<float>*		arr(const char* nm) { return getLogVal(nm); }
+    Array1DImpl<float>* 	getLogVal(const char*,bool dah=false);
+    void 			setLogVal(const char*,const Array1DImpl<float>*,
+    					  const Array1DImpl<float>*);
+    void 			resetLogData();
 
 //Wavelet
     ObjectSet<Wavelet>&		wvltset() { return wvltset_; }
@@ -124,7 +92,6 @@ private:
     CtxtIOObj&                  wvltctio_;
 
     WellTie::UnitFactors	factors_;
-    WellTie::LogSet*		logsset_;
     WellTie::D2TModelMGR*	d2tmgr_;
     WellTie::Params* 	 	params_; //becomes mine
     WellTie::Params::uiParams* 	uipms_;
@@ -133,7 +100,10 @@ private:
     WellTie::GeoCalculator* 	geocalc_;
 
     const WellTie::Setup&	setup_;
+    Well::LogSet*		logset_;
+    Array1DImpl<float>*		arr(int idx) { return arr_[idx]; }
     ObjectSet<Wavelet>		wvltset_;
+    ObjectSet< Array1DImpl<float> > arr_;
 };
 
 

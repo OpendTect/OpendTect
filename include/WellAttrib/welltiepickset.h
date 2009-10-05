@@ -20,11 +20,11 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 #include "welltieunitfactors.h"
 
-namespace Well{ class Data; }
+namespace Well{ class Data; class LogSet; }
 namespace WellTie
 {
     class UserPick;
-    class LogSet;
+    class DataHolder;
 
 mClass UserPick
 {
@@ -120,8 +120,7 @@ public:
     bool 	   	isPick();
     bool 	   	isSameSize();
     float 	   	findEvent(float,bool);
-    void 	   	setData(const WellTie::LogSet*);
-    void 	   	setDataParams(const WellTie::Params::DataParams*);
+    void 	   	setData(WellTie::DataHolder*);
     void 	   	setEventType(int);
     void 	   	sortByPos(WellTie::PickSet&);
     void           	updateShift(int,float);
@@ -129,7 +128,7 @@ public:
 
 protected:
 
-    const WellTie::LogSet* logsset_;
+    WellTie::DataHolder* holder_;
     const WellTie::Params::DataParams* datapms_;
 
     WellTie::PickSet 	synthpickset_;

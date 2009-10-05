@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.35 2009-09-30 13:15:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.36 2009-10-05 15:35:27 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -418,8 +418,8 @@ void GeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
     Array1DImpl<float>* inputvals = new Array1DImpl<float>( filtersz );
     Array1DImpl<float>* filtervals = new Array1DImpl<float>( filtersz );
 
-    memcpy( inputvals->getData(), tinputvals.arr(), filtersz*sizeof(float) );
-    memcpy( filtervals->getData(), tfiltervals.arr(), filtersz*sizeof(float) );
+    memcpy(inputvals->getData(),tinputvals.getData(),filtersz*sizeof(float));
+    memcpy(filtervals->getData(),tfiltervals.getData(),filtersz*sizeof(float));
 
     window.apply( inputvals );		removeBias( inputvals );
     window.apply( filtervals );		removeBias( filtervals );

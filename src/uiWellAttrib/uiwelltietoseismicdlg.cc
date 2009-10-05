@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.56 2009-10-02 13:43:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.57 2009-10-05 15:35:27 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -135,8 +135,7 @@ void uiTieWin::initAll()
     drawFields();
     addControl();
     doWork( 0 );
-    dataholder_->pickmgr()->setDataParams( dataholder_->dpms() );
-    dataholder_->pickmgr()->setData( dataholder_->logsset() );
+    dataholder_->pickmgr()->setData( dataholder_ );
     show();
     dispPropChg( 0 );
 }
@@ -529,7 +528,6 @@ uiInfoDlg::uiInfoDlg( uiParent* p, WellTie::DataHolder* dh,
 
     for ( int idx=0; choice[idx]; idx++ )
     {
-	
 	if ( !idx )
 	{
 	    zrangeflds_ += new uiGenInput( markergrp, "", 

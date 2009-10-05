@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "executor.h"
+#include "arrayndimpl.h"
 #include "geometry.h"
 
 class DataPointSet;
@@ -28,7 +29,6 @@ namespace WellTie
 {
 
 class DataHolder;
-class Log;
 
 mClass TrackExtractor : public Executor
 {
@@ -63,12 +63,11 @@ protected:
 mClass LogResampler : public Executor
 {
 public:
-			LogResampler(WellTie::Log*, const Well::Log&,
+			LogResampler(Well::Log*, const Well::Log&,
 				const Well::Data*, WellTie::DataHolder* d=0);
-			~LogResampler() {};
+			~LogResampler();
 
 
-    StepInterval<float> timeintv_;
 
     int                 nextStep();
     int           	colnr_;
@@ -78,12 +77,17 @@ public:
     const char*         nrDoneText() const      { return "Points done"; }
 
     bool 		isavg_;
+    Array1DImpl<float>* vals_;
+    Array1DImpl<float>* dahs_;
+
+    void		setTimeIntv(const StepInterval<float>&);
 
 protected:
 
-    WellTie::Log*   	newlog_;		
+    Well::Log*   	newlog_;		
     const Well::Log& 	orglog_;
     const Well::Data& 	wd_;
+
 
     TypeSet<float> 	val_;
     TypeSet<float> 	dah_;
@@ -92,6 +96,7 @@ protected:
     int                 curidx_;
 
     void        	fillProcLog(const Well::Log&);
+    StepInterval<float> timeintv_;
 };
 
 };//namespace WellTie
