@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.19 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.20 2009-10-05 10:46:02 cvsbert Exp $";
 
 
 #include "welltransl.h"
@@ -51,6 +51,8 @@ bool WellTranslator::implRemove( const IOObj* ioobj ) const
     const BufferString bnm = fp.fullPath();
     mRemove(Well::IO::sExtMarkers(),0,)
     mRemove(Well::IO::sExtD2T(),0,)
+    mRemove(Well::IO::sExtCSMdl(),0,)
+    mRemove(Well::IO::sExtDispProps(),0,)
     for ( int idx=1; ; idx++ )
 	mRemove(Well::IO::sExtLog(),idx,if ( !exists ) break)
 
@@ -81,6 +83,8 @@ bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
     const BufferString newbnm = fp.fullPath();
     mRename(Well::IO::sExtMarkers(),0,)
     mRename(Well::IO::sExtD2T(),0,)
+    mRename(Well::IO::sExtCSMdl(),0,)
+    mRename(Well::IO::sExtDispProps(),0,)
 
     for ( int idx=1; ; idx++ )
 	mRename(Well::IO::sExtLog(),idx,if ( !exists ) break)
