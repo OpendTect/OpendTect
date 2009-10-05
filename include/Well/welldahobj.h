@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: welldahobj.h,v 1.10 2009-09-02 11:48:27 cvsbruno Exp $
+ RCS:		$Id: welldahobj.h,v 1.11 2009-10-05 07:13:23 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,9 @@ public:
 
     void		deInterpolate();
     			//!< Remove unnecessary points
+    float*              dahArr()                        { return dah_.arr(); }
+    const float*        dahArr() const                  { return dah_.arr(); }
+
 protected:
 
     TypeSet<float>	dah_;
