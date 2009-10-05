@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: settings.h,v 1.11 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: settings.h,v 1.12 2009-10-05 06:00:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -73,5 +73,8 @@ protected:
 //!> macro for easy get from Settings::common()
 #define mSettGet(basekey,key) \
 	Settings::common()[ IOPar::compKey(basekey,key) ]
+//!> macro for easy write of Settings::common()
+#define mSettWrite() \
+	Settings::common().write();
 
 #endif
