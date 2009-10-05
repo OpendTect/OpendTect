@@ -6,11 +6,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.15 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:           $Id: undefval.h,v 1.16 2009-10-05 05:58:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "commondefs.h"
 #include "plftypes.h"
 
 //! Undefined value. IEEE gives NaN but that's not exactly what we want
@@ -209,8 +210,8 @@ T& setUdf( T& u )
 template <class T>
 inline bool dbgIsUdf( T val )
     { return Values::isUdf( val ); }
-bool dbgIsUdf(float);
-bool dbgIsUdf(double);
+mGlobal bool dbgIsUdf(float);
+mGlobal bool dbgIsUdf(double);
 
 #ifdef __debug__
 # define mIsUdf(val) dbgIsUdf(val)
