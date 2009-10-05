@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.357 2009-09-21 07:08:55 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.358 2009-10-05 15:55:29 cvskarthika Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1576,9 +1576,4 @@ void uiODApplMgr::setFonts()
 int uiODApplMgr::createMapDataPack( const DataPointSet& data, int colnr )
 { return dispatcher_.createMapDataPack( data, colnr ); }
 
-
-void uiODApplMgr::doDirectionalLight(CallBacker*)
-{
-    visserv_->setDirectionalLight();
-}
 

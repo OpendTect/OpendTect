@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.190 2009-09-30 11:12:35 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.191 2009-10-05 15:55:30 cvskarthika Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -610,8 +610,6 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		"Volume Builder",false,doVolProc);
     }
     mAddTB(dtecttb_,"xplot.png","Crossplot Attribute vs Well data",false,xPlot);
-    mAddTB( dtecttb_, "dir-light.png", "Directional light", false, 
-	    doDirectionalLight);
 
     dTectTBChanged.trigger();
 }
@@ -702,6 +700,9 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 	viewselectid_ = -1;
     }
 
+    mAddTB( cointb_, "dir-light.png", "Set directional light", false, 
+	    doDirectionalLight);
+    
     axisid_ = mAddTB(cointb_,"axis.png","Display orientation axis",
 	    	     true,showRotAxis);
     coltabid_ = cointb_->addButton( "colorbar.png",

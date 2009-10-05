@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.184 2009-09-11 10:41:03 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.185 2009-10-05 15:55:30 cvskarthika Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1070,6 +1070,12 @@ uiODViewer2D& uiODSceneMgr::addViewer2D( int visid )
     uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
     viewers2d_ += vwr;
     return *vwr;
+}
+
+
+void uiODSceneMgr::doDirectionalLight(CallBacker*)
+{
+    visServ().setDirectionalLight();
 }
 
 
