@@ -7,14 +7,26 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.9 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: msvcdefs.h,v 1.10 2009-10-05 05:59:22 cvsnanne Exp $
 ________________________________________________________________________
 
- For use with Microsoft Visual C++ 8.0
+ For use with Microsoft Visual C++ 8.0 and 9.0
 
 -*/
 
-# include <stdlib.h>
+#include <stdlib.h>
+
+#define NOMINMAX	// Otherwise Windows will define min/max
+
+#if defined(_MSC_VER) && _MSC_VER == 1500 // && _MSC_FULL_VER >= 150030729
+# define Interval StructuredQueryInterval
+#  include <structuredquery.h>
+# undef Interval
+#endif
+
+#ifdef _DEBUG
+# define __debug__
+#endif
 
 #define snprintf	_snprintf
 #define isnan		_isnan
