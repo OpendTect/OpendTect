@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegysip.cc,v 1.23 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegysip.cc,v 1.24 2009-10-05 05:40:55 cvsnanne Exp $";
 
 #include "uisegysip.h"
 #include "uisegyread.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uisegysip.cc,v 1.23 2009-07-22 16:01:41 cvsbert
 #include "errh.h"
 #include "oddirs.h"
 #include "strmprov.h"
+#include "timer.h"
 
 
 class uiSEGYSIPMgrDlg : public uiDialog
@@ -35,9 +36,21 @@ uiSEGYSIPMgrDlg( uiSEGYSurvInfoProvider* sip, uiParent* p,
 		 const uiDialog::Setup& su )
     : uiDialog(p,su)
     , sip_(sip)
+    , timer_(*new Timer("Next dialog"))
 {
     new uiLabel( this, "To be able to scan your data\n"
 	    "You must define the specific properties of your SEG-Y file(s)" );
+    timer_.tick.notify( mCB(this,uiSEGYSIPMgrDlg,start) );
+    timer_.start( 500, true );
+}
+
+~uiSEGYSIPMgrDlg()
+{
+    delete &timer_;
+}
+
+void start( CallBacker* )
+{
     uiSEGYRead::Setup srsu( uiSEGYRead::SurvSetup );
     sr_ = new uiSEGYRead( this, srsu );
     sr_->processEnded.notify( mCB(this,uiSEGYSIPMgrDlg,atEnd) );
@@ -51,6 +64,7 @@ void atEnd( CallBacker* )
 
     uiSEGYRead*			sr_;
     uiSEGYSurvInfoProvider*	sip_;
+    Timer&			timer_;
 
 };
 
