@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.36 2009-10-05 15:35:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.37 2009-10-06 09:21:34 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -110,8 +110,10 @@ void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 void GeoCalculator::stretch( WellTie::GeoCalculator::StretchData& sd ) const
 {
     sd.stretchfac_ = (sd.pick2_-sd.start_)/(float)(sd.pick1_-sd.start_);
+    sd.isstretch_ = true;
     stretch( sd, sd.stretchfac_ ); 
 
+    sd.isstretch_ = false;
     sd.squeezefac_ = (sd.stop_-sd.pick2_ )/(float)(sd.stop_-sd.pick1_);
     stretch( sd, sd.squeezefac_ );
 }
@@ -120,12 +122,12 @@ void GeoCalculator::stretch( WellTie::GeoCalculator::StretchData& sd ) const
 void GeoCalculator::stretch( const WellTie::GeoCalculator::StretchData& sd, 
 			     float factor ) const
 {
-    int start = factor < 1 ? sd.start_ : sd.pick2_; 
-    int stop = factor < 1 ? sd.pick2_ : sd.stop_; 
+    int start = sd.isstretch_ ? sd.start_ : sd.pick2_; 
+    int stop = sd.isstretch_ ? sd.pick2_ : sd.stop_; 
     const int datasz = sd.inp_->info().getSize(0);
     for ( int idx=start; idx<stop; idx++ )
     {
-	float v = factor < 1 ? start : stop;
+	float v = sd.isstretch_ ? sd.start_ : sd.stop_;
 	const float curval = Interpolate::linearReg1D( v, (float)idx, factor );
 	const int curidx = (int) curval;
 	if ( curidx >= datasz-1 || curidx < 0 ) continue;

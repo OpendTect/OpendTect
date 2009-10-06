@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.14 2009-09-03 14:04:30 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.15 2009-10-06 09:21:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ public:
 			    , outp_(0)
 			    , stretchfac_(0)
 			    , squeezefac_(0)
+			    , isstretch_(true)
 			    {}
 
 	const Array1DImpl<float>* inp_;
@@ -81,6 +82,7 @@ public:
     	int 		pick1_;	
     	int 		pick2_;	
 
+	bool		isstretch_;
 	float		stretchfac_;
 	float		squeezefac_;
     };
