@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.57 2009-10-05 15:35:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.58 2009-10-06 07:47:00 cvsnanne Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -610,7 +610,7 @@ void uiInfoDlg::propChanged( CallBacker* )
 	return; 
     }
     
-    params_->estwvltlength_ = (int)round(wvltlgth/SI().zStep());
+    params_->estwvltlength_ = mNINT( wvltlgth/SI().zStep() );
     params_->timeintvs_[2]= timerg;
     params_->resetTimeParams();
 
