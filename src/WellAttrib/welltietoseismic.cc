@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.35 2009-10-05 15:35:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.36 2009-10-06 09:21:16 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -261,7 +261,7 @@ bool DataPlayer::computeCrossCorrel()
     const int sz = si.nrSteps();
     
     WellTie::LogResampler synres( logset_.getLog(params_.crosscorrnm_), 
-	    			  *logset_.getLog(params_.refnm_), &wd_ );
+	    			  *logset_.getLog(params_.synthnm_), &wd_ );
     synres.setTimeIntv( si ); synres.isavg_ = false;
     synres.execute(); 
     
@@ -271,7 +271,7 @@ bool DataPlayer::computeCrossCorrel()
 
     Array1DImpl<float> tmpcrosscorr( sz );
 
-    geocalc_->crosscorr( *attrres.vals_, *synres.vals_, tmpcrosscorr );
+    geocalc_->crosscorr( *synres.vals_, *attrres.vals_, tmpcrosscorr );
 
     dholder_->setLogVal( params_.crosscorrnm_, &tmpcrosscorr, synres.dahs_ );
     //computes cross-correl coeff
