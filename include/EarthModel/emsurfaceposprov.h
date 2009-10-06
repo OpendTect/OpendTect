@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.7 2009-09-28 13:27:31 cvsbert Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.8 2009-10-06 05:15:50 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -159,6 +159,7 @@ public:
     Provider*		clone() const
     			{ return new EMSurfaceProvider2D(*this); }
 
+    virtual const char*	curLine() const;
     virtual int		curNr() const;
     virtual Coord	curCoord() const;
     virtual bool	includes(const Coord&,float) const;

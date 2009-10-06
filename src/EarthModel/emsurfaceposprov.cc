@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.9 2009-09-28 13:27:32 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.10 2009-10-06 05:15:55 cvsumesh Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -12,7 +12,9 @@ static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.9 2009-09-28 13:27:32 c
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "emsurface.h"
+#include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
+#include "emhorizon2d.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -341,22 +343,49 @@ void Pos::EMSurfaceProvider3D::initClass()
 }
 
 
+// ***** Pos::EMSurfaceProvider2D ****
+const char* Pos::EMSurfaceProvider2D::curLine() const
+{
+    BinID bid;
+    bid.setSerialized( curpos_.subID() );
+    if ( surf1_ )
+    {
+	mDynamicCastGet(EM::Horizon2D*,hor2d,surf1_);
+	if ( !hor2d )
+	    return 0;
+
+	int lineid = hor2d->geometry().lineID( bid.inl );
+	return hor2d->geometry().lineName( lineid );
+    }
+    else
+    return 0;
+}
+
+
 int Pos::EMSurfaceProvider2D::curNr() const
 {
-    return 0;
+    BinID bid;
+    bid.setSerialized( curpos_.subID() );
+    return bid.crl;
 }
 
 
 Coord Pos::EMSurfaceProvider2D::curCoord() const
 {
+    if ( surf1_ )
+	return surf1_->getPos( curpos_ );
+
     return Coord(0,0);
 }
 
 
 bool Pos::EMSurfaceProvider2D::includes( const Coord& c, float z ) const
 {
-    int nr = 0; // Find nr for this Coord
-    return includes( nr, z );
+    //TODO not implemented yet
+
+    //int nr = 0; // Find nr for this Coord
+    //return includes( nr, z );
+    return false;
 }
 
 
