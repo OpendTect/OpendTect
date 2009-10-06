@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.58 2009-10-06 07:47:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.59 2009-10-06 09:17:45 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -599,7 +599,7 @@ void uiInfoDlg::propChanged( CallBacker* )
 	zrangeflds_[2]->setValue( zrg );
     else if ( selidx == 1 )
 	zrangeflds_[2]->setValue( params_->d2T( zrg, false ) );
-    else if ( !selidx || selidx == 2 )
+    if ( !selidx || selidx == 2 )
 	zrangeflds_[1]->setValue( params_->d2T( zrg ) );
 
     const Interval<float> timerg = selidx==1 ? zrg : params_->d2T( zrg );
@@ -634,4 +634,4 @@ void uiInfoDlg::wvltChanged( CallBacker* cb )
     redrawNeeded.trigger();
 }
 
-}; //namespace Well
+}; //namespace WellTie

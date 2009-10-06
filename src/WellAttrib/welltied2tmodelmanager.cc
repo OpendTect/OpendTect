@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.14 2009-09-29 15:15:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.15 2009-10-06 09:19:54 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.14 2009-09-29 15:
 #include "welltiedata.h"
 #include "welltiesetup.h"
 
+#define mMinNrTimeSamples 5
 namespace WellTie
 {
 
@@ -36,14 +37,15 @@ D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
 	, datawriter_(new WellTie::DataWriter(&dh))			
 {
     if ( !wd_ ) return;
-    if ( !wd_->d2TModel() || wd_->d2TModel()->size()< 2 )
+    if ( !wd_->d2TModel() || wd_->d2TModel()->size() <= mMinNrTimeSamples )
     {
 	emptyoninit_ = true;
 	wd_->setD2TModel( new Well::D2TModel );
     }
     orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd_->d2TModel() );
 
-    if ( wd_->haveCheckShotModel() || wd_->d2TModel()->size()<2 )
+    if ( wd_->haveCheckShotModel() 
+	    		|| wd_->d2TModel()->size() <= mMinNrTimeSamples )
 	setFromVelLog( dh.params()->dpms_.currvellognm_ );
 } 
 
