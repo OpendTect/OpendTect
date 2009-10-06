@@ -97,7 +97,6 @@ protected:
     //CallBackers
     bool			acceptOK(CallBacker*);
     void 			applyPushed(CallBacker*);
-    void 			applyMarkerPushed(CallBacker*);
     void 			applyShiftPushed(CallBacker*);
     bool			compute(CallBacker*);
     void			checkIfPick(CallBacker*);
