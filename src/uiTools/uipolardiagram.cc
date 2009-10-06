@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipolardiagram.cc,v 1.1 2009-10-02 15:49:14 cvskarthika Exp $";
+static const char* rcsID = "$Id: uipolardiagram.cc,v 1.2 2009-10-06 09:06:22 cvsranojay Exp $";
 
 #include "uipolardiagram.h"
 #include "uigraphicsscene.h"
@@ -151,7 +151,7 @@ void uiPolarDiagram::mouseRelease( CallBacker* )
     if ( relpos.x == 0 && relpos.y == 0 ) return;
 
     // Formulas: r = cos(dip) and x = r cos(azimuth)
-    float r = sqrt( relpos.x*relpos.x + relpos.y*relpos.y );
+    float r = (float) sqrt( (float)(relpos.x*relpos.x + relpos.y*relpos.y) );
     if ( r > radius_ ) return;
     float diprad = acos( r );
     dip_ = Angle::convert( Angle::Rad, diprad, Angle::Deg );
