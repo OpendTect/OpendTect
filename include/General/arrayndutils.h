@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.33 2009-10-07 08:32:09 cvshelene Exp $
+ RCS:           $Id: arrayndutils.h,v 1.34 2009-10-07 09:51:36 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -145,6 +145,7 @@ public:
 			~ArrayNDWindow();
 
     bool		isOK() const	{ return window_; }
+    float*		getValues() const { return window_; }
 
     bool		setType(WindowType);
     bool		setType(const char*,float paramval=mUdf(float));
