@@ -7,17 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipolardiagram.cc,v 1.2 2009-10-06 09:06:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipolardiagram.cc,v 1.3 2009-10-07 15:57:25 cvskarthika Exp $";
 
 #include "uipolardiagram.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "angles.h"
 
+//#define mShowEast
 
 uiPolarDiagram::uiPolarDiagram( uiParent* p )
     : uiGraphicsView(p,"Polar diagram")
-    , circleitm_(0)
+    , valueChanged(this)
     , pointeritm_(0)
     , center_(uiPoint(5, 5))
     , radius_(1)
@@ -27,9 +28,11 @@ uiPolarDiagram::uiPolarDiagram( uiParent* p )
     disableScrollZoom();
     setPrefWidth( 300 );
     setPrefHeight( 300 );
-    getMouseEventHandler().buttonReleased.notify(
-	    mCB(this,uiPolarDiagram,mouseRelease) );
-    reSize.notify( mCB(this,uiPolarDiagram,reSized) );
+    getMouseEventHandler().buttonPressed.notify(
+	    mCB(this,uiPolarDiagram,mouseEventCB) );
+    getMouseEventHandler().movement.notify(
+	    mCB(this,uiPolarDiagram,mouseEventCB) );
+    reSize.notify( mCB(this,uiPolarDiagram,reSizedCB) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 }
@@ -37,25 +40,26 @@ uiPolarDiagram::uiPolarDiagram( uiParent* p )
 
 uiPolarDiagram::~uiPolarDiagram()
 {
-    getMouseEventHandler().buttonReleased.remove(
-	    mCB(this,uiPolarDiagram,mouseRelease) );
-    reSize.remove( mCB(this,uiPolarDiagram,reSized) );
-    if ( circleitm_ )
-	delete scene().removeItem( circleitm_ );
+    getMouseEventHandler().buttonPressed.remove(
+	    mCB(this,uiPolarDiagram,mouseEventCB) );
+    getMouseEventHandler().movement.remove(
+	    mCB(this,uiPolarDiagram,mouseEventCB) );
+    reSize.remove( mCB(this,uiPolarDiagram,reSizedCB) );
     if ( pointeritm_ )
 	delete scene().removeItem( pointeritm_ );
-    if ( segmentitms_.size() )
-    {
-	for ( int idx = 0; idx < segmentitms_.size(); idx++ )
-	    scene().removeItem( segmentitms_[idx] );
-        deepErase( segmentitms_ );
-    }
-    if ( textitms_.size() )
-    {
-	for ( int idx = 0; idx < textitms_.size(); idx++ )
-	    scene().removeItem( textitms_[idx] );
-        deepErase( textitms_ );
-    }
+    
+#define mRemoveItems( os )	\
+    if ( os.size() )	\
+    {	\
+        for ( int idx = 0; idx < os.size(); idx++ )	\
+            scene().removeItem( os[idx] );	\
+	deepErase( os );	\
+    }	
+
+    mRemoveItems( circleitms_ );
+    mRemoveItems( segmentitms_ );
+    mRemoveItems( azimuthtextitms_ );
+    mRemoveItems( diptextitms_ );
 }
 
 
@@ -64,21 +68,54 @@ void uiPolarDiagram::draw()
     center_ = uiPoint( width() / 2, height() / 2 );
     radius_ = mMIN ( width(), height() ) / 2 - 40;
 
-    drawClock();
+    drawCircles();
     drawSegments();
     drawPointer();
 }
 
 
-void uiPolarDiagram::drawClock()
+void uiPolarDiagram::drawCircles()
 {
-    if ( circleitm_ )
+    if ( circleitms_.size() )
     {
-	circleitm_->setPos( center_ );
-	circleitm_->setRadius( radius_ );
+	circleitms_[0]->setPos( center_ );
+	circleitms_[1]->setPos( center_ );
+	circleitms_[2]->setPos( center_ );
+	circleitms_[0]->setRadius( radius_ );
+	circleitms_[1]->setRadius( radius_*2/3 );
+	circleitms_[2]->setRadius( radius_/3 );
     }
     else
-        circleitm_ = scene().addItem( new uiCircleItem( center_, radius_ ) );
+    {
+	Color maroon = Color( 128, 0, 0 );
+
+#define mAddDipLabel(text)	\
+	{	\
+        uiTextItem* ti = scene().addItem( new uiTextItem( text ) );	\
+	ti->setTextColor( maroon );	\
+	diptextitms_ += ti;	\
+	}
+
+	uiCircleItem* ci = scene().addItem( 
+		new uiCircleItem( center_, radius_ ) );
+        circleitms_ += ci;
+	mAddDipLabel( "0" );
+
+	ci = scene().addItem( new uiCircleItem( center_, radius_*2/3 ) );
+        circleitms_ += ci;
+	mAddDipLabel( "30" );
+
+        ci = scene().addItem( new uiCircleItem( center_, radius_*1/3 ) );
+        circleitms_ += ci;
+	mAddDipLabel( "60" );
+        
+	mAddDipLabel( "90" );
+    }
+	
+    diptextitms_[0]->setPos( uiPoint( center_.x+radius_, center_.y-20) );
+    diptextitms_[1]->setPos( uiPoint( center_.x+(radius_*2/3), center_.y-20) );
+    diptextitms_[2]->setPos( uiPoint( center_.x+(radius_/3), center_.y-20) );
+    diptextitms_[3]->setPos( uiPoint( center_.x, center_.y-20) );
 }
 
 
@@ -92,6 +129,8 @@ void uiPolarDiagram::drawSegments()
 		Angle::Deg, (float) angle, Angle::Rad );
 	int x = (int) (radius_ * cos( angle_rad ));
 	int y = (int) (radius_ * sin( angle_rad ));
+        // y-axis direction on the canvas is the opposite of that in geometry
+	y = -y;
 
 	if ( create )
 	{
@@ -100,9 +139,11 @@ void uiPolarDiagram::drawSegments()
 				    center_.y+y , true ) );
   	    segmentitms_ += li;
 
+	    float usrangle = Angle::convert( 
+		    Angle::Deg, float(angle), Angle::UsrDeg );
 	    uiTextItem* ti = scene().addItem( new uiTextItem( 
-			toString( angle ) ) );
-	    textitms_ += ti;
+			toString( usrangle ) ) );
+	    azimuthtextitms_ += ti;
 	}
 	else
 	{
@@ -113,8 +154,28 @@ void uiPolarDiagram::drawSegments()
 	int hgap = ( x < 0 ) ? -25 : 5;
 	int vgap = ( y < 0 ) ? -25 : 5;
 
-	textitms_[idx]->setPos( center_.x+x+hgap, center_.y+y+vgap );
+	azimuthtextitms_[idx]->setPos( center_.x+x+hgap, center_.y+y+vgap );
     }
+
+    if ( create )
+    {
+	// create E and N text items
+#ifdef mShowEast
+        uiTextItem* tiE = scene().addItem( new uiTextItem( "E" ) );
+	tiE->setTextColor( Color( 0, 0, 255 ) );
+        azimuthtextitms_ += tiE;
+#endif
+        uiTextItem* tiN = scene().addItem( new uiTextItem( "N" ) );
+	tiN->setTextColor( Color( 0, 0, 255 ) );
+        azimuthtextitms_ += tiN;
+    }
+
+#ifdef mShowEast	
+    azimuthtextitms_[azimuthtextitms_.size()-2]->setPos( 
+	    center_.x+radius_+5, center_.y-10 ); 
+#endif
+    azimuthtextitms_[azimuthtextitms_.size()-1]->setPos( 
+	    center_.x-5, center_.y-radius_-25 );
 }
 
 
@@ -127,11 +188,11 @@ void uiPolarDiagram::drawPointer()
 	pointeritm_->setPenStyle( ls );
     }
 	
-    pointeritm_->setPos( center_.x, center_.y );
+    updatePointer();
 }
 
 
-void uiPolarDiagram::mouseRelease( CallBacker* )
+void uiPolarDiagram::mouseEventCB( CallBacker* )
 {
     if ( getMouseEventHandler().isHandled() )
 	return;
@@ -150,19 +211,23 @@ void uiPolarDiagram::mouseRelease( CallBacker* )
 
     if ( relpos.x == 0 && relpos.y == 0 ) return;
 
-    // Formulas: r = cos(dip) and x = r cos(azimuth)
+    relpos.y = relpos.y;
+
+    // Formula: x = r cos(azimuth)
     float r = (float) sqrt( (float)(relpos.x*relpos.x + relpos.y*relpos.y) );
     if ( r > radius_ ) return;
-    float diprad = acos( r );
-    dip_ = Angle::convert( Angle::Rad, diprad, Angle::Deg );
     float azimuthrad = acos( relpos.x/r );
-    azimuth_ = Angle::convert( Angle::Rad, azimuthrad, Angle::Deg );
+    azimuth_ = Angle::convert( Angle::Rad, azimuthrad, Angle::UsrDeg );
    
+    // Outermost circle - dip = 0, center - dip = 90 degrees
+    dip_ = (float) (radius_ - r) * 90 / radius_;
     pointeritm_->setPos( ev.x(), ev.y() );
+
+    valueChanged.trigger();
 }
 
 
-void uiPolarDiagram::reSized( CallBacker* )
+void uiPolarDiagram::reSizedCB( CallBacker* )
 {
     draw();
 }
@@ -189,14 +254,14 @@ void uiPolarDiagram::getValues(float* azimuth, float* dip) const
 // Relocate pointer to position specified by azimuth_ and dip_.
 void uiPolarDiagram::updatePointer()
 {
-    float azimuthrad = Angle::convert( Angle::Deg, azimuth_, Angle::Rad );
-    float diprad = Angle::convert( Angle::Deg, dip_, Angle::Rad );
+    float azimuthrad = Angle::convert( Angle::UsrDeg, azimuth_, Angle::Rad );
     
-    // Formulas: r = cos(dip), x = r cos(azimuth) and y = r sin(azimuth)
-    float r = cos( diprad );
+    float r = radius_ - dip_*radius_/90;
     int x = (int) (r * cos( azimuthrad ));
     int y = (int) (r * sin( azimuthrad ));
-    pointeritm_->setPos( center_.x+x, center_.y+y );
+    if ( pointeritm_ )
+        pointeritm_->setPos( center_.x+x, center_.y-y );  
+        // y-axis direction on the canvas is the opposite of that in geometry
 }
 
 
