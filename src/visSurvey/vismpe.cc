@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.78 2009-09-22 08:51:22 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.79 2009-10-07 09:26:35 cvssatyaki Exp $";
 
 #include "vismpe.h"
 
@@ -138,13 +138,14 @@ void MPEDisplay::setColTabMapperSetup( int attrib,
     vt.colorMapper().setup_ = ms;
     if ( autoscalechange )
     {
-	vt.colorMapper().setup_.triggerAutoscaleChange();
 	vt.autoscalechange.trigger();
+	vt.colorMapper().setup_.triggerAutoscaleChange();
     }
     else
     {
-	vt.colorMapper().setup_.triggerRangeChange();
 	vt.rangechange.trigger();
+	vt.autoscalechange.trigger();
+	vt.colorMapper().setup_.triggerRangeChange();
     }
 }
 

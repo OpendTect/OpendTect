@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.183 2009-09-07 10:39:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.184 2009-10-07 09:26:35 cvssatyaki Exp $";
 
 #include "uimpeman.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.183 2009-09-07 10:39:57 cvsumes
 #include "undo.h"
 
 #include "uicombobox.h"
+#include "uicolortable.h"
 #include "uigroup.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -1343,8 +1344,7 @@ void uiMPEMan::attribSel( CallBacker* )
 
     if ( displays.size() && propdlg_ )
     {
-	propdlg_->editor().setColTab( displays[0]->getColTabSequence(0), true,
-				displays[0]->getColTabMapperSetup(0), false);
+	propdlg_->editor().setColTab( displays[0], 0, mUdf(int) );
     }
 }
 
@@ -1362,8 +1362,7 @@ void uiMPEMan::setColorbarCB( CallBacker* )
 	propdlg_->windowClosed.notify( mCB(this,uiMPEMan,onColTabClosing) ); 
     }
 
-    propdlg_->editor().setColTab( displays[0]->getColTabSequence(0), true,
-				  displays[0]->getColTabMapperSetup(0), false);
+    propdlg_->editor().setColTab( displays[0], 0, mUdf(int) );
     propdlg_->updateAttribNames();
     propdlg_->show();
     toolbar->setSensitive( clrtabidx, false );
