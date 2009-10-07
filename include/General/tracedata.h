@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.7 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: tracedata.h,v 1.8 2009-10-07 08:32:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <databuf.h>
-#include <datainterp.h>
+#include "databuf.h"
+#include "datainterp.h"
 
 typedef DataInterpreter<float> TraceDataInterpreter;
 class Scaler;

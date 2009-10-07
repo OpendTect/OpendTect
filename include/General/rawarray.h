@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		1-9-95
- RCS:		$Id: rawarray.h,v 1.5 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: rawarray.h,v 1.6 2009-10-07 08:32:09 cvshelene Exp $
 ________________________________________________________________________
 
 */
 
-#include <general.h>
+#include "general.h"
 
 
 /*!\brief Raw binary data access.  */
