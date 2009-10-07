@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.41 2009-09-30 14:26:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.42 2009-10-07 12:29:07 cvsumesh Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -175,6 +175,7 @@ void uiAttribCrossPlot::useLineName( bool emiterr )
 	delete l2ddata_; l2ddata_ = 0;
 	mErrRet("Cannot get geometry of selected line")
     }
+    l2ddata_->setLineName( lk );
 
     //TODO: use l2ddata_ for something
 }
