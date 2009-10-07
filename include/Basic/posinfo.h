@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.16 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.17 2009-10-07 12:28:59 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,9 +166,9 @@ public:
 mClass Line2DData
 {
 public:
+			Line2DData(const char* lnm=0);
 
-			Line2DData();
-
+    BufferString	lnm_;			
     StepInterval<float> zrg_;
     TypeSet<Line2DPos>  posns_;
 
@@ -182,6 +182,10 @@ public:
     bool		read(std::istream&,bool asc);
     bool		write(std::ostream&,bool asc) const;
     StepInterval<int>	getTraceNrRange() const;
+    void		setLineName(const BufferString& lnm)
+			{ lnm_ = lnm; }
+    const BufferString&	getLineName() const		{ return lnm_; }
+    			/*!\Return empty buffer string if no linename */
 };
 
 } // namespace PosInfo

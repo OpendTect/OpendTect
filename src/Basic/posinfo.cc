@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.19 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.20 2009-10-07 12:29:03 cvsumesh Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -688,7 +688,8 @@ bool PosInfo::CubeDataIterator::next( BinID& bid )
 }
 
 
-PosInfo::Line2DData::Line2DData()
+PosInfo::Line2DData::Line2DData( const char* lnm )
+    :lnm_(lnm)
 {
     zrg_ = SI().sampling(false).zrg;
 }
