@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.37 2009-10-06 09:21:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.38 2009-10-07 10:30:00 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
 
 #include "arrayndutils.h"
 #include "fft.h"
+#include "fftfilter.h"
 #include "hilberttransform.h"
 #include "genericnumer.h"
 #include "survinfo.h"
@@ -237,86 +238,14 @@ bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
 }
 void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 {
+    FFTFilter filter;
+    Array1DImpl<float> orgvals ( vals );
+    ArrayNDWindow window( Array1DInfoImpl(100), false, "CosTaper", .05 );
+    filter.setFreqBorderWindow( window.getValues(), 100 );
     const int filtersz = vals.info().getSize(0);
-    if ( filtersz < 10 ) return;
+    float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
 
-    const int bordersz = 51*20;
-    if ( bordersz > filtersz ) return;
-    const float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
-
-    Array1DImpl<float>* borders = new Array1DImpl<float>( 2*bordersz );
-    Array1DImpl<float>* freq = new Array1DImpl<float>( filtersz );
-    Array1DImpl<float>* timevals = new Array1DImpl<float>(filtersz); 
-    Array1DImpl<float_complex>* output 
-				= new Array1DImpl<float_complex>(filtersz);
-    memcpy( timevals->getData(), vals.getData(), sizeof(float)*filtersz );
-    
-    for ( int idx=0; idx<filtersz; idx++ )
-    {
-	output->set( idx, 0 );
-	freq->set( idx, idx*df ); 
-    }
-    for ( int idx=0; idx<2*bordersz; idx++ )
-	borders->set( idx, 1 ); 
-
-    ArrayNDWindow window( Array1DInfoImpl(2*bordersz), false, "CosTaper", .05 );
-    window.apply( borders );
-
-    HilbertTransform hil;
-    hil.setCalcRange( 0, filtersz, 0 );
-    Array1DImpl<float_complex>* ctimevals 
-				= new Array1DImpl<float_complex>(filtersz);
-    mDoTransform( hil, true, timevals, ctimevals, filtersz );
-    delete timevals;
-    
-    const float avg = computeAvg( ctimevals ).real();
-    removeBias( ctimevals );
-    
-    FFT fft(false);
-    Array1DImpl<float_complex>* input 
-			= new Array1DImpl<float_complex>(filtersz);
-    mDoTransform( fft, true, ctimevals, input, filtersz );
-    delete ctimevals;
-
-    const float infborderfreq = cutf - bordersz/2*df; 
-    const float supborderfreq = cutf + bordersz/2*df; 
-
-    int idarray = 0;
-    for ( int idx=0; idx<filtersz/2; idx++ )
-    {
-	float_complex outpval, revoutpval;
-	const int revidx = filtersz-idx-1;
-	if ( freq->get(idx) < infborderfreq )
-	{
-	    outpval = input->get(idx);
-	    revoutpval = input->get( revidx );
-	}
-	else if ( freq->get(idx)<supborderfreq && freq->get(idx)>infborderfreq )
-	{
-	    outpval = input->get(idx)*borders->get( idarray );
-	    revoutpval = input->get(revidx)*borders->get( bordersz-1-idarray );
-	    idarray++;
-	}
-	output->set( idx, outpval );
-	output->set( filtersz-idx-1, revoutpval );
-    }
-     delete input; delete borders;
-
-    Array1DImpl<float_complex>* coutvals = 
-		new Array1DImpl<float_complex>(filtersz);
-    mDoTransform( fft, false, output, coutvals, filtersz );
-    delete output;
-    float prevval = 0;
-    for ( int idx=filtersz/100; idx<filtersz; idx++ )
-    {
-	float val = coutvals->get( idx ).real()+avg;
-	if ( mIsUdf(val) ) val = prevval;
-	vals.set( idx, val );
-	prevval = val;
-    }
-    delete coutvals;
-    for ( int idx=0; idx<filtersz/100; idx++ )
-	vals.set( idx, vals.get(filtersz/100+1) );
+    filter.FFTFreqFilter( df, cutf, true, orgvals, vals );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.33 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.34 2009-10-07 10:30:00 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.33 2009-07-22 16:01:30 
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "fftfilter.h"
 #include "timeser.h"
 #include "ptrman.h"
 #include "arrayndinfo.h"
@@ -29,166 +30,6 @@ static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.33 2009-07-22 16:01:30 
 
 
 #define mMINNRSAMPLES 		100
-
-inline void smoothingArray( TypeSet<float>& shutdownarray )
-{
-    int idt = 0;
-    for ( float idx= 0.95; idx<=1; idx+=0.001 )
-    {
-        float rx = idx;
-        rx -= 0.95;
-        rx *= 20;
-        shutdownarray[idt]= (1 + cos( M_PI * rx )) * .5;
-	idt++;
-    }
-}
-
-
-inline void static FFTLowPass( float df, float maxfreq, 
-			       const Array1DImpl<float_complex>& input,
-			       Array1DImpl<float_complex>& output)
-{
-    const int arraysize = input.info().getTotalSz();
-    TypeSet<float> filterborders(51,0);
-    smoothingArray(filterborders);
-    const int posmaxfreq = (int)(maxfreq/df);
-    const int infthreshold = posmaxfreq - 25;
-    const int supthreshold = posmaxfreq + 25;
-    int idarray = 0;
-    for ( int idx=0 ; idx<arraysize/2 ; idx++ )
-    {
-	float_complex outpval;
-	if ( idx < infthreshold )
-	    outpval = input.get(idx);
-	else if ( idx > supthreshold )
-	    outpval = 0;
-	else
-	{
-	    outpval = input.get(idx)*filterborders[idarray]; 
-	    idarray++;
-	}
-	output.set( idx,outpval );
-    }
-    idarray = 50;
-    for ( int idx=arraysize/2; idx<arraysize; idx++ )
-    {
-	float_complex outpval;
-	if ( idx > arraysize - infthreshold )
-	    outpval = input.get(idx);
-	else if ( idx < arraysize - supthreshold )
-	    outpval = 0;
-	else
-	{
-	    outpval = input.get(idx)*filterborders[idarray];
-	    idarray--;
-	}
-	output.set( idx,outpval );
-    }
-}
-
-
-inline void static FFTHighPass( float df, float minfreq,
-			        const Array1DImpl<float_complex>& input,
-			        Array1DImpl<float_complex>& output)
-{
-    const int arraysize = input.info().getTotalSz();
-    TypeSet<float> filterborders(51,0);
-    smoothingArray(filterborders);
-    const int posminfreq = (int)(minfreq/df);
-    const int infthreshold = posminfreq - 25;
-    const int supthreshold = posminfreq + 25;
-    int idarray = 50;
-    for ( int idx=0 ; idx<arraysize/2 ; idx++ )
-    {
-	float_complex outpval;
-	if ( idx < infthreshold )
-	    outpval = 0;
-	else if ( idx > supthreshold )
-	    outpval = input.get(idx);
-	else
-	{
-	    outpval = input.get(idx)*filterborders[idarray]; 
-	    idarray--;
-	}
-	output.set( idx,outpval );
-    }
-    idarray = 0;
-    for ( int idx=arraysize/2; idx<arraysize; idx++ )
-    {
-	float_complex outpval;
-	if ( idx > arraysize - infthreshold )
-	    outpval = 0;
-	else if ( idx < arraysize - supthreshold )
-	    outpval = input.get(idx);
-	else
-	{
-	    outpval = input.get(idx)*filterborders[idarray];
-	    idarray++;
-	}
-	output.set( idx,outpval );
-    }
-}
-
-
-inline void static FFTBandPass( float df, float minfreq, float maxfreq,
-				const Array1DImpl<float_complex>& input,
-				Array1DImpl<float_complex>& output )
-{
-    const int arraysize = input.info().getTotalSz();
-    TypeSet<float> filterborders(51,0);
-    smoothingArray(filterborders);
-    const int posmaxfreq = (int)(maxfreq/df);
-    const int infmaxthreshold = posmaxfreq - 25;
-    const int supmaxthreshold = posmaxfreq + 25;
-    const int posminfreq = (int)(minfreq/df);
-    const int infminthreshold = posminfreq - 25;
-    const int supminthreshold = posminfreq + 25;
-    int idarray = 0;
-    int idarrayback = 50;
-    for ( int idx=0 ; idx<arraysize/2 ; idx++ )
-    {
-	float_complex outpval;
-	if ( idx < infmaxthreshold && idx > supminthreshold )
-	    outpval = input.get(idx);
-	else if ( idx > supmaxthreshold || idx < infminthreshold )
-	    outpval = 0;
-	else if ( idx >= infminthreshold && idx <= supminthreshold )
-	{
-	    outpval = input.get(idx)*filterborders[idarrayback]; 
-	    idarrayback--;
-	}
-	else
-	{
-	    outpval = input.get(idx)*filterborders[idarray];
-	    idarray++;
-	}
-	output.set( idx,outpval );
-    }
-    idarray = 0;
-    idarrayback = 50;
-    for ( int idx=arraysize/2; idx<arraysize; idx++ )
-    {
-	float_complex outpval;
-	if ( idx <  arraysize - supminthreshold 
-	     && idx > arraysize -infmaxthreshold )
-	    outpval = input.get(idx);
-	else if ( idx > arraysize - infminthreshold
-		  || idx < arraysize - supmaxthreshold )
-	    outpval = 0;
-	else if ( idx >= arraysize - supmaxthreshold 
-		  && idx <= arraysize -infmaxthreshold )
-	{
-	    outpval = input.get(idx)*filterborders[idarrayback];
-	    idarrayback--;
-	}
-	else
-	{
-	    outpval = input.get(idx)*filterborders[idarray];
-	    idarray++;
-	}
-	output.set( idx,outpval );
-    }
-}
 
 
 namespace Attrib
@@ -493,12 +334,16 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	timedomain.set( sz+idy, signal.get(idy) );
 
     fft.transform( timedomain, freqdomain );
+    FFTFilter filter; 
+    ArrayNDWindow window( Array1DInfoImpl(51), false, "CosTaper", .05 );
+    filter.setFreqBorderWindow( window.getValues(), 51 );
     if ( filtertype == mFilterLowPass )
-	FFTLowPass( df, maxfreq, freqdomain, tmpfreqdomain );
+	filter.FFTFreqFilter( df, maxfreq, true, freqdomain, tmpfreqdomain );
     else if ( filtertype == mFilterHighPass)
-	FFTHighPass( df, minfreq, freqdomain, tmpfreqdomain );
+	filter.FFTFreqFilter( df, minfreq, false, freqdomain, tmpfreqdomain );
     else
-	FFTBandPass( df, minfreq, maxfreq, freqdomain, tmpfreqdomain );
+	filter.FFTBandPassFilter( df, minfreq, maxfreq, 
+					freqdomain, tmpfreqdomain );
 
     fftinv.transform( tmpfreqdomain, timecplxoutp );
 
