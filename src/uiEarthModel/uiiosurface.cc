@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.75 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.76 2009-10-07 08:51:20 cvsnageswara Exp $";
 
 #include "uiiosurface.h"
 
@@ -90,7 +90,10 @@ void uiIOSurface::mkSectionFld( bool labelabove )
 
 void uiIOSurface::mkRangeFld( bool multisubsel )
 {
-    uiPosSubSel::Setup su( false, false );
+    BufferString username = ctio_->ctxt.trgroup->userName();
+    const bool is2d = username == EMHorizon2DTranslatorGroup::keyword();
+
+    uiPosSubSel::Setup su( is2d, false );
     if ( multisubsel )
 	su.choicetype( uiPosSubSel::Setup::OnlySeisTypes );
     rgfld_ = new uiPosSubSel( this, su );
