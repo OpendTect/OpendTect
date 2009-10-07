@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.1 2009-10-07 09:53:13 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.2 2009-10-07 11:53:46 cvshelene Exp $
 ________________________________________________________________________
 
 */
@@ -127,8 +127,8 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
 	const float freq = freqarr.get(idx);
 	const int revidx = arraysize-idx-1;
         	
-	if ( islowpass && freq < infthreshold 
-		|| !islowpass && freq > supthreshold )
+	if ( (islowpass && freq < infthreshold) 
+		|| (!islowpass && freq > supthreshold) )
 	{
 	    outpval = input.get( idx );
 	    revoutpval = input.get( revidx );
