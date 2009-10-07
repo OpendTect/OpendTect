@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.15 2009-10-05 15:34:07 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.16 2009-10-07 10:17:47 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,14 +40,17 @@ public:
     {
 			Setup()
 			    : xaxrg_(-1.2,1.2,0.25)
-			    , yaxrg_(0,1,0.25) {}
+			    , yaxrg_(0,1,0.25) 
+			    , xaxname_("")	       
+			    , yaxname_("")	       
+			    {}
 					      
 
 	mDefSetupMemb(StepInterval<float>,xaxrg)			      
 	mDefSetupMemb(StepInterval<float>,yaxrg)	
 	mDefSetupMemb(const char*,name)	
-	mDefSetupMemb(const char*,xaxname)	
-	mDefSetupMemb(const char*,yaxname)	
+	mDefSetupMemb(BufferString,xaxname)	
+	mDefSetupMemb(BufferString,yaxname)	
     };	
 
 			uiFuncSelDraw(uiParent*,const Setup&);
