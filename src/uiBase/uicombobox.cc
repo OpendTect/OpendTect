@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.52 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.53 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -17,8 +17,6 @@ static const char* rcsID = "$Id: uicombobox.cc,v 1.52 2009-07-22 16:01:38 cvsber
 
 #include "i_qcombobox.h"
 
-#include <QApplication>
-#include <QEvent>
 #include <QSize>
 
 
@@ -43,15 +41,6 @@ public:
 
     virtual int 	nrTxtLines() const		{ return 1; }
 
-    void		activate(int idx);
-    void		activateField(const char* txt=0,bool enter=true);
-    bool		event(QEvent*);
-
-protected:
-    int			activateidx_;
-    const char*		activatetxt_;
-    bool		activateenter_;
-
 private:
 
     i_comboMessenger&    messenger_;
@@ -59,67 +48,12 @@ private:
 };
 
 
-static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActField = (QEvent::Type) (QEvent::User+1);
-
-void uiComboBoxBody::activate( int idx )
-{
-    activateidx_ = idx;
-    QEvent* actevent = new QEvent( sQEventActivate );
-    QApplication::postEvent( this, actevent );
-}
-
-void uiComboBoxBody::activateField( const char* txt, bool enter )
-{
-    activatetxt_ = txt;
-    activateenter_ = enter;
-    QEvent* actevent = new QEvent( sQEventActField );
-    QApplication::postEvent( this, actevent );
-}
-
-
-bool uiComboBoxBody::event( QEvent* ev )
-{
-    if ( ev->type() == sQEventActivate )
-    {
-	if ( activateidx_>=0 && activateidx_<handle_.size() )
-	{
-	    handle_.setCurrentItem( activateidx_ );
-	    handle_.selectionChanged.trigger();
-	}
-    }
-    else if ( ev->type() == sQEventActField )
-    {
-	if ( !handle_.isReadOnly() )
-	{
-	    if ( activatetxt_ )
-		setEditText( activatetxt_ );
-
-	    if ( activateenter_ )
-	    {
-		const char* txt = handle_.text();
-		if ( !handle_.isPresent(txt) )
-		    handle_.addItem( txt );
-
-		handle_.setCurrentItem( txt );
-		handle_.selectionChanged.trigger();
-	    }
-	}
-    }
-    else
-	return QComboBox::event( ev );
-
-    handle_.activatedone.trigger();
-    return true;
-}
-
-
 //------------------------------------------------------------------------------
 
 
 uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , selectionChanged( this ), activatedone( this )
+    , selectionChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 {
 }
@@ -128,7 +62,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
 uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , selectionChanged( this ), activatedone( this )
+    , selectionChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 { 
     addItems( uids );
@@ -137,7 +71,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
 
 uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , selectionChanged( this ), activatedone( this )
+    , selectionChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 { 
     addItems( uids );
@@ -191,6 +125,13 @@ const char* uiComboBox::text() const
 {
     rettxt_ = mQStringToConstChar( body_->currentText() );
     return rettxt_.buf();
+}
+
+
+void uiComboBox::setEditText( const char* txt )
+{
+    if ( txt && body_->isEditable() )
+	body_->setEditText( txt );
 }
 
 
@@ -307,14 +248,6 @@ void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
 {
     body_->insertItem( index, *pm.qpixmap(), QString(text) );
 }
-
-
-void uiComboBox::activate( int idx )
-{ body_->activate( idx ); }
-
-
-void uiComboBox::activateField( const char* txt, bool enter )
-{ body_->activateField( txt, enter ); }
 
 
 void uiComboBox::notifyHandler( bool selectionchanged )

@@ -7,14 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitabbar.cc,v 1.23 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uitabbar.cc,v 1.24 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
 
 #include "i_qtabbar.h"
-#include <QApplication>
-#include <QEvent>
 
 
 uiTab::uiTab( uiGroup& grp )
@@ -36,9 +34,6 @@ public:
 
     virtual		~uiTabBarBody()	{ delete &messenger_; }
 
-    void		activate(int idx);
-    bool		event(QEvent*);
-
 protected:
     int			activateidx_;
 
@@ -49,38 +44,12 @@ private:
 };
 
 
-static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User+0);
-
-void uiTabBarBody::activate( int idx )
-{
-    activateidx_ = idx;
-    QEvent* actevent = new QEvent( sQEventActivate );
-    QApplication::postEvent( this, actevent );
-}
-
-bool uiTabBarBody::event( QEvent* ev )
-{
-    if ( ev->type() != sQEventActivate )
-	return QTabBar::event( ev );
-
-    if ( activateidx_>=0 && activateidx_<handle_.size() )
-    {
-	handle_.setCurrentTab( activateidx_ );
-	handle_.selected.trigger();
-    }
-
-    handle_.activatedone.trigger();
-    return true;
-}
-
-
 //------------------------------------------------------------------------------
 
 
 uiTabBar::uiTabBar( uiParent* parnt, const char* nm, const CallBack* cb )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selected( this )
-    , activatedone( this )
 { if( cb ) selected.notify(*cb); }
 
 
@@ -176,7 +145,3 @@ uiGroup* uiTabBar::page( int idx ) const
 {
     return const_cast<uiGroup*>( &tabs_[idx]->group() );
 }
-
-
-void uiTabBar::activate( int idx )
-{ body_->activate( idx ); }

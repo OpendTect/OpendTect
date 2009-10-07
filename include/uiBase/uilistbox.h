@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.51 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:           $Id: uilistbox.h,v 1.52 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,13 +141,6 @@ private:
 
     void		createQString(QString&,const char*,bool) const;
     bool		validIndex(int) const;
-
-public:
-    			//! Force activation in GUI thread
-    			//! Not for casual use
-    void		activateClick(int idx,const BufferStringSet& clicktags);
-    void		activateSelect(const TypeSet<int>&);
-    Notifier<uiListBox> activatedone;
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.61 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.62 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -17,9 +17,7 @@ static const char* rcsID = "$Id: uimenu.cc,v 1.61 2009-07-22 16:01:38 cvsbert Ex
 #include "pixmap.h"
 #include <climits>
 
-#include <QApplication>
 #include <QCursor>
-#include <QEvent>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMouseEvent>
@@ -169,7 +167,6 @@ private:
 #define mInitMembers \
     : NamedObject(nm) \
     , activated(this) \
-    , activatedone(this) \
     , messenger_( *new i_MenuMessenger(this) )  \
     , id_(-1) \
     , menu_(0) \
@@ -260,28 +257,6 @@ void uiMenuItem::setShortcut( const char* sctxt )
 {
     if ( qaction_ && sctxt && *sctxt )
 	qaction_->setShortcut( QString(sctxt) );
-}
-
-
-static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
-
-bool uiMenuItem::handleEvent( const QEvent* ev )
-{
-    if ( ev->type() == sQEventActivate )
-    {
-	activated.trigger();
-	activatedone.trigger();
-	return true;
-    }
-
-    return false;
-}
-
-
-void uiMenuItem::activate()
-{
-    QEvent* activateevent = new QEvent( sQEventActivate );
-    QApplication::postEvent( &messenger_ , activateevent );
 }
 
 

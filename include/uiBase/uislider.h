@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.24 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:           $Id: uislider.h,v 1.25 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
     Notifier<uiSlider>	sliderReleased;
     
     float		getLinearFraction() const;
+    void		setLinearFraction(float fraction);
 
 private:
 
@@ -81,13 +82,6 @@ private:
 
     float		userValue(int) const;
     int			sliderValue(float) const;
-
-public:
-    			//! Force activation in GUI thread
-    			//! Not for casual use
-    void                activate(float fraction);
-    Notifier<uiSlider>  activatedone;
-
 };
 
 /*! Slider with label */

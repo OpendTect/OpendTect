@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.29 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:           $Id: uicombobox.h,v 1.30 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
 			*/
     const char*		text() const;
     void		setText(const char*);
+
+    void		setEditText(const char*);
 
     bool		isPresent(const char*) const;
 
@@ -88,13 +90,6 @@ private:
 
     uiComboBoxBody*	body_;
     uiComboBoxBody&	mkbody(uiParent*,const char*);
-
-public:
-    			//! Force activation in GUI thread
-    			//! Not for casual use
-    void		activate(int idx);
-    void		activateField(const char* txt=0,bool enter=true);
-    Notifier<uiComboBox> activatedone; 
 
 };
 

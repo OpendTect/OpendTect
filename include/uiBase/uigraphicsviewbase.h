@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.10 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.11 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,13 +100,6 @@ protected:
     bool			enabscrollzoom_;
     bool			enabbgzoom_;
     void 			rubberBandCB(CallBacker*);
-
-public:
-
-				//! Force activation in GUI thread
-				//! Not for casual use
-    void			activateMenu();
-    Notifier<uiGraphicsViewBase> activatedone; 
 
 };
 

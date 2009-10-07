@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.16 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qbutton.h,v 1.17 2009-10-07 13:26:32 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,6 @@ i_ButMessenger( QAbstractButton* sndr, uiButtonBody* receiver )
     connect( sender_, SIGNAL(released()), this, SLOT(released()) );
     connect( sender_, SIGNAL(toggled(bool)), this, SLOT(toggled(bool)) );
 }
-
-protected:
-bool event( QEvent* ev )
-{ return receiver_->handleEvent(ev) ? true : QObject::event(ev); }
 
 private:
 

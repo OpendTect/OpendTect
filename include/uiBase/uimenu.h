@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.54 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uimenu.h,v 1.55 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ class i_MenuMessenger;
 template<class> class uiMenuItemContainerBodyImpl;
 
 class QAction;
-class QEvent;
 class QMenu;
 class QMenuBar;
 
@@ -123,17 +122,7 @@ public:
     
     Notifier<uiMenuItem>	activated;
 
-    				//! force activation in GUI thread
-    void			activate();	
-    Notifier<uiMenuItem>	activatedone;
-    bool			handleEvent(const QEvent*);
-
     int				id() const		{ return id_; }
-
-    static void			setCmdRecorder(const CallBack&);
-    static void			unsetCmdRecorder();
-    int  /* refnr */		beginCmdRecEvent(const char* msg=0);
-    void			endCmdRecEvent(int refnr,const char* msg=0);
 
 protected:
 
@@ -158,6 +147,14 @@ private:
 
     static CallBack*		cmdrecorder_;
     int				cmdrecrefnr_;
+
+public:
+				//! Not for casual use
+    static void			setCmdRecorder(const CallBack&);
+    static void			unsetCmdRecorder();
+    int  /* refnr */		beginCmdRecEvent(const char* msg=0);
+    void			endCmdRecEvent(int refnr,const char* msg=0);
+
 };
 
 
@@ -240,10 +237,6 @@ public:
     uiPopupItem&		item()			{ return item_; }
     const uiPopupItem&		item() const		{ return item_; }
 
-    static void			setInterceptor(const CallBack&);
-    static void			unsetInterceptor();
-    void			doIntercept(bool yn,uiMenuItem* activateitm=0);
-
 private:
 
     int				findIdForAction(QAction*) const;
@@ -254,6 +247,13 @@ private:
     bool			dointercept_;
 
     ioPixmap*			pixmap_;
+
+public:
+				//! Not for casual use
+    static void			setInterceptor(const CallBack&);
+    static void			unsetInterceptor();
+    void			doIntercept(bool yn,uiMenuItem* activateitm=0);
+
 };
 
 #endif

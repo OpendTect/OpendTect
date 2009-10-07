@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.74 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:           $Id: uimainwin.h,v 1.75 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,6 +169,7 @@ protected:
 public:
     			//! Force activation in GUI thread
     			//! Not for casual use
+    void		activateInGUIThread(const CallBack&);
     void		activateClose();
     void		activateShow(int minnormmax);
     void		activateQDlg(int retval);

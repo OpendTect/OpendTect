@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.64 2009-08-21 06:30:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.65 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uibutton.cc,v 1.64 2009-08-21 06:30:12 cvsnanne
 #include "settings.h"
 
 
-#include <QApplication>
+//#include <QApplication>
 #include <QCheckBox>
 #include <QMenu>
 #include <QPushButton>
@@ -28,7 +28,6 @@ static const char* rcsID = "$Id: uibutton.cc,v 1.64 2009-08-21 06:30:12 cvsnanne
 #include <QResizeEvent>
 #include <QToolButton>
 
-static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
 
 //! Wrapper around QButtons. 
 /*!
@@ -82,12 +81,6 @@ public:
 
     const char*		text();
 
-    void 		activate()
-			{
-			    QEvent* actevent = new QEvent( sQEventActivate );
-			    QApplication::postEvent( &messenger_, actevent ); 
-			}
-
 protected:
 
     i_ButMessenger&     messenger_;
@@ -99,15 +92,6 @@ protected:
 			    handle_.activated.trigger(handle_);
 			    handle_.endCmdRecEvent( refnr );
 			}
-
-    bool 		handleEvent( const QEvent* ev )
-			{ 
-			    if ( ev->type() != sQEventActivate ) return false;
-			    handle_.click(); 
-			    handle_.activatedone.trigger(handle_);
-			    return true; 
-			}
-
 };
 
 class uiPushButtonBody : public uiButtonTemplBody<QPushButton>
@@ -219,7 +203,6 @@ uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
 		    uiObjectBody& b  )
     : uiObject( parnt, nm, b )
     , activated( this )
-    , activatedone( this )
 {
     if ( cb ) activated.notify(*cb);
 
@@ -239,12 +222,6 @@ const char* uiButton::text()
     static BufferString buttxt;
     buttxt = mQStringToConstChar( mqbut()->text() );
     return buttxt.buf();
-}
-
-
-void uiButton::activate()
-{
-    dynamic_cast<uiButtonBody*>( body() )->activate();
 }
 
 

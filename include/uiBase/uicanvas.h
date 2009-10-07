@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.22 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:           $Id: uicanvas.h,v 1.23 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,11 +34,6 @@ private:
     uiCanvasBody*		body_;
     uiCanvasBody&		mkbody(uiParent*,const char*);
 
-public:
-				//! Force activation in GUI thread
-				//! Not for casual use
-    void			activateMenu();
-    Notifier<uiCanvas>		activatedone;
 };
 
 #endif

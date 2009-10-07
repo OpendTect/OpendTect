@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: i_qthumbwhl.h,v 1.8 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: i_qthumbwhl.h,v 1.9 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uithumbwheel.h>
 
-#include <qevent.h>
 #include <qobject.h>
 #include <Inventor/Qt/widgets/SoQtThumbWheel.h>
 
@@ -44,10 +43,6 @@ protected:
 			}
 
     virtual		~i_ThumbWheelMessenger() {}
-
-    bool		event( QEvent* ev )
-			{ return _receiver->handleEvent(ev)
-			    			? true : QObject::event(ev); }
 
 private:
 

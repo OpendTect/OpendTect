@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qmenu.h,v 1.11 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qmenu.h,v 1.12 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <QObject>
-#include <QEvent>
 #include "uimenu.h"
 
 //! Helper class for uiMenuItem to relay Qt's 'activated' messages to uiMenuItem.
@@ -33,11 +32,6 @@ protected:
 				i_MenuMessenger( uiMenuItem* receiver )
                                 : _receiver( receiver )
 				{}
-
-    bool			event( QEvent* ev ) 
-				{ return _receiver->handleEvent(ev) 
-						? true : QObject::event(ev); }
-
 private:
 
     uiMenuItem*			_receiver;

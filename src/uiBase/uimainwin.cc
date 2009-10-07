@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.189 2009-10-01 07:26:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.190 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -55,13 +55,14 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.189 2009-10-01 07:26:24 cvsjaa
 #include <QStatusBar>
 #include <QWidget>
 
-static const QEvent::Type sQEventActClose   = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActShow    = (QEvent::Type) (QEvent::User+1);
-static const QEvent::Type sQEventActQDlg    = (QEvent::Type) (QEvent::User+2);
-static const QEvent::Type sQEventActGrab    = (QEvent::Type) (QEvent::User+3);
-static const QEvent::Type sQEventActCursor  = (QEvent::Type) (QEvent::User+4);
-static const QEvent::Type sQEventActQtSync  = (QEvent::Type) (QEvent::User+5);
-static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+6);
+static const QEvent::Type sQEventGuiThread  = (QEvent::Type) (QEvent::User+0);
+static const QEvent::Type sQEventActClose   = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActShow    = (QEvent::Type) (QEvent::User+2);
+static const QEvent::Type sQEventActQDlg    = (QEvent::Type) (QEvent::User+3);
+static const QEvent::Type sQEventActGrab    = (QEvent::Type) (QEvent::User+4);
+static const QEvent::Type sQEventActCursor  = (QEvent::Type) (QEvent::User+5);
+static const QEvent::Type sQEventActQtSync  = (QEvent::Type) (QEvent::User+6);
+static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+7);
 
 
 class uiMainWinBody : public uiParentBody
@@ -129,6 +130,7 @@ public:
 				      const char* format=0, int quality=-1 );
     void		activateCmdCursor(MouseCursor::Shape);
     void		activateQtSyncDisplayToggle( uiObject* dummyobj );
+    void		activateInGUIThread(const CallBack&);
 
     bool		poppedUp() const { return popped_up; }
     bool		touch()
@@ -187,6 +189,7 @@ protected:
 
     MouseCursor::Shape	actcursor_;
     static QCursor*	actqcursor_;
+    CallBack		guithreadcb_;
 
     uiObject*		actqtsyncdummy_;
     int			actminnormmax_;
@@ -425,7 +428,14 @@ QCursor* uiMainWinBody::actqcursor_ = 0;
 
 bool uiMainWinBody::event( QEvent* ev )
 {
-    if ( ev->type() == sQEventActClose )
+    if ( ev->type() == sQEventGuiThread )
+    {
+	CallBacker* cbobject = guithreadcb_.cbObj();
+	guithreadcb_.doCall( this );
+	handle_.activatedone.trigger( cbobject );
+	return true;
+    }
+    else if ( ev->type() == sQEventActClose )
 	close(); 
     else if ( ev->type() == sQEventActShow )
     {
@@ -541,6 +551,14 @@ void uiMainWinBody::activateQtSyncDisplayToggle( uiObject* dummyobj )
     actqtsyncdummy_ = dummyobj;
     QEvent* actqtsyncevent = new QEvent( sQEventActQtSync );
     QApplication::postEvent( this, actqtsyncevent );
+}
+
+
+void uiMainWinBody::activateInGUIThread( const CallBack& cb )
+{ 
+    guithreadcb_ = cb;
+    QEvent* guithreadev = new QEvent( sQEventGuiThread );
+    QApplication::postEvent( this, guithreadev );
 }
 
 
@@ -835,6 +853,10 @@ void uiMainWin::activateShow( int minnormmax )
 
 void uiMainWin::activateQtSyncDisplayToggle( uiObject* dummyobj )
 { body_->activateQtSyncDisplayToggle( dummyobj ); }
+
+
+void uiMainWin::activateInGUIThread( const CallBack& cb )
+{ body_->activateInGUIThread( cb ); }
 
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )

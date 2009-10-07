@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.39 2009-09-17 03:33:20 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.40 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -15,8 +15,6 @@ static const char* rcsID = "$Id: uispinbox.cc,v 1.39 2009-09-17 03:33:20 cvsnage
 #include "i_qspinbox.h"
 #include "uiobjbody.h"
 
-#include <QApplication>
-#include <QEvent>
 #include <QLineEdit>
 #include <QValidator>
 #include <math.h>
@@ -32,10 +30,6 @@ public:
     virtual int 	nrTxtLines() const	{ return 1; }
     void		setNrDecimals(int);
 
-    void		activateField(const char* txt=0,bool enter=true);
-    void		activateStep(int nrsteps);
-    bool		event(QEvent*);
-
     QValidator::State	validate( QString& input, int& pos ) const
 			{
 			    const double val = input.toDouble();
@@ -48,10 +42,6 @@ protected:
 
     virtual int		mapTextToValue( bool* ok );
     virtual QString	mapValueToText( int v );
-
-    const char*		activatetxt_;
-    bool		activateenter_;
-    int 		activatesteps_;
 
 private:
 
@@ -99,53 +89,12 @@ void uiSpinBoxBody::setNrDecimals( int dec )
 }
 
 
-static const QEvent::Type sQEventActField = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActStep  = (QEvent::Type) (QEvent::User+1);
-
-
-void uiSpinBoxBody::activateField( const char* txt, bool enter )
-{
-    activatetxt_ = txt;
-    activateenter_ = enter;
-    QEvent* actevent = new QEvent( sQEventActField );
-    QApplication::postEvent( this, actevent );
-}
-
-
-void uiSpinBoxBody::activateStep( int nrsteps )
-{
-    activatesteps_ = nrsteps;
-    QEvent* actevent = new QEvent( sQEventActStep );
-    QApplication::postEvent( this, actevent );
-}
-
-
-bool uiSpinBoxBody::event( QEvent* ev )
-{ 
-    if ( ev->type() == sQEventActField )
-    {
-	if ( activatetxt_ )
-	    setValue( valueFromText(QString(activatetxt_ )) );
-	if ( activateenter_ )
-	    handle_.valueChanged.trigger();
-    }
-    else if ( ev->type() == sQEventActStep  )
-	stepBy( activatesteps_ );
-    else
-	return QDoubleSpinBox::event( ev );
-
-    handle_.activatedone.trigger();
-    return true;
-}
-
-
 //------------------------------------------------------------------------------
 
 uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     : uiObject(p,nm,mkbody(p,nm))
     , valueChanged(this)
     , valueChanging(this)
-    , activatedone(this)
     , dosnap_(false)
     , factor_(1)
 {
@@ -167,14 +116,6 @@ uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
     body_= new uiSpinBoxBody(*this,parnt, nm);
     return *body_; 
 }
-
-
-void uiSpinBox::activateField(const char* txt, bool enter)
-{ body_->activateField( txt, enter ); }
-
-
-void uiSpinBox::activateStep( int nrsteps )
-{ body_->activateStep( nrsteps ); }
 
 
 void uiSpinBox::setNrDecimals( int dec )
@@ -243,6 +184,9 @@ void uiSpinBox::setValue( float val )
     body_->setValue( val );
 }
 
+void uiSpinBox::setValue( const char* txt )
+{ body_->setValue( body_->valueFromText(txt) ); }
+
 void uiSpinBox::setMinValue( int val )
 { body_->setMinimum( val ); }
 
@@ -272,6 +216,9 @@ int uiSpinBox::step() const
 
 float uiSpinBox::fstep() const
 { return (float)body_->singleStep(); }
+
+void uiSpinBox::stepBy( int nrsteps )
+{ body_->stepBy( nrsteps ); }
 
 void uiSpinBox::setStep( int step_, bool snapcur )		
 { setStep( (double)step_, snapcur ); }

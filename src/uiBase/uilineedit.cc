@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.35 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.36 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -16,8 +16,6 @@ static const char* rcsID = "$Id: uilineedit.cc,v 1.35 2009-07-22 16:01:38 cvsber
 #include "uiobjbody.h"
 #include "datainpspec.h"
 
-#include <QApplication>
-#include <QEvent>
 #include <QSize> 
 #include <QCompleter>
 #include <QIntValidator>
@@ -33,13 +31,6 @@ public:
     virtual		~uiLineEditBody()		{ delete &messenger_; }
 
     virtual int 	nrTxtLines() const		{ return 1; }
-
-    void 		activate(const char* txt=0,bool enter=true);
-    bool 		event(QEvent*);
-
-protected:
-    const char*		activatetxt_;
-    bool 		activateenter_;
 
 private:
 
@@ -58,37 +49,6 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
 }
 
 
-static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User+0);
-
-void uiLineEditBody::activate( const char* txt, bool enter )
-{
-    activatetxt_ = txt;
-    activateenter_ = enter;
-    QEvent* actevent = new QEvent( sQEventActivate );
-    QApplication::postEvent( this, actevent );
-}
-
-
-bool uiLineEditBody::event( QEvent* ev )
-{
-    if ( ev->type() != sQEventActivate ) 
-	return QLineEdit::event( ev );
-
-    if ( !handle_.isReadOnly() )
-    {
-	if ( activatetxt_ )
-	    handle_.setvalue_( activatetxt_ );
-	if ( activateenter_ )
-	    handle_.returnPressed.trigger();
-	if ( activatetxt_ || activateenter_ )
-	    handle_.editingFinished.trigger();
-    }
-    
-    handle_.activatedone.trigger();
-    return true;
-}
-
-
 //------------------------------------------------------------------------------
 
 
@@ -96,7 +56,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , editingFinished(this), returnPressed(this)
-    , textChanged(this), activatedone(this)
+    , textChanged(this) 
     , UserInputObjImpl<const char*>()
 {
     setText( spec.text() );
@@ -106,7 +66,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm ) 
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , editingFinished(this), returnPressed(this)
-    , textChanged(this), activatedone(this)
+    , textChanged(this)
     , UserInputObjImpl<const char*>()
 {
     setText( "" );
@@ -118,10 +78,6 @@ uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm )
     body_ = new uiLineEditBody(*this,parnt,nm);
     return *body_; 
 }
-
-
-void uiLineEdit::activate( const char* txt, bool enter )
-{ body_->activate( txt, enter ); }
 
 
 const char* uiLineEdit::getvalue_() const

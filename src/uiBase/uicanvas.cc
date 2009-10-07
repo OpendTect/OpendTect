@@ -7,13 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicanvas.cc,v 1.48 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uicanvas.cc,v 1.49 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uicanvas.h"
 #include "i_uidrwbody.h"
 
-#include <QApplication>
-#include <QEvent>
 #include <QFrame>
 
 
@@ -37,41 +35,13 @@ uiCanvasBody( uiCanvas& handle, uiParent* p, const char *nm="uiCanvasBody")
     virtual		~uiCanvasBody()		{}
     void		updateCanvas()		{ QWidget::update(); }
 
-    void		activateMenu();
-    bool		event(QEvent*);
-
 private:
     uiCanvas&		handle_;
 };
 
 
-static const QEvent::Type sQEventActMenu = (QEvent::Type) (QEvent::User+0);
-
-void uiCanvasBody::activateMenu()
-{
-    QEvent* actevent = new QEvent( sQEventActMenu );
-    QApplication::postEvent( this, actevent );
-}
-
-
-bool uiCanvasBody::event( QEvent* ev )
-{
-    if ( ev->type() == sQEventActMenu )
-    {
-	const MouseEvent right( OD::RightButton );
-	handle_.getMouseEventHandler().triggerButtonPressed( right ); 
-    }
-    else
-	return QFrame::event( ev );
-
-    handle_.activatedone.trigger();
-    return true;
-}
-
-
 uiCanvas::uiCanvas( uiParent* p, const Color& col, const char *nm )
     : uiDrawableObj( p,nm, mkbody(p,nm) )
-    , activatedone( this )
 {
     drawTool().setDrawAreaBackgroundColor( col );
 }
@@ -98,7 +68,3 @@ bool uiCanvas::hasMouseTracking() const
 
 void uiCanvas::setBackgroundColor( const Color& col )
 { drawTool().setDrawAreaBackgroundColor( col ); }
-
-
-void uiCanvas::activateMenu()
-{ body_->activateMenu(); }

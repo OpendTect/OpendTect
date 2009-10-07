@@ -7,14 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uithumbwheel.cc,v 1.11 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uithumbwheel.cc,v 1.12 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uithumbwheel.h"
 #include "i_qthumbwhl.h"
 #include "uiobjbody.h"
 
-#include <qapplication.h>
-#include <qevent.h>
 #include <qsize.h> 
 
 
@@ -29,8 +27,6 @@ public:
 				  uiParent* parnt, const char* nm, bool hor);
 
     //virtual int 	nrTxtLines() const			{ return 1; }
-
-    void		activate();
 
 private:
 
@@ -64,15 +60,6 @@ uiThumbWheelBody::uiThumbWheelBody( uiThumbWheel& handle,uiParent* parnt,
 }
 
 
-static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
-
-
-void uiThumbWheelBody::activate()
-{
-    QEvent* actevent = new QEvent( sQEventActivate );
-    QApplication::postEvent( &messenger_, actevent );
-}
-
 //------------------------------------------------------------------------------
 
 uiThumbWheel::uiThumbWheel(  uiParent* parnt, const char* nm, bool hor )
@@ -80,7 +67,6 @@ uiThumbWheel::uiThumbWheel(  uiParent* parnt, const char* nm, bool hor )
     , wheelPressed(this)
     , wheelMoved(this)
     , wheelReleased(this)
-    , activatedone(this)
     , lastmv( 0 )
 {
 }
@@ -90,28 +76,6 @@ uiThumbWheelBody& uiThumbWheel::mkbody( uiParent* parnt, const char* nm,
 { 
     body_= new uiThumbWheelBody(*this,parnt,nm,hor);
     return *body_; 
-}
-
-
-void uiThumbWheel::activate( float angle )
-{ 
-    activateangle_ = angle;
-    body_->activate(); 
-}
-
-
-bool uiThumbWheel::handleEvent( const QEvent* ev )
-{
-    if ( ev->type() != sQEventActivate ) return false;
-
-    wheelPressed.trigger();
-    lastmv += activateangle_;
-    setValue( lastmv );
-    wheelMoved.trigger();
-    wheelReleased.trigger();
-
-    activatedone.trigger();
-    return true;
 }
 
 
@@ -149,4 +113,12 @@ void uiThumbWheel::setValue( int i )
 void uiThumbWheel::setValue( float d )
 {
     body_->setValue( d );
+}
+
+
+void uiThumbWheel::move( float angle )
+{
+    lastmv = getValue() + angle;
+    wheelMoved.trigger();
+    setValue( lastmv );
 }

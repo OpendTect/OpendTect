@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.18 2009-09-10 11:11:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.19 2009-10-07 13:26:33 cvsjaap Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -54,8 +54,6 @@ MouseEventHandler& mouseEventHandler()
 KeyboardEventHandler& keyboardEventHandler()
 { return keyboardhandler_; }
 
-    void		activateMenu();
-    bool		event(QEvent*);
     const uiPoint&	getStartPos() const	{ return *startpos_; }
 
 protected:
@@ -74,31 +72,6 @@ protected:
     void			mouseDoubleClickEvent(QMouseEvent*);
     void			keyPressEvent(QKeyEvent*);
 };
-
-
-static const QEvent::Type sQEventActMenu = (QEvent::Type) (QEvent::User+0);
-
-void uiGraphicsViewBody::activateMenu()
-{
-    QEvent* actevent = new QEvent( sQEventActMenu );
-    QApplication::postEvent( this, actevent );
-}
-
-
-bool uiGraphicsViewBody::event( QEvent* ev )
-{
-    if ( ev->type() == sQEventActMenu )
-    {
-	const MouseEvent right( OD::RightButton );
-	mouseEventHandler().triggerButtonPressed( right );
-	handle_.scene().getMouseEventHandler().triggerButtonPressed( right );
-    }
-    else
-	return QGraphicsView::event( ev );
-
-    handle_.activatedone.trigger();
-    return true;
-}
 
 
 void uiGraphicsViewBody::mouseMoveEvent( QMouseEvent* event )
@@ -250,7 +223,6 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , reSize(this)
     , reDrawn(this)
     , rubberBandUsed(this)
-    , activatedone(this)
     , scene_(0)
     , selectedarea_(0)
     , enabscrollzoom_(true)
@@ -434,7 +406,3 @@ Color uiGraphicsViewBase::backgroundColor() const
     QColor color( body_->backgroundBrush().color() );
     return Color( color.red(), color.green(), color.blue() );
 }
-
-
-void uiGraphicsViewBase::activateMenu()
-{ body_->activateMenu(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.33 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:           $Id: uibutton.h,v 1.34 2009-10-07 13:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,10 +45,7 @@ public:
 protected:
 
 public:
-    			//! Force activation in GUI thread
     			//! Not for casual use
-    void		activate();
-    Notifier<uiButton>	activatedone;
     QAbstractButton*	qButton();
 };
 
@@ -187,13 +184,10 @@ public:
 			uiButtonBody()				{}
     virtual		~uiButtonBody()				{}
 
-    virtual void	activate()				=0;
-
     //! Button signals emitted by Qt.
     enum notifyTp       { clicked, pressed, released, toggled };
     
 protected:
-    virtual bool	handleEvent(const QEvent*)		=0;
 
     //! Handler called from Qt.
     virtual void        notifyHandler(notifyTp)			=0;

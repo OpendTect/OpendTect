@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.43 2009-09-01 04:02:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.44 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -19,8 +19,6 @@ static const char* rcsID = "$Id: uislider.cc,v 1.43 2009-09-01 04:02:27 cvsnanne
 #include "ranges.h"
 #include "scaler.h"
 
-#include <QApplication>
-#include <QEvent>
 #include <QString> 
 
 #include <math.h>
@@ -41,19 +39,11 @@ public:
 
     virtual int 	nrTxtLines() const	{ return 1; }
 
-    void		activate(float fraction);
-    bool		event(QEvent*);
-    
-protected:
-
-    float		activatefrac_;
-
 private:
 
     i_SliderMessenger&	messenger_;
 
 };
-
 
 
 uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
@@ -62,32 +52,6 @@ uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
 {
     setHSzPol( uiObject::Medium );
     setFocusPolicy( Qt::WheelFocus );
-}
-
-
-static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User+0);
-
-void uiSliderBody::activate( float fraction )
-{
-    activatefrac_ = fraction;
-    QEvent* actevent = new QEvent( sQEventActivate );
-    QApplication::postEvent( this, actevent );
-}
-
-
-bool uiSliderBody::event( QEvent* ev )
-{
-    if ( ev->type() != sQEventActivate )
-	return QSlider::event( ev );
-
-    if ( activatefrac_>=0.0 && activatefrac_<=1.0 )
-    {
-	handle_.sliderMoved.trigger();
-	setValue( mNINT((1-activatefrac_)*minimum()+activatefrac_*maximum()) );
-    }
-
-    handle_.activatedone.trigger();
-    return true;
 }
 
 
@@ -101,7 +65,6 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
     , sliderMoved(this)
     , sliderPressed(this)
     , sliderReleased(this)
-    , activatedone(this)
 {
     body_->setOrientation( vert ? Qt::Vertical : Qt::Horizontal );
     body_->setStretch( vert ? 0 : 1, vert ? 1 : 0 );
@@ -126,15 +89,21 @@ uiSliderBody& uiSlider::mkbody( uiParent* p, const char* nm )
 }
 
 
-void uiSlider::activate( float fraction )
-{ body_->activate( fraction ); }
-
-
 float uiSlider::getLinearFraction() const
 {
     float start = body_->minimum();
     float range = body_->maximum() - start;
     return range ? (body_->sliderPosition()-start)/range : 1.0;
+}
+
+
+void uiSlider::setLinearFraction( float frac )
+{
+    if ( frac>=0.0 && frac<=1.0 )
+    {
+	const float val = (1-frac)*body_->minimum() + frac*body_->maximum();
+	body_->setValue( mNINT(val) );
+    }
 }
 
 

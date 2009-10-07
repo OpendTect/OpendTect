@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.105 2009-09-07 14:55:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.106 2009-10-07 13:26:33 cvsjaap Exp $";
 
 #include "uilistbox.h"
 
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: uilistbox.cc,v 1.105 2009-09-07 14:55:11 cvsber
 #include "pixmap.h"
 
 #include "i_qlistbox.h"
-#include <QApplication>
 #include <QKeyEvent>
 #include <QMouseEvent>
 
@@ -49,10 +48,6 @@ public:
 
     int			maxSelectable() const;
 
-    void		activateClick(int idx,const BufferStringSet& clicktags);
-    void		activateSelect(const TypeSet<int>&);
-    bool		event(QEvent*);
-
     void 		setLines( int prefNrLines, bool adaptVStretch )
 			{ 
 			    if( prefNrLines >= 0 ) prefnrlines_=prefNrLines;
@@ -74,10 +69,6 @@ public:
 protected:
     void		mouseReleaseEvent(QMouseEvent*);
     void		keyPressEvent(QKeyEvent*);
-
-    int				actidx_;
-    const TypeSet<int>*		actselset_;
-    const BufferStringSet* 	actclicktags_;
 
 private:
 
@@ -156,120 +147,6 @@ int uiListBoxBody::maxSelectable() const
 }
 
 
-static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+1);
-
-
-void uiListBoxBody::activateClick( int idx, const BufferStringSet& clicktags )
-{
-    actidx_ = idx;
-    actclicktags_ = &clicktags;
-    QEvent* actevent = new QEvent( sQEventActClick );
-    QApplication::postEvent( this, actevent );
-}
-
-
-void uiListBoxBody::activateSelect( const TypeSet<int>& selectset )
-{
-    actselset_ = &selectset;
-    QEvent* actevent = new QEvent( sQEventActSelect );
-    QApplication::postEvent( this, actevent );
-}
-
-
-#define mHandleSelectionChangedBegin( oldselitems ) \
-\
-    const bool notifierwasenabled = handle_.selectionChanged.disable(); \
-    TypeSet<int> oldselitems; \
-    for ( int idx=0; idx<handle_.size(); idx++ ) \
-    { \
-	if ( handle_.isSelected(idx) ) \
-	   oldselitems += idx; \
-    }
-
-#define mInitListSelection( selecteditems, currow ) \
-\
-    handle_.clear(); \
-    setCurrentRow( currow ); \
-    for ( int idx=0; idx<selecteditems.size(); idx++ ) \
-	handle_.setSelected( selecteditems[idx], true ); \
-
-#define mHandleSelectionChangedEnd( oldselitems ) \
-\
-    if ( notifierwasenabled ) \
-	handle_.selectionChanged.enable(); \
-\
-    for ( int idx=0; idx<handle_.size(); idx++ ) \
-    { \
-	if ( handle_.isSelected(idx) == (oldselitems.indexOf(idx)<0) ) \
-	{ \
-	    handle_.selectionChanged.trigger(); \
-	    break; \
-	} \
-    }
-	
-#define mHandleLeftRightClick() \
-{ \
-    if ( actclicktags_->isPresent("Check") && \
-	 handle_.isItemCheckable(actidx_) ) \
-    { \
-	handle_.setItemChecked( actidx_, !handle_.isItemChecked(actidx_) ); \
-    } \
-    if ( actclicktags_->isPresent("Left") ) \
-	handle_.leftButtonClicked.trigger(); \
-    if ( actclicktags_->isPresent("Right") ) \
-	handle_.rightButtonClicked.trigger(); \
-}
-
-bool uiListBoxBody::event( QEvent* ev )
-{
-    if ( ev->type() == sQEventActClick ) 
-    {
-	if ( actidx_>=0 && actidx_<count() )
-	{
-	    if ( maxSelectable()>0 )
-	    {
-		mHandleSelectionChangedBegin( oldselitems );
-		mInitListSelection( oldselitems, actidx_ );
-		const bool wasselected = oldselitems.indexOf(actidx_) >= 0;
-
-		if ( actclicktags_->isPresent("Ctrl") )
-		    handle_.setSelected( actidx_, !wasselected );
-		else
-		{
-		    if ( !actclicktags_->isPresent("Right") || !wasselected )
-			handle_.clear();
-		    handle_.setSelected( actidx_, true );
-		}
-
-		mHandleSelectionChangedEnd( oldselitems );
-	    }
-
-	    mHandleLeftRightClick();
-	    if ( actclicktags_->isPresent("Double") )
-	    {
-		handle_.doubleClicked.trigger();
-		mHandleLeftRightClick();
-	    }
-	}
-    }
-    else if ( ev->type() == sQEventActSelect )
-    {
-	if ( maxSelectable()>0 && actselset_->size()<=maxSelectable() )
-	{
-	    mHandleSelectionChangedBegin( oldselitems );
-	    mInitListSelection( (*actselset_), (*actselset_)[0] );
-	    mHandleSelectionChangedEnd( oldselitems );
-	}
-    }
-    else
-	return QListWidget::event( ev );
-
-    handle_.activatedone.trigger();
-    return true;
-}
-
-
 // -------------- uiListBox ---------------
 
 #define mStdInit \
@@ -279,7 +156,6 @@ bool uiListBoxBody::event( QEvent* ev )
     , rightButtonClicked(this) \
     , leftButtonClicked(this) \
     , deleteButtonPressed(this) \
-    , activatedone(this) \
     , rightclickmnu_(*new uiPopupMenu(p)) \
     , itemscheckable_(false) \
     , alignment_(Alignment::Left)
@@ -775,14 +651,6 @@ void uiListBox::setAlignment( Alignment::HPos al )
     for ( int idx=0; idx<size(); idx++ )
 	body_->setItemAlignment( idx, al );
 }
-
-
-void uiListBox::activateClick( int idx, const BufferStringSet& clicktags )
-{ body_->activateClick( idx, clicktags ); }
-
-
-void uiListBox::activateSelect( const TypeSet<int>& selection )
-{ body_->activateSelect( selection ); }
 
 
 // -------------- uiLabeledListBox ----------------
