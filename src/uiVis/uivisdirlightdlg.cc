@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.5 2009-10-02 15:46:26 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.6 2009-10-07 15:58:48 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.5 2009-10-02 15:46:26 c
 #include "vissurvscene.h"
 //#include "uiodscenemgr.h"
 #include "uivispartserv.h"
+#include "angles.h"
 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     : uiDialog(p,
@@ -82,6 +83,8 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     intensityfld_->sldr()->valueChanged.notify( chgCB ); 
 
     pd_->attach( alignedBelow, intensityfld_ );
+    pd_->setValues( initazimuthval_, initdipval_ );
+    pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
 
     uiSeparator* sep = new uiSeparator( this, "HSep", true );
     sep->attach( stretchedBelow, pd_ );
@@ -115,6 +118,7 @@ uiDirLightDlg::~uiDirLightDlg()
 	    mCB(this,uiDirLightDlg,nrScenesChangedCB) );
     appl_.sceneMgr().activeSceneChanged.remove( 
 	    mCB(this,uiDirLightDlg,activeSceneChangedCB) );*/
+    pd_->valueChanged.remove( mCB(this, uiDirLightDlg, polarDiagramCB) );
     delete pd_;
 }
 
@@ -193,10 +197,9 @@ void uiDirLightDlg::updateWidgetValues( bool reset )
         float x = dl->direction( 0 );
         float y = dl->direction( 1 );
         float z = dl->direction( 2 );
-        float dip = asin( z );
-        float azimuth = acos( x / cos( dip ) ) ;
-        dip *= 180.0 / M_PI;
-        azimuth *= 180.0 / M_PI;
+        float dip = Angle::convert( Angle::Rad, asin( z ), Angle::UsrDeg );
+        float azimuth = Angle::convert( Angle::Rad, acos( x / cos( dip ) ),
+		Angle::UsrDeg );
 
         azimuthfld_->sldr()->setValue( azimuth );
         dipfld_->sldr()->setValue( dip );
@@ -205,7 +208,7 @@ void uiDirLightDlg::updateWidgetValues( bool reset )
 	s = toString(intensityfld_->sldr()->getValue() );
 	pErrMsg(s);
 
-	pd_->setValues( azimuth, dip );
+	//pd_->setValues( azimuth, dip );
 
         if ( reset )
         {
@@ -236,14 +239,14 @@ void uiDirLightDlg::setDirLight()
 	if ( !scene )
 	    continue;
 
-	static const float deg2rad = M_PI / 180.0;
+	float az_rad = Angle::convert( Angle::UsrDeg, 
+		azimuthfld_->sldr()->getValue(), Angle::Rad );
+	float dip_rad = Angle::convert( Angle::UsrDeg,
+		dipfld_->sldr()->getValue(), Angle::Rad );
 
-	float x = cos( azimuthfld_->sldr()->getValue()*deg2rad ) * 
-	          cos( dipfld_->sldr()->getValue()*deg2rad );
-	float y = sin( azimuthfld_->sldr()->getValue()*deg2rad ) * 
-	          cos( dipfld_->sldr()->getValue()*deg2rad );
-       	float z = sin (dipfld_->sldr()->getValue()*deg2rad );
-
+	float x = cos( az_rad ) * cos( dip_rad );
+	float y = sin( az_rad ) * cos( dip_rad );
+       	float z = sin (dip_rad );
 
 	if ( !getDirLight( idx ) )
 	{
@@ -328,6 +331,7 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
     dipfld_->processInput();
     intensityfld_->processInput();
     headonintensityfld_->processInput();
+
     valchgd_ = ( ( azimuthfld_->sldr()->getValue() != initazimuthval_ ) 
 	         || ( dipfld_->sldr()->getValue() != initdipval_ )
 		 || ( intensityfld_->sldr()->getValue() != initintensityval_ ) )
@@ -371,8 +375,20 @@ void uiDirLightDlg::fieldChangedCB( CallBacker* )
 {
     setDirLight();
     if ( pd_ )
-	pd_->setValues( azimuthfld_->sldr()->getValue(),
+	pd_->setValues( azimuthfld_->sldr()->getValue(), 
 		dipfld_->sldr()->getValue() );
+}
+
+
+void uiDirLightDlg::polarDiagramCB( CallBacker* )
+{
+    float azimuth, dip;
+
+    pd_->getValues( &azimuth, &dip );
+    azimuthfld_->sldr()->setValue( azimuth );
+    dipfld_->sldr()->setValue( dip );
+
+    setDirLight();
 }
 
 
