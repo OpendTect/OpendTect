@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.82 2009-09-08 09:43:41 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.83 2009-10-07 06:19:14 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -235,10 +235,12 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     comm += " \"";
     comm += parfname_;
     comm += "\"";
+
 #else
 
     comm += " --inbg ";
-    comm += progname_; comm += " "; comm += parfname_;
+    comm += progname_; comm += " \""; 
+    comm += parfname_; comm += "\"";
 
 # endif
 
@@ -493,7 +495,6 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
     comm += fnm; 
     comm += "\"";
 
-   
 #ifdef __msvc__ 
     if ( !ExecOSCmd( comm, false ) )
 #else
