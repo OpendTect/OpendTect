@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.10 2009-10-06 05:15:55 cvsumesh Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.11 2009-10-07 12:29:12 cvsumesh Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.10 2009-10-06 05:15:55 
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "posinfo.h"
 #include "survinfo.h"
 
 const char* Pos::EMSurfaceProvider::id1Key()		{ return "ID.1"; }
@@ -381,23 +382,52 @@ Coord Pos::EMSurfaceProvider2D::curCoord() const
 
 bool Pos::EMSurfaceProvider2D::includes( const Coord& c, float z ) const
 {
-    //TODO not implemented yet
-
-    //int nr = 0; // Find nr for this Coord
-    //return includes( nr, z );
+    PosInfo::Line2DPos pos;
+    if ( lineData() && lineData()->getPos( c, pos ) )
+    {
+	return includes( pos.nr_, z );
+    }
     return false;
 }
 
 
 bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
 {
-    if ( !surf1_ )
+    if ( !lineData() || lineData()->getLineName().isEmpty() )
 	return false;
 
-    if ( surf2_ )
-	return true; // between surf1 and surf2
+    mDynamicCastGet(EM::Horizon2D*,hor2d1,surf1_);
+    if ( !hor2d1 )
+	return false;
 
-    return false; // return true when z is within half a Z step
+    Interval<float> zrg;
+    BinID bid;
+    bid.crl = nr;
+    bid.inl = hor2d1->geometry().lineIndex( lineData()->getLineName().buf() );
+    const Coord3 crd1 = hor2d1->getPos( hor2d1->sectionID(0),
+	    				bid.getSerialized() );
+    if ( !crd1.isDefined() )
+	return false;
+
+    mDynamicCastGet(EM::Horizon2D*,hor2d2,surf1_);
+    if ( hor2d2 )
+    {
+	bid.inl = hor2d2->geometry().lineIndex(lineData()->getLineName().buf());
+	const Coord3 crd2 = hor2d2->getPos( hor2d2->sectionID(0),
+					    bid.getSerialized() );
+	if ( !crd2.isDefined() )
+	    false;
+
+	zrg.start = crd1.z; zrg.stop = crd2.z;
+	zrg.sort();
+    }
+    else
+    {
+	zrg.start = crd1.z - SI().zStep()/2;
+	zrg.stop = crd1.z + SI().zStep()/2;
+    }
+
+    return zrg.includes( z );
 }
 
 
