@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.2 2009-10-07 11:53:46 cvshelene Exp $
+RCS:           $Id: fftfilter.cc,v 1.3 2009-10-08 14:26:38 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -20,8 +20,8 @@ FFTFilter::FFTFilter()
     : avg_(0)
     , hilbert_(0)	       	
     , fft_(0)	      
-    , freqwindowsize_(0)  
-    , freqwindow_(0)	      	      
+    , window_(0)	      	      
+    , fwindow_(0)	      	      
 {
     hilbert_ = new HilbertTransform();
     fft_ = new FFT();
@@ -32,6 +32,8 @@ FFTFilter::~FFTFilter()
 {
     delete fft_;
     delete hilbert_;
+    delete window_;
+    delete fwindow_;
 }
 
 
@@ -89,8 +91,18 @@ void FFTFilter::initFilter( const Array1DImpl<float>& timeinput,
     hilbert_->setCalcRange( 0, arraysize, 0 );
     mDoTransform( hilbert_, true, timeinput, ctimeinput, arraysize );
 
-    //avg_ = computeAvg( ctimeinput ).real();
-    //removeBias( &ctimeinput );
+    if ( window_ )
+    {
+	for( int idx=0; idx<window_->size_; idx++ )
+	    ctimeinput.set( idx, window_->win_[idx]*ctimeinput.get( idx )  );
+    }
+
+    avg_ = 0;
+    for ( int idx=0; idx<arraysize; idx++ )
+	avg_ += ctimeinput.get(idx).real();
+    avg_ /= arraysize;
+    for ( int idx=0; idx<arraysize; idx++ )
+	ctimeinput.set( idx, ctimeinput.get( idx) - avg_ );
 
     mDoTransform( fft_, true, ctimeinput, cfreqoutput, arraysize );
 }
@@ -101,45 +113,35 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
 			   Array1DImpl<float_complex>& output )
 {
     const int arraysize = input.info().getTotalSz();
-    const int bordersz = freqwindowsize_/2;
+    const int bordersz = fwindow_ ? fwindow_->size_ : 0;
 
-    const float infthreshold = cutfreq - bordersz*df/2;
-    const float supthreshold = cutfreq + bordersz*df/2;
+    const int poscutfreq = (int)(cutfreq/df);
+    const int infposthreshold = poscutfreq - bordersz/2;
+    const int supposthreshold = poscutfreq + bordersz/2;
 
-    Array1DImpl<float> filterborders( bordersz );
-    for ( int idx=0; idx<bordersz; idx++ )
-    {
-	filterborders.set( idx, 1 );
-	if ( freqwindow_ )
-	    filterborders.set( idx, 
-		    freqwindow_[idx+bordersz]*filterborders.get( idx ) );
-    }
-
-    Array1DImpl<float> freqarr ( arraysize );
-    for ( int idx=0; idx<arraysize; idx++ )
-	freqarr.set( idx, idx*df );
-
-    int idarray = 0;
+    int idborder = 0;
     for ( int idx=0 ; idx<arraysize/2 ; idx++ )
     {
 	float_complex outpval = 0;
 	float_complex revoutpval = 0;
-	const float freq = freqarr.get(idx);
 	const int revidx = arraysize-idx-1;
         	
-	if ( (islowpass && freq < infthreshold) 
-		|| (!islowpass && freq > supthreshold) )
+	if ( (islowpass && idx < infposthreshold) 
+		|| (!islowpass && idx > supposthreshold) )
 	{
 	    outpval = input.get( idx );
 	    revoutpval = input.get( revidx );
 	}
-	else if ( freq < supthreshold && freq > infthreshold )
+	else if ( idx < supposthreshold && idx > infposthreshold )
 	{
-	    const int idxborder = islowpass ? idarray : bordersz-idarray-1; 
-	    outpval = input.get( idx )*filterborders.get( idxborder );
-	    revoutpval = input.get( revidx )*
-				filterborders.get( bordersz - idxborder -1 );
-	    idarray++;
+	    float winval = fwindow_->win_[idborder];
+	    float revwinval = fwindow_->win_[bordersz-idborder-1];
+	    if ( !islowpass )
+	    { float tmp; mSWAP( winval, revwinval, tmp ); }
+ 
+	    outpval = input.get( idx )*winval;
+	    revoutpval = input.get( revidx )*revwinval;
+	    idborder++;
 	}
 	output.set( idx,outpval );
 	output.set( arraysize-idx-1, revoutpval );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          6-10-2009
-RCS:           $Id: fftfilter.h,v 1.1 2009-10-07 09:53:13 cvsbruno Exp $
+RCS:           $Id: fftfilter.h,v 1.2 2009-10-08 14:26:38 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -43,18 +43,33 @@ public:
 				const Array1DImpl<float_complex>&,
 				Array1DImpl<float_complex>&);
 
-    void		setFreqBorderWindow( float* win, int sz )
-			{ freqwindow_ = win; freqwindowsize_=sz; }
+//optional taper in time-domain array before computation 
+//only if non complex numbers as input
+    void		setTaperWindow( float* samp, int sz )
+			{ delete window_; window_ = new Window(samp,sz/2); }
+
+//optional cut-off the frequency around a window(nicer output)
+    void		setFreqBorderWindow( float* samp, int sz )
+			{ delete fwindow_; fwindow_ = new Window(samp,sz/2); }
 
 protected:
+
+    mStruct Window
+    {
+			Window(float* win,int sz)
+			    : win_(win)
+			    , size_(sz)		{}
+
+			int size_;
+			float* win_;
+    };
 
     float 		avg_;
     HilbertTransform*	hilbert_; 
     FFT*		fft_; 
-    float*		freqwindow_;
-    int			freqwindowsize_;
+    Window*		window_;
+    Window*		fwindow_;
 
-    
     void		initFilter(const Array1DImpl<float>&,
 				   Array1DImpl<float_complex>&);
 };
