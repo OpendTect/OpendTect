@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.19 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.20 2009-10-08 04:40:21 cvsnanne Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -158,6 +158,7 @@ void uiGraphicsViewBody::keyPressEvent( QKeyEvent* event )
     KeyboardEvent ke;
     ke.key_ = (OD::KeyboardKey)event->key();
     keyboardhandler_.triggerKeyPressed( ke );
+    QGraphicsView::keyPressEvent( event );
 }
 
 
