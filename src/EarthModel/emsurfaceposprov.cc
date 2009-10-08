@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.11 2009-10-07 12:29:12 cvsumesh Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.12 2009-10-08 03:56:54 cvsumesh Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -396,7 +396,7 @@ bool Pos::EMSurfaceProvider2D::includes( int nr, float z ) const
     if ( !lineData() || lineData()->getLineName().isEmpty() )
 	return false;
 
-    mDynamicCastGet(EM::Horizon2D*,hor2d1,surf1_);
+    mDynamicCastGet(EM::Horizon2D*,hor2d1,surf2_);
     if ( !hor2d1 )
 	return false;
 
