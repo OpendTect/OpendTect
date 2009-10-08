@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.118 2009-09-22 16:38:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.119 2009-10-08 04:53:04 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -91,6 +91,13 @@ HorizonDisplay::HorizonDisplay()
     datapackids_ += -1;
 
     material_->setAmbience( 0.3 );
+
+    RefMan<visBase::Material> linemat = visBase::Material::create();
+    linemat->setFrom( *material_ );
+    linemat->setColor( nontexturecol_ );
+    linemat->setDiffIntensity( 1 );
+    linemat->setAmbience( 1 );
+    setIntersectLineMaterial( linemat );
 }
 
 
@@ -958,19 +965,9 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 	sections_[idx]->turnOn(!yn);
 
     EMObjectDisplay::setOnlyAtSectionsDisplay( yn );
-    
-    if ( yn && !intersectionlinematerial_ )
-    {
-    	RefMan<visBase::Material> linemat = visBase::Material::create();
-    	linemat->setFrom( *material_ );
-	linemat->setColor( nontexturecol_ );
-    	linemat->setDiffIntensity( 1 );
-    	linemat->setAmbience( 1 );
-    	
-	setIntersectLineMaterial( linemat );
-	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
-	    intersectionlines_[idx]->setMaterial( intersectionlinematerial_ );
-    }
+
+    for ( int idx=0; yn && idx<intersectionlines_.size(); idx++ )
+	intersectionlines_[idx]->setMaterial( intersectionlinematerial_ );
 }
 
 
@@ -1477,6 +1474,7 @@ static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zshift,
 
     if ( zaxistransform )
 	field = hor->createArray2D( sid, zaxistransform );
+    if ( !field ) return;
 
     IsoContourTracer ictracer( *field );
     ictracer.setSampling( hor->geometry().rowRange(sid),
