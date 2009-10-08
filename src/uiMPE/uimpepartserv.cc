@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.104 2009-09-07 10:45:04 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.105 2009-10-08 05:19:54 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -35,7 +35,6 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.104 2009-09-07 10:45:04 cv
 #include "mousecursor.h"
 #include "undo.h"
 
-#include "uibutton.h"
 #include "uitaskrunner.h"
 #include "uihorizontracksetup.h"
 #include "uimsg.h"
@@ -74,7 +73,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , seedhasbeenpicked_(false)
     , setupbeingupdated_(false)
     , rtnwtseedwtas_(false)
-    , setupgrp_(false)
+    , setupgrp_(0)
 {
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
     MPE::engine().activevolumechange.notify(
@@ -199,6 +198,9 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     newname += ">";
 
     EM::EMObject* emobj = EM::EMM().createTempObject( trackertype );
+    if ( !emobj )
+	return false;
+
     emobj->setName( newname.buf() );
     emobj->setFullyLoaded( true );
 
@@ -209,7 +211,18 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     if ( trackerid == -1 ) return false;
     if ( !MPE::engine().getEditor(objid,false) )
 	MPE::engine().getEditor(objid,true);
-    
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
+    if ( !tracker ) return false;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker ) return false;
+
+    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
+    MPE::SectionTracker* sectiontracker = 
+				tracker->getSectionTracker(sectionid,true);
+    if ( !sectiontracker ) return false;
+
     activetrackerid_ = trackerid;
     if ( !sendEvent(::uiMPEPartServer::evAddTreeObject()) )
     {
@@ -218,25 +231,19 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 	emobj->ref(); emobj->unRef();
     }
     
-    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
     emobj->setPreferredColor( getRandomColor(false) );
 
-    MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);    
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     seedpicker->setSeedConnectMode( 0 );
     sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
     trackercurrentobject_ = emobj->id();
     
-    uiDialog* setupdlg  = new uiDialog( parent(), 
+    uiDialog* setupdlg = new uiDialog( parent(), 
 	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1")
-	   		       .savebutton(true).savetext("Save on Close  ")
 	   		       .modal(false) );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
 
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, 
 	    					  emobj->getTypeStr(), 0 );
-    MPE::SectionTracker* sectiontracker = 
-				tracker->getSectionTracker(sectionid, true);
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
 	    				seedpicker->getSeedConnectMode() );
     setupgrp_->setColor( emobj->preferredColor() );
@@ -304,7 +311,7 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
     if ( !seedpicker->getSelSpec() )
 	return;
 
-    bool fieldchange;
+    bool fieldchange = false;
     if ( seedpicker->nrSeeds() < 1 )
 	setupgrp_->setAttribSelSpec( seedpicker->getSelSpec() );
     else if ( !setupgrp_->isSameSelSpec(seedpicker->getSelSpec()) )
@@ -357,6 +364,8 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
     if ( trackercurrentobject_!=-1 )
     {
 	EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
+	if ( !emobj ) return;
+
 	emobj->setPreferredColor( setupgrp_->getColor() );
 	sendEvent( uiMPEPartServer::evUpdateTrees() );
 	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), 
@@ -432,21 +441,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	}
     }
 
-    mDynamicCastGet( uiDialog*, dlg, cb );
-    if ( dlg && dlg->saveButtonChecked() )
-    {
-	bool proceedsaving = 
-	    	EM::EMM().getMultiID( trackercurrentobject_ ).isEmpty();
-       if ( !proceedsaving )
-       {
-	   PtrMan<IOObj> ioobj = IOM().get( EM::EMM()
-		   			.getMultiID(trackercurrentobject_) );
-	   proceedsaving = !ioobj;
-       }	   
-       if ( proceedsaving )
-	   sendEvent( uiMPEPartServer::evMPEStoreEMObject() );
-    }
-
     if ( !setupgrp_->commitToTracker() )
 	if ( !seedhasbeenpicked_ )
 	{
@@ -494,8 +488,11 @@ void uiMPEPartServer::adjustSeedBox()
 {
     const int trackerid = getTrackerID( trackercurrentobject_ );
     const MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker ) return;
+
     const EM::ObjectID objid = tracker->objectID();
     EM::EMObject* emobj = EM::EMM().getObject( objid );
+    if ( !emobj ) return;
 
     const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
     PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator(sectionid);
@@ -533,18 +530,17 @@ void uiMPEPartServer::noTrackingRemoval()
     if( !mIsUdf(initialundoid_) )
     {
 	EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
-	emobj->setBurstAlert( true );
+	if ( !emobj ) return;
 
+	emobj->setBurstAlert( true );
 	EM::EMM().undo().unDo(
 			EM::EMM().undo().currentEventID()-initialundoid_);
 	EM::EMM().undo().removeAllAfterCurrentEvent();
-
 	emobj->setBurstAlert( false );
     }
 
     const MultiID mid = EM::EMM().getMultiID( trackercurrentobject_ );
     PtrMan<IOObj> ioobj = IOM().get(mid);
-
     if ( ioobj )
     {
 	if ( !fullImplRemove(*ioobj) || !IOM().permRemove(mid) )
@@ -572,7 +568,7 @@ void uiMPEPartServer::noTrackingRemoval()
 
 void uiMPEPartServer::retrack( const EM::ObjectID& oid )
 {
-    bool fieldchange;
+    bool fieldchange = false;
     if ( !setupgrp_->commitToTracker(fieldchange) )
 	return;
 
@@ -591,6 +587,8 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     EM::EMObject* emobj = EM::EMM().getObject( oid );
+    if ( !emobj ) return;
+
     emobj->setBurstAlert( true );
     emobj->removeAllUnSeedPos();
 
@@ -724,9 +722,12 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     setupbeingupdated_ = true;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
+    if ( !emobj ) return false;
+
     const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker ) return false;
     
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, emobj->getTypeStr(),
 						  attrset );
@@ -1050,9 +1051,10 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     const EM::ObjectID emid = EM::EMM().getObjectID( mid );
     const int trackerid = getTrackerID( emid );
     if ( trackerid<0 ) return false;
+
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !seedpicker ) return false;
 
     IOPar iopar;
     iopar.set( "Seed Connection mode", seedpicker->getSeedConnectMode() );
@@ -1060,6 +1062,7 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     ObjectSet<const Attrib::SelSpec> usedattribs;
     MPE::engine().getNeededAttribs( usedattribs );
     TypeSet<Attrib::DescID> usedattribids;
+    const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
 
     for ( int idx=0; idx<usedattribs.size(); idx++ )
     {
@@ -1107,7 +1110,9 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     if ( trackerid<0 ) return false;
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !seedpicker ) return false;
+
     IOPar iopar;
     iopar.read( setupfilenm, "Tracking Setup", true );
     int connectmode = 0;
