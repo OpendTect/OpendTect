@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.12 2009-08-27 15:55:32 cvshelene Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.13 2009-10-08 04:57:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,9 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicoltabtools.h"
 #include "uimapperrangeeditor.h"
-#include "uimenu.h"
 #include "uiseparator.h"
 #include "uistatsdisplaywin.h"
+#include "uitoolbar.h"
 
 #include "bufstringset.h"
 #include "coltabmapper.h"
@@ -27,7 +27,7 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
        						DataPackMgr::ID dmid )
     : uiDialog( p,uiDialog::Setup("Histogram",
 				  mNoDlgTitle,"50.0.12").modal(false)
-	    						.menubar(true) )
+							.menubar(true) )
     , activeattrbid_(-1)
     , activectbmapper_(0)	      
     , rangeChange(this)
@@ -38,10 +38,9 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     datapackids_.setSize( nr );
     uiSeparator* sephor = 0;
 
-    uiPopupMenu* menu = new uiPopupMenu( this, "Stat" );
-    menu->insertItem( new uiMenuItem("Show Stat..",
-		mCB(this,uiMultiMapperRangeEditWin,showStatDlg)) );
-    menuBar()->insertItem( menu );
+    uiToolBar* tb = new uiToolBar( this, "Stats" );
+    tb->addButton( "info.png", mCB(this,uiMultiMapperRangeEditWin,showStatDlg),
+	    	   "Statistics" );
 
     for ( int idx=0; idx<nr; idx++ )
     {
@@ -79,55 +78,52 @@ uiMultiMapperRangeEditWin::~uiMultiMapperRangeEditWin()
 
 void uiMultiMapperRangeEditWin::showStatDlg( CallBacker* )
 {
-    uiStatsDisplayWin statswin( this,
+    uiStatsDisplayWin* statswin = new uiStatsDisplayWin( this,
 	    uiStatsDisplay::Setup().withplot(false).withname(false),
-	    datapackids_.size()/2 );
+	    datapackids_.size(), false );
+    statswin->setDeleteOnClose( false );
     BufferStringSet datanms;
-    for ( int idx=0; idx<datapackids_.size()/2; idx++ )
+    for ( int idx=0; idx<datapackids_.size(); idx++ )
     {
-	statswin.statsDisplay( idx )->setDataPackID( datapackids_[idx],
-						      dpm_.id() );
+	statswin->statsDisplay( idx )->setDataPackID(
+		datapackids_[idx], dpm_.id() );
 	datanms.add(  DPM(dpm_.id()).nameOf(datapackids_[idx]) );
     }
 
-    statswin.addDataNames( datanms );
-    statswin.show();
+    statswin->addDataNames( datanms );
+    statswin->show();
 }
 
 
-uiMapperRangeEditor* uiMultiMapperRangeEditWin::getuiMapperRangeEditor( int idx )
-{
-    if ( idx < 0 || idx > (mapperrgeditors_.size()-1) )
-	return 0;
-    else 
-	return mapperrgeditors_[idx];
-}
+uiMapperRangeEditor* uiMultiMapperRangeEditWin::getuiMapperRangeEditor( int idx)
+{ return mapperrgeditors_.validIdx(idx) ? mapperrgeditors_[idx] : 0; }
 
 
 void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 {
-    if ( idx < 0 || idx > (mapperrgeditors_.size()-1) )
+    if ( !mapperrgeditors_.validIdx(idx) )
 	return;
 
     mapperrgeditors_[idx]->setDataPackID( dpid, dpm_.id() );
-    datapackids_.insert( idx, dpid );
+    if ( datapackids_.validIdx(idx) )
+	datapackids_[idx] = dpid;
 }
 
 
 void uiMultiMapperRangeEditWin::setColTabMapperSetup( int idx,
 						const ColTab::MapperSetup& ms )
 {
-   if ( idx < 0 || idx > (mapperrgeditors_.size()-1) )
-      return;
+    if ( !mapperrgeditors_.validIdx(idx) )
+	return;
    
-   mapperrgeditors_[idx]->setColTabMapperSetup( ms ); 
+    mapperrgeditors_[idx]->setColTabMapperSetup( ms ); 
 }
 
 
 void uiMultiMapperRangeEditWin::setColTabSeq( int idx, 
 						const ColTab::Sequence& ctseq )
 {
-    if ( idx < 0 || idx > (mapperrgeditors_.size()-1) )
+    if ( !mapperrgeditors_.validIdx(idx) )
 	return;
 
     mapperrgeditors_[idx]->setColTabSeq( ctseq ); 
@@ -147,7 +143,7 @@ void uiMultiMapperRangeEditWin::dataPackDeleted( CallBacker* cb )
 {
     mDynamicCastGet(DataPack*,obj,cb);
     const int dpidx = datapackids_.indexOf( obj->id() );
-    if ( dpidx<0 ) return;
+    if ( !mapperrgeditors_.validIdx(dpidx) ) return;
 
-    mapperrgeditors_[dpidx]->setSensitive( false );
+    mapperrgeditors_[dpidx]->display( false );
 }
