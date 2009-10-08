@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.26 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.27 2009-10-08 04:54:12 cvsnanne Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -228,7 +228,10 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 
 
 void uiStatsDisplayWin::showStat( int idx )
-{ disps_[idx]->display( true ); }
+{
+    if ( disps_.validIdx(idx) )
+	disps_[idx]->display( true );
+}
 
 
 void uiStatsDisplayWin::dataChanged( CallBacker* )
@@ -243,7 +246,8 @@ void uiStatsDisplayWin::dataChanged( CallBacker* )
 
 void uiStatsDisplayWin::setData( const Stats::RunCalc<float>& rc, int idx )
 {
-    disps_[idx]->setData( rc.vals_.arr(), rc.vals_.size() );
+    if ( disps_.validIdx(idx) )
+	disps_[idx]->setData( rc.vals_.arr(), rc.vals_.size() );
 }
 
 
@@ -260,9 +264,13 @@ void uiStatsDisplayWin::setDataName( const char* nm, int idx )
 	return;
     }
 
-    disps_[idx]->setDataName( nm );
+    if ( disps_.validIdx(idx) )
+	disps_[idx]->setDataName( nm );
 }
 
 
 void uiStatsDisplayWin::setMarkValue( float val, bool forx, int idx )
-{ disps_[idx]->setMarkValue( val, forx ); }
+{
+    if ( disps_.validIdx(idx) )
+	disps_[idx]->setMarkValue( val, forx );
+}
