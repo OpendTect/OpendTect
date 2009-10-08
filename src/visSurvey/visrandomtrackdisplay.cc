@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.114 2009-09-17 17:43:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.115 2009-10-08 04:17:11 cvsnanne Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -304,6 +304,31 @@ void RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 	return;
     while ( nrKnots() > uniquebids.size() )
 	removeKnot( nrKnots()-1 );
+
+    if ( uniquebids.size() > 50 ) // Workaround when having a lot of knots
+    {				  // TODO: Make better fix
+	while ( nrKnots()>0 )
+	{
+	    knots_.remove( 0 );
+	    dragger_->removeKnot( 0 );
+	}
+
+	for ( int idx=0; idx<uniquebids.size(); idx++ )
+	{
+	    const BinID sbid = snapPosition( uniquebids[idx] );
+	    if ( checkPosition(sbid) )
+	    {
+		knots_ += sbid;
+		dragger_->setKnot( knots_.size()-1, Coord(sbid.inl,sbid.crl) );
+	    }
+	}
+
+	triangles_->setDepthRange( getDataTraceRange() );
+	triangles_->setLineKnots( knots_ );	
+	if ( texture_ ) texture_->clearAll();
+	moving_.trigger();
+	return;
+    }
 
     for ( int idx=0; idx<uniquebids.size(); idx++ )
     {
