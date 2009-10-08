@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.8 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.9 2009-10-08 11:19:00 cvsbert Exp $";
 
 #include "uihorinterpol.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uihorinterpol.cc,v 1.8 2009-07-22 16:01:39 cvsb
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 
 uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
@@ -48,32 +49,47 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
 				 "Convex hull", "Only holes", 0 };
     geometrysel_ = new uiGenInput( this, "Geometry",
 	    			   StringListInpSpec( geometries ) );
+    geometrysel_->setText( geometries[2] );
+
     if ( inputhorsel_ ) geometrysel_->attach( alignedBelow, inputhorsel_ );
     interpolsel_ = new uiArray2DInterpolSel( this, false, true, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
     interpolsel_->attach( alignedBelow, geometrysel_ );
 
+    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    sep->attach( stretchedBelow, interpolsel_ );
+
+    uiGroup* attgrp = 0;
     if ( horizon_ )
     {
-	savefld_ = new uiGenInput( this, "Store interpolated horizon",
+	savefld_ = new uiGenInput( this, "Store after interpolation",
 				    BoolInpSpec(true) );
 	savefld_->attach( alignedBelow, interpolsel_ );
 	savefld_->valuechanged.notify(
 		mCB(this,uiHorizon3DInterpolDlg,saveChangeCB));
+	attgrp = savefld_;
     }
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
-    outputfld_->attach( alignedBelow, savefld_
-	    ? (uiParent*) savefld_ : (uiParent*) interpolsel_ );
+    if ( attgrp )
+	outputfld_->attach( alignedBelow, attgrp );
+    else
+	attgrp = outputfld_;
+
+    attgrp->attach( alignedBelow, interpolsel_ );
+    attgrp->attach( ensureBelow, sep );
 
     saveChangeCB( 0 );
 }
 
 
 uiHorizon3DInterpolDlg::~uiHorizon3DInterpolDlg()
-{ if ( horizon_ ) horizon_->unRef(); }
+{
+    if ( horizon_ )
+	horizon_->unRef();
+}
 
 
 const char* uiHorizon3DInterpolDlg::helpID() const

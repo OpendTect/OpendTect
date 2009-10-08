@@ -7,18 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.7 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.8 2009-10-08 11:19:00 cvsbert Exp $";
 
 #include "uiarray2dinterpol.h"
 
-#include "array2dinterpol.h"
 #include "array2dinterpolimpl.h"
-#include "datainpspec.h"
 #include "uigeninput.h"
+#include "uibutton.h"
 #include "uimsg.h"
-#include "uiseparator.h"
 
-mImplFactory1Param( uiArray2DInterpol, uiParent*,uiArray2DInterpolSel::factory);
+mImplFactory1Param(uiArray2DInterpol,uiParent*,uiArray2DInterpolSel::factory);
 
 
 uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
@@ -276,25 +274,22 @@ uiArray2DInterpol* uiInverseDistanceArray2DInterpol::create( uiParent* p )
 
 uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     : uiArray2DInterpol( p, "Inverse distance" )
+    , nrsteps_(mUdf(int))
+    , cornersfirst_(false)
+    , stepsz_(1)
 {
-    searchradiusfld_ = new  uiGenInput( this, 0, FloatInpSpec() );
-    searchradiusfld_->setWithCheck( true );
-    searchradiusfld_->setChecked( true );
-    searchradiusfld_->checked.notify(
+    radiusfld_ = new  uiGenInput( this, 0, FloatInpSpec() );
+    radiusfld_->setWithCheck( true );
+    radiusfld_->setChecked( true );
+    radiusfld_->checked.notify(
 	    mCB(this,uiInverseDistanceArray2DInterpol,useRadiusCB));
 
-    cornersfirstfld_ = new  uiGenInput( this, "Compute corners first",
-					BoolInpSpec(false) );
-    cornersfirstfld_->attach( alignedBelow, searchradiusfld_ );
-    stepsizefld_ = new uiGenInput( this, "Step size",
-	    			   IntInpSpec(1) );
-    stepsizefld_->attach( alignedBelow, cornersfirstfld_ );
+    parbut_ = new uiPushButton( this, "&Parameters", 
+		    mCB(this,uiInverseDistanceArray2DInterpol,doParamDlg),
+		    false );
+    parbut_->attach( rightOf, radiusfld_ );
 
-    nrstepsfld_ = new uiGenInput( this, "[Nr steps]",
-	    			  IntInpSpec() );
-    nrstepsfld_->attach( alignedBelow, stepsizefld_ );
-    setHAlignObj( nrstepsfld_ );
-
+    setHAlignObj( radiusfld_ );
     setDistanceUnit( 0 );
     useRadiusCB( 0 );
 }
@@ -302,29 +297,26 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
 
 void uiInverseDistanceArray2DInterpol::useRadiusCB( CallBacker* )
 {
-    const bool hasradius = searchradiusfld_->isChecked();
-    cornersfirstfld_->display( hasradius );
-    stepsizefld_->display( hasradius );
-    nrstepsfld_->display( hasradius );
+    parbut_->display( radiusfld_->isChecked() );
 }
 
 
-void uiInverseDistanceArray2DInterpol::setValuesFrom(const Array2DInterpol& a)
+void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
 {
     mDynamicCastGet(const InverseDistanceArray2DInterpol*, ptr, &a );
     if ( !ptr )
 	return;
 
     if ( mIsUdf( ptr->getSearchRadius() ) )
-	searchradiusfld_->setChecked( false );
+	radiusfld_->setChecked( false );
     else
     {
-	searchradiusfld_->setChecked( true );
-	searchradiusfld_->setValue( ptr->getSearchRadius() );
+	radiusfld_->setChecked( true );
+	radiusfld_->setValue( ptr->getSearchRadius() );
 
-	nrstepsfld_->setValue( ptr->getNrSteps() );
-	cornersfirstfld_->setValue( ptr->getCornersFirst() );
-	stepsizefld_->setValue( ptr->getStepSize() );
+	nrsteps_ = ptr->getNrSteps();
+	cornersfirst_ = ptr->getCornersFirst();
+	stepsz_ = ptr->getStepSize();
     }
 }
 
@@ -338,48 +330,95 @@ void uiInverseDistanceArray2DInterpol::setDistanceUnit( const char* d )
 	res += d;
     }
 
-    searchradiusfld_->setTitleText( res.buf() );
+    radiusfld_->setTitleText( res.buf() );
 }
 
-bool uiInverseDistanceArray2DInterpol::acceptOK()
-{
-    if ( result_ ) { delete result_; result_ = 0; }
 
-    const bool hasradius = searchradiusfld_->isChecked();
-    const float searchradius = searchradiusfld_->getfValue( 0 );
+class uiInvDistA2DInterpolPars : public uiDialog
+{
+public:
+
+uiInvDistA2DInterpolPars( uiInverseDistanceArray2DInterpol* p )
+    : uiDialog(p,Setup("Inverse distance - parameters",
+		"Inverse distance with search radius",p->helpID()) )
+    , a2di_(*p)
+{
+    cornersfirstfld_ = new  uiGenInput( this, "Compute corners first",
+					BoolInpSpec(a2di_.cornersfirst_) );
+
+    stepsizefld_ = new uiGenInput( this, "Step size",
+	    			   IntInpSpec(a2di_.stepsz_) );
+    stepsizefld_->attach( alignedBelow, cornersfirstfld_ );
+
+    nrstepsfld_ = new uiGenInput( this, "[Nr steps]",
+	    			  IntInpSpec(a2di_.nrsteps_) );
+    nrstepsfld_->attach( alignedBelow, stepsizefld_ );
+}
+
+bool acceptOK( CallBacker* )
+{
     const int stepsize = stepsizefld_->getIntValue( 0 );
     const int nrsteps = nrstepsfld_->getIntValue( 0 );
 
-    if ( hasradius )
+    if ( mIsUdf(stepsize) || stepsize<1 )
     {
-	if ( mIsUdf(searchradius) || searchradius<=0 ||
-	     mIsUdf(stepsize) || stepsize<1 )
-	{
-	    uiMSG().error(
-		    "Search radius and Step size must set and be more than"
-		    " zero" );
-	    return false;
-	}
+	uiMSG().error( "Step size must set and > 0. In doubt, use 1." );
+	return false;
+    }
+    if ( (!mIsUdf(nrsteps) && nrsteps<1 ) )
+    {
+	uiMSG().error( "Nr steps must be > 0. In doubt, leave empty." );
+	return false;
+    }
 
-	if ( (!mIsUdf(nrsteps) && nrsteps<1 ) )
-	{
-	    uiMSG().error( "Nr steps must set and be more than zero" );
-	    return false;
-	}
+    a2di_.cornersfirst_ = cornersfirstfld_->getBoolValue();
+    a2di_.stepsz_ = stepsize;
+    a2di_.nrsteps_ = nrsteps;
+    return true;
+}
+
+    uiInverseDistanceArray2DInterpol&	a2di_;
+    uiGenInput*				cornersfirstfld_;
+    uiGenInput*				stepsizefld_;
+    uiGenInput*				nrstepsfld_;
+
+};
+
+
+void uiInverseDistanceArray2DInterpol::doParamDlg( CallBacker* )
+{
+    uiInvDistA2DInterpolPars dlg( this );
+    dlg.go();
+}
+
+
+bool uiInverseDistanceArray2DInterpol::acceptOK()
+{
+    if ( result_ )
+	{ delete result_; result_ = 0; }
+
+    const bool hasradius = radiusfld_->isChecked();
+    const float radius = hasradius ? radiusfld_->getfValue(0) : mUdf(float);
+
+    if ( hasradius && (mIsUdf(radius) || radius<=0) )
+    {
+	uiMSG().error(
+		"Please enter a positive value for the search radius\n"
+		"(or uncheck the field)" );
+	return false;
     }
 
     InverseDistanceArray2DInterpol* res = new
 	InverseDistanceArray2DInterpol;
 
-    res->setSearchRadius( hasradius ? searchradius : mUdf(float) );
+    res->setSearchRadius( radius );
     if ( hasradius )
     {
-	res->setNrSteps( nrsteps );
-	res->setCornersFirst( cornersfirstfld_->getBoolValue( 0 ) );
-	res->setStepSize( stepsize );
+	res->setCornersFirst( cornersfirst_ );
+	res->setStepSize( stepsz_ );
+	res->setNrSteps( nrsteps_ );
     }
 
     result_ = res;
-
     return true;
 }

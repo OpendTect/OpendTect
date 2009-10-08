@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiarray2dinterpol.h,v 1.7 2009-08-27 09:58:39 cvsbert Exp $
+ RCS:           $Id: uiarray2dinterpol.h,v 1.8 2009-10-08 11:19:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,10 +78,11 @@ protected:
 mClass uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
 {
 public:
-    static void			initClass();
-    static uiArray2DInterpol*	create(uiParent*);
 
     				uiInverseDistanceArray2DInterpol(uiParent*);
+
+    static void			initClass();
+    static uiArray2DInterpol*	create(uiParent*);
 
     void			setValuesFrom(const Array2DInterpol&);
     bool			acceptOK();
@@ -91,12 +92,18 @@ public:
 
 protected:
 
-    void			useRadiusCB(CallBacker*);
+    uiGenInput*			radiusfld_;
+    uiButton*			parbut_;
 
-    uiGenInput*			searchradiusfld_;
-    uiGenInput*			cornersfirstfld_;
-    uiGenInput*			stepsizefld_;
-    uiGenInput*			nrstepsfld_;
+    bool			cornersfirst_;
+    int				stepsz_;
+    int				nrsteps_;
+
+    void			useRadiusCB(CallBacker*);
+    void			doParamDlg(CallBacker*);
+
+    friend class		uiInvDistA2DInterpolPars;
+
 };
 
 #endif
