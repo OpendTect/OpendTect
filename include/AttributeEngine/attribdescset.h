@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.40 2009-08-31 10:20:31 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.41 2009-10-08 07:10:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,8 @@ protected:
     TypeSet<DescID>		ids_;
     bool			is2d_;
     BufferString		errmsg_;
+    mutable BufferString	defidstr_;
+    mutable DescID		defattribid_;
 
 private:
 

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.85 2009-08-31 10:20:31 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.86 2009-10-08 07:10:09 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -52,6 +52,9 @@ DescID DescSet::ensureDefStoredPresent() const
     else
 	idstr = SI().pars().find( sKey::DefCube );
 
+    if ( defidstr_ == idstr && defattribid_ != DescID::undef() )
+	return defattribid_;
+
     if ( !idstr.isEmpty() )
     {
 	// Hack to get rid of 'old' IDs
@@ -68,6 +71,8 @@ DescID DescSet::ensureDefStoredPresent() const
 	       						 true );
     }
 
+    defidstr_ = idstr;
+    defattribid_ = retid;
     return retid;
 }
 
