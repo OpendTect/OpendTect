@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.123 2009-09-22 16:39:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.124 2009-10-09 21:11:36 cvskris Exp $";
 
 #include "emhorizon3d.h"
 
@@ -310,24 +310,38 @@ mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword() );
 Array2D<float>* Horizon3D::createArray2D( 
 		    SectionID sid, const ZAxisTransform* zaxistransform ) const
 {
-    if ( geometry().sectionGeometry( sid )->isEmpty() )
+    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+    if ( !geom || geom->isEmpty() )
 	return 0;
 
-    const StepInterval<int> rowrg = geometry_.rowRange( sid );
-    const StepInterval<int> colrg = geometry_.colRange( sid );
-
-    Array2DImpl<float>* arr =
-	    new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    Array2DImpl<float>* arr = 0;
+    if ( zaxistransform || !geom->getArray() )
     {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	{
-	    Coord3 pos = getPos( sid, RowCol(row,col).getSerialized() );
-	    if ( zaxistransform )
-		pos.z = zaxistransform->transform( pos );
+	const StepInterval<int> rowrg = geom->rowRange();
+	const StepInterval<int> colrg = geom->colRange();
 
-	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
+	arr = new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
+	if ( arr && arr->isOK() )
+	{
+	    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+	    {
+		for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+		{
+		    Coord3 pos = geom->getKnot( RowCol(row,col), false );
+		    pos.z = zaxistransform->transform( pos );
+
+		    arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
+		}
+	    }
 	}
+    }
+    else
+	arr = new Array2DImpl<float>( *geom->getArray() );
+
+    if ( arr && !arr->isOK() )
+    {
+	delete arr;
+	arr = 0;
     }
 
     return arr;
