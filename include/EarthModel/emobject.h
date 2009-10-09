@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.89 2009-08-06 01:57:41 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.90 2009-10-09 21:26:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,8 @@ public:
     			/*!<posid.objectID()==-1 when there are no more pids*/
     virtual int		approximateSize() const	{ return maximumSize(); }
     virtual int		maximumSize() const	{ return -1; }
+    virtual bool	canGoTo() const		{ return false; }
+    virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(-1,-1,-1); }
 };
 
 
