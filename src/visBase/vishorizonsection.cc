@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.92 2009-10-01 21:59:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.93 2009-10-09 13:25:05 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -2269,12 +2269,9 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 
 	for ( int res=0; res<mHorSectNrRes; res++ )
 	{
-	    if ( needsretesselation_[res]!=mMustRetesselate &&
+	    if ( newstatus>needsretesselation_[res] &&
 		    !(row%spacing_[res]) && !(col%spacing_[res]) )
-	    {
-		if ( newstatus>needsretesselation_[res] )
-		    needsretesselation_[res] = newstatus;
-	    }
+		needsretesselation_[res] = newstatus;
 	}
 
 	glueneedsretesselation_ = true;
