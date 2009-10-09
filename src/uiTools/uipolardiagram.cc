@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipolardiagram.cc,v 1.3 2009-10-07 15:57:25 cvskarthika Exp $";
+static const char* rcsID = "$Id: uipolardiagram.cc,v 1.4 2009-10-09 08:15:59 cvskarthika Exp $";
 
 #include "uipolardiagram.h"
 #include "uigraphicsscene.h"
@@ -23,7 +23,7 @@ uiPolarDiagram::uiPolarDiagram( uiParent* p )
     , center_(uiPoint(5, 5))
     , radius_(1)
     , azimuth_(0)
-    , dip_(0)		
+    , dip_(90)		
 {
     disableScrollZoom();
     setPrefWidth( 300 );
