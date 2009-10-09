@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emhor2dseisiter.cc,v 1.1 2009-10-09 08:39:25 cvsbert Exp $";
+static const char* rcsID = "$Id: emhor2dseisiter.cc,v 1.2 2009-10-09 12:03:00 cvsbert Exp $";
 
 #include "emhor2dseisiter.h"
 
@@ -23,20 +23,33 @@ static const char* rcsID = "$Id: emhor2dseisiter.cc,v 1.1 2009-10-09 08:39:25 cv
 #define mGetEMObjPtr(mid) EM::EMM().getObject( EM::EMM().getObjectID(mid) )
 
 
+EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const EM::Horizon2D& h2d )
+    : nrlines_(0)
+{
+    init( &h2d );
+}
+
+
 EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const MultiID& mid )
-    : h2d_(0)
-    , stickidx_(-1)
-    , lset_(0)
-    , curlsid_("0")
-    , nrsticks_(0)
+    : nrlines_(0)
 {
     EM::EMObject* emobj = mGetEMObjPtr( mid );
     mDynamicCastGet(EM::Horizon2D*,h2d,emobj)
-    if ( !h2d ) return;
+    init( h2d );
+}
+
+
+void EM::Hor2DSeisLineIterator::init( const Horizon2D* h2d )
+{
+    lset_ = 0; curlsid_ = "0"; lineidx_ = -1;
+
     h2d_ = h2d;
-    h2d_->ref();
-    geom_ = &h2d_->geometry();
-    const_cast<int&>(nrsticks_) = geom_->nrLines();
+    if ( h2d_ )
+    {
+	h2d_->ref();
+	geom_ = &h2d_->geometry();
+	const_cast<int&>(nrlines_) = geom_->nrLines();
+    }
 }
 
 
@@ -50,20 +63,20 @@ EM::Hor2DSeisLineIterator::~Hor2DSeisLineIterator()
 
 bool EM::Hor2DSeisLineIterator::next()
 {
-    stickidx_++;
-    if ( stickidx_ < nrsticks_ )
+    lineidx_++;
+    if ( lineidx_ < nrlines_ )
 	getLineSet();
     return isValid();
 }
 
 bool EM::Hor2DSeisLineIterator::isValid() const
 {
-    return h2d_ && stickidx_ >= 0 && stickidx_ < nrsticks_;
+    return h2d_ && lineidx_ >= 0 && lineidx_ < nrlines_;
 }
 
 void EM::Hor2DSeisLineIterator::reset()
 {
-    stickidx_ = -1;
+    lineidx_ = -1;
 }
 
 void EM::Hor2DSeisLineIterator::getLineSet()
@@ -71,7 +84,7 @@ void EM::Hor2DSeisLineIterator::getLineSet()
     if ( !isValid() )
 	{ delete lset_; lset_ = 0; return; }
 
-    const int lineid = geom_->lineID( stickidx_ );
+    const int lineid = geom_->lineID( lineidx_ );
     const MultiID& lsid = geom_->lineSet( geom_->lineID(lineid) );
     if ( !lset_ || lsid != curlsid_ )
     {
@@ -89,10 +102,25 @@ void EM::Hor2DSeisLineIterator::getLineSet()
 
 int EM::Hor2DSeisLineIterator::lineID() const
 {
-    return stickidx_ >= 0 ? geom_->lineID(stickidx_) : -1;
+    return lineidx_ >= 0 ? geom_->lineID(lineidx_) : -1;
 }
 
 const char* EM::Hor2DSeisLineIterator::lineName() const
 {
     return isValid() ? geom_->lineName( lineID() ) : 0;
+}
+
+
+int EM::Hor2DSeisLineIterator::lineSetIndex( const char* attrnm ) const
+{
+    if ( !isValid() || !lset_ ) return -1;
+
+    const LineKey lk( lineName(), attrnm );
+    for ( int iln=0; iln<lset_->nrLines(); iln++ )
+    {
+	if ( lset_->lineKey(iln) == lk )
+	    return iln;
+    }
+
+    return -1;
 }
