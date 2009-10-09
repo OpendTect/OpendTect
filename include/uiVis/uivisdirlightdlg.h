@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.6 2009-10-07 15:59:12 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.7 2009-10-09 08:18:06 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ protected:
     void			updateWidgetValues(bool);
     void			showWidgets(bool);
     void			validateInput();
+    bool			isInSync();
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
