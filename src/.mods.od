@@ -14,6 +14,7 @@ PreStackProcessing
 Velocity
 VolumeProcessing
 Attributes
+EMAttrib
 MPEEngine
 Well
 uiBase
