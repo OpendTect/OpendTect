@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.6 2009-10-07 15:58:48 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.7 2009-10-09 08:17:36 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -40,7 +40,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     , valchgd_(false)      
     , pd_(new uiPolarDiagram(this))
     , initazimuthval_(0)
-    , initdipval_(0)
+    , initdipval_(90)
     , initintensityval_(100)
     , initheadonval_(100)
 {
@@ -82,7 +82,9 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     intensityfld_->sldr()->setValue( initintensityval_ );
     intensityfld_->sldr()->valueChanged.notify( chgCB ); 
 
-    pd_->attach( alignedBelow, intensityfld_ );
+    pd_->attach( hCentered, intensityfld_ );
+    pd_->attach( ensureBelow, intensityfld_ );
+    pd_->attach( widthSameAs, intensityfld_ );
     pd_->setValues( initazimuthval_, initdipval_ );
     pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
 
@@ -371,12 +373,18 @@ bool uiDirLightDlg::rejectOK( CallBacker* )
 }
 
 
-void uiDirLightDlg::fieldChangedCB( CallBacker* )
+void uiDirLightDlg::fieldChangedCB( CallBacker* c )
 {
-    setDirLight();
-    if ( pd_ )
+    if ( !pd_ )
+    	setDirLight();
+
+    // do the work only if this is not called by setValue of polarDiagramCB
+    else if ( !pd_->hasFocus() )
+    {
 	pd_->setValues( azimuthfld_->sldr()->getValue(), 
 		dipfld_->sldr()->getValue() );
+        setDirLight();
+    }
 }
 
 
@@ -389,6 +397,21 @@ void uiDirLightDlg::polarDiagramCB( CallBacker* )
     dipfld_->sldr()->setValue( dip );
 
     setDirLight();
+}
+
+
+bool uiDirLightDlg::isInSync()
+{
+    if ( pd_ )
+    {
+	float az, dip;
+	pd_->getValues( &az, &dip );
+	if ( az != azimuthfld_->sldr()->getValue() ||
+	     dip != dipfld_->sldr()->getValue() )
+	    return false;
+    }
+
+    return true;
 }
 
 
