@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.7 2009-10-09 08:17:36 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.8 2009-10-11 01:18:09 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -210,7 +210,7 @@ void uiDirLightDlg::updateWidgetValues( bool reset )
 	s = toString(intensityfld_->sldr()->getValue() );
 	pErrMsg(s);
 
-	//pd_->setValues( azimuth, dip );
+	pd_->setValues( azimuth, dip );
 
         if ( reset )
         {
@@ -278,11 +278,7 @@ void uiDirLightDlg::setHeadOnLight()
     if  ( !sceneids_.size() )
 	return;
 
-    float intensity = headonintensityfld_->sldr()->getValue();
-    if ( ( intensity < 0 ) || ( intensity > 100 ) )
-	headonintensityfld_->sldr()->setValue( 100 );
-    intensity = headonintensityfld_->sldr()->getValue() / 100;
-
+    float intensity = getHeadOnIntensity();
     const bool lightall = scenefld_->box()->currentItem()==0;
     
     for ( int idx=0; idx<sceneids_.size(); idx++ )
@@ -295,7 +291,7 @@ void uiDirLightDlg::setHeadOnLight()
 	if ( !scene )
 	    continue;
 
-	scene->setAmbientLight( intensity );
+	visserv_->sendSetHeadOnIntensityEvent( sceneids_[idx], intensity );
     }
 }
 
@@ -304,7 +300,8 @@ float uiDirLightDlg::getHeadOnLight( int sceneidx ) const
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    visBase::DM().getObject(sceneids_[sceneidx]));
-    return (scene) ? scene->ambientLight() * 100 : 0;
+    return (scene) ? 
+	visserv_->sendGetHeadOnIntensityEvent( sceneids_[sceneidx] ) * 100 : 0;
 }
 
 
@@ -453,12 +450,17 @@ void uiDirLightDlg::showWidgets( bool showAll )
 
 float uiDirLightDlg::getHeadOnIntensity() const
 {
-    return 0;
+    float intensity = headonintensityfld_->sldr()->getValue();
+    if ( ( intensity < 0 ) || ( intensity > 100 ) )
+	headonintensityfld_->sldr()->setValue( 100 );
+    return headonintensityfld_->sldr()->getValue() / 100;
 }
 
 
-void uiDirLightDlg::setHeadOnIntensity(float)
+void uiDirLightDlg::setHeadOnIntensity( float value )
 {
+    if ( ( value >= 0 ) && ( value <= 1.0) )
+	headonintensityfld_->sldr()->setValue( value * 100 );
 }
 
 
