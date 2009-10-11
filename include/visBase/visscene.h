@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.19 2009-09-21 07:10:27 cvskarthika Exp $
+ RCS:		$Id: visscene.h,v 1.20 2009-10-11 01:20:06 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,6 @@ public:
     float		ambientLight() const;
 
     void		setDirectionalLight(const DirectionalLight&);
-    void		setDirectionalLight(int, int, float);
     DirectionalLight*	getDirectionalLight() const;
 
     bool		blockMouseSelection(bool yn);
