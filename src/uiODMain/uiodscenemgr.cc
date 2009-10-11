@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.185 2009-10-05 15:55:30 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.186 2009-10-11 01:11:11 cvskarthika Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1078,6 +1078,18 @@ void uiODSceneMgr::doDirectionalLight(CallBacker*)
     visServ().setDirectionalLight();
 }
 
+
+float uiODSceneMgr::getHeadOnLightIntensity( int sceneid )
+{
+    return getSoViewer( sceneid )->getHeadOnLightIntensity();
+}
+
+
+void uiODSceneMgr::setHeadOnLightIntensity( int sceneid, float value )
+{
+    const_cast <uiSoViewer*> (getSoViewer( sceneid ))->
+	setHeadOnLightIntensity( value );
+}
 
 uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
         : lv_(0)
