@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.251 2009-10-02 15:48:34 cvskarthika Exp $
+ RCS:           $Id: uivispartserv.h,v 1.252 2009-10-11 01:14:44 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -286,7 +286,7 @@ public:
 
     				// Headon intensity event-related
     float			sendGetHeadOnIntensityEvent(int sceneid);
-    void			sendSetHeadOnIntensityEvent(int scenid, 
+    void			sendSetHeadOnIntensityEvent(int sceneid, 
 	    						    float val);
     float			getHeadOnIntensity() const;
     void			setHeadOnIntensity(float val);
