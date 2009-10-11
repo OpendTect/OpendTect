@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.69 2009-10-05 15:55:38 cvskarthika Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.70 2009-10-11 01:12:55 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,9 @@ public:
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
     void			setViewSelectMode(int);
+
+    float			getHeadOnLightIntensity(int);
+    void 			setHeadOnLightIntensity(int, float);
 
 protected:
 
