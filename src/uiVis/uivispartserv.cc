@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.437 2009-10-02 15:44:53 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.438 2009-10-11 01:15:54 cvskarthika Exp $";
 
 #include "uivispartserv.h"
 
@@ -1136,10 +1136,10 @@ float uiVisPartServer::sendGetHeadOnIntensityEvent( int sceneid )
 }
 
 
-void uiVisPartServer::sendSetHeadOnIntensityEvent( int scenid, float val )
+void uiVisPartServer::sendSetHeadOnIntensityEvent( int sceneid, float val )
 {
     eventmutex_.lock();
-    eventobjid_ = scenid;
+    eventobjid_ = sceneid;
     sendEvent( evSetHeadOnIntensity() );
 }
 
