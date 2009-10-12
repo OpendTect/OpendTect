@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.6 2009-09-22 16:41:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.7 2009-10-12 03:57:11 cvsnanne Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -18,10 +18,11 @@ static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.6 2009-09-22 16:41:11 
 #include "emmanager.h"
 #include "isocontourtracer.h"
 #include "linear.h"
+#include "mousecursor.h"
 #include "polygon.h"
 #include "survinfo.h"
 
-#include "mousecursor.h"
+#include "uidialog.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistview.h"
@@ -43,48 +44,39 @@ static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.6 2009-09-22 16:41:11 
 
 static const int cMinNrNodesForLbl = 25;
 
-mClass uiContourParsDlg : public LineStyleDlg
+class uiContourParsDlg : public uiDialog
 {
 public:
 uiContourParsDlg( uiParent* p, const Interval<float>& rg,
-       		  const SamplingData<int>& sd, const LineStyle& ls )
-    : LineStyleDlg(p,ls,"Specify Contour Parameters",false,true,true)
+       		  const StepInterval<float>& intv, const LineStyle& ls )
+    : uiDialog(p,Setup("Contour Display Options",mNoDlgTitle,"104.3.2")
+		 .nrstatusflds(1))
     , rg_(rg)
-    , sd_(sd)
+    , contourintv_(intv)
     , propertyChanged(this)
 {
-    setCaption( "Contour Display Options" );
-    setTitleText( mNoDlgTitle );
-    setHelpID( "104.3.2" );
-    BufferString lbltxt = "Z Range "; lbltxt += SI().getZUnitString();
-    lbltxt += ": "; lbltxt += mNINT( rg.start );
-    lbltxt += " to "; lbltxt += mNINT( rg.stop );
+    BufferString lbltxt = "Total Z Range "; lbltxt += SI().getZUnitString();
+    lbltxt += ": "; lbltxt += rg.start;
+    lbltxt += " - "; lbltxt += rg.stop;
     uiLabel* lbl = new uiLabel( this, lbltxt.buf() );
 
-    stepfld_ = new uiGenInput( this, "Contour step", IntInpSpec(sd.step) );
-    stepfld_->valuechanged.notify( mCB(this,uiContourParsDlg,stepChanged) );
-    lbl->attach( leftAlignedAbove, stepfld_ );
+    lbltxt = "Contour range "; lbltxt += SI().getZUnitString();
+    intvfld_ = new uiGenInput( this, lbltxt, FloatInpIntervalSpec(intv) );
+    intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );
+    intvfld_->attach( leftAlignedBelow, lbl );
 
-    startfld_ = new uiGenInput( this, "First contour", IntInpSpec(sd.start) );
-    startfld_->valuechanged.notify( mCB(this,uiContourParsDlg,startChanged) );
-    startfld_->attach( alignedBelow, stepfld_ );
+    lsfld_ = new uiSelLineStyle( this, ls, 0, false, true, true );
+    lsfld_->attach( alignedBelow, intvfld_ );
+    lsfld_->changed.notify( mCB(this,uiContourParsDlg,lsChanged) );
 
-    nrcontourlbl_ = new uiLabel( this, "Number of contours" );
-    nrcontourlbl_->setPrefWidthInChar( 25 );
-    nrcontourlbl_->attach( leftAlignedBelow, startfld_ );
-
-    lsfld->attach( alignedBelow, startfld_ );
-    lsfld->attach( ensureBelow, nrcontourlbl_ );
-    lsfld->changed.notify( mCB(this,uiContourParsDlg,lsChanged) );
-
-    stepChanged( 0 );
+    intvChanged( 0 );
 }
 
-SamplingData<int> getContourSampling() const
-{
-    SamplingData<int> sd( startfld_->getIntValue(), stepfld_->getIntValue() );
-    return sd;
-}
+const LineStyle& getLineStyle() const
+{ return lsfld_->getStyle(); }
+
+StepInterval<float> getContourInterval() const
+{ return intvfld_->getFStepInterval(); }
 
     Notifier<uiContourParsDlg>	propertyChanged;
 
@@ -95,42 +87,34 @@ void lsChanged( CallBacker* )
     propertyChanged.trigger();
 }
 
-void stepChanged( CallBacker* cb )
+void intvChanged( CallBacker* cb )
 {
-    const int step = stepfld_->getIntValue();
-    if ( step < 1 || step > (int)rg_.width() )
+    StepInterval<float> intv = intvfld_->getFStepInterval();
+    if ( intv.start < rg_.start || intv.start > rg_.stop )
+	intvfld_->setValue( contourintv_.start, 0 );
+    if ( intv.stop < rg_.start || intv.stop > rg_.stop )
+	intvfld_->setValue( contourintv_.stop, 1 );
+
+    if ( intv.step <= 0 || intv.step > rg_.width() )
     {
 	if ( cb )
 	    uiMSG().error( "Please specify a valid value for step" );
 
-	stepfld_->setValue( sd_.step );
+	intvfld_->setValue( contourintv_.step, 2 );
 	return;
     }
 
-    const int start = startfld_->getIntValue();
-    const int nrcontours = ( (int)rg_.stop - start ) / step + 1;
-    BufferString lbltxt( "Number of contours: " );
-    lbltxt += nrcontours;
-    nrcontourlbl_->setText( lbltxt.buf() );
-    sd_.step = step;
-}
+    intv = intvfld_->getFStepInterval();
+    contourintv_.step = intv.step;
 
-void startChanged( CallBacker* )
-{
-    const int start = startfld_->getIntValue();
-    if ( start < rg_.start )
-	startfld_->setValue( ceil(rg_.start) );
-    else if ( start > rg_.stop )
-	startfld_->setValue( (int)rg_.stop );
-
-    stepChanged( 0 );
+    BufferString txt( "Number of contours: ", intv.nrSteps()+1 );
+    toStatusBar( txt );
 }
 
     Interval<float>	rg_;
-    SamplingData<int>	sd_;
-    uiGenInput*		startfld_;
-    uiGenInput*		stepfld_;
-    uiLabel*		nrcontourlbl_;
+    StepInterval<float>	contourintv_;
+    uiGenInput*		intvfld_;
+    uiSelLineStyle*	lsfld_;
 };
 
 
@@ -179,7 +163,6 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , linewidth_( 1 )
     , arr_( 0 )
     , rg_(mUdf(float),-mUdf(float))
-    , contoursampling_(-1,-1)
 {
     ODMainWin()->applMgr().visServer()->removeAllNotifier().notify(
 	    mCB(this,uiContourTreeItem,visClosingCB) );
@@ -307,18 +290,20 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 
     menu->setIsHandled( true );
     const float fac = SI().zFactor();
-    Interval<float> range( rg_.start*fac, rg_.stop*fac );
-    uiContourParsDlg dlg( ODMainWin(), range, contoursampling_,
+    Interval<float> range( rg_.start, rg_.stop ); range.scale( fac );
+    StepInterval<float> intv( contourintv_ ); intv.scale( fac );
+    uiContourParsDlg dlg( ODMainWin(), range, intv,
 	    		  LineStyle(LineStyle::Solid,linewidth_,color_) );
     dlg.propertyChanged.notify( mCB(this,uiContourTreeItem,propChangeCB) );
     const bool res = dlg.go();
     dlg.propertyChanged.remove( mCB(this,uiContourTreeItem,propChangeCB) );
     if ( !res ) return;
 
-    SamplingData<int> sd = dlg.getContourSampling();
-    if ( sd != contoursampling_ )
+    intv = dlg.getContourInterval();
+    intv.scale( 1/fac );
+    if ( intv != contourintv_ )
     {
-	contoursampling_ = sd;
+	contourintv_ = intv;
 	computeContours();
     }
 }
@@ -393,22 +378,27 @@ void uiContourTreeItem::computeContours()
 	    sd.start -= nrsteps * sd.step;
 	}
 
-	contoursampling_.start = mNINT( sd.start * fac );
-	contoursampling_.step = mNINT( sd.step * fac );
+	contourintv_.start = sd.start;
+	contourintv_.stop = rg_.stop;
+	contourintv_.step = sd.step;
+	const int nrsteps = contourintv_.nrSteps();
+	contourintv_.stop = sd.start + nrsteps*sd.step;
     }
 
-    if ( contoursampling_.start < 0 || contoursampling_.step < 0 )
+    if ( contourintv_.step <= 0 )
 	return;
 
+    const char* fmt = SI().zIsTime() ? "%g" : "%f";
     int cii = 0;
-    float contourval = contoursampling_.start;
+    float contourval = contourintv_.start;
     lines_->getCoordinates()->removeAfter( -1 );
     lines_->removeCoordIndexAfter( -1 );
     removeLabels();
-    while ( contourval < rg_.stop*fac )
+    const float maxcontourval = mMIN(contourintv_.stop,rg_.stop);
+    while ( contourval < maxcontourval+mDefEps )
     {
 	ObjectSet<ODPolygon<float> > isocontours;
-	ictracer.getContours( isocontours, contourval/fac, false );
+	ictracer.getContours( isocontours, contourval, false );
 	for ( int cidx=0; cidx<isocontours.size(); cidx++ )
 	{
 	    const ODPolygon<float>& ic = *isocontours[cidx];
@@ -417,11 +407,11 @@ void uiContourTreeItem::computeContours()
 		const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 		Coord vrtxcoord( vertex.x, vertex.y );
 		vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
-		const Coord3 pos( vrtxcoord, contourval/fac );
+		const Coord3 pos( vrtxcoord, contourval );
 		const int posidx = lines_->getCoordinates()->addPos( pos );
 		lines_->setCoordIndex( cii++, posidx );
 		if ( ic.size() > cMinNrNodesForLbl  && vidx == ic.size()/2 )
-		    addText( pos, getStringFromInt(mNINT(contourval)) );
+		    addText( pos, getStringFromFloat(fmt,contourval*fac) );
 	    }
 	    
 	    if ( ic.isClosed() )
@@ -434,7 +424,7 @@ void uiContourTreeItem::computeContours()
 	}
 
 	deepErase( isocontours );
-	contourval += contoursampling_.step;
+	contourval += contourintv_.step;
     }
 
     lines_->getCoordinates()->removeAfter( cii-1 );

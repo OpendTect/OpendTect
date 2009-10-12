@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id: uicontourtreeitem.h,v 1.4 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:           $Id: uicontourtreeitem.h,v 1.5 2009-10-12 03:57:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ protected:
     Array2DImpl<int>*		arr_;
     TypeSet<BinID>		bids_;
     Interval<float>		rg_;
-    SamplingData<int>		contoursampling_;
+    StepInterval<float>		contourintv_;
 
     visBase::IndexedPolyLine*	lines_;
     visBase::DrawStyle*		drawstyle_;
