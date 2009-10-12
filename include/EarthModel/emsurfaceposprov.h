@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.9 2009-10-12 10:59:45 cvsumesh Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.10 2009-10-12 13:57:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -205,6 +205,9 @@ protected:
 
     DataPointSet&		dpssurf1_;
     DataPointSet&		dpssurf2_;
+
+    void			mkDPS(const EM::Surface&,DataPointSet&);
+
 };
 
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.13 2009-10-12 10:59:50 cvsumesh Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.14 2009-10-12 13:57:31 cvsbert Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -460,8 +460,8 @@ Pos::EMSurface2DProvider3D::~EMSurface2DProvider3D()
 
 Pos::EMSurface2DProvider3D::EMSurface2DProvider3D( 
 	const Pos::EMSurface2DProvider3D& p )
-    : dpssurf1_(*new DataPointSet(true,true))
-    , dpssurf2_(*new DataPointSet(true,true))
+    : dpssurf1_(*new DataPointSet(true,false))
+    , dpssurf2_(*new DataPointSet(true,false))
 {
     *this = p;
 }
@@ -477,93 +477,68 @@ Pos::EMSurface2DProvider3D& Pos::EMSurface2DProvider3D::operator =(
 }
 
 
-bool Pos::EMSurface2DProvider3D::initialize(TaskRunner* tr)
+void Pos::EMSurface2DProvider3D::mkDPS( const EM::Surface& s,
+					DataPointSet& dps )
 {
-    if ( !EMSurfaceProvider::initialize( tr ) )
-	return false;
-    
-    EM::PosID posid;
-    BinID binid;
-    DataPointSet::DataRow dr;
+    mDynamicCastGet(const EM::Horizon2D&,surf,s)
 
-    if ( !surf1_ ) return false;    
-    for ( int idx=0; idx<surf1_->nrSections(); idx++ )
+    DataPointSet::DataRow dr;
+    for ( int idx=0; idx<surf.nrSections(); idx++ )
     {
-	EM::RowColIterator it( *surf1_, surf1_->sectionID(idx) );
-	posid = it.next();
+	EM::RowColIterator it( surf, surf.sectionID(idx) );
+	EM::PosID posid = it.next();
 	while ( posid.objectID() != -1 )
 	{
-	    binid.setSerialized( posid.sectionID() );
-	    const Coord3 coord = surf1_->getPos( posid );
-	    dr.pos_.binid_ = SI().transform( coord );
-	    dr.pos_.set( SI().transform(coord), coord );
-	    dr.pos_.nr_ = binid.crl;
+	    const Coord3 coord = surf.getPos( posid );
+	    dr.pos_.set( coord );
 	    dr.pos_.z_ = coord.z;
-	    dr.setGroup( (short)binid.inl );
-	    dpssurf1_.addRow( dr ); 
+	    dr.pos_.nr_ = 0; //TODO find out the trace number
+	    dr.setGroup( 1 ); //TODO find out the line ID
+	    dps.addRow( dr ); 
 	}
     }
+}
 
-    if ( !surf2_ )
-    {
-	for ( int idx=0; idx<surf2_->nrSections(); idx++ )
-	{
-	    EM::RowColIterator it( *surf2_, surf2_->sectionID(idx) );
-	    posid = it.next();
-	    while ( posid.objectID() != -1 )
-	    {
-		binid.setSerialized( posid.sectionID() );
-		const Coord3 coord = surf2_->getPos( posid );
-		dr.pos_.binid_ = SI().transform( coord );
-		dr.pos_.set( SI().transform(coord), coord );
-		dr.pos_.nr_ = binid.crl;
-		dr.pos_.z_ = coord.z;
-		dr.setGroup( (short)binid.inl );
-		dpssurf2_.addRow( dr );
-	    }
-	}
-    }
+
+bool Pos::EMSurface2DProvider3D::initialize( TaskRunner* tr )
+{
+    if ( !EMSurfaceProvider::initialize(tr) || !surf1_ )
+	return false;
+
+    mkDPS( *surf1_, dpssurf1_ );
+    if ( surf2_ )
+	mkDPS( *surf2_, dpssurf2_ );
     return true;
 }
 
 
 BinID Pos::EMSurface2DProvider3D::curBinID() const
 {
-    BinID bid;
-    if ( surf1_ )
-	bid = SI().transform( surf1_->getPos(curpos_) );
-
-    return bid;
+    return !surf1_ ? BinID(0,0) : SI().transform( surf1_->getPos(curpos_) );
 }
 
 
-bool Pos::EMSurface2DProvider3D::includes(const BinID& bid, float z ) const
+bool Pos::EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
 {
     if ( !surf1_ )
-	return true;
-
-    Interval<float> zrg;
-    const Coord crd1 = dpssurf1_.coord( dpssurf1_.findFirst(bid) );
-    if ( !crd1.isDefined() )
 	return false;
 
+    const DataPointSet::RowID rid1 = dpssurf1_.findFirst( bid );
+    if ( rid1 < 0 )
+	return false;
+    DataPointSet::RowID rid2 = -1;
     if ( surf2_ )
     {
-	const Coord crd2 = dpssurf2_.coord( dpssurf2_.findFirst(bid) );
-	if ( !crd2.isDefined() )
+	rid2 = dpssurf2_.findFirst( bid );
+	if ( rid2 < 0 )
 	    return false;
-
-	zrg.start = dpssurf1_.z( dpssurf1_.findFirst(bid) ); 
-	zrg.stop = dpssurf2_.z( dpssurf2_.findFirst(bid) );
-	zrg.sort();
-    }
-    else
-    {
-	zrg.start = dpssurf1_.z( dpssurf1_.findFirst(bid) ) - SI().zStep()/2;
-	zrg.stop = dpssurf1_.z( dpssurf1_.findFirst(bid) ) + SI().zStep()/2;
     }
 
+    Interval<float> zrg( dpssurf1_.z(rid1), 0 ); zrg.stop = zrg.start;
+    if ( rid2 >= 0 )
+	zrg.include( dpssurf2_.z(rid2), false );
     zrg += extraz_;
+    zrg.widen( SI().zStep() * .5, false );
     return zrg.includes( z );
 }
 
