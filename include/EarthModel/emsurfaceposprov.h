@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.8 2009-10-06 05:15:50 cvsumesh Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.9 2009-10-12 10:59:45 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "horsampling.h"
 #include "multiid.h"
+
+class DataPointSet;
 
 namespace EM { class RowColIterator; class Surface; }
 
@@ -171,6 +173,38 @@ public:
 
     mEMSurfaceProviderDefFnsBase
 
+};
+
+
+/* !\brief EMSurfaceProvider for 3D positions with 2D Horizon */
+
+mClass EMSurface2DProvider3D : public Provider3D
+			    , public EMSurfaceProvider
+{
+public:
+    				EMSurface2DProvider3D();
+				EMSurface2DProvider3D(
+					const EMSurface2DProvider3D& p );
+				//{ *this = p; }
+				~EMSurface2DProvider3D();
+    EMSurface2DProvider3D&	operator =( const EMSurface2DProvider3D& p );
+				//{ copyFrom(p); return *this; }
+    virtual bool		initialize(TaskRunner* tr=0);
+    Provider*			clone() const
+				{ return new EMSurface2DProvider3D(*this); }
+
+    virtual BinID       	curBinID() const;
+    virtual bool		includes(const BinID&,float) const;
+    virtual void		getExtent(BinID&,BinID&) const;
+    virtual Coord		curCoord() const 
+    				{ return Provider3D::curCoord(); }
+
+    mEMSurfaceProviderDefFnsBase
+
+protected:
+
+    DataPointSet&		dpssurf1_;
+    DataPointSet&		dpssurf2_;
 };
 
 
