@@ -7,21 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.16 2009-08-19 08:21:10 cvsbert Exp $
+ RCS:           $Id: uiwellman.h,v 1.17 2009-10-12 12:32:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
-
 class uiListBox;
-
+class uiButton;
+class uiGroup;
 namespace Well { class Data; class Reader; };
 
-
-/*! \brief
-Well manager
-*/
 
 mClass uiWellMan : public uiObjFileMan
 {
@@ -29,9 +25,14 @@ public:
     				uiWellMan(uiParent*);
 				~uiWellMan();
 
+    static Notifier<uiWellMan>	FieldsCreated;
+    void			addTool(uiButton*);
+
 protected:
 
     uiListBox*			logsfld_;
+    uiGroup*			logsgrp_;
+    uiButton*			lastexternal_;
 
     Well::Data*			curwd_;
     Well::Reader*		currdr_;

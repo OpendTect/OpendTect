@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.58 2009-08-19 08:21:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.59 2009-10-12 12:32:31 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -46,6 +46,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.58 2009-08-19 08:21:10 cvsbert
 #include "uiwelllogcalc.h"
 #include "uiwellmarkerdlg.h"
 
+Notifier<uiWellMan> uiWellMan::FieldsCreated(0);
 
 uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Well file management","Manage wells",
@@ -54,16 +55,17 @@ uiWellMan::uiWellMan( uiParent* p )
     , curwd_(0)
     , currdr_(0)
     , curfnm_("")
+    , lastexternal_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
-    uiGroup* logsgrp = new uiGroup( this, "Logs group" );
-    uiLabel* lbl = new uiLabel( logsgrp, "Logs" );
-    logsfld_ = new uiListBox( logsgrp, "Available logs", true );
+    logsgrp_ = new uiGroup( this, "Logs group" );
+    uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
+    logsfld_ = new uiListBox( logsgrp_, "Available logs", true );
     logsfld_->attach( alignedBelow, lbl );
 
-    uiButtonGroup* logsbgrp = new uiButtonGroup( logsgrp, "Logs buttons",
+    uiButtonGroup* logsbgrp = new uiButtonGroup( logsgrp_, "Logs buttons",
 	    					 false );
     uiPushButton* addlogsbut = new uiPushButton( logsbgrp, "&Import", false );
     addlogsbut->activated.notify( mCB(this,uiWellMan,importLogs) );
@@ -72,7 +74,7 @@ uiWellMan::uiWellMan( uiParent* p )
     calclogsbut->attach( rightOf, addlogsbut );
     logsbgrp->attach( centeredBelow, logsfld_ );
 
-    uiManipButGrp* butgrp = new uiManipButGrp( logsgrp );
+    uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
     butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiWellMan,renameLogPush),
 	    	       "Rename selected log" );
     butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiWellMan,removeLogPush),
@@ -80,14 +82,14 @@ uiWellMan::uiWellMan( uiParent* p )
     butgrp->addButton( "export.png", mCB(this,uiWellMan,exportLogs),
 	    	       "Export log" );
     butgrp->attach( rightOf, logsfld_ );
-    logsgrp->attach( rightOf, selgrp );
+    logsgrp_->attach( rightOf, selgrp );
 
     uiToolButton* welltrackbut = new uiToolButton( this, "Well Track",
 	   	 "edwelltrack.png", mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->setToolTip( "Well Track" );
     welltrackbut->attach( alignedBelow, selgrp );
     welltrackbut->attach( ensureBelow, selgrp );
-    welltrackbut->attach( ensureBelow, logsgrp );
+    welltrackbut->attach( ensureBelow, logsgrp_ );
     
     uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
@@ -109,6 +111,8 @@ uiWellMan::uiWellMan( uiParent* p )
     
     infofld->attach( ensureBelow, markerbut );
     selChg( this );
+
+    FieldsCreated.trigger( this );
 }
 
 
@@ -116,6 +120,16 @@ uiWellMan::~uiWellMan()
 {
     delete curwd_;
     delete currdr_;
+}
+
+
+void uiWellMan::addTool( uiButton* but )
+{
+    if ( lastexternal_ )
+	but->attach( rightOf, lastexternal_ );
+    else
+	but->attach( alignedBelow, logsgrp_ );
+    lastexternal_ = but;
 }
 
 
