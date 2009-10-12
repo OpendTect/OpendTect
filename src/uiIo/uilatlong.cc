@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilatlong.cc,v 1.5 2009-08-10 10:26:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: uilatlong.cc,v 1.6 2009-10-12 12:32:59 cvsbert Exp $";
 
 #include "uilatlong2coord.h"
 #include "uilatlonginp.h"
@@ -241,6 +241,7 @@ bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
 bool uiLatLong2CoordDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
 {
     if ( !si ) si = const_cast<SurveyInfo*>( &SI() );
+    if ( si->latlong2Coord().isOK() ) return true;
 
     uiLatLong2CoordDlg dlg( p, si->latlong2Coord(), si );
     if ( !dlg.go() ) return false;
