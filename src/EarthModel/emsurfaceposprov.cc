@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.14 2009-10-12 13:57:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.15 2009-10-12 14:01:58 cvsbert Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -486,9 +486,12 @@ void Pos::EMSurface2DProvider3D::mkDPS( const EM::Surface& s,
     for ( int idx=0; idx<surf.nrSections(); idx++ )
     {
 	EM::RowColIterator it( surf, surf.sectionID(idx) );
-	EM::PosID posid = it.next();
-	while ( posid.objectID() != -1 )
+	while ( true )
 	{
+	    EM::PosID posid = it.next();
+	    if ( posid.objectID() < 0 )
+		break;
+
 	    const Coord3 coord = surf.getPos( posid );
 	    dr.pos_.set( coord );
 	    dr.pos_.z_ = coord.z;
