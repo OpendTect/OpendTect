@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.10 2009-10-12 13:57:31 cvsbert Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.11 2009-10-12 14:07:15 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -198,6 +198,9 @@ public:
     virtual void		getExtent(BinID&,BinID&) const;
     virtual Coord		curCoord() const 
     				{ return Provider3D::curCoord(); }
+
+    const DataPointSet&		dataPointSet( bool nr1 ) const
+				{ return nr1 ? dpssurf1_ : dpssurf2_; }
 
     mEMSurfaceProviderDefFnsBase
 
