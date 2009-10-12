@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.54 2009-08-05 06:30:53 cvsraman Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.55 2009-10-12 04:37:10 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -235,7 +235,8 @@ uiParent* uiTreeItem::getUiParent() const
 void uiTreeItem::setListViewItem( uiListViewItem* item )
 {
     uilistviewitem_ = item;
-    uilistviewitem_->setSelectable( isSelectable() );
+    if ( uilistviewitem_ )
+	uilistviewitem_->setSelectable( isSelectable() );
 }
 
 
@@ -330,6 +331,8 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 	    item = new uiListViewItem( lvi, setup );
 	else if ( lv )
 	    item = new uiListViewItem( lv, setup );
+	if ( !item ) return false;
+
 	newitem->setListViewItem( item );
 	if ( !newitem->init() )
 	{
