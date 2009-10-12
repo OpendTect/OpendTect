@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.79 2009-09-17 17:43:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.80 2009-10-12 04:01:32 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -417,6 +417,7 @@ void Seis2DDisplay::setData( int attrib,
 	    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
 	    cs.hrg.start.crl = trcnrrg_.start;
 	    cs.hrg.stop.crl = trcnrrg_.stop;
+	    cs.hrg.step.crl = 1;
 	    assign( cs.zrg, curzrg_ );
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
