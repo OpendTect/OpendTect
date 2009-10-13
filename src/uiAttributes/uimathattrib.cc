@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.32 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.33 2009-10-13 13:46:45 cvshelene Exp $";
 
 
 #include "uimathattrib.h"
@@ -174,6 +174,9 @@ void uiMathAttrib::updateDisplay( bool userecfld )
 	    xtable_->setRowLabel( idx, varnms.get(idx) );
 	}
     }
+    else
+	xtable_->setRowLabels( varnms );
+
     xtable_->display( nrvars_ );
     
     ctable_->setNrRows( nrcsts_ );
