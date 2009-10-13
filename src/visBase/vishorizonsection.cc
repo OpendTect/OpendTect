@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.93 2009-10-09 13:25:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.94 2009-10-13 13:42:44 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -2364,17 +2364,17 @@ void HorizonSectionTile::tesselateGlue()
     if ( res!=-1 )
     {
 	const int nrmyblocks = mNrBlocks( res );	
-	TypeSet<int> edgeindices; //Get all my own edge knot indices 
-	for ( int idx=0; idx<2*(nrmyblocks+1); idx++ )
-	{
-	    edgeindices += ( idx<=nrmyblocks 
-		? spacing_[res]*(nrmyblocks+idx*mNrCoordsPerTileSide) 
-		: spacing_[res]*(mNrCoordsPerTileSide*nrmyblocks+idx-
-		    		 nrmyblocks-1) );
-	}
 
 	for ( int nb=5; nb<8; nb += 2 )//Only consider neighbor 5 and 7
 	{
+	    TypeSet<int> edgeindices; //Get all my own edge knot indices 
+	    for ( int idx=0; idx<=nrmyblocks; idx++ )
+	    {
+		edgeindices += ( nb==5 
+		    ? spacing_[res]*(nrmyblocks+idx*mNrCoordsPerTileSide) 
+		    : spacing_[res]*(mNrCoordsPerTileSide*nrmyblocks+idx) );
+	    }
+
 	    int nbres = neighbors_[nb] ? neighbors_[nb]->getActualResolution() 
 				       : res; 
 	    if ( nbres==-1 ) nbres = res; 
@@ -2387,34 +2387,31 @@ void HorizonSectionTile::tesselateGlue()
 		     : mNrCoordsPerTileSide*mTileSideSize+idx*spacing_[nbres]);
 	    }
 
-	    const bool  highres = nrmyblocks >= nbblocks;
-	    const int highstartidx = highres ? (nb==5 ? 0 : nrmyblocks+1) : 0;
-	    const int highstopidx = highres ? 
-		(nb==5 ? nrmyblocks : 2*nrmyblocks+1) : nbblocks;
+	    const bool  finer = nrmyblocks >= nbblocks;
+	    const int highstopidx = finer ? nrmyblocks : nbblocks;
 	    const int nrconns = spacing_[abs(nbres-res)];
 	    
-	    int lowresidx = highres ? 0 : (nb==5 ? 0 : nrmyblocks+1); 
-	    int skipped = 0; 
-	    for ( int idx=highstartidx; idx<highstopidx; idx++ ) 
+	    int lowresidx = 0, skipped = 0; 
+	    for ( int idx=0; idx<highstopidx; idx++ ) 
 	    {
-		int i0 = highres ? edgeindices[idx] : edgeindices[lowresidx]; 
-		int i1 = highres ? nbindices[lowresidx] : nbindices[idx]; 
-		int i2 = highres ? edgeindices[idx+1] : nbindices[idx+1]; 
+		int i0 = finer ? edgeindices[idx] : edgeindices[lowresidx]; 
+		int i1 = finer ? nbindices[lowresidx] : nbindices[idx]; 
+		int i2 = finer ? edgeindices[idx+1] : nbindices[idx+1]; 
 		if ( nb==7 ) mAddGlueIndices( i0, i1, i2 ) 
 		if ( nb==5 ) mAddGlueIndices( i0, i2, i1 );
 
 		skipped++;
 
-		if ( (skipped%nrconns) && (idx-highstartidx+1!=nrconns/2) ) 
+		if ( (skipped%nrconns) && (idx+1!=nrconns/2) ) 
 		    continue; 
 
 		skipped = 0; 
-		if ( lowresidx+1<(highres ? nbblocks+1 : edgeindices.size()) ) 
+		if ( lowresidx<(finer ? nbblocks : nrmyblocks) ) 
 		{ 
 		    lowresidx++; 
-		    i0 = highres ? edgeindices[idx+1] :edgeindices[lowresidx-1];
-		    i1 = highres ? nbindices[lowresidx-1] : nbindices[idx+1]; 
-		    i2 = highres ? nbindices[lowresidx]:edgeindices[lowresidx];
+		    i0 = finer ? edgeindices[idx+1] : edgeindices[lowresidx-1];
+		    i1 = finer ? nbindices[lowresidx-1] : nbindices[idx+1]; 
+		    i2 = finer ? nbindices[lowresidx]: edgeindices[lowresidx];
 		    if ( nb==7 ) mAddGlueIndices( i0, i1, i2 ) 
 		    if ( nb==5 ) mAddGlueIndices( i0, i2, i1 )	
 		} 
