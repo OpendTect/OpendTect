@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.19 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.20 2009-10-13 13:12:38 cvsbert Exp $";
 
 #include "uihor3dfrom2ddlg.h"
 
@@ -39,6 +39,7 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     , hor2d_( h2d )
     , emserv_( ems )
     , hor3d_( 0 )
+    , displayfld_( 0 )
 {
     interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
@@ -48,8 +49,11 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 
     outfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
     outfld_->attach( alignedBelow, interpolsel_ );
-    displayfld_ = new uiCheckBox( this, "Display after generation" );
-    displayfld_->attach( alignedBelow, outfld_ );
+    if ( emserv_ )
+    {
+	displayfld_ = new uiCheckBox( this, "Display after generation" );
+	displayfld_->attach( alignedBelow, outfld_ );
+    }
 }
 
 
@@ -60,11 +64,15 @@ uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 
 
 MultiID uiHor3DFrom2DDlg::getSelID() const
-{ return selid_; }
+{
+    return selid_;
+}
 
 
 bool uiHor3DFrom2DDlg::doDisplay() const
-{ return displayfld_->isChecked(); } 
+{
+    return displayfld_ && displayfld_->isChecked();
+} 
 
 
 bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
@@ -84,7 +92,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     
     EM::EMManager& em = EM::EMM();
 
-    if ( nameandtypeexist )
+    if ( emserv_ && nameandtypeexist )
 	emserv_->removeTreeObject( em.getObjectID(ioobj->key()) );
     
     const EM::ObjectID emobjid = em.createObject( typ, ioobj->name() );
@@ -117,5 +125,8 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     if ( !exec )
 	return false;
 
-    return taskrunner.execute( *exec );
+    rv = taskrunner.execute( *exec );
+    if ( rv )
+	selid_ = ioobj->key();
+    return rv;
 }
