@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.94 2009-10-13 13:42:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.95 2009-10-14 21:33:04 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1041,6 +1041,8 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 		fullupdatetiles += createTile(tilerowidx, tilecolidx);
 	    }
 	}
+
+	updateTileTextureOrigin( RowCol(0,0) );
     }
     else
     {
@@ -2342,8 +2344,10 @@ void HorizonSectionTile::updateGlue()
 }
 
 
-#define mAddGlueIndices( i0, i1, i2 ) \
+//old code for glue tesselation.
+#define oldmAddGlueIndices( i0, i1, i2 ) \
 { \
+    if ( nb==5 ) std::swap(i1, i2) \
     const bool df0 = mIsDef(coords_[i0]); \
     const bool df1 = mIsDef(coords_[i1]); \
     const bool df2 = mIsDef(coords_[i2]); \
@@ -2352,6 +2356,57 @@ void HorizonSectionTile::updateGlue()
     if ( df1 ) mAddIndex( i1, dfsum ) \
     if ( df2 ) mAddIndex( i2, dfsum ) \
     if ( dfsum>1 ) mAddIndex( -1, dfsum ) \
+}
+
+
+#define mAddGlueIndices( i0, i1, i2, cornpos, adjedgeidx, adjnbidx, inverse ) \
+{ \
+    const bool df0 =  mIsDef(coords_[i0]); \
+    const bool df1 =  mIsDef(coords_[i1]); \
+    const bool df2 =  mIsDef(coords_[i2]); \
+    const int dfsum = df0 + df1 + df2; \
+    if ( dfsum==mStrip ) \
+    { \
+	mAddIndex( i0, mStrip ) \
+	mAddIndex( nb==7 ? i1 : i2, mStrip ) \
+	mAddIndex( nb==7 ? i2 : i1, mStrip ) \
+	mAddIndex( -1, mStrip ) \
+    } \
+    else if ( dfsum==mPoint ) \
+    { \
+	const int ptidx= df0 ? i0 : (df1 ? i1 : i2); \
+	if ( pointci.indexOf(ptidx)==-1 ) mAddIndex( ptidx, mPoint ) \
+    } \
+    else if ( dfsum==mLine && (cornpos<0 || !mIsDef(coords_[cornpos])) ) \
+    { \
+	dfadjedge = (adjedgeidx<0 || adjedgeidx>nrmyblocks) ?  \
+	false :  mIsDef(coords_[edgeindices[adjedgeidx]]); \
+	dfadjnb = (adjnbidx<0 || adjnbidx>nbblocks) ?  \
+	false :  mIsDef(coords_[nbindices[adjnbidx]] ); \
+	if ( df0 && df2 ) \
+	{ \
+	    if ( (!inverse && !finer) || (inverse && !dfadjedge && !dfadjnb) )\
+	    { \
+		mAddIndex(i0,dfsum); mAddIndex(i2,dfsum); mAddIndex(-1,dfsum);\
+	    }\
+	} \
+	else if ( df1 && df2 ) \
+	{ \
+	    if ( (!inverse && (finer || (!finer && !neighbors_[nb]))) || \
+		    (inverse && ((!finer && !dfadjedge && !dfadjnb) || \
+				 (finer && !neighbors_[nb]))) ) \
+	    { \
+		mAddIndex(i1,dfsum); mAddIndex(i2,dfsum); mAddIndex(-1,dfsum);\
+	    } \
+	} \
+	else if ( df0 && df1 ) \
+	{ \
+	    if ( (!inverse && !dfadjedge && !dfadjnb) || inverse ) \
+	    { \
+		mAddIndex(i1,dfsum); mAddIndex(i2,dfsum); mAddIndex(-1,dfsum);\
+	    } \
+	} \
+    } \
 }
 
 
@@ -2365,15 +2420,15 @@ void HorizonSectionTile::tesselateGlue()
     {
 	const int nrmyblocks = mNrBlocks( res );	
 
-	for ( int nb=5; nb<8; nb += 2 )//Only consider neighbor 5 and 7
-	{
-	    TypeSet<int> edgeindices; //Get all my own edge knot indices 
+	for ( int nb=5; nb<8; nb += 2 )
+	{	
+	    TypeSet<int> edgeindices; 
 	    for ( int idx=0; idx<=nrmyblocks; idx++ )
 	    {
 		edgeindices += ( nb==5 
-		    ? spacing_[res]*(nrmyblocks+idx*mNrCoordsPerTileSide) 
-		    : spacing_[res]*(mNrCoordsPerTileSide*nrmyblocks+idx) );
-	    }
+			? spacing_[res]*(nrmyblocks+idx*mNrCoordsPerTileSide) 
+			: spacing_[res]*(mNrCoordsPerTileSide*nrmyblocks+idx));
+    	    }
 
 	    int nbres = neighbors_[nb] ? neighbors_[nb]->getActualResolution() 
 				       : res; 
@@ -2383,22 +2438,29 @@ void HorizonSectionTile::tesselateGlue()
 	    for ( int idx=0; idx<=nbblocks; idx++ ) 
 	    {
 		nbindices += 
-		    (nb==5 ? (1+idx*spacing_[nbres])*mNrCoordsPerTileSide-1
+		    (nb==5 ? (1+idx*spacing_[nbres])*mNrCoordsPerTileSide-1 
 		     : mNrCoordsPerTileSide*mTileSideSize+idx*spacing_[nbres]);
 	    }
 
-	    const bool  finer = nrmyblocks >= nbblocks;
+	    bool  finer = nrmyblocks >= nbblocks;
 	    const int highstopidx = finer ? nrmyblocks : nbblocks;
 	    const int nrconns = spacing_[abs(nbres-res)];
 	    
+	    int adjedgeidx, adjnbidx, cornpos;
+	    bool dfadjedge, dfadjnb, dfcorner;
+
 	    int lowresidx = 0, skipped = 0; 
 	    for ( int idx=0; idx<highstopidx; idx++ ) 
 	    {
 		int i0 = finer ? edgeindices[idx] : edgeindices[lowresidx]; 
 		int i1 = finer ? nbindices[lowresidx] : nbindices[idx]; 
 		int i2 = finer ? edgeindices[idx+1] : nbindices[idx+1]; 
-		if ( nb==7 ) mAddGlueIndices( i0, i1, i2 ) 
-		if ( nb==5 ) mAddGlueIndices( i0, i2, i1 );
+		cornpos = finer ?
+		    (lowresidx>=nbblocks ? -1 : nbindices[lowresidx+1]) :
+		    (lowresidx>=nrmyblocks ? -1 : edgeindices[lowresidx+1]);
+		adjedgeidx = finer ? idx-1 : lowresidx-1;
+		adjnbidx = finer ? lowresidx-1 : idx-1;
+		mAddGlueIndices(i0,i1,i2,cornpos,adjedgeidx,adjnbidx,false)
 
 		skipped++;
 
@@ -2412,21 +2474,17 @@ void HorizonSectionTile::tesselateGlue()
 		    i0 = finer ? edgeindices[idx+1] : edgeindices[lowresidx-1];
 		    i1 = finer ? nbindices[lowresidx-1] : nbindices[idx+1]; 
 		    i2 = finer ? nbindices[lowresidx]: edgeindices[lowresidx];
-		    if ( nb==7 ) mAddGlueIndices( i0, i1, i2 ) 
-		    if ( nb==5 ) mAddGlueIndices( i0, i2, i1 )	
+		    cornpos = finer ? edgeindices[idx] : nbindices[idx];
+		    adjedgeidx = finer ? idx+2 : lowresidx+1;
+		    adjnbidx = finer ? lowresidx+1 : idx+2;
+		    
+		    mAddGlueIndices(i0,i1,i2,cornpos,adjedgeidx,adjnbidx,true)
 		} 
 	    }
-	    
-	    if ( nb==5 )	    
-	    {
-		mAddGlueIndices( nbindices[nbblocks], edgeindices[nrmyblocks], 
-				 mTotalNrCoordsPerTile-1 );
-	    }
-	    else if ( nb==7 )
-	    {
-		mAddGlueIndices( edgeindices[nrmyblocks], nbindices[nbblocks],
-				 mTotalNrCoordsPerTile-1 ); 
-	    }
+
+	    finer = false;
+	    mAddGlueIndices(edgeindices[nrmyblocks],nbindices[nbblocks],
+		    mTotalNrCoordsPerTile-1,-1,nrmyblocks-1,nbblocks-1,false);
 	}
     }
    
