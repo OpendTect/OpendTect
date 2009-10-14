@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.15 2009-10-12 14:01:58 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.16 2009-10-14 05:54:47 cvsumesh Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -482,7 +482,6 @@ void Pos::EMSurface2DProvider3D::mkDPS( const EM::Surface& s,
 {
     mDynamicCastGet(const EM::Horizon2D&,surf,s)
 
-    DataPointSet::DataRow dr;
     for ( int idx=0; idx<surf.nrSections(); idx++ )
     {
 	EM::RowColIterator it( surf, surf.sectionID(idx) );
@@ -492,12 +491,10 @@ void Pos::EMSurface2DProvider3D::mkDPS( const EM::Surface& s,
 	    if ( posid.objectID() < 0 )
 		break;
 
-	    const Coord3 coord = surf.getPos( posid );
-	    dr.pos_.set( coord );
-	    dr.pos_.z_ = coord.z;
-	    dr.pos_.nr_ = 0; //TODO find out the trace number
-	    dr.setGroup( 1 ); //TODO find out the line ID
-	    dps.addRow( dr ); 
+	    const BinID bid2d( posid.subID() );
+	    DataPointSet::Pos pos( surf.getPos(posid) );
+	    pos.nr_ = bid2d.crl;
+	    dps.addRow( DataPointSet::DataRow(pos,bid2d.inl) );
 	}
     }
 }
