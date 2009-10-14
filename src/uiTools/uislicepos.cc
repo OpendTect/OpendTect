@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.4 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.5 2009-10-14 04:56:40 cvsnanne Exp $";
 
 #include "uislicepos.h"
 
@@ -24,26 +24,27 @@ static const char* rcsID = "$Id: uislicepos.cc,v 1.4 2009-07-22 16:01:42 cvsbert
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
 {
-    toolbar_ = new uiToolBar( p, "Slice position" );
-
-    uiGroup* grp = new uiGroup( 0, "Position boxes" );
-    sliceposbox_ = new uiLabeledSpinBox( grp, "Crl", 0,
+    sliceposbox_ = new uiLabeledSpinBox( 0, "Crl", 0,
 	    				 "Slice position" );
     sliceposbox_->box()->valueChanging.notify(
 	    			mCB(this,uiSlicePos,slicePosChg) );
 
-    slicestepbox_ = new uiLabeledSpinBox( grp, "Step", 0, "Slice step" );
+    slicestepbox_ = new uiLabeledSpinBox( 0, "Step", 0, "Slice step" );
     slicestepbox_->box()->valueChanged.notify(
 	    			mCB(this,uiSlicePos,sliceStepChg) );
-    slicestepbox_->attach( rightTo, sliceposbox_ );
 
-    prevbut_ = new uiToolButton( grp, "Previous position",
+    prevbut_ = new uiToolButton( 0, "Previous position",
 	    ioPixmap("prevpos.png"), mCB(this,uiSlicePos,prevCB) );
-    nextbut_ = new uiToolButton( grp, "Next position",
+    nextbut_ = new uiToolButton( 0, "Next position",
 	    ioPixmap("nextpos.png"), mCB(this,uiSlicePos,nextCB) );
-    prevbut_->attach( rightTo, slicestepbox_ );
-    nextbut_->attach( rightTo, prevbut_ );
-    toolbar_->addObject( grp->attachObj() );
+
+    toolbar_ = new uiToolBar( p, "Slice position" );
+    toolbar_->addObject( sliceposbox_->label() );
+    toolbar_->addObject( sliceposbox_->box() );
+    toolbar_->addObject( slicestepbox_->label() );
+    toolbar_->addObject( slicestepbox_->box() );
+    toolbar_->addObject( prevbut_ );
+    toolbar_->addObject( nextbut_ );
 
     IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
     initSteps();
