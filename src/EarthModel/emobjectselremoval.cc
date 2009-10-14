@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.6 2009-09-01 05:08:01 cvsumesh Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.7 2009-10-14 08:09:49 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,53 +84,49 @@ bool EMObjectSelectionRemoval::doWork( od_int64 start, od_int64 stop,
 		nrcols_ - 1 : (boxcol+1)*16), colstep );
 
 	TypeSet<EM::SubID> ids;
-	
-	Coord3 startcord, stopcord;
-	startcord.z = SI().zRange(true).start;
-	stopcord.z = SI().zRange(true).stop;
-
-	Coord coord0 = SI().transform( BinID(rowrg.start,colrg.start) );
-	startcord.x = stopcord.x = coord0.x;
-	startcord.y = stopcord.y = coord0.y;
-
-	Coord coord1 = SI().transform( BinID(rowrg.start,colrg.stop) );
-	if ( startcord.x > coord1.x ) startcord.x = coord1.x;
-	if ( startcord.y > coord1.y ) startcord.y = coord1.y;
-	if ( coord1.x > stopcord.x ) stopcord.x = coord1.x;
-	if ( coord1.y > stopcord.y ) stopcord.y = coord1.y;
-
-	Coord coord2 = SI().transform( BinID(rowrg.stop,colrg.start) );
-	if ( startcord.x > coord2.x ) startcord.x = coord2.x;
-	if ( startcord.y > coord2.y ) startcord.y = coord2.y;
-	if ( coord2.x > stopcord.x ) stopcord.x = coord2.x;
-	if ( coord2.y > stopcord.y ) stopcord.y = coord2.y;
-
-	Coord coord3 = SI().transform( BinID(rowrg.stop,colrg.stop) );
-	if ( startcord.x > coord3.x ) startcord.x = coord3.x;
-	if ( startcord.y > coord3.y ) startcord.y = coord3.y;
-	if ( coord3.x > stopcord.x ) stopcord.x = coord3.x;
-	if ( coord3.y > stopcord.y ) stopcord.y = coord3.y;
-
-	int sel = selector_.canDoRange()
-	    ? selector_.includesRange( startcord, stopcord )
-	    : 1;
-
-	if ( !sel ) continue; // all outside
 
 	HorSampling horsampling( true );
 	horsampling.set( rowrg, colrg );
-
 	HorSamplingIterator iter( horsampling );
 	BinID bid;
+
+	Coord3 startcrd = Coord3::udf();
+	Coord3 stopcrd = Coord3::udf();
+
 	while ( iter.next(bid) )
 	{
-	    const Coord3 examcor = emobj_.getPos( sectionid_, 
-		    				  bid.getSerialized() );
-	    if ( !examcor.isDefined() )
+	    const Coord3 crd = emobj_.getPos( sectionid_, bid.getSerialized() );
+	    if ( !crd.isDefined() )
 		continue;
 
-	    if ( sel == 1 && !selector_.includes(examcor) )
-		continue;
+	    if ( mIsUdf(startcrd.x) || startcrd.x>crd.x ) startcrd.x = crd.x;
+	    if ( mIsUdf(startcrd.y) || startcrd.y>crd.y ) startcrd.y = crd.y;
+	    if ( mIsUdf(startcrd.z) || startcrd.z>crd.z ) startcrd.z = crd.z;
+	    if ( mIsUdf(stopcrd.x)  || crd.x>stopcrd.x  ) stopcrd.x  = crd.x;
+	    if ( mIsUdf(stopcrd.y)  || crd.y>stopcrd.y  ) stopcrd.y  = crd.y;
+	    if ( mIsUdf(stopcrd.z)  || crd.z>stopcrd.z  ) stopcrd.z  = crd.z;
+	}
+
+	if ( mIsUdf(startcrd.z) || mIsUdf(stopcrd.z) )
+	    continue;
+
+	const int sel = !selector_.canDoRange() ? 1 :
+			selector_.includesRange( startcrd, stopcrd );
+
+	if ( sel==0 || sel==3 )
+	    continue;		// all outside or all behind projection plane
+
+	iter.reset();
+	while ( iter.next(bid) )
+	{
+	    if ( sel != 2 )	// not all inside
+	    {
+		const Coord3 crd = emobj_.getPos( sectionid_,
+						  bid.getSerialized() );
+
+		if ( !crd.isDefined() || !selector_.includes(crd) )
+		    continue;
+	    }
 
 	    ids += bid.getSerialized();
 	}

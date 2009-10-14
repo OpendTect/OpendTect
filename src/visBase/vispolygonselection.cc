@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.8 2009-08-28 15:13:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.9 2009-10-14 08:09:49 cvsjaap Exp $";
 
 #include "vispolygonselection.h"
 
@@ -126,6 +126,8 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 	    SbVec3f(checkcoord3d.x,checkcoord3d.y,checkcoord3d.z ) );
 
     const Coord checkcoord2d( coord2d[0], coord2d[1] );
+    if ( !checkcoord2d.isDefined() )
+	return false;
 
     polygonlock_.readLock();
     if ( !polygon_ )
@@ -176,13 +178,21 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 
     ODPolygon<double> screenpts;
 
+    int nrundefs = 0;
     for ( int idx=0; idx<8; idx++ )
     {
 	const SbVec2f pt = selector_->projectPoint(
 	    SbVec3f(coords[idx].x,coords[idx].y,coords[idx].z ) );
 
-	screenpts.add( Coord(pt[0],pt[1]) );
+	const Coord vertex( pt[0], pt[1] );
+	if ( vertex.isDefined() )
+	    screenpts.add( vertex );
+	else
+	    nrundefs++;
     }
+
+    if ( nrundefs )
+	return nrundefs==8 ? 3 : 4;
 
     polygonlock_.readLock();
     if ( !polygon_ )

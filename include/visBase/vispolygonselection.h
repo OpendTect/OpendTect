@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.6 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.7 2009-10-14 08:09:49 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -50,9 +50,16 @@ public:
     bool			isSelfIntersecting() const;
     bool			isInside(const Coord3&,
 	    				 bool displayspace=false) const;
+
     char			includesRange(const Coord3& start,
 	    				      const Coord3& stop,
 					      bool displayspace ) const;
+    				/*!< 0: projected box fully outside polygon
+				     1: projected box partially outside polygon
+				     2: projected box fully inside polygon
+				     3: all box points behind projection plane
+				     4: some box points behind projection plane
+				*/
 
     void			setDisplayTransformation( Transformation* );
     Transformation*		getDisplayTransformation();
