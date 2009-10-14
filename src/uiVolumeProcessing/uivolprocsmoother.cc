@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.10 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.11 2009-10-14 14:37:32 cvsbruno Exp $";
 
 #include "uivolprocsmoother.h"
 
@@ -35,9 +35,10 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     : uiStepDialog( p, Smoother::sUserName(), hf )
     , smoother_( hf )
 {
-    operatorselfld_ = new uiWindowFunctionSel( this, "Operator",
-	    		smoother_->getOperatorName(),
-			smoother_->getOperatorParam() );
+    uiWindowFunctionSel::Setup su; su.label_= "Operator";
+    su.winname_ = smoother_->getOperatorName(); 
+    su.winparam_= smoother_->getOperatorParam();
+    operatorselfld_ = new uiWindowFunctionSel( this, su );
 
     uiLabel* label = new uiLabel( this, "Stepout" );
     label->attach( alignedBelow, operatorselfld_ );

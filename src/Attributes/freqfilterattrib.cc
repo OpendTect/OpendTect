@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.34 2009-10-07 10:30:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.35 2009-10-14 14:37:32 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -334,9 +334,13 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	timedomain.set( sz+idy, signal.get(idy) );
 
     fft.transform( timedomain, freqdomain );
-    FFTFilter filter; 
-    ArrayNDWindow window( Array1DInfoImpl(51), false, "CosTaper", .05 );
-    filter.setFreqBorderWindow( window.getValues(), 51 );
+    FFTFilter filter;
+   const int winsize = 10; 
+    ArrayNDWindow window( Array1DInfoImpl( winsize ), false, "CosTaper", .05 );
+    ArrayNDWindow orgwindow( window );
+    for ( int idx=0; idx<winsize; idx++ )
+	window.getValues()[idx] = orgwindow.getValues()[winsize-1]*-1;
+    filter.setFreqBorderWindow( window.getValues(), winsize );
     if ( filtertype == mFilterLowPass )
 	filter.FFTFreqFilter( df, maxfreq, true, freqdomain, tmpfreqdomain );
     else if ( filtertype == mFilterHighPass)

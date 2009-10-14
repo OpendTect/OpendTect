@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.22 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.23 2009-10-14 14:37:32 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.22 2009-07-22 16:01:3
 #include "attribparam.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "uiwindowfunctionsel.h"
@@ -58,15 +59,36 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    FloatInpSpec().setName("Max frequency") );
     freqfld->setElemSzPol( uiObject::Small );
     freqfld->attach( alignedBelow, typefld );
+    freqfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,freqChanged) );
 
     polesfld = new uiLabeledSpinBox( this, "Nr of poles" );
     polesfld->box()->setMinValue( 2 );
     polesfld->attach( alignedBelow, freqfld );
 
-    winfld = new uiWindowFunctionSel( this, "Window/Taper" );
-    winfld->attach( alignedBelow, polesfld );
-    winfld->display (false);
+    BufferString wintext( "Window/Taper" );
+    uiWindowFunctionSel::Setup su; su.label_ = wintext; su.winname_ = 0;
+    for ( int idx=0; idx<2; idx++ )
+    {
+	if ( idx )
+	{
+	    su.isminfreq_ = true;
+	    su.label_ = "Taper";
+	    winflds += new uiFreqTaperSel( this, su );
+	}
+	else
+	    winflds += new uiWindowFunctionSel( this, su );
+	winflds[idx]->display (false);
+    }
+    BufferString seltxt ( "Specify " ); seltxt += "Frequency Taper";
+    freqwinselfld = new uiCheckBox( this, seltxt );
+    freqwinselfld->attach( alignedBelow, winflds[0] );
+    freqwinselfld->display (false);
+    freqwinselfld->activated.notify( mCB(this,uiFreqFilterAttrib,freqWinSel) );
 
+    winflds[0]->attach( alignedBelow, polesfld );
+    winflds[1]->attach( alignedBelow, freqwinselfld );
+    winflds[1]->setSensitive( false );
+    
     mainObject()->finaliseDone.notify( mCB(this,uiFreqFilterAttrib,finaliseCB));
     setHAlignObj( inpfld );
 }
@@ -76,6 +98,7 @@ void uiFreqFilterAttrib::finaliseCB( CallBacker* )
 {
     typeSel(0);
     isfftSel(0);
+    freqChanged( 0 );
 }
 
 
@@ -86,14 +109,31 @@ void uiFreqFilterAttrib::typeSel( CallBacker* )
     const bool hasmax = !type || type==2;
     freqfld->setSensitive( hasmin, 0, 0 );
     freqfld->setSensitive( hasmax, 0, 1 );
+    mDynamicCastGet( uiFreqTaperSel*, tap, winflds[1] );
+    if ( tap ) tap->setIsMinMaxFreq( hasmin, hasmax );
 }
 
 
 void uiFreqFilterAttrib::isfftSel( CallBacker* )
 {
     const bool isfft = isfftfld->getBoolValue();
-    winfld->display( isfft );
+    for ( int idx=0; idx<winflds.size(); idx++)
+	winflds[idx]->display( isfft );
+    freqwinselfld->display( isfft );
     polesfld->display( !isfft );
+}
+
+
+void uiFreqFilterAttrib::freqChanged( CallBacker* )
+{
+    mDynamicCastGet( uiFreqTaperSel*, tap, winflds[1] );
+    if ( tap ) tap->freqrg_.set(freqfld->getfValue(0),freqfld->getfValue(1) );
+}
+
+
+void uiFreqFilterAttrib::freqWinSel( CallBacker* )
+{
+    winflds[1]->setSensitive( freqwinselfld->isChecked() );
 }
 
 
@@ -110,16 +150,18 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
 	    	 freqfld->setValue(maxfreq,1) );
     mIfGetInt( FreqFilter::nrpolesStr(), nrpoles,
 	       polesfld->box()->setValue(nrpoles) )
-    mIfGetString( FreqFilter::windowStr(), window,
-			    winfld->setWindowName(window) );
-    mIfGetFloat( FreqFilter::paramvalStr(), variable,
+    for ( int idx=0; idx<winflds.size(); idx++ )
+    {
+	mIfGetString( FreqFilter::windowStr(), window,
+				winflds[idx]->setWindowName(window) );
+	mIfGetFloat( FreqFilter::paramvalStr(), variable,
 	    	 const float resvar = float( mNINT((1-variable)*1000) )/1000.0;
-		 winfld->setWindowParamValue(resvar) );
+	winflds[idx]->setWindowParamValue(resvar) );
+    }
     mIfGetBool( FreqFilter::isfftfilterStr(), isfftfilter, 
 	    	isfftfld->setValue(isfftfilter) );
 
-    typeSel(0);
-    isfftSel(0);
+    finaliseCB(0);
     return true;
 }
 
@@ -140,9 +182,13 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     mSetFloat( FreqFilter::minfreqStr(), freqfld->getfValue(0) );
     mSetFloat( FreqFilter::maxfreqStr(), freqfld->getfValue(1) );
     mSetInt( FreqFilter::nrpolesStr(), polesfld->box()->getValue() );
-    mSetString( FreqFilter::windowStr(), winfld->windowName() );
+    mSetString( FreqFilter::windowStr(), winflds[0]->windowName() );
     const float resvar =
-		float( mNINT((1-winfld->windowParamValue())*1000) )/1000.0;
+		float( mNINT((1-winflds[0]->windowParamValue())*1000) )/1000.0;
+    mSetString( FreqFilter::windowStr(), winflds[1]->windowName() );
+    const float freqresvar =
+		float( mNINT((1-winflds[1]->windowParamValue())*1000) )/1000.0;
+    mSetFloat( FreqFilter::paramvalStr(), resvar );
     mSetFloat( FreqFilter::paramvalStr(), resvar );
     mSetBool( FreqFilter::isfftfilterStr(), isfftfld->getBoolValue() );
 
@@ -173,9 +219,10 @@ void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 bool uiFreqFilterAttrib::areUIParsOK()
 {
-    if ( !strcmp( winfld->windowName(), "CosTaper" ) )
+    for ( int idx=0; idx<winflds.size(); idx++ )
+    if ( !strcmp( winflds[idx]->windowName(), "CosTaper" ) )
     {
-	float paramval = winfld->windowParamValue();
+	float paramval = winflds[idx]->windowParamValue();
 	if ( paramval<0 || paramval>1  )
 	{
 	    errmsg_ = "Variable 'Taper length' is not\n";

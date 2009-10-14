@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifrequencyattrib.cc,v 1.22 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uifrequencyattrib.cc,v 1.23 2009-10-14 14:37:32 cvsbruno Exp $";
 
 
 #include "uifrequencyattrib.h"
@@ -54,7 +54,9 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     normfld = new uiGenInput( this, "Normalize", BoolInpSpec(false) );
     normfld->attach( alignedBelow, gatefld );
 
-    winfld = new uiWindowFunctionSel( this, "Window/Taper", "CosTaper", .05 );
+    uiWindowFunctionSel::Setup su; su.label_ = "Window/Taper";
+    su.winname_ = "CosTaper"; su.winparam_ = .05;
+    winfld = new uiWindowFunctionSel( this, su );
     winfld->attach( alignedBelow, normfld ); 
 
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );

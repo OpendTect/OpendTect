@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.13 2009-09-11 13:56:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.14 2009-10-14 14:37:32 cvsbruno Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -18,20 +18,22 @@ static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.13 2009-09-11 13:56:
 #include "uibutton.h"
 
 
-uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const char* label,
-					  const char* prevwinname,
-					  float prevwinparam )
+uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     : uiGroup( p, "Window function selector" )
     , winfuncseldlg_(0)
 {
     windowvariable_.allowNull();
     windowfuncs_.allowNull();
 
-    BufferStringSet funcnames = WinFuncs().getNames();
+    BufferStringSet funcnames; 
+    if ( su.isminfreq_ || su.ismaxfreq_ ) 
+	funcnames.add( "CosTaper" ); 
+    else
+	funcnames = WinFuncs().getNames();
     funcnames.insertAt( new BufferString( sNone() ), 0 );
     const StringListInpSpec funclist( funcnames );
-    windowtypefld_ =  new uiGenInput( this, label, funclist );
-    if ( prevwinname ) windowtypefld_->setText( prevwinname );
+    windowtypefld_ =  new uiGenInput( this, su.label_, funclist );
+    if ( su.winname_ ) windowtypefld_->setText( su.winname_ );
 
     windowtypefld_->valuechanged.notify(
 			mCB( this, uiWindowFunctionSel, windowChangedCB ) );
@@ -51,8 +53,8 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const char* label,
 	    uiGenInput* varinp = new uiGenInput( this,
 		varname.buf(), FloatInpSpec(winfunc->getVariable() * 100) );
 
-	    if ( prevwinname && !strcmp(prevwinname, winfunc->name() ) )
-		varinp->setValue( prevwinparam * 100 );
+	    if ( su.winname_ && !strcmp(su.winname_, winfunc->name() ) )
+		varinp->setValue( su.winparam_ * 100 );
 
 	    varinp->attach( alignedBelow, windowtypefld_ );
 	    windowvariable_ += varinp;
@@ -122,18 +124,20 @@ const char* uiWindowFunctionSel::windowParamName() const
     return windowfuncs_[winidx]->variableName();
 }
 
+
 void uiWindowFunctionSel::winfuncseldlgCB( CallBacker* )
 {
     if ( !winfuncseldlg_ )
-	winfuncseldlg_ = new uiWindowFuncSelDlg( this, windowName(), windowParamValue() );
+	winfuncseldlg_ = new uiWindowFuncSelDlg( this, windowName(), 
+						       windowParamValue() );
     else
     {
 	winfuncseldlg_->setCurrentWindowFunc( windowName(),windowParamValue() );
 	windowParamValue() ? winfuncseldlg_->setVariable( windowParamValue() ) :
-	    		     winfuncseldlg_->setVariable( 0.05 );
+			     winfuncseldlg_->setVariable( 0.05 );
     }
-    winfuncseldlg_->windowClosed.notify( mCB(this,uiWindowFunctionSel,
-					     windowClosed) );
+    winfuncseldlg_->windowClosed.notify( mCB(
+				this,uiWindowFunctionSel,windowClosed) );
     winfuncseldlg_->show();
 }
 
@@ -168,5 +172,37 @@ void uiWindowFunctionSel::windowChangedCB( CallBacker* )
 	if ( windowvariable_[idx] )
 	     windowvariable_[idx]->display( idx==winidx );
     }
+}
 
-};
+
+uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& su )
+    : uiWindowFunctionSel( p, su )
+    , isminfreq_(su.isminfreq_)
+    , ismaxfreq_ (su.ismaxfreq_)     	
+    , freqtaperdlg_(0)
+{
+}
+
+
+void uiFreqTaperSel::winfuncseldlgCB( CallBacker* )
+{
+    delete freqtaperdlg_;
+    uiFreqTaperDlg::Setup su; 		 
+    su.hasmin_ = isminfreq_; 		su.hasmax_ = ismaxfreq_;
+    su.minfreqrg_.set( freqrg_.start-18, freqrg_.start );
+    su.maxfreqrg_.set( freqrg_.stop, freqrg_.stop+18 );
+
+    freqtaperdlg_ = new uiFreqTaperDlg( this, su );
+    freqtaperdlg_->setVariable( windowParamValue() ? windowParamValue() : 20 );
+    freqtaperdlg_->windowClosed.notify( mCB(this,uiFreqTaperSel,windowClosed));
+    freqtaperdlg_->show();
+}
+
+
+void uiFreqTaperSel::windowClosed( CallBacker* )
+{
+    const float maxvariable = freqtaperdlg_->getVariable( false )/100;
+    const float minvariable = freqtaperdlg_->getVariable( true )/100;
+    if( !mIsUdf(maxvariable) && maxvariable >= 0 )
+	setWindowParamValue( maxvariable );
+}

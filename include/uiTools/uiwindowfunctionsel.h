@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.5 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.6 2009-10-14 14:37:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,31 +17,47 @@ ________________________________________________________________________
 class WindowFunction;
 class uiGenInput;
 class uiWindowFuncSelDlg;
+class uiFreqTaperDlg;
 
 /*!Selects a windowfunction and its eventual parameter. */
 
 mClass uiWindowFunctionSel : public uiGroup
 {
 public:
-    			uiWindowFunctionSel(uiParent*,const char* label,
-					    const char* curwinname = 0,
-					    float curwinparam = mUdf(float) );
-    			~uiWindowFunctionSel();
 
-    NotifierAccess&	typeChange();
+    mStruct Setup
+    {
+			Setup() 
+			    : isminfreq_(false)   
+			    , ismaxfreq_(false)   
+			    , winparam_(mUdf(float))  
+			    {}
 
-    void		setWindowName(const char*);
-    void		setWindowParamValue(float);
+	mDefSetupMemb(const char*,winname )
+	mDefSetupMemb(const char*,label)
+	mDefSetupMemb(float,winparam)
+	mDefSetupMemb(bool,ismaxfreq)
+	mDefSetupMemb(bool,isminfreq)
+    };
 
-    const char*		windowName() const;
-    float		windowParamValue() const;
-    const char*		windowParamName() const;
+    				uiWindowFunctionSel(uiParent*,const Setup&);
+    				~uiWindowFunctionSel();
 
-    static const char*	sNone() { return "None"; }
+    NotifierAccess&		typeChange();
+
+    void			setWindowName(const char*);
+    void			setWindowParamValue(float);
+
+    const char*			windowName() const;
+    float			windowParamValue() const;
+    const char*			windowParamName() const;
+
+    static const char*		sNone() { return "None"; }
 
 protected:
+
     void			windowChangedCB(CallBacker*);
-    void			winfuncseldlgCB(CallBacker*);
+    virtual void		winfuncseldlgCB(CallBacker*);
     void			windowClosed(CallBacker*);
 
     BufferString		errmsg_;
@@ -51,6 +67,26 @@ protected:
     uiWindowFuncSelDlg*		winfuncseldlg_;
     ObjectSet<uiGenInput>	windowvariable_;
     ObjectSet<WindowFunction>	windowfuncs_;
+};
+
+
+mClass uiFreqTaperSel : public uiWindowFunctionSel
+{
+public:
+    				uiFreqTaperSel(uiParent*,const Setup&);
+
+    Interval<float> 		freqrg_;
+    void 			setIsMinMaxFreq(bool min, bool max)
+    				{ isminfreq_ = min; ismaxfreq_ = max; }
+
+protected :
+
+    bool			isminfreq_;
+    bool			ismaxfreq_;
+    uiFreqTaperDlg*		freqtaperdlg_;
+
+    void			winfuncseldlgCB(CallBacker*);
+    void			windowClosed(CallBacker*);
 };
 
 

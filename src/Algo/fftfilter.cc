@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.3 2009-10-08 14:26:38 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.4 2009-10-14 14:37:32 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -116,8 +116,8 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
     const int bordersz = fwindow_ ? fwindow_->size_ : 0;
 
     const int poscutfreq = (int)(cutfreq/df);
-    const int infposthreshold = poscutfreq - bordersz/2;
-    const int supposthreshold = poscutfreq + bordersz/2;
+    const int infposthreshold = poscutfreq - islowpass ? 0 : bordersz;
+    const int supposthreshold = poscutfreq + islowpass ? bordersz : 0;
 
     int idborder = 0;
     for ( int idx=0 ; idx<arraysize/2 ; idx++ )
@@ -157,3 +157,5 @@ void FFTFilter::FFTBandPassFilter( float df, float minfreq, float maxfreq,
     FFTFreqFilter( df, minfreq, false, input, intermediateoutput );
     FFTFreqFilter( df, maxfreq, true, intermediateoutput, output );
 }
+
+

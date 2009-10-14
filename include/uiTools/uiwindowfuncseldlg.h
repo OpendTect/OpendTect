@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.16 2009-10-07 10:17:47 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.17 2009-10-14 14:37:32 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
-
 #include "uidialog.h"
+#include "uifunctiondisplay.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 #include "color.h"
@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 class uiAxisHandler;
 class uiGraphicsItemGroup;
-class uiGraphicsView;
 class uiGenInput;
 class uiListBox;
 class uiRectItem;
@@ -31,30 +30,61 @@ class WindowFunction;
 
 /*!brief Displays a mathfunction. */
 
-mClass uiFuncSelDraw : public uiGroup
+
+
+mClass uiFunctionDrawer : public uiFunctionDisplay
 {
 
 public:
-
     mStruct Setup
     {
 			Setup()
 			    : xaxrg_(-1.2,1.2,0.25)
 			    , yaxrg_(0,1,0.25) 
+			    , funcrg_(-1.2,1.2) 
 			    , xaxname_("")	       
 			    , yaxname_("")	       
 			    {}
 					      
-
 	mDefSetupMemb(StepInterval<float>,xaxrg)			      
 	mDefSetupMemb(StepInterval<float>,yaxrg)	
 	mDefSetupMemb(const char*,name)	
 	mDefSetupMemb(BufferString,xaxname)	
 	mDefSetupMemb(BufferString,yaxname)	
-    };	
+	mDefSetupMemb(Interval<float>,funcrg)	
+    };
 
-			uiFuncSelDraw(uiParent*,const Setup&);
-			~uiFuncSelDraw();
+			uiFunctionDrawer(uiParent*,const Setup&);
+			~uiFunctionDrawer();
+    
+    void		addColor(const Color& col) { linesetcolor_ += col; }
+    void		draw(TypeSet<int>&);
+    void		createLine(const FloatMathFunction*);
+    void		erasePoints() { pointlistset_.erase(); }
+
+    void 		setFunctionRange(Interval<float>& rg) { funcrg_ = rg; }
+    Interval<float>& 	getFunctionRange() { return funcrg_; }
+    
+
+protected:
+
+    Interval<float>  	funcrg_;
+    float		variable_;
+    uiWorld2Ui*		transform_;
+    uiAxisHandler*	xax_;
+    uiAxisHandler*	yax_;
+    uiRectItem*		borderrectitem_;
+    uiGraphicsItemGroup* polyitemgrp_;
+    TypeSet< TypeSet<uiPoint> >	pointlistset_;
+    TypeSet<Color>	linesetcolor_;
+};
+
+
+mClass uiFuncSelDraw : public uiGroup
+{
+public:
+
+			uiFuncSelDraw(uiParent*,const uiFunctionDrawer::Setup&);
 
     Notifier<uiFuncSelDraw> funclistselChged;
 
@@ -69,26 +99,16 @@ public:
     int			removeLastItem(); 
     void		setAsCurrent(const char*); 
     void		setSelected(int);
+    void		setFunctionRange(Interval<float>);
+    void		setAxisRange(Interval<float>);
 
-    void		createLine(const FloatMathFunction*);
-    
     void		funcSelChg(CallBacker*);
 
 protected:
 				
-    uiGraphicsItemGroup* polyitemgrp_;
-    uiGraphicsView*	view_;
+    uiFunctionDrawer*	view_;
     uiListBox*		funclistfld_;
-    uiWorld2Ui*		transform_;
-    uiAxisHandler*	xax_;
-    uiAxisHandler*	yax_;
-    uiRectItem*		borderrectitem_;
-    TypeSet< TypeSet<uiPoint> >	pointlistset_;
-    TypeSet<Color>		linesetcolor_;
     ObjectSet<FloatMathFunction> mathfunc_;
-    
-    void		draw();
-
 };
 
 
@@ -97,8 +117,10 @@ mClass uiWindowFuncSelDlg : public uiDialog
 {
 
 public:
+
 			uiWindowFuncSelDlg(uiParent*,const char*,float);
 
+    void		funcSelChg(CallBacker*);
     const char*		getCurrentWindowName() const;
     void		setCurrentWindowFunc(const char*,float);
     void		setVariable(float); 
@@ -106,18 +128,75 @@ public:
 
 protected:
 				
-    //bool		rejectOK(CallBacker*);
     BufferStringSet	funcnames_;
-    uiGenInput*		varinpfld_;
     float		variable_;
+    bool		isfrequency_;
+    uiGenInput*		varinpfld_;
     uiFuncSelDraw*	funcdrawer_;
     ObjectSet<WindowFunction>	winfunc_;
     
     WindowFunction* 	getWindowFuncByName(const char*); 
-    void		funcSelChg(CallBacker*);
-
 };
 
 
+mClass uiFreqTaperDlg : public uiDialog
+{
+public:
 
+    mStruct Setup
+    {
+			Setup()
+			    : hasmin_(false)
+			    , hasmax_(true)
+			    {}
+	mDefSetupMemb(const char*,name);	
+	mDefSetupMemb(bool,hasmin)	
+	mDefSetupMemb(bool,hasmax)	
+	mDefSetupMemb(Interval<float>,minfreqrg)	
+	mDefSetupMemb(Interval<float>,maxfreqrg)	
+    };
+
+			uiFreqTaperDlg(uiParent*,const Setup&);
+    
+    void		setVariable(float); 
+    float		getVariable(bool); 
+   
+
+    mStruct DrawData 
+    {
+	float		variable_;
+	Interval<float> freqrg_;
+	Interval<float> funcrg_;
+	Interval<float> xaxrg_;
+    };
+
+    DrawData		dd1_;
+    DrawData		dd2_;
+
+protected:
+
+    uiGenInput*		varinpfld_;
+    uiGenInput*		freqinpfld_;
+    uiGenInput*		freqrgfld_;
+    	
+    ObjectSet<uiFunctionDrawer> drawers_;
+    WindowFunction*	winfunc_;
+
+    bool		hasmin_;
+    bool		hasmax_;
+    bool		isminactive_;
+
+    float		getSlope();
+    float 		getPercentsFromSlope(float);
+    void 		setViewRanges();
+
+    void 		setFreqFromPercents(CallBacker*);
+    void 		setPercentsFromFreq(CallBacker*);
+
+    void 		initAll(CallBacker*);
+    void		freqChoiceChged(CallBacker*);
+    void 		getFromScreen(CallBacker*);
+    void 		putToScreen(CallBacker*);
+    void		taperChged(CallBacker*);
+};
 #endif

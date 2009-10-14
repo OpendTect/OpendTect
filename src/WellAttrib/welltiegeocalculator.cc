@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.38 2009-10-07 10:30:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.39 2009-10-14 14:37:32 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -227,8 +227,6 @@ bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
 
 
 
-//low pass filter, almost similar as this of the freqfilter attribute
-//TODO put in algo
 #define mDoTransform(tf,isstraight,inp,outp,sz) \
 {   \
     tf.setInputInfo(Array1DInfoImpl(sz));\
@@ -238,14 +236,20 @@ bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
 }
 void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 {
+    const int filtersz = vals.info().getSize(0);
+    const int bordersz = (int)(SI().zStep()*1000*25);
+    if ( filtersz<100 )
+	return;
+
     FFTFilter filter;
     Array1DImpl<float> orgvals ( vals );
-    ArrayNDWindow window( Array1DInfoImpl(100), false, "CosTaper", .05 );
-    filter.setFreqBorderWindow( window.getValues(), 100 );
-    const int filtersz = vals.info().getSize(0);
+    ArrayNDWindow window( Array1DInfoImpl(bordersz), false, "CosTaper", .05 );
+    filter.setFreqBorderWindow( window.getValues(), bordersz );
     float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
 
     filter.FFTFreqFilter( df, cutf, true, orgvals, vals );
+    for ( int idx=0; idx<(int)(filtersz/10); idx++ )
+	vals.set( idx, orgvals.get(idx) );
 }
 
 
