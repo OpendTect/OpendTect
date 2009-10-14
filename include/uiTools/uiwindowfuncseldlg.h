@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.17 2009-10-14 14:37:32 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.18 2009-10-14 15:12:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,6 @@ protected:
     void 		setFreqFromPercents(CallBacker*);
     void 		setPercentsFromFreq(CallBacker*);
 
-    void 		initAll(CallBacker*);
     void		freqChoiceChged(CallBacker*);
     void 		getFromScreen(CallBacker*);
     void 		putToScreen(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.23 2009-10-14 14:37:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.24 2009-10-14 15:12:39 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -373,7 +373,10 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     winfunc_ = WinFuncs().create( "CosTaper" );
 
     uiFunctionDrawer::Setup su;
-    dd1_.funcrg_.set( -1.2, 0 ); 
+    su.xaxname_= "Frequency (Hz)"; 
+    su.yaxname_ = "Gain (dB)";
+
+    dd1_.funcrg_.set( -1.2, 0 );
     dd1_.xaxrg_ = s.minfreqrg_; 
     su.xaxrg_ = dd1_.xaxrg_;
     dd1_.freqrg_ = s.minfreqrg_; 
@@ -384,9 +387,6 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     su.xaxrg_ = dd2_.xaxrg_;
     dd2_.freqrg_ = s.maxfreqrg_; 
     drawers_ += new uiFunctionDrawer( this, su );
-
-    su.xaxname_= "Frequency (Hz)"; 
-    su.yaxname_ = "Gain (dB)";
 
     varinpfld_ = new uiGenInput( this, tapertxt_[1], FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, drawers_[0] );
@@ -417,17 +417,8 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     
     const Color& col = Color::DgbColor();
     drawers_[0]->addColor( col );	  drawers_[1]->addColor( col );
-    drawers_[0]->display( isminactive_ ); drawers_[1]->display( !isminactive_ );
 
-    initAll(0);
-}
-
-void uiFreqTaperDlg::initAll( CallBacker* )
-{
-    getFromScreen(0);
-    setFreqFromPercents(0);;
-    setViewRanges();
-    taperChged(0);
+    freqChoiceChged(0);
 }
 
 
@@ -450,7 +441,7 @@ void uiFreqTaperDlg::putToScreen( CallBacker* )
 } 
 
 
-void uiFreqTaperDlg::setFreqFromPercents(CallBacker*)
+void uiFreqTaperDlg::setFreqFromPercents( CallBacker* )
 {
     getFromScreen(0);
     setViewRanges();
@@ -473,7 +464,7 @@ void uiFreqTaperDlg::setFreqFromPercents(CallBacker*)
 }
 
 
-void uiFreqTaperDlg::setPercentsFromFreq(CallBacker*)
+void uiFreqTaperDlg::setPercentsFromFreq( CallBacker* )
 {
     getFromScreen(0);
     NotifyStopper nsf( freqrgfld_->valuechanged );
@@ -485,7 +476,8 @@ void uiFreqTaperDlg::setPercentsFromFreq(CallBacker*)
     else
 	v = 1.2-(d.freqrg_.stop-d.xaxrg_.start)/(d.xaxrg_.stop-d.xaxrg_.start);
 
-    d.variable_ = ( 1 - v )*100* isminactive_? -1:1;
+    float factor = isminactive_? -1:1;
+    d.variable_ = ( 1 - v )*100*factor;
 }
 
 
@@ -530,8 +522,7 @@ void uiFreqTaperDlg::taperChged( CallBacker* )
 
 void uiFreqTaperDlg::freqChoiceChged( CallBacker* )
 {
-    if ( !freqinpfld_ ) return;
-    isminactive_ = freqinpfld_->getBoolValue();
+    if ( freqinpfld_ ) isminactive_ = freqinpfld_->getBoolValue();
     freqrgfld_->setSensitive( hasmin_ && isminactive_, 0, 0 );
     freqrgfld_->setSensitive( hasmax_ && !isminactive_, 0, 1 );
     drawers_[0]->display( isminactive_ );
@@ -554,8 +545,10 @@ void uiFreqTaperDlg::setVariable(float var)
     DrawData& dd = mGetData();
     dd.variable_ = var * 100;
     putToScreen(0); 
+    setFreqFromPercents(0);
     taperChged(0); 
 }
+
 
 float uiFreqTaperDlg::getVariable( bool min )
 {
