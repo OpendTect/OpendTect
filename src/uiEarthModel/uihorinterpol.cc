@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.9 2009-10-08 11:19:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.10 2009-10-15 20:59:43 cvsyuancheng Exp $";
 
 #include "uihorinterpol.h"
 
@@ -62,8 +62,8 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
     uiGroup* attgrp = 0;
     if ( horizon_ )
     {
-	savefld_ = new uiGenInput( this, "Store after interpolation",
-				    BoolInpSpec(true) );
+	savefld_ = new uiGenInput( this, "Save gridded horizon",
+				   BoolInpSpec(false, "As new", "Overwrite") );
 	savefld_->attach( alignedBelow, interpolsel_ );
 	savefld_->valuechanged.notify(
 		mCB(this,uiHorizon3DInterpolDlg,saveChangeCB));
