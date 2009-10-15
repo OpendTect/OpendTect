@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.32 2009-09-28 13:26:51 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.33 2009-10-15 13:20:59 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -59,7 +59,7 @@ BinIDValueSet& BinIDValueSet::operator =( const BinIDValueSet& bvs )
 {
     if ( &bvs == this ) return *this;
 
-    copyStructureFrom( bvs );
+    empty(); copyStructureFrom( bvs );
 
     for ( int iinl=0; iinl<bvs.inls_.size(); iinl++ )
     {
@@ -140,15 +140,37 @@ void BinIDValueSet::randomSubselect( od_int64 maxsz )
 	{ empty(); return; }
 
     mGetIdxArr(od_int64,idxs,orgsz);
-    if ( !idxs ) { empty(); return; }
+    if ( !idxs )
+	{ empty(); return; }
 
+    const bool buildnew = ((od_int64)maxsz) < (orgsz / ((od_int64)2));
     Stats::RandGen::subselect( idxs, orgsz, maxsz );
     TypeSet<Pos> poss;
-    for ( od_int64 idx=maxsz; idx<orgsz; idx++ )
-	poss += getPos( idxs[idx] );
-
+    if ( buildnew )
+    {
+	for ( od_int64 idx=0; idx<maxsz; idx++ )
+	    poss += getPos( idxs[idx] );
+    }
+    else
+    {
+	for ( od_int64 idx=maxsz; idx<orgsz; idx++ )
+	    poss += getPos( idxs[idx] );
+    }
     delete [] idxs;
-    remove( poss );
+
+    if ( !buildnew )
+	remove( poss );
+    else
+    {
+	BinIDValueSet newbvs( nrvals_, allowdup_ );
+	BinIDValues bidvals;
+	for ( od_int64 idx=0; idx<poss.size(); idx++ )
+	{
+	    get( poss[idx], bidvals );
+	    newbvs.add( bidvals );
+	}
+	*this = newbvs;
+    }
 }
 
 
