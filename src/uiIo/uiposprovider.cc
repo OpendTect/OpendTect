@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.19 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.20 2009-10-15 20:19:03 cvsyuancheng Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -257,7 +257,15 @@ void uiPosProvSel::mkNewProv( bool updsumm )
 	prov_ = Pos::Provider3D::make( iop_ );
 
     if ( prov_ )
+    {
 	prov_->getCubeSampling( cs_ );
+	if ( !setup_.is2d_ ) //set step for 3D cs
+	{
+	    CubeSampling tmpcs;
+	    tmpcs.usePar( iop_ );
+	    cs_.hrg.step = tmpcs.hrg.step;
+	}
+    }
     else
     {
 	setCSToAll();
