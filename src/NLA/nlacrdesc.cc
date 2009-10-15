@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.20 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.21 2009-10-15 10:07:13 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -88,6 +88,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	dpsnmadd += ioobj->name(); dpsnmadd += "')";
 	nrout = 1;
 	totnrvec = dpss[0]->size();
+	const_cast<NLACreationDesc*>(this)->pars.merge( vds.pars() );
     }
     if ( totnrvec < 1 )
 	return "No data vectors found";
