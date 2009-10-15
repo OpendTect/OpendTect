@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.24 2009-10-14 15:12:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.25 2009-10-15 15:27:40 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -376,22 +376,22 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     su.xaxname_= "Frequency (Hz)"; 
     su.yaxname_ = "Gain (dB)";
 
-    dd1_.funcrg_.set( -1.2, 0 );
-    dd1_.xaxrg_ = s.minfreqrg_; 
-    su.xaxrg_ = dd1_.xaxrg_;
-    dd1_.freqrg_ = s.minfreqrg_; 
-    drawers_ += new uiFunctionDrawer( this, su );
+    dd1_.variable_ = 5;			dd2_.variable_ = 5;
+    dd1_.funcrg_.set( -1.2, 0 ); 	dd2_.funcrg_.set( 0, 1.2 );
+    dd1_.xaxrg_ = s.minfreqrg_; 	dd2_.xaxrg_ = s.maxfreqrg_;
+    dd1_.freqrg_ = s.minfreqrg_;  	dd2_.freqrg_ = s.maxfreqrg_; 
 
-    dd2_.funcrg_.set( 0, 1.2 );
-    dd2_.xaxrg_ = s.maxfreqrg_;
+    su.xaxrg_ = dd1_.xaxrg_;		
+    drawers_ += new uiFunctionDrawer( this, su );
     su.xaxrg_ = dd2_.xaxrg_;
-    dd2_.freqrg_ = s.maxfreqrg_; 
     drawers_ += new uiFunctionDrawer( this, su );
 
     varinpfld_ = new uiGenInput( this, tapertxt_[1], FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, drawers_[0] );
     varinpfld_->attach( ensureBelow, drawers_[1] );
     varinpfld_->setTitleText ( tapertxt_[1] );
+    varinpfld_->setValue( dd1_.variable_ );
+    varinpfld_->valuechanged.notify( mCB( this, uiFreqTaperDlg, getFromScreen));
     varinpfld_->valuechanged.notify( 
 	    		mCB( this, uiFreqTaperDlg, setFreqFromPercents ) );
     varinpfld_->valuechanged.notify( mCB(this, uiFreqTaperDlg, taperChged) );
@@ -410,6 +410,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     freqrgfld_ = new uiGenInput( this, "Start/Stop frequency(Hz)",
 				    FloatInpSpec().setName("Min frequency"),
 				    FloatInpSpec().setName("Max frequency") );
+    freqrgfld_->valuechanged.notify( mCB( this, uiFreqTaperDlg, getFromScreen));
     freqrgfld_->valuechanged.notify( mCB( 
 			    this, uiFreqTaperDlg, setPercentsFromFreq ) );
     freqrgfld_->valuechanged.notify( mCB( this, uiFreqTaperDlg, taperChged  ) );
@@ -425,7 +426,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
 void uiFreqTaperDlg::getFromScreen( CallBacker* )
 {
     DrawData& dd = mGetData();
-    dd.variable_ = varinpfld_->getfValue();
+    dd.variable_ = varinpfld_->getfValue();// getPercentsFromSlope( varinpfld_->getfValue() );
     dd.freqrg_ = freqrgfld_->getFInterval();
 }
 
@@ -436,14 +437,13 @@ void uiFreqTaperDlg::putToScreen( CallBacker* )
     NotifyStopper nsf2( freqrgfld_->valuechanged );
 
     DrawData& dd = mGetData();
-    varinpfld_->setValue( dd.variable_ );
+    varinpfld_->setValue( dd.variable_ ); // getSlope() );
     freqrgfld_->setValue( dd.freqrg_ );
 } 
 
 
 void uiFreqTaperDlg::setFreqFromPercents( CallBacker* )
 {
-    getFromScreen(0);
     setViewRanges();
     LinScaler scaler;
     DrawData& d = mGetData();
@@ -466,28 +466,36 @@ void uiFreqTaperDlg::setFreqFromPercents( CallBacker* )
 
 void uiFreqTaperDlg::setPercentsFromFreq( CallBacker* )
 {
-    getFromScreen(0);
     NotifyStopper nsf( freqrgfld_->valuechanged );
 
     DrawData& d = mGetData();
-    float v = 0;
+    float v = 0; 
+    const float denom = ( d.xaxrg_.stop -d.xaxrg_.start );
     if ( isminactive_ )
-	v = ( d.xaxrg_.stop-d.freqrg_.start )/( d.xaxrg_.stop-d.xaxrg_.start );
+    {
+	float f =( d.freqrg_.start - d.xaxrg_.start ) / denom;
+	v = ( d.funcrg_.start )*( 1 - 1/f ) - 1/f;
+    }
     else
-	v = 1.2-(d.freqrg_.stop-d.xaxrg_.start)/(d.xaxrg_.stop-d.xaxrg_.start);
-
+    {
+	float f =( d.freqrg_.stop-d.xaxrg_.start ) / denom;
+	v = ( 1 - d.funcrg_.stop*f )/ ( 1 - f );
+    }
     float factor = isminactive_? -1:1;
-    d.variable_ = ( 1 - v )*100*factor;
+    d.variable_ = ( 1 - v*factor  )*100;
 }
 
-
+#define mDec2Oct 0.301029996
 float uiFreqTaperDlg::getPercentsFromSlope( float slope )
 {
+    NotifyStopper nsf( freqrgfld_->valuechanged );
+    const float slopeinoctave = (float)(slope/mDec2Oct);
+    const float slopefac = pow( 10, slopeinoctave );
     DrawData& dd = mGetData();
     if ( isminactive_ )
-	dd1_.freqrg_.start = dd.freqrg_.stop/pow( 10,(float)(slope/(Math::Log10(2.0) )));
+	dd1_.freqrg_.start = dd.freqrg_.stop / slopefac;
     else
-	dd1_.freqrg_.stop = pow( 10,(float)(slope/(Math::Log10(2.0) )))*dd.freqrg_.start;
+	dd1_.freqrg_.stop = dd.freqrg_.start * slopefac;
     setPercentsFromFreq(0);
     return isminactive_ ? dd.variable_ : dd.variable_; 
 }
@@ -497,7 +505,7 @@ float uiFreqTaperDlg::getSlope()
 {
     DrawData& dd = mGetData();
     float slope = Math::Log10( (float)(dd.freqrg_.stop/dd.freqrg_.start) );
-    slope *= Math::Log10( 2.0 );
+    slope *= mDec2Oct;
     return slope;
 }
 
@@ -522,12 +530,16 @@ void uiFreqTaperDlg::taperChged( CallBacker* )
 
 void uiFreqTaperDlg::freqChoiceChged( CallBacker* )
 {
-    if ( freqinpfld_ ) isminactive_ = freqinpfld_->getBoolValue();
+    if ( freqinpfld_ ) 
+	isminactive_ = freqinpfld_->getBoolValue();
+    else
+	isminactive_ = hasmin_;
     freqrgfld_->setSensitive( hasmin_ && isminactive_, 0, 0 );
     freqrgfld_->setSensitive( hasmax_ && !isminactive_, 0, 1 );
     drawers_[0]->display( isminactive_ );
     drawers_[1]->display( !isminactive_ );
-    taperChged(0);
+    DrawData& dd = mGetData();
+    setVariables( Interval<float>( dd1_.variable_, dd2_.variable_ ) );
 }
 
 
@@ -540,19 +552,18 @@ void uiFreqTaperDlg::setViewRanges()
 } 
 
 
-void uiFreqTaperDlg::setVariable(float var)
+void uiFreqTaperDlg::setVariables( Interval<float> vars )
 { 
-    DrawData& dd = mGetData();
-    dd.variable_ = var * 100;
+    dd1_.variable_ = vars.start;
+    dd2_.variable_ = vars.stop;
     putToScreen(0); 
     setFreqFromPercents(0);
     taperChged(0); 
 }
 
 
-float uiFreqTaperDlg::getVariable( bool min )
+Interval<float> uiFreqTaperDlg::getVariables() const
 {
-    return min ? dd1_.variable_ : dd2_.variable_;
+    return Interval<float> ( dd1_.variable_, dd2_.variable_ );
 } 
-
 

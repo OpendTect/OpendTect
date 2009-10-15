@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.14 2009-10-14 14:37:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.15 2009-10-15 15:27:40 cvsbruno Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -20,13 +20,14 @@ static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.14 2009-10-14 14:37:
 
 uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     : uiGroup( p, "Window function selector" )
+    , isfreq_(false) 
     , winfuncseldlg_(0)
 {
-    windowvariable_.allowNull();
+    isfreq_ = ( su.isminfreq_ || su.ismaxfreq_ );  
     windowfuncs_.allowNull();
 
     BufferStringSet funcnames; 
-    if ( su.isminfreq_ || su.ismaxfreq_ ) 
+    if ( isfreq_ ) 
 	funcnames.add( "CosTaper" ); 
     else
 	funcnames = WinFuncs().getNames();
@@ -38,33 +39,36 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     windowtypefld_->valuechanged.notify(
 			mCB( this, uiWindowFunctionSel, windowChangedCB ) );
 
-    uiPushButton* viewbut = new uiPushButton( this, "View", true );
-    viewbut->activated.notify( mCB(this,uiWindowFunctionSel,winfuncseldlgCB) );
-    viewbut->attach( rightTo, windowtypefld_ );
+    viewbut_ = new uiPushButton( this, "View", true );
+    viewbut_->activated.notify( mCB(this,uiWindowFunctionSel,winfuncseldlgCB) );
+    viewbut_->attach( rightTo, windowtypefld_ );
 
-    uiGenInput* firstvarfld = 0;
     for ( int idx=1; idx<funcnames.size(); idx++ )
     {
 	WindowFunction* winfunc = WinFuncs().create( funcnames[idx]->buf());
 	if ( winfunc && winfunc->hasVariable() )
 	{
+	    taperidx_ = idx-1;
 	    BufferString varname( winfunc->variableName() );
 	    varname += " (%)";
-	    uiGenInput* varinp = new uiGenInput( this,
-		varname.buf(), FloatInpSpec(winfunc->getVariable() * 100) );
-
+	    float v = winfunc->getVariable() * 100;
+	    if ( isfreq_ )
+	    {
+		BufferString freqvarname( "Nin/max frequency " );
+		freqvarname += varname;
+		varinpfld_ = new uiGenInput( this, freqvarname.buf(), 
+					FloatInpSpec(v), FloatInpSpec(v) );
+	    }
+	    else
+		varinpfld_ = new uiGenInput(this,varname.buf(),FloatInpSpec(v));
 	    if ( su.winname_ && !strcmp(su.winname_, winfunc->name() ) )
-		varinp->setValue( su.winparam_ * 100 );
+		varinpfld_->setValue( su.winparam_ * 100 );
 
-	    varinp->attach( alignedBelow, windowtypefld_ );
-	    windowvariable_ += varinp;
-	    if ( !firstvarfld )
-		firstvarfld = varinp;
-	    varinp->valuechanged.notify( mCB(this,uiWindowFunctionSel,
+	    varinpfld_->attach( alignedBelow, windowtypefld_ );
+	    varinpfld_->valuechanged.notify( mCB(this,uiWindowFunctionSel,
 					     windowChangedCB) );
+	    varinpfld_->display( su.isminfreq_ || su.ismaxfreq_ );
 	}
-	else
-	    windowvariable_ += 0;
 
 	windowfuncs_ += winfunc;
     }
@@ -78,11 +82,14 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 uiWindowFunctionSel::~uiWindowFunctionSel()
 { deepErase( windowfuncs_ ); }
 
+
 NotifierAccess& uiWindowFunctionSel::typeChange()
 { return windowtypefld_->valuechanged; }
 
+
 const char* uiWindowFunctionSel::windowName() const
 { return windowtypefld_->text( 0 ); }
+
 
 void uiWindowFunctionSel::setWindowName( const char* nm )
 {
@@ -95,31 +102,25 @@ void uiWindowFunctionSel::setWindowParamValue( float val )
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
     if ( !windowfuncs_.validIdx(winidx) ) return;
 
-    if (  windowvariable_[winidx] )
-	windowvariable_[winidx]->setValue( val * 100 );
-    for ( int idx=0; idx<windowvariable_.size(); idx++ )
-    {
-	if ( windowvariable_[idx] )
-	     windowvariable_[idx]->display( idx==winidx );
-    }
+    varinpfld_->setValue( val * 100 );
+    windowChangedCB(0);
 }
 
 
 float uiWindowFunctionSel::windowParamValue() const
 { 
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    if ( winidx<0 || !windowvariable_[winidx] )
+    if ( winidx<0 || winidx != taperidx_ )
 	return mUdf(float);
 
-    return windowvariable_[winidx]->getfValue( 0 )/100;
+    return varinpfld_->getfValue( 0 )/100;
 }
 
 
 const char* uiWindowFunctionSel::windowParamName() const
 { 
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    if ( winidx<0 || !windowvariable_[winidx] )
-	return 0;
+    if ( winidx<0 ) return 0;
 
     return windowfuncs_[winidx]->variableName();
 }
@@ -153,11 +154,8 @@ void uiWindowFunctionSel::windowClosed( CallBacker* )
 	setWindowParamValue( variable );
     
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    for ( int idx=0; idx<windowvariable_.size(); idx++ )
-    {
-	if ( windowvariable_[idx] )
-	     windowvariable_[idx]->display( idx==winidx );
-    }
+    varinpfld_->display( winidx == taperidx_ );
+    viewbut_->display( !isfreq_ || winidx == taperidx_  );
 }
 
 
@@ -167,11 +165,8 @@ void uiWindowFunctionSel::windowChangedCB( CallBacker* )
 	return;
 
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    for ( int idx=0; idx<windowvariable_.size(); idx++ )
-    {
-	if ( windowvariable_[idx] )
-	     windowvariable_[idx]->display( idx==winidx );
-    }
+    varinpfld_->display( winidx == taperidx_ );
+    viewbut_->display( !isfreq_ || winidx == taperidx_  );
 }
 
 
@@ -193,7 +188,7 @@ void uiFreqTaperSel::winfuncseldlgCB( CallBacker* )
     su.maxfreqrg_.set( freqrg_.stop, freqrg_.stop+18 );
 
     freqtaperdlg_ = new uiFreqTaperDlg( this, su );
-    freqtaperdlg_->setVariable( windowParamValue() ? windowParamValue() : 20 );
+    freqtaperdlg_->setVariables( windowParamValues() );
     freqtaperdlg_->windowClosed.notify( mCB(this,uiFreqTaperSel,windowClosed));
     freqtaperdlg_->show();
 }
@@ -201,8 +196,29 @@ void uiFreqTaperSel::winfuncseldlgCB( CallBacker* )
 
 void uiFreqTaperSel::windowClosed( CallBacker* )
 {
-    const float maxvariable = freqtaperdlg_->getVariable( false )/100;
-    const float minvariable = freqtaperdlg_->getVariable( true )/100;
-    if( !mIsUdf(maxvariable) && maxvariable >= 0 )
-	setWindowParamValue( maxvariable );
+    setWindowParamValues( freqtaperdlg_->getVariables() );
 }
+
+
+void uiFreqTaperSel::setIsMinMaxFreq(bool min, bool max)
+{ 
+    isminfreq_ = min; ismaxfreq_ = max; 
+    varinpfld_->setSensitive( min, 0, 0 );
+    varinpfld_->setSensitive( max, 0 ,1 );
+}
+
+
+Interval<float> uiFreqTaperSel::windowParamValues() const
+{ 
+    return varinpfld_->getFInterval();
+}
+
+
+void uiFreqTaperSel::setWindowParamValues( Interval<float> vals )
+{
+    varinpfld_->setValue( vals );
+    windowChangedCB(0);
+}
+
+
+

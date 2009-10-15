@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.6 2009-10-14 14:37:32 cvsbruno Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.7 2009-10-15 15:27:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class WindowFunction;
 class uiGenInput;
+class uiPushButton;
 class uiWindowFuncSelDlg;
 class uiFreqTaperDlg;
 
@@ -63,9 +64,12 @@ protected:
     BufferString		errmsg_;
     Interval<float>		annotrange_;
 
+    int				taperidx_;
+    bool			isfreq_;
     uiGenInput*			windowtypefld_;
+    uiGenInput*			varinpfld_;
+    uiPushButton*		viewbut_;
     uiWindowFuncSelDlg*		winfuncseldlg_;
-    ObjectSet<uiGenInput>	windowvariable_;
     ObjectSet<WindowFunction>	windowfuncs_;
 };
 
@@ -76,8 +80,7 @@ public:
     				uiFreqTaperSel(uiParent*,const Setup&);
 
     Interval<float> 		freqrg_;
-    void 			setIsMinMaxFreq(bool min, bool max)
-    				{ isminfreq_ = min; ismaxfreq_ = max; }
+    void 			setIsMinMaxFreq(bool,bool);
 
 protected :
 
@@ -85,6 +88,8 @@ protected :
     bool			ismaxfreq_;
     uiFreqTaperDlg*		freqtaperdlg_;
 
+    void			setWindowParamValues(Interval<float>);
+    Interval<float>		windowParamValues() const;
     void			winfuncseldlgCB(CallBacker*);
     void			windowClosed(CallBacker*);
 };

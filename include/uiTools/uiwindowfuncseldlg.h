@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.18 2009-10-14 15:12:39 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.19 2009-10-15 15:27:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,9 +158,8 @@ public:
 
 			uiFreqTaperDlg(uiParent*,const Setup&);
     
-    void		setVariable(float); 
-    float		getVariable(bool); 
-   
+    void		setVariables(Interval<float>); 
+    Interval<float>	getVariables() const; 
 
     mStruct DrawData 
     {
