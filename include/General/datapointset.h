@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.31 2009-10-01 13:29:03 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.32 2009-10-15 10:05:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ namespace Pos { class Filter; class Provider; }
   needs to be 2D; then also 'trcNr() can be used.
 
   For large sets, you may not be interested in precise X and Y, and
-  grouping/selection. The specify the 'minimal' flag on construction.
+  grouping/selection. Then specify the 'minimal' flag on construction.
 
 */
 
@@ -47,16 +47,17 @@ public:
 
     typedef int		RowID;
     typedef int		ColID;
+    class		DataRow;
 
-    /*!\brief Fast position based on BinID but more precise */
+    /*!\brief Real Coord3D-position storable in BinIDValueSet + trc nr */
 
-    mStruct Pos
+    mClass Pos
     {
+    public:
 			Pos() : offsx_(0), offsy_(0), z_(0), nr_(0)	{}
-			Pos( const BinID& bid, float _z,
-			     float offsx=0, float offsy=0 )
+			Pos( const BinID& bid, float _z )
 			    : binid_(bid), nr_(0), z_(_z)
-			    , offsx_(offsx), offsy_(offsy)		{}
+			    , offsx_(0), offsy_(0)		{}
 			Pos(const Coord&,float z);
 			Pos(const Coord3&);
 
@@ -70,24 +71,33 @@ public:
 	void		set( const BinID& bid )
 	    		{ binid_ = bid; offsx_ = offsy_ = 0; }
 	void		set(const Coord&);
-	void		set(const BinID&,const Coord&);
-	void		set(const BinID&,const Coord3&);
+	void		set(const Coord3&);
 
 	BinID		binid_;
-	float		offsx_, offsy_;
 	float		z_;
 	int		nr_;			//!< unused if not 2D
 
+	float		binIDOffSet( bool inx ) const
+			{ return inx ? offsx_ : offsy_; }
+	void		setBinIDOffset( bool inx, float o )
+	    		{ (inx ? offsx_ : offsy_) = o; }
+	void		setBinIDOffsets( float ox, float oy )
+	    		{ offsx_ = ox; offsy_ = oy; }
+
     protected:
 
+	float		offsx_, offsy_;
 	void		setOffs(const Coord&);
+	friend class	DataRow;
+
     };
 
     /*!\brief Data point with group. Group 0 means 'inactive',
       	      it can never be selected. */
 
-    mStruct DataRow
+    mClass DataRow
     {
+    public:
 			DataRow()
 			    : grp_(1)			{ setSel(false); }
 			DataRow( const Pos& p, unsigned short grp=1,

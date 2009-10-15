@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.52 2009-09-01 06:14:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.53 2009-10-15 10:05:55 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -841,7 +841,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	    if ( !isDisp(true) ) { pErrMsg("Huh"); mRetErr; }
 	    Coord crd( pos.coord() );
 	    (dcid == -cNrPosCols ? crd.x : crd.y) = tbl_->getValue( cell );
-	    pos.set( SI().transform(crd), crd );
+	    pos.set( crd );
 	    poschgd = pos.binid_ != beforechgdr_.pos_.binid_;
 	}
     }

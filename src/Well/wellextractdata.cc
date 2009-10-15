@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.55 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.56 2009-10-15 10:05:55 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -295,7 +295,7 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
     if ( dahcolnr >= 0 )
 	dr.data_ += dah;
 #define mAddRow(bv,pos) \
-    dr.pos_.z_ = bv.value; dr.pos_.set( bv.binid, pos ); dps.addRow( dr )
+    dr.pos_.z_ = bv.value; dr.pos_.set( pos ); dps.addRow( dr )
 
     mAddRow( biv, precisepos );
     if ( mIsUdf(locradius) || locradius < 1e-3 )
@@ -309,7 +309,7 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
     stmt; \
     crd = SI().transform( newbiv.binid ); \
     if ( crd.sqDistTo(precisepos) <= sqrlocradius ) \
-	{ mAddRow(newbiv,crd); nradded++; } \
+	{ mAddRow(biv,crd); nradded++; } \
 }
 
     BinIDValue newbiv( biv ); Coord crd;

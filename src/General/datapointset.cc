@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.30 2009-10-01 13:29:03 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.31 2009-10-15 10:05:55 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -56,18 +56,10 @@ void DataPointSet::Pos::set( const Coord& c )
 }
 
 
-void DataPointSet::Pos::set( const BinID& bid, const Coord& c )
+void DataPointSet::Pos::set( const Coord3& c )
 {
-    binid_ = bid;
-    setOffs( c );
-}
-
-
-void DataPointSet::Pos::set( const BinID& bid, const Coord3& c )
-{
-    binid_ = bid;
-    setOffs( c );
     z_ = c.z;
+    set( ((const Coord&)c) );
 }
 
 
@@ -152,13 +144,9 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
     while ( prov.toNextZ() )
     {
 	const Coord crd( prov.curCoord() );
-	if ( p3d )
-	    dr.pos_.set( p3d->curBinID(), crd );
-	else
-	{
-	    dr.pos_.set( SI().transform(crd), crd );
+	dr.pos_.set( crd );
+	if ( !p3d )
 	    dr.pos_.nr_ = p2d->curNr();
-	}
 	dr.pos_.z_ = prov.curZ();
 	if ( filt )
 	{
@@ -213,7 +201,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 	dr.pos_.z_ = vals[0];
 	if ( isdps )
 	{
-	    dr.pos_.offsx_ = vals[1]; dr.pos_.offsy_ = vals[2];
+	    dr.pos_.setBinIDOffsets( vals[1], vals[2] );
 	    dr.grp_ = (short)vals[3];
 	    if ( is2d_ )
 		dr.pos_.nr_ = mNINT(vals[4]);
@@ -383,7 +371,7 @@ DataPointSet::Pos DataPointSet::pos( DataPointSet::RowID rid ) const
     const float* vals = bivSet().getVals( bvsidxs_[rid] );
     Pos p( binID(rid), vals[0] );
     if ( !minimal_ )
-	{ p.offsx_ = vals[1]; p.offsy_ = vals[2]; }
+	p.setBinIDOffsets( vals[1], vals[2] );
     if ( is2d_ )
 	p.nr_ = mNINT(vals[nrfixedcols_-1]);
     return p;

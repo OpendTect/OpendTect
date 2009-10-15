@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: picksettr.cc,v 1.22 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: picksettr.cc,v 1.23 2009-10-15 10:05:55 cvsbert Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -217,7 +217,7 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
 	    const Coord3& crd( crds[ipck] );
-	    dr.pos_.set( SI().transform(crd), crd );
+	    dr.pos_.set( crd );
 	    dps->addRow( dr );
 	}
 	dps->dataChanged();
