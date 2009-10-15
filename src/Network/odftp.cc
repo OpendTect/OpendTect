@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odftp.cc,v 1.4 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: odftp.cc,v 1.5 2009-10-15 03:10:47 cvsnanne Exp $";
 
 #include "odftp.h"
 
@@ -29,4 +29,49 @@ ODFtp::ODFtp()
     totalnr_ = 0;
     commandid_ = 0;
     connectionstate_ = 0;
+}
+
+
+int ODFtp::connectToHost( const char* host, int port )
+{ return qftp_->connectToHost( host, port ); }
+
+int ODFtp::login( const char* usrnm, const char* passwd )
+{ return qftp_->login( usrnm, passwd ); }
+
+int ODFtp::close()
+{ return qftp_->close(); }
+
+void ODFtp::abort()
+{ qftp_->abort(); }
+
+int ODFtp::get( const char* file )
+{ return qftp_->get( file ); }
+// TODO: use QIODevice
+
+
+int ODFtp::put( const char* file )
+{ return qftp_->put( 0, file ); }
+// TODO: use QIODevice
+
+int ODFtp::cd( const char* dir )
+{ return qftp_->cd( dir ); }
+
+int ODFtp::rename( const char* oldname, const char* newname )
+{ return qftp_->rename( oldname, newname ); }
+
+int ODFtp::remove( const char* file )
+{ return qftp_->remove( file ); }
+
+int ODFtp::mkdir( const char* dir )
+{ return qftp_->mkdir( dir ); }
+
+int ODFtp::rmdir( const char* dir )
+{ return qftp_->rmdir( dir ); }
+
+bool ODFtp::hasPendingCommands() const
+{ return qftp_->hasPendingCommands(); }
+
+const char* ODFtp::error() const
+{
+    return 0;
 }
