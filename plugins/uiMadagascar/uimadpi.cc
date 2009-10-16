@@ -5,21 +5,23 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.16 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.17 2009-10-16 02:44:08 cvsnanne Exp $";
 
 #include "uimadagascarmain.h"
-#include "uiodmenumgr.h"
 #include "uimenu.h"
+#include "uimsg.h"
+#include "uiodmenumgr.h"
 #include "uitoolbar.h"
+
 #include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "separstr.h"
+#include "ioman.h"
 #include "maddefs.h"
 #include "madio.h"
-#include "uimsg.h"
+#include "pixmap.h"
 #include "plugins.h"
-#include "ioman.h"
+#include "separstr.h"
 
 mExternC int GetuiMadagascarPluginType()
 {
@@ -97,8 +99,10 @@ void uiMadagascarLink::updateToolBar( CallBacker* )
 void uiMadagascarLink::updateMenu( CallBacker* )
 {
     delete madwin_; madwin_ = 0;
+    const ioPixmap madpm( "madagascar.png" );
     uiMenuItem* newitem = new uiMenuItem( "&Madagascar ...",
-	    				  mCB(this,uiMadagascarLink,doMain) );
+	    				  mCB(this,uiMadagascarLink,doMain),
+	   				  &madpm );
     mnumgr.procMnu()->insertItem( newitem );
 }
 
