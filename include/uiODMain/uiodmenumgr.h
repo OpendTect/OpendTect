@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.49 2009-09-09 09:34:04 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.50 2009-10-16 03:28:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,8 @@ protected:
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectMnus(CallBacker*);
     void		toggViewMode(CallBacker*);
-    void		create2D3DMnu(uiPopupMenu*,const char*,int,int);
+    void		create2D3DMnu(uiPopupMenu*,const char*,int,int,
+	    			      const char* pm=0);
 
     uiMenuItem*		stereooffitm_;
     uiMenuItem*		stereoredcyanitm_;

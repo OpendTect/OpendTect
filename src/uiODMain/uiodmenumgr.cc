@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.191 2009-10-05 15:55:30 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.192 2009-10-16 03:28:08 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -153,9 +153,10 @@ void uiODMenuMgr::enableActButton( bool yn )
     menu->insertItem( \
 	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)), id )
 
-#define mInsertPixmapItem(menu,txt,id,pixmap) \
+#define mInsertPixmapItem(menu,txt,id,pmfnm) { \
+    ioPixmap pm( pmfnm ); \
     menu->insertItem( \
-	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick), pixmap), id )
+	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick),&pm), id ); }
 
 #define mCleanUpImpExpSets(set) \
 { \
@@ -168,9 +169,8 @@ void uiODMenuMgr::enableActButton( bool yn )
 
 void uiODMenuMgr::fillSurveyMenu()
 {
-    const ioPixmap surveypm( "survey.png" );
     mInsertPixmapItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm,
-	    	       &surveypm );
+	    	       "survey.png" )
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession" );
     mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
@@ -295,33 +295,39 @@ void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
     mInsertItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm );
-    mInsertItem( manmnu_, "&Faults ...", mManFaultMnuItm );
+    mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt.png" )
     mInsertItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm );
     if ( SI().getSurvDataType() == SurveyInfo::No2D )
-	mInsertItem( manmnu_, "&Horizons ...", mManHor3DMnuItm );
+	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm,
+			   "man_hor.png" )
     else
     {
-	uiPopupMenu* mnu = new uiPopupMenu( &appl_, "&Horizons" );
+	ioPixmap pm( "man_hor.png" );
+	uiPopupMenu* mnu = new uiPopupMenu( &appl_, "&Horizons", &pm );
 	mInsertItem( mnu, "&2D ...", mManHor2DMnuItm );
 	mInsertItem( mnu, "&3D ...", mManHor3DMnuItm );
 	manmnu_->insertItem( mnu );
     }
 
-    mInsertItem( manmnu_, "&PickSets ...", mManPickMnuItm );
-    create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm );
+    mInsertPixmapItem( manmnu_, "&PickSets ...", mManPickMnuItm,
+		       "man_picks.png" );
+    create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
+		   "man_seis.png" );
 
-    mInsertItem( manmnu_, "Strati&graphy ...", mManStratMnuItm );
-    mInsertItem( manmnu_, "Wa&velets ...", mManWvltMnuItm );
-    mInsertItem( manmnu_, "&Wells ...", mManWellMnuItm );
+    mInsertPixmapItem( manmnu_, "Strati&graphy ...", mManStratMnuItm,
+	    	       "man_strat.png" )
+    mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt.png")
+    mInsertPixmapItem( manmnu_, "&Wells ...", mManWellMnuItm, "man_wll.png" )
 }
 
 
 void uiODMenuMgr::create2D3DMnu( uiPopupMenu* itm, const char* title,
-				 int id2d, int id3d )
+				 int id2d, int id3d, const char* pmfnm )
 {
     if ( SI().has2D() && SI().has3D() )
     {
-	uiPopupMenu* mnu = new uiPopupMenu( &appl_, title );
+	ioPixmap pm( pmfnm );
+	uiPopupMenu* mnu = new uiPopupMenu( &appl_, title, &pm );
 	mInsertItem( mnu, "&2D ...", id2d );
 	mInsertItem( mnu, "&3D ...", id3d );
 	itm->insertItem( mnu );
@@ -330,9 +336,9 @@ void uiODMenuMgr::create2D3DMnu( uiPopupMenu* itm, const char* title,
     {
 	const BufferString titledots( title, " ..." );
 	if ( SI().has2D() )
-	    mInsertItem( itm, titledots, id2d );
+	    mInsertPixmapItem( itm, titledots, id2d, pmfnm )
 	else if ( SI().has3D() )
-	    mInsertItem( itm, titledots, id3d );
+	    mInsertPixmapItem( itm, titledots, id3d, pmfnm )
     }
 }
 
@@ -387,7 +393,7 @@ void uiODMenuMgr::fillAnalMenu()
     else
     {
        	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm,
-			   &attrpm );
+			   "attributes.png" )
 	analmnu_->insertSeparator();
     }
 
