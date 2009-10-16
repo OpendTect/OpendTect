@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.187 2009-10-14 12:43:45 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.188 2009-10-16 07:16:37 cvskarthika Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -717,11 +717,22 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 
 const uiSoViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
 {
-     for ( int idx=0; idx<scenes_.size(); idx++ )
+    BufferStringSet scenenms; 
+        
+    scenenms.add( getSceneName( sceneid ) );
+
+    int vwrid;
+    getSceneNames( scenenms, vwrid );
+    if ( vwrid>-1 && vwrid<scenes_.size() )
+	return scenes_[vwrid]->sovwr_;
+
+    return 0;
+
+/*     for ( int idx=0; idx<scenes_.size(); idx++ )
 	 if ( scenes_[idx]->sovwr_->sceneID() == sceneid )
 	     return scenes_[idx]->sovwr_;
      
-     return 0;
+     return 0;*/
 }
 
 
@@ -1079,14 +1090,19 @@ void uiODSceneMgr::doDirectionalLight(CallBacker*)
 
 float uiODSceneMgr::getHeadOnLightIntensity( int sceneid )
 {
-    return getSoViewer( sceneid )->getHeadOnLightIntensity();
+    const uiSoViewer* vwr = getSoViewer( sceneid );
+    if ( vwr )
+	return vwr->getHeadOnLightIntensity();
+    else
+        return 0.0;
 }
 
 
 void uiODSceneMgr::setHeadOnLightIntensity( int sceneid, float value )
 {
-    const_cast <uiSoViewer*> (getSoViewer( sceneid ))->
-	setHeadOnLightIntensity( value );
+    uiSoViewer* vwr = const_cast <uiSoViewer*> (getSoViewer( sceneid ));
+    if ( vwr )
+	vwr->setHeadOnLightIntensity( value );
 }
 
 uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
