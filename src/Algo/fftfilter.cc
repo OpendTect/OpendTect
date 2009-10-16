@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.4 2009-10-14 14:37:32 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.5 2009-10-16 16:30:36 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -21,7 +21,8 @@ FFTFilter::FFTFilter()
     , hilbert_(0)	       	
     , fft_(0)	      
     , window_(0)	      	      
-    , fwindow_(0)	      	      
+    , hfwindow_(0)	      	      
+    , lfwindow_(0)	      	      
 {
     hilbert_ = new HilbertTransform();
     fft_ = new FFT();
@@ -33,7 +34,8 @@ FFTFilter::~FFTFilter()
     delete fft_;
     delete hilbert_;
     delete window_;
-    delete fwindow_;
+    delete hfwindow_;
+    delete lfwindow_;
 }
 
 
@@ -112,12 +114,15 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
 			   const Array1DImpl<float_complex>& input,
 			   Array1DImpl<float_complex>& output )
 {
+    const Window* window = islowpass ? lfwindow_ : hfwindow_;
     const int arraysize = input.info().getTotalSz();
-    const int bordersz = fwindow_ ? fwindow_->size_ : 0;
+    const int bordersz = window ? window->size_ : 0;
 
     const int poscutfreq = (int)(cutfreq/df);
-    const int infposthreshold = poscutfreq - islowpass ? 0 : bordersz;
-    const int supposthreshold = poscutfreq + islowpass ? bordersz : 0;
+    int infposthreshold = poscutfreq; 
+    infposthreshold += islowpass ? 0 : -bordersz;
+    int supposthreshold = poscutfreq; 
+    supposthreshold += islowpass ? bordersz : 0;
 
     int idborder = 0;
     for ( int idx=0 ; idx<arraysize/2 ; idx++ )
@@ -134,11 +139,8 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
 	}
 	else if ( idx < supposthreshold && idx > infposthreshold )
 	{
-	    float winval = fwindow_->win_[idborder];
-	    float revwinval = fwindow_->win_[bordersz-idborder-1];
-	    if ( !islowpass )
-	    { float tmp; mSWAP( winval, revwinval, tmp ); }
- 
+	    float winval = window->win_[idborder];
+	    float revwinval = window->win_[bordersz-idborder-1];
 	    outpval = input.get( idx )*winval;
 	    revoutpval = input.get( revidx )*revwinval;
 	    idborder++;

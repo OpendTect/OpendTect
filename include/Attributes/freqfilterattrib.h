@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.13 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.14 2009-10-16 16:30:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,11 @@ public:
     static const char*  maxfreqStr()            { return "maxfreq"; }
     static const char*  nrpolesStr()            { return "nrpoles"; }
     static const char*  isfftfilterStr()        { return "isfftfilter"; }
+    static const char*  isfreqtaperStr()        { return "isfreqtaper"; }
     static const char*  windowStr()             { return "window"; }
     static const char*  paramvalStr()           { return "paramval"; }
+    static const char*  highfreqparamvalStr()   { return "highfreqparamval"; }
+    static const char*  lowfreqparamvalStr()    { return "lowfreqparamval"; }
     static const char*  filterTypeNamesStr(int);
 
 protected:
@@ -81,6 +84,8 @@ protected:
     ArrayNDWindow*              window_;
     BufferString                windowtype_;
     float                       variable_;
+    float                       highfreqvariable_;
+    float                       lowfreqvariable_;
 
     Interval<int>		zmargin;
 

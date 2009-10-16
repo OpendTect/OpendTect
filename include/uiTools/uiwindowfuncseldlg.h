@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.19 2009-10-15 15:27:40 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.20 2009-10-16 16:30:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,6 +167,7 @@ public:
 	Interval<float> freqrg_;
 	Interval<float> funcrg_;
 	Interval<float> xaxrg_;
+	Interval<float> actualfreqrg_;
     };
 
     DrawData		dd1_;

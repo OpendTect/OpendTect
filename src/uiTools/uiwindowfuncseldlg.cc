@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.25 2009-10-15 15:27:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.26 2009-10-16 16:30:36 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -376,10 +376,11 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     su.xaxname_= "Frequency (Hz)"; 
     su.yaxname_ = "Gain (dB)";
 
-    dd1_.variable_ = 5;			dd2_.variable_ = 5;
     dd1_.funcrg_.set( -1.2, 0 ); 	dd2_.funcrg_.set( 0, 1.2 );
     dd1_.xaxrg_ = s.minfreqrg_; 	dd2_.xaxrg_ = s.maxfreqrg_;
+    dd1_.actualfreqrg_ = s.minfreqrg_;  dd2_.actualfreqrg_ = s.maxfreqrg_; 
     dd1_.freqrg_ = s.minfreqrg_;  	dd2_.freqrg_ = s.maxfreqrg_; 
+    dd1_.actualfreqrg_.start +=3 ;  	dd2_.actualfreqrg_.stop -=3; 
 
     su.xaxrg_ = dd1_.xaxrg_;		
     drawers_ += new uiFunctionDrawer( this, su );
@@ -426,8 +427,9 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
 void uiFreqTaperDlg::getFromScreen( CallBacker* )
 {
     DrawData& dd = mGetData();
-    dd.variable_ = varinpfld_->getfValue();// getPercentsFromSlope( varinpfld_->getfValue() );
+    dd.variable_ = getPercentsFromSlope( varinpfld_->getfValue() );
     dd.freqrg_ = freqrgfld_->getFInterval();
+    dd.freqrg_.limitTo( dd.actualfreqrg_ );
 }
 
 
@@ -437,7 +439,7 @@ void uiFreqTaperDlg::putToScreen( CallBacker* )
     NotifyStopper nsf2( freqrgfld_->valuechanged );
 
     DrawData& dd = mGetData();
-    varinpfld_->setValue( dd.variable_ ); // getSlope() );
+    varinpfld_->setValue( getSlope() );
     freqrgfld_->setValue( dd.freqrg_ );
 } 
 
@@ -485,17 +487,19 @@ void uiFreqTaperDlg::setPercentsFromFreq( CallBacker* )
     d.variable_ = ( 1 - v*factor  )*100;
 }
 
+
 #define mDec2Oct 0.301029996
 float uiFreqTaperDlg::getPercentsFromSlope( float slope )
 {
     NotifyStopper nsf( freqrgfld_->valuechanged );
-    const float slopeinoctave = (float)(slope/mDec2Oct);
-    const float slopefac = pow( 10, slopeinoctave );
+    const float slopeindecade = (float)(slope/mDec2Oct);
+    const float slopeinhertz = pow( 10, slopeindecade );
     DrawData& dd = mGetData();
+    float actualfreqrg = dd.actualfreqrg_.stop - dd.actualfreqrg_.start;
     if ( isminactive_ )
-	dd1_.freqrg_.start = dd.freqrg_.stop / slopefac;
+	dd1_.freqrg_.start = dd.freqrg_.stop - actualfreqrg/slopeinhertz;
     else
-	dd1_.freqrg_.stop = dd.freqrg_.start * slopefac;
+	dd1_.freqrg_.stop = dd.freqrg_.start + actualfreqrg/slopeinhertz;
     setPercentsFromFreq(0);
     return isminactive_ ? dd.variable_ : dd.variable_; 
 }
@@ -503,8 +507,10 @@ float uiFreqTaperDlg::getPercentsFromSlope( float slope )
 
 float uiFreqTaperDlg::getSlope()
 {
-    DrawData& dd = mGetData();
-    float slope = Math::Log10( (float)(dd.freqrg_.stop/dd.freqrg_.start) );
+    DrawData& d = mGetData();
+    float quotient = ( d.freqrg_.stop       - d.freqrg_.start)
+		   / ( d.actualfreqrg_.stop - d.actualfreqrg_.start );
+    float slope = fabs( Math::Log10( quotient ) );
     slope *= mDec2Oct;
     return slope;
 }
@@ -554,16 +560,18 @@ void uiFreqTaperDlg::setViewRanges()
 
 void uiFreqTaperDlg::setVariables( Interval<float> vars )
 { 
-    dd1_.variable_ = vars.start;
-    dd2_.variable_ = vars.stop;
+    dd1_.freqrg_.start = -( vars.start )*15/100 + dd1_.freqrg_.stop;
+    dd2_.freqrg_.stop = ( vars.stop )*15/100 + dd2_.freqrg_.start;
     putToScreen(0); 
-    setFreqFromPercents(0);
+    setPercentsFromFreq(0);
     taperChged(0); 
 }
 
 
 Interval<float> uiFreqTaperDlg::getVariables() const
 {
-    return Interval<float> ( dd1_.variable_, dd2_.variable_ );
+    float var1 = ( dd1_.freqrg_.stop - dd1_.freqrg_.start )/15*100;
+    float var2 = ( dd2_.freqrg_.stop - dd2_.freqrg_.start )/15*100;
+    return Interval<float> ( var1, var2 );
 } 
 

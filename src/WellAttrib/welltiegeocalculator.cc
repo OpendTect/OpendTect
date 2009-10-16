@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.39 2009-10-14 14:37:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.40 2009-10-16 16:30:36 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -244,7 +244,7 @@ void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
     FFTFilter filter;
     Array1DImpl<float> orgvals ( vals );
     ArrayNDWindow window( Array1DInfoImpl(bordersz), false, "CosTaper", .05 );
-    filter.setFreqBorderWindow( window.getValues(), bordersz );
+    filter.setLowFreqBorderWindow( window.getValues(), bordersz );
     float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
 
     filter.FFTFreqFilter( df, cutf, true, orgvals, vals );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.7 2009-10-15 15:27:40 cvsbruno Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.8 2009-10-16 16:30:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,16 +29,19 @@ public:
     mStruct Setup
     {
 			Setup() 
-			    : isminfreq_(false)   
-			    , ismaxfreq_(false)   
+			    : onlytaper_(false)		      	
+			    , isleftside_(false)		
+			    , isrightside_(false)		
 			    , winparam_(mUdf(float))  
 			    {}
 
 	mDefSetupMemb(const char*,winname )
 	mDefSetupMemb(const char*,label)
+	mDefSetupMemb(BufferString,inpfldtxt)
 	mDefSetupMemb(float,winparam)
-	mDefSetupMemb(bool,ismaxfreq)
-	mDefSetupMemb(bool,isminfreq)
+	mDefSetupMemb(bool,isleftside)
+	mDefSetupMemb(bool,isrightside)
+	mDefSetupMemb(bool,onlytaper)
     };
 
     				uiWindowFunctionSel(uiParent*,const Setup&);
@@ -47,7 +50,7 @@ public:
     NotifierAccess&		typeChange();
 
     void			setWindowName(const char*);
-    void			setWindowParamValue(float);
+    void			setWindowParamValue(float,int fldnr=0);
 
     const char*			windowName() const;
     float			windowParamValue() const;
@@ -65,7 +68,7 @@ protected:
     Interval<float>		annotrange_;
 
     int				taperidx_;
-    bool			isfreq_;
+    bool			onlytaper_;
     uiGenInput*			windowtypefld_;
     uiGenInput*			varinpfld_;
     uiPushButton*		viewbut_;
@@ -79,17 +82,19 @@ mClass uiFreqTaperSel : public uiWindowFunctionSel
 public:
     				uiFreqTaperSel(uiParent*,const Setup&);
 
-    Interval<float> 		freqrg_;
     void 			setIsMinMaxFreq(bool,bool);
+    void 			setFreqRange(Interval<float> rg)
+				{ freqrg_ = rg; }
+    Interval<float>		windowParamValues() const;
 
 protected :
 
+    Interval<float> 		freqrg_;
     bool			isminfreq_;
     bool			ismaxfreq_;
     uiFreqTaperDlg*		freqtaperdlg_;
 
     void			setWindowParamValues(Interval<float>);
-    Interval<float>		windowParamValues() const;
     void			winfuncseldlgCB(CallBacker*);
     void			windowClosed(CallBacker*);
 };

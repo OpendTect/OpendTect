@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.35 2009-10-14 14:37:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.36 2009-10-16 16:30:36 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -77,7 +77,22 @@ void FreqFilter::initClass()
     variable->setDefaultValue( defval );
     variable->setRequired( false );
     desc->addParam(variable);
-
+    
+    BoolParam* isfreqtaper = new BoolParam( isfreqtaperStr() );
+    isfreqtaper->setDefaultValue( false );
+    desc->addParam( isfreqtaper );
+    
+    FloatParam* highfreqvariable = new FloatParam( highfreqparamvalStr() );
+    const float hdefval = 0.75;
+    highfreqvariable->setDefaultValue( hdefval );
+    highfreqvariable->setRequired( false );
+    desc->addParam(highfreqvariable);
+    
+    FloatParam* lowfreqvariable = new FloatParam( lowfreqparamvalStr() );
+    const float ldefval = 0.75;
+    lowfreqvariable->setDefaultValue( ldefval );
+    lowfreqvariable->setRequired( false );
+    desc->addParam(lowfreqvariable);
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -136,6 +151,8 @@ FreqFilter::FreqFilter( Desc& ds )
     , window_(0)
     , windowtype_(0)
     , variable_(0)
+    , highfreqvariable_(0)
+    , lowfreqvariable_(0)
 {
     if ( !isOK() ) return;
 
@@ -161,6 +178,8 @@ FreqFilter::FreqFilter( Desc& ds )
     int wtype;
     mGetString( windowtype_, windowStr() );
     mGetFloat( variable_, paramvalStr() );
+    mGetFloat( highfreqvariable_, highfreqparamvalStr() );
+    mGetFloat( lowfreqvariable_, lowfreqparamvalStr() );
 
     if ( isfftfilter && strcmp(windowtype_,"None") )
 	window_ = new ArrayNDWindow( Array1DInfoImpl(100),
@@ -335,12 +354,19 @@ void FreqFilter::fftFilter( const DataHolder& output,
 
     fft.transform( timedomain, freqdomain );
     FFTFilter filter;
-   const int winsize = 10; 
-    ArrayNDWindow window( Array1DInfoImpl( winsize ), false, "CosTaper", .05 );
-    ArrayNDWindow orgwindow( window );
-    for ( int idx=0; idx<winsize; idx++ )
-	window.getValues()[idx] = orgwindow.getValues()[winsize-1]*-1;
-    filter.setFreqBorderWindow( window.getValues(), winsize );
+    const int winsize = (int)( 30/df ); 
+    ArrayNDWindow lowwindow( 
+	    Array1DInfoImpl(winsize), false, "CosTaper", lowfreqvariable_ );
+    ArrayNDWindow highwindow( 
+	    Array1DInfoImpl(winsize), false, "CosTaper", highfreqvariable_ );
+    float highwin[winsize/2], lowwin[winsize/2];
+    for ( int idx=0; idx<winsize/2; idx++ )
+    {
+	lowwin[idx] = 1-lowwindow.getValues()[winsize-1-idx];
+	highwin[winsize/2-idx-1] = 1-highwindow.getValues()[idx];
+    }
+    filter.setHighFreqBorderWindow( highwin, winsize/2 );
+    filter.setLowFreqBorderWindow( lowwin, winsize/2 );
     if ( filtertype == mFilterLowPass )
 	filter.FFTFreqFilter( df, maxfreq, true, freqdomain, tmpfreqdomain );
     else if ( filtertype == mFilterHighPass)
