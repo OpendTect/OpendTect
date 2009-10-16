@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.28 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.29 2009-10-16 10:58:27 cvsbert Exp $";
 
 #include "uisurvmap.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uisurvmap.cc,v 1.28 2009-07-22 16:01:40 cvsbert
 #include "cubesampling.h"
 #include "draw.h"
 #include "survinfo.h"
+#include "angles.h"
 
 
 uiSurveyMap::uiSurveyMap( uiParent* parent )
@@ -38,10 +39,12 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     if ( survinfo->sampling(false).hrg.totalNr() < 2 )
     	return;
 
-    const mDeclAlignment( txtalign, HCenter, VCenter );
+    drawAngleN( survinfo->computeAngleXInl() );
+
+    const mDeclAlignment( txtalign, Left, Top );
 
     uiTextItem* textitem = scene().addItem(
-	    new uiTextItem(uiPoint(width()/2,10),survinfo->name(),txtalign) );
+	    new uiTextItem(uiPoint(10,10),survinfo->name(),txtalign) );
     textitem->setPenColor( Color::Black() );
     textitem->setFont( FontList().get(FontData::key(FontData::GraphicsLarge)));
 
@@ -125,4 +128,60 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     }
 
     setViewArea( 0, 0, scene().width(), scene().height() );
+}
+
+
+void uiSurveyMap::drawAngleN( float mathang )
+{
+    static const float halfpi = M_PI * .5;
+    static const float quartpi = M_PI * .25;
+
+	    // To [0,pi]
+    if ( mathang < 0 )			mathang += M_PI;
+    if ( mathang > M_PI )		mathang -= M_PI;
+	    // Find angle closest to N, not necessarily X vs inline
+    if ( mathang < quartpi )		mathang += halfpi;
+    if ( mathang > halfpi+quartpi )	mathang -= halfpi;
+
+    float usrang = Angle::rad2usrdeg( mathang );
+    if ( usrang > 180 ) usrang = 360 - usrang;
+    if ( mIsEqual(usrang,0,0.01) ) return;
+
+    const bool northisleft = mathang < halfpi;
+    const int arrowlen = 30;
+    const int sideoffs = 10;
+    const int yarrowtop = 20;
+
+    float dx = arrowlen * tan( halfpi-mathang );
+    const int dxpix = mNINT( dx );
+    const int lastx = width() - 1 - sideoffs;
+    const uiPoint origin( lastx - (northisleft?dxpix:0),
+	    		  arrowlen + yarrowtop );
+    const uiPoint arrowtop( origin.x, yarrowtop );
+
+    ArrowStyle arrowstyle( 3, ArrowStyle::HeadOnly );
+    arrowstyle.linestyle_.width_ = 3;
+    uiArrowItem* northarrow = new uiArrowItem( origin, arrowtop, arrowstyle );
+    scene().addItem( northarrow );
+
+    uiLineItem* li = new uiLineItem( origin, uiPoint(origin.x+dxpix,yarrowtop),
+	    			     true );
+    li->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
+    scene().addItem( li );
+
+    float usrang100 = usrang * 100;
+    if ( usrang100 < 0 ) usrang100 = -usrang100;
+    int iusrang = (int)(usrang100 + .5);
+    BufferString angtxt; angtxt += iusrang / 100;
+    iusrang = iusrang % 100;
+    if ( iusrang )
+    {
+	angtxt += ".";
+	angtxt += iusrang / 10; iusrang = iusrang % 10;
+	if ( iusrang )
+	    angtxt += iusrang;
+    }
+    mDeclAlignment( txtalign, Right, Bottom );
+    uiTextItem* ti = scene().addItem(
+	    new uiTextItem(uiPoint(lastx,yarrowtop),angtxt,txtalign) );
 }
