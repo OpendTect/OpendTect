@@ -32,12 +32,15 @@
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFString.h>
 #include <Inventor/fields/SoMFString.h>
+#include <Inventor/SbLinear.h> 
+
+#include "soodbasic.h"
+
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #include <SoWinLeaveScope.h>
 #endif // win
 
-#include "soodbasic.h"
 
 class SbViewport;
 class SoState;
@@ -99,6 +102,11 @@ public:
   SoSFFloat topSpace;
   SoSFBool discreteUseLower;
   SoSFBool threadSafe;
+  SbVec2s size;
+  bool istop;
+  bool isleft;
+  float lenmin;
+
 
   void preRender(SoAction * action);
   

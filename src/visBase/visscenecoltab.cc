@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.12 2009-09-04 19:47:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.13 2009-10-16 05:49:17 cvsranojay Exp $";
 
 #include "visscenecoltab.h"
 
@@ -31,8 +31,11 @@ SceneColTab::SceneColTab()
 {
     addChild( legendkit_ );
     legendkit_->ref();
+    legendkit_->size = SbVec2s(20,150);
     legendkit_->setDiscreteMode( true );
     legendkit_->enableBackground( false );
+    legendkit_->istop = false;
+    legendkit_->isleft = true;
     setLegendColor( Color(170,170,170) );
     setColTabSequence( ColTab::Sequence("") );
 }
@@ -61,6 +64,30 @@ void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
     updateVis();
 }
 
+
+void SceneColTab::setSize( int w, int h )
+{
+    legendkit_->size[0] = w;
+    legendkit_->size[1] = h;
+    updateVis();
+}
+
+
+void SceneColTab::setPos( bool top, bool left )
+{
+    legendkit_->istop = top;
+    legendkit_->isleft = left;
+    updateVis();
+}
+
+
+Geom::Size2D<int> SceneColTab::getSize()
+{
+    Geom::Size2D<int> sz;
+    sz.setWidth( legendkit_->size[0] );
+    sz.setHeight( legendkit_->size[1] );
+    return sz;
+}
 
 void SceneColTab::updateVis()
 {

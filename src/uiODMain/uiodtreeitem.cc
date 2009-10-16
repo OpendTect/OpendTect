@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.210 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.211 2009-10-16 05:49:17 cvsranojay Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -249,6 +249,8 @@ void uiODSceneTreeItem::updateColumnText( int col )
 #define mProperties	0
 #define mTopBotImg	1
 #define mDumpIV		2
+#define mScnColBar	3
+
 
 bool uiODSceneTreeItem::showSubMenu()
 {
@@ -257,6 +259,7 @@ bool uiODSceneTreeItem::showSubMenu()
     uiMenuItem* anntxt = new uiMenuItem( "&Properties ..." );
     mnu.insertItem( anntxt, mProperties );
     mnu.insertItem( new uiMenuItem("&Top/Bottom image ..."), mTopBotImg );
+    mnu.insertItem( new uiMenuItem("&Scene Color Bar Properties ..."), mScnColBar );
 
     bool yn = false;
     Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn );
@@ -279,7 +282,9 @@ bool uiODSceneTreeItem::showSubMenu()
     }
     else if ( mnuid==mTopBotImg )
 	visserv->setTopBotImg( displayid_ );
-    else if ( mnuid==mDumpIV )
+    else if ( mnuid== mScnColBar )
+	visserv->manageSceneColorbar( displayid_ );
+    else if( mnuid==mDumpIV )
 	visserv->dumpOI( displayid_, "Export scene as ..." );
 
     return true;

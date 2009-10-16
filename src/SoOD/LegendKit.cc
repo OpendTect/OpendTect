@@ -186,7 +186,7 @@
   instead of the upper value (the value right below the current
   bigtick).
 */
-static const char* rcsID = "$Id: LegendKit.cc,v 1.5 2008-12-08 10:56:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: LegendKit.cc,v 1.6 2009-10-16 05:49:17 cvsranojay Exp $";
 
 
 #include "LegendKit.h"
@@ -230,7 +230,7 @@ static const char* rcsID = "$Id: LegendKit.cc,v 1.5 2008-12-08 10:56:24 cvsnanne
 #include "SbList.h"
 #endif
 
-#include <ViewportRegion.h>
+#include "ViewportRegion.h"
 #include <string.h>
 #include <float.h>
 
@@ -833,7 +833,8 @@ LegendKit::renderLines(SoGLRenderAction * action)
 {
   float starty = PRIVATE(this)->imageoffset[1];
   double sizey = (double) PRIVATE(this)->imagesize[1];
-  float startx = PRIVATE(this)->imageoffset[0] + PRIVATE(this)->imagesize[0];
+  float startx = isleft ? PRIVATE(this)->imageoffset[0] + PRIVATE(this)->imagesize[0]
+			:  PRIVATE(this)->imageoffset[0] - this->bigTickSize.getValue();
   float ticksize = this->smallTickSize.getValue();
 
   if (PRIVATE(this)->imagesize[1] > 1.0f && PRIVATE(this)->imageenabled) {
@@ -877,56 +878,67 @@ LegendKit::renderText(SoGLRenderAction * action)
 
   // first, render tick values
   int offsety = (int) (PRIVATE(this)->imageoffset[1]);
-  int offsetx = (int) (PRIVATE(this)->imageoffset[0] + PRIVATE(this)->imagesize[0] + 
-                       this->bigTickSize.getValue() + this->tickValueOffset.getValue());
+  int offsetx = isleft ? (int) (PRIVATE(this)->imageoffset[0] + PRIVATE(this)->imagesize[0] + 
+                          this->bigTickSize.getValue() + this->tickValueOffset.getValue())
+		       : (int) (PRIVATE(this)->imageoffset[0] -
+			  this->bigTickSize.getValue() - this->tickValueOffset.getValue());
+
+
   double sizey = (double) PRIVATE(this)->imagesize[1];
 
   double prevnval = 0.0;
   int xpos, ypos;
   const char * str = NULL;
+  int strln;
 
   if (PRIVATE(this)->imagesize[1] > 1.0f && PRIVATE(this)->imageenabled) {
     for (i = 0; i < PRIVATE(this)->bigtick.getLength(); i++) {
       LegendKitP::legend_tick tick = PRIVATE(this)->bigtick[i];
       str = tick.string.getString();
+      strln = str ? strlen( str ) * FONT_WIDTH + 5 : 0;  
       if (!PRIVATE(this)->discrete || !tick.discretestringset) {
-        xpos = offsetx;
+	xpos = isleft ? offsetx : offsetx - strln;
         ypos = offsety + int(sizey*tick.nval) - FONT_HEIGHT/2;
       }
-      else {
-        xpos = offsetx;
+      else { 
+	str = tick.discretestring.getString();
+	strln = str ? strlen( str ) * FONT_WIDTH + 5 : 0;  
+        xpos = isleft ? offsetx : offsetx - strln;
         ypos = offsety + int(sizey*(tick.nval + prevnval)*0.5) - FONT_HEIGHT/2;
-        str = tick.discretestring.getString();
       }
       prevnval = tick.nval;
       this->renderString(str, xpos, ypos);
     }
   }
 
+   
    // then, the minvalue
   int numtext = this->minvalue.getNum();
-  ypos = (numtext-1)*(FONT_HEIGHT+FONT_SPACE) +
-      int(4.0f*this->space.getValue());
-  
+  int rightspc = strlen( this->minvalue[0].getString() );
+  ypos = offsety - 2*FONT_HEIGHT + FONT_SPACE;
+  xpos =  isleft ? int(this->space.getValue() * 2.0f) : (int) (PRIVATE(this)->imageoffset[0]) + size[0] - rightspc * FONT_WIDTH ;
+
   for ( i=0; i<numtext; i++ )
   {
     if (this->minvalue[i].getLength()) {
       const char * s = this->minvalue[i].getString();
-      this->renderString(s, int(this->space.getValue() * 2.0f), ypos);
+      this->renderString(s, xpos, ypos);
       ypos -= FONT_HEIGHT + FONT_SPACE; 
     }
   }
  
   // then, the maxvalue
   numtext = this->maxvalue.getNum();
-  ypos =  int(PRIVATE(this)->size[1]) - (FONT_HEIGHT+FONT_SPACE) -
-      int(this->space.getValue());
-  ypos =  int(PRIVATE(this)->size[1]);
+  rightspc = strlen( this->maxvalue[0].getString() );
+  ypos = offsety + size[1] + FONT_HEIGHT - 5 ;
+  xpos = isleft ? int(this->space.getValue() * 2.0f) : (int) (PRIVATE(this)->imageoffset[0]) + size[0] - rightspc * FONT_WIDTH ;
+
   
   for (i = 0; i < numtext; i++) {
     if (this->maxvalue[i].getLength()) {
       const char * s = this->maxvalue[i].getString();
-      this->renderString(s, int(this->space.getValue() * 2.0f), ypos);
+      //this->renderString(s, int(this->space.getValue() * 2.0f), ypos);
+      this->renderString(s, xpos, ypos);
       ypos -= FONT_HEIGHT + FONT_SPACE; 
     }
   }
@@ -1261,8 +1273,8 @@ LegendKit::recalcSize(SoState * state)
 #ifdef LEGEND_DEBUG
   fprintf(stderr,"(re)calcing size: %g %g\n", PRIVATE(this)->size[0], PRIVATE(this)->size[1]);
 #endif
-  PRIVATE(this)->imagesize[0] = this->imageWidth.getValue();
-  PRIVATE(this)->imagesize[1] = PRIVATE(this)->size[1] - this->space.getValue() - descsize[1];
+  PRIVATE(this)->imagesize[0] = size[0];
+  PRIVATE(this)->imagesize[1] = size[1];//PRIVATE(this)->size[1] - this->space.getValue() - descsize[1];
 
   if (PRIVATE(this)->imagesize[1] <= 0) {
     PRIVATE(this)->imagesize[1] = 1.0f; 
@@ -1277,10 +1289,10 @@ LegendKit::recalcSize(SoState * state)
   else {
     this->setSwitchValue("imageSwitch", 0);
   }
-
-  PRIVATE(this)->imageoffset = // this->descriptionOnTop.getValue() ?
-//    SbVec2f(this->space.getValue(), this->space.getValue()) :
-    SbVec2f(2*this->space.getValue(), descsize[1]);
+  PRIVATE(this)->imageoffset =SbVec2f( isleft ? 2*this->space.getValue() 
+					      : vpsize[0]-size[0]-10, 
+					istop ? vpsize[1]-size[1]-30 
+					      : descsize[1] );
 
   // transform image to offset position
   SoTransform * trans = (SoTransform*) this->getAnyPart("imageTransform", TRUE);
@@ -1296,8 +1308,8 @@ LegendKit::recalcSize(SoState * state)
   SoOrthographicCamera * camera = (SoOrthographicCamera*) this->getAnyPart("camera", TRUE);
   camera->viewportMapping = SoCamera::LEAVE_ALONE;
   camera->position = SbVec3f(size[0]*0.5f, size[1]*0.5f,
-                             2.0f);
-  camera->orientation = SbRotation(SbVec3f(0.0f, 0.0f, 1.0f), 0.0f);
+                            2.0f);
+  camera->orientation = SbRotation(SbVec3f(0.0f, 0.0f, 1.0f), 0.0f );
   camera->aspectRatio = float(vpsize[0]) / float(vpsize[1]);
   camera->nearDistance = 1.0f;
   camera->farDistance = 10.0f;
@@ -1343,7 +1355,6 @@ LegendKit::setPosition(const SbVec2s & pos)
   SoTranslation * t = (SoTranslation*) this->getPart("position", TRUE);
   t->translation = SbVec3f(pos[0], pos[1], 0.0f);
 }
-
 /*!
   Sets the background color.
 */
@@ -1354,6 +1365,8 @@ LegendKit::setBackgroundColor(const SbColor & color, const float transparency)
   mat->diffuseColor = color;
   mat->transparency = transparency;
 }
+
+
 
 /*!
   Enables or disables the Legend background.

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.438 2009-10-11 01:15:54 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.439 2009-10-16 05:49:17 cvsranojay Exp $";
 
 #include "uivispartserv.h"
 
@@ -32,6 +32,8 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.438 2009-10-11 01:15:54 cv
 #include "uimpeman.h"
 #include "uimapperrangeeditordlg.h"
 #include "uiselsurvranges.h"
+#include "uiscenecolorbarmgr.h"
+#include "uisurvtopbotimg.h"
 #include "uitaskrunner.h"
 #include "uivisslicepos3d.h"
 #include "uiwellpropdlg.h"
@@ -39,7 +41,6 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.438 2009-10-11 01:15:54 cv
 #include "uivispickretriever.h"
 #include "uiviszstretchdlg.h"
 #include "uivisdirlightdlg.h"
-#include "uisurvtopbotimg.h"
 
 #include "visdataman.h"
 #include "visemobjdisplay.h"
@@ -1982,9 +1983,9 @@ bool uiVisPartServer::isLocked( int id ) const
 }
 
 
-const Color& uiVisPartServer::getSceneAnnotCol( int sceneid )
+const Color& uiVisPartServer::getSceneAnnotCol( int sceneidx )
 {
-    return scenes_[ sceneid ]->getAnnotColor();
+    return scenes_[ sceneidx ]->getAnnotColor();
 }
 
 
@@ -1996,6 +1997,16 @@ void uiVisPartServer::displaySceneColorbar( bool yn )
 		scenes_[idx]->getAnnotColor() );
 	scenes_[idx]->getSceneColTab()->turnOn( yn );
     }
+}
+
+
+void uiVisPartServer::manageSceneColorbar( int sceneid )
+{
+    visSurvey::Scene* scene = getScene( sceneid );
+    if ( !scene ) return;
+
+    uiSceneColorbarMgr dlg( appserv().parent(), scene->getSceneColTab() );
+    dlg.go();
 }
 
 
