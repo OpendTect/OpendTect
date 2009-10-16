@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.20 2009-10-11 01:20:06 cvskarthika Exp $
+ RCS:		$Id: visscene.h,v 1.21 2009-10-16 07:58:55 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,10 @@ public:
 
     SoNode*		getInventorNode();
     EventCatcher&	eventCatcher();
+
+    void		setName(const char*);
+
+    Notifier<Scene>	nameChanged;
 
 protected:
     virtual		~Scene();
