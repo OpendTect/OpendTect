@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscene.cc,v 1.40 2009-09-21 07:10:10 cvskarthika Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.41 2009-10-16 07:58:23 cvskarthika Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -34,6 +34,7 @@ Scene::Scene()
     , events_( *EventCatcher::create() )
     , mousedownid_( -1 )
     , blockmousesel_( false )
+    , nameChanged(this)
 {
     selroot_->ref();
 
@@ -111,6 +112,13 @@ void Scene::setDirectionalLight( const DirectionalLight& dl )
 DirectionalLight* Scene::getDirectionalLight() const
 {
     return directionallight_;
+}
+
+
+void Scene::setName( const char* newname )
+{
+    DataObjectGroup::setName( newname );
+    nameChanged.trigger();
 }
 
 
