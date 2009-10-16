@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.24 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emposid.h,v 1.25 2009-10-16 04:19:10 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,9 @@ typedef od_int64 SubID;
 
 
 /*!\brief
-is an identifier for each position in the earthmodel. It has three parts,
+Is an identifier for each position in the earthmodel.
+
+It has three parts,
 - an ObjectID, wich identifies wich object is belongs to.
 - a SectionID, wich identifies which section of the object it belongs to.
 - a SubID, wich identifies the position on the section. 
@@ -37,8 +39,8 @@ is an identifier for each position in the earthmodel. It has three parts,
 mClass PosID
 {
 public:
-    				PosID( ObjectID emobj=0,
-				       SectionID section=0,
+    				PosID( ObjectID emobjid=0,
+				       SectionID sectionid=0,
 				       SubID subid=0);
 
     static const PosID&		udf();
@@ -65,9 +67,9 @@ public:
 
 protected:
 
-    ObjectID			emobj;
-    SectionID			section;
-    SubID			subid;
+    ObjectID			emobjid_;
+    SectionID			sectionid_;
+    SubID			subid_;
 
     static const char*		emobjStr();
     static const char* 		sectionStr();
@@ -75,43 +77,40 @@ protected:
 };
 
 
-inline PosID::PosID( ObjectID emobj_,
-		       SectionID section_,
-		       SubID subid_ )
-    : emobj( emobj_ )
-    , section( section_ )
-    , subid( subid_ )
+inline PosID::PosID( ObjectID emobj, SectionID section, SubID subid )
+    : emobjid_(emobj)
+    , sectionid_(section)
+    , subid_(subid)
 {}
 
 
 inline bool PosID::operator==(const PosID& b) const
-{ return emobj==b.emobj && section==b.section && subid==b.subid; }
+{ return emobjid_==b.emobjid_ && sectionid_==b.sectionid_ && subid_==b.subid_; }
 
 
 inline bool PosID::operator!=(const PosID& b) const
 { return !(*this==b); }
 
 inline const ObjectID& PosID::objectID() const
-{ return emobj; }
-
+{ return emobjid_; }
 
 inline SectionID PosID::sectionID() const
-{ return section; }
-
-
+{ return sectionid_; }
 
 inline SubID PosID::subID() const
-{ return subid; }
+{ return subid_; }
 
 inline void PosID::setObjectID( const ObjectID& id )
-{ emobj = id; }
+{ emobjid_ = id; }
+
 inline void PosID::setSectionID( SectionID id )
-{ section = id; }
+{ sectionid_ = id; }
+
 inline void PosID::setSubID( SubID id )
-{ subid = id; }
+{ subid_ = id; }
 
 
-}; // Namespace
+} // namespace EM
 
 
 #endif
