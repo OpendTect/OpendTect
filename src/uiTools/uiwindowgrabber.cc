@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.12 2009-09-16 06:42:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.13 2009-10-16 14:40:26 cvsjaap Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -56,7 +56,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     {
 	BufferStringSet windownms;
 	for ( int idx=0; idx<windowlist_.size(); idx++ )
-	    windownms.add( windowlist_[idx]->name() );
+	    windownms.add( windowlist_[idx]->caption(true) );
 
 	windowfld_ = new uiLabeledComboBox( this, windownms, "Grab window" );
     }

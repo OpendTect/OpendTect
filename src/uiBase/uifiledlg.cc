@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.49 2009-10-01 07:33:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.50 2009-10-16 14:40:26 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -166,14 +166,15 @@ int uiFileDialog::go()
 	}
     }
 
-    int refnr = beginCmdRecEvent( forread_ ? "Open" : "Save As" );
+    const char* wintitle = uiMainWin::uniqueWinTitle( caption_ );
+    int refnr = beginCmdRecEvent( wintitle );
     ODFileDialog* fd = new ODFileDialog( QString(dirname), QString(flt),
 					 qparent, "File dialog", true );
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 	    			: QFileDialog::AcceptSave );
     fd->setFileMode( qmodeForUiMode(mode_) );
-    fd->setWindowTitle( QString(caption_) );
+    fd->setWindowTitle( QString(wintitle) );
     fd->setConfirmOverwrite( confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );

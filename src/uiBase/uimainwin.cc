@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.190 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.191 2009-10-16 14:40:26 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -163,6 +163,8 @@ public:
 
     void		setModal( bool yn )		{ modal_ = yn; }
     bool		isModal() const			{ return modal_; }
+
+    void		setWindowTitle(const char*);
 
 protected:
 
@@ -723,7 +725,12 @@ void uiMainWinBody::readSettings()
 }
 
 
+void uiMainWinBody::setWindowTitle( const char* txt )
+{ QMainWindow::setWindowTitle( uiMainWin::uniqueWinTitle(txt,this) ); }
+
+
 // ----- uiMainWin -----
+
 
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     : uiParent(setup.caption_,0)
@@ -732,6 +739,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
+    , caption_(setup.caption_)
 { 
     body_ = new uiMainWinBody( *this, p, setup.caption_, setup.modal_ ); 
     setBody( body_ );
@@ -750,6 +758,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
+    , caption_(nm)
 { 
     body_ = new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
@@ -765,6 +774,7 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
+    , caption_(nm)
 {}
 
 
@@ -824,12 +834,18 @@ bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 
-void uiMainWin::setCaption( const char* txt )	{ body_->setWindowTitle(txt); }
 
-const char* uiMainWin::caption() const
+void uiMainWin::setCaption( const char* txt )
+{
+    caption_ = txt;
+    body_->setWindowTitle( txt );
+}
+
+
+const char* uiMainWin::caption( bool unique ) const
 {
     static BufferString capt;
-    capt = mQStringToConstChar( body_->windowTitle() );
+    capt = unique ? mQStringToConstChar(body_->windowTitle()) : caption_.buf();
     return capt;
 }
 
@@ -971,9 +987,6 @@ const char* uiMainWin::activeModalQDlgTitle()
 
     static BufferString title;
     title = mQStringToConstChar( amw->windowTitle() );
-    if ( title.isEmpty() )
-	title = "odmain";
-
     return title;
 }
 
@@ -1076,6 +1089,36 @@ void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist )
 	if ( curidx >= 0 )
 	    windowlist.insertAt( windowlist.remove(curidx), 0 );
     }
+}
+
+
+const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
+{
+    static BufferString wintitle;
+    const QWidgetList toplevelwigs = qApp->topLevelWidgets();
+
+    for ( int count=1; true; count++ )
+    {
+	bool unique = true;
+	wintitle = txt;
+	if ( wintitle.isEmpty() || count>1 )
+	{
+	    wintitle += wintitle.isEmpty() ? "{" : "  {";
+	    wintitle += count ; wintitle += "}" ;
+	}
+
+	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
+	{
+	    const QWidget* qw = toplevelwigs.at( idx );
+	    if ( !qw->isWindow() || qw==forwindow )
+		continue;
+	    if ( wintitle==mQStringToConstChar(qw->windowTitle())  )
+		unique = false;
+	}
+
+	if ( unique ) break;
+    }
+    return wintitle;
 }
 
 
@@ -1643,8 +1686,6 @@ bool uiDialog::haveCredits() const
 }
 
 
-
-
 int uiDialog::go()				{ return mBody->exec(); }
 const uiDialog::Setup& uiDialog::setup() const	{ return mBody->getSetup(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
@@ -1653,7 +1694,6 @@ void uiDialog::done( int i )			{ mBody->done( i ); }
 void uiDialog::setHSpacing( int s )		{ mBody->setHSpacing(s); }
 void uiDialog::setVSpacing( int s )		{ mBody->setVSpacing(s); }
 void uiDialog::setBorder( int b )		{ mBody->setBorder(b); }
-void uiDialog::setCaption( const char* txt )	{ mBody->setWindowTitle(txt); }
 void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
 void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
 void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
@@ -1664,6 +1704,9 @@ bool uiDialog::separator() const		{ return mBody->separator(); }
 void uiDialog::setHelpID( const char* id )	{ mBody->setHelpID(id); }
 const char* uiDialog::helpID() const		{ return mBody->helpID(); }
 int uiDialog::uiResult() const			{ return mBody->uiResult(); }
+void uiDialog::setModal( bool yn )		{ mBody->setModal( yn ); }
+bool uiDialog::isModal() const			{ return mBody->isModal(); }
+
 void uiDialog::setButtonSensitive(uiDialog::Button b, bool s ) 
     { mBody->setButtonSensitive(b,s); }
 void uiDialog::setSaveButtonChecked(bool b) 
@@ -1672,5 +1715,5 @@ bool uiDialog::saveButtonChecked() const
     { return mBody->saveButtonChecked(); }
 bool uiDialog::hasSaveButton() const
     { return mBody->hasSaveButton(); }
-void uiDialog::setModal( bool yn )		{ mBody->setModal( yn ); }
-bool uiDialog::isModal() const			{ return mBody->isModal(); }
+void uiDialog::setCaption( const char* txt )
+    { caption_ = txt; mBody->setWindowTitle( txt ); }

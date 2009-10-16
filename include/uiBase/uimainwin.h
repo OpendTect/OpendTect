@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.75 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.76 2009-10-16 14:40:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,9 +84,10 @@ public:
     static int		activeModalQDlgRetVal(int butnr);
 
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&);
+    static const char*	uniqueWinTitle(const char* txt,QWidget* forwindow=0);
     
     void		setCaption(const char*);
-    const char*		caption() const;
+    const char*		caption(bool unique=false) const;
     void		setIcon(const ioPixmap&);
 			//!< Default icon is set in uiMain
     void		setIconText(const char*);
@@ -165,6 +166,8 @@ protected:
     uiParent*		parent_;
 
     PopupArea		popuparea_;
+
+    BufferString	caption_;
 
 public:
     			//! Force activation in GUI thread
