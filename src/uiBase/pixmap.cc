@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.36 2009-09-15 11:40:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.37 2009-10-16 09:15:14 cvsnanne Exp $";
 
 #include "pixmap.h"
 
@@ -98,7 +98,8 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
 }
 
     
-ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height )
+ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height,
+       		    bool horizontal )
     : qpixmap_(0)
     , srcname_("[colortable]")
 {
@@ -114,7 +115,7 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height )
 
     uiRGBArray rgbarr( false );
     rgbarr.setSize( width, height );
-    if ( width > height ) // horizontal colorbar
+    if ( horizontal )
     {
 	ColTab::IndexedLookUpTable table( ctabin, width );
 	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )

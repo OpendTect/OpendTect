@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.23 2009-09-15 11:40:56 cvsnanne Exp $
+ RCS:           $Id: pixmap.h,v 1.24 2009-10-16 09:15:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ public:
 			ioPixmap(const QPixmap&);
 			ioPixmap(const ioPixmap&);
 			ioPixmap(const char* filename,const char* fmt=0);
-			ioPixmap(const ColTab::Sequence&,int w,int h);
+			ioPixmap(const ColTab::Sequence&,int w,int h,bool hor);
     virtual		~ioPixmap();
 
     void		convertFromRGBArray(const uiRGBArray&);

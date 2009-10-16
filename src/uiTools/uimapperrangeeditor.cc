@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.15 2009-07-28 08:15:20 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.16 2009-10-16 09:15:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,7 +156,7 @@ void uiMapperRangeEditor::drawPixmaps()
     leftcoltab_->setPixmap( leftpixmap );
     leftcoltab_->setOffset( datastartpix, disph-pmh-1 );
 
-    ioPixmap centerpixmap( *ctseq_, stoppix_-startpix_, pmh );
+    ioPixmap centerpixmap( *ctseq_, stoppix_-startpix_, pmh, true );
     centercoltab_->setPixmap( centerpixmap );
     centercoltab_->setOffset( startpix_, disph-pmh-1 );
 

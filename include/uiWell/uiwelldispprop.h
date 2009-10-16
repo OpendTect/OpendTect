@@ -7,12 +7,11 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.17 2009-09-11 09:43:17 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.18 2009-10-16 09:15:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uicombobox.h"
 #include "ranges.h"
 #include "uigroup.h"
 #include "welldisp.h"
@@ -20,11 +19,13 @@ ________________________________________________________________________
 #include "sets.h"
 
 class MultiID;
-class uiSpinBox;
-class uiLabeledSpinBox;
 class uiCheckBox;
 class uiColorInput;
+class uiColorTableSel;
 class uiGenInput;
+class uiLabeledComboBox;
+class uiLabeledSpinBox;
+class uiSpinBox;
 
 namespace Well
 {
@@ -162,7 +163,7 @@ protected:
     uiCheckBox*         logarithmfld_;
     uiCheckBox*         logfillfld_;
     uiCheckBox*         singlfillcolfld_;
-    uiComboBox*         coltablistfld_;
+    uiColorTableSel*	coltablistfld_;
     uiColorInput*	seiscolorfld_;
     uiColorInput*	fillcolorfld_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.36 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.37 2009-10-16 09:15:14 cvsnanne Exp $";
 
 #include "uicolortable.h"
 
@@ -37,6 +37,41 @@ static const char* rcsID = "$Id: uicolortable.cc,v 1.36 2009-07-22 16:01:42 cvsb
 
 #include <math.h>
 
+
+uiColorTableSel::uiColorTableSel( uiParent* p, const char* nm )
+    : uiComboBox(p,nm)
+{
+    update();
+}
+
+
+void uiColorTableSel::update()
+{
+    empty();
+    BufferStringSet seqnames;
+    ColTab::SM().getSequenceNames( seqnames );
+    seqnames.sort();
+    for ( int idx=0; idx<seqnames.size(); idx++ )
+    {
+	const int seqidx = ColTab::SM().indexOf( seqnames.get(idx) );
+	if ( seqidx<0 ) continue;
+
+	const ColTab::Sequence& seq = *ColTab::SM().get( seqidx );
+	addItem( seq.name() );
+	setPixmap( ioPixmap(seq,16,10,true), idx );
+    }
+}
+
+void uiColorTableSel::setCurrent( const ColTab::Sequence& seq )
+{ setCurrentItem( seq.name() ); }
+
+void uiColorTableSel::setCurrent( const char* nm )
+{ setCurrentItem( nm ); }
+
+const char* uiColorTableSel::getCurrent() const
+{ return textOfItem( currentItem() ); }
+
+
 #define mStdInitList \
 	  seqChanged(this) \
 	, scaleChanged(this) \
@@ -45,7 +80,8 @@ static const char* rcsID = "$Id: uicolortable.cc,v 1.36 2009-07-22 16:01:42 cvsb
 	, enabmanage_(true)
 
 
-uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool vert )
+uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq,
+			    bool vert )
     : uiGroup(p,"Color table display/edit")
     , mStdInitList
     , coltabseq_( *new ColTab::Sequence(colseq) )
@@ -74,9 +110,10 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool ve
     maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
     maxfld_->setStretch( 0, 0 );
 
-    selfld_ = new uiComboBox( this, "Table selection" );
+    selfld_ = new uiColorTableSel( this, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
     selfld_->setStretch( 0, 0 );
+    selfld_->setCurrent( colseq );
 
     if ( vert )
     {
@@ -92,8 +129,6 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool ve
 	selfld_->attach( rightOf, maxfld_ );
 	setHAlignObj(selfld_); setHCentreObj(selfld_);
     }
-
-    fillTabList();
 }
 
 
@@ -112,13 +147,12 @@ uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
     canvas_->setPrefWidth( vert ? 30 : 80 );
     canvas_->setStretch( 0, 0 );
 
-    selfld_ = new uiComboBox( this, "Table selection" );
+    selfld_ = new uiColorTableSel( this, "Table selection" );
     selfld_->attach( vert ? alignedBelow : rightOf, canvas_ );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
     selfld_->setStretch( 0, vert ? 1 : 0 );
+    selfld_->setCurrent( coltabseq_ );
     setHAlignObj(canvas_); setHCentreObj(canvas_);
-    
-    fillTabList();
 }
 
 
@@ -184,7 +218,7 @@ void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool edit,
     if ( ctseq )
     {
 	coltabseq_ = *ctseq;
-	selfld_->setCurrentItem( coltabseq_.name() );
+	selfld_->setCurrent( coltabseq_ );
 	canvas_->setRGB();
 	if ( !emitnotif )
 	    seqChanged.trigger();
@@ -226,30 +260,9 @@ void uiColorTable::setHistogram( const TypeSet<float>* hist )
 }
 
 
-void uiColorTable::fillTabList()
-{
-    selfld_->empty();
-    BufferStringSet seqnames;
-    ColTab::SM().getSequenceNames( seqnames );
-    seqnames.sort();
-    for ( int idx=0; idx<seqnames.size(); idx++ )
-    {
-	const int seqidx = ColTab::SM().indexOf( seqnames.get(idx) );
-	if ( seqidx<0 ) continue;
-
-	const ColTab::Sequence& seq = *ColTab::SM().get( seqidx );
-	selfld_->addItem( seq.name() );
-	selfld_->setPixmap( ioPixmap(seq,16,10), idx );
-    }
-
-    selfld_->setCurrentItem( coltabseq_.name() );
-}
-
-
 void uiColorTable::tabSel( CallBacker* )
 {
-    const int cbidx = selfld_->currentItem();
-    const char* seqnm = selfld_->textOfItem( cbidx );
+    const char* seqnm = selfld_->getCurrent();
     setSequence( seqnm );
     seqChanged.trigger();
 }
@@ -444,7 +457,7 @@ void uiColorTable::doManage( CallBacker* )
 
 void uiColorTable::colTabManChgd( CallBacker* )
 {
-    selfld_->setCurrentItem( coltabseq_.name() );
+    selfld_->setCurrent( coltabseq_ );
     canvas_->setRGB();
     seqChanged.trigger();
 }
@@ -459,5 +472,5 @@ void uiColorTable::setAsDefault( CallBacker* )
 
 void uiColorTable::tableAdded( CallBacker* cb )
 {
-    fillTabList();
+    selfld_->update();
 }

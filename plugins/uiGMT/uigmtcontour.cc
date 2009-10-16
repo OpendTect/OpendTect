@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.13 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.14 2009-10-16 09:15:14 cvsnanne Exp $";
 
 #include "uigmtcontour.h"
 
@@ -135,7 +135,7 @@ void uiGMTContourGrp::fillColSeqs()
     {
 	const ColTab::Sequence& seq = *ColTab::SM().get( idx );
 	colseqfld_->addItem( seq.name() );
-	colseqfld_->setPixmap( ioPixmap(seq,16,10), idx );
+	colseqfld_->setPixmap( ioPixmap(seq,16,10,true), idx );
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabimport.cc,v 1.6 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabimport.cc,v 1.7 2009-10-16 09:15:14 cvsnanne Exp $";
 
 #include "uicoltabimport.h"
 
@@ -92,7 +92,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	ColTab::Sequence* seq = new ColTab::Sequence;
 	seq->usePar( *subpar );
 	seqs_ += seq;
-	ioPixmap coltabpix( *seq, 16, 10 );
+	ioPixmap coltabpix( *seq, 16, 10, true );
 	listfld_->box()->addItem( nm, coltabpix );
     }
 }

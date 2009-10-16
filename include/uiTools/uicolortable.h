@@ -7,19 +7,34 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.17 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uicolortable.h,v 1.18 2009-10-16 09:15:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uicombobox.h"
 #include "uigroup.h"
 #include "flatview.h"
 
 class uiColorTableCanvas;
-class uiComboBox;
 class uiLineEdit;
 
+
 namespace ColTab { class Sequence; struct MapperSetup; }
+
+mClass uiColorTableSel : public uiComboBox
+{
+public:
+    			uiColorTableSel(uiParent*,const char* nm);
+
+    void		update();
+    void		setCurrent(const ColTab::Sequence&);
+    void		setCurrent(const char* seqnm);
+    const char*		getCurrent() const;
+
+protected:
+};
+
 
 mClass uiColorTable : public uiGroup
 {
@@ -65,7 +80,7 @@ protected:
     uiColorTableCanvas*	canvas_;
     uiLineEdit*		minfld_;
     uiLineEdit*		maxfld_;
-    uiComboBox*		selfld_;
+    uiColorTableSel*	selfld_;
 
     bool		enabletrans_;
 
@@ -84,7 +99,6 @@ protected:
     void		colTabManChgd(CallBacker*);
 
     bool		isEditable() const	{ return maxfld_; }
-    void		fillTabList();
 };
 
 
