@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.43 2009-09-25 09:22:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.44 2009-10-16 10:45:53 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -378,7 +378,7 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 	return;
     }
 
-    PtrMan<ioPixmap> pixmap = new ioPixmap( *seq,
-	    				    cPixmapWidth(), cPixmapHeight() );
+    PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
+					    cPixmapHeight(), true );
     uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
 }
