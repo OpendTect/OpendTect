@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.16 2009-09-24 15:25:41 cvsbruno Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.17 2009-10-16 13:35:28 cvshelene Exp $";
 
 #include "attribdataholder.h"
 
@@ -106,7 +106,10 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
     int lowz;
     float disttosamppos = getExtraZAndSampIdxFromExactZ( exactz, refstep, lowz);
     if ( mIsZero( disttosamppos - extrazfromsamppos_, 1e-6 ) )
+    {
+	if ( lowz<z0_ || lowz>=z0_+nrsamples_ ) return mUdf(float);
 	return series( serieidx )->value( lowz-z0_ );
+    }
 
     //Remark: do not use ValueSeriesInterpolator because of classstatus
     const Interval<int> datarg( z0_, z0_+nrsamples_-1 );
