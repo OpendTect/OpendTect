@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.191 2009-10-16 14:40:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.192 2009-10-19 13:54:17 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -103,6 +103,7 @@ public:
 
     virtual void	show() 
 			{
+			    setWindowTitle( handle_.caption(false) );
 			    eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
 			    QMainWindow::show();
 
@@ -246,10 +247,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
         , prefsz_(-1,-1)
 {
     if ( nm && *nm )
-    {
 	setObjectName( nm );
-	setWindowTitle( nm );
-    }
 
     poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 
@@ -1110,7 +1108,7 @@ const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
 	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
 	{
 	    const QWidget* qw = toplevelwigs.at( idx );
-	    if ( !qw->isWindow() || qw==forwindow )
+	    if ( !qw->isWindow() || qw->isHidden() || qw==forwindow )
 		continue;
 	    if ( wintitle==mQStringToConstChar(qw->windowTitle())  )
 		unique = false;
