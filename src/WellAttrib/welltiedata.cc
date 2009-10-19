@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.23 2009-10-05 15:35:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.24 2009-10-19 15:57:42 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -45,7 +45,6 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
 	, factors_(s.unitfactors_) 	  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, seisctio_(*mMkCtxtIOObj(SeisTrc))
-
 {
     seisctio_.ctxt.forread = false;
     wvltctio_.ctxt.forread = false;
@@ -164,7 +163,7 @@ bool DataWriter::writeLogs2Cube( LogData& ldset ) const
 	    pErrMsg( "unable to extract position" );
 
 	ldset.curlog_ = &ldset.logset_.getLog( idx );
-	ldset.curctio_ = ldset.seisctioset_[idx];
+	ldset.curidx_ = idx;
 	const int datasz = ldset.curlog_->size();
 
 	ldset.bids_.erase();
@@ -180,8 +179,8 @@ bool DataWriter::writeLogs2Cube( LogData& ldset ) const
 
 bool DataWriter::writeLog2Cube( LogData& ld) const
 {
-    SeisTrcWriter writer( ld.curctio_->ioobj );
-
+    SeisTrcWriter writer( ld.seisctioset_[ld.ctioidxset_[ld.curidx_]]->ioobj );
+    bool succeeded = true;
     TypeSet<BinID> bids = ld.bids_;
     ObjectSet<SeisTrc> trcset;
     SeisTrc* curtrc = 0;
@@ -206,12 +205,20 @@ bool DataWriter::writeLog2Cube( LogData& ld) const
     }
     for ( int idx=0; idx<trcset.size(); idx++ )
     {
-	if ( !writer.put(*trcset[idx]) )
-	    pErrMsg( "cannot write new trace" );
+	SeisTrc* trc = trcset[idx];
+	BinID curbid = trc->info().binid;
+	for ( int trcidx=0; trcidx<2*ld.nrtraces_; trcidx++ )
+	{
+	    BinID bid = BinID( curbid.r()- ld.nrtraces_ + trcidx , 
+			       curbid.c()- ld.nrtraces_ + trcidx  );
+	    trc->info().binid = bid;
+	    if ( !writer.put(*trc) )
+	    { pErrMsg( "cannot write new trace" );  succeeded = false; } 
+	}
     }
     deepErase( trcset );
 
-    return true;
+    return succeeded;
 }
 
 }; //namespace WellTie

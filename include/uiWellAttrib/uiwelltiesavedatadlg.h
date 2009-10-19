@@ -22,10 +22,11 @@ class CtxtIOObj;
 class IOObj;
 class IOObjSel;
 class uiGenInput;
+class uiCheckBox;
 class uiListBox;
 class uiIOObjSel;
 class uiLabel;
-class uiCheckBox;
+class uiLabeledSpinBox;
 class Wavelet;
 
 namespace Well
@@ -48,12 +49,12 @@ public:
 	      public:
 				Setup()
 				    : labelcolnm_("Log")   
-				    , uselabelsel_(true)
+				    , saveasioobj_(true)
 				    {}	  
 			
         mDefSetupMemb(BufferString,labelcolnm)
         mDefSetupMemb(BufferStringSet,itemnames)
-        mDefSetupMemb(bool,uselabelsel)
+        mDefSetupMemb(bool,saveasioobj)
         mDefSetupMemb(BufferString,wellname)
     	mDefSetupMemb(ObjectSet<CtxtIOObj>,ctio);
       };
@@ -78,7 +79,7 @@ protected:
     ObjectSet<uiIOObjSel>  	ioobjselflds_;
 
     const BufferStringSet	names_;
-    bool 			uselabelsel_;
+    bool 			saveasioobj_;
 
     void			checkAll(CallBacker*);
 };
@@ -92,16 +93,18 @@ public:
 
 protected :
 
-    ObjectSet<CtxtIOObj>       	wvltctio_;
-    ObjectSet<CtxtIOObj>       	seisctio_;
+    ObjectSet<CtxtIOObj>      	wvltctioset_;
+    ObjectSet<CtxtIOObj>      	seisctioset_;
 
     uiSaveDataGroup* 		savelogsfld_;
     uiSaveDataGroup* 		savewvltsfld_;
     uiGenInput* 		saveasfld_;
+    uiLabeledSpinBox*		repeatfld_;
     const WellTie::DataHolder* 	dataholder_;
     WellTie::DataWriter*	datawriter_;
 
     bool 			acceptOK(CallBacker*);
+    void 			changeLogUIOutput(CallBacker*);
 };
 
 }; //namespace WellTie

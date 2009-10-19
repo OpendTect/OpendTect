@@ -74,8 +74,8 @@ public:
     const WellTie::PickSetMGR* pickmgr() const { return pickmgr_; }
 
 //CtxtIobj
-    CtxtIOObj&	seisCtxt()		{ return seisctio_; }
-    CtxtIOObj&	wvltCtxt() 		{ return wvltctio_; }
+    CtxtIOObj*	seisCtxt()		{ return &seisctio_; }
+    CtxtIOObj*	wvltCtxt() 		{ return &wvltctio_; }
 
 //Others    
     float&			corrcoeff() 	   { return corrcoeff_; }
@@ -125,9 +125,11 @@ public:
 	 ObjectSet<CtxtIOObj> 	seisctioset_;    
 	 const Well::LogSet& 	logset_;			    
 	 TypeSet<BinID> 	bids_;
+	 TypeSet<int>		ctioidxset_;	 
+	 int			nrtraces_;
+	 int 			curidx_;
 
 	 const Well::Log*	curlog_;	 
-	 CtxtIOObj*		curctio_;	 
     };			    
 
     bool 			writeD2TM() const;		
