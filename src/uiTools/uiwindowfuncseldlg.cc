@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.26 2009-10-16 16:30:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.27 2009-10-19 06:59:08 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -499,7 +499,7 @@ float uiFreqTaperDlg::getPercentsFromSlope( float slope )
     if ( isminactive_ )
 	dd1_.freqrg_.start = dd.freqrg_.stop - actualfreqrg/slopeinhertz;
     else
-	dd1_.freqrg_.stop = dd.freqrg_.start + actualfreqrg/slopeinhertz;
+	dd2_.freqrg_.stop = dd.freqrg_.start + actualfreqrg/slopeinhertz;
     setPercentsFromFreq(0);
     return isminactive_ ? dd.variable_ : dd.variable_; 
 }
