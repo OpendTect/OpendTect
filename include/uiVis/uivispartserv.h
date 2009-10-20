@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.253 2009-10-16 05:49:17 cvsranojay Exp $
+ RCS:           $Id: uivispartserv.h,v 1.254 2009-10-20 05:00:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,6 +261,7 @@ public:
     static const int		evColorTableChange();
     void			displaySceneColorbar(bool);
     void			manageSceneColorbar(int);
+    bool			sceneColorbarDisplayed();
 
     const Color&		getSceneAnnotCol(int);
 

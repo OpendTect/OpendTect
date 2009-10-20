@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.13 2009-10-16 05:49:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.14 2009-10-20 05:00:38 cvsranojay Exp $";
 
 #include "visscenecoltab.h"
 
@@ -34,8 +34,7 @@ SceneColTab::SceneColTab()
     legendkit_->size = SbVec2s(20,150);
     legendkit_->setDiscreteMode( true );
     legendkit_->enableBackground( false );
-    legendkit_->istop = false;
-    legendkit_->isleft = true;
+    setPos( SceneColTab::BottomLeft );
     setLegendColor( Color(170,170,170) );
     setColTabSequence( ColTab::Sequence("") );
 }
@@ -73,10 +72,30 @@ void SceneColTab::setSize( int w, int h )
 }
 
 
-void SceneColTab::setPos( bool top, bool left )
+void SceneColTab::setPos( Pos pos )
 {
-    legendkit_->istop = top;
-    legendkit_->isleft = left;
+    pos_ = pos; 
+
+    if ( pos_ ==  TopLeft )
+    {  
+	legendkit_->istop = true;
+	legendkit_->isleft = true;
+    }
+    else if ( pos_ == TopRight )
+    {
+	legendkit_->istop = true;
+	legendkit_->isleft = false;
+    }
+    else if ( pos_ == BottomLeft )
+    {
+        legendkit_->istop = false;
+        legendkit_->isleft = true;
+    }
+    else if ( pos_ == BottomRight )
+    {
+	legendkit_->istop = false;
+        legendkit_->isleft = false;
+    }
     updateVis();
 }
 

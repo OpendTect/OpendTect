@@ -7,19 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenecolorbarmgr.cc,v 1.2 2009-10-16 08:46:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiscenecolorbarmgr.cc,v 1.3 2009-10-20 05:00:38 cvsranojay Exp $";
 
 #include "uiscenecolorbarmgr.h"
 
-#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "visscenecoltab.h"
 
 
 uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p, 
-				        visBase::SceneColTab* coltab )
-				        
+				        visBase::SceneColTab* coltab )				        
     : uiDialog(p,uiDialog::Setup("Color Bar Properties",
 				 "Change color bar position and size",mNoHelpID))
     , scenecoltab_(coltab)
@@ -43,9 +41,10 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
 
     BufferStringSet positms;
     positms.add( "Bottom Left" ).add( "Bottom Right" )
-	   .add( "Top Right" ).add( "Top Left" );
+	   .add( "Top Left" ).add( "Top Right" );
     posfld_ = new uiGenInput( this, "Position", StringListInpSpec(positms) );
     posfld_->attach( alignedBelow, wfld );
+    posfld_->setValue( scenecoltab_->getPos() );
     posfld_->valuechanged.notify(
 			mCB(this,uiSceneColorbarMgr,posChangedCB) );
 }
@@ -64,14 +63,6 @@ void uiSceneColorbarMgr::sizeChangedCB( CallBacker* )
 
 void uiSceneColorbarMgr::posChangedCB( CallBacker* )
 {
-    bool istop = false;
-    bool isleft = false;
-    switch( posfld_->getIntValue() )
-    {
-	case 0: istop = false; isleft = true; break;
-	case 1: istop = false; isleft = false; break;
-	case 2: istop = true; isleft = false; break;
-	case 3: istop = true; isleft = true; break;
-    }
-    scenecoltab_->setPos( istop, isleft );
+    scenecoltab_->setPos( (visBase::SceneColTab::Pos)posfld_->getIntValue() );
 }
+
