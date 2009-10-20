@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.70 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.71 2009-10-20 15:21:30 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -51,6 +51,7 @@ const int uiNLAPartServer::evGetStoredInput()	{ return 4; }
 const int uiNLAPartServer::evGetData()		{ return 5; }
 const int uiNLAPartServer::evSaveMisclass()	{ return 6; }
 const int uiNLAPartServer::evCreateAttrSet()	{ return 7; }
+const int uiNLAPartServer::evCr2DRandomSet()	{ return 8; }
 const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
 
 #define mDPM DPM(DataPackMgr::PointID())

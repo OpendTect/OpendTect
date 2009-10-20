@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.28 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.29 2009-10-20 15:21:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ public:
     			//!< use misclass analysis VDS; user wants it.
     static const int	evCreateAttrSet();
     			//!< create attributeset from GDI NN
+    static const int	evCr2DRandomSet();
+    			//!< create 2D random pick set
     static const char*	sKeyUsrCancel();
     			//!< Returned when operation must stop without error
 

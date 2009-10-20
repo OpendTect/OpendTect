@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.359 2009-10-11 01:11:11 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.360 2009-10-20 15:21:30 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1329,6 +1329,10 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	attrset.fillPar( nlaserv_->modelPars() );
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent(),
 	       		       nlaserv_->getModel().versionNr() );
+    }
+    else if ( evid == uiNLAPartServer::evCr2DRandomSet() )
+    {
+	pickserv_->createRandom2DSet();
     }
     else
 	pErrMsg("Unknown event from nlaserv");
