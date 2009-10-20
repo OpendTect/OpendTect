@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.188 2009-09-22 16:40:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.189 2009-10-20 15:56:30 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -243,6 +243,8 @@ void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
     }
     uiHorizon3DInterpolDlg dlg( parent(), hor3d );
     dlg.go();
+
+    delete IOM().get( EM::EMM().getMultiID(emid) );
 }
 
 
@@ -251,6 +253,8 @@ void uiEMPartServer::filterSurface( const EM::ObjectID& emid )
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
     uiFilterHorizonDlg dlg( parent(), hor3d );
     dlg.go();
+    
+    delete IOM().get( EM::EMM().getMultiID(emid) );
 }
 
 
@@ -747,6 +751,8 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
     mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
+    data.dataSet().add( new DataColDef(sKeySectionID()) );
+
     BufferStringSet nms;
     for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
     {
@@ -760,6 +766,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
     }
 
     data.bivSet().allowDuplicateBids(false);
+    float auxvals[nms.size()+2]; 
 
     for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
     {
@@ -767,8 +774,8 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	if ( !hor3d->geometry().sectionGeometry(sid) )
 	    continue;
 
-	mAllocVarLenArr( float, auxvals, nms.size()+1 );
 	auxvals[0] = 0;
+	auxvals[1] = sid;
 	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
 	while ( true )
@@ -781,7 +788,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	    for ( int idx=0; idx<nms.size(); idx++ )
 	    {
 		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
-		auxvals[idx+1] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
+		auxvals[idx+2] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
 	    }
 	    bid.setSerialized( pid.subID() );
 	    data.bivSet().add( bid, auxvals );
@@ -793,27 +800,26 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 }
 
 
-BinIDValueSet* uiEMPartServer::interpolateAuxData( const EM::ObjectID& oid,
-						   const char* nm )
-{ return changeAuxData( oid, nm, true ); }
+bool uiEMPartServer::interpolateAuxData( const EM::ObjectID& oid,
+	const char* nm, DataPointSet& dpset )
+{ return changeAuxData( oid, nm, true, dpset ); }
 
-BinIDValueSet* uiEMPartServer::filterAuxData( const EM::ObjectID& oid,
-					      const char* nm )
-{ return changeAuxData( oid, nm, false ); }
+bool uiEMPartServer::filterAuxData( const EM::ObjectID& oid,
+	const char* nm, DataPointSet& dpset )
+{ return changeAuxData( oid, nm, false, dpset ); }
 
 
-BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
-					      const char* nm,
-					      bool interpolate )
+bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
+	const char* nm, bool interpolate, DataPointSet& dpset )
 {
     mDynamicCastAll(oid);
-    if ( !hor3d ) return 0;
+    if ( !hor3d ) return false;
 
     const int auxidx = hor3d->auxdata.auxDataIndex( nm );
     if ( auxidx < 0 )
     {
 	uiMSG().error("Cannot find attribute data");
-	return 0;
+	return false;
     }
 
     const EM::SectionID sid = hor3d->sectionID( 0 );
@@ -836,11 +842,11 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	    new uiArray2DInterpolSel( &dlg, false, false, true, 0 );
 
 	dlg.setGroup( settings );
-	if ( !dlg.go() ) return 0;
+	if ( !dlg.go() ) return false;
 
 	Array2DInterpol* interp = settings->getResult();
 	if ( !interp )
-	    return 0;
+	    return false;
 
 	changer = interp;
 
@@ -873,12 +879,12 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	}
 
 	if ( !interp->setArray( *arr2d, &execdlg ) )
-	    return 0;
+	    return false;
     }
     else
     {
 	uiArr2DFilterParsDlg dlg( parent() );
-	if ( !dlg.go() ) return 0;
+	if ( !dlg.go() ) return false;
 
 	Array2DFilterer<float>* filter =
 	    new Array2DFilterer<float>( *arr2d, dlg.getInput() );
@@ -886,30 +892,38 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     }
 
     if ( !execdlg.execute(*changer) )
-	return 0;
+	return false;
 
     hor3d->auxdata.setArray2D( auxidx, sid, *arr2d );
-    BinIDValueSet* res = new BinIDValueSet( 2, false );
+
+    dpset.dataSet().add( new DataColDef(sKeySectionID()) );
+    dpset.dataSet().add( new DataColDef(nm) );
+
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    const BinID rc( row, col );
-	    const float z = hor3d->getPos( sid, rc.getSerialized() ).z;
-	    if ( mIsUdf(z) )
+	    
+	    float auxvals[3]; 
+	    auxvals[0] = hor3d->getPos( sid, rc.getSerialized() ).z;
+	    if ( mIsUdf(auxvals[0]) )
 		continue;
 
-	    res->add( rc, z, arr2d->get(rowrg.getIndex(row),
-					colrg.getIndex(col)) );
+	    auxvals[1] = sid;
+	    auxvals[2] = arr2d->get(rowrg.getIndex(row), colrg.getIndex(col));
+	    dpset.bivSet().add( rc, auxvals );
 	}
     }
+
+    dpset.dataChanged();
 
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
     const char* infomsg = interp ? interp->infoMsg() : 0;
     if ( infomsg && *infomsg )
 	uiMSG().message( infomsg );
 
-    return res;
+    return true;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.93 2009-09-22 16:40:13 cvsyuancheng Exp $
+ RCS:           $Id: uiempartserv.h,v 1.94 2009-10-20 15:56:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,8 +119,10 @@ public:
 	    			   DataPointSet&, float& shift) const;
     bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
 	    			      TypeSet<float>* shfs=0) const;
-    BinIDValueSet*	interpolateAuxData(const EM::ObjectID&,const char* nm);
-    BinIDValueSet*	filterAuxData(const EM::ObjectID&,const char* nm);
+    bool		interpolateAuxData(const EM::ObjectID&,const char* nm,
+	    				   DataPointSet& res);
+    bool		filterAuxData(const EM::ObjectID&,const char* nm,
+	    			      DataPointSet& res);
 
     const char*		genRandLine(int opt);
     bool 		dispLineOnCreation()	{ return disponcreation_; }
@@ -146,14 +148,16 @@ protected:
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&,
 				    bool removeold=true);
     void		syncGeometry(CallBacker*);
-    BinIDValueSet*	changeAuxData(const EM::ObjectID&,const char* nm,
-	    			      bool interp);
+    bool		changeAuxData(const EM::ObjectID&,const char* nm,
+	    			      bool interp,DataPointSet& res);
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
 
     HorSampling		selectedrg_;    
     bool		disponcreation_;
+
+    static const char*  sKeySectionID() { return "Section ID"; }
 };
 
 

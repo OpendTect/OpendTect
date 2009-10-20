@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.65 2009-09-09 22:03:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.66 2009-10-20 15:56:30 cvsyuancheng Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.65 2009-09-09 22:03:1
 #include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "posvecdataset.h"
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
@@ -295,7 +296,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<DataPointSet::DataRow> pts;
 	DataPointSet vals( pts, attrnms, false, true );
 	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
-	FixedString attrnm = vals.colDef( 0 ).name_.buf();
+	FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
 	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->createAndDispDataPack( visid, attribnr, &vals );
@@ -322,17 +323,16 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<DataPointSet::DataRow> pts;
 	BufferStringSet nms;
 	DataPointSet vals( pts, nms, false, true );
-	BinIDValueSet* set = 0;
+
+	bool res = false;
 	if ( mnuid==fillholesmnuitem_.id )
-	    set = applMgr()->EMServer()->interpolateAuxData( emid_, name_ );
+	    res = applMgr()->EMServer()->interpolateAuxData(emid_,name_,vals);
 	else
-	    set = applMgr()->EMServer()->filterAuxData( emid_, name_ );
-	if ( !set ) return;
-	if ( vals.bivSet().nrVals()< set->nrVals() )
-	    vals.bivSet().setNrVals( set->nrVals() );
+	    res = applMgr()->EMServer()->filterAuxData( emid_, name_, vals );
+
+	if ( !res )
+	    return;
 	
-	vals.bivSet().append( *set );
-	vals.dataChanged();
 	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(name_,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->setRandomPosData( visid, attribnr, &vals );
