@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.44 2009-10-16 18:43:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.45 2009-10-20 21:01:36 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -353,6 +353,10 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
     }
 }
 
+#define mUpdateTreeName \
+    visserv_->setObjectName(displayid_,(const char*)emserv->getName(emid_)); \
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+
 
 void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 {
@@ -368,15 +372,19 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     bool handled = true;
     if ( mnuid==fillholesmnuitem_.id )
+    {
 	emserv->fillHoles( emid_ );
+	mUpdateTreeName
+    }
     else if ( mnuid==filterhormnuitem_.id )
+    {
 	emserv->filterSurface( emid_ );
+	mUpdateTreeName
+    }
     else if ( mnuid==snapeventmnuitem_.id )
     {
 	emattrserv->snapHorizon( emid_ );
-	visserv_->setObjectName( displayid_,
-		(const char*) applMgr()->EMServer()->getName(emid_) );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
+	mUpdateTreeName
     }
     else if ( mnuid==positionmnuitem_.id )
     {
