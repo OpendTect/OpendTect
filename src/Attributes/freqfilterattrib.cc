@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.36 2009-10-16 16:30:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.37 2009-10-20 05:02:08 cvsranojay Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -359,7 +359,8 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	    Array1DInfoImpl(winsize), false, "CosTaper", lowfreqvariable_ );
     ArrayNDWindow highwindow( 
 	    Array1DInfoImpl(winsize), false, "CosTaper", highfreqvariable_ );
-    float highwin[winsize/2], lowwin[winsize/2];
+    float* highwin = new float(winsize/2); 
+    float* lowwin = new float(winsize/2);
     for ( int idx=0; idx<winsize/2; idx++ )
     {
 	lowwin[idx] = 1-lowwindow.getValues()[winsize-1-idx];
