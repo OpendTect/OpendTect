@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.13 2009-10-14 14:37:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.14 2009-10-20 09:07:05 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -257,6 +257,7 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
     const StepInterval<float> yaxrg( minhght, maxhght, (maxhght-minhght)/8);
 
     uiFunctionDrawer::Setup su; su.name_ = "Wavelet Stacking";
+    su.funcrg_ = xaxrg;
     su.xaxrg_ = xaxrg; 		su.yaxrg_ = yaxrg;
     su.xaxname_ = "time (s)"; 	su.yaxname_ = "Amplitude";
 
