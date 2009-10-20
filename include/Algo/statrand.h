@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: statrand.h,v 1.5 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: statrand.h,v 1.6 2009-10-20 15:20:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,11 @@ public:
     			//!< Normally distributed
     static int		getIndex(int sz);
     			//!< random index in the range [0,sz>
+    static od_int64	getIndex(od_int64 sz);
+    			//!< random index in the range [0,sz>
 
-    template <class T>
-    static void		subselect(T*,int sz,int targetsz);
+    template <class T,class SzTp>
+    static void		subselect(T*,SzTp sz,SzTp targetsz);
     			//!< Does not preserve order.
     			//!< Afterwards, the 'removed' values occupy
     			//!< the indexes targetsz - maxsz-1
@@ -46,12 +48,12 @@ private:
 };
 
 
-template <class T>
-inline void Stats::RandGen::subselect( T* arr, int sz, int targetsz )
+template <class T,class SzTp>
+inline void Stats::RandGen::subselect( T* arr, SzTp sz, SzTp targetsz )
 {
-    for ( int idx=sz-1; idx>=targetsz; idx-- )
+    for ( SzTp idx=sz-1; idx>=targetsz; idx-- )
     {
-	const int notselidx = getIndex( idx );
+	const SzTp notselidx = getIndex( idx );
 	if ( notselidx != idx )
 	    Swap( arr[notselidx], arr[idx] );
     }

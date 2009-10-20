@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: stats.cc,v 1.7 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.8 2009-10-20 15:20:32 cvsbert Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -122,6 +122,18 @@ int Stats::RandGen::getIndex( int sz )
     if ( sz < 2 ) return 0;
 
     int idx = (int)(sz * get());
+    if ( idx < 0 ) idx = 0;
+    if ( idx >= sz ) idx = sz-1;
+
+    return idx;
+}
+
+
+od_int64 Stats::RandGen::getIndex( od_int64 sz )
+{
+    if ( sz < 2 ) return 0;
+
+    od_int64 idx = (od_int64)(sz * get());
     if ( idx < 0 ) idx = 0;
     if ( idx >= sz ) idx = sz-1;
 
