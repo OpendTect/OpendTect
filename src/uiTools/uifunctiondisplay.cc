@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.49 2009-10-02 08:20:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.50 2009-10-21 15:34:07 cvsbert Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -173,7 +173,8 @@ void uiFunctionDisplay::gatherInfo()
 
     if ( havey2 )
     {
-	getRanges( y2xvals_, y2yvals_, setup_.xrg_, setup_.y2rg_, xrg, yrg );
+	if ( !setup_.useyscalefory2_ )
+	    getRanges( y2xvals_, y2yvals_, setup_.xrg_, setup_.y2rg_, xrg, yrg);
 	y2ax_->setBounds( yrg );
     }
 }

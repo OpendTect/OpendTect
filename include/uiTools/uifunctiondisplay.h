@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.27 2009-10-08 06:05:44 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.28 2009-10-21 15:34:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ public:
 				    , borderstyle_(LineStyle())
 				    , closepolygon_(true)
 				    , drawliney_(true)
+				    , useyscalefory2_(false)
 				    , drawliney2_(true) {}
 
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
@@ -106,6 +107,7 @@ public:
 	mDefSetupMemb(bool,drawscattery2)		//!< draw Markers
 	mDefSetupMemb(bool,closepolygon)
 	mDefSetupMemb(bool,drawborder)
+	mDefSetupMemb(bool,useyscalefory2)
 	mDefSetupMemb(LineStyle,borderstyle)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
 	mDefSetupMemb(float,epsaroundzero)
