@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.6 2009-09-01 06:14:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.7 2009-10-21 06:18:56 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.6 2009-09-01
 #include "uicreatepicks.h"
 #include "uiioobj.h"
 #include "uimsg.h"
+#include "uislider.h"
 #include "ctxtioobj.h"
 #include "emrandomposbody.h"
 #include "emmanager.h"
@@ -33,6 +34,7 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     , createbodymnuitem_( "Create Body ..." )
     , storepsmnuitem_( "Save as Pickset ..." )
     , removemnuitem_( "Remove selected points" )
+    , sizemnuitem_( "Set size" )
     , treeToBeAdded( this )
 {
     vismenu_->createnotifier.notify(
@@ -46,6 +48,27 @@ uiVisDataPointSetDisplayMgr::~uiVisDataPointSetDisplayMgr()
 {
     deepErase( displayinfos_ );
 }
+
+
+class uiSetSizeDlg : public uiDialog
+{
+public:
+uiSetSizeDlg( uiParent * p, int sz )
+    : uiDialog( p, uiDialog::Setup("Set size of points","","") )
+{
+    setCtrlStyle( uiDialog::LeaveOnly );
+    const float fsz = (float)sz;
+    slider_ = new uiSliderExtra( this, uiSliderExtra::Setup("Size"), "Size" );
+    slider_->sldr()->setInterval( StepInterval<float>(fsz-10.0,fsz+10.0,1.0) );
+    slider_->sldr()->setMinValue( 1 );
+    slider_->sldr()->setMaxValue( 15 );
+    slider_->sldr()->setValue( fsz );
+    slider_->sldr()->setTickMarks( uiSlider::Below );
+    slider_->sldr()->setTickStep( 1 );
+}
+
+    uiSliderExtra*	slider_;
+};
 
 
 void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
@@ -75,6 +98,7 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
      mAddMenuItem( menu, &createbodymnuitem_, true, false );
      mAddMenuItem( menu, &storepsmnuitem_, true, false );
      mAddMenuItem( menu, &removemnuitem_, true, false );
+     mAddMenuItem( menu, &sizemnuitem_, true, false );
 }
 
 
@@ -148,6 +172,13 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	if ( !scene || !scene->getSelector() )
 	    return;
 	display->removeSelection( *scene->getSelector() );
+    }
+    else if ( mnuid == sizemnuitem_.id )
+    {
+	uiSetSizeDlg dlg( visserv_.appserv().parent(),
+			  display->getPointSize() );
+	dlg.go();
+	display->setPointSize( dlg.slider_->sldr()->getIntValue() );
     }
 }
 

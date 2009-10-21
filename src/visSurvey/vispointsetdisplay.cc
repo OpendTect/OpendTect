@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.6 2009-09-01 06:14:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.7 2009-10-21 06:18:56 cvssatyaki Exp $";
 
 #include "selector.h"
 #include "viscoord.h"
@@ -45,6 +45,11 @@ Color PointSetDisplay::getColor() const
 { return getMaterial()->getColor(); }
 
 
+void PointSetDisplay::setPointSize( int sz )
+{ pointset_->setPointSize( sz ); }
+
+int PointSetDisplay::getPointSize() const
+{ return pointset_->getPointSize(); }
 bool PointSetDisplay::setDataPack( const DataPointSet& dps )
 {
     data_ = dps;

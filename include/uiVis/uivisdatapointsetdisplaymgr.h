@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Apr 2009
- RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.4 2009-09-01 06:14:51 cvssatyaki Exp $
+ RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.5 2009-10-21 06:18:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ protected:
     MenuItem			createbodymnuitem_;
     MenuItem			storepsmnuitem_;
     MenuItem			removemnuitem_;
+    MenuItem			sizemnuitem_;
     TypeSet<int>		ids_;	
     ObjectSet<DisplayInfo>	displayinfos_; //linked with ids_
     

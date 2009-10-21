@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: vispointset.h,v 1.4 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: vispointset.h,v 1.5 2009-10-21 06:18:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -23,11 +23,19 @@ class Coord3;
 namespace visBase
 {
 
+class DrawStyle;
+
 mClass PointSet	: public VertexShape
 {
 public:
     static PointSet*	create()
 			mCreateDataObj(PointSet);
+
+    void		setPointSize(int);
+    int			getPointSize() const;
+
+protected:
+    DrawStyle*		drawstyle_;
 };
 
 mClass IndexedPointSet : public IndexedShape
