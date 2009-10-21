@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.50 2009-09-21 11:22:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.51 2009-10-21 09:36:10 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -60,6 +60,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 	mCB(this,uiSeisWvltMan,reversePolarity), "Reverse polarity" );
     selgrp->getManipGroup()->addButton( "phase.png",
 	mCB(this,uiSeisWvltMan,rotatePhase), "Rotate phase" );
+    selgrp->getManipGroup()->addButton( "phase.png",
+	mCB(this,uiSeisWvltMan,taper), "Taper" );
 
     uiGroup* butgrp = new uiGroup( this, "Imp/Create buttons" );
     uiPushButton* impbut = new uiPushButton( butgrp, "&Import", false );
@@ -317,7 +319,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
     if ( !wvlt ) return;
     
     uiSeisWvltRotDlg dlg( this, wvlt );
-    dlg.phaserotating.notify( mCB(this,uiSeisWvltMan,updateViewer) );
+    dlg.acting.notify( mCB(this,uiSeisWvltMan,updateViewer) );
     if ( dlg.go() )
     {	
 	if ( !wvlt->put(curioobj_) )
@@ -325,11 +327,28 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 	else
 	    selgrp->fullUpdate( curioobj_->key() );
     }
-    dlg.phaserotating.remove( mCB(this,uiSeisWvltMan,updateViewer) );
+    dlg.acting.remove( mCB(this,uiSeisWvltMan,updateViewer) );
     mkFileInfo();
 
     delete wvlt;
 }
+
+
+void uiSeisWvltMan::taper( CallBacker* )
+{
+    Wavelet* wvlt = Wavelet::get( curioobj_ );
+    if ( !wvlt ) return;
+    
+    uiSeisWvltTaperDlg dlg( this, wvlt );
+    if ( dlg.go() )
+    {	
+	if ( !wvlt->put(curioobj_) )
+	    uiMSG().error("Cannot write tapered wavelet to disk");
+	else
+	    selgrp->fullUpdate( curioobj_->key() );
+    }
+}
+
 
 #define mErr() mErrRet("Cannot draw wavelet");
 void uiSeisWvltMan::updateViewer( CallBacker* cb )

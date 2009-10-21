@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.27 2009-10-19 06:59:08 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.28 2009-10-21 09:36:10 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -32,7 +32,9 @@ static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.27 2009-10-19 06:59:0
 
 
 uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
-    : uiFunctionDisplay( p, uiFunctionDisplay::Setup() )
+    : uiFunctionDisplay( p, uiFunctionDisplay::Setup()
+	    				.fillbelow(su.fillbelow_)
+					.border(uiBorder(20,20,10,10)))
     , transform_(new uiWorld2Ui())
     , polyitemgrp_(0)
     , borderrectitem_(0)
@@ -45,14 +47,13 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
 		     uiWorldRect( su.xaxrg_.start, su.yaxrg_.stop, 
 				  su.xaxrg_.stop, su.yaxrg_.start ) );
-    uiBorder border(10,10,10,10);
     
     uiAxisHandler::Setup asu( uiRect::Bottom, width(), height() );
     asu.style( LineStyle::None );
 
     asu.maxnumberdigitsprecision_ = 2;
     asu.epsaroundzero_ = 1e-3;
-    asu.border_ = border;
+    asu.border_ = su.border_;
 
     xax_ = new uiAxisHandler( &scene(), asu );
     float annotstart = -1;
@@ -62,9 +63,15 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     yax_ = new uiAxisHandler( &scene(), asu );
     yax_->setRange( su.yaxrg_, 0 );
 
-    xax_->setName( su.xaxname_ ); 	yax_->setName( su.yaxname_ );
-    xax_->setBegin( yax_ ); 		yax_->setBegin( xax_ );
-    xax_->setBounds( su.xaxrg_ ); 	yax_->setBounds( su.yaxrg_ );
+    if ( su.drawownaxis_ )
+    {
+	xax_->setNewDevSize( mTransWidth, mTransHeight );
+	yax_->setNewDevSize( mTransHeight , mTransWidth );
+	xax_->setBegin( yax_ ); 	yax_->setBegin( xax_ );
+	xax_->setBounds( su.xaxrg_ ); 	yax_->setBounds( su.yaxrg_ );
+	xax_->plotAxis();		yax_->plotAxis();
+	xax_->setName( su.xaxname_ ); 	yax_->setName( su.yaxname_ );
+    }
 }
 
 
@@ -78,10 +85,6 @@ uiFunctionDrawer::~uiFunctionDrawer()
 
 void uiFunctionDrawer::draw( TypeSet<int>& selecteditems )
 {
-    xax_->setNewDevSize( mTransWidth, mTransHeight );
-    yax_->setNewDevSize( mTransHeight , mTransWidth );
-    xax_->plotAxis();
-    yax_->plotAxis();
     uiRect borderrect( xax_->pixBefore(), 5, mTransWidth - 5,
 	    	       mTransHeight - yax_->pixBefore() );
     if ( !borderrectitem_ )
@@ -100,6 +103,7 @@ void uiFunctionDrawer::draw( TypeSet<int>& selecteditems )
     }
     else
 	polyitemgrp_->removeAll( true );
+
     for ( int idx=0; idx<pointlistset_.size(); idx++ )
     {
 	uiPolyLineItem* polyitem = new uiPolyLineItem();

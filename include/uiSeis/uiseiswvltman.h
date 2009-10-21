@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseiswvltman.h,v 1.17 2009-09-15 13:36:21 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.18 2009-10-21 09:36:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ protected:
     void			getFromOtherSurvey(CallBacker*);
     void			reversePolarity(CallBacker*);
     void			rotatePhase(CallBacker*);
+    void			taper(CallBacker*);
     void                	updateCB(CallBacker*);
     void 			updateViewer(CallBacker*);
 };

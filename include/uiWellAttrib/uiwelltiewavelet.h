@@ -84,6 +84,7 @@ protected:
 
     void 			dispProperties(CallBacker*);
     void			rotatePhase(CallBacker*);
+    void			taper(CallBacker*);
     void 			wvltChanged(CallBacker*);
 };				
 

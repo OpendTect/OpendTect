@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.32 2009-10-05 15:35:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.33 2009-10-21 09:36:10 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -115,6 +115,11 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     wvltbuts_[1]->setToolTip( "Rotate Phase" );
     wvltbuts_[1]->attach( rightOf, wvltbuts_[0] );
 
+    wvltbuts_ += new uiToolButton( this, "Rotate", "phase.png",
+	    mCB(this,uiWavelet,taper) );
+    wvltbuts_[2]->setToolTip( "Taper Wavelet" );
+    wvltbuts_[2]->attach( rightOf, wvltbuts_[1] );
+
     initWaveletViewer();
     drawWavelet();
 }
@@ -149,17 +154,30 @@ void uiWavelet::initWaveletViewer()
 }
 
 
-void uiWavelet::rotatePhase( CallBacker* cb )
+void uiWavelet::rotatePhase( CallBacker* )
 {
     Wavelet* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltRotDlg dlg( this, wvlt_ );
-    dlg.phaserotating.notify( mCB(this,uiWavelet,wvltChanged) );
+    dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {
 	memcpy(wvlt_->samples(),orgwvlt->samples(),wvlt_->size()*sizeof(float));
 	wvltChanged(0);
     }
-    dlg.phaserotating.remove( mCB(this,uiWavelet,wvltChanged) );
+    dlg.acting.remove( mCB(this,uiWavelet,wvltChanged) );
+}
+
+
+void uiWavelet::taper( CallBacker* )
+{
+    Wavelet* orgwvlt = new Wavelet( *wvlt_ );
+    uiSeisWvltTaperDlg dlg( this, wvlt_ );
+    dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
+    if ( !dlg.go() )
+    {
+	memcpy(wvlt_->samples(),orgwvlt->samples(),wvlt_->size()*sizeof(float));
+	wvltChanged(0);
+    }
 }
 
 

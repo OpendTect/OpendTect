@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.7 2009-09-24 07:33:44 cvsranojay Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.8 2009-10-21 09:36:10 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,15 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "hilberttransform.h"
+#include "uislider.h"
 
-class Wavelet;
-class uiSliderExtra;
-class uiFunctionDisplay;
+class ArrayNDWindow;
 class FFT;
+class WindowFunction;
+class Wavelet;
+class uiCheckBox;
+class uiFunctionDrawer;
+class uiWaveletDispProp;
 
 template <class T> class Array1DImpl;
 class WaveletAttrib
@@ -31,6 +35,7 @@ public:
     void 			getPhase(Array1DImpl<float>&);
     void 			getFrequency(Array1DImpl<float>&, 
 					     bool ispad=true);
+    void 			muteZeroFrequency(Array1DImpl<float>&);
 
 protected:
 
@@ -38,29 +43,92 @@ protected:
     FFT*			fft_;
     int                         wvltsz_;
     Array1DImpl<float>*  	wvltarr_;
-
 };
 
 
-mClass uiSeisWvltRotDlg : public uiDialog 
+mClass uiSeisWvltSliderDlg : public uiDialog 
 {
 public:
-				uiSeisWvltRotDlg(uiParent*,Wavelet*);
-				~uiSeisWvltRotDlg();
+				uiSeisWvltSliderDlg(uiParent*,Wavelet*);
+				~uiSeisWvltSliderDlg();
 
-    Notifier<uiSeisWvltRotDlg>	phaserotating;
+    Notifier<uiSeisWvltSliderDlg> acting;
     const Wavelet*              getWavelet() const  { return wvlt_; }
 
-protected:
-
-    void			rotatePhase(float);
-    void			sliderMove(CallBacker*);
-
-
+public :
     WaveletAttrib*		wvltattr_;
     uiSliderExtra*		sliderfld_;
     Wavelet* 			wvlt_;
     const Wavelet* 		orgwvlt_;
+
+    virtual void		act(CallBacker*) {}
+    void			constructSlider(uiSliderExtra::Setup&,
+	    					const Interval<float>);
+};
+
+
+mClass uiSeisWvltRotDlg : public uiSeisWvltSliderDlg 
+{
+public:
+				uiSeisWvltRotDlg(uiParent*,Wavelet*);
+protected:
+
+    void			act(CallBacker*);
+};
+
+
+mClass uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg 
+{
+public:
+				uiSeisWvltTaperDlg(uiParent*,Wavelet*);
+				~uiSeisWvltTaperDlg();
+
+protected: 
+
+    ArrayNDWindow* 		window_;
+    Array1DImpl<float>* 	wvltvals_;
+    Array1DImpl<float>* 	orgwvltvals_;
+    uiWaveletDispProp*		properties_;
+    uiFunctionDrawer*		drawer_;
+    uiCheckBox*			mutefld_;
+
+    void			act(CallBacker*);
+    void			drawTaper(WindowFunction*);
+};
+
+
+
+mClass uiWaveletDispProp : public uiGroup
+{
+public:
+
+    mStruct Setup
+    {
+				Setup()
+				: withphase_(true)
+				, withgridlines_(true) 
+				{}
+
+	mDefSetupMemb(bool,withphase)
+	mDefSetupMemb(bool,withgridlines)
+    };
+
+				uiWaveletDispProp(uiParent*,const Wavelet*,
+						const Setup&);
+				~uiWaveletDispProp();
+
+    void                        setAttrCurves(const Wavelet*);
+    uiFunctionDrawer*		getAttrDisp(int idx)  
+    				{ return attrdisps_[idx]; }
+
+private:
+
+    int                         wvltsz_;
+    const char*			attrnms_[4];
+    ObjectSet<uiFunctionDrawer> attrdisps_;
+    ObjectSet< Array1DImpl<float> > attrarrays_;
+
+    void			addAttrDisp(bool);
 };
 
 
@@ -69,17 +137,9 @@ mClass uiWaveletDispPropDlg : public uiDialog
 public:
 				uiWaveletDispPropDlg(uiParent*,const Wavelet*);
 				~uiWaveletDispPropDlg();
-
 protected:
 
-    int                         wvltsz_;
-    const Wavelet*              wvlt_;
-    WaveletAttrib*		wvltattr_;
-    ObjectSet<uiFunctionDisplay> attrdisps_;
-    ObjectSet< Array1DImpl<float> > attrarrays_;
-
-    void			addAttrDisp(bool);
-    void                        setAttrCurves();
+    uiWaveletDispProp*		properties_;
 };
 
 #endif
