@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.21 2009-09-07 14:44:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.22 2009-10-21 15:09:03 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -32,6 +32,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
 	, savedefault_(false)
 {
     setCtrlStyle( LeaveOnly );
+
     wd_->dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
@@ -111,7 +112,7 @@ void uiWellDispPropDlg::applyAllPush( CallBacker* )
 
 void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 {
-    wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,close) );
+    wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
     close();
 }
 
@@ -122,7 +123,7 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 	savedefault_ = true;
     else 
 	savedefault_ = false;
-    wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,close) );
+    wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
     return true;
 }
 

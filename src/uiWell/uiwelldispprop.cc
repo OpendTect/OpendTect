@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.31 2009-10-16 09:15:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.32 2009-10-21 15:09:03 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -123,17 +123,26 @@ void uiWellTrackDispProperties::doGetFromScreen()
 }
 
 
-
+static const char* shapes[] = { "Cylinder", "Square", "Sphere", 0 };
 uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::Markers& mp )
     : uiWellDispProperties(p,su,mp)
 {
-    circfld_ = new uiGenInput( this, "Shape",
-			       BoolInpSpec(true,"Square","Circular") );
-    circfld_->attach( alignedBelow, colfld_ );
-    circfld_->valuechanged.notify(
+    shapefld_ = new uiLabeledComboBox( this, "Shape" );
+    shapefld_->attach( alignedBelow, colfld_ );
+    for ( int idx=0; shapes[idx]; idx++)
+	shapefld_->box()->addItem( shapes[idx] );
+    shapefld_->box()->selectionChanged.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
+    shapefld_->box()->selectionChanged.notify(
+		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
+    
+    cylinderheightfld_ = new uiLabeledSpinBox( this, "Height" );
+    cylinderheightfld_->box()->setInterval( 0, 10, 1 );
+    cylinderheightfld_->box()->valueChanging.notify(
+		mCB(this,uiWellMarkersDispProperties,propChg) );
+    cylinderheightfld_->attach( rightOf, shapefld_ );
    
     singlecolfld_ = new uiCheckBox( this, "use single color");
     singlecolfld_ -> attach( rightOf, colfld_); 
@@ -141,13 +150,13 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     singlecolfld_->activated.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     singlecolfld_->activated.notify(
-		mCB(this,uiWellMarkersDispProperties,setMarkerColSel));
+		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
    
     nmsizefld_ = new uiLabeledSpinBox( this, "Names size" );
     nmsizefld_->box()->setInterval(10,30,6);
     nmsizefld_->box()->valueChanging.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
-    nmsizefld_->attach( alignedBelow, circfld_ );
+    nmsizefld_->attach( alignedBelow, shapefld_ );
     
     uiColorInput::Setup csu( mrkprops().color_ );
     BufferString dlgtxt( "Names color" );
@@ -162,28 +171,24 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     samecolasmarkerfld_->activated.notify(
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     samecolasmarkerfld_->activated.notify(
-		mCB(this,uiWellMarkersDispProperties,setMarkerNmColSel));
+		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
    
     doPutToScreen();
 }
 
 
-void uiWellMarkersDispProperties::setMarkerColSel( CallBacker*  )
+void uiWellMarkersDispProperties::markerFldsChged( CallBacker*  )
 {
-    bool issel = singlecolfld_->isChecked();
-    colfld_->setSensitive( issel );
+    colfld_->setSensitive( singlecolfld_->isChecked() );
+    nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );
+    cylinderheightfld_->display( !shapefld_->box()->currentItem() );
 }
 
-
-void uiWellMarkersDispProperties::setMarkerNmColSel( CallBacker*  )
-{
-    bool issel = samecolasmarkerfld_->isChecked();
-    nmcolfld_->setSensitive( !issel );
-}
 
 void uiWellMarkersDispProperties::doPutToScreen()
 {
-    circfld_->setValue( mrkprops().circular_ );
+    shapefld_->box()->setCurrentItem( mrkprops().shapeint_ );
+    cylinderheightfld_->box()->setValue( mrkprops().cylinderheight_ );
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
     nmsizefld_->box()->setValue( mrkprops().nmsize_ );
     samecolasmarkerfld_->setChecked( mrkprops().samenmcol_ );
@@ -193,7 +198,8 @@ void uiWellMarkersDispProperties::doPutToScreen()
 
 void uiWellMarkersDispProperties::doGetFromScreen()
 {
-    mrkprops().circular_ = circfld_->getBoolValue();
+    mrkprops().shapeint_ = shapefld_->box()->currentItem();
+    mrkprops().cylinderheight_ = cylinderheightfld_->box()->getValue();
     mrkprops().issinglecol_ = singlecolfld_->isChecked();
     mrkprops().nmsize_ =  nmsizefld_->box()->getValue();
     mrkprops().samenmcol_ = samecolasmarkerfld_->isChecked();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.54 2009-09-18 11:35:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.55 2009-10-21 15:09:03 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -28,8 +28,8 @@ static const char* rcsID = "$Id: viswell.cc,v 1.54 2009-09-18 11:35:31 cvsbruno 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoFaceSet.h>
+#include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoCylinder.h>
-#include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoSwitch.h>
 
 mCreateFactoryEntry( visBase::Well );
@@ -205,13 +205,22 @@ void Well::addMarker( const MarkerParams& mp )
     SoCoordinate3* markercoords= new SoCoordinate3;
     markershapesep->addChild(markercoords);
 
-    if ( mp.iscircular_ )
+    if ( mp.shapeint_ == 0 )
     {
 	marker->setType( MarkerStyle3D::Cylinder );
 	SoCylinder* markershape = new SoCylinder;
-	markershape->height.setValue(0);
-	markershape->radius.setValue(1);
-	markershape->parts.setValue(SoCylinder::BOTTOM);
+	markershape->radius.setValue( 1 );
+	const int height = mp.cylinderheight_;
+	markershape->height.setValue( (float)height/10 );
+	SoCylinder::Part part = height ? SoCylinder::ALL : SoCylinder::BOTTOM;
+	markershape->parts.setValue( part );
+	markershapesep->addChild( markershape );
+    }
+    else if ( mp.shapeint_ == 2 )
+    {
+	marker->setType( MarkerStyle3D::Sphere );
+	SoSphere* markershape = new SoSphere;
+	markershape->radius.setValue( 0.5 );
 	markershapesep->addChild(markershape);
     }
     else
@@ -229,7 +238,7 @@ void Well::addMarker( const MarkerParams& mp )
     marker->setMarkerShape(markershapesep);
     markershapesep->unref();
 
-    marker->doRestoreProportions(false);
+    //marker->doRestoreProportions(false);
     markergroup_->addObject( marker );
     marker->setDisplayTransformation( transformation_ );
     marker->setCenterPos( *mp.pos_ );
