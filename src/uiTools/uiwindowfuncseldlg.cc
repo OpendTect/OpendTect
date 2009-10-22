@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.28 2009-10-21 09:36:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.29 2009-10-22 12:37:22 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -71,6 +71,7 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
 	xax_->setBounds( su.xaxrg_ ); 	yax_->setBounds( su.yaxrg_ );
 	xax_->plotAxis();		yax_->plotAxis();
 	xax_->setName( su.xaxname_ ); 	yax_->setName( su.yaxname_ );
+	setFrame();
     }
 }
 
@@ -83,7 +84,7 @@ uiFunctionDrawer::~uiFunctionDrawer()
 }
 
 
-void uiFunctionDrawer::draw( TypeSet<int>& selecteditems )
+void uiFunctionDrawer::setFrame()
 {
     uiRect borderrect( xax_->pixBefore(), 5, mTransWidth - 5,
 	    	       mTransHeight - yax_->pixBefore() );
@@ -95,6 +96,11 @@ void uiFunctionDrawer::draw( TypeSet<int>& selecteditems )
 	borderrectitem_->setRect( borderrect.left(), borderrect.top(),
 				  borderrect.width(), borderrect.height() );
     borderrectitem_->setPenStyle( LineStyle() );
+}
+
+
+void uiFunctionDrawer::draw( TypeSet<int>& selecteditems )
+{
     const int selsz = pointlistset_.size();
     if ( !polyitemgrp_ )
     {
