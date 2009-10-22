@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.14 2009-10-20 09:07:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.15 2009-10-22 13:31:00 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -273,7 +273,8 @@ void uiSeisWvltMerge::reloadWvlts()
 {
     deepErase( wvltset_ ); deepErase( namelist_ ); stackedwvlt_ = 0;
     IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
-    if ( del.size() < 2 ) { pErrMsg("Not enough wavelets available"); return; }
+    if ( del.size() < 2 ) 
+    { uiMSG().error( "not enough wavelets available" ); return; }
 
     for ( int delidx=0; delidx<del.size(); delidx++ )
     {
