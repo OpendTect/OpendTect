@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.36 2009-10-06 09:21:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.37 2009-10-22 12:01:32 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -86,8 +86,8 @@ bool DataPlayer::computeAll()
 bool DataPlayer::computeWvltPack()
 {
     if ( !logset_.size() ) 	   return false;
-    if ( !estimateWavelet() )	   return false;
     if ( !convolveWavelet() ) 	   return false;
+    if ( !estimateWavelet() )	   return false;
     if ( !computeCrossCorrel() )   return false;
 
     return true;
@@ -217,6 +217,7 @@ bool DataPlayer::convolveWavelet()
 
 bool DataPlayer::estimateWavelet()
 {
+    if ( !params_.isinitwvltactive_ ) return true;
     const StepInterval<float> si = params_.timeintvs_[2];
     const int datasz = si.nrSteps(); 
 
@@ -232,17 +233,16 @@ bool DataPlayer::estimateWavelet()
     if ( !wvlt ) return false;
 
     wvlt->setName( "Estimated Wavelet" );
-    const int wvltsz = params_.estwvltlength_;
+    int wvltsz = params_.estwvltlength_;
     if ( datasz < wvltsz +1 )
        return false;
 
-    wvlt->reSize( wvltsz%2 ? wvltsz : wvltsz+1 );
+    wvltsz += wvltsz%2 ? 0 : 1;
+    wvlt->reSize( wvltsz );
    
     Array1DImpl<float> wvltarr( datasz ), wvltvals( wvltsz );
-    //performs deconvolution
     geocalc_->deconvolve( *attrres.vals_, *refres.vals_, wvltarr, wvltsz );
 
-    //retrieve wvlt samples from the deconvolved vector
     for ( int idx=0; idx<wvltsz; idx++ )
 	wvlt->samples()[idx] = wvltarr.get( datasz/2 + idx - wvltsz/2 + 1 );
     
