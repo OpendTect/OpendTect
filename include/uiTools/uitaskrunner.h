@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2007
- RCS:           $Id: uitaskrunner.h,v 1.12 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uitaskrunner.h,v 1.13 2009-10-22 15:29:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "task.h"
 
 class uiProgressBar;
+class uiLabel;
 class Timer;
 
 mClass uiTaskRunner : public uiDialog
@@ -34,9 +35,11 @@ public:
 protected:
 
     uiProgressBar*	progbar_;
+    uiLabel*		proglbl_;
 
     Timer&		tim_;
     BufferString	execnm_;
+    int			symbidx_;
 
     Task*		task_;
     Threads::Mutex	dispinfomutex_;

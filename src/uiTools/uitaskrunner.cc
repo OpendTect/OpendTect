@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.21 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.22 2009-10-22 15:29:53 cvsbert Exp $";
 
 #include "uitaskrunner.h"
 
 #include "mousecursor.h"
 #include "uiprogressbar.h"
 #include "uistatusbar.h"
+#include "uilabel.h"
 
 #include "timer.h"
 #include "uimsg.h"
@@ -34,7 +35,11 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
     , execnm_("")
     , statemutex_( *new Threads::Mutex )
     , dispmsgonerr_( dispmsgonerr )
+    , symbidx_( 0 )
 {
+    proglbl_ = new uiLabel( this, "-" );
+    proglbl_->attach( hCentered );
+
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
 
@@ -136,9 +141,6 @@ void uiTaskRunner::updateFields()
 
     if ( totalnr > 0 )
     {
-	if ( prevtotalnr_ <= 0 )
-	    progbar_->display( true );
-
 	if ( totalnr != prevtotalnr_ )
 	{
 	    progbar_->setTotalSteps( totalnr );
@@ -160,8 +162,15 @@ void uiTaskRunner::updateFields()
 	    prevpercentage_ = percentage;
 	}
     }
-    else if ( prevtotalnr_ > 0 )
-	progbar_->display( false );
+    const bool disppb = totalnr > 0;
+    if ( !disppb )
+    {
+	static const char* dispsymbs[] = { "-", "\\", "|", "/" };
+	symbidx_++; if ( symbidx_ > 3 ) symbidx_ = 0;
+	proglbl_->setText( dispsymbs[symbidx_] );
+    }
+    proglbl_->display( !disppb );
+    progbar_->display( disppb );
 
     dispinfomutex_.unLock();
 }
