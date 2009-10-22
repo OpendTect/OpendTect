@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.42 2009-08-25 10:41:53 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.43 2009-10-22 10:32:16 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -64,10 +64,7 @@ void Similarity::initClass()
     steering->setDefaultValue( true );
     desc->addParam( steering );
 
-    BoolParam* normalize = new BoolParam( normalizeStr() );
-    normalize->setDefaultValue( false );
-    desc->addParam( normalize );
-
+    desc->addParam( new BoolParam( normalizeStr(), false, false ) );
     desc->addInput( InputSpec("Input data",true) );
     desc->setNrOutputs( Seis::UnknowData, 5 );
 
