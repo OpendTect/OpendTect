@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.21 2009-10-21 09:36:10 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.22 2009-10-22 13:44:21 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ public:
     
     void		addColor(const Color& col) { linesetcolor_ += col; }
     void		draw(TypeSet<int>&);
+    void		setFrame();
     void		createLine(const FloatMathFunction*);
     void		erasePoints() { pointlistset_.erase(); }
 
@@ -173,7 +174,7 @@ public:
 	Interval<float> freqrg_;
 	Interval<float> funcrg_;
 	Interval<float> xaxrg_;
-	Interval<float> actualfreqrg_;
+	Interval<float> orgfreqrg_;
     };
 
     DrawData		dd1_;
