@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.47 2009-10-05 15:35:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.48 2009-10-23 14:48:34 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -222,6 +222,7 @@ void uiTieView::setUpUdfTrc( SeisTrc& trc, const char* varname, int varsz )
 void uiTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
 {
     Array1DImpl<float> vals = *dataholder_.getLogVal( varname );
+    if ( !vals.info().getSize(0) ) return;
     for ( int idx=0; idx<varsz; idx++)
     {
 	float val = vals.get( idx );
