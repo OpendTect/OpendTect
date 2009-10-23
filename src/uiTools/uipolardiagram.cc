@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipolardiagram.cc,v 1.4 2009-10-09 08:15:59 cvskarthika Exp $";
+static const char* rcsID = "$Id: uipolardiagram.cc,v 1.5 2009-10-23 14:54:50 cvskarthika Exp $";
 
 #include "uipolardiagram.h"
 #include "uigraphicsscene.h"
@@ -26,8 +26,8 @@ uiPolarDiagram::uiPolarDiagram( uiParent* p )
     , dip_(90)		
 {
     disableScrollZoom();
-    setPrefWidth( 300 );
-    setPrefHeight( 300 );
+    setPrefWidth( 250 );
+    setPrefHeight( 250 );
     getMouseEventHandler().buttonPressed.notify(
 	    mCB(this,uiPolarDiagram,mouseEventCB) );
     getMouseEventHandler().movement.notify(
