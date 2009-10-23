@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackprop.cc,v 1.3 2009-09-17 17:01:37 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprop.cc,v 1.4 2009-10-23 21:35:14 cvskris Exp $";
 
 #include "prestackprop.h"
 
@@ -49,6 +49,8 @@ DefineEnumNames(PropCalc,LSQType,0,"Axis type")
 PropCalc::PropCalc( const Setup& s )
     : setup_(s)
     , gather_( 0 )
+    , innermutes_( 0 )
+    , outermutes_( 0 )
 {}
 
 
@@ -65,6 +67,9 @@ void PropCalc::removeGather()
 	DPM(DataPackMgr::FlatID()).release( gather_->id() );
 	gather_ = 0;
     }
+
+    delete [] innermutes_;
+    innermutes_ = outermutes_ = 0;
 }
 
 
@@ -75,7 +80,18 @@ void PropCalc::setGather( DataPack::ID id )
     DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( id );
     mDynamicCastGet( Gather*, g, dp );
     if ( g )
+    {
 	gather_ = g;
+	const int nroffsets = gather_->size( !gather_->offsetDim() );
+	mTryAlloc( innermutes_, int[nroffsets*2] );
+	if ( innermutes_ )
+	{
+	    outermutes_ = innermutes_ + nroffsets;
+
+	    gather_->detectOuterMutes( outermutes_, 0 );
+	    gather_->detectInnerMutes( innermutes_, 0 );
+	}
+    }
     else if ( dp )
 	DPM(DataPackMgr::FlatID()).release( id );
 }
@@ -104,9 +120,13 @@ float PropCalc::getVal( int sampnr ) const
 		continue;
 
 	    const int cursamp = sampnr + ishft;
-	    const float val = cursamp<0 || cursamp>=nrz
-		? mUdf(float)
-		: gather_->data().get( itrc, cursamp );
+	    if ( cursamp>=innermutes_[itrc] || cursamp<=outermutes_[itrc] )
+		continue;
+
+	    if ( cursamp<0 || cursamp>=nrz )
+		continue;
+
+	    const float val = gather_->data().get( itrc, cursamp );
 
 	    vals += val;
 	    if ( setup_.calctype_ != Stats )
@@ -149,9 +169,14 @@ float PropCalc::getVal( float z ) const
 	for ( int ishft=-setup_.aperture_; ishft<=setup_.aperture_; ishft++ )
 	{
 	    const float cursamp = ishft+si.getfIndex( z );
-	    const float val = cursamp<0 || cursamp>=nrz
-		? mUdf(float)
-		: IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
+	    if ( cursamp>=innermutes_[itrc] || cursamp<=outermutes_[itrc] )
+		continue;
+
+	    if ( cursamp<0 || cursamp>=nrz )
+		continue;
+
+	    const float val =
+		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
 
 	    vals += val;
 	    if ( setup_.calctype_ != Stats )
@@ -188,6 +213,9 @@ float PropCalc::getVal( const PropCalc::Setup& su,
     transformAxis( vals, su.valaxis_ );
     if ( su.calctype_ == Stats )
     {
+	if ( !vals.size() )
+	    return 0;
+
 	Stats::RunCalcSetup rcs; rcs.require( su.stattype_ );
 	Stats::RunCalc<float> rc( rcs );
 	rc.addValues( vals.size(), vals.arr() );

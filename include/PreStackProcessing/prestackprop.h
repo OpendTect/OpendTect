@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: prestackprop.h,v 1.2 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackprop.h,v 1.3 2009-10-23 21:35:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,11 +74,15 @@ public:
     static float	getVal( const PropCalc::Setup& su,
 			        TypeSet<float>& vals, TypeSet<float>& offs );
 
-
 protected:
+
+
     void		removeGather();
 
     Gather*		gather_;
+    int*		innermutes_;
+    int*		outermutes_;
+
     Setup		setup_;
 };
 
