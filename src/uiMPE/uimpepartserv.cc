@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.105 2009-10-08 05:19:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.106 2009-10-23 08:41:24 cvsjaap Exp $";
 
 #include "uimpepartserv.h"
 
@@ -105,7 +105,7 @@ uiMPEPartServer::~uiMPEPartServer()
     sendEvent( uiMPEPartServer::evEndSeedPick() );
     sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
-    if ( setupgrp_ ) setupgrp_->mainwin()->activateClose();
+    if ( setupgrp_ ) setupgrp_->mainwin()->close();
 }
 
 
@@ -399,7 +399,7 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
     sendEvent( uiMPEPartServer::evEndSeedPick() );
     sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
-    setupgrp_->mainwin()->activateClose();
+    setupgrp_->mainwin()->close();
 }
 
 
