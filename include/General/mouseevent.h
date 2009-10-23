@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.8 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: mouseevent.h,v 1.9 2009-10-23 21:33:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include "gendefs.h"
 #include "geometry.h"
+#include "position.h"
 
 mClass MouseEvent
 {
@@ -114,6 +115,29 @@ protected:
     bool			ishandled_;
 
 };
+
+
+/*!Syncronizes cursor informatin between scenes. A window that catches a
+   mouse movement may trigger the notifier. All windows interested in
+   displaying a marker (or similar) at the current positions may subscribe to
+   the notifier. */
+
+mClass MouseCursorExchange : public CallBacker
+{
+public:
+    				MouseCursorExchange();
+    mClass Info
+    {
+    public:
+				Info(const Coord3&,float offset=mUdf(float));
+
+	Coord3			surveypos_;
+	float			offset_;
+    };
+
+    CNotifier<MouseCursorExchange,const Info&>	notifier;
+};
+    
 
 
 #endif

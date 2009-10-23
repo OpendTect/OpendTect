@@ -4,7 +4,7 @@
  * DATE     : September 2006
 -*/
 
-static const char* rcsID = "$Id: mouseevent.cc,v 1.7 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: mouseevent.cc,v 1.8 2009-10-23 21:33:49 cvskris Exp $";
 
 #include "mouseevent.h"
 
@@ -45,3 +45,15 @@ mImplMouseEventHandlerFn(ButtonPressed,buttonPressed)
 mImplMouseEventHandlerFn(ButtonReleased,buttonReleased)
 mImplMouseEventHandlerFn(DoubleClick,doubleClick)
 mImplMouseEventHandlerFn(Wheel,wheelMove)
+
+
+MouseCursorExchange::MouseCursorExchange()
+    : notifier( this )
+{}
+
+
+
+MouseCursorExchange::Info::Info( const Coord3& pos, float offset )
+    : surveypos_( pos )
+    , offset_( offset ) 
+{}
