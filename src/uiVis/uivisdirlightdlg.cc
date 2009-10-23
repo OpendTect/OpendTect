@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.9 2009-10-16 07:08:19 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.10 2009-10-23 14:53:36 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -67,7 +67,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     dipfld_->sldr()->setStep( 5 );
 
     intensityfld_ = new uiSliderExtra( this,
-	    uiSliderExtra::Setup("Intensity (percentage)").withedit(true).
+	    uiSliderExtra::Setup("Intensity (%)").withedit(true).
 	    		         nrdec(1).logscale(false), "Intensity slider" );
     intensityfld_->attach( alignedBelow, dipfld_ );
     intensityfld_->sldr()->setMinValue( 0 );
@@ -86,7 +86,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     sep_->attach( stretchedBelow, pd_ );
 	    
     headonintensityfld_ = new uiSliderExtra( this,
-	    uiSliderExtra::Setup("Intensity of camera light (percentage)").
+	    uiSliderExtra::Setup("Camera light intensity (%)").
 	    			 withedit(true).nrdec(1).logscale(false), 
 				 "Camera light intensity slider" );
     headonintensityfld_->attach( centeredBelow, sep_ );
