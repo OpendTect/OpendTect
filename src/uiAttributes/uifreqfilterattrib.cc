@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.24 2009-10-16 16:30:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.25 2009-10-23 13:06:28 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -139,8 +139,8 @@ void uiFreqFilterAttrib::freqWinSel( CallBacker* )
     winflds[1]->setSensitive( isfreqtaper );
     if ( !isfreqtaper )
     {
-	winflds[1]->setWindowParamValue( 0.25, 0 ); 
-	winflds[1]->setWindowParamValue( 0.25, 1 ); 
+	winflds[1]->setWindowParamValue( 0.1, 0 ); 
+	winflds[1]->setWindowParamValue( 0.1, 1 ); 
     }
 }
 

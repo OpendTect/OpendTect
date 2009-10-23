@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.22 2009-10-22 13:44:21 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.23 2009-10-23 13:06:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
 			    , xaxname_("")	       
 			    , yaxname_("")
 			    , fillbelow_(false)
-			    , drawownaxis_(true)		       
+			    , drawownaxis_(true)
 			    {}
 					      
 	mDefSetupMemb(StepInterval<float>,xaxrg)
@@ -155,12 +155,18 @@ public:
 			Setup()
 			    : hasmin_(false)
 			    , hasmax_(true)
+			    , displayfac_(true)
+			    , winfreqsize_(100)			
 			    {}
+
 	mDefSetupMemb(const char*,name);	
 	mDefSetupMemb(bool,hasmin)	
 	mDefSetupMemb(bool,hasmax)	
+	mDefSetupMemb(float,displayfac)	
 	mDefSetupMemb(Interval<float>,minfreqrg)	
 	mDefSetupMemb(Interval<float>,maxfreqrg)	
+	mDefSetupMemb(Interval<float>,orgfreqrg)	
+	mDefSetupMemb(int,winfreqsize)	
     };
 
 			uiFreqTaperDlg(uiParent*,const Setup&);
@@ -192,6 +198,8 @@ protected:
     bool		hasmin_;
     bool		hasmax_;
     bool		isminactive_;
+    float 		dispfac_;
+    int 		winfsize_;
 
     float		getSlope();
     float 		getPercentsFromSlope(float);
