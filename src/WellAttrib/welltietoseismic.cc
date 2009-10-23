@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.37 2009-10-22 12:01:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.38 2009-10-23 15:25:55 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -163,7 +163,7 @@ bool DataPlayer::computeReflectivity()
     geocalc_->computeAI( *dholder_->arr( lognms.get(0) ), 
 			 *dholder_->arr( lognms.get(1) ), ai ); 
 
-    geocalc_->lowPassFilter( ai, 1/( 4*SI().zStep() ) );
+    geocalc_->lowPassFilter( ai, 1/( 3*SI().zStep() ) );
     geocalc_->computeReflectivity( ai, ref, params_.step_ );
 
     mSetData( params_.ainm_, lognms.get(1), ai );
