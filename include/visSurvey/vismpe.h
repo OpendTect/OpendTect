@@ -7,19 +7,22 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.44 2009-09-22 08:50:51 cvsumesh Exp $
+ RCS:		$Id: vismpe.h,v 1.45 2009-10-23 15:34:45 cvskarthika Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "vissurvobj.h"
+#include "mousecursor.h"
 #include "visobject.h"
 #include "cubesampling.h"
 
 namespace Attrib { class SelSpec; }
 template <class T> class Array3D;
 template <class T> class Selector;
+
+class SoSeparator;
 
 namespace visBase
 {
@@ -28,6 +31,8 @@ namespace visBase
     class DepthTabPlaneDragger;
     class FaceSet;
     class Texture3;
+    class VolumeRenderScalarField;
+    class OrthogonalSlice;
     class Transformation;
 };
 
@@ -69,6 +74,9 @@ public:
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
     visBase::Texture3*		getTexture() { return texture_; }
+    visBase::OrthogonalSlice*	getSlice(int index);
+    float                       slicePosition(visBase::OrthogonalSlice*) const;
+    float                       getValue(const Coord3&) const;    
 
     const ColTab::MapperSetup*  getColTabMapperSetup(int) const;
     void			setColTabMapperSetup(int,
@@ -78,8 +86,20 @@ public:
     void			setColTabSequence(int,const ColTab::Sequence&,
 	    					  TaskRunner*);
 
+    int				addSlice(int dim);
+    void                        removeChild(int displayid);
+
     CubeSampling		getCubeSampling(int attrib=-1) const;
+    void			setCubeSampling(const CubeSampling&);
     bool			getPlanePosition(CubeSampling&) const;
+ 
+    bool                        setDataVolume(int attrib, 
+	    				const Attrib::DataCubes*, TaskRunner*);
+
+     void                        resetManipulation();
+//    bool                        setDataTransform(ZAxisTransform*,TaskRunner*);
+//    const ZAxisTransform*       getDataTransform() const;
+    BufferString                getManipulationString() const;
 
     void			setSelSpec(int,const Attrib::SelSpec&);
     const char*			getSelSpecUserRef() const;
@@ -89,10 +109,12 @@ public:
     const Attrib::SelSpec*	getSelSpec(int) const
     				{ return &as_; }
     void			updateTexture();
+    void			updateSlice();
     void			updateBoxSpace();
     void			freezeBoxPosition(bool yn);
 
-    NotifierAccess*		getMovementNotifier() { return &movement; }
+    NotifierAccess*		getMovementNotifier();
+    NotifierAccess*             getManipulationNotifier();
     Notifier<MPEDisplay>	boxDraggerStatusChange;
     Notifier<MPEDisplay>	planeOrientationChange;
     
@@ -115,10 +137,17 @@ protected:
 
     void			setTexture(visBase::Texture3*);
     void			updateTextureCoords();
+     void			updateRanges();
+    
     void			setDraggerCenter(bool alldims);
     void			setDragger(visBase::DepthTabPlaneDragger*);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
+
+    CubeSampling		getCubeSampling(bool manippos,bool display,
+		    					int attrib) const;
+
+    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
 
 				//Callbacks from boxdragger
     void			boxDraggerFinishCB(CallBacker*);
@@ -130,10 +159,14 @@ protected:
 
     				//Callbacks from user
     void			mouseClickCB(CallBacker*);
-
+    void			updateMouseCursorCB(CallBacker*);
+    
     				//Callbacks from MPE
     void			updateDraggerPosition(CallBacker*);
     void			updateBoxPosition(CallBacker*);
+
+//    void			dataTransformCB(CallBacker*);
+    void                        sliceMoving(CallBacker*);
 
     MPE::Engine&		engine_;
 
@@ -141,22 +174,39 @@ protected:
     visBase::FaceSet*		rectangle_;
     visBase::DepthTabPlaneDragger* dragger_;
     visBase::BoxDragger*	boxdragger_;
+
     visBase::Texture3*		texture_;
+    visBase::VolumeRenderScalarField*	scalarfield_;
+    visBase::Transformation*		voltrans_;
+    ObjectSet<visBase::OrthogonalSlice>	slices_;
 
     visBase::EventCatcher*	sceneeventcatcher_;
+    MouseCursor			mousecursor_;
 
     Notifier<MPEDisplay>	movement;
+    Notifier<MPEDisplay>        slicemoving;
 
     Attrib::SelSpec&		as_;
     bool			manipulated_;
 
     Attrib::SelSpec&		curtextureas_;
     CubeSampling		curtexturecs_;
-    
+   
+//    ZAxisTransform*             datatransform_;
+//    ZAxisTransformer*           datatransformer_;
+
+    DataPack::ID                cacheid_;
+    const Attrib::DataCubes*    cache_;
+    BufferString                sliceposition_;
+    BufferString                slicename_;
+    CubeSampling                csfromsession_;
+
     int				lasteventnr_;
 
     static const char*		sKeyTransperancy() { return "Transparency"; }
     static const char*		sKeyTexture()      { return "Texture"; }
+    static const char*		sKeyNrSlices() { return "Nr of slices"; }
+    static const char*		sKeySlice() { return "SliceID"; }
     static const char*		sKeyBoxShown()     { return "Box Shown"; }
 
     static const Color		reTrackColor;
