@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.22 2009-10-21 15:09:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.23 2009-10-23 13:02:06 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -72,7 +72,8 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
-{}
+{
+}
 
 
 void uiWellDispPropDlg::getFromScreen()
@@ -123,7 +124,6 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 	savedefault_ = true;
     else 
 	savedefault_ = false;
-    wd_->tobedeleted.remove( mCB(this,uiWellDispPropDlg,welldataDelNotify) );
     return true;
 }
 
