@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.191 2009-10-21 05:29:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.192 2009-10-23 21:24:21 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -243,6 +243,13 @@ void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
     }
     uiHorizon3DInterpolDlg dlg( parent(), hor3d );
     dlg.go();
+
+    if ( dlg.displayNewHorizon() && dlg.getNewHorizon( ) )
+    {
+	const MultiID mid = dlg.getNewHorizon()->multiID();
+	selemid_ = em_.getObjectID(mid);
+	sendEvent( evDisplayHorizon() );
+    }
 }
 
 
@@ -762,7 +769,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
     }
 
     data.bivSet().allowDuplicateBids(false);
-    float* auxvals = new float(nms.size()+2); 
+    float auxvals[nms.size()+2]; 
 
     for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
     {

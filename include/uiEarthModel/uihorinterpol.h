@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2009
- RCS:		$Id: uihorinterpol.h,v 1.4 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:		$Id: uihorinterpol.h,v 1.5 2009-10-23 21:24:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,20 +29,25 @@ public:
 			~uiHorizon3DInterpolDlg();
 
     const char*		helpID() const;
+    bool		displayNewHorizon() const;
+    EM::Horizon3D* 	getNewHorizon() const	{ return newhorizon_; }
 
 protected:
     void			saveChangeCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     bool			expandArraysToSurvey();
+    bool			createNewHorizon();
 
     uiIOObjSel*			inputhorsel_;
     uiArray2DInterpolSel*	interpolsel_;
 
     uiGenInput*			geometrysel_;
     uiGenInput*			savefld_;
+    uiGenInput*			addnewfld_;
     uiIOObjSel*			outputfld_;
 
     EM::Horizon3D*		horizon_;
+    EM::Horizon3D*		newhorizon_;
 };
 
 

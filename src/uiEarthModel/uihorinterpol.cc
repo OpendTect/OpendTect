@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.10 2009-10-15 20:59:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.11 2009-10-23 21:24:21 cvsyuancheng Exp $";
 
 #include "uihorinterpol.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uihorinterpol.cc,v 1.10 2009-10-15 20:59:43 cvs
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
+#include "rowcol.h"
 #include "survinfo.h"
 #include "uiarray2dinterpol.h"
 #include "uigeninput.h"
@@ -33,8 +34,10 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
 	       				  "Gridding parameters",
 					  "HelpID" ) )
     , horizon_( hor )
+    , newhorizon_( 0 )		     
     , inputhorsel_( 0 )
     , savefld_( 0 )
+    , addnewfld_( 0 )
 {
     if ( horizon_ )
 	horizon_->ref();
@@ -68,6 +71,9 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
 	savefld_->valuechanged.notify(
 		mCB(this,uiHorizon3DInterpolDlg,saveChangeCB));
 	attgrp = savefld_;
+
+	addnewfld_ = new uiGenInput( this, "Display in the scene",
+				      BoolInpSpec(true) );
     }
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
@@ -80,6 +86,9 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
 
     attgrp->attach( alignedBelow, interpolsel_ );
     attgrp->attach( ensureBelow, sep );
+    
+    if ( addnewfld_ )
+	addnewfld_->attach( alignedBelow, outputfld_ );
 
     saveChangeCB( 0 );
 }
@@ -87,8 +96,8 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
 
 uiHorizon3DInterpolDlg::~uiHorizon3DInterpolDlg()
 {
-    if ( horizon_ )
-	horizon_->unRef();
+    if ( horizon_ ) horizon_->unRef();
+    if ( newhorizon_ ) newhorizon_->unRef();
 }
 
 
@@ -101,6 +110,8 @@ const char* uiHorizon3DInterpolDlg::helpID() const
 void uiHorizon3DInterpolDlg::saveChangeCB( CallBacker* )
 {
     outputfld_->display( savefld_ ? savefld_->getBoolValue() : true );
+    if ( addnewfld_ )
+    	addnewfld_->display( savefld_ ? savefld_->getBoolValue() : false );
 }
 
 
@@ -113,7 +124,6 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
     if ( !interpolator )
 	return false;
 
-
     const IOObj* outputioobj = 0;
     if ( !savefld_ || savefld_->getBoolValue() )
     {
@@ -121,7 +131,7 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	if ( !outputioobj )
 	    return false;
     }
-
+    
     uiTaskRunner tr( this );
 
     if ( inputhorsel_ )
@@ -176,11 +186,13 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
     }
 
     interpolator->setFillType( filltype );
-
+    if ( savefld_ && savefld_->getBoolValue() && !createNewHorizon() )
+	return false;
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
 
+    EM::Horizon3D& usedhor = newhorizon_ ? *newhorizon_ : *horizon_;
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
@@ -193,8 +205,8 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	    ErrMsg( msg ); continue;
 	}
 
-	const int inlstepoutstep =  horizon_->geometry().rowRange( sid ).step;
-	const int crlstepoutstep =  horizon_->geometry().colRange( sid ).step;
+	const int inlstepoutstep = horizon_->geometry().rowRange( sid ).step;
+	const int crlstepoutstep = horizon_->geometry().colRange( sid ).step;
 
 	interpolator->setRowStep( inlstepoutstep*inldist );
 	interpolator->setColStep( crlstepoutstep*crldist );
@@ -213,19 +225,19 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	    ErrMsg( msg ); continue;
 	}
 
-
-	if ( !horizon_->setArray2D( *arr, sid, true, "Interpolation" ) )
+	EM::SectionID usedsid = usedhor.geometry().sectionID( idx );;
+	if ( !usedhor.setArray2D( *arr, usedsid, true, "Interpolation" ) )
 	{
 	    BufferString msg( "Cannot set new data to section " );
-	    msg += sid;
+	    msg += usedsid;
 	    ErrMsg( msg ); continue;
 	}
     }
 
     if ( outputioobj )
     {
-	horizon_->setMultiID( outputioobj->key() );
-	PtrMan<Executor> exec = horizon_->saver();
+	if ( !savefld_ ) horizon_->setMultiID( outputioobj->key() );
+	PtrMan<Executor> exec = usedhor.saver();
 	if ( !tr.execute( *exec ) )
 	{
 	    uiMSG().error("Could not save horizon");
@@ -235,6 +247,64 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 
     return true;
 }
+
+
+bool uiHorizon3DInterpolDlg::createNewHorizon()
+{
+    if ( !savefld_ || !savefld_->getBoolValue() || !outputfld_->ioobj() )
+	return false;
+
+    EM::EMManager& em = EM::EMM();
+    const BufferString typ = EM::Horizon3D::typeStr();
+    EM::ObjectID objid = em.createObject( typ, outputfld_->getInput() );
+
+    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
+    if ( !horizon )
+    {
+	ErrMsg( "Cannot create horizon" );
+	return false;
+    }
+    
+    horizon->initClass();	
+    if ( newhorizon_ ) newhorizon_->unRef();
+    newhorizon_ = horizon;	
+    newhorizon_->ref();
+    newhorizon_->setMultiID( outputfld_->ioobj()->key() );
+
+    for ( int idx=0; idx<newhorizon_->geometry().nrSections(); idx++ )
+    {
+	const EM::SectionID sid = newhorizon_->geometry().sectionID( idx );
+	newhorizon_->geometry().removeSection( sid, false );
+    }
+    
+    const RowCol step = horizon_->geometry().step();
+    newhorizon_->geometry().setStep( step, step );
+
+    for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
+    {
+	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
+	const Geometry::BinIDSurface* surf = 
+	    horizon_->geometry().sectionGeometry(sid);
+
+	EM::SectionID usedsid = sid;
+	BufferString sectnm = horizon_->sectionName( sid );
+	usedsid = newhorizon_->geometry().addSection( sectnm, false );
+
+	const RowCol start = surf->getKnotRowCol(0);
+	const RowCol stop = surf->getKnotRowCol( surf->nrKnots()-1 );
+	newhorizon_->geometry().sectionGeometry(usedsid)->
+	    expandWithUdf( start, stop );
+    }
+    
+    return true;
+}
+
+
+bool uiHorizon3DInterpolDlg::displayNewHorizon() const
+{
+    return savefld_ && savefld_->getBoolValue() && addnewfld_->getBoolValue(); 
+}
+
 
 bool uiHorizon3DInterpolDlg::expandArraysToSurvey()
 {
