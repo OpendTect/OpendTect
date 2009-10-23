@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.24 2009-10-19 15:57:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.25 2009-10-23 13:36:26 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.24 2009-10-19 15:57:42 cvsbr
 #include "welllogset.h"
 #include "wellwriter.h"
 
+#include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltieextractdata.h"
 #include "welltiesetup.h"
@@ -55,6 +56,7 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
     uipms_   = &params_->uipms_;
     dpms_    = &params_->dpms_;
     pickmgr_ = new WellTie::PickSetMGR( wd_ );
+    WellTie::CheckShotCorr cscorr( *this ); 
     geocalc_ = new WellTie::GeoCalculator( *this );
     d2tmgr_  = new WellTie::D2TModelMGR( *this );
     logset_ = new Well::LogSet();

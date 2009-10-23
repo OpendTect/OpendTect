@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.10 2009-09-03 14:04:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.11 2009-10-23 13:36:26 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -57,27 +57,47 @@ void CheckShotCorr::setCSToLogScale( TypeSet<float>& cstolog, double velfactor,
 void CheckShotCorr::calibrateLogToCS( const TypeSet<float>& csvals, 
 				       WellTie::GeoCalculator& geocalc )
 {
-    const int logsz = log_->size();
-    TypeSet<int> ctrlsamples;		ctrlsamples.setSize( csvals.size() );
-    TypeSet<float> calibratedpts;	calibratedpts.setSize( logsz );
+    TypeSet<float> logvaldah, coeffs, logshifts, csshifts;
 
-    for ( int idx=0; idx<csvals.size(); idx++ )
+    for ( int idx=0; idx<cs_->size(); idx++)
     {
-	int dahidx = log_->indexOf( cs_->dah(idx) );
-	if ( dahidx == -1 || dahidx >= logsz )
-	{
-	    log_->addValue( cs_->dah(idx), csvals[idx] );
-	    log_->ensureAscZ();
-	    continue;
-	}
-	ctrlsamples += logsz-dahidx;
+	float val = log_->getValue(cs_->dah(idx));
+	if ( mIsUdf(val) )
+	    logvaldah += csvals[idx];
+	else
+	    logvaldah += val; 
     }
-   
-    IdxAble::callibrateArray( log_->valArr(), logsz,
-		    csvals.arr(), ctrlsamples.arr(), csvals.size(), false,
-		    calibratedpts.arr() );
-    
-    memcpy( log_->valArr(), calibratedpts.arr(), logsz*sizeof(float) );
+
+    geocalc.interpolateLogData ( logvaldah, log_->dahStep(true),  false );
+
+    for ( int idx=0; idx<cs_->size(); idx++)
+	csshifts += csvals[idx]-logvaldah[idx];
+
+    for ( int idx=0; idx<cs_->size()-1; idx++)
+	coeffs += (csshifts[idx+1]-csshifts[idx])
+		 /(cs_->dah(idx+1)-cs_->dah(idx));
+
+    for ( int logidx =0; logidx<log_->size()-1; logidx++)
+    {
+	for (int csidx=0; csidx<cs_->size()-1; csidx++)
+	{
+	    if ( (cs_->dah(csidx) <= log_->dah(logidx)) 
+			&& (cs_->dah(csidx+1) > log_->dah(logidx)) )
+		logshifts += coeffs[csidx]*log_->dah(logidx) 
+			   + csshifts[csidx]-coeffs[csidx]*cs_->dah(csidx);  
+	}
+	if ( log_->dah(logidx) <= cs_->dah(0))
+	    logshifts += 0;
+	if ( log_->dah(logidx) > cs_->dah(cs_->size()-1))
+	    logshifts += logshifts[logidx-1];
+    }
+    for ( int idx=0; idx< log_->size()-1; idx++ )
+    {
+	if ( idx>1 && (mIsUdf(log_->value(idx)) || mIsUdf(logshifts[idx])) )
+	    log_->valArr()[idx] = log_->valArr()[idx-1];
+	else
+	    log_->valArr()[idx]  = log_->value(idx) + logshifts[idx]; 
+    }
 }
 
 }; //namespace WellTie
