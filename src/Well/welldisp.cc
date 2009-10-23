@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.13 2009-10-21 15:09:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.14 2009-10-23 09:26:33 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -14,7 +14,7 @@ static const char* sKeyTrackNmIsAbove = "Track Name Above";
 static const char* sKeyTrackNmIsBelow = "Track Name Below";
 static const char* sKeyTrackNmSize = "Track Name Size";
 static const char* sKeyMarkerShape = "Marker Shape";
-static const char* sKeyCylinderHeight = "Cylinder Height";
+static const char* sKeyMarkerCylinderHeight = "Cylinder Height";
 static const char* sKeyMarkerNmSize = "Marker Name Size";
 static const char* sKeyMarkerNmColor = "Marker Name Color";
 static const char* sKeyMarkerNmSameColor = "Marker Name Color Same as Marker";
@@ -118,7 +118,7 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
 {
     par.getYN(IOPar::compKey(subjectName(),sKeyMarkerSingleColor),issinglecol_);
     par.get( IOPar::compKey(subjectName(),sKeyMarkerShape), shapeint_ );
-    par.get( IOPar::compKey(subjectName(),sKeyMarkerShape), cylinderheight_ );
+    par.get( IOPar::compKey(subjectName(),sKeyMarkerCylinderHeight), cylinderheight_ );
     par.get( IOPar::compKey(subjectName(),sKeyMarkerNmSize), nmsize_ );
     par.getYN( IOPar::compKey(subjectName(),sKeyMarkerNmSameColor), samenmcol_);
     par.get( IOPar::compKey(subjectName(),sKeyMarkerNmColor), nmcol_ );
@@ -129,7 +129,7 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
 {
     par.setYN(IOPar::compKey(subjectName(),sKeyMarkerSingleColor),issinglecol_);
     par.set( IOPar::compKey(subjectName(),sKeyMarkerShape), shapeint_ );
-    par.set( IOPar::compKey(subjectName(),sKeyMarkerShape), cylinderheight_ );
+    par.set( IOPar::compKey(subjectName(),sKeyMarkerCylinderHeight), cylinderheight_ );
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmSize), nmsize_ );
     par.setYN( IOPar::compKey(subjectName(),sKeyMarkerNmSameColor), samenmcol_);
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmColor), nmcol_ );
