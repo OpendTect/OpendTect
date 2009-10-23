@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.31 2009-10-23 13:36:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.32 2009-10-23 15:25:31 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -136,6 +136,8 @@ void Params::resetVelLogNm()
 #define mComputeFactor (SI().zStep())
 #define mMaxWorkSize (int)1.e5
 #define mMinWorkSize (int)20
+#define mMaxWorkArraySize (int)1.e5
+#define mMinWorkArraySize (int)20
 bool Params::DataParams::resetTimeParams()
 {
     float stopdah  = wd_.track().dah(wd_.track().size()-1);
@@ -150,6 +152,10 @@ bool Params::DataParams::resetTimeParams()
 	timeintvs_[2].stop = timeintvs_[0].stop;
     if ( timeintvs_[2].stop == 0 )
 	timeintvs_[2].stop = timeintvs_[0].stop;
+
+    if ( timeintvs_[0].nrSteps() > mMaxWorkArraySize ) return false;
+    if ( timeintvs_[0].nrSteps() < mMinWorkArraySize ) return false;
+    if ( timeintvs_[1].nrSteps() < 2 ) return false;
 
     return true;
 }
