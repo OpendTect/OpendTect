@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.79 2009-10-07 09:26:35 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.80 2009-10-23 15:34:11 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.79 2009-10-07 09:26:35 cvssatyaki
 #include "vistexture3.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
+#include "visvolorthoslice.h"
+#include "visvolrenscalarfield.h"
 
 #include "arrayndsubsel.h"
 #include "attribsel.h"
@@ -34,6 +36,9 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.79 2009-10-07 09:26:35 cvssatyaki
 #include "survinfo.h"
 #include "undo.h"
 
+// This must be defined to use a texture to display the tracking plane.
+// In future: Comment it out to use OrthogonalSlice (under construction...).
+#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -42,15 +47,23 @@ namespace visSurvey {
 MPEDisplay::MPEDisplay()
     : VisualObjectImpl(true)
     , boxdragger_(visBase::BoxDragger::create())
+#ifdef USE_TEXTURE
+    , texture_(0)
     , rectangle_(visBase::FaceSet::create())
     , draggerrect_(visBase::DataObjectGroup::create())
     , dragger_(0)
+#else
+    , cache_(0)
+    , cacheid_(DataPack::cNoID())
+    , scalarfield_(0)
+    , voltrans_(0)
+#endif
     , engine_(MPE::engine())
     , sceneeventcatcher_(0)
     , as_(*new Attrib::SelSpec())
-    , texture_(0)
     , manipulated_(false)
     , movement( this )
+    , slicemoving(this)
     , boxDraggerStatusChange( this )
     , planeOrientationChange( this )
     , curtexturecs_(false)
@@ -63,6 +76,7 @@ MPEDisplay::MPEDisplay()
     boxdragger_->turnOn( false );
     updateBoxSpace();
 
+#ifdef USE_TEXTURE
     draggerrect_->setSeparate( true );
     draggerrect_->ref();
 
@@ -103,10 +117,35 @@ MPEDisplay::MPEDisplay()
     draggerrect_->addObject( polyline );
 
     setDragger( visBase::DepthTabPlaneDragger::create() );
-
     engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
     setDraggerCenter( true );
+#else
+    voltrans_->ref();
+    addChild( voltrans_->getInventorNode() );
+    voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
+
+    scalarfield_ = visBase::VolumeRenderScalarField::create();
+    scalarfield_->ref(); //Don't add it here, do that in getInventorNode
+
+    CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
+    cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
+    cs.hrg.start.crl = (5*sics.hrg.start.crl+3*sics.hrg.stop.crl)/8;
+    cs.hrg.stop.inl = (3*sics.hrg.start.inl+5*sics.hrg.stop.inl)/8;
+    cs.hrg.stop.crl = (3*sics.hrg.start.crl+5*sics.hrg.stop.crl)/8;
+    cs.zrg.start = ( 5*sics.zrg.start + 3*sics.zrg.stop ) / 8;
+    cs.zrg.stop = ( 3*sics.zrg.start + 5*sics.zrg.stop ) / 8;
+    SI().snap( cs.hrg.start, BinID(0,0) );
+    SI().snap( cs.hrg.stop, BinID(0,0) );
+    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
+    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
+
+    setCubeSampling( cs );
+    
+    engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
+#endif
+
     updateBoxPosition(0);
+
     turnOn( true );
 }
 
@@ -116,9 +155,16 @@ MPEDisplay::~MPEDisplay()
     engine_.activevolumechange.remove( mCB(this,MPEDisplay,updateBoxPosition) );
 
     setSceneEventCatcher( 0 );
+#ifdef USE_TEXTURE
     setDragger(0);
 
     draggerrect_->unRef();
+#else
+    // to do: check if slices_ needs to be destroyed.
+    voltrans_->unRef();
+    scalarfield_->unRef();
+#endif
+
     boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger_->unRef();
 
@@ -128,10 +174,12 @@ MPEDisplay::~MPEDisplay()
 
 void MPEDisplay::setColTabMapperSetup( int attrib,
 				       const ColTab::MapperSetup& ms,
-				       TaskRunner* )
+				       TaskRunner* tr )
 {
+#ifdef USE_TEXTURE
     if ( !texture_ ) return;
     visBase::VisColorTab& vt = texture_->getColorTab();
+
     const bool autoscalechange =
 		ms.type_!=vt.colorMapper().setup_.type_ &&
 		ms.type_!=ColTab::MapperSetup::Fixed;
@@ -147,25 +195,48 @@ void MPEDisplay::setColTabMapperSetup( int attrib,
 	vt.autoscalechange.trigger();
 	vt.colorMapper().setup_.triggerRangeChange();
     }
+#else
+    if ( scalarfield_ )
+	scalarfield_->setColTabMapperSetup( ms, tr );
+#endif
 }
 
 
 void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
-				    TaskRunner* )
+				    TaskRunner* tr )
 {
+#ifdef USE_TEXTURE
     if ( !texture_ ) return;
 
     visBase::VisColorTab& vt = texture_->getColorTab();
     vt.colorSeq().colors() = seq;
     vt.colorSeq().colorsChanged();
+#else
+    if ( scalarfield_ )
+	scalarfield_->setColTabSequence( seq, tr );
+#endif
 }
 
 
 const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib ) const
-{ return texture_ ? &texture_->getColorTab().colorMapper().setup_ : 0; }
+{ 
+#ifdef USE_TEXTURE
+    return texture_ ? &texture_->getColorTab().colorMapper().setup_ : 0; 
+#else
+    return scalarfield_ ? &scalarfield_->getColTabMapper().setup_ : 0;
+#endif
+}
+
 
 const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
-{ return texture_ ? &texture_->getColorTab().colorSeq().colors() : 0; }
+{ 
+#ifdef USE_TEXTURE
+    return texture_ ? &texture_->getColorTab().colorSeq().colors() : 0; 
+#else
+    return scalarfield_? &scalarfield_->getColTabSequence() : 0;
+#endif
+}
+
 
 bool MPEDisplay::canSetColTabSequence() const
 { return true; }
@@ -173,12 +244,13 @@ bool MPEDisplay::canSetColTabSequence() const
 
 void MPEDisplay::setDragger( visBase::DepthTabPlaneDragger* dr )
 {
+#ifdef USE_TEXTURE
     if ( dragger_ )
     {
 	dragger_->changed.remove( mCB(this,MPEDisplay,rectangleMovedCB) );
 	dragger_->started.remove( mCB(this,MPEDisplay,rectangleStartCB) );
 	dragger_->finished.remove( mCB(this,MPEDisplay,rectangleStopCB) );
-	removeChild( dragger_->getInventorNode() );
+	VisualObjectImpl::removeChild( dragger_->getInventorNode() );
 	dragger_->unRef();
     }
 
@@ -192,11 +264,18 @@ void MPEDisplay::setDragger( visBase::DepthTabPlaneDragger* dr )
     dragger_->changed.notify( mCB(this,MPEDisplay,rectangleMovedCB) );
     dragger_->started.notify( mCB(this,MPEDisplay,rectangleStartCB) );
     dragger_->finished.notify( mCB(this,MPEDisplay,rectangleStopCB) );
+#endif
 }
 
 
 CubeSampling MPEDisplay::getCubeSampling( int attrib ) const
-{ return getBoxPosition(); }
+{
+#ifdef USE_TEXTURE
+    return getBoxPosition();
+#else
+    return getCubeSampling( true, false, attrib );
+#endif
+}
 
 
 CubeSampling MPEDisplay::getBoxPosition() const
@@ -222,6 +301,7 @@ CubeSampling MPEDisplay::getBoxPosition() const
 
 bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 {
+#ifdef USE_TEXTURE
     const Coord3 center = dragger_->center();
     const Coord3 size = dragger_->size();
     const int dim = dragger_->getDim();
@@ -258,7 +338,61 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 	planebox.zrg.stop = SI().zRange(true).snap(center.z);
 	planebox.zrg.start = planebox.zrg.stop;
     }
+/*#else
+    // to do: check! Need "slice"
+    if ( !slice ) return 0;
+    const Coord3 center = slice_->center();
+    const Coord3 size = slice_->size();
+    const int dim = slice->getDim();
+    float slicepos = slice->getPosition();
+    slicepos *= -voltrans_->getScale()[dim];
 
+    float pos;    
+    if ( dim == 2 )
+    {
+	slicepos += voltrans_->getTranslation()[0];
+	pos = SI().inlRange(true).snap(slicepos);
+
+	planebox.hrg.start.inl = pos;
+	planebox.hrg.stop.inl = planebox.hrg.start.inl;
+
+	planebox.hrg.start.crl = SI().crlRange(true).snap(center.y-size.y/2);
+	planebox.hrg.stop.crl =  SI().crlRange(true).snap(center.y+size.y/2);
+
+	planebox.zrg.start = SI().zRange(true).snap(center.z-size.z/2);
+	planebox.zrg.stop = SI().zRange(true).snap(center.z+size.z/2);
+	
+    }
+    else if ( dim == 1 )
+    {
+	slicepos += voltrans_->getTranslation()[1];
+	pos = SI().crlRange(true).snap(slicepos);
+	
+	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x-size.x/2);
+	planebox.hrg.stop.inl =  SI().inlRange(true).snap(center.x+size.x/2);
+
+	planebox.hrg.stop.crl = pos;
+	planebox.hrg.start.crl = planebox.hrg.stop.crl;
+
+	planebox.zrg.start = SI().zRange(true).snap(center.z-size.z/2);
+	planebox.zrg.stop = SI().zRange(true).snap(center.z+size.z/2);
+    }
+    else
+    {
+	slicepos += voltrans_->getTranslation()[2];
+	pos = mNINT(slicepos*1000);
+	
+	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x-size.x/2);
+	planebox.hrg.stop.inl =  SI().inlRange(true).snap(center.x+size.x/2);
+
+	planebox.hrg.start.crl = SI().crlRange(true).snap(center.y-size.y/2);
+	planebox.hrg.stop.crl =  SI().crlRange(true).snap(center.y+size.y/2);
+
+	planebox.zrg.stop = pos;
+	planebox.zrg.start = planebox.zrg.stop;
+
+    }*/
+#endif
     planebox.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
     planebox.zrg.step = SI().zRange(true).step;
 
@@ -284,8 +418,29 @@ const char* MPEDisplay::getSelSpecUserRef() const
 }
 
 
+NotifierAccess* MPEDisplay::getMovementNotifier() 
+{
+#ifdef USE_TEXTURE
+    return &movement; 
+#else
+    return &slicemoving;
+#endif
+}
+
+
+NotifierAccess* MPEDisplay::getManipulationNotifier() 
+{
+#ifdef USE_TEXTURE
+    return 0; 
+#else
+    return &slicemoving;
+#endif
+}
+
+
 void MPEDisplay::updateTexture()
 {
+#ifdef USE_TEXTURE
     const CubeSampling displaycs = engine_.activeVolume();
     if ( curtextureas_==as_ && curtexturecs_==displaycs )
     {
@@ -347,11 +502,13 @@ void MPEDisplay::updateTexture()
     curtexturecs_ = displaycs;
 
     texture_->turnOn( true );
+#endif    
 }
 
 
 void MPEDisplay::setTexture( visBase::Texture3* nt )
 {
+#ifdef USE_TEXTURE
     if ( texture_ )
     {
 	int oldindex = draggerrect_->getFirstIdx( (const DataObject*)texture_ );
@@ -364,11 +521,13 @@ void MPEDisplay::setTexture( visBase::Texture3* nt )
 	draggerrect_->insertObject( 0, (DataObject*)texture_ );
 
     updateTextureCoords();
+#endif
 }
 
 
 void MPEDisplay::moveMPEPlane( int nr )
 {
+#ifdef USE_TEXTURE
     if ( !dragger_ || !nr ) return;
 
     const int dim = dragger_->getDim();
@@ -409,11 +568,13 @@ void MPEDisplay::moveMPEPlane( int nr )
 
 	dragger_->setCenter( center, false );
     }
+#endif
 }
 
 
 void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
+#ifdef USE_TEXTURE
     if ( sceneeventcatcher_ )
     {
 	sceneeventcatcher_->eventhappened.remove(
@@ -429,6 +590,47 @@ void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 	sceneeventcatcher_->eventhappened.notify(
 	    mCB(this,MPEDisplay,mouseClickCB) );
     }
+#else
+    if ( sceneeventcatcher_ )
+    {
+	sceneeventcatcher_->eventhappened.remove(
+	    mCB(this,MPEDisplay,updateMouseCursorCB) );
+	sceneeventcatcher_->unRef();
+    }
+
+    sceneeventcatcher_ = nevc;
+
+    if ( sceneeventcatcher_ )
+    {
+	sceneeventcatcher_->ref();
+	sceneeventcatcher_->eventhappened.notify(
+	    mCB(this,MPEDisplay,updateMouseCursorCB) );
+    }
+#endif
+}
+
+
+void MPEDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+#ifndef USE_TEXTURE
+    char newstatus = 1; // 1=pan, 2=tabs
+    if ( cb )
+    {
+	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+	if ( eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
+	    newstatus = 0;
+	else
+	{
+	    //TODO determine if tabs
+	}
+    }
+
+    if ( !isSelected() || !isOn() || isLocked() )
+	newstatus = 0;
+
+    if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
+    else if ( newstatus==1 ) mousecursor_.shape_ = MouseCursor::SizeAll;
+#endif
 }
 
 
@@ -491,18 +693,25 @@ bool MPEDisplay::isBoxDraggerShown() const
 
 void MPEDisplay::setDraggerTransparency( float transparency )
 {
+#ifdef USE_TEXTURE
     rectangle_->getMaterial()->setTransparency( transparency );
+#endif
 }
 
 
 float MPEDisplay::getDraggerTransparency() const
 {
+#ifdef USE_TEXTURE
     return rectangle_->getMaterial()->getTransparency();
+#else
+    return 0;
+#endif
 }
 
 
 void MPEDisplay::showDragger( bool yn )
 {
+#ifdef USE_TEXTURE
     if ( yn==isDraggerShown() )
 	return;
     if ( yn )
@@ -510,15 +719,23 @@ void MPEDisplay::showDragger( bool yn )
     dragger_->turnOn( yn );
     movement.trigger();
     planeOrientationChange.trigger();
+#endif
 }
 
 
 bool MPEDisplay::isDraggerShown() const
-{ return dragger_->isOn(); }
+{ 
+#ifdef USE_TEXTURE
+    return dragger_->isOn(); 
+#else
+    return false;
+#endif
+}
 
 
 void MPEDisplay::rectangleMovedCB( CallBacker* )
 {
+#ifdef USE_TEXTURE
     if ( isSelected() ) return;
 
     while( true ) {
@@ -575,42 +792,61 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 	movement.trigger();
 	planeOrientationChange.trigger();
 	}
+#endif
 }
 
 
 void MPEDisplay::rectangleStartCB( CallBacker* )
 {
+#ifdef USE_TEXTURE
     Undo& undo = EM::EMM().undo();
     lasteventnr_ = undo.currentEventID();
+#endif
 }
 
 
 void MPEDisplay::rectangleStopCB( CallBacker* )
 {
+#ifdef USE_TEXTURE
     Undo& undo = EM::EMM().undo();
     const int currentevent = undo.currentEventID();
     if ( currentevent!=lasteventnr_ )
 	undo.setUserInteractionEnd(currentevent);
+#endif
 }
 
 
 void MPEDisplay::setPlaneOrientation( int orient )
 {
+#ifdef USE_TEXTURE
     dragger_->setDim( orient );
     
     if ( !isOn() ) return;
 
     updateTextureCoords();
+#else
+    if ( !isOn() ) return;
+
+    updateRanges();
+#endif
     movement.trigger();
 }
 
 
 const int MPEDisplay::getPlaneOrientation() const
-{ return dragger_->getDim(); }
+{ 
+#ifdef USE_TEXTURE
+    return dragger_->getDim(); 
+#else
+    // to do: check
+    return 0;
+#endif
+}
 
 
 void MPEDisplay::mouseClickCB( CallBacker* cb )
 {
+#ifdef USE_TEXTURE
     if ( sceneeventcatcher_->isHandled() || !isOn() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
@@ -670,6 +906,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	showBoxDragger( false );
 	sceneeventcatcher_->setHandled();
     }
+#endif
 }
 
 
@@ -690,7 +927,9 @@ void MPEDisplay::freezeBoxPosition( bool yn )
 
 void MPEDisplay::updateBoxPosition( CallBacker* )
 {
+#ifdef USE_TEXTURE
     NotifyStopper stop( dragger_->changed );
+#endif
 
     CubeSampling cube = engine_.activeVolume();
     Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
@@ -707,7 +946,9 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	newwidth.z = 0.1 * cube.zrg.step;
 
     boxdragger_->setWidth( newwidth );
+#ifdef USE_TEXTURE
     dragger_->setSize( newwidth );
+#endif
 
     const Coord3 newcenter( (cube.hrg.stop.inl+cube.hrg.start.inl)/2,
 			    (cube.hrg.stop.crl+cube.hrg.start.crl)/2,
@@ -715,6 +956,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
     boxdragger_->setCenter( newcenter );
 
+#ifdef USE_TEXTURE
     dragger_->setSpaceLimits(
 	    Interval<float>(cube.hrg.start.inl,cube.hrg.stop.inl),
 	    Interval<float>(cube.hrg.start.crl,cube.hrg.stop.crl),
@@ -725,6 +967,10 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	updateTexture();
 
     updateTextureCoords();
+#else
+    updateRanges();
+#endif
+    
     movement.trigger();
     planeOrientationChange.trigger();
 }
@@ -750,6 +996,7 @@ void MPEDisplay::updateDraggerPosition( CallBacker* cb )
 
 void MPEDisplay::setDraggerCenter( bool alldims )
 {
+#ifdef USE_TEXTURE
     NotifyStopper stop( dragger_->changed );
     const CubeSampling& cs = engine_.trackPlane().boundingBox();
     if ( cs.hrg.start.inl==cs.hrg.stop.inl && dragger_->getDim()!=0 )
@@ -763,6 +1010,7 @@ void MPEDisplay::setDraggerCenter( bool alldims )
 			   cs.zrg.center());
     if ( newcenter != dragger_->center() )
 	dragger_->setCenter( newcenter, alldims );
+#endif
 }
 
 
@@ -771,6 +1019,7 @@ void MPEDisplay::setDraggerCenter( bool alldims )
 
 void MPEDisplay::updateTextureCoords()
 {
+#ifdef USE_TEXTURE
     if ( !dragger_ ) return;
     Coord3 boxcenter = boxdragger_->center();
     Coord3 boxwidth = boxdragger_->width();
@@ -823,6 +1072,7 @@ void MPEDisplay::updateTextureCoords()
 	rectangle_->getTextureCoords()->setCoord( 3, 
 				Coord3(intv0.start,intv1.stop,relcoord) );
     }
+#endif
 }
 
 
@@ -879,6 +1129,7 @@ void MPEDisplay::getMousePosInfo( const visBase::EventInfo&, Coord3& pos,
     val = "undef";
     info = "";
 
+#ifdef USE_TEXTURE
     const BinID bid( SI().transform(pos) );
     RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
     if ( !attrdata )
@@ -913,6 +1164,10 @@ void MPEDisplay::getMousePosInfo( const visBase::EventInfo&, Coord3& pos,
 	const float z = planecs.zrg.start;
 	info += SI().zIsTime() ? mNINT( z * 1000) : z;
     }
+#else
+    if ( !isBoxDraggerShown() )
+        val = getValue( pos );
+#endif
 }
 
 
@@ -920,12 +1175,14 @@ void MPEDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
+#ifdef USE_TEXTURE
     if ( texture_ )
     {
 	par.set( sKeyTexture(), texture_->id() );
 	if ( saveids.indexOf(texture_->id())==-1 )
 	    saveids += texture_->id();
     }
+#endif
 
     as_.fillPar( par );
     par.set( sKeyTransperancy(), getDraggerTransparency() );
@@ -938,6 +1195,7 @@ int MPEDisplay::usePar( const IOPar& par )
     const int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
+#ifdef USE_TEXTURE
     int textureid;
     if ( par.get(sKeyTexture(),textureid) )
     {
@@ -946,6 +1204,7 @@ int MPEDisplay::usePar( const IOPar& par )
 	if ( texture ) setTexture( texture );
 	else return 0;
     }
+#endif
 
     float transparency = 0.5;
     par.get( sKeyTransperancy(), transparency );
@@ -964,4 +1223,330 @@ int MPEDisplay::usePar( const IOPar& par )
 }
 
 
-}; // namespace visSurvey
+visBase::OrthogonalSlice* MPEDisplay::getSlice( int index )
+{
+#ifndef USE_TEXTURE
+    if ( ( index >= 0 ) && ( index < slices_.size() ) )
+        return slices_[index];
+#endif
+    return 0;
+}
+
+
+void MPEDisplay::updateSlice()
+{
+#ifndef USE_TEXTURE
+// to do: check!!
+
+    const CubeSampling displaycs = engine_.activeVolume();
+    if ( curtextureas_==as_ && curtexturecs_==displaycs )
+    {
+	if ( scalarfield_ )
+	    scalarfield_->turnOn( true );
+	return;
+    }
+
+    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
+    if ( !attrdata && scalarfield_ )
+    {
+        scalarfield_->turnOn( false );
+        return;
+    }
+
+    // to do: create slice if inexistent
+
+    setDataVolume( 0, attrdata, 0 );
+#endif
+}
+
+
+void MPEDisplay::setCubeSampling( const CubeSampling& cs )
+{
+#ifndef USE_TEXTURE
+    const Interval<float> xintv( cs.hrg.start.inl, cs.hrg.stop.inl );
+    const Interval<float> yintv( cs.hrg.start.crl, cs.hrg.stop.crl );
+    const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
+    voltrans_->setTranslation(
+	    Coord3(xintv.center(),yintv.center(),zintv.center()) );
+    voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
+    voltrans_->setScale( Coord3(-zintv.width(),yintv.width(),xintv.width()) );
+    scalarfield_->setVolumeSize( Interval<float>(-0.5,0.5),
+	    Interval<float>(-0.5,0.5),
+	    Interval<float>(-0.5,0.5) );
+
+    for ( int idx=0; idx<slices_.size(); idx++ )
+	slices_[idx]->setSpaceLimits( Interval<float>(-0.5,0.5),
+		Interval<float>(-0.5,0.5),
+		Interval<float>(-0.5,0.5) );
+
+    if ( scalarfield_ ) scalarfield_->turnOn( false );
+
+    resetManipulation();
+#endif
+}
+
+
+void MPEDisplay::resetManipulation()
+{
+#ifndef USE_TEXTURE
+    const Coord3 center = voltrans_->getTranslation();
+    const Coord3 width = voltrans_->getScale();
+    boxdragger_->setCenter( center );
+    boxdragger_->setWidth( Coord3(width.z, width.y, -width.x) );
+#endif
+}
+
+
+bool MPEDisplay::setDataVolume( int attrib,
+	const Attrib::DataCubes* attrdata, TaskRunner* tr )
+{
+#ifdef USE_TEXTURE
+    return false;
+#else
+    if ( attrib || !attrdata )
+	return false;
+
+    const Array3D<float>* usedarray = 0;
+    usedarray = &attrdata->getCube(0);
+    //const Array3D<float>& data( attrdata->getCube(0) );
+    const CubeSampling displaycs = engine_.activeVolume();
+
+    if ( displaycs != attrdata->cubeSampling() )
+    {
+	const CubeSampling attrcs = attrdata->cubeSampling();
+	if ( !attrcs.includes( displaycs ) )
+	{
+	    if ( scalarfield_ )
+	        scalarfield_->turnOn( false );
+	    return false;
+	}
+
+	if ( !usedarray->isOK() )
+	{
+	    texture_->turnOn( false );
+	    return false;
+	}
+
+//	texture_->setData( &array );
+    }
+    else
+//	texture_->setData( &data );
+
+    curtextureas_ = as_;
+    curtexturecs_ = displaycs;
+
+    texture_->turnOn( true );
+
+    scalarfield_->setScalarField( usedarray, false, tr );
+
+    setCubeSampling( getCubeSampling(true,true,0) );
+    
+    for ( int idx=0; idx<slices_.size(); idx++ )
+	slices_[idx]->setVolumeDataSize( usedarray->info().getSize(2),
+		usedarray->info().getSize(1),
+		usedarray->info().getSize(0) );
+
+    scalarfield_->turnOn( true );
+
+    if ( cache_ != attrdata )
+    {
+	if ( cache_ ) cache_->unRef();
+	cache_ = attrdata;
+	cache_->ref();
+    }
+
+    return true;
+#endif
+}
+
+
+CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
+	  			          int attrib ) const
+{
+#ifndef USE_TEXTURE
+    CubeSampling res;
+    if ( manippos )
+    {
+	Coord3 center_ = boxdragger_->center();
+	Coord3 width_ = boxdragger_->width();
+
+	res.hrg.start = BinID( mNINT( center_.x - width_.x / 2 ),
+		mNINT( center_.y - width_.y / 2 ) );
+
+	res.hrg.stop = BinID( mNINT( center_.x + width_.x / 2 ),
+		mNINT( center_.y + width_.y / 2 ) );
+
+	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+
+	res.zrg.start = center_.z - width_.z / 2;
+	res.zrg.stop = center_.z + width_.z / 2;
+    }
+    else
+    {
+	const Coord3 transl = voltrans_->getTranslation();
+	Coord3 scale = voltrans_->getScale();
+	double dummy = scale.x; scale.x=scale.z; scale.z = dummy;
+
+	res.hrg.start = BinID( mNINT(transl.x+scale.x/2),
+		mNINT(transl.y+scale.y/2) );
+	res.hrg.stop = BinID( mNINT(transl.x-scale.x/2),
+		mNINT(transl.y-scale.y/2) );
+	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+
+	res.zrg.start = transl.z+scale.z/2;
+	res.zrg.stop = transl.z-scale.z/2;
+    }
+
+    if ( alreadyTransformed(attrib) ) return res;
+/*
+    if ( datatransform_ && !displayspace )
+    {
+	res.zrg.setFrom( datatransform_->getZInterval(true) );
+	res.zrg.step = SI().zRange( true ).step;
+    }
+*/
+    return res;
+#else
+    return 0;
+#endif
+}
+
+
+int MPEDisplay::addSlice( int dim )
+{
+#ifndef USE_TEXTURE
+    visBase::OrthogonalSlice* slice = visBase::OrthogonalSlice::create();
+    slice->ref();
+    slice->setMaterial(0);
+    slice->setDim(dim);
+    slice->motion.notify( mCB(this,MPEDisplay,sliceMoving) );
+    slices_ += slice;
+
+    // to do: add later if desired
+/*    slice->setName( dim==cTimeSlice() ? sKeyTime() : 
+	    (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
+*/
+    addChild( slice->getInventorNode() );
+    const CubeSampling cs = getCubeSampling( 0 );
+    const Interval<float> defintv(-0.5,0.5);
+    slice->setSpaceLimits( defintv, defintv, defintv );
+    if ( cache_ )
+    {
+	const Array3D<float>& arr = cache_->getCube(0);
+	slice->setVolumeDataSize( arr.info().getSize(2),
+		arr.info().getSize(1), arr.info().getSize(0) );
+    }
+
+    return slice->id();
+#else
+    return 0;
+#endif
+}
+
+
+void MPEDisplay::updateRanges()
+{
+#ifndef USE_TEXTURE
+    // to do: check!
+    setCubeSampling( SI().sampling( true ) );
+/*    if ( !datatransform_ ) return;
+
+    if ( csfromsession_ != SI().sampling(true) )
+	setCubeSampling( csfromsession_ );
+    else
+    {
+	Interval<float> zrg = datatransform_->getZInterval( false );
+	CubeSampling cs = getCubeSampling( 0 );
+	assign( cs.zrg, zrg );
+	setCubeSampling( cs );
+    }*/
+#endif
+}
+
+
+float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
+{
+#ifndef USE_TEXTURE
+    if ( !slice ) return 0;
+    const int dim = slice->getDim();
+    float slicepos = slice->getPosition();
+    slicepos *= -voltrans_->getScale()[dim];
+
+    float pos;
+    if ( dim == 2 )
+    {
+	slicepos += voltrans_->getTranslation()[0];
+	pos = SI().inlRange(true).snap(slicepos);
+    }
+    else if ( dim == 1 )
+    {
+	slicepos += voltrans_->getTranslation()[1];
+	pos = SI().crlRange(true).snap(slicepos);
+    }
+    else
+    {
+	slicepos += voltrans_->getTranslation()[2];
+	pos = mNINT(slicepos*1000);
+    }
+
+    return pos;
+#else
+    return 0;
+#endif
+}
+
+
+float MPEDisplay::getValue( const Coord3& pos_ ) const
+{
+#ifndef USE_TEXTURE
+    if ( !cache_ ) return mUdf(float);
+    const BinIDValue bidv( SI().transform(pos_), pos_.z );
+    float val;
+    if ( !cache_->getValue(0,bidv,&val,false) )
+        return mUdf(float);
+
+    return val;
+#else
+    return 0;
+#endif
+}
+
+
+void MPEDisplay::removeChild( int displayid )
+{
+#ifndef USE_TEXTURE
+    for ( int idx=0; idx<slices_.size(); idx++ )
+    {
+	if ( slices_[idx]->id()==displayid )
+	{
+	    VisualObjectImpl::removeChild( slices_[idx]->getInventorNode() );
+	    slices_[idx]->motion.remove( mCB(this,MPEDisplay,sliceMoving) );
+	    slices_[idx]->unRef();
+	    slices_.remove(idx,false);
+	    return;
+	}
+    }
+#endif
+}
+
+
+BufferString MPEDisplay::getManipulationString() const
+{
+    BufferString str = slicename_; str += ": "; str += sliceposition_;
+    return str;
+}
+
+
+void MPEDisplay::sliceMoving( CallBacker* cb )
+{
+#ifndef USE_TEXTURE
+    mDynamicCastGet( visBase::OrthogonalSlice*, slice, cb );
+    if ( !slice ) return;
+
+    slicename_ = slice->name();
+    sliceposition_ = slicePosition( slice );
+    slicemoving.trigger();
+#endif
+}
+
+}; // namespace vissurvey
