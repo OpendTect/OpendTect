@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.254 2009-10-20 05:00:38 cvsranojay Exp $
+ RCS:           $Id: uivispartserv.h,v 1.255 2009-10-23 21:36:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class BinIDValueSet;
 class BufferStringSet;
 class Color;
 class DataPointSet;
+class MouseCursorExchange;
 class MultiID;
 class PickSet;
 class SeisTrcBuf;
@@ -64,6 +65,8 @@ public:
 			            when the entire visualization is
 				    closed. All visBase::DataObjects
 				    must then be unrefed.  */
+
+    void		setMouseCursorExchange(MouseCursorExchange*);
 
     visBase::DataObject* getObject( int id ) const;
     int			highestID() const;
@@ -366,6 +369,8 @@ protected:
 
     bool			selectAttrib(int id, int attrib);
 
+    void			setMarkerPos(const Coord3&,int dontsetscene);
+
     bool			isManipulated(int id) const;
     void			acceptManipulation(int id);
     bool			resetManipulation(int id);
@@ -409,6 +414,7 @@ protected:
     int				seltype_;
     int				mapperrgeditordisplayid_;
 
+    void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
     void			deselectObjCB(CallBacker*);
@@ -433,6 +439,8 @@ protected:
     bool			blockmenus_;
     uiVisPickRetriever*		pickretriever_;
     Notifier<uiVisPartServer>	nrsceneschange_;
+
+    MouseCursorExchange*	mousecursorexchange_;
 
     uiDirLightDlg*		dirlightdlg_;
 };

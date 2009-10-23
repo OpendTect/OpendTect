@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.440 2009-10-20 05:00:38 cvsranojay Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.441 2009-10-23 21:36:13 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.440 2009-10-20 05:00:38 cv
 #include "iopar.h"
 #include "oddirs.h"
 #include "mousecursor.h"
+#include "mouseevent.h"
 #include "seisbuf.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -116,6 +117,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mapperrgeditordisplayid_(-1)
     , mapperrgeditinact_(false)	  
     , dirlightdlg_(0)			  
+    , mousecursorexchange_( 0 )
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -154,10 +156,38 @@ uiVisPartServer::~uiVisPartServer()
 
     if ( dirlightdlg_ )
 	delete dirlightdlg_;
+
+    setMouseCursorExchange( 0 );
 }
 
 
 const char* uiVisPartServer::name() const  { return "Visualisation"; }
+
+
+
+void uiVisPartServer::setMouseCursorExchange( MouseCursorExchange* mce )
+{
+    if ( mousecursorexchange_ )
+	mousecursorexchange_->notifier.remove(
+		mCB(this,uiVisPartServer, mouseCursorCB ) );
+
+    mousecursorexchange_ = mce;
+
+    if ( mousecursorexchange_ )
+	mousecursorexchange_->notifier.notify(
+		mCB(this,uiVisPartServer, mouseCursorCB ) );
+}
+
+
+void uiVisPartServer::mouseCursorCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( const MouseCursorExchange::Info&, info,
+	    			caller, cb );
+    if ( caller==this )
+	return;
+
+    setMarkerPos( info.surveypos_, -1 );
+}
 
 
 void uiVisPartServer::setObjectName( int id, const char* nm )
@@ -1748,6 +1778,18 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
 }
 
 
+void uiVisPartServer::setMarkerPos( const Coord3& worldpos, int dontsetscene )
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx]->id()==dontsetscene )
+	    scenes_[idx]->setMarkerPos( Coord3::udf() );
+	else
+	    scenes_[idx]->setMarkerPos( worldpos );
+    }
+}
+
+
 void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::Scene*,scene,cb)
@@ -1757,13 +1799,10 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     if ( xytmousepos_.isDefined() && scene->getDataTransform() )
 	worldpos.z = scene->getDataTransform()->transformBack( xytmousepos_ );
 
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-    {
-	if ( scenes_[idx]==scene )
-	    scenes_[idx]->setMarkerPos( Coord3::udf() );
-	else
-	    scenes_[idx]->setMarkerPos( worldpos );
-    }
+    setMarkerPos( worldpos, scene->id() );
+
+    MouseCursorExchange::Info info( worldpos );
+    mousecursorexchange_->notifier.trigger( info, this );
 
     eventmutex_.lock();
     inlcrlmousepos_ = scene->getMousePos(false);
