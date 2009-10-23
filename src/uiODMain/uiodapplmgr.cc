@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.360 2009-10-20 15:21:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.361 2009-10-23 21:37:23 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -63,6 +63,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.360 2009-10-20 15:21:30 cvsb
 #include "iopar.h"
 #include "linekey.h"
 #include "mousecursor.h"
+#include "mouseevent.h"
 #include "mpeengine.h"
 #include "oddirs.h"
 #include "odsession.h"
@@ -82,11 +83,13 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
 	, visdpsdispmgr_(0)
+	, mousecursorexchange_( *new MouseCursorExchange )
 	, dispatcher_(*new uiODApplMgrDispatcher(*this,&appl_))
 	, attrvishandler_(*new uiODApplMgrAttrVisHandler(*this,&appl_))
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
+    visserv_->setMouseCursorExchange( &mousecursorexchange_ );
     attrserv_ = new uiAttribPartServer( applservice_ );
     seisserv_ = new uiSeisPartServer( applservice_ );
     emserv_ = new uiEMPartServer( applservice_ );
@@ -122,7 +125,13 @@ uiODApplMgr::~uiODApplMgr()
     delete &applservice_;
     delete &dispatcher_;
     delete visdpsdispmgr_;
+
+    delete &mousecursorexchange_;
 }
+
+
+MouseCursorExchange& uiODApplMgr::mouseCursorExchange()
+{ return mousecursorexchange_; }
 
 
 void uiODApplMgr::resetServers()
@@ -1171,8 +1180,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	return getNewData( visid, visserv_->getEventAttrib() );
     else if ( evid == uiVisPartServer::evInteraction() )
 	sceneMgr().setItemInfo( visid );
-    else if ( evid == uiVisPartServer::evMouseMove() ||
-	      evid==uiVisPartServer::evPickingStatusChange() )
+    else if ( evid==uiVisPartServer::evPickingStatusChange() ||
+	      evid == uiVisPartServer::evMouseMove() )
 	sceneMgr().updateStatusBar();
     else if ( evid == uiVisPartServer::evViewModeChange() )
 	sceneMgr().setToViewMode( visserv_->isViewMode() );

@@ -6,13 +6,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.95 2009-10-05 15:55:38 cvskarthika Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.96 2009-10-23 21:37:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
 
+class MouseCursorExchange;
 class uiApplPartServer;
 class uiApplService;
 class uiAttribPartServer;
@@ -129,6 +130,9 @@ public:
     bool			setPickSetDirs(Pick::Set&);
     bool			pickSetsStored() const;
 
+    // Tool to exhange mouse-cursor information between windows
+    MouseCursorExchange&	mouseCursorExchange();
+
     // Work. Don't use unless expert.
     uiVisDataPointSetDisplayMgr* visDPSDispMgr()
     				{ return visdpsdispmgr_; }
@@ -199,6 +203,7 @@ protected:
     uiMPEPartServer*		mpeserv_;
     uiODApplMgrDispatcher&	dispatcher_;
     uiODApplMgrAttrVisHandler&	attrvishandler_;
+    MouseCursorExchange&	mousecursorexchange_;
 
     bool			handleEvent(const uiApplPartServer*,int);
     void*			deliverObject(const uiApplPartServer*,int);
