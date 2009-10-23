@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdataholderarray.cc,v 1.6 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdataholderarray.cc,v 1.7 2009-10-23 08:53:12 cvsbert Exp $";
 
 #include "attribdataholderarray.h"
 #include "attribdataholder.h"
@@ -21,10 +21,10 @@ DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh,
     : dh_(dh)
     , manageset_(manageset)
 {
-    const int nrdh = dh.size();
-    info_.setSize( 0, dh_[0]->nrSeries() );
-    info_.setSize( 1, dh_.size() );
-    info_.setSize( 2, dh_[0]->nrsamples_ );
+    const int nrdh = dh_.size();
+    info_.setSize( 0, nrdh ? dh_[0]->nrSeries() : 0 );
+    info_.setSize( 1, nrdh );
+    info_.setSize( 2, nrdh ? dh_[0]->nrsamples_ : 0 );
 }
 
 
@@ -52,4 +52,3 @@ float DataHolderArray::get( int i0, int i1, int i2 ) const
 }
 
 } // namespace Attrib
-
