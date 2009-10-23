@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.39 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:           $Id: uitreeview.h,v 1.40 2009-10-23 09:21:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,8 +117,11 @@ public:
 
 			//! item last notified. See notifiers below
     uiListViewItem*	itemNotified()		{ return lastitemnotified_; }
-    void		unNotify()		{ lastitemnotified_ = 0; }
     int			columnNotified()	{ return column_; }
+    void		unNotify()		{ lastitemnotified_ = 0; }
+
+    void		setNotifiedItem(QTreeWidgetItem*);
+    void		setNotifiedColumn(int col)	{ column_ = col; }
 
     Notifier<uiListView> selectionChanged;
     Notifier<uiListView> currentChanged;
@@ -131,8 +134,7 @@ public:
     Notifier<uiListView> mouseButtonPressed;
     Notifier<uiListView> mouseButtonClicked;
     Notifier<uiListView> contextMenuRequested;
-    //! the user moves the mouse cursor onto the item
-    Notifier<uiListView> onItem;
+    Notifier<uiListView> doubleClicked;
     Notifier<uiListView> itemRenamed;
     Notifier<uiListView> expanded;
     Notifier<uiListView> collapsed;
@@ -147,8 +149,6 @@ protected:
     OD::ButtonState     buttonstate_;
 
     void 		cursorSelectionChanged( CallBacker* );
-    void		setNotifiedItem( QTreeWidgetItem* );
-    void		setNotifiedColumn( int col )	{ column_ = col; }
 
     uiListViewBody*		lvbody()	{ return body_; }
     const uiListViewBody*	lvbody() const	{ return body_; }
@@ -156,14 +156,6 @@ protected:
 private:
 
     uiListViewBody*	body_;
-
-public:
-    			//! Force activation in GUI thread
-    			//! Not for casual use
-    void		activateClick(uiListViewItem&,int column,
-				      bool leftclick=true);
-    void		activateButton(uiListViewItem&,bool expand);
-    Notifier<uiListView> activatedone;
 
 };
 

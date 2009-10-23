@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.87 2009-09-01 12:03:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.88 2009-10-23 09:21:05 cvsjaap Exp $";
 
 
 #include "uitable.h"
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: uitable.cc,v 1.87 2009-09-01 12:03:52 cvsbert E
 #include "i_layoutitem.h"
 #include "i_qtable.h"
 
-#include <QApplication>
 #include <QHeaderView>
 #include <QMouseEvent>
 
@@ -74,12 +73,6 @@ public:
     int			maxSelectable() const;
     uiTable::SelectionBehavior getSelBehavior() const;
     
-    void		activateClick(const RowCol&,bool leftclick,
-				      bool doubleclick,bool ctrlclick);
-    void		activateFill(const RowCol&,const char* txt);
-    void		activateSelect(const TypeSet<RowCol>&);
-    bool		event(QEvent*);
-
 protected:
     virtual void	mouseReleaseEvent(QMouseEvent*);
 
@@ -87,14 +80,6 @@ protected:
 
     BoolTypeSet		columnsreadonly;
     BoolTypeSet		rowsreadonly;
-
-    RowCol		actrc_;
-    bool		actleftclick_;
-    bool		actdoubleclick_;
-    bool		actctrlclick_;
-    const char*		acttext_;
-
-    const TypeSet<RowCol>* actselset_;
 
 private:
 
@@ -261,168 +246,6 @@ int uiTableBody::maxSelectable() const
 }
 
 
-static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActFill   = (QEvent::Type) (QEvent::User+1);
-static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+2);
-
-
-void uiTableBody::activateClick( const RowCol& rc, bool leftclick,
-				 bool doubleclick, bool ctrlclick )
-{
-    actrc_ = rc;
-    actleftclick_ = leftclick;
-    actdoubleclick_ = doubleclick;
-    actctrlclick_ = ctrlclick;
-    QEvent* actevent = new QEvent( sQEventActClick );
-    QApplication::postEvent( this, actevent );
-}
-
-
-void uiTableBody::activateFill( const RowCol& rc, const char* txt )
-{
-    actrc_ = rc;
-    acttext_ = txt;
-    QEvent* actevent = new QEvent( sQEventActFill );
-    QApplication::postEvent( this, actevent );
-}
-
-
-void uiTableBody::activateSelect( const TypeSet<RowCol>& selectset )
-{
-    actselset_ = &selectset;
-    QEvent* actevent = new QEvent( sQEventActSelect );
-    QApplication::postEvent( this, actevent );
-}
-
-
-#define mSetSelected( rc, yn ) \
-{ \
-    QTableWidgetItem* itm = item( rc.row, rc.col ); \
-    if ( itm ) \
-   	itm->setSelected( yn ); \
-}
-
-#define mSelectBlock( lowrc, highrc, toggle ) \
-{ \
-    const bool notifierwasenabled = handle_.selectionChanged.disable(); \
-    if ( !toggle ) \
-	clearSelection(); \
-    RowCol rc; \
-    for ( rc.row=lowrc.row; rc.row<=highrc.row; rc.row++ ) \
-    { \
-	for ( rc.col=lowrc.col; rc.col<=highrc.col; rc.col++ ) \
-	{ \
-	    mSetSelected( rc, !toggle || !itm->isSelected() ); \
-	} \
-    } \
-    setCurrentCell( lowrc.row, lowrc.col, QItemSelectionModel::NoUpdate ); \
-    handle_.selectionChanged.enable( notifierwasenabled ); \
-    handle_.selectionChanged.trigger(); \
-}
-
-bool uiTableBody::event( QEvent* ev )
-{
-    if ( ev->type() == sQEventActClick )
-    {
-	if ( actrc_.row<rowCount() && actrc_.col<columnCount() )
-	{
-	    if ( actrc_.row==-1 && actrc_.col>=0 )
-	    {
-		if ( maxSelectable()>0 &&
-		     getSelBehavior()!=uiTable::SelectRows )
-		{
-		    mSelectBlock( RowCol(0, actrc_.col),
-				  RowCol(rowCount()-1, actrc_.col),
-				  actctrlclick_ );
-		}
-		handle_.columnClicked.trigger( actrc_.col);
-	    }
-	    else if ( actrc_.row>=0 && actrc_.col==-1 )
-	    {
-		if ( maxSelectable()>0 &&
-		     getSelBehavior()!=uiTable::SelectColumns )
-		{
-		    mSelectBlock( RowCol(actrc_.row, 0),
-				  RowCol(actrc_.row, columnCount()-1),
-				  actctrlclick_ );
-		}
-		handle_.rowClicked.trigger( actrc_.row );
-	    }
-	    else if ( actrc_.row>=0 && actrc_.col>=0 )
-	    {
-		if ( maxSelectable() > 0 )
-		{
-		    QTableWidgetItem* itm = item( actrc_.row, actrc_.col );
-
-		    if ( !actctrlclick_ && !actleftclick_ &&
-			 itm && itm->isSelected() )
-		    {
-			setCurrentCell( actrc_.row, actrc_.col,
-					QItemSelectionModel::NoUpdate ); 
-		    }
-		    else
-			mSelectBlock( actrc_, actrc_, actctrlclick_ );
-		}
-		handle_.setNotifiedCell( actrc_ );
-
-		if ( actleftclick_ )
-		    handle_.leftClicked.trigger();
-		else
-		    handle_.rightClicked.trigger();
-
-		if ( actdoubleclick_ )
-		    handle_.doubleClicked.trigger();
-	    }
-	}
-    }
-    else if ( ev->type() == sQEventActFill )
-    {
-	if ( actrc_.row>=0 && actrc_.row<rowCount() && actrc_.col>=0 &&
-	     actrc_.col<columnCount() && !handle_.isTableReadOnly() && 
-	     !handle_.isRowReadOnly(actrc_.row) &&
-	     !handle_.isColumnReadOnly(actrc_.col) )
-	{
-	    handle_.setText( actrc_, acttext_ );
-	}
-    }
-    else if ( ev->type() == sQEventActSelect )
-    {
-	if ( maxSelectable()>0 && ( actselset_->size()<=maxSelectable() ||
-				    getSelBehavior()!=uiTable::SelectItems ) )
-	{
-	    const bool notifierwasenabled = handle_.selectionChanged.disable();
-	    clearSelection();
-	    int idx = 0;
-	    while ( idx<actselset_->size() )
-	    {
-		if ( (*actselset_)[idx].col < 0 )
-		{
-		    for ( int row=(*actselset_)[idx].row;
-			  row<=(*actselset_)[idx+1].row;
-			  row-=(*actselset_)[idx].col )
-		    {
-			RowCol rc( row, (*actselset_)[idx+1].col );
-			mSetSelected( rc, true );
-		    }
-		    idx++;
-		}
-		else
-		    mSetSelected( (*actselset_)[idx], true );
-
-		idx++;
-	    }
-	    handle_.selectionChanged.enable( notifierwasenabled );
-	    handle_.selectionChanged.trigger();
-	}
-    }
-    else
-	return QTableWidget::event( ev );
-
-    handle_.activatedone.trigger();
-    return true;
-}
-
-
 uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     : uiObject(p,nm,mkbody(p,nm,s.size_.row,s.size_.col))
     , setup_(s)
@@ -438,7 +261,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , selectionChanged(this)
     , rowClicked(this)
     , columnClicked(this)
-    , activatedone(this)
 {
     setFont( FontList().get(FontData::key(FontData::Fixed)) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
@@ -648,8 +470,13 @@ void uiTable::clearCell( const RowCol& rc )
 }
 
 
-void uiTable::setCurrentCell( const RowCol& rc )
-{ body_->setCurrentCell( rc.row, rc.col ); }
+void uiTable::setCurrentCell( const RowCol& rc, bool noselection )
+{
+    if ( noselection )
+	body_->setCurrentCell( rc.row, rc.col, QItemSelectionModel::NoUpdate );
+    else
+	body_->setCurrentCell( rc.row, rc.col );
+}
 
 
 const char* uiTable::text( const RowCol& rc ) const
@@ -1283,6 +1110,15 @@ int uiTable::currentRow() const
 int uiTable::currentCol() const
 { return body_->currentColumn(); }
 
+
+void uiTable::setSelected( const RowCol& rc, bool yn )
+{
+    QTableWidgetItem* itm = body_->item( rc.row, rc.col );
+    if ( itm )
+	itm->setSelected( yn );
+}
+
+
 void  uiTable::selectRow( int row )
 { return body_->selectRow( row ); }
 
@@ -1358,15 +1194,6 @@ int uiTable::maxSelectable() const
 }
 
 
-void uiTable::activateClick( const RowCol& rc, bool leftclick,
-			     bool doubleclick, bool ctrlclick )
-{ body_->activateClick( rc, leftclick, doubleclick, ctrlclick ); }
-
-
-void uiTable::activateFill( const RowCol& rc, const char* txt )
-{ body_->activateFill( rc, txt ); }
-
-
 void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
 {
     removeAllSelections();
@@ -1380,7 +1207,3 @@ void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
 	itm->setSelected( yn );
     }
 }
-
-
-void uiTable::activateSelect( const TypeSet<RowCol>& selection )
-{ body_->activateSelect( selection ); }

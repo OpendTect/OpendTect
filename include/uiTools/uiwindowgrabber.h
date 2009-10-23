@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          July 2008
- RCS:           $Id: uiwindowgrabber.h,v 1.5 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiwindowgrabber.h,v 1.6 2009-10-23 09:21:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
 
     void		grabDesktop(bool yn)	{ desktop_ = yn; }
     bool		go();
+    void		actCB(CallBacker*);
 
 protected:
     uiParent*		parent_;

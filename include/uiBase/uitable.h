@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.56 2009-09-08 15:17:08 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.57 2009-10-23 09:21:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,7 @@ public:
     void		clearTable();
     void		showGrid(bool);
     bool		gridShown() const;
-    void		setCurrentCell(const RowCol&);
+    void		setCurrentCell(const RowCol&,bool noselection=false);
     void		setCellObject(const RowCol&,uiObject*);
     uiObject*		getCellObject(const RowCol&) const;
     void		clearCellObject(const RowCol&);
@@ -187,6 +187,7 @@ public:
     int			currentCol() const;
     RowCol		currentCell() const
     			{ return RowCol( currentRow(), currentCol() ); }
+    void		setSelected(const RowCol&,bool yn=true);
     void		selectRow(int row);
     void 		selectColumn(int col);
     void 		selectItems(const TypeSet<RowCol>&,bool);
@@ -297,15 +298,6 @@ private:
     uiTableBody&	mkbody(uiParent*,const char*,int,int);
 
     mutable uiSize	lastsz;
-
-public:
-    			//! Force activation in GUI thread
-    			//! Not for casual use
-    void		activateClick(const RowCol&,bool leftclick=true,
-				bool doubleclick=false,bool ctrlclick=false);
-    void		activateFill(const RowCol&,const char* txt);
-    void		activateSelect(const TypeSet<RowCol>&);
-    Notifier<uiTable>	activatedone;
 
 };
 

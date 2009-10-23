@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.13 2009-10-16 14:40:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.14 2009-10-23 09:21:05 cvsjaap Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -228,7 +228,7 @@ uiWindowGrabber::uiWindowGrabber( uiParent* p )
     , desktop_(false)
     , grabwin_(0)
     , quality_(50)
-    , execthr_( 0 )
+    , execthr_(0)
 {}
 
 
@@ -242,6 +242,11 @@ bool uiWindowGrabber::go()
     filename_ = dlg.getFilename();
     quality_ = dlg.getQuality();
 
+    if ( execthr_ )
+    {
+	execthr_->stop();
+	delete execthr_;
+    }
     execthr_ = new Threads::Thread( mCB(this,uiWindowGrabber,mkThread) );
 
     return true;
@@ -258,13 +263,18 @@ uiWindowGrabber::~uiWindowGrabber()
 }
 
 
-
 void uiWindowGrabber::mkThread( CallBacker* )
 {
     // give window manager chance to remove the uiWindowGrabDlg from screen
-    Time_sleep(0.1); 
+    Time_sleep( 0.1 ); 
 
+    grabwin_->activateInGUIThread( mCB(this, uiWindowGrabber, actCB) ); 
+}
+
+
+void uiWindowGrabber::actCB( CallBacker* cb )
+{
     const int zoom = desktop_ ? 0 : 1;
-    grabwin_->activateGrab( filename_, zoom, 0, quality_ );
+    grabwin_->grab( filename_, zoom, 0, quality_ );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.192 2009-10-19 13:54:17 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.193 2009-10-23 09:21:05 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -34,7 +34,9 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.192 2009-10-19 13:54:17 cvsjaa
 #include "oddirs.h"
 #include "pixmap.h"
 #include "timer.h"
+#include "timefun.h"
 #include "iopar.h"
+#include "thread.h"
 
 #include <iostream>
 
@@ -56,13 +58,7 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.192 2009-10-19 13:54:17 cvsjaa
 #include <QWidget>
 
 static const QEvent::Type sQEventGuiThread  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActClose   = (QEvent::Type) (QEvent::User+1);
-static const QEvent::Type sQEventActShow    = (QEvent::Type) (QEvent::User+2);
-static const QEvent::Type sQEventActQDlg    = (QEvent::Type) (QEvent::User+3);
-static const QEvent::Type sQEventActGrab    = (QEvent::Type) (QEvent::User+4);
-static const QEvent::Type sQEventActCursor  = (QEvent::Type) (QEvent::User+5);
-static const QEvent::Type sQEventActQtSync  = (QEvent::Type) (QEvent::User+6);
-static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+7);
+static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+1);
 
 
 class uiMainWinBody : public uiParentBody
@@ -123,17 +119,8 @@ public:
     void		move(uiMainWin::PopupArea);
 
     void		close();
-    
-    void		activateClose();  //! force activation in GUI thread
-    void		activateShow( int minnormmax );
-    void		activateQDlg( int retval ); 
-    void		activateGrab( const char* filenm, int zoom=1,
-				      const char* format=0, int quality=-1 );
-    void		activateCmdCursor(MouseCursor::Shape);
-    void		activateQtSyncDisplayToggle( uiObject* dummyobj );
-    void		activateInGUIThread(const CallBack&);
-
     bool		poppedUp() const { return popped_up; }
+
     bool		touch()
 			{
 			    if ( popped_up || !finalised() ) return false;
@@ -167,13 +154,12 @@ public:
 
     void		setWindowTitle(const char*);
 
+    void		activateInGUIThread(const CallBack&,bool busywait);
+
 protected:
 
     virtual void	finalise( bool trigger_finalise_start_stop=true );
     void		closeEvent(QCloseEvent*);
-    void 		closeQDlgChild(int retval,bool parentcheck=true);
-    bool		grabAndSave(const char* filenm,int zoom=1,
-				    const char* format=0,int quality=-1) const;
     bool		event(QEvent*);
 
     void		renewToolbarsMenu();
@@ -183,19 +169,11 @@ protected:
     void		readSettings();
 
     bool		exitapponclose_;
-    int			qdlgretval_;
 
-    const char*		grabfilenm_;
-    const char*		grabformat_;
-    int			grabzoom_;
-    int			grabquality_;
+    CallBack		activatecb_;
+    Threads::Mutex	activatemutex_;
+    int			activatenesting_;
 
-    MouseCursor::Shape	actcursor_;
-    static QCursor*	actqcursor_;
-    CallBack		guithreadcb_;
-
-    uiObject*		actqtsyncdummy_;
-    int			actminnormmax_;
     int			eventrefnr_;
 
     uiStatusBar* 	statusbar;
@@ -245,6 +223,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, popped_up(false)
 	, exitapponclose_(false)
         , prefsz_(-1,-1)
+	, activatenesting_(0)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -390,175 +369,6 @@ void uiMainWinBody::close()
 
     if ( exitapponclose_ )
 	qApp->quit();
-}
-
-
-void uiMainWinBody::closeQDlgChild( int retval, bool parentcheck )
-{
-    QWidget* _amw = qApp->activeModalWidget();
-    if ( !_amw ) 
-	return;
-
-    QDialog* _qdlg = dynamic_cast<QDialog*>(_amw);
-    if ( !_qdlg ) 
-	return;
-    if ( parentcheck && _qdlg->parent()!=this )
-	return;
-
-    _qdlg->done( retval );
-}
-
-
-bool uiMainWinBody::grabAndSave( const char* filenm, int zoom,
-				 const char* format, int quality ) const
-{
-    WId winid = winId();
-    if ( zoom <= 0 )
-	winid = QApplication::desktop()->winId();
-    else if ( zoom>=2 && qApp->activeModalWidget() )
-	winid = qApp->activeModalWidget()->winId();
-
-    QPixmap snapshot = QPixmap::grabWindow( winid );
-    return snapshot.save( QString(filenm), format, quality );
-}
-
-
-QCursor* uiMainWinBody::actqcursor_ = 0;
-
-
-bool uiMainWinBody::event( QEvent* ev )
-{
-    if ( ev->type() == sQEventGuiThread )
-    {
-	CallBacker* cbobject = guithreadcb_.cbObj();
-	guithreadcb_.doCall( this );
-	handle_.activatedone.trigger( cbobject );
-	return true;
-    }
-    else if ( ev->type() == sQEventActClose )
-	close(); 
-    else if ( ev->type() == sQEventActShow )
-    {
-	if ( actminnormmax_ > 1 )
-	    showMaximized();
-	else if ( actminnormmax_ < 1 )
-	    showMinimized();
-	else
-	    showNormal();
-    }
-    else if ( ev->type() == sQEventActQDlg )
-	closeQDlgChild( qdlgretval_, false );
-	// Using parentcheck=true would be neat, but it turns out that
-	// QDialogs not always have their parent set correctly (yet).
-    else if ( ev->type() == sQEventActGrab )
-	grabAndSave( grabfilenm_, grabzoom_, grabformat_, grabquality_ );
-    else if ( ev->type() == sQEventActCursor )
-    {
-	if ( actcursor_ != MouseCursor::NotSet )
-	{
-	    if ( !actqcursor_ )
-	    {
-		MouseCursorManager::setOverride( actcursor_ );
-		actqcursor_ = qApp->overrideCursor();
-	    }
-	}
-	else if ( actqcursor_ )
-	{
-	    // CmdCursor is not necessarily top of stack when CmdDriver ends!
-	    ObjectSet<const QCursor> stacktopstore;
-	    while ( true )
-	    {
-		const QCursor* qcursor =  qApp->overrideCursor();
-		if ( qcursor == actqcursor_ )
-		    MouseCursorManager::restoreOverride();
-
-		if ( !qcursor || qcursor==actqcursor_ )
-		{
-		    for ( int idx=stacktopstore.size()-1; idx>=0; idx-- )
-			qApp->setOverrideCursor( *stacktopstore[idx] );
-		    break;
-		}
-
-		stacktopstore += new QCursor( *qcursor );
-		qApp->restoreOverrideCursor();
-	    }
-	    deepErase( stacktopstore );
-	    actqcursor_ = 0;
-	}
-    }
-    else if ( ev->type() == sQEventActQtSync )
-    {
-	actqtsyncdummy_->display( !actqtsyncdummy_->isDisplayed() );
-	return true;
-    }
-    else if ( ev->type() == sQEventPopUpReady )
-    {
-	handle_.endCmdRecEvent( eventrefnr_, "WinPopUp" );
-	return true;
-    }
-    else
-	return QMainWindow::event( ev );
-    
-    handle_.activatedone.trigger(handle_);
-    return true; 
-}
-
-
-void uiMainWinBody::activateClose()
-{
-    QEvent* actcloseevent = new QEvent( sQEventActClose );
-    QApplication::postEvent( this, actcloseevent );
-}
-
-
-void uiMainWinBody::activateShow( int minnormmax )
-{
-    actminnormmax_ = minnormmax;
-    QEvent* actshowevent = new QEvent( sQEventActShow );
-    QApplication::postEvent( this, actshowevent );
-}
-
-
-void uiMainWinBody::activateQDlg( int retval )
-{
-    qdlgretval_ = retval;
-    QEvent* actqdlgevent = new QEvent( sQEventActQDlg );
-    QApplication::postEvent( this, actqdlgevent );
-}
-
-void uiMainWinBody::activateGrab( const char* filenm, int zoom,
-				  const char* format, int quality )
-{
-    grabfilenm_ = filenm;
-    grabzoom_ = zoom;
-    grabformat_ = format;
-    grabquality_ = quality;
-    QEvent* actgrabevent = new QEvent( sQEventActGrab );
-    QApplication::postEvent( this, actgrabevent );
-}
-
-
-void uiMainWinBody::activateCmdCursor( MouseCursor::Shape mcs )
-{ 
-    actcursor_ = mcs;
-    QEvent* actgrabevent = new QEvent( sQEventActCursor );
-    QApplication::postEvent( this, actgrabevent );
-}
-
-
-void uiMainWinBody::activateQtSyncDisplayToggle( uiObject* dummyobj )
-{ 
-    actqtsyncdummy_ = dummyobj;
-    QEvent* actqtsyncevent = new QEvent( sQEventActQtSync );
-    QApplication::postEvent( this, actqtsyncevent );
-}
-
-
-void uiMainWinBody::activateInGUIThread( const CallBack& cb )
-{ 
-    guithreadcb_ = cb;
-    QEvent* guithreadev = new QEvent( sQEventGuiThread );
-    QApplication::postEvent( this, guithreadev );
 }
 
 
@@ -727,6 +537,52 @@ void uiMainWinBody::setWindowTitle( const char* txt )
 { QMainWindow::setWindowTitle( uiMainWin::uniqueWinTitle(txt,this) ); }
 
 
+#define mExecMutex( statement ) \
+activatemutex_.lock(); statement; activatemutex_.unLock();
+
+
+void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
+{
+    mExecMutex( const int oldnesting = activatenesting_++ );
+
+    activatecb_ = cb;
+    QEvent* guithreadev = new QEvent( sQEventGuiThread );
+    QApplication::postEvent( this, guithreadev );
+
+    float sleeptime = 0.01;
+    while ( busywait )
+    {
+	mExecMutex( const int curnesting = activatenesting_ );
+	if ( curnesting <= oldnesting )
+	    break;
+
+	Time_sleep( sleeptime ); 
+	if ( sleeptime < 1.00 )
+	    sleeptime *= 2;
+    }
+}
+
+
+bool uiMainWinBody::event( QEvent* ev )
+{
+    if ( ev->type() == sQEventGuiThread )
+    {
+	CallBacker* cbobject = activatecb_.cbObj();
+	activatecb_.doCall( this );
+	mExecMutex( activatenesting_-- );
+	handle_.activatedone.trigger( cbobject );
+    }
+    else if ( ev->type() == sQEventPopUpReady )
+    {
+	handle_.endCmdRecEvent( eventrefnr_, "WinPopUp" );
+    }
+    else
+	return QMainWindow::event( ev );
+    
+    return true; 
+}
+
+
 // ----- uiMainWin -----
 
 
@@ -820,13 +676,14 @@ void uiMainWin::show()
 }
 
 void uiMainWin::close()				{ body_->close(); }
-void uiMainWin::activateClose()			{ body_->activateClose(); }
-void uiMainWin::activateQDlg( int retval )	{ body_->activateQDlg(retval); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 bool uiMainWin::touch() 			{ return body_->touch(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
+void uiMainWin::showMaximized()			{ body_->showMaximized(); }
+void uiMainWin::showMinimized()			{ body_->showMinimized(); }
+void uiMainWin::showNormal()			{ body_->showNormal(); }
 bool uiMainWin::isMaximized() const		{ return body_->isMaximized(); }
 bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
@@ -852,29 +709,8 @@ void uiMainWin::setDeleteOnClose( bool yn )
 { body_->setAttribute( Qt::WA_DeleteOnClose, yn ); }
 
 
-void uiMainWin::activateGrab( const char* filenm, int zoom,
-			      const char* format, int quality )
-{ body_->activateGrab( filenm, zoom, format, quality ); }
-
-
-void uiMainWin::activateCmdCursor( MouseCursor::Shape mcs )
-{ body_->activateCmdCursor( mcs ); }
-
-
-void uiMainWin::activateShow( int minnormmax )
-{ body_->activateShow( minnormmax ); }
-
-
-void uiMainWin::activateQtSyncDisplayToggle( uiObject* dummyobj )
-{ body_->activateQtSyncDisplayToggle( dummyobj ); }
-
-
-void uiMainWin::activateInGUIThread( const CallBack& cb )
-{ body_->activateInGUIThread( cb ); }
-
-
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
-    { body_->uimoveDockWindow(dwin,d,index); }
+{ body_->uimoveDockWindow(dwin,d,index); }
 
 
 void uiMainWin::removeDockWindow( uiDockWin* dwin )
@@ -936,6 +772,52 @@ void uiMainWin::toStatusBar( const char* txt, int fldidx, int msecs )
     else if ( *txt )
     	UsrMsg(txt);
 }
+
+
+void uiMainWin::setSensitive( bool yn )
+{
+    if ( menuBar() ) menuBar()->setSensitive( yn );
+    body_->setEnabled( yn );
+}
+
+
+uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
+{
+    if ( !mwimpl ) return 0;
+
+    uiMainWinBody* _mwb = dynamic_cast<uiMainWinBody*>( mwimpl );
+    if ( !_mwb ) return 0;
+
+    return &_mwb->handle();
+}
+
+
+void uiMainWin::setCornerPos( int x, int y )
+{ body_->QWidget::move( x, y ); }
+
+
+uiRect uiMainWin::geometry() const
+{
+    QRect qrect = body_->frameGeometry();
+    uiRect rect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
+    return rect;
+}
+
+
+void uiMainWin::setIcon( const ioPixmap& pm )
+{ body_->setWindowIcon( *pm.qpixmap() ); }
+
+void uiMainWin::setIconText( const char* txt)
+{ body_->setWindowIconText( txt ); }
+
+void uiMainWin::saveSettings()
+{ body_->saveSettings(); }
+
+void uiMainWin::readSettings()
+{ body_->readSettings(); }
+
+void uiMainWin::raise()
+{ body_->raise(); }
 
 
 uiMainWin* uiMainWin::activeWindow()
@@ -1067,6 +949,23 @@ int uiMainWin::activeModalQDlgRetVal( int buttonnr )
 }
 
 
+void uiMainWin::closeActiveModalQDlg( int retval )
+{
+    if ( activeModalWindow() )
+	return;
+
+    QWidget* _amw = qApp->activeModalWidget();
+    if ( !_amw ) 
+	return;
+
+    QDialog* _qdlg = dynamic_cast<QDialog*>(_amw);
+    if ( !_qdlg ) 
+	return;
+
+    _qdlg->done( retval );
+}
+
+
 void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist )
 {
     windowlist.erase();
@@ -1120,51 +1019,22 @@ const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
 }
 
 
-void uiMainWin::setSensitive( bool yn )
+bool uiMainWin::grab( const char* filenm, int zoom,
+		      const char* format, int quality ) const
 {
-    if ( menuBar() ) menuBar()->setSensitive( yn );
-    body_->setEnabled( yn );
+    WId winid = body_->winId();
+    if ( zoom <= 0 )
+	winid = QApplication::desktop()->winId();
+    else if ( zoom>=2 && qApp->activeModalWidget() )
+	winid = qApp->activeModalWidget()->winId();
+
+    QPixmap snapshot = QPixmap::grabWindow( winid );
+    return snapshot.save( QString(filenm), format, quality );
 }
 
 
-uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
-{
-    if ( !mwimpl ) return 0;
-
-    uiMainWinBody* _mwb = dynamic_cast<uiMainWinBody*>( mwimpl );
-    if ( !_mwb ) return 0;
-
-    return &_mwb->handle();
-}
-
-
-void uiMainWin::setCornerPos( int x, int y )
-{ body_->QWidget::move( x, y ); }
-
-
-uiRect uiMainWin::geometry() const
-{
-    QRect qrect = body_->frameGeometry();
-    uiRect rect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
-    return rect;
-}
-
-
-void uiMainWin::setIcon( const ioPixmap& pm )
-{ body_->setWindowIcon( *pm.qpixmap() ); }
-
-void uiMainWin::setIconText( const char* txt)
-{ body_->setWindowIconText( txt ); }
-
-void uiMainWin::saveSettings()
-{ body_->saveSettings(); }
-
-void uiMainWin::readSettings()
-{ body_->readSettings(); }
-
-void uiMainWin::raise()
-{ body_->raise(); }
-
+void uiMainWin::activateInGUIThread( const CallBack& cb, bool busywait )
+{ body_->activateInGUIThread( cb, busywait ); }
 
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and

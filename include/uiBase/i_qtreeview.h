@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.14 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.15 2009-10-23 09:21:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ void itemPressed( QTreeWidgetItem* item, int col )
     setNotifiedColumn( col );
     if ( receiver_.buttonstate_ == OD::RightButton )
 	mTriggerExtra( rightButtonPressed, mouseButtonPressed )
-    else if ( receiver_.buttonstate_ == OD::NoButton )
+    else if ( receiver_.buttonstate_ == OD::LeftButton )
 	mTriggerExtra( leftButtonPressed, mouseButtonPressed )
     else 
 	mTrigger( mouseButtonPressed );
@@ -165,7 +165,7 @@ void itemDoubleClicked( QTreeWidgetItem* item, int col )
 {
     setNotifiedItem( item );
     setNotifiedColumn( col );
-    mNoTrigger( doubleClicked );
+    mTrigger( doubleClicked );
 }
 
 void itemEntered( QTreeWidgetItem* item, int col )

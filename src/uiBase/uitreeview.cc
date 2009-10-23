@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.59 2009-08-20 06:36:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.60 2009-10-23 09:21:05 cvsjaap Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: uitreeview.cc,v 1.59 2009-08-20 06:36:01 cvsnan
 #include "odqtobjset.h"
 #include "pixmap.h"
 
-#include <QApplication>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QPixmap>
@@ -54,11 +53,6 @@ public:
 
     uiListView&		lvhandle()	{ return lvhandle_; }
 
-    void		activateClick(uiListViewItem&,int column,
-				      bool leftclick);
-    void		activateButton(uiListViewItem&,bool expand);
-    bool		event(QEvent*);
-
 protected:
 
     int 		prefnrlines_;
@@ -67,11 +61,6 @@ protected:
     bool		moveItem(QKeyEvent*);
     void		mousePressEvent(QMouseEvent*);
     void		mouseReleaseEvent(QMouseEvent*);
-
-    uiListViewItem*	actitem_;
-    int			actcolumn_;
-    bool		actleftclick_;
-    bool		actexpand_;
 
 private:
 
@@ -87,10 +76,6 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent,
     , messenger_( *new i_listVwMessenger(*this,handle) )
     , prefnrlines_( nrl )
     , lvhandle_(handle)
-    , actitem_( 0 )
-    , actexpand_( true )
-    , actcolumn_( 0 )
-    , actleftclick_( true )
 {
     setStretch( 1, (nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
@@ -206,80 +191,6 @@ bool uiListViewBody::moveItem( QKeyEvent* event )
 }
 
 
-static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActButton = (QEvent::Type) (QEvent::User+1);
-
-
-void uiListViewBody::activateClick( uiListViewItem& uilvwitm, int column,
-				    bool leftclick )
-{
-    if ( actitem_ ) return;
-    actitem_ = &uilvwitm;
-    actcolumn_ = column; 
-    actleftclick_ = leftclick;
-    QEvent* actevent = new QEvent( sQEventActClick );
-    QApplication::postEvent( this, actevent );
-}
-
-
-void uiListViewBody::activateButton( uiListViewItem& uilvwitm, bool expand )
-{
-    if ( actitem_ ) return;
-    actitem_ = &uilvwitm;
-    actexpand_ = expand;
-    QEvent* actevent = new QEvent( sQEventActButton );
-    QApplication::postEvent( this, actevent );
-}
-
-
-bool uiListViewBody::event( QEvent* ev )
-{
-    if ( ev->type() == sQEventActClick )
-    {
-	if ( actitem_ && actitem_->listView()==&lvhandle_ &&
-	     actcolumn_>=0 && actcolumn_<lvhandle_.nrColumns() )
-	{
-	    lvhandle_.setCurrentItem( actitem_, actcolumn_ );
-
-	    lvhandle_.lastitemnotified_ = actitem_;
-	    lvhandle_.column_ = actcolumn_;
-
-	    if ( actleftclick_ )
-		lvhandle_.leftButtonClicked.trigger();
-	    else
-		lvhandle_.rightButtonClicked.trigger();
-
-	    lvhandle_.mouseButtonClicked.trigger();
-	}
-    }
-    else if ( ev->type() == sQEventActButton )
-    {
-	if ( actitem_ && actitem_->listView()==&lvhandle_ )
-	{
-	    if ( actexpand_ )
-	    {
-		actitem_->setOpen( !actitem_->isOpen() );
-	    }
-	    else
-	    {
-		lvhandle_.setCurrentItem( actitem_ );
-		actitem_->setChecked( !actitem_->isChecked(), true );
-		lvhandle_.lastitemnotified_ = actitem_;
-		lvhandle_.mouseButtonClicked.trigger();
-	    }
-	}
-    }
-    else
-	return QTreeWidget::event( ev );
-
-    lvhandle_.activatedone.trigger();
-    actitem_ = 0;
-    return true;
-}
-
-
-
-
 uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     : uiObject( p, nm, mkbody(p,nm,nl) )
     , selectionChanged(this)
@@ -293,14 +204,13 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , mouseButtonPressed(this)
     , mouseButtonClicked(this)
     , contextMenuRequested(this)
-    , onItem(this)
+    , doubleClicked(this)
     , itemRenamed(this)
     , expanded(this)
     , collapsed(this)
     , unusedKey(this)
     , lastitemnotified_(0)
     , column_(0)
-    , activatedone(this)
     , parent_(p)
 {
     mouseButtonClicked.notify( mCB(this,uiListView,cursorSelectionChanged) );
@@ -545,15 +455,6 @@ void uiListView::triggerUpdate()
 
 void uiListView::setNotifiedItem( QTreeWidgetItem* itm)
 { lastitemnotified_ = mItemFor( itm ); }
-
-
-void uiListView::activateClick( uiListViewItem& uilvwitm, int column,
-				bool leftclick )
-{ body_->activateClick( uilvwitm, column, leftclick ); }
-
-
-void uiListView::activateButton( uiListViewItem& uilvwitm, bool expand )
-{ body_->activateButton( uilvwitm, expand ); }
 
 
 uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )

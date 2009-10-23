@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.76 2009-10-16 14:40:26 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.77 2009-10-23 09:21:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,17 +75,6 @@ public:
 
     static uiMainWin*	activeWindow();
 
-    enum ActModalTyp	{ None=0, Main, Message, File, Colour, Font, Unknown };
-    static ActModalTyp	activeModalType();
-    static uiMainWin*	activeModalWindow();
-
-    static const char*	activeModalQDlgTitle();
-    static const char*	activeModalQDlgButTxt(int butnr);
-    static int		activeModalQDlgRetVal(int butnr);
-
-    static void		getTopLevelWindows(ObjectSet<uiMainWin>&);
-    static const char*	uniqueWinTitle(const char* txt,QWidget* forwindow=0);
-    
     void		setCaption(const char*);
     const char*		caption(bool unique=false) const;
     void		setIcon(const ioPixmap&);
@@ -95,6 +84,10 @@ public:
     virtual void	show();
     void                close();
     void		raise();
+
+    void		showMaximized();
+    void		showMinimized();
+    void		showNormal();
 
     bool		isMaximized() const;
     bool		isMinimized() const;
@@ -152,6 +145,29 @@ public:
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const			{ return parent_; }
 
+    enum   ActModalTyp	{ None=0, Main, Message, File, Colour, Font, Unknown };
+    static ActModalTyp	activeModalType();
+    static uiMainWin*	activeModalWindow();
+    static const char*	activeModalQDlgTitle();
+    static const char*	activeModalQDlgButTxt(int butnr);
+    static int		activeModalQDlgRetVal(int butnr);
+    static void		closeActiveModalQDlg(int retval);
+
+    static void		getTopLevelWindows(ObjectSet<uiMainWin>&);
+    static const char*	uniqueWinTitle(const char* txt,QWidget* forwindow=0);
+
+    bool		grab(const char* filenm,int zoom=1,
+			     const char* format=0,int quality=-1) const;
+			/*!< zoom=0: grab desktop, zoom=1: grab this window,
+			     zoom=2: grab active modal window/qdialog,
+			     format = .bpm|.jpg|.jpeg|.png|.ppm|.xbm|.xpm
+			     format=0: use filenm suffix
+			     quality = 0...100: small compressed to large
+			     uncompressed file, quality=-1: use default    */
+
+    void		activateInGUIThread(const CallBack&,bool busywait=true);
+    Notifier<uiMainWin> activatedone;
+
 protected:
 
     virtual bool	closeOK() 	{return true;}//!< confirm window close
@@ -168,19 +184,6 @@ protected:
     PopupArea		popuparea_;
 
     BufferString	caption_;
-
-public:
-    			//! Force activation in GUI thread
-    			//! Not for casual use
-    void		activateInGUIThread(const CallBack&);
-    void		activateClose();
-    void		activateShow(int minnormmax);
-    void		activateQDlg(int retval);
-    void		activateGrab(const char* filenm,int zoom=1,
-				     const char* format=0,int quality=-1);
-    void		activateCmdCursor(MouseCursor::Shape);
-    void		activateQtSyncDisplayToggle(uiObject* dummyobj);
-    Notifier<uiMainWin> activatedone;
 
 };
 
