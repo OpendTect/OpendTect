@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.45 2009-10-23 15:34:45 cvskarthika Exp $
+ RCS:		$Id: vismpe.h,v 1.46 2009-10-26 08:43:20 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -18,9 +18,10 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "cubesampling.h"
 
-namespace Attrib { class SelSpec; }
+namespace Attrib { class SelSpec; class DataCubes; }
 template <class T> class Array3D;
 template <class T> class Selector;
+
 
 class SoSeparator;
 
@@ -55,7 +56,12 @@ public:
 
     static MPEDisplay*		create()
 				mCreateDataObj(MPEDisplay);
-    bool			isInlCrl() const	{ return true; }
+    
+	static int			cInLine() 		{ return 2; }
+    static int			cCrossLine() 		{ return 1; }
+    static int			cTimeSlice() 		{ return 0; }
+    
+	bool			isInlCrl() const	{ return true; }
 
     bool			isOn() const;
     void			updateSeedOnlyPropagation(bool);
@@ -95,7 +101,13 @@ public:
  
     bool                        setDataVolume(int attrib, 
 	    				const Attrib::DataCubes*, TaskRunner*);
-
+    const Attrib::DataCubes*	getCacheVolume(int attrib) const;
+    bool			setDataPackID(int attrib,DataPack::ID,
+	    				      TaskRunner*);
+    DataPack::ID		getDataPackID(int attrib) const;
+    virtual DataPackMgr::ID     getDataPackMgrID() const
+	                                { return DataPackMgr::CubeID(); }
+    
      void                        resetManipulation();
 //    bool                        setDataTransform(ZAxisTransform*,TaskRunner*);
 //    const ZAxisTransform*       getDataTransform() const;
@@ -126,7 +138,11 @@ public:
 						BufferString& val,
 						BufferString& info) const;
 
-    void			fillPar(IOPar&,TypeSet<int>&) const;
+    void			allowShading(bool yn ) { allowshading_ = yn; }
+
+    SoNode*			getInventorNode();
+
+	void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar( const IOPar&);
     
 protected:
@@ -149,7 +165,9 @@ protected:
 
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
 
-				//Callbacks from boxdragger
+	bool			isSelected() const;
+    
+	//Callbacks from boxdragger
     void			boxDraggerFinishCB(CallBacker*);
 
     				//Callbacks from rectangle
@@ -201,6 +219,11 @@ protected:
     BufferString                slicename_;
     CubeSampling                csfromsession_;
 
+	bool			allowshading_;
+    visBase::EventCatcher*	eventcatcher_;
+
+    bool			isinited_;
+
     int				lasteventnr_;
 
     static const char*		sKeyTransperancy() { return "Transparency"; }
@@ -208,6 +231,9 @@ protected:
     static const char*		sKeyNrSlices() { return "Nr of slices"; }
     static const char*		sKeySlice() { return "SliceID"; }
     static const char*		sKeyBoxShown()     { return "Box Shown"; }
+    static const char*		sKeyInline()		{ return "Inline"; } 
+    static const char*		sKeyCrossLine()	{ return "Crossline"; }
+    static const char*		sKeyTime()		{ return "Time"; }
 
     static const Color		reTrackColor;
     static const Color		eraseColor;
