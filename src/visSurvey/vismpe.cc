@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.80 2009-10-23 15:34:11 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.81 2009-10-26 08:44:52 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -23,10 +23,12 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.80 2009-10-23 15:34:11 cvskarthik
 #include "vistransform.h"
 #include "visvolorthoslice.h"
 #include "visvolrenscalarfield.h"
+#include "visselman.h"
 
 #include "arrayndsubsel.h"
 #include "attribsel.h"
 #include "attribdatacubes.h"
+#include "attribdatapack.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "emmanager.h"
@@ -55,8 +57,8 @@ MPEDisplay::MPEDisplay()
 #else
     , cache_(0)
     , cacheid_(DataPack::cNoID())
-    , scalarfield_(0)
-    , voltrans_(0)
+    , scalarfield_(visBase::VolumeRenderScalarField::create())
+    , voltrans_(visBase::Transformation::create())
 #endif
     , engine_(MPE::engine())
     , sceneeventcatcher_(0)
@@ -124,7 +126,6 @@ MPEDisplay::MPEDisplay()
     addChild( voltrans_->getInventorNode() );
     voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
 
-    scalarfield_ = visBase::VolumeRenderScalarField::create();
     scalarfield_->ref(); //Don't add it here, do that in getInventorNode
 
     CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
@@ -161,6 +162,14 @@ MPEDisplay::~MPEDisplay()
     draggerrect_->unRef();
 #else
     // to do: check if slices_ needs to be destroyed.
+	DPM( DataPackMgr::CubeID() ).release( cacheid_ );
+    if ( cache_ ) cache_->unRef();
+
+    TypeSet<int> children;
+    getChildren( children );
+    for ( int idx=0; idx<children.size(); idx++ )
+	removeChild( children[idx] );
+
     voltrans_->unRef();
     scalarfield_->unRef();
 #endif
@@ -636,12 +645,52 @@ void MPEDisplay::updateMouseCursorCB( CallBacker* cb )
 
 void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 {
-    const CubeSampling newcube = getBoxPosition();
+#ifdef USE_TEXTURE
+	const CubeSampling newcube = getBoxPosition();
     if ( newcube!=engine_.activeVolume() )
     {
 //	if ( texture_ ) texture_->turnOn(false);
 	manipulated_ = true;
     }
+#else
+    if ( scene_ )
+	    return;
+
+    CubeSampling cs = getCubeSampling( true, true, 0 );
+    SI().snap( cs.hrg.start, BinID(0,0) );
+    SI().snap( cs.hrg.stop, BinID(0,0) );
+    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
+    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
+
+    Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
+    Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
+    Interval<float> zrg( cs.zrg.start, cs.zrg.stop );
+    SI().checkInlRange( inlrg, true );
+    SI().checkCrlRange( crlrg, true );
+    SI().checkZRange( zrg, true );
+    if ( inlrg.start == inlrg.stop ||
+	 crlrg.start == crlrg.stop ||
+	 mIsEqual(zrg.start,zrg.stop,1e-8) )
+    {
+	resetManipulation();
+	return;
+    }
+    else
+    {
+	cs.hrg.start.inl = inlrg.start; cs.hrg.stop.inl = inlrg.stop;
+	cs.hrg.start.crl = crlrg.start; cs.hrg.stop.crl = crlrg.stop;
+	cs.zrg.start = zrg.start; cs.zrg.stop = zrg.stop;
+    }
+
+    const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
+			   cs.hrg.stop.crl - cs.hrg.start.crl,
+			   cs.zrg.stop - cs.zrg.start );
+    boxdragger_->setWidth( newwidth );
+    const Coord3 newcenter( (cs.hrg.stop.inl + cs.hrg.start.inl) / 2,
+			    (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
+			    (cs.zrg.stop + cs.zrg.start) / 2 );
+    boxdragger_->setCenter( newcenter );
+#endif
 }
 
 
@@ -1297,9 +1346,37 @@ void MPEDisplay::resetManipulation()
 }
 
 
+bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+				   TaskRunner* tr )
+{
+#ifndef USE_TEXTURE
+    if ( attrib>0 ) return false;
+
+    DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
+    const DataPack* datapack = dpman.obtain( dpid );
+    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
+    const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0, tr );
+    if ( !res )
+    {
+	dpman.release( dpid );
+	return false;
+    }
+
+    const DataPack::ID oldid = cacheid_;
+    cacheid_ = dpid;
+
+    dpman.release( oldid );
+    return true;
+#else
+    return false;
+#endif
+}
+
+
 bool MPEDisplay::setDataVolume( int attrib,
 	const Attrib::DataCubes* attrdata, TaskRunner* tr )
 {
+	// to do: check!
 #ifdef USE_TEXTURE
     return false;
 #else
@@ -1307,8 +1384,10 @@ bool MPEDisplay::setDataVolume( int attrib,
 	return false;
 
     const Array3D<float>* usedarray = 0;
-    usedarray = &attrdata->getCube(0);
-    //const Array3D<float>& data( attrdata->getCube(0) );
+    if ( alreadyTransformed( attrib ) )
+		usedarray = &attrdata->getCube(0);
+	else
+	{
     const CubeSampling displaycs = engine_.activeVolume();
 
     if ( displaycs != attrdata->cubeSampling() )
@@ -1321,21 +1400,16 @@ bool MPEDisplay::setDataVolume( int attrib,
 	    return false;
 	}
 
-	if ( !usedarray->isOK() )
+	/*if ( !usedarray->isOK() )
 	{
 	    texture_->turnOn( false );
 	    return false;
-	}
+	}*/
 
-//	texture_->setData( &array );
     }
-    else
-//	texture_->setData( &data );
-
     curtextureas_ = as_;
     curtexturecs_ = displaycs;
-
-    texture_->turnOn( true );
+	}
 
     scalarfield_->setScalarField( usedarray, false, tr );
 
@@ -1357,6 +1431,27 @@ bool MPEDisplay::setDataVolume( int attrib,
 
     return true;
 #endif
+}
+
+
+const Attrib::DataCubes* MPEDisplay::getCacheVolume( int attrib ) const
+{ 
+#ifndef USE_TEXTURE
+	return attrib ? 0 : cache_; 
+#else
+    return 0;
+#endif
+}
+
+
+DataPack::ID MPEDisplay::getDataPackID( int attrib ) const
+{ 
+#ifndef USE_TEXTURE
+	return attrib==0 ? cacheid_ : DataPack::cNoID();
+#else
+    return 0;
+#endif
+
 }
 
 
@@ -1422,10 +1517,9 @@ int MPEDisplay::addSlice( int dim )
     slice->motion.notify( mCB(this,MPEDisplay,sliceMoving) );
     slices_ += slice;
 
-    // to do: add later if desired
-/*    slice->setName( dim==cTimeSlice() ? sKeyTime() : 
+    slice->setName( dim==cTimeSlice() ? sKeyTime() : 
 	    (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
-*/
+
     addChild( slice->getInventorNode() );
     const CubeSampling cs = getCubeSampling( 0 );
     const Interval<float> defintv(-0.5,0.5);
@@ -1512,6 +1606,32 @@ float MPEDisplay::getValue( const Coord3& pos_ ) const
 }
 
 
+SoNode* MPEDisplay::getInventorNode()
+{
+#ifndef USE_TEXTURE
+    if ( !isinited_ )
+    {
+	isinited_ = true;
+	scalarfield_->useShading( allowshading_ );
+
+	const int voltransidx = childIndex( voltrans_->getInventorNode() );
+	insertChild( voltransidx+1, scalarfield_->getInventorNode() );
+
+	scalarfield_->turnOn( true );
+
+	if ( !slices_.size() )
+	{
+	    addSlice( cInLine() );
+	    addSlice( cCrossLine() );
+	    addSlice( cTimeSlice() );
+	}
+    }
+#endif
+
+    return VisualObjectImpl::getInventorNode();
+}
+
+
 void MPEDisplay::removeChild( int displayid )
 {
 #ifndef USE_TEXTURE
@@ -1526,6 +1646,16 @@ void MPEDisplay::removeChild( int displayid )
 	    return;
 	}
     }
+#endif
+}
+
+
+bool MPEDisplay::isSelected() const
+{
+#ifdef USE_TEXTURE
+	return VisualObjectImpl::isSelected();
+#else
+    return visBase::DM().selMan().selected().indexOf( id()) != -1;	
 #endif
 }
 
