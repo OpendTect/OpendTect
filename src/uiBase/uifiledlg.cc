@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.50 2009-10-16 14:40:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.51 2009-10-26 10:30:45 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -423,11 +423,11 @@ int uiFileDialog::beginCmdRecEvent( const char* wintitle )
 void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
 {
     BufferString msg( "QFileDlg" );
-    if ( ok )
+    if ( ok && !filenames.isEmpty() )
     {
 	FileMultiString fms;
 	fms += filenames;
-	msg += " \""; msg += fms; msg += "\"";
+	msg += " "; msg += fms; 
     }
 
     uiMainWin* carrier = uiMain::theMain().topLevel();
