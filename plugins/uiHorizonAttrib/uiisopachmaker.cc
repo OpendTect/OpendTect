@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.10 2009-09-10 19:30:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.11 2009-10-26 11:38:44 cvssatyaki Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -127,7 +127,15 @@ uiIsopachMakerCreater( const EM::Horizon3D& hor1, const EM::Horizon3D& hor2,
 {
     iter_ = hor1.createIterator( sectid1_ );
     totnr_ = iter_->approximateSize();
+
+    const DataColDef sidcol( "Section ID" );
+    if ( dps_.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
+	dps_.dataSet().add( new DataColDef(sidcol) );
+    sidcolidx_ = dps_.dataSet().findColDef( sidcol, PosVecDataSet::NameExact )
+		 - dps_.nrFixedCols();
+
     dps_.dataSet().add( new DataColDef(attrnm) );
+
     nrdone_ = 0;
 }
 
@@ -143,20 +151,14 @@ od_int64 totalNr() const	{ return totnr_; }
 
 int nextStep()
 {
-    const DataColDef sidcol( "Section ID" );
-    if ( dps_.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
-	dps_.dataSet().add( new DataColDef(sidcol) );
-    const int nrfixedcols = dps_.nrFixedCols();
-    const int sidcolidx =  dps_.dataSet().findColDef(
-	    sidcol, PosVecDataSet::NameExact ) - nrfixedcols;
-    
     BinIDValueSet& bivs = dps_.bivSet();
     mAllocVarLenArr( float, vals, bivs.nrVals() );
     for ( int idx=0; idx<bivs.nrVals(); idx++ )
 	vals[idx] = mUdf(float);
-    
-    vals[sidcolidx+nrfixedcols] = sectid1_;
-    const int startsourceidx = nrfixedcols + (sidcolidx ? 0 : 1);
+
+    const int nrfixedcols = dps_.nrFixedCols();
+    vals[sidcolidx_+nrfixedcols] = sectid1_;
+    const int startsourceidx = nrfixedcols + (sidcolidx_ ? 0 : 1);
 
     for ( int idx=0; idx<1000; idx++ )
     {
@@ -180,7 +182,7 @@ int nextStep()
 	const float th = z1 > z2 ? z1 - z2 : z2 - z1;
 
 	if ( dataidx_ != -1 )
-	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, th*SI().zFactor() );
+	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, th );
 
 	const DataPointSet::Pos dpspos( pos1 );
 	vals[0] = z1;
@@ -208,6 +210,8 @@ int finishWork()
     DataPointSet&	dps_;
     EM::EMObjectIterator* iter_;
     int                 dataidx_;
+    int			sidcolidx_;
+
     int			totnr_;
     od_int64		nrdone_;
     BufferString	msg_;
