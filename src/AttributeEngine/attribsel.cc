@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.40 2009-07-23 09:06:27 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.41 2009-10-26 14:42:28 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -49,8 +49,8 @@ static const char* isnnstr = "Is attrib NN"; // for backward compatibility
 
 bool SelSpec::operator==( const SelSpec& ss ) const
 {
-    return id()==ss.id() && isNLA()==ss.isNLA() && 
-	   ss.ref_==ref_ && ss.objref_==objref_;
+    return id()==ss.id() && isNLA()==ss.isNLA() && ss.ref_==ref_ &&
+	ss.objref_==objref_ && ss.defstring_==defstring_ && is2D()==ss.is2D();
 }
 
 

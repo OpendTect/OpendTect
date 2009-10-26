@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.21 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribsel.h,v 1.22 2009-10-26 14:42:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,8 @@ public:
 				 bool n=false, const char* objr=0 )
 			: ref_(r), id_(i), isnla_(n)
 			, objref_(objr)
-			, is2d_(false)		{}
+			, is2d_(false)
+			, defstring_(0)		{}
 
     const DescID&	id() const		{ return id_; }
     bool		isNLA() const		{ return isnla_; }
