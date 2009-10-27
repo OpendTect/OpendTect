@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.16 2009-08-27 07:15:03 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.17 2009-10-27 06:13:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     void 			setSelComboSensitive(bool);
     void			setButtonStatus()	{ setSelectable(0); }
     void			setPercDisp(float);
+    void			setGrpColors();
 
 protected:
 
@@ -63,6 +64,7 @@ protected:
     int				seltabletbid_;
     int				setselecttbid_;
     int				selsettingstbid_;
+    int				multicolcodtbid_;
     int				minptsfordensity_;
 
     static const char*		sKeyMinDPPts()
@@ -84,6 +86,8 @@ protected:
     void			selOption(CallBacker*);
     void			colTabChanged(CallBacker*);
     void			coltabRgChangedCB(CallBacker*);
+    void			setMultiColorCB(CallBacker*);
+    void			changeColCB(CallBacker*);
 };
 
 

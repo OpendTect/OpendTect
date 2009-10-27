@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.53 2009-09-10 11:11:49 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.54 2009-10-27 06:13:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.53 2009-09-10 11:11:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.54 2009-10-27 06:13:42 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -91,6 +91,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , isy2selectable_(false)
     , mousepressed_(false)
     , isdensityplot_(false)
+    , multclron_(false)
     , timer_(*new Timer())
     , trmsg_("Calculating Density" )
 {
@@ -833,7 +834,14 @@ void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
 	    itm = new uiMarkerItem( mstyle, false );
 	}
 
-	itm->setPenColor( yah.setup().style_.color_ );
+	if ( !multclron_ )
+	    itm->setPenColor( yah.setup().style_.color_ );
+	else
+	    itm->setPenColor( isy2 
+		? (!y2grpcols_.size() ? yah.setup().style_.color_
+		    		      : y2grpcols_[dps_.group(rid)-1])
+		: (!y1grpcols_.size() ? yah.setup().style_.color_
+		    		      : y1grpcols_[dps_.group(rid)-1]) );
 	itm->setZValue( 4 );
 	curitmgrp->add( itm );
     }
@@ -971,7 +979,17 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
     if ( !ptselected )
     {
 	if ( item )
-	    item->setPenColor( yad.axis_->setup().style_.color_ );
+	{
+	    if ( !multclron_ )
+		item->setPenColor( isy2 ? yad.axis_->setup().style_.color_
+					: yad.axis_->setup().style_.color_ );
+	    else
+		item->setPenColor( isy2 
+		    ? ( !y2grpcols_.size() ? yad.axis_->setup().style_.color_
+					   : y2grpcols_[dps_.group(rid)-1])
+		    : ( !y1grpcols_.size() ? yad.axis_->setup().style_.color_
+					   : y1grpcols_[dps_.group(rid)-1]) );
+	}
 	if ( isy2 && dps_.isSelected(rid) )
 	    return;
 	dps_.setSelected( rid, false );

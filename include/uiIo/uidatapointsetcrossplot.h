@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.26 2009-08-27 07:15:03 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.27 2009-10-27 06:13:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,6 +183,9 @@ public:
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
 
+    TypeSet<Color>&		y1grpColors()		{ return y1grpcols_; }
+    TypeSet<Color>&		y2grpColors()		{ return y2grpcols_; }
+
     void			setColTab( const ColTab::Sequence& ctseq )
 				{ ctab_ = ctseq; }
     void			setCTMapper(const ColTab::MapperSetup&);
@@ -201,6 +204,9 @@ public:
 				{ trmsg_ = msg; }
     int				totalNrItems() const;
     void			getRandRowids();
+    void			setMultiColMode(bool yn)
+    				{ multclron_ = yn; }
+    bool                        isMultiColMode() const	{ return multclron_; }
 
 protected:
 
@@ -241,6 +247,8 @@ protected:
     DataPointSet::RowID		selrow_;
     Interval<int>		usedxpixrg_;
     TypeSet<RowCol>		selrowcols_;
+    TypeSet<Color>		y1grpcols_;
+    TypeSet<Color>		y2grpcols_;
     Array1D<char>*		yrowidxs_;
     Array1D<char>*		y2rowidxs_;
     TypeSet<uiDataPointSet::DColID> modcolidxs_;
@@ -249,6 +257,7 @@ protected:
     ObjectSet<SelectionArea>	selareaset_;
     bool                        isy1selectable_;
     bool                        isy2selectable_;
+    bool                        multclron_;
  
     void 			initDraw();
     void 			setDraw();

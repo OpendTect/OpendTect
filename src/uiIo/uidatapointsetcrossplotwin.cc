@@ -18,12 +18,14 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc";
 #include "uidatapointset.h"
 #include "uidialog.h"
 #include "uilineedit.h"
+#include "uicolor.h"
 #include "uicolortable.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uigraphicsscene.h"
 #include "uilabel.h"
+#include "uimenu.h"
 #include "uimsg.h"
 #include "uispinbox.h"
 #include "uistatusbar.h"
@@ -151,15 +153,38 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     maniptb_.addButton( "xplotprop.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );
 
+
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
     {
+	uiPopupMenu* mnu = new uiPopupMenu( &maniptb_, "View Menu" );
+	multicolcodtbid_ = maniptb_.addButton( "colorbar.png",
+		mCB(this,uiDataPointSetCrossPlotWin,setMultiColorCB),
+		"Turn on multicolor coding",true );
+	uiMenuItem* itm = new uiMenuItem( "Change color",
+		mCB(this,uiDataPointSetCrossPlotWin,changeColCB) );
+	mnu->insertItem( itm, 0 );
+	maniptb_.setButtonMenu( multicolcodtbid_, mnu );
+
 	grpfld_ = new uiComboBox( dispgrp, "Group selection" );
 	BufferString txt( nrgrps == 2 ? "Both " : "All " );
 	txt += uidps_.groupType(); txt += "s";
 	grpfld_->addItem( txt );
+	TypeSet<Color> ctseqs;
 	for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
+	{
 	    grpfld_->addItem( uidps_.groupNames().get(idx) );
+	    Color coly1, coly2;
+	    for ( int idy=0; idy<2; idy++ )
+	    {
+		Color& col = idy==0 ? coly1 : coly2;
+		do 
+		{ col = getRandomColor(); }
+		while ( !ctseqs.addIfNew(col) );
+	    }
+	    plotter_.y1grpColors().add( coly1 );
+	    plotter_.y2grpColors().add( coly2 );
+	}
 	grpfld_->attach( rightOf, eachfld_ );
 	grpfld_->setCurrentItem( 0 );
 	grpfld_->selectionChanged.notify(
@@ -275,6 +300,60 @@ void uiDataPointSetCrossPlotWin::setSelectionMode( CallBacker* )
 	    			uiGraphicsView::NoDrag );
     plotter_.scene().setMouseEventActive( true );
 }
+
+
+class uiSelColorDlg : public uiDialog
+{
+public:
+
+uiSelColorDlg( uiParent* p, const BufferStringSet& names,
+	       TypeSet<Color>& y1cols, TypeSet<Color>& y2cols )
+    : uiDialog( p, uiDialog::Setup("Select Color for Y1 & Y2","","") )
+    , names_( names )
+    , y1cols_( y1cols )
+    , y2cols_( y2cols )
+{
+    tbl_ = new uiTable( this, uiTable::Setup(names.size(),2), "" );
+    tbl_->leftClicked.notify( mCB(this,uiSelColorDlg,changeColCB) );
+    tbl_->setRowLabels( names );
+    BufferStringSet collabel;
+    collabel.add( "Y1" );
+    collabel.add( "Y2" );
+    tbl_->setColumnLabels( collabel );
+    for ( int idx=0; idx<names.size(); idx++ )
+    {
+	tbl_->setColor( RowCol(idx,0), y1cols[idx] );
+	tbl_->setColor( RowCol(idx,1), y2cols[idx] );
+    }
+}
+
+void changeColCB( CallBacker* )
+{
+    RowCol rc = tbl_->notifiedCell();
+
+    Color newcol = tbl_->getColor( rc );
+    if ( selectColor(newcol,this,"Marker color") )
+    {
+	rc.col == 0 ? y1cols_[rc.row] = newcol : y2cols_[rc.row] = newcol;
+	tbl_->setColor( rc, newcol );
+    }
+}
+
+bool acceptOk( CallBacker* )
+{
+    for ( int idx=0; idx<names_.size(); idx++ )
+    {
+	y1cols_[idx] = tbl_->getColor( RowCol(idx,0) );
+	y2cols_[idx] = tbl_->getColor( RowCol(idx,1) );
+    }
+    return true;
+}
+    uiTable*			tbl_;
+
+    TypeSet<Color>&		y1cols_;
+    TypeSet<Color>&		y2cols_;
+    BufferStringSet		names_;
+};
 
 
 class uiSetSelDomainDlg : public uiDialog
@@ -598,4 +677,58 @@ void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
     uiDataPointSetCrossPlotterPropDlg dlg( &plotter_ );
     dlg.go();
+}
+
+
+void uiDataPointSetCrossPlotWin::setGrpColors()
+{
+    for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
+    {
+	Color coly1 = plotter_.isMultiColMode()
+	    ? plotter_.y1grpColors()[idx]
+	    : plotter_.axisData(1).axis_->setup().style_.color_;
+	Color coly2 = plotter_.isMultiColMode()
+	    ? plotter_.y2grpColors()[idx]
+	    : plotter_.axisData(2).axis_->setup().style_.color_;
+	ColTab::Sequence ctseq;
+	ctseq.setColor( 0, coly1.r(), coly1.g(), coly1.b() );
+	ctseq.setColor( 1, coly2.r(), coly2.g(), coly2.b() ); 
+	ctseq.setNrSegments( 2 );
+	ioPixmap pixmap( ctseq, 20, 20, true );
+	grpfld_->setPixmap( pixmap, idx+1 );
+    }
+}
+
+
+void uiDataPointSetCrossPlotWin::setMultiColorCB( CallBacker* )
+{
+    const bool ison = maniptb_.isOn( multicolcodtbid_ );
+    plotter_.setMultiColMode( ison );
+
+    setGrpColors();
+    BufferString tooltip ( ison ? "Turn off color coding"
+	    		        : "Turn on color coding" );
+    maniptb_.setToolTip( multicolcodtbid_, tooltip );
+    plotter_.drawContent( false );
+}
+
+
+void uiDataPointSetCrossPlotWin::changeColCB( CallBacker* )
+{
+    const bool ison = maniptb_.isOn( multicolcodtbid_ );
+  
+    if ( ison )
+    {
+	uiSelColorDlg seldlg( this, uidps_.groupNames(), plotter_.y1grpColors(),
+			      plotter_.y2grpColors() );
+	if ( !seldlg.go() )
+	{
+	    return;
+	}
+	
+	setGrpColors();
+	plotter_.drawContent( false );
+    }
+    else
+	uiMSG().message( "Cannot change color in this mode." );
 }
