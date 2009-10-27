@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.3 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.4 2009-10-27 13:43:51 cvsjaap Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -69,6 +69,12 @@ void FaultStickSetEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 }
 
 
+static EM::PosID lastclicked_ = EM::PosID::udf();
+
+void FaultStickSetEditor::setLastClicked( const EM::PosID& pid )
+{ lastclicked_ = pid; }
+
+
 #define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
 
 
@@ -80,6 +86,25 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 
     int sticknr;
     EM::SectionID sid;
+
+    if ( !lastclicked_.isUdf() )
+    {
+	mDynamicCastGet(EM::FaultStickSet*, emfss, &emobject );
+	EM::FaultStickSetGeometry& fssg = emfss->geometry();
+
+	sid = lastclicked_.sectionID();
+	sticknr = RowCol( lastclicked_.subID() ).row;
+
+	const char* lastname = fssg.lineName( sid, sticknr );
+	const MultiID* lastset = fssg.lineSet( sid, sticknr );
+
+	if ( emobject.id()==lastclicked_.objectID() && lineset &&
+	     lastset && *lineset==*lastset && !strcmp(linenm, lastname) )
+	{
+	    getPidsOnStick( insertpid, sticknr, sid, mousepos, zfactor );
+	    return;
+	}
+    }
 
     if ( getNearestStick(sticknr, sid, lineset, linenm, mousepos, zfactor) )
 	getPidsOnStick( insertpid, sticknr, sid, mousepos, zfactor );

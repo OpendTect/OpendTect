@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.11 2009-08-06 02:04:13 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.12 2009-10-27 13:43:51 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -41,16 +41,16 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , colorchange(this)
     , viseditor_(0)
     , fsseditor_(0)
-    , neareststicknr_( mUdf(int) )
+    , activesticknr_( mUdf(int) )
     , sticks_( visBase::IndexedPolyLine3D::create() )
-    , neareststick_( visBase::IndexedPolyLine3D::create() )
+    , activestick_( visBase::IndexedPolyLine3D::create() )
     , showmanipulator_( false )
-    , neareststickpickstyle_( visBase::PickStyle::create() )
+    , activestickpickstyle_( visBase::PickStyle::create() )
     , stickspickstyle_( visBase::PickStyle::create() )
     , displayonlyatsections_( false )
 {
-    neareststickpickstyle_->ref();
-    neareststickpickstyle_->setStyle( visBase::PickStyle::Unpickable );
+    activestickpickstyle_->ref();
+    activestickpickstyle_->setStyle( visBase::PickStyle::Unpickable );
     stickspickstyle_->ref();
     stickspickstyle_->setStyle( visBase::PickStyle::Unpickable );
     
@@ -58,14 +58,14 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     sticks_->setMaterial( 0 );
     sticks_->setRadius( 1, true );
     addChild( sticks_->getInventorNode() );
-    neareststick_->ref();
-    neareststick_->setMaterial( 0 );
-    neareststick_->setRadius( 1.5, true );
-    addChild( neareststick_->getInventorNode() );
+    activestick_->ref();
+    activestick_->setMaterial( 0 );
+    activestick_->setRadius( 1.5, true );
+    addChild( activestick_->getInventorNode() );
     getMaterial()->setAmbience( 0.2 );
 
     sticks_->insertNode( stickspickstyle_->getInventorNode() );
-    neareststick_->insertNode( neareststickpickstyle_->getInventorNode() );
+    activestick_->insertNode( activestickpickstyle_->getInventorNode() );
 }
 
 
@@ -91,9 +91,9 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     if ( displaytransform_ ) displaytransform_->unRef();
 
     sticks_->unRef();
-    neareststick_->unRef();
+    activestick_->unRef();
     stickspickstyle_->unRef();
-    neareststickpickstyle_->unRef();
+    activestickpickstyle_->unRef();
 }
 
 
@@ -214,7 +214,7 @@ void FaultStickSetDisplay::setDisplayTransformation(
     if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
 
     sticks_->setDisplayTransformation( nt );
-    neareststick_->setDisplayTransformation( nt );
+    activestick_->setDisplayTransformation( nt );
 
     if ( displaytransform_ ) displaytransform_->unRef();
     displaytransform_ = nt;
@@ -272,11 +272,11 @@ void FaultStickSetDisplay::updateEditPids()
 }
 
 
-void FaultStickSetDisplay::updateSticks( bool nearestonly )
+void FaultStickSetDisplay::updateSticks( bool activeonly )
 {
     if ( !emfss_ ) return;
 
-    visBase::IndexedPolyLine3D* poly = nearestonly ? neareststick_ : sticks_;
+    visBase::IndexedPolyLine3D* poly = activeonly ? activestick_ : sticks_;
 
     poly->removeCoordIndexAfter(-1);
     poly->getCoordinates()->removeAfter(-1);
@@ -294,7 +294,7 @@ void FaultStickSetDisplay::updateSticks( bool nearestonly )
 	const StepInterval<int> rowrg = fss->rowRange();
 	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
 	{
-	    if ( nearestonly && rc.row!=neareststicknr_ )
+	    if ( activeonly && rc.row!=activesticknr_ )
 		continue;
 
 	    Seis2DDisplay* s2dd = 0;
@@ -437,7 +437,7 @@ void FaultStickSetDisplay::updateSticks( bool nearestonly )
 	    poly->setCoordIndex( cii++, -1 );
 	}
     }
-    if ( !nearestonly )
+    if ( !activeonly )
 	updateSticks( true );
 }
 
@@ -490,6 +490,9 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 		plane = pdd;
 		break;	
 	    }
+	    mDynamicCastGet(FaultStickSetDisplay*,fssd,dataobj);
+	    if ( fssd )
+		return;
 	}
 
 	pos = eventinfo.displaypickedpos;
@@ -505,20 +508,19 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	: SI().zScale();
 
     fsseditor_->getInteractionInfo( insertpid, lineset, linenm, pos, zscale );
-
-    const int neareststicknr = insertpid.isUdf() ?
-				    mUdf(int) : RowCol(insertpid.subID()).row;
-    if ( neareststicknr_ != neareststicknr )
-    {
-	neareststicknr_ = neareststicknr;
-	updateSticks( true );
-    }
+    setActiveStick( insertpid );
 
     if ( locked_ || !pos.isDefined() || 
 	 eventinfo.type!=visBase::MouseClick || viseditor_->isDragging() ||
 	 OD::altKeyboardButton(eventinfo.buttonstate_) ||
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
+
+    if ( !mousepid.isUdf() )
+    {
+	fsseditor_->setLastClicked( mousepid );
+	setActiveStick( mousepid );
+    }
 
     if ( !mousepid.isUdf() && OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
@@ -530,9 +532,13 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 	editpids_.erase();
 	const int rmnr = RowCol(mousepid.subID()).row;
-	const bool res = fssg.nrKnots(mousepid.sectionID(), rmnr) == 1 
-	    ? fssg.removeStick( mousepid.sectionID(), rmnr, true )
-	    : fssg.removeKnot( mousepid.sectionID(), mousepid.subID(), true );
+	if ( fssg.nrKnots(mousepid.sectionID(), rmnr) == 1 )
+	{
+	    fssg.removeStick( mousepid.sectionID(), rmnr, true );
+	    fsseditor_->setLastClicked( EM::PosID::udf() );
+	}
+	else
+	    fssg.removeKnot( mousepid.sectionID(), mousepid.subID(), true );
 
 	updateEditPids();
 	return;
@@ -541,7 +547,6 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( !mousepid.isUdf() || eventinfo.pressed ||
 	 OD::ctrlKeyboardButton(eventinfo.buttonstate_)  )
 	return;
-
 
     if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) || insertpid.isUdf() )
     {
@@ -568,6 +573,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    editpids_.erase();
 	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
 			      lineset, linenm, true );
+	    const EM::SubID subid = RowCol(insertsticknr,0).getSerialized();
+	    fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
 	    updateEditPids();
 	}
     }
@@ -576,10 +583,22 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	// Add knot
 	editpids_.erase();
 	fssg.insertKnot( insertpid.sectionID(), insertpid.subID(), pos, true );
+	fsseditor_->setLastClicked( insertpid );
 	updateEditPids();
     }
 
     eventcatcher_->setHandled();
+}
+
+
+void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
+{
+    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
+    if ( activesticknr_ != sticknr )
+    {
+	activesticknr_ = sticknr;
+	updateSticks( true );
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.5 2009-08-06 02:04:14 cvskris Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.6 2009-10-27 13:43:51 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ public:
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
 
-    void			updateSticks(bool nearest=false);
+    void			updateSticks(bool activeonly=false);
     void			updateEditPids();
 
     Notifier<FaultStickSetDisplay> colorchange;
@@ -86,6 +86,8 @@ protected:
 	    				const ObjectSet<const SurveyObject>&,
 					int whichobj);
 
+    void			setActiveStick(const EM::PosID&);
+
     static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
     void			mouseCB(CallBacker*);
@@ -101,15 +103,15 @@ protected:
     Coord3			mousepos_;
     bool			showmanipulator_;
 
-    int				neareststicknr_;
+    int				activesticknr_;
 
     TypeSet<EM::PosID>		editpids_;
 
     visBase::IndexedPolyLine3D* sticks_;
-    visBase::IndexedPolyLine3D* neareststick_;
+    visBase::IndexedPolyLine3D* activestick_;
 
     visBase::PickStyle*		stickspickstyle_;
-    visBase::PickStyle*		neareststickpickstyle_;
+    visBase::PickStyle*		activestickpickstyle_;
 
     bool			displayonlyatsections_;
 };

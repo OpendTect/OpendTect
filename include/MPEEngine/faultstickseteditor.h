@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.3 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.4 2009-10-27 13:43:51 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ public:
 
     void			setEditIDs(const TypeSet<EM::PosID>* editpids);
     void			getEditIDs(TypeSet<EM::PosID>&) const;
+
+    void			setLastClicked(const EM::PosID&); 
 
     void			getInteractionInfo( EM::PosID& insertpid,
 				    const MultiID* lineset,const char* linenm,
