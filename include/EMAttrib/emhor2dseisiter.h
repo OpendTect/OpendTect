@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2009
- RCS:           $Id: emhor2dseisiter.h,v 1.2 2009-10-09 12:03:00 cvsbert Exp $
+ RCS:           $Id: emhor2dseisiter.h,v 1.3 2009-10-27 11:52:51 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ namespace EM { class Horizon2D; class Horizon2DGeometry; }
 namespace EM
 {
 
-class Hor2DSeisLineIterator
+mClass Hor2DSeisLineIterator
 {
 public:
 
