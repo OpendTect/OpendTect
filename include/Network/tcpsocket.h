@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpsocket.h,v 1.2 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:           $Id: tcpsocket.h,v 1.3 2009-10-27 03:22:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     Notifier<TcpSocket>		connected;
     Notifier<TcpSocket>		disconnected;
     Notifier<TcpSocket>		hostFound;
+    Notifier<TcpSocket>		readyRead;
     Notifier<TcpSocket>		error;
     Notifier<TcpSocket>		stateChanged;
 

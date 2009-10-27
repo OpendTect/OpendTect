@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpserver.h,v 1.3 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:           $Id: tcpserver.h,v 1.4 2009-10-27 03:22:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class QTcpServer;
 class QTcpServerComm;
+class QTcpSocket;
 
 
 mClass TcpServer : public CallBacker
@@ -25,22 +26,28 @@ mClass TcpServer : public CallBacker
 friend class QTcpServerComm;
 
 public:
-    				TcpServer();
-				~TcpServer();
+    			TcpServer();
+			~TcpServer();
 
-    bool			listen(int port);
-    bool			isListening() const;
-    void			close();
+    bool		listen(const char* host,int port);
+    			//!<If host is 0, server will listen to any host
+    bool		isListening() const;
+    void		close();
+    bool		hasPendingConnections() const;
+    int			write(const char*);
+    			//!<Writes to next pending socket
+    const char*		errorMsg() const;
 
-    const char*			errorMsg() const;
+    Notifier<TcpServer>	newConnection;
 
-    Notifier<TcpServer>		newConnection;
+    QTcpSocket*		nextPendingConnection();
+    			//!<Use when you want to access Qt object directly
 
 protected:
 
-    QTcpServer*			qtcpserver_;
-    QTcpServerComm*		comm_;
-    mutable BufferString	errmsg_;
+    QTcpServer*		qtcpserver_;
+    QTcpServerComm*	comm_;
+    mutable BufferString errmsg_;
 };
 
 #endif

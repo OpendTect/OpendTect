@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpsocket.cc,v 1.2 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: tcpsocket.cc,v 1.3 2009-10-27 03:22:20 cvsnanne Exp $";
 
 #include "tcpsocket.h"
 #include "qtcpsocketcomm.h"
@@ -19,6 +19,7 @@ TcpSocket::TcpSocket()
     , connected(this)
     , disconnected(this)
     , hostFound(this)
+    , readyRead(this)
     , error(this)
     , stateChanged(this)
 {}
