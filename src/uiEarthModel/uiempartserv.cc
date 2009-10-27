@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.192 2009-10-23 21:24:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.193 2009-10-27 11:51:45 cvsranojay Exp $";
 
 #include "uiempartserv.h"
 
@@ -769,7 +769,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
     }
 
     data.bivSet().allowDuplicateBids(false);
-    float auxvals[nms.size()+2]; 
+    float* auxvals = new float(nms.size()+2); 
 
     for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
     {
