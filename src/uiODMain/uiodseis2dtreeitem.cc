@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.71 2009-09-29 09:32:15 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.72 2009-10-28 07:49:36 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -149,7 +149,6 @@ bool uiOD2DLineSetTreeItem::showSubMenu()
 {
     if ( !menuhandler_ )
     {
-//	menuhandler_ = new uiMenuHandler( getUiParent(), -1 );
 	mDynamicCast(uiMenuHandler*,menuhandler_,
 		     ODMainWin()->applMgr().visServer()->getMenuHandler())
 	menuhandler_->createnotifier.notify(
@@ -261,7 +260,6 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 	else
 	    mResetMenuItem( &removeattritm_ )
 
-
 	if ( emptyidx >= 0 ) displayedattribs.remove( emptyidx );
 
 	if ( displayedattribs.size() )
@@ -290,7 +288,6 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	return;
 
     mAddMenuItem( menu, &addlinesitm_, true, false );
-
     if ( children_.size() > 1 )
     {
 	mAddMenuItem( menu, &zrgitm_, true, false );
@@ -724,8 +721,10 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 
     CubeSampling cs;
     cs.hrg.start.inl = cs.hrg.stop.inl = 0;
+    cs.hrg.step.inl = 1;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.hrg.step.crl = 1;
     cs.zrg.setFrom( s2d->getZRange(false) );
 
     Attrib::SelSpec as = *s2d->getSelSpec( attribnr );
@@ -796,7 +795,6 @@ void uiOD2DLineSetSubItem::removeAttrib( const char* attribnm )
 	mDynamicCastGet(uiOD2DLineSetAttribItem*,item,children_[idx]);
 	if ( item ) nrattribitms++;
     }
-
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
@@ -960,7 +958,6 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 		  !attrserv->prepMultCompSpecs( selcomps, lk, true, false ) ) )
 	    return false;
 
-
 	if ( selcomps.size()>1 )
 	{
 	    const bool needsetattrid = visserv->getSelAttribNr() != attribNr();
@@ -987,6 +984,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     LineKey linekey( s2d->name(), attribnm );
     myas.set( attribnm, attribid, false, 0 );
     myas.set2DFlag();
+    myas.setRefFromID( *attrserv->curDescSet(true) );
+    myas.setUserRef( attribnm ); // Why is this necessary?
     attrserv->setTargetSelSpec( myas );
 
     CubeSampling cs;
