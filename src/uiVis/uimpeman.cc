@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.184 2009-10-07 09:26:35 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.185 2009-10-29 21:14:01 cvskarthika Exp $";
 
 #include "uimpeman.h"
 
@@ -55,6 +55,10 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.184 2009-10-07 09:26:35 cvssaty
 #include "vistexture3.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
+
+// This must be defined to use a texture to display the tracking plane.
+// In future: Comment it out to use OrthogonalSlice (under construction...).
+//#define USE_TEXTURE 
 
 using namespace MPE;
 
@@ -214,10 +218,12 @@ void uiMPEMan::deleteVisObjects()
 	visSurvey::MPEDisplay* mped = getDisplay(scenes[idx]);
 	if ( mped )
 	{
+#ifdef USE_TEXTURE
 	    mped->boxDraggerStatusChange.remove(
 		mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
 	    mped->planeOrientationChange.remove(
 		mCB(this,uiMPEMan,planeOrientationChangedCB) );
+#endif
 	    visserv->removeObject(mped->id(),scenes[idx]);
 	}
     }
@@ -410,7 +416,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    seedpicker->setSelSpec( clickedas );
 
 	    for ( int idx=0; idx<displays.size(); idx++ )
-		displays[idx]->freezeBoxPosition( true );
+		displays[idx]->freezeBoxPosition( true );  // to do:
 
 	    if ( !seedpicker->doesModeUseSetup() )
 		visserv->toggleBlockDataLoad();
@@ -523,14 +529,16 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     visSurvey::MPEDisplay* mpedisplay = visSurvey::MPEDisplay::create();
 
     visserv->addObject( mpedisplay, scene->id(), false );
-    mpedisplay->setDraggerTransparency( 0 );
+    mpedisplay->setDraggerTransparency( 0 ); // to do: check 0
     mpedisplay->showDragger( toolbar->isOn(moveplaneidx) );
 
+#ifdef USE_TEXTURE
     mpedisplay->boxDraggerStatusChange.notify(
 	    mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
 
     mpedisplay->planeOrientationChange.notify(
 	    mCB(this,uiMPEMan,planeOrientationChangedCB) );
+#endif
 
     return mpedisplay;
 }
@@ -646,7 +654,7 @@ void uiMPEMan::boxDraggerStatusChangeCB( CallBacker* cb )
 
 	ison = displays[idx]->isBoxDraggerShown();
 	if ( !ison )
-	    displays[idx]->updateMPEActiveVolume();
+	    displays[idx]->updateMPEActiveVolume();  // to do
     }
 
     toolbar->turnOn( showcubeidx, ison );
@@ -1409,9 +1417,13 @@ void uiMPEMan::handleOrientationClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
     const int dim = itm->id();
-    updateQCButton( toolbar, moveplaneidx, dim );
+#ifdef USE_TEXTURE
+	updateQCButton( toolbar, moveplaneidx, dim );
     changeTrackerOrientation( dim );
     movePlaneCB( cb );
+#else
+
+#endif
 }
 
 
