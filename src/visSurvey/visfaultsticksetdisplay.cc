@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.12 2009-10-27 13:43:51 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.13 2009-10-29 14:37:59 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -508,7 +508,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	: SI().zScale();
 
     fsseditor_->getInteractionInfo( insertpid, lineset, linenm, pos, zscale );
-    setActiveStick( insertpid );
+    if ( mousepid.isUdf() && !viseditor_->isDragging() )
+	setActiveStick( insertpid );
 
     if ( locked_ || !pos.isDefined() || 
 	 eventinfo.type!=visBase::MouseClick || viseditor_->isDragging() ||
@@ -575,6 +576,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 			      lineset, linenm, true );
 	    const EM::SubID subid = RowCol(insertsticknr,0).getSerialized();
 	    fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
+	    setActiveStick( EM::PosID(emfss_->id(),sid,subid) );
 	    updateEditPids();
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.4 2009-10-27 13:43:51 cvsjaap Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.5 2009-10-29 14:37:59 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,9 @@ public:
     bool			removeSelection(const Selector<Coord3>&);
 
 protected:
+    float		distToStick(const int sticknr,const EM::SectionID& sid,
+				    const MultiID* lineset,const char* linenm,
+				    const Coord3& pos,float zfactor) const;
     bool		getNearestStick(int& sticknr,EM::SectionID& sid,
 				    const MultiID* lineset,const char* linenm,
 				    const Coord3&,float zfactor) const;
