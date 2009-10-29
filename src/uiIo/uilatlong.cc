@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilatlong.cc,v 1.6 2009-10-12 12:32:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uilatlong.cc,v 1.7 2009-10-29 12:44:41 cvsbert Exp $";
 
 #include "uilatlong2coord.h"
 #include "uilatlonginp.h"
@@ -218,7 +218,7 @@ uiLatLong2CoordDlg::~uiLatLong2CoordDlg()
 bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
 {
     LatLong ll; latlngfld_->get( ll );
-    Coord crd = coordfld_->getCoord();
+    const Coord crd = coordfld_->getCoord();
     if ( mIsUdf(ll.lat_) || mIsUdf(ll.lng_) || mIsUdf(crd.x) || mIsUdf(crd.y) )
 	mErrRet("Please fill all fields")
     if ( ll.lat_ > 90 || ll.lat_ < -90 )
@@ -228,12 +228,26 @@ bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
     if ( !si_->isReasonable(crd) )
     {
 	if ( !uiMSG().askContinue(
-		    "The coordinate seems to be far from the survey."
+		    "The coordinate seems to be far away from the survey."
 		    "\nContinue?") )
 	    return false;
     }
 
     ll2c_.set( ll, crd );
+    if ( !ll2c_.isOK() )
+    {
+	uiMSG().error( "Sorry, your Lat/Long definition has a problem" );
+	return false;
+    }
+
+    si_->getLatlong2Coord() = ll2c_;
+    if ( !si_->write() )
+    {
+	uiMSG().error( "Could not write the definitions to your '.survey' file"
+		    "\nThe definition will work this OpendTect session only" );
+	return false;
+    }
+
     return true;
 }
 
@@ -244,20 +258,5 @@ bool uiLatLong2CoordDlg::ensureLatLongDefined( uiParent* p, SurveyInfo* si )
     if ( si->latlong2Coord().isOK() ) return true;
 
     uiLatLong2CoordDlg dlg( p, si->latlong2Coord(), si );
-    if ( !dlg.go() ) return false;
-
-    si->getLatlong2Coord() = dlg.ll2C();
-    if ( !si->latlong2Coord().isOK() )
-    {
-	uiMSG().error( "Sorry, your Lat/Long definition has a problem" );
-	return false;
-    }
-    if ( !si->write() )
-    {
-	uiMSG().error( "Could not write the definitions to your '.survey' file"
-		    "\nThe definition will work this OpendTect session only" );
-	return false;
-    }
-
-    return true;
+    return dlg.go();
 }
