@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.19 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: instantattrib.cc,v 1.20 2009-10-29 09:31:52 cvsranojay Exp $";
 
 #include "instantattrib.h"
 
@@ -106,11 +106,14 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }
 
+#define mCheckRetUdf(val1,val2) \
+    if ( mIsUdf(val1) || mIsUdf(val2) ) return mUdf(float);
 
 float Instantaneous::calcAmplitude( int cursample, int z0 ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
+    mCheckRetUdf( real, imag );
     return Math::Sqrt( real*real + imag*imag );
 }
 
@@ -120,6 +123,7 @@ float Instantaneous::calcAmplitude1Der( int cursample, int z0 ) const
     const int step = 1;
     const float prev = calcAmplitude( cursample-1, z0 );
     const float next = calcAmplitude( cursample+1, z0 );
+    mCheckRetUdf( prev, next );
     return (next-prev) / (2*refstep);
 }
 
@@ -128,6 +132,7 @@ float Instantaneous::calcAmplitude2Der( int cursample, int z0 ) const
 {
     const float prev = calcAmplitude1Der( cursample-1, z0 );
     const float next = calcAmplitude1Der( cursample+1, z0 );
+    mCheckRetUdf( prev, next );
     return (next-prev) / (2*refstep);
 }
 
@@ -137,6 +142,7 @@ float Instantaneous::calcPhase( int cursample, int z0 ) const
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
     if ( mIsZero(real,mDefEps) ) return M_PI/2;
+    mCheckRetUdf( real, imag );
     return atan2(imag,real);
 }
 
@@ -146,11 +152,13 @@ float Instantaneous::calcFrequency( int cursample, int z0 ) const
     const float real = mGetRVal( cursample );
     const float prevreal = mGetRVal( cursample-1 );
     const float nextreal = mGetRVal( cursample+1 );
+    mCheckRetUdf( prevreal, nextreal );
     const float dreal_dt = (nextreal - prevreal) / (2*refstep);
 
     const float imag = mGetIVal( cursample );
     const float previmag = mGetIVal( cursample-1 );
     const float nextimag = mGetIVal( cursample+1 );
+    mCheckRetUdf( previmag, nextimag );
     const float dimag_dt = (nextimag-previmag) / (2*refstep);
 
     float denom = (real*real + imag*imag);
@@ -163,6 +171,7 @@ float Instantaneous::calcPhaseAccel( int cursample, int z0 ) const
 {
     const float prev = calcFrequency( cursample-1, z0 );
     const float next = calcFrequency( cursample+1, z0 );
+    mCheckRetUdf( prev, next );
     return (next-prev) / (2*refstep);
 }
 
@@ -171,6 +180,7 @@ float Instantaneous::calcBandWidth( int cursample, int z0 ) const
 {
     const float denv_dt = calcAmplitude1Der( cursample, z0 );
     const float env = calcAmplitude( cursample, z0 );
+    mCheckRetUdf( denv_dt, env );
     return fabs(denv_dt / (2*M_PI* ( mIsZero(env,1e-6) ? 1e-6 : env ) ));
 }
 
@@ -179,6 +189,7 @@ float Instantaneous::calcQFactor( int cursample, int z0 ) const
 {
     const float ifq = calcFrequency( cursample, z0 );
     const float bandwth = calcBandWidth( cursample, z0 );
+    mCheckRetUdf( ifq, bandwth );
     return (-0.5 * ifq / ( mIsZero(bandwth,1e-6) ? 1e-6 : bandwth ) );
 }
 
@@ -191,6 +202,7 @@ float Instantaneous::calcRMSAmplitude( int cursample, int z0 ) const
     for ( int ids=sg.start; ids<=sg.stop; ids++ )
     {
 	const float ia = calcAmplitude( cursample+ids, z0 );
+	if ( mIsUdf(ia) ) continue;
 	sumia2 += ia*ia;
 	nrsamples++;
     }
@@ -205,6 +217,7 @@ float Instantaneous::calcEnvWPhase( int cursample, int z0 ) const
 {
     const float rmsia = calcRMSAmplitude( cursample, z0 );
     if ( mIsZero(rmsia,mDefEps) ) return 0;
+    if ( mIsUdf(rmsia) ) return mUdf(float);
 
     float sumia = 0;
     float sumiaiph = 0;
@@ -213,6 +226,8 @@ float Instantaneous::calcEnvWPhase( int cursample, int z0 ) const
     {
 	const float ia = calcAmplitude( cursample+ids, z0 );
 	const float iph = calcPhase( cursample+ids, z0 );
+	if ( mIsUdf(ia) || mIsUdf(iph) ) continue;
+
 	sumia += ia/rmsia;
 	sumiaiph += ia*iph/rmsia;
     }
