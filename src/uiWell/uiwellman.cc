@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.59 2009-10-12 12:32:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.60 2009-10-29 09:31:04 cvsranojay Exp $";
 
 #include "uiwellman.h"
 
@@ -46,7 +46,13 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.59 2009-10-12 12:32:31 cvsbert
 #include "uiwelllogcalc.h"
 #include "uiwellmarkerdlg.h"
 
-Notifier<uiWellMan> uiWellMan::FieldsCreated(0);
+
+NotifierAccess* uiWellMan::fieldsCreated()
+{
+    static Notifier<uiWellMan> FieldsCreated(0);
+    return &FieldsCreated;
+}
+
 
 uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Well file management","Manage wells",
@@ -112,7 +118,7 @@ uiWellMan::uiWellMan( uiParent* p )
     infofld->attach( ensureBelow, markerbut );
     selChg( this );
 
-    FieldsCreated.trigger( this );
+    fieldsCreated()->notify( this );
 }
 
 

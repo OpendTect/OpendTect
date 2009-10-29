@@ -56,7 +56,7 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     uiSurvey::add( uiSurvey::Util( "google.png",
 				   "Export to Google Earth/Maps",
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
-    uiWellMan::FieldsCreated.notify( mCB(this,uiGoogleIOMgr,mkExportWellsIcon));
+    uiWellMan::fieldsCreated()->notify( mCB(this,uiGoogleIOMgr,mkExportWellsIcon));
 }
 
 
