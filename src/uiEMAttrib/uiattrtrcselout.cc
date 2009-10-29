@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.56 2009-08-31 14:16:28 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.57 2009-10-29 05:32:23 cvsnanne Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.56 2009-08-31 14:16:28 c
 #include "keystrs.h"
 #include "multiid.h"
 #include "ptrman.h"
+#include "seis2dline.h"
 #include "seisselection.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -111,6 +112,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     
     ctio2_.ctxt.forread = true;
     obj2fld_ = new uiIOObjSel( uppgrp_, ctio2_, "and bottom surface:" );
+    obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
@@ -324,7 +326,32 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	uiMSG().error( "Please select output" );
 	return false;
     }
-    
+
+    mDynamicCastGet(uiSeis2DSubSel*,seis2dsubsel,seissubselfld_);
+    if ( ads_.is2D() && seis2dsubsel )
+    {
+	bool lkexists = false;
+	Seis2DLineSet lineset( ctioout_.ioobj->fullUserExpr(true) );
+	if ( seis2dsubsel->isSingLine() )
+	{
+	    LineKey lk( seis2dsubsel->selectedLine(), outpfld_->attrNm() );
+	    lkexists = lineset.indexOf( lk ) >= 0;
+	}
+	else
+	{
+	    BufferStringSet linenms;
+	    lineset.getLineNamesWithAttrib( linenms, outpfld_->attrNm() );
+	    lkexists = !linenms.isEmpty();
+	}
+
+	if ( lkexists )
+	{
+	    BufferString msg( "Output attribute already exists. Do you\n"
+		    "want to continue and overwrite existing attribute?" );
+	    if ( !uiMSG().askOverwrite(msg) ) return false;
+	}
+    }
+
     return true;
 }
 
@@ -487,12 +514,20 @@ void uiAttrTrcSelOut::attribSel( CallBacker* cb )
 	    desc = ads_.getFirstStored();
 	if ( desc )
 	{
-	    BufferString storedid = desc->getStoredID( true );
-	    if ( !storedid.isEmpty() )
+	    LineKey lk( desc->getStoredID(true) );
+	    if ( !lk.isEmpty() )
 	    {
-		PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
+		PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
 		if ( ioobj )
+		{
 		    seissubselfld_->setInput( *ioobj );
+		    BufferString usrref = desc->isStored()
+			? BufferString( desc->userRef(), "_horout" )
+			: LineKey(ioobj->name(),attrfld_->getInput()).buf();
+
+		    outpfld_->setInputText( usrref );
+		    outpfld_->processInput();
+		}
 	    }
 	}
 	singLineSel(0);
@@ -505,7 +540,7 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     if ( !objfld_->commitInput() || 
 	 ( !usesinglehor_ && !obj2fld_->commitInput() ) ) 
 	return;
-    
+
     HorSampling horsampling;
     getComputableSurf( horsampling );
     seissubselfld_->setInput( horsampling );
