@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.119 2009-10-08 04:53:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.120 2009-10-29 08:47:19 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -477,25 +477,6 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
     curtextureidx_ = textureidx;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->selectActiveVersion( channel, textureidx );
-/*
-    mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_)
-    if ( !emsurf || emsurf->auxdata.nrAuxData() == 0 ) return;
-
-    if ( textureidx >= emsurf->auxdata.nrAuxData() )
-	setSelSpec( channel,
-		    Attrib::SelSpec(0,Attrib::SelSpec::cAttribNotSel()) );
-    else
-    {
-	BufferString attrnm = userrefs_[channel]->get( textureidx );
-	curshiftidx_[channel] = textureidx;
-	emsurf->geometry().setShift( shift );
-	Coord3 tranl = getTranslation();
-	tranl.z = shift;
-	setTranslation( tranl );
-	setSelSpec( channel,
-		    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
-    }
-    */
 }
 
 
@@ -647,22 +628,6 @@ void HorizonDisplay::enableAttrib( int channelnr, bool yn )
     enabled_[channelnr] = yn;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->getChannel2RGBA()->setEnabled( channelnr, yn );
-   /* 
-    mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_);
-    int channelidx = shifts_.size()-1;
-    if ( channelnr != 0 )
-    {
-	while ( !isAttribEnabled(channelidx) && channelidx >= 0 )
-	    channelidx--;
-	
-	const float zshift = channelidx < 0 ? 0
-	    : shifts_[channelidx][(curshiftidx_[channelidx])];
-	emsurf->geometry().setShift( zshift );
-	Coord3 transl = getTranslation();
-	transl.z = zshift;
-	setTranslation( transl );
-    }
-    */
 
     updateSingleColor();
 }
@@ -744,12 +709,12 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     for ( int idx=0; idx<positions->nrCols(); idx++ )
 	attrnms->add( positions->colDef( idx ).name_ );
     userrefs_.replace( channel, attrnms );
-    bool isz = ( attrnms->size()==1 && !strcmp(attrnms->get(0).buf(),"Depth") );
+    bool isz = ( attrnms->size()>=1 && !strcmp(attrnms->get(0).buf(),"Depth") );
     mDeclareAndTryAlloc( BIDValSetArrAdapter*, bvsarr, 
-	    		 BIDValSetArrAdapter(positions->bivSet(), isz? 0 : 1) );
+	    		 BIDValSetArrAdapter(positions->bivSet(),isz?0:2) );
     const char* categorynm = isz ? "Surface Data" : "Geometry";
     mDeclareAndTryAlloc( MapDataPack*, newpack,
-	    		 MapDataPack( categorynm,attrnms->get(0).buf(),bvsarr));
+    		 MapDataPack(categorynm,attrnms->get(isz?0:1).buf(),bvsarr));
     StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
 				SI().inlStep() );
     StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
@@ -786,7 +751,10 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
     {
 	const BinIDValueSet* cache = sections_[idx]->getCache( channel );
 	if ( cache )
+	{
+	    data.bivSet().setNrVals( cache->nrVals(), false );
 	    data.bivSet().append( *cache );
+	}
     }
 
     data.dataChanged();
@@ -1469,12 +1437,10 @@ static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zshift,
 {
     const Array2D<float>* field = 
 			hor->geometry().sectionGeometry(sid)->getArray(); 
-    if ( !field )
-	return;
+    if ( !field ) return;
 
     if ( zaxistransform )
 	field = hor->createArray2D( sid, zaxistransform );
-    if ( !field ) return;
 
     IsoContourTracer ictracer( *field );
     ictracer.setSampling( hor->geometry().rowRange(sid),

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.11 2009-09-07 11:30:32 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.12 2009-10-29 08:47:19 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -266,7 +266,7 @@ int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
 	    			SI().crlStep() );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
-    newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
+    newpack->setPropsAndInit( inlrg, crlrg, true, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
     return newpack->id();

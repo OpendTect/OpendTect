@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.19 2009-08-24 09:41:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.20 2009-10-29 08:47:19 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -158,7 +158,7 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
     Attrib::SelSpec selspec( dlg.attrName(), Attrib::SelSpec::cOtherAttrib(),
 	    		     false, 0 );
     visserv->setSelSpec( displayid, attrid, selspec );
-    visserv->setRandomPosData( displayid, attrid, &dlg.getDPS() );
+    visserv->createAndDispDataPack( displayid, attrid, &dlg.getDPS() );
     uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(
 	    	hd->getObjectID(), 0, typeid(*parent).name() );
     parent->addChild( itm, false );

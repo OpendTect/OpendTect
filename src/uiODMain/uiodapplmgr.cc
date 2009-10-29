@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.361 2009-10-23 21:37:23 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.362 2009-10-29 08:47:19 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -590,14 +590,16 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	return false;
     }
 
-    //Use the first value stored in the set, what else? (0 stands for Z)
-    createAndSetMapDataPack( visid, attrib, *data, firstcol );
+    const int dataidx = data->dataSet().findColDef( DataColDef(myas.userRef()),
+	    PosVecDataSet::NameExact );
+    createAndSetMapDataPack( visid, attrib, *data, dataidx );
     DPM( DataPackMgr::PointID() ).release( data->id() );
 
     TypeSet<float> shifts( 1, visserv_->getTranslation(visid).z );
     mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
 		    visserv_->getObject(visid) );
-    vishor->setAttribShift( attrib, shifts );
+    if ( vishor )
+	vishor->setAttribShift( attrib, shifts );
 
     return true;
 }

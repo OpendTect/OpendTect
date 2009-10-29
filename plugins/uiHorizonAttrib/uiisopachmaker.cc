@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.12 2009-10-29 05:58:21 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.13 2009-10-29 08:47:19 cvsnanne Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -60,15 +60,15 @@ uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
     ctio_.ctxt.forread = true;
     horsel_ = new uiIOObjSel( this, ctio_, "Calculate to" );
     horsel_->selectiondone.notify( mCB(this,uiIsopachMaker,toHorSel) );
-    if ( baseemobj_ && horsel_->ioobj(true)
-      && baseemobj_->multiID() == horsel_->ioobj(true)->key() )
-	horsel_->setInput( MultiID("") );
-
     if ( !baseemobj_ )
+    {
+	horsel_->setInput( MultiID("") );
 	horsel_->attach( alignedBelow, basesel_ );
+    }
 
     attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );
     attrnmfld_->attach( alignedBelow, horsel_ );
+    toHorSel(0);
 }
 
 
@@ -89,7 +89,7 @@ uiIsopachMaker::~uiIsopachMaker()
 
 void uiIsopachMaker::toHorSel( CallBacker* )
 {
-    if ( horsel_->ioobj() )
+    if ( horsel_->ioobj(true) )
 	attrnmfld_->setText( BufferString("I: ",horsel_->ioobj()->name()) );
 }
 
@@ -131,11 +131,9 @@ uiIsopachMakerCreater( const EM::Horizon3D& hor1, const EM::Horizon3D& hor2,
     const DataColDef sidcol( "Section ID" );
     if ( dps_.dataSet().findColDef(sidcol,PosVecDataSet::NameExact)==-1 )
 	dps_.dataSet().add( new DataColDef(sidcol) );
-    sidcolidx_ = dps_.dataSet().findColDef( sidcol, PosVecDataSet::NameExact )
-		 - dps_.nrFixedCols();
-
+    sidcolidx_ = dps_.dataSet().findColDef(
+	    sidcol, PosVecDataSet::NameExact ) - dps_.nrFixedCols();
     dps_.dataSet().add( new DataColDef(attrnm) );
-
     nrdone_ = 0;
 }
 
@@ -211,7 +209,7 @@ int finishWork()
     const EM::Horizon3D& hor2_;
     DataPointSet&	dps_;
     EM::EMObjectIterator* iter_;
-    int                 dataidx_;
+    int			dataidx_;
     int			sidcolidx_;
 
     int			totnr_;
@@ -269,7 +267,7 @@ bool uiIsopachMaker::doWork()
    
     if ( saveattr_ )
     {
-	PtrMan<Executor> saver = h1->auxdata.auxDataSaver(dataidx_);
+	PtrMan<Executor> saver = h1->auxdata.auxDataSaver( dataidx_ );
 	if ( saver )
 	    rv = tr.execute( *saver );
     }
