@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.11 2009-10-26 11:38:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.12 2009-10-29 05:58:21 cvssatyaki Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -149,6 +149,8 @@ const char* nrDoneText() const	{ return "Positions handled"; }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totnr_; }
 
+static const int sBlockSize = 1000;
+
 int nextStep()
 {
     BinIDValueSet& bivs = dps_.bivSet();
@@ -160,7 +162,7 @@ int nextStep()
     vals[sidcolidx_+nrfixedcols] = sectid1_;
     const int startsourceidx = nrfixedcols + (sidcolidx_ ? 0 : 1);
 
-    for ( int idx=0; idx<1000; idx++ )
+    for ( int idx=0; idx<sBlockSize; idx++ )
     {
 	const EM::PosID posid = iter_->next();
 	nrdone_++;
@@ -267,7 +269,7 @@ bool uiIsopachMaker::doWork()
    
     if ( saveattr_ )
     {
-	PtrMan<Executor> saver = h1->auxdata.auxDataSaver();
+	PtrMan<Executor> saver = h1->auxdata.auxDataSaver(dataidx_);
 	if ( saver )
 	    rv = tr.execute( *saver );
     }
