@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.7 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: faulteditor.h,v 1.8 2009-10-29 15:18:10 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,13 @@ public:
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
-    void			getInteractionInfo(EM::PosID& nearestpid0,
-					   EM::PosID& nearestpid1,
-					   EM::PosID& insertpid,
-					   const Coord3&,
-					   float zfactor) const;
+    void			setLastClicked(const EM::PosID&);
+
+    void			getInteractionInfo( bool& makenewstick,
+						    EM::PosID& insertpid,
+						    const Coord3&,
+						    float zfactor) const;
+
     bool			removeSelection(const Selector<Coord3>&);
 
 protected:

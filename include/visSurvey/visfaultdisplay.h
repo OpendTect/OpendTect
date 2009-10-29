@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.20 2009-08-06 02:04:14 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.21 2009-10-29 15:18:10 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -129,7 +129,8 @@ protected:
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
 
-    void 			updateNearestStickMarker();
+    void			setActiveStick(const EM::PosID&);
+    void 			updateActiveStickMarker();
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		displaytransform_;
@@ -146,9 +147,9 @@ protected:
     ObjectSet<const SurveyObject>	intersectionobjs_;
     TypeSet<int>			planeids_;
 
-    visBase::PickStyle*			neareststickmarkerpickstyle_;
-    visBase::IndexedPolyLine3D*		neareststickmarker_;
-    int					neareststick_;
+    visBase::PickStyle*			activestickmarkerpickstyle_;
+    visBase::IndexedPolyLine3D*		activestickmarker_;
+    int					activestick_;
 
     EM::Fault3D*			emfault_;
     MPE::FaultEditor*			faulteditor_;

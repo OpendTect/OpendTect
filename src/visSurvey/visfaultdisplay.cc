@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.41 2009-08-06 02:04:13 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.42 2009-10-29 15:18:10 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -46,7 +46,7 @@ namespace visSurvey
 
 FaultDisplay::FaultDisplay()
     : emfault_( 0 )
-    , neareststickmarker_( visBase::IndexedPolyLine3D::create() )
+    , activestickmarker_( visBase::IndexedPolyLine3D::create() )
     , validtexture_( false )
     , paneldisplay_( 0 )
     , stickdisplay_( 0 )
@@ -58,25 +58,25 @@ FaultDisplay::FaultDisplay()
     , explicitsticks_( 0 )
     , explicitintersections_( 0 )
     , displaytransform_( 0 )
-    , neareststick_( mUdf(int) )
+    , activestick_( mUdf(int) )
     , shapehints_( visBase::ShapeHints::create() )
-    , neareststickmarkerpickstyle_( visBase::PickStyle::create() )
+    , activestickmarkerpickstyle_( visBase::PickStyle::create() )
     , showmanipulator_( false )
     , colorchange( this )
     , usestexture_( false )
     , displaysticks_( false )
 {
-    neareststickmarkerpickstyle_->ref();
-    neareststickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
+    activestickmarkerpickstyle_->ref();
+    activestickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
 
-    neareststickmarker_->ref();
-    neareststickmarker_->setRadius( 1, true );
-    if ( !neareststickmarker_->getMaterial() )
-	neareststickmarker_->setMaterial( visBase::Material::create() );
-    neareststickmarker_->insertNode(
-	    neareststickmarkerpickstyle_->getInventorNode() );
+    activestickmarker_->ref();
+    activestickmarker_->setRadius( 1.2, true );
+    if ( !activestickmarker_->getMaterial() )
+	activestickmarker_->setMaterial( visBase::Material::create() );
+    activestickmarker_->insertNode(
+	    activestickmarkerpickstyle_->getInventorNode() );
     insertChild( childIndex(texture_->getInventorNode() ),
-		 neareststickmarker_->getInventorNode() );
+		 activestickmarker_->getInventorNode() );
 
     getMaterial()->setAmbience( 0.2 );
     shapehints_->ref();
@@ -117,8 +117,8 @@ FaultDisplay::~FaultDisplay()
     if ( displaytransform_ ) displaytransform_->unRef();
     shapehints_->unRef();
 
-    neareststickmarker_->unRef();
-    neareststickmarkerpickstyle_->unRef();
+    activestickmarker_->unRef();
+    activestickmarkerpickstyle_->unRef();
 }
 
 
@@ -322,7 +322,7 @@ void FaultDisplay::updateSingleColor()
 	return;
 
     getMaterial()->setColor( newcol );
-    neareststickmarker_->getMaterial()->setColor( nontexturecol_ );
+    activestickmarker_->getMaterial()->setColor( nontexturecol_ );
     if ( stickdisplay_ )
 	stickdisplay_->getMaterial()->setColor( nontexturecol_ );
 
@@ -389,7 +389,7 @@ NotifierAccess* FaultDisplay::materialChange()
 
 
 Color FaultDisplay::getColor() const
-{ return neareststickmarker_->getMaterial()->getColor(); }
+{ return activestickmarker_->getMaterial()->getColor(); }
 
 
 void FaultDisplay::updateStickDisplay()
@@ -410,8 +410,8 @@ void FaultDisplay::display( bool sticks, bool panels )
 {
     displaysticks_ = sticks;
 
-    if ( neareststickmarker_ )
-	neareststickmarker_->turnOn( sticks );
+    if ( activestickmarker_ )
+	activestickmarker_->turnOn( sticks );
 
     if ( viseditor_ ) viseditor_->turnOn( sticks && showmanipulator_ );
 
@@ -471,7 +471,7 @@ void FaultDisplay::setDisplayTransformation(visBase::Transformation* nt)
     if ( intersectiondisplay_ )
 	intersectiondisplay_->setDisplayTransformation( nt );
     if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
-    neareststickmarker_->setDisplayTransformation( nt );
+    activestickmarker_->setDisplayTransformation( nt );
 
     if ( displaytransform_ ) displaytransform_->unRef();
     displaytransform_ = nt;
@@ -523,31 +523,35 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     pos = scene_->getZScaleTransform()->transformBack( pos ); 
     if ( displaytransform_ ) pos = displaytransform_->transformBack( pos ); 
 
-    EM::PosID nearestpid0, nearestpid1, insertpid;
     const float zscale = scene_
 	? scene_->getZScale() *scene_->getZStretch()
 	: SI().zScale();
 
-    faulteditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,
-				      pos, zscale );
+    const EM::PosID pid = viseditor_ ?
+       viseditor_->mouseClickDragger(eventinfo.pickedobjids) : EM::PosID::udf();
 
-    const int neareststick = nearestpid0.isUdf()
-	? mUdf(int)
-	: RowCol(insertpid.subID()).row;
+    bool makenewstick = eventinfo.type==visBase::MouseClick &&
+			!OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+			!OD::altKeyboardButton(eventinfo.buttonstate_) &&
+			OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+			OD::leftMouseButton(eventinfo.buttonstate_);
 
-    if ( neareststick_!=neareststick )
-    {
-	neareststick_ = neareststick;
-	updateNearestStickMarker();
-    }
+    EM::PosID insertpid;
+    faulteditor_->getInteractionInfo( makenewstick, insertpid, pos, zscale );
+    if ( pid.isUdf() && !viseditor_->isDragging() )
+	setActiveStick( makenewstick ? EM::PosID::udf() : insertpid );
 
     if ( !pos.isDefined() || viseditor_->isDragging() )
 	return;
 
-    const EM::PosID pid = viseditor_ ?
-       viseditor_->mouseClickDragger(eventinfo.pickedobjids) : EM::PosID::udf();
     if ( !pid.isUdf() )
     {
+	if ( eventinfo.type == visBase::MouseClick )
+	{
+	    faulteditor_->setLastClicked( pid );
+	    setActiveStick( pid );
+	}
+
 	if ( eventinfo.type==visBase::MouseClick &&
 	     OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 	     !OD::altKeyboardButton(eventinfo.buttonstate_) &&
@@ -557,14 +561,18 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    eventcatcher_->setHandled();
 	    if ( !eventinfo.pressed )
 	    {
-		const int removestick = RowCol(pid.subID()).row;
-		const bool res =
-		   emfault_->geometry().nrKnots( pid.sectionID(),removestick)==1
-		    ? emfault_->geometry().removeStick( pid.sectionID(),
-							removestick, true )
-		    : emfault_->geometry().removeKnot( pid.sectionID(),
-						       pid.subID(), true );
+		bool res;
+		const int rmstick = RowCol(pid.subID()).row;
+		if ( emfault_->geometry().nrKnots(pid.sectionID(),rmstick)==1 )
+		{
+		    res = emfault_->geometry().removeStick( pid.sectionID(),
+							    rmstick, true );
 
+		    faulteditor_->setLastClicked( EM::PosID::udf() );
+		}
+		else
+		    res = emfault_->geometry().removeKnot( pid.sectionID(),
+							   pid.subID(), true );
 		if ( res )
 		{
 		    EM::EMM().undo().setUserInteractionEnd(
@@ -588,7 +596,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( insertpid.isUdf() )
 	return;
 
-    if ( nearestpid0.isUdf() )
+    if ( makenewstick )
     {
 	//Add Stick
 	Coord3 editnormal(0,0,1);
@@ -613,6 +621,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    paneldisplay_->touch( false );
 	    stickdisplay_->touch( false );
 	    intersectiondisplay_->touch( false );
+	    faulteditor_->setLastClicked( insertpid );
+	    setActiveStick( insertpid );
 	    faulteditor_->editpositionchange.trigger();
 	}
     }
@@ -623,11 +633,23 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	{
 	    EM::EMM().undo().setUserInteractionEnd(
 		    EM::EMM().undo().currentEventID() );
+	    faulteditor_->setLastClicked( insertpid );
 	    faulteditor_->editpositionchange.trigger();
 	}
     }
 
     eventcatcher_->setHandled();
+}
+
+
+void FaultDisplay::setActiveStick( const EM::PosID& pid )
+{
+    const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
+    if ( activestick_ != sticknr )
+    {
+	activestick_ = sticknr;
+	updateActiveStickMarker();
+    }
 }
 
 
@@ -643,11 +665,11 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	updateSingleColor();
 	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	{
-	    if ( RowCol(cbdata.pid0.subID()).row==neareststick_ )
-		updateNearestStickMarker();
+	    if ( RowCol(cbdata.pid0.subID()).row==activestick_ )
+		updateActiveStickMarker();
 	}
 	else
-	    updateNearestStickMarker();
+	    updateActiveStickMarker();
 
 	paneldisplay_->touch( false );
 	stickdisplay_->touch( false );
@@ -661,42 +683,42 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 }
 
 
-void FaultDisplay::updateNearestStickMarker()
+void FaultDisplay::updateActiveStickMarker()
 {
-    if ( mIsUdf(neareststick_) || !showmanipulator_ || !displaysticks_ )
-	neareststickmarker_->turnOn( false );
+    if ( mIsUdf(activestick_) || !showmanipulator_ || !displaysticks_ )
+	activestickmarker_->turnOn( false );
     else
     {
 	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 			 emfault_->sectionGeometry( emfault_->sectionID(0)) );
 
 	const StepInterval<int> rowrg = fss->rowRange();
-	if ( rowrg.isUdf() || !rowrg.includes(neareststick_) )
+	if ( rowrg.isUdf() || !rowrg.includes(activestick_) )
 	{
-	    neareststickmarker_->turnOn( false );
+	    activestickmarker_->turnOn( false );
 	    return;
 	}
 
-	const StepInterval<int> colrg = fss->colRange( neareststick_ );
+	const StepInterval<int> colrg = fss->colRange( activestick_ );
 	if ( colrg.isUdf() || colrg.start==colrg.stop )
 	{
-	    neareststickmarker_->turnOn( false );
+	    activestickmarker_->turnOn( false );
 	    return;
 	}
 
-	neareststickmarker_->removeCoordIndexAfter(-1);
-	neareststickmarker_->getCoordinates()->removeAfter(-1);
+	activestickmarker_->removeCoordIndexAfter(-1);
+	activestickmarker_->getCoordinates()->removeAfter(-1);
 
 	int idx = 0;
-	RowCol rc( neareststick_, 0 );
+	RowCol rc( activestick_, 0 );
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col += colrg.step )
 	{
 	    const Coord3 pos = fss->getKnot( rc );
-	    const int ci = neareststickmarker_->getCoordinates()->addPos( pos );
-	    neareststickmarker_->setCoordIndex( idx++, ci );
+	    const int ci = activestickmarker_->getCoordinates()->addPos( pos );
+	    activestickmarker_->setCoordIndex( idx++, ci );
 	}
 
-	neareststickmarker_->turnOn( true );
+	activestickmarker_->turnOn( true );
     }
 }
 
@@ -713,7 +735,7 @@ void FaultDisplay::updateManipulator()
 {
     const bool show = showmanipulator_ && areSticksDisplayed();
     if ( viseditor_ ) viseditor_->turnOn( show );
-    neareststickmarker_->turnOn( show );
+    activestickmarker_->turnOn( show );
     if ( scene_ ) scene_->blockMouseSelection( show );
 }
 
