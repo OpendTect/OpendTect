@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.59 2009-08-12 11:56:57 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.60 2009-10-29 08:18:31 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -144,16 +144,18 @@ public:
     virtual		~SeisTrcTranslator();
 
 			/*! Init functions must be called, because
-			     Conn object must always be available */
+			     a Conn object must always be available */
     bool		initRead(Conn*,Seis::ReadMode rt=Seis::Prod);
-			/*!< After call, component and packet info will be
-			     available. Some STT's *require* a valid IOObj
-			     in Conn. After ths call, you cannot use the conn
-			     ptr directly anymore: it may be deleted. */
+			/*!< Conn* ptr will become mine, and it may be deleted
+			  immediately!After call, component and packet info
+			  will be available. Some STT's *require* a valid IOObj
+			     in Conn. */
     bool		initWrite(Conn*,const SeisTrc&);
-			/*!< After call, default component and packet info
-			     will be generated according to the example trace.
-			     Some STT's *require* a valid IOObj in Conn */
+			/*!< Conn* ptr will become mine, and it may be deleted
+			     immediately! After call, default component and
+			     packet info will be generated according to the
+			     example trace. Some STT's *require* a valid IOObj
+			     in Conn */
     Conn*		curConn()			{ return conn; }
 
     SeisPacketInfo&		packetInfo()		{ return pinfo; }
@@ -272,6 +274,7 @@ protected:
     virtual bool	commitSelections_()		{ return true; }
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
     							{ return true; }
+    virtual bool	dumpBlock(); //!< will call blockDumped()
     virtual void	blockDumped(int nrtrcs)		{}
     void		prepareComponents(SeisTrc&,int actualsz) const;
 
@@ -296,7 +299,6 @@ private:
 
     void		enforceBounds();
     bool		writeBlock();
-    bool		dumpBlock();
 
 public:
 
