@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.25 2009-09-01 22:15:15 cvskris Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.26 2009-10-29 08:49:38 cvsumesh Exp $";
 
 #include "autotracker.h"
 
@@ -97,7 +97,6 @@ AutoTracker::~AutoTracker()
 {
     manageCBbuffer( false );
     geomelem_->trimUndefParts();
-    emobject_.setBurstAlert( false );
 
     if ( horizon3dundoinfo_ ) //TODO check for real change?
     {
@@ -108,6 +107,7 @@ AutoTracker::~AutoTracker()
 	horizon3dundoinfo_ = 0;
     }
 
+    emobject_.setBurstAlert( false );
     burstalertactive_ = false;
 
     delete horizon3dundoinfo_;
@@ -281,7 +281,7 @@ int AutoTracker::nextStep()
     addedpossrc.erase();
 
     //Add positions that have failed to blacklist
-    for ( int idx=0; idx<addedpos.size(); idx++ )
+    for ( int idx=addedpos.size()-1; idx>=0; idx-- )
     {
 	const EM::PosID pid( emobject_.id(), sectionid_, addedpos[idx] );
 	if ( !emobject_.isDefined(pid) )

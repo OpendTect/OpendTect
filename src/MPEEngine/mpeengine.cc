@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.96 2009-09-30 07:16:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.97 2009-10-29 08:49:38 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
@@ -494,9 +494,9 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     const int idx = getCacheIndexOf(as);
     if ( idx>=0 && idx<attribcachedatapackids_.size() )
     {
-	attribcache_[idx]->unRef();
 	if ( cacheid <= DataPack::cNoID() )
 	{
+	    attribcache_[idx]->unRef();
 	    attribcachedatapackids_.remove( idx );
 	    attribbkpcachedatapackids_.remove( idx );
 	    attribcache_.remove( idx );
@@ -504,10 +504,14 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	}
 	else
 	{
-	    attribcachedatapackids_[idx] = cacheid;
+	    attribcache_[idx]->unRef();
 	    const Attrib::DataCubes* newdata = getAttribCache( cacheid );
-	    attribcache_.replace( idx, newdata );
-	    newdata->ref();
+	    if ( newdata )
+	    {
+		attribcachedatapackids_[idx] = cacheid;
+		attribcache_.replace( idx, newdata );
+		newdata->ref();
+	    }
 	}
     }
     else if ( cacheid > DataPack::cNoID() )
@@ -516,10 +520,13 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	    new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
 	    new CacheSpecs( as ) ;
 
-	attribcachedatapackids_ += cacheid;
 	const Attrib::DataCubes* newdata = getAttribCache( cacheid );
-	attribcache_ += newdata;
-	newdata->ref();
+	if ( newdata )
+	{
+	    attribcachedatapackids_ += cacheid;
+	    attribcache_ += newdata;
+	    newdata->ref();
+	}
     }
 
     return true;

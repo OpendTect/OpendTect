@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.37 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.38 2009-10-29 08:49:38 cvsumesh Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -13,6 +13,9 @@ static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.37 2009-07-22 16:01:45
 #include "emobject.h"
 #include "emsurfacetr.h"
 #include "emhorizon2d.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "linekey.h"
 #include "survinfo.h"
 #include "visdataman.h"
 #include "visemobjdisplay.h"
@@ -216,13 +219,14 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    {
 		attrib--;
 		datapackid = plane->getDataPackID( attrib );
+		unsigned char transpar = plane->getAttribTransparency( attrib );
 		if ( (datapackid > DataPack::cNoID()) && 
-		     plane->isAttribEnabled(attrib) )
+		     plane->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
 	    
 	    info().setObjDataPackID( datapackid );
-	    info().setObjDataSelSpec( plane->getSelSpec(attrib) );
+	    info().setObjDataSelSpec( *plane->getSelSpec(attrib) );
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
@@ -233,6 +237,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	{
 	    info().setLegalClick( legalclick2 );
 	    info().setObjCS( cs );
+	    info().setObjDataSelSpec( *mpedisplay->getSelSpec(0) );
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
@@ -246,15 +251,28 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    while ( attrib )
 	    {
 		attrib--;
+		unsigned char transpar =
+		    seis2ddisp->getAttribTransparency( attrib );
 		datapackid = seis2ddisp->getDataPackID( attrib );
 		if ( (datapackid > DataPack::cNoID()) && 
-		     seis2ddisp->isAttribEnabled(attrib) ) 
+		     seis2ddisp->isAttribEnabled(attrib) && (transpar<198) ) 
 		    break;
 	    }
 
 	    info().setLegalClick( legalclick3 );
 	    info().setObjDataPackID( datapackid );
-	    info().setObjDataSelSpec( seis2ddisp->getSelSpec(attrib) );
+	    //TODO remove memory leak
+	    const Attrib::SelSpec* as = seis2ddisp->getSelSpec( attrib );
+	    Attrib::SelSpec newas;
+	    if ( as )
+	    {
+		newas = *as;
+		PtrMan<IOObj> lsioobj = IOM().get( seis2ddisp->lineSetID() );
+		BufferString lsnm = lsioobj ? lsioobj->name() : 0;
+		newas.setUserRef( LineKey(lsnm,as->userRef()) );
+	    }
+	    info().setObjDataSelSpec(
+		   newas.id()==Attrib::SelSpec::cAttribNotSel() ? *as : newas );
 	    info().setObjLineSet( seis2ddisp->lineSetID() );
 	    info().setObjLineName( seis2ddisp->name() );
 	    click.trigger();
@@ -279,14 +297,16 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     info().setNode( nodepid );
 
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    if ( !hor2d ) return;
+
     const int lineidx = RowCol( nodepid.subID() ).r();
     const int lineid = hor2d->geometry().lineID( lineidx );
     const BufferString linenm = hor2d->geometry().lineName( lineid );
     const MultiID& lineset = hor2d->geometry().lineSet( lineid );
 
     Seis2DDisplay* seis2dclosest = 0;
-    bool legalclickclosest;
-    float mindisttoseis2d;
+    bool legalclickclosest = false;
+    float mindisttoseis2d = mUdf(float);
 
     TypeSet<int> seis2dinscene;
     visBase::DM().getIds( typeid(visSurvey::Seis2DDisplay), seis2dinscene ); 
@@ -321,6 +341,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 
 	if ( lineset==seis2ddisp->lineSetID() && linenm==seis2ddisp->name() )
 	{
+	    mindisttoseis2d = 0;
 	    seis2dclosest = seis2ddisp;
 	    legalclickclosest = legalclick;
 	    break;
@@ -334,15 +355,28 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	while ( attrib )
 	{
 	    attrib--;
+	    unsigned char transpar =
+		seis2dclosest->getAttribTransparency( attrib );
 	    datapackid = seis2dclosest->getDataPackID( attrib );
 	    if ( (datapackid > DataPack::cNoID()) && 
-		 seis2dclosest->isAttribEnabled(attrib) ) 
+		 seis2dclosest->isAttribEnabled(attrib) && (transpar<198) ) 
 		break;
 	}
 
 	info().setLegalClick( legalclickclosest );
 	info().setObjDataPackID( datapackid );
-	info().setObjDataSelSpec( seis2dclosest->getSelSpec(attrib) );
+
+	const Attrib::SelSpec* as = seis2dclosest->getSelSpec( attrib );
+	Attrib::SelSpec newas;
+	if ( as )
+	{
+	    newas = *as;
+	    PtrMan<IOObj> lsioobj = IOM().get( seis2dclosest->lineSetID() );
+	    BufferString lsnm = lsioobj ? lsioobj->name() : 0;
+	    newas.setUserRef( LineKey(lsnm,as->userRef()) );
+	}
+	info().setObjDataSelSpec(
+		newas.id()==Attrib::SelSpec::cAttribNotSel() ? *as : newas );
 	info().setObjLineSet( seis2dclosest->lineSetID() );
 	info().setObjLineName( seis2dclosest->name() );
 	click.trigger();
@@ -391,6 +425,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    info().setLegalClick( legalclick );
 	    info().setObjID( mpedisplay->id() );
 	    info().setObjCS( cs );
+	    info().setObjDataSelSpec( *mpedisplay->getSelSpec(0) );
 	    click.trigger();
 	    trkplanecs = cs;
 	    break;
@@ -426,14 +461,15 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    while ( attrib )
 	    {
 		attrib--;
+		unsigned char transpar = plane->getAttribTransparency( attrib );
 		datapackid = plane->getDataPackID( attrib );
 		if ( (datapackid > DataPack::cNoID()) && 
-		     plane->isAttribEnabled(attrib) )
+		     plane->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
 	    
 	    info().setObjDataPackID( datapackid );
-	    info().setObjDataSelSpec( plane->getSelSpec(attrib) );
+	    info().setObjDataSelSpec( *plane->getSelSpec(attrib) );
 	    click.trigger();
 	}
     }
@@ -485,7 +521,12 @@ const Attrib::DataCubes* MPEClickInfo::getObjData() const
 
 
 const Attrib::SelSpec* MPEClickInfo::getObjDataSelSpec() const
-{ return attrsel_; }
+{
+   if ( attrsel_.id() == Attrib::SelSpec::cAttribNotSel() )
+       return 0;
+
+   return &attrsel_;
+}
 
 
 const MultiID& MPEClickInfo::getObjLineSet() const
@@ -558,7 +599,7 @@ void MPEClickInfo::setObjData( const Attrib::DataCubes* ad )
 { attrdata_ = ad; }
 
 
-void MPEClickInfo::setObjDataSelSpec( const Attrib::SelSpec* as )
+void MPEClickInfo::setObjDataSelSpec( const Attrib::SelSpec& as )
 { attrsel_ = as; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.18 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.19 2009-10-29 08:49:38 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 #include "attribdatacubes.h"
+#include "attribsel.h"
 #include "attribdataholder.h"
 #include "cubesampling.h"
 #include "datapack.h"
@@ -75,7 +76,7 @@ protected:
     void			setObjCS(const CubeSampling&);
     void			setObjDataPackID(DataPack::ID);
     void			setObjData(const Attrib::DataCubes*);
-    void			setObjDataSelSpec(const Attrib::SelSpec*);
+    void			setObjDataSelSpec(const Attrib::SelSpec&);
 
     void			setObjLineSet(const MultiID&);
     void			setObjLineName(const char*);
@@ -90,7 +91,7 @@ protected:
     int					clickedobjid_;
     CubeSampling			clickedcs_;
     RefMan<const Attrib::DataCubes>	attrdata_;
-    const Attrib::SelSpec*		attrsel_;
+    Attrib::SelSpec			attrsel_;
 
     RefMan<const Attrib::Data2DHolder>	linedata_;
     MultiID				lineset_;

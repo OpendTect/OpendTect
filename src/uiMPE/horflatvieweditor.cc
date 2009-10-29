@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.10 2009-09-10 11:11:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.11 2009-10-29 08:49:38 cvsumesh Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -281,7 +281,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 
 	seedpicker->setSelSpec( as );
 	MPE::engine().setOneActiveTracker( tracker );
-	if ( MPE::engine().cacheIncludes(*as,curcs_) )
+	if ( !MPE::engine().cacheIncludes(*as,curcs_) )
 	    if ( dp->id() > DataPack::cNoID() )
 		MPE::engine().setAttribData( *as, dp->id() );
 
