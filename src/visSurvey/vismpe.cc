@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.81 2009-10-26 08:44:52 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.82 2009-10-29 21:09:16 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -40,7 +40,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.81 2009-10-26 08:44:52 cvskarthik
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-#define USE_TEXTURE 
+//#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -55,6 +55,7 @@ MPEDisplay::MPEDisplay()
     , draggerrect_(visBase::DataObjectGroup::create())
     , dragger_(0)
 #else
+    , isinited_(0)
     , cache_(0)
     , cacheid_(DataPack::cNoID())
     , scalarfield_(visBase::VolumeRenderScalarField::create())
@@ -874,6 +875,7 @@ void MPEDisplay::setPlaneOrientation( int orient )
 
     updateTextureCoords();
 #else
+	// to do: class variable to store dim?
     if ( !isOn() ) return;
 
     updateRanges();
@@ -1302,8 +1304,9 @@ void MPEDisplay::updateSlice()
         return;
     }
 
-    // to do: create slice if inexistent
-
+    // to do: create slice if inexistent. Set correct dim.
+    addSlice( cInLine() );
+	    
     setDataVolume( 0, attrdata, 0 );
 #endif
 }
