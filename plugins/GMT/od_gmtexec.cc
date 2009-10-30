@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_gmtexec.cc,v 1.7 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: od_gmtexec.cc,v 1.8 2009-10-30 09:54:14 cvsraman Exp $";
 
 #include "batchprog.h"
 #include "filepath.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: od_gmtexec.cc,v 1.7 2009-07-22 16:01:27 cvsbert
 #include "initgeneral.h"
 #include "initgmt.h"
 #include "keystrs.h"
+#include "oddirs.h"
 #include "timefun.h"
 #include "strmdata.h"
 #include "strmprov.h"
@@ -53,6 +54,9 @@ bool BatchProgram::go( std::ostream& strm )
 	}
     }
 
+    FilePath gmtcommandsfnm( GetBinPlfDir() );
+    gmtcommandsfnm.add( ".gmtcommands4" );
+    StreamProvider( gmtcommandsfnm.fullPath() ).remove();
     StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
     *sd.ostrm << "Finished" << std::endl;
     sd.close();
