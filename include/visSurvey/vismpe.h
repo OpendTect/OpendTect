@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.46 2009-10-26 08:43:20 cvskarthika Exp $
+ RCS:		$Id: vismpe.h,v 1.47 2009-10-30 00:31:29 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -94,6 +94,7 @@ public:
 
     int				addSlice(int dim);
     void                        removeChild(int displayid);
+    void			getChildren(TypeSet<int>&) const;
 
     CubeSampling		getCubeSampling(int attrib=-1) const;
     void			setCubeSampling(const CubeSampling&);

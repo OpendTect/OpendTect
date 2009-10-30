@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.82 2009-10-29 21:09:16 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.83 2009-10-30 00:31:29 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -162,8 +162,7 @@ MPEDisplay::~MPEDisplay()
 
     draggerrect_->unRef();
 #else
-    // to do: check if slices_ needs to be destroyed.
-	DPM( DataPackMgr::CubeID() ).release( cacheid_ );
+    DPM( DataPackMgr::CubeID() ).release( cacheid_ );
     if ( cache_ ) cache_->unRef();
 
     TypeSet<int> children;
@@ -1649,6 +1648,16 @@ void MPEDisplay::removeChild( int displayid )
 	    return;
 	}
     }
+#endif
+}
+
+
+void MPEDisplay::getChildren( TypeSet<int>&res ) const
+{
+#ifndef USE_TEXTURE
+	res.erase();
+    for ( int idx=0; idx<slices_.size(); idx++ )
+	res += slices_[idx]->id();
 #endif
 }
 
