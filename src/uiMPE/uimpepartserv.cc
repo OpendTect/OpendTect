@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.107 2009-10-30 07:24:42 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.108 2009-10-30 11:06:31 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -258,17 +258,22 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
 	return;
 
     bool fieldchange = false;
-    if ( seedpicker->nrSeeds() < 1 )
-	setupgrp_->setAttribSelSpec( seedpicker->getSelSpec() );
-    else if ( !setupgrp_->isSameSelSpec(seedpicker->getSelSpec()) )
+    bool isvalidsetup = false;
+
+    if ( setupgrp_ )
     {
-	seedpicker->blockSeedPick( true );
-	uiMSG().error( 
-		"Tracking Setup has different attribute then your seed's" );
-	return;
+	if ( seedpicker->nrSeeds() < 1 )
+	    setupgrp_->setAttribSelSpec( seedpicker->getSelSpec() );
+	else if ( !setupgrp_->isSameSelSpec(seedpicker->getSelSpec()) )
+	{
+	    seedpicker->blockSeedPick( true );
+	    uiMSG().error( 
+		    "Tracking Setup has different attribute then your seed's" );
+	    return;
+	}
+	isvalidsetup = setupgrp_->commitToTracker(fieldchange);
     }
 
-    const bool isvalidsetup = setupgrp_->commitToTracker(fieldchange);
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( isvalidsetup && fieldchange )
 	loadAttribData();
@@ -294,14 +299,16 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker) return;
 
-    seedpicker->setSeedConnectMode( setupgrp_->getMode() );
+    if ( setupgrp_ )
+	seedpicker->setSeedConnectMode( setupgrp_->getMode() );
     sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
 }
 
 
 void uiMPEPartServer::eventorsimimlartyChangedCB( CallBacker* )
 {
-    setupgrp_->commitToTracker();
+    if ( setupgrp_ )
+	setupgrp_->commitToTracker();
 }
 
 
@@ -312,10 +319,13 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 	EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
 	if ( !emobj ) return;
 
-	emobj->setPreferredColor( setupgrp_->getColor() );
-	sendEvent( uiMPEPartServer::evUpdateTrees() );
-	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), 
-				      setupgrp_->getMarkerStyle() );	
+	if ( setupgrp_ )
+	{
+	    emobj->setPreferredColor( setupgrp_->getColor() );
+	    sendEvent( uiMPEPartServer::evUpdateTrees() );
+	    emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(),
+		    			  setupgrp_->getMarkerStyle() );
+	}	    
     }
 }
 
@@ -345,7 +355,8 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
     sendEvent( uiMPEPartServer::evEndSeedPick() );
     sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
-    setupgrp_->mainwin()->close();
+    if ( setupgrp_ )
+	setupgrp_->mainwin()->close();
 }
 
 
@@ -387,7 +398,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	}
     }
 
-    if ( !setupgrp_->commitToTracker() )
+    if ( setupgrp_ && !setupgrp_->commitToTracker() )
 	if ( !seedhasbeenpicked_ )
 	{
 	    rtnwtseedwtas_ = true;
@@ -517,7 +528,7 @@ void uiMPEPartServer::noTrackingRemoval()
 void uiMPEPartServer::retrack( const EM::ObjectID& oid )
 {
     bool fieldchange = false;
-    if ( !setupgrp_->commitToTracker(fieldchange) )
+    if ( setupgrp_ && !setupgrp_->commitToTracker(fieldchange) )
 	return;
 
     const int trackerid = getTrackerID( oid );
@@ -585,6 +596,8 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
 
 void uiMPEPartServer::cleanSetupDependents()
 {
+    if ( !setupgrp_ ) return;
+
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
     if ( modechangenotifier )
 	modechangenotifier->remove( mCB(this,uiMPEPartServer,modeChangedCB) );
@@ -667,7 +680,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     if ( !initSetupDlg(emobj,tracker,sid) )
 	return false;
 
-    setupgrp_->commitToTracker();
+    if ( setupgrp_ ) setupgrp_->commitToTracker();
 
     tracker->applySetupAsDefault( sid );
     loadAttribData();
@@ -1116,6 +1129,9 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg,
 	    					  emobj->getTypeStr(), 0 );
+
+    if ( !setupgrp_ ) return false;
+
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
 	    			seedpicker->getSeedConnectMode() );
     setupgrp_->setColor( emobj->preferredColor() );
