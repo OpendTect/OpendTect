@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.47 2009-08-18 09:26:59 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.48 2009-10-30 07:24:46 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,6 +142,10 @@ protected:
     void			loadEMObjectCB(CallBacker*);
     void			mergeAttribSets(const Attrib::DescSet& newads,
 						MPE::EMTracker&);
+    bool			initSetupDlg(EM::EMObject*& emobj,
+	    				     MPE::EMTracker*& tracker,
+	    				     const EM::SectionID& sid,
+					     bool freshdlg=false);
 
     const Attrib::DescSet*	attrset3d_;
     const Attrib::DescSet*	attrset2d_;
@@ -183,7 +187,7 @@ protected:
     void			noTrackingRemoval();
     void			retrack( const EM::ObjectID& );
 
-    void			deleteSetupGrp();
+    void			cleanSetupDependents();
 
     MPE::uiSetupGroup*          setupgrp_;
 };
