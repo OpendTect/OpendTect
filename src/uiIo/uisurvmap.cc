@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.29 2009-10-16 10:58:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.30 2009-11-02 07:58:47 cvsnanne Exp $";
 
 #include "uisurvmap.h"
 
@@ -96,6 +96,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 	lineitm->setPenStyle( ls );
     }
 
+    const mDeclAlignment( postxtalign, HCenter, VCenter );
     bool printxy = false;
     for ( int idx=0; idx<4; idx++ )
     {
@@ -106,7 +107,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
         annot += bid.inl; annot += "/"; annot += bid.crl;
 	uiPoint txtpos( cpt[idx].x, cpt[idx].y+spacing );
         uiTextItem* textitm1 = scene().addItem(
-		new uiTextItem(txtpos,annot.buf(),txtalign) );
+		new uiTextItem(txtpos,annot.buf(),postxtalign) );
 	textitm1->setPenColor( Color::Black() );
 	textitm1->setFont(
 		FontList().get(FontData::key(FontData::GraphicsSmall)) );
