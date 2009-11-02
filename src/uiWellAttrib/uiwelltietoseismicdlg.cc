@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.59 2009-10-06 09:17:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.60 2009-11-02 11:06:31 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -222,7 +222,7 @@ void uiTieWin::drawFields()
 
     uiPushButton* okbut = new uiPushButton( this, "&Ok/Save",
 	      		mCB(this,uiTieWin,acceptOK), true );
-    okbut->attach( leftBorder, 40 );
+    okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );
 
     uiPushButton* infobut = new uiPushButton( this, "Info",

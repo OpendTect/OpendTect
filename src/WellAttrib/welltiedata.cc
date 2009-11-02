@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.25 2009-10-23 13:36:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.26 2009-11-02 11:06:31 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -209,13 +209,16 @@ bool DataWriter::writeLog2Cube( LogData& ld) const
     {
 	SeisTrc* trc = trcset[idx];
 	BinID curbid = trc->info().binid;
-	for ( int trcidx=0; trcidx<2*ld.nrtraces_; trcidx++ )
+	for ( int crlidx=0; crlidx<ld.nrtraces_; crlidx++ )
 	{
-	    BinID bid = BinID( curbid.r()- ld.nrtraces_ + trcidx , 
-			       curbid.c()- ld.nrtraces_ + trcidx  );
-	    trc->info().binid = bid;
-	    if ( !writer.put(*trc) )
-	    { pErrMsg( "cannot write new trace" );  succeeded = false; } 
+	    for ( int inlidx=0; inlidx<ld.nrtraces_; inlidx++ )
+	    {
+		BinID bid = BinID( curbid.r() - ld.nrtraces_/2 + crlidx , 
+				   curbid.c() - ld.nrtraces_/2 + inlidx  );
+		trc->info().binid = bid;
+		if ( !writer.put(*trc) )
+		{ pErrMsg( "cannot write new trace" ); succeeded = false; } 
+	    }
 	}
     }
     deepErase( trcset );
