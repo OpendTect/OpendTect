@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.11 2009-10-19 15:57:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.12 2009-11-02 09:32:22 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -67,7 +67,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
     repeatfld_ = new uiLabeledSpinBox( this, 
 	    				"Duplicate trace around the track" );
     repeatfld_->attach( centeredBelow, saveasfld_);
-    repeatfld_->box()->setInterval( 1, 20, 1 );
+    repeatfld_->box()->setInterval( 1, 40, 1 );
     repeatfld_->display( false );
 
     uiSeparator* horSepar = new uiSeparator( this );
@@ -115,8 +115,9 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<wvltnms.size(); idx++ )
     {
 	const int wvltidx = savewvltsfld_->indexOf( wvltnms.get(idx) );
-	if ( wvltidx <=0 ) continue;
-	if ( !dataholder_->wvltset()[wvltidx]->put( wvltctioset_[idx]->ioobj ) )
+	if ( wvltidx <0 ) continue;
+	if ( !dataholder_->wvltset()[wvltidx]->put( 
+		    			wvltctioset_[wvltidx]->ioobj ) )
 	{
 	    BufferString errmsg( "cannot save " ); 
 	    errmsg += wvltnms.get(idx);
