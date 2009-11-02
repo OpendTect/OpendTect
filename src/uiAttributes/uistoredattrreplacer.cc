@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.11 2009-07-31 19:36:56 cvskris Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.12 2009-11-02 12:00:43 cvssatyaki Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -35,11 +35,9 @@ uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 
     for ( int idx=0; idx<storedids_.size(); idx++ )
     {
-	Desc* desc = attrset_.getDesc( storedids_[idx].firstid_ );
-	if ( desc->dataType() == Seis::Dip )
+	if ( storedids_[idx].has2Ids() )
 	    noofsteer_++;
-	if ( desc->dataType() == Seis::Ampl ||
-	     desc->dataType() == Seis::UnknowData )
+	else
 	    noofseis_++;
     }
 }
@@ -62,7 +60,7 @@ void uiStoredAttribReplacer::handleSingleInput()
 
     const bool hassteer = noofsteer_ > 0;
     const bool hasseis = noofseis_ > 0;
-    const bool firstisdip = ad->dataType() == Seis::Dip;
+    const bool firstisdip = storedids_[0].has2Ids();
     const int seisidx = firstisdip ? 1 : 0;
     const int steeridx = firstisdip ? 0 : 1;
 
