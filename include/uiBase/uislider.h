@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.25 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: uislider.h,v 1.26 2009-11-02 12:02:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,11 @@ public:
     int			tickStep() const;
     void		setOrientation(Orientation);
     uiSlider::Orientation getOrientation() const;
-    void		setInverted( bool yn );
+
+    void		setInverted(bool);
+    bool		isInverted() const;
+    void		setInvertedControls(bool);
+    bool		hasInvertedControls() const;
 
     bool		isLogScale()			{ return logscale; }
 

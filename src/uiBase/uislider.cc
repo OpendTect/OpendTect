@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.44 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.45 2009-11-02 12:02:04 cvsnanne Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -191,9 +191,16 @@ uiSlider::Orientation uiSlider::getOrientation() const
 
 
 void uiSlider::setInverted( bool yn )
-{
-    body_->setInvertedAppearance( yn );
-}
+{ body_->setInvertedAppearance( yn ); }
+
+bool uiSlider::isInverted() const
+{ return body_->invertedAppearance(); }
+
+void uiSlider::setInvertedControls( bool yn )
+{ body_->setInvertedControls( yn ); }
+
+bool uiSlider::hasInvertedControls() const
+{ return body_->invertedControls(); }
 
 
 void uiSlider::setMinValue( float minval )
