@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.10 2009-07-22 16:01:27 cvsbert Exp $
+ * ID       : $Id: madstream.h,v 1.11 2009-11-02 09:18:07 cvsranojay Exp $
 -*/
 
 
@@ -26,7 +26,7 @@ namespace Seis { class SelData; }
 namespace ODMad
 {
 
-class MadStream
+mClass MadStream
 {
 public:
     				MadStream(IOPar&);
