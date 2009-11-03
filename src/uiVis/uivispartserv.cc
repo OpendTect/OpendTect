@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.441 2009-10-23 21:36:13 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.442 2009-11-03 04:54:39 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -475,6 +475,13 @@ const char* uiVisPartServer::getZDomainString( int sceneid ) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
     return scene ? scene->getZDomainString() : 0;
+}
+
+
+const char* uiVisPartServer::getZDomainID( int sceneid ) const
+{
+    const visSurvey::Scene* scene = getScene( sceneid );
+    return scene ? scene->getZDomainID() : 0;
 }
 
 

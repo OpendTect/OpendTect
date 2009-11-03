@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.64 2009-09-30 13:00:57 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.65 2009-11-03 04:54:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,8 @@ public:
     bool		attrSetEditorActive() const	{ return attrsetdlg_; }
     void		updateSelSpec(Attrib::SelSpec&) const;
 
-    bool		selectAttrib(Attrib::SelSpec&,const char*,bool);
+    bool		selectAttrib(Attrib::SelSpec&,const char* zdomkey,
+	    			     const char* zdomid,bool is2d);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*);
     void		outputVol(MultiID&,bool);
     bool		replaceSet(const IOPar&,bool,float);
@@ -141,11 +142,15 @@ public:
     void		setNLAName( const char* nm )	{ nlaname_ = nm; }
 
     void		resetMenuItems();
-    MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&,bool,bool);
-    MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&,bool,bool);
-    MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool,bool);
+    MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&,bool is2d,
+	    				     bool);
+    MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&,bool is2d,
+	    				   bool);
+    MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool is2d,
+	    				  bool);
     MenuItem*         	zDomainAttribMenuItem(const Attrib::SelSpec&,
-	    				      const char* zkey,bool,bool);
+	    				      const char* zkey,const char* zid,
+					      bool is2d,bool);
     void         	fillInStoredAttribMenuItem(MenuItem*,bool,bool,
 	    					   const Attrib::SelSpec&,bool,
 						   bool needext=false);

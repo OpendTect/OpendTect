@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.255 2009-10-23 21:36:13 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.256 2009-11-03 04:54:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,6 +191,8 @@ public:
     int			getSceneID(int visid) const;
     const char*		getZDomainString(int sceneid) const;
     			/*!< Returns Z domain key of scene */
+    const char*		getZDomainID(int sceneid) const;
+    			/*!< Returns Z domain id of scene */
 
     			//Events and their functions
     void		unlockEvent();

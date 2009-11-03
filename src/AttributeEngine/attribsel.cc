@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.41 2009-10-26 14:42:28 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.42 2009-11-03 04:54:39 cvsnanne Exp $";
 
 #include "attribsel.h"
 
@@ -362,7 +362,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 }
 
 
-void SelInfo::getSpecialItems( const char* zdomainkey,
+void SelInfo::getZDomainItems( const char* zdomainkey, const char* zdomainid,
 			       BufferStringSet& nms )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
@@ -371,19 +371,23 @@ void SelInfo::getSpecialItems( const char* zdomainkey,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	const char* zres = ioobj.pars().find( ZDomain::sKey() );
-	if ( zres && !strcmp(zres,zdomainkey) )
-	    nms.add( ioobj.name() );
-	else //Legacy
+	const char* dres = ioobj.pars().find( "Depth Domain" ); // Legacy
+	if ( dres && !strcmp(dres,zdomainkey) )
 	{
-	    const char* dres = ioobj.pars().find( "Depth Domain" );
-	    if ( dres && !strcmp(dres,zdomainkey) )
-		nms.add( ioobj.name() );
+	    nms.add( ioobj.name() );
+	    continue;
 	}
+
+	const char* zkey = ioobj.pars().find( ZDomain::sKey() );
+	const char* zid = ioobj.pars().find( ZDomain::sKeyID() );
+	const bool matchkey = zkey && !strcmp(zkey,zdomainkey);
+	const bool matchid = zid && !strcmp(zid,zdomainid);
+	if ( matchkey && matchid )
+	    nms.add( ioobj.name() );
     }
 
     nms.sort();
 }
 
 
-}; // namespace Attrib
+} // namespace Attrib

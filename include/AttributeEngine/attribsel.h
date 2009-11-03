@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.22 2009-10-26 14:42:28 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.23 2009-11-03 04:54:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,8 +156,10 @@ public:
 				     bool onlymulticomp=false);
     			//!< 2D only
     void		fillStored(const char* filter=0);
-    static void		getSpecialItems(const char* key,BufferStringSet&);
-    			//!< Filters on given DepthDomain key
+    static void		getZDomainItems(const char* zdomainkey,
+	    				const char* zdomainid,
+					BufferStringSet& objnms);
+    			//!< Filters on given DepthDomain key and id
 
 protected:
 

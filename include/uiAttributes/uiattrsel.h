@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.19 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattrsel.h,v 1.20 2009-11-03 04:54:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     int				compnr;
     bool			shwcubes;
     BufferString		zdomainkey;
+    BufferString		zdomainid;
 
     bool			is2D() const;
     const Attrib::DescSet&	attrSet() const		{ return *attrset; }

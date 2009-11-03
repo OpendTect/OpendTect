@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.138 2009-09-30 13:00:57 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.139 2009-11-03 04:54:39 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -339,15 +339,16 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 }
 
 
-bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zkey,
-       				       bool is2d )
+bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
+				       const char* zdomainid, bool is2d )
 {
     DescSetMan* adsman = getAdsMan( is2d );
     uiAttrSelData attrdata( *adsman->descSet() );
     attrdata.attribid = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
     attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel(is2d);
-    attrdata.zdomainkey = zkey;
+    attrdata.zdomainkey = zdomainkey;
+    attrdata.zdomainid = zdomainid;
     uiAttrSelDlg dlg( parent(), "View Data", attrdata );
     if ( !dlg.go() )
 	return false;
@@ -665,18 +666,25 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 				       int firstcol )
 {
-    PtrMan<EngineMan> aem = createEngMan();
-    if ( !aem ) return false;
-    
     ExecutorGroup execgrp( "Calulating Attribute", true );
     BufferString errmsg;
 
+    ObjectSet<EngineMan> aems;
     for ( int idx=0; idx<dpss.size(); idx++ )
-	execgrp.add( aem->getTableOutExecutor(*dpss[idx],errmsg,firstcol) );
+    {
+	EngineMan* aem = createEngMan();
+	if ( !aem ) continue;
 
+	execgrp.add( aem->getTableOutExecutor(*dpss[idx],errmsg,firstcol) );
+	aems += aem;
+    }
+
+    bool res = true;
     uiTaskRunner taskrunner( parent() );
-    if ( !taskrunner.execute(execgrp) ) return false;
-    return true;
+    res = taskrunner.execute( execgrp );
+
+    deepErase( aems );
+    return res;
 }
 
 
@@ -1076,14 +1084,14 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 }
 
 
-// TODO: create more general function, for now it does what we need
 MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
-							 const char* key,
-							 bool is2d, bool useext)
+						     const char* zdomkey,
+						     const char* zdomid,
+						     bool is2d, bool useext)
 {
     MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_ 
 				    : &zdomain3dmnuitem_;
-    BufferString itmtxt = key;
+    BufferString itmtxt = zdomkey;
     itmtxt += useext ? ( is2d ? " Cubes" : " 2D Lines") : " Data";
     zdomainmnuitem->text = itmtxt;
     zdomainmnuitem->removeItems();
@@ -1091,7 +1099,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
     zdomainmnuitem->checked = false;
 
     BufferStringSet ioobjnms;
-    SelInfo::getSpecialItems( key, ioobjnms );
+    SelInfo::getZDomainItems( zdomkey, zdomid, ioobjnms );
     for ( int idx=0; idx<ioobjnms.size(); idx++ )
     {
 	const BufferString& nm = ioobjnms.get( idx );

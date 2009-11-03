@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.45 2009-08-21 05:28:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.46 2009-11-03 04:54:39 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -94,6 +94,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
     {
 	new uiLabel( this, "No seismic data available.\n"
 			   "Please import data first" );
+	setCaption( "Error" );
 	setCancelText( "Ok" );
 	setOkText( "" );
 	return;
@@ -250,13 +251,13 @@ void uiAttrSelDlg::createSelectionFields()
     if ( !attrdata_.zdomainkey.isEmpty() )
     {
 	BufferStringSet nms;
-	SelInfo::getSpecialItems( attrdata_.zdomainkey, nms );
+	SelInfo::getZDomainItems( attrdata_.zdomainkey, attrdata_.zdomainid,
+				  nms );
 	zdomoutfld_ = new uiListBox( this, nms );
 	zdomoutfld_->setHSzPol( uiObject::Wide );
 	zdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	zdomoutfld_->attach( rightOf, selgrp_ );
     }
-
 }
 
 
@@ -400,7 +401,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else if ( seltyp == 3 )
     {
 	BufferStringSet nms;
-	SelInfo::getSpecialItems( attrdata_.zdomainkey, nms );
+	SelInfo::getZDomainItems( attrdata_.zdomainkey, attrdata_.zdomainid,
+				  nms );
 	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
 	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
 	if ( !ioobj ) return false;
@@ -409,6 +411,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	DescSet& as = const_cast<DescSet&>( attrdata_.attrSet() );
 	attrdata_.attribid = as.getStoredID( linekey, 0, true );
 	zdomainkey_ = attrdata_.zdomainkey;
+
     }
     else
     {
