@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.8 2009-10-16 07:08:43 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.9 2009-11-03 10:31:36 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiSliderExtra;
 class uiLabeledComboBox;
 class uiGenInput;
 class uiSeparator;
-class uiCheckBox;
+class uiPushButton;
 
 namespace visBase { class DirectionalLight; }
 
@@ -50,7 +50,8 @@ protected:
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
-    void				showPolarDiagramCB(CallBacker*);
+    void			pdDlgDoneCB(CallBacker*);
+    void			showPolarDiagramCB(CallBacker*);
     void			sceneSelChangedCB(CallBacker*);
     void			fieldChangedCB(CallBacker*);
     void			polarDiagramCB(CallBacker*);
@@ -66,8 +67,9 @@ protected:
     uiSliderExtra*		intensityfld_;
     uiSliderExtra*		headonintensityfld_;
     uiSeparator*		sep_;
-    uiCheckBox*			showpdfld_;
+    uiPushButton*		showpdfld_;
     uiPolarDiagram*		pd_;
+    uiDialog*			pddlg_;
 
     typedef mStruct InitInfo
     {
