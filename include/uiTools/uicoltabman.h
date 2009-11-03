@@ -6,22 +6,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.13 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uicoltabman.h,v 1.14 2009-11-03 03:48:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "coltab.h"
-#include "bufstringset.h"
+#include "bufstring.h"
 
+class uiColorInput;
 class uiColorTableCanvas;
 class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
-class IOPar;
-class uiCanvas;
-class uiCheckBox;
-class uiColorInput;
 class uiGenInput;
 class uiListView;
 class uiPushButton;

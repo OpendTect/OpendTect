@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.41 2009-09-23 11:18:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.42 2009-11-03 03:48:08 cvsnanne Exp $";
 
 #include "uicoltabman.h"
 
 #include "bufstring.h"
+#include "coltab.h"
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "draw.h"
