@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.10 2009-10-23 14:53:36 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.11 2009-11-03 10:31:13 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -34,7 +34,8 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.10 2009-10-23 14:53:36 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     : uiDialog(p,
 	       uiDialog::Setup("Directional light",
-		   "Set directional light properties", mNoHelpID).modal(false))
+		   "Set directional light properties", mNoHelpID)
+	       .modal(false))
 	       // to do: specify proper help ID
     , visserv_(visserv)
     , scenefld_(0)
@@ -44,8 +45,14 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     , headonintensityfld_(0)
     , sep_(0)  
     , showpdfld_(0)
-    , pd_(new uiPolarDiagram(this))
+    , pd_(0)
+    , pddlg_(new uiDialog(this, 
+		uiDialog::Setup("Polar diagram", "Set azimuth and dip", 
+		    mNoHelpID)
+		.modal(false)))
 {
+    pddlg_->finaliseDone.notify( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
+
     scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
 
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
@@ -74,16 +81,11 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     intensityfld_->sldr()->setMaxValue( 100 );
     intensityfld_->sldr()->setStep( 5 );
 
-    showpdfld_ = new uiCheckBox( this, "Show polar diagram" );
+    showpdfld_ = new uiPushButton( this, "Show polar diagram", false );
     showpdfld_->attach( alignedBelow, intensityfld_ );
-    showpdfld_->setChecked( true );
-
-    pd_->attach( hCentered, intensityfld_ );
-    pd_->attach( ensureBelow, showpdfld_ );
-    pd_->attach( widthSameAs, intensityfld_ );
 
     sep_ = new uiSeparator( this, "HSep", true );
-    sep_->attach( stretchedBelow, pd_ );
+    sep_->attach( stretchedBelow, showpdfld_ );
 	    
     headonintensityfld_ = new uiSliderExtra( this,
 	    uiSliderExtra::Setup("Camera light intensity (%)").
@@ -104,8 +106,6 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     dipfld_->sldr()->valueChanged.notify( chgCB ); 
     intensityfld_->sldr()->setValue( initinfo.intensity_ );
     intensityfld_->sldr()->valueChanged.notify( chgCB ); 
-    pd_->setValues( initinfo.azimuth_, initinfo.dip_ );
-    pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
     headonintensityfld_->sldr()->setValue( initinfo.headonintensity_ );
     headonintensityfld_->sldr()->valueChanged.notify( 
 	    mCB(this,uiDirLightDlg,headOnChangedCB) ); 
@@ -123,8 +123,28 @@ uiDirLightDlg::~uiDirLightDlg()
     removeSceneNotifiers();
     visserv_->nrScenesChange().remove(
 	    mCB(this,uiDirLightDlg,nrScenesChangedCB) );
-    pd_->valueChanged.remove( mCB(this, uiDirLightDlg, polarDiagramCB) );
-    delete pd_;
+    if ( pd_ )
+    {
+	pd_->valueChanged.remove( mCB(this, uiDirLightDlg, polarDiagramCB) );
+        delete pd_;
+	pd_ = 0;
+    }
+    
+    pddlg_->finaliseDone.remove( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
+    pddlg_->close();
+    delete pddlg_;
+}
+
+
+void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
+{
+    if ( !pd_ )
+    {
+        pd_ = new uiPolarDiagram( pddlg_ );
+        pd_->setValues( azimuthfld_->sldr()->getValue(), 
+		dipfld_->sldr()->getValue() );
+        pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
+    }
 }
 
 
@@ -319,7 +339,8 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
         float azimuth = Angle::convert( Angle::Rad, acos( x / cos( dip ) ),
 		Angle::UsrDeg );
 
-	pd_->setValues( azimuth, dip );
+	if ( pd_ )
+   	    pd_->setValues( azimuth, dip );
 
         if ( resetinitinfo )
         {
@@ -434,7 +455,8 @@ void uiDirLightDlg::showWidgets( bool showAll )
     azimuthfld_->setSensitive( showAll );
     dipfld_->setSensitive( showAll );
     intensityfld_->setSensitive ( showAll );
-    pd_->setSensitive( showAll );
+    if ( pd_ )
+	pd_->setSensitive( showAll );
     headonintensityfld_->setSensitive ( showAll );
 }
 
@@ -566,20 +588,7 @@ void uiDirLightDlg::activeSceneChangedCB( CallBacker* )
 
 void uiDirLightDlg::showPolarDiagramCB( CallBacker* )
 {
-    bool showpd = showpdfld_->isChecked();
-    pd_->display( showpd );
-
-    if ( showpd )
-    {
-	// to do: shift controls down and enlarge dialog
-        sep_->attach( stretchedBelow, pd_ );
-    }
-    else
-    {
-	// to do: shift controls up and shrink dialog
-	sep_->attach( stretchedBelow, intensityfld_ );
-    }
-    reDraw( true );
+    pddlg_->show();
 }
 
 
