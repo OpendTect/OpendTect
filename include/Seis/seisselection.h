@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselection.h,v 1.6 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisselection.h,v 1.7 2009-11-03 10:50:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 		    : is2d_(Seis::is2D(gt))
 		    , isps_(Seis::isPS(gt))
 		    , onlyrange_(true)
-		    , fornewentry_(false)		//!< 2D only
+		    , fornewentry_(false)
 		    , multiline_(false)			//!< 2D only
 		    , withoutz_(false)
 		    , withstep_(true)			{}
@@ -41,7 +41,7 @@ public:
 		    : is2d_(is_2d)
 		    , isps_(is_ps)
 		    , onlyrange_(true)
-		    , fornewentry_(false)		//!< 2D only
+		    , fornewentry_(false)
 		    , multiline_(false)			//!< 2D only
 		    , withoutz_(false)
 		    , withstep_(true)			{}
