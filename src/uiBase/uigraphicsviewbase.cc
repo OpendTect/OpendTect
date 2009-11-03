@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.20 2009-10-08 04:40:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.21 2009-11-03 04:25:21 cvssatyaki Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -33,7 +33,7 @@ uiGraphicsViewBody( uiGraphicsViewBase& handle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>(handle,p,nm)
     , mousehandler_(*new MouseEventHandler)
     , keyboardhandler_(*new KeyboardEventHandler)
-    , startpos_(0)
+    , startpos_(-1,-1)
     , handle_(handle)
 {
     setStretch( 2, 2 );
@@ -54,11 +54,11 @@ MouseEventHandler& mouseEventHandler()
 KeyboardEventHandler& keyboardEventHandler()
 { return keyboardhandler_; }
 
-    const uiPoint&	getStartPos() const	{ return *startpos_; }
+const uiPoint& getStartPos() const	{ return startpos_; }
 
 protected:
 
-    uiPoint*			startpos_;
+    uiPoint			startpos_;
     OD::ButtonState		buttonstate_;
     MouseEventHandler&		mousehandler_;
     KeyboardEventHandler&	keyboardhandler_;
@@ -102,7 +102,7 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* event )
     else if ( event->button() == Qt::LeftButton )
     {
 	uiPoint viewpt = handle_.getScenePos( event->x(), event->y() );
-	startpos_ = new uiPoint( viewpt.x, viewpt.y );
+	startpos_ = uiPoint( viewpt.x, viewpt.y );
 	buttonstate_ = OD::LeftButton;
 	MouseEvent me( buttonstate_, event->x(), event->y() );
 	mousehandler_.triggerButtonPressed( me );
@@ -137,8 +137,8 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
 	if ( handle_.isRubberBandingOn() )
 	{
 	    uiPoint viewpt = handle_.getScenePos( event->x(), event->y() );
-	    uiPoint* stoppos = new uiPoint( viewpt.x, viewpt.y );
-	    uiRect selrect( *startpos_, *stoppos );
+	    uiPoint stoppos( viewpt.x, viewpt.y );
+	    uiRect selrect( startpos_, stoppos );
 	    handle_.scene().setSelectionArea( selrect );
 	}
     }
