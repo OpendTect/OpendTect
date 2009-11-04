@@ -7,27 +7,27 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.10 2009-11-03 04:54:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.11 2009-11-04 03:27:40 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
 
-#include "iopar.h"
-#include "ioobj.h"
-#include "keystrs.h"
-#include "filepath.h"
-#include "coltabmapper.h"
 #include "attribdescset.h"
+#include "coltabmapper.h"
 #include "coltabsequence.h"
-
-#include "uicolortable.h"
-#include "uiviscoltabed.h"
+#include "filepath.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "survinfo.h"
 #include "vissurvobj.h"
 
-#include "uivispartserv.h"
 #include "uiattribpartserv.h"
-#include "uinlapartserv.h"
+#include "uicolortable.h"
 #include "uiemattribpartserv.h"
+#include "uinlapartserv.h"
+#include "uiviscoltabed.h"
+#include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 
 
@@ -117,8 +117,10 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
 	am_.visserv_->getZDomainString( am_.visserv_->getSceneID(id) );
     const char* zdomid =
 	am_.visserv_->getZDomainID( am_.visserv_->getSceneID(id) );
+    BufferString survzdom = SI().getZDomainString();
+    const bool samezdom = survzdom == zdomkey;
     Attrib::SelSpec myas( *as );
-    const bool selok = am_.attrserv_->selectAttrib( myas, zdomkey,
+    const bool selok = am_.attrserv_->selectAttrib( myas, samezdom ? 0 :zdomkey,
 	    					    zdomid, myas.is2D() );
     if ( selok )
 	am_.visserv_->setSelSpec( id, attrib, myas );
@@ -214,8 +216,8 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 
 void uiODApplMgrAttrVisHandler::colSeqChg()
 {
-    mDynamicCastGet( const visBase::DataObject*, dataobj,
-	    	     am_.appl_.colTabEd().getSurvObj() );
+    mDynamicCastGet(const visBase::DataObject*,dataobj,
+		    am_.appl_.colTabEd().getSurvObj())
     const int visid = dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
     int attrib = dataobj
 	? am_.appl_.colTabEd().getChannel()
@@ -269,7 +271,7 @@ static bool useOldDefColTab( const IOPar& par, ColTab::MapperSetup& ms,
 
 void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 {
-   if ( am_.appl_.isRestoringSession() ) return;
+    if ( am_.appl_.isRestoringSession() ) return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
     if ( !as || as->id().asInt()<0 ) return;
