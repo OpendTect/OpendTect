@@ -4,17 +4,20 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.1 2009-11-04 09:20:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.2 2009-11-04 09:49:24 cvsbert Exp $";
 
+
+#include "uidpsdemo.h"
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
+#include "uitoolbar.h"
+
 #include "odver.h"
+#include "pixmap.h"
 #include "plugins.h"
 
-
-#include "uimsg.h"
 
 mExternC int GetuiDPSDemoPluginType()
 {
@@ -51,23 +54,28 @@ public:
 
 			uiDPSDemoMgr(uiODMain&);
 
-    uiODMain&		appl;
+    uiODMain&		appl_;
     void		doIt(CallBacker*);
 };
 
 
 uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
-	: appl(a)
+	: appl_(a)
 {
-    uiMenuItem* newitem = new uiMenuItem( "&DataPointSet demo ...",
-	    				  mCB(this,uiDPSDemoMgr,doIt) );
-    appl.menuMgr().analMnu()->insertItem( newitem );
+    uiODMenuMgr& mnumgr = appl_.menuMgr();
+    const ioPixmap pm( "dpsdemo.png" );
+    const CallBack cb( mCB(this,uiDPSDemoMgr,doIt) );
+
+    mnumgr.analMnu()->insertItem( new uiMenuItem("&DataPointSet demo ...",
+						   cb,&pm) );
+    mnumgr.dtectTB()->addButton( pm, cb, "DataPointSet demo" );
 }
 
 
 void uiDPSDemoMgr::doIt( CallBacker* )
 {
-    uiMSG().message( "doIt callback" );
+    uiDPSDemo dlg( &appl_ );
+    dlg.go();
 }
 
 
