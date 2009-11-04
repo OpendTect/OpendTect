@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2009
- RCS:           $Id: uidpsdemo.h,v 1.2 2009-11-04 11:16:06 cvsbert Exp $
+ RCS:           $Id: uidpsdemo.h,v 1.3 2009-11-04 13:43:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,11 @@ ________________________________________________________________________
 #include "uidialog.h"
 class IOObj;
 class uiSeisSel;
+class TaskRunner;
 class uiIOObjSel;
 class uiGenInput;
 class DataPointSet;
+namespace EM { class Horizon3D; }
 
 
 /*!\brief Show a few uses of (ui)DataPointSet.
@@ -44,6 +46,8 @@ protected:
     bool		acceptOK(CallBacker*);
     bool		doWork(const IOObj&,const IOObj&,int);
 
+    bool		getRandPositions(const EM::Horizon3D&,int);
+    bool		getSeisData(const IOObj&,TaskRunner&);
 };
 
 

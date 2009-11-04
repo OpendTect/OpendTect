@@ -7,16 +7,29 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.2 2009-11-04 11:16:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.3 2009-11-04 13:43:29 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
 #include "datapointset.h"
+#include "binidvalset.h"
+#include "posvecdataset.h"
+#include "datacoldef.h"
+#include "statrand.h"
 #include "emsurfacetr.h"
+#include "emmanager.h"
+#include "emhorizon3d.h"
+#include "binidsurface.h"
+#include "seistrc.h"
+#include "seisbuf.h"
+#include "seisread.h"
 #include "seistrctr.h"
+#include "seistrcprop.h"
+#include "seisselectionimpl.h"
 
 #include "uiseissel.h"
 #include "uigeninput.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 
 
@@ -25,6 +38,10 @@ uiDPSDemo::uiDPSDemo( uiParent* p )
 		    	   mNoHelpID))
 	, dps_(*new DataPointSet(false))
 {
+    dps_.dataSet().add( new DataColDef("Amplitude") );
+    dps_.dataSet().add( new DataColDef("Frequency") );
+    Stats::RandGen::init();
+
     horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D) );
 
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
@@ -63,5 +80,98 @@ bool uiDPSDemo::acceptOK( CallBacker* )
 bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 			int nrpts )
 {
-    mErrRet("TODO: implement")
+    uiTaskRunner* tr = new uiTaskRunner( this );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(), tr );
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    if ( !hor ) return false;
+
+    if ( !getRandPositions(*hor,nrpts) || !getSeisData(seisioobj,*tr) )
+	return false;
+
+    uiMSG().error( "TODO: pop up uiDataPointSet" );
+    return true;
+}
+
+
+#define mSectGeom(sect) (*hor.geometry().sectionGeometry(sect))
+
+bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts )
+{
+    dps_.setEmpty();
+
+    TypeSet<int> nrsectnodes;
+    int totnrnodes = 0;
+    for ( EM::SectionID isect=0; isect<hor.nrSections(); isect++ )
+    {
+	const int nrnodes = mSectGeom(isect).nrKnots();
+	nrsectnodes += nrnodes;
+	totnrnodes += nrnodes;
+    }
+    if ( totnrnodes < 1 )
+	mErrRet( "Horizon is empty" )
+
+    bool needrandsel = nrpts < totnrnodes;
+    const int actualnrpts = needrandsel ? nrpts : totnrnodes;
+    for ( int ipt=0; ipt<actualnrpts; ipt++ )
+    {
+	// Get a random position in horizon
+	int selidx = needrandsel ? Stats::RandGen::getIndex( totnrnodes )
+	    			       : ipt;
+	BinID bid; EM::SectionID selsect = 0;
+	for ( EM::SectionID isect=0; isect<nrsectnodes.size(); isect++ )
+	{
+	    if ( nrsectnodes[isect] < selidx )
+		selidx -= nrsectnodes[isect];
+	    else
+		{ selsect = isect; break; }
+	}
+	bid = BinID( mSectGeom(selsect).getKnotRowCol(selidx) );
+
+	// Checking whether position is already in set. Here, we have to use
+	// the BinIDValueSet, because we don't want to call
+	// DataPointSet::dataChanged() after every add().
+	if ( needrandsel && dps_.bivSet().valid(bid) )
+	    { ipt--; continue; }
+
+	// Add the position to set.
+	// We store section+1 because DataPointSet's groups start at 1
+	DataPointSet::Pos dpspos( bid, mSectGeom(selsect).getKnot(bid,true).z );
+	DataPointSet::DataRow dr( dpspos, selsect+1 );
+	dps_.addRow( dr );
+    }
+
+    // This builds an index table in the DataPointSet.
+    dps_.dataChanged();
+
+    return true;
+}
+
+
+bool uiDPSDemo::getSeisData( const IOObj& ioobj, TaskRunner& tr )
+{
+    SeisTrcReader rdr( &ioobj );
+    Seis::TableSelData* tsd = new Seis::TableSelData( dps_.bivSet() );
+    rdr.setSelData( tsd );
+    if ( !rdr.prepareWork() )
+	mErrRet(rdr.errMsg())
+
+    SeisTrcBuf tbuf(true);
+    SeisBufReader br( rdr, tbuf );
+    if ( !tr.execute(br) )
+	return false;
+
+    const int icomp = 0;
+    for ( int idx=0; idx<tbuf.size(); idx++ )
+    {
+	const SeisTrc& trc = *tbuf.get( idx );
+	DataPointSet::RowID rid = dps_.findFirst( trc.info().binid );
+	if ( rid < 0 ) continue; // should not be possible
+
+	const float z = dps_.z( rid );
+	float* vals = dps_.getValues( rid );
+	vals[0] = trc.getValue( z, icomp );
+	vals[1] = SeisTrcPropCalc(trc,icomp).getFreq( trc.nearestSample(z) );
+    }
+
+    return true;
 }
