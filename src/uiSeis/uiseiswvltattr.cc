@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.10 2009-11-04 14:33:47 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.11 2009-11-04 15:06:30 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -203,7 +203,6 @@ uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet* w )
 
 uiWaveletDispPropDlg::~uiWaveletDispPropDlg()
 {
-    delete properties_;
 }
 
 
