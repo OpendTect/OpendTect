@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.31 2009-10-23 13:06:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.32 2009-11-04 16:19:14 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -30,11 +30,8 @@ static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.31 2009-10-23 13:06:2
 #define mTransHeight    250
 #define mTransWidth     500
 
-
 uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
-    : uiFunctionDisplay( p, uiFunctionDisplay::Setup()
-	    				.fillbelow(su.fillbelow_)
-					.border(uiBorder(20,20,10,10)))
+    : uiGraphicsView( p, "" )
     , transform_(new uiWorld2Ui())
     , polyitemgrp_(0)
     , borderrectitem_(0)
@@ -47,47 +44,51 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
 		     uiWorldRect( su.xaxrg_.start, su.yaxrg_.stop, 
 				  su.xaxrg_.stop, su.yaxrg_.start ) );
-    
+
     uiAxisHandler::Setup asu( uiRect::Bottom, width(), height() );
     asu.style( LineStyle::None );
-
     asu.maxnumberdigitsprecision_ = 3;
     asu.epsaroundzero_ = 1e-3;
-    asu.border_ = su.border_;
+    asu.border_ = uiBorder(10,10,10,10);
 
-    xax_ = new uiAxisHandler( &scene(), asu );
     float annotstart = -1;
+    xax_ = new uiAxisHandler( &scene(), asu );
     xax_->setRange( su.xaxrg_, &annotstart );
 
     asu.side( uiRect::Left ); asu.islog_ = false;
     yax_ = new uiAxisHandler( &scene(), asu );
-    yax_->setRange( su.yaxrg_, 0 );
+    yax_->setRange( StepInterval<float>(0,1,0.25),0 );
 
-    if ( su.drawownaxis_ )
-    {
-	xax_->setNewDevSize( mTransWidth, mTransHeight );
-	yax_->setNewDevSize( mTransHeight , mTransWidth );
-	xax_->setBegin( yax_ ); 	yax_->setBegin( xax_ );
-	xax_->setBounds( su.xaxrg_ ); 	yax_->setBounds( su.yaxrg_ );
-	xax_->plotAxis();		yax_->plotAxis();
-	xax_->setName( su.xaxname_ ); 	yax_->setName( su.yaxname_ );
-	setFrame();
-    }
+    xax_->setBegin( yax_ ); 		yax_->setBegin( xax_ );
+    xax_->setBounds( su.xaxrg_ ); 	yax_->setBounds( su.yaxrg_ );
+    xax_->setName( su.xaxname_ ); 	yax_->setName( su.yaxname_ );
+
+    reSize.notify( mCB( this, uiFunctionDrawer, draw ) );
+}
+
+
+void uiFunctionDrawer::setUpAxis()
+{
+    xax_->setNewDevSize( width(), height() );
+    yax_->setNewDevSize( height(), width() );
+    xax_->plotAxis();
+    yax_->plotAxis();
 }
 
 
 uiFunctionDrawer::~uiFunctionDrawer()
 {
     delete transform_;
-    pointlistset_.erase();
-    linesetcolor_.erase();
+    clearFunctions();
 }
 
 
 void uiFunctionDrawer::setFrame()
 {
-    uiRect borderrect( xax_->pixBefore(), 5, mTransWidth - 5,
-	    	       mTransHeight - yax_->pixBefore() );
+    uiRect borderrect( xax_->getPix( xax_->range().start ), 
+	    	       yax_->getPix( yax_->range().stop ), 
+		       xax_->getPix( xax_->range().stop ), 
+		       yax_->getPix( yax_->range().start ) );
     if ( !borderrectitem_ )
 	borderrectitem_ = scene().addRect(
 		borderrect.left(), borderrect.top(), borderrect.width(),
@@ -96,12 +97,16 @@ void uiFunctionDrawer::setFrame()
 	borderrectitem_->setRect( borderrect.left(), borderrect.top(),
 				  borderrect.width(), borderrect.height() );
     borderrectitem_->setPenStyle( LineStyle() );
+    borderrect.setTop( borderrect.top() + 3 );
+    transform_->resetUiRect( borderrect );
 }
 
 
-void uiFunctionDrawer::draw( TypeSet<int>& selecteditems )
+void uiFunctionDrawer::draw( CallBacker* )
 {
-    const int selsz = pointlistset_.size();
+    setUpAxis();
+    setFrame();
+
     if ( !polyitemgrp_ )
     {
 	polyitemgrp_ = new uiGraphicsItemGroup();
@@ -110,45 +115,47 @@ void uiFunctionDrawer::draw( TypeSet<int>& selecteditems )
     else
 	polyitemgrp_->removeAll( true );
 
-    for ( int idx=0; idx<pointlistset_.size(); idx++ )
+    if ( !selitemsidx_.size() && functions_.size() )
+	selitemsidx_ += 0;
+    
+    for ( int idx=0; idx<selitemsidx_.size(); idx++ )
     {
+	const int selidx = selitemsidx_[idx];
+	DrawFunction* func = functions_[selidx];
+	if ( !func ) return;
+	createLine( func );
 	uiPolyLineItem* polyitem = new uiPolyLineItem();
-	polyitem->setPolyLine( pointlistset_[idx] );
+	polyitem->setPolyLine( func->pointlist_ );
 	LineStyle ls;
 	ls.width_ = 2;
-	ls.color_ = linesetcolor_[ selecteditems[idx] ];
+	ls.color_ = func->color_;
 	polyitem->setPenStyle( ls );
 	polyitemgrp_->add( polyitem );
     }
 }
 
 
-void uiFunctionDrawer::createLine( const FloatMathFunction* mathfunc )
+void uiFunctionDrawer::createLine( DrawFunction* func )
 {
-    if ( !mathfunc ) return;
-    TypeSet<uiPoint> pointlist;
-
-    uiRect borderrect( xax_->pixBefore(), 10, mTransWidth - 10,
-	    	       mTransHeight - yax_->pixBefore() );
-    transform_->resetUiRect( borderrect );
-
-    StepInterval<float> xrg( funcrg_ );
-    xrg.step = 0.0001;
+    if ( !func ) return;
+    TypeSet<uiPoint>& pointlist = func->pointlist_;
+    pointlist.erase();
 
     LinScaler scaler( funcrg_.start, xax_->range().start,
 		      funcrg_.stop, xax_->range().stop );
 
+    StepInterval<float> xrg( funcrg_ );
+    xrg.step = 0.0001;
     for ( int idx=0; idx<xrg.nrSteps(); idx++ )
     {
 	float x = xrg.atIndex( idx );
-	const float y = mathfunc->getValue( x );
+	const float y = func->mathfunc_->getValue( x );
 	x = scaler.scale( x );
-	pointlist += uiPoint( transform_->transform(uiWorldPoint(x,y)) );
+	const int xpix = xax_->getPix( x );
+	const int ypix = yax_->getPix( y );
+	pointlist += uiPoint( transform_->transform( uiWorldPoint(x,y) ) );
     }
-
-    pointlistset_ += pointlist;
 }
-
 
 
 
@@ -163,15 +170,6 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFunctionDrawer::Setup& su )
     
     view_ = new uiFunctionDrawer( this, su );
     view_->attach( rightOf, funclistfld_ );
-}
-
-
-void uiFuncSelDraw::addToList( const char* fcname, bool withcolor )
-{
-    const int curidx = funclistfld_->size();
-    const Color& col = withcolor? Color::stdDrawColor( curidx ):Color::Black();
-    view_->addColor( col );
-    funclistfld_->addItem( fcname, col );
 }
 
 
@@ -198,6 +196,7 @@ int uiFuncSelDraw::removeLastItem()
     const int curidx = funclistfld_->size()-1;
     funclistfld_->removeItem( curidx );
     mathfunc_.remove( curidx );
+    view_->clearFunction( curidx );
     return curidx;
 }
 
@@ -206,30 +205,37 @@ void uiFuncSelDraw::removeItem( int idx )
 {
     funclistfld_->removeItem( idx );
     mathfunc_.remove( idx );
+    view_->clearFunction( idx );
 }
 
 
-void uiFuncSelDraw::funcSelChg( CallBacker* )
+void uiFuncSelDraw::funcSelChg( CallBacker* cb )
 {
     funclistselChged.trigger();
-    view_->erasePoints();
-    for ( int idx=0; idx<funclistfld_->size(); idx++ )
-    {
-	if ( !funclistfld_->isSelected(idx) )
-	    continue;
-	view_->createLine( mathfunc_[idx] );
-    }
-
+    
     TypeSet<int> selecteditems;
     funclistfld_->getSelectedItems( selecteditems );
-    view_->draw( selecteditems );
+
+    view_->setSelItems( selecteditems );
+    view_->draw( cb );
 }
 
 
-void uiFuncSelDraw::addFunction( FloatMathFunction* mfunc )
+void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc, 					bool withcolor )
 { 
-    if (!mfunc ) return; 
-    mathfunc_ += mfunc; 
+    if ( !mfunc ) return; 
+    mathfunc_ += mfunc;
+
+    const int curidx = funclistfld_->size();
+    const Color& col = withcolor ? Color::stdDrawColor( curidx ) 
+				 : Color::Black();
+    colors_ += col;
+    funclistfld_->addItem( fcname, col );
+
+    uiFunctionDrawer::DrawFunction* drawfunction = 
+			new uiFunctionDrawer::DrawFunction( mfunc );
+    drawfunction->color_ = colors_[curidx];  
+    view_->addFunction( drawfunction );
 }
 
 
@@ -276,8 +282,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
     for ( int idx=0; idx<funcnames_.size(); idx++ )
     {
 	winfunc_ += WinFuncs().create( funcnames_[idx]->buf() );
-	funcdrawer_->addToList( funcnames_[idx]->buf());
-	funcdrawer_->addFunction( winfunc_[idx]  );
+	funcdrawer_->addFunction( funcnames_[idx]->buf(), winfunc_[idx] );
     }
 
     funcdrawer_->funclistselChged.notify(mCB(this,uiWindowFuncSelDlg,funcSelChg));
@@ -316,7 +321,6 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
 
     varinpfld_->display( isvartappresent );
     funcdrawer_->funcSelChg(0);
-    //canvas_->update();
 }
 
 
@@ -408,6 +412,8 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
 
     su.xaxrg_ = dd2_.xaxrg_;
     drawers_ += new uiFunctionDrawer( this, su );
+    
+    TypeSet<int> selecteditems;
 
     varinpfld_ = new uiGenInput( this, tapertxt_[1], FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, drawers_[0] );
@@ -439,9 +445,6 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     freqrgfld_->valuechanged.notify( mCB( this, uiFreqTaperDlg, taperChged  ) );
     freqrgfld_->attach( rightOf, varinpfld_ );
     
-    const Color& col = Color::DgbColor();
-    drawers_[0]->addColor( col );	  drawers_[1]->addColor( col );
-
     freqChoiceChged(0);
 }
 
@@ -551,19 +554,21 @@ float uiFreqTaperDlg::getSlope()
 }
 
 
-void uiFreqTaperDlg::taperChged( CallBacker* )
+void uiFreqTaperDlg::taperChged( CallBacker* cb )
 {
     setViewRanges();
     DrawData& dd = mGetData();
     winfunc_->setVariable( 1.0 - dd.variable_/100 );
     uiFunctionDrawer* drawer = isminactive_ ? drawers_[0] : drawers_[1];
+    uiFunctionDrawer::DrawFunction* drawfunction = 
+			new uiFunctionDrawer::DrawFunction( winfunc_ );
+    drawer->addFunction( drawfunction );
+
     for ( int idx=0; idx<drawers_.size(); idx++ )
     {
 	drawer->setFunctionRange( dd.funcrg_ );
-	drawer->erasePoints();
-	drawer->createLine( winfunc_ );
+	drawer->draw(0);
 	TypeSet<int> intset; intset += 0;
-	drawer->draw( intset );
     }
     putToScreen(0);
 }

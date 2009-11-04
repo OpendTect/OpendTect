@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.15 2009-10-22 13:31:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.16 2009-11-04 16:19:14 cvsbruno Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -230,8 +230,7 @@ void uiSeisWvltMerge::makeStackedWvlt()
     }
     WvltMathFunction* stackedfunc = new WvltMathFunction( stackedwvlt_ );
     wvltfuncset_ += stackedfunc;
-    wd->addToList( wvltname, false );
-    wd->addFunction( stackedfunc );
+    wd->addFunction( wvltname, stackedfunc, false );
     wd->setAsCurrent( wvltname );
 }
 
@@ -309,9 +308,9 @@ void uiSeisWvltMerge::reloadFunctions()
     {
 	for ( int idx=0; idx<wvltset_.size(); idx++ )
 	{
-	    wvltdrawer_[widx]->addToList( namelist_[idx]->buf() );
 	    wvltfuncset_ += new WvltMathFunction( wvltset_[idx] );
-	    wvltdrawer_[widx]->addFunction( wvltfuncset_[idx] );
+	    wvltdrawer_[widx]->addFunction( namelist_[idx]->buf(), 
+					    wvltfuncset_[idx] );
 	}
     }
 }

@@ -7,22 +7,22 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.23 2009-10-23 13:06:27 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.24 2009-11-04 16:19:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
-#include "uifunctiondisplay.h"
+#include "uigraphicsview.h"
 #include "uigroup.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "mathfunc.h"
 
 class uiAxisHandler;
-class uiGraphicsItemGroup;
 class uiGenInput;
+class uiGraphicsItemGroup;
 class uiListBox;
 class uiRectItem;
 class uiWorld2Ui;
@@ -30,9 +30,7 @@ class WindowFunction;
 
 /*!brief Displays a mathfunction. */
 
-
-
-mClass uiFunctionDrawer : public uiFunctionDisplay
+mClass uiFunctionDrawer : public uiGraphicsView
 {
 
 public:
@@ -41,49 +39,58 @@ public:
 			Setup()
 			    : xaxrg_(-1.2,1.2,0.25)
 			    , yaxrg_(0,1,0.25) 
-			    , border_(10,10,10,10)		       
 			    , funcrg_(-1.2,1.2) 
 			    , xaxname_("")	       
 			    , yaxname_("")
-			    , fillbelow_(false)
-			    , drawownaxis_(true)
 			    {}
 					      
 	mDefSetupMemb(StepInterval<float>,xaxrg)
 	mDefSetupMemb(StepInterval<float>,yaxrg)	
-	mDefSetupMemb(uiBorder,border)	
 	mDefSetupMemb(const char*,name)	
 	mDefSetupMemb(BufferString,xaxname)	
 	mDefSetupMemb(BufferString,yaxname)	
 	mDefSetupMemb(Interval<float>,funcrg)	
-	mDefSetupMemb(bool,fillbelow)	
-	mDefSetupMemb(bool,drawownaxis)	
+    };
+
+    mStruct DrawFunction
+    {
+		DrawFunction( const FloatMathFunction* f )
+		    : color_(Color::DgbColor())
+		    , mathfunc_(f)
+		    {}
+
+	const FloatMathFunction* mathfunc_;
+	TypeSet<uiPoint> pointlist_;
+	Color		 color_;
     };
 
 			uiFunctionDrawer(uiParent*,const Setup&);
 			~uiFunctionDrawer();
     
-    void		addColor(const Color& col) { linesetcolor_ += col; }
-    void		draw(TypeSet<int>&);
-    void		setFrame();
-    void		createLine(const FloatMathFunction*);
-    void		erasePoints() { pointlistset_.erase(); }
-
-    void 		setFunctionRange(Interval<float>& rg) { funcrg_ = rg; }
+    void		addFunction(DrawFunction* f) { functions_ += f; }
+    void		clearFunctions(){ deepErase( functions_ ); }
+    void		clearFunction(int idx) {delete functions_.remove(idx);}
+    void		draw(CallBacker*);
     Interval<float>& 	getFunctionRange() { return funcrg_; }
-    
+    void 		setSelItems(TypeSet<int> s) { selitemsidx_ = s; }
+    void 		setFunctionRange(Interval<float>& rg) {funcrg_ = rg;}
+    void 		setUpAxis();
 
+    
 protected:
 
     Interval<float>  	funcrg_;
     float		variable_;
     uiWorld2Ui*		transform_;
+    uiRectItem*		borderrectitem_;
     uiAxisHandler*	xax_;
     uiAxisHandler*	yax_;
-    uiRectItem*		borderrectitem_;
     uiGraphicsItemGroup* polyitemgrp_;
-    TypeSet< TypeSet<uiPoint> >	pointlistset_;
-    TypeSet<Color>	linesetcolor_;
+    ObjectSet<DrawFunction> functions_;
+    TypeSet<int> 	selitemsidx_;
+    
+    void		createLine(DrawFunction*);
+    void		setFrame();
 };
 
 
@@ -95,8 +102,8 @@ public:
 
     Notifier<uiFuncSelDraw> funclistselChged;
 
-    void		addFunction(FloatMathFunction*); 
-    void		addToList(const char*,bool withcolor=true);
+    void		addFunction(const char* nm=0, FloatMathFunction* f=0,
+	    				bool withcolor=true); 
     int			getListSize() const;
     int			getNrSel() const;
     const char*		getCurrentListName() const;
@@ -115,6 +122,7 @@ protected:
 				
     uiFunctionDrawer*	view_;
     uiListBox*		funclistfld_;
+    TypeSet<Color>	colors_;
     ObjectSet<FloatMathFunction> mathfunc_;
 };
 
