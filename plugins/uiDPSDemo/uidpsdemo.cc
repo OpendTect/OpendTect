@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.3 2009-11-04 13:43:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.4 2009-11-04 14:29:58 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
@@ -85,7 +85,10 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) return false;
 
-    if ( !getRandPositions(*hor,nrpts) || !getSeisData(seisioobj,*tr) )
+    hor->ref();
+    const bool isok = getRandPositions(*hor,nrpts);
+    hor->unRef();
+    if ( !isok || !getSeisData(seisioobj,*tr) )
 	return false;
 
     uiMSG().error( "TODO: pop up uiDataPointSet" );
@@ -97,7 +100,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 
 bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts )
 {
-    dps_.setEmpty();
+    dps_.bivSet().empty();
 
     TypeSet<int> nrsectnodes;
     int totnrnodes = 0;
@@ -165,9 +168,12 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, TaskRunner& tr )
     {
 	const SeisTrc& trc = *tbuf.get( idx );
 	DataPointSet::RowID rid = dps_.findFirst( trc.info().binid );
-	if ( rid < 0 ) continue; // should not be possible
+	if ( rid < 0 )
+	    { pErrMsg("Huh?"); continue; }
 
 	const float z = dps_.z( rid );
+	if ( mIsUdf(z) ) continue; // Hmm. Node with undef Z ...
+
 	float* vals = dps_.getValues( rid );
 	vals[0] = trc.getValue( z, icomp );
 	vals[1] = SeisTrcPropCalc(trc,icomp).getFreq( trc.nearestSample(z) );
