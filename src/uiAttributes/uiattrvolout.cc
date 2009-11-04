@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.72 2009-08-21 12:41:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.73 2009-11-04 05:44:14 cvsraman Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiattrvolout.cc,v 1.72 2009-08-21 12:41:02 cvsb
 #include "uiseisioobjinfo.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seisselection.h"
@@ -59,8 +60,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     setHelpID( "101.2.0" );
 
     bool is2d = ad.is2D();
-    setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute");
     setTitleText( is2d ? "Create 2D seismic output":"Create 3D seismic output");
+    setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute");
 
     uiAttrSelData attrdata( ad, false );
     attrdata.nlamodel = nlamodel;
@@ -68,7 +69,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
     transffld = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
-	    	.fornewentry(true).withstep(false).multiline(true) );
+	    	.fornewentry(!is2d).withstep(false).multiline(true) );
     transffld->attach( alignedBelow, todofld );
     if ( transffld->selFld2D() )
 	transffld->selFld2D()->singLineSel.notify(
@@ -129,14 +130,16 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	mSetObjFld( desc->isStored() ? "" : todofld->getInput() )
     else
     {
-	const BufferString attrnm( todofld->getInput() );
+	BufferString attrnm( todofld->getAttrName() );
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(desc->getStoredID(true)) );
 	if ( !ioobj )
-	    mSetObjFld( LineKey("",attrnm) )
+	    mSetObjFld( LineKey(attrnm) )
 	else
 	{
-	    mSetObjFld( LineKey(ioobj->key(),attrnm) )
-	    objfld->setAttrNm( attrnm );
+	    if ( desc->isStored() )
+		mSetObjFld( LineKey(todofld->getInput()) )
+	    else
+		mSetObjFld( LineKey(ioobj->name(),attrnm) )
 	    transffld->setInput( *ioobj );
 	}
     }
@@ -168,6 +171,21 @@ bool uiAttrVolOut::prepareProcessing()
 		"Click on 'Yes' if you want 'Seis' as attribute name. "
 		"Click on 'No' to provide another name." );
 	    if ( !res ) return false; 
+	}
+
+	if ( attrnm.isEmpty() )
+	    attrnm = LineKey::sKeyDefAttrib();
+
+	SeisIOObjInfo info( ctio.ioobj );
+	BufferStringSet lnms;
+	info.getLineNamesWithAttrib( attrnm.buf(), lnms );
+	const bool singline = transffld->selFld2D()->isSingLine();
+	const char* lnm = singline ? transffld->selFld2D()->selectedLine() : 0;
+	if ( (!singline && lnms.size()) || (singline && lnms.indexOf(lnm) >=0) )
+	{
+	    const bool rv = uiMSG().askGoOn( "Output attribute already exists.",
+		    			     "Overwrite", "Cancel" );
+	    if ( !rv ) return false; 
 	}
     }
 
