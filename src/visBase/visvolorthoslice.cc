@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.9 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.10 2009-11-04 16:40:31 cvskarthika Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -68,13 +68,19 @@ void OrthogonalSlice::setVolumeDataSize(int xsz, int ysz, int zsz)
 
 
 void OrthogonalSlice::setSpaceLimits( const Interval<float>& x,
-						    const Interval<float>& y,
-						    const Interval<float>& z )
+				      const Interval<float>& y,
+				      const Interval<float>& z )
 {
     dragger->setSpaceLimits( x,y,z );
     dragger->setCenter( Coord3(x.center(),y.center(),z.center()) );
     dragger->setSize( Coord3(x.width(),y.width(),z.width()) );
     draggerMovementCB(0);
+}
+
+
+const visBase::DepthTabPlaneDragger* OrthogonalSlice::getDragger() const
+{
+    return dragger;
 }
 
 
