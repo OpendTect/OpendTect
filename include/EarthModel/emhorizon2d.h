@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.18 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.19 2009-11-04 06:41:20 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -105,6 +105,8 @@ public:
 
     void			syncGeometry();
     virtual void		removeAll();
+    void			removeSelected(const Selector<Coord3>& selector,
+	    				       TaskRunner* tr );
 
 protected:
 

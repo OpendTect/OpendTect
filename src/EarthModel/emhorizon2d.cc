@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.30 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.31 2009-11-04 06:41:20 cvsumesh Exp $";
 
 #include "emhorizon2d.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: emhorizon2d.cc,v 1.30 2009-07-22 16:01:31 cvsbe
 #include "errh.h"
 #include "horizon2dline.h"
 #include "ioman.h"
+#include "selector.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -308,6 +309,40 @@ void Horizon2D::removeAll()
 {
     Surface::removeAll();
     geometry_.removeAll();
+}
+
+
+void Horizon2D::removeSelected( const Selector<Coord3>& selector,
+				TaskRunner* tr )
+{
+    if ( !selector.isOK() )
+	return;
+
+    removebypolyposbox_.setEmpty();
+    insideselremoval_ = true;
+
+    for ( int idx=0; idx<nrSections(); idx++ )
+    {
+	const Geometry::Element* ge = sectionGeometry( sectionID(idx) );
+	if ( !ge ) continue;
+
+	TypeSet<EM::SubID> removallist;
+
+	PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
+	while ( true )
+	{
+	    const EM::PosID pid = iterator->next();
+	    if ( pid.objectID()==-1 )
+		break;
+
+	    const Coord3 pos = getPos(pid);
+	    if ( selector.includes(pos) )
+		removallist += pid.subID();
+	}
+
+	removeListOfSubIDs( removallist, sectionID(idx) );
+    }
+    insideselremoval_ = false;
 }
 
 

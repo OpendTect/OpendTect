@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.90 2009-10-09 21:26:27 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.91 2009-11-04 06:41:20 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -191,6 +191,8 @@ public:
     virtual bool		isPosAttribLocked(int attr) const;
     virtual void		removeSelected(const Selector<Coord3>&,
 	    				       TaskRunner*);
+    void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
+	    					   const EM::SectionID&);
     void			removeAllUnSeedPos();
     const CubeSampling		getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();

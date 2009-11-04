@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.100 2009-08-25 08:56:13 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.101 2009-11-04 06:41:20 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: emobject.cc,v 1.100 2009-08-25 08:56:13 cvsumes
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "parametricsurface.h"
+#include "rowcolsurface.h"
 #include "ptrman.h"
 #include "selector.h"
 #include "survinfo.h"
@@ -457,7 +457,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	const Geometry::Element* ge = sectionGeometry( sectionID(idx) );
 	if ( !ge ) continue;
 
-	mDynamicCastGet(const Geometry::ParametricSurface*,surface,ge);
+	mDynamicCastGet(const Geometry::RowColSurface*,surface,ge);
 	if ( !surface ) continue;
 
 	int startrow = surface->rowRange().start;
@@ -534,6 +534,20 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
     }
 #endif */
     insideselremoval_ = false;
+}
+
+
+void EMObject::removeListOfSubIDs( const TypeSet<EM::SubID>& subids,
+       				   const EM::SectionID& sectionid )
+{
+    for ( int sididx = 0; sididx < subids.size(); sididx++ )
+    {
+	if ( sididx == 0 )
+	    setBurstAlert( true );
+	unSetPos( sectionid, subids[sididx], true );
+	if ( sididx == subids.size()-1 )
+	    setBurstAlert( false );
+    }
 }
 
 
