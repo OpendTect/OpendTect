@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.186 2009-11-04 08:49:15 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.187 2009-11-04 16:41:57 cvskarthika Exp $";
 
 #include "uimpeman.h"
 
@@ -58,7 +58,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.186 2009-11-04 08:49:15 cvskart
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-#define USE_TEXTURE 
+//#define USE_TEXTURE 
 
 using namespace MPE;
 
@@ -1133,8 +1133,8 @@ void uiMPEMan::changeTrackerOrientation( int orient )
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
     mGetDisplays(true)
-	for ( int idx=0; idx<displays.size(); idx++ )
-	    displays[idx]->setPlaneOrientation( orient );
+    for ( int idx=0; idx<displays.size(); idx++ )
+	displays[idx]->setPlaneOrientation( orient );
     MouseCursorManager::restoreOverride();
 }
 
@@ -1413,7 +1413,7 @@ void uiMPEMan::handleOrientationClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
     const int dim = itm->id();
-	updateQCButton( toolbar, moveplaneidx, dim );
+    updateQCButton( toolbar, moveplaneidx, dim );
     changeTrackerOrientation( dim );
     movePlaneCB( cb );
 }
