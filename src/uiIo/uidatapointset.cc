@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.53 2009-10-15 10:05:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.54 2009-11-04 15:22:31 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -345,9 +345,14 @@ void uiDataPointSet::fillPos( TRowID tid )
     const Coord c( pos.coord() );
     tbl_->setValue( rc, c.x ); rc.c()++;
     tbl_->setValue( rc, c.y ); rc.c()++;
-    float fz = zfac_ * pos.z_ * 100;
-    int iz = mNINT(fz);
-    tbl_->setValue( rc, iz * 0.01 );
+    if ( mIsUdf(pos.z_) )
+	tbl_->setText( rc, "" );
+    else
+    {
+	float fz = zfac_ * pos.z_ * 100;
+	int iz = mNINT(fz);
+	tbl_->setValue( rc, iz * 0.01 );
+    }
     BufferString rownm;
     if ( is2D() )
 	rownm += pos.nr_;
