@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.47 2009-10-30 00:31:29 cvskarthika Exp $
+ RCS:		$Id: vismpe.h,v 1.48 2009-11-04 08:23:30 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -92,7 +92,7 @@ public:
     void			setColTabSequence(int,const ColTab::Sequence&,
 	    					  TaskRunner*);
 
-    int				addSlice(int dim);
+    int				addSlice(int dim, bool show);
     void                        removeChild(int displayid);
     void			getChildren(TypeSet<int>&) const;
 
@@ -219,6 +219,7 @@ protected:
     BufferString                sliceposition_;
     BufferString                slicename_;
     CubeSampling                csfromsession_;
+	int							dim_;
 
 	bool			allowshading_;
     visBase::EventCatcher*	eventcatcher_;
