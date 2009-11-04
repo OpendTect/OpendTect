@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.9 2009-10-23 15:30:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.10 2009-11-04 14:33:47 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.9 2009-10-23 15:30:43 cvs
 #include "uiaxishandler.h"
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uiwindowfuncseldlg.h"
+#include "uifunctiondisplay.h"
 #include "uislider.h"
 
 #include "arrayndimpl.h"
@@ -127,11 +127,6 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet* wvlt )
     properties_ = new uiWaveletDispProp( this, wvlt_, setup );
     drawer_ = properties_->getAttrDisp( 0 );
     
-    const Color& col = Color::DgbColor();
-    drawer_->addColor( col );
-    Interval<float> funcrg( -1, 1 );
-    drawer_->setFunctionRange( funcrg );
-
     sliderfld_->attach( ensureBelow, properties_ );
     act(0);
 }     
@@ -160,23 +155,20 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
 	wvltattr_->muteZeroFrequency( *wvltvals_ );
 
     WindowFunction* winfunc = WinFuncs().create( winname );
+    TypeSet<float> xvals;
     for ( int idx=0; idx<wvltsz; idx++ )
+    {
+	xvals += ( idx - wvltsz/2 )*SI().zStep()*1000;
 	wvlt_->samples()[idx] = wvltvals_->get(idx); 
+    }
 
     winfunc->setVariable( var );
-    drawTaper( winfunc );
     properties_->setAttrCurves( wvlt_ );
+    drawer_->setY2Vals( xvals.arr(), window_->getValues(), wvltsz );
+
     acting.trigger();
 }
 
-
-void uiSeisWvltTaperDlg::drawTaper( WindowFunction* winfunc )
-{
-    drawer_->erasePoints();
-    drawer_->createLine( winfunc );
-    TypeSet<int> intset; intset += 0;
-    drawer_->draw( intset );
-}
 
 /*
 void uiSeisWvltFilterDlg::filter( float lowfreq, float highfreq )
@@ -211,6 +203,7 @@ uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet* w )
 
 uiWaveletDispPropDlg::~uiWaveletDispPropDlg()
 {
+    delete properties_;
 }
 
 
@@ -243,8 +236,9 @@ void uiWaveletDispProp::addAttrDisp( bool isfreq )
 {
     float zstep = SI().zStep();
     Interval<float> intv( -wvltsz_*zstep*500 , wvltsz_*zstep*500 );
-    uiFunctionDrawer::Setup fdsu; fdsu.xaxrg_ = intv; fdsu.drawownaxis_ = false;
-    uiBorder border( 60, 10, 10, 10 ); fdsu.border_ = border;
+    uiFunctionDisplay::Setup fdsu; 
+    fdsu.noy2axis_ = true; fdsu.noy2gridline_ = true;
+
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
     const int attridx = attrarrays_.size()-1;
     BufferString xname, yname = attrnms_[attridx];
@@ -257,7 +251,7 @@ void uiWaveletDispProp::addAttrDisp( bool isfreq )
     }
     else
 	xname += "Time (ms)";
-    attrdisps_ += new uiFunctionDrawer( this, fdsu );
+    attrdisps_ += new uiFunctionDisplay( this, fdsu );
     if ( attridx )
 	attrdisps_[attridx]->attach( alignedBelow, attrdisps_[attridx-1] );
 
@@ -311,8 +305,8 @@ WaveletAttrib::~WaveletAttrib()
 }
 
 
-#define mDoTransform(tf,isstraight,inp,outp,sz) \
-{   \
+#define mDoTransform(tf,isstraight,inp,outp,sz)\
+{\
 	tf->setInputInfo(Array1DInfoImpl(sz));\
 	tf->setDir(isstraight);\
 	tf->init();\

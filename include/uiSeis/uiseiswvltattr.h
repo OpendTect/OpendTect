@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.8 2009-10-21 09:36:10 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.9 2009-11-04 14:33:47 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class FFT;
 class WindowFunction;
 class Wavelet;
 class uiCheckBox;
-class uiFunctionDrawer;
+class uiFunctionDisplay;
 class uiWaveletDispProp;
 
 template <class T> class Array1DImpl;
@@ -89,11 +89,10 @@ protected:
     Array1DImpl<float>* 	wvltvals_;
     Array1DImpl<float>* 	orgwvltvals_;
     uiWaveletDispProp*		properties_;
-    uiFunctionDrawer*		drawer_;
+    uiFunctionDisplay*		drawer_;
     uiCheckBox*			mutefld_;
 
     void			act(CallBacker*);
-    void			drawTaper(WindowFunction*);
 };
 
 
@@ -118,14 +117,14 @@ public:
 				~uiWaveletDispProp();
 
     void                        setAttrCurves(const Wavelet*);
-    uiFunctionDrawer*		getAttrDisp(int idx)  
+    uiFunctionDisplay*		getAttrDisp(int idx)  
     				{ return attrdisps_[idx]; }
 
 private:
 
     int                         wvltsz_;
     const char*			attrnms_[4];
-    ObjectSet<uiFunctionDrawer> attrdisps_;
+    ObjectSet<uiFunctionDisplay> attrdisps_;
     ObjectSet< Array1DImpl<float> > attrarrays_;
 
     void			addAttrDisp(bool);
