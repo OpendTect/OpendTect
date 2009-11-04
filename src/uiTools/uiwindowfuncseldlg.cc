@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.32 2009-11-04 16:19:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.33 2009-11-04 16:39:05 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -585,6 +585,7 @@ void uiFreqTaperDlg::freqChoiceChged( CallBacker* )
     freqrgfld_->setSensitive( hasmin_ && isminactive_, 0, 0 );
     freqrgfld_->setSensitive( hasmax_ && !isminactive_, 0, 1 );
     taperChged(0);
+    getFromScreen(0);
 }
 
 
