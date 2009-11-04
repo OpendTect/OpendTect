@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.2 2009-11-04 09:49:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.3 2009-11-04 11:16:06 cvsbert Exp $";
 
 
 #include "uidpsdemo.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.2 2009-11-04 09:49:24 cvsber
 #include "odver.h"
 #include "pixmap.h"
 #include "plugins.h"
+#include "survinfo.h"
 
 
 mExternC int GetuiDPSDemoPluginType()
@@ -55,6 +56,8 @@ public:
 			uiDPSDemoMgr(uiODMain&);
 
     uiODMain&		appl_;
+
+    void		insertItems(CallBacker* cb=0);
     void		doIt(CallBacker*);
 };
 
@@ -62,6 +65,15 @@ public:
 uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
 	: appl_(a)
 {
+    appl_.menuMgr().dTectTBChanged.notify( mCB(this,uiDPSDemoMgr,insertItems) );
+    insertItems();
+}
+
+
+void uiDPSDemoMgr::insertItems( CallBacker* )
+{
+    if ( !SI().has3D() ) return;
+
     uiODMenuMgr& mnumgr = appl_.menuMgr();
     const ioPixmap pm( "dpsdemo.png" );
     const CallBack cb( mCB(this,uiDPSDemoMgr,doIt) );
