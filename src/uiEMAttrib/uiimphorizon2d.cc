@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.17 2009-08-28 06:57:42 cvsraman Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.18 2009-11-04 03:30:33 cvsnanne Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -203,9 +203,6 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     , linesetnms_(*new BufferStringSet)
     , fd_(*EM::Horizon2DAscIO::getDesc())
 {
-    uiEMPartServer::getAllSurfaceInfo( horinfos_, true );
-    TypeSet<BufferStringSet> linenms;
-    uiSeisPartServer::get2DLineInfo( linesetnms_, setids_, linenms );
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
 					    .withexamine(true)
 					    .forread(true) );
@@ -214,6 +211,8 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon2D,formatSel) );
 
+    TypeSet<BufferStringSet> linenms;
+    uiSeisPartServer::get2DLineInfo( linesetnms_, setids_, linenms );
     uiLabeledComboBox* lsetbox = new uiLabeledComboBox( this, "Select Line Set",
 	    						"Line Set Selector" );
     lsetbox->attach( alignedBelow, inpfld_ );
@@ -222,6 +221,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     linesetfld_->selectionChanged.notify( mCB(this,uiImportHorizon2D,setSel) );
 
     BufferStringSet hornms;
+    uiEMPartServer::getAllSurfaceInfo( horinfos_, true );
     for ( int idx=0; idx<horinfos_.size(); idx++ )
 	hornms.add( horinfos_[idx]->name );
 
@@ -277,13 +277,14 @@ void uiImportHorizon2D::formatSel( CallBacker* cb )
 
 void uiImportHorizon2D::setSel( CallBacker* )
 {
+    if ( scanner_ ) delete scanner_;
+    scanner_ = 0;
 }
 
 
 void uiImportHorizon2D::addHor( CallBacker* )
 {
-    uiGenInputDlg dlg( this, "Add Horizon",
-	    				    "Name", new StringInpSpec() );
+    uiGenInputDlg dlg( this, "Add Horizon", "Name", new StringInpSpec() );
     if ( !dlg.go() ) return;
 
     const char* hornm = dlg.text();
@@ -394,9 +395,8 @@ bool uiImportHorizon2D::doImport()
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
     const BinIDValueSet* valset = scanner_->getVals();
-    PtrMan<Horizon2DImporter> exec = new Horizon2DImporter( linenms, horizons,
-	    						    setids_[setidx],
-							    valset );
+    PtrMan<Horizon2DImporter> exec =
+	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset );
     uiTaskRunner impdlg( this );
     impdlg.execute( *exec );
 
@@ -415,7 +415,11 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
 {
     if ( !checkInpFlds() ) return false;
 
-    return doImport();
+    const bool res = doImport();
+    if ( res )
+	uiMSG().message( "Horizon successfully imported" );
+
+    return false;
 }
 
 

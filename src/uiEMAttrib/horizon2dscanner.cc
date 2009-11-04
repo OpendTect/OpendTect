@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.13 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.14 2009-11-04 03:30:33 cvsnanne Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -130,7 +130,7 @@ void Horizon2DScanner::report( IOPar& iopar ) const
 	    msg += invalidnms_.get( idx );
 	}
 
-	iopar.add( "Rejected Line names", msg );
+	iopar.add( "Rejected line names", msg );
     }
 
     const int nrpos = bvalset_ ? bvalset_->totalSize() : 0;
@@ -141,7 +141,7 @@ void Horizon2DScanner::report( IOPar& iopar ) const
 	return;
     }
 
-    iopar.set( "Total Number of positions: ", nrpos );
+    iopar.set( "Total number of positions", nrpos );
     iopar.add( "Value ranges", "" );
     for ( int idx=0; idx<valranges_.size(); idx++ )
 	iopar.set( fd_.bodyinfos_[idx+2]->name(), valranges_[idx] );
