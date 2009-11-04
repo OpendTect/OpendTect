@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.11 2009-10-23 21:24:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.12 2009-11-04 16:01:05 cvsyuancheng Exp $";
 
 #include "uihorinterpol.h"
 
@@ -17,12 +17,13 @@ static const char* rcsID = "$Id: uihorinterpol.cc,v 1.11 2009-10-23 21:24:21 cvs
 #include "datainpspec.h"
 #include "executor.h"
 #include "emhorizon3d.h"
-#include "emsurfacetr.h"
 #include "emmanager.h"
-#include "rowcol.h"
+#include "emsurfacetr.h"
 #include "survinfo.h"
+
 #include "uiarray2dinterpol.h"
 #include "uigeninput.h"
+#include "uihorsavefieldgrp.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -34,10 +35,8 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
 	       				  "Gridding parameters",
 					  "HelpID" ) )
     , horizon_( hor )
-    , newhorizon_( 0 )		     
     , inputhorsel_( 0 )
-    , savefld_( 0 )
-    , addnewfld_( 0 )
+    , savefldgrp_( 0 )		       
 {
     if ( horizon_ )
 	horizon_->ref();
@@ -62,42 +61,16 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, interpolsel_ );
 
-    uiGroup* attgrp = 0;
-    if ( horizon_ )
-    {
-	savefld_ = new uiGenInput( this, "Save gridded horizon",
-				   BoolInpSpec(false, "As new", "Overwrite") );
-	savefld_->attach( alignedBelow, interpolsel_ );
-	savefld_->valuechanged.notify(
-		mCB(this,uiHorizon3DInterpolDlg,saveChangeCB));
-	attgrp = savefld_;
-
-	addnewfld_ = new uiGenInput( this, "Display in the scene",
-				      BoolInpSpec(true) );
-    }
-
-    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread = false;
-    outputfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
-    if ( attgrp )
-	outputfld_->attach( alignedBelow, attgrp );
-    else
-	attgrp = outputfld_;
-
-    attgrp->attach( alignedBelow, interpolsel_ );
-    attgrp->attach( ensureBelow, sep );
-    
-    if ( addnewfld_ )
-	addnewfld_->attach( alignedBelow, outputfld_ );
-
-    saveChangeCB( 0 );
+    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
+    savefldgrp_->setSaveFieldName( "Save gridded horizon" );
+    savefldgrp_->attach( alignedBelow, interpolsel_ );
+    savefldgrp_->attach( ensureBelow, sep );
 }
 
 
 uiHorizon3DInterpolDlg::~uiHorizon3DInterpolDlg()
 {
     if ( horizon_ ) horizon_->unRef();
-    if ( newhorizon_ ) newhorizon_->unRef();
 }
 
 
@@ -107,15 +80,10 @@ const char* uiHorizon3DInterpolDlg::helpID() const
 }
 
 
-void uiHorizon3DInterpolDlg::saveChangeCB( CallBacker* )
-{
-    outputfld_->display( savefld_ ? savefld_->getBoolValue() : true );
-    if ( addnewfld_ )
-    	addnewfld_->display( savefld_ ? savefld_->getBoolValue() : false );
-}
+#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
 
-bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
+bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* cb )
 {
     if ( !interpolsel_->acceptOK() )
 	return false;
@@ -124,43 +92,26 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
     if ( !interpolator )
 	return false;
 
-    const IOObj* outputioobj = 0;
-    if ( !savefld_ || savefld_->getBoolValue() )
-    {
-	outputioobj = outputfld_->ioobj();
-	if ( !outputioobj )
-	    return false;
-    }
-    
     uiTaskRunner tr( this );
 
-    if ( inputhorsel_ )
+    if ( inputhorsel_ ) 
     {
 	const IOObj* ioobj = inputhorsel_->ioobj();
 	if ( !ioobj )
 	    return false;
 
-	RefMan<EM::EMObject> obj =
-	    EM::EMM().loadIfNotFullyLoaded( ioobj->key(), &tr );
-	mDynamicCastGet( EM::Horizon3D*, hor, obj.ptr() );
+	EM::Horizon3D* hor = savefldgrp_->readHorizon( ioobj->key() );
 	if ( !hor )
-	{
-	    uiMSG().error("Could not load horizon");
-	    return false;
-	}
+	    mErrRet( "Could not load horizon" );
 
-	if ( horizon_ )
-	    horizon_->unRef();
+	if ( horizon_ ) horizon_->unRef();
 
 	horizon_ = hor;
 	horizon_->ref();
     }
 
     if ( !horizon_ )
-    {
-	pErrMsg("Missing horizon!");
-	return false;
-    }
+	mErrRet( "Missing horizon!" );
 
     MouseCursorChanger mcc( MouseCursor::Wait );
 
@@ -169,11 +120,7 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
     {
 	case 0:
 	    filltype = Array2DInterpol::Full;
-	    if ( !expandArraysToSurvey() )
-	    {
-		uiMSG().error("Cannot allocate memory for extrapolation");
-		return false;
-	    }
+	    savefldgrp_->setFullSurveyArray( true );
 	    break;
 	case 1:
 	    filltype = Array2DInterpol::Full;
@@ -186,13 +133,16 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
     }
 
     interpolator->setFillType( filltype );
-    if ( savefld_ && savefld_->getBoolValue() && !createNewHorizon() )
+
+    if ( !savefldgrp_->acceptOK( cb ) ) 
 	return false;
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
 
-    EM::Horizon3D& usedhor = newhorizon_ ? *newhorizon_ : *horizon_;
+    EM::Horizon3D* usedhor = savefldgrp_->getNewHorizon() ?
+	savefldgrp_->getNewHorizon() : horizon_;
+
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
@@ -225,8 +175,8 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	    ErrMsg( msg ); continue;
 	}
 
-	EM::SectionID usedsid = usedhor.geometry().sectionID( idx );;
-	if ( !usedhor.setArray2D( *arr, usedsid, true, "Interpolation" ) )
+	EM::SectionID usedsid = usedhor->geometry().sectionID( idx );;
+	if ( !usedhor->setArray2D( *arr, usedsid, true, "Interpolation" ) )
 	{
 	    BufferString msg( "Cannot set new data to section " );
 	    msg += usedsid;
@@ -234,120 +184,7 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	}
     }
 
-    if ( outputioobj )
-    {
-	if ( !savefld_ ) horizon_->setMultiID( outputioobj->key() );
-	PtrMan<Executor> exec = usedhor.saver();
-	if ( !tr.execute( *exec ) )
-	{
-	    uiMSG().error("Could not save horizon");
-	    return false;
-	}
-    }
-
-    return true;
+    return savefldgrp_->saveHorizon();
 }
 
 
-bool uiHorizon3DInterpolDlg::createNewHorizon()
-{
-    if ( !savefld_ || !savefld_->getBoolValue() || !outputfld_->ioobj() )
-	return false;
-
-    EM::EMManager& em = EM::EMM();
-    const BufferString typ = EM::Horizon3D::typeStr();
-    EM::ObjectID objid = em.createObject( typ, outputfld_->getInput() );
-
-    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
-    if ( !horizon )
-    {
-	ErrMsg( "Cannot create horizon" );
-	return false;
-    }
-    
-    horizon->initClass();	
-    if ( newhorizon_ ) newhorizon_->unRef();
-    newhorizon_ = horizon;	
-    newhorizon_->ref();
-    newhorizon_->setMultiID( outputfld_->ioobj()->key() );
-
-    for ( int idx=0; idx<newhorizon_->geometry().nrSections(); idx++ )
-    {
-	const EM::SectionID sid = newhorizon_->geometry().sectionID( idx );
-	newhorizon_->geometry().removeSection( sid, false );
-    }
-    
-    const RowCol step = horizon_->geometry().step();
-    newhorizon_->geometry().setStep( step, step );
-
-    for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
-    {
-	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
-	const Geometry::BinIDSurface* surf = 
-	    horizon_->geometry().sectionGeometry(sid);
-
-	EM::SectionID usedsid = sid;
-	BufferString sectnm = horizon_->sectionName( sid );
-	usedsid = newhorizon_->geometry().addSection( sectnm, false );
-
-	const RowCol start = surf->getKnotRowCol(0);
-	const RowCol stop = surf->getKnotRowCol( surf->nrKnots()-1 );
-	newhorizon_->geometry().sectionGeometry(usedsid)->
-	    expandWithUdf( start, stop );
-    }
-    
-    return true;
-}
-
-
-bool uiHorizon3DInterpolDlg::displayNewHorizon() const
-{
-    return savefld_ && savefld_->getBoolValue() && addnewfld_->getBoolValue(); 
-}
-
-
-bool uiHorizon3DInterpolDlg::expandArraysToSurvey()
-{
-    for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ ) 
-    {
-	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
-	StepInterval<int> rowrg = horizon_->geometry().rowRange( sid );
-	StepInterval<int> colrg = horizon_->geometry().colRange( sid );
-
-	mDynamicCastGet( Geometry::ParametricSurface*, surf,
-			 horizon_->sectionGeometry( sid ) );
-
-	const StepInterval<int> survcrlrg = SI().crlRange(true);
-	int nrcolstoinsert = -colrg.nearestIndex(survcrlrg.start);
-	if ( nrcolstoinsert>0 )
-	{
-	    surf->insertCol( survcrlrg.start, nrcolstoinsert );
-	    colrg.start = survcrlrg.start;
-	}
-
-	nrcolstoinsert = (survcrlrg.stop-colrg.stop)/colrg.step;
-	if ( nrcolstoinsert>0 )
-	{
-	    surf->insertCol( colrg.stop+colrg.step, nrcolstoinsert );
-	    colrg.stop += nrcolstoinsert*colrg.step;
-	}
-
-	const StepInterval<int> survinlrg = SI().inlRange(true);
-
-	int nrrowstoinsert = -rowrg.nearestIndex(survinlrg.start);
-	if ( nrrowstoinsert>0 )
-	{
-	    surf->insertRow( survinlrg.start, nrrowstoinsert );
-	    rowrg.start = survinlrg.start;
-	}
-
-	nrrowstoinsert = (survinlrg.stop-rowrg.stop)/rowrg.step;
-	if ( nrrowstoinsert>0 )
-	{
-	    surf->insertRow( rowrg.stop+rowrg.step, nrrowstoinsert );
-	    rowrg.stop += nrrowstoinsert*rowrg.step;
-	}
-    }
-
-    return true;
-}

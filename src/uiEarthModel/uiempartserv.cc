@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.193 2009-10-27 11:51:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.194 2009-11-04 16:01:05 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -68,6 +68,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.193 2009-10-27 11:51:45 cvs
 #include "uisurfaceman.h"
 #include "uitaskrunner.h"
 #include "uidlggroup.h"
+#include "uihorsavefieldgrp.h"
 
 #include <math.h>
 
@@ -233,6 +234,16 @@ bool uiEMPartServer::isFullyLoaded( const EM::ObjectID& emid ) const
 }
 
 
+#define mDisplayNewHorizon \
+    if ( dlg.saveFldGrp()->displayNewHorizon() &&  \
+   	 dlg.saveFldGrp()->getNewHorizon( ) ) \
+    { \
+	const MultiID mid = dlg.saveFldGrp()->getNewHorizon()->multiID(); \
+	selemid_ = em_.getObjectID(mid); \
+	sendEvent( evDisplayHorizon() ); \
+    }
+
+
 void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid));
@@ -244,12 +255,7 @@ void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
     uiHorizon3DInterpolDlg dlg( parent(), hor3d );
     dlg.go();
 
-    if ( dlg.displayNewHorizon() && dlg.getNewHorizon( ) )
-    {
-	const MultiID mid = dlg.getNewHorizon()->multiID();
-	selemid_ = em_.getObjectID(mid);
-	sendEvent( evDisplayHorizon() );
-    }
+    mDisplayNewHorizon;
 }
 
 
@@ -258,6 +264,8 @@ void uiEMPartServer::filterSurface( const EM::ObjectID& emid )
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
     uiFilterHorizonDlg dlg( parent(), hor3d );
     dlg.go();
+
+    mDisplayNewHorizon;
 }
 
 

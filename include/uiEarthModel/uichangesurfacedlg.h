@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          June 2006
- RCS:           $Id: uichangesurfacedlg.h,v 1.10 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uichangesurfacedlg.h,v 1.11 2009-11-04 16:01:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,8 @@ ________________________________________________________________________
 
 namespace EM { class Horizon3D; }
 
+class uiHorSaveFieldGrp;
 class Executor;
-class CtxtIOObj;
 class uiGenInput;
 class uiIOObjSel;
 template <class T> class Array2D;
@@ -32,22 +32,18 @@ public:
 				uiChangeSurfaceDlg(uiParent*,EM::Horizon3D*,
 						   const char*);
 				~uiChangeSurfaceDlg();
+    uiHorSaveFieldGrp*		saveFldGrp() const { return savefldgrp_; }
 
 protected:
 
+    uiHorSaveFieldGrp*		savefldgrp_;				
     uiIOObjSel*			inputfld_;
-    uiGenInput*			savefld_;
-    uiIOObjSel*			outputfld_;
     uiGroup*			parsgrp_;
 
     EM::Horizon3D*		horizon_;
-    CtxtIOObj*			ctioin_;
-    CtxtIOObj*			ctioout_;
 
-    void			saveCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     bool			readHorizon();
-    bool			saveHorizon();
     bool			doProcessing();
 
     void			attachPars();	//!< To be called by subclass

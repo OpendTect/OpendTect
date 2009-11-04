@@ -7,16 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.32 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.33 2009-11-04 16:01:05 cvsyuancheng Exp $";
 
 #include "uichangesurfacedlg.h"
 
 #include "uiarray2dchg.h"
-#include "mousecursor.h"
 #include "uitaskrunner.h"
-#include "uigeninput.h"
+#include "uihorsavefieldgrp.h"
 #include "uiioobjsel.h"
-#include "uistepoutsel.h"
+#include "uiseparator.h"
 #include "uimsg.h"
 #include "undo.h"
 
@@ -25,44 +24,29 @@ static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.32 2009-08-21 10:11:4
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emposid.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "ioobj.h"
-#include "ptrman.h"
-#include "errh.h"
-#include "survinfo.h"
 
 
 uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
 					const char* txt )
-    : uiDialog(p,Setup(txt,mNoDlgTitle,"104.0.3"))
-    , horizon_(hor)
-    , inputfld_(0)
-    , outputfld_(0)
-    , savefld_(0)
-    , ctioin_(0)
-    , ctioout_(0)
-    , parsgrp_(0)
+    : uiDialog (p, Setup(txt,mNoDlgTitle,"104.0.3") )
+    , horizon_( hor )
+    , savefldgrp_( 0 )		   
+    , inputfld_( 0 )
+    , parsgrp_( 0 )
 {
-    if ( !horizon_ )
+    if ( horizon_ )
+	horizon_->ref();
+    else
     {
-	ctioin_ = mMkCtxtIOObj( EMHorizon3D );
-	ctioin_->ctxt.forread = true;
-	inputfld_ = new uiIOObjSel( this, *ctioin_, "Input Horizon" );
+	IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
+	ctxt.forread = true;
+	inputfld_ = new uiIOObjSel( this, ctxt, "Input Horizon" );
     }
 
-    savefld_ = new uiGenInput( this, "Save interpolated horizon",
-			       BoolInpSpec(true,"As new","Overwrite") );
-    savefld_->valuechanged.notify( mCB(this,uiChangeSurfaceDlg,saveCB) );
-
-    ctioout_ = mMkCtxtIOObj( EMHorizon3D );
-    ctioout_->ctxt.forread = false;
-    outputfld_ = new uiIOObjSel( this, *ctioout_, "Output Horizon" );
-    outputfld_->attach( alignedBelow, savefld_ );
-    saveCB(0);
-
-    if ( horizon_ ) horizon_->ref();
+    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
+    savefldgrp_->setSaveFieldName( "Save interpolated horizon" );
 }
 
 void uiChangeSurfaceDlg::attachPars()
@@ -71,52 +55,37 @@ void uiChangeSurfaceDlg::attachPars()
 
     if ( inputfld_ )
 	parsgrp_->attach( alignedBelow, inputfld_ );
-    if ( savefld_ )
-	savefld_->attach( alignedBelow, parsgrp_ );
+    
+    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    sep->attach( stretchedBelow, parsgrp_ );
+
+    savefldgrp_->attach( alignedBelow, parsgrp_ );
+    savefldgrp_->attach( ensureBelow, sep );
 }
 
 
 uiChangeSurfaceDlg::~uiChangeSurfaceDlg()
 {
-    if ( ctioin_ ) { delete ctioin_->ioobj; delete ctioin_; }
-    if ( ctioout_ ) { delete ctioout_->ioobj; delete ctioout_; }
     if ( horizon_ ) horizon_->unRef();
 }
 
 
-void uiChangeSurfaceDlg::saveCB( CallBacker* )
-{
-    outputfld_->display( savefld_->getBoolValue() );
-}
+#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
 
 bool uiChangeSurfaceDlg::readHorizon()
 {
+    if ( !inputfld_->ctxtIOObj().ioobj )
+	return false;
+
     const MultiID& mid = inputfld_->ctxtIOObj().ioobj->key();
-    EM::ObjectID oid = EM::EMM().getObjectID( mid );
-    EM::EMObject* emobj = EM::EMM().getObject( oid );
+    EM::Horizon3D* hor = savefldgrp_->readHorizon( mid );
+    if ( !hor ) return false;
 
-    Executor* reader = 0;
-    if ( !emobj || !emobj->isFullyLoaded() )
-    {
-	reader = EM::EMM().objectLoader( mid );
-	if ( !reader ) return false;
-
-	uiTaskRunner dlg( this );
-	if ( !dlg.execute(*reader) )
-	{
-	    delete reader;
-	    return false;
-	}
-
-	oid = EM::EMM().getObjectID( mid );
-	emobj = EM::EMM().getObject( oid );
-    }
-
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    if ( horizon_ ) horizon_->unRef();
     horizon_ = hor;
     horizon_->ref();
-    delete reader;
+
     return true;
 }
 
@@ -125,47 +94,14 @@ bool uiChangeSurfaceDlg::doProcessing()
 {
     MouseCursorChanger chgr( MouseCursor::Wait );
     bool change = false;
+    EM::Horizon3D* usedhor = savefldgrp_->getNewHorizon() ?
+       savefldgrp_->getNewHorizon() : horizon_;
+
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
-	StepInterval<int> rowrg = horizon_->geometry().rowRange( sid );
-	StepInterval<int> colrg = horizon_->geometry().colRange( sid );
-
-	mDynamicCastGet( Geometry::ParametricSurface*, surf,
-			 horizon_->sectionGeometry( sid ) );
-
-	if ( !idx && surf && needsFullSurveyArray() )
-	{
-	    const StepInterval<int> survcrlrg = SI().crlRange(true);
-	    while ( colrg.start-colrg.step>=survcrlrg.start )
-	    {
-		const int newcol = colrg.start-colrg.step;
-		surf->insertCol( newcol );
-		colrg.start = newcol;
-	    }
-
-	    while ( colrg.stop+colrg.step<=survcrlrg.stop )
-	    {
-		const int newcol = colrg.stop+colrg.step;
-		surf->insertCol( newcol );
-		colrg.stop = newcol;
-	    }
-
-	    const StepInterval<int> survinlrg = SI().inlRange(true);
-	    while ( rowrg.start-rowrg.step>=survinlrg.start )
-	    {
-		const int newrow = rowrg.start-rowrg.step;
-		surf->insertRow( newrow );
-		rowrg.start = newrow;
-	    }
-
-	    while ( rowrg.stop+rowrg.step<=survinlrg.stop )
-	    {
-		const int newrow = rowrg.stop+rowrg.step;
-		surf->insertRow( newrow );
-		rowrg.stop = newrow;
-	    }
-	}
+	if ( !idx && needsFullSurveyArray() )
+	    savefldgrp_->setFullSurveyArray( true );
 
 	PtrMan<Array2D<float> > arr = horizon_->createArray2D( sid );
 	if ( !arr )
@@ -184,20 +120,14 @@ bool uiChangeSurfaceDlg::doProcessing()
 	if ( !dlg.execute(*worker) )
 	    return false;
 
-	if ( !savefld_ )
-	{
-	    BufferString msg = infoMsg( worker );
-	    if ( !msg.isEmpty() )
-		uiMSG().message( msg );
-	}
-
-	if ( !horizon_->setArray2D( *arr, sid, fillUdfsOnly(), undoText() ) )
+	const EM::SectionID usedsid = usedhor->geometry().sectionID( idx );
+	if ( !usedhor->setArray2D(*arr, usedsid, fillUdfsOnly(), undoText()) )
 	{
 	    BufferString msg( "Cannot set new data to section " );
-	    msg += sid;
+	    msg += usedsid;
 	    ErrMsg( msg ); continue;
         }
-	else
+	else if ( usedhor==horizon_ )
 	{
 	    change = true;
 	}
@@ -206,58 +136,25 @@ bool uiChangeSurfaceDlg::doProcessing()
     if ( change )
 	EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().lastEventID());
 
-
     return true;
 }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
-
-bool uiChangeSurfaceDlg::saveHorizon()
-{
-    PtrMan<Executor> exec = 0;
-    const bool saveas = savefld_ && savefld_->getBoolValue();
-    if ( !saveas )
-	exec = horizon_->saver();
-    else
-    {
-	const MultiID& mid = outputfld_->ctxtIOObj().ioobj->key();
-	horizon_->setMultiID( mid );
-	exec = horizon_->geometry().saver( 0, &mid );
-    }
-
-    if ( !exec )
-    {
-	uiMSG().error( "Cannot save horizon" );
-	return false;
-    }
-
-    uiTaskRunner dlg( this );
-    const bool res = dlg.execute( *exec );
-    return res;
-}
-
-
-bool uiChangeSurfaceDlg::acceptOK( CallBacker* )
+bool uiChangeSurfaceDlg::acceptOK( CallBacker* cb )
 {
     if ( inputfld_ && !inputfld_->commitInput() )
 	mErrRet( "Please select input horizon" )
 
-    const bool savetodisk = outputfld_;
-    const bool saveasnew = savefld_ && savefld_->getBoolValue();
-    if ( savetodisk && savefld_->getBoolValue() && !outputfld_->commitInput() )
-	mErrRet( outputfld_->isEmpty() ? "Please select output horizon" : 0 )
-
     if ( !horizon_ && !readHorizon() )
 	mErrRet( "Cannot read horizon" )
+   
+    if ( !savefldgrp_->acceptOK( cb ) )
+	return false;
 
     if ( !doProcessing() )
 	return false;
 
-    if ( savetodisk && !saveHorizon() )
-	return false;
-
-    return true;
+    return savefldgrp_->saveHorizon();
 }
 
 
