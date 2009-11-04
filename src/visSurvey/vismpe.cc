@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.84 2009-11-04 08:50:01 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.85 2009-11-04 16:36:36 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -40,7 +40,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.84 2009-11-04 08:50:01 cvskarthik
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-#define USE_TEXTURE 
+//#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -414,6 +414,13 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
     if ( attrib ) return;
     as_ = as;
+    if ( cache_ ) cache_->unRef();
+    cache_ = 0;
+
+    DPM( DataPackMgr::CubeID() ).release( cacheid_ );
+    cacheid_ = DataPack::cNoID();
+
+    scalarfield_->setScalarField( 0, true, 0 );
 }
 
 
@@ -647,16 +654,13 @@ void MPEDisplay::updateMouseCursorCB( CallBacker* cb )
 void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 {
 #ifdef USE_TEXTURE
-	const CubeSampling newcube = getBoxPosition();
+    const CubeSampling newcube = getBoxPosition();
     if ( newcube!=engine_.activeVolume() )
     {
 //	if ( texture_ ) texture_->turnOn(false);
 	manipulated_ = true;
     }
 #else
-    if ( scene_ )
-	    return;
-
     CubeSampling cs = getCubeSampling( true, true, 0 );
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
@@ -691,7 +695,9 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 			    (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
 			    (cs.zrg.stop + cs.zrg.start) / 2 );
     boxdragger_->setCenter( newcenter );
-#endif
+
+    manipulated_ = true;
+#endif // to do: check ifdef
 }
 
 
@@ -765,16 +771,17 @@ void MPEDisplay::showDragger( bool yn )
 	return;
     
 #ifdef USE_TEXTURE
-	if ( yn )
-	    updateTexture();
+    if ( yn )
+	updateTexture();
     dragger_->turnOn( yn );
 #else
-	if ( yn )
-	    updateRanges();
-    scalarfield_->turnOn( yn );
+    if ( yn )
+	updateSlice();
+    // do nothing? no separate dragger for slice-based display
+    scalarfield_->turnOn( true );
 #endif
-	
-	movement.trigger();
+
+    movement.trigger();
     planeOrientationChange.trigger();
 }
 
@@ -881,16 +888,15 @@ void MPEDisplay::setPlaneOrientation( int orient )
 
     updateTextureCoords();
 #else
-	//if ( !scalarfield_->isOn() ) return;
-	
-	if ( ( orient < 0 ) || ( orient > 2 ) )
-		return;
+    if ( ( orient < 0 ) || ( orient > 2 ) )
+	return;
     dim_ = orient;
 
-	for ( int i = 0; i < 3; i++ )
-	    slices_[i]->turnOn( dim_ == i );
+    updateSliceCoords();
 
-    updateRanges(); // to do: check!
+    for ( int i = 0; i < 3; i++ )
+        slices_[i]->turnOn( dim_ == i );
+    scalarfield_->turnOn( true );
 #endif
     movement.trigger();
 }
@@ -1010,6 +1016,8 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
     boxdragger_->setWidth( newwidth );
 #ifdef USE_TEXTURE
     dragger_->setSize( newwidth );
+#else
+    // to do
 #endif
 
     const Coord3 newcenter( (cube.hrg.stop.inl+cube.hrg.start.inl)/2,
@@ -1030,8 +1038,17 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
     updateTextureCoords();
 #else
-    updateRanges();
-//	scalarfield_->turnOn( true );
+    // to do
+    for ( int i = 0; i < slices_.size(); i++ )
+	slices_[i]->setSpaceLimits(
+	    Interval<float>(cube.hrg.start.inl,cube.hrg.stop.inl),
+	    Interval<float>(cube.hrg.start.crl,cube.hrg.stop.crl),
+	    Interval<float>(cube.zrg.start,cube.zrg.stop) );
+
+    if ( isDraggerShown() )
+	updateSlice();
+
+    updateSliceCoords();
 #endif
     
     movement.trigger();
@@ -1430,7 +1447,7 @@ bool MPEDisplay::setDataVolume( int attrib,
     curtexturecs_ = displaycs;
 	}
 
-    scalarfield_->setScalarField( usedarray, false, tr );
+    scalarfield_->setScalarField( usedarray, true, tr );  // check true
 
     setCubeSampling( getCubeSampling(true,true,0) );
     
@@ -1466,7 +1483,7 @@ const Attrib::DataCubes* MPEDisplay::getCacheVolume( int attrib ) const
 DataPack::ID MPEDisplay::getDataPackID( int attrib ) const
 { 
 #ifndef USE_TEXTURE
-	return attrib==0 ? cacheid_ : DataPack::cNoID();
+    return attrib==0 ? cacheid_ : DataPack::cNoID();
 #else
     return 0;
 #endif
@@ -1511,14 +1528,6 @@ CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
 	res.zrg.stop = transl.z-scale.z/2;
     }
 
-    if ( alreadyTransformed(attrib) ) return res;
-/*
-    if ( datatransform_ && !displayspace )
-    {
-	res.zrg.setFrom( datatransform_->getZInterval(true) );
-	res.zrg.step = SI().zRange( true ).step;
-    }
-*/
     return res;
 #else
     return 0;
@@ -1554,26 +1563,6 @@ int MPEDisplay::addSlice( int dim, bool show )
     return slice->id();
 #else
     return 0;
-#endif
-}
-
-
-void MPEDisplay::updateRanges()
-{
-#ifndef USE_TEXTURE
-    // to do: check!
-    //setCubeSampling( SI().sampling( true ) );
-//    if ( !datatransform_ ) return;
-
-    if ( curtexturecs_ != SI().sampling(true) )
-	setCubeSampling( curtexturecs_ );
-    else
-    {
-	Interval<float> zrg = datatransform_->getZInterval( false );
-	CubeSampling cs = getCubeSampling( 0 );
-	assign( cs.zrg, zrg );
-	setCubeSampling( cs );
-    }*/
 #endif
 }
 
@@ -1683,7 +1672,7 @@ void MPEDisplay::getChildren( TypeSet<int>&res ) const
 bool MPEDisplay::isSelected() const
 {
 #ifdef USE_TEXTURE
-	return VisualObjectImpl::isSelected();
+    return VisualObjectImpl::isSelected();
 #else
     return visBase::DM().selMan().selected().indexOf( id()) != -1;	
 #endif
@@ -1706,6 +1695,103 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
     slicename_ = slice->name();
     sliceposition_ = slicePosition( slice );
     slicemoving.trigger();
+#endif
+}
+
+
+void MPEDisplay::updateSliceCoords()
+{
+#ifndef USE_TEXTURE
+    if ( !slices_.size() || !slices_[dim_] )
+	return;
+
+    Coord3 boxcenter = boxdragger_->center();
+    Coord3 boxwidth = boxdragger_->width();
+
+    const Coord3 draggercenter = slices_[dim_]->getDragger()->center();
+    const Coord3 draggerwidth = slices_[dim_]->getDragger()->size();
+    
+    const float relcoord = mGetRelCrd(draggercenter[dim_],dim_);
+    const Interval<float> intv0( 
+	    mGetRelCrd(draggercenter[0]-draggerwidth[0]/2,0),
+	    mGetRelCrd(draggercenter[0]+draggerwidth[0]/2,0) );
+    const Interval<float> intv1( 
+	    mGetRelCrd(draggercenter[1]-draggerwidth[1]/2,1),
+	    mGetRelCrd(draggercenter[1]+draggerwidth[1]/2,1) );
+    const Interval<float> intv2( 
+	    mGetRelCrd(draggercenter[2]-draggerwidth[2]/2,2),
+	    mGetRelCrd(draggercenter[2]+draggerwidth[2]/2,2) );
+return;
+
+    if ( !dim_ )
+    {
+	rectangle_->getTextureCoords()->setCoord( 0, 
+				Coord3(relcoord,intv1.start,intv2.start) );
+	rectangle_->getTextureCoords()->setCoord( 1, 
+				Coord3(relcoord,intv1.start,intv2.stop) );
+	rectangle_->getTextureCoords()->setCoord( 2, 
+				Coord3(relcoord,intv1.stop,intv2.stop) );
+	rectangle_->getTextureCoords()->setCoord( 3,
+				Coord3(relcoord,intv1.stop,intv2.start) );
+    }
+    else if ( dim_==1 )
+    {
+	rectangle_->getTextureCoords()->setCoord( 0, 
+				Coord3(intv0.start,relcoord,intv2.start) );
+	rectangle_->getTextureCoords()->setCoord( 1, 
+				Coord3(intv0.stop,relcoord,intv2.start) );
+	rectangle_->getTextureCoords()->setCoord( 2, 
+				Coord3(intv0.stop,relcoord,intv2.stop) );
+	rectangle_->getTextureCoords()->setCoord( 3, 
+				Coord3(intv0.start,relcoord,intv2.stop) );
+    }
+    else
+    {
+	rectangle_->getTextureCoords()->setCoord( 0, 
+				Coord3(intv0.start,intv1.start,relcoord) );
+	rectangle_->getTextureCoords()->setCoord( 1, 
+				Coord3(intv0.stop,intv1.start,relcoord) );
+	rectangle_->getTextureCoords()->setCoord( 2, 
+				Coord3(intv0.stop,intv1.stop,relcoord) );
+	rectangle_->getTextureCoords()->setCoord( 3, 
+				Coord3(intv0.start,intv1.stop,relcoord) );
+    }
+#endif
+}
+
+
+void MPEDisplay::showManipulator( bool yn )
+{
+#ifndef USE_TEXTURE
+    showBoxDragger( yn ); 
+#endif
+}
+
+
+bool MPEDisplay::isManipulated() const
+{
+#ifdef USE_TEXTURE
+    return false;
+#else
+    return getCubeSampling(true,true,0) != getCubeSampling(false,true,0);
+#endif
+}
+
+
+bool MPEDisplay::canResetManipulation() const
+{
+#ifdef USE_TEXTURE
+    return false;
+#else
+    return true;
+#endif
+}
+
+
+void MPEDisplay::acceptManipulation()
+{
+#ifndef USE_TEXTURE
+    setCubeSampling( getCubeSampling(true,true,0) );
 #endif
 }
 
