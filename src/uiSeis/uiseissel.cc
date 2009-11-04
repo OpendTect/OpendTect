@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.87 2009-11-04 10:48:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.88 2009-11-04 15:29:45 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -292,7 +292,7 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
 {
     uiSeisSel::Setup ret( su );
     ret.seltxt_ = gtSelTxt( su, forread );
-    ret.filldef( false );
+    ret.filldef( su.allowsetdefault_ );
     return ret;
 }
 
