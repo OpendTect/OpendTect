@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.83 2009-10-30 00:31:29 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.84 2009-11-04 08:50:01 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -40,7 +40,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.83 2009-10-30 00:31:29 cvskarthik
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-//#define USE_TEXTURE 
+#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -60,6 +60,7 @@ MPEDisplay::MPEDisplay()
     , cacheid_(DataPack::cNoID())
     , scalarfield_(visBase::VolumeRenderScalarField::create())
     , voltrans_(visBase::Transformation::create())
+	, dim_(2)
 #endif
     , engine_(MPE::engine())
     , sceneeventcatcher_(0)
@@ -760,15 +761,21 @@ float MPEDisplay::getDraggerTransparency() const
 
 void MPEDisplay::showDragger( bool yn )
 {
-#ifdef USE_TEXTURE
     if ( yn==isDraggerShown() )
 	return;
-    if ( yn )
-	updateTexture();
+    
+#ifdef USE_TEXTURE
+	if ( yn )
+	    updateTexture();
     dragger_->turnOn( yn );
-    movement.trigger();
-    planeOrientationChange.trigger();
+#else
+	if ( yn )
+	    updateRanges();
+    scalarfield_->turnOn( yn );
 #endif
+	
+	movement.trigger();
+    planeOrientationChange.trigger();
 }
 
 
@@ -777,7 +784,7 @@ bool MPEDisplay::isDraggerShown() const
 #ifdef USE_TEXTURE
     return dragger_->isOn(); 
 #else
-    return false;
+    return scalarfield_->isOn();
 #endif
 }
 
@@ -874,10 +881,16 @@ void MPEDisplay::setPlaneOrientation( int orient )
 
     updateTextureCoords();
 #else
-	// to do: class variable to store dim?
-    if ( !isOn() ) return;
+	//if ( !scalarfield_->isOn() ) return;
+	
+	if ( ( orient < 0 ) || ( orient > 2 ) )
+		return;
+    dim_ = orient;
 
-    updateRanges();
+	for ( int i = 0; i < 3; i++ )
+	    slices_[i]->turnOn( dim_ == i );
+
+    updateRanges(); // to do: check!
 #endif
     movement.trigger();
 }
@@ -888,8 +901,7 @@ const int MPEDisplay::getPlaneOrientation() const
 #ifdef USE_TEXTURE
     return dragger_->getDim(); 
 #else
-    // to do: check
-    return 0;
+    return dim_;
 #endif
 }
 
@@ -1019,6 +1031,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
     updateTextureCoords();
 #else
     updateRanges();
+//	scalarfield_->turnOn( true );
 #endif
     
     movement.trigger();
@@ -1303,9 +1316,13 @@ void MPEDisplay::updateSlice()
         return;
     }
 
-    // to do: create slice if inexistent. Set correct dim.
-    addSlice( cInLine() );
-	    
+    if ( !slices_.size() )
+	{
+	    addSlice( cInLine(), false );
+	    addSlice( cCrossLine(), false );
+	    addSlice( cTimeSlice(), false );
+	}
+    	
     setDataVolume( 0, attrdata, 0 );
 #endif
 }
@@ -1509,11 +1526,12 @@ CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
 }
 
 
-int MPEDisplay::addSlice( int dim )
+int MPEDisplay::addSlice( int dim, bool show )
 {
 #ifndef USE_TEXTURE
     visBase::OrthogonalSlice* slice = visBase::OrthogonalSlice::create();
     slice->ref();
+	slice->turnOn( show );
     slice->setMaterial(0);
     slice->setDim(dim);
     slice->motion.notify( mCB(this,MPEDisplay,sliceMoving) );
@@ -1544,11 +1562,11 @@ void MPEDisplay::updateRanges()
 {
 #ifndef USE_TEXTURE
     // to do: check!
-    setCubeSampling( SI().sampling( true ) );
-/*    if ( !datatransform_ ) return;
+    //setCubeSampling( SI().sampling( true ) );
+//    if ( !datatransform_ ) return;
 
-    if ( csfromsession_ != SI().sampling(true) )
-	setCubeSampling( csfromsession_ );
+    if ( curtexturecs_ != SI().sampling(true) )
+	setCubeSampling( curtexturecs_ );
     else
     {
 	Interval<float> zrg = datatransform_->getZInterval( false );
@@ -1623,9 +1641,9 @@ SoNode* MPEDisplay::getInventorNode()
 
 	if ( !slices_.size() )
 	{
-	    addSlice( cInLine() );
-	    addSlice( cCrossLine() );
-	    addSlice( cTimeSlice() );
+	    addSlice( cInLine(), false );
+	    addSlice( cCrossLine(), false );
+	    addSlice( cTimeSlice(), false );
 	}
     }
 #endif
