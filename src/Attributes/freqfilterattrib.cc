@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.39 2009-10-27 11:51:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.40 2009-11-04 14:26:40 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -359,15 +359,15 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	    Array1DInfoImpl(winsize), false, "CosTaper", lowfreqvariable_ );
     ArrayNDWindow highwindow( 
 	    Array1DInfoImpl(winsize), false, "CosTaper", highfreqvariable_ );
-    float* highwin = new float(winsize/2); 
-    float* lowwin = new float (winsize/2);
+    Array1DImpl<float> highwin( winsize/2 ), lowwin( winsize/2 ); 
+
     for ( int idx=0; idx<winsize/2; idx++ )
     {
-	lowwin[idx] = 1-lowwindow.getValues()[winsize-1-idx];
-	highwin[winsize/2-idx-1] = 1-highwindow.getValues()[idx];
+	lowwin.set( idx, 1-lowwindow.getValues()[winsize-1-idx] );
+	highwin.set( winsize/2-idx-1, 1-highwindow.getValues()[idx] );
     }
-    filter.setHighFreqBorderWindow( highwin, winsize/2 );
-    filter.setLowFreqBorderWindow( lowwin, winsize/2 );
+    filter.setHighFreqBorderWindow( highwin.getData(), winsize/2 );
+    filter.setLowFreqBorderWindow( lowwin.getData(), winsize/2 );
     if ( filtertype == mFilterLowPass )
 	filter.FFTFreqFilter( df, maxfreq, true, freqdomain, tmpfreqdomain );
     else if ( filtertype == mFilterHighPass)
