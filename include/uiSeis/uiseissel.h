@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.43 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.44 2009-11-04 10:48:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     };
 
 			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
-			uiSeisSel(uiParent*,IOObjContext&,const Setup&);
+			uiSeisSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiSeisSel();
 
     virtual bool	fillPar(IOPar&) const;

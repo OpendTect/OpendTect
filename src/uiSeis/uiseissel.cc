@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.86 2009-10-28 11:17:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.87 2009-11-04 10:48:26 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -245,13 +245,15 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 }
 
 
-uiSeisSel::uiSeisSel( uiParent* p, IOObjContext& c, const uiSeisSel::Setup& su )
+uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& c,
+		      const uiSeisSel::Setup& su )
 	: uiIOObjSel(p,c,mkSetup(su,c.forread))
     	, seissetup_(mkSetup(su,c.forread))
     	, othdombox_(0)
 {
-    adaptCtxt( c, seissetup_, false );
-    if ( !c.forread && Seis::is2D(seissetup_.geom_) )
+    IOObjContext ctxt( c );
+    adaptCtxt( ctxt, seissetup_, false );
+    if ( !ctxt.forread && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
