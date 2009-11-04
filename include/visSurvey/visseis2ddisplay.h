@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.38 2009-09-07 11:18:26 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.39 2009-11-04 15:50:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,8 @@ public:
     const char*			getLineName() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
+    const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
+
     StepInterval<float>		getMaxZRange(bool displayspace) const;
     void			setZRange(const Interval<float>&);
     Interval<float>		getZRange(bool displayspace) const;
