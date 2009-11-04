@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2009
- RCS:           $Id: uidpsdemo.h,v 1.3 2009-11-04 13:43:29 cvsbert Exp $
+ RCS:           $Id: uidpsdemo.h,v 1.4 2009-11-04 15:29:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,13 +41,12 @@ protected:
     uiSeisSel*		seisfld_;
     uiGenInput*		nrptsfld_;
 
-    DataPointSet&	dps_;
-
     bool		acceptOK(CallBacker*);
     bool		doWork(const IOObj&,const IOObj&,int);
 
-    bool		getRandPositions(const EM::Horizon3D&,int);
-    bool		getSeisData(const IOObj&,TaskRunner&);
+    bool		getRandPositions(const EM::Horizon3D&,int,
+	    				 DataPointSet&);
+    bool		getSeisData(const IOObj&,DataPointSet&,TaskRunner&);
 };
 
 
