@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.48 2009-11-04 08:23:30 cvskarthika Exp $
+ RCS:		$Id: vismpe.h,v 1.49 2009-11-04 16:34:56 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -57,12 +57,11 @@ public:
     static MPEDisplay*		create()
 				mCreateDataObj(MPEDisplay);
     
-	static int			cInLine() 		{ return 2; }
+    static int			cInLine() 		{ return 2; }
     static int			cCrossLine() 		{ return 1; }
     static int			cTimeSlice() 		{ return 0; }
     
-	bool			isInlCrl() const	{ return true; }
-
+    bool			isInlCrl() const	{ return true; }
     bool			isOn() const;
     void			updateSeedOnlyPropagation(bool);
     void			updateMPEActiveVolume();
@@ -109,9 +108,11 @@ public:
     virtual DataPackMgr::ID     getDataPackMgrID() const
 	                                { return DataPackMgr::CubeID(); }
     
-     void                        resetManipulation();
-//    bool                        setDataTransform(ZAxisTransform*,TaskRunner*);
-//    const ZAxisTransform*       getDataTransform() const;
+    void                        showManipulator(bool yn);
+    bool                        isManipulated() const;
+    bool                        canResetManipulation() const;
+    void                        resetManipulation();
+    void			acceptManipulation();
     BufferString                getManipulationString() const;
 
     void			setSelSpec(int,const Attrib::SelSpec&);
@@ -143,8 +144,8 @@ public:
 
     SoNode*			getInventorNode();
 
-	void			fillPar(IOPar&,TypeSet<int>&) const;
-    int				usePar( const IOPar&);
+    virtual void		fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int			usePar( const IOPar&);
     
 protected:
 				~MPEDisplay();
@@ -154,7 +155,7 @@ protected:
 
     void			setTexture(visBase::Texture3*);
     void			updateTextureCoords();
-     void			updateRanges();
+    void			updateSliceCoords();
     
     void			setDraggerCenter(bool alldims);
     void			setDragger(visBase::DepthTabPlaneDragger*);
@@ -166,7 +167,7 @@ protected:
 
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
 
-	bool			isSelected() const;
+    bool			isSelected() const;
     
 	//Callbacks from boxdragger
     void			boxDraggerFinishCB(CallBacker*);
