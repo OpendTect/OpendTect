@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.185 2009-10-29 21:14:01 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.186 2009-11-04 08:49:15 cvskarthika Exp $";
 
 #include "uimpeman.h"
 
@@ -58,7 +58,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.185 2009-10-29 21:14:01 cvskart
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-//#define USE_TEXTURE 
+#define USE_TEXTURE 
 
 using namespace MPE;
 
@@ -218,12 +218,10 @@ void uiMPEMan::deleteVisObjects()
 	visSurvey::MPEDisplay* mped = getDisplay(scenes[idx]);
 	if ( mped )
 	{
-#ifdef USE_TEXTURE
 	    mped->boxDraggerStatusChange.remove(
 		mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
 	    mped->planeOrientationChange.remove(
 		mCB(this,uiMPEMan,planeOrientationChangedCB) );
-#endif
 	    visserv->removeObject(mped->id(),scenes[idx]);
 	}
     }
@@ -532,13 +530,11 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     mpedisplay->setDraggerTransparency( 0 ); // to do: check 0
     mpedisplay->showDragger( toolbar->isOn(moveplaneidx) );
 
-#ifdef USE_TEXTURE
     mpedisplay->boxDraggerStatusChange.notify(
 	    mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
 
     mpedisplay->planeOrientationChange.notify(
 	    mCB(this,uiMPEMan,planeOrientationChangedCB) );
-#endif
 
     return mpedisplay;
 }
@@ -1417,13 +1413,9 @@ void uiMPEMan::handleOrientationClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
     const int dim = itm->id();
-#ifdef USE_TEXTURE
 	updateQCButton( toolbar, moveplaneidx, dim );
     changeTrackerOrientation( dim );
     movePlaneCB( cb );
-#else
-
-#endif
 }
 
 
