@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.42 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.43 2009-11-05 13:59:55 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -333,9 +333,22 @@ void CtxtIOObj::fillIfOnlyOne()
 void CtxtIOObj::fillDefault( bool oone2 )
 {
     ctxt.fillTrGroup();
-    return fillDefaultWithKey(
-		IOPar::compKey(sKey::Default,ctxt.trgroup->userName().buf()),
-		oone2 );
+
+    BufferString keystr( ctxt.trgroup->userName() );
+    if ( keystr == "Seismic Data" )
+    {
+	bool is3d = SI().getSurvDataType() != SurveyInfo::Only2D;
+	if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D
+		&& ctxt.deftransl == "2D" )
+	    is3d = false;
+	keystr = is3d ? sKey::Cube : sKey::DefLineSet;
+    }
+    else if ( keystr == "Pre-Stack Seismics"
+	    && SI().getSurvDataType() != SurveyInfo::Only2D )
+	keystr = "PS3D Data Store";
+
+    keystr = IOPar::compKey(sKey::Default,keystr);
+    return fillDefaultWithKey( keystr, oone2 );
 }
 
 
