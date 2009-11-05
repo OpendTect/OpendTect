@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.29 2009-09-09 05:37:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.30 2009-11-05 06:10:41 cvssatyaki Exp $";
 
 
 #include "coherencyattrib.h"
@@ -258,7 +258,9 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	{
 	    float extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
 	    extras0 = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep;
-	    extras1 = (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refstep;
+	    if ( !is2d )
+		extras1 =
+		    (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refstep;
 	    extras2 = (extrazfspos - inputdata_[2]->extrazfromsamppos_)/refstep;
 	}
 
