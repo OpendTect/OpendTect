@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.194 2009-11-04 16:01:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.195 2009-11-05 19:49:48 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -244,28 +244,25 @@ bool uiEMPartServer::isFullyLoaded( const EM::ObjectID& emid ) const
     }
 
 
-void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
+bool uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid));
-    if ( !hor3d )
-    {
-	pErrMsg("No horizon!");
-	return;
-    }
     uiHorizon3DInterpolDlg dlg( parent(), hor3d );
     dlg.go();
 
     mDisplayNewHorizon;
+    return dlg.saveFldGrp()->overwriteHorizon();
 }
 
 
-void uiEMPartServer::filterSurface( const EM::ObjectID& emid )
+bool uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
     uiFilterHorizonDlg dlg( parent(), hor3d );
     dlg.go();
 
     mDisplayNewHorizon;
+    return dlg.saveFldGrp()->overwriteHorizon();
 }
 
 

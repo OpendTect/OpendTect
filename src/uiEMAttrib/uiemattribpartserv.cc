@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.16 2009-09-15 09:58:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.17 2009-11-05 19:49:48 cvsyuancheng Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -60,12 +60,13 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 }
 
 
-void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid )
+bool uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid )
 {
     IOObj* ioobj = IOM().get( EM::EMM().getMultiID(emid) );
     uiSeisEventSnapper dlg( parent(), ioobj );
     dlg.go();
     delete ioobj;
+    return dlg.overwriteHorizon();
 }
 
 

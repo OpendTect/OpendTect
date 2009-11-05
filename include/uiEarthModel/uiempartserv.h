@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.94 2009-10-20 15:56:30 cvsyuancheng Exp $
+ RCS:           $Id: uiempartserv.h,v 1.95 2009-11-05 19:49:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,8 +64,10 @@ public:
     bool		isFullResolution(const EM::ObjectID&) const;
     bool		isFullyLoaded(const EM::ObjectID&) const;
 
-    void		fillHoles(const EM::ObjectID&);
-    void		filterSurface(const EM::ObjectID&);
+    bool		fillHoles(const EM::ObjectID&);
+    			/*!<return bool is overwrite old horizon or not. */
+    bool		filterSurface(const EM::ObjectID&);
+    			/*!<return bool is overwrite old horizon or not. */
     void		fillPickSet(Pick::Set&,MultiID);
     void		deriveHor3DFrom2D(const EM::ObjectID&);
     bool		askUserToSave(const EM::ObjectID&) const;

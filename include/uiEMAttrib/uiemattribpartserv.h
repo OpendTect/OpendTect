@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.13 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.14 2009-11-05 19:49:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,8 @@ public:
     enum HorOutType		{ OnHor, AroundHor, BetweenHors };
     void			createHorizonOutput(HorOutType);
 
-    void			snapHorizon(const EM::ObjectID&);
+    bool			snapHorizon(const EM::ObjectID&);
+    				/*<return bool is overwrite old hor or not. */
 
     void			setNLA( const NLAModel* mdl, const MultiID& id )
 				{ nlamodel_ = mdl; nlaid_ = id; }

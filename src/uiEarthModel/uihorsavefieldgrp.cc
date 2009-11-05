@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.1 2009-11-04 15:48:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.2 2009-11-05 19:49:48 cvsyuancheng Exp $";
 
 #include "uihorsavefieldgrp.h"
 
@@ -74,6 +74,10 @@ void uiHorSaveFieldGrp::saveCB( CallBacker* )
 
 bool uiHorSaveFieldGrp::displayNewHorizon() const
 { return savefld_->getBoolValue() && addnewfld_->getBoolValue(); }
+
+
+bool uiHorSaveFieldGrp::overwriteHorizon() const
+{ return !savefld_->getBoolValue(); }
 
 
 void uiHorSaveFieldGrp::setFullSurveyArray( bool yn )

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.46 2009-10-23 20:50:57 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.47 2009-11-05 19:49:48 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -354,6 +354,18 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 }
 
 
+#define mUpdateTexture() \
+{ \
+    mDynamicCastGet( visSurvey::HorizonDisplay*, hd, \
+	    visserv_->getObject(displayid_) ); \
+    if ( !hd ) return; \
+    for ( int idx=0; idx<hd->nrAttribs(); idx++ ) \
+    { \
+	if ( hd->hasDepth(idx) ) hd->setDepthAsAttrib( idx ); \
+	else applMgr()->calcRandomPosAttrib( visid, idx ); \
+    } \
+}
+
 void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODEarthModelSurfaceTreeItem::handleMenuCB( cb );
@@ -369,16 +381,27 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     bool handled = true;
     if ( mnuid==fillholesmnuitem_.id )
     {
-	emserv->fillHoles( emid_ );
+	const bool isoverwrite = emserv->fillHoles( emid_ );
+	if ( isoverwrite ) { mUpdateTexture(); }
     }
     else if ( mnuid==filterhormnuitem_.id )
     {
-	emserv->filterSurface( emid_ );
+	const bool isoverwrite = emserv->filterSurface( emid_ );
+	if ( isoverwrite ) { mUpdateTexture(); }
     }
     else if ( mnuid==snapeventmnuitem_.id )
     {
-	emattrserv->snapHorizon( emid_ );
-	visserv_->setObjectName(displayid_,(const char*)emserv->getName(emid_)); 	updateColumnText( uiODSceneMgr::cNameColumn() );
+	const bool isoverwrite = emattrserv->snapHorizon( emid_ );
+	if ( isoverwrite )
+	{
+	    mUpdateTexture();
+	}
+	else
+	{
+    	    visserv_->setObjectName( displayid_,
+		    (const char*)emserv->getName(emid_) ); 	
+	    updateColumnText( uiODSceneMgr::cNameColumn() );
+	}
     }
     else if ( mnuid==positionmnuitem_.id )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          Nov 2009
- RCS:           $Id: uihorsavefieldgrp.h,v 1.1 2009-11-04 15:48:41 cvsyuancheng Exp $
+ RCS:           $Id: uihorsavefieldgrp.h,v 1.2 2009-11-05 19:49:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 
     void			setSaveFieldName(const char*);
     bool			displayNewHorizon() const;
+    bool			overwriteHorizon() const;
     EM::Horizon3D*		getNewHorizon() const	{ return newhorizon_; }
 
     EM::Horizon3D*		readHorizon(const MultiID&);
