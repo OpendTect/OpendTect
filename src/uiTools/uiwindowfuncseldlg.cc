@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.33 2009-11-04 16:39:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.34 2009-11-05 09:37:20 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -376,10 +376,10 @@ const char* uiWindowFuncSelDlg::getCurrentWindowName() const
 #define mCheckLimitRanges()\
     dd1_.freqrg_.limitTo( Interval<float>( 0.01, dd1_.orgfreqrg_.stop ) );\
     dd2_.freqrg_.limitTo( dd2_.orgfreqrg_ );\
-    if ( mIsZero(dd2_.freqrg_.start-dd2_.freqrg_.stop,0.5))\
-	dd2_.freqrg_.stop += 0.5;\
-    if ( mIsZero(dd2_.freqrg_.start-dd2_.freqrg_.stop,0.5))\
-	dd2_.freqrg_.stop += 0.5;
+    if ( mIsZero(dd2_.freqrg_.start-dd2_.freqrg_.stop,0.1))\
+	dd2_.freqrg_.stop += 0.1;\
+    if ( mIsZero(dd2_.freqrg_.start-dd2_.freqrg_.stop,0.1))\
+	dd2_.freqrg_.stop += 0.1;
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     : uiDialog( p, uiDialog::Setup("Frequency taper",
 		    "Select taper parameters at cut-off frequency",mNoHelpID) )
@@ -446,6 +446,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     freqrgfld_->attach( rightOf, varinpfld_ );
     
     freqChoiceChged(0);
+    finaliseDone.notify( mCB(this, uiFreqTaperDlg, taperChged ) );
 }
 
 
@@ -454,6 +455,7 @@ void uiFreqTaperDlg::getFromScreen( CallBacker* )
     DrawData& dd = mGetData();
     dd.variable_ = getPercentsFromSlope( varinpfld_->getfValue() );
     dd.freqrg_ = freqrgfld_->getFInterval();
+    
     mCheckLimitRanges(); 
 }
 
@@ -474,6 +476,9 @@ void uiFreqTaperDlg::putToScreen( CallBacker* )
     setToNearestInt( dd.freqrg_.stop );
     varinpfld_->setValue( getSlope() );
     freqrgfld_->setValue( dd.freqrg_ );
+    
+    freqrgfld_->setSensitive( hasmin_ && isminactive_, 0, 0 );
+    freqrgfld_->setSensitive( hasmax_ && !isminactive_, 0, 1 );
 } 
 
 
@@ -521,12 +526,12 @@ void uiFreqTaperDlg::setPercentsFromFreq( CallBacker* )
 }
 
 
-#define mDec2Oct 0.301029996
+#define mDec2Oct 0.301029996 //log(2)
 float uiFreqTaperDlg::getPercentsFromSlope( float slope )
 {
     NotifyStopper nsf( freqrgfld_->valuechanged );
     const float slopeindecade = (float)(slope/mDec2Oct);
-    const float slopeinhertz = pow( 10, slopeindecade );
+    const float slopeinhertz = pow( 10, 1/slopeindecade );
     DrawData& dd = mGetData();
 
     if ( isminactive_ )
@@ -548,7 +553,7 @@ float uiFreqTaperDlg::getPercentsFromSlope( float slope )
 float uiFreqTaperDlg::getSlope()
 {
     DrawData& d = mGetData();
-    float slope = fabs( Math::Log10( d.freqrg_.start/d.freqrg_.stop ) );
+    float slope = fabs( 1/Math::Log10( d.freqrg_.stop/d.freqrg_.start ) );
     slope *= mDec2Oct;
     return slope;
 }
@@ -582,8 +587,6 @@ void uiFreqTaperDlg::freqChoiceChged( CallBacker* )
 	isminactive_ = hasmin_;
     drawers_[0]->display( isminactive_ );
     drawers_[1]->display( !isminactive_ );
-    freqrgfld_->setSensitive( hasmin_ && isminactive_, 0, 0 );
-    freqrgfld_->setSensitive( hasmax_ && !isminactive_, 0, 1 );
     taperChged(0);
     getFromScreen(0);
 }
