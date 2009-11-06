@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2009
- RCS:		$Id: emobjectselremoval.h,v 1.2 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emobjectselremoval.h,v 1.3 2009-11-06 10:54:21 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,23 +25,30 @@ namespace EM
 
 class EMObject;    
 
-mClass EMObjectSelectionRemoval : public ParallelTask
+mClass EMObjectRowColSelRemoval : public ParallelTask
 {
 public:
-    			EMObjectSelectionRemoval(EMObject& emobj,
+    			EMObjectRowColSelRemoval(EMObject& emobj,
 						 const SectionID& secid,
 						 const Selector<Coord3>&,
 						 int nrrows,int nrcols,
 						 int startrow,int startcol);
-			~EMObjectSelectionRemoval();
-
-    od_int64		nrIterations() const;
-    od_int64            totalNr() const         { return nrIterations(); }
-    bool		doWork(od_int64 start,od_int64 stop,int threadid);
+			~EMObjectRowColSelRemoval();
 
     const TypeSet<EM::SubID> getRemovelList()	{ return removelist_; }
 
 protected:
+
+    od_int64            nrIterations() const	{ return nrcols_*nrrows_; }
+    bool		doWork( od_int64, od_int64, int );
+    bool		doPrepare(int);
+
+    void		processBlock(const RowCol&,const RowCol&);
+    void		makeListGrow(const RowCol&,const RowCol&,int selresult);
+
+    void		getBoundingCoords(const RowCol&,const RowCol&,
+	    				  Coord3& up,Coord3& down);
+
   
     EMObject&			emobj_;
     const SectionID&		sectionid_;
@@ -50,7 +57,15 @@ protected:
     int				nrrows_;
     int				startcol_;
     int				nrcols_;
-    Threads::Mutex         	mutex_;
+    const float* 		zvals_;
+
+    TypeSet<RowCol> 		starts_;
+    TypeSet<RowCol> 		stops_;
+    Threads::ConditionVar   	lock_;
+    bool                        finished_;
+    int                         nrwaiting_;
+    int                         nrthreads_;
+
     TypeSet<EM::SubID>     	removelist_;    
 };
 

@@ -5,11 +5,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.7 2009-10-14 08:09:49 cvsjaap Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.8 2009-11-06 10:54:21 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "arraynd.h"
+#include "binidsurface.h"
 #include "emobjectselremoval.h"
 #include "emobject.h"
 #include "parametricsurface.h"
@@ -18,7 +20,7 @@ ________________________________________________________________________
 namespace EM
 {
     
-EMObjectSelectionRemoval::EMObjectSelectionRemoval(EMObject& emobj,
+EMObjectRowColSelRemoval::EMObjectRowColSelRemoval(EMObject& emobj,
 						   const SectionID& secid,
 						   const Selector<Coord3>& sel,
 						   int nrrows, int nrcols,
@@ -33,112 +35,227 @@ EMObjectSelectionRemoval::EMObjectSelectionRemoval(EMObject& emobj,
 { emobj_.ref(); }
 
 
-EMObjectSelectionRemoval::~EMObjectSelectionRemoval()
+EMObjectRowColSelRemoval::~EMObjectRowColSelRemoval()
 { emobj_.unRef(); }
 
 
-od_int64 EMObjectSelectionRemoval::nrIterations() const
+bool EMObjectRowColSelRemoval::doPrepare( int nrthreads )
 {
-    int nriteration = ( nrrows_%16 ? (int)(nrrows_/16) + 1 : (int)(nrrows_/16) )
-     	* ( nrcols_%16 ? (int)(nrcols_/16) +1 : (int)(nrcols_/16) );
-  
-    return nriteration;
+    removelist_.erase();
+    //TODO this is temporary extraction way of z values
+    //this will get replaced by well though class structue
+
+    const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+    if ( !ge ) return false;
+
+    mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
+    if ( !surf ) return false;
+    
+    zvals_ = surf->getArray()->getData();
+
+    starts_.erase();
+    stops_.erase();
+
+    starts_ += RowCol(startrow_, startcol_);
+    stops_ += RowCol(startrow_+nrrows_-1, startcol_+nrcols_-1);
+
+    finished_ = false;
+    nrwaiting_ = 0;
+    nrthreads_ = nrthreads;
+
+    return true;
 }
 
 
-bool EMObjectSelectionRemoval::doWork( od_int64 start, od_int64 stop, 
-				       int threadid )
+bool EMObjectRowColSelRemoval::doWork( od_int64, od_int64, int threadid )
 {
-    const int nrhorgroupboxes = nrcols_%16 ? (int)(nrcols_/16) + 1
-					   : (int)(nrcols_/16);
-    const int nrvertgroupboxes = nrrows_%16 ? (int)(nrrows_/16) + 1
-					    : (int)(nrrows_/16);
+    lock_.lock();
 
-    TypeSet<EM::SubID>   localremovelist;
-
-    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
+    while( !finished_ )
     {
-	if ( !shouldContinue() )
-	    return false;
-
-	const int boxrow = (int)(idx/nrhorgroupboxes);
-	const int boxcol = idx%nrhorgroupboxes;
-
-	const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
-	if ( !ge ) continue;
-
-	mDynamicCastGet(const Geometry::ParametricSurface*,surface,ge);
-	if ( !surface ) continue;
-
-	int rowstep = surface->rowRange().step;
-	int colstep = surface->colRange().step;
-
-	int versft = boxrow ? 1 : 0;
-	int horsft = boxcol ? 1 : 0;
-
-	const StepInterval<int> rowrg( startrow_ + rowstep*boxrow*16 + versft,
-		startrow_ + rowstep * (((boxrow+1)==nrvertgroupboxes) ?
-		nrrows_ -1 : (boxrow+1)*16), rowstep );
-	const StepInterval<int> colrg( startcol_ + colstep*boxcol*16 + horsft, 
-		startcol_ + colstep * (((boxcol+1)==nrhorgroupboxes) ?
-		nrcols_ - 1 : (boxcol+1)*16), colstep );
-
-	TypeSet<EM::SubID> ids;
-
-	HorSampling horsampling( true );
-	horsampling.set( rowrg, colrg );
-	HorSamplingIterator iter( horsampling );
-	BinID bid;
-
-	Coord3 startcrd = Coord3::udf();
-	Coord3 stopcrd = Coord3::udf();
-
-	while ( iter.next(bid) )
+	if ( !starts_.size() )
 	{
-	    const Coord3 crd = emobj_.getPos( sectionid_, bid.getSerialized() );
-	    if ( !crd.isDefined() )
-		continue;
-
-	    if ( mIsUdf(startcrd.x) || startcrd.x>crd.x ) startcrd.x = crd.x;
-	    if ( mIsUdf(startcrd.y) || startcrd.y>crd.y ) startcrd.y = crd.y;
-	    if ( mIsUdf(startcrd.z) || startcrd.z>crd.z ) startcrd.z = crd.z;
-	    if ( mIsUdf(stopcrd.x)  || crd.x>stopcrd.x  ) stopcrd.x  = crd.x;
-	    if ( mIsUdf(stopcrd.y)  || crd.y>stopcrd.y  ) stopcrd.y  = crd.y;
-	    if ( mIsUdf(stopcrd.z)  || crd.z>stopcrd.z  ) stopcrd.z  = crd.z;
-	}
-
-	if ( mIsUdf(startcrd.z) || mIsUdf(stopcrd.z) )
-	    continue;
-
-	const int sel = !selector_.canDoRange() ? 1 :
-			selector_.includesRange( startcrd, stopcrd );
-
-	if ( sel==0 || sel==3 )
-	    continue;		// all outside or all behind projection plane
-
-	iter.reset();
-	while ( iter.next(bid) )
-	{
-	    if ( sel != 2 )	// not all inside
+	    nrwaiting_ ++;
+	    if ( nrwaiting_==nrthreads_ )
 	    {
-		const Coord3 crd = emobj_.getPos( sectionid_,
-						  bid.getSerialized() );
-
-		if ( !crd.isDefined() || !selector_.includes(crd) )
-		    continue;
+		finished_ = true;
+		lock_.signal( true );
+		nrwaiting_--;
+		break;
 	    }
 
-	    ids += bid.getSerialized();
+	    lock_.wait();
+	    nrwaiting_--;
 	}
 
-	localremovelist.append( ids );
-    }	
+	const int sz = starts_.size();
+	if ( !sz )
+	    continue;
 
-    mutex_.lock();
-    removelist_.append( localremovelist );
-    mutex_.unLock();
+	RowCol start = starts_[sz-1];
+	RowCol stop = stops_[sz-1];
+
+	starts_.remove( sz-1 );
+	stops_.remove( sz-1 );
+
+	lock_.unLock();
+
+	processBlock( start, stop );
+
+	lock_.lock();
+    }
+
+    lock_.unLock();
 
     return true;
+}
+
+
+void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
+					     const RowCol& stop )
+{
+    Coord3 up = Coord3::udf();
+    Coord3 down = Coord3::udf();
+
+    getBoundingCoords( start, stop, up, down );
+
+    const int sel = !selector_.canDoRange() ? 1 
+				: selector_.includesRange( up, down );
+    if ( sel==0 || sel==3 )
+	return;           // all outside or all behind projection plane
+
+    int rowlength = stop.r() - start.r();
+    int collength = stop.c() - start.c();
+
+    if ( rowlength < 32 && collength < 32 )
+	makeListGrow( start, stop, sel );
+    else if ( rowlength < 32 && collength >= 32 )
+    {
+	lock_.lock();
+
+	starts_ += start;
+	stops_ += RowCol( stop.r(), start.c()+collength/2 );
+
+	lock_.unLock();
+
+	processBlock( RowCol(start.r(),start.c()+1+collength/2), stop );
+    }
+    else if ( rowlength >=32 && collength < 32 )
+    {
+	lock_.lock();
+
+	starts_ += start;
+	stops_ += RowCol( start.r()+rowlength/2, stop.c() );
+
+	lock_.unLock();
+
+	processBlock( RowCol(start.r()+1+rowlength/2,start.c()), stop );
+    }
+    else
+    {
+	lock_.lock();
+	
+	starts_ += start;
+	stops_ += RowCol( start.r()+rowlength/2, start.c()+collength/2 );
+
+	starts_ += RowCol( start.r(), start.c()+collength/2+1 );
+	stops_ += RowCol( start.r()+rowlength/2, stop.c() );
+
+	starts_ += RowCol( start.r()+rowlength/2+1, start.c() );
+	stops_ += RowCol( stop.r(), start.c()+collength/2 );
+
+	lock_.unLock();
+
+	processBlock( RowCol(start.r()+rowlength/2+1,start.c()+collength/2+1),
+		      stop );
+    }
+}
+
+
+void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
+						  const RowCol& stop,
+						  Coord3& up, Coord3& down )
+{
+    Coord coord0 = SI().transform( BinID(start.r(),start.c()) );
+    up.x = down.x = coord0.x;
+    up.y = down.y = coord0.y;
+
+    Coord coord1 = SI().transform( BinID(start.r(),stop.c()) );
+    if ( up.x < coord1.x ) up.x = coord1.x;
+    if ( up.y < coord1.y ) up.y = coord1.y;
+    if ( coord1.x < down.x ) down.x = coord1.x;
+    if ( coord1.y < down.y ) down.y = coord1.y;
+
+    Coord coord2 = SI().transform( BinID(stop.r(),start.c()) );
+    if ( up.x < coord2.x ) up.x = coord2.x;
+    if ( up.y < coord2.y ) up.y = coord2.y;
+    if ( coord2.x < down.x ) down.x = coord2.x;
+    if ( coord2.y < down.y ) down.y = coord2.y;
+
+    Coord coord3 = SI().transform( BinID(stop.r(),stop.c()) );
+    if ( up.x < coord3.x ) up.x = coord3.x;
+    if ( up.y < coord3.y ) up.y = coord3.y;
+    if ( coord3.x < down.x ) down.x = coord3.x;
+    if ( coord3.y < down.y ) down.y = coord3.y;
+
+    up.z = down.z = zvals_[0];
+
+    for ( int row=start.r(); row<=stop.r(); row++ )
+    {
+	int idx = (row-startrow_)*nrcols_ + (start.c()-startcol_);
+	for ( int col=start.c(); col<=stop.c(); col++, idx++ )
+	{
+	    const float val = zvals_[idx];
+	    if ( val > up.z )
+		up.z = val;
+	    if ( val < down.z )
+		down.z = val;
+	}
+    }
+}
+
+
+void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
+    					     const RowCol& stop, int selresult )
+{
+    Coord3 up = Coord3::udf();
+    Coord3 down = Coord3::udf();
+
+    const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
+    if ( !ge ) return;
+
+     mDynamicCastGet(const Geometry::RowColSurface*,surf,ge);
+     if ( !surf ) return;
+
+    getBoundingCoords( start,stop, up, down );
+    
+    const StepInterval<int> rowrg( start.r(), stop.r(), surf->rowRange().step );
+    const StepInterval<int> colrg( start.c(), stop.c(), surf->colRange().step );
+
+    TypeSet<EM::SubID> ids;
+
+    HorSampling horsampling( true );
+    horsampling.set( rowrg, colrg );
+    HorSamplingIterator iter( horsampling );
+
+    BinID bid;
+    
+    iter.reset();
+    while( iter.next(bid) )
+    {
+	if ( selresult != 2 )     // not all inside
+	{
+	    const Coord3 crd = emobj_.getPos( sectionid_,
+		    			      bid.getSerialized() );
+	    if ( !crd.isDefined() || !selector_.includes(crd) )
+		continue;
+	}
+	ids += bid.getSerialized();
+    }
+
+    lock_.lock();
+    removelist_.append( ids );
+    lock_.unLock();
 }
 
 } // EM
