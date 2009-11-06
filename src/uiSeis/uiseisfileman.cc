@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.93 2009-09-15 09:47:55 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.94 2009-11-06 12:01:29 cvsranojay Exp $";
 
 
 #include "uiseisfileman.h"
@@ -392,6 +392,11 @@ void attribSel( CallBacker* )
     mAddZRangeTxt(l2dd.zrg_.stop);
     txt += " ["; mAddZRangeTxt(l2dd.zrg_.step); txt += "]";
 
+    SeisIOObjInfo sobinf( objinfo->ioObj() );
+    const int nrcomp = sobinf.nrComponents( linekey );
+    if ( nrcomp > 1 )
+	{ txt += "\nNumber of components: "; txt += nrcomp; }
+
     const IOPar& iopar = lineset->getInfo( lineidx );
     BufferString fname(iopar.find(sKey::FileName) );
     FilePath fp( fname );
@@ -403,6 +408,8 @@ void attribSel( CallBacker* )
     txt += "\nFile name: "; txt += fp.fileName();
     txt += "\nFile size: "; 
     txt += uiObjFileMan::getFileSizeString( File_getKbSize(fname) );
+    const char* timestr = File_getTime( fname );
+    if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
     infofld->setText( txt );
 
     browsebut->setSensitive( true );

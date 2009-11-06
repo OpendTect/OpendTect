@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.86 2009-10-08 07:10:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.87 2009-11-06 12:01:29 cvsranojay Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -820,6 +820,7 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
     BufferString userref = LineKey( ioobj->name(), newlk.attrName() );
     if ( !compnm.isEmpty() )
     {
+	if ( is2d_ ) userref = newlk.attrName();
 	userref += "|";
 	userref += compnm.buf();
     }
@@ -1007,13 +1008,14 @@ void DescSet::createAndAddMultOutDescs( const DescID& targetid,
 					TypeSet<DescID>& outdescids )
 {
     const int nrseloutputs = seloutputs.size() ? seloutputs.size() : 1;
-    const Desc* basedesc = getDesc( targetid );
+    Desc* basedesc = getDesc( targetid );
     if ( !basedesc ) return;
 
     for ( int idx=0; idx<nrseloutputs; idx++ )
     {
 	if ( seloutputs[idx] == basedesc->selectedOutput() )
 	{
+	    basedesc->setUserRef( seloutnms[idx]->buf() );
 	    outdescids += targetid;
 	    continue;
 	}

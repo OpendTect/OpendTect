@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.362 2009-10-29 08:47:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.363 2009-11-06 12:01:29 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1474,12 +1474,14 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 
 bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
 {
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     const int visid = visserv_->getEventObjId();
     const int attrib = visserv_->getSelAttribNr();
     const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
     BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
     as.setObjectRef( savedusrref );
-    as.set2DFlag( attrserv_->is2DEvent() );
+    as.set2DFlag( attrserv_->is2DEvent() );  
+    as.setUserRef( tmpset[0].userRef() );
     visserv_->setSelSpec( visid, attrib, as );
     BufferStringSet* refs = new BufferStringSet();
     for ( int idx=0; idx<tmpset.size(); idx++ )

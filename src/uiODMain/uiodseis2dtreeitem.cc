@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.72 2009-10-28 07:49:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.73 2009-11-06 12:01:29 cvsranojay Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -910,7 +910,6 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     bool usemcomp = false;
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
-	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
 	displayStoredData( storeditm_.findItem(mnuid)->text );
     }
@@ -971,6 +970,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	    if ( needsetattrid )
 		visserv->setSelObjectId( displayID(), -1 );
 
+	    updateColumnText(0);
 	    return rescalc;
 	}
     }
