@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.18 2009-11-09 14:52:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.19 2009-11-09 15:57:53 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -33,28 +33,44 @@ static const char* rcsID = "$Id: welltieextractdata.cc,v 1.18 2009-11-09 14:52:0
 namespace WellTie
 {
 
+TrackExtractor::TrackExtractor(const Well::Data* d)
+    : Executor("Extracting Well track positions")
+    , wd_(*d)
+    , track_(wd_.track())
+    , d2t_(*wd_.d2TModel())		
+    , nrdone_(0)
+    , timeintv_(0,0,0)
+{
+    prevbid_ = SI().transform( track_.pos(0) );     
+}
+
+
 int TrackExtractor::nextStep()
 {
+    if ( prevbid_.inl<0 || prevbid_.crl<0 )
+	return ErrorOccurred();
     double time = timeintv_.atIndex( nrdone_ );
 
-    const Well::Track& track =  wd_.track();
-    const Well::D2TModel& d2t = *wd_.d2TModel();
-    Coord3 pos = track.getPos( d2t.getDepth(time) );
+    Coord3 pos = track_.getPos( d2t_.getDepth(time) );
     pos.z = time;
 
     BinID bid = SI().transform( pos );
 
+    if ( time > d2t_.getTime( track_.dah( track_.size()-1) ) )
+	bid = prevbid_;
+    if ( time < d2t_.getTime( track_.dah( 0 ) ) )
+	bid = prevbid_;
+
     if ( !bid.inl && !bid.crl )
     {
+	bid = prevbid_;
+	bidset_ += bid;
 	nrdone_++;
        	return Executor::MoreToDo();
     }
     if ( time > timeintv_.stop )
 	return Executor::Finished();
     
-    if ( time > d2t.getTime( track.dah( track.size()-1) ) )
-	bid = prevbid_;
-
     bidset_ += bid;
     prevbid_ = bid;
 
@@ -64,7 +80,7 @@ int TrackExtractor::nextStep()
 
 
 						 
-SeismicExtractor::SeismicExtractor( const IOObj& ioobj, const CubeSampling* cs )
+SeismicExtractor::SeismicExtractor( const IOObj& ioobj ) 
 	: Executor("Extracting Seismic positions")
 	, rdr_(new SeisTrcReader( &ioobj ))
 	, nrdone_(0)

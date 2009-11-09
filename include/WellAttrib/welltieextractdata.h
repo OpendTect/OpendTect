@@ -27,6 +27,8 @@ namespace Well
 {
     class Data;
     class Log;
+    class Track;
+    class D2TModel;
 };
 
 namespace WellTie
@@ -37,12 +39,7 @@ class DataHolder;
 mClass TrackExtractor : public Executor
 {
 public:
-			TrackExtractor(const Well::Data* d)
-			    : Executor("Extracting Well track positions")
-			    , wd_(*d)
-			    , nrdone_(0)
-			    , timeintv_(0,0,0)
-			    {}
+			TrackExtractor(const Well::Data*);
 
     StepInterval<float> timeintv_;
 
@@ -58,6 +55,8 @@ protected:
     BinID		prevbid_;
     TypeSet<BinID>	bidset_;
     const Well::Data& 	wd_;	 
+    const Well::Track& track_;
+    const Well::D2TModel& d2t_;
     int                 nrdone_;
 };
 
@@ -66,7 +65,7 @@ protected:
 mClass SeismicExtractor : public Executor
 {
 public:
-			SeismicExtractor(const IOObj&,const CubeSampling*);
+			SeismicExtractor(const IOObj&);
 			~SeismicExtractor();
 
     StepInterval<float> timeintv_;

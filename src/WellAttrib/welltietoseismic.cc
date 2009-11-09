@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.40 2009-11-09 14:52:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.41 2009-11-09 15:57:53 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -93,7 +93,7 @@ bool DataPlayer::extractSeismics()
     const IOObj& ioobj = *IOM().get( wtsetup_.seisid_ );
     IOObj* seisobj = ioobj.clone();
 
-    WellTie::SeismicExtractor seisextr( *seisobj, params_.getCubeSampling() );
+    WellTie::SeismicExtractor seisextr( *seisobj );
     TypeSet<BinID> bids;
     for ( int idx=0; idx<wtextr.timeintv_.nrSteps(); idx++ )
 	bids += wtextr.getBIDs()[idx];
@@ -161,7 +161,7 @@ bool DataPlayer::computeReflectivity()
     geocalc_->computeAI( *dholder_->arr( lognms.get(0) ), 
 			 *dholder_->arr( lognms.get(1) ), ai ); 
 
-    geocalc_->lowPassFilter( ai, 1/( 3*SI().zStep() ) );
+    geocalc_->lowPassFilter( ai, 1/( 2*SI().zStep() ) );
     geocalc_->computeReflectivity( ai, ref, params_.step_ );
 
     mSetData( params_.ainm_, lognms.get(1), ai );
