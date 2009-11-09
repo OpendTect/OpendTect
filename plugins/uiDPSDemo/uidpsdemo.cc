@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.5 2009-11-04 15:29:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.6 2009-11-09 11:24:08 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
@@ -139,11 +139,12 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 
     bool needrandsel = nrpts < totnrnodes;
     const int actualnrpts = needrandsel ? nrpts : totnrnodes;
+    const int maxnrunsuccessful = actualnrpts * 1000;
     int nrunsuccessful = 0;
-#   define mNextTry() { ipt--; nrunsuccessful++; continue; }
+#   define mNextTry() { if ( needrandsel ) ipt--; nrunsuccessful++; continue; }
     for ( int ipt=0; ipt<actualnrpts; ipt++ )
     {
-	if ( nrunsuccessful > 1000000 )
+	if ( nrunsuccessful > maxnrunsuccessful )
 	    break;
 
 	// Get a random position in horizon
