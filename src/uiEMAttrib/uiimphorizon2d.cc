@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.18 2009-11-04 03:30:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.19 2009-11-09 02:48:01 cvsnanne Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -194,15 +194,16 @@ protected:
 
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p ) 
-    : uiDialog(p,uiDialog::Setup("Import 2D Horizon",
-				 "Specify parameters",
-				 "104.0.0").oktext("Import"))
+    : uiDialog(p,uiDialog::Setup("Import 2D Horizon","Specify parameters",
+				 "104.0.0"))
     , displayfld_(0)
     , dataselfld_(0)
     , scanner_(0)
     , linesetnms_(*new BufferStringSet)
     , fd_(*EM::Horizon2DAscIO::getDesc())
 {
+    setCtrlStyle( DoAndStay );
+
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
 					    .withexamine(true)
 					    .forread(true) );
@@ -256,7 +257,7 @@ uiImportHorizon2D::~uiImportHorizon2D()
 
 void uiImportHorizon2D::descChg( CallBacker* cb )
 {
-    if ( scanner_ ) delete scanner_;
+    delete scanner_;
     scanner_ = 0;
 }
 
@@ -277,7 +278,7 @@ void uiImportHorizon2D::formatSel( CallBacker* cb )
 
 void uiImportHorizon2D::setSel( CallBacker* )
 {
-    if ( scanner_ ) delete scanner_;
+    delete scanner_;
     scanner_ = 0;
 }
 
