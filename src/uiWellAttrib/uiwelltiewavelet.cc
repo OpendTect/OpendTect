@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.33 2009-10-21 09:36:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.34 2009-11-09 06:35:34 cvsnageswara Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -157,7 +157,7 @@ void uiWavelet::initWaveletViewer()
 void uiWavelet::rotatePhase( CallBacker* )
 {
     Wavelet* orgwvlt = new Wavelet( *wvlt_ );
-    uiSeisWvltRotDlg dlg( this, wvlt_ );
+    uiSeisWvltRotDlg dlg( this, *wvlt_ );
     dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {
@@ -171,7 +171,7 @@ void uiWavelet::rotatePhase( CallBacker* )
 void uiWavelet::taper( CallBacker* )
 {
     Wavelet* orgwvlt = new Wavelet( *wvlt_ );
-    uiSeisWvltTaperDlg dlg( this, wvlt_ );
+    uiSeisWvltTaperDlg dlg( this, *wvlt_ );
     dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {
@@ -191,7 +191,7 @@ void uiWavelet::wvltChanged( CallBacker* )
 void uiWavelet::dispProperties( CallBacker* )
 {
     delete wvltpropdlg_; wvltpropdlg_=0;
-    wvltpropdlg_ = new uiWaveletDispPropDlg( this, wvlt_ );
+    wvltpropdlg_ = new uiWaveletDispPropDlg( this, *wvlt_ );
     wvltpropdlg_ ->go();
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.16 2009-11-04 16:19:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.17 2009-11-09 06:35:34 cvsnageswara Exp $";
 
 
 #include "uiseiswvltgen.h"
@@ -22,15 +22,15 @@ static const char* rcsID = "$Id: uiseiswvltgen.cc,v 1.16 2009-11-04 16:19:14 cvs
 #include "mathfunc.h"
 #include "survinfo.h"
 #include "wavelet.h"
+#include "waveletattrib.h"
 
-#include "uiioobjsel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uiwindowfuncseldlg.h"
-#include "uiseiswvltattr.h"
-#include "uiworld2ui.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uiwindowfuncseldlg.h"
+#include "uiworld2ui.h"
 
 
 uiSeisWvltCreate::uiSeisWvltCreate( uiParent* p, uiDialog::Setup su ) 
@@ -287,9 +287,9 @@ void uiSeisWvltMerge::reloadWvlts()
 	if ( centerfld_->isChecked() )
 	{
 	    if ( centerchoicefld_->box()->currentItem() )
-		centerToMaxEnergyPos( wvlt );
+		centerToMaxEnergyPos( *wvlt );
 	    else
-		centerToMaxAmplPos( wvlt );
+		centerToMaxAmplPos( *wvlt );
 	}
 	namelist_.add( ioobj->name() );
     }
@@ -331,14 +331,14 @@ void uiSeisWvltMerge::reloadAll( CallBacker* )
 }
 
 
-void uiSeisWvltMerge::centerToMaxEnergyPos( Wavelet* wvlt )
+void uiSeisWvltMerge::centerToMaxEnergyPos( Wavelet& wvlt )
 {
     WaveletAttrib wvltattr( wvlt );
-    Array1DImpl<float> hilb ( wvlt->size() );
+    Array1DImpl<float> hilb ( wvlt.size() );
     wvltattr.getHilbert( hilb );
 
     float max = 0; 	int centeridx = 0;
-    for ( int idx=0; idx<wvlt->size(); idx++ )
+    for ( int idx=0; idx<wvlt.size(); idx++ )
     {
 	float val = fabs( hilb.get(idx) );
 	if ( max < val )
@@ -347,27 +347,27 @@ void uiSeisWvltMerge::centerToMaxEnergyPos( Wavelet* wvlt )
 	    centeridx = idx;
 	}
     }
-    wvlt->set( centeridx, wvlt->sampleRate() );
+    wvlt.set( centeridx, wvlt.sampleRate() );
 }
 
 
-void uiSeisWvltMerge::centerToMaxAmplPos( Wavelet* wvlt )
+void uiSeisWvltMerge::centerToMaxAmplPos( Wavelet& wvlt )
 {
     int centeridx = 0;
-    float extrval = wvlt->getExtrValue( true );
-    const float minval = wvlt->getExtrValue( false );
+    float extrval = wvlt.getExtrValue( true );
+    const float minval = wvlt.getExtrValue( false );
     if ( fabs(minval) > fabs(extrval) )
 	extrval = minval;
 
-    for ( int idx=0; idx<wvlt->size(); idx++ )
+    for ( int idx=0; idx<wvlt.size(); idx++ )
     {
-	if ( mIsEqual(wvlt->samples()[idx],extrval,mDefEps) )
+	if ( mIsEqual(wvlt.samples()[idx],extrval,mDefEps) )
 	{
 	    centeridx = idx;
 	    break;
 	}
     }
-    wvlt->set( centeridx, wvlt->sampleRate() );
+    wvlt.set( centeridx, wvlt.sampleRate() );
 }
 
 

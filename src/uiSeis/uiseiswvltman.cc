@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.51 2009-10-21 09:36:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.52 2009-11-09 06:35:34 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -152,6 +152,13 @@ void uiSeisWvltMan::mrgPush( CallBacker* )
 
 void uiSeisWvltMan::extractPush( CallBacker* cb )
 {
+    if ( SI().getSurvDataType() == SurveyInfo::Only2D || !SI().zIsTime() )
+    {
+	uiMSG().error(
+		"Wavelet extraction is only available in 3D time surveys" );
+	return;
+    }
+
     if ( !wvltext_ )
     {
 	wvltext_ = new uiWaveletExtraction( this );
@@ -231,7 +238,7 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
 
-    wvltpropdlg_ = new uiWaveletDispPropDlg( this, wvlt );
+    wvltpropdlg_ = new uiWaveletDispPropDlg( this, *wvlt );
     if ( wvltpropdlg_ ->go() )
     { delete wvltpropdlg_; wvltpropdlg_ = 0; }
 
@@ -318,7 +325,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
     
-    uiSeisWvltRotDlg dlg( this, wvlt );
+    uiSeisWvltRotDlg dlg( this, *wvlt );
     dlg.acting.notify( mCB(this,uiSeisWvltMan,updateViewer) );
     if ( dlg.go() )
     {	
@@ -339,7 +346,7 @@ void uiSeisWvltMan::taper( CallBacker* )
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
     
-    uiSeisWvltTaperDlg dlg( this, wvlt );
+    uiSeisWvltTaperDlg dlg( this, *wvlt );
     if ( dlg.go() )
     {	
 	if ( !wvlt->put(curioobj_) )
