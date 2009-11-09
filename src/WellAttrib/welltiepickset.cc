@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.24 2009-10-06 09:20:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.25 2009-11-09 14:52:02 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -76,7 +76,7 @@ float PickSetMGR::findEvent( float zpos, bool issynth )
     if ( evtype_ == VSEvent::None ) return zpos;
 
     const WellTie::Params::DataParams& dpms =  *holder_->dpms();
-    const char* colnm = issynth ? dpms.synthnm_ : dpms.attrnm_; 
+    const char* colnm = issynth ? dpms.synthnm_ : dpms.seisnm_; 
     const int maxidx = dpms.timeintvs_[1].nrSteps()-1;
     Interval<float> intvup ( zpos, zpos - mTimeGate );
     Interval<float> intvdown ( zpos, zpos + mTimeGate );

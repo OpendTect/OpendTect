@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.8 2009-09-03 14:04:30 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.9 2009-11-09 14:51:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
 
-#include "attribdescid.h"
 #include "multiid.h"
 #include "welltieunitfactors.h"
 
@@ -32,7 +31,7 @@ mClass Setup
 public:
 			Setup()
 			    : wellid_(*new MultiID())
-			    , attrid_(*new Attrib::DescID())
+			    , seisid_(*new MultiID())
 			    , wvltid_(*new MultiID())
 			    , issonic_(true)
 			    , isinitdlg_(true)
@@ -43,10 +42,11 @@ public:
 
 			Setup( const Setup& setup ) 
 			    : wellid_(setup.wellid_)
-			    , attrid_(setup.attrid_)
+			    , seisid_(setup.seisid_)
 			    , wvltid_(setup.wvltid_)
 			    , issonic_(setup.issonic_)
 			    , isinitdlg_(setup.isinitdlg_)
+			    , seisnm_(setup.seisnm_)
 			    , vellognm_(setup.vellognm_)
 			    , denlognm_(setup.denlognm_)
 			    , corrvellognm_(setup.corrvellognm_)
@@ -54,11 +54,12 @@ public:
 			    {}	
 	
     MultiID			wellid_;
-    Attrib::DescID         	attrid_;
+    MultiID        		seisid_;
+    MultiID               	wvltid_;
+    BufferString        	seisnm_;
     BufferString        	vellognm_;
     BufferString          	denlognm_;
     BufferString          	corrvellognm_;
-    MultiID               	wvltid_;
     bool                	issonic_;
     bool 			isinitdlg_;
     

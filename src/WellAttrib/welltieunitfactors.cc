@@ -7,16 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.32 2009-10-23 15:25:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.33 2009-11-09 14:52:02 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attribengman.h"
-#include "unitofmeasure.h"
+#include "cubesampling.h"
+#include "ioman.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "welllog.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
@@ -87,15 +86,14 @@ double UnitFactors::calcDensFactor( const char* densunit )
 
 
 
-Params::Params( const WellTie::Setup& wts, Well::Data* wd,
-		const Attrib::DescSet& ads )
+Params::Params( const WellTie::Setup& wts, Well::Data* wd )
 	: wtsetup_(wts)
 	, uipms_(wd)				    
 	, dpms_(wd,wts)				    
 	, wd_(*wd)
-	, ads_(ads)	  
 {
-    dpms_.attrnm_ = getAttrName( ads );
+    dpms_.setUpCubeSampling(); 
+
     dpms_.currvellognm_ = uipms_.iscscorr_ ? wts.corrvellognm_ : wts.vellognm_;
     dpms_.createColNames();
     resetVelLogNm();
@@ -104,23 +102,9 @@ Params::Params( const WellTie::Setup& wts, Well::Data* wd,
 	dpms_.currvellognm_ = wtsetup_.corrvellognm_;
 
     for ( int  idx=0; idx<3; idx++ )
-	dpms_.timeintvs_ += StepInterval<float>(0,0,0); 
+	dpms_.timeintvs_ += StepInterval<float>(0,0,0);
+
     resetParams();
-}
-
-
-BufferString Params::getAttrName( const Attrib::DescSet& ads ) const
-{
-    const Attrib::Desc* ad = ads.getDesc( wtsetup_.attrid_ );
-    if ( !ad ) return 0;
-
-    Attrib::SelInfo attrinf( &ads, 0, ads.is2D() );
-    BufferStringSet bss;
-    SeisIOObjInfo sii( MultiID( attrinf.ioobjids.get(0) ) );
-    sii.getDefKeys( bss, true );
-    const char* defkey = bss.get(0).buf();
-    BufferString attrnm = ad->userRef();
-    return SeisIOObjInfo::defKey2DispName(defkey,attrnm);
 }
 
 
@@ -133,16 +117,31 @@ void Params::resetVelLogNm()
 }
 
 
+void Params::DataParams::setUpCubeSampling()
+{
+    cs_ = new CubeSampling();
+    SeisIOObjInfo oinf( IOM().get( wts_.seisid_ ) );
+    if ( oinf.isOK() )
+	oinf.getRanges( *cs_ );
+}
+
+
 #define mComputeFactor (SI().zStep())
+#define mWorkFactor (mComputeFactor/20)
 #define mMaxWorkSize (int)1.e5
 #define mMinWorkSize (int)20
 #define mMaxWorkArraySize (int)1.e5
 #define mMinWorkArraySize (int)20
 bool Params::DataParams::resetTimeParams()
 {
-    float stopdah  = wd_.track().dah(wd_.track().size()-1);
+    float tstart = 0; float tstop = d2T(wd_.track().dah(wd_.track().size()-1));
+    if ( cs_ )
+    {
+	tstart = cs_->zrg.start;
+	tstop = cs_->zrg.stop;
+    }
 
-    timeintvs_[0]=StepInterval<float>( 0, d2T(stopdah), mComputeFactor/step_ );
+    timeintvs_[0]=StepInterval<float>( tstart, tstop, mWorkFactor);
     timeintvs_[1]=StepInterval<float>(timeintvs_[0]); timeintvs_[1].step*=step_;
     timeintvs_[2].step = timeintvs_[1].step;
 
@@ -194,7 +193,7 @@ void Params::DataParams::createColNames()
     colnms_.add( refnm_ ="Computed Reflectivity" );
     colnms_.add( synthnm_ = "Synthetics" );
     colnms_.add( crosscorrnm_ = "Cross Correlation" );
-    colnms_.add( attrnm_ );
+    colnms_.add( seisnm_ = wts_.seisnm_ );
 }
 
 }; //namespace WellTie

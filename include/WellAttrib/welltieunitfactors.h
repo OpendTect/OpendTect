@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "welldata.h"
 
 class UnitOfMeasure;
-namespace Attrib { class DescSet; }
+class CubeSampling;
 
 namespace WellTie
 {
@@ -60,9 +60,7 @@ protected:
 mClass Params
 {
 public :
-				Params(const WellTie::Setup&,
-				      Well::Data*,
-				      const Attrib::DescSet&);
+				Params(const WellTie::Setup&,Well::Data*);
 				~Params(){};
 
     mStruct uiParams
@@ -94,6 +92,8 @@ public :
 				, step_(20)
 				, isinitwvltactive_(true) 	  
 				, estwvltlength_(0) 	  
+				, cs_(0)
+	      			, extractseismic_(true)	
 				{}
 
 	TypeSet< StepInterval<float> > timeintvs_;
@@ -107,14 +107,17 @@ public :
 	BufferString		dispcurrvellognm_;
 	BufferString		ainm_;
 	BufferString		refnm_;
-	BufferString		attrnm_;
+	BufferString		seisnm_;
 	BufferString		timenm_;
 	BufferString		dptnm_;
 	BufferString		synthnm_;
 	BufferString		crosscorrnm_;
 
 	bool			isinitwvltactive_;
+	bool			extractseismic_;
 	int			estwvltlength_;
+    
+	CubeSampling*		cs_;
     
 	const WellTie::Setup&	wts_;
 	const Well::Data&	wd_;
@@ -122,13 +125,13 @@ public :
 	Interval<float>		d2T(Interval<float>,bool time = true) const;
 	void	 		createColNames();
 	bool			resetTimeParams();
+	void			setUpCubeSampling();
+	const CubeSampling*	getCubeSampling() const { return cs_; } 
     };
 
     uiParams			uipms_;
     DataParams			dpms_;
-    const Attrib::DescSet& 	ads_;
 
-    BufferString	 	getAttrName(const Attrib::DescSet&) const;
     bool			resetParams() {return dpms_.resetTimeParams();} 
     void			resetVelLogNm();
 

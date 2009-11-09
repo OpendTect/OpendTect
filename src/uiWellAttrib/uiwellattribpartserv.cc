@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.23 2009-09-03 09:41:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.24 2009-11-09 14:51:59 cvsbruno Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -164,7 +164,7 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
     WellTie::Setup wtsetup;
     wtsetup.wellid_ = wid;
     
-    WellTie::uiTieWinMGRDlg dlg( parent(), wtsetup, *attrset );
+    WellTie::uiTieWinMGRDlg dlg( parent(), wtsetup );
     dlg.go();
 
     return true;

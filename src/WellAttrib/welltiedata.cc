@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.26 2009-11-02 11:06:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.27 2009-11-09 14:52:02 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -159,7 +159,7 @@ bool DataWriter::writeLogs2Cube( LogData& ldset ) const
     bool allsucceeded = true;
     for ( int idx=0; idx<ldset.logset_.size(); idx++ )
     {
-	WellTie::TrackExtractor wtextr( 0, holder_->wd() );
+	WellTie::TrackExtractor wtextr( holder_->wd() );
 	wtextr.timeintv_ = holder_->dpms()->timeintvs_[1];
 	if ( !wtextr.execute() )
 	    pErrMsg( "unable to extract position" );
@@ -170,7 +170,7 @@ bool DataWriter::writeLogs2Cube( LogData& ldset ) const
 
 	ldset.bids_.erase();
 	for ( int idx=0; idx<datasz; idx++ )
-	    ldset.bids_ += wtextr.getBIDValues()[idx];
+	    ldset.bids_ += wtextr.getBIDs()[idx];
 
 	if ( !writeLog2Cube( ldset ) )
 	    allsucceeded = false;

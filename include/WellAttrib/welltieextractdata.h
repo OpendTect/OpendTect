@@ -14,11 +14,15 @@ ________________________________________________________________________
 -*/
 
 #include "executor.h"
+#include "position.h"
 #include "arrayndimpl.h"
 #include "geometry.h"
 
-class DataPointSet;
-class BinID;
+class CubeSampling;
+class SeisTrcReader;
+class SeisTrc;
+class MultiID;
+class IOObj;
 namespace Well 
 {
     class Data;
@@ -33,9 +37,8 @@ class DataHolder;
 mClass TrackExtractor : public Executor
 {
 public:
-			TrackExtractor(DataPointSet* dps,const Well::Data* d)
+			TrackExtractor(const Well::Data* d)
 			    : Executor("Extracting Well track positions")
-			    , dps_(dps)
 			    , wd_(*d)
 			    , nrdone_(0)
 			    , timeintv_(0,0,0)
@@ -48,14 +51,48 @@ public:
     od_int64            nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Points done"; }
-    const BinID*	getBIDValues() const	{ return bidvalset_.arr(); }
+    const BinID*	getBIDs() const		{ return bidset_.arr(); }
 
 protected:
 
-    TypeSet<BinID>	bidvalset_;
-    DataPointSet* 	dps_;
+    BinID		prevbid_;
+    TypeSet<BinID>	bidset_;
     const Well::Data& 	wd_;	 
     int                 nrdone_;
+};
+
+
+
+mClass SeismicExtractor : public Executor
+{
+public:
+			SeismicExtractor(const IOObj&,const CubeSampling*);
+			~SeismicExtractor();
+
+    StepInterval<float> timeintv_;
+
+    int                 nextStep();
+    od_int64            totalNr() const		{ return timeintv_.nrSteps(); }
+    od_int64            nrDone() const          { return nrdone_; }
+    const char*         message() const         { return "Computing..."; }
+    const char*         nrDoneText() const      { return "Points done"; }
+    void		setBIDValues(const TypeSet<BinID>&); 
+    void		setTimeIntv(const StepInterval<float>&);
+    
+    Array1DImpl<float>* vals_;
+    Array1DImpl<float>* dahs_;
+
+
+protected:
+
+    CubeSampling* 	cs_;
+    TypeSet<BinID>	bidset_;
+    ObjectSet<SeisTrc>	trcset_;
+    SeisTrcReader* 	rdr_;
+    int                 nrdone_;
+    int			radius_;
+  
+    void		collectTracesAroundPath();
 };
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.60 2009-11-02 11:06:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.61 2009-11-09 14:52:01 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -31,8 +31,6 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.60 2009-11-02 11:0
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
-#include "attribdesc.h"
-#include "attribdescset.h"
 #include "ctxtioobj.h"
 #include "pixmap.h"
 #include "survinfo.h"
@@ -53,13 +51,13 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.60 2009-11-02 11:0
 namespace WellTie
 {
 
+static const char*  errdmsg = "unable to handle data, please check your input ";
 static const char*  helpid = "107.4.1";
 static const char*  eventtypes[] = { "None","Extrema","Maxima",
 				     "Minima","Zero-crossings",0 };
 #define mErrRet(msg) \
 { uiMSG().error(msg); return false; }
-uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts, 
-		    const Attrib::DescSet& ads )
+uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts ) 
 	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
 			    .withhanddrag(true)
 			    .deleteonclose(false))
@@ -73,8 +71,10 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts,
     	, infodlg_(0)
 	, params_(0)       		 
 {
-    setTitle( ads );
-    
+    BufferString title( "Tie "); 
+    title += wd_->name(); title += " to "; title += wts.seisnm_;
+    setCaption( title );
+
     for ( int idx=0; idx<2; idx++ )
     { 
 	uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
@@ -83,9 +83,9 @@ uiTieWin::uiTieWin( uiParent* p, const WellTie::Setup& wts,
     }
 
     uiTaskRunner* tr = new uiTaskRunner( p );
-    params_	= new WellTie::Params( setup_, wd_, ads );
+    params_	= new WellTie::Params( setup_, wd_ );
     dataholder_ = new WellTie::DataHolder( params_, wd_, setup_ );
-    dataplayer_ = new WellTie::DataPlayer( dataholder_, ads, tr );
+    dataplayer_ = new WellTie::DataPlayer( dataholder_, tr );
     infodlg_    = new WellTie::uiInfoDlg( this, dataholder_, dataplayer_ );
     datadrawer_ = new WellTie::uiTieView( this, &viewer(), *dataholder_, 
 	    				&logsdisp_ );
@@ -115,27 +115,14 @@ uiTieWin::~uiTieWin()
 }
 
 
-void uiTieWin::setTitle( const Attrib::DescSet& ads )
-{
-    const Attrib::Desc* ad = ads.getDesc( setup_.attrid_ );
-    if ( !ad ) return;
-
-    BufferString attrnm = ad->userRef();
-    BufferString wname = "Tie ";
-    wname += wd_->name();
-    wname += " to ";
-    wname += attrnm;   
-    
-    setWinTitle( wname );
-}
-
-
 void uiTieWin::initAll()
 {
     drawFields();
     addControl();
+    dataholder_->resetLogData();
     doWork( 0 );
     dataholder_->pickmgr()->setData( dataholder_ );
+    dataholder_->dpms()->extractseismic_ = false;
     show();
     dispPropChg( 0 );
 }
@@ -144,7 +131,7 @@ void uiTieWin::initAll()
 void uiTieWin::displayUserMsg( CallBacker* )
 {
     BufferString msg = "To correlate synthetic to seismic, "; 
-    msg += "choose your tracking mode, "; 
+    msg += "choose yourtracking mode, "; 
     msg += "pick one or more synthetic events "; 
     msg += "and link them with the seismic events. "; 
     msg += "Each synthetic event must be coupled with a seismic event. "; 
@@ -160,14 +147,16 @@ void uiTieWin::displayUserMsg( CallBacker* )
 }
 
 
-bool uiTieWin::doWork( CallBacker* )
+bool uiTieWin::doWork( CallBacker* cb )
 {
     getDispParams();
+    BufferString errlogs( errdmsg ), errseis( errdmsg );
+    errlogs += "logs"; errseis += "data";
 
     if ( !params_->resetParams() )
-	 mErrRet( "unable to handle log data, please check your input logs" );
+	 mErrRet( errlogs );
     if ( !dataplayer_->computeAll() )
-	mErrRet( "unable to compute data, please check your input data" ); 
+	mErrRet( errseis ); 
 
     drawData();
     return true;

@@ -28,7 +28,6 @@ class uiLabeledComboBox;
 class uiCheckBox;
 class uiWellLogDisplay;
 
-namespace Attrib { class DescSet; }
 namespace Well	 { class Data; }
 
 namespace WellTie
@@ -47,8 +46,7 @@ mClass uiTieWin : public uiFlatViewMainWin
 {
 public:
 
-				uiTieWin(uiParent*,const WellTie::Setup&,
-					  const Attrib::DescSet&); 
+				uiTieWin(uiParent*,const WellTie::Setup&);
 				~uiTieWin();
 
 
@@ -92,7 +90,6 @@ protected:
     void 			initAll();
     void 			putDispParams();
     void			resetInfoDlg();
-    void	 		setTitle(const Attrib::DescSet&);
 
     //CallBackers
     bool			acceptOK(CallBacker*);

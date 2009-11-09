@@ -7,21 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.39 2009-11-02 09:32:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.40 2009-11-09 14:52:02 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attribengman.h"
-#include "datacoldef.h"
-#include "datapointset.h"
+#include "cubesampling.h"
 #include "ioman.h"
 #include "linear.h"
 #include "mousecursor.h"
-#include "posvecdataset.h"
 #include "survinfo.h"
 #include "task.h"
 #include "wavelet.h"
@@ -43,20 +38,15 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.39 2009-11-02 09:32:22 
 namespace WellTie
 {
 
-DataPlayer::DataPlayer( WellTie::DataHolder* dh, 
-			const Attrib::DescSet& ads,
-			TaskRunner* tr ) 
+DataPlayer::DataPlayer( WellTie::DataHolder* dh, TaskRunner* tr ) 
     	: wtsetup_(dh->setup())
 	, dholder_(dh)  
-	, ads_(ads)
 	, wd_(*dh->wd()) 
 	, params_(*dh->dpms())		 
 	, logset_(*dh->logset())	   
 	, tr_(tr)		  
       	, d2tmgr_(dh->d2TMGR())
-	, dps_(new DataPointSet(false, false))	   
 {
-    dps_->dataSet().add( new DataColDef( params_.attrnm_ ) );
     geocalc_ = new WellTie::GeoCalculator(*dh);
 } 
 
@@ -65,18 +55,14 @@ DataPlayer::~DataPlayer()
 {
     delete geocalc_;
     delete tr_;
-    delete dps_;
 }
 
 
 bool DataPlayer::computeAll()
 {
-    dholder_->resetLogData();
-  
     if ( !resampleLogs() ) 	   return false;
     if ( !computeReflectivity() )  return false;
-    if ( !extractWellTrack() )     return false;
-    if ( !extractSeismics() ) 	   return false;
+    if ( params_.extractseismic_ && !extractSeismics() ) return false;
     if ( !computeWvltPack() ) 	   return false;
 
     return true;	
@@ -94,19 +80,33 @@ bool DataPlayer::computeWvltPack()
 }
 
 
-bool DataPlayer::extractWellTrack()
+#define mSetData(lognm,dahlognm,arr)\
+    dholder_->setLogVal( lognm, &arr, dholder_->getLogVal( dahlognm, true ) );
+bool DataPlayer::extractSeismics()
 {
-    dps_->bivSet().empty();
-    dps_->dataChanged();
-
     MouseCursorManager::setOverride( MouseCursor::Wait );
     
-    WellTie::TrackExtractor wtextr( dps_, &wd_ );
+    WellTie::TrackExtractor wtextr( &wd_ );
     wtextr.timeintv_ = params_.timeintvs_[1];
     if ( !tr_->execute( wtextr ) ) return false;
+   
+    const IOObj& ioobj = *IOM().get( wtsetup_.seisid_ );
+    IOObj* seisobj = ioobj.clone();
 
+    WellTie::SeismicExtractor seisextr( *seisobj, params_.getCubeSampling() );
+    TypeSet<BinID> bids;
+    for ( int idx=0; idx<wtextr.timeintv_.nrSteps(); idx++ )
+	bids += wtextr.getBIDs()[idx];
+    seisextr.setBIDValues( bids );
+    seisextr.setTimeIntv( params_.timeintvs_[1] ); 
+    if ( !tr_->execute( seisextr ) ) return false;
+    
     MouseCursorManager::restoreOverride();
-    dps_->dataChanged();
+
+    const int sz =  params_.timeintvs_[1].nrSteps();
+    Array1DImpl<float> tmpseis ( sz );
+    memcpy( tmpseis.getData(), seisextr.vals_->getData(), sz*sizeof(float) );
+    mSetData( params_.seisnm_, params_.refnm_, tmpseis );
 
     return true;
 }
@@ -151,8 +151,6 @@ bool DataPlayer::resLogExecutor( const BufferStringSet& lognms, bool fromwd,
 }
 
 
-#define mSetData(lognm,dahlognm,arr)\
-    dholder_->setLogVal( lognm, &arr, dholder_->getLogVal( dahlognm, true ) );
 bool DataPlayer::computeReflectivity()
 { 
     BufferStringSet lognms; lognms.add( params_.currvellognm_ );
@@ -169,24 +167,6 @@ bool DataPlayer::computeReflectivity()
     mSetData( params_.ainm_, lognms.get(1), ai );
     resLogExecutor( lognms, false, params_.timeintvs_[1] );
     mSetData( params_.refnm_, lognms.get(1), ref );
-
-    return true;
-}
-
-
-bool DataPlayer::extractSeismics()
-{
-    Attrib::EngineMan aem; BufferString errmsg;
-    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps_, ads_, errmsg,
-						       dps_->nrCols()-1 );
-    if ( !tabextr ) return false;
-    if (!tr_->execute( *tabextr )) return false;
-    dps_->dataChanged();
-
-    Array1DImpl<float> tmpseis ( params_.timeintvs_[1].nrSteps() );
-    getDPSZData( *dps_, tmpseis );
-
-    mSetData( params_.attrnm_, params_.refnm_, tmpseis );
 
     return true;
 }
@@ -225,9 +205,9 @@ bool DataPlayer::estimateWavelet()
     refres.setTimeIntv( si ); refres.isavg_ = false;
     refres.execute(); 
     
-    WellTie::LogResampler attrres( 0, *logset_.getLog(params_.attrnm_), &wd_ );
-    attrres.setTimeIntv( si ); attrres.isavg_ = false;
-    attrres.execute(); 
+    WellTie::LogResampler seisres( 0, *logset_.getLog(params_.seisnm_), &wd_ );
+    seisres.setTimeIntv( si ); seisres.isavg_ = false;
+    seisres.execute(); 
 
     Wavelet* wvlt = dholder_->wvltset()[1]; 
     if ( !wvlt ) return false;
@@ -242,10 +222,10 @@ bool DataPlayer::estimateWavelet()
     wvlt->reSize( wvltsz );
    
     Array1DImpl<float> wvltarr( datasz ), wvltvals( wvltsz );
-    geocalc_->deconvolve( *attrres.vals_, *refres.vals_, wvltarr, wvltsz );
+    geocalc_->deconvolve( *seisres.vals_, *refres.vals_, wvltarr, wvltsz );
 
     for ( int idx=0; idx<wvltsz; idx++ )
-	wvlt->samples()[idx] = wvltarr.get( datasz/2 + idx - wvltsz/2 + 1 );
+	wvlt->samples()[idx] = wvltarr.get( datasz/2 + idx - wvltsz/2 );
     
     memcpy( wvltvals.getData(),wvlt->samples(), wvltsz*sizeof(float) );
     ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
@@ -266,48 +246,22 @@ bool DataPlayer::computeCrossCorrel()
     synres.setTimeIntv( si ); synres.isavg_ = false;
     synres.execute(); 
     
-    WellTie::LogResampler attrres( 0, *logset_.getLog(params_.attrnm_), &wd_ );
-    attrres.setTimeIntv( si ); attrres.isavg_ = false;
-    attrres.execute();
+    WellTie::LogResampler seisres( 0, *logset_.getLog(params_.seisnm_), &wd_ );
+    seisres.setTimeIntv( si ); seisres.isavg_ = false;
+    seisres.execute();
 
     Array1DImpl<float> tmpcrosscorr( sz );
 
-    geocalc_->crosscorr( *synres.vals_, *attrres.vals_, tmpcrosscorr );
+    geocalc_->crosscorr( *synres.vals_, *seisres.vals_, tmpcrosscorr );
 
     dholder_->setLogVal( params_.crosscorrnm_, &tmpcrosscorr, synres.dahs_ );
     //computes cross-correl coeff
     LinStats2D ls2d;
-    ls2d.use( synres.vals_->getData(), attrres.vals_->getData(), sz );
+    ls2d.use( synres.vals_->getData(), seisres.vals_->getData(), sz );
 
     dholder_->corrcoeff() = ls2d.corrcoeff;
 
     return true;
 }
-
-
-void DataPlayer::getDPSZData( const DataPointSet& dps, Array1DImpl<float>& vals)
-{
-    TypeSet<float> zvals, tmpvals;
-    for ( int idx=0; idx<dps.size(); idx++ )
-	zvals += dps.z(idx);
-
-    const int sz = zvals.size();
-    mAllocVarLenArr( int, zidxs, sz );
-    for ( int idx=0; idx<sz; idx++ )
-	zidxs[idx] = idx;
-
-    sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
-
-    for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    float val = dps.getValues(zidxs[idx])[colidx];
-	    tmpvals += mIsUdf(val) ? 0 : val;
-	}
-    }
-    memcpy(vals.getData(), tmpvals.arr(), vals.info().getSize(0)*sizeof(float));
-}    
-
 
 }; //namespace WellTie

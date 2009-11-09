@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiesetup.cc,v 1.3 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiesetup.cc,v 1.4 2009-11-09 14:52:02 cvsbruno Exp $";
 
 
 #include "welltiesetup.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: welltiesetup.cc,v 1.3 2009-09-03 09:41:40 cvsbr
 namespace WellTie
 {
 
-static const char* sKeyAttrID = "ID of selected attribute";
+static const char* sKeySeisID = "ID of selected seismic";
 static const char* sKeyVelLogName = "Velocity log name";
 static const char* sKeyDensLogName = "Density log name";
 static const char* sKeyWavltID = "ID of selected wavelet";
@@ -29,7 +29,7 @@ static const char* sKeyIsSonic = "Provided TWT log is sonic";
 
 void Setup::usePar( const IOPar& iop )
 {
-    iop.get( IOPar::compKey("",sKeyAttrID), attrid_.asInt() );
+    iop.get( IOPar::compKey("",sKeySeisID), seisid_ );
     iop.get( IOPar::compKey("",sKeyVelLogName), denlognm_ );
     iop.get( IOPar::compKey("",sKeyDensLogName), vellognm_ );
     iop.get( IOPar::compKey("",sKeyWavltID), wvltid_ );
@@ -39,7 +39,7 @@ void Setup::usePar( const IOPar& iop )
 
 void Setup::fillPar( IOPar& iop ) const
 {
-    iop.set( IOPar::compKey("",sKeyAttrID), attrid_.asInt() );
+    iop.set( IOPar::compKey("",sKeySeisID), seisid_ );
     iop.set( IOPar::compKey("",sKeyVelLogName), denlognm_ );
     iop.set( IOPar::compKey("",sKeyDensLogName), vellognm_ );
     iop.set( IOPar::compKey("",sKeyWavltID), wvltid_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.5 2009-09-03 09:41:39 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.6 2009-11-09 14:51:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,9 @@ ________________________________________________________________________
 
 class MultiID;
 class CtxtIOObj;
-namespace Attrib { class DescSet; }
 
-class uiAttrSel;
 class uiIOObjSel;
+class uiSeisSel;
 class uiComboBox;
 class uiCheckBox;
 class uiGenInput;
@@ -34,8 +33,7 @@ mClass uiTieWinMGRDlg : public uiDialog
 {
 
 public:    
-			uiTieWinMGRDlg(uiParent*, WellTie::Setup&,
-					const Attrib::DescSet&);
+			uiTieWinMGRDlg(uiParent*, WellTie::Setup&);
 			~uiTieWinMGRDlg();
 
 
@@ -44,17 +42,19 @@ protected:
     WellTie::Setup& 	wtsetup_;
     CtxtIOObj&          wllctio_;
     CtxtIOObj&          wvltctio_;
+    CtxtIOObj&          seisctio2d_;
+    CtxtIOObj&          seisctio3d_;
     bool		savedefaut_;
-    const Attrib::DescSet& attrset_;
     ObjectSet<WellTie::uiTieWin> welltiedlgset_;
     ObjectSet<WellTie::uiTieWin> welltiedlgsetcpy_;
 
     uiIOObjSel*         wellfld_;
     uiIOObjSel*         wvltfld_;
-    uiAttrSel*          attrfld_;
+    ObjectSet<uiSeisSel> seisflds_;
     uiComboBox*		vellogfld_;
     uiComboBox*		denlogfld_;
     uiCheckBox*		isvelbox_;
+    uiCheckBox*		is2dfld_;
 
     bool		getDefaults();
     void		saveWellTieSetup(const MultiID&,const WellTie::Setup&);

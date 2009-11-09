@@ -7,14 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.17 2009-10-15 10:05:55 cvsbert Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.18 2009-11-09 14:52:02 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
 
 #include "arrayndimpl.h"
+#include "cubesampling.h"
 #include "interpol1d.h"
+#include "ioman.h"
 #include "datapointset.h"
+#include "seistrc.h"
+#include "seisread.h"
+#include "seisselectionimpl.h"
 #include "survinfo.h"
 
 #include "welldata.h"
@@ -32,30 +37,142 @@ int TrackExtractor::nextStep()
 {
     double time = timeintv_.atIndex( nrdone_ );
 
-    Coord3 pos = wd_.track().getPos( wd_.d2TModel()->getDepth(time) );
+    const Well::Track& track =  wd_.track();
+    const Well::D2TModel& d2t = *wd_.d2TModel();
+    Coord3 pos = track.getPos( d2t.getDepth(time) );
     pos.z = time;
 
-    const BinID bid = SI().transform( pos );
+    BinID bid = SI().transform( pos );
+
     if ( !bid.inl && !bid.crl )
     {
 	nrdone_++;
        	return Executor::MoreToDo();
     }
-    const int d2tsz = wd_.d2TModel()->size();
-    if ( time>timeintv_.stop )
+    if ( time > timeintv_.stop )
 	return Executor::Finished();
-    DataPointSet::DataRow dr;
-    if ( dps_ )
-    {
-	dr.pos_.set( pos );
-	dps_->addRow( dr );
-	dps_->dataChanged();
-    }
-    bidvalset_ += bid;
+    
+    if ( time > d2t.getTime( track.dah( track.size()-1) ) )
+	bid = prevbid_;
+
+    bidset_ += bid;
+    prevbid_ = bid;
 
     nrdone_ ++;
     return Executor::MoreToDo();
 }
+
+
+						 
+SeismicExtractor::SeismicExtractor( const IOObj& ioobj, const CubeSampling* cs )
+	: Executor("Extracting Seismic positions")
+	, rdr_(new SeisTrcReader( &ioobj ))
+	, nrdone_(0)
+	, cs_(new CubeSampling())	    
+	, timeintv_(0,0,0)
+	, radius_(1)		  
+{
+}
+
+
+SeismicExtractor::~SeismicExtractor() 
+{
+    delete vals_; delete dahs_;
+    delete cs_;
+    delete rdr_;
+    deepErase( trcset_ );
+}
+
+
+void SeismicExtractor::setTimeIntv( const StepInterval<float>& itv )
+{
+    timeintv_ = itv;
+    vals_ = new Array1DImpl<float>( itv.nrSteps() );
+    dahs_ = new Array1DImpl<float>( itv.nrSteps() );
+    cs_->zrg = timeintv_; 
+}
+
+
+void SeismicExtractor::collectTracesAroundPath() 
+{
+    Interval<int> inlrg( bidset_[0].inl, bidset_[0].inl );
+    Interval<int> crlrg( bidset_[0].crl, bidset_[0].crl );
+    for ( int idx=0; idx<bidset_.size(); idx++ )
+    {
+	const BinID bid = bidset_[idx];
+	if ( bid.inl < inlrg.start ) inlrg.start = bid.inl;
+	if ( bid.inl > inlrg.stop ) inlrg.stop = bid.inl;
+	if ( bid.crl < crlrg.start ) crlrg.start = bid.crl;
+	if ( bid.crl > crlrg.stop ) crlrg.stop = bid.crl;
+    }
+    inlrg.start -= radius_; inlrg.stop += radius_;
+    crlrg.start -= radius_; crlrg.stop += radius_;
+    cs_->hrg.setInlRange( inlrg );
+    cs_->hrg.setCrlRange( crlrg );
+
+    Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
+    rdr_->forceFloatData( true );
+    rdr_->setSelData( sd );
+    rdr_->prepareWork();
+
+    for ( int idx=0; idx<bidset_.size(); idx++ )
+    {
+	SeisTrc* trc = new SeisTrc( bidset_.size() ); 
+	int info = rdr_->get( trc->info() );
+	if ( info<0 ) 
+	    continue;
+	else if ( info == 0 )
+	    break;
+	if ( !rdr_->get( *trc ) )
+	    continue;
+
+	trcset_ += trc; 
+    }
+}
+
+
+void SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
+{
+    bidset_.erase();
+    for ( int idx=0; idx<bids.size(); idx++ )
+    {	
+	if ( idx && !bids[idx].crl || !bids[idx].inl )
+	     bidset_ += bids[idx-1];
+	bidset_ += bids[idx];
+    }
+    collectTracesAroundPath();
+}
+
+
+int SeismicExtractor::nextStep()
+{
+    double time = timeintv_.atIndex( nrdone_ );
+
+    if ( time>timeintv_.stop || nrdone_ >= timeintv_.nrSteps() )
+	return Executor::Finished();
+
+    const int datasz = timeintv_.nrSteps();
+
+    const BinID curbid = bidset_[nrdone_];
+    float val = 0; int nrtracesinradius = 0;
+    for ( int idx=0; idx<trcset_.size(); idx++ )
+    {
+	BinID b = trcset_[idx]->info().binid;
+	int xx0 = b.inl-curbid.inl; 	xx0 *= xx0; 
+	int yy0 = b.crl-curbid.crl;	yy0 *= yy0;
+	if ( xx0 + yy0 < radius_*radius_ )
+	{
+	    nrtracesinradius ++;
+	    val += trcset_[idx]->get( nrdone_, 0 );
+	}
+    }
+    vals_->set( nrdone_, val/nrtracesinradius );
+    dahs_->set( nrdone_, time );
+
+    nrdone_ ++;
+    return Executor::MoreToDo();
+}
+
 
 
 #define mErrRet(s) { errmsg = s; return; }
@@ -138,6 +255,7 @@ int LogResampler::nextStep()
     nrdone_++;
     return Executor::MoreToDo();
 }
+
 
 void LogResampler::setTimeIntv( const StepInterval<float>& itv )
 {

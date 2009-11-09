@@ -20,22 +20,18 @@ ________________________________________________________________________
 #include "welltiedata.h"
 #include "welltieunitfactors.h"
 
-class DataPointSet;
 class TaskRunner;
-
-namespace Attrib { class DescSet; }
 
 namespace WellTie
 {
+    class TrackExtractor;
 
 mClass DataPlayer
 {
 public:
-			DataPlayer(WellTie::DataHolder*,
-				   const Attrib::DescSet&,TaskRunner*);
+			DataPlayer(WellTie::DataHolder*,TaskRunner*);
 			~DataPlayer();
 
-    //TODO put back as private
     bool 		computeAll();
     bool 		computeWvltPack();
    
@@ -55,13 +51,12 @@ protected:
 
     TaskRunner*		tr_;      //becomes mine  
 
-    DataPointSet* 	dps_;
     Well::Data& 	wd_;
     Well::LogSet& 	logset_;
 
-    const Attrib::DescSet& ads_;
     const WellTie::Params::DataParams& params_;	
     const WellTie::Setup& wtsetup_;	
+    WellTie::TrackExtractor *wtextr_;
 
     WellTie::DataHolder* dholder_;
     WellTie::D2TModelMGR* d2tmgr_;

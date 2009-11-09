@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.48 2009-10-23 14:48:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.49 2009-11-09 14:52:02 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -185,8 +185,8 @@ void uiTieView::drawTraces()
     trcbuf_->erase();
 
     setUpTrcBuf( trcbuf_, params_->synthnm_, 5 );
-    setUpTrcBuf( trcbuf_, params_->attrnm_, 5 );
-    setDataPack( trcbuf_, params_->attrnm_, 5 );
+    setUpTrcBuf( trcbuf_, params_->seisnm_, 5 );
+    setDataPack( trcbuf_, params_->seisnm_, 5 );
 }
 
 
