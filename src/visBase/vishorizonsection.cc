@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.96 2009-11-05 19:27:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.97 2009-11-09 23:16:43 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -920,10 +920,25 @@ const BinIDValueSet* HorizonSection::getCache( int channel ) const
 }
 
 
+#define mResetOriginAndDistance \
+    origin_.row = displayrrg_.start; \
+    origin_.col = displaycrg_.start;  \
+    rowdistance_ = displayrrg_.step*SI().inlDistance(); \
+    coldistance_ = displaycrg_.step*SI().crlDistance();
+
+
 void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
        				 TaskRunner* tr )
 {
     if ( !surf ) return;
+
+    if ( !userchangedisplayrg_ )
+    {
+	displayrrg_ = surf->rowRange();
+	displaycrg_ = surf->colRange();
+	
+	mResetOriginAndDistance;
+    }
 
     if ( connect )
     {
@@ -937,24 +952,11 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
 }
 
 
-#define mResetOriginAndDistance \
-    origin_.row = displayrrg_.start; \
-    origin_.col = displaycrg_.start;  \
-    rowdistance_ = displayrrg_.step*SI().inlDistance(); \
-    coldistance_ = displaycrg_.step*SI().crlDistance();
-
-
 void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 	const StepInterval<int>& crg, bool userchange )
 {
-    if ( displayrrg_==rrg && displaycrg_==crg ) 
+    if ( rrg.isUdf() || crg.isUdf() || (displayrrg_==rrg && displaycrg_==crg) )
 	return;
-
-    displayrrg_ = !userchange && geometry_ ? geometry_->rowRange() : rrg;
-    displaycrg_ = !userchange && geometry_ ? geometry_->colRange() : crg;
-    mResetOriginAndDistance;
-
-    userchangedisplayrg_ = userchange;
 
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
@@ -965,6 +967,12 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
     	    delete tileptrs[idx];
 	}
     }
+
+    displayrrg_ = !userchange && geometry_ ? geometry_->rowRange() : rrg;
+    displaycrg_ = !userchange && geometry_ ? geometry_->colRange() : crg;
+    mResetOriginAndDistance;
+
+    userchangedisplayrg_ = userchange;
 
     surfaceChange( 0, 0 );
     setResolution( desiredresolution_, 0 );
@@ -1001,13 +1009,14 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_,tr) )
 	    return;
     }
-  
-    if ( displayrrg_ != geometry_->rowRange() && 
-	 displaycrg_ != geometry_->colRange() && !userchangedisplayrg_ )
+ 
+    const bool geometryautochanged = !userchangedisplayrg_ &&
+	( displayrrg_ != geometry_->rowRange() ||
+	  displaycrg_ != geometry_->colRange() );
+    if ( geometryautochanged )
     {
-	displayrrg_ = geometry_->rowRange();
-	displaycrg_ = geometry_->colRange();
-	mResetOriginAndDistance;
+	setDisplayRange( geometry_->rowRange(), geometry_->colRange(), false );
+	return;
     }
 
     if ( displayrrg_.width(false)<0 || displaycrg_.width(false)<0 )
