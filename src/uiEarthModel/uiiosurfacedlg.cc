@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.48 2009-08-31 14:48:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.49 2009-11-09 03:10:42 cvsnanne Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -43,8 +43,8 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
     const bool hasshift = hor && !mIsZero(shift,SI().zRange(true).step*1e-3);
 
     iogrp_ = new uiSurfaceWrite( this, surface_,
-	   			 uiSurfaceWrite::Setup(surface_.getTypeStr())
-	   			 .withdisplayfld(!hasshift).withsubsel(true) );
+				 uiSurfaceWrite::Setup(surface_.getTypeStr())
+				 .withdisplayfld(!hasshift).withsubsel(true) );
 }
 
 
@@ -201,7 +201,7 @@ CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 
 void uiCopySurface::setInputKey( const char* key )
 {
-    inpfld->getObjSel()->ctxtIOObj().ctxt.trglobexpr = key;
+    inpfld->getObjSel()->ctxtIOObj(true).ctxt.trglobexpr = key;
 }
 
 
@@ -233,7 +233,8 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     uiPosSubSel* pss = inpfld->getPosSubSel();
     Pos::Filter* pf = pss ? pss->curProvider() : 0;
-    if ( pf )
+    mDynamicCastGet(Pos::RangeProvider3D*,rp3d,pf);
+    if ( rp3d )
 	surface->apply( *pf );
  
     EM::SurfaceIOData outsd;
@@ -241,9 +242,8 @@ bool uiCopySurface::acceptOK( CallBacker* )
     EM::SurfaceIODataSelection outsdsel( outsd );
     outsdsel.setDefault();
  
-    mDynamicCastGet( Pos::RangeProvider3D*, rp, pf );
-    if ( rp )
-	outsdsel.rg = rp->sampling().hrg;
+    if ( rp3d )
+	outsdsel.rg = rp3d->sampling().hrg;
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj;
     const MultiID& mid = newioobj->key();
