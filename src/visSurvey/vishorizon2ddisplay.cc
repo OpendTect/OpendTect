@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.28 2009-09-04 01:35:35 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.29 2009-11-09 23:15:09 cvsyuancheng Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -114,6 +114,25 @@ EM::SectionID Horizon2DDisplay::getSectionID(int visid) const
     return -1;
 }
 
+
+const visBase::IndexedPolyLine3D* Horizon2DDisplay::getLine( 
+	const EM::SectionID& sid ) const
+{
+    for ( int idx=0; idx<sids_.size(); idx++ )
+	if ( sids_[idx]==sid ) return lines_[idx];
+
+    return 0;
+}
+
+
+const visBase::PointSet* Horizon2DDisplay::getPointSet(
+	const EM::SectionID& sid ) const
+{
+    for ( int idx=0; idx<sids_.size(); idx++ )
+	if ( sids_[idx]==sid ) return points_[idx];
+
+    return 0;
+}
 
 void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
 {
