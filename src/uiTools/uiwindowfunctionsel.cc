@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.17 2009-10-23 13:06:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.18 2009-11-10 21:40:10 cvskris Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -145,7 +145,10 @@ void uiWindowFunctionSel::windowClosed( CallBacker* )
     BufferString winname( windowName() );
     winname = winfuncseldlg_->getCurrentWindowName();
     if ( winname )
+    {
 	setWindowName( winname );
+	windowtypefld_->valuechanged.trigger();
+    }
     const float variable = winfuncseldlg_->getVariable();
     if( !mIsUdf(variable) && variable >= 0 )
 	setWindowParamValue( variable );

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.7 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.8 2009-11-10 21:43:13 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -54,72 +54,66 @@ bool GriddedFunction::fetchSources()
 
     const bool wantsall = gridder_ && gridder_->wantsAllPoints();
 
-    if ( !wantsall || !sources_.size() )
+    ObjectSet<const Function> velfuncs;
+    TypeSet<int> velfuncsource;
+    TypeSet<Coord> points;
+    bool perfectfound = false;
+
+    for ( int idx=0; idx<velfuncsources.size() && !perfectfound; idx++ )
     {
-	ObjectSet<const Function> velfuncs;
-	TypeSet<int> velfuncsource;
-	TypeSet<Coord> points;
-	bool perfectfound = false;
+	BinIDValueSet bids( 0, false );
+	velfuncsources[idx]->getSurroundingPositions( bid_, bids );
 
-	for ( int idx=0; idx<velfuncsources.size() && !perfectfound; idx++ )
+	if ( bids.isEmpty() )
+	    continue;
+
+	BinIDValueSet::Pos pos;
+
+	while ( bids.next( pos ) )
 	{
-	    BinIDValueSet bids( 0, false );
-	    velfuncsources[idx]->getSurroundingPositions( bid_, bids );
-
-	    if ( bids.isEmpty() )
+	    const BinID curbid = bids.getBinID(pos);
+	    const Coord curpos = SI().transform( curbid );
+	    if ( gridder_ && !gridder_->isPointUsable(workpos,curpos) )
 		continue;
 
-	    BinIDValueSet::Pos pos;
+	    if ( !gridder_ && curbid!=bid_ )
+		continue;
 
-	    while ( bids.next( pos ) )
+	    RefMan<const Function> velfunc = getOldFunction( curbid, idx );
+
+	    if ( !velfunc )
+		velfunc = velfuncsources[idx]->getFunction( curbid );
+
+	    if ( !velfunc )
+		continue;
+
+	    if ( curbid==bid_ )
 	    {
-		const BinID curbid = bids.getBinID(pos);
-		const Coord curpos = SI().transform( curbid );
-		if ( gridder_ && !gridder_->isPointUsable(workpos,curpos) )
-		    continue;
-
-		if ( !gridder_ && curbid!=bid_ )
-		    continue;
-
-		RefMan<const Function> velfunc = getOldFunction( curbid, idx );
-
-		if ( !velfunc )
-		    velfunc = velfuncsources[idx]->getFunction( curbid );
-
-		if ( !velfunc )
-		    continue;
-
-		if ( curbid==bid_ )
-		{
-		    perfectfound = true;
-		    deepUnRef(velfuncs);
-		    velfuncsource.erase();
-		    points.erase();
-		}
-			
-		velfunc->ref();
-		velfuncs += velfunc;
-		points += curpos;
-		velfuncsource += idx;
-
-		if ( perfectfound )
-		    break;
+		perfectfound = true;
+		deepUnRef(velfuncs);
+		velfuncsource.erase();
+		points.erase();
 	    }
+		    
+	    velfunc->ref();
+	    velfuncs += velfunc;
+	    points += curpos;
+	    velfuncsource += idx;
+
+	    if ( perfectfound )
+		break;
 	}
-
-	deepUnRef( velocityfunctions_ );
-	velocityfunctions_ = velfuncs;
-	sources_ = velfuncsource;
-	points_ = points;
-
-	if ( !gridder_ )
-	    return perfectfound;
-
-	if ( !points_.size() || !gridder_->setPoints(points_) )
-	    return false;
     }
 
-    return gridder_->init();
+    deepUnRef( velocityfunctions_ );
+    velocityfunctions_ = velfuncs;
+    sources_ = velfuncsource;
+    points_ = points;
+
+    if ( !gridder_ )
+	return perfectfound;
+
+    return points_.size() && gridder_->setPoints(points_) && gridder_->init();
 }
 
 
