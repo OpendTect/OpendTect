@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.19 2009-09-23 18:27:06 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.20 2009-11-10 20:10:10 cvsyuancheng Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -578,13 +578,26 @@ InverseDistanceArray2DInterpol::~InverseDistanceArray2DInterpol()
 }
 
 
+/*If there is no node to fill, we do the full survey filling. */
+#define mRetInitFromArray() \
+    bool res = initFromArray( tr ); \
+    if ( nothingToFill() ) \
+    { \
+ 	FillType tmp = filltype_; \
+	filltype_ = Full; \
+	res = initFromArray( tr ); \
+	filltype_ = tmp; \
+    } \
+    return res;
+
+
 bool InverseDistanceArray2DInterpol::setArray( Array2D<float>& arr,
 					       TaskRunner* tr )
 {
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    return initFromArray( tr );
+    mRetInitFromArray()
 }
 
 
@@ -594,7 +607,7 @@ bool InverseDistanceArray2DInterpol::setArray( ArrayAccess& arr,
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    return initFromArray( tr );
+    mRetInitFromArray()
 }
 
 
@@ -1123,7 +1136,7 @@ bool TriangulationArray2DInterpol::setArray( Array2D<float>& arr,
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    return initFromArray( tr );
+    mRetInitFromArray()
 }
 
 
@@ -1133,7 +1146,7 @@ bool TriangulationArray2DInterpol::setArray( ArrayAccess& arr,
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    return initFromArray( tr );
+    mRetInitFromArray()
 }
 
 
