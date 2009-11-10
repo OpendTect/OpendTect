@@ -4,13 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.19 2009-09-08 08:41:20 cvskarthika Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.20 2009-11-10 08:02:26 cvskarthika Exp $";
 
 
 #include "initvisbase.h"
 
 #include "visanchor.h"
 #include "visannot.h"
+#include "visbeachball.h"
 #include "visboxdragger.h"
 #include "viscamera.h"
 #include "viscamerainfo.h"
@@ -52,6 +53,7 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.19 2009-09-08 08:41:20 cvska
 #include "visrandomtrack.h"
 #include "visrandomtrackdragger.h"
 #include "visrgbatexturechannel2rgba.h"
+#include "vistexturechannel2voldata.h"
 #include "visrectangle.h"
 #include "visrotationdragger.h"
 #include "visscene.h"
@@ -75,7 +77,6 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.19 2009-09-08 08:41:20 cvska
 #include "visvolren.h"
 #include "visvolrenscalarfield.h"
 #include "viswell.h"
-#include "visbeachball.h"
 
 
 namespace visBase
@@ -85,6 +86,7 @@ void initStdClasses()
 {
     Anchor::initClass();
     Annotation::initClass();
+    BeachBall::initClass();
     BoxDragger::initClass();
     Camera::initClass();
     CameraInfo::initClass();
@@ -147,6 +149,7 @@ void initStdClasses()
     TextureCoords::initClass();
     TextureChannels::initClass();
     ColTabTextureChannel2RGBA::initClass();
+    TextureChannel2VolData::initClass();
     TextureRect::initClass();
     ThreadWorker::initClass();
     Transformation::initClass();
@@ -159,7 +162,6 @@ void initStdClasses()
     VolumeRenderScalarField::initClass();
     Well::initClass();
     TopBotImage::initClass();
-    BeachBall::initClass();
 }
 
 }; // namespace visBase
