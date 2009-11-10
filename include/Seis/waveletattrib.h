@@ -6,17 +6,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.h,v 1.2 2009-11-09 10:52:38 cvsnageswara Exp $
+ RCS:           $Id: waveletattrib.h,v 1.3 2009-11-10 05:06:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+
+#include "commondefs.h"
 
 class FFT;
 class HilbertTransform;
 class Wavelet;
 template <class T> class Array1DImpl;
 
-class WaveletAttrib
+mClass WaveletAttrib
 {
 public:
     			WaveletAttrib(const Wavelet&);
