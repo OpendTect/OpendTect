@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.7 2009-11-04 16:39:51 cvskarthika Exp $
+ RCS:           $Id: visvolorthoslice.h,v 1.8 2009-11-10 10:11:33 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
 
     float			getPosition() const;
 
-    const visBase::DepthTabPlaneDragger* getDragger() const;
+    visBase::DepthTabPlaneDragger* getDragger() const;
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
