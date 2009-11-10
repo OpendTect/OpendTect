@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.33 2009-11-09 14:52:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.34 2009-11-10 09:24:22 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -93,7 +93,7 @@ Params::Params( const WellTie::Setup& wts, Well::Data* wd )
 	, wd_(*wd)
 {
     dpms_.setUpCubeSampling(); 
-
+    
     dpms_.currvellognm_ = uipms_.iscscorr_ ? wts.corrvellognm_ : wts.vellognm_;
     dpms_.createColNames();
     resetVelLogNm();
@@ -101,8 +101,8 @@ Params::Params( const WellTie::Setup& wts, Well::Data* wd )
     if ( wd_.checkShotModel() )
 	dpms_.currvellognm_ = wtsetup_.corrvellognm_;
 
-    for ( int  idx=0; idx<3; idx++ )
-	dpms_.timeintvs_ += StepInterval<float>(0,0,0);
+    for ( int idx=0; idx<3; idx++ )
+	dpms_.timeintvs_ += StepInterval<float>( mUdf(float), mUdf(float), 0);
 
     resetParams();
 }
@@ -134,6 +134,7 @@ void Params::DataParams::setUpCubeSampling()
 #define mMinWorkArraySize (int)20
 bool Params::DataParams::resetTimeParams()
 {
+    if ( !timeintvs_.size() ) return false;
     float tstart = 0; float tstop = d2T(wd_.track().dah(wd_.track().size()-1));
     if ( cs_ )
     {
@@ -145,17 +146,14 @@ bool Params::DataParams::resetTimeParams()
     timeintvs_[1]=StepInterval<float>(timeintvs_[0]); timeintvs_[1].step*=step_;
     timeintvs_[2].step = timeintvs_[1].step;
 
-    if ( timeintvs_[2].start<0 ) 
-	timeintvs_[2].start = 0;
-    if ( timeintvs_[2].stop > timeintvs_[0].stop )
-	timeintvs_[2].stop = timeintvs_[0].stop;
-    if ( timeintvs_[2].stop == 0 )
-	timeintvs_[2].stop = timeintvs_[0].stop;
-
     if ( timeintvs_[0].nrSteps() > mMaxWorkArraySize ) return false;
     if ( timeintvs_[0].nrSteps() < mMinWorkArraySize ) return false;
     if ( timeintvs_[1].nrSteps() < 2 ) return false;
-
+   
+    if ( mIsUdf( timeintvs_[2].start ) || mIsUdf( timeintvs_[2].stop ) ) 
+	timeintvs_[2] = timeintvs_[1];
+    timeintvs_[2].limitTo( timeintvs_[1] );
+    
     return true;
 }
 

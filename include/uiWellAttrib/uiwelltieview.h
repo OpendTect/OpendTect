@@ -89,7 +89,7 @@ protected:
     void        		initLogViewers();
     void 			removePack();
     void 			setLogsRanges(float,float);
-    void 			setLogsParams();
+    bool 			setLogsParams();
     void 			setUpTrcBuf(SeisTrcBuf*,const char*,int);
     void			setUpUdfTrc(SeisTrc&,const char*,int);
     void			setUpValTrc(SeisTrc&,const char*,int);

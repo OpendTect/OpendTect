@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.41 2009-11-09 15:57:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.42 2009-11-10 09:24:22 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -60,9 +60,11 @@ DataPlayer::~DataPlayer()
 
 bool DataPlayer::computeAll()
 {
+    dholder_->resetLogData();
+
     if ( !resampleLogs() ) 	   return false;
     if ( !computeReflectivity() )  return false;
-    if ( params_.extractseismic_ && !extractSeismics() ) return false;
+    if ( !extractSeismics() ) 	   return false;
     if ( !computeWvltPack() ) 	   return false;
 
     return true;	

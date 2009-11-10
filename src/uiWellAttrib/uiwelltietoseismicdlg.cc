@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.61 2009-11-09 14:52:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.62 2009-11-10 09:24:22 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -122,7 +122,6 @@ void uiTieWin::initAll()
     dataholder_->resetLogData();
     doWork( 0 );
     dataholder_->pickmgr()->setData( dataholder_ );
-    dataholder_->dpms()->extractseismic_ = false;
     show();
     dispPropChg( 0 );
 }
@@ -270,7 +269,6 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 	               mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
     infobut_->attach( hCentered );
-
 }
 
 

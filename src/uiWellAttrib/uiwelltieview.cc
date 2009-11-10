@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.50 2009-11-10 08:43:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.51 2009-11-10 09:24:22 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -73,9 +73,13 @@ void uiTieView::fullRedraw()
     drawDenLog();
     drawAILog();
     drawRefLog();
-    setLogsParams();
+    
+    if ( !setLogsParams() ) 
+	return;
+	
     drawWellMarkers();
     drawCShot();
+
     for ( int idx =0; idx<logsdisp_.isEmpty(); idx++ )
 	logsdisp_[idx]->dataChanged();
     redrawViewer();
@@ -128,10 +132,11 @@ void uiTieView::initFlatViewer()
 }
 
 
-void uiTieView::setLogsParams()
+bool uiTieView::setLogsParams()
 {
+    if ( ! params_->timeintvs_.size() ) return false;
     const Well::D2TModel* d2tm = wd_.d2TModel();
-    if ( !d2tm ) return;
+    if ( !d2tm ) return false;
     const WellTie::Params::uiParams* uipms = dataholder_.uipms();
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
@@ -142,6 +147,7 @@ void uiTieView::setLogsParams()
     const float startdah = d2tm->getDepth( params_->timeintvs_[0].start );
     const float stopdah = d2tm->getDepth( params_->timeintvs_[0].stop );
     setLogsRanges( startdah, stopdah );
+    return true;
 }
 
 
