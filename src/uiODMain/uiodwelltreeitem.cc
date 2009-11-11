@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.48 2009-10-23 12:46:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.49 2009-11-11 12:57:12 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -215,6 +215,7 @@ void uiODWellTreeItem::initMenuItems()
     markernamemnuitem_.text = "Marker &names";
     showlogmnuitem_.text = "&Logs" ;
     attrmnuitem_.text = "&Create attribute log...";
+    showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = "&Save";
 
@@ -272,6 +273,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
+    mAddMenuItem( menu, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,  
 	    					wd->wellTopNameShown() );
     mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,  
