@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.20 2009-11-11 13:34:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.21 2009-11-11 13:37:42 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -159,7 +159,7 @@ void uiTieWinMGRDlg::wellSel( CallBacker* )
 
 void uiTieWinMGRDlg::typeSel( CallBacker* )
 {
-    if ( typefld_ ) ;
+    if ( typefld_ )
 	is2d_ = !typefld_->getIntValue();
     if ( seis2dfld_ ) seis2dfld_->display( is2d_ );
     if ( seis3dfld_ ) seis3dfld_->display( !is2d_ );
