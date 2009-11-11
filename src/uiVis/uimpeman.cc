@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.187 2009-11-04 16:41:57 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.188 2009-11-11 14:16:38 cvskarthika Exp $";
 
 #include "uimpeman.h"
 
@@ -1323,7 +1323,11 @@ void uiMPEMan::attribSel( CallBacker* )
 	    Attrib::SelSpec spec( 0, Attrib::SelSpec::cNoAttrib() );
 	    displays[idy]->setSelSpec( 0, spec );
 	    if ( trackerisshown )
+#ifdef USE_TEXTURE
 		displays[idy]->updateTexture();
+#else
+		displays[idy]->updateSlice();
+#endif
 	}
     }
     else
@@ -1340,7 +1344,11 @@ void uiMPEMan::attribSel( CallBacker* )
 	    {
 		displays[idy]->setSelSpec( 0, *spec );
 		if ( trackerisshown )
+#ifdef USE_TEXTURE
 		    displays[idy]->updateTexture();
+#else
+		    displays[idy]->updateSlice();
+#endif
 	    }
 	    break;
 	}	
