@@ -8,11 +8,14 @@ static const char* rcsID = "$Id";
 
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
+#include "uigoogleexp2dlines.h"
 #include "uiodmain.h"
 #include "uisurvey.h"
 #include "uilatlong2coord.h"
 #include "uibutton.h"
 #include "uiwellman.h"
+#include "uiioobjmanip.h"
+#include "uiseis2dfileman.h"
 #include "uimsg.h"
 #include "pixmap.h"
 #include "survinfo.h"
@@ -43,10 +46,13 @@ public:
     			uiGoogleIOMgr(uiODMain&);
 
     uiODMain&		appl_;
+    uiSeis2DFileMan*	cur2dfm_;
 
     void		exportSurv(CallBacker*);
     void		exportWells(CallBacker*);
+    void		exportLines(CallBacker*);
     void		mkExportWellsIcon(CallBacker*);
+    void		mkExportLinesIcon(CallBacker*);
 };
 
 
@@ -58,6 +64,8 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
     uiWellMan::fieldsCreated()->notify(
 				mCB(this,uiGoogleIOMgr,mkExportWellsIcon) );
+    uiSeis2DFileMan::fieldsCreated()->notify(
+				mCB(this,uiGoogleIOMgr,mkExportLinesIcon) );
 }
 
 
@@ -93,6 +101,28 @@ void uiGoogleIOMgr::exportWells( CallBacker* cb )
 	return;
 
     uiGoogleExportWells dlg( wm );
+    dlg.go();
+}
+
+
+void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
+{
+    mDynamicCastGet(uiSeis2DFileMan*,fm,cb)
+    cur2dfm_ = fm;
+    if ( !cur2dfm_ ) return;
+
+    fm->getButGroup(false)->addButton(	ioPixmap("google.png"),
+	    				mCB(this,uiGoogleIOMgr,exportLines),
+					"Export selected lines to Google KML" );
+}
+
+
+void uiGoogleIOMgr::exportLines( CallBacker* cb )
+{
+    if ( !cur2dfm_ || !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
+	return;
+
+    uiGoogleExport2DSeis dlg( cur2dfm_ );
     dlg.go();
 }
 

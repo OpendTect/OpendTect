@@ -4,33 +4,32 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2009
- * ID       : $Id: uigoogleexp2dlines.h,v 1.1 2009-11-11 14:08:16 cvsbert Exp $
+ * ID       : $Id: uigoogleexp2dlines.h,v 1.2 2009-11-11 15:28:27 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
 #include "multiid.h"
-class uiListBox;
-class uiSeisSel;
+class uiGenInput;
 class uiFileInput;
 class uiSelLineStyle;
+class uiSeis2DFileMan;
 
 
 class uiGoogleExport2DSeis : public uiDialog
 {
 public:
 
-			uiGoogleExport2DSeis(uiParent*);
+			uiGoogleExport2DSeis(uiSeis2DFileMan*);
 			~uiGoogleExport2DSeis();
 
 protected:
 
-    uiSeisSel*		inpfld_;
-    uiListBox*		selfld_;
+    uiSeis2DFileMan*	s2dfm_;
+
+    uiGenInput*		putlnmfld_;
     uiSelLineStyle*	lsfld_;
     uiFileInput*	fnmfld_;
 
-    void		initWin(CallBacker*);
-    void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
