@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.21 2009-11-11 13:37:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.22 2009-11-11 15:14:10 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -71,7 +71,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	seistypes.add( Seis::nameOf(Seis::Line) );
 	seistypes.add( Seis::nameOf(Seis::Vol) );
 	typefld_ = new uiGenInput( this, "Seismic", StringListInpSpec( seistypes ) );
-	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,typeSel) );
+	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,selChg) );
 	typefld_->attach( alignedBelow, wellfld_ );
     }
 
@@ -82,6 +82,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	    seis2dfld_->attach( alignedBelow, typefld_ );
 	else 
 	    seis2dfld_->attach( alignedBelow, wellfld_ );
+	seis2dfld_->selectiondone.notify( mCB(this,uiTieWinMGRDlg,selChg) );
 	seislinefld_ = new uiSeis2DLineNameSel( this, true );
 	seislinefld_->attach( alignedBelow, seis2dfld_ );
     }
@@ -114,7 +115,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	    			mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
-    if ( typefld_ ) typeSel(0);
+    selChg(0);
     finaliseDone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
 }
 
@@ -157,16 +158,28 @@ void uiTieWinMGRDlg::wellSel( CallBacker* )
 }
 
 
-void uiTieWinMGRDlg::typeSel( CallBacker* )
+void uiTieWinMGRDlg::selChg( CallBacker* )
 {
     if ( typefld_ )
 	is2d_ = !typefld_->getIntValue();
-    if ( seis2dfld_ ) seis2dfld_->display( is2d_ );
-    if ( seis3dfld_ ) seis3dfld_->display( !is2d_ );
-    if ( seislinefld_ ) seislinefld_->display( is2d_ );
+    if ( is2d_ && seis3dfld_ )
+	seis3dfld_->empty();
+    else if( !is2d_ && seis2dfld_ ) 
+    {
+	if ( seis2dfld_ ) seis2dfld_->empty();
+	if ( seislinefld_ ) seislinefld_->setInput("");
+    }
 
-    if ( seis2dfld_ && seisctio2d_.ioobj )
-	seislinefld_->setLineSet( seisctio2d_.ioobj->key() );
+    if ( seislinefld_ ) seislinefld_->display( is2d_ );
+    if ( seis3dfld_ ) seis3dfld_->display( !is2d_ );
+
+    if ( seis2dfld_ )
+    {
+	seis2dfld_->display( is2d_ );
+	seis2dfld_->commitInput();
+	if ( seisctio2d_.ioobj )
+	    seislinefld_->setLineSet( seisctio2d_.ioobj->key() );
+    }
 }
 
 
@@ -188,12 +201,22 @@ bool uiTieWinMGRDlg::getDefaults()
     WellTie::Reader wtr( fname, wtsetup_ );
     wtr.getWellTieSetup();
 
-    //for ( int idx=0; idx<seisflds_.size(); idx++ )
-//	seisflds_[1]->setInput(  wtsetup_.seisid_ );
+    if ( typefld_ ) typefld_->setValue( !wtsetup_.linekey_ );
+    if ( seis3dfld_ ) seis3dfld_->setInput(  wtsetup_.seisid_ );
+    if ( seislinefld_ ) seislinefld_->setInput(  wtsetup_.linekey_ );
+    if ( seis2dfld_ )
+    {
+	if ( !wtsetup_.linekey_.isEmpty() ) 
+	    seis2dfld_->setInput(  wtsetup_.seisid_ );
+	else 
+	    seis2dfld_->empty();
+    }
+
     vellogfld_->setText( wtsetup_.vellognm_ );
     denlogfld_->setText( wtsetup_.denlognm_ );
     isvelbox_ ->setChecked( !wtsetup_.issonic_ );
-    //is2dfld_ -> setChecked( !wtsetup_.issonic_ );
+
+    selChg(0); 
 
     return true;	
 }
