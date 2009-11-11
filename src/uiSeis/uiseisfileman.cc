@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.95 2009-11-11 14:38:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.96 2009-11-11 15:27:51 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -45,8 +45,14 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.95 2009-11-11 14:38:09 cvs
 #include "uisplitter.h"
 #include "uitextedit.h"
 
-
 static const int cPrefWidth = 50;
+
+Notifier<uiSeis2DFileMan>* uiSeis2DFileMan::fieldsCreated()
+{
+    static Notifier<uiSeis2DFileMan> FieldsCreated(0);
+    return &FieldsCreated;
+}
+
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
@@ -338,6 +344,8 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     splitter->addGroup( botgrp );
 
     fillLineBox();
+
+    fieldsCreated()->trigger( this );
     lineSel(0);
 }
 

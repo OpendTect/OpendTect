@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.60 2009-10-29 09:31:04 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.61 2009-11-11 15:27:51 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -47,7 +47,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.60 2009-10-29 09:31:04 cvsrano
 #include "uiwellmarkerdlg.h"
 
 
-NotifierAccess* uiWellMan::fieldsCreated()
+Notifier<uiWellMan>* uiWellMan::fieldsCreated()
 {
     static Notifier<uiWellMan> FieldsCreated(0);
     return &FieldsCreated;
@@ -118,7 +118,7 @@ uiWellMan::uiWellMan( uiParent* p )
     infofld->attach( ensureBelow, markerbut );
     selChg( this );
 
-    fieldsCreated()->notify( this );
+    fieldsCreated()->trigger( this );
 }
 
 
