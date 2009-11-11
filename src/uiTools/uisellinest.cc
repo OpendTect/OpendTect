@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.27 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.28 2009-11-11 15:18:00 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: uisellinest.cc,v 1.27 2009-07-22 16:01:42 cvsbe
 
 
 static const int cMinWidth = 1;
-static const int cMaxWidth = 10;
+static const int cMaxWidth = 100;
 
 uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 				const char* txt, bool wdraw, bool wcol, 
