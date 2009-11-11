@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.22 2009-11-11 15:14:10 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.23 2009-11-11 15:56:12 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -201,16 +201,11 @@ bool uiTieWinMGRDlg::getDefaults()
     WellTie::Reader wtr( fname, wtsetup_ );
     wtr.getWellTieSetup();
 
-    if ( typefld_ ) typefld_->setValue( !wtsetup_.linekey_ );
-    if ( seis3dfld_ ) seis3dfld_->setInput(  wtsetup_.seisid_ );
+    const bool was2d = !wtsetup_.linekey_.isEmpty();
+    if ( typefld_ ) typefld_->setValue( !was2d );
+    if ( seis3dfld_ && !was2d ) seis3dfld_->setInput(  wtsetup_.seisid_ );
     if ( seislinefld_ ) seislinefld_->setInput(  wtsetup_.linekey_ );
-    if ( seis2dfld_ )
-    {
-	if ( !wtsetup_.linekey_.isEmpty() ) 
-	    seis2dfld_->setInput(  wtsetup_.seisid_ );
-	else 
-	    seis2dfld_->empty();
-    }
+    if ( seis2dfld_ && was2d ) seis2dfld_->setInput(  wtsetup_.seisid_ );
 
     vellogfld_->setText( wtsetup_.vellognm_ );
     denlogfld_->setText( wtsetup_.denlognm_ );
@@ -261,11 +256,13 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !units.denFactor() || !units.velFactor()  )
 	mErrRet( "invalid log units, please check your input logs" );
 
-    if ( seis2dfld_ )
+    if ( is2d_ )
     {
 	wtsetup_.linekey_ = LineKey( seislinefld_->getInput() );
 	wtsetup_.linekey_.setAttrName( seis2dfld_->attrNm() );
     }
+    else
+	wtsetup_.linekey_ = 0;
 
     wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
