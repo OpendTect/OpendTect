@@ -10,9 +10,9 @@ NLA
 Strat
 Seis
 AttributeEngine
-PreStackProcessing
 Velocity
 VolumeProcessing
+PreStackProcessing
 Attributes
 EMAttrib
 MPEEngine
@@ -26,9 +26,9 @@ uiEarthModel
 uiNLA
 uiSeis
 uiVelocity
-uiAttributes
 uiPreStackProcessing
 uiVolumeProcessing
+uiAttributes
 uiEMAttrib
 uiMPE
 uiWell
