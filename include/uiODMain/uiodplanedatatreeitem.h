@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.11 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.12 2009-11-11 11:12:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -102,27 +102,27 @@ protected:
 };
 
 
-mDefineItem( TimesliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+mDefineItem( ZsliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-mClass uiODTimesliceTreeItemFactory : public uiODTreeItemFactory
+mClass uiODZsliceTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODTimesliceParentTreeItem; }
+    			{ return new uiODZsliceParentTreeItem; }
     uiTreeItem*		create(int visid,uiTreeItem*) const;
 };
 
 
-mClass uiODTimesliceTreeItem : public uiODPlaneDataTreeItem
+mClass uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODTimesliceTreeItem(int displayid,Type);
+    			uiODZsliceTreeItem(int displayid,Type);
 
 protected:
     const char*		parentType() const
-			{ return typeid(uiODTimesliceParentTreeItem).name(); }
+			{ return typeid(uiODZsliceParentTreeItem).name(); }
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.190 2009-10-27 08:29:43 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.191 2009-11-11 11:12:49 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -94,7 +94,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODCrosslineTreeItemFactory, 2000,
 	    	       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODTimesliceTreeItemFactory, 3000,
+    tifs_->addFactory( new uiODZsliceTreeItemFactory, 3000,
 	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODVolrenTreeItemFactory, 3100, SurveyInfo::No2D );
     tifs_->addFactory( new uiODRandomLineTreeItemFactory, 3500,

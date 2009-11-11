@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.35 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.36 2009-11-11 11:12:49 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -421,7 +421,7 @@ uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
 {}
 
 
-uiTreeItem* uiODTimesliceTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem* uiODZsliceTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -432,23 +432,23 @@ uiTreeItem* uiODTimesliceTreeItemFactory::create( int visid, uiTreeItem* ) const
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
 	    	    pdd->getChannel2RGBA());
 
-    return new uiODTimesliceTreeItem( visid,
+    return new uiODZsliceTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
 }
 
 
-uiODTimesliceParentTreeItem::uiODTimesliceParentTreeItem()
-    : uiODTreeItem( "Timeslice" )
+uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
+    : uiODTreeItem( "Z-slice" )
 {}
 
 
-bool uiODTimesliceParentTreeItem::showSubMenu()
+bool uiODZsliceParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( uiODTimesliceTreeItem );
+    mParentShowSubMenu( uiODZsliceTreeItem );
 }
 
 
-uiODTimesliceTreeItem::uiODTimesliceTreeItem( int id, Type tp )
+uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, ZSlice, tp )
 {
 }
