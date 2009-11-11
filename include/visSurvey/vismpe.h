@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.49 2009-11-04 16:34:56 cvskarthika Exp $
+ RCS:		$Id: vismpe.h,v 1.50 2009-11-11 14:16:04 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -108,6 +108,8 @@ public:
     virtual DataPackMgr::ID     getDataPackMgrID() const
 	                                { return DataPackMgr::CubeID(); }
     
+    virtual bool		allowPicks() const;
+
     void                        showManipulator(bool yn);
     bool                        isManipulated() const;
     bool                        canResetManipulation() const;
@@ -165,11 +167,17 @@ protected:
     CubeSampling		getCubeSampling(bool manippos,bool display,
 		    					int attrib) const;
 
-    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
-
+    bool			pickable() const { return true; }
+    bool			rightClickable() const { return false; }
+    bool			selectable() const { return false; }  // check
     bool			isSelected() const;
     
-	//Callbacks from boxdragger
+    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
+
+    void			triggerSel() { updateMouseCursorCB( 0 ); }
+    void			triggerDeSel() { updateMouseCursorCB( 0 ); }
+
+				//Callbacks from boxdragger
     void			boxDraggerFinishCB(CallBacker*);
 
     				//Callbacks from rectangle
@@ -185,8 +193,9 @@ protected:
     void			updateDraggerPosition(CallBacker*);
     void			updateBoxPosition(CallBacker*);
 
-//    void			dataTransformCB(CallBacker*);
     void                        sliceMoving(CallBacker*);
+
+    void			turnOnSlice(bool);
 
     MPE::Engine&		engine_;
 
@@ -212,17 +221,14 @@ protected:
     Attrib::SelSpec&		curtextureas_;
     CubeSampling		curtexturecs_;
    
-//    ZAxisTransform*             datatransform_;
-//    ZAxisTransformer*           datatransformer_;
-
     DataPack::ID                cacheid_;
     const Attrib::DataCubes*    cache_;
     BufferString                sliceposition_;
     BufferString                slicename_;
     CubeSampling                csfromsession_;
-	int							dim_;
+    int				dim_;
 
-	bool			allowshading_;
+    bool			allowshading_;
     visBase::EventCatcher*	eventcatcher_;
 
     bool			isinited_;
