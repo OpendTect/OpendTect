@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.14 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.15 2009-11-11 22:53:23 cvsyuancheng Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -116,6 +116,9 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	curinterp_->setColStep( crldist );
 
 	curinterp_->setMaxHoleSize(mUdf(int));
+	const bool issingleline = hor2d_.geometry().nrLines()<2;
+  	curinterp_->setFillType( issingleline ? Array2DInterpol::Full 
+					      : Array2DInterpol::ConvexHull );
 	curinterp_->setFillType( Array2DInterpol::ConvexHull );
 	curinterp_->setArray( sd_[cursectnr_]->arr_, tr );
 
@@ -153,6 +156,21 @@ void Hor2DTo3D::addSections( const HorSampling& hs )
 	}
 	if ( mIsUdf(minbid.inl) || minbid == maxbid )
 	    continue;
+
+	if ( minbid.inl==maxbid.inl || minbid.crl==maxbid.crl ) //Straight line
+	{
+	    int extendedsize = 1;
+	    mDynamicCastGet(InverseDistanceArray2DInterpol*, inv, curinterp_ );
+	    if ( inv && !mIsUdf(inv->getNrSteps()) )
+		extendedsize = inv->getNrSteps(); //*inv->getStepSize();
+
+	    minbid.inl -= extendedsize;
+	    if ( minbid.inl<0 ) minbid.inl = 0;
+	    minbid.crl -= extendedsize;
+	    if ( minbid.crl<0 ) minbid.crl = 0;
+	    maxbid.inl += extendedsize;
+	    maxbid.crl += extendedsize;
+	}
 
 	sd_ += new Hor2DTo3DSectionData( sid, minbid, maxbid, hs.step );
     }
