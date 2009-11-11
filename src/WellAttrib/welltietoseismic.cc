@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.42 2009-11-10 09:24:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.43 2009-11-11 13:34:07 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -99,6 +99,7 @@ bool DataPlayer::extractSeismics()
     TypeSet<BinID> bids;
     for ( int idx=0; idx<wtextr.timeintv_.nrSteps(); idx++ )
 	bids += wtextr.getBIDs()[idx];
+    seisextr.setLineKey( &wtsetup_.linekey_ );
     seisextr.setBIDValues( bids );
     seisextr.setTimeIntv( params_.timeintvs_[1] ); 
     if ( !tr_->execute( seisextr ) ) return false;

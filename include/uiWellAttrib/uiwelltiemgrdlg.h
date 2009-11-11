@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.6 2009-11-09 14:51:58 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.7 2009-11-11 13:34:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,11 @@ class MultiID;
 class CtxtIOObj;
 
 class uiIOObjSel;
-class uiSeisSel;
 class uiComboBox;
 class uiCheckBox;
 class uiGenInput;
+class uiSeisSel;
+class uiSeis2DLineNameSel;
 
 namespace WellTie
 {
@@ -45,23 +46,27 @@ protected:
     CtxtIOObj&          seisctio2d_;
     CtxtIOObj&          seisctio3d_;
     bool		savedefaut_;
+    bool		is2d_;
     ObjectSet<WellTie::uiTieWin> welltiedlgset_;
     ObjectSet<WellTie::uiTieWin> welltiedlgsetcpy_;
 
     uiIOObjSel*         wellfld_;
     uiIOObjSel*         wvltfld_;
-    ObjectSet<uiSeisSel> seisflds_;
+    uiGenInput*		typefld_;
+    uiSeisSel* 		seis2dfld_;
+    uiSeisSel* 		seis3dfld_;
+    uiSeis2DLineNameSel* seislinefld_;
     uiComboBox*		vellogfld_;
     uiComboBox*		denlogfld_;
     uiCheckBox*		isvelbox_;
-    uiCheckBox*		is2dfld_;
 
     bool		getDefaults();
     void		saveWellTieSetup(const MultiID&,const WellTie::Setup&);
-
+    
     bool		acceptOK(CallBacker*);
     void		extrWvlt(CallBacker*);
     void		isSonicSel(CallBacker*);
+    void		typeSel( CallBacker* );
     void		wellSel(CallBacker*);
     void 		wellTieDlgClosed(CallBacker*);
 };

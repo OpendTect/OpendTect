@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "geometry.h"
 
 class CubeSampling;
+class LineKey;
 class SeisTrcReader;
 class SeisTrc;
 class MultiID;
@@ -77,6 +78,9 @@ public:
     const char*         nrDoneText() const      { return "Points done"; }
     void		setBIDValues(const TypeSet<BinID>&); 
     void		setTimeIntv(const StepInterval<float>&);
+    //Only 2D
+    void		setLineKey(const LineKey* lk) { linekey_ = lk; }
+    void		setAttrNm(const char* nm) { attrnm_ = nm; }
     
     Array1DImpl<float>* vals_;
     Array1DImpl<float>* dahs_;
@@ -88,6 +92,8 @@ protected:
     TypeSet<BinID>	bidset_;
     ObjectSet<SeisTrc>	trcset_;
     SeisTrcReader* 	rdr_;
+    const LineKey*	linekey_;
+    const char*		attrnm_;
     int                 nrdone_;
     int			radius_;
   

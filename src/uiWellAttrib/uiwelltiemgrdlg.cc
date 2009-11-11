@@ -7,15 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.19 2009-11-09 14:52:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.20 2009-11-11 13:34:06 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
 #include "ioman.h"
+#include "iostrm.h"
+#include "seisioobjinfo.h"
 #include "multiid.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "iostrm.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "wellman.h"
@@ -23,12 +24,14 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.19 2009-11-09 14:52:01 c
 #include "welltiesetup.h"
 #include "wellreader.h"
 
-#include "uiseissel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uiseislinesel.h"
+#include "uiseissel.h"
 #include "uiwaveletextraction.h"
 #include "uiwelltietoseismicdlg.h"
 
@@ -46,6 +49,10 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
         , wvltctio_(*mMkCtxtIOObj(Wavelet))
     	, seisctio2d_(*uiSeisSel::mkCtxtIOObj(Seis::Line,true))
     	, seisctio3d_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
+	, seis2dfld_(0)						      
+	, seis3dfld_(0)						      
+	, seislinefld_(0)						      
+	, typefld_(0)						      
 {
     setCtrlStyle( DoAndStay );
 
@@ -56,26 +63,44 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 
     const bool has2d = SI().has2D(); 
     const bool has3d = SI().has3D(); 
-    const bool is2d = ( !SI().has3D() && SI().has2D() );
+    is2d_ = has2d; 
 
-    seisflds_ += new uiSeisSel( this, seisctio2d_, 
-	    					uiSeisSel::Setup(Seis::Line) );
-    seisflds_ += new uiSeisSel( this, seisctio3d_, 
-	    					uiSeisSel::Setup(Seis::Vol) );
-    for ( int idx=0; idx<seisflds_.size(); idx++ )
+    if ( has2d && has3d )
     {
-	seisflds_[idx]->setLabelText( "Seismic data" );
-	seisflds_[idx]->attach( alignedBelow, wellfld_ );
+	BufferStringSet seistypes; 
+	seistypes.add( Seis::nameOf(Seis::Line) );
+	seistypes.add( Seis::nameOf(Seis::Vol) );
+	typefld_ = new uiGenInput( this, "Seismic", StringListInpSpec( seistypes ) );
+	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,typeSel) );
+	typefld_->attach( alignedBelow, wellfld_ );
     }
-    seisflds_[0]->display( false );
-    is2dfld_ = new uiCheckBox( this, "2D" );
-    is2dfld_->display( has3d && has2d );
-    is2dfld_->attach( rightOf, seisflds_[0] );
+
+    if ( has2d )
+    {
+	seis2dfld_ = new uiSeisSel( this, seisctio2d_, uiSeisSel::Setup(Seis::Line));
+	if ( typefld_ )
+	    seis2dfld_->attach( alignedBelow, typefld_ );
+	else 
+	    seis2dfld_->attach( alignedBelow, wellfld_ );
+	seislinefld_ = new uiSeis2DLineNameSel( this, true );
+	seislinefld_->attach( alignedBelow, seis2dfld_ );
+    }
+    if ( has3d )
+    {
+	seis3dfld_ = new uiSeisSel( this, seisctio3d_, uiSeisSel::Setup(Seis::Vol));
+	if ( typefld_ )
+	    seis3dfld_->attach( alignedBelow, typefld_ );
+	else 
+	    seis3dfld_->attach( alignedBelow, wellfld_ );
+    }
 
     uiLabeledComboBox* llbl1 = new uiLabeledComboBox( this,
 				   "Sonic/Velocity log" );
     vellogfld_ = llbl1->box();
-    llbl1->attach( alignedBelow, seisflds_[1] );
+    if ( has2d )
+	llbl1->attach( alignedBelow, seislinefld_ );
+    else 
+	llbl1->attach( alignedBelow, seis3dfld_ );
     isvelbox_ = new uiCheckBox( this, "Velocity" );
     isvelbox_->attach( rightOf, llbl1 );
 
@@ -89,12 +114,15 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	    			mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
+    if ( typefld_ ) typeSel(0);
     finaliseDone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
 }
 
 
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
+    delete seisctio3d_.ioobj; delete &seisctio3d_;
+    delete seisctio2d_.ioobj; delete &seisctio2d_;
     deepErase( welltiedlgsetcpy_ );
 }
 
@@ -129,6 +157,19 @@ void uiTieWinMGRDlg::wellSel( CallBacker* )
 }
 
 
+void uiTieWinMGRDlg::typeSel( CallBacker* )
+{
+    if ( typefld_ ) ;
+	is2d_ = !typefld_->getIntValue();
+    if ( seis2dfld_ ) seis2dfld_->display( is2d_ );
+    if ( seis3dfld_ ) seis3dfld_->display( !is2d_ );
+    if ( seislinefld_ ) seislinefld_->display( is2d_ );
+
+    if ( seis2dfld_ && seisctio2d_.ioobj )
+	seislinefld_->setLineSet( seisctio2d_.ioobj->key() );
+}
+
+
 void uiTieWinMGRDlg::extrWvlt( CallBacker* )
 {
     uiWaveletExtraction dlg( this );
@@ -147,8 +188,8 @@ bool uiTieWinMGRDlg::getDefaults()
     WellTie::Reader wtr( fname, wtsetup_ );
     wtr.getWellTieSetup();
 
-    for ( int idx=0; idx<seisflds_.size(); idx++ )
-	seisflds_[idx]->setInput(  wtsetup_.seisid_ );
+    //for ( int idx=0; idx<seisflds_.size(); idx++ )
+//	seisflds_[1]->setInput(  wtsetup_.seisid_ );
     vellogfld_->setText( wtsetup_.vellognm_ );
     denlogfld_->setText( wtsetup_.denlognm_ );
     isvelbox_ ->setChecked( !wtsetup_.issonic_ );
@@ -171,11 +212,15 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
 bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 {
+    mDynamicCastGet( uiSeisSel*, seisfld, is2d_ ? seis2dfld_ : seis3dfld_ );
+    if ( !seisfld )
+	mErrRet( "Please select a seismic type" );
+
     if ( !wellfld_->commitInput() )
 	 mErrRet("Please select a well")
-    if ( !seisflds_[1]->commitInput() )
+    if ( !seisfld->commitInput() )
 	mErrRet("Please select the input seimic data")
-    wtsetup_.seisnm_ = seisflds_[1]->getInput();
+    wtsetup_.seisnm_ = seisfld->getInput();
     wtsetup_.vellognm_ = vellogfld_->text();
     if ( !strcmp ( wtsetup_.vellognm_, sKeyPlsSel ) )
 	mErrRet("Please select a log for the velocity")
@@ -193,7 +238,13 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     if ( !units.denFactor() || !units.velFactor()  )
 	mErrRet( "invalid log units, please check your input logs" );
 
-    wtsetup_.seisid_ = seisflds_[1]->ctxtIOObj().ioobj->key();
+    if ( seis2dfld_ )
+    {
+	wtsetup_.linekey_ = LineKey( seislinefld_->getInput() );
+	wtsetup_.linekey_.setAttrName( seis2dfld_->attrNm() );
+    }
+
+    wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
     wtsetup_.wellid_ = wellfld_->ctxtIOObj().ioobj->key();
     wtsetup_.wvltid_ = wvltfld_->ctxtIOObj().ioobj->key();
     wtsetup_.issonic_ = !isvelbox_->isChecked();

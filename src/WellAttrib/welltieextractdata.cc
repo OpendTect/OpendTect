@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.20 2009-11-10 08:31:49 cvskarthika Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.21 2009-11-11 13:34:07 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: welltieextractdata.cc,v 1.20 2009-11-10 08:31:4
 #include "interpol1d.h"
 #include "ioman.h"
 #include "datapointset.h"
+#include "linekey.h"
 #include "seistrc.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
@@ -86,6 +87,7 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, nrdone_(0)
 	, cs_(new CubeSampling())	    
 	, timeintv_(0,0,0)
+	, linekey_(0)		  
 	, radius_(1)		  
 {
 }
@@ -113,20 +115,31 @@ void SeismicExtractor::collectTracesAroundPath()
 {
     Interval<int> inlrg( bidset_[0].inl, bidset_[0].inl );
     Interval<int> crlrg( bidset_[0].crl, bidset_[0].crl );
-    for ( int idx=0; idx<bidset_.size(); idx++ )
-    {
-	const BinID bid = bidset_[idx];
-	if ( bid.inl < inlrg.start ) inlrg.start = bid.inl;
-	if ( bid.inl > inlrg.stop ) inlrg.stop = bid.inl;
-	if ( bid.crl < crlrg.start ) crlrg.start = bid.crl;
-	if ( bid.crl > crlrg.stop ) crlrg.stop = bid.crl;
-    }
-    inlrg.start -= radius_; inlrg.stop += radius_;
-    crlrg.start -= radius_; crlrg.stop += radius_;
-    cs_->hrg.setInlRange( inlrg );
-    cs_->hrg.setCrlRange( crlrg );
 
-    Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
+    Seis::RangeSelData* sd = new Seis::RangeSelData();
+    if ( rdr_->is2D() )
+    {
+	crlrg.set( 0, SI().crlRange(true).stop ); 
+	sd->lineKey() = *linekey_;
+	sd->setIsAll();
+    }
+    else
+    {
+	for ( int idx=0; idx<bidset_.size(); idx++ )
+	{
+	    const BinID bid = bidset_[idx];
+	    if ( bid.inl < inlrg.start ) inlrg.start = bid.inl;
+	    if ( bid.inl > inlrg.stop ) inlrg.stop = bid.inl;
+	    if ( bid.crl < crlrg.start ) crlrg.start = bid.crl;
+	    if ( bid.crl > crlrg.stop ) crlrg.stop = bid.crl;
+	}
+	inlrg.start -= radius_; inlrg.stop += radius_;
+	crlrg.start -= radius_; crlrg.stop += radius_;
+	sd->setInlRange( inlrg  );
+	sd->setCrlRange( crlrg );
+	sd->setZRange( timeintv_ );
+    }
+
     rdr_->forceFloatData( true );
     rdr_->setSelData( sd );
     rdr_->prepareWork();
@@ -171,15 +184,30 @@ int SeismicExtractor::nextStep()
 
     const BinID curbid = bidset_[nrdone_];
     float val = 0; int nrtracesinradius = 0;
+    int prevradius = (int) 1e30;
+
     for ( int idx=0; idx<trcset_.size(); idx++ )
     {
 	BinID b = trcset_[idx]->info().binid;
 	int xx0 = b.inl-curbid.inl; 	xx0 *= xx0; 
 	int yy0 = b.crl-curbid.crl;	yy0 *= yy0;
-	if ( xx0 + yy0 < radius_*radius_ )
+
+	if ( rdr_->is2D() )
 	{
-	    nrtracesinradius ++;
-	    val += trcset_[idx]->get( nrdone_, 0 );
+	    if ( ( xx0 + yy0  ) < prevradius )
+	    {
+		prevradius = xx0 + yy0;
+		val = trcset_[idx]->get( nrdone_, 0 );
+		nrtracesinradius = 1;
+	    }
+	}
+	else
+	{
+	    if ( xx0 + yy0 < radius_*radius_ )
+	    {
+		nrtracesinradius ++;
+		val += trcset_[idx]->get( nrdone_, 0 );
+	    }
 	}
     }
     vals_->set( nrdone_, val/nrtracesinradius );
