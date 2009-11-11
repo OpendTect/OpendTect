@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.50 2009-11-11 14:16:04 cvskarthika Exp $
+ RCS:		$Id: vismpe.h,v 1.51 2009-11-11 16:43:51 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,8 @@ ________________________________________________________________________
 namespace Attrib { class SelSpec; class DataCubes; }
 template <class T> class Array3D;
 template <class T> class Selector;
+class ZAxisTransform;
+class ZAxisTransformer;
 
 
 class SoSeparator;
@@ -99,6 +101,9 @@ public:
     void			setCubeSampling(const CubeSampling&);
     bool			getPlanePosition(CubeSampling&) const;
  
+    bool                        setDataTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*       getDataTransform() const;
+    
     bool                        setDataVolume(int attrib, 
 	    				const Attrib::DataCubes*, TaskRunner*);
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
@@ -172,6 +177,8 @@ protected:
     bool			selectable() const { return false; }  // check
     bool			isSelected() const;
     
+    void			turnOnSlice(bool);
+
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
 
     void			triggerSel() { updateMouseCursorCB( 0 ); }
@@ -194,9 +201,9 @@ protected:
     void			updateBoxPosition(CallBacker*);
 
     void                        sliceMoving(CallBacker*);
-
-    void			turnOnSlice(bool);
-
+    void                        dataTransformCB(CallBacker*);
+    void                        updateRanges(bool updateic,bool updatez);
+    
     MPE::Engine&		engine_;
 
     visBase::DataObjectGroup*	draggerrect_;
@@ -228,6 +235,9 @@ protected:
     CubeSampling                csfromsession_;
     int				dim_;
 
+    ZAxisTransform*             datatransform_;
+    ZAxisTransformer*           datatransformer_;
+    
     bool			allowshading_;
     visBase::EventCatcher*	eventcatcher_;
 

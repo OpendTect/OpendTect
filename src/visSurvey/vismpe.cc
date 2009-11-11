@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.86 2009-11-11 14:14:59 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.87 2009-11-11 16:43:39 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -37,6 +37,8 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.86 2009-11-11 14:14:59 cvskarthik
 #include "mpeengine.h"
 #include "survinfo.h"
 #include "undo.h"
+#include "zaxistransform.h"
+#include "zaxistransformer.h"
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
@@ -57,6 +59,8 @@ MPEDisplay::MPEDisplay()
 #else
     , isinited_(0)
     , allowshading_(false)
+    , datatransform_(0)
+    , datatransformer_(0)
     , cache_(0)
     , cacheid_(DataPack::cNoID())
     , scalarfield_(visBase::VolumeRenderScalarField::create())
@@ -174,6 +178,8 @@ MPEDisplay::~MPEDisplay()
 
     voltrans_->unRef();
     scalarfield_->unRef();
+
+    setDataTransform( 0, 0 );
 #endif
 
     boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
@@ -367,7 +373,8 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 
 void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
-    if ( attrib || as_ == as ) return;
+    if ( attrib || as_ == as ) 
+	return;
     as_ = as;
     if ( cache_ ) cache_->unRef();
     cache_ = 0;
@@ -625,6 +632,9 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 	manipulated_ = true;
     }
 #else
+    if ( scene_ && scene_->getDataTransform() )
+        return;
+
     CubeSampling cs = getCubeSampling( true, true, 0 );
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
@@ -1299,13 +1309,11 @@ void MPEDisplay::updateSlice()
 #ifndef USE_TEXTURE
 // to do: check!!
     const CubeSampling displaycs = engine_.activeVolume();
-    if ( curtextureas_==as_ && curtexturecs_==displaycs )
+/*    if ( curtextureas_==as_ && curtexturecs_==displaycs )
     {
 	turnOnSlice( true );
-/*	if ( scalarfield_ )
-	    scalarfield_->turnOn( true );*/
 	return;
-    }
+    }*/
 
     RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
     if ( !attrdata )
@@ -1403,38 +1411,41 @@ bool MPEDisplay::setDataVolume( int attrib,
 	return false;
 
     const Array3D<float>* usedarray = 0;
-    if ( alreadyTransformed( attrib ) )
-        usedarray = &attrdata->getCube(0);
+    bool arrayismine = true;
+    if ( alreadyTransformed(attrib) || !datatransform_ )
+	usedarray = &attrdata->getCube(0);
     else
     {
-        const CubeSampling displaycs = engine_.activeVolume();
+        if ( !datatransformer_ )
+	    mTryAlloc( datatransformer_,ZAxisTransformer(*datatransform_,true));
 
-        if ( displaycs != attrdata->cubeSampling() )
+//      datatransformer_->setInterpolate( !isClassification(attrib) );
+        datatransformer_->setInterpolate( true );
+        datatransformer_->setInput( attrdata->getCube(0),
+	                                        attrdata->cubeSampling() );
+        datatransformer_->setOutputRange( getCubeSampling(true,true,0) );
+
+        if ( (tr && tr->execute(*datatransformer_)) ||
+	             !datatransformer_->execute() )
         {
-	    const CubeSampling attrcs = attrdata->cubeSampling();
-	    if ( !attrcs.includes( displaycs ) )
-	    {
-		if ( scalarfield_ )
-		    scalarfield_->turnOn( false );
-	        turnOnSlice( false );
-		return false;
-	    }
-        
-	    // to do: change?
-	    usedarray = &attrdata->getCube(0);
-
-	    /*if ( !usedarray->isOK() )
-   	    {
-	        texture_->turnOn( false );
-	        return false;
-	    }*/
-
+	    pErrMsg( "Transform failed" );
+	    return false;
         }
-        curtextureas_ = as_;
-        curtexturecs_ = displaycs;
+
+	usedarray = datatransformer_->getOutput( true );
+        if ( !usedarray )
+	{
+	    pErrMsg( "No output from transform" );
+	    return false;
+	}
+
+	arrayismine = false;
     }
 
-    scalarfield_->setScalarField( usedarray, false, tr );  // check true/false
+/*    curtextureas_ = as_;
+    curtexturecs_ = attrdata->cubeSampling();  // to do: check
+*/
+    scalarfield_->setScalarField( usedarray, !arrayismine, tr );
 
     setCubeSampling( getCubeSampling(true,true,0) );
     
@@ -1513,6 +1524,14 @@ CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
 
 	res.zrg.start = transl.z+scale.z/2;
 	res.zrg.stop = transl.z-scale.z/2;
+    }
+
+    if ( alreadyTransformed(attrib) ) return res;
+
+    if ( datatransform_ && !displayspace )
+    {
+	res.zrg.setFrom( datatransform_->getZInterval(true) );
+	res.zrg.step = SI().zRange( true ).step;
     }
 
     return res;
@@ -1777,4 +1796,76 @@ void MPEDisplay::turnOnSlice( bool yn )
       scalarfield_->turnOn( yn );*/
 #endif
 }
+
+
+bool MPEDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
+{
+#ifndef USE_TEXTURE
+    const bool haddatatransform = datatransform_;
+    if ( datatransform_ )
+    {
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->remove(
+		    mCB(this,MPEDisplay,dataTransformCB) );
+	datatransform_->unRef();
+	datatransform_ = 0;
+    }
+
+    datatransform_ = zat;
+    delete datatransformer_;
+    datatransformer_ = 0;
+
+    if ( datatransform_ )
+    {
+	datatransform_->ref();
+	updateRanges( false, !haddatatransform );
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->notify(
+		    mCB(this,MPEDisplay,dataTransformCB) );
+    }
+
+    return true;
+#else
+    return false;
+#endif
+}
+
+
+const ZAxisTransform* MPEDisplay::getDataTransform() const
+{ 
+#ifndef USE_TEXTURE
+    return datatransform_; 
+#else
+    return 0;
+#endif
+}
+
+
+void MPEDisplay::dataTransformCB( CallBacker* )
+{
+#ifndef USE_TEXTURE
+    updateRanges( false, true );
+    if ( cache_ ) setDataVolume( 0, cache_, 0 );
+#endif
+}
+
+
+void MPEDisplay::updateRanges( bool updateic, bool updatez )
+{
+#ifndef USE_TEXTURE
+    if ( !datatransform_ ) return;
+
+    // to do: save session cs in usePar?
+/*    if ( csfromsession_ != SI().sampling(true) )
+	setCubeSampling( csfromsession_ );
+    else*/
+    {
+	Interval<float> zrg = datatransform_->getZInterval( false );
+	CubeSampling cs = getCubeSampling( 0 );
+	assign( cs.zrg, zrg );
+	setCubeSampling( cs );
+    }
+#endif
+}
+
 }; // namespace vissurvey
