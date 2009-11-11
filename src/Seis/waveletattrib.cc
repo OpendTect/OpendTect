@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.1 2009-11-09 06:17:00 cvsnageswara Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.2 2009-11-11 06:37:09 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
 
     mDoTransform( fft_, true, cvals, tmparr, arraysz );
     tmparr.set(0, 0 );
-    mDoTransform( fft_, true, tmparr, cvals,  arraysz );
+    mDoTransform( fft_, false, tmparr, cvals,  arraysz );
 
     for ( int idx=0; idx<arraysz; idx++ )
 	vals.set( idx, cvals.get(idx).real() );
