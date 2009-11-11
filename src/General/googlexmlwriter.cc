@@ -9,6 +9,7 @@ static const char* rcsID = "$Id";
 #include "odgooglexmlwriter.h"
 #include "survinfo.h"
 #include "strmprov.h"
+#include "latlong.h"
 #include <iostream>
 
 ODGoogle::XMLWriter::XMLWriter( const char* enm, const char* fnm,
@@ -77,4 +78,77 @@ void ODGoogle::XMLWriter::start( const ODGoogle::XMLItem& itm )
 
 void ODGoogle::XMLWriter::finish( const ODGoogle::XMLItem& itm )
 {
+}
+
+
+void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, const char* ins )
+{
+    if ( !isOK() ) return;
+
+    strm() << "\t<Style id=\"sn_od_"	<< iconnm << "0\">\n"
+	"\t\t<IconStyle>\n"
+	"\t\t\t<scale>1.1</scale>\n"
+	"\t\t\t<Icon>\n"
+	"\t\t\t\t<href>http://opendtect.org/images/od-"
+					<< iconnm << ".png</href>\n"
+	"\t\t\t</Icon>\n"
+	"\t\t<hotSpot x=\"20\" y=\"2\" xunits=\"pixels\" yunits=\"pixels\"/>\n"
+	"\t\t</IconStyle>\n"
+	"\t</Style>\n\n";
+
+    strm() << "\t<StyleMap id=\"msn_od_"<< iconnm << "\">\n"
+	"\t\t<Pair>\n"
+	"\t\t\t<key>normal</key>\n"
+	"\t\t\t<styleUrl>#sn_od_"	<< iconnm << "0</styleUrl>\n"
+	"\t\t</Pair>\n"
+	"\t\t<Pair>\n"
+	"\t\t\t<key>highlight</key>\n"
+	"\t\t\t<styleUrl>#od-"		<< iconnm << "</styleUrl>\n"
+	"\t\t</Pair>\n"
+	"\t</StyleMap>\n\n";
+
+    strm() << "\t<Style id=\"od-"	<< iconnm << "\">\n"
+	"\t\t<IconStyle>\n"
+	"\t\t\t<scale>1.3</scale>\n"
+	"\t\t\t<Icon>\n"
+	"\t\t\t\t<href>http://opendtect.org/images/od-"
+					<< iconnm << ".png</href>\n"
+	"\t\t\t</Icon>\n"
+	"\t\t\t<hotSpot x=\"20\" y=\"2\" xunits=\"pixels\" "
+					"yunits=\"pixels\"/>\n"
+	"\t\t</IconStyle>\n";
+
+    if ( ins && *ins )
+	strm() << ins << '\n';
+
+    strm() << "\t</Style>\n\n" << std::endl;
+}
+
+
+void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
+					  const char* nm )
+{
+    if ( !isOK() ) return;
+
+    const LatLong ll( SI().latlong2Coord().transform(crd) );
+
+    strm() << "\n\t<Placemark>\n"
+	   << "\t\t<name>" << nm << "</name>\n"
+	   << "\t\t<LookAt>\n";
+    strm() << "\t\t\t<longitude>" << getStringFromDouble(0,ll.lng_)
+				      << "</longitude>\n";
+    strm() << "\t\t\t<latitude>" << getStringFromDouble(0,ll.lat_)
+				      << "</latitude>\n";
+    strm() << "\t\t\t<altitude>0</altitude>\n"
+	"\t\t\t<range>500</range>\n"
+	"\t\t\t<tilt>20</tilt>\n"
+	"\t\t\t<heading>0</heading>\n"
+	"\t\t\t<altitudeMode>relativeToGround</altitudeMode>\n"
+	"\t\t</LookAt>\n"
+	"\t\t<styleUrl>#msn_od_" << iconnm << "</styleUrl>\n"
+	"\t\t<Point>\n"
+	"\t\t\t<coordinates>" << getStringFromDouble(0,ll.lng_);
+    strm() << ',' << getStringFromDouble(0,ll.lat_) << ",0</coordinates>\n"
+	"\t\t</Point>\n"
+	"\t</Placemark>" << std::endl;
 }

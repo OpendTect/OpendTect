@@ -4,14 +4,13 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Oct 2009
- * ID       : $Id: uigoogleexpwells.h,v 1.1 2009-10-12 12:34:33 cvsbert Exp $
+ * ID       : $Id: uigoogleexpwells.h,v 1.2 2009-11-11 14:08:16 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
 #include "multiid.h"
 class uiFileInput;
 class uiListBox;
-namespace Well { class Info; }
 
 
 class uiGoogleExportWells : public uiDialog
@@ -30,7 +29,6 @@ protected:
 
     void		initWin(CallBacker*);
     bool		acceptOK(CallBacker*);
-    bool		writeWell(std::ostream&,const char*,const Well::Info&);
 
 };
 

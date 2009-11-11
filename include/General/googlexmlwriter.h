@@ -4,11 +4,12 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: googlexmlwriter.h,v 1.2 2009-07-22 16:01:28 cvsbert Exp $
+ * ID       : $Id: googlexmlwriter.h,v 1.3 2009-11-11 14:08:16 cvsbert Exp $
 -*/
 
 #include "bufstring.h"
 class StreamData;
+class Coord;
 
 namespace ODGoogle
 {
@@ -39,6 +40,11 @@ public:
     std::ostream&	strm();
     const std::ostream&	strm() const
     			{ return const_cast<XMLWriter*>(this)->strm(); }
+
+    void		writeIconStyles(const char* iconnm,
+					const char* ins=0);
+    void		writePlaceMark(const char* iconnm,const Coord&,
+				       const char* nm);
 
 protected:
 

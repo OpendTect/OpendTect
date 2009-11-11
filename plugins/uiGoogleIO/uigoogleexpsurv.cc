@@ -34,7 +34,7 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
 
     fnmfld_ = new uiFileInput( this, "Output file",
 		uiFileInput::Setup(uiFileDialog::Gen,GetBaseDataDir())
-		.forread(false).filter("*.kml;;*.kmz") );
+		.forread(false).filter("*.kml") );
     fnmfld_->attach( alignedBelow, hghtfld_ );
 }
 
