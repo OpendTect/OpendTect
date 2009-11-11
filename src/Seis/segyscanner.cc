@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.27 2009-09-29 13:43:57 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.28 2009-11-11 10:00:41 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -35,6 +35,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.27 2009-09-29 13:43:57 cvsbe
     , msg_("Opening first file") \
     , richinfo_(false) \
     , nrdone_(0) \
+    , notrcinfo_(false) \
     , totnr_(-2) \
     , nrtrcs_(0)
 
