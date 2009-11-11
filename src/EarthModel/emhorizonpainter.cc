@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.15 2009-08-13 10:35:59 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.16 2009-11-11 11:38:41 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,10 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 		if ( hor2d->geometry().lineIndex( linenm_ ) < 0 )
 		    continue;
 		else
-		    bid.inl = hor2d->geometry().lineIndex( linenm_ );
+		{
+		    int lineidx = hor2d->geometry().lineIndex( linenm_ );
+		    bid.inl = hor2d->geometry().lineID( lineidx );
+		}
 	    }
 
 	    const Coord3 crd = hor->getPos( sid, bid.getSerialized() );
@@ -158,6 +161,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 	    if ( !crd.isDefined() )
 	    {
 		coorddefined = false;
+		bid.inl = inlfromcs;
 		continue;
 	    }
 	    else if ( !coorddefined )
