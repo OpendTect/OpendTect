@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.20 2009-11-10 20:10:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.21 2009-11-11 22:51:26 cvsyuancheng Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -581,7 +581,7 @@ InverseDistanceArray2DInterpol::~InverseDistanceArray2DInterpol()
 /*If there is no node to fill, we do the full survey filling. */
 #define mRetInitFromArray() \
     bool res = initFromArray( tr ); \
-    if ( nothingToFill() ) \
+    if ( nothingToFill() && filltype_!=Full ) \
     { \
  	FillType tmp = filltype_; \
 	filltype_ = Full; \
