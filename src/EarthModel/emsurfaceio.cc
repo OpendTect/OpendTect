@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.129 2009-08-12 02:30:13 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.130 2009-11-12 05:17:37 cvsnanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1511,7 +1511,7 @@ int dgbSurfaceWriter::nextStep()
 	    if ( dataidx<0 || dataidx>=hor->auxdata.nrAuxData() )
 		continue;
 
-	    BufferString fnm = hor->auxdata.getAuxDataFileName( *ioobj_,
+	    BufferString fnm = hor->auxdata.getFileName( *ioobj_,
 		    					auxDataName(dataidx) );
 	    if ( fnm.isEmpty() )
 	    {

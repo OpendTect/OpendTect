@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.67 2009-09-24 04:32:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.68 2009-11-12 05:17:37 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -187,13 +187,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 	return;
 
     for ( int ida=0; ida<attrnms.size(); ida++ )
-    {
-	const BufferString filenm = 
-	    SurfaceAuxData::getAuxDataFileName( *curioobj_, attrnms.get(ida) );
-	if ( filenm.isEmpty() ) continue;
-
-	File_remove( filenm, mFile_NotRecursive );
-    }
+	SurfaceAuxData::removeFile( *curioobj_, attrnms.get(ida) );
 
     selChg( this );
 }
@@ -215,7 +209,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 	mErrRet( "Name is already in use" )
 
     const BufferString filename =
-		SurfaceAuxData::getAuxDataFileName( *curioobj_, attribnm );
+		SurfaceAuxData::getFileName( *curioobj_, attribnm );
     if ( File_isEmpty(filename) )
 	mErrRet( "Cannot find attribute file" )
     else if ( !File_isWritable(filename) )

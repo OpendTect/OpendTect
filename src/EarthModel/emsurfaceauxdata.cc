@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.24 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.25 2009-11-12 05:17:37 cvsnanne Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -215,8 +215,8 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     {
 	if ( selidx>=0 && selidx != validx ) continue;
 
-	BufferString filenm = getAuxDataFileName( *ioobj, 
-					sel.sd.valnames[validx]->buf() );
+	BufferString filenm = getFileName( *ioobj, 
+					   sel.sd.valnames[validx]->buf() );
 	if ( filenm.isEmpty() ) continue;
 
 	dgbSurfDataReader* rdr = new dgbSurfDataReader(filenm.buf());
@@ -244,7 +244,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     if ( overwrite )
     {
 	if ( dataidx<0 ) dataidx = 0;
-	fnm = getAuxDataFileName( *ioobj, auxDataName(dataidx) );
+	fnm = getFileName( *ioobj, auxDataName(dataidx) );
 	if ( !fnm.isEmpty() )
 	    return new dgbSurfDataWriter(horizon_,dataidx,0,binary,fnm.buf());
     }
@@ -280,8 +280,8 @@ void SurfaceAuxData::removeSection( const SectionID& sectionid )
 }
 
 
-BufferString SurfaceAuxData::getAuxDataFileName( const IOObj& ioobj,
-						const char* attrnm )
+BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
+					  const char* attrnm )
 {
     mDynamicCastGet(const IOStream*,iostrm,&ioobj)
     if ( !iostrm ) return "";
@@ -305,7 +305,28 @@ BufferString SurfaceAuxData::getAuxDataFileName( const IOObj& ioobj,
 
     return filenm;
 }
+
+
+bool SurfaceAuxData::removeFile( const IOObj& ioobj, const char* attrnm )
+{
+    const BufferString fnm = getFileName( ioobj, attrnm );
+    return !fnm.isEmpty() ? File_remove( fnm, mFile_NotRecursive ) : false;
+}
  
+
+BufferString SurfaceAuxData::getFileName( const char* attrnm ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
+    return ioobj ? SurfaceAuxData::getFileName( *ioobj, attrnm ) : "";
+}
+
+
+bool SurfaceAuxData::removeFile( const char* attrnm ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
+    return ioobj ? SurfaceAuxData::removeFile( *ioobj, attrnm ) : false;
+}
+
 
 Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 {

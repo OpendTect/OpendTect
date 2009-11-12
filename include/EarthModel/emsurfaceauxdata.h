@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.12 2009-08-28 18:45:20 cvskris Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.13 2009-11-12 05:17:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -72,7 +72,11 @@ public:
     bool		isChanged(int) const;
     void		resetChangedFlag();
 
-    static BufferString	getAuxDataFileName(const IOObj&,const char* attrnm);
+    static BufferString	getFileName(const IOObj&,const char* attrnm);
+    static bool		removeFile(const IOObj&,const char* attrnm);
+    BufferString	getFileName(const char* attrnm) const;
+    bool		removeFile(const char* attrnm) const;
+
 
     Array2D<float>*	createArray2D(int dataid,SectionID) const;
     void		setArray2D(int dataid,SectionID,const Array2D<float>&);
