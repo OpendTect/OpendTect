@@ -160,7 +160,7 @@ void ODGoogle::XMLWriter::writeLine( const char* iconnm,
     if ( !isOK() ) return; mDeclStNm;
 
     strm() << "\n\t<Placemark>\n"
-	      "\t\t<name>" << nm << "</name>\n"
+	      "\t\t<name>" << nm << " [line]</name>\n"
 	      "\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
 	      "\t\t<LineString>\n"
 	      "\t\t\t<tessellate>1</tessellate>\n"
