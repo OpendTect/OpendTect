@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.17 2009-11-05 19:49:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.18 2009-11-12 21:34:40 cvsyuancheng Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.17 2009-11-05 19:49:4
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 #include "uihorizonshiftdlg.h"
+#include "uihorsavefieldgrp.h"
 #include "uiimphorizon2d.h"
 #include "uiimpfaultstickset2d.h"
 #include "uiseiseventsnapper.h"
@@ -60,13 +61,20 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 }
 
 
-bool uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid )
+bool uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, MultiID& mid,
+       					bool& displaynew )
 {
     IOObj* ioobj = IOM().get( EM::EMM().getMultiID(emid) );
     uiSeisEventSnapper dlg( parent(), ioobj );
     dlg.go();
     delete ioobj;
-    return dlg.overwriteHorizon();
+
+    displaynew = dlg.saveFldGrp()->displayNewHorizon() &&
+		 dlg.saveFldGrp()->getNewHorizon();
+    if ( displaynew )
+	mid = dlg.saveFldGrp()->getNewHorizon()->multiID(); 
+
+    return dlg.saveFldGrp()->overwriteHorizon();
 }
 
 

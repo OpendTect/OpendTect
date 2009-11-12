@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.47 2009-11-05 19:49:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.48 2009-11-12 21:34:40 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -391,17 +391,14 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==snapeventmnuitem_.id )
     {
-	const bool isoverwrite = emattrserv->snapHorizon( emid_ );
-	if ( isoverwrite )
+	MultiID newmid;
+	bool createnew = false;
+	if ( emattrserv->snapHorizon(emid_,newmid,createnew) ) //Overwrite
 	{
 	    mUpdateTexture();
 	}
-	else
-	{
-    	    visserv_->setObjectName( displayid_,
-		    (const char*)emserv->getName(emid_) ); 	
-	    updateColumnText( uiODSceneMgr::cNameColumn() );
-	}
+	else if ( createnew )
+	    emserv->displayHorizon( newmid );
     }
     else if ( mnuid==positionmnuitem_.id )
     {
