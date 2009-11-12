@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.31 2009-11-12 12:22:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.32 2009-11-12 12:34:36 cvssatyaki Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -333,7 +333,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	this, *dps, uiDataPointSet::Setup("Well attribute data",false,true) );
     uidps_->setGroupType( "well" );
     uidps_->setGroupNames( wellnms );
-    uidps_->selPtsTobShown.notify(
+    uidps_->selPtsToBeShown.notify(
 	    mCB(this,uiWellAttribCrossPlot,showSelPts) );
     uidps_->selPtsToBeRemoved.notify(
 	    mCB(this,uiWellAttribCrossPlot,removeSelPts) );

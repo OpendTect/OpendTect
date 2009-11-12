@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.72 2009-11-12 12:22:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.73 2009-11-12 12:34:36 cvssatyaki Exp $";
 
 #include "uinlapartserv.h"
 
@@ -488,7 +488,7 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 bool uiNLAPartServer::doDPSDlg()
 {
     uiDataPointSet::Setup su( "Input data", true, true );
-    su.isconst(false).allowretrieve(false).asksave(false);
+    su.isconst(false).allowretrieve(false).canaddrow(false);
     uidps_ = new uiDataPointSet( appserv().parent(), dps(), su );
     uidps_->setCtrlStyle( uiDialog::DoAndStay );
     uidps_->storePars() = storepars_;
@@ -498,7 +498,7 @@ bool uiNLAPartServer::doDPSDlg()
     bss.add( NLACreationDesc::DataTypeNames()[1] );
     uidps_->setGroupNames( bss );
     uidps_->setGroupType( "Data Set" );
-    uidps_->selPtsTobShown.notify( mCB(this,uiNLAPartServer,showSelPts) );
+    uidps_->selPtsToBeShown.notify( mCB(this,uiNLAPartServer,showSelPts) );
     uidps_->selPtsToBeRemoved.notify( mCB(this,uiNLAPartServer,removeSelPts) );
     uidps_->setDeleteOnClose( true );
     return uidps_->go();
