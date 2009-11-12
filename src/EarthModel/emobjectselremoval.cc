@@ -5,7 +5,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		May 2008
- RCS:		$Id: emobjectselremoval.cc,v 1.8 2009-11-06 10:54:21 cvsumesh Exp $
+ RCS:		$Id: emobjectselremoval.cc,v 1.9 2009-11-12 11:56:11 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,8 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
 	starts_ += start;
 	stops_ += RowCol( stop.r(), start.c()+collength/2 );
 
+	lock_.signal( starts_.size()>1 );
+
 	lock_.unLock();
 
 	processBlock( RowCol(start.r(),start.c()+1+collength/2), stop );
@@ -146,6 +148,8 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
 
 	starts_ += start;
 	stops_ += RowCol( start.r()+rowlength/2, stop.c() );
+
+	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
@@ -163,6 +167,8 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
 
 	starts_ += RowCol( start.r()+rowlength/2+1, start.c() );
 	stops_ += RowCol( stop.r(), start.c()+collength/2 );
+
+	lock_.signal( starts_.size()>1 );
 
 	lock_.unLock();
 
