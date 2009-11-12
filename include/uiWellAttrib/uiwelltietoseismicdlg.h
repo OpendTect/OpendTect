@@ -133,6 +133,7 @@ public:
 
     void 			drawData();
     bool 			getMarkerDepths(Interval<float>& zrg );
+    void 			propChanged(CallBacker*);
 
 protected:
    
@@ -151,7 +152,6 @@ protected:
     WellTie::DataPlayer*   	dataplayer_;
     
     void 			applyMarkerPushed(CallBacker*);
-    void 			propChanged(CallBacker*);
     void 			wvltChanged(CallBacker*);
 };
 

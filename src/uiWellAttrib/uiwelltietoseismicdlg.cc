@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.62 2009-11-10 09:24:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.63 2009-11-12 15:58:09 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -111,7 +111,7 @@ uiTieWin::~uiTieWin()
     delete dataplayer_;
     delete dataholder_;
 
-    delete  Well::MGR().release( setup_.wellid_ );
+    //delete  Well::MGR().release( setup_.wellid_ );
 }
 
 
@@ -164,9 +164,8 @@ bool uiTieWin::doWork( CallBacker* cb )
 
 void uiTieWin::drawData()
 {
-    const bool viewall = controlview_->isZoomAtStart();
     datadrawer_->fullRedraw();
-    controlview_->setSelView( false, viewall );
+    controlview_->setSelView( false, false );
     infodlg_->drawData();
 }
 
@@ -391,6 +390,7 @@ void uiTieWin::applyPushed( CallBacker* cb )
     stretcher_->doWork( cb );
     doWork( cb );
     clearPicks( cb );
+    infodlg_->propChanged(0);
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
 }
@@ -428,6 +428,7 @@ bool uiTieWin::undoPushed( CallBacker* cb )
     	mErrRet( "Cannot go back to previous model" );
     clearPicks( cb );
     doWork( cb );
+    infodlg_->propChanged(0);
     
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );

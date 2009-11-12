@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.23 2009-11-11 15:56:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.24 2009-11-12 15:58:09 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -73,6 +73,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	typefld_ = new uiGenInput( this, "Seismic", StringListInpSpec( seistypes ) );
 	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,selChg) );
 	typefld_->attach( alignedBelow, wellfld_ );
+	typefld_->setValue( 1 );
     }
 
     if ( has2d )
