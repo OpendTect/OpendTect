@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          Nov 2009
- RCS:           $Id: uihorsavefieldgrp.h,v 1.2 2009-11-05 19:49:48 cvsyuancheng Exp $
+ RCS:           $Id: uihorsavefieldgrp.h,v 1.3 2009-11-12 20:02:52 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 namespace EM { class Horizon3D; }
 
 class MultiID;
+class uiCheckBox;
 class uiGenInput;
 class uiIOObjSel;
 
@@ -47,7 +48,7 @@ public:
 protected:
 
     uiGenInput*			savefld_;
-    uiGenInput*			addnewfld_;
+    uiCheckBox*			addnewfld_;
     uiIOObjSel*			outputfld_;
 
     EM::Horizon3D*		horizon_;

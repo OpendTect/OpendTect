@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.2 2009-11-05 19:49:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.3 2009-11-12 20:02:52 cvsyuancheng Exp $";
 
 #include "uihorsavefieldgrp.h"
 
@@ -16,12 +16,14 @@ static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.2 2009-11-05 19:49:48 
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "filegen.h"
 #include "survinfo.h"
 
-#include "uitaskrunner.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
 
 
 
@@ -39,14 +41,13 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon3D* hor )
     savefld_ = new uiGenInput( this, "Save horizon",
 	    		       BoolInpSpec(false,"As new","Overwrite") );
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
-    
-    addnewfld_ = new uiGenInput( this, "Display in the scene",
-	    			 BoolInpSpec(false) );
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
     outputfld_->attach( alignedBelow, savefld_ );
+    
+    addnewfld_ = new uiCheckBox( this, "Display after create"  );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
     setHAlignObj( savefld_ );    
@@ -73,7 +74,7 @@ void uiHorSaveFieldGrp::saveCB( CallBacker* )
 
 
 bool uiHorSaveFieldGrp::displayNewHorizon() const
-{ return savefld_->getBoolValue() && addnewfld_->getBoolValue(); }
+{ return savefld_->getBoolValue() && addnewfld_->isChecked(); }
 
 
 bool uiHorSaveFieldGrp::overwriteHorizon() const
@@ -165,48 +166,36 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 	expandToFullSurveyArray();
 
     if ( newhorizon_ )
+    {
 	newhorizon_->unRef();
+	newhorizon_ = 0;
+    }
 
     EM::EMManager& em = EM::EMM();
-    const BufferString typ = EM::Horizon3D::typeStr();
-    EM::ObjectID objid = em.createObject( typ, outputfld_->getInput() );
+    EM::ObjectID objid = 
+	em.createObject( EM::Horizon3D::typeStr(), outputfld_->getInput() );
     
     mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
     
-    horizon->initClass();
-    if ( newhorizon_ ) newhorizon_->unRef();
     newhorizon_ = horizon;      
     newhorizon_->ref();
+    newhorizon_->setMultiID( horizon_->multiID() );
+
+    EM::SurfaceIOData sd;
+    em.getSurfaceData( horizon_->multiID(), sd );
+    EM::SurfaceIODataSelection sdsel( sd );
+
+    uiTaskRunner tr( this );
+    PtrMan<Executor> loader = newhorizon_->geometry().loader( &sdsel );
+    if ( !loader || !tr.execute(*loader) ) 
+	mErrRet( "New horizon data loading failed" );
+
     newhorizon_->setMultiID( outputfld_->ioobj()->key() );
+    File_copy( horizon_->name(), newhorizon_->name(), mFile_NotRecursive );
 
-    for ( int idx=0; idx<newhorizon_->geometry().nrSections(); idx++ )
-    {
-	const EM::SectionID sid = newhorizon_->geometry().sectionID( idx );
-	newhorizon_->geometry().removeSection( sid, false );
-    }
-    
-    const RowCol step = horizon_->geometry().step();
-    newhorizon_->geometry().setStep( step, step );
-
-    for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
-    {
-	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
-	const Geometry::BinIDSurface* surf =
-	    horizon_->geometry().sectionGeometry(sid);
-        
-	EM::SectionID usedsid = sid;
-        BufferString sectnm = horizon_->sectionName( sid );
-        usedsid = newhorizon_->geometry().addSection( sectnm, false );
-
-        const RowCol start = surf->getKnotRowCol(0);
-        const RowCol stop = surf->getKnotRowCol( surf->nrKnots()-1 );
-        newhorizon_->geometry().sectionGeometry(usedsid)->
-                expandWithUdf( start, stop );
-    }
- 
-    return true;    
+    return true;
 }
 
 
