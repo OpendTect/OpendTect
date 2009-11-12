@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.37 2009-09-18 11:35:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.38 2009-11-12 09:12:35 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -427,7 +427,7 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 	int index = int(idx*step+.5);
 	float logval = log[index];
 	if ( lognr == 1 )   logval = maxval.getValue() - logval;
-	if ( logval < 0 )   logval = 0;
+	if ( logval < 0 )   logval = prevval;
 	if ( logval > 100 ) logval = prevval;
 	
 	SbVec3f shiftcrd;
