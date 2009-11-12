@@ -28,47 +28,30 @@ static const char* rcsID = "$Id";
 
 static const char* sIconFileName = "markerdot";
 
-static const char* getDlgTitle( uiSeis2DFileMan& sfm )
-{
-    static BufferString ret; ret = "Export to KML: ";
-
-    const uiListBox& lb( *sfm.getListBox(false) );
-    const int nrsel = lb.nrSelected();
-    if ( nrsel == 0 || (nrsel > 1 && nrsel == lb.size()) )
-	{ ret += "entire '"; ret += sfm.lineset_->name(); ret += "'"; }
-    else
-    {
-	int nrdone = 0;
-	for ( int idx=0; idx<lb.size(); idx++ )
-	{
-	    if ( lb.isSelected(idx) )
-	    {
-		if ( nrdone > 2 )
-		    { ret += ", ..."; break; }
-		if ( nrdone > 0 )
-		    ret += ", ";
-		ret += lb.textOfItem(idx);
-		nrdone++;
-	    }
-	}
-    }
-
-    return ret.buf();
-}
-
 
 uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     : uiDialog(p,uiDialog::Setup("Export selected 2D seismics to KML",
-				 getDlgTitle(*p),"0.3.10") )
+				 "Specify how to export","0.3.10") )
     , s2dfm_(p)
+    , putallfld_(0)
+    , allsel_(false)
 {
+    getInitialSelectedLineNames();
+    const int nrsel = sellnms_.size();
+
+    if ( !allsel_ )
+	putallfld_ = new uiGenInput( this, "Export", BoolInpSpec(true,"All",
+		    nrsel > 1 ? "Selected lines":"Selected line") );
+
     static const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
     putlnmfld_ = new uiGenInput( this, "Put line names",
 	    			 StringListInpSpec(choices) );
-    putlnmfld_->setValue( 2 );
+    putlnmfld_->setValue( 1 );
+    if ( putallfld_ )
+	putlnmfld_->attach( alignedBelow, putallfld_ );
 
-    LineStyle ls( LineStyle::Solid, 10, Color(0,0,255) );
+    LineStyle ls( LineStyle::Solid, 20, Color(0,0,255) );
     lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
     lsfld_->attach( alignedBelow, putlnmfld_ );
 
@@ -84,6 +67,35 @@ uiGoogleExport2DSeis::~uiGoogleExport2DSeis()
 }
 
 
+void uiGoogleExport2DSeis::getFinalSelectedLineNames()
+{
+    if ( !allsel_ )
+	allsel_ = putallfld_ ? putallfld_->getBoolValue() : false;
+    if ( !allsel_ )
+	return;
+
+    const uiListBox& lb( *s2dfm_->getListBox(false) );
+    sellnms_.erase();
+    for ( int idx=0; idx<lb.size(); idx++ )
+	sellnms_.add( lb.textOfItem(idx) );
+}
+
+
+void uiGoogleExport2DSeis::getInitialSelectedLineNames()
+{
+    const uiListBox& lb( *s2dfm_->getListBox(false) );
+    sellnms_.erase();
+    const int nrsel = lb.nrSelected();
+    allsel_ = nrsel == 0;
+    for ( int idx=0; idx<lb.size(); idx++ )
+    {
+	if ( allsel_ || lb.isSelected(idx) )
+	    sellnms_.add( lb.textOfItem(idx) );
+    }
+    allsel_ = sellnms_.size() == lb.size();
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
@@ -92,17 +104,7 @@ bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
     if ( fnm.isEmpty() )
 	mErrRet("Please enter a file name" )
 
-    const uiListBox& lb( *s2dfm_->getListBox(false) );
-    BufferStringSet sellnms;
-    const int nrsel = lb.nrSelected();
-    const bool selall = nrsel == 0 || nrsel == lb.size();
-    for ( int idx=0; idx<lb.size(); idx++ )
-    {
-	if ( selall || lb.isSelected(idx) )
-	    sellnms.add( lb.textOfItem(idx) );
-    }
-
-    ODGoogle::XMLWriter wrr( "2D Lines", fnm, SI().name() );
+    ODGoogle::XMLWriter wrr( s2dfm_->lineset_->name(), fnm, SI().name() );
     if ( !wrr.isOK() )
 	mErrRet(wrr.errMsg())
 
@@ -113,15 +115,16 @@ bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
     ins += "</width>\n\t\t</LineStyle>";
     wrr.writeIconStyles( 0, 0, ins );
 
+    getFinalSelectedLineNames();
     const uiSeisIOObjInfo& oinf( *s2dfm_->objinfo_ );
-    for ( int idx=0; idx<sellnms.size(); idx++ )
+    for ( int idx=0; idx<sellnms_.size(); idx++ )
     {
 	BufferStringSet attrnms;
-	oinf.getAttribNamesForLine( sellnms.get(idx), attrnms );
+	oinf.getAttribNamesForLine( sellnms_.get(idx), attrnms );
 	if ( attrnms.isEmpty() ) continue;
 	int iattr = attrnms.indexOf( LineKey::sKeyDefAttrib() );
 	if ( iattr < 0 ) iattr = 0;
-	addLine( wrr, sellnms.get(idx), iattr );
+	addLine( wrr, sellnms_.get(idx), iattr );
     }
 
     wrr.close();
