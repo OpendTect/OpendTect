@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.15 2009-10-06 09:21:34 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.16 2009-11-12 15:56:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
 				TypeSet<float>&,bool);
 
 //logs operations
+    float                computeAvg(const TypeSet<float>&) const;
     void                computeAI(const Array1DImpl<float>&,
 				 const Array1DImpl<float>&,Array1DImpl<float>&);
     void                computeReflectivity(const Array1DImpl<float>&,

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.41 2009-11-12 10:17:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.42 2009-11-12 15:56:59 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -166,11 +166,16 @@ void GeoCalculator::interpolateLogData( TypeSet<float>& data,
     for ( int idx=startidx; idx<lastidx; idx++)
     {
 	//no negative values in dens or vel log assumed
-	if ( idx && !isdah && ( mIsUdf(data[idx]) || data[idx]<0 ) )
-	    data[idx] = data[idx-1];
+	if ( !isdah && ( mIsUdf(data[idx]) || data[idx]<0 ) )
+	{
+	    if ( idx ) 
+		data[idx] = data[idx-1];
+	    else
+		data[idx] = computeAvg( data );
+	}
 	if ( idx && isdah && (mIsUdf(data[idx]) || data[idx]<data[idx-1]
 	     || data[idx] >= data[lastidx])  )
-	    data[idx] = data[idx-1] + dahstep;
+		data[idx] = data[idx-1] + dahstep;
     }
     for ( int idx=0; idx<startidx; idx++ )
 	data[idx] = data[startidx];
@@ -179,9 +184,18 @@ void GeoCalculator::interpolateLogData( TypeSet<float>& data,
 }
 
 
+float GeoCalculator::computeAvg( const TypeSet<float>& logdata ) const
+{
+    float avg = 0;
+    for ( int idx=0; idx<logdata.size(); idx++ ) 
+	avg += logdata[idx]; 
+    return avg/logdata.size();
+}
+
+
 void GeoCalculator::removeSpikes( TypeSet<float>& logdata )
 {
-    const int winsize = 6;
+    const int winsize = 10;
     if ( logdata.size() < 2*winsize ) 
 	return;
     float prevval = logdata[0];
@@ -192,8 +206,8 @@ void GeoCalculator::removeSpikes( TypeSet<float>& logdata )
 	    avg += logdata[winidx]/winsize; 
 	for ( int winidx = idx-winsize/2; winidx<idx+winsize/2; winidx++ )
 	{
-	    if ( logdata[winidx] > 5*avg )
-		logdata[winidx] = prevval;
+	    if ( logdata[winidx] > 3*avg )
+		logdata[winidx] = idx ? prevval : computeAvg( logdata );
 	    prevval = logdata[winidx];
 	}
     }
@@ -241,16 +255,8 @@ void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
     
     float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
 
-    const int bordersz = (int)(SI().zStep()*1000*50/df);
-
     FFTFilter filter;
     Array1DImpl<float> orgvals ( vals );
-    ArrayNDWindow window( Array1DInfoImpl(bordersz), false, "CosTaper", .05 );
-    Array1DImpl<float> border( bordersz/2 );
-    for ( int idx=0; idx<bordersz/2; idx++ )
-	border.set( bordersz/2-idx-1, 1-window.getValues()[idx] );
-    filter.setLowFreqBorderWindow( border.getData(), bordersz/2 );
-
     filter.FFTFreqFilter( df, cutf, true, orgvals, vals );
     for ( int idx=0; idx<(int)(filtersz/20); idx++ )
 	vals.set( idx, orgvals.get(idx) );
