@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne/Bert
  Date:          April 2002/Nov 2009
- RCS:           $Id: uiseis2dfileman.h,v 1.2 2009-11-11 15:27:51 cvsbert Exp $
+ RCS:           $Id: uiseis2dfileman.h,v 1.3 2009-11-12 04:51:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class Seis2DLineSet;
 class uiSeisIOObjInfo;
 
 
-class uiSeis2DFileMan : public uiDialog
+mClass uiSeis2DFileMan : public uiDialog
 {
 public:
 
