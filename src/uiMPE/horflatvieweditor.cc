@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.11 2009-10-29 08:49:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.12 2009-11-12 11:57:30 cvsumesh Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -288,94 +288,14 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 	MPE::engine().activevolumechange.trigger();
     }
 
-    // get EM::PosID
-    EM::PosID pid;
-    bool posidavlble = false;
-    if ( is2d_ )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( lsetid_ );
-	if ( ioobj )
-	{
-	    const Seis2DLineSet lset(ioobj->fullUserExpr(true));
-	    PosInfo::LineSet2DData linesetgeom;
-	    if ( lset.getGeometry(linesetgeom) )
-	    {
-		PosInfo::Line2DPos fltpos;
-		linesetgeom.getLineData( linenm_ )->getPos( clickedcrd, fltpos,
-							   mDefEps );
-		mDynamicCastGet(EM::Horizon2D*,hor2d,emobj);
-
-		if ( hor2d )
-		{
-		    BinID bid;
-		    bid.inl = hor2d->geometry().lineIndex( linenm_ );
-		    bid.crl = fltpos.nr_;
-		    for ( int idx=0; idx<emobj->nrSections(); idx++ )
-			if ( emobj->isDefined(emobj->sectionID(idx),
-				    	      bid.getSerialized()) )
-			{
-			    posidavlble = true;
-			    pid.setObjectID( emobj->id() );
-			    pid.setSectionID( emobj->sectionID(idx) );
-			    pid.setSubID( bid.getSerialized() );
-			}
-		}
-	    }
-	}
-    }
-    else
-    {
-	BinID bid = SI().transform( clickedcrd );
-	for ( int idx=0; idx<emobj->nrSections(); idx++ )
-	    if ( emobj->isDefined(emobj->sectionID(idx), bid.getSerialized()) )
-	    {
-		posidavlble = true;
-		pid.setObjectID( emobj->id() );
-		pid.setSectionID( emobj->sectionID(idx) );
-		pid.setSubID( bid.getSerialized() );
-	    }
-    }
-
     const int prevevent = EM::EMM().undo().currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
     emobj->setBurstAlert( true );
 
     const int trackerid = MPE::engine().getTrackerByObject( emobj->id() );
-
-    const bool ctrlshiftclicked =  mouseevent.ctrlStatus() && 
-				   mouseevent.shiftStatus();
-    if ( posidavlble )
-    {
-	if ( ctrlshiftclicked )
-	{
-	    if ( seedpicker->removeSeed( pid, false, false ) )
-		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,							false );
-	}
-	else if ( mouseevent.ctrlStatus() )
-	{
-	    if ( seedpicker->removeSeed( pid, true, true ) )
-	       MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
-		       				       false );	    
-	}
-	else if ( mouseevent.shiftStatus() )
-	{
-	    if ( seedpicker->removeSeed( pid, true, false ) )
-		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,							false );
-	}
-	else
-	{
-	    if ( seedpicker->addSeed( clickedcrd, false ) )
-		MPE::engine().updateFlatCubesContainer( newactivevol, trackerid,
-							true );
-	}
-    }
-    else
-    {
-	if ( seedpicker->addSeed(clickedcrd,ctrlshiftclicked) )
-	    MPE::engine().updateFlatCubesContainer( newactivevol, trackerid, 
-		    				    true );
-    }
-
+    
+    bool action = doTheSeed( *emobj, *seedpicker, clickedcrd, mouseevent );
+    engine().updateFlatCubesContainer( newactivevol, trackerid, action );
     emobj->setBurstAlert( false );
     MouseCursorManager::restoreOverride();
     const int currentevent = EM::EMM().undo().currentEventID();
@@ -383,6 +303,84 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 	EM::EMM().undo().setUserInteractionEnd(currentevent);
 
     restoreactivevolinuimpeman.trigger();
+}
+
+
+bool HorizonFlatViewEditor::doTheSeed( EM::EMObject& emobj, EMSeedPicker& spk, 
+				       const Coord3& crd, 
+				       const MouseEvent& mev ) const
+{
+    EM::PosID pid;
+    bool posidavlble = getPosID( emobj, crd, pid );
+
+    const bool ctrlshiftclicked =  mev.ctrlStatus() && mev.shiftStatus();
+    bool addseed = !posidavlble || ( posidavlble && !mev.ctrlStatus() &&
+	    			     !mev.shiftStatus() );
+
+    if ( addseed )
+    {
+	if ( spk.addSeed(crd,posidavlble ? false : ctrlshiftclicked) )
+		return true;
+    }
+    else
+    {
+	bool env = false;
+	bool retrack = false;
+
+	if ( mev.ctrlStatus() )
+	{
+	    env = true;
+	    retrack = true;
+	}
+	else if ( mev.shiftStatus() )
+	    env = true;
+
+	if ( spk.removeSeed(pid,env,retrack) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool HorizonFlatViewEditor::getPosID( const EM::EMObject& emobj,
+				      const Coord3& crd, EM::PosID& pid ) const
+{
+    BinID bid;
+    if ( !is2d_ )
+	bid = SI().transform( crd );
+    else
+    {
+	PtrMan<IOObj> ioobj = IOM().get( lsetid_ );
+	if ( !ioobj ) return false;
+
+	const Seis2DLineSet lset( ioobj->fullUserExpr(true) );
+	PosInfo::LineSet2DData linesetgeom;
+	if ( !lset.getGeometry(linesetgeom) )
+	    return false;
+
+	PosInfo::Line2DPos pos;
+	linesetgeom.getLineData( linenm_ )->getPos( crd, pos, mDefEps );
+	mDynamicCastGet(const EM::Horizon2D*,hor2d,&emobj);
+
+	if ( !hor2d ) return false;
+	
+	bid.inl = hor2d->geometry().lineIndex( linenm_ );
+	bid.crl = pos.nr_;
+    }
+
+    for ( int idx=0; idx<emobj.nrSections(); idx++ )
+    {
+	if ( emobj.isDefined(emobj.sectionID(idx),bid.getSerialized()) )
+	{
+	    pid.setObjectID( emobj.id() );
+	    pid.setSectionID( emobj.sectionID(idx) );
+	    pid.setSubID( bid.getSerialized() );
+	    return true;
+	}
+    }
+
+    return false;
 }
 
 
