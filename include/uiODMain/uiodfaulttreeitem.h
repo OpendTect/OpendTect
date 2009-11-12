@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.12 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.13 2009-11-12 05:19:48 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -37,9 +37,11 @@ public:
 mClass uiODFaultTreeItem : public uiODDisplayTreeItem
 {
 public:
-    			uiODFaultTreeItem( int, bool dummy );
-    			uiODFaultTreeItem( const EM::ObjectID& emid );
+    			uiODFaultTreeItem(int,bool dummy);
+    			uiODFaultTreeItem(const EM::ObjectID&);
     			~uiODFaultTreeItem();
+
+    EM::ObjectID	emObjectID() const	{ return emid_; }
 
 protected:
     bool		askContinueAndSaveIfNeeded();
@@ -84,6 +86,8 @@ public:
     			uiODFaultStickSetTreeItem(int,bool dummy);
     			uiODFaultStickSetTreeItem(const EM::ObjectID&);
     			~uiODFaultStickSetTreeItem();
+
+    EM::ObjectID	emObjectID() const	{ return emid_; }
 
 protected:
     bool		askContinueAndSaveIfNeeded();
