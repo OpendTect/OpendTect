@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.40 2009-10-16 16:30:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.41 2009-11-12 10:17:05 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -237,18 +237,24 @@ bool GeoCalculator::isValidLogData( const TypeSet<float>& logdata )
 void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 {
     const int filtersz = vals.info().getSize(0);
-    const int bordersz = (int)(SI().zStep()*1000*25);
-    if ( filtersz<100 )
-	return;
+    if ( filtersz<100 ) return;
+    
+    float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
+
+    const int bordersz = (int)(SI().zStep()*1000*50/df);
 
     FFTFilter filter;
     Array1DImpl<float> orgvals ( vals );
     ArrayNDWindow window( Array1DInfoImpl(bordersz), false, "CosTaper", .05 );
-    filter.setLowFreqBorderWindow( window.getValues(), bordersz );
-    float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
+    Array1DImpl<float> border( bordersz/2 );
+    for ( int idx=0; idx<bordersz/2; idx++ )
+	border.set( bordersz/2-idx-1, 1-window.getValues()[idx] );
+    filter.setLowFreqBorderWindow( border.getData(), bordersz/2 );
 
     filter.FFTFreqFilter( df, cutf, true, orgvals, vals );
-    for ( int idx=0; idx<(int)(filtersz/10); idx++ )
+    for ( int idx=0; idx<(int)(filtersz/20); idx++ )
+	vals.set( idx, orgvals.get(idx) );
+    for ( int idx=filtersz-1; idx>filtersz-(int)(filtersz/20); idx-- )
 	vals.set( idx, orgvals.get(idx) );
 }
 
