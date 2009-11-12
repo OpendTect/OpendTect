@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.22 2009-11-11 16:03:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.23 2009-11-12 08:06:49 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -115,12 +115,8 @@ void SeismicExtractor::collectTracesAroundPath()
     Interval<int> inlrg( bidset_[0].inl, bidset_[0].inl );
     Interval<int> crlrg( bidset_[0].crl, bidset_[0].crl );
 
-    Seis::RangeSelData* sd = new Seis::RangeSelData();
     if ( rdr_->is2D() )
-    {
 	crlrg.set( 0, SI().crlRange(true).stop ); 
-	sd->lineKey() = *linekey_;
-    }
     else
     {
 	for ( int idx=0; idx<bidset_.size(); idx++ )
@@ -137,7 +133,8 @@ void SeismicExtractor::collectTracesAroundPath()
     cs_->hrg.setCrlRange( crlrg );
     cs_->hrg.setInlRange( inlrg );
     cs_->zrg = timeintv_;
-    sd->cubeSampling() = cs_;
+    Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
+    sd->lineKey() = *linekey_;
 
     rdr_->forceFloatData( true );
     rdr_->setSelData( sd );
