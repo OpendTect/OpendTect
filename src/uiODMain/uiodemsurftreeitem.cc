@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.66 2009-10-20 15:56:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.67 2009-11-12 10:54:44 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -291,16 +291,10 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
 	    return;
 
-	BufferStringSet attrnms;
 	TypeSet<float> shifts;
-	TypeSet<DataPointSet::DataRow> pts;
-	DataPointSet vals( pts, attrnms, false, true );
+	DataPointSet vals( false, true );
 	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
-	FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
-	visserv->setSelSpec( visid, attribnr,
-		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
-	visserv->createAndDispDataPack( visid, attribnr, &vals );
-	visserv->selectTexture( visid, attribnr, 0 );
+	setDataPointSet( vals );
 
 	mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
 			visserv->getObject(visid) );
@@ -338,6 +332,21 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->setRandomPosData( visid, attribnr, &vals );
 	changed_ = true;
     }
+}
+
+
+void uiODEarthModelSurfaceDataTreeItem::setDataPointSet(
+						const DataPointSet& vals )
+{
+    const int visid = displayID();
+    const int attribnr = attribNr();
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
+    visserv->setSelSpec( visid, attribnr,
+	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+    visserv->createAndDispDataPack( visid, attribnr, &vals );
+    visserv->selectTexture( visid, attribnr, 0 );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
 

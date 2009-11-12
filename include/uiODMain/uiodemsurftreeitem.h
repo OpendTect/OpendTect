@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.11 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.12 2009-11-12 10:54:44 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "emposid.h"
+
+class DataPointSet;
 class uiVisEMObject;
 class uiODDataTreeItem;
 
@@ -25,6 +27,7 @@ mClass uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
 public:
 
     uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
+    EM::ObjectID	emObjectID() const	{ return emid_; }
 
 protected:
     			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
@@ -65,8 +68,11 @@ protected:
 mClass uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
 {
 public:
-    			uiODEarthModelSurfaceDataTreeItem( EM::ObjectID,
-				       uiVisEMObject*, const char* parenttype );
+    			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
+				       uiVisEMObject*,const char* parenttype);
+
+    void		setDataPointSet(const DataPointSet&);
+
 protected:
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
