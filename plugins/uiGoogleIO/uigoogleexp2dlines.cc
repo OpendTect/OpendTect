@@ -28,10 +28,38 @@ static const char* rcsID = "$Id";
 
 static const char* sIconFileName = "markerdot";
 
+static const char* getDlgTitle( uiSeis2DFileMan& sfm )
+{
+    static BufferString ret; ret = "Export to KML: ";
+
+    const uiListBox& lb( *sfm.getListBox(false) );
+    const int nrsel = lb.nrSelected();
+    if ( nrsel == 0 || (nrsel > 1 && nrsel == lb.size()) )
+	{ ret += "entire '"; ret += sfm.lineset_->name(); ret += "'"; }
+    else
+    {
+	int nrdone = 0;
+	for ( int idx=0; idx<lb.size(); idx++ )
+	{
+	    if ( lb.isSelected(idx) )
+	    {
+		if ( nrdone > 2 )
+		    { ret += ", ..."; break; }
+		if ( nrdone > 0 )
+		    ret += ", ";
+		ret += lb.textOfItem(idx);
+		nrdone++;
+	    }
+	}
+    }
+
+    return ret.buf();
+}
+
 
 uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     : uiDialog(p,uiDialog::Setup("Export selected 2D seismics to KML",
-				 "Specify properties","0.3.10") )
+				 getDlgTitle(*p),"0.3.10") )
     , s2dfm_(p)
 {
     static const char* choices[]
