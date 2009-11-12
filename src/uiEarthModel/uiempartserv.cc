@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.195 2009-11-05 19:49:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.196 2009-11-12 11:24:32 cvsnanne Exp $";
 
 #include "uiempartserv.h"
 
@@ -716,20 +716,25 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 
 
 bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
-				 DataPointSet& auxdata, float& shift ) const
+				 DataPointSet& data, float& shift ) const
 {
     mDynamicCastAll(oid);
-    if ( !hor3d || !hor3d->auxdata.auxDataName(auxdatanr) )
+    const char* nm = hor3d->auxdata.auxDataName( auxdatanr );
+    if ( !hor3d || !nm )
 	return false;
 
-    auxdata.setName( hor3d->auxdata.auxDataName( auxdatanr ) );
-    auxdata.bivSet().setNrVals( 2 );
     shift = hor3d->auxdata.auxDataShift( auxdatanr );
+    data.dataSet().add( new DataColDef(sKeySectionID()) );
+    data.dataSet().add( new DataColDef(nm) );
+
+    float auxvals[3];
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->sectionID( idx );
 	if ( !hor3d->geometry().sectionGeometry(sid) )
 	    continue;
+
+	auxvals[1] = sid;
 
 	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
@@ -739,15 +744,14 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 	    if ( pid.objectID()==-1 )
 		break;
 
+	    auxvals[0] = hor3d->getPos( pid ).z;
+	    auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdatanr, pid );
 	    bid.setSerialized( pid.subID() );
-	    DataPointSet::Pos newpos( bid, hor3d->getPos( pid ).z );
-	    DataPointSet::DataRow dtrow( newpos );
-	    dtrow.data_ += hor3d->auxdata.getAuxDataVal( auxdatanr, pid );
-	    auxdata.addRow( dtrow );
+	    data.bivSet().add( bid, auxvals );
 	}
     }
 
-    auxdata.dataChanged();
+    data.dataChanged();
     return true;
 }
 
@@ -803,7 +807,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	}
     }
     data.dataChanged();
-    
+    hor3d->auxdata.removeAll();
     return true;
 }
 
