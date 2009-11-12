@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.196 2009-11-12 11:24:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.197 2009-11-12 21:33:35 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -234,14 +234,18 @@ bool uiEMPartServer::isFullyLoaded( const EM::ObjectID& emid ) const
 }
 
 
-#define mDisplayNewHorizon \
-    if ( dlg.saveFldGrp()->displayNewHorizon() &&  \
-   	 dlg.saveFldGrp()->getNewHorizon( ) ) \
-    { \
-	const MultiID mid = dlg.saveFldGrp()->getNewHorizon()->multiID(); \
-	selemid_ = em_.getObjectID(mid); \
-	sendEvent( evDisplayHorizon() ); \
+void uiEMPartServer::displayHorizon( const MultiID& mid )
+{
+    selemid_ = em_.getObjectID(mid);
+    if ( selemid_<0 )
+    {
+	loadSurface( mid );
+	selemid_ = em_.getObjectID(mid);
     }
+
+    if ( selemid_>=0 )
+    	sendEvent( evDisplayHorizon() );
+}
 
 
 bool uiEMPartServer::fillHoles( const EM::ObjectID& emid )
@@ -250,7 +254,10 @@ bool uiEMPartServer::fillHoles( const EM::ObjectID& emid )
     uiHorizon3DInterpolDlg dlg( parent(), hor3d );
     dlg.go();
 
-    mDisplayNewHorizon;
+    if ( dlg.saveFldGrp()->displayNewHorizon() && 
+	 dlg.saveFldGrp()->getNewHorizon( ) ) 
+	displayHorizon( dlg.saveFldGrp()->getNewHorizon()->multiID() ); 
+
     return dlg.saveFldGrp()->overwriteHorizon();
 }
 
@@ -261,7 +268,10 @@ bool uiEMPartServer::filterSurface( const EM::ObjectID& emid )
     uiFilterHorizonDlg dlg( parent(), hor3d );
     dlg.go();
 
-    mDisplayNewHorizon;
+    if ( dlg.saveFldGrp()->displayNewHorizon() &&  
+   	 dlg.saveFldGrp()->getNewHorizon( ) )
+	displayHorizon( dlg.saveFldGrp()->getNewHorizon()->multiID() );
+
     return dlg.saveFldGrp()->overwriteHorizon();
 }
 
