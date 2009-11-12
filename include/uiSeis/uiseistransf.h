@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.27 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.28 2009-11-12 05:24:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
+
 class IOObj;
 class Executor;
 class uiGenInput;
@@ -39,8 +40,8 @@ public:
 			Setup( const Seis::SelSetup& sss )
 			    : Seis::SelSetup(sss)
 			    , withnullfill_(false)	{}
-			Setup( bool is2d, bool isps )
-			    : Seis::SelSetup(is2d,isps)
+			Setup( bool _is2d, bool _isps )
+			    : Seis::SelSetup(_is2d,_isps)
 			    , withnullfill_(false)	{}
 
 	mDefSetupMemb(bool,withnullfill)
