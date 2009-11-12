@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.23 2009-11-12 08:06:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.24 2009-11-12 15:57:50 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -136,7 +136,6 @@ void SeismicExtractor::collectTracesAroundPath()
     Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
     sd->lineKey() = *linekey_;
 
-    rdr_->forceFloatData( true );
     rdr_->setSelData( sd );
     rdr_->prepareWork();
 
@@ -206,6 +205,7 @@ int SeismicExtractor::nextStep()
 	    }
 	}
     }
+    if ( mIsUdf(val) ) val =0;
     vals_->set( nrdone_, val/nrtracesinradius );
     dahs_->set( nrdone_, time );
 
@@ -243,6 +243,7 @@ LogResampler::LogResampler( Well::Log* newl, const Well::Log& orgl,
 	if ( !dh->geoCalc()->isValidLogData( val_ ) ) mErrRet(errmsg);
 	dh->geoCalc()->interpolateLogData( dah_, orgl.dahStep(true), true );
 	dh->geoCalc()->interpolateLogData( val_, orgl.dahStep(true), false );
+	dh->geoCalc()->removeSpikes( val_ );
     }
 }
 
