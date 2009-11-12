@@ -51,7 +51,8 @@ static const int cMinPtsForDensity = 20000;
 
 uiDataPointSetCrossPlotter::Setup uiDataPointSetCrossPlotWin::defsetup_;
 
-uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
+uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps,
+							bool has3dconn )
     : uiMainWin(&uidps,BufferString(uidps.pointSet().name()," Cross-plot"),
 	    			    2,false)
     , uidps_(uidps)
@@ -63,7 +64,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , colortb_(*new uiToolBar(this,"DensityPlot Colorbar",uiToolBar::Top,true))
     , grpfld_(0)
     , wantnormalplot_(false)
-    , showSelPts(this)
 {
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
 
@@ -122,9 +122,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     seltb_.turnOn( setselecttbid_, true );
 
 
-    showselptswstbid_ = seltb_.addButton( "picks.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
-		  "Show selected points in workSpace", false );
+    if ( has3dconn )
+	showselptswstbid_ = seltb_.addButton( "picks.png",
+		      mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
+		      "Show selected points in workSpace", false );
+    
     seltb_.turnOn( setselecttbid_, false );
 
     selmodechgtbid_ = seltb_.addButton( "rectangleselect.png",
@@ -568,7 +570,8 @@ void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
 	plotter_.setTRMsg( "Showing selected points in workspace" );
 	plotter_.calcDensity( data, true );
     }
-    showSelPts.trigger();
+
+    uidps_.selPtsToBeShown.trigger();
 }
 
 

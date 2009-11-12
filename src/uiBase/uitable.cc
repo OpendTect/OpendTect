@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.88 2009-10-23 09:21:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.89 2009-11-12 12:22:57 cvssatyaki Exp $";
 
 
 #include "uitable.h"
@@ -916,12 +916,19 @@ void uiTable::popupMenu( CallBacker* )
     int inscolaft = 0;
     if ( setup_.colgrow_ )
     {
-	itmtxt = "Insert "; itmtxt += setup_.coldesc_; itmtxt += " before";
-	inscolbef = mnu->insertItem( new uiMenuItem(itmtxt), 0 );
-	itmtxt = "Remove "; itmtxt += setup_.coldesc_;
-	delcol = mnu->insertItem( new uiMenuItem(itmtxt), 1 );
-	itmtxt = "Insert "; itmtxt += setup_.coldesc_; itmtxt += " after";
-	inscolaft = mnu->insertItem( new uiMenuItem(itmtxt), 2 );
+	if ( setup_.insertcolallowed_ )
+	{
+	    itmtxt =  BufferString( "Insert ", setup_.coldesc_, " before" );
+	    inscolbef = mnu->insertItem( new uiMenuItem(itmtxt), 0 );
+	    itmtxt =  BufferString( "Insert ", setup_.coldesc_, " after" );
+	    inscolaft = mnu->insertItem( new uiMenuItem(itmtxt), 2 );
+	}
+
+	if ( setup_.removecolallowed_ )
+	{
+	    itmtxt = "Remove "; itmtxt += setup_.coldesc_;
+	    delcol = mnu->insertItem( new uiMenuItem(itmtxt), 1 );
+	}
     }
 
     int insrowbef = 0;
@@ -929,12 +936,19 @@ void uiTable::popupMenu( CallBacker* )
     int insrowaft = 0;
     if ( setup_.rowgrow_ )
     {
-	itmtxt = "Insert "; itmtxt += setup_.rowdesc_; itmtxt += " before";
-	insrowbef = mnu->insertItem( new uiMenuItem(itmtxt), 3 );
-	itmtxt = "Remove "; itmtxt += setup_.rowdesc_;
-	delrow = mnu->insertItem( new uiMenuItem(itmtxt), 4 );
-	itmtxt = "Insert "; itmtxt += setup_.rowdesc_; itmtxt += " after";
-	insrowaft = mnu->insertItem( new uiMenuItem(itmtxt), 5 );
+	if ( setup_.insertrowallowed_ )
+	{
+	    itmtxt = BufferString( "Insert ", setup_.rowdesc_, " before" );
+	    insrowbef = mnu->insertItem( new uiMenuItem(itmtxt), 3 );
+	    itmtxt = BufferString( "Insert ", setup_.rowdesc_, " after" );
+	    insrowaft = mnu->insertItem( new uiMenuItem(itmtxt), 5 );
+	}
+
+	if ( setup_.removerowallowed_ )
+	{
+	    itmtxt = "Remove "; itmtxt += setup_.rowdesc_;
+	    delrow = mnu->insertItem( new uiMenuItem(itmtxt), 4 );
+	}
     }
 
     int ret = mnu->exec();

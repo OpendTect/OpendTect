@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.54 2009-11-04 15:22:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.55 2009-11-12 12:22:57 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -32,6 +32,8 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.54 2009-11-04 15:22:31 cv
 
 #include "uitable.h"
 #include "uilabel.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
 #include "uiioobjsel.h"
@@ -45,9 +47,12 @@ static const int cMinPtsForDensity = 20000;
 static const char* sKeyGroups = "Groups";
 
 
-uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
+uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal, bool has3dcon )
     : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"0.4.3")
     , isconst_(false)
+    , canaddrow_(false)
+    , directremove_(true)
+    , has3dcon_(has3dcon)
     , allowretrieve_(true)
     , initialmaxnrlines_(4000)
 {
@@ -83,8 +88,11 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, unsavedchgs_(false)
     	, fillingtable_(true)
     	, valueChanged(this)
-    	, showSelectedPts(this)
-    	, removeSelectedPoints(this)
+    	, selPtsToBeShown(this)
+    	, selPtsToBeRemoved(this)
+    	, rowAdded(this)
+    	, rowToBeRemoved(this)
+    	, rowRemoved(this)
 	, xplotwin_(0)
 	, statswin_(0)
 	, iotb_(0)
@@ -108,13 +116,14 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     }
 
     tbl_ = new uiTable( this, uiTable::Setup(size(),nrcols)
-			  .rowgrow( false ).colgrow( false )
+			  .rowgrow( setup_.canaddrow_ ).removerowallowed(false)
 			  .selmode( uiTable::Multi )
 			  .manualresize( true ), "Data Table" );
     if ( titllbl )
 	tbl_->attach( ensureBelow, titllbl );
     tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
     tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowSel) );
+    tbl_->rowInserted.notify( mCB(this,uiDataPointSet,rowAddedCB) );
     tbl_->selectionChanged.notify( mCB(this,uiDataPointSet,selChg) );
     tbl_->setTableReadOnly( setup_.isconst_ );
     tbl_->setLabelAlignment( Alignment::Left, true );
@@ -123,9 +132,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
     creationCBS().doCall( this );
 }
-
-void uiDataPointSet::getSelPts( CallBacker* )
-{ showSelectedPts.trigger(); }
 
 
 #define mCleanRunCalcs \
@@ -280,7 +286,7 @@ void uiDataPointSet::calcIdxs()
 	calcSortIdxs();
 
     const int newtblsz = drowids_.size();
-    if ( tbl_ && newtblsz != orgtblsz )
+    if ( tbl_ && (newtblsz != orgtblsz || newtblsz != tbl_->nrRows()) )
 	tbl_->setNrRows( newtblsz );
 }
 
@@ -305,7 +311,7 @@ void uiDataPointSet::calcSortIdxs()
 uiDataPointSet::DRowID uiDataPointSet::dRowID( TRowID tid ) const
 {
     if ( tid < -1 ) tid = tbl_->currentRow();
-    if ( tid < 0 ) return -1;
+    if ( !sortidxs_.validIdx(tid) ) return -1;
     return drowids_[ sortidxs_[tid] ];
 }
 
@@ -510,6 +516,99 @@ void uiDataPointSet::rowSel( CallBacker* cb )
 }
 
 
+class uiSelectPosDlg : public uiDialog
+{
+public:
+uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
+    : uiDialog( p, uiDialog::Setup("Select Position for new row","","") )
+    , grpfld_(0)
+{
+    seltypefld_ = new uiGenInput( this, "Position type",
+			BoolInpSpec(true,"X/Y","Inline/CrossLine") );
+    seltypefld_->valuechanged.notify( mCB(this,uiSelectPosDlg,selTypeChanged) );
+
+    posinpfld_ = new uiGenInput( this, "Input Position",
+			PositionInpSpec( PositionInpSpec::Setup(true)) );
+    posinpfld_->attach( leftAlignedBelow, seltypefld_ );
+
+    BufferString zinptxt( "Z Value in " );
+    SI().zIsTime() ? zinptxt += "sec" : zinptxt += "Metre/Feet";
+    zinpfld_ = new uiGenInput( this, zinptxt, FloatInpSpec() );
+    zinpfld_->attach( leftAlignedBelow, posinpfld_ );
+
+    if ( grpnames.size()>1 )
+    {
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Select group" );
+	grpfld_ = lcb->box();
+	grpfld_->addItems( grpnames );
+	grpfld_->attach( alignedBelow, zinpfld_ );
+    }
+}
+
+
+void selTypeChanged( CallBacker* )
+{
+    posinpfld_->newSpec( PositionInpSpec(PositionInpSpec::Setup(
+		    			 seltypefld_->getBoolValue())), 0 );
+}
+
+bool acceptOK( CallBacker* )
+{
+    DataPointSet::Pos pos;
+    const bool isreasonable =
+	seltypefld_->getBoolValue() ? SI().isReasonable(posinpfld_->getCoord())
+				    : SI().isReasonable(posinpfld_->getBinID());
+    if (!isreasonable )
+    {
+	uiMSG().error( "Position entered is not valid." );
+	return false;
+    }
+    if ( seltypefld_->getBoolValue() )
+	pos.set( posinpfld_->getCoord() );
+    else
+	pos.set( posinpfld_->getBinID() );
+    pos.z_ = zinpfld_->getfValue();
+    
+    datarow_ =
+	DataPointSet::DataRow( pos, !grpfld_ ? 1 : grpfld_->currentItem() +1 );
+    return true;
+}
+
+    DataPointSet::DataRow datarow_;
+    uiGenInput*		seltypefld_;
+    uiGenInput*		posinpfld_;
+    uiGenInput*		zinpfld_;
+    uiComboBox*		grpfld_;
+};
+
+
+void uiDataPointSet::rowAddedCB( CallBacker* cb )
+{
+    uiSelectPosDlg dlg( this, groupNames() );
+    if ( dlg.go() )
+    {
+	addRow( dlg.datarow_ );
+	Coord3 newcoord( dlg.datarow_.coord(), dlg.datarow_.pos_.z_ );
+	rowAdded.trigger();
+	for ( int rownr=0; rownr<tbl_->nrRows(); rownr++ )
+	{
+	    Coord3 coord( tbl_->getValue(RowCol(rownr,0)),
+		    	  tbl_->getValue(RowCol(rownr,1)),
+			  tbl_->getValue(RowCol(rownr,2))/SI().zFactor() );
+	    if ( mIsEqual(coord.x,newcoord.x,2) &&
+	    	 mIsEqual(coord.y,newcoord.y,2) &&
+	    	 mIsEqual(coord.z,newcoord.z,1e-4) )
+	    {
+		tbl_->ensureCellVisible( RowCol(rownr,0) );
+		break;
+	    }
+	}
+    }
+    else
+	tbl_->removeRow( tbl_->newCell().r() );
+}
+
+
 void uiDataPointSet::selChg( CallBacker* )
 {
     const ObjectSet<uiTable::SelectionRange>& selrgs = tbl_->selectedRanges();
@@ -521,6 +620,8 @@ void uiDataPointSet::selChg( CallBacker* )
 
 void uiDataPointSet::handleGroupChg( uiDataPointSet::DRowID drid )
 {
+    if ( drid < 1 )
+	return;
     const int grp = dps_.group( drid );
     if ( grp < 1 ) return;
     const char* grpnm = groupName( grp );
@@ -557,7 +658,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 	xplotwin_->plotter().dataChanged();
     else
     {
-	xplotwin_ = new uiDataPointSetCrossPlotWin( *this );
+	xplotwin_ = new uiDataPointSetCrossPlotWin( *this, setup_.has3dcon_ );
 	uiDataPointSetCrossPlotter& xpl = xplotwin_->plotter();
 	xpl.selectionChanged.notify( mCB(this,uiDataPointSet,xplotSelChg) );
 	xpl.removeRequest.notify( mCB(this,uiDataPointSet,xplotRemReq) );
@@ -570,7 +671,6 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
     xplotwin_->setPercDisp( plotpercentage_ );
     disptb_->setSensitive( xplottbid_, false );
     handleAxisColChg();
-    xplotwin_->showSelPts.notify( mCB(this,uiDataPointSet,getSelPts) );
     xplotwin_->show();
 }
 
@@ -655,7 +755,18 @@ void uiDataPointSet::xplotRemReq( CallBacker* )
     int drid, dcid; getXplotPos( dcid, drid );
     if ( drid < 0 ) return;
 
-    dps_.setInactive( drid, true );
+    if ( setup_.directremove_ )
+	dps_.setInactive( drid, true );
+    else
+    {
+	rowToBeRemoved.trigger( drid );
+	dps_.bivSet().remove( dps_.bvsPos(drid) );
+	rowRemoved.trigger( drid );
+    }
+
+    if ( !setup_.directremove_ )
+	dps_.dataChanged();
+
     const TRowID trid = tRowID( drid );
     if ( trid >= 0 )
 	redoAll();
@@ -852,7 +963,11 @@ void uiDataPointSet::valChg( CallBacker* )
     }
 
     if ( poschgd )
+    {
+	rowToBeRemoved.trigger( drid );
 	dps_.bivSet().remove( dps_.bvsPos(drid) );
+	rowRemoved.trigger( drid );
+    }
 
     bool setchg = dps_.setRow( afterchgdr_ ) || cell.c() == sortcol_;
     if ( setchg )
@@ -887,6 +1002,15 @@ void uiDataPointSet::eachChg( CallBacker* )
 	if ( !dps_.isEmpty() )
 	    setCurrent( 0, 0 );
     }
+}
+
+
+void uiDataPointSet::addRow( const DataPointSet::DataRow& datarow )
+{
+    dps_.addRow( datarow );
+    dps_.dataChanged();
+    unsavedchgs_ = true;
+    reDoTable();
 }
 
 
@@ -947,7 +1071,7 @@ bool uiDataPointSet::rejectOK( CallBacker* )
 
 bool uiDataPointSet::acceptOK( CallBacker* )
 {
-    removeSelectedPoints.trigger();
+    selPtsToBeRemoved.trigger();
     mDPM.release( dps_.id() );
     delete xplotwin_; delete statswin_;
     return true;
@@ -1141,9 +1265,19 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	if ( tbl_->isRowSelected(irow) )
 	{
 	    nrrem++;
-	    dps_.setInactive( dRowID(irow), true );
+	    if ( setup_.directremove_ )
+		dps_.setInactive( dRowID(irow), true );
+	    else
+	    {
+		rowToBeRemoved.trigger( dRowID(irow) );
+		dps_.bivSet().remove( dps_.bvsPos(dRowID(irow)) );
+		rowRemoved.trigger( dRowID(irow) );
+	    }
 	}
     }
+
+    if ( !setup_.directremove_ )
+	dps_.dataChanged();
     if ( nrrem < 1 )
     {
 	uiMSG().message( "Please select the row(s) you want to remove."

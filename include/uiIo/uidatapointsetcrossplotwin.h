@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.17 2009-10-27 06:13:42 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.18 2009-11-12 12:22:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,8 @@ mClass uiDataPointSetCrossPlotWin : public uiMainWin
 {
 public:
 
-    				uiDataPointSetCrossPlotWin(uiDataPointSet&);
+    				uiDataPointSetCrossPlotWin(uiDataPointSet&,
+							   bool has3dconn);
 
     uiDataPointSet&		uiPointSet()	{ return uidps_; }
     uiDataPointSetCrossPlotter&	plotter()	{ return plotter_; }
@@ -33,8 +34,6 @@ public:
     uiToolBar&			manipTB()	{ return maniptb_; }
 
     static uiDataPointSetCrossPlotter::Setup	defsetup_;
-
-    Notifier<uiDataPointSetCrossPlotWin>	showSelPts;
 
     void 			setSelComboSensitive(bool);
     void			setButtonStatus()	{ setSelectable(0); }
@@ -69,6 +68,7 @@ protected:
 
     static const char*		sKeyMinDPPts()
     				{ return "Minimum pts for Density Plot"; }
+
     void			closeNotif(CallBacker*);
     void			showTableSel(CallBacker*);
     void			showY2(CallBacker*);

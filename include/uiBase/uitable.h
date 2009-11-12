@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.57 2009-10-23 09:21:05 cvsjaap Exp $
+ RCS:           $Id: uitable.h,v 1.58 2009-11-12 12:22:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,11 @@ public:
 			: size_(nrrows,nrcols)
 			, rowdesc_("Row")	
 			, coldesc_("Column")
+			, insertrowallowed_(true)
+			, removerowallowed_(true)
 			, rowgrow_(false) //!< can extra rows be added by user?
+			, insertcolallowed_(true)
+			, removecolallowed_(true)
 			, colgrow_(false) //!< can extra cols be added by user?
 			, fillrow_(false) //!< adjust cell height to avail space
 			, fillcol_(false) //!< adjust cell width to avail space
@@ -83,6 +87,10 @@ public:
 	mDefSetupMemb(BufferString,coldesc)
 	mDefSetupMemb(bool,rowgrow)
 	mDefSetupMemb(bool,colgrow)
+	mDefSetupMemb(bool,insertrowallowed)
+	mDefSetupMemb(bool,removerowallowed)
+	mDefSetupMemb(bool,insertcolallowed)
+	mDefSetupMemb(bool,removecolallowed)
 	mDefSetupMemb(bool,fillrow)
 	mDefSetupMemb(bool,fillcol)
 	mDefSetupMemb(float,maxrowhgt)

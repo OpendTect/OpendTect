@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.25 2009-09-01 06:14:51 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.26 2009-11-12 12:22:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,11 +43,15 @@ public:
 
     mStruct Setup : public uiDialog::Setup
     {
-				Setup(const char* wintitl,bool ismodal=false);
+				Setup(const char* wintitl,bool ismodal=false,
+				      bool has3dconn=false);
 
 	mDefSetupMemb(BufferString,wintitle)	//!< "Extracted data"
 	mDefSetupMemb(bool,isconst)		//!< false
+	mDefSetupMemb(bool,canaddrow)		//!< false
+	mDefSetupMemb(bool,directremove)		//!< false
 	mDefSetupMemb(bool,allowretrieve)	//!< true
+	mDefSetupMemb(bool,has3dcon)	//!< true
 	mDefSetupMemb(int,initialmaxnrlines)	//!< 4000
 
     };
@@ -83,8 +87,14 @@ public:
 
     IOPar&			storePars()	{ return storepars_; }
     Notifier<uiDataPointSet>	valueChanged;
-    Notifier<uiDataPointSet>	showSelectedPts;
-    Notifier<uiDataPointSet>	removeSelectedPoints;
+
+    Notifier<uiDataPointSet>	selPtsToBeShown;	// to show in 3D
+    Notifier<uiDataPointSet>	selPtsToBeRemoved; // to remove from 3D
+
+    Notifier<uiDataPointSet>	rowAdded; 
+    CNotifier<uiDataPointSet,int> rowToBeRemoved;
+    CNotifier<uiDataPointSet,int> rowRemoved; 
+
     void			getChanges(DataPointSet::DataRow& before,
 	    				   DataPointSet::DataRow& after) const
 				{ before = beforechgdr_; after = afterchgdr_; }
@@ -107,6 +117,8 @@ public:
     DColID			dColID(TColID tid=-99) const;
     TColID			tColID(DColID did=-99) const;
     
+    void			addRow(const DataPointSet::DataRow&);
+
     void			notifySelectedCell();
     void			reDoTable();
 
@@ -166,6 +178,7 @@ protected:
     bool			doSave();
     void			setSortedCol(TColID);
 
+    void			rowAddedCB(CallBacker*);
     void			initWin(CallBacker*);
     void			selXCol(CallBacker*);
     void			selYCol(CallBacker*);
@@ -183,7 +196,6 @@ protected:
     void			retrieve(CallBacker*);
     void			save(CallBacker*);
     void			delSelRows(CallBacker*);
-    void			getSelPts(CallBacker*);
     void			showStatusMsg(CallBacker*);
     void			closeNotify(CallBacker*);
 
