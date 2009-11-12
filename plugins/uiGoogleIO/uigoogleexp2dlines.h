@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2009
- * ID       : $Id: uigoogleexp2dlines.h,v 1.2 2009-11-11 15:28:27 cvsbert Exp $
+ * ID       : $Id: uigoogleexp2dlines.h,v 1.3 2009-11-12 14:03:49 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -13,6 +13,7 @@ class uiGenInput;
 class uiFileInput;
 class uiSelLineStyle;
 class uiSeis2DFileMan;
+namespace ODGoogle { class XMLWriter; }
 
 
 class uiGoogleExport2DSeis : public uiDialog
@@ -31,6 +32,8 @@ protected:
     uiFileInput*	fnmfld_;
 
     bool		acceptOK(CallBacker*);
+
+    void		addLine(ODGoogle::XMLWriter&,const char*,int);
 
 };
 

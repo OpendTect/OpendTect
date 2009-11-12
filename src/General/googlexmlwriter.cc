@@ -47,7 +47,10 @@ bool ODGoogle::XMLWriter::open( const char* fnm )
 	mErrRet("Cannot create file: ",fnm)
 
     strm() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-	    "<kml xmlns=\"http://earth.google.com/kml/2.2\">\n"
+	    "<kml xmlns=\"http://www.opengis.net/kml/2.2\" "
+	    "xmlns:gx=\"http://www.google.com/kml/ext/2.2\" "
+	    "xmlns:kml=\"http://www.opengis.net/kml/2.2\" "
+	    "xmlns:atom=\"http://www.w3.org/2005/Atom\">\n"
 	    "<Document>\n";
     BufferString treenm = survnm_.isEmpty() ? SI().name() : survnm_;
     treenm += ": "; treenm += elemnm_;
@@ -81,54 +84,50 @@ void ODGoogle::XMLWriter::finish( const ODGoogle::XMLItem& itm )
 }
 
 
-void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, const char* ins )
+#define mDeclStNm \
+    const bool haveicon = iconnm && *iconnm; \
+    const BufferString stnm( "s_od_", haveicon ? iconnm : "noicon" )
+
+void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, int xpixoffs,
+					   const char* ins )
 {
-    if ( !isOK() ) return;
+    if ( !isOK() ) return; mDeclStNm;
 
-    strm() << "\t<Style id=\"sn_od_"	<< iconnm << "0\">\n"
-	"\t\t<IconStyle>\n"
-	"\t\t\t<scale>1.1</scale>\n"
-	"\t\t\t<Icon>\n"
-	"\t\t\t\t<href>http://opendtect.org/images/od-"
-					<< iconnm << ".png</href>\n"
-	"\t\t\t</Icon>\n"
-	"\t\t<hotSpot x=\"20\" y=\"2\" xunits=\"pixels\" yunits=\"pixels\"/>\n"
-	"\t\t</IconStyle>\n"
-	"\t</Style>\n\n";
+    strm() <<	"\t<Style id=\"" << stnm << "\">\n"
+		"\t\t<IconStyle>\n"
+		"\t\t\t<scale>1.3</scale>\n";
+    if ( !haveicon )
+	strm() << "\t\t\t<Icon></Icon>\n";
+    else
+	strm() << "\t\t\t<Icon>\n"
+		  "\t\t\t\t<href>http://opendtect.org/images/od-"
+						<< iconnm << ".png</href>\n"
+		  "\t\t\t</Icon>\n"
+		  "\t\t<hotSpot x=\"" << xpixoffs <<
+			  "\" y=\"2\" xunits=\"pixels\" yunits=\"pixels\"/>\n";
+    strm() <<	"\t\t</IconStyle>\n";
+    if ( ins && *ins )
+	strm() << ins << '\n';
+    strm() <<	"\t</Style>\n\n";
 
-    strm() << "\t<StyleMap id=\"msn_od_"<< iconnm << "\">\n"
+    strm() << "\t<StyleMap id=\"m"<< stnm << "\">\n"
 	"\t\t<Pair>\n"
 	"\t\t\t<key>normal</key>\n"
-	"\t\t\t<styleUrl>#sn_od_"	<< iconnm << "0</styleUrl>\n"
+	"\t\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
 	"\t\t</Pair>\n"
 	"\t\t<Pair>\n"
 	"\t\t\t<key>highlight</key>\n"
-	"\t\t\t<styleUrl>#od-"		<< iconnm << "</styleUrl>\n"
+	"\t\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
 	"\t\t</Pair>\n"
-	"\t</StyleMap>\n\n";
+	"\t</StyleMap>\n\n" << std::endl;
 
-    strm() << "\t<Style id=\"od-"	<< iconnm << "\">\n"
-	"\t\t<IconStyle>\n"
-	"\t\t\t<scale>1.3</scale>\n"
-	"\t\t\t<Icon>\n"
-	"\t\t\t\t<href>http://opendtect.org/images/od-"
-					<< iconnm << ".png</href>\n"
-	"\t\t\t</Icon>\n"
-	"\t\t\t<hotSpot x=\"20\" y=\"2\" xunits=\"pixels\" "
-					"yunits=\"pixels\"/>\n"
-	"\t\t</IconStyle>\n";
-
-    if ( ins && *ins )
-	strm() << ins << '\n';
-
-    strm() << "\t</Style>\n\n" << std::endl;
 }
 
 
 void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 					  const char* nm )
 {
-    if ( !isOK() ) return;
+    if ( !isOK() ) return; mDeclStNm;
 
     const LatLong ll( SI().latlong2Coord().transform(crd) );
 
@@ -145,10 +144,37 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 	"\t\t\t<heading>0</heading>\n"
 	"\t\t\t<altitudeMode>relativeToGround</altitudeMode>\n"
 	"\t\t</LookAt>\n"
-	"\t\t<styleUrl>#msn_od_" << iconnm << "</styleUrl>\n"
+	"\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
 	"\t\t<Point>\n"
 	"\t\t\t<coordinates>" << getStringFromDouble(0,ll.lng_);
     strm() << ',' << getStringFromDouble(0,ll.lat_) << ",0</coordinates>\n"
 	"\t\t</Point>\n"
 	"\t</Placemark>" << std::endl;
+}
+
+
+void ODGoogle::XMLWriter::writeLine( const char* iconnm,
+				     const TypeSet<Coord>& crds,
+       				     const char* nm )
+{
+    if ( !isOK() ) return; mDeclStNm;
+
+    strm() << "\n\t<Placemark>\n"
+	      "\t\t<name>" << nm << "</name>\n"
+	      "\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
+	      "\t\t<LineString>\n"
+	      "\t\t\t<tessellate>1</tessellate>\n"
+	      "\t\t\t<coordinates>\n";
+
+    for ( int idx=0; idx<crds.size(); idx++ )
+    {
+	const LatLong ll( SI().latlong2Coord().transform(crds[idx]) );
+
+	strm() << getStringFromDouble(0,ll.lng_) << ',';
+	strm() << getStringFromDouble(0,ll.lat_) << ",0 ";
+    }
+
+    strm() << "\t\t\t</coordinates>\n"
+	      "\t\t</LineString>\n"
+	      "\t</Placemark>" << std::endl;
 }

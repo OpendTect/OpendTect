@@ -74,7 +74,7 @@ bool uiGoogleExportWells::acceptOK( CallBacker* )
     if ( !wrr.isOK() )
 	mErrRet(wrr.errMsg())
 
-    wrr.writeIconStyles( "wellpin" );
+    wrr.writeIconStyles( "wellpin", 20 );
 
     Well::Data wd;
     for ( int idx=0; idx<selfld_->size(); idx++ )
