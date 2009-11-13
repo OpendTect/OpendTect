@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.20 2009-10-13 13:12:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.21 2009-11-13 17:33:18 cvsyuancheng Exp $";
 
 #include "uihor3dfrom2ddlg.h"
 
@@ -40,9 +40,14 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     , emserv_( ems )
     , hor3d_( 0 )
     , displayfld_( 0 )
+    , copyfld_( 0 )		      
 {
+    copyfld_ = new uiCheckBox( this, "Copy grid only" );
+    copyfld_->activated.notify( mCB(this,uiHor3DFrom2DDlg,copyCB) );
+
     interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
+    interpolsel_->attach( alignedBelow, copyfld_ );
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = false;
@@ -54,12 +59,19 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 	displayfld_ = new uiCheckBox( this, "Display after generation" );
 	displayfld_->attach( alignedBelow, outfld_ );
     }
+
+    copyCB( 0 );
 }
 
 
 uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 {
     if ( hor3d_ ) hor3d_->unRef();
+}
+
+void uiHor3DFrom2DDlg::copyCB( CallBacker* )
+{
+    interpolsel_->display( !copyfld_->isChecked() );
 }
 
 
@@ -79,7 +91,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 {
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-    if ( !interpolsel_->acceptOK() )
+    if ( !copyfld_->isChecked() && !interpolsel_->acceptOK() )
 	return false;
 
     PtrMan<IOObj> ioobj = outfld_->getIOObj( false );
@@ -107,9 +119,11 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 
     hor3d_->ref();
     hor3d_->setPreferredColor( hor2d_.preferredColor() );
+    hor3d_->setMultiID( ioobj->key() );
 
-    Array2DInterpol* interpolator = interpolsel_->getResult();
-    if ( !interpolator )
+    Array2DInterpol* interpolator = 
+	copyfld_->isChecked() ? 0 : interpolsel_->getResult();
+    if ( !copyfld_->isChecked() && !interpolator )
 	mErrRet( "Cannot create interpolator" );
 
     //Takes over interpolator

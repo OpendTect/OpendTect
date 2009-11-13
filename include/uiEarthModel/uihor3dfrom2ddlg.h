@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.h,v 1.9 2009-10-13 13:12:38 cvsbert Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.h,v 1.10 2009-11-13 17:33:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
 protected:
 
     bool			acceptOK(CallBacker*);
+    void			copyCB(CallBacker*);
 
 
     const EM::Horizon2D& 	hor2d_;
@@ -51,6 +52,7 @@ protected:
 
     uiIOObjSel*			outfld_;
     uiCheckBox*			displayfld_;
+    uiCheckBox*			copyfld_;
 
     MultiID			selid_;
 
