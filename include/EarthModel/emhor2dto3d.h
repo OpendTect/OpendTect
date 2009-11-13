@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.10 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.11 2009-11-13 17:32:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,8 @@ public:
 				Hor2DTo3D(const Horizon2D&,Array2DInterpol*,
 					  Horizon3D&, TaskRunner* = 0);  
 				// current 3d-hor content is removed
-				// Interpol is taken over
+				// Interpol is taken over, if is 0, only copy 
+				// grid 2D to 3D.
 				// TaskRunner is only used in constructor
 				~Hor2DTo3D();
 

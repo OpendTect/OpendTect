@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.15 2009-11-11 22:53:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.16 2009-11-13 17:32:10 cvsyuancheng Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -107,7 +107,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 
     if ( sd_.isEmpty() )
 	msg_ = "No data in selected area";
-    else
+    else if ( curinterp_ )
     {
 	const float inldist = hrg.step.inl*SI().inlDistance();
 	const float crldist = hrg.step.crl*SI().crlDistance();
@@ -154,15 +154,16 @@ void Hor2DTo3D::addSections( const HorSampling& hs )
 		if ( maxbid.crl < bid.crl ) maxbid.crl = bid.crl;
 	    }
 	}
+
 	if ( mIsUdf(minbid.inl) || minbid == maxbid )
 	    continue;
 
-	if ( minbid.inl==maxbid.inl || minbid.crl==maxbid.crl ) //Straight line
+	if ( curinterp_ && (minbid.inl==maxbid.inl || minbid.crl==maxbid.crl) ) 
 	{
 	    int extendedsize = 1;
 	    mDynamicCastGet(InverseDistanceArray2DInterpol*, inv, curinterp_ );
 	    if ( inv && !mIsUdf(inv->getNrSteps()) )
-		extendedsize = inv->getNrSteps(); //*inv->getStepSize();
+		extendedsize = inv->getNrSteps(); 
 
 	    minbid.inl -= extendedsize;
 	    if ( minbid.inl<0 ) minbid.inl = 0;
@@ -218,7 +219,7 @@ od_int64 Hor2DTo3D::nrDone() const
 
 od_int64 Hor2DTo3D::totalNr() const
 {
-    return curinterp_ ? curinterp_->totalNr() : -1;
+    return curinterp_ ? curinterp_->totalNr() : sd_.size();
 }
 
 
@@ -226,11 +227,12 @@ int Hor2DTo3D::nextStep()
 {
     if ( sd_.isEmpty() )
 	{ msg_ = "No data in selected area"; return Executor::ErrorOccurred(); }
-    else if ( !curinterp_ )
-	return Executor::Finished();
 
-    curinterp_->enableNrDoneCounting( true );
-    bool ret = curinterp_->execute();
+    if ( curinterp_ )
+    {
+	curinterp_->enableNrDoneCounting( true );
+	curinterp_->execute();
+    }
 
     const Hor2DTo3DSectionData& sd = *sd_[cursectnr_];
 
@@ -259,7 +261,7 @@ int Hor2DTo3D::nextStep()
     cursectnr_++;
     if ( cursectnr_ >= sd_.size() )
 	return Executor::Finished();
-    else
+    else if ( curinterp_ )
     {
 	curinterp_->setArray( sd_[cursectnr_]->arr_ );
     }
