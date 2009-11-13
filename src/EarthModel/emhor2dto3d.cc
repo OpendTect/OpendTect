@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.16 2009-11-13 17:32:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.17 2009-11-13 17:59:06 cvsyuancheng Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -119,7 +119,6 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	const bool issingleline = hor2d_.geometry().nrLines()<2;
   	curinterp_->setFillType( issingleline ? Array2DInterpol::Full 
 					      : Array2DInterpol::ConvexHull );
-	curinterp_->setFillType( Array2DInterpol::ConvexHull );
 	curinterp_->setArray( sd_[cursectnr_]->arr_, tr );
 
 	msg_ = curinterp_->message();
