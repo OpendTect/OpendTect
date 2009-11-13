@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.6 2009-11-09 11:24:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.7 2009-11-13 13:01:39 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
@@ -38,8 +38,6 @@ uiDPSDemo::uiDPSDemo( uiParent* p )
 	: uiDialog(p,Setup("DataPointSet demo","Data extraction parameters",
 		    	   mNoHelpID))
 {
-    Stats::RandGen::init();
-
     horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D) );
 
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
@@ -47,7 +45,7 @@ uiDPSDemo::uiDPSDemo( uiParent* p )
     seisfld_->attach( alignedBelow, horfld_ );
 
     nrptsfld_ = new uiGenInput( this, "Number of points to extract",
-	    			IntInpSpec(1000) );
+	    			IntInpSpec(10000) );
     nrptsfld_->attach( alignedBelow, seisfld_ );
 }
 
@@ -75,6 +73,8 @@ bool uiDPSDemo::acceptOK( CallBacker* )
 
 
 // Needed to delete the DataPointSet once uiDataPointSet is finished
+// Normally, you'd want to do something with the DPS, but this is a demo
+// so we want to destroy it
 class uiDPSDemoDPSDeleter : public CallBacker
 {
 public:
@@ -93,19 +93,21 @@ void doDel( CallBacker* cb )
 bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 			int nrpts )
 {
-    uiTaskRunner* tr = new uiTaskRunner( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(), tr );
+    uiTaskRunner tr( this );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(), &tr );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) return false;
 
     DataPointSet* dps = new DataPointSet( false );
     dps->dataSet().add( new DataColDef("Amplitude") );
+    dps->dataSet().add( new DataColDef("Peakedness") );
+    dps->dataSet().add( new DataColDef("PeakSkew") );
     dps->dataSet().add( new DataColDef("Frequency") );
 
     hor->ref();
     const bool isok = getRandPositions(*hor,nrpts,*dps);
     hor->unRef();
-    if ( !isok || !getSeisData(seisioobj,*dps,*tr) )
+    if ( !isok || !getSeisData(seisioobj,*dps,tr) )
 	return false;
 
     BufferString wintitl( horioobj.name(), " / ", seisioobj.name() );
@@ -126,6 +128,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
        				 DataPointSet& dps )
 {
+    // A bit complex, because we are preparing for multiple sections
     TypeSet<int> nrsectnodes;
     int totnrnodes = 0;
     for ( EM::SectionID isect=0; isect<hor.nrSections(); isect++ )
@@ -137,6 +140,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
     if ( totnrnodes < 1 )
 	mErrRet( "Horizon is empty" )
 
+    Stats::RandGen::init();
     bool needrandsel = nrpts < totnrnodes;
     const int actualnrpts = needrandsel ? nrpts : totnrnodes;
     const int maxnrunsuccessful = actualnrpts * 1000;
@@ -147,9 +151,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( nrunsuccessful > maxnrunsuccessful )
 	    break;
 
-	// Get a random position in horizon
-	int selidx = needrandsel ? Stats::RandGen::getIndex( totnrnodes )
-	    			       : ipt;
+	int selidx = needrandsel ? Stats::RandGen::getIndex( totnrnodes ) : ipt;
 	BinID bid; EM::SectionID selsect = 0;
 	for ( EM::SectionID isect=0; isect<nrsectnodes.size(); isect++ )
 	{
@@ -162,7 +164,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 
 	// Checking whether position is already in set. Here, we have to use
 	// the BinIDValueSet, because we don't want to call
-	// DataPointSet::dataChanged() after every add().
+	// DataPointSet::dataChanged() after every addRow().
 	if ( needrandsel && dps.bivSet().valid(bid) )
 	    mNextTry()
 
@@ -177,7 +179,8 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	dps.addRow( dr );
     }
 
-    // This builds an index table in the DataPointSet.
+    // This builds the index table in the DataPointSet.
+    // Call this after adding or removing rows, then you can use the DPS again.
     dps.dataChanged();
 
     return true;
@@ -198,7 +201,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
     if ( !tr.execute(br) )
 	return false;
 
-    const int icomp = 0;
+    const int icomp = 0; // ignore other components for now
     for ( int idx=0; idx<tbuf.size(); idx++ )
     {
 	const SeisTrc& trc = *tbuf.get( idx );
@@ -207,11 +210,22 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 	    { pErrMsg("Huh?"); continue; }
 
 	const float z = dps.z( rid );
-	if ( mIsUdf(z) ) continue; // Hmm. Node with undef Z ...
+	if ( mIsUdf(z) ) continue; // Node in horizon with undef Z ...
 
+	// (finally) fill the DPS row with some stuff from the seismics
 	float* vals = dps.getValues( rid );
 	vals[0] = trc.getValue( z, icomp );
-	vals[1] = SeisTrcPropCalc(trc,icomp).getFreq( trc.nearestSample(z) );
+	if ( !vals[0] )
+	    vals[1] = vals[2] = mUdf(float);
+	else
+	{
+	    const float vm1 = trc.getValue( z-trc.info().sampling.step, icomp );
+	    const float v1  = trc.getValue( z+trc.info().sampling.step, icomp );
+	    vals[1] = (vm1 + v1) * .5;
+	    vals[2] = vm1 - v1;
+	    vals[1] /= vals[0]; vals[2] /=vals[0];
+	}
+	vals[3] = SeisTrcPropCalc(trc,icomp).getFreq( trc.nearestSample(z) );
     }
 
     return true;
