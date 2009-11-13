@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          May 2009
- RCS:           $Id: horflatvieweditor.h,v 1.6 2009-11-12 11:57:06 cvsumesh Exp $
+ RCS:           $Id: horflatvieweditor.h,v 1.7 2009-11-13 11:04:48 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "position.h"
 
+class FlatDataPack;
 class MouseEvent;
 class MouseEventHandler;
 
@@ -27,6 +28,7 @@ namespace FlatView { class AuxDataEditor; }
 namespace MPE
 {
 
+class EMTracker;
 class EMSeedPicker;
 
 mClass HorizonFlatViewEditor : public CallBacker
@@ -61,6 +63,14 @@ protected:
     void			movementEndCB(CallBacker*);
     void			removePosCB(CallBacker*);
 
+    bool			canTrack(const EMTracker&) const;
+    bool			checkSanity(EMTracker&,const EM::EMObject&,
+	   				   const EMSeedPicker&,
+					   bool& pickinvd) const;
+    bool			prepareTracking(bool pickinvd,
+	    					const EMTracker&,
+						EMSeedPicker&,
+						const FlatDataPack&) const;
     bool			getPosID(const EM::EMObject&,const Coord3&,
 	    				 EM::PosID&) const;
     bool			doTheSeed(EM::EMObject&,EMSeedPicker&,

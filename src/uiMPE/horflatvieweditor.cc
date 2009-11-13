@@ -8,10 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.12 2009-11-12 11:57:30 cvsumesh Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.13 2009-11-13 11:04:59 cvsumesh Exp $";
 
 #include "horflatvieweditor.h"
 
+#include "attribstorprovider.h"
 #include "emobject.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
@@ -141,28 +142,18 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
     if ( !tracker ) return;
 
-    if ( tracker->is2D() && !is2d_ )
-    {
-	uiMSG().error( "2D tracking cannot handle picks on 3D lines.");
-	return;
-    }
-    else if ( !tracker->is2D() && is2d_ )
-    {
-	uiMSG().error( "3D tracking cannot handle picks on 2D lines.");
-	return;
-    }
+    if ( !canTrack(*tracker) ) return;
 
     EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
     if ( !emobj ) return;
 
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    if ( !seedpicker || !seedpicker->canAddSeed() )
-	return;
+    
+    if ( !seedpicker || !seedpicker->canAddSeed() ) return;
+    
     if ( !seedpicker->canSetSectionID() || 
 	 !seedpicker->setSectionID(emobj->sectionID(0)) )
 	return;
-
-    CubeSampling oldactivevol = MPE::engine().activeVolume();
 
     CubeSampling newactivevol;
     if ( is2d_ )
@@ -170,29 +161,153 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     else
 	newactivevol = curcs_;
 
-    const MouseEvent& mouseevent = mouseeventhandler_->event();
-    const uiRect datarect( editor_->getMouseArea() );
-
-    if ( !datarect.isInside(mouseevent.pos()) )
-	return;
-
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp =
-	w2u.transform( mouseevent.pos()-datarect.topLeft() );
-
-    if ( oldactivevol != newactivevol )
+    if ( MPE::engine().activeVolume() != newactivevol )
 	updateoldactivevolinuimpeman.trigger();
 
-    const FlatDataPack* dp = 0;
-    const Attrib::SelSpec* as = 0;
     bool pickinvd = true;
 
-    if ( seedpicker->nrSeeds() < 1 )
+    if ( !checkSanity(*tracker,*emobj,*seedpicker,pickinvd) )
+	return;
+
+    const FlatDataPack* dp = editor_->viewer().pack( !pickinvd );
+    if ( !dp )
+	{ uiMSG().error( "No data to choose from" ); return; }
+
+    const MouseEvent& mouseevent = mouseeventhandler_->event();
+    const uiRect datarect( editor_->getMouseArea() );
+    if ( !datarect.isInside(mouseevent.pos()) ) return;
+
+    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
+    const uiWorldPoint wp = w2u.transform( mouseevent.pos()-datarect.topLeft());
+
+    const FlatPosData& pd = dp->posData();
+    const IndexInfo ix = pd.indexInfo( true, wp.x );
+    const IndexInfo iy = pd.indexInfo( false, wp.y );
+    Coord3 clickedcrd = dp->getCoord( ix.nearest_, iy.nearest_ );
+    clickedcrd.z = wp.y;
+
+    if ( !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
+	return;
+
+    const int prevevent = EM::EMM().undo().currentEventID();
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    emobj->setBurstAlert( true );
+
+    const int trackerid = MPE::engine().getTrackerByObject( emobj->id() );
+    
+    bool action = doTheSeed( *emobj, *seedpicker, clickedcrd, mouseevent );
+    
+    engine().updateFlatCubesContainer( newactivevol, trackerid, action );
+    
+    emobj->setBurstAlert( false );
+    MouseCursorManager::restoreOverride();
+    const int currentevent = EM::EMM().undo().currentEventID();
+    if ( currentevent != prevevent )
+	EM::EMM().undo().setUserInteractionEnd(currentevent);
+
+    restoreactivevolinuimpeman.trigger();
+}
+
+
+bool HorizonFlatViewEditor::canTrack( const EMTracker& tracker ) const
+{
+    if ( tracker.is2D() && !is2d_ )
+    {
+	uiMSG().error( "2D tracking cannot handle picks on 3D lines.");
+	return false;
+    }
+    else if ( !tracker.is2D() && is2d_ )
+    {
+	uiMSG().error( "3D tracking cannot handle picks on 2D lines.");
+	return false;
+    }
+
+    return true;
+}
+
+
+bool HorizonFlatViewEditor::prepareTracking( bool picinvd,
+					     const EMTracker& trker,
+					     EMSeedPicker& seedpicker,
+					     const FlatDataPack& dp ) const
+{
+    const Attrib::SelSpec* as = 0;
+    as = picinvd ? vdselspec_ : wvaselspec_;
+    
+    if ( trker.is2D() )
+    {
+	MPE::engine().setActive2DLine( lsetid_, linenm_ );
+	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, &seedpicker );
+	if ( h2dsp )
+	    h2dsp->setSelSpec( as );
+
+	if ( dp.id() > DataPack::cNoID() )
+	    MPE::engine().setAttribData( *as, dp.id() );
+
+	if ( !h2dsp || !h2dsp->canAddSeed(*as) )
+	    return false;
+
+	h2dsp->setLine( lsetid_, linenm_ );
+
+	if ( !h2dsp->startSeedPick() )
+	    return false;
+    }
+    else
+    {
+	if ( !seedpicker.startSeedPick() )
+	    return false;
+
+	NotifyStopper notifystopper( MPE::engine().activevolumechange );
+	MPE::engine().setActiveVolume( curcs_ );
+	notifystopper.restore();
+
+	seedpicker.setSelSpec( as );
+
+	MPE::engine().setOneActiveTracker( &trker );
+	if ( !MPE::engine().cacheIncludes(*as,curcs_) )
+	    if ( dp.id() > DataPack::cNoID() )
+		MPE::engine().setAttribData( *as, dp.id() );
+
+	MPE::engine().activevolumechange.trigger();
+    }
+
+    return true;
+}
+
+
+bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
+					const EM::EMObject& emobj,
+				        const EMSeedPicker& spk,
+				        bool& pickinvd ) const
+{
+    const Attrib::SelSpec* as = 0;
+
+    const MPE::SectionTracker* sectiontracker =
+	tracker.getSectionTracker(emobj.sectionID(0), true);
+    const Attrib::SelSpec* trackedatsel = sectiontracker
+	? sectiontracker->adjuster()->getAttributeSel(0) :0;
+
+    Attrib::SelSpec newatsel;
+
+    if ( trackedatsel )
+    {
+	newatsel = *trackedatsel;
+	if ( tracker.is2D() &&
+		matchString(Attrib::StorageProvider::attribName(),
+		    	    trackedatsel->defString()) )
+	{
+	    LineKey lk( trackedatsel->userRef() );
+	    newatsel.setUserRef( lk.attrName().isEmpty() ?
+		    LineKey::sKeyDefAttrib() : lk.attrName().buf() );
+	}
+    }
+
+    if ( spk.nrSeeds() < 1 )
     {
 	if ( editor_->viewer().pack(false) && editor_->viewer().pack(true) )
 	{
-	    if ( !uiMSG().question("Which one is your seed data",
-		       		   "VD", "Wiggle") )
+	    if ( !uiMSG().question("Which one is your seed data.",
+				   "VD", "Wiggle") )
 		pickinvd = false;
 	}
 	else if ( editor_->viewer().pack(false) )
@@ -202,107 +317,44 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 	else
 	{
 	    uiMSG().error( "No data to choose from" );
-	    return;
+	    return false;
 	}
 
 	as = pickinvd ? vdselspec_ : wvaselspec_;
-
-	const MPE::SectionTracker* sectiontracker =
-	    tracker->getSectionTracker(emobj->sectionID(0), true);
-	const Attrib::SelSpec* trackedatsel = sectiontracker
-	    ? sectiontracker->adjuster()->getAttributeSel(0)
-	    :0;
-
-	if ( !trackersetupactive_ && as && trackedatsel && (*trackedatsel!=*as))
+	if ( !trackersetupactive_ && as && trackedatsel && (newatsel!=*as) &&
+	      (spk.getSeedConnectMode()!=spk.DrawBetweenSeeds) )
 	{
 	    uiMSG().error( "Saved setup has different attribute. \n"
 		    	   "Either change setup attribute or change\n"
 			   "display attribute you want to track on" );
-	    return;
+	    return false;
 	}
     }
     else
     {
-	const MPE::SectionTracker* sectiontracker =
-	    tracker->getSectionTracker(emobj->sectionID(0), true);
-	const Attrib::SelSpec* trackedatsel = sectiontracker
-	    ? sectiontracker->adjuster()->getAttributeSel(0)
-	    : 0;
-
-	if ( vdselspec_ && trackedatsel && (*trackedatsel == *vdselspec_) )
+	if ( vdselspec_ && trackedatsel && (newatsel==*vdselspec_) )
 	    pickinvd = true;
-	else if ( wvaselspec_ && trackedatsel && (*trackedatsel==*wvaselspec_) )
+	else if ( wvaselspec_ && trackedatsel && (newatsel==*wvaselspec_) )
 	    pickinvd = false;
-	else
+	else if ( spk.getSeedConnectMode() !=spk.DrawBetweenSeeds )
 	{
-	    uiMSG().error( "Horizon has been tracked on different attribute ");
-	    return;
-	}	    
-    }
-    dp = editor_->viewer().pack( !pickinvd );
-    if ( !dp )
-    {
-	uiMSG().error( "No data to choose from" );
-	return;
-    }
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, wp.x );
-    const IndexInfo iy = pd.indexInfo( false, wp.y );
-    Coord3 clickedcrd = dp->getCoord( ix.nearest_, iy.nearest_ );
-    clickedcrd.z = wp.y;
+	    BufferString warnmsg( "Setup suggests tracking is done on " );
+	    if ( vdselspec_ && pickinvd )
+		warnmsg += vdselspec_->userRef();
+	    else if ( wvaselspec_ && !pickinvd )
+		warnmsg += wvaselspec_->userRef();
+	    warnmsg += "\n but what you see is ";
+	    warnmsg += newatsel.userRef();
+	    warnmsg += ".\n\n To continue seeds picking either\n";
+	    warnmsg += "change displayed attribute or\n";
+	    warnmsg += "change input data in Tracking Setup";
 
-    as = pickinvd ? vdselspec_ : wvaselspec_;
-
-    if ( tracker->is2D() )
-    {
-	MPE::engine().setActive2DLine( lsetid_, linenm_ );
-	
-	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
-	if ( h2dsp )
-	    h2dsp->setSelSpec( as );
-	if ( dp->id() > DataPack::cNoID() )
-	    MPE::engine().setAttribData( *as, dp->id() );
-
-	if ( !h2dsp || !h2dsp->canAddSeed(*as) )
-	    return;
-
-	h2dsp->setLine( lsetid_, linenm_ );
-	if ( !h2dsp->startSeedPick() )
-	    return;
-    }
-    else
-    {
-	if ( !seedpicker->startSeedPick() )
-	    return;
-
-	NotifyStopper notifystopper( MPE::engine().activevolumechange );
-	MPE::engine().setActiveVolume( curcs_ );
-	notifystopper.restore();
-
-	seedpicker->setSelSpec( as );
-	MPE::engine().setOneActiveTracker( tracker );
-	if ( !MPE::engine().cacheIncludes(*as,curcs_) )
-	    if ( dp->id() > DataPack::cNoID() )
-		MPE::engine().setAttribData( *as, dp->id() );
-
-	MPE::engine().activevolumechange.trigger();
+	    uiMSG().error( warnmsg.buf() );
+	    return false;
+	}
     }
 
-    const int prevevent = EM::EMM().undo().currentEventID();
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    emobj->setBurstAlert( true );
-
-    const int trackerid = MPE::engine().getTrackerByObject( emobj->id() );
-    
-    bool action = doTheSeed( *emobj, *seedpicker, clickedcrd, mouseevent );
-    engine().updateFlatCubesContainer( newactivevol, trackerid, action );
-    emobj->setBurstAlert( false );
-    MouseCursorManager::restoreOverride();
-    const int currentevent = EM::EMM().undo().currentEventID();
-    if ( currentevent != prevevent )
-	EM::EMM().undo().setUserInteractionEnd(currentevent);
-
-    restoreactivevolinuimpeman.trigger();
+    return true;
 }
 
 
