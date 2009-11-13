@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.24 2009-11-12 15:58:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.25 2009-11-13 14:00:54 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.24 2009-11-12 15:58:09 c
 #include "uimsg.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
+#include "uiseparator.h"
 #include "uiwaveletextraction.h"
 #include "uiwelltietoseismicdlg.h"
 
@@ -61,6 +62,13 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     wellfld_ = new uiIOObjSel( this, wllctio_ );
     wellfld_->selectiondone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
 
+    uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
+    sep->attach( stretchedBelow, wellfld_ );
+
+    uiGroup* seisgrp = new uiGroup( this, "Seismic selection group" );
+    seisgrp->attach( ensureBelow, sep );
+    seisgrp->attach( alignedBelow, wellfld_ );
+    
     const bool has2d = SI().has2D(); 
     const bool has3d = SI().has3D(); 
     is2d_ = has2d; 
@@ -70,48 +78,57 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	BufferStringSet seistypes; 
 	seistypes.add( Seis::nameOf(Seis::Line) );
 	seistypes.add( Seis::nameOf(Seis::Vol) );
-	typefld_ = new uiGenInput( this, "Seismic", StringListInpSpec( seistypes ) );
+	typefld_ = new uiGenInput( seisgrp, "Seismic", 
+					StringListInpSpec( seistypes ) );
 	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,selChg) );
-	typefld_->attach( alignedBelow, wellfld_ );
 	typefld_->setValue( 1 );
     }
 
     if ( has2d )
     {
-	seis2dfld_ = new uiSeisSel( this, seisctio2d_, uiSeisSel::Setup(Seis::Line));
+	seis2dfld_ = new uiSeisSel( seisgrp, seisctio2d_, 
+						uiSeisSel::Setup(Seis::Line));
 	if ( typefld_ )
 	    seis2dfld_->attach( alignedBelow, typefld_ );
-	else 
-	    seis2dfld_->attach( alignedBelow, wellfld_ );
 	seis2dfld_->selectiondone.notify( mCB(this,uiTieWinMGRDlg,selChg) );
-	seislinefld_ = new uiSeis2DLineNameSel( this, true );
+	seislinefld_ = new uiSeis2DLineNameSel( seisgrp, true );
 	seislinefld_->attach( alignedBelow, seis2dfld_ );
     }
     if ( has3d )
     {
-	seis3dfld_ = new uiSeisSel( this, seisctio3d_, uiSeisSel::Setup(Seis::Vol));
+	seis3dfld_ = new uiSeisSel( seisgrp, seisctio3d_, 
+						uiSeisSel::Setup(Seis::Vol));
 	if ( typefld_ )
 	    seis3dfld_->attach( alignedBelow, typefld_ );
-	else 
-	    seis3dfld_->attach( alignedBelow, wellfld_ );
     }
+    seisgrp->setHAlignObj( typefld_ ? (uiGroup*)typefld_ 
+				    : (uiGroup*)seis2dfld_ ? 
+				    seis2dfld_ : seis3dfld_ );
 
-    uiLabeledComboBox* llbl1 = new uiLabeledComboBox( this,
+    sep = new uiSeparator( this, "Seismic2Log Sep" );
+    sep->attach( stretchedBelow, seisgrp );
+    
+    uiGroup* logsgrp = new uiGroup( this, "Log selection group" );
+    logsgrp->attach( alignedBelow, wellfld_ );
+    logsgrp->attach( ensureBelow, sep );
+
+    uiLabeledComboBox* llbl1 = new uiLabeledComboBox( logsgrp,
 				   "Sonic/Velocity log" );
     vellogfld_ = llbl1->box();
-    if ( has2d )
-	llbl1->attach( alignedBelow, seislinefld_ );
-    else 
-	llbl1->attach( alignedBelow, seis3dfld_ );
-    isvelbox_ = new uiCheckBox( this, "Velocity" );
+    isvelbox_ = new uiCheckBox( logsgrp, "Velocity" );
     isvelbox_->attach( rightOf, llbl1 );
 
-    uiLabeledComboBox* llbl2 = new uiLabeledComboBox( this, "Density log");
+    uiLabeledComboBox* llbl2 = new uiLabeledComboBox( logsgrp, "Density log");
     denlogfld_ = llbl2->box();
     llbl2->attach( alignedBelow, llbl1 );
+    logsgrp->setHAlignObj( llbl1 );
     
+    sep = new uiSeparator( this, "Logs2Wavelt Sep" );
+    sep->attach( stretchedBelow, logsgrp );
+
     wvltfld_ = new uiIOObjSel( this, wvltctio_, "Reference wavelet" );
-    wvltfld_->attach(alignedBelow, llbl2);
+    wvltfld_->attach( alignedBelow, wellfld_ );
+    wvltfld_->attach( ensureBelow, sep );
     uiPushButton* crwvltbut = new uiPushButton( this, "Extract",
 	    			mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
