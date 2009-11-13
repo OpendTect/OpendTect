@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.7 2009-11-13 13:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.8 2009-11-13 13:25:00 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
@@ -106,19 +106,24 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 
     hor->ref();
     const bool isok = getRandPositions(*hor,nrpts,*dps);
+    BufferStringSet sectionnms;
+    for ( EM::SectionID isect=0; isect<hor->nrSections(); isect++ )
+	sectionnms.add( hor->sectionName(isect) );
     hor->unRef();
+
     if ( !isok || !getSeisData(seisioobj,*dps,tr) )
 	return false;
 
     BufferString wintitl( horioobj.name(), " / ", seisioobj.name() );
     uiDataPointSet::Setup su( wintitl );
-    uiDataPointSet* dlg = new uiDataPointSet( parent(), *dps, su );
-    dlg->setDeleteOnClose( true );
-
+    uiDataPointSet* uidps = new uiDataPointSet( parent(), *dps, su );
+    uidps->setDeleteOnClose( true );
+    if ( sectionnms.size() > 1 )
+	{ uidps->setGroupNames(sectionnms); uidps->setGroupType("Section"); }
     static uiDPSDemoDPSDeleter dpsdel;
-    dlg->windowClosed.notify( mCB(&dpsdel,uiDPSDemoDPSDeleter,doDel) );
+    uidps->windowClosed.notify( mCB(&dpsdel,uiDPSDemoDPSDeleter,doDel) );
 
-    dlg->show();
+    uidps->show();
     return true;
 }
 
@@ -128,7 +133,9 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
        				 DataPointSet& dps )
 {
-    // A bit complex, because we are preparing for multiple sections
+    // This is a bit complex - because we want to handle multiple horizon
+    // sections.
+
     TypeSet<int> nrsectnodes;
     int totnrnodes = 0;
     for ( EM::SectionID isect=0; isect<hor.nrSections(); isect++ )
@@ -151,16 +158,17 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( nrunsuccessful > maxnrunsuccessful )
 	    break;
 
-	int selidx = needrandsel ? Stats::RandGen::getIndex( totnrnodes ) : ipt;
+	int selnodenr = needrandsel ? Stats::RandGen::getIndex( totnrnodes )
+	    			    : ipt;
 	BinID bid; EM::SectionID selsect = 0;
 	for ( EM::SectionID isect=0; isect<nrsectnodes.size(); isect++ )
 	{
-	    if ( nrsectnodes[isect] < selidx )
-		selidx -= nrsectnodes[isect];
+	    if ( nrsectnodes[isect] < selnodenr )
+		selnodenr -= nrsectnodes[isect];
 	    else
 		{ selsect = isect; break; }
 	}
-	bid = BinID( mSectGeom(selsect).getKnotRowCol(selidx) );
+	bid = BinID( mSectGeom(selsect).getKnotRowCol(selnodenr) );
 
 	// Checking whether position is already in set. Here, we have to use
 	// the BinIDValueSet, because we don't want to call
@@ -172,7 +180,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( mIsUdf(z) )
 	    mNextTry()
 
-	// Add the position to set.
+	// Add the position to the set, set will allocate all the columns.
 	// We store section+1 because DataPointSet's groups start at 1
 	DataPointSet::Pos dpspos( bid, mSectGeom(selsect).getKnot(bid,true).z );
 	DataPointSet::DataRow dr( dpspos, selsect+1 );
