@@ -7,15 +7,15 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.48 2009-11-12 21:34:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.49 2009-11-13 06:18:45 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
+#include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
-#include "emobject.h"
 #include "emmanager.h"
-#include "datapointset.h"
+#include "emsurfaceauxdata.h"
 #include "mpeengine.h"
 #include "selector.h"
 #include "survinfo.h"
@@ -268,9 +268,8 @@ bool uiODHorizonTreeItem::init()
     if ( !createUiVisObj() )
 	return false;
 
-    mDynamicCastGet( visSurvey::HorizonDisplay*,
-	    hd, visserv_->getObject(displayid_) );
-
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+		    visserv_->getObject(displayid_));
     if ( rgba_ )
     {
 	if ( !hd ) return false;
@@ -289,17 +288,35 @@ bool uiODHorizonTreeItem::init()
 	}
     }
 
-    visBase::HorizonSection* hor3d = hd ? hd->getHorizonSection(0) : 0;
-    if ( hor3d )
+    visBase::HorizonSection* sect = hd ? hd->getHorizonSection(0) : 0;
+    if ( sect )
     {
 	const HorSampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
 	const bool userchanged = rg.inlRange()!=hd->geometryRowRange() ||
 	    			 rg.crlRange()!=hd->geometryColRange();
 	if ( rg.isDefined() )
-    	    hor3d->setDisplayRange( rg.inlRange(), rg.crlRange(), userchanged );
+    	    sect->setDisplayRange( rg.inlRange(), rg.crlRange(), userchanged );
     }
 
-    return uiODEarthModelSurfaceTreeItem::init();
+    const bool res = uiODEarthModelSurfaceTreeItem::init();
+    if ( !res ) return res;
+
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
+    if ( hor3d )
+    {
+	const int nrauxdata = hor3d->auxdata.nrAuxData();
+	for ( int idx=0; idx<nrauxdata; idx++ )
+	{
+	    uiODDataTreeItem* itm = addAttribItem();
+	    DataPointSet vals( false, true );
+	    float shift;
+	    applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
+	    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
+	    if ( emitm ) emitm->setDataPointSet( vals );
+	}
+    }
+
+    return res;
 }
 
 
