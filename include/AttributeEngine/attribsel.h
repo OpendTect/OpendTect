@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.23 2009-11-03 04:54:39 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.24 2009-11-13 03:27:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,6 +160,7 @@ public:
 	    				const char* zdomainid,
 					BufferStringSet& objnms);
     			//!< Filters on given DepthDomain key and id
+    			//!< To filter only on key, set id=0
 
 protected:
 

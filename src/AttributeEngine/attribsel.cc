@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.42 2009-11-03 04:54:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.43 2009-11-13 03:27:47 cvsnanne Exp $";
 
 #include "attribsel.h"
 
@@ -374,15 +374,16 @@ void SelInfo::getZDomainItems( const char* zdomainkey, const char* zdomainid,
 	const char* dres = ioobj.pars().find( "Depth Domain" ); // Legacy
 	if ( dres && !strcmp(dres,zdomainkey) )
 	{
-	    nms.add( ioobj.name() );
-	    continue;
+	    IOObj& myioobj = const_cast<IOObj&>(ioobj);
+	    ioobj.pars().remove( "Depth Domain" );
+	    ioobj.pars().set( ZDomain::sKey(), dres );
 	}
 
 	const char* zkey = ioobj.pars().find( ZDomain::sKey() );
 	const char* zid = ioobj.pars().find( ZDomain::sKeyID() );
 	const bool matchkey = zkey && !strcmp(zkey,zdomainkey);
 	const bool matchid = zid && !strcmp(zid,zdomainid);
-	if ( matchkey && matchid )
+	if ( matchkey && (!zdomainid || matchid) )
 	    nms.add( ioobj.name() );
     }
 
