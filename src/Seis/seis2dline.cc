@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.74 2009-10-23 09:03:57 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.75 2009-11-13 03:39:48 cvsnanne Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -670,8 +670,10 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
 	    }
 	}
 	else
-	nms.addIfNew( attribute(idx) );
+	    nms.addIfNew( attribute(idx) );
     }
+
+    nms.sort();
 }
 
 
