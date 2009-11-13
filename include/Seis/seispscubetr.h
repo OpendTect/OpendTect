@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispscubetr.h,v 1.5 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seispscubetr.h,v 1.6 2009-11-13 12:28:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,9 +54,9 @@ protected:
     bool		initRead_();
     bool		initWrite_(const SeisTrc&)
     			{ errmsg = "Cannot write to PS Cube"; return false; }
-    bool		commitSelections_()		{ return true; }
+    bool		commitSelections_();
 
-    bool		doRead(SeisTrc&);
+    bool		doRead(SeisTrc&,TypeSet<float>* offss=0);
     bool		toNext();
 
     int			trcnr_;

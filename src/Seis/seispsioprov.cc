@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.23 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.24 2009-11-13 12:28:40 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -180,7 +180,7 @@ SeisPSCubeSeisTrcTranslator::SeisPSCubeSeisTrcTranslator( const char* nm,
     	, psrdr_(0)
     	, inforead_(false)
     	, posdata_(*new PosInfo::CubeData)
-    	, trcnr_(0)
+    	, trcnr_(-1)
 {
 }
 
@@ -230,12 +230,14 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     curbinid_.inl = pinfo.inlrg.start;
     curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
 
-    if ( !doRead(trc_) )
+    TypeSet<float> offss;
+    if ( !doRead(trc_,&offss) )
 	return false;
     insd = trc_.info().sampling;
     innrsamples = trc_.size();
-    for ( int idx=0; idx<trc_.nrComponents(); idx++ )
-	addComp( trc_.data().getInterpreter(idx)->dataChar() );
+    for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
+	addComp( trc_.data().getInterpreter(icomp)->dataChar(),
+		 BufferString("O=",offss[icomp]) );
 
     curbinid_.inl = pinfo.inlrg.start;
     curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
@@ -273,10 +275,51 @@ bool SeisPSCubeSeisTrcTranslator::toNext()
 }
 
 
-bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc )
+bool SeisPSCubeSeisTrcTranslator::commitSelections_()
+{
+    if ( trcnr_ >= 0 ) return true;
+
+    for ( int idx=0; idx<tarcds.size(); idx++ )
+    {
+	if ( tarcds[idx]->destidx >= 0 )
+	    { trcnr_ = idx; break; }
+    }
+
+    return true;
+}
+
+
+bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 {
     if ( !toNext() ) return false;
-    SeisTrc* newtrc = psrdr_->getTrace( curbinid_, trcnr_ );
+    SeisTrc* newtrc = 0;
+    if ( trcnr_ >= 0 )
+    {
+	newtrc = psrdr_->getTrace( curbinid_, trcnr_ );
+    }
+    else
+    {
+	SeisTrcBuf tbuf( true );
+	if ( psrdr_->getGather(curbinid_,tbuf) && !tbuf.isEmpty() )
+	{
+	    newtrc = new SeisTrc( *tbuf.get(0) );
+	    const int trcsz = newtrc->size();
+	    const DataCharacteristics trcdc(
+		    newtrc->data().getInterpreter(0)->dataChar() );
+	    if ( offss )
+		*offss += newtrc->info().offset;
+	    for ( int icomp=1; icomp<tbuf.size(); icomp++ )
+	    {
+		const SeisTrc& trc = *tbuf.get(icomp);
+		newtrc->data().addComponent( trcsz, trcdc );
+		for ( int isamp=0; isamp<trcsz; isamp++ )
+		    newtrc->set( isamp, trc.get(isamp,0), icomp );
+		if ( offss )
+		    *offss += trc.info().offset;
+	    }
+	}
+    }
+
     if ( !newtrc ) return false;
     if ( !seldata || seldata->isAll() )
 	trc = *newtrc;
@@ -298,6 +341,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc )
 
 bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 {
+    if ( !outcds ) commitSelections();
     if ( inforead_ ) return true;
     if ( !doRead(trc_) ) return false;
     inforead_ = true;
@@ -308,6 +352,7 @@ bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 
 bool SeisPSCubeSeisTrcTranslator::read( SeisTrc& trc )
 {
+    if ( !outcds ) commitSelections();
     if ( inforead_ )
 	{ inforead_ = false; trc = trc_; return true; }
     inforead_ = false;
