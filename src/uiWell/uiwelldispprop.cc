@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.32 2009-10-21 15:09:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.33 2009-11-13 08:13:13 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -107,8 +107,9 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 
 void uiWellTrackDispProperties::doPutToScreen()
 {
-    NotifyStopper nsa( dispabovefld_->activated);
-    NotifyStopper nsb( dispbelowfld_->activated);
+    NotifyStopper ns1( dispabovefld_->activated );
+    NotifyStopper ns2( dispbelowfld_->activated );
+
     dispbelowfld_->setChecked( trackprops().dispbelow_ );
     dispabovefld_->setChecked( trackprops().dispabove_ );
     nmsizefld_->box()->setValue( trackprops().nmsize_ );
@@ -172,7 +173,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 		mCB(this,uiWellMarkersDispProperties,propChg) );
     samecolasmarkerfld_->activated.notify(
 		mCB(this,uiWellMarkersDispProperties,markerFldsChged));
-   
+ 
     doPutToScreen();
 }
 
@@ -187,6 +188,8 @@ void uiWellMarkersDispProperties::markerFldsChged( CallBacker*  )
 
 void uiWellMarkersDispProperties::doPutToScreen()
 {
+    NotifyStopper ns1( cylinderheightfld_->box()->valueChanging );
+
     shapefld_->box()->setCurrentItem( mrkprops().shapeint_ );
     cylinderheightfld_->box()->setValue( mrkprops().cylinderheight_ );
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
