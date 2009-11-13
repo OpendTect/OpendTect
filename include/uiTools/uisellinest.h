@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.12 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uisellinest.h,v 1.13 2009-11-13 03:17:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-#include "uidialog.h"
 
 class uiComboBox;
 class uiColorInput;
@@ -57,26 +56,5 @@ protected:
 
     void			changeCB(CallBacker*);
 };
-
-
-/*!\brief Dialog for linestyle selection
-*/
-
-mClass LineStyleDlg : public uiDialog
-{
-public:
-			LineStyleDlg(uiParent*,const LineStyle&,
-				     const char* txt=0,
-				     bool withdrawstyle=true,
-				     bool withcolor=true,
-				     bool withwidth=false);
-    const LineStyle&	getLineStyle() const;
-
-protected:
-
-    uiSelLineStyle*	lsfld;
-};
-
-
 
 #endif

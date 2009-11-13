@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.28 2009-11-11 15:18:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.29 2009-11-13 03:17:05 cvsnanne Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -157,21 +157,3 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
 
     changed.trigger(cb);
 }
-
-
-// ========================================================
-
-LineStyleDlg::LineStyleDlg( uiParent* p, const LineStyle& ls, const char* lbl,
-			    bool wdraw, bool wcol, bool wwidth )
-        : uiDialog(p,uiDialog::Setup("Display","Select linestyle",mNoHelpID))
-{   
-    lsfld = new uiSelLineStyle( this, ls, lbl ? lbl : "Line style", 
-				wdraw, wcol, wwidth ); 
-}
-
-
-const LineStyle& LineStyleDlg::getLineStyle() const
-{   
-    return lsfld->getStyle();
-}
-
