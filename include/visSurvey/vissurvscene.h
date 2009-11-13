@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.65 2009-09-04 10:04:18 cvshelene Exp $
+ RCS:		$Id: vissurvscene.h,v 1.66 2009-11-13 03:33:27 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,8 @@ class MouseCursor;
 class TaskRunner;
 class ZAxisTransform;
 template <class T> class Selector;
+
+namespace ZDomain { class Info; }
 
 namespace visBase
 {
@@ -136,8 +138,11 @@ public:
 
     bool			isRightHandSystem() const;
 
+    void			getZDomainInfo(ZDomain::Info&) const;
     const char*			getZDomainString() const;
     const char*			getZDomainID() const;
+    const char*			getZDomainUnitString() const;
+    float			getZDomainFactor() const;
     void			getAllowedZDomains(BufferString&) const;
 
     void			setAnnotColor(const Color&);

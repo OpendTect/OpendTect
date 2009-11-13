@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.20 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uislicesel.h,v 1.21 2009-11-13 03:33:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "cubesampling.h"
 #include "ranges.h"
+#include "zdomain.h"
 
 class uiCheckBox;
 class uiLabeledSpinBox;
@@ -31,7 +32,7 @@ mClass uiSliceSel : public uiGroup
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
 
-				uiSliceSel(uiParent*,Type);
+				uiSliceSel(uiParent*,Type,const ZDomain::Info&);
 				~uiSliceSel();
 
     void			setApplyCB(const CallBack&);
@@ -74,6 +75,7 @@ protected:
     CubeSampling		cs_;
     CallBack*			applycb_;
     bool			isinl_, iscrl_, istsl_, isvol_, is2d_;
+    ZDomain::Info		zdominfo_;
 
     Threads::Mutex&		updatemutex_;
 };
@@ -86,7 +88,8 @@ public:
 					      const CubeSampling& csin,
 					      const CubeSampling& maxcs,
 					      const CallBack& applycb,
-					      uiSliceSel::Type);
+					      uiSliceSel::Type,
+					      const ZDomain::Info&);
 
     const CubeSampling&		getCubeSampling() const
     				{ return slicesel_->getCubeSampling(); }

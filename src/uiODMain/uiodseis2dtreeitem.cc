@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.73 2009-11-06 12:01:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.74 2009-11-13 03:33:27 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -648,9 +648,12 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	curcs.hrg.start.crl = s2d->getTraceNrRange().start;
 	curcs.hrg.stop.crl = s2d->getTraceNrRange().stop;
 
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	CallBack dummy;
+	ZDomain::Info info; scene->getZDomainInfo( info );
 	uiSliceSelDlg positiondlg( getUiParent(), curcs,
-				   maxcs, dummy, uiSliceSel::TwoD );
+				   maxcs, dummy, uiSliceSel::TwoD,
+	       			   info );
 	if ( !positiondlg.go() ) return;
 	const CubeSampling newcs = positiondlg.getCubeSampling();
 

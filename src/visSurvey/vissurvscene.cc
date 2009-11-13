@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.126 2009-09-04 09:39:14 cvshelene Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.127 2009-11-13 03:33:27 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -203,6 +203,15 @@ bool Scene::isRightHandSystem() const
 }
 
 
+void Scene::getZDomainInfo( ZDomain::Info& info ) const
+{
+    info.name_ = getZDomainString();
+    info.id_ = getZDomainID();
+    info.zfactor_ = getZDomainFactor();
+    info.unitstr_ = getZDomainUnitString();
+}
+
+
 const char* Scene::getZDomainString() const
 {
     return datatransform_ ? datatransform_->getToZDomainString()
@@ -211,9 +220,13 @@ const char* Scene::getZDomainString() const
 
 
 const char* Scene::getZDomainID() const
-{
-    return datatransform_ ? datatransform_->getZDomainID() : 0;
-}
+{ return datatransform_ ? datatransform_->getZDomainID() : 0; }
+
+float Scene::getZDomainFactor() const
+{ return datatransform_ ? datatransform_->getZFactor() : SI().zFactor(); }
+
+const char* Scene::getZDomainUnitString() const
+{ return datatransform_ ? "" : SI().getZUnitString(); }
 
 
 void Scene::getAllowedZDomains( BufferString& dms ) const

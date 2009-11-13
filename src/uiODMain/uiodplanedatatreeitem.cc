@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.36 2009-11-11 11:12:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.37 2009-11-13 03:33:27 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -239,10 +239,11 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	    maxcs.zrg.stop = zintv.stop;
 	}
 
+	ZDomain::Info info; scene->getZDomainInfo( info );
 	positiondlg_ = new uiSliceSelDlg( getUiParent(),
 				pdd->getCubeSampling(true,true), maxcs,
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos), 
-				(uiSliceSel::Type)orient_ );
+				(uiSliceSel::Type)orient_, info );
 	positiondlg_->windowClosed.notify( 
 		mCB(this,uiODPlaneDataTreeItem,posDlgClosed) );
 	positiondlg_->go();

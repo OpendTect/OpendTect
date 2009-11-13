@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.54 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.55 2009-11-13 03:33:27 cvsnanne Exp $";
 
 #include "uislicesel.h"
 
@@ -24,7 +24,8 @@ static const char* sButTxtAdvance = "&Advance >>";
 static const char* sButTxtPause = "&Pause";
 
 
-uiSliceSel::uiSliceSel( uiParent* p, Type type )
+uiSliceSel::uiSliceSel( uiParent* p, Type type,
+			const ZDomain::Info& zi )
     : uiGroup(p,"Slice Selection")
     , inl0fld_(0)
     , updatemutex_(*new Threads::Mutex)
@@ -32,6 +33,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type )
     , scrolldlg_(0)
     , scrollbut_(0)
     , applybut_(0)
+    , zdominfo_(zi)
 {
     isinl_ = type == Inl;
     iscrl_ = type == Crl;
@@ -103,14 +105,9 @@ void uiSliceSel::createCrlFld()
 
 void uiSliceSel::createZFld()
 {
-    BufferString label = SI().zIsTime() ? "Time" : "Depth";
-    BufferString nm = "Z";
-    if ( !istsl_ )
-    {
-	label += " range "; label += SI().getZUnitString();
-	nm += " Start";
-    }
-    z0fld_ = new uiLabeledSpinBox( this, label, 0, nm );
+    BufferString label = istsl_ ? "Z " : "Z range ";
+    label += zdominfo_.unitstr_;
+    z0fld_ = new uiLabeledSpinBox( this, label, 0, istsl_ ? "Z" : "Z Start" );
     z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
     z1fld_->attach( rightTo, z0fld_ );
     z1fld_->display( !istsl_ );
@@ -121,8 +118,7 @@ void uiSliceSel::createZFld()
 void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv, 
 			       int curval )
 {
-    box->setMinValue( intv.start );
-    box->setMaxValue( intv.stop );
+    box->setInterval( intv.start, intv.stop );
     box->setStep( intv.step, true );
     box->setValue( curval );
 }
@@ -136,10 +132,10 @@ public:
 uiSliceScroll( uiSliceSel* ss )
 	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2")
 				      .modal(false))
-	, slcsel(ss)
-	, inauto(false)
-	, paused(false)
-	, zfact( SI().zFactor() )
+	, slcsel_(ss)
+	, inauto_(false)
+	, paused_(false)
+	, zfact_(ss->zdominfo_.zfactor_)
 {
     setCtrlStyle( LeaveOnly );
     timer = new Timer( "uiSliceScroll timer" );
@@ -156,8 +152,8 @@ uiSliceScroll( uiSliceSel* ss )
     }
     else if ( ss->istsl_ )
     {
-	step = mNINT(cs.zrg.step*zfact);
-	float zrg = (cs.zrg.stop - cs.zrg.start) * zfact;
+	step = mNINT(cs.zrg.step*zfact_);
+	float zrg = (cs.zrg.stop - cs.zrg.start) * zfact_;
 	maxstep = mNINT(zrg);
     }
     if ( maxstep < 0 ) maxstep = -maxstep;
@@ -197,7 +193,7 @@ void typSel( CallBacker* )
 {
     const bool autoreq = typfld_->box()->currentItem() == 1;
     dtfld_->display( autoreq );
-    if ( inauto != autoreq )
+    if ( inauto_ != autoreq )
     {
 	if ( autoreq )
 	    startAuto();
@@ -206,25 +202,25 @@ void typSel( CallBacker* )
     }
     ctrlbut->setText( autoreq ? sButTxtPause : sButTxtAdvance );
     backbut->display( !autoreq );
-    inauto = autoreq;
+    inauto_ = autoreq;
 }
 
 
 void butPush( CallBacker* cb )
 {
-    if ( !inauto )
+    if ( !inauto_ )
 	doAdvance( cb != ctrlbut );
     else
     {
-	/*new*/paused = ctrlbut->text()[1] == 'P';
-	ctrlbut->setText( paused ? "&Go" : sButTxtPause );
+	/*new*/paused_ = ctrlbut->text()[1] == 'P';
+	ctrlbut->setText( paused_ ? "&Go" : sButTxtPause );
     }
 }
 
 
 void startAuto()
 {
-    paused = false;
+    paused_ = false;
     doAdvance( false );
     ctrlbut->setText( sButTxtPause );
     setTimer();
@@ -233,7 +229,7 @@ void startAuto()
 void stopAuto( bool setmanual )
 {
     timer->stop();
-    inauto = false;
+    inauto_ = false;
     if ( setmanual )
     {
 	typfld_->box()->setCurrentItem( 0 );
@@ -248,50 +244,49 @@ void doAdvance( bool reversed )
     if ( !timer ) return;
 
     const int step = (reversed ? -1 : 1) * stepfld_->box()->getValue();
-    slcsel->readInput();
-    if ( slcsel->isinl_ )
+    slcsel_->readInput();
+    if ( slcsel_->isinl_ )
     {
-	int newval = slcsel->cs_.hrg.start.inl + step;
+	int newval = slcsel_->cs_.hrg.start.inl + step;
 	if ( !SI().sampling(true).hrg.inlOK(newval) )
 	    stopAuto( true );
 	else
-	    slcsel->inl0fld_->box()->setValue( newval );
+	    slcsel_->inl0fld_->box()->setValue( newval );
     }
-    else if ( slcsel->iscrl_ )
+    else if ( slcsel_->iscrl_ )
     {
-	int newval = slcsel->cs_.hrg.start.crl + step;
+	int newval = slcsel_->cs_.hrg.start.crl + step;
 	if ( !SI().sampling(true).hrg.crlOK(newval) )
 	    stopAuto( true );
 	else
-	    slcsel->crl0fld_->box()->setValue( newval );
+	    slcsel_->crl0fld_->box()->setValue( newval );
     }
     else
     {
-	const float zfac = SI().zFactor();
-	float newval = slcsel->cs_.zrg.start + step / zfac;
+	float newval = slcsel_->cs_.zrg.start + step / zfact_;
 	if ( !SI().sampling(true).zrg.includes(newval) )
 	    stopAuto( true );
 	else
 	{
-	    if ( zfac < 10 )
-		slcsel->z0fld_->box()->setValue( newval );
+	    if ( zfact_ < 10 )
+		slcsel_->z0fld_->box()->setValue( newval );
 	    else
 	    {
-		newval *= zfac;
-		slcsel->z0fld_->box()->setValue( mNINT(newval) );
+		newval *= zfact_;
+		slcsel_->z0fld_->box()->setValue( mNINT(newval) );
 	    }
 	}
     }
 
-    slcsel->applyPush(0);
+    slcsel_->applyPush(0);
 }
 
 
 void timerTick( CallBacker* )
 {
-    if ( !inauto )
+    if ( !inauto_ )
 	return;
-    if ( !paused )
+    if ( !paused_ )
 	doAdvance( false );
     setTimer();
 }
@@ -312,8 +307,8 @@ void setTimer()
 
 bool rejectOK( CallBacker* )
 {
-    paused = true;
-    inauto = false;
+    paused_ = true;
+    inauto_ = false;
     return true;
 }
 
@@ -332,16 +327,16 @@ const char* getTitle( uiSliceSel* ss )
     return title.buf();
 }
 
-    uiSliceSel*		slcsel;
+    uiSliceSel*		slcsel_;
     uiLabeledSpinBox*	stepfld_;
     uiLabeledComboBox*	typfld_;
     uiPushButton*	ctrlbut;
     uiPushButton*	backbut;
     uiGenInput*		dtfld_;
-    const float		zfact;
+    const float		zfact_;
 
-    bool		paused;
-    bool		inauto;
+    bool		paused_;
+    bool		inauto_;
     Timer*		timer;
 
 };
@@ -393,13 +388,13 @@ void uiSliceSel::readInput()
 	crlrg.stop += hs.step.crl;
 
     Interval<float> zrg;
-    zrg.start = z0fld_->box()->getValue() / SI().zFactor();
+    zrg.start = z0fld_->box()->getValue() / zdominfo_.zfactor_;
     zrg.start = maxcs_.zrg.snap( zrg.start );
     if ( istsl_ )
 	zrg.stop = zrg.start;
     else
     {
-	zrg.stop = z1fld_->getValue() / SI().zFactor();
+	zrg.stop = z1fld_->getValue() / zdominfo_.zfactor_;
 	zrg.sort();
 	zrg.stop = maxcs_.zrg.snap( zrg.stop );
 	if ( mIsEqual(zrg.start,zrg.stop,mDefEps) )
@@ -431,15 +426,42 @@ void uiSliceSel::updateUI()
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
-    const float zfact( SI().zFactor() );
-    Interval<int> zrg( mNINT(cs_.zrg.start*zfact), 
-	    	       mNINT(cs_.zrg.stop*zfact) );
-    StepInterval<int> maxzrg = 
-		    StepInterval<int>( mNINT(maxcs_.zrg.start*zfact),
-				       mNINT(maxcs_.zrg.stop*zfact),
-				       mNINT(maxcs_.zrg.step*zfact) );
-    setBoxValues( z0fld_->box(), maxzrg, zrg.start );
-    setBoxValues( z1fld_, maxzrg, zrg.stop );
+    int nrdec = 0;
+    float step = maxcs_.zrg.step * zdominfo_.zfactor_;
+    while ( true )
+    {
+	if ( step>1 || mIsEqual(step,1,mDefEps) )
+	    break;
+	nrdec++;
+	step *= 10;
+    }
+
+    if ( nrdec==0 )
+    {
+	Interval<int> zrg( mNINT(cs_.zrg.start*zdominfo_.zfactor_), 
+			   mNINT(cs_.zrg.stop*zdominfo_.zfactor_) );
+	StepInterval<int> maxzrg = 
+	    StepInterval<int>( mNINT(maxcs_.zrg.start*zdominfo_.zfactor_),
+			       mNINT(maxcs_.zrg.stop*zdominfo_.zfactor_),
+			       mNINT(maxcs_.zrg.step*zdominfo_.zfactor_) );
+	setBoxValues( z0fld_->box(), maxzrg, zrg.start );
+	setBoxValues( z1fld_, maxzrg, zrg.stop );
+    }
+    else
+    {
+	StepInterval<float> zrg = cs_.zrg;
+	zrg.scale( zdominfo_.zfactor_ );
+	StepInterval<float> maxzrg = maxcs_.zrg;
+	maxzrg.scale( zdominfo_.zfactor_ );
+
+	z0fld_->box()->setNrDecimals( nrdec );
+	z0fld_->box()->setInterval( maxzrg );
+	z0fld_->box()->setValue( cs_.zrg.start );
+
+	z1fld_->setNrDecimals( nrdec );
+	z1fld_->setInterval( maxzrg );
+	z1fld_->setValue( cs_.zrg.stop );
+    }
 }
 
 
@@ -481,12 +503,13 @@ void uiSliceSel::enableScrollButton( bool yn )
 
 uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
 			const CubeSampling& maxcs,
-			const CallBack& acb, uiSliceSel::Type type )
+			const CallBack& acb, uiSliceSel::Type type,
+       			const ZDomain::Info& zdominfo )
     : uiDialog(p,uiDialog::Setup("Positioning",
 				 "Specify the element's position","0.4.1")
 	    	 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
 {
-    slicesel_ = new uiSliceSel( this, type );
+    slicesel_ = new uiSliceSel( this, type, zdominfo );
     slicesel_->setMaxCubeSampling( maxcs );
     slicesel_->setCubeSampling( curcs );
     slicesel_->setApplyCB( acb );
