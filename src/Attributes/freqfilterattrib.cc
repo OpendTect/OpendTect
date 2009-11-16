@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.40 2009-11-04 14:26:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.41 2009-11-16 17:08:49 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -82,17 +82,17 @@ void FreqFilter::initClass()
     isfreqtaper->setDefaultValue( false );
     desc->addParam( isfreqtaper );
     
-    FloatParam* highfreqvariable = new FloatParam( highfreqparamvalStr() );
-    const float hdefval = 0.90;
-    highfreqvariable->setDefaultValue( hdefval );
-    highfreqvariable->setRequired( false );
-    desc->addParam(highfreqvariable);
+    FloatParam* highfreqval = new FloatParam( highfreqparamvalStr() );
+    const float hdefval = 10;
+    highfreqval->setDefaultValue( hdefval );
+    highfreqval->setRequired( false );
+    desc->addParam(highfreqval);
     
-    FloatParam* lowfreqvariable = new FloatParam( lowfreqparamvalStr() );
-    const float ldefval = 0.90;
-    lowfreqvariable->setDefaultValue( ldefval );
-    lowfreqvariable->setRequired( false );
-    desc->addParam(lowfreqvariable);
+    FloatParam* lowfreqval = new FloatParam( lowfreqparamvalStr() );
+    const float lfreqval = 55;
+    lowfreqval->setDefaultValue( lfreqval );
+    lowfreqval->setRequired( false );
+    desc->addParam(lowfreqval);
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -354,20 +354,28 @@ void FreqFilter::fftFilter( const DataHolder& output,
 
     fft.transform( timedomain, freqdomain );
     FFTFilter filter;
-    const int winsize = (int)( 200/df ); 
-    ArrayNDWindow lowwindow( 
-	    Array1DInfoImpl(winsize), false, "CosTaper", lowfreqvariable_ );
-    ArrayNDWindow highwindow( 
-	    Array1DInfoImpl(winsize), false, "CosTaper", highfreqvariable_ );
-    Array1DImpl<float> highwin( winsize/2 ), lowwin( winsize/2 ); 
 
-    for ( int idx=0; idx<winsize/2; idx++ )
-    {
-	lowwin.set( idx, 1-lowwindow.getValues()[winsize-1-idx] );
-	highwin.set( winsize/2-idx-1, 1-highwindow.getValues()[idx] );
-    }
-    filter.setHighFreqBorderWindow( highwin.getData(), winsize/2 );
-    filter.setLowFreqBorderWindow( lowwin.getData(), winsize/2 );
+    //TODO symplify by using data from drawing
+    const int datasz = (int)( fft.getNyqvist( SI().zStep()) ); 
+    const int winsz1 = 2*( (int)minfreq );
+    const int winsz2 = 2*( datasz - (int)maxfreq );
+    const float var1 = highfreqvariable_ / minfreq;
+    const float var2 = 1-( lowfreqvariable_ - maxfreq ) / ( datasz - maxfreq );
+
+    ArrayNDWindow lowwindow( Array1DInfoImpl(winsz2), false, "CosTaper", var2 );
+    ArrayNDWindow highwindow( Array1DInfoImpl(winsz1), false, "CosTaper", var1);
+    Array1DImpl<float> hwin ( winsz1/2 );
+    Array1DImpl<float> lwin ( winsz2/2 );
+
+    for ( int idx=0; idx<winsz1/2; idx++ )
+	hwin.set( idx, 1 - highwindow.getValues()[winsz1/2+idx] );
+
+    for ( int idx=0; idx<winsz2/2; idx++ )
+	lwin.set( idx, 1-lowwindow.getValues()[idx] );
+
+    filter.setHighFreqBorderWindow( hwin.getData(), winsz1/2 );
+    filter.setLowFreqBorderWindow( lwin.getData(), winsz2/2 );
+
     if ( filtertype == mFilterLowPass )
 	filter.FFTFreqFilter( df, maxfreq, true, freqdomain, tmpfreqdomain );
     else if ( filtertype == mFilterHighPass)

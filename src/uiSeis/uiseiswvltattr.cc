@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.12 2009-11-09 06:24:38 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.13 2009-11-16 17:08:49 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -154,7 +154,6 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
     if ( mutefld_->isChecked() )
 	wvltattr_->muteZeroFrequency( *wvltvals_ );
 
-    WindowFunction* winfunc = WinFuncs().create( winname );
     TypeSet<float> xvals;
     for ( int idx=0; idx<wvltsz; idx++ )
     {
@@ -162,7 +161,6 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
 	wvlt_->samples()[idx] = wvltvals_->get(idx); 
     }
 
-    winfunc->setVariable( var );
     properties_->setAttrCurves( *wvlt_ );
     drawer_->setY2Vals( xvals.arr(), window_->getValues(), wvltsz );
 

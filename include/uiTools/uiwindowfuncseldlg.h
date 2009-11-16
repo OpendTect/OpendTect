@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.24 2009-11-04 16:19:14 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.25 2009-11-16 17:08:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,14 +19,18 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "color.h"
 #include "mathfunc.h"
+#include <arrayndimpl.h>
 
 class uiAxisHandler;
 class uiGenInput;
 class uiGraphicsItemGroup;
+class uiFunctionDisplay;
 class uiListBox;
 class uiRectItem;
 class uiWorld2Ui;
+
 class WindowFunction;
+class ArrayNDWindow;
 
 /*!brief Displays a mathfunction. */
 
@@ -163,32 +167,28 @@ public:
 			Setup()
 			    : hasmin_(false)
 			    , hasmax_(true)
-			    , displayfac_(true)
-			    , winfreqsize_(100)			
 			    {}
 
 	mDefSetupMemb(const char*,name);	
 	mDefSetupMemb(bool,hasmin)	
 	mDefSetupMemb(bool,hasmax)	
-	mDefSetupMemb(float,displayfac)	
 	mDefSetupMemb(Interval<float>,minfreqrg)	
 	mDefSetupMemb(Interval<float>,maxfreqrg)	
-	mDefSetupMemb(Interval<float>,orgfreqrg)	
-	mDefSetupMemb(int,winfreqsize)	
     };
 
 			uiFreqTaperDlg(uiParent*,const Setup&);
+			~uiFreqTaperDlg();
     
-    void		setVariables(Interval<float>); 
-    Interval<float>	getVariables() const; 
+    void		setFreqRange(Interval<float>); 
+    Interval<float>	getFreqRange() const; 
+    float*		getWinValues() const { return winvals_->getData(); } 
 
     mStruct DrawData 
     {
 	float		variable_;
 	Interval<float> freqrg_;
-	Interval<float> funcrg_;
-	Interval<float> xaxrg_;
-	Interval<float> orgfreqrg_;
+	ArrayNDWindow*	window_;
+	int 		winsz_;
     };
 
     DrawData		dd1_;
@@ -200,19 +200,16 @@ protected:
     uiGenInput*		freqinpfld_;
     uiGenInput*		freqrgfld_;
     	
-    ObjectSet<uiFunctionDrawer> drawers_;
-    WindowFunction*	winfunc_;
+    uiFunctionDisplay*  drawer_;
+    Array1DImpl<float>* winvals_; 
 
     bool		hasmin_;
     bool		hasmax_;
     bool		isminactive_;
-    float 		dispfac_;
-    int 		winfsize_;
+    int 		datasz_;
 
     float		getSlope();
     float 		getPercentsFromSlope(float);
-    void 		setViewRanges();
-
     void 		setFreqFromPercents(CallBacker*);
     void 		setPercentsFromFreq(CallBacker*);
 
