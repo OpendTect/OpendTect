@@ -9,18 +9,26 @@ static const char* rcsID = "$Id";
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
 #include "uigoogleexp2dlines.h"
+#include "uigoogleexppolygon.h"
 #include "uiodmain.h"
+#include "uiodapplmgr.h"
 #include "uisurvey.h"
-#include "uilatlong2coord.h"
+#include "uimsg.h"
 #include "uibutton.h"
 #include "uiwellman.h"
 #include "uiioobjmanip.h"
+#include "uilatlong2coord.h"
 #include "uiseis2dfileman.h"
-#include "uimsg.h"
+#include "uivismenuitemhandler.h"
+#include "uivispartserv.h"
+#include "vispicksetdisplay.h"
+#include "pickset.h"
 #include "pixmap.h"
 #include "survinfo.h"
 #include "latlong.h"
 #include "plugins.h"
+static const int cPSMnuIdx = -1001;
+
 
 mExternC int GetuiGoogleIOPluginType()
 {
@@ -47,10 +55,12 @@ public:
 
     uiODMain&		appl_;
     uiSeis2DFileMan*	cur2dfm_;
+    uiVisMenuItemHandler psmnuitmhandler_;
 
     void		exportSurv(CallBacker*);
     void		exportWells(CallBacker*);
     void		exportLines(CallBacker*);
+    void		exportPolygon(CallBacker*);
     void		mkExportWellsIcon(CallBacker*);
     void		mkExportLinesIcon(CallBacker*);
 };
@@ -58,6 +68,9 @@ public:
 
 uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     : appl_(a)
+    , psmnuitmhandler_(visSurvey::PickSetDisplay::getStaticClassName(),
+	    		*a.applMgr().visServer(),"Export to &Google KML ...",
+    			mCB(this,uiGoogleIOMgr,exportPolygon),cPSMnuIdx)
 {
     uiSurvey::add( uiSurvey::Util( "google.png",
 				   "Export to Google Earth/Maps",
@@ -123,6 +136,23 @@ void uiGoogleIOMgr::exportLines( CallBacker* cb )
 	return;
 
     uiGoogleExport2DSeis dlg( cur2dfm_ );
+    dlg.go();
+}
+
+
+void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
+{
+    const int displayid = psmnuitmhandler_.getDisplayID();
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    appl_.applMgr().visServer()->getObject(displayid))
+    if ( !psd || !psd->getSet() || psd->getSet()->size() < 2 ) return;
+    
+    const Pick::Set& ps = *psd->getSet();
+
+    if ( !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
+	return;
+
+    uiGoogleExportPolygon dlg( &appl_, ps );
     dlg.go();
 }
 

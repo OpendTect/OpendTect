@@ -9,13 +9,14 @@ static const char* rcsID = "$Id";
 #include "uigoogleexpsurv.h"
 #include "odgooglexmlwriter.h"
 #include "uisurvey.h"
-#include "uicolor.h"
+#include "uisellinest.h"
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "oddirs.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "latlong.h"
+#include "draw.h"
 #include <iostream>
 
 
@@ -24,13 +25,12 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
 				      "Specify output parameters","0.3.10") )
     , si_(uisurv->curSurvInfo())
 {
-    const Color defcol( 255, 170, 0, 100 );
-    colfld_ = new uiColorInput( this,
-	    			uiColorInput::Setup(defcol).lbltxt("Color") );
-    colfld_->enableAlphaSetting( true );
+    const LineStyle ls( LineStyle::Solid, 20, Color(255,170,80,100) );
+    lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
+    lsfld_->enableTransparency( true );
 
-    hghtfld_ = new uiGenInput( this, "Border height", FloatInpSpec(50) );
-    hghtfld_->attach( alignedBelow, colfld_ );
+    hghtfld_ = new uiGenInput( this, "Border height", FloatInpSpec(500) );
+    hghtfld_->attach( alignedBelow, lsfld_ );
 
     mImplFileNameFld;
     fnmfld_->attach( alignedBelow, hghtfld_ );
@@ -53,8 +53,9 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
     coords += si_->transform(BinID(inlrg.start,crlrg.stop));
     coords += si_->transform(BinID(inlrg.stop,crlrg.stop));
     coords += si_->transform(BinID(inlrg.stop,crlrg.start));
+    coords += si_->transform(BinID(inlrg.start,crlrg.start));
 
-    wrr.writePolyStyle( "survey", colfld_->color(), 1.5 );
+    wrr.writePolyStyle( "survey", lsfld_->getColor(), lsfld_->getWidth()*0.1 );
     wrr.writePoly( "survey", si_->name(), coords, hghtfld_->getfValue(), si_ );
 
     return true;

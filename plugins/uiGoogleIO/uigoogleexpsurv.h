@@ -4,14 +4,14 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: uigoogleexpsurv.h,v 1.4 2009-11-16 13:56:10 cvsbert Exp $
+ * ID       : $Id: uigoogleexpsurv.h,v 1.5 2009-11-16 15:45:52 cvsbert Exp $
 -*/
 
 #include "uigoogleexpdlg.h"
-class uiSurvey;
 class SurveyInfo;
+class uiSurvey;
 class uiGenInput;
-class uiColorInput;
+class uiSelLineStyle;
 
 
 class uiGoogleExportSurvey : public uiDialog
@@ -25,7 +25,7 @@ protected:
 
     SurveyInfo*		si_;
 
-    uiColorInput*	colfld_;
+    uiSelLineStyle*	lsfld_;
     uiGenInput*		hghtfld_;
 
 			mDecluiGoogleExpStd;
