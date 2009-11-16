@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.11 2009-11-11 15:14:10 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.12 2009-11-16 17:31:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
 			    , issonic_(true)
 			    , isinitdlg_(true)
 			    , corrvellognm_("CS Corrected ")
+			    , seisinlcrlrg_(0,0)			     
 			    , unitfactors_(0)
 			    , linekey_(0)	     
 			    {}
@@ -53,6 +54,7 @@ public:
 			    , denlognm_(setup.denlognm_)
 			    , corrvellognm_(setup.corrvellognm_)
 			    , unitfactors_(setup.unitfactors_)
+			    , seisinlcrlrg_(setup.seisinlcrlrg_)	 
 			    , linekey_(setup.linekey_)
 			    {}	
 	
@@ -66,6 +68,7 @@ public:
     BufferString          	corrvellognm_;
     bool                	issonic_;
     bool 			isinitdlg_;
+    Interval<int>		seisinlcrlrg_;
     
     WellTie::UnitFactors 	unitfactors_;
     

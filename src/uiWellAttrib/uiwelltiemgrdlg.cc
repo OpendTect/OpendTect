@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.25 2009-11-13 14:00:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.26 2009-11-16 17:31:23 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -53,6 +53,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	, seis2dfld_(0)						      
 	, seis3dfld_(0)						      
 	, seislinefld_(0)						      
+	, seisextractfld_(0)				   
 	, typefld_(0)						      
 {
     setCtrlStyle( DoAndStay );

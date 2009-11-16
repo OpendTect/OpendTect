@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.8 2009-11-11 15:14:10 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.9 2009-11-16 17:31:23 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ protected:
     uiIOObjSel*         wellfld_;
     uiIOObjSel*         wvltfld_;
     uiGenInput*		typefld_;
+    uiGenInput*		seisextractfld_;
     uiSeisSel* 		seis2dfld_;
     uiSeisSel* 		seis3dfld_;
     uiSeis2DLineNameSel* seislinefld_;
