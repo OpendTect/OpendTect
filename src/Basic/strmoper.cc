@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.21 2009-11-16 07:14:04 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.22 2009-11-16 11:46:07 cvsbert Exp $";
 
 #include "strmoper.h"
 #include "timefun.h"
@@ -166,7 +166,8 @@ bool StrmOper::readFile( std::istream& strm, BufferString& bs )
 }
 
 
-void StrmOper::seek( std::istream& strm, od_int64 offset, std::ios::seek_dir dir )
+void StrmOper::seek( std::istream& strm, od_int64 offset,
+		     std::ios::seekdir dir )
 {
     int smalloffset = INT_MAX - 1;
     od_int64 curoffset = 0;
