@@ -8,20 +8,20 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.13 2009-09-08 15:16:33 cvsbert Exp $
+ RCS:		$Id: strmoper.h,v 1.14 2009-11-16 06:57:13 cvsranojay Exp $
 ________________________________________________________________________
 
 */
 
 #include "gendefs.h"
 #include <iosfwd>
+#include <iostream>
 class BufferString;
 
 /*!\brief Stream operations. operations will be retried on soft errors */
 
 namespace StrmOper
 {
-
     mGlobal bool readBlock(std::istream&,void*,unsigned int nrbytes);
     mGlobal bool writeBlock(std::ostream&,const void*,unsigned int nrbytes);
 
@@ -29,7 +29,8 @@ namespace StrmOper
     mGlobal bool wordFromLine(std::istream&,char*,int maxnrchars);
     mGlobal bool readLine(std::istream&,BufferString* b=0);
     mGlobal bool readFile(std::istream&,BufferString&);
-
+    mGlobal void seek(std::istream&,od_int64 offset,std::ios::seek_dir);
+    mGlobal void seek(std::istream&,od_int64 pos);
 }
 
 

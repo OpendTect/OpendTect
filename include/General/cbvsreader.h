@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.29 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.30 2009-11-16 06:57:13 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,11 @@ protected:
     bool		readGeom();
     bool		readTrailer();
     void		getText(int,BufferString&);
-    void		toOffs(std::streampos);
+#ifdef __win32__
+    void		toOffs(od_int64);
+#else 
+    void		toOffs(std::streampos);    
+#endif
     int			getNextBinID(BinID&,int&,int&) const;
     			//!< see nextPosIdx() for ret value
     int			getPosNr(const BinID&,bool,bool) const;
@@ -113,9 +117,13 @@ private:
     			//!< 0 = no more traces
     			//!< 1 = next trace adjacent to current
     			//!< 2 = next trace needs a jump
-
+#ifdef __win32__
+    od_int64		lastposfo;
+    od_int64		datastartfo;
+#else
     std::streampos	lastposfo;
     std::streampos	datastartfo;
+#endif
 
     friend class	CBVSReadMgr;
     mutable int		curinlinfnr_;

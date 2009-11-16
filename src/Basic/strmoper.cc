@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.19 2009-09-24 09:21:37 cvsbert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.20 2009-11-16 06:57:13 cvsranojay Exp $";
 
 #include "strmoper.h"
 #include "timefun.h"
@@ -163,4 +163,46 @@ bool StrmOper::readFile( std::istream& strm, BufferString& bs )
 	{ bs[sz-1] = '\0'; sz--; }
 
     return sz > 0;
+}
+
+
+void StrmOper::seek( std::istream& strm, od_int64 offset, std::ios::seek_dir dir )
+{
+    int smalloffset = INT_MAX - 1;
+    _int64 curoffset = 0;
+    _int64 diff = 0;
+    
+    strm.seekg( 0, dir );
+    
+    if ( offset < smalloffset )
+    { strm.seekg( offset, std::ios::cur ); return; }
+
+    while ( curoffset < offset )
+    {
+	diff = offset - curoffset;
+	diff > smalloffset ? strm.seekg( smalloffset, std::ios::cur ) 
+			   : strm.seekg( diff, std::ios::cur );
+	curoffset += smalloffset;
+    }
+}
+
+
+void StrmOper::seek( std::istream& strm, od_int64 pos )
+{
+    int smalloffset = INT_MAX - 1;
+    _int64 curoffset = 0;
+    _int64 diff = 0;
+    
+    strm.seekg( 0, std::ios::beg );
+    
+    if ( pos < smalloffset )
+    { strm.seekg( pos, std::ios::cur ); return; }
+
+    while ( curoffset < pos )
+    {
+	diff = pos - curoffset;
+	diff > smalloffset ? strm.seekg( smalloffset, std::ios::cur ) 
+			   : strm.seekg( diff, std::ios::cur );
+	curoffset += smalloffset;
+    }
 }

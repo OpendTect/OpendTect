@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.77 2009-08-20 08:32:55 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.78 2009-11-16 06:57:13 cvsranojay Exp $";
 
 /*!
 
@@ -378,11 +378,19 @@ bool CBVSReader::toStart()
 }
 
 
+#ifdef __win32__
+void CBVSReader::toOffs( od_int64 sp )
+{
+    lastposfo = sp;
+    StrmOper::seek( strm_, lastposfo, std::ios::beg );
+}
+#else
 void CBVSReader::toOffs( std::streampos sp )
 {
     lastposfo = sp;
     strm_.seekg( lastposfo, std::ios::beg );
 }
+#endif
 
 
 bool CBVSReader::goTo( const BinID& bid, bool nearestok )
@@ -407,11 +415,21 @@ bool CBVSReader::goToPosNrOffs( int posnr )
     if ( posnr < 0 ) return false;
 
     // Be careful: offsets can be larger than what fits in an int!
-    std::streamoff so = posnr * (info_.nrtrcsperposn < 2
+#ifdef __win32__
+    od_int64 so;
+#else
+    std::streamoff so;
+#endif
+    so = posnr * (info_.nrtrcsperposn < 2
 	    	      ? 1 : info_.nrtrcsperposn);
     so *= auxnrbytes + bytespertrace;
 
+#ifdef __win32__
+    toOffs( datastartfo + so );
+#else
     toOffs( datastartfo + std::streampos(so) );
+#endif
+
     hinfofetched = false;
     posidx = 0;
     return true;
