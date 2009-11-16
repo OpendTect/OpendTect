@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.188 2009-11-11 14:16:38 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.189 2009-11-16 06:37:02 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
 #include "attribsel.h"
+#include "attribstorprovider.h"
 #include "emobject.h"
 #include "emmanager.h"
 #include "emposid.h"
@@ -267,11 +268,11 @@ void uiMPEMan::seedClick( CallBacker* )
 	    uiMSG().error( "3D tracking cannot handle picks on 2D lines.");
 	else if ( randomdisp )
 	    uiMSG().error( emobj->getTypeStr(),
-			   " tracking cannot handle picks on random lines.");
+			   "Tracking cannot handle picks on random lines.");
 	else if ( clickcatcher->info().getObjCS().nrZ()==1 &&
 		  !clickcatcher->info().getObjCS().isEmpty() )
 	    uiMSG().error( emobj->getTypeStr(), 
-			   " tracking cannot handle picks on time slices." );
+			   "Tracking cannot handle picks on time slices." );
 	return;
     }
 	
@@ -291,34 +292,63 @@ void uiMPEMan::seedClick( CallBacker* )
 	return;
     }
 
+    const MPE::SectionTracker* sectiontracker =
+	tracker->getSectionTracker(emobj->sectionID(0), true);
+    const Attrib::SelSpec* trackedatsel = sectiontracker
+	? sectiontracker->adjuster()->getAttributeSel(0)
+	: 0;
+
     if ( !visserv->isTrackingSetupActive() && (seedpicker->nrSeeds()==0) )
     {
-	const MPE::SectionTracker* sectiontracker =
-	    tracker->getSectionTracker(emobj->sectionID(0), true);
-	const Attrib::SelSpec* trackedatsel = sectiontracker
-	    ? sectiontracker->adjuster()->getAttributeSel(0)
-	    : 0;
-	if ( trackedatsel && (*trackedatsel != *clickedas) )
+	if ( trackedatsel &&
+	     (seedpicker->getSeedConnectMode()!=seedpicker->DrawBetweenSeeds) )
 	{
-	    uiMSG().error( "Saved setup has different attribute. \n"
-		    	   "Either change setup attribute or change\n"
-			   "display attribute you want to track on" );
-	    return; 
+	    bool chanceoferror = false;
+	    if ( !trackedatsel->is2D() ||
+		 matchString( Attrib::StorageProvider::attribName(),
+		     	      trackedatsel->defString()) )
+		chanceoferror = *trackedatsel != *clickedas;
+	    else
+		chanceoferror = !matchString( trackedatsel->defString(),
+					      clickedas->defString() );
+
+	    if ( chanceoferror )
+	    {
+		uiMSG().error( "Saved setup has different attribute. \n"
+			       "Either change setup attribute or change\n"
+			       "display attribute you want to track on" );
+		return;
+	    }
 	}
     }
 
     if ( seedpicker->nrSeeds() > 0 )
     {
-	const MPE::SectionTracker* sectiontracker =
-	    tracker->getSectionTracker(emobj->sectionID(0), true);
-	const Attrib::SelSpec* trackedatsel = sectiontracker
-	    ? sectiontracker->adjuster()->getAttributeSel(0)
-	    : 0;
-
-	if ( trackedatsel && (*trackedatsel != *clickedas) )
+	if ( trackedatsel && 
+	     (seedpicker->getSeedConnectMode()!=seedpicker->DrawBetweenSeeds) )
 	{
-	    uiMSG().error( "Horizon has been tracked on different attribute ");
-	    return;
+	    bool chanceoferror = false;
+	    if ( !trackedatsel->is2D() ||
+		 matchString( Attrib::StorageProvider::attribName(),
+		     	      trackedatsel->defString()) )
+		chanceoferror = *trackedatsel != *clickedas;
+	    else
+		chanceoferror = !matchString( trackedatsel->defString(),
+					      clickedas->defString() );
+
+	    if ( chanceoferror )
+	    {
+		BufferString warnmsg( "Setup suggests tracking is done on " );
+		warnmsg += trackedatsel->userRef();
+		warnmsg += "\n but what you see is ";
+		warnmsg += clickedas->userRef();
+		warnmsg += "\n\n To continue seeds picking either\n";
+		warnmsg += "change displayed attribute or\n";
+		warnmsg += "change input data in Tracking Setup";
+
+		uiMSG().error( warnmsg.buf() );
+		return;
+	    }
 	}
     }
 
@@ -813,13 +843,6 @@ void uiMPEMan::introduceMPEDisplay()
     showCubeCB(0);
     
     attribSel(0);
-
-    mGetDisplays(false);
-    if ( displays.size() && !displays[0]->isDraggerShown() )
-    {
-	toolbar->turnOn( moveplaneidx, true );
-	movePlaneCB(0);
-    }
 
     mpeintropending = true; 
 }
@@ -1396,7 +1419,7 @@ void uiMPEMan::movePlaneCB( CallBacker* )
     if ( ison )
     {
 	toolbar->setToolTip( moveplaneidx, "Hide QC plane" );
-//	attribSel(0);
+	attribSel(0);
     }
 }
 
@@ -1503,21 +1526,21 @@ void uiMPEMan::retrackAllCB( CallBacker* )
 
 	emobj->setBurstAlert( false );
 	deepErase( *trackedcubes );
+
+	MouseCursorManager::restoreOverride();
+	undo.setUserInteractionEnd( undo.currentEventID() );
+
+	MPE::engine().setActiveVolume( realactivevol );
+
+	if ( !(MPE::engine().activeVolume().nrInl()==1) &&
+	     !(MPE::engine().activeVolume().nrCrl()==1) )
+	    trackInVolume(0);
     }
     else
-    {
 	seedpicker->reTrack();
 	emobj->setBurstAlert( false );
-    }
-
-    MPE::engine().setActiveVolume( realactivevol );
-
-    if ( !(MPE::engine().activeVolume().nrInl()==1) &&
-	 !(MPE::engine().activeVolume().nrCrl()==1) )
-	trackInVolume(0);
-
-    MouseCursorManager::restoreOverride();
-    undo.setUserInteractionEnd( undo.currentEventID() );
+	MouseCursorManager::restoreOverride();
+	undo.setUserInteractionEnd( undo.currentEventID() );
 }
 
 
