@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.42 2009-11-16 18:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.43 2009-11-16 18:52:03 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -71,6 +71,10 @@ void FreqFilter::initClass()
     StringParam* window = new StringParam( windowStr() );
     window->setDefaultValue( "CosTaper" );
     desc->addParam( window );
+
+    StringParam* fwindow = new StringParam( fwindowStr() );
+    fwindow->setDefaultValue( "CosTaper" );
+    desc->addParam( fwindow );
 
     FloatParam* variable = new FloatParam( paramvalStr() );
     const float defval = 0.95;

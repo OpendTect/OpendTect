@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.14 2009-10-16 16:30:36 cvsbruno Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.15 2009-11-16 18:52:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
     static const char*  isfftfilterStr()        { return "isfftfilter"; }
     static const char*  isfreqtaperStr()        { return "isfreqtaper"; }
     static const char*  windowStr()             { return "window"; }
+    static const char*  fwindowStr()             { return "fwindow"; }
     static const char*  paramvalStr()           { return "paramval"; }
     static const char*  highfreqparamvalStr()   { return "highfreqparamval"; }
     static const char*  lowfreqparamvalStr()    { return "lowfreqparamval"; }

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.27 2009-11-16 18:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.28 2009-11-16 18:52:03 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -84,7 +84,6 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     BufferString seltxt ( "Specify " ); seltxt += "Frequency Taper";
     freqwinselfld = new uiCheckBox( this, seltxt );
     freqwinselfld->attach( alignedBelow, winflds[0] );
-    freqwinselfld->display (false);
     freqwinselfld->activated.notify( mCB(this,uiFreqFilterAttrib,freqWinSel) );
 
     winflds[0]->attach( alignedBelow, polesfld );
@@ -101,6 +100,7 @@ void uiFreqFilterAttrib::finaliseCB( CallBacker* )
     typeSel(0);
     isfftSel(0);
     freqChanged(0);
+    freqWinSel(0);
 }
 
 
@@ -157,6 +157,8 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
 
     mIfGetString( FreqFilter::windowStr(), window,
 			    winflds[0]->setWindowName(window) );
+    mIfGetString( FreqFilter::windowStr(), window,
+			    winflds[1]->setWindowName(window) );
     mIfGetFloat( FreqFilter::paramvalStr(), variable,
 	    const float resvar = float( mNINT((1-variable)*1000) )/1000.0;
 	    winflds[0]->setWindowParamValue(resvar) );
@@ -198,6 +200,7 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     mSetFloat( FreqFilter::maxfreqStr(), freqfld->getfValue(1) );
     mSetInt( FreqFilter::nrpolesStr(), polesfld->box()->getValue() );
     mSetString( FreqFilter::windowStr(), winflds[0]->windowName() );
+    mSetString( FreqFilter::fwindowStr(), winflds[1]->windowName() );
 
     const float resvar =
 		float( mNINT((1-winflds[0]->windowParamValue())*1000) )/1000.0;
@@ -206,16 +209,16 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     if ( taper ) 
     {
 	Interval<float> freqresvar = taper->freqValues();
-	const bool isftp = freqwinselfld->isChecked();
-	freqresvar.start = isftp? mNINT((freqresvar.start)) 
-	    		 : freqfld->getfValue(0);
-	freqresvar.stop = isftp? mNINT((freqresvar.stop)) 
-	    		: freqfld->getfValue(1);
+	const bool isfreqtaper = freqwinselfld->isChecked();
+	freqresvar.start = isfreqtaper ? mNINT((freqresvar.start)) 
+				       : freqfld->getfValue(0);
+	freqresvar.stop = isfreqtaper ? mNINT((freqresvar.stop)) 
+				      : freqfld->getfValue(1);
 	mSetFloat( FreqFilter::lowfreqparamvalStr(), freqresvar.stop );
 	mSetFloat( FreqFilter::highfreqparamvalStr(), freqresvar.start );
+	mSetBool( FreqFilter::isfreqtaperStr(), isfreqtaper );
     }
     mSetBool( FreqFilter::isfftfilterStr(), isfftfld->getBoolValue() );
-    mSetBool( FreqFilter::isfreqtaperStr(), freqwinselfld->isChecked() );
 
     return true;
 }
