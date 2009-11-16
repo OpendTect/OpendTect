@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.25 2009-11-16 17:08:49 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.26 2009-11-16 18:25:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,10 +208,10 @@ protected:
     bool		isminactive_;
     int 		datasz_;
 
-    float		getSlope();
-    float 		getPercentsFromSlope(float);
-    void 		setFreqFromPercents(CallBacker*);
+    float		getSlopeFromFreq();
     void 		setPercentsFromFreq(CallBacker*);
+    void 		setFreqFromPercents(CallBacker*);
+    void 		setFreqFromSlope(float);
 
     void		freqChoiceChged(CallBacker*);
     void 		getFromScreen(CallBacker*);

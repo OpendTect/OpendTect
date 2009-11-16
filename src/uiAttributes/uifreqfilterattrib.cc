@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.26 2009-11-16 17:08:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.27 2009-11-16 18:25:45 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -54,7 +54,8 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     typefld->attach( alignedBelow, isfftfld );
     typefld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,typeSel) );
 
-    freqfld = new uiGenInput( this, "Min/max frequency(Hz)", 
+    const char* minmaxtxt = "Min/max frequency(Hz)";
+    freqfld = new uiGenInput( this, minmaxtxt, 
 	    FloatInpSpec().setName("Min frequency"),
 	    FloatInpSpec().setName("Max frequency") );
     freqfld->setElemSzPol( uiObject::Small );
@@ -73,7 +74,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	{
 	    su.ismaxfreq_ = true; 
 	    su.label_ = "Taper"; su.onlytaper_ = true;
-	    su.inpfldtxt_ = " Min/max frequency ";
+	    su.inpfldtxt_ = minmaxtxt;
 	    winflds += new uiFreqTaperSel( this, su );
 	}
 	else
@@ -137,12 +138,6 @@ void uiFreqFilterAttrib::freqWinSel( CallBacker* )
 {
     const bool isfreqtaper = freqwinselfld->isChecked();
     winflds[1]->setSensitive( isfreqtaper );
-    mDynamicCastGet( uiFreqTaperSel*, tap, winflds[1] );
-    if ( !isfreqtaper && tap ) 
-    {
-	tap->setFreqValue( freqfld->getfValue(0), 0 );
-	tap->setFreqValue( freqfld->getfValue(1), 1 ); 
-    }
 }
 
 
@@ -211,8 +206,11 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     if ( taper ) 
     {
 	Interval<float> freqresvar = taper->freqValues();
-	freqresvar.start = mNINT((freqresvar.start));
-	freqresvar.stop = mNINT((freqresvar.stop));
+	const bool isftp = freqwinselfld->isChecked();
+	freqresvar.start = isftp? mNINT((freqresvar.start)) 
+	    		 : freqfld->getfValue(0);
+	freqresvar.stop = isftp? mNINT((freqresvar.stop)) 
+	    		: freqfld->getfValue(1);
 	mSetFloat( FreqFilter::lowfreqparamvalStr(), freqresvar.stop );
 	mSetFloat( FreqFilter::highfreqparamvalStr(), freqresvar.start );
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.35 2009-11-16 17:08:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.36 2009-11-16 18:25:45 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -463,8 +463,9 @@ uiFreqTaperDlg::~uiFreqTaperDlg()
 void uiFreqTaperDlg::getFromScreen( CallBacker* )
 {
     DrawData& dd = mGetData();
-    //dd.variable_ = getPercentsFromSlope( varinpfld_->getfValue() );
+    setFreqFromSlope( varinpfld_->getfValue() );
     dd.freqrg_ = freqrgfld_->getFInterval();
+    setPercentsFromFreq(0);
     
     mCheckLimitRanges();
 }
@@ -485,7 +486,7 @@ void uiFreqTaperDlg::putToScreen( CallBacker* )
     setToNearestInt( dd.freqrg_.start ); 
     setToNearestInt( dd.freqrg_.stop );
     setPercentsFromFreq(0);
-    varinpfld_->setValue( dd.variable_ );
+    varinpfld_->setValue( getSlopeFromFreq() );
     freqrgfld_->setValue( dd.freqrg_ );
     
     freqrgfld_->setSensitive( hasmin_ && isminactive_, 0, 0 );
@@ -515,7 +516,7 @@ void uiFreqTaperDlg::setPercentsFromFreq( CallBacker* )
 
 
 #define mDec2Oct 0.301029996 //log(2)
-float uiFreqTaperDlg::getPercentsFromSlope( float slope )
+void uiFreqTaperDlg::setFreqFromSlope( float slope )
 {
     NotifyStopper nsf( freqrgfld_->valuechanged );
     const float slopeindecade = (float)(slope/mDec2Oct);
@@ -523,25 +524,19 @@ float uiFreqTaperDlg::getPercentsFromSlope( float slope )
     DrawData& dd = mGetData();
 
     if ( isminactive_ )
-    {
 	dd1_.freqrg_.start = dd.freqrg_.stop/slopeinhertz;
-	float& val = dd1_.freqrg_.start;
-    }
     else
-    {
 	dd2_.freqrg_.stop = dd.freqrg_.start*slopeinhertz;
-	float& val = dd2_.freqrg_.start;
-    }
-    mCheckLimitRanges()
-    setPercentsFromFreq(0);
-    return isminactive_ ? dd.variable_ : dd.variable_; 
+    mCheckLimitRanges();
+
+    putToScreen(0);
 }
 
 
-float uiFreqTaperDlg::getSlope()
+float uiFreqTaperDlg::getSlopeFromFreq()
 {
     DrawData& d = mGetData();
-    float slope = fabs( 1/Math::Log10( d.freqrg_.stop/d.freqrg_.start ) );
+    float slope = fabs( 1/Math::Log10( d.freqrg_.stop / d.freqrg_.start ) );
     slope *= mDec2Oct;
     return slope;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.19 2009-11-16 17:08:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.20 2009-11-16 18:25:45 cvsbruno Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -54,7 +54,6 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 	    if ( su.isminfreq_ || su.ismaxfreq_ )
 	    {
 		BufferString twosidedvarname( su.inpfldtxt_ );
-		twosidedvarname += varname;
 		varinpfld_ = new uiGenInput( this, twosidedvarname.buf(), 
 					FloatInpSpec(v), FloatInpSpec(v) );
 	    }
