@@ -4,13 +4,12 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2009
- * ID       : $Id: uigoogleexp2dlines.h,v 1.4 2009-11-12 16:16:49 cvsbert Exp $
+ * ID       : $Id: uigoogleexp2dlines.h,v 1.5 2009-11-16 13:56:10 cvsbert Exp $
 -*/
 
-#include "uidialog.h"
+#include "uigoogleexpdlg.h"
 #include "bufstringset.h"
 class uiGenInput;
-class uiFileInput;
 class uiSelLineStyle;
 class uiSeis2DFileMan;
 class BufferStringSet;
@@ -33,9 +32,8 @@ protected:
     uiGenInput*		putlnmfld_;
     uiGenInput*		putallfld_;
     uiSelLineStyle*	lsfld_;
-    uiFileInput*	fnmfld_;
 
-    bool		acceptOK(CallBacker*);
+			mDecluiGoogleExpStd;
 
     void		addLine(ODGoogle::XMLWriter&,const char*,int);
     void		getInitialSelectedLineNames();

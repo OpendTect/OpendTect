@@ -10,6 +10,7 @@ static const char* rcsID = "$Id";
 #include "survinfo.h"
 #include "strmprov.h"
 #include "latlong.h"
+#include "color.h"
 #include <iostream>
 
 ODGoogle::XMLWriter::XMLWriter( const char* enm, const char* fnm,
@@ -84,19 +85,19 @@ void ODGoogle::XMLWriter::finish( const ODGoogle::XMLItem& itm )
 }
 
 
-#define mDeclStNm \
-    const bool haveicon = iconnm && *iconnm; \
-    const BufferString stnm( "s_od_", haveicon ? iconnm : "noicon" )
+#define mDeclIconStNm \
+    const bool haveiconnm = iconnm && *iconnm; \
+    const BufferString stnm( "s_od_icon_", haveiconnm ? iconnm : "noicon" )
 
 void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, int xpixoffs,
 					   const char* ins )
 {
-    if ( !isOK() ) return; mDeclStNm;
+    if ( !isOK() ) return; mDeclIconStNm;
 
     strm() <<	"\t<Style id=\"" << stnm << "\">\n"
 		"\t\t<IconStyle>\n"
 		"\t\t\t<scale>1.3</scale>\n";
-    if ( !haveicon )
+    if ( !haveiconnm )
 	strm() << "\t\t\t<Icon></Icon>\n";
     else
 	strm() << "\t\t\t<Icon>\n"
@@ -127,7 +128,7 @@ void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, int xpixoffs,
 void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 					  const char* nm )
 {
-    if ( !isOK() ) return; mDeclStNm;
+    if ( !isOK() ) return; mDeclIconStNm;
 
     const LatLong ll( SI().latlong2Coord().transform(crd) );
 
@@ -149,7 +150,7 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 	"\t\t\t<coordinates>" << getStringFromDouble(0,ll.lng_);
     strm() << ',' << getStringFromDouble(0,ll.lat_) << ",0</coordinates>\n"
 	"\t\t</Point>\n"
-	"\t</Placemark>" << std::endl;
+	"\t</Placemark>\n" << std::endl;
 }
 
 
@@ -157,7 +158,7 @@ void ODGoogle::XMLWriter::writeLine( const char* iconnm,
 				     const TypeSet<Coord>& crds,
        				     const char* nm )
 {
-    if ( !isOK() ) return; mDeclStNm;
+    if ( !isOK() ) return; mDeclIconStNm;
 
     strm() << "\n\t<Placemark>\n"
 	      "\t\t<name>" << nm << " [line]</name>\n"
@@ -176,5 +177,56 @@ void ODGoogle::XMLWriter::writeLine( const char* iconnm,
 
     strm() << "\t\t\t</coordinates>\n"
 	      "\t\t</LineString>\n"
-	      "\t</Placemark>" << std::endl;
+	      "\t</Placemark>\n" << std::endl;
+}
+
+
+#define mDeclPolyStNm \
+    const BufferString stnm( "s_od_poly_", stylnm )
+
+void ODGoogle::XMLWriter::writePolyStyle( const char* stylnm, const Color& col,
+					  int wdth )
+{
+    if ( !isOK() ) return; mDeclPolyStNm;
+
+    strm() <<	"\t<Style id=\"" << stnm << "\">\n"
+		"\t\t<LineStyle>\n"
+		"\t\t\t<width>" << wdth << "</width>\n"
+		"\t\t</LineStyle>\n"
+		"\t\t<PolyStyle>\n"
+		"\t\t\t<color>" << col.getStdStr(false,-1) << "</color>\n";
+    strm() <<	"\t\t</PolyStyle>\n"
+		"\t</Style>\n" << std::endl;
+}
+
+
+void ODGoogle::XMLWriter::writePoly( const char* stylnm, const char* nm,
+				     const TypeSet<Coord>& coords, float hght,
+       				     const SurveyInfo* si )
+{
+    if ( !isOK() ) return; mDeclPolyStNm;
+    if ( !si ) si = &SI();
+
+    strm() <<	"\t<Placemark>\n"
+		"\t\t<name>" << nm << "</name>\n"
+		"\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
+		"\t\t<Polygon>\n"
+		"\t\t\t<extrude>1</extrude>\n"
+		"\t\t\t<altitudeMode>relativeToGround</altitudeMode>\n"
+		"\t\t\t<outerBoundaryIs>\n"
+		"\t\t\t\t<LinearRing>\n"
+		"\t\t\t\t\t<coordinates>\n";
+
+    for ( int idx=0; idx<coords.size(); idx++ )
+    {
+	const LatLong ll( si->latlong2Coord().transform(coords[idx]) );
+	strm() << "\t\t\t\t\t\t" << getStringFromDouble(0,ll.lng_);
+	strm() << ',' << getStringFromDouble(0,ll.lat_)
+	       << ',' << hght << '\n';
+    }
+    strm() <<	"\t\t\t\t\t</coordinates>\n"
+		"\t\t\t\t</LinearRing>\n"
+		"\t\t\t</outerBoundaryIs>\n"
+		"\t\t</Polygon>\n"
+		"\t</Placemark>\n" << std::endl;
 }

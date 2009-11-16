@@ -17,6 +17,7 @@ static const char* rcsID = "$Id";
 #include "survinfo.h"
 #include "welltransl.h"
 #include "welldata.h"
+#include "welltrack.h"
 #include "wellreader.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -31,9 +32,7 @@ uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Wells", true );
     selfld_ = llb->box();
 
-    fnmfld_ = new uiFileInput( this, "Output file",
-		uiFileInput::Setup(uiFileDialog::Gen,GetBaseDataDir())
-		.forread(false).filter("*.kml") );
+    mImplFileNameFld;
     fnmfld_->attach( alignedBelow, llb );
 
     finaliseStart.notify( mCB(this,uiGoogleExportWells,initWin) );
@@ -61,35 +60,26 @@ void uiGoogleExportWells::initWin( CallBacker* )
 }
 
 
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
-
 bool uiGoogleExportWells::acceptOK( CallBacker* )
 {
-    const BufferString fnm( fnmfld_->fileName() );
-    if ( fnm.isEmpty() )
-	mErrRet("Please enter a file name" )
-
-    ODGoogle::XMLWriter wrr( "Wells", fnm, SI().name() );
-    if ( !wrr.isOK() )
-	mErrRet(wrr.errMsg())
+    mCreateWriter( "Wells", SI().name() );
 
     wrr.writeIconStyles( "wellpin", 20 );
 
-    Well::Data wd;
     for ( int idx=0; idx<selfld_->size(); idx++ )
     {
 	if ( !selfld_->isSelected(idx) )
 	    continue;
 
+	Well::Data wd;
 	Well::Reader wllrdr( Well::IO::getMainFileName( *wellids_[idx] ), wd );
 	if ( !wllrdr.getInfo() )
 	    continue;
 
-	wrr.writePlaceMark( "wellpin", wd.info().surfacecoord,
+	wrr.writePlaceMark( "wellpin", wd.track().pos(0),
 			    selfld_->textOfItem(idx) );
 	if ( !wrr.strm().good() )
-	    { wrr.close(); mErrRet("Error during write"); }
+	    { wrr.close(); uiMSG().error("Error during write"); return false; }
     }
 
     wrr.close();

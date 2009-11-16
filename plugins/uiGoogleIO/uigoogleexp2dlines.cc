@@ -55,9 +55,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
     lsfld_->attach( alignedBelow, putlnmfld_ );
 
-    fnmfld_ = new uiFileInput( this, "Output file",
-		uiFileInput::Setup(uiFileDialog::Gen,GetBaseDataDir())
-		.forread(false).filter("*.kml") );
+    mImplFileNameFld;
     fnmfld_->attach( alignedBelow, lsfld_ );
 }
 
@@ -96,17 +94,9 @@ void uiGoogleExport2DSeis::getInitialSelectedLineNames()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
-
 bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
 {
-    const BufferString fnm( fnmfld_->fileName() );
-    if ( fnm.isEmpty() )
-	mErrRet("Please enter a file name" )
-
-    ODGoogle::XMLWriter wrr( s2dfm_->lineset_->name(), fnm, SI().name() );
-    if ( !wrr.isOK() )
-	mErrRet(wrr.errMsg())
+    mCreateWriter( s2dfm_->lineset_->name(), SI().name() );
 
     BufferString ins( "\t\t<LineStyle>\n\t\t\t<color>" );
     ins += lsfld_->getColor().getStdStr(false,-1);

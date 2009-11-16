@@ -4,12 +4,11 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Oct 2009
- * ID       : $Id: uigoogleexpwells.h,v 1.2 2009-11-11 14:08:16 cvsbert Exp $
+ * ID       : $Id: uigoogleexpwells.h,v 1.3 2009-11-16 13:56:10 cvsbert Exp $
 -*/
 
-#include "uidialog.h"
+#include "uigoogleexpdlg.h"
 #include "multiid.h"
-class uiFileInput;
 class uiListBox;
 
 
@@ -22,14 +21,14 @@ public:
 
 protected:
 
-    uiListBox*		selfld_;
-    uiFileInput*	fnmfld_;
-
     ObjectSet<MultiID>	wellids_;
 
-    void		initWin(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    uiListBox*		selfld_;
 
+    void		initWin(CallBacker*);
+
+
+			mDecluiGoogleExpStd;
 };
 
 

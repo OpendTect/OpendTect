@@ -4,12 +4,14 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: googlexmlwriter.h,v 1.4 2009-11-12 14:03:49 cvsbert Exp $
+ * ID       : $Id: googlexmlwriter.h,v 1.5 2009-11-16 13:56:10 cvsbert Exp $
 -*/
 
 #include "bufstring.h"
 class StreamData;
 class Coord;
+class Color;
+class SurveyInfo;
 template <class T> class TypeSet;
 
 
@@ -49,6 +51,11 @@ public:
 				       const char* nm);
     void		writeLine(const char* iconnm,const TypeSet<Coord>&,
 	    			  const char* nm);
+
+    void		writePolyStyle(const char* stlnm,const Color&,int wdth);
+    void		writePoly(const char* stlnm,const char* polynm,
+				  const TypeSet<Coord>&,float hght,
+				  const SurveyInfo* si=0);
 
 protected:
 
