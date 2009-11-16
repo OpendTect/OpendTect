@@ -145,9 +145,12 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
     const int displayid = psmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    appl_.applMgr().visServer()->getObject(displayid))
-    if ( !psd || !psd->getSet() || psd->getSet()->size() < 2 ) return;
-    
+    if ( !psd || !psd->getSet() ) return;
     const Pick::Set& ps = *psd->getSet();
+    if ( ps.disp_.connect_ == Pick::Set::Disp::None )
+	{ uiMSG().error("Can only export Polygons" ); return; }
+    if ( ps.size() < 3 )
+	{ uiMSG().error("Polygon needs at least 3 points" ); return; }
 
     if ( !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
 	return;
