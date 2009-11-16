@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.28 2009-10-21 15:34:07 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.29 2009-11-16 12:51:31 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
 				    , y2col_(0,200,0)
 				    , xmarkcol_(150,0,0)
 				    , ymarkcol_(150,0,0)
+				    , ywidth_(1)			
+				    , y2width_(1)			
 				    , canvaswidth_(400)
 				    , canvasheight_(250)
 				    , border_(20,20,20,10)
@@ -83,6 +85,8 @@ public:
 	mDefSetupMemb(Color,y2col)
 	mDefSetupMemb(Color,xmarkcol)
 	mDefSetupMemb(Color,ymarkcol)
+	mDefSetupMemb(int,ywidth)
+	mDefSetupMemb(int,y2width)
 	mDefSetupMemb(int,canvaswidth)
 	mDefSetupMemb(int,canvasheight)
 	mDefSetupMemb(uiBorder,border)

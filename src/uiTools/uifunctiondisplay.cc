@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.50 2009-10-21 15:34:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.51 2009-11-16 12:51:31 cvsbruno Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -281,7 +281,10 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 
     if ( polydrawn )
     {
-	ypolyitem_->setPenColor( setup_.ycol_ );
+	LineStyle ls;
+	ls.width_ = setup_.ywidth_;    
+	ls.color_ = setup_.ycol_;    
+	ypolyitem_->setPenStyle( ls );
 	ypolyitem_->setZValue( setup_.curvzvaly_ );
 	ypolyitem_->setVisible( true );
     }
@@ -317,7 +320,10 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 
     if ( polydrawn )
     {
-	y2polyitem_->setPenColor( setup_.y2col_ );
+	LineStyle ls;
+	ls.width_ = setup_.y2width_;    
+	ls.color_ = setup_.y2col_;    
+	y2polyitem_->setPenStyle( ls );
 	y2polyitem_->setZValue( setup_.curvzvaly2_ );
 	y2polyitem_->setVisible( true );
     }
