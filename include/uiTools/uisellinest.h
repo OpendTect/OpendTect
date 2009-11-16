@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.13 2009-11-13 03:17:05 cvsnanne Exp $
+ RCS:           $Id: uisellinest.h,v 1.14 2009-11-16 15:43:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
 
     void			setColor(const Color&);
     const Color&		getColor() const;
+    void			enableTransparency(bool); // default not
     void			setWidth(int);
     int				getWidth() const;
     void			setType(int);
