@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.21 2009-11-11 22:51:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.22 2009-11-16 23:16:15 cvsyuancheng Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -1136,7 +1136,7 @@ bool TriangulationArray2DInterpol::setArray( Array2D<float>& arr,
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    mRetInitFromArray()
+    return initFromArray( tr );
 }
 
 
@@ -1146,7 +1146,7 @@ bool TriangulationArray2DInterpol::setArray( ArrayAccess& arr,
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    mRetInitFromArray()
+    return initFromArray( tr );
 }
 
 
@@ -1212,6 +1212,9 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 	nodestofillptr++;
 	idx++;
     }
+
+    if ( !totalnr_ )
+	return true;
 
     //Get defined nodes to triangulate
     TypeSet<Coord>* coordlist = new TypeSet<Coord>;
