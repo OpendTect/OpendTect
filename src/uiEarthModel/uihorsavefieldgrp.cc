@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.3 2009-11-12 20:02:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.4 2009-11-17 16:28:05 cvsyuancheng Exp $";
 
 #include "uihorsavefieldgrp.h"
 
@@ -122,6 +122,8 @@ EM::Horizon3D* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
     }
 
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    if ( horizon_ ) horizon_->unRef();
+
     horizon_ = hor;
     horizon_->ref();
     delete reader;
