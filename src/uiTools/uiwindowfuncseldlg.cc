@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.36 2009-11-16 18:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.37 2009-11-17 08:25:18 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -528,8 +528,6 @@ void uiFreqTaperDlg::setFreqFromSlope( float slope )
     else
 	dd2_.freqrg_.stop = dd.freqrg_.start*slopeinhertz;
     mCheckLimitRanges();
-
-    putToScreen(0);
 }
 
 
