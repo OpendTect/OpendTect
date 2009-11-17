@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2009
- RCS:           $Id: uidpsdemo.h,v 1.4 2009-11-04 15:29:59 cvsbert Exp $
+ RCS:           $Id: uidpsdemo.h,v 1.5 2009-11-17 07:45:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,13 +35,19 @@ public:
 			uiDPSDemo(uiParent*);
 			~uiDPSDemo();
 
+    const DataPointSet& getDPS() const		{ return *dps_; }
+    Notifier<uiDPSDemo>	selPtsToBeShown;
+    Notifier<uiDPSDemo>	selPtsToBeRemoved;
 protected:
 
+    DataPointSet*	dps_;
     uiIOObjSel*		horfld_;
     uiSeisSel*		seisfld_;
     uiGenInput*		nrptsfld_;
 
     bool		acceptOK(CallBacker*);
+    void		showSelPtsCB(CallBacker*);
+    void		removeSelPtsCB(CallBacker*);
     bool		doWork(const IOObj&,const IOObj&,int);
 
     bool		getRandPositions(const EM::Horizon3D&,int,

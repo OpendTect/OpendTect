@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.8 2009-11-13 13:25:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.9 2009-11-17 07:45:13 cvssatyaki Exp $";
 
 #include "uidpsdemo.h"
 
@@ -37,6 +37,8 @@ static const char* rcsID = "$Id: uidpsdemo.cc,v 1.8 2009-11-13 13:25:00 cvsbert 
 uiDPSDemo::uiDPSDemo( uiParent* p )
 	: uiDialog(p,Setup("DataPointSet demo","Data extraction parameters",
 		    	   mNoHelpID))
+	, selPtsToBeShown(this)
+	, selPtsToBeRemoved(this)
 {
     horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D) );
 
@@ -98,35 +100,48 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) return false;
 
-    DataPointSet* dps = new DataPointSet( false );
-    dps->dataSet().add( new DataColDef("Amplitude") );
-    dps->dataSet().add( new DataColDef("Peakedness") );
-    dps->dataSet().add( new DataColDef("PeakSkew") );
-    dps->dataSet().add( new DataColDef("Frequency") );
+    dps_ = new DataPointSet( false );
+    dps_->dataSet().add( new DataColDef("Amplitude") );
+    dps_->dataSet().add( new DataColDef("Peakedness") );
+    dps_->dataSet().add( new DataColDef("PeakSkew") );
+    dps_->dataSet().add( new DataColDef("Frequency") );
 
     hor->ref();
-    const bool isok = getRandPositions(*hor,nrpts,*dps);
+    const bool isok = getRandPositions(*hor,nrpts,*dps_);
     BufferStringSet sectionnms;
     for ( EM::SectionID isect=0; isect<hor->nrSections(); isect++ )
 	sectionnms.add( hor->sectionName(isect) );
     hor->unRef();
 
-    if ( !isok || !getSeisData(seisioobj,*dps,tr) )
+    if ( !isok || !getSeisData(seisioobj,*dps_,tr) )
 	return false;
 
     BufferString wintitl( horioobj.name(), " / ", seisioobj.name() );
-    uiDataPointSet::Setup su( wintitl );
-    uiDataPointSet* uidps = new uiDataPointSet( parent(), *dps, su );
+    uiDataPointSet::Setup su( wintitl, false, true );
+    su.canaddrow( true );
+    uiDataPointSet* uidps = new uiDataPointSet( parent(), *dps_, su );
     uidps->setDeleteOnClose( true );
     if ( sectionnms.size() > 1 )
 	{ uidps->setGroupNames(sectionnms); uidps->setGroupType("Section"); }
     static uiDPSDemoDPSDeleter dpsdel;
+    uidps->selPtsToBeShown.notify( mCB(this,uiDPSDemo,showSelPtsCB) );
+    uidps->selPtsToBeRemoved.notify( mCB(this,uiDPSDemo,removeSelPtsCB) );
     uidps->windowClosed.notify( mCB(&dpsdel,uiDPSDemoDPSDeleter,doDel) );
 
     uidps->show();
     return true;
 }
 
+void uiDPSDemo::showSelPtsCB( CallBacker* )
+{
+    selPtsToBeShown.trigger();
+}
+
+
+void uiDPSDemo::removeSelPtsCB( CallBacker* )
+{
+    selPtsToBeRemoved.trigger();
+}
 
 #define mSectGeom(sect) (*hor.geometry().sectionGeometry(sect))
 
