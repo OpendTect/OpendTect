@@ -10,6 +10,7 @@ static const char* rcsID = "$Id";
 #include "uigoogleexpwells.h"
 #include "uigoogleexp2dlines.h"
 #include "uigoogleexppolygon.h"
+#include "uigoogleexprandline.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
 #include "uisurvey.h"
@@ -22,12 +23,14 @@ static const char* rcsID = "$Id";
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
 #include "vispicksetdisplay.h"
+#include "visrandomtrackdisplay.h"
 #include "pickset.h"
 #include "pixmap.h"
 #include "survinfo.h"
 #include "latlong.h"
 #include "plugins.h"
 static const int cPSMnuIdx = -1001;
+static const int cRLMnuIdx = -1001;
 
 
 mExternC int GetuiGoogleIOPluginType()
@@ -56,11 +59,13 @@ public:
     uiODMain&		appl_;
     uiSeis2DFileMan*	cur2dfm_;
     uiVisMenuItemHandler psmnuitmhandler_;
+    uiVisMenuItemHandler rlmnuitmhandler_;
 
     void		exportSurv(CallBacker*);
     void		exportWells(CallBacker*);
     void		exportLines(CallBacker*);
     void		exportPolygon(CallBacker*);
+    void		exportRandLine(CallBacker*);
     void		mkExportWellsIcon(CallBacker*);
     void		mkExportLinesIcon(CallBacker*);
 };
@@ -71,6 +76,9 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     , psmnuitmhandler_(visSurvey::PickSetDisplay::getStaticClassName(),
 	    		*a.applMgr().visServer(),"Export to &Google KML ...",
     			mCB(this,uiGoogleIOMgr,exportPolygon),cPSMnuIdx)
+    , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::getStaticClassName(),
+	    		*a.applMgr().visServer(),"Export to G&oogle KML ...",
+    			mCB(this,uiGoogleIOMgr,exportRandLine),cRLMnuIdx)
 {
     uiSurvey::add( uiSurvey::Util( "google.png",
 				   "Export to Google Earth/Maps",
@@ -156,6 +164,30 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
 	return;
 
     uiGoogleExportPolygon dlg( &appl_, ps );
+    dlg.go();
+}
+
+
+void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
+{
+    const int displayid = rlmnuitmhandler_.getDisplayID();
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+		    appl_.applMgr().visServer()->getObject(displayid))
+    if ( !rtd ) return;
+    if ( rtd->nrKnots() < 2 )
+	{ uiMSG().error("Need at least 2 points" ); return; }
+
+    TypeSet<BinID> knots;
+    rtd->getAllKnotPos( knots );
+
+    if ( !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
+	return;
+
+    TypeSet<Coord> crds;
+    for ( int idx=0; idx<knots.size(); idx++ )
+	crds += SI().transform( knots[idx] );
+
+    uiGoogleExportRandomLine dlg( &appl_, crds, rtd->name() );
     dlg.go();
 }
 
