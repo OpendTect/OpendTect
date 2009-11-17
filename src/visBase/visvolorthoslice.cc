@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.11 2009-11-10 10:11:19 cvskarthika Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.12 2009-11-17 09:50:27 cvskarthika Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -74,6 +74,13 @@ void OrthogonalSlice::setSpaceLimits( const Interval<float>& x,
     dragger->setSpaceLimits( x,y,z );
     dragger->setCenter( Coord3(x.center(),y.center(),z.center()) );
     dragger->setSize( Coord3(x.width(),y.width(),z.width()) );
+    draggerMovementCB(0);
+}
+
+
+void OrthogonalSlice::setCenter( const Coord3& newcenter, bool alldims )
+{
+    dragger->setCenter( newcenter, alldims );
     draggerMovementCB(0);
 }
 
