@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.25 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.26 2009-11-17 21:58:15 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -21,8 +21,8 @@ static const char* rcsID = "$Id: marchingcubes.cc,v 1.25 2009-07-22 16:01:33 cvs
 #define mZ 2
 #define mWriteChunkSize 100
 
-#define  m2DiagSpacing  360
-#define  m3DiagSpacing  442
+#define  m2d  360
+#define  m3d  442
 const unsigned char MarchingCubesModel::cUdfAxisPos = 255;
 const unsigned char MarchingCubesModel::cMaxAxisPos = 254;
 const unsigned char MarchingCubesModel::cAxisSpacing = 255;
@@ -524,12 +524,17 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
+/*!Fills an array3d with data from an MarchingCubes surface. Does only 
+   set the adjacent to the surface itself. */
+
 class MarchingCubes2ImplicitDistGen : public ParallelTask
 {
 public:
-    MarchingCubes2ImplicitDistGen( MarchingCubes2Implicit& mc2i )
+    MarchingCubes2ImplicitDistGen( MarchingCubes2Implicit& mc2i,
+	   			      bool nodistance )
 	: mc2i_( mc2i )
 	, totalnr_( mc2i.surface_.models_.totalSize() )
+	, nodistance_( nodistance )
     {
 	mc2i_.result_.setAll( mUdf(int) );
     }
@@ -546,6 +551,17 @@ protected:
 
 	if ( !mc2i_.surface_.models_.isValidPos( surfaceidxs ) )
 	    return false;
+
+	Interval<int> dimranges[3];
+	dimranges[0].start = mc2i_.originx_;
+	dimranges[0].stop = mc2i_.originx_ + mc2i_.size_[mX]-1;
+	dimranges[1].start = mc2i_.originy_;
+	dimranges[1].stop = mc2i_.originy_ + mc2i_.size_[mY]-1;
+	dimranges[2].start = mc2i_.originz_;
+	dimranges[2].stop = mc2i_.originz_ + mc2i_.size_[mZ]-1;
+
+	TypeSet<od_int64> offsets;
+	TypeSet<int> vals;
 
 	for ( int idx=0; idx<nrtimes; idx++, addToNrDone(1) )
 	{
@@ -564,7 +580,7 @@ protected:
 	    {
 		if ( model.axispos_[dim]==MarchingCubesModel::cUdfAxisPos )
 		    continue;
-		
+
 		int dist = model.axispos_[dim];
 		
 		if ( !isset || dist<mindist )
@@ -573,270 +589,368 @@ protected:
 		    isset = true;
 		}
 
+		int neighbordist;
 		int neighborpos[] ={modelpos[mX],modelpos[mY],modelpos[mZ]};
 		neighborpos[dim] += 1;
-
-		int neighbordist = MarchingCubesModel::cAxisSpacing-dist;
-		mc2i_.setValue(neighborpos[mX],neighborpos[mY],
-			       neighborpos[mZ],
-			       neighborsign ? neighbordist : -neighbordist );
+		if ( dimranges[dim].includes( neighborpos[dim], false ) )
+		{
+		    neighbordist = MarchingCubesModel::cAxisSpacing-dist;
+	  	    const od_int64 offset = mc2i_.result_.info().getOffset(
+			    neighborpos[mX]-mc2i_.originx_,
+			    neighborpos[mY]-mc2i_.originy_,
+			    neighborpos[mZ]-mc2i_.originz_ );
+		    const int val = nodistance_
+			? (neighborsign ? 1 : -1)
+			: (neighborsign ? neighbordist : -neighbordist);
+		    if ( mc2i_.shouldSetValue( offset, val ) )
+		    {
+			vals += val;
+			offsets += offset;
+		    }
+		}
 
 		//if ( dist ) continue;
 
 		neighborpos[dim] -= 2;
-		int neighboridxs[3];
-		if ( mc2i_.surface_.models_.findFirst( neighborpos,
-						 neighboridxs ) )
-		    continue;
-		
-		neighbordist = MarchingCubesModel::cAxisSpacing+dist;
-		mc2i_.setValue(neighborpos[mX],neighborpos[mY],
-			       neighborpos[mZ],
-			       originsign ? neighbordist : -neighbordist );
+		if ( dimranges[dim].includes( neighborpos[dim], false ) )
+		{
+		    int neighboridxs[3];
+		    if ( mc2i_.surface_.models_.findFirst( neighborpos,
+						     neighboridxs ) )
+			continue;
+		    
+		    neighbordist = MarchingCubesModel::cAxisSpacing+dist;
+	  	    const od_int64 offset = mc2i_.result_.info().getOffset(
+			    neighborpos[mX]-mc2i_.originx_,
+			    neighborpos[mY]-mc2i_.originy_,
+			    neighborpos[mZ]-mc2i_.originz_ );
+		    const int val = nodistance_
+			? (originsign ? 1 : -1)
+			: (originsign ? neighbordist : -neighbordist);
+		    if ( mc2i_.shouldSetValue( offset, val ) )
+		    {
+			vals += val;
+			offsets += offset;
+		    }
+		}
 	    }
 	    
 	    if ( isset )
 	    {
-		mc2i_.setValue( modelpos[mX], modelpos[mY], modelpos[mZ],
-			originsign ? mindist : -mindist );
+		const od_int64 offset = mc2i_.result_.info().getOffset(
+			modelpos[mX]-mc2i_.originx_,
+			modelpos[mY]-mc2i_.originy_,
+			modelpos[mZ]-mc2i_.originz_ );
+		const int val = nodistance_
+		    ? (originsign ? 1 : -1)
+		    : (originsign ? mindist : -mindist);
+		if ( mc2i_.shouldSetValue( offset, val ) )
+		{
+		    vals += val;
+		    offsets += offset;
+		}
 	    }
 
 	    if ( idx!=nrtimes-1 && !mc2i_.surface_.models_.next( surfaceidxs ) )
 		return false;
 	}
+
+	mutex_.lock();
+
+	for ( int idx=0; idx<offsets.size(); idx++ )
+	    mc2i_.setValue( offsets[idx], vals[idx], true );
+
+	mutex_.unLock();
 	
 	return true;
     }
 
     int				totalnr_;
     MarchingCubes2Implicit&	mc2i_;
-};
-
-
-class MarchingCuebs2ImplicitFloodFiller : public SequentialTask
-{
-public:
-    MarchingCuebs2ImplicitFloodFiller( MarchingCubes2Implicit& mc2i,
-	   				int arrposx, int arrposy, int arrposz )
-	: mc2i_( mc2i )
-	, arrposx_( arrposx )
-	, arrposy_( arrposy )
-	, arrposz_( arrposz )
-    {}
-
-    int nextStep()
-    {
-	mc2i_.resultlock_.readLock();
-	const int prevvalue = mc2i_.result_.get( arrposx_, arrposy_, arrposz_ );
-	mc2i_.resultlock_.readUnLock();
-
-	if ( !prevvalue )
-	    return Finished();
-
-	const int neighborval = prevvalue>0
-	    ? prevvalue+MarchingCubesModel::cAxisSpacing
-	    : prevvalue-MarchingCubesModel::cAxisSpacing;
-
-	for ( int idx=-1; idx<=1; idx++ )
-	{
-	    if ( !idx ) continue;
-	    const int nxarrpos = arrposx_+idx;
-	    if ( nxarrpos<0 || nxarrpos>=mc2i_.result_.info().getSize(mX) )
-		continue;
-
-	    mc2i_.setValue( nxarrpos+mc2i_.originx_, arrposy_+mc2i_.originy_, 
-			    arrposz_+mc2i_.originz_, neighborval );
-	}
-
-	for ( int idy=-1; idy<=1; idy++ )
-	{
-	    if ( !idy ) continue;
-	    const int nyarrpos = arrposy_+idy;
-	    if ( nyarrpos<0 || nyarrpos>=mc2i_.result_.info().getSize(mY) )
-		continue;
-
-	    mc2i_.setValue( arrposx_+mc2i_.originx_, nyarrpos+mc2i_.originy_, 
-			    arrposz_+mc2i_.originz_, neighborval );
-	}
-
-	for ( int idz=-1; idz<=1; idz++ )
-	{
-	    if ( !idz ) continue;
-	    const int nzarrpos = arrposz_+idz;
-	    if ( nzarrpos<0 || nzarrpos>=mc2i_.result_.info().getSize(mZ) )
-		continue;
-
-	    mc2i_.setValue( arrposx_+mc2i_.originx_, arrposy_+mc2i_.originy_, 
-			    nzarrpos+mc2i_.originz_, neighborval );
-	}
-	
-
-	for ( int idx=-1; idx<=1; idx++ )   
-	{
-	    for ( int idy=-1; idy<=1; idy++ )
-	    {
-		for ( int idz=-1; idz<=1; idz++ )
-		{
-		    if ( (!idx && !idy) || (!idx && !idz) || 
-			 (!idy && !idz) )
-			continue;
-		    
-		    const int nxarrpos = arrposx_+idx;
-		    const int nyarrpos = arrposy_+idy;
-		    const int nzarrpos = arrposz_+idz;
-		    if ( nxarrpos<0 || nyarrpos<0 || nzarrpos<0 ||
-			 nxarrpos>=mc2i_.result_.info().getSize(mX) ||
-			 nyarrpos>=mc2i_.result_.info().getSize(mY) ||
-			 nzarrpos>=mc2i_.result_.info().getSize(mZ) )
-			continue;
-
-		    const int nv=mc2i_.result_.get(nxarrpos,nyarrpos,nzarrpos);
- 		    if ( Values::isUdf(nv) || !nv ) 
- 			continue;
- 
-		    bool nbsign = nv>0;
- 		    if ( !idx || !idy || !idz )    
- 		    {
- 			mc2i_.setValue( nxarrpos+mc2i_.originx_, 
-				nyarrpos+mc2i_.originy_, 
-				nzarrpos+mc2i_.originz_, 
-				nbsign ? prevvalue + m2DiagSpacing :
-				prevvalue - m2DiagSpacing );
- 		    }
- 		    else
- 		    {
- 			mc2i_.setValue( nxarrpos+mc2i_.originx_, 
-				nyarrpos+mc2i_.originy_, 
-				nzarrpos+mc2i_.originz_, 
-				nbsign ? prevvalue + m3DiagSpacing:
-				prevvalue - m3DiagSpacing );
-		    }
-		}
-	    }
-	}
-
-	return Finished();
-    }
-
-    void setIndices( int idx, int idy, int idz )
-    {
-	arrposx_ = idx;
-	arrposy_ = idy;
-	arrposz_ = idz;
-    }
-
-protected:
-    MarchingCubes2Implicit&	mc2i_;
-    int				arrposx_;
-    int				arrposy_;
-    int				arrposz_;
+    Threads::Mutex		mutex_;
+    bool			nodistance_;
 };
 
 
 MarchingCubes2Implicit::MarchingCubes2Implicit( 
 		const MarchingCubesSurface& surface,
-	        Array3D<int>& arr, int originx, int originy, int originz )
+	        Array3D<int>& arr, int originx, int originy, int originz,
+       		bool nodistance	)
     : surface_( surface )
     , result_( arr )
     , originx_( originx )
     , originy_( originy )
     , originz_( originz )
-{ }
+    , newfloodfillers_( new bool[arr.info().getTotalSz()] )
+    , nrdefined_( 0 )
+    , nodistance_( nodistance )
+{
+    for ( int idx=0; idx<3; idx++ )
+	size_[idx] = arr.info().getSize( idx );
+}
 
 
 MarchingCubes2Implicit::~MarchingCubes2Implicit()
 {
-    deepErase( newfloodfillers_ );
-    deepErase( activefloodfillers_ );
-    deepErase( oldfloodfillers_ );
+    delete [] newfloodfillers_;
 }
 
 
-bool MarchingCubes2Implicit::compute()
+od_int64 MarchingCubes2Implicit::nrIterations() const
+{ return result_.info().getTotalSz(); }
+
+
+od_int64 MarchingCubes2Implicit::nrDone() const
 {
-    MarchingCubes2ImplicitDistGen distget( *this );
-    if ( !distget.execute() )
+    Threads::MutexLocker lock( barrier_.mutex() );
+
+    return nrdefined_ - activefloodfillers_.size();
+}
+
+
+bool MarchingCubes2Implicit::doPrepare( int nrthreads )
+{
+    if ( !newfloodfillers_ )
 	return false;
 
-    return floodFill();
-}
+    //Set no position as seed
+    MemSetter<bool> setter( newfloodfillers_, false, nrIterations() );
+    setter.execute();
 
+    nrdefined_ = 0;
+    barrier_.setNrThreads( nrthreads );
 
-bool MarchingCubes2Implicit::floodFill()
-{
-    Threads::ThreadWorkManager workman;
-
-    resultlock_.writeLock();
-    while ( newfloodfillers_.size() )
-    {
-	deepErase( oldfloodfillers_ );
-	oldfloodfillers_ = activefloodfillers_;
-	activefloodfillers_ = newfloodfillers_;
-	newfloodfillers_.erase();
-	resultlock_.writeUnLock();
-
-	workman.addWork( (ObjectSet<SequentialTask>&) activefloodfillers_ );
-
-	resultlock_.writeLock();
-    }
-
-    resultlock_.writeUnLock();
+    //Populate array with seeds
+    MarchingCubes2ImplicitDistGen distget( *this, nodistance_ );
+    if ( !distget.execute() )
+	return false;
 
     return true;
 }
 
 
-void  MarchingCubes2Implicit::setValue( int xpos,int ypos,int zpos,int newval )
+
+bool MarchingCubes2Implicit::doWork( od_int64 start, od_int64 stop,
+					int thread )
 {
-    const Interval<int> xrange(originx_,originx_+result_.info().getSize(mX)-1);
-    const Interval<int> yrange(originy_,originy_+result_.info().getSize(mY)-1);
-    const Interval<int> zrange(originz_,originz_+result_.info().getSize(mZ)-1);
-    
-    if ( !xrange.includes(xpos) || !yrange.includes(ypos) ||
-	 !zrange.includes(zpos) )
+    while ( shouldContinue() )
     {
-	return;
+	//Get seeds from newfloodfillers_ and polulate activefloodfillers_
+	TypeSet<od_int64> newfloodfillers;
+	for ( int idx=start; idx<=stop; idx++ )
+	{
+	    if ( newfloodfillers_[idx] )
+	    {
+		newfloodfillers_[idx] = 0;
+		newfloodfillers += idx;
+	    }
+	}
+
+	if ( barrier_.waitForAll( false ) )		//Start single thread
+	    activefloodfillers_.erase();		//
+							//
+	activefloodfillers_.append( newfloodfillers );	//
+	barrier_.mutex().unLock();			//End single thread
+
+	barrier_.waitForAll();
+
+	//Divide the seeds in activefloodfillers_ between the threads and 
+	//process them in paralell.
+	const int nrseeds = activefloodfillers_.size();
+	if ( !nrseeds )
+	    break;
+
+	const int nrperthread = nrseeds/barrier_.nrThreads();
+	const int startseed = thread*nrperthread;
+	const int stopseed = mMIN(startseed+nrperthread,nrseeds)-1;
+
+	const int sz = stopseed-startseed+1;
+	processSeeds( activefloodfillers_.arr()+startseed, sz );
     }
 
-    const int idx = xpos-originx_;
-    const int idy = ypos-originy_;
-    const int idz = zpos-originz_;
-
-    resultlock_.readLock();
-    const bool shouldset = shouldSetResult( newval, result_.get(idx,idy,idz) );
-
-    if ( !shouldset )
-    {
-	resultlock_.readUnLock();
-	return;
-    }
-
-    if ( !resultlock_.convReadToWriteLock() &&
-	 !shouldSetResult( newval, result_.get(idx,idy,idz) ) )
-    {
-	resultlock_.writeUnLock();
-	return;
-    }
-
-    result_.set( idx, idy, idz, newval );
-
-    MarchingCuebs2ImplicitFloodFiller* floodfiller = 0;
-    if ( oldfloodfillers_.size() )
-    {
-	floodfiller = oldfloodfillers_.remove( oldfloodfillers_.size()-1 );
-	floodfiller->setIndices( idx, idy, idz );
-    }
-    else
-	floodfiller = new MarchingCuebs2ImplicitFloodFiller(*this,idx,idy,idz);
-
-    newfloodfillers_ += floodfiller;
-
-    resultlock_.writeUnLock();
+    return true;
 }
 
 
-bool MarchingCubes2Implicit::shouldSetResult( int newval, int prevvalue )
+#define mChkN( doffset, dval ) \
+{ \
+    const od_int64 offset = curoffset+doffset; \
+    const int nv = resptr[offset]; \
+    if ( nv && !Values::isUdf(nv) ) \
+    { \
+	const bool nbsign = nv>0; \
+	const int val = nbsign \
+		? prevvalue + dval \
+		: prevvalue - dval; \
+	if ( shouldSetValue( offset, val ) ) \
+	{ \
+	    newseeds += offset; \
+	    vals += val; \
+	} \
+\
+	if ( shouldSetValue( curoffset+doffset, dval ) ) \
+	{ \
+	    newseeds += offset; \
+	    vals += dval; \
+	} \
+    } \
+\
+}
+
+
+bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
 {
+    TypeSet<od_int64> newseeds;
+    TypeSet<int> vals;
+
+    const int capactity = nr * (nodistance_ ? 6 : 26 );
+    newseeds.setCapacity( capactity );
+    vals.setCapacity( capactity );
+
+    const int* resptr = result_.getData();
+
+    //Process all seeds in the list, add new seeds to newseeds and vals
+    for ( int offsetidx=0; offsetidx<nr; offsetidx++ )
+    {
+	const od_int64 curoffset = offsets[offsetidx];
+	int arrpos[3];
+	result_.info().getArrayPos( curoffset, arrpos );
+
+	const int prevvalue = resptr[curoffset];
+
+	if ( !prevvalue )
+	    continue;
+
+	const int neighborval = nodistance_
+	    ? (prevvalue>0 ? 1 : -1 )
+	    : (prevvalue>0
+		? prevvalue+MarchingCubesModel::cAxisSpacing
+		: prevvalue-MarchingCubesModel::cAxisSpacing);
+
+	const int doff[] = { size_[mY]*size_[mZ], size_[mZ], 1 };
+
+	//First, go in a cross (6 connectivity)
+	for ( int idx=-1; idx<=1; idx+=2 )
+	{
+	    for ( int dim=0; dim<3; dim++ )
+	    {
+		const int nxarrpos = arrpos[dim]+idx;
+		if ( nxarrpos<0 || nxarrpos>=size_[dim] )
+		    continue;
+
+		const od_int64 offset = curoffset + doff[dim]*idx;
+		if ( shouldSetValue( offset, neighborval ) )
+		{
+		    newseeds += offset;
+		    vals += neighborval;
+		}
+	    }
+	}
+
+	if ( nodistance_ )
+	    continue;
+
+	//Secondly, go to 26 connectivity, but don't change any udf values
+	//to defined. This may spread cause the fill to pass the iso-surface.
+	
+	const bool doprevy = arrpos[mY]>0;
+	const bool donexty = arrpos[mY]<size_[mY]-1;
+	const bool doprevz = arrpos[mZ]>0;
+	const bool donextz = arrpos[mZ]<size_[mZ]-1;
+
+	if ( arrpos[mX]>0 )
+	{
+	    if ( doprevy )
+	    {
+		if ( doprevz )
+		    mChkN( -doff[mX]	-doff[mY]	-doff[mZ]	, m2d );
+
+		mChkN(	   -doff[mX]	-doff[mY]			, m2d );
+
+		if ( donextz )
+		    mChkN( -doff[mX]	-doff[mY]	+doff[mZ]	, m2d );
+	    }
+	
+	    if ( doprevz )
+		mChkN(	   -doff[mX]			-doff[mZ]	, m2d );
+	    if ( donextz )
+		mChkN(	   -doff[mX]			+doff[mZ]	, m2d );
+
+	    if ( donexty )
+	    {
+		if ( doprevz )
+		    mChkN( -doff[mX]	+doff[mY]	-doff[mZ]	, m2d );
+
+		mChkN(	   -doff[mX]	+doff[mY]			, m2d );
+
+		if ( donextz )
+		    mChkN( -doff[mX]	+doff[mY]	+doff[mZ]	, m2d );
+	    }
+	}
+
+	if ( doprevy )
+	{
+	    if ( doprevz )
+		mChkN( 			-doff[mY]	-doff[mZ]	, m2d );
+	    if ( donextz )
+		mChkN( 			-doff[mY]	+doff[mZ]	, m2d );
+	}
+
+	if ( donexty )
+	{
+	    if ( doprevz )
+		mChkN( 			+doff[mY]	-doff[mZ]	, m2d );
+	    if ( donextz )
+		mChkN( 			+doff[mY]	+doff[mZ]	, m2d );
+	}
+
+	if ( arrpos[mX]<size_[mX]-1 )
+	{
+	    if ( doprevy )
+	    {
+		if ( doprevz )
+		    mChkN( +doff[mX]	-doff[mY]	-doff[mZ]	, m2d );
+
+		mChkN(	   +doff[mX]	-doff[mY]			, m2d );
+
+		if ( donextz )
+		    mChkN( +doff[mX]	-doff[mY]	+doff[mZ]	, m2d );
+	    }
+
+	    if ( doprevz )
+		mChkN(	   +doff[mX]			-doff[mZ]	, m2d );
+	    if ( donextz )
+		mChkN(	   +doff[mX]			+doff[mZ]	, m2d );
+
+	    if ( donexty )
+	    {
+		if ( doprevz )
+		    mChkN( +doff[mX]	+doff[mY]	-doff[mZ]	, m2d );
+
+		mChkN(	   +doff[mX]	+doff[mY]			, m2d );
+
+		if ( donextz )
+		    mChkN( +doff[mX]	+doff[mY]	+doff[mZ]	, m2d );
+	    }
+	}
+    }
+
+    //Populate the array with the new results. Checking is not needed for the
+    //first thread, as nothing has changed since last thread.
+
+    const bool docheck = barrier_.waitForAll( false );	//Start single thread
+    for ( int idx=0; idx<newseeds.size(); idx++ )	//
+	setValue( newseeds[idx], vals[idx], docheck );	//
+							//
+    barrier_.mutex().unLock();				//End single thread
+
+    return true;
+}
+
+
+bool MarchingCubes2Implicit::shouldSetValue( od_int64 offset, int newval )
+{
+    const int prevvalue = result_.getData()[offset];
     if ( !mIsUdf( prevvalue ) )
     {
 	const bool prevsign = prevvalue>0;
@@ -853,6 +967,22 @@ bool MarchingCubes2Implicit::shouldSetResult( int newval, int prevvalue )
     }
 
     return true;
+}
+
+
+void MarchingCubes2Implicit::setValue( od_int64 offset, int newval,
+					  bool check )
+{
+    if ( check && !shouldSetValue( offset, newval ) )
+	return;
+
+    int* resultptr = result_.getData() + offset;
+
+    if ( mIsUdf(*resultptr) )
+	nrdefined_++;
+
+    *resultptr = newval;
+    newfloodfillers_[offset] = true;
 }
 
 

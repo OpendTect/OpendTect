@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.12 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: marchingcubes.h,v 1.13 2009-11-17 21:58:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,35 +135,56 @@ protected:
 };
 
 
-mClass MarchingCubes2Implicit
+
+/*!Fills an Array3D with the distance to a MarchingCubesSurface. Implementation
+   goes in two steps: 1) the array is filled close to the surface
+   (in doPrepare() ) 2) the array is flood filled from there.
+*/
+
+mClass MarchingCubes2Implicit : public ParallelTask
 {
 public:
 		MarchingCubes2Implicit(const MarchingCubesSurface&,
 					Array3D<int>&,
-					int originx,int originy,int originz);
+					int originx,int originy,int originz,
+					bool nodistance);
+		/*!<originx .. originz gives the surface location of the 
+		    array's origin.
+		    \param nodistance enables faster processing, but the
+		           array will only be filled with -1, 0 and 1 depending
+		           on the side of the surface*/
 		~MarchingCubes2Implicit();
-    bool	compute();
+
     float	threshold() const { return 0; }
 
 protected:
-    friend	class MarchingCuebs2ImplicitFloodFiller;
+    od_int64	nrDone() const;
+    od_int64	nrIterations() const;
+
+    bool	doPrepare(int);
+    bool	doWork(od_int64,od_int64,int);
+    bool	processSeeds( const od_int64*, int nr );
+
     friend	class MarchingCubes2ImplicitDistGen; 
     
-    bool        floodFill();
-    void        setValue(int xpos,int ypos,int zpos,int newval);
-    static bool shouldSetResult(int newval, int oldval);
+    bool        shouldSetValue(od_int64 offset, int newval );
+    void        setValue(od_int64 offset,int newval,bool checkval);
 
     const MarchingCubesSurface&			surface_;
-    Threads::ReadWriteLock      		resultlock_;
-    Array3D<int>&               		result_;
-
-    ObjectSet<MarchingCuebs2ImplicitFloodFiller> newfloodfillers_;
-    ObjectSet<MarchingCuebs2ImplicitFloodFiller> activefloodfillers_;
-    ObjectSet<MarchingCuebs2ImplicitFloodFiller> oldfloodfillers_;
-
     int						originx_;
     int						originy_;
     int						originz_;
+
+    int						size_[3];
+
+    bool					nodistance_;
+
+    mutable Threads::Barrier   			barrier_;
+    Array3D<int>&               		result_;
+    od_int64					nrdefined_;
+
+    bool*					newfloodfillers_;
+    TypeSet<od_int64>				activefloodfillers_;
 };
 
 
