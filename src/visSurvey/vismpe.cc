@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.87 2009-11-11 16:43:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.88 2009-11-17 02:09:34 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -40,9 +40,11 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.87 2009-11-11 16:43:39 cvskarthik
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
 
+#include "arrayndimpl.h"
+
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-//#define USE_TEXTURE 
+#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -185,6 +187,7 @@ MPEDisplay::~MPEDisplay()
     boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger_->unRef();
 
+    delete &as_;
     delete &curtextureas_;
 }
 
@@ -376,13 +379,24 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     if ( attrib || as_ == as ) 
 	return;
     as_ = as;
-    if ( cache_ ) cache_->unRef();
+
+#ifndef USE_TEXTURE
+    if ( cache_ ) 
+	cache_->unRef();
     cache_ = 0;
 
     DPM( DataPackMgr::CubeID() ).release( cacheid_ );
     cacheid_ = DataPack::cNoID();
 
     scalarfield_->setScalarField( 0, true, 0 );
+	updateSliceCoords();
+#endif
+}
+
+
+const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib ) const
+{
+    return attrib ? 0 : &as_;
 }
 
 
@@ -511,8 +525,7 @@ void MPEDisplay::moveMPEPlane( int nr )
     if ( !drg || !nr ) return;
     const int dim = dragger_->getDim();
 #else
-    return;
-
+	return;
     if ( ( !slices_.size() ) || ( !slices_[dim_] ) )
 	return;
     visBase::DepthTabPlaneDragger* drg = slices_[dim_]->getDragger();
@@ -1422,11 +1435,11 @@ bool MPEDisplay::setDataVolume( int attrib,
 //      datatransformer_->setInterpolate( !isClassification(attrib) );
         datatransformer_->setInterpolate( true );
         datatransformer_->setInput( attrdata->getCube(0),
-	                                        attrdata->cubeSampling() );
+	                            attrdata->cubeSampling() );
         datatransformer_->setOutputRange( getCubeSampling(true,true,0) );
 
         if ( (tr && tr->execute(*datatransformer_)) ||
-	             !datatransformer_->execute() )
+	      !datatransformer_->execute() )
         {
 	    pErrMsg( "Transform failed" );
 	    return false;
@@ -1442,9 +1455,9 @@ bool MPEDisplay::setDataVolume( int attrib,
 	arrayismine = false;
     }
 
-/*    curtextureas_ = as_;
-    curtexturecs_ = attrdata->cubeSampling();  // to do: check
-*/
+//    curtextureas_ = as_;
+//    curtexturecs_ = attrdata->cubeSampling();  // to do: check
+
     scalarfield_->setScalarField( usedarray, !arrayismine, tr );
 
     setCubeSampling( getCubeSampling(true,true,0) );
@@ -1701,6 +1714,63 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
     slicename_ = slice->name();
     sliceposition_ = slicePosition( slice );
     slicemoving.trigger();
+
+	if ( isSelected() ) return;
+	
+    while( true ) {
+	MPE::TrackPlane newplane = engine_.trackPlane();
+	CubeSampling& planebox = newplane.boundingBox();
+	getPlanePosition( planebox );
+
+	if ( planebox==engine_.trackPlane().boundingBox() )
+	    return;
+
+	updateSliceCoords();
+
+	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
+	const int dim = slice->getDragger()->getDim();
+	if ( !dim && planebox.hrg.start.inl==engineplane.hrg.start.inl )
+	    return;
+	if ( dim==1 && planebox.hrg.start.crl==engineplane.hrg.start.crl )
+	    return;
+	if ( dim==2 && mIsEqual( planebox.zrg.start, engineplane.zrg.start, 
+				 0.1*SI().zStep() ) )
+	    return;
+
+	if ( !dim )
+	{
+	    const bool inc = planebox.hrg.start.inl>engineplane.hrg.start.inl;
+	    int& start = planebox.hrg.start.inl;
+	    int& stop =  planebox.hrg.stop.inl;
+	    const int step = SI().inlStep();
+	    start = stop = engineplane.hrg.start.inl + ( inc ? step : -step );
+	    newplane.setMotion( inc ? step : -step, 0, 0 );
+	}
+	else if ( dim==1 )
+	{
+	    const bool inc = planebox.hrg.start.crl>engineplane.hrg.start.crl;
+	    int& start = planebox.hrg.start.crl;
+	    int& stop =  planebox.hrg.stop.crl;
+	    const int step = SI().crlStep();
+	    start = stop = engineplane.hrg.start.crl + ( inc ? step : -step );
+	    newplane.setMotion( 0, inc ? step : -step, 0 );
+	}
+	else 
+	{
+	    const bool inc = planebox.zrg.start>engineplane.zrg.start;
+	    float& start = planebox.zrg.start;
+	    float& stop =  planebox.zrg.stop;
+	    const double step = SI().zStep();
+	    start = stop = engineplane.zrg.start + ( inc ? step : -step );
+	    newplane.setMotion( 0, 0, inc ? step : -step );
+	}
+	const MPE::TrackPlane::TrackMode trkmode = newplane.getTrackMode();
+	engine_.setTrackPlane( newplane, trkmode==MPE::TrackPlane::Extend
+				      || trkmode==MPE::TrackPlane::ReTrack
+				      || trkmode==MPE::TrackPlane::Erase );
+	movement.trigger();
+	planeOrientationChange.trigger();
+	}
 #endif
 }
 
