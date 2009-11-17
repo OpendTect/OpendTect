@@ -49,7 +49,7 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 
 void uiGoogleExportRandomLine::putSel( CallBacker* )
 {
-    lsfld_->display( putlnmfld_->getIntValue() != 0 );
+    lnmfld_->display( putlnmfld_->getIntValue() != 0 );
 }
 
 
