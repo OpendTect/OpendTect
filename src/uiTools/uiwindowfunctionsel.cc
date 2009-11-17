@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.20 2009-11-16 18:25:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.21 2009-11-17 13:02:26 cvsbruno Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -180,7 +180,7 @@ uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& su )
 
 void uiFreqTaperSel::winfuncseldlgCB( CallBacker* )
 {
-    setFreqsSel(0);
+    setSelFreqs(0);
     uiFreqTaperDlg::Setup su; 		
     su.hasmin_ = isminfreq_; 		su.hasmax_ = ismaxfreq_;
     su.minfreqrg_.set( selfreqrg_.start,  freqrg_.start );
@@ -217,20 +217,20 @@ Interval<float> uiFreqTaperSel::freqValues() const
 }
 
 
-void uiFreqTaperSel::setFreqValue( float val, int fldnr )
+void uiFreqTaperSel::setInputFreqValue( float val, int fldnr )
 {
     varinpfld_->setValue( val, fldnr );
     windowChangedCB(0);
 }
 
 
-void uiFreqTaperSel::setFreqSel( Interval<float> fint )
+void uiFreqTaperSel::setRefFreqs( Interval<float> fint )
 {
     freqrg_ = fint;
 }
 
 
-void uiFreqTaperSel::setFreqsSel( CallBacker* )
+void uiFreqTaperSel::setSelFreqs( CallBacker* )
 {
     selfreqrg_.set( freqValues().start, freqValues().stop );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.9 2009-11-16 17:08:49 cvsbruno Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.10 2009-11-17 13:02:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,9 +83,9 @@ public:
     				uiFreqTaperSel(uiParent*,const Setup&);
 
     void 			setIsMinMaxFreq(bool,bool);
-    void 			setFreqValue(float,int);
+    void 			setInputFreqValue(float,int);
     Interval<float> 		freqValues() const;
-    void 			setFreqSel(Interval<float>); 
+    void 			setRefFreqs(Interval<float>); 
 
 protected :
 
@@ -97,7 +97,7 @@ protected :
 
     void			winfuncseldlgCB(CallBacker*);
     void			windowClosed(CallBacker*);
-    void			setFreqsSel(CallBacker*);
+    void			setSelFreqs(CallBacker*);
 };
 
 

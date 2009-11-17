@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.37 2009-11-17 08:25:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.38 2009-11-17 13:02:26 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -378,12 +378,10 @@ const char* uiWindowFuncSelDlg::getCurrentWindowName() const
 static const char* winname = "CosTaper";
 #define mGetData() isminactive_ ? dd1_ : dd2_; 
 #define mCheckLimitRanges()\
-    dd1_.freqrg_.limitTo( Interval<float>( 0.01, dd1_.freqrg_.stop ) );\
-    dd2_.freqrg_.limitTo( Interval<float>( dd2_.freqrg_.start+0.01,datasz_) );\
-    if ( mIsZero(dd2_.freqrg_.start-dd2_.freqrg_.stop,0.1))\
-	dd2_.freqrg_.stop += 0.1;\
-    if ( mIsZero(dd2_.freqrg_.start-dd2_.freqrg_.stop,0.1))\
-	dd2_.freqrg_.stop += 0.1;
+    dd1_.freqrg_.limitTo( Interval<float>( 0.05, dd1_.reffreqrg_.stop ) );\
+    dd2_.freqrg_.limitTo( Interval<float>(dd2_.reffreqrg_.start+0.05,datasz_));\
+    dd1_.freqrg_.stop = dd1_.reffreqrg_.stop;\
+    dd2_.freqrg_.start = dd2_.reffreqrg_.start;
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     : uiDialog( p, uiDialog::Setup("Frequency taper",
 		    "Select taper parameters at cut-off frequency",mNoHelpID) )
@@ -397,9 +395,10 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     setCtrlStyle( LeaveOnly );
     setHSpacing( 35 );
 
-    dd1_.freqrg_ = s.minfreqrg_;   
-    dd2_.freqrg_ = s.maxfreqrg_; 
+    dd1_.freqrg_ = s.minfreqrg_;  dd1_.reffreqrg_ = s.minfreqrg_; 
+    dd2_.freqrg_ = s.maxfreqrg_;  dd2_.reffreqrg_ = s.maxfreqrg_;
     mCheckLimitRanges();
+    setSlopeFromFreq();
 
     uiFunctionDisplay::Setup su;
     su.noxgridline_ = true;  su.noygridline_ = true; 
@@ -413,18 +412,13 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     varinpfld_->attach( leftAlignedBelow, drawer_ );
     varinpfld_->setTitleText ( tapertxt_[1] );
     varinpfld_->setValue( dd1_.variable_ );
-    varinpfld_->valuechanged.notify( mCB( this, uiFreqTaperDlg, getFromScreen));
-    varinpfld_->valuechanged.notify( 
-	    		mCB( this, uiFreqTaperDlg, setFreqFromPercents ) );
+    varinpfld_->valuechanged.notify(mCB( this, uiFreqTaperDlg, slopeChanged ));
     varinpfld_->valuechanged.notify( mCB(this, uiFreqTaperDlg, taperChged) );
 
     freqrgfld_ = new uiGenInput( this, "Start/Stop frequency(Hz)",
 				    FloatInpSpec().setName("Min frequency"),
 				    FloatInpSpec().setName("Max frequency") );
-    freqrgfld_->valuechanged.notify( mCB( this, uiFreqTaperDlg, getFromScreen));
-    freqrgfld_->valuechanged.notify( mCB( 
-			    this, uiFreqTaperDlg, setPercentsFromFreq ) );
-    freqrgfld_->valuechanged.notify( mCB( this, uiFreqTaperDlg, taperChged  ) );
+    freqrgfld_->valuechanged.notify( mCB( this, uiFreqTaperDlg, freqChanged));
     freqrgfld_->attach( rightOf, varinpfld_ );
     
     if ( hasmin_ && hasmax_ )
@@ -433,12 +427,11 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
 					"Min frequency", "Max frequency") );
 	freqinpfld_->valuechanged.notify( 
 			mCB(this,uiFreqTaperDlg,freqChoiceChged) );
-	freqinpfld_->valuechanged.notify( mCB(this,uiFreqTaperDlg,taperChged) );
 	freqinpfld_->attach( ensureBelow, freqrgfld_ );
 	freqinpfld_->attach( centeredBelow, drawer_ );
     }
  
-    setPercentsFromFreq(0);
+    setPercentsFromFreq();
     winvals_ = new Array1DImpl<float>(datasz_);					
     dd1_.winsz_ = 2*( (int)dd1_.freqrg_.stop );
     dd2_.winsz_ = 2*( datasz_ - (int)dd2_.freqrg_.start );
@@ -446,8 +439,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
 			    Array1DInfoImpl(dd1_.winsz_), false, winname,0 );
     dd2_.window_ = new ArrayNDWindow( 
 			    Array1DInfoImpl(dd2_.winsz_), false, winname,0 );
-   
-    freqChoiceChged(0);
+  
     finaliseDone.notify( mCB(this, uiFreqTaperDlg, taperChged ) );
 }
 
@@ -460,14 +452,25 @@ uiFreqTaperDlg::~uiFreqTaperDlg()
 }
 
 
-void uiFreqTaperDlg::getFromScreen( CallBacker* )
+void uiFreqTaperDlg::freqChanged( CallBacker* )
 {
     DrawData& dd = mGetData();
-    setFreqFromSlope( varinpfld_->getfValue() );
     dd.freqrg_ = freqrgfld_->getFInterval();
-    setPercentsFromFreq(0);
-    
     mCheckLimitRanges();
+    setPercentsFromFreq();
+    setSlopeFromFreq();
+    
+    taperChged(0);
+}
+
+
+void uiFreqTaperDlg::slopeChanged( CallBacker* )
+{
+    DrawData& dd = mGetData();
+    dd.slope_ = varinpfld_->getfValue();
+    setFreqFromSlope( dd.slope_ );
+    setPercentsFromFreq();
+    taperChged(0);
 }
 
 
@@ -477,36 +480,40 @@ void uiFreqTaperDlg::getFromScreen( CallBacker* )
     if ( mIsZero(val-ifr,1e-2) )\
 	val = ifr;\
 }
+#define setTo1Decimal(val)\
+{\
+    val*=10;\
+    val = (int)val;\
+    val = (float)val/10;\
+}
 void uiFreqTaperDlg::putToScreen( CallBacker* )
 {
     NotifyStopper nsf1( varinpfld_->valuechanged );
     NotifyStopper nsf2( freqrgfld_->valuechanged );
 
     DrawData& dd = mGetData();
-    setToNearestInt( dd.freqrg_.start ); 
-    setToNearestInt( dd.freqrg_.stop );
-    setPercentsFromFreq(0);
-    varinpfld_->setValue( getSlopeFromFreq() );
-    freqrgfld_->setValue( dd.freqrg_ );
+
+    float freq1 = dd.freqrg_.start;
+    float freq2 = dd.freqrg_.stop;
+
+    setTo1Decimal( freq1 );
+    setToNearestInt( freq1 ); 
+    setTo1Decimal( freq2 );
+    setToNearestInt( freq2 );
+    
+    freqrgfld_->setValue( Interval<float>( freq1, freq2 ) );
+
+    float slope = dd.slope_;
+    setTo1Decimal( slope );
+    setToNearestInt( slope ); 
+    varinpfld_->setValue( slope );
     
     freqrgfld_->setSensitive( hasmin_ && isminactive_, 0, 0 );
     freqrgfld_->setSensitive( hasmax_ && !isminactive_, 0, 1 );
 } 
 
 
-void uiFreqTaperDlg::setFreqFromPercents( CallBacker* )
-{
-    DrawData& d = mGetData();
-
-    if ( isminactive_ )
-	d.freqrg_.start = d.freqrg_.stop * d.variable_;
-    else
-	d.freqrg_.stop = ( datasz_-d.freqrg_.start)*d.variable_
-		       + d.freqrg_.start;
-}
-
-
-void uiFreqTaperDlg::setPercentsFromFreq( CallBacker* )
+void uiFreqTaperDlg::setPercentsFromFreq()
 {
     NotifyStopper nsf( freqrgfld_->valuechanged );
     dd1_.variable_ = dd1_.freqrg_.start / dd1_.freqrg_.stop;
@@ -531,12 +538,11 @@ void uiFreqTaperDlg::setFreqFromSlope( float slope )
 }
 
 
-float uiFreqTaperDlg::getSlopeFromFreq()
+void uiFreqTaperDlg::setSlopeFromFreq()
 {
     DrawData& d = mGetData();
     float slope = fabs( 1/Math::Log10( d.freqrg_.stop / d.freqrg_.start ) );
-    slope *= mDec2Oct;
-    return slope;
+    d.slope_ = slope*mDec2Oct;
 }
 
 
@@ -569,8 +575,8 @@ void uiFreqTaperDlg::freqChoiceChged( CallBacker* )
 	isminactive_ = freqinpfld_->getBoolValue();
     else
 	isminactive_ = hasmin_;
-    taperChged(0);
-    getFromScreen(0);
+    setSlopeFromFreq();
+    putToScreen(0);
 }
 
 
@@ -579,9 +585,6 @@ void uiFreqTaperDlg::setFreqRange( Interval<float> fqrg )
     dd1_.freqrg_.start = fqrg.start;
     dd2_.freqrg_.stop = fqrg.stop;
     mCheckLimitRanges()
-    putToScreen(0); 
-    setPercentsFromFreq(0);
-    taperChged(0); 
 }
 
 

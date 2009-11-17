@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.29 2009-11-17 07:51:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.30 2009-11-17 13:02:26 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -61,6 +61,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     freqfld->setElemSzPol( uiObject::Small );
     freqfld->attach( alignedBelow, typefld );
     freqfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,freqChanged) );
+    freqfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,updateTaperFreqs) );
 
     polesfld = new uiLabeledSpinBox( this, "Nr of poles" );
     polesfld->box()->setMinValue( 2 );
@@ -129,8 +130,23 @@ void uiFreqFilterAttrib::isfftSel( CallBacker* )
 void uiFreqFilterAttrib::freqChanged( CallBacker* )
 {
     mDynamicCastGet( uiFreqTaperSel*, tap, winflds[1] );
-    if ( tap ) 
-	tap->setFreqSel( freqfld->getFInterval() ); 
+    if ( tap )
+    {	
+	Interval<float> frg( freqfld->getFInterval() );
+	tap->setRefFreqs( frg ); 
+    }
+}
+
+
+void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
+{
+    mDynamicCastGet( uiFreqTaperSel*, tap, winflds[1] );
+    if ( tap )
+    {
+	Interval<float> frg( freqfld->getFInterval() );
+	tap->setInputFreqValue( frg.start-5, 0 );
+	tap->setInputFreqValue( frg.stop+5, 1 );
+    }
 }
 
 
@@ -138,6 +154,8 @@ void uiFreqFilterAttrib::freqWinSel( CallBacker* )
 {
     const bool isfreqtaper = freqwinselfld->isChecked();
     winflds[1]->setSensitive( isfreqtaper );
+    if ( !isfreqtaper )
+	updateTaperFreqs(0);
 }
 
 
@@ -157,8 +175,8 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
 
     mIfGetString( FreqFilter::windowStr(), window,
 			    winflds[0]->setWindowName(window) );
-    mIfGetString( FreqFilter::fwindowStr(), window,
-			    winflds[1]->setWindowName(window) );
+    mIfGetString( FreqFilter::fwindowStr(), fwindow,
+			    winflds[1]->setWindowName(fwindow) );
     mIfGetFloat( FreqFilter::paramvalStr(), variable,
 	    const float resvar = float( mNINT((1-variable)*1000) )/1000.0;
 	    winflds[0]->setWindowParamValue(resvar) );
@@ -167,10 +185,10 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
     {
 	mIfGetFloat( FreqFilter::highfreqparamvalStr(), highfreqvalue,
 	    const float res = float( highfreqvalue) ;
-	    taper->setFreqValue( res, 0 ) ); 
+	    taper->setInputFreqValue( res, 0 ) ); 
 	mIfGetFloat( FreqFilter::lowfreqparamvalStr(), lowfreqvalue,
 	    const float res = float( lowfreqvalue );
-	    taper->setFreqValue( res, 1 ) ); 
+	    taper->setInputFreqValue( res, 1 ) ); 
     }
     mIfGetBool( FreqFilter::isfftfilterStr(), isfftfilter, 
 	    	isfftfld->setValue(isfftfilter) );
@@ -209,9 +227,9 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     {
 	Interval<float> freqresvar = taper->freqValues();
 	const bool isfreqtaper = freqwinselfld->isChecked();
-	freqresvar.start = isfreqtaper ? mNINT((freqresvar.start)) 
+	freqresvar.start = isfreqtaper ? (freqresvar.start) 
 				       : freqfld->getfValue(0);
-	freqresvar.stop = isfreqtaper ? mNINT((freqresvar.stop)) 
+	freqresvar.stop = isfreqtaper ? (freqresvar.stop) 
 				      : freqfld->getfValue(1);
 	mSetFloat( FreqFilter::lowfreqparamvalStr(), freqresvar.stop );
 	mSetFloat( FreqFilter::highfreqparamvalStr(), freqresvar.start );

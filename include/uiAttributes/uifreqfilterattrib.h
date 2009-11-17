@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.h,v 1.12 2009-10-14 14:37:32 cvsbruno Exp $
+ RCS:           $Id: uifreqfilterattrib.h,v 1.13 2009-11-17 13:02:26 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,10 +43,11 @@ protected:
     ObjectSet<uiWindowFunctionSel> winflds;
     uiWindowFunctionSel::Setup* viewsetup_;
 
-    void		freqWinSel(CallBacker*);
     void		finaliseCB(CallBacker*);
-    void		typeSel(CallBacker*);
     void		freqChanged(CallBacker*);
+    void		freqWinSel(CallBacker*);
+    void		updateTaperFreqs(CallBacker*);
+    void		typeSel(CallBacker*);
     void		isfftSel(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
