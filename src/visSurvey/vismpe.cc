@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.88 2009-11-17 02:09:34 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.89 2009-11-17 09:51:22 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -525,7 +525,6 @@ void MPEDisplay::moveMPEPlane( int nr )
     if ( !drg || !nr ) return;
     const int dim = dragger_->getDim();
 #else
-	return;
     if ( ( !slices_.size() ) || ( !slices_[dim_] ) )
 	return;
     visBase::DepthTabPlaneDragger* drg = slices_[dim_]->getDragger();
@@ -564,10 +563,11 @@ void MPEDisplay::moveMPEPlane( int nr )
 	else
 	    center.z += sign * SI().zStep();
 
+	// This check fails for volume display-based rendering and plane is 
+	// stationary in x and y dimensions.
 	if ( !sx.includes(center.x) || !sy.includes(center.y) || 
 	     !sz.includes(center.z) )
 	    return;
-
 	drg->setCenter( center, false );
     }
 }
