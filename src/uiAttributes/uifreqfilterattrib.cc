@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.30 2009-11-17 13:02:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.31 2009-11-17 15:31:48 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -226,16 +226,16 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     if ( taper ) 
     {
 	Interval<float> freqresvar = taper->freqValues();
-	const bool isfreqtaper = freqwinselfld->isChecked();
-	freqresvar.start = isfreqtaper ? (freqresvar.start) 
-				       : freqfld->getfValue(0);
-	freqresvar.stop = isfreqtaper ? (freqresvar.stop) 
-				      : freqfld->getfValue(1);
+	const bool istaper = !strcmp(winflds[1]->windowName(),"CosTaper");
+	freqresvar.start = istaper ? (freqresvar.start) 
+				   : freqfld->getfValue(0);
+	freqresvar.stop = istaper ? (freqresvar.stop) 
+				  : freqfld->getfValue(1);
 	mSetFloat( FreqFilter::lowfreqparamvalStr(), freqresvar.stop );
 	mSetFloat( FreqFilter::highfreqparamvalStr(), freqresvar.start );
-	mSetBool( FreqFilter::isfreqtaperStr(), isfreqtaper );
     }
     mSetBool( FreqFilter::isfftfilterStr(), isfftfld->getBoolValue() );
+    mSetBool( FreqFilter::isfreqtaperStr(), freqwinselfld->isChecked() );
 
     return true;
 }
