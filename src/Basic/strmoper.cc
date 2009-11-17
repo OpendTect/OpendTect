@@ -5,11 +5,12 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.22 2009-11-16 11:46:07 cvsbert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.23 2009-11-17 09:08:10 cvsjaap Exp $";
 
 #include "strmoper.h"
 #include "timefun.h"
 #include "bufstring.h"
+#include <limits.h>
 #include <iostream>
 
 static const unsigned int nrretries = 4;
