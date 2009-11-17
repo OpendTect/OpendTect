@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.28 2009-11-16 18:52:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.29 2009-11-17 07:51:11 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -157,7 +157,7 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
 
     mIfGetString( FreqFilter::windowStr(), window,
 			    winflds[0]->setWindowName(window) );
-    mIfGetString( FreqFilter::windowStr(), window,
+    mIfGetString( FreqFilter::fwindowStr(), window,
 			    winflds[1]->setWindowName(window) );
     mIfGetFloat( FreqFilter::paramvalStr(), variable,
 	    const float resvar = float( mNINT((1-variable)*1000) )/1000.0;
@@ -165,7 +165,6 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
     mDynamicCastGet( uiFreqTaperSel*, taper, winflds[1] );
     if ( taper ) 
     {
-	taper->setWindowName( "CosTaper" );
 	mIfGetFloat( FreqFilter::highfreqparamvalStr(), highfreqvalue,
 	    const float res = float( highfreqvalue) ;
 	    taper->setFreqValue( res, 0 ) ); 
