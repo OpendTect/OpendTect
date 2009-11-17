@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.97 2009-11-09 23:16:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.98 2009-11-17 19:59:44 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -447,24 +447,8 @@ HorizonSection::HorizonSection()
 	cache_ += 0;
 
     addChild( texturecrds_ );
+    setTextureCoords();
 
-    if ( !texturecoordptr_ )
-    {
-	mTryAlloc( texturecoordptr_, SbVec2f[mTotalNrCoordsPerTile] );
-	int idx = 0;
-	for ( int irow=0; irow<mNrCoordsPerTileSide; irow++ )
-	{
-	    for ( int icol=0; icol<mNrCoordsPerTileSide; icol++ )
-	    {
-		texturecoordptr_[idx] = SbVec2f((icol+0.5)/mNrCoordsPerTileSide,
-			(irow+0.5)/mNrCoordsPerTileSide);
-		idx++;
-	    }
-	}
-    }
-
-    texturecrds_->point.setValuesPointer( mTotalNrCoordsPerTile,
-	    				  texturecoordptr_ );
     wireframematerial_->ref();
 }
 
@@ -502,6 +486,28 @@ HorizonSection::~HorizonSection()
     removeChild( channels_->getInventorNode() );
     channels_->unRef();
     removeChild( texturecrds_ );
+}
+
+
+void HorizonSection::setTextureCoords()
+{
+    if ( !texturecoordptr_ )
+    {
+	mTryAlloc( texturecoordptr_, SbVec2f[mTotalNrCoordsPerTile] );
+	int idx = 0;
+	for ( int irow=0; irow<mNrCoordsPerTileSide; irow++ )
+	{
+	    for ( int icol=0; icol<mNrCoordsPerTileSide; icol++ )
+	    {
+		texturecoordptr_[idx] = SbVec2f((icol+0.5)/mNrCoordsPerTileSide,
+			(irow+0.5)/mNrCoordsPerTileSide);
+		idx++;
+	    }
+	}
+    }
+
+    texturecrds_->point.setValuesPointer( mTotalNrCoordsPerTile,
+	    				  texturecoordptr_ );
 }
 
 
@@ -1022,119 +1028,85 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     if ( displayrrg_.width(false)<0 || displaycrg_.width(false)<0 )
 	return;
 
+    if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
+	resetAllTiles( tr );
+    else
+	updateNewPoints( gpids, tr );
+}
+
+
+void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
+				      TaskRunner* tr )
+{
+    tesselationlock_ = true;
+    updateTileArray();
+    
+    const int nrrowsz = tiles_.info().getSize(0);
+    const int nrcolsz = tiles_.info().getSize(1);
     const RowCol step( displayrrg_.step, displaycrg_.step );
+    
     ObjectSet<HorizonSectionTile> fullupdatetiles;
     ObjectSet<HorizonSectionTile> oldupdatetiles;
 
-    const bool updatewireframe = usewireframe_ && desiredresolution_!=-1;
-
-    tesselationlock_ = true;
-    if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
+    for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
     {
-	origin_ = RowCol( displayrrg_.start, displaycrg_.start );
-	const int nrrows = 
-	    nrBlocks( displayrrg_.nrSteps()+1, mNrCoordsPerTileSide, 1 );
-	const int nrcols = 
-	    nrBlocks( displaycrg_.nrSteps()+1, mNrCoordsPerTileSide, 1 );
+	const RowCol& absrc( (*gpids)[idx] );
+	RowCol rc = absrc-origin_; rc /= step;
 
-	if ( !tiles_.setSize( nrrows, nrcols ) )
+	const int tilerowidx = rc.row/mTileSideSize;
+	const int tilerow = rc.row%mTileSideSize;
+
+	const int tilecolidx = rc.col/mTileSideSize;
+	const int tilecol = rc.col%mTileSideSize;
+
+	const Coord3 pos = geometry_->getKnot(absrc,false);
+	
+	bool addoldtile = false;
+	HorizonSectionTile* tile = tiles_.get( tilerowidx, tilecolidx );
+	if ( !tile ) 
 	{
-	    tesselationlock_ = false;
-	    return;
+	    tile = createTile( tilerowidx, tilecolidx );
+	    fullupdatetiles += tile;
+	}
+	else if ( fullupdatetiles.indexOf(tile)==-1 )
+	{
+	    for ( int res=0; res<=mLowestResIdx; res++ )
+		tile->setAllNormalsInvalid( res, false );
+	
+	    tile->setPos( tilerow, tilecol, pos );
+	    if ( desiredresolution_!=-1 )
+	    {
+		addoldtile = true;
+		if ( oldupdatetiles.indexOf(tile)==-1 )
+		    oldupdatetiles += tile;		    
+	    }
 	}
 
-	tiles_.setAll( 0 );
-
-	for ( int tilerowidx=0; tilerowidx<nrrows; tilerowidx++ )
+	for ( int rowidx=-1; rowidx<=1; rowidx++ ) //Update neighbors
 	{
-	    for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
+	    const int nbrow = tilerowidx+rowidx;
+	    if ( nbrow<0 || nbrow>=nrrowsz ) continue;
+
+	    for ( int colidx=-1; colidx<=1; colidx++ )
 	    {
-		fullupdatetiles += createTile(tilerowidx, tilecolidx);
-	    }
-	}
-
-	updateTileTextureOrigin( RowCol(0,0) );
-    }
-    else
-    {
-	updateTileArray();
-	const int nrrowsz = tiles_.info().getSize(0);
-	const int nrcolsz = tiles_.info().getSize(1);
-
-    	for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
-	{
-	    const RowCol& absrc( (*gpids)[idx] );
-	    RowCol rc = absrc-origin_; rc /= step;
-
-	    const int tilerowidx = rc.row/mTileSideSize;
-	    const int tilerow = rc.row%mTileSideSize;
-
-	    const int tilecolidx = rc.col/mTileSideSize;
-	    const int tilecol = rc.col%mTileSideSize;
-
-	    const Coord3 pos = geometry_->getKnot(absrc,false);
-	    
-	    bool addoldtile = false;
-	    HorizonSectionTile* tile = tiles_.get( tilerowidx, tilecolidx );
-	    if ( !tile ) 
-	    {
-		tile = createTile( tilerowidx, tilecolidx );
-		fullupdatetiles += tile;
-	    }
-	    else if ( fullupdatetiles.indexOf(tile)==-1 )
-	    {
-    		for ( int res=0; res<=mLowestResIdx; res++ )
-    		    tile->setAllNormalsInvalid( res, false );
-	    
-		tile->setPos( tilerow, tilecol, pos );
-		if ( desiredresolution_!=-1 )
-		{
-		    addoldtile = true;
-		    if ( oldupdatetiles.indexOf(tile)==-1 )
-			oldupdatetiles += tile;		    
-		}
-	    }
-
-	    for ( int rowidx=-1; rowidx<=1; rowidx++ )
-	    {
-		const int neighborrow = tilerowidx+rowidx;
-		if ( neighborrow<0 || neighborrow>=nrrowsz )
+		const int nbcol = tilecolidx+colidx;
+		if ( (!rowidx && !colidx) || nbcol<0 || nbcol>=nrcolsz )
 		    continue;
 
-		for ( int colidx=-1; colidx<=1; colidx++ )
-		{
-		    if ( !rowidx && !colidx ) continue;
+		HorizonSectionTile* nbtile = tiles_.get( nbrow, nbcol );
+		if ( !nbtile || fullupdatetiles.indexOf(nbtile)!=-1)
+		    continue;
 
-		    const int neighborcol = tilecolidx+colidx;
-		    if ( neighborcol<0 || neighborcol>=nrcolsz )
-			continue;
-
-		    HorizonSectionTile* nbtile = 
-			tiles_.get( neighborrow,neighborcol );
-		    if ( !nbtile || fullupdatetiles.indexOf(nbtile)!=-1)
-			continue;
-
-		    nbtile->setPos( tilerow-rowidx*mTileSideSize,
-			    	    tilecol-colidx*mTileSideSize, pos );
-
-		    if ( addoldtile && rowidx+colidx<0 && 
-			    desiredresolution_!=-1)
-		    {
-			if ( !tilerow && rowidx==-1 )
-			{
-			    if ( !tilecol && colidx==-1 &&
-				    oldupdatetiles.indexOf(nbtile)==-1 )
-				oldupdatetiles += nbtile;
-			    
-			    if ( !colidx && oldupdatetiles.indexOf(nbtile)==-1 )
-				oldupdatetiles += nbtile;
-			}
-			
-			if ( !tilecol && !rowidx && colidx==-1 &&
-				oldupdatetiles.indexOf(nbtile)==-1 )
-			    oldupdatetiles += nbtile;
-		    }
-		}
+		nbtile->setPos( tilerow-rowidx*mTileSideSize,
+				tilecol-colidx*mTileSideSize, pos );
+		if ( !addoldtile || rowidx+colidx>=0 || desiredresolution_==-1 
+				 || oldupdatetiles.indexOf(nbtile)!=-1 )
+		    continue;
+	    
+		if ( (!tilecol && !rowidx && colidx==-1) || 
+			(!tilerow && rowidx==-1 && 
+			 ((!tilecol && colidx==-1) || !colidx)) )
+		    oldupdatetiles += nbtile;
 	    }
 	}
     }
@@ -1161,6 +1133,44 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
   
     tesselationlock_ = false;
     shapehints_->touch(); //trigger rerender
+}
+
+
+void HorizonSection::resetAllTiles( TaskRunner* tr )
+{
+    tesselationlock_ = true;
+    origin_ = RowCol( displayrrg_.start, displaycrg_.start );
+    const int nrrows = 
+	nrBlocks( displayrrg_.nrSteps()+1, mNrCoordsPerTileSide, 1 );
+    const int nrcols = 
+	nrBlocks( displaycrg_.nrSteps()+1, mNrCoordsPerTileSide, 1 );
+
+    if ( !tiles_.setSize( nrrows, nrcols ) )
+    {
+	tesselationlock_ = false;
+	return;
+    }
+
+    tiles_.setAll( 0 );
+
+    ObjectSet<HorizonSectionTile> fullupdatetiles;
+    for ( int tilerowidx=0; tilerowidx<nrrows; tilerowidx++ )
+    {
+	for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
+	{
+	    fullupdatetiles += createTile(tilerowidx, tilecolidx);
+	}
+    }
+
+    updateTileTextureOrigin( RowCol(0,0) );
+    
+    HorizonSectionTilePosSetup task( fullupdatetiles, *geometry_,
+	   displayrrg_, displaycrg_, zaxistransform_ );
+    if ( tr ) tr->execute( task );
+    else task.execute();
+    
+    tesselationlock_ = false;
+    shapehints_->touch(); 
 }
 
 

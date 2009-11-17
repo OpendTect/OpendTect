@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.43 2009-10-01 21:59:05 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.44 2009-11-17 19:59:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -130,6 +130,11 @@ protected:
     void			updateTileArray();
     void			updateBBox(SoGetBoundingBoxAction* action);
     HorizonSectionTile*		createTile(int rowidx,int colidx);
+
+    void			setTextureCoords();
+    void			resetAllTiles(TaskRunner*);
+    void			updateNewPoints(const TypeSet<GeomPosID>*,
+	    					TaskRunner*);
 
     bool			userchangedisplayrg_;
     Geometry::BinIDSurface*	geometry_;
