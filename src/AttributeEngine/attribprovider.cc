@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.120 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.121 2009-11-18 21:58:40 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -232,7 +232,7 @@ Provider::~Provider()
 
 bool Provider::isOK() const
 {
-    return true; /* Huh? &parser && parser.isOK(); */
+    return errmsg.isEmpty(); /* Huh? &parser && parser.isOK(); */
 }
 
 
