@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.17 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.18 2009-11-18 20:50:09 cvskris Exp $";
 
 #include "prestackattrib.h"
 
@@ -140,7 +140,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     if ( !psrdr_ )
 	return false;
 
-    if ( preprocessor_ )
+    if ( preprocessor_ && preprocessor_->nrProcessors() )
     {
 	if ( !preprocessor_->reset() || !preprocessor_->prepareWork() )
 	    return false;
