@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.3 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.4 2009-11-18 16:54:41 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -59,7 +59,7 @@ private:
 	    for ( int idy=inputslice.info().getSize(0)-1; idy>=0; idy-- )
 	    {
 		for ( int idz=inputslice.info().getSize(1)-1; idz>=0; idz-- )
-		    inputslice.set( idy, idz, input_.get( idy, idz, inputdepth ) );
+		    inputslice.set( idy, idz, input_.get(idy,idz,inputdepth) );
 	    }
 
 	    PtrMan<Array2DFilterer<float> > filter =
