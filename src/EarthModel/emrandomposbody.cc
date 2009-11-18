@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.9 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.10 2009-11-18 19:53:34 cvskris Exp $";
 
 #include "emrandomposbody.h"
 
@@ -340,7 +340,8 @@ const IOObjContext& RandomPosBody::getIOObjContext() const
 }
 
 
-ImplicitBody* RandomPosBody::createImplicitBody( TaskRunner* tr ) const
+ImplicitBody* RandomPosBody::createImplicitBody( TaskRunner* tr,
+						 bool smooth ) const
 {
     BodyOperator bodyopt;
     return bodyopt.createImplicitBody( locations_, tr ); 

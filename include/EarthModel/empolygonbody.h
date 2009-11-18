@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		July 2008
- RCS:		$Id: empolygonbody.h,v 1.5 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: empolygonbody.h,v 1.6 2009-11-18 19:53:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -77,7 +77,7 @@ public:
     Executor*			loader();
     Executor*                   saver(IOObj*);
 
-    ImplicitBody*		createImplicitBody(TaskRunner*) const;
+    ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
     void			refBody();
     void			unRefBody();
 

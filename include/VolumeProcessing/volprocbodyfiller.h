@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		November 2007
- RCS:		$Id: volprocbodyfiller.h,v 1.1 2009-09-18 18:13:43 cvskris Exp $
+ RCS:		$Id: volprocbodyfiller.h,v 1.2 2009-11-18 19:53:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "volprocchain.h"
 #include "arrayndimpl.h"
 
-class MarchingCubes2Implicit;
 namespace EM { class EMObject; class Body; class ImplicitBody; }
 
 namespace VolProc

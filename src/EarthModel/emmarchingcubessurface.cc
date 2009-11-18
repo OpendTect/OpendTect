@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.19 2009-11-17 21:58:15 cvskris Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.20 2009-11-18 19:53:34 cvskris Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -374,7 +374,9 @@ bool EM::MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
 }
 
 
-ImplicitBody*EM::MarchingCubesSurface::createImplicitBody( TaskRunner* t ) const
+ImplicitBody*
+EM::MarchingCubesSurface::createImplicitBody( TaskRunner* t,
+					      bool smooth ) const
 {
     if ( !mcsurface_ )
     {
@@ -438,8 +440,8 @@ ImplicitBody*EM::MarchingCubesSurface::createImplicitBody( TaskRunner* t ) const
     res->zsampling_.step = zsampling_.step;
 
     MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
-				inlrg.start, crlrg.start, zrg.start, false );
-    if ( !m2i.execute() )
+				inlrg.start, crlrg.start, zrg.start, !smooth );
+    if ( (t && !t->execute( m2i ) ) || (!t && !m2i.execute() ) )
     {
 	delete res;
 	mcsurface_->modelslock_.readUnLock();

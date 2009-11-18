@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embody.cc,v 1.5 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: embody.cc,v 1.6 2009-11-18 19:53:34 cvskris Exp $";
 
 #include "embody.h"
 #include "embodytr.h"
@@ -36,7 +36,7 @@ ImplicitBody ImplicitBody::operator =( const ImplicitBody& ib )
 }
 
 
-ImplicitBody* Body::createImplicitBody( TaskRunner* ) const
+ImplicitBody* Body::createImplicitBody( TaskRunner*, bool ) const
 { return 0; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.12 2009-09-18 17:34:54 cvskris Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.13 2009-11-18 19:53:34 cvskris Exp $";
 
 #include "embodyoperator.h"
 
@@ -404,7 +404,7 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
 	    return 0;
 	}
 
-	body = embody->createImplicitBody( tr );
+	body = embody->createImplicitBody( tr, false );
 	obj->unRef();
     }
     else if ( !oprt->createImplicitBody( body, tr ) )

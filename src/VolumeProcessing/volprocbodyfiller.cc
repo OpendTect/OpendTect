@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.1 2009-09-18 18:13:43 cvskris Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.2 2009-11-18 19:53:34 cvskris Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -208,7 +208,7 @@ Task* BodyFiller::createTask()
 	return 0;
 
     delete implicitbody_;
-    implicitbody_ = body_->createImplicitBody( 0 );
+    implicitbody_ = body_->createImplicitBody( 0, false );
 
     if ( !implicitbody_ )
 	return 0;
