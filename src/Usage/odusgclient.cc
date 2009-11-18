@@ -4,21 +4,32 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgclient.cc,v 1.4 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgclient.cc,v 1.5 2009-11-18 14:59:38 cvsbert Exp $";
 
 #include "odusgclient.h"
 #include "odusginfo.h"
 #include <iostream>
 
 
-bool Usage::Client::sendUsageInfo()
+bool Usage::Client::sendUsgInfo()
 {
-    static int iret = 1;
+    usginfo_.id_ = Usage::Info::newID();
+
 #ifdef __debug__
     std::cerr << "Usage::Client::sendUsageInfo: ";
-    usginfo_.dump( std::cerr ) << std::endl;
-    usginfo_.aux_ = "aux ret";
-    iret++;
+    usginfo_.dump( std::cerr );
+
+    if ( usginfo_.withreply_ )
+    {
+	static int iret = 1;
+	usginfo_.withreply_ = false;
+	usginfo_.aux_ = "ret ";
+	usginfo_.aux_ += iret++;
+	std::cerr << "\tREPLY '" << usginfo_.aux_ << "'\n";
+    }
+
+    std::cerr << std::endl;
 #endif
-    return iret % 2;
+
+    return true;
 }

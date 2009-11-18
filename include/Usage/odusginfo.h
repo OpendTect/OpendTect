@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusginfo.h,v 1.5 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: odusginfo.h,v 1.6 2009-11-18 15:00:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,11 @@ mClass Info
 {
 public:
 
-    typedef int		ID;
+    typedef od_uint64	ID;
 
     			Info( const char* grp, const char* act=0,
 			      const char* aux=0 )
-			    : id_(newID())
+			    : id_(-1)
 			    , group_(grp)
 			    , action_(act)
     			    , aux_(aux)
@@ -39,19 +39,30 @@ public:
     bool		operator ==( const Info& inf ) const
 			{ return id_ == inf.id_; }
 
-    ID			id_;		//!< Unique ID
     BufferString	group_;		//!< Action group
     BufferString	action_;	//!< Specific action
     BufferString	aux_;		//!< Extra info
     bool		start_;		//!< Initiate action or close it?
     bool		withreply_;	//!< Client side: wait for a reply?
 
+    ID			id() const	{ return id_; }
+
     std::ostream&	dump(std::ostream&) const;
     BufferString&	dump(BufferString&) const;
+
+    void		prepStart( const char* act=0 )
+    			{ aux_.setEmpty(); if ( act ) action_ = act;
+			  start_ = true; }
+    void		prepEnd( const char* act=0 )
+    			{ aux_.setEmpty(); if ( act ) action_ = act;
+			  start_ = withreply_ = false; }
 
 protected:
 
     static ID		newID();
+    ID			id_;		//!< Unique ID
+
+    friend class	Client;
 
 };
 

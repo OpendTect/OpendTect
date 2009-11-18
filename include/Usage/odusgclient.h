@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusgclient.h,v 1.2 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: odusgclient.h,v 1.3 2009-11-18 15:00:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,16 +23,20 @@ mClass Client
 {
 public:
 
-    			Client( const char* nm )
-			    : usginfo_(nm)	{}
+    			Client( const char* grp )
+			    : usginfo_(grp)	{}
     virtual		~Client()		{}
 
-    const char*		name() const		{ return usginfo_.group_; }
+    virtual void	prepUsgStart( const char* act=0 )
+			{ usginfo_.prepStart(act); }
+    virtual void	prepUsgEnd( const char* act=0 )
+			{ usginfo_.prepEnd(act); }
 
 protected:
 
     Info		usginfo_;
-    bool		sendUsageInfo();
+
+    virtual bool	sendUsgInfo();
 
 };
 
