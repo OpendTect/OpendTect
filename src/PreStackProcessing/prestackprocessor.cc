@@ -4,13 +4,14 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.22 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.23 2009-11-18 20:38:47 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
 #include "iopar.h"
 #include "keystrs.h"
 #include "prestackgather.h"
+#include "separstr.h"
 
 namespace PreStack
 {
@@ -211,6 +212,9 @@ bool ProcessManager::reset()
 	if ( !processors_[idx]->reset() )
 	    return false;
 
+    if ( !processors_.size() )
+ 	return true;
+
     BinID outputstepout( 0, 0 );
     return processors_[processors_.size()-1]->setOutputInterest(
 	    						outputstepout, true );
@@ -370,15 +374,39 @@ bool ProcessManager::usePar( const IOPar& par )
 	const BufferString idxstr( "", idx );
 	PtrMan<IOPar> steppar = par.subselect( idxstr.buf() );
 	if ( !steppar )
-	    continue;
+	{
+	    errmsg_ = "Could not find name for processing step ";
+	    errmsg_ += idx;
+	    errmsg_ += ".";
+	    return false;
+	}
 
 	BufferString name;
 	if ( !steppar->get( sKey::Name, name ) )
+	{
+	    errmsg_ = "Could not create processing step ";
+	    errmsg_ += name.buf();
+	    errmsg_ += ".";
+
 	    return false;
+	}
 
 	Processor* proc = PF().create( name.buf() );
 	if ( !proc )
+	{
+	    errmsg_ = "Could not parse processing step ";
+	    errmsg_ += name.buf();
+	    errmsg_ += ".";
+
+	    const char* steperr = proc->errMsg();
+	    if ( steperr )
+	    {
+		errmsg_ += FileMultiString::separatorStr();
+		errmsg_ += steperr;
+	    }
+
 	    return false;
+	}
 
 	if ( !proc->usePar( *steppar ) )
 	{
