@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.51 2009-11-16 12:51:31 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.52 2009-11-18 13:49:07 cvsbruno Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -150,6 +150,24 @@ void uiFunctionDisplay::setY2Vals( const float* xvals, const float* yvals,
 
     gatherInfo(); draw();
 }
+
+
+void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg, 
+				   const float* yvals,
+				   int sz )
+{
+    xvals_.erase(); yvals_.erase();
+    if ( sz < 2 ) return;
+
+    const float dx = (xrg.stop-xrg.start) / (sz-1);
+    for ( int idx=0; idx<sz; idx++ )
+    { 
+	xvals_ += xrg.start + idx * dx; 
+	yvals_ += yvals[idx]; 
+    }
+
+    gatherInfo(); draw();
+};
 
 
 void uiFunctionDisplay::setMarkValue( float val, bool is_x )

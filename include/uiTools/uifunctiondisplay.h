@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.29 2009-11-16 12:51:31 cvsbruno Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.30 2009-11-18 13:49:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,8 @@ public:
 	    				const float* yvals,int sz);
     void			setY2Vals(const float* xvals,
 	    				  const float* yvals,int sz);
+    void			setY2Vals(const Interval<float>&,
+	    				const float* yvals,int sz);
     void			setMarkValue(float,bool is_x);
 
     const TypeSet<float>&	xVals() const	{ return xvals_; }
