@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.2 2009-11-11 06:37:09 cvsnageswara Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.3 2009-11-18 15:39:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,5 +102,22 @@ void WaveletAttrib::getFrequency( Array1DImpl<float>& padfreq, bool ispadding )
     {
 	float fq = abs( cfreqarr.get(idx) );
 	padfreq.set( zpadsz-idx-1, fq );
+    }
+}
+
+
+void WaveletAttrib::getWvltFromFrequency( const Array1DImpl<float>& freqdata,
+       					  Array1DImpl<float>& timedata )
+{
+    Array1DImpl<float_complex> cfreqarr(wvltsz_), ctimearr(wvltsz_);
+    for ( int idx=0; idx<wvltsz_; idx++ )
+	cfreqarr.set( idx, freqdata.get(idx) );
+
+    mDoTransform( fft_, false, cfreqarr, ctimearr, wvltsz_ );
+
+    for ( int idx=0; idx<wvltsz_; idx++ )
+    {
+	float val = abs( cfreqarr.get(idx) );
+	timedata.set( wvltsz_-idx-1, val );
     }
 } 

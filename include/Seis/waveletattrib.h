@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.h,v 1.3 2009-11-10 05:06:06 cvsnanne Exp $
+ RCS:           $Id: waveletattrib.h,v 1.4 2009-11-18 15:39:07 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ public:
     void		getHilbert(Array1DImpl<float>&);
     void		getPhase(Array1DImpl<float>&);
     void		getFrequency(Array1DImpl<float>&,bool ispad=true);
+    void 		getWvltFromFrequency(const Array1DImpl<float>&,
+					     Array1DImpl<float>&);
     void		muteZeroFrequency(Array1DImpl<float>&);
 
 protected:
