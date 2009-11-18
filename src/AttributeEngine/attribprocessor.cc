@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.68 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.69 2009-11-18 21:59:09 cvskris Exp $";
 
 #include "attribprocessor.h"
 
@@ -54,7 +54,7 @@ Processor::~Processor()
 }
 
 
-bool Processor::isOK() const { return provider_; }
+bool Processor::isOK() const { return provider_ && provider_->isOK(); }
 
 
 void Processor::addOutput( Output* output )
