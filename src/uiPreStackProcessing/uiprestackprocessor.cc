@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.13 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.14 2009-11-18 22:08:46 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -294,6 +294,7 @@ void uiProcessorManager::loadCB( CallBacker* )
     delete selcontext.ioobj;
     changed_ = false;
     updateButtons();
+    change.trigger();
 }
 
 
