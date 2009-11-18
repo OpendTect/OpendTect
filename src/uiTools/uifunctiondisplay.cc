@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.52 2009-11-18 13:49:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.53 2009-11-18 16:19:59 cvsbruno Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -156,14 +156,14 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 				   const float* yvals,
 				   int sz )
 {
-    xvals_.erase(); yvals_.erase();
+    y2xvals_.erase(); y2yvals_.erase();
     if ( sz < 2 ) return;
 
     const float dx = (xrg.stop-xrg.start) / (sz-1);
     for ( int idx=0; idx<sz; idx++ )
     { 
-	xvals_ += xrg.start + idx * dx; 
-	yvals_ += yvals[idx]; 
+	y2xvals_ += xrg.start + idx * dx; 
+	y2yvals_ += yvals[idx]; 
     }
 
     gatherInfo(); draw();
