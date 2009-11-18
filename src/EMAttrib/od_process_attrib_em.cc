@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.62 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.63 2009-11-18 20:46:55 cvskris Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.62 2009-07-22 16:01
 #include "initattributeengine.h"
 #include "initattributes.h"
 #include "initearthmodel.h"
+#include "initprestackprocessing.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -311,6 +312,7 @@ bool BatchProgram::go( std::ostream& strm )
     AttributeEngine::initStdClasses();
     Attributes::initStdClasses();
     EarthModel::initStdClasses();
+    PreStackProcessing::initStdClasses();
 
     const float vnr = parversion_.isEmpty() ? 0 : atof( parversion_.buf() );
     if ( cmdLineOpts().size() )

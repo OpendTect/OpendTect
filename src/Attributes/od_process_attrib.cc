@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.28 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.29 2009-11-18 20:45:23 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.28 2009-07-22 16:01:30
 #include "attribdescsettr.h"
 #include "attribengman.h"
 #include "initattributes.h"
+#include "initprestackprocessing.h"
 #include "attriboutput.h"
 #include "attribprocessor.h"
 #include "attribstorprovider.h"
@@ -89,6 +90,7 @@ bool BatchProgram::go( std::ostream& strm )
     Attrib::Processor* proc = 0;
     Attributes::initStdClasses();
     Algo::initStdClasses();
+    PreStackProcessing::initStdClasses();
     
     const char* tempdir = pars().find(sKey::TmpStor);
     if ( tempdir && *tempdir )
