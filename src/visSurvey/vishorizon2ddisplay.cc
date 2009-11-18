@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.29 2009-11-09 23:15:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.30 2009-11-18 15:02:05 cvsyuancheng Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -362,6 +362,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     {
 	ps = visBase::PointSet::create();
 	ps->ref();
+	ps->getCoordinates()->removeAfter(-1);
 	points_.replace( idx, ps );
 	addChild( ps->getInventorNode() );
     }
