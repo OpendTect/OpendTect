@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.23 2009-10-01 07:33:12 cvsjaap Exp $
+ RCS:		$Id: separstr.h,v 1.24 2009-11-18 19:52:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,9 +116,12 @@ mClass FileMultiString : public SeparString
 public:
 
 			FileMultiString(const char* escapedstr=0)
-			    : SeparString(escapedstr,'`')		{} 
+			    : SeparString(escapedstr, separator() )	{} 
     template <class T>	FileMultiString( T t )
-			    : SeparString(t,'`')			{}
+			    : SeparString(t, separator() )		{}
+
+    static char		separator() { return '`'; }
+    static const char*  separatorStr();
 
     // The function template overloading add(const SeparString&) in the base
     // class needs an exact match! Passing a derived object would make the
