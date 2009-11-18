@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispointset.cc,v 1.6 2009-10-21 06:18:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointset.cc,v 1.7 2009-11-18 10:53:21 cvssatyaki Exp $";
 
 #include "datapointset.h"
 #include "viscoord.h"
@@ -37,7 +37,6 @@ PointSet::PointSet()
 void PointSet::setPointSize( int sz )
 {
     drawstyle_->setPointSize( (float)sz );
-    insertNode( drawstyle_->getInventorNode() );
 }
 
 
