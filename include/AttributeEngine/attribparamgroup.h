@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.8 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.9 2009-11-18 05:33:45 cvsnanne Exp $
 ________________________________________________________________________
 */
 
@@ -33,6 +33,8 @@ a template for the parameters that should be constructed.
 #include "attribparam.h"
 #include "datainpspec.h"
 #include "bufstringset.h"
+#include <stdio.h>
+
 namespace Attrib
 {
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.38 2009-10-08 06:05:44 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.39 2009-11-18 05:33:45 cvsnanne Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiaxishandler.cc,v 1.38 2009-10-08 06:05:44 cvs
 #include "draw.h"
 
 #include <math.h>
+#include <stdio.h>
 
 static const float logof2 = logf(2);
 

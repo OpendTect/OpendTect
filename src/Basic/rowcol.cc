@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.18 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.19 2009-11-18 05:33:45 cvsnanne Exp $";
 
 #include "rowcol.h"
 #include "bufstring.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: rowcol.cc,v 1.18 2009-07-22 16:01:31 cvsbert Ex
 #include "typeset.h"
 
 #include <math.h>
+#include <stdio.h>
 
 
 void RCol::fill( char* str ) const
