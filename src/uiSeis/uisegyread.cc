@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.37 2009-08-28 15:58:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.38 2009-11-18 14:59:49 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -75,8 +75,7 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
     , rev1qdlg_(0)
     , processEnded(this)
 {
-    usginfo_.action_ = setup_.forScan() ? "Scan" : "Import";
-    sendUsageInfo();
+    prepUsgStart( setup_.forScan() ? "Scan" : "Import" ); sendUsgInfo();
 
     if ( iop )
 	usePar( *iop );
@@ -88,8 +87,7 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
 
 void uiSEGYRead::closeDown()
 {
-    usginfo_.start_ = false;
-    sendUsageInfo();
+    prepUsgEnd(); sendUsgInfo();
     uiOBJDISP()->go( this );
     processEnded.trigger();
 }
