@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.26 2009-11-17 21:58:15 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.27 2009-11-18 07:07:52 cvsranojay Exp $";
 
 #include "marchingcubes.h"
 
@@ -812,7 +812,7 @@ bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
     //Process all seeds in the list, add new seeds to newseeds and vals
     for ( int offsetidx=0; offsetidx<nr; offsetidx++ )
     {
-	const od_int64 curoffset = offsets[offsetidx];
+	od_int64 curoffset = offsets[offsetidx];
 	int arrpos[3];
 	result_.info().getArrayPos( curoffset, arrpos );
 
@@ -899,9 +899,9 @@ bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
 	if ( donexty )
 	{
 	    if ( doprevz )
-		mChkN( 			+doff[mY]	-doff[mZ]	, m2d );
+		mChkN( 			 doff[mY]	-doff[mZ]	, m2d );
 	    if ( donextz )
-		mChkN( 			+doff[mY]	+doff[mZ]	, m2d );
+		mChkN( 			 doff[mY]	+doff[mZ]	, m2d );
 	}
 
 	if ( arrpos[mX]<size_[mX]-1 )
@@ -909,28 +909,28 @@ bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
 	    if ( doprevy )
 	    {
 		if ( doprevz )
-		    mChkN( +doff[mX]	-doff[mY]	-doff[mZ]	, m2d );
+		    mChkN(   doff[mX] 	-doff[mY]	-doff[mZ]	, m2d );
 
-		mChkN(	   +doff[mX]	-doff[mY]			, m2d );
+		mChkN(	     doff[mX] 	-doff[mY]			, m2d );
 
 		if ( donextz )
-		    mChkN( +doff[mX]	-doff[mY]	+doff[mZ]	, m2d );
+		    mChkN(   doff[mX] 	-doff[mY]	+doff[mZ]	, m2d );
 	    }
 
 	    if ( doprevz )
-		mChkN(	   +doff[mX]			-doff[mZ]	, m2d );
+		mChkN(	     doff[mX] 			-doff[mZ]	, m2d );
 	    if ( donextz )
-		mChkN(	   +doff[mX]			+doff[mZ]	, m2d );
+		mChkN(	     doff[mX] 			+doff[mZ]	, m2d );
 
 	    if ( donexty )
 	    {
 		if ( doprevz )
-		    mChkN( +doff[mX]	+doff[mY]	-doff[mZ]	, m2d );
+		    mChkN(   doff[mX] 	+doff[mY]	-doff[mZ]	, m2d );
 
-		mChkN(	   +doff[mX]	+doff[mY]			, m2d );
+		mChkN(	     doff[mX] 	+doff[mY]			, m2d );
 
 		if ( donextz )
-		    mChkN( +doff[mX]	+doff[mY]	+doff[mZ]	, m2d );
+		    mChkN(   doff[mX] 	+doff[mY]	+doff[mZ]	, m2d );
 	    }
 	}
     }
