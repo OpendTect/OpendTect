@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.10 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.11 2009-11-19 08:58:41 cvsnageswara Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -127,7 +127,8 @@ bool uiHor2DFrom3DDlg::checkFlds()
 
 void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 {
-    const BufferStringSet sellinenames = linesetinpsel_->getSelLines();
+    const BufferStringSet sellinenames =
+					linesetinpsel_->subsel()->getSelLines();
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.getObjectID( hor3dsel_->selIOObj()->key() );
     mDynamicCastGet(EM::Horizon3D*,horizon3d,em.getObject(objid));
