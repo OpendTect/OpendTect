@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.7 2009-11-19 13:07:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.8 2009-11-19 15:15:56 cvsbert Exp $";
 
 
 #include "uidpsdemo.h"
@@ -69,6 +69,8 @@ public:
     void		doIt(CallBacker*);
     void		showSelPtsCB(CallBacker*);
     void		removeSelPtsCB(CallBacker*);
+    void		winClosed(CallBacker*);
+
 };
 
 
@@ -111,13 +113,22 @@ void uiDPSDemoMgr::doIt( CallBacker* )
     dpsdemo_->selPtsToBeShown.notify( mCB(this,uiDPSDemoMgr,showSelPtsCB) );
     dpsdemo_->selPtsToBeRemoved.notify( mCB(this,uiDPSDemoMgr,removeSelPtsCB) );
     dpsdemo_->setDeleteOnClose( true );
+    dpsdemo_->windowClosed.notify( mCB(this,uiDPSDemoMgr,winClosed) );
     dpsdemo_->go();
 }
 
 
-void uiDPSDemoMgr::showSelPtsCB( CallBacker* )
+void uiDPSDemoMgr::winClosed( CallBacker* cb )
 {
-    const DataPointSet& dps = dpsdemo_->getDPS();
+    dpsdemo_ = 0;
+}
+
+
+void uiDPSDemoMgr::showSelPtsCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiDPSDemo*,dpsdemo,cb)
+    if ( !dpsdemo ) { pErrMsg( "Huh" ); return; }
+    const DataPointSet& dps = dpsdemo->getDPS();
     if ( !dpsdispmgr_ ) return;
 
     dpsdispmgr_->lock();
