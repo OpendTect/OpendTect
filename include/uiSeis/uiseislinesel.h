@@ -8,7 +8,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.19 2009-09-15 09:46:51 cvsraman Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.20 2009-11-19 08:52:47 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,7 +140,8 @@ public:
     void                        doDlg(CallBacker*);
     IOObj*                      getIOObj();
     void			setIOObj(const MultiID&);
-    const BufferStringSet&      getSelLines() const     { return sellines_; }
+    const uiSeis2DLineSubSel*	subsel() const		{ return linesel_; }
+
     void 			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
