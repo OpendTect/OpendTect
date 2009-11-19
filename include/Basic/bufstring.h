@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.38 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: bufstring.h,v 1.39 2009-11-19 09:59:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
     void		setEmpty();
     bool		isEqual(const char*,bool caseinsens=false) const;
     bool		isStartOf(const char*,bool caseinsens=false) const;
+    bool		matches(const char*,bool caseinsens=false) const;
 
     BufferString&	add(const char*);
     template <class T>

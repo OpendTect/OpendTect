@@ -4,13 +4,14 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.23 2009-08-26 13:06:01 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.24 2009-11-19 09:59:48 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "fixedstring.h"
 #include "iopar.h"
 #include "general.h"
+#include "globexpr.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -97,6 +98,12 @@ bool BufferString::isEqual( const char* s, bool caseinsens ) const
 bool BufferString::isStartOf( const char* s, bool caseinsens ) const
 {
     return caseinsens ? matchStringCI(buf(),s) : matchString(buf(),s);
+}
+
+
+bool BufferString::matches( const char* s, bool caseinsens ) const
+{
+    return GlobExpr(s,!caseinsens).matches( buf() );
 }
 
 
