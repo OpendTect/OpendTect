@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.6 2009-11-19 13:00:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.7 2009-11-19 13:07:59 cvsbert Exp $";
 
 
 #include "uidpsdemo.h"
@@ -110,9 +110,8 @@ void uiDPSDemoMgr::doIt( CallBacker* )
     dpsdemo_ = new uiDPSDemo( &appl_ );
     dpsdemo_->selPtsToBeShown.notify( mCB(this,uiDPSDemoMgr,showSelPtsCB) );
     dpsdemo_->selPtsToBeRemoved.notify( mCB(this,uiDPSDemoMgr,removeSelPtsCB) );
+    dpsdemo_->setDeleteOnClose( true );
     dpsdemo_->go();
-    dpsdemo_->selPtsToBeRemoved.remove( mCB(this,uiDPSDemoMgr,removeSelPtsCB) );
-    delete dpsdemo_;
 }
 
 
