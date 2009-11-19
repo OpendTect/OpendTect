@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.3 2009-11-18 15:39:07 cvsbruno Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.4 2009-11-19 15:00:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,10 +83,10 @@ void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
 }
 
 
-void WaveletAttrib::getFrequency( Array1DImpl<float>& padfreq, bool ispadding )
+void WaveletAttrib::getFrequency( Array1DImpl<float>& padfreq, int padfac )
 {
-    const int padfac = ispadding ? 3 : 1;
     const int zpadsz = padfac*wvltsz_;
+    padfreq.setSize( zpadsz );
 
     Array1DImpl<float_complex> czeropaddedarr( zpadsz ), cfreqarr( zpadsz );
 
@@ -94,30 +94,28 @@ void WaveletAttrib::getFrequency( Array1DImpl<float>& padfreq, bool ispadding )
 	czeropaddedarr.set( idx, 0 );
 
     for ( int idx=0; idx<wvltsz_; idx++ )
-	czeropaddedarr.set( ispadding ? idx+wvltsz_:idx, wvltarr_->get(idx) );
+	czeropaddedarr.set( padfac>1 ? idx+wvltsz_:idx, wvltarr_->get(idx) );
 
     mDoTransform( fft_, true, czeropaddedarr, cfreqarr, zpadsz );
 
     for ( int idx=0; idx<zpadsz; idx++ )
-    {
-	float fq = abs( cfreqarr.get(idx) );
-	padfreq.set( zpadsz-idx-1, fq );
-    }
+	padfreq.set( idx, abs( cfreqarr.get(idx) ) );
 }
 
 
 void WaveletAttrib::getWvltFromFrequency( const Array1DImpl<float>& freqdata,
        					  Array1DImpl<float>& timedata )
 {
-    Array1DImpl<float_complex> cfreqarr(wvltsz_), ctimearr(wvltsz_);
-    for ( int idx=0; idx<wvltsz_; idx++ )
+    const int timesz = timedata.info().getSize(0);
+    const int freqsz = freqdata.info().getSize(0);
+
+    Array1DImpl<float_complex> cfreqarr(freqsz), ctimearr(freqsz);
+
+    for ( int idx=0; idx<freqsz; idx++ )
 	cfreqarr.set( idx, freqdata.get(idx) );
 
-    mDoTransform( fft_, false, cfreqarr, ctimearr, wvltsz_ );
+    mDoTransform( fft_, false, cfreqarr, ctimearr, timesz );
 
-    for ( int idx=0; idx<wvltsz_; idx++ )
-    {
-	float val = abs( cfreqarr.get(idx) );
-	timedata.set( wvltsz_-idx-1, val );
-    }
+    for ( int idx=0; idx<freqsz; idx++ )
+	timedata.set( idx, abs( ctimearr.get(idx) ) );
 } 

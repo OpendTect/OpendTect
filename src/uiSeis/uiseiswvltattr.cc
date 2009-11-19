@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.13 2009-11-16 17:08:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.14 2009-11-19 15:00:17 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -15,7 +15,8 @@ static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.13 2009-11-16 17:08:49 cv
 #include "uiaxishandler.h"
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uifunctiondisplay.h"
+#include "uigeninput.h"
+#include "uiwindowfuncseldlg.h"
 #include "uislider.h"
 
 #include "arrayndimpl.h"
@@ -93,11 +94,15 @@ void uiSeisWvltRotDlg::act( CallBacker* )
 
 
 //Wavelet taper dialog
-
+#define mPaddFac 3
 uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     : uiSeisWvltSliderDlg(p,wvlt)
-    , window_(0) 
-    , drawer_(0)	 
+    , isfreqtaper_(true)  
+    , timedrawer_(0)	 
+    , freqdrawer_(0)	 
+    , freqvals_(0)
+    , spectrum_(0) 	  
+    , wvltsz_(wvlt.size())
 {
     setCaption( "Taper Wavelet" );
     uiSliderExtra::Setup su; 
@@ -114,18 +119,24 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     mutefld_->attach( rightOf, sliderfld_ );
     mutefld_->activated.notify( mCB( this, uiSeisWvltTaperDlg, act )  );
     
-    const int wvltsz = wvlt.size();
-
-    orgwvltvals_ = new Array1DImpl<float>( wvltsz );
-    wvltvals_ = new Array1DImpl<float>( wvltsz );
-    memcpy( orgwvltvals_->getData(), wvlt_->samples(), sizeof(float)*wvltsz );
-    memcpy( wvltvals_->getData(), wvlt_->samples(), sizeof(float)*wvltsz );
+    wvltvals_ = new Array1DImpl<float>( wvltsz_ );
+    memcpy( wvltvals_->getData(), wvlt_->samples(), sizeof(float)*wvltsz_ );
     
-    window_ = new ArrayNDWindow( Array1DInfoImpl(wvltsz),false,"CosTaper",0 );
-
     uiWaveletDispProp::Setup setup; setup.withphase_ = false;
     properties_ = new uiWaveletDispProp( this, *wvlt_, setup );
-    drawer_ = properties_->getAttrDisp( 0 );
+    timedrawer_ = properties_->getAttrDisp( 0 );
+    freqdrawer_ = properties_->getAttrDisp( 1 );
+    
+    typefld_ = new uiGenInput( this, "Taper",
+				    BoolInpSpec(true,"Time","Frequency") ); 
+    typefld_->valuechanged.notify( mCB( this, uiSeisWvltTaperDlg, act ) );
+
+    typefld_->attach( centeredAbove, properties_ );
+    
+    timedrawer_->setFunction( *wvltvals_, properties_->getTimeRange() );
+
+    setFreqData();
+    freqdrawer_->setFunction( *freqvals_, properties_->getFreqRange() );
     
     sliderfld_->attach( ensureBelow, properties_ );
     act(0);
@@ -134,58 +145,75 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 
 uiSeisWvltTaperDlg::~uiSeisWvltTaperDlg()
 {
-    delete window_;
     delete wvltvals_;
-    delete orgwvltvals_;
-    delete properties_;
+    delete freqvals_;
+    delete spectrum_;
 }
 
 
 void uiSeisWvltTaperDlg::act( CallBacker* )
 {
+    isfreqtaper_ = !typefld_->getBoolValue();
+    uiFuncTaperDisp* drawer = isfreqtaper_ ? freqdrawer_ : timedrawer_;
+
     float var = sliderfld_->sldr()->getValue();
-    if ( !var ) var += 0.01;
-    const int wvltsz = wvlt_->size();
-
     var = 1-var/100;
-    const char* winname = "CosTaper";
-    window_->setType( winname , var );
-    window_->apply( orgwvltvals_, wvltvals_ );
-    if ( mutefld_->isChecked() )
-	wvltattr_->muteZeroFrequency( *wvltvals_ );
 
-    TypeSet<float> xvals;
-    for ( int idx=0; idx<wvltsz; idx++ )
+    drawer->setWinVariable( var );
+
+    if ( mutefld_->isChecked() ) wvltattr_->muteZeroFrequency( *wvltvals_ );
+
+    if ( isfreqtaper_ ) 
     {
-	xvals += ( idx - wvltsz/2 )*SI().zStep()*1000;
-	wvlt_->samples()[idx] = wvltvals_->get(idx); 
+	memcpy(freqvals_->getData(),drawer->getFuncValues(),mPaddFac*wvltsz_/2);
+	setTimeData();
     }
-
-    properties_->setAttrCurves( *wvlt_ );
-    drawer_->setY2Vals( xvals.arr(), window_->getValues(), wvltsz );
+    else
+    {
+	memcpy( wvlt_->samples(), drawer->getFuncValues(), wvltsz_ );
+	setFreqData();
+    }
 
     acting.trigger();
 }
 
 
-/*
-void uiSeisWvltFilterDlg::filter( float lowfreq, float highfreq )
+void uiSeisWvltTaperDlg::setTimeData()
 {
-    const int wvltsz = wvlt_->size();
-    FFTFilter filter;
-    Array1DImpl<float> orgvals( wvltsz ), vals( wvltsz );
-    for ( int idx=0; idx<wvltsz; idx++ )
-	orgvals.set( idx, orgwvlt_->samples()[idx] );
-    float df = FFT::getDf( wvlt_->sampleRate(), wvltsz );
+    if ( !spectrum_ ) return;
 
-    filter.FFTBandPassFilter( df, lowfreq, float highfreq, orgvals, vals );
-    
-    for ( int idx=0; idx<wvltsz; idx++ )
-	wvlt_->samples()[idx] = vals.get( idx );
+    Array1DImpl<float> tmpdata( spectrum_->info().getSize(0) );
+    WaveletAttrib wvltattr ( *wvlt_);
+    wvltattr.getWvltFromFrequency( *spectrum_, tmpdata );
+    for ( int idx=0; idx<wvltsz_; idx++ )
+	wvltvals_->set( idx, spectrum_->get( idx + wvltsz_ ) );
 
-    wvltfiltered.trigger();
+    memcpy( wvlt_->samples(), wvltvals_->getData(), wvltsz_ );
+
+    timedrawer_->setVals( properties_->getTimeRange(), 
+	    		  wvlt_->samples(), wvlt_->size() );
 }
-*/
+
+
+void uiSeisWvltTaperDlg::setFreqData()
+{
+    WaveletAttrib wvltattr ( *wvlt_);
+
+    delete freqvals_; freqvals_ = 0;
+    delete spectrum_; spectrum_ = 0;
+
+    freqvals_ = new Array1DImpl<float> ( wvltsz_*mPaddFac/2 );
+    spectrum_ = new Array1DImpl<float> ( wvltsz_*mPaddFac );
+
+    wvltattr.getFrequency( *spectrum_, mPaddFac );
+
+    for ( int idx=0; idx<wvltsz_/2; idx++ )
+	freqvals_->set( idx, spectrum_->get(idx) );
+
+    freqdrawer_->setVals( properties_->getFreqRange(), 
+	    		  freqvals_->getData(), mPaddFac*wvlt_->size()/2 );
+}
+
 
 
 //Wavelet display property dialog
@@ -201,23 +229,26 @@ uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
 
 
 uiWaveletDispPropDlg::~uiWaveletDispPropDlg()
-{
-}
+{}
 
 
 //Wavelet display properties
-
-#define mPaddFac 3
 uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt, 
 				      const Setup& su )
 	    : uiGroup(p,"Properties")
-	    , wvltsz_(0)
+	    , wvltsz_(wvlt.size())
 {
-    wvltsz_ = wvlt.size();
+    attrnms_[0] = "Amplitude"; 
+    attrnms_[1] = "Frequency", 
+    attrnms_[2] = su.withphase_ ? "Phase" : 0;
+    attrnms_[3] = 0;
+    
+    float zstep = SI().zStep();
+    timerange_.set( -wvltsz_*zstep*500 , wvltsz_*zstep*500 );
+    float maxfreq = 0.5/zstep;
+    if ( SI().zIsTime() ) maxfreq = mNINT( maxfreq );
+    freqrange_.set( 0, maxfreq );
 
-    const char* phase = su.withphase_ ? "Phase" : 0;
-    attrnms_[0] = "Amplitude"; attrnms_[1] = "Frequency", 
-    attrnms_[2] = phase; attrnms_[3] = 0;
     for ( int iattr=0; attrnms_[iattr]; iattr++ )
 	addAttrDisp( iattr == 1 );
     
@@ -233,10 +264,9 @@ uiWaveletDispProp::~uiWaveletDispProp()
 
 void uiWaveletDispProp::addAttrDisp( bool isfreq )
 {
-    float zstep = SI().zStep();
-    Interval<float> intv( -wvltsz_*zstep*500 , wvltsz_*zstep*500 );
-    uiFunctionDisplay::Setup fdsu; 
+    uiFuncTaperDisp::Setup fdsu; 
     fdsu.noy2axis_ = true; fdsu.noy2gridline_ = true;
+    fdsu.datasz_ = wvltsz_;
 
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
     const int attridx = attrarrays_.size()-1;
@@ -245,17 +275,17 @@ void uiWaveletDispProp::addAttrDisp( bool isfreq )
     {
 	xname += attrnms_[0];
 	fdsu.fillbelow( true );
-	attrarrays_[attridx]->setSize( mPaddFac*wvltsz_ );
+	attrarrays_[attridx]->setSize( mPaddFac*wvltsz_/2 );
 	BufferString tmp; mSWAP( xname, yname, tmp );
+	fdsu.datasz_ = mPaddFac*wvltsz_/2;
     }
     else
 	xname += "Time (ms)";
-    attrdisps_ += new uiFunctionDisplay( this, fdsu );
+    fdsu.xaxnm_ = xname; 	fdsu.yaxnm_ = yname;
+
+    attrdisps_ += new uiFuncTaperDisp( this, fdsu );
     if ( attridx )
 	attrdisps_[attridx]->attach( alignedBelow, attrdisps_[attridx-1] );
-
-    attrdisps_[attridx]->xAxis()->setName( xname );
-    attrdisps_[attridx]->yAxis(false)->setName( yname );
 }
 
 
@@ -263,22 +293,12 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 {
     WaveletAttrib wvltattr ( wvlt );
     memcpy( attrarrays_[0]->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
-    const int wvltsz = wvlt.size();
 
-    wvltattr.getFrequency( *attrarrays_[1], true );
+    wvltattr.getFrequency( *attrarrays_[1], mPaddFac );
     if ( attrnms_[2] )
 	wvltattr.getPhase( *attrarrays_[2] );
 
-    float zstep = SI().zStep();
-    float maxfreq = 0.5/zstep;
-    if ( SI().zIsTime() )maxfreq = mNINT( maxfreq );
-
     for ( int idx=0; idx<attrarrays_.size(); idx++ )
-    {
-	Interval<float> intv( -wvltsz_*zstep*500 , wvltsz_*zstep*500 );
-	if ( idx == 1 )
-	    intv.set( 0, maxfreq );
-	attrdisps_[idx]->setVals( intv, attrarrays_[idx]->arr(), 
-				  idx == 1 ? mPaddFac*wvltsz_/2 : wvltsz_ );
-    }
+	attrdisps_[idx]->setFunction( *attrarrays_[idx], 
+					idx==1 ? freqrange_ : timerange_ );
 }

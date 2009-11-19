@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.10 2009-11-17 13:02:26 cvsbruno Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.11 2009-11-19 15:00:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "multiid.h"
 
 class WindowFunction;
 class uiGenInput;
@@ -31,7 +32,8 @@ public:
 			Setup() 
 			    : onlytaper_(false)		      	
 			    , ismaxfreq_(false)		
-			    , isminfreq_(false)		
+			    , isminfreq_(false)	
+			    , seisid_(0)			
 			    , winparam_(mUdf(float))  
 			    {}
 
@@ -42,6 +44,7 @@ public:
 	mDefSetupMemb(bool,ismaxfreq)
 	mDefSetupMemb(bool,isminfreq)
 	mDefSetupMemb(bool,onlytaper)
+	mDefSetupMemb(MultiID,seisid)
     };
 
     				uiWindowFunctionSel(uiParent*,const Setup&);
@@ -94,6 +97,7 @@ protected :
     bool			isminfreq_;
     bool			ismaxfreq_;
     uiFreqTaperDlg*		freqtaperdlg_;
+    MultiID			seisid_;
 
     void			winfuncseldlgCB(CallBacker*);
     void			windowClosed(CallBacker*);

@@ -7,13 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.38 2009-11-17 13:02:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.39 2009-11-19 15:00:17 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
-
-#include "arrayndimpl.h"
-#include "arrayndutils.h"
 #include "uiaxishandler.h"
 #include "uicanvas.h"
 #include "uigeninput.h"
@@ -24,11 +21,17 @@ static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.38 2009-11-17 13:02:2
 #include "uigroup.h"
 #include "uilistbox.h"
 #include "uiworld2ui.h"
+
+#include "arrayndimpl.h"
+#include "arrayndutils.h"
+#include "cubesampling.h"
+#include "uislicesel.h"
 #include "iodraw.h"
 #include "randcolor.h"
 #include "scaler.h"
 #include "survinfo.h"
 #include "windowfunction.h"
+
 
 #define mTransHeight    250
 #define mTransWidth     500
@@ -375,6 +378,7 @@ const char* uiWindowFuncSelDlg::getCurrentWindowName() const
 }
 
 
+
 static const char* winname = "CosTaper";
 #define mGetData() isminactive_ ? dd1_ : dd2_; 
 #define mCheckLimitRanges()\
@@ -390,7 +394,6 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     , hasmax_(s.hasmax_)
     , isminactive_(s.hasmin_)
     , datasz_((int)(0.5/(SI().zStep())))
-    , winvals_(0)				
 {
     setCtrlStyle( LeaveOnly );
     setHSpacing( 35 );
@@ -399,14 +402,19 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     dd2_.freqrg_ = s.maxfreqrg_;  dd2_.reffreqrg_ = s.maxfreqrg_;
     mCheckLimitRanges();
     setSlopeFromFreq();
+    
+    uiFuncTaperDisp::Setup su;
+    su.leftrg_ = s.minfreqrg_;    
+    su.rightrg_ = s.maxfreqrg_; 
+    su.datasz_ = datasz_; 
+    su.is2sided_ = true; 
 
-    uiFunctionDisplay::Setup su;
-    su.noxgridline_ = true;  su.noygridline_ = true; 
-    su.ywidth_ = 2; 
+    su.xaxnm_ = "Frequency (Hz)"; 	
+    su.yaxnm_ = "Gain (dB)";
+    su.noxgridline_ = true;
+    su.noygridline_ = true;
 
-    drawer_ = new uiFunctionDisplay( this, su );
-    drawer_->xAxis()->setName( "Frequency (Hz)" ); 	
-    drawer_->yAxis(false)->setName( "Gain (dB)" );
+    drawer_ = new uiFuncTaperDisp( this, su );
     
     varinpfld_ = new uiGenInput( this, tapertxt_[1], FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, drawer_ );
@@ -431,24 +439,34 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
 	freqinpfld_->attach( centeredBelow, drawer_ );
     }
  
+    bool withpreview_ = true; bool is2d = false; bool isinl = true;
+    if ( withpreview_ )
+    {
+	CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
+	previewfld_ = new uiPushButton( this, "&Preview ...", cbview, true);
+	previewfld_->attach( ensureBelow, freqrgfld_ );
+
+	ZDomain::Info info;
+	uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
+				   : (isinl ? uiSliceSel::Inl 
+					    : uiSliceSel::Crl);
+	CubeSampling cs;
+	CallBack dummycb;
+
+	posdlg_ = new uiSliceSelDlg( this, cs, cs, dummycb, tp, info );
+	posdlg_->grp()->enableApplyButton( false );
+	posdlg_->grp()->enableScrollButton( false );
+	posdlg_->setModal( true );
+    }
+
     setPercentsFromFreq();
-    winvals_ = new Array1DImpl<float>(datasz_);					
-    dd1_.winsz_ = 2*( (int)dd1_.freqrg_.stop );
-    dd2_.winsz_ = 2*( datasz_ - (int)dd2_.freqrg_.start );
-    dd1_.window_ = new ArrayNDWindow( 
-			    Array1DInfoImpl(dd1_.winsz_), false, winname,0 );
-    dd2_.window_ = new ArrayNDWindow( 
-			    Array1DInfoImpl(dd2_.winsz_), false, winname,0 );
-  
     finaliseDone.notify( mCB(this, uiFreqTaperDlg, taperChged ) );
 }
 
 
 uiFreqTaperDlg::~uiFreqTaperDlg()
 {
-    delete winvals_;
-    delete dd1_.window_; 
-    delete dd2_.window_; 
+    delete drawer_;
 }
 
 
@@ -516,9 +534,10 @@ void uiFreqTaperDlg::putToScreen( CallBacker* )
 void uiFreqTaperDlg::setPercentsFromFreq()
 {
     NotifyStopper nsf( freqrgfld_->valuechanged );
-    dd1_.variable_ = dd1_.freqrg_.start / dd1_.freqrg_.stop;
-    dd2_.variable_ = ( dd2_.freqrg_.stop-dd2_.freqrg_.start )
-		   / ( datasz_-dd2_.freqrg_.start );
+    dd1_.variable_ = hasmin_ ? dd1_.freqrg_.start / dd1_.freqrg_.stop : 0;
+    dd2_.variable_ = hasmax_ ? ( dd2_.freqrg_.stop - dd2_.freqrg_.start )
+			       / ( datasz_ - dd2_.freqrg_.start ) : 0;
+    drawer_->setWinVariable( dd1_.variable_, dd2_.variable_ );
 }
 
 
@@ -534,6 +553,7 @@ void uiFreqTaperDlg::setFreqFromSlope( float slope )
 	dd1_.freqrg_.start = dd.freqrg_.stop/slopeinhertz;
     else
 	dd2_.freqrg_.stop = dd.freqrg_.start*slopeinhertz;
+
     mCheckLimitRanges();
 }
 
@@ -548,23 +568,7 @@ void uiFreqTaperDlg::setSlopeFromFreq()
 
 void uiFreqTaperDlg::taperChged( CallBacker* cb )
 {
-    dd1_.window_->setType(  winname , dd1_.variable_ );
-    dd2_.window_->setType(  winname , 1-dd2_.variable_ );
-    
-    TypeSet<float> xvals;
-    for ( int idx=0; idx<datasz_; idx++ )
-    {
-	float val = 1;
-	if ( hasmin_ && idx<(int)dd1_.freqrg_.stop )
-	    val = 1 - dd1_.window_->getValues()[dd1_.winsz_/2+idx];
-
-	if ( hasmax_ && idx>(int)dd2_.freqrg_.start ) 
-	    val = 1- dd2_.window_->getValues()[idx-(int)dd2_.freqrg_.start];
-	    
-	winvals_->set( idx, val );
-	xvals += idx; 
-    }
-    drawer_->setVals( xvals.arr(), winvals_->getData(), datasz_ );
+    drawer_->taperChged(0);
     putToScreen(0);
 }
 
@@ -593,3 +597,104 @@ Interval<float> uiFreqTaperDlg::getFreqRange() const
     return Interval<float> ( dd1_.freqrg_.start, dd2_.freqrg_.stop );
 } 
 
+
+void uiFreqTaperDlg::previewPushed(CallBacker*)
+{
+    posdlg_->go();
+}
+
+
+
+uiFuncTaperDisp::uiFuncTaperDisp( uiParent* p, const Setup& s )
+    : uiFunctionDisplay( p, s )
+    , is2sided_(s.is2sided_)  
+    , window_(0)				
+    , funcvals_(0)
+    , orgfuncvals_(0)
+{
+    datasz_ = s.datasz_; 
+    leftd_.rg_ = s.leftrg_;   
+    leftd_.winsz_ = 2*( (int)s.leftrg_.stop );
+    leftd_.window_ = new ArrayNDWindow( 
+			    Array1DInfoImpl(leftd_.winsz_),false,winname,0 );
+
+    if ( is2sided_  )
+    {
+	rightd_.rg_ = s.rightrg_;
+	rightd_.winsz_ = 2*( datasz_ - (int)s.rightrg_.start );
+	rightd_.window_ = new ArrayNDWindow( 
+			    Array1DInfoImpl(rightd_.winsz_),false,winname,0 );
+    }
+    window_ = new ArrayNDWindow( Array1DInfoImpl(datasz_),false,winname,0);
+
+    xAxis()->setName( s.xaxnm_ ); 	
+    yAxis(false)->setName( s.yaxnm_ );
+}
+
+
+uiFuncTaperDisp::~uiFuncTaperDisp()
+{
+    delete window_;
+    delete leftd_.window_; 
+    delete rightd_.window_;
+    delete orgfuncvals_; 
+}
+
+
+void uiFuncTaperDisp::setFunction( Array1DImpl<float>& data, Interval<float> rg)
+{
+    orgfuncvals_ = new Array1DImpl<float>( data );
+    funcvals_ = &data;
+    funcrg_ = rg;
+
+    taperChged(0);
+}
+
+
+
+void uiFuncTaperDisp::setWinVariable( float leftvar, float rightvar )
+{
+    if ( leftvar == 1 ) leftvar -= 0.01; 
+    if ( rightvar == 0 ) rightvar += 0.01; 
+
+    leftd_.window_->setType( winname, leftvar );
+    leftd_.winvar_ = leftvar;
+
+    if ( is2sided_ )
+    {
+	rightd_.window_->setType( winname, 1-rightvar );
+	rightd_.winvar_ = 1-rightvar;
+    }
+
+    taperChged(0);
+}
+
+
+void uiFuncTaperDisp::taperChged( CallBacker* cb )
+{
+    TypeSet<float> xvals;
+    if ( is2sided_ )
+    {
+	for ( int idx=0; idx<datasz_; idx++ )
+	{
+	    float val = 1;
+	    if ( idx < (int)leftd_.rg_.stop )
+		val = 1-leftd_.window_->getValues()[leftd_.winsz_/2+idx];
+
+	    if ( idx > (int)rightd_.rg_.start ) 
+		val= 1-rightd_.window_->getValues()[idx-(int)rightd_.rg_.start];
+	    xvals += idx; 
+	}
+    }
+    else
+	window_->setType( winname, leftd_.winvar_ );
+
+    if ( funcvals_ )
+    {
+	window_->apply( orgfuncvals_, funcvals_ );
+	setVals( funcrg_, funcvals_->getData(), datasz_ );
+	setY2Vals( funcrg_, window_->getValues(), datasz_ );
+    }
+    else
+	setVals( xvals.arr(), window_->getValues(), datasz_ );
+}

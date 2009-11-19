@@ -7,30 +7,34 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.27 2009-11-17 13:02:26 cvsbruno Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.28 2009-11-19 15:00:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
-#include "uigraphicsview.h"
+#include "uifunctiondisplay.h"
 #include "uigroup.h"
+#include "uibutton.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "mathfunc.h"
+#include "multiid.h"
+#include "arrayndutils.h"
 #include <arrayndimpl.h>
 
 class uiAxisHandler;
 class uiGenInput;
 class uiGraphicsItemGroup;
-class uiFunctionDisplay;
+class uiFuncTaperDisp;
 class uiListBox;
 class uiRectItem;
 class uiWorld2Ui;
+class uiSliceSelDlg;
 
-class WindowFunction;
 class ArrayNDWindow;
+class WindowFunction;
 
 /*!brief Displays a mathfunction. */
 
@@ -134,7 +138,6 @@ protected:
 /*!brief Displays a windowfunction. */
 mClass uiWindowFuncSelDlg : public uiDialog
 {
-
 public:
 
 			uiWindowFuncSelDlg(uiParent*,const char*,float);
@@ -167,6 +170,7 @@ public:
 			Setup()
 			    : hasmin_(false)
 			    , hasmax_(true)
+			    , seisid_(0)		   
 			    {}
 
 	mDefSetupMemb(const char*,name);	
@@ -174,6 +178,7 @@ public:
 	mDefSetupMemb(bool,hasmax)	
 	mDefSetupMemb(Interval<float>,minfreqrg)	
 	mDefSetupMemb(Interval<float>,maxfreqrg)	
+	mDefSetupMemb(MultiID,seisid)
     };
 
 			uiFreqTaperDlg(uiParent*,const Setup&);
@@ -181,15 +186,16 @@ public:
     
     void		setFreqRange(Interval<float>); 
     Interval<float>	getFreqRange() const; 
-    float*		getWinValues() const { return winvals_->getData(); } 
 
     mStruct DrawData 
     {
+			DrawData()
+			    : variable_(0)
+			    {}
+
 	float		variable_;
 	Interval<float> freqrg_;
 	Interval<float> reffreqrg_;
-	ArrayNDWindow*	window_;
-	int 		winsz_;
 	float		slope_;
     };
 
@@ -201,9 +207,10 @@ protected:
     uiGenInput*		varinpfld_;
     uiGenInput*		freqinpfld_;
     uiGenInput*		freqrgfld_;
+    uiPushButton*	previewfld_;
+    uiSliceSelDlg*	posdlg_;
     	
-    uiFunctionDisplay*  drawer_;
-    Array1DImpl<float>* winvals_; 
+    uiFuncTaperDisp*    drawer_;
 
     bool		hasmin_;
     bool		hasmax_;
@@ -216,8 +223,69 @@ protected:
 
     void		freqChoiceChged(CallBacker*);
     void 		freqChanged(CallBacker*);
+    void		previewPushed(CallBacker*);
     void 		putToScreen(CallBacker*);
     void		taperChged(CallBacker*);
     void		slopeChanged(CallBacker*);
+};
+
+
+
+mClass uiFuncTaperDisp : public uiFunctionDisplay
+{
+public:
+
+    mStruct Setup : public uiFunctionDisplay::Setup
+    {
+			Setup()
+			    : is2sided_(false)
+			    {}
+
+	mDefSetupMemb(int,datasz);	
+	mDefSetupMemb(const char*,name);	
+	mDefSetupMemb(const char*,xaxnm);	
+	mDefSetupMemb(const char*,yaxnm);	
+	mDefSetupMemb(Interval<float>,leftrg)	
+	mDefSetupMemb(Interval<float>,rightrg)
+	mDefSetupMemb(bool,is2sided);	
+    };
+
+			uiFuncTaperDisp(uiParent*,const Setup&);
+			~uiFuncTaperDisp();
+    
+    mStruct WinData
+    {
+			WinData()
+			    : winvar_(1)
+			    , window_(0)  
+			    {}
+
+	Interval<float> rg_;
+	ArrayNDWindow*	window_;
+	float		winvar_;
+	int 		winsz_;
+    };
+
+    WinData		leftd_;
+    WinData		rightd_;
+
+    void 		setWinVariable(float,float rightvar=0);
+    void		setFunction(Array1DImpl<float>&,Interval<float>);
+    
+    float*		getWinValues() const { return window_->getValues(); } 
+    float*		getFuncValues() const { return funcvals_->getData(); } 
+    
+    void		taperChged(CallBacker*);
+
+protected:
+
+    ArrayNDWindow*	window_;
+    Array1DImpl<float>* funcvals_;
+    Array1DImpl<float>* orgfuncvals_;
+    Interval<float>	funcrg_;	
+
+    bool		isfunction_;
+    bool		is2sided_;
+    int 		datasz_;
 };
 #endif

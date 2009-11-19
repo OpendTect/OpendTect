@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.21 2009-11-17 13:02:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.22 2009-11-19 15:00:17 cvsbruno Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -174,6 +174,7 @@ uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& su )
     , isminfreq_(su.isminfreq_)
     , ismaxfreq_(su.ismaxfreq_)
     , freqtaperdlg_(0)
+    , seisid_(su.seisid_)     
 {
 }
 
@@ -185,6 +186,7 @@ void uiFreqTaperSel::winfuncseldlgCB( CallBacker* )
     su.hasmin_ = isminfreq_; 		su.hasmax_ = ismaxfreq_;
     su.minfreqrg_.set( selfreqrg_.start,  freqrg_.start );
     su.maxfreqrg_.set( freqrg_.stop, selfreqrg_.stop );
+    su.seisid_ = seisid_;
 
     delete freqtaperdlg_;
     freqtaperdlg_ = new uiFreqTaperDlg( this, su );
