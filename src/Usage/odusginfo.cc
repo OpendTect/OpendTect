@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusginfo.cc,v 1.5 2009-11-18 14:59:38 cvsbert Exp $";
+static const char* rcsID = "$Id: odusginfo.cc,v 1.6 2009-11-19 12:17:59 cvsbert Exp $";
 
 #include "odusginfo.h"
 #include <iostream>
@@ -27,13 +27,13 @@ std::ostream& Usage::Info::dump( std::ostream& strm ) const
 
 BufferString& Usage::Info::dump( BufferString& str ) const
 {
-    str += start_ ? "START" : "STOP";
+    str += delim_ == Start ? "START" : (delim_ == Stop ? "STOP" : "USG");
     str += " ID="; str += id_;
     str += " group="; str += group_;
     str += " action="; str += action_;
     if ( !aux_.isEmpty() )
 	{ str += " aux="; str += aux_; }
     if ( withreply_ )
-	str += " (with reply)";
+	str += " (reply requested)";
     return str;
 }

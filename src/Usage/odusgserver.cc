@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.6 2009-09-17 13:05:26 cvskris Exp $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.7 2009-11-19 12:17:59 cvsbert Exp $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -39,7 +39,7 @@ Usage::Server::Server( const IOPar* pars, std::ostream& strm )
 
     if ( pars_.isEmpty() )
     {
-	logstrm_ << "Cannot start OpendTect Usage server (" << "$Revision: 1.6 $"
+	logstrm_ << "Cannot start OpendTect Usage server (" << "$Revision: 1.7 $"
 	    	 << "):\n";
 	if ( pars )
 	    logstrm_ << "No input parameters" << std::endl;
@@ -132,7 +132,7 @@ bool Usage::Server::doWork( CallBacker* )
 	    PtrMan<Usage::Info> inf = infos_[0];
 	    infos_ -= inf;
 	    if ( inf->group_.isEmpty() && inf->action_ == "Quit" )
-		return inf->start_;
+		return inf->delim_ == Usage::Info::Start;
 
 	    Administrator::dispatch( *inf );
 	    if ( inf->withreply_ )

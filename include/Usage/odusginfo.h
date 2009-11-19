@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusginfo.h,v 1.6 2009-11-18 15:00:02 cvsbert Exp $
+ RCS:           $Id: odusginfo.h,v 1.7 2009-11-19 12:17:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ mClass Info
 public:
 
     typedef od_uint64	ID;
+    enum Delim		{ Start, Stop, Cont };
 
     			Info( const char* grp, const char* act=0,
 			      const char* aux=0 )
@@ -33,7 +34,7 @@ public:
 			    , group_(grp)
 			    , action_(act)
     			    , aux_(aux)
-    			    , start_(true)
+    			    , delim_(Start)
     			    , withreply_(false)		{}
 
     bool		operator ==( const Info& inf ) const
@@ -42,8 +43,8 @@ public:
     BufferString	group_;		//!< Action group
     BufferString	action_;	//!< Specific action
     BufferString	aux_;		//!< Extra info
-    bool		start_;		//!< Initiate action or close it?
-    bool		withreply_;	//!< Client side: wait for a reply?
+    Delim		delim_;
+    bool		withreply_;	//!< Client waits for a reply?
 
     ID			id() const	{ return id_; }
 
@@ -52,10 +53,10 @@ public:
 
     void		prepStart( const char* act=0 )
     			{ aux_.setEmpty(); if ( act ) action_ = act;
-			  start_ = true; }
+			  delim_ = Start; }
     void		prepEnd( const char* act=0 )
     			{ aux_.setEmpty(); if ( act ) action_ = act;
-			  start_ = withreply_ = false; }
+			  delim_ = Stop; withreply_ = false; }
 
 protected:
 
