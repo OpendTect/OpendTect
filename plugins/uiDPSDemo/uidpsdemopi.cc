@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.4 2009-11-17 07:45:13 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.5 2009-11-19 12:16:15 cvsbert Exp $";
 
 
 #include "uidpsdemo.h"
@@ -62,8 +62,10 @@ public:
 
     int 		dpsid_;
     DataPointSetDisplayMgr* dpsdispmgr_;
+    const ioPixmap	pixmap_;
 
-    void		insertItems(CallBacker* cb=0);
+    void		insertMenuItem(CallBacker* cb=0);
+    void		insertIcon(CallBacker* cb=0);
     void		doIt(CallBacker*);
     void		showSelPtsCB(CallBacker*);
     void		removeSelPtsCB(CallBacker*);
@@ -74,24 +76,32 @@ uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
 	: appl_(a)
 	, dpsdemo_(0)
 	, dpsid_(-1)
+	, dpsdispmgr_(a.applMgr().visDPSDispMgr())
+	, pixmap_("dpsdemo.png")
 {
-    appl_.menuMgr().dTectTBChanged.notify( mCB(this,uiDPSDemoMgr,insertItems) );
-    dpsdispmgr_ = appl_.applMgr().visDPSDispMgr();
-    insertItems();
+    uiODMenuMgr& mnumgr = appl_.menuMgr();
+    mnumgr.dTectMnuChanged.notify( mCB(this,uiDPSDemoMgr,insertMenuItem) );
+    mnumgr.dTectTBChanged.notify( mCB(this,uiDPSDemoMgr,insertIcon) );
+
+    insertMenuItem();
+    insertIcon();
 }
 
 
-void uiDPSDemoMgr::insertItems( CallBacker* )
+void uiDPSDemoMgr::insertMenuItem( CallBacker* )
 {
-    if ( !SI().has3D() ) return;
+    if ( SI().has3D() )
+	appl_.menuMgr().analMnu()->insertItem(
+		new uiMenuItem("&DataPointSet demo ...",
+		mCB(this,uiDPSDemoMgr,doIt),&pixmap_) );
+}
 
-    uiODMenuMgr& mnumgr = appl_.menuMgr();
-    const ioPixmap pm( "dpsdemo.png" );
-    const CallBack cb( mCB(this,uiDPSDemoMgr,doIt) );
 
-    mnumgr.analMnu()->insertItem( new uiMenuItem("&DataPointSet demo ...",
-						   cb,&pm) );
-    mnumgr.dtectTB()->addButton( pm, cb, "DataPointSet demo" );
+void uiDPSDemoMgr::insertIcon( CallBacker* )
+{
+    if ( SI().has3D() )
+	appl_.menuMgr().dtectTB()->addButton( pixmap_,
+		mCB(this,uiDPSDemoMgr,doIt), "DataPointSet demo" );
 }
 
 
