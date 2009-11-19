@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.25 2009-09-28 13:26:51 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.26 2009-11-19 08:31:53 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,6 +187,7 @@ public:
     inline float	getVal( const Pos& pos, int valnr ) const
     			//!< Direct access to value arrays. No check on valid()!
 			{ return getVals(pos)[valnr]; }
+    bool		hasDuplicateBinIDs() const;
 protected:
 
     const int			nrvals_;

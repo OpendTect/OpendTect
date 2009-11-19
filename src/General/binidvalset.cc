@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.33 2009-10-15 13:20:59 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.34 2009-11-19 08:31:53 cvsnageswara Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -1121,6 +1121,22 @@ bool BinIDValueSet::areBinidValuesThere( const BinIDValues& bidvals ) const
     }
     
     return found;
+}
+
+
+bool BinIDValueSet::hasDuplicateBinIDs() const
+{
+    BinID prevbid = BinID::udf();
+    BinIDValueSet::Pos pos;
+    while ( next(pos) )
+    {
+	BinID bid = getBinID( pos );
+	if ( prevbid == bid )
+	    return true;
+	prevbid = bid;
+    }
+
+    return false;
 }
 
 
