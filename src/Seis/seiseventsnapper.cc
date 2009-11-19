@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.9 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.10 2009-11-19 04:04:12 cvssatyaki Exp $";
 
 #include "seiseventsnapper.h"
 #include "seistrc.h"
@@ -19,53 +19,10 @@ static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.9 2009-07-22 16:01:34 c
 #include "binidvalset.h"
 
 
-SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs,
-       				    const Interval<float>& gate	)
+SeisEventSnapper::SeisEventSnapper( const Interval<float>& gate	)
     : Executor("Snapping to nearest event")
-    , positions_(bvs)
     , searchgate_(gate)
 {
-    mscprov_ = new SeisMSCProvider( ioobj );
-    mscprov_->prepareWork();
-
-    const Interval<float> zrg = bvs.valRange( 0 );
-    mscprov_->setSelData( new Seis::TableSelData(bvs,&gate) );
-    totalnr_ = bvs.totalSize();
-    nrdone_ = 0;
-}
-
-
-SeisEventSnapper::~SeisEventSnapper()
-{
-    delete mscprov_;
-}
-
-
-int SeisEventSnapper::nextStep()
-{
-    const SeisMSCProvider::AdvanceState res = mscprov_->advance();
-    switch ( res )
-    {
-	case SeisMSCProvider::Error: return ErrorOccurred();
-	case SeisMSCProvider::EndReached: return Finished();
-	case SeisMSCProvider::NewPosition:
-	{
-	    SeisTrc* trc = mscprov_->get(0,0);
-	    BinIDValueSet::Pos pos = positions_.findFirst( trc->info().binid );
-	    if ( pos.valid() )
-	    {
-		BinID dummy; float zval;
-		positions_.get( pos, dummy, zval );
-		zval = findNearestEvent( *trc, zval );
-		positions_.set( pos, zval );
-		nrdone_++;
-	    }
-	}
-	case SeisMSCProvider::Buffering:
-	    return MoreToDo();
-    }
-
-    return Finished();
 }
 
 
@@ -98,3 +55,54 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 
     return tarz;
 }
+
+
+SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj, BinIDValueSet& bvs,
+       				    const Interval<float>& gate	)
+    : SeisEventSnapper(gate)
+    , positions_(bvs)
+{
+    mscprov_ = new SeisMSCProvider( ioobj );
+    mscprov_->prepareWork();
+
+    const Interval<float> zrg = bvs.valRange( 0 );
+    mscprov_->setSelData( new Seis::TableSelData(bvs,&gate) );
+    totalnr_ = bvs.totalSize();
+    nrdone_ = 0;
+}
+
+
+SeisEventSnapper3D::~SeisEventSnapper3D()
+{
+    delete mscprov_;
+}
+
+
+int SeisEventSnapper3D::nextStep()
+{
+    const SeisMSCProvider::AdvanceState res = mscprov_->advance();
+    switch ( res )
+    {
+	case SeisMSCProvider::Error: return ErrorOccurred();
+	case SeisMSCProvider::EndReached: return Finished();
+	case SeisMSCProvider::NewPosition:
+	{
+	    SeisTrc* trc = mscprov_->get(0,0);
+	    BinIDValueSet::Pos pos = positions_.findFirst( trc->info().binid );
+	    if ( pos.valid() )
+	    {
+		BinID dummy; float zval;
+		positions_.get( pos, dummy, zval );
+		zval = findNearestEvent( *trc, zval );
+		positions_.set( pos, zval );
+		nrdone_++;
+	    }
+	}
+	case SeisMSCProvider::Buffering:
+	    return MoreToDo();
+    }
+
+    return Finished();
+}
+
+

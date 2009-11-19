@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2009
- RCS:           $Id: emhor2dseisiter.h,v 1.3 2009-10-27 11:52:51 cvsranojay Exp $
+ RCS:           $Id: emhor2dseisiter.h,v 1.4 2009-11-19 04:04:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
     int			lineID() const;
     const char*		lineName() const;
     int			lineSetIndex(const char* attrnm=0) const;
+    const MultiID&	lineSetKey()			{ return curlsid_; }
 
     const Horizon2D*	horizon() const			{ return h2d_; }
     const Horizon2DGeometry& geometry() const		{ return *geom_; }

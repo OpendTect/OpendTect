@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.4 2009-11-17 16:28:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.5 2009-11-19 04:04:12 cvssatyaki Exp $";
 
 #include "uihorsavefieldgrp.h"
 
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
@@ -27,13 +28,14 @@ static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.4 2009-11-17 16:28:05 
 
 
 
-uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon3D* hor )
+uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     : uiGroup( p )
     , horizon_( hor )
     , newhorizon_( 0 ) 
     , savefld_( 0 )
     , addnewfld_( 0 )		     
     , outputfld_( 0 )
+    , is2d_( is2d )
     , usefullsurvey_( false )		   
 {
     if ( horizon_ ) horizon_->ref();
@@ -42,7 +44,8 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon3D* hor )
 	    		       BoolInpSpec(false,"As new","Overwrite") );
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
-    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
+    IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
+			     : EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
     outputfld_->attach( alignedBelow, savefld_ );
@@ -98,7 +101,7 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 
 #define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
-EM::Horizon3D* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
+EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 {
     EM::ObjectID oid = EM::EMM().getObjectID( mid );
     EM::EMObject* emobj = EM::EMM().getObject( oid );
@@ -121,9 +124,7 @@ EM::Horizon3D* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 	emobj = EM::EMM().getObject( oid );
     }
 
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    if ( horizon_ ) horizon_->unRef();
-
+    mDynamicCastGet(EM::Horizon*,hor,emobj)
     horizon_ = hor;
     horizon_->ref();
     delete reader;
@@ -174,10 +175,11 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     }
 
     EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = 
-	em.createObject( EM::Horizon3D::typeStr(), outputfld_->getInput() );
+    EM::ObjectID objid = em.createObject( is2d_ ? EM::Horizon2D::typeStr()
+	    					: EM::Horizon3D::typeStr(),
+					  outputfld_->getInput() );
     
-    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
+    mDynamicCastGet(EM::Horizon*,horizon,em.getObject(objid));
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
     

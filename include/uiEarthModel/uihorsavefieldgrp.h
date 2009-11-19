@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y. Liu
  Date:          Nov 2009
- RCS:           $Id: uihorsavefieldgrp.h,v 1.3 2009-11-12 20:02:52 cvsyuancheng Exp $
+ RCS:           $Id: uihorsavefieldgrp.h,v 1.4 2009-11-19 04:04:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-namespace EM { class Horizon3D; }
+namespace EM { class Horizon; }
 
 class MultiID;
 class uiCheckBox;
@@ -30,15 +30,16 @@ class uiIOObjSel;
 mClass uiHorSaveFieldGrp : public uiGroup
 {
 public:
-				uiHorSaveFieldGrp(uiParent*,EM::Horizon3D*);
+				uiHorSaveFieldGrp(uiParent*,EM::Horizon*,
+						  bool is2d=false);
 				~uiHorSaveFieldGrp();
 
     void			setSaveFieldName(const char*);
     bool			displayNewHorizon() const;
     bool			overwriteHorizon() const;
-    EM::Horizon3D*		getNewHorizon() const	{ return newhorizon_; }
+    EM::Horizon*		getNewHorizon() const	{ return newhorizon_; }
 
-    EM::Horizon3D*		readHorizon(const MultiID&);
+    EM::Horizon*		readHorizon(const MultiID&);
     bool			saveHorizon();
     
     void			setFullSurveyArray(bool yn);
@@ -51,9 +52,10 @@ protected:
     uiCheckBox*			addnewfld_;
     uiIOObjSel*			outputfld_;
 
-    EM::Horizon3D*		horizon_;
-    EM::Horizon3D*		newhorizon_;
+    EM::Horizon*		horizon_;
+    EM::Horizon*		newhorizon_;
     bool			usefullsurvey_;
+    bool			is2d_;
 
     bool			createNewHorizon();
     void			saveCB(CallBacker*);

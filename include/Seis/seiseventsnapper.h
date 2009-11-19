@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: seiseventsnapper.h,v 1.7 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:           $Id: seiseventsnapper.h,v 1.8 2009-11-19 04:04:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,9 +24,7 @@ class SeisTrc;
 mClass SeisEventSnapper : public Executor
 {
 public:
-				SeisEventSnapper(const IOObj&,BinIDValueSet&,
-						 const Interval<float>& gate);
-				~SeisEventSnapper();
+				SeisEventSnapper( const Interval<float>& gate);
 
     void			setEvent( VSEvent::Type tp )
     				{ eventtype_ = tp; }
@@ -41,20 +39,30 @@ public:
 
 protected:
 
-    virtual int			nextStep();
     float			findNearestEvent(const SeisTrc&,
 	    					 float tarz) const;
 
-    BinIDValueSet&		positions_;
-    SeisMSCProvider*		mscprov_;
     Interval<float>		searchgate_;
     VSEvent::Type		eventtype_;
-    SamplingData<float>		sd_;
-    int				nrsamples_;
 
     int				totalnr_;
     int				nrdone_;
 
+};
+
+
+mClass SeisEventSnapper3D : public SeisEventSnapper
+{
+public:
+				SeisEventSnapper3D(const IOObj&,BinIDValueSet&,
+						   const Interval<float>& gate);
+				~SeisEventSnapper3D();
+
+protected:
+    virtual int			nextStep();
+
+    BinIDValueSet&		positions_;
+    SeisMSCProvider*		mscprov_;
 };
 
 #endif

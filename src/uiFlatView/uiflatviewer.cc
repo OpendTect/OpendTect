@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.97 2009-09-17 11:02:04 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.98 2009-11-19 04:04:12 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -507,7 +507,7 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 void uiFlatViewer::setAnnotChoice( int sel )
 {
     BufferStringSet bss; getAnnotChoices( bss );
-    if ( sel >= 0 && sel < bss.size()
+    if ( (sel >= 0 || sel < bss.size())
       && bss.get(sel) == appearance().annot_.x1_.name_ )
 	return;
 

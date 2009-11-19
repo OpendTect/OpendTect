@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.49 2009-11-13 06:18:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.50 2009-11-19 04:04:12 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -410,7 +410,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     {
 	MultiID newmid;
 	bool createnew = false;
-	if ( emattrserv->snapHorizon(emid_,newmid,createnew) ) //Overwrite
+	if ( emattrserv->snapHorizon(emid_,newmid,createnew,false) ) //Overwrite
 	{
 	    mUpdateTexture();
 	}
@@ -651,6 +651,7 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
 void uiODHorizon2DTreeItem::initMenuItems()
 {
     derive3dhormnuitem_.text = "Derive &3D horizon ...";
+    snapeventmnuitem_.text = "Snap to &event ...";
 }
 
 
@@ -684,12 +685,14 @@ void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
     {
 	mResetMenuItem( &derive3dhormnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
+	mResetMenuItem( &snapeventmnuitem_ );
     }
     else
     {
 	const bool isempty = applMgr()->EMServer()->isEmpty(emid_);
 	mAddMenuItem( menu, &derive3dhormnuitem_, !isempty, false );
 	mAddMenuItem( menu, &createflatscenemnuitem_, !isempty, false );
+	mAddMenuItem( menu, &snapeventmnuitem_, !isempty, false );
     }
 	
 }
@@ -706,6 +709,19 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     bool handled = true;
     if ( mnuid==derive3dhormnuitem_.id )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );
+    else if ( mnuid==snapeventmnuitem_.id )
+    {
+	const int visid = displayID();
+	MultiID newmid;
+	bool createnew = false;
+	if ( applMgr()->EMAttribServer()->snapHorizon(
+		    emid_,newmid,createnew,true) )
+	{
+	    mUpdateTexture();
+	}
+	else if ( createnew )
+	    applMgr()->EMServer()->displayHorizon( newmid );
+    }
     else
 	handled = false;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.33 2009-11-04 16:01:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.34 2009-11-19 04:04:12 cvssatyaki Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -28,10 +28,11 @@ static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.33 2009-11-04 16:01:0
 #include "executor.h"
 
 
-uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
+uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,bool is2d,
 					const char* txt )
     : uiDialog (p, Setup(txt,mNoDlgTitle,"104.0.3") )
     , horizon_( hor )
+    , is2d_( is2d )		   
     , savefldgrp_( 0 )		   
     , inputfld_( 0 )
     , parsgrp_( 0 )
@@ -40,7 +41,8 @@ uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
 	horizon_->ref();
     else
     {
-	IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
+	IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
+	    			 : EMHorizon3DTranslatorGroup::ioContext();
 	ctxt.forread = true;
 	inputfld_ = new uiIOObjSel( this, ctxt, "Input Horizon" );
     }
@@ -49,7 +51,7 @@ uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
     savefldgrp_->setSaveFieldName( "Save interpolated horizon" );
 }
 
-void uiChangeSurfaceDlg::attachPars()
+void uiChangeHorizonDlg::attachPars()
 {
     if ( !parsgrp_ ) return;
 
@@ -64,7 +66,7 @@ void uiChangeSurfaceDlg::attachPars()
 }
 
 
-uiChangeSurfaceDlg::~uiChangeSurfaceDlg()
+uiChangeHorizonDlg::~uiChangeHorizonDlg()
 {
     if ( horizon_ ) horizon_->unRef();
 }
@@ -73,13 +75,13 @@ uiChangeSurfaceDlg::~uiChangeSurfaceDlg()
 #define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
 
-bool uiChangeSurfaceDlg::readHorizon()
+bool uiChangeHorizonDlg::readHorizon()
 {
     if ( !inputfld_->ctxtIOObj().ioobj )
 	return false;
 
     const MultiID& mid = inputfld_->ctxtIOObj().ioobj->key();
-    EM::Horizon3D* hor = savefldgrp_->readHorizon( mid );
+    EM::Horizon* hor = savefldgrp_->readHorizon( mid );
     if ( !hor ) return false;
 
     if ( horizon_ ) horizon_->unRef();
@@ -90,20 +92,36 @@ bool uiChangeSurfaceDlg::readHorizon()
 }
 
 
-bool uiChangeSurfaceDlg::doProcessing()
+bool uiChangeHorizonDlg::doProcessing()
+{
+    return is2d_ ? doProcessing2D() : doProcessing3D();
+}
+
+bool uiChangeHorizonDlg::doProcessing2D()
+{ // TODO
+    return false;
+}
+
+
+bool uiChangeHorizonDlg::doProcessing3D()
 {
     MouseCursorChanger chgr( MouseCursor::Wait );
     bool change = false;
-    EM::Horizon3D* usedhor = savefldgrp_->getNewHorizon() ?
+    EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
        savefldgrp_->getNewHorizon() : horizon_;
+    mDynamicCastGet(EM::Horizon3D*,usedhor3d,usedhor)
+    
+    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
+    if ( !hor3d )
+	return false;
 
-    for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
+    for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
-	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
+	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
 	if ( !idx && needsFullSurveyArray() )
 	    savefldgrp_->setFullSurveyArray( true );
 
-	PtrMan<Array2D<float> > arr = horizon_->createArray2D( sid );
+	PtrMan<Array2D<float> > arr = hor3d->createArray2D( sid );
 	if ( !arr )
 	{
 	    BufferString msg( "Not enough horizon data for section " );
@@ -112,22 +130,24 @@ bool uiChangeSurfaceDlg::doProcessing()
 	}
 
 	PtrMan<Executor> worker = getWorker( *arr,
-			horizon_->geometry().rowRange(sid),
-			horizon_->geometry().colRange(sid) );
+			hor3d->geometry().rowRange(sid),
+			hor3d->geometry().colRange(sid) );
 	if ( !worker ) return false;
 
 	uiTaskRunner dlg( this );
 	if ( !dlg.execute(*worker) )
 	    return false;
 
-	const EM::SectionID usedsid = usedhor->geometry().sectionID( idx );
-	if ( !usedhor->setArray2D(*arr, usedsid, fillUdfsOnly(), undoText()) )
+	if ( !usedhor3d )
+	    return false;
+	const EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );
+	if ( !usedhor3d->setArray2D(*arr, usedsid, fillUdfsOnly(), undoText()) )
 	{
 	    BufferString msg( "Cannot set new data to section " );
 	    msg += usedsid;
 	    ErrMsg( msg ); continue;
         }
-	else if ( usedhor==horizon_ )
+	else if ( usedhor3d==hor3d )
 	{
 	    change = true;
 	}
@@ -140,7 +160,7 @@ bool uiChangeSurfaceDlg::doProcessing()
 }
 
 
-bool uiChangeSurfaceDlg::acceptOK( CallBacker* cb )
+bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 {
     if ( inputfld_ && !inputfld_->commitInput() )
 	mErrRet( "Please select input horizon" )
@@ -160,8 +180,8 @@ bool uiChangeSurfaceDlg::acceptOK( CallBacker* cb )
 
 //---- uiFilterHorizonDlg
 
-uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon3D* hor )
-    : uiChangeSurfaceDlg(p,hor,"Horizon filtering")
+uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
+    : uiChangeHorizonDlg(p,hor,false,"Horizon filtering")
 {
     parsgrp_ = new uiArr2DFilterPars( this );
     attachPars();

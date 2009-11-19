@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.12 2009-11-04 16:01:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.13 2009-11-19 04:04:12 cvssatyaki Exp $";
 
 #include "uihorinterpol.h"
 
@@ -100,13 +100,14 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* cb )
 	if ( !ioobj )
 	    return false;
 
-	EM::Horizon3D* hor = savefldgrp_->readHorizon( ioobj->key() );
-	if ( !hor )
+	EM::Horizon* hor = savefldgrp_->readHorizon( ioobj->key() );
+	mDynamicCastGet( EM::Horizon3D*, hor3d, hor )
+	if ( !hor3d )
 	    mErrRet( "Could not load horizon" );
 
 	if ( horizon_ ) horizon_->unRef();
 
-	horizon_ = hor;
+	horizon_ = hor3d;
 	horizon_->ref();
     }
 
@@ -140,8 +141,12 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* cb )
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
 
-    EM::Horizon3D* usedhor = savefldgrp_->getNewHorizon() ?
+    EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
 	savefldgrp_->getNewHorizon() : horizon_;
+
+    mDynamicCastGet(EM::Horizon3D*,usedhor3d,usedhor)
+    if ( !usedhor3d )
+	return false;
 
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
@@ -175,8 +180,8 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* cb )
 	    ErrMsg( msg ); continue;
 	}
 
-	EM::SectionID usedsid = usedhor->geometry().sectionID( idx );;
-	if ( !usedhor->setArray2D( *arr, usedsid, true, "Interpolation" ) )
+	EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );;
+	if ( !usedhor3d->setArray2D( *arr, usedsid, true, "Interpolation" ) )
 	{
 	    BufferString msg( "Cannot set new data to section " );
 	    msg += usedsid;
