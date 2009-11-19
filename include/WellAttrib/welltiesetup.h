@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.12 2009-11-16 17:31:23 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.13 2009-11-19 14:59:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include <iosfwd>
 
 class IOPar;
-class MultiID;
 
 namespace WellTie
 {
