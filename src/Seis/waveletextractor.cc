@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.2 2009-09-23 05:56:05 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.3 2009-11-19 10:21:20 cvsnageswara Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -14,47 +14,63 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
 #include "binidvalset.h"
+#include "bufstringset.h"
 #include "cubesampling.h"
 #include "fft.h"
 #include "genericnumer.h"
-#include "hilberttransform.h"
-#include "seisselection.h"
+#include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "survinfo.h"
-#include "seisread.h"
+#include "wavelet.h"
+#include "waveletattrib.h"
 
-
-WaveletExtractor::WaveletExtractor( const IOObj& ioobj,const Seis::SelData& sd,
-				    int wvltsize )
+WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     : Executor( "Extracting Wavelet" )
+    , iobj_(ioobj)
+    , sd_(0)
     , wvltsize_(wvltsize)
     , phase_(0)
-    , nrgoodtrcs_(0)
-    , stackedwvlt_(new Array1DImpl<float>(wvltsize))
-    , sd_(sd) 
-    , fft_( new FFT() )
+    , nrusedtrcs_(0)
     , nrdone_(0)
-    , start_(0)
-    , stop_(0)
+    , fft_( new FFT() )
     , totalnr_(0)
     , msg_("Extracting wavelet")
+    , wvlt_(*new Wavelet)
+    , lineidx_(-1)
 {
+    initFFT();
+    initWavelet();
     seisrdr_ = new SeisTrcReader( &ioobj );
-    seisrdr_->setSelData( sd_.clone() );
+}
+
+
+WaveletExtractor::~WaveletExtractor()
+{
+    delete fft_;
+    delete seisrdr_;
+    delete &wvlt_;
+}
+
+
+void WaveletExtractor::initWavelet()
+{
+    wvlt_.reSize( wvltsize_ );
+    for ( int samp=0; samp<wvltsize_; samp++ )
+	wvlt_.samples()[samp] = 0;
+}
+
+
+void WaveletExtractor::init3D()
+{
+    seisrdr_->setSelData( sd_->clone() );
     seisrdr_->prepareWork();
+    isdouble_ = false;
 
-    isdouble_ = isBetween2Hors();
-
-    for ( int idx=0; idx<wvltsize_; idx++ )
-	stackedwvlt_->set( idx, 0 );
-
-    fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
-    fft_->setDir( true );
-    fft_->init();
-
-    mDynamicCastGet(const Seis::RangeSelData*,rsd,&sd_)
-    mDynamicCastGet(const Seis::TableSelData*,tsd,&sd_)
+    mDynamicCastGet(const Seis::RangeSelData*,rsd,sd_)
+    mDynamicCastGet(const Seis::TableSelData*,tsd,sd_)
+    if ( tsd )
+	isdouble_ = tsd->binidValueSet().hasDuplicateBinIDs();
     if ( rsd )
 	totalnr_ = rsd->cubeSampling().hrg.totalNr();
     else if ( tsd && isdouble_ )
@@ -64,116 +80,118 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj,const Seis::SelData& sd,
 }
 
 
-const float* WaveletExtractor::getWavelet() const 
+void WaveletExtractor::init2D()
 {
-    return stackedwvlt_->arr();
+    StepInterval<int> range;
+    for ( int idx=0; idx<sdset_.size(); idx++ )
+    {
+	range = sdset_[idx]->crlRange();
+	totalnr_ += range.nrSteps() + 1;
+    }
+    getNextLine();
 }
 
 
-WaveletExtractor::~WaveletExtractor()
+void WaveletExtractor::setSelData( const Seis::SelData& sd )
 {
-    delete fft_;
-    delete seisrdr_;
-    delete stackedwvlt_;
+    sd_ = &sd;
+    init3D();
 }
 
 
-bool WaveletExtractor::isBetween2Hors()
+void WaveletExtractor::setSelData( ObjectSet<Seis::SelData>& sdset )
 {
-    mDynamicCastGet(const Seis::RangeSelData*,rsd,&sd_)
-    if ( rsd ) return false;
-
-    mDynamicCastGet(const Seis::TableSelData*,tsd,&sd_)
-    if ( !tsd ) return false;
-
-    const BinIDValueSet& bivs = tsd->binidValueSet();
-    int dupbids =  bivs.nrDuplicateBinIDs();
-
-    return dupbids > 0 ? true : false;
+    sdset_ = sdset;
+    init2D();
 }
 
 
-od_int64 WaveletExtractor::totalNr() const
+void WaveletExtractor::initFFT()
 {
-    return totalnr_;
+    fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
+    fft_->setDir( true );
+    fft_->init();
+}
+
+
+bool WaveletExtractor::getNextLine()
+{
+    if ( seisrdr_ )
+	delete seisrdr_;
+    seisrdr_ = new SeisTrcReader( &iobj_ );
+    if ( !seisrdr_ )
+	return false;
+    lineidx_++;
+    if ( lineidx_ >= sdset_.size() )
+	return false;
+
+    seisrdr_->setSelData( sdset_[lineidx_]->clone() );
+    seisrdr_->prepareWork();
+    return true;
 }
 
 
 const char* WaveletExtractor::nrDoneText() const
-{
-    return "Traces Processed";
-}
+{ return "Traces Processed"; }
 
 
 const char* WaveletExtractor::message() const
-{
-    return msg_.buf();
-}
+{ return msg_.buf(); }
 
 
 int WaveletExtractor::nextStep()
 {
-    const Seis::TableSelData* tsd = 0;
-    if ( &sd_ )
-	mDynamicCast(const Seis::TableSelData*,tsd,&sd_)
-
     SeisTrc trc;
-    int info = seisrdr_->get( trc.info() );
+    const int trcinfo = seisrdr_->get( trc.info() );
 
-    if ( info == -1 )
+    if ( trcinfo == -1 )
 	return ErrorOccurred();
 
-    if ( info == 0 )
+    if ( trcinfo == 0 )
     {
-	if ( finish(nrgoodtrcs_) )
+	if ( seisrdr_->is2D() && getNextLine() )
+	    return MoreToDo();
+	if ( finish(nrusedtrcs_) )
 	    return Finished();
 	else
 	{
-	    msg_ = "Problem while reading data.Please change selection";
+	    msg_ = "Problem while reading data. Please change selection";
 	    return ErrorOccurred();
 	}
     }
 
-    if ( info ==1 )
+    if ( trcinfo == 2 )
+	return MoreToDo();
+
+    if ( trcinfo ==1 )
     {
 	seisrdr_->get( trc );
-	int signalsz = trc.size();
-
 	if ( trc.isNull() )
 	    return MoreToDo();
 
-	start_ = 0;
-	stop_ = trc.size() - 1;
+	int startsample, signalsz;
+	if ( !getSignalInfo(trc,startsample,signalsz) )
+	    return MoreToDo();
 
-	if ( tsd )
-	{
-	    if ( !setTraces( trc ) )
-		return MoreToDo();
-
-	    signalsz = 1 + stop_ - start_;
-
-	    if ( signalsz < wvltsize_ )
-		return MoreToDo();
-	}
-
-	if ( doStatistics( signalsz, trc ) )
-	    nrgoodtrcs_++;
+	if ( processTrace(trc,startsample,signalsz) ) 
+	    nrusedtrcs_++;
     }
 
-    if ( info == 2 )
-	return MoreToDo();
-
     nrdone_++;
-
     return MoreToDo();
 }
 
 
-bool WaveletExtractor::setTraces( const SeisTrc& trc )
+bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
+				      int& signalsz ) const
 {
-    mDynamicCastGet(const Seis::TableSelData*,tsd,&sd_);
+    mDynamicCastGet(const Seis::TableSelData*,tsd,sd_);
     if ( !tsd )
-	return false;
+    {
+	startsample = 0;
+	signalsz = trc.size();
+	return true;
+    }
 
     const BinIDValueSet& bvis = tsd->binidValueSet();
     Interval<float> extz = tsd->extraZ();
@@ -185,35 +203,35 @@ bool WaveletExtractor::setTraces( const SeisTrc& trc )
 
     if ( !isdouble_ )
       	z2 = z1;
-
     else
     {
 	bvis.next( pos );
 	bvis.get( pos, duplicatebid, z2 );
 	if ( duplicatebid != bid || mIsUdf(z2) )
-		return false;
+	    return false;
     }
 
-    start_ = trc.nearestSample( z1 < z2 ? z1 + extz.start
-					       : z2 + extz.start );
-    stop_ = trc.nearestSample( z1 < z2 ? z2 + extz.stop
-					      : z1 + extz.stop );
-
-    return true;
+    if ( z2 < z1 ) { float tmp; mSWAP( z1, z2, tmp ); }
+    startsample = trc.nearestSample( z1 + extz.start );
+    const int stopsample = trc.nearestSample( z2 + extz.stop );
+    signalsz = stopsample - startsample + 1;
+    return signalsz >= wvltsize_;
 }
 
 
-bool WaveletExtractor::doStatistics( int signalsz, const SeisTrc& trc )
+bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
+				     int signalsz )
 {
     Array1DImpl<float> signal( signalsz );
     bool foundundef = false;
     int count = 0;
-    for ( int sidx=start_; sidx<=stop_; sidx++ )
+    for ( int sidx=0; sidx<signalsz; sidx++ )
     {
-	const float val = trc.get( sidx, 0 );
+	const int trcsidx = startsample + sidx;
+	const float val = trc.get( trcsidx, 0 );
 	if ( !mIsUdf(val) )
 	{
-	    signal.set( sidx-start_, val );
+	    signal.set( sidx, val );
 
 	    if ( val == 0 )
 		count++;
@@ -241,8 +259,7 @@ bool WaveletExtractor::doStatistics( int signalsz, const SeisTrc& trc )
 			     signalsz,  -signalsz/2, acarrptr );
 
     Array1DImpl<float> temp( wvltsize_ );
-    int startidx = (signalsz/2) - ((wvltsize_-1)/2);
-    int endidx = (signalsz/2) + ((wvltsize_-1)/2);
+    const int startidx = (signalsz/2) - ((wvltsize_-1)/2);
     for ( int idx=0; idx<wvltsize_; idx++ )
 	temp.set( idx, acarr.get( startidx+idx ) );
 
@@ -250,18 +267,16 @@ bool WaveletExtractor::doStatistics( int signalsz, const SeisTrc& trc )
     normalisation( temp );
 
     Array1DImpl<float_complex> timedomsignal( wvltsize_ );
-    Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
-
     for ( int idx=0; idx<wvltsize_; idx++ )
 	timedomsignal.set( idx, temp.arr()[idx] );
 
+    Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
     fft_->transform( timedomsignal, freqdomsignal );
 
-    float * stackedarr = stackedwvlt_->arr();
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	const float val = std::abs( freqdomsignal.arr()[idx] );
-	stackedarr[idx] += val;
+	wvlt_.samples()[idx] += val;
     }
 
     return true;
@@ -283,133 +298,105 @@ void WaveletExtractor::normalisation( Array1DImpl<float>& normal )
 }
 
 
-bool WaveletExtractor::finish( int nrgoodtrcs )
+bool WaveletExtractor::finish( int nrusedtrcs )
 {
-    if ( nrgoodtrcs == 0 )
+    if ( nrusedtrcs == 0 )
 	return false;
 
-    float * stackedarr = stackedwvlt_->arr();
+    float * stackedarr = wvlt_.samples();
     stackedarr[0] = 0;
-    for ( int idx=1; idx<wvltsize_; idx++ )
-	stackedarr[idx] = sqrt( stackedarr[idx] / nrgoodtrcs );
+    for ( int i=1; i<wvltsize_; i++ )
+	stackedarr[i] = sqrt( stackedarr[i] / nrusedtrcs );
 
-    Array1DImpl<float> ifftwavelet( wvltsize_ );
-    Array1DImpl<float> finalwavelet( wvltsize_ );
-
-    if ( !doIFFT( stackedarr, ifftwavelet.arr()) ) 
-	   return false; 
-    if ( !calcWvltPhase( ifftwavelet.arr(), finalwavelet.arr() ) ) 
-	    return false;
-    if ( !taperedWvlt( finalwavelet.arr(), stackedarr ) )
+    if ( !doWaveletIFFT() )
 	return false;
+    if ( !rotateWavelet() )
+	return false;
+    if ( !taperWavelet() )
+	    return false;
 
    return true;
 }
 
 
-bool WaveletExtractor::taperedWvlt( const float* in, float* out )
-{ 
-    fft_->setDir( true );
-    fft_->init();
-
-    Array1DImpl<float_complex> wvltintd( wvltsize_ );
-    Array1DImpl<float_complex> wvltinfd( wvltsize_ );
-
-    for ( int idx=0; idx<wvltsize_; idx++ )
-	wvltintd.set( idx, in[idx] );
-
-    ArrayNDWindow window( wvltintd.info(), true, "CosTaper", paramval_ );
-    window.apply( &wvltintd );
-
-    if ( !fft_->transform( wvltintd, wvltinfd ) )
-	return false;
-    
-    wvltinfd.arr()[0] = 0;
-
-    if( !wvltIFFT( wvltinfd, out ) )
-	return false;
-
-    return true;
-}
-
-
-bool WaveletExtractor::wvltIFFT( const Array1DImpl<float_complex>& in,
-				 float* out )
-{
-    fft_->setDir( false );
-    fft_->init();
-
-    Array1DImpl<float_complex> wvltifft( wvltsize_ );
-
-    if ( !fft_->transform( in, wvltifft ) )
-	return false;
-
-    for ( int idx=0; idx<wvltsize_; idx++ )
-	out[idx] = wvltifft.get(idx).real();
-
-    return true;
-}
-
-
-bool WaveletExtractor::doIFFT( const float* in, float* out )
-{
-    fft_->setDir( false );
-    fft_->init();
-
-    Array1DImpl<float_complex> complexsig( wvltsize_ );
-    Array1DImpl<float_complex> ifftsig( wvltsize_ );
-
-    for ( int idx=0; idx<wvltsize_; idx++ )
-	complexsig.set( idx, in[idx] );
-
-    fft_->transform( complexsig, ifftsig );
-
-    for ( int idx=0; idx<wvltsize_; idx++ )
-    {
-	if ( idx>=wvltsize_/2 )
-	    out[idx] = ifftsig.get( idx - wvltsize_/2 ).real();
-	else
-	    out[idx] = ifftsig.get( wvltsize_/2 - idx ).real();
-    }
-
-    return true;
-}
-
-
-void WaveletExtractor::setParamVal( float paramval )
+void WaveletExtractor::setCosTaperParamVal( float paramval )
 {
     float val = 1-(2*paramval/( (wvltsize_-1)*SI().zStep()*SI().zFactor()) );
-    paramval_ = val;
+    paramval_ = val == 1 ? 1.0 - 1e-6 : val;
 }
 
 
-void WaveletExtractor::setOutputPhase( int phase )
+void WaveletExtractor::setPhase( int phase )
 {
     phase_ = phase;
 }
 
 
-bool WaveletExtractor::calcWvltPhase( const float* vals, float* valswithphase )
+bool WaveletExtractor::doWaveletIFFT()
 {
-    Array1DImpl<float> wvltzerophase( wvltsize_ );
-    Array1DImpl<float_complex> wvltincalcphase( wvltsize_ );
-    HilbertTransform ht;
-    ht.init();
-    ht.setCalcRange( 0, wvltsize_, 0 );
+    fft_->setDir( false );
+    fft_->init();
+
+    Array1DImpl<float_complex> signal( wvltsize_ ), transfsig( wvltsize_ );
 
     for ( int idx=0; idx<wvltsize_; idx++ )
-	wvltzerophase.set( idx, vals[idx] );
-    bool isht = ht.transform( wvltzerophase, wvltincalcphase );
-    if ( !isht )
-	return false;
+	signal.set( idx, wvlt_.samples()[idx] );
+
+    fft_->transform( signal, transfsig );
+
+    for ( int idx=0; idx<wvltsize_; idx++ )
+    {
+	if ( idx>=wvltsize_/2 )
+	    wvlt_.samples()[idx] = transfsig.get( idx - wvltsize_/2 ).real();
+	else
+	    wvlt_.samples()[idx] = transfsig.get( wvltsize_/2 - idx ).real();
+    }
+
+    return true;
+}
+
+
+bool WaveletExtractor::rotateWavelet()
+{
+    Array1DImpl<float> rotatewvlt( wvltsize_ );
+    for ( int idx=0; idx<wvltsize_; idx++ )
+	rotatewvlt.set( idx, wvlt_.samples()[idx] );
+
+    WaveletAttrib wvltattr( wvlt_ );
+    wvltattr.getHilbert( rotatewvlt );
 
     float angle = (float)phase_ * M_PI/180;
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
-	const float realval = wvltzerophase.arr()[idx];
-	const float imagval = -wvltincalcphase.arr()[idx].imag();
-	valswithphase[idx] = realval*cos( angle ) - imagval*sin( angle );
+	const float realval = wvlt_.samples()[idx];
+	const float imagval = -rotatewvlt.arr()[idx];
+	wvlt_.samples()[idx] = realval*cos( angle ) - imagval*sin( angle );
     }
 
     return true;
+}
+
+
+bool WaveletExtractor::taperWavelet()
+{ 
+
+    WaveletAttrib wvltattr( wvlt_ );
+
+    Array1DImpl<float> taperwvlt( wvltsize_ );
+    for ( int idx=0; idx<wvltsize_; idx++ )
+	taperwvlt.set( idx, wvlt_.samples()[idx] );
+
+    ArrayNDWindow window( taperwvlt.info(), true, "CosTaper", paramval_ );
+    window.apply( &taperwvlt );
+    wvltattr.muteZeroFrequency( taperwvlt );
+    for ( int samp=0; samp<wvltsize_; samp++ )
+    	wvlt_.samples()[samp] = taperwvlt.arr()[samp];
+
+    return true;
+}
+
+
+Wavelet WaveletExtractor::getWavelet()
+{
+    return wvlt_;
 }

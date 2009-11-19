@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.52 2009-11-09 06:35:34 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.53 2009-11-19 10:21:20 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -152,20 +152,30 @@ void uiSeisWvltMan::mrgPush( CallBacker* )
 
 void uiSeisWvltMan::extractPush( CallBacker* cb )
 {
-    if ( SI().getSurvDataType() == SurveyInfo::Only2D || !SI().zIsTime() )
+    bool is2d;
+    SurveyInfo::Pol2D survtyp = SI().getSurvDataType();
+    if ( survtyp == 2 )
+	is2d = true;
+    else if ( survtyp == 0 )
+	is2d = false;
+    else
     {
-	uiMSG().error(
-		"Wavelet extraction is only available in 3D time surveys" );
-	return;
+	int res = uiMSG().askGoOnAfter( "Which data do you want to use?",
+		0, "&3D", "&2D" );
+	if ( res == 2 )
+	    return;
+	else
+	    is2d = res;
     }
 
     if ( !wvltext_ )
     {
-	wvltext_ = new uiWaveletExtraction( this );
+	wvltext_ = new uiWaveletExtraction( this, is2d );
 	wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,updateCB) );
     }
 
     wvltext_->show();
+    wvltext_ = 0;
 }
 
 
