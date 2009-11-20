@@ -7,14 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.11 2009-08-17 07:47:16 cvsbert Exp $
+ RCS:		$Id: odver.h,v 1.12 2009-11-20 10:47:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #define mODMajorVersion		4
-#define mODMinorVersion		0
+#define mODMinorVersion		1
 
 #include "gendefs.h"
 
