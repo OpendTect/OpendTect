@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.51 2009-10-26 10:30:45 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.52 2009-11-20 12:43:34 cvsjaap Exp $";
 
 #include "uifiledlg.h"
 
@@ -187,11 +187,9 @@ int uiFileDialog::go()
 
     if ( fd->exec() != QDialog::Accepted )
     {
-    	if ( !processExternalFilenames(dirname, flt) )
-	{
-	    endCmdRecEvent( refnr, false );
-	    return 0;
-	}
+    	int res = processExternalFilenames( dirname, flt );
+	endCmdRecEvent( refnr, res );
+	return res;
     }
 
     QStringList selfiles = fd->selectedFiles();
