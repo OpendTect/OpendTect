@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.89 2009-11-17 09:51:22 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.90 2009-11-21 22:22:31 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -22,8 +22,9 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.89 2009-11-17 09:51:22 cvskarthik
 #include "vistexturecoords.h"
 #include "vistransform.h"
 #include "visvolorthoslice.h"
-#include "visvolrenscalarfield.h"
 #include "visselman.h"
+#include "vistexturechannels.h"
+#include "vistexturechannel2voldata.h"
 
 #include "arrayndsubsel.h"
 #include "attribsel.h"
@@ -44,7 +45,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.89 2009-11-17 09:51:22 cvskarthik
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-#define USE_TEXTURE 
+//#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -65,7 +66,7 @@ MPEDisplay::MPEDisplay()
     , datatransformer_(0)
     , cache_(0)
     , cacheid_(DataPack::cNoID())
-    , scalarfield_(visBase::VolumeRenderScalarField::create())
+	, channels_(visBase::TextureChannels::create())
     , voltrans_(visBase::Transformation::create())
     , dim_(2)
 #endif
@@ -135,8 +136,12 @@ MPEDisplay::MPEDisplay()
     addChild( voltrans_->getInventorNode() );
     voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
 
-    scalarfield_->ref(); // Don't add it here, do that in getInventorNode
+	channels_->ref();  // will be added in getInventorNode
+	channels_->setChannels2RGBA( 
+		visBase::TextureChannel2VolData::create() );
 
+	visBase::DM().getObject( channels_->getInventorNode() );
+    
     CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
     cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
     cs.hrg.start.crl = (5*sics.hrg.start.crl+3*sics.hrg.stop.crl)/8;
@@ -179,7 +184,7 @@ MPEDisplay::~MPEDisplay()
 	removeChild( children[idx] );
 
     voltrans_->unRef();
-    scalarfield_->unRef();
+    channels_->unRef();
 
     setDataTransform( 0, 0 );
 #endif
@@ -216,8 +221,11 @@ void MPEDisplay::setColTabMapperSetup( int attrib,
 	vt.colorMapper().setup_.triggerRangeChange();
     }
 #else
-    if ( scalarfield_ )
-	scalarfield_->setColTabMapperSetup( ms, tr );
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return;
+
+    channels_->setColTabMapperSetup( attrib, ms );
+	channels_->reMapData( attrib, 0 );
 #endif
 }
 
@@ -232,18 +240,25 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
     vt.colorSeq().colors() = seq;
     vt.colorSeq().colorsChanged();
 #else
-    if ( scalarfield_ )
-	scalarfield_->setColTabSequence( seq, tr );
+    if ( attrib>=0 && attrib<nrAttribs() )	
+	channels_->getChannels2RGBA()->setSequence( attrib, seq );
 #endif
 }
 
 
-const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib ) const
+const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib, int version ) const
 { 
 #ifdef USE_TEXTURE
     return texture_ ? &texture_->getColorTab().colorMapper().setup_ : 0; 
 #else
-    return scalarfield_ ? &scalarfield_->getColTabMapper().setup_ : 0;
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return 0;
+
+    if ( mIsUdf(version) || version<0
+	    		 || version >= channels_->nrVersions(attrib) )
+	version = channels_->currentVersion( attrib );
+
+    return &channels_->getColTabMapperSetup( attrib, version );
 #endif
 }
 
@@ -253,13 +268,22 @@ const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
 #ifdef USE_TEXTURE
     return texture_ ? &texture_->getColorTab().colorSeq().colors() : 0; 
 #else
-    return scalarfield_? &scalarfield_->getColTabSequence() : 0;
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return 0;
+	
+	return channels_->getChannels2RGBA()->getSequence( attrib );
 #endif
 }
 
 
 bool MPEDisplay::canSetColTabSequence() const
-{ return true; }
+{ 
+#ifdef USE_TEXTURE
+	return true;
+#else
+	return channels_->getChannels2RGBA()->canSetSequence();
+#endif
+}
 
 
 void MPEDisplay::setDragger( visBase::DepthTabPlaneDragger* dr )
@@ -381,18 +405,19 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     as_ = as;
 
 #ifndef USE_TEXTURE
-    if ( cache_ ) 
-	cache_->unRef();
-    cache_ = 0;
+ //   emptyCache( attrib );
 
-    DPM( DataPackMgr::CubeID() ).release( cacheid_ );
-    cacheid_ = DataPack::cNoID();
+    const char* usrref = as.userRef();
+    BufferStringSet* attrnms = new BufferStringSet();
+    attrnms->add( usrref );
+    userrefs_.replace( attrib, attrnms );
 
-    scalarfield_->setScalarField( 0, true, 0 );
-	updateSliceCoords();
+    if ( !usrref || !*usrref )
+	    channels_->getChannels2RGBA()->setEnabled( 0, true );
 #endif
 }
 
+// isAttribEnabled, enableAttrib - check if necessary
 
 const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib ) const
 {
@@ -738,8 +763,14 @@ void MPEDisplay::setDraggerTransparency( float transparency )
 {
 #ifdef USE_TEXTURE
     rectangle_->getMaterial()->setTransparency( transparency );
+#else
+	// to do: check if this needs to be moved to setAttribTransparency
+    mDynamicCastGet( visBase::TextureChannel2VolData*, cttc2vd,
+		channels_->getChannels2RGBA() );
+	/*if ( cttc2vd )
+	    cttc2vd->setTransparency( attrib, nt );*/
+	// to do: implement in TextureChannel2VolData
 #endif
-    // to do: how to set it for slices?
 }
 
 
@@ -748,8 +779,13 @@ float MPEDisplay::getDraggerTransparency() const
 #ifdef USE_TEXTURE
     return rectangle_->getMaterial()->getTransparency();
 #else
-    // to do: how to get it for slices?
-    return 0;
+    // to do: check if this needs to be moved to getAttribTransparency
+    mDynamicCastGet( visBase::TextureChannel2VolData*, cttc2vd,
+	    channels_->getChannels2RGBA() );
+    /*if ( cttc2vd )
+	return cttc2vd->getTransparency( attrib );*/
+    // to do: implement in TextureChannel2VolData
+	return 0;
 #endif
 }
 
@@ -764,10 +800,10 @@ void MPEDisplay::showDragger( bool yn )
 	updateTexture();
     dragger_->turnOn( yn );
 #else
+	// to do: check!
     if ( yn )
 	updateSlice();
-    if ( scalarfield_ )
-	scalarfield_->turnOn( yn );
+
     if ( slices_.size() && slices_[dim_] )
         slices_[dim_]->turnOn( yn );
 #endif
@@ -885,11 +921,9 @@ void MPEDisplay::setPlaneOrientation( int orient )
 	return;
     dim_ = orient;
 
-    updateSliceCoords();
-
     for ( int i = 0; i < 3; i++ )
         slices_[i]->turnOn( dim_ == i );
-    scalarfield_->turnOn( true );
+	updateRanges( true, true );
 #endif
     movement.trigger();
 }
@@ -1031,7 +1065,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 #else
     // check if all of the below is needed
     //turnOnSlice( false );
-    if ( scalarfield_ ) scalarfield_->turnOn( false );
+    channels_[0].turnOn( false );
 
     const Interval<float> xintv( cube.hrg.start.inl, cube.hrg.stop.inl );
     const Interval<float> yintv( cube.hrg.start.crl, cube.hrg.stop.crl );
@@ -1040,19 +1074,14 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	    Coord3(xintv.center(),yintv.center(),zintv.center()) );
     voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
     voltrans_->setScale( Coord3(-zintv.width(),yintv.width(),xintv.width()) );
-    scalarfield_->setVolumeSize( Interval<float>(-0.5,0.5),
-	    Interval<float>(-0.5,0.5),
-	    Interval<float>(-0.5,0.5) );
 
     for ( int idx=0; idx<slices_.size(); idx++ )
 	slices_[idx]->setSpaceLimits( Interval<float>(-0.5,0.5),
 		Interval<float>(-0.5,0.5),
 		Interval<float>(-0.5,0.5) );
 
-    if ( isDraggerShown() )
+	if ( isDraggerShown() )
 	updateSlice();
-
-    updateSliceCoords();
 #endif
     
     movement.trigger();
@@ -1266,10 +1295,18 @@ void MPEDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	if ( saveids.indexOf(texture_->id())==-1 )
 	    saveids += texture_->id();
     }
+#else
+	mDynamicCastGet( visBase::TextureChannel2VolData*, cttc2vd,
+                     channels_ ? channels_->getChannels2RGBA() : 0 );
+    if ( !cttc2vd )
+    {
+	par.set( sKeyTC2VolData(), channels_->getChannels2RGBA()->id() );
+	saveids += channels_->getChannels2RGBA()->id();
+    }
 #endif
 
     as_.fillPar( par );
-    par.set( sKeyTransperancy(), getDraggerTransparency() );
+    par.set( sKeyTransparency(), getDraggerTransparency() );
     par.setYN( sKeyBoxShown(), isBoxDraggerShown() );
 }
 
@@ -1288,18 +1325,34 @@ int MPEDisplay::usePar( const IOPar& par )
 	if ( texture ) setTexture( texture );
 	else return 0;
     }
+#else
+	int tc2vdid;
+    if ( par.get( sKeyTC2VolData(), tc2vdid ) )
+    {
+	RefMan<visBase::DataObject> dataobj =
+	    visBase::DM().getObject( tc2vdid );
+	if ( !dataobj )
+	    return 0;
+
+	mDynamicCastGet(visBase::TextureChannel2VolData*, tc2vd, dataobj.ptr() );
+	if ( tc2vd )
+	    setChannel2VolData( tc2vd );
+    }
 #endif
 
     float transparency = 0.5;
-    par.get( sKeyTransperancy(), transparency );
+    par.get( sKeyTransparency(), transparency );
     setDraggerTransparency( transparency );
 
     bool dispboxdragger = false;
     par.getYN( sKeyBoxShown(), dispboxdragger );
 
     if ( as_.usePar( par ) )
+#ifdef USE_TEXTURE
 	updateTexture();
-
+#else
+	//();
+#endif
     turnOn( true );
     showBoxDragger( dispboxdragger );
     
@@ -1317,37 +1370,6 @@ visBase::OrthogonalSlice* MPEDisplay::getSlice( int index )
 }
 
 
-void MPEDisplay::updateSlice()
-{
-#ifndef USE_TEXTURE
-// to do: check!!
-    const CubeSampling displaycs = engine_.activeVolume();
-/*    if ( curtextureas_==as_ && curtexturecs_==displaycs )
-    {
-	turnOnSlice( true );
-	return;
-    }*/
-
-    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
-    if ( !attrdata )
-    {
-	turnOnSlice( false );
-//        scalarfield_->turnOn( false );
-        return;
-    }
-
-    if ( !slices_.size() )
-    {
-        addSlice( cInLine(), false );
-        addSlice( cCrossLine(), false );
-        addSlice( cTimeSlice(), false );
-    }
-    	
-    setDataVolume( 0, attrdata, 0 );
-    turnOnSlice( true );
-#endif
-}
-
 
 void MPEDisplay::setCubeSampling( const CubeSampling& cs )
 {
@@ -1359,16 +1381,12 @@ void MPEDisplay::setCubeSampling( const CubeSampling& cs )
 	    Coord3(xintv.center(),yintv.center(),zintv.center()) );
     voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
     voltrans_->setScale( Coord3(-zintv.width(),yintv.width(),xintv.width()) );
-    scalarfield_->setVolumeSize( Interval<float>(-0.5,0.5),
-	    Interval<float>(-0.5,0.5),
-	    Interval<float>(-0.5,0.5) );
-
     for ( int idx=0; idx<slices_.size(); idx++ )
 	slices_[idx]->setSpaceLimits( Interval<float>(-0.5,0.5),
 		Interval<float>(-0.5,0.5),
 		Interval<float>(-0.5,0.5) );
 
-//  if ( scalarfield_ ) scalarfield_->turnOn( false );  // check why
+//  if ( channels_[0] ) channels_[0].turnOn( false );  // check why
 
     resetManipulation();
 #endif
@@ -1395,7 +1413,7 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
-    const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0, tr );
+	const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0, tr );
     if ( !res )
     {
 	dpman.release( dpid );
@@ -1420,7 +1438,7 @@ bool MPEDisplay::setDataVolume( int attrib,
 #ifdef USE_TEXTURE
     return false;
 #else
-    if ( attrib || !attrdata )
+	if ( attrib || !attrdata )
 	return false;
 
     const Array3D<float>* usedarray = 0;
@@ -1445,39 +1463,74 @@ bool MPEDisplay::setDataVolume( int attrib,
 	    return false;
         }
 
-	usedarray = datatransformer_->getOutput( true );
+		usedarray = datatransformer_->getOutput( true );
         if ( !usedarray )
-	{
+		{
 	    pErrMsg( "No output from transform" );
 	    return false;
-	}
+		}
 
-	arrayismine = false;
+		arrayismine = false;
     }
-
-//    curtextureas_ = as_;
-//    curtexturecs_ = attrdata->cubeSampling();  // to do: check
-
-    scalarfield_->setScalarField( usedarray, !arrayismine, tr );
-
-    setCubeSampling( getCubeSampling(true,true,0) );
-    
-    for ( int idx=0; idx<slices_.size(); idx++ )
-	slices_[idx]->setVolumeDataSize( usedarray->info().getSize(2),
-		usedarray->info().getSize(1),
-		usedarray->info().getSize(0) );
-
-    scalarfield_->turnOn( true );
 
     if ( cache_ != attrdata )
     {
-	if ( cache_ ) cache_->unRef();
+	if ( cache_ ) 
+		cache_->unRef();
 	cache_ = attrdata;
 	cache_->ref();
     }
 
+	updateFromData( usedarray, !arrayismine, tr );
+
+    setCubeSampling( getCubeSampling(true,true,0) );  // ???
+   
     return true;
 #endif
+}
+
+
+void MPEDisplay::updateFromData( const Array3D<float>* arr, bool arrayismine,
+							 TaskRunner* tr )
+{
+#ifndef USE_TEXTURE
+	if ( !arr )
+	{
+		channels_->setUnMappedData( 0, 0, 0, OD::UsePtr, 0 );
+		return;
+	}
+
+	OD::PtrPolicy cp = arrayismine ? OD::TakeOverPtr : OD::UsePtr;
+    
+	int sz0 = arr->info().getSize(0);
+	int sz1 = arr->info().getSize(1);
+	int sz2 = arr->info().getSize(2);
+
+	/*if ( !arr )
+	{
+	    const od_int64 totalsz = sz0 * sz1 * sz2;
+	    mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
+
+		if ( tmparr )
+	    {
+		usedarray->getAll( tmparr );
+	    arr = tmparr;
+	    cp = OD::TakeOverPtr;
+	    }
+	}*/
+	
+	channels_->setSize( sz0, sz1, sz2 );
+	channels_->setUnMappedData( 0, 0, arr->getData(), cp, 0 );
+
+	channels_->turnOn( true );
+	for ( int idx=0; idx<slices_.size(); idx++ )
+	slices_[idx]->setVolumeDataSize( sz2, sz1, sz0 );  // check
+#endif
+}
+
+
+void MPEDisplay::updateSlice()
+{
 }
 
 
@@ -1640,12 +1693,12 @@ SoNode* MPEDisplay::getInventorNode()
     if ( !isinited_ )
     {
 	isinited_ = true;
-	scalarfield_->useShading( allowshading_ );
+	//channels_[0].useShading( allowshading_ );
 
 	const int voltransidx = childIndex( voltrans_->getInventorNode() );
-	insertChild( voltransidx+1, scalarfield_->getInventorNode() );
-
-	scalarfield_->turnOn( true );
+	insertChild( voltransidx+1, channels_->getInventorNode() );
+	
+	channels_->turnOn( true );
 
 	if ( !slices_.size() )
 	{
@@ -1657,6 +1710,12 @@ SoNode* MPEDisplay::getInventorNode()
 #endif
 
     return VisualObjectImpl::getInventorNode();
+}
+
+void MPEDisplay::allowShading( bool yn )
+{
+	if ( channels_ && channels_->getChannels2RGBA() )
+	channels_->getChannels2RGBA()->allowShading( yn );
 }
 
 
@@ -1700,8 +1759,15 @@ bool MPEDisplay::isSelected() const
 
 BufferString MPEDisplay::getManipulationString() const
 {
-    BufferString str = slicename_; str += ": "; str += sliceposition_;
-    return str;
+    BufferString res;
+    getObjectInfo( res );
+    return res;
+}
+
+
+void MPEDisplay::getObjectInfo( BufferString& info ) const
+{
+	info = slicename_; info += ": "; info += sliceposition_;
 }
 
 
@@ -1724,8 +1790,6 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 
 	if ( planebox==engine_.trackPlane().boundingBox() )
 	    return;
-
-	updateSliceCoords();
 
 	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
 	const int dim = slice->getDragger()->getDim();
@@ -1771,42 +1835,6 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	movement.trigger();
 	planeOrientationChange.trigger();
 	}
-#endif
-}
-
-
-void MPEDisplay::updateSliceCoords()
-{
-#ifndef USE_TEXTURE
-    return;
-    if ( !slices_.size() || !slices_[dim_] )
-	return;
-
-    Coord3 boxcenter = boxdragger_->center();
-    Coord3 boxwidth = boxdragger_->width();
-
-    const Coord3 draggercenter = slices_[dim_]->getDragger()->center();
-    const Coord3 draggerwidth = slices_[dim_]->getDragger()->size();
-    
-    const float relcoord = mGetRelCrd(draggercenter[dim_],dim_);
-    const Interval<float> intv0( 
-	    mGetRelCrd(draggercenter[0]-draggerwidth[0]/2,0),
-	    mGetRelCrd(draggercenter[0]+draggerwidth[0]/2,0) );
-    const Interval<float> intv1( 
-	    mGetRelCrd(draggercenter[1]-draggerwidth[1]/2,1),
-	    mGetRelCrd(draggercenter[1]+draggerwidth[1]/2,1) );
-    const Interval<float> intv2( 
-	    mGetRelCrd(draggercenter[2]-draggerwidth[2]/2,2),
-	    mGetRelCrd(draggercenter[2]+draggerwidth[2]/2,2) );
-
-    voltrans_->setTranslation( draggercenter );
-    voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
-    voltrans_->setScale( draggerwidth );
-
-/*    slices_[dim_]->setSpaceLimits(
-	    Interval<float>(intv0.start, intv0.stop),
-	    Interval<float>(intv1.start, intv1.stop),
-	    Interval<float>(intv2.start, intv2.stop) );*/
 #endif
 }
 
@@ -1862,8 +1890,8 @@ void MPEDisplay::turnOnSlice( bool yn )
 #ifndef USE_TEXTURE
     if ( slices_.size() && slices_[dim_] )
 	slices_[dim_]->turnOn( yn );
-    /*if ( scalarfield_ )
-      scalarfield_->turnOn( yn );*/
+    /*if ( channels_[0] )
+      channels_[0].turnOn( yn );*/
 #endif
 }
 
@@ -1919,12 +1947,25 @@ void MPEDisplay::dataTransformCB( CallBacker* )
 #endif
 }
 
+void MPEDisplay::triggerSel()
+{
+	updateMouseCursorCB( 0 );
+	visBase::VisualObject::triggerSel();
+}
+
+
+void MPEDisplay::triggerDeSel()
+{
+	updateMouseCursorCB( 0 ); 
+	visBase::VisualObject::triggerDeSel();
+}
+
 
 void MPEDisplay::updateRanges( bool updateic, bool updatez )
 {
 #ifndef USE_TEXTURE
     if ( !datatransform_ ) return;
-
+// to do: check!
     // to do: save session cs in usePar?
 /*    if ( csfromsession_ != SI().sampling(true) )
 	setCubeSampling( csfromsession_ );
@@ -1936,6 +1977,38 @@ void MPEDisplay::updateRanges( bool updateic, bool updatez )
 	setCubeSampling( cs );
     }
 #endif
+}
+
+
+void MPEDisplay::setChannel2VolData( visBase::TextureChannel2VolData* t )
+{
+    RefMan<visBase::TextureChannel2VolData> dummy( t );
+    if ( !channels_ ) return;
+
+    channels_->setChannels2RGBA( t );
+}
+
+
+visBase::TextureChannel2VolData* MPEDisplay::getChannel2VolData()
+{ return channels_ ? 
+dynamic_cast<visBase::TextureChannel2VolData*> (channels_->getChannels2RGBA()) 
+: 0; }
+
+
+void MPEDisplay::clearTextures()
+{
+	Attrib::SelSpec as;
+	setSelSpec( 0, as );
+
+	// to do: check!
+	for ( int idy=channels_->nrVersions( 0 ) - 1; idy>=0; idy-- )
+		channels_->setUnMappedData( 0, idy, 0, OD::UsePtr, 0 );	
+}
+
+
+SurveyObject::AttribFormat MPEDisplay::getAttributeFormat( int attrib ) const
+{
+	return !attrib ? SurveyObject::Cube : SurveyObject::None;
 }
 
 }; // namespace vissurvey

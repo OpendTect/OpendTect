@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.53 2009-11-17 08:37:27 cvsbert Exp $
+RCS:        $Id: vismpe.h,v 1.54 2009-11-21 22:22:31 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,6 @@ template <class T> class Selector;
 class ZAxisTransform;
 class ZAxisTransformer;
 
-
 class SoSeparator;
 
 namespace visBase
@@ -34,7 +33,8 @@ namespace visBase
     class DepthTabPlaneDragger;
     class FaceSet;
     class Texture3;
-    class VolumeRenderScalarField;
+    class TextureChannels;
+    class TextureChannel2VolData;
     class OrthogonalSlice;
     class Transformation;
 };
@@ -56,211 +56,253 @@ mClass MPEDisplay : public visBase::VisualObjectImpl,
 {
 public:
 
+    // common methods (to both texture-based and volume-based display)
     static MPEDisplay*        create()
-                mCreateDataObj(MPEDisplay);
-   
-    static int            cInLine()         { return 2; }
-    static int            cCrossLine()         { return 1; }
-    static int            cTimeSlice()         { return 0; }
-   
-    bool            isInlCrl() const    { return true; }
+	    	    mCreateDataObj(MPEDisplay);
+  
+    bool            isInlCrl() const	{ return true; }
     bool            isOn() const;
-    void            updateSeedOnlyPropagation(bool);
-    void            updateMPEActiveVolume();
-    void            removeSelectionInPolygon(
-                            const Selector<Coord3>&,
-                        TaskRunner*);
-       
+
     void            showBoxDragger(bool);
     bool            isBoxDraggerShown() const;
-    void            setDraggerTransparency(float);
-    float            getDraggerTransparency() const;
+    
     void            showDragger(bool yn);
-    void            setPlaneOrientation(int orient);
-    const int            getPlaneOrientation() const;
     bool            isDraggerShown() const;
-    void            moveMPEPlane(int nrsteps);
-    visBase::Texture3*        getTexture() { return texture_; }
-    visBase::OrthogonalSlice*    getSlice(int index);
-    float                       slicePosition(visBase::OrthogonalSlice*) const;
-    float                       getValue(const Coord3&) const;   
+    
+    void            setDraggerTransparency(float);
+    float           getDraggerTransparency() const;
+    
+    void            setPlaneOrientation(int orient);
+    const int       getPlaneOrientation() const;
 
-    const ColTab::MapperSetup*  getColTabMapperSetup(int) const;
-    void            setColTabMapperSetup(int,
-                    const ColTab::MapperSetup&,TaskRunner*);
-    const ColTab::Sequence*    getColTabSequence(int) const;
-    bool            canSetColTabSequence() const;
-    void            setColTabSequence(int,const ColTab::Sequence&,
-                              TaskRunner*);
-
-    int                addSlice(int dim, bool show);
-    void                        removeChild(int displayid);
-    void            getChildren(TypeSet<int>&) const;
-
-    CubeSampling        getCubeSampling(int attrib=-1) const;
-    void            setCubeSampling(const CubeSampling&);
     bool            getPlanePosition(CubeSampling&) const;
+    void            moveMPEPlane(int nrsteps);    
 
-    bool                        setDataTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*       getDataTransform() const;
+    void            updateBoxSpace();
+    void            freezeBoxPosition(bool yn);
+
+    CubeSampling	getCubeSampling(int attrib=-1) const;
    
-    bool                        setDataVolume(int attrib,
-                        const Attrib::DataCubes*, TaskRunner*);
-    const Attrib::DataCubes*    getCacheVolume(int attrib) const;
-    bool            setDataPackID(int attrib,DataPack::ID,
-                              TaskRunner*);
-    DataPack::ID        getDataPackID(int attrib) const;
-    virtual DataPackMgr::ID     getDataPackMgrID() const
-                                    { return DataPackMgr::CubeID(); }
-   
-    virtual bool        allowPicks() const;
-
-    void                        showManipulator(bool yn);
-    bool                        isManipulated() const;
-    bool                        canResetManipulation() const;
-    void                        resetManipulation();
-    void            acceptManipulation();
-    BufferString                getManipulationString() const;
-
     void            setSelSpec(int,const Attrib::SelSpec&);
-    const char*            getSelSpecUserRef() const;
+    const char*		getSelSpecUserRef() const;
                     /*!<\returns the userRef, "None" if
                      selspec.id==NoAttrib, or a zeropointer
                      if selspec.id==notsel */
     const Attrib::SelSpec*    getSelSpec(int attrib) const;
 
-    void            updateTexture();
-    void            updateSlice();
-    void            updateBoxSpace();
-    void            freezeBoxPosition(bool yn);
+    const ColTab::MapperSetup*  getColTabMapperSetup(int, int version=0) const;
+    void            setColTabMapperSetup(int,
+                    const ColTab::MapperSetup&,TaskRunner*);
+    
+    const ColTab::Sequence*    getColTabSequence(int) const;
+    bool            canSetColTabSequence() const;
+    void            setColTabSequence(int,const ColTab::Sequence&,
+                              TaskRunner*);
 
-    NotifierAccess*        getMovementNotifier();
-    NotifierAccess*             getManipulationNotifier();
-    Notifier<MPEDisplay>    boxDraggerStatusChange;
-    Notifier<MPEDisplay>    planeOrientationChange;
+    void            getMousePosInfo(const visBase::EventInfo&, Coord3&,
+                        BufferString& val, BufferString& info) const;
+    void		getObjectInfo(BufferString&) const;
+
+    void            updateSeedOnlyPropagation(bool);
+    void            updateMPEActiveVolume();
+    void            removeSelectionInPolygon(const Selector<Coord3>&,
+                        TaskRunner*);
+
+    virtual float	calcDist(const Coord3&) const;
+    virtual float       maxDist() const;
+
+    virtual void	fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int		usePar( const IOPar&);
+
+    NotifierAccess*	getMovementNotifier();
+    
+    Notifier<MPEDisplay>	boxDraggerStatusChange;
+    Notifier<MPEDisplay>	planeOrientationChange;
+	
+
+    // methods for texture-based display
+    visBase::Texture3*	getTexture() { return texture_; }
+    void		updateTexture();
+    
+
+    // methods for volume-based display
+    int			addSlice(int dim, bool show);
+    visBase::OrthogonalSlice*	getSlice(int index);
+    void		updateSlice();
+    float		slicePosition(visBase::OrthogonalSlice*) const;
+    float		getValue(const Coord3&) const;   
+	
+    SoNode*		getInventorNode();
+    void		removeChild(int displayid);
+    void		getChildren(TypeSet<int>&) const;
+	
+    bool			setDataTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getDataTransform() const;
    
-    virtual float               calcDist(const Coord3&) const;
-    virtual float               maxDist() const;
+    bool		setDataVolume(int attrib, const Attrib::DataCubes*, 
+		    		TaskRunner*);
+    void		setCubeSampling(const CubeSampling&);
+    
+    const Attrib::DataCubes*	getCacheVolume(int attrib) const;
+    bool		setDataPackID(int attrib,DataPack::ID,TaskRunner*);
+    DataPack::ID	getDataPackID(int attrib) const;
+    virtual DataPackMgr::ID	getDataPackMgrID() const
+                                    { return DataPackMgr::CubeID(); }
+    
+    virtual bool        allowPicks() const;
+    void		allowShading(bool yn );
+    void		showManipulator(bool yn);
+    bool		isManipulated() const;
+    bool		canResetManipulation() const;
+    void		resetManipulation();
+    void		acceptManipulation();
+    BufferString	getManipulationString() const;
+    NotifierAccess*	getManipulationNotifier();
 
-    void            getMousePosInfo(const visBase::EventInfo&,
-                            Coord3&,
-                        BufferString& val,
-                        BufferString& info) const;
-
-    void            allowShading(bool yn ) { allowshading_ = yn; }
-
-    SoNode*            getInventorNode();
-
-    virtual void        fillPar(IOPar&,TypeSet<int>&) const;
-    virtual int            usePar( const IOPar&);
+    static int		cInLine()	{ return 2; }
+    static int		cCrossLine()	{ return 1; }
+    static int		cTimeSlice()	{ return 0; }
    
+
+    // new methods for texture channel-based display
+    void		clearTextures();
+    
+    void		setChannel2VolData(visBase::TextureChannel2VolData*);
+    visBase::TextureChannel2VolData*	getChannel2VolData();
+
+	SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
+
+    
 protected:
-                ~MPEDisplay();
-    CubeSampling        getBoxPosition() const;
+    
+    // common methods (to both texture-based and volume-based display)
+    			~MPEDisplay();
+    CubeSampling	getBoxPosition() const;
+    void		setPlanePosition(const CubeSampling&);
+	
+    void		setSceneEventCatcher(visBase::EventCatcher*);
+	
+			//Callback from boxdragger
+    void		boxDraggerFinishCB(CallBacker*);
 
-    void            setPlanePosition(const CubeSampling&);
+			//Callbacks from MPE
+    void		updateDraggerPosition(CallBacker*);
+    void		updateBoxPosition(CallBacker*);
 
-    void            setTexture(visBase::Texture3*);
-    void            updateTextureCoords();
-    void            updateSliceCoords();
+
+    // methods for texture-based display
+    void		setTexture(visBase::Texture3*);
+    void		updateTextureCoords();
+    
+    void		setDraggerCenter(bool alldims);
+    void		setDragger(visBase::DepthTabPlaneDragger*);
+
+			//Callbacks from rectangle
+    void		rectangleMovedCB(CallBacker*);
+    void		rectangleStartCB(CallBacker*);
+    void		rectangleStopCB(CallBacker*);
+
+
+    // methods for volume-based display
+    CubeSampling	getCubeSampling(bool manippos,bool display,
+		    		int attrib) const;
+	void		updateFromData(const Array3D<float>* arr,bool arrayismine,TaskRunner*);
+
+    
+    const MouseCursor*	getMouseCursor() const	{ return &mousecursor_; }
+
+    void		triggerSel();
+    void		triggerDeSel();
+
+    bool		pickable() const	{ return true; }
+    bool		rightClickable() const	{ return false; }
+    bool		selectable() const	{ return false; }  // check!
+    bool		isSelected() const;
    
-    void            setDraggerCenter(bool alldims);
-    void            setDragger(visBase::DepthTabPlaneDragger*);
-
-    void            setSceneEventCatcher(visBase::EventCatcher*);
-
-    CubeSampling        getCubeSampling(bool manippos,bool display,
-                                int attrib) const;
-
-    bool            pickable() const { return true; }
-    bool            rightClickable() const { return false; }
-    bool            selectable() const { return false; }  // check
-    bool            isSelected() const;
+    void		turnOnSlice(bool);
+    void		updateRanges(bool updateic,bool updatez);
    
-    void            turnOnSlice(bool);
+			// Callbacks from user
+    void		mouseClickCB(CallBacker*);
+    void		updateMouseCursorCB(CallBacker*);
 
-    const MouseCursor*        getMouseCursor() const { return &mousecursor_; }
+    			// Other callbacks
+    void		dataTransformCB(CallBacker*);
+    void		sliceMoving(CallBacker*);
+    
 
-    void            triggerSel() { updateMouseCursorCB( 0 ); }
-    void            triggerDeSel() { updateMouseCursorCB( 0 ); }
+    // new methods for texture channel-based display
+               
 
-                //Callbacks from boxdragger
-    void            boxDraggerFinishCB(CallBacker*);
+    // --------------
+    // common data    
+    MPE::Engine&		engine_;
+    visBase::BoxDragger*	boxdragger_;
+    visBase::EventCatcher*	sceneeventcatcher_;    
+    Notifier<MPEDisplay>	movement;    
+    Attrib::SelSpec&		as_;
+    bool			manipulated_;
+    int				lasteventnr_;
 
-                    //Callbacks from rectangle
-    void            rectangleMovedCB(CallBacker*);
-    void            rectangleStartCB(CallBacker*);
-    void            rectangleStopCB(CallBacker*);
-
-                    //Callbacks from user
-    void            mouseClickCB(CallBacker*);
-    void            updateMouseCursorCB(CallBacker*);
+    
+    // data for texture-based display
+    visBase::DataObjectGroup*	draggerrect_;
+    visBase::FaceSet*		rectangle_;
+    visBase::DepthTabPlaneDragger*	dragger_;    
+    visBase::Texture3*		texture_;
+    Attrib::SelSpec&		curtextureas_;
+    CubeSampling		curtexturecs_;
+    
+    
+    // data for volume-based display
+    visBase::Transformation*	voltrans_;
+    ObjectSet<visBase::OrthogonalSlice>	slices_;
+    MouseCursor			mousecursor_;
+    Notifier<MPEDisplay>	slicemoving;
+    DataPack::ID		cacheid_;
+    const Attrib::DataCubes*	cache_;
+    BufferString		sliceposition_;
+    BufferString		slicename_;
+    CubeSampling		csfromsession_;
+    bool			isinited_;
+    bool			allowshading_;
+    int				dim_;
+    ZAxisTransform*		datatransform_;
+    ZAxisTransformer*		datatransformer_;
    
-                    //Callbacks from MPE
-    void            updateDraggerPosition(CallBacker*);
-    void            updateBoxPosition(CallBacker*);
 
-    void                        sliceMoving(CallBacker*);
-    void                        dataTransformCB(CallBacker*);
-    void                        updateRanges(bool updateic,bool updatez);
-   
-    MPE::Engine&        engine_;
+    // data for new texture channel-based display
+    visBase::TextureChannels*	channels_;
+    
 
-    visBase::DataObjectGroup*    draggerrect_;
-    visBase::FaceSet*        rectangle_;
-    visBase::DepthTabPlaneDragger* dragger_;
-    visBase::BoxDragger*    boxdragger_;
+    // --------------
+    // common keys
+    static const char*		sKeyTransparency() { return "Transparency"; }
+    static const char*		sKeyBoxShown()     { return "Box Shown"; }
+    static const Color		reTrackColor;
+    static const Color		eraseColor;
+    static const Color		movingColor;
+    static const Color		extendColor;
 
-    visBase::Texture3*        texture_;
-    visBase::VolumeRenderScalarField*    scalarfield_;
-    visBase::Transformation*        voltrans_;
-    ObjectSet<visBase::OrthogonalSlice>    slices_;
 
-    visBase::EventCatcher*    sceneeventcatcher_;
-    MouseCursor            mousecursor_;
+    // texture-related keys
+    static const char*		sKeyTexture()      { return "Texture"; }
+	
 
-    Notifier<MPEDisplay>    movement;
-    Notifier<MPEDisplay>        slicemoving;
+    // volume-related keys
+    static const char*		sKeyNrSlices()	{ return "Nr of slices"; }
+    static const char*		sKeySlice()	{ return "SliceID"; }
+    static const char*		sKeyInline()	{ return "Inline"; }
+    static const char*		sKeyCrossLine()	{ return "Crossline"; }
+    static const char*		sKeyTime()	{ return "Time"; }
 
-    Attrib::SelSpec&        as_;
-    bool            manipulated_;
 
-    Attrib::SelSpec&        curtextureas_;
-    CubeSampling        curtexturecs_;
-   
-    DataPack::ID                cacheid_;
-    const Attrib::DataCubes*    cache_;
-    BufferString                sliceposition_;
-    BufferString                slicename_;
-    CubeSampling                csfromsession_;
-    int                dim_;
+    // new texture channel-related keys    
+    static const char*		sKeyTC2VolData()	{ return "TC2VolData"; }
 
-    ZAxisTransform*             datatransform_;
-    ZAxisTransformer*           datatransformer_;
-   
-    bool            allowshading_;
-    visBase::EventCatcher*    eventcatcher_;
-
-    bool            isinited_;
-
-    int                lasteventnr_;
-
-    static const char*        sKeyTransperancy() { return "Transparency"; }
-    static const char*        sKeyTexture()      { return "Texture"; }
-    static const char*        sKeyNrSlices() { return "Nr of slices"; }
-    static const char*        sKeySlice() { return "SliceID"; }
-    static const char*        sKeyBoxShown()     { return "Box Shown"; }
-    static const char*        sKeyInline()        { return "Inline"; }
-    static const char*        sKeyCrossLine()    { return "Crossline"; }
-    static const char*        sKeyTime()        { return "Time"; }
-
-    static const Color        reTrackColor;
-    static const Color        eraseColor;
-    static const Color        movingColor;
-    static const Color        extendColor;
 };
 
 }; // namespace visSurvey
 
-
 #endif
+
