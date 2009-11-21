@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.1 2009-11-10 07:58:34 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.2 2009-11-21 22:20:07 cvskarthika Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -121,7 +121,7 @@ const ColTab::Sequence* TextureChannel2VolData::getSequence( int channel ) const
 }
 
 
-void TextureChannel2VolData::setEnabled( bool yn )
+void TextureChannel2VolData::setEnabled( int ch, bool yn )
 {
     if ( !voldata_ ) return;
     if ( !yn )
@@ -133,7 +133,7 @@ void TextureChannel2VolData::setEnabled( bool yn )
 }
 
 
-bool TextureChannel2VolData::isEnabled() const
+bool TextureChannel2VolData::isEnabled( int ch ) const
 {
     if ( !voldata_ )
 	return false;

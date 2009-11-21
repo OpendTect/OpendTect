@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Karthika
  Date:		Nov 2009
- RCS:		$Id: vistexturechannel2voldata.h,v 1.1 2009-11-10 08:01:50 cvskarthika Exp $
+ RCS:		$Id: vistexturechannel2voldata.h,v 1.2 2009-11-21 22:20:07 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -37,8 +37,8 @@ public:
     void		setSequence(int channel,const ColTab::Sequence&);
     const ColTab::Sequence* getSequence(int channel) const;
 
-    void		setEnabled(bool yn);
-    bool		isEnabled() const;
+    void		setEnabled(int ch, bool yn);
+    bool		isEnabled(int ch) const;
 
     void		setVolumeSize(const Interval<float>& x, const
 	    			Interval<float>& y, const Interval<float>& z);
