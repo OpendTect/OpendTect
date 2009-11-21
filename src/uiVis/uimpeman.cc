@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.190 2009-11-17 02:07:53 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.191 2009-11-21 22:23:45 cvskarthika Exp $";
 
 #include "uimpeman.h"
 
@@ -59,7 +59,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.190 2009-11-17 02:07:53 cvskart
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-#define USE_TEXTURE 
+//#define USE_TEXTURE 
 
 using namespace MPE;
 
@@ -556,9 +556,12 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 
     visSurvey::MPEDisplay* mpedisplay = visSurvey::MPEDisplay::create();
 
-    visserv->addObject( mpedisplay, scene->id(), false );
+    visserv->addObject( mpedisplay, scene->id(), false ); // false or true?
     mpedisplay->setDraggerTransparency( 0 ); // to do: check 0
     mpedisplay->showDragger( toolbar->isOn(moveplaneidx) );
+#ifndef USE_TEXTURE
+	mpedisplay->addAttrib();
+#endif
 
     mpedisplay->boxDraggerStatusChange.notify(
 	    mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
@@ -1350,6 +1353,7 @@ void uiMPEMan::attribSel( CallBacker* )
 		displays[idy]->updateTexture();
 #else
 		displays[idy]->updateSlice();
+		visserv->calculateAttrib( displays[idy]->id(), 0, false );
 #endif
 	}
     }
@@ -1371,6 +1375,7 @@ void uiMPEMan::attribSel( CallBacker* )
 		    displays[idy]->updateTexture();
 #else
 		    displays[idy]->updateSlice();
+		visserv->calculateAttrib( displays[idy]->id(), 0, false );
 #endif
 	    }
 	    break;
