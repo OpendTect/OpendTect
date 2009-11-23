@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.14 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.15 2009-11-23 15:59:22 cvsbruno Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -29,6 +29,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     , freqdomain_(0)
     , freqdomainsum_(0)
     , fft_(0)
+    , specvals_(0)	     
 {
     uiFunctionDisplay::Setup su;
     su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true);
@@ -45,6 +46,7 @@ uiAmplSpectrum::~uiAmplSpectrum()
     delete timedomain_;
     delete freqdomain_;
     delete freqdomainsum_;
+    delete specvals_;
 }
 
 
@@ -150,13 +152,27 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 void uiAmplSpectrum::putDispData() 
 {
     const int fftsz = freqdomainsum_->info().getSize(0) / 2;
-    TypeSet<float> vals( fftsz, 0 );
+    delete specvals_;
+    specvals_ = new Array1DImpl<float>( fftsz );
     for ( int idx=0; idx<fftsz; idx++ )
-	vals[idx] = 20 * Math::Log10( abs(freqdomainsum_->get(idx)) / nrtrcs_ );
+	specvals_->set( idx, 20*Math::Log10( 
+		    		abs(freqdomainsum_->get(idx))/nrtrcs_) );
 
     float maxfreq = fft_->getNyqvist( SI().zStep() );
     if ( SI().zIsTime() )
 	maxfreq = mNINT( maxfreq );
-    disp_->setVals( Interval<float>(0,maxfreq), vals.arr(), fftsz );
+    posrange_.set( 0, maxfreq );
+    disp_->setVals( posrange_, specvals_->arr(), fftsz );
     disp_->draw();
 }
+
+
+void uiAmplSpectrum::getSpectrumData( Array1DImpl<float>& data )
+{
+    if ( !specvals_ ) return;
+    const int datasz = specvals_->info().getSize(0);
+    data.setSize( datasz );
+    for ( int idx=0; idx<datasz; idx++ )
+	data.set( idx, specvals_->get(idx) );
+}
+

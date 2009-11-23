@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.6 2009-07-22 16:01:23 cvsbert Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.7 2009-11-23 15:59:22 cvsbruno Exp $
 ______________________________________________________________________
                        
 */   
@@ -35,6 +35,9 @@ public:
     void			setData(const Array2D<float>&);
     void			setData(const Array3D<float>&);
 
+    void			getSpectrumData(Array1DImpl<float>&);
+    Interval<float>		getPosRange() const { return posrange_; }
+
 protected:
 
     uiFunctionDisplay*		disp_;
@@ -46,6 +49,9 @@ protected:
     Array1DImpl<float_complex>* timedomain_;
     Array1DImpl<float_complex>* freqdomain_;
     Array1DImpl<float_complex>* freqdomainsum_;
+    Array1DImpl<float>* 	specvals_;
+
+    Interval<float>		posrange_;
 
     FFT*			fft_;
     int				nrtrcs_;

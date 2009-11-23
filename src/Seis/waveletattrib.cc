@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.4 2009-11-19 15:00:17 cvsbruno Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.5 2009-11-23 15:59:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb )
 } 
 
 
-void WaveletAttrib::getPhase( Array1DImpl<float>& phase )
+void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree )
 {
     Array1DImpl<float> hilb( wvltsz_ );
     getHilbert( hilb );
@@ -60,8 +60,8 @@ void WaveletAttrib::getPhase( Array1DImpl<float>& phase )
     {
 	float ph = 0;
 	if ( !mIsZero(wvltarr_->get(idx),mDefEps)  )
-		ph = atan2( hilb.get(idx), wvltarr_->get(idx) );
-	phase.set( idx, ph );
+	    ph = atan2( hilb.get(idx), wvltarr_->get(idx) );
+	phase.set( idx, degree ? 180*ph/M_PI : ph );
     }
 }
 
@@ -75,11 +75,11 @@ void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
 	cvals.set( idx, vals.get(idx) );
 
     mDoTransform( fft_, true, cvals, tmparr, arraysz );
-    tmparr.set(0, 0 );
+    tmparr.set( 0, 0 );
     mDoTransform( fft_, false, tmparr, cvals,  arraysz );
 
     for ( int idx=0; idx<arraysz; idx++ )
-	vals.set( idx, cvals.get(idx).real() );
+	vals.set( idx, cvals.get( idx ).real() );
 }
 
 
@@ -117,5 +117,5 @@ void WaveletAttrib::getWvltFromFrequency( const Array1DImpl<float>& freqdata,
     mDoTransform( fft_, false, cfreqarr, ctimearr, timesz );
 
     for ( int idx=0; idx<freqsz; idx++ )
-	timedata.set( idx, abs( ctimearr.get(idx) ) );
+	timedata.set( idx, ctimearr.get(idx).real() );
 } 

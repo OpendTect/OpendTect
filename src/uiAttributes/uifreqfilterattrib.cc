@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.32 2009-11-19 15:00:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.33 2009-11-23 15:59:22 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.32 2009-11-19 15:00:1
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "uiwindowfunctionsel.h"
+#include "uifreqtaper.h"
 
 using namespace Attrib;
 
@@ -77,6 +78,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    su.label_ = "Taper"; 
 	    su.onlytaper_ = true;
 	    su.inpfldtxt_ = minmaxtxt;
+	    su.seisnm_ = inpfld->getAttrName(); 
 	    winflds += new uiFreqTaperSel( this, su );
 	}
 	else

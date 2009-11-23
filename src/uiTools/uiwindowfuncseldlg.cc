@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.39 2009-11-19 15:00:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.40 2009-11-23 15:59:22 cvsbruno Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
+#include "uiamplspectrum.h"
 #include "uiaxishandler.h"
 #include "uicanvas.h"
 #include "uigeninput.h"
@@ -20,6 +21,7 @@ static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.39 2009-11-19 15:00:1
 #include "uigraphicsitemimpl.h"
 #include "uigroup.h"
 #include "uilistbox.h"
+#include "uiseparator.h"
 #include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
@@ -272,7 +274,6 @@ const char* uiFuncSelDraw::getCurrentListName() const
 
 
 
-const char* tapertxt_[] = { "Taper Length (%)", "Slope (dB/Octave)", 0 };
 uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname, 
 					float variable )
     : uiDialog( p, uiDialog::Setup("Window/Taper display",0,mNoHelpID) )
@@ -292,8 +293,9 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
     }
 
     funcdrawer_->funclistselChged.notify(mCB(this,uiWindowFuncSelDlg,funcSelChg));
-
-    varinpfld_ = new uiGenInput( this, tapertxt_[0], FloatInpSpec() );
+    
+    BufferString tapertxt( "Taper Length (%)" );
+    varinpfld_ = new uiGenInput( this, tapertxt, FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, funcdrawer_ );
     varinpfld_->setValue( variable_ * 100 );
     varinpfld_->valuechanged.notify( mCB(this,uiWindowFuncSelDlg,funcSelChg) );
@@ -378,7 +380,7 @@ const char* uiWindowFuncSelDlg::getCurrentWindowName() const
 }
 
 
-
+/*
 static const char* winname = "CosTaper";
 #define mGetData() isminactive_ ? dd1_ : dd2_; 
 #define mCheckLimitRanges()\
@@ -415,6 +417,8 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     su.noygridline_ = true;
 
     drawer_ = new uiFuncTaperDisp( this, su );
+
+    seisid_ = s.seisid_;
     
     varinpfld_ = new uiGenInput( this, tapertxt_[1], FloatInpSpec() );
     varinpfld_->attach( leftAlignedBelow, drawer_ );
@@ -442,9 +446,13 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const Setup& s )
     bool withpreview_ = true; bool is2d = false; bool isinl = true;
     if ( withpreview_ )
     {
+	uiSeparator* sep = new uiSeparator( this, "Seismic2Log Sep" );
+	sep->attach( stretchedBelow, freqinpfld_ ? freqinpfld_ : freqrgfld_  );
+
 	CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
-	previewfld_ = new uiPushButton( this, "&Preview ...", cbview, true);
-	previewfld_->attach( ensureBelow, freqrgfld_ );
+	previewfld_ = new uiPushButton( this, "&Preview spectrum...", cbview, true);
+	previewfld_->attach( ensureBelow, sep );
+	previewfld_->attach( centeredBelow, drawer_ );
 
 	ZDomain::Info info;
 	uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
@@ -537,6 +545,7 @@ void uiFreqTaperDlg::setPercentsFromFreq()
     dd1_.variable_ = hasmin_ ? dd1_.freqrg_.start / dd1_.freqrg_.stop : 0;
     dd2_.variable_ = hasmax_ ? ( dd2_.freqrg_.stop - dd2_.freqrg_.start )
 			       / ( datasz_ - dd2_.freqrg_.start ) : 0;
+
     drawer_->setWinVariable( dd1_.variable_, dd2_.variable_ );
 }
 
@@ -601,6 +610,13 @@ Interval<float> uiFreqTaperDlg::getFreqRange() const
 void uiFreqTaperDlg::previewPushed(CallBacker*)
 {
     posdlg_->go();
+
+    uiAmplSpectrum spec( this );
+
+    DataPack dp();
+    DPM(DataPackMgr::FlatID()).add( fddatapack );
+    dp.id_ = seisid_;
+    spec.setData(   );
 }
 
 
@@ -612,14 +628,14 @@ uiFuncTaperDisp::uiFuncTaperDisp( uiParent* p, const Setup& s )
     , funcvals_(0)
     , orgfuncvals_(0)
 {
-    datasz_ = s.datasz_; 
-    leftd_.rg_ = s.leftrg_;   
-    leftd_.winsz_ = 2*( (int)s.leftrg_.stop );
-    leftd_.window_ = new ArrayNDWindow( 
-			    Array1DInfoImpl(leftd_.winsz_),false,winname,0 );
-
     if ( is2sided_  )
     {
+	datasz_ = s.datasz_; 
+	leftd_.rg_ = s.leftrg_;   
+	leftd_.winsz_ = 2*( (int)s.leftrg_.stop );
+	leftd_.window_ = new ArrayNDWindow( 
+			    Array1DInfoImpl(leftd_.winsz_),false,winname,0 );
+
 	rightd_.rg_ = s.rightrg_;
 	rightd_.winsz_ = 2*( datasz_ - (int)s.rightrg_.start );
 	rightd_.window_ = new ArrayNDWindow( 
@@ -655,16 +671,21 @@ void uiFuncTaperDisp::setFunction( Array1DImpl<float>& data, Interval<float> rg)
 void uiFuncTaperDisp::setWinVariable( float leftvar, float rightvar )
 {
     if ( leftvar == 1 ) leftvar -= 0.01; 
-    if ( rightvar == 0 ) rightvar += 0.01; 
-
-    leftd_.window_->setType( winname, leftvar );
-    leftd_.winvar_ = leftvar;
 
     if ( is2sided_ )
     {
-	rightd_.window_->setType( winname, 1-rightvar );
-	rightd_.winvar_ = 1-rightvar;
+	delete leftd_.window_; leftd_.window_ = 0;
+	if ( leftvar )	
+	    leftd_.window_ = new ArrayNDWindow( Array1DInfoImpl(leftd_.winsz_), 
+						false, winname, leftvar );
+
+	delete rightd_.window_; rightd_.window_ = 0;
+	if ( rightvar )	
+	    rightd_.window_ = new ArrayNDWindow(Array1DInfoImpl(rightd_.winsz_),
+						false, winname, 1-rightvar );
     }
+    else
+	window_->setType( winname, leftvar );
 
     taperChged(0);
 }
@@ -677,17 +698,16 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
     {
 	for ( int idx=0; idx<datasz_; idx++ )
 	{
-	    float val = 1;
-	    if ( idx < (int)leftd_.rg_.stop )
-		val = 1-leftd_.window_->getValues()[leftd_.winsz_/2+idx];
+	    float val = 0;
+	    if ( leftd_.window_ && idx < (int)leftd_.rg_.stop )
+		val = leftd_.window_->getValues()[leftd_.winsz_/2+idx];
 
-	    if ( idx > (int)rightd_.rg_.start ) 
-		val= 1-rightd_.window_->getValues()[idx-(int)rightd_.rg_.start];
+	    if ( rightd_.window_ && idx > (int)rightd_.rg_.start ) 
+		val= rightd_.window_->getValues()[idx-(int)rightd_.rg_.start];
 	    xvals += idx; 
+	    window_->setValue( idx, 1-val );
 	}
     }
-    else
-	window_->setType( winname, leftd_.winvar_ );
 
     if ( funcvals_ )
     {
@@ -698,3 +718,4 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
     else
 	setVals( xvals.arr(), window_->getValues(), datasz_ );
 }
+*/

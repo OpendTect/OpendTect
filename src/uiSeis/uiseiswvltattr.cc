@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.14 2009-11-19 15:00:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.15 2009-11-23 15:59:22 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.14 2009-11-19 15:00:17 cv
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uiwindowfuncseldlg.h"
+#include "uifreqtaper.h"
 #include "uislider.h"
 
 #include "arrayndimpl.h"
@@ -66,7 +66,7 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet& wvlt )
 {
     setCaption( "Phase rotation Slider" );
     uiSliderExtra::Setup su; 
-    su.lbl_ = "Rotate phase";
+    su.lbl_ = "Rotate phase (degrees)";
     su.isvertical_ = true;
     su.sldrsize_ = 250;
     su.withedit_ = true;
@@ -100,9 +100,9 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     , isfreqtaper_(true)  
     , timedrawer_(0)	 
     , freqdrawer_(0)	 
-    , freqvals_(0)
-    , spectrum_(0) 	  
     , wvltsz_(wvlt.size())
+    , freqvals_(new Array1DImpl<float>(wvltsz_*mPaddFac/2))
+    , spectrum_(new Array1DImpl<float>(wvltsz_*mPaddFac))
 {
     setCaption( "Taper Wavelet" );
     uiSliderExtra::Setup su; 
@@ -130,7 +130,6 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     typefld_ = new uiGenInput( this, "Taper",
 				    BoolInpSpec(true,"Time","Frequency") ); 
     typefld_->valuechanged.notify( mCB( this, uiSeisWvltTaperDlg, act ) );
-
     typefld_->attach( centeredAbove, properties_ );
     
     timedrawer_->setFunction( *wvltvals_, properties_->getTimeRange() );
@@ -157,9 +156,7 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
     uiFuncTaperDisp* drawer = isfreqtaper_ ? freqdrawer_ : timedrawer_;
 
     float var = sliderfld_->sldr()->getValue();
-    var = 1-var/100;
-
-    drawer->setWinVariable( var );
+    drawer->setWindows( 1-var/100 );
 
     if ( mutefld_->isChecked() ) wvltattr_->muteZeroFrequency( *wvltvals_ );
 
@@ -199,19 +196,13 @@ void uiSeisWvltTaperDlg::setFreqData()
 {
     WaveletAttrib wvltattr ( *wvlt_);
 
-    delete freqvals_; freqvals_ = 0;
-    delete spectrum_; spectrum_ = 0;
-
-    freqvals_ = new Array1DImpl<float> ( wvltsz_*mPaddFac/2 );
-    spectrum_ = new Array1DImpl<float> ( wvltsz_*mPaddFac );
-
     wvltattr.getFrequency( *spectrum_, mPaddFac );
-
-    for ( int idx=0; idx<wvltsz_/2; idx++ )
+    for ( int idx=0; idx<wvltsz_*mPaddFac/2; idx++ )
 	freqvals_->set( idx, spectrum_->get(idx) );
 
     freqdrawer_->setVals( properties_->getFreqRange(), 
-	    		  freqvals_->getData(), mPaddFac*wvlt_->size()/2 );
+	    		  freqvals_->getData(), 
+			  mPaddFac*wvlt_->size()/2 );
 }
 
 
@@ -296,7 +287,7 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 
     wvltattr.getFrequency( *attrarrays_[1], mPaddFac );
     if ( attrnms_[2] )
-	wvltattr.getPhase( *attrarrays_[2] );
+	wvltattr.getPhase( *attrarrays_[2], true );
 
     for ( int idx=0; idx<attrarrays_.size(); idx++ )
 	attrdisps_[idx]->setFunction( *attrarrays_[idx], 

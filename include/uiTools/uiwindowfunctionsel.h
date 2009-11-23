@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.11 2009-11-19 15:00:17 cvsbruno Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.12 2009-11-23 15:59:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 			    : onlytaper_(false)		      	
 			    , ismaxfreq_(false)		
 			    , isminfreq_(false)	
-			    , seisid_(0)			
+			    , seisnm_(0)			
 			    , winparam_(mUdf(float))  
 			    {}
 
@@ -44,7 +44,7 @@ public:
 	mDefSetupMemb(bool,ismaxfreq)
 	mDefSetupMemb(bool,isminfreq)
 	mDefSetupMemb(bool,onlytaper)
-	mDefSetupMemb(MultiID,seisid)
+	mDefSetupMemb(const char*,seisnm)
     };
 
     				uiWindowFunctionSel(uiParent*,const Setup&);
@@ -77,31 +77,7 @@ protected:
     uiPushButton*		viewbut_;
     uiWindowFuncSelDlg*		winfuncseldlg_;
     ObjectSet<WindowFunction>	windowfuncs_;
-};
 
-
-mClass uiFreqTaperSel : public uiWindowFunctionSel
-{
-public:
-    				uiFreqTaperSel(uiParent*,const Setup&);
-
-    void 			setIsMinMaxFreq(bool,bool);
-    void 			setInputFreqValue(float,int);
-    Interval<float> 		freqValues() const;
-    void 			setRefFreqs(Interval<float>); 
-
-protected :
-
-    Interval<float> 		freqrg_;
-    Interval<float> 		selfreqrg_;
-    bool			isminfreq_;
-    bool			ismaxfreq_;
-    uiFreqTaperDlg*		freqtaperdlg_;
-    MultiID			seisid_;
-
-    void			winfuncseldlgCB(CallBacker*);
-    void			windowClosed(CallBacker*);
-    void			setSelFreqs(CallBacker*);
 };
 
 

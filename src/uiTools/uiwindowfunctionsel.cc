@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.22 2009-11-19 15:00:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.23 2009-11-23 15:59:22 cvsbruno Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -166,74 +166,5 @@ void uiWindowFunctionSel::windowChangedCB( CallBacker* )
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
     varinpfld_->display( winidx == taperidx_ );
     viewbut_->display( !onlytaper_ || winidx == taperidx_  );
-}
-
-
-uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& su )
-    : uiWindowFunctionSel( p, su )
-    , isminfreq_(su.isminfreq_)
-    , ismaxfreq_(su.ismaxfreq_)
-    , freqtaperdlg_(0)
-    , seisid_(su.seisid_)     
-{
-}
-
-
-void uiFreqTaperSel::winfuncseldlgCB( CallBacker* )
-{
-    setSelFreqs(0);
-    uiFreqTaperDlg::Setup su; 		
-    su.hasmin_ = isminfreq_; 		su.hasmax_ = ismaxfreq_;
-    su.minfreqrg_.set( selfreqrg_.start,  freqrg_.start );
-    su.maxfreqrg_.set( freqrg_.stop, selfreqrg_.stop );
-    su.seisid_ = seisid_;
-
-    delete freqtaperdlg_;
-    freqtaperdlg_ = new uiFreqTaperDlg( this, su );
-    freqtaperdlg_->windowClosed.notify( mCB(this,uiFreqTaperSel,windowClosed));
-    freqtaperdlg_->show();
-}
-
-
-void uiFreqTaperSel::windowClosed( CallBacker* )
-{
-    const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    if ( !windowfuncs_.validIdx(winidx) && !onlytaper_ ) return;
-
-    varinpfld_->setValue( freqtaperdlg_->getFreqRange() );
-    windowChangedCB(0);
-}
-
-
-void uiFreqTaperSel::setIsMinMaxFreq(bool min, bool max)
-{ 
-    isminfreq_ = min; ismaxfreq_ = max; 
-    varinpfld_->setSensitive( min, 0, 0 );
-    varinpfld_->setSensitive( max, 0 ,1 );
-}
-
-
-Interval<float> uiFreqTaperSel::freqValues() const
-{ 
-    return varinpfld_->getFInterval();
-}
-
-
-void uiFreqTaperSel::setInputFreqValue( float val, int fldnr )
-{
-    varinpfld_->setValue( val, fldnr );
-    windowChangedCB(0);
-}
-
-
-void uiFreqTaperSel::setRefFreqs( Interval<float> fint )
-{
-    freqrg_ = fint;
-}
-
-
-void uiFreqTaperSel::setSelFreqs( CallBacker* )
-{
-    selfreqrg_.set( freqValues().start, freqValues().stop );
 }
 
