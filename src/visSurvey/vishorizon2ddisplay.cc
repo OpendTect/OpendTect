@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.30 2009-11-18 15:02:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.31 2009-11-23 04:48:46 cvsumesh Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -201,7 +201,8 @@ class Horizon2DDisplayUpdater : public ParallelTask
 public:
 Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 		const Horizon2DDisplay::LineRanges* lr,
-		visBase::IndexedShape* shape, visBase::PointSet* points )
+		visBase::IndexedShape* shape, visBase::PointSet* points,
+       		ZAxisTransform*& zaxt )
     : surf_( rcs )
     , lines_( shape )
     , points_( points )
@@ -209,6 +210,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , lineci_( 0 )
     , linecii_( 0 )
     , scale_( 1, 1, SI().zScale() )
+    , zaxt_( zaxt )
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
     eps_ = mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
@@ -262,7 +264,13 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
-	    const Coord3 pos = surf_->getKnot( rc );
+	    Coord3 pos = surf_->getKnot( rc );
+
+	    if ( zaxt_ )
+	    {
+		const BinIDValue bidval( rc.r(), rc.c(), pos.z );
+		pos.z = zaxt_->transform( bidval );
+	    }
 
 	    // Skip if survey coordinates not available
 	    if ( !Coord(pos).isDefined() )
@@ -335,6 +343,7 @@ protected:
     const Horizon2DDisplay::LineRanges*	lineranges_;
     visBase::IndexedShape*		lines_;
     visBase::PointSet*			points_;
+    ZAxisTransform*			zaxt_;
     Threads::Mutex			lock_;
     int					nrthreads_;
 
@@ -367,7 +376,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	addChild( ps->getInventorNode() );
     }
 
-    Horizon2DDisplayUpdater updater( rcs, lineranges, pl, ps );
+    Horizon2DDisplayUpdater updater( rcs, lineranges, pl, ps, zaxistransform_ );
     updater.execute();
 }
 
@@ -431,6 +440,8 @@ void Horizon2DDisplay::updateLinesOnSections(
     
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
 	updateSection( sidx, &linergs );
+
+    linergs_ = linergs;
 }
 
 
@@ -517,6 +528,7 @@ bool Horizon2DDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 	zaxistransform_->ref();
 	if ( zaxistransform_->changeNotifier() )
 	    zaxistransform_->changeNotifier()->notify( cb );
+	zAxisTransformChg( 0 );
     }
 
     return true;
@@ -530,6 +542,8 @@ const ZAxisTransform* Horizon2DDisplay::getDataTransform() const
 void Horizon2DDisplay::zAxisTransformChg( CallBacker* )
 {
     // TODO: implement
+    for ( int sidx=0; sidx<sids_.size(); sidx++ )
+	updateSection( sidx, &linergs_ );
 }
 
 

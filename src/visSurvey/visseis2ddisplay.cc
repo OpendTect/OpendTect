@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.80 2009-10-12 04:01:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.81 2009-11-23 04:48:46 cvsumesh Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -430,6 +430,7 @@ void Seis2DDisplay::setData( int attrib,
 	    mTryAlloc( tmparr, Array2DImpl<float>( cs.nrCrl(), cs.nrZ() ) );
 	    usedarr = tmparr;
 	    const int inl = datatransform_->lineIndex( getLineName() );
+	    const float firstz = data2dh.dataset_[0]->z0_ * sd.step;
 	    for ( int crlidx=0; crlidx<cs.nrCrl() && inl>=0; crlidx++ )
 	    {
 		BinID bid = cs.hrg.atIndex( 0, crlidx );
@@ -438,7 +439,8 @@ void Seis2DDisplay::setData( int attrib,
 		outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
 
 		const float* inputptr = arr->getData() +
-					arr->info().getOffset( crlidx, 0 );
+					arr->info().getOffset( crlidx,
+						sd.nearestIndex(firstz) );
 		const float z0 = data2dh.dataset_[0]->z0_ * sd.step;
 		SampledFunctionImpl<float,const float*>
 		    inputfunc( inputptr, arrzsz, z0, sd.step );
