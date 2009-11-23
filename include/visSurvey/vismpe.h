@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.54 2009-11-21 22:22:31 cvskarthika Exp $
+RCS:        $Id: vismpe.h,v 1.55 2009-11-23 07:56:25 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -17,14 +17,12 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "visobject.h"
 #include "cubesampling.h"
+#include "attribdatapack.h"
 
-namespace Attrib { class SelSpec; class DataCubes; }
+namespace Attrib { class SelSpec; class CubeDataPack; }
 template <class T> class Array3D;
 template <class T> class Selector;
 class ZAxisTransform;
-class ZAxisTransformer;
-
-class SoSeparator;
 
 namespace visBase
 {
@@ -139,7 +137,7 @@ public:
     bool			setDataTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getDataTransform() const;
    
-    bool		setDataVolume(int attrib, const Attrib::DataCubes*, 
+	bool		setDataVolume(int attrib, const Attrib::CubeDataPack* cdp,  
 		    		TaskRunner*);
     void		setCubeSampling(const CubeSampling&);
     
@@ -232,7 +230,9 @@ protected:
     
 
     // new methods for texture channel-based display
-               
+	void		updateFromDataPackID(int attrib, const DataPack::ID newdpid,
+									   TaskRunner* tr);
+    void		updateFromCacheID(int attrib, TaskRunner* tr);           
 
     // --------------
     // common data    
@@ -260,7 +260,7 @@ protected:
     MouseCursor			mousecursor_;
     Notifier<MPEDisplay>	slicemoving;
     DataPack::ID		cacheid_;
-    const Attrib::DataCubes*	cache_;
+	const Attrib::CubeDataPack* volumecache_;
     BufferString		sliceposition_;
     BufferString		slicename_;
     CubeSampling		csfromsession_;
@@ -268,7 +268,6 @@ protected:
     bool			allowshading_;
     int				dim_;
     ZAxisTransform*		datatransform_;
-    ZAxisTransformer*		datatransformer_;
    
 
     // data for new texture channel-based display
