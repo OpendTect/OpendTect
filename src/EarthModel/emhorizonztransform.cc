@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.11 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.12 2009-11-23 04:55:51 cvsumesh Exp $";
 
 #include "emhorizonztransform.h"
 
@@ -32,6 +32,7 @@ void HorizonZTransform::initClass()
 HorizonZTransform::HorizonZTransform( const Horizon* hor )
     : horizon_( 0 )
     , horchanged_( false )
+    , change_( this )
 {
     if ( hor )
 	setHorizon( *hor );

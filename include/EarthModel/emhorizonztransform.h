@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.12 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.13 2009-11-23 04:55:11 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,7 @@ public:
     int			lineIndex(const char* lnm) const;
     const char*		getZDomainID() const;
     const char*		getToZDomainString() const;
+    NotifierAccess*	changeNotifier()		{ return &change_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -63,6 +64,7 @@ protected:
     const Horizon*	horizon_;
     Interval<float>	depthrange_;
     bool		horchanged_;
+    Notifier<HorizonZTransform> change_;
 };
 
 
