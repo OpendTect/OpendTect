@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.18 2009-11-09 23:15:09 cvsyuancheng Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.19 2009-11-23 04:52:41 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -84,6 +84,7 @@ protected:
     ObjectSet<visBase::IndexedPolyLine3D>	lines_;
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
+    LineRanges					linergs_;
 };
 
 
