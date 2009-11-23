@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.41 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.42 2009-11-23 14:01:18 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -497,10 +497,7 @@ SeisCBVSPS3DWriter::~SeisCBVSPS3DWriter()
 
 void SeisCBVSPS3DWriter::close()
 {
-    if ( !mIsUdf(prevbid_.inl) )
-	mRemoveCache( posdataFileName(dirnm_) );
     prevbid_ = BinID( mUdf(int), mUdf(int) );
-
     SeisCBVSPSIO::close();
 }
 
@@ -527,6 +524,8 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 	if ( !newInl(trc) )
 	    return false;
 	nringather_ = 1;
+	if ( mIsUdf(prevbid_.inl) )
+	    mRemoveCache( posdataFileName(dirnm_) );
     }
     else if ( trcbid.crl != prevbid_.crl )
 	nringather_ = 1;
