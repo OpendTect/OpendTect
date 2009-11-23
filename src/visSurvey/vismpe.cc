@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.91 2009-11-23 07:55:23 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.92 2009-11-23 10:56:35 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -45,7 +45,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.91 2009-11-23 07:55:23 cvskarthik
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-#define USE_TEXTURE 
+//#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -1536,6 +1536,7 @@ void MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 		}
 	}
 
+	//if ( mIsUdf( arr[idx] ) )
 	channels_[0].setSize( sz0, sz1, sz2 );
 	channels_[0].setUnMappedData( attrib, 0, arr, cp, tr );
 
