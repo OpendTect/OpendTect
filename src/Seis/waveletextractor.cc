@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.3 2009-11-19 10:21:20 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.4 2009-11-23 04:59:34 cvsnageswara Exp $ 
  ________________________________________________________________________
                    
 -*/   
 
-#include "waveletextract.h"
+#include "waveletextractor.h"
 
 #include "arrayndimpl.h"
 #include "arrayndutils.h"

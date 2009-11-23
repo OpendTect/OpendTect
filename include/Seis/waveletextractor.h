@@ -1,10 +1,12 @@
+#ifndef waveletextractor_h
+#define waveletextractor_h
 /*+
 ________________________________________________________________________
            
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          July 2009
- RCS:           $Id: waveletextractor.h,v 1.3 2009-11-19 10:21:20 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.h,v 1.4 2009-11-23 04:59:34 cvsnageswara Exp $ 
  ________________________________________________________________________
                  
 -*/   
@@ -70,3 +72,5 @@ protected:
     od_int64			totalnr_;
     BufferString		msg_;
 };
+
+#endif

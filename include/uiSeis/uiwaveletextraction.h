@@ -1,10 +1,12 @@
+#ifndef uiwaveletextraction_h
+#define uiwaveletextraction_h
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.11 2009-11-19 10:21:20 cvsnageswara Exp $
+ RCS:		$Id: uiwaveletextraction.h,v 1.12 2009-11-23 04:59:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,3 +65,5 @@ protected:
     int				wvltsize_;
     bool			is2d_;
 };
+
+#endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.12 2009-11-19 10:21:20 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.13 2009-11-23 04:59:34 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -38,7 +38,7 @@ static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.12 2009-11-19 10:21:
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "wavelet.h"
-#include "waveletextract.h"
+#include "waveletextractor.h"
 
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     : uiDialog( this,Setup("Wavelet Extraction","Specify parameters","103.3.4")
