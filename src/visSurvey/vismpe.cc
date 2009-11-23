@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.90 2009-11-21 22:22:31 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.91 2009-11-23 07:55:23 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -45,7 +45,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.90 2009-11-21 22:22:31 cvskarthik
 
 // This must be defined to use a texture to display the tracking plane.
 // In future: Comment it out to use OrthogonalSlice (under construction...).
-//#define USE_TEXTURE 
+#define USE_TEXTURE 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
@@ -63,9 +63,8 @@ MPEDisplay::MPEDisplay()
     , isinited_(0)
     , allowshading_(false)
     , datatransform_(0)
-    , datatransformer_(0)
-    , cache_(0)
     , cacheid_(DataPack::cNoID())
+	, volumecache_(0)
 	, channels_(visBase::TextureChannels::create())
     , voltrans_(visBase::Transformation::create())
     , dim_(2)
@@ -176,7 +175,8 @@ MPEDisplay::~MPEDisplay()
     draggerrect_->unRef();
 #else
     DPM( DataPackMgr::CubeID() ).release( cacheid_ );
-    if ( cache_ ) cache_->unRef();
+	if ( volumecache_ )
+		DPM( DataPackMgr::CubeID() ).release( volumecache_ );
 
     TypeSet<int> children;
     getChildren( children );
@@ -1408,22 +1408,23 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 				   TaskRunner* tr )
 {
 #ifndef USE_TEXTURE
+	// to do: check if needs to be copied from setDisplayDataPackIDs
     if ( attrib>0 ) return false;
 
     DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
-	const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0, tr );
-    if ( !res )
+	if ( !cdp )
     {
 	dpman.release( dpid );
 	return false;
     }
 
-    const DataPack::ID oldid = cacheid_;
-    cacheid_ = dpid;
-
-    dpman.release( oldid );
+    const bool res = setDataVolume( attrib, cdp, tr );
+    
+	if ( volumecache_ )
+		dpman.release( volumecache_ );
+	volumecache_ = cdp;
     return true;
 #else
     return false;
@@ -1431,101 +1432,118 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 }
 
 
-bool MPEDisplay::setDataVolume( int attrib,
-	const Attrib::DataCubes* attrdata, TaskRunner* tr )
+bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp, 
+							   TaskRunner* tr )
 {
-    // to do: check!
 #ifdef USE_TEXTURE
     return false;
 #else
-	if ( attrib || !attrdata )
-	return false;
+	if ( !cdp )
+		return false;
+	
+	DataPack::ID attridpid = cdp->id();
 
-    const Array3D<float>* usedarray = 0;
-    bool arrayismine = true;
-    if ( alreadyTransformed(attrib) || !datatransform_ )
-	usedarray = &attrdata->getCube(0);
-    else
+	//transform data if necessary.
+    const char* zdomain = getSelSpec( attrib )->zDomainKey();
+    const bool alreadytransformed = zdomain && *zdomain;
+	
+    if ( !alreadytransformed && datatransform_ )
     {
-        if ( !datatransformer_ )
-	    mTryAlloc( datatransformer_,ZAxisTransformer(*datatransform_,true));
-
-//      datatransformer_->setInterpolate( !isClassification(attrib) );
-        datatransformer_->setInterpolate( true );
-        datatransformer_->setInput( attrdata->getCube(0),
-	                            attrdata->cubeSampling() );
-        datatransformer_->setOutputRange( getCubeSampling(true,true,0) );
-
-        if ( (tr && tr->execute(*datatransformer_)) ||
-	      !datatransformer_->execute() )
-        {
-	    pErrMsg( "Transform failed" );
-	    return false;
-        }
-
-		usedarray = datatransformer_->getOutput( true );
-        if ( !usedarray )
+		ZAxisTransformer* datatransformer;
+		mTryAlloc( datatransformer,ZAxisTransformer(*datatransform_,true));
+		datatransformer->setInterpolate( !isClassification(attrib) );
+	    //datatransformer->setInterpolate( true );
+		datatransformer->setInput( cdp->cube().getCube(0),	cdp->sampling() );
+		datatransformer->setOutputRange( getCubeSampling(true,true,0) );
+		
+		if ( (tr && tr->execute(*datatransformer)) ||
+             !datatransformer->execute() )
 		{
-	    pErrMsg( "No output from transform" );
+	    pErrMsg( "Transform failed" );
 	    return false;
 		}
 
-		arrayismine = false;
-    }
+		CubeDataPack cdpnew( cdp->categoryStr( false ), 
+			datatransformer->getOutput( true ) );
+		  // check false for categoryStr
+	    DPM( DataPackMgr::CubeID() ).addAndObtain( &cdpnew );
+		attridpid = cdpnew.id();
+	}
 
-    if ( cache_ != attrdata )
-    {
-	if ( cache_ ) 
-		cache_->unRef();
-	cache_ = attrdata;
-	cache_->ref();
-    }
+    updateFromDataPackID( attrib, attridpid, tr );
+	DPM( DataPackMgr::CubeID() ).release( attridpid );
 
-	updateFromData( usedarray, !arrayismine, tr );
-
-    setCubeSampling( getCubeSampling(true,true,0) );  // ???
+//    setCubeSampling( getCubeSampling(true,true,0) );
    
     return true;
 #endif
 }
 
 
-void MPEDisplay::updateFromData( const Array3D<float>* arr, bool arrayismine,
-							 TaskRunner* tr )
+void MPEDisplay::updateFromDataPackID( int attrib, const DataPack::ID newdpid,
+									   TaskRunner* tr )
 {
 #ifndef USE_TEXTURE
-	if ( !arr )
+	DPM(DataPackMgr::CubeID()).release( cacheid_ );
+
+	cacheid_ = newdpid;
+    DPM(DataPackMgr::CubeID()).obtain( cacheid_ );
+
+    updateFromCacheID( attrib, tr );
+#endif
+}
+
+
+void MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
+{
+    //channels_->setNrVersions( attrib, 1 );
+
+    const DataPack* datapack = DPM(DataPackMgr::CubeID()).obtain( cacheid_ );
+	mDynamicCastGet( const Attrib::CubeDataPack*, cdp, datapack );
+	if ( !cdp )
 	{
-		channels_->setUnMappedData( 0, 0, 0, OD::UsePtr, 0 );
-		return;
+	    channels_->turnOn( false );
+	    DPM(DataPackMgr::CubeID()).release( cacheid_ );
+	    return;
 	}
 
-	OD::PtrPolicy cp = arrayismine ? OD::TakeOverPtr : OD::UsePtr;
-    
-	int sz0 = arr->info().getSize(0);
-	int sz1 = arr->info().getSize(1);
-	int sz2 = arr->info().getSize(2);
+	const Array3D<float>* dparr = 
+		&const_cast <Attrib::CubeDataPack*>(cdp)->data();
 
-	/*if ( !arr )
+	const float* arr = dparr->getData();
+	OD::PtrPolicy cp = OD::UsePtr;
+
+	int sz0 = dparr->info().getSize(0);
+	int sz1 = dparr->info().getSize(1);
+	int sz2 = dparr->info().getSize(2);
+
+	if ( !arr )
 	{
-	    const od_int64 totalsz = sz0 * sz1 * sz2;
+	    const od_int64 totalsz = sz0*sz1*sz2;
 	    mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
 
-		if ( tmparr )
-	    {
-		usedarray->getAll( tmparr );
+	    if ( !tmparr )
+		{
+		DPM(DataPackMgr::CubeID()).release( cacheid_ );		
+		return;
+		}
+		else
+		{
+	    dparr->getAll( tmparr );
+	    
 	    arr = tmparr;
 	    cp = OD::TakeOverPtr;
-	    }
-	}*/
-	
-	channels_->setSize( sz0, sz1, sz2 );
-	channels_->setUnMappedData( 0, 0, arr->getData(), cp, 0 );
+		}
+	}
 
-	channels_->turnOn( true );
+	channels_[0].setSize( sz0, sz1, sz2 );
+	channels_[0].setUnMappedData( attrib, 0, arr, cp, tr );
+
+	//rectangle_->setOriginalTextureSize( sz0, sz1 );
+	
+    channels_[0].turnOn( true );
 	for ( int idx=0; idx<slices_.size(); idx++ )
-	slices_[idx]->setVolumeDataSize( sz2, sz1, sz0 );  // check
-#endif
+	slices_[idx]->setVolumeDataSize( sz2, sz1, sz0 ); 
 }
 
 
@@ -1537,7 +1555,7 @@ void MPEDisplay::updateSlice()
 const Attrib::DataCubes* MPEDisplay::getCacheVolume( int attrib ) const
 { 
 #ifndef USE_TEXTURE
-    return attrib ? 0 : cache_; 
+	return ( volumecache_ && !attrib ) ? &volumecache_->cube() : 0;
 #else
     return 0;
 #endif
@@ -1625,9 +1643,9 @@ int MPEDisplay::addSlice( int dim, bool show )
     const CubeSampling cs = getCubeSampling( 0 );
     const Interval<float> defintv(-0.5,0.5);
     slice->setSpaceLimits( defintv, defintv, defintv );
-    if ( cache_ )
+    if ( volumecache_ )
     {
-	const Array3D<float>& arr = cache_->getCube(0);
+	const Array3D<float>& arr = volumecache_->cube().getCube(0);
 	slice->setVolumeDataSize( arr.info().getSize(2),
 		arr.info().getSize(1), arr.info().getSize(0) );
     }
@@ -1674,10 +1692,10 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 float MPEDisplay::getValue( const Coord3& pos_ ) const
 {
 #ifndef USE_TEXTURE
-    if ( !cache_ ) return mUdf(float);
+    if ( !volumecache_ ) return mUdf(float);
     const BinIDValue bidv( SI().transform(pos_), pos_.z );
     float val;
-    if ( !cache_->getValue(0,bidv,&val,false) )
+    if ( !volumecache_->cube().getValue(0,bidv,&val,false) )
         return mUdf(float);
 
     return val;
@@ -1714,8 +1732,10 @@ SoNode* MPEDisplay::getInventorNode()
 
 void MPEDisplay::allowShading( bool yn )
 {
+#ifndef USE_TEXTURE
 	if ( channels_ && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->allowShading( yn );
+#endif
 }
 
 
@@ -1910,8 +1930,6 @@ bool MPEDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
     }
 
     datatransform_ = zat;
-    delete datatransformer_;
-    datatransformer_ = 0;
 
     if ( datatransform_ )
     {
@@ -1943,7 +1961,7 @@ void MPEDisplay::dataTransformCB( CallBacker* )
 {
 #ifndef USE_TEXTURE
     updateRanges( false, true );
-    if ( cache_ ) setDataVolume( 0, cache_, 0 );
+    if ( volumecache_) setDataVolume( 0, volumecache_, 0 );
 #endif
 }
 
