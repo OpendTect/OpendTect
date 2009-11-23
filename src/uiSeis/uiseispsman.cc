@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.15 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.16 2009-11-23 11:54:42 cvsbert Exp $";
 
 
 #include "uiseispsman.h"
@@ -38,10 +38,10 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     {
 	manipgrp->addButton( ioPixmap("copyobj.png"),
 			     mCB(this,uiSeisPreStackMan,copyPush),
-			     "Copy cube" );
+			     "Copy data store" );
 	manipgrp->addButton( ioPixmap("mergeseis.png"),
 			     mCB(this,uiSeisPreStackMan,mergePush),
-			     "Merge cubes" );
+			     "Merge data stores" );
 	manipgrp->addButton( ioPixmap("mkmulticubeps.png"),
 			     mCB(this,uiSeisPreStackMan,mkMultiPush),
 			     "Create Multi-Cube data store" );

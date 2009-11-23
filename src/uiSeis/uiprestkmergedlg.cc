@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.18 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.19 2009-11-23 11:54:42 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -41,7 +41,7 @@ static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.18 2009-08-21 10:11:46 
 
 uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Merge Pre-Stack Data",
-				 "Select volumes to merge into one",
+				 "Select data stores to merge into one",
 				 "109.0.0"))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
@@ -69,10 +69,10 @@ uiPreStackMergeDlg::~uiPreStackMergeDlg()
 
 void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 {
-    volsbox_ = new uiListBox( topgrp, "Available Volumes", true );
-    selvolsbox_ = new uiListBox( topgrp, "Selected Volumes", true );
+    volsbox_ = new uiListBox( topgrp, "Available Stores", true );
+    selvolsbox_ = new uiListBox( topgrp, "Selected Stores", true );
     outctio_.ctxt.forread = false;
-    outpfld_ = new uiIOObjSel( this, outctio_, "Output Volume" );
+    outpfld_ = new uiIOObjSel( this, outctio_, "Output Data Store" );
     uiPosSubSel::Setup psssu( false, false );
     psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
 	 .withstep( false );
@@ -209,8 +209,8 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	else if ( !altstormsgdone && storage != ioobj->pars().find(storagekey) )
 	{
 	    altstormsgdone = true;
-	    if ( !uiMSG().askContinue( "Not all stores have the same storage type."
-				   "\nContinue?" ) )
+	    if ( !uiMSG().askContinue(
+		    "Not all stores have the same storage type.\nContinue?" ) )
 		return false;
 	}
 
@@ -266,10 +266,11 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 	IOPar iop; subselfld_->fillPar( iop );
 	sd = Seis::SelData::get( iop );
     }
-    PtrMan<SeisPSMerger> Exec = new SeisPSMerger( selobjs_, *outctio_.ioobj,
+    PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs_, *outctio_.ioobj,
 	    					  sd );
+    exec->setName( "Merge Pre-Stack Data Stores" );
     uiTaskRunner dlg( this );
-    return dlg.execute( *Exec );
+    return dlg.execute( *exec );
 }
 
 
@@ -281,7 +282,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
 {
     inctio_.setObj( key );
-    inpfld_ = new uiIOObjSel( this, inctio_, "Input Volume" );
+    inpfld_ = new uiIOObjSel( this, inctio_, "Input Data Store" );
     inpfld_->selectiondone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 
     uiPosSubSel::Setup psssu( false, false );
@@ -291,7 +292,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     subselfld_->attach( alignedBelow, inpfld_ );
 
     outctio_.ctxt.forread = false;
-    outpfld_ = new uiIOObjSel( this, outctio_, "Output Volume" );
+    outpfld_ = new uiIOObjSel( this, outctio_, "Output Data Store" );
     outpfld_->attach( alignedBelow, subselfld_ );
     finaliseDone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 }
@@ -326,14 +327,14 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
 {
     if ( !inpfld_->commitInput() )
     {
-	uiMSG().error( "Please select the input data set" );
+	uiMSG().error( "Please select the input data store" );
 	return false;
     }
 
     if ( !outpfld_->commitInput() )
     {
 	if ( outpfld_->isEmpty() )
-	    uiMSG().error( "Please enter an output data set name" );
+	    uiMSG().error( "Please enter an output data store name" );
 	return false;
     }
 
@@ -346,8 +347,9 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
 
     ObjectSet<IOObj> selobjs;
     selobjs += inctio_.ioobj;
-    PtrMan<SeisPSMerger> Exec = new SeisPSMerger( selobjs, *outctio_.ioobj,
+    PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs, *outctio_.ioobj,
 	    					  sd );
+    exec->setName( "Copy Pre-Stack Data Store" );
     uiTaskRunner dlg( this );
-    return dlg.execute( *Exec );
+    return dlg.execute( *exec );
 }
