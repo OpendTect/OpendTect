@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.21 2009-11-03 04:25:21 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.22 2009-11-24 10:58:49 cvssatyaki Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -199,10 +199,16 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 	mat.translate( (width()/2) - mousepos.x(),
 		       (height()/2) - mousepos.y() );
 
-	if ( numsteps > 0 )
-	    mat.scale( numsteps * 1.2, numsteps * 1.2 );
-	else
-	    mat.scale( -1 / (numsteps*1.2), -1 / (numsteps*1.2) );
+	for ( int idx=0; idx<abs(numsteps); idx++ )
+	{
+	    if ( numsteps > 0 || (mat.m11()>1 && mat.m22()>1) )
+	    {
+		if ( numsteps > 0 )
+		    mat.scale( 1.2, 1.2 );
+		else
+		    mat.scale( 1/1.2, 1/1.2 );
+	    }
+	}
 
 	mat.translate( mousepos.x() - (width()/2),
 		       mousepos.y() - (height()/2) );
