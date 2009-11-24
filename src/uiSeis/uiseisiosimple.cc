@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.27 2009-08-03 14:00:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.28 2009-11-24 11:05:53 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -129,7 +129,22 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 				 BoolInpSpec(true,"X Y","Inline Xline") );
 	isxyfld_->setValue( data().isxy_ );
 	isxyfld_->attach( alignedBelow, attachobj );
-	if ( !isimp_ ) attachobj = isxyfld_->attachObj();
+	if ( !isimp_ )
+	{
+	    if ( !isps )
+		attachobj = isxyfld_->attachObj();
+	    else
+	    {
+		haveoffsbut_ = new uiCheckBox( this, "Offset" );
+		haveoffsbut_->setChecked( data().haveoffs_ );
+		haveoffsbut_->attach( alignedBelow, isxyfld_ );
+		haveazimbut_ = new uiCheckBox( this, "Azimuth" );
+		haveazimbut_->setChecked( data().haveazim_ );
+		haveazimbut_->attach( rightOf, haveoffsbut_ );
+		pspposlbl_ = new uiLabel( this, "Include", haveoffsbut_ );
+		attachobj = haveoffsbut_;
+	    }
+	}
     }
 
     if ( isimp_ )
@@ -347,8 +362,8 @@ void uiSeisIOSimple::haveposSel( CallBacker* cb )
 {
     const bool havenopos = !haveposfld_->getBoolValue();
 
-    if ( isxyfld_ ) isxyfld_->display( !havenopos );
     if ( havenrfld_ ) havenrfld_->display( !havenopos );
+    if ( isxyfld_ ) isxyfld_->display( !havenopos );
 
     if ( isimp_ )
     {
@@ -386,8 +401,9 @@ void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
     const bool haveoffs = haveoffsbut_->isChecked();
     haveoffsbut_->display( havepos );
     haveazimbut_->display( havepos );
-    offsdeffld_->display( !havepos || !haveoffs );
     pspposlbl_->display( havepos );
+    if ( offsdeffld_ )
+	offsdeffld_->display( !havepos || !haveoffs );
 }
 
 
@@ -482,7 +498,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	}
     }
 
-    if ( isPS() && !data().haveoffs_ )
+    if ( isPS() && !data().haveoffs_ && offsdeffld_ )
     {
 	data().offsdef_.start = offsdeffld_->getfValue( 0 );
 	data().offsdef_.step = offsdeffld_->getfValue( 2 );

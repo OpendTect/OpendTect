@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.25 2009-09-10 14:39:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.26 2009-11-24 11:05:53 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -161,13 +161,13 @@ BufferString getSummary() const
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y","103.0.7"))
-	, ctio_(*mMkCtxtIOObj(SeisTrc))
     	, geom_(gt)
     	, morebut_(0)
     	, autogentxthead_(true)
 	, selcomp_(-1)
 {
-    seissel_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_) );
+    PtrMan<CtxtIOObj> ctio = uiSeisSel::mkCtxtIOObj( geom_, true );
+    seissel_ = new uiSeisSel( this, ctio->ctxt, uiSeisSel::Setup(geom_) );
     seissel_->selectiondone.notify( mCB(this,uiSEGYExp,inpSel) );
 
     uiSeisTransfer::Setup tsu( geom_ );
@@ -185,7 +185,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     fsfld_ = new uiSEGYFileSpec( this, su );
     fsfld_->attach( alignedBelow, txtheadfld_ );
 
-    if ( Seis::is2D(geom_) )
+    if ( Seis::is2D(geom_) && !Seis::isPS(geom_) )
     {
 	morebut_ = new uiCheckBox( this, "Export more from same Line Set" );
 	morebut_->attach( alignedBelow, fsfld_ );
@@ -195,14 +195,14 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
 uiSEGYExp::~uiSEGYExp()
 {
-    delete ctio_.ioobj; delete &ctio_;
 }
 
 
 void uiSEGYExp::inpSel( CallBacker* )
 {
-    if ( seissel_->commitInput() )
-	transffld_->updateFrom( *ctio_.ioobj );
+    const IOObj* ioobj = seissel_->ioobj();
+    if ( ioobj )
+	transffld_->updateFrom( *ioobj );
 }
 
 
@@ -358,17 +358,18 @@ bool doExp( const FilePath& fp )
 
 bool uiSEGYExp::acceptOK( CallBacker* )
 {
-    if ( !seissel_->commitInput() )
+    const IOObj* inioobj = seissel_->ioobj();
+    if ( !inioobj )
 	{ uiMSG().error( "Please select the data to export" ); return false; }
     const SEGY::FileSpec sfs( fsfld_->getSpec() );
     if ( sfs.fname_.isEmpty() )
 	{ uiMSG().error( "Please select the output file" ); return false; }
 
-    const IOObj* inioobj = ctio_.ioobj;
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );
     const bool is2d = Seis::is2D( geom_ );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
+    outioobj->pars().setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(geom_) );
 
     const char* attrnm = seissel_->attrNm();
     const char* lnm = is2d && transffld_->selFld2D()

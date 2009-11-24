@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.113 2009-09-07 11:29:28 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.114 2009-11-24 11:05:53 cvsbert Exp $";
 
 #include "uiseispartserv.h"
 
@@ -69,29 +69,26 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {
     PtrMan<uiDialog> dlg = 0;
-    if ( opt == 6 )
+    if ( opt == 0 )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
-    else if ( opt < 2 || opt == 7 )
+    else if ( opt < 5 )
     {
 	if ( !forread )
-	{
-	    const Seis::GeomType gt = opt == 0 ? Seis::Vol : Seis::Line;
-	    dlg = new uiSEGYExp( appserv().parent(), gt );
-	}
+	    dlg = new uiSEGYExp( appserv().parent(),
+		    		 Seis::geomTypeOf( !(opt%2), opt > 2 ) );
 	else
 	{
-	    uiSEGYRead::Setup su( opt == 7 ? uiSEGYRead::DirectDef
+	    const bool isdirect = !(opt % 2);
+	    uiSEGYRead::Setup su( isdirect ? uiSEGYRead::DirectDef
 		    			   : uiSEGYRead::Import );
-	    if ( opt == 7 )
+	    if ( isdirect )
 		{ su.geoms_ -= Seis::Line; su.geoms_ -= Seis::Vol; }
 	    new uiSEGYRead( appserv().parent(), su );
 	}
     }
     else
     {
-	const Seis::GeomType gt =  opt == 2 ? Seis::Vol
-				: (opt == 3 ? Seis::Line
-				: (opt == 4 ? Seis::VolPS : Seis::LinePS));
+	const Seis::GeomType gt( Seis::geomTypeOf( !(opt%2), opt > 6 ) );
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
 	dlg = new uiSeisIOSimple( appserv().parent(), gt, forread );
     }

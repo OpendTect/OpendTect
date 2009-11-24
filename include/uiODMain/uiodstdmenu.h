@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.59 2009-09-07 11:30:14 cvsraman Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.60 2009-11-24 11:05:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,13 +43,15 @@ ________________________________________________________________________
 #define mSessSaveMnuItm		(mFileSessMnu + 10)
 #define mSessRestMnuItm		(mFileSessMnu + 20)
 #define mSessAutoMnuItm		(mFileSessMnu + 30)
-#define mImpSeisSEGYMnuItm	(mFileImpMnu + 10)
-#define mImpSeisSEGYDirectMnuItm (mFileImpMnu + 11)
-#define mImpSeisSimple3DMnuItm	(mFileImpMnu + 14)
-#define mImpSeisSimple2DMnuItm	(mFileImpMnu + 15)
-#define mImpSeisSimplePS3DMnuItm (mFileImpMnu + 16)
-#define mImpSeisSimplePS2DMnuItm (mFileImpMnu + 17)
-#define mImpSeisCBVSMnuItm	(mFileImpMnu + 20)
+
+#define mImpSeisCBVSMnuItm	(mFileImpMnu + 10)
+#define mImpSeisSEGYMnuItm	(mFileImpMnu + 11)
+#define mImpSeisSEGYDirectMnuItm (mFileImpMnu + 12)
+#define mImpSeisSimple3DMnuItm	(mFileImpMnu + 15)
+#define mImpSeisSimple2DMnuItm	(mFileImpMnu + 16)
+#define mImpSeisSimplePS3DMnuItm (mFileImpMnu + 17)
+#define mImpSeisSimplePS2DMnuItm (mFileImpMnu + 18)
+
 #define mImpHorAsciiMnuItm	(mFileImpMnu + 30)
 #define mImpHorAsciiAttribMnuItm (mFileImpMnu + 31)
 #define mImpHor2DAsciiMnuItm	(mFileImpMnu + 32)
@@ -65,14 +67,20 @@ ________________________________________________________________________
 #define mImpWvltMnuItm		(mFileImpMnu + 70)
 #define mImpMuteDefMnuItm	(mFileImpMnu + 80)
 #define mImpVelocityMnuItm	(mFileImpMnu + 90)
-#define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 10)
-#define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 11)
-#define mExpSeisSimple3DMnuItm	(mFileExpMnu + 14)
-#define mExpSeisSimple2DMnuItm	(mFileExpMnu + 15)
-#define mExpHorAscii3DMnuItm	(mFileExpMnu + 20)
-#define mExpHorAscii2DMnuItm	(mFileExpMnu + 21)
-#define mExpFltAsciiMnuItm	(mFileExpMnu + 30)
-#define mExpFltSSAsciiMnuItm	(mFileExpMnu + 31)
+
+#define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 11)
+#define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 12)
+#define mExpSeisSEGYPS3DMnuItm	(mFileExpMnu + 13)
+#define mExpSeisSEGYPS2DMnuItm	(mFileExpMnu + 14)
+#define mExpSeisSimple3DMnuItm	(mFileExpMnu + 15)
+#define mExpSeisSimple2DMnuItm	(mFileExpMnu + 16)
+#define mExpSeisSimplePS3DMnuItm (mFileExpMnu + 17)
+#define mExpSeisSimplePS2DMnuItm (mFileExpMnu + 18)
+
+#define mExpHorAscii3DMnuItm	(mFileExpMnu + 30)
+#define mExpHorAscii2DMnuItm	(mFileExpMnu + 31)
+#define mExpFltAsciiMnuItm	(mFileExpMnu + 40)
+#define mExpFltSSAsciiMnuItm	(mFileExpMnu + 41)
 #define mExpPickMnuItm		(mFileExpMnu + 50)
 #define mExpMuteDefMnuItm	(mFileExpMnu + 60)
 #define mManSeis3DMnuItm	(mFileManMnu + 10)

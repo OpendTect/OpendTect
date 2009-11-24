@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyexp.h,v 1.6 2009-08-03 13:59:30 cvsbert Exp $
+ RCS:           $Id: uisegyexp.h,v 1.7 2009-11-24 11:05:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ public:
 
 protected:
 
-    CtxtIOObj&		ctio_;
     Seis::GeomType	geom_;
     bool		autogentxthead_;
     BufferString	hdrtxt_;
