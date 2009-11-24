@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusginfo.h,v 1.7 2009-11-19 12:17:59 cvsbert Exp $
+ RCS:           $Id: odusginfo.h,v 1.8 2009-11-24 17:10:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ mClass Info
 {
 public:
 
-    typedef od_uint64	ID;
+    typedef od_int64	ID;
     enum Delim		{ Start, Stop, Cont };
 
     			Info( const char* grp, const char* act=0,
