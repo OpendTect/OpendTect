@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.18 2009-07-22 16:01:28 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.19 2009-11-24 14:13:48 cvsbert Exp $
 -*/
 
 #include "uibatchlaunch.h"
@@ -26,6 +26,8 @@ public:
 			~uiMadagascarMain();
 
     bool		askSave(bool withcancel=true);
+    Notifier<uiMadagascarMain> windowHide;
+
 protected:
 
     CtxtIOObj&		ctio_;
@@ -51,6 +53,7 @@ protected:
     void		openFlow(CallBacker*);
     bool		saveFlow(CallBacker*);
     void		exportFlow(CallBacker*);
+    bool		rejectOK(CallBacker*);
 
     bool		prepareProcessing()	{ return true; }
     bool		fillPar(IOPar&);

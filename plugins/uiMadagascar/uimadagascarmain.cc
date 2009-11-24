@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.33 2009-08-27 10:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.34 2009-11-24 14:13:48 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -41,6 +41,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	, bldfld_(0)
 	, procflow_(*new ODMad::ProcFlow())
 	, needsave_(false)
+	, windowHide(this)
 {
     setCtrlStyle( uiDialog::DoAndStay );
     setHelpID( "103.5.0" );
@@ -356,6 +357,13 @@ void uiMadagascarMain::exportFlow( CallBacker* )
     dlg.setDirectory( IOM().curDir() );
     if ( !dlg.go() ) return;
     uiMSG().error( "Export needs implementation" );
+}
+
+
+bool uiMadagascarMain::rejectOK( CallBacker* )
+{
+    windowHide.trigger();
+    return true;
 }
 
 

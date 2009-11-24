@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.17 2009-10-16 02:44:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.18 2009-11-24 14:13:48 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uimadpi.cc,v 1.17 2009-10-16 02:44:08 cvsnanne 
 #include "pixmap.h"
 #include "plugins.h"
 #include "separstr.h"
+#include "odusgclient.h"
 
 mExternC int GetuiMadagascarPluginType()
 {
@@ -53,7 +54,8 @@ bool checkEnvVars( BufferString& msg )
 }
 
 
-class uiMadagascarLink :  public CallBacker
+class uiMadagascarLink	: public CallBacker
+			, public Usage::Client
 {
 public:
 			uiMadagascarLink(uiODMain&);
@@ -61,18 +63,22 @@ public:
 
     uiODMenuMgr&	mnumgr;
     uiMadagascarMain*	madwin_;
+    bool		ishidden_;
 
     void		doMain(CallBacker*);
     void		updateToolBar(CallBacker*);
     void		updateMenu(CallBacker*);
     void		survChg(CallBacker*);
+    void		winHide(CallBacker*);
 
 };
 
 
 uiMadagascarLink::uiMadagascarLink( uiODMain& a )
-    	: mnumgr(a.menuMgr())
+    	: Usage::Client("Madagascar")
+    	, mnumgr(a.menuMgr())
         , madwin_(0)
+        , ishidden_(false)
 {
     mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,updateToolBar) );
     mnumgr.dTectMnuChanged.notify( mCB(this,uiMadagascarLink,updateMenu) );
@@ -98,7 +104,7 @@ void uiMadagascarLink::updateToolBar( CallBacker* )
 
 void uiMadagascarLink::updateMenu( CallBacker* )
 {
-    delete madwin_; madwin_ = 0;
+    delete madwin_; madwin_ = 0; ishidden_ = false;
     const ioPixmap madpm( "madagascar.png" );
     uiMenuItem* newitem = new uiMenuItem( "&Madagascar ...",
 	    				  mCB(this,uiMadagascarLink,doMain),
@@ -115,6 +121,13 @@ void uiMadagascarLink::survChg( CallBacker* )
 }
 
 
+void uiMadagascarLink::winHide( CallBacker* )
+{
+    prepUsgEnd( "Process" ); sendUsgInfo();
+    ishidden_ = true;
+}
+
+
 void uiMadagascarLink::doMain( CallBacker* )
 {
     BufferString errmsg;
@@ -124,9 +137,17 @@ void uiMadagascarLink::doMain( CallBacker* )
 	return;
     }
 
+    bool needreportstart = !madwin_ || ishidden_;
     if ( !madwin_ )
+    {
 	madwin_ = new uiMadagascarMain( 0 );
+	madwin_->windowHide.notify( mCB(this,uiMadagascarLink,winHide) );
+    }
 
+    if ( needreportstart )
+	{ prepUsgStart( "Process" ); sendUsgInfo(); }
+
+    ishidden_ = false;
     madwin_->show();
 }
 
