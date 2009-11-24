@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.17 2009-09-10 13:34:29 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.18 2009-11-24 11:01:46 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -522,7 +522,7 @@ int SeisIOSimple::writeExpTrc()
 	    float offs = trc_.info().offset;
 	    mPIEPAdj(Offset,offs,false);
 	    if ( data_.isasc_ )
-		*sd_.ostrm << offs << '\t';
+		*sd_.ostrm << '\t' << offs;
 	    else
 		mStrmBinWrite( offs, float );
 	}
@@ -530,7 +530,7 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    const float azim = trc_.info().azimuth;
 	    if ( data_.isasc_ )
-		*sd_.ostrm << azim << '\t';
+		*sd_.ostrm << '\t' << azim;
 	    else
 		mStrmBinWrite( azim, float );
 	}
