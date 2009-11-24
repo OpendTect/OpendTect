@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.14 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.15 2009-11-24 16:40:40 cvsyuancheng Exp $";
 
 #include "horizon2dline.h"
 
@@ -133,14 +133,16 @@ void Horizon2DLine::syncRow( int rowid ,const PosInfo::Line2DData& geom )
 void Horizon2DLine::removeRow( int id )
 {
     const int rowidx = id-firstrow_;
-    if ( rowidx<0 )
+    if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
     delete rows_[rowidx];
     rows_.remove( rowidx, false );
     colsampling_.remove( rowidx, false );
     if ( !rowidx )
-	firstrow_++;
+    {
+	if ( rows_.size() ) firstrow_++; //Inrease only if we still have rows.
+    }
     else
     {
 	//TODO notify
@@ -151,7 +153,7 @@ void Horizon2DLine::removeRow( int id )
 void Horizon2DLine::removeCols( int rowid, int col1, int col2 )
 {
     const int rowidx = rowid - firstrow_;
-    if ( rowidx<0 ) return;
+    if ( rowidx<0 || rowidx>=rows_.size() ) return;
 
     const StepInterval<int> colrg = colRange( rowid );
     const int startidx = colrg.getIndex( col1 );
@@ -178,7 +180,7 @@ void Horizon2DLine::setRow( int rowid, const TypeSet<Coord>& path,
 			    int start, int step )
 {
     const int rowidx = rowid - firstrow_;
-    if ( rowidx<0 )
+    if ( rowidx<0 || rowidx>=rows_.size() )
 	return;
 
     const bool samedimensions =
@@ -208,7 +210,7 @@ StepInterval<int> Horizon2DLine::rowRange() const
 StepInterval<int> Horizon2DLine::colRange( int rowid ) const
 {
     const int rowidx = rowid - firstrow_;
-    if ( rowidx<0 )
+    if ( rowidx<0 || rowidx>=rows_.size() )
 	return StepInterval<int>( INT_MAX, INT_MIN, 1 );
 
     const SamplingData<int>& sd = colsampling_[rowidx];
@@ -281,7 +283,7 @@ bool Horizon2DLine::isKnotDefined( const RCol& rc ) const
 
 int Horizon2DLine::colIndex( int rowidx, int colid ) const
 {
-    if ( rowidx<0 || rowidx>=colsampling_.size() )
+    if ( rowidx<0 || rowidx>=rows_.size() || rowidx>=colsampling_.size() )
 	return -1;
     const SamplingData<int>& sd = colsampling_[rowidx];
     int idx = colid-sd.start;
