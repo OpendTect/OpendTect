@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.7 2009-10-21 06:18:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.8 2009-11-24 11:04:09 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -209,6 +209,18 @@ const char* uiVisDataPointSetDisplayMgr::getParentName( int parentidx ) const
 }
 
 
+int uiVisDataPointSetDisplayMgr::hasDisplay( const DataPointSet& dps ) const
+{
+    for ( int idx=0; idx<displayinfos_.size(); idx++ )
+    {
+	if ( displayinfos_[idx]->dpsid_ == dps.id() )
+	    return ids_[idx];
+    }
+
+    return -1;
+}
+
+
 int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 					    const DataPointSet& dps )
 {
@@ -247,6 +259,8 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	displayinfo->visids_ += display->id();
     }
 
+    displayinfo->dpsid_ = dps.id();
+
     if ( !displayinfo->sceneids_.size() )
     {
 	delete displayinfo;
@@ -262,14 +276,22 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 
 void uiVisDataPointSetDisplayMgr::setDispCol( Color col, int dispid )
 {
-    RefMan<visBase::DataObject> displayptr = visserv_.getObject(dispid);
-    if ( !displayptr )
-	return;
+    DisplayInfo& displayinfo = *displayinfos_[dispid];
+    for ( int idx=0; idx<displayinfo.visids_.size(); idx++ )
+    {
+	const int dispidx = displayinfo.visids_[idx];
+	if ( dispidx<0 )
+	    continue;
 
-    mDynamicCastGet( visSurvey::PointSetDisplay*, display, displayptr.ptr() );
-    if ( !display )
-	return;
-    display->setColor( col );
+	RefMan<visBase::DataObject> displayptr = visserv_.getObject(dispidx);
+	if ( !displayptr )
+	    return;
+
+	mDynamicCastGet(visSurvey::PointSetDisplay*,display,displayptr.ptr());
+	if ( !display )
+	    return;
+	display->setColor( col );
+    }
 }
 
 
@@ -284,6 +306,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( int id,
 	return;
 
     DisplayInfo& displayinfo = *displayinfos_[idx];
+    displayinfo.dpsid_ = dps.id();
     TypeSet<int> wantedscenes;
     for ( int idy=0; idy<parents.size(); idy++ )
 	wantedscenes += parents[idy];
@@ -378,5 +401,7 @@ void uiVisDataPointSetDisplayMgr::removeDisplay( int id )
     }
 
     delete displayinfos_.remove( idx );
+    for ( int index = idx; index<ids_.size(); index++ )
+	ids_[index]--;
     ids_.remove( idx );
 }

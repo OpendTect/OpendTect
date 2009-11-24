@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.32 2009-10-15 10:05:55 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.33 2009-11-24 11:04:09 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,6 +255,7 @@ public:
     virtual void		unLock()				= 0;
 
     virtual bool		hasDisplay() const 			= 0; 
+    virtual int			hasDisplay(const DataPointSet&) const 	= 0;
     virtual int			getNrParents() const			= 0;
     virtual const char*		getParentName(int) const		= 0;
 

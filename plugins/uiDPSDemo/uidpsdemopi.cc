@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.8 2009-11-19 15:15:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.9 2009-11-24 11:04:09 cvssatyaki Exp $";
 
 
 #include "uidpsdemo.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.8 2009-11-19 15:15:56 cvsber
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uitoolbar.h"
 
 #include "odver.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.8 2009-11-19 15:15:56 cvsber
 #include "uivisdatapointsetdisplaymgr.h"
 #include "pixmap.h"
 #include "plugins.h"
+#include "randcolor.h"
 #include "survinfo.h"
 
 
@@ -60,7 +62,6 @@ public:
     uiODMain&		appl_;
     uiDPSDemo*		dpsdemo_;
 
-    int 		dpsid_;
     DataPointSetDisplayMgr* dpsdispmgr_;
     const ioPixmap	pixmap_;
 
@@ -77,7 +78,6 @@ public:
 uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
 	: appl_(a)
 	, dpsdemo_(0)
-	, dpsid_(-1)
 	, dpsdispmgr_(a.applMgr().visDPSDispMgr())
 	, pixmap_("dpsdemo.png")
 {
@@ -132,20 +132,31 @@ void uiDPSDemoMgr::showSelPtsCB( CallBacker* cb )
     if ( !dpsdispmgr_ ) return;
 
     dpsdispmgr_->lock();
-    if ( dpsid_ < 0 )
-	dpsid_ = dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(), dps);
+    if ( dpsdispmgr_->hasDisplay(dps) < 0 )
+    {
+	const int dpsid =
+	    dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(), dps);
+	dpsdispmgr_->setDispCol( getRandStdDrawColor(), dpsid );
+    }
     else
-	dpsdispmgr_->updateDisplay( dpsid_,dpsdispmgr_->availableParents(),dps);
+	dpsdispmgr_->updateDisplay( dpsdispmgr_->hasDisplay(dps),
+				    dpsdispmgr_->availableParents(), dps );
 
     dpsdispmgr_->unLock();
 }
 
 
-void uiDPSDemoMgr::removeSelPtsCB( CallBacker* )
+void uiDPSDemoMgr::removeSelPtsCB( CallBacker* cb )
 {
+    mDynamicCastGet(uiDPSDemo*,dpsdemo,cb)
+    if ( !dpsdemo ) { pErrMsg( "Huh" ); return; }
+    const DataPointSet& dps = dpsdemo->getDPS();
+    if ( !dpsdispmgr_ ) return;
+
+    const int dpsid = dpsdispmgr_->hasDisplay( dps );
+    if ( dpsid < 0 ) return;
     if ( dpsdispmgr_ )
-	dpsdispmgr_->removeDisplay( dpsid_ );
-    dpsid_ = -1;
+	dpsdispmgr_->removeDisplay( dpsid );
 }
 
 
