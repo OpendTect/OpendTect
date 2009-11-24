@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidlggroup.cc,v 1.9 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uidlggroup.cc,v 1.10 2009-11-24 09:23:53 cvsnanne Exp $";
 
 #include "uidlggroup.h"
 
@@ -76,7 +76,8 @@ void uiTabStackDlg::addGroup( uiDlgGroup* grp )
 
 void uiTabStackDlg::showGroup( int idx )
 {
-    tabstack_->setCurrentPage( groups_[idx] );
+    if ( groups_.validIdx(idx) )
+	tabstack_->setCurrentPage( groups_[idx] );
 }
 
 
