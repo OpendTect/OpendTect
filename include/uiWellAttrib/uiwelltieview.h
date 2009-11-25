@@ -48,7 +48,7 @@ public:
 				~uiTieView();
 
     void        		fullRedraw();
-    void 			redrawViewer();
+    void 			redrawViewer(CallBacker*);
     void        		drawUserPicks();
     bool        		isEmpty() 
     				{ return dataholder_.logset()->isEmpty(); }
