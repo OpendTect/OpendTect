@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.16 2009-09-10 14:39:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.17 2009-11-25 16:09:06 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -65,7 +65,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 {
     setCtrlStyle( LeaveOnly );
 
-    uiGroup* txtgrp = new uiGroup( 0, "Txt fld group" );
+    uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, "File header information" );
     uiToolButton* tb = new uiToolButton( txtgrp, "Save text header to file",
 	    				 ioPixmap("saveset.png"),
@@ -77,7 +77,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     txtfld_->setPrefWidthInChar( 80 );
     txtfld_->attach( centeredBelow, lbl );
 
-    uiGroup* tblgrp = new uiGroup( 0, "Table group" );
+    uiGroup* tblgrp = new uiGroup( this, "Table group" );
     lbl = new uiLabel( tblgrp, "Trace header information" );
     tb = new uiToolButton( tblgrp, "Preview data", ioPixmap("viewflat.png"),
 				         mCB(this,uiSEGYExamine,dispSeis) );
