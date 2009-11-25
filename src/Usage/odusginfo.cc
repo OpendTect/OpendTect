@@ -4,16 +4,96 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusginfo.cc,v 1.6 2009-11-19 12:17:59 cvsbert Exp $";
+static const char* rcsID = "$Id: odusginfo.cc,v 1.7 2009-11-25 16:09:21 cvsbert Exp $";
 
 #include "odusginfo.h"
+#include "hostdata.h"
 #include <iostream>
 
 
-Usage::Info::ID Usage::Info::newID()
+static od_int64 usginfo_curid = 0;
+
+Usage::Info::ID::ID()
+    : pid_(GetPID())
+    , hostname_(HostData::localHostName())
 {
-    static Usage::Info::ID id = 0;
-    return ++id;
+    nr_ = ++usginfo_curid;
+}
+
+
+Usage::Info::ID::ID( od_uint64 nr, const char* hnm, int pid )
+    : nr_(nr)
+    , pid_(pid)
+    , hostname_(hnm)
+{
+}
+
+
+bool Usage::Info::ID::operator ==( const Usage::Info::ID& id ) const
+{
+    return nr_ == id.nr_ && pid_ == id.pid_ && hostname_ == id.hostname_;
+}
+
+
+Usage::Info::ID& Usage::Info::ID::operator =( const Usage::Info::ID& id )
+{
+    if ( this != &id )
+    {
+	nr_ = id.nr_;
+	hostname_ = id.hostname_;
+	pid_ = id.pid_;
+    }
+    return *this;
+}
+
+
+bool Usage::Info::ID::isLocal() const
+{
+    return hostname_ == HostData::localHostName();
+}
+
+
+void Usage::Info::ID::putTo( BufferString& str ) const
+{
+    str += nr_; str += "@";
+    str += hostname_; str += ":"; str += pid_;
+}
+
+
+bool Usage::Info::ID::getFrom( const char* str )
+{
+    BufferString buf( str );
+
+    char* startptr = buf.buf();
+    char* ptr = strchr( startptr, '@' );
+    if ( !ptr ) return false;
+    *ptr++ = '\0'; startptr = ptr;
+    nr_ = atoll( startptr );
+
+    ptr = strchr( startptr, ':' );
+    if ( !ptr ) return false;
+    *ptr = '\0';
+    hostname_ = startptr;
+    startptr = ptr + 1;
+
+    pid_ = atoi( startptr );
+    return true;
+}
+
+
+Usage::Info::Info( const char* grp, const char* act, const char* aux )
+    : group_(grp)
+    , action_(act)
+    , aux_(aux)
+    , delim_(Start)
+    , withreply_(false)
+{
+}
+
+
+void Usage::Info::prepareForSend()
+{
+    id_.nr_ = ++usginfo_curid;
 }
 
 
@@ -27,8 +107,8 @@ std::ostream& Usage::Info::dump( std::ostream& strm ) const
 
 BufferString& Usage::Info::dump( BufferString& str ) const
 {
-    str += delim_ == Start ? "START" : (delim_ == Stop ? "STOP" : "USG");
-    str += " ID="; str += id_;
+    id_.putTo( str );
+    str += delim_ == Start ? " START" : (delim_ == Stop ? " STOP" : " USG");
     str += " group="; str += group_;
     str += " action="; str += action_;
     if ( !aux_.isEmpty() )

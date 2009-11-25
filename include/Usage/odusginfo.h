@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusginfo.h,v 1.8 2009-11-24 17:10:37 cvskris Exp $
+ RCS:           $Id: odusginfo.h,v 1.9 2009-11-25 16:09:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,17 +25,29 @@ mClass Info
 {
 public:
 
-    typedef od_int64	ID;
     enum Delim		{ Start, Stop, Cont };
 
-    			Info( const char* grp, const char* act=0,
-			      const char* aux=0 )
-			    : id_(-1)
-			    , group_(grp)
-			    , action_(act)
-    			    , aux_(aux)
-    			    , delim_(Start)
-    			    , withreply_(false)		{}
+    mClass ID
+    {
+    public:
+			ID();					//!< client
+			ID(od_uint64,const char* hnm,int);	//!< server
+
+	ID&		operator =(const ID&);
+	bool		operator ==(const ID&) const;
+
+	od_uint64	nr_;
+	BufferString	hostname_;
+	int		pid_;
+
+	bool		isLocal() const;
+	void		putTo(BufferString&) const;
+	bool		getFrom(const char*);
+
+    };
+
+    			Info(const char* grp,const char* act=0,
+			     const char* aux=0);
 
     bool		operator ==( const Info& inf ) const
 			{ return id_ == inf.id_; }
@@ -60,10 +72,10 @@ public:
 
 protected:
 
-    static ID		newID();
-    ID			id_;		//!< Unique ID
+    ID			id_;
 
     friend class	Client;
+    void		prepareForSend();
 
 };
 

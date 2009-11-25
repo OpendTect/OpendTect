@@ -4,16 +4,43 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgclient.cc,v 1.6 2009-11-19 12:17:59 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgclient.cc,v 1.7 2009-11-25 16:09:21 cvsbert Exp $";
 
 #include "odusgclient.h"
 #include "odusginfo.h"
+#include "callback.h"
+#include "genc.h"
 #include <iostream>
+
+
+namespace Usage
+{
+
+class ProcExit : public CallBacker
+{
+public:
+
+ProcExit()
+{
+    NotifyExitProgram( &atEnd );
+}
+
+static void atEnd()
+{
+    Usage::Client ucl( "*" );
+    ucl.prepUsgEnd( "*" );
+    ucl.sendUsgInfo();
+}
+
+
+};
+
+}
 
 
 bool Usage::Client::sendUsgInfo() const
 {
-    usginfo_.id_ = Usage::Info::newID();
+    usginfo_.prepareForSend();
 
 #ifdef __debug__
     std::cerr << "UsageInfo: ";
@@ -30,6 +57,11 @@ bool Usage::Client::sendUsgInfo() const
 
     std::cerr << std::endl;
 #endif
+
+    // only go here if send succeeded
+    static ProcExit* thepe = 0;
+    if ( !thepe )
+	thepe = new ProcExit;
 
     return true;
 }

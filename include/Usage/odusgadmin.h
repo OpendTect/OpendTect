@@ -7,20 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusgadmin.h,v 1.4 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:           $Id: odusgadmin.h,v 1.5 2009-11-25 16:09:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
 #include "objectset.h"
+#include "odusginfo.h"
 #include <iosfwd>
 class IOPar;
 
 
 namespace Usage
 {
-class Info;
 static std::ostream* logstrm_ = 0;
 
 
@@ -33,7 +33,9 @@ public:
     virtual		~Administrator();
 
     virtual bool	handle(Info&)		= 0;
-    const ObjectSet<IOPar>& pars() const		{ return pars_; }
+    virtual void	handleQuit(Info::ID&)	{}
+
+    const ObjectSet<IOPar>& pars() const	{ return pars_; }
     void		reInit();
 
     static int		add(Administrator*);
