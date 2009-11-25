@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.19 2009-11-09 02:48:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.20 2009-11-25 22:17:41 cvsyuancheng Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -399,7 +399,8 @@ bool uiImportHorizon2D::doImport()
     PtrMan<Horizon2DImporter> exec =
 	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset );
     uiTaskRunner impdlg( this );
-    impdlg.execute( *exec );
+    if ( !impdlg.execute(*exec) )
+	return false;
 
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
