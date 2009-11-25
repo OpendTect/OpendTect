@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpsocket.h,v 1.3 2009-10-27 03:22:21 cvsnanne Exp $
+ RCS:           $Id: tcpsocket.h,v 1.4 2009-11-25 03:30:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class QTcpSocket;
 class QTcpSocketComm;
 
 
-class TcpSocket : public CallBacker
+mClass TcpSocket : public CallBacker
 {
 friend class QTcpSocketComm;
 
