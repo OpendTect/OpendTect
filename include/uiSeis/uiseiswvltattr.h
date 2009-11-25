@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.11 2009-11-19 15:00:17 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.12 2009-11-25 13:33:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ class ArrayNDWindow;
 class Wavelet;
 class uiCheckBox;
 class uiFuncTaperDisp;
+class uiFunctionDisplay;
+class uiFreqTaperGrp;
 class uiGenInput;
 class uiWaveletDispProp;
 class WaveletAttrib;
@@ -67,10 +69,13 @@ protected:
 
     Array1DImpl<float>* 	wvltvals_;
     Array1DImpl<float>* 	freqvals_;
-    Array1DImpl<float>* 	spectrum_;
-    uiWaveletDispProp*		properties_;
+    Interval<float>		timerange_;
+    Interval<float>		freqrange_;
+
     uiFuncTaperDisp*		timedrawer_;
     uiFuncTaperDisp*		freqdrawer_;
+    uiFreqTaperGrp*		freqtaper_;
+
     uiGenInput*			typefld_;
     uiCheckBox*			mutefld_;
 
@@ -78,6 +83,8 @@ protected:
     void			setTimeData();
 
     void			act(CallBacker*);
+    void			typeChoice(CallBacker*);
+    void			freqChanged(CallBacker*);
 };
 
 
@@ -86,33 +93,20 @@ mClass uiWaveletDispProp : public uiGroup
 {
 public:
 
-    mStruct Setup
-    {
-				Setup()
-				: withphase_(true)
-				, withgridlines_(true) 
-				{}
-
-	mDefSetupMemb(bool,withphase)
-	mDefSetupMemb(bool,withgridlines)
-    };
-
-				uiWaveletDispProp(uiParent*,const Wavelet&,
-						const Setup&);
+				uiWaveletDispProp(uiParent*,const Wavelet&);
 				~uiWaveletDispProp();
 
     void                        setAttrCurves(const Wavelet&);
-    uiFuncTaperDisp*		getAttrDisp(int idx)
-    				{ return attrdisps_[idx]; }
     Interval<float>             getFreqRange() const { return freqrange_; }
     Interval<float>             getTimeRange() const { return timerange_; }
 
 private:
 
     int                         wvltsz_;
-    const char*			attrnms_[4];
-    ObjectSet<uiFuncTaperDisp>  attrdisps_;
+    ObjectSet<uiFunctionDisplay>  attrdisps_;
     ObjectSet< Array1DImpl<float> > attrarrays_;
+    
+    WaveletAttrib*		wvltattr_;
     
     Interval<float>		timerange_;
     Interval<float>		freqrange_;

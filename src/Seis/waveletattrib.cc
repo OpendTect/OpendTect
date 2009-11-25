@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.5 2009-11-23 15:59:22 cvsbruno Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.6 2009-11-25 13:33:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,12 +19,12 @@ ________________________________________________________________________
 
 
 WaveletAttrib::WaveletAttrib( const Wavelet& wvlt )
-    	: wvltsz_(wvlt.size())
-	, wvltarr_(new Array1DImpl<float>(wvltsz_))
+	: wvltarr_(0)
+	, wvltsz_(0)  
 	, fft_(new FFT(false))
 	, hilbert_(new HilbertTransform())
 {
-    memcpy( wvltarr_->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
+    setNewWavelet( wvlt );
 }
 
 
@@ -33,6 +33,14 @@ WaveletAttrib::~WaveletAttrib()
     delete wvltarr_;
     delete fft_;
     delete hilbert_;
+}
+
+
+void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
+{
+    wvltsz_ = wvlt.size();
+    delete wvltarr_; wvltarr_ = new Array1DImpl<float>( wvltsz_ );
+    memcpy( wvltarr_->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
 }
 
 
@@ -116,6 +124,10 @@ void WaveletAttrib::getWvltFromFrequency( const Array1DImpl<float>& freqdata,
 
     mDoTransform( fft_, false, cfreqarr, ctimearr, timesz );
 
-    for ( int idx=0; idx<freqsz; idx++ )
-	timedata.set( idx, ctimearr.get(idx).real() );
+    for ( int idx=0; idx<timesz/2; idx++ )
+	timedata.set( idx+timesz/2, ctimearr.get(timesz-idx-1).real() );
+
+    for ( int idx=0; idx<timesz/2+1; idx++ )
+	timedata.set( timesz/2-idx+1, ctimearr.get(idx).real() );
+    timedata.set( 0, 0 );
 } 
