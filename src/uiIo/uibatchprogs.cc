@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.41 2009-07-31 10:19:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.42 2009-11-25 06:50:13 cvsranojay Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -346,9 +346,6 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	comm += val;
     }
 
-    StreamProvider sp( comm );
-    return sp.executeCommand( true, true );
-
 #else
 
     FilePath fp( GetBinPlfDir() );
@@ -383,10 +380,10 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	comm += val;
     }
 
-     StreamProvider sp( comm );
-    return sp.executeCommand( false, true );
-
 #endif
+
+    StreamProvider sp( comm );
+    return sp.executeCommand( true, true );
 }
 
 

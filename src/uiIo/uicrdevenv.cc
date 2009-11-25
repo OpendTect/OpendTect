@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrdevenv.cc,v 1.32 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.33 2009-11-25 06:50:13 cvsranojay Exp $";
 
 #include "uicrdevenv.h"
 
@@ -191,16 +191,16 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     BufferString shortpath;
     GetShortPathName(workdirnm.buf(),shortpath.buf(),strlen(workdirnm.buf()));
     cmd += " "; cmd += shortpath;
+    StreamProvider( cmd ).executeCommand( false, true );
 #else
     BufferString cmd( "@'" );
     fp.add( "od_cr_dev_env" );
     cmd += fp.fullPath();
     cmd += "' '"; cmd += swdir;
     cmd += "' '"; cmd += workdirnm; cmd += "'";
-#endif
-
     StreamProvider( cmd ).executeCommand( false );
-
+#endif
+    
     BufferString relfile = FilePath(workdirnm).add(".rel.devel").fullPath();
     if ( !File_exists(relfile) )
 	mErrRet( "Creation seems to have failed" )
