@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.23 2009-11-18 20:38:47 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.24 2009-11-25 22:03:14 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -274,7 +274,7 @@ bool ProcessManager::process()
     {
 	if ( proc )
 	{
-	    const BinID stepout = processors_[proc]->getOutputStepout();
+	    const BinID stepout = processors_[proc]->getInputStepout();
 	    for ( int idx=-stepout.inl; idx<=stepout.inl; idx++ )
 	    {
 		for ( int idy=-stepout.crl; idy<=stepout.crl; idy++ )
