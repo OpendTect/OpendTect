@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Nov 2009
- RCS:		$Id: uifreqtaper.h,v 1.2 2009-11-25 13:33:06 cvsbruno Exp $
+ RCS:		$Id: uifreqtaper.h,v 1.3 2009-11-25 14:09:20 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uifunctiondisplay.h"
 #include "uiwindowfunctionsel.h"
 #include "uibutton.h"
+#include "survinfo.h"
 #include "arrayndutils.h"
 #include <arrayndimpl.h>
 
@@ -72,7 +73,16 @@ public:
     {
 			Setup()
 			    : is2sided_(false)
-			    {}
+			    , datasz_((int)(0.5/SI().zStep()))
+			    {
+				xaxnm_ = "Frequency (Hz)";
+				yaxnm_ = "Gain (dB)";
+				noxgridline_ = true;
+				noygridline_ = true;
+				ywidth_ = 2;
+				ycol_.set( 255, 0, 0 );
+				y2col_.set( 0, 0, 255 );  
+			    }
 
 	mDefSetupMemb(int,datasz);	
 	mDefSetupMemb(const char*,xaxnm);	
@@ -96,8 +106,6 @@ public:
     float*		getFuncValues() const 
     			{ return funcvals_ ? funcvals_->getData() : 0; } 
    
-    void		displayTaper( bool yn = true ) 
-			{ displaytaper_ = yn; }
     void		taperChged(CallBacker*);
 
     TaperData&		leftTaperData() { return leftd_; }
@@ -115,7 +123,6 @@ protected:
     Interval<float>	funcrg_;	
 
     bool		is2sided_;
-    bool		displaytaper_;
     int 		datasz_;
 };
 

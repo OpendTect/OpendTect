@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.2 2009-11-25 13:33:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqtaper.cc,v 1.3 2009-11-25 14:09:20 cvsbruno Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -59,14 +59,6 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     su.datasz_ = (int) ( 0.5/SI().zStep() );
     su.is2sided_ = true; 
  
-    su.xaxnm_ = "Frequency (Hz)"; 	
-    su.yaxnm_ = "Gain (dB)";
-    su.noxgridline_ = true;
-    su.noygridline_ = true;
-    su.ywidth_ = 2;
-    su.ycol_.set( 255, 0, 0 );
-    su.y2col_.set( 0, 0, 255 );
-
     drawer_ = new uiFuncTaperDisp( this, su );
     tapergrp_ = new uiFreqTaperGrp( this, s, drawer_ );
     tapergrp_->attach( ensureBelow, drawer_ );
@@ -436,7 +428,6 @@ uiFuncTaperDisp::uiFuncTaperDisp( uiParent* p, const Setup& s )
     , window_(0)				
     , funcvals_(0)
     , orgfuncvals_(0)
-    , displaytaper_(true)
     , taperchanged(this)    		 
 {
     datasz_ = s.datasz_; 
@@ -473,6 +464,8 @@ void uiFuncTaperDisp::setFunction( Array1DImpl<float>& data, Interval<float> rg)
     orgfuncvals_ = new Array1DImpl<float>( data );
     funcvals_ = &data;
     funcrg_ = rg;
+    
+    yAxis(true)->setName( "Amplitude" );
 
     setWindows( leftd_.paramval_, rightd_.paramval_ );
 }
@@ -529,16 +522,12 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 
     if ( funcvals_ )
     {
-	setup_.drawliney2_ = displaytaper_;  
 	window_->apply( orgfuncvals_, funcvals_ );
 	setVals( funcrg_, window_->getValues(), datasz_ );
 	setY2Vals( funcrg_, funcvals_->getData(), datasz_ );
     }
     else if ( xvals.size() ) 
-    {
-	setup_.drawliney_ = displaytaper_;  
 	setVals( xvals.arr(), window_->getValues(), datasz_ );
-    }
 
     taperchanged.trigger();
 }

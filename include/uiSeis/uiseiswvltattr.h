@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.12 2009-11-25 13:33:06 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.13 2009-11-25 14:09:20 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,6 @@ protected:
 
     void			act(CallBacker*);
     void			typeChoice(CallBacker*);
-    void			freqChanged(CallBacker*);
 };
 
 

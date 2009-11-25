@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.16 2009-11-25 13:33:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.17 2009-11-25 14:09:20 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -125,20 +125,19 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     uiFuncTaperDisp::Setup s;
     s.datasz_ = (int) ( 0.5/SI().zStep() );
     s.xaxnm_ = "Time (ms)";
-    s.yaxnm_ = "Apmplitude";
-    s.noxgridline_ = true;
-    s.noygridline_ = true;
+    s.yaxnm_ = "Taper Apmplitude";
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
-    s.leftrg_ = Interval<float> ( s.datasz_/2-1, s.datasz_/2 );
-    s.rightrg_ = Interval<float> ( s.datasz_/2-1, s.datasz_ );
+    s.leftrg_ = Interval<float> ( 0, s.datasz_/6 );
+    s.rightrg_ = Interval<float> ( s.datasz_-1, s.datasz_ );
     s.is2sided_ = true;
     s.xaxnm_ = "Frequency (Hz)";
     s.yaxnm_ = "Gain (dB)";
-    s.fillbelow_ = true;
+    s.fillbelowy2_ = true;
+    s.drawliney_ = false;
     freqdrawer_ = new uiFuncTaperDisp( this, s );
     freqdrawer_->attach( ensureBelow, timedrawer_ );
-    freqdrawer_->taperchanged.notify(mCB(this,uiSeisWvltTaperDlg,freqChanged) );
+    freqdrawer_->taperchanged.notify(mCB(this,uiSeisWvltTaperDlg,act) );
 
     typefld_ = new uiGenInput( this, "Taper",
 				    BoolInpSpec(true,"Time","Frequency") ); 
@@ -152,7 +151,6 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     float maxfreq = 0.5/zstep;
     if ( SI().zIsTime() ) maxfreq = mNINT( maxfreq );
     freqrange_.set( 0, maxfreq );
-    freqdrawer_->setFunction( *freqvals_, freqrange_ );
     
     FreqTaperSetup ftsu; ftsu.hasmin_ = true, 
     ftsu.minfreqrg_ = s.leftrg_;
@@ -183,43 +181,36 @@ void uiSeisWvltTaperDlg::typeChoice( CallBacker* )
     mutefld_->display( !isfreqtaper_ );
     freqtaper_->display( isfreqtaper_ );
 
-    timedrawer_->displayTaper( !isfreqtaper_ );
-    freqdrawer_->displayTaper( isfreqtaper_ );
+    timedrawer_->setup().drawliney_ = !isfreqtaper_;
+    freqdrawer_->setup().drawliney_ = isfreqtaper_;
 
     if ( isfreqtaper_ )
-    {
 	freqdrawer_->setFunction( *freqvals_, freqrange_ );
-	freqChanged(0);
-    }
     else
-    {
 	timedrawer_->setFunction( *wvltvals_, timerange_ );
-	act(0);
-    }
+    act(0);
 }
 
 
 void uiSeisWvltTaperDlg::act( CallBacker* )
 {
-    float var = sliderfld_->sldr()->getValue();
-    timedrawer_->setWindows( 1-var/100 );
+    if ( isfreqtaper_ )
+    {
+	if ( !freqdrawer_->getFuncValues() ) return;
+	memcpy(freqvals_->getData(),freqdrawer_->getFuncValues(),mPadSz);
+	setTimeData();
+    }
+    else
+    {
+	float var = sliderfld_->sldr()->getValue();
+	timedrawer_->setWindows( 1-var/100 );
 
-    if ( !timedrawer_->getFuncValues() ) return;
-    memcpy( wvlt_->samples(), timedrawer_->getFuncValues(), wvltsz_ );
-    if ( mutefld_->isChecked() ) wvltattr_->muteZeroFrequency( *wvltvals_ );
-    setFreqData();
+	if ( !timedrawer_->getFuncValues() ) return;
+	memcpy( wvlt_->samples(), timedrawer_->getFuncValues(), wvltsz_ );
+	if ( mutefld_->isChecked() ) wvltattr_->muteZeroFrequency( *wvltvals_ );
+	setFreqData();
+    }
 
-    wvltattr_->setNewWavelet( *wvlt_ );
-    acting.trigger();
-}
-
-
-void uiSeisWvltTaperDlg::freqChanged( CallBacker* )
-{
-    if ( !freqdrawer_->getFuncValues() ) return;
-    memcpy(freqvals_->getData(),freqdrawer_->getFuncValues(),mPadSz);
-    setTimeData();
-    
     wvltattr_->setNewWavelet( *wvlt_ );
     acting.trigger();
 }
@@ -244,7 +235,7 @@ void uiSeisWvltTaperDlg::setTimeData()
 	wvlt_->samples()[idx] = wvltval;
     }
 
-    timedrawer_->setVals( timerange_, wvltvals_->getData(), wvltsz_ );
+    timedrawer_->setY2Vals( timerange_, wvltvals_->getData(), wvltsz_ );
 }
 
 
@@ -256,7 +247,7 @@ void uiSeisWvltTaperDlg::setFreqData()
     for ( int idx=0; idx<mPadSz; idx++ )
 	freqvals_->set( idx, spectrum.get(idx) );
 
-    freqdrawer_->setVals( freqrange_, freqvals_->getData(), mPadSz );
+    freqdrawer_->setY2Vals( freqrange_, freqvals_->getData(), mPadSz );
 }
 
 
