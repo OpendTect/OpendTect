@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.34 2009-09-10 13:34:29 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.35 2009-11-26 16:07:44 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -91,20 +91,20 @@ protected:
     inline StreamConn&	sConn()		{ return *(StreamConn*)conn; }
 
     bool		commitSelections_();
-    bool		initRead_();
-    bool		initWrite_(const SeisTrc&);
-    bool		writeTrc_(const SeisTrc&);
+    virtual bool	initRead_();
+    virtual bool	initWrite_(const SeisTrc&);
+    virtual bool	writeTrc_(const SeisTrc&);
 
     bool		readTraceHeadBuffer();
     bool		readDataToBuf(unsigned char*);
     bool		readData(SeisTrc&);
     bool		writeData(const SeisTrc&);
-    bool		readTapeHeader();
-    void		updateCDFromBuf();
+    virtual bool	readTapeHeader();
+    virtual void	updateCDFromBuf();
     int			nrSamplesRead() const;
-    void		interpretBuf(SeisTrcInfo&);
-    bool		writeTapeHeader();
-    void		fillHeaderBuf(const SeisTrc&);
+    virtual void	interpretBuf(SeisTrcInfo&);
+    virtual bool	writeTapeHeader();
+    virtual void	fillHeaderBuf(const SeisTrc&);
     void		toPreSelected(DataCharacteristics&) const;
     virtual void	toPreferred(DataCharacteristics&) const;
     void		fillErrMsg(const char*,bool);
