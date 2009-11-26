@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.28 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.29 2009-11-26 09:34:07 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -240,6 +240,11 @@ void ascistream::init( std::istream* strm, bool rdhead )
 
 ascistream& ascistream::next()
 {
+    static const char* toreplace_newln =     "\\n";
+    static const char* toreplace_to_newln =  "\n";
+    static const char toreplace_separ[] =    { '\\', mAscStrmKeyValSep, '\0' };
+    static const char toreplace_to_separ[] = { mAscStrmKeyValSep, '\0' };
+
     keybuf.setEmpty(); valbuf.setEmpty();
     if ( !streamptr || !streamptr->good() )
 	return *this;
@@ -253,33 +258,35 @@ ascistream& ascistream::next()
     if ( linebuf[0] == mAscStrmParagraphMarker[0] )
 	{ keybuf = mAscStrmParagraphMarker; return *this; }
 
-    int sz = lineread.size();
-    char* separptr = linebuf[0] == mAscStrmKeyValSep ? linebuf : 0;
+    bool found_separ = linebuf[0] == mAscStrmKeyValSep;
+    bool found_unescaped_separ = found_separ;
+    const int sz = lineread.size();
+    char* separptr = 0;
     for ( int ich=1; ich<sz; ich++ )
     {
-	const bool issep = linebuf[ich] == mAscStrmKeyValSep;
-	if ( linebuf[ich-1] == '\\' && (issep || linebuf[ich] == 'n') )
-	{
-	    char frm[3]; frm[0] = '\\'; frm[1] = linebuf[ich]; frm[2] = '\0';
-	    char to[2]; to[0] = issep ? mAscStrmKeyValSep : '\n'; to[1] = '\0';
-	    replaceString( linebuf, frm, to );
-	    sz = lineread.size();
-	    continue;
-	}
-	else if ( issep && !separptr )
-	    separptr = linebuf + ich;
+	const bool isunesc = linebuf[ich] == mAscStrmKeyValSep
+	    		  && (ich==0 || linebuf[ich-1]!='\\');
+	if ( isunesc )
+	    { separptr = linebuf+ich; break; }
     }
 
     if ( separptr )
     {
 	char* startptr = separptr + 1;
-	mTrimBlanks(startptr);
-	valbuf = startptr;
 	*separptr = '\0';
+	mTrimBlanks(startptr);
+	replaceString( startptr, toreplace_separ, toreplace_to_separ );
+	replaceString( startptr, toreplace_newln, toreplace_to_newln );
+	valbuf = startptr;
     }
 
     char* startptr = linebuf;
     mTrimBlanks(startptr);
+    if ( !separptr )
+    {
+	replaceString( startptr, toreplace_separ, toreplace_to_separ );
+	replaceString( startptr, toreplace_newln, toreplace_to_newln );
+    }
     keybuf = startptr;
 
     return *this;
