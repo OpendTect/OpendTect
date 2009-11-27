@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		August 2009
- RCS:		$Id: horizon3dtesselator.h,v 1.2 2009-10-02 21:10:40 cvsyuancheng Exp $
+ RCS:		$Id: horizon3dtesselator.h,v 1.3 2009-11-27 10:11:07 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ class Coord3List;
    hence normstartidx is provided in case you want to arrange your global indices 
    based on your spacing or whatever. */
 
-class Horizon3DTesselator : public SequentialTask
+mClass Horizon3DTesselator : public SequentialTask
 {
 public:
     			Horizon3DTesselator(const Coord3List*,
