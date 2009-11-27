@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.15 2009-11-23 15:59:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.16 2009-11-27 11:56:28 cvsbruno Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -154,15 +154,19 @@ void uiAmplSpectrum::putDispData()
     const int fftsz = freqdomainsum_->info().getSize(0) / 2;
     delete specvals_;
     specvals_ = new Array1DImpl<float>( fftsz );
+    Array1DImpl<float> dbspecvals( fftsz );
     for ( int idx=0; idx<fftsz; idx++ )
-	specvals_->set( idx, 20*Math::Log10( 
-		    		abs(freqdomainsum_->get(idx))/nrtrcs_) );
+    {
+	const float val = abs(freqdomainsum_->get(idx))/nrtrcs_;
+	specvals_->set( idx, val ); 
+	dbspecvals.set( idx, 20*Math::Log10( val ) ); 
+    }
 
     float maxfreq = fft_->getNyqvist( SI().zStep() );
     if ( SI().zIsTime() )
 	maxfreq = mNINT( maxfreq );
     posrange_.set( 0, maxfreq );
-    disp_->setVals( posrange_, specvals_->arr(), fftsz );
+    disp_->setVals( posrange_, dbspecvals.arr(), fftsz );
     disp_->draw();
 }
 

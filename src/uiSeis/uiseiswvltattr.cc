@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.17 2009-11-25 14:09:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.18 2009-11-27 11:56:28 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -188,7 +188,6 @@ void uiSeisWvltTaperDlg::typeChoice( CallBacker* )
 	freqdrawer_->setFunction( *freqvals_, freqrange_ );
     else
 	timedrawer_->setFunction( *wvltvals_, timerange_ );
-    act(0);
 }
 
 
@@ -196,8 +195,15 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
 {
     if ( isfreqtaper_ )
     {
-	if ( !freqdrawer_->getFuncValues() ) return;
-	memcpy(freqvals_->getData(),freqdrawer_->getFuncValues(),mPadSz);
+	Array1DImpl<float> tmpwvltvals( wvltsz_ );
+	memcpy(tmpwvltvals.arr(),orgwvlt_->samples(),sizeof(float)*wvltsz_);
+	wvltattr_->applyFreqWindow( *freqdrawer_->window(),
+				mPaddFac, tmpwvltvals );
+	for ( int idx=0; idx<wvltsz_; idx++ )
+	{
+	    wvltvals_->set( idx, tmpwvltvals.get(idx) );
+	    wvlt_->samples()[idx] = tmpwvltvals.get(idx);
+	}
 	setTimeData();
     }
     else
@@ -218,23 +224,6 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
 
 void uiSeisWvltTaperDlg::setTimeData()
 {
-    Array1DImpl<float> doublefreqdata( 2*mPadSz );
-    Array1DImpl<float> wvlttmpdata( 2*mPadSz );
-
-    for ( int idx=0; idx<mPadSz; idx++ )
-    {
-	doublefreqdata.set( idx, freqvals_->get( idx ) );
-	doublefreqdata.set( 2*mPadSz-idx-1, freqvals_->get( idx ) );
-    }
-    wvltattr_->getWvltFromFrequency( doublefreqdata, wvlttmpdata );
-
-    for ( int idx=0; idx<wvltsz_; idx++ )
-    {
-	float wvltval = wvlttmpdata.get( idx + wvltsz_ );
-	wvltvals_->set( idx, wvltval );
-	wvlt_->samples()[idx] = wvltval;
-    }
-
     timedrawer_->setY2Vals( timerange_, wvltvals_->getData(), wvltsz_ );
 }
 
@@ -297,8 +286,7 @@ uiWaveletDispProp::~uiWaveletDispProp()
 
 void uiWaveletDispProp::addAttrDisp( bool isfreq )
 {
-    uiFuncTaperDisp::Setup fdsu;
-    fdsu.datasz_ = wvltsz_;
+    uiFunctionDisplay::Setup fdsu;
 
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
     const int attridx = attrarrays_.size()-1;
@@ -309,15 +297,16 @@ void uiWaveletDispProp::addAttrDisp( bool isfreq )
 	fdsu.fillbelow( true );
 	attrarrays_[attridx]->setSize( mPadSz );
 	BufferString tmp; mSWAP( xname, yname, tmp );
-	fdsu.datasz_ = mPadSz;
     }
     else
 	xname += "Time (ms)";
-    fdsu.xaxnm_ = xname; 	fdsu.yaxnm_ = yname;
 
     attrdisps_ += new uiFunctionDisplay( this, fdsu );
     if ( attridx )
 	attrdisps_[attridx]->attach( alignedBelow, attrdisps_[attridx-1] );
+
+    attrdisps_[attridx]->xAxis()->setName( xname );
+    attrdisps_[attridx]->yAxis(false)->setName( yname );
 }
 
 

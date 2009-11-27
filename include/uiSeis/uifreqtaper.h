@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Nov 2009
- RCS:		$Id: uifreqtaper.h,v 1.3 2009-11-25 14:09:20 cvsbruno Exp $
+ RCS:		$Id: uifreqtaper.h,v 1.4 2009-11-27 11:56:28 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,14 +74,15 @@ public:
 			Setup()
 			    : is2sided_(false)
 			    , datasz_((int)(0.5/SI().zStep()))
+			    , logscale_(false)			      
 			    {
 				xaxnm_ = "Frequency (Hz)";
 				yaxnm_ = "Gain (dB)";
 				noxgridline_ = true;
 				noygridline_ = true;
 				ywidth_ = 2;
-				ycol_.set( 255, 0, 0 );
-				y2col_.set( 0, 0, 255 );  
+				ycol_.set( 200, 0, 0 );
+				y2col_.set( 0, 0, 200 );  
 			    }
 
 	mDefSetupMemb(int,datasz);	
@@ -90,6 +91,7 @@ public:
 	mDefSetupMemb(Interval<float>,leftrg)	
 	mDefSetupMemb(Interval<float>,rightrg)
 	mDefSetupMemb(bool,is2sided);	
+	mDefSetupMemb(bool,logscale);	
     };
 
 			uiFuncTaperDisp(uiParent*,const Setup&);
@@ -101,11 +103,14 @@ public:
     void 		setWindows(float,float rightvar=0);
     void		setFunction(Array1DImpl<float>&,Interval<float>);
     			
+    ArrayNDWindow*	window() const { return window_; }
+
     float*		getWinValues() const 
 			{ return window_ ? window_->getValues() : 0; } 
     float*		getFuncValues() const 
     			{ return funcvals_ ? funcvals_->getData() : 0; } 
    
+    void 		adaptFreqRangesToDataSize(bool,bool);
     void		taperChged(CallBacker*);
 
     TaperData&		leftTaperData() { return leftd_; }
@@ -120,10 +125,12 @@ protected:
 
     Array1DImpl<float>* funcvals_; 
     Array1DImpl<float>* orgfuncvals_;
-    Interval<float>	funcrg_;	
+    Interval<float>	funcdisprg_;
 
     bool		is2sided_;
+    bool		logscale_;
     int 		datasz_;
+    int 		orgdatasz_;
 };
 
 
@@ -145,8 +152,8 @@ public:
 
 protected :
     
-    TaperData		dd1_;
-    TaperData		dd2_;
+    TaperData		td1_;
+    TaperData		td2_;
 
     uiGenInput*		varinpfld_;
     uiGenInput*		freqinpfld_;
@@ -159,7 +166,7 @@ protected :
     bool		hasmax_;
     bool		isminactive_;
     int 		datasz_;
-    bool 		allfreqssetable_;	
+    bool 		allfreqssetable_;
     
     void		setSlopeFromFreq();
     void 		setPercentsFromFreq();
