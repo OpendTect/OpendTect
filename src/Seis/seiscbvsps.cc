@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.42 2009-11-23 14:01:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.43 2009-11-27 03:01:38 cvsnanne Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -26,7 +26,7 @@ static const char* cSampNmsFnm = "samplenames.txt";
 static const char* cPosDataFnm = "posdata.txt";
 
 
-mClass CBVSSeisPSIOProvider : public SeisPSIOProvider
+class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
 			CBVSSeisPSIOProvider() : SeisPSIOProvider("CBVS") {}

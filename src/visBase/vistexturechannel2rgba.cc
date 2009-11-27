@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.31 2009-10-29 22:27:49 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.32 2009-11-27 03:01:38 cvsnanne Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -40,7 +40,7 @@ mCreateFactoryEntry( visBase::ColTabTextureChannel2RGBA );
 namespace visBase
 {
 
-mClass ColTabSequenceTransparencyCheck : public ParallelTask
+class ColTabSequenceTransparencyCheck : public ParallelTask
 {
 public:
 

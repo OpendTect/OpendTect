@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.75 2009-11-13 03:39:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.76 2009-11-27 03:01:38 cvsnanne Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -831,7 +831,7 @@ void Seis2DLineSet::installPreSet( const IOPar& iop, const char* reallskey,
 }
 
 
-mClass Seis2DGeomDumper : public Executor
+class Seis2DGeomDumper : public Executor
 {
 public:
 

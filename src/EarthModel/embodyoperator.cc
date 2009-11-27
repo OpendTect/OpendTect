@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.13 2009-11-18 19:53:34 cvskris Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.14 2009-11-27 03:01:38 cvsnanne Exp $";
 
 #include "embodyoperator.h"
 
@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: embodyoperator.cc,v 1.13 2009-11-18 19:53:34 cv
 namespace EM
 {
 
-mClass BodyOperatorArrayFiller: public ParallelTask
+class BodyOperatorArrayFiller: public ParallelTask
 {
 public:
 BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1, 
