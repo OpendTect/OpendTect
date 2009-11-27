@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.27 2009-11-27 09:08:01 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.28 2009-11-27 09:41:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,11 +74,13 @@ public:
     bool		new_packet;	// not stored
 
     void		handlePossibleFeetConversion(bool conv_back=false,
-	    					     bool other_domain=false);
+						 bool other_domain=false) const;
     /*!<
 	Use this when seismic data meets non-seismic data.
 	The other_domain is for time traces in depth surveys and vv.
 	Note that this function most often does nothing.
+	The 'const' is cheating, but very convenient. You already have to
+	know what you're doing to use this function.
      */
 
 };

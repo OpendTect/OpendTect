@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.56 2009-11-27 09:08:08 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.57 2009-11-27 09:41:30 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -430,17 +430,20 @@ void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
 }
 
 
-void SeisTrcInfo::handlePossibleFeetConversion( bool conv_back, bool othdomain )
+void SeisTrcInfo::handlePossibleFeetConversion( bool conv_back,
+						bool othdomain ) const
 {
     if ( SI().zIsTime() != othdomain		// data is in time
       || (othdomain && !SI().depthsInFeetByDefault())
       || (!othdomain && !SI().zInFeet()) )	// data needs to stay in meters
 	return;
 
+    SeisTrcInfo& self = const_cast<SeisTrcInfo&>( *this );
     const float fac = conv_back ? mToFeetFactor : mFromFeetFactor;
-    sampling.start *= fac; sampling.step *= fac;
-    if ( !mIsUdf(pick) ) pick *= fac;
-    if ( !mIsUdf(refpos) ) refpos *= fac;
+
+    self.sampling.start *= fac; self.sampling.step *= fac;
+    if ( !mIsUdf(pick) ) self.pick *= fac;
+    if ( !mIsUdf(refpos) ) self.refpos *= fac;
 }
 
 
