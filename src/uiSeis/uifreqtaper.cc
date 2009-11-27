@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.5 2009-11-27 15:34:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqtaper.cc,v 1.6 2009-11-27 15:46:01 cvsbruno Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -586,11 +586,9 @@ void uiFreqTaperSel::winfuncseldlgCB( CallBacker* )
 {
     setSelFreqs(0);
 
-    if ( !freqtaperdlg_ )
-    {
-	freqtaperdlg_ = new uiFreqTaperDlg( this, freqsetup_ );
-	freqtaperdlg_->windowClosed.notify( mCB(this,uiFreqTaperSel,windowClosed));
-    }
+    delete freqtaperdlg_;
+    freqtaperdlg_ = new uiFreqTaperDlg( this, freqsetup_ );
+    freqtaperdlg_->windowClosed.notify( mCB(this,uiFreqTaperSel,windowClosed));
     freqtaperdlg_->show();
 }
 
