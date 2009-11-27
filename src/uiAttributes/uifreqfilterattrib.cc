@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.33 2009-11-23 15:59:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.34 2009-11-27 15:34:42 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -68,18 +68,23 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     polesfld->box()->setMinValue( 2 );
     polesfld->attach( alignedBelow, freqfld );
 
-    BufferString wintext( "Window/Taper" );
-    uiWindowFunctionSel::Setup su; su.label_ = wintext; su.winname_ = 0;
+    uiWindowFunctionSel::Setup su; 
+    su.label_ = "Window/Taper"; 
+    su.winname_ = 0;
+
     for ( int idx=0; idx<2; idx++ )
     {
 	if ( idx )
 	{
-	    su.ismaxfreq_ = true; 
 	    su.label_ = "Taper"; 
 	    su.onlytaper_ = true;
+	    su.with2fldsinput_ = true;
 	    su.inpfldtxt_ = minmaxtxt;
-	    su.seisnm_ = inpfld->getAttrName(); 
-	    winflds += new uiFreqTaperSel( this, su );
+
+	    FreqTaperSetup freqsu;
+	    freqsu.seisnm_ = inpfld->getInput(); 
+	    freqsu.attrnm_ = inpfld->getAttrName(); 
+	    winflds += new uiFreqTaperSel( this, su, freqsu );
 	}
 	else
 	    winflds += new uiWindowFunctionSel( this, su );

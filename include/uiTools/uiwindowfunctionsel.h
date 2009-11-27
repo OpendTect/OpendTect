@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.12 2009-11-23 15:59:22 cvsbruno Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.13 2009-11-27 15:34:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,9 +31,7 @@ public:
     {
 			Setup() 
 			    : onlytaper_(false)		      	
-			    , ismaxfreq_(false)		
-			    , isminfreq_(false)	
-			    , seisnm_(0)			
+			    , with2fldsinput_(false)		
 			    , winparam_(mUdf(float))  
 			    {}
 
@@ -41,10 +39,8 @@ public:
 	mDefSetupMemb(const char*,label)
 	mDefSetupMemb(BufferString,inpfldtxt)
 	mDefSetupMemb(float,winparam)
-	mDefSetupMemb(bool,ismaxfreq)
-	mDefSetupMemb(bool,isminfreq)
 	mDefSetupMemb(bool,onlytaper)
-	mDefSetupMemb(const char*,seisnm)
+	mDefSetupMemb(bool,with2fldsinput)
     };
 
     				uiWindowFunctionSel(uiParent*,const Setup&);

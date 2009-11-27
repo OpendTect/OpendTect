@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.23 2009-11-23 15:59:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.24 2009-11-27 15:34:42 cvsbruno Exp $";
 
 #include "uiwindowfunctionsel.h"
 
@@ -51,7 +51,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 	    BufferString varname ( winfunc->variableName() );
 	    varname += " (%)";
 	    float v = winfunc->getVariable() * 100;
-	    if ( su.isminfreq_ || su.ismaxfreq_ )
+	    if ( su.with2fldsinput_ )
 	    {
 		BufferString twosidedvarname( su.inpfldtxt_ );
 		varinpfld_ = new uiGenInput( this, twosidedvarname.buf(), 

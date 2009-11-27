@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.4 2009-11-27 11:56:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqtaper.cc,v 1.5 2009-11-27 15:34:42 cvsbruno Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -25,12 +25,8 @@ static const char* rcsID = "$Id: uifreqtaper.cc,v 1.4 2009-11-27 11:56:28 cvsbru
 
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
-#include "iostrm.h"
-#include "ctxtioobj.h"
 #include "ioman.h"
-#include "linear.h"
 #include "scaler.h"
-#include "survinfo.h"
 #include "seisbuf.h"
 #include "seisread.h"
 #include "seistrc.h"
@@ -44,15 +40,13 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     , cs_(new CubeSampling())		
     , posdlg_(0)
     , funcvals_(0)					
-    , withpreview_(true)
+    , seisnm_(s.seisnm_)
+    , attrnm_(s.attrnm_)
 {
     setCtrlStyle( LeaveOnly );
     
-    if ( withpreview_ )
-    {
-	CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
-	previewfld_ = new uiPushButton( this, "&Preview spectrum...", cbview, true);
-    }
+    CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
+    previewfld_ = new uiPushButton( this, "&Preview spectrum...", cbview, true);
 
     uiFuncTaperDisp::Setup su;
     su.leftrg_ = s.minfreqrg_;    
@@ -63,8 +57,6 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     drawer_ = new uiFuncTaperDisp( this, su );
     tapergrp_ = new uiFreqTaperGrp( this, s, drawer_ );
     tapergrp_->attach( ensureBelow, drawer_ );
-
-    seisnm_ = s.seisnm_;
 
     uiSeparator* sep = new uiSeparator( this, "Sep" );
     previewfld_->attach( ensureBelow, sep );
@@ -90,10 +82,11 @@ public:
 
     uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
 	: uiDialog(p,uiDialog::Setup("Select line from Data",0,mNoHelpID))
+	, linesfld_(0)  
 	, objinfo_(objinfo)  
 {
     BufferString complbl ("Compute amplitude spectrum on ");
-    if (  objinfo_.is2D() )
+    if ( objinfo_.is2D() )
     {
 	BufferStringSet linenames;
 	objinfo.getLineNames( linenames );
@@ -109,7 +102,7 @@ public:
 }
 
 const char* getLineName()
-{ return linesfld_->box()->text(); }
+{ return linesfld_ ? linesfld_->box()->text() : 0; }
 
 bool isInl()
 { return inlcrlfld_->getBoolValue(); }
@@ -156,6 +149,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	SeisTrcReader rdr( objinfo.ioObj() );
 
 	Seis::RangeSelData* sd = new Seis::RangeSelData( cs );
+	sd->lineKey() = LineKey( lineposdlg.getLineName(), attrnm_ );
 	rdr.setSelData( sd );
 	rdr.prepareWork();
 
@@ -178,6 +172,8 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 		float val = trc->get( idx, 0 );
 		if ( mIsUdf(val) )
 		    val = 0;
+		if ( idx >= trcset.get(0)->size() )
+		    break;
 		arr2d.set( trcidx, idx, val );
 	    }
 	}
@@ -274,6 +270,8 @@ void uiFreqTaperGrp::freqChanged( CallBacker* )
 
     td.rg_ = newrg;
     td.refrg_ = newrg;
+
+    sliderfld_->sldr()->setInterval( isminactive_ ? mMinRg : mMaxRg );
     
     drawerdata.rg_ = newrg;
     drawerdata.refrg_ = newrg;
@@ -287,10 +285,13 @@ void uiFreqTaperGrp::freqChanged( CallBacker* )
 }
 
 
+#define mStopFreqNotifiers()\
+    NotifyStopper nsf1( inffreqfld_->valuechanged );\
+    NotifyStopper nsf2( supfreqfld_->valuechanged );
 void uiFreqTaperGrp::sliderChanged( CallBacker* )
 {
-    NotifyStopper nsf1( inffreqfld_->valuechanged );
-    NotifyStopper nsf2( supfreqfld_->valuechanged );
+    mStopFreqNotifiers()
+
     float sval = sliderfld_->sldr()->getValue();
     if ( isminactive_ )
 	inffreqfld_->setValue( sval );
@@ -333,9 +334,8 @@ void uiFreqTaperGrp::taperChged( CallBacker* cb )
 }
 void uiFreqTaperGrp::putToScreen( CallBacker* )
 {
-    NotifyStopper nsf1( varinpfld_->valuechanged );
-    NotifyStopper nsf2( inffreqfld_->valuechanged );
-    NotifyStopper nsf3( supfreqfld_->valuechanged );
+    mStopFreqNotifiers()
+    NotifyStopper nsf3( varinpfld_->valuechanged );
     NotifyStopper nsf4( sliderfld_->sldr()->valueChanged );
 
     TaperData& td = mGetData();
@@ -368,8 +368,7 @@ void uiFreqTaperGrp::putToScreen( CallBacker* )
 
 void uiFreqTaperGrp::setPercentsFromFreq()
 {
-    NotifyStopper nsf1( inffreqfld_->valuechanged );
-    NotifyStopper nsf2( supfreqfld_->valuechanged );
+    mStopFreqNotifiers()
     td1_.paramval_ = hasmin_ ? td1_.rg_.start / td1_.rg_.stop : 0;
     td2_.paramval_ = hasmax_ ? ( td2_.rg_.stop - td2_.rg_.start )
 			       / ( datasz_ - td2_.rg_.start ) : 0;
@@ -381,8 +380,7 @@ void uiFreqTaperGrp::setPercentsFromFreq()
 #define mDec2Oct 0.301029996 //log(2)
 void uiFreqTaperGrp::setFreqFromSlope( float slope )
 {
-    NotifyStopper nsf1( inffreqfld_->valuechanged );
-    NotifyStopper nsf2( supfreqfld_->valuechanged );
+    mStopFreqNotifiers()
     const float slopeindecade = (float)(slope/mDec2Oct);
     const float slopeinhertz = pow( 10, 1/slopeindecade );
     TaperData& td = mGetData();
@@ -406,12 +404,12 @@ void uiFreqTaperGrp::setSlopeFromFreq()
 
 void uiFreqTaperGrp::freqChoiceChged( CallBacker* )
 {
-    NotifyStopper ns( sliderfld_->sldr()->valueChanged );
     if ( freqinpfld_ ) 
 	isminactive_ = freqinpfld_->getBoolValue();
     else
 	isminactive_ = hasmin_;
 
+    NotifyStopper ns( sliderfld_->sldr()->valueChanged );
     sliderfld_->sldr()->setInterval( isminactive_ ? mMinRg : mMaxRg );
 
     setSlopeFromFreq();
@@ -576,29 +574,23 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 
 
 
-uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& su )
-	    : uiWindowFunctionSel( p, su )
-	    , isminfreq_(su.isminfreq_)
-	    , ismaxfreq_(su.ismaxfreq_)
+uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& s, 
+				const FreqTaperSetup& fsu )
+	    : uiWindowFunctionSel(p,s)
+	    , freqsetup_(FreqTaperSetup(fsu))  
 	    , freqtaperdlg_(0)
-	    , seisnm_(su.seisnm_)
-{
-}
+{}
 
 
 void uiFreqTaperSel::winfuncseldlgCB( CallBacker* )
 {
     setSelFreqs(0);
-    FreqTaperSetup su;
-    su.hasmin_ = isminfreq_;            
-    su.hasmax_ = ismaxfreq_;
-    su.minfreqrg_.set( selfreqrg_.start, freqrg_.start );
-    su.maxfreqrg_.set( freqrg_.stop, selfreqrg_.stop );
-    su.seisnm_ = seisnm_;
 
-    delete freqtaperdlg_;
-    freqtaperdlg_ = new uiFreqTaperDlg( this, su );
-    freqtaperdlg_->windowClosed.notify( mCB(this,uiFreqTaperSel,windowClosed));
+    if ( !freqtaperdlg_ )
+    {
+	freqtaperdlg_ = new uiFreqTaperDlg( this, freqsetup_ );
+	freqtaperdlg_->windowClosed.notify( mCB(this,uiFreqTaperSel,windowClosed));
+    }
     freqtaperdlg_->show();
 }
 
@@ -615,7 +607,7 @@ void uiFreqTaperSel::windowClosed( CallBacker* )
 
 void uiFreqTaperSel::setIsMinMaxFreq(bool min, bool max)
 {
-    isminfreq_ = min; ismaxfreq_ = max;
+    freqsetup_.hasmin_ = min; freqsetup_.hasmax_ = max;
     varinpfld_->setSensitive( min, 0, 0 );
     varinpfld_->setSensitive( max, 0 ,1 );
 }
@@ -636,12 +628,14 @@ void uiFreqTaperSel::setInputFreqValue( float val, int fldnr )
 
 void uiFreqTaperSel::setRefFreqs( Interval<float> fint )
 {
-    freqrg_ = fint;
+    freqsetup_.minfreqrg_.stop = fint.start;
+    freqsetup_.maxfreqrg_.start = fint.stop;
 }
 
 
 void uiFreqTaperSel::setSelFreqs( CallBacker* )
 {
-    selfreqrg_.set( freqValues().start, freqValues().stop );
+    freqsetup_.minfreqrg_.start = freqValues().start;
+    freqsetup_.maxfreqrg_.stop = freqValues().stop;
 }
 

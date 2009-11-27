@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Nov 2009
- RCS:		$Id: uifreqtaper.h,v 1.4 2009-11-27 11:56:28 cvsbruno Exp $
+ RCS:		$Id: uifreqtaper.h,v 1.5 2009-11-27 15:34:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,12 @@ mStruct FreqTaperSetup
 			: hasmin_(false)
 			, hasmax_(true)
 			, seisnm_(0)		   
+			, attrnm_(0)		   
 			, allfreqssetable_(false)
 			{}
 
     const char* 	seisnm_;	
+    const char* 	attrnm_; //2D	
     bool 		hasmin_;	
     bool 		hasmax_;
     Interval<float> 	minfreqrg_;
@@ -77,7 +79,7 @@ public:
 			    , logscale_(false)			      
 			    {
 				xaxnm_ = "Frequency (Hz)";
-				yaxnm_ = "Gain (dB)";
+				yaxnm_ = "Gain Factor (dB)";
 				noxgridline_ = true;
 				noygridline_ = true;
 				ywidth_ = 2;
@@ -198,8 +200,8 @@ protected:
     uiFuncTaperDisp*    drawer_;
     Array1DImpl<float>* funcvals_; 
 
-    bool		withpreview_;
     const char*		seisnm_;
+    const char*		attrnm_;
     uiPushButton*	previewfld_;
     uiSliceSelDlg*	posdlg_;
     CubeSampling*	cs_;
@@ -212,21 +214,19 @@ protected:
 mClass uiFreqTaperSel : public uiWindowFunctionSel
 {
 public:
-				uiFreqTaperSel(uiParent*,const Setup&);
+				uiFreqTaperSel(uiParent*,const Setup&,
+						const FreqTaperSetup&);
+
+    Interval<float>             freqValues() const;
 
     void                        setIsMinMaxFreq(bool,bool);
     void                        setInputFreqValue(float,int);
-    Interval<float>             freqValues() const;
     void                        setRefFreqs(Interval<float>);
 
 protected :
 
-    Interval<float>             freqrg_;
-    Interval<float>             selfreqrg_;
-    bool                        isminfreq_;
-    bool                        ismaxfreq_;
     uiFreqTaperDlg*             freqtaperdlg_;
-    const char*                 seisnm_;
+    FreqTaperSetup		freqsetup_;
 
     void                        winfuncseldlgCB(CallBacker*);
     void                        windowClosed(CallBacker*);
