@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Nov 2009
- RCS:		$Id: uifreqtaper.h,v 1.5 2009-11-27 15:34:42 cvsbruno Exp $
+ RCS:		$Id: uifreqtaper.h,v 1.6 2009-11-27 15:45:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,8 +83,8 @@ public:
 				noxgridline_ = true;
 				noygridline_ = true;
 				ywidth_ = 2;
-				ycol_.set( 200, 0, 0 );
-				y2col_.set( 0, 0, 200 );  
+				ycol_.set(200,0,0);
+				y2col_.set(0,0,220);  
 			    }
 
 	mDefSetupMemb(int,datasz);	
@@ -214,23 +214,23 @@ protected:
 mClass uiFreqTaperSel : public uiWindowFunctionSel
 {
 public:
-				uiFreqTaperSel(uiParent*,const Setup&,
+			uiFreqTaperSel(uiParent*,const Setup&,
 						const FreqTaperSetup&);
 
-    Interval<float>             freqValues() const;
+    Interval<float>	freqValues() const;
 
-    void                        setIsMinMaxFreq(bool,bool);
-    void                        setInputFreqValue(float,int);
-    void                        setRefFreqs(Interval<float>);
+    void		setIsMinMaxFreq(bool,bool);
+    void		setInputFreqValue(float,int);
+    void		setRefFreqs(Interval<float>);
 
 protected :
 
-    uiFreqTaperDlg*             freqtaperdlg_;
-    FreqTaperSetup		freqsetup_;
+    uiFreqTaperDlg* 	freqtaperdlg_;
+    FreqTaperSetup	freqsetup_;
 
-    void                        winfuncseldlgCB(CallBacker*);
-    void                        windowClosed(CallBacker*);
-    void                        setSelFreqs(CallBacker*);
+    void 		winfuncseldlgCB(CallBacker*);
+    void 		windowClosed(CallBacker*);
+    void 		setSelFreqs(CallBacker*);
 };
 
 #endif
