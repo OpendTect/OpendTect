@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.8 2009-11-26 14:04:53 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.9 2009-11-30 15:28:26 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -17,8 +17,7 @@ ________________________________________________________________________
 #include <complex>
 
 FFTFilter::FFTFilter()
-    : avg_(0)
-    , hilbert_(0)	       	
+    : hilbert_(0)	       	
     , fft_(0)	      
     , window_(0)	      	      
     , hfwindow_(0)	      	      
@@ -59,13 +58,12 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
     FFTFreqFilter( df, cutfreq, islowpass, cfreqinput, cfreqoutput );
     mDoTransform( fft_, false, cfreqoutput, coutvals, arraysize );
 
-    float correctbias = islowpass ? avg_ : 0;
     for ( int idx=0; idx<arraysize; idx++ )
     {
 	float val = coutvals.get(idx).real();
 	if ( mIsUdf(val) )
 	    val = 0;
-	output.set( idx, val + correctbias );
+	output.set( idx, val );
     }
 }
 
@@ -80,7 +78,6 @@ void FFTFilter::FFTBandPassFilter( float df, float minfreq, float maxfreq,
 			       coutvals( arraysize );
     initFilter( input, cfreqinput );
     
-    float correctbias = minfreq ? 0 : avg_ ;
     FFTBandPassFilter( df, minfreq, maxfreq, cfreqinput, cfreqoutput );
     mDoTransform( fft_, false, cfreqoutput, coutvals, arraysize );
 
@@ -89,7 +86,7 @@ void FFTFilter::FFTBandPassFilter( float df, float minfreq, float maxfreq,
 	float val = coutvals.get(idx).real();
 	if ( mIsUdf(val) )
 	    val = 0;
-	output.set( idx, val + correctbias );
+	output.set( idx, val );
     }
 }
 
@@ -108,13 +105,8 @@ void FFTFilter::initFilter( const Array1DImpl<float>& timeinput,
 	    ctimeinput.set( idx, window_->win_[idx]*ctimeinput.get( idx )  );
     }
 
-    avg_ = 0;
     for ( int idx=0; idx<arraysize; idx++ )
-	avg_ += ctimeinput.get(idx).real();
-    avg_ /= arraysize;
-    avg_ = 0;
-    for ( int idx=0; idx<arraysize; idx++ )
-	ctimeinput.set( idx, ctimeinput.get( idx) - avg_ );
+	ctimeinput.set( idx, ctimeinput.get( idx) );
 
     mDoTransform( fft_, true, ctimeinput, cfreqoutput, arraysize );
 }

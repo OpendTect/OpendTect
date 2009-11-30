@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          6-10-2009
-RCS:           $Id: fftfilter.h,v 1.3 2009-10-16 16:30:36 cvsbruno Exp $
+RCS:           $Id: fftfilter.h,v 1.4 2009-11-30 15:28:26 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -66,7 +66,6 @@ protected:
 			float* win_;
     };
 
-    float 		avg_;
     HilbertTransform*	hilbert_; 
     FFT*		fft_; 
     Window*		window_;
