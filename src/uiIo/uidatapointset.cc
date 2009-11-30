@@ -7,15 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.55 2009-11-12 12:22:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.56 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
 #include "uidatapointsetcrossplotwin.h"
 
 #include "datapointset.h"
+#include "dpsdispmgr.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
+#include "randcolor.h"
 #include "datacoldef.h"
 #include "ctxtioobj.h"
 #include "iopar.h"
@@ -47,12 +49,11 @@ static const int cMinPtsForDensity = 20000;
 static const char* sKeyGroups = "Groups";
 
 
-uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal, bool has3dcon )
+uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
     : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"0.4.3")
     , isconst_(false)
     , canaddrow_(false)
     , directremove_(true)
-    , has3dcon_(has3dcon)
     , allowretrieve_(true)
     , initialmaxnrlines_(4000)
 {
@@ -78,7 +79,8 @@ void uiDataPointSet::stopCreateNotify( CallBacker* c )
 #define mDPM DPM(DataPackMgr::PointID())
 
 uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
-				const uiDataPointSet::Setup& su )
+				const uiDataPointSet::Setup& su,
+       				DataPointSetDisplayMgr* dpsmgr )
 	: uiDialog(p,su)
 	, dps_(*const_cast<DataPointSet*>(&dps))
     	, setup_(su)
@@ -95,6 +97,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, rowRemoved(this)
 	, xplotwin_(0)
 	, statswin_(0)
+	, dpsdispmgr_(dpsmgr)
 	, iotb_(0)
 {
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
@@ -128,6 +131,8 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->setTableReadOnly( setup_.isconst_ );
     tbl_->setLabelAlignment( Alignment::Left, true );
 
+    selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );
+    selPtsToBeRemoved.notify( mCB(this,uiDataPointSet,removeSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
     finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
     creationCBS().doCall( this );
@@ -658,7 +663,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 	xplotwin_->plotter().dataChanged();
     else
     {
-	xplotwin_ = new uiDataPointSetCrossPlotWin( *this, setup_.has3dcon_ );
+	xplotwin_ = new uiDataPointSetCrossPlotWin( *this );
 	uiDataPointSetCrossPlotter& xpl = xplotwin_->plotter();
 	xpl.selectionChanged.notify( mCB(this,uiDataPointSet,xplotSelChg) );
 	xpl.removeRequest.notify( mCB(this,uiDataPointSet,xplotRemReq) );
@@ -1225,6 +1230,35 @@ bool uiDataPointSet::doSave()
 	unsavedchgs_ = false;
 
     return ret;
+}
+
+
+void uiDataPointSet::showSelPts( CallBacker* )
+{
+    if ( !dpsdispmgr_ ) return;
+
+    dpsdispmgr_->lock();
+    
+    if ( dpsdispmgr_->getDisplayID(dps_) < 0 )
+    {
+	const int dpsid =
+	    dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(), dps_);
+	dpsdispmgr_->setDisplayCol( dpsid, getRandStdDrawColor() );
+    }
+    else
+	dpsdispmgr_->updateDisplay( dpsdispmgr_->getDisplayID(dps_), dps_ );
+    dpsdispmgr_->unLock();
+}
+
+
+void uiDataPointSet::removeSelPts( CallBacker* )
+{
+    if ( !dpsdispmgr_ ) return;
+
+    const int dpsid = dpsdispmgr_->getDisplayID( dps_ );
+    if ( dpsid < 0 ) return;
+
+    dpsdispmgr_->removeDisplay( dpsid );
 }
 
 

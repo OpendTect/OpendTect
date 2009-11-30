@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.73 2009-11-12 12:34:36 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.74 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 #include "uinlapartserv.h"
 
@@ -487,9 +487,9 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 
 bool uiNLAPartServer::doDPSDlg()
 {
-    uiDataPointSet::Setup su( "Input data", true, true );
+    uiDataPointSet::Setup su( "Input data", true );
     su.isconst(false).allowretrieve(false).canaddrow(false);
-    uidps_ = new uiDataPointSet( appserv().parent(), dps(), su );
+    uidps_ = new uiDataPointSet( appserv().parent(), dps(), su, dpsdispmgr_ );
     uidps_->setCtrlStyle( uiDialog::DoAndStay );
     uidps_->storePars() = storepars_;
     uidps_->storePars().set( sKey::Type, "MVA Data" );
@@ -498,8 +498,6 @@ bool uiNLAPartServer::doDPSDlg()
     bss.add( NLACreationDesc::DataTypeNames()[1] );
     uidps_->setGroupNames( bss );
     uidps_->setGroupType( "Data Set" );
-    uidps_->selPtsToBeShown.notify( mCB(this,uiNLAPartServer,showSelPts) );
-    uidps_->selPtsToBeRemoved.notify( mCB(this,uiNLAPartServer,removeSelPts) );
     uidps_->setDeleteOnClose( true );
     return uidps_->go();
 }
@@ -508,28 +506,6 @@ bool uiNLAPartServer::doDPSDlg()
 #undef mErrRet
 #define mErrRet(rv) \
 { if ( dps_ ) { mDPM.release( dps_->id() ); dps_ = 0; } return rv; }
-
-void uiNLAPartServer::showSelPts( CallBacker* )
-{
-    if ( !dpsdispmgr_ ) return;
-
-    dpsdispmgr_->lock();
-    if ( dpsid_ < 0 )
-	dpsid_ = dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(),
-					  dps() );
-    else
-	dpsdispmgr_->updateDisplay( dpsid_, dpsdispmgr_->availableParents(),
-				    dps() );
-    dpsdispmgr_->unLock();
-}
-
-
-void uiNLAPartServer::removeSelPts( CallBacker* )
-{
-    if ( dpsdispmgr_ )
-	dpsdispmgr_->removeDisplay( dpsid_ );
-    dpsid_ = -1;
-}
 
 
 DataPointSet& uiNLAPartServer::gtDps() const

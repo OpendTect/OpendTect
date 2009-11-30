@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.18 2009-11-12 12:22:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.19 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,7 @@ mClass uiDataPointSetCrossPlotWin : public uiMainWin
 {
 public:
 
-    				uiDataPointSetCrossPlotWin(uiDataPointSet&,
-							   bool has3dconn);
+    				uiDataPointSetCrossPlotWin(uiDataPointSet&);
 
     uiDataPointSet&		uiPointSet()	{ return uidps_; }
     uiDataPointSetCrossPlotter&	plotter()	{ return plotter_; }

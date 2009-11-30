@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.24 2009-11-09 14:51:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.25 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.24 2009-11-09 14:51
 #include "ptrman.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "randcolor.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "iostrm.h"
@@ -40,7 +41,6 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , nlamodel(0)
     , xplotwin2d_(0)
     , xplotwin3d_(0)
-    , dpsid_(-1)
     , dpsdispmgr_(0)
 {
 }
@@ -84,35 +84,8 @@ void uiWellAttribPartServer::doXPlot()
     else
 	xplotwin->setDescSet( *attrset );
 
-    xplotwin->pointsSelected.notify(
-	    mCB(this,uiWellAttribPartServer,showSelPts) );
-    xplotwin->pointsToBeRemoved.notify(
-	    mCB(this,uiWellAttribPartServer,removeSelPts) );
+    xplotwin->setDisplayMgr( dpsdispmgr_ );
     xplotwin->show();
-}
-
-
-void uiWellAttribPartServer::removeSelPts( CallBacker* )
-{
-    if ( dpsdispmgr_ )
-	dpsdispmgr_->removeDisplay( dpsid_ );
-    dpsid_ = -1;
-}
-
-
-void uiWellAttribPartServer::showSelPts( CallBacker* )
-{
-    const DataPointSet& dps = attrset->is2D() ? xplotwin2d_->getDPS()
-					      : xplotwin3d_->getDPS();
-    if ( !dpsdispmgr_ ) return;
-
-    dpsdispmgr_->lock();
-    if ( dpsid_ < 0 )
-	dpsid_ = dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(), dps);
-    else
-	dpsdispmgr_->updateDisplay( dpsid_, dpsdispmgr_->availableParents(),
-				    dps );
-    dpsdispmgr_->unLock();
 }
 
 

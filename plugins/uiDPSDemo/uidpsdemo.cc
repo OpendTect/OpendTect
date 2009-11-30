@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.9 2009-11-17 07:45:13 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.10 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 #include "uidpsdemo.h"
 
@@ -34,9 +34,10 @@ static const char* rcsID = "$Id: uidpsdemo.cc,v 1.9 2009-11-17 07:45:13 cvssatya
 #include "uimsg.h"
 
 
-uiDPSDemo::uiDPSDemo( uiParent* p )
+uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 	: uiDialog(p,Setup("DataPointSet demo","Data extraction parameters",
 		    	   mNoHelpID))
+	, dpsdispmgr_(dpsdispmgr)
 	, selPtsToBeShown(this)
 	, selPtsToBeRemoved(this)
 {
@@ -54,6 +55,7 @@ uiDPSDemo::uiDPSDemo( uiParent* p )
 
 uiDPSDemo::~uiDPSDemo()
 {
+    DPM(DataPackMgr::PointID()).release( dps_->id() );
 }
 
 
@@ -105,6 +107,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     dps_->dataSet().add( new DataColDef("Peakedness") );
     dps_->dataSet().add( new DataColDef("PeakSkew") );
     dps_->dataSet().add( new DataColDef("Frequency") );
+    DPM(DataPackMgr::PointID()).addAndObtain( dps_ );
 
     hor->ref();
     const bool isok = getRandPositions(*hor,nrpts,*dps_);
@@ -117,9 +120,10 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 	return false;
 
     BufferString wintitl( horioobj.name(), " / ", seisioobj.name() );
-    uiDataPointSet::Setup su( wintitl, false, true );
+    uiDataPointSet::Setup su( wintitl, false );
     su.canaddrow( true );
-    uiDataPointSet* uidps = new uiDataPointSet( parent(), *dps_, su );
+    uiDataPointSet* uidps =
+	new uiDataPointSet( parent(), *dps_, su, dpsdispmgr_ );
     uidps->setDeleteOnClose( true );
     if ( sectionnms.size() > 1 )
 	{ uidps->setGroupNames(sectionnms); uidps->setGroupType("Section"); }

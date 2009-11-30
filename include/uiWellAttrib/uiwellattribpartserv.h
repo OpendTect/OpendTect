@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.16 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.17 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,13 +50,9 @@ protected:
     Attrib::DescSet*		attrset;
     const NLAModel*		nlamodel;
 
-    void 			showSelPts(CallBacker*);
-    void 			removeSelPts(CallBacker*);
-
     uiWellAttribCrossPlot*	xplotwin2d_;
     uiWellAttribCrossPlot*	xplotwin3d_;
     DataPointSetDisplayMgr*	dpsdispmgr_;
-    int				dpsid_;
 };
 
 /*!\mainpage WellAttrib User Interface

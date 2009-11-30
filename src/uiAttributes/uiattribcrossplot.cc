@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.44 2009-11-12 12:34:36 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.45 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -49,7 +49,8 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	, ads_(*new Attrib::DescSet(d.is2D()))
     	, lnmfld_(0)
     	, l2ddata_(0)
-    	, uidps_(0)
+    	, curdps_(0)
+    	, dpsdispmgr_(0)
     	, pointsSelected(this)
     	, pointsTobeRemoved(this)
 {
@@ -245,7 +246,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     IOPar descsetpars;
     ads_.fillPar( descsetpars );
     const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;
-    mDPM.add( dps );
+    mDPM.addAndObtain( dps );
 
     BufferString errmsg; Attrib::EngineMan aem;
     if ( lnmfld_ )
@@ -258,23 +259,12 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( !tr.execute(*tabextr) )
 	return false;
 
-    uidps_ = new uiDataPointSet( this, *dps,
-			uiDataPointSet::Setup("Attribute data",false,true) );
-    uidps_->selPtsToBeShown.notify(
-	                mCB(this,uiAttribCrossPlot,showSelPts) );
-    uidps_->selPtsToBeRemoved.notify(
-	                mCB(this,uiAttribCrossPlot,removeSelPts) );
-    return uidps_->go() ? true : false;
+    uiDataPointSet* uidps = new uiDataPointSet( this, *dps,
+		uiDataPointSet::Setup("Attribute data",false),dpsdispmgr_ );
+    return uidps->go() ? true : false;
 }
 
 
 const DataPointSet& uiAttribCrossPlot::getDPS() const
-{ return uidps_->pointSet(); }
+{ return *curdps_; }
 
-
-void uiAttribCrossPlot::removeSelPts( CallBacker* )
-{ pointsTobeRemoved.trigger(); }
-
-
-void uiAttribCrossPlot::showSelPts( CallBacker* )
-{ pointsSelected.trigger(); }

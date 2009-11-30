@@ -7,16 +7,18 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Apr 2009
- RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.6 2009-11-24 11:04:09 cvssatyaki Exp $
+ RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.7 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "datapointset.h"
+#include "dpsdispmgr.h"
 #include "menuhandler.h"
 #include "thread.h"
 
+class DataPointSet;
 class uiVisPartServer;
+namespace visSurvey { class PointSetDisplay; }
 
 
 /*Implementation of DataPointSetDisplayMgr that enables display of
@@ -31,19 +33,22 @@ public:
     void	lock();
     void	unLock();
 
-    int		getNrParents() const;
+    int		getNrViewers() const;
     		//!<Will return the number of scenes
-    const char*	getParentName(int) const;
+    const char*	getViewerName(int) const;
 
-    bool	hasDisplay() const			
+    bool	hasDisplays() const			
     		{ return displayinfos_.size()>0; }
-    int		hasDisplay( const DataPointSet&) const;			
+    DispID	getDisplayID( const DataPointSet&) const;			
 
-    void	setDispCol(Color,int dispid);
+    void	setDisplayCol(DispID dispid,const Color&);
     int		addDisplay(const TypeSet<int>& parents, const DataPointSet&);
-    void	updateDisplay(int id, const TypeSet<int>& parents,
+    void	updateDisplay(DispID id, const TypeSet<int>& parents,
 	    		      const DataPointSet&);
-    void	removeDisplay(int);
+    void	updateDisplay(DispID id, const DataPointSet&);
+    void	removeDisplay(DispID);
+
+    void	getIconInfo(BufferString& fnm,BufferString& tooltip) const;
 
     CNotifier<uiVisDataPointSetDisplayMgr,int>	treeToBeAdded;
     class DisplayInfo
@@ -51,7 +56,6 @@ public:
     public:
 	TypeSet<int>		sceneids_;
 	TypeSet<int>		visids_; //linked with scenes_
-	int			dpsid_; //linked with scenes_
     };
 
 protected:
@@ -71,5 +75,6 @@ protected:
     
     void	createMenuCB(CallBacker*);
     void	handleMenuCB(CallBacker*);
-}; 
+};
+
 #endif

@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc";
 #include "coltabsequence.h"
 #include "datapointset.h"
 #include "datainpspec.h"
+#include "dpsdispmgr.h"
 #include "envvars.h"
 #include "linear.h"
 #include "pixmap.h"
@@ -51,8 +52,7 @@ static const int cMinPtsForDensity = 20000;
 
 uiDataPointSetCrossPlotter::Setup uiDataPointSetCrossPlotWin::defsetup_;
 
-uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps,
-							bool has3dconn )
+uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     : uiMainWin(&uidps,BufferString(uidps.pointSet().name()," Cross-plot"),
 	    			    2,false)
     , uidps_(uidps)
@@ -122,10 +122,14 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps,
     seltb_.turnOn( setselecttbid_, true );
 
 
-    if ( has3dconn )
-	showselptswstbid_ = seltb_.addButton( "picks.png",
+    if ( uidps_.displayMgr() )
+    {
+	BufferString fnm, tooltip;
+	uidps_.displayMgr()->getIconInfo( fnm, tooltip );
+	showselptswstbid_ = seltb_.addButton( fnm,
 		      mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
-		      "Show selected points in workSpace", false );
+		      tooltip, false );
+    }
     
     seltb_.turnOn( setselecttbid_, false );
 

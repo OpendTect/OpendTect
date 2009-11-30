@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.33 2009-11-24 11:04:09 cvssatyaki Exp $
+ RCS:		$Id: datapointset.h,v 1.34 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,42 +237,5 @@ protected:
 
     DataColDef&		gtColDef(ColID) const;
 };
-
-
-/*!Interface for DataPointSet Displays. Object must be locked before
-   accessing any of the other functions, and should be unlocked when
-   done.
-
-   The datapointset can be displayed in a number of viewers/scenes, called
-   parent in this context.
-*/
-
-mClass DataPointSetDisplayMgr : public CallBacker
-{
-public:
-    virtual			~DataPointSetDisplayMgr()		{}
-    virtual void		lock()					= 0;
-    virtual void		unLock()				= 0;
-
-    virtual bool		hasDisplay() const 			= 0; 
-    virtual int			hasDisplay(const DataPointSet&) const 	= 0;
-    virtual int			getNrParents() const			= 0;
-    virtual const char*		getParentName(int) const		= 0;
-
-    virtual void		setDispCol(Color,int)			= 0;
-    virtual int			addDisplay(const TypeSet<int>& parents,
-	    				   const DataPointSet&)		= 0;
-    virtual void		updateDisplay(int id,
-				    const TypeSet<int>& parents,
-				    const DataPointSet&)		= 0;
-    virtual void		removeDisplay(int)			= 0;
-    const TypeSet<int>&		availableParents() const
-    				{ return availableparents_; }
-protected:
-
-    TypeSet<int>		availableparents_;
-};
-	    				   
-
 
 #endif

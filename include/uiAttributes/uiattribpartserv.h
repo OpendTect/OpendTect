@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.65 2009-11-03 04:54:39 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.66 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,8 +216,6 @@ protected:
 
     void		directShowAttr(CallBacker*);
 
-    void		showSelPts(CallBacker*);
-    void		removeSelPts(CallBacker*);
     void		showEvalDlg(CallBacker*);
     void		calcEvalAttrs(CallBacker*);
     void		showSliceCB(CallBacker*);
@@ -254,7 +252,6 @@ protected:
     TypeSet<Attrib::SelSpec>	targetspecs_;
 
     DataPointSetDisplayMgr*	dpsdispmgr_;
-    int				dpsid_;
     VolProc::Chain*		volprocchain_;
 
     ColTab::MapperSetup*	evalmapperbackup_;

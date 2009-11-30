@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.14 2009-09-30 14:26:14 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.15 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 class DataPointSet;
-class uiDataPointSet;
+class DataPointSetDisplayMgr;
 class uiPosProvider;
 class uiPosFilterSetSel;
 class uiSeis2DLineNameSel;
@@ -32,6 +32,9 @@ public:
 					~uiAttribCrossPlot();
 
     void				setDescSet(const Attrib::DescSet&);
+    void				setDisplayMgr(
+					    DataPointSetDisplayMgr* dispmgr )
+					{ dpsdispmgr_ = dispmgr; }
 
     const DataPointSet&			getDPS() const;
     Notifier<uiAttribCrossPlot>		pointsSelected;
@@ -46,14 +49,13 @@ protected:
     uiPosProvider*			posprovfld_;
     uiPosFilterSetSel*			posfiltfld_;
     uiSeis2DLineNameSel*		lnmfld_;
-    uiDataPointSet*			uidps_;
+    DataPointSet*			curdps_;
+    DataPointSetDisplayMgr*		dpsdispmgr_;
 
     void				adsChg();
     void				useLineName(bool);
     void				initWin(CallBacker*);
     void				lnmChg(CallBacker*);
-    void				showSelPts(CallBacker*);
-    void				removeSelPts(CallBacker*);
 
     bool				acceptOK(CallBacker*);
 };

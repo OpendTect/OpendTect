@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.7 2009-10-21 06:18:56 cvssatyaki Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.8 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -42,8 +42,8 @@ public:
     bool			hasColor() const 	{ return true; }
 
     void			update();
-    bool			setDataPack(const DataPointSet&);
-    const DataPointSet&		getDataPack() const 	{ return data_; }
+    bool			setDataPack(int);
+    const DataPointSet*		getDataPack() const 	{ return data_; }
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
 
@@ -55,7 +55,7 @@ protected:
 
     Color			color_;
     visBase::PointSet*		pointset_;
-    DataPointSet&		data_;
+    DataPointSet*		data_;
 };
 
 };

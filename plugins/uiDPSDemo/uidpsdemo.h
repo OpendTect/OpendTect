@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2009
- RCS:           $Id: uidpsdemo.h,v 1.6 2009-11-19 15:15:56 cvsbert Exp $
+ RCS:           $Id: uidpsdemo.h,v 1.7 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class TaskRunner;
 class uiIOObjSel;
 class uiGenInput;
 class DataPointSet;
+class DataPointSetDisplayMgr;
 namespace EM { class Horizon3D; }
 
 
@@ -32,7 +33,7 @@ mClass uiDPSDemo : public uiDialog
 { 	
 public:
 
-			uiDPSDemo(uiParent*);
+			uiDPSDemo(uiParent*,DataPointSetDisplayMgr* mgr=0);
 			~uiDPSDemo();
 
     const DataPointSet& getDPS() const		{ return *dps_; }
@@ -42,6 +43,7 @@ public:
 protected:
 
     DataPointSet*	dps_;
+    DataPointSetDisplayMgr* dpsdispmgr_;
     uiIOObjSel*		horfld_;
     uiSeisSel*		seisfld_;
     uiGenInput*		nrptsfld_;

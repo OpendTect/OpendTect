@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.139 2009-11-03 04:54:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.140 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -44,6 +44,7 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.139 2009-11-03 04:54:39
 #include "posvecdataset.h"
 #include "datapointset.h"
 #include "ptrman.h"
+#include "randcolor.h"
 #include "seisbuf.h"
 #include "seisinfo.h"
 #include "survinfo.h"
@@ -103,7 +104,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, multcomp2d_("2D")
 	, volprocchain_( 0 )
 	, dpsdispmgr_( 0 )
-	, dpsid_( -1 )
         , evalmapperbackup_( 0 )
 {
     attrsetclosetim_.tick.notify( 
@@ -268,29 +268,6 @@ bool uiAttribPartServer::editSet( bool is2d )
 }
 
 
-void uiAttribPartServer::showSelPts( CallBacker* )
-{
-    const DataPointSet& dps = uiattrxplot_->getDPS();
-    if ( !dpsdispmgr_ ) return;
-
-    dpsdispmgr_->lock();
-    if ( dpsid_ < 0 )
-	dpsid_ = dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(), dps);
-    else
-	dpsdispmgr_->updateDisplay( dpsid_, dpsdispmgr_->availableParents(),
-				                                    dps );
-    dpsdispmgr_->unLock();
-}
-
-
-void uiAttribPartServer::removeSelPts( CallBacker* )
-{
-    if ( dpsdispmgr_ )
-	dpsdispmgr_->removeDisplay( dpsid_ );
-    dpsid_ = -1;
-}
-
-
 void uiAttribPartServer::showXPlot( CallBacker* cb )
 {
     bool is2d = false;
@@ -300,11 +277,8 @@ void uiAttribPartServer::showXPlot( CallBacker* cb )
 	is2d = attrsetdlg_->getSet()->is2D();
     uiattrxplot_ = new uiAttribCrossPlot( 0,
 	    	 *(attrsetdlg_ ? attrsetdlg_->getSet() : curDescSet(is2d)) );
+    uiattrxplot_->setDisplayMgr( dpsdispmgr_ );
     uiattrxplot_->setDeleteOnClose( true );
-    uiattrxplot_->pointsSelected.notify(
-	    mCB(this,uiAttribPartServer,showSelPts) );
-    uiattrxplot_->pointsTobeRemoved.notify(
-	    mCB(this,uiAttribPartServer,removeSelPts) );
     uiattrxplot_->show();
 }
 

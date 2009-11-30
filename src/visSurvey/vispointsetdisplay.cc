@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.9 2009-11-24 11:43:53 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.10 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 #include "selector.h"
 #include "viscoord.h"
@@ -23,7 +23,7 @@ namespace visSurvey {
 
 PointSetDisplay::PointSetDisplay()
     : VisualObjectImpl( true )
-    , data_( * new DataPointSet(false,true) )
+    , data_(0)
     , color_( Color::DgbColor() )
 {
     pointset_ = visBase::PointSet::create();
@@ -34,7 +34,8 @@ PointSetDisplay::PointSetDisplay()
 PointSetDisplay::~PointSetDisplay()
 {
     removeChild( pointset_->getInventorNode() );
-    delete &data_;
+    if ( data_ )
+	DPM( DataPackMgr::PointID() ).release( data_->id() );
 }
 
 
@@ -55,9 +56,13 @@ void PointSetDisplay::setPointSize( int sz )
 int PointSetDisplay::getPointSize() const
 { return pointset_->getPointSize(); }
 
-bool PointSetDisplay::setDataPack( const DataPointSet& dps )
+bool PointSetDisplay::setDataPack( int dpsid )
 {
-    data_ = dps;
+    DataPack* pack = DPM( DataPackMgr::PointID() ).obtain( dpsid );
+    if ( !pack ) return false;
+
+    mDynamicCastGet(DataPointSet*,data,pack)
+    data_ = data;
     update();
 
     return true;
@@ -69,11 +74,11 @@ void PointSetDisplay::update()
     pointset_->getCoordinates()->removeAfter(-1);
     getMaterial()->setColor( color_ );
 
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( int idx=0; idx<data_->size(); idx++ )
     {
-	if ( data_.isSelected(idx) )
+	if ( data_->isSelected(idx) )
 	    pointset_->getCoordinates()->addPos(
-		    Coord3(data_.coord(idx),data_.z(idx)) );
+		    Coord3(data_->coord(idx),data_->z(idx)) );
     }
 }
 
@@ -88,10 +93,10 @@ void PointSetDisplay::removeSelection( const Selector<Coord3>& selector )
 	Coord3 pos = pointset_->getCoordinates()->getPos( idx );
 	if ( selector.includes(pos) )
 	{
-	    DataPointSet::RowID rid = data_.find( DataPointSet::Pos(pos) );
+	    DataPointSet::RowID rid = data_->find( DataPointSet::Pos(pos) );
 	    if ( rid < 0 )
 		continue;
-	    data_.setSelected( rid, false );
+	    data_->setSelected( rid, false );
 	}
     }
 

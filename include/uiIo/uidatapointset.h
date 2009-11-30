@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.26 2009-11-12 12:22:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.27 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ class uiSpinBox;
 class uiToolBar;
 class uiStatsDisplayWin;
 class uiDataPointSetCrossPlotWin;
+
+class DataPointSetDisplayMgr;
 namespace Stats { template <class T> class RunCalc; }
 
 /*!\brief Edit DataPointSet.
@@ -43,22 +45,21 @@ public:
 
     mStruct Setup : public uiDialog::Setup
     {
-				Setup(const char* wintitl,bool ismodal=false,
-				      bool has3dconn=false);
+				Setup(const char* wintitl,bool ismodal=false);
 
 	mDefSetupMemb(BufferString,wintitle)	//!< "Extracted data"
 	mDefSetupMemb(bool,isconst)		//!< false
 	mDefSetupMemb(bool,canaddrow)		//!< false
 	mDefSetupMemb(bool,directremove)		//!< false
 	mDefSetupMemb(bool,allowretrieve)	//!< true
-	mDefSetupMemb(bool,has3dcon)	//!< true
 	mDefSetupMemb(int,initialmaxnrlines)	//!< 4000
 
     };
 
 
 				uiDataPointSet(uiParent*,const DataPointSet&,
-					      const Setup&);
+					      const Setup&,
+				    	      DataPointSetDisplayMgr* mgr=0);
 				~uiDataPointSet();
 
     DataPointSet&		pointSet()	{ return dps_; }
@@ -122,6 +123,10 @@ public:
     void			notifySelectedCell();
     void			reDoTable();
 
+    const DataPointSetDisplayMgr* displayMgr() const	{ return dpsdispmgr_; }
+    void			setDisplayMgr( DataPointSetDisplayMgr* dispmgr )
+				{ dpsdispmgr_ = dispmgr; }
+
 protected:
 
     DataPointSet&		dps_;
@@ -149,6 +154,8 @@ protected:
     DataPointSet::DataRow	afterchgdr_;
     bool			unsavedchgs_;
     bool			fillingtable_;
+
+    DataPointSetDisplayMgr*	dpsdispmgr_;
 
     static const char*		sKeyMinDPPts()
 				{ return "Minimum pts for Density Plot"; }
@@ -198,6 +205,8 @@ protected:
     void			delSelRows(CallBacker*);
     void			showStatusMsg(CallBacker*);
     void			closeNotify(CallBacker*);
+    void			showSelPts(CallBacker*);
+    void			removeSelPts(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

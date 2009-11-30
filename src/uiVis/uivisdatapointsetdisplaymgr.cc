@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.8 2009-11-24 11:04:09 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.9 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.8 2009-11-24
 #include "uimsg.h"
 #include "uislider.h"
 #include "ctxtioobj.h"
+#include "datapointset.h"
 #include "emrandomposbody.h"
 #include "emmanager.h"
 #include "pickset.h"
@@ -132,12 +133,12 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
     {
 	RefMan<EM::EMObject> emobj =
 		EM::EMM().createTempObject( EM::RandomPosBody::typeStr() );
-	const DataPointSet& data = display->getDataPack();
+	const DataPointSet* data = display->getDataPack();
 	mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
 	if ( !emps )
 	    return;
 
-	emps->copyFrom( data, true );
+	emps->copyFrom( *data, true );
 	emps->setPreferredColor( display->getColor() );
 	treeToBeAdded.trigger( emps->id() );
     }
@@ -149,11 +150,11 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 
 	Pick::Set& pickset = *dlg.getPickSet();
 
-	const DataPointSet& data = display->getDataPack();
-	for ( int rid=0; rid<data.size(); rid++ )
+	const DataPointSet* data = display->getDataPack();
+	for ( int rid=0; rid<data->size(); rid++ )
 	{
-	    if ( data.isSelected(rid) )
-	    pickset += Pick::Location( Coord3(data.coord(rid),data.z(rid)));
+	    if ( data->isSelected(rid) )
+	    pickset += Pick::Location( Coord3(data->coord(rid),data->z(rid)));
 	}
 
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
@@ -187,7 +188,7 @@ void uiVisDataPointSetDisplayMgr::lock()
 {
     lock_.lock();
     visserv_.getChildIds( -1, allsceneids_ );
-    availableparents_ = allsceneids_;
+    availableviewers_ = allsceneids_;
 }
 
 
@@ -195,13 +196,13 @@ void uiVisDataPointSetDisplayMgr::unLock()
 { lock_.unLock(); }
 
 
-int uiVisDataPointSetDisplayMgr::getNrParents() const
+int uiVisDataPointSetDisplayMgr::getNrViewers() const
 {
     return allsceneids_.size();
 }
 
 
-const char* uiVisDataPointSetDisplayMgr::getParentName( int parentidx ) const
+const char* uiVisDataPointSetDisplayMgr::getViewerName( int parentidx ) const
 {
     RefMan<visBase::DataObject> scene =
 	visserv_.getObject( allsceneids_[parentidx] );
@@ -209,15 +210,45 @@ const char* uiVisDataPointSetDisplayMgr::getParentName( int parentidx ) const
 }
 
 
-int uiVisDataPointSetDisplayMgr::hasDisplay( const DataPointSet& dps ) const
+visSurvey::PointSetDisplay* getPSD( uiVisPartServer& vps, int visid )
+{
+    if ( visid < 0 )
+	return 0;
+
+    mDynamicCastGet(visSurvey::PointSetDisplay*,display,vps.getObject(visid))
+    return display;
+}
+
+
+int uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 {
     for ( int idx=0; idx<displayinfos_.size(); idx++ )
     {
-	if ( displayinfos_[idx]->dpsid_ == dps.id() )
-	    return ids_[idx];
+	const TypeSet<int>& visids = displayinfos_[idx]->visids_;
+	for ( int visidx=0; visidx<visids.size(); visidx++ )
+	{
+	    visSurvey::PointSetDisplay* psd = getPSD( visserv_, visids[visidx]);
+	    if ( psd && psd->getDataPack()->id() == dps.id() )
+		return ids_[idx];
+	}
     }
 
     return -1;
+}
+
+
+void uiVisDataPointSetDisplayMgr::setDisplayCol( DispID dispid,
+						 const Color& col )
+{
+    const int dispidx = ids_.indexOf( dispid );
+    DisplayInfo& displayinfo = *displayinfos_[dispidx];
+    for ( int idx=0; idx<displayinfo.visids_.size(); idx++ )
+    {
+	const int visid = displayinfo.visids_[idx];
+	visSurvey::PointSetDisplay* display = getPSD( visserv_, visid );
+	if ( display )
+	    display->setColor( col );
+    }
 }
 
 
@@ -252,14 +283,12 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	    continue;
 
 	visserv_.addObject( display, parents[idx], true );
-	display->setDataPack( dps );
+	display->setDataPack( dps.id() );
 	display->setColor( Color::DgbColor() );
 
 	displayinfo->sceneids_ += allsceneids_[idx];
 	displayinfo->visids_ += display->id();
     }
-
-    displayinfo->dpsid_ = dps.id();
 
     if ( !displayinfo->sceneids_.size() )
     {
@@ -274,28 +303,12 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 }
 
 
-void uiVisDataPointSetDisplayMgr::setDispCol( Color col, int dispid )
-{
-    DisplayInfo& displayinfo = *displayinfos_[dispid];
-    for ( int idx=0; idx<displayinfo.visids_.size(); idx++ )
-    {
-	const int dispidx = displayinfo.visids_[idx];
-	if ( dispidx<0 )
-	    continue;
-
-	RefMan<visBase::DataObject> displayptr = visserv_.getObject(dispidx);
-	if ( !displayptr )
-	    return;
-
-	mDynamicCastGet(visSurvey::PointSetDisplay*,display,displayptr.ptr());
-	if ( !display )
-	    return;
-	display->setColor( col );
-    }
-}
+void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
+						 const DataPointSet& dps )
+{ updateDisplay( id, availableViewers(), dps ); }
 
 
-void uiVisDataPointSetDisplayMgr::updateDisplay( int id,
+void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 						 const TypeSet<int>& parents,
 						 const DataPointSet& dps )
 {
@@ -306,7 +319,6 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( int id,
 	return;
 
     DisplayInfo& displayinfo = *displayinfos_[idx];
-    displayinfo.dpsid_ = dps.id();
     TypeSet<int> wantedscenes;
     for ( int idy=0; idy<parents.size(); idy++ )
 	wantedscenes += parents[idy];
@@ -373,12 +385,12 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( int id,
 	if ( !display )
 	    continue;
 
-	display->setDataPack( dps );
+	display->setDataPack( dps.id() );
     }
 }
 
 
-void uiVisDataPointSetDisplayMgr::removeDisplay( int id )
+void uiVisDataPointSetDisplayMgr::removeDisplay( DispID id )
 {
     const int idx = ids_.indexOf( id );
     if ( idx<0 )
@@ -400,8 +412,14 @@ void uiVisDataPointSetDisplayMgr::removeDisplay( int id )
 			       displayinfo.sceneids_[idy] );
     }
 
-    delete displayinfos_.remove( idx );
-    for ( int index = idx; index<ids_.size(); index++ )
-	ids_[index]--;
     ids_.remove( idx );
+    delete displayinfos_.remove( idx );
+}
+
+
+void uiVisDataPointSetDisplayMgr::getIconInfo( BufferString& fnm,
+					       BufferString& tooltip ) const
+{
+    fnm = "picks.png";
+    tooltip = "Show selected points in workSpace";
 }

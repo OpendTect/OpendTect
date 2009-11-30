@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.29 2009-10-20 15:21:30 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.30 2009-11-30 12:17:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,8 +108,6 @@ protected:
     DataPointSetDisplayMgr* dpsdispmgr_;
     int			dpsid_;
     void		writeSets(CallBacker*);
-    void		showSelPts(CallBacker*);
-    void		removeSelPts(CallBacker*);
 
     bool		extractDirectData(ObjectSet<DataPointSet>&);
     const char*		convertToClasses(const ObjectSet<DataPointSet>&,int);

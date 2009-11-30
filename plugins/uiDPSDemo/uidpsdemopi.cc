@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.9 2009-11-24 11:04:09 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.10 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 
 #include "uidpsdemo.h"
@@ -109,9 +109,7 @@ void uiDPSDemoMgr::insertIcon( CallBacker* )
 
 void uiDPSDemoMgr::doIt( CallBacker* )
 {
-    dpsdemo_ = new uiDPSDemo( &appl_ );
-    dpsdemo_->selPtsToBeShown.notify( mCB(this,uiDPSDemoMgr,showSelPtsCB) );
-    dpsdemo_->selPtsToBeRemoved.notify( mCB(this,uiDPSDemoMgr,removeSelPtsCB) );
+    dpsdemo_ = new uiDPSDemo( &appl_, dpsdispmgr_ );
     dpsdemo_->setDeleteOnClose( true );
     dpsdemo_->windowClosed.notify( mCB(this,uiDPSDemoMgr,winClosed) );
     dpsdemo_->go();
@@ -121,42 +119,6 @@ void uiDPSDemoMgr::doIt( CallBacker* )
 void uiDPSDemoMgr::winClosed( CallBacker* cb )
 {
     dpsdemo_ = 0;
-}
-
-
-void uiDPSDemoMgr::showSelPtsCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiDPSDemo*,dpsdemo,cb)
-    if ( !dpsdemo ) { pErrMsg( "Huh" ); return; }
-    const DataPointSet& dps = dpsdemo->getDPS();
-    if ( !dpsdispmgr_ ) return;
-
-    dpsdispmgr_->lock();
-    if ( dpsdispmgr_->hasDisplay(dps) < 0 )
-    {
-	const int dpsid =
-	    dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(), dps);
-	dpsdispmgr_->setDispCol( getRandStdDrawColor(), dpsid );
-    }
-    else
-	dpsdispmgr_->updateDisplay( dpsdispmgr_->hasDisplay(dps),
-				    dpsdispmgr_->availableParents(), dps );
-
-    dpsdispmgr_->unLock();
-}
-
-
-void uiDPSDemoMgr::removeSelPtsCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiDPSDemo*,dpsdemo,cb)
-    if ( !dpsdemo ) { pErrMsg( "Huh" ); return; }
-    const DataPointSet& dps = dpsdemo->getDPS();
-    if ( !dpsdispmgr_ ) return;
-
-    const int dpsid = dpsdispmgr_->hasDisplay( dps );
-    if ( dpsid < 0 ) return;
-    if ( dpsdispmgr_ )
-	dpsdispmgr_->removeDisplay( dpsid );
 }
 
 

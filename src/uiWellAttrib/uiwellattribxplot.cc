@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.32 2009-11-12 12:34:36 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.33 2009-11-30 12:17:10 cvssatyaki Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -49,9 +49,8 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 		     ,"107.3.1").modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
     	, posfiltfld_(0)
-    	, uidps_(0)
-    	, pointsSelected(this)
-    	, pointsToBeRemoved(this)
+    	, curdps_(0)
+    	, dpsdispmgr_(0)
 {
     uiLabeledListBox* llba = new uiLabeledListBox( this, "Attributes", true );
     attrsfld_ = llba->box();
@@ -102,6 +101,7 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     finaliseDone.notify( mCB(this,uiWellAttribCrossPlot,initWin) );
 }
 
+#define mDPM DPM(DataPackMgr::PointID())
 
 uiWellAttribCrossPlot::~uiWellAttribCrossPlot()
 {
@@ -148,7 +148,7 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
 
 
 const DataPointSet& uiWellAttribCrossPlot::getDPS() const
-{ return uidps_->pointSet(); }
+{ return *curdps_; }
 
 
 void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet& newads )
@@ -245,7 +245,6 @@ bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps, int c1 )
 }
 
 
-#define mDPM DPM(DataPackMgr::PointID())
 #undef mErrRet
 #define mErrRet(s) { deepErase(dcds); if ( s ) uiMSG().error(s); return false; }
 
@@ -291,6 +290,8 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet* dps = new DataPointSet( TypeSet<DataPointSet::DataRow>(),
 	    				  dcds, false, false );
+    mDPM.addAndObtain( dps );
+
     deepErase( dcds );
     const int nrattribs = attrnms.size();
     const int nrlogs = lognms.size() + 1;
@@ -329,23 +330,9 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     }
 
     dps->setName( dpsnm );
-    uidps_ = new uiDataPointSet(
-	this, *dps, uiDataPointSet::Setup("Well attribute data",false,true) );
-    uidps_->setGroupType( "well" );
-    uidps_->setGroupNames( wellnms );
-    uidps_->selPtsToBeShown.notify(
-	    mCB(this,uiWellAttribCrossPlot,showSelPts) );
-    uidps_->selPtsToBeRemoved.notify(
-	    mCB(this,uiWellAttribCrossPlot,removeSelPts) );
-    return uidps_->go() ? true : false;
+    uiDataPointSet* uidps = new uiDataPointSet( this,
+	*dps, uiDataPointSet::Setup("Well attribute data",false), dpsdispmgr_ );
+    uidps->setGroupType( "well" );
+    uidps->setGroupNames( wellnms );
+    return uidps->go() ? true : false;
 }
-
-
-void uiWellAttribCrossPlot::removeSelPts( CallBacker* )
-{
-    pointsToBeRemoved.trigger();
-}
-
-
-void uiWellAttribCrossPlot::showSelPts( CallBacker* )
-{ pointsSelected.trigger(); }
