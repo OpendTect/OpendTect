@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.68 2009-09-02 15:12:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.69 2009-11-30 11:50:32 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -343,6 +343,29 @@ void Well::Log::ensureAscZ()
     {
 	Swap( dah_[idx], dah_[sz-idx-1] );
 	Swap( val_[idx], val_[sz-idx-1] );
+    }
+}
+
+
+void Well::Log::insertAtDah( float dh, float val )
+{
+    if ( dh > dah_[dah_.size()-1] )
+    { addValue( dh, val ); return; }
+
+    int insertidx = 0;
+    if ( dh >= dah_[0] )
+	insertidx = indexOf( dh );
+
+    if ( insertidx<0 )
+	return;
+
+    dah_.insert( insertidx, dh );
+    val_.insert( insertidx, val );
+    
+    if ( !mIsUdf(val) ) 
+    {
+	if ( val < range_.start ) range_.start = val;
+	if ( val > range_.stop ) range_.stop = val;
     }
 }
 
