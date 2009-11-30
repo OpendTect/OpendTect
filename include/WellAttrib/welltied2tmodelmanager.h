@@ -62,6 +62,7 @@ protected:
     const WellTie::Setup&	wtsetup_;
     const WellTie::DataWriter*	datawriter_;
     bool			emptyoninit_;
+    bool			iscscorr_;
 };
 
 }; //namespace WellTie

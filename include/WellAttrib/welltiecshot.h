@@ -45,7 +45,7 @@ public:
 protected:
 
     Well::Log* 			log_;
-    const Well::D2TModel* 	cs_;
+    Well::D2TModel* 		cs_;
 
     void 			setCSToLogScale(TypeSet<float>&,double, 
 						WellTie::GeoCalculator&);

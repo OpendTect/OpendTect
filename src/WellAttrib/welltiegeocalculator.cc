@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.42 2009-11-12 15:56:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.43 2009-11-30 16:33:14 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -70,10 +70,10 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
     for ( int idx=0; idx<time.size(); idx++ )
 	zidxs[idx] += idx;
     sort_coupled( time.arr(), mVarLenArr(zidxs), vals.size() );
-
+    
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    d2tnew->add ( wd_.track().dah(0) - wd_.track().value(0), 0 ); //set KB depth
-    for ( int idx=1; idx<time.size(); idx++ )
+    d2tnew->add( wd_.track().dah(0)-wd_.track().value(0), 0 ); //set KB Depth
+    for ( int idx=0; idx<time.size(); idx++ )
 	d2tnew->add( dpt[idx], time[idx] );
 
     return d2tnew;
@@ -89,9 +89,11 @@ void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
     outp += 0;
     if ( t2vel )
     {
-	for ( int idx=1; idx<timevel.size(); idx++ )
+	outp += 0;
+	for ( int idx=2; idx<timevel.size(); idx++ )
 	    outp +=  ( timevel[idx]-timevel[idx-1] )
 		    /( (dpt[idx]-dpt[idx-1])/velfactor_*2 );
+	outp[1] = outp[2];
 	outp[0] = outp[1];
     }
     else 
@@ -102,7 +104,7 @@ void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 	    const float velval = issonic ? timevel[idx] : 1/timevel[idx];
 	    outp += 2*( dpt[idx] - dpt[idx-1] )*velval/velfactor_;
 	}
-	for ( int idx=1;  idx<timevel.size(); idx++ )
+	for ( int idx=1; idx<timevel.size(); idx++ )
 	    outp[idx] += outp[idx-1];
     }
 }
@@ -162,6 +164,8 @@ void GeoCalculator::interpolateLogData( TypeSet<float>& data,
 {
     int startidx = getFirstDefIdx( data );
     int lastidx = getLastDefIdx( data );
+    if ( startidx<0 || lastidx< 0 )
+	return;
 
     for ( int idx=startidx; idx<lastidx; idx++)
     {
@@ -217,18 +221,23 @@ void GeoCalculator::removeSpikes( TypeSet<float>& logdata )
 int GeoCalculator::getFirstDefIdx( const TypeSet<float>& logdata )
 {
     int idx = 0;
-    while ( mIsUdf(logdata[idx]) )
-	idx++;
+    for ( int idx=0; idx<logdata.size(); idx++ )
+    {
+	if ( !mIsUdf(logdata[idx]) )
+	    return idx;
+    }
     return idx;
 }
 
 
 int GeoCalculator::getLastDefIdx( const TypeSet<float>& logdata )
 {
-    int idx = logdata.size()-1;
-    while ( mIsUdf( logdata[idx] ) )
-	idx--;
-    return idx;
+    for ( int idx=logdata.size()-1; idx>=0; idx-- )
+    {
+	if ( !mIsUdf(logdata[idx]) )
+	    return idx;
+    }
+    return -1;
 }
 
 

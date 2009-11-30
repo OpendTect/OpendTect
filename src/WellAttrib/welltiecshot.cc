@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.11 2009-10-23 13:36:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.12 2009-11-30 16:33:14 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -30,6 +30,12 @@ CheckShotCorr::CheckShotCorr( WellTie::DataHolder& dh )
 {
     if ( !cs_ || !cs_->size() )
 	return;
+
+    for ( int idx=1; idx<cs_->size(); idx++ )
+    {
+	if ( cs_->dah(idx) == cs_->dah(idx-1) )
+	    cs_->remove( idx );
+    }
     
     TypeSet<float> newcsvals; 
 
@@ -58,6 +64,16 @@ void CheckShotCorr::calibrateLogToCS( const TypeSet<float>& csvals,
 				       WellTie::GeoCalculator& geocalc )
 {
     TypeSet<float> logvaldah, coeffs, logshifts, csshifts;
+
+    //add extra log values if CheckShot start dah < log start dah
+    const float startdah = log_->dah(0); 
+    const float stopdah = log_->dah(log_->size()-1);
+    for ( int idx=0; idx<cs_->size(); idx++)
+    {
+	const float csdah = cs_->dah(idx);
+	if ( csdah < startdah )
+	    log_->insertAtDah( csdah, csvals[idx] );
+    }
 
     for ( int idx=0; idx<cs_->size(); idx++)
     {

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.63 2009-11-12 15:58:09 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.64 2009-11-30 16:33:14 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -346,12 +346,7 @@ void uiTieWin::csCorrChanged( CallBacker* cb )
     getDispParams();
     WellTie::Params::uiParams* pms = dataholder_->uipms();
     params_->resetVelLogNm();
-    if ( pms->iscscorr_ )
-	dataplayer_->computeD2TModel();
-    else  
-	dataplayer_->undoD2TModel();
-    if ( wd_->haveD2TModel() && wd_->d2TModel()->size()<3 )
-	dataplayer_->computeD2TModel();
+    dataplayer_->computeD2TModel();
 
     doWork( cb );
 }
