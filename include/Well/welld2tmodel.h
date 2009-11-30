@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.18 2009-07-22 16:01:19 cvsbert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.19 2009-11-30 15:29:40 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,7 @@ public:
 
     inline float	t( int idx ) const	{ return t_[idx]; }
     float		value( int idx ) const	{ return t(idx); }
+    float*		valArr() 		{ return t_.arr(); }
 
     BufferString	desc;
     BufferString	datasource;
