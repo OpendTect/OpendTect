@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.3 2009-11-23 10:56:10 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.4 2009-11-30 22:36:15 cvskris Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -164,17 +164,14 @@ void TextureChannel2VolData::makeColorTables()
     if ( !transferfunc_ )
 	return;
 
-    /*const float redfactor = (float) blendcolor_.r()/(255*255);
-    const float greenfactor = (float) blendcolor_.g()/(255*255);
-    const float bluefactor = (float) blendcolor_.b()/(255*255);
-    const float opacityfactor = (float) (255-blendcolor_.t())/(255*255);
-*/
-    const float redfactor = 1.0;
-    const float greenfactor = 1.0;
-    const float bluefactor = 1.0;
-    const float opacityfactor = 0.5;
-
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
+
+/*
+    const float redfactor = 1.0/255;
+    const float greenfactor = 1.0/255;
+    const float bluefactor = 1.0/255;
+    const float opacityfactor = 1.0/255;
+
     int cti = 0;
     for ( int idx=0; idx<mNrColors; idx++ )
     {
@@ -185,8 +182,9 @@ void TextureChannel2VolData::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
 	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
+    */
 
-    transferfunc_->predefColorMap = SoTransferFunction::NONE;
+    transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
 	
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();
