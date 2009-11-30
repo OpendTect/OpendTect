@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.28 2009-09-04 19:47:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.29 2009-11-30 21:30:16 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -393,7 +393,7 @@ void ChannelInfo::setCurrentVersion( int nidx )
 
 
 TextureChannels::TextureChannels()
-    : tc_( new SoTextureChannelSet )
+    : tc_( 0 )
     , onoff_ ( new SoSwitch )
     , tc2rgba_( 0 )
 {
@@ -402,7 +402,6 @@ TextureChannels::TextureChannels()
     size_[2] = 0;
 
     onoff_->ref();
-    onoff_->addChild( tc_ );
     addChannel();
     turnOn( true );
 }
@@ -512,13 +511,13 @@ void TextureChannels::removeChannel( int idx )
     PtrMan<ChannelInfo> info = channelinfo_[idx];
     channelinfo_.remove(idx);
 
-    bool oldenable = tc_->channels.enableNotify( false );
+    bool oldenable = tc_->enableNotify( false );
     for ( int idy=idx; idy<nrChannels(); idy++ )
 	update( idy, false );
 
-    tc_->channels.setNum( nrChannels() );
-    tc_->channels.enableNotify( oldenable );
-    tc_->channels.touch();
+    tc_->setNrChannels( nrChannels() );
+    tc_->enableNotify( oldenable );
+    tc_->touch();
 
     if ( tc2rgba_ )
 	tc2rgba_->notifyChannelChange();
@@ -634,12 +633,26 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 	onoff_->removeChild( tc2rgba_->getInventorNode() );
 	tc2rgba_->setChannels( 0 );
 	tc2rgba_->unRef();
+
+	onoff_->removeChild( tc_->getInventorNode() );
+	tc_->unRef();
+	tc_ = 0;
     }
 
     tc2rgba_ = nt;
 
     if ( tc2rgba_ )
     {
+	tc_ = tc2rgba_->createMappedDataSet();
+	if ( !tc_ )
+	{
+	    tc2rgba_ = 0;
+	    return false;
+	}
+
+	tc_->ref();
+	onoff_->addChild( tc_->getInventorNode() );
+
 	onoff_->addChild( tc2rgba_->getInventorNode() );
 	tc2rgba_->setChannels( this );
 	tc2rgba_->ref();
@@ -663,7 +676,7 @@ SoNode* TextureChannels::getInventorNode()
 
 const SbImage* TextureChannels::getChannels() const
 {
-    return tc_->channels.getValues( 0 );
+    return tc_->getChannelData();
 }
 
 
@@ -679,11 +692,14 @@ void TextureChannels::update( ChannelInfo* ti, bool tc2rgba )
 
 void TextureChannels::update( int channel, bool tc2rgba )
 {
+    if ( !tc_ )
+	return;
+
     SbImage image;
     const int curversion = channelinfo_[channel]->getCurrentVersion();
     image.setValuePtr( SbVec3s( size_[0], size_[1], size_[2] ), 1,
 	    	       channelinfo_[channel]->mappeddata_[curversion] );
-    tc_->channels.set1Value( channel, image );
+    tc_->setChannelData( channel, image );
 
     if ( tc2rgba && tc2rgba_ )
 	tc2rgba_->notifyChannelChange();

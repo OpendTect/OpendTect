@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.12 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.13 2009-11-30 21:30:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "visdata.h"
 #include "odmemory.h"
 
-class SoTextureChannelSet;
 class SoSwitch;
 class SbImage;
 class TaskRunner;
@@ -28,6 +27,7 @@ namespace ColTab { class Mapper; struct MapperSetup; };
 namespace visBase
 {
 
+class MappedTextureDataSet;
 class TextureChannel2RGBA;
 class ChannelInfo;
 
@@ -84,7 +84,7 @@ protected:
 
     int				size_[3];
     ObjectSet<ChannelInfo>	channelinfo_;
-    SoTextureChannelSet*	tc_;
+    MappedTextureDataSet*	tc_;
     SoSwitch*			onoff_;
     TextureChannel2RGBA*	tc2rgba_;
 

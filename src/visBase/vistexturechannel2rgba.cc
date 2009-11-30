@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.32 2009-11-27 03:01:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.33 2009-11-30 21:30:16 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.32 2009-11-27 03:
 #include "task.h"
 #include "thread.h"
 
+#include "SoTextureChannelSet.h"
 #include "SoColTabTextureChannel2RGBA.h"
 #include "SoTextureComposer.h"
 #include "Inventor/nodes/SoComplexity.h"
@@ -39,6 +40,63 @@ mCreateFactoryEntry( visBase::ColTabTextureChannel2RGBA );
 
 namespace visBase
 {
+
+class MappedTextureDataSetImpl : public MappedTextureDataSet
+{
+public:
+
+static MappedTextureDataSetImpl* create()
+mCreateDataObj( MappedTextureDataSetImpl );
+
+int nrChannels() const
+{ return tc_->channels.getNum(); }
+
+
+
+bool addChannel()
+{ return true; }
+
+
+bool enableNotify( bool yn )
+{ return tc_->channels.enableNotify( yn ); }
+
+
+void setNrChannels( int nr )
+{ tc_->channels.setNum( nr ); }
+
+
+void touch()
+{ tc_->touch(); }
+
+
+void setChannelData( int channel,const SbImage& image )
+{ tc_->channels.set1Value( channel, image ); }
+
+
+const SbImage* getChannelData() const
+{ return tc_->channels.getValues( 0 ); }
+
+
+SoNode* getInventorNode()
+{ return tc_; }
+
+
+protected:
+
+~MappedTextureDataSetImpl()
+{ tc_->unref(); }
+
+
+    SoTextureChannelSet*	tc_;
+};
+
+
+MappedTextureDataSetImpl::MappedTextureDataSetImpl()
+    : tc_( new SoTextureChannelSet )
+{ tc_->ref(); }
+
+
+mCreateFactoryEntry( MappedTextureDataSetImpl );
 
 class ColTabSequenceTransparencyCheck : public ParallelTask
 {
@@ -133,6 +191,10 @@ TextureChannel2RGBA::TextureChannel2RGBA()
     : channels_( 0 )
     , shadingallowed_( true )
 {}
+
+
+MappedTextureDataSet* TextureChannel2RGBA::createMappedDataSet() const
+{ return MappedTextureDataSetImpl::create(); }
 
 
 void TextureChannel2RGBA::setChannels( TextureChannels* ch )
@@ -767,6 +829,10 @@ const char* ColTabTextureChannel2RGBA::sVertexShaderProgram()
 "    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
 "}\n";
 }
+
+
+
+
 
 
 

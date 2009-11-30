@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.19 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.20 2009-11-30 21:30:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,8 +34,9 @@ namespace visBase
 { 
 
 class TextureChannels;
-/*!
+class MappedTextureDataSet;
 
+/*!
 Interface for classes that can take one or more texture channels in an
 TextureChannels class and convert them to RGBA textures in OpenGL, optionally
 with shaders. There should always be a non-shading way to fall back on.
@@ -44,25 +45,27 @@ with shaders. There should always be a non-shading way to fall back on.
 mClass TextureChannel2RGBA : public DataObject
 {
 public:
-    virtual void	setChannels(TextureChannels*);
-    virtual void	notifyChannelChange()			{}
-    virtual bool	createRGBA(SbImage&) const		= 0;
-			/*!<Fill the image with the output, using
-			    current settings. */
+    virtual MappedTextureDataSet* createMappedDataSet() const;
 
-    virtual bool	canSetSequence() const			{ return false;}
-    virtual void	setSequence(int,const ColTab::Sequence&){}
+    virtual void		setChannels(TextureChannels*);
+    virtual void		notifyChannelChange()			{}
+    virtual bool		createRGBA(SbImage&) const		= 0;
+				/*!<Fill the image with the output, using
+				    current settings. */
+
+    virtual bool		canSetSequence() const		{ return false;}
+    virtual void		setSequence(int,const ColTab::Sequence&){}
     virtual const ColTab::Sequence* getSequence(int) const	{ return 0; }
 
-    virtual void	swapChannels(int ch0,int ch1)		{}
-    virtual void	setEnabled(int ch,bool yn)		{}
-    virtual bool	isEnabled(int ch) const			{ return true; }
+    virtual void		swapChannels(int ch0,int ch1)	{}
+    virtual void		setEnabled(int ch,bool yn)	{}
+    virtual bool		isEnabled(int ch) const		{ return true; }
 
-    virtual bool	canUseShading() const;
-    virtual void	allowShading(bool);
-    virtual bool	usesShading() const			= 0;
-    virtual int		maxNrChannels() const			= 0;
-    virtual int		minNrChannels() const			{ return 1; }
+    virtual bool		canUseShading() const;
+    virtual void		allowShading(bool);
+    virtual bool		usesShading() const		= 0;
+    virtual int			maxNrChannels() const		= 0;
+    virtual int			minNrChannels() const		{ return 1; }
 
 protected:
     			TextureChannel2RGBA();
@@ -70,6 +73,25 @@ protected:
     TextureChannels*	channels_;
     bool		shadingallowed_;
 };
+
+
+/*!A destination where the texturechannels can put the mapped data. The class
+   instanciation is provided by the TextureChannel2RGBA. */
+
+mClass MappedTextureDataSet : public DataObject
+{
+public:
+    virtual int			nrChannels() const			= 0;
+    virtual bool		addChannel()				= 0;
+    virtual bool		enableNotify(bool)			= 0;
+    				//!<\returns previous status
+    virtual void		touch()					= 0;
+    virtual void		setNrChannels(int)			= 0;
+
+    virtual void		setChannelData(int channel,const SbImage&) = 0;
+    virtual const SbImage*	getChannelData() const			= 0;
+};
+
 
 
 /*! Implementation of TextureChannel2RGBA that takes a ColorSequence for each
