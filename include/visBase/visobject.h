@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.45 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visobject.h,v 1.46 2009-11-30 22:47:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -155,7 +155,7 @@ private:
   - RandomTrack, for random lines.
   - CubeView, for the volume viewer.
   - Marker, for picks.
-  - MeshSurfaceDisplay, for surfaces.
+  - HorizonSection, for Horizons.
   - Well, for wells.
 
 */
