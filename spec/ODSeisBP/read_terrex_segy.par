@@ -1,0 +1,18 @@
+dTect V4.0
+Parameters
+Fri Nov 27 14:34:23 2009
+!
+Read the crappy SEG-Y made by 'TERREX SEISMIC'
+
+Survey: CWA_GCA_2008
+
+False Easting: 200000
+False Northing: 6000000
+
+-- Input/output
+Input Seismics.File name: /d44/tmp/australia/mig_08gac1_20s_400ms_shift.sgy
+Output Seismics.Line Set: LS
+Output Seismics.Line name: A1
+Output.GravMag.File name: /d44/tmp/australia/gravmag_a1.txt
+
+!
