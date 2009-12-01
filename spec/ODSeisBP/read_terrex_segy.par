@@ -4,8 +4,7 @@ Fri Nov 27 14:34:23 2009
 !
 Read the crappy SEG-Y made by 'TERREX SEISMIC'
 
-Survey: CWA_GCA_2008
-
+-- As indicated in tape text header:
 False Easting: 200000
 False Northing: 6000000
 
@@ -15,4 +14,6 @@ Output Seismics.Line Set: LS
 Output Seismics.Line name: A1
 Output.GravMag.File name: /d44/tmp/australia/gravmag_a1.txt
 
+-- Make sure we work in the correct survey:
+Survey: CWA_GCA_2008
 !
