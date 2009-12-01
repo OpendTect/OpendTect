@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.15 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.16 2009-12-01 22:48:56 cvsyuancheng Exp $";
 
 #include "tableconvimpl.h"
 #include "string2.h"
@@ -151,7 +151,7 @@ Table::ImportHandler::State Table::WSImportHandler::add( char c )
 	addToCol( '\0' );
 	return EndRow;
     }
-    else if ( isspace(c) )
+    else if ( !indoubqstring_ && !insingqstring_ && isspace(c) )
     {
 	if ( *col_.buf() )
 	{

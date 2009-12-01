@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.6 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.7 2009-12-01 22:48:56 cvsyuancheng Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -159,12 +159,19 @@ bool uiExport2DHorizon::doExport()
 	    const bool zudf = mIsUdf(pos.z);
 	    if ( zudf && !wrudfs )
 		continue;
+	   
+	    const bool hasspace = strchr( linename.buf(), ' ' ) ||
+				  strchr( linename.buf(), '\t' );
+	    BufferString controlstr = hasspace ? "\"%15s\"" : "%15s";
 
 	    if ( zudf )
 	    {
 		if ( wrlnms )
-		    sprintf( buf, "%15s%16.2lf%16.2lf%8d%16s", linename.buf(),
+		{
+		    controlstr += "%16.2lf%16.2lf%8d%16s"; 
+		    sprintf( buf, controlstr.buf(), linename.buf(),
 			     pos.x, pos.y, trcnr, undefstr.buf() );
+		}
 		else
 		{
 		    BufferString out;
@@ -177,8 +184,11 @@ bool uiExport2DHorizon::doExport()
 	    {
 		pos.z *= zfac;
 		if ( wrlnms )
-		    sprintf( buf, "%15s%16.2lf%16.2lf%8d%16.2lf",
+		{
+		    controlstr += "%16.2lf%16.2lf%8d%16.2lf";
+		    sprintf( buf, controlstr.buf(),
 			    linename.buf(), pos.x, pos.y, trcnr, pos.z );
+		}
 		else
 		{
 		    BufferString out;
