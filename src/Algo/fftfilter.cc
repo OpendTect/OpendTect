@@ -4,7 +4,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          October 2009
-RCS:           $Id: fftfilter.cc,v 1.9 2009-11-30 15:28:26 cvsbruno Exp $
+RCS:           $Id: fftfilter.cc,v 1.10 2009-12-01 15:35:21 cvsbruno Exp $
 ________________________________________________________________________
 
 */
@@ -19,9 +19,9 @@ ________________________________________________________________________
 FFTFilter::FFTFilter()
     : hilbert_(0)	       	
     , fft_(0)	      
-    , window_(0)	      	      
-    , hfwindow_(0)	      	      
-    , lfwindow_(0)	      	      
+    , timewindow_(0)	      	      
+    , hfreqwindow_(0)	      	      
+    , lfreqwindow_(0)	      	      
 {
     hilbert_ = new HilbertTransform();
     fft_ = new FFT();
@@ -32,9 +32,9 @@ FFTFilter::~FFTFilter()
 {
     delete fft_;
     delete hilbert_;
-    delete window_;
-    delete hfwindow_;
-    delete lfwindow_;
+    delete timewindow_;
+    delete hfreqwindow_;
+    delete lfreqwindow_;
 }
 
 
@@ -99,10 +99,10 @@ void FFTFilter::initFilter( const Array1DImpl<float>& timeinput,
     for ( int idx=0; idx<arraysize; idx++ )
 	ctimeinput.set( idx, timeinput.get( idx ) );
 
-    if ( window_ )
+    if ( timewindow_ )
     {
-	for( int idx=0; idx<window_->size_; idx++ )
-	    ctimeinput.set( idx, window_->win_[idx]*ctimeinput.get( idx )  );
+	for( int idx=0; idx<timewindow_->size_; idx++ )
+	    ctimeinput.set( idx, timewindow_->win_[idx]*ctimeinput.get( idx ) );
     }
 
     for ( int idx=0; idx<arraysize; idx++ )
@@ -117,7 +117,7 @@ void FFTFilter::FFTFreqFilter( float df, float cutfreq, bool islowpass,
 			   Array1DImpl<float_complex>& output )
 {
     const int arraysize = input.info().getSize(0);
-    const Window* window = islowpass ? lfwindow_ : hfwindow_;
+    const Window* window = islowpass ? lfreqwindow_ : hfreqwindow_;
     const int bordersz = window ? window->size_ : 0;
 
     const int poscutfreq = (int)(cutfreq/df);
