@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.96 2009-11-11 15:27:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.97 2009-12-01 10:15:20 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -99,6 +99,13 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
 uiSeisFileMan::~uiSeisFileMan()
 {
+}
+
+
+const char* uiSeisFileMan::getDefKey() const
+{
+    const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
+    return is2d ? sKey::DefLineSet : sKey::DefCube;
 }
 
 
@@ -327,8 +334,11 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 
     attrgrp_ = new uiManipButGrp( allb );
     attrgrp_->addButton( uiManipButGrp::Rename,
-	    	       mCB(this,uiSeis2DFileMan,removeAttrib),
-		       "Remove selected attribute(s)" );
+	    	       mCB(this,uiSeis2DFileMan,renameAttrib),
+		       "Rename attribute" );
+    attrgrp_->addButton( uiManipButGrp::Remove,
+	    		mCB(this,uiSeis2DFileMan,removeAttrib),
+			"Remove selected attribute(s)" );
     browsebut_ = attrgrp_->addButton( ioPixmap("browseseis.png"),
 	    	       mCB(this,uiSeis2DFileMan,browsePush),
 		       "Browse/edit this line" );
