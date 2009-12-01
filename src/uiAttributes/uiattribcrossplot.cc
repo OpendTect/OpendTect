@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.45 2009-11-30 12:17:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.46 2009-12-01 09:45:55 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -51,8 +51,6 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     	, l2ddata_(0)
     	, curdps_(0)
     	, dpsdispmgr_(0)
-    	, pointsSelected(this)
-    	, pointsTobeRemoved(this)
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this,
 	    					  "Attributes to calculate" );

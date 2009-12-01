@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.15 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.16 2009-12-01 09:45:55 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,6 @@ public:
 					{ dpsdispmgr_ = dispmgr; }
 
     const DataPointSet&			getDPS() const;
-    Notifier<uiAttribCrossPlot>		pointsSelected;
-    Notifier<uiAttribCrossPlot>		pointsTobeRemoved;
 
 protected:
 
