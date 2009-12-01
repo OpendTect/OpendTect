@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.31 2009-11-23 04:48:46 cvsumesh Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.32 2009-12-01 11:36:49 cvsumesh Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -360,6 +360,7 @@ protected:
 
 void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 {
+    if ( !emobject_ ) return;
     const EM::SectionID sid = emobject_->sectionID( idx );
     mDynamicCastGet(const Geometry::RowColSurface*,rcs,
 	    	    emobject_->sectionGeometry(sid));
@@ -393,6 +394,8 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 void Horizon2DDisplay::updateLinesOnSections(
 			const ObjectSet<const Seis2DDisplay>& seis2dlist )
 {
+    if ( !seis2dlist.size() ) return;
+
     if ( !displayonlyatsections_ )
     {
 	for ( int sidx=0; sidx<sids_.size(); sidx++ )
@@ -440,8 +443,6 @@ void Horizon2DDisplay::updateLinesOnSections(
     
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
 	updateSection( sidx, &linergs );
-
-    linergs_ = linergs;
 }
 
 
@@ -528,7 +529,6 @@ bool Horizon2DDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 	zaxistransform_->ref();
 	if ( zaxistransform_->changeNotifier() )
 	    zaxistransform_->changeNotifier()->notify( cb );
-	zAxisTransformChg( 0 );
     }
 
     return true;
@@ -543,7 +543,7 @@ void Horizon2DDisplay::zAxisTransformChg( CallBacker* )
 {
     // TODO: implement
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
-	updateSection( sidx, &linergs_ );
+	updateSection( sidx );
 }
 
 
