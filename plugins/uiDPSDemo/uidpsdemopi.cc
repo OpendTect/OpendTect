@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.10 2009-11-30 12:17:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.11 2009-12-01 09:46:49 cvssatyaki Exp $";
 
 
 #include "uidpsdemo.h"
@@ -60,7 +60,6 @@ public:
 			uiDPSDemoMgr(uiODMain&);
 
     uiODMain&		appl_;
-    uiDPSDemo*		dpsdemo_;
 
     DataPointSetDisplayMgr* dpsdispmgr_;
     const ioPixmap	pixmap_;
@@ -70,14 +69,12 @@ public:
     void		doIt(CallBacker*);
     void		showSelPtsCB(CallBacker*);
     void		removeSelPtsCB(CallBacker*);
-    void		winClosed(CallBacker*);
 
 };
 
 
 uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
 	: appl_(a)
-	, dpsdemo_(0)
 	, dpsdispmgr_(a.applMgr().visDPSDispMgr())
 	, pixmap_("dpsdemo.png")
 {
@@ -104,21 +101,6 @@ void uiDPSDemoMgr::insertIcon( CallBacker* )
     if ( SI().has3D() )
 	appl_.menuMgr().dtectTB()->addButton( pixmap_,
 		mCB(this,uiDPSDemoMgr,doIt), "DataPointSet demo" );
-}
-
-
-void uiDPSDemoMgr::doIt( CallBacker* )
-{
-    dpsdemo_ = new uiDPSDemo( &appl_, dpsdispmgr_ );
-    dpsdemo_->setDeleteOnClose( true );
-    dpsdemo_->windowClosed.notify( mCB(this,uiDPSDemoMgr,winClosed) );
-    dpsdemo_->go();
-}
-
-
-void uiDPSDemoMgr::winClosed( CallBacker* cb )
-{
-    dpsdemo_ = 0;
 }
 
 

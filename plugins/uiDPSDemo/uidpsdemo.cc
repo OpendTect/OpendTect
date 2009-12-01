@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.10 2009-11-30 12:17:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.11 2009-12-01 09:46:49 cvssatyaki Exp $";
 
 #include "uidpsdemo.h"
 
@@ -38,8 +38,6 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 	: uiDialog(p,Setup("DataPointSet demo","Data extraction parameters",
 		    	   mNoHelpID))
 	, dpsdispmgr_(dpsdispmgr)
-	, selPtsToBeShown(this)
-	, selPtsToBeRemoved(this)
 {
     horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D) );
 
@@ -128,24 +126,12 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     if ( sectionnms.size() > 1 )
 	{ uidps->setGroupNames(sectionnms); uidps->setGroupType("Section"); }
     static uiDPSDemoDPSDeleter dpsdel;
-    uidps->selPtsToBeShown.notify( mCB(this,uiDPSDemo,showSelPtsCB) );
-    uidps->selPtsToBeRemoved.notify( mCB(this,uiDPSDemo,removeSelPtsCB) );
     uidps->windowClosed.notify( mCB(&dpsdel,uiDPSDemoDPSDeleter,doDel) );
 
     uidps->show();
     return true;
 }
 
-void uiDPSDemo::showSelPtsCB( CallBacker* )
-{
-    selPtsToBeShown.trigger();
-}
-
-
-void uiDPSDemo::removeSelPtsCB( CallBacker* )
-{
-    selPtsToBeRemoved.trigger();
-}
 
 #define mSectGeom(sect) (*hor.geometry().sectionGeometry(sect))
 
@@ -250,7 +236,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 	    const float v1  = trc.getValue( z+trc.info().sampling.step, icomp );
 	    vals[1] = (vm1 + v1) * .5;
 	    vals[2] = vm1 - v1;
-	    vals[1] /= vals[0]; vals[2] /=vals[0];
+	    vals[1] /= vals[0]; vals[2] /= vals[0];
 	}
 	vals[3] = SeisTrcPropCalc(trc,icomp).getFreq( trc.nearestSample(z) );
     }

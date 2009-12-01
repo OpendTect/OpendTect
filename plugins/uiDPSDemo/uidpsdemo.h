@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Nov 2009
- RCS:           $Id: uidpsdemo.h,v 1.7 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:           $Id: uidpsdemo.h,v 1.8 2009-12-01 09:46:49 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,10 +35,6 @@ public:
 
 			uiDPSDemo(uiParent*,DataPointSetDisplayMgr* mgr=0);
 			~uiDPSDemo();
-
-    const DataPointSet& getDPS() const		{ return *dps_; }
-    Notifier<uiDPSDemo>	selPtsToBeShown;
-    Notifier<uiDPSDemo>	selPtsToBeRemoved;
 
 protected:
 
