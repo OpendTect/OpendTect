@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.43 2009-11-30 16:33:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.44 2009-12-01 15:55:55 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -52,6 +52,8 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
     if ( !log ) return 0;
     TypeSet<float> vals, dpt, time;
 
+    dpt += -wd_.track().value(0);
+    vals += 0;
     for ( int idx=0; idx<log->size(); idx++ )
     {
 	vals += log->valArr()[idx];
@@ -73,7 +75,8 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
     
     Well::D2TModel* d2tnew = new Well::D2TModel;
     d2tnew->add( wd_.track().dah(0)-wd_.track().value(0), 0 ); //set KB Depth
-    for ( int idx=0; idx<time.size(); idx++ )
+
+    for ( int idx=1; idx<time.size(); idx++ )
 	d2tnew->add( dpt[idx], time[idx] );
 
     return d2tnew;
@@ -86,18 +89,16 @@ void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 			     const TypeSet<float>& dpt,	
 			     TypeSet<float>& outp, bool t2vel  )
 {
-    outp += 0;
     if ( t2vel )
     {
-	outp += 0;
-	for ( int idx=2; idx<timevel.size(); idx++ )
-	    outp +=  ( timevel[idx]-timevel[idx-1] )
-		    /( (dpt[idx]-dpt[idx-1])/velfactor_*2 );
-	outp[1] = outp[2];
-	outp[0] = outp[1];
+	for ( int idx=0; idx<timevel.size()-1; idx++ )
+	    outp +=  ( timevel[idx+1]-timevel[idx] )
+		    /( (dpt[idx+1]-dpt[idx])/velfactor_*2 );
+	    outp += outp[timevel.size()-2];
     }
     else 
     {
+	outp += 0;
 	const bool issonic = setup_.issonic_;
 	for ( int idx=1; idx<timevel.size(); idx++ )
 	{
@@ -110,35 +111,57 @@ void GeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 }
 
 
+void GeoCalculator::checkShot2Log( const Well::D2TModel* cs, bool wantsonic,
+				      TypeSet<float>& newvals )
+{
+    if ( !cs ) return;
+
+    TypeSet<float> dpt, csvals;
+    for ( int idx=0; idx<cs->size(); idx++ )
+    {
+	dpt += cs->dah(idx);
+	csvals += cs->value(idx);
+    }
+
+    if ( wantsonic )
+	TWT2Vel( csvals, dpt, newvals, true );
+    else
+    {
+	for ( int idx=0; idx<cs->size(); idx++ )
+	    newvals += csvals[idx]*1000;
+    }
+}
+
+
 void GeoCalculator::stretch( WellTie::GeoCalculator::StretchData& sd ) const
 {
-    sd.stretchfac_ = (sd.pick2_-sd.start_)/(float)(sd.pick1_-sd.start_);
-    sd.isstretch_ = true;
-    stretch( sd, sd.stretchfac_ ); 
+sd.stretchfac_ = (sd.pick2_-sd.start_)/(float)(sd.pick1_-sd.start_);
+sd.isstretch_ = true;
+stretch( sd, sd.stretchfac_ ); 
 
-    sd.isstretch_ = false;
-    sd.squeezefac_ = (sd.stop_-sd.pick2_ )/(float)(sd.stop_-sd.pick1_);
-    stretch( sd, sd.squeezefac_ );
+sd.isstretch_ = false;
+sd.squeezefac_ = (sd.stop_-sd.pick2_ )/(float)(sd.stop_-sd.pick1_);
+stretch( sd, sd.squeezefac_ );
 }
 
 
 void GeoCalculator::stretch( const WellTie::GeoCalculator::StretchData& sd, 
-			     float factor ) const
+float factor ) const
 {
-    int start = sd.isstretch_ ? sd.start_ : sd.pick2_; 
-    int stop = sd.isstretch_ ? sd.pick2_ : sd.stop_; 
-    const int datasz = sd.inp_->info().getSize(0);
-    for ( int idx=start; idx<stop; idx++ )
-    {
-	float v = sd.isstretch_ ? sd.start_ : sd.stop_;
-	const float curval = Interpolate::linearReg1D( v, (float)idx, factor );
-	const int curidx = (int) curval;
-	if ( curidx >= datasz-1 || curidx < 0 ) continue;
-	const float newval = Interpolate::linearReg1D( sd.inp_->get(curidx),
-						       sd.inp_->get(curidx+1),
-						       curval-curidx);
-	sd.outp_->setValue( idx , newval );
-    }
+int start = sd.isstretch_ ? sd.start_ : sd.pick2_; 
+int stop = sd.isstretch_ ? sd.pick2_ : sd.stop_; 
+const int datasz = sd.inp_->info().getSize(0);
+for ( int idx=start; idx<stop; idx++ )
+{
+float v = sd.isstretch_ ? sd.start_ : sd.stop_;
+const float curval = Interpolate::linearReg1D( v, (float)idx, factor );
+const int curidx = (int) curval;
+if ( curidx >= datasz-1 || curidx < 0 ) continue;
+const float newval = Interpolate::linearReg1D( sd.inp_->get(curidx),
+sd.inp_->get(curidx+1),
+curval-curidx);
+sd.outp_->setValue( idx , newval );
+}
 }
 
 //only for ascending arrays
@@ -226,7 +249,7 @@ int GeoCalculator::getFirstDefIdx( const TypeSet<float>& logdata )
 	if ( !mIsUdf(logdata[idx]) )
 	    return idx;
     }
-    return idx;
+    return -1;
 }
 
 
@@ -262,10 +285,21 @@ void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
     const int filtersz = vals.info().getSize(0);
     if ( filtersz<100 ) return;
     
-    float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
-
-    FFTFilter filter;
     Array1DImpl<float> orgvals ( vals );
+    const int winsz = (int)(SI().zStep()/0.5);
+    
+    FFTFilter filter;
+
+    Array1DImpl<float> lwin( winsz );
+    if ( winsz )
+    {
+	ArrayNDWindow lowwindow(Array1DInfoImpl(2*winsz),false, "CosTaper",0.5);
+	for ( int idx=0; idx<winsz; idx++ )
+	    lwin.set( idx, 1-lowwindow.getValues()[idx] );
+	filter.setLowFreqBorderWindow( lwin.getData(), winsz );
+    }
+
+    float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
     filter.FFTFreqFilter( df, cutf, true, orgvals, vals );
     for ( int idx=0; idx<(int)(filtersz/20); idx++ )
 	vals.set( idx, orgvals.get(idx) );

@@ -35,8 +35,7 @@ namespace WellTie
 {
 
 class DataWriter;
-class Setup;
-class LogUnitFactors;
+class Params;
 
 mClass D2TModelMGR
 {
@@ -51,6 +50,7 @@ public:
     bool      		updateFromWD();
     bool      		commitToWD();
 
+    void 		applyCheckShotShiftToModel();
     void 		replaceTime(const Array1DImpl<float>&);
     void 		shiftModel(float);
     void 		setAsCurrent(Well::D2TModel*);
@@ -65,10 +65,9 @@ protected:
     Well::D2TModel* 		prvd2t_;
     Well::D2TModel* 		orgd2t_;
     WellTie::GeoCalculator&	geocalc_;
-    const WellTie::Setup&	wtsetup_;
+    const WellTie::Params&	params_;
     const WellTie::DataWriter*	datawriter_;
     bool			emptyoninit_;
-    bool			iscscorr_;
 };
 
 }; //namespace WellTie

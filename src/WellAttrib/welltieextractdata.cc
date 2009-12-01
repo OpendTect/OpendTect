@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.24 2009-11-12 15:57:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.25 2009-12-01 15:55:55 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: welltieextractdata.cc,v 1.24 2009-11-12 15:57:5
 #include "ioman.h"
 #include "datapointset.h"
 #include "linekey.h"
+#include "seisbuf.h"
 #include "seistrc.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
@@ -84,6 +85,7 @@ int TrackExtractor::nextStep()
 SeismicExtractor::SeismicExtractor( const IOObj& ioobj ) 
 	: Executor("Extracting Seismic positions")
 	, rdr_(new SeisTrcReader( &ioobj ))
+	, trcbuf_(new SeisTrcBuf(false))				   
 	, nrdone_(0)
 	, cs_(new CubeSampling())	    
 	, timeintv_(0,0,0)
@@ -98,7 +100,7 @@ SeismicExtractor::~SeismicExtractor()
     delete vals_; delete dahs_;
     delete cs_;
     delete rdr_;
-    deepErase( trcset_ );
+    delete trcbuf_;
 }
 
 
@@ -139,19 +141,8 @@ void SeismicExtractor::collectTracesAroundPath()
     rdr_->setSelData( sd );
     rdr_->prepareWork();
 
-    for ( int idx=0; idx<bidset_.size(); idx++ )
-    {
-	SeisTrc* trc = new SeisTrc( bidset_.size() ); 
-	int info = rdr_->get( trc->info() );
-	if ( info<0 ) 
-	    continue;
-	else if ( info == 0 )
-	    break;
-	if ( !rdr_->get( *trc ) )
-	    continue;
-
-	trcset_ += trc; 
-    }
+    SeisBufReader sbfr( *rdr_, *trcbuf_ );
+    sbfr.execute();
 }
 
 
@@ -181,9 +172,10 @@ int SeismicExtractor::nextStep()
     float val = 0; int nrtracesinradius = 0;
     int prevradius = (int) 1e30;
 
-    for ( int idx=0; idx<trcset_.size(); idx++ )
+    for ( int idx=0; idx<trcbuf_->size(); idx++ )
     {
-	BinID b = trcset_[idx]->info().binid;
+	const SeisTrc* trc = trcbuf_->get(idx);
+	BinID b = trc->info().binid;
 	int xx0 = b.inl-curbid.inl; 	xx0 *= xx0; 
 	int yy0 = b.crl-curbid.crl;	yy0 *= yy0;
 
@@ -192,7 +184,7 @@ int SeismicExtractor::nextStep()
 	    if ( ( xx0 + yy0  ) < prevradius )
 	    {
 		prevradius = xx0 + yy0;
-		val = trcset_[idx]->get( nrdone_, 0 );
+		val = trc->get( nrdone_, 0 );
 		nrtracesinradius = 1;
 	    }
 	}
@@ -201,7 +193,7 @@ int SeismicExtractor::nextStep()
 	    if ( xx0 + yy0 < radius_*radius_ )
 	    {
 		nrtracesinradius ++;
-		val += trcset_[idx]->get( nrdone_, 0 );
+		val += trc->get( nrdone_, 0 );
 	    }
 	}
     }

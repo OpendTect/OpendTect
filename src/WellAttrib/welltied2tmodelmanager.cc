@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.16 2009-11-30 16:33:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.17 2009-12-01 15:55:55 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -31,24 +31,27 @@ namespace WellTie
 D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
 	: wd_(dh.wd())
 	, geocalc_(*dh.geoCalc())
+	, params_(*dh.params())
 	, orgd2t_(0)					    
 	, prvd2t_(0)
 	, emptyoninit_(false)
-	, wtsetup_(dh.setup())	
 	, datawriter_(new WellTie::DataWriter(&dh))
-	, iscscorr_(dh.uipms()->iscscorr_) 
 {
     if ( !wd_ ) return;
+
     if ( !wd_->d2TModel() || wd_->d2TModel()->size() <= mMinNrTimeSamples )
     {
 	emptyoninit_ = true;
 	wd_->setD2TModel( new Well::D2TModel );
     }
     orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd_->d2TModel() );
-
+    
+    //launches check shot correction on sonic
     if ( wd_->haveCheckShotModel() )
 	WellTie::CheckShotCorr cscorr( dh );
-    setFromVelLog( dh.params()->dpms_.currvellognm_, true );
+
+    if ( emptyoninit_ || wd_->haveCheckShotModel() )
+	setFromVelLog( dh.params()->dpms_.currvellognm_, true );
 } 
 
 
@@ -64,23 +67,41 @@ Well::D2TModel& D2TModelMGR::d2T()
     return *wd_->d2TModel();
 }
 
-
+#define mRemoveSameTimeValues(d2tm)\
+    for ( int idx=1; idx<d2tm->size(); idx++ )\
+    {\
+	if ( mIsZero(d2tm->value(idx)-d2tm->value(idx-1),1e-8) )\
+	    d2tm->remove( idx-1 );\
+    }
 void D2TModelMGR::setFromVelLog( const char* lognm,  bool docln )
 {
     Well::D2TModel* d2tm = geocalc_.getModelFromVelLog(lognm,docln);
     if ( !d2tm ) return;
 
-    const float startdah = iscscorr_? wd_->checkShotModel()->dah(0)
-				    : wd_->track().dah(0)-wd_->track().value(0);
-    for ( int idx=d2tm->size()-1; idx>=1; idx-- )
-    {
-	if ( startdah > d2tm->dah( idx ) )
-	    d2tm->remove( idx );
-    }
     setAsCurrent( d2tm );
+    applyCheckShotShiftToModel();
+}
 
-    if ( iscscorr_ ) 
-	shiftModel( wd_->checkShotModel()->value(0) - d2tm->value(1) );
+
+void D2TModelMGR::applyCheckShotShiftToModel()
+{
+    if ( params_.uipms_.iscscorr_ ) return;
+    
+    Well::D2TModel* d2tm = &d2T();
+
+    const Well::D2TModel* cs = wd_->checkShotModel();
+    if ( !cs ) return;
+
+    float csshift = 0;
+    for ( int idx=0; idx<cs->size(); idx++ )
+    {
+	if ( cs->dah(idx) >= d2tm->dah(1) )
+	{
+	    csshift = cs->value(idx) - d2tm->getTime( cs->dah(idx) ); 
+	    break;
+	}
+    }
+    shiftModel( csshift );
 }
 
 
@@ -91,6 +112,7 @@ void D2TModelMGR::shiftModel( float shift)
     for ( int dahidx=1; dahidx<d2t->size(); dahidx++ )
 	d2t->valArr()[dahidx] += shift;
     
+    mRemoveSameTimeValues(d2t);
     setAsCurrent( d2t );
 }
 
@@ -101,6 +123,7 @@ void D2TModelMGR::replaceTime( const Array1DImpl<float>& timevals )
     for ( int dahidx=1; dahidx<d2t->size(); dahidx++ )
 	d2t->valArr()[dahidx] = timevals[dahidx];
 
+    mRemoveSameTimeValues(d2t);
     setAsCurrent( d2t );
 }
 

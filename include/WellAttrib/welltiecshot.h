@@ -47,10 +47,8 @@ protected:
     Well::Log* 			log_;
     Well::D2TModel* 		cs_;
 
-    void 			setCSToLogScale(TypeSet<float>&,double, 
-						WellTie::GeoCalculator&);
-    void 			calibrateLogToCS(const TypeSet<float>&,
-						WellTie::GeoCalculator&);
+    void 			calibrateLog2CheckShot(const TypeSet<float>&,
+						    WellTie::GeoCalculator&);
 };
 
 }; //namespace WellTie

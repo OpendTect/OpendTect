@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.12 2009-11-30 16:33:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.13 2009-12-01 15:55:55 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -40,40 +40,17 @@ CheckShotCorr::CheckShotCorr( WellTie::DataHolder& dh )
     TypeSet<float> newcsvals; 
 
     WellTie::GeoCalculator geocalc( dh );
-    setCSToLogScale( newcsvals, dh.getUnits().velFactor(), geocalc );
-    calibrateLogToCS( newcsvals, geocalc );
+    geocalc.checkShot2Log( cs_, dh.setup().issonic_, newcsvals );
+    calibrateLog2CheckShot( newcsvals, geocalc );
     log_->setName( dh.setup().corrvellognm_ );
     dh.wd()->logs().add( log_ );
 }
 
 
-void CheckShotCorr::setCSToLogScale( TypeSet<float>& cstolog, double velfactor,
-				      WellTie::GeoCalculator& geocalc )
-{
-    TypeSet<float> dpt, csvals;
-    for ( int idx=0; idx<cs_->size(); idx++ )
-    {
-	dpt += cs_->dah(idx);
-	csvals += cs_->value(idx);
-    }
-    geocalc.TWT2Vel( csvals, dpt, cstolog, true );
-}
-
-
-void CheckShotCorr::calibrateLogToCS( const TypeSet<float>& csvals, 
+void CheckShotCorr::calibrateLog2CheckShot( const TypeSet<float>& csvals, 
 				       WellTie::GeoCalculator& geocalc )
 {
     TypeSet<float> logvaldah, coeffs, logshifts, csshifts;
-
-    //add extra log values if CheckShot start dah < log start dah
-    const float startdah = log_->dah(0); 
-    const float stopdah = log_->dah(log_->size()-1);
-    for ( int idx=0; idx<cs_->size(); idx++)
-    {
-	const float csdah = cs_->dah(idx);
-	if ( csdah < startdah )
-	    log_->insertAtDah( csdah, csvals[idx] );
-    }
 
     for ( int idx=0; idx<cs_->size(); idx++)
     {

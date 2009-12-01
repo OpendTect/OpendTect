@@ -21,7 +21,7 @@ ________________________________________________________________________
 class CubeSampling;
 class LineKey;
 class SeisTrcReader;
-class SeisTrc;
+class SeisTrcBuf;
 class MultiID;
 class IOObj;
 namespace Well 
@@ -90,7 +90,7 @@ protected:
 
     CubeSampling* 	cs_;
     TypeSet<BinID>	bidset_;
-    ObjectSet<SeisTrc>	trcset_;
+    SeisTrcBuf*		trcbuf_;
     SeisTrcReader* 	rdr_;
     const LineKey*	linekey_;
     const char*		attrnm_;

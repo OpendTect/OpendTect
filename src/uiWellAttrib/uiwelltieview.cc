@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.52 2009-11-25 10:42:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.53 2009-12-01 15:55:55 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -406,6 +406,7 @@ void uiTieView::drawCShot()
     delete checkshotitm_; checkshotitm_=0;
     if ( !dataholder_.uipms()->iscsdisp_ ) 
 	return;
+
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
     const int sz = cs->size();
@@ -413,15 +414,8 @@ void uiTieView::drawCShot()
     
     WellTie::GeoCalculator geocalc( dataholder_ );
 
-    TypeSet<float> csvals, cstolog, dpt;
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	float val = cs->value( idx );
-	float dah = cs->dah( idx );
-	csvals += val;
-	dpt    += dah;
-    }
-    geocalc.TWT2Vel( csvals, dpt, cstolog, true );
+    TypeSet<float> cstolog;
+    geocalc.checkShot2Log( cs, wtsetup_.issonic_, cstolog );
     
     TypeSet<uiPoint> pts;
     uiWellLogDisplay::LogData& ld = logsdisp_[0]->logData();
@@ -434,7 +428,7 @@ void uiTieView::drawCShot()
     for ( int idx=0; idx<sz; idx++ )
     {
 	float val = cstolog[idx];
-	float zpos = dpt[idx];
+	float zpos = cs->dah(idx);
 	if ( dispintime ) 
 	    zpos = d2tm->getTime( zpos )*1000;
 	if ( zpos < zrg.start )
