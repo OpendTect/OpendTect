@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.30 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.31 2009-12-01 10:02:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,6 @@ protected:
     IOPar&		storepars_;
 
     DataPointSetDisplayMgr* dpsdispmgr_;
-    int			dpsid_;
     void		writeSets(CallBacker*);
 
     bool		extractDirectData(ObjectSet<DataPointSet>&);

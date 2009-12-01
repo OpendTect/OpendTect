@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.74 2009-11-30 12:17:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.75 2009-12-01 10:02:38 cvssatyaki Exp $";
 
 #include "uinlapartserv.h"
 
@@ -63,7 +63,6 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 	, dps_(0)
 	, storepars_(*new IOPar)
 	, is2d_(false)
-	, dpsid_(-1)
 	, dpsdispmgr_(0)
 {
 }
