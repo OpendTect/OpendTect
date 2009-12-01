@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.17 2009-12-01 15:55:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.18 2009-12-01 16:01:45 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -85,7 +85,7 @@ void D2TModelMGR::setFromVelLog( const char* lognm,  bool docln )
 
 void D2TModelMGR::applyCheckShotShiftToModel()
 {
-    if ( params_.uipms_.iscscorr_ ) return;
+    if ( !params_.uipms_.iscscorr_ ) return;
     
     Well::D2TModel* d2tm = &d2T();
 
