@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.14 2009-11-04 03:30:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.15 2009-12-01 16:18:47 cvsbert Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -248,6 +248,8 @@ int Horizon2DScanner::nextStep()
     int validx = 0;
     const int nrvals = data.size() - 2;
     int nrvalidvals = 0;
+    Interval<float> validzrg( linegeom_.zrg_.start, linegeom_.zrg_.stop );
+    validzrg.widen( validzrg.width() );
     while ( validx < nrvals )
     {
 	while ( valranges_.size() < nrvals )
@@ -255,7 +257,7 @@ int Horizon2DScanner::nextStep()
 
 	const float val = data[validx+2];
 
-	if ( mIsUdf(val) || !linegeom_.zrg_.includes(val) )
+	if ( mIsUdf(val) || !validzrg.includes(val) )
 	    data[validx+2] = mUdf(float);
 	else
 	{
