@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.103 2009-10-07 06:19:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.104 2009-12-01 10:14:52 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -84,7 +84,7 @@ void BatchProgram::init( int* pac, char** av )
     BufferString masterhost;
     int masterport = -1;
     
-    FixedString fn = argv_[1];
+    BufferString fn = argv_[1];
     while ( fn && *fn == '-' )
     {
 	if ( fn=="-bg" )
@@ -169,10 +169,10 @@ void BatchProgram::init( int* pac, char** av )
     }
 
 
-    FixedString res = iopar->find( sKey::LogFile );
+    BufferString res = iopar->find( sKey::LogFile ).buf();
     if ( !res )
 	iopar->set( sKey::LogFile, StreamProvider::sStdErr() );
-    res = iopar->find( sKey::Survey );
+    res = iopar->find( sKey::Survey ).buf();
     if ( !res )
 	IOMan::newSurvey();
     else
@@ -314,8 +314,8 @@ bool BatchProgram::initOutput()
 	exit( 0 );
     }
 
-    FixedString res = pars()[sKey::LogFile];
-    if ( res=="stdout" ) res = 0;
+    BufferString res = pars().find( sKey::LogFile ).buf();
+    if ( res == "stdout" ) res.setEmpty();
  
     bool hasviewprogress = true;
 #ifdef __cygwin__
@@ -343,10 +343,11 @@ bool BatchProgram::initOutput()
 	}
     }
 
-    if ( !res || res!="window" )
+    if ( res != "window" )
     {
-	StreamProvider spout( res );
-	sdout = spout.makeOStream();
+	if ( res.isEmpty() )
+	    res = StreamProvider::sStdErr();
+	sdout = StreamProvider(res).makeOStream();
 	if ( !sdout.ostrm )
 	{
 	    std::cerr << name() << ": Cannot open log file" << std::endl;
@@ -369,13 +370,13 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     const BufferString basekey( bsky );
     BufferString iopkey( basekey ); iopkey += ".";
     iopkey += "ID";
-    FixedString res = pars().find( iopkey );
+    BufferString res = pars().find( iopkey ).buf();
     if ( res.isEmpty() )
     {
-	iopkey = basekey; res = pars().find( iopkey );
+	iopkey = basekey; res = pars().find( iopkey ).buf();
 	if ( res.isEmpty() )
 	{
-	    iopkey += ".Name"; res = pars().find( iopkey );
+	    iopkey += ".Name"; res = pars().find( iopkey ).buf();
 	    if ( res.isEmpty() )
 	    {
 		if ( msgiffail )
