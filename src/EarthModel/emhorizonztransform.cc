@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.12 2009-11-23 04:55:51 cvsumesh Exp $";
+static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.13 2009-12-01 11:34:42 cvsumesh Exp $";
 
 #include "emhorizonztransform.h"
 
@@ -40,7 +40,14 @@ HorizonZTransform::HorizonZTransform( const Horizon* hor )
 
 
 HorizonZTransform::~HorizonZTransform()
-{ if ( horizon_ ) horizon_->unRef(); }
+{ 
+    if ( horizon_ )
+    {
+	const_cast<Horizon*>(horizon_)->change.remove( 
+		mCB(this,HorizonZTransform,horChangeCB) );
+	horizon_->unRef();
+    }
+}
 
 
 const char* HorizonZTransform::getZDomainID() const
@@ -200,7 +207,12 @@ float HorizonZTransform::getZIntervalCenter( bool from ) const
 
 
 void HorizonZTransform::horChangeCB(CallBacker*)
-{ horchanged_ = true; }
+{ 
+    horchanged_ = true;
+
+    if ( horizon_ && !horizon_->hasBurstAlert() )
+	change_.trigger();
+}
 
 
 void HorizonZTransform::calculateHorizonRange()
