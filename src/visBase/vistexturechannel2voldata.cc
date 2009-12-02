@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.4 2009-11-30 22:36:15 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.5 2009-12-02 13:19:19 cvskarthika Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -29,6 +29,7 @@ TextureChannel2VolData::TextureChannel2VolData()
     , voldata_( 0 )
     , root_( new SoGroup )
     , dummytexture_(255)
+    , enabled_ (false)
 {
     root_->ref();
 }
@@ -58,6 +59,7 @@ SoNode* TextureChannel2VolData::getInventorNode()
 		Interval<float>(-0.5,0.5) );
 	voldata_->setVolumeData( SbVec3s(1,1,1), &dummytexture_, 
 		SoVolumeData::UNSIGNED_BYTE );
+	enabled_ = true;
 	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	    voldata_->usePalettedTexture = FALSE;
 
@@ -123,27 +125,14 @@ const ColTab::Sequence* TextureChannel2VolData::getSequence( int channel ) const
 
 void TextureChannel2VolData::setEnabled( int ch, bool yn )
 {
-    if ( !voldata_ ) return;
-    if ( !yn )
-	voldata_->setVolumeData( SbVec3s(1,1,1),
-		&dummytexture_, SoVolumeData::UNSIGNED_BYTE );
-    /*else if ( indexcache_ )
-	voldata_->setVolumeData( SbVec3s(sz2_,sz1_,sz0_),
-		indexcache_, SoVolumeData::UNSIGNED_BYTE );*/
-	update();
+    enabled_ = yn;
+    update();
 }
 
 
 bool TextureChannel2VolData::isEnabled( int ch ) const
 {
-    if ( !voldata_ )
-	return false;
-
-    SbVec3s size;
-    void* ptr;
-    SoVolumeData::DataType dt;
-
-    return voldata_->getVolumeData(size,ptr,dt) /*&& ptr==indexcache_*/;
+    return enabled_;
 }
 
 
@@ -166,7 +155,10 @@ void TextureChannel2VolData::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
 
-/*
+    transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
+    /*transferfunc_->predefColorMap = SoTransferFunction::NONE;
+    transferfunc_->colorMapType = SoTransferFunction::RGBA;
+
     const float redfactor = 1.0/255;
     const float greenfactor = 1.0/255;
     const float bluefactor = 1.0/255;
@@ -182,10 +174,9 @@ void TextureChannel2VolData::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
 	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
-    */
-
-    transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
-	
+*/
+    
+    // to do: enable/disable
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();
 }
