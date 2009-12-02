@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.26 2009-09-30 21:07:55 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.27 2009-12-02 20:44:11 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -282,6 +282,9 @@ bool Gather::getVelocityID(const MultiID& stor, MultiID& vid )
     return ioobj ? ioobj->pars().get( sKeyVelocityCubeID(), vid ) : false;
 }
 
+#define mIfNonZero \
+const float val = data().get( offset, idz ); \
+if ( val && !mIsUdf(val) )
 
 void Gather::detectInnerMutes( int* res, int taperlen ) const
 {
@@ -293,7 +296,7 @@ void Gather::detectInnerMutes( int* res, int taperlen ) const
     {
 	for ( int idz=nrz-1; idz>=muteend; idz-- )
 	{
-	    if ( data().get( offset, idz ) )
+	    mIfNonZero
 		muteend = idz+1;
 	}
 
@@ -312,7 +315,7 @@ void Gather::detectOuterMutes( int* res, int taperlen ) const
     {
 	for ( int idz=0; idz<=muteend; idz++ )
 	{
-	    if ( data().get( offset, idz ) )
+	    mIfNonZero
 		muteend = idz-1;
 	}
 
