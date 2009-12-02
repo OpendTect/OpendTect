@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.21 2009-10-16 02:44:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.22 2009-12-02 06:57:25 cvsraman Exp $";
 
 #include "gmtdef.h"
 #include "ioman.h"
@@ -93,7 +93,6 @@ class uiGMTMgr :  public CallBacker
 {
 public:
 			uiGMTMgr(uiODMain*);
-			~uiGMTMgr();
 
     uiODMain*		appl_;
     uiGMTMainWin*	dlg_;
@@ -131,12 +130,6 @@ void uiGMTMgr::updateMenu( CallBacker* )
 	    				  mCB(this,uiGMTMgr,createMap),
 	   				  &gmtpm );
     appl_->menuMgr().procMnu()->insertItem( newitem );
-}
-
-
-uiGMTMgr::~uiGMTMgr()
-{
-    delete dlg_;
 }
 
 
