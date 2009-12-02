@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Karthika
  Date:		Nov 2009
- RCS:		$Id: vistexturechannel2voldata.h,v 1.2 2009-11-21 22:20:07 cvskarthika Exp $
+ RCS:		$Id: vistexturechannel2voldata.h,v 1.3 2009-12-02 13:20:20 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -62,6 +62,7 @@ protected:
     SoTransferFunction*	transferfunc_;
     SoVolumeData*	voldata_;
     ColTab::Sequence	sequence_;
+    bool		enabled_;
     unsigned char	dummytexture_;
 
 };
