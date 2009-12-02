@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.18 2009-11-27 11:56:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.19 2009-12-02 11:04:42 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -42,11 +42,7 @@ uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
 void uiSeisWvltSliderDlg::constructSlider( uiSliderExtra::Setup& su,
 				      const Interval<float>&  sliderrg )
 {
-    sliderfld_ = new uiSliderExtra( this, uiSliderExtra::Setup(su.lbl_)
-				    .withedit(true)
-				    .sldrsize(su.sldrsize_)
-				    .isvertical(su.isvertical_),
-				    "wavelet slider" );
+    sliderfld_ = new uiSliderExtra( this, su, "wavelet slider" );
     sliderfld_->sldr()->setInterval( sliderrg );
     sliderfld_->sldr()->valueChanged.notify(mCB(this,uiSeisWvltSliderDlg,act));
 }
