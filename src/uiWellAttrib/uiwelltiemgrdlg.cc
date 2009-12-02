@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.27 2009-12-01 15:55:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.28 2009-12-02 05:30:43 cvsnageswara Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -204,7 +204,7 @@ void uiTieWinMGRDlg::selChg( CallBacker* )
 
 void uiTieWinMGRDlg::extrWvlt( CallBacker* )
 {
-    uiWaveletExtraction dlg( this );
+    uiWaveletExtraction dlg( this, is2d_ );
     if ( dlg.go() )
 	wvltfld_->setInput( dlg.storeKey() );
 }
