@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.92 2009-11-23 10:56:35 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.93 2009-12-02 13:15:46 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -64,8 +64,8 @@ MPEDisplay::MPEDisplay()
     , allowshading_(false)
     , datatransform_(0)
     , cacheid_(DataPack::cNoID())
-	, volumecache_(0)
-	, channels_(visBase::TextureChannels::create())
+    , volumecache_(0)
+    , channels_(visBase::TextureChannels::create())
     , voltrans_(visBase::Transformation::create())
     , dim_(2)
 #endif
@@ -135,11 +135,10 @@ MPEDisplay::MPEDisplay()
     addChild( voltrans_->getInventorNode() );
     voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
 
-	channels_->ref();  // will be added in getInventorNode
-	channels_->setChannels2RGBA( 
-		visBase::TextureChannel2VolData::create() );
-
-	visBase::DM().getObject( channels_->getInventorNode() );
+    channels_->ref();  // will be added in getInventorNode
+    channels_->setChannels2RGBA( visBase::TextureChannel2VolData::create() );
+    
+    visBase::DM().getObject( channels_->getInventorNode() );
     
     CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
     cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
@@ -246,7 +245,8 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 }
 
 
-const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib, int version ) const
+const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib, 
+	int version ) const
 { 
 #ifdef USE_TEXTURE
     return texture_ ? &texture_->getColorTab().colorMapper().setup_ : 0; 
@@ -268,10 +268,8 @@ const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
 #ifdef USE_TEXTURE
     return texture_ ? &texture_->getColorTab().colorSeq().colors() : 0; 
 #else
-    if ( attrib<0 || attrib>=nrAttribs() )
-	return 0;
-	
-	return channels_->getChannels2RGBA()->getSequence( attrib );
+    return ( attrib<0 || attrib>=nrAttribs() ) ? 0:
+	channels_->getChannels2RGBA()->getSequence( attrib );
 #endif
 }
 
@@ -279,9 +277,9 @@ const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
 bool MPEDisplay::canSetColTabSequence() const
 { 
 #ifdef USE_TEXTURE
-	return true;
+    return true;
 #else
-	return channels_->getChannels2RGBA()->canSetSequence();
+    return channels_->getChannels2RGBA()->canSetSequence();
 #endif
 }
 
@@ -413,11 +411,10 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     userrefs_.replace( attrib, attrnms );
 
     if ( !usrref || !*usrref )
-	    channels_->getChannels2RGBA()->setEnabled( 0, true );
+	channels_->getChannels2RGBA()->setEnabled( 0, true );
 #endif
 }
 
-// isAttribEnabled, enableAttrib - check if necessary
 
 const Attrib::SelSpec* MPEDisplay::getSelSpec( int attrib ) const
 {
@@ -764,12 +761,12 @@ void MPEDisplay::setDraggerTransparency( float transparency )
 #ifdef USE_TEXTURE
     rectangle_->getMaterial()->setTransparency( transparency );
 #else
-	// to do: check if this needs to be moved to setAttribTransparency
+    // to do: check if this needs to be moved to setAttribTransparency
     mDynamicCastGet( visBase::TextureChannel2VolData*, cttc2vd,
 		channels_->getChannels2RGBA() );
-	/*if ( cttc2vd )
-	    cttc2vd->setTransparency( attrib, nt );*/
-	// to do: implement in TextureChannel2VolData
+    /*if ( cttc2vd )
+          cttc2vd->setTransparency( attrib, nt );*/
+        // to do: implement in TextureChannel2VolData
 #endif
 }
 
@@ -785,7 +782,7 @@ float MPEDisplay::getDraggerTransparency() const
     /*if ( cttc2vd )
 	return cttc2vd->getTransparency( attrib );*/
     // to do: implement in TextureChannel2VolData
-	return 0;
+    return 0;
 #endif
 }
 
@@ -1296,7 +1293,7 @@ void MPEDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	    saveids += texture_->id();
     }
 #else
-	mDynamicCastGet( visBase::TextureChannel2VolData*, cttc2vd,
+    mDynamicCastGet( visBase::TextureChannel2VolData*, cttc2vd,
                      channels_ ? channels_->getChannels2RGBA() : 0 );
     if ( !cttc2vd )
     {
@@ -1326,7 +1323,8 @@ int MPEDisplay::usePar( const IOPar& par )
 	else return 0;
     }
 #else
-	int tc2vdid;
+
+    int tc2vdid;
     if ( par.get( sKeyTC2VolData(), tc2vdid ) )
     {
 	RefMan<visBase::DataObject> dataobj =
@@ -1334,7 +1332,7 @@ int MPEDisplay::usePar( const IOPar& par )
 	if ( !dataobj )
 	    return 0;
 
-	mDynamicCastGet(visBase::TextureChannel2VolData*, tc2vd, dataobj.ptr() );
+	mDynamicCastGet(visBase::TextureChannel2VolData*, tc2vd, dataobj.ptr());
 	if ( tc2vd )
 	    setChannel2VolData( tc2vd );
     }
@@ -1349,9 +1347,9 @@ int MPEDisplay::usePar( const IOPar& par )
 
     if ( as_.usePar( par ) )
 #ifdef USE_TEXTURE
-	updateTexture();
+    updateTexture();
 #else
-	//();
+    //();
 #endif
     turnOn( true );
     showBoxDragger( dispboxdragger );
@@ -1408,7 +1406,7 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 				   TaskRunner* tr )
 {
 #ifndef USE_TEXTURE
-	// to do: check if needs to be copied from setDisplayDataPackIDs
+    // to do: check if needs to be copied from setDisplayDataPackIDs
     if ( attrib>0 ) return false;
 
     DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
@@ -1422,9 +1420,9 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
     const bool res = setDataVolume( attrib, cdp, tr );
     
-	if ( volumecache_ )
-		dpman.release( volumecache_ );
-	volumecache_ = cdp;
+    if ( volumecache_ )
+	dpman.release( volumecache_ );
+    volumecache_ = cdp;
     return true;
 #else
     return false;
@@ -1438,40 +1436,40 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 #ifdef USE_TEXTURE
     return false;
 #else
-	if ( !cdp )
-		return false;
+    if ( !cdp )
+	return false;
 	
-	DataPack::ID attridpid = cdp->id();
+    DataPack::ID attridpid = cdp->id();
 
-	//transform data if necessary.
+    //transform data if necessary.
     const char* zdomain = getSelSpec( attrib )->zDomainKey();
     const bool alreadytransformed = zdomain && *zdomain;
 	
     if ( !alreadytransformed && datatransform_ )
     {
-		ZAxisTransformer* datatransformer;
-		mTryAlloc( datatransformer,ZAxisTransformer(*datatransform_,true));
-		datatransformer->setInterpolate( !isClassification(attrib) );
-	    //datatransformer->setInterpolate( true );
-		datatransformer->setInput( cdp->cube().getCube(0),	cdp->sampling() );
-		datatransformer->setOutputRange( getCubeSampling(true,true,0) );
+	ZAxisTransformer* datatransformer;
+	mTryAlloc( datatransformer,ZAxisTransformer(*datatransform_,true));
+	datatransformer->setInterpolate( !isClassification(attrib) );
+	//datatransformer->setInterpolate( true );
+	datatransformer->setInput( cdp->cube().getCube(0), cdp->sampling() );
+	datatransformer->setOutputRange( getCubeSampling(true,true,0) );
 		
-		if ( (tr && tr->execute(*datatransformer)) ||
+	if ( (tr && tr->execute(*datatransformer)) ||
              !datatransformer->execute() )
-		{
+	{
 	    pErrMsg( "Transform failed" );
 	    return false;
-		}
-
-		CubeDataPack cdpnew( cdp->categoryStr( false ), 
-			datatransformer->getOutput( true ) );
-		  // check false for categoryStr
-	    DPM( DataPackMgr::CubeID() ).addAndObtain( &cdpnew );
-		attridpid = cdpnew.id();
 	}
 
+	CubeDataPack cdpnew( cdp->categoryStr( false ), 
+	datatransformer->getOutput( true ) );
+	// check false for categoryStr
+	DPM( DataPackMgr::CubeID() ).addAndObtain( &cdpnew );
+	attridpid = cdpnew.id();
+    }
+
     updateFromDataPackID( attrib, attridpid, tr );
-	DPM( DataPackMgr::CubeID() ).release( attridpid );
+    DPM( DataPackMgr::CubeID() ).release( attridpid );
 
 //    setCubeSampling( getCubeSampling(true,true,0) );
    
@@ -1481,12 +1479,12 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 
 
 void MPEDisplay::updateFromDataPackID( int attrib, const DataPack::ID newdpid,
-									   TaskRunner* tr )
+				       TaskRunner* tr )
 {
 #ifndef USE_TEXTURE
-	DPM(DataPackMgr::CubeID()).release( cacheid_ );
+    DPM(DataPackMgr::CubeID()).release( cacheid_ );
 
-	cacheid_ = newdpid;
+    cacheid_ = newdpid;
     DPM(DataPackMgr::CubeID()).obtain( cacheid_ );
 
     updateFromCacheID( attrib, tr );
@@ -1499,51 +1497,51 @@ void MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
     //channels_->setNrVersions( attrib, 1 );
 
     const DataPack* datapack = DPM(DataPackMgr::CubeID()).obtain( cacheid_ );
-	mDynamicCastGet( const Attrib::CubeDataPack*, cdp, datapack );
-	if ( !cdp )
+    mDynamicCastGet( const Attrib::CubeDataPack*, cdp, datapack );
+    if ( !cdp )
+    {
+	channels_->turnOn( false );
+	DPM(DataPackMgr::CubeID()).release( cacheid_ );
+	return;
+    }
+
+    const Array3D<float>* dparr = 
+	&const_cast <Attrib::CubeDataPack*>(cdp)->data();
+
+    const float* arr = dparr->getData();
+    OD::PtrPolicy cp = OD::UsePtr;
+
+    int sz0 = dparr->info().getSize(0);
+    int sz1 = dparr->info().getSize(1);
+    int sz2 = dparr->info().getSize(2);
+
+    if ( !arr )
+    {
+	const od_int64 totalsz = sz0*sz1*sz2;
+	mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
+
+	if ( !tmparr )
 	{
-	    channels_->turnOn( false );
-	    DPM(DataPackMgr::CubeID()).release( cacheid_ );
+	    DPM(DataPackMgr::CubeID()).release( cacheid_ );		
 	    return;
 	}
-
-	const Array3D<float>* dparr = 
-		&const_cast <Attrib::CubeDataPack*>(cdp)->data();
-
-	const float* arr = dparr->getData();
-	OD::PtrPolicy cp = OD::UsePtr;
-
-	int sz0 = dparr->info().getSize(0);
-	int sz1 = dparr->info().getSize(1);
-	int sz2 = dparr->info().getSize(2);
-
-	if ( !arr )
+	else
 	{
-	    const od_int64 totalsz = sz0*sz1*sz2;
-	    mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
-
-	    if ( !tmparr )
-		{
-		DPM(DataPackMgr::CubeID()).release( cacheid_ );		
-		return;
-		}
-		else
-		{
 	    dparr->getAll( tmparr );
-	    
+
 	    arr = tmparr;
 	    cp = OD::TakeOverPtr;
-		}
 	}
+    }
 
-	//if ( mIsUdf( arr[idx] ) )
-	channels_[0].setSize( sz0, sz1, sz2 );
-	channels_[0].setUnMappedData( attrib, 0, arr, cp, tr );
+    //if ( mIsUdf( arr[idx] ) )
+    channels_[0].setSize( sz0, sz1, sz2 );
+    channels_[0].setUnMappedData( attrib, 0, arr, cp, tr );
 
-	//rectangle_->setOriginalTextureSize( sz0, sz1 );
-	
+    //rectangle_->setOriginalTextureSize( sz0, sz1 );
+
     channels_[0].turnOn( true );
-	for ( int idx=0; idx<slices_.size(); idx++ )
+    for ( int idx=0; idx<slices_.size(); idx++ )
 	slices_[idx]->setVolumeDataSize( sz2, sz1, sz0 ); 
 }
 
@@ -1556,7 +1554,7 @@ void MPEDisplay::updateSlice()
 const Attrib::DataCubes* MPEDisplay::getCacheVolume( int attrib ) const
 { 
 #ifndef USE_TEXTURE
-	return ( volumecache_ && !attrib ) ? &volumecache_->cube() : 0;
+    return ( volumecache_ && !attrib ) ? &volumecache_->cube() : 0;
 #else
     return 0;
 #endif
@@ -1731,10 +1729,11 @@ SoNode* MPEDisplay::getInventorNode()
     return VisualObjectImpl::getInventorNode();
 }
 
+
 void MPEDisplay::allowShading( bool yn )
 {
 #ifndef USE_TEXTURE
-	if ( channels_ && channels_->getChannels2RGBA() )
+    if ( channels_ && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->allowShading( yn );
 #endif
 }
@@ -1788,7 +1787,7 @@ BufferString MPEDisplay::getManipulationString() const
 
 void MPEDisplay::getObjectInfo( BufferString& info ) const
 {
-	info = slicename_; info += ": "; info += sliceposition_;
+    info = slicename_; info += ": "; info += sliceposition_;
 }
 
 
@@ -1962,21 +1961,22 @@ void MPEDisplay::dataTransformCB( CallBacker* )
 {
 #ifndef USE_TEXTURE
     updateRanges( false, true );
-    if ( volumecache_) setDataVolume( 0, volumecache_, 0 );
+    if ( volumecache_) 
+	setDataVolume( 0, volumecache_, 0 );
 #endif
 }
 
 void MPEDisplay::triggerSel()
 {
-	updateMouseCursorCB( 0 );
-	visBase::VisualObject::triggerSel();
+    updateMouseCursorCB( 0 );
+    visBase::VisualObject::triggerSel();
 }
 
 
 void MPEDisplay::triggerDeSel()
 {
-	updateMouseCursorCB( 0 ); 
-	visBase::VisualObject::triggerDeSel();
+    updateMouseCursorCB( 0 ); 
+    visBase::VisualObject::triggerDeSel();
 }
 
 
@@ -2009,9 +2009,10 @@ void MPEDisplay::setChannel2VolData( visBase::TextureChannel2VolData* t )
 
 
 visBase::TextureChannel2VolData* MPEDisplay::getChannel2VolData()
-{ return channels_ ? 
-dynamic_cast<visBase::TextureChannel2VolData*> (channels_->getChannels2RGBA()) 
-: 0; }
+{ 
+    return channels_ ? dynamic_cast<visBase::TextureChannel2VolData*> 
+	(channels_->getChannels2RGBA()) : 0; 
+}
 
 
 void MPEDisplay::clearTextures()
@@ -2030,4 +2031,11 @@ SurveyObject::AttribFormat MPEDisplay::getAttributeFormat( int attrib ) const
 	return !attrib ? SurveyObject::Cube : SurveyObject::None;
 }
 
+
+int MPEDisplay::nrAttribs() const
+{
+    return ( as_.id() == Attrib::SelSpec::cNoAttrib() ) ? 0 : 1;
+}
+
 }; // namespace vissurvey
+

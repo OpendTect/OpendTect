@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.55 2009-11-23 07:56:25 cvskarthika Exp $
+RCS:        $Id: vismpe.h,v 1.56 2009-12-02 13:16:41 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -86,7 +86,7 @@ public:
                     /*!<\returns the userRef, "None" if
                      selspec.id==NoAttrib, or a zeropointer
                      if selspec.id==notsel */
-    const Attrib::SelSpec*    getSelSpec(int attrib) const;
+    const Attrib::SelSpec*	getSelSpec(int attrib) const;
 
     const ColTab::MapperSetup*  getColTabMapperSetup(int, int version=0) const;
     void            setColTabMapperSetup(int,
@@ -95,7 +95,7 @@ public:
     const ColTab::Sequence*    getColTabSequence(int) const;
     bool            canSetColTabSequence() const;
     void            setColTabSequence(int,const ColTab::Sequence&,
-                              TaskRunner*);
+	                              TaskRunner*);
 
     void            getMousePosInfo(const visBase::EventInfo&, Coord3&,
                         BufferString& val, BufferString& info) const;
@@ -104,7 +104,7 @@ public:
     void            updateSeedOnlyPropagation(bool);
     void            updateMPEActiveVolume();
     void            removeSelectionInPolygon(const Selector<Coord3>&,
-                        TaskRunner*);
+	    				     TaskRunner*);
 
     virtual float	calcDist(const Coord3&) const;
     virtual float       maxDist() const;
@@ -134,11 +134,11 @@ public:
     void		removeChild(int displayid);
     void		getChildren(TypeSet<int>&) const;
 	
-    bool			setDataTransform(ZAxisTransform*,TaskRunner*);
+    bool		setDataTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getDataTransform() const;
    
-	bool		setDataVolume(int attrib, const Attrib::CubeDataPack* cdp,  
-		    		TaskRunner*);
+    bool		setDataVolume(int attrib, const Attrib::CubeDataPack* 
+				      cdp, TaskRunner*);
     void		setCubeSampling(const CubeSampling&);
     
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
@@ -168,7 +168,8 @@ public:
     void		setChannel2VolData(visBase::TextureChannel2VolData*);
     visBase::TextureChannel2VolData*	getChannel2VolData();
 
-	SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
+    SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
+    int			nrAttribs() const;
 
     
 protected:
@@ -203,10 +204,10 @@ protected:
 
     // methods for volume-based display
     CubeSampling	getCubeSampling(bool manippos,bool display,
-		    		int attrib) const;
-	void		updateFromData(const Array3D<float>* arr,bool arrayismine,TaskRunner*);
+	    		    		int attrib) const;
+    void		updateFromData(const Array3D<float>* arr,
+	    			       bool arrayismine,TaskRunner*);
 
-    
     const MouseCursor*	getMouseCursor() const	{ return &mousecursor_; }
 
     void		triggerSel();
@@ -230,9 +231,10 @@ protected:
     
 
     // new methods for texture channel-based display
-	void		updateFromDataPackID(int attrib, const DataPack::ID newdpid,
-									   TaskRunner* tr);
-    void		updateFromCacheID(int attrib, TaskRunner* tr);           
+    void		updateFromDataPackID(int attrib, const DataPack::ID 
+	    				     newdpid, TaskRunner* tr);
+    void		updateFromCacheID(int attrib, TaskRunner* tr);
+
 
     // --------------
     // common data    
