@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.26 2009-11-24 11:05:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.27 2009-12-02 16:52:49 cvsyuancheng Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -166,6 +166,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     	, autogentxthead_(true)
 	, selcomp_(-1)
 {
+    setCtrlStyle( DoAndStay );
+    
     PtrMan<CtxtIOObj> ctio = uiSeisSel::mkCtxtIOObj( geom_, true );
     seissel_ = new uiSeisSel( this, ctio->ctxt, uiSeisSel::Setup(geom_) );
     seissel_->selectiondone.notify( mCB(this,uiSEGYExp,inpSel) );

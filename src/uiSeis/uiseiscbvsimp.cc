@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.57 2009-09-15 09:47:55 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.58 2009-12-02 16:52:49 cvsyuancheng Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -54,6 +54,8 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     	, modefld(0)
 {
+    setCtrlStyle( DoAndStay );
+    
     init( false );
     modeSel(0);
 }
@@ -67,6 +69,8 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     	, modefld(0)
 {
+    setCtrlStyle( DoAndStay );
+    
     if ( ioobj ) inctio_.ioobj = ioobj->clone();
     init( true );
     oinpSel(0);

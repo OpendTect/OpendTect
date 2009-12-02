@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.15 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.16 2009-12-02 16:52:49 cvsyuancheng Exp $";
 
 #include "uiexpfault.h"
 
@@ -48,6 +48,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     , ctio_(mGetCtio(typ))
     , linenmfld_(0)
 {
+    setCtrlStyle( DoAndStay );
+
     BufferString inplbl( "Input ");
     inplbl += typ;
     infld_ = new uiIOObjSel( this, ctio_, inplbl );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.7 2009-12-01 22:48:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.8 2009-12-02 16:52:49 cvsyuancheng Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -43,6 +43,8 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 				     "Specify output parameters","104.0.1"))
 	, hinfos_(hinfos)
 {
+    setCtrlStyle( DoAndStay );
+
     uiLabeledComboBox* lcbox = new uiLabeledComboBox( this, "Select Horizon",
 	   					      "Select 2D Horizon" );
     horselfld_ = lcbox->box();
