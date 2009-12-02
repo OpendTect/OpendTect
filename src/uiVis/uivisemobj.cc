@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.87 2009-09-22 16:41:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.88 2009-12-02 09:17:23 cvsnanne Exp $";
 
 #include "uivisemobj.h"
 
@@ -72,6 +72,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	{
 	    EM::SurfaceIODataSelection sel( sd );
 	    sel.setDefault();
+	    sel.selvalues.erase();
 
 	    const BufferStringSet sections = emod->displayedSections();
 
