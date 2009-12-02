@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.h,v 1.8 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiprestkmergedlg.h,v 1.9 2009-12-02 11:08:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ protected:
     void                createMoveButtons(uiGroup*);
     void		createFields(uiGroup*);
     void		attachFields(uiGroup*,uiGroup*,uiGroup*);
+    void		stackSel(CallBacker*);
     void		selButPush(CallBacker*);
     void		moveButPush(CallBacker*);
     bool		acceptOK(CallBacker*);
@@ -58,7 +59,9 @@ protected:
     uiToolButton*	fromselect_;
     uiToolButton*	moveupward_;
     uiToolButton*	movedownward_;
+    uiGroup*		movebuttons_;
 
+    uiGenInput*		stackfld_;
     uiIOObjSel*		outpfld_;
     uiPosSubSel*	subselfld_;
     

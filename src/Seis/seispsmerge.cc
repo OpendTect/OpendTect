@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.12 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.13 2009-12-02 11:08:03 cvsraman Exp $";
 
 #include "seispsmerge.h"
 #include "seisselection.h"
@@ -14,13 +14,15 @@ static const char* rcsID = "$Id: seispsmerge.cc,v 1.12 2009-07-22 16:01:35 cvsbe
 #include "seispsread.h"
 #include "seispswrite.h"
 #include "seistrc.h"
+#include "seistrcprop.h"
 #include "ioobj.h"
 
 
 SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
-       			    const Seis::SelData* sd )
+       			    bool dostack, const Seis::SelData* sd )
   	: Executor("Merging Pre-Stack data")
 	, writer_(0)
+	, dostack_(dostack)
 	, sd_(sd && !sd->isAll() ? sd->clone() : 0)
 	, msg_("Handling gathers")
 	, totnr_(-1)
@@ -74,7 +76,7 @@ int SeisPSMerger::nextStep()
     if ( readers_.isEmpty() )
 	return Executor::ErrorOccurred();
 
-    SeisTrcBuf trcbuf( true );
+    SeisTrcBuf* gather = 0;
     while ( true )
     {
 	if ( !iter_->next(curbid_) )
@@ -85,17 +87,51 @@ int SeisPSMerger::nextStep()
 
 	nrdone_ ++;
 
+	ManagedObjectSet<SeisTrcBuf> gatherset( false );
 	for ( int idx=0; idx<readers_.size(); idx++ )
 	{
-	    if ( readers_[idx]->getGather(curbid_,trcbuf) )
+	    gather = new SeisTrcBuf( true );
+	    if ( !readers_[idx]->getGather(curbid_,*gather) )
 	    {
-		for ( int tdx=0; tdx<trcbuf.size(); tdx++ )
-		{
-		    if ( !writer_->put(*trcbuf.get(tdx)) )
-			return Executor::ErrorOccurred();
-		}
-		return Executor::MoreToDo();
+		delete gather; gather = 0;
+		continue;
 	    }
+
+	    gatherset += gather;
+	    if ( !dostack_ )
+		break;
+	}
+
+	if ( !gatherset.size() ) continue;
+	
+	gather = gatherset[0];
+	if ( dostack_ && gatherset.size() > 1 )
+	    stackGathers( *gather, gatherset );
+
+	for ( int tdx=0; tdx<gather->size(); tdx++ )
+	{
+	    if ( !writer_->put(*gather->get(tdx)) )
+		return Executor::ErrorOccurred();
+	}
+
+	return Executor::MoreToDo();
+    }
+}
+
+
+void SeisPSMerger::stackGathers( SeisTrcBuf& resgather,
+				 const ObjectSet<SeisTrcBuf>& duplgathers )
+{
+    const int sz = resgather.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	SeisTrc& trc = *resgather.get( idx );
+	SeisTrcPropChg stckr( trc );
+	for ( int gdx=1; gdx<duplgathers.size(); gdx++ )
+	{
+	    const SeisTrcBuf& dupgather = *duplgathers[gdx];
+	    const SeisTrc& duptrc = *dupgather.get( idx );
+	    stckr.stack( duptrc, false, (float) 1/gdx );
 	}
     }
 }

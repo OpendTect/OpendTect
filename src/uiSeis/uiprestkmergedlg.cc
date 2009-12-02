@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.19 2009-11-23 11:54:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.20 2009-12-02 11:10:24 cvsraman Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -49,11 +49,11 @@ uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
 {
     uiGroup* topgrp = new uiGroup( this, "selection group" );
     uiGroup* selbuttons = new uiGroup( topgrp, "select buttons" );
-    uiGroup* movebuttons = new uiGroup( topgrp, "move buttons" );
+    movebuttons_ = new uiGroup( topgrp, "move buttons" );
     createSelectButtons( selbuttons );
-    createMoveButtons( movebuttons );
+    createMoveButtons( movebuttons_ );
     createFields( topgrp );
-    attachFields( selbuttons, topgrp, movebuttons );
+    attachFields( selbuttons, topgrp, movebuttons_ );
 
     fillListBox();
 }
@@ -72,6 +72,9 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     volsbox_ = new uiListBox( topgrp, "Available Stores", true );
     selvolsbox_ = new uiListBox( topgrp, "Selected Stores", true );
     outctio_.ctxt.forread = false;
+    stackfld_ = new uiGenInput( this, "Duplicate traces",
+	    			BoolInpSpec(true,"Stack","Use first") );
+    stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Data Store" );
     uiPosSubSel::Setup psssu( false, false );
     psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
@@ -121,8 +124,15 @@ void uiPreStackMergeDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
     selbuttons->attach( ensureRightOf, volsbox_ );
     selvolsbox_->attach( rightTo, volsbox_ );
     movebuttons->attach( centeredRightOf, selvolsbox_ );
-    subselfld_->attach( rightAlignedBelow, topgrp );
-    outpfld_->attach( rightAlignedBelow, subselfld_ );
+    stackfld_->attach( centeredBelow, topgrp );
+    subselfld_->attach( alignedBelow, stackfld_ );
+    outpfld_->attach( alignedBelow, subselfld_ );
+}
+
+
+void uiPreStackMergeDlg::stackSel( CallBacker* )
+{
+    movebuttons_->setSensitive( !stackfld_->getBoolValue() );
 }
 
 
@@ -178,6 +188,7 @@ void uiPreStackMergeDlg::fillListBox()
     }
 
     volsbox_->addItems( allvolsnames_ );
+    stackSel(0);
 }
 
 
@@ -266,8 +277,10 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 	IOPar iop; subselfld_->fillPar( iop );
 	sd = Seis::SelData::get( iop );
     }
+
+    const bool dostack = stackfld_->getBoolValue();
     PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs_, *outctio_.ioobj,
-	    					  sd );
+	    					  dostack, sd );
     exec->setName( "Merge Pre-Stack Data Stores" );
     uiTaskRunner dlg( this );
     return dlg.execute( *exec );
