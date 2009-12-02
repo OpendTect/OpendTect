@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.113 2009-09-04 09:39:15 cvshelene Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.114 2009-12-02 09:13:08 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -1146,6 +1146,9 @@ int VolumeDisplay::usePar( const IOPar& par )
 {
     int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
+
+    if ( !getMaterial() )
+	visBase::VisualObjectImpl::setMaterial( visBase::Material::create() );
 
     if ( !as_.usePar(par) ) return -1;
 
