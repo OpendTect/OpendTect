@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.74 2009-11-13 03:33:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.75 2009-12-03 22:30:16 cvsyuancheng Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -574,8 +574,19 @@ bool uiOD2DLineSetSubItem::init()
     if ( !applMgr()->seisServer()->get2DLineGeometry(s2d->lineSetID(),name_,
 	  *geometry) )
 	return false;
-
+    
+    //If restore, we use the old display range after set the geometry.
+    const StepInterval<int> oldtrcnrrg = s2d->getTraceNrRange();
+    const Interval<float> oldzrg = s2d->getZRange( true );
     s2d->setGeometry( *geometry );
+    if ( !newdisplay ) 
+    {
+	if ( !oldtrcnrrg.isUdf() )
+	    s2d->setTraceNrRange( oldtrcnrrg );
+
+	if ( !oldzrg.isUdf() )
+	    s2d->setZRange( oldzrg );
+    }    
 
     if ( applMgr() )
 	applMgr()->getOtherFormatData.notify(

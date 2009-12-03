@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.82 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.83 2009-12-03 22:30:16 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -1052,7 +1052,8 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
     par.set( sKeyTrcNrRange(), trcnrrg_ );
-    par.set( sKeyZRange(), getSampleRange() );
+    par.set( sKeyZRange(), curzrg_ ); 
+    //Used getSampleRange(), but the geometry is not set if we reload and call usePar
 }
 
 
@@ -1095,6 +1096,8 @@ int Seis2DDisplay::usePar( const IOPar& par )
 	par.getYN( sKeyShowLineName(), showlinename );
 	showLineName( showlinename );
     }
+
+    par.get( sKeyZRange(), curzrg_ );
 
     setLineName( name() );
     par.get( sKeyLineSetID(), linesetid_ );
