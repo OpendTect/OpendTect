@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.87 2009-07-28 07:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.88 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -138,8 +138,6 @@ uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 {
     wtinfld_ = new uiFileInput( this, "Well Track File",
     uiFileInput::Setup().withexamine(true) );
-    wtinfld_->setDefaultSelectionDir(
-		    IOObjContext::getDataDirName(IOObjContext::WllInf) );
     
     uiTableImpDataSel* dataselfld = new uiTableImpDataSel( this, fd, 0 );
     dataselfld->attach( alignedBelow, wtinfld_ );
@@ -479,7 +477,6 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
 			      uiFileInput::Setup(uiFileDialog::Gen)
 			      .filter(lasfileflt).withexamine(true) );
-    lasfld->setDefaultSelectionDir( GetDataDir() );
     lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );
 
     intvfld = new uiGenInput( this, "Depth interval to load (empty=all)",
@@ -617,8 +614,6 @@ uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_,
 
     outfld = new uiFileInput( this, "Output file",
 			      uiFileInput::Setup().forread(false) );
-    outfld->setDefaultSelectionDir(
-			IOObjContext::getDataDirName(IOObjContext::WllInf) );
     outfld->attach( alignedBelow, zunitgrp );
     typeSel(0);
 }

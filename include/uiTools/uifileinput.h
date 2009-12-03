@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.30 2009-07-28 07:15:30 cvsnanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.31 2009-12-03 14:47:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,27 +36,8 @@ public:
     mClass Setup
     {
     public:
-			Setup(const char* filenm=0)
-			    : fnm(filenm)
-			    , forread_(true)
-			    , withexamine_(false)
-			    , examinetablestyle_(false)
-			    , directories_(false)
-			    , allowallextensions_(true)
-			    , confirmoverwrite_(true)
-			    , filedlgtype_(uiFileDialog::Txt)
-			    {}
-
-			Setup(uiFileDialog::Type t,const char* filenm=0)
-			    : fnm(filenm)
-			    , forread_(true)
-			    , withexamine_(t==uiFileDialog::Txt)
-			    , examinetablestyle_(false)
-			    , confirmoverwrite_(true)
-			    , filedlgtype_(t)
-			    , directories_(false)
-			    , allowallextensions_(true)
-			    {}
+			Setup(const char* filenm=0);
+			Setup(uiFileDialog::Type t,const char* filenm=0);
 
 	BufferString	fnm;
 	mDefSetupMemb(BufferString,filter)
@@ -69,7 +50,6 @@ public:
 	mDefSetupMemb(bool,confirmoverwrite)
 	mDefSetupMemb(uiFileDialog::Type,filedlgtype)
 				//!< if not Gen, overrules some other members
-	
     };
 
     			uiFileInput(uiParent*,const char* seltxt,
@@ -78,8 +58,7 @@ public:
 			~uiFileInput();
 
     void		setFileName(const char*);
-    void		setDefaultSelectionDir( const char* nm )
-			{ defseldir_ = nm; }
+    void		setDefaultSelectionDir(const char*);
     void		setFilter( const char* fltr )	   { filter_ = fltr; }
     const char*		selectedFilter() const		   { return selfltr_; }
     void		setSelectedFilter( const char* f ) { selfltr_ = f; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.16 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.17 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -41,8 +41,6 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 				  FloatInpSpec(4000) );
 	velfld_->attach( alignedBelow, filefld_ );
     }
-    filefld_->setDefaultSelectionDir(
-			IOObjContext::getDataDirName(IOObjContext::WllInf) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "105.0.5" );
     dataselfld_->attach( alignedBelow, setup_.fileoptional_ ? velfld_

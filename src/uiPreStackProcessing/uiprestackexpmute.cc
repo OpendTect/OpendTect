@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackexpmute.cc,v 1.5 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackexpmute.cc,v 1.6 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiprestackexpmute.h"
 
@@ -43,7 +43,6 @@ uiExportMute::uiExportMute( uiParent* p )
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	   		       uiFileInput::Setup().forread(false) );
-    outfld_->setDefaultSelectionDir( GetDataDir() );
     outfld_->attach( alignedBelow, coordfld_ );
 }
 

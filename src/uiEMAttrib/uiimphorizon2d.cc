@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.20 2009-11-25 22:17:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.21 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -207,8 +207,6 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
 					    .withexamine(true)
 					    .forread(true) );
-    inpfld_->setDefaultSelectionDir( 
-			    IOObjContext::getDataDirName(IOObjContext::Surf) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon2D,formatSel) );
 

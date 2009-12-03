@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.57 2009-09-17 11:10:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.58 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -55,8 +55,6 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     havetrckbox_->setChecked( true );
     trckinpfld_ = new uiFileInput( this, "Well Track File",
 	    			   uiFileInput::Setup().withexamine(true) );
-    trckinpfld_->setDefaultSelectionDir(
-	    	  IOObjContext::getDataDirName(IOObjContext::WllInf) );
     trckinpfld_->attach( rightOf, havetrckbox_ );
     vertwelllbl_ = new uiLabel( this, "-> Vertical well" );
     vertwelllbl_->attach( rightTo, havetrckbox_ );

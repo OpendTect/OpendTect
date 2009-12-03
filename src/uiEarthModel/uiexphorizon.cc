@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.63 2009-07-26 04:01:55 cvskris Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.64 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiexphorizon.h"
 
-#include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
@@ -95,8 +94,6 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		      uiFileInput::Setup().forread(false) );
-    outfld_->setDefaultSelectionDir(
-	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );

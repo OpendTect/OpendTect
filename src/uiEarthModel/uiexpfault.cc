@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.16 2009-12-02 16:52:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.17 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiexpfault.h"
 
@@ -86,8 +86,6 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		       uiFileInput::Setup().forread(false) );
-    outfld_->setDefaultSelectionDir(
-		IOObjContext::getDataDirName(IOObjContext::Surf) );
     outfld_->attach( alignedBelow, linenmfld_ ? linenmfld_ : stickfld_ );
 }
 

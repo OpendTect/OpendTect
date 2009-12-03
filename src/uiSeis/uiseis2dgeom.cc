@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.17 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.18 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"
@@ -62,7 +62,6 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 
     outfld = new uiFileInput( this, "Output file",
 	    			uiFileInput::Setup().forread(false) );
-    outfld->setDefaultSelectionDir( GetDataDir() );
     outfld->attach( alignedBelow, zfld );
 }
 

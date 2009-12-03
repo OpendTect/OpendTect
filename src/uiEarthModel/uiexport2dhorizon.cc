@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.8 2009-12-02 16:52:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.9 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -79,8 +79,6 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		      uiFileInput::Setup().forread(false) );
-    outfld_->setDefaultSelectionDir(
-	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     outfld_->attach( alignedBelow, wrlnmsbox_ );
 
     horChg( 0 );

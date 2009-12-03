@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.43 2009-08-26 08:44:34 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.44 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -62,8 +62,6 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
     filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
 					    .withexamine(import_)
 					    .forread(import_) );
-    filefld_->setDefaultSelectionDir( 
-			    IOObjContext::getDataDirName(IOObjContext::Loc) );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread = !import_; ctxt.maychdir = false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.48 2009-08-28 13:15:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.49 2009-12-03 14:47:46 cvsbert Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -18,6 +18,34 @@ static const char* rcsID = "$Id: uifileinput.cc,v 1.48 2009-08-28 13:15:24 cvsbe
 #include "filepath.h"
 #include "oddirs.h"
 #include "strmprov.h"
+
+
+uiFileInput::Setup::Setup( const char* filenm )
+    : fnm(filenm)
+    , forread_(true)
+    , withexamine_(false)
+    , examinetablestyle_(false)
+    , directories_(false)
+    , allowallextensions_(true)
+    , confirmoverwrite_(true)
+    , filedlgtype_(uiFileDialog::Txt)
+    , defseldir_(GetDataDir())
+{
+}
+
+
+uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
+    : fnm(filenm)
+    , forread_(true)
+    , withexamine_(t==uiFileDialog::Txt)
+    , examinetablestyle_(false)
+    , confirmoverwrite_(true)
+    , filedlgtype_(t)
+    , directories_(false)
+    , allowallextensions_(true)
+    , defseldir_(GetDataDir())
+{
+}
 
 
 uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
@@ -81,6 +109,12 @@ void uiFileInput::isFinalised( CallBacker* )
 	mDynamicCastGet(uiLineEdit*,le,uiobj)
 	if ( le ) le->returnPressed.notify( mCB(this,uiFileInput,doSelect) );
     }
+}
+
+
+void uiFileInput::setDefaultSelectionDir( const char* s )
+{
+    defseldir_ = s ? s : GetDataDir();
 }
 
 
