@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.7 2009-10-12 03:57:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.8 2009-12-03 06:18:25 cvsnanne Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -344,8 +344,8 @@ void uiContourTreeItem::computeContours()
 
     EM::SectionID sid = hor->sectionID( 0 );
     Array2D<float>* field = hor->geometry().sectionGeometry(sid)->getArray();
-    if ( hd->getDataTransform() )
-	field = hor->createArray2D( sid, hd->getDataTransform() );
+    if ( hd->getZAxisTransform() )
+	field = hor->createArray2D( sid, hd->getZAxisTransform() );
 
     if ( !field )
 	return;
@@ -429,7 +429,7 @@ void uiContourTreeItem::computeContours()
 
     lines_->getCoordinates()->removeAfter( cii-1 );
     lines_->removeCoordIndexAfter( cii-1 );
-    if ( hd->getDataTransform() )
+    if ( hd->getZAxisTransform() )
 	delete field;
 }
 

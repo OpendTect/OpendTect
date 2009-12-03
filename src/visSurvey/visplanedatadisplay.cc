@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.225 2009-09-08 21:52:55 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.226 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -140,7 +140,7 @@ PlaneDataDisplay::~PlaneDataDisplay()
 	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
 
     deepErase( rposcache_ );
-    setDataTransform( 0,0 );
+    setZAxisTransform( 0,0 );
 
     for ( int idx=volumecache_.size()-1; idx>=0; idx-- )
 	DPM(DataPackMgr::FlatID()).release( volumecache_[idx] );
@@ -308,7 +308,7 @@ float PlaneDataDisplay::maxDist() const
 }
 
 
-bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
@@ -334,7 +334,7 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* PlaneDataDisplay::getDataTransform() const
+const ZAxisTransform* PlaneDataDisplay::getZAxisTransform() const
 { return datatransform_; }
 
 

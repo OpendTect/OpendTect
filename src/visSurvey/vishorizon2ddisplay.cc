@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.32 2009-12-01 11:36:49 cvsumesh Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.33 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -511,7 +511,7 @@ bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 }
 
 
-bool Horizon2DDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     const bool haddatatransform = zaxistransform_;
     CallBack cb = mCB(this,Horizon2DDisplay,zAxisTransformChg);
@@ -535,7 +535,7 @@ bool Horizon2DDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* Horizon2DDisplay::getDataTransform() const
+const ZAxisTransform* Horizon2DDisplay::getZAxisTransform() const
 { return zaxistransform_; }
 
 

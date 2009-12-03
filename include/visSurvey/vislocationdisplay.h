@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.28 2009-09-04 01:35:35 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.29 2009-12-03 06:18:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -89,8 +89,8 @@ public:
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
 
-    bool			setDataTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getDataTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getZAxisTransform() const;
 
 protected:
 					LocationDisplay();

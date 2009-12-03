@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.34 2009-11-03 04:54:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.35 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -71,10 +71,9 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 }
 
 
-// TODO: get depthdomain key from scene
 #define mCreateDepthDomMnuItemIfNeeded( is2d, needext ) \
 {\
-    if ( scene && scene->getDataTransform() )\
+    if ( scene && scene->getZAxisTransform() )\
     {\
 	subitem = attrserv->zDomainAttribMenuItem( *as,\
 	    scene->getZDomainString(), scene->getZDomainID(), is2d, needext );\

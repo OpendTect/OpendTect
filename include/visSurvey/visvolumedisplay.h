@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.70 2009-09-04 01:35:35 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.71 2009-12-03 06:18:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -153,8 +153,8 @@ public:
 
     void			getChildren(TypeSet<int>&) const;
 
-    bool			setDataTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getDataTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getZAxisTransform() const;
 
     void			setRightHandSystem(bool yn);
 

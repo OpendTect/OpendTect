@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.55 2009-09-22 16:38:54 cvsyuancheng Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.56 2009-12-03 06:18:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -40,8 +40,8 @@ public:
     void			setDisplayTransformation(mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
-    bool			setDataTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getDataTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getZAxisTransform() const;
 
     visBase::Material*		getMaterial();
     void			setIntersectLineMaterial(visBase::Material*);

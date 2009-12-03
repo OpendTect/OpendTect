@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.37 2009-11-13 03:33:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.38 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -187,7 +187,7 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     else
     {
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-	if ( scene && !scene->getDataTransform() )
+	if ( scene && !scene->getZAxisTransform() )
 	{
 	    const float zval = cs.zrg.start * SI().zFactor();
 	    res = toString( SI().zIsTime() ? (float)(mNINT(zval)) : zval );
@@ -231,10 +231,10 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	delete positiondlg_;
 	CubeSampling maxcs = SI().sampling(true);
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-	if ( scene && scene->getDataTransform() )
+	if ( scene && scene->getZAxisTransform() )
 	{
 	    const Interval<float> zintv =
-		scene->getDataTransform()->getZInterval( false );
+		scene->getZAxisTransform()->getZInterval( false );
 	    maxcs.zrg.start = zintv.start;
 	    maxcs.zrg.stop = zintv.stop;
 	}

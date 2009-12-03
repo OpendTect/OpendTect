@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.81 2009-11-23 04:48:46 cvsumesh Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.82 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -200,7 +200,7 @@ Seis2DDisplay::~Seis2DDisplay()
 	dpman.release( datapackids_[idx] );
     
     triangles_->unRef();
-    setDataTransform( 0,0 );
+    setZAxisTransform( 0,0 );
 }
 
 
@@ -956,7 +956,7 @@ Coord Seis2DDisplay::getNormal( int trcnr ) const
 }
 
 
-bool Seis2DDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool Seis2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
@@ -986,7 +986,7 @@ bool Seis2DDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* Seis2DDisplay::getDataTransform() const
+const ZAxisTransform* Seis2DDisplay::getZAxisTransform() const
 { return datatransform_; }
 
 

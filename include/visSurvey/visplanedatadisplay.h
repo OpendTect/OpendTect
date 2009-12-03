@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.118 2009-09-04 20:08:11 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.119 2009-12-03 06:18:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -112,8 +112,8 @@ public:
     virtual Coord3		getNormal(const Coord3&) const;
     virtual bool		allowPicks() const		{ return true; }
 
-    bool			setDataTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getDataTransform() const;
+    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getZAxisTransform() const;
 
     void			setTranslationDragKeys(bool depth, int );
     				/*!<\param depth specifies wheter the depth or

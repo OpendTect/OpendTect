@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.66 2009-11-13 03:33:27 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.67 2009-12-03 06:18:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -133,8 +133,8 @@ public:
     mVisTrans*			getZScaleTransform() const;
     mVisTrans*			getInlCrl2DisplayTransform() const;
     mVisTrans*			getUTM2DisplayTransform() const;
-    void			setDataTransform(ZAxisTransform*,TaskRunner*);
-    ZAxisTransform*		getDataTransform();
+    void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    ZAxisTransform*		getZAxisTransform();
 
     bool			isRightHandSystem() const;
 
@@ -211,7 +211,7 @@ protected:
     static const char*		sKeyShowScale();
     static const char*		sKeyShowCube();
     static const char*		sKeyZStretch();
-    static const char*		sKeyZDataTransform();
+    static const char*		sKeyZAxisTransform();
     static const char*		sKeyAppAllowShading();
     static const char*		sKeyTopImageID();
     static const char*		sKeyBotImageID();

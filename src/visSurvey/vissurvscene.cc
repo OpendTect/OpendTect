@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.127 2009-11-13 03:33:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.128 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -42,7 +42,7 @@ const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
 const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
 const char* Scene::sKeyZStretch()	{ return "ZStretch"; }
-const char* Scene::sKeyZDataTransform()	{ return "ZTransform"; }
+const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
 const char* Scene::sKeyAppAllowShading(){ return "";}
 const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
 const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
@@ -294,7 +294,7 @@ void Scene::addObject( visBase::DataObject* obj )
 	addUTMObject( vo );
 
     if ( so && datatransform_ )
-	so->setDataTransform( datatransform_,0 );
+	so->setZAxisTransform( datatransform_,0 );
 
     if ( so )
 	objectMoved(0);
@@ -510,7 +510,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
 }
 
 
-void Scene::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
+void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     if ( datatransform_==zat ) return;
 
@@ -523,7 +523,7 @@ void Scene::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
 	if ( !so ) continue;
 
-	so->setDataTransform( zat,0 );
+	so->setZAxisTransform( zat,0 );
     }
 
     CubeSampling cs = SI().sampling( true );
@@ -539,7 +539,7 @@ void Scene::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-ZAxisTransform* Scene::getDataTransform()
+ZAxisTransform* Scene::getZAxisTransform()
 { return datatransform_; }
 
 
@@ -684,7 +684,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	IOPar transpar;
 	transpar.set( sKey::Name, datatransform_->name() );
 	datatransform_->fillPar( transpar );
-	par.mergeComp( transpar, sKeyZDataTransform() );
+	par.mergeComp( transpar, sKeyZAxisTransform() );
     }
 
     par.set( sKeyTopImageID(), topimg_->id() );
@@ -734,13 +734,13 @@ int Scene::usePar( const IOPar& par )
     if ( zstretch != curzstretch_ )
 	setZStretch( zstretch );
    
-    PtrMan<IOPar> transpar = par.subselect( sKeyZDataTransform() );
+    PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {
 	const char* nm = transpar->find( sKey::Name );
 	RefMan<ZAxisTransform> transform = ZATF().create( nm );
 	if ( transform && transform->usePar( *transpar ) )
-	    setDataTransform( transform,0 );
+	    setZAxisTransform( transform,0 );
     }
 
     res = getImageFromPar( par,sKeyTopImageID(), topimg_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.47 2009-09-08 05:26:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.48 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -218,7 +218,7 @@ bool AnnotTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    applMgr()->visServer()->getObject(sceneID()));
-    if ( scene && scene->getDataTransform() )
+    if ( scene && scene->getZAxisTransform() )
     {
 	uiMSG().message( "Cannot add Annotations to this scene (yet)" );
 	return false;

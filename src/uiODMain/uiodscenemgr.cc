@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.191 2009-11-11 11:12:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.192 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -240,7 +240,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( zt )
     {
 	mDynamicCastGet(visSurvey::Scene*,scene, visServ().getObject(sceneid));
-	scene->setDataTransform( zt,0 );
+	scene->setZAxisTransform( zt,0 );
     }
 
     return sceneid;

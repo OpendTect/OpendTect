@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.51 2009-11-13 03:33:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.52 2009-12-03 06:18:25 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -230,10 +230,10 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	CubeSampling maxcs = SI().sampling( true );
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
-	if ( scene && scene->getDataTransform() )
+	if ( scene && scene->getZAxisTransform() )
 	{
 	    const Interval<float> zintv =
-		scene->getDataTransform()->getZInterval( false );
+		scene->getZAxisTransform()->getZInterval( false );
 	    maxcs.zrg.start = zintv.start;
 	    maxcs.zrg.stop = zintv.stop;
 	}

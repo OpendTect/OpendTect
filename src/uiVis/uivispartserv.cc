@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.443 2009-11-13 03:34:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.444 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -1803,8 +1803,8 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     if ( !scene ) return;
 
     Coord3 worldpos = xytmousepos_ = scene->getMousePos(true);
-    if ( xytmousepos_.isDefined() && scene->getDataTransform() )
-	worldpos.z = scene->getDataTransform()->transformBack( xytmousepos_ );
+    if ( xytmousepos_.isDefined() && scene->getZAxisTransform() )
+	worldpos.z = scene->getZAxisTransform()->transformBack( xytmousepos_ );
 
     setMarkerPos( worldpos, scene->id() );
 

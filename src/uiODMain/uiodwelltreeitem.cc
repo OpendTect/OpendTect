@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.49 2009-11-11 12:57:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.50 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -47,7 +47,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    if ( scene && scene->getDataTransform() )
+    if ( scene && scene->getZAxisTransform() )
     {
 	uiMSG().message( "Cannot add Wells to this scene" );
 	return false;

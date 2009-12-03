@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.56 2009-12-02 13:16:41 cvskarthika Exp $
+RCS:        $Id: vismpe.h,v 1.57 2009-12-03 06:18:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -134,8 +134,8 @@ public:
     void		removeChild(int displayid);
     void		getChildren(TypeSet<int>&) const;
 	
-    bool		setDataTransform(ZAxisTransform*,TaskRunner*);
-    const ZAxisTransform*	getDataTransform() const;
+    bool		setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getZAxisTransform() const;
    
     bool		setDataVolume(int attrib, const Attrib::CubeDataPack* 
 				      cdp, TaskRunner*);

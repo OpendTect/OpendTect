@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.44 2009-10-16 10:45:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.45 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -227,7 +227,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::Scene*,scene,
 	                applMgr()->visServer()->getObject(sceneID()));
-    const bool hasztransform = scene && scene->getDataTransform();
+    const bool hasztransform = scene && scene->getZAxisTransform();
 //TODO:remove when Z-transformed scenes are ok for 2D Viewer
 
     if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform

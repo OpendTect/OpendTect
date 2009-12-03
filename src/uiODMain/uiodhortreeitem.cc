@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.51 2009-12-01 11:37:42 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.52 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -61,7 +61,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
 
-    const bool hastransform = scene && scene->getDataTransform();
+    const bool hastransform = scene && scene->getZAxisTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), mLoadIdx );
@@ -339,7 +339,7 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
 
-    const bool hastransform = scene && scene->getDataTransform();
+    const bool hastransform = scene && scene->getZAxisTransform();
 
     const Selector<Coord3>* selector = visserv_->getCoordSelector( sceneID() );
 
@@ -431,10 +431,10 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 	CubeSampling maxcs = SI().sampling(true);;
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-	if ( scene && scene->getDataTransform() )
+	if ( scene && scene->getZAxisTransform() )
 	{
 	    const Interval<float> zintv =
-		scene->getDataTransform()->getZInterval( false );
+		scene->getZAxisTransform()->getZInterval( false );
 	    maxcs.zrg.start = zintv.start;
 	    maxcs.zrg.stop = zintv.stop;
 	}
@@ -522,13 +522,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    const bool hastransform = scene && scene->getDataTransform();
-    /*if ( hastransform )
-    {
-	uiMSG().message( "Cannot add 2D horizons to this scene (yet)" );
-	return false;
-    }*/
-
+    const bool hastransform = scene && scene->getZAxisTransform();
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
     uiMenuItem* newmenu = new uiMenuItem("&New ...");

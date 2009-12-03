@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.93 2009-12-02 13:15:46 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.94 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -185,7 +185,7 @@ MPEDisplay::~MPEDisplay()
     voltrans_->unRef();
     channels_->unRef();
 
-    setDataTransform( 0, 0 );
+    setZAxisTransform( 0, 0 );
 #endif
 
     boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
@@ -667,7 +667,7 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 	manipulated_ = true;
     }
 #else
-    if ( scene_ && scene_->getDataTransform() )
+    if ( scene_ && scene_->getZAxisTransform() )
         return;
 
     CubeSampling cs = getCubeSampling( true, true, 0 );
@@ -1916,7 +1916,7 @@ void MPEDisplay::turnOnSlice( bool yn )
 }
 
 
-bool MPEDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool MPEDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
 #ifndef USE_TEXTURE
     const bool haddatatransform = datatransform_;
@@ -1947,7 +1947,7 @@ bool MPEDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* MPEDisplay::getDataTransform() const
+const ZAxisTransform* MPEDisplay::getZAxisTransform() const
 { 
 #ifndef USE_TEXTURE
     return datatransform_; 

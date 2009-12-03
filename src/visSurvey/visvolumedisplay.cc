@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.114 2009-12-02 09:13:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.115 2009-12-03 06:18:25 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -134,7 +134,7 @@ VolumeDisplay::~VolumeDisplay()
     voltrans_->unRef();
     scalarfield_->unRef();
 
-    setDataTransform( 0,0 );
+    setZAxisTransform( 0,0 );
 }
 
 
@@ -190,7 +190,7 @@ void VolumeDisplay::updateIsoSurfColor()
 }
 
 
-bool VolumeDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
@@ -219,7 +219,7 @@ bool VolumeDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* VolumeDisplay::getDataTransform() const
+const ZAxisTransform* VolumeDisplay::getZAxisTransform() const
 { return datatransform_; }
 
 
@@ -636,7 +636,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 
 void VolumeDisplay::manipMotionFinishCB( CallBacker* )
 {
-    if ( scene_ && scene_->getDataTransform() )
+    if ( scene_ && scene_->getZAxisTransform() )
 	return;
 
     CubeSampling cs = getCubeSampling( true, true, 0 );

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.63 2009-10-01 13:10:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.64 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -123,7 +123,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    applMgr()->visServer()->getObject(sceneID()));
-    const bool hastransform = scene && scene->getDataTransform();
+    const bool hastransform = scene && scene->getZAxisTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), mLoadIdx );

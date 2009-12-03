@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.67 2009-11-12 10:54:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.68 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -372,7 +372,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    const bool hastransform = scene && scene->getDataTransform();
+    const bool hastransform = scene && scene->getZAxisTransform();
     MenuItem* trackmnu = menu->findItem(uiVisEMObject::trackingmenutxt());
 
     if ( isChecked() && trackmnu )

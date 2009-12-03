@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.47 2009-09-09 05:37:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.48 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -67,7 +67,7 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
 MultiTextureSurveyObject::~MultiTextureSurveyObject()
 {
     deepErase( as_ );
-    setDataTransform( 0, 0 );
+    setZAxisTransform( 0, 0 );
     if ( texture_ )
 	texture_->unRef();
     else
@@ -742,7 +742,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	    channels_ ? channels_->getChannels2RGBA() : 0 );
 
     Coord3 attribpos = pos;
-    RefMan<const ZAxisTransform> datatrans = getDataTransform();
+    RefMan<const ZAxisTransform> datatrans = getZAxisTransform();
     if ( datatrans ) //TODO check for allready transformed data.
     {
 	attribpos.z = datatrans->transformBack( pos );

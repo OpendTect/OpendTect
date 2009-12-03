@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.61 2009-10-08 04:51:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.62 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -792,7 +792,7 @@ int LocationDisplay::getPickIdx( visBase::DataObject* dataobj ) const
 }
 
 
-bool LocationDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool LocationDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
     if ( datatransform_==zat )
 	return true;
@@ -822,7 +822,7 @@ bool LocationDisplay::setDataTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* LocationDisplay::getDataTransform() const
+const ZAxisTransform* LocationDisplay::getZAxisTransform() const
 {
     return datatransform_;
 }

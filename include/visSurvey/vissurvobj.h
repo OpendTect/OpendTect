@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.110 2009-09-04 01:35:35 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.111 2009-12-03 06:18:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -252,9 +252,9 @@ public:
     virtual const Scene*	getScene() const	{ return scene_; }
     virtual Scene*		getScene()		{ return scene_; }
 
-    virtual bool		setDataTransform(ZAxisTransform*,
-	    					 TaskRunner*){return false;}
-    virtual const ZAxisTransform* getDataTransform() const	 {return 0;}
+    virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
+				{return false;}
+    virtual const ZAxisTransform* getZAxisTransform() const	 {return 0;}
     virtual bool		alreadyTransformed(int attrib) const;
 
     virtual void		lock( bool yn )		{ locked_ = yn; }

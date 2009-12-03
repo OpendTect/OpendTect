@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.31 2009-09-14 21:49:19 cvskris Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.32 2009-12-03 06:18:25 cvsnanne Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -57,7 +57,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    if ( scene && scene->getDataTransform() )
+    if ( scene && scene->getZAxisTransform() )
     {
 	uiMSG().message( "Cannot add Random lines to this scene (yet)" );
 	return false;
