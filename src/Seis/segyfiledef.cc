@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.16 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.17 2009-12-03 11:47:41 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -23,9 +23,12 @@ const char* FileReadOpts::sKeyTimeShift()  { return "Start time overrule"; }
 const char* FileReadOpts::sKeySampleIntv() { return "Sample rate overrule"; }
 const char* FileReadOpts::sKeyICOpt()	   { return "IC -> XY"; }
 const char* FileReadOpts::sKeyPSOpt()	   { return "Offset source"; }
+const char* FileReadOpts::sKeyCoordOpt()   { return "Coord source"; }
 const char* FileReadOpts::sKeyOffsDef()	   { return "Generate offsets"; }
+const char* FileReadOpts::sKeyCoordDef()   { return "Generate coords"; }
+const char* FileReadOpts::sKeyCoordFileName() { return "Coordinate file"; }
 const char* FileReadOpts::sKeyCoordScale()
-{ return "Coordinate scaling overrule"; }
+				{ return "Coordinate scaling overrule"; }
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.79 2009-09-15 09:10:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.80 2009-12-03 11:47:41 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -732,6 +732,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( delrt == 0 )
     {
 	delrt = -IbmFormat::asShort( mGetBytes(104,2) ); // HRS and Petrel
+	static const bool smt_bad_laga = GetEnvVarYN("OD_SEGY_SMT");
+	if ( smt_bad_laga )
+	    delrt = -delrt;
 	float startz = delrt * zfac;
 	if ( startz < -5000 || startz > 10000 )
 	    delrt = 0;

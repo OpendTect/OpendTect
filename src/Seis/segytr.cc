@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.85 2009-09-10 13:34:29 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.86 2009-12-03 11:47:41 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.85 2009-09-10 13:34:29 cvsbert Ex
 #include "keystrs.h"
 #include "settings.h"
 #include "zdomain.h"
+#include "strmprov.h"
 #include <math.h>
 #include <ctype.h>
 
@@ -62,6 +63,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, outcd(0)
 	, estnrtrcs_(-1)
 	, curoffs(-1)
+	, curcoord(mUdf(float),0)
 	, prevoffs(0)
 	, offsdef(0,1)
 	, iotype(StreamConn::File)
@@ -93,6 +95,9 @@ void SEGYSeisTrcTranslator::cleanUp()
     delete storinterp; storinterp = 0;
     delete [] blockbuf; blockbuf = 0;
     headerbufread = headerdone = false;
+
+    prevoffs = curoffs = -1; mSetUdf(curcoord.x);
+    coordsd.close();
 }
 
 
@@ -273,13 +278,35 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     {
 	if ( !trcscale_ ) trcscale_ = new LinScaler( 0, scfac );
 	else		 trcscale_->factor = scfac;
-	curtrcscale_ = trcscale_;
+	curtrcscale_ =	trcscale_;
     }
 
     if ( !mIsUdf(fileopts_.timeshift_) )
 	ti.sampling.start = fileopts_.timeshift_;
     if ( !mIsUdf(fileopts_.sampleintv_) )
 	ti.sampling.step = fileopts_.sampleintv_;
+
+    if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Present )
+	return;
+
+    if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Generate )
+    {
+	if ( mIsUdf(curcoord.x) )
+	    curcoord = fileopts_.startcoord_;
+	else
+	    curcoord += fileopts_.stepcoord_;
+	ti.coord = curcoord;
+    }
+    else
+    {
+	if ( !coordsd.usable() )
+	{
+	    coordsd = StreamProvider(fileopts_.coordfnm_).makeIStream();
+	    if ( !coordsd.usable() )
+		{ errmsg = "Cannot open coordinate file"; return; }
+	}
+	*coordsd.istrm >> ti.coord.x >> ti.coord.y;
+    }
 }
 
 
@@ -291,8 +318,7 @@ void SEGYSeisTrcTranslator::setTxtHeader( SEGY::TxtHeader* th )
 
 bool SEGYSeisTrcTranslator::writeTapeHeader()
 {
-    if ( filepars_.fmt_ == 0 )
-	// Auto-detect
+    if ( filepars_.fmt_ == 0 ) // Auto-detect
 	filepars_.fmt_ = nrFormatFor( storinterp->dataChar() );
 
     trchead_.isrev1 = !forcerev0_;
@@ -544,6 +570,14 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 }
 
 
+bool SEGYSeisTrcTranslator::doInterpretBuf( SeisTrcInfo& ti )
+{
+    errmsg = 0;
+    interpretBuf( ti );
+    return !errmsg;
+}
+
+
 #define mBadCoord(ti) \
 	(ti.coord.x < 0.01 && ti.coord.y < 0.01)
 #define mBadBid(ti) \
@@ -563,7 +597,8 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 		    		     std::ios::cur ); \
 	    if ( !readTraceHeadBuffer() ) \
 		return false; \
-	    interpretBuf( ti ); \
+	    if ( !doInterpretBuf(ti) ) \
+		return false; \
 	}
 
 bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
@@ -576,7 +611,8 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( !headerbufread && !readTraceHeadBuffer() )
 	return false;
-    interpretBuf( ti );
+    if ( !doInterpretBuf(ti) )
+	return false;
 
     bool goodpos = true;
     int nrbadtrcs = 0;
