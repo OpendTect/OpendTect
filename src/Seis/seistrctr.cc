@@ -5,10 +5,9 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.93 2009-08-20 08:32:55 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.94 2009-12-03 15:28:05 cvsbert Exp $";
 
 #include "seistrctr.h"
-#include "seisfact.h"
 #include "seistrc.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -31,12 +30,10 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.93 2009-08-20 08:32:55 cvsbert
 
 const char* SeisTrcTranslator::sKeyIs2D()	{ return "Is2D"; }
 const char* SeisTrcTranslator::sKeyIsPS()	{ return "IsPS"; }
-const char* SeisTrcTranslator::sKeyRegWrite()	{ return "Enforce Regular Write"; }
-const char* SeisTrcTranslator::sKeySIWrite()	{ return "Enforce SurveyInfo Write"; }
-
-
-mDefSimpleTranslatorSelector(SeisTrc,sKeySeisTrcTranslatorGroup)
-mDefSimpleTranslatorioContext(SeisTrc,Seis)
+const char* SeisTrcTranslator::sKeyRegWrite()
+					{ return "Enforce Regular Write"; }
+const char* SeisTrcTranslator::sKeySIWrite()
+					{ return "Enforce SurveyInfo Write"; }
 
 
 SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
