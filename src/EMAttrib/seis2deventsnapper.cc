@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seis2deventsnapper.cc,v 1.2 2009-11-19 04:04:12 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seis2deventsnapper.cc,v 1.3 2009-12-03 06:57:29 cvssatyaki Exp $";
 
 #include "seis2deventsnapper.h"
 #include "seisselectionimpl.h"
@@ -19,21 +19,18 @@ static const char* rcsID = "$Id: seis2deventsnapper.cc,v 1.2 2009-11-19 04:04:12
 #include "ioman.h"
 
 
-Seis2DEventSnapper::Seis2DEventSnapper( EM::Horizon2D& hor, const IOObj* ioobj,
-					const LineKey& lk,
-					const Interval<float>& gate )
-    : SeisEventSnapper(gate)
-    , hor_(hor)
+Seis2DEventSnapper::Seis2DEventSnapper( const EM::Horizon2D& orghor,
+					EM::Horizon2D& newhor, const Setup& su )
+    : SeisEventSnapper(su.gate_)
+    , orghor_(orghor)
+    , newhor_(newhor)
 {
-    horlineidx_ = hor.geometry().lineIndex( lk.lineName() );
+    horlineidx_ = orghor.geometry().lineIndex( su.lk_.lineName() );
     Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
-    seldata->lineKey() = lk;
-    seisrdr_ = new SeisTrcReader( ioobj );
+    seldata->lineKey() = su.lk_;
+    seisrdr_ = new SeisTrcReader( su.ioobj_ );
     seisrdr_->setSelData( seldata );
     seisrdr_->prepareWork();
-
-    posid_.setObjectID( hor_.id() );
-    posid_.setSectionID( hor_.sectionID(0) );
 }
 
 
@@ -56,25 +53,26 @@ int Seis2DEventSnapper::nextStep()
     if ( !seisrdr_->get(trc_) )
 	return MoreToDo();
 
+    EM::SectionID sid(0);
     BinID bid( horlineidx_, trc_.info().nr );
-    posid_.setSubID( bid.getSerialized() );
-    Coord3 coord = hor_.getPos( posid_ );
+    EM::SubID subid = bid.getSerialized();
+    Coord3 coord = orghor_.getPos( sid, subid );
     coord.z = findNearestEvent( trc_, coord.z );
-    hor_.setPos( posid_, coord, false );
+    newhor_.setPos( sid, subid, coord, false );
     nrdone_ ++;
 
     return MoreToDo();
 }
 
 
-Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( EM::Horizon2D* hor,
-					const BufferString& attrnm, int type,
-       				    	const Interval<float>& gate )
+Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( const EM::Horizon2D* hor,
+					EM::Horizon2D* newhor,const Setup& su )
     : ExecutorGroup("Seis Lineset Iterator", true)
-    , attribnm_(attrnm)
-    , hor_(hor)
-    , type_(type)
-    , gate_(gate)
+    , attribnm_(su.attrnm_)
+    , orghor_(hor)
+    , newhor_(newhor)
+    , type_(su.type_)
+    , gate_(su.gate_)
 {
     hor2diterator_ = new EM::Hor2DSeisLineIterator( *hor );
     while ( hor2diterator_->next() )
@@ -83,7 +81,8 @@ Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( EM::Horizon2D* hor,
 	const LineKey& lk = hor2diterator_->lineSet()->lineKey( lineid );
 	const IOObj* ioobj = IOM().get( hor2diterator_->lineSetKey() );
 	Seis2DEventSnapper* snapper =
-	    new Seis2DEventSnapper( *hor_, ioobj, lk, gate_ );
+	    new Seis2DEventSnapper( *orghor_, *newhor_,
+		    		    Seis2DEventSnapper::Setup(ioobj,lk,gate_) );
 	snapper->setEvent( VSEvent::Type(type_) );
 	add( snapper );
     }

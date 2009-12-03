@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.26 2009-11-19 04:04:12 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.27 2009-12-03 06:57:29 cvssatyaki Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -130,6 +130,10 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
 	    if ( !hor3d )
 		return false;
+	    
+	    mDynamicCastGet(EM::Horizon3D*,newhor3d,usedhor)
+	    if ( !newhor3d )
+		return false;
 
 	    EM::SectionID sid = hor3d->sectionID( 0 );
 	    BinIDValueSet bivs( 1, false );
@@ -149,7 +153,8 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    {
 		BinID bid; float z;
 		bivs.get( pos, bid, z );
-		hor3d->setPos( sid, bid.getSerialized(), Coord3(0,0,z), false );
+		newhor3d->setPos( sid, bid.getSerialized(), Coord3(0,0,z),
+				  false );
 	    }
 
 	    hor3d->setBurstAlert( false );
@@ -160,8 +165,15 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_)
 	    if ( !hor2d )
 		return false;
-	    Seis2DLineSetEventSnapper snapper( hor2d, seisfld_->attrNm(), 
-					       eventfld_->getIntValue()+1, rg );
+	    
+	    mDynamicCastGet(EM::Horizon2D*,newhor2d,usedhor)
+	    if ( !newhor2d )
+		return false;
+
+	    Seis2DLineSetEventSnapper snapper( hor2d, newhor2d,
+		    Seis2DLineSetEventSnapper::Setup(seisfld_->attrNm(), 
+						     eventfld_->getIntValue()+1,
+						     rg) );
 	   
 	    uiTaskRunner dlg( this );
 	    if ( !dlg.execute(snapper) )
