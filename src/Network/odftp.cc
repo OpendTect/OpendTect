@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odftp.cc,v 1.5 2009-10-15 03:10:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: odftp.cc,v 1.6 2009-12-03 03:18:45 cvsnanne Exp $";
 
 #include "odftp.h"
 
@@ -19,9 +19,12 @@ ODFtp::ODFtp()
     , commandStarted(this)
     , dataTransferProgress(this)
     , done(this)
-    , listInfo(this)
     , readyRead(this)
     , stateChanged(this)
+
+    , connected(this)
+    , loginDone(this)
+    , listDone(this)
     , qftp_(new QFtp)
 {
     error_ = false;
@@ -75,3 +78,9 @@ const char* ODFtp::error() const
 {
     return 0;
 }
+
+const BufferStringSet& ODFtp::fileList() const
+{ return filelist_; }
+
+const BufferStringSet& ODFtp::dirList() const
+{ return dirlist_; }

@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odftp.h,v 1.5 2009-10-15 03:10:47 cvsnanne Exp $
+ RCS:           $Id: odftp.h,v 1.6 2009-12-03 03:18:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "callback.h"
+#include "bufstringset.h"
 
 class QFtp;
 
@@ -45,12 +46,15 @@ public:
 
     const char*		error() const;
 
+    const BufferStringSet& fileList() const;
+    const BufferStringSet& dirList() const;
 
-    Notifier<ODFtp>	commandFinished;
-    Notifier<ODFtp>	commandStarted; 
+    Notifier<ODFtp>	connected;
+    Notifier<ODFtp>	loginDone;
+    Notifier<ODFtp>	listDone;
+
     Notifier<ODFtp>	dataTransferProgress;
     Notifier<ODFtp>	done;
-    Notifier<ODFtp>	listInfo;
     Notifier<ODFtp>	readyRead;
     Notifier<ODFtp>	stateChanged;
 
@@ -63,6 +67,12 @@ protected:
     od_int64		totalnr_;
     int			commandid_;
     int			connectionstate_;
+
+    BufferStringSet	filelist_;
+    BufferStringSet	dirlist_;
+
+    Notifier<ODFtp>	commandFinished;
+    Notifier<ODFtp>	commandStarted; 
 };
 
 #endif

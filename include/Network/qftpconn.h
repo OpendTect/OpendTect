@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: qftpconn.h,v 1.3 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:           $Id: qftpconn.h,v 1.4 2009-12-03 03:18:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,14 @@ void commandFinished( int id, bool error )
 {
     receiver_->commandid_ = id;
     receiver_->error_ = error;
+
+    if ( sender_->currentCommand() == QFtp::ConnectToHost )
+	receiver_->connected.trigger( *receiver_ );
+    else if ( sender_->currentCommand() == QFtp::Login )
+	receiver_->loginDone.trigger( *receiver_ );
+    else if ( sender_->currentCommand() == QFtp::List )
+	receiver_->listDone.trigger( *receiver_ );
+
     receiver_->commandFinished.trigger( *receiver_ );
 }
 
@@ -78,9 +86,16 @@ void done( bool error )
     receiver_->done.trigger( *receiver_ );
 }
 
-void listInfo( const QUrlInfo& i ) 
+void listInfo( const QUrlInfo& info ) 
 {
-    receiver_->listInfo.trigger( *receiver_ );
+    if ( !info.isValid() ) return;
+
+    if ( info.isDir() )
+	receiver_->dirlist_.add( info.name().toAscii().data() );
+    else if ( info.isFile() )
+	receiver_->filelist_.add( info.name().toAscii().data() );
+    else
+	return;
 }
 
 void rawCommandReply( int replyCode, const QString & detail ) {}
