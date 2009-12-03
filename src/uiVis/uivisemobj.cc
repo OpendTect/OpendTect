@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.88 2009-12-02 09:17:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.89 2009-12-03 06:19:57 cvsnanne Exp $";
 
 #include "uivisemobj.h"
 
@@ -172,7 +172,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
-    emod->setDataTransform( scene->getDataTransform(),0 );
+    emod->setZAxisTransform( scene->getZAxisTransform(),0 );
 
     uiTaskRunner dlg( uiparent_ );
     if ( !emod->setEMObject(emid, &dlg ) ) mRefUnrefRet
@@ -245,8 +245,13 @@ void uiVisEMObject::setUpConnections()
     makepermnodemnuitem_.text = "Make control &permanent";
     removecontrolnodemnuitem_.text = "Remove &control";
     changesectionnamemnuitem_.text = "Change section's &name";
-    showonlyatsectionsmnuitem_.text = "Display &only at sections";
+    displaymnuitem_.text = "&Display";
+    showonlyatsectionsmnuitem_.text = "&Only at sections";
+    showfullmnuitem_.text = "&In full";
+    showbothmnuitem_.text = "&At sections and in full";
     showonlyatsectionsmnuitem_.checkable = true;
+    showfullmnuitem_.checkable = true;
+    showbothmnuitem_.checkable = true;
 
     MenuHandler* menu = visserv_->getMenuHandler();
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );
@@ -370,8 +375,27 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 		      !emod->getOnlyAtSectionsDisplay(),
 		      !hordisp || (hordisp&&!hordisp->shouldUseTexture()) );
 
-    mAddMenuItem( menu, &showonlyatsectionsmnuitem_, true,
-	          emod->getOnlyAtSectionsDisplay() );
+    const bool atsect = emod->getOnlyAtSectionsDisplay();
+    bool infull, both = false;
+    if ( hor2ddisp )
+	infull = !emod->getOnlyAtSectionsDisplay();
+    else
+    {
+	infull = !emod->getOnlyAtSectionsDisplay() &&
+			!hordisp->displaysIntersectionLines();
+	both = !emod->getOnlyAtSectionsDisplay() &&
+			hordisp->displaysIntersectionLines();
+    }
+
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &showonlyatsectionsmnuitem_, true,
+	    	  atsect );
+    mAddMenuItem( &displaymnuitem_, &showfullmnuitem_, true, infull );
+    if ( hordisp )
+    { mAddMenuItem( &displaymnuitem_, &showbothmnuitem_, true, both ); }
+    else
+    { mResetMenuItem( &showbothmnuitem_ ); }
+
 #ifdef __debug__
     mAddMenuItem( menu, &changesectionnamemnuitem_, 
 	          emobj->canSetSectionName() && sid!=-1, false );
@@ -381,7 +405,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
 
-    const bool hastransform = scene && scene->getDataTransform();
+    const bool hastransform = scene && scene->getZAxisTransform();
     const bool enabmenu =
 	!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
 	&& !visserv_->isLocked(displayid_) && !hastransform;
@@ -447,8 +471,19 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==showonlyatsectionsmnuitem_.id )
     {
-	const bool turnon = !emod->getOnlyAtSectionsDisplay();
-	setOnlyAtSectionsDisplay( turnon );
+	setOnlyAtSectionsDisplay( true );
+	menu->setIsHandled(true);
+    }
+    else if ( mnuid==showfullmnuitem_.id )
+    {
+	setOnlyAtSectionsDisplay( false );
+	if ( hordisp ) hordisp->displayIntersectionLines( false );
+	menu->setIsHandled(true);
+    }
+    else if ( mnuid==showbothmnuitem_.id )
+    {
+	setOnlyAtSectionsDisplay( false );
+	if ( hordisp ) hordisp->displayIntersectionLines( true );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==changesectionnamemnuitem_.id )

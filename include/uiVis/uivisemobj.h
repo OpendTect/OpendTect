@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.29 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: uivisemobj.h,v 1.30 2009-12-03 06:19:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -98,7 +98,10 @@ protected:
     MenuItem		seedpropmnuitem_;
     MenuItem		lockseedsmnuitem_;
 
+    MenuItem		displaymnuitem_;
     MenuItem		showonlyatsectionsmnuitem_;
+    MenuItem		showfullmnuitem_;
+    MenuItem		showbothmnuitem_;
     MenuItem		changesectionnamemnuitem_;
     bool		showedtexture_;
 
