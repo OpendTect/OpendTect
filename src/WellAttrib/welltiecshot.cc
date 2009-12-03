@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.13 2009-12-01 15:55:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.14 2009-12-03 16:25:39 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -42,6 +42,7 @@ CheckShotCorr::CheckShotCorr( WellTie::DataHolder& dh )
     WellTie::GeoCalculator geocalc( dh );
     geocalc.checkShot2Log( cs_, dh.setup().issonic_, newcsvals );
     calibrateLog2CheckShot( newcsvals, geocalc );
+
     log_->setName( dh.setup().corrvellognm_ );
     dh.wd()->logs().add( log_ );
 }
@@ -50,46 +51,41 @@ CheckShotCorr::CheckShotCorr( WellTie::DataHolder& dh )
 void CheckShotCorr::calibrateLog2CheckShot( const TypeSet<float>& csvals, 
 				       WellTie::GeoCalculator& geocalc )
 {
-    TypeSet<float> logvaldah, coeffs, logshifts, csshifts;
-
-    for ( int idx=0; idx<cs_->size(); idx++)
+    const int logsz = log_->size();
+    TypeSet<float> ctrlvals, calibratedpts, logvals, logdahs;      
+    calibratedpts.setSize( logsz );
+    TypeSet<int> ctrlsamples;          
+    
+    for ( int idx=0; idx<logsz; idx++ )
     {
-	float val = log_->getValue(cs_->dah(idx));
-	if ( mIsUdf(val) )
-	    logvaldah += csvals[idx];
-	else
-	    logvaldah += val; 
+	logvals += log_->value(idx);
+	logdahs += log_->dah(idx);
     }
 
-    geocalc.interpolateLogData ( logvaldah, log_->dahStep(true),  false );
+    geocalc.interpolateLogData( logdahs, log_->dahStep(true), true );
+    geocalc.interpolateLogData( logvals, log_->dahStep(true), false );
 
-    for ( int idx=0; idx<cs_->size(); idx++)
-	csshifts += csvals[idx]-logvaldah[idx];
-
-    for ( int idx=0; idx<cs_->size()-1; idx++)
-	coeffs += (csshifts[idx+1]-csshifts[idx])
-		 /(cs_->dah(idx+1)-cs_->dah(idx));
-
-    for ( int logidx =0; logidx<log_->size()-1; logidx++)
+    for ( int idx=0; idx<csvals.size(); idx++ )
     {
-	for (int csidx=0; csidx<cs_->size()-1; csidx++)
+	int dahidx = log_->indexOf( cs_->dah(idx) );
+	if ( dahidx >0 )
 	{
-	    if ( (cs_->dah(csidx) <= log_->dah(logidx)) 
-			&& (cs_->dah(csidx+1) > log_->dah(logidx)) )
-		logshifts += coeffs[csidx]*log_->dah(logidx) 
-			   + csshifts[csidx]-coeffs[csidx]*cs_->dah(csidx);  
+	    ctrlvals += csvals[idx];
+	    ctrlsamples += dahidx;
 	}
-	if ( log_->dah(logidx) <= cs_->dah(0))
-	    logshifts += 0;
-	if ( log_->dah(logidx) > cs_->dah(cs_->size()-1))
-	    logshifts += logshifts[logidx-1];
     }
-    for ( int idx=0; idx< log_->size()-1; idx++ )
+
+    IdxAble::callibrateArray( logvals.arr(), logsz,
+	                      ctrlvals.arr(), ctrlsamples.arr(), 
+			      ctrlvals.size(), false, calibratedpts.arr() );
+    
+    for ( int idx=0; idx<logsz; idx++ )
     {
-	if ( idx>1 && (mIsUdf(log_->value(idx)) || mIsUdf(logshifts[idx])) )
-	    log_->valArr()[idx] = log_->valArr()[idx-1];
-	else
-	    log_->valArr()[idx]  = log_->value(idx) + logshifts[idx]; 
+	float calibratedval = calibratedpts[idx];
+	if ( mIsUdf( calibratedval ) )
+	    calibratedval = idx ? calibratedpts[idx-1] : log_->valArr()[0]; 
+	log_->valArr()[idx] = calibratedval; 
+	log_->dahArr()[idx] = logdahs[idx];
     }
 }
 
