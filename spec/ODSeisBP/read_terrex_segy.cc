@@ -15,7 +15,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: read_terrex_segy.cc,v 1.2 2009-12-01 13:41:48 cvsbert Exp $";
+static const char* rcsID = "$Id: read_terrex_segy.cc,v 1.3 2009-12-03 11:48:15 cvsbert Exp $";
 
 #include "ioobj.h"
 #include "iopar.h"
@@ -119,14 +119,16 @@ bool BatchProgram::go( std::ostream& strm )
 	    trcout.set( idx, samplescale*trcin.get(idx,0), 0 );
 	trcout.info() = trcin.info();
 
-	if ( wrr.put(trcout) )
+	// if ( wrr.put(trcout) )
+	if ( true )
 	    ++pm;
 	else
 	    mErrRet(wrr.errMsg())
 
 	if ( gravmagsd.usable() )
 	{
-	    *gravmagsd.ostrm << trcin.info().nr << '\t'
+	    *gravmagsd.ostrm << '"' << linenm << "\"\t"
+			     << trcin.info().nr << '\t'
 			     << toString(trcin.info().coord.x) << '\t';
 	    *gravmagsd.ostrm << toString(trcin.info().coord.y) << '\t'
 			     << transl.gravity_ << '\t' << transl.airmag_
