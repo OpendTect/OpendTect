@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.13 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.14 2009-12-03 11:49:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,15 +134,20 @@ public:
 
     enum ICvsXYType	{ Both=0, ICOnly=1, XYOnly=2 };
     enum PSDefType	{ InFile=0, SrcRcvCoords=1, UsrDef=2 };
+    enum CoordDefType	{ Present=0, ReadFile=1, Generate=2 };
 
     TrcHeaderDef	thdef_;
     ICvsXYType		icdef_;
     PSDefType		psdef_;
+    CoordDefType	coorddef_;
     SamplingData<int>	offsdef_;
     float		coordscale_;
     float		timeshift_;
     float		sampleintv_;
     bool		forread_;
+    Coord		startcoord_;
+    Coord		stepcoord_;
+    BufferString	coordfnm_;
 
     void		scaleCoord(Coord&,const Scaler* s=0) const;
     float		timeShift(float) const;
@@ -154,6 +159,9 @@ public:
     static const char*	sKeyCoordScale();
     static const char*	sKeyTimeShift();
     static const char*	sKeySampleIntv();
+    static const char*	sKeyCoordOpt();
+    static const char*	sKeyCoordDef();
+    static const char*	sKeyCoordFileName();
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);

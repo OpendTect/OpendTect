@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.35 2009-11-26 16:07:44 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.36 2009-12-03 11:49:13 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -17,6 +17,7 @@ Translators for SEGY files traces.
 #include "segyfiledef.h"
 #include "seistrctr.h"
 #include "tracedata.h"
+#include "strmdata.h"
 class LinScaler;
 namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 
@@ -114,10 +115,13 @@ protected:
     int			nrFormatFor(const DataCharacteristics&) const;
     void		addWarn(int,const char*);
     const char*		getTrcPosStr() const;
+    bool		doInterpretBuf(SeisTrcInfo&);
 
     int			curtrcnr, prevtrcnr;
     BinID		curbinid, prevbinid;
     float		curoffs, prevoffs;
+    Coord		curcoord;
+    StreamData		coordsd;
     int			estnrtrcs_;
     bool		othdomain_;
 
