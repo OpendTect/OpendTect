@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.16 2009-08-28 15:58:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.17 2009-12-03 15:28:31 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -148,6 +148,7 @@ void uiSEGYDefDlg::fillPar( IOPar& iop ) const
 
 void uiSEGYDefDlg::usePar( const IOPar& iop )
 {
+    SEGY::FileReadOpts::shallowClear( pars_ );
     pars_.merge( iop );
     filespecfld_->usePar( pars_ );
     fileparsfld_->usePar( pars_ );

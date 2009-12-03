@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.30 2009-12-03 11:49:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.31 2009-12-03 15:28:31 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -368,9 +368,11 @@ static uiGenInput* mkByteSzFld( uiGroup* grp, const char* key,
 {
     if ( iop ) iop->get( key, nrbytes );
     BoolInpSpec bszspec( nrbytes != 2, "4", "2" );
-    return new uiGenInput( grp, "Size",  bszspec
+    uiGenInput* ret = new uiGenInput( grp, "size (bytes)",  bszspec
 	    				.setName(BufferString("4",key),0)
 	   				.setName(BufferString("2",key),1) );
+    ret->setElemSzPol( uiObject::SmallVar );
+    return ret;
 }
 
 
@@ -873,9 +875,9 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	if ( psopt == 0 )
 	{
 	    setByteNrFld( offsbytefld_, iop, SEGY::TrcHeaderDef::sOffsByte() );
-	    setByteSzFld( offsbyteszfld_, iop, SEGY::TrcHeaderDef::sOffsByteSz());
+	    setByteSzFld( offsbyteszfld_,iop,SEGY::TrcHeaderDef::sOffsByteSz());
 	    setByteNrFld( azimbytefld_, iop, SEGY::TrcHeaderDef::sAzimByte() );
-	    setByteSzFld( azimbyteszfld_, iop, SEGY::TrcHeaderDef::sAzimByteSz());
+	    setByteSzFld( azimbyteszfld_,iop,SEGY::TrcHeaderDef::sAzimByteSz());
 	}
 	else if ( psopt == 2 )
 	{
@@ -889,6 +891,30 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 
     if ( psgrp_ )
 	psPosChg(0);
+
+    if ( readcoordsfld_ )
+    {
+#define mCoordOptVal \
+	(xcoordbytefld_->isChecked() ? 0 \
+				: (readcoordsfld_->getBoolValue() ? 1 : 2))
+	const char* res = iop.find( SEGY::FileReadOpts::sKeyCoordOpt() );
+	int coordopt = res && *res ? atoi(res) : mCoordOptVal;
+	if ( res && *res )
+	    coordopt = atoi( res );
+	xcoordbytefld_->setChecked( coordopt < 1 || coordopt > 2 );
+	readcoordsfld_->setValue( coordopt == 1 );
+
+	Coord crd( coordsstartfld_->getCoord() );
+	iop.get( SEGY::FileReadOpts::sKeyCoordStart(), crd );
+	coordsstartfld_->setValue( crd );
+	crd = coordsstepfld_->getCoord();
+	iop.get( SEGY::FileReadOpts::sKeyCoordStep(), crd );
+	coordsstepfld_->setValue( crd );
+	BufferString fnm( coordsfnmfld_->fileName() );
+	iop.get( SEGY::FileReadOpts::sKeyCoordFileName(), fnm );
+	coordsfnmfld_->setFileName( fnm );
+	crdChk( 0 );
+    }
 }
 
 
@@ -959,7 +985,13 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 	    iop.removeWithKey( SEGY::FileReadOpts::sKeyOffsDef() );
     }
 
-    if ( orulegrp_ )
+    if ( !orulegrp_ )
+    {
+	iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordScale() );
+	iop.removeWithKey( SEGY::FileReadOpts::sKeyTimeShift() );
+	iop.removeWithKey( SEGY::FileReadOpts::sKeySampleIntv() );
+    }
+    else
     {
 	setToggled( iop, SEGY::FileReadOpts::sKeyCoordScale(), scalcofld_ );
 	setToggled( iop, SEGY::FileReadOpts::sKeyTimeShift(),
@@ -967,14 +999,30 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 	setToggled( iop, SEGY::FileReadOpts::sKeySampleIntv(),
 			   sampleratefld_, true );
     }
+
+    iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordStart() );
+    iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordStep() );
+    iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordFileName() );
+    if ( !readcoordsfld_ )
+	iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordOpt() );
     else
     {
-	iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordScale() );
-	iop.removeWithKey( SEGY::FileReadOpts::sKeyTimeShift() );
-	iop.removeWithKey( SEGY::FileReadOpts::sKeySampleIntv() );
+	const int opt = mCoordOptVal;
+	iop.set( SEGY::FileReadOpts::sKeyCoordOpt(), opt );
+	if ( opt == 1 )
+	    iop.set( SEGY::FileReadOpts::sKeyCoordFileName(),
+		     coordsfnmfld_->fileName() );
+	else if ( opt == 2 )
+	{
+	    iop.set( SEGY::FileReadOpts::sKeyCoordStart(),
+		     coordsstartfld_->getCoord() );
+	    iop.set( SEGY::FileReadOpts::sKeyCoordStep(),
+		     coordsstepfld_->getCoord() );
+	}
     }
 
     if ( setup_.revtype_ == uiSEGYRead::Rev0 )
 	iop.setYN( SEGY::FileDef::sKeyForceRev0(), true );
+
     return true;
 }

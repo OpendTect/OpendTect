@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.14 2009-12-03 11:49:13 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.15 2009-12-03 15:28:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,12 +160,14 @@ public:
     static const char*	sKeyTimeShift();
     static const char*	sKeySampleIntv();
     static const char*	sKeyCoordOpt();
-    static const char*	sKeyCoordDef();
+    static const char*	sKeyCoordStart();
+    static const char*	sKeyCoordStep();
     static const char*	sKeyCoordFileName();
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
     virtual void	getReport(IOPar&,bool) const;
+    static void		shallowClear(IOPar&);
 
 protected:
 

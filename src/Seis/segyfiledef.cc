@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.17 2009-12-03 11:47:41 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.18 2009-12-03 15:28:31 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -25,7 +25,8 @@ const char* FileReadOpts::sKeyICOpt()	   { return "IC -> XY"; }
 const char* FileReadOpts::sKeyPSOpt()	   { return "Offset source"; }
 const char* FileReadOpts::sKeyCoordOpt()   { return "Coord source"; }
 const char* FileReadOpts::sKeyOffsDef()	   { return "Generate offsets"; }
-const char* FileReadOpts::sKeyCoordDef()   { return "Generate coords"; }
+const char* FileReadOpts::sKeyCoordStart() { return "Generate coords.Start"; }
+const char* FileReadOpts::sKeyCoordStep() { return "Generate coords.Step"; }
 const char* FileReadOpts::sKeyCoordFileName() { return "Coordinate file"; }
 const char* FileReadOpts::sKeyCoordScale()
 				{ return "Coordinate scaling overrule"; }
@@ -305,7 +306,17 @@ void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
     mFillIf(!mIsUdf(timeshift_),sKeyTimeShift(),timeshift_);
     mFillIf(!mIsUdf(sampleintv_),sKeySampleIntv(),sampleintv_);
 
-    if ( !Seis::isPS(geom_) ) return;
+    const bool isps = Seis::isPS( geom_ );
+
+    if ( is2d && !isps )
+    {
+	mFillIf(true,sKeyCoordOpt(),(int)coorddef_);
+	mFillIf(coorddef_==Generate,sKeyCoordStart(),startcoord_);
+	mFillIf(coorddef_==Generate,sKeyCoordStep(),stepcoord_);
+	mFillIf(coorddef_==ReadFile,sKeyCoordFileName(),coordfnm_);
+    }
+
+    if ( !isps ) return;
 
     mFillIf(true,sKeyPSOpt(),(int)psdef_);
     mFillIf(psdef_==UsrDef,sKeyOffsDef(),offsdef_);
@@ -313,7 +324,6 @@ void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
     mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByteSz(),thdef_.offsbytesz);
     mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByte(),thdef_.azim);
     mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByteSz(),thdef_.azimbytesz);
-
 }
 
 
@@ -330,6 +340,21 @@ void SEGY::FileReadOpts::usePar( const IOPar& iop )
     iop.get( sKeyCoordScale(), coordscale_ );
     iop.get( sKeyTimeShift(), timeshift_ );
     iop.get( sKeySampleIntv(), sampleintv_ );
+    int coordopt = (int)coorddef_;
+    iop.get( sKeyCoordOpt(), coordopt );
+    coorddef_ = (CoordDefType)coordopt;
+    iop.get( sKeyCoordStart(), startcoord_ );
+    iop.get( sKeyCoordStep(), stepcoord_ );
+    iop.get( sKeyCoordFileName(), coordfnm_ );
+}
+
+
+void SEGY::FileReadOpts::shallowClear( IOPar& iop )
+{
+    iop.removeWithKey( sKeyCoordOpt() );
+    iop.removeWithKey( sKeyCoordScale() );
+    iop.removeWithKey( sKeyTimeShift() );
+    iop.removeWithKey( sKeySampleIntv() );
 }
 
 

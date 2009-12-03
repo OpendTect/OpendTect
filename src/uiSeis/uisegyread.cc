@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.38 2009-11-18 14:59:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.39 2009-12-03 15:28:31 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -129,6 +129,7 @@ void uiSEGYRead::use( const IOObj* ioobj, bool force )
 {
     if ( !ioobj ) return;
 
+    SEGY::FileReadOpts::shallowClear( pars_ );
     pars_.merge( ioobj->pars() );
     SeisIOObjInfo oinf( ioobj );
     if ( oinf.isOK() )
@@ -146,6 +147,7 @@ void uiSEGYRead::fillPar( IOPar& iop ) const
 
 void uiSEGYRead::usePar( const IOPar& iop )
 {
+    SEGY::FileReadOpts::shallowClear( pars_ );
     pars_.merge( iop );
     rev_ = iop.isTrue( SEGY::FileDef::sKeyForceRev0() ) ? Rev0 : Rev1;
 }
@@ -210,6 +212,7 @@ void uiSEGYRead::readReq( CallBacker* cb )
 	rddlg->use( ioobj, false );
     else
     {
+	SEGY::FileReadOpts::shallowClear( pars_ );
 	pars_.merge( ioobj->pars() );
 	defdlg_->use( ioobj, false );
     }

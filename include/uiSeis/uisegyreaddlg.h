@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyreaddlg.h,v 1.6 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uisegyreaddlg.h,v 1.7 2009-12-03 15:28:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ protected:
     uiSEGYFileOpts*	optsfld_;
     uiGenInput*		savesetupfld_;
 
+    void		initWin(CallBacker*);
     void		readParsCB(CallBacker*);
     void		preScanCB(CallBacker*);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.10 2009-08-28 15:58:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.11 2009-12-03 15:28:31 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -58,6 +58,8 @@ uiSEGYReadDlg::uiSEGYReadDlg( uiParent* p,
 	uiLabel* lbl = new uiLabel( optsgrp_, "(optional)" );
 	lbl->attach( rightOf, savesetupfld_ );
     }
+
+    finaliseDone.notify( mCB(this,uiSEGYReadDlg,initWin) );
 }
 
 
@@ -76,6 +78,13 @@ void uiSEGYReadDlg::preScanCB( CallBacker* )
 
 uiSEGYReadDlg::~uiSEGYReadDlg()
 {
+}
+
+
+void uiSEGYReadDlg::initWin( CallBacker* )
+{
+    if ( optsfld_ )
+	optsfld_->usePar( pars_ );
 }
 
 
