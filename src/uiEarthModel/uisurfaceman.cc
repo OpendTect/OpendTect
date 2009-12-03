@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.68 2009-11-12 05:17:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.69 2009-12-03 03:13:46 cvsnanne Exp $";
 
 
 #include "uisurfaceman.h"
@@ -137,17 +137,20 @@ bool uiSurfaceMan::isCur2D() const
 
 bool uiSurfaceMan::isCurFault() const
 {
-    return curioobj_ && 
-	( !strcmp(curioobj_->group(),EMFaultStickSetTranslatorGroup::keyword()) ||
-	  !strcmp(curioobj_->group(),EMFault3DTranslatorGroup::keyword()) );
+    BufferString grp = curioobj_ ? curioobj_->group() : "";
+    return grp==EMFaultStickSetTranslatorGroup::keyword() ||
+	   grp==EMFault3DTranslatorGroup::keyword();
 }
 
 
 void uiSurfaceMan::copyCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
+
     PtrMan<IOObj> ioobj = curioobj_->clone();
-    uiCopySurface dlg( this, *ioobj );
+    uiSurfaceRead::Setup su( ioobj->group() );
+    su.withattribfld(true).withsubsel(!isCurFault()).multisubsel(true);
+    uiCopySurface dlg( this, *ioobj, su );
     if ( dlg.go() )
 	selgrp->fullUpdate( ioobj->key() );
 }

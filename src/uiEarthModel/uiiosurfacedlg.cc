@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.49 2009-11-09 03:10:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.50 2009-12-03 03:13:46 cvsnanne Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -157,12 +157,11 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 
 
-uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj, bool wattr )
+uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
+			      const uiSurfaceRead::Setup& su )
     : uiDialog(p,Setup("Copy surface",mNoDlgTitle,"104.0.0"))
     , ctio_(*mkCtxtIOObj(ioobj))
 {
-    uiSurfaceRead::Setup su( ioobj.group() );
-    su.withattribfld(wattr).withsubsel(true).multisubsel(true);
     inpfld = new uiSurfaceRead( this, su );
     inpfld->setIOObj( ioobj.key() );
 

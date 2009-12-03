@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.22 2009-08-12 02:55:26 cvskris Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.23 2009-12-03 03:13:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "uiiosurface.h"
 
 class CtxtIOObj;
 class IOObj;
@@ -81,7 +82,7 @@ mClass uiCopySurface : public uiDialog
 {
 public:
     			uiCopySurface(uiParent*,const IOObj&,
-				      bool withattr = true);
+				      const uiSurfaceRead::Setup&);
 			~uiCopySurface();
 
     void		setInputKey(const char* key);
