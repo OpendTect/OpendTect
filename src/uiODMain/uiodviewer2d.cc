@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.15 2009-09-10 11:11:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.16 2009-12-03 06:16:48 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -19,11 +19,11 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.15 2009-09-10 11:11:49 cvss
 #include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigraphicsscene.h"
+#include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodscenemgr.h"
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
-#include "uimenu.h"
 #include "uivispartserv.h"
 
 #include "attribdatacubes.h"
@@ -49,10 +49,13 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , viewwin_(0)
     , horpainter_(0)
     , horfveditor_(0)
+    , slicepos_(0)
 {
     basetxt_ = "2D Viewer - ";
     BufferString info;
     appl.applMgr().visServer()->getObjectInfo( visid, info );
+    if ( info.isEmpty() )
+	info = appl.applMgr().visServer()->getObjectName( visid );
     basetxt_ += info;
 
     initSelSpec( vdselspec_ );
@@ -66,7 +69,7 @@ uiODViewer2D::~uiODViewer2D()
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
-    delete horpainter_; 
+    delete horpainter_;
     if ( horfveditor_ )
     {
 	horfveditor_->updateoldactivevolinuimpeman.remove(
@@ -76,7 +79,7 @@ uiODViewer2D::~uiODViewer2D()
 	horfveditor_->updateseedpickingstatus.remove(
 		mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
     }
-	
+
     delete horfveditor_;
     delete viewwin_;
 }
@@ -91,11 +94,14 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     if ( isnew )
 	createViewWin( dp2d || (dp3d && dp3d->isVertical()) );
 
+    if ( slicepos_ )
+	slicepos_->getToolBar()->display( dp3d );
+
     bool drawhorizon = false;
     if ( dp3d )
     {
 	const CubeSampling& cs = dp3d->cube().cubeSampling();
-	slicepos_->setCubeSampling( cs );
+	if ( slicepos_ ) slicepos_->setCubeSampling( cs );
 	if ( dp3d->isVertical() )
 	{
 	    horpainter_->setCubeSampling( cs, true );
@@ -155,6 +161,7 @@ void uiODViewer2D::createViewWin( bool isvert )
 		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true)
 	       					  .withhanddrag(true) );
 	fvmw->windowClosed.notify( mCB(this,uiODViewer2D,winCloseCB) );
+
 	slicepos_ = new uiSlicePos2DView( fvmw );
 	slicepos_->positionChg.notify( mCB(this,uiODViewer2D,posChg) );
 	viewwin_ = fvmw;
@@ -216,6 +223,11 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     delete horpainter_;
     horpainter_ = 0;
 
+    DataPack::ID packid = viewwin_->viewer().packID( true );
+    DPM(DataPackMgr::FlatID()).release( packid );
+    packid = viewwin_->viewer().packID( false );
+    DPM(DataPackMgr::FlatID()).release( packid );
+
     if ( horfveditor_ )
     {
 	horfveditor_->updateoldactivevolinuimpeman.remove(
@@ -227,9 +239,11 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     }
 	
     delete horfveditor_; horfveditor_ = 0;
+
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
-    slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
+    if ( slicepos_ )
+	slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
     viewwin_ = 0;
 }
 
@@ -245,6 +259,8 @@ void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 
 void uiODViewer2D::posChg( CallBacker* )
 {
+    if ( !slicepos_ ) return;
+
     CubeSampling cs = slicepos_->getCubeSampling();
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
 
