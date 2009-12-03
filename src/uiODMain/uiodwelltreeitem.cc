@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.50 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.51 2009-12-03 11:57:14 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -268,9 +268,9 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );
-    mAddMenuItem( menu, &attrmnuitem_, true, false );
-    if ( SI().zIsTime() )mAddMenuItem( menu, &gend2tm_, true, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
+    if ( SI().zIsTime() )mAddMenuItem( menu, &gend2tm_, true, false );
+    mAddMenuItem( menu, &attrmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
     mAddMenuItem( menu, &showmnuitem_, true, false );
