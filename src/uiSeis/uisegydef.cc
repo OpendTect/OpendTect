@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.29 2009-09-10 15:09:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.30 2009-12-03 11:49:29 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -497,6 +497,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
 	, trnrbytefld_(0)
 	, psposfld_(0)
 	, posfld_(0)
+	, readcoordsfld_(0)
         , timeshiftfld_(0)
 	, sampleratefld_(0)
 	, ensurepsxylbl_(0)
@@ -542,12 +543,19 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     else if ( coordgrp_ )
 	mDefObjs( coordgrp_ )
 
-    mainwin()->finaliseStart.notify( mCB(this,uiSEGYFileOpts,psPosChg) );
+    mainwin()->finaliseStart.notify( mCB(this,uiSEGYFileOpts,initFlds) );
 }
 
 
 uiSEGYFileOpts::~uiSEGYFileOpts()
 {
+}
+
+
+void uiSEGYFileOpts::initFlds( CallBacker* cb )
+{
+    psPosChg( cb );
+    crdChk( cb );
 }
 
 
@@ -560,6 +568,20 @@ void uiSEGYFileOpts::readParsPush( CallBacker* )
 void uiSEGYFileOpts::preScanPush( CallBacker* )
 {
     preScanReq.trigger();
+}
+
+
+void uiSEGYFileOpts::crdChk( CallBacker* )
+{
+    if ( !readcoordsfld_ ) return;
+    const bool ischckd = xcoordbytefld_->isChecked();
+    const bool isfile = readcoordsfld_->getBoolValue();
+
+    ycoordbytefld_->display( ischckd );
+    readcoordsfld_->display( !ischckd );
+    coordsfnmfld_->display( !ischckd && isfile );
+    coordsstartfld_->display( !ischckd && !isfile );
+    coordsstepfld_->display( !ischckd && !isfile );
 }
 
 
@@ -659,7 +681,32 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar* iop,
 			      iop, thdef.ycoord );
     ycoordbytefld_->attach( alignedBelow, xcoordbytefld_ );
     if ( is2d_ )
+    {
 	xcoordbytefld_->attach( alignedBelow, trnrbytefld_ );
+	if ( forread_ && !isps_ )
+	{
+	    xcoordbytefld_->setWithCheck( true );
+	    xcoordbytefld_->setChecked( true );
+	    xcoordbytefld_->checked.notify( mCB(this,uiSEGYFileOpts,crdChk) );
+	    readcoordsfld_ = new uiGenInput( grp, "Coordinate source",
+			     BoolInpSpec(false,"'X Y' file","Generate") );
+	    readcoordsfld_->attach( alignedBelow, xcoordbytefld_ );
+	    readcoordsfld_->valuechanged.notify(
+		    			mCB(this,uiSEGYFileOpts,crdChk) );
+	    coordsfnmfld_ = new uiFileInput( grp, "File name",
+			uiFileInput::Setup(uiFileDialog::Gen)
+			.forread(forread_) );
+	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
+	    coordsstartfld_ = new uiGenInput( grp, "Start coordinate",
+		    			DoubleInpSpec(), DoubleInpSpec() );
+	    coordsstartfld_->attach( alignedBelow, readcoordsfld_ );
+	    coordsstartfld_->setElemSzPol( uiObject::Small );
+	    coordsstepfld_ = new uiGenInput( grp, "Step",
+			DoubleInpSpec(SI().crlDistance()), DoubleInpSpec(0) );
+	    coordsstepfld_->attach( rightOf, coordsstartfld_ );
+	    coordsstepfld_->setElemSzPol( uiObject::Small );
+	}
+    }
 }
 
 

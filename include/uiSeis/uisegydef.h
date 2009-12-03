@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.12 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.13 2009-12-03 11:49:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,6 +183,10 @@ protected:
     uiGenInput*		xcoordbytefld_;
     uiGenInput*		ycoordbytefld_;
     uiGenInput*		regoffsfld_;
+    uiGenInput*		readcoordsfld_;
+    uiGenInput*		coordsstartfld_;
+    uiGenInput*		coordsstepfld_;
+    uiFileInput*	coordsfnmfld_;
     uiLabel*		ensurepsxylbl_;
 
     uiGenInput*		scalcofld_;
@@ -201,9 +205,11 @@ protected:
     void		mkCoordFlds(uiGroup*,const IOPar*,
 	    			    const SEGY::TrcHeaderDef&);
 
+    void		initFlds(CallBacker*);
     void		psPosChg(CallBacker*);
     void		readParsPush(CallBacker*);
     void		preScanPush(CallBacker*);
+    void		crdChk(CallBacker*);
 
     int			psPosType() const;
 
