@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.39 2009-12-03 15:28:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.40 2009-12-04 14:25:21 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -349,7 +349,8 @@ uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d )
     buts_[pol-1]->setChecked( true );
 
     dontaskfld_ = new uiCheckBox( this, "Don't ask again for this survey" );
-    dontaskfld_->attach( alignedBelow, bgrp );
+    dontaskfld_->attach( ensureBelow, bgrp );
+    dontaskfld_->attach( rightBorder );
 }
 
 bool acceptOK( CallBacker* )
