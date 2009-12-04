@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.193 2009-10-23 09:21:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.194 2009-12-04 14:47:36 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -170,9 +170,9 @@ protected:
 
     bool		exitapponclose_;
 
-    CallBack		activatecb_;
     Threads::Mutex	activatemutex_;
-    int			activatenesting_;
+    ObjectSet<CallBack>	activatecbs_;
+    int			nractivated_;
 
     int			eventrefnr_;
 
@@ -223,7 +223,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, popped_up(false)
 	, exitapponclose_(false)
         , prefsz_(-1,-1)
-	, activatenesting_(0)
+	, nractivated_(0)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -537,27 +537,27 @@ void uiMainWinBody::setWindowTitle( const char* txt )
 { QMainWindow::setWindowTitle( uiMainWin::uniqueWinTitle(txt,this) ); }
 
 
-#define mExecMutex( statement ) \
-activatemutex_.lock(); statement; activatemutex_.unLock();
+#define mExecMutex( statements ) \
+    activatemutex_.lock(); statements; activatemutex_.unLock();
 
 
 void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
 {
-    mExecMutex( const int oldnesting = activatenesting_++ );
+    CallBack* actcb = new CallBack( cb );
+    mExecMutex( activatecbs_ += actcb );
 
-    activatecb_ = cb;
     QEvent* guithreadev = new QEvent( sQEventGuiThread );
     QApplication::postEvent( this, guithreadev );
 
     float sleeptime = 0.01;
     while ( busywait )
     {
-	mExecMutex( const int curnesting = activatenesting_ );
-	if ( curnesting <= oldnesting )
+	mExecMutex( const int idx = activatecbs_.indexOf(actcb) );
+	if ( idx < 0 )
 	    break;
 
 	Time_sleep( sleeptime ); 
-	if ( sleeptime < 1.00 )
+	if ( sleeptime < 1.28 )
 	    sleeptime *= 2;
     }
 }
@@ -567,10 +567,11 @@ bool uiMainWinBody::event( QEvent* ev )
 {
     if ( ev->type() == sQEventGuiThread )
     {
-	CallBacker* cbobject = activatecb_.cbObj();
-	activatecb_.doCall( this );
-	mExecMutex( activatenesting_-- );
-	handle_.activatedone.trigger( cbobject );
+	mExecMutex( CallBack* actcb = activatecbs_[nractivated_++] );
+	actcb->doCall( this );
+	handle_.activatedone.trigger( actcb->cbObj() );
+	mExecMutex( activatecbs_ -= actcb; nractivated_-- );
+	delete actcb;
     }
     else if ( ev->type() == sQEventPopUpReady )
     {
@@ -632,7 +633,8 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
 {}
 
 
-static ObjectSet<uiMainWin> orderoflastappearance_;
+static Threads::Mutex		winlistmutex_;
+static ObjectSet<uiMainWin>	orderedwinlist_;
 
 uiMainWin::~uiMainWin()
 {
@@ -644,7 +646,9 @@ uiMainWin::~uiMainWin()
 	body_->deletefromod_ = true;
 	delete body_;
     }
-    orderoflastappearance_ -= this;
+    winlistmutex_.lock();
+    orderedwinlist_ -= this;
+    winlistmutex_.unLock();
 }
 
 
@@ -670,8 +674,10 @@ uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 
 void uiMainWin::show()
 {
-    orderoflastappearance_ -= this;
-    orderoflastappearance_ += this;
+    winlistmutex_.lock();
+    orderedwinlist_ -= this;
+    orderedwinlist_ += this;
+    winlistmutex_.unLock();
     body_->go();
 }
 
@@ -818,6 +824,9 @@ void uiMainWin::readSettings()
 
 void uiMainWin::raise()
 { body_->raise(); }
+
+void uiMainWin::activateWindow()
+{ body_->activateWindow(); }
 
 
 uiMainWin* uiMainWin::activeWindow()
@@ -969,22 +978,30 @@ void uiMainWin::closeActiveModalQDlg( int retval )
 void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist )
 {
     windowlist.erase();
-    const QWidgetList toplevelwigs = qApp->topLevelWidgets();
+    winlistmutex_.lock();
+    for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
+    {
+	if ( !orderedwinlist_[idx]->isHidden() )
+	    windowlist += orderedwinlist_[idx];
+    }
+    winlistmutex_.unLock();
+}
+
+
+void uiMainWin::getModalSignatures( BufferStringSet& signatures )
+{
+    signatures.erase();
+    QWidgetList toplevelwigs = qApp->topLevelWidgets();
+
     for ( int idx=0; idx<toplevelwigs.count(); idx++ )
     {
-	QWidget* widget = toplevelwigs.at( idx );
-	if ( widget && !widget->isHidden() )
+	const QWidget* qw = toplevelwigs.at( idx );
+	if ( qw->isWindow() && !qw->isHidden() && qw->isModal() )
 	{
-	    uiMainWinBody* uimwb = dynamic_cast<uiMainWinBody*>(widget);
-	    if ( uimwb )
-		windowlist += &uimwb->handle();
+	    BufferString qwptrstr;
+	    sprintf( qwptrstr.buf(), "%p", qw );
+	    signatures.add( qwptrstr );
 	}
-    }
-    for ( int idy=orderoflastappearance_.size()-1; idy>=0; idy-- )
-    {
-	const int curidx = windowlist.indexOf( orderoflastappearance_[idy] );
-	if ( curidx >= 0 )
-	    windowlist.insertAt( windowlist.remove(curidx), 0 );
     }
 }
 
@@ -998,10 +1015,12 @@ const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
     {
 	bool unique = true;
 	wintitle = txt;
-	if ( wintitle.isEmpty() || count>1 )
+	if ( wintitle.isEmpty() )
+	    wintitle = "<no title>";
+
+	if ( count>1 )
 	{
-	    wintitle += wintitle.isEmpty() ? "{" : "  {";
-	    wintitle += count ; wintitle += "}" ;
+	    wintitle += "  {"; wintitle += count ; wintitle += "}" ;
 	}
 
 	for ( int idx=0; idx<toplevelwigs.count(); idx++ )
@@ -1009,6 +1028,7 @@ const char* uiMainWin::uniqueWinTitle( const char* txt, QWidget* forwindow )
 	    const QWidget* qw = toplevelwigs.at( idx );
 	    if ( !qw->isWindow() || qw->isHidden() || qw==forwindow )
 		continue;
+
 	    if ( wintitle==mQStringToConstChar(qw->windowTitle())  )
 		unique = false;
 	}
@@ -1554,7 +1574,16 @@ bool uiDialog::haveCredits() const
 }
 
 
-int uiDialog::go()				{ return mBody->exec(); }
+int uiDialog::go()
+{ 
+    winlistmutex_.lock();
+    orderedwinlist_ -= this;
+    orderedwinlist_ += this;
+    winlistmutex_.unLock();
+    return mBody->exec();
+}
+
+
 const uiDialog::Setup& uiDialog::setup() const	{ return mBody->getSetup(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
 void uiDialog::accept( CallBacker*cb)		{ mBody->accept( cb ); }

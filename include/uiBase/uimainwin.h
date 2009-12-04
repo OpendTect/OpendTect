@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.77 2009-10-23 09:21:05 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.78 2009-12-04 14:47:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiPopupMenu;
 class uiStatusBar;
 class uiToolBar;
 class QWidget;
+class BufferStringSet;
 
 mClass uiMainWin : public uiParent
 {
@@ -84,6 +85,7 @@ public:
     virtual void	show();
     void                close();
     void		raise();
+    void		activateWindow();
 
     void		showMaximized();
     void		showMinimized();
@@ -153,8 +155,10 @@ public:
     static int		activeModalQDlgRetVal(int butnr);
     static void		closeActiveModalQDlg(int retval);
 
+    static void		getModalSignatures(BufferStringSet&);
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&);
     static const char*	uniqueWinTitle(const char* txt,QWidget* forwindow=0);
+
 
     bool		grab(const char* filenm,int zoom=1,
 			     const char* format=0,int quality=-1) const;
