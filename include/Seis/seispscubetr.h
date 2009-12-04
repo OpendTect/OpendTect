@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispscubetr.h,v 1.6 2009-11-13 12:28:40 cvsbert Exp $
+ RCS:		$Id: seispscubetr.h,v 1.7 2009-12-04 11:36:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ protected:
     bool		doRead(SeisTrc&,TypeSet<float>* offss=0);
     bool		toNext();
 
-    int			trcnr_;
+    TypeSet<int>	trcnrs_;
 
 };
 
