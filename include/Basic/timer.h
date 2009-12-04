@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          16/10/2000
- RCS:           $Id: timer.h,v 1.2 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:           $Id: timer.h,v 1.3 2009-12-04 14:36:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,17 @@ public :
 
     Notifier<Timer>	tick;
 
+    void		notifyHandler();
+
 protected:
     QTimer*		timer_;
     QTimerComm*		comm_;
+
+public:
+			// Not for casual use
+    static void		setTelltale(const CallBack&);
+    static void		unsetTelltale();
+    static int		nrFirstShotTimers();
 };
 
 
