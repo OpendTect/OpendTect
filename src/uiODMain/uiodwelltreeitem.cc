@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.52 2009-12-04 15:28:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.53 2009-12-04 16:23:42 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -98,8 +98,8 @@ bool uiODWellParentTreeItem::showSubMenu()
 }
 
 
-#define mGetWellDisplayInChilLoop(idx)\
-    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx]);\
+#define mGetWellDisplayFromChild(childidx)\
+    mDynamicCastGet(uiODWellTreeItem*,itm,children_[childidx]);\
     if ( !itm ) continue;\
     mDynamicCastGet(visSurvey::WellDisplay*,wd,\
 		    visserv->getObject(itm->displayID()));\
@@ -147,7 +147,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	BufferStringSet list;
 	for ( int idx = 0; idx<children_.size(); idx++ )
 	{
-	    mGetWellDisplayInChilLoop( idx );
+	    mGetWellDisplayFromChild( idx );
 	    wellids += new MultiID( wd->getMultiID() );
 	    list.add( children_[idx]->name() );
 	}
@@ -166,7 +166,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	bool allconst = false;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
-	    mGetWellDisplayInChildLoop( idx );
+	    mGetWellDisplayFromChild( idx );
 	    const bool isconst = wd->logConstantSize();
 	    if ( isconst )
 	    { allconst = true; break; }
@@ -174,7 +174,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	constlogsize_ = !allconst;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
-	    mGetWellDisplayInChildLoop( idx );
+	    mGetWellDisplayFromChild( idx );
 	    wd->setLogConstantSize( constlogsize_ );
 	}
     }
@@ -182,7 +182,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
-	    mGetWellDisplayInChildLoop( idx );
+	    mGetWellDisplayFromChild( idx );
 	    switch ( mnuid )
 	    {
 		case 41: wd->showWellTopName( true ); break;
