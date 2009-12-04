@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.36 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.37 2009-12-04 20:11:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ mClass SeisTrc
 public:
 
 			SeisTrc( int ns=0, const DataCharacteristics& dc
-					    = DataCharacteristics() )
+					   = DataCharacteristics() )
 			: intpol_(0)
 						{ data_.addComponent(ns,dc); }
 			SeisTrc( const SeisTrc& t )
@@ -129,18 +129,20 @@ mClass SeisTrcValueSeries : public ValueSeries<float>
 public:
 
     		SeisTrcValueSeries( const SeisTrc& t, int c )
-		    : trc(const_cast<SeisTrc&>(t))
-		    , icomp(c)			{}
+		    : trc_(const_cast<SeisTrc&>(t))
+		    , icomp_(c)			{}
 
-    void	setComponent( int idx )		{ icomp = idx; }
-    float	value( od_int64 idx ) const	{ return trc.get(idx,icomp); }
+    void	setComponent( int idx )		{ icomp_ = idx; }
+    float	value( od_int64 idx ) const	{ return trc_.get(idx,icomp_); }
     bool	writable() const		{ return true; }
-    void	setValue( od_int64 idx,float v)	{ trc.set(idx,v,icomp); }
+    void	setValue( od_int64 idx,float v)	{ trc_.set(idx,v,icomp_); }
+    float*	arr();
+    const float* arr() const;
 
 protected:
 
-    SeisTrc&	trc;
-    int		icomp;
+    SeisTrc&	trc_;
+    int		icomp_;
 
 };
 

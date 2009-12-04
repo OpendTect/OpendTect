@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.44 2009-12-04 11:27:56 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.45 2009-12-04 20:11:09 cvskris Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -376,3 +376,21 @@ bool SeisTrc::getFrom( Socket& sock, BufferString* errbuf )
 
     return true;
 } 
+
+
+float* SeisTrcValueSeries::arr()
+{
+    float val;
+    static DataCharacteristics dc( val );
+    const TraceDataInterpreter* tdi = trc_.data().getInterpreter( icomp_ );
+    if ( !tdi ) return 0;
+
+    if ( tdi->dataChar()!=dc )
+	return 0;
+
+    return (float*) trc_.data().getComponent( icomp_ )->data();
+}
+
+
+const float* SeisTrcValueSeries::arr() const
+{ return const_cast<SeisTrcValueSeries*>( this )->arr(); }
