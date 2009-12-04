@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.15 2009-05-23 10:24:12 cvsbert Exp $
+# $Id: setup_cvstree,v 1.16 2009-12-04 08:03:58 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -82,6 +82,13 @@ else if ( $binsubdir == sol32 ) then
     cp /usr/local/lib/libstdc++.so.6 .
 endif
 
+if ( $binsubdir == mac ) then
+    cd "$od_wdir/bin/$binsubdir"
+    cp /usr/X11/bin/glxinfo .
+    cd O
+    ln -s ../glxinfo .
+endif
+
 set qtdir=
 set coindir=
 set fftwdir=
@@ -120,14 +127,19 @@ if ( ${missingpkgnms} != "" ) then
     echo "copied or linked to $od_wdir/bin/$binsubdir/so"
     echo "See the end $0 for details on what needs to be linked"
 endif
+
+
+cd "$od_wdir/bin/$binsubdir/so"
 if ( $binsubdir == mac ) then
     if ( $qtdir != "" ) then
 	ln -s $qtdir/lib/libQtCore.4.dylib .
 	ln -s $qtdir/lib/libQtGui.4.dylib .
 	ln -s $qtdir/lib/libQtNetwork.4.dylib .
 	ln -s $qtdir/lib/libQtOpenGL.4.dylib .
+	ln -s libQtOpenGL.4.dylib libQtOpenGL.dylib
 	ln -s $qtdir/lib/libQtSql.4.dylib .
 	ln -s $qtdir/lib/libQtXml.4.dylib .
+	ln -s $qtdir/lib/libQt3Support.4.dylib .
     endif
     if ( $coindir != "" ) then
 	ln -s $coindir/lib/libCoin.60.dylib .
@@ -148,6 +160,7 @@ else
 	ln -s $qtdir/lib/libQtOpenGL.so.4 .
 	ln -s $qtdir/lib/libQtSql.so.4 .
 	ln -s $qtdir/lib/libQtXml.so.4 .
+	ln -s $qtdir/lib/libQt3Support.so.4 .
     endif
     if ( $coindir != "" ) then
 	ln -s $coindir/lib/libCoin.so.60 .
