@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.55 2009-10-21 15:09:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.56 2009-12-04 15:28:07 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -616,6 +616,18 @@ void Well::showOneLog( bool yn, int lognr, int idx )
 bool Well::logsShown() const
 {
     return log_.size() ? log_[0]->logShown(1) || log_[0]->logShown(2) : false;
+}
+
+
+void Well::setLogConstantSize( bool yn )
+{
+    log_[0]->setLogConstantSize( yn );
+}
+
+
+bool Well::logConstantSize() const
+{
+    return log_[0]->logConstantSize();
 }
 
 

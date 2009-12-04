@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.10 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.11 2009-12-04 15:28:07 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
+class uiMenuItem;
 
 mClass uiODWellParentTreeItem : public uiODTreeItem
 {
@@ -34,6 +35,7 @@ public:
 protected:
     const char*		parentType() const
 			    { return typeid(uiODTreeTop).name(); }
+    bool 		constlogsize_;
 };
 
 

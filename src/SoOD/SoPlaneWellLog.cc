@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.38 2009-11-12 09:12:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.39 2009-12-04 15:28:07 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -50,6 +50,8 @@ SoPlaneWellLog::SoPlaneWellLog()
     , seisstyle2(false)
     , isfilled1(true)
     , isfilled2(true)
+    , screensize(0,0)	     
+    , resizewhenzooming(false)
 {
     SO_KIT_CONSTRUCTOR(SoPlaneWellLog);
 
@@ -636,6 +638,18 @@ void SoPlaneWellLog::setLogFill( bool isfill, int lognr )
 }
 
 
+void SoPlaneWellLog::setLogConstantSize( bool rsz )
+{
+    resizewhenzooming = !rsz; 
+}
+
+
+bool SoPlaneWellLog::logConstantSize() const
+{
+    return !resizewhenzooming; 
+}
+
+
 bool SoPlaneWellLog::shouldGLRender( int newres )
 {
     if ( !path1.getNum() && !path2.getNum() ) return false;
@@ -649,8 +663,19 @@ int SoPlaneWellLog::getResolution( SoState* state )
 {
     int32_t camerainfo = SoCameraInfoElement::get(state);
     bool ismov = camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE);
+
+    if ( resizewhenzooming )
+    {	
+	SbVec2s screensz;		
+	SbBox3f bbox; bbox.setBounds( SbVec3f(-1,-1,-1), SbVec3f(1,1,1) );
+	SoShape::getScreenSize( state, bbox, screensz );
+	if ( screensz != screensize )
+	{ ismov = true; screensize = screensz; }
+    }
+
     return ismov ? 0 : 1; 
 }
+
 
 #define mScaleFac 50000
 void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
@@ -659,32 +684,34 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
     state->push();
     
     int newres = getResolution( state );
+    
 
     if ( shouldGLRender(newres) )
     {
 	const SbViewVolume& vv = SoViewVolumeElement::get(state);
 	const SbViewportRegion& vp = SoViewportRegionElement::get(state);
-	float nsize1 = screenWidth1.getValue() / 
-	    				float(vp.getViewportSizePixels()[1]);
-	float nsize2 = screenWidth2.getValue() / 
-	    				float(vp.getViewportSizePixels()[1]);
+	SbVec3f projectiondir = vv.getProjectionDirection();
+	float szpixel = float( vp.getViewportSizePixels()[1] );
 
 	SoSwitch* sw = SO_GET_ANY_PART( this, "line1Switch", SoSwitch );
-	SbVec3f projectiondir = vv.getProjectionDirection();
-
 	if ( path1.getNum()>0 && sw->whichChild.getValue()==SO_SWITCH_ALL )
 	{
-	    worldwidth = nsize1*mScaleFac;
+	    const int hnum = path1.getNum() / 2;
+	    float nsize1 = screenWidth1.getValue() / szpixel; 
+	    worldwidth = vv.getWorldToScreenScale( path1[hnum], nsize1 );
+	    if ( !resizewhenzooming ) worldwidth = nsize1*mScaleFac;
 	    buildLog( 1, projectiondir, newres );
 	}
 
 	sw = SO_GET_ANY_PART( this, "line2Switch", SoSwitch );
 	if ( path2.getNum()>0 && sw->whichChild.getValue()==SO_SWITCH_ALL )
 	{
-	    worldwidth = nsize2*mScaleFac;
+	    const int hnum = path2.getNum() / 2;
+	    float nsize2 = screenWidth2.getValue() / szpixel; 
+	    worldwidth = vv.getWorldToScreenScale( path2[hnum], nsize2 );
+	    if ( !resizewhenzooming ) worldwidth = nsize2*mScaleFac;
 	    buildLog( 2, projectiondir, newres );
 	}
-
 	valchanged = false;
     }
 

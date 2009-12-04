@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.25 2009-09-18 11:35:31 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.26 2009-12-04 15:28:06 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,9 @@ public:
     void 			setFillExtrValue(float,float,int);
     void			setRevScale( bool yn, int lognr ) 
     				{ (lognr == 1 ? revscale1 : revscale2) = yn; }
+    void 			setLogConstantSize(bool);
+    bool 			logConstantSize() const;
+    
     SoMFVec3f			path1;
     SoMFVec3f			path2;
     SoMFFloat			log1;
@@ -124,6 +127,7 @@ public:
 protected:
 
     bool			valchanged;
+    bool			resizewhenzooming;
     int				currentres;
     float			worldwidth;
     bool			revscale1, revscale2;
@@ -132,9 +136,10 @@ protected:
     bool  			islinedisp1, islinedisp2;
     int 			lognr;
     
+    SbVec2s 			screensize;
+    
     SoFieldSensor*		valuesensor;
     static void			valueChangedCB(void*,SoSensor*);
-    
     
     void			buildLog(int,const SbVec3f&,int);
     void			buildSimpleLog(int,const SbVec3f&,int);
@@ -143,8 +148,8 @@ protected:
     void			fillLogTriangles(const int,SoCoordinate3*,
 	    						SbVec3f&,SbVec3f&);
     SbVec3f 			getProjCoords(const SoMFVec3f&,const int, 
-	  				      const SbVec3f&, const SoSFFloat&,
-					      const float, int lognr);
+					  const SbVec3f&, const SoSFFloat&,
+					  const float, int lognr);
     SbVec3f			getNormal(const SbVec3f&,const SbVec3f&,
 	    				  const SbVec3f&);
     bool			shouldGLRender(int);

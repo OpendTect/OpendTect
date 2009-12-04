@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.51 2009-12-03 11:57:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.52 2009-12-04 15:28:07 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -34,14 +34,16 @@ static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.51 2009-12-03 11:57:14 
 
 uiODWellParentTreeItem::uiODWellParentTreeItem()
     : uiODTreeItem( "Well" )
+    , constlogsize_(true)
 {
 }
 
 
-static int sLoadIdx	= 0;
-static int sWellTieIdx	= 1;
-static int sNewWellIdx	= 2;
-static int sAttribIdx	= 3;
+static int sLoadIdx	 = 0;
+static int sWellTieIdx	 = 1;
+static int sNewWellIdx	 = 2;
+static int sAttribIdx	 = 3;
+static int sLogConstSize = 4;
 
 bool uiODWellParentTreeItem::showSubMenu()
 {
@@ -59,9 +61,19 @@ bool uiODWellParentTreeItem::showSubMenu()
 	mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."),sWellTieIdx);
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), sNewWellIdx );
     if ( children_.size() > 1 )
+	mnu.insertItem( new uiMenuItem("&Create Attribute Log ..."),sAttribIdx);
+    
+    if ( children_.size() )
     {
-	mnu.insertItem( new uiMenuItem("Create Attribute Log ..."), sAttribIdx);
+	mnu.insertSeparator();
+	uiMenuItem* szmenuitem = new uiMenuItem("Constant Log Size");
+	mnu.insertItem( szmenuitem, sLogConstSize );
+	szmenuitem->setCheckable( true );
+	szmenuitem->setChecked( constlogsize_ );
+    }
 
+    if ( children_.size() > 1 )
+    {
 	mnu.insertSeparator( 40 );
 	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "&Show all" );
 	showmnu->insertItem( new uiMenuItem("Well names (&Top)"), 41 );
@@ -86,6 +98,12 @@ bool uiODWellParentTreeItem::showSubMenu()
 }
 
 
+#define mGetWellDisplayInChilLoop(idx)\
+    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx]);\
+    if ( !itm ) continue;\
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,\
+		    visserv->getObject(itm->displayID()));\
+    if ( !wd ) continue;
 bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -120,6 +138,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	wd->setName( wellname );
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
+	wd->setLogConstantSize( constlogsize_ );
     }
 
     else if ( mnuid == sAttribIdx )
@@ -128,11 +147,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	BufferStringSet list;
 	for ( int idx = 0; idx<children_.size(); idx++ )
 	{
-	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx]);
-	    if ( !itm )
-		continue;
-	    mDynamicCastGet(visSurvey::WellDisplay*,wd,
-			    visserv->getObject(itm->displayID()));
+	    mGetWellDisplayInChilLoop( idx );
 	    wellids += new MultiID( wd->getMultiID() );
 	    list.add( children_[idx]->name() );
 	}
@@ -145,17 +160,29 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	    ODMainWin()->applMgr().wellAttribServer()->createAttribLog(
 		*wellids[idx], dlg.selectedLogIdx() );
     }
+
+    else if ( mnuid == sLogConstSize )
+    {
+	bool allconst = false;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mGetWellDisplayInChildLoop( idx );
+	    const bool isconst = wd->logConstantSize();
+	    if ( isconst )
+	    { allconst = true; break; }
+	}
+	constlogsize_ = !allconst;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mGetWellDisplayInChildLoop( idx );
+	    wd->setLogConstantSize( constlogsize_ );
+	}
+    }
     else if ( ( mnuid>40 && mnuid<46 ) || ( mnuid>50 && mnuid<56 ) )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
-	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx]);
-	    if ( !itm ) continue;
-
-	    mDynamicCastGet(visSurvey::WellDisplay*,wd,
-				    visserv->getObject(itm->displayID()));
-	    if ( !wd ) continue;
-
+	    mGetWellDisplayInChildLoop( idx );
 	    switch ( mnuid )
 	    {
 		case 41: wd->showWellTopName( true ); break;
@@ -328,7 +355,6 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	wd->showMarkers( !wd->markersShown() );
-
     }
     else if ( mnuid == markernamemnuitem_.id )
     {

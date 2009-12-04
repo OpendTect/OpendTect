@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.58 2009-08-31 09:31:01 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.59 2009-12-04 15:28:07 cvsbruno Exp $
 
 
 
@@ -102,6 +102,9 @@ public:
     void			showLogs(bool);
     bool			logNameShown() const;
     void			showLogName(bool);
+    void                        setLogConstantSize(bool);
+    bool                        logConstantSize() const;
+
 
     mVisTrans*			getDisplayTransformation();
     void			setDisplayTransformation(mVisTrans*);
