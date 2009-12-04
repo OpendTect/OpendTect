@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.24 2009-11-19 09:59:48 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.25 2009-12-04 14:28:25 cvsjaap Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -403,6 +403,18 @@ int BufferStringSet::nearestMatch( const char* s ) const
     }
 
     return midx;
+}
+
+
+bool BufferStringSet::subsetOf( const BufferStringSet& bss ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( !bss.isPresent((*this)[idx]->buf()) )
+	    return false;
+    }
+
+    return true;
 }
 
 
