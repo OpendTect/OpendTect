@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.90 2009-11-13 03:42:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.91 2009-12-04 11:09:29 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -475,6 +475,9 @@ void uiObject::useNameToolTip( bool yn )
 {
     if ( !nametooltipactive_ )
 	uiObjectBody::getToolTipBGColor( normaltooltipcolor_ );
+
+    if ( nametooltipactive_ == yn )
+	return;
 
     const Color& ttcolor( yn ? Color(220,255,255) : normaltooltipcolor_ );
     uiObjectBody::setToolTipBGColor( ttcolor );
