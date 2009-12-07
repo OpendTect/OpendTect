@@ -1,9 +1,9 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : 9-3-1999
+ * AUTHOR   : Bert
+ * DATE     : Dec 2009
 -*/
-static const char* rcsID = "$Id: bendpoints2coords.cc,v 1.1 2009-12-07 14:02:21 cvsbert Exp $";
+static const char* rcsID = "$Id: bendpoints2coords.cc,v 1.2 2009-12-07 15:31:51 cvsbert Exp $";
 
 #include "bendpoints2coords.h"
 #include "sorting.h"
@@ -64,11 +64,13 @@ void BendPoints2Coords::init( const TypeSet<Coord>& crds,
     mGetIdxArr(int,idxs,sz)
     if ( !idxs ) return;
     sort_coupled( nrs.arr(), idxs, sz );
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int sidx = idxs[idx];
 	coords_ += crds[sidx]; nrs_ += inpnrs[sidx];
     }
+
     delete [] idxs;
 }
 
