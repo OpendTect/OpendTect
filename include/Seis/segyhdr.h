@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.25 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.26 2009-12-07 16:19:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,9 @@ namespace SEGY
 mClass TxtHeader
 {
 public:
-    		TxtHeader(bool rev1=true); //!< rev1 only relevant when writing
+
+    		TxtHeader() : rev1_(true) { clearText(); }
+    		TxtHeader(bool rev1); //!< rev1 only relevant when writing
     void	clear()			{ clearText(); setLineStarts(); }
  
     void	setUserInfo(const char*);
@@ -50,6 +52,7 @@ public:
 
     static bool& info2D();
 
+    void	setLineStarts();
     void	dump(std::ostream&) const;
 
 protected:
@@ -59,7 +62,6 @@ protected:
     void	putAt(int,int,int,const char*);
     void	getFrom(int,int,int,char*) const;
 
-    void	setLineStarts();
     void	clearText();
 };
 
