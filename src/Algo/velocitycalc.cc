@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.20 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.21 2009-12-07 18:24:47 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -402,12 +402,15 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
     int idx_prev = -1; \
     double t_above = -first_t; \
     double v2t_prev = t_above*first_v*first_v;; \
+    bool hasvals = false; \
  \
     for ( int idx=0; idx<nrvels; idx++ ) \
     { \
 	const double v = Vrms[idx]; \
 	if ( mIsUdf(v) ) \
 	    continue; \
+\
+	hasvals = true; \
  \
 	double t_below = timefetch-first_t; \
  \
@@ -429,10 +432,16 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 	idx_prev = idx; \
     } \
  \
+    if ( !hasvals ) \
+    { \
+	idx_prev = 0; \
+	Vint[0] = mUdf(float); \
+    } \
+ \
     for ( int idx=idx_prev+1; idx<nrvels; idx++ ) \
 	Vint[idx] = Vint[idx_prev]; \
  \
-    return true;
+    return true
 
 bool computeDix( const float* Vrms, const SamplingData<double>& sd, int nrvels,
 		 float* Vint )
