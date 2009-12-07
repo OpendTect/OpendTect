@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.64 2009-11-30 16:33:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.65 2009-12-07 12:45:30 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -111,7 +111,7 @@ uiTieWin::~uiTieWin()
     delete dataplayer_;
     delete dataholder_;
 
-    //delete  Well::MGR().release( setup_.wellid_ );
+    delete  Well::MGR().release( setup_.wellid_ );
 }
 
 
