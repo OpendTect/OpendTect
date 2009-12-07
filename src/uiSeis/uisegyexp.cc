@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.27 2009-12-02 16:52:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.28 2009-12-07 16:21:17 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: uisegyexp.cc,v 1.27 2009-12-02 16:52:49 cvsyuan
 #include "filepath.h"
 #include "filegen.h"
 #include "zdomain.h"
+#include "strmprov.h"
 
 static const char* txtheadtxt =
 "Define the SEG-Y text header. Note that:"
@@ -90,10 +91,15 @@ void readPush( CallBacker* )
     uiFileDialog dlg( this, true, fp.fullPath() );
     if ( !dlg.go() ) return;
 
-    if ( !File_exists(dlg.fileName()) )
+    StreamData sd( StreamProvider(dlg.fileName()).makeIStream() );
+    if ( !sd.usable() )
 	{ uiMSG().error("Cannot open file"); return; }
 
-    edfld_->readFromFile( dlg.fileName(), 80 );
+    SEGY::TxtHeader txthdr;
+    sd.istrm->read( (char*)txthdr.txt_, SegyTxtHeaderLength );
+    txthdr.setAscii();
+    BufferString txt; txthdr.getText( txt );
+    edfld_->setText( txt );
 }
 
 void writePush( CallBacker* )
