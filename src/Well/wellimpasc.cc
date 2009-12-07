@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.63 2009-09-17 13:44:21 cvskris Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.64 2009-12-07 09:07:34 cvsbruno Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -581,11 +581,14 @@ bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t,
 	if ( ret == 0 ) break;
 
 	float dah = getfValue( 0 );
-	const float time = getfValue( 1 );
+	float time = getfValue( 1 );
 	if ( mIsUdf(dah) || mIsUdf(time) )
 	    continue;
 	if ( formOf(false,0) == 1 && !convToDah(trck,dah) )
 	    continue;
+	
+	if ( formOf(false,1) == 1 )
+	    time *= 2;
 
 	d2t.add( dah, time );
     }
