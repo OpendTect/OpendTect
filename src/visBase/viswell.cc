@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.56 2009-12-04 15:28:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.57 2009-12-07 11:21:25 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -176,8 +176,8 @@ const LineStyle& Well::lineStyle() const
 
 void Well::setWellName( const TrackParams& tp )
 {
-    msetWellName( tp.isdispabove_ ? tp.name_ : "", tp.toppos_, top, tp.size_ );
-    msetWellName( tp.isdispbelow_ ? tp.name_ : "", tp.botpos_, bot, tp.size_ );
+    msetWellName( tp.isdispabove_ ? tp.name_ : "", tp.toppos_, top, tp.namesz_);
+    msetWellName( tp.isdispbelow_ ? tp.name_ : "", tp.botpos_, bot, tp.namesz_);
 }
 
 
