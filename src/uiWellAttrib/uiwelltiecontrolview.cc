@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.22 2009-09-03 09:41:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.23 2009-12-07 09:48:57 cvsjaap Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -50,7 +50,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* toolbar,uiFlatViewer* vwr)
     else
 	tb_->display(false);
     toolbar_->addSeparator();
-    toolbar_->addObject( vwr_.rgbCanvas().getSaveImageButton() );
+    toolbar_->addObject( vwr_.rgbCanvas().getSaveImageButton(toolbar_) );
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
     mDefBut(zoominbut_,"zoomforward.png",altZoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",altZoomCB,"Zoom out");

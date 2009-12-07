@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.30 2009-09-15 09:18:32 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.31 2009-12-07 09:48:57 cvsjaap Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -66,7 +66,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
     uiToolButton* mDefBut(fliplrbut,"flip_lr.png",flipCB,"Flip left/right");
-    tb_->addObject( vwr_.rgbCanvas().getSaveImageButton() );
+    tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
 
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");

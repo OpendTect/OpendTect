@@ -154,7 +154,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
 	    "Selection settings" );
 
-    maniptb_.addObject( plotter_.getSaveImageButton() );
+    maniptb_.addObject( plotter_.getSaveImageButton(&maniptb_) );
 
     maniptb_.addButton( "xplotprop.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );
