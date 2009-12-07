@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.36 2009-12-03 11:49:13 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.37 2009-12-07 14:03:29 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -19,6 +19,7 @@ Translators for SEGY files traces.
 #include "tracedata.h"
 #include "strmdata.h"
 class LinScaler;
+class BendPoints2Coords;
 namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 
 #define mSEGYTraceHeaderBytes	240
@@ -71,23 +72,18 @@ protected:
     const LinScaler*	curtrcscale_;
     bool		forcerev0_;
 
-    bool		useinpsd;
-    TraceDataInterpreter* storinterp;
-    unsigned char	headerbuf[mSEGYTraceHeaderBytes];
-    bool		headerdone;
-    bool		headerbufread;
-    bool		bytesswapped;
+    bool		useinpsd_;
+    TraceDataInterpreter* storinterp_;
+    unsigned char	headerbuf_[mSEGYTraceHeaderBytes];
+    bool		headerdone_;
+    bool		headerbufread_;
 
     // Following variables are inited by commitSelections
-    bool		userawdata;
-    unsigned char*	blockbuf;
-    ComponentData*	inpcd;
-    TargetComponentData* outcd;
-    StreamConn::Type	iotype;
-    int			maxmbperfile;
-    int			ic2xyopt;
-    int			offsazimopt;
-    SamplingData<int>	offsdef;
+    bool		userawdata_;
+    unsigned char*	blockbuf_;
+    ComponentData*	inpcd_;
+    TargetComponentData* outcd_;
+    SamplingData<int>	offsdef_;
 
     inline StreamConn&	sConn()		{ return *(StreamConn*)conn; }
 
@@ -117,11 +113,11 @@ protected:
     const char*		getTrcPosStr() const;
     bool		doInterpretBuf(SeisTrcInfo&);
 
-    int			curtrcnr, prevtrcnr;
-    BinID		curbinid, prevbinid;
-    float		curoffs, prevoffs;
-    Coord		curcoord;
-    StreamData		coordsd;
+    int			curtrcnr_, prevtrcnr_;
+    BinID		curbid_, prevbid_;
+    float		curoffs_, prevoffs_;
+    Coord		curcoord_;
+    BendPoints2Coords*	bp2c_;
     int			estnrtrcs_;
     bool		othdomain_;
 

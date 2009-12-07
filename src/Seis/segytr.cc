@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.86 2009-12-03 11:47:41 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.87 2009-12-07 14:03:29 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.86 2009-12-03 11:47:41 cvsbert Ex
 #include "settings.h"
 #include "zdomain.h"
 #include "strmprov.h"
+#include "bendpoints2coords.h"
 #include <math.h>
 #include <ctype.h>
 
@@ -47,35 +48,35 @@ static const char* sKeyMaxConsBadTrcs = "SEGY.Max Bad Trace Block";
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	: SeisTrcTranslator(nm,unm)
-	, trchead_(*new SEGY::TrcHeader(headerbuf,true,fileopts_.thdef_))
+	, trchead_(*new SEGY::TrcHeader(headerbuf_,true,fileopts_.thdef_))
 	, txthead_(0)
 	, binhead_(*new SEGY::BinHeader)
 	, trcscale_(0)
 	, curtrcscale_(0)
 	, forcerev0_(false)
-	, storinterp(0)
-	, blockbuf(0)
-	, headerbufread(false)
-	, headerdone(false)
-	, userawdata(false)
-	, useinpsd(false)
-	, inpcd(0)
-	, outcd(0)
+	, storinterp_(0)
+	, blockbuf_(0)
+	, headerbufread_(false)
+	, headerdone_(false)
+	, userawdata_(false)
+	, useinpsd_(false)
+	, inpcd_(0)
+	, outcd_(0)
 	, estnrtrcs_(-1)
-	, curoffs(-1)
-	, curcoord(mUdf(float),0)
-	, prevoffs(0)
-	, offsdef(0,1)
-	, iotype(StreamConn::File)
+	, curoffs_(-1)
+	, curcoord_(mUdf(float),0)
+	, prevoffs_(0)
+	, offsdef_(0,1)
 	, othdomain_(false)
+	, bp2c_(0)
 {
     if ( maxnrconsecutivebadtrcs < 0 )
     {
 	maxnrconsecutivebadtrcs = 50;
 	Settings::common().get( sKeyMaxConsBadTrcs, maxnrconsecutivebadtrcs );
     }
-    curtrcnr = prevtrcnr = -1;
-    mSetUdf(curbinid.inl); mSetUdf(prevbinid.inl);
+    curtrcnr_ = prevtrcnr_ = -1;
+    mSetUdf(curbid_.inl); mSetUdf(prevbid_.inl);
 }
 
 
@@ -92,12 +93,12 @@ void SEGYSeisTrcTranslator::cleanUp()
 {
     SeisTrcTranslator::cleanUp();
 
-    delete storinterp; storinterp = 0;
-    delete [] blockbuf; blockbuf = 0;
-    headerbufread = headerdone = false;
+    delete storinterp_; storinterp_ = 0;
+    delete [] blockbuf_; blockbuf_ = 0;
+    delete bp2c_; bp2c_ = 0;
+    headerbufread_ = headerdone_ = false;
 
-    prevoffs = curoffs = -1; mSetUdf(curcoord.x);
-    coordsd.close();
+    prevoffs_ = curoffs_ = -1; mSetUdf(curcoord_.x);
 }
 
 
@@ -171,7 +172,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
 void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 {
-    if ( warnnrs_.indexOf(nr) >= 0 ) return;
+    static const bool nowarn = Settings::common().isTrue("SEG-Y.No warnings");
+    if ( nowarn || warnnrs_.indexOf(nr) >= 0 ) return;
 
     BufferString msg;
     if ( nr == cSEGYWarnBadFmt )
@@ -291,21 +293,25 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 
     if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Generate )
     {
-	if ( mIsUdf(curcoord.x) )
-	    curcoord = fileopts_.startcoord_;
+	if ( mIsUdf(curcoord_.x) )
+	    curcoord_ = fileopts_.startcoord_;
 	else
-	    curcoord += fileopts_.stepcoord_;
-	ti.coord = curcoord;
+	    curcoord_ += fileopts_.stepcoord_;
+	ti.coord = curcoord_;
     }
     else
     {
-	if ( !coordsd.usable() )
+	if ( !bp2c_ )
 	{
-	    coordsd = StreamProvider(fileopts_.coordfnm_).makeIStream();
-	    if ( !coordsd.usable() )
+	    StreamData sd = StreamProvider(fileopts_.coordfnm_).makeIStream();
+	    if ( !sd.usable() )
 		{ errmsg = "Cannot open coordinate file"; return; }
+	    bp2c_ = new BendPoints2Coords( *sd.istrm );
+	    sd.close();
+	    if ( bp2c_->getIDs().size() < 2 )
+		{ errmsg = "Cannot read coordinate file"; return; }
 	}
-	*coordsd.istrm >> ti.coord.x >> ti.coord.y;
+	ti.coord = bp2c_->coordAt( ti.nr );
     }
 }
 
@@ -319,7 +325,7 @@ void SEGYSeisTrcTranslator::setTxtHeader( SEGY::TxtHeader* th )
 bool SEGYSeisTrcTranslator::writeTapeHeader()
 {
     if ( filepars_.fmt_ == 0 ) // Auto-detect
-	filepars_.fmt_ = nrFormatFor( storinterp->dataChar() );
+	filepars_.fmt_ = nrFormatFor( storinterp_->dataChar() );
 
     trchead_.isrev1 = !forcerev0_;
 
@@ -359,8 +365,8 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 {
     trchead_.use( trc.info() );
 
-    SamplingData<float> sdtoput( useinpsd ? trc.info().sampling : outsd );
-    const int nstoput = useinpsd ? trc.size() : outnrsamples;
+    SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling : outsd );
+    const int nstoput = useinpsd_ ? trc.size() : outnrsamples;
     if ( othdomain_ )
 	sdtoput.step *= SI().zIsTime() ? 0.001 : 1000;
 
@@ -456,36 +462,30 @@ DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 
 bool SEGYSeisTrcTranslator::commitSelections_()
 {
-    if ( conn && sConn().ioobj )
-    {
-	mDynamicCastGet(IOStream*,iostrm,sConn().ioobj)
-	if ( iostrm )
-	    iotype = iostrm->type();
-    }
     const bool forread = conn->forRead();
     fileopts_.forread_ = forread;
     fileopts_.setGeomType( Seis::geomTypeOf( is_2d, is_prestack ) );
 
-    inpcd = inpcds[0];
-    outcd = outcds[0];
+    inpcd_ = inpcds[0];
+    outcd_ = outcds[0];
     if ( !forread )
-	toPreferred( outcd->datachar );
-    storinterp = new TraceDataInterpreter( forread ? inpcd->datachar
-	    					   : outcd->datachar );
+	toPreferred( outcd_->datachar );
+    storinterp_ = new TraceDataInterpreter( forread ? inpcd_->datachar
+	    					   : outcd_->datachar );
     if ( mIsEqual(outsd.start,insd.start,mDefEps)
       && mIsEqual(outsd.step,insd.step,mDefEps) )
-	useinpsd = true;
-    userawdata = inpcd->datachar == outcd->datachar;
+	useinpsd_ = true;
+    userawdata_ = inpcd_->datachar == outcd_->datachar;
 
-    if ( blockbuf )
-	{ delete [] blockbuf; blockbuf = 0; }
+    if ( blockbuf_ )
+	{ delete [] blockbuf_; blockbuf_ = 0; }
     int bufsz = innrsamples;
     if ( outnrsamples > bufsz ) bufsz = outnrsamples;
     bufsz += 10;
-    int nbts = inpcd->datachar.nrBytes();
-    if ( outcd->datachar.nrBytes() > nbts ) nbts = outcd->datachar.nrBytes();
+    int nbts = inpcd_->datachar.nrBytes();
+    if ( outcd_->datachar.nrBytes() > nbts ) nbts = outcd_->datachar.nrBytes();
     
-    blockbuf = new unsigned char [ nbts * bufsz ];
+    blockbuf_ = new unsigned char [ nbts * bufsz ];
     return forread || writeTapeHeader();
 }
 
@@ -530,7 +530,7 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
     so *= (240 + dataBytes() * innrsamples);
     so += 3600;
     sConn().iStream().seekg( so, std::ios::beg );
-    headerbufread = headerdone = false;
+    headerbufread_ = headerdone_ = false;
     return sConn().iStream().good();
 }
 
@@ -542,13 +542,13 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
     int usecur = 1; const bool is2d = Seis::is2D(fileopts_.geomType());
     if ( is2d )
     {
-	if ( curtrcnr < 0 )
-	    usecur = prevtrcnr < 0 ? -1 : 0;
+	if ( curtrcnr_ < 0 )
+	    usecur = prevtrcnr_ < 0 ? -1 : 0;
     }
     else
     {
-	if ( mIsUdf(curbinid.inl) )
-	    usecur = mIsUdf(prevbinid.inl) ? -1 : 0;
+	if ( mIsUdf(curbid_.inl) )
+	    usecur = mIsUdf(prevbid_.inl) ? -1 : 0;
     }
 
     ret = usecur ? "at " : "after ";
@@ -556,15 +556,15 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 	{ ret += "start of data"; return ret.buf(); }
 
     if ( is2d )
-	{ ret += "trace number "; ret += usecur ? curtrcnr : prevtrcnr; }
+	{ ret += "trace number "; ret += usecur ? curtrcnr_ : prevtrcnr_; }
     else
     {
-	const BinID bid( usecur ? curbinid : prevbinid );
+	const BinID bid( usecur ? curbid_ : prevbid_ );
 	ret += "position "; ret += bid.inl; ret += "/"; ret += bid.crl;
     }
 
     if ( Seis::isPS(fileopts_.geomType()) )
-	{ ret += " (offset "; ret += usecur ? curoffs : prevoffs; ret += ")"; }
+	{ ret += " (offset "; ret += usecur ? curoffs_ : prevoffs_; ret += ")";}
 
     return ret.buf();
 }
@@ -593,7 +593,7 @@ bool SEGYSeisTrcTranslator::doInterpretBuf( SeisTrcInfo& ti )
 		str += " traces with invalid position found."; \
 		mPosErrRet(str); \
 	    } \
-	    sConn().iStream().seekg( nrSamplesRead() * mBPS(inpcd), \
+	    sConn().iStream().seekg( nrSamplesRead() * mBPS(inpcd_), \
 		    		     std::ios::cur ); \
 	    if ( !readTraceHeadBuffer() ) \
 		return false; \
@@ -603,13 +603,13 @@ bool SEGYSeisTrcTranslator::doInterpretBuf( SeisTrcInfo& ti )
 
 bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( !storinterp ) commitSelections();
-    if ( headerdone ) return true;
+    if ( !storinterp_ ) commitSelections();
+    if ( headerdone_ ) return true;
 
     if ( read_mode != Seis::Scan )
-	{ mSetUdf(curbinid.inl); mSetUdf(curtrcnr); }
+	{ mSetUdf(curbid_.inl); mSetUdf(curtrcnr_); }
 
-    if ( !headerbufread && !readTraceHeadBuffer() )
+    if ( !headerbufread_ && !readTraceHeadBuffer() )
 	return false;
     if ( !doInterpretBuf(ti) )
 	return false;
@@ -656,27 +656,27 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( trchead_.isusable )
 	trchead_.isusable = goodpos;
 
-    if ( !useinpsd ) ti.sampling = outsd;
+    if ( !useinpsd_ ) ti.sampling = outsd;
 
     if ( fileopts_.psdef_ == SEGY::FileReadOpts::UsrDef )
     {
 	const bool is2d = Seis::is2D(fileopts_.geomType());
-	if ( (is2d && ti.nr != prevtrcnr) || (!is2d && ti.binid != prevbinid) )
-	    curoffs = -1;
+	if ( (is2d && ti.nr != prevtrcnr_) || (!is2d && ti.binid != prevbid_) )
+	    curoffs_ = -1;
 
-	if ( curoffs < 0 )
-	    curoffs = offsdef.start;
+	if ( curoffs_ < 0 )
+	    curoffs_ = offsdef_.start;
 	else
-	    curoffs += offsdef.step;
+	    curoffs_ += offsdef_.step;
 
-	ti.offset = curoffs;
+	ti.offset = curoffs_;
     }
 
     if ( goodpos )
     {
-	prevtrcnr = curtrcnr; curtrcnr = ti.nr;
-	prevbinid = curbinid; curbinid = ti.binid;
-	prevoffs = curoffs; curoffs = ti.offset;
+	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.nr;
+	prevbid_ = curbid_; curbid_ = ti.binid;
+	prevoffs_ = curoffs_; curoffs_ = ti.offset;
     }
 
     if ( mIsZero(ti.sampling.step,mDefEps) )
@@ -688,7 +688,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( trchead_.nonrectcoords )
 	addWarn(cSEGYWarnNonrectCoord,getTrcPosStr());
 
-    return (headerdone = true);
+    return (headerdone_ = true);
 }
 
 
@@ -704,18 +704,18 @@ bool SEGYSeisTrcTranslator::read( SeisTrc& trc )
 bool SEGYSeisTrcTranslator::skip( int ntrcs )
 {
     if ( ntrcs < 1 ) return true;
-    if ( !storinterp ) commitSelections();
+    if ( !storinterp_ ) commitSelections();
 
     std::istream& strm = sConn().iStream();
     int nrsamples = innrsamples;
-    if ( !headerdone )	strm.seekg( mSEGYTraceHeaderBytes, std::ios::cur );
+    if ( !headerdone_ )	strm.seekg( mSEGYTraceHeaderBytes, std::ios::cur );
     else		nrsamples = nrSamplesRead();
-    strm.seekg( nrsamples * mBPS(inpcd), std::ios::cur );
+    strm.seekg( nrsamples * mBPS(inpcd_), std::ios::cur );
     if ( ntrcs > 1 )
 	strm.seekg( (ntrcs-1) * (mSEGYTraceHeaderBytes
-		    		+ nrsamples * mBPS(inpcd)) );
+		    		+ nrsamples * mBPS(inpcd_)) );
 
-    headerbufread = headerdone = false;
+    headerbufread_ = headerdone_ = false;
 
     if ( !strm.good() )
 	mPosErrRet("Read error during trace skipping")
@@ -725,10 +725,10 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
 
 bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
-    memset( headerbuf, 0, mSEGYTraceHeaderBytes );
+    memset( headerbuf_, 0, mSEGYTraceHeaderBytes );
     fillHeaderBuf( trc );
 
-    if ( !sConn().doIO( headerbuf, mSEGYTraceHeaderBytes ) )
+    if ( !sConn().doIO( headerbuf_, mSEGYTraceHeaderBytes ) )
 	mErrRet("Cannot write trace header")
 
     return writeData( trc );
@@ -737,7 +737,7 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
 bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 {
-    if ( !sConn().doIO( headerbuf, mSEGYTraceHeaderBytes )
+    if ( !sConn().doIO( headerbuf_, mSEGYTraceHeaderBytes )
 	    || sConn().iStream().eof() )
     {
 	if ( !sConn().iStream().eof() )
@@ -745,7 +745,7 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 	return noErrMsg();
     }
 
-    return (headerbufread = true);
+    return (headerbufread_ = true);
 }
 
 
@@ -753,10 +753,10 @@ bool SEGYSeisTrcTranslator::readDataToBuf( unsigned char* tdptr )
 {
     std::istream& strm = sConn().iStream();
     if ( samps.start > 0 )
-	strm.seekg( samps.start * mBPS(inpcd), std::ios::cur );
+	strm.seekg( samps.start * mBPS(inpcd_), std::ios::cur );
 
-    unsigned char* ptr = userawdata ? tdptr : blockbuf;
-    int rdsz = (samps.width()+1) *  mBPS(inpcd);
+    unsigned char* ptr = userawdata_ ? tdptr : blockbuf_;
+    int rdsz = (samps.width()+1) *  mBPS(inpcd_);
     if ( !sConn().doIO(ptr,rdsz) )
     {
 	if ( strm.gcount() != rdsz )
@@ -766,7 +766,7 @@ bool SEGYSeisTrcTranslator::readDataToBuf( unsigned char* tdptr )
     }
 
     if ( samps.stop < innrsamples-1 )
-	strm.seekg( (innrsamples-samps.stop-1) * mBPS(inpcd), std::ios::cur );
+	strm.seekg( (innrsamples-samps.stop-1) * mBPS(inpcd_), std::ios::cur );
 
     return strm.good();
 }
@@ -777,17 +777,17 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
     noErrMsg();
     const int curcomp = selComp();
     prepareComponents( trc, outnrsamples );
-    headerbufread = headerdone = false;
+    headerbufread_ = headerdone_ = false;
 
     unsigned char* tdptr = trc.data().getComponent(curcomp)->data();
     if ( !readDataToBuf(tdptr) ) return false;
 
-    if ( !userawdata )
+    if ( !userawdata_ )
     {
-	const unsigned char* ptr = blockbuf;
+	const unsigned char* ptr = blockbuf_;
 	// Convert data into other format
 	for ( int isamp=0; isamp<outnrsamples; isamp++ )
-	    trc.set( isamp, storinterp->get(ptr,isamp), curcomp );
+	    trc.set( isamp, storinterp_->get(ptr,isamp), curcomp );
     }
 
     if ( curtrcscale_ )
@@ -812,14 +812,14 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 	float val = trc.getValue( outsd.atIndex(idx), curcomp );
 	if ( !allowudfs && mIsUdf(val) )
 	    val = udfreplaceval;
-	storinterp->put( blockbuf, idx, val );
+	storinterp_->put( blockbuf_, idx, val );
     }
 
-    if ( !sConn().doIO( (void*)blockbuf,
-			 outnrsamples * outcd->datachar.nrBytes() ) )
+    if ( !sConn().doIO( (void*)blockbuf_,
+			 outnrsamples * outcd_->datachar.nrBytes() ) )
 	mErrRet("Cannot write trace data")
 
-    headerdone = headerbufread = false;
+    headerdone_ = headerbufread_ = false;
     return true;
 }
 

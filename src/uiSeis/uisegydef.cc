@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.31 2009-12-03 15:28:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.32 2009-12-07 14:03:29 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -691,7 +691,7 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar* iop,
 	    xcoordbytefld_->setChecked( true );
 	    xcoordbytefld_->checked.notify( mCB(this,uiSEGYFileOpts,crdChk) );
 	    readcoordsfld_ = new uiGenInput( grp, "Coordinate source",
-			     BoolInpSpec(false,"'X Y' file","Generate") );
+			     BoolInpSpec(false,"'Nr X Y' file","Generate") );
 	    readcoordsfld_->attach( alignedBelow, xcoordbytefld_ );
 	    readcoordsfld_->valuechanged.notify(
 		    			mCB(this,uiSEGYFileOpts,crdChk) );
