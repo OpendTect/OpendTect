@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.24 2009-09-05 02:05:12 cvskris Exp $
+ RCS:		$Id: task.h,v 1.25 2009-12-07 19:37:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,9 +248,9 @@ private:
 			    \param threadid gives an identifier (between 0 and
 			    	   nr of threads -1) that is unique to each call
 				   to doWork. */
-    virtual bool	doPrepare(int nrthreads)		{ return true; }
+    virtual bool	doPrepare(int nrthreads)	{ return true; }
     			/*!<Called before any doWork is called. */
-    virtual bool	doFinish(bool success)			{ return true; }
+    virtual bool	doFinish(bool success)		{ return success; }
     			/*!<Called after all doWork have finished.
 			    \param success indicates whether all doWork returned
 			           true. */
