@@ -9,17 +9,19 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.1 2009-12-04 19:02:37 cvskris Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.2 2009-12-07 17:52:44 cvskris Exp $";
 
 #include "velocityvolumeconversion.h"
 
 #include "ioman.h"
 #include "ioobj.h"
+#include "seisbounds.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "sorting.h"
+#include "varlenarray.h"
 #include "velocitycalc.h"
 
 namespace Vel
@@ -78,10 +80,10 @@ bool VolumeConverter::doPrepare( int nrthreads )
 	return false;
     }
 
-    if ( inpdesc.type_ != VelocityDesc::Interval ||
-	 inpdesc.type_!=VelocityDesc::RMS ||
-         veldesc_.type_ != VelocityDesc::Interval ||
-	 veldesc_.type_!=VelocityDesc::RMS ||
+    if ( (inpdesc.type_ != VelocityDesc::Interval &&
+	 inpdesc.type_!=VelocityDesc::RMS ) ||
+         ( veldesc_.type_ != VelocityDesc::Interval &&
+	 veldesc_.type_!=VelocityDesc::RMS ) ||
 	 inpdesc.type_ == veldesc_.type_ )
     {
 	errmsg_ = "Input/output velocities are not interval or RMS, "
@@ -232,7 +234,7 @@ bool VolumeConverter::writeTraces()
 	if ( first==-1 )
 	    return true;
 
-	SeisTrc* trctowrite[outputs_.size()];
+	mAllocVarLenArr( SeisTrc*, trctowrite, outputs_.size() );
 	TypeSet<int> trcidxs;
 	for ( int idx=outputs_.size()-1; idx>=0; idx-- )
 	{
@@ -248,22 +250,30 @@ bool VolumeConverter::writeTraces()
 	lock_.signal( true ); //Tell waiting threads that they may add to buf
 	lock_.unLock();
 
-	sort_coupled( trcidxs.arr(), trctowrite, trcidxs.size() );
-
-	for ( int idx=0; res && idx<trcidxs.size(); idx++ )
+	if ( trcidxs.size() )
 	{
-	    if ( !writer_->put( *trctowrite[idx] ) )
+	    int* trcidxsptr = trcidxs.arr();
+	    sort_coupled<int, SeisTrc*>( trcidxsptr,trctowrite,trcidxs.size() );
+
+	    for ( int idx=0; res && idx<trcidxs.size(); idx++ )
 	    {
-		errmsg_ = "Cannot write output.";
-		res = false;
+		if ( !writer_->put( *trctowrite[idx] ) )
+		{
+		    errmsg_ = "Cannot write output.";
+		    res = false;
+		}
 	    }
+
+	    for ( int idx=0; idx<trcidxs.size(); idx++ )
+		delete trctowrite[idx];
+
+	    addToNrDone( trcidxs.size() );
 	}
 
-	for ( int idx=0; idx<trcidxs.size(); idx++ )
-	    delete trctowrite[idx];
-
-	addToNrDone( trcidxs.size() );
 	lock_.lock();
+
+	if ( !trcidxs.size() )
+	    break;
     }
 
     return res;
