@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.38 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.39 2009-12-07 21:49:17 cvsyuancheng Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -237,6 +237,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 		scene->getZAxisTransform()->getZInterval( false );
 	    maxcs.zrg.start = zintv.start;
 	    maxcs.zrg.stop = zintv.stop;
+	    maxcs.zrg.step = scene->getZAxisTransform()->getGoodZStep();
 	}
 
 	ZDomain::Info info; scene->getZDomainInfo( info );
