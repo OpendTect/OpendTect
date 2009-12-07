@@ -23,7 +23,6 @@ static const char* rcsID = "$Id";
 
 #include "batchprog.h"
 #include "prog.h"
-#include "seisfact.h"
 
 static void wrBinID( std::ostream& strm, const BinID& bid, bool doasc )
 {
