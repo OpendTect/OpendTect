@@ -1,4 +1,3 @@
-
 /*+
 ________________________________________________________________________
 
@@ -9,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.2 2009-12-07 17:52:44 cvskris Exp $";
+static const char* rcsID = "$Id: velocityvolumeconversion.cc,v 1.3 2009-12-07 19:39:20 cvskris Exp $";
 
 #include "velocityvolumeconversion.h"
 
@@ -49,6 +48,17 @@ VolumeConverter::~VolumeConverter()
     delete output_;
     delete writer_;
     delete reader_;
+    deepErase( outputs_ );
+}
+
+bool VolumeConverter::doFinish( bool res )
+{
+    if ( res )
+    {
+	return writeTraces();
+    }
+
+    return res;
 }
 
 
@@ -184,6 +194,8 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 {
+    curtrcs_[threadidx] = -1;
+
     if ( !threadidx ) //Thread doing the writing
     {
 	if ( !writeTraces() )
@@ -219,7 +231,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 bool VolumeConverter::writeTraces()
 {
     bool res = true;
-    while ( res )
+    while ( outputs_.size() )
     {
 	int first = -1;
 	for ( int idx=0; idx<curtrcs_.size(); idx++ )
@@ -231,15 +243,12 @@ bool VolumeConverter::writeTraces()
 		first = curtrcs_[idx];
 	}
 
-	if ( first==-1 )
-	    return true;
-
 	mAllocVarLenArr( SeisTrc*, trctowrite, outputs_.size() );
 	TypeSet<int> trcidxs;
 	for ( int idx=outputs_.size()-1; idx>=0; idx-- )
 	{
 	    const int trcidx = getTrcIdx( outputs_[idx]->info().binid );
-	    if ( trcidx<first )
+	    if ( first==-1 || trcidx<first )
 	    {
 		trctowrite[trcidxs.size()] = outputs_[idx];
 		outputs_.remove( idx );

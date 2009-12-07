@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityvolumeconversion.h,v 1.1 2009-12-04 19:02:37 cvskris Exp $
+ RCS:		$Id: velocityvolumeconversion.h,v 1.2 2009-12-07 19:39:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
 protected:
     od_int64		nrIterations() const { return hrg_.totalNr(); }
     bool		doPrepare(int);
+    bool		doFinish(bool);
     bool		doWork(od_int64,od_int64,int);
     const char*		nrDoneText() const { return "Traces written"; }
 
