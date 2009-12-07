@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.15 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: velocitycalc.h,v 1.16 2009-12-07 18:51:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,8 @@ protected:
 
 
 /*! Computes moveout with anisotropy, according to the equation
-by Alkhalifah and Tsvankin 1995. */
+by Alkhalifah and Tsvankin 1995.
+All enteties are assumed to be in the same units (i.e. feet or meter).*/
 
 mGlobal bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 		     int nroffsets, const float* offsets, float* res );
