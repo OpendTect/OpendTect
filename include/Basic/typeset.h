@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.7 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: typeset.h,v 1.8 2009-12-07 13:49:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
 
     inline			TypeSet();
     inline			TypeSet(int nr,T typ);
+    inline			TypeSet(const T*,int nr);
     inline			TypeSet(const TypeSet<T>&);
     inline virtual		~TypeSet();
     inline TypeSet<T>&		operator =(const TypeSet<T>&);
@@ -66,7 +67,9 @@ public:
 
     inline TypeSet<T>&		operator +=(const T&);
     inline TypeSet<T>&		operator -=(const T&);
+    inline virtual TypeSet<T>&	copy(const T*,unsigned int);
     inline virtual TypeSet<T>&	copy(const TypeSet<T>&);
+    inline virtual bool		append(const T*,unsigned int);
     inline virtual bool		append(const TypeSet<T>&);
     inline bool			add(const T&);
 
@@ -171,6 +174,10 @@ template <class T> inline
 TypeSet<T>::TypeSet( int nr, T typ )
 { setSize( nr, typ ); }
 
+
+template <class T> inline
+TypeSet<T>::TypeSet( const T* tarr, int nr )
+{ append( tarr, nr ); }
 
 template <class T> inline
 TypeSet<T>::TypeSet( const TypeSet<T>& t )
@@ -284,18 +291,20 @@ TypeSet<T>& TypeSet<T>::operator -=( const T& typ )
 template <class T> inline
 TypeSet<T>& TypeSet<T>::copy( const TypeSet<T>& ts )
 {
-    if ( &ts != this )
-    {
-	const unsigned int sz = size();
-	if ( sz != ts.size() )
-	    { erase(); append(ts); }
-	else
-	{
-	    for ( unsigned int idx=0; idx<sz; idx++ )
-		(*this)[idx] = ts[idx];
-	}
-    }
+    return this == &ts ? *this : copy( ts.arr(), ts.size() );
+}
 
+
+template <class T> inline
+TypeSet<T>& TypeSet<T>::copy( const T* tarr, unsigned int sz )
+{
+    if ( size() != sz )
+	{ erase(); append(tarr,sz); }
+    else
+    {
+	for ( unsigned int idx=0; idx<sz; idx++ )
+	    (*this)[idx] = tarr[idx];
+    }
     return *this;
 }
 
@@ -310,14 +319,24 @@ bool TypeSet<T>::add( const T& t )
 template <class T> inline
 bool TypeSet<T>::append( const TypeSet<T>& ts )
 {
-    const unsigned int sz = ts.size();
+    if ( this != &ts )
+	return append( ts.arr(), ts.size() );
+
+    const TypeSet<T> tscp( ts );
+    return append( tscp );
+}
+
+
+template <class T> inline
+bool TypeSet<T>::append( const T* tarr, unsigned int sz )
+{
     if ( !sz ) return true;
 
     if ( !setCapacity( sz+size() ) )
 	return false;
 
     for ( unsigned int idx=0; idx<sz; idx++ )
-	*this += ts[idx];
+	*this += tarr[idx];
 
     return true;
 }
