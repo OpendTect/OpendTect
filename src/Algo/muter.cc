@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: muter.cc,v 1.4 2009-09-30 08:11:28 cvskris Exp $";
+static const char* rcsID = "$Id: muter.cc,v 1.5 2009-12-07 15:33:40 cvskris Exp $";
 
 #include "muter.h"
 
@@ -32,7 +32,8 @@ void Muter::topMute( ValueSeries<float>& arr, int sz, float pos ) const
     float endpos = pos + taperlen_;
     if ( endpos <= 0 ) return;
 
-    const int startidx = endidx + 1;
+    int startidx = endidx + 1;
+    if ( startidx<0 ) startidx = 0;
     endidx = (int)endpos; if ( endidx > sz-1 ) endidx = sz - 1;
     for ( int idx=startidx; idx<=endidx; idx++ )
     {
@@ -50,7 +51,8 @@ void Muter::tailMute( ValueSeries<float>& arr, int sz, float pos ) const
     float endpos = pos + taperlen_;
     if ( endpos <= 0 ) return;
 
-    const int startidx = endidx + 1;
+    int startidx = endidx + 1;
+    if ( startidx<0 ) startidx = 0;
     endidx = (int)endpos; if ( endidx > sz-1 ) endidx = sz - 1;
     for ( int idx=startidx; idx<=endidx; idx++ )
     {
