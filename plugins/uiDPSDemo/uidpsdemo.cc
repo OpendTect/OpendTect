@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.11 2009-12-01 09:46:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.12 2009-12-08 09:20:28 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
@@ -53,7 +53,6 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 
 uiDPSDemo::~uiDPSDemo()
 {
-    DPM(DataPackMgr::PointID()).release( dps_->id() );
 }
 
 
@@ -74,18 +73,18 @@ bool uiDPSDemo::acceptOK( CallBacker* )
 }
 
 
-// Needed to delete the DataPointSet once uiDataPointSet is finished
+// Needed to release the DataPointSet once uiDataPointSet is finished
 // Normally, you'd want to do something with the DPS, but this is a demo
-// so we want to destroy it
-class uiDPSDemoDPSDeleter : public CallBacker
+// so we don't need it
+class uiDPSDemoDPSReleaser : public CallBacker
 {
 public:
 
-void doDel( CallBacker* cb )
+void doRelease( CallBacker* cb )
 {
     mDynamicCastGet(uiDataPointSet*,dlg,cb)
     if ( dlg )
-	delete &dlg->pointSet();
+	DPM(DataPackMgr::PointID()).release( dlg->pointSet().id() );
 }
 
 };
@@ -125,8 +124,8 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     uidps->setDeleteOnClose( true );
     if ( sectionnms.size() > 1 )
 	{ uidps->setGroupNames(sectionnms); uidps->setGroupType("Section"); }
-    static uiDPSDemoDPSDeleter dpsdel;
-    uidps->windowClosed.notify( mCB(&dpsdel,uiDPSDemoDPSDeleter,doDel) );
+    static uiDPSDemoDPSReleaser dpsrel;
+    uidps->windowClosed.notify( mCB(&dpsrel,uiDPSDemoDPSReleaser,doRelease) );
 
     uidps->show();
     return true;
