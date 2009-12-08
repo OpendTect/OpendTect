@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.15 2009-12-03 15:28:31 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.16 2009-12-08 12:48:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,6 +127,7 @@ public:
 			    , sampleintv_(mUdf(float))
 			    , psdef_(InFile)
 			    , icdef_(Both)
+			    , coorddef_(Present)
 			{ setGeomType(gt); thdef_.fromSettings(); }
 
     Seis::GeomType	geomType() const	{ return geom_; }
