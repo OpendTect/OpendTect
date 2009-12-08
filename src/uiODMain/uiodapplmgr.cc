@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.365 2009-12-07 21:49:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.366 2009-12-08 16:51:06 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -259,6 +259,12 @@ void uiODApplMgr::editAttribSet( bool is2d )
 void uiODApplMgr::processTime2Depth( CallBacker* )
 {
     seisserv_->processTime2Depth();
+}
+
+
+void uiODApplMgr::processVelConv( CallBacker* )
+{
+    seisserv_->processVelConv();
 }
 
 

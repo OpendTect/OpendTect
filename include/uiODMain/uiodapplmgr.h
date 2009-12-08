@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.96 2009-10-23 21:37:23 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.97 2009-12-08 16:51:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ public:
     void			reStartProc();
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);
+    void			processVelConv(CallBacker* =0);
 
     // View menu operations
     void			setWorkingArea();
