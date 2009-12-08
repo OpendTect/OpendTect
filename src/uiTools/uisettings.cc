@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisettings.cc,v 1.35 2009-08-26 09:32:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uisettings.cc,v 1.36 2009-12-08 13:00:19 cvsbert Exp $";
 
 #include "uisettings.h"
 
@@ -48,11 +48,9 @@ uiSettings::~uiSettings()
 
 void uiSettings::selPush( CallBacker* )
 {
-    PtrMan<IOPar> iop = issurvdefs_ ? new IOPar( setts_ )
-				    : setts_.subselect( "dTect" );
     BufferStringSet keys;
-    for ( int idx=0; idx<iop->size(); idx++ )
-	keys.add( iop->getKey(idx) );
+    for ( int idx=0; idx<setts_.size(); idx++ )
+	keys.add( setts_.getKey(idx) );
     keys.sort();
     uiSelectFromList::Setup listsetup( "Setting selection", keys );
     listsetup.dlgtitle( keyfld_->text() );
@@ -64,7 +62,7 @@ void uiSettings::selPush( CallBacker* )
 
     const char* key = keys.get( selidx ).buf();
     keyfld_->setText( key );
-    valfld_->setText( iop->find(key) );
+    valfld_->setText( setts_.find(key) );
 }
 
 
@@ -77,16 +75,15 @@ bool uiSettings::acceptOK( CallBacker* )
 	return false;
     }
 
+    setts_.set( ky, valfld_->text() );
     if ( issurvdefs_ )
     {
-	setts_.set( ky, valfld_->text() );
 	SI().savePars();
 	PosImpExpPars::refresh();
     }
     else
     {
 	mDynamicCastGet(Settings&,setts,setts_)
-	setts.set( IOPar::compKey("dTect",ky), valfld_->text() );
 	if ( !setts.write() )
 	{
 	    uiMSG().error( "Cannot write user settings" );
