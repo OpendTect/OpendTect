@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.99 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.100 2009-12-08 17:02:21 cvskris Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -768,11 +768,9 @@ bool IOMan::haveEntries( const MultiID& id,
 
 bool IOMan::commitChanges( const IOObj& ioobj )
 {
-    IOObj* clone = ioobj.clone();
+    PtrMan<IOObj> clone = ioobj.clone();
     to( clone->key() );
-    bool rv = dirPtr() ? dirPtr()->commitChanges( clone ) : false;
-    delete clone;
-    return rv;
+    return dirPtr() ? dirPtr()->commitChanges( clone ) : false;
 }
 
 
