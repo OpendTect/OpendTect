@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.55 2009-11-13 03:33:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.56 2009-12-08 20:30:49 cvsyuancheng Exp $";
 
 #include "uislicesel.h"
 
@@ -454,14 +454,15 @@ void uiSliceSel::updateUI()
 	StepInterval<float> maxzrg = maxcs_.zrg;
 	maxzrg.scale( zdominfo_.zfactor_ );
 
-	z0fld_->box()->setNrDecimals( nrdec );
 	z0fld_->box()->setInterval( maxzrg );
 	z0fld_->box()->setValue( cs_.zrg.start );
 
-	z1fld_->setNrDecimals( nrdec );
 	z1fld_->setInterval( maxzrg );
 	z1fld_->setValue( cs_.zrg.stop );
     }
+	
+    z0fld_->box()->setNrDecimals( nrdec );
+    z1fld_->setNrDecimals( nrdec );
 }
 
 
