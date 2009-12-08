@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcoltabed.cc,v 1.8 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewcoltabed.cc,v 1.9 2009-12-08 12:19:16 cvsjaap Exp $";
 
 #include "uiflatviewcoltabed.h"
 
@@ -37,6 +37,7 @@ uiFlatViewColTabEd::uiFlatViewColTabEd( uiParent* p, FlatView::Viewer& vwr )
 uiFlatViewColTabEd::~uiFlatViewColTabEd()
 {
     delete &colseq_;
+    delete uicoltab_;
 }
 
 

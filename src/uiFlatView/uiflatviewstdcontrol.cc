@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.31 2009-12-07 09:48:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.32 2009-12-08 12:19:16 cvsjaap Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -102,6 +102,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 uiFlatViewStdControl::~uiFlatViewStdControl()
 {
     menu_.unRef();
+
+    if ( ctabed_ ) { delete ctabed_; ctabed_ = 0; }
 }
 
 

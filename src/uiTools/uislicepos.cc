@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicepos.cc,v 1.5 2009-10-14 04:56:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicepos.cc,v 1.6 2009-12-08 12:19:16 cvsjaap Exp $";
 
 #include "uislicepos.h"
 
@@ -24,21 +24,22 @@ static const char* rcsID = "$Id: uislicepos.cc,v 1.5 2009-10-14 04:56:40 cvsnann
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
 {
-    sliceposbox_ = new uiLabeledSpinBox( 0, "Crl", 0,
+    toolbar_ = new uiToolBar( p, "Slice position" );
+
+    sliceposbox_ = new uiLabeledSpinBox( toolbar_, "Crl", 0,
 	    				 "Slice position" );
     sliceposbox_->box()->valueChanging.notify(
 	    			mCB(this,uiSlicePos,slicePosChg) );
 
-    slicestepbox_ = new uiLabeledSpinBox( 0, "Step", 0, "Slice step" );
+    slicestepbox_ = new uiLabeledSpinBox( toolbar_, "Step", 0, "Slice step" );
     slicestepbox_->box()->valueChanged.notify(
 	    			mCB(this,uiSlicePos,sliceStepChg) );
 
-    prevbut_ = new uiToolButton( 0, "Previous position",
+    prevbut_ = new uiToolButton( toolbar_, "Previous position",
 	    ioPixmap("prevpos.png"), mCB(this,uiSlicePos,prevCB) );
-    nextbut_ = new uiToolButton( 0, "Next position",
+    nextbut_ = new uiToolButton( toolbar_, "Next position",
 	    ioPixmap("nextpos.png"), mCB(this,uiSlicePos,nextCB) );
 
-    toolbar_ = new uiToolBar( p, "Slice position" );
     toolbar_->addObject( sliceposbox_->label() );
     toolbar_->addObject( sliceposbox_->box() );
     toolbar_->addObject( slicestepbox_->label() );
