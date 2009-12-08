@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.28 2009-08-19 01:58:41 cvskris Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.29 2009-12-08 17:01:17 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -144,7 +144,7 @@ mDefSetGetItem( Shape, Material, material_ );
 
 void Shape::setMaterialBinding( int nv )
 {
-    const bool isindexed = dynamic_cast<IndexedShape*>( this );
+    mDynamicCastGet( const IndexedShape*, isindexed, this );
 
     if ( !materialbinding_ )
     {
@@ -307,7 +307,7 @@ mDefSetGetItem( VertexShape, TextureCoords, texturecoords_ );
 
 void VertexShape::setNormalPerFaceBinding( bool nv )
 {
-    bool isindexed = dynamic_cast<IndexedShape*>( this );
+    mDynamicCastGet( const IndexedShape*, isindexed, this );
 
     if ( !normalbinding_ )
     {
