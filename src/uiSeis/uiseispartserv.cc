@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.114 2009-11-24 11:05:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.115 2009-12-08 16:27:26 cvskris Exp $";
 
 #include "uiseispartserv.h"
 
@@ -55,6 +55,7 @@ static const char* rcsID = "$Id: uiseispartserv.cc,v 1.114 2009-11-24 11:05:53 c
 #include "uisurvey.h"
 #include "uitaskrunner.h"
 #include "uibatchtime2depthsetup.h"
+#include "uivelocityvolumeconversion.h"
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
@@ -297,5 +298,12 @@ void uiSeisPartServer::create2DGridFromRln(
 void uiSeisPartServer::processTime2Depth() const
 {
     uiBatchTime2DepthSetup dlg( appserv().parent() );
+    dlg.go();
+}
+
+
+void uiSeisPartServer::processVelConv() const
+{
+    Vel::uiBatchVolumeConversion dlg( appserv().parent() );
     dlg.go();
 }
