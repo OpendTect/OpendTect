@@ -26,7 +26,7 @@ Ok
 Ok
 
 Window "Well attribute data"
-TableClick "Data Table" ColHead "DAH"
+TableClick "Data Table" ColHead "*DAH"
 Button "Set data for X"
 TableClick "Data Table" ColHead "CoherencyAtt*"
 Button "Select as Y data"

@@ -11,8 +11,8 @@ TreeMenu "Inline`*" "Position"
 Window "Positioning"
 Input "Inl nr" 320
 Input "Crl Start" 600
-Input "Crl Stop" 1000
-Input "Z Start" 900
+Input "Crl Stop" 800
+Input "Z Start" 500
 Input "Z Stop" 1500
 Ok
 Button "Cancel"
@@ -30,14 +30,14 @@ Ok
 Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_convolveatt_on_inl320.png"
 Ok
 
-TreeMenu "Inline`320`ConvolveAttr*" "Sel*`Attributes`CurvatureAttrib"
-Button "Make snapshot"
-Button "Scene"
-Ok
-Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_curvatureatt_on_inl320.png"
-Ok
+#TreeMenu "Inline`320`ConvolveAttr*" "Sel*`Attributes`CurvatureAttrib"
+#Button "Make snapshot"
+#Button "Scene"
+#Ok
+#Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_curvatureatt_on_inl320.png"
+#Ok
 
-TreeMenu "Inline`320`CurvatureAttrib" "Sel*`Attributes`DipAttrib"
+TreeMenu "Inline`320`ConvolveAttrib" "Sel*`Attributes`DipAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
@@ -78,7 +78,6 @@ Button "Scene"
 Ok
 Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_frequencyfilteratt_on_inl320.png"
 Ok
-
 
 TreeMenu "Inline`320`FrequencyFilterAttrib" "Sel*`Attributes`GapdeconAttrib"
 Button "Make snapshot"

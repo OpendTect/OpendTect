@@ -14,8 +14,7 @@ Button "Select Horizon"
 Input "Name" "Horizon-Import"
 Ok
 Button "Display after import" Off
-Button "Go"
-Button "Dismiss"
+Button "Ok"
 Comment "-----------Displaying Above Imported Horizon-------"
 TreeMenu "Horizon" "Load"
 ListClick "Objects list" "Horizon-Import" Double
@@ -53,27 +52,30 @@ Comment "----------------Displaying above ImportedFault-----"
 TreeMenu "Fault" "Load"
 ListClick "Objects list" "TestFaultImport" Double
 
-Comment "----------------Importing FaultStickSet--------"
-Menu "Survey`Import`Faults`Ascii 3D"
-Window "Import Faults"
-Input "Input ascii*" "FaultSickSetExport.asc"
+Comment "----------------Importing FaultStickSets--------"
+Menu "Survey`Import`FaultStickSets`Ascii 3D"
+Window "Import FaultStickSet"
+Input "Input ascii*" "$EXPORTDIR$/FaultSickSetExport.asc"
 Button "Define Format*"
-Input "[Stick*" "col:5"
+Input "[Stick*" "col:4"
 Ok
-Button "Select Output Fault"
-Input "Name" "TestFaultStickSetImport"
+Button "Select Output FaultStickSet"
+Input "Name" "TestFaultStickSetImport" 
+Ok
 Button "Go"
 Ok
 Button "Dismiss"
 Comment "------------Displaying above ImportedFaultStickSet--------"
-#-------todo
+TreeMenu "FaultStickSet" "Load"
+ListClick "Objects list" "TestFaultStickSetImport" Double
 
 Comment "----------Importing CBVS----------------"
 Menu "Survey`Import`Seismics`CBVS"
 Input "Select (First) CBVS*" "$DATADIR$/Seismics/Median_Dip_Filtered_Seismics.cbvs"
 Combo "Cube type" "Generated attribute*"
 Button "Copy the data" On
-Button "Volume subsel*"
+Button "Select Volume subsel*"
+Window "Positions"
 Input "Inline start" 320
 Input "Inline stop" 320
 Ok
@@ -90,8 +92,11 @@ Window "SEG-Y tool"
 Input "Input SEG-Y*" "$EXPORTDIR$/SeisExport.sgy"
 Ok
 
+Window "Determine SEG-Y*"
+Ok
 Window "SEG-Y Scan"
 Button "Select Volume sub*"
+Window "Positions"
 Input "Inline start" 320
 Input "Inline stop" 320
 Ok
@@ -128,28 +133,28 @@ Wheel "hRotate" -45
 Button "Manage seismic data"
 ListClick "Objects list" "SeisImport"
 Button "Remove this object"
-Button "Yes"
+Button "Remove"
 ListClick "Objects list" "CBVS-Import"
 Button "Remove this object"
-Button "Yes"
+Button "Remove"
 Button "Dismiss"
 
 Button "Manage horizons"
 ListClick "Objects list" "Horizon-Import"
 Button "Remove this object"
-Button "Yes"
+Button "Remove"
 Button "Dismiss"
 
 Button "Manage Pick Sets"
 ListClick "Objects list" "Pickset-Import"
 Button "Remove this object"
-Button "Yes"
+Button "Remove"
 Button "Dismiss"
 
 Button "Manage faults"
 ListClick "Objects list" "TestFaultImport"
 Button "Remove this object"
-Button "Yes"
+Button "Remove"
 Button "Dismiss"
 
 End

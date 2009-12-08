@@ -9,14 +9,14 @@ Slider "Zoom Slider" 10
 #Applying Attrinutes to Crossline number 750
 Comment "-------Applying Attrinutes to Crossline number 750-------"
 
-TreeMenu "Crossline" "Add layer*"
+TreeMenu "Crossline" "Add"
 TreeMenu "Crossline`775" "Position"
 Window "Positioning"
 Input "Inl Start" 200
-Input "Inl Stop" 450
+Input "Inl Stop" 400
 Input "Crl nr" 750
 Input "Z Start" 750
-Input "Z Stop" 1400
+Input "Z Stop" 1200
 Ok
 Button "Cancel"
 TreeMenu "Crossline`*`*" "Select Attribute`Attributes`CoherencyAttrib"
@@ -40,7 +40,7 @@ Ok
 Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_curvatureatt_on_crl750.png"
 Ok
 
-TreeMenu "Crossline`750`CurvatureAttrib" "Sel*`Attributes`DipAttrib"
+TreeMenu "Crossline`750`CurvatureAttrib*" "Sel*`Attributes`DipAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok

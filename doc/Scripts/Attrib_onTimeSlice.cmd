@@ -8,13 +8,13 @@ Mon Jan 28 11:36:39 2008
 Comment "--------Assining Values to Timeslice number 400-----------"
 Wheel "vRotate" 90
 
-TreeMenu "Timeslice" "Add layer*"
+TreeMenu "Timeslice" "Add"
 TreeMenu "Timeslice`924" "Position"
 window "Positioning"
 Input "Inl Start" 160
-Input "Inl Stop" 350
+Input "Inl Stop" 200
 Input "Crl Start" 850
-Input "Crl Stop" 1150
+Input "Crl Stop" 950
 Input "Z" 400
 Ok
 Button "Cancel"
@@ -81,7 +81,7 @@ Ok
 Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_frequencyfilteratt_on_ts400.png"
 Ok
 
-TreeMenu "Timeslice`400`FrequencyiFilterAttrib" "Sel*`Attributes`GapdeconAttrib"
+TreeMenu "Timeslice`400`FrequencyFilterAttrib" "Sel*`Attributes`GapdeconAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok

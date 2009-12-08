@@ -41,15 +41,12 @@ Menu "Survey`Manage`Seismics"
 ListClick "Objects list" "Mediandip_HorSlice_Demo0"
 Button "Remove this Object"
 Sleep 2
-Button "Yes"
+Button "Remove"
 Button "Dismiss"
 
 #"Parameter id is not correct" error
 # is coming After running this script second time
 # to rectify this problem select same survey again
 
-Menu "Survey`Select/Setup"
-Sleep 2
-Ok
-
+Include "$SCRIPTSDIR$/test-newSurvey.cmd"
 End

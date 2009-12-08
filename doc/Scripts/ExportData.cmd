@@ -16,6 +16,7 @@ Button "define Text header"
 Ok
 Input "Output SEG-Y file" "$EXPORTDIR$/SeisExport.sgy"
 Ok
+Ok
 
 Comment "----------Exporting Horizons---------------"
 Menu "Survey`Export`Horizons`Ascii 3D"
@@ -53,7 +54,7 @@ Ok
 
 Comment "-----------Exporting FaultSickSet--------------------"
 Menu "Survey`Export`FaultStickSets`Ascii"
-Button "Select Input Fault" 
+Button "Select Input FaultStickSet" 
 ListClick "Objects list" "FaultStickSet" Double
 Input "Output Ascii file" "$EXPORTDIR$/FaultSickSetExport.asc"
 Ok

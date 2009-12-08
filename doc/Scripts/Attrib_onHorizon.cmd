@@ -46,7 +46,7 @@ TreeMenu "Horizon`Demo 1*`Curvature*" "Select*`Att*`DipAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "SNAPSHOTSDIR$/$IDX$_DipAtti_on_horDemo1.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_dipAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`DipAtt*" "Select*`Att*`DipAngle*"

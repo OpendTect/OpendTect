@@ -37,14 +37,14 @@ Ok
 #Include "$SCRIPTSDIR$/Attrib_onVol.cmd"
 #Include "$SCRIPTSDIR$/Attrib_onRandLine.cmd"
 #Include "$SCRIPTSDIR$/Attrib_onHorizon.cmd"
-#Include "$SCRIPTSDIR$/Attrib_onWell.cmd"
+Include "$SCRIPTSDIR$/Attrib_onWell.cmd"
 
 Menu "Analysis`Attributes"
 Window "Attribute Set*"
 Button "Open attribute set"
 ListClick "Objects list" "DemoAttributes_for_Scripts"
 Button "Remove this object"
-Button "Yes"
+Button "Remove"
 Button "Cancel"
 Ok
 Menu "Survey`Select/Setup"

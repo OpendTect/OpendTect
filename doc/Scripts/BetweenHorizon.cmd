@@ -6,7 +6,7 @@ Mon Jan 28 11:36:39 2008
 Comment "----------Creating Output Using BetweenHorizons-------------"
 
 Case Insensitive
-Menu "processing`Create Volume output`Between horizons"
+Menu "Processing`Create Volume output`Between horizons"
 Button "Select Quantity*"
 Button "Stored"
 ListClick "Select Data" "Median Dip Filtered*" Double
@@ -24,7 +24,7 @@ Ok
 
 Button "Proceed"
 Ok
-Sleep 8
+Sleep 15
 
 TreeMenu "Inline" "Add"
 TreeMenu "Inline`*" "Position"

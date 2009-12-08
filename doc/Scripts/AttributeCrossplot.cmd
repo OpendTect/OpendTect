@@ -33,7 +33,7 @@ Ok
 Window "Attribute data"
 TableClick "Data Table" ColHead "X-Coord"
 Button "Set data for X"
-TableClick "Data Table" ColHead "CoherencyAttrib"
+TableClick "Data Table" ColHead "*CoherencyAttrib"
 Button "Select as Y data"
 Button "Show crossplot"
 Snapshot "$SNAPSHOTSDIR$/$IDX$_CoherencyAttrCrossplot.png" CurWin
@@ -85,7 +85,7 @@ Ok
 Window "Attribute data"
 TableClick "Data Table" ColHead "Z*"
 Button "Set data for X"
-TableClick "Data Table" ColHead "CoherencyAtt*"
+TableClick "Data Table" ColHead "*CoherencyAtt*"
 Button "Select as Y data"
 Button "Show crossplot"
 Sleep 2
@@ -104,6 +104,5 @@ Ok
 Menu "Survey`Select/Setup"
 Ok
 Button "No"
-
 
 End

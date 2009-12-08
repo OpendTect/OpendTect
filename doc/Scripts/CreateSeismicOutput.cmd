@@ -42,8 +42,8 @@ Sleep 6
 
 Menu "Survey`Manage`Seismics"
 Button "Merge blocks*"
-ListClick "Input cubes" "SeismicVolume-1" 
-ListSelect "Input cubes" "SeismicVolume-2" On
+ListClick "Input Cubes" "SeismicVolume-1" 
+ListSelect "Input Cubes" "SeismicVolume-2" On
 Button " Select Output Cube"
 Input "Name" "NewSeismicVolume"
 Ok

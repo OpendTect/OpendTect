@@ -43,7 +43,7 @@ Ok
 Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_curvatureatt_on_Vol.png"
 Ok
 
-TreeMenu "Volume`CurvatureAttr*" "Sel*`Att*`DipAtt*"
+#TreeMenu "Volume`CurvatureAttr*" "Sel*`Att*`DipAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok

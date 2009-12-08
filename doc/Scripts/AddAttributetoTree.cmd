@@ -169,7 +169,7 @@ Tab "Well display*" "Right Log"
 Combo "Select log" 3
 Button "log filled" On
 Tab "Well display*" "Track"
-Input "Line thickness" 2
+Input "Size" 2
 Button "Line color"
 ColorOk Red 2
 Button "Dismiss"
