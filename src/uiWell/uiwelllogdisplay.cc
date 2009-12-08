@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.12 2009-10-02 08:22:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.13 2009-12-08 13:16:35 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "welllog.h"
@@ -22,17 +22,16 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.12 2009-10-02 08:22:00 
 #include "unitofmeasure.h"
 #include <iostream>
 
-#define mDefZPosInLoop(val) \
-	float zpos = val; \
-	if ( zintime_ && d2tm_ ) \
-	    zpos = d2tm_->getTime( zpos )*1000; \
-	if ( zpos < zrg_.start ) \
-	    continue; \
-	else if ( zpos > zrg_.stop ) \
-	    break; \
-	if ( dispzinft_ && !zintime_ ) zpos *= mToFeetFactor
-
-
+#define mDefZPosInLoop(val)\
+    float zpos = val;\
+    if ( zintime_ && d2tm_ )\
+	zpos = d2tm_->getTime( zpos )*1000;\
+    if ( zpos < zrg_.start )\
+	continue;\
+    else if ( zpos > zrg_.stop )\
+	break;\
+    if ( dispzinft_ && !zintime_)\
+	zpos *= mToFeetFactor;
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
        				    const uiBorder& b )
     : wl_(0)
@@ -127,7 +126,6 @@ void uiWellLogDisplay::gatherInfo()
     ld1_.xax_.setup().epsaroundzero_ = 1e-5;
     ld2_.xax_.setup().epsaroundzero_ = 1e-5;
 
-    ld2_.yax_.setup().islog( ld2_.logarithmic_ );
     ld1_.yax_.setup().islog( ld1_.logarithmic_ );
     ld2_.yax_.setup().islog( ld2_.logarithmic_ );
 
@@ -186,6 +184,7 @@ void uiWellLogDisplay::gatherInfo( bool first )
 	startpos = d2tm_->getTime( startpos )*1000;
 	stoppos = d2tm_->getTime( stoppos )*1000;
     }
+
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;
 }
@@ -249,7 +248,7 @@ void uiWellLogDisplay::drawCurve( bool first )
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     for ( int idx=0; idx<sz; idx++ )
     {
-	mDefZPosInLoop( ld.wl_->dah( idx ) );
+	mDefZPosInLoop( ld.wl_->dah( idx ) )
 
 	float val = ld.wl_->value( idx );
 	if ( mIsUdf(val) )
@@ -315,7 +314,7 @@ void uiWellLogDisplay::drawMarkers()
 	const Well::Marker& mrkr = *((*markers_)[idx]);
 	if ( mrkr.color() == Color::NoColor() ) continue;
 
-	mDefZPosInLoop( mrkr.dah() );
+	mDefZPosInLoop( mrkr.dah() )
 	mDefHorLineX1X2Y();
 
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
@@ -342,7 +341,7 @@ void uiWellLogDisplay::drawZPicks()
     for ( int idx=0; idx<zpicks_.size(); idx++ )
     {
 	const PickData& pd = zpicks_[idx];
-	mDefZPosInLoop( pd.dah_ );
+	mDefZPosInLoop( pd.dah_ )
 	mDefHorLineX1X2Y();
 
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );

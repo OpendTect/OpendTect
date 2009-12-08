@@ -68,6 +68,7 @@ protected:
     SeisTrcBuf*			trcbuf_;
     SeisTrcBufDataPack*		seistrcdp_;
     ObjectSet<SeisTrc>		trcs_;
+    const StepInterval<float>	zrange_;
     float			maxtraceval_;
     float			mintraceval_;
 

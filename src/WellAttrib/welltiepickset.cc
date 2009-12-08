@@ -7,18 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.25 2009-11-09 14:52:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.26 2009-12-08 13:16:35 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
 #include "welltiedata.h"
-
-#include "arrayndimpl.h"
 #include "sorting.h"
-#include "survinfo.h"
 #include "valseriesevent.h"
-#include "welldata.h"
-#include "welld2tmodel.h"
 
 namespace WellTie
 {
@@ -80,7 +75,7 @@ float PickSetMGR::findEvent( float zpos, bool issynth )
     const int maxidx = dpms.timeintvs_[1].nrSteps()-1;
     Interval<float> intvup ( zpos, zpos - mTimeGate );
     Interval<float> intvdown ( zpos, zpos + mTimeGate );
-    SamplingData<float> sd; sd.start = 0; sd.step = SI().zStep();
+    SamplingData<float> sd( dpms.timeintvs_[1].start, dpms.timeintvs_[1].step );
     Array1DImpl<float>& vals = *holder_->getLogVal( colnm );
     ValueSeriesEvFinder<float,float> evf( vals, maxidx, sd );
     const float evposup =  evf.find( evtype_, intvup ).pos;
@@ -93,7 +88,7 @@ float PickSetMGR::findEvent( float zpos, bool issynth )
     else if ( fabs(zpos-evposup)<fabs(zpos-evposdown) )
 	evpos = evposup;
 
-    return evpos;
+    return evpos + dpms.timeintvs_[1].step ;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.54 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.55 2009-12-08 13:16:35 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -50,6 +50,7 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr,
 	, wtsetup_(dh.setup())	
 	, synthpickset_(dh.pickmgr()->getSynthPickSet())
 	, seispickset_(dh.pickmgr()->getSeisPickSet())
+	, zrange_(params_->timeintvs_[1])
 	, trcbuf_(0)
 	, checkshotitm_(0)
     	, seistrcdp_(0)
@@ -134,7 +135,7 @@ void uiTieView::initFlatViewer()
 
 bool uiTieView::setLogsParams()
 {
-    if ( ! params_->timeintvs_.size() ) return false;
+    if ( !params_->timeintvs_.size() ) return false;
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return false;
     const WellTie::Params::uiParams* uipms = dataholder_.uipms();
@@ -144,8 +145,8 @@ bool uiTieView::setLogsParams()
 	logsdisp_[idx]->setZDispInFeet( uipms->iszinft_ );
 	logsdisp_[idx]->setZInTime( uipms->iszintime_ );
     }
-    const float startdah = d2tm->getDepth( params_->timeintvs_[0].start );
-    const float stopdah = d2tm->getDepth( params_->timeintvs_[0].stop );
+    const float startdah = d2tm->getDepth( zrange_.start );
+    const float stopdah = d2tm->getDepth( zrange_.stop );
     setLogsRanges( startdah, stopdah );
     return true;
 }
@@ -199,7 +200,7 @@ void uiTieView::drawTraces()
 void uiTieView::setUpTrcBuf( SeisTrcBuf* trcbuf, const char* varname, 
 				  int nrtraces )
 {
-    const int varsz = params_->timeintvs_[1].nrSteps();
+    const int varsz = zrange_.nrSteps();
     SeisTrc valtrc, udftrc;
 
     valtrc.reSize( varsz, false );
@@ -258,6 +259,9 @@ void uiTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     DPM(DataPackMgr::FlatID()).add( seistrcdp_ );
     StepInterval<double> xrange( 1, trcbuf->size(), 1 );
     seistrcdp_->posData().setRange( true, xrange );
+    StepInterval<double> zrange( zrange_.start*1000, zrange_.stop*1000, 
+	   			zrange_.step*1000 );
+    seistrcdp_->posData().setRange( false, zrange );
     seistrcdp_->setName( varname );
     
     FlatView::Appearance& app = vwr_->appearance();
@@ -343,8 +347,8 @@ void uiTieView::drawWellMarkers()
 	float zpos = d2tm->getTime( marker->dah() ); 
 	const Color col = marker->color();
 	
-	if ( col == Color::NoColor() || col.rgb() == 16777215 || zpos < 
-	    params_->timeintvs_[1].start || zpos > params_->timeintvs_[1].stop )
+	if ( col == Color::NoColor() || col.rgb() == 16777215 || 
+		zpos < zrange_.start || zpos > zrange_.stop )
 	    continue;
 	
 	FlatView::Annotation::AuxData* auxdata = 0;
