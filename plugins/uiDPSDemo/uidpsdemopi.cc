@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.12 2009-12-08 08:33:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.13 2009-12-08 09:20:37 cvsbert Exp $";
 
 
 #include "uidpsdemo.h"
@@ -60,8 +60,6 @@ public:
 			uiDPSDemoMgr(uiODMain&);
 
     uiODMain&		appl_;
-
-    DataPointSetDisplayMgr* dpsdispmgr_;
     const ioPixmap	pixmap_;
 
     void		insertMenuItem(CallBacker* cb=0);
@@ -75,7 +73,6 @@ public:
 
 uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
 	: appl_(a)
-	, dpsdispmgr_(a.applMgr().visDPSDispMgr())
 	, pixmap_("dpsdemo.png")
 {
     uiODMenuMgr& mnumgr = appl_.menuMgr();
@@ -106,7 +103,8 @@ void uiDPSDemoMgr::insertIcon( CallBacker* )
 
 void uiDPSDemoMgr::doIt( CallBacker* )
 {
-    uiDPSDemo* dpsdemo = new uiDPSDemo( &appl_, dpsdispmgr_ );
+    uiDPSDemo* dpsdemo = new uiDPSDemo( &appl_,
+	    				appl_.applMgr().visDPSDispMgr() );
     dpsdemo->setDeleteOnClose( true );
     dpsdemo->go();
 }
