@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.13 2009-12-08 09:20:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpsdemopi.cc,v 1.14 2009-12-08 10:49:40 cvssatyaki Exp $";
 
 
 #include "uidpsdemo.h"
@@ -65,9 +65,6 @@ public:
     void		insertMenuItem(CallBacker* cb=0);
     void		insertIcon(CallBacker* cb=0);
     void		doIt(CallBacker*);
-    void		showSelPtsCB(CallBacker*);
-    void		removeSelPtsCB(CallBacker*);
-
 };
 
 
@@ -103,10 +100,8 @@ void uiDPSDemoMgr::insertIcon( CallBacker* )
 
 void uiDPSDemoMgr::doIt( CallBacker* )
 {
-    uiDPSDemo* dpsdemo = new uiDPSDemo( &appl_,
-	    				appl_.applMgr().visDPSDispMgr() );
-    dpsdemo->setDeleteOnClose( true );
-    dpsdemo->go();
+    uiDPSDemo dpsdemo( &appl_, appl_.applMgr().visDPSDispMgr() );
+    dpsdemo.go();
 }
 
 
