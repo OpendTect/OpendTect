@@ -48,11 +48,40 @@ protected:
     bool 		handleUserClick();
    
     void 		altZoomCB(CallBacker*);
+    void 		clipCB(CallBacker*);
     void 		keyPressCB(CallBacker*);
     void		rubBandCB(CallBacker*);
     void 		wheelMoveCB(CallBacker*);
 
 };
+
+/*
+mClass uiTieClippingDlg : public uiDialog
+{
+public:
+				uiTieClippingDlg(uiParent*);
+				~uiTieClippingDlg();
+
+protected :
+
+    mStruct ClipData
+    {
+	float			cliprate_;			
+	bool			issynthetic_;			
+	Interval<float> 	timerange_;
+    };
+
+    uiGenInput*                 tracetypechoicefld_;
+    uiSliderExtra*              sliderfld_;
+    uiGenInput*                 timerangefld_;
+
+    ClipData 			cd_;
+
+    void 			getFromScreen(Callbacker*);
+    void 			putToScreen(Callbacker*);
+    void 			applyClipping(CallBacker*);
+};
+*/
 
 }; //namespace WellTie
 

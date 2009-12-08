@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.28 2009-12-02 05:30:43 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.29 2009-12-08 09:03:30 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.28 2009-12-02 05:30:43 c
 #include "welltransl.h"
 #include "welltiesetup.h"
 #include "wellreader.h"
+#include "welld2tmodel.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -118,11 +119,14 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     vellogfld_ = llbl1->box();
     isvelbox_ = new uiCheckBox( logsgrp, "Velocity" );
     isvelbox_->attach( rightOf, llbl1 );
-
+    
     uiLabeledComboBox* llbl2 = new uiLabeledComboBox( logsgrp, "Density log");
     denlogfld_ = llbl2->box();
     llbl2->attach( alignedBelow, llbl1 );
     logsgrp->setHAlignObj( llbl1 );
+    
+    used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
+    used2tmbox_->attach( alignedBelow, llbl2 );
     
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );
@@ -172,6 +176,8 @@ void uiTieWinMGRDlg::wellSel( CallBacker* )
 
     vellogfld_->setCurrentItem( lognms.nearestMatch( "Son" )+1 );
     denlogfld_->setCurrentItem( lognms.nearestMatch( "Den" )+1 );
+    used2tmbox_->display( wr.getD2T() && !mIsUnvalidD2TM(wd) );
+    used2tmbox_->setChecked( wr.getD2T() && !mIsUnvalidD2TM(wd) );
 
     getDefaults();
 }
@@ -222,13 +228,18 @@ bool uiTieWinMGRDlg::getDefaults()
 
     const bool was2d = !wtsetup_.linekey_.isEmpty();
     if ( typefld_ ) typefld_->setValue( !was2d );
-    if ( seis3dfld_ && !was2d ) seis3dfld_->setInput(  wtsetup_.seisid_ );
-    if ( seislinefld_ ) seislinefld_->setInput(  wtsetup_.linekey_ );
-    if ( seis2dfld_ && was2d ) seis2dfld_->setInput(  wtsetup_.seisid_ );
+    if ( !wtsetup_.seisid_.isEmpty() )
+    {
+	if ( seis3dfld_ && !was2d ) seis3dfld_->setInput(  wtsetup_.seisid_ );
+	if ( seislinefld_ ) seislinefld_->setInput( wtsetup_.linekey_ );
+	if ( seis2dfld_ && was2d ) seis2dfld_->setInput(  wtsetup_.seisid_ );
+    }
 
     vellogfld_->setText( wtsetup_.vellognm_ );
     denlogfld_->setText( wtsetup_.denlognm_ );
-    isvelbox_ ->setChecked( !wtsetup_.issonic_ );
+    isvelbox_->setChecked( !wtsetup_.issonic_ );
+    if ( !wtsetup_.wvltid_.isEmpty() )
+	wvltfld_->setInput( wtsetup_.wvltid_ );
 
     selChg(0); 
 
@@ -290,6 +301,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     wtsetup_.wvltid_ = wvltfld_->ctxtIOObj().ioobj->key();
     wtsetup_.issonic_ = !isvelbox_->isChecked();
     wtsetup_.unitfactors_ = units;
+    wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
 
     if ( saveButtonChecked() )
     {
@@ -297,6 +309,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	wtsetup_.commitDefaults();
     }
 
+    /*
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
 	if ( welltiedlgset_[idx]->Setup().wellid_ == wtsetup_.wellid_  )
@@ -311,12 +324,15 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 	if ( welltiedlgsetcpy_[idx]->Setup().wellid_ == wtsetup_.wellid_ )
 	    delete welltiedlgsetcpy_.remove( idx );
     }
-
+    */
     WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, wtsetup_ );
     welltiedlgset_ += wtdlg;
+    //since the win does not delonclose, we store the windows in a an ObjectSet
+    //to delete it at the end.
     welltiedlgsetcpy_ += wtdlg;
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
 	    			mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
+    
     return false;
 }
 

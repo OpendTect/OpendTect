@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.23 2009-12-07 09:48:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.24 2009-12-08 09:03:30 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -186,5 +186,42 @@ void uiControlView::setEditOn( bool yn )
     editbut_->setOn( yn );
     editCB( 0 );
 }
+
+
+/*
+uiTieClipingDlg::uiTieClipingDlg( uiParent* p, SeisTrcBuffer& trcbuf )
+	: uiDialog(p,"Set trace clipping")
+	, trcbuf_(trcbuf)  
+{
+    tracetypechoicefld_ = new uiGenInput( this, "Traces : ",
+			BoolInpSpec(true,"Synthetics","Seismics") );
+    sliderfld_ = new uiSliderExtra( this, iSliderExtra::Setup()
+					.lbl("Clipping (%)")
+					.sldrsize(220)
+					.withedit(true)
+					.isvertical(false), "Clipping slider" );
+    sliderfld_->sldr()->setInterval( Interval<float>(0,100) );
+    timerangefld_ = new uiGenInput( this, "Time range",
+				    FloatInpIntervalSpec()
+				    .setName(BufferString(" range start"),0)
+				    .setName(BufferString(" range stop"),1) ); 
+}
+
+
+void uiTieClipingDlg::getFromScreen( Callbacker* )
+{
+    cd_.issynthetic_ = tracetypechoicefld_->getBoolValue()
+    cd_.timerange_ = timerangefld_->getValues();
+    cd_.cliprate_ = sliderfld_->sldr()->value(); 
+}
+
+
+void uiTieClipingDlg::putToScreen( Callbacker* )
+{
+    tracetypechoicefld_->setValue( cd_.issynthetic_ );
+    timerange_ = timerangefld_->setValues( cd_.timerange_ );
+    sliderfld_->sldr()->value() = cd_.cliprate_; 
+}
+*/
 
 }; //namespace 

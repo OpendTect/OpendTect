@@ -67,7 +67,6 @@ public :
     {
 			    uiParams(const Well::Data* d)
 				: wd_(*d)
-				, iscscorr_(d->haveCheckShotModel())
 				, iscsdisp_(false)
 				, ismarkerdisp_(d->haveMarkers())
 				, iszinft_(false)

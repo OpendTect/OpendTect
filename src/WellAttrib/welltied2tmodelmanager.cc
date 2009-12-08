@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.18 2009-12-01 16:01:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.19 2009-12-08 09:03:30 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -24,7 +24,6 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.18 2009-12-01 16:
 #include "welltiedata.h"
 #include "welltiesetup.h"
 
-#define mMinNrTimeSamples 5
 namespace WellTie
 {
 
@@ -39,7 +38,7 @@ D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
 {
     if ( !wd_ ) return;
 
-    if ( !wd_->d2TModel() || wd_->d2TModel()->size() <= mMinNrTimeSamples )
+    if ( mIsUnvalidD2TM((*wd_)) )
     {
 	emptyoninit_ = true;
 	wd_->setD2TModel( new Well::D2TModel );
@@ -50,7 +49,8 @@ D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
     if ( wd_->haveCheckShotModel() )
 	WellTie::CheckShotCorr cscorr( dh );
 
-    if ( emptyoninit_ || wd_->haveCheckShotModel() )
+    if ( (emptyoninit_ || wd_->haveCheckShotModel()) && 
+	    					!dh.setup().useexistingd2tm_ )
 	setFromVelLog( dh.params()->dpms_.currvellognm_, true );
 } 
 
@@ -162,7 +162,7 @@ bool D2TModelMGR::cancel()
 
 bool D2TModelMGR::updateFromWD()
 {
-    if ( !wd_->d2TModel() || wd_->d2TModel()->size()<1 )
+    if ( mIsUnvalidD2TM( (*wd_)) )
        return false;	
     setAsCurrent( wd_->d2TModel() );
     return true;

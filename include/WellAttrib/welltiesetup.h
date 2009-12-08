@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.13 2009-11-19 14:59:25 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.14 2009-12-08 09:03:30 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 class IOPar;
 
+#define mIsUnvalidD2TM(wd) ( !wd.haveD2TModel() || wd.d2TModel()->size()<5 )
 namespace WellTie
 {
 
@@ -38,7 +39,8 @@ public:
 			    , corrvellognm_("CS Corrected ")
 			    , seisinlcrlrg_(0,0)			     
 			    , unitfactors_(0)
-			    , linekey_(0)	     
+			    , linekey_(0)	 
+			    , useexistingd2tm_(0)	     	 
 			    {}
 
 
@@ -55,6 +57,7 @@ public:
 			    , unitfactors_(setup.unitfactors_)
 			    , seisinlcrlrg_(setup.seisinlcrlrg_)	 
 			    , linekey_(setup.linekey_)
+			    , useexistingd2tm_(setup.useexistingd2tm_)	      
 			    {}	
 	
     MultiID			wellid_;
@@ -67,6 +70,7 @@ public:
     BufferString          	corrvellognm_;
     bool                	issonic_;
     bool 			isinitdlg_;
+    bool 			useexistingd2tm_;
     Interval<int>		seisinlcrlrg_;
     
     WellTie::UnitFactors 	unitfactors_;
@@ -124,7 +128,6 @@ public:
   
     bool               		getWellTieSetup() const;	
     bool                	getWellTieSetup(std::istream&) const;
-
 
 protected:
    

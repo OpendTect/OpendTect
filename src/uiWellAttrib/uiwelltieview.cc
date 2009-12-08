@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.53 2009-12-01 15:55:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.54 2009-12-08 09:03:30 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -255,7 +255,7 @@ void uiTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     seistrcdp_->setName( varname );
     seistrcdp_->trcBufArr2D().setBufMine( false );
 
-    DPM(DataPackMgr::FlatID()).addAndObtain( seistrcdp_ );
+    DPM(DataPackMgr::FlatID()).add( seistrcdp_ );
     StepInterval<double> xrange( 1, trcbuf->size(), 1 );
     seistrcdp_->posData().setRange( true, xrange );
     seistrcdp_->setName( varname );

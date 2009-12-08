@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.25 2009-12-01 15:55:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.26 2009-12-08 09:03:30 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -58,7 +58,7 @@ int TrackExtractor::nextStep()
 
     BinID bid = SI().transform( pos );
 
-    if ( time > d2t_.getTime( track_.dah( track_.size()-1) ) )
+    if ( time > d2t_.getTime( track_.dah( track_.size()-1 ) ) )
 	bid = prevbid_;
     if ( time < d2t_.getTime( track_.dah( 0 ) ) )
 	bid = prevbid_;
@@ -259,7 +259,8 @@ void LogResampler::fillProcLog( const Well::Log& log )
 int LogResampler::nextStep()
 {
     float curtime = timeintv_.atIndex( nrdone_ );
-    if ( curtime >= timeintv_.stop || nrdone_ >= timeintv_.nrSteps() )
+    if ( curtime >= timeintv_.stop || nrdone_ >= 
+	    			timeintv_.nrSteps() || !orglog_.size() ) 
 	return Executor::Finished();
    
     float curdah = wd_.d2TModel()->getDepth( curtime );

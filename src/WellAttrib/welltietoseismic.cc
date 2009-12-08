@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.45 2009-11-12 10:17:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.46 2009-12-08 09:03:30 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -84,13 +84,15 @@ bool DataPlayer::computeWvltPack()
 
 #define mSetData(lognm,dahlognm,arr)\
     dholder_->setLogVal( lognm, &arr, dholder_->getLogVal( dahlognm, true ) );
+#define mReturnExec(yn) { MouseCursorManager::restoreOverride(); return yn; }
 bool DataPlayer::extractSeismics()
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
     
     WellTie::TrackExtractor wtextr( &wd_ );
     wtextr.timeintv_ = params_.timeintvs_[1];
-    if ( !tr_->execute( wtextr ) ) return false;
+    if ( !tr_->execute( wtextr ) ) 
+	mReturnExec(false)
    
     const IOObj& ioobj = *IOM().get( wtsetup_.seisid_ );
     IOObj* seisobj = ioobj.clone();
@@ -102,16 +104,16 @@ bool DataPlayer::extractSeismics()
     seisextr.setTimeIntv( params_.timeintvs_[1] ); 
     seisextr.setLineKey( &wtsetup_.linekey_ );
     seisextr.setBIDValues( bids );
-    if ( !tr_->execute( seisextr ) ) return false;
+    if ( !tr_->execute( seisextr ) ) 
+	mReturnExec(false)
     
-    MouseCursorManager::restoreOverride();
 
     const int sz =  params_.timeintvs_[1].nrSteps();
     Array1DImpl<float> tmpseis ( sz );
     memcpy( tmpseis.getData(), seisextr.vals_->getData(), sz*sizeof(float) );
     mSetData( params_.seisnm_, params_.refnm_, tmpseis );
-
-    return true;
+    
+    mReturnExec(true);
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.65 2009-12-07 12:45:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.66 2009-12-08 09:03:30 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -115,22 +115,23 @@ uiTieWin::~uiTieWin()
 }
 
 
-void uiTieWin::initAll()
+bool uiTieWin::initAll()
 {
     drawFields();
     addControl();
     dataholder_->resetLogData();
-    doWork( 0 );
     dataholder_->pickmgr()->setData( dataholder_ );
+    if ( !doWork( 0 ) ) return false;
     show();
     dispPropChg( 0 );
+    return true;
 }
 
 
 void uiTieWin::displayUserMsg( CallBacker* )
 {
     BufferString msg = "To correlate synthetic to seismic, "; 
-    msg += "choose yourtracking mode, "; 
+    msg += "choose your tracking mode, "; 
     msg += "pick one or more synthetic events "; 
     msg += "and link them with the seismic events. "; 
     msg += "Each synthetic event must be coupled with a seismic event. "; 
@@ -346,7 +347,12 @@ void uiTieWin::csCorrChanged( CallBacker* cb )
     getDispParams();
     WellTie::Params::uiParams* pms = dataholder_->uipms();
     params_->resetVelLogNm();
-    dataplayer_->computeD2TModel();
+    if ( pms->iscscorr_ )
+	dataplayer_->computeD2TModel();
+    else  
+	dataplayer_->undoD2TModel();
+    if ( mIsUnvalidD2TM( (*wd_) ) )
+	dataplayer_->computeD2TModel();
 
     doWork( cb );
 }

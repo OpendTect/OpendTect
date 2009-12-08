@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.44 2009-12-01 15:55:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.45 2009-12-08 09:03:30 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -77,7 +77,11 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
     d2tnew->add( wd_.track().dah(0)-wd_.track().value(0), 0 ); //set KB Depth
 
     for ( int idx=1; idx<time.size(); idx++ )
+    {
+	if ( time[idx]<=0 )
+	    continue;
 	d2tnew->add( dpt[idx], time[idx] );
+    }
 
     return d2tnew;
 }
@@ -301,10 +305,12 @@ void GeoCalculator::lowPassFilter( Array1DImpl<float>& vals, float cutf )
 
     float df = FFT::getDf( params_.dpms_.timeintvs_[0].step, filtersz );
     filter.FFTFreqFilter( df, cutf, true, orgvals, vals );
+    const int bordersz = (int)(filtersz/20);
     for ( int idx=0; idx<(int)(filtersz/20); idx++ )
-	vals.set( idx, orgvals.get(idx) );
-    for ( int idx=filtersz-1; idx>filtersz-(int)(filtersz/20); idx-- )
-	vals.set( idx, orgvals.get(idx) );
+    {
+	if ( idx<bordersz || idx>filtersz-bordersz ) 
+	    vals.set( idx, orgvals.get(idx) );
+    }
 }
 
 

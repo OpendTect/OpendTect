@@ -87,7 +87,7 @@ protected:
     void 			drawData();
     void 			drawFields();
     void 			getDispParams();
-    void 			initAll();
+    bool 			initAll();
     void 			putDispParams();
     void			resetInfoDlg();
 
