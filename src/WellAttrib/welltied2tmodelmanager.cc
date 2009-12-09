@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.19 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.20 2009-12-09 08:26:48 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -46,7 +46,7 @@ D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
     orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd_->d2TModel() );
     
     //launches check shot correction on sonic
-    if ( wd_->haveCheckShotModel() )
+    if ( wd_->haveCheckShotModel() && !dh.setup().useexistingd2tm_ )
 	WellTie::CheckShotCorr cscorr( dh );
 
     if ( (emptyoninit_ || wd_->haveCheckShotModel()) && 

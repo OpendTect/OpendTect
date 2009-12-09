@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.66 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.67 2009-12-09 08:26:48 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -276,10 +276,10 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
 {
     dispgrp->setHSpacing( 50 );
     cscorrfld_ = new uiCheckBox( dispgrp, "use checkshot corrections" );
-    cscorrfld_->display( wd_->haveCheckShotModel() );
+    cscorrfld_->display( wd_->haveCheckShotModel() && !setup_.useexistingd2tm_);
 
     csdispfld_ = new uiCheckBox( dispgrp, "display checkshot related curve" );
-    csdispfld_->display( wd_->haveCheckShotModel() );
+    csdispfld_->display( wd_->haveCheckShotModel() && !setup_.useexistingd2tm_);
 
     zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
     zinftfld_ ->attach( rightOf, csdispfld_);

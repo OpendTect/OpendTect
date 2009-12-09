@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.35 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.36 2009-12-09 08:26:48 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -98,9 +98,6 @@ Params::Params( const WellTie::Setup& wts, Well::Data* wd )
     dpms_.currvellognm_ = uipms_.iscscorr_ ? wts.corrvellognm_ : wts.vellognm_;
     dpms_.createColNames();
     resetVelLogNm();
-
-    if ( wd_.checkShotModel() )
-	dpms_.currvellognm_ = wtsetup_.corrvellognm_;
 
     for ( int idx=0; idx<3; idx++ )
 	dpms_.timeintvs_ += StepInterval<float>( mUdf(float), mUdf(float), 0);

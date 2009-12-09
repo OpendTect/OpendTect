@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.45 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.46 2009-12-09 08:26:48 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -343,6 +343,8 @@ void GeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 			       Array1DImpl<float>& aivals )
 {
     const int datasz = velvals.info().getSize(0);
+    if ( !datasz && !denvals.info().getSize(0) != datasz )
+	return;
     const bool issonic = setup_.issonic_;
     float prevval = 0;
     for ( int idx=0; idx<datasz; idx++ )
