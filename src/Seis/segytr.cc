@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.88 2009-12-09 10:48:14 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.89 2009-12-09 14:18:38 cvskris Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -365,12 +365,16 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
 void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 {
-    const bool needconvoffs = SI().xyInFeet();
-    if ( needconvoffs )
-	const_cast<SeisTrc&>(trc).info().offset *= mToFeetFactor;
-    trchead_.use( trc.info() );
-    if ( needconvoffs )
-	const_cast<SeisTrc&>(trc).info().offset *= mFromFeetFactor;
+    if ( SI().xyInFeet() )
+    {
+	SeisTrcInfo info = trc.info();
+	info.offset *= mToFeetFactor;
+	trchead_.use( info );
+    }
+    else
+    {
+	trchead_.use( trc.info() );
+    }
 
     SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling : outsd );
     const int nstoput = useinpsd_ ? trc.size() : outnrsamples;
