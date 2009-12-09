@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.48 2009-09-15 09:18:32 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.49 2009-12-09 04:12:37 cvsumesh Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -151,6 +151,10 @@ uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& centre,
     if ( cv.bottom() > cv.top() ) wr.swapVer();
     return wr;
 }
+
+
+uiTabStackDlg* uiFlatViewControl::propDialog()
+{ return propdlg_; }
 
 
 void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
