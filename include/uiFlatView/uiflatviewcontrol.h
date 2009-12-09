@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.29 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.30 2009-12-09 04:11:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "iopar.h"
 class uiFlatViewer;
 class uiFlatViewPropDlg;
+class uiTabStackDlg;
 class MouseEventHandler;
 namespace FlatView { class ZoomMgr; class Viewer; }
 
@@ -64,6 +65,8 @@ public:
 						Geom::Size2D<double>& sz,
 						const uiWorldRect& curview,
 						const uiWorldRect& bbox) const;
+    uiTabStackDlg*		propDialog();
+
 
 protected:
 
