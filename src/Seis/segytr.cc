@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.87 2009-12-07 14:03:29 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.88 2009-12-09 10:48:14 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -265,6 +265,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
 	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001;
+    if ( binhead_.mfeet == 2 ) ti.offset *= mFromFeetFactor;
 
     if ( is_prestack && fileopts_.psdef_ == SEGY::FileReadOpts::SrcRcvCoords )
     {
@@ -352,6 +353,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     binhead.hns = (short)outnrsamples;
     binhead.hdt = (short)(outsd.step / mZStepFac + .5);
     binhead.tsort = is_prestack ? 0 : 4; // To make Strata users happy
+    binhead.mfeet = SI().xyInFeet() ? 2 : 1;
     unsigned char binheadbuf[400];
     binhead.putTo( binheadbuf );
     if ( !sConn().doIO( binheadbuf, SegyBinHeaderLength ) )
@@ -363,7 +365,12 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
 void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 {
+    const bool needconvoffs = SI().xyInFeet();
+    if ( needconvoffs )
+	const_cast<SeisTrc&>(trc).info().offset *= mToFeetFactor;
     trchead_.use( trc.info() );
+    if ( needconvoffs )
+	const_cast<SeisTrc&>(trc).info().offset *= mFromFeetFactor;
 
     SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling : outsd );
     const int nstoput = useinpsd_ ? trc.size() : outnrsamples;
