@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.194 2009-12-04 14:47:36 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.195 2009-12-09 13:37:36 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -233,7 +233,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
     iconsz_ = uiObject::iconSize();
     setIconSize( QSize(iconsz_,iconsz_) );
 
-    setWindowModality( modal ? Qt::WindowModal : Qt::NonModal );
+    setWindowModality( p && modal ? Qt::WindowModal : Qt::NonModal );
 
     deletefrombody_ = deletefromod_ = false;
 }
