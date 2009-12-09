@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.39 2009-12-04 15:28:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.40 2009-12-09 13:41:22 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.39 2009-12-04 15:28:07 cv
 
 
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/sensors/SoTimerSensor.h>
 
 #include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/elements/SoViewportRegionElement.h>
@@ -44,6 +45,7 @@ void SoPlaneWellLog::initClass()
 
 SoPlaneWellLog::SoPlaneWellLog()
     : valuesensor( new SoFieldSensor(SoPlaneWellLog::valueChangedCB,this) )
+    , timesensor( new SoTimerSensor() )
     , revscale1(false)
     , revscale2(false)
     , seisstyle1(false)
@@ -51,6 +53,7 @@ SoPlaneWellLog::SoPlaneWellLog()
     , isfilled1(true)
     , isfilled2(true)
     , screensize(0,0)	     
+    , time(0.0)		     
     , resizewhenzooming(false)
 {
     SO_KIT_CONSTRUCTOR(SoPlaneWellLog);
@@ -153,6 +156,8 @@ SoPlaneWellLog::~SoPlaneWellLog()
 {
     if (valuesensor) 
 	delete valuesensor;
+    if (timesensor) 
+	delete timesensor;
 }
 
 
@@ -659,20 +664,34 @@ bool SoPlaneWellLog::shouldGLRender( int newres )
 }
 
 
+#define mReactionTime 0.3 
+bool SoPlaneWellLog::isZooming( SoState* state )
+{
+    SbVec2s screensz;		
+    SbBox3f bbox; bbox.setBounds( SbVec3f(-1,-1,-1), SbVec3f(1,1,1) );
+    SoShape::getScreenSize( state, bbox, screensz );
+    SbTime curtime = SbTime::getTimeOfDay();
+    if ( screensz != screensize )
+    { 
+	screensize = screensz; 
+	time = curtime;
+	return true; 
+    }
+    else if ( ( curtime-time ) < mReactionTime  )
+	return true;
+
+    return false;
+}
+
+
 int SoPlaneWellLog::getResolution( SoState* state )
 {
     int32_t camerainfo = SoCameraInfoElement::get(state);
     bool ismov = camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE);
 
-    if ( resizewhenzooming )
-    {	
-	SbVec2s screensz;		
-	SbBox3f bbox; bbox.setBounds( SbVec3f(-1,-1,-1), SbVec3f(1,1,1) );
-	SoShape::getScreenSize( state, bbox, screensz );
-	if ( screensz != screensize )
-	{ ismov = true; screensize = screensz; }
-    }
-
+    if ( resizewhenzooming && isZooming(state) )
+	ismov = true;
+    
     return ismov ? 0 : 1; 
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.26 2009-12-04 15:28:06 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.27 2009-12-09 13:41:22 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFShort.h>
 #include <Inventor/SbLinear.h>
+#include <Inventor/SbTime.h>
 
 #include "soodbasic.h"
 
@@ -27,6 +28,7 @@ class SoBaseColor;
 class SoCoordinate3;
 class SoDrawStyle;
 class SoFieldSensor;
+class SoTimerSensor;
 class SoLineSet;
 class SoTriangleStripSet;
 class SoSensor;
@@ -137,14 +139,16 @@ protected:
     int 			lognr;
     
     SbVec2s 			screensize;
+    SbTime 			time;
     
     SoFieldSensor*		valuesensor;
+    SoTimerSensor*		timesensor;
     static void			valueChangedCB(void*,SoSensor*);
     
     void			buildLog(int,const SbVec3f&,int);
     void			buildSimpleLog(int,const SbVec3f&,int);
     void			buildSeismicLog(int,const SbVec3f&,int);
-    void			buildFilledLog(int,const SbVec3f&,int);
+    void			buildFilledLog(int,const SbVec3f&,int);\
     void			fillLogTriangles(const int,SoCoordinate3*,
 	    						SbVec3f&,SbVec3f&);
     SbVec3f 			getProjCoords(const SoMFVec3f&,const int, 
@@ -154,6 +158,7 @@ protected:
 	    				  const SbVec3f&);
     bool			shouldGLRender(int);
     int				getResolution(SoState*);
+    bool			isZooming(SoState*);
 };
 
 #endif
