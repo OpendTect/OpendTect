@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.23 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.24 2009-12-10 04:37:34 cvsumesh Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -129,7 +129,13 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
     {
 	valstr = pars.find( sKey::TraceNr );
 	if ( valstr && *valstr )
-	    { mAddSep(); mesg += "TrcNr="; mesg += valstr; }
+	    {
+		mAddSep(); mesg += "TrcNr="; mesg += valstr;
+
+		valstr = pars.find( "Z-Coord" );
+		if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Z="; mesg += valstr; }
+	    }
 	else
 	{
 	    valstr = pars.find( "X" );
