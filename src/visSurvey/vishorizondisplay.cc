@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.121 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.122 2009-12-10 15:03:36 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -71,11 +71,14 @@ HorizonDisplay::HorizonDisplay()
     , validtexture_( false )
     , resolution_( 0 )
     , zaxistransform_( 0 )
-    , maxintersectionlinethickness_( 40 )
     , allowshading_( true )					
     , intersectionlinematerial_( 0 )	
     , displayintersectionlines_( true )	
 {
+    maxintersectionlinethickness_ = 0.02 *
+	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
+	      SI().crlDistance() * SI().crlRange(true).width() );
+    
     as_ += new Attrib::SelSpec;
     coltabmappersetups_ += ColTab::MapperSetup();
     coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
