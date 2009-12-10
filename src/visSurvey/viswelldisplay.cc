@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.115 2009-12-04 15:28:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.116 2009-12-10 11:08:58 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -202,24 +202,26 @@ void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
 void WellDisplay::fullRedraw( CallBacker* )
 {
     mGetWD(return);
+    if ( !well_ ) return;
+
+    const bool waslogconstsize = well_->logConstantSize();
 
     TypeSet<Coord3> trackpos = getTrackPos( wd );
     if ( trackpos.isEmpty() ) return;
     visBase::Well::TrackParams tp;
     fillTrackParams( tp );
-    well_->setTrack( trackpos );
-    well_->setTrackProperties( tp.col_, tp.size_ );
     tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
     tp.name_ = wd->name(); 
-    well_->setWellName( tp ); 
-
     logsnumber_ = mMAX( dpp( right_.repeat_ ), dpp( left_.repeat_ ) );
     updateMarkers(0);
-    if ( well_ )
-    {
-	well_->removeLogs();
-	well_->setRepeat( logsnumber_ );
-    }
+
+    well_->setTrack( trackpos );
+    well_->setTrackProperties( tp.col_, tp.size_ );
+    well_->setWellName( tp ); 
+    well_->removeLogs();
+    well_->setRepeat( logsnumber_ );
+    well_->setLogConstantSize( waslogconstsize );
+
     mTryDispLog( left_, Left );
     mTryDispLog( right_, Right ); 
 }

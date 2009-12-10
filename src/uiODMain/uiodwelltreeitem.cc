@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.53 2009-12-04 16:23:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.54 2009-12-10 11:08:58 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -39,11 +39,11 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
 }
 
 
-static int sLoadIdx	 = 0;
-static int sWellTieIdx	 = 1;
-static int sNewWellIdx	 = 2;
-static int sAttribIdx	 = 3;
-static int sLogConstSize = 4;
+static int sLoadIdx	= 0;
+static int sWellTieIdx	= 1;
+static int sNewWellIdx	= 2;
+static int sAttribIdx	= 3;
+static int sLogDispSize = 4;
 
 bool uiODWellParentTreeItem::showSubMenu()
 {
@@ -67,7 +67,7 @@ bool uiODWellParentTreeItem::showSubMenu()
     {
 	mnu.insertSeparator();
 	uiMenuItem* szmenuitem = new uiMenuItem("Constant Log Size");
-	mnu.insertItem( szmenuitem, sLogConstSize );
+	mnu.insertItem( szmenuitem, sLogDispSize );
 	szmenuitem->setCheckable( true );
 	szmenuitem->setChecked( constlogsize_ );
     }
@@ -138,7 +138,6 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	wd->setName( wellname );
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
-	wd->setLogConstantSize( constlogsize_ );
     }
 
     else if ( mnuid == sAttribIdx )
@@ -161,7 +160,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 		*wellids[idx], dlg.selectedLogIdx() );
     }
 
-    else if ( mnuid == sLogConstSize )
+    else if ( mnuid == sLogDispSize )
     {
 	bool allconst = false;
 	for ( int idx=0; idx<children_.size(); idx++ )
@@ -172,11 +171,6 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	    { allconst = true; break; }
 	}
 	constlogsize_ = !allconst;
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    mGetWellDisplayFromChild( idx );
-	    wd->setLogConstantSize( constlogsize_ );
-	}
     }
     else if ( ( mnuid>40 && mnuid<46 ) || ( mnuid>50 && mnuid<56 ) )
     {
@@ -200,6 +194,12 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     }
     else
 	handleStandardItems( mnuid );
+	
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mGetWellDisplayFromChild( idx );
+	wd->setLogConstantSize( constlogsize_ );
+    }
 
     return true;
 }

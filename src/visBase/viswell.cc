@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.57 2009-12-07 11:21:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.58 2009-12-10 11:08:58 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -469,6 +469,7 @@ void Well::setRepeat( int rpt )
     for ( int idx=lz; idx<rpt; idx++ )
     {
 	log_ += new SoPlaneWellLog;
+	log_[idx]->setLogConstantSize( log_[0]->logConstantSize() );
 	addChild( log_[idx] );
     }
 }
@@ -621,13 +622,14 @@ bool Well::logsShown() const
 
 void Well::setLogConstantSize( bool yn )
 {
-    log_[0]->setLogConstantSize( yn );
+    for ( int idx=0; idx<log_.size(); idx++ )
+	log_[idx]->setLogConstantSize( yn );
 }
 
 
 bool Well::logConstantSize() const
 {
-    return log_[0]->logConstantSize();
+    return log_.size() ? log_[0]->logConstantSize() : true;
 }
 
 
