@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.16 2009-12-03 06:16:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.17 2009-12-10 08:28:03 cvsjaap Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.16 2009-12-03 06:16:48 cvsn
 #include "uiflatviewmainwin.h"
 #include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
+#include "uiflatviewpropdlg.h"
 #include "uigraphicsscene.h"
 #include "uimenu.h"
 #include "uiodmain.h"
@@ -244,6 +245,10 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
     if ( slicepos_ )
 	slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
+
+    if ( viewstdcontrol_ && viewstdcontrol_->propDialog() )
+	viewstdcontrol_->propDialog()->windowClosed.trigger();
+
     viewwin_ = 0;
 }
 
