@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.36 2009-09-21 11:27:16 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.37 2009-12-11 13:44:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     bool			selectWells(ObjectSet<MultiID>&);
 
     bool			editDisplayProperties(const MultiID&);
+    void			displayIn2DViewer(const MultiID&);
     bool			hasLogs(const MultiID&) const;
 
     bool			dispLineOnCreation(){ return disponcreation_; }

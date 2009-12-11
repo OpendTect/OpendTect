@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.9 2009-08-18 06:52:38 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.10 2009-12-11 13:44:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,16 @@ ________________________________________________________________________
 class uiTextItem;
 class uiLineItem;
 class uiPolyLineItem;
+class uiPolygonItem;
 class uiGraphicsScene;
 class UnitOfMeasure;
-namespace Well { class Log; class Marker; class D2TModel; }
+namespace Well 
+{ 
+    class Log; 
+    class Marker; 
+    class D2TModel; 
+    class DisplayProperties; 
+}
 
 /*!\brief creates a display of max 2 well logs. */
 
@@ -35,7 +42,8 @@ public:
 				    : nrmarkerchars_(2)
 				    , markerls_(LineStyle::Dot,1)
 				    , pickls_(LineStyle::Solid,1,Color(0,200,0))
-				    , border_(5)		{}
+				    , border_(5)
+				    {}
 
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
@@ -62,6 +70,7 @@ public:
 	uiAxisHandler		xax_;
 	uiAxisHandler		yax_;
 	ObjectSet<uiPolyLineItem> curveitms_;
+	ObjectSet<uiPolygonItem> curvepolyitms_;
 	uiTextItem*		curvenmitm_;
 
     protected:
@@ -78,8 +87,13 @@ public:
 
     LogData&			logData( bool first=true )
 				{ return first ? ld1_ : ld2_; }
+    //set Well Data directly instead? --> split in Log / Well 
     void			setMarkers( const ObjectSet<Well::Marker>* ms )
 				{ markers_ = ms; }
+    void                        setD2TModel( const Well::D2TModel* d2tm )
+				{ d2tm_ = d2tm; }
+    void                        setDispProp( const Well::DisplayProperties* wd)
+				{ wd_ = wd; }
 
     mStruct PickData
     {
@@ -97,9 +111,6 @@ public:
     void			setZRange(const Interval<float>&);
     void			dataChanged();
 
-    void                        setD2TModel( const Well::D2TModel* d2tm )
-				{ d2tm_ = d2tm; }
-
     void			setZDispInFeet( bool yn )
     				{ dispzinft_ = yn; dataChanged(); }
     bool			zDispInFeet() const	  { return dispzinft_; }
@@ -107,7 +118,6 @@ public:
     void			setZInTime( bool yn )
     				{ zintime_ = yn; dataChanged(); }
     bool			zInTime() const	  { return zintime_; }
-
 
 protected:
 
@@ -120,6 +130,7 @@ protected:
     const ObjectSet<Well::Marker>* markers_;
     TypeSet<PickData>		zpicks_;
     const Well::D2TModel*       d2tm_;
+    const Well::DisplayProperties* wd_;
     Setup			setup_;
 
     ObjectSet<uiLineItem>	markeritms_;
@@ -137,9 +148,9 @@ protected:
     void			gatherInfo(bool);
     void			setAxisRanges(bool);
     void			drawCurve(bool);
+    void			drawFilling(bool);
     void			drawMarkers();
     void			drawZPicks();
-
 };
 
 

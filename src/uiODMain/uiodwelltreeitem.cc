@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.54 2009-12-10 11:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.55 2009-12-11 13:44:51 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -235,6 +235,7 @@ uiODWellTreeItem::~uiODWellTreeItem()
 void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = "&Properties ...";
+    logviewermnuitem_.text = "&2D Log Viewer ...";
     gend2tm_.text = "&Tie Well to Seismic ...";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
@@ -296,6 +297,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
+    mAddMenuItem( menu, &logviewermnuitem_, true, false );
     if ( SI().zIsTime() )mAddMenuItem( menu, &gend2tm_, true, false );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
@@ -337,8 +339,14 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == propertiesmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	//wd->restoreDispProp();
+	wd->restoreDispProp();
 	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid );
+	updateColumnText( uiODSceneMgr::cColorColumn() );
+    }
+    else if ( mnuid == logviewermnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	ODMainWin()->applMgr().wellServer()->displayIn2DViewer( wellid );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == nametopmnuitem_.id )

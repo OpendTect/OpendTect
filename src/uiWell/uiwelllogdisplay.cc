@@ -7,19 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.13 2009-12-08 13:16:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.14 2009-12-11 13:44:51 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
-#include "welllog.h"
-#include "wellmarker.h"
-#include "welld2tmodel.h"
-
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+
+#include "coltabsequence.h"
 #include "mouseevent.h"
 #include "dataclipper.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "welllog.h"
+#include "wellmarker.h"
+#include "welld2tmodel.h"
+#include "welldisp.h"
+
 #include <iostream>
 
 #define mDefZPosInLoop(val)\
@@ -65,6 +68,9 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , d2tm_(0)
 {
     setStretch( 2, 2 );
+    setPrefWidth( 250 );
+    setPrefHeight( 700 );
+
     getMouseEventHandler().buttonReleased.notify(
 			    mCB(this,uiWellLogDisplay,mouseRelease) );
 
@@ -225,6 +231,12 @@ void uiWellLogDisplay::draw()
     drawCurve( true );
     drawCurve( false );
 
+    if ( wd_ && wd_->right_.islogfill_ )
+    {
+	drawFilling( true );
+	drawFilling( false );
+    }
+
     drawMarkers();
     drawZPicks();
 }
@@ -232,35 +244,36 @@ void uiWellLogDisplay::draw()
 
 #define mRemoveSet( itms ) \
     for ( int idx=0; idx<itms.size(); idx++ ) \
-	scene().removeItem( itms[idx] ); \
+    scene().removeItem( itms[idx] ); \
     deepErase( itms );
-
 void uiWellLogDisplay::drawCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
     mRemoveSet( ld.curveitms_ );
     scene().removeItem( ld.curvenmitm_ );
     delete ld.curvenmitm_; ld.curvenmitm_ = 0;
+
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
 
     ObjectSet< TypeSet<uiPoint> > pts;
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	mDefZPosInLoop( ld.wl_->dah( idx ) )
 
 	float val = ld.wl_->value( idx );
+
 	if ( mIsUdf(val) )
 	{
 	    if ( !curpts->isEmpty() )
 	    {
-		pts += curpts;
-		curpts = new TypeSet<uiPoint>;
+	    pts += curpts;
+	    curpts = new TypeSet<uiPoint>;
 	    }
 	    continue;
 	}
-
 	*curpts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(zpos) );
     }
     if ( curpts->isEmpty() )
@@ -277,7 +290,7 @@ void uiWellLogDisplay::drawCurve( bool first )
     }
 
     Alignment al( Alignment::HCenter,
-	    	  first ? Alignment::Top : Alignment::Bottom );
+    first ? Alignment::Top : Alignment::Bottom );
     ld.curvenmitm_ = scene().addItem( new uiTextItem(ld.wl_->name(),al) );
     ld.curvenmitm_->setTextColor( ld.linestyle_.color_ );
     uiPoint txtpt;
@@ -295,6 +308,81 @@ void uiWellLogDisplay::drawCurve( bool first )
 	ld.yax_.annotAtEnd( zintime_ ? "(ms)" : dispzinft_ ? "(ft)" : "(m)" );
     if ( ld.unitmeas_ )
 	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
+}
+
+
+void uiWellLogDisplay::drawFilling( bool first )
+{
+    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+
+    float colstep = ( ld.xax_.range().stop - ld.xax_.range().start ) / 255;
+    mRemoveSet( ld.curvepolyitms_ );
+
+    const int sz = ld.wl_ ? ld.wl_->size() : 0;
+    if ( sz < 2 ) return;
+
+    ObjectSet< TypeSet<uiPoint> > pts;
+    TypeSet<int> colorintset;
+    const uiPoint closept( ld.xax_.getPix(ld.xax_.range().start),
+			   ld.yax_.getPix(ld.yax_.range().stop) );
+
+    int prevcolidx = 0;
+    TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
+    *curpts += closept; 
+
+    uiPoint pt;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	mDefZPosInLoop( ld.wl_->dah( idx ) )
+	float val = ld.wl_->value( idx );
+
+	if ( mIsUdf(val) )
+	{
+	    if ( !curpts->isEmpty() )
+	    {
+		pts += curpts;
+		curpts = new TypeSet<uiPoint>;
+		colorintset += 0;
+	    }
+	    continue;
+	}
+	
+	pt.x = ld.xax_.getPix(val); 
+	pt.y = ld.yax_.getPix(zpos);
+	*curpts += pt;
+
+	const int colindex = (int)((val-ld.xax_.range().start)/colstep);
+	if ( colindex != prevcolidx )
+	{
+	    *curpts += uiPoint( closept.x, pt.y ); 
+	    if ( !curpts->isEmpty() )
+	    {
+		colorintset += colindex;
+		prevcolidx = colindex;
+		pts += curpts;
+	    }
+	    curpts = new TypeSet<uiPoint>;
+	    *curpts += uiPoint( closept.x, pt.y ); 
+	} 
+    }
+    *pts[pts.size()-1] += uiPoint( closept.x, pt.y ); 
+    if ( pts.isEmpty() ) return;
+
+    const int tabidx = ColTab::SM().indexOf( wd_->right_.seqname_ );
+    const ColTab::Sequence* seq = ColTab::SM().get( tabidx<0 ? 0 : tabidx );
+    for ( int idx=0; idx<pts.size(); idx++ )
+    {
+	uiPolygonItem* pli = scene().addPolygon( *pts[idx], true );
+	ld.curvepolyitms_ += pli;
+	Color color = seq->color( (float)colorintset[idx]/255 );
+	pli->setFillColor( color );
+	LineStyle ls;
+	ls.width_ = 1;
+	ls.color_ = color;
+	pli->setPenStyle( ls );
+    }
+
+    deepErase( pts );
 }
 
 
