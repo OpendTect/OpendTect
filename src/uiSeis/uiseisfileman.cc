@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.97 2009-12-01 10:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.98 2009-12-11 14:48:23 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -36,6 +36,8 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.97 2009-12-01 10:15:20 cvs
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
 #include "uimergeseis.h"
 #include "uimsg.h"
 #include "uiseisbrowser.h"
@@ -63,6 +65,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 {
     ctxt_.trglobexpr = is2d_ ? "2D" : "CBVS";
     createDefaultUI();
+    selgrp->getListField()->doubleClicked.notify(
+	    			is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
+				      : mCB(this,uiSeisFileMan,browsePush) );
 
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
@@ -323,7 +328,9 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 
     linegrp_ = new uiManipButGrp( lllb );
     linegrp_->addButton( uiManipButGrp::Rename, 
-	    		   mCB(this,uiSeis2DFileMan,renameLine), "Rename line");
+	    		 mCB(this,uiSeis2DFileMan,renameLine), "Rename line");
+    linegrp_->addButton( ioPixmap("mergelines.png"),
+	    		 mCB(this,uiSeis2DFileMan,mergeLines), "Merge lines");
     linegrp_->attach( rightOf, linefld_ );
 
     uiLabeledListBox* allb = new uiLabeledListBox( topgrp, "Attributes", true,
@@ -573,4 +580,138 @@ void uiSeis2DFileMan::renameAttrib( CallBacker* )
     }
 
     lineSel(0);
+}
+
+
+class uiSeis2DFileManMergeDlg : public uiDialog
+{
+public:
+
+uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
+			 const BufferStringSet& sellns )
+    : uiDialog(p,Setup("Merge lines","Merge two lines into one",mTODOHelpID) )
+    , objinf_(objinf)
+{
+    BufferStringSet lnms; objinf_.getLineNames( lnms );
+    uiLabeledComboBox* lcb1 = new uiLabeledComboBox( this, lnms, "First line" );
+    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( this, lnms, "Add" );
+    lcb2->attach( alignedBelow, lcb1 );
+    ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
+    ln1fld_->setCurrentItem( sellns.get(0) );
+    ln2fld_->setCurrentItem( sellns.get(1) );
+
+    static const char* mrgopts[]
+	= { "Match trace numbers", "Match coordinates", "Bluntly append", 0 };
+    mrgoptfld_ = new uiGenInput( this, "Merge method",
+	    			 StringListInpSpec(mrgopts) );
+    mrgoptfld_->attach( alignedBelow, lcb2 );
+    mrgoptfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
+    stckfld_ = new uiGenInput( this, "Duplicate positions",
+	    			BoolInpSpec(true,"Stack","Use first") );
+    stckfld_->attach( alignedBelow, mrgoptfld_ );
+    renumbfld_ = new uiGenInput( this, "Renumber",
+	    	BoolInpSpec(true,"Continue first line", "New numbering") );
+    renumbfld_->setWithCheck( true );
+    renumbfld_->setChecked( true );
+    renumbfld_->attach( alignedBelow, stckfld_ );
+    nrdeffld_ = new uiGenInput( this, "Start/step numbers", IntInpSpec(1),
+	    			IntInpSpec(1) );
+    nrdeffld_->attach( alignedBelow, renumbfld_ );
+    float defsd = SI().crlDistance() / 2;
+    if ( SI().xyInFeet() ) defsd *= mToFeetFactor;
+    snapdistfld_ = new uiGenInput( this, "Snap distance", FloatInpSpec(defsd) );
+    snapdistfld_->attach( alignedBelow, nrdeffld_ );
+
+    outfld_ = new uiGenInput( this, "New line name", StringInpSpec() );
+    outfld_->attach( alignedBelow, snapdistfld_ );
+
+    finaliseDone.notify( mCB(this,uiSeis2DFileManMergeDlg,initWin) );
+}
+
+void initWin( CallBacker* )
+{
+    optSel(0);
+    renumbfld_->checked.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
+}
+
+void optSel( CallBacker* )
+{
+    const int opt = mrgoptfld_->getIntValue();
+    const bool dorenumb = renumbfld_->isChecked();
+    stckfld_->display( opt < 2 );
+    renumbfld_->display( opt > 0 );
+    nrdeffld_->display( opt > 0 && dorenumb );
+    snapdistfld_->display( opt == 1 );
+}
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+bool acceptOK( CallBacker* )
+{
+    const char* outnm = outfld_->text();
+    if ( !outnm || !*outnm )
+	mErrRet( "Please enter a name for the merged line" );
+
+    BufferStringSet lnms; objinf_.getLineNames( lnms );
+    if ( lnms.isPresent( outnm ) )
+	mErrRet( "Output line name already in Line Set" );
+
+    const BufferString lnm1 = ln1fld_->text();
+    const BufferString lnm2 = ln2fld_->text();
+    if ( lnm1 == lnm2 )
+	mErrRet( "Stubbornly refusing to merge a line with itself" );
+
+    const int opt = mrgoptfld_->getIntValue();
+    const bool dorenumb = renumbfld_->isChecked();
+    float snapdist = 0;
+    if ( opt == 1 )
+    {
+	snapdist = snapdistfld_->getfValue();
+	if ( mIsUdf(snapdist) || snapdist < 0 )
+	    mErrRet( "Please specify a valid snap distance" );
+	if ( SI().xyInFeet() ) snapdist *= mFromFeetFactor;
+    }
+
+    mErrRet( "TODO: implement" );
+}
+
+    const uiSeisIOObjInfo&	objinf_;
+
+    uiComboBox*			ln1fld_;
+    uiComboBox*			ln2fld_;
+    uiGenInput*			mrgoptfld_;
+    uiGenInput*			stckfld_;
+    uiGenInput*			renumbfld_;
+    uiGenInput*			nrdeffld_;
+    uiGenInput*			snapdistfld_;
+    uiGenInput*			outfld_;
+
+};
+
+
+void uiSeis2DFileMan::mergeLines( CallBacker* )
+{
+    if ( linefld_->size() < 2 ) return;
+
+    BufferStringSet sellnms; int firstsel = -1;
+    for ( int idx=0; idx<linefld_->size(); idx++ )
+    {
+	if ( linefld_->isSelected(idx) )
+	{
+	    sellnms.add( linefld_->textOfItem(idx) );
+	    if ( firstsel < 0 ) firstsel = idx;
+	    if ( sellnms.size() > 1 ) break;
+	}
+    }
+    if ( firstsel < 0 )
+	{ firstsel = 0; sellnms.add( linefld_->textOfItem(0) ); }
+    if ( sellnms.size() == 1 )
+    {
+	if ( firstsel >= linefld_->size() )
+	    firstsel = -1;
+	sellnms.add( linefld_->textOfItem(firstsel+1) );
+    }
+
+    uiSeis2DFileManMergeDlg dlg( this, *objinfo_, sellnms );
+    if ( dlg.go() )
+	fillLineBox();
 }
