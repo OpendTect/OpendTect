@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.6 2009-12-11 08:34:06 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.7 2009-12-11 10:57:14 cvskarthika Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -91,10 +91,7 @@ const SbImage* getChannelData() const
 	    bpp = 2;
 		
 	if ( bpp )
-	{
-	    SbImage* image = new SbImage( (unsigned char*) ptr, size, bpp );
-	    return image;
-	}
+	    return new SbImage( (unsigned char*) ptr, size, bpp );
     }
     
     return 0;
@@ -253,8 +250,8 @@ void TextureChannel2VolData::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
 
-    //transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
-    transferfunc_->predefColorMap = SoTransferFunction::NONE;
+    transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
+    /*transferfunc_->predefColorMap = SoTransferFunction::NONE;
     //transferfunc_->colorMapType = SoTransferFunction::RGBA;
 
     const float redfactor = 1.0/255;
@@ -272,7 +269,7 @@ void TextureChannel2VolData::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
 	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
-    
+    */
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();
 }
