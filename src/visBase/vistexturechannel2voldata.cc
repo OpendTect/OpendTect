@@ -8,10 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.5 2009-12-02 13:19:19 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.6 2009-12-11 08:34:06 cvskarthika Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
+
+#include "SoTextureChannelSet.h"
 
 #include <Inventor/nodes/SoGroup.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
@@ -24,58 +26,120 @@ namespace visBase
 
 #define mNrColors 256
 
-TextureChannel2VolData::TextureChannel2VolData()
-    : transferfunc_( 0 )
-    , voldata_( 0 )
-    , root_( new SoGroup )
-    , dummytexture_(255)
-    , enabled_ (false)
+
+class VolumeDataSetImpl : public VolumeDataSet
 {
-    root_->ref();
+public:
+
+static VolumeDataSetImpl* create()
+mCreateDataObj( VolumeDataSetImpl );
+
+int nrChannels() const
+{ return 1; }
+
+
+void setNrChannels( int nr )
+{ // to do
 }
 
 
-TextureChannel2VolData::~TextureChannel2VolData()
+bool addChannel()
+{ return true;  // to do: check 
+}
+
+
+bool enableNotify( bool yn )
+{ return voldata_->enableNotify( yn ); }
+
+
+void touch()
+{ voldata_->touch(); }
+
+
+void setChannelData( int channel,const SbImage& image )
 {
-    if ( voldata_ )
-	voldata_->unref();
+    SbVec3s tmpsize;
+    int bpp;
+    unsigned char* data = image.getValue( tmpsize, bpp );
+	    
+    if ( data && ( bpp >=1 ) && (bpp <=2) )
+    {
+        SoVolumeData::DataType dt;
+	if ( bpp == 1 )
+	    dt = SoVolumeData::UNSIGNED_BYTE;
+	else if ( dt == SoVolumeData::UNSIGNED_SHORT )
+	    dt = SoVolumeData::UNSIGNED_SHORT;
+
+	voldata_->setVolumeData( tmpsize, data, dt );
+    }
+}
+
+
+const SbImage* getChannelData() const
+{
+    SbVec3s size;
+    void* ptr;
+    SoVolumeData::DataType dt;
     
-    if ( transferfunc_ )
-	transferfunc_->unref();
+    if ( voldata_->getVolumeData(size,ptr,dt) )
+    {
+        int bpp = 0;
 
-    root_->unref();
+	if ( dt == SoVolumeData::UNSIGNED_BYTE )
+	    bpp = 1;
+	else if ( dt == SoVolumeData::UNSIGNED_SHORT )
+	    bpp = 2;
+		
+	if ( bpp )
+	{
+	    SbImage* image = new SbImage( (unsigned char*) ptr, size, bpp );
+	    return image;
+	}
+    }
+    
+    return 0;
 }
 
 
-SoNode* TextureChannel2VolData::getInventorNode()
+SoNode* getInventorNode()
 {
     if ( !voldata_ )
     {
 	voldata_ = new SoVolumeData;
-	voldata_->ref();	// to do: check if necessary
-	root_->addChild( voldata_ );
 
 	setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
-		Interval<float>(-0.5,0.5) );
-	voldata_->setVolumeData( SbVec3s(1,1,1), &dummytexture_, 
-		SoVolumeData::UNSIGNED_BYTE );
-	enabled_ = true;
+		       Interval<float>(-0.5,0.5) );
 	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	    voldata_->usePalettedTexture = FALSE;
-
-	transferfunc_ = new SoTransferFunction;
-	transferfunc_->ref();	// to do: check if necessary
-	makeColorTables();
-
-	root_->addChild( transferfunc_ );
     }
 
-    return root_;
+    return voldata_;
+}
+
+protected:
+
+~VolumeDataSetImpl()
+{ 
+    voldata_->unref(); 
+}
+	
+};
+
+
+VolumeDataSet::VolumeDataSet()
+     : voldata_( new SoVolumeData )
+{ 
+    voldata_->ref();
+    setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
+ 		   Interval<float>(-0.5,0.5) );
+    if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
+	    voldata_->usePalettedTexture = FALSE;
 }
 
 
-void TextureChannel2VolData::setVolumeSize( const Interval<float>& x,
-	const Interval<float>& y, const Interval<float>& z )
+void VolumeDataSet::setVolumeSize(  const Interval<float>& x,
+						  const Interval<float>& y,
+						  const Interval<float>& z )
 {
     if ( !voldata_ )
 	return;
@@ -85,10 +149,44 @@ void TextureChannel2VolData::setVolumeSize( const Interval<float>& x,
 }
 
 
-Interval<float> TextureChannel2VolData::getVolumeSize( int dim ) const
+Interval<float> VolumeDataSet::getVolumeSize( int dim ) const
 {
-    const SbBox3f size = voldata_->getVolumeSize();
-    return Interval<float>( size.getMin()[dim], size.getMax()[dim] );
+     const SbBox3f size = voldata_->getVolumeSize();
+     return Interval<float>( size.getMin()[dim], size.getMax()[dim] );
+}
+
+
+mCreateFactoryEntry( VolumeDataSetImpl );
+
+VolumeDataSetImpl::VolumeDataSetImpl()
+{}
+
+
+TextureChannel2VolData::TextureChannel2VolData()
+    : transferfunc_( 0 )
+    , enabled_ (false)
+{
+}
+
+
+TextureChannel2VolData::~TextureChannel2VolData()
+{
+    if ( transferfunc_ )
+	transferfunc_->unref(); 
+}
+
+
+MappedTextureDataSet* TextureChannel2VolData::createMappedDataSet() const
+{ return VolumeDataSetImpl::create(); }
+
+
+SoNode* TextureChannel2VolData::getInventorNode()
+{
+    enabled_ = true;
+    transferfunc_ = new SoTransferFunction;
+    transferfunc_->ref();	// to do: check if necessary
+    makeColorTables();
+    return transferfunc_;
 }
 
 
@@ -155,9 +253,9 @@ void TextureChannel2VolData::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
 
-    transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
-    /*transferfunc_->predefColorMap = SoTransferFunction::NONE;
-    transferfunc_->colorMapType = SoTransferFunction::RGBA;
+    //transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
+    transferfunc_->predefColorMap = SoTransferFunction::NONE;
+    //transferfunc_->colorMapType = SoTransferFunction::RGBA;
 
     const float redfactor = 1.0/255;
     const float greenfactor = 1.0/255;
@@ -174,11 +272,10 @@ void TextureChannel2VolData::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
 	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
-*/
     
-    // to do: enable/disable
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();
 }
 
 }; // namespace visBase
+

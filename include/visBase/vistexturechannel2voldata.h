@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Karthika
  Date:		Nov 2009
- RCS:		$Id: vistexturechannel2voldata.h,v 1.3 2009-12-02 13:20:20 cvskarthika Exp $
+ RCS:		$Id: vistexturechannel2voldata.h,v 1.4 2009-12-11 08:34:06 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,25 @@ class SoTransferFunction;
 
 namespace visBase
 { 
+
+/*!A destination where the texturechannels can put the mapped data. The class
+   instanciation is provided by the TextureChannel2VolData. */
+
+mClass VolumeDataSet : public MappedTextureDataSet
+{
+public:
+				VolumeDataSet();
+	Interval<float>		getVolumeSize(int dim) const;
+	void 			setVolumeSize(const Interval<float>& x,
+						const Interval<float>& y,
+						const Interval<float>& z);
+
+protected:
+	SoVolumeData*		voldata_;
+    
+};
+
+
 /*! Implementation of TextureChannel2VolData that feeds the 8-bit values from 
  the texture channel(s) into a volume data object. 
 */
@@ -40,14 +59,12 @@ public:
     void		setEnabled(int ch, bool yn);
     bool		isEnabled(int ch) const;
 
-    void		setVolumeSize(const Interval<float>& x, const
-	    			Interval<float>& y, const Interval<float>& z);
-    Interval<float>     getVolumeSize(int dim) const;
-    
     bool		canUseShading() const	{ return false; }
     bool		usesShading() const	{ return false; }
     int			maxNrChannels() const	{ return 1; }
     int			minNrChannels() const	{ return 1; }
+
+    MappedTextureDataSet* createMappedDataSet() const;
 
 protected:
     			~TextureChannel2VolData();
@@ -58,12 +75,9 @@ protected:
     void		update();
     void		makeColorTables();
 
-    SoGroup*		root_;
     SoTransferFunction*	transferfunc_;
-    SoVolumeData*	voldata_;
     ColTab::Sequence	sequence_;
     bool		enabled_;
-    unsigned char	dummytexture_;
 
 };
 
