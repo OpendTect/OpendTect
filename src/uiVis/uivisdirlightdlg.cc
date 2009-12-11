@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.12 2009-11-04 09:23:19 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.13 2009-12-11 09:17:53 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.12 2009-11-04 09:23:19 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     : uiDialog(p,
 	       uiDialog::Setup("Directional light",
-		   "Set directional light properties", mNoHelpID)
+		   "Set directional light properties", "50.0.18")
 	       .modal(false))
 	       // to do: specify proper help ID
     , visserv_(visserv)
