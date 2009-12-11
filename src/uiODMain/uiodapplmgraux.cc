@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.12 2009-10-29 08:47:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.13 2009-12-11 09:42:23 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -190,6 +190,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	switch ( at )
 	{
 	mCase(Imp):	am_.seisserv_->importWavelets();	break;
+	mCase(Exp):	am_.seisserv_->exportWavelets();	break;
 	default:	am_.seisserv_->manageWavelets();	break;
 	}
     break;

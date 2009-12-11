@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.61 2009-12-11 08:15:20 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.62 2009-12-11 09:42:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,12 +83,14 @@ ________________________________________________________________________
 
 #define mExpHorAscii3DMnuItm	(mFileExpMnu + 30)
 #define mExpHorAscii2DMnuItm	(mFileExpMnu + 31)
-#define mExpFltAsciiMnuItm	(mFileExpMnu + 40)
-#define mExpFltSSAsciiMnuItm	(mFileExpMnu + 41)
-#define mExpPickMnuItm		(mFileExpMnu + 50)
-#define mExpPickAsciiMnuItm	(mFileExpMnu + 51)
-#define mExpMuteDefMnuItm	(mFileExpMnu + 60)
-#define mExpMuteDefAsciiMnuItm	(mFileExpMnu + 61)
+#define mExpFltAsciiMnuItm	(mFileExpMnu + 50)
+#define mExpFltSSAsciiMnuItm	(mFileExpMnu + 51)
+#define mExpPickMnuItm		(mFileExpMnu + 60)
+#define mExpPickAsciiMnuItm	(mFileExpMnu + 61)
+#define mExpWvltMnuItm		(mFileExpMnu + 70)
+#define mExpWvltAsciiMnuItm	(mFileExpMnu + 71)
+#define mExpMuteDefMnuItm	(mFileExpMnu + 80)
+#define mExpMuteDefAsciiMnuItm	(mFileExpMnu + 81)
 
 #define mManSeis3DMnuItm	(mFileManMnu + 10)
 #define mManSeis2DMnuItm	(mFileManMnu + 11)

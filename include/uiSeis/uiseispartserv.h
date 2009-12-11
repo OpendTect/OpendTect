@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.40 2009-12-08 16:27:26 cvskris Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.41 2009-12-11 09:42:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ public:
     void		manageSeismics(bool);
     void		managePreLoad();
     void		importWavelets();
+    void		exportWavelets();
     void		manageWavelets();
 
 protected:

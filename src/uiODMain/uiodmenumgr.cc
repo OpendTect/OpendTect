@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.195 2009-12-11 08:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.196 2009-12-11 09:42:23 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -294,6 +294,10 @@ void uiODMenuMgr::fillExportMenu()
     uiPopupMenu* exppick = new uiPopupMenu( &appl_, "&PickSets" );
     mInsertItem( exppick, "&Ascii ...", mExpPickAsciiMnuItm );
     expmnu_->insertItem( exppick );
+
+    uiPopupMenu* expwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
+    mInsertItem( expwvlt, "&Ascii ...", mExpWvltAsciiMnuItm );
+    expmnu_->insertItem( expwvlt );
 
     uiPopupMenu* expmute = new uiPopupMenu( &appl_, "&Mute Functions" );
     mInsertItem( expmute, "&Ascii ...", mExpMuteDefAsciiMnuItm );
@@ -860,65 +864,62 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     const int id = itm->id();
     switch( id )
     {
-    case mManSurveyMnuItm: 	applMgr().manageSurvey(); break;
-    case mSessSaveMnuItm: 	appl_.saveSession(); break;
-    case mSessRestMnuItm: 	appl_.restoreSession(); break;
-    case mSessAutoMnuItm: 	appl_.autoSession(); break;
-    case mImpSeisCBVSMnuItm: 	mDoOp(Imp,Seis,0); break;
-    case mImpSeisSEGYMnuItm:	mDoOp(Imp,Seis,1); break;
-    case mImpSeisSEGYDirectMnuItm: mDoOp(Imp,Seis,2); break;
-    case mImpSeisSimple3DMnuItm: mDoOp(Imp,Seis,5); break;
-    case mImpSeisSimple2DMnuItm: mDoOp(Imp,Seis,6); break;
-    case mImpSeisSimplePS3DMnuItm: mDoOp(Imp,Seis,7); break;
-    case mImpSeisSimplePS2DMnuItm: mDoOp(Imp,Seis,8); break;
-    case mExpSeisSEGY3DMnuItm: 	mDoOp(Exp,Seis,1); break;
-    case mExpSeisSEGY2DMnuItm: 	mDoOp(Exp,Seis,2); break;
-    case mExpSeisSEGYPS3DMnuItm: mDoOp(Exp,Seis,3); break;
-    case mExpSeisSEGYPS2DMnuItm: mDoOp(Exp,Seis,4); break;
-    case mExpSeisSimple3DMnuItm: mDoOp(Exp,Seis,5); break;
-    case mExpSeisSimple2DMnuItm: mDoOp(Exp,Seis,6); break;
-    case mExpSeisSimplePS3DMnuItm: mDoOp(Exp,Seis,7); break;
-    case mExpSeisSimplePS2DMnuItm: mDoOp(Exp,Seis,8); break;
-    case mImpHorAsciiMnuItm: mDoOp(Imp,Hor,0); break;
-    case mImpHorAsciiAttribMnuItm: mDoOp(Imp,Hor,1); break;
-    case mImpHor2DAsciiMnuItm: mDoOp(Imp,Hor,2); break;
-    case mExpHorAscii3DMnuItm: 	mDoOp(Exp,Hor,0); break;
-    case mExpHorAscii2DMnuItm:    mDoOp(Exp,Hor,1); break;
-    case mExpFltAsciiMnuItm: 	mDoOp(Exp,Flt,0); break;
-    case mExpFltSSAsciiMnuItm: mDoOp(Exp,Flt,1); break;			
-    case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;
-    case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
-    case mImpWellAsciiMarkersMnuItm: mDoOp(Imp,Wll,2); break;
-    case mImpWellSEGYVSPMnuItm: mDoOp(Imp,Wll,3); break;
-    case mImpPickAsciiMnuItm: 	mDoOp(Imp,Pick,0); break;
-    case mExpPickAsciiMnuItm: 	mDoOp(Exp,Pick,0); break;
-    case mImpWvltAsciiMnuItm: 	mDoOp(Imp,Wvlt,0); break;
-    case mImpFaultMnuItm: 	mDoOp(Imp,Flt,0); break;
-    case mImpFaultSSAscii3DMnuItm: mDoOp(Imp,Flt,1); break;
-    case mImpFaultSSAscii2DMnuItm: mDoOp(Imp,Flt,2); break;
-
+    case mManSurveyMnuItm:		applMgr().manageSurvey(); break;
+    case mSessSaveMnuItm:		appl_.saveSession(); break;
+    case mSessRestMnuItm:		appl_.restoreSession(); break;
+    case mSessAutoMnuItm:		appl_.autoSession(); break;
+    case mImpSeisCBVSMnuItm:		mDoOp(Imp,Seis,0); break;
+    case mImpSeisSEGYMnuItm:		mDoOp(Imp,Seis,1); break;
+    case mImpSeisSEGYDirectMnuItm:	mDoOp(Imp,Seis,2); break;
+    case mImpSeisSimple3DMnuItm:	mDoOp(Imp,Seis,5); break;
+    case mImpSeisSimple2DMnuItm:	mDoOp(Imp,Seis,6); break;
+    case mImpSeisSimplePS3DMnuItm:	mDoOp(Imp,Seis,7); break;
+    case mImpSeisSimplePS2DMnuItm:	mDoOp(Imp,Seis,8); break;
+    case mExpSeisSEGY3DMnuItm:		mDoOp(Exp,Seis,1); break;
+    case mExpSeisSEGY2DMnuItm:		mDoOp(Exp,Seis,2); break;
+    case mExpSeisSEGYPS3DMnuItm:	mDoOp(Exp,Seis,3); break;
+    case mExpSeisSEGYPS2DMnuItm:	mDoOp(Exp,Seis,4); break;
+    case mExpSeisSimple3DMnuItm:	mDoOp(Exp,Seis,5); break;
+    case mExpSeisSimple2DMnuItm:	mDoOp(Exp,Seis,6); break;
+    case mExpSeisSimplePS3DMnuItm:	mDoOp(Exp,Seis,7); break;
+    case mExpSeisSimplePS2DMnuItm:	mDoOp(Exp,Seis,8); break;
+    case mImpHorAsciiMnuItm:		mDoOp(Imp,Hor,0); break;
+    case mImpHorAsciiAttribMnuItm:	mDoOp(Imp,Hor,1); break;
+    case mImpHor2DAsciiMnuItm:		mDoOp(Imp,Hor,2); break;
+    case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
+    case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
+    case mExpFltAsciiMnuItm:		mDoOp(Exp,Flt,0); break;
+    case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Flt,1); break;			
+    case mImpWellAsciiTrackMnuItm:	mDoOp(Imp,Wll,0); break;
+    case mImpWellAsciiLogsMnuItm:	mDoOp(Imp,Wll,1); break;
+    case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
+    case mImpWellSEGYVSPMnuItm:		mDoOp(Imp,Wll,3); break;
+    case mImpPickAsciiMnuItm:		mDoOp(Imp,Pick,0); break;
+    case mExpPickAsciiMnuItm:		mDoOp(Exp,Pick,0); break;
+    case mExpWvltAsciiMnuItm:		mDoOp(Exp,Wvlt,0); break;
+    case mImpWvltAsciiMnuItm:		mDoOp(Imp,Wvlt,0); break;
+    case mImpFaultMnuItm:		mDoOp(Imp,Flt,0); break;
+    case mImpFaultSSAscii3DMnuItm:	mDoOp(Imp,Flt,1); break;
+    case mImpFaultSSAscii2DMnuItm:	mDoOp(Imp,Flt,2); break;
     case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;
     case mExpMuteDefAsciiMnuItm:	mDoOp(Exp,MDef,0); break;
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
-
-    case mManSeis3DMnuItm: 	mDoOp(Man,Seis,2); break;
-    case mManSeis2DMnuItm: 	mDoOp(Man,Seis,1); break;
-    case mManHor3DMnuItm: 	mDoOp(Man,Hor,2); break;
-    case mManHor2DMnuItm: 	mDoOp(Man,Hor,1); break;
-    case mManFaultStickMnuItm:	mDoOp(Man,Flt,1); break;
-    case mManFaultMnuItm: 	mDoOp(Man,Flt,2); break;
-    case mManWellMnuItm: 	mDoOp(Man,Wll,0); break;
-    case mManPickMnuItm: 	mDoOp(Man,Pick,0); break;
-    case mManWvltMnuItm: 	mDoOp(Man,Wvlt,0); break;
-    case mManAttrMnuItm:	mDoOp(Man,Attr,0); break;
-    case mManNLAMnuItm:		mDoOp(Man,NLA,0); break;
-    case mManSessMnuItm:	mDoOp(Man,Sess,0); break;
-    case mManStratMnuItm:	mDoOp(Man,Strat,0); break;
+    case mManSeis3DMnuItm:		mDoOp(Man,Seis,2); break;
+    case mManSeis2DMnuItm:		mDoOp(Man,Seis,1); break;
+    case mManHor3DMnuItm:		mDoOp(Man,Hor,2); break;
+    case mManHor2DMnuItm:		mDoOp(Man,Hor,1); break;
+    case mManFaultStickMnuItm:		mDoOp(Man,Flt,1); break;
+    case mManFaultMnuItm:		mDoOp(Man,Flt,2); break;
+    case mManWellMnuItm:		mDoOp(Man,Wll,0); break;
+    case mManPickMnuItm:		mDoOp(Man,Pick,0); break;
+    case mManWvltMnuItm:		mDoOp(Man,Wvlt,0); break;
+    case mManAttrMnuItm:		mDoOp(Man,Attr,0); break;
+    case mManNLAMnuItm:			mDoOp(Man,NLA,0); break;
+    case mManSessMnuItm:		mDoOp(Man,Sess,0); break;
+    case mManStratMnuItm:		mDoOp(Man,Strat,0); break;
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
-
     case mExitMnuItm: 		appl_.exit(); break;
-
     case mEditAttrMnuItm: 	applMgr().editAttribSet(); break;
     case mEdit2DAttrMnuItm: 	applMgr().editAttribSet(true); break;
     case mEdit3DAttrMnuItm: 	applMgr().editAttribSet(false); break;

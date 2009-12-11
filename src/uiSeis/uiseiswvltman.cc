@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.53 2009-11-19 10:21:20 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.54 2009-12-11 09:42:23 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
-#include "uiseiswvltimp.h"
+#include "uiseiswvltimpexp.h"
 #include "uiseiswvltgen.h"
 #include "uiseiswvltattr.h"
 #include "uiwaveletextraction.h"

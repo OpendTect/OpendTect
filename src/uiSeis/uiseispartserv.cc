@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.115 2009-12-08 16:27:26 cvskris Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.116 2009-12-11 09:42:23 cvsbert Exp $";
 
 #include "uiseispartserv.h"
 
@@ -48,7 +48,7 @@ static const char* rcsID = "$Id: uiseispartserv.cc,v 1.115 2009-12-08 16:27:26 c
 #include "uisegysip.h"
 #include "uisurvinfoed.h"
 #include "uiseissel.h"
-#include "uiseiswvltimp.h"
+#include "uiseiswvltimpexp.h"
 #include "uiseiswvltman.h"
 #include "uiseispreloadmgr.h"
 #include "uiselsimple.h"
@@ -121,6 +121,13 @@ void uiSeisPartServer::managePreLoad()
 void uiSeisPartServer::importWavelets()
 {
     uiSeisWvltImp dlg( appserv().parent() );
+    dlg.go();
+}
+
+
+void uiSeisPartServer::exportWavelets()
+{
+    uiSeisWvltExp dlg( appserv().parent() );
     dlg.go();
 }
 
