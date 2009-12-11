@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.194 2009-12-08 16:51:06 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.195 2009-12-11 08:15:20 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -209,15 +209,24 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* impfault = new uiPopupMenu( &appl_, "&Faults" );
     uiPopupMenu* impfaultstick = new uiPopupMenu( &appl_, "F&aultStickSets" );
     uiPopupMenu* impwell = new uiPopupMenu( &appl_, "&Wells" );
+    uiPopupMenu* imppick = new uiPopupMenu( &appl_, "&PickSets" );
+    uiPopupMenu* impwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
+    uiPopupMenu* impmute = new uiPopupMenu( &appl_, "&Mute Functions" );
+    uiPopupMenu* impvelfn = new uiPopupMenu( &appl_, "&Velocity Functions" );
     impmnu_->insertItem( impseis );
     impmnu_->insertItem( imphor );
     impmnu_->insertItem( impfault );
     impmnu_->insertItem( impfaultstick );
     impmnu_->insertItem( impwell );
-    mInsertItem( impmnu_, "&Picksets ...", mImpPickMnuItm );
-    mInsertItem( impmnu_, "&Wavelets ...", mImpWvltMnuItm );
-    mInsertItem( impmnu_, "&Mute Function ...", mImpMuteDefMnuItm );
-    mInsertItem( impmnu_, "&Velocity Functions ...", mImpVelocityMnuItm );
+    impmnu_->insertItem( imppick );
+    impmnu_->insertItem( impwvlt );
+    impmnu_->insertItem( impmute );
+    impmnu_->insertItem( impvelfn );
+
+    mInsertItem( imppick, "&Ascii ...", mImpPickAsciiMnuItm );
+    mInsertItem( impwvlt, "&Ascii ...", mImpWvltAsciiMnuItm );
+    mInsertItem( impmute, "&Ascii ...", mImpMuteDefAsciiMnuItm );
+    mInsertItem( impvelfn, "&Ascii ...", mImpVelocityAsciiMnuItm );
 
     mInsertItem( impseis, "SEG-&Y ...", mImpSeisSEGYMnuItm );
     mInsertItem( impseis, "SEG-Y &Pre-stack scanned ...",
@@ -282,9 +291,13 @@ void uiODMenuMgr::fillExportMenu()
     mInsertItem( expfltss, "&Ascii ...", mExpFltSSAsciiMnuItm );
     expmnu_->insertItem( expfltss );
 
-    mInsertItem( expmnu_, "&Picksets ...", mExpPickMnuItm );
+    uiPopupMenu* exppick = new uiPopupMenu( &appl_, "&PickSets" );
+    mInsertItem( exppick, "&Ascii ...", mExpPickAsciiMnuItm );
+    expmnu_->insertItem( exppick );
 
-    mInsertItem( expmnu_, "&Mute Function ...", mExpMuteDefMnuItm );
+    uiPopupMenu* expmute = new uiPopupMenu( &appl_, "&Mute Functions" );
+    mInsertItem( expmute, "&Ascii ...", mExpMuteDefAsciiMnuItm );
+    expmnu_->insertItem( expmute );
 
     expmnus_.erase();
     expmnus_.allowNull();
@@ -877,16 +890,16 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm: mDoOp(Imp,Wll,2); break;
     case mImpWellSEGYVSPMnuItm: mDoOp(Imp,Wll,3); break;
-    case mImpPickMnuItm: 	mDoOp(Imp,Pick,0); break;
-    case mExpPickMnuItm: 	mDoOp(Exp,Pick,0); break;
-    case mImpWvltMnuItm: 	mDoOp(Imp,Wvlt,0); break;
+    case mImpPickAsciiMnuItm: 	mDoOp(Imp,Pick,0); break;
+    case mExpPickAsciiMnuItm: 	mDoOp(Exp,Pick,0); break;
+    case mImpWvltAsciiMnuItm: 	mDoOp(Imp,Wvlt,0); break;
     case mImpFaultMnuItm: 	mDoOp(Imp,Flt,0); break;
-    case mImpFaultSSAscii3DMnuItm: 	mDoOp(Imp,Flt,1); break;
-    case mImpFaultSSAscii2DMnuItm: 	mDoOp(Imp,Flt,2); break;
+    case mImpFaultSSAscii3DMnuItm: mDoOp(Imp,Flt,1); break;
+    case mImpFaultSSAscii2DMnuItm: mDoOp(Imp,Flt,2); break;
 
-    case mImpMuteDefMnuItm:	mDoOp(Imp,MDef,0); break;
-    case mExpMuteDefMnuItm:     mDoOp(Exp,MDef,0); break;
-    case mImpVelocityMnuItm:	mDoOp(Imp,Vel,0); break;			
+    case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;
+    case mExpMuteDefAsciiMnuItm:	mDoOp(Exp,MDef,0); break;
+    case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
 
     case mManSeis3DMnuItm: 	mDoOp(Man,Seis,2); break;
     case mManSeis2DMnuItm: 	mDoOp(Man,Seis,1); break;
