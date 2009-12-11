@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.54 2009-12-11 09:42:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.55 2009-12-11 15:45:07 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -60,7 +60,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 	mCB(this,uiSeisWvltMan,reversePolarity), "Reverse polarity" );
     selgrp->getManipGroup()->addButton( "phase.png",
 	mCB(this,uiSeisWvltMan,rotatePhase), "Rotate phase" );
-    selgrp->getManipGroup()->addButton( "phase.png",
+    selgrp->getManipGroup()->addButton( "wavelet_taper.png",
 	mCB(this,uiSeisWvltMan,taper), "Taper" );
 
     uiGroup* butgrp = new uiGroup( this, "Imp/Create buttons" );
