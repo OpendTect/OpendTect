@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.6 2009-10-27 13:43:51 cvsjaap Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.7 2009-12-11 15:35:52 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,7 @@ public:
 
     void			updateSticks(bool activeonly=false);
     void			updateEditPids();
+    void			updateKnotMarkers();
 
     Notifier<FaultStickSetDisplay> colorchange;
 
@@ -74,6 +75,9 @@ public:
 
     void			setDisplayOnlyAtSections(bool yn);
     bool			displayedOnlyAtSections() const;
+
+    void			setStickSelectMode(bool yn);
+    bool			isInStickSelectMode() const;
 
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
@@ -91,7 +95,9 @@ protected:
     static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
     void			mouseCB(CallBacker*);
+    void			stickSelectCB(CallBacker*);
     void			emChangeCB(CallBacker*);
+    void			polygonFinishedCB(CallBacker*);
 
     visBase::EventCatcher*	eventcatcher_;
     visBase::Transformation*	displaytransform_;
@@ -114,6 +120,11 @@ protected:
     visBase::PickStyle*		activestickpickstyle_;
 
     bool			displayonlyatsections_;
+    bool			stickselectmode_;
+
+    bool			ctrldown_;
+
+    ObjectSet<visBase::DataObjectGroup> knotmarkers_;
 };
 
 } // namespace VisSurvey

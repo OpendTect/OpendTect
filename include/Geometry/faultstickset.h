@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.5 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: faultstickset.h,v 1.6 2009-12-11 15:35:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,11 @@ public:
     bool		isTwisted(int sticknr1,int sticknr2,
 				  double zscale) const;
 
+    enum StickStatus	{ NoStatus=0, Selected };
+    void		selectStick(int stick,bool yn);
+    bool		isStickSelected(int stick) const;
+
+
 protected:
     double			interStickDist(int sticknr1,int sticknr2,
 					       double zscale) const;
@@ -68,6 +73,9 @@ protected:
     TypeSet<int>		firstcols_;
     
     TypeSet<Coord3>		editplanenormals_;
+
+
+    TypeSet<StickStatus>	stickstatus_;
 };
 
 };

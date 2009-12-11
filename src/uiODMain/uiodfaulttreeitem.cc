@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.30 2009-08-06 02:14:30 cvskris Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.31 2009-12-11 15:35:52 cvsjaap Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -373,7 +373,8 @@ uiTreeItem* uiODFaultStickSetTreeItemFactory::create( int visid,
     , savemnuitem_("&Save") \
     , saveasmnuitem_("Save &as ...") \
     , removeselectedmnuitem_( "Re&move selection" ) \
-    , onlyatsectmnuitem_("&Display only at sections")
+    , onlyatsectmnuitem_("&Display only at sections") \
+    , stickselmnuitem_("S&tick selection")
 
 
 uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
@@ -382,6 +383,7 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
     mCommonInit
 {
     onlyatsectmnuitem_.checkable = true;
+    stickselmnuitem_.checkable = true;
 }
 
 
@@ -392,6 +394,7 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( int id, bool dummy )
 {
     displayid_ = id;
     onlyatsectmnuitem_.checkable = true;
+    stickselmnuitem_.checkable = true;
 }
 
 
@@ -475,8 +478,12 @@ void uiODFaultStickSetTreeItem::createMenuCB( CallBacker* cb )
     if ( !fd )
 	return;
 
+    mAddMenuItem( menu, &stickselmnuitem_, true,
+					     fd->isInStickSelectMode() );
+
     mAddMenuItem( menu, &onlyatsectmnuitem_, true,
 					     fd->displayedOnlyAtSections() );
+
     const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
     mAddMenuItem( menu, &removeselectedmnuitem_, sel, true );
 
@@ -498,7 +505,13 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
 
-    if ( mnuid==onlyatsectmnuitem_.id )
+    if ( mnuid==stickselmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	if ( fd )
+	    fd->setStickSelectMode( !fd->isInStickSelectMode() );
+    }
+    else if ( mnuid==onlyatsectmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	if ( fd )

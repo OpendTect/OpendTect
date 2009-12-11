@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.9 2009-10-14 08:09:49 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.10 2009-12-11 15:35:52 cvsjaap Exp $";
 
 #include "vispolygonselection.h"
 
@@ -27,6 +27,10 @@ mCreateFactoryEntry( visBase::PolygonSelection );
 namespace visBase
 {
 
+
+Notifier<PolygonSelection> PolygonSelection::polygonfinished(0);
+
+
 PolygonSelection::PolygonSelection()
     : VisualObjectImpl( false )
     , transformation_( 0 )
@@ -41,6 +45,8 @@ PolygonSelection::PolygonSelection()
     addChild( selector_ );
     selector_->polygonChange.addCallback(
 	    (SoCallbackListCB*) polygonChangeCB, this );
+    selector_->paintStop.addCallback(
+	    (SoCallbackListCB*) paintStopCB, this );
 }
 
 
@@ -48,6 +54,8 @@ PolygonSelection::~PolygonSelection()
 {
     selector_->polygonChange.removeCallback(
 	    (SoCallbackListCB*) polygonChangeCB, this );
+    selector_->paintStop.removeCallback(
+	    (SoCallbackListCB*) paintStopCB, this );
     if ( transformation_ ) transformation_->unRef();
     drawstyle_->unRef();
     delete polygon_;
@@ -226,6 +234,10 @@ void PolygonSelection::polygonChangeCB( void* data, SoPolygonSelect* )
 
     myptr->polygonlock_.writeUnLock();
 }
+
+
+void PolygonSelection::paintStopCB( void*, SoPolygonSelect* )
+{ polygonfinished.trigger(); }
 
 
 void PolygonSelection::setDisplayTransformation( Transformation* nt )

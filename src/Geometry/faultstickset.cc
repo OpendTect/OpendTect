@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.6 2009-08-10 06:46:01 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.7 2009-12-11 15:35:52 cvsjaap Exp $";
 
 #include "faultstickset.h"
 
@@ -44,6 +44,7 @@ Element* FaultStickSet::clone() const
     res->firstcols_ = firstcols_;
     res->firstrow_ = firstrow_;
     res->editplanenormals_ = editplanenormals_;
+    res->stickstatus_ = stickstatus_;
 
     return res;
 }
@@ -75,12 +76,14 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
     {
 	sticks_ += new TypeSet<Coord3>;
 	editplanenormals_ += normvec;
+	stickstatus_ += NoStatus;
 	firstcols_ += firstcol;
     }
     else
     {
 	sticks_.insertAt( new TypeSet<Coord3>, stickidx );
 	editplanenormals_.insert( stickidx, normvec );
+	stickstatus_.insert( stickidx, NoStatus );
 	firstcols_.insert( stickidx, firstcol );
     }
 
@@ -100,6 +103,7 @@ bool FaultStickSet::removeStick( int sticknr )
 
     sticks_.remove( stickidx );
     editplanenormals_.remove( stickidx );
+    stickstatus_.remove( stickidx );
     firstcols_.remove( stickidx );
 
     if ( !stickidx )
@@ -249,6 +253,7 @@ void FaultStickSet::addUdfRow( int sticknr, int firstknotnr, int nrknots )
     if ( isEmpty() )
 	firstrow_ = sticknr;
     firstcols_ += firstknotnr;
+    stickstatus_ += NoStatus;
     sticks_ += new TypeSet<Coord3>( nrknots, Coord3::udf() );
 }
 
@@ -388,6 +393,21 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 	sticknrs.swap( tailidx+1, minidx0 );
     }
 }
+
+
+void FaultStickSet::selectStick( int sticknr, bool yn )
+{
+    mGetValidStickIdx( stickidx, sticknr, 0, );
+    stickstatus_[stickidx] = yn ? Selected : NoStatus;
+}
+
+
+bool FaultStickSet::isStickSelected( int sticknr ) const
+{
+    mGetValidStickIdx( stickidx, sticknr, 0, false );
+    return stickstatus_[stickidx] == Selected;
+}
+
 
 
 } // namespace Geometry
