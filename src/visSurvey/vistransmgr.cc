@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistransmgr.cc,v 1.6 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: vistransmgr.cc,v 1.7 2009-12-14 22:35:53 cvsyuancheng Exp $";
 
 
 #include "vistransmgr.h"
@@ -97,19 +97,44 @@ visBase::Transformation*
     double x[3];
 
     LinSolver<double> linsolver( A );
-    linsolver.apply( b, x );
-    double mat11 = x[0];
-    double mat12 = x[1];
-    double mat14 = x[2];
+    
+    const int inlwidth = hs.inlRange().width();
+    const int crlwidth = hs.crlRange().width();
+    if ( !inlwidth )
+    {
+	if ( !crlwidth )
+	{
+	    tf->reset();
+	    return tf;
+	}
+	
+	x[0] = 1;
+	x[1] = b[1] / crlwidth;
+	x[2] = -startbid.inl - x[1] * startbid.crl;
+    }
+    else
+	linsolver.apply( b, x );
+
+    const double mat11 = x[0];
+    const double mat12 = x[1];
+    const double mat14 = x[2];
 
     b[0] = 0;
     b[1] = stoppos.y-startpos.y;
     b[2] = extrapos.y-startpos.y;
-    linsolver.apply( b, x );
 
-    double mat21 = x[0];
-    double mat22 = x[1];
-    double mat24 = x[2];
+    if ( !crlwidth )
+    {
+	x[0] = b[1] / inlwidth;
+	x[1] = 1;
+	x[2] = -x[0] * startbid.inl - startbid.crl;
+    }
+    else
+    	linsolver.apply( b, x );
+
+    const double mat21 = x[0];
+    const double mat22 = x[1];
+    const double mat24 = x[2];
 
     tf->setA(	mat11,	mat12,	0,	mat14,
 		mat21,	mat22,	0,	mat24,
