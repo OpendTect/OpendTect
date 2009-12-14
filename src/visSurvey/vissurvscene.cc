@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.128 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.129 2009-12-14 22:50:01 cvsyuancheng Exp $";
 
 #include "vissurvscene.h"
 
@@ -89,9 +89,14 @@ void Scene::updateAnnotationText()
     if ( !annot_ )
 	return;
 
-    annot_->setText( 0, "In-line" );
-    annot_->setText( 1, "Cross-line" );
-    annot_->setText( 2, getZDomainString() );
+    if ( SI().inlRange(true).width() )
+    	annot_->setText( 0, "In-line" );
+
+    if ( SI().crlRange(true).width() )
+    	annot_->setText( 1, "Cross-line" );
+
+    if ( SI().zRange(true).width() )
+    	annot_->setText( 2, getZDomainString() );
 }
 
 
@@ -382,7 +387,10 @@ bool Scene::isAnnotShown() const
 
 void Scene::setAnnotText( int dim, const char* txt )
 {
-    annot_->setText( dim, txt );
+    if ( (dim==0 && SI().inlRange(true).width()) || 
+	 (dim==1 && SI().crlRange(true).width()) ||
+	 (dim==2 && SI().zRange(true).width()) )
+    	annot_->setText( dim, txt );
 }
 
 
