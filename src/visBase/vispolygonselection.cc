@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.10 2009-12-11 15:35:52 cvsjaap Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.11 2009-12-14 05:17:34 cvsranojay Exp $";
 
 #include "vispolygonselection.h"
 
@@ -28,7 +28,12 @@ namespace visBase
 {
 
 
-Notifier<PolygonSelection> PolygonSelection::polygonfinished(0);
+
+Notifier<PolygonSelection>* PolygonSelection::polygonFinished()
+{
+    static Notifier<PolygonSelection> polygonfinished(0);
+    return &polygonfinished;
+}
 
 
 PolygonSelection::PolygonSelection()
@@ -237,7 +242,7 @@ void PolygonSelection::polygonChangeCB( void* data, SoPolygonSelect* )
 
 
 void PolygonSelection::paintStopCB( void*, SoPolygonSelect* )
-{ polygonfinished.trigger(); }
+{ polygonFinished()->trigger(); }
 
 
 void PolygonSelection::setDisplayTransformation( Transformation* nt )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.14 2009-12-11 15:35:52 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.15 2009-12-14 05:17:34 cvsranojay Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -772,9 +772,9 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
 
     CallBack cb = mCB( this, FaultStickSetDisplay, polygonFinishedCB );
     if ( yn )
-	scene_->getPolySelection()->polygonfinished.notify( cb );
+	scene_->getPolySelection()->polygonFinished()->notify( cb );
     else
-	scene_->getPolySelection()->polygonfinished.remove( cb );
+	scene_->getPolySelection()->polygonFinished()->remove( cb );
 }
 
 
