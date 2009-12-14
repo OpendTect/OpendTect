@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.58 2009-12-02 16:52:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.59 2009-12-14 09:26:44 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -99,11 +99,9 @@ void uiSeisImpCBVS::init( bool fromioobj )
     }
     else
     {
-	BufferString seldir = IOObjContext::getDataDirName(IOObjContext::Seis);
-	finpfld = new uiFileInput( this, "(First) CBVS file name",
-	       			   uiFileInput::Setup(uiFileDialog::Gen)
-				   .filter("CBVS (*.cbvs)") );
-	finpfld->setDefaultSelectionDir( seldir );
+	uiFileInput::Setup fisu( uiFileDialog::Gen );
+	fisu.filter("CBVS (*.cbvs)").defseldir( GetBaseDataDir() );
+	finpfld = new uiFileInput( this, "(First) CBVS file name", fisu );
 	finpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,finpSel) );
 
 	StringListInpSpec spec;
@@ -134,7 +132,10 @@ void uiSeisImpCBVS::init( bool fromioobj )
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( outctio_.ctxt.getSelKey() );
-    outfld = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );
+    uiSeisSel::Setup sssu( Seis::Vol );
+    if ( !fromioobj )
+	sssu.enabotherdomain( true );
+    outfld = new uiSeisSel( this, outctio_, sssu );
 
     if ( convertfld )
     {
@@ -324,7 +325,6 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     rmTmpIOObj();
     return rv;
 }
-
 
 
 class Seis2DCopier : public Executor
