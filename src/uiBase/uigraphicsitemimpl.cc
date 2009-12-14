@@ -7,21 +7,80 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.32 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.33 2009-12-14 07:44:07 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
+#include "angles.h"
 #include "odgraphicsitem.h"
 #include "pixmap.h"
 #include "polygon.h"
 #include "uifont.h"
-#include "angles.h"
+#include "uigroup.h"
+#include "uiobj.h"
 
 #include <QBrush>
 #include <QFont>
 #include <QFontMetrics>
+#include <QGraphicsProxyWidget>
 #include <QPen>
 #include <QTextDocument>
+
+
+uiObjectItem::uiObjectItem( uiObject* obj )
+    : uiGraphicsItem(mkQtObj())
+    , obj_(0)
+    , grp_(0)
+{
+    setObject( obj );
+}
+
+
+uiObjectItem::uiObjectItem( uiGroup* grp )
+    : uiGraphicsItem(mkQtObj())
+    , obj_(0)
+    , grp_(0)
+{
+    setGroup( grp );
+}
+
+
+uiObjectItem::~uiObjectItem()
+{
+    delete qwidgetitem_;
+}
+
+
+uiObject* uiObjectItem::getObject()
+{ return obj_; }
+
+
+void uiObjectItem::setObject( uiObject* obj )
+{
+    obj_ = obj;
+    qwidgetitem_->setWidget( obj_ ? obj_->qwidget() : 0 );
+}
+
+
+uiGroup* uiObjectItem::getGroup()
+{ return grp_; }
+
+void uiObjectItem::setGroup( uiGroup* grp )
+{
+    grp_ = grp;
+    if ( !grp_ ) return;
+
+    setObject( grp->attachObj() );
+}
+
+
+QGraphicsItem* uiObjectItem::mkQtObj()
+{
+    qwidgetitem_ = new QGraphicsProxyWidget();
+    return qwidgetitem_;
+}
+
+
 
 uiEllipseItem::uiEllipseItem()
     : uiGraphicsItem(mkQtObj())

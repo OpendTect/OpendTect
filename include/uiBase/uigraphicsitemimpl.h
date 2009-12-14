@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.21 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.22 2009-12-14 07:44:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 class Color;
 class ioPixmap;
 class uiFont;
+class uiGroup;
+class uiObject;
 
 class QGraphicsItem;
 class QGraphicsEllipseItem;
@@ -26,6 +28,7 @@ class QGraphicsLineItem;
 class QGraphicsPathItem;
 class QGraphicsPixmapItem;
 class QGraphicsPolygonItem;
+class QGraphicsProxyWidget;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
 class QPainterPath;
@@ -36,6 +39,28 @@ class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
 class ODGraphicsPolyLineItem;
 template <class T> class ODPolygon;
+
+
+mClass uiObjectItem : public uiGraphicsItem
+{
+public:
+				uiObjectItem(uiObject* obj);
+				uiObjectItem(uiGroup* obj);
+				~uiObjectItem();
+
+    uiObject*			getObject();
+    void			setObject(uiObject*);
+
+    uiGroup*			getGroup();
+    void			setGroup(uiGroup*);
+
+protected:
+
+    QGraphicsItem*		mkQtObj();
+    QGraphicsProxyWidget*	qwidgetitem_;
+    uiObject*			obj_;
+    uiGroup*			grp_;
+};
 
 
 mClass uiEllipseItem : public uiGraphicsItem
@@ -165,7 +190,7 @@ public:
 			~uiRectItem();
 
     QGraphicsRectItem*  qRectItem()	{ return qrectitem_; }
-    void		setRect(int x, int y, int width, int height); 
+    void		setRect(int x,int y,int width,int height); 
 
 protected:
 
