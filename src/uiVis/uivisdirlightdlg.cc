@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.13 2009-12-11 09:17:53 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.14 2009-12-15 10:37:24 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -336,7 +336,8 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
         float x = dl->direction( 0 );
         float y = dl->direction( 1 );
         float z = dl->direction( 2 );
-        float dip = Angle::convert( Angle::Rad, asin( z ), Angle::UsrDeg );
+        float dip = Angle::convert( Angle::Rad, asin( z ), Angle::Deg );
+	dip += 180;  // offset for observed deviation
         float azimuth = Angle::convert( Angle::Rad, acos( x / cos( dip ) ),
 		Angle::UsrDeg );
 
@@ -390,8 +391,9 @@ void uiDirLightDlg::setDirLight()
 
 	float az_rad = Angle::convert( Angle::UsrDeg, 
 		azimuthfld_->sldr()->getValue(), Angle::Rad );
-	float dip_rad = Angle::convert( Angle::UsrDeg,
-		dipfld_->sldr()->getValue(), Angle::Rad );
+	float dip_rad = Angle::convert( Angle::Deg,
+		dipfld_->sldr()->getValue() - 180, Angle::Rad );
+	  // offset for observed deviation
 
 	float x = cos( az_rad ) * cos( dip_rad );
 	float y = sin( az_rad ) * cos( dip_rad );
