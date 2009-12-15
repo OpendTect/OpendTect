@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.19 2009-12-02 11:04:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.20 2009-12-15 14:53:45 cvsbruno Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -120,7 +120,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
   
     uiFuncTaperDisp::Setup s;
     s.datasz_ = (int) ( 0.5/SI().zStep() );
-    s.xaxnm_ = "Time (ms)";
+    s.xaxnm_ = "Time (s)";
     s.yaxnm_ = "Taper Apmplitude";
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
@@ -140,8 +140,9 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     typefld_->valuechanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
     typefld_->attach( centeredAbove, timedrawer_ );
     
-    float zstep = SI().zStep();
-    timerange_.set( -wvltsz_*zstep*500 , wvltsz_*zstep*500 );
+    float zstep = wvlt_->sampleRate();
+    timerange_.set( wvlt_->samplePositions().start, 
+		    wvlt_->samplePositions().stop );
     timedrawer_->setFunction( *wvltvals_, timerange_ );
     
     float maxfreq = 0.5/zstep;
@@ -260,14 +261,13 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    , wvltattr_(new WaveletAttrib(wvlt))
 	    , wvltsz_(wvlt.size())
 {
-    float zstep = SI().zStep();
-    timerange_.set( -wvltsz_*zstep*500 , wvltsz_*zstep*500 );
-    float maxfreq = 0.5/zstep;
+    timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop );
+    float maxfreq = 0.5/wvlt.sampleRate();
     if ( SI().zIsTime() ) maxfreq = mNINT( maxfreq );
     freqrange_.set( 0, maxfreq );
 
     for ( int iattr=0; attrnms[iattr]; iattr++ )
-	addAttrDisp( iattr == 1 );
+	addAttrDisp( iattr );
     
     setAttrCurves( wvlt );
 }
@@ -280,22 +280,26 @@ uiWaveletDispProp::~uiWaveletDispProp()
 }
 
 
-void uiWaveletDispProp::addAttrDisp( bool isfreq )
+void uiWaveletDispProp::addAttrDisp( int attridx )
 {
     uiFunctionDisplay::Setup fdsu;
 
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
-    const int attridx = attrarrays_.size()-1;
     BufferString xname, yname = attrnms[attridx];
-    if ( isfreq )
+    fdsu.ywidth_ = 2;
+    if ( attridx == 1 )
     {
 	xname += attrnms[0];
 	fdsu.fillbelow( true );
 	attrarrays_[attridx]->setSize( mPadSz );
 	BufferString tmp; mSWAP( xname, yname, tmp );
     }
+    else if ( attridx == 0 )
+    {
+	xname += "Time (s)";
+    }
     else
-	xname += "Time (ms)";
+	xname += "Frequency";
 
     attrdisps_ += new uiFunctionDisplay( this, fdsu );
     if ( attridx )
@@ -314,7 +318,7 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
     wvltattr_->getPhase( *attrarrays_[2], true );
 
     for ( int idx=0; idx<attrarrays_.size(); idx++ )
-	attrdisps_[idx]->setVals( idx==1 ? freqrange_ : timerange_, 
+	attrdisps_[idx]->setVals( idx==0 ? timerange_ : freqrange_, 
 				  attrarrays_[idx]->arr(), 
 				  idx==1 ? mPadSz : wvltsz_ );
 }

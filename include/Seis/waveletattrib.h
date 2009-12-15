@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.h,v 1.8 2009-11-27 11:56:28 cvsbruno Exp $
+ RCS:           $Id: waveletattrib.h,v 1.9 2009-12-15 14:53:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ public:
 
     void		getHilbert(Array1DImpl<float>&);
     void		getPhase(Array1DImpl<float>&,bool degree=false);
+    void 		unwrapPhase(int,float,float* phase);
+
 
     void		getFrequency(Array1DImpl<float>&,int padfac=1);
     			//frequency array will be resized to padfac*array size )

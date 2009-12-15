@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          Nov 2009
- RCS:           $Id: waveletattrib.cc,v 1.7 2009-11-27 11:56:28 cvsbruno Exp $
+ RCS:           $Id: waveletattrib.cc,v 1.8 2009-12-15 14:53:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,16 +62,55 @@ void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb )
 
 void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool degree )
 {
-    Array1DImpl<float> hilb( wvltsz_ );
-    getHilbert( hilb );
+    Array1DImpl<float_complex> cindata( wvltsz_ );
+    Array1DImpl<float_complex> coutdata( wvltsz_ );
+
+    for ( int sampidx=0; sampidx<wvltsz_; sampidx++ )
+	cindata.set( sampidx, wvltarr_->get( sampidx ) );
+
+    mDoTransform( fft_, true, cindata, coutdata, wvltsz_ );
+
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
-	float ph = 0;
-	if ( !mIsZero(wvltarr_->get(idx),mDefEps)  )
-	    ph = atan2( hilb.get(idx), wvltarr_->get(idx) );
+	float re = coutdata.get(idx).real();
+	float im = coutdata.get(idx).imag();
+	float ph = (re*re+im*im) ? atan2( im, re )  : 0;
+	
 	phase.set( idx, degree ? 180*ph/M_PI : ph );
     }
+    unwrapPhase( wvltsz_, 1, phase.arr() );
 }
+
+
+//TODO put this in algo :
+void WaveletAttrib::unwrapPhase( int nrsamples, float w, float* phase )
+{
+    if ( w==0 )
+    {
+	fprintf( stderr, "wrapping parameter is zero" );
+	return;
+    }
+
+    mAllocVarLenArr( float, dphase, nrsamples );
+    mAllocVarLenArr( float, temp, nrsamples );
+
+    float pibyw = M_PI/w;
+
+    temp[0] = phase[0];
+    dphase[0] = 0;
+
+    for ( int idx=1; idx<nrsamples; idx++ )
+    {
+	dphase[idx] = fabs( phase[idx] - phase[idx-1] );
+	if ( fabs( dphase[idx] - dphase[idx-1] ) >= pibyw )
+	    dphase[idx] = dphase[idx-1];
+
+	temp[idx] = temp[idx-1] + dphase[idx];
+    }
+    for ( int idx=1; idx<nrsamples; idx++ )
+	phase[idx] = temp[idx];
+}
+
 
 
 void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
