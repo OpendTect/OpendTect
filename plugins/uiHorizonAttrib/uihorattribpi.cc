@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.20 2009-10-29 08:47:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.21 2009-12-15 10:48:17 cvsraman Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -198,11 +198,10 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     }
 
     const int attrib = visserv->addAttrib( displayid );
-    Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cOtherAttrib(),
+    Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
 	    		  false, 0 );
-    spec.setDefString( "Cont Def" );
+    spec.setDefString( uiContourTreeItem::sKeyContourDefString() );
     visserv->setSelSpec( displayid, attrib, spec );
-    visserv->enableAttrib( displayid, attrib, false );
 
     uiContourTreeItem* newitem = new uiContourTreeItem(typeid(*parent).name());
     parent->addChild( newitem, false );
@@ -242,6 +241,7 @@ void uiHorAttribPIMgr::calcHorVol( CallBacker* )
 mExternC const char* InituiHorizonAttribPlugin( int, char** )
 {
     uiHorizonAttrib::initClass();
+    uiContourTreeItem::initClass();
     static uiHorAttribPIMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiHorAttribPIMgr( ODMainWin() );
 

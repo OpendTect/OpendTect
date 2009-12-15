@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id: uicontourtreeitem.h,v 1.5 2009-10-12 03:57:11 cvsnanne Exp $
+ RCS:           $Id: uicontourtreeitem.h,v 1.6 2009-12-15 10:48:17 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ public:
 
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
     void			setupChangeCB(CallBacker*);
+
+    static const char*		sKeyContourDefString();
 
 protected:
 

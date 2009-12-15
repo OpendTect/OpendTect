@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.8 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.9 2009-12-15 10:48:17 cvsraman Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -150,6 +150,10 @@ void setDisplayTransformation( visBase::Transformation* nt )
 };
 
 
+
+const char* uiContourTreeItem::sKeyContourDefString()
+{ return "Countour Display"; }
+
 void uiContourTreeItem::initClass()
 { uiODDataTreeItem::factory().addCreator( create, 0 ); }
 
@@ -206,7 +210,9 @@ bool uiContourTreeItem::init()
 uiODDataTreeItem* uiContourTreeItem::create( const Attrib::SelSpec& as,
 					       const char* parenttype )
 {
-    return new uiContourTreeItem(parenttype);
+    BufferString defstr = as.defString();
+    return defstr == sKeyContourDefString() ? new uiContourTreeItem(parenttype)
+					    : 0;
 }
 
 
