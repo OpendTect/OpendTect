@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.98 2009-12-11 14:48:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.99 2009-12-15 12:20:18 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.98 2009-12-11 14:48:23 cvs
 #include "seispsioprov.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
+#include "seis2dlinemerge.h"
 #include "survinfo.h"
 #include "zdomain.h"
 
@@ -46,6 +47,7 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.98 2009-12-11 14:48:23 cvs
 #include "uiseis2dgeom.h"
 #include "uisplitter.h"
 #include "uitextedit.h"
+#include "uitaskrunner.h"
 
 static const int cPrefWidth = 50;
 
@@ -589,7 +591,8 @@ public:
 
 uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 			 const BufferStringSet& sellns )
-    : uiDialog(p,Setup("Merge lines","Merge two lines into one",mTODOHelpID) )
+    : uiDialog(p,Setup("Merge lines","Merge two lines into a new one",
+		       mTODOHelpID) )
     , objinf_(objinf)
 {
     BufferStringSet lnms; objinf_.getLineNames( lnms );
@@ -617,9 +620,9 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     nrdeffld_ = new uiGenInput( this, "Start/step numbers", IntInpSpec(1),
 	    			IntInpSpec(1) );
     nrdeffld_->attach( alignedBelow, renumbfld_ );
-    float defsd = SI().crlDistance() / 2;
-    if ( SI().xyInFeet() ) defsd *= mToFeetFactor;
-    snapdistfld_ = new uiGenInput( this, "Snap distance", FloatInpSpec(defsd) );
+    double defsd = SI().crlDistance() / 2;
+    if ( SI().xyInFeet() ) defsd *= mToFeetFactorD;
+    snapdistfld_ = new uiGenInput( this, "Snap distance", DoubleInpSpec(defsd));
     snapdistfld_->attach( alignedBelow, nrdeffld_ );
 
     outfld_ = new uiGenInput( this, "New line name", StringInpSpec() );
@@ -631,13 +634,15 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 void initWin( CallBacker* )
 {
     optSel(0);
+    renumbfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
     renumbfld_->checked.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
 }
 
 void optSel( CallBacker* )
 {
     const int opt = mrgoptfld_->getIntValue();
-    const bool dorenumb = renumbfld_->isChecked();
+    const bool dorenumb = renumbfld_->isChecked()
+		       && !renumbfld_->getBoolValue();
     stckfld_->display( opt < 2 );
     renumbfld_->display( opt > 0 );
     nrdeffld_->display( opt > 0 && dorenumb );
@@ -655,23 +660,31 @@ bool acceptOK( CallBacker* )
     if ( lnms.isPresent( outnm ) )
 	mErrRet( "Output line name already in Line Set" );
 
-    const BufferString lnm1 = ln1fld_->text();
-    const BufferString lnm2 = ln2fld_->text();
-    if ( lnm1 == lnm2 )
-	mErrRet( "Stubbornly refusing to merge a line with itself" );
+    Seis2DLineMerger lmrgr( objinf_.ioObj()->key() );
+    lmrgr.lnm1_ = ln1fld_->text();
+    lmrgr.lnm2_ = ln2fld_->text();
+    if ( lmrgr.lnm1_ == lmrgr.lnm2_ )
+	mErrRet( "Respectfully refusing to merge a line with itself" );
 
-    const int opt = mrgoptfld_->getIntValue();
-    const bool dorenumb = renumbfld_->isChecked();
-    float snapdist = 0;
-    if ( opt == 1 )
+    lmrgr.opt_ = (Seis2DLineMerger::Opt)mrgoptfld_->getIntValue();
+    lmrgr.renumber_ = lmrgr.opt_ != Seis2DLineMerger::MatchTrcNr
+		   && renumbfld_->isChecked();
+
+    if ( lmrgr.renumber_ )
     {
-	snapdist = snapdistfld_->getfValue();
-	if ( mIsUdf(snapdist) || snapdist < 0 )
-	    mErrRet( "Please specify a valid snap distance" );
-	if ( SI().xyInFeet() ) snapdist *= mFromFeetFactor;
+	lmrgr.numbering_.start = nrdeffld_->getIntValue(0);
+	lmrgr.numbering_.step = nrdeffld_->getIntValue(1);
     }
 
-    mErrRet( "TODO: implement" );
+    if ( lmrgr.opt_ == Seis2DLineMerger::MatchCoords )
+    {
+	lmrgr.snapdist_ = snapdistfld_->getdValue();
+	if ( mIsUdf(lmrgr.snapdist_) || lmrgr.snapdist_ < 0 )
+	    mErrRet( "Please specify a valid snap distance" );
+    }
+
+    uiTaskRunner tr( this );
+    return tr.execute( lmrgr );
 }
 
     const uiSeisIOObjInfo&	objinf_;

@@ -7,12 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seiscbvs2d.h,v 1.13 2009-09-14 13:18:37 cvshelene Exp $
+ RCS:		$Id: seiscbvs2d.h,v 1.14 2009-12-15 12:20:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seis2dline.h"
+#include "seis2dlineio.h"
 class SeisTrc;
 class CBVSSeisTrcTranslator;
 

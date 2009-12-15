@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initseis.cc,v 1.6 2009-12-03 15:28:05 cvsbert Exp $";
+static const char* rcsID = "$Id: initseis.cc,v 1.7 2009-12-15 12:20:18 cvsbert Exp $";
 
 #include "initseis.h"
 #include "timedepthconv.h"
 #include "seisseqio.h"
 #include "segytr.h"
 #include "seiscbvs.h"
-#include "seis2dline.h"
+#include "seis2dlineio.h"
 #include "seispscubetr.h"
 
 #define sKeySeisTrcTranslatorGroup "Seismic Data"

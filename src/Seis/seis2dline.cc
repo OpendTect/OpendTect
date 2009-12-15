@@ -4,11 +4,10 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.76 2009-11-27 03:01:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.77 2009-12-15 12:20:18 cvsbert Exp $";
 
 #include "seis2dline.h"
-#include "seistrctr.h"
-#include "seispacketinfo.h"
+#include "seis2dlineio.h"
 #include "seisselection.h"
 #include "seisbuf.h"
 #include "linesetposinfo.h"
@@ -21,91 +20,16 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.76 2009-11-27 03:01:38 cvsnan
 #include "survinfo.h"
 #include "executor.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "keystrs.h"
 #include "iopar.h"
 #include "ioobj.h"
-#include "hostdata.h"
 #include "timefun.h"
 #include "errh.h"
 
 #include <iostream>
 #include <sstream>
 
-ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
-{
-    static ObjectSet<Seis2DLineIOProvider>* theinst = 0;
-    if ( !theinst ) theinst = new ObjectSet<Seis2DLineIOProvider>;
-    return *theinst;
-}
-
-
-bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
-{
-    if ( !ioobj ) return true;
-    BufferString fnm( ioobj->fullUserExpr(true) );
-    Seis2DLineSet lg( fnm );
-    const int nrlines = lg.nrLines();
-    BufferStringSet nms;
-    for ( int iln=0; iln<nrlines; iln++ )
-	nms.add( lg.lineKey(iln) );
-    for ( int iln=0; iln<nrlines; iln++ )
-	lg.remove( nms.get(iln) );
-    nms.erase();
-
-    BufferString bakfnm( fnm ); bakfnm += ".bak";
-    if ( File_exists(bakfnm) )
-	File_remove( bakfnm, mFile_NotRecursive );
-
-    return File_remove( fnm, mFile_NotRecursive );
-}
-
-
-bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
-					const CallBack* cb ) const
-{
-    if ( !ioobj )
-	return false;
-
-    bool res = Translator::implRename( ioobj, newnm, cb );
-    if ( !res ) 
-	return false;
-
-    Seis2DLineSet ls( *ioobj );
-    return ls.rename( ioobj->name() );
-}
-
-
-bool TwoDSeisTrcTranslator::initRead_()
-{
-    errmsg = 0;
-    if ( !conn->ioobj )
-	{ errmsg = "Cannot reconstruct 2D filename"; return false; }
-    BufferString fnm( conn->ioobj->fullUserExpr(true) );
-    if ( !File_exists(fnm) ) return false;
-
-    Seis2DLineSet lset( fnm );
-    if ( lset.nrLines() < 1 )
-	{ errmsg = "Line set is empty"; return false; }
-    lset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
-    addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
-
-    if ( seldata )
-	curlinekey = seldata->lineKey();
-    if ( !curlinekey.lineName().isEmpty() && lset.indexOf(curlinekey) < 0 )
-	{ errmsg = "Cannot find line key in line set"; return false; }
-    CubeSampling cs( true );
-    errmsg = lset.getCubeSampling( cs, curlinekey );
-
-    insd.start = cs.zrg.start; insd.step = cs.zrg.step;
-    innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo.inlrg.start = cs.hrg.start.inl; pinfo.inlrg.stop = cs.hrg.stop.inl;
-    pinfo.inlrg.step = cs.hrg.step.inl; pinfo.crlrg.step = cs.hrg.step.crl;
-    pinfo.crlrg.start = cs.hrg.start.crl; pinfo.crlrg.stop = cs.hrg.stop.crl;
-    return true;
-}
-
-
-// ----- Seis2DLineSet -----
 
 Seis2DLineSet::Seis2DLineSet( const IOObj& ioobj )
     : NamedObject("")
@@ -917,8 +841,9 @@ int nextStep()
 	curmsg = "Couldn't get geometry for '";
 	curmsg += ls.lineKey( curidx );
 	curmsg += "'";
-	return totalnr == 1 ? ErrorOccurred()
-	    		    : (curidx == lastidx ? Finished() : WarningAvailable());
+	return totalnr == 1		? ErrorOccurred()
+	     : (curidx == lastidx	? Finished()
+					: WarningAvailable());
     }
 
     BufferString outstr;

@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.26 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.27 2009-12-15 12:20:18 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: madstream.cc,v 1.26 2009-07-22 16:01:27 cvsbert
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
+#include "seistrctr.h"
 #include "seispacketinfo.h"
 #include "seiswrite.h"
 #include "strmprov.h"
