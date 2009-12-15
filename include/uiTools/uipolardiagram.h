@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uipolardiagram.h,v 1.3 2009-11-04 09:23:40 cvskarthika Exp $
+ RCS:           $Id: uipolardiagram.h,v 1.4 2009-12-15 10:38:48 cvskarthika Exp $
 ________________________________________________________________________
 
  Displays a polar diagram which can be used to set the azimuth and the dip 
@@ -47,9 +47,8 @@ protected:
 
     uiPoint			center_;
     int				radius_;
-    // angles are in user degrees
-    float			azimuth_;
-    float			dip_;
+    float			azimuth_;  // user degrees
+    float			dip_;  // degrees
 
     ObjectSet<uiCircleItem>	circleitms_;
     ObjectSet<uiLineItem>	segmentitms_;
