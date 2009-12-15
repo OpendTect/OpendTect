@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.58 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.59 2009-12-15 14:04:59 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -144,13 +144,21 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 				 "Advanced and Optional",nHelpID))
     , uwia_(p)
 {
+    const Well::Info& info = uwia_->wd_.info();
+
+    PositionInpSpec::Setup possu( true );
+    if ( !mIsZero(info.surfacecoord.x,0.1) )
+	possu.coord_ = info.surfacecoord;
     coordfld = new uiGenInput( this,
 	"Surface coordinate (if different from first coordinate in track file)",
-	PositionInpSpec( PositionInpSpec::Setup(true))
-	.setName("X",0).setName("Y",1) );
+	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
+    float dispval = -info.surfaceelev;
+    if ( SI().depthsInFeetByDefault() && !mIsUdf(info.surfaceelev) ) 
+	dispval *= mToFeetFactor;
+    if ( mIsZero(dispval,0.01) ) dispval = 0;
     elevfld = new uiGenInput( this,
-	    "Surface Reference Datum (SRD)", FloatInpSpec(0) );
+	    "Surface Reference Datum (SRD)", FloatInpSpec(dispval) );
     elevfld->attach( alignedBelow, coordfld );
     zinftbox = new uiCheckBox( this, "Feet" );
     zinftbox->attach( rightOf, elevfld );
@@ -159,16 +167,16 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, elevfld );
 
-    idfld = new uiGenInput( this, "Well ID (UWI)" );
+    idfld = new uiGenInput( this, "Well ID (UWI)", StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, elevfld );
     
-    operfld = new uiGenInput( this, "Operator" );
+    operfld = new uiGenInput( this, "Operator", StringInpSpec(info.oper) );
     operfld->attach( alignedBelow, idfld );
     
-    statefld = new uiGenInput( this, "State" );
+    statefld = new uiGenInput( this, "State", StringInpSpec(info.state) );
     statefld->attach( alignedBelow, operfld );
 
-    countyfld = new uiGenInput( this, "County" );
+    countyfld = new uiGenInput( this, "County", StringInpSpec(info.county) );
     countyfld->attach( rightTo, statefld );
 }
 
