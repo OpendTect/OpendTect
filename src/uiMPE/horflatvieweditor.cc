@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.13 2009-11-13 11:04:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.14 2009-12-15 12:18:23 cvsbert Exp $";
 
 #include "horflatvieweditor.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: horflatvieweditor.cc,v 1.13 2009-11-13 11:04:59
 #include "emhorizon2d.h"
 #include "horizon2dseedpicker.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "linesetposinfo.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
