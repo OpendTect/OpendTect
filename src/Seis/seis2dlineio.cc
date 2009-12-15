@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.1 2009-12-15 12:20:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.2 2009-12-15 16:15:25 cvsbert Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -97,7 +97,10 @@ bool TwoDSeisTrcTranslator::initRead_()
 Seis2DLineMerger::Seis2DLineMerger( const MultiID& lsky )
     : Executor("Merging linens")
     , oinf_(*new SeisIOObjInfo(lsky))
-    , tbuf_(*new SeisTrcBuf(false))
+    , ls_(0)
+    , fetcher_(0)
+    , putter_(0)
+    , outbuf_(*new SeisTrcBuf(false))
     , tbuf1_(*new SeisTrcBuf(false))
     , tbuf2_(*new SeisTrcBuf(false))
     , l2dd1_(*new PosInfo::Line2DData)
@@ -119,9 +122,13 @@ Seis2DLineMerger::Seis2DLineMerger( const MultiID& lsky )
 
 Seis2DLineMerger::~Seis2DLineMerger()
 {
+    delete fetcher_;
+    delete putter_;
+    delete ls_;
+
     delete &tbuf1_;
     delete &tbuf2_;
-    delete &tbuf_;
+    delete &outbuf_;
     delete &attrnms_;
     delete &oinf_;
 }
@@ -160,7 +167,7 @@ bool Seis2DLineMerger::nextAttr()
     }
 
     msg_ = "Merging '"; msg_ += attrnms_.get(curattridx_); msg_ += "'";
-    currentlyreading_ = 1;
+    currentlyreading_ = 0;
     return nextFetcher();
 }
 
@@ -175,9 +182,10 @@ bool Seis2DLineMerger::nextAttr()
 
 bool Seis2DLineMerger::nextFetcher()
 {
+    delete fetcher_; fetcher_ = 0;
     currentlyreading_++;
     if ( currentlyreading_ > 2 )
-	{ currentlyreading_ = 0; return false; }
+	{ currentlyreading_ = 0; return true; }
 
     const int lid = currentlyreading_ == 1 ? lid1_ : lid2_;
     PosInfo::Line2DData& l2dd( currentlyreading_==1 ? l2dd1_ : l2dd2_ );
@@ -187,16 +195,15 @@ bool Seis2DLineMerger::nextFetcher()
 
     if ( !ls_->getGeometry(lid,l2dd) )
 	mErrRet("Cannot open")
+    nrdone_ = 0;
     totnr_ = l2dd.posns_.size();
     if ( totnr_ < 0 )
 	mErrRet("No data in")
-    delete fetcher_;
-    fetcher_ = ls_->lineFetcher( lid, tbuf );
+    fetcher_ = ls_->lineFetcher( lid, tbuf, 1 );
     if ( !fetcher_ )
 	mErrRet("Cannot create a reader for")
 
-
-    nrdonemsg_ = "Traces read ("; nrdonemsg_ += lnm; nrdonemsg_ += ")";
+    nrdonemsg_ = "Traces read";
     return true;
 }
 
@@ -208,34 +215,87 @@ int Seis2DLineMerger::nextStep()
 {
     if ( !oinf_.isOK() )
 	mErrRet("Cannot find the Line Set")
+    else if ( ls_ )
+	return doWork();
 
-    if ( !ls_ )
+    if ( attrnms_.isEmpty() )
     {
+	BufferStringSet attrnms2;
+	oinf_.getAttribNamesForLine( lnm1_, attrnms_ );
+	oinf_.getAttribNamesForLine( lnm2_, attrnms2 );
+	attrnms_.add( attrnms2, false );
 	if ( attrnms_.isEmpty() )
-	{
-	    BufferStringSet attrnms2;
-	    oinf_.getAttribNamesForLine( lnm1_, attrnms_ );
-	    oinf_.getAttribNamesForLine( lnm2_, attrnms2 );
-	    attrnms_.add( attrnms2, false );
-	    if ( attrnms_.isEmpty() )
-		mErrRet("Cannot find any attributes for these lines");
-	}
-	ls_ = new Seis2DLineSet( *oinf_.ioObj() );
-	if ( ls_->nrLines() < 2 )
-	    mErrRet("Cannot find 2 lines in Line Set");
+	    mErrRet("Cannot find any attributes for these lines");
+    }
+    ls_ = new Seis2DLineSet( *oinf_.ioObj() );
+    if ( ls_->nrLines() < 2 )
+	mErrRet("Cannot find 2 lines in Line Set");
 
-	curattridx_ = -1;
-	msg_.setEmpty();
-	if ( !nextAttr() )
+    curattridx_ = -1;
+    msg_.setEmpty();
+    if ( !nextAttr() )
+    {
+	if ( msg_.isEmpty() )
+	    msg_ = "Cannot find any common attribute";
+	mErrRet(0)
+    }
+
+    return Executor::MoreToDo();
+}
+
+
+int Seis2DLineMerger::doWork()
+{
+    if ( fetcher_ )
+    {
+	const int res = fetcher_->doStep();
+	if ( res < 0 )
+	    { msg_ = fetcher_->message(); return res; }
+	else if ( res == 1 )
+	    { nrdone_++; return Executor::MoreToDo(); }
+
+	return nextFetcher() ? Executor::MoreToDo() : Executor::ErrorOccurred();
+    }
+    else if ( putter_ )
+    {
+	if ( nrdone_ >= outbuf_.size() )
 	{
-	    if ( msg_.isEmpty() )
-		msg_ = "Cannot find any common attribute";
-	    mErrRet(0)
+	    outbuf_.deepErase();
+	    if ( !putter_->close() )
+		mErrRet(putter_->errMsg())
+	    delete putter_; putter_ = 0;
+	    return nextAttr() ? Executor::MoreToDo() : Executor::Finished();
 	}
 
+	const SeisTrc& trc = *outbuf_.get( nrdone_ );
+	if ( !putter_->put(trc) )
+	    mErrRet(putter_->errMsg())
+
+	nrdone_++;
 	return Executor::MoreToDo();
     }
 
+    mergeBufs();
 
-    mErrRet("TODO: Not impl");
+    nrdone_ = 0;
+    totnr_ = outbuf_.size();
+    IOPar* lineiopar = new IOPar( ls_->getInfo(lid1_) );
+    LineKey lk( outlnm_, attrnms_.get(curattridx_) );
+    lk.fillPar( *lineiopar, true );
+    putter_ = ls_->linePutter( lineiopar );
+    if ( !putter_ )
+	mErrRet("Cannot create writer for output line");
+
+    nrdonemsg_ = "Traces written";
+    return Executor::MoreToDo();
+}
+
+
+void Seis2DLineMerger::mergeBufs()
+{
+    // TODO: implement properly
+    outbuf_.stealTracesFrom( tbuf1_ );
+    outbuf_.stealTracesFrom( tbuf2_ );
+    outbuf_.sort( true, SeisTrcInfo::TrcNr );
+    outbuf_.enforceNrTrcs( 1, SeisTrcInfo::TrcNr );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2009
- RCS:		$Id: seis2dlinemerge.h,v 1.1 2009-12-15 12:20:18 cvsbert Exp $
+ RCS:		$Id: seis2dlinemerge.h,v 1.2 2009-12-15 16:15:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class SeisTrcBuf;
 class SeisIOObjInfo;
 class Seis2DLineSet;
 class BufferStringSet;
+class Seis2DLinePutter;
 namespace PosInfo { class Line2DData; }
 
 
@@ -57,8 +58,9 @@ protected:
     PosInfo::Line2DData& l2dd2_;
     SeisTrcBuf&		tbuf1_;
     SeisTrcBuf&		tbuf2_;
-    SeisTrcBuf&		tbuf_;
+    SeisTrcBuf&		outbuf_;
     Executor*		fetcher_;
+    Seis2DLinePutter*	putter_;
     BufferStringSet&	attrnms_;
     int			curattridx_;
     int			currentlyreading_;
@@ -70,6 +72,9 @@ protected:
     od_int64		nrdone_;
     od_int64		totnr_;
 
+    int			doWork();
+    int			doIO();
+    void		mergeBufs();
     bool		getLineID(const char*,int&) const;
     bool		nextAttr();
     bool		nextFetcher();

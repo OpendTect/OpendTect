@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.99 2009-12-15 12:20:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.100 2009-12-15 16:15:25 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -666,6 +666,7 @@ bool acceptOK( CallBacker* )
     if ( lmrgr.lnm1_ == lmrgr.lnm2_ )
 	mErrRet( "Respectfully refusing to merge a line with itself" );
 
+    lmrgr.outlnm_ = outnm;
     lmrgr.opt_ = (Seis2DLineMerger::Opt)mrgoptfld_->getIntValue();
     lmrgr.renumber_ = lmrgr.opt_ != Seis2DLineMerger::MatchTrcNr
 		   && renumbfld_->isChecked();
