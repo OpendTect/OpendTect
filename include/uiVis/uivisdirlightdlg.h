@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.9 2009-11-03 10:31:36 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.10 2009-12-15 10:37:04 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,9 +75,8 @@ protected:
     {
 		int		sceneid_;
         	
-		// angles are in user degrees
-        	float		azimuth_;
-        	float		dip_;
+        	float		azimuth_;  // user degrees
+        	float		dip_;  // degrees
         	
 		float		intensity_;
         	float		headonintensity_;
