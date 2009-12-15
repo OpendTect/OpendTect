@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiseiswvltattr.h,v 1.13 2009-11-25 14:09:20 cvsbruno Exp $
+ RCS:           $Id: uiseiswvltattr.h,v 1.14 2009-12-15 16:49:24 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ private:
     Interval<float>		timerange_;
     Interval<float>		freqrange_;
 
-    void			addAttrDisp(bool);
+    void			addAttrDisp(int);
 };
 
 
