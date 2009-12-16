@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.23 2009-10-23 13:02:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.24 2009-12-16 13:16:11 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -37,21 +37,20 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d )
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
     ObjectSet<uiGroup> tgs;
-    tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
-    tgs +=  new uiGroup( ts_->tabGroup(), "Marker properties" );
     tgs += new uiGroup( ts_->tabGroup(), "Left log properties" );
     tgs +=  new uiGroup( ts_->tabGroup(), "Right Log properties" );
+    tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
+    tgs +=  new uiGroup( ts_->tabGroup(), "Marker properties" );
 
-    propflds_ += new uiWellTrackDispProperties( tgs[0],
-		    uiWellDispProperties::Setup(), props_.track_ );
-    propflds_ += new uiWellMarkersDispProperties( tgs[1],
-		    uiWellDispProperties::Setup( "Marker size", "Marker color" )		    ,props_.markers_ );
-    propflds_ += new uiWellLogDispProperties( tgs[2],
+    propflds_ += new uiWellLogDispProperties( tgs[0],
 		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props_.left_, &(wd_->logs()) );
-    propflds_ += new uiWellLogDispProperties( tgs[3],
+    propflds_ += new uiWellLogDispProperties( tgs[1],
 		    uiWellDispProperties::Setup( "Line thickness", "Line color")		    ,props_.right_, &(wd_->logs()) );
-  
     bool foundlog = false;
+    propflds_ += new uiWellTrackDispProperties( tgs[2],
+		    uiWellDispProperties::Setup(), props_.track_ );
+    propflds_ += new uiWellMarkersDispProperties( tgs[3],
+		    uiWellDispProperties::Setup( "Marker size", "Marker color" )		    ,props_.markers_ );
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	propflds_[idx]->propChanged.notify(
