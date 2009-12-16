@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.193 2009-11-23 10:56:35 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.194 2009-12-16 15:33:52 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -613,27 +613,8 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	toolbar->turnOn( showcubeidx, false );
 	showCubeCB(0);
 
-	if ( !clickcatcher )
-	{
-	    TypeSet<int> catcherids;
-	    visserv->findObject( typeid(visSurvey::MPEClickCatcher), 
-		    		 catcherids );
-	    if ( catcherids.size() )
-	    {
-		visBase::DataObject* dobj = visserv->getObject( catcherids[0] );
-	        clickcatcher = 
-		    reinterpret_cast<visSurvey::MPEClickCatcher*>( dobj );
-	    }
-	    else
-	    {
-		clickcatcher = visSurvey::MPEClickCatcher::create();
-	    }
-	    clickcatcher->ref();
-	    clickcatcher->click.notify(mCB(this,uiMPEMan,seedClick));
-	}
-
-	clickcatcher->turnOn( true );
 	updateClickCatcher();
+	clickcatcher->turnOn( true );
 	
 	const EM::EMObject* emobj = 
 	    		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
@@ -658,8 +639,27 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 void uiMPEMan::updateClickCatcher()
 {
+    if ( !clickcatcher )
+    {
+	TypeSet<int> catcherids;
+	visserv->findObject( typeid(visSurvey::MPEClickCatcher), 
+			     catcherids );
+	if ( catcherids.size() )
+	{
+	    visBase::DataObject* dobj = visserv->getObject( catcherids[0] );
+	    clickcatcher = reinterpret_cast<visSurvey::MPEClickCatcher*>(dobj);
+	}
+	else
+	{
+	    clickcatcher = visSurvey::MPEClickCatcher::create();
+	}
+	clickcatcher->ref();
+	clickcatcher->click.notify(mCB(this,uiMPEMan,seedClick));
+	clickcatcher->turnOn( false );
+    }
+
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( !clickcatcher || selectedids.size()!=1 ) 
+    if ( selectedids.size() != 1 ) 
 	return;
 
     const int newsceneid = visserv->getSceneID( selectedids[0] );
