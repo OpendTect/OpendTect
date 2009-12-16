@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.10 2009-12-15 10:37:04 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.11 2009-12-16 10:57:06 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "uipolardiagram.h"
 
 class uiVisPartServer;
+class uiButtonGroup;
+class uiLabel;
+class uiRadioButton;
 class uiSliderExtra;
 class uiLabeledComboBox;
 class uiGenInput;
@@ -38,6 +41,9 @@ protected:
     void			setDirLight();
     float			getHeadOnLight(int) const;
     void			setHeadOnLight();
+    float			getAmbientLight(int) const;
+    void			setAmbientLight();
+    void			turnOnDirLight(bool);
     int				updateSceneSelector();	
     void			updateInitInfo();
     void			saveInitInfo();
@@ -52,20 +58,27 @@ protected:
     bool			rejectOK(CallBacker*);
     void			pdDlgDoneCB(CallBacker*);
     void			showPolarDiagramCB(CallBacker*);
+    void			lightSelChangedCB(CallBacker*);
     void			sceneSelChangedCB(CallBacker*);
     void			fieldChangedCB(CallBacker*);
     void			polarDiagramCB(CallBacker*);
     void			headOnChangedCB(CallBacker*);
+    void			ambientChangedCB(CallBacker*);
     void			nrScenesChangedCB(CallBacker*);
     void			sceneNameChangedCB(CallBacker*);
     void			activeSceneChangedCB(CallBacker*);
     
     uiVisPartServer*		visserv_;
+    uiButtonGroup*		lightgrp_;
+    uiLabel*			lightlbl_;
+    uiRadioButton*		cameralightfld_;
+    uiRadioButton*		scenelightfld_;
     uiLabeledComboBox*		scenefld_;
     uiSliderExtra*		azimuthfld_;
     uiSliderExtra*		dipfld_;
     uiSliderExtra*		intensityfld_;
     uiSliderExtra*		headonintensityfld_;
+    uiSliderExtra*		ambintensityfld_;
     uiSeparator*		sep_;
     uiPushButton*		showpdfld_;
     uiPolarDiagram*		pd_;
@@ -80,6 +93,7 @@ protected:
         	
 		float		intensity_;
         	float		headonintensity_;
+        	float		ambintensity_;
 	
 	public:
 
@@ -94,6 +108,9 @@ protected:
 
     TypeSet<InitInfoType>	initinfo_;
 
+    bool			initlighttype_;
+    				// initial light type: 0 - headon light, 
+    				// 1 - scene (directional light)
 };
 
 #endif
