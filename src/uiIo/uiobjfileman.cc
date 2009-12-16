@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.27 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.28 2009-12-16 11:33:04 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"
@@ -163,12 +163,7 @@ BufferString uiObjFileMan::getFileInfo()
 
     mDynamicCastGet(StreamConn*,conn,curioobj_->getConn(Conn::Read))
     if ( !conn )
-    {
-	BufferString errtxt( "File not found:\n" );
-	errtxt += curioobj_->fullUserExpr( true );
-	infofld->setText( errtxt );
-	return errtxt;
-    }
+	{ txt = "-"; infofld->setText( txt ); return txt; }
 
     BufferString fname( conn->fileName() );
     FilePath fp( fname );
