@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.35 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.36 2009-12-16 16:00:29 cvsjaap Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.35 2009-07-22 16:01:
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vissurvobj.h"
 
@@ -304,6 +305,12 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( askContinueAndSaveIfNeeded() )
 	{
 	    prepareForShutdown();
+
+	    mDynamicCastGet( const visSurvey::SurveyObject*, so,
+			     visserv_->getObject(displayid_) );
+	    if ( ODMainWin()->colTabEd().getSurvObj() == so )
+		ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
+
 	    visserv_->removeObject( displayid_, sceneID() );
 	    parent_->removeChild( this );
 	}
