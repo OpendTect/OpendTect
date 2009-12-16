@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.140 2009-11-30 12:17:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.141 2009-12-16 11:13:40 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -438,7 +438,7 @@ Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     const int nr2d = ds2d->nrDescs( false );
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
 
-    int res = uiMSG().askGoOnAfter( "Which Attributes set do you want to use?",
+    int res = uiMSG().askGoOnAfter( "Which attributes do you want to use?",
 	   			    0, "&3D", "&2D" );
     if ( res == 2 ) return 0;
     return res == 0 ? ds3d : ds2d;
