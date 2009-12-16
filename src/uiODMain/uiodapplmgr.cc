@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.366 2009-12-08 16:51:06 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.367 2009-12-16 11:17:03 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1545,7 +1545,7 @@ void uiODApplMgr::tieWellToSeismic( CallBacker* )
 
 void uiODApplMgr::doVolProc( CallBacker* )
 { attrserv_->doVolProc(); }
-void uiODApplMgr::createVolProcOutput(CallBacker*)
+void uiODApplMgr::createVolProcOutput( CallBacker* )
 { attrserv_->createVolProcOutput(); }
 bool uiODApplMgr::editNLA( bool is2d )
 { return attrvishandler_.editNLA( is2d ); }
@@ -1553,9 +1553,9 @@ void uiODApplMgr::createHorOutput( int tp, bool is2d )
 { attrvishandler_.createHorOutput( tp, is2d ); }
 void uiODApplMgr::createVol( bool is2d )
 { attrvishandler_.createVol( is2d ); }
-void uiODApplMgr::doXPlot()
+void uiODApplMgr::doWellXPlot( CallBacker* )
 { attrvishandler_.doXPlot(); }
-void uiODApplMgr::crossPlot()
+void uiODApplMgr::doAttribXPlot( CallBacker* )
 { attrvishandler_.crossPlot(); }
 void uiODApplMgr::setZStretch()
 { attrvishandler_.setZStretch(); }

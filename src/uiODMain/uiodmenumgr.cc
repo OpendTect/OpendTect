@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.196 2009-12-11 09:42:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.197 2009-12-16 11:17:03 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -258,8 +258,10 @@ void uiODMenuMgr::fillImportMenu()
 
     impmnus_.erase();
     impmnus_.allowNull();
-    impmnus_ += impseis; impmnus_ += imphor; impmnus_ += impfault; 
-    impmnus_ += impwell; impmnus_ += 0;
+    impmnus_ += impseis; impmnus_ += imphor; impmnus_ += impfault;
+    impmnus_ += impwell; impmnus_ += 0; impmnus_ += 0;
+    impmnus_ += imppick; impmnus_ += 0; impmnus_ += 0;
+    impmnus_ += impwvlt; impmnus_ += impmute; impmnus_ += impvelfn;
 }
 
 
@@ -267,6 +269,20 @@ void uiODMenuMgr::fillExportMenu()
 {
     expmnu_->clear();
     uiPopupMenu* expseis = new uiPopupMenu( &appl_, "&Seismics" );
+    uiPopupMenu* exphor = new uiPopupMenu( &appl_, "&Horizons" );
+    uiPopupMenu* expflt = new uiPopupMenu( &appl_, "&Faults" );
+    uiPopupMenu* expfltss = new uiPopupMenu( &appl_, "F&aultStickSets" );
+    uiPopupMenu* exppick = new uiPopupMenu( &appl_, "&PickSets" );
+    uiPopupMenu* expwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
+    uiPopupMenu* expmute = new uiPopupMenu( &appl_, "&Mute Functions" );
+    expmnu_->insertItem( expseis );
+    expmnu_->insertItem( exphor );
+    expmnu_->insertItem( expflt );
+    expmnu_->insertItem( expfltss );
+    expmnu_->insertItem( exppick );
+    expmnu_->insertItem( expwvlt );
+    expmnu_->insertItem( expmute );
+
     uiPopupMenu* expseissgy = new uiPopupMenu( &appl_, "&SEG-Y" );
     mInsertItem( expseissgy, "&3D ...", mExpSeisSEGY3DMnuItm );
     mInsertItem( expseissgy, "&2D ...", mExpSeisSEGY2DMnuItm );
@@ -277,36 +293,21 @@ void uiODMenuMgr::fillExportMenu()
     mInsertItem( expseissimple, "&2D ...", mExpSeisSimple2DMnuItm );
     mInsertItem( expseissimple, "&Pre-Stack 3D ...", mExpSeisSimplePS3DMnuItm );
     expseis->insertItem( expseissimple );
-    expmnu_->insertItem( expseis );
 
-    uiPopupMenu* exphor = new uiPopupMenu( &appl_, "&Horizons" );
     mInsertItem( exphor, "Ascii &3D...", mExpHorAscii3DMnuItm );
     mInsertItem( exphor, "Ascii &2D...", mExpHorAscii2DMnuItm );
-    expmnu_->insertItem( exphor );
-
-    uiPopupMenu* expflt = new uiPopupMenu( &appl_, "&Faults" );
     mInsertItem( expflt, "&Ascii ...", mExpFltAsciiMnuItm );
-    expmnu_->insertItem( expflt );
-    uiPopupMenu* expfltss = new uiPopupMenu( &appl_, "F&aultStickSets" );
     mInsertItem( expfltss, "&Ascii ...", mExpFltSSAsciiMnuItm );
-    expmnu_->insertItem( expfltss );
-
-    uiPopupMenu* exppick = new uiPopupMenu( &appl_, "&PickSets" );
     mInsertItem( exppick, "&Ascii ...", mExpPickAsciiMnuItm );
-    expmnu_->insertItem( exppick );
-
-    uiPopupMenu* expwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
     mInsertItem( expwvlt, "&Ascii ...", mExpWvltAsciiMnuItm );
-    expmnu_->insertItem( expwvlt );
-
-    uiPopupMenu* expmute = new uiPopupMenu( &appl_, "&Mute Functions" );
     mInsertItem( expmute, "&Ascii ...", mExpMuteDefAsciiMnuItm );
-    expmnu_->insertItem( expmute );
 
     expmnus_.erase();
     expmnus_.allowNull();
-    expmnus_ += expseis; expmnus_ += exphor;
-    expmnus_+= expflt; expmnus_+=0; expmnus_+= 0;
+    expmnus_ += expseis; expmnus_ += exphor; expmnus_+= expflt;
+    expmnus_+=0; expmnus_+= 0; expmnus_+= 0;
+    expmnus_+=exppick; expmnus_+= 0; expmnus_+= 0;
+    expmnus_+=expwvlt; expmnus_+= expmute; expmnus_+= 0;
 }
 
 
@@ -640,7 +641,10 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB( dtecttb_,VolProc::uiChain::getPixmap(),
 		"Volume Builder",false,doVolProc);
     }
-    mAddTB(dtecttb_,"xplot.png","Crossplot Attribute vs Well data",false,xPlot);
+    mAddTB(dtecttb_,"xplot_wells.png","Crossplot Attribute vs Well data",
+	   false,doWellXPlot);
+    mAddTB(dtecttb_,"xplot_attribs.png","Crossplot Attribute vs Attribute data",
+	   false,doAttribXPlot);
 
     dTectTBChanged.trigger();
 }
@@ -933,8 +937,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
-    case mXplotMnuItm:		applMgr().doXPlot(); break;
-    case mAXplotMnuItm:		applMgr().crossPlot(); break;			
+    case mXplotMnuItm:		applMgr().doWellXPlot(); break;
+    case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;

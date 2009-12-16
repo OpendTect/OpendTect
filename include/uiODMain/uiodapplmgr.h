@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.97 2009-12-08 16:51:06 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.98 2009-12-16 11:17:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,9 +89,9 @@ public:
     void			editAttribSet(bool);
     bool			editNLA(bool);
     void			createVol(bool);
-    void			doXPlot();
+    void			doWellXPlot(CallBacker* =0);
     				//!< This plots between well and attrib
-    void			crossPlot();
+    void			doAttribXPlot(CallBacker* =0);
     				//!< This plots between attribs.
     void			createHorOutput(int,bool);
     void			reStartProc();
@@ -154,7 +154,6 @@ public:
     void			seisOut2DCB(CallBacker*)  { createVol(true); }
     void			seisOut3DCB(CallBacker*)  { createVol(false); }
     void			createVolProcOutput(CallBacker*);
-    void			xPlot(CallBacker*)	  { doXPlot(); }
     void			editAttr2DCB(CallBacker*)
 				    { editAttribSet(true); }
     void			editAttr3DCB(CallBacker*)
