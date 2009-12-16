@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.226 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.227 2009-12-16 23:26:20 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -563,6 +563,7 @@ void PlaneDataDisplay::emptyCache( int attrib )
 	dpids.erase();
     }
 
+    channels_->setNrVersions( attrib, 1 );
     channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
 }
 
