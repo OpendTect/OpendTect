@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.16 2009-12-04 08:03:58 cvsnanne Exp $
+# $Id: setup_cvstree,v 1.17 2009-12-16 11:24:27 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -74,9 +74,11 @@ cd "$od_wdir/bin/$binsubdir/so"
 if ( $binsubdir == lux32 ) then
     cp /usr/lib/libstdc++.so.6 .
     cp /lib/libgcc_s.so.1 .
+    cp /lib/tls/libpthread.so.0 .
 else if ( $binsubdir == lux64 ) then
     cp /lib64/libgcc_s.so.1 .
     cp /usr/lib64/libstdc++.so.6 .
+    cp /lib64/tls/libpthread.so.0 .
 else if ( $binsubdir == sol32 ) then
     cp /usr/local/lib/libgcc_s.so.1 .
     cp /usr/local/lib/libstdc++.so.6 .
