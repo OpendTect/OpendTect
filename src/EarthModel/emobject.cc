@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.102 2009-11-06 10:54:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.103 2009-12-16 15:25:31 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -454,7 +454,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 //#ifdef    
     for ( int idx=0; idx<nrSections(); idx++ )
     {
-	const Geometry::Element* ge = sectionGeometry( sectionID(idx) );
+	Geometry::Element* ge = sectionGeometry( sectionID(idx) );
 	if ( !ge ) continue;
 
 	mDynamicCastGet(const Geometry::RowColSurface*,surface,ge);
@@ -471,10 +471,12 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	selremoval.execute( tr );
 
 	TypeSet<EM::SubID> removallist = selremoval.getRemovelList();
+
+	setBurstAlert( true );
+	int poscount = 0;
+	ge->blockCallBacks( true, false );
 	for ( int sididx = 0; sididx < removallist.size(); sididx++ )
 	{
-	    if ( sididx == 0 )
-		setBurstAlert( true );
 	    unSetPos( sectionID(idx), removallist[sididx], true );
 
 	    BinID bid;
@@ -492,10 +494,17 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 		removebypolyposbox_.hrg.include(bid);
 		removebypolyposbox_.zrg.include(pos.z);
 	    }
-	    if ( sididx == removallist.size()-1 )
-		setBurstAlert( false );
+
+	    if ( ++poscount >= 10000 )
+	    {
+		ge->blockCallBacks( true, true );
+		poscount = 0;
+	    }
 	} 
+	ge->blockCallBacks( false, true );
+	setBurstAlert( false );
     }
+
 /*#else
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
     while ( true )
