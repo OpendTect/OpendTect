@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.100 2009-12-15 16:15:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.101 2009-12-16 11:18:50 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -126,9 +126,12 @@ void uiSeisFileMan::mkFileInfo()
 
     if ( is2d_ )
     {
-	BufferString fnm( curioobj_->fullUserExpr(true) );
-	Seis2DLineSet lset( fnm );
-	txt += "Number of lines: "; txt += lset.nrLines();
+	BufferStringSet nms;
+	oinf.getLineNames( nms );
+	txt += "Number of lines: "; txt += nms.size();
+	nms.erase(); oinf.getAttribNames( nms );
+	if ( nms.size() > 1 )
+	    { txt += "\nNumber of attributes: "; txt += nms.size(); }
     }
 
 #define mRangeTxt(line) \
@@ -727,5 +730,10 @@ void uiSeis2DFileMan::mergeLines( CallBacker* )
 
     uiSeis2DFileManMergeDlg dlg( this, *objinfo_, sellnms );
     if ( dlg.go() )
+    {
+	const MultiID lsid( objinfo_->ioObj()->key() );
+	delete objinfo_;
+	objinfo_ = new uiSeisIOObjInfo( lsid );
 	fillLineBox();
+    }
 }
