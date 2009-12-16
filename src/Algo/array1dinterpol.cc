@@ -4,7 +4,7 @@
  * DATE     : December 2009
 -*/
 
-static const char* rcsID = "$Id: array1dinterpol.cc,v 1.1 2009-12-16 05:59:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: array1dinterpol.cc,v 1.2 2009-12-16 08:55:32 cvsbruno Exp $";
 
 #include "array1dinterpol.h"
 
@@ -32,11 +32,11 @@ od_int64 Array1DInterpol::nrIterations() const
 
 
 void Array1DInterpol::setMaxGapSize( float maxgapsize )
-{ maxgapsize_ = maxgapsize; }
+{ maxgapsize_ = (int)maxgapsize; }
 
 
 float Array1DInterpol::getMaxGapSize() const
-{ return maxgapsize_; }
+{ return (float)maxgapsize_; }
 
 
 void Array1DInterpol::setArray( Array1D<float>& arr )
@@ -161,14 +161,14 @@ int PolyArray1DInterpol::nextStep()
 	return MoreToDo();
     }
 
-    if ( mIsUdf(arr_->get(posidxs[posidxs.size()-1])) ||
+    if ( mIsUdf(arr_->get((int)posidxs[posidxs.size()-1])) ||
 	    posidxs[posidxs.size()-1]==0 )
 	return Finished();
 
     TypeSet<float> vals( posidxs.size(), (float)0 );
 
     for ( int idx=0; idx<vals.size(); idx++ )
-	vals[idx] = arr_->get( posidxs[idx] );
+	vals[idx] = arr_->get( (int)posidxs[idx] );
 
     float val = Interpolate::poly1D( posidxs[0], vals[0], posidxs[1], vals[1],
 	    			     posidxs[2], vals[2], posidxs[3], vals[3],
