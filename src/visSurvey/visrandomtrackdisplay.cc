@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.115 2009-10-08 04:17:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.116 2009-12-16 22:33:14 cvskris Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -88,9 +88,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     material_->setDiffIntensity( 0.2 );
 
     dragger_->ref();
-    int channelidx = texture_
-	? childIndex( texture_->getInventorNode() )
-	: childIndex( channels_->getInventorNode() );
+    int channelidx = 
+	childIndex( channels_->getInventorNode() );
     insertChild( channelidx, dragger_->getInventorNode() );
 
     dragger_->motion.notify( mCB(this,visSurvey::RandomTrackDisplay,knotMoved));
@@ -149,8 +148,6 @@ void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
     triangles_->setDepthRange( intv );
     dragger_->setDepthRange( intv );
 
-    if ( texture_ ) texture_->clearAll();
-
     moving_.trigger();
 }
 
@@ -165,9 +162,6 @@ void RandomTrackDisplay::setResolution( int res, TaskRunner* tr )
 {
     if ( res==resolution_ )
 	return;
-    
-    if ( texture_ )
-	texture_->clearAll();
     
     resolution_ = res;
     
@@ -201,7 +195,6 @@ void RandomTrackDisplay::addKnot( const BinID& bid )
 	triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
 	dragger_->setKnot( knots_.size()-1, Coord(sbid.inl,sbid.crl) );
-	if ( texture_ ) texture_->clearAll();
 	moving_.trigger();
     }
 }
@@ -216,7 +209,6 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
 	triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
 	dragger_->insertKnot( knotidx, Coord(sbid.inl,sbid.crl) );
-	if ( texture_ ) texture_->clearAll();
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	    if ( cache_[idx] ) setData( idx, *cache_[idx] );
 
@@ -260,7 +252,6 @@ void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
 	triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
 	dragger_->setKnot( knotidx, Coord(sbid.inl,sbid.crl) );
-	if ( texture_ ) texture_->clearAll();
 	moving_.trigger();
     }
 }
@@ -325,7 +316,6 @@ void RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 
 	triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
-	if ( texture_ ) texture_->clearAll();
 	moving_.trigger();
 	return;
     }
@@ -453,16 +443,8 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     const int nrtrcs = trcbuf.size();
     if ( !nrtrcs )
     {
-	if ( texture_ )
-	{
-    	    texture_->setData( attrib, 0, 0 );
-    	    texture_->turnOn( false );
-	}
-	else
-	{
-	    channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
-	    channels_->turnOn( false );
-	}
+	channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
+	channels_->turnOn( false );
 	return;
     }
 
@@ -474,10 +456,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     getDataTraceBids( path );
 
     const int nrslices = trcbuf.get(0)->nrComponents();
-    if ( texture_ )
-    	texture_->setNrVersions( attrib, nrslices );
-    else
-	channels_->setNrVersions( attrib, nrslices );
+    channels_->setNrVersions( attrib, nrslices );
 
     mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, array,
 	    Array2DImpl<float>( path.size(), nrsamp ) );
@@ -522,42 +501,25 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 
 	const int sz0 = array->info().getSize(0) * (resolution_+1);
 	const int sz1 = array->info().getSize(1) * (resolution_+1);
- 	if ( texture_ )
-	{
-	    if ( resolution_ )
-		texture_->setDataOversample( attrib, sidx, resolution_,
-			!isClassification(attrib), array, true );
-	    else
-	    {
-    		texture_->splitTexture( true );
-    		texture_->setData( attrib, sidx, array, true );
-	    }
-	}
+	channels_->setSize( 1, sz0, sz1 );
+	
+	if ( resolution_==0 )
+	    channels_->setUnMappedData(attrib,sidx,dataptr,OD::CopyPtr,0);
 	else
 	{
-	    channels_->setSize( 1, sz0, sz1 );
-	    
-	    if ( resolution_==0 )
-		channels_->setUnMappedData(attrib,sidx,dataptr,OD::CopyPtr,0);
-	    else
-	    {
-		mDeclareAndTryAlloc( float*, arr, float[sz0*sz1] );
-		Array2DReSampler<float,float>
-		    resampler( *array, arr, sz0, sz1, true );
-		resampler.setInterpolate( true );
-		resampler.execute();
-		channels_->setUnMappedData(attrib,sidx,arr,OD::TakeOverPtr,0);
-	    }
-        }
+	    mDeclareAndTryAlloc( float*, arr, float[sz0*sz1] );
+	    Array2DReSampler<float,float>
+		resampler( *array, arr, sz0, sz1, true );
+	    resampler.setInterpolate( true );
+	    resampler.execute();
+	    channels_->setUnMappedData(attrib,sidx,arr,OD::TakeOverPtr,0);
+	}
 
 	triangles_->setDepthRange( zrg );
 	triangles_->setTexturePathAndPixels( path, resolution_+1, sz1 );
     }
     
-    if ( texture_ )
-    	texture_->turnOn( true );
-    else
-	channels_->turnOn( true );
+    channels_->turnOn( true );
 }
 
 
@@ -902,21 +864,14 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 		{
 		    mDynamicCastGet( visBase::VisColorTab*, coltab,
 		    visBase::DM().getObject(coltabid) );
-		    if ( texture_ )
-    			texture_->setColorTab( attribnr, *coltab );
-		    else
-		    {
-			channels_->setColTabMapperSetup( attribnr, 
-				coltab->colorMapper().setup_ );
-			channels_->getChannels2RGBA()->setSequence( attribnr, 
-				coltab->colorSeq().colors() );
-		    }
+		    channels_->setColTabMapperSetup( attribnr, 
+			    coltab->colorMapper().setup_ );
+		    channels_->getChannels2RGBA()->setSequence( attribnr, 
+			    coltab->colorSeq().colors() );
 		}
 
 		bool ison = true;
 		attribpar->getYN( sKeyIsOn(), ison );
-		if ( texture_ )
-    		    texture_->enableTexture( attribnr, ison );
 	    }
 	}
 	else //For old pars
@@ -935,15 +890,10 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	    as.usePar( par );
 	    setSelSpec( 0, as );
 
-	    if ( texture_ )
-    		texture_->setColorTab( 0, rt->getColorTab() );
-	    else
-	    {
-		channels_->setColTabMapperSetup( 0, 
-			rt->getColorTab().colorMapper().setup_ );
-		channels_->getChannels2RGBA()->setSequence( 0, 
-			rt->getColorTab().colorSeq().colors() );
-	    }
+	    channels_->setColTabMapperSetup( 0, 
+		    rt->getColorTab().colorMapper().setup_ );
+	    channels_->getChannels2RGBA()->setSequence( 0, 
+		    rt->getColorTab().colorSeq().colors() );
 
 	    rt->unRef();
 	    setMaterial( rt->getMaterial() );

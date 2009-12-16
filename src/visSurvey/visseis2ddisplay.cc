@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.83 2009-12-03 22:30:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.84 2009-12-16 22:35:23 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -358,16 +358,8 @@ void Seis2DDisplay::setData( int attrib,
 {
     if ( data2dh.isEmpty() ) 
     {
-	if ( texture_ )
-	{
-	    texture_->setData( attrib, 0, 0 );
-	    texture_->turnOn( false );
-	}
-	else
-	{
-	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, tr );
-	    channels_->turnOn( false );
-	}
+	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, tr );
+	channels_->turnOn( false );
 	return;
     }
 
@@ -505,9 +497,6 @@ void Seis2DDisplay::updateVizPath()
     triangles_->setDisplayedGeometry( trcnrrg_, curzrg_ );
     if ( trcnrrg_.width() )
     	updateLineNamePos();
-   
-   if ( texture_ ) 
-       texture_->clearAll();
 }
 
 
@@ -618,9 +607,6 @@ void Seis2DDisplay::setResolution( int res, TaskRunner* tr )
 {
     if ( res==resolution_ )
 	return;
-
-    if ( texture_ )
-    	texture_->clearAll();
 
     resolution_ = res;
     updateDataFromCache( tr );
@@ -1007,18 +993,9 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 
 void Seis2DDisplay::clearTexture( int attribnr )
 {
-    if ( texture_ )
-    {
-	for ( int idx=0; idx<texture_->nrVersions(attribnr); idx++ )
-	    texture_->setData( attribnr, idx, 0 );
-	
-	texture_->enableTexture( attribnr, false );
-    }
-    else if ( channels_ )
-    {
-	channels_->setUnMappedData( attribnr, 0, 0, OD::UsePtr, 0 );
-	channels_->turnOn( false );
-    }
+    channels_->setNrVersions( attribnr, 1 );
+    channels_->setUnMappedData( attribnr, 0, 0, OD::UsePtr, 0 );
+    channels_->turnOn( false );
 
     Attrib::SelSpec as;
     as.set2DFlag(true);
