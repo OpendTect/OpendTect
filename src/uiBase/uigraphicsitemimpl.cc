@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.33 2009-12-14 07:44:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.34 2009-12-16 16:18:03 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.33 2009-12-14 07:44:0
 #include <QGraphicsProxyWidget>
 #include <QPen>
 #include <QTextDocument>
+#include <QWidget>
 
 
 uiObjectItem::uiObjectItem( uiObject* obj )
@@ -78,6 +79,12 @@ QGraphicsItem* uiObjectItem::mkQtObj()
 {
     qwidgetitem_ = new QGraphicsProxyWidget();
     return qwidgetitem_;
+}
+
+
+void uiObjectItem::setObjectSize( int szx, int szy )
+{
+    if ( obj_ ) obj_->qwidget()->setFixedSize( szx, szy );
 }
 
 

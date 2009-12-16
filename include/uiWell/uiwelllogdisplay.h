@@ -7,27 +7,33 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.10 2009-12-11 13:44:51 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.11 2009-12-16 16:18:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigraphicsview.h"
+#include "uimainwin.h"
 #include "uiaxishandler.h"
 #include "draw.h"
+#include "welldata.h"
+#include "wellmarker.h"
+#include "welldisp.h"
 
 class uiTextItem;
 class uiLineItem;
+class uiObjectItem;
 class uiPolyLineItem;
 class uiPolygonItem;
 class uiGraphicsScene;
+class uiWellDispPropDlg;
 class UnitOfMeasure;
 namespace Well 
 { 
     class Log; 
-    class Marker; 
     class D2TModel; 
-    class DisplayProperties; 
+    class Track; 
+    class DahObj;
 }
 
 /*!\brief creates a display of max 2 well logs. */
@@ -43,58 +49,73 @@ public:
 				    , markerls_(LineStyle::Dot,1)
 				    , pickls_(LineStyle::Solid,1,Color(0,200,0))
 				    , border_(5)
+				    , noxpixbefore_(false)
+				    , noypixbefore_(false)
+				    , noxpixafter_(false)
+				    , noypixafter_(false)
 				    {}
 
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
 	mDefSetupMemb(LineStyle,markerls) //!< will not use color
 	mDefSetupMemb(LineStyle,pickls)	  //!< color used if no PickData color
+	mDefSetupMemb(bool,noxpixbefore)
+	mDefSetupMemb(bool,noypixbefore)
+	mDefSetupMemb(bool,noxpixafter)
+	mDefSetupMemb(bool,noypixafter)
     };
 
 				uiWellLogDisplay(uiParent*,const Setup&);
 				~uiWellLogDisplay();
 
-    mStruct LogData
+    mStruct LineData
+    {
+				LineData(uiGraphicsScene&,const uiBorder&);
+
+	Interval<float>		zrg_;
+	Interval<float>		valrg_;
+	uiAxisHandler		xax_;
+	uiAxisHandler		yax_;
+	
+	// Get these (will be filled)
+	ObjectSet<uiPolyLineItem> curveitms_;
+	ObjectSet<uiPolygonItem> curvepolyitms_;
+	uiTextItem*		curvenmitm_;
+	Alignment 		al_;
+    };
+
+    mStruct LogData : public LineData
     {
 	// Set these
 	const Well::Log*	wl_;
 	const UnitOfMeasure*	unitmeas_;
 	bool			xrev_;
-	LineStyle		linestyle_;
-	bool			logarithmic_;
-	float			clipratio_;
+	bool			isyaxisleft_;
 
-	// Get these (will be filled)
-	Interval<float>		zrg_;
-	Interval<float>		valrg_;
-	uiAxisHandler		xax_;
-	uiAxisHandler		yax_;
-	ObjectSet<uiPolyLineItem> curveitms_;
-	ObjectSet<uiPolygonItem> curvepolyitms_;
-	uiTextItem*		curvenmitm_;
+	Well::DisplayProperties::Log wld_;
 
-    protected:
+	protected:
+				LogData(uiGraphicsScene& s,int idx,
+					const uiBorder& b);
 
-				LogData(uiGraphicsScene&,bool isfirst,
-					const uiBorder&);
 	void			copySetupFrom( const LogData& ld )
-	    			{ unitmeas_ = ld.unitmeas_; xrev_ = ld.xrev_;
-				  linestyle_ = ld.linestyle_;
-				  logarithmic_ = ld.logarithmic_;
-				  clipratio_ = ld.clipratio_; }
+	    			{ unitmeas_ = ld.unitmeas_; xrev_ = ld.xrev_; }
 	friend class		uiWellLogDisplay;
     };
+    
+    LogData&			logData(int);
+    LogData&			addLogData();
 
-    LogData&			logData( bool first=true )
-				{ return first ? ld1_ : ld2_; }
-    //set Well Data directly instead? --> split in Log / Well 
-    void			setMarkers( const ObjectSet<Well::Marker>* ms )
-				{ markers_ = ms; }
     void                        setD2TModel( const Well::D2TModel* d2tm )
 				{ d2tm_ = d2tm; }
-    void                        setDispProp( const Well::DisplayProperties* wd)
-				{ wd_ = wd; }
-
+    void			setMarkers( const ObjectSet<Well::Marker>* ms )
+				{ markers_ = ms; }
+    void			setWellData( const Well::Data& wd )
+				{ 
+				    setMarkers( &wd.markers() );
+				    setD2TModel( wd.d2TModel() );
+				}
+    
     mStruct PickData
     {
 			PickData( float dah, Color c=Color::NoColor() )
@@ -105,6 +126,7 @@ public:
 	float		dah_;
 	Color		color_;	//!< default will use the global setup color
     };
+
     TypeSet<PickData>&		zPicks()	{ return zpicks_; }
 
     const Interval<float>&	zRange() const	{ return zrg_; }
@@ -118,19 +140,19 @@ public:
     void			setZInTime( bool yn )
     				{ zintime_ = yn; dataChanged(); }
     bool			zInTime() const	  { return zintime_; }
+    
 
 protected:
 
-    LogData			ld1_;
-    LogData			ld2_;
-    Interval<float>		datazrg_;
+    ObjectSet<LogData>		lds_;
     Interval<float>		zrg_;
     bool			zintime_;
     bool			dispzinft_;
+
     const ObjectSet<Well::Marker>* markers_;
     TypeSet<PickData>		zpicks_;
     const Well::D2TModel*       d2tm_;
-    const Well::DisplayProperties* wd_;
+
     Setup			setup_;
 
     ObjectSet<uiLineItem>	markeritms_;
@@ -145,12 +167,99 @@ protected:
     void			draw();
 
     void			setAxisRelations();
-    void			gatherInfo(bool);
-    void			setAxisRanges(bool);
-    void			drawCurve(bool);
-    void			drawFilling(bool);
+    void			gatherInfo(int);
+    void			setAxisRanges(int);
+    void			drawLog(int);
+    void			drawLine(LogData&,const Well::DahObj* ldah);
+    void			drawFilling(int);
     void			drawMarkers();
     void			drawZPicks();
+    
+    void			removeLog(const char*);
+    void			removeAllLogs();
+
+    friend class 		uiWellDisplay;
+};
+
+
+mClass uiWellDisplay : public uiGraphicsView
+{
+public:
+
+    mStruct Setup
+    {
+				Setup()
+				    : left_(true)
+				    , right_(true)
+				    {}
+
+	mDefSetupMemb(bool,left) // Left Log
+	mDefSetupMemb(bool,right) // Right log
+    };
+
+				uiWellDisplay(uiParent*,const Setup&,
+					      const Well::Data&);
+				~uiWellDisplay();
+    
+    void			addLog(const char*,bool isleft);
+    void			removeLog(const char*,bool isleft);
+    
+    mStruct TrackData : public uiWellLogDisplay::LineData
+    {
+	const Well::Track*	wt_;
+	Well::DisplayProperties::Track wtd_;
+	
+	protected:
+				TrackData(uiGraphicsScene& sc,const uiBorder& b)
+				    : uiWellLogDisplay::LineData(sc,b)
+				    , wt_(0)  
+				    {}
+
+	friend class 		uiWellDisplay;
+    };
+
+    void			drawTrack();
+    TrackData			td_;
+    
+    void                        dataChanged();
+    const Interval<float>&	zRange() const	{ return zrg_; }
+
+protected:
+
+    Well::Data			wd_;
+    const Well::D2TModel*	d2tm_;
+    Interval<float>		zrg_;
+    bool			zintime_;
+    bool			dispzinft_;
+    
+    uiWellLogDisplay* 		leftlogdisp_;
+    uiWellLogDisplay* 		rightlogdisp_;
+
+    uiWellDispPropDlg* 		propdlg_;
+    
+    uiObjectItem* 		leftlogitm_;
+    uiObjectItem* 		rightlogitm_;
+    
+    void			addLogPanel(bool);
+    void                        gatherInfo();
+    void                        setAxisRanges();
+
+    void 			propButPushed(CallBacker*);
+    void 			updateProperties(CallBacker*);
+    
+};
+
+
+mClass uiWellDisplayWin : public uiMainWin
+{
+public:
+
+				uiWellDisplayWin(uiParent*,const Well::Data& wd);
+				~uiWellDisplayWin();
+
+    uiWellDisplay* 		logviewer_;
+    
+    friend class 		uiWellDisplay;
 };
 
 

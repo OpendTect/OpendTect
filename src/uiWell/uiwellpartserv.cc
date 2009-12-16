@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.51 2009-12-11 13:44:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.52 2009-12-16 16:18:03 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -23,8 +23,8 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.51 2009-12-11 13:44:51 cv
 #include "welllogset.h"
 #include "wellwriter.h"
 #include "uiwellrdmlinedlg.h"
+#include "uiwelllogdisplay.h"
 #include "uiwelldisppropdlg.h"
-#include "uiwelllogdisplaywin.h"
 #include "multiid.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
@@ -186,8 +186,9 @@ void uiWellPartServer::displayIn2DViewer( const MultiID& mid )
     Well::Data* wd = Well::MGR().get( mid );
     if ( !wd ) return;
 
-    uiWellLogDisplayWin* logwin = new uiWellLogDisplayWin( parent(), *wd );
-    logwin->show();
+    uiWellDisplay::Setup su;
+    uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(),*wd );
+    welldispwin->show();
 }
 
 

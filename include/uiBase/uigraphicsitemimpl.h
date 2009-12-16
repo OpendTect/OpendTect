@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.22 2009-12-14 07:44:07 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.23 2009-12-16 16:18:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ public:
 
     uiGroup*			getGroup();
     void			setGroup(uiGroup*);
+    
+    void			setObjectSize(int,int);
 
 protected:
 

@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.15 2009-12-11 14:06:37 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.16 2009-12-16 16:18:03 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
+#include "uiwelldisppropdlg.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 
@@ -18,12 +19,19 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.15 2009-12-11 14:06:37 
 #include "dataclipper.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "uibutton.h"
+
 #include "welllog.h"
+#include "welllogset.h"
+#include "welldata.h"
 #include "wellmarker.h"
+#include "welltrack.h"
 #include "welld2tmodel.h"
 #include "welldisp.h"
 
 #include <iostream>
+
+
 
 #define mDefZPosInLoop(val)\
     float zpos = val;\
@@ -35,38 +43,41 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.15 2009-12-11 14:06:37 
 	break;\
     if ( dispzinft_ && !zintime_)\
 	zpos *= mToFeetFactor;
-uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
-       				    const uiBorder& b )
-    : wl_(0)
-    , unitmeas_(0)
-    , xax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Top:uiRect::Bottom)
-	    			   .border(b))
-    , yax_(&scn,uiAxisHandler::Setup(isfirst?uiRect::Left:uiRect::Right)
-	    			   .border(b))
-    , xrev_(false)
-    , zrg_(mUdf(float),0)
+uiWellLogDisplay::LineData::LineData( uiGraphicsScene& scn, const uiBorder& b )
+    : zrg_(mUdf(float),0)
+    , xax_(&scn,uiAxisHandler::Setup(uiRect::Top).border(b))
+    , yax_(&scn,uiAxisHandler::Setup(uiRect::Left).border(b))
     , valrg_(mUdf(float),0)
-    , logarithmic_(false)
-    , linestyle_(LineStyle::Solid)
-    , clipratio_(0.001)
     , curvenmitm_(0)
 {
-    if ( !isfirst )
+}
+
+
+uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, int idx,
+       				    const uiBorder& b )
+    : LineData(scn,b)
+    , wl_(0)
+    , wld_(Well::DisplayProperties::Log())		   
+    , unitmeas_(0)
+    , xrev_(false)
+    , isyaxisleft_(true)	     
+{
+    if ( idx )
+    {
+	xax_.setup().side_ = uiRect::Bottom;
 	yax_.setup().nogridline(true);
+    }
 }
 
 
 uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     : uiGraphicsView(p,"Well Log display viewer")
     , setup_(su)
-    , ld1_(scene(),true,su.border_)
-    , ld2_(scene(),false,su.border_)
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeetByDefault())
     , zintime_(false)
     , markers_(0)
     , d2tm_(0)
-    , wd_(0)
 {
     setStretch( 2, 2 );
     setPrefWidth( 250 );
@@ -85,6 +96,7 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
 
 uiWellLogDisplay::~uiWellLogDisplay()
 {
+    deepErase( lds_ );
 }
 
 
@@ -115,75 +127,81 @@ void uiWellLogDisplay::dataChanged()
 
 void uiWellLogDisplay::gatherInfo()
 {
+    if ( !lds_.size() ) return;
+	
     setAxisRelations();
-    gatherInfo( true );
-    gatherInfo( false );
+    for ( int idx=0; idx<lds_.size(); idx++ )
+	gatherInfo( idx );
 
-    if ( mIsUdf(zrg_.start) && ld1_.wl_ )
+    if ( mIsUdf(zrg_.start)  && lds_[0]->wl_ )
     {
-	zrg_ = ld1_.zrg_;
-	if ( ld2_.wl_ )
-	    zrg_.include( ld2_.zrg_ );
+	zrg_ = lds_[0]->zrg_;
+	for ( int idx=0; idx<lds_.size(); idx++ )
+	{
+	    if ( lds_[idx]->wl_ )
+		zrg_.include( lds_[idx]->zrg_ );
+	}
     }
-    setAxisRanges( true );
-    setAxisRanges( false );
-
-    ld1_.xax_.setup().maxnumberdigitsprecision_ = 3;
-    ld2_.xax_.setup().maxnumberdigitsprecision_ = 3;
-    ld1_.xax_.setup().epsaroundzero_ = 1e-5;
-    ld2_.xax_.setup().epsaroundzero_ = 1e-5;
-
-    ld1_.yax_.setup().islog( ld1_.logarithmic_ );
-    ld2_.yax_.setup().islog( ld2_.logarithmic_ );
-
-    if ( ld1_.wl_ ) ld1_.xax_.setup().name( ld1_.wl_->name() );
-    if ( ld2_.wl_ ) ld2_.xax_.setup().name( ld1_.wl_->name() );
+	
     BufferString znm;
     if ( zintime_ )
 	znm += "TWT", "(ms)";
     else
 	znm += "MD ", dispzinft_ ? "(ft)" : "(m)";
-    ld1_.yax_.setup().name( znm ); ld2_.yax_.setup().name( znm );
+
+    for ( int idx=0; idx<lds_.size(); idx++ )
+    {
+	setAxisRanges( idx );
+	
+	lds_[idx]->yax_.setup().side_ = lds_[idx]->isyaxisleft_ ? 
+					uiRect::Left : uiRect::Right;
+
+	lds_[idx]->xax_.setup().maxnumberdigitsprecision_ = 3;
+	lds_[idx]->xax_.setup().epsaroundzero_ = 1e-5;
+	lds_[idx]->yax_.setup().islog( lds_[idx]->wld_.islogarithmic_ );
+	lds_[idx]->yax_.setup().name( znm );
+
+	if ( lds_[idx]->wl_ ) 
+	    lds_[idx]->xax_.setup().name( lds_[idx]->wl_->name() );
+    }
 }
 
 
 void uiWellLogDisplay::setAxisRelations()
 {
-    ld1_.xax_.setBegin( &ld1_.yax_ );
-    ld1_.yax_.setBegin( &ld2_.xax_ );
-    ld2_.xax_.setBegin( &ld1_.yax_ );
-    ld2_.yax_.setBegin( &ld2_.xax_ );
-    ld1_.xax_.setEnd( &ld2_.yax_ );
-    ld1_.yax_.setEnd( &ld1_.xax_ );
-    ld2_.xax_.setEnd( &ld2_.yax_ );
-    ld2_.yax_.setEnd( &ld1_.xax_ );
-
-    ld1_.xax_.setNewDevSize( width(), height() );
-    ld1_.yax_.setNewDevSize( height(), width() );
-    ld2_.xax_.setNewDevSize( width(), height() );
-    ld2_.yax_.setNewDevSize( height(), width() );
+    for ( int idx=0; idx<lds_.size(); idx++ )
+    {
+	lds_[idx]->xax_.setBegin( setup_.noxpixbefore_ ? 0 : &lds_[idx]->yax_ );
+	lds_[idx]->yax_.setBegin( setup_.noypixbefore_ ? 0 : &lds_[idx]->xax_ );
+	lds_[idx]->xax_.setEnd(  setup_.noxpixafter_ ? 0 : &lds_[idx]->yax_ );
+	lds_[idx]->yax_.setEnd( setup_.noypixafter_ ? 0 : &lds_[idx]->xax_ );
+	
+	lds_[idx]->xax_.setNewDevSize( width(), height() );
+	lds_[idx]->yax_.setNewDevSize( height(), width() );
+    }
 }
 
 
-void uiWellLogDisplay::gatherInfo( bool first )
+void uiWellLogDisplay::gatherInfo( int idx )
 {
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    uiWellLogDisplay::LogData& ld = *lds_[idx];
 
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 )
     {
-	if ( !first )
+	if ( idx != 0 )
 	{
-	    ld2_.copySetupFrom( ld1_ );
-	    ld2_.zrg_ = ld1_.zrg_;
-	    ld2_.valrg_ = ld1_.valrg_;
+	    ld.copySetupFrom( *lds_[0] );
+	    ld.zrg_ = lds_[0]->zrg_;
+	    ld.valrg_ = lds_[0]->valrg_;
 	}
 	return;
     }
 
     DataClipSampler dcs( sz );
     dcs.add( ld.wl_->valArr(), sz );
-    ld.valrg_ = dcs.getRange( ld.clipratio_ );
+    ld.valrg_ = dcs.getRange( ld.wld_.cliprate_ );
+
     float startpos = ld.wl_->dah( 0 );
     float stoppos = ld.wl_->dah( sz-1 );
     if ( zintime_ && d2tm_ )
@@ -197,9 +215,9 @@ void uiWellLogDisplay::gatherInfo( bool first )
 }
 
 
-void uiWellLogDisplay::setAxisRanges( bool first )
+void uiWellLogDisplay::setAxisRanges( int idx )
 {
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    uiWellLogDisplay::LogData& ld = *lds_[idx];
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
 
@@ -212,12 +230,30 @@ void uiWellLogDisplay::setAxisRanges( bool first )
 	dispzrg.scale( mToFeetFactor );
     ld.yax_.setBounds( dispzrg );
 
-    if ( first )
+    if ( idx == 0 )
     {
-	// Set default for 2nd
-	ld2_.xax_.setBounds( dispvalrg );
-	ld2_.yax_.setBounds( dispzrg );
+	// Set default for others
+	for ( int idx=1; idx<lds_.size(); idx++)
+	{
+	    lds_[idx]->xax_.setBounds( dispvalrg );
+	    lds_[idx]->yax_.setBounds( dispzrg );
+	}
     }
+}
+
+
+uiWellLogDisplay::LogData& uiWellLogDisplay::logData( int idx )
+{
+    if ( lds_.size()-1 < idx ) addLogData();
+    return *lds_[idx];
+}
+
+
+uiWellLogDisplay::LogData& uiWellLogDisplay::addLogData()
+{
+    LogData* ld = new LogData( scene(), lds_.size(), setup_.border_ );
+    lds_ += ld;
+    return *ld;
 }
 
 
@@ -226,16 +262,14 @@ void uiWellLogDisplay::draw()
     setAxisRelations();
     if ( mIsUdf(zrg_.start) ) return;
 
-    ld1_.xax_.plotAxis(); ld1_.yax_.plotAxis();
-    ld2_.xax_.plotAxis(); ld2_.yax_.plotAxis();
-
-    drawCurve( true );
-    drawCurve( false );
-
-    if ( wd_ && wd_->right_.islogfill_ )
+    for ( int idx=0; idx<lds_.size(); idx++)
     {
-	drawFilling( true );
-	drawFilling( false );
+	lds_[idx]->xax_.plotAxis(); lds_[idx]->yax_.plotAxis();
+
+	drawLog( idx );
+
+	if ( lds_[idx]->wld_.islogfill_ )
+	    drawFilling( idx );
     }
 
     drawMarkers();
@@ -247,14 +281,27 @@ void uiWellLogDisplay::draw()
     for ( int idx=0; idx<itms.size(); idx++ ) \
     scene().removeItem( itms[idx] ); \
     deepErase( itms );
-void uiWellLogDisplay::drawCurve( bool first )
+void uiWellLogDisplay::drawLog( int logidx )
 {
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    uiWellLogDisplay::LogData& ld = *lds_[logidx];
+    ld.al_ = Alignment(Alignment::HCenter, (logidx==-1) ? 
+	    			Alignment::Top : Alignment::Bottom );
+    drawLine( ld, ld.wl_ );
+    
+    if ( ld.unitmeas_ )
+	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
+}
+
+
+void uiWellLogDisplay::drawLine( LogData& ld, const Well::DahObj* wd )
+{
+    if ( !wd ) return;
+
     mRemoveSet( ld.curveitms_ );
     scene().removeItem( ld.curvenmitm_ );
     delete ld.curvenmitm_; ld.curvenmitm_ = 0;
 
-    const int sz = ld.wl_ ? ld.wl_->size() : 0;
+    const int sz = wd ? wd->size() : 0;
     if ( sz < 2 ) return;
 
     ObjectSet< TypeSet<uiPoint> > pts;
@@ -262,16 +309,15 @@ void uiWellLogDisplay::drawCurve( bool first )
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	mDefZPosInLoop( ld.wl_->dah( idx ) )
-
-	float val = ld.wl_->value( idx );
+	mDefZPosInLoop( wd->dah( idx ) )
+	float val = wd->value( idx );
 
 	if ( mIsUdf(val) )
 	{
 	    if ( !curpts->isEmpty() )
 	    {
-	    pts += curpts;
-	    curpts = new TypeSet<uiPoint>;
+		pts += curpts;
+		curpts = new TypeSet<uiPoint>;
 	    }
 	    continue;
 	}
@@ -283,19 +329,19 @@ void uiWellLogDisplay::drawCurve( bool first )
 	pts += curpts;
     if ( pts.isEmpty() ) return;
 
+    LineStyle ls(LineStyle::Solid);
+    ls.width_ = ld.wld_.size_;
+    ls.color_ = ld.wld_.color_;
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem(*pts[idx]) );
-	pli->setPenStyle( ld.linestyle_ );
+	pli->setPenStyle( ls );
 	ld.curveitms_ += pli;
     }
-
-    Alignment al( Alignment::HCenter,
-    first ? Alignment::Top : Alignment::Bottom );
-    ld.curvenmitm_ = scene().addItem( new uiTextItem(ld.wl_->name(),al) );
-    ld.curvenmitm_->setTextColor( ld.linestyle_.color_ );
+    ld.curvenmitm_ = scene().addItem( new uiTextItem(wd->name(),ld.al_) );
+    ld.curvenmitm_->setTextColor( ls.color_ );
     uiPoint txtpt;
-    if ( first )
+    if ( ld.al_.vPos() == Alignment::Top )
 	txtpt = uiPoint( (*pts[0])[0] );
     else
     {
@@ -303,30 +349,28 @@ void uiWellLogDisplay::drawCurve( bool first )
 	txtpt = lastpts[lastpts.size()-1];
     }
     ld.curvenmitm_->setPos( txtpt );
-
+    
     deepErase( pts );
-    if ( first )
-	ld.yax_.annotAtEnd( zintime_ ? "(ms)" : dispzinft_ ? "(ft)" : "(m)" );
-    if ( ld.unitmeas_ )
-	ld.xax_.annotAtEnd( BufferString("(",ld.unitmeas_->symbol(),")") );
 }
 
 
-void uiWellLogDisplay::drawFilling( bool first )
+void uiWellLogDisplay::drawFilling( int idx )
 {
-    uiWellLogDisplay::LogData& ld = first ? ld1_ : ld2_;
+    uiWellLogDisplay::LogData& ld = *lds_[idx];
 
-    float colstep = ( ld.xax_.range().stop - ld.xax_.range().start ) / 255;
     mRemoveSet( ld.curvepolyitms_ );
+    float colstep = ( ld.xax_.range().stop - ld.xax_.range().start ) / 255;
 
     const int sz = ld.wl_ ? ld.wl_->size() : 0;
     if ( sz < 2 ) return;
 
     ObjectSet< TypeSet<uiPoint> > pts;
     TypeSet<int> colorintset;
-    const uiPoint closept( ld.xax_.getPix(ld.xax_.range().start),
-			   ld.yax_.getPix(ld.yax_.range().stop) );
-
+    uiPoint closept;
+    closept.x = ld.xrev_ ? ld.xax_.getPix(ld.xax_.range().stop) 
+		     	 : ld.xax_.getPix(ld.xax_.range().start);
+    closept.y = ld.xrev_ ? ld.yax_.getPix(ld.yax_.range().stop) 
+		     	 : ld.yax_.getPix(ld.yax_.range().stop);
     int prevcolidx = 0;
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     *curpts += closept; 
@@ -369,7 +413,7 @@ void uiWellLogDisplay::drawFilling( bool first )
     *pts[pts.size()-1] += uiPoint( closept.x, pt.y ); 
     if ( pts.isEmpty() ) return;
 
-    const int tabidx = ColTab::SM().indexOf( wd_->right_.seqname_ );
+    const int tabidx = ColTab::SM().indexOf( ld.wld_.seqname_ );
     const ColTab::Sequence* seq = ColTab::SM().get( tabidx<0 ? 0 : tabidx );
     for ( int idx=0; idx<pts.size(); idx++ )
     {
@@ -388,9 +432,10 @@ void uiWellLogDisplay::drawFilling( bool first )
 
 
 #define mDefHorLineX1X2Y() \
-	const int x1 = ld1_.xax_.getRelPosPix( 0 ); \
-	const int x2 = ld1_.xax_.getRelPosPix( 1 ); \
-	const int y = ld1_.yax_.getPix( zpos )
+	const int x1 = lds_.size() ? lds_[0]->xax_.getRelPosPix( 0 ) : 0; \
+	const int x2 = lds_.size()>1 ? lds_[1]->xax_.getRelPosPix( 1 ) \
+				     : lds_[0]->xax_.getRelPosPix( 1 ); \
+	const int y = lds_[0]->yax_.getPix( zpos )
 
 void uiWellLogDisplay::drawMarkers()
 {
@@ -444,6 +489,286 @@ void uiWellLogDisplay::drawZPicks()
 }
 
 
-void uiWellLogDisplay::mouseRelease( CallBacker* )
+void uiWellLogDisplay::removeLog( const char* logname )
 {
+    int logidx = 0;
+    for ( int idx=0; idx<lds_.size(); idx++ )
+    {
+	if ( !strcmp( lds_[idx]->wl_->name(), logname ) )
+	{ logidx=idx; break; }
+    }
+    if ( !lds_[logidx] ) return;
+
+    mRemoveSet( lds_[logidx]->curveitms_ )
+    scene().removeItem( lds_[logidx]->curvenmitm_ );
+    delete lds_[logidx]->curvenmitm_; lds_[logidx]->curvenmitm_ = 0;
+    lds_[logidx]->wl_ = 0;
 }
+
+
+void uiWellLogDisplay::removeAllLogs()
+{
+    for ( int idx=0; idx<lds_.size(); idx++ )
+    {
+	mRemoveSet( lds_[idx]->curveitms_ )
+	scene().removeItem( lds_[idx]->curvenmitm_ );
+    }
+    deepErase( lds_ );
+}
+
+
+void uiWellLogDisplay::mouseRelease( CallBacker* )
+{}
+
+
+
+
+
+#define mPanelWidth 300
+#define mPanelHeight 700
+uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, const Well::Data& w )
+    	: uiGraphicsView(p,"Well Log Viewer")
+	, leftlogdisp_(0)
+	, rightlogdisp_(0)
+	, leftlogitm_(0)
+	, rightlogitm_(0)
+	, wd_(Well::Data(w))
+	, td_(scene(),uiBorder(0))
+	, zrg_(mUdf(float),0)
+	, d2tm_(wd_.d2TModel())
+   	, zintime_(false)		     
+   	, dispzinft_(false)		     
+{
+    setStretch( 2, 2 );
+    setPrefWidth( 2*mPanelWidth + 20 );
+    setPrefHeight( mPanelHeight + 20 );
+
+    if ( s.left_ )  addLogPanel( true );
+    if ( s.right_ ) addLogPanel( false );
+
+    addLog( wd_.displayProperties().left_.name_, true );
+    addLog( wd_.displayProperties().right_.name_, false );
+
+    propdlg_ = new uiWellDispPropDlg( p, &wd_ );
+
+    uiPushButton* propbut = new uiPushButton( 0, "&Property",
+			     mCB(this,uiWellDisplay,propButPushed), true );
+    uiObjectItem* propitm  = scene_->addItem( new uiObjectItem( propbut ) );
+    propitm->setPos( mPanelWidth, mPanelHeight );
+    
+    td_.wt_ = &wd_.track(); 
+    td_.wtd_ = wd_.displayProperties().track_; 
+
+    wd_.dispparschanged.notify(mCB(this,uiWellDisplay,updateProperties));
+    updateProperties(0);
+}
+
+
+uiWellDisplay::~uiWellDisplay()
+{
+    delete leftlogdisp_; 
+    delete rightlogdisp_; 
+    delete propdlg_;
+}
+
+
+void uiWellDisplay::addLogPanel( bool isleft )
+{
+    uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
+    wldsu.noxpixafter_ = isleft; 	wldsu.noxpixbefore_ = !isleft;
+    wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
+    uiWellLogDisplay* logdisp = new uiWellLogDisplay( 0, wldsu );
+    uiObjectItem* logitm  = scene_->addItem( new uiObjectItem( logdisp ) );
+
+    if ( isleft )
+    { leftlogdisp_ = logdisp;  leftlogitm_  = logitm; }
+    else
+    { rightlogdisp_ = logdisp; rightlogitm_ = logitm; }
+
+    logdisp->setWellData( wd_ );
+    
+    logitm->setPos( ( isleft || !leftlogdisp_ ) ? 0 : mPanelWidth );
+    logitm->setSelectable( true );
+    logitm->setObjectSize( mPanelWidth, mPanelHeight );
+}
+
+
+void uiWellDisplay::removeLogPanel( bool isleft )
+{
+    uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
+    wldsu.noxpixafter_ = isleft; 	wldsu.noxpixbefore_ = !isleft;
+    wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
+    uiWellLogDisplay* logdisp = new uiWellLogDisplay( 0, wldsu );
+    uiObjectItem* logitm  = scene_->addItem( new uiObjectItem( logdisp ) );
+
+    if ( isleft )
+    { leftlogdisp_ = logdisp;  leftlogitm_  = logitm; }
+    else
+    { rightlogdisp_ = logdisp; rightlogitm_ = logitm; }
+
+    logdisp->setWellData( wd_ );
+    
+    logitm->setPos( ( isleft || !leftlogdisp_ ) ? 0 : mPanelWidth );
+    logitm->setSelectable( true );
+    logitm->setObjectSize( mPanelWidth, mPanelHeight );
+}
+
+
+void uiWellDisplay::setAxisRanges()
+{
+    Interval<float> dispzrg( zrg_.stop, zrg_.start );
+    if ( dispzinft_ && !zintime_ )
+	dispzrg.scale( mToFeetFactor );
+
+    if ( td_.wt_ )
+    {
+	td_.yax_.setBounds( dispzrg  );
+	td_.xax_.setBounds( Interval<float>(0,0) );
+    }
+}
+
+
+void uiWellDisplay::addLog( const char* logname, bool left )
+{
+    const Well::Log* l = wd_.logs().getLog( logname );
+    if ( !l ) return;
+	
+    if ( left && leftlogdisp_ )
+    {
+	uiWellLogDisplay::LogData& wldld = leftlogdisp_->addLogData();
+	wldld.wl_ = l;
+	wldld.xrev_ = true;
+    }
+    else if ( !left && rightlogdisp_ )
+    {
+	uiWellLogDisplay::LogData& wldld = rightlogdisp_->addLogData();
+	wldld.wl_ = l;
+	wldld.xrev_ = false;
+	wldld.isyaxisleft_ = false;
+    }
+}
+
+
+void uiWellDisplay::removeLog( const char* logname, bool left )
+{
+    if ( left && leftlogdisp_ )
+	leftlogdisp_->removeLog( logname );
+    else if ( !left && rightlogdisp_ )
+	rightlogdisp_->removeLog( logname );
+}
+
+
+void uiWellDisplay::dataChanged()
+{
+    //gatherInfo();
+    //drawTrack();
+
+    if ( leftlogdisp_ ) leftlogdisp_->dataChanged();
+    if ( rightlogdisp_ ) rightlogdisp_->dataChanged();
+}
+
+
+void uiWellDisplay::gatherInfo()
+{
+    float startpos = td_.wt_->dah( 0 );
+    float stoppos = td_.wt_->dah( td_.wt_->size()-1 );
+    
+    if ( zintime_ && d2tm_ )
+    {
+	startpos = d2tm_->getTime( startpos )*1000;
+	stoppos = d2tm_->getTime( stoppos )*1000;
+    }
+
+    td_.zrg_.start = startpos;
+    td_.zrg_.stop = stoppos;
+    
+    setAxisRanges();
+}
+
+//TODO put together with drawLogLine
+void uiWellDisplay::drawTrack()
+{
+    mRemoveSet( td_.curveitms_ );
+    scene().removeItem( td_.curvenmitm_ );
+    delete td_.curvenmitm_; td_.curvenmitm_ = 0;
+
+    const Well::DahObj* wd = td_.wt_;
+
+    const int sz = wd ? wd->size() : 0;
+    if ( sz < 2 ) return;
+
+    ObjectSet< TypeSet<uiPoint> > pts;
+    TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
+
+    LineStyle ls(LineStyle::Solid);
+    ls.width_ = td_.wtd_.size_;
+    ls.color_ = td_.wtd_.color_;
+    
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	mDefZPosInLoop( wd->dah( idx ) )
+	float val = wd->value( idx );
+
+	if ( mIsUdf(val) )
+	{
+	    if ( !curpts->isEmpty() )
+	    {
+		pts += curpts;
+		curpts = new TypeSet<uiPoint>;
+	    }
+	    continue;
+	}
+	*curpts += uiPoint( td_.xax_.getPix(val), td_.yax_.getPix(zpos) );
+    }
+    if ( curpts->isEmpty() )
+	delete curpts;
+    else
+	pts += curpts;
+    if ( pts.isEmpty() ) return;
+
+    for ( int idx=0; idx<pts.size(); idx++ )
+    {
+	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem(*pts[idx]) );
+	pli->setPenStyle( ls );
+	td_.curveitms_ += pli;
+    }
+
+    td_.yax_.annotAtEnd( zintime_ ? "(ms)" : dispzinft_ ? "(ft)" : "(m)" );
+}
+
+
+void uiWellDisplay::propButPushed( CallBacker* )
+{
+    propdlg_->go();
+}
+
+
+void uiWellDisplay::updateProperties( CallBacker* )
+{
+    //TODO link to several tabstacks...
+    td_.wtd_ = wd_.displayProperties().track_;
+    if ( leftlogdisp_ && leftlogdisp_->lds_.size() ) 
+	leftlogdisp_->lds_[0]->wld_ = wd_.displayProperties().left_;
+    if ( rightlogdisp_ && rightlogdisp_->lds_.size() ) 
+	rightlogdisp_->lds_[0]->wld_ = wd_.displayProperties().right_;
+    dataChanged();
+}
+
+
+
+
+uiWellDisplayWin::uiWellDisplayWin( uiParent* p, const Well::Data& wd )
+	: uiMainWin(p,"2D Well Log Viewer")
+{
+    logviewer_ = new uiWellDisplay( this, uiWellDisplay::Setup(), wd );
+
+    finaliseDone.notify( mCB(logviewer_,uiWellDisplay,dataChanged) );
+}
+
+
+uiWellDisplayWin::~uiWellDisplayWin()
+{
+    delete logviewer_;
+}
+
+

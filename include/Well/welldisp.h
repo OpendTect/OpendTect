@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.21 2009-11-19 11:26:00 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.22 2009-12-16 16:18:03 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,9 @@ public:
     mStruct BasicProps
     {
 			BasicProps( int sz=1 )
-			    : size_(sz)			{}
+			    : size_(sz)			
+			    , color_(Color(255,255,255))
+			    {}
 
 	Color		color_;
 	int		size_;
@@ -108,7 +110,7 @@ public:
     mStruct Log : public BasicProps
     {
 			Log()
-			    : cliprate_(mUdf(float))
+			    : cliprate_(0)
 			    , fillname_("none")
 			    , fillrange_(mUdf(float),mUdf(float))
 		            , isdatarange_(true)
