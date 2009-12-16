@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.11 2009-12-16 16:18:03 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.12 2009-12-16 16:23:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,6 +203,7 @@ public:
     
     void			addLog(const char*,bool isleft);
     void			removeLog(const char*,bool isleft);
+    void			removeLogPanel(bool isleft);
     
     mStruct TrackData : public uiWellLogDisplay::LineData
     {

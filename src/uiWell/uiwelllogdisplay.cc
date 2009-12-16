@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.16 2009-12-16 16:18:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.17 2009-12-16 16:23:27 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisppropdlg.h"
@@ -508,10 +508,10 @@ void uiWellLogDisplay::removeLog( const char* logname )
 
 void uiWellLogDisplay::removeAllLogs()
 {
-    for ( int idx=0; idx<lds_.size(); idx++ )
+    for ( int logidx=0; logidx<lds_.size(); logidx++ )
     {
-	mRemoveSet( lds_[idx]->curveitms_ )
-	scene().removeItem( lds_[idx]->curvenmitm_ );
+	mRemoveSet( lds_[logidx]->curveitms_ )
+	scene().removeItem( lds_[logidx]->curvenmitm_ );
     }
     deepErase( lds_ );
 }
