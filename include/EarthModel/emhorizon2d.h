@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.19 2009-11-04 06:41:20 cvsumesh Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.20 2009-12-16 06:03:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -18,8 +18,10 @@ ________________________________________________________________________
 #include "horizon2dline.h"
 #include "tableascio.h"
 
+class ZAxisTransform;
 namespace Geometry { class Horizon2DLine; }
 namespace Table { class FormatDesc; }
+template <class T> class Array1D;
 
 namespace EM
 {
@@ -107,6 +109,11 @@ public:
     virtual void		removeAll();
     void			removeSelected(const Selector<Coord3>& selector,
 	    				       TaskRunner* tr );
+
+    bool			setArray1D(const Array1D<float>&,SectionID sid,
+	    				   int lid,bool onlyfillundefs );
+    Array1D<float>*		createArray1D( SectionID, int rowid,
+	    				       const ZAxisTransform* = 0) const;
 
 protected:
 

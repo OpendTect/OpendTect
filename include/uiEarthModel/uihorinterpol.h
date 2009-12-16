@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Feb 2009
- RCS:		$Id: uihorinterpol.h,v 1.6 2009-11-04 16:01:05 cvsyuancheng Exp $
+ RCS:		$Id: uihorinterpol.h,v 1.7 2009-12-16 06:03:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,19 +15,20 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiGenInput;
-namespace EM { class Horizon3D; }
+namespace EM { class Horizon; }
 
 class uiHorSaveFieldGrp;
-class Array2DInterpol;
+class uiArray1DInterpolSel;
 class uiArray2DInterpolSel;
 class uiIOObjSel;
 
 
-mClass uiHorizon3DInterpolDlg : public uiDialog
+mClass uiHorizonInterpolDlg : public uiDialog
 {
 public:
-    			uiHorizon3DInterpolDlg(uiParent*,EM::Horizon3D*);
-			~uiHorizon3DInterpolDlg();
+    			uiHorizonInterpolDlg(uiParent*,EM::Horizon*,
+					     bool is2d=false);
+			~uiHorizonInterpolDlg();
 
     const char*		helpID() const;
     uiHorSaveFieldGrp*	saveFldGrp() const { return savefldgrp_; }
@@ -36,12 +37,16 @@ protected:
 
     bool			acceptOK(CallBacker*);
 
+    bool			interpolate3D();
+    bool			interpolate2D();
+    bool			is2d_;
     uiIOObjSel*			inputhorsel_;
-    uiArray2DInterpolSel*	interpolsel_;
+    uiArray2DInterpolSel*	interpol2dsel_;
+    uiArray1DInterpolSel*	interpol1dsel_;
     uiGenInput*			geometrysel_;
     uiHorSaveFieldGrp*          savefldgrp_;
 
-    EM::Horizon3D*		horizon_;
+    EM::Horizon*		horizon_;
 };
 
 

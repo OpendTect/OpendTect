@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.5 2009-11-19 04:04:12 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.6 2009-12-16 06:03:19 cvssatyaki Exp $";
 
 #include "uihorsavefieldgrp.h"
 
@@ -135,7 +135,9 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 bool uiHorSaveFieldGrp::saveHorizon()
 {
     const bool savenew = savefld_->getBoolValue();
-    PtrMan<Executor> exec = savenew ? newhorizon_->saver( ) : horizon_->saver();
+    if ( !newhorizon_ && savenew && !createNewHorizon() )
+	return false;
+    PtrMan<Executor> exec = savenew ? newhorizon_->saver() : horizon_->saver();
 
     if ( !exec ) mErrRet( "Cannot save horizon" );
 

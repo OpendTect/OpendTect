@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.13 2009-11-19 04:04:12 cvssatyaki Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.14 2009-12-16 06:03:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -97,6 +97,7 @@ protected:
 
     MenuItem		derive3dhormnuitem_;
     MenuItem		snapeventmnuitem_;
+    MenuItem		interploatemnuitem_;
 };
 
 

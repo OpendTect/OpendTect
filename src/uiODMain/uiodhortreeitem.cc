@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.52 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.53 2009-12-16 06:03:19 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -398,7 +398,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     bool handled = true;
     if ( mnuid==fillholesmnuitem_.id )
     {
-	const bool isoverwrite = emserv->fillHoles( emid_ );
+	const bool isoverwrite = emserv->fillHoles( emid_, false );
 	if ( isoverwrite ) { mUpdateTexture(); }
     }
     else if ( mnuid==filterhormnuitem_.id )
@@ -646,6 +646,7 @@ void uiODHorizon2DTreeItem::initMenuItems()
 {
     derive3dhormnuitem_.text = "Derive &3D horizon ...";
     snapeventmnuitem_.text = "Snap to &event ...";
+    interploatemnuitem_.text = "&Interpolate ...";
 }
 
 
@@ -680,6 +681,7 @@ void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &derive3dhormnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
 	mResetMenuItem( &snapeventmnuitem_ );
+	mResetMenuItem( &interploatemnuitem_ );
     }
     else
     {
@@ -687,6 +689,7 @@ void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &derive3dhormnuitem_, !isempty, false );
 	mAddMenuItem( menu, &createflatscenemnuitem_, !isempty, false );
 	mAddMenuItem( menu, &snapeventmnuitem_, !isempty, false );
+	mAddMenuItem( menu, &interploatemnuitem_, !isempty, false );
     }
 	
 }
@@ -701,7 +704,13 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     bool handled = true;
-    if ( mnuid==derive3dhormnuitem_.id )
+    if ( mnuid==interploatemnuitem_.id )
+    {
+	const int visid = displayID();
+	const bool isoverwrite = applMgr()->EMServer()->fillHoles( emid_, true);
+	mUpdateTexture();
+    }
+    else if ( mnuid==derive3dhormnuitem_.id )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );
     else if ( mnuid==snapeventmnuitem_.id )
     {

@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.31 2009-11-04 06:41:20 cvsumesh Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.32 2009-12-16 06:03:19 cvssatyaki Exp $";
 
 #include "emhorizon2d.h"
 
+#include "arrayndimpl.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
@@ -21,6 +22,7 @@ static const char* rcsID = "$Id: emhorizon2d.cc,v 1.31 2009-11-04 06:41:20 cvsum
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
+#include "zaxistransform.h"
 
 namespace EM
 {
@@ -386,6 +388,60 @@ TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
 
 void Horizon2D::syncGeometry()
 { manager_.syncGeometry( id() ); }
+
+
+bool Horizon2D::setArray1D( const Array1D<float>& arr, SectionID sid, int lid,
+       			    bool onlyfillundefs	)
+{
+    Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
+    if ( !geom || geom->isEmpty() )
+	return 0;
+
+    const StepInterval<int> colrg = geom->colRange( lid );
+    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    {
+	RowCol rc( lid, col );
+	Coord3 pos = geom->getKnot( rc );
+	if ( pos.isDefined() && onlyfillundefs )
+	    continue;
+
+	if ( arr.info().validPos(colrg.getIndex(col)) )
+	{
+	    float z = arr.get( colrg.getIndex(col) );
+	    pos.z = z;
+	    geom->setKnot( rc, pos );
+	}
+    }
+
+    return true;
+}
+
+
+Array1D<float>* Horizon2D::createArray1D( SectionID sid, int lineid,
+					  const ZAxisTransform* trans ) const
+{
+    const Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
+    if ( !geom || geom->isEmpty() )
+	return 0;
+
+    Array1DImpl<float>* arr = 0;
+    arr = new Array1DImpl<float>( geom->colRange(lineid).nrSteps() + 1 );
+
+    if ( !arr && !arr->isOK() )
+	return 0;
+
+    const StepInterval<int> colrg = geom->colRange( lineid );
+    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    {
+	Coord3 pos = geom->getKnot( RowCol(lineid,col) );
+	if ( trans )
+	    pos.z = trans->transform( pos );
+
+	arr->set( colrg.getIndex(col), pos.z );
+    }
+
+    return arr;
+}
 
 
 const IOObjContext& Horizon2D::getIOObjContext() const

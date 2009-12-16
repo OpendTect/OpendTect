@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.197 2009-11-12 21:33:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.198 2009-12-16 06:03:19 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -248,10 +248,10 @@ void uiEMPartServer::displayHorizon( const MultiID& mid )
 }
 
 
-bool uiEMPartServer::fillHoles( const EM::ObjectID& emid )
+bool uiEMPartServer::fillHoles( const EM::ObjectID& emid, bool is2d )
 {
-    mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid));
-    uiHorizon3DInterpolDlg dlg( parent(), hor3d );
+    mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid));
+    uiHorizonInterpolDlg dlg( parent(), hor, is2d );
     dlg.go();
 
     if ( dlg.saveFldGrp()->displayNewHorizon() && 
