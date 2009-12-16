@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.11 2009-12-14 05:17:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.12 2009-12-16 15:09:46 cvsjaap Exp $";
 
 #include "vispolygonselection.h"
 
@@ -280,7 +280,7 @@ const char* PolygonCoord3Selector::selectorType() const
 
 
 bool PolygonCoord3Selector::isOK() const
-{ return !vissel_.isSelfIntersecting(); }
+{ return hasPolygon(); }
 
 
 bool PolygonCoord3Selector::hasPolygon() const
