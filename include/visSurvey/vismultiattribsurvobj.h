@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.28 2009-09-08 21:50:06 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.29 2009-12-16 22:27:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -99,7 +99,7 @@ public:
 protected:
 
     				MultiTextureSurveyObject(
-					bool usechannels = false );
+					bool usechannels );
 				~MultiTextureSurveyObject();
     void			getValueString(const Coord3&,
 	    				       BufferString&) const;

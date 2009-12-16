@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.42 2009-10-29 15:18:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.43 2009-12-16 22:27:05 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -45,7 +45,8 @@ namespace visSurvey
 {
 
 FaultDisplay::FaultDisplay()
-    : emfault_( 0 )
+    : MultiTextureSurveyObject( false )
+    , emfault_( 0 )
     , activestickmarker_( visBase::IndexedPolyLine3D::create() )
     , validtexture_( false )
     , paneldisplay_( 0 )
