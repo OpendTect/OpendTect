@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.7 2009-12-11 10:57:14 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.8 2009-12-17 14:28:36 cvskarthika Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -64,13 +64,19 @@ void setChannelData( int channel,const SbImage& image )
 	    
     if ( data && ( bpp >=1 ) && (bpp <=2) )
     {
+		if ( datacache_ )
+			delete datacache_;
+		int len = tmpsize[0]*tmpsize[1]*tmpsize[2]*bpp;
+		datacache_ = new unsigned char[len];
+	//	datacache_ = data;
+		memcpy( datacache_, data, len );
         SoVolumeData::DataType dt;
 	if ( bpp == 1 )
 	    dt = SoVolumeData::UNSIGNED_BYTE;
 	else if ( dt == SoVolumeData::UNSIGNED_SHORT )
 	    dt = SoVolumeData::UNSIGNED_SHORT;
 
-	voldata_->setVolumeData( tmpsize, data, dt );
+	voldata_->setVolumeData( tmpsize, datacache_, dt );
     }
 }
 
@@ -106,6 +112,8 @@ SoNode* getInventorNode()
 
 	setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
 		       Interval<float>(-0.5,0.5) );
+	voldata_->setVolumeData( SbVec3s(1,1,1),
+	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
 	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	    voldata_->usePalettedTexture = FALSE;
     }
@@ -125,12 +133,24 @@ protected:
 
 VolumeDataSet::VolumeDataSet()
      : voldata_( new SoVolumeData )
+	 , dummytexture_( 255 )
+	 , datacache_( 0 )
 { 
     voldata_->ref();
     setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
  		   Interval<float>(-0.5,0.5) );
+	voldata_->setVolumeData( SbVec3s(1,1,1),
+	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
     if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	    voldata_->usePalettedTexture = FALSE;
+}
+
+
+VolumeDataSet::~VolumeDataSet()
+{
+	voldata_->unref();
+	if ( datacache_ )
+		delete datacache_;
 }
 
 
@@ -174,7 +194,7 @@ TextureChannel2VolData::~TextureChannel2VolData()
 
 
 MappedTextureDataSet* TextureChannel2VolData::createMappedDataSet() const
-{ return VolumeDataSetImpl::create(); }
+{ return 0;VolumeDataSetImpl::create(); }
 
 
 SoNode* TextureChannel2VolData::getInventorNode()
@@ -250,8 +270,8 @@ void TextureChannel2VolData::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
 
-    transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
-    /*transferfunc_->predefColorMap = SoTransferFunction::NONE;
+    //transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
+    transferfunc_->predefColorMap = SoTransferFunction::NONE;
     //transferfunc_->colorMapType = SoTransferFunction::RGBA;
 
     const float redfactor = 1.0/255;
@@ -269,7 +289,7 @@ void TextureChannel2VolData::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
 	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
-    */
+    
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();
 }
