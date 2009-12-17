@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.95 2009-12-17 14:13:14 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.96 2009-12-17 15:01:29 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -224,7 +224,7 @@ void MPEDisplay::setColTabMapperSetup( int attrib,
 	return;
 
     channels_->setColTabMapperSetup( attrib, ms );
-	channels_->reMapData( attrib, 0 );
+    channels_->reMapData( attrib, 0 );
 #endif
 }
 
@@ -240,8 +240,8 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
     vt.colorSeq().colorsChanged();
 #else
     if ( attrib>=0 && attrib<nrAttribs() )	
-		if ( channels_->getChannels2RGBA() )
-			channels_->getChannels2RGBA()->setSequence( attrib, seq );
+	if ( channels_->getChannels2RGBA() )
+	    channels_->getChannels2RGBA()->setSequence( attrib, seq );
 #endif
 }
 
@@ -269,10 +269,8 @@ const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
 #ifdef USE_TEXTURE
     return texture_ ? &texture_->getColorTab().colorSeq().colors() : 0; 
 #else
-	if ( attrib<0 || attrib>=nrAttribs() )
-		return 0;
-	if ( channels_->getChannels2RGBA() )
-		return channels_->getChannels2RGBA()->getSequence( attrib );
+    return ( attrib>=0 && attrib<nrAttribs() && channels_->getChannels2RGBA() )
+	? channels_->getChannels2RGBA()->getSequence( attrib ) : 0;
 #endif
 }
 
@@ -415,7 +413,7 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     userrefs_.replace( attrib, attrnms );
 
     if ( ( !usrref || !*usrref ) && channels_->getChannels2RGBA() )
-		channels_->getChannels2RGBA()->setEnabled( 0, true );
+	channels_->getChannels2RGBA()->setEnabled( 0, true );
 #endif
 }
 
@@ -924,7 +922,8 @@ void MPEDisplay::setPlaneOrientation( int orient )
 
     for ( int i = 0; i < 3; i++ )
         slices_[i]->turnOn( dim_ == i );
-	updateRanges( true, true );
+    
+    updateRanges( true, true );
 #endif
     movement.trigger();
 }
@@ -1081,7 +1080,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 		Interval<float>(-0.5,0.5),
 		Interval<float>(-0.5,0.5) );
 
-	if ( isDraggerShown() )
+    if ( isDraggerShown() )
 	updateSlice();
 #endif
     
@@ -2021,18 +2020,18 @@ visBase::TextureChannel2VolData* MPEDisplay::getChannel2VolData()
 
 void MPEDisplay::clearTextures()
 {
-	Attrib::SelSpec as;
-	setSelSpec( 0, as );
+    Attrib::SelSpec as;
+    setSelSpec( 0, as );
 
-	// to do: check!
-	for ( int idy=channels_->nrVersions( 0 ) - 1; idy>=0; idy-- )
-		channels_->setUnMappedData( 0, idy, 0, OD::UsePtr, 0 );	
+    // to do: check!
+    for ( int idy=channels_->nrVersions( 0 ) - 1; idy>=0; idy-- )
+	channels_->setUnMappedData( 0, idy, 0, OD::UsePtr, 0 );	
 }
 
 
 SurveyObject::AttribFormat MPEDisplay::getAttributeFormat( int attrib ) const
 {
-	return !attrib ? SurveyObject::Cube : SurveyObject::None;
+    return !attrib ? SurveyObject::Cube : SurveyObject::None;
 }
 
 
