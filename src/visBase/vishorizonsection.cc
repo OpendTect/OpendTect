@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.98 2009-11-17 19:59:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.99 2009-12-17 14:33:51 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -466,8 +466,10 @@ HorizonSection::~HorizonSection()
 	if ( !tileptrs[idx] )
 	    continue;
 
+	writeLock();
 	removeChild( tileptrs[idx]->getNodeRoot() );
 	delete tileptrs[idx];
+	writeUnLock();
     }
     
     if ( geometry_ )
@@ -969,8 +971,11 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
     {
 	if ( tileptrs[idx] )
 	{
+	    writeLock();
     	    removeChild( tileptrs[idx]->getNodeRoot() );
     	    delete tileptrs[idx];
+	    tileptrs[idx] = 0;
+	    writeUnLock();
 	}
     }
 
@@ -1145,13 +1150,16 @@ void HorizonSection::resetAllTiles( TaskRunner* tr )
     const int nrcols = 
 	nrBlocks( displaycrg_.nrSteps()+1, mNrCoordsPerTileSide, 1 );
 
+    writeLock();
     if ( !tiles_.setSize( nrrows, nrcols ) )
     {
 	tesselationlock_ = false;
+	writeUnLock();
 	return;
     }
 
     tiles_.setAll( 0 );
+    writeUnLock();
 
     ObjectSet<HorizonSectionTile> fullupdatetiles;
     for ( int tilerowidx=0; tilerowidx<nrrows; tilerowidx++ )
@@ -1221,7 +1229,10 @@ void HorizonSection::updateTileArray()
 	}
     }
 
+    writeLock();
     tiles_.copyFrom( newtiles );
+    writeUnLock();
+
     origin_.row -= nrnewrowsbefore*rowsteps;
     origin_.col -= nrnewcolsbefore*colsteps;
 }
@@ -1262,7 +1273,9 @@ HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
     tile->useWireframe( usewireframe_ );
     tile->setRightHandSystem( righthandsystem_ );
 
+    writeLock();
     tiles_.set( tilerowidx, tilecolidx, tile );
+    writeUnLock();
     
     for ( int rowidx=-1; rowidx<=1; rowidx++ )
     {
