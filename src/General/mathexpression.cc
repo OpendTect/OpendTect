@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.50 2009-08-27 14:08:04 cvshelene Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.51 2009-12-17 14:24:47 cvsbert Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -304,6 +304,12 @@ float MathExpressionAND::getValue() const
 }
 
 
+static int ensureRandInited()
+{
+    Stats::RandGen::init();
+    return 0;
+}
+
 mMathExpressionClass( Random, 1 )
 float MathExpressionRandom::getValue() const
 {
@@ -311,7 +317,7 @@ float MathExpressionRandom::getValue() const
     if ( Values::isUdf(maxval) )
 	return mUdf(float);
 
-    Stats::RandGen::init();
+    static int dum = ensureRandInited();
     return maxval * Stats::RandGen::get();
 }
 
@@ -323,7 +329,7 @@ float MathExpressionGaussRandom::getValue() const
     if ( Values::isUdf(stdev) )
 	return mUdf(float);
 
-    Stats::RandGen::init( 0 );
+    static int dum = ensureRandInited();
     return Stats::RandGen::getNormal(0,stdev);
 }
 
