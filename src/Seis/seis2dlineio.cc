@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.2 2009-12-15 16:15:25 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.3 2009-12-17 14:26:19 cvsbert Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: seis2dlineio.cc,v 1.2 2009-12-15 16:15:25 cvsbe
 #include "seisselection.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
+#include "seistrc.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "posinfo.h"
@@ -109,6 +110,7 @@ Seis2DLineMerger::Seis2DLineMerger( const MultiID& lsky )
     , opt_(MatchTrcNr)
     , numbering_(1,1)
     , renumber_(false)
+    , stckdupl_(false)
     , snapdist_(0.01)
     , nrdone_(0)
     , totnr_(-1)
@@ -125,6 +127,9 @@ Seis2DLineMerger::~Seis2DLineMerger()
     delete fetcher_;
     delete putter_;
     delete ls_;
+    tbuf1_.deepErase();
+    tbuf2_.deepErase();
+    outbuf_.deepErase();
 
     delete &tbuf1_;
     delete &tbuf2_;
@@ -293,9 +298,28 @@ int Seis2DLineMerger::doWork()
 
 void Seis2DLineMerger::mergeBufs()
 {
-    // TODO: implement properly
-    outbuf_.stealTracesFrom( tbuf1_ );
-    outbuf_.stealTracesFrom( tbuf2_ );
-    outbuf_.sort( true, SeisTrcInfo::TrcNr );
-    outbuf_.enforceNrTrcs( 1, SeisTrcInfo::TrcNr );
+    if ( opt_ == MatchCoords )
+	mergeOnCoords();
+    else
+    {
+	outbuf_.stealTracesFrom( tbuf1_ );
+	outbuf_.stealTracesFrom( tbuf2_ );
+	if ( opt_ == MatchTrcNr )
+	{
+	    outbuf_.sort( true, SeisTrcInfo::TrcNr );
+	    outbuf_.enforceNrTrcs( 1, SeisTrcInfo::TrcNr, stckdupl_ );
+	}
+    }
+
+    if ( renumber_ )
+    {
+	for ( int idx=0; idx<outbuf_.size(); idx++ )
+	    outbuf_.get( idx )->info().nr = numbering_.atIndex( idx );
+    }
+}
+
+
+void Seis2DLineMerger::mergeOnCoords()
+{
+    pErrMsg("Needs implementation");
 }

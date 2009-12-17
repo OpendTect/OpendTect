@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.101 2009-12-16 11:18:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.102 2009-12-17 14:26:19 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -671,6 +671,7 @@ bool acceptOK( CallBacker* )
 
     lmrgr.outlnm_ = outnm;
     lmrgr.opt_ = (Seis2DLineMerger::Opt)mrgoptfld_->getIntValue();
+    lmrgr.stckdupl_ = stckfld_->getBoolValue();
     lmrgr.renumber_ = lmrgr.opt_ != Seis2DLineMerger::MatchTrcNr
 		   && renumbfld_->isChecked();
 

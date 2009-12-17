@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2009
- RCS:		$Id: seis2dlinemerge.h,v 1.2 2009-12-15 16:15:25 cvsbert Exp $
+ RCS:		$Id: seis2dlinemerge.h,v 1.3 2009-12-17 14:26:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
     BufferString	lnm2_;
     BufferString	outlnm_;
     bool		renumber_;
+    bool		stckdupl_;
     SamplingData<int>	numbering_;
     double		snapdist_;
 
@@ -74,10 +75,11 @@ protected:
 
     int			doWork();
     int			doIO();
-    void		mergeBufs();
     bool		getLineID(const char*,int&) const;
     bool		nextAttr();
     bool		nextFetcher();
+    void		mergeBufs();
+    void		mergeOnCoords();
 
 };
 
