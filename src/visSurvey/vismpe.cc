@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.94 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.95 2009-12-17 14:13:14 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -240,7 +240,8 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
     vt.colorSeq().colorsChanged();
 #else
     if ( attrib>=0 && attrib<nrAttribs() )	
-	channels_->getChannels2RGBA()->setSequence( attrib, seq );
+		if ( channels_->getChannels2RGBA() )
+			channels_->getChannels2RGBA()->setSequence( attrib, seq );
 #endif
 }
 
@@ -268,8 +269,10 @@ const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
 #ifdef USE_TEXTURE
     return texture_ ? &texture_->getColorTab().colorSeq().colors() : 0; 
 #else
-    return ( attrib<0 || attrib>=nrAttribs() ) ? 0:
-	channels_->getChannels2RGBA()->getSequence( attrib );
+	if ( attrib<0 || attrib>=nrAttribs() )
+		return 0;
+	if ( channels_->getChannels2RGBA() )
+		return channels_->getChannels2RGBA()->getSequence( attrib );
 #endif
 }
 
@@ -279,7 +282,8 @@ bool MPEDisplay::canSetColTabSequence() const
 #ifdef USE_TEXTURE
     return true;
 #else
-    return channels_->getChannels2RGBA()->canSetSequence();
+    return ( channels_->getChannels2RGBA() ) ? 
+		channels_->getChannels2RGBA()->canSetSequence() : false;
 #endif
 }
 
@@ -410,8 +414,8 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     attrnms->add( usrref );
     userrefs_.replace( attrib, attrnms );
 
-    if ( !usrref || !*usrref )
-	channels_->getChannels2RGBA()->setEnabled( 0, true );
+    if ( ( !usrref || !*usrref ) && channels_->getChannels2RGBA() )
+		channels_->getChannels2RGBA()->setEnabled( 0, true );
 #endif
 }
 
