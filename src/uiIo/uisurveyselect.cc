@@ -7,8 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
+
 #include "uisurveyselect.h"
 
+#include "uibutton.h"
 #include "oddirs.h"
 #include "uidialog.h"
 #include "uifileinput.h"
@@ -44,7 +46,7 @@ uiSurveySelectDlg::~uiSurveySelectDlg()
 
 const char* uiSurveySelectDlg::getDataRoot() const
 {
-    return datarootfld_->fileName();
+    return datarootfld_->text();
 }
 
 const BufferString uiSurveySelectDlg::getSurveyName() const
@@ -71,7 +73,7 @@ void uiSurveySelectDlg::surveySelectCB( CallBacker* )
 uiSurveySelect::uiSurveySelect( uiParent* p )
 	: uiIOSelect(p,uiIOSelect::Setup("Select Survey"),
 		     mCB(this,uiSurveySelect,selectCB))
-{
+{ 
 }
 
 
@@ -84,7 +86,12 @@ void uiSurveySelect::selectCB( CallBacker* )
 {
     uiSurveySelectDlg dlg( this );
     if( !dlg.go() ) return;
-
+    
     setInputText( dlg.getSurveyName() );
 }
 
+
+void uiSurveySelect::enableButton( bool ison )
+{
+    selbut_->setSensitive( ison );
+}

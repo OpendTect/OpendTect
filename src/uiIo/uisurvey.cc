@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.113 2009-11-18 17:55:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.114 2009-12-17 07:16:02 cvsranojay Exp $";
 
 #include "uisurvey.h"
 
@@ -685,9 +685,11 @@ void uiSurvey::newSurvey()
 }
 
 
-void uiSurvey::getSurveyList( BufferStringSet& list )
+void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot )
 {
-    BufferString basedir = GetBaseDataDir();
+    BufferString basedir = dataroot;
+    if ( basedir.isEmpty() )
+	basedir = GetBaseDataDir();
     DirList dl( basedir, DirList::DirsOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
     {

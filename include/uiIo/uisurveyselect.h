@@ -43,7 +43,9 @@ mClass uiSurveySelect : public uiIOSelect
 {
 public:
 			uiSurveySelect(uiParent*);
-			~uiSurveySelect();
+			~uiSurveySelect(); 
+    void		enableButton(bool);
+
 protected:
     void		selectCB(CallBacker*);
 };

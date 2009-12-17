@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.34 2009-11-18 17:55:47 cvsyuancheng Exp $
+ RCS:           $Id: uisurvey.h,v 1.35 2009-12-17 07:16:02 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
 			uiSurvey(uiParent*);
 			~uiSurvey();
 
-    static void		getSurveyList(BufferStringSet&);
+    static void		getSurveyList(BufferStringSet&,const char* dataroot=0);
 
     static bool		survTypeOKForUser(bool is2d);
     			//!< checks whether given type has support
