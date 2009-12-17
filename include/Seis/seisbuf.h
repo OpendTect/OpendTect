@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.23 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.24 2009-12-17 14:25:57 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -68,7 +68,8 @@ public:
 
     bool		isSorted(bool ascending,SeisTrcInfo::Fld) const;
     void		sort(bool ascending,SeisTrcInfo::Fld);
-    void		enforceNrTrcs(int nrrequired,SeisTrcInfo::Fld);
+    void		enforceNrTrcs(int nrrequired,SeisTrcInfo::Fld,
+	    			      bool stack_before_remove=false);
     			//!< Makes sure nrtrcs per position is constant
     float*		getHdrVals(SeisTrcInfo::Fld,double& offs);
     			//!< The 'offs' ensures the values fit in floats

@@ -4,11 +4,12 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.48 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.49 2009-12-17 14:25:57 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
+#include "seistrcprop.h"
 #include "seispacketinfo.h"
 #include "seisread.h"
 #include "seisselection.h"
@@ -145,7 +146,8 @@ void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
 }
 
 
-void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld )
+void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld,
+				bool dostack )
 {
     SeisTrc* prevtrc = get(0);
     if ( !prevtrc ) return;
@@ -162,8 +164,12 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld )
 	    nrwithprevval++;
 	    if ( nrwithprevval > nrrequired )
 	    {
+		if ( dostack )
+		{
+		    float wt = nrrequired; wt /= nrwithprevval - 1;
+		    SeisTrcPropChg( *get(idx-1) ).stack(*trc,false,wt);
+		}
 		remove(trc); idx--; delete trc;
-		nrwithprevval = nrrequired;
 	    }
 	}
 	else
