@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: stats.cc,v 1.8 2009-10-20 15:20:32 cvsbert Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.9 2009-12-17 14:23:50 cvsbert Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -59,10 +59,8 @@ bool Stats::RunCalcSetup::medianEvenAverage()
 double Stats::RandGen::get()
 {
 #ifdef __win__
-    int ran_ = rand();
-    int rmax_ = RAND_MAX;
-
-    double ret = ran_;
+    static const int rmax_ = RAND_MAX;
+    double ret = rand();
     ret /= rmax_;
     return ret;
 #else
