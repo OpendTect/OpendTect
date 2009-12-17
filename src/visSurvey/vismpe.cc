@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.96 2009-12-17 15:01:29 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.97 2009-12-17 16:36:08 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -241,7 +241,10 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 #else
     if ( attrib>=0 && attrib<nrAttribs() )	
 	if ( channels_->getChannels2RGBA() )
+	{
 	    channels_->getChannels2RGBA()->setSequence( attrib, seq );
+	    channels_->reMapData( attrib, 0 );  // to do: check if necessary
+	}
 #endif
 }
 
