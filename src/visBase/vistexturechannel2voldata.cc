@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.8 2009-12-17 14:28:36 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.9 2009-12-17 15:00:39 cvskarthika Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -64,12 +64,12 @@ void setChannelData( int channel,const SbImage& image )
 	    
     if ( data && ( bpp >=1 ) && (bpp <=2) )
     {
-		if ( datacache_ )
-			delete datacache_;
-		int len = tmpsize[0]*tmpsize[1]*tmpsize[2]*bpp;
-		datacache_ = new unsigned char[len];
-	//	datacache_ = data;
-		memcpy( datacache_, data, len );
+	if ( datacache_ )
+	    delete datacache_;
+
+	int len = tmpsize[0]*tmpsize[1]*tmpsize[2]*bpp;
+	datacache_ = new unsigned char[len];
+	memcpy( datacache_, data, len );
         SoVolumeData::DataType dt;
 	if ( bpp == 1 )
 	    dt = SoVolumeData::UNSIGNED_BYTE;
@@ -133,30 +133,30 @@ protected:
 
 VolumeDataSet::VolumeDataSet()
      : voldata_( new SoVolumeData )
-	 , dummytexture_( 255 )
-	 , datacache_( 0 )
+     , dummytexture_( 255 )
+     , datacache_( 0 )
 { 
     voldata_->ref();
     setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
  		   Interval<float>(-0.5,0.5) );
-	voldata_->setVolumeData( SbVec3s(1,1,1),
-	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
+    voldata_->setVolumeData( SbVec3s(1,1,1),
+	    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
     if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
-	    voldata_->usePalettedTexture = FALSE;
+	voldata_->usePalettedTexture = FALSE;
 }
 
 
 VolumeDataSet::~VolumeDataSet()
 {
-	voldata_->unref();
-	if ( datacache_ )
-		delete datacache_;
+    voldata_->unref();
+    if ( datacache_ )
+	delete datacache_;
 }
 
 
 void VolumeDataSet::setVolumeSize(  const Interval<float>& x,
-						  const Interval<float>& y,
-						  const Interval<float>& z )
+	     			    const Interval<float>& y,
+				    const Interval<float>& z )
 {
     if ( !voldata_ )
 	return;
@@ -174,6 +174,7 @@ Interval<float> VolumeDataSet::getVolumeSize( int dim ) const
 
 
 mCreateFactoryEntry( VolumeDataSetImpl );
+
 
 VolumeDataSetImpl::VolumeDataSetImpl()
 {}
@@ -194,7 +195,7 @@ TextureChannel2VolData::~TextureChannel2VolData()
 
 
 MappedTextureDataSet* TextureChannel2VolData::createMappedDataSet() const
-{ return 0;VolumeDataSetImpl::create(); }
+{ return VolumeDataSetImpl::create(); }
 
 
 SoNode* TextureChannel2VolData::getInventorNode()
