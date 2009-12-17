@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.29 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.30 2009-12-17 10:42:03 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -327,8 +327,8 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     */
     WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, wtsetup_ );
     welltiedlgset_ += wtdlg;
-    //since the win does not delonclose, we store the windows in a an ObjectSet
-    //to delete it at the end.
+    //since the win does not delonclose, windows are stored in a an ObjectSet
+    //to be deleted in the destructor
     welltiedlgsetcpy_ += wtdlg;
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
 	    			mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
