@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.4 2009-12-18 09:13:29 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.5 2009-12-18 14:41:29 cvsbert Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -13,11 +13,13 @@ static const char* rcsID = "$Id: seis2dlineio.cc,v 1.4 2009-12-18 09:13:29 cvsbe
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seistrc.h"
+#include "seistrcprop.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "posinfo.h"
 #include "filegen.h"
 #include "seisbuf.h"
+#include "sorting.h"
 #include "ioobj.h"
 
 
@@ -282,6 +284,9 @@ int Seis2DLineMerger::doWork()
 	return Executor::MoreToDo();
     }
 
+    if ( tbuf1_.isEmpty() && tbuf2_.isEmpty() )
+	mRetNextAttr;
+
     mergeBufs();
     if ( outbuf_.isEmpty() )
 	mRetNextAttr;
@@ -302,7 +307,9 @@ int Seis2DLineMerger::doWork()
 
 void Seis2DLineMerger::mergeBufs()
 {
-    if ( opt_ == MatchCoords )
+    makeBufsCompat();
+
+    if ( opt_ == MatchCoords && !tbuf1_.isEmpty() && !tbuf2_.isEmpty() )
 	mergeOnCoords();
     else
     {
@@ -323,6 +330,129 @@ void Seis2DLineMerger::mergeBufs()
 }
 
 
+void Seis2DLineMerger::makeBufsCompat()
+{
+    if ( tbuf1_.isEmpty() || tbuf2_.isEmpty() )
+	return;
+
+    const SeisTrc& trc10 = *tbuf1_.get( 0 );
+    const int trcsz = trc10.size();
+    const int trcnc = trc10.nrComponents();
+    const SamplingData<float> trcsd = trc10.info().sampling;
+
+    const SeisTrc& trc20 = *tbuf2_.get( 0 );
+    if ( trc20.size() == trcsz && trc20.info().sampling == trcsd
+      && trc20.nrComponents() == trcnc )
+	return;
+
+    for ( int itrc=0; itrc<tbuf2_.size(); itrc++ )
+    {
+	SeisTrc& trc = *tbuf2_.get( itrc );
+	SeisTrc cptrc( trc );		// Copy old data for values
+	trc = trc10;			// Get entire structure as trc10
+	trc.info() = cptrc.info();	// Yet, keep old info
+	trc.info().sampling = trcsd;	// ... but do take the samplingdata
+
+	for ( int icomp=0; icomp<trcnc; icomp++ )
+	{
+	    const bool havethiscomp = icomp < cptrc.nrComponents();
+	    for ( int isamp=0; isamp<trcsz; isamp++ )
+	    {
+		if ( !havethiscomp )
+		    trc.set( isamp, 0, icomp );
+		else
+		{
+		    const float z = trc.samplePos( isamp );
+		    trc.set( isamp, cptrc.getValue(z,icomp), icomp );
+		}
+	    }
+	}
+    }
+}
+
+
+/* Algo:
+
+   1) Determine points furthest away from other line
+   2) Project all points on that line, lpar is then a sorting key
+   3) sort, make outbuf accoring to that, and snap if needed
+*/
+
 void Seis2DLineMerger::mergeOnCoords()
 {
+    const int nrtrcs1 = tbuf1_.size() - 1;
+    const int nrtrcs2 = tbuf2_.size() - 1;
+    const Coord c10( tbuf1_.get(0)->info().coord );
+    const Coord c11( tbuf1_.get(nrtrcs1)->info().coord );
+    const Coord c20( tbuf2_.get(0)->info().coord );
+    const Coord c21( tbuf2_.get(nrtrcs2)->info().coord );
+    const double sqd10 = c10.sqDistTo( c20 ) + c10.sqDistTo( c21 );
+    const double sqd11 = c11.sqDistTo( c20 ) + c11.sqDistTo( c21 );
+    const double sqd20 = c20.sqDistTo( c10 ) + c20.sqDistTo( c11 );
+    const double sqd21 = c21.sqDistTo( c10 ) + c21.sqDistTo( c11 );
+    const Coord lnstart( sqd11 > sqd10 ? c11 : c10 );
+    const Coord lnend( sqd21 > sqd20 ? c21 : c20 );
+    const Coord lndelta( lnend.x - lnstart.x, lnend.y - lnstart.y );
+    const Coord sqlndelta( lndelta.x * lndelta.x, lndelta.y * lndelta.y );
+    const double sqabs = sqlndelta.x + sqlndelta.y;
+    if ( sqabs < 0.001 )
+	return;
+
+    TypeSet<double> lpars; TypeSet<int> idxs;
+    for ( int ibuf=0; ibuf<2; ibuf++ )
+    {
+	const int ntr = ibuf ? nrtrcs2 : nrtrcs1;
+	for ( int idx=0; idx<ntr; idx++ )
+	{
+	    const SeisTrcBuf& tb( ibuf ? tbuf2_ : tbuf1_ );
+	    const Coord& ctrc( tb.get(idx)->info().coord );
+	    const Coord crel( ctrc.x - lnstart.x, ctrc.y - lnstart.y );
+	    const double lpar = (lndelta.x * crel.x + lndelta.y * crel.y)
+			      / sqabs;
+	    // const Coord projrelpt( lpar * lndelta.x, lpar.lndelta.y );
+
+	    lpars += lpar;
+	    idxs += ibuf ? nrtrcs1 + idx : idx;
+	}
+    }
+
+    sort_coupled( lpars.arr(), idxs.arr(), lpars.size() );
+    doMerge( idxs, true );
+}
+
+
+void Seis2DLineMerger::doMerge( const TypeSet<int>& idxs, bool snap )
+{
+    const int nrtrcs1 = tbuf1_.size() - 1;
+    for ( int idx=0; idx<idxs.size(); idx++ )
+    {
+	const int globidx = idxs[idx];
+	const bool is1 = globidx < nrtrcs1;
+	const int bufidx = globidx - (is1 ? 0 : nrtrcs1);
+	outbuf_.add( (is1 ? tbuf1_ : tbuf2_).get(bufidx) );
+    }
+    tbuf1_.erase(); tbuf2_.erase();
+    if ( !snap ) return;
+
+    const double sqsnapdist = snapdist_ * snapdist_;
+    int nrsnapped = 0;
+    for ( int itrc=1; itrc<outbuf_.size(); itrc++ )
+    {
+	SeisTrc* prvtrc = outbuf_.get( itrc-1 );
+	SeisTrc* curtrc = outbuf_.get( itrc );
+	const double sqdist = curtrc->info().coord.sqDistTo(
+			      prvtrc->info().coord );
+	if ( sqdist > sqsnapdist )
+	    nrsnapped = 0;
+	else
+	{
+	    nrsnapped++;
+	    if ( stckdupl_ )
+		SeisTrcPropChg( *prvtrc )
+		    .stack( *curtrc, false, 1. / ((float)nrsnapped) );
+
+	    delete outbuf_.remove( itrc );
+	    itrc--;
+	}
+    }
 }

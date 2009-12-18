@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.102 2009-12-17 14:26:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.103 2009-12-18 14:41:29 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -615,18 +615,15 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     stckfld_ = new uiGenInput( this, "Duplicate positions",
 	    			BoolInpSpec(true,"Stack","Use first") );
     stckfld_->attach( alignedBelow, mrgoptfld_ );
-    renumbfld_ = new uiGenInput( this, "Renumber",
-	    	BoolInpSpec(true,"Continue first line", "New numbering") );
+    renumbfld_ = new uiGenInput( this, "Renumber; Start/step numbers",
+	    			 IntInpSpec(1), IntInpSpec(1) );
     renumbfld_->setWithCheck( true );
     renumbfld_->setChecked( true );
     renumbfld_->attach( alignedBelow, stckfld_ );
-    nrdeffld_ = new uiGenInput( this, "Start/step numbers", IntInpSpec(1),
-	    			IntInpSpec(1) );
-    nrdeffld_->attach( alignedBelow, renumbfld_ );
     double defsd = SI().crlDistance() / 2;
     if ( SI().xyInFeet() ) defsd *= mToFeetFactorD;
     snapdistfld_ = new uiGenInput( this, "Snap distance", DoubleInpSpec(defsd));
-    snapdistfld_->attach( alignedBelow, nrdeffld_ );
+    snapdistfld_->attach( alignedBelow, renumbfld_ );
 
     outfld_ = new uiGenInput( this, "New line name", StringInpSpec() );
     outfld_->attach( alignedBelow, snapdistfld_ );
@@ -644,11 +641,8 @@ void initWin( CallBacker* )
 void optSel( CallBacker* )
 {
     const int opt = mrgoptfld_->getIntValue();
-    const bool dorenumb = renumbfld_->isChecked()
-		       && !renumbfld_->getBoolValue();
     stckfld_->display( opt < 2 );
     renumbfld_->display( opt > 0 );
-    nrdeffld_->display( opt > 0 && dorenumb );
     snapdistfld_->display( opt == 1 );
 }
 
@@ -677,8 +671,8 @@ bool acceptOK( CallBacker* )
 
     if ( lmrgr.renumber_ )
     {
-	lmrgr.numbering_.start = nrdeffld_->getIntValue(0);
-	lmrgr.numbering_.step = nrdeffld_->getIntValue(1);
+	lmrgr.numbering_.start = renumbfld_->getIntValue(0);
+	lmrgr.numbering_.step = renumbfld_->getIntValue(1);
     }
 
     if ( lmrgr.opt_ == Seis2DLineMerger::MatchCoords )
@@ -699,7 +693,6 @@ bool acceptOK( CallBacker* )
     uiGenInput*			mrgoptfld_;
     uiGenInput*			stckfld_;
     uiGenInput*			renumbfld_;
-    uiGenInput*			nrdeffld_;
     uiGenInput*			snapdistfld_;
     uiGenInput*			outfld_;
 
@@ -735,6 +728,12 @@ void uiSeis2DFileMan::mergeLines( CallBacker* )
 	const MultiID lsid( objinfo_->ioObj()->key() );
 	delete objinfo_;
 	objinfo_ = new uiSeisIOObjInfo( lsid );
+	if ( objinfo_->isOK() )
+	{
+	    delete lineset_;
+	    lineset_ = new Seis2DLineSet(
+		    			objinfo_->ioObj()->fullUserExpr(true) );
+	}
 	fillLineBox();
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2009
- RCS:		$Id: seis2dlinemerge.h,v 1.3 2009-12-17 14:26:19 cvsbert Exp $
+ RCS:		$Id: seis2dlinemerge.h,v 1.4 2009-12-18 14:41:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class SeisIOObjInfo;
 class Seis2DLineSet;
 class BufferStringSet;
 class Seis2DLinePutter;
+template <class T> class TypeSet;
 namespace PosInfo { class Line2DData; }
 
 
@@ -79,7 +80,9 @@ protected:
     bool		nextAttr();
     bool		nextFetcher();
     void		mergeBufs();
+    void		makeBufsCompat();
     void		mergeOnCoords();
+    void		doMerge(const TypeSet<int>&,bool);
 
 };
 
