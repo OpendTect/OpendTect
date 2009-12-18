@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.3 2009-12-17 14:26:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.4 2009-12-18 09:13:29 cvsbert Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -269,7 +269,9 @@ int Seis2DLineMerger::doWork()
 	    if ( !putter_->close() )
 		mErrRet(putter_->errMsg())
 	    delete putter_; putter_ = 0;
-	    return nextAttr() ? Executor::MoreToDo() : Executor::Finished();
+#	    define mRetNextAttr \
+	    return nextAttr() ? Executor::MoreToDo() : Executor::Finished()
+	    mRetNextAttr;
 	}
 
 	const SeisTrc& trc = *outbuf_.get( nrdone_ );
@@ -281,10 +283,12 @@ int Seis2DLineMerger::doWork()
     }
 
     mergeBufs();
+    if ( outbuf_.isEmpty() )
+	mRetNextAttr;
 
     nrdone_ = 0;
     totnr_ = outbuf_.size();
-    IOPar* lineiopar = new IOPar( ls_->getInfo(lid1_) );
+    IOPar* lineiopar = new IOPar;
     LineKey lk( outlnm_, attrnms_.get(curattridx_) );
     lk.fillPar( *lineiopar, true );
     putter_ = ls_->linePutter( lineiopar );
@@ -321,5 +325,4 @@ void Seis2DLineMerger::mergeBufs()
 
 void Seis2DLineMerger::mergeOnCoords()
 {
-    pErrMsg("Needs implementation");
 }
