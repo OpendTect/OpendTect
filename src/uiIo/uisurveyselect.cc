@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uisurveyselect.h"
 
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "oddirs.h"
 #include "uidialog.h"
 #include "uifileinput.h"
@@ -23,18 +24,22 @@ ________________________________________________________________________
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey Slection",
 				 "Select Survey",mNoHelpID))
-    , basedirnm_(GetBaseDataDir())
+    
 {
-
     datarootfld_ = new uiFileInput( this, "Data Root",
-			    uiFileInput::Setup(uiFileDialog::Gen,basedirnm_)
+			    uiFileInput::Setup(uiFileDialog::Gen,GetBaseDataDir())
 			    .directories(true) );
     datarootfld_->valuechanged.notify( 
-		  mCB(this,uiSurveySelectDlg,surveySelectCB) );
+		  mCB(this,uiSurveySelectDlg,rootSelectCB) );
 
     surveylistfld_ = new uiListBox( this,"Survey list", false, 
 				    uiLabeledListBox::AboveLeft );
     surveylistfld_->attach( alignedBelow, datarootfld_ );
+    surveylistfld_->selectionChanged.notify( 
+		    mCB(this,uiSurveySelectDlg,surveyListCB) );
+    newsurveyfld_ = new uiGenInput( this,"New Survey" );
+    
+    newsurveyfld_->attach( alignedBelow, surveylistfld_ );
     fillSurveyList();
 }
 
@@ -50,8 +55,8 @@ const char* uiSurveySelectDlg::getDataRoot() const
 }
 
 const BufferString uiSurveySelectDlg::getSurveyName() const
-{
-    return surveylistfld_->getText();
+{   
+    return newsurveyfld_->text();
 }
 
 
@@ -64,9 +69,21 @@ void uiSurveySelectDlg::fillSurveyList()
 }
 
 
-void uiSurveySelectDlg::surveySelectCB( CallBacker* )
+void uiSurveySelectDlg::rootSelectCB( CallBacker* )
 {
     fillSurveyList();
+}
+
+
+void uiSurveySelectDlg::surveyListCB( CallBacker* )
+{
+    newsurveyfld_->setText( surveylistfld_->getText() );
+}
+
+
+bool uiSurveySelectDlg::isNewSurvey()
+{
+   return !surveylistfld_->isPresent( newsurveyfld_->text() );
 }
 
 
@@ -88,10 +105,13 @@ void uiSurveySelect::selectCB( CallBacker* )
     if( !dlg.go() ) return;
     
     setInputText( dlg.getSurveyName() );
+    isnewsurvey_ = dlg.isNewSurvey();
 }
 
 
-void uiSurveySelect::enableButton( bool ison )
+bool uiSurveySelect::isNewSurvey()
 {
-    selbut_->setSensitive( ison );
+    return isnewsurvey_;
 }
+
+

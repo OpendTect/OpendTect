@@ -25,17 +25,19 @@ public:
 			uiSurveySelectDlg(uiParent*);
 			~uiSurveySelectDlg();
     
-    const char*		    getDataRoot() const ;
+    const char*		    getDataRoot() const;
     const BufferString	    getSurveyName() const;
+    bool		    isNewSurvey();
 
 protected:
     
-    void		    surveySelectCB(CallBacker*);
+    void		    rootSelectCB(CallBacker*);
+    void		    surveyListCB(CallBacker*);
     void		    fillSurveyList();
  
-    BufferString	    basedirnm_;
-    uiListBox*		    surveylistfld_;
     uiFileInput*	    datarootfld_;
+    uiListBox*		    surveylistfld_;
+    uiGenInput*		    newsurveyfld_;
 };
 
 
@@ -44,9 +46,9 @@ mClass uiSurveySelect : public uiIOSelect
 public:
 			uiSurveySelect(uiParent*);
 			~uiSurveySelect(); 
-    void		enableButton(bool);
-
+    bool		isNewSurvey();
 protected:
+    bool		isnewsurvey_;
     void		selectCB(CallBacker*);
 };
 
