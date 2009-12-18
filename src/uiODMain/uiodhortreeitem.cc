@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.53 2009-12-16 06:03:19 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.54 2009-12-18 16:13:27 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -289,13 +289,15 @@ bool uiODHorizonTreeItem::init()
     }
 
     visBase::HorizonSection* sect = hd ? hd->getHorizonSection(0) : 0;
-    if ( sect )
+    const bool geodf = !sect ? false    
+	: (hd->geometryRowRange().width() && hd->geometryColRange().width());
+    if ( geodf )
     {
 	const HorSampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
 	const bool userchanged = rg.inlRange()!=hd->geometryRowRange() ||
 	    			 rg.crlRange()!=hd->geometryColRange();
-	if ( rg.isDefined() )
-    	    sect->setDisplayRange( rg.inlRange(), rg.crlRange(), userchanged );
+	if ( rg.isDefined() && userchanged )
+    	    sect->setDisplayRange( rg.inlRange(), rg.crlRange(), true );
     }
 
     const bool res = uiODEarthModelSurfaceTreeItem::init();
