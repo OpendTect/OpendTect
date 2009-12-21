@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.54 2009-12-18 16:13:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.55 2009-12-21 21:20:20 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -297,7 +297,7 @@ bool uiODHorizonTreeItem::init()
 	const bool userchanged = rg.inlRange()!=hd->geometryRowRange() ||
 	    			 rg.crlRange()!=hd->geometryColRange();
 	if ( rg.isDefined() && userchanged )
-    	    sect->setDisplayRange( rg.inlRange(), rg.crlRange(), true );
+    	    sect->setDisplayRange( rg.inlRange(), rg.crlRange() );
     }
 
     const bool res = uiODEarthModelSurfaceTreeItem::init();
@@ -472,8 +472,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	else
 	    newcs.usePar( displaypar );
 
-	section->setDisplayRange( newcs.hrg.inlRange(), 
-				  newcs.hrg.crlRange(), true );
+	section->setDisplayRange( newcs.hrg.inlRange(), newcs.hrg.crlRange() );
 	emserv->setHorizon3DDisplayRange( newcs.hrg );
 	
 	for ( int idx=0; idx<hd->nrAttribs(); idx++ )
