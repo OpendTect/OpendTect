@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.99 2009-12-17 14:33:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.100 2009-12-21 21:19:21 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -652,7 +652,10 @@ void HorizonSection::updateZAxisVOI()
 	return;
 
     CubeSampling cs;
-    cs.hrg.set( displayrrg_, displaycrg_ );
+    if ( userchangedisplayrg_ )
+    	cs.hrg.set( displayrrg_, displaycrg_ );
+    else
+	cs.hrg.set( geometry_->rowRange(), geometry_->colRange() );
 
     HorSamplingIterator iter( cs.hrg );
 
@@ -711,11 +714,11 @@ void HorizonSection::getDataPositions( DataPointSet& res, double zshift,
     for ( int idx=0; idx<nrknots; idx++ )
     {
 	const BinID bid = geometry_->getKnotRowCol(idx);
-	if ( !displayrrg_.includes(bid.inl) || !displaycrg_.includes(bid.crl) )
-	    continue;
-
-	if ( ((bid.inl-displayrrg_.start)%displayrrg_.step) ||
-	     ((bid.crl-displaycrg_.start)%displaycrg_.step) )
+	if ( userchangedisplayrg_ &&
+	     ( !displayrrg_.includes(bid.inl) || 
+	       !displaycrg_.includes(bid.crl) ||
+	       ((bid.inl-displayrrg_.start)%displayrrg_.step) ||
+  	       ((bid.crl-displaycrg_.start)%displaycrg_.step) ) )
 	    continue;
 
 	const Coord3 pos = geometry_->getKnot(bid,false);
@@ -777,6 +780,13 @@ void HorizonSection::setTextureData( int channel, const DataPointSet* dpset,
 }
 
 
+#define mDefineRCRange \
+    const StepInterval<int> rrg = \
+	userchangedisplayrg_ ? displayrrg_ : geometry_->rowRange(); \
+    const StepInterval<int> crg = \
+	userchangedisplayrg_ ? displaycrg_ : geometry_->colRange(); 
+
+
 void HorizonSection::updateTexture( int channel, const DataPointSet* dpset, 
 				    int sid )
 {
@@ -793,8 +803,9 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
     const int nrversions = data->nrVals()-shift;
     setNrVersions( channel, nrversions );
 
-    const int nrrows = displayrrg_.nrSteps()+1;
-    const int nrcols = displaycrg_.nrSteps()+1;
+    mDefineRCRange;
+    const int nrrows = rrg.nrSteps()+1;
+    const int nrcols = crg.nrSteps()+1;
 
     channels_->setSize( 1, nrrows, nrcols );
    
@@ -830,11 +841,12 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	    continue;
 
 	const BinID bid = data->getBinID( pos );
-	if ( !displayrrg_.includes(bid.inl) || !displaycrg_.includes(bid.crl) )
+	if ( userchangedisplayrg_ && (!rrg.includes(bid.inl) ||
+		    		      !crg.includes(bid.crl)) )
 	    continue;
 
-	const int inlidx = displayrrg_.nearestIndex(bid.inl);
-	const int crlidx = displaycrg_.nearestIndex(bid.crl);
+	const int inlidx = rrg.nearestIndex(bid.inl);
+	const int crlidx = crg.nearestIndex(bid.crl);
 
 	const int offset = inlidx*nrcols + crlidx;
 	if ( offset>=nrcells )
@@ -848,8 +860,8 @@ void HorizonSection::updateTexture( int channel, const DataPointSet* dpset,
 	channels_->setUnMappedData( channel, idx, versiondata[idx],
 				    OD::TakeOverPtr, 0 );
 
-    updateTileTextureOrigin( RowCol(displayrrg_.start-origin_.row,
-				    displaycrg_.start-origin_.col) );
+    updateTileTextureOrigin( RowCol( rrg.start - origin_.row,
+				     crg.start - origin_.col ) );
 }
 
 
@@ -928,25 +940,10 @@ const BinIDValueSet* HorizonSection::getCache( int channel ) const
 }
 
 
-#define mResetOriginAndDistance \
-    origin_.row = displayrrg_.start; \
-    origin_.col = displaycrg_.start;  \
-    rowdistance_ = displayrrg_.step*SI().inlDistance(); \
-    coldistance_ = displaycrg_.step*SI().crlDistance();
-
-
 void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
        				 TaskRunner* tr )
 {
     if ( !surf ) return;
-
-    if ( !userchangedisplayrg_ )
-    {
-	displayrrg_ = surf->rowRange();
-	displaycrg_ = surf->colRange();
-	
-	mResetOriginAndDistance;
-    }
 
     if ( connect )
     {
@@ -961,7 +958,7 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
 
 
 void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
-	const StepInterval<int>& crg, bool userchange )
+				      const StepInterval<int>& crg )
 {
     if ( rrg.isUdf() || crg.isUdf() || (displayrrg_==rrg && displaycrg_==crg) )
 	return;
@@ -979,23 +976,40 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 	}
     }
 
-    displayrrg_ = !userchange && geometry_ ? geometry_->rowRange() : rrg;
-    displaycrg_ = !userchange && geometry_ ? geometry_->colRange() : crg;
-    mResetOriginAndDistance;
-
-    userchangedisplayrg_ = userchange;
+    userchangedisplayrg_ = true;
+    displayrrg_ = rrg;
+    displaycrg_ = crg;
+    origin_ = RowCol( displayrrg_.start, displaycrg_.start );
+    rowdistance_ = displayrrg_.step*SI().inlDistance();
+    coldistance_ = displaycrg_.step*SI().crlDistance();
 
     surfaceChange( 0, 0 );
     setResolution( desiredresolution_, 0 );
 }
 
 
-const StepInterval<int>& HorizonSection::displayedRowRange() const
-{ return displayrrg_; }
+StepInterval<int> HorizonSection::displayedRowRange() const
+{
+   if ( userchangedisplayrg_ ) 
+       return displayrrg_; 
+
+   if ( geometry_ )
+       return geometry_->rowRange();
+   else
+       return StepInterval<int>(0, 0, 0);
+}
 
 
-const StepInterval<int>& HorizonSection::displayedColRange() const
-{ return displaycrg_; }
+StepInterval<int> HorizonSection::displayedColRange() const
+{ 
+   if ( userchangedisplayrg_ ) 
+       return displaycrg_; 
+
+   if ( geometry_ )
+       return geometry_->colRange();
+   else
+       return StepInterval<int>(0, 0, 0);
+}
 
 
 void HorizonSection::surfaceChangeCB( CallBacker* cb )
@@ -1020,18 +1034,6 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_,tr) )
 	    return;
     }
- 
-    const bool geometryautochanged = !userchangedisplayrg_ &&
-	( displayrrg_ != geometry_->rowRange() ||
-	  displaycrg_ != geometry_->colRange() );
-    if ( geometryautochanged )
-    {
-	setDisplayRange( geometry_->rowRange(), geometry_->colRange(), false );
-	return;
-    }
-
-    if ( displayrrg_.width(false)<0 || displaycrg_.width(false)<0 )
-	return;
 
     if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
 	resetAllTiles( tr );
@@ -1043,12 +1045,15 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 				      TaskRunner* tr )
 {
+    mDefineRCRange;
+    if ( rrg.width(false)<0 || crg.width(false)<0 )
+	return;
+    
     tesselationlock_ = true;
     updateTileArray();
     
     const int nrrowsz = tiles_.info().getSize(0);
     const int nrcolsz = tiles_.info().getSize(1);
-    const RowCol step( displayrrg_.step, displaycrg_.step );
     
     ObjectSet<HorizonSectionTile> fullupdatetiles;
     ObjectSet<HorizonSectionTile> oldupdatetiles;
@@ -1056,7 +1061,8 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
     for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
     {
 	const RowCol& absrc( (*gpids)[idx] );
-	RowCol rc = absrc-origin_; rc /= step;
+	RowCol rc = absrc - origin_; 
+	rc.row /= rrg.step; rc.col /= crg.step;
 
 	const int tilerowidx = rc.row/mTileSideSize;
 	const int tilerow = rc.row%mTileSideSize;
@@ -1116,8 +1122,8 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 	}
     }
 
-    HorizonSectionTilePosSetup task( fullupdatetiles, *geometry_,
-	   displayrrg_, displaycrg_, zaxistransform_ );
+    HorizonSectionTilePosSetup task( fullupdatetiles, *geometry_, rrg, crg, 
+	    			     zaxistransform_ );
     if ( tr ) tr->execute( task );
     else task.execute();
 
@@ -1143,12 +1149,14 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 
 void HorizonSection::resetAllTiles( TaskRunner* tr )
 {
+    mDefineRCRange;
+    if ( rrg.width(false)<0 || crg.width(false)<0 )
+	return;
+    
     tesselationlock_ = true;
-    origin_ = RowCol( displayrrg_.start, displaycrg_.start );
-    const int nrrows = 
-	nrBlocks( displayrrg_.nrSteps()+1, mNrCoordsPerTileSide, 1 );
-    const int nrcols = 
-	nrBlocks( displaycrg_.nrSteps()+1, mNrCoordsPerTileSide, 1 );
+    origin_ = RowCol( rrg.start, crg.start );
+    const int nrrows = nrBlocks( rrg.nrSteps()+1, mNrCoordsPerTileSide, 1 );
+    const int nrcols = nrBlocks( crg.nrSteps()+1, mNrCoordsPerTileSide, 1 );
 
     writeLock();
     if ( !tiles_.setSize( nrrows, nrcols ) )
@@ -1172,8 +1180,8 @@ void HorizonSection::resetAllTiles( TaskRunner* tr )
 
     updateTileTextureOrigin( RowCol(0,0) );
     
-    HorizonSectionTilePosSetup task( fullupdatetiles, *geometry_,
-	   displayrrg_, displaycrg_, zaxistransform_ );
+    HorizonSectionTilePosSetup task( fullupdatetiles, *geometry_, rrg, crg, 
+	    			     zaxistransform_ );
     if ( tr ) tr->execute( task );
     else task.execute();
     
@@ -1184,8 +1192,9 @@ void HorizonSection::resetAllTiles( TaskRunner* tr )
 
 void HorizonSection::updateTileArray()
 {
-    const int rowsteps =  mTileSideSize*displayrrg_.step;
-    const int colsteps = mTileSideSize*displaycrg_.step;
+    mDefineRCRange;
+    const int rowsteps =  mTileSideSize * rrg.step;
+    const int colsteps = mTileSideSize * crg.step;
     const int oldrowsize = tiles_.info().getSize(0);
     const int oldcolsize = tiles_.info().getSize(1);
     int newrowsize = oldrowsize;
@@ -1193,24 +1202,24 @@ void HorizonSection::updateTileArray()
     int nrnewrowsbefore = 0;
     int nrnewcolsbefore = 0;
 	
-    int diff = origin_.row - displayrrg_.start;
+    int diff = origin_.row - rrg.start;
     if ( diff>0 ) 
     {
 	nrnewrowsbefore = diff/rowsteps + (diff%rowsteps ? 1 : 0);
     	newrowsize += nrnewrowsbefore;
     }
 
-    diff = displayrrg_.stop - (origin_.row+oldrowsize*rowsteps);
+    diff = rrg.stop - (origin_.row+oldrowsize*rowsteps);
     if ( diff>0 ) newrowsize += diff/rowsteps + (diff%rowsteps ? 1 : 0);
     
-    diff = origin_.col-displaycrg_.start;
+    diff = origin_.col - crg.start;
     if ( diff>0 ) 
     {
 	nrnewcolsbefore = diff/colsteps + (diff%colsteps ? 1 : 0);
     	newcolsize += nrnewcolsbefore;
     }
 
-    diff = displaycrg_.stop - (origin_.col+oldcolsize*colsteps);
+    diff = crg.stop - (origin_.col+oldcolsize*colsteps);
     if ( diff>0 ) newcolsize += diff/colsteps + (diff%colsteps ? 1 : 0);
 
     if ( newrowsize==oldrowsize && newcolsize==oldcolsize )
@@ -1231,10 +1240,9 @@ void HorizonSection::updateTileArray()
 
     writeLock();
     tiles_.copyFrom( newtiles );
-    writeUnLock();
-
     origin_.row -= nrnewrowsbefore*rowsteps;
     origin_.col -= nrnewcolsbefore*colsteps;
+    writeUnLock();
 }
 
 
@@ -1242,7 +1250,8 @@ void HorizonSection::updateTileTextureOrigin( const RowCol& textureorigin )
 {
     const int nrrows = tiles_.info().getSize(0);
     const int nrcols = tiles_.info().getSize(1);
-    const RowCol step( displayrrg_.step, displaycrg_.step );
+    mDefineRCRange;
+    const RowCol step( rrg.step, crg.step );
 
     for ( int rowidx=0; rowidx<nrrows; rowidx++ )
     {
@@ -1263,7 +1272,8 @@ void HorizonSection::updateTileTextureOrigin( const RowCol& textureorigin )
 
 HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
 {
-    const RowCol step( displayrrg_.step, displaycrg_.step );
+    mDefineRCRange;
+    const RowCol step( rrg.step, crg.step );
     const RowCol tileorigin( origin_.row+tilerowidx*mTileSideSize*step.row,
 			     origin_.col+tilecolidx*mTileSideSize*step.col );
     HorizonSectionTile* tile = new HorizonSectionTile( *this, tileorigin,
@@ -1691,7 +1701,15 @@ void HorizonSectionTile::updateNormals( char res )
 void HorizonSectionTile::computeNormal( int nmidx, int res,
 					SbVec3f& normal ) const
 {
-    const RowCol step( section_.displayrrg_.step, section_.displaycrg_.step );
+    if ( !section_.geometry_ )
+	return;
+
+    RowCol step;
+    if ( section_.userchangedisplayrg_ )
+	step = RowCol( section_.displayrrg_.step, section_.displaycrg_.step );
+    else
+	step = RowCol( section_.geometry_->rowRange().step,
+		       section_.geometry_->colRange().step );
 
     const int normalrow = (nmidx-normalstartidx_[res])/normalsidesize_[res];
     const int normalcol = (nmidx-normalstartidx_[res])%normalsidesize_[res];
