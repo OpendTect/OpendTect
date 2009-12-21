@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.15 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.16 2009-12-21 21:13:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,8 @@ public:
 
     				/*!<Adds custom create function for create
 				    function. */
+
+    void			prepareForShutdown();				
 
 protected:
 
