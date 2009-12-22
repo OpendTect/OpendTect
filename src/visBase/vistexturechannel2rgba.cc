@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.33 2009-11-30 21:30:16 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.34 2009-12-22 09:18:00 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -533,7 +533,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	layeropacity_->value.deleteValues( nrchannels, -1 );
 
     int firstlayer = -1;
-    char firstlayertrans;
+    char firstlayertrans = 0;
 
     numlayers_->value.setValue( nrchannels );
 
@@ -542,12 +542,29 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	const SbImage& channel = channels_->getChannels()[idx];
 	SbVec3s size; int dummy2;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
+	// Check which foremost layer is fully opaque. That is the first
+	// layer to be rendered (rendering starts from the backmost layer).
 	if ( vals && enabled_.size()>idx && enabled_[idx] )
 	{
 	    firstlayer = idx;
-	    firstlayertrans = getTextureTransparency(idx);
-	    if ( firstlayertrans==SoTextureComposerInfo::cHasNoTransparency() )
-		break;
+		char currlayertrans = getTextureTransparency(idx);
+		// initialise for the topmost layer
+		if ( !firstlayertrans )
+			firstlayertrans = currlayertrans;
+
+		// compute combined transparency level
+		if ( currlayertrans==SoTextureComposerInfo::cHasNoTransparency() )
+		{
+			firstlayertrans = currlayertrans;
+			break;
+		}
+		
+		if ( firstlayertrans == currlayertrans 
+			== SoTextureComposerInfo::cHasNoIntermediateTransparency() )
+			continue;
+
+		firstlayertrans = 
+			SoTextureComposerInfo::cHasTransparency();
 	}
     }
 
@@ -586,18 +603,26 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	"{								\n"
 	"    float ctabval = 0.001953125+0.996093750*val;		\n"
 	//ctabval = 1/512 + 255/256*val
+	// Layers ordered from back to front. First = backmost
 	"    if ( first )					\n"
 	"    {								\n"
-	"	gl_FragColor = texture2D( ctabunit, vec2( ctabval, ctab ) );\n"
-	"	gl_FragColor.a *= layeropacity;				\n"
+	"   vec4 tmpcol = texture2D( ctabunit, vec2( ctabval, ctab ) );\n"
+	"	gl_FragColor = tmpcol * layeropacity;				\n"
 	"    }								\n"
 	"    else if ( layeropacity>0.0 )				\n"
 	"    {								\n"
 	"	vec4 col = texture2D( ctabunit,	vec2( ctabval, ctab ) );\n"
-	"	layeropacity *= col.a;					\n"
-	"	gl_FragColor.rgb = mix(gl_FragColor.rgb,col.rgb,layeropacity); \n"
-	"	if ( layeropacity>gl_FragColor.a )				\n"
-	"	    gl_FragColor.a = layeropacity;				\n"
+	// color values are premultiplied with their alpha values
+	// But layeropacity is not considered in col.rgb. 
+	"   col *= layeropacity; \n"
+	"   if ( gl_FragColor.a == 0 ) \n"
+	"	    gl_FragColor = col; \n"
+	"   else \n"
+	"   { \n"
+	"   vec4 tmpcol = gl_FragColor; \n"
+	"	gl_FragColor.rgb = col.rgb + tmpcol.rgb * (1 - col.a); \n"
+	"   gl_FragColor.a = col.a + tmpcol.a*(1-col.a); \n"
+	"   } \n"
 	"    }								\n"
 	"}\n\n";
 
