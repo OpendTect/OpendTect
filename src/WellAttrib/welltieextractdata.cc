@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.26 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.27 2009-12-22 15:37:13 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -276,7 +276,7 @@ int LogResampler::nextStep()
     else if ( curidx_>1 && curidx_<dah_.size()-2 && isavg_ )
 	curval += ( val_[curidx_+1] + val_[curidx_-1] + val_[curidx_] )/3;
     else
-	curval = val_[curidx_];
+	curval = orglog_.getValue( curdah, true );
 
     if ( newlog_ )
 	newlog_->addValue( curdah, curval );

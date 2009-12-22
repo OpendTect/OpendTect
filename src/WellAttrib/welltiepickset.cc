@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.26 2009-12-08 13:16:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.27 2009-12-22 15:37:13 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -88,7 +88,7 @@ float PickSetMGR::findEvent( float zpos, bool issynth )
     else if ( fabs(zpos-evposup)<fabs(zpos-evposdown) )
 	evpos = evposup;
 
-    return evpos + dpms.timeintvs_[1].step ;
+    return evpos + dpms.timeintvs_[1].step/2;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.46 2009-12-08 09:03:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.47 2009-12-22 15:37:13 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -107,11 +107,11 @@ bool DataPlayer::extractSeismics()
     if ( !tr_->execute( seisextr ) ) 
 	mReturnExec(false)
     
-
     const int sz =  params_.timeintvs_[1].nrSteps();
     Array1DImpl<float> tmpseis ( sz );
     memcpy( tmpseis.getData(), seisextr.vals_->getData(), sz*sizeof(float) );
     mSetData( params_.seisnm_, params_.refnm_, tmpseis );
+    
     
     mReturnExec(true);
 }
@@ -179,20 +179,32 @@ bool DataPlayer::computeReflectivity()
 
 bool DataPlayer::convolveWavelet()
 {
+    StepInterval<float> si = params_.timeintvs_[1];
+    si.start -= params_.timeintvs_[1].step/2;
+    si.stop  -= params_.timeintvs_[1].step/2;
+    
+    WellTie::LogResampler synres( 0, *logset_.getLog(params_.refnm_), &wd_ );
+    synres.setTimeIntv( si ); 
+    synres.isavg_ = false;
+    synres.execute(); 
+
     bool isinitwvltactive = params_.isinitwvltactive_;
     Wavelet* wvlt = isinitwvltactive ? dholder_->wvltset()[0] 
 				     : dholder_->wvltset()[1]; 
+    if ( !wvlt ) return false;
+
     const int wvltsz = wvlt->size();
-    if ( !wvlt || wvltsz <= 0 || wvltsz > params_.timeintvs_[1].nrSteps() ) 
+    if ( wvltsz <= 0 || wvltsz > params_.timeintvs_[1].nrSteps() ) 
 	return false;
+
     Array1DImpl<float> wvltvals( wvlt->size() );
     memcpy( wvltvals.getData(), wvlt->samples(), wvltsz*sizeof(float) );
 
-    int wvltidx = wvlt->centerSample();
+    const int wvltidx = wvlt->centerSample();
 
     Array1DImpl<float> tmpsynth ( params_.timeintvs_[1].nrSteps() );
 
-    geocalc_->convolveWavelet( wvltvals, *dholder_->arr(params_.refnm_), 
+    geocalc_->convolveWavelet( wvltvals, *synres.vals_, 
 				tmpsynth, wvltidx );
     mSetData( params_.synthnm_, params_.refnm_, tmpsynth );
 
@@ -232,7 +244,7 @@ bool DataPlayer::estimateWavelet()
     for ( int idx=0; idx<wvltsz; idx++ )
 	wvlt->samples()[idx] = wvltarr.get( datasz/2 + idx - wvltsz/2 );
     
-    memcpy( wvltvals.getData(),wvlt->samples(), wvltsz*sizeof(float) );
+    memcpy( wvltvals.getData(), wvlt->samples(), wvltsz*sizeof(float) );
     ArrayNDWindow window( Array1DInfoImpl(wvltsz), false, "CosTaper", .05 );
     window.apply( &wvltvals );
     memcpy( wvlt->samples(), wvltvals.getData(), wvltsz*sizeof(float) );

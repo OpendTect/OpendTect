@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.46 2009-12-09 08:26:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.47 2009-12-22 15:37:13 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -139,33 +139,33 @@ void GeoCalculator::checkShot2Log( const Well::D2TModel* cs, bool wantsonic,
 
 void GeoCalculator::stretch( WellTie::GeoCalculator::StretchData& sd ) const
 {
-sd.stretchfac_ = (sd.pick2_-sd.start_)/(float)(sd.pick1_-sd.start_);
-sd.isstretch_ = true;
-stretch( sd, sd.stretchfac_ ); 
+    sd.stretchfac_ = (sd.pick2_-sd.start_)/(float)(sd.pick1_-sd.start_);
+    sd.isstretch_ = true;
+    stretch( sd, sd.stretchfac_ ); 
 
-sd.isstretch_ = false;
-sd.squeezefac_ = (sd.stop_-sd.pick2_ )/(float)(sd.stop_-sd.pick1_);
-stretch( sd, sd.squeezefac_ );
+    sd.isstretch_ = false;
+    sd.squeezefac_ = (sd.stop_-sd.pick2_ )/(float)(sd.stop_-sd.pick1_);
+    stretch( sd, sd.squeezefac_ );
 }
 
 
 void GeoCalculator::stretch( const WellTie::GeoCalculator::StretchData& sd, 
-float factor ) const
+			    float factor ) const
 {
-int start = sd.isstretch_ ? sd.start_ : sd.pick2_; 
-int stop = sd.isstretch_ ? sd.pick2_ : sd.stop_; 
-const int datasz = sd.inp_->info().getSize(0);
-for ( int idx=start; idx<stop; idx++ )
-{
-float v = sd.isstretch_ ? sd.start_ : sd.stop_;
-const float curval = Interpolate::linearReg1D( v, (float)idx, factor );
-const int curidx = (int) curval;
-if ( curidx >= datasz-1 || curidx < 0 ) continue;
-const float newval = Interpolate::linearReg1D( sd.inp_->get(curidx),
-sd.inp_->get(curidx+1),
-curval-curidx);
-sd.outp_->setValue( idx , newval );
-}
+    int start = sd.isstretch_ ? sd.start_ : sd.pick2_; 
+    int stop = sd.isstretch_ ? sd.pick2_ : sd.stop_; 
+    const int datasz = sd.inp_->info().getSize(0);
+    for ( int idx=start; idx<stop; idx++ )
+    {
+	float v = sd.isstretch_ ? sd.start_ : sd.stop_;
+	const float curval = Interpolate::linearReg1D( v, (float)idx, factor );
+	const int curidx = (int) curval;
+	if ( curidx >= datasz-1 || curidx < 0 ) continue;
+	const float newval = Interpolate::linearReg1D( sd.inp_->get(curidx),
+	sd.inp_->get(curidx+1),
+	curval-curidx);
+	sd.outp_->setValue( idx , newval );
+    }
 }
 
 //only for ascending arrays
@@ -395,8 +395,8 @@ void GeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
     float* outp = new float[reflsz];
 
     GenericConvolve( wvltsz, -widx, wvltvals.getData(),
-		     reflsz, 0  	 , reflvals.getData(),
-		     reflsz, 0  	 , outp );
+		     reflsz, 0    , reflvals.getData(),
+		     reflsz, 0 	  , outp );
 
     memcpy( synvals.getData(), outp, reflsz*sizeof(float));
     delete outp;
@@ -405,9 +405,9 @@ void GeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
 
 #define mNoise 0.05
 void GeoCalculator::deconvolve( const Array1DImpl<float>& tinputvals,
-				       const Array1DImpl<float>& tfiltervals,
-				       Array1DImpl<float>& deconvals, 
-				       int wvltsz )
+			        const Array1DImpl<float>& tfiltervals,
+			        Array1DImpl<float>& deconvals, 
+			        int wvltsz )
 {
     const int filtersz = tfiltervals.info().getSize(0);
     if ( !filtersz || filtersz<wvltsz ) return;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.56 2009-12-16 16:18:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.57 2009-12-22 15:37:12 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -242,6 +242,8 @@ void uiTieView::setUpValTrc( SeisTrc& trc, const char* varname, int varsz )
 	if ( mIsUdf(val) )
 	    val = 0;
 	trc.set( idx, val, 0 );
+	trc.info().sampling.start = zrange_.start *1000;
+	trc.info().sampling.step = zrange_.step * 1000;
     }
     SeisTrcPropChg pc( trc );
     pc.normalize( true ); 
@@ -254,22 +256,20 @@ void uiTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
     if ( seistrcdp_ )
     { removePack(); seistrcdp_=0; }
 
-    const int type = trcbuf->get(0)->info().getDefaultAxisFld( 
-			    Seis::Line, &trcbuf->get(1)->info() );
-    seistrcdp_ =
-	new SeisTrcBufDataPack( trcbuf, Seis::Line, 
-				(SeisTrcInfo::Fld)type, "Seismic" );
+    seistrcdp_ = new SeisTrcBufDataPack( trcbuf, Seis::Vol, 
+				SeisTrcInfo::TrcNr, "Seismic" );
     seistrcdp_->setName( varname );
     seistrcdp_->trcBufArr2D().setBufMine( false );
 
-    DPM(DataPackMgr::FlatID()).add( seistrcdp_ );
     StepInterval<double> xrange( 1, trcbuf->size(), 1 );
     seistrcdp_->posData().setRange( true, xrange );
-    StepInterval<double> zrange( zrange_.start*1000, zrange_.stop*1000, 
-	   			zrange_.step*1000 );
+    StepInterval<double> zrange( zrange_.start*1000, 
+	    			 zrange_.stop *1000, 
+	   			 zrange_.step *1000 );
     seistrcdp_->posData().setRange( false, zrange );
     seistrcdp_->setName( varname );
     
+    DPM(DataPackMgr::FlatID()).add( seistrcdp_ );
     FlatView::Appearance& app = vwr_->appearance();
     vwr_->setPack( true, seistrcdp_->id(), false, true );
 
