@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.13 2009-10-29 08:47:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.14 2009-12-22 15:33:05 cvsbert Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -39,6 +39,7 @@ uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
 	, basesel_(0)	       
 	, dps_(*new DataPointSet(false,true))
 	, saveattr_(false)
+	, msecsfld_(0)
 {
     BufferString title( "Create isopach" );
     baseemobj_ = EM::EMM().getObject( horid_ );
@@ -69,6 +70,13 @@ uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
     attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );
     attrnmfld_->attach( alignedBelow, horsel_ );
     toHorSel(0);
+
+    if ( SI().zIsTime() )
+    {
+	msecsfld_ = new uiGenInput( this, "Output in",
+				BoolInpSpec(true,"Milliseconds","Seconds") );
+	msecsfld_->attach( alignedBelow, attrnmfld_ );
+    }
 }
 
 
@@ -124,6 +132,7 @@ uiIsopachMakerCreater( const EM::Horizon3D& hor1, const EM::Horizon3D& hor2,
     , dps_(dps)
     , sectid1_(hor1.sectionID(0))
     , sectid2_(hor2.sectionID(0))
+    , inmsec_(false)
 {
     iter_ = hor1.createIterator( sectid1_ );
     totnr_ = iter_->approximateSize();
@@ -179,7 +188,9 @@ int nextStep()
 	    continue;
 	}
 
-	const float th = z1 > z2 ? z1 - z2 : z2 - z1;
+	float th = z1 > z2 ? z1 - z2 : z2 - z1;
+	if ( inmsec_ )
+	    th *= 1000;
 
 	if ( dataidx_ != -1 )
 	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, th );
@@ -211,6 +222,7 @@ int finishWork()
     EM::EMObjectIterator* iter_;
     int			dataidx_;
     int			sidcolidx_;
+    bool		inmsec_;
 
     int			totnr_;
     od_int64		nrdone_;
@@ -263,6 +275,7 @@ bool uiIsopachMaker::doWork()
     }
 
     uiIsopachMakerCreater mc( *h1, *h2, attrnm_, dps_, dataidx_ );
+    mc.inmsec_ = msecsfld_ ? msecsfld_->getBoolValue() : false;
     bool rv = tr.execute( mc );
    
     if ( saveattr_ )
