@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.11 2009-12-16 10:57:06 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.12 2009-12-22 09:45:23 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,8 @@ ________________________________________________________________________
 
 class uiVisPartServer;
 class uiButtonGroup;
+class uiToolButton;
 class uiLabel;
-class uiRadioButton;
 class uiSliderExtra;
 class uiLabeledComboBox;
 class uiGenInput;
@@ -71,15 +71,16 @@ protected:
     uiVisPartServer*		visserv_;
     uiButtonGroup*		lightgrp_;
     uiLabel*			lightlbl_;
-    uiRadioButton*		cameralightfld_;
-    uiRadioButton*		scenelightfld_;
+    uiToolButton*		cameralightfld_;
+	uiToolButton*		scenelightfld_;
     uiLabeledComboBox*		scenefld_;
     uiSliderExtra*		azimuthfld_;
     uiSliderExtra*		dipfld_;
     uiSliderExtra*		intensityfld_;
     uiSliderExtra*		headonintensityfld_;
     uiSliderExtra*		ambintensityfld_;
-    uiSeparator*		sep_;
+    uiSeparator*		sep1_;
+	uiSeparator*		sep2_;
     uiPushButton*		showpdfld_;
     uiPolarDiagram*		pd_;
     uiDialog*			pddlg_;
@@ -111,6 +112,9 @@ protected:
     bool			initlighttype_;
     				// initial light type: 0 - headon light, 
     				// 1 - scene (directional light)
+
+	bool			currlighttype_;	// current light type
+				
 };
 
 #endif
