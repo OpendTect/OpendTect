@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtbasemap.cc,v 1.11 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtbasemap.cc,v 1.12 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "uigmtbasemap.h"
 
 #include "gmtpar.h"
-#include "linear.h"
+#include "axislayout.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "uibutton.h"

@@ -4,10 +4,11 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.17 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.18 2009-12-22 14:48:10 cvsbert Exp $";
 
 
 #include "linear.h"
+#include "axislayout.h"
 #include "undefval.h"
 #include "math2.h"
 #include <math.h>
@@ -94,28 +95,6 @@ void LinStats2D::use( const Geom::Point2D<float>* vals, int nrpts )
     calcLS( *this, (const char*) &vals[0].x, (const char*) &vals[0].y, nrpts,
 	    sizeof(Geom::Point2D<float>) );
 }
-
-
-AxisLayout::AxisLayout()
-    : sd(0,1)
-    , stop(1) 
-{}
-
-
-AxisLayout::AxisLayout(float start, float stp, float step)
-    : sd(start,step)
-    , stop(stp)
-{}
-
-
-AxisLayout::AxisLayout( const StepInterval<float>& rg )
-    : sd(rg.start,rg.step)
-    , stop(rg.stop)
-{}
-
-
-AxisLayout::AxisLayout( const Interval<float>& dr )
-{ setDataRange( dr ); }
 
 
 void AxisLayout::setDataRange( const Interval<float>& dr )

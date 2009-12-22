@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxisdata.cc,v 1.4 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaxisdata.cc,v 1.5 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "uiaxisdata.h"
 #include "dataclipper.h"
 #include "envvars.h"
-#include "linear.h"
+#include "axislayout.h"
 #include "settings.h"
 
 float uiAxisData::AutoScalePars::defclipratio_ = -1;

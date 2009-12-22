@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.28 2009-09-17 11:02:04 cvssatyaki Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.29 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "drawaxis2d.h"
 
-#include "linear.h"
 #include "draw.h"
+#include "axislayout.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitem.h"

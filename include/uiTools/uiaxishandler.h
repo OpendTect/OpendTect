@@ -7,21 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.22 2009-10-02 08:20:37 cvsbruno Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.23 2009-12-22 14:48:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "draw.h"
-#include "ranges.h"
 #include "bufstringset.h"
 #include "namedobj.h"
 #include "uigeom.h"
 class uiGraphicsScene;
 class uiGraphicsItemGroup;
-class LinePars;
 class uiLineItem;
 class uiTextItem;
+template <class T> class LineParameters;
 
 /*!\brief Handles an axis on a plot
 
@@ -158,8 +157,9 @@ protected:
 };
 
 //! draws line not outside box defined by X and Y value ranges
-mGlobal void drawLine(uiLineItem&,const LinePars&,const uiAxisHandler& xah,
-	      const uiAxisHandler& yah,const Interval<float>* xvalrg = 0);
+mGlobal void drawLine(uiLineItem&,const LineParameters<float>&,
+			const uiAxisHandler& xah,const uiAxisHandler& yah,
+			const Interval<float>* xvalrg = 0);
 
 
 #endif

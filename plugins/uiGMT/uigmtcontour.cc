@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.14 2009-10-16 09:15:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.15 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "uigmtcontour.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uigmtcontour.cc,v 1.14 2009-10-16 09:15:14 cvsn
 #include "executor.h"
 #include "gmtpar.h"
 #include "ioobj.h"
-#include "linear.h"
+#include "axislayout.h"
 #include "pixmap.h"
 #include "survinfo.h"
 #include "uibutton.h"

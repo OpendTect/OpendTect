@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.31 2009-09-08 22:07:14 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.32 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "visflatviewer.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: visflatviewer.cc,v 1.31 2009-09-08 22:07:14 cvs
 #include "coltabsequence.h"
 #include "dataclipper.h"
 #include "flatposdata.h"
-#include "linear.h"
+#include "axislayout.h"
 #include "simpnumer.h"
 #include "survinfo.h"
 #include "viscoord.h"

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.9 2009-12-15 10:48:17 cvsraman Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.10 2009-12-22 14:48:10 cvsbert Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.9 2009-12-15 10:48:17 
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "isocontourtracer.h"
-#include "linear.h"
+#include "axislayout.h"
 #include "mousecursor.h"
 #include "polygon.h"
 #include "survinfo.h"

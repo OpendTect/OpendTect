@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.27 2009-10-27 06:13:42 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.28 2009-12-22 14:48:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 #include "uiaxisdata.h"
 #include "rowcol.h"
+#include "linear.h"
 
 class Coord;
 class RowCol;

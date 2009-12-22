@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.14 2009-10-20 05:00:38 cvsranojay Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.15 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "visscenecoltab.h"
 
 #include "coltabindex.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
-#include "linear.h"
+#include "axislayout.h"
 #include "scaler.h"
 
 #include "LegendKit.h"

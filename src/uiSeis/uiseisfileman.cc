@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.103 2009-12-18 14:41:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.104 2009-12-22 14:48:10 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -683,7 +683,9 @@ bool acceptOK( CallBacker* )
     }
 
     uiTaskRunner tr( this );
-    return tr.execute( lmrgr );
+    tr.execute( lmrgr );
+    // return tr.execute( lmrgr );
+    return false;
 }
 
     const uiSeisIOObjInfo&	objinf_;

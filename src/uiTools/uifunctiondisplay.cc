@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.54 2009-11-23 14:27:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.55 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.54 2009-11-23 14:27:38
 #include "uigraphicsitemimpl.h"
 #include "uigraphicssaveimagedlg.h"
 #include "mouseevent.h"
-#include "linear.h"
+#include "axislayout.h"
 #include <iostream>
 
 static const int cBoundarySz = 10;

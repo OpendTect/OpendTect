@@ -7,14 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.39 2009-11-18 05:33:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.40 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uifont.h"
-#include "linear.h"
 #include "draw.h"
+#include "linear.h"
+#include "axislayout.h"
 
 #include <math.h>
 #include <stdio.h>

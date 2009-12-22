@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.14 2009-09-02 06:20:59 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.15 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "uiseisrandto2dline.h"
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "draw.h"
-#include "linear.h"
+#include "axislayout.h"
 #include "linekey.h"
 #include "randomlinegeom.h"
 #include "seisrandlineto2d.h"

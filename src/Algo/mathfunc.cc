@@ -4,14 +4,14 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: mathfunc.cc,v 1.7 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: mathfunc.cc,v 1.8 2009-12-22 14:48:10 cvsbert Exp $";
 
 
 #include "mathfunc.h"
 #include "linear.h"
 #include "interpol1d.h"
 
-LinePars* SecondOrderPoly::createDerivative() const
+LineParameters<float>* SecondOrderPoly::createDerivative() const
 {
     return new LinePars( b, a*2 );
 }

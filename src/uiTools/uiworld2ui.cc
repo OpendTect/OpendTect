@@ -7,14 +7,14 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiworld2ui.cc,v 1.8 2009-08-21 05:26:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiworld2ui.cc,v 1.9 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "uiworld2ui.h"
 
 #include "errh.h"
 #include "posgeom.h"
 #include "ranges.h"
-#include "linear.h"
+#include "axislayout.h"
 
 World2UiData::World2UiData()
 {}

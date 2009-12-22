@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.28 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: mathfunc.h,v 1.29 2009-12-22 14:48:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 #include <math.h>
 
-class LinePars;
+template <class T> class LineParameters;
 
 
 /*!\brief Multidimensional Mathematical function
@@ -285,7 +285,7 @@ public:
 			    return 2;
 			}
 
-    LinePars*		createDerivative() const;
+    LineParameters<float>* createDerivative() const;
 
     float		a, b, c;
 };

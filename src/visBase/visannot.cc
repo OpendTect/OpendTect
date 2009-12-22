@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.30 2009-07-30 14:49:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.31 2009-12-22 14:48:10 cvsbert Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: visannot.cc,v 1.30 2009-07-30 14:49:22 cvsyuanc
 #include "vismaterial.h"
 #include "ranges.h"
 #include "samplingdata.h"
-#include "linear.h"
+#include "axislayout.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoSeparator.h"
