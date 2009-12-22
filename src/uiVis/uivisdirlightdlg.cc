@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.16 2009-12-22 09:26:52 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.17 2009-12-22 10:38:25 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -65,50 +65,50 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     pddlg_->finaliseDone.notify( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
 
     scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
+//    scenefld_->attach(topBorder, 2 );
 
     sep1_ = new uiSeparator( this, "HSep", true );
     sep1_->attach( stretchedBelow, scenefld_ );
 	
-	lightgrp_ = new uiButtonGroup( this, "", false );
-    lightgrp_->attach( alignedBelow, scenefld_ );
+    lightgrp_ = new uiButtonGroup( this, "Light group", false );
+    lightgrp_->attach( alignedBelow, sep1_ );
     lightgrp_->setExclusive( true );
-    lightlbl_ = new uiLabel( this, "Type of directional light" );
-	lightlbl_->attach( leftOf, lightgrp_ );
+    lightlbl_ = new uiLabel( lightgrp_, "Type of directional light" );
     
-	const ioPixmap pm0( "dir-light2a.png" );
-	cameralightfld_ = new uiToolButton( lightgrp_, "camera" );
-	cameralightfld_->setToggleButton();
-	cameralightfld_->setToolTip( "positioned at the camera" );
-	cameralightfld_->setVSzPol( uiObject::Wide );
-	cameralightfld_->setHSzPol( uiObject::Wide );
-	/*cameralightfld_->setStretch( 4, 4 );*/
-	cameralightfld_->setPixmap( pm0 );
-	//cameralightfld_->setBackgroundPixmap( pm0 );
-	cameralightfld_->attach( rightOf, lightlbl_ );
-	
-	const ioPixmap pm1( "dir-light2b.png" );
-	scenelightfld_ = new uiToolButton ( lightgrp_, "scene", pm1 );
-	scenelightfld_->setToggleButton();
-	scenelightfld_->setToolTip( "relative to the scene" );
-	/*scenelightfld_->setVSzPol( uiObject::Wide );
-	scenelightfld_->setHSzPol( uiObject::Wide );
-	scenelightfld_->setPrefWidth( pm1.width() );
-	scenelightfld_->setPrefHeight( pm1.height() );*/
-	scenelightfld_->attach( rightOf, cameralightfld_ );
-	
+    const ioPixmap pm0( "dir-light2a.png" );
+    cameralightfld_ = new uiToolButton( lightgrp_, "camera" );
+    cameralightfld_->setToggleButton();
+    cameralightfld_->setToolTip( "positioned at the camera" );
+    cameralightfld_->setVSzPol( uiObject::Wide );
+    cameralightfld_->setHSzPol( uiObject::Wide );
+    /*cameralightfld_->setStretch( 4, 4 );*/
+    cameralightfld_->setPixmap( pm0 );
+    //cameralightfld_->setBackgroundPixmap( pm0 );
+    cameralightfld_->attach( rightOf, lightlbl_ );
+
+    const ioPixmap pm1( "dir-light2b.png" );
+    scenelightfld_ = new uiToolButton ( lightgrp_, "scene", pm1 );
+    scenelightfld_->setToggleButton();
+    scenelightfld_->setToolTip( "relative to the scene" );
+    /*scenelightfld_->setVSzPol( uiObject::Wide );
+      scenelightfld_->setHSzPol( uiObject::Wide );
+      scenelightfld_->setPrefWidth( pm1.width() );
+      scenelightfld_->setPrefHeight( pm1.height() );*/
+    scenelightfld_->attach( rightOf, cameralightfld_ );
+
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
     azimuthfld_ = new uiSliderExtra( this,
-      uiSliderExtra::Setup("Azimuth (degrees)").withedit(true).nrdec(1).
-      logscale(false), "Azimuth slider" );
+	    uiSliderExtra::Setup("Azimuth (degrees)").withedit(true).nrdec(1).
+	          logscale(false), "Azimuth slider" );
     azimuthfld_->attach( alignedBelow, lightgrp_ );
     azimuthfld_->sldr()->setMinValue( 0 );
     azimuthfld_->sldr()->setMaxValue( 360 );
     azimuthfld_->sldr()->setStep( 5 );
 
     dipfld_ = new uiSliderExtra( this,
-      uiSliderExtra::Setup("Dip (degrees)").withedit(true).nrdec(1).logscale(
-	  false), "Dip slider" );
+	    uiSliderExtra::Setup("Dip (degrees)").withedit(true).nrdec(1).
+	    	logscale(false), "Dip slider" );
     dipfld_->attach( alignedBelow, azimuthfld_ );
     dipfld_->sldr()->setMinValue( 0 );
     dipfld_->sldr()->setMaxValue( 90 );
@@ -116,7 +116,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
     intensityfld_ = new uiSliderExtra( this,
 	    uiSliderExtra::Setup("Intensity (%)").withedit(true).
-	    		         nrdec(1).logscale(false), "Intensity slider" );
+	    	         nrdec(1).logscale(false), "Intensity slider" );
     intensityfld_->attach( alignedBelow, dipfld_ );
     intensityfld_->sldr()->setMinValue( 0 );
     intensityfld_->sldr()->setMaxValue( 100 );
@@ -673,24 +673,24 @@ bool uiDirLightDlg::rejectOK( CallBacker* )
 
 void uiDirLightDlg::lightSelChangedCB( CallBacker* c )
 {
-  static bool pdshown;
+    static bool pdshown;
  
-  mDynamicCastGet(uiToolButton*,but,c);
-  currlighttype_ = ( but == cameralightfld_ ) ? 0 : 1;
-  
-  // Save visibility of polar diagram dialog to restore when the scene light
-  // is chosen the next time.
-  if ( currlighttype_ )
-      pdshown = pddlg_ && !pddlg_->isHidden();
+    mDynamicCastGet(uiToolButton*,but,c);
+    currlighttype_ = ( but == cameralightfld_ ) ? 0 : 1;
 
-  azimuthfld_->display( currlighttype_ );
-  dipfld_->display( currlighttype_ );
-  showpdfld_->display( currlighttype_ );
-  if ( currlighttype_ && pdshown )
-      pddlg_->show();
-  else 
-      pddlg_->close();
-  turnOnDirLight( currlighttype_ );
+    // Save visibility of polar diagram dialog to restore when the scene light
+    // is chosen the next time.
+    if ( currlighttype_ )
+	pdshown = pddlg_ && !pddlg_->isHidden();
+
+    azimuthfld_->display( currlighttype_ );
+    dipfld_->display( currlighttype_ );
+    showpdfld_->display( currlighttype_ );
+    if ( currlighttype_ && pdshown )
+	pddlg_->show();
+    else 
+	pddlg_->close();
+    turnOnDirLight( currlighttype_ );
 }
 
 
