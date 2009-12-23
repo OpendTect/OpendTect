@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.35 2009-12-22 10:38:48 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.36 2009-12-23 05:48:07 cvsraman Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -559,8 +559,8 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 		break;
 	    }
 
-	    if ( firstlayertrans == currlayertrans 
-		    == SoTextureComposerInfo::cHasNoIntermediateTransparency() )
+	    if ( (firstlayertrans == currlayertrans) && (currlayertrans ==
+		SoTextureComposerInfo::cHasNoIntermediateTransparency()) )
 		continue;
 
 	    firstlayertrans = SoTextureComposerInfo::cHasTransparency();
