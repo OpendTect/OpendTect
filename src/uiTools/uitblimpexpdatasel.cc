@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.46 2009-12-23 14:25:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.47 2009-12-23 14:32:25 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -430,7 +430,8 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
     mkElemFlds( false );
     if ( !lastelm_ ) return;
 
-    eobfld_ = new uiGenInput( lastelm_->attachObj()->parent(), "Data stops at",
+    eobfld_ = new uiGenInput( lastelm_->attachObj()->parent(),
+	    		      "Stop reading at",
 	    		      StringInpSpec(fd_.eobtoken_) );
     eobfld_->setWithCheck( true );
     eobfld_->setChecked( fd_.haveEOBToken() );
