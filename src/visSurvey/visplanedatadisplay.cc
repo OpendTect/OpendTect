@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.227 2009-12-16 23:26:20 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.228 2009-12-23 21:32:12 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -199,7 +199,11 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	    Interval<float>( 4*survey.hrg.step.crl, mUdf(float) ),
 	    Interval<float>( 4*survey.zrg.step, mUdf(float) ) );
 
-    dragger_->setSize( Coord3(inlrg.width(), crlrg.width(),survey.zrg.width()));
+    const float inlwidth = inlrg.width() < 1 ? 1 : inlrg.width();
+    const float crlwidth = crlrg.width() < 1 ? 1 : crlrg.width();
+    const float zwidth = 
+	survey.zrg.width() < survey.zrg.step * 0.5 ? 1 : survey.zrg.width();
+    dragger_->setSize( Coord3( inlwidth, crlwidth, zwidth ) );
 
     CubeSampling newpos = getCubeSampling(false,true);
     if ( !newpos.isEmpty() )
@@ -411,6 +415,9 @@ void PlaneDataDisplay::setDraggerPos( const CubeSampling& cs )
 		         cs.zrg.center() );
     Coord3 width( cs.hrg.stop.inl-cs.hrg.start.inl,
 		  cs.hrg.stop.crl-cs.hrg.start.crl, cs.zrg.width() );
+    if ( width.x < 1 ) width.x = 1;
+    if ( width.y < 1 ) width.y = 1;
+    if ( width.z < cs.zrg.step * 0.5 ) width.z = 1;
 
     const Coord3 oldwidth = dragger_->size();
     width[(int)orientation_] = oldwidth[(int)orientation_];
