@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.8 2009-09-10 11:11:49 cvssatyaki Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.9 2009-12-23 04:30:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiFlatViewWin;
 class uiODMain;
 class uiSlicePos2DView;
 namespace Attrib { class SelSpec; }
-namespace EM { class HorizonPainter; }
+namespace EM { class HorizonPainter; class uiEMViewer2DManager; }
 namespace MPE { class HorizonFlatViewEditor; }
 
 
@@ -45,10 +45,10 @@ public:
 protected:
 
     uiSlicePos2DView*		slicepos_;
-    EM::HorizonPainter*		horpainter_;
     uiFlatViewAuxDataEditor*	auxdataeditor_;
     uiFlatViewStdControl*	viewstdcontrol_;
     MPE::HorizonFlatViewEditor*	horfveditor_;
+    EM::uiEMViewer2DManager*	emviewer2dman_;
 
     Attrib::SelSpec&		wvaselspec_;
     Attrib::SelSpec&		vdselspec_;
@@ -59,13 +59,11 @@ protected:
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);
     void			dataChangedCB(CallBacker*);
-    void			fvselModeChangedCB(CallBacker*);
+    //void			fvselModeChangedCB(CallBacker*);
 
     void			updateOldActiveVolInUiMPEManCB(CallBacker*);
     void			restoreActiveVolInUiMPEManCB(CallBacker*);
     void			updateHorFlatViewerSeedPickStatus(CallBacker*);
-
-    void			drawHorizons();
 };
 
 #endif

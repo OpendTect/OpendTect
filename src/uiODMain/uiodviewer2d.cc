@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.17 2009-12-10 08:28:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.18 2009-12-23 04:31:03 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
 #include "uiattribpartserv.h"
+#include "uiemviewer2dmanager.h"
 #include "uiflatauxdataeditor.h"
 #include "uiflatviewdockwin.h"
 #include "uiflatviewer.h"
@@ -48,8 +49,8 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , vdselspec_(*new Attrib::SelSpec)
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
-    , horpainter_(0)
     , horfveditor_(0)
+    , emviewer2dman_(0)
     , slicepos_(0)
 {
     basetxt_ = "2D Viewer - ";
@@ -70,7 +71,6 @@ uiODViewer2D::~uiODViewer2D()
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
-    delete horpainter_;
     if ( horfveditor_ )
     {
 	horfveditor_->updateoldactivevolinuimpeman.remove(
@@ -105,36 +105,29 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	if ( slicepos_ ) slicepos_->setCubeSampling( cs );
 	if ( dp3d->isVertical() )
 	{
-	    horpainter_->setCubeSampling( cs, true );
+	    emviewer2dman_->setCubeSampling( cs );
 	    horfveditor_->setCubeSampling( cs );
 	    horfveditor_->setSelSpec( &vdselspec_, false );
 	    horfveditor_->setSelSpec( &wvaselspec_, true );
-	    drawhorizon = true;
 	}
     }
     else if ( dp2d && dp2d->isVertical() )
     {
-	horpainter_->setCubeSampling( dp2d->dataholder().getCubeSampling(),
-				      true );
+	emviewer2dman_->setPainterLineName(
+		appl_.applMgr().visServer()->getObjectName(visid_) );
+	dp2d->getPosDataTable( emviewer2dman_->getHorPainter()->getTrcNos(),
+			       emviewer2dman_->getHorPainter()->getDistances());
+	emviewer2dman_->setCubeSampling( dp2d->dataholder().getCubeSampling() );
 	horfveditor_->setCubeSampling( dp2d->dataholder().getCubeSampling() );
 	horfveditor_->setSelSpec( &vdselspec_, false );
 	horfveditor_->setSelSpec( &wvaselspec_, true );
-	horpainter_->set2D( true );
-	horpainter_->setLineName(
-		appl_.applMgr().visServer()->getObjectName(visid_) );
 	horfveditor_->setLineName(
 		appl_.applMgr().visServer()->getObjectName(visid_) );
 	mDynamicCastGet(visSurvey::Seis2DDisplay*, s2d,
 			appl_.applMgr().visServer()->getObject(visid_) );
 	horfveditor_->setLineSetID( s2d->lineSetID() );
 	horfveditor_->set2D( true );
-	dp2d->getPosDataTable( horpainter_->getTrcNos(), 
-			       horpainter_->getDistances() );
-	drawhorizon = true;
     }
-
-    if ( drawhorizon )
-	drawHorizons();
 
     DataPack::ID curpackid = viewwin_->viewer().packID( wva );
     DPM(DataPackMgr::FlatID()).release( curpackid );
@@ -189,20 +182,23 @@ void uiODViewer2D::createViewWin( bool isvert )
 	    viewstdcontrol_ = new uiFlatViewStdControl( vwr,
 		    uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
 							      .withedit(true) );
-	    seltbid_ = viewstdcontrol_->toolBar()->addButton(
-		    "rectangleselect.png",
-		    mCB(this,uiODViewer2D,fvselModeChangedCB),
-		    "Rectangular selection mode", true );
-	    uiPopupMenu* mnu =
-		new uiPopupMenu( viewwin_->viewerParent(), "Menu" );
-	    mAddMnuItm( mnu, "Polygon selection mode", fvselModeChangedCB,
-		    	"polygonselect.png", 0 );
-	    mAddMnuItm( mnu, "Rectangular selection mode", fvselModeChangedCB,
-		    	"rectangleselect.png", 1 );
-	    viewstdcontrol_->toolBar()->setButtonMenu( seltbid_, mnu );
+	    //seltbid_ = viewstdcontrol_->toolBar()->addButton(
+	//	    "rectangleselect.png",
+	//	    mCB(this,uiODViewer2D,fvselModeChangedCB),
+	//	    "Rectangular selection mode", true );
+	  //  uiPopupMenu* mnu =
+	//	new uiPopupMenu( viewwin_->viewerParent(), "Menu" );
+	//    mAddMnuItm( mnu, "Polygon selection mode", fvselModeChangedCB,
+	//	    	"polygonselect.png", 0 );
+	//    mAddMnuItm( mnu, "Rectangular selection mode", fvselModeChangedCB,
+	//	    	"rectangleselect.png", 1 );
+	//    viewstdcontrol_->toolBar()->setButtonMenu( seltbid_, mnu );
 	    viewwin_->addControl( viewstdcontrol_ );
-	    horpainter_ = new EM::HorizonPainter( vwr );
+	  //  horpainter_ = new EM::HorizonPainter( vwr );
 	    auxdataeditor_ = new uiFlatViewAuxDataEditor( vwr );
+	    emviewer2dman_ = new EM::uiEMViewer2DManager( vwr, auxdataeditor_ );
+	    emviewer2dman_->initEMFlatViewControl( & appl_,
+		    				   viewstdcontrol_->toolBar() );
 	    auxdataeditor_->setSelActive( false );
 	    horfveditor_ = new MPE::HorizonFlatViewEditor( auxdataeditor_ );
 	    horfveditor_->updateoldactivevolinuimpeman.notify(
@@ -221,9 +217,6 @@ void uiODViewer2D::createViewWin( bool isvert )
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
-    delete horpainter_;
-    horpainter_ = 0;
-
     DataPack::ID packid = viewwin_->viewer().packID( true );
     DPM(DataPackMgr::FlatID()).release( packid );
     packid = viewwin_->viewer().packID( false );
@@ -328,7 +321,7 @@ void uiODViewer2D::restoreActiveVolInUiMPEManCB( CallBacker* )
 }
 
 
-void uiODViewer2D::fvselModeChangedCB( CallBacker* cb )
+/*void uiODViewer2D::fvselModeChangedCB( CallBacker* cb )
 {
     auxdataeditor_->setSelActive( viewstdcontrol_->toolBar()->isOn(seltbid_) );
 
@@ -341,7 +334,7 @@ void uiODViewer2D::fvselModeChangedCB( CallBacker* cb )
     viewstdcontrol_->toolBar()->setToolTip( seltbid_,
 	    ispoly ? "Polygon Selection mode" : "Rectangle Selection mode" );
     auxdataeditor_->setSelectionPolygonRectangle( !ispoly );
-}
+}*/
 
 
 void uiODViewer2D::updateHorFlatViewerSeedPickStatus( CallBacker* )
@@ -350,11 +343,4 @@ void uiODViewer2D::updateHorFlatViewerSeedPickStatus( CallBacker* )
 	    appl_.applMgr().visServer()->isPicking() );
     horfveditor_->setTrackerSetupActive(
 	    appl_.applMgr().visServer()->isTrackingSetupActive() );
-}
-
-
-void uiODViewer2D::drawHorizons()
-{
-    for ( int idx=0; idx<EM::EMM().nrLoadedObjects(); idx++ )
-	horpainter_->addHorizon( EM::EMM().objectID(idx) );
 }
