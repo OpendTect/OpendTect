@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.39 2009-12-07 21:49:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.40 2009-12-23 21:45:42 cvsyuancheng Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -383,6 +383,13 @@ uiODInlineParentTreeItem::uiODInlineParentTreeItem()
 
 bool uiODInlineParentTreeItem::showSubMenu()
 {
+    if ( !SI().crlRange(true).width() ||
+	  SI().zRange(true).width() < SI().zStep() * 0.5 )
+    {
+	uiMSG().warning( "Flat survey, disabled inline display" );
+	return false;
+    }
+    
     mParentShowSubMenu( uiODInlineTreeItem );
 }
 
@@ -414,6 +421,13 @@ uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
 {
+    if ( !SI().inlRange(true).width() ||
+	  SI().zRange(true).width() < SI().zStep() * 0.5 )
+    {
+	uiMSG().warning( "Flat survey, disabled cross-line display" );
+	return false;
+    }
+    
     mParentShowSubMenu( uiODCrosslineTreeItem );
 }
 
@@ -446,6 +460,12 @@ uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
 
 bool uiODZsliceParentTreeItem::showSubMenu()
 {
+     if ( !SI().inlRange(true).width() || !SI().crlRange(true).width() )
+     {
+	 uiMSG().warning( "Flat survey, disabled z display" );
+	 return false;
+     }
+     
     mParentShowSubMenu( uiODZsliceTreeItem );
 }
 
