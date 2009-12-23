@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.17 2009-11-12 11:56:11 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.18 2009-12-23 04:29:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ HorizonPainter::HorizonPainter( FlatView::Viewer& fv )
     , horidtoberepainted_(-1)
     , isupdating_(false)
     , linenm_(0)
+    , horizonadded_(this)
+    , horizonremoved_(this)
 {
     hormarkerlines_.allowNull();
     horsmarkerseeds_.allowNull();
@@ -44,12 +46,13 @@ HorizonPainter::~HorizonPainter()
 {
     while ( hormarkerlines_.size() )
     {
-	EM::EMM().getObject( horizonids_[0] )->change.remove(
+	EM::EMM().getObject( horizoninfos_[0]->id_ )->change.remove(
 		mCB(this,HorizonPainter,horChangeCB) );
 	removeHorizon( 0 );
     }
 
     EM::EMM().addRemove.remove( mCB(this,HorizonPainter,nrHorChangeCB) );
+    deepErase( horizoninfos_ );
 }
 
 
@@ -63,14 +66,43 @@ void HorizonPainter::addHorizon( const MultiID& mid )
 
 void HorizonPainter::addHorizon( const EM::ObjectID& oid )
 {
-    if ( horizonids_.indexOf(oid)!=-1 )
+    for ( int idx=0; idx<horizoninfos_.size(); idx++ )
+	if ( horizoninfos_[idx]->id_ == oid )
 	    return;
 
-    horizonids_ += oid;
+    HorizonInfo* horinfo = new HorizonInfo;
+    horinfo->id_ = oid;
+    horinfo->lineenabled_ = true;
+    horinfo->seedenabled_ = true;
+    horinfo->name_ = EM::EMM().getObject( oid )->name();
+
+    horizoninfos_ += horinfo;
 
     if ( !addPolyLine(oid) )
-	horizonids_.remove( horizonids_.indexOf(oid) );
+    {
+	delete horizoninfos_[horizoninfos_.size() - 1];
+	horizoninfos_.remove( horizoninfos_.size() - 1 );
+	return;
+    }
+
     viewer_.handleChange( FlatView::Viewer::Annot );
+
+    EMObjPainterCallbackData cbdata;
+    cbdata.objid_ = horinfo->id_;
+    cbdata.name_ = horinfo->name_;
+    cbdata.enabled_ = true;
+    horizonadded_.trigger( cbdata );
+}
+
+
+HorizonPainter::HorizonInfo* HorizonPainter::getHorizonInfo( 
+							const EM::ObjectID& oid)
+{
+    for ( int idx=0; idx<horizoninfos_.size(); idx++ )
+	if ( horizoninfos_[idx]->id_ == oid )
+	    return horizoninfos_[idx];
+
+    return 0;
 }
 
 
@@ -78,9 +110,17 @@ void HorizonPainter::setHorizonIDs( const ObjectSet<MultiID>* mids )
 {
     if ( !mids ) return;
 
-    horizonids_.erase();
+    deepErase( horizoninfos_ );
     for ( int idx=0; idx<mids->size(); idx++ )
-	horizonids_ += EM::EMM().getObjectID( *(*mids)[idx] );
+    {
+	HorizonInfo* horinfo = new HorizonInfo;
+	horinfo->id_ = EM::EMM().getObjectID( *(*mids)[idx] );
+	horinfo->lineenabled_ = true;
+	horinfo->seedenabled_ = true;
+	horinfo->name_ = EM::EMM().getObject( horinfo->id_ )->name();
+
+	horizoninfos_ += horinfo;
+    }
 
     updateDisplay();
 }
@@ -109,10 +149,17 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
     if ( !loadinghorcount_ && !isupdating_ )
 	hor->change.notify( mCB(this,HorizonPainter,horChangeCB) );
 
-    FlatView::Annotation::AuxData* seedsauxdata = 
-				new FlatView::Annotation::AuxData( 0 );
+    int horidx = -1;
+    for ( horidx = 0; horidx<horizoninfos_.size(); horidx++ )
+	if ( horizoninfos_[horidx]->id_ == oid )
+	    break;
+
+     FlatView::Annotation::AuxData* seedsauxdata =
+	 			new FlatView::Annotation::AuxData( 0 );
+     seedsauxdata->enabled_ = horizoninfos_[horidx]->seedenabled_;
+
     if ( isupdating_ )
-	horsmarkerseeds_.replace( horizonids_.indexOf(oid), seedsauxdata );
+	horsmarkerseeds_.replace( horidx, seedsauxdata );
     else
 	horsmarkerseeds_ += seedsauxdata;
 
@@ -122,8 +169,9 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 
     ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
 		new ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >;
+
     if ( isupdating_ )
-	hormarkerlines_.replace( horizonids_.indexOf(oid), sectionmarkerlines );
+	hormarkerlines_.replace( horidx, sectionmarkerlines );
     else
 	hormarkerlines_ += sectionmarkerlines;
 
@@ -181,6 +229,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 		auxdata->linestyle_.color_ = hor->preferredColor();
 		auxdata->fillcolor_ = hor->preferredColor();
 		newmarker = false;
+		auxdata->enabled_ = horizoninfos_[horidx]->lineenabled_;
 		markerlinecount++;
 	    }
 	    if ( cs_.nrInl() == 1 )
@@ -223,11 +272,18 @@ void HorizonPainter::changePolyLineColor( const EM::ObjectID& oid )
 {
     mDynamicCastGet(EM::Horizon*,hor,EM::EMM().getObject( oid ));
 
-    if ( (horizonids_.indexOf(oid)==-1) || (hormarkerlines_.size() <= 0) || 
-	  !hormarkerlines_[horizonids_.indexOf(oid)] )
+    int horpos = -1;
+    
+    for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
+	    if ( horizoninfos_[idx]->id_ == oid )
+	    { horpos = idx; break; }
+
+    if ( (horpos==-1) || (hormarkerlines_.size() <= 0) || 
+	  !hormarkerlines_[horpos] )
 	return;
+
     ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines = 
-				hormarkerlines_[horizonids_.indexOf(oid)];
+				hormarkerlines_[horpos];
 
     for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
@@ -243,15 +299,73 @@ void HorizonPainter::changePolyLineColor( const EM::ObjectID& oid )
 }
 
 
+void HorizonPainter::enableHorizonLine( const EM::ObjectID& oid, bool enabled )
+{
+    mDynamicCastGet(EM::Horizon*,hor,EM::EMM().getObject( oid ));
+
+    int horpos = -1;
+    for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
+	    if ( horizoninfos_[idx]->id_ == oid )
+	    { horpos = idx; break; }
+
+    if ( (horpos==-1) || (hormarkerlines_.size() <= 0) || 
+	  !hormarkerlines_[horpos] )
+	return;
+
+    ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
+						    hormarkerlines_[horpos];
+
+    for ( int ids=0; ids<hor->nrSections(); ids++ )
+    {
+	ObjectSet<FlatView::Annotation::AuxData>* markerlines =
+					    (*sectionmarkerlines)[ids];
+	for ( int markidx=0; markidx<markerlines->size(); markidx++ )
+	{
+	    FlatView::Annotation::AuxData* auxdata = (*markerlines)[markidx];
+	    auxdata->enabled_ = enabled;
+	}
+    }
+    horizoninfos_[horpos]->lineenabled_ = enabled;
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void HorizonPainter::enableHorizonSeed( const EM::ObjectID& oid, bool enabled )
+{
+    mDynamicCastGet(EM::Horizon*,hor,EM::EMM().getObject( oid ));
+
+    int horpos = -1;
+    for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
+	    if ( horizoninfos_[idx]->id_ == oid )
+	    { horpos = idx; break; }
+
+    if ( (horpos==-1) || (horsmarkerseeds_.size() <= 0) ||
+	  !horsmarkerseeds_[horpos] )
+	  return;
+
+    horsmarkerseeds_[horpos]->enabled_ = enabled;
+    horizoninfos_[horpos]->seedenabled_ = enabled;
+
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
 void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
 					     const EM::PosID& pid )
 {
     mDynamicCastGet(EM::Horizon*,hor,EM::EMM().getObject( oid ));
-    if ( (horizonids_.indexOf(oid)==-1) || (hormarkerlines_.size() <= 0) 
-	 || !hormarkerlines_[horizonids_.indexOf(oid)] )
+
+    int horpos = -1;
+    
+    for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
+	    if ( horizoninfos_[idx]->id_ == oid )
+	    { horpos = idx; break; }
+
+    if ( (horpos==-1) || (hormarkerlines_.size() <= 0) 
+	 || !hormarkerlines_[horpos] )
 	return;
     ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
-				hormarkerlines_[horizonids_.indexOf(oid)];
+				hormarkerlines_[horpos];
 
     BinID binid;
     binid.setSerialized( pid.subID() );
@@ -314,9 +428,9 @@ void HorizonPainter::updateDisplay()
     for ( int idx=0; idx<hormarkerlines_.size(); idx++ )
 	removePolyLine( idx );
 
-    for ( int idx=0; idx<horizonids_.size(); idx++ )
+    for ( int idx=0; idx<horizoninfos_.size(); idx++ )
     {
-	if ( !addPolyLine(horizonids_[idx]) )
+	if ( !addPolyLine(horizoninfos_[idx]->id_) )
 		continue;
     }
 
@@ -337,18 +451,28 @@ void HorizonPainter::setMarkerLineStyle( const LineStyle& ls )
 
 void HorizonPainter::repaintHorizon( const EM::ObjectID& oid )
 {
-     const int horidx = horizonids_.indexOf( oid );
-     if ( horidx>=0 )
+    int horidx = -1;
+
+    for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
+	if ( horizoninfos_[idx]->id_ == oid )
+	    { horidx = idx; break; }
+
+    if ( horidx>=0 )
 	 removeHorizon( horidx );
 
-     addHorizon(oid);
+    addHorizon(oid);
 }
 
 
 void HorizonPainter::removeHorizon( const MultiID& mid )
 {
     EM::ObjectID objid = EM::EMM().getObjectID( mid );
-    const int horidx = horizonids_.indexOf( objid );
+    int horidx = -1;
+
+    for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
+	if ( horizoninfos_[idx]->id_ == objid )
+	{ horidx = idx; break; }
+    
     if ( horidx>=0 )
 	removeHorizon( horidx );
 }
@@ -386,14 +510,22 @@ void HorizonPainter::removePolyLine( int idx )
 void HorizonPainter::removeHorizon( int idx )
 {
     removePolyLine( idx );
-    if ( EM::EMM().getObject(horizonids_[idx]) )
+    if ( EM::EMM().getObject(horizoninfos_[idx]->id_) )
     {
 	mDynamicCastGet( EM::Horizon*, hor, 
-			 EM::EMM().getObject(horizonids_[idx]) );
+	    EM::EMM().getObject(horizoninfos_[idx]->id_) );
 	hor->change.remove( mCB(this,HorizonPainter,horChangeCB) );
     }
-    horizonids_.remove( idx );
+
+    EMObjPainterCallbackData cbdata;
+    cbdata.objid_ = horizoninfos_[idx]->id_;
+    cbdata.name_ = horizoninfos_[idx]->name_;
+
+    delete horizoninfos_[idx];
+    horizoninfos_.remove( idx );
     viewer_.handleChange( FlatView::Viewer::Annot );
+
+    horizonremoved_.trigger( cbdata );
 }
 
 
@@ -405,8 +537,10 @@ void HorizonPainter::nrHorChangeCB( CallBacker* cb )
     for ( int idx=EM::EMM().nrLoadedObjects()-1; idx>=0; idx-- )
     {
 	const EM::ObjectID oid = EM::EMM().objectID( idx );
-	if ( horizonids_.indexOf(oid)!=-1 )
-	    continue;
+
+	for ( int horidx=0; horidx<horizoninfos_.size(); horidx ++ )
+	    if ( horizoninfos_[horidx]->id_ == oid )
+		continue;
 
 	mDynamicCastGet( EM::Horizon*, hor, EM::EMM().getObject( oid ) );
 	if ( !hor )
@@ -416,9 +550,9 @@ void HorizonPainter::nrHorChangeCB( CallBacker* cb )
 	loadinghorcount_++;
     }
 
-    for ( int idx = horizonids_.size()-1; idx>=0; idx-- )
+    for ( int idx = horizoninfos_.size()-1; idx>=0; idx-- )
     {
-	if ( EM::EMM().getObject( horizonids_[idx] ) )
+	if ( EM::EMM().getObject( horizoninfos_[idx]->id_ ) )
 	    continue;
 
 	removeHorizon( idx );
@@ -432,6 +566,12 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 	    			cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
+
+    int horidx = -1;
+
+    for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
+	if ( horizoninfos_[idx]->id_ == emobject->id() )
+	{ horidx = idx; break; }
 
     switch ( cbdata.event )
     {
@@ -462,7 +602,7 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 		{
 		    if ( emobject->isSelRemoving() )
 		    {
-			if ( horizonids_.indexOf(emobject->id()) != -1 )
+			if ( horidx != -1 )
 			    horidtoberepainted_ = emobject->id();
 		    }
 		    else if ( horidtoberepainted_ == emobject->id() )
@@ -478,7 +618,7 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 	{
 	    if ( emobject->hasBurstAlert() && !loadinghorcount_ )
 	    {
-		if ( horizonids_.indexOf(emobject->id()) != -1 )
+		if ( horidx != -1 )
 		    horidtoberepainted_ = emobject->id();
 	    }
 	    else if ( !emobject->hasBurstAlert() )
@@ -505,7 +645,17 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 bool HorizonPainter::isDisplayed( const MultiID& mid ) const
 {
     EM::ObjectID objid = EM::EMM().getObjectID( mid );
-    return horizonids_.indexOf( objid ) >= 0;
+
+    int horidx = -1;
+
+    for ( int idx = 0; idx<horizoninfos_.size(); idx++ )
+	if ( horizoninfos_[idx]->id_ == objid )
+	{ horidx = idx; break; }
+
+	if ( horidx < 0 )
+	    return false;
+
+    return horizoninfos_[horidx]->lineenabled_;
 }
 
 
