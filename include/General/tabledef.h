@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.20 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.21 2009-12-23 14:25:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,30 +207,36 @@ public:
     			FormatDesc( const char* nm )
 			    : NamedObject(nm)
 			    , nrhdrlines_(0)
-			    , tokencol_(-1)		{}
+			    , eohtokencol_(-1)		{}
 			~FormatDesc()
-			{
-			    deepErase( headerinfos_ );
-			    deepErase( bodyinfos_ );
-			}
+			{ deepErase( headerinfos_ ); deepErase( bodyinfos_ ); }
 
     ObjectSet<TargetInfo> headerinfos_;
     ObjectSet<TargetInfo> bodyinfos_;
 
-    int			nrhdrlines_;	//!< if < 0 token will be used
-    BufferString	token_;
-    int			tokencol_;	//!< if < 0 token can be in any col
+    int			nrhdrlines_;	//!< if < 0 eohtoken will be used
+    BufferString	eohtoken_;	//!< end-of-header token
+    int			eohtokencol_;	//!< if < 0 eohtoken can be in any col
+    BufferString	eobtoken_;	//!< end-of-body: no more data
 
-    bool		needToken() const
-    			{ return nrhdrlines_ < 0 && !token_.isEmpty(); }
+    bool		needEOHToken() const
+    			{ return nrhdrlines_ < 0 && !eohtoken_.isEmpty(); }
     int			nrHdrLines() const
-			{ return needToken() ? mUdf(int)
+			{ return needEOHToken() ? mUdf(int)
 			       : nrhdrlines_ > 0 ? nrhdrlines_ : 0; }
+    bool		haveEOBToken() const
+    			{ return !eobtoken_.isEmpty(); }
 
     bool		isGood() const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
+
+    void		clear()
+			{
+			    nrhdrlines_ = eohtokencol_ = 0;
+			    eohtoken_.setEmpty(); eobtoken_.setEmpty();
+			}
 };
 
 }; // namespace Table

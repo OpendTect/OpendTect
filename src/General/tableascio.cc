@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.26 2009-08-11 08:58:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.27 2009-12-23 14:25:03 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -25,6 +25,7 @@ namespace Table
 
 static const char* sKeyHdr = "Header";
 static const char* sKeyBody = "Body";
+static const char* sKeyBodyEndToken = "Body.End.Token";
 static const char* sKeyHdrSize = "Header.Size";
 static const char* sKeyHdrToken = "Header.Token";
 
@@ -261,8 +262,12 @@ void TargetInfo::usePar( const IOPar& iopar )
 void FormatDesc::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKeyHdrSize, nrhdrlines_ );
-    FileMultiString fms; fms += tokencol_; fms += token_;
+    FileMultiString fms; fms += eohtokencol_; fms += eohtoken_;
     iopar.set( sKeyHdrToken, fms );
+    if ( haveEOBToken() )
+	iopar.set( sKeyBodyEndToken, eobtoken_ );
+    else
+	iopar.removeWithKey( sKeyBodyEndToken );
     for ( int idx=0; idx<headerinfos_.size(); idx++ )
     {
 	IOPar subpar; headerinfos_[idx]->fillPar( subpar );
@@ -279,12 +284,17 @@ void FormatDesc::fillPar( IOPar& iopar ) const
 void FormatDesc::usePar( const IOPar& iopar )
 {
     iopar.get( sKeyHdrSize, nrhdrlines_ );
+
     const char* res = iopar.find( sKeyHdrToken );
-    if ( res )
+    if ( res && *res )
     {
 	FileMultiString fms( res );
-	tokencol_ = atoi( fms[0] ); token_ = fms[1];
+	eohtokencol_ = atoi( fms[0] ); eohtoken_ = fms[1];
     }
+
+    res = iopar.find( sKeyBodyEndToken );
+    if ( res && *res )
+	eobtoken_ = res;
 
     IOPar* subpar = iopar.subselect( sKeyHdr );
     if ( subpar && subpar->size() )
@@ -292,7 +302,9 @@ void FormatDesc::usePar( const IOPar& iopar )
 	for ( int idx=0; idx<headerinfos_.size(); idx++ )
 	    headerinfos_[idx]->usePar( *subpar );
     }
-    delete subpar; subpar = iopar.subselect( sKeyBody );
+    delete subpar;
+    
+    subpar = iopar.subselect( sKeyBody );
     if ( subpar && subpar->size() )
     {
 	for ( int idx=0; idx<bodyinfos_.size(); idx++ )
@@ -385,7 +397,8 @@ AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
     : ExportHandler(logMsgStrm())
     , aio_(const_cast<AscIO&>(aio))
     , ishdr_(hdr)
-    , ready_(false)
+    , hdrready_(false)
+    , bodyready_(false)
     , rownr_(0)
 {
     if ( ishdr_ )
@@ -419,20 +432,20 @@ const char* putRow( const BufferStringSet& bss )
 
 const char* putHdrRow( const BufferStringSet& bss )
 {
-    if ( aio_.fd_.needToken() )
+    if ( aio_.fd_.needEOHToken() )
     {
-	if ( aio_.fd_.tokencol_ >= 0 )
-	    ready_ = bss.size() >= aio_.fd_.tokencol_
-		  && bss.get(aio_.fd_.tokencol_) == aio_.fd_.token_;
+	if ( aio_.fd_.eohtokencol_ >= 0 )
+	    hdrready_ = bss.size() >= aio_.fd_.eohtokencol_
+		  && bss.get(aio_.fd_.eohtokencol_) == aio_.fd_.eohtoken_;
 	else
 	{
 	    for ( int idx=0; idx<bss.size(); idx++ )
 	    {
-		if ( bss.get(idx) == aio_.fd_.token_ )
-		    { ready_ = true; break; }
+		if ( bss.get(idx) == aio_.fd_.eohtoken_ )
+		    { hdrready_ = true; break; }
 	    }
 	}
-	if ( ready_ )
+	if ( hdrready_ )
 	    return finishHdr();
     }
 
@@ -460,8 +473,8 @@ const char* putHdrRow( const BufferStringSet& bss )
     }
 
     rownr_++;
-    ready_ = ready_ || rownr_ >= aio_.fd_.nrHdrLines();
-    return ready_ ? finishHdr() : 0;
+    hdrready_ = hdrready_ || rownr_ >= aio_.fd_.nrHdrLines();
+    return hdrready_ ? finishHdr() : 0;
 }
 
 
@@ -516,6 +529,17 @@ const char* mkErrMsg( const HdrInfo& hdrinf, const char* msg )
 const char* putBodyRow( const BufferStringSet& bss )
 {
     aio_.emptyVals();
+    if ( bodyready_ ) return 0;
+
+    if ( aio_.fd_.haveEOBToken() && !bss.isEmpty() )
+    {
+	if ( bss.get(0) == aio_.fd_.eobtoken_
+	  || bss.get(bss.size()-1) == aio_.fd_.eobtoken_ )
+	{
+	    bodyready_ = true;
+	    return 0;
+	}
+    }
 
     const char* rv = 0;
     for ( int iinf=0; iinf<bodyinfos_.size(); iinf++ )
@@ -526,7 +550,6 @@ const char* putBodyRow( const BufferStringSet& bss )
 	else
 	    rv = "";
     }
-
     rownr_++;
     return 0;
 }
@@ -534,7 +557,8 @@ const char* putBodyRow( const BufferStringSet& bss )
     const bool		ishdr_;
     AscIO&		aio_;
     BufferString	errmsg_;
-    bool		ready_;
+    bool		hdrready_;
+    bool		bodyready_;
     int			rownr_;
     ObjectSet<HdrInfo>	hdrinfos_;
     ObjectSet<BodyInfo>	bodyinfos_;
@@ -594,10 +618,10 @@ bool Table::AscIO::getHdrVals( std::istream& strm ) const
 	    int res = hdrcnvrtr.nextStep();
 	    if ( res < 0 )
 		mErrRet( hdrcnvrtr.message() )
-	    else if ( res == 0 || hdrexphndlr.ready_ )
+	    else if ( res == 0 || hdrexphndlr.hdrready_ )
 		break;
 	}
-	if ( !hdrexphndlr.ready_ || !strm.good() )
+	if ( !hdrexphndlr.hdrready_ || !strm.good() )
 	    mErrRet( "File header does not comply with format description" )
     }
 

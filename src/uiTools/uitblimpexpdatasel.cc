@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.45 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.46 2009-12-23 14:25:03 cvsbert Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -393,6 +393,8 @@ protected:
     uiGroup*			elemgrp_;
     ObjectSet<uiTableTargetInfoEd> hdrelems_;
     ObjectSet<uiTableTargetInfoEd> bodyelems_;
+    uiTableTargetInfoEd*	lastelm_;
+    uiGenInput*			eobfld_;
 
     void			mkElemFlds(bool);
     void			initSaveButton(CallBacker*);
@@ -423,9 +425,18 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
     elemgrp_ = new uiGroup( this, "Elem group" );
     uiTableTargetInfoEd::choicegrp_ = 0;
 
+    lastelm_ = 0;
     mkElemFlds( true );
     mkElemFlds( false );
-    if ( hdrinpgrp_ )
+    if ( !lastelm_ ) return;
+
+    eobfld_ = new uiGenInput( lastelm_->attachObj()->parent(), "Data stops at",
+	    		      StringInpSpec(fd_.eobtoken_) );
+    eobfld_->setWithCheck( true );
+    eobfld_->setChecked( fd_.haveEOBToken() );
+    eobfld_->attach( alignedBelow, lastelm_ );
+
+    if ( hdrinpgrp_ && bodyinpgrp_ )
 	bodyinpgrp_->attach( alignedBelow, hdrinpgrp_ );
 
     finaliseDone.notify( mCB(this,uiTableFormatDescFldsEd,initSaveButton) );
@@ -477,7 +488,8 @@ void uiTableFormatDescFldsEd::mkElemFlds( bool ishdr )
 	    elem->doAttach( prev );
 	else
 	    grp->setHAlignObj( elem );
-	prev = elem;
+
+	lastelm_ = prev = elem;
     }
 }
 
@@ -496,6 +508,12 @@ bool uiTableFormatDescFldsEd::commit()
 {
     mDoCommit(hdrelems_)
     mDoCommit(bodyelems_)
+
+    if ( eobfld_->isChecked() )
+	fd_.eobtoken_ = eobfld_->text();
+    else
+	fd_.eobtoken_.setEmpty();
+
     return true;
 }
 
@@ -621,7 +639,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     hdrlinesfld_->attach( alignedBelow, hdrtypefld_ );
     hdrlinesfld_->valuechanged.notify( valchgcb );
     hdrtokfld_ = new uiGenInput( this, "End-of-header 'word'",
-	    			 StringInpSpec(fd_.token_) );
+	    			 StringInpSpec(fd_.eohtoken_) );
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
     hdrtokfld_->valuechanged.notify( valchgcb );
 
@@ -669,10 +687,10 @@ void uiTableImpDataSel::openFmt( CallBacker* )
     const IOPar* iop = Table::FFR().get( fd_.name(), fmtnm );
     if ( !iop ) return; //Huh?
 
-    fd_.usePar( *iop );
-    hdrtokfld_->setText( fd_.token_ );
+    fd_.clear(); fd_.usePar( *iop );
+    hdrtokfld_->setText( fd_.eohtoken_ );
     const int nrlns = fd_.nrHdrLines();
-    hdrtypefld_->setValue( fd_.needToken() ? 2 : (nrlns == 0 ? 0 : 1) );
+    hdrtypefld_->setValue( fd_.needEOHToken() ? 2 : (nrlns == 0 ? 0 : 1) );
     hdrlinesfld_->setValue( mIsUdf(nrlns) || nrlns < 1 ? 1 : nrlns );
 
     typChg( 0 );
@@ -705,7 +723,7 @@ bool uiTableImpDataSel::commitHdr()
 	    uiMSG().error( "The end-of-header 'word' cannot contain spaces");
 	    return false;
 	}
-	fd_.token_ = tok;
+	fd_.eohtoken_ = tok;
     }
 
     fd_.nrhdrlines_ = nrHdrLines();
