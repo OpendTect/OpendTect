@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.100 2009-12-21 21:19:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.101 2009-12-23 20:12:29 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -953,6 +953,8 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
 	geometry_->nrpositionnotifier.notify( cb );
     }
 
+    rowdistance_ = geometry_->rowRange().step*SI().inlDistance();
+    coldistance_ = geometry_->colRange().step*SI().crlDistance();
     surfaceChange( 0, tr );
 }
 
