@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.13 2009-12-24 09:45:18 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.14 2009-12-24 11:27:33 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,8 @@ class uiGenInput;
 class uiSeparator;
 class uiRadioButton;
 class uiPushButton;
-class uiRGBArrayCanvas;
+class uiGraphicsView;
+class uiPixmapItem;
 
 namespace visBase { class DirectionalLight; }
 
@@ -58,6 +59,7 @@ protected:
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			pdDlgDoneCB(CallBacker*);
+    void			dlgDoneCB(CallBacker*);
     void			showPolarDiagramCB(CallBacker*);
     void			lightSelChangedCB(CallBacker*);
     void			sceneSelChangedCB(CallBacker*);
@@ -74,8 +76,12 @@ protected:
     uiLabel*			lightlbl_;
     uiRadioButton*		cameralightfld_;
     uiRadioButton*		scenelightfld_;
-    uiRGBArrayCanvas*		cameralightcanvas_; 
-    uiRGBArrayCanvas*		scenelightcanvas_; 
+
+    // for the icons
+    uiGraphicsView*		cameralightview_;
+    uiGraphicsView*		scenelightview_;
+    uiPixmapItem		*pm1_, *pm2_;
+
     uiLabeledComboBox*		scenefld_;
     uiSliderExtra*		azimuthfld_;
     uiSliderExtra*		dipfld_;

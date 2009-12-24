@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.18 2009-12-24 09:45:18 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.19 2009-12-24 11:27:16 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -22,8 +22,8 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.18 2009-12-24 09:45:18 
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uitoolbar.h"
-#include "uirgbarray.h"
-#include "uirgbarraycanvas.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 #include "visdataman.h"
 #include "vistransmgr.h"
 #include "vissurvscene.h"
@@ -48,8 +48,10 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     , lightlbl_(0)		  
     , cameralightfld_(0)		    
     , scenelightfld_(0)
-    , cameralightcanvas_(0)
-    , scenelightcanvas_(0)
+    , cameralightview_(0)
+    , scenelightview_(0)
+    , pm1_(0)
+    , pm2_(0)
     , scenefld_(0)
     , azimuthfld_(0)
     , dipfld_(0)
@@ -65,6 +67,8 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 		    mNoHelpID)
 		.modal(false)))
 {
+    finaliseDone.notify( mCB(this, uiDirLightDlg, dlgDoneCB) );
+
     pddlg_->setCtrlStyle( LeaveOnly );
     pddlg_->finaliseDone.notify( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
 
@@ -78,46 +82,35 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     lightgrp_->attach( ensureBelow, sep1_ );
     lightgrp_->attach( leftBorder );
 //    lightgrp_->attach( alignedBelow, sep1_ );
-    lightgrp_->setPrefWidth( 100 );
     lightgrp_->setFrame( true );
 
     lightlbl_ = new uiLabel( lightgrp_, "Type of directional light" );
     
-    const ioPixmap pm1( "dir-light2a.png" );
-    cameralightcanvas_ = new uiRGBArrayCanvas( lightgrp_, 
-	    *new uiRGBArray( false ) );
-    cameralightcanvas_->setScrollBarPolicy( 
-	    true, uiGraphicsViewBase::ScrollBarAlwaysOff );
-    cameralightcanvas_->setScrollBarPolicy( 
-	    false, uiGraphicsViewBase::ScrollBarAlwaysOff );
-    cameralightcanvas_->setDragMode( uiRGBArrayCanvas::NoDrag );
-    cameralightcanvas_->setPixmap( pm1 );
-    cameralightcanvas_->setPrefWidth( 50 );
-    cameralightcanvas_->setPrefHeight( 50 );
-    cameralightcanvas_->attach( alignedBelow, lightlbl_ );
-    cameralightcanvas_->draw();    
-    
+    cameralightview_ = new uiGraphicsView( lightgrp_, "Camera light icon" );
+    cameralightview_->attach( alignedBelow, lightlbl_ );
+    cameralightview_->setStretch( 0, 0);
+    cameralightview_->setPrefWidth( 50 );
+    cameralightview_->setPrefHeight( 50 );
+    const ioPixmap pix1( "dir-light2a.png" );
+    pm1_ = new uiPixmapItem( pix1 );
+    cameralightview_->scene().addItem( pm1_ );
+
     cameralightfld_ = new uiRadioButton( lightgrp_, 
 	    "positioned at the camera" );
-    cameralightfld_->attach( rightOf, cameralightcanvas_ );
+    cameralightfld_->attach( rightOf, cameralightview_ );
 
-    const ioPixmap pm2( "dir-light2b.png" );
-    scenelightcanvas_ = new uiRGBArrayCanvas( lightgrp_, 
-	    *new uiRGBArray( false ) );
-    scenelightcanvas_->setPrefWidth( 50 );
-    scenelightcanvas_->setPrefHeight( 50 );
-    scenelightcanvas_->setScrollBarPolicy( 
-	    true, uiGraphicsViewBase::ScrollBarAlwaysOff );
-    scenelightcanvas_->setScrollBarPolicy( 
-	    false, uiGraphicsViewBase::ScrollBarAlwaysOff );
-    scenelightcanvas_->setDragMode( uiRGBArrayCanvas::NoDrag );
-    scenelightcanvas_->setPixmap( pm2 );
-    scenelightcanvas_->attach( alignedBelow, cameralightcanvas_ );
-    scenelightcanvas_->attach( widthSameAs, cameralightcanvas_ );
-    scenelightcanvas_->draw();
-     
+    scenelightview_ = new uiGraphicsView( lightgrp_, "Scene light icon" );
+    scenelightview_->attach( alignedBelow, cameralightview_ );
+    scenelightview_->attach( widthSameAs, cameralightview_ );
+    scenelightview_->setStretch( 0, 0);
+    scenelightview_->setPrefWidth( 50 );
+    scenelightview_->setPrefHeight( 50 );
+    const ioPixmap pix2( "dir-light2b.png" );
+    pm2_ = new uiPixmapItem( pix2 );
+    scenelightview_->scene().addItem( pm2_ );
+
     scenelightfld_ = new uiRadioButton( lightgrp_, "relative to the scene" );
-    scenelightfld_->attach( rightOf, scenelightcanvas_ );
+    scenelightfld_->attach( rightOf, scenelightview_ );
 
     lightgrp_->setHAlignObj( cameralightfld_ );
 
@@ -208,6 +201,11 @@ uiDirLightDlg::~uiDirLightDlg()
 {
     removeSceneNotifiers();
 
+    cameralightfld_->activated.remove( 
+	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
+    scenelightfld_->activated.remove( 
+	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
+
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
     azimuthfld_->sldr()->valueChanged.remove( chgCB );
     dipfld_->sldr()->valueChanged.remove( chgCB ); 
@@ -226,6 +224,11 @@ uiDirLightDlg::~uiDirLightDlg()
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
     scenelightfld_->activated.remove( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
+
+    finaliseDone.remove( mCB(this, uiDirLightDlg, dlgDoneCB) );
+
+    delete cameralightview_->scene().removeItem( pm1_ );
+    delete scenelightview_->scene().removeItem( pm2_ );
 
     if ( pd_ )
     {
@@ -249,6 +252,14 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
 		dipfld_->sldr()->getValue() );
         pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
     }
+}
+
+
+void uiDirLightDlg::dlgDoneCB( CallBacker* )
+{
+    pm1_->scale( width()/cameralightview_->width(), 
+	    height()/cameralightview_->height() );
+    
 }
 
 
