@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          Sep 2009
- RCS:           $Id: uivisdirlightdlg.h,v 1.12 2009-12-22 09:45:23 cvskarthika Exp $
+ RCS:           $Id: uivisdirlightdlg.h,v 1.13 2009-12-24 09:45:18 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,14 +15,15 @@ ________________________________________________________________________
 #include "uipolardiagram.h"
 
 class uiVisPartServer;
-class uiButtonGroup;
-class uiToolButton;
+class uiGroup;
 class uiLabel;
 class uiSliderExtra;
 class uiLabeledComboBox;
 class uiGenInput;
 class uiSeparator;
+class uiRadioButton;
 class uiPushButton;
+class uiRGBArrayCanvas;
 
 namespace visBase { class DirectionalLight; }
 
@@ -69,10 +70,12 @@ protected:
     void			activeSceneChangedCB(CallBacker*);
     
     uiVisPartServer*		visserv_;
-    uiButtonGroup*		lightgrp_;
+    uiGroup*			lightgrp_;
     uiLabel*			lightlbl_;
-    uiToolButton*		cameralightfld_;
-	uiToolButton*		scenelightfld_;
+    uiRadioButton*		cameralightfld_;
+    uiRadioButton*		scenelightfld_;
+    uiRGBArrayCanvas*		cameralightcanvas_; 
+    uiRGBArrayCanvas*		scenelightcanvas_; 
     uiLabeledComboBox*		scenefld_;
     uiSliderExtra*		azimuthfld_;
     uiSliderExtra*		dipfld_;
@@ -80,7 +83,7 @@ protected:
     uiSliderExtra*		headonintensityfld_;
     uiSliderExtra*		ambintensityfld_;
     uiSeparator*		sep1_;
-	uiSeparator*		sep2_;
+    uiSeparator*		sep2_;
     uiPushButton*		showpdfld_;
     uiPolarDiagram*		pd_;
     uiDialog*			pddlg_;
@@ -90,10 +93,10 @@ protected:
 		int		sceneid_;
         	
         	float		azimuth_;  // user degrees
-        	float		dip_;  // degrees
+	        float		dip_;  // degrees
         	
 		float		intensity_;
-        	float		headonintensity_;
+	        float		headonintensity_;
         	float		ambintensity_;
 	
 	public:
@@ -113,7 +116,7 @@ protected:
     				// initial light type: 0 - headon light, 
     				// 1 - scene (directional light)
 
-	bool			currlighttype_;	// current light type
+    bool			currlighttype_;	// current light type
 				
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.17 2009-12-22 10:38:25 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.18 2009-12-24 09:45:18 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.17 2009-12-22 10:38:25 
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uitoolbar.h"
+#include "uirgbarray.h"
+#include "uirgbarraycanvas.h"
 #include "visdataman.h"
 #include "vistransmgr.h"
 #include "vissurvscene.h"
@@ -46,6 +48,8 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     , lightlbl_(0)		  
     , cameralightfld_(0)		    
     , scenelightfld_(0)
+    , cameralightcanvas_(0)
+    , scenelightcanvas_(0)
     , scenefld_(0)
     , azimuthfld_(0)
     , dipfld_(0)
@@ -53,7 +57,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     , headonintensityfld_(0)
     , ambintensityfld_(0)
     , sep1_(0)  
-	, sep2_(0)  
+    , sep2_(0)  
     , showpdfld_(0)
     , pd_(0)
     , pddlg_(new uiDialog(this, 
@@ -65,36 +69,57 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     pddlg_->finaliseDone.notify( mCB(this, uiDirLightDlg, pdDlgDoneCB) );
 
     scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
-//    scenefld_->attach(topBorder, 2 );
+    scenefld_->attach( hCentered );
 
     sep1_ = new uiSeparator( this, "HSep", true );
     sep1_->attach( stretchedBelow, scenefld_ );
-	
-    lightgrp_ = new uiButtonGroup( this, "Light group", false );
-    lightgrp_->attach( alignedBelow, sep1_ );
-    lightgrp_->setExclusive( true );
+
+    lightgrp_ = new uiGroup( this, "Light group" );
+    lightgrp_->attach( ensureBelow, sep1_ );
+    lightgrp_->attach( leftBorder );
+//    lightgrp_->attach( alignedBelow, sep1_ );
+    lightgrp_->setPrefWidth( 100 );
+    lightgrp_->setFrame( true );
+
     lightlbl_ = new uiLabel( lightgrp_, "Type of directional light" );
     
-    const ioPixmap pm0( "dir-light2a.png" );
-    cameralightfld_ = new uiToolButton( lightgrp_, "camera" );
-    cameralightfld_->setToggleButton();
-    cameralightfld_->setToolTip( "positioned at the camera" );
-    cameralightfld_->setVSzPol( uiObject::Wide );
-    cameralightfld_->setHSzPol( uiObject::Wide );
-    /*cameralightfld_->setStretch( 4, 4 );*/
-    cameralightfld_->setPixmap( pm0 );
-    //cameralightfld_->setBackgroundPixmap( pm0 );
-    cameralightfld_->attach( rightOf, lightlbl_ );
+    const ioPixmap pm1( "dir-light2a.png" );
+    cameralightcanvas_ = new uiRGBArrayCanvas( lightgrp_, 
+	    *new uiRGBArray( false ) );
+    cameralightcanvas_->setScrollBarPolicy( 
+	    true, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    cameralightcanvas_->setScrollBarPolicy( 
+	    false, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    cameralightcanvas_->setDragMode( uiRGBArrayCanvas::NoDrag );
+    cameralightcanvas_->setPixmap( pm1 );
+    cameralightcanvas_->setPrefWidth( 50 );
+    cameralightcanvas_->setPrefHeight( 50 );
+    cameralightcanvas_->attach( alignedBelow, lightlbl_ );
+    cameralightcanvas_->draw();    
+    
+    cameralightfld_ = new uiRadioButton( lightgrp_, 
+	    "positioned at the camera" );
+    cameralightfld_->attach( rightOf, cameralightcanvas_ );
 
-    const ioPixmap pm1( "dir-light2b.png" );
-    scenelightfld_ = new uiToolButton ( lightgrp_, "scene", pm1 );
-    scenelightfld_->setToggleButton();
-    scenelightfld_->setToolTip( "relative to the scene" );
-    /*scenelightfld_->setVSzPol( uiObject::Wide );
-      scenelightfld_->setHSzPol( uiObject::Wide );
-      scenelightfld_->setPrefWidth( pm1.width() );
-      scenelightfld_->setPrefHeight( pm1.height() );*/
-    scenelightfld_->attach( rightOf, cameralightfld_ );
+    const ioPixmap pm2( "dir-light2b.png" );
+    scenelightcanvas_ = new uiRGBArrayCanvas( lightgrp_, 
+	    *new uiRGBArray( false ) );
+    scenelightcanvas_->setPrefWidth( 50 );
+    scenelightcanvas_->setPrefHeight( 50 );
+    scenelightcanvas_->setScrollBarPolicy( 
+	    true, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    scenelightcanvas_->setScrollBarPolicy( 
+	    false, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    scenelightcanvas_->setDragMode( uiRGBArrayCanvas::NoDrag );
+    scenelightcanvas_->setPixmap( pm2 );
+    scenelightcanvas_->attach( alignedBelow, cameralightcanvas_ );
+    scenelightcanvas_->attach( widthSameAs, cameralightcanvas_ );
+    scenelightcanvas_->draw();
+     
+    scenelightfld_ = new uiRadioButton( lightgrp_, "relative to the scene" );
+    scenelightfld_->attach( rightOf, scenelightcanvas_ );
+
+    lightgrp_->setHAlignObj( cameralightfld_ );
 
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
@@ -153,7 +178,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
         initinfo = initinfo_[0];
 
     initlighttype_ = currlighttype_ = 1;
-    lightgrp_->selectButton( (int) initlighttype_ );
+    initlighttype_ ? scenelightfld_->click() : cameralightfld_->click();
     cameralightfld_->activated.notify( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
     scenelightfld_->activated.notify( 
@@ -675,7 +700,7 @@ void uiDirLightDlg::lightSelChangedCB( CallBacker* c )
 {
     static bool pdshown;
  
-    mDynamicCastGet(uiToolButton*,but,c);
+    mDynamicCastGet(uiRadioButton*,but,c);
     currlighttype_ = ( but == cameralightfld_ ) ? 0 : 1;
 
     // Save visibility of polar diagram dialog to restore when the scene light
