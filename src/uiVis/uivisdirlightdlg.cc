@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.19 2009-12-24 11:27:16 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.20 2009-12-28 20:58:59 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -91,10 +91,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     cameralightview_->setStretch( 0, 0);
     cameralightview_->setPrefWidth( 50 );
     cameralightview_->setPrefHeight( 50 );
-    const ioPixmap pix1( "dir-light2a.png" );
-    pm1_ = new uiPixmapItem( pix1 );
-    cameralightview_->scene().addItem( pm1_ );
-
+    
     cameralightfld_ = new uiRadioButton( lightgrp_, 
 	    "positioned at the camera" );
     cameralightfld_->attach( rightOf, cameralightview_ );
@@ -105,10 +102,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     scenelightview_->setStretch( 0, 0);
     scenelightview_->setPrefWidth( 50 );
     scenelightview_->setPrefHeight( 50 );
-    const ioPixmap pix2( "dir-light2b.png" );
-    pm2_ = new uiPixmapItem( pix2 );
-    scenelightview_->scene().addItem( pm2_ );
-
+    
     scenelightfld_ = new uiRadioButton( lightgrp_, "relative to the scene" );
     scenelightfld_->attach( rightOf, scenelightview_ );
 
@@ -227,8 +221,10 @@ uiDirLightDlg::~uiDirLightDlg()
 
     finaliseDone.remove( mCB(this, uiDirLightDlg, dlgDoneCB) );
 
-    delete cameralightview_->scene().removeItem( pm1_ );
-    delete scenelightview_->scene().removeItem( pm2_ );
+	if ( pm1_ )
+		delete cameralightview_->scene().removeItem( pm1_ );
+	if ( pm2_ )
+		delete scenelightview_->scene().removeItem( pm2_ );
 
     if ( pd_ )
     {
@@ -257,9 +253,19 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
 
 void uiDirLightDlg::dlgDoneCB( CallBacker* )
 {
-    pm1_->scale( width()/cameralightview_->width(), 
-	    height()/cameralightview_->height() );
-    
+	const ioPixmap pix1( "dir-light2a.png" );
+	pm1_ = new uiPixmapItem( pix1 );
+	//pm1_->scale( cameralightview_->width()/pix1.width(), cameralightview_->height()/pix1.height() );
+	pm1_->scale( 0.15, 0.15 );
+	cameralightview_->scene().addItem( pm1_ );
+	cameralightview_->reDraw( true );
+
+	const ioPixmap pix2( "dir-light2b.png" );
+    pm2_ = new uiPixmapItem( pix2 );
+	//pm2_->scale( scenelightview_->width()/pix2.width(), scenelightview_->height()/pix2.height() );    
+	pm2_->scale( 0.15, 0.15 );
+    scenelightview_->scene().addItem( pm2_ );
+	scenelightview_->reDraw( true );
 }
 
 
