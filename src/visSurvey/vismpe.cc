@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.97 2009-12-17 16:36:08 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.98 2009-12-29 08:50:28 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -1543,6 +1543,7 @@ void MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
     //if ( mIsUdf( arr[idx] ) )
     channels_[0].setSize( sz0, sz1, sz2 );
     channels_[0].setUnMappedData( attrib, 0, arr, cp, tr );
+	channels_->reMapData( 0, 0 );
 
     //rectangle_->setOriginalTextureSize( sz0, sz1 );
 
@@ -2029,6 +2030,7 @@ void MPEDisplay::clearTextures()
     // to do: check!
     for ( int idy=channels_->nrVersions( 0 ) - 1; idy>=0; idy-- )
 	channels_->setUnMappedData( 0, idy, 0, OD::UsePtr, 0 );	
+	channels_->reMapData( 0, 0 );
 }
 
 
