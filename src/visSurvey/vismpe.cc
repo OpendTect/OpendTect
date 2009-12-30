@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.98 2009-12-29 08:50:28 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.99 2009-12-30 10:56:51 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -416,7 +416,7 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     userrefs_.replace( attrib, attrnms );
 
     if ( ( !usrref || !*usrref ) && channels_->getChannels2RGBA() )
-	channels_->getChannels2RGBA()->setEnabled( 0, true );
+	channels_->getChannels2RGBA()->setEnabled( attrib, true );
 #endif
 }
 
@@ -2043,6 +2043,40 @@ SurveyObject::AttribFormat MPEDisplay::getAttributeFormat( int attrib ) const
 int MPEDisplay::nrAttribs() const
 {
     return ( as_.id() == Attrib::SelSpec::cNoAttrib() ) ? 0 : 1;
+}
+
+
+bool MPEDisplay::canAddAttrib( int nr ) const
+{
+    return ( nr + nrAttribs() <= 1 ) ? true : false;
+}
+
+
+bool MPEDisplay::canRemoveAttrib() const
+{
+    return ( nrAttribs() == 1 ) ? true : false;
+}
+
+
+bool MPEDisplay::addAttrib()
+{
+    BufferStringSet* aatrnms = new BufferStringSet();
+    aatrnms->allowNull();
+    userrefs_ += aatrnms;
+    as_.set( "", Attrib::SelSpec::cAttribNotSel(), false, 0 );
+    channels_->addChannel();
+//    updateMainSwitch();
+    return true;
+}
+
+
+bool MPEDisplay::removeAttrib( int attrib )
+{
+    channels_->removeChannel( attrib );
+    as_.set( "", Attrib::SelSpec::cNoAttrib(), false, 0 );
+    userrefs_.remove( attrib );
+//    updateMainSwitch();
+    return true;
 }
 
 }; // namespace vissurvey

@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.57 2009-12-03 06:18:25 cvsnanne Exp $
+RCS:        $Id: vismpe.h,v 1.58 2009-12-30 10:57:03 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -49,8 +49,8 @@ namespace visSurvey
 
 */
 
-mClass MPEDisplay : public visBase::VisualObjectImpl,
-           public visSurvey::SurveyObject
+mClass MPEDisplay : public visBase::VisualObjectImpl, 
+       public visSurvey::SurveyObject
 {
 public:
 
@@ -169,7 +169,14 @@ public:
     visBase::TextureChannel2VolData*	getChannel2VolData();
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
-    int			nrAttribs() const;
+
+    bool		canAddAttrib(int nrattribstoadd=1) const;
+    bool                canRemoveAttrib() const;
+    int                 nrAttribs() const;
+    bool                addAttrib();
+    bool                removeAttrib(int attrib);
+/*    void                setAttribTransparency(int,unsigned char);
+    unsigned char       getAttribTransparency(int) const;*/
 
     
 protected:
