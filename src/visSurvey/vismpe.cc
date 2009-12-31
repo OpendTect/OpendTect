@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.99 2009-12-30 10:56:51 cvskarthika Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.100 2009-12-31 10:07:02 cvskarthika Exp $";
 
 #include "vismpe.h"
 
@@ -174,8 +174,8 @@ MPEDisplay::~MPEDisplay()
     draggerrect_->unRef();
 #else
     DPM( DataPackMgr::CubeID() ).release( cacheid_ );
-	if ( volumecache_ )
-		DPM( DataPackMgr::CubeID() ).release( volumecache_ );
+    if ( volumecache_ )
+	DPM( DataPackMgr::CubeID() ).release( volumecache_ );
 
     TypeSet<int> children;
     getChildren( children );
@@ -243,7 +243,7 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 	if ( channels_->getChannels2RGBA() )
 	{
 	    channels_->getChannels2RGBA()->setSequence( attrib, seq );
-	    channels_->reMapData( attrib, 0 );  // to do: check if necessary
+//	    channels_->reMapData( attrib, 0 );  // to do: check if necessary
 	}
 #endif
 }
@@ -284,7 +284,7 @@ bool MPEDisplay::canSetColTabSequence() const
     return true;
 #else
     return ( channels_->getChannels2RGBA() ) ? 
-		channels_->getChannels2RGBA()->canSetSequence() : false;
+	channels_->getChannels2RGBA()->canSetSequence() : false;
 #endif
 }
 
@@ -408,7 +408,13 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     as_ = as;
 
 #ifndef USE_TEXTURE
- //   emptyCache( attrib );
+    // from emptyCache of planedatadisplay
+    DPM(DataPackMgr::CubeID()).release( volumecache_ );
+    volumecache_ = 0;
+
+    channels_->setNrVersions( attrib, 1 );
+    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
+    //////////////////////////////////////
 
     const char* usrref = as.userRef();
     BufferStringSet* attrnms = new BufferStringSet();
@@ -1418,7 +1424,7 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
-	if ( !cdp )
+    if ( !cdp )
     {
 	dpman.release( dpid );
 	return false;
@@ -1437,15 +1443,16 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
 
 bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp, 
-							   TaskRunner* tr )
+				   TaskRunner* tr )
 {
 #ifdef USE_TEXTURE
     return false;
 #else
     if ( !cdp )
 	return false;
-	
+
     DataPack::ID attridpid = cdp->id();
+    DPM( DataPackMgr::CubeID() ).obtain( attridpid );
 
     //transform data if necessary.
     const char* zdomain = getSelSpec( attrib )->zDomainKey();
@@ -1453,6 +1460,7 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 	
     if ( !alreadytransformed && datatransform_ )
     {
+	// to do: check this stuff
 	ZAxisTransformer* datatransformer;
 	mTryAlloc( datatransformer,ZAxisTransformer(*datatransform_,true));
 	datatransformer->setInterpolate( !isClassification(attrib) );
@@ -1468,9 +1476,10 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 	}
 
 	CubeDataPack cdpnew( cdp->categoryStr( false ), 
-	datatransformer->getOutput( true ) );
 	// check false for categoryStr
+	datatransformer->getOutput( true ) );
 	DPM( DataPackMgr::CubeID() ).addAndObtain( &cdpnew );
+	DPM( DataPackMgr::CubeID() ).release( attridpid );
 	attridpid = cdpnew.id();
     }
 
@@ -1500,7 +1509,7 @@ void MPEDisplay::updateFromDataPackID( int attrib, const DataPack::ID newdpid,
 
 void MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 {
-    //channels_->setNrVersions( attrib, 1 );
+    channels_->setNrVersions( attrib, 1 );  // to do: check if necessary
 
     const DataPack* datapack = DPM(DataPackMgr::CubeID()).obtain( cacheid_ );
     mDynamicCastGet( const Attrib::CubeDataPack*, cdp, datapack );
@@ -1540,10 +1549,9 @@ void MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	}
     }
 
-    //if ( mIsUdf( arr[idx] ) )
     channels_[0].setSize( sz0, sz1, sz2 );
     channels_[0].setUnMappedData( attrib, 0, arr, cp, tr );
-	channels_->reMapData( 0, 0 );
+    channels_->reMapData( 0, 0 );
 
     //rectangle_->setOriginalTextureSize( sz0, sz1 );
 
@@ -2030,7 +2038,7 @@ void MPEDisplay::clearTextures()
     // to do: check!
     for ( int idy=channels_->nrVersions( 0 ) - 1; idy>=0; idy-- )
 	channels_->setUnMappedData( 0, idy, 0, OD::UsePtr, 0 );	
-	channels_->reMapData( 0, 0 );
+    //channels_->reMapData( 0, 0 );
 }
 
 
@@ -2077,6 +2085,20 @@ bool MPEDisplay::removeAttrib( int attrib )
     userrefs_.remove( attrib );
 //    updateMainSwitch();
     return true;
+}
+
+
+bool MPEDisplay::isAttribEnabled( int attrib ) const
+{
+    return attrib ? false : channels_->getChannels2RGBA()->isEnabled( attrib );
+}
+
+
+void MPEDisplay::enableAttrib( int attrib, bool yn )
+{
+    if ( !attrib )
+	channels_->getChannels2RGBA()->setEnabled( attrib, yn );
+//    updateMainSwitch();
 }
 
 }; // namespace vissurvey
