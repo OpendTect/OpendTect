@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.58 2009-12-30 10:57:03 cvskarthika Exp $
+RCS:        $Id: vismpe.h,v 1.59 2009-12-31 10:07:14 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -175,6 +175,9 @@ public:
     int                 nrAttribs() const;
     bool                addAttrib();
     bool                removeAttrib(int attrib);
+    void		enableAttrib(int attrib,bool yn);
+    bool		isAttribEnabled(int attrib) const;
+
 /*    void                setAttribTransparency(int,unsigned char);
     unsigned char       getAttribTransparency(int) const;*/
 
