@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.28 2009-07-23 02:05:21 cvskris Exp $
+ RCS:		$Id: string2.h,v 1.29 2010-01-04 09:18:06 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -58,7 +58,7 @@ mGlobal void replaceString(char*,const char* from,const char* to);
 /*!> removes all occurrences of a char */
 mGlobal void removeCharacter(char*,char);
 /*!> cleans a string from non-alpha numeric by replacing with underscores.
-     params: replace whitespace, replace slashes, replace dots */
+     params: allow whitespace, allow slashes, allow dots */
 mGlobal void cleanupString(char*,int,int,int);
 /*!> tells whether a string holds a parseable number */
 mGlobal int isNumberString(const char*,int int_only);
