@@ -32,7 +32,7 @@ uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Wells", true );
     selfld_ = llb->box();
 
-    mImplFileNameFld;
+    mImplFileNameFld("wells");
     fnmfld_->attach( alignedBelow, llb );
 
     finaliseStart.notify( mCB(this,uiGoogleExportWells,initWin) );

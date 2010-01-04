@@ -32,7 +32,7 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
     hghtfld_ = new uiGenInput( this, "Border height", FloatInpSpec(500) );
     hghtfld_->attach( alignedBelow, lsfld_ );
 
-    mImplFileNameFld;
+    mImplFileNameFld("survbounds");
     fnmfld_->attach( alignedBelow, hghtfld_ );
 }
 

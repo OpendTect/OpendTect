@@ -42,7 +42,7 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
     lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
     lsfld_->attach( alignedBelow, lnmfld_ );
 
-    mImplFileNameFld;
+    mImplFileNameFld(nm);
     fnmfld_->attach( alignedBelow, lsfld_ );
 }
 

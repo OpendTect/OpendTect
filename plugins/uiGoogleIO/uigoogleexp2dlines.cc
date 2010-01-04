@@ -55,7 +55,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     lsfld_ = new uiSelLineStyle( this, ls, "Line style", false, true, true );
     lsfld_->attach( alignedBelow, putlnmfld_ );
 
-    mImplFileNameFld;
+    mImplFileNameFld(s2dfm_->lineset_->name());
     fnmfld_->attach( alignedBelow, lsfld_ );
 }
 

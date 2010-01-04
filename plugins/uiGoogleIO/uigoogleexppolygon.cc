@@ -33,7 +33,7 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
     hghtfld_ = new uiGenInput( this, "Height", FloatInpSpec(100) );
     hghtfld_->attach( alignedBelow, lsfld_ );
 
-    mImplFileNameFld;
+    mImplFileNameFld(ps.name());
     fnmfld_->attach( alignedBelow, hghtfld_ );
 }
 
