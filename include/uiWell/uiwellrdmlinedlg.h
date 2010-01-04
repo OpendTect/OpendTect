@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.10 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.11 2010-01-04 14:15:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "uigroup.h"
 #include "bufstringset.h"
 
 class MultiID;
@@ -27,6 +28,50 @@ class uiListBox;
 class uiToolButton;
 class uiPushButton;
 class uiWellPartServer;
+
+
+mClass uiWellSelGrp : public uiGroup
+{
+public:
+    			uiWellSelGrp(uiParent*,bool withpos=true);
+
+    void 		getCoordinates(TypeSet<Coord>&);
+
+protected:
+
+    void		fillListBox();
+    void		setSelectedWells();
+    
+    const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }
+
+    void		createSelectButtons(uiGroup*);
+    void                createMoveButtons(uiGroup*);
+    void		createFields();
+    void		attachFields(uiGroup*,uiGroup*);
+    void		selButPush(CallBacker*);
+    void		moveButPush(CallBacker*);
+    int			getFirstEmptyRow();
+    void		extendLine(TypeSet<Coord>&);
+    void		ptsSel(CallBacker*);
+
+    bool		withpos_;
+
+    BufferStringSet	allwellsnames_;
+    TypeSet<MultiID>	allwellsids_;
+    TypeSet<MultiID>    selwellsids_;
+    TypeSet<int>	selwellstypes_;
+
+    uiListBox*		wellsbox_;
+    uiTable*		selwellsbox_;
+    
+    uiGenInput*		onlytopfld_;
+
+    uiToolButton*	toselect_;
+    uiToolButton*	fromselect_;
+
+    uiToolButton*	moveupward_;
+    uiToolButton*	movedownward_;
+};
 
 /*! \brief: setup a dialog where the user can select throught which wells (s)he
   wants to make a random line path.
@@ -47,45 +92,22 @@ public:
     bool		dispOnCreation();
 
 protected:
-    void		fillListBox();
-    void		setSelectedWells();
     
-    const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }
-
-    void		createSelectButtons(uiGroup*);
-    void                createMoveButtons(uiGroup*);
-    void		createFields(uiGroup*);
-    void		attachFields(uiGroup*,uiGroup*,uiGroup*);
-    void		selButPush(CallBacker*);
-    void		moveButPush(CallBacker*);
+    void		createFields();
+    void		attachFields();
     void		previewPush(CallBacker*);
-    int			getFirstEmptyRow();
     void		extendLine(TypeSet<Coord>&);
-    void		ptsSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    BufferStringSet	allwellsnames_;
-    TypeSet<MultiID>	allwellsids_;
-    TypeSet<MultiID>    selwellsids_;
-    TypeSet<int>	selwellstypes_;
-
-    uiListBox*		wellsbox_;
-    uiTable*		selwellsbox_;
-    uiGenInput*		onlytopfld_;
     uiGenInput*		extendfld_;
     uiIOObjSel* 	outfld_;
     uiCheckBox* 	dispfld_;
 
     CtxtIOObj&		outctio_;
 
-    uiToolButton*	toselect_;
-    uiToolButton*	fromselect_;
-
-    uiToolButton*	moveupward_;
-    uiToolButton*	movedownward_;
-    
     uiPushButton*	previewbutton_;
 
+    uiWellSelGrp*	selgrp_;
     uiWellPartServer*	wellserv_;
 };
 

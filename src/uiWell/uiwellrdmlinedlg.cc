@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.29 2009-08-21 12:41:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.30 2010-01-04 14:15:43 cvsbruno Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -42,80 +42,58 @@ static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.29 2009-08-21 12:41:02 
 
 static const char* sTypes[] = { "Top", "Bottom", 0 };
 
-
-uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
-    : uiDialog(p,uiDialog::Setup("Create Random line",
-				 "Select wells to set up the random line path",
-				 "109.0.0").modal(false))
-    , wellsbox_(0), selwellsbox_(0), wellserv_(ws)
-    , outctio_(*mMkCtxtIOObj(RandomLineSet))
+uiWellSelGrp::uiWellSelGrp( uiParent* p, bool withpos )
+    : uiGroup(p, "Select wells in table" )
+    , withpos_(withpos)  
+    , wellsbox_(0), selwellsbox_(0), onlytopfld_(0)			   
 {
-    outctio_.ctxt.forread = false;
+    uiGroup* selbuttons = new uiGroup( this, "select buttons" );
+    uiGroup* movebuttons = new uiGroup( this, "move buttons" );
 
-    uiGroup* topgrp = new uiGroup( this, "selection group" );
-    uiGroup* selbuttons = new uiGroup( topgrp, "select buttons" );
-    uiGroup* movebuttons = new uiGroup( topgrp, "move buttons" );
+    createFields();
     createSelectButtons( selbuttons );
     createMoveButtons( movebuttons );
-    createFields( topgrp );
-    attachFields( selbuttons, topgrp, movebuttons );
+
+    attachFields( selbuttons, movebuttons );
 
     fillListBox();
     ptsSel(0);
 }
 
 
-uiWell2RandomLineDlg::~uiWell2RandomLineDlg()
+void uiWellSelGrp::createFields()
 {
-    delete outctio_.ioobj; delete &outctio_;
-}
-
-
-void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
-{
-    wellsbox_ = new uiListBox( topgrp, "Available Wells", true );
-    selwellsbox_ = new uiTable( topgrp, uiTable::Setup()
+    wellsbox_ = new uiListBox( this, "Available Wells", true );
+    selwellsbox_ = new uiTable( this, uiTable::Setup()
 				        .selmode(uiTable::SelectionMode(3) ),
 				"Wells Table" );
-    selwellsbox_->setNrCols( 2 );
-    selwellsbox_->setColumnLabel( 0, "Well Name" );
-    selwellsbox_->setColumnLabel( 1, "Start at" );
+    selwellsbox_->setNrCols( withpos_ ? 2 : 1 );
     selwellsbox_->setNrRows( 5 );
+    selwellsbox_->setColumnLabel( 0, "Well Name" );
     selwellsbox_->setColumnWidth(0,90);
-    selwellsbox_->setColumnWidth(1,90);
+    if ( withpos_ )
+    {
+	selwellsbox_->setColumnLabel( 1, "Start at" );
+	selwellsbox_->setColumnWidth(1,90);
+	  
+	onlytopfld_ = new uiGenInput( this, "Use only wells' top position", 
+				      BoolInpSpec(true) );
+	onlytopfld_->valuechanged.notify( mCB(this,uiWellSelGrp,ptsSel) );
+	onlytopfld_->attach( alignedBelow, selwellsbox_ );
+	onlytopfld_->attach( ensureBelow, wellsbox_ );
+    }
     selwellsbox_->setTableReadOnly(true);
-    topgrp->setHAlignObj( selwellsbox_ );
-    
-    onlytopfld_ = new uiGenInput( this, "Use only wells' top position", 
-				  BoolInpSpec(true) );
-    onlytopfld_->valuechanged.notify( mCB(this,uiWell2RandomLineDlg,ptsSel) );
-
-    BufferString txt( "Extend outward (" );
-    txt += SI().xyInFeet() ? "ft)" : "m)";
-    float defdist = 100 * SI().inlDistance();
-    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(mNINT(defdist)) );
-    extendfld_->setWithCheck( true );
-    extendfld_->setChecked( true );
-
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, extendfld_ );
-
-    CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
-    previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
-    previewbutton_->attach( ensureBelow, sep );
-    outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
-    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
-    dispfld_->setChecked( true );
+    setHAlignObj( selwellsbox_ );
 }
 
 
-void uiWell2RandomLineDlg::createSelectButtons( uiGroup* selbuttons )
+void uiWellSelGrp::createSelectButtons( uiGroup* selbuttons )
 {
     const ioPixmap pm0( "rightarrow.png" );
     const ioPixmap pm1( "leftarrow.png" );
 
     uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
-    CallBack cb = mCB(this,uiWell2RandomLineDlg,selButPush);
+    CallBack cb = mCB(this,uiWellSelGrp,selButPush);
     toselect_ = new uiToolButton( selbuttons, "Move right", pm0, cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
@@ -126,13 +104,13 @@ void uiWell2RandomLineDlg::createSelectButtons( uiGroup* selbuttons )
 }
 
 
-void uiWell2RandomLineDlg::createMoveButtons( uiGroup* movebuttons )
+void uiWellSelGrp::createMoveButtons( uiGroup* movebuttons )
 {
     const ioPixmap pm0( "uparrow.png" );
     const ioPixmap pm1( "downarrow.png" );
 
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n order" );
-    CallBack cb = mCB(this,uiWell2RandomLineDlg,moveButPush);
+    CallBack cb = mCB(this,uiWellSelGrp,moveButPush);
     moveupward_ = new uiToolButton( movebuttons, "Move Up", pm0, cb );
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
@@ -143,28 +121,17 @@ void uiWell2RandomLineDlg::createMoveButtons( uiGroup* movebuttons )
 }
 
 
-void uiWell2RandomLineDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
-					 uiGroup* movebuttons )
+void uiWellSelGrp::attachFields( uiGroup* selbuttons, uiGroup* movebuttons )
 {
     selbuttons->attach( centeredLeftOf, selwellsbox_ );
     selbuttons->attach( ensureRightOf, wellsbox_ );
     selwellsbox_->attach( rightTo, wellsbox_ );
     movebuttons->attach( centeredRightOf, selwellsbox_ );
-    onlytopfld_->attach( alignedBelow, topgrp );
-    extendfld_->attach( alignedBelow, onlytopfld_ );
-    previewbutton_->attach( alignedBelow, extendfld_ );
-    outfld_->attach( alignedBelow, previewbutton_ );
-    dispfld_->attach( alignedBelow, outfld_ );
+    if ( onlytopfld_ ) onlytopfld_->attach( ensureBelow, selwellsbox_ );
 }
 
 
-bool uiWell2RandomLineDlg::dispOnCreation()
-{
-    return dispfld_->isChecked();
-}
-
-
-void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
+void uiWellSelGrp::selButPush( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,but,cb)
     if ( but == toselect_ )
@@ -238,7 +205,7 @@ void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
 }
 
 
-void uiWell2RandomLineDlg::fillListBox()
+void uiWellSelGrp::fillListBox()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt.forread = true;
@@ -256,7 +223,7 @@ void uiWell2RandomLineDlg::fillListBox()
 }
 
 
-void uiWell2RandomLineDlg::setSelectedWells()
+void uiWellSelGrp::setSelectedWells()
 {
     selwellsids_.erase();
     selwellstypes_.erase();
@@ -276,10 +243,10 @@ void uiWell2RandomLineDlg::setSelectedWells()
 }
 
 
-void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
+void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
 {
     setSelectedWells();
-    const bool onlytop = onlytopfld_->getBoolValue();
+    const bool onlytop = onlytopfld_ ? onlytopfld_->getBoolValue() : false;
     for ( int idx=0; idx<selwellsids_.size(); idx++ )
     {
 	const Well::Data* wd = Well::MGR().get( selwellsids_[idx] );
@@ -306,6 +273,140 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 	    }
 	}
     }
+}
+
+
+#define mInsertRow(rowidx,text,val)\
+	selwellsbox_->insertRows( rowidx, 1 );\
+	selwellsbox_->setText( RowCol(rowidx,0), text );\
+	uiComboBox* newbox = new uiComboBox(0,"Type"); \
+	newbox->addItems( sTypes ); \
+	newbox->setValue( val ); \
+	selwellsbox_->setCellObject( RowCol(rowidx,1), newbox );
+
+void uiWellSelGrp::moveButPush( CallBacker* cb )
+{
+    int index = selwellsbox_->currentRow();
+    mDynamicCastGet(uiToolButton*,but,cb)
+    if ( !selwellsbox_->isRowSelected( index ) ) return;
+    
+    if ( !strcmp( selwellsbox_->text( RowCol(index,0) ), "" ) ) return;
+
+    mDynamicCastGet(uiComboBox*,box,
+		    selwellsbox_->getCellObject(RowCol(index,1)))
+    const int value = box ? box->getIntValue(): 0;
+    BufferString text = selwellsbox_->text( RowCol(index,0) );
+
+    if ( but == moveupward_ && index>0 )
+    {
+	mInsertRow( index-1, text.buf(), value );
+	selwellsbox_->removeRow( index+1 );
+	selwellsbox_->selectRow( index-1 );
+	selwellsbox_->setCurrentCell( RowCol(index-1,0) );
+    }
+    else if ( but == movedownward_ && index<selwellsbox_->nrRows() 
+	      && strcmp( selwellsbox_->text( RowCol(index+1,0) ), "" ) )
+    {
+	mInsertRow( index+2, text.buf(), value );
+	selwellsbox_->removeRow( index );
+	selwellsbox_->selectRow( index+1 );
+	selwellsbox_->setCurrentCell( RowCol(index+1,0) );
+    }
+
+    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    {
+	mDynamicCastGet(uiComboBox*,box,
+			selwellsbox_->getCellObject(RowCol(idx,1)))
+	if ( box ) box->setName( BufferString("Type",idx) );
+    }
+}
+
+
+int uiWellSelGrp::getFirstEmptyRow()
+{
+    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    {
+	if ( strcmp( selwellsbox_->text( RowCol(idx,0) ), "" ) ) continue;
+	return idx;
+    }
+    
+    return -1;
+}
+
+
+void uiWellSelGrp::ptsSel( CallBacker* cb )
+{
+    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    {
+	mDynamicCastGet(uiComboBox*,box,
+			selwellsbox_->getCellObject(RowCol(idx,1)))
+	if ( box ) box->setSensitive( !onlytopfld_->getBoolValue() );
+    }
+}
+
+
+
+
+uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
+    : uiDialog(p,uiDialog::Setup("Create Random line",
+				 "Select wells to set up the random line path",
+				 "109.0.0").modal(false))
+    , wellserv_(ws)
+    , outctio_(*mMkCtxtIOObj(RandomLineSet))
+{
+    outctio_.ctxt.forread = false;
+    selgrp_ = new uiWellSelGrp( this );
+
+    createFields();
+    attachFields();
+}
+
+
+uiWell2RandomLineDlg::~uiWell2RandomLineDlg()
+{
+    delete outctio_.ioobj; delete &outctio_;
+}
+
+
+void uiWell2RandomLineDlg::createFields()
+{
+    BufferString txt( "Extend outward (" );
+    txt += SI().xyInFeet() ? "ft)" : "m)";
+    float defdist = 100 * SI().inlDistance();
+    extendfld_ = new uiGenInput( this, txt, FloatInpSpec(mNINT(defdist)) );
+    extendfld_->setWithCheck( true );
+    extendfld_->setChecked( true );
+
+    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    sep->attach( stretchedBelow, extendfld_ );
+
+    CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
+    previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
+    previewbutton_->attach( ensureBelow, sep );
+    outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
+    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+    dispfld_->setChecked( true );
+}
+
+
+void uiWell2RandomLineDlg::attachFields()
+{
+    extendfld_->attach( alignedBelow, selgrp_ );
+    previewbutton_->attach( alignedBelow, extendfld_ );
+    outfld_->attach( alignedBelow, previewbutton_ );
+    dispfld_->attach( alignedBelow, outfld_ );
+}
+
+
+bool uiWell2RandomLineDlg::dispOnCreation()
+{
+    return dispfld_->isChecked();
+}
+
+
+void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
+{
+    selgrp_->getCoordinates( coords );
 
     if ( extendfld_->isChecked() )
 	extendLine( coords );
@@ -356,75 +457,6 @@ void uiWell2RandomLineDlg::previewPush( CallBacker* cb )
 }
 
 
-#define mInsertRow(rowidx,text,val)\
-	selwellsbox_->insertRows( rowidx, 1 );\
-	selwellsbox_->setText( RowCol(rowidx,0), text );\
-	uiComboBox* newbox = new uiComboBox(0,"Type"); \
-	newbox->addItems( sTypes ); \
-	newbox->setValue( val ); \
-	selwellsbox_->setCellObject( RowCol(rowidx,1), newbox );
-
-void uiWell2RandomLineDlg::moveButPush( CallBacker* cb )
-{
-    int index = selwellsbox_->currentRow();
-    mDynamicCastGet(uiToolButton*,but,cb)
-    if ( !selwellsbox_->isRowSelected( index ) ) return;
-    
-    if ( !strcmp( selwellsbox_->text( RowCol(index,0) ), "" ) ) return;
-
-    mDynamicCastGet(uiComboBox*,box,
-		    selwellsbox_->getCellObject(RowCol(index,1)))
-    const int value = box ? box->getIntValue(): 0;
-    BufferString text = selwellsbox_->text( RowCol(index,0) );
-
-    if ( but == moveupward_ && index>0 )
-    {
-	mInsertRow( index-1, text.buf(), value );
-	selwellsbox_->removeRow( index+1 );
-	selwellsbox_->selectRow( index-1 );
-	selwellsbox_->setCurrentCell( RowCol(index-1,0) );
-    }
-    else if ( but == movedownward_ && index<selwellsbox_->nrRows() 
-	      && strcmp( selwellsbox_->text( RowCol(index+1,0) ), "" ) )
-    {
-	mInsertRow( index+2, text.buf(), value );
-	selwellsbox_->removeRow( index );
-	selwellsbox_->selectRow( index+1 );
-	selwellsbox_->setCurrentCell( RowCol(index+1,0) );
-    }
-
-    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
-    {
-	mDynamicCastGet(uiComboBox*,box,
-			selwellsbox_->getCellObject(RowCol(idx,1)))
-	if ( box ) box->setName( BufferString("Type",idx) );
-    }
-}
-
-
-int uiWell2RandomLineDlg::getFirstEmptyRow()
-{
-    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
-    {
-	if ( strcmp( selwellsbox_->text( RowCol(idx,0) ), "" ) ) continue;
-	return idx;
-    }
-    
-    return -1;
-}
-
-
-void uiWell2RandomLineDlg::ptsSel( CallBacker* cb )
-{
-    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
-    {
-	mDynamicCastGet(uiComboBox*,box,
-			selwellsbox_->getCellObject(RowCol(idx,1)))
-	if ( box ) box->setSensitive( !onlytopfld_->getBoolValue() );
-    }
-}
-
-
 bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 {
     if ( !outfld_->commitInput() || !outctio_.ioobj )
@@ -471,3 +503,4 @@ const char* uiWell2RandomLineDlg::getRandLineID() const
     BufferString* multid = new BufferString( outctio_.ioobj->key().buf() );
     return multid->buf();
 }
+
