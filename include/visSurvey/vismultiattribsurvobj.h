@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.29 2009-12-16 22:27:05 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.30 2010-01-05 16:47:18 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "vissurvobj.h"
 #include "visobject.h"
-#include "displaypropertylinks.h"
 
 namespace visBase
 {
@@ -35,8 +34,7 @@ namespace visSurvey
 
 
 mClass MultiTextureSurveyObject : public visBase::VisualObjectImpl,
-				 public SurveyObject,
-				 public DisplayPropertyHolder
+				  public SurveyObject
 {
 public:
     void			turnOn(bool yn);

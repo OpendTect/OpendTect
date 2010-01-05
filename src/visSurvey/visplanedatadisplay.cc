@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.228 2009-12-23 21:32:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.229 2010-01-05 16:47:18 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1112,22 +1112,6 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
     }
 
     return pdd;
-}
-
-
-const char* PlaneDataDisplay::getDisplayPropertyHolderName() const
-{
-    static BufferString dphnm;
-    dphnm = "";
-    if ( getScene() )
-	dphnm += BufferString( getScene()->name(), " - " );
-    if ( orientation_==Inline )
-    { dphnm += "inl:"; dphnm += getCubeSampling(true,true).hrg.start.inl; }
-    else if ( orientation_==Crossline )
-    { dphnm += "crl:"; dphnm += getCubeSampling(true,true).hrg.start.crl; }
-    else
-    { dphnm += "z:"; dphnm += getCubeSampling(true,true).zrg.start; }
-    return dphnm;
 }
 
 
