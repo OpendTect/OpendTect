@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.195 2009-12-09 13:37:36 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.196 2010-01-05 09:22:04 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -307,8 +307,12 @@ uiMainWinBody::~uiMainWinBody()
     deleteAllChildren(); //delete them now to make sure all ui objects
     			 //are deleted before their body counterparts
 
+    while ( toolbars_.size() )
+	delete toolbars_[0];
+
     if ( toolbarsmnu_ ) toolbarsmnu_->clear();
     delete toolbarsmnu_;
+
     if ( !deletefromod_ )
     {
 	deletefrombody_ = true;
@@ -638,14 +642,12 @@ static ObjectSet<uiMainWin>	orderedwinlist_;
 
 uiMainWin::~uiMainWin()
 {
-    while ( body_->toolbars_.size() )
-	delete body_->toolbars_[0];
-
     if ( !body_->deletefrombody_ )
     {
 	body_->deletefromod_ = true;
 	delete body_;
     }
+
     winlistmutex_.lock();
     orderedwinlist_ -= this;
     winlistmutex_.unLock();
