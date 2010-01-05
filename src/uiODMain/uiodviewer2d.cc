@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.18 2009-12-23 04:31:03 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.19 2010-01-05 09:16:30 cvsjaap Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -67,6 +67,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
 
 uiODViewer2D::~uiODViewer2D()
 {
+    if ( viewstdcontrol_ && viewstdcontrol_->propDialog() )
+	viewstdcontrol_->propDialog()->close();
+
     mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
@@ -240,7 +243,7 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
 	slicepos_->positionChg.remove( mCB(this,uiODViewer2D,posChg) );
 
     if ( viewstdcontrol_ && viewstdcontrol_->propDialog() )
-	viewstdcontrol_->propDialog()->windowClosed.trigger();
+	viewstdcontrol_->propDialog()->close();
 
     viewwin_ = 0;
 }
