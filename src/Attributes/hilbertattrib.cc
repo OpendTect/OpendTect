@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.25 2009-07-22 16:01:30 cvsbert Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.26 2010-01-06 06:46:33 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,11 +64,12 @@ bool Hilbert::getInputData( const BinID& relpos, int intv )
 }
 
 
-bool Hilbert::computeData( const DataHolder& output, const BinID& relpos, 
+bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
 			   int z0, int nrsamples, int threadid ) const
 {
-    HilbertTransform ht;
     if ( !inputdata_ ) return false;
+
+    ValueSeries<float>* padtrace = 0;
 
     const int hilbfilterlen = halflen_*2 + 1;
     const bool enoughsamps = nrsamples >= hilbfilterlen;
@@ -76,24 +77,44 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
                                 ? inputdata_->nrsamples_ : hilbfilterlen;
     const int nrsamptooutput = enoughsamps ? nrsamples : arrminnrsamp;
     const int shift = z0 - inputdata_->z0_;
+
+    Array1DImpl<float> createarr( arrminnrsamp );
+    int inpstartidx = 0;
     int startidx = enoughsamps ? shift : 0;
 
-    const bool topborderstartidx = arrminnrsamp==hilbfilterlen && 
-				   shift<halflen_;
-    if ( topborderstartidx )
-        startidx = shift - halflen_;
-    const int inpstartidx = topborderstartidx ? startidx : 0;
+    if ( !enoughsamps )
+    {
+	int sampleidx = 0;
+	for ( int idx=0; idx<arrminnrsamp; idx++ )
+	{
+	    if ( sampleidx < inputdata_->nrsamples_)
+		createarr.set( idx, inputdata_->series(0)->arr()[sampleidx] );
 
+	    if ( sampleidx >= inputdata_->nrsamples_ )
+    		createarr.arr()[idx] = 0;
+
+	    sampleidx++;
+	}
+
+	padtrace = createarr.getStorage();
+	if ( !padtrace )
+	    return false;
+
+	startidx = shift;
+    }
+
+    HilbertTransform ht;
     if ( !ht.init() )
 	return false;
 
     ht.setHalfLen( halflen_ );
     ht.setCalcRange( startidx, arrminnrsamp, inpstartidx );
     Array1DImpl<float> outarr( arrminnrsamp );
-    const bool transform = ht.transform( *inputdata_->series(dataidx_), 
-	    			         inputdata_->nrsamples_,
-	    			         outarr, nrsamptooutput );
-    if ( !transform )
+    const bool transformok = enoughsamps
+	      ? ht.transform(*inputdata_->series(dataidx_),
+		      	     inputdata_->nrsamples_,outarr,nrsamptooutput )
+	      : ht.transform(*padtrace,arrminnrsamp,outarr,nrsamptooutput );
+    if ( !transformok )
 	return false;
 
     for ( int idx=0; idx<nrsamples; idx++ )
