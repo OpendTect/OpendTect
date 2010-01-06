@@ -4,7 +4,8 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.7 2009-11-19 12:17:59 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.8 2010-01-06 12:57:29 cvsbert Exp $";
+static const char* rcsPrStr = "$Revision: 1.8 $ $Date: 2010-01-06 12:57:29 $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -21,8 +22,6 @@ static const char* rcsID = "$Id: odusgserver.cc,v 1.7 2009-11-19 12:17:59 cvsber
 const char* Usage::Server::sKeyPort()		{ return "Port"; }
 const char* Usage::Server::sKeyFileBase()	{ return "Usage"; }
 int Usage::Server::cDefaulPort()		{ return mUsgServDefaulPort; }
-#define mBaseFileName \
-    	GetSetupDataFileName(ODSetupLoc_ApplSetupPref,sKeyFileBase(),0)
 
 
 Usage::Server::Server( const IOPar* pars, std::ostream& strm )
@@ -39,17 +38,17 @@ Usage::Server::Server( const IOPar* pars, std::ostream& strm )
 
     if ( pars_.isEmpty() )
     {
-	logstrm_ << "Cannot start OpendTect Usage server (" << "$Revision: 1.7 $"
+	logstrm_ << "Cannot start OpendTect Usage server (" << rcsPrStr
 	    	 << "):\n";
 	if ( pars )
 	    logstrm_ << "No input parameters" << std::endl;
 	else
-	    logstrm_ << "Cannot read: " << mBaseFileName << std::endl;
+	    logstrm_ << "Cannot read: " << setupFileName(0) << std::endl;
 	return;
     }
     usePar();
 
-    logstrm_ << "OpendTect Usage server (" << rcsID << ")" << std::endl;
+    logstrm_ << "OpendTect Usage server (" << rcsPrStr << ")" << std::endl;
     logstrm_ << "\non " << GetLocalHostName();
     if ( port_ > 0 )
 	logstrm_ << " (port: " << port_ << ")";
@@ -67,9 +66,23 @@ Usage::Server::~Server()
 }
 
 
+const char* Usage::Server::setupFileName( const char* admnm )
+{
+    static BufferString ret;
+    ret = GetSetupDataFileName(ODSetupLoc_ApplSetupPref,sKeyFileBase(),0);
+    if ( admnm && *admnm )
+    {
+	BufferString clnadmnm( admnm );
+	cleanupString( clnadmnm.buf(), mC_False, mC_False, mC_False );
+	ret += "_"; ret += clnadmnm;
+    }
+    return ret.buf();
+}
+
+
 IOPar* Usage::Server::getPars()
 {
-    StreamData sd( StreamProvider(mBaseFileName).makeIStream() );
+    StreamData sd( StreamProvider(setupFileName(0)).makeIStream() );
     if ( !sd.usable() )
 	return 0;
 
