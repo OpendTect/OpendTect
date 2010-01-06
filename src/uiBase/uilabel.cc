@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilabel.cc,v 1.17 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uilabel.cc,v 1.18 2010-01-06 12:24:03 cvsnanne Exp $";
 
 
 #include "uilabel.h"
@@ -23,7 +23,10 @@ public:
                         uiLabelBody( uiLabel& handle, uiParent* parnt,
 				     const char* txt )
 			    : uiObjBodyImpl<uiLabel,QLabel>(handle,parnt,txt)
-			    {}
+			    {
+				setTextInteractionFlags(
+					Qt::TextSelectableByMouse );
+			    }
 
     virtual int 	nrTxtLines() const		
 			{ 
