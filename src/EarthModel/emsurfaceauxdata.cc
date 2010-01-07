@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.25 2009-11-12 05:17:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.26 2010-01-07 14:20:24 cvsbert Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -93,14 +93,15 @@ void SurfaceAuxData::setAuxDataShift( int dataidx, float shift )
 int SurfaceAuxData::auxDataIndex( const char* nm ) const
 {
     for ( int idx=0; idx<auxdatanames_.size(); idx++ )
-	if ( *auxdatanames_[idx] == nm ) return idx;
+	if ( auxdatanames_[idx] && auxdatanames_.get(idx) == nm )
+	    return idx;
     return -1;
 }
 
 
 int SurfaceAuxData::addAuxData( const char* name )
 {
-    auxdatanames_ += new BufferString( name );
+    auxdatanames_.add( name );
     auxdatashift_ += 0.0;
 
     for ( int idx=0; idx<auxdata_.size(); idx++ )
