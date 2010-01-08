@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.12 2010-01-08 04:43:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.13 2010-01-08 12:14:14 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -331,14 +331,70 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     BufferString msg( "Current Number of Points " );
     msg += plotter_.totalNrItems();
     uiLabel* lbl = new uiLabel( this, msg );
+    
+    const int cellsize = plotter_.cellSize();
+    cellsize_ = cellsize;
     minptinpfld_ =
 	new uiGenInput( this, "Threshold minimum points for Density Plot",
 		        IntInpSpec(minptsfordensity_) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
     
-    cellsizefld_ = new uiGenInput( this, "Cell Size",
-	    			   IntInpSpec(plotter_.cellSize()) );
+    cellsizefld_ = new uiGenInput( this, "Cell Size", IntInpSpec(cellsize) );
     cellsizefld_->attach( leftAlignedBelow, minptinpfld_ );
+    cellsizefld_->valuechanged.notify(
+	    mCB(this,uiDPSDensPlotSetTab,cellSzChanged) );
+    
+    wcellszfld_ = new uiGenInput( this, "Nr of Cells across Width",
+	   IntInpSpec(plotter_.arrArea().width()/cellsize) );
+    wcellszfld_->attach( leftAlignedBelow, cellsizefld_ );
+    wcellszfld_->valuechanged.notify(
+	    mCB(this,uiDPSDensPlotSetTab,wCellNrChanged) );
+    hcellszfld_ = new uiGenInput( this, "Nr of Cells across Height",
+	  IntInpSpec(plotter_.arrArea().height()/cellsize) );
+    hcellszfld_->attach( leftAlignedBelow, wcellszfld_ );
+    hcellszfld_->valuechanged.notify(
+	    mCB(this,uiDPSDensPlotSetTab,hCellNrChanged) );
+}
+
+void cellSzChanged( CallBacker* )
+{
+    int cellsz = cellsizefld_->getIntValue();
+    if ( mIsUdf(cellsz) || cellsz <=0 )
+    {
+	cellsizefld_->setValue( cellsize_ );
+	cellsz = cellsizefld_->getIntValue();
+    }
+
+    wcellszfld_->setValue( mNINT( plotter_.arrArea().width()/cellsz) );
+    hcellszfld_->setValue( mNINT( plotter_.arrArea().height()/cellsz) );
+}
+
+void wCellNrChanged( CallBacker* )
+{
+    const int cellsz = cellsizefld_->getIntValue();
+    const float aspectratio = (float)(plotter_.arrArea().width()/cellsz)/
+			      (float)(plotter_.arrArea().height()/cellsz);
+    hcellszfld_->setValue( wcellszfld_->getIntValue()/aspectratio );
+    cellsizefld_->setValue(
+	    mNINT(plotter_.arrArea().width()/wcellszfld_->getIntValue()) );
+    
+    if ( mIsUdf(cellsz) || cellsz <=0 )
+	cellsizefld_->setValue( cellsize_ );
+    cellSzChanged( 0 );
+}
+
+void hCellNrChanged( CallBacker* )
+{
+    const int cellsz = cellsizefld_->getIntValue();
+    const float aspectratio = (float)(plotter_.arrArea().width()/cellsz)/
+			      (float)(plotter_.arrArea().height()/cellsz);
+    wcellszfld_->setValue( hcellszfld_->getIntValue()*aspectratio );
+    cellsizefld_->setValue(
+	    mNINT(plotter_.arrArea().height()/hcellszfld_->getIntValue()) );
+    
+    if ( mIsUdf(cellsz) || cellsz <=0 )
+	cellsizefld_->setValue( cellsize_ );
+    cellSzChanged( 0 );
 }
 
 bool acceptOK()
@@ -351,10 +407,7 @@ bool acceptOK()
     }
 
     if ( plotter_.cellSize() != cellsizefld_->getIntValue() )
-    {
 	plotter_.setCellSize( cellsizefld_->getIntValue() );
-	plotter_.drawDensityPlot();
-    }
     Settings& setts = Settings::common();
     setts.set( sKeyMinDPPts(), minptsfordensity_ );
     return setts.write();
@@ -363,7 +416,11 @@ bool acceptOK()
     uiDataPointSetCrossPlotter& plotter_;
     uiGenInput*			minptinpfld_;
     uiGenInput*			cellsizefld_;
+    uiGenInput*			wcellszfld_;
+    uiGenInput*			hcellszfld_;
     int				minptsfordensity_;
+    int				cellsize_;
+
     static const char*		sKeyMinDPPts()
     				{ return "Minimum pts for Density Plot"; }
 };
