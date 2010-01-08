@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.34 2009-12-16 16:18:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.35 2010-01-08 10:17:05 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -86,6 +86,13 @@ void uiObjectItem::setObjectSize( int szx, int szy )
 {
     if ( obj_ ) obj_->qwidget()->setFixedSize( szx, szy );
 }
+
+
+QSize uiObjectItem::objectSize() const
+{
+    return ( obj_ ? obj_->qwidget()->size() : QSize(0,0) );
+}
+
 
 
 
