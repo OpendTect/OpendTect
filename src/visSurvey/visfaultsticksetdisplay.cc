@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.15 2009-12-14 05:17:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.16 2010-01-08 14:27:02 cvsnanne Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -723,7 +723,8 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 void FaultStickSetDisplay::showManipulator( bool yn )
 {
     showmanipulator_ = yn;
-    viseditor_->turnOn( yn );
+    if ( viseditor_ )
+	viseditor_->turnOn( yn );
     if ( scene_ )
 	scene_->blockMouseSelection( yn );
 }
