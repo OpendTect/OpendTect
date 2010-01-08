@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.28 2009-12-22 14:48:10 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.29 2010-01-08 04:43:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,6 +199,8 @@ public:
     				{ return rectangleselection_; }
     void			setRectSelection( bool yn )
 				{ rectangleselection_ = yn; }
+    const ObjectSet<SelectionArea>& selectionAreas() const
+    				{ return selareaset_; }
     void			setSelectionAreas(
 				    const ObjectSet<SelectionArea>&);
     void			setTRMsg( const char* msg )
@@ -208,6 +210,8 @@ public:
     void			setMultiColMode(bool yn)
     				{ multclron_ = yn; }
     bool                        isMultiColMode() const	{ return multclron_; }
+    void			setCellSize( int sz ) 	{ cellsize_ = sz; }
+    int				cellSize() const	{ return cellsize_; }
 
 protected:
 
@@ -244,6 +248,7 @@ protected:
     int				selyitems_;
     int				sely2items_;
     int				curselarea_;
+    int				cellsize_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
     Interval<int>		usedxpixrg_;

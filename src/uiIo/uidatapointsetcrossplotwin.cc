@@ -259,6 +259,7 @@ void uiDataPointSetCrossPlotWin::colTabChanged( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::removeSelections( CallBacker* )
 {
+    if ( !plotter_.selectionAreas().size() ) return;
     plotter_.removeSelections();
     plotter_.drawContent();
 }
@@ -268,6 +269,7 @@ void uiDataPointSetCrossPlotWin::showTableSel( CallBacker* )
 {
     if ( plotter_.isADensityPlot() )
     {
+	if ( !plotter_.selectionAreas().size() ) return;
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	Array2D<float>* data =
 	    new Array2DImpl<float>( plotter_.arrArea().width() + 1,
@@ -566,6 +568,7 @@ void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
 {
     if ( plotter_.isADensityPlot() )
     {
+	if ( !plotter_.selectionAreas().size() ) return;
 	Array2D<float>* data =
 	    new Array2DImpl<float>( plotter_.arrArea().width() + 1,
 				    plotter_.arrArea().height() +1 );

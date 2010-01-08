@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: densitycalc.h,v 1.3 2009-08-27 07:15:03 cvssatyaki Exp $
+ RCS:           $Id: densitycalc.h,v 1.4 2010-01-08 04:43:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "task.h"
 #include "thread.h"
+#include <iostream>
 
 class DensityCalc : public ParallelTask
 {
@@ -45,7 +46,17 @@ DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
     , curgrp_( 0 )
     , nrdone_( 0 )
     , indexsz_( 0 )
-{}
+    , cellsize_( 1 )
+{
+    const int celldatawdth = data_->info().getSize(0)%cellsize_
+			? data_->info().getSize(0)/cellsize_ + 1
+			: data_->info().getSize(0)/cellsize_;
+    const int celldataheight = data_->info().getSize(1)%cellsize_
+			? data_->info().getSize(1)/cellsize_ + 1
+			: data_->info().getSize(1)/cellsize_;
+    freqdata_ = new Array2DImpl<float>( celldatawdth, celldataheight );
+    freqdata_->setAll( (float)0 );
+}
 
 od_int64 nrDone() const { return nrdone_; }
 od_int64 nrIterations() const { return dps_.size(); }
@@ -130,8 +141,16 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    dps_.setSelected( rid, false );
 	if ( !data_->info().validPos(datapt.x,datapt.y) )
 	    continue;
-	data_->set( datapt.x, datapt.y,
-		   ptremoved ? 0 : data_->get(datapt.x,datapt.y) + (float)1 );
+	const int freqx = datapt.x/cellsize_;
+	const int freqy = datapt.y/cellsize_;
+	freqdata_->set( freqx, freqy,
+		ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
+	for ( int idx=0; idx<cellsize_; idx++ )
+	{
+	    for ( int idy=0; idy<cellsize_; idy++ )
+		data_->set( freqx*cellsize_+idx, freqy*cellsize_+idy,
+			    ptremoved ? 0 : freqdata_->get(freqx,freqy) );
+	}
 	if ( indexsz_ < mNINT(data_->get(datapt.x,datapt.y)) )
 	    indexsz_ = mNINT(data_->get(datapt.x,datapt.y));
     }
@@ -151,6 +170,8 @@ void setRemSelected( bool removesel )	{ removesel_ = removesel; }
 
 void setCurGroup( int curgrp )		{ curgrp_ = curgrp; }
 
+void setCellSize( int sz )		{ cellsize_ = sz; }
+
 int indexSize() const			{ return indexsz_; }
 
 const TypeSet<RowCol>& selRCs() const	{ return selrowcols_; }
@@ -166,6 +187,7 @@ protected:
     TypeSet<RowCol>			selrowcols_;
     TypeSet<uiDataPointSet::DColID>	modcolidxs_;
     Array2D<float>*			data_;
+    Array2D<float>*			freqdata_;
     uiDataPointSetCrossPlotter::AxisData& x_;
     uiDataPointSetCrossPlotter::AxisData& y_;
     Interval<int>			xpixrg_;
@@ -177,5 +199,6 @@ protected:
     int					curgrp_;
     int					indexsz_;
     int					nrdone_;
+    int					cellsize_;
 };
 

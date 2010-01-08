@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.11 2009-08-28 13:38:55 cvshelene Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.12 2010-01-08 04:43:17 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -331,14 +331,30 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     BufferString msg( "Current Number of Points " );
     msg += plotter_.totalNrItems();
     uiLabel* lbl = new uiLabel( this, msg );
-    minptinpfld_ = new uiGenInput( this, "Set minimum points for Density Plot",
-	    			   IntInpSpec(minptsfordensity_) );
+    minptinpfld_ =
+	new uiGenInput( this, "Threshold minimum points for Density Plot",
+		        IntInpSpec(minptsfordensity_) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
+    
+    cellsizefld_ = new uiGenInput( this, "Cell Size",
+	    			   IntInpSpec(plotter_.cellSize()) );
+    cellsizefld_->attach( leftAlignedBelow, minptinpfld_ );
 }
 
 bool acceptOK()
 {
     minptsfordensity_ = minptinpfld_->getIntValue();
+    if ( cellsizefld_->getIntValue() <= 0 )
+    {
+	uiMSG().error( "Cannot have a cellsize less than 1" );
+	return false;
+    }
+
+    if ( plotter_.cellSize() != cellsizefld_->getIntValue() )
+    {
+	plotter_.setCellSize( cellsizefld_->getIntValue() );
+	plotter_.drawDensityPlot();
+    }
     Settings& setts = Settings::common();
     setts.set( sKeyMinDPPts(), minptsfordensity_ );
     return setts.write();
@@ -346,6 +362,7 @@ bool acceptOK()
 
     uiDataPointSetCrossPlotter& plotter_;
     uiGenInput*			minptinpfld_;
+    uiGenInput*			cellsizefld_;
     int				minptsfordensity_;
     static const char*		sKeyMinDPPts()
     				{ return "Minimum pts for Density Plot"; }

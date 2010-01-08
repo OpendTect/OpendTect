@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.54 2009-10-27 06:13:42 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.55 2010-01-08 04:43:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.54 2009-10-27 06:13:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.55 2010-01-08 04:43:16 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -86,6 +86,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , eachcount_(0)
     , yrowidxs_(0)
     , y2rowidxs_(0)
+    , cellsize_(1)
     , selectable_(false)
     , isy1selectable_(true)
     , isy2selectable_(false)
@@ -250,6 +251,7 @@ void uiDataPointSetCrossPlotter::removeSelectionItems()
 void uiDataPointSetCrossPlotter::deleteSelections()
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
+    if ( !selareaset_.size() ) return;
     uidps_.setUnsavedChg( true );
     if ( isdensityplot_ )
     {
@@ -287,6 +289,7 @@ void uiDataPointSetCrossPlotter::setSelectionAreas(
 
 void uiDataPointSetCrossPlotter::removeSelections()
 {
+    if ( !selareaset_.size() ) return;
     removeSelectionItems();
     selrowcols_.erase();
     deepErase( selareaset_ );
@@ -1015,10 +1018,11 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data,
     densitycalc.setDPSChangeable( changedps );
     densitycalc.setRemSelected( removesel );
     densitycalc.setCurGroup( curgrp_ );
+    densitycalc.setCellSize( cellsize_ );
     uiTaskRunner tr( parent() );
     tr.execute( densitycalc );
 
-
+    usedxpixrg_ = densitycalc.usedXPixRg();
     selrowcols_ = densitycalc.selRCs();
     selyitems_ = selrowcols_.size();
     const od_int64 totalsz =
