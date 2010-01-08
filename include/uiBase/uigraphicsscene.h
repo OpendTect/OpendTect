@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.26 2010-01-08 14:05:56 cvsbruno Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.27 2010-01-08 16:26:08 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ inline T* uiGraphicsScene::addItem( T* itm )
 }
 
 
-class uiGraphicsObjectScene : public uiGraphicsScene
+mClass uiGraphicsObjectScene : public uiGraphicsScene
 {
 public:
 				uiGraphicsObjectScene(const char*);
