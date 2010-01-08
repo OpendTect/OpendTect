@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.17 2009-10-07 12:28:59 cvsumesh Exp $
+ RCS:		$Id: posinfo.h,v 1.18 2010-01-08 09:41:44 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,6 +182,13 @@ public:
     bool		read(std::istream&,bool asc);
     bool		write(std::ostream&,bool asc) const;
     StepInterval<int>	getTraceNrRange() const;
+    bool		getNearestTrace(const Coord3&,int& idx,
+	    				float& sqdist) const;
+    			/*!\For complete trace range */
+    bool		getNearestTrace(const Coord3&,const StepInterval<int>&,
+	    				int& idx,float& sqdist) const;
+    			/*!\For given trace range */
+    Coord		getNormal(int trcnr) const;
     void		setLineName(const BufferString& lnm)
 			{ lnm_ = lnm; }
     const BufferString&	getLineName() const		{ return lnm_; }

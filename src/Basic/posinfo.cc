@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.22 2010-01-06 12:57:19 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.23 2010-01-08 09:42:18 cvsumesh Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -893,4 +893,70 @@ StepInterval<int> PosInfo::Line2DData::getTraceNrRange() const
     }
 
     return res;
+}
+
+
+bool PosInfo::Line2DData::getNearestTrace( const Coord3& pos,
+					   int& trcidx, float& mindist ) const
+{
+    StepInterval<int> trcrg = getTraceNrRange();
+    return getNearestTrace( pos, trcrg, trcidx, mindist );
+}
+
+
+bool PosInfo::Line2DData::getNearestTrace( const Coord3& pos,
+					   const StepInterval<int>& trcrg,
+					   int& trcidx, float& mindist ) const
+{
+    trcidx = -1;
+    mSetUdf(mindist);
+
+    for ( int idx=posns_.size()-1; idx>=0; idx-- )
+    {
+	if ( !trcrg.includes( posns_[idx].nr_ ) ) continue;
+
+	const float dist = pos.Coord::sqDistTo( posns_[idx].coord_ );
+	if ( dist<mindist )
+	{
+	    mindist = dist;
+	    trcidx = idx;
+	}
+    }
+
+    return trcidx!=-1;
+}
+
+
+Coord PosInfo::Line2DData::getNormal( int trcnr ) const
+{
+    int posid = -1;
+    int sz = posns_.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( posns_[idx].nr_ == trcnr )
+	{
+	    posid = idx;
+	    break;
+	}
+    }
+
+    if ( posid == -1 || sz == -1 )
+	return Coord(mUdf(float), mUdf(float));
+
+    Coord pos = posns_[posid].coord_;
+    Coord v1;
+    if ( posid+1<sz )
+	v1 = posns_[posid+1].coord_- pos;
+    else if ( posid-1>=0 )
+	v1 = pos - posns_[posid-1].coord_;
+
+    if ( v1.x == 0 )
+	return Coord( 1, 0 );
+    else if ( v1.y == 0 )
+	return Coord( 0, 1 );
+    else
+    {
+	float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
+	return Coord( -v1.y/length, v1.x/length );
+    }
 }
