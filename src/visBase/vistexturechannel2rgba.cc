@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.36 2009-12-23 05:48:07 cvsraman Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.37 2010-01-08 15:51:50 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -296,6 +296,12 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
 	return;
     
     *coltabs_[channel] = seq;
+    
+    // make the undefined color transparent
+    Color undefcol = coltabs_[channel]->undefColor();
+    undefcol.setTransparency( 255 );
+    coltabs_[channel]->setUndefColor( undefcol );
+    
     update();
 }
 
