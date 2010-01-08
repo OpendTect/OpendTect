@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.11 2010-01-04 14:15:43 cvsbruno Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.12 2010-01-08 10:20:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,14 +36,13 @@ public:
     			uiWellSelGrp(uiParent*,bool withpos=true);
 
     void 		getCoordinates(TypeSet<Coord>&);
+    const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }
+    void		setSelectedWells();
 
 protected:
 
     void		fillListBox();
-    void		setSelectedWells();
     
-    const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }
-
     void		createSelectButtons(uiGroup*);
     void                createMoveButtons(uiGroup*);
     void		createFields();
