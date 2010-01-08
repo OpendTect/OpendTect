@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.57 2009-12-22 15:37:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.58 2010-01-08 14:35:43 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -65,6 +65,7 @@ uiTieView::~uiTieView()
     if ( seistrcdp_ )
 	removePack();
     delete trcbuf_;
+    deepErase( logsdisp_ );
 }
 
 
