@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.84 2009-12-16 22:35:23 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.85 2010-01-08 09:43:14 cvsumesh Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -861,22 +861,7 @@ const MultiID& Seis2DDisplay::lineSetID() const
 bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 				     int& trcidx, float& mindist ) const
 {
-    trcidx = -1;
-    mSetUdf(mindist);
-
-    for ( int idx=geometry_.posns_.size()-1; idx>=0; idx-- )
-    {
-	if ( !trcnrrg_.includes( geometry_.posns_[idx].nr_ ) ) continue;
-
-	const float dist = pos.Coord::sqDistTo( geometry_.posns_[idx].coord_ );
-	if ( dist<mindist )
-	{
-	    mindist = dist;
-	    trcidx = idx;
-	}
-    }
-
-    return trcidx!=-1;
+    return geometry_.getNearestTrace( pos, trcnrrg_, trcidx, mindist );
 }
 
 
@@ -909,36 +894,7 @@ Coord Seis2DDisplay::getCoord( int trcnr ) const
 
 Coord Seis2DDisplay::getNormal( int trcnr ) const
 {
-    int posid = -1;
-    int sz = geometry_.posns_.size();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	if ( geometry_.posns_[idx].nr_ == trcnr )
-	{
-	    posid = idx; 
-	    break;
-	}
-    }
-
-    if ( posid == -1 || sz == -1 )
-	return Coord(mUdf(float), mUdf(float));
-
-    Coord pos = geometry_.posns_[posid].coord_;
-    Coord v1;
-    if ( posid+1<sz )    
-	v1 = geometry_.posns_[posid+1].coord_- pos; 
-    else if ( posid-1>=0 )
-	v1 = pos - geometry_.posns_[posid-1].coord_;
-
-    if ( v1.x == 0 )
-	return Coord( 1, 0 );
-    else if ( v1.y == 0 )
-	return Coord( 0, 1 );
-    else
-    {
-	float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
-	return Coord( -v1.y/length, v1.x/length );
-    }
+    return geometry_.getNormal( trcnr );
 }
 
 
