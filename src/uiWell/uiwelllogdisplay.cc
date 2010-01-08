@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.17 2009-12-16 16:23:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.18 2010-01-08 14:33:13 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisppropdlg.h"
@@ -522,10 +522,6 @@ void uiWellLogDisplay::mouseRelease( CallBacker* )
 
 
 
-
-
-#define mPanelWidth 300
-#define mPanelHeight 700
 uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, const Well::Data& w )
     	: uiGraphicsView(p,"Well Log Viewer")
 	, leftlogdisp_(0)

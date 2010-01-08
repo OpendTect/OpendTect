@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.12 2009-12-16 16:23:27 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.13 2010-01-08 14:33:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,9 @@ namespace Well
     class Track; 
     class DahObj;
 }
+
+#define mPanelWidth 200
+#define mPanelHeight 600
 
 /*!\brief creates a display of max 2 well logs. */
 
