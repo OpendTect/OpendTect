@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.35 2009-09-16 06:42:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.36 2010-01-08 14:05:56 cvsbruno Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -16,7 +16,9 @@ static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.35 2009-09-16 06:42:23 c
 #include "uigraphicsitemimpl.h"
 
 #include <QByteArray>
+#include <QGraphicsLinearLayout>
 #include <QGraphicsItemGroup>
+#include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsSceneMouseEvent>
@@ -372,3 +374,56 @@ void uiGraphicsScene::saveAsPDF( const char* filename, int resolution )
 
 void uiGraphicsScene::saveAsPS( const char* filename, int resolution )
 { saveAsPDF_PS( filename, false, resolution ); }
+
+
+
+uiGraphicsObjectScene::uiGraphicsObjectScene( const char* nm )
+    : uiGraphicsScene(nm)
+    , layout_(new QGraphicsLinearLayout)  
+    , layoutitem_(new QGraphicsWidget)
+{
+    qGraphicsScene()->addItem( layoutitem_ );
+    layoutitem_->setLayout( layout_ );
+}
+
+
+void uiGraphicsObjectScene::resizeLayoutToContent()
+{
+    float width = 0; float height = 0; 
+    for ( int idx=0; idx<layout_->count(); idx++ )
+    {
+	mDynamicCastGet(uiObjectItem*,item,items_[idx]);
+	if ( !item ) continue;
+	width += item->objectSize().width();
+	height += item->objectSize().height();
+    }
+    layoutitem_->resize( width, height );
+}
+
+
+void uiGraphicsObjectScene::addObjectItem( uiObjectItem* item  )
+{
+    layout_->addItem( item->qWidgetItem() );
+    items_ += item;
+    resizeLayoutToContent();
+}
+
+
+void uiGraphicsObjectScene::removeObjectItem( uiObjectItem* item )
+{
+    layout_->removeItem( item->qWidgetItem() );
+    items_ -= item;
+    resizeLayoutToContent();
+}
+
+
+void uiGraphicsObjectScene::setItemStretch( uiObjectItem* item, int stretch )
+{
+    layout_->setStretchFactor( item->qWidgetItem(), stretch );
+}
+
+
+int uiGraphicsObjectScene::stretchFactor( uiObjectItem* item ) const
+{
+    return layout_->stretchFactor( item->qWidgetItem() );
+}
