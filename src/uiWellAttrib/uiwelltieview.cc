@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.58 2010-01-08 14:35:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.59 2010-01-11 16:17:40 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -100,9 +100,9 @@ void uiTieView::initLogViewers()
 {
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
-	logsdisp_[idx]->setPrefWidth( vwr_->prefHNrPics()/2 );
-	logsdisp_[idx]->setPrefHeight( vwr_->prefVNrPics() );
-	logsdisp_[idx]->disableScrollZoom();
+	logsdisp_[idx]->viewer()->setPrefWidth( vwr_->prefHNrPics()/2 );
+	logsdisp_[idx]->viewer()->setPrefHeight( vwr_->prefVNrPics() );
+	logsdisp_[idx]->viewer()->disableScrollZoom();
     }
     logsdisp_[0]->attach( leftOf, logsdisp_[1] );
     logsdisp_[1]->attach( leftOf, vwr_ );

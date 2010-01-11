@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.13 2010-01-08 14:33:13 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.14 2010-01-11 16:17:40 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigraphicsview.h"
 #include "uimainwin.h"
+#include "uigroup.h"
 #include "uiaxishandler.h"
 #include "draw.h"
 #include "welldata.h"
@@ -41,7 +42,7 @@ namespace Well
 
 /*!\brief creates a display of max 2 well logs. */
 
-mClass uiWellLogDisplay : public uiGraphicsView
+mClass uiWellLogDisplay : public uiGroup
 {
 public:
 
@@ -144,9 +145,13 @@ public:
     				{ zintime_ = yn; dataChanged(); }
     bool			zInTime() const	  { return zintime_; }
     
+    uiGraphicsScene&		scene() { return viewer_->scene(); }
+    uiGraphicsView*		viewer() { return viewer_; }
 
 protected:
 
+    uiGraphicsView*		viewer_;
+	
     ObjectSet<LogData>		lds_;
     Interval<float>		zrg_;
     bool			zintime_;

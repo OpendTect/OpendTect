@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.18 2010-01-08 14:33:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.19 2010-01-11 16:17:40 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisppropdlg.h"
@@ -71,7 +71,8 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, int idx,
 
 
 uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
-    : uiGraphicsView(p,"Well Log display viewer")
+    : uiGroup(p,"Well Log display viewer")
+    , viewer_(new uiGraphicsView(this,"Well Log display viewer"))
     , setup_(su)
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeetByDefault())
@@ -83,12 +84,12 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     setPrefWidth( 250 );
     setPrefHeight( 700 );
 
-    getMouseEventHandler().buttonReleased.notify(
+    viewer_->getMouseEventHandler().buttonReleased.notify(
 			    mCB(this,uiWellLogDisplay,mouseRelease) );
 
-    reSize.notify( mCB(this,uiWellLogDisplay,reSized) );
-    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+    viewer_->reSize.notify( mCB(this,uiWellLogDisplay,reSized) );
+    viewer_->setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    viewer_->setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
     finaliseDone.notify( mCB(this,uiWellLogDisplay,init) );
 }
@@ -97,6 +98,7 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
 uiWellLogDisplay::~uiWellLogDisplay()
 {
     deepErase( lds_ );
+    delete viewer_;
 }
 
 
@@ -116,6 +118,7 @@ void uiWellLogDisplay::reSized( CallBacker* )
 void uiWellLogDisplay::init( CallBacker* )
 {
     dataChanged();
+    viewer_->show();
 }
 
 
@@ -176,8 +179,8 @@ void uiWellLogDisplay::setAxisRelations()
 	lds_[idx]->xax_.setEnd(  setup_.noxpixafter_ ? 0 : &lds_[idx]->yax_ );
 	lds_[idx]->yax_.setEnd( setup_.noypixafter_ ? 0 : &lds_[idx]->xax_ );
 	
-	lds_[idx]->xax_.setNewDevSize( width(), height() );
-	lds_[idx]->yax_.setNewDevSize( height(), width() );
+	lds_[idx]->xax_.setNewDevSize( viewer_->width(), viewer_->height() );
+	lds_[idx]->yax_.setNewDevSize( viewer_->height(), viewer_->width() );
     }
 }
 
