@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.26 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: attribdatapack.h,v 1.27 2010-01-11 10:16:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,8 @@ public:
     const Data2DHolder&	dataholder() const	{ return dh_; }
     void		getPosDataTable(TypeSet<int>& trcnrs,
 	    				TypeSet<float>& dist);
+    void		getCoordDataTable(const TypeSet<int>& trcnrs,
+	    				  TypeSet<Coord>& coords);
     Array2D<float>&	data();
 
     Coord3		getCoord(int,int) const;

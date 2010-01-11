@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.32 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.33 2010-01-11 10:17:25 cvsumesh Exp $";
 
 #include "attribdatapack.h"
 
@@ -332,6 +332,20 @@ void Flat2DDHDataPack::getPosDataTable( TypeSet<int>& trcnrs,
 	trcnrs[idx] = dh_.trcinfoset_[idx]->nr;
 	if ( posdata_.width(true) > idx )
 	    dist[idx] = posdata_.position( true, idx );
+    }
+}
+
+
+void Flat2DDHDataPack::getCoordDataTable( const TypeSet<int>& trcnrs,
+					  TypeSet<Coord>& coords )
+{
+    if ( trcnrs.size() > 0 )
+	coords.setSize( dh_.trcinfoset_.size(), Coord::udf() );
+
+    for ( int idx=0; idx<trcnrs.size(); idx++ )
+    {
+	if ( trcnrs[idx] == dh_.trcinfoset_[idx]->nr )
+	    dh_.trcinfoset_[idx]->coord;
     }
 }
 
