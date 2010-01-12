@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.36 2009-09-03 09:52:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.37 2010-01-12 11:05:55 cvssatyaki Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -581,7 +581,7 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 		continue;
 
 	    const float fdim1 = (dim1pos - dim1pos_.start) * dim1fac;
-	    const int idim1 = (int)floor( fdim1 + 1e-6 );
+	    int idim1 = (int)floor( fdim1 + 1e-6 );
 	    const float dim1offs = fdim1 - idim1;
 
 	    if ( !pars_.nointerpol_ && idim1 != previdim1 )
@@ -592,6 +592,12 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 		val = interp->apply( dim0offs, dim1offs );
 	    else
 	    {
+		if ( idim0 < 0 ) idim0 = 0;
+		if ( idim1 < 0 ) idim1 = 0;
+		if ( idim0 >= inpdata.info().getSize(0) )
+		    idim0 = inpdata.info().getSize(0)-1;
+		if ( idim1 >= inpdata.info().getSize(1) )
+		    idim1 = inpdata.info().getSize(1)-1;
 		float v[4]; val = v[0] = mV00Val;
 		if ( dim0offs > 0.5 || dim1offs > 0.5 )
 		{
