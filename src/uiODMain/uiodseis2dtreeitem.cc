@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.75 2009-12-03 22:30:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.76 2010-01-12 04:12:00 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -856,9 +856,8 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     const char* objnm = visserv_->getObjectName( displayID() );
 
     BufferStringSet attribnames;
-    seisserv->get2DStoredAttribsPartingDataType( s2d->lineSetID(),
-	    			objnm, attribnames, sKey::Steering );
-
+    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames,
+	    			  sKey::Steering );
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
     const Attrib::Desc* desc = ads->getDesc( as.id() );
     const bool isstored = desc && desc->isStored();
@@ -886,8 +885,8 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 
     BufferStringSet steerdatanames;
-    seisserv->get2DStoredAttribsPartingDataType( s2d->lineSetID(),
-	    			objnm, steerdatanames, sKey::Steering, true );
+    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, steerdatanames,
+	    			  sKey::Steering, true );
     docheckparent = false;
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
@@ -954,6 +953,12 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject( displayID() ))
     if ( !s2d ) return false;
+
+    BufferStringSet attribnms;
+    SeisIOObjInfo objinfo( s2d->lineSetID() );
+    objinfo.getAttribNamesForLine( s2d->name(), attribnms );
+    if ( attribnms.indexOf(attribnm) < 0 )
+	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     LineKey lk( s2d->lineSetID(), attribnm );
