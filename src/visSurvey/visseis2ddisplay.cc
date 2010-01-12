@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.85 2010-01-08 09:43:14 cvsumesh Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.86 2010-01-12 14:38:22 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -220,7 +220,8 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 {
     geometry_ = geometry;
     const TypeSet<PosInfo::Line2DPos>& linepositions = geometry.posns_;
-    maxtrcnrrg_.set( INT_MAX, INT_MIN, 1 );
+    const int tracestep = geometry.getTraceNrRange().step;
+    maxtrcnrrg_.set( INT_MAX, INT_MIN, tracestep );
 
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
 	maxtrcnrrg_.include( linepositions[idx].nr_, false );
@@ -297,6 +298,7 @@ void Seis2DDisplay::setTraceNrRange( const StepInterval<int>& trcrg )
 
     trcnrrg_.start = rg.start;
     trcnrrg_.stop = rg.stop;
+    trcnrrg_.step = trcrg.step;
     updateVizPath();
 }
 
