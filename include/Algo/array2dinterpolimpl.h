@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.10 2009-11-10 20:10:10 cvsyuancheng Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.11 2010-01-12 12:18:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,7 @@ template <class T> class Array2DImpl;
 class RowCol;
 class DAGTriangleTree;
 class Triangle2DInterpolator;
+class A2DIntExtenExecutor;
 
 
 /*!Class that interpolates 2D arrays with inverse distance.
@@ -134,7 +135,12 @@ public:
     bool	setArray(Array2D<float>&,TaskRunner*);
     bool	canUseArrayAccess() const	{ return true; }
     bool	setArray(ArrayAccess&,TaskRunner*);
-    bool	nothingToFill() const		{ return nrIterations()<1; }  
+    bool	nothingToFill() const		{ return nrIterations()<1; } 
+
+    bool	doInterpolation() const		{ return dointerpolation_; }
+    void	doInterpolation(bool yn)	{ dointerpolation_ = yn; }
+    float	getMaxDistance() const		{ return maxdistance_; }
+    void	setMaxDistance(float r)		{ maxdistance_ = r; }
 
 protected:
     int		minThreadSize() const		{ return 10000; }
@@ -142,12 +148,14 @@ protected:
     od_int64	nrIterations() const		{ return totalnr_; }
     const char*	nrDoneText() const		{ return "Nodes gridded"; }
 
-    bool	doPrepare(int);
-
+    bool        doPrepare(int);
     bool	initFromArray(TaskRunner*);
     void	getNextNodes(TypeSet<od_int64>&);
+    int		findNearNeighbor(int,int);
 
     				//triangulation stuff
+    bool			dointerpolation_;
+    float			maxdistance_;
     DAGTriangleTree*		triangulation_;
     Triangle2DInterpolator*	triangleinterpolator_;
     TypeSet<int>		coordlistindices_;
@@ -163,5 +171,32 @@ protected:
 };
 
 
+//Extension
+mClass Array2DInterpolExtension : public Array2DInterpol
+{
+public:
+    			Array2DInterpolExtension();
+    			~Array2DInterpolExtension();
+
+    static const char*	sType()		{ return "Extension"; }
+    const char*		type() const	{ return sType(); }
+    static void		initClass();
+    static Array2DInterpol* create();
+    
+    bool		canUseArrayAccess() const	{ return true; }
+    
+    void		setNrSteps(int n)		{ nrsteps_ = n; }
+    int			getNrSteps() const		{ return nrsteps_; }
+
+protected:
+
+    bool		doWork(od_int64,od_int64,int);
+    od_int64		nrIterations() const		{ return 1; }
+    
+    od_int64		nrsteps_;   
+    
+    A2DIntExtenExecutor* executor_; 
+    friend class A2DIntExtenExecutor;    
+};
 
 #endif

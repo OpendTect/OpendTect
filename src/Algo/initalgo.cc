@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.17 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.18 2010-01-12 12:18:30 cvsyuancheng Exp $";
 
 #include "initalgo.h"
 
@@ -39,4 +39,5 @@ void Algo::initStdClasses()
 
     InverseDistanceArray2DInterpol::initClass();
     TriangulationArray2DInterpol::initClass();
+    Array2DInterpolExtension::initClass();
 }

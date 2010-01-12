@@ -4,11 +4,12 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.22 2009-11-16 23:16:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.23 2010-01-12 12:18:30 cvsyuancheng Exp $";
 
 #include "array2dinterpolimpl.h"
 
 #include "arrayndimpl.h"
+#include "executor.h"
 #include "delaunay.h"
 #include "polygon.h"
 #include "limits.h"
@@ -24,6 +25,39 @@ DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
 
 mImplFactory( Array2DInterpol, Array2DInterpol::factory );
 
+class A2DIntExtenExecutor : public Executor
+{
+public:
+    				A2DIntExtenExecutor(Array2DInterpolExtension&);
+				~A2DIntExtenExecutor()  { deleteStateArr(); }
+			
+    int		nextStep();
+    const char*	message() const		{ return curmsg_; }
+    od_int64	nrDone() const		{ return curlvl_ + 1; }
+    const char* nrDoneText() const	{ return "Interpolation level"; }
+    od_int64	totalNr() const		{ return aie_.getNrSteps(); }
+
+protected:
+
+    void	createStateArr();
+    void	deleteStateArr();
+    void	adjustInitialStates();
+    void	excludeBigHoles();
+    bool	markBigHoles();
+    void	floodFill4KeepUdf(int,int);
+    void	handleAdjCol(int,int,int);
+    bool	doInterpolate(int,int);
+    bool	interpExtension(int,int,float&);
+    
+    short**	state_;
+    int		curlvl_;
+    float	diagdist_;
+    const char*	curmsg_;
+    
+    Array2DInterpolExtension&	aie_;
+};
+
+									    
 Array2DInterpol::Array2DInterpol()
     : arr_( 0 )
     , arrsetter_( 0 )
@@ -31,7 +65,6 @@ Array2DInterpol::Array2DInterpol()
     , nrrows_( -1 )
     , nrcols_( -1 )
     , filltype_( Full )
-    , maxholesize_( mUdf(float) )
     , rowstep_( 1 )
     , colstep_( 1 )
     , mask_( 0 )
@@ -578,26 +611,13 @@ InverseDistanceArray2DInterpol::~InverseDistanceArray2DInterpol()
 }
 
 
-/*If there is no node to fill, we do the full survey filling. */
-#define mRetInitFromArray() \
-    bool res = initFromArray( tr ); \
-    if ( nothingToFill() && filltype_!=Full ) \
-    { \
- 	FillType tmp = filltype_; \
-	filltype_ = Full; \
-	res = initFromArray( tr ); \
-	filltype_ = tmp; \
-    } \
-    return res;
-
-
 bool InverseDistanceArray2DInterpol::setArray( Array2D<float>& arr,
 					       TaskRunner* tr )
 {
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    mRetInitFromArray()
+    return initFromArray( tr ); 
 }
 
 
@@ -607,7 +627,7 @@ bool InverseDistanceArray2DInterpol::setArray( ArrayAccess& arr,
     if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    mRetInitFromArray()
+    return initFromArray( tr ); 
 }
 
 
@@ -1119,6 +1139,8 @@ TriangulationArray2DInterpol::TriangulationArray2DInterpol()
     , curdefined_( 0 )
     , nodestofill_( 0 )
     , totalnr_( -1 )
+    , dointerpolation_( true )
+    , maxdistance_( mUdf(float) )
 {}
 
 
@@ -1326,12 +1348,17 @@ void TriangulationArray2DInterpol::getNextNodes( TypeSet<od_int64>& res )
 
 bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 {
-    if ( !triangleinterpolator_ )
+    if ( dointerpolation_ && !triangleinterpolator_ )
 	return false;
 
-    TypeSet<int> neighbors;
     int dupid = -1;
     TypeSet<od_int64> currenttask;
+    TypeSet<od_int64> definedidices;
+    if ( !dointerpolation_ )
+    {
+	for ( int idx=0; idx<nrcells_; idx++ )
+	const TypeSet<Coord>& crds = triangulation_->coordList();
+    }
 
     while ( shouldContinue() )
     {
@@ -1348,18 +1375,459 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 
 	    TypeSet<int> vertices;
 	    TypeSet<float> weights;
-	    if ( !triangleinterpolator_->computeWeights(crd,vertices,weights) )
+	    TypeSet<int> usedindices;
+
+	    if ( !dointerpolation_ ) //TODO: work again when has spare time
+	    {
+		int nbidx = findNearNeighbor( row, col );
+		if ( nbidx==-1 )
+		    return false;
+
+		coordlistindices_ += curnode;
+		
+		usedindices += nbidx;
+		weights += 1;
+	    }
+	    else if ( !triangleinterpolator_->computeWeights( crd, vertices,
+			weights, maxdistance_ ) )
 		return false;
 	    
-	    TypeSet<int> usedindices;
-	    const int vertsz = vertices.size();
-	    for ( int vidx=0; vidx<vertsz; vidx++ )
-		usedindices += coordlistindices_[vertices[vidx]];
-
+    	    const int vertsz = dointerpolation_ ? vertices.size() : 1;
+	    if ( dointerpolation_ )
+	    {
+		for ( int vidx=0; vidx<vertsz; vidx++ )
+		    usedindices += coordlistindices_[vertices[vidx]];
+	    }
+	    
 	    setFrom( curnode, usedindices.arr(), weights.arr(), vertsz );
 	}
     }
 
     return true;
 }
+
+
+int TriangulationArray2DInterpol::findNearNeighbor( int row, int col )
+{ 
+    int rstep = 1; 
+    while ( true )
+    {
+	int curidx;
+	for ( int cshift = -rstep; cshift<=rstep; cshift +=rstep )
+	{
+	    const int nbc = col + cshift;
+	    if ( nbc<0 || nbc>nrcols_ )
+		continue;
+
+	    for ( int rshift = -rstep; rshift<=rstep; rshift +=rstep )
+	    {
+		const int nbr = row + rshift;
+		if ( nbr<0 || nbr>nrrows_ || (!nbc && !nbr) )
+		    continue;
+
+		curidx = nbr * nrcols_ + nbc;
+		if ( coordlistindices_.indexOf(curidx)!=-1 )
+		    return curidx;
+	    }
+
+	    rstep++;
+	}
+    }   
+
+   return -1; 
+}
+
+
+// Extension
+#define cA2DStateMarkedForKeepUdf       -3
+#define cA2DStateKeepUdf                -2
+#define cA2DStateNeedInterp             -1
+#define cA2DStateDefined                0
+//!< States higher than 0 mean the node was interpolated
+//!< The higher the state, the further the node is away from 'defined space'
+
+
+void Array2DInterpolExtension::initClass()
+{ Array2DInterpol::factory().addCreator( create, sType() ); }
+
+
+Array2DInterpol* Array2DInterpolExtension::create()
+{
+    return new Array2DInterpolExtension;
+}
+
+
+Array2DInterpolExtension::Array2DInterpolExtension()
+    : executor_( 0 )
+    , nrsteps_( 0 )
+{}
+
+
+Array2DInterpolExtension::~Array2DInterpolExtension()
+{
+    delete executor_;
+}
+
+
+bool Array2DInterpolExtension::doWork( od_int64, od_int64, int thread )
+{
+    if ( !executor_ )
+	executor_ = new A2DIntExtenExecutor( *this );
+
+    return executor_->execute();
+}
+
+
+A2DIntExtenExecutor::A2DIntExtenExecutor( Array2DInterpolExtension& aie )
+    : Executor("2D Interpolation")
+    , aie_(aie)
+    , state_(0)
+    , curlvl_(-1)
+    , diagdist_(mUdf(float))
+    , curmsg_("Setting up interpolation")
+{
+    createStateArr();
+}
+
+
+void A2DIntExtenExecutor::createStateArr()
+{
+    state_ = new short* [aie_.nrrows_];
+    for ( int idx=0; idx<aie_.nrrows_; idx++ )
+    {
+	state_[idx] = new short [aie_.nrcols_];
+	if ( !state_[idx] )
+	    deleteStateArr();
+    }
+    
+    for ( int irow=0; irow<aie_.nrrows_; irow++ )
+    {
+	bool havedef = false;
+	for ( int icol=0; icol<aie_.nrcols_; icol++ )
+	{
+	    const float val = aie_.arr_->get( irow, icol );
+	    const bool isudf = mIsUdf(val);
+	    state_[irow][icol] = isudf ? cA2DStateNeedInterp : cA2DStateDefined;        }
+    }   
+}
+
+
+void A2DIntExtenExecutor::deleteStateArr()
+{
+    if ( !state_ ) return;
+    
+    for ( int idx=0; idx<aie_.nrrows_; idx++ )
+	delete [] state_[idx];
+
+    delete [] state_;
+    state_ = 0;
+}
+
+
+bool A2DIntExtenExecutor::doInterpolate( int irow, int icol )
+{
+    float val;
+    if ( interpExtension(irow,icol,val) )
+    {
+	state_[irow][icol] = curlvl_ + 1;
+	aie_.arr_->set( irow, icol, val );
+	return true;
+    }
+
+    return false;	
+}
+
+
+#define mA2DIsValidInterpPoint(ir,ic) \
+    (state_[ir][ic] >= cA2DStateDefined && state_[ir][ic] <= curlvl_)
+
+#define mA2DInterpAdd(ir,ic,d) \
+{ \
+    if ( mA2DIsValidInterpPoint(ir,ic) ) \
+    { \
+	defs[nrdefs] = aie_.arr_->get(ir,ic); \
+	wts[nrdefs] = d; \
+	nrdefs++; \
+    } \
+}
+
+
+bool A2DIntExtenExecutor::interpExtension( int irow, int icol, float& val )
+{
+    static const float sqrt2 = Math::Sqrt( 2.0 );
+    float defs[12]; float wts[12]; int nrdefs = 0;
+    if ( irow )
+    {
+	if ( irow-1 && mA2DIsValidInterpPoint(irow-1,icol) )
+	    mA2DInterpAdd( irow-2, icol, 2*aie_.rowstep_ );
+	mA2DInterpAdd( irow-1, icol, aie_.rowstep_ );
+	if ( icol )
+	    mA2DInterpAdd( irow-1, icol-1, diagdist_ );
+	if ( icol < aie_.nrcols_-1 )
+	    mA2DInterpAdd( irow-1, icol+1, diagdist_ );
+    }
+
+    if ( icol )
+    {
+	if ( icol-1 && mA2DIsValidInterpPoint(irow,icol-1) )
+	    mA2DInterpAdd( irow, icol-2, 2 * aie_.colstep_ );
+	mA2DInterpAdd( irow, icol-1, aie_.colstep_ );
+	if ( irow < aie_.nrrows_-1 )
+	    mA2DInterpAdd( irow+1, icol-1, diagdist_ );
+    }
+
+    if ( irow < aie_.nrrows_-1 )
+    {
+	mA2DInterpAdd( irow+1, icol, aie_.rowstep_ );
+	if ( icol < aie_.nrcols_-1 )
+	    mA2DInterpAdd( irow+1, icol+1, diagdist_ );
+	if ( irow < aie_.nrrows_-2 && mA2DIsValidInterpPoint(irow+1,icol) )
+	    mA2DInterpAdd( irow+2, icol, 2 * aie_.rowstep_ );
+    }
+
+    if ( icol < aie_.nrcols_-1 )
+    {
+	mA2DInterpAdd( irow, icol+1, aie_.colstep_ );
+	if ( icol < aie_.nrcols_-2 && mA2DIsValidInterpPoint(irow,icol+1) )
+	    mA2DInterpAdd( irow, icol+2, 2 * aie_.colstep_ );
+    }
+    
+    if ( nrdefs < 2 )
+	return false;
+
+    float sumval = 0, sumwt = 0;
+    for ( int idx=0; idx<nrdefs; idx++ )
+    {
+	float wt = 1. / wts[idx];
+	sumval += defs[idx] * wt;
+	sumwt += wt;
+    }
+    
+    val = sumval / sumwt;
+    return true;
+}
+
+
+void A2DIntExtenExecutor::adjustInitialStates()
+{
+    if ( aie_.filltype_ != Array2DInterpol::Full )
+    {
+	for ( int icol=0; icol<aie_.nrcols_; icol++ )
+	{
+	    if ( state_[0][icol] == cA2DStateNeedInterp )
+		floodFill4KeepUdf( 0, icol );
+	    if ( state_[aie_.nrrows_-1][icol] == cA2DStateNeedInterp )
+		floodFill4KeepUdf( aie_.nrrows_-1, icol );
+	}
+	
+	for ( int irow=1; irow<aie_.nrrows_-1; irow++ )
+	{
+	    if ( state_[irow][0] == cA2DStateNeedInterp )
+		floodFill4KeepUdf( irow, 0 );
+	    if ( state_[irow][aie_.nrcols_-1] == cA2DStateNeedInterp )
+		floodFill4KeepUdf( irow, aie_.nrcols_-1 );
+	}
+    }
+
+    if ( aie_.filltype_ == Array2DInterpol::ConvexHull )
+    {
+	ODPolygon<float> poly;
+	TypeSet<int> inside( aie_.nrcols_, -1 );
+	for ( int icol=0; icol<aie_.nrcols_; icol++ )
+	{
+	    for ( int irow=0; irow<aie_.nrrows_; irow++ )
+	    {
+		if ( state_[irow][icol] == cA2DStateDefined )
+		{
+		    poly.add( Geom::Point2D<float>(irow,icol) );
+		    inside[icol] = irow;
+		    
+		    for ( int jrow=aie_.nrrows_-1; jrow>irow; jrow-- )
+		    {
+			if ( state_[jrow][icol] == cA2DStateDefined )
+			{
+			    poly.add( Geom::Point2D<float>(jrow,icol) );
+			    break;
+			}
+		    }
+		    break;
+		}
+	    }
+	}
+
+	poly.convexHull();
+	
+	for ( int icol=0; icol<aie_.nrcols_; icol++ )
+	{
+	    if ( inside[icol] < 0 )
+		continue;
+	    
+	    for ( int dir=-1; dir<=1; dir+=2 )
+	    {
+		for ( int irow=inside[icol]; irow>=0 && irow<aie_.nrrows_; 
+			irow+=dir)                
+		{
+		    if ( state_[irow][icol] == cA2DStateKeepUdf )
+		    {
+			if ( !poly.isInside( Geom::Point2D<float>(irow,icol),
+				    true, 0 ) )
+			    break;			
+			
+			state_[irow][icol] = cA2DStateNeedInterp;
+		    }
+		}
+ 	    }
+	}
+    }    
+}
+
+
+bool A2DIntExtenExecutor::markBigHoles()
+{
+    bool havebighole = false;
+    for ( int irow=0; irow<aie_.nrrows_; irow++ )
+    {
+	int nrtobeinterp = 0;
+	for ( int icol=0; icol<aie_.nrcols_; icol++ )
+	{
+	    if ( state_[irow][icol] == cA2DStateNeedInterp )
+		nrtobeinterp++;
+	    else
+	    {
+		if ( nrtobeinterp > aie_.maxholesize_ )
+		{
+		    havebighole = true;
+		    state_[irow][icol-1] = cA2DStateMarkedForKeepUdf;
+		}
+
+		nrtobeinterp = 0;
+ 	    }
+	}
+    }
+
+    for ( int icol=0; icol<aie_.nrcols_; icol++ )
+    {
+	int nrtobeinterp = 0;
+	for ( int irow=0; irow<aie_.nrrows_; irow++ )
+	{
+	    if ( state_[irow][icol] == cA2DStateNeedInterp )
+		nrtobeinterp++;
+	    else
+	    {
+		if ( nrtobeinterp > aie_.maxholesize_ )
+		{
+		    havebighole = true;
+		    state_[irow-1][icol] = cA2DStateMarkedForKeepUdf;
+		}
+
+		nrtobeinterp = 0;
+	    }
+	}
+    }
+    
+    return havebighole;    
+}
+
+
+#define mA2DInterpNeedsReplace(r,c) \
+    (state_[r][c] == cA2DStateNeedInterp \
+     || state_[r][c] == cA2DStateMarkedForKeepUdf)
+
+
+void A2DIntExtenExecutor::floodFill4KeepUdf( int seedrow, int seedcol )
+{
+    for ( int irow = seedrow; 
+	    irow < aie_.nrrows_ && mA2DInterpNeedsReplace(irow,seedcol); 
+	    irow++ )
+	state_[irow][seedcol] = cA2DStateKeepUdf;
+
+    for ( int irow = seedrow - 1;
+	    irow > -1 && mA2DInterpNeedsReplace(irow,seedcol); irow-- )
+	state_[irow][seedcol] = cA2DStateKeepUdf;
+    
+    if ( seedcol > 0 )
+	handleAdjCol( seedrow, seedcol, -1 );
+
+    if ( seedcol < aie_.nrcols_-1 )
+	handleAdjCol( seedrow, seedcol, 1 );    
+}
+
+
+void A2DIntExtenExecutor::handleAdjCol( int seedrow, int seedcol, int step)
+{
+    for ( int irow = seedrow;
+	    irow < aie_.nrrows_ && state_[irow][seedcol] == cA2DStateKeepUdf;
+	    irow++ )
+    {
+	if ( mA2DInterpNeedsReplace( irow, seedcol+step ) )
+	    floodFill4KeepUdf( irow, seedcol+step );
+    }
+    
+    for ( int irow = seedrow - 1;
+	    irow > -1 && state_[irow][seedcol] == cA2DStateKeepUdf;
+	    irow-- )
+    {
+	if ( mA2DInterpNeedsReplace( irow, seedcol+step ) )
+	    floodFill4KeepUdf( irow, seedcol+step );
+    }    
+}
+
+
+int A2DIntExtenExecutor::nextStep()
+{
+    if ( !state_ )
+    {
+	curmsg_ = "Memory full";
+	return Executor::ErrorOccurred();
+    }
+    
+    if ( mIsUdf(diagdist_) )
+    {
+	diagdist_ = Math::Sqrt( aie_.colstep_*aie_.colstep_ + 
+				aie_.rowstep_ * aie_.rowstep_ );
+	
+	adjustInitialStates();
+	if ( aie_.maxholesize_ > 0 )
+	{
+	    if ( markBigHoles() ) //handle big hole
+	    {
+		for ( int irow=0; irow<aie_.nrrows_; irow++ )
+		{
+		    for ( int icol=0; icol<aie_.nrcols_; icol++ )
+		    {
+			if ( state_[irow][icol] == cA2DStateMarkedForKeepUdf )                               floodFill4KeepUdf( irow, icol );
+		    }
+		}
+	    }
+	}
+	
+	curmsg_ = "Interpolating";
+	return Executor::MoreToDo();
+    }
+
+    curlvl_++;
+    if ( aie_.getNrSteps() > 0 && aie_.getNrSteps() <= curlvl_ )
+	return Executor::Finished();
+    
+    bool haveinterpolated = false;
+    for ( int irow=0; irow<aie_.nrrows_; irow++ )
+    {
+	for ( int icol=0; icol<aie_.nrcols_; icol++ )
+	{
+	    if ( state_[irow][icol] == cA2DStateNeedInterp
+		    && doInterpolate(irow,icol) )
+		haveinterpolated = true;
+	}
+    }
+    
+    if ( !haveinterpolated )
+    {
+	curmsg_ = "Finished";
+	return Executor::Finished();
+    }
+    
+    return Executor::MoreToDo();    
+}
+
+
 
