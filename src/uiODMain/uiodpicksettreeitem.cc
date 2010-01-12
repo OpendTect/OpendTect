@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.64 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.65 2010-01-12 09:25:01 cvsranojay Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -421,6 +421,13 @@ void uiODPickSetTreeItem::showAllPicks( bool yn )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
     psd->showAll( yn );
+}
+
+
+void uiODPickSetTreeItem::prepareForShutdown()
+{
+    askContinueAndSaveIfNeeded();
+    uiTreeItem::prepareForShutdown();
 }
 
 

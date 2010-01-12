@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.31 2009-12-11 15:35:52 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.32 2010-01-12 09:25:00 cvsranojay Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -196,7 +196,9 @@ void uiODFaultTreeItem::prepareForShutdown()
 	faultdisplay_->unRef();
     }
 
-    faultdisplay_ = 0;
+    faultdisplay_ = 0;  
+    askContinueAndSaveIfNeeded();
+    uiTreeItem::prepareForShutdown();
 }
 
 
@@ -463,6 +465,8 @@ void uiODFaultStickSetTreeItem::prepareForShutdown()
     }
 
     faultsticksetdisplay_ = 0;
+    askContinueAndSaveIfNeeded();
+    uiTreeItem::prepareForShutdown();
 }
 
 

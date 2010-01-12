@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodpicksettreeitem.h,v 1.16 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodpicksettreeitem.h,v 1.17 2010-01-12 09:25:00 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,8 @@ public:
 
 protected:
 
-    bool		init();
+    bool		init(); 
+    void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded();
     void		setChg(CallBacker*);
     void		createMenuCB(CallBacker*);
