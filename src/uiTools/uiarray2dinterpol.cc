@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.8 2009-10-08 11:19:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.9 2010-01-12 12:20:49 cvsyuancheng Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -331,6 +331,114 @@ void uiInverseDistanceArray2DInterpol::setDistanceUnit( const char* d )
     }
 
     radiusfld_->setTitleText( res.buf() );
+}
+
+void uiTriangulationArray2DInterpol::initClass()
+{
+    uiArray2DInterpolSel::factory().addCreator( create,
+	    TriangulationArray2DInterpol::sType() );
+}
+
+
+uiArray2DInterpol* uiTriangulationArray2DInterpol::create( uiParent* p )
+{ return new uiTriangulationArray2DInterpol( p ); }
+
+
+uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
+    : uiArray2DInterpol( p, "Inverse distance" )
+{
+    interpolatefld_ = new uiCheckBox( this, "Interpolate" );
+    interpolatefld_->setChecked( true );
+    interpolatefld_->activated.notify(
+	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
+    
+    maxdistfld_ = new  uiGenInput( this, "Maximum distance", FloatInpSpec() );
+    maxdistfld_->attach( rightOf, interpolatefld_ );
+
+    maxdistfld_->display( false );//Delete this two lines later, come back
+    interpolatefld_->display( false );
+    
+    setHAlignObj( interpolatefld_ );
+    setDistanceUnit( 0 );
+}
+
+
+void uiTriangulationArray2DInterpol::intCB( CallBacker* )
+{
+    maxdistfld_->display( interpolatefld_->isChecked() );
+}
+
+
+void uiTriangulationArray2DInterpol::setDistanceUnit( const char* d )
+{
+    BufferString res = "Maximum distance";
+    if ( d )
+    {
+	res += " ";
+	res += d;
+    }
+
+    maxdistfld_->setTitleText( res.buf() );
+}
+
+
+bool uiTriangulationArray2DInterpol::acceptOK()
+{
+    const float maxdist = maxdistfld_->getfValue();
+    if ( !mIsUdf(maxdist) && maxdist<0 )
+    {
+	uiMSG().error( "Maximum distance must be > 0. " );
+	return false;
+    }
+
+    if ( result_ )
+	{ delete result_; result_ = 0; }
+    
+    TriangulationArray2DInterpol* res = new TriangulationArray2DInterpol;
+    res->doInterpolation( interpolatefld_->isChecked() );
+    res->setMaxDistance( maxdist );
+    
+    result_ = res;
+    return true;
+}
+
+
+void uiArray2DInterpolExtension::initClass()
+{
+    uiArray2DInterpolSel::factory().addCreator( create,
+	    Array2DInterpolExtension::sType() );
+}
+
+
+uiArray2DInterpol* uiArray2DInterpolExtension::create( uiParent* p )
+{ return new uiArray2DInterpolExtension( p ); }
+
+
+uiArray2DInterpolExtension::uiArray2DInterpolExtension(uiParent* p)
+    : uiArray2DInterpol( p, "Extension" )
+{
+    nrstepsfld_ = new  uiGenInput( this, "Number of steps", IntInpSpec() );
+    nrstepsfld_->setValue( 20 );
+    setHAlignObj( nrstepsfld_ );
+}
+
+
+bool uiArray2DInterpolExtension::acceptOK()
+{
+    if ( nrstepsfld_->getIntValue()<1 )
+    {
+	uiMSG().error( "Nr steps must be > 0." );	
+	return false;
+    }
+
+    if ( result_ )
+	{ delete result_; result_ = 0; }
+    
+    Array2DInterpolExtension* res = new Array2DInterpolExtension;
+    res->setNrSteps( nrstepsfld_->getIntValue() );
+
+    result_ = res;    
+    return true;
 }
 
 

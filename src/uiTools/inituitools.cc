@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituitools.cc,v 1.4 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: inituitools.cc,v 1.5 2010-01-12 12:20:49 cvsyuancheng Exp $";
 
 #include "inituitools.h"
 #include "uigridder2d.h"
@@ -17,4 +17,6 @@ void uiTools::initStdClasses()
 {
     uiInverseDistanceGridder2D::initClass();
     uiInverseDistanceArray2DInterpol::initClass();
+    uiTriangulationArray2DInterpol::initClass();
+    uiArray2DInterpolExtension::initClass();
 }
