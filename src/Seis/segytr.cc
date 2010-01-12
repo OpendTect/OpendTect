@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.89 2009-12-09 14:18:38 cvskris Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.90 2010-01-12 16:15:35 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -255,7 +255,8 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 
 int SEGYSeisTrcTranslator::nrSamplesRead() const
 {
-    int ret = trchead_.nrSamples();
+    static const bool nothns = GetEnvVarYN( "SEGY.Never use Trchead NS" );
+    const int ret = nothns ? binhead_ns_ : trchead_.nrSamples();
     return ret ? ret : binhead_ns_;
 }
 
