@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpsdemo.cc,v 1.13 2009-12-08 10:49:40 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpsdemo.cc,v 1.14 2010-01-12 13:17:24 cvsbert Exp $";
 
 #include "uidpsdemo.h"
 
@@ -37,6 +37,7 @@ static const char* rcsID = "$Id: uidpsdemo.cc,v 1.13 2009-12-08 10:49:40 cvssaty
 uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 	: uiDialog(p,Setup("DataPointSet demo","Data extraction parameters",
 		    	   mNoHelpID))
+	, dps_(0)
 	, dpsdispmgr_(dpsdispmgr)
 {
     horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D) );
@@ -53,7 +54,8 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 
 uiDPSDemo::~uiDPSDemo()
 {
-    DPM(DataPackMgr::PointID()).release( dps_->id() );
+    if ( dps_ )
+	DPM(DataPackMgr::PointID()).release( dps_->id() );
 }
 
 
