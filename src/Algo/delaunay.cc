@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.41 2009-09-03 15:24:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.42 2010-01-12 12:13:30 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -1416,7 +1416,7 @@ Triangle2DInterpolator::Triangle2DInterpolator( const DAGTriangleTree& tri )
 
 
 bool Triangle2DInterpolator::computeWeights( const Coord& pt, 
-	TypeSet<int>& vertices, TypeSet<float>& weights )
+	TypeSet<int>& vertices, TypeSet<float>& weights, float maxdist )
 {
     int dupid = -1;
     TypeSet<int> tmpvertices;

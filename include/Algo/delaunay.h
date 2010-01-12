@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.28 2009-09-03 15:24:04 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.29 2010-01-12 12:13:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,7 +189,8 @@ public:
 			/*The vertices are indices from the DAGTriangleTree 
 			  coordlist, corresponding to the weights.*/
     bool		computeWeights(const Coord&,TypeSet<int>& vertices,
-	    			       TypeSet<float>& weights);
+	    			       TypeSet<float>& weights,
+				       float maxdist=mUdf(float));
 
 protected:
 
@@ -209,6 +210,7 @@ protected:
     TypeSet<int>		perimeter_;
     TypeSet<double>		perimeterazimuth_;
     double			initazimuth_[3];
+    double			maxdist_;
 };
     			
 
