@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.68 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.69 2010-01-12 04:09:21 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -248,9 +248,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	TypeSet<DataPointSet::DataRow> pts;
-	BufferStringSet nms;
-	DataPointSet vals( pts, nms, false, true );
+	DataPointSet vals( false, true );
 	vals.bivSet().setNrVals( 3 );
 	visserv->getRandomPosCache( visid, attribnr, vals );
 	if ( vals.size() )
@@ -314,10 +312,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 	}
 	
-	TypeSet<DataPointSet::DataRow> pts;
-	BufferStringSet nms;
-	DataPointSet vals( pts, nms, false, true );
-
+	DataPointSet vals( false, true );
 	bool res = false;
 	if ( mnuid==fillholesmnuitem_.id )
 	    res = applMgr()->EMServer()->interpolateAuxData(emid_,name_,vals);
