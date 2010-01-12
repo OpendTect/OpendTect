@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.36 2010-01-08 14:05:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.37 2010-01-12 13:48:16 cvsbruno Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -382,8 +382,8 @@ uiGraphicsObjectScene::uiGraphicsObjectScene( const char* nm )
     , layout_(new QGraphicsLinearLayout)  
     , layoutitem_(new QGraphicsWidget)
 {
-    qGraphicsScene()->addItem( layoutitem_ );
     layoutitem_->setLayout( layout_ );
+    qGraphicsScene()->addItem( layoutitem_ );
 }
 
 
@@ -394,8 +394,9 @@ void uiGraphicsObjectScene::resizeLayoutToContent()
     {
 	mDynamicCastGet(uiObjectItem*,item,items_[idx]);
 	if ( !item ) continue;
+
 	width += item->objectSize().width();
-	height += item->objectSize().height();
+	height = item->objectSize().height();
     }
     layoutitem_->resize( width, height );
 }
@@ -420,6 +421,7 @@ void uiGraphicsObjectScene::removeObjectItem( uiObjectItem* item )
 void uiGraphicsObjectScene::setItemStretch( uiObjectItem* item, int stretch )
 {
     layout_->setStretchFactor( item->qWidgetItem(), stretch );
+    resizeLayoutToContent();
 }
 
 
