@@ -5,20 +5,16 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          01/02/2001
- RCS:           $Id: uidial.h,v 1.1 2010-01-13 08:12:40 cvsnanne Exp $
+ Author:        Nanne Hemstra
+ Date:          January 2010
+ RCS:           $Id: uidial.h,v 1.2 2010-01-13 11:01:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigroup.h"
 #include "uiobj.h"
 
-class LinScaler;
 class uiDialBody;
-class uiLabel;
-class uiLineEdit;
 template <class T> class StepInterval;
 
 mClass uiDial : public uiObject
