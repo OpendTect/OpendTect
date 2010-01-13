@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.12 2009-09-28 13:27:32 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.13 2010-01-13 09:01:32 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -92,7 +92,9 @@ bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
     bool issel = cs_.hrg.includes(bid);
     if ( !issel ) return false;
 
-    return mIsUdf(z) ? true : z < cs_.zrg.stop+mZrgEps;
+    if ( mIsUdf(z) ) return true;
+
+    return z < cs_.zrg.stop+mZrgEps && z > cs_.zrg.start - mZrgEps;
 }
 
 
