@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.13 2010-01-13 09:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.14 2010-01-13 09:15:21 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -91,7 +91,6 @@ bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
 {
     bool issel = cs_.hrg.includes(bid);
     if ( !issel ) return false;
-
     if ( mIsUdf(z) ) return true;
 
     return z < cs_.zrg.stop+mZrgEps && z > cs_.zrg.start - mZrgEps;
@@ -261,8 +260,9 @@ bool Pos::RangeProvider2D::includes( int nr, float z ) const
 {
     bool issel = rg_.includes( nr );
     if ( !issel ) return false;
+    if ( mIsUdf(z) ) return true;
 
-    return mIsUdf(z) ? true : z < zrg_.stop+mZrgEps;
+    return z < zrg_.stop+mZrgEps && z > zrg_.start - mZrgEps;
 }
 
 
@@ -277,9 +277,10 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 	    { found = true; break; }
     }
     if ( !found ) return false;
+    if ( mIsUdf(z) ) return true;
 
-    return mIsUdf(z) ? true : z < zrg_.stop+mZrgEps
-			   && z < ld_->zrg_.stop+mZrgEps;
+    return z > zrg_.start - mZrgEps	&& z < zrg_.stop+mZrgEps
+	&& z > ld_->zrg_.start-mZrgEps	&& z < ld_->zrg_.stop+mZrgEps;
 }
 
 
