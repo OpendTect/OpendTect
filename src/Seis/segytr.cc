@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.90 2010-01-12 16:15:35 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.91 2010-01-13 08:50:48 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -161,8 +161,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     txthead_->getText( pinfo.usrinfo );
     pinfo.nr = binhead_.lino;
     pinfo.zrg.step = binhead_.hdt * mZStepFac;
-    insd.step = binhead_dpos_ = pinfo.zrg.step;
-    innrsamples = binhead_ns_ = binhead_.hns;
+    insd.step = pinfo.zrg.step;
+    innrsamples = binhead_.hns;
 
     estnrtrcs_ = (endstrmpos - (std::streampos)3600)
 		/ (240 + dataBytes() * innrsamples);
@@ -219,7 +219,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001;
 
     insd.start = info.sampling.start;
-    insd.step = binhead_dpos_;
+    insd.step = pinfo.zrg.step;
     if ( mIsZero(insd.step,1e-8) )
     {
 	insd.step = info.sampling.step;
@@ -234,7 +234,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     innrsamples = filepars_.ns_;
     if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
     {
-	innrsamples = binhead_ns_;
+	innrsamples = binhead_.hns;
 	if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
 	{
 	    innrsamples = trchead_.nrSamples();
@@ -250,14 +250,6 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     if ( !mIsEqual(scfac,1,mDefEps)
       || (dc.isInteger() && dc.nrBytes() == BinDataDesc::N4) )
 	dc = DataCharacteristics();
-}
-
-
-int SEGYSeisTrcTranslator::nrSamplesRead() const
-{
-    static const bool nothns = GetEnvVarYN( "SEGY.Never use Trchead NS" );
-    const int ret = nothns ? binhead_ns_ : trchead_.nrSamples();
-    return ret ? ret : binhead_ns_;
 }
 
 
@@ -582,7 +574,7 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 }
 
 
-bool SEGYSeisTrcTranslator::doInterpretBuf( SeisTrcInfo& ti )
+bool SEGYSeisTrcTranslator::tryInterpretBuf( SeisTrcInfo& ti )
 {
     errmsg = 0;
     interpretBuf( ti );
@@ -590,28 +582,31 @@ bool SEGYSeisTrcTranslator::doInterpretBuf( SeisTrcInfo& ti )
 }
 
 
+bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
+{
+    addWarn( cSEGYWarnPos, getTrcPosStr() );
+    nrbadtrcs++;
+    if ( nrbadtrcs >= maxnrconsecutivebadtrcs )
+    {
+	const BufferString str( "More than ", maxnrconsecutivebadtrcs,
+			        " traces with invalid position found." );
+	mPosErrRet(str);
+    }
+    sConn().iStream().seekg( innrsamples * mBPS(inpcd_), std::ios::cur );
+    if ( !readTraceHeadBuffer() )
+	return false;
+    if ( !tryInterpretBuf(ti) )
+	return false;
+    return true;
+}
+
+
 #define mBadCoord(ti) \
 	(ti.coord.x < 0.01 && ti.coord.y < 0.01)
 #define mBadBid(ti) \
 	(ti.binid.inl <= 0 && ti.binid.crl <= 0)
-#define mGetNextTrcHdr(ti) \
-	{ \
-	    addWarn(cSEGYWarnPos,getTrcPosStr()); \
-	    nrbadtrcs++; \
-	    if ( nrbadtrcs >= maxnrconsecutivebadtrcs ) \
-	    { \
-		BufferString str( "More than " ); \
-		str += maxnrconsecutivebadtrcs; \
-		str += " traces with invalid position found."; \
-		mPosErrRet(str); \
-	    } \
-	    sConn().iStream().seekg( nrSamplesRead() * mBPS(inpcd_), \
-		    		     std::ios::cur ); \
-	    if ( !readTraceHeadBuffer() ) \
-		return false; \
-	    if ( !doInterpretBuf(ti) ) \
-		return false; \
-	}
+#define mSkipThisTrace() { if ( !skipThisTrace(ti,nrbadtrcs) ) return false; }
+
 
 bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
@@ -623,7 +618,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( !headerbufread_ && !readTraceHeadBuffer() )
 	return false;
-    if ( !doInterpretBuf(ti) )
+    if ( !tryInterpretBuf(ti) )
 	return false;
 
     bool goodpos = true;
@@ -635,7 +630,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	else if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadCoord(ti) )
-		mGetNextTrcHdr(ti)
+		mSkipThisTrace()
 	}
 	ti.binid = SI().transform( ti.coord );
     }
@@ -646,7 +641,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	else if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadBid(ti) )
-		mGetNextTrcHdr(ti)
+		mSkipThisTrace()
 	}
 	ti.coord = SI().transform( ti.binid );
     }
@@ -657,7 +652,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadBid(ti) && mBadCoord(ti) )
-		mGetNextTrcHdr(ti)
+		mSkipThisTrace()
 	    if ( mBadBid(ti) )
 		ti.binid = SI().transform( ti.coord );
 	    else if ( mBadCoord(ti) )
@@ -719,13 +714,12 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
     if ( !storinterp_ ) commitSelections();
 
     std::istream& strm = sConn().iStream();
-    int nrsamples = innrsamples;
-    if ( !headerdone_ )	strm.seekg( mSEGYTraceHeaderBytes, std::ios::cur );
-    else		nrsamples = nrSamplesRead();
-    strm.seekg( nrsamples * mBPS(inpcd_), std::ios::cur );
+    if ( !headerdone_ )
+	strm.seekg( mSEGYTraceHeaderBytes, std::ios::cur );
+    strm.seekg( innrsamples * mBPS(inpcd_), std::ios::cur );
     if ( ntrcs > 1 )
 	strm.seekg( (ntrcs-1) * (mSEGYTraceHeaderBytes
-		    		+ nrsamples * mBPS(inpcd_)) );
+		    		+ innrsamples * mBPS(inpcd_)) );
 
     headerbufread_ = headerdone_ = false;
 

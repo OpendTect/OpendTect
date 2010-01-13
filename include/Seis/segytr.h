@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.37 2009-12-07 14:03:29 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.38 2010-01-13 08:50:48 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -66,8 +66,6 @@ protected:
     SEGY::TxtHeader*	txthead_;
     SEGY::BinHeader&	binhead_;
     SEGY::TrcHeader&	trchead_; // must be *after* fileopts_
-    short		binhead_ns_;
-    float		binhead_dpos_;
     LinScaler*		trcscale_;
     const LinScaler*	curtrcscale_;
     bool		forcerev0_;
@@ -98,7 +96,6 @@ protected:
     bool		writeData(const SeisTrc&);
     virtual bool	readTapeHeader();
     virtual void	updateCDFromBuf();
-    int			nrSamplesRead() const;
     virtual void	interpretBuf(SeisTrcInfo&);
     virtual bool	writeTapeHeader();
     virtual void	fillHeaderBuf(const SeisTrc&);
@@ -111,7 +108,8 @@ protected:
     int			nrFormatFor(const DataCharacteristics&) const;
     void		addWarn(int,const char*);
     const char*		getTrcPosStr() const;
-    bool		doInterpretBuf(SeisTrcInfo&);
+    bool		tryInterpretBuf(SeisTrcInfo&);
+    bool		skipThisTrace(SeisTrcInfo&,int&);
 
     int			curtrcnr_, prevtrcnr_;
     BinID		curbid_, prevbid_;
