@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.56 2009-11-30 12:17:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.57 2010-01-14 12:16:16 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -470,6 +470,8 @@ void uiDataPointSet::selYCol( CallBacker* )
  
     if ( xplotwin_ && y2col_ == tid )
 	xplotwin_->setSelComboSensitive( true );
+
+    if ( xplotwin_ ) xplotwin_->setGrpColors();
 }
 
 
@@ -488,6 +490,8 @@ void uiDataPointSet::unSelCol( CallBacker* )
     
     if ( xplotwin_ && y2col_==-1 )
 	xplotwin_->setSelComboSensitive( false );
+    
+    if ( xplotwin_ ) xplotwin_->setGrpColors();
 }
 
 

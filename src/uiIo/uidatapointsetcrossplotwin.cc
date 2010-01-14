@@ -315,23 +315,24 @@ class uiSelColorDlg : public uiDialog
 public:
 
 uiSelColorDlg( uiParent* p, const BufferStringSet& names,
-	       TypeSet<Color>& y1cols, TypeSet<Color>& y2cols )
+	       TypeSet<Color>& y1cols, TypeSet<Color>& y2cols, bool isy2shwn )
     : uiDialog( p, uiDialog::Setup("Select Color for Y1 & Y2","","") )
     , names_( names )
     , y1cols_( y1cols )
     , y2cols_( y2cols )
+    , isy2shown_( isy2shwn )
 {
-    tbl_ = new uiTable( this, uiTable::Setup(names.size(),2), "" );
+    tbl_ = new uiTable( this, uiTable::Setup(names.size(),isy2shwn ? 2 : 1),"");
     tbl_->leftClicked.notify( mCB(this,uiSelColorDlg,changeColCB) );
     tbl_->setRowLabels( names );
     BufferStringSet collabel;
     collabel.add( "Y1" );
-    collabel.add( "Y2" );
+    if ( isy2shwn ) collabel.add( "Y2" );
     tbl_->setColumnLabels( collabel );
     for ( int idx=0; idx<names.size(); idx++ )
     {
 	tbl_->setColor( RowCol(idx,0), y1cols[idx] );
-	tbl_->setColor( RowCol(idx,1), y2cols[idx] );
+	if ( isy2shwn ) tbl_->setColor( RowCol(idx,1), y2cols[idx] );
     }
 }
 
@@ -352,7 +353,7 @@ bool acceptOk( CallBacker* )
     for ( int idx=0; idx<names_.size(); idx++ )
     {
 	y1cols_[idx] = tbl_->getColor( RowCol(idx,0) );
-	y2cols_[idx] = tbl_->getColor( RowCol(idx,1) );
+	if ( isy2shown_ ) y2cols_[idx] = tbl_->getColor( RowCol(idx,1) );
     }
     return true;
 }
@@ -361,6 +362,7 @@ bool acceptOk( CallBacker* )
     TypeSet<Color>&		y1cols_;
     TypeSet<Color>&		y2cols_;
     BufferStringSet		names_;
+    bool			isy2shown_;
 };
 
 
@@ -440,6 +442,10 @@ void parsePush( CallBacker* )
 }
 
 
+int cColIds( int dcolid )
+{ return dcolid + 3; }
+
+
 void updateDisplay()
 {
     const int nrvars = mathobj_->nrVariables();
@@ -447,8 +453,9 @@ void updateDisplay()
     for ( int idx=0; idx<nrvars; idx++ )
     {
 	uiComboBox* varsel = new uiComboBox( 0, datainfo_.colnms_, "Variable");
-	if ( !dcolids_.isEmpty() )
-	    varsel->setCurrentItem( dcolids_[idx] );
+	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
+	    varsel->setCurrentItem( cColIds(dcolids_[idx]) );
+	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );
     }
     vartable_->display( true );
@@ -504,11 +511,14 @@ void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
     BufferStringSet colnames;
     TypeSet<int> colids;
     const DataPointSet& dps = plotter_.dps();
-    for ( uiDataPointSet::DColID dcid=0; dcid<dps.nrCols(); dcid++ )
+
+    uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
+    for ( ; dcid<dps.nrCols(); dcid++ )
     {
 	colids += dcid;
-	colnames.add( dps.colName(dcid) ); 
+	colnames.add( uidps_.userName(dcid) );
     }
+
     uiSetSelDomainDlg::DataColInfo datainfo( colnames, colids );
     uiSetSelDomainDlg dlg( this, datainfo, plotter_.mathObjStr(),
 	    		   plotter_.modifiedColIds(),
@@ -697,7 +707,8 @@ void uiDataPointSetCrossPlotWin::setGrpColors()
 	Color coly1 = plotter_.isMultiColMode()
 	    ? plotter_.y1grpColors()[idx]
 	    : plotter_.axisData(1).axis_->setup().style_.color_;
-	Color coly2 = plotter_.isMultiColMode()
+	Color coly2 = !plotter_.isY2Shown()
+	    ? coly1 : plotter_.isMultiColMode()
 	    ? plotter_.y2grpColors()[idx]
 	    : plotter_.axisData(2).axis_->setup().style_.color_;
 	ColTab::Sequence ctseq;
@@ -730,7 +741,7 @@ void uiDataPointSetCrossPlotWin::changeColCB( CallBacker* )
     if ( ison )
     {
 	uiSelColorDlg seldlg( this, uidps_.groupNames(), plotter_.y1grpColors(),
-			      plotter_.y2grpColors() );
+			      plotter_.y2grpColors(), plotter_.isY2Shown() );
 	if ( !seldlg.go() )
 	{
 	    return;
