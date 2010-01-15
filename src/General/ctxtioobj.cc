@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.43 2009-11-05 13:59:55 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.44 2010-01-15 11:30:12 cvsraman Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -341,13 +341,20 @@ void CtxtIOObj::fillDefault( bool oone2 )
 	if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D
 		&& ctxt.deftransl == "2D" )
 	    is3d = false;
-	keystr = is3d ? sKey::Cube : sKey::DefLineSet;
+	keystr = is3d ? sKey::DefCube : sKey::DefLineSet;
+	FixedString typestr = ctxt.parconstraints.find( sKey::Type );
+	if ( is3d && typestr == sKey::Steering && ctxt.includeconstraints )
+	    keystr = IOPar::compKey(keystr,sKey::Steering);
     }
-    else if ( keystr == "Pre-Stack Seismics"
-	    && SI().getSurvDataType() != SurveyInfo::Only2D )
-	keystr = "PS3D Data Store";
+    else
+    {
+	if ( keystr == "Pre-Stack Seismics"
+		&& SI().getSurvDataType() != SurveyInfo::Only2D )
+	    keystr = "PS3D Data Store";
+	
+	keystr = IOPar::compKey(sKey::Default,keystr);
+    }
 
-    keystr = IOPar::compKey(sKey::Default,keystr);
     return fillDefaultWithKey( keystr, oone2 );
 }
 
