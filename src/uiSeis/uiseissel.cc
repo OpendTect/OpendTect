@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.88 2009-11-04 15:29:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.89 2010-01-15 11:52:15 cvsraman Exp $";
 
 #include "uiseissel.h"
 
@@ -245,9 +245,24 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 }
 
 
+static CtxtIOObj& getCtxtIOObj( CtxtIOObj& c, const uiSeisSel::Setup& s )
+{
+    adaptCtxt( c.ctxt, s, true );
+    return c;
+}
+
+
+static const IOObjContext& getIOObjCtxt( const IOObjContext& c,
+					 const uiSeisSel::Setup& s )
+{
+    adaptCtxt( c, s, true );
+    return c;
+}
+
+
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& c,
 		      const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,c,mkSetup(su,c.forread))
+	: uiIOObjSel(p,getIOObjCtxt(c,su),mkSetup(su,c.forread))
     	, seissetup_(mkSetup(su,c.forread))
     	, othdombox_(0)
 {
@@ -261,7 +276,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& c,
 
 
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,c,mkSetup(su,c.ctxt.forread))
+	: uiIOObjSel(p,getCtxtIOObj(c,su),mkSetup(su,c.ctxt.forread))
     	, seissetup_(mkSetup(su,c.ctxt.forread))
     	, othdombox_(0)
 {
