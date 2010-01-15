@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.11 2009-09-02 06:05:38 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.12 2010-01-15 05:50:49 raman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,124 +15,75 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "multiid.h"
-#include "position.h"
+#include "positionlist.h"
 #include "sets.h"
 
-namespace EM { class FaultStickSet; class Horizon2D; }
+namespace EM { class Fault; }
 class IOObj;
+class BinIDValueSet;
 
 namespace SSIS
 {
 
-mClass FaultStickSubSampler
+mClass FaultTrace : public Coord3List
 {
 public:
-    			FaultStickSubSampler(const EM::FaultStickSet&,
-					     int sticknr,float zstep);
-			~FaultStickSubSampler();
+
+    int			nextID(int) const;
+    int			add(const Coord3&);
+    Coord3		get(int) const;
+    void		set(int,const Coord3&);
+    void		remove(int);
+    bool		isDefined(int) const;
+    int			getSize() const	{ return coords_.size(); }
+    void		sortZ();
+    FaultTrace*		clone();
+
+    bool		isInl() const			{ return isinl_; }
+    int			lineNr() const			{ return nr_; }
+    void		setIsInl(bool yn)		{ isinl_ = yn; }
+    void		setLineNr(int nr)		{ nr_ = nr; }
+    bool		isCrossing(const BinID&,float,const BinID&,float) const;
+    float		getZValFor(const BinID&) const;
+
+protected:
+
+    bool		isinl_;
+    int			nr_;
+    TypeSet<Coord3>	coords_;
+    TypeSet<int>	trcnrs_;	// For 2D only;
+    Threads::Mutex	lock_;
+};
+
+
+mClass FaultTraceExtractor
+{
+public:
+    			FaultTraceExtractor(EM::Fault&,int,bool,
+					    const BinIDValueSet* bvs=0);
+    			FaultTraceExtractor(EM::Fault&,const char* linenm,
+					    const BinIDValueSet* bvs=0);
+			~FaultTraceExtractor();
 
     bool		execute();
-
-    Coord3		getCoord(float zval) const;
-    const TypeSet<Coord3>& getCoordList() const;
-    void		setZStep( float zs )	{ zstep_ = zs; }
-
-protected:
-    const EM::FaultStickSet& fault_;
-
-    int			sticknr_;
-    float		zstep_;
-    TypeSet<Coord3>	crds_;
-};
-
-
-mClass FaultHorizon2DIntersectionFinder
-{
-public:
-    		FaultHorizon2DIntersectionFinder(const EM::FaultStickSet&,
-						 int sticknr,
-						 const EM::Horizon2D&);
-		~FaultHorizon2DIntersectionFinder();
-
-    bool	find(float& trcnr,float& zval);
+    FaultTrace*		getFaultTrace()		{ return flttrc_; }
 
 protected:
 
-    const EM::FaultStickSet&	flt_;
-    const EM::Horizon2D&	hor_;
-    int				sticknr_;
-};
-
-
-mClass FaultHorizon2DLocationField : public Array2DImpl<char>
-{
-public:
-    			FaultHorizon2DLocationField(const EM::FaultStickSet&,
-						    int sticknr,
-						    const EM::Horizon2D&,
-						    const EM::Horizon2D&);
-			~FaultHorizon2DLocationField();
-
-    bool		calculate();
-
-    const char*		lineName() const	{ return linenm_; }
-    const char		getPos(int trcnr,float z) const;
-    const CubeSampling&	area() const		{ return cs_; }
-    int			getTrcNrOnFault(float zval) const;
-
-    static char		sOutside()		{ return '0'; }
-    static char		sInsideNeg()		{ return '1'; }
-    static char		sInsidePos()		{ return '2'; }
-
-protected:
-    CubeSampling		cs_;
-
-    const EM::FaultStickSet&	flt_;
-    const EM::Horizon2D&	tophor_;
-    const EM::Horizon2D&	bothor_;
-
-    int				sticknr_;
-    BufferString		linenm_;
-    FaultStickSubSampler*	fltsampler_;
-    TypeSet<int>		flttrcnrs_;
-};
-
-
-
-/*! \brief Calculates Throwfield between Fault and two horizons
-*/
-
-mClass FaultStickThrow
-{
-public:
-			FaultStickThrow(const EM::FaultStickSet&,int sticknr,
-			     const EM::Horizon2D&,const EM::Horizon2D&);
-			~FaultStickThrow();
-
-    const char*		lineName() const	{ return linenm_; }
-    float		getValue(float z,bool negtopos) const;
-
-
-protected:
-
-    bool		findInterSections(float&,float&);
-    bool		init();
-
-    const EM::FaultStickSet& flt_;
-
-    const EM::Horizon2D& tophor_;
-    const EM::Horizon2D& bothor_;
-
-    int			sticknr_;
+    bool		isinl_;
+    int			nr_;
+    EM::Fault&		fault_;
+    FaultTrace*		flttrc_;
+    bool		is2d_;
     BufferString	linenm_;
 
-    float		topzneg_;
-    float		topzpos_;
-    float		botzneg_;
-    float		botzpos_;
+    const BinIDValueSet*	bvset_;
+
+    void		useHorizons();
+    bool		get2DFaultTrace();
 };
 
-} // namespace SSIS
 
+}; // namespace SSIS
 
 #endif

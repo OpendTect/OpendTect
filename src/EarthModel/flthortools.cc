@@ -7,427 +7,383 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.17 2009-09-02 06:05:38 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.18 2010-01-15 05:51:22 raman Exp $";
 
 #include "flthortools.h"
 
+#include "binidvalset.h"
 #include "emfaultstickset.h"
-#include "emhorizon2d.h"
+#include "emfault3d.h"
 #include "emmanager.h"
 #include "executor.h"
+#include "explfaultsticksurface.h"
+#include "explplaneintersection.h"
 #include "faultsticksurface.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "posinfo.h"
 #include "seis2dline.h"
+#include "sorting.h"
 #include "survinfo.h"
+#include "trigonometry.h"
 
 
 namespace SSIS
 {
 
-FaultStickSubSampler::FaultStickSubSampler( const EM::FaultStickSet& flt,
-					    int sticknr, float zstep )
-    : fault_(flt)
-    , sticknr_(sticknr)
-    , zstep_(zstep)
+int FaultTrace::nextID( int previd ) const
+{ return previd >= -1 && previd < coords_.size()-1 ? previd + 1 : -1; }
+
+int FaultTrace::add( const Coord3& pos )
 {
-    fault_.ref();
+    lock_.lock();
+    coords_ += pos;
+    lock_.unLock();
+    return coords_.size() - 1;
 }
 
 
-FaultStickSubSampler::~FaultStickSubSampler()
+Coord3 FaultTrace::get( int idx ) const
+{ return idx >= 0 && idx < coords_.size() ? coords_[idx] : Coord3::udf(); }
+
+void FaultTrace::set( int idx, const Coord3& pos )
 {
-    fault_.unRef();
+    lock_.lock();
+    if ( idx >= 0 && idx < coords_.size() )
+	coords_[idx] = pos;
+    lock_.unLock();
+}
+
+void FaultTrace::remove( int idx )
+{
+    lock_.lock();
+    coords_.remove( idx );
+    lock_.unLock();
 }
 
 
-bool FaultStickSubSampler::execute()
-{
-    crds_.erase();
-    EM::SectionID fltsid( 0 );
-    const int nrknots = fault_.geometry().nrKnots( fltsid, sticknr_ );
-    const Geometry::FaultStickSet* fltgeom =
-	fault_.geometry().sectionGeometry( fltsid );
-    const Coord3 firstknot = fltgeom->getKnot( RowCol(sticknr_,0) );
-    const Coord3 lastknot = fltgeom->getKnot( RowCol(sticknr_,nrknots-1) );
-    const int nrzvals = mNINT( (lastknot.z-firstknot.z) / zstep_ );
+bool FaultTrace::isDefined( int idx ) const
+{ return idx >= 0 && idx < coords_.size() && coords_[idx] != Coord3::udf(); }
 
-    for ( int idx=0; idx<nrzvals; idx++ )
+void FaultTrace::sortZ()
+{
+    lock_.lock();
+    mAllocVarLenArr( float, zvals, coords_.size() );
+    for ( int idx=0; idx<coords_.size(); idx++ )
+	zvals[idx] = coords_[idx].z;
+
+    sort_coupled( zvals, coords_.arr(), coords_.size() );
+    lock_.unLock();
+}
+
+
+FaultTrace* FaultTrace::clone()
+{
+    FaultTrace* newobj = new FaultTrace;
+    newobj->coords_ = coords_;
+    return newobj;
+}
+
+
+float FaultTrace::getZValFor( const BinID& bid ) const
+{
+    const StepInterval<float>& zrg = SI().zRange( false );
+    Coord pt1( isinl_ ? bid.crl : bid.inl, zrg.start * SI().zFactor() );
+    Coord pt2( isinl_ ? bid.crl : bid.inl, zrg.stop * SI().zFactor() );
+    Line2 line( pt1, pt2 );
+    TypeSet<float> intersections;
+    for ( int idx=1; idx<getSize(); idx++ )
     {
-	const float curz = firstknot.z + idx*zstep_;
-	bool found = false;
-	for ( int knotidx=0; knotidx<nrknots-1 && !found; knotidx++ )
-	{
-	    const Coord3 knot1 = fltgeom->getKnot( RowCol(sticknr_,knotidx) );
-	    const Coord3 knot2 = fltgeom->getKnot( RowCol(sticknr_,knotidx+1) );
-	    if ( mIsEqual(curz,knot1.z,1e-3) )
-	    {
-		crds_ += knot1;
-		found = true;
-	    }
-	    else if ( mIsEqual(curz,knot2.z,1e-3) )
-	    {
-		crds_ += knot2;
-		found = true;
-	    }
-	    else if ( curz>knot1.z && curz<knot2.z )
-	    {
-		Coord newcrd = knot1.coord() + (knot2.coord()-knot1.coord())*
-					    (curz-knot1.z)/(knot2.z-knot1.z);
-		crds_ += Coord3( newcrd, curz );
-		found = true;
-	    }
-	}
+	const Coord3& pos1 = get( idx - 1 );
+	const Coord3& pos2 = get( idx );
+
+	const Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
+	const Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
+
+	Coord nodepos1( isinl_ ? posbid1.y : posbid1.x,
+			pos1.z * SI().zFactor() );
+	Coord nodepos2( isinl_ ? posbid2.y : posbid2.x,
+			pos2.z * SI().zFactor() );
+	Line2 fltseg( nodepos1, nodepos2 );
+	Coord interpos = line.intersection( fltseg );
+	if ( interpos != Coord::udf() )
+	    intersections += interpos.y;
     }
 
-    return crds_.size() > 0;
+    return intersections.size() == 1 ? intersections[0] : mUdf(float);
 }
 
 
-Coord3 FaultStickSubSampler::getCoord( float zval ) const
+bool FaultTrace::isCrossing( const BinID& bid1, float z1,
+			     const BinID& bid2, float z2  ) const
 {
-    if ( zval < crds_.first().z )
-	return crds_.first();
-    if ( zval > crds_.last().z )
-	return crds_.last();
-
-    const float diff = zval - crds_[0].z;
-    const float fidx = diff / zstep_;
-    const int idx = mNINT( fidx );
-    return crds_.validIdx( idx ) ? crds_[idx] : Coord3::udf();
-}
-
-
-const TypeSet<Coord3>& FaultStickSubSampler::getCoordList() const
-{ return crds_; }
-
-
-// ***** FaultHorizon2DIntersectionFinder *****
-FaultHorizon2DIntersectionFinder::FaultHorizon2DIntersectionFinder(
-	const EM::FaultStickSet& flt, int sticknr, const EM::Horizon2D& hor )
-    : flt_(flt)
-    , hor_(hor)
-    , sticknr_(sticknr)
-{
-    flt_.ref();
-    hor_.ref();
-}
-
-
-FaultHorizon2DIntersectionFinder::~FaultHorizon2DIntersectionFinder()
-{
-    flt_.unRef();
-    hor_.unRef();
-}
-
-
-bool FaultHorizon2DIntersectionFinder::find( float& trcnr, float& zval )
-{
-    trcnr = 0; zval = 0;
-
-    FaultStickSubSampler sampler( flt_, sticknr_, SI().zStep() );
-    sampler.execute();
-    TypeSet<Coord3> crds = sampler.getCoordList();
-
-    // TODO: optimize
-    EM::SectionID sid( 0 );
-    const MultiID* lsid = flt_.geometry().lineSet( sid, sticknr_ );
-    if ( !lsid ) return false;
-    PtrMan<IOObj> lsioobj = IOM().get( *lsid );
-    if ( !lsioobj ) return false;
-
-    Seis2DLineSet ls( *lsioobj );
-    const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
-    const int lineidx = ls.indexOfFirstOccurrence( lnm );
-    PosInfo::Line2DData lineposinfo;
-    if ( !ls.getGeometry(lineidx,lineposinfo) )
+    if ( !getSize() )
 	return false;
 
-    PosInfo::Line2DPos firstpos, lastpos;
-    if ( !lineposinfo.getPos(crds.first(),firstpos) ||
-	 !lineposinfo.getPos(crds.last(),lastpos) )
+    z1 *= SI().zFactor();
+    z2 *= SI().zFactor();
+    if ( ( isinl_ && (bid1.inl != nr_ || bid2.inl != nr_) )
+	    || ( !isinl_ && (bid1.crl != nr_ || bid2.crl != nr_) ) )
 	return false;
 
-    const int lidx = hor_.geometry().lineIndex( lnm );
+    Coord pt1( isinl_ ? bid1.crl : bid1.inl, z1 );
+    Coord pt2( isinl_ ? bid2.crl : bid2.inl, z2 );
+    Line2 line( pt1, pt2 );
 
-    Interval<int> trcrg( firstpos.nr_, lastpos.nr_ ); trcrg.sort();
-    trcrg.start -= 5; trcrg.stop += 5;
-    HorSampling hs; hs.set( Interval<int>(0,0), trcrg );
-
-    bool init = false;
-    bool negside = true;
-    for ( int crlidx=0; crlidx<hs.nrCrl(); crlidx++ )
+    for ( int idx=1; idx<getSize(); idx++ )
     {
-	const int crl = trcrg.atIndex( crlidx, 1 );
-	const float z = hor_.getPos( sid, lidx, crl ).z;
-	const Coord3 fltcrd = sampler.getCoord( z );
-	PosInfo::Line2DPos fltpos;
-	const bool res = lineposinfo.getPos( fltcrd, fltpos );
-	if ( !res ) continue;
+	const Coord3& pos1 = get( idx - 1 );
+	const Coord3& pos2 = get( idx );
 
-	const bool side = fltpos.nr_>crl;
-	if ( !init )
-	{
-	    negside = side;
-	    init = true;
-	}
-	else if ( negside != side )
-	{
-	    trcnr = crl; zval = z;
+	const Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
+	const Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
+
+	Coord nodepos1( isinl_ ? posbid1.y : posbid1.x,
+			pos1.z * SI().zFactor() );
+	Coord nodepos2( isinl_ ? posbid2.y : posbid2.x,
+			pos2.z * SI().zFactor() );
+	Line2 fltseg( nodepos1, nodepos2 );
+	Coord interpos = line.intersection( fltseg );
+	if ( interpos != Coord::udf() )
 	    return true;
-	}
     }
 
     return false;
 }
 
 
-// ***** FaultHorizon2DLocationField *****
-FaultHorizon2DLocationField::FaultHorizon2DLocationField(
-	const EM::FaultStickSet& flt, int sticknr,
-	const EM::Horizon2D& h1, const EM::Horizon2D& h2 )
-    : Array2DImpl<char>(1,1)
-    , flt_(flt)
-    , tophor_(h1)
-    , bothor_(h2)
-    , sticknr_(sticknr)
-{
-    flt_.ref();
-    tophor_.ref();
-    bothor_.ref();
-    fltsampler_ = new FaultStickSubSampler( flt_, sticknr_, SI().zStep() / 4 );
-    fltsampler_->execute();
 
-    linenm_ = flt.geometry().lineName( EM::SectionID(0), sticknr_ );
+FaultTraceExtractor::FaultTraceExtractor( EM::Fault& flt,
+					  int nr, bool isinl,
+					  const BinIDValueSet* bvset )
+  : fault_(flt)
+  , nr_(nr), isinl_(isinl)
+  , bvset_(bvset)
+  , flttrc_(0)
+  , is2d_(false)
+{
+    fault_.ref();
 }
 
 
-FaultHorizon2DLocationField::~FaultHorizon2DLocationField()
+FaultTraceExtractor::FaultTraceExtractor( EM::Fault& flt,
+					  const char* linenm,
+					  const BinIDValueSet* bvset )
+  : fault_(flt)
+  , nr_(0),isinl_(true)
+  , linenm_(linenm)
+  , bvset_(bvset)
+  , flttrc_(0)
+  , is2d_(true)
 {
-    flt_.unRef();
-    tophor_.unRef();
-    bothor_.unRef();
+    fault_.ref();
 }
 
 
-bool FaultHorizon2DLocationField::calculate()
+
+FaultTraceExtractor::~FaultTraceExtractor()
 {
-    TypeSet<Coord3> crds = fltsampler_->getCoordList();
-    flttrcnrs_.erase();
+    fault_.unRef();
+    if ( flttrc_ ) flttrc_->unRef();
+}
 
-    EM::SectionID sid( 0 );
-    const MultiID* lsid = flt_.geometry().lineSet( sid, sticknr_ );
-    if ( !lsid ) return false;
-    PtrMan<IOObj> lsioobj = IOM().get( *lsid );
-    if ( !lsioobj ) return false;
 
-    Seis2DLineSet ls( *lsioobj );
-    const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
-    const int lineidx = ls.indexOfFirstOccurrence( lnm );
-    PosInfo::Line2DData lineposinfo;
-    if ( !ls.getGeometry(lineidx,lineposinfo) )
-	return false;
-
-    PosInfo::Line2DPos pos2d;
-    Interval<int> trcrg( mUdf(int), -mUdf(int) );
-    for ( int idx=0; idx<crds.size(); idx++ )
+bool FaultTraceExtractor::execute()
+{
+    if ( flttrc_ )
     {
-	if ( !lineposinfo.getPos(crds[idx],pos2d) )
-	    continue;
-	
-	trcrg.include( pos2d.nr_, false );
-	flttrcnrs_ += pos2d.nr_;
+	flttrc_->unRef();
+	flttrc_ = 0;
     }
 
-    if ( mIsUdf(trcrg.start) )
+    if ( is2d_ )
+	return get2DFaultTrace();
+
+    EM::SectionID fltsid( 0 );
+    mDynamicCastGet(EM::Fault3D&,fault3d,fault_)
+    Geometry::IndexedShape* fltsurf = new Geometry::ExplFaultStickSurface(
+	    	fault3d.geometry().sectionGeometry(fltsid), SI().zFactor() );
+    fltsurf->setCoordList( new FaultTrace, new FaultTrace, 0 );
+    if ( !fltsurf->update(true,0) )
 	return false;
 
-    const int lidxtop = tophor_.geometry().lineIndex( lnm );
-    const int lidxbot = bothor_.geometry().lineIndex( lnm );
+    CubeSampling cs;
+    BinID start( isinl_ ? nr_ : cs.hrg.start.inl,
+	    	 isinl_ ? cs.hrg.start.crl : nr_ );
+    BinID stop( isinl_ ? nr_ : cs.hrg.stop.inl,
+	    	isinl_ ? cs.hrg.stop.crl : nr_ );
+    Coord3 p0( SI().transform(start), cs.zrg.start );
+    Coord3 p1( SI().transform(start), cs.zrg.stop );
+    Coord3 p2( SI().transform(stop), cs.zrg.stop );
+    Coord3 p3( SI().transform(stop), cs.zrg.start );
+    TypeSet<Coord3> pts;
+    pts += p0; pts += p1; pts += p2; pts += p3;
+    const Coord3 normal = (p1-p0).cross(p3-p0).normalize();
 
-    cs_.hrg.set( Interval<int>(0,0), trcrg );
-    Interval<float> zrg =
-	tophor_.geometry().sectionGeometry(sid)->zRange(lidxtop);
-    zrg.include( bothor_.geometry().sectionGeometry(sid)->zRange(lidxbot) );
-    SI().snapZ( zrg.start, -1 ); SI().snapZ( zrg.stop, 1 );
-    cs_.zrg.setFrom( zrg );
-    cs_.zrg.step = SI().zStep() / 4;
-    setSize( cs_.nrCrl(), cs_.nrZ() );
+    Geometry::ExplPlaneIntersection* insectn =
+					new Geometry::ExplPlaneIntersection;
+    insectn->setShape( *fltsurf );
+    insectn->addPlane( normal, pts );
+    Geometry::IndexedShape* idxdshape = insectn;
+    idxdshape->setCoordList( new FaultTrace, new FaultTrace, 0 );
+    if ( !idxdshape->update(true,0) )
+	return false;
 
-    if ( GetEnvVarYN("OD_PRINT_FAULTFIELD") )
-	std::cout << cs_.zrg.start << '\t' << cs_.zrg.step << '\t' << cs_.nrZ()
-	    	  << std::endl;
+    Coord3List* clist = idxdshape->coordList();
+    mDynamicCastGet(FaultTrace*,flttrc,clist);
+    if ( !flttrc ) return false;
 
-    for ( int crlidx=0; crlidx<cs_.nrCrl(); crlidx++ )
+    flttrc_ = flttrc->clone();
+    flttrc_->ref();
+    flttrc_->sortZ();
+    flttrc_->setIsInl( isinl_ );
+    flttrc_->setLineNr( nr_ );
+    if ( bvset_ )
+	useHorizons();
+
+    delete fltsurf;
+    delete insectn;
+    return true;
+}
+    
+
+bool FaultTraceExtractor::get2DFaultTrace()
+{
+    return false; // TODO
+}
+
+void FaultTraceExtractor::useHorizons()
+{
+    if ( flttrc_->getSize() < 2 )
+	return;
+
+    const Coord3 toppos = flttrc_->get( 0 );
+    const Coord3 botpos = flttrc_->get( flttrc_->getSize() - 1 );
+
+    const BinID topbid = SI().transform( toppos );
+    const BinID botbid = SI().transform( botpos );
+    const BinIDValueSet::Pos topbvspos = bvset_->findFirst( topbid );
+    const BinIDValueSet::Pos botbvspos = bvset_->findFirst( botbid );
+    float topz=mUdf(float), botz=mUdf(float), dummyz;
+    BinID dummy;
+    if ( topbvspos.valid() )
+	bvset_->get( topbvspos, dummy, topz, dummyz );
+    if ( botbvspos.valid() )
+	bvset_->get( botbvspos, dummy, dummyz, botz );
+
+    if ( !mIsUdf(topz) && toppos.z > topz )
     {
-	const int crl = trcrg.atIndex( crlidx, 1 );
-	const float topz = tophor_.getPos( sid, lidxtop, crl ).z;
-	const float botz = bothor_.getPos( sid, lidxbot, crl ).z;
-	for ( int zidx=0; zidx<cs_.nrZ(); zidx++ )
+	const Coord posbid = SI().binID2Coord().transformBackNoSnap( toppos );
+	const Coord3 nextpos = flttrc_->get( 1 );
+	const Coord nextposbid =
+	    		SI().binID2Coord().transformBackNoSnap( nextpos );
+
+	Coord nodepos1( isinl_ ? posbid.y : posbid.x,
+			toppos.z * SI().zFactor() );
+	Coord nodepos2( isinl_ ? nextposbid.y : nextposbid.x,
+			nextpos.z * SI().zFactor() );
+	Line2 fltseg( nodepos1, nodepos2 );
+	fltseg.start_ = Coord::udf();
+	fltseg.stop_ = Coord::udf();
+
+	const bool isinc = isinl_ ? posbid.y > nextposbid.y
+	    			  : posbid.x > nextposbid.x;
+	const BinID incbid( isinl_ ? 0 : (isinc ? 1 : -1),
+			    isinl_ ? (isinc ? 1 : -1) : 0 );
+	BinID start = topbid - incbid;
+	for ( int idx=0; idx<1024; idx++ )
 	{
-	    const float zval = cs_.zAtIndex( zidx );
-	    if ( zval<topz || zval>botz )
-		set( crlidx, zidx, sOutside() );
-	    else
+	    const BinID stop = start + incbid;
+	    const BinIDValueSet::Pos startpos = bvset_->findFirst( start );
+	    const BinIDValueSet::Pos stoppos = bvset_->findFirst( stop );
+	    float starttopz=mUdf(float), stoptopz=mUdf(float);
+	    if ( startpos.valid() )
+		bvset_->get( startpos, dummy, starttopz, dummyz );
+	    if ( stoppos.valid() )
+		bvset_->get( stoppos, dummy, stoptopz, dummyz );
+
+	    if ( mIsUdf(stoptopz) )
 	    {
-		const Coord3 fltcrd = fltsampler_->getCoord( zval );
-		PosInfo::Line2DPos fltpos;
-		const bool res = lineposinfo.getPos( fltcrd, fltpos );
-		if ( !res )
-		    set( crlidx, zidx, sOutside() );
-		else if ( fltpos.nr_>crl )
-		    set( crlidx, zidx, sInsideNeg() );
-		else if ( fltpos.nr_<=crl )
-		    set( crlidx, zidx, sInsidePos() );
-		else
-		    set( crlidx, zidx, sOutside() );
+		const Coord3 newstartpos( SI().transform(start), starttopz );
+		flttrc_->set( 0, newstartpos );
+		break;
+	    }
+
+	    const Coord starttop( isinl_ ? start.crl : start.inl,
+		    		  starttopz * SI().zFactor() );
+	    const Coord stoptop( isinl_ ? stop.crl : stop.inl,
+		    		 stoptopz * SI().zFactor() );
+	    start = stop;
+	    Line2 topseg( starttop, stoptop );
+	    Coord interpos = topseg.intersection( fltseg );
+	    if ( interpos != Coord::udf() )
+	    {
+		Coord interbid( isinl_ ? nr_ : interpos.x,
+				isinl_ ? interpos.x : nr_ );
+		Coord newpos = SI().binID2Coord().transform( interbid );
+		Coord3 newpos3( newpos, interpos.y / SI().zFactor() );
+		flttrc_->set( 0, newpos3 );
+		break;
 	    }
 	}
-
-	if ( GetEnvVarYN("OD_PRINT_FAULTFIELD") )
-	{
-	    PosInfo::Line2DPos pos; lineposinfo.getPos( crl, pos );
-	    std::cout << crl << '\t' << pos.coord_.x << '\t' << pos.coord_.y;
-	    for ( int zidx=0; zidx<cs_.nrZ(); zidx++ )
-		std::cout << '\t' << get(crlidx,zidx);
-	    std::cout << std::endl;
-	}
     }
 
-    return true;
-}
-
-
-const char FaultHorizon2DLocationField::getPos( int trcnr, float z ) const
-{
-    if ( !cs_.zrg.includes(z,false) )
-	return sOutside();
-
-    const int idx0 = cs_.crlIdx( trcnr );
-    const int idx1 = cs_.zrg.nearestIndex( z );
-    return get( idx0, idx1 );
-}
-
-
-int FaultHorizon2DLocationField::getTrcNrOnFault( float zval ) const
-{
-    TypeSet<Coord3> crds = fltsampler_->getCoordList();
-    if ( flttrcnrs_.size() != crds.size() )
-	return -1;
-
-    if ( zval < crds.first().z || zval > crds.last().z )
-	return -1;
-
-    const float diff = zval - crds[0].z;
-    const float zstep = SI().zStep() / 4;
-    const float fidx = diff / zstep;
-    const int idx = mNINT( fidx );
-    return flttrcnrs_.validIdx( idx ) ? flttrcnrs_[idx] : -1;
-}
-
-
-// ***** FaultStickThrow *****
-FaultStickThrow::FaultStickThrow( const EM::FaultStickSet& flt, int sticknr,
-			const EM::Horizon2D& hor1, const EM::Horizon2D& hor2 )
-    : flt_(flt)
-    , tophor_(hor1)
-    , bothor_(hor2)
-    , sticknr_(sticknr)
-{
-    flt_.ref();
-    tophor_.ref();
-    bothor_.ref();
-
-    linenm_ = flt.geometry().lineName( EM::SectionID(0), sticknr_ );
-    topzneg_ = topzpos_, botzneg_, botzpos_ = mUdf(float);
-    init();
-}
-
-
-FaultStickThrow::~FaultStickThrow()
-{
-    flt_.unRef();
-    tophor_.unRef();
-    bothor_.unRef();
-}
-
-
-bool FaultStickThrow::findInterSections( float& toptrcnr, float& bottrcnr )
-{
-    float topz, botz;
-    toptrcnr = bottrcnr = mUdf(float);
-    FaultHorizon2DIntersectionFinder findertop( flt_, sticknr_, tophor_ );
-    const bool res1 = findertop.find( toptrcnr, topz );
-    FaultHorizon2DIntersectionFinder finderbot( flt_, sticknr_, bothor_ );
-    const bool res2 = finderbot.find( bottrcnr, botz );
-    return res1 && res2;
-}
-
-
-bool FaultStickThrow::init()
-{
-    EM::SectionID sid( 0 );
-    const MultiID* lsid = flt_.geometry().lineSet( sid, sticknr_ );
-    PtrMan<IOObj> lsioobj = IOM().get( *lsid );
-    if ( !lsioobj ) return false;
-
-    const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
-    Seis2DLineSet ls( *lsioobj );
-    const int lineidx = ls.indexOfFirstOccurrence( lnm );
-    PosInfo::Line2DData lineposinfo;
-    if ( !ls.getGeometry(lineidx,lineposinfo) )
-	return false;
-
-    const int lidxtop = tophor_.geometry().lineIndex( lnm );
-    const int lidxbot = bothor_.geometry().lineIndex( lnm );
-
-    float toptrcnr, bottrcnr;
-    if ( !findInterSections(toptrcnr,bottrcnr) )
-	return false;
-
-    topzneg_ = tophor_.getPos( sid, lidxtop, mNINT(toptrcnr-5) ).z;
-    topzpos_ = tophor_.getPos( sid, lidxtop, mNINT(toptrcnr+5) ).z;
-    botzneg_ = bothor_.getPos( sid, lidxbot, mNINT(bottrcnr-5) ).z;
-    botzpos_ = bothor_.getPos( sid, lidxbot, mNINT(bottrcnr+5) ).z;
-
-    return true;
-}
-
-
-float FaultStickThrow::getValue( float z, bool negtopos ) const
-{
-    const float topshift = topzpos_ - topzneg_;
-    const float botshift = botzpos_ - botzneg_;
-
-    float thr = mUdf(float);
-    if ( negtopos )
+    if ( !mIsUdf(botz) && botpos.z < botz )
     {
-	if ( z < topzneg_ )
-	    thr = topshift;
-	else if ( z > botzneg_ )
-	    thr = botshift;
-	else
-	{
-	    const float fact = (botshift-topshift) / (botzneg_-topzneg_);
-	    thr = topshift + fact*(z-topzneg_);
-	}
-    }
-    else
-    {
-	if ( z < topzpos_ )
-	    thr = -topshift;
-	else if ( z > botzpos_ )
-	    thr = -botshift;
-	else
-	{
-	    const float fact = (botshift-topshift) / (botzpos_-topzpos_);
-	    thr = -(topshift + fact*(z-topzpos_));
-	}
-    }
+	const Coord posbid = SI().binID2Coord().transformBackNoSnap( botpos );
+	const Coord3 nextpos = flttrc_->get( flttrc_->getSize() - 2 );
+	const Coord nextposbid =
+	    		SI().binID2Coord().transformBackNoSnap( nextpos );
 
-    return thr;
+	Coord nodepos1( isinl_ ? posbid.y : posbid.x,
+			botpos.z * SI().zFactor() );
+	Coord nodepos2( isinl_ ? nextposbid.y : nextposbid.x,
+			nextpos.z * SI().zFactor() );
+	Line2 fltseg( nodepos1, nodepos2 );
+	fltseg.start_ = Coord::udf();
+	fltseg.stop_ = Coord::udf();
+
+	const bool isinc = isinl_ ? posbid.y > nextposbid.y
+	    			  : posbid.x > nextposbid.x;
+	const BinID incbid( isinl_ ? 0 : (isinc ? 1 : -1),
+			    isinl_ ? (isinc ? 1 : -1) : 0 );
+	BinID start = botbid - incbid;
+	for ( int idx=0; idx<1024; idx++ )
+	{
+	    const BinID stop = start + incbid;
+	    const BinIDValueSet::Pos startpos = bvset_->findFirst( start );
+	    const BinIDValueSet::Pos stoppos = bvset_->findFirst( stop );
+	    float startbotz=mUdf(float), stopbotz=mUdf(float);
+	    if ( startpos.valid() )
+		bvset_->get( startpos, dummy, startbotz, dummyz );
+	    if ( stoppos.valid() )
+		bvset_->get( stoppos, dummy, stopbotz, dummyz );
+
+	    if ( mIsUdf(stopbotz) )
+	    {
+		const Coord3 newstoppos( SI().transform(start), stopbotz );
+		flttrc_->set( flttrc_->getSize() - 1, newstoppos );
+		break;
+	    }
+
+	    const Coord startbot( isinl_ ? start.crl : start.inl,
+		    		  startbotz * SI().zFactor() );
+	    const Coord stopbot( isinl_ ? stop.crl : stop.inl,
+		    		 stopbotz * SI().zFactor() );
+	    start = stop;
+	    Line2 botseg( startbot, stopbot );
+	    Coord interpos = botseg.intersection( fltseg );
+	    if ( interpos != Coord::udf() )
+	    {
+		Coord interbid( isinl_ ? nr_ : interpos.x,
+				isinl_ ? interpos.x : nr_ );
+		Coord newpos = SI().binID2Coord().transform( interbid );
+		Coord3 newpos3( newpos, interpos.y / SI().zFactor() );
+		flttrc_->set( flttrc_->getSize() - 1, newpos3 );
+		break;
+	    }
+	}
+    }
 }
-
 
 } // namespace SSIS
