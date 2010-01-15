@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.12 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.13 2010-01-15 14:01:03 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -509,6 +509,47 @@ PosInfo::CrdBidOffs PosInfo::Detector::userCBO(
 }
 
 
+template <class T>
+static BufferString getRangeStr( T start, T stop )
+{
+    BufferString ret;
+    T diff = stop - start;
+    if ( mIsZero(diff,0.0001) )
+	{ ret += start; ret += " [all equal]"; }
+    else
+    {
+	if ( diff < 0 ) diff = -diff;
+	ret += start; ret += " - "; ret += stop;
+	ret += " (d="; ret += diff; ret += ")";
+    }
+    return ret;
+}
+
+
+template <class T>
+static BufferString getStepRangeStr( T start, T stop, T step )
+{
+    BufferString ret;
+    T diff = stop - start;
+    if ( diff < 0 ) diff = -diff;
+    if ( diff == 0 )
+	{ ret = start; ret += " [all equal]"; }
+    else
+    {
+	ret = start; ret += " - "; ret += stop;
+	ret += " [step="; ret += step; ret += "]";
+    }
+    return ret;
+}
+
+
+static BufferString getBinIDStr( BinID bid )
+{
+    BufferString ret; ret += bid.inl; ret += "/"; ret += bid.crl;
+    return ret;
+}
+
+
 void PosInfo::Detector::report( IOPar& iop ) const
 {
     if ( setup_.reqsorting_ )
@@ -516,11 +557,12 @@ void PosInfo::Detector::report( IOPar& iop ) const
 					      : errmsg_.buf() );
     iop.set( "Total number of positions", nrpos_ );
     iop.set( "Number of unique positions", nruniquepos_ );
-    iop.set( "X-Coordinate range", mincoord_.x, maxcoord_.x );
-    iop.set( "Y-Coordinate range", mincoord_.y, maxcoord_.y );
+    iop.set( "X-Coordinate range", getRangeStr(mincoord_.x,maxcoord_.x) );
+    iop.set( "Y-Coordinate range", getRangeStr(mincoord_.y,maxcoord_.y) );
     if ( setup_.is2d_ )
     {
-	iop.set( "Trace number range/step", start_.crl, stop_.crl, step_.crl );
+	iop.set( "Trace numbers",
+		 getStepRangeStr(start_.crl,stop_.crl,step_.crl) );
 	iop.set( setup_.isps_ ? "Distance range between gathers"
 			: "Trace distance range", distrg_ );
 	iop.set( setup_.isps_ ? "Average gather distance"
@@ -529,14 +571,14 @@ void PosInfo::Detector::report( IOPar& iop ) const
     }
     else
     {
-	iop.set( "Inline range/step", start_.inl, stop_.inl, step_.inl );
-	iop.set( "Crossline range/step", start_.crl, stop_.crl, step_.crl );
+	iop.set( "Inlines", getStepRangeStr(start_.inl,stop_.inl,step_.inl) );
+	iop.set( "Crosslines", getStepRangeStr(start_.crl,stop_.crl,step_.crl));
 	iop.setYN( "Gaps in inlines", inlirreg_ );
 	iop.setYN( "Gaps in crosslines", crlirreg_ );
     }
     if ( setup_.isps_ )
     {
-	iop.set( "Offset range", offsrg_ );
+	iop.set( "Offsets", getRangeStr(offsrg_.start,offsrg_.stop) );
 	if ( mIsUdf(firstaltnroffs_.binid_.inl) )
 	    iop.set( "Number of traces per gather", nroffsperpos_ );
 	else
@@ -547,7 +589,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	    if ( setup_.is2d_ )
 		iop.set( varstr, fao.binid_.crl );
 	    else
-		iop.set( varstr, fao.binid_ );
+		iop.set( varstr, getBinIDStr(fao.binid_) );
 	}
     }
     else
@@ -561,7 +603,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	    if ( setup_.is2d_ )
 		iop.set( fdupstr, fdp.binid_.crl );
 	    else
-		iop.set( fdupstr, fdp.binid_ );
+		iop.set( fdupstr, getBinIDStr(fdp.binid_) );
 	}
     }
 }
