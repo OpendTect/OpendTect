@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.54 2009-10-16 14:40:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.55 2010-01-15 08:13:23 cvsnanne Exp $";
 
 
 #include "uimsg.h"
@@ -264,10 +264,10 @@ int uiMsg::askOverwrite( const char* text )
 
 
 int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
-		     const char* cncltxt, const char* caption )
+		     const char* cncltxt, const char* title )
 {
     mPrepCursor();
-    const char* wintitle = mCapt(caption);
+    const char* wintitle = mCapt(title && *title ? title : "Please specify");
     const int refnr = beginCmdRecEvent( wintitle );
 
     if ( !yestxt || !*yestxt )
