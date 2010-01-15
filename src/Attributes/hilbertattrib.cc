@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.26 2010-01-06 06:46:33 cvsnageswara Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.27 2010-01-15 08:12:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,6 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !inputdata_ ) return false;
 
-    ValueSeries<float>* padtrace = 0;
-
     const int hilbfilterlen = halflen_*2 + 1;
     const bool enoughsamps = nrsamples >= hilbfilterlen;
     const int arrminnrsamp = inputdata_->nrsamples_>hilbfilterlen
@@ -78,22 +76,18 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     const int nrsamptooutput = enoughsamps ? nrsamples : arrminnrsamp;
     const int shift = z0 - inputdata_->z0_;
 
-    Array1DImpl<float> createarr( arrminnrsamp );
     int inpstartidx = 0;
     int startidx = enoughsamps ? shift : 0;
 
+    Array1DImpl<float> createarr( arrminnrsamp );
+    ValueSeries<float>* padtrace = 0;
     if ( !enoughsamps )
     {
-	int sampleidx = 0;
 	for ( int idx=0; idx<arrminnrsamp; idx++ )
 	{
-	    if ( sampleidx < inputdata_->nrsamples_)
-		createarr.set( idx, inputdata_->series(0)->arr()[sampleidx] );
-
-	    if ( sampleidx >= inputdata_->nrsamples_ )
-    		createarr.arr()[idx] = 0;
-
-	    sampleidx++;
+	    const float val = idx < inputdata_->nrsamples_ ?
+		inputdata_->series(dataidx_)->value(idx) : 0;
+	    createarr.set( idx, val );
 	}
 
 	padtrace = createarr.getStorage();
