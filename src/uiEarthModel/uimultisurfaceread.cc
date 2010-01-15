@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.25 2009-10-16 14:48:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.26 2010-01-15 08:15:58 cvsnanne Exp $";
 
 #include "uimultisurfaceread.h"
 
@@ -39,14 +39,6 @@ void uiMultiSurfaceReadDlg::statusMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(const char*,msg,cb);
     toStatusBar( msg );
-
-    //disabed subselection for multi-horizon3D.
-    BufferString hor3d(EMHorizon3DTranslatorGroup::keyword()," selection");
-    if ( setup().wintitle_.isEqual(hor3d,true) )
-    {
-	const bool displaysubrg = surfacefld_->objselGrp()->nrSel() <= 1;
-	surfacefld_->getPosSubSel()->display( displaysubrg );
-    }
 }
 
 
