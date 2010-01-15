@@ -10,15 +10,10 @@ ________________________________________________________________________
 
 #include "uisurveyselect.h"
 
-#include "uibutton.h"
-#include "uicombobox.h"
 #include "oddirs.h"
-#include "uidialog.h"
 #include "uifileinput.h"
 #include "uilistbox.h"
-#include "uigeninput.h"
 #include "uisurvey.h"
-#include "uisetdatadir.h"
 
 
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p )
@@ -53,6 +48,7 @@ const char* uiSurveySelectDlg::getDataRoot() const
 {
     return datarootfld_->text();
 }
+
 
 const BufferString uiSurveySelectDlg::getSurveyName() const
 {   
