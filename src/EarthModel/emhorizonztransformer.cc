@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransformer.cc,v 1.1 2010-01-15 09:33:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: emhorizonztransformer.cc,v 1.2 2010-01-15 09:51:19 cvsnanne Exp $";
 
 #include "emhorizonztransformer.h"
 
@@ -19,7 +19,7 @@ namespace EM
 {
 
 HorizonZTransformer::HorizonZTransformer( const ZAxisTransform& zat,
-					  const EM::Horizon& tarhor,
+					  const Horizon& tarhor,
 					  bool isforward )
     : Executor("Transforming horizon")
     , tarhor_(tarhor)
@@ -43,7 +43,7 @@ HorizonZTransformer::~HorizonZTransformer()
 }
 
 
-void HorizonZTransformer::setOutputHorizon( EM::Horizon& outhor )
+void HorizonZTransformer::setOutputHorizon( Horizon& outhor )
 {
     outputhor_ = &outhor;
     outputhor_->ref();
@@ -54,16 +54,14 @@ void HorizonZTransformer::setReferenceZ( float z )
 { refz_ = z; }
 
 
+// TODO: handle multple sections
 int HorizonZTransformer::nextStep()
 {
-    // TODO: handle multple sections
-
     if ( !iter_->next(bid_) )
 	return Executor::Finished();
 
-    EM::PosID posid( outputhor_->id() );
     int sidx = 0;
-    const EM::SubID subid = bid_.getSerialized();
+    const SubID subid = bid_.getSerialized();
     float z = tarhor_.getPos( tarhor_.sectionID(sidx), subid ).z;
     if ( !mIsUdf(z) && !isforward_ )
 	z -= refz_;
@@ -72,11 +70,10 @@ int HorizonZTransformer::nextStep()
     if ( !mIsUdf(newz) && isforward_ )
 	newz += refz_;
 
-    posid.setSectionID( EM::SectionID(sidx) );
-    posid.setSubID( subid );
-    outputhor_->setPos( posid, Coord3(0,0,newz), false );
+    SectionID sid = outputhor_->sectionID( sidx );
+    outputhor_->setPos( sid, subid, Coord3(0,0,newz), false );
     nrdone_++;
     return Executor::MoreToDo();
 }
 
-} 
+} // namespace EM 
