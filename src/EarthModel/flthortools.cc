@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.18 2010-01-15 05:51:22 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.19 2010-01-18 05:12:16 ranojay Exp $";
 
 #include "flthortools.h"
 
@@ -72,7 +72,7 @@ void FaultTrace::sortZ()
     for ( int idx=0; idx<coords_.size(); idx++ )
 	zvals[idx] = coords_[idx].z;
 
-    sort_coupled( zvals, coords_.arr(), coords_.size() );
+    sort_coupled( mVarLenArr(zvals), coords_.arr(), coords_.size() );
     lock_.unLock();
 }
 
