@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.23 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.24 2010-01-18 10:38:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ class uiToolBar;
 class BufferStringSet;
 class CtxtIOObj;
 class IOObj;
+class IOPar;
 class uiToolButton;
 
 /*! \brief Editor for Attribute sets */
@@ -127,6 +128,7 @@ protected:
     bool			offerSetSave();
     bool			doSave(bool);
     void			replaceStoredAttr();
+    void			replaceStoredAttr(IOPar&);
     void			removeNotUsedAttr();
     //bool		hasInput(const Attrib::Desc&,const Attrib::DescID&);
 

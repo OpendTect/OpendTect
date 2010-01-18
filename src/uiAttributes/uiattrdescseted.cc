@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.92 2009-09-07 14:23:08 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.93 2010-01-18 10:38:13 cvssatyaki Exp $";
 
 #include "uiattrdescseted.h"
 
+#include "ascstream.h"
 #include "attribfactory.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -37,6 +38,7 @@ static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.92 2009-09-07 14:23:08 c
 #include "seistype.h"
 #include "survinfo.h"
 #include "settings.h"
+#include "strmprov.h"
 
 #include "uiattrdesced.h"
 #include "uiattrgetfile.h"
@@ -972,23 +974,14 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 
 void uiAttribDescSetEd::importFromFile( const char* filenm )
 {
-    IOStream* iostrm = new IOStream( "tmp" );
-    iostrm->setGroup( setctio_.ctxt.trgroup->userName() );
-    iostrm->setTranslator( "dGB" );
-    iostrm->setFileName( filenm );
-    IOObj* oldioobj = setctio_.ioobj ? setctio_.ioobj->clone() : 0;
-    setctio_.setObj( iostrm );
-    if ( !doSetIO(true) )
-	setctio_.setObj( oldioobj );
-    else
-    {
-	delete oldioobj;
-	setid_ = setctio_.ioobj->key();
-	replaceStoredAttr();
-	newList( -1 );
-	attrsetfld_->setText( "" );
-	setctio_.ioobj = 0;
-    }
+    StreamProvider sp( filenm );
+    ascistream ascstrm( *sp.makeIStream(false).istrm );
+    IOPar iopar( ascstrm );
+    replaceStoredAttr( iopar );
+    attrset_->usePar( iopar, atof(ascstrm.version()) );
+    newList( -1 );
+    attrsetfld_->setText( "" );
+    setctio_.ioobj = 0;
 }
 
 
@@ -1127,7 +1120,14 @@ void uiAttribDescSetEd::changeInput( CallBacker* )
 
 void uiAttribDescSetEd::replaceStoredAttr()
 {
-    uiStoredAttribReplacer replacer( this, *attrset_ );
+    uiStoredAttribReplacer replacer( this, attrset_ );
+    replacer.go();
+}
+
+
+void uiAttribDescSetEd::replaceStoredAttr( IOPar& iopar )
+{
+    uiStoredAttribReplacer replacer( this, &iopar, attrset_->is2D() );
     replacer.go();
 }
 

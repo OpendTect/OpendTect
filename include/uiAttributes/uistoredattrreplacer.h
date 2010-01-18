@@ -7,16 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: uistoredattrreplacer.h,v 1.7 2009-11-02 12:00:43 cvssatyaki Exp $
+ RCS:		$Id: uistoredattrreplacer.h,v 1.8 2010-01-18 10:38:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 #include "attribdescid.h"
+#include "bufstringset.h"
 #include "linekey.h"
 #include "sets.h"
 
 class uiParent;
-class BufferStringSet;
 namespace Attrib
 {
     class Desc;
@@ -27,7 +27,9 @@ mClass uiStoredAttribReplacer
 {
 public:
     				uiStoredAttribReplacer(uiParent*,
-						       Attrib::DescSet&);
+						       Attrib::DescSet*);
+    				uiStoredAttribReplacer(uiParent*,IOPar*,
+						       bool is2d=false);
     void 			go();
 
 protected:
@@ -50,16 +52,26 @@ protected:
 	Attrib::DescID		firstid_;
 	Attrib::DescID		secondid_;
 	LineKey			lk_;
+	BufferStringSet		userrefs_;
     };
 
+    void			usePar(const IOPar&);
+    void			setStoredKey(IOPar*,const char*);
+    void			setSteerPar(StoredEntry,const char*,
+	    				    const char*);
+    void			setUserRef(IOPar*,const char*);
+    void			getUserRefs(const IOPar&);
     void			getUserRef(const Attrib::DescID&,
 					   BufferStringSet&) const;
     void			getStoredIds();
+    void			getStoredIds(const IOPar&);
     void			handleSingleInput();
     void			handleMultiInput();
     bool			hasInput(const Attrib::Desc&,
 					 const Attrib::DescID&) const;
-    Attrib::DescSet& 		attrset_;
+    int				getOutPut(int descid); 
+    Attrib::DescSet* 		attrset_;
+    IOPar*			iopar_;
     TypeSet<StoredEntry>	storedids_;
     bool		 	is2d_;
     uiParent*	 		parent_;
