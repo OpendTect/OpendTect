@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.14 2009-12-16 06:03:19 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.15 2010-01-18 16:14:32 cvsbert Exp $";
 
 #include "uihorinterpol.h"
 
@@ -77,17 +77,19 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     }
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    if ( is2d )
-	sep->attach( stretchedBelow, interpol1dsel_ );
-    else
-	sep->attach( stretchedBelow, interpol2dsel_ );
 
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_, is2d );
     savefldgrp_->setSaveFieldName( "Save gridded horizon" );
     if ( is2d )
-	sep->attach( alignedBelow, interpol1dsel_ );
+    {
+	sep->attach( stretchedBelow, interpol1dsel_ );
+	savefldgrp_->attach( alignedBelow, interpol1dsel_ );
+    }
     else
-	sep->attach( alignedBelow, interpol2dsel_ );
+    {
+	sep->attach( stretchedBelow, interpol2dsel_ );
+	savefldgrp_->attach( alignedBelow, interpol2dsel_ );
+    }
     savefldgrp_->attach( ensureBelow, sep );
 }
 
