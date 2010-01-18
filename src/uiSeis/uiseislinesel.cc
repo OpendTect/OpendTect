@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.30 2010-01-18 04:17:13 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.31 2010-01-18 05:15:44 cvsraman Exp $";
 
 #include "uiseislinesel.h"
 
@@ -251,11 +251,9 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio,
 void uiSeis2DLineSubSel::finalised( CallBacker* )
 {
     if ( !lsctio_.ioobj )
-    {
 	linesetfld_->doSel( 0 );
-	lineSetSel( 0 );
-    }
 
+    lineSetSel( 0 );
     lineChk(0);
 }
 
