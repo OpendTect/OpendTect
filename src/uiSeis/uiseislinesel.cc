@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.29 2009-09-15 09:47:55 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.30 2010-01-18 04:17:13 cvsraman Exp $";
 
 #include "uiseislinesel.h"
 
@@ -300,7 +300,14 @@ void uiSeis2DLineSubSel::setZRange( const StepInterval<float>& rg )
 BufferString uiSeis2DLineSubSel::getSummary() const
 {
     BufferString ret;
-    if ( !linesetfld_ || !lsctio_.ioobj ) return ret;
+    if ( !linesetfld_ ) return ret;
+
+    if ( !lsctio_.ioobj )
+    {
+	lsctio_.fillDefault( true );
+	if ( !lsctio_.ioobj )
+	    return ret;
+    }
 
     ret = lsctio_.ioobj->name();
     const int nrsel = sellines_.size();
