@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.43 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.44 2010-01-18 10:45:15 cvsbert Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -167,9 +167,11 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 {
     if ( pil.size() < 1 )
     {
+	setCtrlStyle( LeaveOnly );
 	new uiLabel( this, "Not found any BatchPrograms.* file in application");
 	return;
     }
+    setCtrlStyle( DoAndStay );
 
     progfld = new uiLabeledComboBox( this, "Batch program" );
     for ( int idx=0; idx<pil.size(); idx++ )
@@ -380,7 +382,10 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 #endif
 
     StreamProvider sp( comm );
-    return sp.executeCommand( true, true );
+    if ( !sp.executeCommand(true,true) )
+	uiMSG().error( "Could not execute command:\n", comm );
+
+    return false;
 }
 
 
@@ -401,4 +406,3 @@ void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
 	    finp->setText( uitf->fileName() );
     }
 }
-
