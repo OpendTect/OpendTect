@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonattrib.cc,v 1.16 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.17 2010-01-18 17:11:47 cvsyuancheng Exp $";
 
 #include "horizonattrib.h"
 
@@ -128,7 +128,12 @@ void Horizon::prepareForComputeData()
 {
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.getObjectID( horid_ );
-    BufferStringSet loadedauxdatanms;
+
+    EM::SurfaceIOData sd;
+    EM::EMM().getSurfaceData( horid_, sd );
+    const int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
+    if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) return;
+    
     if ( objid > -1 )
     {
 	mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
@@ -154,35 +159,40 @@ void Horizon::prepareForComputeData()
 			horizon_->ref();
 			return;
 		    }
+		}
+
+		if ( hor3d ) //Load ayxdata if not loaded.
+		{
+		    PtrMan<Executor> adl =
+			hor3d->auxdata.auxDataLoader( surfdtidx );
+		    if ( adl && adl->execute() )
+		    {
+			horizon_ = hor;
+			horizon_->ref();
+		    }
+		    else
+		    {
+			BufferString msg = "Loading surface data ";
+			msg += surfdatanm_;
+			msg += " failed.";
+			errmsg =  msg;
+		    }
 		    
-		    loadedauxdatanms.add( auxnm );
+		    return;
 		}
 	    }
 	}
     }
 
-    EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( horid_, sd );
     EM::SurfaceIODataSelection sel( sd );
     if ( getDesiredVolume() )
 	sel.rg = getDesiredVolume()->hrg;
+    sel.selvalues += surfdtidx;
 
-    int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
-    if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) return;
-    else if ( surfdtidx >= 0 )
-	sel.selvalues += surfdtidx;
-
-    for ( int idx=0; idx<loadedauxdatanms.size(); idx++ )
-    {
-	int tmpsurfdtidx = sd.valnames.indexOf( loadedauxdatanms.get(idx) );
-	if ( tmpsurfdtidx >= 0 )
-	    sel.selvalues += tmpsurfdtidx;
-    }
-    
     PtrMan<Executor> loader = em.objectLoader( horid_, &sel );
     if ( !loader ) return;
-
-    loader->execute();
+    
+    loader->execute();	
     objid = em.getObjectID( horid_ );
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
     if ( hor )
