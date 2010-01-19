@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.2 2010-01-19 12:06:40 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.3 2010-01-19 14:17:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,15 @@ ________________________________________________________________________
 #include "ranges.h"
 template <class T> class TypeSet;
 
+
+/* Probability Density Function
+
+   The values may not ne normalized; if you need them to be: multiply with
+   'normFac()'. What you are getting can for example be the values from a
+   histogram. All we require is that the value() implementation always returns
+   positive values.
+
+*/
 
 mClass ProbDenFunc
 {
@@ -29,7 +38,6 @@ public:
     virtual float	value(const TypeSet<float>&) const = 0;
 
     virtual float	normFac() const			{ return 1; }
-			//!< factor to get 'true' normalized probabilities
 };
 
 

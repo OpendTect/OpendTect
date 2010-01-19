@@ -4,12 +4,13 @@
  * DATE     : Jan 2010
 -*/
  
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.2 2010-01-19 12:06:40 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.3 2010-01-19 14:17:53 cvsbert Exp $";
 
 
 #include "sampledprobdenfunc.h"
 #include "interpol1d.h"
 #include "interpol2d.h"
+#include <math.h>
 
 
 ProbDenFunc1D& ProbDenFunc1D::operator =( const ProbDenFunc1D& pd )
@@ -101,17 +102,18 @@ float SampledProbDenFunc1D::value( float pos ) const
     if ( sz < 1 ) return 0;
 
     const float fidx = sd_.getIndex( pos );
-    if ( fidx < -0.5 || fidx > sz-0.5 )
+    const int idx = (int)floor(fidx);
+    if ( idx < -1 || idx > sz-1 )
 	return 0;
 
     float v[4];
-    const int idx = (int)fidx;
-    v[0] = bins_.get( idx < 2 ? 0 : idx-1 );
-    v[1] = bins_.get( idx );
-    v[2] = idx < sz-1 ? bins_.get( idx + 1 ) : v[1];
-    v[3] = idx < sz-2 ? bins_.get( idx + 2 ) : v[2];
+    v[0] = idx < 1	? 0 : bins_.get( idx-1 );
+    v[1] = idx < 0	? 0 : bins_.get( idx );
+    v[2] = idx > sz-2	? 0 : bins_.get( idx + 1 );
+    v[3] = idx > sz-3	? 0 : bins_.get( idx + 2 );
 
-    return Interpolate::PolyReg1D<float>(v).apply( fidx - idx );
+    const float val = Interpolate::PolyReg1D<float>(v).apply( fidx - idx );
+    return val < 0 ? 0 : val;
 }
 
 
@@ -157,18 +159,19 @@ float SampledProbDenFunc2D::value( float px, float py ) const
 
     const float fidxx = sd0_.getIndex( px );
     const float fidxy = sd1_.getIndex( py );
-    if ( fidxx < -0.5 || fidxx > szx-0.5 || fidxy < -0.5 || fidxy > szy-0.5 )
+    const int idxx = (int)floor(fidxx); const int idxy = (int)floor(fidxy);
+    if ( idxx < -1 || idxx > szx-1 || idxy < -1 || idxy > szy-1 )
 	return 0;
 
-    const int idxx = (int)fidxx; const int idxy = (int)fidxy;
-    const float v00 = bins_.get( idxx, idxy );
-    const float v01 = idxy < szy-1 ? bins_.get( idxx, idxy+1 ) : v00;
-    const float v10 = idxx < szx-1 ? bins_.get( idxx+1, idxy ) : v00;
-    const float v11 = idxy < szy-1 && idxx < szx-1 ? bins_.get( idxx+1, idxy+1 )
-		: (v01+v10) * .5;
+    float v[4];
+    v[0] = idxx < 0 || idxy < 0		? 0 : bins_.get( idxx, idxy );
+    v[1] = idxy > szy-2 || idxx < 0	? 0 : bins_.get( idxx, idxy+1 );
+    v[2] = idxx > szx-2 || idxy < 0	? 0 : bins_.get( idxx+1, idxy );
+    v[3] = idxx > szx-2 || idxy > szy-2	? 0 : bins_.get( idxx+1, idxy+1 );
 
-    return Interpolate::LinearReg2D<float>(v00,v01,v10,v11)
-		.apply( fidxx - idxx, fidxy - idxy );
+    const float val = Interpolate::LinearReg2D<float>(v)
+			.apply( fidxx - idxx, fidxy - idxy );
+    return val < 0 ? 0 : val;
 }
 
 
