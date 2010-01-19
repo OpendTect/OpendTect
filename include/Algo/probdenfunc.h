@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.1 2010-01-18 16:13:15 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.2 2010-01-19 12:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,12 @@ public:
 
     BufferString	varnm_;
 
+protected:
+
+    			ProbDenFunc1D( const char* vnm )
+			    : varnm_(vnm)	{}
+    ProbDenFunc1D&	operator =(const ProbDenFunc1D&);
+
 };
 
 
@@ -56,15 +62,20 @@ mClass ProbDenFunc2D : public ProbDenFunc
 public:
 
     virtual int		nrDims() const			{ return 2; }
-    virtual const char*	dimName( int idim ) const
-			{ return (idim ? dim2nm_ : dim1nm_).buf(); }
+    virtual const char*	dimName(int) const;
 
     virtual float	value(float,float) const	= 0;
     virtual float	value( const TypeSet<float>& v ) const
 			{ return value(v[0],v[1]); }
 
+    BufferString	dim0nm_;
     BufferString	dim1nm_;
-    BufferString	dim2nm_;
+
+protected:
+
+    			ProbDenFunc2D( const char* vnm0, const char* vnm1 )
+			    : dim0nm_(vnm0), dim1nm_(vnm1)	{}
+    ProbDenFunc2D&	operator =(const ProbDenFunc2D&);
 
 };
 

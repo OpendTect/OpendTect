@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.1 2010-01-18 16:13:15 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.2 2010-01-19 12:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,7 @@ public:
     			SampledProbDenFunc1D(const TypeSet<float>&);
     			SampledProbDenFunc1D(const float*,int);
     			SampledProbDenFunc1D(const SampledProbDenFunc1D&);
+    SampledProbDenFunc1D& operator =(const SampledProbDenFunc1D&);
 
     virtual float	value(float) const;
 
@@ -79,6 +80,7 @@ mClass SampledProbDenFunc2D : public ProbDenFunc2D
 public:
     			SampledProbDenFunc2D(const Array2D<float>&);
     			SampledProbDenFunc2D(const SampledProbDenFunc2D&);
+    SampledProbDenFunc2D& operator =(const SampledProbDenFunc2D&);
 
     virtual float	value(float,float) const;
 
@@ -95,6 +97,13 @@ protected:
 };
 
 
+/*!\brief Multi-dimensional PDF based on binned data.
+
+  If the 'dimnms_' are not filled, 'Dim0', 'Dim1' ... etc. will be returned.
+
+ */
+
+
 mClass SampledProbDenFuncND : public ProbDenFunc
 			    , public ArrayNDProbDenFunc
 {
@@ -102,13 +111,15 @@ public:
 
     			SampledProbDenFuncND(const ArrayND<float>&);
     			SampledProbDenFuncND(const SampledProbDenFuncND&);
+    SampledProbDenFuncND& operator =(const SampledProbDenFuncND&);
 
-    virtual int		nrDims() const;
+    virtual int		nrDims() const	{ return bins_.info().getNDim(); }
     virtual const char*	dimName(int) const;
     virtual float	value(const TypeSet<float>&) const;
 
     TypeSet< SamplingData<float> >	sds_;
     ArrayNDImpl<float>			bins_;
+    BufferStringSet			dimnms_;
 
 protected:
 
