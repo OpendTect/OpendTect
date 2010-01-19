@@ -3,9 +3,14 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Jan 2010
 -*/
- 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.3 2010-01-19 14:17:53 cvsbert Exp $";
 
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.4 2010-01-19 15:03:12 cvsbert Exp $";
+
+// Sampled:
+// 1D currently does polynomial interpolation
+// 2D currently does bi-linear interpolation
+// ND currently does no interpolation at all, returns nearest
+ 
 
 #include "sampledprobdenfunc.h"
 #include "interpol1d.h"
@@ -119,7 +124,6 @@ float SampledProbDenFunc1D::value( float pos ) const
 
 // 2D
 
-
 SampledProbDenFunc2D::SampledProbDenFunc2D( const Array2D<float>& a2d )
     : ProbDenFunc2D("","")
     , sd0_(0,1)
@@ -209,7 +213,13 @@ float SampledProbDenFuncND::value( const TypeSet<float>& vals ) const
 
     TypeSet<int> idxs;
     for ( int idx=0; idx<sds_.size(); idx++ )
-	idxs += sds_[idx].nearestIndex( vals[idx] );
+    {
+	const int sdidx = sds_[idx].nearestIndex( vals[idx] );
+	if ( sdidx < 0 || sdidx > size(idx) )
+	    return 0;
+
+	idxs += sdidx;
+    }
 
     return bins_.getND( idxs.arr() );
 }
