@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.44 2010-01-15 11:30:12 cvsraman Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.45 2010-01-19 05:44:51 cvsraman Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -343,8 +343,8 @@ void CtxtIOObj::fillDefault( bool oone2 )
 	    is3d = false;
 	keystr = is3d ? sKey::DefCube : sKey::DefLineSet;
 	FixedString typestr = ctxt.parconstraints.find( sKey::Type );
-	if ( is3d && typestr == sKey::Steering && ctxt.includeconstraints )
-	    keystr = IOPar::compKey(keystr,sKey::Steering);
+	if ( is3d && !typestr.isEmpty() && ctxt.includeconstraints )
+	    keystr = IOPar::compKey(keystr,typestr);
     }
     else
     {
