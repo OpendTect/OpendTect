@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.99 2010-01-12 11:07:59 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.100 2010-01-20 08:48:58 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -455,6 +455,10 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 {
     if ( mainwin() && !mainwin()->finalised() )
 	return false;
+
+    BufferStringSet bss; getAnnotChoices( bss );
+    if ( bss.indexOf(appearance().annot_.x1_.name_) >= 0 )
+	axesdrawer_.altdim0_ = bss.indexOf( appearance().annot_.x1_.name_ );
 
     const FlatView::Annotation& annot = appearance().annot_;
 

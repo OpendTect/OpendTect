@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.33 2010-01-11 10:17:25 cvsumesh Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.34 2010-01-20 08:48:58 cvssatyaki Exp $";
 
 #include "attribdatapack.h"
 
@@ -30,10 +30,13 @@ static const char* rcsID = "$Id: attribdatapack.cc,v 1.33 2010-01-11 10:17:25 cv
 namespace Attrib
 {
 
-const char* DataPackCommon::categoryStr( bool vertical )
+FixedString sAttribute2D()		{ return "Attribute2D"; }
+
+const char* DataPackCommon::categoryStr( bool vertical, bool is2d )
 {
-    static BufferString vret( IOPar::compKey(sKey::Attribute,"V") );
-    return vertical ? vret.buf() : sKey::Attribute;
+    static BufferString vret;
+    vret = IOPar::compKey( is2d ? sAttribute2D() : sKey::Attribute,"V" );
+    return vertical ? vret.buf() : is2d ? sAttribute2D() : sKey::Attribute;
 }
 
 
@@ -265,7 +268,7 @@ void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 
 
 Flat2DDataPack::Flat2DDataPack( DescID did )
-    : ::FlatDataPack(categoryStr(true))
+    : ::FlatDataPack(categoryStr(true,true))
     , DataPackCommon(did)
 {
     SeisTrcInfo::getAxisCandidates( Seis::Line, tiflds_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.55 2009-09-10 11:11:49 cvssatyaki Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.56 2010-01-20 08:48:58 cvssatyaki Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -518,8 +518,10 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 	    useStoredDefaults( fdp->category() );
 
 	FlatView::Annotation& annot = appearance().annot_;
-	annot.x1_.name_ = fdp->dimName( true );
-	annot.x2_.name_ = fdp->dimName( false );
+	if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
+	    annot.x1_.name_ = fdp->dimName( true );
+	if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
+	    annot.x2_.name_ = fdp->dimName( false );
     }
 
     handleChange( wva ? WVAData : VDData );

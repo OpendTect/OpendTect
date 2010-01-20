@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.27 2010-01-11 10:16:52 cvsumesh Exp $
+ RCS:		$Id: attribdatapack.h,v 1.28 2010-01-20 08:48:58 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ public:
 
     void		dumpInfo(IOPar&) const;
 
-    static const char*	categoryStr(bool vertical);
+    static const char*	categoryStr(bool vertical,bool is2d = false);
 
 protected:
 

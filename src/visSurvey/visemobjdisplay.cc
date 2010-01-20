@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.124 2009-08-11 13:19:40 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.125 2010-01-20 08:48:58 cvssatyaki Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -554,8 +554,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyEarthModelID, getMultiID() );
     par.setYN( sKeyEdit, isEditingEnabled() );
     par.setYN( sKeyOnlyAtSections, getOnlyAtSectionsDisplay() );
-    if ( nontexturecolisset_ )
-	par.set( sKey::Color, (int)nontexturecol_.rgb() );
+    par.set( sKey::Color, (int)getColor().rgb() );
 
     if ( lineStyle() )
     {
