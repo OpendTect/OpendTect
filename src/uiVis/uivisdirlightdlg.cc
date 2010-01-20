@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.20 2009-12-28 20:58:59 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.21 2010-01-20 09:39:56 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -36,6 +36,11 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.20 2009-12-28 20:58:59 
 #define mInitIntensity		100
 #define mInitHeadOnIntensity	100
 #define mInitAmbIntensity	50
+// Define mCanAdjustIntensity as true if the sliders for intensity of 
+// headon light and directional light should be displayed.
+#define mCanAdjustIntensity	true
+// Show or hide the (large) icons for the 2 types of light.
+#define mShowLightIcons		false
 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     : uiDialog(p,
@@ -88,32 +93,64 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     
     cameralightview_ = new uiGraphicsView( lightgrp_, "Camera light icon" );
     cameralightview_->attach( alignedBelow, lightlbl_ );
+    cameralightview_->display( mShowLightIcons );
     cameralightview_->setStretch( 0, 0);
     cameralightview_->setPrefWidth( 50 );
     cameralightview_->setPrefHeight( 50 );
     
     cameralightfld_ = new uiRadioButton( lightgrp_, 
 	    "positioned at the camera" );
+#ifdef mShowLightIcons
     cameralightfld_->attach( rightOf, cameralightview_ );
+#else
+    cameralightfld_->attach( alignedBelow, lightlbl_ );
+    cameralightfld_->display( false );
+#endif
 
     scenelightview_ = new uiGraphicsView( lightgrp_, "Scene light icon" );
     scenelightview_->attach( alignedBelow, cameralightview_ );
     scenelightview_->attach( widthSameAs, cameralightview_ );
+    scenelightview_->display( mShowLightIcons );
     scenelightview_->setStretch( 0, 0);
     scenelightview_->setPrefWidth( 50 );
     scenelightview_->setPrefHeight( 50 );
     
     scenelightfld_ = new uiRadioButton( lightgrp_, "relative to the scene" );
+#ifdef mShowLightIcons
     scenelightfld_->attach( rightOf, scenelightview_ );
+#else
+    scenelightfld_->attach( rightOf, cameralightfld_ );
+#endif
 
     lightgrp_->setHAlignObj( cameralightfld_ );
+
+    intensityfld_ = new uiSliderExtra( this,
+	    uiSliderExtra::Setup("Intensity (%)").withedit(true).
+	    	         nrdec(1).logscale(false), "Intensity slider" );
+    intensityfld_->attach( alignedBelow, lightgrp_ );
+    intensityfld_->sldr()->setMinValue( 0 );
+    intensityfld_->sldr()->setMaxValue( 100 );
+    intensityfld_->sldr()->setStep( 5 );
+#ifndef mCanAdjustIntensity
+    intensityfld_->display( false );
+#endif
+
+    headonintensityfld_ = new uiSliderExtra( this,
+	    uiSliderExtra::Setup("Camera light intensity (%)").
+	    			 withedit(true).nrdec(1).logscale(false), 
+				 "Camera light intensity slider" );
+    headonintensityfld_->attach( alignedBelow, lightgrp_ );
+    headonintensityfld_->sldr()->setMinValue( 0 );
+    headonintensityfld_->sldr()->setMaxValue( 100 );
+    headonintensityfld_->sldr()->setStep( 5 );
+    headonintensityfld_->display( false );
 
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
     azimuthfld_ = new uiSliderExtra( this,
 	    uiSliderExtra::Setup("Azimuth (degrees)").withedit(true).nrdec(1).
 	          logscale(false), "Azimuth slider" );
-    azimuthfld_->attach( alignedBelow, lightgrp_ );
+    azimuthfld_->attach( alignedBelow, intensityfld_ );
     azimuthfld_->sldr()->setMinValue( 0 );
     azimuthfld_->sldr()->setMaxValue( 360 );
     azimuthfld_->sldr()->setStep( 5 );
@@ -126,30 +163,11 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     dipfld_->sldr()->setMaxValue( 90 );
     dipfld_->sldr()->setStep( 5 );
 
-    intensityfld_ = new uiSliderExtra( this,
-	    uiSliderExtra::Setup("Intensity (%)").withedit(true).
-	    	         nrdec(1).logscale(false), "Intensity slider" );
-    intensityfld_->attach( alignedBelow, dipfld_ );
-    intensityfld_->sldr()->setMinValue( 0 );
-    intensityfld_->sldr()->setMaxValue( 100 );
-    intensityfld_->sldr()->setStep( 5 );
-    intensityfld_->display( false );
-
     showpdfld_ = new uiPushButton( this, "Show polar diagram", false );
     showpdfld_->attach( alignedBelow, dipfld_ );
 
     sep2_ = new uiSeparator( this, "HSep", true );
     sep2_->attach( stretchedBelow, showpdfld_ );
-	    
-    headonintensityfld_ = new uiSliderExtra( this,
-	    uiSliderExtra::Setup("Camera light intensity (%)").
-	    			 withedit(true).nrdec(1).logscale(false), 
-				 "Camera light intensity slider" );
-//    headonintensityfld_->attach( centeredBelow, showpdfld_ );
-    headonintensityfld_->sldr()->setMinValue( 0 );
-    headonintensityfld_->sldr()->setMaxValue( 100 );
-    headonintensityfld_->sldr()->setStep( 5 );
-    headonintensityfld_->display( false );
 
     ambintensityfld_ = new uiSliderExtra( this,
 	    uiSliderExtra::Setup("Ambient light intensity (%)").
@@ -166,6 +184,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
     initlighttype_ = currlighttype_ = 1;
     initlighttype_ ? scenelightfld_->click() : cameralightfld_->click();
+
     cameralightfld_->activated.notify( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
     scenelightfld_->activated.notify( 
@@ -727,6 +746,8 @@ void uiDirLightDlg::lightSelChangedCB( CallBacker* c )
 
     azimuthfld_->display( currlighttype_ );
     dipfld_->display( currlighttype_ );
+    intensityfld_->display( currlighttype_ );
+    headonintensityfld_->display( !currlighttype_ );
     showpdfld_->display( currlighttype_ );
     if ( currlighttype_ && pdshown )
 	pddlg_->show();
