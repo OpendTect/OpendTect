@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.55 2009-12-21 21:20:20 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.56 2010-01-20 21:06:56 cvsyuancheng Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -293,11 +293,23 @@ bool uiODHorizonTreeItem::init()
 	: (hd->geometryRowRange().width() && hd->geometryColRange().width());
     if ( geodf )
     {
+	const StepInterval<int> rrg = hd->geometryRowRange();
+	const StepInterval<int> crg = hd->geometryColRange();
 	const HorSampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
-	const bool userchanged = rg.inlRange()!=hd->geometryRowRange() ||
-	    			 rg.crlRange()!=hd->geometryColRange();
+	bool userchanged = rg.inlRange()!=rrg || rg.crlRange()!=crg;
+	if ( rg.inlRange().start<rrg.start || rg.inlRange().stop>rrg.stop || 
+	     rg.crlRange().start<crg.start || rg.crlRange().stop>crg.stop )
+	    userchanged = false;		
+	
 	if ( rg.isDefined() && userchanged )
-    	    sect->setDisplayRange( rg.inlRange(), rg.crlRange() );
+	{
+	    sect->setDisplayRange( rg.inlRange(), rg.crlRange() );
+	    for ( int idx=0; idx<hd->nrAttribs(); idx++ )
+	    {
+		if ( hd->hasDepth(idx) ) hd->setDepthAsAttrib( idx );
+		else applMgr()->calcRandomPosAttrib( displayID(), idx );
+	    }	    
+	}
     }
 
     const bool res = uiODEarthModelSurfaceTreeItem::init();
