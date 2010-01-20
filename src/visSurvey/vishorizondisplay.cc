@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.122 2009-12-10 15:03:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.123 2010-01-20 05:07:33 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -712,12 +712,15 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     for ( int idx=0; idx<positions->nrCols(); idx++ )
 	attrnms->add( positions->colDef( idx ).name_ );
     userrefs_.replace( channel, attrnms );
-    bool isz = ( attrnms->size()>=1 && !strcmp(attrnms->get(0).buf(),"Depth") );
+
+    bool isz = attrnms->size()>=1 && !strcmp(attrnms->get(0).buf(),"Depth");
     mDeclareAndTryAlloc( BIDValSetArrAdapter*, bvsarr, 
 	    		 BIDValSetArrAdapter(positions->bivSet(),isz?0:2) );
-    const char* categorynm = isz ? "Surface Data" : "Geometry";
-    mDeclareAndTryAlloc( MapDataPack*, newpack,
-    		 MapDataPack(categorynm,attrnms->get(isz?0:1).buf(),bvsarr));
+    const char* catnm = isz ? "Geometry" : "Surface Data";
+    const char* dpnm = isz ? "Depth"
+			   : (attrnms->size()>1 ? attrnms->get(1).buf() : "");
+    mDeclareAndTryAlloc(MapDataPack*,newpack,MapDataPack(catnm,dpnm,bvsarr));
+
     StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
 				SI().inlStep() );
     StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
