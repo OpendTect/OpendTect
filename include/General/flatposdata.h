@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.7 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: flatposdata.h,v 1.8 2010-01-21 13:04:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
 				    : x1pos_(0)		{ *this = fpd; }
 				~FlatPosData()		{ delete [] x1pos_; }
     FlatPosData&		operator =(const FlatPosData&);
+    FlatPosData*		clone() { return new FlatPosData(*this); }
 
     void			setRange(bool forx1,
 	    				 const StepInterval<double>&);
