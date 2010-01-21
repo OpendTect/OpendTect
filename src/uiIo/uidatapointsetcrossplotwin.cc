@@ -578,7 +578,12 @@ void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
 {
     if ( plotter_.isADensityPlot() )
     {
-	if ( !plotter_.selectionAreas().size() ) return;
+	if ( !plotter_.selectionAreas().size() )
+	{
+	    uidps_.selPtsToBeShown.trigger();
+	    return;
+	}
+
 	Array2D<float>* data =
 	    new Array2DImpl<float>( plotter_.arrArea().width() + 1,
 				    plotter_.arrArea().height() +1 );
