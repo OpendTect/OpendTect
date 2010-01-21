@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.47 2010-01-08 14:36:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.48 2010-01-21 13:07:39 cvsbruno Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -354,7 +354,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == seiswellitem_.id )
     {
 	ODMainWin()->sceneMgr().displayIn2DWellPanel( displayID(), attribNr(),
-						   	true );
+						   	false );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==removemnuitem_.id )

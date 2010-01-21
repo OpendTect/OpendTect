@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.34 2009-11-09 06:35:34 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.35 2010-01-21 13:07:39 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -211,15 +211,14 @@ void uiWavelet::drawWavelet()
     memcpy( fva2d->getData(), wvlt_->samples(), wvltsz * sizeof(float) );
     
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
-    DPM( DataPackMgr::FlatID() ).add( dp ); dp->setName( wvlt_->name() );
-    viewer_->setPack( true, dp->id(), false );
     DPM( DataPackMgr::FlatID() ).addAndObtain( dp );
+    dp->setName( wvlt_->name() );
+    viewer_->setPack( true, dp->id(), false );
     
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
     if ( SI().zIsTime() ) posns.scale( SI().zFactor() );
     dp->posData().setRange( false, posns );
     
-    viewer_->setPack( true, dp->id(), false );
     viewer_->handleChange( uiFlatViewer::All );
 }
 
