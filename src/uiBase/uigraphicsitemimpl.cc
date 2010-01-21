@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.35 2010-01-08 10:17:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.36 2010-01-21 14:55:04 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -84,7 +84,8 @@ QGraphicsItem* uiObjectItem::mkQtObj()
 
 void uiObjectItem::setObjectSize( int szx, int szy )
 {
-    if ( obj_ ) obj_->qwidget()->setFixedSize( szx, szy );
+    if ( obj_ ) obj_->qwidget()->setMinimumSize( szx, szy );
+    if ( obj_ ) obj_->qwidget()->setMaximumSize( szx, szy );
 }
 
 
