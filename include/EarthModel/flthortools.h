@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.12 2010-01-15 05:50:49 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.13 2010-01-21 11:44:01 raman Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,11 @@ public:
 
     int			nextID(int) const;
     int			add(const Coord3&);
+    int			add(const Coord3&,int trcnr);
     Coord3		get(int) const;
+    int			getTrcNr(int) const;
     void		set(int,const Coord3&);
+    void		set(int,const Coord3&,int);
     void		remove(int);
     bool		isDefined(int) const;
     int			getSize() const	{ return coords_.size(); }
@@ -59,9 +62,9 @@ protected:
 mClass FaultTraceExtractor
 {
 public:
-    			FaultTraceExtractor(EM::Fault&,int,bool,
+    			FaultTraceExtractor(EM::Fault*,int,bool,
 					    const BinIDValueSet* bvs=0);
-    			FaultTraceExtractor(EM::Fault&,const char* linenm,
+    			FaultTraceExtractor(EM::Fault*,const char*,int sticknr,
 					    const BinIDValueSet* bvs=0);
 			~FaultTraceExtractor();
 
@@ -72,7 +75,8 @@ protected:
 
     bool		isinl_;
     int			nr_;
-    EM::Fault&		fault_;
+    int			sticknr_;	// For 2D
+    EM::Fault*		fault_;
     FaultTrace*		flttrc_;
     bool		is2d_;
     BufferString	linenm_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.19 2010-01-18 05:12:16 ranojay Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.20 2010-01-21 11:44:01 raman Exp $";
 
 #include "flthortools.h"
 
@@ -43,16 +43,45 @@ int FaultTrace::add( const Coord3& pos )
 }
 
 
+int FaultTrace::add( const Coord3& pos, int trcnr )
+{
+    lock_.lock();
+    coords_ += pos;
+    trcnrs_ += trcnr;
+    lock_.unLock();
+    return coords_.size() - 1;
+}
+
+
 Coord3 FaultTrace::get( int idx ) const
 { return idx >= 0 && idx < coords_.size() ? coords_[idx] : Coord3::udf(); }
+
+int FaultTrace::getTrcNr( int idx ) const
+{ return idx >= 0 && idx < trcnrs_.size() ? trcnrs_[idx] : -1; }
 
 void FaultTrace::set( int idx, const Coord3& pos )
 {
     lock_.lock();
     if ( idx >= 0 && idx < coords_.size() )
 	coords_[idx] = pos;
+
     lock_.unLock();
 }
+
+
+void FaultTrace::set( int idx, const Coord3& pos, int trcnr )
+{
+    lock_.lock();
+    if ( idx >= 0 && idx < coords_.size() )
+    {
+	coords_[idx] = pos;
+	if ( idx < trcnrs_.size() )
+	    trcnrs_[idx] = trcnr;
+    }
+
+    lock_.unLock();
+}
+
 
 void FaultTrace::remove( int idx )
 {
@@ -81,6 +110,7 @@ FaultTrace* FaultTrace::clone()
 {
     FaultTrace* newobj = new FaultTrace;
     newobj->coords_ = coords_;
+    newobj->trcnrs_ = trcnrs_;
     return newobj;
 }
 
@@ -120,6 +150,10 @@ bool FaultTrace::isCrossing( const BinID& bid1, float z1,
     if ( !getSize() )
 	return false;
 
+    const bool is2d = trcnrs_.size();
+    if ( trcnrs_.size() != getSize() )
+	return false;
+
     z1 *= SI().zFactor();
     z2 *= SI().zFactor();
     if ( ( isinl_ && (bid1.inl != nr_ || bid2.inl != nr_) )
@@ -134,14 +168,22 @@ bool FaultTrace::isCrossing( const BinID& bid1, float z1,
     {
 	const Coord3& pos1 = get( idx - 1 );
 	const Coord3& pos2 = get( idx );
+	Coord nodepos1, nodepos2;
+	if ( is2d )
+	{
+	    nodepos1.setXY( getTrcNr(idx-1), pos1.z * SI().zFactor() );
+	    nodepos2.setXY( getTrcNr(idx), pos2.z * SI().zFactor() );
+	}
+	else
+	{
+	    Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
+	    Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
+	    nodepos1.setXY( isinl_ ? posbid1.y : posbid1.x,
+		    	   pos1.z * SI().zFactor() );
+	    nodepos2.setXY( isinl_ ? posbid2.y : posbid2.x,
+		    	   pos2.z * SI().zFactor() );
+	}
 
-	const Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
-	const Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
-
-	Coord nodepos1( isinl_ ? posbid1.y : posbid1.x,
-			pos1.z * SI().zFactor() );
-	Coord nodepos2( isinl_ ? posbid2.y : posbid2.x,
-			pos2.z * SI().zFactor() );
 	Line2 fltseg( nodepos1, nodepos2 );
 	Coord interpos = line.intersection( fltseg );
 	if ( interpos != Coord::udf() )
@@ -153,7 +195,7 @@ bool FaultTrace::isCrossing( const BinID& bid1, float z1,
 
 
 
-FaultTraceExtractor::FaultTraceExtractor( EM::Fault& flt,
+FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
 					  int nr, bool isinl,
 					  const BinIDValueSet* bvset )
   : fault_(flt)
@@ -162,28 +204,29 @@ FaultTraceExtractor::FaultTraceExtractor( EM::Fault& flt,
   , flttrc_(0)
   , is2d_(false)
 {
-    fault_.ref();
+    fault_->ref();
 }
 
 
-FaultTraceExtractor::FaultTraceExtractor( EM::Fault& flt,
-					  const char* linenm,
+FaultTraceExtractor::FaultTraceExtractor( EM::Fault* flt,
+					  const char* linenm, int sticknr,
 					  const BinIDValueSet* bvset )
   : fault_(flt)
+  , sticknr_(sticknr)
   , nr_(0),isinl_(true)
   , linenm_(linenm)
   , bvset_(bvset)
   , flttrc_(0)
   , is2d_(true)
 {
-    fault_.ref();
+    fault_->ref();
 }
 
 
 
 FaultTraceExtractor::~FaultTraceExtractor()
 {
-    fault_.unRef();
+    fault_->unRef();
     if ( flttrc_ ) flttrc_->unRef();
 }
 
@@ -200,9 +243,9 @@ bool FaultTraceExtractor::execute()
 	return get2DFaultTrace();
 
     EM::SectionID fltsid( 0 );
-    mDynamicCastGet(EM::Fault3D&,fault3d,fault_)
+    mDynamicCastGet(EM::Fault3D*,fault3d,fault_)
     Geometry::IndexedShape* fltsurf = new Geometry::ExplFaultStickSurface(
-	    	fault3d.geometry().sectionGeometry(fltsid), SI().zFactor() );
+	    	fault3d->geometry().sectionGeometry(fltsid), SI().zFactor() );
     fltsurf->setCoordList( new FaultTrace, new FaultTrace, 0 );
     if ( !fltsurf->update(true,0) )
 	return false;
@@ -249,8 +292,49 @@ bool FaultTraceExtractor::execute()
 
 bool FaultTraceExtractor::get2DFaultTrace()
 {
-    return false; // TODO
+    EM::SectionID fltsid( 0 );
+    mDynamicCastGet(const EM::FaultStickSet*,fss,fault_)
+    if ( !fss ) return false;
+
+    const int nrknots = fss->geometry().nrKnots( fltsid, sticknr_ );
+    const Geometry::FaultStickSet* fltgeom =
+	fss->geometry().sectionGeometry( fltsid );
+
+    if ( !fltgeom || nrknots < 2 )
+	return false;
+
+    const MultiID* lsetid = fss->geometry().lineSet( fltsid, sticknr_ );
+    PtrMan<IOObj> ioobj = IOM().get( *lsetid );
+    if ( !ioobj )
+	return false;
+
+    Seis2DLineSet lset( *ioobj );
+    LineKey lk( linenm_.buf(), LineKey::sKeyDefAttrib() );
+    int lidx = lset.indexOf( lk );
+    if ( lidx < 0 ) lidx = lset.indexOfFirstOccurrence( linenm_.buf() );
+    if ( lidx < 0 ) return false;
+
+    PosInfo::Line2DData linegeom;
+    if ( !lset.getGeometry(lidx,linegeom) )
+	return false;
+
+    flttrc_ = new FaultTrace;
+    flttrc_->ref();
+    flttrc_->setIsInl( true );
+    flttrc_->setLineNr( 0 );
+    for ( int idx=0; idx<nrknots; idx++ )
+    {
+	const Coord3 knot = fltgeom->getKnot( RowCol(sticknr_,idx) );
+	PosInfo::Line2DPos pos;
+	if ( !linegeom.getPos(knot,pos,1.0) )
+	    break;
+
+	flttrc_->add( knot, pos.nr_ );
+    }
+
+    return flttrc_->getSize() > 1;
 }
+
 
 void FaultTraceExtractor::useHorizons()
 {
