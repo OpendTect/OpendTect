@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.198 2009-12-16 06:03:19 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.199 2010-01-21 10:32:15 cvsjaap Exp $";
 
 #include "uiempartserv.h"
 
@@ -788,8 +788,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
     }
 
     data.bivSet().allowDuplicateBids(false);
-    float* auxvals = new float(nms.size()+2); 
-
+    mAllocVarLenArr( float, auxvals, nms.size()+2 );
     for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
     {
 	const EM::SectionID sid = hor3d->sectionID( sidx );
@@ -813,7 +812,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 		auxvals[idx+2] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
 	    }
 	    bid.setSerialized( pid.subID() );
-	    data.bivSet().add( bid, auxvals );
+	    data.bivSet().add( bid, mVarLenArr(auxvals) );
 	}
     }
     data.dataChanged();
