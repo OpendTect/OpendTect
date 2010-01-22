@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.47 2009-08-28 18:21:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.48 2010-01-22 11:00:43 cvsjaap Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -969,7 +969,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 	    "Cannot find Translator"; return 0; }
 
     SurfaceIODataSelection& sel = tr->selections();
-    if ( newsel )
+    if ( newsel && !sel.rg.isEmpty() )
     {
 	sel.sellinenames = newsel->sellinenames;
 	sel.seltrcranges = newsel->seltrcranges;
