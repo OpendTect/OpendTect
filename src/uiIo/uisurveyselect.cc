@@ -22,17 +22,17 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p )
     
 {
     datarootfld_ = new uiFileInput( this, "Data Root",
-			    uiFileInput::Setup(uiFileDialog::Gen,GetBaseDataDir())
-			    .directories(true) );
+		uiFileInput::Setup(uiFileDialog::Gen,GetBaseDataDir())
+		.directories(true) );
     datarootfld_->valuechanged.notify( 
-		  mCB(this,uiSurveySelectDlg,rootSelectCB) );
+		mCB(this,uiSurveySelectDlg,rootSelectCB) );
 
-    surveylistfld_ = new uiListBox( this,"Survey list", false, 
+    surveylistfld_ = new uiListBox( this, "Survey list", false, 
 				    uiLabeledListBox::AboveLeft );
     surveylistfld_->attach( alignedBelow, datarootfld_ );
     surveylistfld_->selectionChanged.notify( 
-		    mCB(this,uiSurveySelectDlg,surveyListCB) );
-    newsurveyfld_ = new uiGenInput( this,"New Survey" );
+		mCB(this,uiSurveySelectDlg,surveyListCB) );
+    newsurveyfld_ = new uiGenInput( this, "Name" );
     
     newsurveyfld_->attach( alignedBelow, surveylistfld_ );
     fillSurveyList();
@@ -40,20 +40,15 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p )
 
 
 uiSurveySelectDlg::~uiSurveySelectDlg()
-{
-}
+{}
 
 
 const char* uiSurveySelectDlg::getDataRoot() const
-{
-    return datarootfld_->text();
-}
+{ return datarootfld_->text(); }
 
 
 const BufferString uiSurveySelectDlg::getSurveyName() const
-{   
-    return newsurveyfld_->text();
-}
+{ return newsurveyfld_->text(); }
 
 
 void uiSurveySelectDlg::fillSurveyList()
@@ -86,13 +81,12 @@ bool uiSurveySelectDlg::isNewSurvey()
 uiSurveySelect::uiSurveySelect( uiParent* p )
 	: uiIOSelect(p,uiIOSelect::Setup("Select Survey"),
 		     mCB(this,uiSurveySelect,selectCB))
-{ 
+{
 }
 
 
 uiSurveySelect::~uiSurveySelect()
-{
-}
+{}
 
 
 void uiSurveySelect::selectCB( CallBacker* )
