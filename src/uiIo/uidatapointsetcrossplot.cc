@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.55 2010-01-08 04:43:16 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.56 2010-01-22 11:37:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.55 2010-01-08 04:43:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.56 2010-01-22 11:37:32 cvsnanne Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1172,6 +1172,9 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 void uiDataPointSetCrossPlotter::drawData(
     const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2, bool rempts )
 {
+    if ( !x_.axis_ || !yad.axis_ )
+	return;
+
     uiAxisHandler& xah = *x_.axis_;
     uiAxisHandler& yah = *yad.axis_;
 
