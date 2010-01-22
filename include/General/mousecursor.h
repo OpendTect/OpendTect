@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: mousecursor.h,v 1.7 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:           $Id: mousecursor.h,v 1.8 2010-01-22 11:26:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,9 @@ public:
 			\value PointingHand	a pointing hand
 			\value Forbidden	a slashed circle
 			\value WhatsThis	an arrow with a question mark
+			\value Busy		hourglass/watch
+			\value OpenHand		an open hand
+			\value ClosedHand	a closed hand
 			\value Bitmap
 			\value NotSet 
 
@@ -49,7 +52,8 @@ public:
     enum Shape		{ Arrow, UpArrow, Cross, Wait, Ibeam,
 			  SizeVer, SizeHor, SizeBDiag, SizeFDiag, SizeAll,
 			  Blank, SplitV, SplitH, PointingHand, Forbidden,
-			  WhatsThis, Last = WhatsThis, Bitmap = 24, NotSet
+			  WhatsThis, Busy, OpenHand, ClosedHand,
+			  Last = ClosedHand, Bitmap = 24, NotSet
 			};
 
     			MouseCursor() : shape_(NotSet)			{}
