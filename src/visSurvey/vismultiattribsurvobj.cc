@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.49 2010-01-05 16:47:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.50 2010-01-22 11:33:40 cvsnanne Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -310,7 +310,7 @@ const Attrib::SelSpec* MultiTextureSurveyObject::getSelSpec( int attrib ) const
 void MultiTextureSurveyObject::setSelSpec( int attrib,
 					   const Attrib::SelSpec& as )
 {
-    if ( !as_.validIdx( attrib ) || *as_[attrib]==as )
+    if ( !as_.validIdx(attrib) )
 	return;
 
     *as_[attrib] = as;
