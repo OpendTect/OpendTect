@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.11 2009-11-19 08:58:41 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.12 2010-01-22 11:32:47 cvsnanne Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -40,7 +40,7 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     setup.withsectionfld( false );
     hor3dsel_ = new uiSurfaceRead( this, setup );
 
-    linesetinpsel_ = new uiSelection2DParSel( this );
+    linesetinpsel_ = new uiSeis2DMultiLineSel( this );
     linesetinpsel_->attach( alignedBelow, hor3dsel_ );
 
     out2dfld_ = new uiSurfaceWrite( this, uiSurfaceWrite::Setup("2D Horizon") );

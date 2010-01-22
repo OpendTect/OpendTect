@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.31 2010-01-18 05:15:44 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.32 2010-01-22 11:32:47 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
@@ -214,35 +214,29 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio,
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
 				   mNoDlgTitle,"50.0.17") )
     , lsctio_(lsctio)
-    , zfld_(0)
+    , zrgfld_(0)
     , withattr_(withattr)
 {
     linesetfld_ = new uiSeisSel( this, lsctio_, uiSeisSel::Setup(Seis::Line)
 						.selattr(withattr_) );
     linesetfld_->selectiondone.notify( mCB(this,uiSeis2DLineSubSel,lineSetSel));
 
-    if ( withz )
-    {
-	zfld_ = new uiSelZRange( this, false );
-	zfld_->attach( alignedBelow, linesetfld_ );
-    }
-
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", false );
-    llb->attach( alignedBelow, zfld_ ? (uiObject*)zfld_
-	    			     : (uiObject*)linesetfld_ );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", true );
+    llb->attach( alignedBelow, linesetfld_ );
     lnmsfld_ = llb->box();
-    lnmsfld_->setItemsCheckable( true );
     lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DLineSubSel,lineSel) );
-    lnmsfld_->leftButtonClicked.notify( mCB(this,uiSeis2DLineSubSel,lineChk) );
-    lnmsfld_->rightButtonClicked.notify( mCB(this,uiSeis2DLineSubSel,lineChk) );
-
-    allfld_ = new uiCheckBox( this, "All", mCB(this,uiSeis2DLineSubSel,allSel));
-    allfld_->attach( alignedBelow, llb );
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
 	   			  false, "Trace" );
-    trcrgfld_->rangeChanged.notify( mCB(this,uiSeis2DLineSubSel,trcChanged) );
-    trcrgfld_->attach( alignedBelow, allfld_ );
+    trcrgfld_->rangeChanged.notify( mCB(this,uiSeis2DLineSubSel,trcRgChanged) );
+    trcrgfld_->attach( alignedBelow, llb );
+
+    if ( withz )
+    {
+	zrgfld_ = new uiSelZRange( this, false,
+			BufferString("Z Range",SI().getZUnitString()) );
+	zrgfld_->attach( alignedBelow, trcrgfld_ );
+    }
 
     finaliseDone.notify( mCB(this,uiSeis2DLineSubSel,finalised) );
 }
@@ -254,7 +248,6 @@ void uiSeis2DLineSubSel::finalised( CallBacker* )
 	linesetfld_->doSel( 0 );
 
     lineSetSel( 0 );
-    lineChk(0);
 }
 
 
@@ -262,7 +255,6 @@ void uiSeis2DLineSubSel::setLineSet( const MultiID& key )
 {
     linesetfld_->setInput( key );
     lineSetSel( 0 );
-    lineChk(0);
 }
 
 
@@ -276,7 +268,7 @@ void uiSeis2DLineSubSel::setAttrName( const char* nm )
 void uiSeis2DLineSubSel::setSelLines( const BufferStringSet& sellines )
 { 
     sellines_ = sellines; 
-    lnmsfld_->setCheckedItems( sellines_ );
+    lnmsfld_->setSelectedItems( sellines_ );
 }
 
 
@@ -290,8 +282,8 @@ void uiSeis2DLineSubSel::setTrcRange( const StepInterval<int>& rg,
 
 void uiSeis2DLineSubSel::setZRange( const StepInterval<float>& rg )
 {
-    if ( zfld_ )
-	zfld_->setRange( rg );
+    if ( zrgfld_ )
+	zrgfld_->setRange( rg );
 }
 
 
@@ -378,9 +370,7 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 	trcrgs_ += globtrcrg;
     }
 
-    lnmsfld_->setItemsChecked( true );
-    allfld_->setChecked( true );
-    allfld_->setSensitive( lnms.size() > 1 );
+    lnmsfld_->selectAll();
     lineSel(0);
 }
 
@@ -400,12 +390,16 @@ StepInterval<int> uiSeis2DLineSubSel::getTrcRange( const char* nm ) const
 
 StepInterval<float> uiSeis2DLineSubSel::getZRange() const
 {
-    return zfld_ ? zfld_->getRange() : SI().zRange( false );
+    return zrgfld_ ? zrgfld_->getRange() : SI().zRange( false );
 }
 
 
 void uiSeis2DLineSubSel::lineSel( CallBacker* )
 {
+    const bool multisel = lnmsfld_->nrSelected() > 1;
+    trcrgfld_->setSensitive( !multisel );
+    if ( multisel ) return;
+
     NotifyStopper ns( trcrgfld_->rangeChanged );
     const int curitm = lnmsfld_->currentItem();
     if ( trcrgs_.isEmpty() || curitm<0 )
@@ -416,22 +410,7 @@ void uiSeis2DLineSubSel::lineSel( CallBacker* )
 }
 
 
-void uiSeis2DLineSubSel::lineChk( CallBacker* )
-{
-    allfld_->activated.disable();
-    allfld_->setChecked( lnmsfld_->size() &&
-	    lnmsfld_->nrChecked() == lnmsfld_->size() );
-    allfld_->activated.enable();
-}
-
-
-void uiSeis2DLineSubSel::allSel( CallBacker* )
-{
-    lnmsfld_->setItemsChecked( allfld_->isChecked() );
-}
-
-
-void uiSeis2DLineSubSel::trcChanged( CallBacker* )
+void uiSeis2DLineSubSel::trcRgChanged( CallBacker* )
 {
     const int curitm = lnmsfld_->currentItem();
     if ( curitm<0 ) return;
@@ -444,35 +423,35 @@ void uiSeis2DLineSubSel::trcChanged( CallBacker* )
 bool uiSeis2DLineSubSel::acceptOK( CallBacker* )
 {
     sellines_.erase();
-    lnmsfld_->getCheckedItems( sellines_ );
+    lnmsfld_->getSelectedItems( sellines_ );
     return true;
 }
 
 
-uiSelection2DParSel::uiSelection2DParSel( uiParent* p, bool withz,
+uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, bool withz,
 					  bool withattr )
     : uiCompoundParSel(p,"LineSet/LineName","Select")
     , lsctio_(mMkCtxtIOObj(SeisTrc))
 {
-    butPush.notify( mCB(this,uiSelection2DParSel,doDlg) );
+    butPush.notify( mCB(this,uiSeis2DMultiLineSel,doDlg) );
     linesel_ = new uiSeis2DLineSubSel( this, *lsctio_, withz, withattr );
 }
 
 
-uiSelection2DParSel::~uiSelection2DParSel()
+uiSeis2DMultiLineSel::~uiSeis2DMultiLineSel()
 {
     if ( lsctio_ ) delete lsctio_->ioobj;
     delete lsctio_;
 }
 
 
-BufferString uiSelection2DParSel::getSummary() const
+BufferString uiSeis2DMultiLineSel::getSummary() const
 {
     return linesel_->getSummary();
 }
 
 
-void uiSelection2DParSel::doDlg( CallBacker* )
+void uiSeis2DMultiLineSel::doDlg( CallBacker* )
 {
     if ( !linesel_ || !linesel_->go() )
 	return;
@@ -487,7 +466,7 @@ void uiSelection2DParSel::doDlg( CallBacker* )
 }
 
 
-void uiSelection2DParSel::fillPar( IOPar& par ) const
+void uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
 {
     if ( !lsctio_->ioobj )
 	return;
@@ -513,7 +492,7 @@ void uiSelection2DParSel::fillPar( IOPar& par ) const
 }
 
 
-void uiSelection2DParSel::usePar( const IOPar& par )
+void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 {
     MultiID lsetkey;
     if ( par.get("LineSet.ID",lsetkey) )
@@ -553,11 +532,11 @@ void uiSelection2DParSel::usePar( const IOPar& par )
 }
 
 
-IOObj* uiSelection2DParSel::getIOObj()
+IOObj* uiSeis2DMultiLineSel::getIOObj()
 { return lsctio_->ioobj; }
 
 
-void uiSelection2DParSel::setIOObj( const MultiID& key )
+void uiSeis2DMultiLineSel::setIOObj( const MultiID& key )
 {
     deepErase( sellines_ );
     trcrgs_.erase();

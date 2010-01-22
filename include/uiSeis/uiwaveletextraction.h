@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          April 2009
- RCS:		$Id: uiwaveletextraction.h,v 1.13 2009-12-02 05:29:30 cvsnageswara Exp $
+ RCS:		$Id: uiwaveletextraction.h,v 1.14 2010-01-22 11:32:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiIOObjSel;
 class uiIOObjSelGrp;
 class uiPosProvGroup;
 class uiSeisSel;
-class uiSelection2DParSel;
+class uiSeis2DMultiLineSel;
 class uiSeis3DSubSel;
 class uiSelZRange;
 class CtxtIOObj;
@@ -57,7 +57,7 @@ protected:
     uiIOObjSel*			outputwvltfld_;
     uiPosProvGroup* 		surfacesel_;
     uiSeisSel*			seissel3dfld_;
-    uiSelection2DParSel*	linesel2dfld_;
+    uiSeis2DMultiLineSel*	linesel2dfld_;
     uiSeis3DSubSel*		subselfld3d_;
     uiSelZRange*		zrangefld_;
     Seis::SelData*		sd_;

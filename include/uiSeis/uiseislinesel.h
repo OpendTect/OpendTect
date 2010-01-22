@@ -1,4 +1,3 @@
-
 #ifndef uiseislinesel_h
 #define uiseislinesel_h
 
@@ -8,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.20 2009-11-19 08:52:47 cvsnageswara Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.21 2010-01-22 11:32:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +19,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "multiid.h"
 
-class uiCheckBox;
 class uiComboBox;
 class uiLabeledSpinBox;
 class uiListBox;
@@ -96,7 +94,7 @@ public:
     void			setAttrName(const char*);
     void			setSelLines(const BufferStringSet&);
     void			setTrcRange(const StepInterval<int>&,
-	    				    const char* lnm);
+					    const char* lnm);
     void			setZRange(const StepInterval<float>&);
 
     const char*			getAttrName() const;
@@ -107,51 +105,48 @@ public:
 protected:
 
     bool			withattr_;
-    BufferStringSet 		sellines_;
-    uiSeisSel*  		linesetfld_;
-    uiListBox*  		lnmsfld_;
-    uiCheckBox*			allfld_;
+    BufferStringSet		sellines_;
+    uiSeisSel*			linesetfld_;
+    uiListBox*			lnmsfld_;
     uiSelNrRange*		trcrgfld_;
-    uiSelZRange*		zfld_;
+    uiSelZRange*		zrgfld_;
     CtxtIOObj&			lsctio_;
 
-    TypeSet< StepInterval<int> > 	maxtrcrgs_;
-    TypeSet< StepInterval<int> >	trcrgs_;
+    TypeSet<StepInterval<int> >	maxtrcrgs_;
+    TypeSet<StepInterval<int> >	trcrgs_;
 
     void			finalised(CallBacker*);
-    void 			lineSetSel(CallBacker*);
-    void 			lineSel(CallBacker*);
-    void 			lineChk(CallBacker*);
-    void			trcChanged(CallBacker*);
-    void			allSel(CallBacker*);
+    void			lineSetSel(CallBacker*);
+    void			lineSel(CallBacker*);
+    void			trcRgChanged(CallBacker*);
 
-    virtual bool        	acceptOK(CallBacker*);
+    virtual bool		acceptOK(CallBacker*);
 };
 
 
-mClass uiSelection2DParSel : public uiCompoundParSel
+mClass uiSeis2DMultiLineSel : public uiCompoundParSel
 {
 public:
-    				uiSelection2DParSel(uiParent*,bool withz=false,
-						    bool withattr=false);
-				~uiSelection2DParSel();
+    				uiSeis2DMultiLineSel(uiParent*,bool withz=false,
+						     bool withattr=false);
+				~uiSeis2DMultiLineSel();
 
-    BufferString                getSummary() const;
-    void                        doDlg(CallBacker*);
-    IOObj*                      getIOObj();
+    BufferString		getSummary() const;
+    void			doDlg(CallBacker*);
+    IOObj*			getIOObj();
     void			setIOObj(const MultiID&);
     const uiSeis2DLineSubSel*	subsel() const		{ return linesel_; }
 
-    void 			fillPar(IOPar&) const;
+    void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
 protected:
 
-    BufferStringSet             sellines_;
-    TypeSet< StepInterval<int> >        trcrgs_;
+    BufferStringSet		sellines_;
+    TypeSet<StepInterval<int> >	trcrgs_;
 
-    CtxtIOObj*                  lsctio_;
-    uiSeis2DLineSubSel*         linesel_;
-};   
+    CtxtIOObj*			lsctio_;
+    uiSeis2DLineSubSel*		linesel_;
+};
 
 #endif

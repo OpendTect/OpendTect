@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.14 2009-12-02 05:29:30 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.15 2010-01-22 11:32:47 cvsnanne Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -75,7 +75,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     }
     else
     {
-	linesel2dfld_ = new uiSelection2DParSel( this, false, true );
+	linesel2dfld_ = new uiSeis2DMultiLineSel( this, false, true );
 	linesel2dfld_->butPush.notify( 
 				mCB(this,uiWaveletExtraction,inputSelCB) );
     }
