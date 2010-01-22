@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonattrib.cc,v 1.17 2010-01-18 17:11:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.18 2010-01-22 09:27:34 cvsnanne Exp $";
 
 #include "horizonattrib.h"
 
@@ -123,86 +123,57 @@ bool Horizon::getInputData( const BinID& relpos, int zintv )
     return inputdata_;
 }
 
+#define mRet \
+{ Provider::prepareForComputeData(); return; }
 
 void Horizon::prepareForComputeData()
 {
     EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.getObjectID( horid_ );
-
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( horid_, sd );
+    em.getSurfaceData( horid_, sd );
     const int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
-    if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) return;
-    
-    if ( objid > -1 )
-    {
-	mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
-	if ( hor && hor->isFullyLoaded() )
-	{
-	    if ( outtype_!=mOutTypeSurfData )
-	    {
-		horizon_ = hor;
-		horizon_->ref();
-		if ( desc.is2D() )
-		    fillLineID();
-		return;
-	    }
-	    else if ( !desc.is2D() )
-	    {
-		mDynamicCastGet(EM::Horizon3D*,hor3d,hor)
-		for ( int idx=0; hor3d && idx<hor3d->auxdata.nrAuxData(); idx++)
-		{
-		    const char* auxnm = hor3d->auxdata.auxDataName(idx);
-		    if ( !strcmp( auxnm, surfdatanm_ ) )
-		    {
-			horizon_ = hor;
-			horizon_->ref();
-			return;
-		    }
-		}
+    if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) mRet
 
-		if ( hor3d ) //Load ayxdata if not loaded.
-		{
-		    PtrMan<Executor> adl =
-			hor3d->auxdata.auxDataLoader( surfdtidx );
-		    if ( adl && adl->execute() )
-		    {
-			horizon_ = hor;
-			horizon_->ref();
-		    }
-		    else
-		    {
-			BufferString msg = "Loading surface data ";
-			msg += surfdatanm_;
-			msg += " failed.";
-			errmsg =  msg;
-		    }
-		    
-		    return;
-		}
-	    }
-	}
-    }
-
+    EM::ObjectID objid = em.getObjectID( horid_ );
     EM::SurfaceIODataSelection sel( sd );
-    if ( getDesiredVolume() )
-	sel.rg = getDesiredVolume()->hrg;
-    sel.selvalues += surfdtidx;
-
-    PtrMan<Executor> loader = em.objectLoader( horid_, &sel );
-    if ( !loader ) return;
-    
-    loader->execute();	
-    objid = em.getObjectID( horid_ );
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
-    if ( hor )
+    PtrMan<Executor> loader = 0;
+    if ( objid < 0 )
     {
-	horizon_ = hor;
-	horizon_->ref();
+	if ( getDesiredVolume() )
+	    sel.rg = getDesiredVolume()->hrg;
+
+	loader = em.objectLoader( horid_, &sel );
+	if ( !loader ) mRet
+	
+	loader->execute();	
+	objid = em.getObjectID( horid_ );
     }
 
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
+    if ( !hor ) mRet
+
+    horizon_ = hor;
+    horizon_->ref();
     if ( desc.is2D() )
 	fillLineID();
+
+    if ( outtype_ == mOutTypeZ || desc.is2D() )
+	mRet
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,hor)
+    const int auxdataidx = hor3d ? hor3d->auxdata.auxDataIndex(surfdatanm_) :-1;
+    if ( auxdataidx != -1 ) mRet
+
+    PtrMan<Executor> adl = hor3d ? hor3d->auxdata.auxDataLoader(surfdtidx) : 0;
+    if ( !adl || !adl->execute() )
+    {
+	BufferString msg = "Loading surface data ";
+	msg += surfdatanm_;
+	msg += " failed.";
+	errmsg =  msg;
+	horizon_->unRef();
+	mRet
+    }
 
     Provider::prepareForComputeData();
 }
