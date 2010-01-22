@@ -6,14 +6,28 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          13/01/2005
- RCS:           $Id: undefarray.h,v 1.4 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:           $Id: undefarray.h,v 1.5 2010-01-22 18:51:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "plftypes.h"
 #include "commondefs.h"
+#include "plftypes.h"
+#include "ptrman.h"
+#include "valseries.h"
+
 class BinDataDesc;
+
+/*! Filter out undefined values and replaces them by a linear interpolation
+    of surrounding defined values. If undefined values are found at start/end,
+    they are replaced by the first/last defined value.
+    Input and output may be the same.
+    \returns true if success, false if no defined value was found. */
+template <class T> 
+inline bool filterUndef(const T* input,T* output,int sz);
+
+template <class T>
+inline bool filterUndef(const ValueSeries<T>& input,ValueSeries<T>& output,int);
 
 
 /*!Class that handles undefvalues in arrays that are in a format described
@@ -81,5 +95,90 @@ protected:
     static void setUdfDouble(void*,od_int64);
     static void unsetUdfDouble(void*,od_int64);
 };
+
+
+template <class T> inline
+bool filterUndef( const ValueSeries<T>& input, ValueSeries<T>& output, int sz )
+{
+    if ( !sz ) return true;
+    
+    const T* inptr = input.arr();
+    T* outptr = output.arr();
+    
+    ArrPtrMan<T> myinp = 0, myoutp = 0;
+    if ( !inptr )
+    {
+	myinp = new T[sz];
+	for ( int idx=0; idx<sz; idx++ )
+	    myinp[idx] = input.value(idx);
+    }
+    
+    if ( !outptr )
+	myoutp = outptr = new T[sz];
+    
+    return filterUndef( inptr ? inptr : myinp, outptr, sz );
+}
+
+
+template <class T> inline
+bool filterUndef(const T* input, T* output, int sz )
+{
+    if ( !sz )
+	return true;
+    
+    int firstdefined = 0;
+    while ( firstdefined<sz && mIsUdf(input[firstdefined]) )
+	firstdefined++;
+    
+    if ( firstdefined==sz )
+	return false;
+    
+    for ( int idx=0; idx<=firstdefined; idx++ )
+	output[idx] = input[firstdefined];
+    
+    if ( firstdefined==sz-1 )
+	return true;
+    
+    int prevdefined = firstdefined;
+    int nextdefined = -1;
+    
+    for ( int idx=firstdefined+1; idx<sz; )
+    {
+	if ( !mIsUdf(input[idx]) )
+	{
+	    prevdefined = idx;
+	    output[idx] = input[idx];
+	    idx++;
+	    
+	    continue;		
+	}
+
+	nextdefined = idx+1;
+	while ( nextdefined<sz && mIsUdf(input[nextdefined]) )
+	    nextdefined++;
+
+	idx = nextdefined;
+
+	if ( nextdefined==sz )
+	{
+	    for ( int posidx = prevdefined+1; posidx<sz; posidx++ )
+		output[posidx] = input[prevdefined];
+
+	    return true;
+	}
+	else
+	{
+	    const T diff = input[nextdefined] - input[prevdefined];
+	    const T unit = diff / (float)(nextdefined-prevdefined);
+	    for ( int posidx = prevdefined+1; posidx<=nextdefined; posidx++ )
+		output[posidx] = input[prevdefined]+unit*(posidx-prevdefined);	
+
+	    prevdefined = nextdefined;
+	    nextdefined = -1;
+	}
+    }
+
+    return true;
+}
 
 #endif
