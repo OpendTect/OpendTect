@@ -7,13 +7,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.78 2009-12-04 14:47:36 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.79 2010-01-22 11:29:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
-#include "mousecursor.h"
 
 class uiDockWin;
 class uiGroup;
