@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.123 2010-01-20 05:07:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.124 2010-01-22 11:34:10 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -78,7 +78,7 @@ HorizonDisplay::HorizonDisplay()
     maxintersectionlinethickness_ = 0.02 *
 	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
 	      SI().crlDistance() * SI().crlRange(true).width() );
-    
+
     as_ += new Attrib::SelSpec;
     coltabmappersetups_ += ColTab::MapperSetup();
     coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
@@ -708,12 +708,15 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 					    const DataPointSet* positions,
 					    TaskRunner* tr )
 {
+    if ( !positions ) return;
+
     BufferStringSet* attrnms = new BufferStringSet();
     for ( int idx=0; idx<positions->nrCols(); idx++ )
-	attrnms->add( positions->colDef( idx ).name_ );
+	attrnms->add( positions->colDef(idx).name_ );
     userrefs_.replace( channel, attrnms );
 
-    bool isz = attrnms->size()>=1 && !strcmp(attrnms->get(0).buf(),"Depth");
+    const bool isz = attrnms->size()>=1 &&
+		     !strcmp(attrnms->get(0).buf(),"Depth");
     mDeclareAndTryAlloc( BIDValSetArrAdapter*, bvsarr, 
 	    		 BIDValSetArrAdapter(positions->bivSet(),isz?0:2) );
     const char* catnm = isz ? "Geometry" : "Surface Data";
