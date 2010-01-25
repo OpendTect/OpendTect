@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.17 2009-09-29 12:47:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.18 2010-01-25 11:34:20 cvsnanne Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -33,6 +33,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	    		.modal(false) )
     , ls_(*new LineStyle(LineStyle::Solid,3))
     , appvelfld_(0)
+    , zdist2fld_(0)
     , velocity_(2000)
     , lineStyleChange(this)
     , clearPressed(this)
@@ -51,18 +52,22 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
-    BufferString zdistlbl ( "Vertical Distance ", SI().getZUnitString() ); 
+    BufferString zdistlbl( "Vertical Distance ", SI().getZUnitString() ); 
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
     if ( SI().zIsTime() )
     {
-	BufferString lbl( "(", SI().getXYUnitString(false), "/sec)" );
-	BufferString vellbl( "Velocity ", lbl );
-	appvelfld_ = new uiGenInput( topgrp, vellbl, FloatInpSpec(velocity_) );
+	BufferString lbl( "Vertical Distance ", SI().getXYUnitString() );
+	zdist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
+	zdist2fld_->attach( alignedBelow, zdistfld_ );
+
+	lbl = "Velocity ";
+	lbl += BufferString( "(", SI().getXYUnitString(false), "/sec)" );
+	appvelfld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(velocity_) );
 	appvelfld_->valuechanged.notify( mCB(this,uiMeasureDlg,velocityChgd) );
-	appvelfld_->attach( alignedBelow, zdistfld_ );
+	appvelfld_->attach( alignedBelow, zdist2fld_ );
     }
 
     BufferString distlbl( "Distance ", SI().getXYUnitString() );
@@ -145,6 +150,8 @@ void uiMeasureDlg::reset()
 {
     hdistfld_->setValue( 0 );
     zdistfld_->setValue( 0 );
+    if ( zdist2fld_ )
+	zdist2fld_->setValue( 0 );
     if ( appvelfld_ )
     	appvelfld_->setValue( velocity_ );
     distfld_->setValue( 0 );
@@ -202,6 +209,7 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 
     hdistfld_->setValue( tothdist );
     zdistfld_->setValue( totzdist*SI().zFactor() );
+    if ( zdist2fld_ ) zdist2fld_->setValue( totzdist*velocity/2 );
     distfld_->setValue( totrealdist );
     inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
 }
