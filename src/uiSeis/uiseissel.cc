@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.89 2010-01-15 11:52:15 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.90 2010-01-25 04:24:28 cvsnanne Exp $";
 
 #include "uiseissel.h"
 
@@ -260,14 +260,12 @@ static const IOObjContext& getIOObjCtxt( const IOObjContext& c,
 }
 
 
-uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& c,
+uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,getIOObjCtxt(c,su),mkSetup(su,c.forread))
-    	, seissetup_(mkSetup(su,c.forread))
+	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt.forread))
+    	, seissetup_(mkSetup(su,ctxt.forread))
     	, othdombox_(0)
 {
-    IOObjContext ctxt( c );
-    adaptCtxt( ctxt, seissetup_, false );
     if ( !ctxt.forread && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
@@ -280,7 +278,6 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
     	, seissetup_(mkSetup(su,c.ctxt.forread))
     	, othdombox_(0)
 {
-    adaptCtxt( c.ctxt, seissetup_, false );
     if ( !c.ctxt.forread && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
