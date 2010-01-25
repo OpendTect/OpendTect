@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.199 2010-01-21 10:32:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.200 2010-01-25 14:11:16 cvsjaap Exp $";
 
 #include "uiempartserv.h"
 
@@ -346,9 +346,7 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 {
     EM::EMObject* emobj = em_.getObject(emid);
-    if ( !emobj || emobj->isEmpty() ) return true;
-
-    if ( !isChanged(emid) )
+    if ( !emobj || !isChanged(emid) )
 	return true;
 
     mMkMsg( "has changed" );
