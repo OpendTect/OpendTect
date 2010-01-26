@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.21 2010-01-20 09:39:56 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.22 2010-01-26 10:43:29 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -40,14 +40,13 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.21 2010-01-20 09:39:56 
 // headon light and directional light should be displayed.
 #define mCanAdjustIntensity	true
 // Show or hide the (large) icons for the 2 types of light.
-#define mShowLightIcons		false
+#define mShowLightIcons		true
 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     : uiDialog(p,
 	       uiDialog::Setup("Light properties",
 		   "Set light properties", "50.0.18")
 	       .modal(false))
-	       // to do: specify proper help ID
     , visserv_(visserv)
     , lightgrp_(0)
     , lightlbl_(0)		  
@@ -72,6 +71,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 		    mNoHelpID)
 		.modal(false)))
 {
+    if ( mShowLightIcons )
     finaliseDone.notify( mCB(this, uiDirLightDlg, dlgDoneCB) );
 
     pddlg_->setCtrlStyle( LeaveOnly );
@@ -86,44 +86,43 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     lightgrp_ = new uiGroup( this, "Light group" );
     lightgrp_->attach( ensureBelow, sep1_ );
     lightgrp_->attach( leftBorder );
-//    lightgrp_->attach( alignedBelow, sep1_ );
+	if ( mShowLightIcons )
     lightgrp_->setFrame( true );
 
     lightlbl_ = new uiLabel( lightgrp_, "Type of directional light" );
-    
-    cameralightview_ = new uiGraphicsView( lightgrp_, "Camera light icon" );
-    cameralightview_->attach( alignedBelow, lightlbl_ );
-    cameralightview_->display( mShowLightIcons );
-    cameralightview_->setStretch( 0, 0);
-    cameralightview_->setPrefWidth( 50 );
-    cameralightview_->setPrefHeight( 50 );
-    
+
     cameralightfld_ = new uiRadioButton( lightgrp_, 
 	    "positioned at the camera" );
-#ifdef mShowLightIcons
-    cameralightfld_->attach( rightOf, cameralightview_ );
-#else
-    cameralightfld_->attach( alignedBelow, lightlbl_ );
-    cameralightfld_->display( false );
-#endif
+	scenelightfld_ = new uiRadioButton( lightgrp_, "relative to the scene" );
 
-    scenelightview_ = new uiGraphicsView( lightgrp_, "Scene light icon" );
-    scenelightview_->attach( alignedBelow, cameralightview_ );
-    scenelightview_->attach( widthSameAs, cameralightview_ );
-    scenelightview_->display( mShowLightIcons );
-    scenelightview_->setStretch( 0, 0);
-    scenelightview_->setPrefWidth( 50 );
-    scenelightview_->setPrefHeight( 50 );
-    
-    scenelightfld_ = new uiRadioButton( lightgrp_, "relative to the scene" );
-#ifdef mShowLightIcons
-    scenelightfld_->attach( rightOf, scenelightview_ );
-#else
-    scenelightfld_->attach( rightOf, cameralightfld_ );
-#endif
+    if ( mShowLightIcons )
+    {
+	cameralightview_ = new uiGraphicsView( lightgrp_, "Camera light icon" );
+	cameralightview_->attach( alignedBelow, lightlbl_ );
+	cameralightview_->display( mShowLightIcons );
+	cameralightview_->setStretch( 0, 0);
+	cameralightview_->setPrefWidth( 64 );
+	cameralightview_->setPrefHeight( 64 );
+	cameralightfld_->attach( rightOf, cameralightview_ );
+	
+        scenelightview_ = new uiGraphicsView( lightgrp_, "Scene light icon" );
+	scenelightview_->attach( alignedBelow, cameralightview_ );
+	scenelightview_->attach( widthSameAs, cameralightview_ );
+	scenelightview_->display( mShowLightIcons );
+	scenelightview_->setStretch( 0, 0);
+	scenelightview_->setPrefWidth( 64 );
+	scenelightview_->setPrefHeight( 64 );
+	scenelightfld_->attach( rightOf, scenelightview_ );
+    }
+    else
+    {
+	cameralightfld_->attach( alignedBelow, lightlbl_ );
+	scenelightfld_->attach( rightOf, cameralightfld_ );
+    }
 
-    lightgrp_->setHAlignObj( cameralightfld_ );
-
+    lightgrp_->setHAlignObj( mShowLightIcons ? cameralightfld_ :
+		scenelightfld_ );
+	
     intensityfld_ = new uiSliderExtra( this,
 	    uiSliderExtra::Setup("Intensity (%)").withedit(true).
 	    	         nrdec(1).logscale(false), "Intensity slider" );
@@ -182,9 +181,6 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     if ( updateSceneSelector() )
         initinfo = initinfo_[0];
 
-    initlighttype_ = currlighttype_ = 1;
-    initlighttype_ ? scenelightfld_->click() : cameralightfld_->click();
-
     cameralightfld_->activated.notify( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
     scenelightfld_->activated.notify( 
@@ -207,17 +203,15 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 	    mCB(this,uiDirLightDlg,nrScenesChangedCB) );
     showpdfld_->activated.notify(
 	    mCB(this,uiDirLightDlg,showPolarDiagramCB) );
+
+    initlighttype_ = currlighttype_ = 1;
+    initlighttype_ ? scenelightfld_->click() : cameralightfld_->click();
 }
 
 
 uiDirLightDlg::~uiDirLightDlg()
 {
     removeSceneNotifiers();
-
-    cameralightfld_->activated.remove( 
-	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
-    scenelightfld_->activated.remove( 
-	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
 
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
     azimuthfld_->sldr()->valueChanged.remove( chgCB );
@@ -233,17 +227,18 @@ uiDirLightDlg::~uiDirLightDlg()
 	    mCB(this,uiDirLightDlg,showPolarDiagramCB) );
     visserv_->nrScenesChange().remove(
 	    mCB(this,uiDirLightDlg,nrScenesChangedCB) );
-    cameralightfld_->activated.remove( 
+	cameralightfld_->activated.remove( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
     scenelightfld_->activated.remove( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
 
+    if ( mShowLightIcons )
     finaliseDone.remove( mCB(this, uiDirLightDlg, dlgDoneCB) );
 
-	if ( pm1_ )
-		delete cameralightview_->scene().removeItem( pm1_ );
-	if ( pm2_ )
-		delete scenelightview_->scene().removeItem( pm2_ );
+    if ( pm1_ )
+	delete cameralightview_->scene().removeItem( pm1_ );
+    if ( pm2_ )
+	delete scenelightview_->scene().removeItem( pm2_ );
 
     if ( pd_ )
     {
@@ -272,19 +267,15 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
 
 void uiDirLightDlg::dlgDoneCB( CallBacker* )
 {
-	const ioPixmap pix1( "dir-light2a.png" );
-	pm1_ = new uiPixmapItem( pix1 );
-	//pm1_->scale( cameralightview_->width()/pix1.width(), cameralightview_->height()/pix1.height() );
-	pm1_->scale( 0.15, 0.15 );
-	cameralightview_->scene().addItem( pm1_ );
-	cameralightview_->reDraw( true );
+    const ioPixmap pix1( "dir-light2a.png" );
+    pm1_ = new uiPixmapItem( pix1 );
+    cameralightview_->scene().addItem( pm1_ );
+    cameralightview_->reDraw( true );
 
-	const ioPixmap pix2( "dir-light2b.png" );
+    const ioPixmap pix2( "dir-light2b.png" );
     pm2_ = new uiPixmapItem( pix2 );
-	//pm2_->scale( scenelightview_->width()/pix2.width(), scenelightview_->height()/pix2.height() );    
-	pm2_->scale( 0.15, 0.15 );
     scenelightview_->scene().addItem( pm2_ );
-	scenelightview_->reDraw( true );
+    scenelightview_->reDraw( true );
 }
 
 
@@ -639,6 +630,8 @@ void uiDirLightDlg::turnOnDirLight( bool turnOn )
 {
     // true : turns on directional light and turns off headon light
     // false: the other way around
+	
+#ifndef mCanAdjustIntensity
     if ( turnOn )
     {
 	intensityfld_->sldr()->setValue( mInitIntensity );
@@ -649,6 +642,7 @@ void uiDirLightDlg::turnOnDirLight( bool turnOn )
         intensityfld_->sldr()->setValue( 0 );
         headonintensityfld_->sldr()->setValue( mInitHeadOnIntensity );
     }
+#endif
 
     setDirLight();
     setHeadOnLight();
