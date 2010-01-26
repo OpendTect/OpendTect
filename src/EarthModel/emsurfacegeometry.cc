@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.48 2010-01-22 11:00:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.49 2010-01-26 16:11:07 cvsyuancheng Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -294,7 +294,8 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 
     BufferString name = *sectionnames_[idx];
 
-    delete sections_[idx];
+    //Keep the section in mem until everyone is notified
+    PtrMan<const Geometry::Element> removedelem = sections_[idx];
     sections_.remove( idx );
     sids_.remove( idx );
     sectionnames_.remove( idx );
