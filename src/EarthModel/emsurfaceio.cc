@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.130 2009-11-12 05:17:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.131 2010-01-26 16:12:23 cvsyuancheng Exp $";
 
 #include "emsurfaceio.h"
 
@@ -662,9 +662,12 @@ int dgbSurfaceReader::nextStep()
 	    return res;
     }
 
+    const StepInterval<int> workrowrange = SI().inlRange( true );
     while ( shouldSkipRow( currentRow() ) )
     {
-	fullyread_ = false;
+	if ( workrowrange.includes(currentRow()) )
+    	    fullyread_ = false;
+
 	const int res = skipRow( strm );
 	if ( res==ErrorOccurred() )
 	    return res;
