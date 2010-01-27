@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.197 2009-12-16 11:17:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.198 2010-01-27 13:48:27 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.197 2009-12-16 11:17:03 cvsn
 #include "uimsg.h"
 #include "uivolprocchain.h"
 #include "uiodapplmgr.h"
+#include "uiodfaulttoolman.h"
 #include "uiodhelpmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
@@ -62,7 +63,10 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     cointb_ = new uiToolBar( &appl_, "Graphical tools", uiToolBar::Left );
     mantb_ = new uiToolBar( &appl_, "Manage data", uiToolBar::Right );
 
+    faulttoolman_ = new uiODFaultToolMan( &appl_ );
+
     appl_.applMgr().visServer()->createToolBars();
+
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
 }
@@ -74,6 +78,7 @@ uiODMenuMgr::~uiODMenuMgr()
     delete cointb_;
     delete mantb_;
     delete helpmgr_;
+    delete faulttoolman_;
 }
 
 

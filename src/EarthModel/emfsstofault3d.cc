@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.6 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.7 2010-01-27 13:48:27 cvsjaap Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -119,7 +119,8 @@ FSStoFault3DConverter::FSStoFault3DConverter( const Setup& setup,
 
 bool FSStoFault3DConverter::convert()
 {
-    fault3d_.removeAll();
+    fault3d_.geometry().selectAllSticks();
+    fault3d_.geometry().removeSelectedSticks();
     bool selhorpicked;
 
     for ( int sidx=0; sidx<fss_.nrSections(); sidx++ )
@@ -375,7 +376,8 @@ bool FSStoFault3DConverter::writeSection( const SectionID& sid ) const
     if ( sticks_.isEmpty() )
 	return false;
 
-    fault3d_.geometry().addSection( fss_.sectionName(sid), sid, false );
+    if ( fault3d_.sectionIndex(sid) )
+	fault3d_.geometry().addSection( fss_.sectionName(sid), sid, false );
 
     int sticknr = sticks_[0]->sticknr_;
     for ( int idx=1; idx<sticks_.size(); idx++ )

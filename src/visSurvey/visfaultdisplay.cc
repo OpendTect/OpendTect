@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.43 2009-12-16 22:27:05 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.44 2010-01-27 13:48:27 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -686,41 +686,45 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 
 void FaultDisplay::updateActiveStickMarker()
 {
+    activestickmarker_->removeCoordIndexAfter(-1);
+    activestickmarker_->getCoordinates()->removeAfter(-1);
+
     if ( mIsUdf(activestick_) || !showmanipulator_ || !displaysticks_ )
 	activestickmarker_->turnOn( false );
-    else
+
+    if ( !emfault_->nrSections() )
     {
-	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
-			 emfault_->sectionGeometry( emfault_->sectionID(0)) );
-
-	const StepInterval<int> rowrg = fss->rowRange();
-	if ( rowrg.isUdf() || !rowrg.includes(activestick_) )
-	{
-	    activestickmarker_->turnOn( false );
-	    return;
-	}
-
-	const StepInterval<int> colrg = fss->colRange( activestick_ );
-	if ( colrg.isUdf() || colrg.start==colrg.stop )
-	{
-	    activestickmarker_->turnOn( false );
-	    return;
-	}
-
-	activestickmarker_->removeCoordIndexAfter(-1);
-	activestickmarker_->getCoordinates()->removeAfter(-1);
-
-	int idx = 0;
-	RowCol rc( activestick_, 0 );
-	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col += colrg.step )
-	{
-	    const Coord3 pos = fss->getKnot( rc );
-	    const int ci = activestickmarker_->getCoordinates()->addPos( pos );
-	    activestickmarker_->setCoordIndex( idx++, ci );
-	}
-
-	activestickmarker_->turnOn( true );
+	activestickmarker_->turnOn( false );
+	return;
     }
+
+    mDynamicCastGet( Geometry::FaultStickSurface*, fss,
+		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
+
+    const StepInterval<int> rowrg = fss->rowRange();
+    if ( rowrg.isUdf() || !rowrg.includes(activestick_) )
+    {
+	activestickmarker_->turnOn( false );
+	return;
+    }
+
+    const StepInterval<int> colrg = fss->colRange( activestick_ );
+    if ( colrg.isUdf() || colrg.start==colrg.stop )
+    {
+	activestickmarker_->turnOn( false );
+	return;
+    }
+
+    int idx = 0;
+    RowCol rc( activestick_, 0 );
+    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col += colrg.step )
+    {
+	const Coord3 pos = fss->getKnot( rc );
+	const int ci = activestickmarker_->getCoordinates()->addPos( pos );
+	activestickmarker_->setCoordIndex( idx++, ci );
+    }
+
+    activestickmarker_->turnOn( true );
 }
 
 

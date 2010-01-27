@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.53 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.54 2010-01-27 13:48:27 cvsjaap Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -54,6 +54,7 @@ private:
 uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
+    , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 {
 }
@@ -63,6 +64,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
+    , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 { 
     addItems( uids );
@@ -72,6 +74,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
 uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
+    , editTextChanged( this )
     , oldnritems_(mUdf(int)), oldcuritem_(mUdf(int))  
 { 
     addItems( uids );
@@ -262,6 +265,8 @@ void uiComboBox::notifyHandler( bool selectionchanged )
 
     if ( selectionchanged )
 	selectionChanged.trigger( this );
+    else
+	editTextChanged.trigger( this );
 
     endCmdRecEvent( refnr, msg );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.14 2009-12-11 15:35:52 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.15 2010-01-27 13:48:27 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -102,7 +102,6 @@ protected:
 
 
     EM::ObjectID			emid_;
-    MenuItem				stickselmnuitem_;
     MenuItem				onlyatsectmnuitem_;
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;

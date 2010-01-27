@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.7 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: emfault3d.h,v 1.8 2010-01-27 13:48:27 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,12 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    void		selectAllSticks(bool select=true);
+    void		removeSelectedSticks();
+
 protected:
+    bool		removeNextSelStick();
+
     Geometry::FaultStickSurface*	createSectionGeometry() const;
 };
 

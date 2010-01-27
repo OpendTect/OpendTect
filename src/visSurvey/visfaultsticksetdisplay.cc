@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.16 2010-01-08 14:27:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.17 2010-01-27 13:48:27 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -717,6 +717,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
     }
     updateSticks();
     updateKnotMarkers();
+    updateEditPids();
 }
 
 
@@ -725,6 +726,9 @@ void FaultStickSetDisplay::showManipulator( bool yn )
     showmanipulator_ = yn;
     if ( viseditor_ )
 	viseditor_->turnOn( yn );
+
+    updateKnotMarkers();
+
     if ( scene_ )
 	scene_->blockMouseSelection( yn );
 }
@@ -756,6 +760,7 @@ void FaultStickSetDisplay::setDisplayOnlyAtSections( bool yn )
     displayonlyatsections_ = yn;
     updateSticks();
     updateEditPids();
+    updateKnotMarkers();
 }
 
 
@@ -771,7 +776,7 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
     updateEditPids();
     updateKnotMarkers();
 
-    CallBack cb = mCB( this, FaultStickSetDisplay, polygonFinishedCB );
+    const CallBack cb = mCB( this, FaultStickSetDisplay, polygonFinishedCB );
     if ( yn )
 	scene_->getPolySelection()->polygonFinished()->notify( cb );
     else
@@ -784,9 +789,6 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
     if ( !stickselectmode_ || !emfss_ || !scene_ )
 	return;
 
-    const int sid = emfss_->sectionID(0);
-    Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry( sid );
-
     PtrMan<EM::EMObjectIterator> iter = emfss_->geometry().createIterator(-1);
     while ( true )
     {
@@ -798,6 +800,8 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	    continue;
 
 	const int sticknr = RowCol( pid.subID() ).row;
+	const EM::SectionID sid = pid.sectionID();
+	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
 	fss->selectStick( sticknr, !ctrldown_ ); 
     }
 
@@ -817,7 +821,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	    knotmarkers_[idx]->removeObject( 1 );
     }
 
-    if ( !stickselectmode_ )
+    if ( !showmanipulator_ || !stickselectmode_ )
 	return;
 
     PtrMan<EM::EMObjectIterator> iter = emfss_->geometry().createIterator(-1);

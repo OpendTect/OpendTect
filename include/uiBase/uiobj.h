@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.64 2009-08-04 05:05:50 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.65 2010-01-27 13:48:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ public:
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);
     void                setPrefWidthInChar(float);
+    void		setMinimumWidth(int);
     int			prefVNrPics() const;
     virtual void	setPrefHeight(int);
     void		setPrefHeightInChar(float);

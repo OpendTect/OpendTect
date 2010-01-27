@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.30 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: uicombobox.h,v 1.31 2010-01-27 13:48:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
     const char*		textOfItem(int) const;
     void		setItemText(int,const char*);
     int			indexOf(const char*) const;
+
+    Notifier<uiComboBox> editTextChanged;
 
 			//! Triggered when selection has changed.
     Notifier<uiComboBox> selectionChanged;

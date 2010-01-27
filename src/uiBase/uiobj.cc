@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.91 2009-12-04 11:09:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.92 2010-01-27 13:48:27 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -330,6 +330,8 @@ void uiObject::setPrefWidth( int w )
 void uiObject::setPrefWidthInChar( float w )
      { mBody()->setPrefWidthInChar(w); }
 
+void uiObject::setMinimumWidth( int w )
+    { mBody()->setMinimumWidth(w); }
 
 int uiObject::prefVNrPics() const
     { return mConstBody()->prefVNrPics(); }

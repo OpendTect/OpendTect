@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjbody.cc,v 1.26 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.27 2010-01-27 13:48:27 cvsjaap Exp $";
 
 
 #include "uiobjbody.h"
@@ -338,6 +338,12 @@ void uiObjectBody::setPrefWidthInChar( float w )
     pref_char_width = w;
     pref_width_  = 0;
     pref_height_ = 0;
+}
+
+
+void uiObjectBody::setMinimumWidth( int w )
+{
+    qwidget()->setMinimumWidth( w );
 }
 
 

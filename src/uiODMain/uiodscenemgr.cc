@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.194 2010-01-21 13:07:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.195 2010-01-27 13:48:27 cvsjaap Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -971,6 +971,8 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	    itm = new uiODHorizon2DTreeItem(emid);
 	else if ( type=="Fault" )
 	    itm = new uiODFaultTreeItem(emid);
+	else if ( type=="FaultStickSet" )
+	    itm = new uiODFaultStickSetTreeItem(emid);
 	else if ( type=="RandomPosBody" )
 	    itm = new uiODBodyDisplayTreeItem(emid);
 

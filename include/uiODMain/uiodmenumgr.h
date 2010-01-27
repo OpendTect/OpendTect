@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.50 2009-10-16 03:28:09 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.51 2010-01-27 13:48:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiPopupMenu;
 class uiToolBar;
 class DirList;
 class uiPopupMenu;
+class uiODFaultToolMan;
 
 
 /*!\brief The OpendTect menu manager
@@ -107,6 +108,8 @@ protected:
     uiToolBar*		dtecttb_;
     uiToolBar*		cointb_;
     uiToolBar*		mantb_;
+
+    uiODFaultToolMan*	faulttoolman_;
 
     void		fillSurveyMenu();
     void		fillImportMenu();
