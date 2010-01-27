@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.11 2010-01-12 12:18:30 cvsyuancheng Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.12 2010-01-27 23:00:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -151,7 +151,6 @@ protected:
     bool        doPrepare(int);
     bool	initFromArray(TaskRunner*);
     void	getNextNodes(TypeSet<od_int64>&);
-    int		findNearNeighbor(int,int);
 
     				//triangulation stuff
     bool			dointerpolation_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.29 2010-01-12 12:13:30 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.30 2010-01-27 23:00:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,7 +190,9 @@ public:
 			  coordlist, corresponding to the weights.*/
     bool		computeWeights(const Coord&,TypeSet<int>& vertices,
 	    			       TypeSet<float>& weights,
-				       float maxdist=mUdf(float));
+				       double maxdist=mUdf(double),
+				       bool dointerpolate=true);
+    			/*If don't do interpolate, nearest node will be taken.*/
 
 protected:
 

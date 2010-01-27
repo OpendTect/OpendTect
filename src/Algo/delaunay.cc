@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.42 2010-01-12 12:13:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.43 2010-01-27 23:00:43 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -1416,7 +1416,8 @@ Triangle2DInterpolator::Triangle2DInterpolator( const DAGTriangleTree& tri )
 
 
 bool Triangle2DInterpolator::computeWeights( const Coord& pt, 
-	TypeSet<int>& vertices, TypeSet<float>& weights, float maxdist )
+	TypeSet<int>& vertices, TypeSet<float>& weights, 
+	double maxdist, bool dointerpolate )
 {
     int dupid = -1;
     TypeSet<int> tmpvertices;
@@ -1437,24 +1438,90 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
 	return false;
     }
 
+    if ( !dointerpolate ) //Get the nearest node only
+    {
+	double minsqdist = 0;
+	for ( int ptidx=0; ptidx<nrvertices; ptidx++ )
+	{
+	    if ( tmpvertices[ptidx]<0 )
+		continue;
+
+	    const Coord diff = triangles_.coordList()[tmpvertices[ptidx]] - pt;
+	    const double sqdist = diff.sqAbs();
+
+	    if ( !vertices.size() )
+	    {
+		vertices += tmpvertices[ptidx];
+		minsqdist = sqdist;
+	    }
+	    else if ( minsqdist>sqdist )
+	    {
+		vertices[0] = tmpvertices[ptidx];
+		minsqdist = sqdist;
+	    }
+	}
+
+	if ( !vertices.size() )
+	    return false;
+	
+	weights += 1;
+	return true;
+    }
+	
+    bool usedinit = false;
+    bool result = true;
+    TypeSet<float> tmpw;
+    TypeSet<int> tmpv;
     for ( int ptidx=0; ptidx<nrvertices; ptidx++ )
     {
 	if ( tmpvertices[ptidx]<0 ) 
-	    return setFromAzimuth( tmpvertices, pt, vertices, weights );
+	{
+	    usedinit = true;
+	    result = setFromAzimuth( tmpvertices, pt, tmpv, tmpw );
+	    break;
+	}
     }
+	    
+    if ( !usedinit )
+    {
+    	float weight[3];
+    	interpolateOnTriangle2D( pt,
+    		triangles_.coordList()[tmpvertices[0]], 
+    		triangles_.coordList()[tmpvertices[1]],	
+    		triangles_.coordList()[tmpvertices[2]],
+    		weight[0], weight[1], weight[2] );
+    	
+    	tmpv += tmpvertices[0]; tmpw += weight[0];
+    	tmpv += tmpvertices[1]; tmpw += weight[1];
+    	tmpv += tmpvertices[2]; tmpw += weight[2];
+    }
+    
+    if ( mIsUdf(maxdist) )
+    {
+	vertices = tmpv;
+	weights = tmpw;	
+    }
+    else
+    {
+	float weightsum = 0, remwsum = 0;
+	for ( int idx=0; idx<tmpv.size(); idx++ )
+	{
+	    const Coord df = triangles_.coordList()[tmpv[idx]] - pt;
+	    if ( df.sqAbs()<maxdist*maxdist )
+	    {
+		vertices += tmpv[idx];
+		weights += tmpw[idx];
+		weightsum += tmpw[idx];
+	    }
+	    else
+		remwsum += tmpw[idx];
+	}	
 
-    float weight[3];
-    interpolateOnTriangle2D( pt,
-	    triangles_.coordList()[tmpvertices[0]], 
-	    triangles_.coordList()[tmpvertices[1]],	
-	    triangles_.coordList()[tmpvertices[2]],
-	    weight[0], weight[1], weight[2] );
+	for ( int idx=0; idx<vertices.size(); idx++ )
+	    weights[idx] += remwsum*weights[idx]/weightsum;
+    }
     
-    vertices += tmpvertices[0]; weights += weight[0];
-    vertices += tmpvertices[1]; weights += weight[1];
-    vertices += tmpvertices[2]; weights += weight[2];
-    
-    return true;
+    return result;
 }
 
 

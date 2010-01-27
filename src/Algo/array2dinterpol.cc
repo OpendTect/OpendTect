@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.23 2010-01-12 12:18:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.24 2010-01-27 23:00:43 cvsyuancheng Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -1348,17 +1348,12 @@ void TriangulationArray2DInterpol::getNextNodes( TypeSet<od_int64>& res )
 
 bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 {
-    if ( dointerpolation_ && !triangleinterpolator_ )
+    if ( !triangleinterpolator_ )
 	return false;
 
     int dupid = -1;
     TypeSet<od_int64> currenttask;
     TypeSet<od_int64> definedidices;
-    if ( !dointerpolation_ )
-    {
-	for ( int idx=0; idx<nrcells_; idx++ )
-	const TypeSet<Coord>& crds = triangulation_->coordList();
-    }
 
     while ( shouldContinue() )
     {
@@ -1376,65 +1371,21 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 	    TypeSet<int> vertices;
 	    TypeSet<float> weights;
 	    TypeSet<int> usedindices;
-
-	    if ( !dointerpolation_ ) //TODO: work again when has spare time
-	    {
-		int nbidx = findNearNeighbor( row, col );
-		if ( nbidx==-1 )
-		    return false;
-
-		coordlistindices_ += curnode;
-		
-		usedindices += nbidx;
-		weights += 1;
-	    }
-	    else if ( !triangleinterpolator_->computeWeights( crd, vertices,
-			weights, maxdistance_ ) )
+	    if ( !triangleinterpolator_->computeWeights( crd, vertices,
+			weights, maxdistance_, dointerpolation_ ) )
 		return false;
+	 
+	    const int sz = vertices.size();
+	    if ( !sz ) continue;
 	    
-    	    const int vertsz = dointerpolation_ ? vertices.size() : 1;
-	    if ( dointerpolation_ )
-	    {
-		for ( int vidx=0; vidx<vertsz; vidx++ )
-		    usedindices += coordlistindices_[vertices[vidx]];
-	    }
+	    for ( int vidx=0; vidx<sz; vidx++ )
+		usedindices += coordlistindices_[vertices[vidx]];
 	    
-	    setFrom( curnode, usedindices.arr(), weights.arr(), vertsz );
+	    setFrom( curnode, usedindices.arr(), weights.arr(), sz );
 	}
     }
 
     return true;
-}
-
-
-int TriangulationArray2DInterpol::findNearNeighbor( int row, int col )
-{ 
-    int rstep = 1; 
-    while ( true )
-    {
-	int curidx;
-	for ( int cshift = -rstep; cshift<=rstep; cshift +=rstep )
-	{
-	    const int nbc = col + cshift;
-	    if ( nbc<0 || nbc>nrcols_ )
-		continue;
-
-	    for ( int rshift = -rstep; rshift<=rstep; rshift +=rstep )
-	    {
-		const int nbr = row + rshift;
-		if ( nbr<0 || nbr>nrrows_ || (!nbc && !nbr) )
-		    continue;
-
-		curidx = nbr * nrcols_ + nbc;
-		if ( coordlistindices_.indexOf(curidx)!=-1 )
-		    return curidx;
-	    }
-
-	    rstep++;
-	}
-    }   
-
-   return -1; 
 }
 
 
