@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.22 2010-01-26 10:43:29 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.23 2010-01-27 13:40:00 cvskarthika Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.22 2010-01-26 10:43:29 
 #include "vislight.h"
 #include "uibuttongroup.h"
 #include "uislider.h"
+#include "uidial.h"
 #include "uicombobox.h"
 #include "uibutton.h"
 #include "uilabel.h"
@@ -146,13 +147,17 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
-    azimuthfld_ = new uiSliderExtra( this,
-	    uiSliderExtra::Setup("Azimuth (degrees)").withedit(true).nrdec(1).
-	          logscale(false), "Azimuth slider" );
-    azimuthfld_->attach( alignedBelow, intensityfld_ );
-    azimuthfld_->sldr()->setMinValue( 0 );
-    azimuthfld_->sldr()->setMaxValue( 360 );
-    azimuthfld_->sldr()->setStep( 5 );
+	azimuthfld_ = new uiDial( this, "Azimuth (degrees)" );
+	azimuthfld_->setPrefWidth( 150 );
+	azimuthfld_->setPrefHeight( 150 );
+	azimuthfld_->attach( centeredBelow, intensityfld_ );
+    azimuthfld_->setWrapping( true );
+	//azimuthfld_->setInverted( false );  // counterclockwise
+	//azimuthfld_->setInvertedControls( false );
+	azimuthfld_->setOrientation( uiDial::Vertical );
+    azimuthfld_->setMinValue( 0 );
+    azimuthfld_->setMaxValue( 359 );
+    azimuthfld_->setInterval( StepInterval<int>( 0, 359, 5 ) );
 
     dipfld_ = new uiSliderExtra( this,
 	    uiSliderExtra::Setup("Dip (degrees)").withedit(true).nrdec(1).
@@ -185,8 +190,8 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
     scenelightfld_->activated.notify( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
-    azimuthfld_->sldr()->setValue( initinfo.azimuth_ );
-    azimuthfld_->sldr()->valueChanged.notify( chgCB );
+    azimuthfld_->setValue( initinfo.azimuth_ );
+    azimuthfld_->valueChanged.notify( chgCB );
     dipfld_->sldr()->setValue( initinfo.dip_ );
     dipfld_->sldr()->valueChanged.notify( chgCB ); 
     intensityfld_->sldr()->setValue( initinfo.intensity_ );
@@ -214,7 +219,7 @@ uiDirLightDlg::~uiDirLightDlg()
     removeSceneNotifiers();
 
     const CallBack chgCB ( mCB(this,uiDirLightDlg,fieldChangedCB) );
-    azimuthfld_->sldr()->valueChanged.remove( chgCB );
+    azimuthfld_->valueChanged.remove( chgCB );
     dipfld_->sldr()->valueChanged.remove( chgCB ); 
     intensityfld_->sldr()->valueChanged.remove( chgCB ); 
     headonintensityfld_->sldr()->valueChanged.remove( 
@@ -258,7 +263,7 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
     if ( !pd_ )
     {
         pd_ = new uiPolarDiagram( pddlg_ );
-        pd_->setValues( azimuthfld_->sldr()->getValue(), 
+        pd_->setValues( azimuthfld_->getValue(), 
 		dipfld_->sldr()->getValue() );
         pd_->valueChanged.notify( mCB(this, uiDirLightDlg, polarDiagramCB) );
     }
@@ -407,7 +412,7 @@ void uiDirLightDlg::saveInitInfo()
 	bool dosave = saveall || idx == scenefld_->box()->currentItem()-1;
 	if ( !dosave ) continue;
 
-        initinfo_[idx].azimuth_ = azimuthfld_->sldr()->getValue();
+        initinfo_[idx].azimuth_ = azimuthfld_->getValue();
         initinfo_[idx].dip_ = dipfld_->sldr()->getValue();
         initinfo_[idx].intensity_ = intensityfld_->sldr()->getValue();
         initinfo_[idx].headonintensity_ = 
@@ -429,7 +434,7 @@ void uiDirLightDlg::resetWidgets()
 	if ( idx < 0 )
 	    idx = 0;
 
-	azimuthfld_->sldr()->setValue( initinfo_[idx].azimuth_ );
+	azimuthfld_->setValue( initinfo_[idx].azimuth_ );
 	dipfld_->sldr()->setValue( initinfo_[idx].dip_ );
 	intensityfld_->sldr()->setValue( initinfo_[idx].intensity_ );
 	headonintensityfld_->sldr()->setValue( 
@@ -493,7 +498,7 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
 
 	if ( !anySceneDone )
 	{
-	    azimuthfld_->sldr()->setValue( azimuth );
+	    azimuthfld_->setValue( azimuth );
             dipfld_->sldr()->setValue( dip );
             intensityfld_->sldr()->setValue( dl->intensity() * 100 );
    	    anySceneDone = true;
@@ -530,7 +535,7 @@ void uiDirLightDlg::setDirLight()
 	    continue;
 
 	float az_rad = Angle::convert( Angle::UsrDeg, 
-		azimuthfld_->sldr()->getValue(), Angle::Rad );
+		(float) (azimuthfld_->getValue()), Angle::Rad );
 	float dip_rad = Angle::convert( Angle::Deg,
 		dipfld_->sldr()->getValue() - 180, Angle::Rad );
 	  // offset for observed deviation
@@ -665,9 +670,9 @@ void uiDirLightDlg::showWidgets( bool showAll )
 
 void uiDirLightDlg::validateInput()
 {
-    const float az = azimuthfld_->sldr()->getValue();
+    const float az = azimuthfld_->getValue();
     if ( ( az < 0 ) || ( az > 360 ) )
-	azimuthfld_->sldr()->setValue( mInitAzimuth );
+	azimuthfld_->setValue( mInitAzimuth );
     
     const float dip = dipfld_->sldr()->getValue();
     if ( ( dip < 0 ) || ( dip > 90 ) )
@@ -685,7 +690,7 @@ bool uiDirLightDlg::isInSync()
     {
 	float az, dip;
 	pd_->getValues( &az, &dip );
-	if ( az != azimuthfld_->sldr()->getValue() ||
+	if ( az != azimuthfld_->getValue() ||
 	     dip != dipfld_->sldr()->getValue() )
 	    return false;
     }
@@ -698,7 +703,6 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
 {
     if ( initinfo_.size() > 0 )
     {
-        azimuthfld_->processInput();
         dipfld_->processInput();
         intensityfld_->processInput();
         headonintensityfld_->processInput();
@@ -765,7 +769,7 @@ void uiDirLightDlg::fieldChangedCB( CallBacker* c )
     // do the work only if this is not called by setValue of polarDiagramCB
     else if ( !pd_->hasFocus() )
     {
-	pd_->setValues( azimuthfld_->sldr()->getValue(), 
+	pd_->setValues( azimuthfld_->getValue(), 
 		dipfld_->sldr()->getValue() );
         setDirLight();
     }
@@ -777,7 +781,7 @@ void uiDirLightDlg::polarDiagramCB( CallBacker* )
     float azimuth, dip;
 
     pd_->getValues( &azimuth, &dip );
-    azimuthfld_->sldr()->setValue( azimuth );
+    azimuthfld_->setValue( azimuth );
     dipfld_->sldr()->setValue( dip );
 
     setDirLight();
