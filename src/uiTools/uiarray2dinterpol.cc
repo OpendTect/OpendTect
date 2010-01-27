@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.9 2010-01-12 12:20:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.10 2010-01-27 21:31:14 cvsyuancheng Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -352,12 +352,10 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     interpolatefld_->activated.notify(
 	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
     
-    maxdistfld_ = new  uiGenInput( this, "Maximum distance", FloatInpSpec() );
-    maxdistfld_->attach( rightOf, interpolatefld_ );
+    maxdistfld_ = 
+	new uiGenInput( this, "Max distance(optional)", FloatInpSpec() );
+    maxdistfld_->attach( alignedBelow, interpolatefld_ );
 
-    maxdistfld_->display( false );//Delete this two lines later, come back
-    interpolatefld_->display( false );
-    
     setHAlignObj( interpolatefld_ );
     setDistanceUnit( 0 );
 }
@@ -371,7 +369,7 @@ void uiTriangulationArray2DInterpol::intCB( CallBacker* )
 
 void uiTriangulationArray2DInterpol::setDistanceUnit( const char* d )
 {
-    BufferString res = "Maximum distance";
+    BufferString res = "Max distance(optional)";
     if ( d )
     {
 	res += " ";
