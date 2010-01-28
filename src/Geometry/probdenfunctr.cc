@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: probdenfunctr.cc,v 1.1 2010-01-28 09:46:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunctr.cc,v 1.2 2010-01-28 10:21:37 cvsnanne Exp $";
 
 #include "probdenfunctr.h"
 
 defineTranslatorGroup(ProbDenFunc,"Probability Density Function");
 defineTranslator(dgb,ProbDenFunc,mDGBKey);
 
-mDefSimpleTranslatorSelector(ProbDenFunc,sKeyProbDenFunc())
+mDefSimpleTranslatorSelector(ProbDenFunc,ProbDenFuncTranslator::key())
 mDefSimpleTranslatorioContext(ProbDenFunc,Feat)
 
 bool dgbProbDenFuncTranslator::read( ArrayNDProbDenFunc& pdf,
