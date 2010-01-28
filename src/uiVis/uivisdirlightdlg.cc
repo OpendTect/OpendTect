@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.23 2010-01-27 13:40:00 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivisdirlightdlg.cc,v 1.24 2010-01-28 14:11:40 cvsbruno Exp $";
 
 #include "uivisdirlightdlg.h"
 
@@ -190,7 +190,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
     scenelightfld_->activated.notify( 
 	    mCB( this,uiDirLightDlg,lightSelChangedCB) );
-    azimuthfld_->setValue( initinfo.azimuth_ );
+    azimuthfld_->setValue( (int)initinfo.azimuth_ );
     azimuthfld_->valueChanged.notify( chgCB );
     dipfld_->sldr()->setValue( initinfo.dip_ );
     dipfld_->sldr()->valueChanged.notify( chgCB ); 
@@ -434,7 +434,7 @@ void uiDirLightDlg::resetWidgets()
 	if ( idx < 0 )
 	    idx = 0;
 
-	azimuthfld_->setValue( initinfo_[idx].azimuth_ );
+	azimuthfld_->setValue( (int)initinfo_[idx].azimuth_ );
 	dipfld_->sldr()->setValue( initinfo_[idx].dip_ );
 	intensityfld_->sldr()->setValue( initinfo_[idx].intensity_ );
 	headonintensityfld_->sldr()->setValue( 
@@ -498,7 +498,7 @@ void uiDirLightDlg::setWidgets( bool resetinitinfo )
 
 	if ( !anySceneDone )
 	{
-	    azimuthfld_->setValue( azimuth );
+	    azimuthfld_->setValue( (int)azimuth );
             dipfld_->sldr()->setValue( dip );
             intensityfld_->sldr()->setValue( dl->intensity() * 100 );
    	    anySceneDone = true;
@@ -781,7 +781,7 @@ void uiDirLightDlg::polarDiagramCB( CallBacker* )
     float azimuth, dip;
 
     pd_->getValues( &azimuth, &dip );
-    azimuthfld_->setValue( azimuth );
+    azimuthfld_->setValue( (int)azimuth );
     dipfld_->sldr()->setValue( dip );
 
     setDirLight();
