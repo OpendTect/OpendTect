@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.198 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.199 2010-01-28 09:50:23 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -218,6 +218,8 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* impwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
     uiPopupMenu* impmute = new uiPopupMenu( &appl_, "&Mute Functions" );
     uiPopupMenu* impvelfn = new uiPopupMenu( &appl_, "&Velocity Functions" );
+    uiPopupMenu* imppdf =
+	new uiPopupMenu( &appl_, "Probability &Density Functions" );
     impmnu_->insertItem( impseis );
     impmnu_->insertItem( imphor );
     impmnu_->insertItem( impfault );
@@ -227,11 +229,13 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertItem( impwvlt );
     impmnu_->insertItem( impmute );
     impmnu_->insertItem( impvelfn );
+    impmnu_->insertItem( imppdf );
 
     mInsertItem( imppick, "&Ascii ...", mImpPickAsciiMnuItm );
     mInsertItem( impwvlt, "&Ascii ...", mImpWvltAsciiMnuItm );
     mInsertItem( impmute, "&Ascii ...", mImpMuteDefAsciiMnuItm );
     mInsertItem( impvelfn, "&Ascii ...", mImpVelocityAsciiMnuItm );
+    mInsertItem( imppdf, "&Ascii ...", mImpPDFAsciiMnuItm );
 
     mInsertItem( impseis, "SEG-&Y ...", mImpSeisSEGYMnuItm );
     mInsertItem( impseis, "SEG-Y &Pre-stack scanned ...",
@@ -267,6 +271,7 @@ void uiODMenuMgr::fillImportMenu()
     impmnus_ += impwell; impmnus_ += 0; impmnus_ += 0;
     impmnus_ += imppick; impmnus_ += 0; impmnus_ += 0;
     impmnus_ += impwvlt; impmnus_ += impmute; impmnus_ += impvelfn;
+    impmnus_ += imppdf;
 }
 
 
@@ -280,6 +285,8 @@ void uiODMenuMgr::fillExportMenu()
     uiPopupMenu* exppick = new uiPopupMenu( &appl_, "&PickSets" );
     uiPopupMenu* expwvlt = new uiPopupMenu( &appl_, "&Wavelets" );
     uiPopupMenu* expmute = new uiPopupMenu( &appl_, "&Mute Functions" );
+    uiPopupMenu* exppdf =
+	new uiPopupMenu( &appl_, "Probability &Density Functions" );
     expmnu_->insertItem( expseis );
     expmnu_->insertItem( exphor );
     expmnu_->insertItem( expflt );
@@ -287,6 +294,7 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( exppick );
     expmnu_->insertItem( expwvlt );
     expmnu_->insertItem( expmute );
+    expmnu_->insertItem( exppdf );
 
     uiPopupMenu* expseissgy = new uiPopupMenu( &appl_, "&SEG-Y" );
     mInsertItem( expseissgy, "&3D ...", mExpSeisSEGY3DMnuItm );
@@ -306,13 +314,14 @@ void uiODMenuMgr::fillExportMenu()
     mInsertItem( exppick, "&Ascii ...", mExpPickAsciiMnuItm );
     mInsertItem( expwvlt, "&Ascii ...", mExpWvltAsciiMnuItm );
     mInsertItem( expmute, "&Ascii ...", mExpMuteDefAsciiMnuItm );
+    mInsertItem( exppdf, "&Ascii ...", mExpPDFAsciiMnuItm );
 
     expmnus_.erase();
     expmnus_.allowNull();
     expmnus_ += expseis; expmnus_ += exphor; expmnus_+= expflt;
     expmnus_+=0; expmnus_+= 0; expmnus_+= 0;
     expmnus_+=exppick; expmnus_+= 0; expmnus_+= 0;
-    expmnus_+=expwvlt; expmnus_+= expmute; expmnus_+= 0;
+    expmnus_+=expwvlt; expmnus_+= expmute; expmnus_+= 0; expmnus_ += exppdf;
 }
 
 
@@ -343,6 +352,8 @@ void uiODMenuMgr::fillManMenu()
 	    	       "man_strat.png" )
     mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt.png")
     mInsertPixmapItem( manmnu_, "&Wells ...", mManWellMnuItm, "man_wll.png" )
+    mInsertItem( manmnu_, "Probability &Density Functions ...",
+		 mManPDFMnuItm );
 }
 
 
@@ -913,6 +924,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;
     case mExpMuteDefAsciiMnuItm:	mDoOp(Exp,MDef,0); break;
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
+    case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
+    case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
     case mManSeis3DMnuItm:		mDoOp(Man,Seis,2); break;
     case mManSeis2DMnuItm:		mDoOp(Man,Seis,1); break;
     case mManHor3DMnuItm:		mDoOp(Man,Hor,2); break;
@@ -926,6 +939,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManNLAMnuItm:			mDoOp(Man,NLA,0); break;
     case mManSessMnuItm:		mDoOp(Man,Sess,0); break;
     case mManStratMnuItm:		mDoOp(Man,Strat,0); break;
+    case mManPDFMnuItm:			mDoOp(Man,PDF,0); break;
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
     case mExitMnuItm: 		appl_.exit(); break;
@@ -1066,6 +1080,7 @@ mDefManCBFn(Wll)
 mDefManCBFn(Pick)
 mDefManCBFn(Wvlt)
 mDefManCBFn(Strat)
+mDefManCBFn(PDF)
 
 
 void uiODMenuMgr::showLogFile()

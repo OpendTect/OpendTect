@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.98 2009-12-16 11:17:03 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.99 2010-01-28 09:49:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ public:
     // Survey menu operations
     int				manageSurvey();
     enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess,
-				  Strat, Wvlt, MDef, Vel };
+				  Strat, Wvlt, MDef, Vel, PDF };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
     				//!< Not all combinations are available ...!
@@ -161,6 +161,7 @@ public:
     void			doVolProc(CallBacker*);
     void			tieWellToSeismic(CallBacker*);
 
+    inline uiODMenuMgr&		menuMgr()	{ return appl_.menuMgr(); }
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);
     void			enableSceneManipulation(bool);
@@ -236,7 +237,6 @@ protected:
     friend class		uiODApplService;
 
     inline uiODSceneMgr&	sceneMgr()	{ return appl_.sceneMgr(); }
-    inline uiODMenuMgr&		menuMgr()	{ return appl_.menuMgr(); }
 
     int				otherformatvisid_;
     int				otherformatattrib_;

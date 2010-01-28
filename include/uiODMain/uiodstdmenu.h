@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.62 2009-12-11 09:42:23 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.63 2010-01-28 09:49:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ ________________________________________________________________________
 #define mImpMuteDefAsciiMnuItm	(mFileImpMnu + 81)
 #define mImpVelocityMnuItm	(mFileImpMnu + 90)
 #define mImpVelocityAsciiMnuItm	(mFileImpMnu + 91)
+#define mImpPDFMnuItm		(mFileImpMnu + 100)
+#define mImpPDFAsciiMnuItm	(mFileImpMnu + 101)
 
 #define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 11)
 #define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 12)
@@ -91,6 +93,8 @@ ________________________________________________________________________
 #define mExpWvltAsciiMnuItm	(mFileExpMnu + 71)
 #define mExpMuteDefMnuItm	(mFileExpMnu + 80)
 #define mExpMuteDefAsciiMnuItm	(mFileExpMnu + 81)
+#define mExpPDFMnuItm		(mFileExpMnu + 90)
+#define mExpPDFAsciiMnuItm	(mFileExpMnu + 91)
 
 #define mManSeis3DMnuItm	(mFileManMnu + 10)
 #define mManSeis2DMnuItm	(mFileManMnu + 11)
@@ -105,6 +109,7 @@ ________________________________________________________________________
 #define mManNLAMnuItm		(mFileManMnu + 80)
 #define mManSessMnuItm		(mFileManMnu + 90)
 #define mManStratMnuItm		(mFileManMnu + 95)
+#define mManPDFMnuItm		(mFileManMnu + 100)
 #define mPreLoadSeisMnuItm	(mFilePreLoadMnu + 10)
 
 
