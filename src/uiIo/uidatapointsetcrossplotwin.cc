@@ -94,7 +94,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 		  "Toggle show Y2", true );
     disptb_.turnOn( showy2tbid_, false );
 
-    coltabfld_ = new uiColorTable( dispgrp, ColTab::Sequence(0), false );
+    coltabfld_ = new uiColorTable( dispgrp, ColTab::Sequence("Rainbow"), false);
     coltabfld_->setEnabManage( false );
     coltabfld_->seqChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
