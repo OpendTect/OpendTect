@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.51 2010-01-27 13:48:27 cvsjaap Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.52 2010-01-28 10:23:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
     uiToolBar*		dtectTB()		{ return dtecttb_; }
     uiToolBar*		coinTB()		{ return cointb_; }
     uiToolBar*		manTB()			{ return mantb_; }
-
+    uiToolBar*		treeTB()		{ return treetb_; }
 
     			// Probably not needed by plugins
     void		updateStereoMenu();
@@ -108,6 +108,7 @@ protected:
     uiToolBar*		dtecttb_;
     uiToolBar*		cointb_;
     uiToolBar*		mantb_;
+    uiToolBar*		treetb_;
 
     uiODFaultToolMan*	faulttoolman_;
 
@@ -137,6 +138,7 @@ protected:
     void		manPick(CallBacker*);
     void		manWvlt(CallBacker*);
     void		manStrat(CallBacker*);
+    void		manPDF(CallBacker*);
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectMnus(CallBacker*);
     void		toggViewMode(CallBacker*);
