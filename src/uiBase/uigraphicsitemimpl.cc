@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.36 2010-01-21 14:55:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.37 2010-01-29 14:30:58 cvsbruno Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.36 2010-01-21 14:55:0
 #include "pixmap.h"
 #include "polygon.h"
 #include "uifont.h"
+#include "uigeom.h"
 #include "uigroup.h"
 #include "uiobj.h"
 
@@ -89,9 +90,11 @@ void uiObjectItem::setObjectSize( int szx, int szy )
 }
 
 
-QSize uiObjectItem::objectSize() const
+const uiSize uiObjectItem::objectSize() const
 {
-    return ( obj_ ? obj_->qwidget()->size() : QSize(0,0) );
+    return ( obj_ ? uiSize(obj_->qwidget()->size().width(),
+			   obj_->qwidget()->size().height() )  
+		  : uiSize(0,0) );
 }
 
 
