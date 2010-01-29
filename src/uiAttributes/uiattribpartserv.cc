@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.141 2009-12-16 11:13:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.142 2010-01-29 11:02:47 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -330,10 +330,19 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
     attrdata.attribid = dlg.attribID();
     attrdata.outputnr = dlg.outputNr();
     const bool isnla = !attrdata.attribid.isValid() && attrdata.outputnr >= 0;
-    IOObj* ioobj = IOM().get( adsman->attrsetid_ );
-    BufferString attrsetnm = ioobj ? ioobj->name() : "";
+    const Desc* desc = adsman->descSet()->getDesc( attrdata.attribid );
+    const bool isstored = desc && desc->isStored();
+    BufferString objref;
+    if ( isnla )
+	objref = nlaname_;
+    else if ( !isstored )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( adsman->attrsetid_ );
+	objref = ioobj ? ioobj->name() : "";
+    }
+
     selspec.set( 0, isnla ? DescID(attrdata.outputnr,true) : attrdata.attribid,
-	         isnla, isnla ? (const char*)nlaname_ : (const char*)attrsetnm);
+	         isnla, objref );
     if ( isnla && attrdata.nlamodel )
 	selspec.setRefFromID( *attrdata.nlamodel );
     else if ( !isnla )
@@ -1195,13 +1204,19 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	}
     }
     
-    IOObj* ioobj = IOM().get( adsman->attrsetid_ );
-    BufferString attrsetnm = ioobj ? ioobj->name() : "";
-    DescID did = isnla ? DescID(outputnr,true) : attribid;
 
-    as.set( 0, did, isnla, isnla ? (const char*)nlaname_ 
-	    			 : (const char*)attrsetnm );
-    
+    BufferString objref;
+    if ( isnla )
+	objref = nlaname_;
+    else if ( !isstored )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( adsman->attrsetid_ );
+	objref = ioobj ? ioobj->name() : "";
+    }
+
+    DescID did = isnla ? DescID(outputnr,true) : attribid;
+    as.set( 0, did, isnla, objref );
+
     BufferString bfs;
     if ( attribid != SelSpec::cAttribNotSel() )
     {
