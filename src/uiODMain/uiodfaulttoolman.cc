@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.1 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.2 2010-01-29 05:38:53 cvsnanne Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -177,7 +177,6 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain* appl )
     EM::EMM().addRemove.notify( mCB(this,uiODFaultToolMan,addRemoveEMObjCB) );
 
     settingsdlg_ = new uiFaultStickTransferDlg( appl_, tboutputcombo_ );
-    settingsdlg_->go();
 
     appl_->finaliseDone.notify( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
 }
