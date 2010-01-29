@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.2 2010-01-29 05:38:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.3 2010-01-29 07:39:45 cvsranojay Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -184,9 +184,6 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain* appl )
 
 uiODFaultToolMan::~uiODFaultToolMan()
 {
-    delete settingsdlg_;
-    delete toolbar_;
-
     tboutputcombo_->selectionChanged.remove(
 				mCB(this,uiODFaultToolMan,outputComboChg) );
     tboutputcombo_->editTextChanged.remove(
@@ -199,6 +196,9 @@ uiODFaultToolMan::~uiODFaultToolMan()
 
     EM::EMM().addRemove.remove( mCB(this,uiODFaultToolMan,addRemoveEMObjCB) );
     appl_->finaliseDone.remove( mCB(this,uiODFaultToolMan,finaliseDoneCB) );
+
+    delete settingsdlg_;
+    delete toolbar_;
 }
 
 
