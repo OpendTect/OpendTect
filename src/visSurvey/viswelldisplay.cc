@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.116 2009-12-10 11:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.117 2010-02-01 09:46:05 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -190,6 +190,7 @@ void WellDisplay::fillLogParams( visBase::Well::LogParams& lp, int lognr )
     lp.repeat_ 	 	= dppl( lognr, repeat_);
     lp.seqname_	 	= dppl( lognr, seqname_ );
     lp.size_	 	= dppl( lognr, size_ );
+    lp.seiscolor_	= dppl( lognr, seiscolor_ );
 }
 
 

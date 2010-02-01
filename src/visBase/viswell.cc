@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.58 2009-12-10 11:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.59 2010-02-01 09:46:05 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -519,7 +519,7 @@ const Color& Well::logColor( int lognr ) const
 }
 
 
-#define scolors2f(rgb) float(lp.col_.rgb())/255
+#define scolors2f(rgb) float(lp.seiscolor_.rgb())/255
 #define colors2f(rgb) float(Col.rgb())/255
 void Well::setLogFillColorTab( const LogParams& lp, int lognr )
 {
