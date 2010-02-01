@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.91 2010-01-13 08:50:48 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.92 2010-02-01 15:35:50 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -200,9 +200,10 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     }
     else if ( nr == cSEGYWarnNonrectCoord )
     {
-	msg = "Geographic coordinates found, which are not supported.\n"
+	msg = "Trace header indicates Geographic Coordinates (byte 89).\n"
+	      "These are not supported.\n"
 	      "Will bluntly load them as rectangular coordinates "
-	      "(which they are very often)."
+	      "(which they are most often)."
 	      "\nBeware that the positions may therefore not be correct.\n"
 	      "First occurrence ";
 	msg += detail;
