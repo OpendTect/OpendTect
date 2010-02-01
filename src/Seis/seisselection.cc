@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.24 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.25 2010-02-01 09:39:35 cvsjaap Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -746,7 +746,7 @@ int Seis::PolySelData::selRes( const BinID& bid ) const
 
     for ( int idx=0; idx<polys_.size(); idx++ )
     {
-	if ( polys_[idx]->windowOverlaps(inlrg, crlrg, 1e-6) )
+	if ( polys_[idx]->windowOverlaps(inlrg, crlrg, 0.5) )
 	    return 0;
     }
 

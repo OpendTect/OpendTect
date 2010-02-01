@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.22 2009-08-11 07:00:56 cvssatyaki Exp $
+ RCS:		$Id: polygon.h,v 1.23 2010-02-01 09:39:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -304,7 +304,7 @@ bool ODPolygon<T>::windowOverlaps( const Interval<T>& xrange,
     window.add( Geom::Point2D<T>(xrange.stop,  yrange.stop) );
     window.add( Geom::Point2D<T>( xrange.start, yrange.stop) );
 
-    return isInside( window );
+    return isInside( window, eps );
 }
 
 

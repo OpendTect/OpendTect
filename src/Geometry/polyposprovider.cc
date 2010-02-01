@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.12 2009-09-28 13:27:32 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.13 2010-02-01 09:39:35 cvsjaap Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -67,10 +67,10 @@ static void setHS( const ODPolygon<float>& poly, HorSampling& hs )
 
     const Interval<float> xrg( poly.getRange(true) );
     const Interval<float> yrg( poly.getRange(false) );
-    hs.start.inl = (int)ceil( xrg.start - 1e-6 );
-    hs.start.crl = (int)ceil( yrg.start - 1e-6 );
-    hs.stop.inl = (int)floor( xrg.stop + 1e-6 );
-    hs.stop.crl = (int)floor( yrg.stop + 1e-6 );
+    hs.start.inl = (int)floor( xrg.start + 0.5 );
+    hs.start.crl = (int)floor( yrg.start + 0.5 );
+    hs.stop.inl = (int)floor( xrg.stop + 0.5 );
+    hs.stop.crl = (int)floor( yrg.stop + 0.5 );
     SI().snap( hs.start, 1 );
     SI().snap( hs.stop, -1 );
 }
