@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.17 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.18 2010-02-02 12:08:50 cvsbruno Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -49,7 +49,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     if ( setup_.asksetcsmdl_ )
     {
 	csfld_ = new uiGenInput( this, "Is this checkshot data?",
-				 BoolInpSpec(true) );
+				 BoolInpSpec(false) );
 	csfld_->attach( alignedBelow, dataselfld_ );
     }
 
