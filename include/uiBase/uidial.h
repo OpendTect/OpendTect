@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2010
- RCS:           $Id: uidial.h,v 1.2 2010-01-13 11:01:19 cvsnanne Exp $
+ RCS:           $Id: uidial.h,v 1.3 2010-02-02 23:36:34 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,8 @@ public:
     bool		hasInvertedControls() const;
     void		setWrapping(bool);
     bool		hasWrapping() const;
+	void		setStartAtTop(bool);
+	bool		hasStartAtTop() const;
 
     Notifier<uiDial>	valueChanged;
     Notifier<uiDial>	sliderMoved;
@@ -58,6 +60,9 @@ private:
 
     uiDialBody*		body_;
     uiDialBody&		mkbody(uiParent*,const char*);
+
+	bool			startAtTop;
+					// true - numbering starts at the top
 };
 
 #endif

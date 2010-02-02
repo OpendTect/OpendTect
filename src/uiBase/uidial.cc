@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidial.cc,v 1.2 2010-01-13 11:01:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidial.cc,v 1.3 2010-02-02 23:36:34 cvskarthika Exp $";
 
 #include "uidial.h"
 #include "i_qdial.h"
@@ -54,6 +54,7 @@ uiDial::uiDial( uiParent* p, const char* nm )
     , sliderMoved(this)
     , sliderPressed(this)
     , sliderReleased(this)
+	, startAtTop( true )
 {
 }
 
@@ -71,10 +72,27 @@ uiDialBody& uiDial::mkbody( uiParent* p, const char* nm )
 
 
 void uiDial::setValue( int val  )
-{ body_->setValue( val ); }
+{
+	if ( startAtTop )
+	{
+		int N = maxValue() - minValue();
+		int newval = ( N/2 + val ) % N;
+		body_->setValue( newval ); 
+	}
+	else
+		body_->setValue( val );
+}
 
 int uiDial::getValue() const
-{ return body_->value(); }
+{ 
+	if ( startAtTop)
+	{
+		int N = maxValue() - minValue();
+		return (body_->value() + N/2) % N;
+	}
+	else
+		return body_->value(); 
+}
 
 void uiDial::setOrientation( Orientation orient )
 { body_->setOrientation( orient == Vertical ?  Qt::Vertical : Qt::Horizontal );}
@@ -132,4 +150,16 @@ void uiDial::getInterval( StepInterval<int>& intv ) const
     intv.start = minValue();
     intv.stop = maxValue();
     intv.step = step();
+}
+
+
+void uiDial::setStartAtTop( bool top )
+{
+	startAtTop = top;
+}
+	
+
+bool uiDial::hasStartAtTop() const
+{
+	return startAtTop;
 }
