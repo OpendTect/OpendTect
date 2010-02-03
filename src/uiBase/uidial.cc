@@ -7,15 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidial.cc,v 1.3 2010-02-02 23:36:34 cvskarthika Exp $";
+static const char* rcsID = "$Id: uidial.cc,v 1.4 2010-02-03 16:35:12 cvskarthika Exp $";
 
 #include "uidial.h"
 #include "i_qdial.h"
 #include "uiobjbody.h"
+#include "i_layout.h"
 
 #include "ranges.h"
-
-
+#include "uilabel.h"
+#include "uilineedit.h"
 
 // TODO: Combine with uiSlider
 
@@ -54,7 +55,7 @@ uiDial::uiDial( uiParent* p, const char* nm )
     , sliderMoved(this)
     , sliderPressed(this)
     , sliderReleased(this)
-	, startAtTop( true )
+    , startAtTop_( true )
 {
 }
 
@@ -73,25 +74,25 @@ uiDialBody& uiDial::mkbody( uiParent* p, const char* nm )
 
 void uiDial::setValue( int val  )
 {
-	if ( startAtTop )
-	{
-		int N = maxValue() - minValue();
-		int newval = ( N/2 + val ) % N;
-		body_->setValue( newval ); 
-	}
-	else
-		body_->setValue( val );
+    if ( startAtTop_ )
+    {
+	int N = maxValue() - minValue();
+	int newval = ( N/2 + val ) % N;
+	body_->setValue( newval ); 
+    }
+    else
+	body_->setValue( val );
 }
 
 int uiDial::getValue() const
 { 
-	if ( startAtTop)
-	{
-		int N = maxValue() - minValue();
-		return (body_->value() + N/2) % N;
-	}
-	else
-		return body_->value(); 
+    if ( startAtTop_)
+    {
+	int N = maxValue() - minValue();
+	return (body_->value() + N/2) % N;
+    }
+    else
+	return body_->value(); 
 }
 
 void uiDial::setOrientation( Orientation orient )
@@ -155,11 +156,89 @@ void uiDial::getInterval( StepInterval<int>& intv ) const
 
 void uiDial::setStartAtTop( bool top )
 {
-	startAtTop = top;
+	startAtTop_ = top;
 }
 	
 
 bool uiDial::hasStartAtTop() const
 {
-	return startAtTop;
+	return startAtTop_;
 }
+
+
+uiDialExtra::uiDialExtra( uiParent* p, const Setup& s, const char* nm )
+        : uiGroup(p,nm)
+	, editfld_(0)
+	, lbl_(0)
+{
+    init( s, nm );
+}
+
+
+void uiDialExtra::init( const uiDialExtra::Setup& setup, const char* nm )
+{
+    dial_ = new uiDial( this, nm );
+    dial_->setPrefWidth( setup.dialsize_ );
+    dial_->setPrefHeight( setup.dialsize_ );
+
+    if ( !setup.lbl_.isEmpty() )
+	lbl_ = new uiLabel( this, setup.lbl_ );
+
+    if ( setup.withedit_ )
+    {
+	dial_->valueChanged.notify( mCB(this,uiDialExtra,sliderMove) );
+	editfld_ = new uiLineEdit( this, BufferString(setup.lbl_," value") );
+	editfld_->setHSzPol( uiObject::Small );
+	editfld_->returnPressed.notify( mCB(this,uiDialExtra,editRetPress) );
+	sliderMove(0);
+    }
+
+    setHSpacing( 50 );
+    setHAlignObj( dial_ );
+    
+    if ( setup.isvertical_ )
+    {
+	if ( lbl_ ) dial_->attach( centeredBelow, lbl_ );
+	if ( editfld_ ) editfld_->attach( centeredBelow, dial_ );
+    }
+    else
+    {
+	// to do: attach lbl_ and editfld_ to the borders of the group
+	if ( lbl_ ) 
+	{
+	    //lbl_->attach( leftBorder, 1 );
+	    lbl_->attach( centeredLeftOf, dial_ );
+	}
+	if ( editfld_ ) 
+	{
+	    //editfld_->attach( rightBorder, 1 );
+	    editfld_->attach( centeredRightOf, dial_ );
+	}
+    }
+}
+
+
+void uiDialExtra::sliderMove( CallBacker* )
+{
+    if ( editfld_ )
+	editfld_->setValue( dial_->getValue() );
+}
+
+
+void uiDialExtra::processInput()
+{
+    if ( editfld_ )
+	dial_->setValue( editfld_->getIntValue() );
+}
+
+
+float uiDialExtra::editValue() const
+{
+    return editfld_ ? editfld_->getfValue() : mUdf(float);
+}
+
+void uiDialExtra::editRetPress( CallBacker* )
+{
+    processInput();
+}
+
