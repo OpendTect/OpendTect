@@ -7,15 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2010
- RCS:           $Id: uidial.h,v 1.3 2010-02-02 23:36:34 cvskarthika Exp $
+ RCS:           $Id: uidial.h,v 1.4 2010-02-03 16:35:32 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigroup.h"
 #include "uiobj.h"
 
 class uiDialBody;
 template <class T> class StepInterval;
+
+class uiLabel;
+class uiLineEdit;
 
 mClass uiDial : public uiObject
 {
@@ -48,8 +52,8 @@ public:
     bool		hasInvertedControls() const;
     void		setWrapping(bool);
     bool		hasWrapping() const;
-	void		setStartAtTop(bool);
-	bool		hasStartAtTop() const;
+    void		setStartAtTop(bool);
+    bool		hasStartAtTop() const;
 
     Notifier<uiDial>	valueChanged;
     Notifier<uiDial>	sliderMoved;
@@ -61,8 +65,49 @@ private:
     uiDialBody*		body_;
     uiDialBody&		mkbody(uiParent*,const char*);
 
-	bool			startAtTop;
-					// true - numbering starts at the top
+    bool		startAtTop_;
+    			// true - numbering starts at the top
+};
+
+/*! Dial with label */
+mClass uiDialExtra : public uiGroup
+{
+public:
+
+    mClass Setup
+    {
+	public:
+	    		Setup(const char* l=0)
+			    : lbl_(l)
+			    , withedit_(false)
+			    , isvertical_(false)
+			    , dialsize_(60)
+			{}
+
+		mDefSetupMemb(bool,withedit)
+		mDefSetupMemb(bool,isvertical)
+		mDefSetupMemb(int,dialsize)
+		mDefSetupMemb(BufferString,lbl)
+    };
+
+			uiDialExtra(uiParent*,const Setup&, const char* nm);
+
+    uiDial*		dial()		{ return dial_; }
+    uiLabel*   		label()   	{ return lbl_; }
+
+    void                processInput();
+    float               editValue() const;
+                        //!<The val in the ed field, which may be outside range
+
+protected:
+
+    uiDial*		dial_;
+    uiLabel*            lbl_;
+    uiLineEdit*         editfld_;
+    
+    void                init(const Setup&,const char*);
+    void                editRetPress(CallBacker*);
+    void                sliderMove(CallBacker*);
 };
 
 #endif
