@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.101 2009-12-23 20:12:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.102 2010-02-03 18:00:28 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1066,11 +1066,21 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 	RowCol rc = absrc - origin_; 
 	rc.row /= rrg.step; rc.col /= crg.step;
 
-	const int tilerowidx = rc.row/mTileSideSize;
-	const int tilerow = rc.row%mTileSideSize;
+	int tilerowidx = rc.row/mTileSideSize;
+	int tilerow = rc.row%mTileSideSize;
+	if ( tilerowidx==nrrowsz && !tilerow )
+	{
+	    tilerowidx--;
+	    tilerow = mTileLastIdx;
+	}
 
-	const int tilecolidx = rc.col/mTileSideSize;
-	const int tilecol = rc.col%mTileSideSize;
+	int tilecolidx = rc.col/mTileSideSize;
+	int tilecol = rc.col%mTileSideSize;
+	if ( tilecolidx==nrcolsz && !tilecol )
+	{
+	    tilecolidx--;
+	    tilecol = mTileLastIdx;
+	}	
 
 	const Coord3 pos = geometry_->getKnot(absrc,false);
 	
