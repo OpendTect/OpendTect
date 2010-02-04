@@ -4,11 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.89 2009-08-06 01:57:41 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.90 2010-02-04 16:43:08 cvsjaap Exp $";
 
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
+#include "emfault3d.h"
+#include "emfaultstickset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
@@ -457,8 +459,14 @@ IOPar* EMManager::getSurfacePars( const IOObj& ioobj ) const
 bool EMManager::readPars( const MultiID& mid, IOPar& par ) const
 {
     const char* objtype = objectType( mid );
+    if ( !objtype )
+	return false;
+
     if ( strcmp(objtype,Horizon2D::typeStr()) &&
-	 strcmp(objtype,Horizon3D::typeStr()) ) return false;
+	 strcmp(objtype,Horizon3D::typeStr()) &&
+	 strcmp(objtype,Fault3D::typeStr()) &&
+	 strcmp(objtype,FaultStickSet::typeStr()) )
+	return false;
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return false;
