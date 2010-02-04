@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.19 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uicolor.h,v 1.20 2010-02-04 16:29:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,8 @@ public:
 
     Notifier<uiColorInput> 	colorchanged;
     Notifier<uiColorInput> 	dodrawchanged;
+
+    uiPushButton*		getButton()	{ return colbut_; }
 
 protected:
 
