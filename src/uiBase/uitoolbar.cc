@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.53 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.54 2010-02-04 16:32:45 cvsjaap Exp $";
 
 #include "uitoolbar.h"
 
@@ -289,6 +289,9 @@ void uiToolBar::setSensitive( int idx, bool yn )
 
 void uiToolBar::setSensitive( bool yn )
 { body_->setSensitive( yn ); }
+
+bool uiToolBar::isSensitive() const
+{ return body_->isSensitive(); }
 
 void uiToolBar::setToolTip( int idx, const char* tip )
 { body_->setToolTip( idx, tip ); }

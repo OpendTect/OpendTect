@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.38 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uitoolbar.h,v 1.39 2010-02-04 16:32:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ public:
     			/*!< Does only work on buttons */
     void		setSensitive(bool yn);
     			/*!< Works on complete toolbar */
+    bool		isSensitive() const;
+
     void		setButtonMenu(int,uiPopupMenu*);
     			//!<Menu will be owned by uiToolButton
 
