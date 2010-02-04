@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.35 2009-08-12 02:32:59 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.36 2010-02-04 16:18:47 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -304,6 +304,10 @@ protected:
 	    				   const char*) const;
     bool                 	writeInt64(std::ostream&,od_int64,
 	    				   const char*) const;
+
+    void			finishWriting();
+    bool			writingfinished_;
+
     StreamConn*			conn_;
     const IOObj*		ioobj_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.131 2010-01-26 16:12:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.132 2010-02-04 16:18:47 cvsjaap Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1271,6 +1271,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , nrrows_( 0 )
     , binary_( binary )
     , shift_( 0 )
+    , writingfinished_( false )
     , geometry_(
 	reinterpret_cast<const EM::RowColSurfaceGeometry&>( surface.geometry()))
 {
@@ -1295,6 +1296,20 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
 
 
 dgbSurfaceWriter::~dgbSurfaceWriter()
+{
+    if ( !writingfinished_ )
+	finishWriting();
+
+    surface_.unRef();
+    delete &par_;
+    delete conn_;
+    delete writerowrange_;
+    delete writecolrange_;
+    delete ioobj_;
+}
+
+
+void dgbSurfaceWriter::finishWriting()
 {
     if ( conn_ )
     {
@@ -1340,12 +1355,7 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 	par_.putTo( astream );
     }
 
-    surface_.unRef();
-    delete &par_;
-    delete conn_;
-    delete writerowrange_;
-    delete writecolrange_;
-    delete ioobj_;
+    writingfinished_ = true;
 }
 
 
@@ -1537,6 +1547,9 @@ int dgbSurfaceWriter::nextStep()
 	const int res = ExecutorGroup::nextStep();
 	if ( !res && ioobj_->key()==surface_.multiID() ) 
 	    const_cast<Surface*>(&surface_)->resetChangedFlag();
+	if ( res == Finished() )
+	    finishWriting();
+
 	return res;
     }
 
