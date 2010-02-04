@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.92 2010-02-01 15:35:50 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.93 2010-02-04 16:10:26 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -131,9 +131,10 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     if ( !sConn().doIO( binheaderbuf, SegyBinHeaderLength ) )
 	mErrRet( "Cannot read SEG-Y Text header" )
     binhead_.getFrom( binheaderbuf );
+    if ( forcerev0_ ) binhead_.isrev1 = false;
 
     trchead_.setNeedSwap( filepars_.byteswap_ > 1 );
-    trchead_.isrev1 = forcerev0_ ? false : binhead_.isrev1;
+    trchead_.isrev1 = binhead_.isrev1;
     if ( trchead_.isrev1 )
     {
 	if ( binhead_.nrstzs > 100 ) // protect against wild values
@@ -534,6 +535,7 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
     std::streamoff so = nr;
     so *= (240 + dataBytes() * innrsamples);
     so += 3600;
+    sConn().iStream().clear();
     sConn().iStream().seekg( so, std::ios::beg );
     headerbufread_ = headerdone_ = false;
     return sConn().iStream().good();
