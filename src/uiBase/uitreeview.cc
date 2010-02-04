@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.60 2009-10-23 09:21:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.61 2010-02-04 16:56:15 cvsjaap Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -604,7 +604,13 @@ void uiListViewItem::insertItem( int idx, uiListViewItem* itm )
 
 
 void uiListViewItem::removeItem( uiListViewItem* itm )
-{ qItem()->removeChild( itm->qItem() ); }
+{
+    QTreeWidget* qtw = qItem()->treeWidget();
+    if ( qtw && qtw->currentItem()==itm->qItem() )
+	qtw->setCurrentItem( 0 );
+
+    qItem()->removeChild( itm->qItem() );
+}
 
 
 void uiListViewItem::moveItem( uiListViewItem* after )
