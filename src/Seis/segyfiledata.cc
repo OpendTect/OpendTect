@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.18 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.19 2010-02-04 16:14:10 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: segyfiledata.cc,v 1.18 2009-07-22 16:01:34 cvsb
 static const char* sKeyTraceSize = "Trace size";
 static const char* sKeyFormat = "SEG-Y sample format";
 static const char* sKeySampling = "Z sampling";
+static const char* sKeyRev1Marked = "File marked as REV. 1";
 static const char* sKeyNrStanzas = "Nr REV.1 Text stanzas";
 static const char* sKeyStorageType = "Storage type";
 static bool writeascii = !__islittle__ || GetEnvVarYN("OD_WRITE_SEGYDEF_ASCII");
@@ -107,7 +108,7 @@ void SEGY::FileData::getReport( IOPar& iop ) const
 	    		       sampling_.start + (trcsz_-1)*sampling_.step );
     iop.add( "Z range in file", zrg.start, zrg.stop );
     iop.add( "Z step in file", sampling_.step );
-    iop.addYN( "File marked as REV. 1", isrev1_ );
+    iop.addYN( sKeyRev1Marked, isrev1_ );
     if ( isrev1_ && nrstanzas_ > 0 )
 	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
 
@@ -173,6 +174,8 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	    segyfmt_ = astrm.getIValue();
 	else if ( astrm.hasKeyword(sKeyNrStanzas) )
 	    nrstanzas_ = astrm.getIValue();
+	else if ( astrm.hasKeyword(sKeyRev1Marked) )
+	    isrev1_ = astrm.getYN();
 	else if ( astrm.hasKeyword(sKeySampling) )
 	{
 	    sampling_.start = astrm.getFValue(0);
@@ -291,6 +294,7 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
     astrm.put( sKeyTraceSize, trcsz_ );
     astrm.put( sKeySampling, sampling_.start, sampling_.step );
     astrm.put( sKeyFormat, segyfmt_ );
+    astrm.putYN( sKeyRev1Marked, isrev1_ );
     if ( isrev1_ && nrstanzas_ > 0 )
 	astrm.put( sKeyNrStanzas, nrstanzas_ );
     FileMultiString fms( writeascii ? "Ascii" : "Binary" );
