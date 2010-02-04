@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C Glas
  Date:		November 2008
- RCS:		$Id: emfaultstickset.h,v 1.5 2010-01-27 13:48:27 cvsjaap Exp $
+ RCS:		$Id: emfaultstickset.h,v 1.6 2010-02-04 17:20:24 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -51,8 +51,6 @@ public:
     const MultiID*	lineSet(const SectionID&,int sticknr) const;
     const char*		lineName(const SectionID&,int sticknr) const;
 
-    const Coord3&	getEditPlaneNormal(const SectionID&,int sticknr) const;
-
     Geometry::FaultStickSet*
 			sectionGeometry(const SectionID&);
     const Geometry::FaultStickSet*
@@ -64,15 +62,7 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    void		copySelectedSticksTo(FaultStickSetGeometry& tofssg,
-					     const SectionID tosid) const;
-    void		selectAllSticks(bool select=true);
-    void		removeSelectedSticks();
-    int			nrSelectedSticks() const;
-
 protected:
-    bool		removeNextSelStick();
-
     Geometry::FaultStickSet*	createSectionGeometry() const;
 
     struct StickInfo

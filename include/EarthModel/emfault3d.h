@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.8 2010-01-27 13:48:27 cvsjaap Exp $
+ RCS:		$Id: emfault3d.h,v 1.9 2010-02-04 17:20:24 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,6 @@ public:
 	    			   bool addtohistory);
     
     bool		areSticksVertical(const SectionID&) const;
-    const Coord3&	getEditPlaneNormal(const SectionID&,int sticknr) const;
 
     Geometry::FaultStickSurface*
 			sectionGeometry(const SectionID&);
@@ -60,12 +59,7 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    void		selectAllSticks(bool select=true);
-    void		removeSelectedSticks();
-
 protected:
-    bool		removeNextSelStick();
-
     Geometry::FaultStickSurface*	createSectionGeometry() const;
 };
 

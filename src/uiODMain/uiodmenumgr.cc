@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.199 2010-01-28 09:50:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.200 2010-02-04 17:20:24 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -63,7 +63,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     cointb_ = new uiToolBar( &appl_, "Graphical tools", uiToolBar::Left );
     mantb_ = new uiToolBar( &appl_, "Manage data", uiToolBar::Right );
 
-    faulttoolman_ = new uiODFaultToolMan( &appl_ );
+    faulttoolman_ = new uiODFaultToolMan( appl_ );
 
     appl_.applMgr().visServer()->createToolBars();
 

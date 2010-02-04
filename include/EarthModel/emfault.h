@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.39 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: emfault.h,v 1.40 2010-02-04 17:20:24 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 namespace EM
 {
 class Fault;
+class FaultStickSetGeometry;
 
 /*!\brief FaultGeometry base class */
 
@@ -31,9 +32,28 @@ public:
 				    bool addtohistory)	{ return false; }
     virtual bool        insertKnot(const SectionID&,const SubID&,
 	    			   const Coord3& pos,bool addtohistory)
-			{ return false; }
+							{ return false; }
+    virtual bool	removeStick(const SectionID&,int sticknr,
+				    bool addtohistory)	{ return false; }
+    virtual bool	removeKnot(const SectionID&,const SubID&,
+				   bool addtohistory)	{ return false; }
+
+    virtual const Coord3&	getEditPlaneNormal(const SectionID&,
+						   int sticknr) const;
+    virtual const MultiID*	lineSet(const SectionID&,int sticknr) const
+							{ return 0; }
+    virtual const char*		lineName(const SectionID&,int sticknr) const
+							{ return 0; }
+
+    virtual void	copySelectedSticksTo(FaultStickSetGeometry& tofssg,
+					     const SectionID& tosid) const;
+    virtual void	selectAllSticks(bool select=true);
+    virtual void	removeSelectedSticks();
+    virtual int		nrSelectedSticks() const;
 
 protected:
+    bool		removeNextSelStick();
+
     			FaultGeometry( Surface& surf )
 			    : SurfaceGeometry(surf)	{}
 };

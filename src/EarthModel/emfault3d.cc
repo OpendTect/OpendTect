@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.13 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.14 2010-02-04 17:20:24 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -363,14 +363,6 @@ bool Fault3DGeometry::areSticksVertical( const SectionID& sid ) const
 }
 
 
-const Coord3& Fault3DGeometry::getEditPlaneNormal( const SectionID& sid,
-						 int sticknr ) const
-{
-    const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    return fss ? fss->getEditPlaneNormal(sticknr) : Coord3::udf();
-}
-
-
 bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 				bool addtohistory )
 {
@@ -442,68 +434,6 @@ bool Fault3DGeometry::usePar( const IOPar& par )
     }
     return true;
 }
-
-
-void Fault3DGeometry::selectAllSticks( bool select )
-{
-    PtrMan<EM::EMObjectIterator> iter = createIterator(-1);
-    while ( true )
-    {
-	EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
-	    break;
-
-	const int sticknr = RowCol( pid.subID() ).row;
-	const EM::SectionID sid = pid.sectionID();
-	Geometry::FaultStickSurface* fss = sectionGeometry(sid);
-	fss->selectStick( sticknr, select );
-    }
-}
-
-
-bool Fault3DGeometry::removeNextSelStick()
-{
-    for ( int sidx=nrSections()-1; sidx>=0; sidx-- )
-    {
-	const int sid = sectionID( sidx );
-	Geometry::FaultStickSurface* fss = sectionGeometry(sid);
-	if ( !fss )
-	    continue;
-
-	const StepInterval<int> rowrg = fss->rowRange();
-	if ( rowrg.isUdf() )
-	    continue;
-
-	RowCol rc;
-	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
-	{
-	    if ( !fss->isStickSelected(rc.row) )
-		continue;
-
-	    const StepInterval<int> colrg = fss->colRange( rc.row );
-	    if ( colrg.isUdf() )
-		continue;
-
-	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
-	    {
-		if ( rc.col == colrg.stop )
-		    removeStick( sid, rc.row, true );
-		else
-		    removeKnot( sid, rc.getSerialized(), true );
-	    }
-
-	    if ( nrSections()>1 && !fss->nrSticks() )
-		removeSection( sid, true );
-
-	    return true;
-	}
-    }
-    return false;
-}
-
-
-void Fault3DGeometry::removeSelectedSticks()
-{ while ( removeNextSelStick() ); }
 
 
 // ***** FaultAscIO *****

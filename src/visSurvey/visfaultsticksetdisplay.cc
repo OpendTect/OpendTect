@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.17 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.18 2010-02-04 17:20:24 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -202,7 +202,7 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
     viseditor_->setEditor( fsseditor_ );
 
     getMaterial()->setColor( emfss_->preferredColor() );
-    viseditor_->setMarkerSize( 5 );
+    viseditor_->setMarkerSize(3);
 
     updateSticks();
     updateKnotMarkers();

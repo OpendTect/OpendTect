@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.44 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.45 2010-02-04 17:20:24 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.44 2010-01-27 13:48:27 c
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
+#include "vispolygonselection.h"
 #include "visshapehints.h"
 #include "vistransform.h"
 
@@ -66,6 +67,7 @@ FaultDisplay::FaultDisplay()
     , colorchange( this )
     , usestexture_( false )
     , displaysticks_( false )
+    , stickselectmode_( false )
 {
     activestickmarkerpickstyle_->ref();
     activestickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -83,6 +85,20 @@ FaultDisplay::FaultDisplay()
     shapehints_->ref();
     addChild( shapehints_->getInventorNode() );
     shapehints_->setVertexOrder( visBase::ShapeHints::CounterClockWise );
+
+    for ( int idx=0; idx<2; idx++ )
+    {
+	visBase::DataObjectGroup* group=visBase::DataObjectGroup::create();
+	group->ref();
+	addChild( group->getInventorNode() );
+	knotmarkers_ += group;
+	visBase::Material* knotmat = visBase::Material::create();
+	group->addObject( knotmat );
+	if ( idx )
+	    knotmat->setColor( Color(0,255,0) );
+	else
+	    knotmat->setColor( Color(255,0,0) );
+    }
 }
 
 
@@ -120,6 +136,13 @@ FaultDisplay::~FaultDisplay()
 
     activestickmarker_->unRef();
     activestickmarkerpickstyle_->unRef();
+
+    for ( int idx=knotmarkers_.size()-1; idx>=0; idx-- )
+    {
+	removeChild( knotmarkers_[idx]->getInventorNode() );
+	knotmarkers_[idx]->unRef();
+	knotmarkers_.remove( idx );
+    }
 }
 
 
@@ -283,6 +306,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     updateSingleColor();
     updateStickDisplay();
     updateManipulator();
+    updateKnotMarkers();
 
     return true;
 }
@@ -411,15 +435,12 @@ void FaultDisplay::display( bool sticks, bool panels )
 {
     displaysticks_ = sticks;
 
-    if ( activestickmarker_ )
-	activestickmarker_->turnOn( sticks );
-
-    if ( viseditor_ ) viseditor_->turnOn( sticks && showmanipulator_ );
-
     if ( paneldisplay_ )
 	paneldisplay_->turnOn( panels );
 
     updateStickDisplay();
+    updateManipulator();
+    updateKnotMarkers();
 }
 
 
@@ -474,6 +495,9 @@ void FaultDisplay::setDisplayTransformation(visBase::Transformation* nt)
     if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
     activestickmarker_->setDisplayTransformation( nt );
 
+    for ( int idx=0; idx<knotmarkers_.size(); idx++ )
+	knotmarkers_[idx]->setDisplayTransformation( nt );
+
     if ( displaytransform_ ) displaytransform_->unRef();
     displaytransform_ = nt;
     if ( displaytransform_ ) displaytransform_->ref();
@@ -495,6 +519,9 @@ visBase::Transformation* FaultDisplay::getDisplayTransformation()
 
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
+    if ( stickselectmode_ )
+	return stickSelectCB( cb );
+
     if ( !emfault_ || !faulteditor_ || !isOn() || eventcatcher_->isHandled() ||
 	 !isSelected() || !viseditor_ || !viseditor_->isOn() )
 	return;
@@ -643,6 +670,58 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 }
 
 
+void FaultDisplay::stickSelectCB( CallBacker* cb )
+{
+    if ( !emfault_ || !isOn() || eventcatcher_->isHandled() || !isSelected() )
+	return;
+
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+
+    ctrldown_ = OD::ctrlKeyboardButton(eventinfo.buttonstate_);
+
+    if ( eventinfo.type!=visBase::MouseClick ||
+	 !OD::leftMouseButton(eventinfo.buttonstate_) )
+	return;
+
+    EM::PosID pid = EM::PosID::udf();
+
+    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    {
+	const int visid = eventinfo.pickedobjids[idx];
+	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+	mDynamicCastGet( visBase::Marker*, marker, dataobj );
+	if ( marker )
+	{
+	    PtrMan<EM::EMObjectIterator> iter =
+		emfault_->geometry().createIterator(-1);
+	    while ( true )
+	    {
+		pid = iter->next();
+		if ( pid.objectID() == -1 )
+		    return;
+
+		const Coord3 diff = emfault_->getPos(pid) - marker->centerPos();
+		if ( diff.abs() < 1e-4 )
+		    break;
+	    }
+	}
+    }
+
+    if ( pid.isUdf() )
+	return;
+
+    const int sticknr = RowCol( pid.subID() ).row;
+    const bool isselected = !OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
+
+    const int sid = emfault_->sectionID(0);
+    Geometry::FaultStickSet* fss = emfault_->geometry().sectionGeometry( sid );
+
+    fss->selectStick( sticknr, isselected );
+    updateKnotMarkers();
+    eventcatcher_->setHandled();
+}
+
+
 void FaultDisplay::setActiveStick( const EM::PosID& pid )
 {
     const int sticknr = pid.isUdf() ? mUdf(int) : RowCol(pid.subID()).row;
@@ -681,6 +760,8 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	nontexturecol_ = emfault_->preferredColor();
 	updateSingleColor();
     }
+
+    updateKnotMarkers();
 }
 
 
@@ -733,14 +814,16 @@ void FaultDisplay::showManipulator( bool yn )
     showmanipulator_ = yn;
     updateStickDisplay();
     updateManipulator();
+    updateKnotMarkers();
 }
 
 
 void FaultDisplay::updateManipulator()
 {
-    const bool show = showmanipulator_ && areSticksDisplayed();
+    const bool show = showmanipulator_ && areSticksDisplayed() &&
+		      !stickselectmode_;
     if ( viseditor_ ) viseditor_->turnOn( show );
-    activestickmarker_->turnOn( show );
+    if ( activestickmarker_ ) activestickmarker_->turnOn( show );
     if ( scene_ ) scene_->blockMouseSelection( show );
 }
 
@@ -858,6 +941,8 @@ void FaultDisplay::displayIntersections( bool yn )
     {
 	if ( yn ) intersectiondisplay_->touch( false );
 	intersectiondisplay_->turnOn( yn );
+
+	updateKnotMarkers();
     }
 }
 
@@ -934,6 +1019,88 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
     planeids_ = planeids;
 
     if ( areIntersectionsDisplayed() ) intersectiondisplay_->touch( false );
+}
+
+void FaultDisplay::setStickSelectMode( bool yn )
+{
+    stickselectmode_ = yn;
+    ctrldown_ = false;
+
+    updateManipulator();
+    updateKnotMarkers();
+
+    const CallBack cb = mCB( this, FaultDisplay, polygonFinishedCB );
+    if ( yn )
+	scene_->getPolySelection()->polygonFinished()->notify( cb );
+    else
+	scene_->getPolySelection()->polygonFinished()->remove( cb );
+}
+
+
+void FaultDisplay::polygonFinishedCB( CallBacker* cb )
+{
+    if ( !stickselectmode_ || !emfault_ || !scene_ )
+	return;
+
+    PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);
+    while ( true )
+    {
+	EM::PosID pid = iter->next();
+	if ( pid.objectID() == -1 )
+	    break;
+
+	if ( !scene_->getPolySelection()->isInside(emfault_->getPos(pid) ) )
+	    continue;
+
+	const int sticknr = RowCol( pid.subID() ).row;
+	const EM::SectionID sid = pid.sectionID();
+	Geometry::FaultStickSet* fss =
+	    			 emfault_->geometry().sectionGeometry( sid );
+	fss->selectStick( sticknr, !ctrldown_ );
+    }
+
+    updateKnotMarkers();
+}
+
+
+bool FaultDisplay::isInStickSelectMode() const
+{ return stickselectmode_; }
+
+
+void FaultDisplay::updateKnotMarkers()
+{
+    for ( int idx=0; idx<knotmarkers_.size(); idx++ )
+    {
+	while ( knotmarkers_[idx]->size() > 1 )
+	    knotmarkers_[idx]->removeObject( 1 );
+    }
+
+    if ( !showmanipulator_ || !stickselectmode_ || !areSticksDisplayed() )
+	return;
+
+    PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);
+    while ( true )
+    {
+	const EM::PosID pid = iter->next();
+	if ( pid.objectID() == -1 )
+	    break;
+
+	const Coord3 pos = emfault_->getPos( pid );
+
+	visBase::Marker* marker = visBase::Marker::create();
+	marker->setMarkerStyle( emfault_->getPosAttrMarkerStyle(0) );
+	marker->setMaterial(0);
+	marker->setDisplayTransformation( displaytransform_ );
+	marker->setCenterPos(pos);
+	marker->setScreenSize(3);
+
+	const int sid = emfault_->sectionID(0);
+	const int sticknr = RowCol( pid.subID() ).r();
+	Geometry::FaultStickSet* fss =
+	    			 emfault_->geometry().sectionGeometry( sid );
+	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
+	knotmarkers_[groupidx]->addObject( marker );
+    }
 }
 
 

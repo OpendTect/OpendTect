@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.21 2009-10-29 15:18:10 cvsjaap Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.22 2010-02-04 17:20:24 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -101,6 +101,11 @@ public:
 
     Notifier<FaultDisplay>	colorchange;
 
+    void			updateKnotMarkers();
+
+    void			setStickSelectMode(bool yn);
+    bool			isInStickSelectMode() const;
+
 protected:
 
     virtual			~FaultDisplay();
@@ -128,6 +133,8 @@ protected:
 
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
+    void			stickSelectCB(CallBacker*);
+    void			polygonFinishedCB(CallBacker*);
 
     void			setActiveStick(const EM::PosID&);
     void 			updateActiveStickMarker();
@@ -165,6 +172,10 @@ protected:
     bool				usestexture_;
 
     bool				displaysticks_;
+
+    bool				stickselectmode_;
+    bool				ctrldown_;
+    ObjectSet<visBase::DataObjectGroup>	knotmarkers_;
 };
 
 };
