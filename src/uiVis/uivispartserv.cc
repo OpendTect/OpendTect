@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.444 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.445 2010-02-04 16:59:10 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -357,7 +357,7 @@ void uiVisPartServer::findObject( const MultiID& mid, TypeSet<int>& res )
     for ( int idx=0; idx<=highestid; idx++ )
     {
 	const MultiID vismid = getMultiID(idx);
-	if ( vismid==-1 )
+	if ( vismid==MultiID(-1) )
 	    continue;
 
 	if ( vismid==mid )
