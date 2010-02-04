@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.13 2010-01-15 14:01:03 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.14 2010-02-04 16:13:26 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -33,7 +33,7 @@ void PosInfo::Detector::reInit()
     inlirreg_ = crlirreg_ = false;
     allstd_ = true;
     curline_ = curseg_ = -1;
-    nrpos_ = nruniquepos_ = 0;
+    nrpos_ = nruniquepos_ = nroffsperpos_ = 0;
     offsrg_.start = offsrg_.stop = 0;
     firstduppos_.binid_.inl = firstaltnroffs_.binid_.inl = mUdf(int);
     mSetUdf(distrg_.start); avgdist_ = 0;
