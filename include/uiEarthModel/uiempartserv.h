@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.97 2009-12-16 06:03:19 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.98 2010-02-04 10:59:47 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
     			/*!<return bool is overwrite old horizon or not. */
     void		fillPickSet(Pick::Set&,MultiID);
     void		deriveHor3DFrom2D(const EM::ObjectID&);
-    bool		askUserToSave(const EM::ObjectID&) const;
+    bool		askUserToSave(const EM::ObjectID&,bool withcancel) const;
     			/*!< If object has changed, user is asked whether
 			    to save it or not, and if so, the object is saved.
 			    Returns false when save option is cancelled. */

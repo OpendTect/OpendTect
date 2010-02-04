@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.12 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.13 2010-02-04 10:59:47 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,8 @@ protected:
     virtual BufferString createDisplayName() const;
     void		updateLockPixmap(bool islocked);
 
-    virtual bool	askContinueAndSaveIfNeeded()	{ return true; }
+    virtual bool	askContinueAndSaveIfNeeded(bool withcancel)	
+			{ return true; }
 
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);

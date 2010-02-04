@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.55 2009-12-11 13:44:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.56 2010-02-04 10:59:47 cvsranojay Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -404,14 +404,14 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiODWellTreeItem::askContinueAndSaveIfNeeded()
+bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     if ( wd->hasChanged() )
     {
 	BufferString warnstr = "This well has changed since the last save.\n";
 	warnstr += "Do you want to save it?";
-	int retval = uiMSG().askSave( warnstr.buf() );
+	int retval = uiMSG().askSave( warnstr.buf(), withcancel );
 	if ( !retval ) return true;
 	else if ( retval == -1 ) return false;
 	else

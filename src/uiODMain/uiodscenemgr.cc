@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.195 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.196 2010-02-04 10:59:47 cvsranojay Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -279,6 +279,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     if ( idxnr < 0 ) return;
 
     uiODSceneMgr::Scene* scene = scenes_[idxnr];
+    scene->itemmanager_->askContinueAndSaveIfNeeded( false );
     scene->itemmanager_->prepareForShutdown();
     visServ().removeScene( scene->itemmanager_->sceneID() );
     

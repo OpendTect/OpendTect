@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.23 2009-08-12 01:26:45 cvskris Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.24 2010-02-04 10:59:47 cvsranojay Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -315,9 +315,14 @@ void uiODBodyDisplayTreeItem::colorChCB( CallBacker* )
 }
 
 
+bool uiODBodyDisplayTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
+{
+    return applMgr()->EMServer()->askUserToSave( emObjectID(), withcancel );
+}
+
+
 void uiODBodyDisplayTreeItem::prepareForShutdown()
 {
-    applMgr()->EMServer()->askUserToSave(emid_);
     if ( mcd_ )
     {
 	mcd_->materialChange()->remove(

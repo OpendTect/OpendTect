@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.14 2009-12-16 06:03:19 cvssatyaki Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.15 2010-02-04 10:59:47 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,7 @@ protected:
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
 
-    bool		askContinueAndSaveIfNeeded();
+    bool		askContinueAndSaveIfNeeded(bool withcancel);
 
     uEMHorizonShiftDialog* horshiftdlg_;
     MenuItem		algomnuitem_;
@@ -93,7 +93,7 @@ protected:
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
     
-    bool		askContinueAndSaveIfNeeded();
+    bool		askContinueAndSaveIfNeeded(bool withcancel);
 
     MenuItem		derive3dhormnuitem_;
     MenuItem		snapeventmnuitem_;

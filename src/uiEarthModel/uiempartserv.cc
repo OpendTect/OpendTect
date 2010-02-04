@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.200 2010-01-25 14:11:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.201 2010-02-04 10:59:47 cvsranojay Exp $";
 
 #include "uiempartserv.h"
 
@@ -343,14 +343,15 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 	msg += " '"; msg += emobj->name(); msg += "' "; msg += s; \
 	msg += ".\nDo you want to save it?"
 
-bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
+bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
+				    bool withcancel ) const
 {
     EM::EMObject* emobj = em_.getObject(emid);
     if ( !emobj || !isChanged(emid) )
 	return true;
 
     mMkMsg( "has changed" );
-    const int ret = uiMSG().askSave( msg );
+    const int ret = uiMSG().askSave( msg, withcancel );
     if ( ret == 1 )
     {
 	PtrMan<IOObj> ioobj = IOM().get( getStorageID(emid) );
@@ -1021,7 +1022,8 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
     for ( int idx=0; idx<em_.nrLoadedObjects(); idx++ )
     {
 	mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(em_.objectID(idx)));
-	if ( hor3d ) hinfos += new SurfaceInfo( hor3d->name(), hor3d->multiID() );
+	if ( hor3d )
+	    hinfos += new SurfaceInfo( hor3d->name(), hor3d->multiID() );
     }
 }
 

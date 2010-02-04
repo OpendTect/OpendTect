@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.36 2009-12-16 16:00:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.37 2010-02-04 10:59:47 cvsranojay Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -302,7 +302,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( askContinueAndSaveIfNeeded() )
+	if ( askContinueAndSaveIfNeeded( true ) )
 	{
 	    prepareForShutdown();
 

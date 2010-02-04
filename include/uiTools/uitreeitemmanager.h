@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.44 2009-08-05 06:31:12 cvsraman Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.45 2010-02-04 10:59:47 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -39,7 +39,7 @@ public:
     				/*!<Override if you want to popup dlg
 				    for saving various things (or similar) */
     				
-
+    virtual bool		askContinueAndSaveIfNeeded(bool withcancel);
     const char*			name() const;
 
     virtual int			selectionKey() const { return -1; }

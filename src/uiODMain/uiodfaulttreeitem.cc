@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.33 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.34 2010-02-04 10:59:47 cvsranojay Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -181,9 +181,9 @@ void uiODFaultTreeItem::colorChCB( CallBacker* )
 }
 
 
-bool uiODFaultTreeItem::askContinueAndSaveIfNeeded()
+bool uiODFaultTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    return applMgr()->EMServer()->askUserToSave( emid_ );
+    return applMgr()->EMServer()->askUserToSave( emid_, withcancel );
 }
 
 
@@ -197,8 +197,6 @@ void uiODFaultTreeItem::prepareForShutdown()
     }
 
     faultdisplay_ = 0;  
-    askContinueAndSaveIfNeeded();
-    uiTreeItem::prepareForShutdown();
 }
 
 
@@ -446,9 +444,9 @@ void uiODFaultStickSetTreeItem::colorChCB( CallBacker* )
 }
 
 
-bool uiODFaultStickSetTreeItem::askContinueAndSaveIfNeeded()
+bool uiODFaultStickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    return applMgr()->EMServer()->askUserToSave( emid_ );
+    return applMgr()->EMServer()->askUserToSave( emid_, withcancel );
 }
 
 
@@ -462,8 +460,6 @@ void uiODFaultStickSetTreeItem::prepareForShutdown()
     }
 
     faultsticksetdisplay_ = 0;
-    askContinueAndSaveIfNeeded();
-    uiTreeItem::prepareForShutdown();
 }
 
 
