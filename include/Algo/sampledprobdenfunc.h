@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.2 2010-01-19 12:06:40 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.3 2010-02-05 12:08:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "arrayndimpl.h"
 
+class IOPar;
 
 /*!\brief PDF based on ArrayND implementation.
 
@@ -40,7 +41,11 @@ public:
 		{ return getSampling(dim); }
     virtual SamplingData<float>&	sampling( int dim )
     		{ return const_cast<SamplingData<float>&>(getSampling(dim)); }
-				
+
+    void				fillPar(IOPar&) const;
+    bool				usePar(const IOPar&);
+    void				dump(std::ostream&) const;
+    bool				obtain(std::istream&);
 
 protected:
 
@@ -63,6 +68,14 @@ public:
 
     virtual float	value(float) const;
 
+    static const char*	typeStr()			{ return "Sampled1D"; }
+    virtual const char*	getTypeStr() const		{ return typeStr(); }
+
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+    virtual void	dump(std::ostream&) const;
+    virtual bool	obtain(std::istream&);
+
     SamplingData<float>	sd_;
     Array1DImpl<float>	bins_;
 
@@ -83,6 +96,14 @@ public:
     SampledProbDenFunc2D& operator =(const SampledProbDenFunc2D&);
 
     virtual float	value(float,float) const;
+
+    static const char*	typeStr()			{ return "Sampled2D"; }
+    virtual const char*	getTypeStr() const		{ return typeStr(); }
+
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+    virtual void	dump(std::ostream&) const;
+    virtual bool	obtain(std::istream&);
 
     SamplingData<float>	sd0_;
     SamplingData<float>	sd1_;
@@ -116,6 +137,9 @@ public:
     virtual int		nrDims() const	{ return bins_.info().getNDim(); }
     virtual const char*	dimName(int) const;
     virtual float	value(const TypeSet<float>&) const;
+
+    static const char*	typeStr()			{ return "SampledND"; }
+    virtual const char*	getTypeStr() const		{ return typeStr(); }
 
     TypeSet< SamplingData<float> >	sds_;
     ArrayNDImpl<float>			bins_;

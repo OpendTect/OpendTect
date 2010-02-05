@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: probdenfunctr.h,v 1.3 2010-01-29 11:46:34 cvsnanne Exp $
+ RCS:		$Id: probdenfunctr.h,v 1.4 2010-02-05 12:08:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,7 @@ ________________________________________________________________________
 #include "transl.h"
 
 class IOObj;
-class IOPar;
-class SampledProbDenFuncND;
+class ProbDenFunc;
 
 
 mClass ProbDenFuncTranslatorGroup : public TranslatorGroup
@@ -34,14 +33,9 @@ mClass ProbDenFuncTranslator : public Translator
 public:
     			mDefEmptyTranslatorBaseConstructor(ProbDenFunc)
 
-    static const char*	key()			{ return "ProbDenFunc"; }
-    virtual bool	read(SampledProbDenFuncND&,const IOObj&)	= 0;
-    virtual bool	write(const SampledProbDenFuncND&,const IOObj&)	= 0;
-
-    static const char*	sKeyNrDim();
-    static const char*	sKeyDimName();
-    static const char*	sKeySize();
-    static const char*	sKeySampling();
+    static const char*	key();
+    virtual ProbDenFunc* read(const IOObj&)			= 0;
+    virtual bool	write(const ProbDenFunc&,const IOObj&)	= 0;
 
 };
 
@@ -49,13 +43,10 @@ public:
 mClass dgbProbDenFuncTranslator : public ProbDenFuncTranslator
 {				  isTranslator(dgb,ProbDenFunc)
 public:
-
     			mDefEmptyTranslatorConstructor(dgb,ProbDenFunc)
 
-    bool		read(SampledProbDenFuncND&,const IOObj&);
-    bool		write(const SampledProbDenFuncND&,const IOObj&);
-
-    void		fillPar(const SampledProbDenFuncND&,IOPar&);
+    ProbDenFunc*	read(const IOObj&);
+    bool		write(const ProbDenFunc&,const IOObj&);
 
 };
 

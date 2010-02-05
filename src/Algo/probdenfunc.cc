@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.4 2010-01-19 15:03:12 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.5 2010-02-05 12:08:49 cvsnanne Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -15,7 +15,20 @@ static const char* rcsID = "$Id: probdenfunc.cc,v 1.4 2010-01-19 15:03:12 cvsber
 #include "sampledprobdenfunc.h"
 #include "interpol1d.h"
 #include "interpol2d.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include <math.h>
+
+const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
+
+void ProbDenFunc::fillPar( IOPar& par ) const
+{
+    par.set( sKey::Type, getTypeStr() );
+    const int nrdim = nrDims();
+    par.set( sKeyNrDim(), nrdim );
+    for ( int idx=0; idx<nrdim; idx++ )
+	par.set( IOPar::compKey(sKey::Name,idx), dimName(idx) );
+}
 
 
 ProbDenFunc1D& ProbDenFunc1D::operator =( const ProbDenFunc1D& pd )
@@ -49,6 +62,50 @@ const char* ProbDenFunc2D::dimName( int idim ) const
     return bs->buf();
 }
 
+
+void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
+{
+    const int nrdim = getData().info().getNDim();
+    for ( int idx=0; idx<nrdim; idx++ )
+    {
+	par.set( IOPar::compKey(sKey::Size,idx), size(idx) );
+	par.set( IOPar::compKey(sKey::Sampling,idx), sampling(idx) );
+    }
+}
+
+
+void ArrayNDProbDenFunc::dump( std::ostream& strm ) const
+{
+    // TODO binary
+    const ArrayND<float>& array = getData();
+    const od_int64 totalsz = array.info().getTotalSz();
+    const float* values = array.getData();
+    if ( values )
+    {
+	for ( od_int64 idx=0; idx<totalsz; idx++ )
+	    strm << values[idx] << '\n';
+    }
+}
+
+
+bool ArrayNDProbDenFunc::obtain( std::istream& strm )
+{
+    // TODO binary
+
+    ArrayND<float>& array = getData();
+    const od_int64 totalsz = array.info().getTotalSz();
+    if ( totalsz < 1 )
+	return false;
+
+    float* values = array.getData();
+    if ( values )
+    {
+	for ( od_int64 idx=0; idx<totalsz; idx++ )
+	    strm >> values[idx];
+    }
+
+    return true;
+}
 
 // 1D
 
@@ -122,6 +179,32 @@ float SampledProbDenFunc1D::value( float pos ) const
 }
 
 
+void SampledProbDenFunc1D::fillPar( IOPar& par ) const
+{
+    ProbDenFunc::fillPar( par );
+    ArrayNDProbDenFunc::fillPar( par );
+}
+
+
+bool SampledProbDenFunc1D::usePar( const IOPar& par )
+{
+    int sz = -1;
+    par.get( IOPar::compKey(sKey::Size,0), sz );
+    bins_.setSize( sz );
+
+    par.get( IOPar::compKey(sKey::Sampling,0), sd_ );
+    par.get( IOPar::compKey(sKey::Name,0), varnm_ );
+    return sz>0;
+}
+
+
+void SampledProbDenFunc1D::dump( std::ostream& strm ) const
+{ ArrayNDProbDenFunc::dump( strm ); }
+
+bool SampledProbDenFunc1D::obtain( std::istream& strm )
+{ return ArrayNDProbDenFunc::obtain( strm ); }
+
+
 // 2D
 
 SampledProbDenFunc2D::SampledProbDenFunc2D( const Array2D<float>& a2d )
@@ -177,6 +260,37 @@ float SampledProbDenFunc2D::value( float px, float py ) const
 			.apply( fidxx - idxx, fidxy - idxy );
     return val < 0 ? 0 : val;
 }
+
+
+void SampledProbDenFunc2D::fillPar( IOPar& par ) const
+{
+    ProbDenFunc::fillPar( par );
+    ArrayNDProbDenFunc::fillPar( par );
+}
+
+
+bool SampledProbDenFunc2D::usePar( const IOPar& par )
+{
+    int sz0 = -1; int sz1 = -1;
+    par.get( IOPar::compKey(sKey::Size,0), sz0 );
+    par.get( IOPar::compKey(sKey::Size,1), sz1 );
+    bins_.setSize( sz0, sz1 );
+
+    par.get( IOPar::compKey(sKey::Sampling,0), sd0_ );
+    par.get( IOPar::compKey(sKey::Sampling,1), sd1_ );
+
+    par.get( IOPar::compKey(sKey::Name,0), dim0nm_ );
+    par.get( IOPar::compKey(sKey::Name,1), dim1nm_ );
+
+    return sz0>0 && sz1>0;
+}
+
+
+void SampledProbDenFunc2D::dump( std::ostream& strm ) const
+{ ArrayNDProbDenFunc::dump( strm ); }
+
+bool SampledProbDenFunc2D::obtain( std::istream& strm )
+{ return ArrayNDProbDenFunc::obtain( strm ); }
 
 
 // ND
