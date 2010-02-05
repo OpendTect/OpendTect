@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.54 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.55 2010-02-05 16:10:20 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ namespace sKey
     mExt FixedString	Position	mImpl("Position");
     mExt FixedString	Random		mImpl("Random");
     mExt FixedString	Range		mImpl("Range");
+	mExt FixedString	Sampling	mImpl("Sampling");
     mExt FixedString	Scale		mImpl("Scale");
     mExt FixedString	Selection	mImpl("Selection");
     mExt FixedString	Subsample	mImpl("Subsample");
@@ -131,7 +132,7 @@ namespace sKey
     mExt FixedString	DefAttribute	mImpl("Default.Attribute");
     mExt FixedString	DefPS3D		mImpl("Default.PS3D Data Store");
     mExt FixedString	DefPS2D		mImpl("Default.PS2D Data Store");
-    mExt FixedString	DefWavelet	mImpl("Default.Wavelet");
+    mExt FixedString	DefWavelet	mImpl("Default.Wiavelet");
 
 };
 
