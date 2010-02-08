@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.14 2010-01-11 16:17:40 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.15 2010-02-08 05:54:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,7 +230,7 @@ public:
     void			drawTrack();
     TrackData			td_;
     
-    void                        dataChanged();
+    void                        dataChanged(CallBacker*);
     const Interval<float>&	zRange() const	{ return zrg_; }
 
 protected:

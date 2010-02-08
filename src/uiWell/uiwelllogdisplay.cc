@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.19 2010-01-11 16:17:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.20 2010-02-08 05:54:16 cvsranojay Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisppropdlg.h"
@@ -657,7 +657,7 @@ void uiWellDisplay::removeLog( const char* logname, bool left )
 }
 
 
-void uiWellDisplay::dataChanged()
+void uiWellDisplay::dataChanged( CallBacker* cb )
 {
     //gatherInfo();
     //drawTrack();
@@ -742,7 +742,7 @@ void uiWellDisplay::propButPushed( CallBacker* )
 }
 
 
-void uiWellDisplay::updateProperties( CallBacker* )
+void uiWellDisplay::updateProperties( CallBacker* cb )
 {
     //TODO link to several tabstacks...
     td_.wtd_ = wd_.displayProperties().track_;
@@ -750,7 +750,7 @@ void uiWellDisplay::updateProperties( CallBacker* )
 	leftlogdisp_->lds_[0]->wld_ = wd_.displayProperties().left_;
     if ( rightlogdisp_ && rightlogdisp_->lds_.size() ) 
 	rightlogdisp_->lds_[0]->wld_ = wd_.displayProperties().right_;
-    dataChanged();
+    dataChanged( cb );
 }
 
 
