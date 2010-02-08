@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.59 2009-12-15 14:04:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.60 2010-02-08 15:32:32 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -250,7 +250,11 @@ bool uiWellImportAsc::doWork()
 		mErrRet( "Cannot open track file" )
 	    Well::TrackAscIO wellascio( fd_, *sd.istrm );
 	    if ( !wellascio.getData(wd_,true) )
-		mErrRet( "The track file cannot be loaded with given format" );
+	    {
+		BufferString msg( "The track file cannot be loaded:\n" );
+		msg += wellascio.errMsg();
+		mErrRet( msg.buf() );
+	    }
 	    sd.close();
 	}
     }
