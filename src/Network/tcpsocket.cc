@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpsocket.cc,v 1.3 2009-10-27 03:22:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: tcpsocket.cc,v 1.4 2010-02-08 11:35:53 cvsnanne Exp $";
 
 #include "tcpsocket.h"
 #include "qtcpsocketcomm.h"
@@ -44,3 +44,21 @@ void TcpSocket::connectToHost( const char* host, int port )
 
 void TcpSocket::disconnectFromHost()
 { qtcpsocket_->disconnectFromHost(); }
+
+void TcpSocket::abort()
+{ qtcpsocket_->abort(); }
+
+bool TcpSocket::waitForConnected( int msec )
+{ return qtcpsocket_->waitForConnected( msec ); }
+
+bool TcpSocket::waitForReadyRead( int msec )
+{ return qtcpsocket_->waitForReadyRead( msec ); }
+
+int TcpSocket::write( const char* str )
+{ return qtcpsocket_->write( str ); }
+
+void TcpSocket::read( BufferString& str )
+{
+    QByteArray ba = qtcpsocket_->readAll();
+    str = ba.data();
+}

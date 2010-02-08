@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpserver.cc,v 1.3 2009-10-27 03:22:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: tcpserver.cc,v 1.4 2010-02-08 11:35:53 cvsnanne Exp $";
 
 #include "tcpserver.h"
 #include "qtcpservercomm.h"
@@ -52,15 +52,20 @@ const char* TcpServer::errorMsg() const
 }
 
 
-int TcpServer::write( const char* str )
-{
-    QTcpSocket* qsocket = nextPendingConnection();
-    return qsocket ? qsocket->write( str, 1024 ) : 0;
-}
-
-
 bool TcpServer::hasPendingConnections() const
 { return qtcpserver_->hasPendingConnections(); }
 
 QTcpSocket* TcpServer::nextPendingConnection()
 { return qtcpserver_->nextPendingConnection(); }
+
+
+int TcpServer::write( const char* str )
+{
+    QTcpSocket* qsocket = nextPendingConnection();
+    if ( !qsocket ) return 0;
+
+    const int res = qsocket->write( str );
+    qsocket->flush();
+    qsocket->disconnectFromHost();
+    return res;
+}
