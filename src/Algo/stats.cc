@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: stats.cc,v 1.9 2009-12-17 14:23:50 cvsbert Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.10 2010-02-08 15:33:22 cvsbert Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -14,8 +14,15 @@ static const char* rcsID = "$Id: stats.cc,v 1.9 2009-12-17 14:23:50 cvsbert Exp 
 #include "settings.h"
 
 DefineNameSpaceEnumNames(Stats,Type,0,"Statistics types")
-{ "Count", "Average", "Median", "StdDev", "Variance", "Min", "Max",
-  "MostFrequent", "Sum", "SquareSum", "RMS", "NormVariance", 0 };
+{
+	"Count",
+	"Average", "Median", "RMS",
+	"StdDev", "Variance", "NormVariance",
+	"Min", "Max", "Extreme",
+	"Sum", "SquareSum",
+	"MostFrequent",
+	0
+};
 
 int Stats::RandGen::seed_ = 0;
 
@@ -29,7 +36,7 @@ Stats::RunCalcSetup& Stats::RunCalcSetup::require( Stats::Type t )
 	{ needmed_ = true; return *this; }
     else if ( t == Stats::MostFreq )
 	{ needmostfreq_ = true; return *this; }
-    else if ( t == Stats::Min || t == Stats::Max )
+    else if ( t >= Stats::Min && t <= Stats::Extreme )
 	{ needextreme_ = true; return *this; }
 
     needsums_ = true;
@@ -37,22 +44,29 @@ Stats::RunCalcSetup& Stats::RunCalcSetup::require( Stats::Type t )
 }
 
 
-bool Stats::RunCalcSetup::medianEvenAverage()
+int Stats::RunCalcSetup::medianEvenHandling()
 {
-    static int ret = -1;
+    static int ret = -2;
+    if ( ret != -2 ) return ret;
 
-    if ( ret < 0 )
+    if ( GetEnvVarYN("OD_EVEN_MEDIAN_AVERAGE") )
+	ret = 0;
+    else if ( GetEnvVarYN("OD_EVEN_MEDIAN_LOWMID") )
+	ret = -1;
+    else
     {
-	ret = GetEnvVarYN( "OD_EVEN_MEDIAN_AVERAGE" ) ? 1 : 0;
-	if ( ret == 0 )
+	bool yn = false;
+	Settings::common().getYN( "dTect.Even Median.Average", yn );
+	if ( yn )
+	    ret = 0;
+	else
 	{
-	    bool yn = false;
-	    Settings::common().getYN( "dTect.Average even median", yn );
-	    ret = yn ? 1 : 0;
+	    Settings::common().getYN( "dTect.Even Median.LowMid", yn );
+	    ret = yn ? -1 : 1;
 	}
     }
 
-    return (bool)ret;
+    return ret;
 }
 
 

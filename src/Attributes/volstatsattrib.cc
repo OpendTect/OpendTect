@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.49 2009-08-25 10:41:53 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.50 2010-02-08 15:33:22 cvsbert Exp $";
 
 #include "volstatsattrib.h"
 
@@ -29,15 +29,16 @@ namespace Attrib
 
 static int outputtypes[] =
 {
-    Stats::Average,
-    Stats::Median,
-    Stats::Variance,
-    Stats::Min,
-    Stats::Max,
-    Stats::Sum,
-    Stats::NormVariance,
-    Stats::MostFreq,
-    Stats::RMS,
+    (int)Stats::Average,
+    (int)Stats::Median,
+    (int)Stats::Variance,
+    (int)Stats::Min,
+    (int)Stats::Max,
+    (int)Stats::Sum,
+    (int)Stats::NormVariance,
+    (int)Stats::MostFreq,
+    (int)Stats::RMS,
+    (int)Stats::Extreme,
     -1
 };
 

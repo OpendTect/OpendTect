@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.17 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.18 2010-02-08 15:33:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,14 @@ namespace Stats
 {
 
 
-/*!\brief setup for the Stats::RunCalc object */
+/*!\brief setup for the Stats::RunCalc object
+
+  medianEvenHandling() is tied to OD_EVEN_MEDIAN_AVERAGE, OD_EVEN_MEDIAN_LOWMID,
+  and settings dTect.Even Median.Average and dTect.Even Median.LowMid.
+  When medianing over an even number of points, either take the low mid (<0),
+  hi mid (>0), or avg the two middles. By default, hi mid is used.
+ 
+ */
 
 mClass RunCalcSetup
 {
@@ -38,10 +45,13 @@ public:
 
     RunCalcSetup&	require(Type);
 
-    static bool		medianEvenAverage(); //!< Tied to OD_EVEN_MEDIAN_AVERAGE
-    			//!< If medianing over an even number of points,
-    			//!< either take the high mid, or avg the two middles
-    			//!< default is false: no averaging
+    static int		medianEvenHandling();
+
+    bool		isWeighted() const	{ return weighted_; }
+    bool		needExtreme() const	{ return needextreme_; }
+    bool		needSums() const	{ return needsums_; }
+    bool		needMedian() const	{ return needmed_; }
+    bool		needMostFreq() const	{ return needmostfreq_; }
 
 protected:
 
@@ -117,6 +127,7 @@ public:
     inline T		sum() const;
     inline T		min(int* index_of_min=0) const;
     inline T		max(int* index_of_max=0) const;
+    inline T		extreme(int* index_of_extr=0) const;
     inline T		median(int* index_of_median=0) const;
     inline T		sqSum() const;
     inline double	rms() const;
@@ -191,21 +202,24 @@ public:
     			//!< Only use for Min, Max or Median
     inline double	getValue(Type) const;
 
-#   define			mRunCalcDefEqFn(ret,fn) \
+    inline T		count() const	{ return full_ ? sz_ : posidx_; }
+
+#   define			mRunCalc_DefEqFn(ret,fn) \
     inline ret			fn() const	{ return calc_.fn(); }
-    mRunCalcDefEqFn(int,	count)
-    mRunCalcDefEqFn(double,	average)
-    mRunCalcDefEqFn(double,	variance)
-    mRunCalcDefEqFn(double,	normvariance)
-    mRunCalcDefEqFn(T,		mostFreq)
-    mRunCalcDefEqFn(T,		sum)
-    mRunCalcDefEqFn(T,		sqSum)
-    mRunCalcDefEqFn(double,	rms)
-    mRunCalcDefEqFn(double,	stdDev)
-#   undef			mRunCalcDefEqFn
-    inline T		median( int* i=0 ) const { return calc_.median(i); }
-    inline T		min(int* i=0) const;
-    inline T		max(int* i=0) const;
+    mRunCalc_DefEqFn(double,	average)
+    mRunCalc_DefEqFn(double,	variance)
+    mRunCalc_DefEqFn(double,	normvariance)
+    mRunCalc_DefEqFn(T,		sum)
+    mRunCalc_DefEqFn(T,		sqSum)
+    mRunCalc_DefEqFn(double,	rms)
+    mRunCalc_DefEqFn(double,	stdDev)
+    mRunCalc_DefEqFn(T,		mostFreq)
+#   undef			mRunCalc_DefEqFn
+
+    inline T			min(int* i=0) const;
+    inline T			max(int* i=0) const;
+    inline T			extreme(int* i=0) const;
+    inline T			median(int* i=0) const;
 
 protected:
 
@@ -214,7 +228,9 @@ protected:
     T*		wts_;
     T*		vals_;
     int		posidx_;
+    bool	empty_;
     bool	full_;
+    bool	needcalc_;
 
     inline void	fillCalc(RunCalc<T>&) const;
 };
@@ -226,6 +242,7 @@ void RunCalc<T>::clear()
 {
     sum_x = sum_w = sum_xx = sum_wx = sum_wxx = 0;
     nradded_ = nrused_ = minidx_ = maxidx_ = curmedidx_ = 0;
+    minval_ = maxval_ = mUdf(T);
     clss_.erase(); occs_.erase(); vals_.erase();
 }
 
@@ -425,16 +442,17 @@ double RunCalc<T>::getValue( Stats::Type t ) const
     {
 	case Count:		return count();
 	case Average:		return average();
+	case Median:		return median();
+	case RMS:		return rms();
 	case StdDev:		return stdDev();
 	case Variance:		return variance();
 	case NormVariance:	return normvariance();			
 	case Min:		return min();
 	case Max:		return max();
-	case MostFreq:		return mostFreq();
+	case Extreme:		return extreme();
 	case Sum:		return sum();
 	case SqSum:		return sqSum();
-	case RMS:		return rms();
-	case Median:		return median();
+	case MostFreq:		return mostFreq();
     }
 
     return 0;
@@ -447,23 +465,24 @@ int RunCalc<T>::getIndex( Type t ) const
     int ret;
     switch ( t )
     {
-	case Min:		min( &ret );	break;
-	case Max:		max( &ret );	break;
-	case Median:		median( &ret );	break;
+	case Min:		(void)min( &ret );	break;
+	case Max:		(void)max( &ret );	break;
+	case Extreme:		(void)extreme( &ret );	break;
+	case Median:		(void)median( &ret );	break;
 	default:		ret = 0;	break;
     }
     return ret;
 }
 
 
-#undef mChkEmpty
-#define mChkEmpty(typ) \
+#undef mRunCalc_ChkEmpty
+#define mRunCalc_ChkEmpty(typ) \
     if ( nrused_ < 1 ) return mUdf(typ);
 
 template <class T>
 inline double RunCalc<T>::stdDev() const
 {
-    mChkEmpty(double);
+    mRunCalc_ChkEmpty(double);
 
     double v = variance();
     return v > 0 ? Math::Sqrt( v ) : 0;
@@ -473,7 +492,7 @@ inline double RunCalc<T>::stdDev() const
 template <class T>
 inline double RunCalc<T>::average() const
 {
-    mChkEmpty(double);
+    mRunCalc_ChkEmpty(double);
 
     if ( !setup_.weighted_ )
 	return ((double)sum_x) / nrused_;
@@ -504,10 +523,10 @@ inline T RunCalc<T>::median( int* idx_of_med ) const
 {
     if ( idx_of_med ) *idx_of_med = 0;
     const int sz = vals_.size();
-    if ( sz < 3 )
+    if ( sz < 2 )
 	return sz < 1 ? mUdf(T) : vals_[0];
 
-    const int mididx = sz / 2;
+    int mididx = sz / 2;
     T* valarr = const_cast<T*>( vals_.arr() );
     if ( !idx_of_med )
 	quickSort( valarr, sz );
@@ -519,8 +538,17 @@ inline T RunCalc<T>::median( int* idx_of_med ) const
 	delete [] idxs;
     }
 
-    if ( !(sz%2) && setup_.medianEvenAverage() )
-	return (vals_[mididx] + vals_[mididx-1]) / 2;
+    if ( sz%2 == 0 )
+    {
+	const int policy = setup_.medianEvenHandling();
+	if ( mididx == 0 )
+	    return policy ? (policy < 0 ? vals_[0] : vals_[1])
+					: (vals_[0] + vals_[1]) / 2;
+	if ( policy == 0 )
+	    return (vals_[mididx] + vals_[mididx-1]) / 2;
+	else if ( policy == 1 )
+	   mididx--;
+    }
 
     return vals_[ mididx ];
 }
@@ -529,7 +557,7 @@ inline T RunCalc<T>::median( int* idx_of_med ) const
 template <class T>
 inline T RunCalc<T>::sum() const
 {
-    mChkEmpty(T);
+    mRunCalc_ChkEmpty(T);
     return sum_x;
 }
 
@@ -538,7 +566,7 @@ inline T RunCalc<T>::sum() const
 template <class T>
 inline T RunCalc<T>::sqSum() const
 {
-    mChkEmpty(T);
+    mRunCalc_ChkEmpty(T);
     return sum_xx;
 }
 
@@ -546,7 +574,7 @@ inline T RunCalc<T>::sqSum() const
 template <class T>
 inline double RunCalc<T>::rms() const
 {
-    mChkEmpty(double);
+    mRunCalc_ChkEmpty(double);
 
     if ( !setup_.weighted_ )
 	return Math::Sqrt( ((double)sum_xx) / nrused_ );
@@ -585,9 +613,7 @@ template <class T>
 inline T RunCalc<T>::min( int* index_of_min ) const
 {
     if ( index_of_min ) *index_of_min = minidx_;
-
-    mChkEmpty(T);
-
+    mRunCalc_ChkEmpty(T);
     return minval_;
 }
 
@@ -596,17 +622,36 @@ template <class T>
 inline T RunCalc<T>::max( int* index_of_max ) const
 {
     if ( index_of_max ) *index_of_max = maxidx_;
-
-    mChkEmpty(T);
-
+    mRunCalc_ChkEmpty(T);
     return maxval_;
+}
+
+
+template <class T>
+inline T RunCalc<T>::extreme( int* index_of_extr ) const
+{
+    if ( index_of_extr ) *index_of_extr = 0;
+    mRunCalc_ChkEmpty(T);
+
+    const T maxcmp = maxval_ < 0 ? -maxval_ : maxval_;
+    const T mincmp = minval_ < 0 ? -minval_ : minval_;
+    if ( maxcmp < mincmp )
+    {
+	if ( index_of_extr ) *index_of_extr = minidx_;
+	return minval_;
+    }
+    else
+    {
+	if ( index_of_extr ) *index_of_extr = maxidx_;
+	return maxval_;
+    }
 }
 
 
 template <class T>
 inline T RunCalc<T>::clipVal( float ratio, bool upper ) const
 {
-    mChkEmpty(T);
+    mRunCalc_ChkEmpty(T);
     (void)median();
     const int lastidx = vals_.size();
     const float fidx = ratio * lastidx;
@@ -618,7 +663,8 @@ inline T RunCalc<T>::clipVal( float ratio, bool upper ) const
 template <class T> inline
 void WindowedCalc<T>::clear()
 {
-    posidx_ = 0; full_ = false;
+    posidx_ = 0; empty_ = true; full_ = false;
+    needcalc_ = calc_.setup().needSums() || calc_.setup().needMostFreq();
     calc_.clear();
 }
 
@@ -626,10 +672,12 @@ void WindowedCalc<T>::clear()
 template <class T> inline
 void WindowedCalc<T>::fillCalc( RunCalc<T>& calc ) const
 {
-    const int lastidx = full_ ? sz_ - 1 : posidx_;
-    for ( int idx=posidx_+1; idx<=lastidx; idx++ )
+    if ( empty_ ) return;
+
+    const int stopidx = full_ ? sz_ : posidx_;
+    for ( int idx=posidx_; idx<stopidx; idx++ )
 	calc.addValue( vals_[idx], wts_ ? wts_[idx] : 1 );
-    for ( int idx=0; idx<=posidx_; idx++ )
+    for ( int idx=0; idx<posidx_; idx++ )
 	calc.addValue( vals_[idx], wts_ ? wts_[idx] : 1 );
 }
 
@@ -637,11 +685,14 @@ void WindowedCalc<T>::fillCalc( RunCalc<T>& calc ) const
 template <class T> inline
 double WindowedCalc<T>::getValue( Type t ) const
 {
-    if ( t == Min )
-	return min();
-    else if ( t == Max )
-	return max();
-
+    switch ( t )
+    {
+    case Min:		return min();
+    case Max:		return max();
+    case Extreme:	return max();
+    case Median:	return median();
+    default:		break;
+    }
     return calc_.getValue( t );
 }
 
@@ -649,12 +700,16 @@ double WindowedCalc<T>::getValue( Type t ) const
 template <class T> inline
 int WindowedCalc<T>::getIndex( Type t ) const
 {
-    if ( t == Min )
-	{ int ret; min( &ret ); return ret; }
-    else if ( t == Max )
-	{ int ret; max( &ret ); return ret; }
-
-    return calc_.getIndex( t );
+    int ret;
+    switch ( t )
+    {
+	case Min:		(void)min( &ret );	break;
+	case Max:		(void)max( &ret );	break;
+	case Extreme:		(void)extreme( &ret );	break;
+	case Median:		(void)median( &ret );	break;
+	default:		ret = 0;	break;
+    }
+    return ret;
 }
 
 
@@ -676,20 +731,40 @@ T WindowedCalc<T>::max( int* index_of_max ) const
 }
 
 
+template <class T> inline
+T WindowedCalc<T>::extreme( int* index_of_extr ) const
+{
+    RunCalc<T> calc( RunCalcSetup().require(Stats::Extreme) );
+    fillCalc( calc );
+    return calc.extreme( index_of_extr );
+}
+
+
+template <class T> inline
+T WindowedCalc<T>::median( int* index_of_med ) const
+{
+    RunCalc<T> calc( RunCalcSetup().require(Stats::Median) );
+    fillCalc( calc );
+    return calc.median( index_of_med );
+}
+
+
 template <class T>
 inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 {
-    if ( !full_ || (calc_.vals_.isEmpty() && calc_.setup().needmed_ )
-	    	|| (!mIsUdf(val) && mIsUdf(vals_[posidx_])) )
-	calc_.addValue( val, wt );
-    else
+    if ( needcalc_ )
     {
-	if ( !wts_ || wt == wts_[posidx_] )
-	    calc_.replaceValue( vals_[posidx_], val, wt );
+	if ( !full_ )
+	    calc_.addValue( val, wt );
 	else
 	{
-	    calc_.removeValue( vals_[posidx_], wts_[posidx_] );
-	    calc_.addValue( val, wt );
+	    if ( !wts_ || wt == wts_[posidx_] )
+		calc_.replaceValue( vals_[posidx_], val, wt );
+	    else
+	    {
+		calc_.removeValue( vals_[posidx_], wts_[posidx_] );
+		calc_.addValue( val, wt );
+	    }
 	}
     }
 
@@ -698,15 +773,13 @@ inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 
     posidx_++;
     if ( posidx_ >= sz_ )
-    {
-	full_ = true;
-	posidx_ = 0;
-    }
+	{ full_ = true; posidx_ = 0; }
 
+    empty_ = false;
     return *this;
 }
 
-#undef mChkEmpty
+#undef mRunCalc_ChkEmpty
 
 }; // namespace Stats
 

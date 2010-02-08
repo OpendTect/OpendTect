@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.24 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.25 2010-02-08 15:33:22 cvsbert Exp $";
 
 
 
@@ -37,6 +37,7 @@ static const char* outpstrs[] =
 	"NormVariance",
 	"Most Frequent",
 	"RMS",
+	"Extreme",
 	0
 };
 

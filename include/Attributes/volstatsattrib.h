@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.20 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.21 2010-02-08 15:33:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,8 @@ Outputs:
 6       Normalized Variance
 7	Most Frequent
 8	RMS
+9	Extreme
+
 */
 
 namespace Attrib
