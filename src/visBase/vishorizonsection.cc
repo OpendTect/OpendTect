@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.102 2010-02-03 18:00:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.103 2010-02-08 22:33:18 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -137,6 +137,7 @@ protected:
     void			setInvalidNormals(int row,int col);
     void			computeNormal(int normidx, int res,
 	    				      SbVec3f& normal) const;
+    void			hideFromDisplay();
 
     struct TesselationData
     {
@@ -151,9 +152,6 @@ protected:
 	TypeSet<int>		wireframeci_;
 	TypeSet<int>		wireframeni_;
     };
-
-
-
 
     bool			usewireframe_;
 
@@ -1366,6 +1364,7 @@ void HorizonSection::updateAutoResolution( void* clss, SoAction* action )
 
 void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
 {
+    /*
     HorizonSectionTile** tileptrs = tiles_.getData();
     const int tilesz = tiles_.info().getTotalSz();
 
@@ -1391,6 +1390,7 @@ void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
 	action->extendBy( bigbox );
 	action->setCenter( bigbox.getCenter(), true );
     }
+    */
 }
 
 #define mApplyTesselation( extra ) \
@@ -1966,6 +1966,16 @@ void HorizonSectionTile::setActualResolution( int resolution )
 	wireframeswitch_->whichChild.setValue( newwfres );
 }
 
+
+void HorizonSectionTile::hideFromDisplay()
+{
+    setActualResolution( -1 );
+    gluetriangles_->coordIndex.deleteValues( 0, -1 );
+    gluelines_->coordIndex.deleteValues( 0, -1 );
+    gluepoints_->coordIndex.deleteValues( 0, -1 );
+}
+
+
 #define mStrip 3
 #define mLine 2
 #define mPoint 1
@@ -2285,6 +2295,9 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 	invalidnormals_[idx].erase();
     }
 
+    //Prevent anything to be sent in this shape to Coin
+    hideFromDisplay();
+
     needsupdatebbox_ = false;
 
     datalock_.unLock();
@@ -2302,6 +2315,7 @@ void HorizonSectionTile::setNeighbor( char nbidx, HorizonSectionTile* nb )
 
 void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 {
+    bool dohide = false;
     if ( row>=0 && row<=mTileLastIdx && col>=0 && col<=mTileLastIdx )
     {
 	const int posidx = row*mNrCoordsPerTileSide+col;
@@ -2326,7 +2340,10 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 
 	char newstatus = mShouldRetesselate;
 	if ( olddefined && !newdefined )
+	{
 	    newstatus = mMustRetesselate;
+	    dohide = true;
+	}
 
 	if ( newdefined && !olddefined )
 	    nrdefinedpos_ ++;
@@ -2345,6 +2362,9 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 	if ( olddefined && !newdefined )
 	    needsupdatebbox_ = true;
     }
+
+    if ( dohide )
+	hideFromDisplay();
 
     setInvalidNormals( row, col );
 }
