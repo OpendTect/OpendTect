@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.54 2010-02-04 16:32:45 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.55 2010-02-08 11:22:29 cvsnanne Exp $";
 
 #include "uitoolbar.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uitoolbar.cc,v 1.54 2010-02-04 16:32:45 cvsjaap
 
 #include "bufstringset.h"
 #include "filegen.h"
+#include "menuhandler.h"
 #include "pixmap.h"
 #include "separstr.h"
 
@@ -37,7 +38,10 @@ public:
     int 		addButton(const ioPixmap&,const CallBack&, 
 				  const char*,bool);
     int 		addButton(const char*,const CallBack&,const char*,bool);
+
     int			addButton(const MenuItem&);
+    int			getButtonID(QAction*); // QAction from MenuItem
+
     void		addObject(uiObject*);
     void		clear();
     void		turnOn(int idx, bool yn );
@@ -82,6 +86,10 @@ private:
     ObjectSet<uiObject>		objects_; 
     TypeSet<int>		butindex_;
 
+    // MenuItems
+    ObjectSet<QAction>		qactions_;
+    TypeSet<int>		mnuids_;
+
 };
 
 
@@ -122,7 +130,16 @@ int uiToolBarBody::addButton( const MenuItem& itm )
 {
     uiAction* action = new uiAction( itm );
     qbar_->addAction( action->qaction() );
-    return qbar_->actions().size()-1;
+    qactions_ += action->qaction();
+    mnuids_ += itm.id;
+    return itm.id >=0 ? itm.id : qbar_->actions().size()-1;
+}
+
+
+int uiToolBarBody::getButtonID( QAction* qaction )
+{
+    const int idx = qactions_.indexOf( qaction );
+    return mnuids_.validIdx(idx) ? mnuids_[idx] : -1;
 }
 
 
@@ -145,6 +162,8 @@ void uiToolBarBody::clear()
 
     objects_.erase();
     butindex_.erase();
+    qactions_.erase();
+    mnuids_.erase();
 }
 
 #define mToolBarBut(idx) dynamic_cast<uiToolButton*>(objects_[butindex_[idx]])
@@ -218,6 +237,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
     : uiParent(nm,0)
     , parent_(parnt)
     , tbarea_(tba)
+    , buttonClicked(this)
 {
     qtoolbar_ = new QToolBar( QString(nm) );
     qtoolbar_->setObjectName( nm );
@@ -336,13 +356,14 @@ void uiToolBar::reLoadPixMaps()
 void uiToolBar::clear()
 { body_->clear(); }
 
+const ObjectSet<uiObject>& uiToolBar::objectList() const
+{ return body_->objectList(); }
+
+int uiToolBar::getButtonID( QAction* qaction )
+{ return body_->getButtonID( qaction ); }
 
 uiMainWin* uiToolBar::mainwin()
 { 
     mDynamicCastGet(uiMainWin*,uimw,parent_)
     return uimw;
 }
-
-
-const ObjectSet<uiObject>& uiToolBar::objectList() const
-{ return body_->objectList(); }

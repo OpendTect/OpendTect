@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.39 2010-02-04 16:32:45 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.h,v 1.40 2010-02-08 11:22:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,12 @@ class MenuItem;
 class uiObject;
 class uiPopupMenu;
 class uiToolBarBody;
+class QAction;
 class QToolBar;
 
 mClass uiToolBar : public uiParent
 {
+friend class i_ToolBarMessenger;
 public:
     //! ToolBar Dock Identifier
     /*
@@ -89,6 +91,8 @@ public:
     const ObjectSet<uiObject>& 		objectList() const;
     static ObjectSet<uiToolBar>&	toolBars();
 
+    CNotifier<uiToolBar,int>	buttonClicked;
+
 protected:
 
     QToolBar*		qtoolbar_;
@@ -97,6 +101,8 @@ protected:
 
     uiParent*		parent_;
     ToolBarArea		tbarea_;
+
+    int			getButtonID(QAction*);
 
 };
 
