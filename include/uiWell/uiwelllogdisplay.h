@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.15 2010-02-08 05:54:16 cvsranojay Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.16 2010-02-08 16:43:44 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,12 +21,13 @@ ________________________________________________________________________
 #include "wellmarker.h"
 #include "welldisp.h"
 
-class uiTextItem;
+class uiGraphicsScene;
 class uiLineItem;
 class uiObjectItem;
 class uiPolyLineItem;
 class uiPolygonItem;
-class uiGraphicsScene;
+class uiTextItem;
+class uiToolBar;
 class uiWellDispPropDlg;
 class UnitOfMeasure;
 namespace Well 
@@ -114,11 +115,6 @@ public:
 				{ d2tm_ = d2tm; }
     void			setMarkers( const ObjectSet<Well::Marker>* ms )
 				{ markers_ = ms; }
-    void			setWellData( const Well::Data& wd )
-				{ 
-				    setMarkers( &wd.markers() );
-				    setD2TModel( wd.d2TModel() );
-				}
     
     mStruct PickData
     {
@@ -230,13 +226,16 @@ public:
     void			drawTrack();
     TrackData			td_;
     
-    void                        dataChanged(CallBacker*);
     const Interval<float>&	zRange() const	{ return zrg_; }
+    
+    void 			updateProperties( 
+	    				const Well::DisplayProperties& );
 
 protected:
 
-    Well::Data			wd_;
+    const Well::Data&		wd_;
     const Well::D2TModel*	d2tm_;
+
     Interval<float>		zrg_;
     bool			zintime_;
     bool			dispzinft_;
@@ -244,18 +243,14 @@ protected:
     uiWellLogDisplay* 		leftlogdisp_;
     uiWellLogDisplay* 		rightlogdisp_;
 
-    uiWellDispPropDlg* 		propdlg_;
-    
     uiObjectItem* 		leftlogitm_;
     uiObjectItem* 		rightlogitm_;
     
+
     void			addLogPanel(bool);
     void                        gatherInfo();
     void                        setAxisRanges();
-
-    void 			propButPushed(CallBacker*);
-    void 			updateProperties(CallBacker*);
-    
+    void                        dataChanged(CallBacker*);
 };
 
 
@@ -263,11 +258,18 @@ mClass uiWellDisplayWin : public uiMainWin
 {
 public:
 
-				uiWellDisplayWin(uiParent*,const Well::Data& wd);
+				uiWellDisplayWin(uiParent*,Well::Data&);
 				~uiWellDisplayWin();
 
+protected:
+
+    Well::Data& 		wd_;
+    uiToolBar* 			toolbar_;
     uiWellDisplay* 		logviewer_;
-    
+    uiWellDispPropDlg* 		propdlg_;
+
+    void			propDlgPushed(CallBacker*);
+    void 			updateProperties(CallBacker*);
     friend class 		uiWellDisplay;
 };
 

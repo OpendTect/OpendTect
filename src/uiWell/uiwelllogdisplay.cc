@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.20 2010-02-08 05:54:16 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.21 2010-02-08 16:43:44 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisppropdlg.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.20 2010-02-08 05:54:16 
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "uibutton.h"
+#include "uitoolbar.h"
 
 #include "welllog.h"
 #include "welllogset.h"
@@ -98,7 +99,6 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
 uiWellLogDisplay::~uiWellLogDisplay()
 {
     deepErase( lds_ );
-    delete viewer_;
 }
 
 
@@ -525,49 +525,47 @@ void uiWellLogDisplay::mouseRelease( CallBacker* )
 
 
 
-uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, const Well::Data& w )
+uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s,const Well::Data& wd)
     	: uiGraphicsView(p,"Well Log Viewer")
 	, leftlogdisp_(0)
 	, rightlogdisp_(0)
 	, leftlogitm_(0)
 	, rightlogitm_(0)
-	, wd_(Well::Data(w))
+	, wd_(wd)
 	, td_(scene(),uiBorder(0))
 	, zrg_(mUdf(float),0)
-	, d2tm_(wd_.d2TModel())
    	, zintime_(false)		     
    	, dispzinft_(false)		     
 {
+    d2tm_ = wd_.d2TModel();
+
     setStretch( 2, 2 );
-    setPrefWidth( 2*mPanelWidth + 20 );
-    setPrefHeight( mPanelHeight + 20 );
-
-    if ( s.left_ )  addLogPanel( true );
-    if ( s.right_ ) addLogPanel( false );
-
-    addLog( wd_.displayProperties().left_.name_, true );
-    addLog( wd_.displayProperties().right_.name_, false );
-
-    propdlg_ = new uiWellDispPropDlg( p, &wd_ );
-
-    uiPushButton* propbut = new uiPushButton( 0, "&Property",
-			     mCB(this,uiWellDisplay,propButPushed), true );
-    uiObjectItem* propitm  = scene_->addItem( new uiObjectItem( propbut ) );
-    propitm->setPos( mPanelWidth, mPanelHeight );
+    setPrefWidth( 2*mPanelWidth );
+    setPrefHeight( mPanelHeight );
+   
+    const char* logname = wd_.displayProperties().left_.name_;
+    const Well::Log* l = wd_.logs().getLog( logname );
+    if ( s.left_ && l )  
+    {
+	addLogPanel( true );
+	addLog( wd_.displayProperties().left_.name_, true );
+    }
     
-    td_.wt_ = &wd_.track(); 
-    td_.wtd_ = wd_.displayProperties().track_; 
+    logname = wd_.displayProperties().right_.name_;
+    l = wd_.logs().getLog( logname );
+    if ( s.right_  && l ) 
+    {
+	addLogPanel( false );
+	addLog( wd_.displayProperties().right_.name_, false );
+    }
 
-    wd_.dispparschanged.notify(mCB(this,uiWellDisplay,updateProperties));
-    updateProperties(0);
+    td_.wt_ = &wd_.track(); 
+    updateProperties( wd_.displayProperties() );
 }
 
 
 uiWellDisplay::~uiWellDisplay()
 {
-    delete leftlogdisp_; 
-    delete rightlogdisp_; 
-    delete propdlg_;
 }
 
 
@@ -584,7 +582,8 @@ void uiWellDisplay::addLogPanel( bool isleft )
     else
     { rightlogdisp_ = logdisp; rightlogitm_ = logitm; }
 
-    logdisp->setWellData( wd_ );
+    logdisp->setD2TModel( d2tm_ );
+    logdisp->setMarkers( &wd_.markers() );
     
     logitm->setPos( ( isleft || !leftlogdisp_ ) ? 0 : mPanelWidth );
     logitm->setSelectable( true );
@@ -594,22 +593,6 @@ void uiWellDisplay::addLogPanel( bool isleft )
 
 void uiWellDisplay::removeLogPanel( bool isleft )
 {
-    uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
-    wldsu.noxpixafter_ = isleft; 	wldsu.noxpixbefore_ = !isleft;
-    wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
-    uiWellLogDisplay* logdisp = new uiWellLogDisplay( 0, wldsu );
-    uiObjectItem* logitm  = scene_->addItem( new uiObjectItem( logdisp ) );
-
-    if ( isleft )
-    { leftlogdisp_ = logdisp;  leftlogitm_  = logitm; }
-    else
-    { rightlogdisp_ = logdisp; rightlogitm_ = logitm; }
-
-    logdisp->setWellData( wd_ );
-    
-    logitm->setPos( ( isleft || !leftlogdisp_ ) ? 0 : mPanelWidth );
-    logitm->setSelectable( true );
-    logitm->setObjectSize( mPanelWidth, mPanelHeight );
 }
 
 
@@ -736,38 +719,51 @@ void uiWellDisplay::drawTrack()
 }
 
 
-void uiWellDisplay::propButPushed( CallBacker* )
+void uiWellDisplay::updateProperties( const Well::DisplayProperties& props )
 {
-    propdlg_->go();
-}
-
-
-void uiWellDisplay::updateProperties( CallBacker* cb )
-{
-    //TODO link to several tabstacks...
-    td_.wtd_ = wd_.displayProperties().track_;
+    td_.wtd_ = props.track_;
     if ( leftlogdisp_ && leftlogdisp_->lds_.size() ) 
-	leftlogdisp_->lds_[0]->wld_ = wd_.displayProperties().left_;
+	leftlogdisp_->lds_[0]->wld_ = props.left_;
     if ( rightlogdisp_ && rightlogdisp_->lds_.size() ) 
-	rightlogdisp_->lds_[0]->wld_ = wd_.displayProperties().right_;
-    dataChanged( cb );
+	rightlogdisp_->lds_[0]->wld_ = props.right_;
+
+    dataChanged( 0 );
 }
 
 
 
-
-uiWellDisplayWin::uiWellDisplayWin( uiParent* p, const Well::Data& wd )
-	: uiMainWin(p,"2D Well Log Viewer")
+uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
+	: uiMainWin(p,uiMainWin::Setup("2D Well Log Viewer")
+					.deleteonclose(true))
+	, wd_(wd) 
+    	, logviewer_(new uiWellDisplay(this,uiWellDisplay::Setup(),wd_))
+	, toolbar_(new uiToolBar(this,"Well display toolbar",uiToolBar::Top))
 {
-    logviewer_ = new uiWellDisplay( this, uiWellDisplay::Setup(), wd );
-
-    finaliseDone.notify( mCB(logviewer_,uiWellDisplay,dataChanged) );
+    wd_.tobedeleted.notify( mCB(this,uiWellDisplayWin,close) );
+    propdlg_ = new uiWellDispPropDlg( this, &wd_ );
+    uiToolButton* but = new uiToolButton( this, "&Properties", 
+			 mCB(this,uiWellDisplayWin,propDlgPushed) ); 
+    but->setToolTip( "Change display properties" ); 
+    toolbar_->addObject( but );
 }
 
 
 uiWellDisplayWin::~uiWellDisplayWin()
 {
-    delete logviewer_;
+    delete propdlg_;
+    wd_.tobedeleted.remove( mCB(this,uiWellDisplayWin,close) );
+    wd_.dispparschanged.remove( mCB(this,uiWellDisplayWin,propDlgPushed) );
 }
 
+
+void uiWellDisplayWin::propDlgPushed( CallBacker* )
+{
+    propdlg_->go();
+}
+
+
+void uiWellDisplayWin::updateProperties( CallBacker* cb )
+{
+    logviewer_->updateProperties( wd_.displayProperties() );
+} 
 
