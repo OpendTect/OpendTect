@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.100 2010-01-20 08:48:58 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.101 2010-02-08 15:32:02 cvsbert Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -387,20 +387,17 @@ bool uiFlatViewer::drawBitMaps()
 		wvabmpmgr_->bitMapGen()->getScaleRange();
     }
 
-    if ( mIsUdf(offs.x) && hasdata )
-	ErrMsg( "Internal error during bitmap generation" );
-
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
 	    				    canvas_.arrArea().height() );
-    if ( hasdata && !mIsUdf(offs.x) )
+    if ( !hasdata || mIsUdf(offs.x) )
+	pixmap->fill( color(false) );
+    else
     {
 	bmp2rgb_->setRGBArr( canvas_.rgbArray() );
 	bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
 	pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
     }
-    else
-	pixmap->fill( Color::White() );
 
     canvas_.setPixmap( *pixmap );
     canvas_.draw();
@@ -714,16 +711,16 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
     }
     else if ( ptlist.size() == 1 )
     {
+	const Color usecol = color( true );
 	if ( !pointitem_ )
 	{
 	    pointitem_ = new uiMarkerItem(
-		    ptlist[0], MarkerStyle2D(MarkerStyle2D::Square,4,
-					     Color::White()) );
+		    ptlist[0], MarkerStyle2D(MarkerStyle2D::Square,4,usecol) );
 	    canvas_.scene().addItem( pointitem_ );
 	}
 	else
 	    pointitem_->setPos( ptlist[0] );
-	pointitem_->setPenColor( Color::White() );
+	pointitem_->setPenColor( usecol );
 	pointitem_->setZValue( 2 );
     }
 
