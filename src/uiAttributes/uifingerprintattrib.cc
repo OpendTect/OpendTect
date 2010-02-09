@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.63 2009-10-05 06:22:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.64 2010-02-09 11:10:49 cvsnanne Exp $";
 
 -*/
 
@@ -17,37 +17,39 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.63 2009-10-05 06:22:
 #include "fingerprintattrib.h"
 
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
-#include "attribdescset.h"
+#include "binidvalset.h"
+#include "ctxtioobj.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "oddirs.h"
+#include "pickretriever.h"
+#include "pickset.h"
+#include "picksettr.h"
+#include "pixmap.h"
+#include "posinfo.h"
+#include "ptrman.h"
+#include "seisselection.h"
+#include "seistrctr.h"
+#include "seis2dline.h"
+#include "survinfo.h"
+#include "transl.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "uistepoutsel.h"
-#include "uiioobjsel.h"
-#include "uitable.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uilabel.h"
-#include "uispinbox.h"
 #include "uimsg.h"
-#include "pixmap.h"
-#include "ctxtioobj.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "oddirs.h"
-#include "binidvalset.h"
-#include "survinfo.h"
-#include "transl.h"
-#include "pickset.h"
-#include "picksettr.h"
-#include "seistrctr.h"
-#include "seisselection.h"
-#include "uiseislinesel.h"
 #include "uiseisioobjinfo.h"
-#include "seis2dline.h"
-#include "posinfo.h"
-#include "ptrman.h"
+#include "uiseislinesel.h"
+#include "uispinbox.h"
+#include "uistepoutsel.h"
+#include "uitable.h"
 
 using namespace Attrib;
 
@@ -124,6 +126,9 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     getposbut_ = new uiToolButton( this, "Interact", ioPixmap("pick.png"),
 	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
+    pickretriever_ = PickRetriever::getInstance();
+    pickretriever_->finished()->notify(
+			mCB(this,uiFingerPrintAttrib,pickRetrieved) );
 
     if ( is2d_ )
     {
@@ -187,6 +192,8 @@ uiFingerPrintAttrib::~uiFingerPrintAttrib()
 {
     delete ctio_.ioobj;
     delete &ctio_;
+    pickretriever_->finished()->remove(
+			mCB(this,uiFingerPrintAttrib,pickRetrieved) );
 }
 
 
@@ -280,7 +287,6 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     {
 	TypeSet<float> values;
 	mDescGetConstParamGroup(FloatParam,valueset,desc,FingerPrint::valStr())
-
 
 	for ( int idx=0; idx<valueset->size(); idx++ )
 	{
@@ -443,7 +449,21 @@ void uiFingerPrintAttrib::refSel( CallBacker* )
 
 void uiFingerPrintAttrib::getPosPush(CallBacker*)
 {
+    pickretriever_->enable( 0 );
+    getposbut_->setSensitive( false );
 }
+
+
+void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
+{
+    // TODO: Check 2D pos
+    Coord3 crd = pickretriever_->getPos();
+    const BinID bid = SI().transform( crd );
+    refposfld_->setValue( bid );
+    refposzfld_->setValue( crd.z*SI().zFactor() );
+    getposbut_->setSensitive( true );
+}
+
 
 void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 {

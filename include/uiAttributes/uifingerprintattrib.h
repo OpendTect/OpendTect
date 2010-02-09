@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.18 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.19 2010-02-09 11:10:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class uiButtonGroup;
 class uiSpinBox;
 class uiSeis2DLineSel;
 class BinIDValueSet;
+class PickRetriever;
 
 class uiFPAdvancedDlg;
 class calcFingParsObject;
@@ -76,7 +77,10 @@ protected:
     BinIDValueSet*	createValuesBinIDSet(BufferString&) const;
     BinID		get2DRefPos() const;
 
+    PickRetriever*	pickretriever_;
     void                getPosPush(CallBacker*);
+    void		pickRetrieved(CallBacker*);
+
     void                calcPush(CallBacker*);
     void                getAdvancedPush(CallBacker*);
     void		refSel(CallBacker*);
