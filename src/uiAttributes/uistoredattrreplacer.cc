@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.13 2010-01-18 10:38:13 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.14 2010-02-09 07:26:46 cvssatyaki Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -352,8 +352,8 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    if ( attrset_ )
 	    {
 		Desc* ad = attrset_->getDesc( storedid );
-		ad->changeStoredID( dlg.getKey() );
-		ad->setUserRef( dlg.getUserRef() );
+		ad->changeStoredID( dlg.getSeisKey() );
+		ad->setUserRef( dlg.getSeisRef() );
 	    }
 	    else
 	    {

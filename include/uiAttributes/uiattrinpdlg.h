@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.12 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.13 2010-02-09 07:26:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,16 +32,13 @@ public:
 
     bool		is2D() const 		{ return is2d_ ; }
 
-    const char*		getUserRef() const;
     const char*		getSeisRef() const;
     const char*		getSteerRef() const;
-    const char*		getKey() const;
     const char*		getSeisKey() const;
     const char*		getSteerKey() const;
 
 protected:
 
-    uiSeisSel*		inpfld_;
     uiSeisSel*		seisinpfld_;
     uiSeisSel*		steerinpfld_;
 

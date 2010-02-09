@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.25 2010-01-18 10:38:13 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.26 2010-02-09 07:26:46 cvssatyaki Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -39,7 +39,6 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     , is2d_(is2d)
     , seisinpfld_(0)
     , steerinpfld_(0)
-    , inpfld_(0)
 {
     ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
     ctio_.ctxt.includeconstraints = false;
@@ -68,8 +67,8 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     }
     else
     {
-	inpfld_ = new uiSeisSel( this, ctio_, sssu );
-	inpfld_->attach( alignedBelow, txtfld );
+	seisinpfld_ = new uiSeisSel( this, ctio_, sssu );
+	seisinpfld_->attach( alignedBelow, txtfld );
     }
 
 }
@@ -87,7 +86,6 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
     , is2d_(is2d)
     , seisinpfld_(0)
     , steerinpfld_(0)
-    , inpfld_(0)
 {
     ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
     ctio_.ctxt.includeconstraints = false;
@@ -126,9 +124,6 @@ CtxtIOObj& uiAttrInpDlg::getCtxtIO( bool is2d )
 
 bool uiAttrInpDlg::acceptOK( CallBacker* )
 {
-    if ( inpfld_ && !inpfld_->commitInput() )
-	mErrRetSelInp();
-
     if ( steerinpfld_ && !steerinpfld_->commitInput() )
 	mErrRetSelInp();
 
@@ -146,12 +141,6 @@ uiAttrInpDlg::~uiAttrInpDlg()
 }
 
 
-const char* uiAttrInpDlg::getUserRef() const
-{
-    return inpfld_ ? inpfld_->getInput() : 0;
-}
-
-
 const char* uiAttrInpDlg::getSeisRef() const
 {
     return seisinpfld_ ? seisinpfld_->getInput() : 0;
@@ -161,17 +150,6 @@ const char* uiAttrInpDlg::getSeisRef() const
 const char* uiAttrInpDlg::getSteerRef() const
 {
     return steerinpfld_ ? steerinpfld_->getInput() : 0;
-}
-
-
-const char* uiAttrInpDlg::getKey() const
-{
-    static LineKey lk;
-    lk.setLineName( ctio_.ioobj->key() );
-    if ( is2D() )
-	lk.setAttrName( inpfld_->attrNm() );
-
-    return lk;
 }
 
 
