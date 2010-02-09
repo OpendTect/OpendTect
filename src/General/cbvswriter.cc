@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.53 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.54 2010-02-09 09:02:44 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -215,12 +215,13 @@ void CBVSWriter::writeGeom()
 
 void CBVSWriter::newSeg( bool newinl )
 {
-    const bool goodgeom = nrtrcsperposn_status_ == 0 && nrtrcsperposn_ > 0;
+    bool goodgeom = nrtrcsperposn_status_ != 2 && nrtrcsperposn_ > 0;
     if ( !goodgeom && !newinl )
     {
 	inldata_[inldata_.size()-1]->segments_[0].stop = curbinid_.crl;
 	return;
     }
+    goodgeom = nrtrcsperposn_status_ == 0 && nrtrcsperposn_ > 0;
 
     if ( !trcswritten_ ) prevbinid_ = curbinid_;
 
