@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.10 2009-08-11 07:07:14 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.11 2010-02-09 07:28:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,11 +56,14 @@ public:
     void 			drawMarker(QPainter&);
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill( bool fill )	  { fill_ = fill; }
+    void			setFillColor( const Color& col )
+    				{ fillcolor_ = col; }
     void			setSideLength( int side ) { side_ = side; }
 
 protected:
     QRectF			boundingrect_;
     MarkerStyle2D*		mstyle_;	
+    Color			fillcolor_;	
     bool			fill_;	
     int 			side_;	
 

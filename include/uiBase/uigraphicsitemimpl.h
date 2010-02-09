@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.26 2010-01-29 14:30:58 cvsbruno Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.27 2010-02-09 07:28:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -253,6 +253,7 @@ public:
     ODGraphicsMarkerItem*  	qMarkerItem()	{ return qmarkeritem_; }
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill(bool);
+    void			setFillColor(const Color&);
 
 protected:
 

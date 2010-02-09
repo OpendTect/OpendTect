@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.14 2009-08-11 07:07:14 cvssatyaki Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.15 2010-02-09 07:28:15 cvssatyaki Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -123,13 +123,16 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
 void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 {
     if ( fill_ )
-	painter.setBrush( QColor(QRgb(mstyle_->color_.rgb())) );
+	painter.setBrush( QColor(QRgb(fillcolor_.rgb())) );
     switch ( mstyle_->type_ )
     {
 	case MarkerStyle2D::Square:
 	{
-	    painter.drawRect( -mstyle_->size_, -mstyle_->size_,
-		      	      2*mstyle_->size_, 2*mstyle_->size_ );
+	    QRectF rectf( -mstyle_->size_, -mstyle_->size_,
+		    	  2*mstyle_->size_, 2*mstyle_->size_ );
+	    painter.drawRect( rectf );
+	    if ( fill_ )
+		painter.fillRect( rectf, painter.brush() );
 	    break;
 	}
 	

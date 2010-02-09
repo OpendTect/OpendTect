@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.18 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.19 2010-02-09 07:28:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
 
     virtual void	setPenStyle(const LineStyle&);
     virtual void	setPenColor(const Color&);
-    void		setFillColor(const Color&);
+    virtual void	setFillColor(const Color&);
 
     void		setCursor(const MouseCursor&);
 
