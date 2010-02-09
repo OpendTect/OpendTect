@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.29 2010-01-08 04:43:07 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.30 2010-02-09 07:31:55 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ public:
     void		setCols(DataPointSet::ColID x,
 	    			DataPointSet::ColID y,
 				DataPointSet::ColID y2);
+    void		setOverlayY1Cols(DataPointSet::ColID y3);
+    void		setOverlayY2Cols(DataPointSet::ColID y3);
 
     Notifier<uiDataPointSetCrossPlotter>	pointsSelected;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
@@ -193,6 +195,10 @@ public:
     void			showY2(bool);
     void 			drawContent( bool withaxis = true );
     bool			isY2Shown() const;
+    bool			showY3() const		{ return showy3_; }
+    bool			showY4() const		{ return showy4_; }
+    void			setShowY3( bool yn ) 	{ showy3_ = yn ; }
+    void			setShowY4( bool yn ) 	{ showy4_ = yn ; }
     bool			isADensityPlot() const { return isdensityplot_;}
     void			setDensityPlot(bool yn,bool showy2);
     bool			isRectSelection() const	
@@ -213,7 +219,25 @@ public:
     void			setCellSize( int sz ) 	{ cellsize_ = sz; }
     int				cellSize() const	{ return cellsize_; }
 
+    void			setOverlayY1AttMapr(const ColTab::MapperSetup&);
+    void			setOverlayY2AttMapr(const ColTab::MapperSetup&);
+    void			setOverlayY1AttSeq(const ColTab::Sequence&);
+    void			setOverlayY2AttSeq(const ColTab::Sequence&);
+
+    void			updateOverlayMapper(bool isy1);
+    Color			getOverlayColor(uiDataPointSet::DRowID,bool);
+    
+    int				y3Colid() const		{ return y3colid_; }
+    int				y4Colid() const		{ return y4colid_; }
+    const ColTab::Mapper&	y3Mapper() const	{ return y3mapper_; }
+    const ColTab::Mapper&	y4Mapper() const	{ return y4mapper_; }
+    const ColTab::Sequence&	y3CtSeq() const		{ return y3ctab_; }
+    const ColTab::Sequence&	y4CtSeq() const		{ return y4ctab_; }
+
 protected:
+
+    int				y3colid_;
+    int				y4colid_;
 
     uiDataPointSet&		uidps_;
     DataPointSet&		dps_;
@@ -233,9 +257,15 @@ protected:
     uiLineItem*			y2userdeflineitm_;
     ColTab::Sequence		ctab_;
     ColTab::Mapper		ctmapper_;
+    ColTab::Sequence		y3ctab_;
+    ColTab::Sequence		y4ctab_;
+    ColTab::Mapper		y3mapper_;
+    ColTab::Mapper		y4mapper_;
     LinStats2D&			lsy1_;
     LinStats2D&			lsy2_;
     Timer&			timer_;
+    bool			showy3_;
+    bool			showy4_;
     bool			doy2_;
     bool			dobd_;
     bool			selectable_;

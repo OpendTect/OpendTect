@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.13 2010-01-08 12:14:14 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.14 2010-02-09 07:31:55 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.13 2010-01-08 12:1
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uicolortable.h"
 #include "uiaxishandler.h"
 #include "uilineedit.h"
 #include "uimsg.h"
@@ -426,6 +427,136 @@ bool acceptOK()
 };
 
 
+class uiDPSOverlayPropTab : public uiDlgGroup
+{
+public:
+
+struct DataColInfo
+{
+			    DataColInfo( const BufferStringSet& colnames,
+				    	 const TypeSet<int>& colids )
+			    : colnms_(colnames), colids_(colids) {}
+
+    BufferStringSet     colnms_;
+    TypeSet<int>        colids_;
+};
+
+
+uiDPSOverlayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
+    : uiDlgGroup(p->tabParent(),"Overlay Properties")
+    , plotter_(p->plotter())
+{
+    BufferStringSet colnames;
+    const DataPointSet& dps = plotter_.dps();
+
+    uiDataPointSet::DColID dcid=-dps.nrFixedCols()+1;
+    colids_ += mUdf(int);
+    colnames.add( "None" );
+    for ( ; dcid<dps.nrCols(); dcid++ )
+    {
+	colids_ += dcid;
+	colnames.add( userName(dcid) );
+    }
+
+    y3coltabfld_ = new uiColorTable( this, plotter_.y3CtSeq(), false);
+    y3coltabfld_->setEnabManage( false );
+    y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
+    uiLabeledComboBox* y3lblcbx =
+	new uiLabeledComboBox( this, colnames, "Overlay Y1 Attribute",  "" );
+    y3lblcbx->attach( leftAlignedBelow, y3coltabfld_ );
+    y3propselfld_ = y3lblcbx->box();
+    if ( !mIsUdf(plotter_.y3Colid()) )
+    {
+	if ( colids_.indexOf(plotter_.y3Colid()) > 0 )
+	    y3propselfld_->setCurrentItem( colids_.indexOf(plotter_.y3Colid()));
+    }
+    else
+	y3propselfld_->setCurrentItem( 0 );
+    
+
+    if ( plotter_.isY2Shown() )
+    {
+
+	y4coltabfld_ = new uiColorTable( this, plotter_.y4CtSeq(), false);
+	y4coltabfld_->setEnabManage( false );
+	y4coltabfld_->attach( leftAlignedBelow, y3lblcbx );
+	uiLabeledComboBox* y4lblcbx =
+	    new uiLabeledComboBox( this, colnames, "Overlay Y2 Attribute", "");
+	y4lblcbx->attach( leftAlignedBelow, y4coltabfld_ );
+	y4propselfld_ = y4lblcbx->box();
+	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
+	if ( !mIsUdf(plotter_.y4Colid()) )
+	{
+	    if ( colids_.indexOf(plotter_.y4Colid()) > 0 )
+		y4propselfld_->setCurrentItem(
+			colids_.indexOf(plotter_.y4Colid()) );
+	}
+	else
+	    y4propselfld_->setCurrentItem( 0 );
+    }
+}
+
+
+const char* userName( int did ) const
+{
+    if ( did >= 0 )
+	return plotter_.dps().colName( did );
+    else if ( did == -1 )
+	return "Z";
+    else
+	return did == -3 ? "X-Coord" : "Y-Coord";
+}
+
+
+bool acceptOK()
+{
+    if ( y3propselfld_->currentItem() )
+    {
+	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
+	plotter_.setOverlayY1AttSeq( y3coltabfld_->colTabSeq() );
+	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
+	plotter_.setShowY3( true );
+	plotter_.updateOverlayMapper( true );
+	y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
+    }
+    else
+    {
+	plotter_.setShowY3( false );
+	y3coltabfld_->setInterval( Interval<float>(0,1) );
+    }
+    
+    if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
+    {
+	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
+	plotter_.setOverlayY2AttSeq( y4coltabfld_->colTabSeq() );
+	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
+	plotter_.setShowY4( true );
+	plotter_.updateOverlayMapper( false );
+	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
+    }
+    else
+    {
+	if ( plotter_.isY2Shown() && y4propselfld_ )
+	{
+	    plotter_.setShowY4( false );
+	    y4coltabfld_->setInterval( Interval<float>(0,1) );
+	}
+    }
+
+    return true;
+}
+
+    uiDataPointSetCrossPlotter& plotter_;
+    uiColorTable*	y3coltabfld_;
+    uiColorTable*	y4coltabfld_;
+    uiComboBox*		y3propselfld_;
+    uiComboBox*		y4propselfld_;
+    uiCheckBox*		y3chkbox_;
+    uiCheckBox*		y4chkbox_;
+    TypeSet<int>	colids_;
+};
+
+
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
 	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,"0.4.8"))
@@ -440,8 +571,17 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     addGroup( userdeftab_ );
     densplottab_ = new uiDPSDensPlotSetTab( this );
     addGroup( densplottab_ );
+    overlayproptab_ = new uiDPSOverlayPropTab( this );
+    addGroup( overlayproptab_ );
+
+    uiPushButton* applybut = new uiPushButton( this, "&Apply",
+	    mCB(this,uiDataPointSetCrossPlotterPropDlg,doApply), true );
+    applybut->attach( centeredBelow, tabObject() );
 }
 
+
+void uiDataPointSetCrossPlotterPropDlg::doApply( CallBacker* cb )
+{ acceptOK( cb ); }
 
 bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
 {
@@ -449,6 +589,7 @@ bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
     if ( statstab_ ) statstab_->acceptOK();
     if ( userdeftab_ ) userdeftab_->acceptOK();
     if ( densplottab_ ) densplottab_->acceptOK();
+    if ( overlayproptab_ ) overlayproptab_->acceptOK();
 
     plotter_.dataChanged();
     return true;

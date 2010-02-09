@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Jun 2008
- RCS:           $Id: uidpscrossplotpropdlg.h,v 1.5 2009-08-27 07:15:03 cvssatyaki Exp $
+ RCS:           $Id: uidpscrossplotpropdlg.h,v 1.6 2010-02-09 07:31:55 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class uiDPSCPStatsTab;
 class uiDPSUserDefTab;
 class uiDPSCPBackdropTab;
 class uiDPSDensPlotSetTab;
+class uiDPSOverlayPropTab;
 
 		     
 mClass uiDataPointSetCrossPlotterPropDlg : public uiTabStackDlg
@@ -34,8 +35,10 @@ protected:
     uiDPSCPStatsTab*	statstab_;
     uiDPSUserDefTab*	userdeftab_;
     uiDPSDensPlotSetTab* densplottab_;
+    uiDPSOverlayPropTab* overlayproptab_;
     uiDPSCPBackdropTab*	bdroptab_;
 
+    void		doApply(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
