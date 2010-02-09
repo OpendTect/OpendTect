@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.3 2010-02-09 07:44:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.4 2010-02-09 16:04:07 cvsbert Exp $";
 
 #include "uiprobdenfuncman.h"
 
@@ -46,8 +46,7 @@ void uiProbDenFuncMan::mkFileInfo()
     BufferString txt;
     txt += getFileInfo();
 
-    mDynamicCastGet(ProbDenFuncTranslator*,tr,curioobj_->getTranslator())
-    PtrMan<ProbDenFunc> pdf = tr ? tr->read( *curioobj_ ) : 0;
+    PtrMan<ProbDenFunc> pdf = ProbDenFuncTranslator::read( *curioobj_ );
     if ( pdf )
     {
 	IOPar par;

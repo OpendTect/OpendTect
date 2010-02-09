@@ -7,15 +7,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: probdenfunctr.h,v 1.6 2010-02-09 11:09:19 cvsnanne Exp $
+ RCS:		$Id: probdenfunctr.h,v 1.7 2010-02-09 16:04:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "transl.h"
+#include <iosfwd>
 
 class IOObj;
 class ProbDenFunc;
+class BufferString;
 
 
 mClass ProbDenFuncTranslatorGroup : public TranslatorGroup
@@ -23,7 +25,7 @@ mClass ProbDenFuncTranslatorGroup : public TranslatorGroup
 public:
     			mDefEmptyTranslatorGroupConstructor(ProbDenFunc)
 
-    const char*		defExtension() const		{ return "pdf"; }
+    const char*		defExtension() const		{ return "prdf"; }
 
 };
 
@@ -34,10 +36,15 @@ public:
     			ProbDenFuncTranslator(const char* nm,const char* unm);
 
     static const char*	key();
-    virtual ProbDenFunc* read(const IOObj&)			= 0;
-    virtual bool	write(const ProbDenFunc&,const IOObj&)	= 0;
 
-    bool		binary_;
+    static ProbDenFunc* read(const IOObj&,BufferString* emsg=0);
+    static bool		write(const ProbDenFunc&,const IOObj&,
+	    		      BufferString* emsg=0);
+
+    virtual ProbDenFunc* read(std::istream&)			= 0;
+    virtual bool	 write(const ProbDenFunc&,std::ostream&) = 0;;
+
+    bool		binary_;	//!< default: false
 
 };
 
@@ -47,8 +54,8 @@ mClass odProbDenFuncTranslator : public ProbDenFuncTranslator
 public:
     			mDefEmptyTranslatorConstructor(od,ProbDenFunc)
 
-    ProbDenFunc*	read(const IOObj&);
-    bool		write(const ProbDenFunc&,const IOObj&);
+    ProbDenFunc*	read(std::istream&);
+    bool		write(const ProbDenFunc&,std::ostream&);
 
 };
 

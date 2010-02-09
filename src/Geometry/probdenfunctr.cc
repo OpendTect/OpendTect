@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: probdenfunctr.cc,v 1.6 2010-02-09 11:09:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunctr.cc,v 1.7 2010-02-09 16:04:07 cvsbert Exp $";
 
 #include "probdenfunctr.h"
 
@@ -15,9 +15,8 @@ static const char* rcsID = "$Id: probdenfunctr.cc,v 1.6 2010-02-09 11:09:19 cvsn
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "ptrman.h"
 #include "sampledprobdenfunc.h"
-#include "streamconn.h"
+#include "strmprov.h"
 
 defineTranslatorGroup(ProbDenFunc,ProbDenFuncTranslator::key());
 defineTranslator(od,ProbDenFunc,mdTectKey);
@@ -36,15 +35,60 @@ const char* ProbDenFuncTranslator::key()
 
 static const char* sKeyBinary = "Binary";
 
-ProbDenFunc* odProbDenFuncTranslator::read( const IOObj& ioobj )
-{
-    PtrMan<StreamConn> conn =
-	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
-    if ( !conn )
-	return false;
 
-    ascistream astrm( conn->iStream() );
-    std::istream& strm = astrm.stream();
+ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
+					  BufferString* emsg )
+{
+    Translator* trl = ioobj.getTranslator();
+    mDynamicCastGet(ProbDenFuncTranslator*,pdftr,trl)
+    if ( !pdftr )
+	{ if ( emsg ) *emsg = "Cannot create Translator"; return 0; }
+
+    const BufferString fnm( ioobj.fullUserExpr(true) );
+    StreamData sd( StreamProvider(fnm).makeIStream() );
+    if ( !sd.usable() )
+    {
+	if ( emsg )
+	    { *emsg = "Cannot open '"; *emsg += fnm; *emsg += "'"; }
+	return 0;
+    }
+
+    ProbDenFunc* ret = pdftr->read( *sd.istrm );
+    sd.close();
+    if ( !ret && emsg )
+	{ *emsg = "Cannot read PDF from '"; *emsg += fnm; *emsg += "'"; }
+    return ret;
+}
+
+
+bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
+				   BufferString* emsg )
+{
+    Translator* trl = ioobj.getTranslator();
+    mDynamicCastGet(ProbDenFuncTranslator*,pdftr,trl)
+    if ( !pdftr )
+	{ if ( emsg ) *emsg = "Cannot create Translator"; return false; }
+
+    const BufferString fnm( ioobj.fullUserExpr(false) );
+    StreamData sd( StreamProvider(fnm).makeOStream() );
+    if ( !sd.usable() )
+    {
+	if ( emsg )
+	    { *emsg = "Cannot write to '"; *emsg += fnm; *emsg += "'"; }
+	return false;
+    }
+
+    const bool ret = pdftr->write( pdf, *sd.ostrm );
+    sd.close();
+    if ( !ret && emsg )
+	{ *emsg = "Cannot write PDF to '"; *emsg += fnm; *emsg += "'"; }
+    return ret;
+}
+
+
+ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
+{
+    ascistream astrm( strm );
     IOPar par( astrm );
     FixedString type = par.find( sKey::Type );
     if ( type.isEmpty() )
@@ -59,29 +103,26 @@ ProbDenFunc* odProbDenFuncTranslator::read( const IOObj& ioobj )
     pdf->usePar( par );
     binary_ = false;
     par.getYN( sKeyBinary, binary_ );
+
     pdf->obtain( strm, binary_ );
     return pdf;
 }
 
 
 bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf,
-				     const IOObj& ioobj )
+				     std::ostream& strm )
 {
-    PtrMan<StreamConn> conn =
-	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Write));
-    if ( !conn )
-	return false;
-
-    ascostream astrm( conn->oStream() );
-    astrm.putHeader( mTranslGroupName(ProbDenFunc) );
-    std::ostream& strm = astrm.stream();
     if ( !strm.good() )
 	return false;
+
+    ascostream astrm( strm );
+    astrm.putHeader( mTranslGroupName(ProbDenFunc) );
 
     IOPar par;
     pdf.fillPar( par );
     par.setYN( sKeyBinary, binary_ );
     par.putTo( astrm );
+
     pdf.dump( strm, binary_ );
-    return true;
+    return strm.good();
 }
