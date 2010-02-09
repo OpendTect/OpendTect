@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.13 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.14 2010-02-09 06:10:42 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,8 @@ protected:
 
     bool			commitHdr();
     void			typChg(CallBacker*);
-    void			valChg(CallBacker*);
+    void			hdrChg(CallBacker*);
+    void			descChg(CallBacker*);
     void			openFmt(CallBacker*);
 };
 
