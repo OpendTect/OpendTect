@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.11 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.12 2010-02-09 06:30:37 cvsraman Exp $";
 
 #include "gmtcontour.h"
 
@@ -134,13 +134,15 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 
     FilePath fp( fnm );
     fp.setExtension( "cpt" );
-    BufferString cptfnm = fp.fullPath();
+    BufferString cptfnm( dofill ? fp.fullPath() : fp.getTempName("cpt") );
+
     strm << "Creating color pallette file ...  ";
     if ( !makeCPT(cptfnm.buf()) )
 	mErrStrmRet("Failed")
 
     strm << "Done" << std::endl;
     strm << "Creating grid 100 X 100 ...  ";
+    strm.flush();
     Coord spt1 = SI().transform( BinID(sd.rg.start.inl,sd.rg.start.crl) );
     Coord spt2 = SI().transform( BinID(sd.rg.start.inl,sd.rg.stop.crl) );
     Coord spt3 = SI().transform( BinID(sd.rg.stop.inl,sd.rg.start.crl) );
@@ -157,7 +159,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     BufferString comm = "@blockmean "; comm += rstr;
     comm += " -I100 | surface "; comm += rstr; comm += " -I100 -T0.7 -N250 -G";
     comm += grd100fnm;
-    StreamData sdata = StreamProvider(comm).makeOStream();
+    StreamData sdata = makeOStream( comm, strm );
     if ( !sdata.usable() ) mErrStrmRet("Failed")
 
     HorSamplingIterator iter( sd.rg );
@@ -187,7 +189,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     comm += grd100fnm; comm += " -I25 -G";
     fp.setExtension( "gd2" );
     comm += fileName( fp.fullPath() );
-    if ( system(comm) )
+    if ( !execCmd(comm,strm) )
 	mErrStrmRet("Failed")
 
     strm << "Done" << std::endl;
@@ -205,8 +207,8 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	if ( !closeps || drawcontour )
 	    comm += " -K";
 
-	comm += " >> "; comm += fileName( fnm );
-	if ( system(comm) )
+	comm += " 1>> "; comm += fileName( fnm );
+	if ( !execCmd(comm,strm) )
 	    mErrStrmRet("Failed")
 
 	strm << "Done" << std::endl;
@@ -228,8 +230,8 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	if ( !closeps )
 	    comm += " -K";
 
-	comm += " >> "; comm += fileName( fnm );
-	if ( system(comm) )
+	comm += " 1>> "; comm += fileName( fnm );
+	if ( !execCmd(comm,strm) )
 	    mErrStrmRet("Failed")
 
 	strm << "Done" << std::endl;
@@ -238,6 +240,9 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     strm << "Removing temporary grid files ...  ";
     StreamProvider( grd100fnm ).remove();
     StreamProvider( finalgrd ).remove();
+    if ( !dofill )
+	StreamProvider( cptfnm ).remove();
+
     strm << "Done" << std::endl;
     return true;
 }

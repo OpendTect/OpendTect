@@ -7,13 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtpar.cc,v 1.5 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtpar.cc,v 1.6 2010-02-09 06:30:37 cvsraman Exp $";
 
 
 #include "gmtpar.h"
 
 #include "debug.h"
+#include "envvars.h"
 #include "keystrs.h"
+#include "oddirs.h"
+#include "strmdata.h"
+#include "strmprov.h"
+#include <iostream>
 
 
 DefineNameSpaceEnumNames(ODGMT,Shape,3,"Shapes")
@@ -90,8 +95,78 @@ BufferString GMTPar::fileName( const char* fnm ) const
 }
 
 
-bool GMTPar::execCmd( const BufferString& comm )
+bool GMTPar::execCmd( const BufferString& comm, std::ostream& strm )
 {
     DBG::message( comm );
-    return system( comm ) != -1;
+    BufferString cmd;
+    const char* errfilenm = GetProcFileName( "gmterr.err" );
+    const char* shellnm = GetOSEnvVar( "SHELL" );
+    const bool needsbash = shellnm && *shellnm && !strstr(shellnm,"bash");
+    if ( needsbash )
+	cmd += "bash -c \'";
+
+    cmd += comm;
+    cmd += " 2> \"";
+    cmd += errfilenm;
+    cmd += "\"";
+    if ( needsbash )
+	cmd += "\'";
+
+    if ( system(cmd) )
+    {
+	StreamData sd = StreamProvider( errfilenm ).makeIStream();
+	if ( !sd.usable() )
+	    return false;
+
+	char buf[256];
+	strm << std::endl;
+	while ( sd.istrm->getline(buf,256) )
+	    strm << buf << std::endl;
+
+	sd.close();
+	return false;
+    }
+
+    return true;
+}
+
+
+StreamData GMTPar::makeOStream( const BufferString& comm, std::ostream& strm )
+{
+    DBG::message( comm );
+    BufferString cmd;
+    const char* errfilenm = GetProcFileName( "gmterr.err" );
+    const char* shellnm = GetOSEnvVar( "SHELL" );
+    const bool needsbash = shellnm && *shellnm && !strstr(shellnm,"bash");
+    const char* commptr = comm.buf();
+    if ( needsbash )
+    {
+	cmd += "@bash -c \'";
+	if ( commptr[0] == '@' )
+	    commptr ++;
+    }
+
+    cmd += commptr;
+    cmd += " 2> \"";
+    cmd += errfilenm;
+    cmd += "\"";
+    if ( needsbash )
+	cmd += "\'";
+
+    StreamData sd = StreamProvider(cmd).makeOStream();
+    if ( !sd.usable() )
+    {
+	StreamData errsd = StreamProvider( errfilenm ).makeIStream();
+	if ( !errsd.usable() )
+	    return sd;
+
+	char buf[256];
+	strm << std::endl;
+	while ( errsd.istrm->getline(buf,256) )
+	    strm << buf << std::endl;
+
+	errsd.close();
+    }
+
+    return sd;
 }

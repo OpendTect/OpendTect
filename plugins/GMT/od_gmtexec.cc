@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Raman Singh
+ (C) dGB Beheer B.V.
+ Author:	Raman K Singh
  Date:		July 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_gmtexec.cc,v 1.8 2009-10-30 09:54:14 cvsraman Exp $";
+static const char* rcsID = "$Id: od_gmtexec.cc,v 1.9 2010-02-09 06:30:37 cvsraman Exp $";
 
 #include "batchprog.h"
 #include "filepath.h"
@@ -40,7 +40,7 @@ bool BatchProgram::go( std::ostream& strm )
 	IOPar* iop = pars().subselect( idx );
 	if ( !iop ) break;
 
-	GMTPar* par = GMTPF().create( *iop );
+	PtrMan<GMTPar> par = GMTPF().create( *iop );
 	if ( !par || !par->execute(strm,psfilenm) )
 	{
 	    BufferString msg = "Failed to post ";

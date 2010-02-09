@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.10 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.11 2010-02-09 06:30:37 cvsraman Exp $";
 
 #include "gmtlocations.h"
 
@@ -107,8 +107,8 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
 	comm += fillcolstr;
     }
 
-    comm += " >> "; comm += fileName( fnm );
-    StreamData sd = StreamProvider(comm).makeOStream();
+    comm += " 1>> "; comm += fileName( fnm );
+    StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay locations")
 
     for ( int idx=0; idx<set.size(); idx++ )
@@ -208,8 +208,8 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
 	comm += fillcolstr;
     }
 
-    comm += " >> "; comm += fileName( fnm );
-    StreamData sd = StreamProvider(comm).makeOStream();
+    comm += " 1>> "; comm += fileName( fnm );
+    StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay polylines")
 
     for ( int idx=0; idx<set.size(); idx++ )
@@ -303,8 +303,8 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
 	comm += fillcolstr;
     }
 
-    comm += " >> "; comm += fileName( fnm );
-    StreamData sd = StreamProvider(comm).makeOStream();
+    comm += " 1>> "; comm += fileName( fnm );
+    StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
     TypeSet<Coord> surfcoords;
@@ -347,8 +347,8 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     comm = "@pstext "; comm += rgstr;
     comm += " -D"; comm += dx; comm += "/"; comm += dy;
     comm += " -G"; comm += outcolstr;
-    comm += " -O -K >> "; comm += fileName( fnm );
-    sd = StreamProvider( comm ).makeOStream();
+    comm += " -O -K 1>> "; comm += fileName( fnm );
+    sd = makeOStream( comm, strm );
     if ( !sd.usable() )
 	mErrStrmRet("Failed to post labels")
 

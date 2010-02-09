@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.11 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.12 2010-02-09 06:30:37 cvsraman Exp $";
 
 #include "gmt2dlines.h"
 
@@ -87,8 +87,8 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     mGetLineStyleString( ls, lsstr );
     comm += " -W"; comm += lsstr;
 
-    comm += " >> "; comm += fileName( fnm );
-    StreamData sd = StreamProvider(comm).makeOStream();
+    comm += " 1>> "; comm += fileName( fnm );
+    StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
     Seis2DLineSet lset( *ioobj );
@@ -122,8 +122,8 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;
-    comm += " -O -K -N >> "; comm += fileName( fnm );
-    sd = StreamProvider( comm ).makeOStream();
+    comm += " -O -K -N 1>> "; comm += fileName( fnm );
+    sd = makeOStream( comm, strm );
     if ( !sd.usable() )
 	mErrStrmRet("Failed")
 	    
@@ -269,8 +269,8 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     mGetLineStyleString( ls, lsstr );
     comm += " -W"; comm += lsstr;
 
-    comm += " >> "; comm += fileName( fnm );
-    StreamData sd = StreamProvider(comm).makeOStream();
+    comm += " 1>> "; comm += fileName( fnm );
+    StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
     for ( int idx=0; idx<inprls.size(); idx++ )
@@ -299,8 +299,8 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;
-    comm += " -O -K -N >> "; comm += fileName( fnm );
-    sd = StreamProvider( comm ).makeOStream();
+    comm += " -O -K -N 1>> "; comm += fileName( fnm );
+    sd = makeOStream( comm, strm );
     if ( !sd.usable() )
 	mErrStrmRet("Failed")
 	    

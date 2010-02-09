@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.17 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.18 2010-02-09 06:30:37 cvsraman Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -68,8 +68,8 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     comm += pageheight < 21 ? 21 : pageheight; comm += "cx";
     comm += pagewidth < 21 ? 21 : pagewidth; comm += "c -K ";
 
-    comm += "> "; comm += fileName( fnm );
-    if ( system(comm) )
+    comm += "1> "; comm += fileName( fnm );
+    if ( !execCmd(comm,strm) )
 	mErrStrmRet("Failed to create Basemap")
 
     strm << "Done" << std::endl;
@@ -83,8 +83,8 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     if ( !closeps ) comm += "-K ";
 
     comm += "-UBL/0/0 ";    
-    comm += ">> "; comm += fileName( fnm );
-    StreamData sd = StreamProvider(comm).makeOStream();
+    comm += "1>> "; comm += fileName( fnm );
+    StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay title box")
 
     *sd.ostrm << "H 16 4 " << maptitle << std::endl;
@@ -128,37 +128,41 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
     bool hascolbar = false;
     ObjectSet<IOPar> parset;
+    int parwithcolorbar = -1;
     for ( int idx=0; idx<100; idx++ )
     {
 	IOPar* par = subselect( idx );
 	if ( !par ) break;
 
 	if ( par->find(ODGMT::sKeyPostColorBar) )
-	{
-	    hascolbar = true;
-	    StepInterval<float> rg;
-	    par->get( ODGMT::sKeyDataRange, rg );
-	    FilePath fp( fnm );
-	    fp.setExtension( "cpt" );
-	    BufferString colbarcomm = "psscale --LABEL_FONT_SIZE=14 -D";
-	    colbarcomm += mapdim.start + xmargin; colbarcomm += "c/";
-	    colbarcomm += 1.2 * ymargin + cTitleBoxHeight; colbarcomm += "c/";
-	    colbarcomm += 2 * ymargin; colbarcomm += "c/";
-	    colbarcomm += xmargin / 2; colbarcomm += "c -O -C";
-	    colbarcomm += fileName( fp.fullPath() ); colbarcomm += " -B";
-	    colbarcomm += rg.step * 5; colbarcomm += ":\"";
-	    colbarcomm += par->find( sKey::Name ); colbarcomm += "\":/:";
-	    colbarcomm += par->find( ODGMT::sKeyAttribName );
-	    colbarcomm += ": -K >> "; colbarcomm += fileName( fnm );
-	    if ( system(colbarcomm) )
-		mErrStrmRet("Failed to post color bar")
-
-            StreamProvider( fp.fullPath() ).remove();
-	    if ( !par->find(ODGMT::sKeyLineStyle) )
-		continue;
-	}
+	    parwithcolorbar = idx;
 
 	parset += par;
+    }
+
+    if ( parwithcolorbar >= 0 )
+    {
+	hascolbar = true;
+	const IOPar* par = parset[parwithcolorbar];
+	StepInterval<float> rg;
+	par->get( ODGMT::sKeyDataRange, rg );
+	FilePath fp( fnm );
+	fp.setExtension( "cpt" );
+	BufferString colbarcomm = "psscale --LABEL_FONT_SIZE=12 ";
+	colbarcomm += "--ANNOT_FONT_SIZE_PRIMARY=10 -D";
+	colbarcomm += mapdim.start + xmargin; colbarcomm += "c/";
+	colbarcomm += 1.2 * ymargin + cTitleBoxHeight; colbarcomm += "c/";
+	colbarcomm += 2 * ymargin; colbarcomm += "c/";
+	colbarcomm += xmargin / 2; colbarcomm += "c -O -C";
+	colbarcomm += fileName( fp.fullPath() ); colbarcomm += " -B";
+	colbarcomm += rg.step * 5; colbarcomm += ":\"";
+	colbarcomm += par->find( sKey::Name ); colbarcomm += "\":/:";
+	colbarcomm += par->find( ODGMT::sKeyAttribName );
+	colbarcomm += ": -K 1>> "; colbarcomm += fileName( fnm );
+	if ( !execCmd(colbarcomm,strm) )
+	    mErrStrmRet("Failed to post color bar")
+
+	StreamProvider( fp.fullPath() ).remove();
     }
 
     const int nritems = parset.size();
@@ -168,8 +172,8 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     comm += "c/"; comm += 10; comm += "c/";
     comm += nritems ? nritems : 1; comm += "c/BL ";
     
-    comm += ">> "; comm += fileName( fnm );
-    StreamData sd = StreamProvider(comm).makeOStream();
+    comm += "1>> "; comm += fileName( fnm );
+    StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay legend")
 
     for ( int idx=0; idx<nritems; idx++ )
@@ -292,7 +296,7 @@ bool GMTCommand::execute( std::ostream& strm, const char* fnm )
 	}
     }
 
-    if ( system(comm.buf()) )
+    if ( !execCmd(comm.buf(),strm) )
 	mErrStrmRet("... Failed")
 
     strm << "... Done" << std::endl;

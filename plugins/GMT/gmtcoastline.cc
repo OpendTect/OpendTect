@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ (C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcoastline.cc,v 1.7 2009-07-22 16:01:26 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtcoastline.cc,v 1.8 2010-02-09 06:30:37 cvsraman Exp $";
 
 #include "gmtcoastline.h"
 
@@ -69,7 +69,8 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     strm << "Drawing coastline ...  ";
     FilePath fp( fnm );
     fp.setExtension( "llr" );
-    makeLLRangeFile( fp.fullPath() );
+    if ( !makeLLRangeFile(fp.fullPath(),strm) )
+	mErrStrmRet("Cannot create Lat/Long range file")
 
     StreamProvider sp( fp.fullPath() );
     StreamData sd = sp.makeIStream();
@@ -108,8 +109,8 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
 	mGetColorString( drycol, drycolstr );
 	comm += " -G"; comm += drycolstr;
     }
-    comm += " -O -K >> "; comm += fileName( fnm );
-    if ( system(comm) )
+    comm += " -O -K 1>> "; comm += fileName( fnm );
+    if ( !execCmd(comm,strm) )
 	mErrStrmRet("Failed")
 
     strm << "Done" << std::endl;
@@ -117,7 +118,7 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
 }
 
 
-bool GMTCoastline::makeLLRangeFile( const char* fnm ) const
+bool GMTCoastline::makeLLRangeFile( const char* fnm, std::ostream& strm )
 {
     Interval<float> xrg, yrg;
     int zone;
@@ -132,9 +133,11 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm ) const
     BufferString comm = "@mapproject -R";
     comm += minlong; comm += "/";
     comm += minlong + 6; comm += "/0/80 -Ju";
-    comm += zone; comm += "/1:1 -I -F -C | minmax -I0.0001/0.0001 > ";
-    comm += fileName( fnm );
-    StreamData sd = StreamProvider(comm).makeOStream();
+    comm += zone; comm += "/1:1 -I -F -C 1> \"";
+    BufferString tmpfilenm = FilePath::getTempName("dat");
+    comm += tmpfilenm; comm += "\"";
+    
+    StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) return false;
 
     *sd.ostrm << xrg.start << " " << yrg.start << std::endl;
@@ -142,6 +145,13 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm ) const
     *sd.ostrm << xrg.start << " " << yrg.stop << std::endl;
     *sd.ostrm << xrg.stop << " " << yrg.stop << std::endl;
     sd.close();
+
+    comm = "minmax \""; comm += tmpfilenm; comm += "\" -I0.0001/0.0001 1> ";
+    comm += fileName( fnm );
+    if ( !execCmd(comm,strm) )
+	return false;
+
+    StreamProvider(tmpfilenm).remove();
     return true;
 }
 
