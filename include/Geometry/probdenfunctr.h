@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2010
- RCS:		$Id: probdenfunctr.h,v 1.5 2010-02-09 07:48:25 cvsnanne Exp $
+ RCS:		$Id: probdenfunctr.h,v 1.6 2010-02-09 11:09:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,10 +42,10 @@ public:
 };
 
 
-mClass dgbProbDenFuncTranslator : public ProbDenFuncTranslator
-{				  isTranslator(dgb,ProbDenFunc)
+mClass odProbDenFuncTranslator : public ProbDenFuncTranslator
+{				 isTranslator(od,ProbDenFunc)
 public:
-    			mDefEmptyTranslatorConstructor(dgb,ProbDenFunc)
+    			mDefEmptyTranslatorConstructor(od,ProbDenFunc)
 
     ProbDenFunc*	read(const IOObj&);
     bool		write(const ProbDenFunc&,const IOObj&);

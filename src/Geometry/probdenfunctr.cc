@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: probdenfunctr.cc,v 1.5 2010-02-09 07:48:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunctr.cc,v 1.6 2010-02-09 11:09:19 cvsnanne Exp $";
 
 #include "probdenfunctr.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: probdenfunctr.cc,v 1.5 2010-02-09 07:48:25 cvsn
 #include "streamconn.h"
 
 defineTranslatorGroup(ProbDenFunc,ProbDenFuncTranslator::key());
-defineTranslator(dgb,ProbDenFunc,mDGBKey);
+defineTranslator(od,ProbDenFunc,mdTectKey);
 
 mDefSimpleTranslatorSelector(ProbDenFunc,ProbDenFuncTranslator::key())
 mDefSimpleTranslatorioContext(ProbDenFunc,Feat)
@@ -36,7 +36,7 @@ const char* ProbDenFuncTranslator::key()
 
 static const char* sKeyBinary = "Binary";
 
-ProbDenFunc* dgbProbDenFuncTranslator::read( const IOObj& ioobj )
+ProbDenFunc* odProbDenFuncTranslator::read( const IOObj& ioobj )
 {
     PtrMan<StreamConn> conn =
 	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
@@ -64,8 +64,8 @@ ProbDenFunc* dgbProbDenFuncTranslator::read( const IOObj& ioobj )
 }
 
 
-bool dgbProbDenFuncTranslator::write( const ProbDenFunc& pdf,
-				      const IOObj& ioobj )
+bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf,
+				     const IOObj& ioobj )
 {
     PtrMan<StreamConn> conn =
 	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Write));
