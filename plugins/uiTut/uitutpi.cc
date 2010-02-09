@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.18 2009-09-24 10:42:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.19 2010-02-09 05:15:28 cvsnanne Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -51,17 +51,15 @@ class uiTutMgr :  public CallBacker
 public:
 			uiTutMgr(uiODMain*);
 
-    bool		is2d_;
     uiODMain*		appl_;
     uiPopupMenu*	mnuhor_;
     uiPopupMenu*	mnuseis_;
-    uiVisMenuItemHandler	wellmnuitmhandler_;
-
-    void 		insertSubMenu();
+    uiVisMenuItemHandler wellmnuitmhandler_;
 
     void		doSeis(CallBacker*);
     void		do2DSeis(CallBacker*);
     void		do3DSeis(CallBacker*);
+    void		launchDialog(Seis::GeomType);
     void		doHor(CallBacker*);
     void		doWells(CallBacker*);
 };
@@ -69,70 +67,44 @@ public:
 
 uiTutMgr::uiTutMgr( uiODMain* a )
 	: appl_(a)
-	, is2d_(false)
 	, wellmnuitmhandler_(visSurvey::WellDisplay::getStaticClassName(),
 		  	      *a->applMgr().visServer(),"&Tut Well Tools ...",
 			      mCB(this,uiTutMgr,doWells),cTutIdx)
 {
-    uiODMenuMgr& mnumgr = appl_->menuMgr();
     uiPopupMenu* mnu = new uiPopupMenu( appl_, "&Tut Tools" );
     if ( SI().has2D() && SI().has3D() ) 
-    {	mnuseis_ = new uiPopupMenu( appl_, "&3D" );
-    	mnu->insertMenu( mnuseis_, mnu );
-    	mnuhor_ = new uiPopupMenu( appl_, "&2D" );
-    	mnu->insertMenu( mnuhor_, mnu );
-	insertSubMenu();
+    {
+	mnu->insertItem( new uiMenuItem("&Seismic 2D (Direct) ...",
+					mCB(this,uiTutMgr,do2DSeis)) );
+	mnu->insertItem( new uiMenuItem("&Seismic 3D (Direct) ...",
+					mCB(this,uiTutMgr,do3DSeis)) );
     }	
     else
-    {
 	mnu->insertItem( new uiMenuItem("&Seismic (Direct) ...",
 					mCB(this,uiTutMgr,doSeis)) );
-	mnu->insertItem( new uiMenuItem("&Horizon ...",
-					mCB(this,uiTutMgr,doHor)) );
-    }
-    mnumgr.toolsMnu()->insertItem( mnu );
-}
 
-void uiTutMgr::insertSubMenu()
-{
-    mnuseis_->insertItem( new uiMenuItem("&Seismic (Direct) ...",
-					 mCB(this,uiTutMgr,do3DSeis)) );
-    mnuseis_->insertItem( new uiMenuItem("&Horizon ...",
-					 mCB(this,uiTutMgr,doHor)) );
+    mnu->insertItem( new uiMenuItem("&Horizon ...",
+				    mCB(this,uiTutMgr,doHor)) );
 
-    mnuhor_->insertItem( new uiMenuItem("&Seismic (Direct) ...",
-					mCB(this,uiTutMgr,do2DSeis)) );
-    mnuhor_->insertItem( new uiMenuItem("&Horizon ...",
-					mCB(this,uiTutMgr,doHor)) );
+    appl_->menuMgr().toolsMnu()->insertItem( mnu );
 }
 
 
-void uiTutMgr::do3DSeis( CallBacker* cb )
-{
-    is2d_ = false;
-    doSeis( cb );
-}    
+void uiTutMgr::do3DSeis( CallBacker* )
+{ launchDialog( Seis::Vol ); }
 
 
-void uiTutMgr::do2DSeis( CallBacker* cb )
-{
-    is2d_ = true;
-    doSeis( cb );
-}    
-
+void uiTutMgr::do2DSeis( CallBacker* )
+{ launchDialog( Seis::Line ); }
 
 void uiTutMgr::doSeis( CallBacker* )
+{ launchDialog( SI().has2D() ? Seis::Line : Seis::Vol ); }
+
+
+void uiTutMgr::launchDialog( Seis::GeomType tp )
 {
-    if ( is2d_ )
-    {
-	uiTutSeisTools dlg( appl_, Seis::Line );
-	dlg.go();
-    }
-    else
-    {
-	uiTutSeisTools dlg( appl_, Seis::Vol );
-	dlg.go();
-    }
+    uiTutSeisTools dlg( appl_, tp );
+    dlg.go();
 }
 
 

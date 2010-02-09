@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tuthortools.cc,v 1.10 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: tuthortools.cc,v 1.11 2010-02-09 05:15:28 cvsnanne Exp $";
 
 #include "tuthortools.h"
 #include "emhorizon3d.h"
@@ -115,7 +115,7 @@ int Tut::ThicknessCalculator::nextStep()
 
 Executor* Tut::ThicknessCalculator::dataSaver()
 {
-    return horizon1_->auxdata.auxDataSaver();
+    return horizon1_->auxdata.auxDataSaver( dataidx_, true );
 }
 
 

@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh / Karthika
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.11 2009-07-22 16:01:27 cvsbert Exp $
+ * ID       : $Id: tuthortools.h,v 1.12 2010-02-09 05:15:28 cvsnanne Exp $
 -*/
 
 #include "executor.h"
@@ -23,8 +23,6 @@ namespace Tut
 mClass HorTool : public Executor
 {
 public:
-
-			HorTool(const char* title);
     virtual		~HorTool();
 
     void		setHorizons(EM::Horizon3D* hor1,EM::Horizon3D* hor2=0);
@@ -35,6 +33,7 @@ public:
     const char*		nrDoneText() const	{ return "Positions done"; }    
 
 protected:
+			HorTool(const char* title);
 
     BinID		bid_;
     HorSampling		hs_;
@@ -55,7 +54,7 @@ mClass ThicknessCalculator : public HorTool
 {
 public:
     			ThicknessCalculator();
-			 
+
     int			nextStep();
     Executor*		dataSaver();
     void		init(const char*);
