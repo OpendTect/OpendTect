@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.47 2009-12-23 14:32:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.48 2010-02-09 06:09:49 cvsraman Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -622,7 +622,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 {
     static const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
     const CallBack typchgcb = mCB(this,uiTableImpDataSel,typChg);
-    const CallBack valchgcb = mCB(this,uiTableImpDataSel,valChg);
+    const CallBack hdrchgcb = mCB(this,uiTableImpDataSel,hdrChg);
     hdrtypefld_ = new uiGenInput( this, "File header",
 	    			  StringListInpSpec(hdrtyps) );
     hdrtypefld_->valuechanged.notify( typchgcb );
@@ -638,15 +638,15 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     hdrlinesfld_ = new uiGenInput( this, "Header size (number of lines)",
 	    			   IntInpSpec(nrlns) );
     hdrlinesfld_->attach( alignedBelow, hdrtypefld_ );
-    hdrlinesfld_->valuechanged.notify( valchgcb );
+    hdrlinesfld_->valuechanged.notify( hdrchgcb );
     hdrtokfld_ = new uiGenInput( this, "End-of-header 'word'",
 	    			 StringInpSpec(fd_.eohtoken_) );
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
-    hdrtokfld_->valuechanged.notify( valchgcb );
+    hdrtokfld_->valuechanged.notify( hdrchgcb );
 
     fmtdeffld_ = new uiTableFmtDescFldsParSel( this, hid );
     fmtdeffld_->attach( alignedBelow, hdrlinesfld_ );
-    fmtdeffld_->descCommitted.notify( valchgcb );
+    fmtdeffld_->descCommitted.notify( mCB(this,uiTableImpDataSel,descChg) );
 
     setHAlignObj( hdrtypefld_ );
     mainObject()->finaliseDone.notify( typchgcb );
@@ -658,10 +658,18 @@ void uiTableImpDataSel::typChg( CallBacker* )
     const int htyp = hdrtypefld_->getIntValue();
     hdrlinesfld_->display( htyp == 1 );
     hdrtokfld_->display( htyp == 2 );
-    valChg( 0 );
+    hdrChg( 0 );
 }
 
-void uiTableImpDataSel::valChg( CallBacker* )
+void uiTableImpDataSel::hdrChg( CallBacker* )
+{
+    commitHdr();
+    fmtdeffld_->updateSummary();
+    descChanged.trigger();
+}
+
+
+void uiTableImpDataSel::descChg( CallBacker* )
 {
     descChanged.trigger();
 }
@@ -750,5 +758,5 @@ bool uiTableImpDataSel::commit()
 void uiTableImpDataSel::updateSummary()
 {
     fmtdeffld_->updateSummary();
-    valChg( 0 );
+    descChg( 0 );
 }
