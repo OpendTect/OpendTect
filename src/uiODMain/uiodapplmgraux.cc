@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.14 2010-01-28 09:50:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.15 2010-02-09 07:30:56 cvssatyaki Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -38,6 +38,7 @@ static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.14 2010-01-28 09:50:23 cv
 #include "uibatchprestackproc.h"
 #include "uivelocityfunctionimp.h"
 #include "uiprobdenfuncman.h"
+#include "uiimppdf.h"
 
 #include "uiempartserv.h"
 #include "uinlapartserv.h"
@@ -223,6 +224,8 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(PDF):
         if ( at == uiODApplMgr::Imp )
 	{
+	    uiImpRokDocPDF dlg( par_ );
+	    dlg.go();
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
