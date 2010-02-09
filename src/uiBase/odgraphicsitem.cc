@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.15 2010-02-09 07:28:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.16 2010-02-09 08:48:55 cvssatyaki Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -131,8 +131,6 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 	    QRectF rectf( -mstyle_->size_, -mstyle_->size_,
 		    	  2*mstyle_->size_, 2*mstyle_->size_ );
 	    painter.drawRect( rectf );
-	    if ( fill_ )
-		painter.fillRect( rectf, painter.brush() );
 	    break;
 	}
 	
