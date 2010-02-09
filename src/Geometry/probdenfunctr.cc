@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: probdenfunctr.cc,v 1.4 2010-02-05 12:08:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunctr.cc,v 1.5 2010-02-09 07:48:25 cvsnanne Exp $";
 
 #include "probdenfunctr.h"
 
@@ -25,8 +25,16 @@ defineTranslator(dgb,ProbDenFunc,mDGBKey);
 mDefSimpleTranslatorSelector(ProbDenFunc,ProbDenFuncTranslator::key())
 mDefSimpleTranslatorioContext(ProbDenFunc,Feat)
 
+ProbDenFuncTranslator::ProbDenFuncTranslator( const char* nm, const char* unm )
+    : Translator(nm,unm)
+    , binary_(false)
+{}
+
+
 const char* ProbDenFuncTranslator::key()
 { return "Probability Density Function"; }
+
+static const char* sKeyBinary = "Binary";
 
 ProbDenFunc* dgbProbDenFuncTranslator::read( const IOObj& ioobj )
 {
@@ -49,7 +57,9 @@ ProbDenFunc* dgbProbDenFuncTranslator::read( const IOObj& ioobj )
 	pdf = new SampledProbDenFunc2D( Array2DImpl<float>(-1,-1) );
 
     pdf->usePar( par );
-    pdf->obtain( strm );
+    binary_ = false;
+    par.getYN( sKeyBinary, binary_ );
+    pdf->obtain( strm, binary_ );
     return pdf;
 }
 
@@ -70,7 +80,8 @@ bool dgbProbDenFuncTranslator::write( const ProbDenFunc& pdf,
 
     IOPar par;
     pdf.fillPar( par );
+    par.setYN( sKeyBinary, binary_ );
     par.putTo( astrm );
-    pdf.dump( strm );
+    pdf.dump( strm, binary_ );
     return true;
 }

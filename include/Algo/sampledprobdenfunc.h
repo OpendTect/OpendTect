@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.3 2010-02-05 12:08:49 cvsnanne Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.4 2010-02-09 07:48:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -44,8 +44,8 @@ public:
 
     void				fillPar(IOPar&) const;
     bool				usePar(const IOPar&);
-    void				dump(std::ostream&) const;
-    bool				obtain(std::istream&);
+    void				dump(std::ostream&,bool binary) const;
+    bool				obtain(std::istream&,bool binary);
 
 protected:
 
@@ -73,8 +73,8 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(std::ostream&) const;
-    virtual bool	obtain(std::istream&);
+    virtual void	dump(std::ostream&,bool binary) const;
+    virtual bool	obtain(std::istream&,bool binary);
 
     SamplingData<float>	sd_;
     Array1DImpl<float>	bins_;
@@ -102,8 +102,8 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
-    virtual void	dump(std::ostream&) const;
-    virtual bool	obtain(std::istream&);
+    virtual void	dump(std::ostream&,bool binary) const;
+    virtual bool	obtain(std::istream&,bool binary);
 
     SamplingData<float>	sd0_;
     SamplingData<float>	sd1_;

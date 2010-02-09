@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.5 2010-02-05 12:08:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.6 2010-02-09 07:48:25 cvsnanne Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -74,34 +74,50 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
 }
 
 
-void ArrayNDProbDenFunc::dump( std::ostream& strm ) const
+void ArrayNDProbDenFunc::dump( std::ostream& strm, bool binary ) const
 {
-    // TODO binary
     const ArrayND<float>& array = getData();
-    const od_int64 totalsz = array.info().getTotalSz();
+    const ArrayNDInfo& info = array.info();
+    const od_int64 totalsz = info.getTotalSz();
     const float* values = array.getData();
-    if ( values )
+    if ( !values ) return;
+
+    const od_int64 rowsz = info.getSize( info.getNDim()-1 );
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
-	for ( od_int64 idx=0; idx<totalsz; idx++ )
-	    strm << values[idx] << '\n';
+	if ( binary )
+	    strm.write( (const char*)(&values[idx]), sizeof(float) );
+	else
+	{
+	    strm << values[idx];
+	    if ( (idx+1)%rowsz == 0 )
+		strm << '\n';
+	    else
+		strm << '\t';
+	}
     }
 }
 
 
-bool ArrayNDProbDenFunc::obtain( std::istream& strm )
+bool ArrayNDProbDenFunc::obtain( std::istream& strm, bool binary )
 {
-    // TODO binary
-
     ArrayND<float>& array = getData();
     const od_int64 totalsz = array.info().getTotalSz();
     if ( totalsz < 1 )
 	return false;
 
     float* values = array.getData();
-    if ( values )
+    if ( !values ) return false;
+
+    float val;
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
-	for ( od_int64 idx=0; idx<totalsz; idx++ )
-	    strm >> values[idx];
+	if ( binary )
+	    strm.read( (char*)(&val), sizeof(float) );
+	else
+	    strm >> val;
+
+	values[idx] = val;
     }
 
     return true;
@@ -198,11 +214,11 @@ bool SampledProbDenFunc1D::usePar( const IOPar& par )
 }
 
 
-void SampledProbDenFunc1D::dump( std::ostream& strm ) const
-{ ArrayNDProbDenFunc::dump( strm ); }
+void SampledProbDenFunc1D::dump( std::ostream& strm, bool binary ) const
+{ ArrayNDProbDenFunc::dump( strm, binary ); }
 
-bool SampledProbDenFunc1D::obtain( std::istream& strm )
-{ return ArrayNDProbDenFunc::obtain( strm ); }
+bool SampledProbDenFunc1D::obtain( std::istream& strm, bool binary )
+{ return ArrayNDProbDenFunc::obtain( strm, binary ); }
 
 
 // 2D
@@ -286,11 +302,11 @@ bool SampledProbDenFunc2D::usePar( const IOPar& par )
 }
 
 
-void SampledProbDenFunc2D::dump( std::ostream& strm ) const
-{ ArrayNDProbDenFunc::dump( strm ); }
+void SampledProbDenFunc2D::dump( std::ostream& strm, bool binary ) const
+{ ArrayNDProbDenFunc::dump( strm, binary ); }
 
-bool SampledProbDenFunc2D::obtain( std::istream& strm )
-{ return ArrayNDProbDenFunc::obtain( strm ); }
+bool SampledProbDenFunc2D::obtain( std::istream& strm, bool binary )
+{ return ArrayNDProbDenFunc::obtain( strm, binary ); }
 
 
 // ND

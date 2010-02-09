@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.4 2010-02-05 12:08:49 cvsnanne Exp $
+ RCS:		$Id: probdenfunc.h,v 1.5 2010-02-09 07:48:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -35,17 +35,17 @@ public:
 
     virtual		~ProbDenFunc()			{}
 
-    virtual const char*	getTypeStr() const		= 0;
-    virtual int		nrDims() const			= 0;
-    virtual const char*	dimName(int dim) const		= 0;
-    virtual float	value(const TypeSet<float>&) const = 0;
+    virtual const char*	getTypeStr() const			= 0;
+    virtual int		nrDims() const				= 0;
+    virtual const char*	dimName(int dim) const			= 0;
+    virtual float	value(const TypeSet<float>&) const	= 0;
 
-    virtual float	normFac() const			{ return 1; }
+    virtual float	normFac() const				{ return 1; }
 
     virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&)		{ return true; }
-    virtual void	dump(std::ostream&) const	{}
-    virtual bool	obtain(std::istream&)		{ return true; }
+    virtual bool	usePar(const IOPar&)			{ return true; }
+    virtual void	dump(std::ostream&,bool binary) const	{}
+    virtual bool	obtain(std::istream&,bool binary)	{ return true; }
     
     static const char*	sKeyNrDim();
 };
