@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.40 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.41 2010-02-10 09:02:56 cvsbruno Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -38,7 +38,7 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
     , setup_(su)
     , height_(su.height_)
     , width_(su.width_)
-    , ticsz_(2)
+    , ticsz_(su.ticsz_)
     , beghndlr_(0)
     , endhndlr_(0)
     , ynmtxtvertical_(false)
@@ -186,7 +186,7 @@ int uiAxisHandler::getPix( float pos ) const
 int uiAxisHandler::pixToEdge() const
 {
     int ret = setup_.border_.get(setup_.side_);
-    if ( setup_.noaxisannot_ ) return ret;
+    if ( setup_.noaxisannot_ || setup_.noborderspace_ ) return ret;
 
     ret += ticsz_ + (isHor() ? wdthy_ : wdthx_);
     return ret;
