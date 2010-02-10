@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.23 2010-02-10 10:13:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.24 2010-02-10 14:05:18 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisppropdlg.h"
@@ -406,7 +406,9 @@ void uiWellLogDisplay::drawFilling( int idx )
 	pt.y = ld.yax_.getPix(zpos);
 	*curpts += pt;
 
-	const int colindex = (int)((val-ld.xax_.range().start)/colstep);
+	int colindex = ld.xrev_ ? (int)(ld.xax_.range().stop-val)
+				: (int)(val-ld.xax_.range().start);
+	colindex = (int)( colindex/colstep );
 	if ( colindex != prevcolidx )
 	{
 	    *curpts += uiPoint( closept.x, pt.y ); 
@@ -420,8 +422,8 @@ void uiWellLogDisplay::drawFilling( int idx )
 	    *curpts += uiPoint( closept.x, pt.y ); 
 	} 
     }
-    *pts[pts.size()-1] += uiPoint( closept.x, pt.y ); 
     if ( pts.isEmpty() ) return;
+    *pts[pts.size()-1] += uiPoint( closept.x, pt.y ); 
 
     const int tabidx = ColTab::SM().indexOf( ld.wld_.seqname_ );
     const ColTab::Sequence* seq = ColTab::SM().get( tabidx<0 ? 0 : tabidx );
@@ -543,15 +545,10 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s,const Well::Data& wd)
 	, wd_(wd)
 	, td_(scene(),uiWellLogDisplay::LineData::Setup())
 	, zrg_(mUdf(float),0)
-   	, zintime_(false)		     
+	, d2tm_(wd_.d2TModel())
+   	, zintime_(wd_.haveD2TModel())		     
    	, dispzinft_(false)		     
 {
-    d2tm_ = wd_.d2TModel();
-
-    setStretch( 2, 2 );
-    setPrefWidth( 2*logwidth_ );
-    setPrefHeight( logheight_ );
-   
     const char* logname = wd_.displayProperties().left_.name_;
     const Well::Log* l = wd_.logs().getLog( logname );
     if ( s.left_ && l )  
@@ -564,10 +561,16 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s,const Well::Data& wd)
     l = wd_.logs().getLog( logname );
     if ( s.right_  && l ) 
     {
-	addLogPanel( false,  s.noborderspace_ );
+	addLogPanel( false, s.noborderspace_ );
 	addLog( wd_.displayProperties().right_.name_, false );
     }
 
+    setStretch( 2, 2 );
+    logwidth_ -= s.noborderspace_ ? 50 : 0;
+    setPrefWidth( displayWidth() );
+    setPrefHeight( mLogHeight );
+
+    setInitialZRange();
     td_.wt_ = &wd_.track(); 
     updateProperties( 0 );
 }
@@ -578,12 +581,42 @@ uiWellDisplay::~uiWellDisplay()
 }
 
 
+void uiWellDisplay::setInitialZRange()
+{
+    ObjectSet<uiWellLogDisplay::LogData> logdataset;
+    if ( leftlogdisp_ ) 
+    {
+	for ( int idx=0; idx<leftlogdisp_->logNr(); idx++ )
+	    logdataset += &leftlogdisp_->logData( idx );
+    }
+    if ( rightlogdisp_ )
+    {
+	for ( int idx=0; idx<rightlogdisp_->logNr(); idx++ )
+	    logdataset += &rightlogdisp_->logData( idx );
+    }
+    
+    Interval<float> zrg(0,0);
+    for ( int lidx=0; lidx<logdataset.size(); lidx++ )
+    {
+	Interval<float> dahrg;
+	const Well::Log* wl = logdataset[lidx]->wl_;
+	if ( wl ) dahrg = wl->dahRange();
+	if ( !dahrg.overlaps( zrg, false ) || !lidx )
+	    zrg = dahrg;
+    }
+    Swap( zrg.start, zrg.stop );
+    if ( zintime_ && d2tm_ ) 
+	zrg.set( d2tm_->getTime(zrg.start)*1000,d2tm_->getTime(zrg.stop)*1000 );
+    zrg_ = zrg;
+}
+
+
 void uiWellDisplay::addLogPanel( bool isleft, bool noborderspace )
 {
     uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
     wldsu.noxpixafter_ = isleft; wldsu.noxpixbefore_ = !isleft;
     if ( noborderspace ) 
-    { wldsu.axisticsz_ = -25; wldsu.noborderspace_ = true; }
+    { wldsu.axisticsz_ = -15; wldsu.noborderspace_ = true; }
     wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
     uiWellLogDisplay* logdisp = new uiWellLogDisplay( 0, wldsu );
     uiObjectItem* logitm  = scene_->addItem( new uiObjectItem( logdisp ) );
@@ -607,6 +640,15 @@ void uiWellDisplay::removeLogPanel( bool isleft )
 }
 
 
+int uiWellDisplay::displayWidth() const 
+{
+    int width = 0;
+    if ( leftlogitm_ ) width += leftlogitm_->objectSize().width();
+    if ( rightlogitm_ ) width += rightlogitm_->objectSize().width();
+    return width;
+}
+
+
 void uiWellDisplay::setAxisRanges()
 {
     Interval<float> dispzrg( zrg_.stop, zrg_.start );
@@ -618,6 +660,16 @@ void uiWellDisplay::setAxisRanges()
 	td_.yax_.setBounds( dispzrg  );
 	td_.xax_.setBounds( Interval<float>(0,0) );
     }
+    if ( leftlogdisp_ ) leftlogdisp_->setZRange( dispzrg );
+    if ( rightlogdisp_ ) rightlogdisp_->setZRange(  dispzrg );
+}
+
+
+void uiWellDisplay::setZRange( const Interval<float>& rg )
+{
+    zrg_ = rg;
+    setAxisRanges();
+    dataChanged( 0 );
 }
 
 

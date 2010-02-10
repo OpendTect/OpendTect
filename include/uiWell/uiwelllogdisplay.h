@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.18 2010-02-10 10:13:00 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.19 2010-02-10 14:05:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,8 @@ public:
     
     LogData&			logData(int);
     LogData&			addLogData();
+
+    int logNr() const		{ return lds_.size(); }
 
     void                        setD2TModel( const Well::D2TModel* d2tm )
 				{ d2tm_ = d2tm; }
@@ -248,12 +250,14 @@ public:
     void			drawTrack();
     TrackData			td_;
     
+    void			setInitialZRange();
     const Interval<float>&	zRange() const	{ return zrg_; }
-    void 			updateProperties(CallBacker*); 
-    
+    void			setZRange(const Interval<float>&);
     void			setZInTime( bool yn )
     				{ zintime_ = yn; dataChanged(0); }
     bool			zInTime() const	  { return zintime_; }
+    int 			displayWidth() const;
+    void 			updateProperties(CallBacker*); 
 
 protected:
 
