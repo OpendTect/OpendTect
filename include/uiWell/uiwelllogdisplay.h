@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.17 2010-02-10 09:04:48 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.18 2010-02-10 10:13:00 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ namespace Well
     class DahObj;
 }
 
-#define mPanelWidth 200
-#define mPanelHeight 600
+#define mLogWidth 200
+#define mLogHeight 600
 
 /*!\brief creates a display of max 2 well logs. */
 
@@ -211,12 +211,16 @@ public:
 				Setup()
 				    : left_(true)
 				    , right_(true)
-				    , noborderspace_(false)	  
+				    , noborderspace_(false)
+				    , logwidth_(mLogWidth)	 	   
+				    , logheight_(mLogHeight)	 	   
 				    {}
 
 	mDefSetupMemb(bool,left) // Left Log
 	mDefSetupMemb(bool,right) // Right log
 	mDefSetupMemb(bool,noborderspace) // Right log
+	mDefSetupMemb(int,logheight) //log height
+	mDefSetupMemb(int,logwidth) //log width
     };
 
 				uiWellDisplay(uiParent*,const Setup&,
@@ -246,6 +250,10 @@ public:
     
     const Interval<float>&	zRange() const	{ return zrg_; }
     void 			updateProperties(CallBacker*); 
+    
+    void			setZInTime( bool yn )
+    				{ zintime_ = yn; dataChanged(0); }
+    bool			zInTime() const	  { return zintime_; }
 
 protected:
 
@@ -255,6 +263,8 @@ protected:
     Interval<float>		zrg_;
     bool			zintime_;
     bool			dispzinft_;
+    int 			logwidth_;	 	   
+    int 			logheight_;
     
     uiWellLogDisplay* 		leftlogdisp_;
     uiWellLogDisplay* 		rightlogdisp_;
@@ -278,7 +288,6 @@ public:
 
 protected:
 
-    Well::Data& 		wd_;
     uiWellDisplay* 		logviewer_;
 
     void			welldataDel(CallBacker*);

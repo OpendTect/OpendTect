@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.22 2010-02-10 09:04:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.23 2010-02-10 10:13:00 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisppropdlg.h"
@@ -87,8 +87,6 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , d2tm_(0)
 {
     setStretch( 2, 2 );
-    setPrefWidth( mPanelWidth );
-    setPrefHeight( mPanelHeight );
 
     viewer_->getMouseEventHandler().buttonReleased.notify(
 			    mCB(this,uiWellLogDisplay,mouseRelease) );
@@ -535,11 +533,13 @@ void uiWellLogDisplay::mouseRelease( CallBacker* )
 
 
 uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s,const Well::Data& wd)
-    	: uiGraphicsView(p,"Well Log Viewer")
+    	: uiGraphicsView(p, wd.name() )
 	, leftlogdisp_(0)
 	, rightlogdisp_(0)
 	, leftlogitm_(0)
 	, rightlogitm_(0)
+	, logwidth_(s.logwidth_)		 
+	, logheight_(s.logheight_)		 
 	, wd_(wd)
 	, td_(scene(),uiWellLogDisplay::LineData::Setup())
 	, zrg_(mUdf(float),0)
@@ -549,8 +549,8 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s,const Well::Data& wd)
     d2tm_ = wd_.d2TModel();
 
     setStretch( 2, 2 );
-    setPrefWidth( 2*mPanelWidth );
-    setPrefHeight( mPanelHeight );
+    setPrefWidth( 2*logwidth_ );
+    setPrefHeight( logheight_ );
    
     const char* logname = wd_.displayProperties().left_.name_;
     const Well::Log* l = wd_.logs().getLog( logname );
@@ -593,13 +593,11 @@ void uiWellDisplay::addLogPanel( bool isleft, bool noborderspace )
     else
     { rightlogdisp_ = logdisp; rightlogitm_ = logitm; }
 
-    logdisp->setZInTime( d2tm_? true : false );
+    logdisp->setZInTime( zintime_ && d2tm_ );
     logdisp->setD2TModel( d2tm_ );
     logdisp->setMarkers( &wd_.markers() );
-    
-    logitm->setPos( ( isleft || !leftlogdisp_ ) ? 0 : mPanelWidth );
-    logitm->setSelectable( true );
-    logitm->setObjectSize( mPanelWidth, mPanelHeight );
+    logitm->setPos( ( isleft || !leftlogdisp_ ) ? 0 : logwidth_ );
+    logitm->setObjectSize( logwidth_, logheight_ );
 }
 
 
@@ -744,19 +742,10 @@ void uiWellDisplay::updateProperties( CallBacker* cb )
 
 
 uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
-	: uiMainWin(p,uiMainWin::Setup("2D Well Log Viewer")
+	: uiMainWin(p,uiMainWin::Setup("")
 					.deleteonclose(true))
-	, wd_(wd) 
-    	, logviewer_(new uiWellDisplay(this,uiWellDisplay::Setup(),wd_))
+    	, logviewer_(new uiWellDisplay(this,uiWellDisplay::Setup(),wd))
 {
-    wd_.tobedeleted.notify( mCB(this,uiWellDisplayWin,close) );
+    BufferString msg( "2D Viewer " ); msg += wd.name();
+    setCaption( msg );
 }
-
-
-
-void uiWellDisplayWin::welldataDel( CallBacker* )
-{
-    wd_.tobedeleted.remove( mCB(this,uiWellDisplayWin,welldataDel) );
-    close();
-}
-
