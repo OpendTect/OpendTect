@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.9 2009-11-30 12:17:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.10 2010-02-10 02:33:29 cvsnanne Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -32,10 +32,10 @@ static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.9 2009-11-30
 uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     : visserv_( serv )
     , vismenu_( visserv_.getMenuHandler() )
-    , createbodymnuitem_( "Create Body ..." )
+    , createbodymnuitem_( "Create Body" )
     , storepsmnuitem_( "Save as Pickset ..." )
-    , removemnuitem_( "Remove selected points" )
-    , sizemnuitem_( "Set size" )
+    , removemnuitem_( "Remove points inside polygon" )
+    , sizemnuitem_( "Set size ..." )
     , treeToBeAdded( this )
 {
     vismenu_->createnotifier.notify(
