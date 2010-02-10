@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.196 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.197 2010-02-10 09:11:29 cvsbruno Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1092,8 +1092,7 @@ uiODViewer2D& uiODSceneMgr::addViewer2D( int visid )
 void uiODSceneMgr::displayIn2DWellPanel( int visid, int attribid, bool dowva )
 {
     const DataPack::ID dpid = visServ().getDataPackID( visid, attribid );
-    uiWellToSeisMainWin* win = new uiWellToSeisMainWin( &appl_, dpid, dowva );
-    win->show();
+    uiWellToSeisMGR mgr( &appl_, dpid, dowva );
 }
 
 
