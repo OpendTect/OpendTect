@@ -1,5 +1,5 @@
-#ifndef uiobjectitemviewer_h
-#define uiobjectitemviewer_h
+#ifndef uiobjectitemview_h
+#define uiobjectitemview_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Jan 2010
-RCS:           $Id: uiobjectitemviewer.h,v 1.1 2010-01-19 13:02:33 cvsbruno Exp
+RCS:           $Id: uiobjectitemview.h,v 1.1 2010-01-19 13:02:33 cvsbruno Exp
 $
 ________________________________________________________________________
 
