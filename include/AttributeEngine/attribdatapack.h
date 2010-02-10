@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.28 2010-01-20 08:48:58 cvssatyaki Exp $
+ RCS:		$Id: attribdatapack.h,v 1.29 2010-02-10 09:01:41 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,6 +194,8 @@ public:
     double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;
 
+    const TypeSet<BinID>* pathBIDs() const { return path_; }
+
 protected:
 
     SeisTrcBuf* 	seisbuf_;
@@ -201,6 +203,8 @@ protected:
 
     void		setPosData(TypeSet<BinID>*);
     void		fill2DArray(TypeSet<BinID>*);
+
+    TypeSet<BinID>* path_;
 };
 
 

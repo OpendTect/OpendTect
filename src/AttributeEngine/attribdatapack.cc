@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.34 2010-01-20 08:48:58 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.35 2010-02-10 09:01:41 cvsbruno Exp $";
 
 #include "attribdatapack.h"
 
@@ -458,6 +458,7 @@ void CubeDataPack::getAuxInfo( int, int, int, IOPar& ) const
 FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
        					  TypeSet<BinID>* path )
     : Flat2DDataPack(did)
+    , path_(new TypeSet<BinID>(*path))  
 {
     seisbuf_ = new SeisTrcBuf( true );
     sb.copyInto(*seisbuf_);
@@ -474,6 +475,7 @@ FlatRdmTrcsDataPack::~FlatRdmTrcsDataPack()
 {
     delete arr2d_;
     if ( seisbuf_ ) seisbuf_->erase();
+    delete path_;
 }
 
 
