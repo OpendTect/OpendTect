@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: welldahobj.h,v 1.11 2009-10-05 07:13:23 cvsbruno Exp $
+ RCS:		$Id: welldahobj.h,v 1.12 2010-02-10 14:02:18 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "sets.h"
 #include "namedobj.h"
+#include "ranges.h"
 
 namespace Well
 {
@@ -38,6 +39,8 @@ public:
     virtual void	erase()
 			{ dah_.erase(); eraseAux(); }
     inline bool		isEmpty() const			{ return size() == 0; }
+    Interval<float>	dahRange() const
+    			{ return size() ? Interval<float>(dah(0),dah(size()-1)) 					: Interval<float>(0,0); }
 
     float		dahStep(bool min_else_average) const;
 
