@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpsocket.h,v 1.5 2010-02-08 11:35:53 cvsnanne Exp $
+ RCS:           $Id: tcpsocket.h,v 1.6 2010-02-10 08:08:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ friend class QTcpSocketComm;
 
 public:
     				TcpSocket();
+				TcpSocket(QTcpSocket*);
 				~TcpSocket();
 
     void			connectToHost(const char* host,int port);

@@ -7,21 +7,29 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tcpsocket.cc,v 1.4 2010-02-08 11:35:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: tcpsocket.cc,v 1.5 2010-02-10 08:08:45 cvsranojay Exp $";
 
 #include "tcpsocket.h"
 #include "qtcpsocketcomm.h"
 
+#define mInit \
+    , comm_(new QTcpSocketComm(qtcpsocket_,this)) \
+    , connected(this) \
+    , disconnected(this) \
+    , hostFound(this) \
+    , readyRead(this) \
+    , error(this) \
+    , stateChanged(this)
 
 TcpSocket::TcpSocket()
     : qtcpsocket_(new QTcpSocket)
-    , comm_(new QTcpSocketComm(qtcpsocket_,this))
-    , connected(this)
-    , disconnected(this)
-    , hostFound(this)
-    , readyRead(this)
-    , error(this)
-    , stateChanged(this)
+    mInit
+{}
+
+
+TcpSocket::TcpSocket( QTcpSocket* qsocket )
+    : qtcpsocket_(qsocket)
+    mInit
 {}
 
 
