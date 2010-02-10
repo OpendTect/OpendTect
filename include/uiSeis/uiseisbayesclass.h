@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uiseisbayesclass.h,v 1.1 2010-02-09 16:01:56 cvsbert Exp $
+ RCS:           $Id: uiseisbayesclass.h,v 1.2 2010-02-10 15:26:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,8 @@ public:
     State		state() const		{ return state_; }
 
     static const char*	sKeyPDFID();
+    static const char*	sKeySeisInpID();
+    static const char*	sKeySeisOutID();
 
 protected:
 
