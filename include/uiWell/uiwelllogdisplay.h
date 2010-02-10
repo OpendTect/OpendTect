@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.16 2010-02-08 16:43:44 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.17 2010-02-10 09:04:48 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,8 @@ public:
 				    , markerls_(LineStyle::Dot,1)
 				    , pickls_(LineStyle::Solid,1,Color(0,200,0))
 				    , border_(5)
+				    , noborderspace_(false)
+				    , axisticsz_(2)			   
 				    , noxpixbefore_(false)
 				    , noypixbefore_(false)
 				    , noxpixafter_(false)
@@ -68,6 +70,8 @@ public:
 	mDefSetupMemb(bool,noypixbefore)
 	mDefSetupMemb(bool,noxpixafter)
 	mDefSetupMemb(bool,noypixafter)
+	mDefSetupMemb(bool,noborderspace)
+	mDefSetupMemb(int,axisticsz)
     };
 
 				uiWellLogDisplay(uiParent*,const Setup&);
@@ -75,7 +79,20 @@ public:
 
     mStruct LineData
     {
-				LineData(uiGraphicsScene&,const uiBorder&);
+	    mStruct Setup
+	    {
+				Setup()
+				    : border_(5)
+				    , noborderspace_(false)
+				    , xaxisticsz_(2)			   
+				    {}
+		mDefSetupMemb(uiBorder,border)
+		mDefSetupMemb(bool,noborderspace)
+		mDefSetupMemb(int,xaxisticsz)
+	    };
+
+				LineData(uiGraphicsScene&,
+					const Setup&);
 
 	Interval<float>		zrg_;
 	Interval<float>		valrg_;
@@ -100,8 +117,7 @@ public:
 	Well::DisplayProperties::Log wld_;
 
 	protected:
-				LogData(uiGraphicsScene& s,int idx,
-					const uiBorder& b);
+				LogData(uiGraphicsScene&,int idx,const Setup&);
 
 	void			copySetupFrom( const LogData& ld )
 	    			{ unitmeas_ = ld.unitmeas_; xrev_ = ld.xrev_; }
@@ -195,10 +211,12 @@ public:
 				Setup()
 				    : left_(true)
 				    , right_(true)
+				    , noborderspace_(false)	  
 				    {}
 
 	mDefSetupMemb(bool,left) // Left Log
 	mDefSetupMemb(bool,right) // Right log
+	mDefSetupMemb(bool,noborderspace) // Right log
     };
 
 				uiWellDisplay(uiParent*,const Setup&,
@@ -215,8 +233,8 @@ public:
 	Well::DisplayProperties::Track wtd_;
 	
 	protected:
-				TrackData(uiGraphicsScene& sc,const uiBorder& b)
-				    : uiWellLogDisplay::LineData(sc,b)
+				TrackData(uiGraphicsScene& sc,const Setup& s)
+				    : uiWellLogDisplay::LineData(sc,s)
 				    , wt_(0)  
 				    {}
 
@@ -227,9 +245,7 @@ public:
     TrackData			td_;
     
     const Interval<float>&	zRange() const	{ return zrg_; }
-    
-    void 			updateProperties( 
-	    				const Well::DisplayProperties& );
+    void 			updateProperties(CallBacker*); 
 
 protected:
 
@@ -246,8 +262,7 @@ protected:
     uiObjectItem* 		leftlogitm_;
     uiObjectItem* 		rightlogitm_;
     
-
-    void			addLogPanel(bool);
+    void			addLogPanel(bool,bool);
     void                        gatherInfo();
     void                        setAxisRanges();
     void                        dataChanged(CallBacker*);
@@ -259,17 +274,14 @@ mClass uiWellDisplayWin : public uiMainWin
 public:
 
 				uiWellDisplayWin(uiParent*,Well::Data&);
-				~uiWellDisplayWin();
+				~uiWellDisplayWin(){};
 
 protected:
 
     Well::Data& 		wd_;
-    uiToolBar* 			toolbar_;
     uiWellDisplay* 		logviewer_;
-    uiWellDispPropDlg* 		propdlg_;
 
-    void			propDlgPushed(CallBacker*);
-    void 			updateProperties(CallBacker*);
+    void			welldataDel(CallBacker*);
     friend class 		uiWellDisplay;
 };
 
