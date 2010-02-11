@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.38 2010-01-22 09:27:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.39 2010-02-11 07:12:37 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -374,6 +374,29 @@ void uiGraphicsScene::saveAsPDF( const char* filename, int resolution )
 
 void uiGraphicsScene::saveAsPS( const char* filename, int resolution )
 { saveAsPDF_PS( filename, false, resolution ); }
+
+
+int uiGraphicsScene::indexOf( int id ) const
+{
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	if ( items_[idx]->id() == id )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+uiGraphicsItem* uiGraphicsScene::getItem( int id )
+{
+    const int idx = indexOf( id );
+    return items_.validIdx(idx) ? items_[idx] : 0;
+}
+
+
+const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
+{ return const_cast<uiGraphicsScene*>(this)->getItem(id); }
 
 
 

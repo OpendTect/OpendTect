@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.28 2010-01-22 09:27:42 cvsbruno Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.29 2010-02-11 07:12:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,8 @@ public:
     uiGraphicsItemGroup*	addItemGrp(uiGraphicsItemGroup*);
     				//!<Item becomes mine
     int				nrItems() const;
-    int				getDPI() const;
+    uiGraphicsItem*		getItem(int id);
+    const uiGraphicsItem*	getItem(int id) const;
 
     uiRectItem*			addRect(float x,float y,float w,float h);
 
@@ -70,6 +71,7 @@ public:
     double			width() const;
     double			height() const;
 
+    int				getDPI() const;
     void			saveAsImage(const char*,int,int,int);
     void			saveAsPDF(const char*,int);
     void			saveAsPS(const char*,int);
@@ -93,6 +95,7 @@ protected:
     bool			ismouseeventactive_;
     friend class		uiGraphicsItem;
     uiGraphicsItem*		doAddItem(uiGraphicsItem*);
+    int				indexOf(int id) const;
 
 };
 

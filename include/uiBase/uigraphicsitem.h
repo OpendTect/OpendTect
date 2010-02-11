@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.19 2010-02-09 07:28:15 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.20 2010-02-11 07:12:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,15 +61,23 @@ public:
     void		setParent(uiGraphicsItem*);
     uiGraphicsItem*	addToScene(uiGraphicsScene*);
 
+    int			id() const			{ return id_; }
+
 protected:
     			uiGraphicsItem( QGraphicsItem* itm )
 			    : qgraphicsitem_(itm)
+			    , id_(getNewID())
 			    , selected_(false)			{}
 
     QGraphicsItem*	qgraphicsitem_;
 
-    virtual QGraphicsItem*	mkQtObj()			= 0;
-    bool			selected_; // Remove when things in Qt works
+    virtual QGraphicsItem* mkQtObj()			= 0;
+    bool		selected_; // Remove when things in Qt works
+
+private:
+    static int		getNewID();
+    const int		id_;
+
 };
 
 
