@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.30 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.31 2010-02-11 11:13:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "sets.h"
 class IOPar;
 class IOObj;
+class MultiID;
 class CtxtIOObj;
 class HorSampling;
 class CubeSampling;
@@ -52,6 +53,7 @@ public:
     virtual void	clear();
     virtual void	setInput(const IOObj&)				= 0;
     void		setInput(const HorSampling&);
+    void		setInput(const MultiID&);
     void		setInput(const StepInterval<float>& zrg);
     void		setInput(const CubeSampling&);
 

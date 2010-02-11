@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.66 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.67 2010-02-11 11:13:00 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiseissubsel.cc,v 1.66 2009-07-22 16:01:42 cvsb
 #include "survinfo.h"
 #include "iopar.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "posprovider.h"
@@ -84,6 +85,15 @@ void uiSeisSubSel::usePar( const IOPar& iop )
 void uiSeisSubSel::clear()
 {
     selfld_->clear();
+}
+
+
+void uiSeisSubSel::setInput( const MultiID& id )
+{
+    IOObj* ioobj = IOM().get( id );
+    if ( ioobj )
+	setInput( *ioobj );
+    delete ioobj;
 }
 
 
