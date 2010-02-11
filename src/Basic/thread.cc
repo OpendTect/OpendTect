@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.49 2009-09-14 22:19:15 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.50 2010-02-11 13:19:00 cvsbert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -492,13 +492,18 @@ int Threads::getNrProcessors()
 
     nrproc = 0;
 
-    bool havesett = false;
+    bool havesett = false; int envval = 0;
     if ( !GetEnvVarYN("OD_NO_MULTIPROC") )
     {
 	havesett = Settings::common().get( "Nr Processors", nrproc );
 	if ( !havesett )
 	    havesett = Settings::common().get( "dTect.Nr Processors", nrproc );
-	if ( !havesett )
+
+	envval = GetEnvVarIVal( "OD_NR_PROCESSORS", 0 );
+	if ( envval > 0 )
+	    nrproc = envval;
+
+	if ( nrproc == 0 && !havesett )
 	    nrproc = QThread::idealThreadCount();
     }
 
@@ -510,7 +515,8 @@ int Threads::getNrProcessors()
 	else
 	{
 	    msg = "Number of processors (";
-	    msg += havesett ? "User settings" : "System";
+	    msg += envval > 0 ? "Environment"
+			      : (havesett ? "User settings" : "System");
 	    msg += "): "; msg += nrproc;
 	}
 	DBG::message( msg );
