@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.44 2009-11-17 08:17:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.45 2010-02-11 07:47:24 cvsnanne Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -74,6 +74,7 @@ void FreqFilter::initClass()
 
     StringParam* fwindow = new StringParam( fwindowStr() );
     fwindow->setDefaultValue( "CosTaper" );
+    fwindow->setRequired( false );
     desc->addParam( fwindow );
 
     FloatParam* variable = new FloatParam( paramvalStr() );
@@ -373,8 +374,9 @@ void FreqFilter::fftFilter( const DataHolder& output,
     {
 	const float var2 = 1-(lowfreqvariable_ - maxfreq) / (datasz - maxfreq);
 	ArrayNDWindow lowwindow(Array1DInfoImpl(winsz2),false, "CosTaper",var2);
-	for ( int idx=0; idx<winsz2/2; idx++ )
-	    lwin.set( idx, 1-lowwindow.getValues()[idx] );
+	float* winvals = lowwindow.getValues();
+	for ( int idx=0; idx<winsz2/2 && winvals; idx++ )
+	    lwin.set( idx, 1-winvals[idx] );
 	filter.setLowFreqBorderWindow( lwin.getData(), winsz2/2 );
     }
 
@@ -382,8 +384,9 @@ void FreqFilter::fftFilter( const DataHolder& output,
     {
 	const float var1 = highfreqvariable_ / minfreq;
 	ArrayNDWindow highwindow(Array1DInfoImpl(winsz1),false,"CosTaper",var1);
-	for ( int idx=0; idx<winsz1/2; idx++ )
-	hwin.set( idx, 1 - highwindow.getValues()[winsz1/2+idx] );
+	float* winvals = highwindow.getValues();
+	for ( int idx=0; idx<winsz1/2 && winvals; idx++ )
+	    hwin.set( idx, 1 - winvals[winsz1/2+idx] );
 	filter.setHighFreqBorderWindow( hwin.getData(), winsz1/2 );
     }
 
