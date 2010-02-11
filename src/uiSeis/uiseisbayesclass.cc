@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.2 2010-02-10 15:26:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.3 2010-02-11 11:13:09 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
-#include "uiioobjsel.h"
 #include "uibutton.h"
 #include "uimsg.h"
 #include "uiseissel.h"
+#include "uiseissubsel.h"
 #include "uiobjdisposer.h"
 #include "odusginfo.h"
 #include "ctxtioobj.h"
@@ -98,6 +98,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
     , pars_(pars)
     , nrdisp_(1)
 {
+    setOkText( "Next &>>" );
     rmbuts_.allowNull(); addbuts_.allowNull();
     IOObjContext ctxt( mIOObjContext(ProbDenFunc) );
     ctxt.forread = true;
@@ -126,8 +127,12 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	}
 
 	const char* id = pars_.find( mGetPDFIDKey(idx) );
-	if ( (id && *id) || idx )
+	const bool haveid = id && *id;
+	if ( haveid || idx )
+	{
 	    fld->setInput( MultiID(id) );
+	    if ( haveid ) nrdisp_ = idx+1;
+	}
 
 	flds_ += fld;
     }
@@ -229,11 +234,13 @@ public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
     : uiDialog(p,uiDialog::Setup("Bayesian Classification",
-				 "Specify Seismic input",mTODOHelpID).modal(false))
+				 "Specify Seismic input",mTODOHelpID)
+	    			 .modal(false))
     , pars_(pars)
     , lsfld_(0)
     , is2d_(is2d)
 {
+    setOkText( "Next &>>" ); setCancelText( "&<< Back" );
     BufferString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetPDFIDKey(0) ), emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
@@ -317,11 +324,13 @@ public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
     : uiDialog(p,uiDialog::Setup("Bayesian Classification",
-				 "Specify output",mTODOHelpID).modal(false))
+				 "Select and specify output",mTODOHelpID)
+	    			  .modal(false))
     , pars_(pars)
     , is2d_(is2d)
     , nrvars_(0)
 {
+    setCancelText( "&<< Back" );
     if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }
 
     BufferString emsg;
@@ -337,6 +346,13 @@ uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
     }
     addOut( "Classification", false );
     addOut( "Confidence", false );
+
+    Seis::SelSetup sss( is2d_, false ); sss.fornewentry(true).onlyrange(false);
+    subselfld_ = uiSeisSubSel::get( this, sss );
+    subselfld_->attach( alignedBelow, flds3d_[ flds3d_.size()-1 ] );
+    const char* id = pars_.find( mGetSeisInpIDKey(0) );
+    if ( id && *id )
+	subselfld_->setInput( MultiID(id) );
 }
 
 void addOut( const char* nm, bool ispdf )
@@ -345,6 +361,11 @@ void addOut( const char* nm, bool ispdf )
     uiSeisSel::Setup su( gt ); su.optional(true);
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
     uiSeisSel::fillContext( gt, false, ctxt );
+    /*
+    if ( !ispdf && *(nm+1) == 'l' )
+	ctxt.
+	*/
+
     if ( !ispdf )
 	su.seltxt_ = nm;
     else
@@ -393,6 +414,7 @@ bool acceptOK( CallBacker* )
     int				nrvars_;
 
     ObjectSet<uiSeisSel>	flds3d_;
+    uiSeisSubSel*		subselfld_;
 
 
 };
@@ -409,7 +431,7 @@ void uiSeisBayesClass::doOutput()
 void uiSeisBayesClass::outputDone( CallBacker* )
 {
     if ( !outdlg_->uiResult() )
-	{ outdlg_ = 0; mSetState( InpPDFS ); }
+	{ outdlg_ = 0; mSetState( InpSeis ); }
 
     //TODO Do the 'thing' here ...
 
