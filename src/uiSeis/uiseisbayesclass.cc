@@ -7,18 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.3 2010-02-11 11:13:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.4 2010-02-11 16:10:44 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
+#include "seisbayesclass.h"
 #include "uibutton.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiobjdisposer.h"
+#include "uitaskrunner.h"
 #include "odusginfo.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "probdenfunc.h"
 #include "probdenfunctr.h"
 #include "seistrctr.h"
@@ -29,14 +32,11 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.3 2010-02-11 11:13:09 c
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxPDFs = 5;
-const char* uiSeisBayesClass::sKeyPDFID()	{ return "PDF.ID"; }
-const char* uiSeisBayesClass::sKeySeisInpID()	{ return "Seismics.Input.ID"; }
-const char* uiSeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
-#define mGetuiSeisBayesIDKey(ky,nr) \
-	IOPar::compKey(uiSeisBayesClass::sKey##ky##ID(),nr)
-#define mGetPDFIDKey(nr) mGetuiSeisBayesIDKey(PDF,nr)
-#define mGetSeisInpIDKey(nr) mGetuiSeisBayesIDKey(SeisInp,nr)
-#define mGetSeisOutIDKey(nr) mGetuiSeisBayesIDKey(SeisOut,nr)
+#define mGetSeisBayesIDKey(ky,nr) \
+	IOPar::compKey(SeisBayesClass::sKey##ky##ID(),nr)
+#define mGetPDFIDKey(nr) mGetSeisBayesIDKey(PDF,nr)
+#define mGetSeisInpIDKey(nr) mGetSeisBayesIDKey(SeisInp,nr)
+#define mGetSeisOutIDKey(nr) mGetSeisBayesIDKey(SeisOut,nr)
 
 
 uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d, const IOPar* iop )
@@ -50,6 +50,7 @@ uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d, const IOPar* iop )
     , processEnded(this)
 {
     prepUsgStart( "Definition" ); sendUsgInfo();
+    pars_.set( sKey::Type, is2d_ ? "2D" : "3D" );
 
     nextAction();
 }
@@ -433,9 +434,13 @@ void uiSeisBayesClass::outputDone( CallBacker* )
     if ( !outdlg_->uiResult() )
 	{ outdlg_ = 0; mSetState( InpSeis ); }
 
-    //TODO Do the 'thing' here ...
+    SeisBayesClass exec( pars_ );
+    uiTaskRunner tr( outdlg_ );
+    const bool isok = tr.execute( exec );
+    if ( isok )
+	uiMSG().message( "Output created" );
 
-    mSetState( Finished );
+    mSetState( isok ? Finished : Output );
 }
 
 
