@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.50 2010-02-11 13:19:00 cvsbert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.51 2010-02-11 15:42:55 cvsbert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -492,19 +492,32 @@ int Threads::getNrProcessors()
 
     nrproc = 0;
 
-    bool havesett = false; int envval = 0;
+    bool havesett = false; bool haveenv = false;
     if ( !GetEnvVarYN("OD_NO_MULTIPROC") )
     {
 	havesett = Settings::common().get( "Nr Processors", nrproc );
 	if ( !havesett )
 	    havesett = Settings::common().get( "dTect.Nr Processors", nrproc );
 
-	envval = GetEnvVarIVal( "OD_NR_PROCESSORS", 0 );
-	if ( envval > 0 )
-	    nrproc = envval;
+	bool needauto = !havesett;
+	float perc = 100;
+	const char* envval = GetEnvVar( "OD_NR_PROCESSORS" );
+	if ( envval && *envval )
+	{
+	    BufferString str( envval );
+	    char* ptr = strrchr(str.buf(),'%');
+	    if ( ptr )
+		{ *ptr = '\0'; needauto = true; perc = atof(str.buf()); }
+	    else
+		{ needauto = false; nrproc = atoi(envval); }
+	    haveenv = true;
+	}
 
-	if ( nrproc == 0 && !havesett )
+	if ( nrproc < 1 || needauto )
 	    nrproc = QThread::idealThreadCount();
+
+	float fnrproc = nrproc * perc * 0.01;
+	nrproc = mNINT(fnrproc);
     }
 
     if ( DBG::isOn( DBG_MT ) ) 
@@ -515,8 +528,8 @@ int Threads::getNrProcessors()
 	else
 	{
 	    msg = "Number of processors (";
-	    msg += envval > 0 ? "Environment"
-			      : (havesett ? "User settings" : "System");
+	    msg += haveenv ? "Environment"
+			   : (havesett ? "User settings" : "System");
 	    msg += "): "; msg += nrproc;
 	}
 	DBG::message( msg );
