@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: undo.cc,v 1.7 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: undo.cc,v 1.8 2010-02-11 21:58:24 cvsyuancheng Exp $";
 
 #include "undo.h"
 
@@ -185,17 +185,21 @@ bool Undo::unDo( int nrtimes, bool userinteraction )
 	if ( idx<0 )
 	    return false;
 
+	const bool prevend = idx && events_[idx-1]->isUserInteractionEnd();
 	if ( !events_[idx]->unDo() )
 	{
-	    removeAllBeforeCurrentEvent();
+	    if ( prevend )
+    		removeAllBeforeCurrentEvent();
+	    else
+		removeStartToAndIncluding( currenteventid_ );
+	    
 	    return false;
 	}
 
 	currenteventid_--;
 	change = true;
 
-	if ( !userinteraction ||
-	     (idx && events_[idx-1]->isUserInteractionEnd() ) )
+	if ( !userinteraction || prevend )
 	    nrtimes--;
     }
 
