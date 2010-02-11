@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.20 2009-11-30 21:30:16 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.21 2010-02-11 22:55:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -89,6 +89,10 @@ public:
     virtual void		setNrChannels(int)			= 0;
 
     virtual void		setChannelData(int channel,const SbImage&) = 0;
+    				/*!<The SbImage's dataptr is assumed to
+				    remain in memory until new SbImage comes,
+				    or object is deleted. */
+				 
     virtual const SbImage*	getChannelData() const			= 0;
 };
 
