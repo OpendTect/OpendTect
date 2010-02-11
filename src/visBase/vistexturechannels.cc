@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.30 2010-02-07 02:44:23 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.31 2010-02-11 23:13:36 cvsyuancheng Exp $";
 
 #include "vistexturechannels.h"
 
@@ -259,10 +259,19 @@ bool ChannelInfo::setUnMappedData(int version, const float* data,
     }
     else if ( policy==OD::CopyPtr )
     {
-	mDeclareAndTryAlloc(float*, newdata, float[sz] );
-	if ( !newdata ) return false;
-	memcpy( newdata, data, sz*sizeof(float) );
-	unmappeddata_.replace( version, newdata );
+	if ( data )
+	{
+	    mDeclareAndTryAlloc(float*, newdata, float[sz] );
+	    if ( !newdata ) return false;
+	    MemCopier<float> copier( newdata, data, sz );
+	    copier.execute();
+	    unmappeddata_.replace( version, newdata );
+	}
+	else
+	{
+	    unmappeddata_.replace( version, 0 );
+	}
+	    
 	ownsunmappeddata_[version] = true;
     }
 
@@ -367,10 +376,19 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	sz *= owner_.size_[1];
 	sz *= owner_.size_[2];
 
-	mDeclareAndTryAlloc(unsigned char*, newdata, unsigned char[sz] );
-	if ( !newdata ) return false;
-	memcpy( newdata, data, sz*sizeof(unsigned char) );
-	mappeddata_.replace( version, newdata );
+	if ( data )
+	{
+    	    mDeclareAndTryAlloc(unsigned char*, newdata, unsigned char[sz] );
+    	    if ( !newdata ) return false;
+	    MemCopier<unsigned char> copier( newdata, data, sz );
+	    copier.execute();
+    	    mappeddata_.replace( version, newdata );
+	}
+	else
+	{
+	    mappeddata_.replace( version, 0 );
+	}
+	
 	ownsmappeddata_[version] = true;
     }
 
