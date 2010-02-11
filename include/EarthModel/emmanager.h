@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.48 2009-08-06 01:57:41 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.49 2010-02-11 18:04:39 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,8 @@ public:
 
     Undo&		undo();
     const Undo&		undo() const;
+
+    bool		objectExists( const EMObject* obj ) const;
 
     int			nrLoadedObjects() const	{ return objects_.size(); }
     EM::ObjectID	objectID(int idx) const;

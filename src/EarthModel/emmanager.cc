@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.90 2010-02-04 16:43:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.91 2010-02-11 18:04:39 cvsyuancheng Exp $";
 
 #include "emmanager.h"
 
@@ -199,6 +199,12 @@ MultiID EMManager::getMultiID( const ObjectID& oid ) const
 {
     const EMObject* emobj = getObject(oid);
     return emobj ? emobj->multiID() : MultiID(-1);
+}
+
+
+bool EMManager::objectExists( const EMObject* obj ) const
+{
+    return objects_.indexOf( obj ) != -1;
 }
 
 
