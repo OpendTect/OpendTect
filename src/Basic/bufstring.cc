@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.25 2009-12-04 14:28:25 cvsjaap Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.26 2010-02-11 11:09:40 cvsbert Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -129,8 +129,8 @@ BufferString& BufferString::add( const char* s )
 
 	char* ptr = buf_;
 	while ( *ptr ) ptr++;
-	    while ( *s ) *ptr++ = *s++;
-		*ptr = '\0';
+	while ( *s ) *ptr++ = *s++;
+	*ptr = '\0';
     }
     return *this;
 }
@@ -190,8 +190,8 @@ void BufferString::setMinBufSize( unsigned int newlen )
 
 void BufferString::insertAt( int atidx, const char* str )
 {
-    const int cursz = size();	// Defined this to avoid weird compiler bug
-    if ( atidx >= cursz )	// i.e. do not replace cursz with size()
+    const int cursz = size();	// Had to do this to avoid weird compiler bug
+    if ( atidx >= cursz )	// i.e. do not replace cursz with size() ...!
 	{ replaceAt( atidx, str ); return; }
     if ( !str || !*str )
 	return;
@@ -296,8 +296,9 @@ std::ostream& operator <<( std::ostream& s, const BufferString& bs )
 std::istream& operator >>( std::istream& s, BufferString& bs )
 {
 #ifdef __msvc__
-// TODO
-    s >> bs.buf();
+// TODO : does MSVC still not support std::string ...?
+    char buf[32768];
+    s >> buf; bs = buf;
 #else
     std::string stdstr; s >> stdstr;
     bs = stdstr.c_str();
