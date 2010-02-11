@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.26 2010-02-11 11:09:40 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.27 2010-02-11 12:30:12 cvsranojay Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -295,14 +295,8 @@ std::ostream& operator <<( std::ostream& s, const BufferString& bs )
 
 std::istream& operator >>( std::istream& s, BufferString& bs )
 {
-#ifdef __msvc__
-// TODO : does MSVC still not support std::string ...?
-    char buf[32768];
-    s >> buf; bs = buf;
-#else
     std::string stdstr; s >> stdstr;
     bs = stdstr.c_str();
-#endif
     return s;
 }
 
