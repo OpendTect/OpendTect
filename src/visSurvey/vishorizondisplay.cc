@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.124 2010-01-22 11:34:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.125 2010-02-11 08:27:33 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -86,9 +86,9 @@ HorizonDisplay::HorizonDisplay()
     TypeSet<float> shift;
     shift += 0.0;
     curshiftidx_ += 0;
-    BufferStringSet* aatrnms = new BufferStringSet();
-    aatrnms->allowNull();
-    userrefs_ += aatrnms;
+    BufferStringSet* attrnms = new BufferStringSet();
+    attrnms->allowNull();
+    userrefs_ += attrnms;
     shifts_ += new TypeSet<float>;
     enabled_ += true;
     datapackids_ += -1;
@@ -480,6 +480,16 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
     curtextureidx_ = textureidx;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->selectActiveVersion( channel, textureidx );
+
+    if ( !as_.validIdx(channel) || !userrefs_.validIdx(channel) )
+	return;
+
+    if ( !strcmp("Section ID",userrefs_[channel]->get(0)) )
+	textureidx++;
+
+    BufferString usrref = userrefs_[channel]->validIdx(textureidx) ?
+	userrefs_[channel]->get(textureidx) : "<No name>";
+    as_[channel]->setUserRef( userrefs_[channel]->get(textureidx) );
 }
 
 
@@ -536,9 +546,9 @@ bool HorizonDisplay::addAttrib()
     TypeSet<float> shift;
     shift += 0.0;
     curshiftidx_ += 0;
-    BufferStringSet* aatrnms = new BufferStringSet();
-    aatrnms->allowNull();
-    userrefs_ += aatrnms;
+    BufferStringSet* attrnms = new BufferStringSet();
+    attrnms->allowNull();
+    userrefs_ += attrnms;
     enabled_ += true;
     shifts_ += new TypeSet<float>;
     datapackids_ += -1;
