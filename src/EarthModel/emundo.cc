@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emundo.cc,v 1.7 2010-02-08 22:30:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emundo.cc,v 1.8 2010-02-11 21:40:52 cvsyuancheng Exp $";
 
 #include "emundo.h"
 
@@ -121,6 +121,9 @@ const char* EM::SetAllHor3DPosUndoEvent::getStandardDesc() const
 
 bool EM::SetAllHor3DPosUndoEvent::unDo()
 {
+    if ( !EMM().objectExists(horizon_) )
+	return false;
+    
     if ( !newarr_ )
     {
 	newarr_ = horizon_->createArray2D( sid_, 0 );
@@ -146,6 +149,9 @@ bool EM::SetAllHor3DPosUndoEvent::reDo()
 bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 					    const RowCol& origin )
 {
+    if ( !EMM().objectExists(horizon_) )
+	return false;
+    
     mDynamicCastGet( Geometry::ParametricSurface*, surf,
 		     horizon_->sectionGeometry( sid_ ) );
 
