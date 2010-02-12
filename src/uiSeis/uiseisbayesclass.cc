@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.4 2010-02-11 16:10:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.5 2010-02-12 14:50:03 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -32,11 +32,6 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.4 2010-02-11 16:10:44 c
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxPDFs = 5;
-#define mGetSeisBayesIDKey(ky,nr) \
-	IOPar::compKey(SeisBayesClass::sKey##ky##ID(),nr)
-#define mGetPDFIDKey(nr) mGetSeisBayesIDKey(PDF,nr)
-#define mGetSeisInpIDKey(nr) mGetSeisBayesIDKey(SeisInp,nr)
-#define mGetSeisOutIDKey(nr) mGetSeisBayesIDKey(SeisOut,nr)
 
 
 uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d, const IOPar* iop )
@@ -127,7 +122,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	    addbuts_ += addbut;
 	}
 
-	const char* id = pars_.find( mGetPDFIDKey(idx) );
+	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
 	const bool haveid = id && *id;
 	if ( haveid || idx )
 	{
@@ -177,12 +172,12 @@ bool acceptOK( CallBacker* )
     {
 	uiIOObjSel* fld = flds_[idx];
 	if ( idx >= nrdisp_ )
-	    pars_.removeWithKey( mGetPDFIDKey(idx) );
+	    pars_.removeWithKey( mGetSeisBayesPDFIDKey(idx) );
 	else
 	{
 	    if ( !fld->ioobj() )
 		return false;
-	    pars_.set( mGetPDFIDKey(idx), fld->key() );
+	    pars_.set( mGetSeisBayesPDFIDKey(idx), fld->key() );
 	}
     }
     return true;
@@ -243,7 +238,8 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
 {
     setOkText( "Next &>>" ); setCancelText( "&<< Back" );
     BufferString emsg;
-    PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetPDFIDKey(0) ), emsg );
+    PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
+	    				emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
 
     const int nrvars = pdf->nrDims();
@@ -265,7 +261,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
 	    su.seltxt_ += pdf->dimName(idx);
 	    su.seltxt_ += "'";
 	    uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
-	    const char* id = pars_.find( mGetSeisInpIDKey(idx) );
+	    const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(idx) );
 	    fld->setInput( MultiID(id) );
 	    if ( idx )
 		fld->attach( alignedBelow, flds3d_[idx-1] );
@@ -286,7 +282,7 @@ bool acceptOK( CallBacker* )
     {
 	const IOObj* ioobj = flds3d_[idx]->ioobj();
 	if ( !ioobj ) return false;
-	pars_.set( mGetSeisInpIDKey(idx), ioobj->key() );
+	pars_.set( mGetSeisBayesSeisInpIDKey(idx), ioobj->key() );
     }
 
     return true;
@@ -335,13 +331,14 @@ uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
     if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }
 
     BufferString emsg;
-    PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetPDFIDKey(0) ), emsg );
+    PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
+	    				emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
     nrvars_ = pdf->nrDims();
 
     for ( int idx=0; idx<cMaxPDFs; idx++ )
     {
-	const char* id = pars_.find( mGetPDFIDKey(idx) );
+	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
 	if ( !id || !*id ) break;
 	addOut( IOM().nameOf(id), true );
     }
@@ -351,9 +348,10 @@ uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
     Seis::SelSetup sss( is2d_, false ); sss.fornewentry(true).onlyrange(false);
     subselfld_ = uiSeisSubSel::get( this, sss );
     subselfld_->attach( alignedBelow, flds3d_[ flds3d_.size()-1 ] );
-    const char* id = pars_.find( mGetSeisInpIDKey(0) );
+    const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(0) );
     if ( id && *id )
 	subselfld_->setInput( MultiID(id) );
+    subselfld_->usePar( pars_ );
 }
 
 void addOut( const char* nm, bool ispdf )
@@ -362,10 +360,6 @@ void addOut( const char* nm, bool ispdf )
     uiSeisSel::Setup su( gt ); su.optional(true);
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
     uiSeisSel::fillContext( gt, false, ctxt );
-    /*
-    if ( !ispdf && *(nm+1) == 'l' )
-	ctxt.
-	*/
 
     if ( !ispdf )
 	su.seltxt_ = nm;
@@ -374,8 +368,10 @@ void addOut( const char* nm, bool ispdf )
 
     const int curidx = flds3d_.size();
     uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
-    const char* id = pars_.find( mGetSeisOutIDKey(curidx) );
+    const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(curidx) );
     fld->setInput( MultiID(id) );
+    if ( fld->ctxtIOObj(true).ioobj )
+	fld->setChecked( true );
     if ( curidx > 0 )
 	fld->attach( alignedBelow, flds3d_[curidx-1] );
     flds3d_ += fld;
@@ -401,9 +397,11 @@ bool acceptOK( CallBacker* )
 	    mErrRet("Please specify all selected outputs")
 	if ( !ioobj ) continue;
 
-	pars_.set( mGetSeisOutIDKey(idx), ioobj->key() );
+	pars_.set( mGetSeisBayesSeisOutIDKey(idx), ioobj->key() );
 	nrout++;
     }
+
+    subselfld_->fillPar( pars_ );
 
     if ( nrout < 1 )
 	mErrRet("Please specify at least one output")
@@ -437,9 +435,6 @@ void uiSeisBayesClass::outputDone( CallBacker* )
     SeisBayesClass exec( pars_ );
     uiTaskRunner tr( outdlg_ );
     const bool isok = tr.execute( exec );
-    if ( isok )
-	uiMSG().message( "Output created" );
-
     mSetState( isok ? Finished : Output );
 }
 
