@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.20 2010-01-15 08:23:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.21 2010-02-12 05:25:21 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.20 2010-01-15 08:23:41 cvsn
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewpropdlg.h"
 #include "uigraphicsscene.h"
-#include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodscenemgr.h"
 #include "uirgbarraycanvas.h"
@@ -33,9 +32,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.20 2010-01-15 08:23:41 cvsn
 #include "attribdataholder.h"
 #include "attribsel.h"
 #include "emhorizonpainter.h"
-#include "emmanager.h"
 #include "horflatvieweditor.h"
-#include "pixmap.h"
 #include "settings.h"
 
 #include "visseis2ddisplay.h"
@@ -103,7 +100,6 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     if ( slicepos_ )
 	slicepos_->getToolBar()->display( dp3d );
 
-    bool drawhorizon = false;
     if ( dp3d )
     {
 	const CubeSampling& cs = dp3d->cube().cubeSampling();
@@ -148,10 +144,6 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     viewwin_->start();
 }
 
-
-#define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
-    uiMenuItem* itm = new uiMenuItem( txt, mCB(this,uiODViewer2D,fn) ); \
-    mnu->insertItem( itm, idx ); itm->setPixmap( ioPixmap(fnm) ); }
 
 void uiODViewer2D::createViewWin( bool isvert )
 {    
