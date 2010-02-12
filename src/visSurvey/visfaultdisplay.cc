@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.45 2010-02-04 17:20:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.46 2010-02-12 09:55:32 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -97,7 +97,7 @@ FaultDisplay::FaultDisplay()
 	if ( idx )
 	    knotmat->setColor( Color(0,255,0) );
 	else
-	    knotmat->setColor( Color(255,0,0) );
+	    knotmat->setColor( Color(255,255,255) );
     }
 }
 
@@ -820,11 +820,13 @@ void FaultDisplay::showManipulator( bool yn )
 
 void FaultDisplay::updateManipulator()
 {
-    const bool show = showmanipulator_ && areSticksDisplayed() &&
-		      !stickselectmode_;
-    if ( viseditor_ ) viseditor_->turnOn( show );
-    if ( activestickmarker_ ) activestickmarker_->turnOn( show );
-    if ( scene_ ) scene_->blockMouseSelection( show );
+    const bool show = showmanipulator_ && areSticksDisplayed();
+    if ( viseditor_ )
+	viseditor_->turnOn( show && !stickselectmode_ );
+    if ( activestickmarker_ )
+	activestickmarker_->turnOn( show && !stickselectmode_);
+    if ( scene_ )
+	scene_->blockMouseSelection( show );
 }
 
 
