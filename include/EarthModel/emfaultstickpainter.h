@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.1 2010-01-21 10:02:33 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.2 2010-02-12 08:41:31 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,9 +45,19 @@ public:
     void		addFaultStickSet(const MultiID&);
     void                addFaultStickSet(const EM::ObjectID&);
 
+    void		setActiveFSS(const EM::ObjectID&);
+    void		setActiveStick(EM::PosID&);
+
+    int			getActiveStickId()	{ return activestickid_; }
+
     void		setCubeSampling(const CubeSampling&,bool);
+    const CubeSampling&	getCubeSampling()	{ return cs_; }
 
     void		setMarkerLineStyle(const LineStyle&);
+
+    bool		hasDiffActiveStick(const EM::PosID*);
+
+    FlatView::Annotation::AuxData* getAuxData(const EM::PosID*);
 
     void		set2D(bool yn)		{ is2d_ = yn; }
     void		setLineName(const char*);
@@ -62,6 +72,12 @@ protected:
 
     bool		getNearestDistance(const Coord3& pos,float& dist);
 
+    void		removeFSS(int);
+    void		removePolyLine(int);
+    void		repaintFSS(const EM::ObjectID&);
+
+    virtual void	fssChangedCB(CallBacker*);
+
     CubeSampling	cs_;
 
     LineStyle		markerlinestyle_;
@@ -73,6 +89,9 @@ protected:
 
     ObjectSet<ObjectSet<ObjectSet<FlatView::Annotation::AuxData> > >  
 							faultmarkerline_;
+
+    EM::ObjectID	activefssid_;
+    int			activestickid_;
 
     bool		is2d_;
     const char*		linenm_;
