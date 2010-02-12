@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.22 2009-10-22 15:29:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.23 2010-02-12 11:40:31 cvsbert Exp $";
 
 #include "uitaskrunner.h"
 
@@ -23,6 +23,19 @@ static const char* rcsID = "$Id: uitaskrunner.cc,v 1.22 2009-10-22 15:29:53 cvsb
 
 #include <math.h>
 
+static const char* noprogbardispsymbs[] =
+    {	"|||||              ", " |||||             ", "  |||||            ",
+	"   |||||           ", "    |||||          ", "     |||||         ",
+	"      |||||        ", "       |||||       ", "        |||||      ",
+	"         |||||     ", "          |||||    ", "           |||||   ",
+	"            |||||  ", "             ||||| ", "              |||||",
+	"             ||||| ", "            |||||  ", "           |||||   ",
+	"          |||||    ", "         |||||     ", "        |||||      ",
+	"       |||||       ", "      |||||        ", "     |||||         ",
+	"    |||||          ", "   |||||           ", "  |||||            ",
+	" |||||             ", "|||||              " };
+static const int noprogbardispnrsymbs = 29;
+
 
 uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr ) 
     : uiDialog( p, uiDialog::Setup("Executing",mNoDlgTitle,mNoHelpID)
@@ -37,7 +50,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
     , dispmsgonerr_( dispmsgonerr )
     , symbidx_( 0 )
 {
-    proglbl_ = new uiLabel( this, "-" );
+    proglbl_ = new uiLabel( this, noprogbardispsymbs[0] );
     proglbl_->attach( hCentered );
 
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
@@ -165,9 +178,13 @@ void uiTaskRunner::updateFields()
     const bool disppb = totalnr > 0;
     if ( !disppb )
     {
-	static const char* dispsymbs[] = { "-", "\\", "|", "/" };
-	symbidx_++; if ( symbidx_ > 3 ) symbidx_ = 0;
-	proglbl_->setText( dispsymbs[symbidx_] );
+	symbidx_++;
+#ifdef __debug__
+	proglbl_->setText( toString(symbidx_) );
+#else
+	if ( symbidx_ >= noprogbardispnrsymbs ) symbidx_ = 0;
+	proglbl_->setText( noprogbardispsymbs[symbidx_] );
+#endif
     }
     proglbl_->display( !disppb );
     progbar_->display( disppb );
