@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.21 2010-02-12 05:25:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.22 2010-02-12 08:49:31 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.21 2010-02-12 05:25:21 cvsn
 #include "attribsel.h"
 #include "emhorizonpainter.h"
 #include "horflatvieweditor.h"
+#include "mpefssflatvieweditor.h"
 #include "settings.h"
 
 #include "visseis2ddisplay.h"
@@ -47,6 +48,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
     , horfveditor_(0)
+    , fssfveditor_(0)
     , emviewer2dman_(0)
     , slicepos_(0)
 {
@@ -111,6 +113,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    horfveditor_->setSelSpec( &vdselspec_, false );
 	    horfveditor_->setSelSpec( &wvaselspec_, true );
 	}
+	fssfveditor_->setCubeSampling( cs );
     }
     else if ( dp2ddh )
     {
@@ -133,6 +136,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    horfveditor_->set2D( true );
 	}
     }
+
+    fssfveditor_->drawFault();
 
     DataPack::ID curpackid = viewwin_->viewer().packID( wva );
     DPM(DataPackMgr::FlatID()).release( curpackid );
@@ -197,6 +202,9 @@ void uiODViewer2D::createViewWin( bool isvert )
 	    horfveditor_->updateseedpickingstatus.notify(
 		     mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
 	    horfveditor_->setMouseEventHandler( 
+		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
+	    fssfveditor_ = new MPE::FaultStickSetFlatViewEditor(auxdataeditor_);
+	    fssfveditor_->setMouseEventHandler(
 		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    vwr.dataChanged.notify(  mCB(this,uiODViewer2D,dataChangedCB) );
 	}

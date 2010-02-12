@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.10 2010-01-15 08:23:41 cvsnanne Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.11 2010-02-12 08:49:26 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiODMain;
 class uiSlicePos2DView;
 namespace Attrib { class SelSpec; }
 namespace EM { class HorizonPainter; class uiEMViewer2DManager; }
-namespace MPE { class HorizonFlatViewEditor; }
+namespace MPE { class HorizonFlatViewEditor; class FaultStickSetFlatViewEditor;}
 
 
 /*!\brief Manages the 2D Viewers
@@ -48,6 +48,7 @@ protected:
     uiFlatViewAuxDataEditor*	auxdataeditor_;
     uiFlatViewStdControl*	viewstdcontrol_;
     MPE::HorizonFlatViewEditor*	horfveditor_;
+    MPE::FaultStickSetFlatViewEditor* fssfveditor_;
     EM::uiEMViewer2DManager*	emviewer2dman_;
 
     Attrib::SelSpec&		wvaselspec_;

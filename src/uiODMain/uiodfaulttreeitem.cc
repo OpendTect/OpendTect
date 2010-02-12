@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.34 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.35 2010-02-12 08:49:31 cvsumesh Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.34 2010-02-04 10:59:47
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emmanager.h"
+#include "mpeengine.h"
 #include "ioman.h"
 #include "ioobj.h"
 
@@ -139,6 +140,10 @@ uiODFaultTreeItem::~uiODFaultTreeItem()
     {
 	faultdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultTreeItem,colorChCB));
+	faultdisplay_->selection()->remove(
+		mCB(this,uiODFaultTreeItem,selChgCB) );
+	faultdisplay_->deSelection()->remove(
+		mCB(this,uiODFaultTreeItem,deSelChgCB) );
 	faultdisplay_->unRef();
     }
 }
@@ -170,6 +175,10 @@ bool uiODFaultTreeItem::init()
 
     faultdisplay_->materialChange()->notify(
 	    mCB(this,uiODFaultTreeItem,colorChCB));
+    faultdisplay_->selection()->notify(
+	    mCB(this,uiODFaultTreeItem,selChgCB) );
+    faultdisplay_->deSelection()->notify(
+	    mCB(this,uiODFaultTreeItem,deSelChgCB) );
 
     return uiODDisplayTreeItem::init();
 }
@@ -179,6 +188,14 @@ void uiODFaultTreeItem::colorChCB( CallBacker* )
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
+
+
+void uiODFaultTreeItem::selChgCB( CallBacker* )
+{ MPE::engine().setActiveFaultObjID( emid_ ); }
+
+
+void uiODFaultTreeItem::deSelChgCB( CallBacker* )
+{ MPE::engine().setActiveFaultObjID( -1 ); }
 
 
 bool uiODFaultTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
@@ -401,6 +418,10 @@ uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
     {
 	faultsticksetdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
+	faultsticksetdisplay_->selection()->remove(
+		mCB(this,uiODFaultStickSetTreeItem,selChgCB) );
+	faultsticksetdisplay_->deSelection()->remove(
+		mCB(this,uiODFaultStickSetTreeItem,deSelChgCB) );
 	faultsticksetdisplay_->unRef();
     }
 }
@@ -433,7 +454,11 @@ bool uiODFaultStickSetTreeItem::init()
 
     faultsticksetdisplay_->materialChange()->notify(
 	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
-
+    faultsticksetdisplay_->selection()->notify(
+	    mCB(this,uiODFaultStickSetTreeItem,selChgCB) );
+    faultsticksetdisplay_->deSelection()->notify(
+	    mCB(this,uiODFaultStickSetTreeItem,deSelChgCB) );
+    		
     return uiODDisplayTreeItem::init();
 }
 
@@ -442,6 +467,14 @@ void uiODFaultStickSetTreeItem::colorChCB( CallBacker* )
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
+
+
+void uiODFaultStickSetTreeItem::selChgCB( CallBacker* )
+{ MPE::engine().setActiveFSSObjID( emid_ ); }
+
+
+void uiODFaultStickSetTreeItem::deSelChgCB( CallBacker* )
+{ MPE::engine().setActiveFSSObjID( -1 ); }
 
 
 bool uiODFaultStickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )

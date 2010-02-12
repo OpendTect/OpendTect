@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.16 2010-02-04 10:59:47 cvsranojay Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.17 2010-02-12 08:49:25 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,10 @@ protected:
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
+
+    			/*Workaround to know which Fault is active is 3D*/
+    void		selChgCB(CallBacker*);
+    void		deSelChgCB(CallBacker*);
 
     bool		init();
     const char*		parentType() const
@@ -95,6 +99,10 @@ protected:
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
+
+    			/*Workaround to know which fss is active in 3D*/
+    void		selChgCB(CallBacker*);
+    void		deSelChgCB(CallBacker*);
 
     bool		init();
     const char*		parentType() const
