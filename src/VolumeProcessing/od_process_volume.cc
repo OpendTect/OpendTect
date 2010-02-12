@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.19 2009-09-24 17:49:26 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.20 2010-02-12 20:45:19 cvsyuancheng Exp $";
 
 #include "batchprog.h"
 
@@ -67,7 +67,7 @@ bool BatchProgram::go( std::ostream& strm )
 	: sizeof(float);
 
     od_uint64 nrbytes = cs.totalNr() * itemsize * 2;
-    strm << "Allocating " << getBytesString( nrbytes ) << "in memory\n";
+    strm << "Allocating " << getBytesString( nrbytes ) << " in memory\n";
     
     cube->setSizeAndPos( cs );
     if ( !pce->setCalculationScope( cube ) )
