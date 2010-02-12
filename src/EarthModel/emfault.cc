@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault.cc,v 1.55 2010-02-04 17:20:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.56 2010-02-12 10:35:01 cvsjaap Exp $";
 
 #include "emfault.h"
 
 #include "emfaultstickset.h"
+#include "survinfo.h"
 
 
 namespace EM {
@@ -25,31 +26,31 @@ const Coord3& FaultGeometry::getEditPlaneNormal( const SectionID& sid,
 }
 
 
-void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& tofssg,
-					  const SectionID& tosid ) const
+void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
+					  const SectionID& destsid ) const
 {
-    Geometry::FaultStickSet* tofss = tofssg.sectionGeometry( tosid );
-    int sticknr = tofss->isEmpty() ? 0 : tofss->rowRange().stop+1;
+    Geometry::FaultStickSet* destfss = destfssg.sectionGeometry( destsid );
+    int sticknr = destfss->isEmpty() ? 0 : destfss->rowRange().stop+1;
 
     for ( int sidx=0; sidx<nrSections(); sidx++ )
     {
 	const int sid = sectionID( sidx );
-	mDynamicCastGet( const Geometry::FaultStickSet*, fromfss,
+	mDynamicCastGet( const Geometry::FaultStickSet*, srcfss,
 			 sectionGeometry(sid) );
-	if ( !fromfss )
+	if ( !srcfss )
 	    continue;
 
-	const StepInterval<int> rowrg = fromfss->rowRange();
+	const StepInterval<int> rowrg = srcfss->rowRange();
 	if ( rowrg.isUdf() )
 	    continue;
 
 	RowCol rc;
 	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
 	{
-	    if ( !fromfss->isStickSelected(rc.row) )
+	    if ( !srcfss->isStickSelected(rc.row) )
 		continue;
 
-	    const StepInterval<int> colrg = fromfss->colRange( rc.row );
+	    const StepInterval<int> colrg = srcfss->colRange( rc.row );
 	    if ( colrg.isUdf() )
 		continue;
 
@@ -57,19 +58,20 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& tofssg,
 
 	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	    {
-		const Coord3 pos = fromfss->getKnot( rc );
+		const Coord3 pos = srcfss->getKnot( rc );
 
 		if ( rc.col == colrg.start )
 		{
-		    tofssg.insertStick( tosid, sticknr, knotnr, pos,
-					getEditPlaneNormal(sid,rc.row),
-					lineSet(sid,rc.row),
-					lineName(sid,rc.row), true );
+		    destfssg.insertStick( destsid, sticknr, knotnr, pos,
+					  getEditPlaneNormal(sid,rc.row),
+					  lineSet(sid,rc.row),
+					  lineName(sid,rc.row), true );
 		}
 		else
 		{
-		    const RowCol torc( sticknr,knotnr );
-		    tofssg.insertKnot( tosid, torc.getSerialized(), pos, true );
+		    const RowCol destrc( sticknr,knotnr );
+		    destfssg.insertKnot( destsid, destrc.getSerialized(),
+					 pos, true );
 		}
 		knotnr++;
 	    }
@@ -80,6 +82,14 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& tofssg,
 
 
 void FaultGeometry::selectAllSticks( bool select )
+{ selectSticks( select ); }
+
+
+void FaultGeometry::selectStickDoubles( bool select, const FaultGeometry* ref )
+{ selectSticks( select, (ref ? ref : this) ); }
+
+
+void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
 {
     PtrMan<EM::EMObjectIterator> iter = createIterator(-1);
     while ( true )
@@ -91,12 +101,25 @@ void FaultGeometry::selectAllSticks( bool select )
 	const int sticknr = RowCol( pid.subID() ).row;
 	const EM::SectionID sid = pid.sectionID();
 	mDynamicCastGet( Geometry::FaultStickSet*, fss, sectionGeometry(sid) );
-	fss->selectStick( sticknr, select );
+
+	if ( !doublesref || nrStickDoubles(sid, sticknr, doublesref) )
+	    fss->selectStick( sticknr, select );
     }
 }
 
 
-bool FaultGeometry::removeNextSelStick()
+void FaultGeometry::removeSelectedSticks()
+{ while ( removeSelStick(0) ); }
+
+
+void FaultGeometry::removeSelectedDoubles( const FaultGeometry* ref )
+{
+    for ( int selidx=nrSelectedSticks()-1; selidx>=0; selidx-- )
+	removeSelStick( selidx, (ref ? ref : this) );
+}
+
+
+bool FaultGeometry::removeSelStick( int selidx, const FaultGeometry* doublesref)
 {
     for ( int sidx=nrSections()-1; sidx>=0; sidx-- )
     {
@@ -114,6 +137,15 @@ bool FaultGeometry::removeNextSelStick()
 	{
 	    if ( !fss->isStickSelected(rc.row) )
 		continue;
+
+	    if ( selidx ) 
+	    {
+		selidx--;
+		continue;
+	    }
+
+	    if ( doublesref && !nrStickDoubles(sid, rc.row, doublesref) )
+		return false;
 
 	    const StepInterval<int> colrg = fss->colRange( rc.row );
 	    if ( colrg.isUdf() )
@@ -136,10 +168,6 @@ bool FaultGeometry::removeNextSelStick()
     }
     return false;
 }
-
-
-void FaultGeometry::removeSelectedSticks()
-{ while ( removeNextSelStick() ); }
 
 
 int FaultGeometry::nrSelectedSticks() const
@@ -165,6 +193,64 @@ int FaultGeometry::nrSelectedSticks() const
     }
 
     return nrselectedsticks;
+}
+
+static bool isSameKnot( Coord3 pos1, Coord3 pos2 )
+{
+    if ( pos1.Coord::distTo(pos2) > 0.1 * SI().crlDistance() )
+	return false;
+
+    return fabs(pos1.z -pos2.z) < 0.1 * SI().zStep();
+}
+
+
+int FaultGeometry::nrStickDoubles( const SectionID& sid, int sticknr,
+				   const FaultGeometry* doublesref ) const
+{
+    int nrdoubles = 0;
+    const FaultGeometry* ref = doublesref ? doublesref : this;
+
+    mDynamicCastGet( const Geometry::FaultStickSet*, srcfss,
+		     sectionGeometry(sid) );
+
+    const StepInterval<int> srccolrg = srcfss->colRange( sticknr );
+    if ( srccolrg.isUdf() )
+	return -1;
+
+    for ( int sidx=0; sidx<ref->nrSections(); sidx++ )
+    {
+	mDynamicCastGet( const Geometry::FaultStickSet*, reffss,
+			 ref->sectionGeometry(ref->sectionID(sidx)) );
+	if ( !reffss )
+	    continue;
+
+	const StepInterval<int> rowrg = reffss->rowRange();
+	if ( rowrg.isUdf() )
+	    continue;
+
+	RowCol rc;
+	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+	{
+	    const StepInterval<int> colrg = reffss->colRange( rc.row );
+	    if ( colrg.isUdf() || colrg.width()!=srccolrg.width() )
+		continue;
+
+	    RowCol uprc( sticknr, srccolrg.start);
+	    RowCol downrc( sticknr, srccolrg.stop);
+	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	    {
+		if ( isSameKnot(srcfss->getKnot(uprc), reffss->getKnot(rc)) )
+		    uprc.col += srccolrg.step;
+		if ( isSameKnot(srcfss->getKnot(downrc), reffss->getKnot(rc)) )
+		    downrc.col -= srccolrg.step;
+	    }
+	    if ( uprc.col>srccolrg.stop || downrc.col<srccolrg.start )
+		nrdoubles++;
+	}
+    }
+
+
+    return ref==this ? nrdoubles-1 : nrdoubles;
 }
 
 

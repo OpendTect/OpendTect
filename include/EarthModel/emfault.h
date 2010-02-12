@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.40 2010-02-04 17:20:24 cvsjaap Exp $
+ RCS:		$Id: emfault.h,v 1.41 2010-02-12 10:35:01 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -45,14 +45,24 @@ public:
     virtual const char*		lineName(const SectionID&,int sticknr) const
 							{ return 0; }
 
-    virtual void	copySelectedSticksTo(FaultStickSetGeometry& tofssg,
-					     const SectionID& tosid) const;
+    virtual void	copySelectedSticksTo(FaultStickSetGeometry& destfssg,
+					     const SectionID& destsid) const;
+
+    virtual int		nrSelectedSticks() const;
     virtual void	selectAllSticks(bool select=true);
     virtual void	removeSelectedSticks();
-    virtual int		nrSelectedSticks() const;
+
+    virtual void	selectStickDoubles(bool select=true,
+					   const FaultGeometry* ref=0);
+    virtual void	removeSelectedDoubles(const FaultGeometry* ref=0);
+    virtual int		nrStickDoubles(const SectionID&,int sticknr,
+				       const FaultGeometry* ref=0) const;
 
 protected:
-    bool		removeNextSelStick();
+    void		selectSticks(bool select=true,
+				     const FaultGeometry* doublesref=0);
+    bool		removeSelStick(int selidx,
+				       const FaultGeometry* doublesref=0);
 
     			FaultGeometry( Surface& surf )
 			    : SurfaceGeometry(surf)	{}
