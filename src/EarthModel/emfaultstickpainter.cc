@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.1 2010-01-21 10:06:41 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.2 2010-02-12 08:42:13 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv )
     : viewer_(fv)
     , markerlinestyle_(LineStyle::Solid,2,Color(0,255,0))
     , markerstyle_( MarkerStyle2D::Square, 4, Color::White() )
+    , activefssid_(-1)
+    , activestickid_(-1)
     , is2d_(false)
     , linenm_( 0 )
     , lineset_( 0 )
@@ -79,8 +81,11 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return false;
 
+    emfss->change.notify( mCB(this,FaultStickPainter,fssChangedCB) );
+
     ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
 		new ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >;
+    faultmarkerline_ += sectionmarkerlines;
 
     for ( int sidx=0; sidx<emfss->nrSections(); sidx++ )
     {
@@ -99,9 +104,6 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 
 	for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
 	{
-	    if ( !fss->colRange( rc.row ).width() )
-		    continue;
-
 	    StepInterval<int> colrg = fss->colRange( rc.row ); 
 
 	    FlatView::Annotation::AuxData* stickauxdata =
@@ -198,7 +200,6 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 			stickauxdata->poly_ +=
 			    FlatView::Point( binid.inl, binid.crl );
 		    }
-
 		}
 	    }
 
@@ -213,6 +214,167 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
     }
 
     return true;
+}
+
+
+void FaultStickPainter::repaintFSS( const EM::ObjectID& oid )
+{
+    int fssidx = -1;
+
+    for ( int idx = 0; idx<fssinfos_.size(); idx++ )
+	if ( fssinfos_[idx]->id_ == oid )
+	    { fssidx = idx; break; }
+
+    if ( fssidx>=0 )
+	removeFSS( fssidx );
+
+    addFaultStickSet(oid);
+}
+
+
+void FaultStickPainter::removeFSS( int idx )
+{
+    removePolyLine( idx );
+    if ( EM::EMM().getObject(fssinfos_[idx]->id_) )
+    {
+	mDynamicCastGet( EM::FaultStickSet*, fss, 
+	    EM::EMM().getObject(fssinfos_[idx]->id_) );
+	fss->change.remove( mCB(this,FaultStickPainter,fssChangedCB) );
+    }
+
+    delete fssinfos_[idx];
+    fssinfos_.remove( idx );
+}
+
+
+void FaultStickPainter::removePolyLine( int idx )
+{
+    ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
+							faultmarkerline_[idx];
+    for ( int markidx=sectionmarkerlines->size()-1; markidx>=0; markidx-- )
+    {
+	ObjectSet<FlatView::Annotation::AuxData>* markerlines = 
+	    					(*sectionmarkerlines)[markidx];
+	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
+	    viewer_.appearance().annot_.auxdata_ -= (*markerlines)[idy];
+
+    }
+    deepErase( *faultmarkerline_[idx] );
+    delete faultmarkerline_[idx];
+    faultmarkerline_.remove( idx );
+}
+
+
+void FaultStickPainter::fssChangedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
+	    			cbdata, caller, cb );
+    mDynamicCastGet(EM::EMObject*,emobject,caller);
+    if ( !emobject ) return;
+
+    mDynamicCastGet(EM::FaultStickSet*,emfss,emobject);
+    if ( !emfss ) return;
+
+    int fssinfoidx = -1;
+
+    for ( int idx=0; idx<fssinfos_.size(); idx++ )
+	if ( fssinfos_[idx]->id_ == emobject->id() )
+	{ fssinfoidx = idx; break; }
+
+    switch ( cbdata.event )
+    {
+	case EM::EMObjectCallbackData::Undef:
+	    break;
+	case EM::EMObjectCallbackData::PrefColorChange:
+	    break;
+	case EM::EMObjectCallbackData::PositionChange:
+	{
+	    const Coord3 movedpos = emfss->getPos( cbdata.pid0 );
+	    RowCol selrc;
+	    selrc.setSerialized( cbdata.pid0.subID() );
+
+	    BinID bid = SI().transform( movedpos );
+
+	    bool refresh = false;
+
+	    if ( cs_.defaultDir()==CubeSampling::Inl )
+	    {
+		FlatView::Point pot1(bid.crl, movedpos.z);
+		FlatView::Point pot2 = 
+		    (*(*(*faultmarkerline_[fssinfoidx])[0])[
+		     				selrc.row]).poly_[selrc.col];
+		if ( pot1 == pot2 )
+		    refresh = false;
+		else
+		{
+		    (*(*(*faultmarkerline_[fssinfoidx])[0])[
+		     			selrc.row]).poly_[selrc.col] = pot1;
+		    refresh = true;
+		}
+	    }
+
+	    if ( refresh )
+		viewer_.handleChange( FlatView::Viewer::Annot );
+	    break;
+	}
+	case EM::EMObjectCallbackData::BurstAlert:
+	{
+	    if (  emobject->hasBurstAlert() )
+		return;
+	    repaintFSS( emobject->id() );
+	    viewer_.handleChange( FlatView::Viewer::Annot );
+	    break;
+	}
+	default:
+	    break;
+    }
+}
+
+
+void FaultStickPainter::setActiveFSS( const EM::ObjectID& oid )
+{
+    if ( oid == activefssid_ ) return;
+    //TODO do the stuff
+    activefssid_ = oid;
+}
+
+
+FlatView::Annotation::AuxData* FaultStickPainter::getAuxData(
+							 const EM::PosID* pid )
+{
+    int idx = -1;
+
+    for ( int fssidx=0; fssidx<fssinfos_.size(); fssidx++ )
+    {
+	if ( fssinfos_[fssidx]->id_ == pid->objectID() )
+	{ idx = fssidx; break; }
+    }
+
+    if ( idx == -1 ) return 0;
+
+    int size = faultmarkerline_.size();
+
+    return (*(*faultmarkerline_[idx])[0])[activestickid_];
+}
+
+
+bool FaultStickPainter::hasDiffActiveStick( const EM::PosID* pid )
+{
+    if ( pid->objectID() != activefssid_ ||
+	 pid->getRowCol().row != activestickid_ )
+	return true;
+    else
+	return false;
+}
+
+
+void FaultStickPainter::setActiveStick( EM::PosID& pid )
+{
+    if ( pid.objectID() != activefssid_ ) return;
+
+    if ( pid.getRowCol().row == activestickid_ ) return;
+    //TODO do the stuff
+    activestickid_ = pid.getRowCol().row;
 }
 
 
