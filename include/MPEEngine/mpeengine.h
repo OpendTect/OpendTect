@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.49 2009-09-07 10:35:57 cvsumesh Exp $
+ RCS:           $Id: mpeengine.h,v 1.50 2010-02-12 08:46:40 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ class TaskRunner;
 class MultiID;
 
 namespace Attrib { class SelSpec; class DataCubes; }
-namespace EM { class EMObject; };
+namespace EM { class EMObject; }
 namespace Geometry { class Element; };
 template <class T> class Selector;
 
@@ -131,6 +131,23 @@ public:
     ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
     void		removeEditor(const EM::ObjectID&);
 
+    			/*Fault(StickSet)s workaround, untill
+			  2DViewer tree is not in place */
+    Notifier<Engine>    activefaultchanged;
+    void		setActiveFaultObjID(EM::ObjectID objid)
+			{ 
+			    activefaultid_ = objid;
+			    activefaultchanged.trigger();
+			}
+    EM::ObjectID	getActiveFaultObjID()	{ return activefaultid_; }
+    Notifier<Engine>    activefsschanged;
+    void		setActiveFSSObjID(EM::ObjectID objid)
+			{
+			    activefssid_ = objid;
+			    activefsschanged.trigger();
+			}
+    EM::ObjectID	getActiveFSSObjID()	{ return activefssid_; }
+
     const char*		errMsg() const;
 
     BufferString	setupFileName( const MultiID& ) const;
@@ -188,6 +205,11 @@ protected:
     };
 
     ObjectSet<ObjectSet<FlatCubeInfo> >	flatcubescontainer_;
+
+    				/*Fault(StickSet)s workaround, untill
+				  2DViewer tree is not in place */
+    EM::ObjectID		activefaultid_;
+    EM::ObjectID		activefssid_;
 
     static const char*		sKeyNrTrackers(){ return "Nr Trackers"; }
     static const char*		sKeyObjectID()	{ return "ObjectID"; }

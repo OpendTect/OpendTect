@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.97 2009-10-29 08:49:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.98 2010-02-12 08:46:45 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
@@ -57,6 +57,10 @@ Engine::Engine()
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
     , isactivevolshown_(false)
+    , activefaultid_( -1 )
+    , activefssid_( -1 )
+    , activefaultchanged( this )
+    , activefsschanged( this )
 {
     trackers_.allowNull(true);
     flatcubescontainer_.allowNull(true);
