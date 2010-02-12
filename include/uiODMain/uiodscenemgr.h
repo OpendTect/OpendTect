@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.71 2010-01-08 14:36:42 cvsbruno Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.72 2010-02-12 10:03:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,6 @@ public:
     void			viewCrl(CallBacker*);
     void			switchCameraType(CallBacker*);
     void			mkSnapshot(CallBacker*);
-    void			selectionMode(CallBacker*);
     void			soloMode(CallBacker*);
     void			doDirectionalLight(CallBacker*);
 

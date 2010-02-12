@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.197 2010-02-10 09:11:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.198 2010-02-12 10:03:43 cvsjaap Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -107,7 +107,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 	    	       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 6500,
 		       SurveyInfo::Only2D );
-    tifs_->addFactory( new uiODFaultTreeItemFactory, 7000, SurveyInfo::No2D );
+    tifs_->addFactory( new uiODFaultTreeItemFactory, 7000 );
     tifs_->addFactory( new uiODFaultStickSetTreeItemFactory, 7100,
 		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 7500,
@@ -619,19 +619,6 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 	wingrabber_->go();
     }
 }
-
-
-void uiODSceneMgr::selectionMode( CallBacker* )
-{
-    uiVisPartServer::SelectionMode selmode = visServ().getSelectionMode();
-    if ( selmode==uiVisPartServer::Off )
-	selmode = uiVisPartServer::Polygon;
-    else
-	selmode = uiVisPartServer::Off;
-
-    visServ().setSelectionMode( selmode );
-}
-
 
 
 void uiODSceneMgr::soloMode( CallBacker* )
