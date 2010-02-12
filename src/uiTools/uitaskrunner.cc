@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.23 2010-02-12 11:40:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.24 2010-02-12 12:00:50 cvsbert Exp $";
 
 #include "uitaskrunner.h"
 
@@ -52,6 +52,9 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
 {
     proglbl_ = new uiLabel( this, noprogbardispsymbs[0] );
     proglbl_->attach( hCentered );
+#ifdef __debug__
+    proglbl_->setHSzPol( uiObject::WideVar );
+#endif
 
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
@@ -180,7 +183,7 @@ void uiTaskRunner::updateFields()
     {
 	symbidx_++;
 #ifdef __debug__
-	proglbl_->setText( toString(symbidx_) );
+	proglbl_->setText( BufferString("[ ",symbidx_, " ]") );
 #else
 	if ( symbidx_ >= noprogbardispnrsymbs ) symbidx_ = 0;
 	proglbl_->setText( noprogbardispsymbs[symbidx_] );
