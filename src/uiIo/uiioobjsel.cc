@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.142 2009-09-23 11:20:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.143 2010-02-12 09:33:52 cvsjaap Exp $";
 
 #include "uiioobjsel.h"
 
@@ -697,9 +697,9 @@ bool uiIOObjSel::existingUsrName( const char* nm ) const
 }
 
 #define mDoCommit() \
-    bool alreadyerr = false; \
+    bool alreadyerr = noerr; \
     const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr); \
-    if ( !setup_.optional_ && !noerr && !inctio_.ioobj && !alreadyerr ) \
+    if ( !setup_.optional_ && !inctio_.ioobj && !alreadyerr ) \
     { \
 	BufferString txt( inctio_.ctxt.forread \
 				    ? "Please select the " \
@@ -733,17 +733,16 @@ IOObj* uiIOObjSel::getIOObj( bool noerr )
 
 bool uiIOObjSel::commitInput()
 {
-    bool dum; return doCommitInput( dum );
+    bool dum = false; return doCommitInput( dum );
 }
 
 
 #define mErrRet(s) \
-{ if ( s ) uiMSG().error(s); alreadyerr = true; return false; }
+{ if ( s && !alreadyerr ) uiMSG().error(s); alreadyerr = true; return false; }
 
 
 bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 {
-    alreadyerr = false;
     LineKey lk( getInput() );
     const BufferString inp( lk.lineName() );
     if ( specialitems.findKeyFor(inp) )
