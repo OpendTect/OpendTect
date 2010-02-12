@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.16 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.17 2010-02-12 04:24:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -20,8 +20,9 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "ranges.h"
 
-mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+class uiTaskRunner;
 
+mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 mClass Seis2DTreeItemFactory : public uiODTreeItemFactory
 {
@@ -84,8 +85,8 @@ mClass uiOD2DLineSetSubItem : public uiODDisplayTreeItem
 public:
 			uiOD2DLineSetSubItem(const char* nm,int displayid=-1);
 
-    bool		addStoredData(const char*,int component=-1);
-    void		addAttrib(const Attrib::SelSpec& );
+    bool		addStoredData(const char*,int component,uiTaskRunner&);
+    void		addAttrib(const Attrib::SelSpec&,uiTaskRunner&);
     void		showLineName(bool);
     void		setZRange(const Interval<float>);
     void		removeAttrib(const char*);
@@ -112,8 +113,10 @@ mClass uiOD2DLineSetAttribItem : public uiODAttribTreeItem
 {
 public:
 				uiOD2DLineSetAttribItem(const char* parenttype);
-    bool			displayStoredData(const char*,int component=-1);
-    void			setAttrib(const Attrib::SelSpec& );
+    bool			displayStoredData(const char*,int component,
+	    					  uiTaskRunner&);
+    void			setAttrib(const Attrib::SelSpec&,
+					  uiTaskRunner&);
     void			clearAttrib();
 
 protected:

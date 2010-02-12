@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.367 2009-12-16 11:17:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.368 2010-02-12 04:24:33 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -658,8 +658,9 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
     cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
     cs.zrg.setFrom( s2d->getZRange(false) );
 
+    uiTaskRunner uitr( &appl_ ); 
     LineKey lk( s2d->name() );
-    DataPack::ID dpid = attrserv_->create2DOutput( cs, lk );
+    DataPack::ID dpid = attrserv_->create2DOutput( cs, lk, uitr );
     if ( dpid < 0 )
 	return false;
 

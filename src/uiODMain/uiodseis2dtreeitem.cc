@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.76 2010-01-12 04:12:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.77 2010-02-12 04:24:33 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -344,6 +344,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	return;
     }
 
+    uiTaskRunner uitr( ODMainWin() );
     Attrib::SelSpec as;
     bool usemcomp = false;
     if ( storeditm_.itemIndex(mnuid)!=-1 )
@@ -355,7 +356,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineSetSubItem*,lineitem,children_[idx]);
-	    lineitem->addStoredData( attribnm );
+	    lineitem->addStoredData( attribnm, -1, uitr );
 	}
     }
     else if ( steeringitm_.itemIndex(mnuid)!=-1 )
@@ -367,7 +368,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineSetSubItem*,lineitem,children_[idx]);
-	    lineitem->addStoredData( attribnm, 1 );
+	    lineitem->addStoredData( attribnm, 1, uitr );
 	}
     }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,as,usemcomp) )
@@ -376,7 +377,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineSetSubItem*,lineitem,children_[idx]);
-	    lineitem->addAttrib( as );
+	    lineitem->addAttrib( as, uitr );
 	}
     }
     else if ( editcoltabitm_.itemIndex(mnuid)!=-1 )
@@ -413,7 +414,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	    for ( int idx=0; idx<set.size(); idx++ )
 	    {
 		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-		if ( item ) item->displayStoredData( newattrnm );
+		if ( item ) item->displayStoredData( newattrnm, -1, uitr );
 	    }
 	}
 	else if ( attrtype == 1 || attrtype == 2 )
@@ -440,7 +441,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	    for ( int idx=0; idx<set.size(); idx++ )
 	    {
 		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-		item->setAttrib( as );
+		item->setAttrib( as, uitr );
 	    }
 	}
     }
@@ -696,7 +697,8 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiOD2DLineSetSubItem::addStoredData( const char* nm, int component )
+bool uiOD2DLineSetSubItem::addStoredData( const char* nm, int component,
+					  uiTaskRunner& uitr )
 {
     addAttribItem();
     const int lastattridx = children_.size() - 1;
@@ -705,11 +707,12 @@ bool uiOD2DLineSetSubItem::addStoredData( const char* nm, int component )
     mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[lastattridx] );
     if ( !lsai ) return false;
 
-    return lsai->displayStoredData( nm, component );
+    return lsai->displayStoredData( nm, component, uitr );
 }
 
 
-void uiOD2DLineSetSubItem::addAttrib( const Attrib::SelSpec& myas )
+void uiOD2DLineSetSubItem::addAttrib( const Attrib::SelSpec& myas,
+				      uiTaskRunner& uitr )
 {
     addAttribItem();
     const int lastattridx = children_.size() - 1;
@@ -718,7 +721,7 @@ void uiOD2DLineSetSubItem::addAttrib( const Attrib::SelSpec& myas )
     mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[lastattridx] );
     if ( !lsai ) return;
 
-    lsai->setAttrib( myas );
+    lsai->setAttrib( myas, uitr );
 }
 
 
@@ -744,6 +747,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     Attrib::SelSpec as = *s2d->getSelSpec( attribnr );
     as.set2DFlag();
 
+    uiTaskRunner uitr( ODMainWin() );
     DataPack::ID dpid = -1;
     LineKey lk( s2d->name() );
     if ( as.id() == Attrib::SelSpec::cOtherAttrib() )
@@ -756,8 +760,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 	    return;
 	}
 
-	uiTaskRunner taskrunner( ODMainWin() );
-	dpid = calc->createAttrib( cs, lk, &taskrunner );
+	dpid = calc->createAttrib( cs, lk, &uitr );
     }
     else
     {
@@ -765,7 +768,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 	    lk.setAttrName( as.userRef() );
 
 	applMgr()->attrServer()->setTargetSelSpec( as );
-	dpid = applMgr()->attrServer()->create2DOutput( cs, lk );
+	dpid = applMgr()->attrServer()->create2DOutput( cs, lk, uitr );
     }
 
     if ( dpid < 0 )
@@ -919,23 +922,24 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     if ( !s2d )
 	return;
 
+    uiTaskRunner uitr( ODMainWin() );
     Attrib::SelSpec myas;
     bool usemcomp = false;
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
 	menu->setIsHandled(true);
-	displayStoredData( storeditm_.findItem(mnuid)->text );
+	displayStoredData( storeditm_.findItem(mnuid)->text, -1, uitr );
     }
     else if ( steeringitm_.itemIndex(mnuid)!=-1 )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
-	displayStoredData( steeringitm_.findItem(mnuid)->text, 1 );
+	displayStoredData( steeringitm_.findItem(mnuid)->text, 1, uitr );
     }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas,usemcomp))
     {
 	menu->setIsHandled(true);
-	setAttrib( myas );
+	setAttrib( myas, uitr );
     }
     else if ( mnuid==attrnoneitm_.id )
     {
@@ -947,7 +951,8 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 
 
 bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
-						 int component )
+						 int component,
+       						 uiTaskRunner& tr )
 {
     uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
@@ -1013,7 +1018,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     cs.zrg.setFrom( s2d->getZRange(false) );
 
     const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput( cs, linekey );
+	applMgr()->attrServer()->create2DOutput( cs, linekey, tr );
     if ( dpid < 0 )
 	return false;
 
@@ -1029,7 +1034,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 }
 
 
-void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
+void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
+					 uiTaskRunner& uitr )
 {
     const uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
@@ -1044,7 +1050,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
     applMgr()->attrServer()->setTargetSelSpec( myas );
 
     const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput( cs, lk );
+	applMgr()->attrServer()->create2DOutput( cs, lk, uitr );
     if ( dpid < 0 )
 	return;
 

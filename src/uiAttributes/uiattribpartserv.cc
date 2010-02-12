@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.142 2010-01-29 11:02:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.143 2010-02-12 04:24:33 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -717,7 +717,8 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 
 
 DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
-						 const LineKey& linekey )
+						 const LineKey& linekey,
+						 TaskRunner& tr )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
     if ( !aem ) return -1;
@@ -728,8 +729,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !process )
 	{ uiMSG().error(errmsg); return -1; }
 
-    uiTaskRunner taskrunner( parent() );
-    if ( !taskrunner.execute(*process) )
+    if ( !tr.execute(*process) )
 	return -1;
 
     int component = 0;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.66 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.67 2010-02-12 04:24:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,10 +34,6 @@ namespace Attrib
     class SelSpec;
 };
 
-namespace ColTab { struct MapperSetup; }
-
-namespace VolProc { class Chain; }
-
 class BinID;
 class BinIDValueSet;
 class BufferStringSet;
@@ -51,9 +47,12 @@ class NLAModel;
 class DataPointSet;
 class SeisTrcBuf;
 class SeisTrcInfo;
+class TaskRunner;
 class uiAttribDescSetEd;
 class uiAttribCrossPlot;
+namespace ColTab { struct MapperSetup; }
 namespace Pick { class Set; }
+namespace VolProc { class Chain; }
 template <class T> class Interval;
 template <class T> class Array3D;
 
@@ -124,7 +123,8 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 	    				    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
-    DataPack::ID	create2DOutput(const CubeSampling&,const LineKey&);
+    DataPack::ID	create2DOutput(const CubeSampling&,const LineKey&,
+	    			       TaskRunner&);
 
     bool		isDataAngles(bool) const;
 			/*!<\returns true if the target data is an
