@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.60 2009-09-24 11:14:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.61 2010-02-12 14:30:14 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -302,6 +302,13 @@ const char* uiIOSelect::getItem( int idx ) const
 bool uiIOSelect::isChecked() const
 {
     return !optbox_ || optbox_->isChecked();
+}
+
+
+void uiIOSelect::setChecked( bool yn )
+{
+    if ( optbox_ )
+	optbox_->setChecked( yn );
 }
 
 

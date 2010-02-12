@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.41 2009-09-23 11:20:05 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.42 2010-02-12 14:30:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,8 @@ public:
     int			getCurrentItem() const;
     void		setCurrentItem(int);
     const char*		getItem(int) const;
-    bool		isChecked() const; //!< useful when optional_
+    bool		isChecked() const; //!< only useful when optional_
+    void		setChecked(bool yn); //!< does something when optional_
 
     void		addSpecialItem(const char* key,const char* value=0);
 			//!< If value is null, add value same as key
