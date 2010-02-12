@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.2 2010-02-04 17:20:24 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.3 2010-02-12 10:38:35 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,7 @@ protected:
     void			outputTypeChg(CallBacker*);
     void			outputComboChg(CallBacker*);
     void			outputColorChg(CallBacker*);
+    void			displayChg(CallBacker*);
     void			sequelNameCB(CallBacker*);
 
     uiODMain&			appl_;
@@ -95,16 +96,19 @@ protected:
     void			deselTimerCB(CallBacker*);
     void			clearCurDisplayObj();
     void			enableToolbar(bool yn);
+    void			showSettings(bool yn);
 
     void			editSelectToggleCB(CallBacker*);
     void			outputComboChg(CallBacker*);
     void			outputColorChg(CallBacker*);
 
-    void			stickTransferCB(CallBacker*);
+    void			stickCopyCB(CallBacker*);
+    void			stickMoveCB(CallBacker*);
     void			stickRemovalCB(CallBacker*);
-    void			transferSticks(bool removeonly=false);
+    void			transferSticks(bool copy=false);
 
-    void			popupSettingsCB(CallBacker*);
+    void			settingsToggleCB(CallBacker*);
+    void			settingsClosedCB(CallBacker*);
 
     uiODMain&			appl_;
     uiToolBar*			toolbar_;
@@ -112,7 +116,8 @@ protected:
 
     int				editselbutidx_;
     int				removalbutidx_;
-    int				transferbutidx_;
+    int				copybutidx_;
+    int				movebutidx_;
     int				settingsbutidx_;
 
     uiComboBox*			tboutputcombo_;
@@ -123,7 +128,6 @@ protected:
     int				curemid_;
 
     bool			tracktbwashidden_;
-    bool			settingswerehidden_;
 
     Timer			deseltimer_;
 };
