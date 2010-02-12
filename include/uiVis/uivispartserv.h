@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.256 2009-11-03 04:54:39 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.257 2010-02-12 10:19:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,8 @@ public:
     void		removeObject(int id,int sceneid);
     void		setObjectName(int,const char*);
     const char*		getObjectName(int) const;
+
+    Notifier<uiVisPartServer>	objectaddedremoved;
 
     void		removeSelection();
 
@@ -280,9 +282,14 @@ public:
     void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
     bool                        isSoloMode() const;
     bool			isViewMode() const;
-    enum			SelectionMode { Off, Rectangle, Polygon };
+
+    enum			SelectionMode { Polygon, Rectangle };
     void			setSelectionMode(SelectionMode);
     SelectionMode		getSelectionMode() const;
+    void			turnSelectionModeOn(bool);
+    bool			isSelectionModeOn() const;
+    Notifier<uiVisPartServer>	selectionmodechange;
+
     const Selector<Coord3>*	getCoordSelector(int scene) const;
     void			turnOn(int,bool,bool doclean=false);
     bool			isOn(int) const;
@@ -413,8 +420,10 @@ protected:
     int				eventobjid_;
     int				eventattrib_;
     int				selattrib_;
-    int				seltype_;
     int				mapperrgeditordisplayid_;
+
+    int				seltype_;
+    SelectionMode		selectionmode_;
 
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);

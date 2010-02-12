@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.445 2010-02-04 16:59:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.446 2010-02-12 10:19:07 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -118,6 +118,9 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mapperrgeditinact_(false)	  
     , dirlightdlg_(0)			  
     , mousecursorexchange_( 0 )
+    , objectaddedremoved(this)
+    , selectionmode_( Polygon )
+    , selectionmodechange(this)
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -332,6 +335,7 @@ void uiVisPartServer::shareObject( int sceneid, int id )
     if ( !dobj ) return;
 
     scene->addObject( dobj );
+    objectaddedremoved.trigger();
     eventmutex_.lock();
     sendEvent( evUpdateTree() );
 }
@@ -384,6 +388,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 {
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     scene->addObject( dobj );
+    objectaddedremoved.trigger();
     dobj->doSaveInSessions( saveinsessions );
 
     setUpConnections( dobj->id() );
@@ -399,6 +404,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 void uiVisPartServer::removeObject( visBase::DataObject* dobj, int sceneid )
 {
     removeObject( dobj->id(), sceneid );
+    objectaddedremoved.trigger();
 }
 
 
@@ -1021,36 +1027,38 @@ void uiVisPartServer::setSoloMode( bool yn, TypeSet< TypeSet<int> > dispids,
 
 void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
 {
-    visBase::PolygonSelection::SelectionType type;
-    if ( mode==Off )
-	type = visBase::PolygonSelection::Off;
-    else if ( mode==Rectangle )
-	type = visBase::PolygonSelection::Rectangle;
-    else
-	type = visBase::PolygonSelection::Polygon;
-
-    seltype_ = (int) type;
+    if ( isSelectionModeOn() && mode==Polygon )
+	seltype_ = (int) visBase::PolygonSelection::Polygon;
+    if ( isSelectionModeOn() && mode==Rectangle )
+	seltype_ = (int) visBase::PolygonSelection::Rectangle;
 
     for ( int sceneidx=0; sceneidx<scenes_.size(); sceneidx++ )
     {
 	visSurvey::Scene* scene = scenes_[sceneidx];
-	scene->getPolySelection()->setSelectionType( type );
+	scene->getPolySelection()->setSelectionType(
+		    (visBase::PolygonSelection::SelectionType) seltype_ );
     }
+
+    selectionmode_ = mode;
+    selectionmodechange.trigger();
+}
+
+
+void uiVisPartServer::turnSelectionModeOn( bool yn )
+{
+    seltype_ = !yn ? (int) visBase::PolygonSelection::Off
+		   : (int) visBase::PolygonSelection::Rectangle; // Dummy
+
+    setSelectionMode( selectionmode_ );
 }
 
 
 uiVisPartServer::SelectionMode uiVisPartServer::getSelectionMode() const
-{
-    visBase::PolygonSelection::SelectionType type =
-	(visBase::PolygonSelection::SelectionType) seltype_;
+{ return selectionmode_; }
 
-    if ( type==visBase::PolygonSelection::Off )
-	return Off;
-    if ( type==visBase::PolygonSelection::Rectangle )
-	return Rectangle;
 
-    return Polygon;
-}
+bool uiVisPartServer::isSelectionModeOn() const
+{ return seltype_ != (int) visBase::PolygonSelection::Off; }
 
 
 const Selector<Coord3>* uiVisPartServer::getCoordSelector( int sceneid ) const
@@ -1485,7 +1493,10 @@ void uiVisPartServer::removeObject( int id, int sceneid )
 
     const int idx = scene->getFirstIdx( id );
     if ( idx!=-1 ) 
+    {
 	scene->removeObject( idx );
+	objectaddedremoved.trigger();
+    }
 }
 
 
