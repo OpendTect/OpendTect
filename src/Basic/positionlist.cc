@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: positionlist.cc,v 1.2 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: positionlist.cc,v 1.3 2010-02-12 07:13:13 cvsumesh Exp $";
 
 #include "positionlist.h"
 
@@ -70,4 +70,74 @@ int Coord2ListImpl::add( const Coord& co )
 void Coord2ListImpl::remove( int id )
 {
     removedids_ += id;
+}
+
+
+Coord3ListImpl::Coord3ListImpl()
+{}
+
+
+int Coord3ListImpl::nextID( int previd ) const
+{
+    const int sz = coords_.size();
+    int res = previd + 1;
+    while ( res<sz )
+    {
+	if ( removedids_.indexOf(res)==-1 )
+	    return res;
+
+	res++;
+    }
+
+    return -1;
+}
+
+
+Coord3 Coord3ListImpl::get( int id ) const
+{
+    if ( id<0 || id>=coords_.size() || removedids_.indexOf( id )!=-1 )
+	return Coord3::udf();
+    else
+	return coords_[id];
+}
+
+
+void Coord3ListImpl::set( int id, const Coord3& coord3 )
+{
+    for ( int idx=coords_.size(); idx<=id; idx++ )
+    {
+	removedids_ += idx;
+	coords_ += Coord3::udf();
+    }
+
+    removedids_ -= id;
+    coords_[id] = coord3;
+}
+
+
+int Coord3ListImpl::add( const Coord3& coord3 )
+{
+    const int nrremoved = removedids_.size();
+    if ( nrremoved )
+    {
+	const int res = removedids_[nrremoved-1];
+	removedids_.remove( nrremoved-1 );
+	coords_[res] = coord3;
+	return res;
+    }
+
+    coords_ += coord3;
+    return coords_.size()-1;
+}
+
+
+bool Coord3ListImpl::isDefined( int idx ) const
+{
+    return idx >= 0 && idx < coords_.size() && coords_[idx] != Coord3::udf(); 
+}
+
+
+void Coord3ListImpl::remove( int id )
+{
+     removedids_ += id;
 }
