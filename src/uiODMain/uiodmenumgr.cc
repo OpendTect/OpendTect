@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.200 2010-02-04 17:20:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.201 2010-02-12 10:27:08 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -69,6 +69,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
+    appl_.applMgr().visServer()->selectionmodechange.notify(
+				mCB(this,uiODMenuMgr,selectionMode) );
 }
 
 
@@ -684,7 +686,8 @@ void uiODMenuMgr::fillManTB()
 	mAddTB(mantb_,"man_seis.png","Manage seismic data",false,manSeis);
     const int horid =
 	mAddTB(mantb_,"man_hor.png","Manage horizons",false,manHor);
-    mAddTB(mantb_,"man_flt.png","Manage faults",false,manFlt);
+    const int fltid =
+	mAddTB(mantb_,"man_flt.png","Manage faults",false,manFlt);
     mAddTB(mantb_,"man_wll.png","Manage well data",false,manWll);
     mAddTB(mantb_,"man_picks.png","Manage Pick Sets",false,manPick);
     mAddTB(mantb_,"man_wvlt.png","Manage Wavelets",false,manWvlt);
@@ -697,6 +700,9 @@ void uiODMenuMgr::fillManTB()
     if ( SI().getSurvDataType() != SurveyInfo::No2D )
 	mAddPopUp( "Horizon Menu", "2D Horizons", "3D Horizons",
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
+
+    mAddPopUp( "Fault Menu", "Faults", "FaultStickSets",
+	       mManFaultMnuItm, mManFaultStickMnuItm, fltid );
 }
 
 
@@ -825,28 +831,31 @@ void uiODMenuMgr::handleToolClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
 
-    const bool ispoly = itm->id() == 0;
-  
-    cointb_->setPixmap( polyselectid_, ispoly ? "polygonselect.png"
-	    				      : "rectangleselect.png" );
-    cointb_->setToolTip( polyselectid_, ispoly ? "Polygon Selection mode"
-					       : "Rectangle Selection mode" );
-    sIsPolySelect = ispoly;
+    sIsPolySelect = itm->id()==0;
     selectionMode( 0 );
 }
 
 
-void uiODMenuMgr::selectionMode( CallBacker* )
+void uiODMenuMgr::selectionMode( CallBacker* cb )
 {
-    uiVisPartServer& visserv = *appl_.applMgr().visServer();
-    const bool ison = cointb_->isOn( polyselectid_ );
-    if ( !ison )
-	visserv.setSelectionMode( uiVisPartServer::Off );
+    uiVisPartServer* visserv = appl_.applMgr().visServer();
+    if ( cb == visserv )
+    {
+	cointb_->turnOn( polyselectid_, visserv->isSelectionModeOn() );
+	sIsPolySelect = visserv->getSelectionMode()==uiVisPartServer::Polygon;
+    }
     else
     {
-	visserv.setSelectionMode( sIsPolySelect ? uiVisPartServer::Polygon
-						: uiVisPartServer::Rectangle );
+	uiVisPartServer::SelectionMode mode = sIsPolySelect ?
+			 uiVisPartServer::Polygon : uiVisPartServer::Rectangle;
+	visserv->turnSelectionModeOn( cointb_->isOn(polyselectid_) );
+	visserv->setSelectionMode( mode );
     }
+
+    cointb_->setPixmap( polyselectid_, sIsPolySelect ?
+	    		"polygonselect.png" : "rectangleselect.png" );
+    cointb_->setToolTip( polyselectid_, sIsPolySelect ?
+			"Polygon Selection mode" : "Rectangle Selection mode" );
 }
 
 
