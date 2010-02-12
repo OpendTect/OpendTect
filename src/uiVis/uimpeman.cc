@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.194 2009-12-16 15:33:52 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.195 2010-02-12 10:23:41 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -109,6 +109,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
+    visserv->selectionmodechange.notify( mCB(this,uiMPEMan,selectionMode) );
 
     updateButtonSensitivity();
 }
@@ -207,6 +208,7 @@ uiMPEMan::~uiMPEMan()
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
+    visserv->selectionmodechange.remove( mCB(this,uiMPEMan,selectionMode) );
 }
 
 
@@ -1095,15 +1097,27 @@ static bool sIsPolySelect = true;
 
 void uiMPEMan::selectionMode( CallBacker* cb )
 {
-    const bool ison = toolbar->isOn( polyselectidx );
-    if ( !ison )
-	visserv->setSelectionMode( uiVisPartServer::Off );
+    if ( cb == visserv )
+    {
+	toolbar->turnOn( polyselectidx, visserv->isSelectionModeOn() );
+	sIsPolySelect = visserv->getSelectionMode()==uiVisPartServer::Polygon;
+    }
     else
     {
-	visserv->setSelectionMode( sIsPolySelect ? uiVisPartServer::Polygon
-						 : uiVisPartServer::Rectangle );
-	visserv->turnSeedPickingOn( false );
+	uiVisPartServer::SelectionMode mode = sIsPolySelect ?
+			 uiVisPartServer::Polygon : uiVisPartServer::Rectangle;
+	visserv->turnSelectionModeOn( toolbar->isOn(polyselectidx) );
+	visserv->setSelectionMode( mode );
     }
+
+    toolbar->setPixmap( polyselectidx, sIsPolySelect ?
+			"polygonselect.png" : "rectangleselect.png" );
+    toolbar->setToolTip( polyselectidx, sIsPolySelect ?
+			"Polygon Selection mode" : "Rectangle Selection mode" );
+
+    if ( toolbar->isOn(polyselectidx) )
+	visserv->turnSeedPickingOn( false );
+
     updateButtonSensitivity(0);
 }
 
@@ -1113,13 +1127,7 @@ void uiMPEMan::handleToolClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
 
-    const bool ispoly = itm->id() == 0;
-
-    toolbar->setPixmap( polyselectidx, ispoly ? "polygonselect.png"
-	    				      : "rectangleselect.png" );
-    toolbar->setToolTip( polyselectidx, ispoly ? "Polygon Selection mode"
-	    				       : "Rectangle Selection mode" );
-    sIsPolySelect = ispoly;
+    sIsPolySelect = itm->id()==0;
     selectionMode( cb );
 }
 
