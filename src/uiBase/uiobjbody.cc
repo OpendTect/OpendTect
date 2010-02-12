@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjbody.cc,v 1.27 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.28 2010-02-12 22:52:09 cvskris Exp $";
 
 
 #include "uiobjbody.h"
@@ -558,6 +558,7 @@ void uiObjectBody::gtFntWdtHgt() const
     QFontMetrics fm( qft );
     self.fnt_hgt = fm.lineSpacing() + 2;
     self.fnt_wdt = fm.width( QChar('x') );
+
     self.fnt_maxwdt = fm.maxWidth();
 
     if ( fnt_hgt<=0 || fnt_hgt>100 )
@@ -572,7 +573,21 @@ void uiObjectBody::gtFntWdtHgt() const
     }
     if ( fnt_maxwdt<=0 || fnt_maxwdt>100 )
     { 
-	pErrMsg( "Font maxwidth no good. Taking 15." ); 
-	self.fnt_maxwdt = 15;
+	for ( char idx=32; idx<127; idx++ )
+	{
+	    QChar ch( idx );
+	    if ( ch.isPrint() )
+	    {
+		const int width = fm.width( ch );
+		if ( width>self.fnt_maxwdt )
+		    self.fnt_maxwdt = width;
+	    }
+	}
+
+	if ( fnt_maxwdt<=0 )
+	{
+	    pErrMsg( "Font maxwidth no good. Taking 15." ); 
+	    self.fnt_maxwdt = 15;
+	}
     }
 }
