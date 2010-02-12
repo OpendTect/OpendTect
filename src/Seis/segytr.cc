@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.93 2010-02-04 16:10:26 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.94 2010-02-12 10:31:27 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -399,12 +399,6 @@ bool SEGYSeisTrcTranslator::isRev1() const
 }
 
 
-void SEGYSeisTrcTranslator::toPreferred( DataCharacteristics& dc ) const
-{
-    dc = getDataChar( nrFormatFor(dc) );
-}
-
-
 void SEGYSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
 {
     if ( dc.isInteger() || !dc.isIeee() )
@@ -472,10 +466,7 @@ bool SEGYSeisTrcTranslator::commitSelections_()
     fileopts_.forread_ = forread;
     fileopts_.setGeomType( Seis::geomTypeOf( is_2d, is_prestack ) );
 
-    inpcd_ = inpcds[0];
-    outcd_ = outcds[0];
-    if ( !forread )
-	toPreferred( outcd_->datachar );
+    inpcd_ = inpcds[0]; outcd_ = outcds[0];
     storinterp_ = new TraceDataInterpreter( forread ? inpcd_->datachar
 	    					   : outcd_->datachar );
     if ( mIsEqual(outsd.start,insd.start,mDefEps)
