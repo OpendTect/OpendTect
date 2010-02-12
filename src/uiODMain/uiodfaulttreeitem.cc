@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.35 2010-02-12 08:49:31 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.36 2010-02-12 09:43:46 cvsjaap Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -75,10 +75,6 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	emo->setName( newname.buf() );
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
-
-	uiVisPartServer* visserv = applMgr()->visServer();
-	visserv->showMPEToolbar();
-	visserv->turnSeedPickingOn( true );
 	return true;
     }
     else
@@ -362,10 +358,6 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	emo->setName( newname.buf() );
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
-
-	uiVisPartServer* visserv = applMgr()->visServer();
-	visserv->showMPEToolbar();
-	visserv->turnSeedPickingOn( true );
 	return true;
     }
     else
