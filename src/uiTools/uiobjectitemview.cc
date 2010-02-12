@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.1 2010-01-29 14:33:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.2 2010-02-12 08:29:19 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -60,5 +60,11 @@ uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos )
 	borders.start = borders.stop;
     }
     return 0;
+}
+
+
+uiObjectItem* uiObjectItemView::getItem( int idx) 
+{
+    return ( idx>=0 && nrItems()>idx ) ? objectitems_[idx] : 0; 
 }
 

@@ -31,6 +31,8 @@ public:
     void 			removeItem(uiObjectItem*);
     
     uiObjectItem*		getItemFromPos(const Geom::Point2D<int>&);
+    uiObjectItem*		getItem(int idx); 
+    int				nrItems() const { return objectitems_.size(); }
 
 protected:
 
