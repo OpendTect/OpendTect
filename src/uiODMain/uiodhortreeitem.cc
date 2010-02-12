@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.57 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.58 2010-02-12 06:34:19 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -321,10 +321,12 @@ bool uiODHorizonTreeItem::init()
 	const int nrauxdata = hor3d->auxdata.nrAuxData();
 	for ( int idx=0; idx<nrauxdata; idx++ )
 	{
-	    uiODDataTreeItem* itm = addAttribItem();
 	    DataPointSet vals( false, true );
 	    float shift;
 	    applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
+	    if ( vals.isEmpty() ) continue;
+
+	    uiODDataTreeItem* itm = addAttribItem();
 	    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
 	    if ( emitm ) emitm->setDataPointSet( vals );
 	}
