@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.9 2009-08-05 22:13:00 cvsyuancheng Exp $
+ RCS:           $Id: positionlist.h,v 1.10 2010-02-12 07:13:08 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,5 +65,25 @@ protected:
     TypeSet<int>	removedids_;
     TypeSet<Coord> 	points_;
 };
+
+
+mClass Coord3ListImpl : public Coord3List
+{
+public:
+    			Coord3ListImpl();
+    int                 nextID(int previd) const;
+    Coord3              get(int id) const;
+    void                set(int id,const Coord3&);
+    int                 add(const Coord3&);
+    bool		isDefined(int) const;
+    void                remove(int id);
+    int                 getSize() const         { return coords_.size(); }
+
+protected:
+
+    TypeSet<int>        removedids_;
+    TypeSet<Coord3>     coords_;
+};
+
 
 #endif
