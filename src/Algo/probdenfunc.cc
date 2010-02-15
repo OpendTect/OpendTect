@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.6 2010-02-09 07:48:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.7 2010-02-15 12:43:36 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -28,6 +28,38 @@ void ProbDenFunc::fillPar( IOPar& par ) const
     par.set( sKeyNrDim(), nrdim );
     for ( int idx=0; idx<nrdim; idx++ )
 	par.set( IOPar::compKey(sKey::Name,idx), dimName(idx) );
+}
+
+
+void ProbDenFunc::getIndexTableFor( const ProbDenFunc& pdf,
+				    TypeSet<int>& tbl ) const
+{
+    tbl.erase();
+    for ( int idim=0; idim<nrDims(); idim++ )
+	tbl += -1;
+
+    for ( int ipdfdim=0; ipdfdim<nrDims(); ipdfdim++ )
+    {
+	BufferString nm( pdf.dimName(ipdfdim) );
+	int& tblidx = tbl[ipdfdim];
+	for ( int idim=0; idim<nrDims(); idim++ )
+	{
+	    if ( nm == dimName(idim) )
+		{ tblidx = idim; break; }
+	}
+    }
+}
+
+
+bool ProbDenFunc::isCompatibleWith( const ProbDenFunc& pdf ) const
+{
+    if ( nrDims() != pdf.nrDims() ) return false;
+
+    TypeSet<int> tbl; getIndexTableFor( pdf, tbl );
+    for ( int idx=0; idx<tbl.size(); idx++ )
+	if ( tbl[idx] < 0 ) return false;
+
+    return true;
 }
 
 

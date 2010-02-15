@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.5 2010-02-09 07:48:25 cvsnanne Exp $
+ RCS:		$Id: probdenfunc.h,v 1.6 2010-02-15 12:43:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,11 @@ public:
     virtual bool	usePar(const IOPar&)			{ return true; }
     virtual void	dump(std::ostream&,bool binary) const	{}
     virtual bool	obtain(std::istream&,bool binary)	{ return true; }
+
+    virtual bool	isCompatibleWith(const ProbDenFunc&) const;
+    void		getIndexTableFor(const ProbDenFunc& pdf,
+	    				 TypeSet<int>& tbl) const;
+    			//!< tbl[0] tells what my index is for pdf's index '0'
     
     static const char*	sKeyNrDim();
 };
