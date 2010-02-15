@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.4 2010-02-15 12:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.5 2010-02-15 16:15:51 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -116,6 +116,8 @@ bool SeisBayesClass::getReaders( const IOPar& iop )
     const ProbDenFunc& pdf0 = *pdfs_[0];
     for ( int ivar=0; ivar<nrdims_; ivar++ )
     {
+	inptrcs_.add( new SeisTrc );
+
 	const char* id = iop.find( mGetSeisBayesSeisInpIDKey(ivar) );
 	if ( !id || !*id )
 	{
@@ -138,7 +140,6 @@ bool SeisBayesClass::getReaders( const IOPar& iop )
 	    { msg_ = rdr->errMsg(); delete rdr; return false; }
 
 	rdrs_ += rdr;
-	inptrcs_.add( new SeisTrc );
     }
 
     initstep_ = 3;
@@ -154,6 +155,8 @@ bool SeisBayesClass::getWriters( const IOPar& iop )
     wrrs_.allowNull( true ); bool haveoutput = false;
     for ( int ipdf=0; ipdf<nrpdfs+2; ipdf++ )
     {
+	outtrcs_.add( new SeisTrc );
+
 	const char* id = iop.find( mGetSeisBayesSeisOutIDKey(ipdf) );
 	if ( !id || !*id )
 	    { wrrs_ += 0; continue; }
@@ -169,7 +172,6 @@ bool SeisBayesClass::getWriters( const IOPar& iop )
 	}
 
 	wrrs_ += new SeisTrcWriter( ioobj );
-	outtrcs_.add( new SeisTrc );
     }
 
     if ( !haveoutput )
@@ -295,18 +297,31 @@ int SeisBayesClass::createOutput()
 }
 
 
-void SeisBayesClass::prepOutTrc( SeisTrc& trc ) const
+void SeisBayesClass::prepOutTrc( SeisTrc& trc, bool isch ) const
 {
+    const SeisTrc& inptrc = *inptrcs_.get( 0 );
     if ( trc.isEmpty() )
-	trc = *inptrcs_.get(0);
-    else
-	trc.info() = inptrcs_.get(0)->info();
+    {
+	const DataCharacteristics dc( isch ? DataCharacteristics::UI8
+					   : DataCharacteristics::F32 );
+	trc.data().setComponent( dc, 0 );
+	for ( int icomp=0; icomp<inptrc.nrComponents(); icomp++ )
+	{
+	    if ( icomp < trc.nrComponents() )
+		trc.data().setComponent( dc, icomp );
+	    else
+		trc.data().addComponent( inptrc.size(), dc );
+	    trc.reSize( inptrc.size(), false );
+	}
+    }
+
+    trc.info() = inptrc.info();
 }
 
 
 void SeisBayesClass::calcProbs( int ipdf )
 {
-    SeisTrc& trc = *outtrcs_.get( ipdf ); prepOutTrc( trc );
+    SeisTrc& trc = *outtrcs_.get( ipdf ); prepOutTrc( trc, false );
     const ProbDenFunc& pdf = *pdfs_[ipdf];
 
     TypeSet<float> inpvals( nrdims_, 0 );
@@ -336,8 +351,8 @@ void SeisBayesClass::calcProbs( int ipdf )
 void SeisBayesClass::calcClass()
 {
     const int nrpdfs = pdfs_.size();
-    SeisTrc& clsstrc = *outtrcs_.get( nrpdfs ); prepOutTrc( clsstrc );
-    SeisTrc& conftrc = *outtrcs_.get( nrpdfs+1 ); prepOutTrc( conftrc );
+    SeisTrc& clsstrc = *outtrcs_.get( nrpdfs ); prepOutTrc( clsstrc, true );
+    SeisTrc& conftrc = *outtrcs_.get( nrpdfs+1 ); prepOutTrc( conftrc, false );
 
     TypeSet<float> probs( nrpdfs, 0 ); int winner; float conf;
     for ( int icomp=0; icomp<clsstrc.nrComponents(); icomp++ )
@@ -357,8 +372,9 @@ void SeisBayesClass::calcClass()
 void SeisBayesClass::getClass( const TypeSet<float>& probs, int& winner,
 				float& conf ) const
 {
+    // users don't like class '0', so we add '1' to winner
     if ( probs.size() < 2 )
-	{ winner = 0; conf = 1; return; }
+	{ conf = winner = 1; return; }
 
     winner = 0; float winnerval = probs[0];
     for ( int idx=1; idx<probs.size(); idx++ )
@@ -367,15 +383,16 @@ void SeisBayesClass::getClass( const TypeSet<float>& probs, int& winner,
 	    { winner = idx; winnerval = probs[idx]; }
     }
     if ( winnerval < mDefEps )
-	{ conf = 0; return; }
+	{ conf = 0; winner++; return; }
 
-    int runnerup = winner ? 0 : 1; float runnerupval = probs[runnerup];
+    float runnerupval = probs[winner ? 0 : 1];
     for ( int idx=0; idx<probs.size(); idx++ )
     {
 	if ( idx == winner ) continue;
 	if ( probs[idx] > runnerupval )
-	    { runnerup = idx; runnerupval = probs[idx]; }
+	    runnerupval = probs[idx];
     }
 
+    winner++;
     conf = (winnerval - runnerupval) / winnerval;
 }

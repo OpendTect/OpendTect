@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.4 2010-02-15 12:44:32 cvsbert Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.5 2010-02-15 16:15:51 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -84,7 +84,7 @@ protected:
     void			calcProbs(int);
     void			calcClass();
     void			cleanUp();
-    void			prepOutTrc(SeisTrc&) const;
+    void			prepOutTrc(SeisTrc&,bool) const;
     void			getClass(const TypeSet<float>&,int&,
 	    				 float&) const;
 
