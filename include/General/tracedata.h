@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.8 2009-10-07 08:32:09 cvshelene Exp $
+ RCS:		$Id: tracedata.h,v 1.9 2010-02-15 09:56:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 			: data_(0), interp_(0), nrcomp_(0)	{ copyFrom(td);}
 			~TraceData();
     bool		allOk() const;
+    bool		isEmpty() const;
 
     inline TraceData&	operator=( const TraceData& td )
 			{ copyFrom( td ); return *this; }

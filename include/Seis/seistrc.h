@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.37 2009-12-04 20:11:09 cvskris Exp $
+ RCS:		$Id: seistrc.h,v 1.38 2010-02-15 09:56:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
 						{ *this = t; }
 			~SeisTrc();
     SeisTrc&		operator =(const SeisTrc& t);
+    inline bool		isEmpty() const		{ return data_.isEmpty(); }
 
     SeisTrcInfo&	info()			{ return info_; }
     const SeisTrcInfo&	info() const		{ return info_; }

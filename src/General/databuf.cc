@@ -4,7 +4,7 @@
  * DATE     : 28-2-1996
  * FUNCTION : Data buffers and collections of buffers (trace data)
 -*/
-static const char* rcsID = "$Id: databuf.cc,v 1.21 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: databuf.cc,v 1.22 2010-02-15 09:56:14 cvsbert Exp $";
 
 
 #include "tracedata.h"
@@ -125,10 +125,10 @@ void DataBuffer::zero()
  
 TraceData::~TraceData()
 {
-    for ( int idx=0; idx<nrcomp_; idx++ )
+    for ( int icomp=0; icomp<nrcomp_; icomp++ )
     {
-	delete data_[idx];
-	delete interp_[idx];
+	delete data_[icomp];
+	delete interp_[icomp];
     }
     delete [] data_;
     delete [] interp_;
@@ -137,8 +137,16 @@ TraceData::~TraceData()
 
 bool TraceData::allOk() const
 {
-    for ( int idx=0; idx<nrcomp_; idx++ )
-	if ( !data_[idx]->isOk() ) return false;
+    for ( int icomp=0; icomp<nrcomp_; icomp++ )
+	if ( !data_[icomp]->isOk() ) return false;
+    return true;
+}
+
+
+bool TraceData::isEmpty() const
+{
+    for ( int icomp=0; icomp<nrcomp_; icomp++ )
+	if ( !data_[icomp]->isEmpty() ) return false;
     return true;
 }
 
@@ -151,10 +159,10 @@ void TraceData::copyFrom( const TraceData& td )
 	addComponent( td.size(nrcomp_), td.getInterpreter(nrcomp_)->dataChar(),
 		      false );
 
-    for ( int idx=0; idx<nrcomp_; idx++ )
+    for ( int icomp=0; icomp<nrcomp_; icomp++ )
     {
-	*data_[idx] = *td.data_[idx];
-	*interp_[idx] = *td.interp_[idx];
+	*data_[icomp] = *td.data_[icomp];
+	*interp_[icomp] = *td.interp_[icomp];
     }
 }
 
@@ -176,10 +184,10 @@ void TraceData::addComponent( int ns, const DataCharacteristics& dc,
     TraceDataInterpreter** newinterp = new TraceDataInterpreter* [nrcomp_+1];
     if ( data_ && nrcomp_ )
     {
-	for ( int idx=0; idx<nrcomp_; idx++ )
+	for ( int icomp=0; icomp<nrcomp_; icomp++ )
 	{
-	    newdata[idx] = data_[idx];
-	    newinterp[idx] = interp_[idx];
+	    newdata[icomp] = data_[icomp];
+	    newinterp[icomp] = interp_[icomp];
 	}
 	delete [] data_;
 	delete [] interp_;
@@ -192,28 +200,28 @@ void TraceData::addComponent( int ns, const DataCharacteristics& dc,
 }
 
 
-void TraceData::delComponent( int icomp )
+void TraceData::delComponent( int todel )
 {
-    if ( icomp < 0 || icomp >= nrcomp_ ) return;
+    if ( todel < 0 || todel >= nrcomp_ ) return;
 
     DataBuffer** newdata = nrcomp_ > 1 ? new DataBuffer* [nrcomp_-1] : 0;
     TraceDataInterpreter** newinterp = nrcomp_ > 1
 		? new TraceDataInterpreter* [nrcomp_-1] : 0;
-    int targetidx = 0;
-    for ( int idx=0; idx<nrcomp_; idx++ )
+    int targetcomp = 0;
+    for ( int icomp=0; icomp<nrcomp_; icomp++ )
     {
-	if ( idx != icomp )
+	if ( icomp != todel )
 	{
-	    newdata[targetidx] = data_[idx];
-	    newinterp[targetidx] = interp_[idx];
+	    newdata[targetcomp] = data_[icomp];
+	    newinterp[targetcomp] = interp_[icomp];
 	}
 	else
 	{
-	    delete data_[idx];
-	    delete interp_[idx];
-	    targetidx--;
+	    delete data_[icomp];
+	    delete interp_[icomp];
+	    targetcomp--;
 	}
-	targetidx++;
+	targetcomp++;
     }
 
     nrcomp_--;
@@ -259,21 +267,21 @@ void TraceData::scale( const Scaler& sclr, int compnr )
 }
 
 
-void TraceData::zero( int icomp )
+void TraceData::zero( int targetcomp )
 {
-    if ( icomp < -1 || icomp >= nrcomp_ ) return;
+    if ( targetcomp < -1 || targetcomp >= nrcomp_ ) return;
 
-    const int endidx = icomp < 0 ? nrcomp_-1 : icomp;
-    for ( int idx=(icomp>=0?icomp:0); idx<=endidx; idx++ )
-	data_[idx]->zero();
+    const int endicomp = targetcomp < 0 ? nrcomp_-1 : targetcomp;
+    for ( int icomp=(targetcomp>=0?targetcomp:0); icomp<=endicomp; icomp++ )
+	data_[icomp]->zero();
 }
 
 
 void TraceData::handleDataSwapping()
 {
-    for ( int idx=0; idx<nrcomp_; idx++ )
+    for ( int icomp=0; icomp<nrcomp_; icomp++ )
     {
-	if ( interp_[idx]->needSwap() )
-	    interp_[idx]->swap( data_[idx]->data(), data_[idx]->size() );
+	if ( interp_[icomp]->needSwap() )
+	    interp_[icomp]->swap( data_[icomp]->data(), data_[icomp]->size() );
     }
 }
