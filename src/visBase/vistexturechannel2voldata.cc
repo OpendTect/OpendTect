@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.9 2009-12-17 15:00:39 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.10 2010-02-15 10:30:02 cvsnanne Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -125,7 +125,6 @@ protected:
 
 ~VolumeDataSetImpl()
 { 
-    voldata_->unref(); 
 }
 	
 };
