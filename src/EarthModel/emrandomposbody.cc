@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.10 2009-11-18 19:53:34 cvskris Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.11 2010-02-15 10:09:38 cvsranojay Exp $";
 
 #include "emrandomposbody.h"
 
@@ -70,7 +70,10 @@ public:
 
 	std::istream& strm = ((StreamConn*)conn_)->iStream();
 	if ( !strm.good() )
-    	    return Finished(); 
+	{
+	    rdposbody_.resetChangedFlag();
+    	    return Finished();
+	}
 
 	Coord3 pos;
 
@@ -79,7 +82,11 @@ public:
 	strm >> pos.x; 
 	if ( strm.fail() )
 	{
-	    if ( !strm.good() )	return Finished();
+	    if ( !strm.good() )
+	    {
+		rdposbody_.resetChangedFlag();
+		return Finished();
+	    }
 	    errmsg_=err;return ErrorOccurred();
 	}
 
