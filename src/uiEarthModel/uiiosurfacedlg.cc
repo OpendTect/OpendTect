@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.50 2009-12-03 03:13:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.51 2010-02-15 07:11:39 cvsnanne Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -232,8 +232,8 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     uiPosSubSel* pss = inpfld->getPosSubSel();
     Pos::Filter* pf = pss ? pss->curProvider() : 0;
-    mDynamicCastGet(Pos::RangeProvider3D*,rp3d,pf);
-    if ( rp3d )
+    mDynamicCastGet(Pos::Provider3D*,p3d,pf);
+    if ( p3d )
 	surface->apply( *pf );
  
     EM::SurfaceIOData outsd;
@@ -241,6 +241,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     EM::SurfaceIODataSelection outsdsel( outsd );
     outsdsel.setDefault();
  
+    mDynamicCastGet(Pos::RangeProvider3D*,rp3d,pf);
     if ( rp3d )
 	outsdsel.rg = rp3d->sampling().hrg;
 
