@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.72 2009-09-17 17:43:56 cvsyuancheng Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.73 2010-02-15 06:19:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -126,7 +126,7 @@ public:
 
     Coord3			getNormal(const Coord3&) const;
     virtual float               calcDist(const Coord3&) const;
-    virtual bool		allowPicks() const		{ return true; }
+    virtual bool		allowsPicks() const		{ return true; }
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);

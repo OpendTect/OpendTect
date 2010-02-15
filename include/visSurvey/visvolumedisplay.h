@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.71 2009-12-03 06:18:25 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.72 2010-02-15 06:19:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -141,7 +141,7 @@ public:
 
     void			setMaterial(visBase::Material*);
     bool			allowMaterialEdit() const	{ return true; }
-    virtual bool		allowPicks() const;
+    virtual bool		allowsPicks() const;
     bool			canDuplicate() const		{ return true; }
     visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
 

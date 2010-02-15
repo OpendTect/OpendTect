@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.117 2010-02-01 09:46:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.118 2010-02-15 06:19:46 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
 
@@ -709,7 +709,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 		    const DataObject* pickedobj =
 			visBase::DM().getObject(eventinfo.pickedobjids[idx]);
 		    mDynamicCastGet(const SurveyObject*,so,pickedobj)
-		    if ( so && so->allowPicks() )
+		    if ( so && so->allowsPicks() )
 		    {
 			validpicksurface = true;
 			break;

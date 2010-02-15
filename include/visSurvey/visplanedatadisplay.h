@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.120 2010-01-05 16:47:18 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.121 2010-02-15 06:19:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -110,7 +110,7 @@ public:
     virtual float		calcDist(const Coord3&) const;
     virtual float		maxDist() const;
     virtual Coord3		getNormal(const Coord3&) const;
-    virtual bool		allowPicks() const		{ return true; }
+    virtual bool		allowsPicks() const		{ return true; }
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;

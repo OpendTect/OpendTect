@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.101 2010-02-11 22:59:13 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.102 2010-02-15 06:19:46 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -1910,7 +1910,7 @@ void MPEDisplay::acceptManipulation()
 }
 
 
-bool MPEDisplay::allowPicks() const
+bool MPEDisplay::allowsPicks() const
 {
 #ifndef USE_TEXTURE
     return true;

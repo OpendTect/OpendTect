@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.40 2009-12-03 06:18:25 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.41 2010-02-15 06:19:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,7 @@ public:
     const Attrib::Data2DHolder*	getCache(int attrib) const;
     void			updateDataFromCache(TaskRunner*);
 
-    bool			allowPicks() const		{ return true; }
+    bool			allowsPicks() const		{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
 
     void			showLineName(bool);

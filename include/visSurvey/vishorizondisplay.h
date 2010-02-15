@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.56 2009-12-03 06:18:25 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.57 2010-02-15 06:19:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -118,7 +118,7 @@ public:
     void			setResolution(int,TaskRunner*);
     				/*!< 0 is automatic */
 
-    bool			allowPicks() const		{ return true; }
+    bool			allowsPicks() const		{ return true; }
     void			getMousePosInfo(const visBase::EventInfo& pos,
 	    					Coord3&,
 	    					BufferString& val,

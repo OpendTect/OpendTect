@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.115 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.116 2010-02-15 06:19:46 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -909,7 +909,7 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 }
 
 
-bool VolumeDisplay::allowPicks() const
+bool VolumeDisplay::allowsPicks() const
 {
     return !isVolRenShown();
 }

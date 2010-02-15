@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.111 2009-12-03 06:18:25 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.112 2010-02-15 06:19:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -61,7 +61,7 @@ public:
     				/*<\Returns maximum allowed distance between 
 				    pick and object. If calcDist() > maxDist()
 				    pick will not be displayed. */
-    virtual bool		allowPicks() const	{ return false; }
+    virtual bool		allowsPicks() const	{ return false; }
     				/*<\Returns whether picks can be created 
 				    on object. */
     virtual bool		isPicking() const 	{ return false; }

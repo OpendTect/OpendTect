@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.58 2009-08-06 02:04:14 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.59 2010-02-15 06:19:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ public:
     void			setColor(Color);
     Color			getColor() const;
 
-    bool			allowPicks() const	{ return true; }
+    bool			allowsPicks() const	{ return true; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 	    					Coord3&,
 	    					BufferString& val,
