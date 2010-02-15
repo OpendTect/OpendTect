@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.34 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.35 2010-02-15 08:00:23 cvsnanne Exp $";
 
 #include "uigdexamacorr.h"
 #include "uigapdeconattrib.h"
@@ -205,6 +205,7 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 	app.setDarkBG( false );
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
+	vwr.appearance().ddpars_.vd_.autoscale_ = false;
 	vwr.appearance().ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
 	vwr.setInitialSize( uiSize(600,400) );
 	fvwin->addControl(
