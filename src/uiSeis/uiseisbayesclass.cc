@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.5 2010-02-12 14:50:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.6 2010-02-15 12:44:32 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -168,6 +168,8 @@ void handleDisp( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
+    PtrMan<ProbDenFunc> pdf0 = 0;
+
     for ( int idx=0; idx<flds_.size(); idx++ )
     {
 	uiIOObjSel* fld = flds_[idx];
@@ -175,8 +177,26 @@ bool acceptOK( CallBacker* )
 	    pars_.removeWithKey( mGetSeisBayesPDFIDKey(idx) );
 	else
 	{
-	    if ( !fld->ioobj() )
-		return false;
+	    const IOObj* ioobj = fld->ioobj();
+	    if ( !ioobj ) return false;
+	    BufferString emsg;
+	    ProbDenFunc* pdf = ProbDenFuncTranslator::read( *ioobj, &emsg );
+	    if ( !pdf )
+		{ uiMSG().error(emsg); delete pdf; return false; }
+	    else if ( !idx )
+		pdf0 = pdf;
+	    else
+	    {
+		const bool iscompat = pdf->isCompatibleWith( *pdf0 );
+		delete pdf;
+		if ( !iscompat )
+		{
+		    uiMSG().error( BufferString( "'", ioobj->name(),
+				"'\nis not compatible with the first" ) );
+		    return false;
+		}
+	    }
+
 	    pars_.set( mGetSeisBayesPDFIDKey(idx), fld->key() );
 	}
     }

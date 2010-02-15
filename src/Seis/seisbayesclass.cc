@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.3 2010-02-15 09:56:58 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.4 2010-02-15 12:44:32 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -34,6 +34,7 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	, inptrcs_(*new SeisTrcBuf(true))
 	, outtrcs_(*new SeisTrcBuf(true))
 	, initstep_(1)
+	, nrdims_(0)
 {
     const char* res = iop.find( sKey::Type );
     is2d_ = res && *res == '2';
@@ -85,6 +86,18 @@ bool SeisBayesClass::getPDFs( const IOPar& iop )
 
 	pdfs_ += pdf;
 	pdfnames_.add( ioobj->name() );
+
+	const ProbDenFunc& pdf0 = *pdfs_[0];
+	if ( ipdf == 0 )
+	    const_cast<int&>(nrdims_) = pdf->nrDims();
+	else if ( pdf->nrDims() != nrdims_ )
+	    { msg_ = "PDF's have different dimensions"; return false; }
+	else if ( !pdf->isCompatibleWith(pdf0) )
+	    { msg_ = "PDF's are not compatible"; return false; }
+
+	TypeSet<int>* idxs = new TypeSet<int>;
+	pdf->getIndexTableFor( pdf0, *idxs );
+	pdfxtbls_ += idxs;
     }
 
     if ( pdfs_.isEmpty() )
@@ -101,8 +114,7 @@ bool SeisBayesClass::getReaders( const IOPar& iop )
 {
     if ( pdfs_.isEmpty() ) return false;
     const ProbDenFunc& pdf0 = *pdfs_[0];
-    const int nrvars = pdf0.nrDims();
-    for ( int ivar=0; ivar<nrvars; ivar++ )
+    for ( int ivar=0; ivar<nrdims_; ivar++ )
     {
 	const char* id = iop.find( mGetSeisBayesSeisInpIDKey(ivar) );
 	if ( !id || !*id )
@@ -278,6 +290,7 @@ int SeisBayesClass::createOutput()
 	mWrTrc(nrpdfs+1)
     }
 
+    nrdone_++;
     return MoreToDo();
 }
 
@@ -295,15 +308,25 @@ void SeisBayesClass::calcProbs( int ipdf )
 {
     SeisTrc& trc = *outtrcs_.get( ipdf ); prepOutTrc( trc );
     const ProbDenFunc& pdf = *pdfs_[ipdf];
-    const int nrdims = pdf.nrDims();
 
-    TypeSet<float> inpvals( nrdims, 0 );
+    TypeSet<float> inpvals( nrdims_, 0 );
+    const float eps = trc.info().sampling.step * 0.0001;
     for ( int icomp=0; icomp<trc.nrComponents(); icomp++ )
     {
 	for ( int isamp=0; isamp<trc.size(); isamp++ )
 	{
-	    for ( int idim=0; idim<nrdims; idim++ )
-		inpvals[idim] = inptrcs_.get(idim)->get( isamp, icomp );
+	    for ( int idim0=0; idim0<nrdims_; idim0++ )
+	    {
+		const int idim = (*pdfxtbls_[ipdf])[idim0];
+		const SeisTrc& inptrc = *inptrcs_.get( idim );
+		const float z = trc.samplePos( isamp );
+		if ( z < inptrc.samplePos(0) - eps )
+		    inpvals[idim] = inptrc.get( 0, icomp );
+		else if ( z > inptrc.samplePos(inptrc.size()-1) + eps )
+		    inpvals[idim] = inptrc.get( inptrc.size()-1, icomp );
+		else
+		    inpvals[idim] = inptrc.getValue( z, icomp );
+	    }
 	    trc.set( isamp, pdf.value(inpvals), icomp );
 	}
     }
@@ -322,10 +345,10 @@ void SeisBayesClass::calcClass()
 	for ( int isamp=0; isamp<clsstrc.size(); isamp++ )
 	{
 	    for ( int iprob=0; iprob<nrpdfs; iprob++ )
-		probs[iprob] = inptrcs_.get(iprob)->get( isamp, icomp );
+		probs[iprob] = outtrcs_.get(iprob)->get( isamp, icomp );
 	    getClass( probs, winner, conf );
 	    clsstrc.set( isamp, winner, icomp );
-	    clsstrc.set( isamp, conf, icomp );
+	    conftrc.set( isamp, conf, icomp );
 	}
     }
 }

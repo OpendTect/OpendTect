@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.3 2010-02-15 09:56:58 cvsbert Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.4 2010-02-15 12:44:32 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -62,8 +62,10 @@ protected:
     ObjectSet<SeisTrcWriter>	wrrs_;
     SeisTrcBuf&			inptrcs_;
     SeisTrcBuf&			outtrcs_;
-    IOPar&			pars_;
+    const IOPar&		pars_;
+    ObjectSet< TypeSet<int> >	pdfxtbls_;
 
+    const int			nrdims_;
     od_int64			nrdone_;
     od_int64			totalnr_;
     BufferString		msg_;
