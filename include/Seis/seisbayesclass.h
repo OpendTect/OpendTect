@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.2 2010-02-12 14:50:03 cvsbert Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.3 2010-02-15 09:56:58 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -15,10 +15,11 @@ ________________________________________________________________________
 #include "executor.h"
 #include "bufstringset.h"
 class IOPar;
+class SeisTrc;
+class SeisTrcBuf;
 class ProbDenFunc;
 class SeisTrcReader;
 class SeisTrcWriter;
-class SeisTrcBuf;
 
 
 /*!\brief Bayesian inversion/classification for seismic data using PDFs.
@@ -31,7 +32,7 @@ class SeisTrcBuf;
 
   The outputs are all optional, but have a specific number:
   * 0 .. N-1 = the Probability output for PDF 0 .. N-1
-  * N = the classification
+  * N = the Classification
   * N+1 = the Classification confidence
 
   */
@@ -61,12 +62,14 @@ protected:
     ObjectSet<SeisTrcWriter>	wrrs_;
     SeisTrcBuf&			inptrcs_;
     SeisTrcBuf&			outtrcs_;
+    IOPar&			pars_;
 
     od_int64			nrdone_;
     od_int64			totalnr_;
     BufferString		msg_;
     BufferStringSet		pdfnames_;
     bool			needclass_;
+    int				initstep_;
 
     bool			getPDFs(const IOPar&);
     bool			getReaders(const IOPar&);
@@ -75,6 +78,13 @@ protected:
     int				readInpTrcs();
     int				createOutput();
     int				closeDown();
+
+    void			calcProbs(int);
+    void			calcClass();
+    void			cleanUp();
+    void			prepOutTrc(SeisTrc&) const;
+    void			getClass(const TypeSet<float>&,int&,
+	    				 float&) const;
 
 };
 

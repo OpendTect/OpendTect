@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.2 2010-02-12 14:50:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.3 2010-02-15 09:56:58 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -27,24 +27,41 @@ const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
 
 SeisBayesClass::SeisBayesClass( const IOPar& iop )
     	: Executor( "Bayesian inversion" )
+	, pars_(*new IOPar(iop))
 	, needclass_(false)
 	, nrdone_(0)
 	, totalnr_(-2)
 	, inptrcs_(*new SeisTrcBuf(true))
 	, outtrcs_(*new SeisTrcBuf(true))
+	, initstep_(1)
 {
     const char* res = iop.find( sKey::Type );
     is2d_ = res && *res == '2';
     if ( is2d_ )
 	{ msg_ = "2D not implemented"; return; }
 
-    if ( !getPDFs(iop) || !getReaders(iop) || !getWriters(iop) )
-	return;
-
-    msg_ = "Processing";
+    msg_ = "Initializing";
 }
 
 #define mAddIdxRank(idx) msg_ += idx+1; msg_ += getRankPostFix(idx+1)
+
+
+SeisBayesClass::~SeisBayesClass()
+{
+    cleanUp();
+
+    delete &pars_;
+    delete &inptrcs_;
+    delete &outtrcs_;
+}
+
+
+void SeisBayesClass::cleanUp()
+{
+    deepErase(pdfs_);
+    deepErase(rdrs_);
+    deepErase(wrrs_);
+}
 
 
 bool SeisBayesClass::getPDFs( const IOPar& iop )
@@ -75,6 +92,7 @@ bool SeisBayesClass::getPDFs( const IOPar& iop )
 
     pdfnames_.add( "Classification" );
     pdfnames_.add( "Confidence" );
+    initstep_ = 2;
     return true;
 }
 
@@ -111,6 +129,7 @@ bool SeisBayesClass::getReaders( const IOPar& iop )
 	inptrcs_.add( new SeisTrc );
     }
 
+    initstep_ = 3;
     return true;
 }
 
@@ -145,15 +164,9 @@ bool SeisBayesClass::getWriters( const IOPar& iop )
 	{ msg_ = "No output specified in parameters"; return false; }
 
     needclass_ = wrrs_[nrpdfs] || wrrs_[nrpdfs+1];
+    initstep_ = 0;
+    msg_ = "Processing";
     return true;
-}
-
-
-SeisBayesClass::~SeisBayesClass()
-{
-    deepErase(pdfs_);
-    deepErase(rdrs_);
-    deepErase(wrrs_);
 }
 
 
@@ -165,18 +178,21 @@ const char* SeisBayesClass::message() const
 
 const char* SeisBayesClass::nrDoneText() const
 {
-    return "Positions handled";
+    return initstep_ ? "Step" : "Positions handled";
 }
 
 
 od_int64 SeisBayesClass::nrDone() const
 {
-    return nrdone_;
+    return initstep_ ? initstep_ : nrdone_;
 }
 
 
 od_int64 SeisBayesClass::totalNr() const
 {
+    if ( initstep_ )
+	return 4;
+
     if ( totalnr_ == -2 && !rdrs_.isEmpty() )
     {
 	Seis::Bounds* sb = rdrs_[0]->getBounds();
@@ -192,13 +208,16 @@ od_int64 SeisBayesClass::totalNr() const
 
 int SeisBayesClass::nextStep()
 {
-    if ( wrrs_.isEmpty() )
-	return ErrorOccurred();
+    if ( initstep_ )
+	return (initstep_ == 1 ? getPDFs(pars_)
+	     : (initstep_ == 2 ? getReaders(pars_)
+		 	       : getWriters(pars_)))
+	     ? MoreToDo() : ErrorOccurred();
 
     int ret = readInpTrcs();
     if ( ret != 1 )
 	return ret > 1	? MoreToDo()
-	    : (ret == 0	? closeDown() : ErrorOccurred());;
+	    : (ret == 0	? closeDown() : ErrorOccurred());
 
     return createOutput() ? MoreToDo() : ErrorOccurred();
 }
@@ -206,6 +225,7 @@ int SeisBayesClass::nextStep()
 
 int SeisBayesClass::closeDown()
 {
+    cleanUp();
     return Finished();
 }
 
@@ -236,7 +256,103 @@ int SeisBayesClass::readInpTrcs()
 }
 
 
+#define mWrTrc(nr) \
+    	wrr = wrrs_[nr]; \
+	if ( wrr && !wrr->put(*outtrcs_.get(nr)) ) \
+	    { msg_ = wrr->errMsg(); return ErrorOccurred(); }
+
 int SeisBayesClass::createOutput()
 {
+    const int nrpdfs = pdfs_.size();
+    for ( int ipdf=0; ipdf<nrpdfs; ipdf++ )
+    {
+	if ( needclass_ || wrrs_[ipdf] )
+	    calcProbs( ipdf );
+	SeisTrcWriter* mWrTrc(ipdf)
+    }
+
+    if ( needclass_ )
+    {
+	calcClass();
+	SeisTrcWriter* mWrTrc(nrpdfs)
+	mWrTrc(nrpdfs+1)
+    }
+
     return MoreToDo();
+}
+
+
+void SeisBayesClass::prepOutTrc( SeisTrc& trc ) const
+{
+    if ( trc.isEmpty() )
+	trc = *inptrcs_.get(0);
+    else
+	trc.info() = inptrcs_.get(0)->info();
+}
+
+
+void SeisBayesClass::calcProbs( int ipdf )
+{
+    SeisTrc& trc = *outtrcs_.get( ipdf ); prepOutTrc( trc );
+    const ProbDenFunc& pdf = *pdfs_[ipdf];
+    const int nrdims = pdf.nrDims();
+
+    TypeSet<float> inpvals( nrdims, 0 );
+    for ( int icomp=0; icomp<trc.nrComponents(); icomp++ )
+    {
+	for ( int isamp=0; isamp<trc.size(); isamp++ )
+	{
+	    for ( int idim=0; idim<nrdims; idim++ )
+		inpvals[idim] = inptrcs_.get(idim)->get( isamp, icomp );
+	    trc.set( isamp, pdf.value(inpvals), icomp );
+	}
+    }
+}
+
+
+void SeisBayesClass::calcClass()
+{
+    const int nrpdfs = pdfs_.size();
+    SeisTrc& clsstrc = *outtrcs_.get( nrpdfs ); prepOutTrc( clsstrc );
+    SeisTrc& conftrc = *outtrcs_.get( nrpdfs+1 ); prepOutTrc( conftrc );
+
+    TypeSet<float> probs( nrpdfs, 0 ); int winner; float conf;
+    for ( int icomp=0; icomp<clsstrc.nrComponents(); icomp++ )
+    {
+	for ( int isamp=0; isamp<clsstrc.size(); isamp++ )
+	{
+	    for ( int iprob=0; iprob<nrpdfs; iprob++ )
+		probs[iprob] = inptrcs_.get(iprob)->get( isamp, icomp );
+	    getClass( probs, winner, conf );
+	    clsstrc.set( isamp, winner, icomp );
+	    clsstrc.set( isamp, conf, icomp );
+	}
+    }
+}
+
+
+void SeisBayesClass::getClass( const TypeSet<float>& probs, int& winner,
+				float& conf ) const
+{
+    if ( probs.size() < 2 )
+	{ winner = 0; conf = 1; return; }
+
+    winner = 0; float winnerval = probs[0];
+    for ( int idx=1; idx<probs.size(); idx++ )
+    {
+	if ( probs[idx] > winnerval )
+	    { winner = idx; winnerval = probs[idx]; }
+    }
+    if ( winnerval < mDefEps )
+	{ conf = 0; return; }
+
+    int runnerup = winner ? 0 : 1; float runnerupval = probs[runnerup];
+    for ( int idx=0; idx<probs.size(); idx++ )
+    {
+	if ( idx == winner ) continue;
+	if ( probs[idx] > runnerupval )
+	    { runnerup = idx; runnerupval = probs[idx]; }
+    }
+
+    conf = (winnerval - runnerupval) / winnerval;
 }
