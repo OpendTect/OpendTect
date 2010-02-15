@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: eventattrib.cc,v 1.32 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: eventattrib.cc,v 1.33 2010-02-15 02:38:07 cvsnanne Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -400,6 +400,7 @@ void Event::multipleEvents( const DataHolder& output,
 			    		    inputdata->nrsamples_,
 					    mNINT(firstsample+extrasamp));
 		}
+
 		if ( cursample+extrasamp < ev.pos
 			&& cursample+extrasamp > nextev.pos)
 		{
@@ -411,12 +412,14 @@ void Event::multipleEvents( const DataHolder& output,
 			setOutputValue( output, 0, idx, z0, val );
 		    }
 		}
+		else
+		    setOutputValue( output, 0, idx, z0, 0 );
 	    }
 	}
     }
 }
 
-    
+
 bool Event::computeData( const DataHolder& output, const BinID& relpos,
 			 int z0, int nrsamples, int threadid ) const
 {
