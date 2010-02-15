@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.34 2009-11-27 15:34:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.35 2010-02-15 13:42:54 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -151,9 +151,11 @@ void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
     mDynamicCastGet( uiFreqTaperSel*, tap, winflds[1] );
     if ( tap )
     {
+	bool costaper = !strcmp(tap->windowName(),"CosTaper");
 	Interval<float> frg( freqfld->getFInterval() );
-	tap->setInputFreqValue( frg.start-5, 0 );
-	tap->setInputFreqValue( frg.stop+5, 1 );
+	if ( costaper ) { frg.start-=5; frg.stop+=5; }
+	tap->setInputFreqValue( frg.start, 0 );
+	tap->setInputFreqValue( frg.stop, 1 );
     }
 }
 
@@ -282,7 +284,36 @@ bool uiFreqFilterAttrib::areUIParsOK()
 	    return false;
 	}
     }
-
+    mDynamicCastGet( uiFreqTaperSel*, taper, winflds[1] );
+    if ( taper ) 
+    {
+	bool minsuccess = true, maxsuccess = true;
+	Interval<float> freqresvar = taper->freqValues();
+	if ( freqresvar.start < 0 )
+	{
+	    errmsg_ = "min frequency cannot be negative";
+	    return false;
+	}
+	if ( freqresvar.start > freqfld->getfValue(0) )
+	    minsuccess = false;
+	if ( freqresvar.stop < freqfld->getfValue(1) )
+	    maxsuccess = false;
+	BufferString msg( "Taper " ); 
+	BufferString endmsg ( " than this of the filter frequency.\n" );
+	endmsg += "Please select a different frequency.";
+	if ( !minsuccess )
+	{
+	    msg += "min frequency must be lower";
+	    errmsg_ = msg; errmsg_ += endmsg;
+	    return false;
+	}
+	if ( !maxsuccess )
+	{
+	    msg += "max frequency must be higher";
+	    errmsg_ = msg; errmsg_ += endmsg;
+	    return false;
+	}
+    }
     return true;
 }
 
