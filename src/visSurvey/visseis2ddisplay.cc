@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.86 2010-01-12 14:38:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.87 2010-02-15 03:52:53 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -256,7 +256,8 @@ void Seis2DDisplay::setZRange( const Interval<float>& nzrg )
     const StepInterval<float> maxzrg = getMaxZRange( false );
     const Interval<float> zrg( mMAX(maxzrg.start,nzrg.start),
 			       mMIN(maxzrg.stop,nzrg.stop) );
-    if ( curzrg_.isEqual(zrg,mDefEps) )
+    const bool hasdata = !cache_.isEmpty() && cache_[0];
+    if ( hasdata && curzrg_.isEqual(zrg,mDefEps) )
 	return;
 
     curzrg_.setFrom( zrg );
@@ -987,8 +988,7 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
     par.set( sKeyTrcNrRange(), trcnrrg_ );
-    par.set( sKeyZRange(), curzrg_ ); 
-    //Used getSampleRange(), but the geometry is not set if we reload and call usePar
+    par.set( sKeyZRange(), curzrg_ );
 }
 
 
