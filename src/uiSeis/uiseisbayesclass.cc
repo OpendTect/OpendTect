@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.7 2010-02-16 10:12:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.8 2010-02-16 14:23:30 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -255,6 +255,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
     , pars_(pars)
     , lsfld_(0)
     , is2d_(is2d)
+    , leave_(false)
 {
     setOkText( "Next &>>" ); setCancelText( "&<< Back" );
     BufferString emsg;
@@ -294,6 +295,12 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
 {
 }
 
+bool rejectOK( CallBacker* )
+{
+    leave_ = !cancelpushed_;
+    return true;
+}
+
 bool acceptOK( CallBacker* )
 {
     if ( is2d_ ) { uiMSG().error( "2D not implemented" ); return false; }
@@ -309,7 +316,8 @@ bool acceptOK( CallBacker* )
 }
 
     IOPar&			pars_;
-    bool			is2d_;
+    const bool			is2d_;
+    bool			leave_;
 
     uiSeisSel*			lsfld_;
     ObjectSet<uiSeisSel>	flds3d_;
@@ -329,7 +337,11 @@ void uiSeisBayesClass::getInpSeis()
 void uiSeisBayesClass::inpSeisGot( CallBacker* )
 {
     if ( !inpseisdlg_->uiResult() )
-	{ inpseisdlg_ = 0; mSetState( InpPDFS ); }
+    {
+	const bool doleave = inpseisdlg_->leave_;
+	inpseisdlg_ = 0;
+	mSetState( doleave ? Finished : InpPDFS );
+    }
 
     mSetState( Output );
 }
@@ -344,7 +356,6 @@ uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
 				 mTODOHelpID).modal(false))
     , pars_(pars)
     , is2d_(is2d)
-    , nrvars_(0)
 {
     setCancelText( "&<< Back" );
     if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }
@@ -353,7 +364,6 @@ uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
 	    				emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
-    nrvars_ = pdf->nrDims();
 
     for ( int idx=0; idx<cMaxPDFs; idx++ )
     {
@@ -400,6 +410,12 @@ void addOut( const char* nm, bool ispdf )
 {
 }
 
+bool rejectOK( CallBacker* )
+{
+    leave_ = !cancelpushed_;
+    return true;
+}
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool acceptOK( CallBacker* )
@@ -428,8 +444,8 @@ bool acceptOK( CallBacker* )
 }
 
     IOPar&			pars_;
-    bool			is2d_;
-    int				nrvars_;
+    const bool			is2d_;
+    bool			leave_;
 
     ObjectSet<uiSeisSel>	flds3d_;
     uiSeisSubSel*		subselfld_;
@@ -449,7 +465,11 @@ void uiSeisBayesClass::doOutput()
 void uiSeisBayesClass::outputDone( CallBacker* )
 {
     if ( !outdlg_->uiResult() )
-	{ outdlg_ = 0; mSetState( InpSeis ); }
+    {
+	const bool doleave = outdlg_->leave_;
+	outdlg_ = 0;
+	mSetState( doleave ? Finished : InpSeis );
+    }
 
     SeisBayesClass exec( pars_ );
     uiTaskRunner tr( outdlg_ );
