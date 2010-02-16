@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.8 2009-08-13 09:19:08 cvsbert Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.9 2010-02-16 10:12:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ mClass uiODApplMgrDispatcher : public CallBacker
     int			createMapDataPack(const DataPointSet&,int);
 
     void		processPreStack();
+    void		bayesInversion(bool is2d);
     void		reStartProc();
     void		batchProgs();
     void		pluginMan();

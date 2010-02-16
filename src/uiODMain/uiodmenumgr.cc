@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.201 2010-02-12 10:27:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.202 2010-02-16 10:12:39 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -404,6 +404,9 @@ void uiODMenuMgr::fillProcMenu()
 	voitm->insertItem(
 	    new uiMenuItem("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
+	voitm->insertItem(
+	    new uiMenuItem("Bayesian &Inversion ...",
+			mCB(&applMgr(),uiODApplMgr,bayesInversion3D)) );
     }
     create2D3DMnu( voitm, "&Between horizons", mCompBetweenHor2DMnuItm,
 	    	   mCompBetweenHor3DMnuItm );
