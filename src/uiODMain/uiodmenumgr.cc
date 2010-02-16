@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.202 2010-02-16 10:12:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.203 2010-02-16 12:03:24 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -237,7 +237,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impwvlt, "&Ascii ...", mImpWvltAsciiMnuItm );
     mInsertItem( impmute, "&Ascii ...", mImpMuteDefAsciiMnuItm );
     mInsertItem( impvelfn, "&Ascii ...", mImpVelocityAsciiMnuItm );
-    mInsertItem( imppdf, "&Ascii ...", mImpPDFAsciiMnuItm );
+    mInsertItem( imppdf, "RokDoc &Ascii ...", mImpPDFAsciiMnuItm );
 
     mInsertItem( impseis, "SEG-&Y ...", mImpSeisSEGYMnuItm );
     mInsertItem( impseis, "SEG-Y &Pre-stack scanned ...",
