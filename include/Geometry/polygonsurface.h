@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.10 2009-07-22 16:01:16 cvsbert Exp $
+RCS:           $Id: polygonsurface.h,v 1.11 2010-02-16 18:09:19 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,10 @@ public:
 
     void		addUdfPolygon(int polygnr,int firstknotnr,int nrknots);
     void		addEditPlaneNormal(const Coord3& normal);
+
+    char		bodyDimension() const;
+    			/*<Return dim==3, it is a real body, otherwise, 
+			   dim==2 a surface, dim==1 a line, dim==0 a point.*/
 
 protected:
 

@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.12 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.13 2010-02-16 18:09:19 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
@@ -54,6 +54,25 @@ Element* PolygonSurface::clone() const
     res->beziernrpts_ = beziernrpts_;
 
     return res;
+}
+
+
+char PolygonSurface::bodyDimension() const
+{
+    const int plygsz = polygons_.size();
+    if ( !plygsz )
+	return 0;
+    
+    if ( plygsz==1 )
+	return polygons_[0]->size() >= 3 ? 2 : polygons_[0]->size()-1;
+    
+    int totalpts = 0;
+    for ( int idx=0; idx<plygsz; idx++ )
+	totalpts += polygons_[idx]->size();
+    
+    if ( !totalpts ) return 0;
+    
+    return totalpts>3 ? 3 : totalpts-1;
 }
 
 
