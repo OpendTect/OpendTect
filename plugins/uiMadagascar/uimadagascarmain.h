@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.19 2009-11-24 14:13:48 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.20 2010-02-16 04:45:15 cvsnanne Exp $
 -*/
 
 #include "uibatchlaunch.h"
@@ -57,7 +57,7 @@ protected:
 
     bool		prepareProcessing()	{ return true; }
     bool		fillPar(IOPar&);
-    void		createMenus();
+    void		createToolBar();
     void		updateCaption();
     uiGroup*		crProcGroup(uiGroup*);
 

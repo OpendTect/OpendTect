@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.34 2009-11-24 14:13:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.35 2010-02-16 04:45:15 cvsnanne Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.34 2009-11-24 14:13:48 
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
-#include "uimenu.h"
 #include "uitoolbar.h"
 #include "uiseparator.h"
 #include "uiioobjsel.h"
@@ -34,7 +33,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.34 2009-11-24 14:13:48 
 const char* sKeySeisOutIDKey = "Output Seismics Key";
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
-	: uiFullBatchDialog(p,Setup("Madagascar processing").menubar(true)
+	: uiFullBatchDialog(p,Setup("Madagascar processing")
 				   .procprognm("odmadexec")
 				   .modal(false))
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
@@ -46,7 +45,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     setCtrlStyle( uiDialog::DoAndStay );
     setHelpID( "103.5.0" );
     addStdFields( false, false, true );
-    createMenus();
+    createToolBar();
 
     uiGroup* maingrp = new uiGroup( uppgrp_, "Main group" );
 
@@ -82,30 +81,16 @@ uiMadagascarMain::~uiMadagascarMain()
 }
 
 
-#define mInsertItem( txt, func ) \
-    mnu->insertItem( new uiMenuItem(txt,mCB(this,uiMadagascarMain,func)) )
 #define mAddButton(pm,func,tip) \
     toolbar->addButton( pm, mCB(this,uiMadagascarMain,func), tip )
 
-void uiMadagascarMain::createMenus()
+void uiMadagascarMain::createToolBar()
 {
-    uiMenuBar* menubar = menuBar();
-    if ( !menubar ) { pErrMsg("huh?"); return; }
-
-    uiPopupMenu* mnu = new uiPopupMenu( this, "&File" );
-    mInsertItem( "&New flow ...", newFlow );
-    mInsertItem( "&Open flow ...", openFlow );
-    mInsertItem( "&Save flow ...", saveFlow );
-    mnu->insertSeparator();
-    mInsertItem( "&Export flow ...", exportFlow );
-    mnu->insertSeparator();
-    mInsertItem( "&Quit", reject );
-    menubar->insertItem( mnu );
-
     uiToolBar* toolbar = new uiToolBar( this, "Flow tools" );
     mAddButton( "newflow.png", newFlow, "Empty this flow" );
     mAddButton( "openflow.png", openFlow, "Open saved flow" );
-    mAddButton( "saveflow.png", saveFlow, "Save flow" );
+    mAddButton( "save.png", saveFlow, "Save flow" );
+    mAddButton( "export.png", exportFlow, "Export flow" );
 }
 
 
