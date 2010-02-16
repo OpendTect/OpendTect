@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.13 2009-11-18 19:53:34 cvskris Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.14 2010-02-16 18:17:12 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
@@ -173,7 +173,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr,
 {
     const EM::SectionID sid = sectionID( 0 );
     const Geometry::PolygonSurface* surf = geometry().sectionGeometry( sid );
-    if ( !surf || surf->nrPolygons()<2 )
+    if ( !surf || surf->bodyDimension()<3 )
 	return 0;
 
      const StepInterval<int> rrg = surf->rowRange();
