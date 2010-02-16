@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.93 2010-01-18 10:38:13 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.94 2010-02-16 04:15:30 cvsnanne Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -102,8 +102,12 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 }
 
 
-#define mInsertItem( txt, func ) \
-    filemnu->insertItem( new uiMenuItem(txt,mCB(this,uiAttribDescSetEd,func)) )
+#define mInsertItem( txt, func, fnm ) \
+{ \
+    ioPixmap pm( fnm ); \
+    uiMenuItem* itm = new uiMenuItem(txt,mCB(this,uiAttribDescSetEd,func),&pm);\
+    filemnu->insertItem( itm ); \
+}
 
 void uiAttribDescSetEd::createMenuBar()
 {
@@ -111,16 +115,16 @@ void uiAttribDescSetEd::createMenuBar()
     if( !menu )		{ pErrMsg("huh?"); return; }
 
     uiPopupMenu* filemnu = new uiPopupMenu( this, "&File" );
-    mInsertItem( "&New set ...", newSet );
-    mInsertItem( "&Open set ...", openSet );
-    mInsertItem( "&Save set ...", savePush );
-    mInsertItem( "&Auto Load Attribute Set ...", autoSet );
-    mInsertItem( "&Change input ...", changeInput );
+    mInsertItem( "&New set ...", newSet, "newset.png" );
+    mInsertItem( "&Open set ...", openSet, "openset.png" );
+    mInsertItem( "&Save set ...", savePush, "saveset.png" );
+    mInsertItem( "&Auto Load Attribute Set ...", autoSet, "" );
+    mInsertItem( "&Change input ...", changeInput, "" );
     filemnu->insertSeparator();
-    mInsertItem( "Open &Default set ...", defaultSet );
-    mInsertItem( "&Import set ...", importSet );
-    mInsertItem( "Import set from &file ...", importFile );
-    mInsertItem( "&Reconstruct set from job file ...", job2Set );
+    mInsertItem( "Open &Default set ...", defaultSet, "defset.png" );
+    mInsertItem( "&Import set ...", importSet, "impset.png" );
+    mInsertItem( "Import set from &file ...", importFile, "" );
+    mInsertItem( "&Reconstruct set from job file ...", job2Set, "job2set.png" );
 
     menu->insertItem( filemnu );
 }
