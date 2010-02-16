@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.12 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.13 2010-02-16 15:44:27 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -124,14 +124,26 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
 
 bool ExplPolygonSurface::updateBodyDisplay()
 {
-    if ( samples_.size()<4 || surface_->nrPolygons()<2 )
+    const int sampsz = samples_.size();
+    if ( sampsz<3 || surface_->nrPolygons()<2 )
 	return true;
+
+    if ( sampsz==3 )
+    {
+	bodytriangle_->coordindices_.erase();
+ 	bodytriangle_->coordindices_ += 0;
+ 	bodytriangle_->coordindices_ += 1;
+ 	bodytriangle_->coordindices_ += 2;
+       	bodytriangle_->coordindices_ += -1;
+ 	bodytriangle_->ischanged_ = true;
+ 	return true;	
+    }
 
     if ( !tetrahedratree_ ) 
       tetrahedratree_ = new DAGTetrahedraTree;	
   
     TypeSet<Coord3> pts;
-    for ( int idx=0; idx<samples_.size(); idx++ )
+    for ( int idx=0; idx<sampsz; idx++ )
 	pts += samples_[idx].scaleBy(scalefacs_);
 
     if ( !tetrahedratree_->setCoordList( pts, false ) )
@@ -145,11 +157,12 @@ bool ExplPolygonSurface::updateBodyDisplay()
     sampleindices_.erase();
     tetrahedratree_->getSurfaceTriangles( sampleindices_ );
     
+    const int nrindices = sampleindices_.size();
     TypeSet<int> invalidknots;
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	int counts = 0;
-	for ( int idy=0; idy<sampleindices_.size(); idy++ )
+	for ( int idy=0; idy<nrindices; idy++ )
 	{
 	    if ( idx==sampleindices_[idy] )
 		counts++;
@@ -160,8 +173,8 @@ bool ExplPolygonSurface::updateBodyDisplay()
     }
    
     bodytriangle_->coordindices_.erase();
-    bool allvalid = invalidknots.size();
-    for ( int idx=0; idx<sampleindices_.size()/3; idx++ )
+    bool allvalid = !invalidknots.size();
+    for ( int idx=0; idx<nrindices/3; idx++ )
     {
 	if ( !allvalid && ( invalidknots.validIdx(sampleindices_[3*idx]) ||
 		    	    invalidknots.validIdx(sampleindices_[3*idx+1]) ||
