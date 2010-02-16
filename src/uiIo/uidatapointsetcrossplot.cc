@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.57 2010-02-09 07:31:55 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.58 2010-02-16 06:14:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.57 2010-02-09 07:31:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.58 2010-02-16 06:14:56 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1075,31 +1075,52 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
     
 }
 
+int uiDataPointSetCrossPlotter::calculateDensity( Array2D<float>* data,
+						  bool chgdps, bool removesel )
+{ return calcDensity( data, chgdps, removesel, false, 0 ); }
+
+
 int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
-					     bool removesel )
+					     bool removesel, bool isy2,
+					     int areatype,
+					     Interval<int>* nrbins,
+       					     Array2D<float>* freqdata )
 {
+    AxisData& yad = isy2 ? y2_ : y_;
     const Interval<int> xpixrg( x_.axis_->pixRange() ),
-	  		ypixrg( y_.axis_->pixRange() );
+	  		ypixrg( yad.axis_->pixRange() );
     uiWorld2Ui w2ui( uiSize(rgbarr_.getSize(true), rgbarr_.getSize(false)),
 	    	     uiWorldRect((double)arrarea_.left(),(double)arrarea_.top(),
 			 	 (double)arrarea_.right(),
 				 (double)arrarea_.bottom()) );
-    if ( !x_.axis_ || !y_.axis_ )
+    if ( !x_.axis_ || !yad.axis_ )
 	return -1;
-    DensityCalc densitycalc( uidps_, data, x_, y_, selareaset_, trmsg_.buf() );
+    DensityCalc densitycalc( uidps_, data, x_, yad, selareaset_, trmsg_.buf() );
     densitycalc.setWorld2Ui( w2ui );
     densitycalc.setMathObj( mathobj_ );
     densitycalc.setModifiedColIds( modcolidxs_ );
     densitycalc.setDPSChangeable( chgdps );
     densitycalc.setRemSelected( removesel );
     densitycalc.setCurGroup( curgrp_ );
-    densitycalc.setCellSize( cellsize_ );
+    if ( nrbins )
+    {
+	densitycalc.setNrBins( nrbins->start, nrbins->stop );
+	densitycalc.setCellXSize( (float)arrarea_.width()/(float)nrbins->start);
+	densitycalc.setCellYSize( (float)arrarea_.height()/(float)nrbins->stop);
+    }
+    else
+	densitycalc.setCellSize( (float)cellsize_ );
+    densitycalc.setAreaType( areatype );
     uiTaskRunner tr( parent() );
     tr.execute( densitycalc );
 
     usedxpixrg_ = densitycalc.usedXPixRg();
     selrowcols_ = densitycalc.selRCs();
     selyitems_ = selrowcols_.size();
+
+    if ( freqdata )
+	densitycalc.getFreqData( *freqdata );
+
     const od_int64 totalsz =
 	data->info().getSize(true) * data->info().getSize(false);
     
@@ -1141,7 +1162,7 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 
     data->setAll( (float)0 );
 
-    int indexsz = calcDensity( data, false, withremovesel );
+    int indexsz = calcDensity( data, false, withremovesel, false, 0 );
     if ( indexsz < 1 )
 	return;
 

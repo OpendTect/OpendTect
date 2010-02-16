@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.19 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.20 2010-02-16 06:14:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ protected:
     void			deleteSelections(CallBacker*);
     void			setSelectionDomain(CallBacker*);
     void			drawTypeChangedCB(CallBacker*);
+    void			exportPDF(CallBacker*);
     void			eachChg(CallBacker*);
     void			grpChg(CallBacker*);
     void			editProps(CallBacker*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: densitycalc.h,v 1.4 2010-01-08 04:43:07 cvssatyaki Exp $
+ RCS:           $Id: densitycalc.h,v 1.5 2010-02-16 06:14:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
     , dps_( uidps.pointSet() )
     , selareaset_( areas )
     , data_( data )
+    , freqdata_( 0 )
     , x_( x )
     , y_( y )
     , mathobj_( 0 )
@@ -46,16 +47,21 @@ DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
     , curgrp_( 0 )
     , nrdone_( 0 )
     , indexsz_( 0 )
-    , cellsize_( 1 )
+    , cellxsize_( 1.0 )
+    , cellysize_( 1.0 )
+    , areatype_( 0 )
 {
-    const int celldatawdth = data_->info().getSize(0)%cellsize_
-			? data_->info().getSize(0)/cellsize_ + 1
-			: data_->info().getSize(0)/cellsize_;
-    const int celldataheight = data_->info().getSize(1)%cellsize_
-			? data_->info().getSize(1)/cellsize_ + 1
-			: data_->info().getSize(1)/cellsize_;
-    freqdata_ = new Array2DImpl<float>( celldatawdth, celldataheight );
-    freqdata_->setAll( (float)0 );
+    if ( data_ )
+    {
+	const int celldatawdth = data_->info().getSize(0)%mNINT(cellxsize_)
+			    ? data_->info().getSize(0)/mNINT(cellxsize_) + 1
+			    : data_->info().getSize(0)/mNINT(cellxsize_);
+	const int celldataheight = data_->info().getSize(1)%mNINT(cellysize_)
+			    ? data_->info().getSize(1)/mNINT(cellysize_) + 1
+			    : data_->info().getSize(1)/mNINT(cellysize_);
+	freqdata_ = new Array2DImpl<float>( celldatawdth, celldataheight );
+	freqdata_->setAll( (float)0 );
+    }
 }
 
 od_int64 nrDone() const { return nrdone_; }
@@ -76,6 +82,20 @@ bool isSelectionValid( uiDataPointSet::DRowID rid )
 	    return false;
     }
     return true;
+}
+
+
+void setNrBins( int nrbinx, int nrbiny )
+{
+    if ( !freqdata_ )
+	freqdata_ = new Array2DImpl<float>( nrbinx, nrbiny );
+    else
+    {
+	mDynamicCastGet(Array2DImpl<float>*,arrimpl,freqdata_)
+	arrimpl->setSize( nrbinx, nrbiny );
+    }
+
+    freqdata_->setAll( (float)0 );
 }
 
 
@@ -141,18 +161,30 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    dps_.setSelected( rid, false );
 	if ( !data_->info().validPos(datapt.x,datapt.y) )
 	    continue;
-	const int freqx = datapt.x/cellsize_;
-	const int freqy = datapt.y/cellsize_;
-	freqdata_->set( freqx, freqy,
-		ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
-	for ( int idx=0; idx<cellsize_; idx++ )
+	const int freqx = mNINT(datapt.x/cellxsize_);
+	const int freqy = mNINT(datapt.y/cellysize_);
+	if ( !areatype_ )
+	    freqdata_->set( freqx, freqy,
+		    ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
+	else if ( areatype_==1 && ptselected )
+	    freqdata_->set( freqx, freqy,
+		    ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
+	else if ( areatype_==2 && !ptselected )
+	    freqdata_->set( freqx, freqy,
+		    ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
+
+	if ( data_ )
 	{
-	    for ( int idy=0; idy<cellsize_; idy++ )
-		data_->set( freqx*cellsize_+idx, freqy*cellsize_+idy,
-			    ptremoved ? 0 : freqdata_->get(freqx,freqy) );
+	    for ( int idx=0; idx<mNINT(cellxsize_); idx++ )
+	    {
+		for ( int idy=0; idy<mNINT(cellysize_); idy++ )
+		    data_->set( freqx*mNINT(cellxsize_)+idx,
+			    	freqy*mNINT(cellysize_)+idy,
+				ptremoved ? 0 : freqdata_->get(freqx,freqy) );
+	    }
+	    if ( indexsz_ < mNINT(data_->get(datapt.x,datapt.y)) )
+		indexsz_ = mNINT(data_->get(datapt.x,datapt.y));
 	}
-	if ( indexsz_ < mNINT(data_->get(datapt.x,datapt.y)) )
-	    indexsz_ = mNINT(data_->get(datapt.x,datapt.y));
     }
     return true;
 }
@@ -170,13 +202,37 @@ void setRemSelected( bool removesel )	{ removesel_ = removesel; }
 
 void setCurGroup( int curgrp )		{ curgrp_ = curgrp; }
 
-void setCellSize( int sz )		{ cellsize_ = sz; }
+void setCellXSize( float sz )		{ cellxsize_ = sz; }
+
+void setCellYSize( float sz )		{ cellysize_ = sz; }
+
+void setCellSize( float sz)
+{
+    cellxsize_ = cellysize_ = sz;
+}
 
 int indexSize() const			{ return indexsz_; }
 
 const TypeSet<RowCol>& selRCs() const	{ return selrowcols_; }
 
 const Interval<int>& usedXPixRg() const	{ return usedxpixrg_; }
+
+void setAreaType(int areatype) 		{ areatype_ = areatype; }
+
+int areaType() const			{ return areatype_; }
+
+void getFreqData( Array2D<float>& freqdata ) const
+{
+    mDynamicCastGet(Array2DImpl<float>*,freqdataimpl,&freqdata)
+    if ( !freqdataimpl ) return;
+    freqdataimpl->setSize( freqdata_->info().getSize(0),
+	    	      	   freqdata_->info().getSize(1) );
+    for ( int idx=0; idx<freqdata_->info().getSize(0); idx++ )
+    {
+	for ( int idy=0; idy<freqdata_->info().getSize(1); idy++ )
+	    freqdata.set( idx, idy, freqdata_->get(idx,idy) );
+    }
+}
 
 protected:
     uiDataPointSet&			uidps_;
@@ -199,6 +255,8 @@ protected:
     int					curgrp_;
     int					indexsz_;
     int					nrdone_;
-    int					cellsize_;
+    float				cellxsize_;
+    float				cellysize_;
+    int					areatype_;
 };
 

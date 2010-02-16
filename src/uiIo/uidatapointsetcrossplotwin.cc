@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: uidatapointsetcrossplotwin.cc";
 #include "uidatapointsetcrossplotwin.h"
 
 #include "uibutton.h"
+#include "uicreatedpspdf.h"
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
 #include "uidatapointset.h"
@@ -158,6 +159,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     maniptb_.addButton( "xplotprop.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );
+    maniptb_.addButton( "exppdf.png",
+	    mCB(this,uiDataPointSetCrossPlotWin,exportPDF),"PDF",false );
 
 
     const int nrgrps = uidps_.groupNames().size();
@@ -277,7 +280,7 @@ void uiDataPointSetCrossPlotWin::showTableSel( CallBacker* )
 	data->setAll( (float)0 );
 
 	plotter_.setTRMsg( "Showing selected points in table" );
-	plotter_.calcDensity( data, true );
+	plotter_.calculateDensity( data, true );
     }
     uidps_.notifySelectedCell();
 }
@@ -590,7 +593,7 @@ void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
 	data->setAll( (float)0 );
 
 	plotter_.setTRMsg( "Showing selected points in workspace" );
-	plotter_.calcDensity( data, true );
+	plotter_.calculateDensity( data, true );
     }
 
     uidps_.selPtsToBeShown.trigger();
@@ -695,6 +698,13 @@ void uiDataPointSetCrossPlotWin::setSelComboSensitive( bool yn )
     bool status = plotter_.isSceneSelectable() &&
 		  !plotter_.isADensityPlot() ? yn : false;
     selfld_->setSensitive( status );
+}
+
+
+void uiDataPointSetCrossPlotWin::exportPDF( CallBacker* )
+{
+    uiCreateDPSPDF dlg( this, plotter_ );
+    dlg.go();
 }
 
 

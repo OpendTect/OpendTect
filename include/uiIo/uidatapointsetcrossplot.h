@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.30 2010-02-09 07:31:55 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.31 2010-02-16 06:14:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,7 +134,13 @@ public:
     void			setItem(uiGraphicsItem*,bool y2,const uiPoint&);
     void			setAnnotEndTxt(uiAxisHandler&);
     int				calcDensity(Array2D<float>*,bool chgdps=false,
-	    				    bool removesel=false);
+	    				    bool removesel=false,
+					    bool isy2=false, int areatyp=0,
+					    Interval<int>* cellsz = 0,
+					    Array2D<float>* freqdata = 0);
+    int				calculateDensity(Array2D<float>*,
+	    					 bool chgdps=false,
+						 bool removesel=false);
     void			drawDensityPlot(bool removesel=false);
     bool			drawPoints(uiGraphicsItemGroup*,
 	    				   const AxisData&,bool y2,
