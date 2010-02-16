@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.6 2010-02-15 12:44:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.7 2010-02-16 10:12:55 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -32,10 +32,11 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.6 2010-02-15 12:44:32 c
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxPDFs = 5;
+static const char* sKeyBayesInv = "Bayesian Inversion";
 
 
 uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d, const IOPar* iop )
-    : Usage::Client("Bayesian Classification")
+    : Usage::Client(sKeyBayesInv)
     , is2d_(is2d)
     , state_(InpPDFS)
     , parent_(p)
@@ -89,8 +90,8 @@ class uiSeisBayesPDFInp : public uiDialog
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
-    : uiDialog(p,uiDialog::Setup("Bayesian Classification",
-				 "Specify PDF input",mTODOHelpID).modal(false))
+    : uiDialog(p,uiDialog::Setup(sKeyBayesInv,"[1] Specify PDF input",
+				 mTODOHelpID).modal(false))
     , pars_(pars)
     , nrdisp_(1)
 {
@@ -249,9 +250,8 @@ class uiSeisBayesSeisInp : public uiDialog
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
-    : uiDialog(p,uiDialog::Setup("Bayesian Classification",
-				 "Specify Seismic input",mTODOHelpID)
-	    			 .modal(false))
+    : uiDialog(p,uiDialog::Setup(sKeyBayesInv,"[2] Specify Seismic input",
+				 mTODOHelpID).modal(false))
     , pars_(pars)
     , lsfld_(0)
     , is2d_(is2d)
@@ -340,9 +340,8 @@ class uiSeisBayesOut : public uiDialog
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
-    : uiDialog(p,uiDialog::Setup("Bayesian Classification",
-				 "Select and specify output",mTODOHelpID)
-	    			  .modal(false))
+    : uiDialog(p,uiDialog::Setup(sKeyBayesInv,"[3] Select and specify output",
+				 mTODOHelpID).modal(false))
     , pars_(pars)
     , is2d_(is2d)
     , nrvars_(0)
