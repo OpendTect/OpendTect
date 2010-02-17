@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.13 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.14 2010-02-17 21:12:15 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -72,6 +72,14 @@ void Mute::setEmptyMute()
 }
 
 
+void Mute::setTailMute( bool yn )
+{ tail_ = yn; delete muter_; muter_ = 0; }
+
+
+void Mute::setTaperLength( float l )
+{ taperlen_ = l; delete muter_; muter_ = 0; }
+
+
 bool Mute::setMuteDefID( const MultiID& mid )
 {
     if ( id_==mid )
@@ -105,8 +113,13 @@ void Mute::fillPar( IOPar& par ) const
 
 bool Mute::usePar( const IOPar& par )
 {
-    par.get( sTaperLength(), taperlen_ );
-    par.getYN( sTailMute(), tail_ );
+    float taperlen;
+    if ( par.get( sTaperLength(), taperlen ) )
+	setTaperLength( taperlen );
+
+    bool tail;
+    if ( par.getYN( sTailMute(), tail ) )
+	setTailMute( tail );
 
     MultiID mid;
     if ( par.get(sMuteDef(),mid) && !setMuteDefID(mid) )

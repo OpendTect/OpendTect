@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.9 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: prestackmute.h,v 1.10 2010-02-17 21:12:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,10 +48,10 @@ public:
     MuteDef&		muteDef()		{ return def_; }
     bool		isTailMute() const	{ return tail_; }
     float		taperLength() const	{ return taperlen_; }
-    bool		setMuteDefID( const MultiID& id );
+    bool		setMuteDefID(const MultiID&);
     void		setEmptyMute();
-    void		setTailMute( bool yn=true )	  { tail_ = yn; }
-    void		setTaperLength( float l )	  { taperlen_ = l; }
+    void		setTailMute(bool yn=true);
+    void		setTaperLength(float l);
 
 protected:
 
