@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uivarwizard.h,v 1.1 2010-02-17 12:53:06 cvsbert Exp $
+ RCS:           $Id: uivarwizard.h,v 1.2 2010-02-17 16:11:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,9 +56,12 @@ protected:
 #define mSetVWState(st) \
 	{ state_ = st; nextAction(); return; }
 
-#define mLaunchVWDialog(dlg,clss,fn) \
+#define mLaunchVWDialogOnly(dlg,clss,fn) \
 	dlg->windowClosed.notify( mCB(this,clss,fn) ); \
-	dlg->setDeleteOnClose( true ); dlg->go(); \
+	dlg->setDeleteOnClose( true ); dlg->go()
+
+#define mLaunchVWDialog(dlg,clss,fn) \
+    	mLaunchVWDialogOnly(dlg,clss,fn); \
 	mSetVWState( cWait4Dialog() )
 
 #define mHandleVWCancel(dlg,backstate) \
@@ -67,7 +70,7 @@ protected:
     { \
 	const bool doleave = mustLeave(dlg); \
 	dlg = 0; \
-	mSetState( doleave ? cCancelled() : backstate ); \
+	mSetState( doleave ? cCancelled() : ((int)backstate) ); \
     }
 
 
