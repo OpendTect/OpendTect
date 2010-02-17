@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.1 2010-02-17 04:59:31 cvsnanne Exp $
+ RCS:		$Id: file.cc,v 1.2 2010-02-17 12:38:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,16 @@ bool rename( const char* oldname, const char* newname )
 
 
 bool createLink( const char* fnm, const char* linknm )
-{ return QFile::link( fnm, linknm ); }
+{ 
+#ifdef __win__
+    BufferString lnknm( linknm );
+    lnknm += ".lnk";
+    return QFile::link( fnm, lnknm.buf() );
+#else
+    return QFile::link( fnm, linknm );
+#endif
+
+}
 
 
 bool copyFile( const char* from, const char* to )
