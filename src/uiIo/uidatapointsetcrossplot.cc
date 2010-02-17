@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.58 2010-02-16 06:14:56 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.59 2010-02-17 06:47:00 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.58 2010-02-16 06:14:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.59 2010-02-17 06:47:00 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -128,7 +128,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     setStretch( 2, 2 );
     setDragMode( uiGraphicsView::ScrollHandDrag );
-    getRandRowids();
+    yrowidxs_ = new Array1DImpl<char>( dps_.size() );
+    y2rowidxs_ = new Array1DImpl<char>( dps_.size() );
     scene().setMouseEventActive( true );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
@@ -195,10 +196,8 @@ bool uiDataPointSetCrossPlotter::isY2Shown() const
 
 int uiDataPointSetCrossPlotter::totalNrItems() const
 {
-    if ( isY2Shown() )
-	return y2ptitems_->getSize() + yptitems_->getSize();
-    else
-	return yptitems_->getSize();
+    const int totalrows = mNINT( plotperc_/(float)100 * dps_.nrActive() );
+    return isY2Shown() ? totalrows*2 :  y_.axis_ ? totalrows : 0;
 }
 
 
@@ -222,18 +221,16 @@ void uiDataPointSetCrossPlotter::getRandRowids()
     for ( int idx=0; idx<2; idx++ )
     {
 	int rowcount =0;
-	if ( idx==0 )
-	    yrowidxs_ = new Array1DImpl<char>( dps_.size() );
-	else
-	    y2rowidxs_ = new Array1DImpl<char>( dps_.size() );
 
 	Array1D<char>* rowidxs = idx==0 ? yrowidxs_ : y2rowidxs_;
-	Array1DInfoImpl arrinfo( dps_.size() );
-	rowidxs->setInfo( arrinfo );
 	rowidxs->ArrayND<char>::setAll( '0' );
 	while ( rowcount < totalrows )
 	{
+	    const DataPointSet::ColID colid = idx==0 ? y_.colid_ : y2_.colid_;
+	    if ( mIsUdf(colid) || colid < 0 || !dps_.colName(colid) ) return;
 	    int randrow = randgen.getIndex( dps_.size() );
+	    if ( mIsUdf(uidps_.getVal(colid,randrow,true)) )
+		continue;
 	    if ( rowidxs->get(randrow) == '0' )
 		rowidxs->set( randrow, '1' );
 	    else
@@ -424,6 +421,8 @@ void uiDataPointSetCrossPlotter::setOverlayY2AttSeq(
 
 void uiDataPointSetCrossPlotter::setWorldSelArea( int selareaidx  )
 {
+    if ( !x_.axis_ || !y_.axis_ ) return;
+
     const uiAxisHandler& xah = *x_.axis_;
     const uiAxisHandler& yah = *y_.axis_;
 
@@ -545,8 +544,15 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	selareaset_[curselarea_]->rect_->setTopLeft( selrect.topLeft() );
 	selareaset_[curselarea_]->rect_->setBottomRight(
 		selrect.bottomRight() );
-	selectionrectitem_->setRect( selrect.left(), selrect.top(),
-				     selrect.width(), selrect.height() );
+	if ( !selectionrectitem_ )
+	    selectionrectitem_ =
+		new uiRectItem( selrect.left(), selrect.top(),
+				selrect.width(), selrect.height() );
+	else 
+	    selectionrectitem_->setRect( selrect.left(), selrect.top(),
+					 selrect.width(), selrect.height() );
+	selectionrectitem_->setPenColor( isdensityplot_ ? ctab_.markColor()
+							: Color(255,0,0) );
 	if ( !selrectitems_ )
 	{
 	    selrectitems_ = new uiGraphicsItemGroup();
@@ -781,6 +787,7 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     mHandleAxisAutoScale(y_);
     mHandleAxisAutoScale(y2_);
     
+    getRandRowids();
     calcStats();
     setDraw();
     drawContent();

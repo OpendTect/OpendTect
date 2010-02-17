@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.14 2010-02-09 07:31:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.15 2010-02-17 06:47:00 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -337,22 +337,28 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     cellsize_ = cellsize;
     minptinpfld_ =
 	new uiGenInput( this, "Threshold minimum points for Density Plot",
-		        IntInpSpec(minptsfordensity_) );
+			IntInpSpec(minptsfordensity_) );
     minptinpfld_->attach( rightAlignedBelow, lbl );
     
     cellsizefld_ = new uiGenInput( this, "Cell Size", IntInpSpec(cellsize) );
-    cellsizefld_->attach( leftAlignedBelow, minptinpfld_ );
+    cellsizefld_->attach( alignedBelow, minptinpfld_ );
     cellsizefld_->valuechanged.notify(
 	    mCB(this,uiDPSDensPlotSetTab,cellSzChanged) );
     
+    int width = 0;
+    int height = 0;
+    if ( plotter_.axisHandler(0) )
+	width = plotter_.axisHandler(0)->pixRange().width();
+    if ( plotter_.axisHandler(1) )
+	height = plotter_.axisHandler(1)->pixRange().width();
     wcellszfld_ = new uiGenInput( this, "Nr of Cells across Width",
-	   IntInpSpec(plotter_.arrArea().width()/cellsize) );
-    wcellszfld_->attach( leftAlignedBelow, cellsizefld_ );
+				  IntInpSpec(width/cellsize) );
+    wcellszfld_->attach( alignedBelow, cellsizefld_ );
     wcellszfld_->valuechanged.notify(
 	    mCB(this,uiDPSDensPlotSetTab,wCellNrChanged) );
     hcellszfld_ = new uiGenInput( this, "Nr of Cells across Height",
-	  IntInpSpec(plotter_.arrArea().height()/cellsize) );
-    hcellszfld_->attach( leftAlignedBelow, wcellszfld_ );
+				  IntInpSpec(height/cellsize) );
+    hcellszfld_->attach( alignedBelow, wcellszfld_ );
     hcellszfld_->valuechanged.notify(
 	    mCB(this,uiDPSDensPlotSetTab,hCellNrChanged) );
 }
