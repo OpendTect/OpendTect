@@ -7,11 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.8 2010-02-16 14:23:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.9 2010-02-17 12:53:06 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
+#include "uivarwizarddlg.h"
 #include "uibutton.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
@@ -26,28 +28,28 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.8 2010-02-16 14:23:30 c
 #include "probdenfunctr.h"
 #include "seistrctr.h"
 
-// for test
-#	include "uilabel.h"
 
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
-static const int cMaxPDFs = 5;
+static const int cMaxNrPDFs = 5;
 static const char* sKeyBayesInv = "Bayesian Inversion";
+#define mInpPDFs	10
+#define mInpSeis	11
+#define mOutput		12
 
 
-uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d, const IOPar* iop )
-    : Usage::Client(sKeyBayesInv)
+uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
+    : uiVarWizard(p)
+    , Usage::Client(sKeyBayesInv)
     , is2d_(is2d)
-    , state_(InpPDFS)
-    , parent_(p)
     , inppdfdlg_(0)
     , inpseisdlg_(0)
     , outdlg_(0)
-    , processEnded(this)
 {
     prepUsgStart( "Definition" ); sendUsgInfo();
     pars_.set( sKey::Type, is2d_ ? "2D" : "3D" );
 
+    state_ = mInpPDFs;
     nextAction();
 }
 
@@ -57,51 +59,42 @@ uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d, const IOPar* iop )
 void uiSeisBayesClass::closeDown()
 {
     prepUsgEnd(); sendUsgInfo();
-    uiOBJDISP()->go( this );
-    processEnded.trigger();
+    uiVarWizard::closeDown();
 }
 
 
-void uiSeisBayesClass::nextAction()
+void uiSeisBayesClass::doPart()
 {
-    if ( state_ <= Finished )
-	{ closeDown(); return; }
-
     switch ( state_ )
     {
-    case Wait4Dialog:
-	return;
-    break;
-    case InpPDFS:
+    case mInpPDFs:
 	getInpPDFs();
     break;
-    case InpSeis:
+    case mInpSeis:
 	getInpSeis();
     break;
-    case Output:
+    case mOutput:
 	doOutput();
     break;
     }
 }
 
 
-class uiSeisBayesPDFInp : public uiDialog
+class uiSeisBayesPDFInp : public uiVarWizardDlg
 {
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
-    : uiDialog(p,uiDialog::Setup(sKeyBayesInv,"[1] Specify PDF input",
-				 mTODOHelpID).modal(false))
-    , pars_(pars)
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[1] Specify PDF input",
+				 mTODOHelpID), pars,Start)
     , nrdisp_(1)
 {
-    setOkText( "Next &>>" );
     rmbuts_.allowNull(); addbuts_.allowNull();
     IOObjContext ctxt( mIOObjContext(ProbDenFunc) );
     ctxt.forread = true;
 
     const CallBack pushcb = mCB(this,uiSeisBayesPDFInp,butPush);
-    for ( int idx=0; idx<cMaxPDFs; idx++ )
+    for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	uiIOObjSel* fld = new uiIOObjSel( this, ctxt,
 				BufferString("Input PDF ",idx+1) );
@@ -114,7 +107,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
 	}
-	if ( idx == cMaxPDFs-1 )
+	if ( idx == cMaxNrPDFs-1 )
 	    addbuts_ += 0;
 	else
 	{
@@ -135,10 +128,6 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
     }
 
     finaliseDone.notify( mCB(this,uiSeisBayesPDFInp,handleDisp) );
-}
-
-~uiSeisBayesPDFInp()
-{
 }
 
 void butPush( CallBacker* cb )
@@ -204,8 +193,6 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    IOPar&			pars_;
-
     ObjectSet<uiIOObjSel>	flds_;
     ObjectSet<uiButton>		addbuts_;
     ObjectSet<uiButton>		rmbuts_;
@@ -214,25 +201,18 @@ bool acceptOK( CallBacker* )
 };
 
 
-#define mLaunchDlg(dlg,fn) \
-	dlg->windowClosed.notify( mCB(this,uiSeisBayesClass,fn) ); \
-	dlg->setDeleteOnClose( true ); dlg->go()
 
 void uiSeisBayesClass::getInpPDFs()
 {
     inppdfdlg_ = new uiSeisBayesPDFInp( parent_, pars_ );
-    mLaunchDlg(inppdfdlg_,inpPDFsGot);
-    mSetState(Wait4Dialog);
+    mLaunchVWDialog(inppdfdlg_,uiSeisBayesClass,inpPDFsGot);
 }
 
 
 void uiSeisBayesClass::inpPDFsGot( CallBacker* )
 {
-    if ( !inppdfdlg_ ) return;
-    if ( !inppdfdlg_->uiResult() )
-	mSetState(Cancelled);
-
-    mSetState( InpSeis );
+    mHandleVWCancel(inppdfdlg_,cCancelled())
+    mSetState( mInpSeis );
 }
 
 
@@ -245,19 +225,16 @@ static ProbDenFunc* getPDF( const char* id, BufferString& emsg )
 }
 
 
-class uiSeisBayesSeisInp : public uiDialog
+class uiSeisBayesSeisInp : public uiVarWizardDlg
 {
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
-    : uiDialog(p,uiDialog::Setup(sKeyBayesInv,"[2] Specify Seismic input",
-				 mTODOHelpID).modal(false))
-    , pars_(pars)
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[2] Specify Seismic input",
+			 mTODOHelpID), pars,Middle)
     , lsfld_(0)
     , is2d_(is2d)
-    , leave_(false)
 {
-    setOkText( "Next &>>" ); setCancelText( "&<< Back" );
     BufferString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
 	    				emsg );
@@ -291,16 +268,6 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
     }
 }
 
-~uiSeisBayesSeisInp()
-{
-}
-
-bool rejectOK( CallBacker* )
-{
-    leave_ = !cancelpushed_;
-    return true;
-}
-
 bool acceptOK( CallBacker* )
 {
     if ( is2d_ ) { uiMSG().error( "2D not implemented" ); return false; }
@@ -315,13 +282,10 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    IOPar&			pars_;
     const bool			is2d_;
-    bool			leave_;
 
     uiSeisSel*			lsfld_;
     ObjectSet<uiSeisSel>	flds3d_;
-
 
 };
 
@@ -329,35 +293,26 @@ bool acceptOK( CallBacker* )
 void uiSeisBayesClass::getInpSeis()
 {
     inpseisdlg_ = new uiSeisBayesSeisInp( parent_, pars_, is2d_ );
-    mLaunchDlg(inpseisdlg_,inpSeisGot);
-    mSetState( Wait4Dialog );
+    mLaunchVWDialog(inpseisdlg_,uiSeisBayesClass,inpSeisGot);
 }
 
 
 void uiSeisBayesClass::inpSeisGot( CallBacker* )
 {
-    if ( !inpseisdlg_->uiResult() )
-    {
-	const bool doleave = inpseisdlg_->leave_;
-	inpseisdlg_ = 0;
-	mSetState( doleave ? Finished : InpPDFS );
-    }
-
-    mSetState( Output );
+    mHandleVWCancel(inpseisdlg_,mInpPDFs)
+    mSetState( mOutput );
 }
 
 
-class uiSeisBayesOut : public uiDialog
+class uiSeisBayesOut : public uiVarWizardDlg
 {
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
-    : uiDialog(p,uiDialog::Setup(sKeyBayesInv,"[3] Select and specify output",
-				 mTODOHelpID).modal(false))
-    , pars_(pars)
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,
+			"[3] Select and specify output",mTODOHelpID), pars,End)
     , is2d_(is2d)
 {
-    setCancelText( "&<< Back" );
     if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }
 
     BufferString emsg;
@@ -365,7 +320,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
 	    				emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
 
-    for ( int idx=0; idx<cMaxPDFs; idx++ )
+    for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
 	if ( !id || !*id ) break;
@@ -406,16 +361,6 @@ void addOut( const char* nm, bool ispdf )
     flds3d_ += fld;
 }
 
-~uiSeisBayesOut()
-{
-}
-
-bool rejectOK( CallBacker* )
-{
-    leave_ = !cancelpushed_;
-    return true;
-}
-
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool acceptOK( CallBacker* )
@@ -443,9 +388,7 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    IOPar&			pars_;
     const bool			is2d_;
-    bool			leave_;
 
     ObjectSet<uiSeisSel>	flds3d_;
     uiSeisSubSel*		subselfld_;
@@ -457,24 +400,19 @@ bool acceptOK( CallBacker* )
 void uiSeisBayesClass::doOutput()
 {
     outdlg_ = new uiSeisBayesOut( parent_, pars_, is2d_ );
-    mLaunchDlg(outdlg_,outputDone);
-    mSetState( Wait4Dialog );
+    mLaunchVWDialog(outdlg_,uiSeisBayesClass,outputDone);
 }
 
 
 void uiSeisBayesClass::outputDone( CallBacker* )
 {
-    if ( !outdlg_->uiResult() )
-    {
-	const bool doleave = outdlg_->leave_;
-	outdlg_ = 0;
-	mSetState( doleave ? Finished : InpSeis );
-    }
+    mHandleVWCancel(outdlg_,mInpSeis)
 
     SeisBayesClass exec( pars_ );
     uiTaskRunner tr( outdlg_ );
     const bool isok = tr.execute( exec );
-    mSetState( isok ? Finished : Output );
+
+    mSetState( isok ? cFinished() : mOutput );
 }
 
 

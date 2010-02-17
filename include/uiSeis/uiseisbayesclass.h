@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uiseisbayesclass.h,v 1.3 2010-02-11 16:10:44 cvsbert Exp $
+ RCS:           $Id: uiseisbayesclass.h,v 1.4 2010-02-17 12:53:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "odusgclient.h"
-#include "iopar.h"
-class uiParent;
+#include "uivarwizard.h"
 class uiSeisBayesPDFInp;
 class uiSeisBayesSeisInp;
 class uiSeisBayesOut;
@@ -22,39 +21,24 @@ class uiSeisBayesOut;
 
 /*!\brief 'Server' for Seismic Bayesian Inversion. */
 
-mClass uiSeisBayesClass : public CallBacker
+mClass uiSeisBayesClass : public uiVarWizard
 			, public Usage::Client
 {
 public:
 
-    enum State		{ Cancelled, Finished, Wait4Dialog,
-			  InpPDFS, InpSeis, Output };
-
-			uiSeisBayesClass(uiParent*,bool is2d,
-					 const IOPar* iop=0);
+			uiSeisBayesClass(uiParent*,bool is2d);
 			~uiSeisBayesClass();
-
-    IOPar&		pars()			{ return pars_; }
-    const IOPar&	pars() const		{ return pars_; }
-
-    bool		go();
-
-    Notifier<uiSeisBayesClass> processEnded;
-    State		state() const		{ return state_; }
 
 protected:
 
     bool		is2d_;
-    State		state_;
-    uiParent*		parent_;
-    IOPar		pars_;
 
     uiSeisBayesPDFInp*	inppdfdlg_;
     uiSeisBayesSeisInp*	inpseisdlg_;
     uiSeisBayesOut*	outdlg_;
 
-    void		nextAction();
-    void		closeDown();
+    virtual void	doPart();
+    virtual void	closeDown();
 
     void		getInpPDFs();
     void		inpPDFsGot(CallBacker*);
