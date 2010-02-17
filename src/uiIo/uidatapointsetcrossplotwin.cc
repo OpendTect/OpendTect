@@ -717,6 +717,10 @@ void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::setGrpColors()
 {
+    if ( !plotter_.axisData(1).axis_ || (plotter_.isY2Shown() &&
+	 !plotter_.isMultiColMode() && !plotter_.axisData(2).axis_) )
+	return;
+
     for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
     {
 	Color coly1 = plotter_.isMultiColMode()

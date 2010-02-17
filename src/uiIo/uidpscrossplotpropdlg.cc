@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.15 2010-02-17 06:47:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.16 2010-02-17 12:01:23 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -329,7 +329,7 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     Settings& setts = Settings::common();
     if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
 	minptsfordensity_ = cMinPtsForDensity;
-    BufferString msg( "Current Number of Points " );
+    BufferString msg( "Current Number of Points (including undefined values) ");
     msg += plotter_.totalNrItems();
     uiLabel* lbl = new uiLabel( this, msg );
     

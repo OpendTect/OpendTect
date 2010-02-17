@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.59 2010-02-17 06:47:00 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.60 2010-02-17 12:01:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.59 2010-02-17 06:47:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.60 2010-02-17 12:01:23 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -226,11 +226,7 @@ void uiDataPointSetCrossPlotter::getRandRowids()
 	rowidxs->ArrayND<char>::setAll( '0' );
 	while ( rowcount < totalrows )
 	{
-	    const DataPointSet::ColID colid = idx==0 ? y_.colid_ : y2_.colid_;
-	    if ( mIsUdf(colid) || colid < 0 || !dps_.colName(colid) ) return;
 	    int randrow = randgen.getIndex( dps_.size() );
-	    if ( mIsUdf(uidps_.getVal(colid,randrow,true)) )
-		continue;
 	    if ( rowidxs->get(randrow) == '0' )
 		rowidxs->set( randrow, '1' );
 	    else
@@ -421,7 +417,14 @@ void uiDataPointSetCrossPlotter::setOverlayY2AttSeq(
 
 void uiDataPointSetCrossPlotter::setWorldSelArea( int selareaidx  )
 {
-    if ( !x_.axis_ || !y_.axis_ ) return;
+    if ( !x_.axis_ || !y_.axis_ )
+    {
+	if ( selareaset_[selareaidx]->type_ == SelectionArea::Rectangle )
+	    selareaset_[selareaidx]->worldrect_ = 0;
+	else
+	    selareaset_[selareaidx]->worldpoly_ = 0;
+	return;
+    }
 
     const uiAxisHandler& xah = *x_.axis_;
     const uiAxisHandler& yah = *y_.axis_;
@@ -453,6 +456,8 @@ void uiDataPointSetCrossPlotter::setWorldSelArea( int selareaidx  )
 
 void uiDataPointSetCrossPlotter::reDrawSelArea()
 {
+    if ( !x_.axis_ || !y_.axis_ ) return;
+
     const uiAxisHandler& xah = *x_.axis_;
     const uiAxisHandler& yah = *y_.axis_;
     
@@ -466,6 +471,7 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 	if ( selareaset_[idx]->type_ == SelectionArea::Rectangle )
 	{
 	    const uiWorldRect* worldselarea = selareaset_[idx]->worldrect_;
+	    if ( !worldselarea ) continue;
 	    uiRect* selarea =
 		new uiRect( xah.getPix(worldselarea->left()),
 			    yah.getPix(worldselarea->top()),
@@ -503,6 +509,7 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 	{
 	    ODPolygon<int>* poly = new ODPolygon<int>;
 	    const ODPolygon<double>* worldpoly = selareaset_[idx]->worldpoly_;
+	    if ( !worldpoly ) continue;
 	    TypeSet<uiWorldPoint> polypts = worldpoly->data();
 	    for (  int nrpts=0; nrpts<polypts.size(); nrpts++ )
 	    {
@@ -690,7 +697,7 @@ static const float cRelTol = 0.01; // 1% of axis size
 int uiDataPointSetCrossPlotter::getRow(
 	const uiDataPointSetCrossPlotter::AxisData& ad, uiPoint pt ) const
 {
-    if ( !ad.axis_ ) return -1;
+    if ( !x_.axis_ || !ad.axis_ ) return -1;
 
     const float xpix = x_.axis_->getRelPos( x_.axis_->getVal(pt.x) );
     const float ypix = ad.axis_->getRelPos( ad.axis_->getVal(pt.y) );
@@ -966,6 +973,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	     uiGraphicsItem* item, bool isy2,
 	     const uiDataPointSetCrossPlotter::AxisData& yad, bool removesel )
 {
+    if ( !x_.axis_ || isy2 ? !y2_.axis_ : !y_.axis_ ) return;
     uiWorld2Ui w2ui( uiSize(rgbarr_.getSize(true), rgbarr_.getSize(false)),
 	    	     uiWorldRect((double)arrarea_.left(),(double)arrarea_.top(),
 			 	 (double)arrarea_.right(),
@@ -1094,14 +1102,15 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
        					     Array2D<float>* freqdata )
 {
     AxisData& yad = isy2 ? y2_ : y_;
+    if ( !x_.axis_ || !yad.axis_ )
+	return -1;
+
     const Interval<int> xpixrg( x_.axis_->pixRange() ),
 	  		ypixrg( yad.axis_->pixRange() );
     uiWorld2Ui w2ui( uiSize(rgbarr_.getSize(true), rgbarr_.getSize(false)),
 	    	     uiWorldRect((double)arrarea_.left(),(double)arrarea_.top(),
 			 	 (double)arrarea_.right(),
 				 (double)arrarea_.bottom()) );
-    if ( !x_.axis_ || !yad.axis_ )
-	return -1;
     DensityCalc densitycalc( uidps_, data, x_, yad, selareaset_, trmsg_.buf() );
     densitycalc.setWorld2Ui( w2ui );
     densitycalc.setMathObj( mathobj_ );
@@ -1153,6 +1162,8 @@ void uiDataPointSetCrossPlotter::setDensityPlot( bool yn, bool showy2 )
 
 void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 {
+    if ( !x_.axis_ || !y_.axis_ ) return;
+
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     isdensityplot_ = true;
     drawTypeChanged.trigger( true );
@@ -1210,6 +1221,8 @@ bool uiDataPointSetCrossPlotter::drawRID( uiDataPointSet::DRowID rid,
 {
     uiAxisHandler& xah = *x_.axis_;
     uiAxisHandler& yah = *yad.axis_;
+    if ( !x_.axis_ || !yad.axis_ ) return false;
+
     const Interval<int> xpixrg( xah.pixRange() ), ypixrg( yah.pixRange() );
 
     if ( dps_.isInactive(rid) ||
@@ -1325,6 +1338,7 @@ void uiDataPointSetCrossPlotter::drawYUserDefLine( const Interval<int>& xpixrg,
 	return;
     }
 
+    if ( !x_.axis_ || isy1 ? !y_.axis_ : !y2_.axis_ ) return;
     const uiAxisHandler& xah = *x_.axis_;
     const uiAxisHandler& yah = isy1 ? *y_.axis_ : *y2_.axis_;
     Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
@@ -1353,6 +1367,7 @@ void uiDataPointSetCrossPlotter::drawYUserDefLine( const Interval<int>& xpixrg,
 void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler& yah,
 					       const Interval<int>& xpixrg )
 {
+    if ( !x_.axis_ || !&yah ) return;
     const uiAxisHandler& xah = *x_.axis_;
     const LinStats2D& ls = y_.axis_ == &yah ? lsy1_ : lsy2_;
     const Interval<int> ypixrg( yah.pixRange() );
