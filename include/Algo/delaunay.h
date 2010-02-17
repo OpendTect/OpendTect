@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.31 2010-02-17 16:27:41 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.32 2010-02-17 17:18:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,7 +174,7 @@ protected:
     od_int64*		permutation_;
     bool		israndom_;
     DAGTriangleTree&	tree_;
-    Interval<int>	calcscope_;
+    Interval<od_int64>	calcscope_;
 };
 
 

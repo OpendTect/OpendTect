@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.44 2010-02-17 16:27:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.45 2010-02-17 17:18:30 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -54,7 +54,7 @@ bool ParallelDTriangulator::doPrepare( int nrthreads )
 	    return true;
 	}
 	
-	for ( int idx=0; idx<nrcoords; idx++ )
+	for ( od_int64 idx=0; idx<nrcoords; idx++ )
 	    permutation_[idx] = idx;
 	
 	std::random_shuffle( permutation_, permutation_+nrcoords );
@@ -66,13 +66,15 @@ bool ParallelDTriangulator::doPrepare( int nrthreads )
 
 bool ParallelDTriangulator::doWork( od_int64 start, od_int64 stop,int threadid )
 {
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int scopeidx = permutation_ ? permutation_[idx] : idx;
-	const int coordid = calcscope_.atIndex( scopeidx, 1 );
+	const od_int64 scopeidx = permutation_ ? permutation_[idx] : idx;
+	const od_int64 coordid = calcscope_.atIndex( scopeidx, 1 );
 	int dupid;
        	if ( !tree_.insertPoint( coordid, dupid ) )
 	    return false;
+
+	addToNrDone(1);
     }
 
     return true;
