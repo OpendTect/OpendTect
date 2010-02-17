@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.16 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: datapackbase.h,v 1.17 2010-02-17 21:34:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,7 @@ protected:
 
     void			createXYRotArray();
     float			getValAtIdx(int,int) const;
+    friend class 		MapDataPackXYRotater;
     
     Array2D<float>*		xyrotarr2d_;
     FlatPosData&		xyrotposdata_;

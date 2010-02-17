@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapackbase.cc,v 1.4 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: datapackbase.cc,v 1.5 2010-02-17 21:34:48 cvsyuancheng Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -16,6 +16,110 @@ static const char* rcsID = "$Id: datapackbase.cc,v 1.4 2009-07-22 16:01:32 cvsbe
 #include "survinfo.h"
 #include "separstr.h"
 
+
+class MapDataPackXYRotater : public ParallelTask
+{
+public:
+    MapDataPackXYRotater( MapDataPack& mdp )
+	: mdp_( mdp )
+    {
+	const float anglenorth = SI().computeAngleXInl();
+	const int inlsz = mdp_.arr2d_->info().getSize(0);
+	const int crlsz = mdp_.arr2d_->info().getSize(1);
+	const float truelength = inlsz*cos(anglenorth) + crlsz*sin(anglenorth);
+	const float truewidth = inlsz*sin(anglenorth) + crlsz*cos(anglenorth);
+	const int length = mNINT( truelength );
+	const int width = mNINT( truewidth );
+	
+	delete mdp_.xyrotarr2d_;
+	mdp_.xyrotarr2d_ = new Array2DImpl<float>( length+1, width+1 );
+	
+	StepInterval<double> tmpirg( mdp_.posdata_.range(true) );
+	StepInterval<double> tmpcrg( mdp_.posdata_.range(false) );
+	hsamp_.set( StepInterval<int>((int)tmpirg.start,(int)tmpirg.stop,
+		    (int)tmpirg.step),
+		StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
+		    (int)tmpcrg.step) );
+	Coord spt1 = SI().transform( BinID(hsamp_.start.inl,hsamp_.start.crl) );        Coord spt2 = SI().transform( BinID(hsamp_.start.inl,hsamp_.stop.crl) );
+	Coord spt3 = SI().transform( BinID(hsamp_.stop.inl,hsamp_.start.crl) );
+	Coord spt4 = SI().transform( BinID(hsamp_.stop.inl,hsamp_.stop.crl) );
+	startpt_ = Coord( mMIN( mMIN(spt1.x, spt2.x), mMIN(spt3.x, spt4.x) ),
+		mMIN( mMIN(spt1.y, spt2.y), mMIN(spt3.y, spt4.y) ) );
+	stoppt_ = Coord( mMAX( mMAX(spt1.x, spt2.x), mMAX(spt3.x, spt4.x) ),
+		mMAX( mMAX(spt1.y, spt2.y), mMAX(spt3.y, spt4.y) ) );
+	xstep_ = (stoppt_.x - startpt_.x)/length;
+	ystep_ = (stoppt_.y - startpt_.y)/width;
+    }
+    
+    od_int64 nrIterations() const
+    { return mdp_.xyrotarr2d_->info().getTotalSz(); }
+    
+    bool doFinish( bool success )
+    {
+	mdp_.xyrotposdata_.setRange( true,
+		StepInterval<double>(startpt_.x,stoppt_.x,xstep_) );
+	mdp_.xyrotposdata_.setRange( false,
+		StepInterval<double>(startpt_.y,stoppt_.y,ystep_) );
+	
+	return success;
+    }
+    
+    bool doWork( od_int64 start, od_int64 stop, int )
+    {
+	int startpos[2];
+	if ( !mdp_.xyrotarr2d_->info().getArrayPos( start, startpos ) )
+	    return false;
+	
+	ArrayNDIter iter( mdp_.xyrotarr2d_->info() );
+	iter.setPos( startpos );
+	
+	BinID toreach00;
+	const int nriters = stop - start +1;
+	for ( od_int64 idx=0; idx<nriters && shouldContinue();
+		idx++, iter.next(), addToNrDone(1) )
+	{
+	    const int* curpos = iter.getPos();
+	    Coord coord( startpt_.x + curpos[0] * xstep_,
+			 startpt_.y + curpos[1] * ystep_ );
+	    float val = mUdf(float );
+	    BinID approxbid = SI().transform(coord);
+	    if ( hsamp_.includes( approxbid ) )
+	    {
+		Coord approxcoord = SI().transform( approxbid );
+		float diffx = ( coord.x - approxcoord.x ) / xstep_;
+		float diffy = ( coord.y - approxcoord.y ) / ystep_;
+		toreach00.inl = diffx>=0 ? 0 : -1;
+		toreach00.crl = diffy>=0 ? 0 : -1;
+		int id0v00 = (approxbid.inl - hsamp_.start.inl)/hsamp_.step.inl
+		    + toreach00.inl;
+		int id1v00 = (approxbid.crl - hsamp_.start.crl)/hsamp_.step.crl
+		    + toreach00.crl;
+		float val00 = mdp_.getValAtIdx( id0v00, id1v00 );
+		float val01 = mdp_.getValAtIdx( id0v00 , id1v00+1 );
+		float val10 = mdp_.getValAtIdx( id0v00+1, id1v00 );
+		float val11 = mdp_.getValAtIdx( id0v00+1, id1v00+1 );
+		if ( diffx<0 ) diffx = 1 + diffx;
+		if ( diffy<0 ) diffy = 1 + diffy;
+		val = Interpolate::linearReg2DWithUdf( val00, val01, val10,
+						       val11, diffx, diffy );
+	    }
+
+	    mdp_.xyrotarr2d_->set( curpos[0], curpos[1], val );
+	}
+
+	return true;
+    }
+
+protected:
+
+    MapDataPack&	mdp_;
+    Coord		startpt_;
+    Coord		stoppt_;
+    HorSampling		hsamp_;
+    float		xstep_;
+    float		ystep_;    
+};
+			    
 
 Coord PointDataPack::coord( int idx ) const
 {
@@ -172,69 +276,8 @@ void MapDataPack::setPosCoord( bool isposcoord )
 
 void MapDataPack::createXYRotArray()
 {
-    float anglenorth = SI().computeAngleXInl();
-    int inlsz = arr2d_->info().getSize(0);
-    int crlsz = arr2d_->info().getSize(1);
-    float truelength = inlsz * cos(anglenorth) + crlsz * sin(anglenorth);
-    float truewidth = inlsz * sin(anglenorth) + crlsz * cos(anglenorth);
-    int length = mNINT( truelength );
-    int width = mNINT( truewidth );
-    HorSampling hsamp;
-    StepInterval<double> tmpirg( posdata_.range(true) );
-    StepInterval<double> tmpcrg( posdata_.range(false) );
-    hsamp.set( StepInterval<int>((int)tmpirg.start,(int)tmpirg.stop,
-				 (int)tmpirg.step),
-	       StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
-		   		 (int)tmpcrg.step) );
-    Coord spt1 = SI().transform( BinID(hsamp.start.inl,hsamp.start.crl) );
-    Coord spt2 = SI().transform( BinID(hsamp.start.inl,hsamp.stop.crl) );
-    Coord spt3 = SI().transform( BinID(hsamp.stop.inl,hsamp.start.crl) );
-    Coord spt4 = SI().transform( BinID(hsamp.stop.inl,hsamp.stop.crl) );
-    Coord startpt( mMIN( mMIN( spt1.x, spt2.x ), mMIN( spt3.x, spt4.x ) ),
-	   	   mMIN( mMIN( spt1.y, spt2.y ), mMIN( spt3.y, spt4.y ) ) );
-    Coord stoppt( mMAX( mMAX( spt1.x, spt2.x ), mMAX( spt3.x, spt4.x ) ),
-	   	  mMAX( mMAX( spt1.y, spt2.y ), mMAX( spt3.y, spt4.y ) ) );
-    float xstep = (stoppt.x - startpt.x)/length;
-    float ystep = (stoppt.y - startpt.y)/width;
-    
-    delete xyrotarr2d_;
-    xyrotarr2d_ = new Array2DImpl<float>( length+1, width+1 );
-    BinID toreach00;
-    for ( int idx=0; idx<=length; idx++ )
-    {
-	for ( int idy=0; idy<=width; idy++ )
-	{
-	    Coord coord( startpt.x + idx*xstep, startpt.y + idy*ystep );
-	    float val = mUdf(float );
-	    BinID approxbid = SI().transform(coord);
-	    if ( hsamp.includes( approxbid ) )
-	    {
-		Coord approxcoord = SI().transform( approxbid );
-		float diffx = ( coord.x - approxcoord.x ) / xstep;
-		float diffy = ( coord.y - approxcoord.y ) / ystep;
-		toreach00.inl = diffx>=0 ? 0 : -1;
-		toreach00.crl = diffy>=0 ? 0 : -1;
-		int id0v00 = (approxbid.inl - hsamp.start.inl)/hsamp.step.inl
-		    	     + toreach00.inl;
-		int id1v00 = (approxbid.crl - hsamp.start.crl)/hsamp.step.crl
-		    	     + toreach00.crl;
-		float val00 = getValAtIdx( id0v00, id1v00 );
-		float val01 = getValAtIdx( id0v00 , id1v00+1 );
-		float val10 = getValAtIdx( id0v00+1, id1v00 );
-		float val11 = getValAtIdx( id0v00+1, id1v00+1 );
-		if ( diffx<0 ) diffx = 1 + diffx;
-		if ( diffy<0 ) diffy = 1 + diffy;
-		val = Interpolate::linearReg2DWithUdf( val00, val01, val10,
-						       val11, diffx, diffy );
-	    }
-	    xyrotarr2d_->set( idx, idy, val );
-	}
-    }
-
-    xyrotposdata_.setRange( true,
-	    		    StepInterval<double>(startpt.x,stoppt.x,xstep) );
-    xyrotposdata_.setRange( false,
-	    		    StepInterval<double>(startpt.y,stoppt.y,ystep) );
+    MapDataPackXYRotater rotator( *this );
+    rotator.execute();
 }
 
 
