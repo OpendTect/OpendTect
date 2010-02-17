@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.13 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.14 2010-02-17 02:46:23 cvsnanne Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -119,11 +119,13 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
-
     if ( !doStore( ps, *dlg.ioObj() ) )
 	return false;
 
     const_cast<Pick::Set&>(ps).setName( dlg.ioObj()->name() );
+    const int psidx = setmgr_.indexOf( ps );
+    if ( psidx >= 0 )
+	setmgr_.setID( psidx, dlg.ioObj()->key() );
     setmgr_.reportChange( this, ps );
     return true;
 }
