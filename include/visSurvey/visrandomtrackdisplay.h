@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.73 2010-02-15 06:19:46 cvsnanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.74 2010-02-17 18:44:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -113,7 +113,7 @@ public:
     bool			isGeometryLocked() const;
 
     void			setDepthInterval(const Interval<float>&);
-    Interval<float>		getDepthInterval() const;
+    const Interval<float>&	getDepthInterval() const;
 
     void			getMousePosInfo(const visBase::EventInfo&,
 				    Coord3&, BufferString&,

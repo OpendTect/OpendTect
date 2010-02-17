@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.9 2009-09-17 17:43:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.10 2010-02-17 18:44:23 cvskris Exp $";
 
 #include "vissplittexturerandomline.h"
 
@@ -100,7 +100,7 @@ const Coordinates* SplitTextureRandomLine::getCoordinates() const
 { return coords_; }
 
 
-Interval<float> SplitTextureRandomLine::getDepthRange() const
+const Interval<float>& SplitTextureRandomLine::getDepthRange() const
 { return zrg_; }
 
 

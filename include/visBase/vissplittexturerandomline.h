@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.h,v 1.6 2009-09-17 17:43:55 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexturerandomline.h,v 1.7 2010-02-17 18:44:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
     void			setLineKnots(const TypeSet<BinID>&);
     
     const Coordinates*		getCoordinates() const;
-    Interval<float>		getDepthRange() const;
+    const Interval<float>&	getDepthRange() const;
     mVisTrans* 			getDisplayTransformation();
     void			setDisplayTransformation(mVisTrans*);
 

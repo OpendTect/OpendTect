@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.116 2009-12-16 22:33:14 cvskris Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.117 2010-02-17 18:44:23 cvskris Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -140,7 +140,7 @@ RandomTrackDisplay::~RandomTrackDisplay()
 
 void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
 { 
-    const Interval<float> curint = getDepthInterval();
+    const Interval<float>& curint = getDepthInterval();
     if ( mIsEqual(curint.start,intv.start, 1e-3 ) &&
 	 mIsEqual(curint.stop,intv.stop, 1e-3 ) )
 	return;
@@ -152,7 +152,7 @@ void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
 }
 
 
-Interval<float> RandomTrackDisplay::getDepthInterval() const
+const Interval<float>& RandomTrackDisplay::getDepthInterval() const
 {
     return triangles_->getDepthRange();
 }
