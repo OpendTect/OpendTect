@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.30 2010-01-27 23:00:43 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.31 2010-02-17 16:27:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,6 +156,7 @@ mClass ParallelDTriangulator : public ParallelTask
 {
 public:
 			ParallelDTriangulator(DAGTriangleTree&);
+			~ParallelDTriangulator();
 	
     bool		isDataRandom()		{ return israndom_; }
     void		dataIsRandom(bool yn)	{ israndom_ = yn; }
@@ -170,7 +171,7 @@ protected:
     bool		doWork(od_int64,od_int64, int );
     bool		doPrepare(int);
 
-    TypeSet<int>	permutation_;
+    od_int64*		permutation_;
     bool		israndom_;
     DAGTriangleTree&	tree_;
     Interval<int>	calcscope_;

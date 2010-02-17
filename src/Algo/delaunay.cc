@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.43 2010-01-27 23:00:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.44 2010-02-17 16:27:41 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -17,7 +17,14 @@ ParallelDTriangulator::ParallelDTriangulator( DAGTriangleTree& dagt )
     : tree_( dagt )  
     , israndom_( true )
     , calcscope_( 0, dagt.coordList().size()-1 )
+    , permutation_( 0 )
 {}
+
+
+ParallelDTriangulator::~ParallelDTriangulator()
+{
+    delete [] permutation_;
+}
 
 
 void ParallelDTriangulator::setCalcScope(const Interval<int>& rg)
@@ -33,19 +40,24 @@ od_int64 ParallelDTriangulator::nrIterations() const
 
 bool ParallelDTriangulator::doPrepare( int nrthreads )
 {
-    const int nrcoords = nrIterations();
-    if ( israndom_ )
-	permutation_.erase();
-    else
+    const od_int64 nrcoords = nrIterations();
+    delete [] permutation_;
+    permutation_ = 0;
+    
+    if ( !israndom_ )
     {
-	mAllocVarLenArr( int, arr, nrcoords);
+	mTryAlloc( permutation_, od_int64[nrcoords] );
+	if ( !permutation_ ) //If failed to allocate memory, we ignore random
+	{
+	    delete [] permutation_;
+	    permutation_ = 0;
+	    return true;
+	}
+	
 	for ( int idx=0; idx<nrcoords; idx++ )
-	    arr[idx] = idx;
-
-
-	std::random_shuffle( mVarLenArr(arr), arr+nrcoords );
-	for ( int idx=0; idx<nrcoords; idx++ )
-	    permutation_ += arr[idx];
+	    permutation_[idx] = idx;
+	
+	std::random_shuffle( permutation_, permutation_+nrcoords );
     }
     
     return true;
@@ -56,7 +68,7 @@ bool ParallelDTriangulator::doWork( od_int64 start, od_int64 stop,int threadid )
 {
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
-	const int scopeidx = permutation_.size() ? permutation_[idx] : idx;
+	const int scopeidx = permutation_ ? permutation_[idx] : idx;
 	const int coordid = calcscope_.atIndex( scopeidx, 1 );
 	int dupid;
        	if ( !tree_.insertPoint( coordid, dupid ) )
