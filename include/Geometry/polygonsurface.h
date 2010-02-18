@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.11 2010-02-16 18:09:19 cvsyuancheng Exp $
+RCS:           $Id: polygonsurface.h,v 1.12 2010-02-18 23:20:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,9 @@ public:
 					    const float zscale) const;
     			/*<The Bezier Curve smoothes the polygon, nrknotsinsert
 			   on each edge will affect the smoothness. */
+    void		getAllKnots(TypeSet<Coord3>&) const;
+			/*<Only get all the picked positions on the surface. */
+
     const Coord3&	getPolygonNormal(int polygonnr) const;
     const Coord3&	getPolygonConcaveDir(int polygonnr) const;
 

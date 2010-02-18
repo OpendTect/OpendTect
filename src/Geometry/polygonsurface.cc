@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.13 2010-02-16 18:09:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.14 2010-02-18 23:20:23 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
@@ -253,6 +253,16 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 	    pt.z /= zscale;
 	    pts += pt;
 	}
+    }
+}
+
+
+void PolygonSurface::getAllKnots( TypeSet<Coord3>& result ) const
+{
+    for ( int plg=0; plg<polygons_.size(); plg++ )
+    {
+	for ( int ptidx=0; ptidx<(*polygons_[plg]).size(); ptidx++ )
+	    result += (*polygons_[plg])[ptidx];
     }
 }
 
