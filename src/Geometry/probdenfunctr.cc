@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: probdenfunctr.cc,v 1.7 2010-02-09 16:04:07 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunctr.cc,v 1.8 2010-02-18 16:06:08 cvsbert Exp $";
 
 #include "probdenfunctr.h"
 
@@ -54,6 +54,7 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     }
 
     ProbDenFunc* ret = pdftr->read( *sd.istrm );
+    ret->setName( ioobj.name() );
     sd.close();
     if ( !ret && emsg )
 	{ *emsg = "Cannot read PDF from '"; *emsg += fnm; *emsg += "'"; }
