@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Karthika
  Date:		Nov 2009
- RCS:		$Id: vistexturechannel2voldata.h,v 1.6 2009-12-17 15:01:05 cvskarthika Exp $
+ RCS:		$Id: vistexturechannel2voldata.h,v 1.7 2010-02-18 13:47:45 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -22,28 +22,6 @@ class SoTransferFunction;
 
 namespace visBase
 { 
-
-/*!A destination where the texturechannels can put the mapped data. The class
-   instanciation is provided by the TextureChannel2VolData. */
-
-mClass VolumeDataSet : public MappedTextureDataSet
-{
-public:
-				VolumeDataSet();
-	Interval<float>		getVolumeSize(int dim) const;
-	void 			setVolumeSize(const Interval<float>& x,
-						const Interval<float>& y,
-						const Interval<float>& z);
-
-protected:
-				~VolumeDataSet();
-
-	SoVolumeData*		voldata_;
-	unsigned char* 		datacache_;
-	unsigned char		dummytexture_;
-    
-};
-
 
 /*! Implementation of TextureChannel2VolData that feeds the 8-bit values from 
  the texture channel(s) into a volume data object. 
