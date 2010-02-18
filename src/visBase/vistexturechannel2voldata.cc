@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.10 2010-02-15 10:30:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: vistexturechannel2voldata.cc,v 1.11 2010-02-18 13:48:56 cvskarthika Exp $";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
@@ -25,6 +25,58 @@ namespace visBase
 {
 
 #define mNrColors 256
+
+
+/*!A destination where the texturechannels can put the mapped data. The class
+   instanciation is provided by the TextureChannel2VolData. */
+
+class VolumeDataSet : public MappedTextureDataSet
+{
+public:
+
+VolumeDataSet() : voldata_( new SoVolumeData )
+		, dummytexture_( 255 )
+{ 
+    voldata_->ref();
+    setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
+ 		   Interval<float>(-0.5,0.5) );
+    voldata_->setVolumeData( SbVec3s(1,1,1), &dummytexture_, 
+		    SoVolumeData::UNSIGNED_BYTE );
+    if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
+	voldata_->usePalettedTexture = FALSE;
+}
+
+
+void setVolumeSize( const Interval<float>& x,
+		    const Interval<float>& y,
+		    const Interval<float>& z )
+{
+    if ( !voldata_ )
+	return;
+
+    const SbBox3f size( x.start, y.start, z.start, x.stop, y.stop, z.stop );
+    voldata_->setVolumeSize( size );
+}
+
+
+Interval<float> getVolumeSize( int dim ) const
+{
+     const SbBox3f size = voldata_->getVolumeSize();
+     return Interval<float>( size.getMin()[dim], size.getMax()[dim] );
+}
+
+protected:
+
+~VolumeDataSet()
+{
+    voldata_->unref();
+}
+
+	SoVolumeData*		voldata_;
+	unsigned char* 		datacache_;
+	unsigned char		dummytexture_;
+    
+};
 
 
 class VolumeDataSetImpl : public VolumeDataSet
@@ -64,19 +116,10 @@ void setChannelData( int channel,const SbImage& image )
 	    
     if ( data && ( bpp >=1 ) && (bpp <=2) )
     {
-	if ( datacache_ )
-	    delete datacache_;
-
-	int len = tmpsize[0]*tmpsize[1]*tmpsize[2]*bpp;
-	datacache_ = new unsigned char[len];
-	memcpy( datacache_, data, len );
-        SoVolumeData::DataType dt;
-	if ( bpp == 1 )
-	    dt = SoVolumeData::UNSIGNED_BYTE;
-	else if ( dt == SoVolumeData::UNSIGNED_SHORT )
-	    dt = SoVolumeData::UNSIGNED_SHORT;
-
-	voldata_->setVolumeData( tmpsize, datacache_, dt );
+	SoVolumeData::DataType dt;
+	dt = ( bpp == 1 ) ? SoVolumeData::UNSIGNED_BYTE :
+		SoVolumeData::UNSIGNED_SHORT;
+	voldata_->setVolumeData( tmpsize, data, dt );
     }
 }
 
@@ -130,47 +173,6 @@ protected:
 };
 
 
-VolumeDataSet::VolumeDataSet()
-     : voldata_( new SoVolumeData )
-     , dummytexture_( 255 )
-     , datacache_( 0 )
-{ 
-    voldata_->ref();
-    setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
- 		   Interval<float>(-0.5,0.5) );
-    voldata_->setVolumeData( SbVec3s(1,1,1),
-	    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
-    if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
-	voldata_->usePalettedTexture = FALSE;
-}
-
-
-VolumeDataSet::~VolumeDataSet()
-{
-    voldata_->unref();
-    if ( datacache_ )
-	delete datacache_;
-}
-
-
-void VolumeDataSet::setVolumeSize(  const Interval<float>& x,
-	     			    const Interval<float>& y,
-				    const Interval<float>& z )
-{
-    if ( !voldata_ )
-	return;
-
-    const SbBox3f size( x.start, y.start, z.start, x.stop, y.stop, z.stop );
-    voldata_->setVolumeSize( size );
-}
-
-
-Interval<float> VolumeDataSet::getVolumeSize( int dim ) const
-{
-     const SbBox3f size = voldata_->getVolumeSize();
-     return Interval<float>( size.getMin()[dim], size.getMax()[dim] );
-}
-
 
 mCreateFactoryEntry( VolumeDataSetImpl );
 
@@ -201,7 +203,7 @@ SoNode* TextureChannel2VolData::getInventorNode()
 {
     enabled_ = true;
     transferfunc_ = new SoTransferFunction;
-    transferfunc_->ref();	// to do: check if necessary
+    transferfunc_->ref();
     makeColorTables();
     return transferfunc_;
 }
@@ -234,7 +236,7 @@ const ColTab::Sequence* TextureChannel2VolData::getSequence( int channel ) const
     if ( ( channel < 0 ) || ( channel >= maxNrChannels() ) )
 	return 0;
 
-    return &sequence_;  // to do: use PtrMan?
+    return &sequence_;
 }
 
 
@@ -270,10 +272,8 @@ void TextureChannel2VolData::makeColorTables()
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
 
-    //transferfunc_->predefColorMap = SoTransferFunction::SEISMIC;
     transferfunc_->predefColorMap = SoTransferFunction::NONE;
-    //transferfunc_->colorMapType = SoTransferFunction::RGBA;
-
+    
     const float redfactor = 1.0/255;
     const float greenfactor = 1.0/255;
     const float bluefactor = 1.0/255;
