@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.60 2010-02-15 06:19:46 cvsnanne Exp $
+RCS:        $Id: vismpe.h,v 1.61 2010-02-18 13:53:20 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -97,9 +97,9 @@ public:
     void            setColTabSequence(int,const ColTab::Sequence&,
 	                              TaskRunner*);
 
-    void            getMousePosInfo(const visBase::EventInfo&, Coord3&,
-                        BufferString& val, BufferString& info) const;
-    void		getObjectInfo(BufferString&) const;
+    void            getMousePosInfo(const visBase::EventInfo&, Coord3&, 
+	                          BufferString& val, BufferString& info) const;
+    void	    getObjectInfo(BufferString&) const;
 
     void            updateSeedOnlyPropagation(bool);
     void            updateMPEActiveVolume();
