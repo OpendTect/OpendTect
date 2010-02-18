@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.42 2009-08-14 19:31:37 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.43 2010-02-18 22:34:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -201,6 +201,45 @@ inline bool pointOnEdge3D( const Coord3& p, const Coord3& a, const Coord3& b,
 
     const Coord3 pq = pa-t*ba;
     return pq.sqAbs()<epsilon*epsilon;
+}
+
+
+/*!<For point and polygon lie on the same plane only. In 2D case, set all zs'
+    to be 0, we also consider the case that the point is exactly on a vertex as
+    inside. Use the check that all the angle sum should be 2 Pi. */
+inline bool pointInPolygon( const Coord3& pt, const TypeSet<Coord3>& plgknots,
+			    double epsilon )
+{
+    const int nrvertices = plgknots.size();
+    if ( nrvertices==2 )
+    {
+	const double newepsilon = plgknots[0].distTo(plgknots[1])*0.001;
+	return pointOnEdge3D( pt, plgknots[0], plgknots[1], newepsilon );
+    }
+    else if ( nrvertices==3 )
+	return pointInTriangle3D( pt, plgknots[0], plgknots[1], plgknots[2],
+				  epsilon );
+    else
+    {
+	Coord3 p1, p2;
+	double anglesum = 0, cosangle;
+	for ( int idx=0; idx<nrvertices; idx++ )
+	{
+	    p1 = plgknots[idx] - pt;
+	    p2 = plgknots[(idx+1)%nrvertices] - pt;
+	    
+	    const double d1 = p1.abs();
+	    const double d2 = p2.abs();
+	    if ( d1*d2 <= epsilon || d1 <= epsilon || d2 <= epsilon )
+		return true;
+	    else
+		cosangle = p1.dot(p2) / (d1*d2);
+	    
+	    anglesum += acos( cosangle );
+	}
+	
+	return mIsEqual( anglesum, 6.2831853071795862, 1e-4 );
+    }
 }
 
 
