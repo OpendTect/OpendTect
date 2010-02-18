@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.4 2010-02-09 07:48:25 cvsnanne Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.5 2010-02-18 16:06:51 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -136,6 +136,8 @@ public:
 
     virtual int		nrDims() const	{ return bins_.info().getNDim(); }
     virtual const char*	dimName(int) const;
+    virtual void	setDimName( int dim, const char* nm )
+					{ *dimnms_[dim] = nm; }
     virtual float	value(const TypeSet<float>&) const;
 
     static const char*	typeStr()			{ return "SampledND"; }
