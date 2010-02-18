@@ -7,13 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.6 2010-02-15 12:43:36 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.7 2010-02-18 16:05:46 cvsbert Exp $
 ________________________________________________________________________
 
 
 */
 
-#include "bufstring.h"
+#include "namedobj.h"
 #include "ranges.h"
 
 template <class T> class TypeSet;
@@ -29,7 +29,7 @@ class IOPar;
 
 */
 
-mClass ProbDenFunc
+mClass ProbDenFunc : public NamedObject
 {
 public:
 
@@ -38,6 +38,7 @@ public:
     virtual const char*	getTypeStr() const			= 0;
     virtual int		nrDims() const				= 0;
     virtual const char*	dimName(int dim) const			= 0;
+    virtual void	setDimName(int dim,const char*)		= 0;
     virtual float	value(const TypeSet<float>&) const	= 0;
 
     virtual float	normFac() const				{ return 1; }
@@ -62,6 +63,8 @@ public:
 
     virtual int		nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
+    virtual void	setDimName( int dim, const char* nm )
+						{ if ( dim ) varnm_ = nm; }
 
     virtual float	value(float) const	= 0;
     virtual const char*	varName() const		{ return varnm_; }
@@ -86,6 +89,8 @@ public:
 
     virtual int		nrDims() const			{ return 2; }
     virtual const char*	dimName(int) const;
+    virtual void	setDimName( int dim, const char* nm )
+			{ if ( dim < 2 ) (dim ? dim1nm_ : dim0nm_) = nm; }
 
     virtual float	value(float,float) const	= 0;
     virtual float	value( const TypeSet<float>& v ) const
