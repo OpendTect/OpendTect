@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegysip.cc,v 1.24 2009-10-05 05:40:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisegysip.cc,v 1.25 2010-02-18 12:10:15 cvsbert Exp $";
 
 #include "uisegysip.h"
 #include "uisegyread.h"
@@ -59,7 +59,7 @@ void start( CallBacker* )
 void atEnd( CallBacker* )
 {
     sr_->fillPar( sip_->imppars_ );
-    done( sr_->state() != uiSEGYRead::Cancelled ? 1 : 0 );
+    done( sr_->state() != uiSEGYRead::cCancelled() ? 1 : 0 );
 }
 
     uiSEGYRead*			sr_;

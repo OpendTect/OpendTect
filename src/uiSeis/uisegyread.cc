@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.40 2009-12-04 14:25:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.41 2010-02-18 12:10:15 cvsbert Exp $";
 
 #include "uisegyread.h"
+#include "uivarwizarddlg.h"
 #include "uisegydef.h"
 #include "uisegydefdlg.h"
 #include "uisegyimpdlg.h"
@@ -38,7 +39,7 @@ static const char* rcsID = "$Id: uisegyread.cc,v 1.40 2009-12-04 14:25:21 cvsber
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
-#define mSetState(st) { state_ = st; nextAction(); return; }
+#define mSetState(st) mSetVWState( ((int)(st)) )
 
 
 void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms,
@@ -59,11 +60,10 @@ void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms,
 
 uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
 			const IOPar* iop )
-    : Usage::Client("SEG-Y")
+    : uiVarWizard(p)
+    , Usage::Client("SEG-Y")
     , setup_(su)
-    , parent_(p)
     , geom_(SI().has3D()?Seis::Vol:Seis::Line)
-    , state_(su.initialstate_)
     , scanner_(0)
     , rev_(Rev0)
     , revpolnr_(2)
@@ -73,12 +73,13 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
     , impdlg_(0)
     , scandlg_(0)
     , rev1qdlg_(0)
-    , processEnded(this)
 {
     prepUsgStart( setup_.forScan() ? "Scan" : "Import" ); sendUsgInfo();
 
     if ( iop )
 	usePar( *iop );
+
+    state_ = (int)su.initialstate_;
     nextAction();
 }
 
@@ -88,21 +89,14 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
 void uiSEGYRead::closeDown()
 {
     prepUsgEnd(); sendUsgInfo();
-    uiOBJDISP()->go( this );
-    processEnded.trigger();
+    uiVarWizard::closeDown();
 }
 
 
-void uiSEGYRead::nextAction()
+void uiSEGYRead::doPart()
 {
-    if ( state_ <= Finished )
-	{ closeDown(); return; }
-
     switch ( state_ )
     {
-    case Wait4Dialog:
-	return;
-    break;
     case BasicOpts:
 	getBasicOpts();
     break;
@@ -384,9 +378,7 @@ bool isGoBack() const
 #define mSetreadReqCB() readParsReq.notify( mCB(this,uiSEGYRead,readReq) )
 #define mSetwriteReqCB() writeParsReq.notify( mCB(this,uiSEGYRead,writeReq) )
 #define mSetpreScanReqCB() preScanReq.notify( mCB(this,uiSEGYRead,preScanReq) )
-#define mLaunchDlg(dlg,fn) \
-	dlg->windowClosed.notify( mCB(this,uiSEGYRead,fn) ); \
-	dlg->setDeleteOnClose( true ); dlg->go()
+#define mLaunchDlg(dlg,fn) mLaunchVWDialog(dlg,uiSEGYRead,fn)
 
 void uiSEGYRead::getBasicOpts()
 {
@@ -395,15 +387,12 @@ void uiSEGYRead::getBasicOpts()
     defdlg_ = new uiSEGYDefDlg( parent_, bsu, pars_ );
     defdlg_->mSetreadReqCB();
     mLaunchDlg(defdlg_,defDlgClose);
-    mSetState(Wait4Dialog);
 }
 
 
 void uiSEGYRead::basicOptsGot()
 {
-    if ( !defdlg_ ) return;
-    if ( !defdlg_->uiResult() )
-	mSetState(Cancelled);
+    mHandleVWCancel(defdlg_,cCancelled());
     geom_ = defdlg_->geomType();
 
     uiSEGYExamine::Setup exsu( defdlg_->nrTrcExamine() );
@@ -421,7 +410,7 @@ void uiSEGYRead::basicOptsGot()
     if ( exsu.nrtrcs_ > 0 )
     {
 	examdlg_ = new uiSEGYExamine( parent_, exsu );
-	mLaunchDlg(examdlg_,examDlgClose);
+	mLaunchVWDialogOnly(examdlg_,uiSEGYRead,examDlgClose);
     }
 
     rev_ = exrev ? WeakRev1 : Rev0;
@@ -436,7 +425,6 @@ void uiSEGYRead::basicOptsGot()
 	    rev1qdlg_ = new uiSEGYReadRev1Question( parent_, revpolnr_,
 		    				    Seis::is2D(geom_) );
 	    mLaunchDlg(rev1qdlg_,rev1qDlgClose);
-	    mSetState(Wait4Dialog);
 	}
     }
 
@@ -474,7 +462,6 @@ void uiSEGYRead::setupScan()
     scandlg_->mSetwriteReqCB();
     scandlg_->mSetpreScanReqCB();
     mLaunchDlg(scandlg_,scanDlgClose);
-    mSetState( Wait4Dialog );
 }
 
 
@@ -487,7 +474,6 @@ void uiSEGYRead::setupImport()
     impdlg_->mSetwriteReqCB();
     impdlg_->mSetpreScanReqCB();
     mLaunchDlg(impdlg_,impDlgClose);
-    mSetState( Wait4Dialog );
 }
 
 
@@ -507,20 +493,17 @@ void uiSEGYRead::examDlgClose( CallBacker* )
 
 void uiSEGYRead::scanDlgClose( CallBacker* )
 {
-    if ( !scandlg_->uiResult() )
-	{ scandlg_ = 0; mSetState( BasicOpts ); }
-
+    mHandleVWCancel(scandlg_,BasicOpts)
     scanner_ = scandlg_->getScanner();
     scandlg_ = 0;
-    mSetState( Finished );
+    mSetState( cFinished() );
 }
 
 
 void uiSEGYRead::impDlgClose( CallBacker* )
 {
-    State newstate = impdlg_->uiResult() ? Finished : BasicOpts;
-    impdlg_ = 0;
-    mSetState( newstate );
+    mHandleVWCancel(impdlg_,BasicOpts)
+    mSetState( cFinished() );
 }
 
 

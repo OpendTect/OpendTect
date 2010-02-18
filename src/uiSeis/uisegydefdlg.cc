@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.17 2009-12-03 15:28:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.18 2010-02-18 12:10:15 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -40,9 +40,8 @@ uiSEGYDefDlg::Setup::Setup()
 
 uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 			  IOPar& iop )
-    : uiDialog( p, su )
+    : uiVarWizardDlg(p,su,iop,Start)
     , setup_(su)
-    , pars_(iop)
     , geomfld_(0)
     , geomtype_(Seis::Vol)
     , readParsReq(this)
@@ -97,11 +96,6 @@ void uiSEGYDefDlg::initFlds( CallBacker* )
 {
     usePar( pars_ );
     geomChg( 0 );
-}
-
-
-uiSEGYDefDlg::~uiSEGYDefDlg()
-{
 }
 
 
