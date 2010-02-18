@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.143 2010-02-12 04:24:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.144 2010-02-18 15:52:18 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -797,6 +797,10 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
 
     Attrib::EngineMan aem;
+    uiTaskRunner taskrunner( parent() );
+    bool somesuccess = false;
+    bool somefail = false;
+
     for ( int idx=0; idx<dpss.size(); idx++ )
     {
 	BufferString err;
@@ -804,10 +808,20 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 	Executor* tabextr = aem.getTableExtractor( dps, *adsman->descSet(),err);
 	if ( !tabextr ) { pErrMsg(err); return 0; }
 
-	uiTaskRunner taskrunner( parent() );
-	if ( !taskrunner.execute(*tabextr) )
-	    return false;
+	if ( taskrunner.execute(*tabextr) )
+	    somesuccess = true;
+	else
+	    somefail = true;
+
 	delete tabextr;
+    }
+
+    if ( somefail )
+    {
+	return somesuccess &&
+	     uiMSG().askGoOn(
+	      "Some data extraction failed. Do you want to continue and use"
+	      " the (partially) extracted data?", true);
     }
 
     return true;
