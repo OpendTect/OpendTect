@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          January 2010
- RCS:           $Id: uiprobdenfuncman.h,v 1.1 2010-01-28 09:47:27 cvsnanne Exp $
+ RCS:           $Id: uiprobdenfuncman.h,v 1.2 2010-02-18 16:07:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ public:
 				~uiProbDenFuncMan();
 
 protected:
+
+    void			browsePush(CallBacker*);
 
     void			mkFileInfo();
 

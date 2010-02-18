@@ -7,15 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.4 2010-02-09 16:04:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.5 2010-02-18 16:07:46 cvsbert Exp $";
 
 #include "uiprobdenfuncman.h"
 
-#include "uiioobjsel.h"
+#include "uilistbox.h"
 #include "uitextedit.h"
+#include "uieditpdf.h"
+#include "uiioobjsel.h"
+#include "uiioobjmanip.h"
+#include "uimsg.h"
 
 #include "bufstring.h"
-#include "ctxtioobj.h"
 #include "probdenfunc.h"
 #include "probdenfunctr.h"
 
@@ -28,6 +31,14 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 	           ProbDenFuncTranslatorGroup::ioContext())
 {
     createDefaultUI();
+    selgrp->getListField()->doubleClicked.notify(
+	    			mCB(this,uiProbDenFuncMan,browsePush) );
+
+    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
+    manipgrp->addButton( ioPixmap("browseprdf.png"),
+			 mCB(this,uiProbDenFuncMan,browsePush),
+			 "Browse/edit this Probability Density Function" );
+
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
     selChg( this );
@@ -39,6 +50,28 @@ uiProbDenFuncMan::~uiProbDenFuncMan()
 }
 
 
+#define mGetPDF(pdf) \
+    PtrMan<ProbDenFunc> pdf = ProbDenFuncTranslator::read( *curioobj_ )
+
+
+void uiProbDenFuncMan::browsePush( CallBacker* )
+{
+    if ( !curioobj_ ) return;
+    mGetPDF(pdf);
+    if ( !pdf ) return;
+
+    uiEditProbDenFunc dlg( this, *pdf, true );
+    if ( dlg.go() )
+    {
+	BufferString emsg;
+	if ( !ProbDenFuncTranslator::write(*pdf,*curioobj_,&emsg) )
+	    uiMSG().error( emsg );
+	else
+	    selgrp->fullUpdate( curioobj_->key() );
+    }
+}
+
+
 void uiProbDenFuncMan::mkFileInfo()
 {
     if ( !curioobj_ ) { infofld->setText( "" ); return; }
@@ -46,7 +79,7 @@ void uiProbDenFuncMan::mkFileInfo()
     BufferString txt;
     txt += getFileInfo();
 
-    PtrMan<ProbDenFunc> pdf = ProbDenFuncTranslator::read( *curioobj_ );
+    mGetPDF(pdf);
     if ( pdf )
     {
 	IOPar par;
