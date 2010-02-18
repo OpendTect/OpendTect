@@ -4,11 +4,12 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: tutseistools.h,v 1.8 2009-07-22 16:01:27 cvsbert Exp $
+ * ID       : $Id: tutseistools.h,v 1.9 2010-02-18 10:37:39 cvsbert Exp $
 -*/
 
 #include "executor.h"
 #include "cubesampling.h"
+#include "samplingdata.h"
 
 class IOObj;
 class SeisTrc;
@@ -23,7 +24,7 @@ mClass SeisTools : public Executor
 {
 public:
 
-    enum Action		{ Scale, Square, Smooth };
+    enum Action		{ Scale, Square, Smooth, ChgSD };
 
     			SeisTools();
     virtual		~SeisTools();
@@ -34,6 +35,7 @@ public:
     inline Action	action() const		{ return action_; }
     inline float	factor() const		{ return factor_; }
     inline float	shift() const		{ return shift_; }
+    inline SamplingData<float> sampling() const { return newsd_; }
     inline bool		weakSmoothing() const	{ return weaksmooth_; }
 
     void		setInput(const IOObj&);
@@ -42,6 +44,8 @@ public:
     inline void		setAction( Action a )	{ action_ = a; }
     inline void		setScale( float f, float s )
 						{ factor_ = f; shift_ = s; }
+    void		setSampling( SamplingData<float> sd )
+    						{ newsd_ = sd; }
     inline void		setWeakSmoothing( bool yn )
     						{ weaksmooth_ = yn; }
 
@@ -61,6 +65,7 @@ protected:
     Action		action_;
     float		factor_;
     float		shift_;
+    SamplingData<float>	newsd_;
     bool		weaksmooth_;
 
     SeisTrcReader*	rdr_;

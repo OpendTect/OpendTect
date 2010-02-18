@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.12 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.13 2010-02-18 10:37:39 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "tutseistools.h"
@@ -48,6 +48,7 @@ void Tut::SeisTools::clear()
 
     action_ = Scale;
     factor_ = 1; shift_ = 0;
+    newsd_.start = 0; newsd_.step = 1;
     weaksmooth_ = false;
     totnr_ = -1; nrdone_ = 0;
 }
@@ -65,7 +66,8 @@ void Tut::SeisTools::setRange( const CubeSampling& cs )
 
 const char* Tut::SeisTools::message() const
 {
-    static const char* acts[] = { "Scaling", "Squaring", "Smoothing" };
+    static const char* acts[] = { "Scaling", "Squaring", "Smoothing",
+				  "Changing" };
     return errmsg_.isEmpty() ? acts[action_] : errmsg_.buf();
 }
 
@@ -186,6 +188,9 @@ void Tut::SeisTools::handleTrace()
 	    }
 	}
 
+    } break;
+    case ChgSD: {
+	trcout_.info().sampling = newsd_;
     } break;
 
     }

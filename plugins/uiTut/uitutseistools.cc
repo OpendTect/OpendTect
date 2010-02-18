@@ -4,7 +4,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.19 2009-08-27 10:14:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.20 2010-02-18 10:37:48 cvsbert Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -19,8 +19,10 @@ static const char* rcsID = "$Id: uitutseistools.cc,v 1.19 2009-08-27 10:14:24 cv
 #include "seisselection.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "survinfo.h"
 
-static const char* actions[] = { "Scale", "Square", "Smooth", 0 };
+static const char* actions[] = { "Scale", "Square", "Smooth",
+    				 "Replace sampling", 0 };
 // Exactly the order of the Tut::SeisTools::Action enum
 
 uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
@@ -63,6 +65,13 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 			       BoolInpSpec(tst_.weakSmoothing(),"Low","High") );
     smoothszfld_->attach( alignedBelow, actionfld_ );
 
+    // Parameters for change sample rate
+
+    newsdfld_ = new uiGenInput( this, BufferString("New sampling ",
+				SI().getZUnitString()), FloatInpSpec(),
+	    			FloatInpSpec() );
+    newsdfld_->attach( alignedBelow, actionfld_ );
+
     // The output seismic object
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(geom_) );
@@ -88,6 +97,7 @@ void uiTutSeisTools::choiceSel( CallBacker* )
 
     scalegrp_->display( act == Tut::SeisTools::Scale );
     smoothszfld_->display( act == Tut::SeisTools::Smooth );
+    newsdfld_->display( act == Tut::SeisTools::ChgSD );
 }
 
 
@@ -127,6 +137,15 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 	float usrshift = shiftfld_->getfValue();
 	if ( mIsUdf(usrshift) ) usrshift = 0;
 	tst_.setScale( usrfactor, usrshift );
+    }
+    break;
+    case Tut::SeisTools::ChgSD:
+    {
+	SamplingData<float> sd( newsdfld_->getfValue(0),
+				newsdfld_->getfValue(1) );
+	const float fac = 1 / SI().zFactor();
+	sd.start *= fac; sd.step *= fac;
+	tst_.setSampling( sd );
     }
     break;
     default: // No parameters to set
