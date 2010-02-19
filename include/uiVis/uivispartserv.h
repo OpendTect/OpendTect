@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.257 2010-02-12 10:19:07 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.258 2010-02-19 13:44:18 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -282,7 +282,9 @@ public:
     void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
     bool                        isSoloMode() const;
     bool			isViewMode() const;
-
+    typedef enum		{ View, Interactive, Pick } WorkMode;
+    void			setWorkMode(WorkMode,bool notify=true);
+    WorkMode			getWorkMode() const;
     enum			SelectionMode { Polygon, Rectangle };
     void			setSelectionMode(SelectionMode);
     SelectionMode		getSelectionMode() const;
@@ -415,6 +417,7 @@ protected:
 
     bool			tracksetupactive_;
     bool			viewmode_;
+    WorkMode			workmode_;
     bool			issolomode_;
     Threads::Mutex&		eventmutex_;
     int				eventobjid_;
