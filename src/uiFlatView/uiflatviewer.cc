@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.101 2010-02-08 15:32:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.102 2010-02-19 13:49:11 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -67,6 +67,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     , dataChanged(this)
     , dispParsChanged(this)
     , control_(0)
+    , useseldataranges_(false)	 
 {
     canvas_.scene().setMouseEventActive( true );
     canvas_.setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
@@ -184,6 +185,15 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     const FlatPosData& pd = dp->posData();
     StepInterval<double> rg0( pd.range(true) ); rg0.sort( true );
     StepInterval<double> rg1( pd.range(false) ); rg1.sort( true );
+    if ( useseldataranges_ ) 
+    { 
+	if ( rg0.overlaps( xseldatarange_ ) && rg1.overlaps( yseldatarange_ ) )
+	{
+	    rg0.start = xseldatarange_.start; rg0.stop = xseldatarange_.stop;
+	    rg1.start = yseldatarange_.start; rg1.stop = yseldatarange_.stop;
+	}
+    }
+
     rg0.start -= dim0extfac_ * rg0.step; rg0.stop += dim0extfac_ * rg0.step;
     return uiWorldRect( rg0.start, rg1.stop, rg0.stop, rg1.start );
 }
@@ -788,4 +798,14 @@ Interval<float> uiFlatViewer::getDataRange( bool iswva ) const
 
     return rg;
 }
+
+
+void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
+{
+    useseldataranges_ = true;
+    xseldatarange_ = xrg;
+    yseldatarange_ = yrg;
+    viewChanged.trigger();
+}
+
 
