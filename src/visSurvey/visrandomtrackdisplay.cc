@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.117 2010-02-17 18:44:23 cvskris Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.118 2010-02-19 21:14:28 cvsyuancheng Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -1025,5 +1025,12 @@ bool RandomTrackDisplay::hasCache( int attrib ) const
 {
     return cache_[attrib];
 }
+
+
+const SeisTrcBuf* RandomTrackDisplay::getCache( int attrib ) const
+{
+    return (attrib<0 || attrib>=cache_.size() ) ? 0 : cache_[attrib];
+}
+
 
 } // namespace visSurvey

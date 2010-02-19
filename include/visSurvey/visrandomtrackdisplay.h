@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.74 2010-02-17 18:44:23 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.75 2010-02-19 21:14:28 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -133,6 +133,7 @@ public:
 
     bool			canBDispOn2DViewer() const	{ return true; }
     TypeSet<BinID>*             getPath()		{ return &trcspath_; }
+    const SeisTrcBuf*		getCache(int attrib) const;
     
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> knotmoving_;
