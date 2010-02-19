@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.198 2010-02-12 10:03:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.199 2010-02-19 13:58:34 cvskarthika Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -392,15 +392,26 @@ void uiODSceneMgr::setToViewMode( bool yn )
 }
 
 
+void uiODSceneMgr::setToWorkMode(uiVisPartServer::WorkMode wm)
+{
+    bool yn = ( wm == uiVisPartServer::View ) ? true : false;
+
+    mDoAllScenes(sovwr_,setViewing,yn);
+    visServ().setWorkMode( wm , false );
+    menuMgr().updateViewMode( yn );
+    updateStatusBar();
+}
+
+    
 void uiODSceneMgr::actMode( CallBacker* )
 {
-    setToViewMode( false );
+    setToWorkMode( uiVisPartServer::Interactive );
 }
 
 
 void uiODSceneMgr::viewMode( CallBacker* )
 {
-    setToViewMode( true );
+    setToWorkMode( uiVisPartServer::View );
 }
 
 
