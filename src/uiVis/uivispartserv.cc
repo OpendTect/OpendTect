@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.446 2010-02-12 10:19:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.447 2010-02-19 13:43:49 cvskarthika Exp $";
 
 #include "uivispartserv.h"
 
@@ -99,6 +99,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , eventmutex_(*new Threads::Mutex)
     , tracksetupactive_(false)
     , viewmode_(false)
+    , workmode_(uiVisPartServer::Interactive)
     , issolomode_(false)
     , eventobjid_(-1)
     , eventattrib_(-1)
@@ -110,7 +111,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mpetools_(0)
     , slicepostools_(0)
     , itemtools_(0)
-    , pickretriever_( new uiVisPickRetriever )
+    , pickretriever_( new uiVisPickRetriever(this) )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
     , multirgeditwin_(0)
@@ -1001,6 +1002,8 @@ void uiVisPartServer::setViewMode( bool yn, bool notify)
 {
     if ( yn==viewmode_ ) return;
     viewmode_ = yn;
+    workmode_ = viewmode_ ? uiVisPartServer::View 
+			  : uiVisPartServer::Interactive;
     toggleDraggers();
     if ( notify )
     {
@@ -1011,6 +1014,26 @@ void uiVisPartServer::setViewMode( bool yn, bool notify)
 
 
 bool uiVisPartServer::isViewMode() const { return viewmode_; }
+
+
+void uiVisPartServer::setWorkMode( uiVisPartServer::WorkMode wm, 
+	bool notify )
+{
+    if ( wm==workmode_ ) return;
+    workmode_ = wm;
+    viewmode_ = ( workmode_ == uiVisPartServer::View ) 
+	? true : false;
+    toggleDraggers();
+    if ( notify )
+    {
+	eventmutex_.lock();
+	sendEvent(evViewModeChange());
+    }
+}
+
+
+uiVisPartServer::WorkMode uiVisPartServer::getWorkMode() const 
+{ return workmode_; }
 
 
 bool uiVisPartServer::isSoloMode() const { return issolomode_; }
@@ -1143,7 +1166,8 @@ void uiVisPartServer::toggleDraggers()
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
 	    visBase::DataObject* obj = scene->getObject( objidx );
-	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && !viewmode_;
+	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && 
+		(workmode_ == uiVisPartServer::Interactive); 
 
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
 	    if ( so ) so->showManipulator(isdraggeron && !so->isLocked() );
@@ -1737,7 +1761,7 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
     mCBCapsuleUnpack(int,sel,cb);
     visBase::DataObject* dobj = visBase::DM().getObject( sel );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
-    if ( !viewmode_ && so )
+    if ( ( workmode_ == uiVisPartServer::Interactive ) && so )
 	so->showManipulator( !so->isLocked() );
 
     selattrib_ = -1;
@@ -1770,7 +1794,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 	    }
 	}
 
-	if ( !viewmode_ )
+	if ( workmode_ == uiVisPartServer::Interactive )
 	    so->showManipulator(false);
     }
 
@@ -2024,7 +2048,8 @@ void uiVisPartServer::lock( int id, bool yn )
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
     so->lock( yn );
 
-    const bool isdraggeron = selected.indexOf(id)!=-1 && !viewmode_;
+    const bool isdraggeron = selected.indexOf(id)!=-1 && 
+	( workmode_ == uiVisPartServer::Interactive );
     so->showManipulator( isdraggeron && !so->isLocked() );
 }
 
