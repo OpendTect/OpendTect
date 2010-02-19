@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.35 2010-02-15 13:42:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.36 2010-02-19 13:58:07 cvsbruno Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -154,8 +154,8 @@ void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
 	bool costaper = !strcmp(tap->windowName(),"CosTaper");
 	Interval<float> frg( freqfld->getFInterval() );
 	if ( costaper ) { frg.start-=5; frg.stop+=5; }
-	tap->setInputFreqValue( frg.start, 0 );
-	tap->setInputFreqValue( frg.stop, 1 );
+	tap->setInputFreqValue( frg.start > 0 ? frg.start : 0, 0 );
+	tap->setInputFreqValue( frg.stop , 1 );
     }
 }
 
@@ -271,7 +271,11 @@ void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	params += EvalParam( "Nr poles", FreqFilter::nrpolesStr() );
 }
 
-
+#define mErrWinFreqMsg(msg)\
+    errmsg_=msg;\
+    errmsg_+=endmsg;\
+    updateTaperFreqs(0);\
+    return false;
 bool uiFreqFilterAttrib::areUIParsOK()
 {
     if ( !strcmp( winflds[0]->windowName(), "CosTaper" ) )
@@ -289,30 +293,15 @@ bool uiFreqFilterAttrib::areUIParsOK()
     {
 	bool minsuccess = true, maxsuccess = true;
 	Interval<float> freqresvar = taper->freqValues();
+	BufferString endmsg, msg;
 	if ( freqresvar.start < 0 )
-	{
-	    errmsg_ = "min frequency cannot be negative";
-	    return false;
-	}
-	if ( freqresvar.start > freqfld->getfValue(0) )
-	    minsuccess = false;
-	if ( freqresvar.stop < freqfld->getfValue(1) )
-	    maxsuccess = false;
-	BufferString msg( "Taper " ); 
-	BufferString endmsg ( " than this of the filter frequency.\n" );
+	{  msg += "min frequency cannot be negative"; mErrWinFreqMsg(msg) }
+	endmsg += " than this of the filter frequency.\n";
 	endmsg += "Please select a different frequency.";
-	if ( !minsuccess )
-	{
-	    msg += "min frequency must be lower";
-	    errmsg_ = msg; errmsg_ += endmsg;
-	    return false;
-	}
-	if ( !maxsuccess )
-	{
-	    msg += "max frequency must be higher";
-	    errmsg_ = msg; errmsg_ += endmsg;
-	    return false;
-	}
+	if ( freqresvar.start > freqfld->getfValue(0) )
+	{  msg += "Taper min frequency must be lower"; mErrWinFreqMsg(msg) }
+	if ( freqresvar.stop < freqfld->getfValue(1) )
+	{  msg += "Taper max frequency must be higher"; mErrWinFreqMsg(msg) }
     }
     return true;
 }
