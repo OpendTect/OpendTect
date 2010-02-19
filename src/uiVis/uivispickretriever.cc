@@ -7,17 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispickretriever.cc,v 1.9 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispickretriever.cc,v 1.10 2010-02-19 13:47:36 cvskarthika Exp $";
 
 #include "uivispickretriever.h"
 
 #include "visevent.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
+#include "uivispartserv.h"
+#include "mousecursor.h"
 
-uiVisPickRetriever::uiVisPickRetriever()
-    : status_( Idle )
-    , finished_( this )
+uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
+    : visserv_(ps)
+    , status_( Idle )
+    , finished_( this )    
 {}
 
 
@@ -35,6 +38,9 @@ bool uiVisPickRetriever::enable(  const TypeSet<int>* scenes )
     status_ = Waiting;
     if ( scenes ) allowedscenes_ = *scenes;
     else allowedscenes_.erase();
+
+    visserv_->setWorkMode( uiVisPartServer::Pick );
+    MouseCursorManager::setOverride( MouseCursor::Cross );
 
     return true;
 }
@@ -99,6 +105,8 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 
     finished_.trigger();
 
+    MouseCursorManager::restoreOverride();
+    visserv_->setWorkMode( uiVisPartServer::View );
     status_ = Idle;
 }
 
@@ -107,4 +115,6 @@ void uiVisPickRetriever::reset()
 {
     status_ = Idle;
     allowedscenes_.erase();
+    MouseCursorManager::restoreOverride();
+    visserv_->setWorkMode( uiVisPartServer::View );
 }
