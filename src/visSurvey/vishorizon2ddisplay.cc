@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.33 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.34 2010-02-19 23:30:21 cvskarthika Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -136,6 +136,8 @@ const visBase::PointSet* Horizon2DDisplay::getPointSet(
 
 void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
 {
+    EMObjectDisplay::drawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
+
     EMObjectDisplay::setLineStyle( lst );
     for ( int idx=0; idx<lines_.size(); idx++ )
 	lines_[idx]->setRadius( (float)lst.width_/2 );
