@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.369 2010-02-16 10:12:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.370 2010-02-19 13:59:15 cvskarthika Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1182,7 +1182,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	      evid == uiVisPartServer::evMouseMove() )
 	sceneMgr().updateStatusBar();
     else if ( evid == uiVisPartServer::evViewModeChange() )
-	sceneMgr().setToViewMode( visserv_->isViewMode() );
+	sceneMgr().setToWorkMode( visserv_->getWorkMode() );
     else if ( evid == uiVisPartServer::evSelectAttrib() )
 	return selectAttrib( visid, visserv_->getEventAttrib() );
     else if ( evid == uiVisPartServer::evViewAll() )
