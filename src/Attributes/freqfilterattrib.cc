@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.45 2010-02-11 07:47:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.46 2010-02-19 09:40:57 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -365,8 +365,9 @@ void FreqFilter::fftFilter( const DataHolder& output,
     int winsz1 = 2*( (int)minfreq );
     if ( mIsZero( minfreq - highfreqvariable_, 0.5 ) )
 	winsz1 = 0;
-    int winsz2 = 2*( datasz - (int)maxfreq );
-    if ( mIsZero( maxfreq - lowfreqvariable_, 0.5 ) )
+    int winsz2 = 2*( datasz-(int)maxfreq );;
+    if ( datasz<=0 || datasz<=(int)maxfreq || 
+	    mIsZero( maxfreq - lowfreqvariable_, 0.5 ) )
 	winsz2 = 0;
 
     Array1DImpl<float> lwin( winsz2/2 ), hwin( winsz1/2 );
