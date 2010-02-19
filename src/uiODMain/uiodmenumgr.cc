@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.203 2010-02-16 12:03:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.204 2010-02-19 13:18:28 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -330,9 +330,11 @@ void uiODMenuMgr::fillExportMenu()
 void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
-    mInsertItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm );
+    mInsertPixmapItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm,
+	    	 "man_attrs.png" );
     mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt.png" )
-    mInsertItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm );
+    mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm,
+	    			"man_fltss.png" );
     if ( SI().getSurvDataType() == SurveyInfo::No2D )
 	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm,
 			   "man_hor.png" )
@@ -347,6 +349,8 @@ void uiODMenuMgr::fillManMenu()
 
     mInsertPixmapItem( manmnu_, "&PickSets ...", mManPickMnuItm,
 		       "man_picks.png" );
+    mInsertPixmapItem( manmnu_, "Probability &Density Functions ...",
+		 mManPDFMnuItm, "man_prdfs.png" );
     create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
 		   "man_seis.png" );
 
@@ -354,8 +358,6 @@ void uiODMenuMgr::fillManMenu()
 	    	       "man_strat.png" )
     mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt.png")
     mInsertPixmapItem( manmnu_, "&Wells ...", mManWellMnuItm, "man_wll.png" )
-    mInsertItem( manmnu_, "Probability &Density Functions ...",
-		 mManPDFMnuItm );
 }
 
 
