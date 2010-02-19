@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.72 2010-02-12 10:03:43 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.73 2010-02-19 13:48:48 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "datapack.h"
 #include "emposid.h"
+#include "uivispartserv.h"
 
 class BufferStringSet;
 class MultiID;
@@ -30,7 +31,6 @@ class uiSoViewer;
 class uiThumbWheel;
 class uiTreeFactorySet;
 class uiTreeItem;
-class uiVisPartServer;
 class uiWindowGrabber;
 class uiWorkSpace;
 class uiWorkSpaceGroup;
@@ -64,6 +64,7 @@ public:
     void			storePositions();
 
     void			setToViewMode(bool yn=true);
+    void			setToWorkMode(uiVisPartServer::WorkMode wm);
     void			viewModeChg(CallBacker* cb=0);
     void			actMode(CallBacker* cb=0);
     void			viewMode(CallBacker* cb=0);
