@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.27 2009-12-15 12:20:18 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.28 2010-02-19 11:10:35 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -197,6 +197,10 @@ void MadStream::initRead( IOPar* par )
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
+    const char* attrnm = par->find( sKey::Attribute ).buf();
+    if ( attrnm && *attrnm && seldata )
+	seldata->lineKey().setAttrName( attrnm );
+
     if ( !isps_ )
     {
 	seisrdr_ = new SeisTrcReader( ioobj );
