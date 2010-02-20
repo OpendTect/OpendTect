@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.14 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.15 2010-02-20 00:58:42 cvskarthika Exp $";
 
 #include "visdrawstyle.h"
 #include "iopar.h"
 
 #include <Inventor/nodes/SoDrawStyle.h>
+#include "SoOD.h"
 
 mCreateFactoryEntry( visBase::DrawStyle );
 
@@ -103,6 +104,13 @@ void DrawStyle::updateLineStyle()
 
     drawstyle->linePattern.setValue( pattern );
 }
+
+
+void DrawStyle::getLineWidthBounds( int& min, int& max )
+{
+    SoOD::getLineWidthBounds( min, max );
+}
+
 
 int DrawStyle::usePar( const IOPar& par )
 {

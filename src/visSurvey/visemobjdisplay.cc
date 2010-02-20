@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.125 2010-01-20 08:48:58 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.126 2010-02-20 00:58:42 cvskarthika Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -370,6 +370,12 @@ const LineStyle* EMObjectDisplay::lineStyle() const
 
 void EMObjectDisplay::setLineStyle( const LineStyle& ls )
 { drawstyle_->setLineStyle(ls); }
+
+
+void EMObjectDisplay::getLineWidthBounds( int& min, int& max )
+{
+    drawstyle_->getLineWidthBounds( min, max );
+}
 
 
 bool EMObjectDisplay::hasColor() const

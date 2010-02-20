@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.22 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.23 2010-02-20 00:58:42 cvskarthika Exp $";
 
 
 #include "SoOD.h"
@@ -76,5 +76,14 @@ int SoOD::maxNrTextureUnits()
     }
 
     return answer ? answer : 1;
+}
+
+
+void SoOD::getLineWidthBounds( int& min, int& max )
+{
+    GLfloat bounds[2];
+    glGetFloatv( GL_LINE_WIDTH_RANGE, bounds );
+    min = bounds[0];
+    max = bounds[1];
 }
 

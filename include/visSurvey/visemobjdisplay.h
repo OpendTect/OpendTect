@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.59 2010-02-15 06:19:46 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.60 2010-02-20 00:58:42 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ public:
     bool			allowMaterialEdit() const { return true; }
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
+    void			getLineWidthBounds( int& min, int& max );
 
     bool			hasColor() const;
     void			setColor(Color);

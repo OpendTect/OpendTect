@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.30 2009-11-16 15:43:35 cvsbert Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.31 2010-02-20 00:58:42 cvskarthika Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -102,6 +102,13 @@ void uiSelLineStyle::setStyle( const LineStyle& ls )
 void uiSelLineStyle::enableTransparency( bool yn )
 {
     colinp->enableAlphaSetting( yn );
+}
+
+
+void uiSelLineStyle::setLineWidthBounds( int min, int max )
+{
+    widthbox->box()->setMinValue( min );
+    widthbox->box()->setMaxValue( max );
 }
 
 

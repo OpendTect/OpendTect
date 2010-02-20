@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.9 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.10 2010-02-20 00:58:42 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ public:
 			*/
     void 		setLineWidth(int);
     const LineStyle&	lineStyle() const { return linestyle; }
+
+    void		getLineWidthBounds( int& min, int& max );
 
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
