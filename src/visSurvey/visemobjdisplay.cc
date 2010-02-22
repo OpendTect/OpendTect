@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.126 2010-02-20 00:58:42 cvskarthika Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.127 2010-02-22 23:06:39 cvskris Exp $";
 
 #include "visemobjdisplay.h"
 
 #include "emmanager.h"
 #include "emobject.h"
 #include "iopar.h"
+#include "ioobj.h"
+#include "ioman.h"
 #include "keystrs.h"
 #include "mpeengine.h"
 #include "randcolor.h"
@@ -579,11 +581,22 @@ int EMObjectDisplay::usePar( const IOPar& par )
     int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
-    if ( scene_ )
-	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
-
     if ( !par.get(sKeyEarthModelID,parmid_) )
 	return -1;
+
+    PtrMan<IOObj> ioobj = IOM().get( parmid_ );
+    if ( !ioobj )
+    {
+	errmsg_ = "Cannot locate object ";
+	errmsg_ += name();
+	errmsg_ += " (";
+	errmsg_ += parmid_;
+	errmsg_ += ")";
+	return -1;
+    }
+
+    if ( scene_ )
+	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
     par.get( sKeySections, parsections_ );
     BufferString linestyle;
