@@ -33,6 +33,8 @@ public:
     uiObjectItem*		getItemFromPos(const Geom::Point2D<int>&);
     uiObjectItem*		getItem(int idx); 
     int				nrItems() const { return objectitems_.size(); }
+    int 			stretchFactor(uiObjectItem*);
+    void 			setStretchFactor(uiObjectItem*,int sf);
 
 protected:
 

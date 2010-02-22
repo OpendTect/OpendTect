@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.2 2010-02-12 08:29:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.3 2010-02-22 08:43:35 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -24,13 +24,13 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
 } 
 
 
-#define mGetScene()\
+#define mGetScene(act)\
     mDynamicCastGet(uiGraphicsObjectScene*,sc,&scene())\
-    if ( !sc ) return;
+    if ( !sc ) act;
 void uiObjectItemView::addItem( uiObjectItem* itm, int stretch )
 {
     objectitems_ += itm;
-    mGetScene() sc->addObjectItem(itm);
+    mGetScene(return) sc->addObjectItem(itm);
     sc->setItemStretch( itm, stretch );
 }
 
@@ -38,14 +38,14 @@ void uiObjectItemView::addItem( uiObjectItem* itm, int stretch )
 void uiObjectItemView::insertItem( uiObjectItem* itm, int stretch, int posidx)
 {
     objectitems_.insertAt( itm, posidx );
-    mGetScene() sc->insertObjectItem( posidx, itm );
+    mGetScene(return) sc->insertObjectItem( posidx, itm );
 }
 
 
 void uiObjectItemView::removeItem( uiObjectItem* itm )
 {
     objectitems_ -= itm;
-    mGetScene() sc->removeObjectItem( itm );
+    mGetScene(return) sc->removeObjectItem( itm );
 }
 
 
@@ -66,5 +66,18 @@ uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos )
 uiObjectItem* uiObjectItemView::getItem( int idx) 
 {
     return ( idx>=0 && nrItems()>idx ) ? objectitems_[idx] : 0; 
+}
+
+
+int uiObjectItemView::stretchFactor( uiObjectItem* itm )
+{
+    mGetScene(return 0) 
+    return sc->stretchFactor( itm );
+}
+
+
+void uiObjectItemView::setStretchFactor(uiObjectItem* itm,int stretchfactor )
+{
+    mGetScene(return) sc->setItemStretch( itm, stretchfactor );
 }
 
