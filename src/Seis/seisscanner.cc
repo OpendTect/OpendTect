@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.42 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.43 2010-02-22 11:06:21 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -184,6 +184,17 @@ const char* SeisScanner::getClipRgStr( float pct ) const
 
     static BufferString ret;
     ret = vals[idx0]; ret += " - "; ret += vals[idx1];
+
+    float maxabs = fabs( vals[idx0] );
+    if ( fabs( vals[idx1] ) > maxabs ) maxabs = fabs( vals[idx1] );
+    if ( maxabs != 0 ) 
+    {
+	const float sc8 = 127 / maxabs;
+	const float sc16 = 32767 / maxabs;
+	ret += " [scl 16/8-bits: "; ret += sc16;
+	ret += " ; "; ret += sc8; ret += "]";
+    }
+
     return ret.buf();
 }
 

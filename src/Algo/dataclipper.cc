@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.28 2009-09-11 09:44:11 cvsbert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.29 2010-02-22 11:06:21 cvsbert Exp $";
 
 
 #include "dataclipper.h"
@@ -331,6 +331,17 @@ const char* DataClipSampler::getClipRgStr( float pct ) const
     Interval<float> rg( getRange(pct * 0.01) );
     static BufferString ret;
     ret = rg.start; ret += " - "; ret += rg.stop;
+
+    float maxabs = fabs( rg.start );
+    if ( fabs(rg.stop) > maxabs ) maxabs = fabs( rg.stop );
+    if ( maxabs != 0 ) 
+    {
+	const float sc8 = 127 / maxabs;
+	const float sc16 = 32767 / maxabs;
+	ret += " [scl 16/8-bits: "; ret += sc16;
+	ret += " ; "; ret += sc8; ret += "]";
+    }
+
     return ret.buf();
 }
 
