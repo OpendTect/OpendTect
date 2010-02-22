@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.23 2010-02-20 00:58:42 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.24 2010-02-22 09:56:28 cvsbruno Exp $";
 
 
 #include "SoOD.h"
@@ -83,7 +83,7 @@ void SoOD::getLineWidthBounds( int& min, int& max )
 {
     GLfloat bounds[2];
     glGetFloatv( GL_LINE_WIDTH_RANGE, bounds );
-    min = bounds[0];
-    max = bounds[1];
+    min = (int)bounds[0];
+    max = (int)bounds[1];
 }
 
