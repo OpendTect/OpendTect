@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.5 2009-08-06 02:04:14 cvskris Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.6 2010-02-22 22:42:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -87,6 +87,8 @@ public:
     bool			canRemoveSelecion()	{ return true; }
     void			removeSelection(const Selector<Coord3>&,
 						TaskRunner*);
+
+    const char*			errMsg() const { return errmsg_.buf(); }
 
 protected:
 

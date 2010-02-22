@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.60 2010-02-20 00:58:42 cvskarthika Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.61 2010-02-22 22:42:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ public:
     				/*!<\returns wether a position attribute (as
 				     defined in EM::EMObject) to be marked
 				     with a marker. */
+    const char*			errMsg() const { return errmsg_.buf(); }
 
     MultiID			getMultiID() const;
     BufferStringSet		displayedSections() const;

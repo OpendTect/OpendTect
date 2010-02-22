@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.61 2010-02-18 13:53:20 cvskarthika Exp $
+RCS:        $Id: vismpe.h,v 1.62 2010-02-22 22:42:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,7 +50,7 @@ namespace visSurvey
 */
 
 mClass MPEDisplay : public visBase::VisualObjectImpl, 
-       public visSurvey::SurveyObject
+		    public visSurvey::SurveyObject
 {
 public:
 
@@ -181,6 +181,7 @@ public:
 /*    void                setAttribTransparency(int,unsigned char);
     unsigned char       getAttribTransparency(int) const;*/
 
+    const char*		errMsg() const { return errmsg_.buf(); }
     
 protected:
     

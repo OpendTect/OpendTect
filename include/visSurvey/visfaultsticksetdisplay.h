@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.7 2009-12-11 15:35:52 cvsjaap Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.8 2010-02-22 22:42:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,8 @@ public:
 
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
+
+    const char*			errMsg() const { return errmsg_.buf(); }
 
     void			updateSticks(bool activeonly=false);
     void			updateEditPids();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.75 2010-02-19 21:14:28 cvsyuancheng Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.76 2010-02-22 22:42:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -137,6 +137,8 @@ public:
     
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> knotmoving_;
+
+    const char*			errMsg() const { return errmsg_.buf(); }
 
 protected:
 				~RandomTrackDisplay();

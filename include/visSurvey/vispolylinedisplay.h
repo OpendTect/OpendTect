@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Payraudeau
  Date:          November 2005
- RCS:           $Id: vispolylinedisplay.h,v 1.4 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:           $Id: vispolylinedisplay.h,v 1.5 2010-02-22 22:42:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ public:
     void                        fillPolyLine(const Coord3&);
     void                        setDisplayTransformation(mVisTrans*);
     mVisTrans*                  getDisplayTransformation();
+
+    const char*			errMsg() const { return errmsg_.buf(); }
 
 protected:
 

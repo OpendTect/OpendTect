@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.112 2010-02-15 06:19:46 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.113 2010-02-22 22:42:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -93,8 +93,6 @@ public:
     virtual void		setTranslation(const Coord3&) {}
     virtual Coord3		getTranslation() const
     				{ return Coord3(0,0,0); }
-
-    const char*			errMsg() const		    	{return errmsg;}
 
     virtual void		getChildren( TypeSet<int>& ) const	{}
 
@@ -288,7 +286,7 @@ protected:
 
     static int			cValNameOffset()	{ return 12; }
 
-    BufferString		errmsg;
+    BufferString		errmsg_;
     Scene*			scene_;
     bool			locked_;
     ObjectSet<BufferStringSet>	userrefs_;

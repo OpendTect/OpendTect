@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.29 2009-12-03 06:18:25 cvsnanne Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.30 2010-02-22 22:42:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -54,6 +54,8 @@ public:
     const Pick::Set*		getSet() const		{ return set_; }
 
     MultiID			getMultiID() const	{ return storedmid_; }
+
+    const char*			errMsg() const { return errmsg_.buf(); }
 
     void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);
