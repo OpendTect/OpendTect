@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seismerge.cc,v 1.6 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.7 2010-02-22 16:10:26 cvsbert Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -273,16 +273,15 @@ int SeisMerger::writeTrc( SeisTrc* trc )
     }
     else if ( trc->size() != nrsamps_ || trc->info().sampling != sd_ )
     {
-	SeisTrc* newtrc = new SeisTrc;
-	newtrc->info() = trc->info();
+	SeisTrc* newtrc = new SeisTrc(*trc);
 	newtrc->info().sampling = sd_;
 	newtrc->reSize( nrsamps_, false );
 	const int nrcomps = trc->nrComponents();
 	for ( int isamp=0; isamp<nrsamps_; isamp++ )
 	{
-	    const float x = newtrc->info().samplePos(isamp);
+	    const float z = newtrc->info().samplePos(isamp);
 	    for ( int icomp=0; icomp<nrcomps; icomp++ )
-		newtrc->set( isamp, trc->getValue(x,icomp), icomp );
+		newtrc->set( isamp, trc->getValue(z,icomp), icomp );
 	}
 	delete trc; trc = newtrc;
     }
@@ -309,13 +308,15 @@ int SeisMerger::writeFromBuf()
     }
 
     SeisTrcBuf tmp( false );
-    const int tnr = trcbuf_.get(0)->info().nr;
-    for ( int idx=1; idx<trcbuf_.size(); idx++ )
+    SeisTrc* trc0 = trcbuf_.remove( 0 );
+    const int tnr = trc0->info().nr;
+    tmp.add( trc0 );
+
+    while ( !trcbuf_.isEmpty() )
     {
-	if ( trcbuf_.get(idx)->info().nr == tnr )
-	    { tmp.add( trcbuf_.get(idx) ); trcbuf_.remove( idx ); }
-	else
+	if ( trcbuf_.get(0)->info().nr != tnr )
 	    break;
+	tmp.add( trcbuf_.remove(0) );
     }
 
     return writeTrc( getStacked(tmp) );
