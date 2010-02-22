@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.56 2009-10-16 08:00:23 cvskarthika Exp $
+ RCS:		$Id: visdata.h,v 1.57 2010-02-22 22:41:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -102,6 +102,7 @@ public:
     				/*!< Returns -1 on error and 1 on success.
 				     If it returns 0 it is missing something.
 				     Parse everything else and retry later.  */
+    virtual const char*		errMsg() const	{ return 0; }
 
     virtual bool		acceptsIncompletePar() const    {return false;}
 				/*!<Returns true if it can cope with non-
