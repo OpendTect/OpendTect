@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.11 2010-02-12 08:49:26 cvsumesh Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.12 2010-02-22 09:34:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 class uiFlatViewAuxDataEditor;
 class uiFlatViewStdControl;
 class uiFlatViewWin;
+class uiWellToSeisMainWin;
+class uiMainWin;
 class uiODMain;
 class uiSlicePos2DView;
 namespace Attrib { class SelSpec; }
@@ -36,6 +38,7 @@ public:
     void			setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
 
+    uiFlatViewWin* 		viewwin() { return  viewwin_; }		
     uiFlatViewWin*		viewwin_;
     uiODMain&			appl_;
 
@@ -45,11 +48,11 @@ public:
 protected:
 
     uiSlicePos2DView*		slicepos_;
-    uiFlatViewAuxDataEditor*	auxdataeditor_;
     uiFlatViewStdControl*	viewstdcontrol_;
-    MPE::HorizonFlatViewEditor*	horfveditor_;
-    MPE::FaultStickSetFlatViewEditor* fssfveditor_;
-    EM::uiEMViewer2DManager*	emviewer2dman_;
+    ObjectSet<uiFlatViewAuxDataEditor>	auxdataeditor_;
+    ObjectSet<MPE::HorizonFlatViewEditor> horfveditor_;
+    ObjectSet<MPE::FaultStickSetFlatViewEditor> fssfveditor_;
+    ObjectSet<EM::uiEMViewer2DManager> emviewer2dman_;
 
     Attrib::SelSpec&		wvaselspec_;
     Attrib::SelSpec&		vdselspec_;
@@ -57,6 +60,7 @@ protected:
     int				seltbid_;
 
     void			createViewWin(bool isvert);
+    void			createViewWinEditors();
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);
     void			dataChangedCB(CallBacker*);
@@ -64,6 +68,15 @@ protected:
     void			updateOldActiveVolInUiMPEManCB(CallBacker*);
     void			restoreActiveVolInUiMPEManCB(CallBacker*);
     void			updateHorFlatViewerSeedPickStatus(CallBacker*);
+};
+
+
+mClass uiODWellSeisViewer2D : public uiODViewer2D
+{
+public:
+				uiODWellSeisViewer2D(uiODMain&,int visid);
+
+    void			createViewWin(DataPack::ID,bool wva);
 };
 
 #endif

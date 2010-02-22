@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.22 2010-02-12 08:49:31 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.23 2010-02-22 09:34:19 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.22 2010-02-12 08:49:31 cvsu
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "uiwelltoseismicmainwin.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -47,9 +48,6 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , vdselspec_(*new Attrib::SelSpec)
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
-    , horfveditor_(0)
-    , fssfveditor_(0)
-    , emviewer2dman_(0)
     , slicepos_(0)
 {
     basetxt_ = "2D Viewer - ";
@@ -69,22 +67,22 @@ uiODViewer2D::~uiODViewer2D()
     if ( viewstdcontrol_ && viewstdcontrol_->propDialog() )
 	viewstdcontrol_->propDialog()->close();
 
-    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
+    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin())
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
-    if ( horfveditor_ )
+    for ( int idx=0; idx<horfveditor_.size(); idx++ )
     {
-	horfveditor_->updateoldactivevolinuimpeman.remove(
+	horfveditor_[idx]->updateoldactivevolinuimpeman.remove(
 		mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
-	horfveditor_->restoreactivevolinuimpeman.remove(
+	horfveditor_[idx]->restoreactivevolinuimpeman.remove(
 		mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
-	horfveditor_->updateseedpickingstatus.remove(
+	horfveditor_[idx]->updateseedpickingstatus.remove(
 		mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
     }
 
-    delete horfveditor_;
-    delete viewwin_;
+    deepErase ( horfveditor_ );
+    delete viewwin();
 }
 
 
@@ -94,7 +92,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
     mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
-    const bool isnew = !viewwin_;
+    const bool isnew = !viewwin();
     if ( isnew )
 	createViewWin( (dp3d && dp3d->isVertical()) ||
 		       (dp2d && dp2d->isVertical()) );
@@ -102,51 +100,55 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     if ( slicepos_ )
 	slicepos_->getToolBar()->display( dp3d );
 
-    if ( dp3d )
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
-	const CubeSampling& cs = dp3d->cube().cubeSampling();
-	if ( slicepos_ ) slicepos_->setCubeSampling( cs );
-	if ( dp3d->isVertical() )
+	if ( dp3d )
 	{
-	    emviewer2dman_->setCubeSampling( cs );
-	    horfveditor_->setCubeSampling( cs );
-	    horfveditor_->setSelSpec( &vdselspec_, false );
-	    horfveditor_->setSelSpec( &wvaselspec_, true );
+	    const CubeSampling& cs = dp3d->cube().cubeSampling();
+	    if ( slicepos_ ) slicepos_->setCubeSampling( cs );
+	    if ( dp3d->isVertical() )
+	    {
+		emviewer2dman_[ivwr]->setCubeSampling( cs );
+		horfveditor_[ivwr]->setCubeSampling( cs );
+		horfveditor_[ivwr]->setSelSpec( &vdselspec_, false );
+		horfveditor_[ivwr]->setSelSpec( &wvaselspec_, true );
+	    }
+	    fssfveditor_[ivwr]->setCubeSampling( cs );
 	}
-	fssfveditor_->setCubeSampling( cs );
-    }
-    else if ( dp2ddh )
-    {
-	emviewer2dman_->setPainterLineName(
-		appl_.applMgr().visServer()->getObjectName(visid_) );
-	dp2ddh->getPosDataTable( emviewer2dman_->getHorPainter()->getTrcNos(),
-			emviewer2dman_->getHorPainter()->getDistances());
-	emviewer2dman_->setCubeSampling(
-			dp2ddh->dataholder().getCubeSampling() );
-	horfveditor_->setCubeSampling( dp2ddh->dataholder().getCubeSampling() );
-	horfveditor_->setSelSpec( &vdselspec_, false );
-	horfveditor_->setSelSpec( &wvaselspec_, true );
-	horfveditor_->setLineName(
-		appl_.applMgr().visServer()->getObjectName(visid_) );
-	mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-			appl_.applMgr().visServer()->getObject(visid_));
-	if ( s2d )
+	else if ( dp2ddh )
 	{
-	    horfveditor_->setLineSetID( s2d->lineSetID() );
-	    horfveditor_->set2D( true );
+	    emviewer2dman_[ivwr]->setPainterLineName(
+		    appl_.applMgr().visServer()->getObjectName(visid_) );
+	    dp2ddh->getPosDataTable( 
+		    emviewer2dman_[ivwr]->getHorPainter()->getTrcNos(),
+		    emviewer2dman_[ivwr]->getHorPainter()->getDistances());
+	    emviewer2dman_[ivwr]->setCubeSampling(
+		    dp2ddh->dataholder().getCubeSampling() );
+	    horfveditor_[ivwr]->setCubeSampling( 
+		    dp2ddh->dataholder().getCubeSampling() );
+	    horfveditor_[ivwr]->setSelSpec( &vdselspec_, false );
+	    horfveditor_[ivwr]->setSelSpec( &wvaselspec_, true );
+	    horfveditor_[ivwr]->setLineName(
+		    appl_.applMgr().visServer()->getObjectName(visid_) );
+	    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+		    appl_.applMgr().visServer()->getObject(visid_));
+	    if ( s2d )
+	    {
+		horfveditor_[ivwr]->setLineSetID( s2d->lineSetID() );
+		horfveditor_[ivwr]->set2D( true );
+	    }
 	}
+	fssfveditor_[ivwr]->drawFault();
+
+	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
+	DPM(DataPackMgr::FlatID()).release( curpackid );
+
+	FlatView::DataDispPars& ddp = 
+	    		viewwin()->viewer(ivwr).appearance().ddpars_;
+	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
+	viewwin()->viewer(ivwr).setPack( wva, packid, false, isnew );
     }
-
-    fssfveditor_->drawFault();
-
-    DataPack::ID curpackid = viewwin_->viewer().packID( wva );
-    DPM(DataPackMgr::FlatID()).release( curpackid );
-
-    FlatView::DataDispPars& ddp = viewwin_->viewer().appearance().ddpars_;
-    (wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
-
-    viewwin_->viewer().setPack( wva, packid, false, isnew );
-    viewwin_->start();
+    viewwin()->start();
 }
 
 
@@ -175,61 +177,68 @@ void uiODViewer2D::createViewWin( bool isvert )
 	viewwin_ = dwin;
 	controlparent = &appl_;
     }
-
     viewwin_->setInitialSize( 600, 400 );
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewwin_->viewer( ivwr );
+	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
 	vwr.appearance().setDarkBG( wantdock );
 	vwr.appearance().setGeoDefaults(isvert);
 	vwr.appearance().annot_.setAxesAnnot(true);
-	if ( ivwr == 0 )
-	{
-	    viewstdcontrol_ = new uiFlatViewStdControl( vwr,
-		    uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
-							      .withedit(true) );
-	    viewwin_->addControl( viewstdcontrol_ );
-	    auxdataeditor_ = new uiFlatViewAuxDataEditor( vwr );
-	    emviewer2dman_ = new EM::uiEMViewer2DManager( vwr, auxdataeditor_ );
-	    emviewer2dman_->initEMFlatViewControl( & appl_,
-		    				   viewstdcontrol_->toolBar() );
-	    auxdataeditor_->setSelActive( false );
-	    horfveditor_ = new MPE::HorizonFlatViewEditor( auxdataeditor_ );
-	    horfveditor_->updateoldactivevolinuimpeman.notify(
-		    mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
-	    horfveditor_->restoreactivevolinuimpeman.notify(
-		    mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
-	    horfveditor_->updateseedpickingstatus.notify(
-		     mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
-	    horfveditor_->setMouseEventHandler( 
-		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
-	    fssfveditor_ = new MPE::FaultStickSetFlatViewEditor(auxdataeditor_);
-	    fssfveditor_->setMouseEventHandler(
-		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
-	    vwr.dataChanged.notify(  mCB(this,uiODViewer2D,dataChangedCB) );
-	}
     }
+    uiFlatViewer& mainvwr = viewwin()->viewer();
+    viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
+	    uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
+						      .withedit(true) );
+    viewwin_->addControl( viewstdcontrol_ );
+    createViewWinEditors();
 }
+
+
+void uiODViewer2D::createViewWinEditors()
+{   
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    {
+	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
+	auxdataeditor_ += new uiFlatViewAuxDataEditor( vwr );
+	emviewer2dman_ += new EM::uiEMViewer2DManager(vwr, auxdataeditor_[ivwr]);
+	emviewer2dman_[ivwr]->initEMFlatViewControl( &appl_,
+					       viewstdcontrol_->toolBar() );
+	auxdataeditor_[ivwr]->setSelActive( false );
+	horfveditor_ += new MPE::HorizonFlatViewEditor( auxdataeditor_[ivwr] );
+	horfveditor_[ivwr]->updateoldactivevolinuimpeman.notify(
+		mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
+	horfveditor_[ivwr]->restoreactivevolinuimpeman.notify(
+		mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
+	horfveditor_[ivwr]->updateseedpickingstatus.notify(
+		 mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
+	horfveditor_[ivwr]->setMouseEventHandler( 
+		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
+	fssfveditor_ += new MPE::FaultStickSetFlatViewEditor(auxdataeditor_[ivwr]);
+	fssfveditor_[ivwr]->setMouseEventHandler(
+		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
+	vwr.dataChanged.notify( mCB(this,uiODViewer2D,dataChangedCB) );
+    }
+} 
 
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
-    DataPack::ID packid = viewwin_->viewer().packID( true );
+    DataPack::ID packid = viewwin()->viewer().packID( true );
     DPM(DataPackMgr::FlatID()).release( packid );
-    packid = viewwin_->viewer().packID( false );
+    packid = viewwin()->viewer().packID( false );
     DPM(DataPackMgr::FlatID()).release( packid );
 
-    if ( horfveditor_ )
+    for ( int idx=0; idx<horfveditor_.size(); idx++ )
     {
-	horfveditor_->updateoldactivevolinuimpeman.remove(
+	horfveditor_[idx]->updateoldactivevolinuimpeman.remove(
 		mCB(this,uiODViewer2D,updateOldActiveVolInUiMPEManCB) );
-	horfveditor_->restoreactivevolinuimpeman.remove(
+	horfveditor_[idx]->restoreactivevolinuimpeman.remove(
 		mCB(this,uiODViewer2D,restoreActiveVolInUiMPEManCB) );
-	horfveditor_->updateseedpickingstatus.remove(
+	horfveditor_[idx]->updateseedpickingstatus.remove(
 		mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
     }
 	
-    delete horfveditor_; horfveditor_ = 0;
+    deepErase( horfveditor_ );
 
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );
@@ -277,31 +286,34 @@ void uiODViewer2D::posChg( CallBacker* )
 
 void uiODViewer2D::dataChangedCB( CallBacker* )
 {
-    const FlatDataPack* wdp = viewwin_->viewer().pack( true );
-    if ( wdp && !wdp->name().isEmpty() )
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
-	if ( wvaselspec_.userRef() && 
-	     !strcmp(wdp->name().buf(),wvaselspec_.userRef()) )
-	    horfveditor_->setSelSpec( &wvaselspec_, true );
-	else if ( vdselspec_.userRef() &&
-		  !strcmp(wdp->name().buf(),vdselspec_.userRef()) )
-	    horfveditor_->setSelSpec( &vdselspec_, true );
-    }
-    else
-	horfveditor_->setSelSpec( 0, true );
+	const FlatDataPack* wdp = viewwin()->viewer().pack( true );
+	if ( wdp && !wdp->name().isEmpty() )
+	{
+	    if ( wvaselspec_.userRef() && 
+		 !strcmp(wdp->name().buf(),wvaselspec_.userRef()) )
+		horfveditor_[ivwr]->setSelSpec( &wvaselspec_, true );
+	    else if ( vdselspec_.userRef() &&
+		      !strcmp(wdp->name().buf(),vdselspec_.userRef()) )
+		horfveditor_[ivwr]->setSelSpec( &vdselspec_, true );
+	}
+	else
+	    horfveditor_[ivwr]->setSelSpec( 0, true );
 
-    const FlatDataPack* vddp = viewwin_->viewer().pack( false );
-    if ( vddp && !vddp->name().isEmpty() )
-    {
-	if ( wvaselspec_.userRef() &&
-	     !strcmp(vddp->name().buf(),wvaselspec_.userRef()) )
-	    horfveditor_->setSelSpec( &wvaselspec_, false );
-	else if ( vdselspec_.userRef() &&
-		  !strcmp(vddp->name().buf(),vdselspec_.userRef()) )
-	    horfveditor_->setSelSpec( &vdselspec_, false );
+	const FlatDataPack* vddp = viewwin()->viewer().pack( false );
+	if ( vddp && !vddp->name().isEmpty() )
+	{
+	    if ( wvaselspec_.userRef() &&
+		 !strcmp(vddp->name().buf(),wvaselspec_.userRef()) )
+		horfveditor_[ivwr]->setSelSpec( &wvaselspec_, false );
+	    else if ( vdselspec_.userRef() &&
+		      !strcmp(vddp->name().buf(),vdselspec_.userRef()) )
+		horfveditor_[ivwr]->setSelSpec( &vdselspec_, false );
+	}
+	else
+	    horfveditor_[ivwr]->setSelSpec( 0, false );
     }
-    else
-	horfveditor_->setSelSpec( 0, false );
 }
 
 
@@ -320,8 +332,34 @@ void uiODViewer2D::restoreActiveVolInUiMPEManCB( CallBacker* )
 
 void uiODViewer2D::updateHorFlatViewerSeedPickStatus( CallBacker* )
 {
-    horfveditor_->setSeedPickingStatus(
-	    appl_.applMgr().visServer()->isPicking() );
-    horfveditor_->setTrackerSetupActive(
-	    appl_.applMgr().visServer()->isTrackingSetupActive() );
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    {
+	horfveditor_[ivwr]->setSeedPickingStatus(
+		appl_.applMgr().visServer()->isPicking() );
+	horfveditor_[ivwr]->setTrackerSetupActive(
+		appl_.applMgr().visServer()->isTrackingSetupActive() );
+    }
 }
+
+
+
+uiODWellSeisViewer2D::uiODWellSeisViewer2D( uiODMain& appl, int visid )
+    : uiODViewer2D(appl,visid)
+{
+}
+
+
+void uiODWellSeisViewer2D::createViewWin( DataPack::ID id, bool wva )
+{    
+    uiWellToSeisMGR mgr( &appl_, id, false  );
+    uiWellToSeisMainWin* win = mgr.win();
+    if ( !win ) 
+    { delete win; return; }
+    viewwin_ = win;
+    win->show();
+    viewstdcontrol_ = (uiFlatViewStdControl*)win->controlView(); 
+    win->windowClosed.notify( mCB(this,uiODWellSeisViewer2D,winCloseCB) );
+    uiFlatViewer& mainvwr = viewwin()->viewer();
+    createViewWinEditors();
+}
+
