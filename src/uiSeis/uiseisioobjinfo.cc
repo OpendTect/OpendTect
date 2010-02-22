@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.22 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.23 2010-02-22 11:06:02 cvsbert Exp $";
 
 #include "uiseisioobjinfo.h"
 #include "uimsg.h"
@@ -54,7 +54,6 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     {
 	if ( doerrs )
 	    uiMSG().error( "No output cube produced" );
-	delete conn;
 	return false;
     }
 
