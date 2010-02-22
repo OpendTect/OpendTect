@@ -5,9 +5,11 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.23 2009-11-17 09:08:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.24 2010-02-22 05:05:32 cvsnanne Exp $";
 
 #include "strmoper.h"
+#include "strmio.h"
+
 #include "timefun.h"
 #include "bufstring.h"
 #include <limits.h>
@@ -208,3 +210,36 @@ void StrmOper::seek( std::istream& strm, od_int64 pos )
 	curoffset += smalloffset;
     }
 }
+
+
+
+#define mWriteImpl(fn,typ) \
+void StreamIO::fn( const typ& val, char post ) \
+{ \
+    if ( binary_ ) \
+	ostrm_->write( (const char*)&val, sizeof(val) ); \
+    else \
+	(*ostrm_) << val << post; \
+}
+
+mWriteImpl( writeInt16, od_int16 )
+mWriteImpl( writeInt32, od_int32 )
+mWriteImpl( writeInt64, od_int64 )
+mWriteImpl( writeFloat, float )
+
+
+#define mReadImpl(fn,typ) \
+typ StreamIO::fn() const \
+{ \
+    typ val; \
+    if ( binary_ ) \
+	istrm_->read( (char*)(&val), sizeof(val) ); \
+    else \
+	(*istrm_) >> val; \
+    return val; \
+}
+
+mReadImpl( readInt16, od_int16 )
+mReadImpl( readInt32, od_int32 )
+mReadImpl( readInt64, od_int64 )
+mReadImpl( readFloat, float )
