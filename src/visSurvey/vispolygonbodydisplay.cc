@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.5 2009-08-06 02:04:14 cvskris Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.6 2010-02-22 22:40:42 cvskris Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -141,7 +141,7 @@ EM::ObjectID PolygonBodyDisplay::getEMID() const
 }
 
 
-#define mErrRet(s) { errmsg = s; return false; }
+#define mErrRet(s) { errmsg_ = s; return false; }
 
 bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 {

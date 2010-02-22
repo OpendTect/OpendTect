@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.46 2010-02-12 09:55:32 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.47 2010-02-22 22:40:42 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -170,7 +170,7 @@ EM::ObjectID FaultDisplay::getEMID() const
 { return emfault_ ? emfault_->id() : -1; }
 
 
-#define mErrRet(s) { errmsg = s; return false; }
+#define mErrRet(s) { errmsg_ = s; return false; }
 
 bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 {

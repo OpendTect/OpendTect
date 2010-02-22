@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.19 2010-02-12 09:52:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.20 2010-02-22 22:40:42 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -148,7 +148,7 @@ EM::ObjectID FaultStickSetDisplay::getEMID() const
 { return emfss_ ? emfss_->id() : -1; }
 
 
-#define mErrRet(s) { errmsg = s; return false; }
+#define mErrRet(s) { errmsg_ = s; return false; }
 
 bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
 {

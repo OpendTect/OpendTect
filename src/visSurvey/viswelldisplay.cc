@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.118 2010-02-15 06:19:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.119 2010-02-22 22:40:42 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -228,7 +228,7 @@ void WellDisplay::fullRedraw( CallBacker* )
 }
 
 
-#define mErrRet(s) { errmsg = s; return false; }
+#define mErrRet(s) { errmsg_ = s; return false; }
 bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     Well::Data* oldwd = getWD();

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.28 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.29 2010-02-22 22:40:42 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -293,7 +293,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 }
 
 
-#define mErrRet(s) { errmsg = s; return false; }
+#define mErrRet(s) { errmsg_ = s; return false; }
 
 bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid )
 {
