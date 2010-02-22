@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.59 2010-02-01 09:46:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.60 2010-02-22 16:47:14 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -424,12 +424,8 @@ const float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx,
 {
     const Coord3Value& cv = crdvals[idx];
     float val = scaler.scale( cv.value );
-    if ( mIsUdf(val) )
-    {
-	return 105; //for undef value (>100), to be set transparent
-    }
-    else if ( val < 0 )   val = 0;
-    else if ( val > 100 ) val = 100;
+    if ( val < 0 || mIsUdf(val) ) val = 0;
+    if ( val > 100 ) val = 100;
     if ( sclog ) mSclogval(val);
 
     return val;

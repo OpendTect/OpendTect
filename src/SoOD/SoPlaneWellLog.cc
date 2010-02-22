@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.40 2009-12-09 13:41:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.41 2010-02-22 16:47:14 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -530,15 +530,18 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	else
 	    colindex = (int)((filllogval-fillminvalF)/colstep);
 	if ( colindex > 255 ) colindex = 255;
-	else if ( colindex < 0 ) colindex = 0;
-
-	if ( logval <= 100 &&  filllogval <= 100 )
+	if ( colindex < 0 ) colindex = 0;
+	if ( logval <= 100 && filllogval <= 100 && logval>=0 && filllogval>=0 )
 	{
 	    triset->materialIndex.set1Value( 2*idx, colindex );
 	    triset->materialIndex.set1Value( 2*idx+1, colindex );
 	}
 	else
-	    logval = 0;
+	{
+	    logval = 0; filllogval = 0;
+	    triset->materialIndex.set1Value( 2*idx, 0 );
+	    triset->materialIndex.set1Value( 2*idx, 0 );
+	}
 	SbVec3f newcrd = path[index];
 	SbVec3f normal = getProjCoords( path, index, projdir, 
 				    maxval, logval, lognr );
