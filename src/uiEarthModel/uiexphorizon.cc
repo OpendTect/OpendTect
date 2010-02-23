@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.64 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.65 2010-02-23 10:17:47 cvsraman Exp $";
 
 #include "uiexphorizon.h"
 
@@ -26,13 +26,14 @@ static const char* rcsID = "$Id: uiexphorizon.cc,v 1.64 2009-12-03 14:47:46 cvsb
 #include "survinfo.h"
 #include "keystrs.h"
 #include "mousecursor.h"
-#include "uicombobox.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiiosurface.h"
 #include "uibutton.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "unitofmeasure.h"
+#include "uiunitsel.h"
 #include "uizaxistransform.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
@@ -82,9 +83,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
      	transfld_->selectionDone()->notify( mCB(this,uiExportHorizon,addZChg) );
     }
 
-    unitsel_ = new uiLabeledComboBox( this, "Z Unit" );
-    unitsel_->box()->addItem( 0 );
-    unitsel_->box()->addItem( 0 );
+    unitsel_ = new uiUnitSel( this, SI().zIsTime() ? PropertyRef::Time
+	    					: PropertyRef::Dist, "Z Unit" );
     unitsel_->attach( alignedBelow,
 	    transfld_ ? (uiGroup*) transfld_ : (uiGroup*) zfld_ );
 
@@ -130,13 +130,13 @@ static void initGF( std::ostream& strm, const char* hornm,
 
 #define mGFUndefValue 3.4028235E+38
 
-static void writeGF( std::ostream& strm, const BinID& bid, float z, float zfac,
+static void writeGF( std::ostream& strm, const BinID& bid, float z,
 		     float val, const Coord& crd, int segid )
 {
     static char buf[mDataGFLineLen+2];
     const float crl = bid.crl;
     const float gfval = mIsUdf(val) ? mGFUndefValue : val;
-    const float depth = mIsUdf(z) ? mGFUndefValue : z * zfac;
+    const float depth = mIsUdf(z) ? mGFUndefValue : z;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	     crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl, gfval, bid.inl,
 	     "" );
@@ -194,26 +194,11 @@ bool uiExportHorizon::writeAscii()
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     const FixedString zdomain = getZDomain();
-    float zfac = 1;
     RefMan<ZAxisTransform> zat = 0;
     if ( zfld_->getIntValue()==2 && transfld_ )
 	zat = transfld_->getSelection();
 
-    if ( unitsel_->box()->getIntValue()==1 )
-    {
-	if ( zdomain==ZDomain::sKeyDepth() )
-	    zfac = mToFeetFactor;
-	else if ( zdomain==ZDomain::sKeyTWT() )
-	    zfac = 1000;
-    }
-    else if ( dogf )
-    {
-	if ( zdomain==ZDomain::sKeyDepth() && SI().xyInFeet() )
-	    zfac = mToFeetFactor;
-	else if ( zdomain==ZDomain::sKeyTWT() )
-	    zfac = 1000;
-    }
-
+    const UnitOfMeasure* unit = unitsel_->getUnit();
     TypeSet<int>& sections = sels.selsections;
     int zatvoi = -1;
     if ( zat && zat->needsVolumeOfInterest() ) //Get BBox
@@ -307,12 +292,15 @@ bool uiExportHorizon::writeAscii()
 	    if ( zat )
 		crd.z = zat->transform( crd );
 
+	    if ( !mIsUdf(crd.z) && unit )
+		crd.z = unit->userValue( crd.z );
+
 	    if ( dogf )
 	    {
 		const BinID bid = SI().transform( crd );
 		const float auxvalue = nrattribs > 0
 		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-		writeGF( *sdo.ostrm, bid, crd.z, zfac, auxvalue, crd, sidx );
+		writeGF( *sdo.ostrm, bid, crd.z, auxvalue, crd, sidx );
 		continue;
 	    }
 
@@ -335,7 +323,7 @@ bool uiExportHorizon::writeAscii()
 		    *sdo.ostrm << '\t' << udfstr;
 		else
 		{
-		    str = "\t"; str += zfac * crd.z;
+		    str = "\t"; str += crd.z;
 		    *sdo.ostrm << str;
 		}
 	    }
@@ -419,20 +407,14 @@ void uiExportHorizon::addZChg( CallBacker* )
 
 	if ( zdomain==ZDomain::sKeyDepth() )
 	{
-	    if ( unitsel_->box()->textOfItem(0)[0]!='M' )
-	    {
-		unitsel_->box()->setItemText( 0, "Meter" );
-		unitsel_->box()->setItemText( 1, "Feet" );
-		unitsel_->box()->setCurrentItem( 
-			SI().depthsInFeetByDefault() ? 1 : 0 );
-	    }
-	    displayunit = true;
+	    unitsel_->setPropType( PropertyRef::Dist );
+	    if ( SI().zInFeet() || SI().depthsInFeetByDefault() )
+		unitsel_->setUnit( "Feet" );
 	}
 	else if ( zdomain==ZDomain::sKeyTWT() )
 	{
-	    unitsel_->box()->setItemText( 0, "Second" );
-	    unitsel_->box()->setItemText( 1, "Millisecond" );
-	    displayunit = true;
+	    unitsel_->setPropType( PropertyRef::Time );
+	    unitsel_->setUnit( "Milliseconds" );
 	}
     }
 
