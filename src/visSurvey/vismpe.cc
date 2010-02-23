@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.102 2010-02-15 06:19:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.103 2010-02-23 21:25:14 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -1346,7 +1346,7 @@ int MPEDisplay::usePar( const IOPar& par )
 
 	mDynamicCastGet(visBase::TextureChannel2VolData*, tc2vd, dataobj.ptr());
 	if ( tc2vd )
-	    setChannel2VolData( tc2vd );
+	    setChannels2VolData( tc2vd );
     }
 #endif
 
@@ -2014,7 +2014,7 @@ void MPEDisplay::updateRanges( bool updateic, bool updatez )
 }
 
 
-void MPEDisplay::setChannel2VolData( visBase::TextureChannel2VolData* t )
+void MPEDisplay::setChannels2VolData( visBase::TextureChannel2VolData* t )
 {
     RefMan<visBase::TextureChannel2VolData> dummy( t );
     if ( !channels_ ) return;
@@ -2023,7 +2023,7 @@ void MPEDisplay::setChannel2VolData( visBase::TextureChannel2VolData* t )
 }
 
 
-visBase::TextureChannel2VolData* MPEDisplay::getChannel2VolData()
+visBase::TextureChannel2VolData* MPEDisplay::getChannels2VolData()
 { 
     return channels_ ? dynamic_cast<visBase::TextureChannel2VolData*> 
 	(channels_->getChannels2RGBA()) : 0; 

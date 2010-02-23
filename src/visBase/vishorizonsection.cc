@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.103 2010-02-08 22:33:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.104 2010-02-23 21:25:14 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -525,7 +525,7 @@ void HorizonSection::setRightHandSystem( bool yn )
 }
 
 
-void HorizonSection::setChannel2RGBA( TextureChannel2RGBA* t )
+void HorizonSection::setChannels2RGBA( TextureChannel2RGBA* t )
 {
     channels_->setChannels2RGBA( t );
     if ( channel2rgba_ )
@@ -537,11 +537,11 @@ void HorizonSection::setChannel2RGBA( TextureChannel2RGBA* t )
 	channel2rgba_->ref();
 }
 
-TextureChannel2RGBA* HorizonSection::getChannel2RGBA()
+TextureChannel2RGBA* HorizonSection::getChannels2RGBA()
 { return channel2rgba_; }
 
 
-const TextureChannel2RGBA* HorizonSection::getChannel2RGBA() const
+const TextureChannel2RGBA* HorizonSection::getChannels2RGBA() const
 { return channel2rgba_; }
 
 

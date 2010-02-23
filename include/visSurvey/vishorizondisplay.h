@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.57 2010-02-15 06:19:46 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.58 2010-02-23 21:25:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -144,8 +144,8 @@ public:
     void			setEdgeLineRadius(float);
     float			getEdgeLineRadius() const;
 
-    bool			setChannel2RGBA(visBase::TextureChannel2RGBA*);
-    visBase::TextureChannel2RGBA* getChannel2RGBA();
+    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*);
+    visBase::TextureChannel2RGBA* getChannels2RGBA();
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.125 2010-02-11 08:27:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.126 2010-02-23 21:25:14 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -188,23 +188,23 @@ const ZAxisTransform* HorizonDisplay::getZAxisTransform() const
 { return zaxistransform_; }
 
 
-bool HorizonDisplay::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
+bool HorizonDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
     if ( sections_.size()!=1 )
-	return EMObjectDisplay::setChannel2RGBA( t );
+	return EMObjectDisplay::setChannels2RGBA( t );
 
-    EMObjectDisplay::setChannel2RGBA( 0 );
-    sections_[0]->setChannel2RGBA( t );
+    EMObjectDisplay::setChannels2RGBA( 0 );
+    sections_[0]->setChannels2RGBA( t );
     return true;
 }
 
 
-visBase::TextureChannel2RGBA* HorizonDisplay::getChannel2RGBA()
+visBase::TextureChannel2RGBA* HorizonDisplay::getChannels2RGBA()
 {
     return sections_.size()
-	? sections_[0]->getChannel2RGBA()
-	: EMObjectDisplay::getChannel2RGBA();
+	? sections_[0]->getChannels2RGBA()
+	: EMObjectDisplay::getChannels2RGBA();
 }
 
 
@@ -517,7 +517,7 @@ bool HorizonDisplay::canAddAttrib( int nr ) const
     if ( !sections_.size() )
 	return false;
 
-    const int maxnr =  sections_[0]->getChannel2RGBA()->maxNrChannels();
+    const int maxnr =  sections_[0]->getChannels2RGBA()->maxNrChannels();
     if ( !maxnr ) return true;
 
     return nrAttribs()+nr<=maxnr;
@@ -530,7 +530,7 @@ bool HorizonDisplay::canRemoveAttrib() const
 	return false;
 
     const int newnrattribs = nrAttribs()-1;
-    return newnrattribs>=sections_[0]->getChannel2RGBA()->minNrChannels();
+    return newnrattribs>=sections_[0]->getChannels2RGBA()->minNrChannels();
 }
 
 
@@ -640,7 +640,7 @@ void HorizonDisplay::enableAttrib( int channelnr, bool yn )
 {
     enabled_[channelnr] = yn;
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getChannel2RGBA()->setEnabled( channelnr, yn );
+	sections_[idx]->getChannels2RGBA()->setEnabled( channelnr, yn );
 
     updateSingleColor();
 }
@@ -659,7 +659,7 @@ void HorizonDisplay::allowShading( bool yn )
 {
     allowshading_ = yn;
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
-	sections_[idx]->getChannel2RGBA()->allowShading( yn );
+	sections_[idx]->getChannels2RGBA()->allowShading( yn );
 
 }
 
@@ -920,16 +920,16 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     {
 	surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
 	surf->setColTabSequence( idx, coltabsequences_[idx] );
-	surf->getChannel2RGBA()->setEnabled( idx, enabled_[idx] );
+	surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
     }
 
     if ( !sections_.size() && channel2rgba_ )
     {
-	surf->setChannel2RGBA( channel2rgba_ );
-	EMObjectDisplay::setChannel2RGBA( 0 );
+	surf->setChannels2RGBA( channel2rgba_ );
+	EMObjectDisplay::setChannels2RGBA( 0 );
     }
 
-    surf->getChannel2RGBA()->allowShading( allowshading_ );
+    surf->getChannels2RGBA()->allowShading( allowshading_ );
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1, tr );
 
@@ -1077,10 +1077,10 @@ const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
 bool HorizonDisplay::canSetColTabSequence() const
 {
     if ( !usesTexture() || !sections_.size() ||
-	 !sections_[0]->getChannel2RGBA() )
+	 !sections_[0]->getChannels2RGBA() )
 	return false;
 
-    return sections_[0]->getChannel2RGBA()->canSetSequence();
+    return sections_[0]->getChannels2RGBA()->canSetSequence();
 }
 
 
@@ -1222,7 +1222,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( as_[idx]->id().isUnselInvalid() )
 	    return;
 
-	if ( !sections_[sectionidx]->getChannel2RGBA()->isEnabled(idx) || 
+	if ( !sections_[sectionidx]->getChannels2RGBA()->isEnabled(idx) || 
 	      sections_[sectionidx]->getTransparency(idx)==255 )
 	    continue;
 
@@ -1837,11 +1837,11 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyResolution(), getResolution() );
 
     mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-		     const_cast<HorizonDisplay*>(this)->getChannel2RGBA() );
+		     const_cast<HorizonDisplay*>(this)->getChannels2RGBA() );
     if ( !cttc2rgba )
     {
 	const int ctid =
-          const_cast<HorizonDisplay*>(this)->getChannel2RGBA()->id();
+          const_cast<HorizonDisplay*>(this)->getChannels2RGBA()->id();
 	par.set( MultiTextureSurveyObject::sKeyTC2RGBA(), ctid );
 	saveids += ctid;
     }
@@ -1891,7 +1891,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 
 	mDynamicCastGet(visBase::TextureChannel2RGBA*, tc2rgba, dataobj.ptr() );
 	if ( tc2rgba )
-	setChannel2RGBA( tc2rgba );
+	setChannels2RGBA( tc2rgba );
     }
 
     if ( scene_ )

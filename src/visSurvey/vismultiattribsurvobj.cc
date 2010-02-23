@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.51 2010-02-23 20:59:37 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.52 2010-02-23 21:25:14 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -113,7 +113,7 @@ int MultiTextureSurveyObject::getResolution() const
 
 
 void
-MultiTextureSurveyObject::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
+MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
     if ( !channels_ ) return;
@@ -122,7 +122,7 @@ MultiTextureSurveyObject::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
 }
 
 
-visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannel2RGBA()
+visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
 { return channels_ ? channels_->getChannels2RGBA() : 0; }
 
 
@@ -623,7 +623,7 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 
 	mDynamicCastGet(visBase::TextureChannel2RGBA*, tc2rgba, dataobj.ptr() );
 	if ( tc2rgba )
-	    setChannel2RGBA( tc2rgba );
+	    setChannels2RGBA( tc2rgba );
     }
 
     par.get( sKeyResolution(), resolution_ );

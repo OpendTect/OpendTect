@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.128 2010-02-23 20:59:37 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.129 2010-02-23 21:25:14 cvskris Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -97,7 +97,7 @@ EMObjectDisplay::~EMObjectDisplay()
 }
 
 
-bool EMObjectDisplay::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
+bool EMObjectDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {   
     if ( channel2rgba_ ) channel2rgba_->unRef();
     channel2rgba_ = t;
@@ -107,7 +107,7 @@ bool EMObjectDisplay::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
 }   
     
 
-visBase::TextureChannel2RGBA* EMObjectDisplay::getChannel2RGBA()
+visBase::TextureChannel2RGBA* EMObjectDisplay::getChannels2RGBA()
 { return channel2rgba_; }
 
 mVisTrans* EMObjectDisplay::getDisplayTransformation()

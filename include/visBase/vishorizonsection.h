@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.45 2009-12-21 21:19:21 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.46 2010-02-23 21:25:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -89,9 +89,9 @@ public:
     const BinIDValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
-    void			setChannel2RGBA(TextureChannel2RGBA*);
-    TextureChannel2RGBA*	getChannel2RGBA();
-    const TextureChannel2RGBA*	getChannel2RGBA() const;
+    void			setChannels2RGBA(TextureChannel2RGBA*);
+    TextureChannel2RGBA*	getChannels2RGBA();
+    const TextureChannel2RGBA*	getChannels2RGBA() const;
 
     				//Geometry stuff
     void			setSurface(Geometry::BinIDSurface*,bool conn,

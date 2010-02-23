@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:    N. Hemstra
 Date:        August 2002
-RCS:        $Id: vismpe.h,v 1.62 2010-02-22 22:42:40 cvskris Exp $
+RCS:        $Id: vismpe.h,v 1.63 2010-02-23 21:25:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -165,8 +165,8 @@ public:
     // new methods for texture channel-based display
     void		clearTextures();
     
-    void		setChannel2VolData(visBase::TextureChannel2VolData*);
-    visBase::TextureChannel2VolData*	getChannel2VolData();
+    void		setChannels2VolData(visBase::TextureChannel2VolData*);
+    visBase::TextureChannel2VolData*	getChannels2VolData();
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
 
