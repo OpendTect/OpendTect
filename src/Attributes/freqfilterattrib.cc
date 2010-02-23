@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.47 2010-02-19 14:49:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.48 2010-02-23 09:54:04 cvsbruno Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -148,6 +148,8 @@ FreqFilter::FreqFilter( Desc& ds )
     , fftsz(-1)
     , fft(false)
     , fftinv(false)
+    , minfreq(0)		   
+    , maxfreq(0)		   
     , signal(0)
     , timedomain(0)
     , freqdomain(0)
@@ -374,21 +376,29 @@ void FreqFilter::fftFilter( const DataHolder& output,
     if ( winsz2 > 0 )
     {
 	const float var2 = 1-(lowfreqvariable_ - maxfreq) / (datasz - maxfreq);
-	ArrayNDWindow lowwindow(Array1DInfoImpl(winsz2),false, "CosTaper",var2);
-	float* winvals = lowwindow.getValues();
-	for ( int idx=0; idx<winsz2/2 && winvals; idx++ )
-	    lwin.set( idx, 1-winvals[idx] );
-	filter.setLowFreqBorderWindow( lwin.getData(), winsz2/2 );
+	if ( var2 >=0 && var2<=1 )
+	{
+	    ArrayNDWindow lowwindow( Array1DInfoImpl(winsz2), 
+		    			false, "CosTaper",var2);
+	    float* winvals = lowwindow.getValues();
+	    for ( int idx=0; idx<winsz2/2 && winvals; idx++ )
+		lwin.set( idx, 1-winvals[idx] );
+	    filter.setLowFreqBorderWindow( lwin.getData(), winsz2/2 );
+	}
     }
 
     if ( winsz1 > 0 )
     {
 	const float var1 = highfreqvariable_ / minfreq;
-	ArrayNDWindow highwindow(Array1DInfoImpl(winsz1),false,"CosTaper",var1);
-	float* winvals = highwindow.getValues();
-	for ( int idx=0; idx<winsz1/2 && winvals; idx++ )
-	    hwin.set( idx, 1 - winvals[winsz1/2+idx] );
-	filter.setHighFreqBorderWindow( hwin.getData(), winsz1/2 );
+	if ( var1>=0 && var1<=1 )
+	{
+	    ArrayNDWindow highwindow( Array1DInfoImpl(winsz1), 
+		    			false, "CosTaper",var1);
+	    float* winvals = highwindow.getValues();
+	    for ( int idx=0; idx<winsz1/2 && winvals; idx++ )
+		hwin.set( idx, 1 - winvals[winsz1/2+idx] );
+	    filter.setHighFreqBorderWindow( hwin.getData(), winsz1/2 );
+	}
     }
 
     if ( filtertype == mFilterLowPass )
