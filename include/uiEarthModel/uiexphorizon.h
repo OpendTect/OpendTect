@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.17 2009-07-26 04:01:55 cvskris Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.18 2010-02-23 10:17:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiFileInput;
 class uiGenInput;
 class uiSurfaceRead;
 class uiCheckBox;
-class uiLabeledComboBox;
+class uiUnitSel;
 class uiPushButton;
 class uiZAxisTransformSel;
 
@@ -41,7 +41,7 @@ protected:
     uiGenInput*		zfld_;
     uiZAxisTransformSel* transfld_;
     uiPushButton*	settingsbutt_;
-    uiLabeledComboBox*	unitsel_;
+    uiUnitSel*		unitsel_;
     uiGenInput*		udffld_;
 
     BufferString	gfname_;
