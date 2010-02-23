@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.48 2010-02-09 06:09:49 cvsraman Exp $";
+static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.49 2010-02-23 10:16:02 cvsraman Exp $";
 
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uitblimpexpdatasel.cc,v 1.48 2010-02-09 06:09:4
 #include "uicompoundparsel.h"
 #include "uiselsimple.h"
 #include "uimsg.h"
+#include "uiunitsel.h"
 #include "pixmap.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -91,20 +92,15 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( formnr>=0 && formnr<tinf_.nrForms() && formfld_ )
 	formfld_->setCurrentItem( formnr );
 
-    UoMR().getRelevant( tinf_.propertyType(), units_ );
-    if ( units_.size() > 1 )
+    PropertyRef::StdType proptyp = tinf_.propertyType();
+    if ( proptyp != PropertyRef::Other )
     {
-	unitfld_ = new uiLabeledComboBox( this, "Unit" );
-	unitfld_->box()->setPrefWidthInChar( 15 );
-	for ( int idx=0; idx<units_.size(); idx++ )
-	    unitfld_->box()->addItem( units_[idx]->name() );
-	
+	unitfld_ = new uiUnitSel( this, proptyp, "Unit" );
 	unitfld_->attach( rightTo, rightmostfld_ );
 	if ( tinf_.selection_.unit_ )
-	    unitfld_->box()->setCurrentItem( tinf_.selection_.unit_->name() );
-	else if ( tinf_.propertyType() == PropertyRef::Dist
-		&& SI().depthsInFeetByDefault() )
-	    unitfld_->box()->setText( "Feet" );
+	    unitfld_->setUnit( tinf_.selection_.unit_->name() );
+	else if ( proptyp == PropertyRef::Dist && SI().depthsInFeetByDefault() )
+	    unitfld_->setUnit( "Feet" );
     }
 
     mainObject()->finaliseDone.notify( boxcb );
@@ -337,10 +333,7 @@ bool commit()
 	}
     }
 
-    const int unitidx = unitfld_ ? unitfld_->box()->currentItem() : -1;
-    if ( unitidx<0 || unitidx>units_.size() ) return true;
-
-    tinf_.selection_.unit_ = units_[unitidx];
+    tinf_.selection_.unit_ = unitfld_ ? unitfld_->getUnit() : 0;
     return true;
 }
 
@@ -348,11 +341,10 @@ bool commit()
     bool				ishdr_;
     int					nrhdrlns_;
     BufferString			errmsg_;
-    ObjectSet<const UnitOfMeasure>	units_;
 
     uiComboBox*				formfld_;
     uiComboBox*				specfld_;
-    uiLabeledComboBox*			unitfld_;
+    uiUnitSel*				unitfld_;
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;
