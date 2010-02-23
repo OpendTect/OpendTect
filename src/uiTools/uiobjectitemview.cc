@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.3 2010-02-22 08:43:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.4 2010-02-23 09:48:55 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -37,6 +37,7 @@ void uiObjectItemView::addItem( uiObjectItem* itm, int stretch )
 
 void uiObjectItemView::insertItem( uiObjectItem* itm, int stretch, int posidx)
 {
+    objectitems_ += itm;
     objectitems_.insertAt( itm, posidx );
     mGetScene(return) sc->insertObjectItem( posidx, itm );
 }
