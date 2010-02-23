@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.19 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.20 2010-02-23 09:49:23 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -26,6 +26,8 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
 }
 
 
+#define mChkSize() const int sz = trc.size(); if ( sz < 1 ) return
+
 #define mStartCompLoop \
     for ( int icomp = (curcomp<0 ? 0 : curcomp); \
 	  icomp < (curcomp<0 ? trc.data().nrComponents() : curcomp+1); \
@@ -34,64 +36,90 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
 #define mEndCompLoop }
 
 
-void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick, float wght )
-{
-    float pick = trc2.info().pick;
-    if ( alongpick && (mIsUdf(pick) || mIsUdf(trc.info().pick)) )
-	alongpick = false;
-    float diff;
-    if ( alongpick )
-    {
-	diff = trc.info().pick - pick;
-	if ( mIsZero(diff,mDefEps) ) alongpick = false;
-    }
+#define mSetStackTrcVal() mtrc().set( idx, val / (wght + 1.), icomp )
 
-    mStartCompLoop
-    const int sz = trc.size();
-    for ( int idx=0; idx<sz; idx++ )
+void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
+{
+    mChkSize();
+
+    if ( !alongpick )
     {
-	float val = trc.get( idx, icomp ) * wght;
-	val += alongpick
-	     ? trc2.getValue( trc.samplePos(idx)-diff, icomp )
-	     : trc2.get( idx, icomp );
-	val /= wght + 1.;
-	mtrc().set( idx, val, icomp );
+	if ( t2.size() == sz && t2.info().sampling == trc.info().sampling )
+	{
+	    mStartCompLoop
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const float val = trc.get( idx, icomp ) * wght
+			        + t2.get( idx, icomp );
+		mSetStackTrcVal();
+	    }
+	    mEndCompLoop
+	}
+	else
+	{
+	    mStartCompLoop
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const float z = trc.samplePos( idx );
+		const float val = trc.get( idx, icomp ) * wght
+			        + t2.getValue( z, icomp );
+		mSetStackTrcVal();
+	    }
+	    mEndCompLoop
+	}
     }
-    mEndCompLoop
+    else
+    {
+	const float pick1 = trc.info().pick;
+	const float pick2 = t2.info().pick;
+	const float diff = mIsUdf(pick1) || mIsUdf(pick2) ? 0 : pick1 - pick2;
+
+	mStartCompLoop
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    const float z = trc.samplePos( idx );
+	    const float val = trc.get( idx, icomp ) * wght
+			    + t2.getValue( z - diff, icomp );
+	    mSetStackTrcVal();
+	}
+	mEndCompLoop
+    }
 }
 
 
 void SeisTrcPropChg::removeDC()
 {
-    mStartCompLoop
-    int sz = trc.size();
-    if ( !sz ) continue;
+    mChkSize();
 
+mStartCompLoop
     float avg = 0;
     for ( int idx=0; idx<sz; idx++ )
 	avg += trc.get(idx,icomp);
     avg /= sz;
     for ( int idx=0; idx<sz; idx++ )
 	mtrc().set( idx, trc.get(idx,icomp) - avg, icomp );
-    mEndCompLoop
+mEndCompLoop
 }
 
 
 void SeisTrcPropChg::scale( float fac, float shft )
 {
-    mStartCompLoop
-    const int sz = trc.size();
+    mChkSize();
+
+mStartCompLoop
+
     for ( int idx=0; idx<sz; idx++ )
 	mtrc().set( idx, shft + fac * trc.get( idx, icomp ), icomp );
-    mEndCompLoop
+
+mEndCompLoop
 }
 
 
 void SeisTrcPropChg::normalize( bool aroundzero )
 {
-    mStartCompLoop
-    const int sz = trc.size();
-    if ( !sz ) continue;
+    mChkSize();
+
+mStartCompLoop
 
     float val = trc.get( 0, icomp );
     Interval<float> rg( val, val );
@@ -114,7 +142,7 @@ void SeisTrcPropChg::normalize( bool aroundzero )
 	    if ( val > rg.stop ) rg.stop = val;
 	}
     }
-    float diff = rg.stop - rg.start;
+    const float diff = rg.stop - rg.start;
     if ( mIsZero(diff,mDefEps) )
     {
 	for ( int idx=0; idx<sz; idx++ )
@@ -138,15 +166,16 @@ void SeisTrcPropChg::normalize( bool aroundzero )
 		mtrc().set( idx, trc.get( idx, icomp ) * a + b, icomp );
 	}
     }
-    mEndCompLoop
+
+mEndCompLoop
 }
 
 
 void SeisTrcPropChg::corrNormalize()
 {
-    mStartCompLoop
-    int sz = trc.size();
-    if ( !sz ) continue;
+    mChkSize();
+
+mStartCompLoop
 
     double val = trc.get( 0, icomp );
     double autocorr = val * val;
@@ -167,14 +196,101 @@ void SeisTrcPropChg::corrNormalize()
 	for ( int idx=0; idx<sz; idx++ )
 	    mtrc().set( idx, trc.get( idx, icomp ) / sqrtacorr, icomp );
     }
-    mEndCompLoop
+
+mEndCompLoop
 }
+
+
+void SeisTrcPropChg::topMute( float mpos, float taperlen )
+{
+    mChkSize();
+    if ( mpos < trc.startPos() ) return;
+
+mStartCompLoop
+
+    const int endidx = sz - 1;
+    if ( mpos > trc.samplePos(endidx) )
+	mpos = trc.samplePos(endidx);
+    if ( taperlen < 0 || mIsUdf(taperlen) )
+	taperlen = 0;
+
+    float pos = trc.startPos();
+    while ( pos < mpos + mDefEps )
+    {
+	int idx = trc.nearestSample( pos );
+	mtrc().set( idx, 0, icomp );
+	pos += trc.info().sampling.step;
+    }
+
+    if ( mIsZero(taperlen,mDefEps) ) return;
+
+    float pp = mpos + taperlen;
+    if ( pp > trc.samplePos(endidx) )
+	pp = trc.samplePos(endidx);
+    while ( pos < pp + mDefEps )
+    {
+	int idx = trc.nearestSample( pos );
+	float x = ((pos - mpos) / taperlen) * M_PI;
+	float taper = 0.5 * ( 1 - cos(x) );
+	mtrc().set( idx, trc.get( idx, icomp ) * taper, icomp );
+	pos += trc.info().sampling.step;
+    }
+
+mEndCompLoop
+}
+
+
+void SeisTrcPropChg::tailMute( float mpos, float taperlen )
+{
+    mChkSize();
+
+mStartCompLoop
+
+    const int endidx = sz - 1;
+    if ( mpos > trc.samplePos(endidx) ) return;
+    if ( mpos < trc.startPos() )
+	mpos = trc.startPos();
+
+    if ( taperlen < 0 || mIsUdf(taperlen) )
+	taperlen = 0;
+
+    float pos = mpos;
+    while ( pos <= trc.samplePos(endidx)  )
+    {
+	int idx = trc.nearestSample( pos );
+	mtrc().set( idx, 0, icomp );
+	pos += trc.info().sampling.step;
+    }
+
+    if ( mIsZero(taperlen,mDefEps) ) return;
+
+    float pp = mpos - taperlen;
+    if ( pp < trc.startPos() )
+	pp = trc.startPos();
+    pos = pp;
+    while ( pos <= mpos )
+    {
+	int idx = trc.nearestSample( pos );
+	float x = ((mpos - pos) / taperlen) * M_PI;
+	float taper = 0.5 * ( 1 - cos(x) );
+	mtrc().set( idx, trc.get( idx, icomp ) * taper, icomp );
+	pos += trc.info().sampling.step;
+    }
+
+mEndCompLoop
+}
+
+
+#undef mChkSize
+#define mChkSize() const int sz = trc.size(); if ( sz < 1 ) return 0
 
 
 float SeisTrcPropCalc::getFreq( int isamp ) const
 {
+    mChkSize();
+
     float mypos = trc.samplePos( isamp );
-    float endpos = trc.samplePos( trc.size() - 1 );
+    float endpos = trc.samplePos( sz - 1 );
     if ( mypos < trc.startPos() || mypos > endpos )
 	return mUdf(float);
 
@@ -219,11 +335,12 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
 
 float SeisTrcPropCalc::getPhase( int isamp ) const
 {
-    int quadsz = 1 + 2 * mHalfHilbertLength;
+    mChkSize();
+
+    const int quadsz = 1 + 2 * mHalfHilbertLength;
     ArrPtrMan<float> trcdata = new float[ quadsz ];
     int start = isamp - mHalfHilbertLength;
     int stop = isamp + mHalfHilbertLength;
-    const int sz = trc.size();
     for ( int idx=start; idx<=stop; idx++ )
     {
         int trcidx = idx < 0 ? 0 : (idx>=sz ? sz-1 : idx);
@@ -238,100 +355,38 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
 }
 
 
-void SeisTrcPropChg::topMute( float mpos, float taperlen )
-{
-    mStartCompLoop
-    if ( mpos < trc.startPos() ) return;
-    int endidx = trc.size() - 1;
-    if ( mpos > trc.samplePos(endidx) )
-	mpos = trc.samplePos(endidx);
-    if ( taperlen < 0 || mIsUdf(taperlen) )
-	taperlen = 0;
+#define mDefSGAndPicks \
+    SampleGate sg( sgin ); sg.sort(); \
+    if ( !alpick ) \
+    { \
+	if ( sg.start < 0 ) sg.start = 0; \
+	if ( sg.stop >= sz ) sg.stop = sz - 1; \
+	if ( sg.stop >= t2.size() ) sg.stop = t2.size() - 1; \
+    } \
+ \
+    float p1 = trc.info().pick; \
+    float p2 = t2.info().pick; \
+    if ( alpick && (mIsUdf(p1) || mIsUdf(p2)) ) \
+	return mUdf(double); \
+    float val1, val2
 
-    float pos = trc.startPos();
-    while ( pos < mpos + mDefEps )
-    {
-	int idx = trc.nearestSample( pos );
-	mtrc().set( idx, 0, icomp );
-	pos += trc.info().sampling.step;
-    }
-
-    if ( mIsZero(taperlen,mDefEps) ) return;
-
-    float pp = mpos + taperlen;
-    if ( pp > trc.samplePos(endidx) )
-	pp = trc.samplePos(endidx);
-    while ( pos < pp + mDefEps )
-    {
-	int idx = trc.nearestSample( pos );
-	float x = ((pos - mpos) / taperlen) * M_PI;
-	float taper = 0.5 * ( 1 - cos(x) );
-	mtrc().set( idx, trc.get( idx, icomp ) * taper, icomp );
-	pos += trc.info().sampling.step;
-    }
-    mEndCompLoop
-}
-
-
-void SeisTrcPropChg::tailMute( float mpos, float taperlen )
-{
-    mStartCompLoop
-    int endidx = trc.size() - 1;
-    if ( mpos > trc.samplePos(endidx) ) return;
-    if ( mpos < trc.startPos() )
-	mpos = trc.startPos();
-
-    if ( taperlen < 0 || mIsUdf(taperlen) )
-	taperlen = 0;
-
-    float pos = mpos;
-    while ( pos <= trc.samplePos(endidx)  )
-    {
-	int idx = trc.nearestSample( pos );
-	mtrc().set( idx, 0, icomp );
-	pos += trc.info().sampling.step;
-    }
-
-    if ( mIsZero(taperlen,mDefEps) ) return;
-
-    float pp = mpos - taperlen;
-    if ( pp < trc.startPos() )
-	pp = trc.startPos();
-    pos = pp;
-    while ( pos <= mpos )
-    {
-	int idx = trc.nearestSample( pos );
-	float x = ((mpos - pos) / taperlen) * M_PI;
-	float taper = 0.5 * ( 1 - cos(x) );
-	mtrc().set( idx, trc.get( idx, icomp ) * taper, icomp );
-	pos += trc.info().sampling.step;
-    }
-    mEndCompLoop
-}
+#define mSetVals \
+	val1 = alpick ? trc.getValue(p1+idx*trc.info().sampling.step,curcomp) \
+		      : trc.get( idx, curcomp ); \
+	val2 = alpick ? t2.getValue(p2+idx*t2.info().sampling.step,curcomp) \
+		      : t2.getValue( trc.samplePos(idx), curcomp )
 
 
 double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
 				bool alpick ) const
 {
+    mChkSize();
+
+    mDefSGAndPicks;
     double acorr1 = 0, acorr2 = 0, ccorr = 0;
-    float val1, val2;
-    SampleGate sg( sgin ); sg.sort();
-    if ( !alpick
-      && (sg.start<0 || sg.stop>=trc.size()
-		     || sg.stop>=t2.size()) )
-	return mUdf(double);
-
-    float p1 = trc.info().pick;
-    float p2 = t2.info().pick;
-    if ( alpick && (mIsUdf(p1) || mIsUdf(p2)) )
-	return mUdf(double);
-
     for ( int idx=sg.start; idx<=sg.stop; idx++ )
     {
-	val1 = alpick ? trc.getValue(p1+idx*trc.info().sampling.step,curcomp)
-		      : trc.get( idx, curcomp );
-	val2 = alpick ? t2.getValue(p2+idx*t2.info().sampling.step,curcomp)
-			: t2.get( idx, curcomp );
+	mSetVals;
 	acorr1 += val1 * val1;
 	acorr2 += val2 * val2;
 	ccorr += val1 * val2;
@@ -344,25 +399,13 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
 double SeisTrcPropCalc::dist( const SeisTrc& t2, const SampleGate& sgin,
 				bool alpick ) const
 {
-    float val1, val2;
+    mChkSize();
+
+    mDefSGAndPicks;
     double sqdist = 0, sq1 = 0, sq2 = 0;
-    SampleGate sg( sgin ); sg.sort();
-    if ( !alpick
-      && (sg.start<0 || sg.stop>=trc.size()
-		     || sg.stop>=t2.size()) )
-	return mUdf(double);
-
-    float p1 = trc.info().pick;
-    float p2 = t2.info().pick;
-    if ( alpick && (mIsUdf(p1) || mIsUdf(p2)) )
-	return mUdf(double);
-
     for ( int idx=sg.start; idx<=sg.stop; idx++ )
     {
-	val1 = alpick ? trc.getValue(p1+idx*trc.info().sampling.step,curcomp)
-		      : trc.get( idx, curcomp );
-	val2 = alpick ? t2.getValue(p2+idx*t2.info().sampling.step,curcomp)
-		      : t2.get( idx, curcomp );
+	mSetVals;
 	sq1 += val1 * val1;
 	sq2 += val2 * val2;
 	sqdist += (val1-val2) * (val1-val2);
