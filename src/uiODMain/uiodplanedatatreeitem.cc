@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.40 2009-12-23 21:45:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.41 2010-02-23 21:25:59 cvskris Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -100,7 +100,7 @@ bool uiODPlaneDataTreeItem::init()
 	displayid_ = pdd->id();
 	if ( type_ == RGBA )
 	{
-	    pdd->setChannel2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+	    pdd->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
 	    pdd->addAttrib();
 	    pdd->addAttrib();
 	    pdd->addAttrib();
@@ -369,7 +369,7 @@ uiTreeItem* uiODInlineTreeItemFactory::create( int visid, uiTreeItem* ) const
 	return 0;
 
     mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
-	    	     pdd->getChannel2RGBA() );
+	    	     pdd->getChannels2RGBA() );
 
     return new uiODInlineTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
@@ -408,7 +408,7 @@ uiTreeItem* uiODCrosslineTreeItemFactory::create( int visid, uiTreeItem* ) const
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
-	    	    pdd->getChannel2RGBA());
+	    	    pdd->getChannels2RGBA());
     return new uiODCrosslineTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
 }
@@ -446,7 +446,7 @@ uiTreeItem* uiODZsliceTreeItemFactory::create( int visid, uiTreeItem* ) const
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
-	    	    pdd->getChannel2RGBA());
+	    	    pdd->getChannels2RGBA());
 
     return new uiODZsliceTreeItem( visid,
 	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );

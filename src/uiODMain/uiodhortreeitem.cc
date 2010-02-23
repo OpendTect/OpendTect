@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.58 2010-02-12 06:34:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.59 2010-02-23 21:25:59 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -197,7 +197,7 @@ uiTreeItem* uiODHorizonTreeItemFactory::create( int visid, uiTreeItem* ) const
     if ( hd )
     {
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
-			 hd->getChannel2RGBA() );
+			 hd->getChannels2RGBA() );
 
 	return new uiODHorizonTreeItem(visid, rgba, true);
     }
@@ -275,10 +275,10 @@ bool uiODHorizonTreeItem::init()
 	if ( !hd ) return false;
 
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
-			hd->getChannel2RGBA() );
+			hd->getChannels2RGBA() );
 	if ( !rgba )
 	{
-	    if ( !hd->setChannel2RGBA(
+	    if ( !hd->setChannels2RGBA(
 			visBase::RGBATextureChannel2RGBA::create()) )
 		return false;
 
