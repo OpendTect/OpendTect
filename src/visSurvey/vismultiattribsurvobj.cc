@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.50 2010-01-22 11:33:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.51 2010-02-23 20:59:37 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -604,7 +604,7 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
     }
 
     par.set( sKeyNrAttribs(), as_.size() );
-    fillSOPar( par );
+    fillSOPar( par, saveids );
 }
 
 
@@ -724,10 +724,7 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 	}
     }
 
-    if ( !useSOPar( par ) )
-	return -1;
-
-    return 1;
+    return useSOPar( par );
 }
 
 

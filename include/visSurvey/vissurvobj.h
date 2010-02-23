@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.113 2010-02-22 22:42:40 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.114 2010-02-23 20:59:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -258,8 +258,8 @@ public:
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }
     virtual NotifierAccess*	getLockNotifier()	{ return 0; }
-    virtual void 		fillSOPar(IOPar& ) const;
-    virtual bool		useSOPar(const IOPar&);
+    virtual void 		fillSOPar(IOPar&,TypeSet<int>&) const;
+    virtual int			useSOPar(const IOPar&);
 
     //TODO: as for now: vertical viewer is the only one available,
     //later on: allow timeslices and horizons with horizontal viewer

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.116 2010-02-15 06:19:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.117 2010-02-23 20:59:37 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -1138,7 +1138,7 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
     }
 
     as_.fillPar( par );
-    fillSOPar( par );
+    fillSOPar( par, saveids );
 }
 
 
@@ -1264,8 +1264,7 @@ int VolumeDisplay::usePar( const IOPar& par )
 	}
     }
 
-    useSOPar( par );
-    return 1;
+    return useSOPar( par );
 }
 
 

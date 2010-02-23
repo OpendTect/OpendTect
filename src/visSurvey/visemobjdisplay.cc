@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.127 2010-02-22 23:06:39 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.128 2010-02-23 20:59:37 cvskris Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -572,7 +572,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
 
     par.set( sKeyPosAttrShown, posattribs_ );
-    fillSOPar( par );
+    fillSOPar( par, saveids );
 }
 
 
@@ -617,8 +617,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     par.get( sKeyPosAttrShown, parposattrshown_ );
 
-    useSOPar( par );
-    return 1;
+    return useSOPar( par );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.50 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.51 2010-02-23 20:59:37 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -72,15 +72,15 @@ bool SurveyObject::alreadyTransformed( int attrib ) const
 }
 
 
-void SurveyObject::fillSOPar( IOPar& par ) const
+void SurveyObject::fillSOPar( IOPar& par, TypeSet<int>& saveids ) const
 { par.setYN( sKeyLocked(), locked_ ); }
 
 
-bool SurveyObject::useSOPar( const IOPar& par )
+int SurveyObject::useSOPar( const IOPar& par )
 {
     locked_ = false;
     par.getYN( sKeyLocked(), locked_ );
-    return true;
+    return 1;
 }
 
 }; // namespace visSurvey

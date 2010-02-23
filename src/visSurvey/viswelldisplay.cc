@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.119 2010-02-22 22:40:42 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.120 2010-02-23 20:59:37 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -574,7 +574,7 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     mGetWD(return);
     wd->displayProperties().fillPar( par );
     
-    fillSOPar( par );
+    fillSOPar( par, saveids );
 }
 
 
@@ -621,8 +621,7 @@ int WellDisplay::usePar( const IOPar& par )
 	setLineStyle( lst );
     }
 
-    useSOPar( par );
-    return 1;
+    return useSOPar( par );
 }
 
 
