@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.9 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.10 2010-02-23 10:20:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "property.h"
 #include "scaler.h"
 #include "repos.h"
+#include "survinfo.h"
 
 class UnitOfMeasureRepository;
 
@@ -59,11 +60,15 @@ public:
 						{ proptype_ = t; }
 
     template <class T>
-    T			internalValue( T inp ) const
+    T			getSIValue( T inp ) const
     						{ return scaler_.scale(inp); }
     template <class T>
-    T			userValue( T inp ) const
+    T			getUserValueFromSI( T inp ) const
 						{ return scaler_.unScale(inp); }
+    template <class T>
+    T			internalValue(T inp) const;
+    template <class T>
+    T			userValue(T inp) const;
 
     static const UnitOfMeasure* getGuessed(const char*);
     Repos::Source	source() const			{ return source_; }
@@ -82,6 +87,34 @@ protected:
     Repos::Source	source_;
 
 };
+
+
+template <class T> T UnitOfMeasure::internalValue( T inp ) const
+{
+    if ( SI().zInFeet() )
+    {
+	if ( strstr(symbol_.buf(),"Feet") )
+	    return inp;
+	else if ( strstr(symbol_.buf(),"Meter") )
+	    return getUserValueFromSI( inp );
+    }
+
+    return getSIValue( inp );
+}
+
+
+template <class T> T UnitOfMeasure::userValue( T inp ) const
+{
+    if ( SI().zInFeet() )
+    {
+	if ( strstr(symbol_.buf(),"Feet") )
+	    return inp;
+	else if ( strstr(symbol_.buf(),"Meter") )
+	    return getSIValue( inp );
+    }
+
+    return getUserValueFromSI( inp );
+}
 
 
 /*!\brief Repository of all Units of Measure in the system.
