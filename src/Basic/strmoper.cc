@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.24 2010-02-22 05:05:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.25 2010-02-24 06:24:17 cvsraman Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -214,12 +214,13 @@ void StrmOper::seek( std::istream& strm, od_int64 pos )
 
 
 #define mWriteImpl(fn,typ) \
-void StreamIO::fn( const typ& val, char post ) \
+bool StreamIO::fn( const typ& val, const char* post ) \
 { \
     if ( binary_ ) \
 	ostrm_->write( (const char*)&val, sizeof(val) ); \
     else \
 	(*ostrm_) << val << post; \
+    return ostrm_; \
 }
 
 mWriteImpl( writeInt16, od_int16 )
