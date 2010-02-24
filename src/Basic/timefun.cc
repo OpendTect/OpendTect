@@ -5,12 +5,13 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.17 2009-07-22 16:03:40 cvsbert Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.18 2010-02-24 10:49:34 cvsnanne Exp $";
 
 #include "timefun.h"
 
 #include <time.h>
 #include <string.h>
+#include <ctype.h>
 
 #if defined (sun5) || defined(mac)
 # define __notimeb__ 1
@@ -124,30 +125,70 @@ const char* Time_getTimeString( void )
 }
 
 
-void Time_sleep( double s )
+
+// New stuff
+
+
+#include "timefun.h"
+#include "bufstring.h"
+
+#include <QDateTime>
+#include <QTime>
+
+namespace Time
 {
-#ifdef __notimeb__
 
-    if ( s > 0 ) sleep( mNINT(s) );
+Counter::Counter()
+    : qtime_(*new QTime)
+{}
 
-#else
+Counter::~Counter()
+{ delete &qtime_; }
 
-# ifdef __win__
+void Counter::start()
+{ qtime_.start(); }
 
-    double ss = s*1000;
-    Sleep( (DWORD)mNINT(ss) );
+int Counter::restart()
+{ return qtime_.restart(); }
 
-# else
+int Counter::elapsed() const
+{ return qtime_.elapsed(); }
 
-    struct timespec ts;
-    if ( s <= 0 ) return;
 
-    ts.tv_sec = (time_t)s;
-    ts.tv_nsec = (long)((((double)s - ts.tv_sec) * 1000000000L) + .5);
+int getMilliSeconds()
+{
+    QTime daystart;
+    return daystart.msecsTo( QTime::currentTime() );
+}
 
-    nanosleep( &ts, &ts );
 
-# endif
+int passedSince( int timestamp )
+{
+    int elapsed = timestamp > 0 ? getMilliSeconds() - timestamp : -1;
+    if ( elapsed < 0 && timestamp > 0 && (elapsed + 86486400 < 86400000) )
+	elapsed += 86486400;
 
-#endif
+    return elapsed;
+}
+
+
+const char* defDateTimeFmt()	{ return "ddd MMM dd yyyy, hh:mm:ss"; }
+const char* defDateFmt()	{ return "ddd MMM dd yyyy"; }
+const char* defTimeFmt()	{ return "hh:mm:ss"; }
+
+const char* getDateTimeString( const char* fmt, bool local )
+{
+    static BufferString datetimestr;
+    QDateTime qdt = QDateTime::currentDateTime();
+    if ( !local ) qdt = qdt.toUTC();
+    datetimestr = qdt.toString( fmt ).toAscii().constData();
+    return datetimestr.buf();
+}
+
+const char* getDateString( const char* fmt, bool local )
+{ return getDateTimeString( fmt, local ); }
+
+const char* getTimeString( const char* fmt, bool local )
+{ return getDateTimeString( fmt, local ); }
+
 }
