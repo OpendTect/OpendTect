@@ -4,11 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.45 2009-07-22 16:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.46 2010-02-24 14:17:25 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
 #include "visselman.h"
+#include "separstr.h"
 #include "envvars.h"
 #include "errh.h"
 #include "iopar.h"
@@ -51,6 +52,10 @@ DataManager::~DataManager()
 }
 
 
+const char* DataManager::errMsg() const
+{ return errmsg_.buf(); }
+
+
 void DataManager::readLockDB()
 { SoDB::readlock(); }
     
@@ -88,7 +93,7 @@ void DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
 }
 
 
-bool DataManager::usePar( const IOPar& par )
+int DataManager::usePar( const IOPar& par )
 {
     removeAll();
 
@@ -112,6 +117,7 @@ bool DataManager::usePar( const IOPar& par )
 
     bool change = true;
     bool acceptsincomplete = false;
+    BufferStringSet warnings;
     while ( true )
     {
 	while ( lefttodo.size() && change )
@@ -143,12 +149,15 @@ bool DataManager::usePar( const IOPar& par )
 
 		if ( res==-1 )
 		{
-		    //Will not retry
-		    deepUnRef( createdobj );
-		    return false;
+		    const char* errmsg = obj->errMsg();
+		    if ( errmsg ) warnings += new BufferString( errmsg );
+		    lefttodo.remove(idx);
+		    idx--;
+		    continue;
 		}
 
-		if ( res==1 || (acceptsincomplete && obj->acceptsIncompletePar() ) )
+		if ( res==1 ||
+		     (acceptsincomplete && obj->acceptsIncompletePar() ) )
 		{
 		    createdobj += obj;
 		    obj->ref();
@@ -182,7 +191,20 @@ bool DataManager::usePar( const IOPar& par )
     for ( int idx=0;idx<createdobj.size(); idx++ )
 	createdobj[idx]->unRefNoDelete();
 
-    return change;
+    FileMultiString err;
+    for ( int idx=0; idx<warnings.size(); idx++ )
+    {
+	if ( !idx )
+	    err += "Problem loading scene:";
+
+	err += warnings[idx]->buf();
+    }
+
+    if ( warnings.size() )
+	errmsg_ = err;
+
+    if ( !change ) return -1;
+    return warnings.size() ? 0 : 1;
 }
 
 

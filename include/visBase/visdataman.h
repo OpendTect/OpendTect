@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.22 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:		$Id: visdataman.h,v 1.23 2010-02-24 14:17:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,12 @@ public:
     			/*!< Will remove everything.  */
 
     void		fillPar(IOPar&,TypeSet<int>&) const;
-    bool		usePar(const IOPar&);
+    int			usePar(const IOPar&);
+    			/*!<\retval 1  success
+			    \retval -1 failure
+			    \retval 0  warnings. */
+
+    const char*		errMsg() const;
 
     void		getIds(const SoPath*,TypeSet<int>&) const;
     			/*!< Gets the ids from lowest level to highest
@@ -78,6 +83,7 @@ protected:
 
     int				freeid_;
     SelectionManager&		selman_;
+    BufferString		errmsg_;
 
     static const char*		sKeyFreeID();
     static const char*		sKeySelManPrefix();
