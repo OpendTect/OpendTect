@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.447 2010-02-19 13:43:49 cvskarthika Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.448 2010-02-24 14:19:45 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -1272,8 +1272,16 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
 
-    if ( !visBase::DM().usePar( par ) )
+    int sceneres = visBase::DM().usePar( par );
+    if ( sceneres==-1 )
 	return false;
+
+    if ( sceneres==0 )
+    {
+	const char* errmsg = visBase::DM().errMsg();
+	if ( errmsg )
+	    uiMSG().errorWithDetails( errmsg );
+    }
 
     TypeSet<int> sceneids;
     visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
