@@ -7,29 +7,31 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.33 2009-08-11 05:16:48 cvsraman Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.34 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include "jobiomgr.h"
-#include "filepath.h"
+
 #include "debugmasks.h"
-#include "strmprov.h"
+#include "envvars.h"
+#include "errh.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "hostdata.h"
 #include "ioman.h"
-#include "oddirs.h"
-#include "jobinfo.h"
-#include "mmdefs.h"
-#include "queue.h"
-#include "socket.h"
-#include "errh.h"
-#include "envvars.h"
-#include "separstr.h"
-#include "timefun.h"
-#include "keystrs.h"
 #include "iopar.h"
+#include "jobinfo.h"
+#include "keystrs.h"
+#include "mmdefs.h"
+#include "oddirs.h"
+#include "queue.h"
+#include "separstr.h"
+#include "socket.h"
+#include "strmprov.h"
+#include "thread.h"
+#include "timefun.h"
 
 #ifndef __win__
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 
@@ -355,7 +357,7 @@ JobIOMgr::JobIOMgr( int firstport, int niceval )
     , niceval_( niceval )
 {
     for ( int count=0; count < 10 && !iohdlr_.ready(); count++ )
-	{ Time_sleep( 0.1 ); }
+	{ Threads::sleep( 0.1 ); }
 
     if ( mDebugOn )
     {

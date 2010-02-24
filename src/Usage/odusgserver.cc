@@ -4,19 +4,21 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.8 2010-01-06 12:57:29 cvsbert Exp $";
-static const char* rcsPrStr = "$Revision: 1.8 $ $Date: 2010-01-06 12:57:29 $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.9 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsPrStr = "$Revision: 1.9 $ $Date: 2010-02-24 10:44:33 $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
 #include "odusginfo.h"
-#include "timefun.h"
-#include "iopar.h"
-#include "dirlist.h"
+
 #include "ascstream.h"
-#include "strmprov.h"
+#include "dirlist.h"
+#include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"
+#include "strmprov.h"
+#include "thread.h"
+#include "timefun.h"
 #include <iostream>
 
 const char* Usage::Server::sKeyPort()		{ return "Port"; }
@@ -153,7 +155,7 @@ bool Usage::Server::doWork( CallBacker* )
 	}
 	if ( thread_ )
 	    thread_mutex.unLock();
-	Time_sleep( 0.1 );
+	Threads::sleep( 0.1 );
     }
 }
 

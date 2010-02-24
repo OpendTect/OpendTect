@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.196 2010-01-05 09:22:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.197 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -33,8 +33,8 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.196 2010-01-05 09:22:04 cvsjaa
 #include "msgh.h"
 #include "oddirs.h"
 #include "pixmap.h"
+#include "thread.h"
 #include "timer.h"
-#include "timefun.h"
 #include "iopar.h"
 #include "thread.h"
 
@@ -560,7 +560,7 @@ void uiMainWinBody::activateInGUIThread( const CallBack& cb, bool busywait )
 	if ( idx < 0 )
 	    break;
 
-	Time_sleep( sleeptime ); 
+	Threads::sleep( sleeptime ); 
 	if ( sleeptime < 1.28 )
 	    sleeptime *= 2;
     }

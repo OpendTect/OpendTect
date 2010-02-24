@@ -5,15 +5,15 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.25 2010-02-24 06:24:17 cvsraman Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.26 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
 
-#include "timefun.h"
 #include "bufstring.h"
-#include <limits.h>
+#include "thread.h"
 #include <iostream>
+#include <limits.h>
 
 static const unsigned int nrretries = 4;
 static const float retrydelay = 1;
@@ -35,7 +35,7 @@ bool StrmOper::readBlock( std::istream& strm, void* ptr, unsigned int nrbytes )
 	char* cp = (char*)ptr + strm.gcount();
 	for ( int idx=0; idx<nrretries; idx++ )
 	{
-	    Time_sleep( retrydelay );
+	    Threads::sleep( retrydelay );
 	    strm.clear();
 	    strm.read( cp, nrbytes );
 	    if ( strm.bad() || strm.eof() ) break;
@@ -65,7 +65,7 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
     strm.flush();
     for ( int idx=0; idx<nrretries; idx++ )
     {
-	Time_sleep( retrydelay );
+	Threads::sleep( retrydelay );
 	strm.clear();
 	strm.write( (const char*)ptr, nrbytes );
 	if ( !strm.fail() )
@@ -83,7 +83,7 @@ bool StrmOper::getNextChar( std::istream& strm, char& ch )
 	return false;
     else if ( strm.fail() )
     {
-	Time_sleep( retrydelay );
+	Threads::sleep( retrydelay );
 	strm.clear();
 	ch = strm.peek();
 	strm.ignore( 1 );

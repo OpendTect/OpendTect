@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.14 2009-10-23 09:21:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.15 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.14 2009-10-23 09:21:05 c
 #include "oddirs.h"
 #include "pixmap.h"
 #include "settings.h"
-#include "timefun.h"
+#include "thread.h"
 
 BufferString uiWindowGrabDlg::dirname_ = "";
 
@@ -266,9 +266,9 @@ uiWindowGrabber::~uiWindowGrabber()
 void uiWindowGrabber::mkThread( CallBacker* )
 {
     // give window manager chance to remove the uiWindowGrabDlg from screen
-    Time_sleep( 0.1 ); 
+    Threads::sleep( 0.1 );
 
-    grabwin_->activateInGUIThread( mCB(this, uiWindowGrabber, actCB) ); 
+    grabwin_->activateInGUIThread( mCB(this,uiWindowGrabber,actCB) ); 
 }
 
 

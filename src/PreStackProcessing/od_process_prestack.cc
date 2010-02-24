@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.6 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.7 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include "batchprog.h"
 
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.6 2009-07-22 16:01:3
 #include "seistrc.h"
 #include "seistype.h"
 #include "survinfo.h"
-#include "timefun.h"
+#include "thread.h"
 
 
 #include "initalgo.h"
@@ -105,7 +105,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );
-    Time_sleep( startup_wait );
+    Threads::sleep( startup_wait );
 
     const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
     TextStreamProgressMeter progressmeter(strm);
@@ -295,7 +295,7 @@ bool BatchProgram::go( std::ostream& strm )
 	{ 
 	    paused = true;
 	    mSetCommState(Paused);
-	    Time_sleep( pause_sleep_time );  
+	    Threads::sleep( pause_sleep_time );  
 	    continue;
 	}
 

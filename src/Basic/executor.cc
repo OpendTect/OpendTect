@@ -4,14 +4,14 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.31 2009-07-31 06:16:51 cvsraman Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.32 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include "executor.h"
 
 #include "errh.h"
 #include "oddirs.h"
 #include "progressmeter.h"
-#include "timefun.h"
+#include "thread.h"
 #include <iostream>
 
 
@@ -33,7 +33,7 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 		return false;
 	    }
 	    if ( delaybetwnsteps )
-		Time_sleep( delaybetwnsteps*0.001 );
+		Threads::sleep( delaybetwnsteps*0.001 );
 	}
 	return true;
     }

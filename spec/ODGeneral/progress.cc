@@ -1,9 +1,9 @@
-static const char* rcsID = "$Id: progress.cc,v 1.9 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: progress.cc,v 1.10 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include <iostream>
 #include <stdlib.h>
 #include "progressmeter.h"
-#include "timefun.h"
+#include "thread.h"
 #include "prog.h"
 
 
@@ -38,7 +38,7 @@ int main( int argc, char** argv )
 	else		++progressmeter;
 
 	if ( delayms )
-	    Time_sleep( delayms*0.001 );
+	    Threads::sleep( delayms*0.001 );
     }
 
     ExitProgram( 0 ); return 0;

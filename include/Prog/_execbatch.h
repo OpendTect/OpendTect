@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.10 2009-07-22 16:01:17 cvsbert Exp $
+ RCS:		$Id: _execbatch.h,v 1.11 2010-02-24 10:41:39 cvsnanne Exp $
 ________________________________________________________________________
 
  The implementation fo Execute_batch should be in the executable on 
@@ -43,7 +43,7 @@ int Execute_batch( int* pargc, char** argv )
 		      << errno_message() << std::endl;
 	case 0: break;
 	default:
-	    Time_sleep( 0.1 );
+	    Threads::sleep( 0.1 );
 	    exit( 0 );
 	break;
 	}

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.7 2009-09-29 10:11:06 cvsbert Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.8 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include "safefileio.h"
 #include "filegen.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: safefileio.cc,v 1.7 2009-09-29 10:11:06 cvsbert
 #include "strmprov.h"
 #include "dateinfo.h"
 #include "hostdata.h"
-#include "timefun.h"
+#include "thread.h"
 #include "oddirs.h"
 #include "errh.h"
 #include <iostream>
@@ -182,7 +182,7 @@ bool SafeFileIO::waitForLock() const
 
     for ( int idx=0; havelock && idx<lockretries_; idx++ )
     {
-	Time_sleep( lockwaitincr_ );
+	Threads::sleep( lockwaitincr_ );
 	havelock = haveLock();
     }
 

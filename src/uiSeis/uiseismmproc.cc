@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.132 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.133 2010-02-24 10:44:33 cvsnanne Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: uiseismmproc.cc,v 1.132 2009-07-22 16:01:41 cvs
 #include "iostrm.h"
 #include "oddirs.h"
 #include "timer.h"
-#include "timefun.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "executor.h"
@@ -31,6 +30,8 @@ static const char* rcsID = "$Id: uiseismmproc.cc,v 1.132 2009-07-22 16:01:41 cvs
 #include "keystrs.h"
 #include "settings.h"
 #include "seissingtrcproc.h"
+#include "thread.h"
+#include "timefun.h"
 
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -764,7 +765,7 @@ static void rmTmpSeis( SeisJobExecProv* jp )
 
     while ( !removed && count-- > 0 )
     {
-	Time_sleep( 1 );
+	Threads::sleep( 1 );
 	removed = jp->removeTempSeis(); 
     }
 
