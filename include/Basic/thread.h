@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.42 2009-09-14 22:19:15 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.43 2010-02-24 10:40:38 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -270,12 +270,15 @@ protected:
 };
 
 /*! Fetches number of processors from operating system, unless:
-  * On windows we may not be able to handle more than one processor
   * DTECT_USE_MULTIPROC is set to 'n' or 'N'
   * The user settings contain a 'Nr Processors' entry.
-  */
+*/
 
 mGlobal int getNrProcessors();
+
+
+/*! Causes the current thread to sleep */
+mGlobal void sleep(double time); /*!< Time in seconds */
 
 
 #define mThreadDeclareMutexedVar(T,var) \

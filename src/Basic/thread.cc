@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.51 2010-02-11 15:42:55 cvsbert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.52 2010-02-24 10:40:38 cvsnanne Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -421,6 +421,9 @@ public:
 			    , cb_( cb )
 			{}
 
+    static void		sleep( double tm )
+			{ QThread::msleep( mNINT(1000*tm) ); }
+
 protected:
     void		run()
 			{
@@ -538,3 +541,7 @@ int Threads::getNrProcessors()
     if ( nrproc < 1 ) nrproc = 1;
     return nrproc;
 }
+
+
+void Threads::sleep( double tm )
+{ ThreadBody::sleep( tm ); }
