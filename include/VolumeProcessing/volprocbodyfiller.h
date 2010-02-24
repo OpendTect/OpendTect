@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		November 2007
- RCS:		$Id: volprocbodyfiller.h,v 1.2 2009-11-18 19:53:34 cvskris Exp $
+ RCS:		$Id: volprocbodyfiller.h,v 1.3 2010-02-24 22:28:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -60,8 +60,9 @@ protected:
 
     bool			prefersBinIDWise() const	{ return true; }
     bool			prepareComp(int nrthreads)	{ return true; }
-    bool			computeBinID(const BinID&,int);  
-
+    bool			computeBinID(const BinID&,int); 
+    bool			getFlatPlgZRange(const BinID&,
+						 Interval<double>& result); 
     static Step*		create(Chain&);
 
     EM::Body*			body_;
@@ -71,6 +72,14 @@ protected:
 
     float			insideval_;
     float			outsideval_;
+
+    				//For flat body_ only, no implicitbody_.
+    CubeSampling		flatpolygon_;
+    TypeSet<Coord3>		plgknots_;
+    TypeSet<Coord3>		plgbids_;
+    char			plgdir_;
+    				/* inline=0; crosline=1; z=2; other=3 */
+    double			epsilon_;
 };
 
 

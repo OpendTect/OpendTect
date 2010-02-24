@@ -4,19 +4,27 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.2 2009-11-18 19:53:34 cvskris Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.3 2010-02-24 22:28:56 cvsyuancheng Exp $";
 
 #include "volprocbodyfiller.h"
 
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
+#include "empolygonbody.h"
 #include "iopar.h"
 #include "embody.h"
+#include "rowcol.h"
 #include "separstr.h"
+#include "survinfo.h"
+#include "trigonometry.h"
 
 namespace VolProc
 {
 
+#define plgIsInline	0
+#define plgIsCrline	1
+#define plgIsZSlice	2
+#define plgIsOther	3
 
 void BodyFiller::initClass()
 {
@@ -40,6 +48,9 @@ BodyFiller::BodyFiller( Chain& pc )
     , implicitbody_( 0 )
     , insideval_( mUdf(float) )
     , outsideval_( mUdf(float) )
+    , flatpolygon_( false )
+    , plgdir_( 0 )
+    , epsilon_( 1e-4 )
 {}
 
 
@@ -47,6 +58,8 @@ BodyFiller::~BodyFiller()
 {
     if ( emobj_ ) emobj_->unRef();    
     delete implicitbody_;
+    plgknots_.erase();
+    plgbids_.erase();
 }
 
 
@@ -98,7 +111,11 @@ void BodyFiller::setInsideOutsideValue( const float in, const float out )
 bool BodyFiller::computeBinID( const BinID& bid, int )
 {
     //ToDo: Interpolate values from Implicit version of Surface(array).
-    if ( !output_ || !output_->nrCubes() || !implicitbody_ )
+    if ( !output_ || !output_->nrCubes() )
+	return false;
+
+    const bool flatbody = !implicitbody_;
+    if ( flatbody && plgknots_.size()<2 )
 	return false;
    
     const int outputinlidx = output_->inlsampling.nearestIndex( bid.inl );
@@ -109,46 +126,70 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	? input_->inlsampling.nearestIndex(bid.inl) : 0;
     const int inputcrlidx = input_
 	? input_->crlsampling.nearestIndex(bid.crl) : 0;
-   
-    const int bodyinlidx = implicitbody_->inlsampling_.nearestIndex( bid.inl );
-    const int bodycrlidx = implicitbody_->crlsampling_.nearestIndex( bid.crl );
-
-    const bool alloutside =
-	bodyinlidx<0 || bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
-	bodycrlidx<0 || bodycrlidx>=implicitbody_->arr_->info().getSize(1);
+    const bool useinput =
+	inputinlidx>=0 && inputinlidx < input_->getCube(0).info().getSize(0) &&
+	inputcrlidx>=0 && inputcrlidx < input_->getCube(0).info().getSize(1);
+    const int inputzsz = useinput ? input_->getCube(0).info().getSize(2) : 0;
+ 
+    int bodyinlidx, bodycrlidx;
+    bool alloutside;
+    Interval<double> plgzrg( mUdf(double), mUdf(double) );
+    if ( flatbody )
+    {
+	alloutside = !flatpolygon_.hrg.inlRange().includes(bid.inl) ||
+		     !flatpolygon_.hrg.crlRange().includes(bid.crl);
+	if ( !alloutside )
+	{
+	    if ( !getFlatPlgZRange( bid, plgzrg ) )
+		alloutside = true;
+	}
+    }
+    else
+    {
+	bodyinlidx = implicitbody_->inlsampling_.nearestIndex( bid.inl );
+	bodycrlidx = implicitbody_->crlsampling_.nearestIndex( bid.crl );
+	
+	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
+	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
+	    bodycrlidx>=implicitbody_->arr_->info().getSize(1);
+    }
 
     for ( int idx=0; idx<outputzsz; idx++ )
     {
 	float val;
-	if ( !alloutside )
+	if ( alloutside )
+	    val = outsideval_;
+	else
 	{
 	    const float z = (output_->z0+idx)*output_->zstep;
-	    const int bodyzidx = implicitbody_->zsampling_.nearestIndex( z );
-	    if ( bodyzidx<0 || bodyzidx>=implicitbody_->arr_->info().getSize(2))
-		val = outsideval_;
+	    if ( flatbody )
+		val = plgzrg.includes( z * SI().zScale() ) ? insideval_
+							   : outsideval_;
 	    else
 	    {
-		const float bodyval =
-		    implicitbody_->arr_->get( bodyinlidx, bodycrlidx, bodyzidx);
-
-		if ( mIsUdf(bodyval) )
-		    val = mUdf(float);
-		else
-		    val = bodyval>implicitbody_->threshold_
-			? insideval_ : outsideval_;
+    		const int bodyzidx = implicitbody_->zsampling_.nearestIndex(z);
+    		if ( bodyzidx<0 || 
+			bodyzidx>=implicitbody_->arr_->info().getSize(2) )
+    		    val = outsideval_;
+    		else
+    		{
+    		    const float bodyval = implicitbody_->arr_->get( 
+			    bodyinlidx, bodycrlidx, bodyzidx);
+		    
+    		    if ( mIsUdf(bodyval) )
+    			val = mUdf(float);
+    		    else
+    			val = bodyval>implicitbody_->threshold_
+    			    ? insideval_ : outsideval_;
+    		}
 	    }
 	}
-	else
-	    val = outsideval_;
 	   
-	if ( mIsUdf(val) && input_ && input_->nrCubes() )
+	if ( mIsUdf(val) && useinput )
 	{
 	    const int inputidx = idx+output_->z0-input_->z0;
-	    if ( input_->getCube(0).info().
-		    validPos(inputinlidx, inputcrlidx, inputidx) )
-	    {
+	    if ( inputidx>=0 && inputidx<inputzsz )
 		val = input_->getCube(0).get(inputinlidx,inputcrlidx,inputidx);
-	    }
 	}
 
 	output_->setValue( 0, outputinlidx, outputcrlidx, idx, val );
@@ -207,14 +248,140 @@ Task* BodyFiller::createTask()
     if ( !output_ || !body_ )
 	return 0;
 
+    plgknots_.erase();
+    plgbids_.erase();
+    flatpolygon_.setEmpty();
     delete implicitbody_;
     implicitbody_ = body_->createImplicitBody( 0, false );
 
-    if ( !implicitbody_ )
-	return 0;
+    if ( implicitbody_ )
+	return Step::createTask();
 
-    return Step::createTask();
+    mDynamicCastGet( EM::PolygonBody*, plg, body_ );
+    if ( !plg )
+	return 0;
+    
+    const EM::SectionID sid = plg->sectionID( 0 );
+    const Geometry::PolygonSurface* surf = plg->geometry().sectionGeometry(sid);
+    if ( surf->nrPolygons()==1 )
+	surf->getCubicBezierCurve( 0, plgknots_, SI().zScale() );
+    else
+	surf->getAllKnots( plgknots_ );
+    
+    const int knotsz = plgknots_.size();
+    if ( knotsz<2 )
+	return 0;
+    
+    for ( int idx=0; idx<knotsz; idx++ )
+    {
+	plgknots_[idx].z *= SI().zScale();
+	const BinID bid = SI().transform( plgknots_[idx] );
+	plgbids_ += Coord3(bid.inl,bid.crl,plgknots[idx].z);
+	
+	if ( flatpolygon_.isEmpty() )
+	{
+	    flatpolygon_.hrg.start = flatpolygon_.hrg.stop = bid;
+	    flatpolygon_.zrg.start = flatpolygon_.zrg.stop = plgknots_[idx].z;
+	}
+	else
+	{
+	    flatpolygon_.hrg.include( bid );
+	    flatpolygon_.zrg.include( plgknots_[idx].z );
+	}
+    }
+    
+    if ( surf->nrPolygons()==1 )
+    {
+	if ( !flatpolygon_.hrg.inlRange().width() )
+	    plgdir_ = plgIsInline;
+	else if ( !flatpolygon_.hrg.crlRange().width() )
+	    plgdir_ = plgIsCrline;
+	else
+	    plgdir_ = plgIsZSlice;
+    }
+    else
+	plgdir_ = plgIsOther;	
+
+    epsilon_ = plgdir < 2 ? plgbids_[0].distTo(plgbids[1])*0.01 
+			  : plgknots[0].distTo(plgknots[1])*0.01;
+    
+    return Step::createTask();    
 }
+
+
+bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
+{
+    const Coord coord = SI().transform( bid );
+    if ( plgdir_ < 2 ) //Inline or Crossline case
+    {
+	int count = 0;
+	double z = flatpolygon_.zrg.start;
+	while ( z <= flatpolygon_.zrg.stop )
+	{
+	    if ( pointInPolygon( Coord3(coord,z), plgbids_, epsilon_ ) )
+	    {
+		if ( !count )
+		    res.start = res.stop = z;
+		else
+		    res.include( z );
+		
+		count++;
+	    }
+	    
+	    z += output_->zstep * SI().zScale();
+	}
+	
+	if ( count==1 )
+	{
+	    res.start -= 0.5 * output_->zstep;
+	    res.stop += 0.5 * output_->zstep;
+	}
+	
+	return count;
+    }
+    else
+    {
+	TypeSet<Coord3> knots;
+	for ( int idx=0; idx<plgknots_.size(); idx++ )
+	    knots += Coord3( plgknots_[idx].x, plgknots_[idx].y, 0 );
+	
+	if ( !pointInPolygon( Coord3(coord,0), knots, epsilon_ ) )
+	    return false;
+	
+	if ( plgdir_==plgIsZSlice )
+	{
+	    for ( int idx=0; idx<plgknots_.size(); idx++ )
+	    {
+		if ( !idx )
+		    res.start = res.stop = plgknots_[0].z;
+		else
+		    res.include( plgknots_[idx].z );
+	    }
+	    
+	    if ( mIsZero( res.width(), 1e-3 ) )
+	    {
+		res.start -= 0.5 * output_->zstep;
+		res.stop += 0.5 * output_->zstep;
+	    }
+	}
+	else //It is a case hard to see on the display.
+	{
+	    const Coord3 normal = (plgknots_[1] - plgknots_[0]).cross(
+		    plgknots_[2] - plgknots_[1] );
+	    if ( mIsZero(normal.z, 1e-4) ) //Should not happen case
+		return false;
+	    
+	    const Coord diff = coord - plgknots_[0].coord();
+	    const double z = plgknots_[0].z -
+		( normal.x * diff.x + normal.y * diff.y ) / normal.z;
+	    res.start = z - 0.5 * output_->zstep;
+	    res.stop = z + 0.5 * output_->zstep;
+	}
+    }
+
+    return true;
+}
+
 
 
 }; //namespace
