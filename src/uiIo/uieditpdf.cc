@@ -8,14 +8,16 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.1 2010-02-18 16:07:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.2 2010-02-24 15:09:47 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
 #include "uigeninput.h"
+#include "uitabstack.h"
+#include "uilabel.h"
 #include "uimsg.h"
 
-#include "probdenfunc.h"
+#include "sampledprobdenfunc.h"
 
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
@@ -28,15 +30,41 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , pdf_(pdf)
     , editable_(ed)
 {
-    for ( int idim=0; idim<pdf_.nrDims(); idim++ )
+    const int nrdims = pdf_.nrDims();
+
+    tabstack_ = new uiTabStack( this, "Tabs" );
+
+    uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Dimension names" );
+    for ( int idim=0; idim<nrdims; idim++ )
     {
-	BufferString txt( "Name of variable ", idim + 1 );
-	uiGenInput* nmfld = new uiGenInput( this, txt, pdf_.dimName(idim) );
+	BufferString txt;
+	if ( nrdims > 1 )
+	    txt.add( "Name of dimension " ).add( idim + 1 );
+	else
+	    txt = "Variable name";
+	uiGenInput* nmfld = new uiGenInput( dimnmgrp, txt, pdf_.dimName(idim) );
 	if ( idim )
 	    nmfld->attach( alignedBelow, nmflds_[idim-1] );
 	nmflds_ += nmfld;
 	if ( !editable_ )
 	    nmfld->setReadOnly( true );
+    }
+    tabstack_->addTab( dimnmgrp, "Names" );
+
+    mDynamicCastGet(ArrayNDProbDenFunc*,andpdf,&pdf_)
+    if ( !andpdf || nrdims > 3 )
+	return;
+
+    const int nrtabs = nrdims > 2 ? andpdf->size(2) : 1;
+    for ( int itab=0; itab<nrtabs; itab++ )
+    {
+	BufferString tabnm( "Values" );
+	if ( nrdims > 2 ) tabnm.add(" [").add(itab+1).add("]");
+	uiGroup* grp = new uiGroup( tabstack_->tabGroup(),
+				    BufferString(tabnm," group").buf() );
+	new uiLabel( grp, BufferString("TODO ",itab) );
+
+	tabstack_->addTab( grp, tabnm );
     }
 }
 
