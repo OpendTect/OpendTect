@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.52 2010-02-23 21:25:14 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.53 2010-02-24 14:49:52 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -112,13 +112,13 @@ int MultiTextureSurveyObject::getResolution() const
 { return resolution_; }
 
 
-void
+bool
 MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
-    if ( !channels_ ) return;
+    if ( !channels_ ) return true;
 
-    channels_->setChannels2RGBA( t );
+    return channels_->setChannels2RGBA( t );
 }
 
 

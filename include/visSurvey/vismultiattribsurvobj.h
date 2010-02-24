@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.32 2010-02-23 21:25:14 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.33 2010-02-24 14:49:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ public:
     virtual void		setResolution(int,TaskRunner*)		= 0;
     int				getResolution() const;
 
-    void			setChannels2RGBA(visBase::TextureChannel2RGBA*);
+    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*);
     visBase::TextureChannel2RGBA* getChannels2RGBA();
 
     bool			canHaveMultipleAttribs() const;
