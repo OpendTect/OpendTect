@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.126 2010-02-23 21:25:14 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.127 2010-02-24 15:17:13 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1875,10 +1875,7 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int HorizonDisplay::usePar( const IOPar& par )
 {
-    int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
-
-    res = EMObjectDisplay::usePar( par );
+    int res = EMObjectDisplay::usePar( par );
     if ( res!=1 ) return res;
 
     int tc2rgbaid;

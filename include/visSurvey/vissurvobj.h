@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.114 2010-02-23 20:59:37 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.115 2010-02-24 15:17:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,13 @@ class TaskRunner;
 
 namespace ColTab  { struct MapperSetup; class Sequence; }
 
-namespace visBase { class Transformation; class EventInfo; };
+namespace visBase
+{
+    class Transformation;
+    class EventInfo;
+    class TextureChannel2RGBA;
+};
+
 namespace Attrib  { class SelSpec; class DataCubes; }
 
 namespace visSurvey
@@ -132,6 +138,10 @@ public:
     virtual BufferString	getResolutionName(int) const;
     virtual int			getResolution() const		{ return 0; }
     virtual void		setResolution(int,TaskRunner*)	{}
+
+    virtual visBase::TextureChannel2RGBA* getChannels2RGBA()	{ return 0; }
+    virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*)
+				{ return false; }
 
     enum AttribFormat		{ None, Cube, Traces, RandomPos, OtherFormat };
     				/*!\enum AttribFormat
@@ -268,8 +278,15 @@ public:
     virtual bool		isInlCrl() const	    	{ return false;}
     
     static float		sDefMaxDist();
-
+	
+				//Old
     static const char*		sKeyColTabID()	{ return "Colortable ID"; }
+
+    				//Current
+    static const char*		sKeySequence()	{ return "Sequence"; }
+    static const char*		sKeyMapper()	{ return "Mapper"; }
+    static const char*		sKeyTextTrans()	{ return "Trans"; }
+    static const char*		sKeyTC2RGBA()	{ return "TC2RGBA"; }
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
     static const char*		sKeyAttribs()	{ return "Attrib "; }
     static const char*          sKeyLocked()    { return "Locked"; }

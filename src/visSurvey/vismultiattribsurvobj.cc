@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.53 2010-02-24 14:49:52 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.54 2010-02-24 15:17:13 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -613,116 +613,11 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
     const int res =  visBase::VisualObject::usePar( par );
     if ( res!=1 ) return res;
 
-    int tc2rgbaid;
-    if ( par.get( sKeyTC2RGBA(), tc2rgbaid ) )
-    {
-	RefMan<visBase::DataObject> dataobj =
-	    visBase::DM().getObject( tc2rgbaid );
-	if ( !dataobj )
-	    return 0;
-
-	mDynamicCastGet(visBase::TextureChannel2RGBA*, tc2rgba, dataobj.ptr() );
-	if ( tc2rgba )
-	    setChannels2RGBA( tc2rgba );
-    }
-
     par.get( sKeyResolution(), resolution_ );
 
     bool ison = true;
     par.getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
     turnOn( ison );
-
-    int nrattribs;
-    if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
-    {
-	TypeSet<int> coltabids( nrattribs, -1 );
-
-	//This loop is only needed for reading pars up to od3.3
-	for ( int attrib=0; attrib<nrattribs; attrib++ )
-	{
-	    BufferString key = sKeyAttribs();
-	    key += attrib;
-	    PtrMan<const IOPar> attribpar = par.subselect( key );
-	    if ( !attribpar )
-		continue;
-
-	    if ( attribpar->get(sKeyColTabID(),coltabids[attrib]) )
-	    {
-		visBase::DataObject* dataobj =
-		    visBase::DM().getObject( coltabids[attrib] );
-		if ( !dataobj ) return 0;
-		mDynamicCastGet(const visBase::VisColorTab*,coltab,dataobj);
-		if ( !coltab ) coltabids[attrib] = -1;
-	    }
-	}
-
-	bool firstattrib = true;
-	for ( int attrib=0; attrib<nrattribs; attrib++ )
-	{
-	    BufferString key = sKeyAttribs();
-	    key += attrib;
-	    PtrMan<const IOPar> attribpar = par.subselect( key );
-	    if ( !attribpar )
-		continue;
-
-	    if ( !firstattrib )
-		addAttrib();
-	    else
-		firstattrib = false;
-
-	    const int attribnr = as_.size()-1;
-
-	    as_[attribnr]->usePar( *attribpar );
-	    const int coltabid = coltabids[attribnr];
-	    if ( coltabid!=-1 ) //format up to od3.3
-	    {
-		mDynamicCastGet(visBase::VisColorTab*,coltab, 
-		       		visBase::DM().getObject(coltabid) );
-		if ( texture_ )
-		    texture_->setColorTab( attribnr, *coltab );
-		else
-		{
-		    channels_->setColTabMapperSetup( attribnr,
-			        coltab->colorMapper().setup_ );
-		    channels_->getChannels2RGBA()->setSequence( attribnr,
-			    coltab->colorSeq().colors() );
-		    channels_->reMapData( attribnr, 0 );
-		}
-	    }
-	    else
-	    {
-		PtrMan<IOPar> seqpar = attribpar->subselect( sKeySequence() );
-		if ( seqpar )
-		{
-		    ColTab::Sequence seq;
-		    if ( !seq.usePar( *seqpar ) )
-		    {
-			BufferString seqname;
-			if ( seqpar->get( sKey::Name, seqname ) ) //Sys
-			    ColTab::SM().get( seqname.buf(), seq );
-		    }
-
-		    setColTabSequence( attribnr, seq, 0 );
-		}
-
-		PtrMan<IOPar> mappar = attribpar->subselect( sKeyMapper() );
-		if ( mappar )
-		{
-		    ColTab::MapperSetup mapper;
-		    mapper.usePar( *mappar );
-		    setColTabMapperSetup( attribnr, mapper, 0 );
-		}
-	    }
-
-	    ison = true;
-	    attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
-	    enableAttrib( attribnr, ison );
-
-	    unsigned int trans = 0;
-	    attribpar->get( sKeyTextTrans(), trans );
-	    setAttribTransparency( attribnr, trans );
-	}
-    }
 
     return useSOPar( par );
 }

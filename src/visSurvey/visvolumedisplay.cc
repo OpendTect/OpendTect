@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.117 2010-02-23 20:59:37 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.118 2010-02-24 15:17:13 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -1102,11 +1102,6 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 	if ( saveids.indexOf( volid )==-1 ) saveids += volid;
     }
 
-    IOPar texturepar;
-    getColTabMapperSetup(0)->fillPar( texturepar );
-    getColTabSequence(0)->fillPar( texturepar );
-    par.mergeComp( texturepar, sKeyTexture() );
-
     const int nrslices = slices_.size();
     par.set( sKeyNrSlices(), nrslices );
     for ( int idx=0; idx<nrslices; idx++ )
@@ -1137,7 +1132,6 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 	par.set( str, isosurfsettings_[idx].seedsid_ );
     }
 
-    as_.fillPar( par );
     fillSOPar( par, saveids );
 }
 
@@ -1150,30 +1144,25 @@ int VolumeDisplay::usePar( const IOPar& par )
     if ( !getMaterial() )
 	visBase::VisualObjectImpl::setMaterial( visBase::Material::create() );
 
-    if ( !as_.usePar(par) ) return -1;
-
-    ColTab::MapperSetup mappersetup;
-    ColTab::Sequence sequence;
     PtrMan<IOPar> texturepar = par.subselect( sKeyTexture() );
-    if ( !texturepar || !mappersetup.usePar(*texturepar) ||
-	 !sequence.usePar(*texturepar ) )
+    if ( texturepar ) //old format (up to 4.0)
     {
-	//od 3.2 style
-	int textureid;
-	if ( !par.get(sKeyTexture(),textureid) ) return -1;
-	RefMan<visBase::DataObject> dataobj =
-	    visBase::DM().getObject( textureid );
-	if ( !dataobj ) return 0;
-	mDynamicCastGet(visBase::VolumeRenderScalarField*,vt,dataobj.ptr() );
-	if ( !vt ) return -1;
+	ColTab::MapperSetup mappersetup;
+	ColTab::Sequence sequence;
 
-	mappersetup = vt->getColTabMapper().setup_;
-	sequence = vt->getColTabSequence();
+	mappersetup.usePar(*texturepar);
+	sequence.usePar(*texturepar );
+	setColTabMapperSetup( 0, mappersetup, 0 );
+	setColTabSequence( 0, sequence, 0 );
+	if ( !as_.usePar(par) ) return -1;
+    }
+    else
+    {
+	res = useSOPar( par );
+	if ( res!=1 )
+	    return res;
     }
 
-    setColTabMapperSetup( 0, mappersetup, 0 );
-    setColTabSequence( 0, sequence, 0 );
-	
     int volid;
     if ( par.get(sKeyVolumeID(),volid) )
     {
@@ -1264,7 +1253,7 @@ int VolumeDisplay::usePar( const IOPar& par )
 	}
     }
 
-    return useSOPar( par );
+    return 1;
 }
 
 
