@@ -5,25 +5,25 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.104 2009-09-17 13:05:26 cvskris Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.105 2010-02-24 10:47:57 cvsnanne Exp $";
 
 #include "genc.h"
 #include "string2.h"
 #include "envvars.h"
 #include "winutils.h"
-#include "timefun.h"
 #include "mallocdefs.h"
 #include "debugmasks.h"
 #include "oddirs.h"
 
-#include <string.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <string.h>
 #ifndef __win__
 # include <unistd.h>
 #else
 # include <float.h>
+# include <sys/timeb.h>
 #endif
 
 
@@ -124,11 +124,30 @@ int isProcessAlive( int pid )
 }
 
 
+const char* getFullDateString( void )
+{
+    char *chp ;
+    int lastch ;
+
+#ifdef __win__
+    return 0; // TODO
+#endif
+
+    const time_t timer = time(NULL);
+    chp = ctime( &timer );
+
+    lastch = strlen( chp ) - 1 ;
+    if ( chp[lastch] == '\n' ) chp[lastch] = '\0' ;
+
+    return chp;
+}
+
+
 int ExitProgram( int ret )
 {
     if ( od_debug_isOn(DBG_PROGSTART) )
 	printf( "\nExitProgram (PID: %d) at %s\n",
-		GetPID(), Time_getFullDateString() );
+		GetPID(), getFullDateString() );
 
     NotifyExitProgram( (PtrAllVoidFn)(-1) );
 
