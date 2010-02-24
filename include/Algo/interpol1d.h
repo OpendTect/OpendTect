@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: interpol1d.h,v 1.3 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: interpol1d.h,v 1.4 2010-02-24 10:46:16 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -212,6 +212,30 @@ inline T poly1D( float x0, T v0, float x1, T v1, float x2, T v2,
 		v1 * xx0 * xx2 * xx3 / ((x1 - x0) * (x1 - x2) * (x1 - x3)) +
 		v2 * xx0 * xx1 * xx3 / ((x2 - x0) * (x2 - x1) * (x2 - x3)) +
 		v3 * xx0 * xx1 * xx2 / ((x3 - x0) * (x3 - x1) * (x3 - x2));
+}
+
+
+/*!>
+ Predict at sample position 0 when two previous and two next are known.
+ Returned is the value of the 3rd order polynome that goes through the points.
+*/
+
+template <class T>
+inline T predictAtZero1D( T vm2, T vm1, T v1, T v2 )
+{
+    return (-2 * vm2 + 8 * vm1 + 8 * v1 - 2 * v2) / 12;
+}
+
+
+/*!>
+ Predict at sample position 0 when three previous and three next are known.
+ Returned is the value of the 5th order polynome that goes through the points.
+*/
+
+template <class T>
+inline T predictAtZero1D( T vm3, T vm2, T vm1, T v1, T v2, T v3 )
+{
+    return (vm3 - 6 * vm2 + 15 * vm1 + 15 * v1 - 6 * v2 + v3) / 20;
 }
 
 
