@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.43 2010-02-18 22:34:17 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.44 2010-02-24 22:27:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -230,7 +230,7 @@ inline bool pointInPolygon( const Coord3& pt, const TypeSet<Coord3>& plgknots,
 	    
 	    const double d1 = p1.abs();
 	    const double d2 = p2.abs();
-	    if ( d1*d2 <= epsilon || d1 <= epsilon || d2 <= epsilon )
+	    if ( d1*d2 <= epsilon*epsilon || d1 <= epsilon || d2 <= epsilon )
 		return true;
 	    else
 		cosangle = p1.dot(p2) / (d1*d2);
