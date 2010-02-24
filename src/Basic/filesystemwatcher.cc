@@ -1,5 +1,13 @@
+/*+
+________________________________________________________________________
 
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:        Nanne Hemstra
+ Date:          2009
+________________________________________________________________________
 
+-*/
+static const char* rcsID = "$Id: filesystemwatcher.cc,v 1.2 2010-02-24 10:50:45 cvsnanne Exp $";
 
 #include "filesystemwatcher.h"
 #include "qfilesystemcomm.h"
