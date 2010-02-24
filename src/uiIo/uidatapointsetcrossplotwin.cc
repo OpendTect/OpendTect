@@ -159,8 +159,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     maniptb_.addButton( "xplotprop.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );
-    maniptb_.addButton( "exppdf.png",
-	    mCB(this,uiDataPointSetCrossPlotWin,exportPDF),"PDF",false );
+    maniptb_.addButton( "prdfs.png",
+	    mCB(this,uiDataPointSetCrossPlotWin,exportPDF),
+	    "Create Probability Density Function",false );
 
 
     const int nrgrps = uidps_.groupNames().size();
