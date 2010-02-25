@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.13 2010-02-16 15:44:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.14 2010-02-25 17:03:00 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -168,7 +168,7 @@ bool ExplPolygonSurface::updateBodyDisplay()
 		counts++;
 	}
 
-	if ( counts<3 )
+	if ( counts && counts<3 )
 	    invalidknots += idx;
     }
    
