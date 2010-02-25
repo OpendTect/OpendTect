@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.3 2010-02-24 22:28:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.4 2010-02-25 04:34:00 cvsnanne Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -276,7 +276,7 @@ Task* BodyFiller::createTask()
     {
 	plgknots_[idx].z *= SI().zScale();
 	const BinID bid = SI().transform( plgknots_[idx] );
-	plgbids_ += Coord3(bid.inl,bid.crl,plgknots[idx].z);
+	plgbids_ += Coord3(bid.inl,bid.crl,plgknots_[idx].z);
 	
 	if ( flatpolygon_.isEmpty() )
 	{
@@ -302,8 +302,8 @@ Task* BodyFiller::createTask()
     else
 	plgdir_ = plgIsOther;	
 
-    epsilon_ = plgdir < 2 ? plgbids_[0].distTo(plgbids[1])*0.01 
-			  : plgknots[0].distTo(plgknots[1])*0.01;
+    epsilon_ = plgdir_ < 2 ? plgbids_[0].distTo(plgbids_[1])*0.01 
+			  : plgknots_[0].distTo(plgknots_[1])*0.01;
     
     return Step::createTask();    
 }
