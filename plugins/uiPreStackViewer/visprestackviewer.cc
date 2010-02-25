@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.59 2009-09-09 16:52:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.60 2010-02-25 03:06:51 cvsnanne Exp $";
 
 #include "visprestackviewer.h"
 
@@ -948,7 +948,7 @@ void Viewer3D::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( !section_ && !seis2d_ )
 	return;
 
-    SurveyObject::fillSOPar( par );
+    SurveyObject::fillSOPar( par, saveids );
     VisualObjectImpl::fillPar( par, saveids );
     if ( section_ )
     {
