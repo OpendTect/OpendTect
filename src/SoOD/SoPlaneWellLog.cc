@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.41 2010-02-22 16:47:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.42 2010-02-25 14:24:12 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -437,8 +437,8 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 	if ( logval < 0 )   logval = prevval;
 	if ( logval > 100 ) logval = prevval;
 	
-	SbVec3f shiftcrd;
-        shiftcrd *= 0;
+	SbVec3f shiftcrd; 
+	shiftcrd *= 0;
 	SbVec3f normalshift = getProjCoords( path, index, projdir, 
 					     maxval, shiftprct, lognr );
         shiftcrd += normalshift;
@@ -522,13 +522,9 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	int index = int(idx*step+.5);
 	float filllogval = filllog[index];
 	float logval = log[index];
+	colindex = (int)((filllogval-fillminvalF)/colstep);
 	if ( revscale ) 
-	{
 	    logval = maxval.getValue() - logval;
-	    colindex = (int)((fillmaxvalF-filllogval)/colstep);
-	}
-	else
-	    colindex = (int)((filllogval-fillminvalF)/colstep);
 	if ( colindex > 255 ) colindex = 255;
 	if ( colindex < 0 ) colindex = 0;
 	if ( logval <= 100 && filllogval <= 100 && logval>=0 && filllogval>=0 )
@@ -542,10 +538,13 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res)
 	    triset->materialIndex.set1Value( 2*idx, 0 );
 	    triset->materialIndex.set1Value( 2*idx, 0 );
 	}
-	SbVec3f newcrd = path[index];
+	SbVec3f pathcrd = path[index];
+	SbVec3f newcrd = revscale ? pathcrd + getProjCoords( path, index, 
+					    projdir, maxval, maxvalF, lognr )
+				  : pathcrd;
 	SbVec3f normal = getProjCoords( path, index, projdir, 
-				    maxval, logval, lognr );
-        SbVec3f linecrd = newcrd + normal; 
+					maxval, logval, lognr );
+        SbVec3f linecrd = pathcrd + normal; 
 	
 	coordtri->point.set1Value( 2*idx, newcrd );
 	coordtri->point.set1Value( 2*idx+1, linecrd );
