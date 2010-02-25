@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.63 2009-11-18 20:46:55 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.64 2010-02-25 13:34:35 cvshelene Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -490,6 +490,15 @@ bool BatchProgram::go( std::ostream& strm )
 	    HorizonUtils::getWantedPositions( strm, midset, bivs, hsamp,
 		    			      extraz, nrinterpsamp, mainhoridx,
 					      extrawidth );
+	if ( !zboundsset )
+	{
+	    //fix needed to get homogeneity when using multi-machines processing
+	    zboundsset = true;
+	    BinIDValueSet* natbounds = is2d ? &dtps->bivSet() : &bivs;
+	    zbounds.start = natbounds->valRange(0).start;
+	    zbounds.stop = natbounds->valRange(1).stop;
+	}
+
 	SeisTrcBuf seisoutp( false );
 	Processor* proc =
 	    is2d ? aem.create2DVarZOutput( errmsg, pars(), dtps, outval,
