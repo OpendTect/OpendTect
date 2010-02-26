@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.38 2010-02-11 00:06:24 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.39 2010-02-26 17:05:54 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -570,9 +570,9 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	const SbImage& channel = channels_->getChannels()[idx];
 	SbVec3s size; int dummy2;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
-	// Starting from the front layer, find the (foremost) layer which is fully 
-	// opaque(if any). That will be the first layer to be rendered (rendering 
-	// starts at this layer and proceeds forward).
+	// Starting from the front layer, find the (foremost) layer which is 
+	// fully opaque(if any). That will be the first layer to be rendered 
+	// (rendering starts at this layer and proceeds forward).
 	if ( vals && enabled_.size()>idx && enabled_[idx] )
 	{
 	    firstlayer = idx;
@@ -599,7 +599,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	tci_->transparencyInfo = firstlayertrans;
     }
 
-    startlayer_->value.setValue( firstlayer );  // TODO: check: -1 sometimes
+    startlayer_->value.setValue( firstlayer );
 }
 
 
@@ -617,29 +617,24 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	"void processLayer( in float val, in float layeropacity, in float ctab, in bool first )\n"
 	"{								\n"
 	"    float ctabval = 0.001953125+0.996093750*val;		\n"
-	//ctabval = 1/512 + 255/256*val
+	// ctabval = 1/512 + 255/256*val
 	// Layers ordered from back to front. First = backmost
+	"    vec4 col = texture2D( ctabunit, vec2( ctabval, ctab ) );	\n"
+	// Process only if pixel is not transparent.
+	"    if ( (col.a==0.0) || (layeropacity==0.0) )	\n"
+	"        return;  \n"
+	"    \n"
 	"    if ( first )						\n"
+	"        gl_FragColor = col * layeropacity;	\n"
+	"    else \n"
 	"    {								\n"
-	"       vec4 tmpcol = texture2D( ctabunit, vec2( ctabval, ctab ) );\n"
-	"	gl_FragColor = tmpcol * layeropacity;			\n"
-	"    }								\n"
-	"    else if ( layeropacity>0.0 )				\n"
-	"    {								\n"
-	"	vec4 col = texture2D( ctabunit,	vec2( ctabval, ctab ) );\n"
 	// Color values are premultiplied with their alpha values.
-	// But layeropacity is not considered in col.rgb. 
-	"   	col *= layeropacity;					\n"
-	"   	if ( gl_FragColor.a == 0 )				\n"
-	"	    gl_FragColor = col;					\n"
-	"   	else							\n"
-	"   	{							\n"
-	"   	    vec4 tmpcol = gl_FragColor;				\n"
-	"	    gl_FragColor.rgb = col.rgb + tmpcol.rgb * (1 - col.a); \n"
-	"           gl_FragColor.a = col.a + tmpcol.a*(1-col.a);	\n"
-	"       }							\n"
+	"        vec4 prevcol = gl_FragColor;  \n"
+	"        col *= layeropacity;  \n"
+	"        gl_FragColor.rgb = col.rgb + prevcol.rgb * (1 - col.a); \n"
+	"        gl_FragColor.a = col.a + prevcol.a*(1-col.a);	\n"
 	"    }								\n"
-	"}\n\n";
+	"}								\n\n";
 
     BufferString mainprogstart =
 	"void main()							\n"
@@ -652,13 +647,13 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	"    else							\n"
 	"    {								\n"
 	"	vec2 tcoord = gl_TexCoord[0].st;			\n"
-	"	vec4 data;\n"
-	"	bool first = true;\n";
+	"	vec4 data;						\n"
+	"	bool first = true;					\n";
 
 
     res = variables;
 
-    res += "uniform float	   layeropacities["; res += nrchannels; res += "];\n";
+    res += "uniform float  layeropacities["; res += nrchannels; res += "];\n";
 
     const int nrunits = nrchannels ? (nrchannels-1)/mLayersPerUnit+1 : 0;
     for ( int idx=0; idx<nrunits; idx++ )
@@ -781,7 +776,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
 
     // Layer: 0 - transparent. 1-254 - translucent. 255 - opaque.
     // CASE	LAYER		SEQUENCE		COMBINED
-    //	a	  0		  X			cHasNoInter.
+    //	a	  0		   X			cHasNoInter.
     //  b	  X		cHasTransparency	cHasTransparency
     //  c	1-254		cHasNoInter.		cHasTransparency
     //  d	1-254		Opaque			cHasTransparency
@@ -830,7 +825,7 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     trspcheck.execute();
 
     if ( !hastrans )
-	return trspcheck.getTransparency(); // cases e, f, g
+	return trspcheck.getTransparency();  // cases e, f, g
 	
     return SoTextureComposerInfo::cHasNoTransparency();  // cases b, c, d
 }
