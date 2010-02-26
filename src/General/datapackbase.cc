@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapackbase.cc,v 1.5 2010-02-17 21:34:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: datapackbase.cc,v 1.6 2010-02-26 17:26:42 cvsyuancheng Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -269,8 +269,6 @@ float MapDataPack::getValAtIdx( int idx, int idy ) const
 void MapDataPack::setPosCoord( bool isposcoord )
 {
     isposcoord_ = isposcoord;
-    if ( isposcoord_ && !xyrotarr2d_ )
-	createXYRotArray();
 }
 
 
@@ -309,6 +307,9 @@ void MapDataPack::setRange( StepInterval<double> dim0rg,
 
 Array2D<float>& MapDataPack::data()
 {
+    if ( isposcoord_ && !xyrotarr2d_ )
+	createXYRotArray();
+    
     return isposcoord_ ? *xyrotarr2d_ : *arr2d_;
 }
 
