@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.5 2010-02-18 16:07:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.6 2010-02-27 10:43:39 cvsbert Exp $";
 
 #include "uiprobdenfuncman.h"
 
@@ -61,7 +61,7 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
     if ( !pdf ) return;
 
     uiEditProbDenFunc dlg( this, *pdf, true );
-    if ( dlg.go() )
+    if ( dlg.go() && dlg.isChanged() )
     {
 	BufferString emsg;
 	if ( !ProbDenFuncTranslator::write(*pdf,*curioobj_,&emsg) )
