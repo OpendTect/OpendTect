@@ -8,13 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.2 2010-02-24 15:09:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.3 2010-02-27 10:44:01 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
 #include "uigeninput.h"
 #include "uitabstack.h"
-#include "uilabel.h"
+#include "uitable.h"
 #include "uimsg.h"
 
 #include "sampledprobdenfunc.h"
@@ -29,6 +29,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	mTODOHelpID))
     , pdf_(pdf)
     , editable_(ed)
+    , chgd_(false)
 {
     const int nrdims = pdf_.nrDims();
 
@@ -56,14 +57,51 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	return;
 
     const int nrtabs = nrdims > 2 ? andpdf->size(2) : 1;
+    const int nrrows = andpdf->size( 0 );
+    const int nrcols = nrdims < 2 ? 1 : andpdf->size( 1 );
+    uiTable::Setup su( nrrows, nrcols );
+    su.rowdesc( pdf_.dimName(0) )
+      .coldesc( nrdims > 1 ? pdf_.dimName(1) : "Values" )
+      .fillrow(true).fillcol(true)
+      .manualresize(true).sizesFixed(true);
+
+    const ArrayND<float>& data = andpdf->getData();
+    TypeSet<int> idxs( nrdims, 0 );
     for ( int itab=0; itab<nrtabs; itab++ )
     {
 	BufferString tabnm( "Values" );
 	if ( nrdims > 2 ) tabnm.add(" [").add(itab+1).add("]");
 	uiGroup* grp = new uiGroup( tabstack_->tabGroup(),
 				    BufferString(tabnm," group").buf() );
-	new uiLabel( grp, BufferString("TODO ",itab) );
 
+	uiTable* tbl = new uiTable( grp, su, BufferString("dim ",itab) );
+	tbl->insertColumns( 0, nrcols );
+	tbl->insertRows( 0, nrrows );
+	if ( nrcols == 1 )
+	    tbl->setColumnLabel( 0, "Value" );
+	else
+	{
+	    for ( int icol=0; icol<nrcols; icol++ )
+	    {
+		const float val = andpdf->sampling(1).atIndex(icol);
+		tbl->setColumnLabel( icol, toString(val) );
+	    }
+	}
+
+	if ( nrdims > 2 ) idxs[2] = itab;
+	for ( int irow=0; irow<nrrows; irow++ )
+	{
+	    idxs[0] = irow;
+	    const float rowval = andpdf->sampling(0).atIndex(irow);
+	    tbl->setRowLabel( irow, toString(rowval) );
+	    for ( int icol=0; icol<nrcols; icol++ )
+	    {
+		idxs[1] = icol;
+		const float arrval = data.getND( idxs.arr() );
+		tbl->setValue( RowCol(irow,icol), arrval );
+	    }
+	}
+	tbls_ += tbl;
 	tabstack_->addTab( grp, tabnm );
     }
 }
@@ -80,7 +118,13 @@ bool uiEditProbDenFunc::acceptOK( CallBacker* )
 
     for ( int idim=0; idim<pdf_.nrDims(); idim++ )
     {
-	pdf_.setDimName( idim, nmflds_[idim]->text() );
+	const BufferString newnm( nmflds_[idim]->text() );
+	if ( newnm != pdf_.dimName(idim) )
+	{
+	    pdf_.setDimName( idim, nmflds_[idim]->text() );
+	    chgd_ = true;
+	}
     }
+
     return true;
 }
