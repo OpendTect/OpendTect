@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.58 2009-11-12 12:22:57 cvssatyaki Exp $
+ RCS:           $Id: uitable.h,v 1.59 2010-02-27 10:42:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,12 @@ public:
 	mDefSetupMemb(bool,manualresize)
 	mDefSetupMemb(int,defrowstartidx)
 
+	Setup& sizesFixed( bool yn )
+	{
+	    insertrowallowed_ = removerowallowed_ = rowgrow_ =
+	    insertcolallowed_ = removecolallowed_ = colgrow_ = !yn;
+	    return *this;
+	}
     };
 
                         uiTable(uiParent*,const Setup&,const char* nm);
