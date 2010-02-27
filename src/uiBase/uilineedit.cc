@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.36 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.37 2010-02-27 10:43:11 cvsbert Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -82,8 +82,11 @@ uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm )
 
 const char* uiLineEdit::getvalue_() const
 {
-    result_ = mQStringToConstChar( body_->text() );
-    return result_;
+    BufferString res( mQStringToConstChar( body_->text() ) );
+    char* ptr = res.buf();
+    mTrimBlanks(ptr);
+    result_ = ptr;
+    return result_.buf();
 }
 
 
