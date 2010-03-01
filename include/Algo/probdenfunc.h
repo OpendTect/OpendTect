@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.7 2010-02-18 16:05:46 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.8 2010-03-01 09:28:52 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ public:
     virtual int		nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
     virtual void	setDimName( int dim, const char* nm )
-						{ if ( dim ) varnm_ = nm; }
+						{ if ( !dim ) varnm_ = nm; }
 
     virtual float	value(float) const	= 0;
     virtual const char*	varName() const		{ return varnm_; }
