@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2010
- RCS:           $Id: arrayndsmoother.h,v 1.1 2010-03-01 15:10:27 cvsbert Exp $
+ RCS:           $Id: arrayndsmoother.h,v 1.2 2010-03-01 15:18:35 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -100,8 +100,9 @@ int ArrayNDGentleSmoother<T>::nextStep()
     }
 
     T smval = 0; const int nrvals = vals.size();
+    const T val0 = inp_.getND( itpos );
     for ( int idx=0; idx<nrvals; idx++ )
-	{ smval += vals[0]; smval += vals[idx]; }
+	{ smval += val0; smval += vals[idx]; }
     smval /= 2 * nrvals;
     out_.setND( itpos, smval );
     nrdone_++;
