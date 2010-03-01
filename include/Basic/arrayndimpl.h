@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.64 2009-08-27 17:08:10 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.65 2010-03-01 11:38:51 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -25,9 +25,8 @@ ________________________________________________________________________
 #include "debug.h"
 #endif
 
+#define mArrNDChunkSz 1024
 
-#define mChunkSz 1024
-#define mNonConstMem(x) const_cast<ArrayNDFileStor*>(this)->x
 
 template <class T>
 class ArrayNDFileStor : public ValueSeries<T>
@@ -216,10 +215,14 @@ template <class T> inline
 bool ArrayNDFileStor<T>::isOK() const
 { return strm_; }
 
-#undef mChckStrm
-#define mChckStrm \
+
+#define mArrNDChkStrm() \
     if ( strm_->fail() ) \
-	{ mNonConstMem(close()); mNonConstMem(streamfail_) = true; return T();}
+    { \
+	const_cast<ArrayNDFileStor*>(this)->close(); \
+	const_cast<ArrayNDFileStor*>(this)->streamfail_ = true; \
+	return T(); \
+    }
 
 template <class T> inline
 T ArrayNDFileStor<T>::value( od_int64 pos ) const
@@ -229,17 +232,17 @@ T ArrayNDFileStor<T>::value( od_int64 pos ) const
     if ( !strm_ ) return T();
 
     strm_->seekg(pos*sizeof(T), std::ios::beg );
-    mChckStrm
+    mArrNDChkStrm()
 
     T res;
     strm_->read( (char *)&res, sizeof(T));
-    mChckStrm
+    mArrNDChkStrm()
 
     return res;
 }
 
-#undef mChckStrm
-#define mChckStrm \
+#undef mArrNDChkStrm
+#define mArrNDChkStrm() \
     if ( strm_->fail() ) { close(); streamfail_ = true; return; }
 
 template <class T> inline
@@ -250,10 +253,10 @@ void ArrayNDFileStor<T>::setValue( od_int64 pos, T val )
     if ( !strm_ ) return;
 
     strm_->seekp( pos*sizeof(T), std::ios::beg );
-    mChckStrm
+    mArrNDChkStrm()
 
     strm_->write( (const char *)&val, sizeof(T));
-    mChckStrm
+    mArrNDChkStrm()
 }
 
 
@@ -302,8 +305,8 @@ void ArrayNDFileStor<T>::setTempStorageDir( const char* dir )
     name_ = fp.fullPath();
 }
 
-#undef mChckStrm
-#define mChckStrm \
+#undef mArrNDChkStrm
+#define mArrNDChkStrm() \
     if ( strm_->fail() ) { close(); openfailed_ = streamfail_ = true; return; }
 
 template <class T> inline
@@ -315,27 +318,26 @@ void ArrayNDFileStor<T>::open()
     strm_ = new std::fstream( name_.buf(), std::fstream::binary
 				     | std::fstream::out
 				     | std::fstream::trunc );
-    mChckStrm
+    mArrNDChkStrm()
 
-    char tmp[mChunkSz*sizeof(T)];
-    memset( tmp, 0, mChunkSz*sizeof(T) );
-    for ( int idx=0; idx<sz_; idx+=mChunkSz )
+    char tmp[mArrNDChunkSz*sizeof(T)];
+    memset( tmp, 0, mArrNDChunkSz*sizeof(T) );
+    for ( int idx=0; idx<sz_; idx+=mArrNDChunkSz )
     {
-	if ( (sz_-idx)/mChunkSz )
-	    strm_->write( tmp, mChunkSz*sizeof(T) );
+	if ( (sz_-idx)/mArrNDChunkSz )
+	    strm_->write( tmp, mArrNDChunkSz*sizeof(T) );
 	else if ( sz_-idx )
 	    strm_->write( tmp, (sz_-idx)*sizeof(T) );
 
-	mChckStrm
+	mArrNDChkStrm()
     }
 
     strm_->close();
     strm_->open( name_.buf(), std::fstream::binary
 		    | std::fstream::out
 		    | std::fstream::in );
-    mChckStrm
+    mArrNDChkStrm()
 }
-#undef mChckStrm
 
 template <class T> inline
 void ArrayNDFileStor<T>::close()
@@ -345,7 +347,7 @@ void ArrayNDFileStor<T>::close()
 }
 
 
-#define mImplFileConstructor \
+#define mArrNDImplFileConstructor \
     , stor_( 0 ) \
     , ptr_( 0 ) \
 { \
@@ -355,7 +357,7 @@ void ArrayNDFileStor<T>::close()
 }
 
 
-#define mImplCopyConstructor( clss, from ) \
+#define mArrNDImplCopyConstructor( clss, from ) \
 template <class T> inline \
 clss<T>::clss(const from<T>& templ) \
     : in_(templ.info())  \
@@ -367,12 +369,12 @@ clss<T>::clss(const from<T>& templ) \
 } 
 
 
-#define mImplDestructor( clss ) \
+#define mArrNDImplDestructor( clss ) \
 template <class T> inline \
 clss<T>::~clss() { delete stor_; }
 
 
-#define mImplSetStorage( clss ) \
+#define mArrNDImplSetStorage( clss ) \
 template <class T> inline \
 bool clss<T>::setStorage(ValueSeries<T>* s) \
 { \
@@ -390,12 +392,12 @@ bool clss<T>::setStorage(ValueSeries<T>* s) \
 template <class T> inline
 Array1DImpl<T>::Array1DImpl(int nsz, bool file )
     : in_(nsz)
-      mImplFileConstructor;
+mArrNDImplFileConstructor
 
-mImplCopyConstructor( Array1DImpl, Array1D );
-mImplCopyConstructor( Array1DImpl, Array1DImpl );
-mImplDestructor( Array1DImpl );
-mImplSetStorage( Array1DImpl );
+mArrNDImplCopyConstructor( Array1DImpl, Array1D )
+mArrNDImplCopyConstructor( Array1DImpl, Array1DImpl )
+mArrNDImplDestructor( Array1DImpl )
+mArrNDImplSetStorage( Array1DImpl )
 
 template <class T> inline
 void Array1DImpl<T>::set( int pos, T v )	
@@ -474,19 +476,19 @@ bool Array1DImpl<T>::setSize( int s )
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( int sz0, int sz1, bool file )
     : in_(sz0,sz1)
-mImplFileConstructor;
+mArrNDImplFileConstructor
 
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz, bool file )
     : in_( nsz )
-mImplFileConstructor;
+mArrNDImplFileConstructor
 
 
-mImplCopyConstructor( Array2DImpl, Array2D );
-mImplCopyConstructor( Array2DImpl, Array2DImpl );
-mImplDestructor( Array2DImpl );
-mImplSetStorage( Array2DImpl );
+mArrNDImplCopyConstructor( Array2DImpl, Array2D )
+mArrNDImplCopyConstructor( Array2DImpl, Array2DImpl )
+mArrNDImplDestructor( Array2DImpl )
+mArrNDImplSetStorage( Array2DImpl )
 
 
 template <class T> inline
@@ -582,18 +584,18 @@ bool Array2DImpl<T>::setSize( int d0, int d1 )
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2, bool file)
     : in_(sz0,sz1,sz2)
-mImplFileConstructor;
+mArrNDImplFileConstructor
 
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz, bool file )
     : in_(nsz)
-mImplFileConstructor;
+mArrNDImplFileConstructor
 
-mImplCopyConstructor( Array3DImpl, Array3D );
-mImplCopyConstructor( Array3DImpl, Array3DImpl );
-mImplDestructor( Array3DImpl );
-mImplSetStorage( Array3DImpl );
+mArrNDImplCopyConstructor( Array3DImpl, Array3D )
+mArrNDImplCopyConstructor( Array3DImpl, Array3DImpl )
+mArrNDImplDestructor( Array3DImpl )
+mArrNDImplSetStorage( Array3DImpl )
 
 template <class T> inline
 void Array3DImpl<T>::set( int p0, int p1, int p2, T v )
@@ -694,13 +696,19 @@ bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDInfo& nsz, bool file )
     : in_( nsz.clone() )
-mImplFileConstructor;
+mArrNDImplFileConstructor
 
 
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayND<T>& templ, bool file )
     : in_(templ.info().clone())
-mImplFileConstructor;
+mArrNDImplFileConstructor
+
+
+template <class T> inline
+ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDImpl<T>& templ, bool file )
+    : in_(templ.info().clone())
+mArrNDImplFileConstructor
 
 
 template <class T> inline
@@ -711,7 +719,7 @@ ArrayNDImpl<T>::~ArrayNDImpl()
 }
 
 
-mImplSetStorage( ArrayNDImpl );
+mArrNDImplSetStorage( ArrayNDImpl )
 
 template <class T> inline
 void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
@@ -832,10 +840,5 @@ ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& nsz, bool file )
     return new ArrayNDImpl<T>( nsz, file );
 }
 
-#undef mDeclArrayNDProtMemb
-#undef mImplSetStorage
-#undef mImplFileConstructor
-#undef mImplCopyConstructor
-#undef mImplDestructor
 
 #endif
