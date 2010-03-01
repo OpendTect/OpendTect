@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoRGBATextureChannel2RGBA.cc,v 1.7 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoRGBATextureChannel2RGBA.cc,v 1.8 2010-03-01 15:19:11 cvskris Exp $";
 
 
 #include "SoRGBATextureChannel2RGBA.h"
@@ -88,19 +88,29 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 		continue;
 	    }
 
-	    bool fullyopaque = true;
-	    bool fullytransparent = true;
-	    for ( int idy=0; idy<fullsize; idy++ )
+	    bool fullyopaque;
+	    bool fullytransparent;
+	    if ( data )
 	    {
-		if ( data[idy] )
+		fullyopaque = true;
+		fullytransparent = true;
+		for ( int idy=0; idy<fullsize; idy++ )
 		{
-		    fullyopaque = false;
-		    if ( data[idy]!=255 )
-			fullytransparent = false;
-		}
+		    if ( data[idy] )
+		    {
+			fullyopaque = false;
+			if ( data[idy]!=255 )
+			    fullytransparent = false;
+		    }
 
-		if ( !fullytransparent && !fullyopaque )
-		    break;
+		    if ( !fullytransparent && !fullyopaque )
+			break;
+		}
+	    }
+	    else
+	    {
+		fullyopaque = true;
+		fullytransparent = false;
 	    }
 
 	    if ( !fullytransparent && !fullyopaque )
