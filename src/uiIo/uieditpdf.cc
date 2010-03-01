@@ -8,29 +8,32 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.4 2010-03-01 09:29:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.5 2010-03-01 15:10:03 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
 #include "uigeninput.h"
 #include "uitabstack.h"
 #include "uitable.h"
+#include "uibutton.h"
 #include "uimsg.h"
+#include "pixmap.h"
 
 #include "sampledprobdenfunc.h"
+#include "arrayndsmoother.h"
 
 #define mDeclArrNDPDF(var) mDynamicCastGet(ArrayNDProbDenFunc*,var,&pdf_)
 #define mDeclNrDims \
     const int nrdims = pdf_.nrDims()
 #define mDeclSzVars(var) \
-    const int nrtbltabs = nrdims > 2 ? var->size(2) : 1; \
-    const int nrrows = var->size( 0 ); \
-    const int nrcols = nrdims < 2 ? 1 : var->size( 1 )
+    const int nrtbltabs = nrdims > 2 ? (var).info().getSize(2) : 1; \
+    const int nrrows = (var).info().getSize( 0 ); \
+    const int nrcols = nrdims < 2 ? 1 : (var).info().getSize( 1 )
+#define mDeclIdxs(var) \
+    TypeSet<int> var( nrdims < 3 ? 2 : nrdims, 0 )
 #define mDeclArrVars(var) \
-    ArrayND<float>& data = var->getData(); \
-    TypeSet<int> idxs( nrdims < 3 ? 2 : nrdims, 0 )
-#define mDeclVars(var) \
-    mDeclNrDims; mDeclArrNDPDF(var) mDeclSzVars(var); mDeclArrVars(var)
+    ArrayND<float>& data = (var).getData(); \
+    mDeclIdxs(idxs)
 
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
@@ -68,14 +71,14 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     if ( !andpdf || nrdims > 3 )
 	return;
 
-    mDeclSzVars(andpdf);
+    mDeclSzVars(andpdf->getData());
     uiTable::Setup su( nrrows, nrcols );
     su.rowdesc( pdf_.dimName(0) )
       .coldesc( nrdims > 1 ? pdf_.dimName(1) : "Values" )
       .fillrow(true).fillcol(true)
       .manualresize(true).sizesFixed(true);
 
-    mDeclArrVars(andpdf);
+    mDeclArrVars(*andpdf);
     for ( int itab=0; itab<nrtbltabs; itab++ )
     {
 	BufferString tabnm( "Values" );
@@ -97,22 +100,30 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	    }
 	}
 
-	if ( nrdims > 2 ) idxs[2] = itab;
 	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    idxs[0] = irow;
 	    const float rowval = andpdf->sampling(0).atIndex(irow);
 	    tbl->setRowLabel( irow, toString(rowval) );
-	    for ( int icol=0; icol<nrcols; icol++ )
-	    {
-		idxs[1] = icol;
-		const float arrval = data.getND( idxs.arr() );
-		tbl->setValue( RowCol(irow,icol), arrval );
-	    }
 	}
 	tbls_ += tbl;
 	tabstack_->addTab( grp, tabnm );
     }
+
+    uiToolButton* but = new uiToolButton( this, "View",
+			    ioPixmap("viewprdf.png"),
+			    mCB(this,uiEditProbDenFunc,viewPDF) );
+    but->setToolTip( "View function" );
+    but->attach( centeredRightOf, tabstack_ );
+    if ( editable_ )
+    {
+	uiToolButton* smbut = new uiToolButton( this, "Smooth",
+				ioPixmap("smoothcurve.png"),
+				mCB(this,uiEditProbDenFunc,smoothReq) );
+	smbut->setToolTip( "Smooth values" );
+	smbut->attach( alignedBelow, but );
+    }
+
+    putToScreen( andpdf->getData() );
 }
 
 
@@ -121,27 +132,32 @@ uiEditProbDenFunc::~uiEditProbDenFunc()
 }
 
 
-bool uiEditProbDenFunc::acceptOK( CallBacker* )
+void uiEditProbDenFunc::putToScreen( const ArrayND<float>& data )
 {
-    if ( !editable_ ) return true;
+    mDeclNrDims; mDeclSzVars(data); mDeclIdxs(idxs);
 
-    for ( int idim=0; idim<pdf_.nrDims(); idim++ )
+    for ( int itab=0; itab<nrtbltabs; itab++ )
     {
-	const BufferString newnm( nmflds_[idim]->text() );
-	if ( newnm != pdf_.dimName(idim) )
+	uiTable& tbl = *tbls_[itab];
+
+	if ( nrdims > 2 ) idxs[2] = itab;
+	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    pdf_.setDimName( idim, nmflds_[idim]->text() );
-	    chgd_ = true;
+	    idxs[0] = irow;
+	    for ( int icol=0; icol<nrcols; icol++ )
+	    {
+		idxs[1] = icol;
+		const float arrval = data.getND( idxs.arr() );
+		tbl.setValue( RowCol(irow,icol), arrval );
+	    }
 	}
     }
-
-    return tbls_.isEmpty() ? true : getTblVals();
 }
 
 
-bool uiEditProbDenFunc::getTblVals()
+bool uiEditProbDenFunc::getFromScreen( ArrayND<float>& data, bool* chgd )
 {
-    mDeclVars(andpdf);
+    mDeclNrDims; mDeclSzVars(data); mDeclIdxs(idxs);
 
     for ( int itab=0; itab<nrtbltabs; itab++ )
     {
@@ -168,11 +184,51 @@ bool uiEditProbDenFunc::getTblVals()
 		if ( !mIsEqual(tblval,arrval,mDefEps) )
 		{
 		    data.setND( idxs.arr(), tblval );
-		    chgd_ = true;
+		    if ( chgd ) *chgd = true;
 		}
 	    }
 	}
     }
 
     return true;
+}
+
+
+void uiEditProbDenFunc::viewPDF( CallBacker* )
+{
+    uiMSG().error( "TODO" );
+}
+
+
+void uiEditProbDenFunc::smoothReq( CallBacker* )
+{
+    mDeclArrNDPDF(andpdf);
+    ArrayND<float>* inclone = andpdf->getArrClone();
+    getFromScreen( *inclone );
+    ArrayND<float>* outclone = andpdf->getArrClone();
+    ArrayNDGentleSmoother<float> gs( *inclone, *outclone );
+    gs.execute();
+    delete inclone;
+    putToScreen( *outclone );
+    delete outclone;
+}
+
+
+bool uiEditProbDenFunc::acceptOK( CallBacker* )
+{
+    if ( !editable_ ) return true;
+
+    for ( int idim=0; idim<pdf_.nrDims(); idim++ )
+    {
+	const BufferString newnm( nmflds_[idim]->text() );
+	if ( newnm != pdf_.dimName(idim) )
+	{
+	    pdf_.setDimName( idim, nmflds_[idim]->text() );
+	    chgd_ = true;
+	}
+    }
+    if ( tbls_.isEmpty() ) return true;
+
+    mDeclArrNDPDF(andpdf);
+    return getFromScreen(andpdf->getData(),&chgd_);
 }
