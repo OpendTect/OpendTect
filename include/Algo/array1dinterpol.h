@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          December 2009
- RCS:           $Id:
+ RCS:           $Id: array1dinterpol.h,v 1.2 2010-03-01 14:05:01 cvsbert Exp $
 ________________________________________________________________________
 
 
