@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.5 2010-02-18 16:06:51 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.6 2010-03-01 15:09:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,7 @@ public:
 		{ return getArrND(); }
     virtual ArrayND<float>&		getData()
     		{ return const_cast<ArrayND<float>&>(getArrND()); }
+    virtual ArrayND<float>*		getArrClone() const	= 0;
 
     virtual SamplingData<float>		sampling( int dim ) const
 		{ return getSampling(dim); }
@@ -75,6 +76,8 @@ public:
     virtual bool	usePar(const IOPar&);
     virtual void	dump(std::ostream&,bool binary) const;
     virtual bool	obtain(std::istream&,bool binary);
+    virtual ArrayND<float>* getArrClone() const	
+    			{ return new Array1DImpl<float>(bins_); }
 
     SamplingData<float>	sd_;
     Array1DImpl<float>	bins_;
@@ -104,6 +107,8 @@ public:
     virtual bool	usePar(const IOPar&);
     virtual void	dump(std::ostream&,bool binary) const;
     virtual bool	obtain(std::istream&,bool binary);
+    virtual ArrayND<float>* getArrClone() const	
+    			{ return new Array2DImpl<float>(bins_); }
 
     SamplingData<float>	sd0_;
     SamplingData<float>	sd1_;
@@ -139,6 +144,8 @@ public:
     virtual void	setDimName( int dim, const char* nm )
 					{ *dimnms_[dim] = nm; }
     virtual float	value(const TypeSet<float>&) const;
+    virtual ArrayND<float>* getArrClone() const	
+    			{ return new ArrayNDImpl<float>(bins_); }
 
     static const char*	typeStr()			{ return "SampledND"; }
     virtual const char*	getTypeStr() const		{ return typeStr(); }
