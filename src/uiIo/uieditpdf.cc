@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.3 2010-02-27 10:44:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.4 2010-03-01 09:29:18 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -18,6 +18,19 @@ static const char* rcsID = "$Id: uieditpdf.cc,v 1.3 2010-02-27 10:44:01 cvsbert 
 #include "uimsg.h"
 
 #include "sampledprobdenfunc.h"
+
+#define mDeclArrNDPDF(var) mDynamicCastGet(ArrayNDProbDenFunc*,var,&pdf_)
+#define mDeclNrDims \
+    const int nrdims = pdf_.nrDims()
+#define mDeclSzVars(var) \
+    const int nrtbltabs = nrdims > 2 ? var->size(2) : 1; \
+    const int nrrows = var->size( 0 ); \
+    const int nrcols = nrdims < 2 ? 1 : var->size( 1 )
+#define mDeclArrVars(var) \
+    ArrayND<float>& data = var->getData(); \
+    TypeSet<int> idxs( nrdims < 3 ? 2 : nrdims, 0 )
+#define mDeclVars(var) \
+    mDeclNrDims; mDeclArrNDPDF(var) mDeclSzVars(var); mDeclArrVars(var)
 
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
@@ -31,8 +44,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , editable_(ed)
     , chgd_(false)
 {
-    const int nrdims = pdf_.nrDims();
-
+    mDeclNrDims;
     tabstack_ = new uiTabStack( this, "Tabs" );
 
     uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Dimension names" );
@@ -50,24 +62,21 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	if ( !editable_ )
 	    nmfld->setReadOnly( true );
     }
-    tabstack_->addTab( dimnmgrp, "Names" );
+    tabstack_->addTab( dimnmgrp, nrdims < 2 ? "Name" : "Names" );
 
-    mDynamicCastGet(ArrayNDProbDenFunc*,andpdf,&pdf_)
+    mDeclArrNDPDF(andpdf);
     if ( !andpdf || nrdims > 3 )
 	return;
 
-    const int nrtabs = nrdims > 2 ? andpdf->size(2) : 1;
-    const int nrrows = andpdf->size( 0 );
-    const int nrcols = nrdims < 2 ? 1 : andpdf->size( 1 );
+    mDeclSzVars(andpdf);
     uiTable::Setup su( nrrows, nrcols );
     su.rowdesc( pdf_.dimName(0) )
       .coldesc( nrdims > 1 ? pdf_.dimName(1) : "Values" )
       .fillrow(true).fillcol(true)
       .manualresize(true).sizesFixed(true);
 
-    const ArrayND<float>& data = andpdf->getData();
-    TypeSet<int> idxs( nrdims, 0 );
-    for ( int itab=0; itab<nrtabs; itab++ )
+    mDeclArrVars(andpdf);
+    for ( int itab=0; itab<nrtbltabs; itab++ )
     {
 	BufferString tabnm( "Values" );
 	if ( nrdims > 2 ) tabnm.add(" [").add(itab+1).add("]");
@@ -123,6 +132,45 @@ bool uiEditProbDenFunc::acceptOK( CallBacker* )
 	{
 	    pdf_.setDimName( idim, nmflds_[idim]->text() );
 	    chgd_ = true;
+	}
+    }
+
+    return tbls_.isEmpty() ? true : getTblVals();
+}
+
+
+bool uiEditProbDenFunc::getTblVals()
+{
+    mDeclVars(andpdf);
+
+    for ( int itab=0; itab<nrtbltabs; itab++ )
+    {
+	const uiTable& tbl = *tbls_[itab];
+
+	if ( nrdims > 2 ) idxs[2] = itab;
+	for ( int irow=0; irow<nrrows; irow++ )
+	{
+	    idxs[0] = irow;
+	    for ( int icol=0; icol<nrcols; icol++ )
+	    {
+		BufferString bstbltxt = tbl.text( RowCol(irow,icol) );
+		char* tbltxt = bstbltxt.buf();
+		mTrimBlanks(tbltxt);
+		if ( !*tbltxt )
+		{
+		    uiMSG().error("Please fill all cells - or use 'Cancel'");
+		    return false;
+		}
+
+		idxs[1] = icol;
+		const float tblval = atof( tbltxt );
+		const float arrval = data.getND( idxs.arr() );
+		if ( !mIsEqual(tblval,arrval,mDefEps) )
+		{
+		    data.setND( idxs.arr(), tblval );
+		    chgd_ = true;
+		}
+	    }
 	}
     }
 

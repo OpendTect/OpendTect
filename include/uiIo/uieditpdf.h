@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uieditpdf.h,v 1.3 2010-02-27 10:44:01 cvsbert Exp $
+ RCS:           $Id: uieditpdf.h,v 1.4 2010-03-01 09:29:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ protected:
     ObjectSet<uiTable>		tbls_;
 
     bool			acceptOK(CallBacker*);
+    bool			getTblVals();
+
 };
 
 
