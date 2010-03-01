@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.17 2010-02-17 21:34:48 cvsyuancheng Exp $
+ RCS:		$Id: datapackbase.h,v 1.18 2010-03-01 18:09:55 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ template <class T> class Array3D;
 class FlatPosData;
 class CubeSampling;
 class BufferStringSet;
+class TaskRunner;
 
 /*!\brief DataPack for point data. */
     
@@ -125,16 +126,17 @@ public:
     void			setPosCoord(bool yn);
     				//!< int,int = Array2D position
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const;
-    void			setPropsAndInit(StepInterval<double> inlrg,
-	    					StepInterval<double> crlrg,
-						bool,BufferStringSet*);
+    void			setProps(StepInterval<double> inlrg,
+	    				 StepInterval<double> crlrg,
+					 bool,BufferStringSet*);
+    void			initXYRotArray(TaskRunner* = 0 );
+
     void			setRange( StepInterval<double> dim0rg,
 	    				  StepInterval<double> dim1rg,
 					  bool forxy );
 
 protected:
 
-    void			createXYRotArray();
     float			getValAtIdx(int,int) const;
     friend class 		MapDataPackXYRotater;
     
@@ -142,6 +144,7 @@ protected:
     FlatPosData&		xyrotposdata_;
     bool			isposcoord_;
     TypeSet<BufferString>	axeslbls_;
+    Threads::Mutex		initlock_;
 };
 
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapackbase.cc,v 1.6 2010-02-26 17:26:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: datapackbase.cc,v 1.7 2010-03-01 18:09:55 cvsyuancheng Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -272,16 +272,9 @@ void MapDataPack::setPosCoord( bool isposcoord )
 }
 
 
-void MapDataPack::createXYRotArray()
-{
-    MapDataPackXYRotater rotator( *this );
-    rotator.execute();
-}
-
-
-void MapDataPack::setPropsAndInit( StepInterval<double> inlrg,
-				   StepInterval<double> crlrg,
-				   bool isposcoord, BufferStringSet* dimnames )
+void MapDataPack::setProps( StepInterval<double> inlrg, 
+			    StepInterval<double> crlrg,
+			    bool isposcoord, BufferStringSet* dimnames )
 {
     posdata_.setRange( true, inlrg );
     posdata_.setRange( false, crlrg );
@@ -305,10 +298,21 @@ void MapDataPack::setRange( StepInterval<double> dim0rg,
 }
 
 
+void MapDataPack::initXYRotArray( TaskRunner* tr )
+{
+    MapDataPackXYRotater rotator( *this );
+    if ( tr )
+	tr->execute( rotator );
+    else
+    	rotator.execute();
+}
+
+
 Array2D<float>& MapDataPack::data()
 {
+    Threads::MutexLocker lock( initlock_ );
     if ( isposcoord_ && !xyrotarr2d_ )
-	createXYRotArray();
+	initXYRotArray( 0 );
     
     return isposcoord_ ? *xyrotarr2d_ : *arr2d_;
 }
