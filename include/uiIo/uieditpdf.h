@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uieditpdf.h,v 1.5 2010-03-01 15:10:03 cvsbert Exp $
+ RCS:           $Id: uieditpdf.h,v 1.6 2010-03-02 15:39:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,11 @@ ________________________________________________________________________
 #include "uidialog.h"
 class ProbDenFunc;
 class uiGenInput;
-class uiTabStack;
 class uiTable;
+class uiTabStack;
+class uiFlatViewMainWin;
 template <class T> class ArrayND;
+template <class T> class Array1D;
 
 
 /*! \brief Edit Probability Density Function */
@@ -39,12 +41,14 @@ protected:
     uiTabStack*			tabstack_;
     ObjectSet<uiGenInput>	nmflds_;
     ObjectSet<uiTable>		tbls_;
+    uiFlatViewMainWin*		flatvwwin_;
 
     void			putToScreen(const ArrayND<float>&);
     bool			getFromScreen(ArrayND<float>&,bool* chg=0);
 
     void			viewPDF(CallBacker*);
     void			smoothReq(CallBacker*);
+    void			vwWinClose(CallBacker*);
     bool			acceptOK(CallBacker*);
 
 };

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.5 2010-03-01 15:10:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.6 2010-03-02 15:39:39 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -17,10 +17,13 @@ static const char* rcsID = "$Id: uieditpdf.cc,v 1.5 2010-03-01 15:10:03 cvsbert 
 #include "uitable.h"
 #include "uibutton.h"
 #include "uimsg.h"
+#include "uiflatviewmainwin.h"
+#include "uiflatviewer.h"
 #include "pixmap.h"
 
 #include "sampledprobdenfunc.h"
 #include "arrayndsmoother.h"
+#include "flatposdata.h"
 
 #define mDeclArrNDPDF(var) mDynamicCastGet(ArrayNDProbDenFunc*,var,&pdf_)
 #define mDeclNrDims \
@@ -46,6 +49,7 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , pdf_(pdf)
     , editable_(ed)
     , chgd_(false)
+    , flatvwwin_(0)
 {
     mDeclNrDims;
     tabstack_ = new uiTabStack( this, "Tabs" );
@@ -87,40 +91,45 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 				    BufferString(tabnm," group").buf() );
 
 	uiTable* tbl = new uiTable( grp, su, BufferString("dim ",itab) );
-	tbl->insertColumns( 0, nrcols );
-	tbl->insertRows( 0, nrrows );
 	if ( nrcols == 1 )
 	    tbl->setColumnLabel( 0, "Value" );
 	else
 	{
 	    for ( int icol=0; icol<nrcols; icol++ )
 	    {
-		const float val = andpdf->sampling(1).atIndex(icol);
+		const float val = andpdf->sampling(0).atIndex(icol);
 		tbl->setColumnLabel( icol, toString(val) );
 	    }
 	}
 
 	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    const float rowval = andpdf->sampling(0).atIndex(irow);
+	    const float rowval = andpdf->sampling(1).atIndex(nrrows - irow - 1);
 	    tbl->setRowLabel( irow, toString(rowval) );
 	}
 	tbls_ += tbl;
 	tabstack_->addTab( grp, tabnm );
     }
 
-    uiToolButton* but = new uiToolButton( this, "View",
-			    ioPixmap("viewprdf.png"),
-			    mCB(this,uiEditProbDenFunc,viewPDF) );
-    but->setToolTip( "View function" );
-    but->attach( centeredRightOf, tabstack_ );
+    uiToolButton* vwbut = 0;
+    if ( nrdims > 1 )
+    {
+	vwbut = new uiToolButton( this, "View",
+				ioPixmap("viewprdf.png"),
+				mCB(this,uiEditProbDenFunc,viewPDF) );
+	vwbut->setToolTip( "View function" );
+	vwbut->attach( centeredRightOf, tabstack_ );
+    }
     if ( editable_ )
     {
 	uiToolButton* smbut = new uiToolButton( this, "Smooth",
 				ioPixmap("smoothcurve.png"),
 				mCB(this,uiEditProbDenFunc,smoothReq) );
 	smbut->setToolTip( "Smooth values" );
-	smbut->attach( alignedBelow, but );
+	if ( vwbut )
+	    smbut->attach( alignedBelow, vwbut );
+	else
+	    smbut->attach( centeredRightOf, tabstack_ );
     }
 
     putToScreen( andpdf->getData() );
@@ -143,7 +152,7 @@ void uiEditProbDenFunc::putToScreen( const ArrayND<float>& data )
 	if ( nrdims > 2 ) idxs[2] = itab;
 	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    idxs[0] = irow;
+	    idxs[0] = nrrows - irow - 1;
 	    for ( int icol=0; icol<nrcols; icol++ )
 	    {
 		idxs[1] = icol;
@@ -166,7 +175,7 @@ bool uiEditProbDenFunc::getFromScreen( ArrayND<float>& data, bool* chgd )
 	if ( nrdims > 2 ) idxs[2] = itab;
 	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    idxs[0] = irow;
+	    idxs[0] = nrrows - irow - 1;
 	    for ( int icol=0; icol<nrcols; icol++ )
 	    {
 		BufferString bstbltxt = tbl.text( RowCol(irow,icol) );
@@ -194,15 +203,82 @@ bool uiEditProbDenFunc::getFromScreen( ArrayND<float>& data, bool* chgd )
 }
 
 
+class uiEditProbDenFunc2DDataPack : public FlatDataPack
+{
+public:
+uiEditProbDenFunc2DDataPack( Array2D<float>* a2d, const ProbDenFunc& pdf )
+    : FlatDataPack("Probability Density Function",a2d)
+    , pdf_(pdf)
+{
+    setName( "Probability" );
+}
+const char* dimName( bool dim0 ) const
+{
+    return pdf_.dimName( dim0 ? 0 : 1 );
+}
+
+    const ProbDenFunc&	pdf_;
+};
+
+
 void uiEditProbDenFunc::viewPDF( CallBacker* )
 {
-    uiMSG().error( "TODO" );
+    mDeclNrDims; mDeclArrNDPDF(andpdf)
+    if ( nrdims < 2 || !andpdf ) return;
+
+    ArrayND<float>* arrnd = andpdf->getArrClone();
+    getFromScreen( *arrnd );
+    mDeclSzVars(*arrnd);
+    Array2D<float>* arr2d = new Array2DImpl<float>( nrrows, nrcols );
+    int idxs[3];
+    idxs[2] = tabstack_->currentPageId()-1;
+    if ( idxs[2] < 0 ) idxs[2] = 0;
+    for ( idxs[0]=0; idxs[0]<nrcols; idxs[0]++ )
+	for ( idxs[1]=0; idxs[1]<nrrows; idxs[1]++ )
+	    arr2d->set( idxs[0], idxs[1], arrnd->getND(idxs) );
+    delete arrnd;
+
+    if ( !flatvwwin_ )
+    {
+	uiFlatViewMainWin::Setup su( "Probability Density Function" );
+	flatvwwin_ = new uiFlatViewMainWin( this, su );
+	flatvwwin_->setDarkBG( false );
+	uiFlatViewer& vwr = flatvwwin_->viewer();
+	vwr.setInitialSize( uiSize(300,200) );
+	FlatView::Appearance& app = vwr.appearance();
+	app.ddpars_.show( false, true );
+	FlatView::Annotation& ann = app.annot_;
+	ann.title_ = pdf_.name();
+	ann.setAxesAnnot( true );
+	ann.x1_.name_ = pdf_.dimName(0); ann.x2_.name_ = pdf_.dimName(1);
+	flatvwwin_->windowClosed.notify(mCB(this,uiEditProbDenFunc,vwWinClose));
+    }
+
+    FlatDataPack* dp = new uiEditProbDenFunc2DDataPack( arr2d, pdf_ );
+    SamplingData<float> sd( andpdf->sampling(0) );
+    StepInterval<double> rg( sd.start, sd.start + andpdf->size(0) * sd.step,
+	    		     sd.step );
+    dp->posData().setRange( true, rg );
+    sd = SamplingData<float>( andpdf->sampling(1) );
+    rg = StepInterval<double>( sd.start, sd.start + andpdf->size(1) * sd.step,
+	    		       sd.step );
+    dp->posData().setRange( false, rg );
+    DPM( DataPackMgr::FlatID() ).add( dp );
+
+    flatvwwin_->viewer().setPack( false, dp->id(), false );
+    flatvwwin_->start();
+}
+
+
+void uiEditProbDenFunc::vwWinClose( CallBacker* )
+{
+    flatvwwin_ = 0;
 }
 
 
 void uiEditProbDenFunc::smoothReq( CallBacker* )
 {
-    mDeclArrNDPDF(andpdf);
+    mDeclArrNDPDF(andpdf) if ( !andpdf ) return;
     ArrayND<float>* inclone = andpdf->getArrClone();
     getFromScreen( *inclone );
     ArrayND<float>* outclone = andpdf->getArrClone();
@@ -211,6 +287,9 @@ void uiEditProbDenFunc::smoothReq( CallBacker* )
     delete inclone;
     putToScreen( *outclone );
     delete outclone;
+
+    if ( flatvwwin_ )
+	viewPDF( 0 );
 }
 
 
