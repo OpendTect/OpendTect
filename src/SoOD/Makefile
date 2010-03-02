@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.41 2010-03-01 15:19:11 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.42 2010-03-02 03:38:28 cvsnanne Exp $
 #_______________________________________________________________________________
 
 
@@ -59,17 +59,9 @@ ifeq ($(HDIR),win)
     USE_SIM_VOL := Yes
 endif
 
-#ifndef USE_SIM_VOL
-#    EXTRALIBSFORSHLIB := SimVoleon
-#endif
-
-ifeq ($(HDIR),win)
-    USE_SIM_VOL := Yes
+ifndef USE_SIM_VOL
+    EXTRALIBSFORSHLIB := SimVoleon
 endif
-
-#ifndef USE_SIM_VOL
-#    EXTRALIBSFORSHLIB := SimVoleon
-#endif
 
 include make.od.Defaults
 
