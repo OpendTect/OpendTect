@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.44 2010-01-18 10:45:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.45 2010-03-02 11:06:23 cvsranojay Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -353,9 +353,17 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     if ( progtxt && *progtxt && *progtxt != '[' )
 	fp.add( progfld->box()->text() );
 
-    BufferString comm = fp.fullPath();
+    const bool isanotherprog = progtxt && *progtxt == '[';
     ObjectSet<uiGenInput>& inplst = *inps[selidx];
-    for ( int iinp=0; iinp<inplst.size(); iinp++ )
+    int startfldidx = 0;
+    if ( isanotherprog && !inplst.isEmpty() )
+    {
+	fp.add( inplst[0]->text() );
+	startfldidx = 1;
+    }
+
+    BufferString comm = fp.fullPath();
+    for ( int iinp=startfldidx; iinp<inplst.size(); iinp++ )
     {
 	uiGenInput* inp = inplst[iinp];
 	mDynamicCastGet(uiFileInput*,finp,inp)
@@ -365,18 +373,18 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	    val = "\"";
 
 	    FilePath argfp( finp->fileName() );
-	    BufferString arg = argfp.fullPath( FilePath::Windows);
+	    BufferString arg = argfp.fullPath( FilePath::Windows );
 	    val += arg;
 
 	    val += "\"";
 	}
 	else if ( bpi.args[iinp]->type != BatchProgPar::QWord )
-	    val = inp->text();
+		  val = inp->text();
 	else
 	    { val = "'"; val += inp->text(); val += "'"; }
 
-	comm += " ";
-	comm += val;
+	if ( !val.isEmpty() )
+	{ comm += " "; comm += val; }
     }
 
 #endif
