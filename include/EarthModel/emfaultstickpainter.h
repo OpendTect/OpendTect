@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.2 2010-02-12 08:41:31 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.3 2010-03-02 06:51:06 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ mClass FaultStickPainter : public CallBacker
 {
 public:
     			FaultStickPainter(FlatView::Viewer&);
-			~FaultStickPainter() {}
+			~FaultStickPainter();
 
 	mStruct FaultStickSetInfo
 	{
@@ -59,9 +59,22 @@ public:
 
     FlatView::Annotation::AuxData* getAuxData(const EM::PosID*);
 
+    	mStruct StkMarkerInfo
+	{
+	    FlatView::Annotation::AuxData*	marker_;
+	    int					stickid_;
+	};
+
+    void		getDisplayedSticks(const EM::ObjectID&,
+	    				   ObjectSet<StkMarkerInfo>&);
+
     void		set2D(bool yn)		{ is2d_ = yn; }
     void		setLineName(const char*);
     void		setLineID(MultiID*);
+
+    Notifier<FaultStickPainter>	abouttorepaint_;
+    Notifier<FaultStickPainter> repaintdone_;
+
     TypeSet<int>&	getTrcNos()		{ return trcnos_; }
     TypeSet<float>&	getDistances()		{ return distances_; }
     TypeSet<Coord>&	getCoords()		{ return coords_; }
@@ -87,8 +100,7 @@ protected:
 
     ObjectSet<FaultStickSetInfo>	fssinfos_;
 
-    ObjectSet<ObjectSet<ObjectSet<FlatView::Annotation::AuxData> > >  
-							faultmarkerline_;
+    ObjectSet<ObjectSet<ObjectSet<StkMarkerInfo> > > faultmarkerline_;
 
     EM::ObjectID	activefssid_;
     int			activestickid_;

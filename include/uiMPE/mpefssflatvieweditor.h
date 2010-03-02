@@ -8,12 +8,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: mpefssflatvieweditor.h,v 1.1 2010-02-12 08:44:05 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.2 2010-03-02 06:51:06 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emfaultsticksetflatvieweditor.h"
+
+#include "emposid.h"
 
 class MouseEventHandler;
 
@@ -29,10 +31,14 @@ public:
 			~FaultStickSetFlatViewEditor();
 
     void		setMouseEventHandler(MouseEventHandler*);
+    void		updateActStkContainer();
 
 protected:
 
     void			activeFSSChgCB(CallBacker*);
+
+    void			fssRepaintATSCB(CallBacker*);
+    void			fssRepaintedCB(CallBacker*);
 
     void 			seedMovementStartedCB(CallBacker*);
     void			seedMovementFinishedCB(CallBacker*);
@@ -41,12 +47,22 @@ protected:
     void			mousePressCB(CallBacker*);
     void			mouseReleaseCB(CallBacker*);
 
+	mStruct StkMarkerIdInfo
+	{
+	    int	    merkerid_;
+	    int	    stickid_;
+	};
+
+    void			cleanActStkContainer();
+    void			fillActStkContainer(const EM::ObjectID);
+
     bool			seedhasmoved_;
 
     FlatView::AuxDataEditor*	editor_;
-    int				activeeditorid_;
+    ObjectSet<StkMarkerIdInfo>	markeridinfo_;
     int				activestickid_;
     MouseEventHandler*		meh_;
+    EM::PosID			mousepid_;
 };
 
 } //namespace MPE
