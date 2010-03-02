@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.6 2010-03-02 15:39:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.7 2010-03-02 16:13:50 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -97,14 +97,14 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	{
 	    for ( int icol=0; icol<nrcols; icol++ )
 	    {
-		const float val = andpdf->sampling(0).atIndex(icol);
+		const float val = andpdf->sampling(1).atIndex(icol);
 		tbl->setColumnLabel( icol, toString(val) );
 	    }
 	}
 
 	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    const float rowval = andpdf->sampling(1).atIndex(nrrows - irow - 1);
+	    const float rowval = andpdf->sampling(0).atIndex(nrrows - irow - 1);
 	    tbl->setRowLabel( irow, toString(rowval) );
 	}
 	tbls_ += tbl;
@@ -235,7 +235,7 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
     if ( idxs[2] < 0 ) idxs[2] = 0;
     for ( idxs[0]=0; idxs[0]<nrcols; idxs[0]++ )
 	for ( idxs[1]=0; idxs[1]<nrrows; idxs[1]++ )
-	    arr2d->set( idxs[0], idxs[1], arrnd->getND(idxs) );
+	    arr2d->set( idxs[1], idxs[0], arrnd->getND(idxs) );
     delete arrnd;
 
     if ( !flatvwwin_ )
@@ -255,11 +255,11 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
     }
 
     FlatDataPack* dp = new uiEditProbDenFunc2DDataPack( arr2d, pdf_ );
-    SamplingData<float> sd( andpdf->sampling(0) );
+    SamplingData<float> sd( andpdf->sampling(1) );
     StepInterval<double> rg( sd.start, sd.start + andpdf->size(0) * sd.step,
 	    		     sd.step );
     dp->posData().setRange( true, rg );
-    sd = SamplingData<float>( andpdf->sampling(1) );
+    sd = SamplingData<float>( andpdf->sampling(0) );
     rg = StepInterval<double>( sd.start, sd.start + andpdf->size(1) * sd.step,
 	    		       sd.step );
     dp->posData().setRange( false, rg );
