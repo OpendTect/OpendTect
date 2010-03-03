@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.46 2010-02-23 21:25:14 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.47 2010-03-03 17:40:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -134,6 +134,7 @@ protected:
     void			resetAllTiles(TaskRunner*);
     void			updateNewPoints(const TypeSet<GeomPosID>*,
 	    					TaskRunner*);
+    void			setSizeParameters();
 
     Geometry::BinIDSurface*	geometry_;
     RowCol			origin_;
@@ -168,8 +169,20 @@ protected:
     Material*			wireframematerial_;
 
     bool			tesselationlock_;
+
+    int				mNrCoordsPerTileSide;
+    int 			mTotalNrCoordsPerTile;
+    int 			mTileSideSize;
+    int 			mTileLastIdx;
+    int 			mTotalNormalSize;
+    int 			mLowestResIdx;
+    int 			mHorSectNrRes;
+
+    int*			spacing_;
+    int*			nrcells_;
+    int*			normalstartidx_;
+    int*			normalsidesize_;
     
-    static ArrPtrMan<SbVec2f>	texturecoordptr_;				
     static const char*		sKeySectionID()	{ return "Section ID"; }
 };
 
