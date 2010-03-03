@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.40 2009-10-07 13:26:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.41 2010-03-03 02:46:57 cvsnanne Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -22,13 +22,13 @@ static const char* rcsID = "$Id: uispinbox.cc,v 1.40 2009-10-07 13:26:33 cvsjaap
 class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>
 {
 public:
-
-                        uiSpinBoxBody(uiSpinBox&,uiParent*, const char* );
-
+                        uiSpinBoxBody(uiSpinBox&,uiParent*,const char*);
     virtual		~uiSpinBoxBody();
 
     virtual int 	nrTxtLines() const	{ return 1; }
     void		setNrDecimals(int);
+    void		setAlpha(bool yn);
+    bool		isAlpha() const		{ return isalpha_; }
 
     QValidator::State	validate( QString& input, int& pos ) const
 			{
@@ -38,16 +38,16 @@ public:
 			    return QDoubleSpinBox::validate( input, pos );
 			}
 
-protected:
-
-    virtual int		mapTextToValue( bool* ok );
-    virtual QString	mapValueToText( int v );
+    virtual double	valueFromText(const QString&) const;
+    virtual QString	textFromValue(double value) const;
 
 private:
 
     i_SpinBoxMessenger& messenger_;
 
     QDoubleValidator*	dval;
+
+    bool		isalpha_;
 
 };
 
@@ -56,6 +56,7 @@ uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>(handle,p,nm)
     , messenger_(*new i_SpinBoxMessenger(this,&handle))
     , dval(new QDoubleValidator(this))
+    , isalpha_(false)
 {
     setHSzPol( uiObject::Small );
     setCorrectionMode( QAbstractSpinBox::CorrectToNearestValue );
@@ -69,24 +70,63 @@ uiSpinBoxBody::~uiSpinBoxBody()
 }
 
 
-int uiSpinBoxBody::mapTextToValue( bool* ok )
+static const char* letters[] =
+{ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+  "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", 0 };
+
+void uiSpinBoxBody::setAlpha( bool yn )
 {
-    return (int)(cleanText().toFloat(ok) * handle_.factor_);
+    isalpha_ = yn;
+    setMinimum( 0 );
+    setMaximum( specialValueText().isEmpty() ? 25 : 26 );
+    setSingleStep( 1 );
 }
 
 
-QString uiSpinBoxBody::mapValueToText( int val )
+double uiSpinBoxBody::valueFromText( const QString& text ) const
 {
-    QString s;
-    s.setNum( (float)val / handle_.factor_ );
-    return s;
+    QString mytxt = text;
+    if ( isalpha_ )
+    {
+	for ( int idx=0; idx<26; idx++ )
+	{
+	    if ( text == letters[idx] )
+		return (double)idx;
+	}
+
+	return 0;
+    }
+
+    return (double)(mytxt.toFloat() * handle_.factor_);
+}
+
+
+QString uiSpinBoxBody::textFromValue( double val ) const
+{
+    QString str;
+    if ( isalpha_ )
+    {
+	QString svtxt = specialValueText();
+	int intval = mNINT(val);
+       	if ( !svtxt.isEmpty() )
+	    intval--;
+
+	if ( intval < 0 )
+	    str = "a";
+	else if ( intval > 25 )
+	    str = "z";
+	else
+	    str = letters[intval];
+    }
+    else
+	str.setNum( (float)val / handle_.factor_ );
+
+    return str;
 }
 
 
 void uiSpinBoxBody::setNrDecimals( int dec )
-{
-    dval->setDecimals( dec );
-}
+{ dval->setDecimals( dec ); }
 
 
 //------------------------------------------------------------------------------
@@ -117,11 +157,21 @@ uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
     return *body_; 
 }
 
+void uiSpinBox::setSpecialValueText( const char* txt )
+{
+    body_->setSpecialValueText( txt );
+    if ( isAlpha() ) setMaxValue( 26 );
+}
+
+
+void uiSpinBox::setAlpha( bool yn )
+{ body_->setAlpha( yn ); }
+
+bool uiSpinBox::isAlpha() const
+{ return body_->isAlpha(); }
 
 void uiSpinBox::setNrDecimals( int dec )
-{
-    body_->setDecimals( dec );
-}
+{ body_->setDecimals( dec ); }
 
 
 void uiSpinBox::snapToStep( CallBacker* )

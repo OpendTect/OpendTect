@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.23 2009-10-07 13:26:33 cvsjaap Exp $
+ RCS:           $Id: uispinbox.h,v 1.24 2010-03-03 02:46:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,10 @@ public:
 			~uiSpinBox();
 
     void		setNrDecimals(int);
+    void		setAlpha(bool);
+    bool		isAlpha() const;
+
+    void		setSpecialValueText(const char*); // First entry
 
     void		setValue(int);
     void		setValue(float);
