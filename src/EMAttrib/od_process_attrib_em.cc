@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.64 2010-02-25 13:34:35 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.65 2010-03-03 13:56:16 cvshelene Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -359,6 +359,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    hsamp.limitTo( mmrange );
     }
 
+    Interval<float> zbounds4mmproc;
     ObjectSet<EMObject> objects;
     for ( int idx=0; idx<midset.size(); idx++ )
     {
@@ -369,8 +370,8 @@ bool BatchProgram::go( std::ostream& strm )
 	EM::EMM().getSurfaceData( *mid, sd );
 	SurfaceIODataSelection sels( sd );
 	sels.selvalues.erase();
-	for ( int idx=0; idx<sd.sections.size(); idx++ )
-	    sels.selsections += idx;
+	for ( int ids=0; ids<sd.sections.size(); ids++ )
+	    sels.selsections += ids;
 	sels.rg = hsamp;
 	PtrMan<Executor> loader = 
 			EMM().objectLoader( *mid, iscubeoutp ? &sels : 0 );
@@ -379,6 +380,21 @@ bool BatchProgram::go( std::ostream& strm )
 	    BufferString errstr = "Cannot load horizon:";
 	    errstr += mid->buf();
 	    mErrRetNoProc( errstr.buf() );
+	}
+
+	if ( mIsUdf( sd.zrg.start ) )
+	    zbounds4mmproc = SI().zRange( true );
+	else
+	{
+	    if ( idx )
+	    {
+		zbounds4mmproc.start = sd.zrg.start < zbounds4mmproc.start ?
+					sd.zrg.start : zbounds4mmproc.start;
+		zbounds4mmproc.stop = sd.zrg.stop > zbounds4mmproc.stop ?
+					sd.zrg.stop : zbounds4mmproc.stop;
+	    }
+	    else
+		zbounds4mmproc = sd.zrg;
 	}
 
 	EMObject* emobj = EMM().getObject( EMM().getObjectID(*mid) );
@@ -490,13 +506,12 @@ bool BatchProgram::go( std::ostream& strm )
 	    HorizonUtils::getWantedPositions( strm, midset, bivs, hsamp,
 		    			      extraz, nrinterpsamp, mainhoridx,
 					      extrawidth );
-	if ( !zboundsset )
+	if ( !zboundsset && mmprocrange )
 	{
 	    //fix needed to get homogeneity when using multi-machines processing
 	    zboundsset = true;
-	    BinIDValueSet* natbounds = is2d ? &dtps->bivSet() : &bivs;
-	    zbounds.start = natbounds->valRange(0).start;
-	    zbounds.stop = natbounds->valRange(1).stop;
+	    zbounds = zbounds4mmproc==SI().zRange(1) ? zbounds4mmproc
+	       					     : zbounds4mmproc + extraz;
 	}
 
 	SeisTrcBuf seisoutp( false );
