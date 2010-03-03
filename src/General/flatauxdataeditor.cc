@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.29 2010-03-02 06:51:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.30 2010-03-03 02:48:50 cvsnanne Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -388,7 +388,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
     if ( !mousedown_ || !viewer_.appearance().annot_.editable_ )
 	return;
 
-    if ( mousehandler_.isHandled() ) 
+    if ( !mousehandler_.hasEvent() || mousehandler_.isHandled() ) 
 	return; 
 
     const MouseEvent& ev = mousehandler_.event(); 
