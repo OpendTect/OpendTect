@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.1 2009-11-30 12:15:28 cvssatyaki Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.2 2010-03-03 10:11:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     virtual int			getNrViewers() const			= 0;
     virtual const char*		getViewerName(int) const		= 0;
 
-    virtual void		setDisplayCol(DispID,const Color&)	= 0;
+    virtual void		setDisplayCol(DispID,const TypeSet<Color>&)	= 0;
     virtual DispID		addDisplay(const TypeSet<int>& parents,
 	    				   const DataPointSet&)		= 0;
     virtual void		updateDisplay(DispID id,

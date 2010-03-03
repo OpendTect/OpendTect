@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.27 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.28 2010-03-03 10:11:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ public:
     DColID			dColID(TColID tid=-99) const;
     TColID			tColID(DColID did=-99) const;
     
+    bool			isSelectionValid(DRowID) const;
     void			addRow(const DataPointSet::DataRow&);
 
     void			notifySelectedCell();

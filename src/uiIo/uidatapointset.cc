@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.57 2010-01-14 12:16:16 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.58 2010-03-03 10:11:57 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -1243,14 +1243,13 @@ void uiDataPointSet::showSelPts( CallBacker* )
 
     dpsdispmgr_->lock();
     
-    if ( dpsdispmgr_->getDisplayID(dps_) < 0 )
-    {
-	const int dpsid =
-	    dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(), dps_);
-	dpsdispmgr_->setDisplayCol( dpsid, getRandStdDrawColor() );
-    }
+    int dpsid = dpsdispmgr_->getDisplayID(dps_);
+    if ( dpsid < 0 )
+	dpsid = dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(), dps_);
     else
 	dpsdispmgr_->updateDisplay( dpsdispmgr_->getDisplayID(dps_), dps_ );
+
+    dpsdispmgr_->setDisplayCol( dpsid, xplotwin_->plotter().selGrpCols() );
     dpsdispmgr_->unLock();
 }
 
@@ -1365,4 +1364,10 @@ void uiDataPointSet::removeHiddenRows()
     unsavedchgs_ = true;
     redoAll();
     return;
+}
+
+
+bool uiDataPointSet::isSelectionValid( DRowID rid ) const
+{
+    return xplotwin_ ? xplotwin_->plotter().isSelectionValid(rid) : false;
 }

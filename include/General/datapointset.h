@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.34 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:		$Id: datapointset.h,v 1.35 2010-03-03 10:11:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,10 +169,11 @@ public:
     const float*	getValues(RowID) const;
     unsigned short	group(RowID) const;
     bool		isSelected(RowID) const;
+    int			selGroup(RowID) const;
     bool		isInactive( RowID rid ) const { return group(rid) == 0;}
 
     void		setGroup(RowID,unsigned short);
-    void		setSelected(RowID,bool);
+    void		setSelected(RowID,int selgrp);
     void		setInactive(RowID,bool);
 
     int			nrActive() const;

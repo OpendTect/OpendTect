@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.60 2010-02-17 12:01:23 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.61 2010-03-03 10:11:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.60 2010-02-17 12:01:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.61 2010-03-03 10:11:57 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -66,9 +66,9 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , drawTypeChanged( this )
     , coltabRgChanged( this )
     , doy2_(true)
-    , dobd_(false)
     , plotperc_(1)
     , curgrp_(0)
+    , curselgrp_(0)
     , selrowisy2_(false)
     , rectangleselection_(true)
     , lsy1_(*new LinStats2D)
@@ -128,8 +128,10 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     setStretch( 2, 2 );
     setDragMode( uiGraphicsView::ScrollHandDrag );
+ 
     yrowidxs_ = new Array1DImpl<char>( dps_.size() );
     y2rowidxs_ = new Array1DImpl<char>( dps_.size() );
+    selgrpset_ += new SelectionGrp( "No 1", Color::DgbColor() );
     scene().setMouseEventActive( true );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
@@ -276,6 +278,44 @@ void uiDataPointSetCrossPlotter::deleteSelections()
 }
 
 
+int uiDataPointSetCrossPlotter::getSelGrpIdx( int selareaid ) const
+{
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
+    {
+	if ( selgrpset_[idx]->selareaids_.isPresent(selareaid) )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+int uiDataPointSetCrossPlotter::getSelAreaID( int idx ) const
+{
+    return selareaset_.validIdx(idx) ? selareaset_[idx]->id_ : -1;
+}
+
+int uiDataPointSetCrossPlotter::getSelAreaIdx( int id ) const
+{
+    for ( int idx=0; idx<selareaset_.size(); idx++ )
+    {
+	if ( selareaset_[idx]->id_ == id )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+TypeSet<Color> uiDataPointSetCrossPlotter::selGrpCols() const
+{
+    TypeSet<Color> selcols;
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
+	selcols += selgrpset_[idx]->col_;
+    return selcols;
+}
+
+
 void uiDataPointSetCrossPlotter::setSelectionAreas(
 	const ObjectSet<SelectionArea>& areaset )
 {
@@ -288,6 +328,50 @@ void uiDataPointSetCrossPlotter::setSelectionAreas(
 }
 
 
+void uiDataPointSetCrossPlotter::setSelectionGrps(
+	const ObjectSet<SelectionGrp>& grpset )
+{
+    selgrpset_ = grpset;
+    TypeSet<int> modselarea;
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
+    {
+	SelectionGrp* selgrp = selgrpset_[idx];
+	TypeSet<int> selareaids = selgrp->selareaids_;
+	for ( int idy=0; idy<selareaids.size(); idy++ )
+	{
+	    int selareaidx = getSelAreaIdx( selareaids[idy] );
+	    if ( selareaidx<0 ) continue;
+	    SelectionArea* selarea = selareaset_[selareaidx];
+	    modselarea += selareaids[idy];
+	}
+    }
+
+    int selsremoved = 0;
+    int rectidx = 0;
+    int polyidx = 0;
+    const int selareasize = selareaset_.size();
+    for ( int idx=0; idx<selareasize; idx++ )
+    {
+	SelectionArea* selarea = selareaset_[idx-selsremoved];
+	if ( !modselarea.isPresent(selarea->id_) )
+	{
+	    uiGraphicsItemGroup* selitems =
+		(selarea->type_ == SelectionArea::Rectangle) ? selrectitems_
+							     : selpolyitems_;
+	    uiGraphicsItem* selitem = selitems->getUiItem(
+		    (selarea->type_ == SelectionArea::Rectangle) ? rectidx
+		    					         : polyidx );
+	    if ( !selitem ) continue;
+	    selitems->remove( selitem, true );
+	    selareaset_.remove( idx - selsremoved );
+	    selsremoved++;
+	}
+	else
+	    selarea->type_ == SelectionArea::Rectangle ? rectidx++ : polyidx++;
+    }
+}
+
+
 void uiDataPointSetCrossPlotter::removeSelections()
 {
     if ( !selareaset_.size() ) return;
@@ -297,8 +381,11 @@ void uiDataPointSetCrossPlotter::removeSelections()
     selyitems_ = 0;
     sely2items_ = 0;
     
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
+	selgrpset_[idx]->selareaids_.erase();
+    
     for ( int idx=0; idx<dps_.size(); idx++ )
-	dps_.setSelected( idx, false );
+	dps_.setSelected( idx, -1 );
 }
 
 
@@ -324,8 +411,7 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 	else
 	    selectionrectitem_->setRect( 0, 0, 1, 1 );
 
-	selectionrectitem_->setPenColor( isdensityplot_ ? ctab_.markColor()
-							: Color(255,0,0) );
+	selectionrectitem_->setPenColor( selgrpset_[curselgrp_]->col_ );
     }
     else
     {
@@ -344,11 +430,12 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 	    
 	    selpolyitems_->add( selectionpolygonitem_ );
 	}
-	selectionpolygonitem_->setPenColor( isdensityplot_ ? ctab_.markColor()
-							   : Color(255,0,0) );
+	selectionpolygonitem_->setPenColor( selgrpset_[curselgrp_]->col_ );
     }
 
     curselarea_ = selareaset_.size() - 1;
+    selareaset_[curselarea_]->id_ = curselarea_;
+    selgrpset_[curselgrp_]->selareaids_.addIfNew( curselarea_ );
 }
 
 
@@ -379,6 +466,10 @@ void uiDataPointSetCrossPlotter::drawPolygon( CallBacker* )
 	
     }
 }
+
+
+float uiDataPointSetCrossPlotter::getVal( int colid, int rid ) const
+{ return uidps_.getVal( colid, rid, true ); }
 
 
 void uiDataPointSetCrossPlotter::setCTMapper( const ColTab::MapperSetup& setup )
@@ -543,6 +634,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	removeSelections();
 
 	selareaset_ += curselarea;
+	selgrpset_[curselgrp_]->selareaids_.addIfNew( curselarea->id_ );
     }
     
     if ( rectangleselection_ )
@@ -558,8 +650,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	else 
 	    selectionrectitem_->setRect( selrect.left(), selrect.top(),
 					 selrect.width(), selrect.height() );
-	selectionrectitem_->setPenColor( isdensityplot_ ? ctab_.markColor()
-							: Color(255,0,0) );
+	selectionrectitem_->setPenColor( selgrpset_[curselgrp_]->col_ );
 	if ( !selrectitems_ )
 	{
 	    selrectitems_ = new uiGraphicsItemGroup();
@@ -576,8 +667,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	    selectionpolygonitem_ = new uiPolygonItem();
 	    selectionpolygonitem_->setPolygon(
 		    *selareaset_[curselarea_]->poly_ );
-	    selectionpolygonitem_->setPenColor(
-		    isdensityplot_ ? ctab_.markColor() : Color(255,0,0) );
+	    selectionpolygonitem_->setPenColor( selgrpset_[curselgrp_]->col_ );
 	    selpolyitems_->add( selectionpolygonitem_ );
 	}
 	selectionpolygonitem_ = 0;
@@ -589,7 +679,14 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	selareaset_.remove( curselarea_ );
 
     if ( !isdensityplot_ )
-	reDrawNeeded.trigger();
+    {
+	for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
+	{
+	    checkSelection( rid, 0, false, y_, false );
+	    if ( y2_.axis_ && doy2_ ) 
+		checkSelection( rid, 0, true, y2_, false );
+	}
+    }
 }
 
 
@@ -820,12 +917,6 @@ void uiDataPointSetCrossPlotter::setDraw()
 }
 
 
-void uiDataPointSetCrossPlotter::mkNewFill()
-{
-    if ( !dobd_ ) return;
-}
-
-
 void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 {
     if ( withaxis )
@@ -1002,17 +1093,23 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	if ( !selarea )
 	    continue;
 
-	uiPoint itempos;
 	if ( item )
-	    itempos = item->getPos();
-	const bool itmselected = item ? selarea->isInside( itempos ) : false;
-	
-	bool invisiblept2bremoved = false;
-	invisiblept2bremoved = selarea->isInside( pt ) ;
+	{
+	    if ( !multclron_ )
+		item->setPenColor( yad.axis_->setup().style_.color_ );
+	    else
+		item->setPenColor( isy2 
+		    ? ( !y2grpcols_.size() ? yad.axis_->setup().style_.color_
+					   : y2grpcols_[dps_.group(rid)-1])
+		    : ( !y1grpcols_.size() ? yad.axis_->setup().style_.color_
+					   : y1grpcols_[dps_.group(rid)-1]) );
+	}
+
+	const bool itmselected = selarea->isInside( pt );
 	
 	if ( isy1selectable_ && !isy2 )
 	{
-	    if ( itmselected || invisiblept2bremoved )
+	    if ( itmselected )
 	    {
 		if ( !isSelectionValid(rid) )
 		    continue;
@@ -1026,21 +1123,18 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    yrowidxs_->set( rid, '0' );
 		    return;
 		}
-		if ( itmselected && item->isVisible() )
-		{
-		    item->setPenColor( Color::DgbColor() );
-		    dps_.setSelected( rid, true );
-		    selrowcols_ += RowCol( uidps_.tRowID(rid),
-					   uidps_.tColID(yad.colid_) );
-		
-		    selyitems_++;
-		    ptselected = true;
-		}
+
+		dps_.setSelected( rid, getSelGrpIdx(selarea->id_) );
+		selrowcols_ += RowCol( uidps_.tRowID(rid),
+				       uidps_.tColID(yad.colid_) );
+	    
+		selyitems_++;
+		ptselected = true;
 	    }
 	}
 	if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
 	{
-	    if ( itmselected || invisiblept2bremoved )
+	    if ( itmselected )
 	    {
 		if ( !isSelectionValid(rid) )
 		    continue;
@@ -1054,38 +1148,22 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    y2rowidxs_->set( rid, '0' );
 		    return;
 		}
-		if ( itmselected && item->isVisible() )
-		{
-		    item->setPenColor( Color(100,230,220) );
-		    
-		    dps_.setSelected( rid, true );
-		    selrowcols_ += RowCol( uidps_.tRowID(rid),
-					   uidps_.tColID(yad.colid_) );
-		    
-		    sely2items_++;
-		    ptselected = true;
-		}
+
+		dps_.setSelected( rid, getSelGrpIdx(selarea->id_) );
+		selrowcols_ += RowCol( uidps_.tRowID(rid),
+				       uidps_.tColID(yad.colid_) );
+		
+		sely2items_++;
+		ptselected = true;
 	    }
 	}
     }
 
     if ( !ptselected )
     {
-	if ( item )
-	{
-	    if ( !multclron_ )
-		item->setPenColor( isy2 ? yad.axis_->setup().style_.color_
-					: yad.axis_->setup().style_.color_ );
-	    else
-		item->setPenColor( isy2 
-		    ? ( !y2grpcols_.size() ? yad.axis_->setup().style_.color_
-					   : y2grpcols_[dps_.group(rid)-1])
-		    : ( !y1grpcols_.size() ? yad.axis_->setup().style_.color_
-					   : y1grpcols_[dps_.group(rid)-1]) );
-	}
 	if ( isy2 && dps_.isSelected(rid) )
 	    return;
-	dps_.setSelected( rid, false );
+	dps_.setSelected( rid, -1 );
     }
     
 }

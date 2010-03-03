@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.31 2009-10-15 10:05:55 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.32 2010-03-03 10:11:57 cvssatyaki Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -23,6 +23,19 @@ const int DataPointSet::groupcol_ = 3;
     	  is2d_(is2d) \
     	, nrfixedcols_(is2d?(mini?2:5):(mini?1:4)) \
 	, minimal_(mini)
+
+
+int getCompacted( int selgrp, int grp )
+{
+    return (selgrp<<16) + (grp & 0xFFFF);
+}
+
+
+void getUnCompacted( int compactedgrp, int& selgrp, int& grp )
+{
+    selgrp = ( compactedgrp >> 16 );
+    grp = ( compactedgrp & 0xFFFF );
+}
 
 
 DataPointSet::Pos::Pos( const Coord& c, float _z )
@@ -450,8 +463,17 @@ unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
 {
     if ( minimal_ ) return 0;
     mChkRowID(rid,0);
-    const float v = bivSet().getVal( bvsidxs_[rid], groupcol_ );
-    return (unsigned short)((v < -0.5 ? -v : v)+.5);
+    int selgrp, grp;
+    getUnCompacted( bivSet().getVal(bvsidxs_[rid],groupcol_), selgrp, grp );
+    return (unsigned short)((grp < -0.5 ? -grp : grp)+.5);
+}
+
+
+int DataPointSet::selGroup( DataPointSet::RowID rid ) const
+{
+    int grp,selgrp;
+    getUnCompacted( bivSet().getVal(bvsidxs_[rid],groupcol_), selgrp, grp );
+    return selgrp;
 }
 
 
@@ -459,7 +481,7 @@ bool DataPointSet::isSelected( DataPointSet::RowID rid ) const
 {
     if ( minimal_ ) return true;
     mChkRowID(rid,0);
-    return bivSet().getVal( bvsidxs_[rid], groupcol_ ) > 0.5;
+    return selGroup(rid) > 0;
 }
 
 
@@ -467,18 +489,17 @@ void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
 {
     if ( minimal_ ) return;
     mChkRowID(rid,);
-    short grp = isSelected(rid) ? newgrp : -newgrp;
+    int grp = getCompacted( -1, newgrp ) ;
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = grp;
 }
 
 
-void DataPointSet::setSelected( DataPointSet::RowID rid, bool sel )
+void DataPointSet::setSelected( DataPointSet::RowID rid, int selgrp )
 {
     if ( minimal_ ) return;
     mChkRowID(rid,);
     short grp = (short)group( rid );
-    if ( (!sel && grp > 0) || (sel && grp < 0) ) grp = -grp;
-    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = grp;
+    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = getCompacted( selgrp, grp);
 }
 
 

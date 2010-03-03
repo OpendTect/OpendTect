@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.9 2010-02-22 22:42:40 cvskris Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.10 2010-03-03 10:11:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -37,8 +37,9 @@ public:
     void			setPointSize(int);
     int				getPointSize() const;
 
-    Color			getColor() const;
-    void			setColor(Color);
+    Color			getColor(int) const;
+    void			setColors(const TypeSet<Color>&);
+    void			setNrPointSets(int);
     bool			hasColor() const 	{ return true; }
 
     void			update();
@@ -55,8 +56,8 @@ public:
     bool			allowMaterialEdit() const	{ return true; }
 protected:
 
-    Color			color_;
-    visBase::PointSet*		pointset_;
+    TypeSet<Color>			colors_;
+    ObjectSet<visBase::PointSet> 	pointsets_;
     DataPointSet*		data_;
 };
 

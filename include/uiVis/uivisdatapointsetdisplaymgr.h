@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          Apr 2009
- RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.7 2009-11-30 12:17:10 cvssatyaki Exp $
+ RCS:           $Id: uivisdatapointsetdisplaymgr.h,v 1.8 2010-03-03 10:11:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     		{ return displayinfos_.size()>0; }
     DispID	getDisplayID( const DataPointSet&) const;			
 
-    void	setDisplayCol(DispID dispid,const Color&);
+    void	setDisplayCol(DispID dispid,const TypeSet<Color>&);
     int		addDisplay(const TypeSet<int>& parents, const DataPointSet&);
     void	updateDisplay(DispID id, const TypeSet<int>& parents,
 	    		      const DataPointSet&);

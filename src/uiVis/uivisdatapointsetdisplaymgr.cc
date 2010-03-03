@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.10 2010-02-10 02:33:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.11 2010-03-03 10:11:57 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -139,7 +139,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	    return;
 
 	emps->copyFrom( *data, true );
-	emps->setPreferredColor( display->getColor() );
+	emps->setPreferredColor( display->getColor(0) );
 	treeToBeAdded.trigger( emps->id() );
     }
     else if ( mnuid == storepsmnuitem_.id )
@@ -238,7 +238,7 @@ int uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 
 
 void uiVisDataPointSetDisplayMgr::setDisplayCol( DispID dispid,
-						 const Color& col )
+						 const TypeSet<Color>& cols )
 {
     const int dispidx = ids_.indexOf( dispid );
     DisplayInfo& displayinfo = *displayinfos_[dispidx];
@@ -247,7 +247,7 @@ void uiVisDataPointSetDisplayMgr::setDisplayCol( DispID dispid,
 	const int visid = displayinfo.visids_[idx];
 	visSurvey::PointSetDisplay* display = getPSD( visserv_, visid );
 	if ( display )
-	    display->setColor( col );
+	    display->setColors( cols );
     }
 }
 
@@ -282,9 +282,11 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	if ( !scene )
 	    continue;
 
+	TypeSet<Color> selcols;
+	selcols += Color::DgbColor();
 	visserv_.addObject( display, parents[idx], true );
 	display->setDataPack( dps.id() );
-	display->setColor( Color::DgbColor() );
+	display->setColors( selcols );
 
 	displayinfo->sceneids_ += allsceneids_[idx];
 	displayinfo->visids_ += display->id();

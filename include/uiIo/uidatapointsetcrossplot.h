@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.31 2010-02-16 06:14:56 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.32 2010-03-03 10:11:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,10 +112,22 @@ public:
 	bool			isInside(const uiPoint&) const;
 	bool			isValid() const;
 
+	int 			id_;
 	uiRect*			rect_;
 	ODPolygon<int>*		poly_;
 	uiWorldRect*		worldrect_;
 	ODPolygon<double>*	worldpoly_;
+    };
+
+    mStruct SelectionGrp
+    {
+				SelectionGrp(const char* nm, const Color& col)
+				    : name_(nm), col_(col) {}
+				~SelectionGrp();
+
+	BufferString		name_;
+	Color			col_;
+	TypeSet<int>		selareaids_;
     };
 
     AxisData			x_;
@@ -215,6 +227,15 @@ public:
     				{ return selareaset_; }
     void			setSelectionAreas(
 				    const ObjectSet<SelectionArea>&);
+    ObjectSet<SelectionGrp>&	selectionGrps()		{ return selgrpset_; }
+    void			setSelectionGrps(
+				    const ObjectSet<SelectionGrp>&);
+    TypeSet<Color>		selGrpCols() const;
+    void			setCurSelGrp(int grp)	{ curselgrp_ = grp; }
+    int				curSelGrp() const	{ return curselgrp_; }
+    int 			getSelAreaID(int idx) const;
+    int				getSelAreaIdx(int id) const;
+    int				getSelGrpIdx(int selareaid) const;
     void			setTRMsg( const char* msg )
 				{ trmsg_ = msg; }
     int				totalNrItems() const;
@@ -224,6 +245,7 @@ public:
     bool                        isMultiColMode() const	{ return multclron_; }
     void			setCellSize( int sz ) 	{ cellsize_ = sz; }
     int				cellSize() const	{ return cellsize_; }
+    bool 			isSelectionValid(uiDataPointSet::DRowID);
 
     void			setOverlayY1AttMapr(const ColTab::MapperSetup&);
     void			setOverlayY2AttMapr(const ColTab::MapperSetup&);
@@ -239,6 +261,9 @@ public:
     const ColTab::Mapper&	y4Mapper() const	{ return y4mapper_; }
     const ColTab::Sequence&	y3CtSeq() const		{ return y3ctab_; }
     const ColTab::Sequence&	y4CtSeq() const		{ return y4ctab_; }
+
+    float			getVal(int colid,int rid) const;
+    const uiDataPointSet&	uiPointSet() const	{ return uidps_; }
 
 protected:
 
@@ -273,7 +298,6 @@ protected:
     bool			showy3_;
     bool			showy4_;
     bool			doy2_;
-    bool			dobd_;
     bool			selectable_;
     bool			mousepressed_;
     bool			rectangleselection_;
@@ -284,6 +308,7 @@ protected:
     int				selyitems_;
     int				sely2items_;
     int				curselarea_;
+    int				curselgrp_;
     int				cellsize_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
@@ -297,15 +322,14 @@ protected:
     bool			selrowisy2_;
 
     ObjectSet<SelectionArea>	selareaset_;
+    ObjectSet<SelectionGrp>	selgrpset_;
     bool                        isy1selectable_;
     bool                        isy2selectable_;
     bool                        multclron_;
  
     void 			initDraw();
     void 			setDraw();
-    virtual void		mkNewFill();
     void 			calcStats();
-    bool 			isSelectionValid(uiDataPointSet::DRowID);
     void			setWorldSelArea(int);
     void			reDrawSelArea();
     bool			drawRID(uiDataPointSet::DRowID,
