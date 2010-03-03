@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.2 2010-03-03 10:11:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.3 2010-03-03 13:19:02 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -127,6 +127,7 @@ void uiCreateDPSPDF::setColRange( CallBacker* cb )
     varselfld->setAttrRange( attrrange );
 }
 
+
 void uiCreateDPSPDF::butPush( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
@@ -141,6 +142,7 @@ void uiCreateDPSPDF::butPush( CallBacker* cb )
     nrdisp_ += isadd ? 1 : -1;
     handleDisp( 0 );
 }
+
 
 void uiCreateDPSPDF::handleDisp( CallBacker* )
 {
@@ -164,11 +166,12 @@ void uiCreateDPSPDF::fillPDF( SampledProbDenFuncND& pdf )
 	pdf.sds_[dimnr].start = dimrg.start;
 	pdf.sds_[dimnr].step = dimrg.step;
 	
-	DPSDensityCalcND::AxisParam axparam;
-	axparam.colid_ = probflds_[dimnr]->selColID();
-	axparam.valrange_ = dimrg;
-	axparam.nrbins_ = probflds_[dimnr]->selNrBins();
-	axisparams += &axparam;
+	DPSDensityCalcND::AxisParam* axparam =
+	    new DPSDensityCalcND::AxisParam();
+	axparam->colid_ = probflds_[dimnr]->selColID();
+	axparam->valrange_ = dimrg;
+	axparam->nrbins_ = probflds_[dimnr]->selNrBins();
+	axisparams += axparam;
     }
 
     DPSDensityCalcND denscalc( plotter_.uiPointSet(), axisparams );

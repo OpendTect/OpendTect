@@ -21,18 +21,18 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
     , attrSelChanged( this )
 {
     uiLabeledComboBox* cbx =
-	new uiLabeledComboBox( this, colinfos_.colnms_, "Select Attribute" );
+	new uiLabeledComboBox( this, colinfos_.colnms_, "Attribute" );
     attrsel_ = cbx->box();
     attrsel_->selectionChanged.notify(
 	    mCB(this,uiPrDenFunVarSel,attrChanged) );
 
-    rangesel_ = new uiGenInput( this, "Select Range",
-	    FloatInpIntervalSpec(true).setName("Step",2) );
+    rangesel_ = new uiGenInput( this, "Range", FloatInpIntervalSpec() );
     rangesel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,rangeChanged) );
     rangesel_->attach( rightTo, cbx );
     
     nrbinsel_ = new uiGenInput( this, "Nr of Bins", IntInpSpec() );
-    nrbinsel_->setValue( 100 );
+    nrbinsel_->setElemSzPol( uiObject::Small );
+    nrbinsel_->setValue( 25 );
     nrbinsel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,nrBinChanged) );
     nrbinsel_->attach( rightTo, rangesel_ );
 
@@ -63,7 +63,13 @@ int uiPrDenFunVarSel::selColID() const
 
 
 StepInterval<float> uiPrDenFunVarSel::selColRange() const
-{ return rangesel_->getFInterval(); }
+{
+    StepInterval<float> range = rangesel_->getFInterval();
+    const float step = fabs( range.stop - range.start ) /
+		       nrbinsel_->getIntValue();
+    range.step = step;
+    return range;
+}
 
 
 BufferString uiPrDenFunVarSel::selColName() const

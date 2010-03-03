@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Mar 2010
- RCS:           $Id: dpsdensitycalc.cc,v 1.1 2010-03-03 10:05:56 cvssatyaki Exp $
+ RCS:           $Id: dpsdensitycalc.cc,v 1.2 2010-03-03 13:19:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,20 +36,11 @@ od_int64 DPSDensityCalcND::nrIterations() const
 { return uidps_.pointSet().size(); }
 
 
-/*void DPSDensityCalcND::setNrBins( const TypeSet<int>& nrbins )
-{
-    mDynamicCastGet(ArrayNDImpl<float>*,arrimpl,freqdata_)
-    arrimpl->setSize( nrbins.arr() );
-    for ( int idx=0; idx<nrdims_; idx++ )
-	axisdatas_[idx].nrbins_ = nrbins[idx];
-    freqdata_->setAll( (float)0 );
-}*/
-
-
 bool DPSDensityCalcND::setFreqValue( const int* indexs )
 {
     if ( !freqdata_->info().validPos(indexs) )
 	return false;
+
     freqdata_->setND( indexs, freqdata_->getND(indexs) + (float)1 );
 
     return true;
@@ -63,7 +54,7 @@ bool DPSDensityCalcND::getPositions( TypeSet<int>& indexs, int rid )
 	AxisParam* axis = axisdatas_[idx];
 	const float val = uidps_.getValue( axis->colid_, rid, true );
 	if ( mIsUdf(val) || !axis->valrange_.includes(val) ) return false;
-	indexs += axis->valrange_.getIndex( val ) + 1;
+	indexs += axis->valrange_.getIndex( val );
     }
 
     return true;

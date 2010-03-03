@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.61 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.62 2010-03-03 13:19:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.61 2010-03-03 10:11:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.62 2010-03-03 13:19:02 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -1115,7 +1115,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    continue;
 		if ( removesel )
 		{
-		    if ( itmselected )
+		    if ( item )
 			item->setVisible( false );
 		    BinIDValueSet::Pos pos = dps_.bvsPos(rid);
 		    float* vals = dps_.bivSet().getVals( pos );
@@ -1140,7 +1140,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    continue;
 		if ( removesel )
 		{
-		    if ( itmselected )
+		    if ( item )
 			item->setVisible( false );
 		    BinIDValueSet::Pos pos = dps_.bvsPos(rid);
 		    float* vals = dps_.bivSet().getVals( pos );
