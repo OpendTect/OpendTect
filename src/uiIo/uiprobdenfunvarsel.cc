@@ -36,6 +36,8 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
     nrbinsel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,nrBinChanged) );
     nrbinsel_->attach( rightTo, rangesel_ );
 
+    setHAlignObj( attrsel_ );
+
     attrChanged( 0 );
     nrBinChanged( 0 );
 }
