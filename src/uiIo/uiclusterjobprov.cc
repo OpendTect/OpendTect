@@ -7,16 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.7 2009-08-31 14:59:39 cvshelene Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.8 2010-03-03 06:02:37 cvsraman Exp $";
 
 #include "uiclusterjobprov.h"
 
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
 
 #include "dirlist.h"
 #include "envvars.h"
+#include "executor.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "hostdata.h"
@@ -54,6 +56,99 @@ static BufferString getDefTempStorDir()
 
     return fp.fullPath();
 }
+
+
+class ClusterJobCreator : public Executor
+{
+public:
+ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
+       		   const char* prognm )
+    : Executor("Job generator")
+    , jobprov_(jobprov),dirnm_(dir),prognm_(prognm)
+    , curidx_(0)
+{
+    FilePath fp( dirnm_.buf() ); fp.add( "X" );
+    DirList dl( dirnm_.buf(), DirList::FilesOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	fp.setFileName( dl.get(idx) );
+	File_remove( fp.fullPath(), 0 );
+    }
+}
+
+od_int64 nrDone() const
+{ return curidx_; }
+
+const char* nrDoneText() const
+{ return "Nr jobs created"; }
+
+od_int64 totalNr() const
+{ return jobprov_.nrJobs(); }
+
+
+
+#define mSetEnvVar(s) \
+    *sd.ostrm << "setenv " << s << " " << GetEnvVar(s) << std::endl;
+static bool writeScriptFile( const char* scrfnm, const char* parfnm,
+			     const char* logfnm, const char* prognm )
+{
+    StreamData sd = StreamProvider(scrfnm).makeOStream();
+    if ( !sd.usable() )
+	return false;
+
+    *sd.ostrm << "#!/bin/csh -f " << std::endl;
+    mSetEnvVar("DTECT_APPL")
+    mSetEnvVar("DTECT_DATA")
+    mSetEnvVar("LD_LIBRARY_PATH")
+    *sd.ostrm << GetExecScript(false) << " " << prognm << "\\" << std::endl;
+    *sd.ostrm << parfnm << std::endl;
+    *sd.ostrm << "echo \"exited with code ${status}\" >>\\" << std::endl;
+    *sd.ostrm << logfnm << std::endl;
+    *sd.ostrm << "rm -f " << parfnm << std::endl;
+    *sd.ostrm << "rm -f $0" << std::endl;
+    *sd.ostrm << "echo \"removed script with ${status}\" >>\\" << std::endl;
+    *sd.ostrm << logfnm << std::endl;
+    sd.close();
+    File_setPermissions( scrfnm, "711", 0 );
+    return true;
+}
+
+
+int nextStep()
+{
+    if ( curidx_ >= totalNr() )
+	return Finished();
+
+    IOPar iop;
+    jobprov_.getJob( curidx_++, iop );
+    BufferString filenm( "Job" );
+    filenm += curidx_;
+    FilePath fp( dirnm_.buf() );
+    fp.add( filenm );
+    fp.setExtension( "par" );
+    BufferString parfnm = fp.fullPath();
+    fp.setExtension( "log" );
+    BufferString logfnm = fp.fullPath();
+    iop.set( sKey::LogFile, logfnm );
+    if ( !iop.write(parfnm.buf(),sKey::Pars) )
+	return ErrorOccurred();
+
+    fp.setExtension( "scr" );
+    BufferString scrfnm = fp.fullPath();
+    if ( !writeScriptFile(scrfnm.buf(),parfnm.buf(),logfnm.buf(),prognm_.buf()))
+	return ErrorOccurred();
+
+    return MoreToDo();
+}
+
+protected:
+	
+	const InlineSplitJobDescProv&	jobprov_;
+	BufferString			dirnm_;
+	BufferString			prognm_;
+	int				curidx_;	
+
+};
 
 
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
@@ -168,64 +263,12 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 
 bool uiClusterJobProv::createJobScripts( const char* scriptdir )
 {
-    FilePath fp( scriptdir ); fp.add( "X" );
-    DirList dl( scriptdir, DirList::FilesOnly );
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	fp.setFileName( dl.get(idx) );
-	File_remove( fp.fullPath(), 0 );
-    }
+    if ( !jobprov_ || !jobprov_->nrJobs() )
+	mErrRet("No jobs to generate")
 
-    const int nrjobs = jobprov_->nrJobs();
-    for ( int idx=0; idx<nrjobs; idx++ )
-    {
-	IOPar iop;
-	jobprov_->getJob( idx, iop );
-	BufferString filenm( "Job" );
-	filenm += idx;
-	fp.setFileName( filenm );
-	fp.setExtension( "par" );
-	BufferString parfnm = fp.fullPath();
-	fp.setExtension( "log" );
-	BufferString logfnm = fp.fullPath();
-	iop.set( sKey::LogFile, logfnm );
-	if ( !iop.write(parfnm.buf(),sKey::Pars) )
-	    mErrRet("Cannot write parameter file for job")
-
-	fp.setExtension( "scr" );
-	BufferString scrfnm = fp.fullPath();
-	if ( !writeScriptFile(scrfnm.buf(),parfnm.buf(),logfnm.buf()) )
-	    mErrRet("Failed to generate script for job")
-    }
-
-    return true;
-}
-
-
-#define mSetEnvVar(s) \
-    *sd.ostrm << "setenv " << s << " " << GetEnvVar(s) << std::endl;
-bool uiClusterJobProv::writeScriptFile( const char* scrfnm, const char* parfnm,
-					const char* logfnm ) const
-{
-    StreamData sd = StreamProvider(scrfnm).makeOStream();
-    if ( !sd.usable() )
-	return false;
-
-    *sd.ostrm << "#!/bin/csh -f " << std::endl;
-    mSetEnvVar("DTECT_APPL")
-    mSetEnvVar("DTECT_DATA")
-    mSetEnvVar("LD_LIBRARY_PATH")
-    *sd.ostrm << GetExecScript(false) << " " << prognm_ << "\\" << std::endl;
-    *sd.ostrm << parfnm << std::endl;
-    *sd.ostrm << "echo \"exited with code ${status}\" >>\\" << std::endl;
-    *sd.ostrm << logfnm << std::endl;
-    *sd.ostrm << "rm -f " << parfnm << std::endl;
-    *sd.ostrm << "rm -f $0" << std::endl;
-    *sd.ostrm << "echo \"removed script with ${status}\" >>\\" << std::endl;
-    *sd.ostrm << logfnm << std::endl;
-    sd.close();
-    File_setPermissions( scrfnm, "711", 0 );
-    return true;
+    ClusterJobCreator exec( *jobprov_, scriptdir, prognm_ );
+    uiTaskRunner dlg( this );
+    return dlg.execute( exec );
 }
 
 
@@ -288,7 +331,10 @@ bool uiClusterJobProv::createMasterScript( const char* parfnm,
     *sd.ostrm << "end" << std::endl;
     sd.close();
     File_setPermissions( masterscript.buf(), "744", 0 );
-    uiMSG().message( "The script file ", masterscript.buf(),
-	    	     " has been created successfully" );
+    BufferString msg( "The script file " );
+    msg += masterscript;
+    msg += " has been created successfully. Execute now?";
+    if ( uiMSG().askGoOn(msg.buf()) )
+	return !system(masterscript.buf());
     return true;
 }
