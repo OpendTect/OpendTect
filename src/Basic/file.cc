@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.2 2010-02-17 12:38:11 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.3 2010-03-03 04:05:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,8 +88,21 @@ bool copyFile( const char* from, const char* to )
 
 bool copyDir( const char* from, const char* to )
 {
-    // TODO
-    return false;
+    if ( !from || !exists(from) || !to || !*to || exists(to) )
+	return false;
+
+    BufferString cmd;
+#ifdef __win__
+    cmd = "xcopy /E /I /Q /H ";
+    cmd.add(" \"").add(from).add("\" \"").add(to).add("\"");
+#else
+    cmd = "/bin/cp -r ";
+    cmd.add(" '").add(from).add("' '").add(to).add("'");
+#endif
+
+    bool res = system( cmd ) != -1;
+    if ( res ) res = exists( to );
+    return res;
 }
 
 
@@ -99,15 +112,45 @@ bool removeFile( const char* fnm )
 
 bool removeDir( const char* dirnm )
 {
-    // TODO remove directories
-    return false;
+    if ( !exists(dirnm) )
+	return true;
+
+    BufferString cmd;
+#ifdef __win__
+    cmd = "rd /Q /S";
+    cmd.add(" \"").add(dirnm).add("\"");
+#else
+    cmd = "/bin/rm -rf";
+    if ( isLink(dirnm) )
+    {
+	// TODO
+    }
+
+    cmd.add(" '").add(dirnm).add("'");
+#endif
+
+    bool res = system( cmd ) != -1;
+    if ( res ) res = !exists(dirnm);
+    return res;
 }
 
 
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
-    // TODO
-    return false;
+    BufferString cmd;
+#ifdef __win__
+    cmd = "attrib"; cmd += yn ? " -R " : " +R ";
+    cmd.add("\"").add(fname).add("\"");
+    if ( recursive && isDirectory(fnm) )
+	cmd += "\\*.* /S ";
+#else
+    cmd = "chmod";
+    if ( recursive && isDirectory(fnm) )
+	cmd += " -R ";
+    cmd.add(yn ? "ug+w '" : "a-w '").add(fnm).add("'");
+#endif
+
+    return system( cmd ) != -1;
 }
 
 
