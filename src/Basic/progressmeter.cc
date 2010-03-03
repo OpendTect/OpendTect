@@ -33,7 +33,7 @@ TextStreamProgressMeter::~TextStreamProgressMeter()
 void TextStreamProgressMeter::setTask( const Task& task )
 {
     strm_ <<  "Process: '" << task.name() << "'\n";
-    strm_ << "Started: " << Time_getFullDateString() << "\n\n";
+    strm_ << "Started: " << Time::getDateTimeString() << "\n\n";
     strm_ << '\t' << task.message() << '\n';
     reset();
 }
@@ -50,7 +50,7 @@ void TextStreamProgressMeter::setFinished()
     annotate(false);
     finished_ = true;
 
-    strm_ << "\nFinished: "  << Time_getFullDateString() << std::endl;
+    strm_ << "\nFinished: "  << Time::getDateTimeString() << std::endl;
     lock.unLock();
     reset();
 }
@@ -60,7 +60,7 @@ void TextStreamProgressMeter::reset()
 {
     Threads::MutexLocker lock( lock_ );
     nrdone_ = 0;
-    oldtime_ = Time_getMilliSeconds();
+    oldtime_ = Time::getMilliSeconds();
     inited_ = false;
     finished_ = false;
     nrdoneperchar_ = 1; distcharidx_ = 0;
@@ -74,9 +74,9 @@ void TextStreamProgressMeter::setStarted()
     if ( !inited_ )
     {
 	if ( !name_.isEmpty() ) strm_ <<  "Process: '" << name_.buf() << "'\n";
-	strm_ << "Started: " << Time_getFullDateString() << "\n\n";
+	strm_ << "Started: " << Time::getDateTimeString() << "\n\n";
 	if ( !message_.isEmpty() ) strm_ << '\t' << message_.buf() << '\n';
-        oldtime_ = Time_getMilliSeconds();
+        oldtime_ = Time::getMilliSeconds();
 	strm_.flush();
 	inited_ = true;
     }
@@ -150,7 +150,7 @@ void TextStreamProgressMeter::annotate( bool withrate )
     strm_ << ' ' << nrdone_;
 
     // Show rate
-    int newtime = Time_getMilliSeconds();
+    int newtime = Time::getMilliSeconds();
     int tdiff = newtime - oldtime_;
     if ( withrate && tdiff > 0 )
     {

@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.30 2009-07-22 16:01:30 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.31 2010-03-03 04:05:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.30 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.31 2010-03-03 04:05:14 cvsnanne Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -152,7 +152,7 @@ void putProgInfo( int argc, char** argv )
 	msg = fp.fileName();
     }
     msg += " started on "; msg += GetLocalHostName();
-    msg += " at "; msg += Time_getFullDateString();
+    msg += " at "; msg += Time::getDateTimeString();
     if ( !ison ) msg += "\n";
     message( msg );
     if ( !ison ) return;

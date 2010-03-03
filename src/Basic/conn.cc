@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.34 2009-08-11 08:58:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.35 2010-03-03 04:05:14 cvsnanne Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -72,7 +72,7 @@ mBasicGlobal std::ostream& logMsgStrm()
     const char* odusr = GetSoftwareUser();
     if ( odusr && *odusr )
 	{ fnm += "_"; fnm += odusr; }
-    BufferString datestr = Time_getFullDateString();
+    BufferString datestr = Time::getDateTimeString();
     replaceCharacter( datestr.buf(), ' ', '-' );
     replaceCharacter( datestr.buf(), ':', '.' );
     fnm += "_"; fnm += datestr.buf();

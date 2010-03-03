@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.12 2009-09-29 10:34:03 cvsbert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.13 2010-03-03 04:05:14 cvsnanne Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -502,7 +502,7 @@ void DateInfo::getUsrDisp( BufferString& disp, bool withcurtime ) const
 
     if ( withcurtime )
     {
-	const int cursecs = Time_getMilliSeconds() / 1000;
+	const int cursecs = Time::getMilliSeconds() / 1000;
 	const int hrs = cursecs / 3600;
 	const int mins = (cursecs - hrs * 3600) / 60;
 	const int secs = cursecs - hrs * 3600 - mins * 60;
