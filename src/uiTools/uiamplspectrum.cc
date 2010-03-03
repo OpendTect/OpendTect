@@ -7,12 +7,14 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.16 2009-11-27 11:56:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.17 2010-03-03 14:46:24 cvsbruno Exp $";
 
 #include "uiamplspectrum.h"
 
 #include "uiaxishandler.h"
 #include "uifunctiondisplay.h"
+#include "uigeninput.h"
+#include "uispinbox.h"
 
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
@@ -37,6 +39,18 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     disp_->xAxis()->setName( SI().zIsTime() ? "Frequency (Hz)" 
 	    				    : "Wavenumber (/m)" );
     disp_->yAxis(false)->setName( "Power (dB)" );
+
+    uiGroup* dispgrp = new uiGroup( this, "display Params Group" );
+    dispgrp->attach( centeredBelow, disp_ );
+    rangefld_ = new uiGenInput( dispgrp, "Display between frequencies",
+			FloatInpIntervalSpec()
+			.setName(BufferString("range start"),0)
+			.setName(BufferString("range stop"),1) );
+    rangefld_->valuechanged.notify( mCB(this,uiAmplSpectrum,dispRangeChgd ) );
+    stepfld_ = new uiLabeledSpinBox( dispgrp, "Gridline step");
+    stepfld_->attach( rightOf, rangefld_ );
+    stepfld_->box()->setInterval( 1, 50, 5 );
+    stepfld_->box()->valueChanging.notify(mCB(this,uiAmplSpectrum,dispRangeChgd));
 }
 
 
@@ -166,6 +180,8 @@ void uiAmplSpectrum::putDispData()
     if ( SI().zIsTime() )
 	maxfreq = mNINT( maxfreq );
     posrange_.set( 0, maxfreq );
+    rangefld_->setValue( posrange_ );
+    stepfld_->box()->setValue( (int)maxfreq/5 );
     disp_->setVals( posrange_, dbspecvals.arr(), fftsz );
     disp_->draw();
 }
@@ -178,5 +194,20 @@ void uiAmplSpectrum::getSpectrumData( Array1DImpl<float>& data )
     data.setSize( datasz );
     for ( int idx=0; idx<datasz; idx++ )
 	data.set( idx, specvals_->get(idx) );
+}
+
+
+void uiAmplSpectrum::dispRangeChgd( CallBacker* )
+{
+    StepInterval<float> rg = rangefld_->getFInterval();
+    if ( posrange_.start > rg.start || posrange_.stop < rg.stop 
+	    || rg.stop <=0 || rg.start >= rg.stop )
+    { 
+	rg.start = posrange_.start; rg.stop = posrange_.stop; 
+	rangefld_->setValue( posrange_ ); 
+    }
+    rg.step = stepfld_->box()->getValue();
+    disp_->xAxis()->setRange( rg ); 
+    disp_->draw();
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.7 2009-11-23 15:59:22 cvsbruno Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.8 2010-03-03 14:46:24 cvsbruno Exp $
 ______________________________________________________________________
                        
 */   
@@ -19,6 +19,8 @@ ______________________________________________________________________
 typedef std::complex<float> float_complex;
 
 class uiFunctionDisplay;
+class uiGenInput;
+class uiLabeledSpinBox;
 class FFT;
 template <class T> class Array2D;
 template <class T> class Array3D;
@@ -41,6 +43,8 @@ public:
 protected:
 
     uiFunctionDisplay*		disp_;
+    uiGenInput*			rangefld_;
+    uiLabeledSpinBox*		stepfld_;
 
     void			initFFT(int nrsamples);
     bool			compute(const Array3D<float>&);
@@ -55,6 +59,8 @@ protected:
 
     FFT*			fft_;
     int				nrtrcs_;
+
+    void			dispRangeChgd(CallBacker*);
 };
 
 
