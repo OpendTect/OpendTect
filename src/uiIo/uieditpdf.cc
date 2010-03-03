@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.7 2010-03-02 16:13:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.8 2010-03-03 16:07:04 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -97,39 +97,40 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 	{
 	    for ( int icol=0; icol<nrcols; icol++ )
 	    {
-		const float val = andpdf->sampling(1).atIndex(icol);
+		const float val = andpdf->sampling(0).atIndex(icol);
 		tbl->setColumnLabel( icol, toString(val) );
 	    }
 	}
 
 	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    const float rowval = andpdf->sampling(0).atIndex(nrrows - irow - 1);
+	    const float rowval = andpdf->sampling(1).atIndex(nrrows - irow - 1);
 	    tbl->setRowLabel( irow, toString(rowval) );
 	}
 	tbls_ += tbl;
-	tabstack_->addTab( grp, tabnm );
-    }
 
-    uiToolButton* vwbut = 0;
-    if ( nrdims > 1 )
-    {
-	vwbut = new uiToolButton( this, "View",
-				ioPixmap("viewprdf.png"),
-				mCB(this,uiEditProbDenFunc,viewPDF) );
-	vwbut->setToolTip( "View function" );
-	vwbut->attach( centeredRightOf, tabstack_ );
-    }
-    if ( editable_ )
-    {
-	uiToolButton* smbut = new uiToolButton( this, "Smooth",
-				ioPixmap("smoothcurve.png"),
-				mCB(this,uiEditProbDenFunc,smoothReq) );
-	smbut->setToolTip( "Smooth values" );
-	if ( vwbut )
-	    smbut->attach( alignedBelow, vwbut );
-	else
-	    smbut->attach( centeredRightOf, tabstack_ );
+	uiToolButton* vwbut = 0;
+	if ( nrdims > 1 )
+	{
+	    vwbut = new uiToolButton( grp, "View",
+				    ioPixmap("viewprdf.png"),
+				    mCB(this,uiEditProbDenFunc,viewPDF) );
+	    vwbut->setToolTip( "View function" );
+	    vwbut->attach( centeredRightOf, tbl );
+	}
+	if ( editable_ )
+	{
+	    uiToolButton* smbut = new uiToolButton( grp, "Smooth",
+				    ioPixmap("smoothcurve.png"),
+				    mCB(this,uiEditProbDenFunc,smoothReq) );
+	    smbut->setToolTip( "Smooth values" );
+	    if ( vwbut )
+		smbut->attach( alignedBelow, vwbut );
+	    else
+		smbut->attach( centeredRightOf, tbl );
+	}
+
+	tabstack_->addTab( grp, tabnm );
     }
 
     putToScreen( andpdf->getData() );
@@ -152,10 +153,10 @@ void uiEditProbDenFunc::putToScreen( const ArrayND<float>& data )
 	if ( nrdims > 2 ) idxs[2] = itab;
 	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    idxs[0] = nrrows - irow - 1;
+	    idxs[1] = nrrows - irow - 1;
 	    for ( int icol=0; icol<nrcols; icol++ )
 	    {
-		idxs[1] = icol;
+		idxs[0] = icol;
 		const float arrval = data.getND( idxs.arr() );
 		tbl.setValue( RowCol(irow,icol), arrval );
 	    }
@@ -175,7 +176,7 @@ bool uiEditProbDenFunc::getFromScreen( ArrayND<float>& data, bool* chgd )
 	if ( nrdims > 2 ) idxs[2] = itab;
 	for ( int irow=0; irow<nrrows; irow++ )
 	{
-	    idxs[0] = nrrows - irow - 1;
+	    idxs[1] = nrrows - irow - 1;
 	    for ( int icol=0; icol<nrcols; icol++ )
 	    {
 		BufferString bstbltxt = tbl.text( RowCol(irow,icol) );
@@ -187,7 +188,7 @@ bool uiEditProbDenFunc::getFromScreen( ArrayND<float>& data, bool* chgd )
 		    return false;
 		}
 
-		idxs[1] = icol;
+		idxs[0] = icol;
 		const float tblval = atof( tbltxt );
 		const float arrval = data.getND( idxs.arr() );
 		if ( !mIsEqual(tblval,arrval,mDefEps) )
@@ -235,7 +236,7 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
     if ( idxs[2] < 0 ) idxs[2] = 0;
     for ( idxs[0]=0; idxs[0]<nrcols; idxs[0]++ )
 	for ( idxs[1]=0; idxs[1]<nrrows; idxs[1]++ )
-	    arr2d->set( idxs[1], idxs[0], arrnd->getND(idxs) );
+	    arr2d->set( idxs[0], idxs[1], arrnd->getND(idxs) );
     delete arrnd;
 
     if ( !flatvwwin_ )
