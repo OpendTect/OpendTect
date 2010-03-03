@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.3 2010-03-03 04:05:44 cvsnanne Exp $
+ RCS:		$Id: file.cc,v 1.4 2010-03-03 05:54:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,8 @@ bool createLink( const char* fnm, const char* linknm )
 { 
 #ifdef __win__
     BufferString lnknm( linknm );
-    lnknm += ".lnk";
+    if ( !strstr(linknm,".lnk")  )
+	lnknm += ".lnk";
     return QFile::link( fnm, lnknm.buf() );
 #else
     return QFile::link( fnm, linknm );
@@ -140,7 +141,7 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
     BufferString cmd;
 #ifdef __win__
     cmd = "attrib"; cmd += yn ? " -R " : " +R ";
-    cmd.add("\"").add(fname).add("\"");
+    cmd.add("\"").add(fnm).add("\"");
     if ( recursive && isDirectory(fnm) )
 	cmd += "\\*.* /S ";
 #else
