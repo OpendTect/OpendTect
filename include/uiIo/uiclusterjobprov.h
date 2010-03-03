@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman K Singh
  Date:          May 2009
- RCS:           $Id: uiclusterjobprov.h,v 1.2 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiclusterjobprov.h,v 1.3 2010-03-03 06:02:15 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,6 @@ protected:
     bool		createJobScripts(const char*);
     const char*		getOutPutIDKey() const;
     MultiID		getTmpID(const char*) const;
-    bool		writeScriptFile(const char* scrfnm,const char* parfnm,
-					const char* logfnm) const;
     bool		createMasterScript(const char*,const char*) const;
 };
 
