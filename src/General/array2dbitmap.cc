@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.37 2010-01-12 11:05:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.38 2010-03-03 16:06:32 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -236,8 +236,9 @@ static inline int gtPrettyBMVal( char c )
 {
     static const float rgmax = 1000;
     float v = (c - VDA2DBitMapGenPars::cMinFill()) * (rgmax + 1)
-	    / (VDA2DBitMapGenPars::cMaxFill()-VDA2DBitMapGenPars::cMinFill()) - .5;
-    int ret = mNINT(v);
+	    / (VDA2DBitMapGenPars::cMaxFill()-VDA2DBitMapGenPars::cMinFill())
+	    	- .5;
+    const int ret = mNINT(v);
     return ret < 0 ? 0 : (ret > rgmax+.5 ? (int)rgmax : ret);
 }
 
@@ -247,7 +248,8 @@ bool A2DBitMapGenerator::dump( std::ostream& strm ) const
     if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
 	return false;
 
-    if ( !GetEnvVarYN("OD_DUMP_A2DBITMAP_AS_NUMBERS" ) && dumpXPM(strm) )
+    static const bool make_xpm = !GetEnvVarYN("OD_DUMP_A2DBITMAP_AS_NUMBERS" );
+    if ( make_xpm && dumpXPM(strm) )
 	return true;
 
     for ( int iy=0; iy<nrypix; iy++ )
@@ -274,7 +276,7 @@ int WVAA2DBitMapGenerator::dim0SubSampling() const
 {
     const float nrpixperdim0 = setup_.availableXPix() / ((float)szdim0_);
     float fret = gtPars().minpixperdim0_ / nrpixperdim0;
-    int ret = mNINT( fret );
+    const int ret = mNINT( fret );
     return ret < 2 ? 1 : ret;
 }
 
