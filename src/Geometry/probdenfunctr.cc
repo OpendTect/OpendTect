@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: probdenfunctr.cc,v 1.8 2010-02-18 16:06:08 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunctr.cc,v 1.9 2010-03-03 02:34:09 cvsnanne Exp $";
 
 #include "probdenfunctr.h"
 
@@ -100,6 +100,8 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
 	pdf = new SampledProbDenFunc1D( Array1DImpl<float>(-1) );
     else if ( type == SampledProbDenFunc2D::typeStr() )
 	pdf = new SampledProbDenFunc2D( Array2DImpl<float>(-1,-1) );
+    else if ( type == SampledProbDenFuncND::typeStr() )
+	pdf = new SampledProbDenFuncND();
 
     pdf->usePar( par );
     binary_ = false;

@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.7 2010-02-15 12:43:36 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.8 2010-03-03 02:34:09 cvsnanne Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -342,6 +342,28 @@ bool SampledProbDenFunc2D::obtain( std::istream& strm, bool binary )
 
 
 // ND
+SampledProbDenFuncND::SampledProbDenFuncND( const ArrayND<float>& arr )
+    : bins_(arr)
+{
+    for ( int idx=0; idx<arr.info().getNDim(); idx++ )
+    {
+	sds_ += SamplingData<float>(0,1);
+	dimnms_.add( BufferString("Dim ",idx) );
+    }
+}
+
+
+SampledProbDenFuncND::SampledProbDenFuncND( const SampledProbDenFuncND& spf )
+    : bins_(spf.bins_)
+    , sds_(spf.sds_)
+    , dimnms_(spf.dimnms_)
+{
+}
+
+
+SampledProbDenFuncND::SampledProbDenFuncND()
+    : bins_(ArrayNDImpl<float>(ArrayNDInfoImpl(0)))
+{}
 
 
 SampledProbDenFuncND& SampledProbDenFuncND::operator =(
@@ -385,3 +407,49 @@ float SampledProbDenFuncND::value( const TypeSet<float>& vals ) const
 
     return bins_.getND( idxs.arr() );
 }
+
+
+void SampledProbDenFuncND::fillPar( IOPar& par ) const
+{
+    ProbDenFunc::fillPar( par );
+    ArrayNDProbDenFunc::fillPar( par );
+}
+
+
+bool SampledProbDenFuncND::usePar( const IOPar& par )
+{
+    int nrdims = nrDims();
+    if ( nrdims < 1 )
+    {
+	par.get( sKeyNrDim(), nrdims );
+	if ( nrdims < 1 )
+	    return false;
+
+	bins_.setInfo( ArrayNDInfoImpl(nrdims) );
+    }
+
+    TypeSet<int> sizes( nrdims, 0 );
+    for ( int idx=0; idx<nrdims; idx++ )
+    {
+	par.get( IOPar::compKey(sKey::Size,idx), sizes[idx] );
+
+	SamplingData<float> sd;
+	par.get( IOPar::compKey(sKey::Sampling,idx), sd );
+	sds_ += sd;
+
+	BufferString dimnm;
+	par.get( IOPar::compKey(sKey::Name,idx), dimnm );
+	dimnms_.add( dimnm );
+    }
+
+    bins_.setSize( sizes.arr() );
+    return bins_.info().getTotalSz() > 0;
+}
+
+
+void SampledProbDenFuncND::dump( std::ostream& strm, bool binary ) const
+{ ArrayNDProbDenFunc::dump( strm, binary ); }
+
+bool SampledProbDenFuncND::obtain( std::istream& strm, bool binary )
+{ return ArrayNDProbDenFunc::obtain( strm, binary ); }
+

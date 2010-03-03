@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.6 2010-03-01 15:09:10 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.7 2010-03-03 02:34:08 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -137,6 +137,7 @@ public:
 
     			SampledProbDenFuncND(const ArrayND<float>&);
     			SampledProbDenFuncND(const SampledProbDenFuncND&);
+			SampledProbDenFuncND();
     SampledProbDenFuncND& operator =(const SampledProbDenFuncND&);
 
     virtual int		nrDims() const	{ return bins_.info().getNDim(); }
@@ -149,6 +150,11 @@ public:
 
     static const char*	typeStr()			{ return "SampledND"; }
     virtual const char*	getTypeStr() const		{ return typeStr(); }
+
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+    virtual void	dump(std::ostream&,bool binary) const;
+    virtual bool	obtain(std::istream&,bool binary);
 
     TypeSet< SamplingData<float> >	sds_;
     ArrayNDImpl<float>			bins_;
