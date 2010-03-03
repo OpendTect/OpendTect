@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.30 2010-03-03 02:48:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.31 2010-03-03 09:52:13 cvsumesh Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -108,6 +108,8 @@ void AuxDataEditor::removeAuxData( int id )
 
     ids_.remove( idx );
     auxdata_.remove( idx );
+    if ( auxdata_.size() == 0 )
+	seldatasetidx_ = -1;
     allowadd_.remove( idx );
     allowmove_.remove( idx );
     allowremove_.remove( idx );
