@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: stats.cc,v 1.10 2010-02-08 15:33:22 cvsbert Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.11 2010-03-03 07:28:10 cvsranojay Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -89,7 +89,7 @@ void Stats::RandGen::init( int seed )
     {
 	if ( seed_ != 0 )
 	    return;
-	seed = (int)Time_getMilliSeconds();
+	seed = (int)Time::getMilliSeconds();
     }
     seed_ = seed;
 

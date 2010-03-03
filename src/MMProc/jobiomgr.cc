@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.34 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.35 2010-03-03 07:28:10 cvsranojay Exp $";
 
 #include "jobiomgr.h"
 
@@ -307,7 +307,7 @@ void JobIOHandler::doDispatch( CallBacker* )
 		if ( response != mRSP_STOP )
 		{
 		    statusqueue_.add( new StatusInfo( tag, jobid, status,
-			    procid, errmsg, hostnm, Time_getMilliSeconds()) );
+			    procid, errmsg, hostnm, Time::getMilliSeconds()) );
 		}
 
 	        // hardly ever needed and quite noisy.

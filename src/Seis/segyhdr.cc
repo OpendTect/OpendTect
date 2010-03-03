@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.81 2009-12-07 14:03:29 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.82 2010-03-03 07:28:10 cvsranojay Exp $";
 
 
 #include "segyhdr.h"
@@ -65,7 +65,7 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
     const char* res = Settings::common().find( "Company" );
     if ( !res ) res = "OpendTect";
     buf = "Created by: "; buf += res;
-    buf += "     ("; buf += Time_getFullDateString(); buf += ")";
+    buf += "     ("; buf += Time::getDateTimeString(); buf += ")";
     putAt( 1, 6, 75, buf );
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
     BinID bid = SI().sampling(false).hrg.start;

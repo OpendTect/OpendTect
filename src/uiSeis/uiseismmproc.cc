@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.133 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.134 2010-03-03 07:28:10 cvsranojay Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -741,7 +741,7 @@ void uiSeisMMProc::pauseJobs()
     bool pause = *txt == 'P';
     if ( *txt == 'G' )
     {
-	const int t = getSecs( Time_getFullDateString() );
+	const int t = getSecs( Time::getDateTimeString() );
 	const int t0 = getSecs( jrpstartfld->text() );
 	const int t1 = getSecs( jrpstopfld->text() );
 

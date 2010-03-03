@@ -4,8 +4,8 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.9 2010-02-24 10:44:33 cvsnanne Exp $";
-static const char* rcsPrStr = "$Revision: 1.9 $ $Date: 2010-02-24 10:44:33 $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.10 2010-03-03 07:28:10 cvsranojay Exp $";
+static const char* rcsPrStr = "$Revision: 1.10 $ $Date: 2010-03-03 07:28:10 $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -54,7 +54,7 @@ Usage::Server::Server( const IOPar* pars, std::ostream& strm )
     logstrm_ << "\non " << GetLocalHostName();
     if ( port_ > 0 )
 	logstrm_ << " (port: " << port_ << ")";
-    logstrm_ << "\nStarted: " << Time_getFullDateString() << '\n' << std::endl;
+    logstrm_ << "\nStarted: " << Time::getDateTimeString() << '\n' << std::endl;
 
     Administrator::setLogStream( &logstrm_ );
 }

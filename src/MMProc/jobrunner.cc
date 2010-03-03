@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobrunner.cc,v 1.40 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.41 2010-03-03 07:28:10 cvsranojay Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -39,7 +39,7 @@ static const char* rcsID = "$Id: jobrunner.cc,v 1.40 2009-07-22 16:01:32 cvsbert
     msg += "\n Status: "; msg += ji.statusmsg_; \
     msg += "\n Info: "; msg += ji.infomsg_; \
     msg += "\n Last received update: "; \
-    msg += Time_passedSince(ji.recvtime_)/1000; \
+    msg += Time::passedSince(ji.recvtime_)/1000; \
     msg += " seconds ago.";
 
 static BufferString tmpfnm_base;
@@ -129,12 +129,12 @@ bool JobRunner::addHost( const HostData& hd )
     if ( isnew )
     {
 	hfi = new HostNFailInfo( hd );
-	hfi->starttime_ = Time_getMilliSeconds();
+	hfi->starttime_ = Time::getMilliSeconds();
     }
     else if ( !hfi->inuse_ )
     {
 	hfi->nrfailures_ = 0;
-	hfi->starttime_ = Time_getMilliSeconds();
+	hfi->starttime_ = Time::getMilliSeconds();
     }
     else
 	return true; // host already in use
@@ -159,12 +159,12 @@ JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
     
     static int timestamp = -1;
 
-    int elapsed = Time_passedSince( timestamp );
-    if ( elapsed < 0 ) timestamp = Time_getMilliSeconds();
+    int elapsed = Time::passedSince( timestamp );
+    if ( elapsed < 0 ) timestamp = Time::getMilliSeconds();
 
     if ( elapsed < startwaittime_ ) return NotReady; 
 
-    timestamp = Time_getMilliSeconds();
+    timestamp = Time::getMilliSeconds();
     
     // First go for new jobs, then try failed
     for ( int tryfailed=0; tryfailed<2; tryfailed++ )
@@ -310,7 +310,7 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 	{
 	    msg += "\n Host failed "; msg += hfi->nrfailures_; msg += " times ";
 	    msg += "\n Host started ";
-	    msg += Time_passedSince(hfi->starttime_)/1000;
+	    msg += Time::passedSince(hfi->starttime_)/1000;
 	    msg += " seconds ago.";
 	}
 	mAddDebugMsg( ji )
@@ -329,7 +329,7 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
     curjobinfo_ = &ji;
     ji.hostdata_ = &hd;
     ji.state_ = JobInfo::Scheduled;
-    ji.starttime_ = Time_getMilliSeconds();
+    ji.starttime_ = Time::getMilliSeconds();
     ji.recvtime_ = 0;
     ji.statusmsg_ = " scheduled";
     ji.infomsg_ = "";
@@ -439,14 +439,14 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 
 	    DBG::message(msg);
 	}
-	const_cast<HostNFailInfo*>(hfi)->starttime_ = Time_getMilliSeconds();
+	const_cast<HostNFailInfo*>(hfi)->starttime_ = Time::getMilliSeconds();
     }
 
     if ( !hfi->nrfailures_ ) return OK;
 
     if ( hfi->nrfailures_ <= maxhostfailures_ ) return SomeFailed;
 
-    int totltim = Time_passedSince( hfi->starttime_ );
+    int totltim = Time::passedSince( hfi->starttime_ );
 	    
     if ( totltim > 0 && totltim <= hosttimeout_ ) // default: 10 mins.
 	return SomeFailed;
@@ -466,7 +466,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	return HostFailed; 
     }
 
-    int lastsuctim = Time_passedSince( hfi->lastsuccess_ );
+    int lastsuctim = Time::passedSince( hfi->lastsuccess_ );
 
     if ( lastsuctim < 0 )  return HostFailed;
     
@@ -576,13 +576,13 @@ void JobRunner::updateJobInfo()
 
 	if ( isAssigned(ji)  )
 	{
-	    if ( !ji.starttime_ ) { pErrMsg("huh?"); Time_getMilliSeconds(); }
+	    if ( !ji.starttime_ ) { pErrMsg("huh?"); Time::getMilliSeconds(); }
 
-	    int since_lst_chk = Time_passedSince( ji.starttime_ ); 
+	    int since_lst_chk = Time::passedSince( ji.starttime_ ); 
 	    if ( since_lst_chk > starttimeout_ )
 	    {
 		int since_lst_recv = ji.recvtime_ ?
-					Time_passedSince(ji.recvtime_) : -1;
+					Time::passedSince(ji.recvtime_) : -1;
 		int to = ji.state_ == JobInfo::WrappingUp ? wrapuptimeout_
 							  : failtimeout_;
 
@@ -687,7 +687,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	    if ( hfi )
 	    {
 		hfi->nrsucces_++;
-		hfi->lastsuccess_ = Time_getMilliSeconds();
+		hfi->lastsuccess_ = Time::getMilliSeconds();
 		hfi->inuse_ = false;
 	    }
 	}

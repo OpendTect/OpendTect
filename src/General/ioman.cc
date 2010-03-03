@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.100 2009-12-08 17:02:21 cvskris Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.101 2010-03-03 07:28:10 cvsranojay Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -876,7 +876,7 @@ bool SurveyDataTreePreparer::createDataTree()
 
     *sd.ostrm << GetProjectVersionName();
     *sd.ostrm << "\nObject Management file\n";
-    *sd.ostrm << Time_getFullDateString();
+    *sd.ostrm << Time::getDateTimeString();
     *sd.ostrm << "\n!\nID: " << dirdata_.selkey_ << "\n!\n"
 	      << dirdata_.desc_ << ": 1\n"
 	      << dirdata_.desc_ << " directory: Gen`Stream\n"
