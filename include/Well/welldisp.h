@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.22 2009-12-16 16:18:03 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.23 2010-03-04 09:24:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ mClass DisplayProperties
 public:
 
 			DisplayProperties()		{}
-
 
     mStruct BasicProps
     {
@@ -155,6 +154,14 @@ public:
 	virtual void	doUseRightPar(const IOPar&);
 	virtual void	doFillLeftPar(IOPar&) const;
     };
+
+    void copyFrom( const DisplayProperties& d)
+    {
+	track_ = d.track_;
+	markers_ = d.markers_;
+	left_ = d.left_;
+	right_ = d.right_;
+    }
 
     Track		track_;
     Markers		markers_;
