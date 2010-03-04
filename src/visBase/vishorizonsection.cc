@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.105 2010-03-03 17:40:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.106 2010-03-04 05:09:21 cvsraman Exp $";
 
 #include "vishorizonsection.h"
 
@@ -210,7 +210,7 @@ HorizonTileRenderPreparer( HorizonSection& section, SoState* state, int res )
     , permutation_( 0 )    
 {}
 
-HorizonTileRenderPreparer::~HorizonTileRenderPreparer()
+~HorizonTileRenderPreparer()
 { delete [] permutation_; }
 
 od_int64 nrIterations() const { return nrtiles_; }
