@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.2 2010-03-02 06:51:06 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.h,v 1.3 2010-03-04 06:37:49 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,14 @@ public:
 
     void		setMouseEventHandler(MouseEventHandler*);
     void		updateActStkContainer();
+
+    void		set2D(bool yn);
+    void		setLineName(const char*);
+    void		setLineID(const MultiID&);
+
+    TypeSet<int>&	getTrcNos();
+    TypeSet<float>&	getDistances();
+    TypeSet<Coord>&	getCoords();
 
 protected:
 

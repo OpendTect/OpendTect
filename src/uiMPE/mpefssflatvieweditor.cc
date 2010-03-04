@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.2 2010-03-02 06:51:06 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.3 2010-03-04 06:37:49 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,6 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
     MPE::engine().activefsschanged.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,activeFSSChgCB) );
-    editor_->viewer().appearance().annot_.editable_ = true;
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
     fsspainter_->repaintdone_.notify( 
@@ -190,6 +189,8 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
+
+    seedhasmoved_ = true;
 }
 
 
@@ -204,32 +205,20 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 	return;
 
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
+
     const CubeSampling& cs = fsspainter_->getCubeSampling();
     
-    Coord3 coord3;
-    if ( !cs.isEmpty() ) // if empty 2D
-    {
-	if ( cs.nrZ() == 1 )
-	{
-	    const BinID bid( cs.hrg.inlRange().snap(pos.x), cs.hrg.crlRange().snap(pos.y) ); 
-	    coord3.coord() = SI().transform(bid);
-	    coord3.z = cs.zrg.start;
-	}
-	else
-	{
-	    const bool isinl = (cs.nrInl()==1);
-	    const BinID bid = isinl
-		? BinID(cs.hrg.start.inl,cs.hrg.crlRange().snap(pos.x) )
-		: BinID(cs.hrg.inlRange().snap(pos.x),cs.hrg.start.crl);
+    const FlatDataPack* dp = editor_->viewer().pack( false );
+    if ( !dp )
+	dp = editor_->viewer().pack( true );
 
-	    coord3.coord() = SI().transform(bid);
-	    coord3.z = pos.y ;
-	}
-    }
-    else
-    {
-	//TODO for 2D
-    }
+    if ( !dp ) return;
+
+    const FlatPosData& pd = dp->posData();
+    const IndexInfo ix = pd.indexInfo( true, pos.x );
+    const IndexInfo iy = pd.indexInfo( false, pos.y );
+    Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
+    coord3.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : pos.y;
 
     EM::ObjectID emid = MPE::engine().getActiveFSSObjID();
     if ( emid == -1 ) return; 
@@ -262,6 +251,9 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 {
+    if ( seedhasmoved_ )
+	return;
+
     EM::ObjectID emid = MPE::engine().getActiveFSSObjID();
     if ( emid == -1 ) return; 
 
@@ -279,6 +271,10 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 	return;
 
     const FlatDataPack* dp = editor_->viewer().pack( false );
+    if ( !dp )
+	dp = editor_->viewer().pack( true );
+
+    if ( !dp ) return;
 
     const MouseEvent& mouseevent = meh_->event();
     const uiRect datarect( editor_->getMouseArea() );
@@ -291,10 +287,11 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     const IndexInfo ix = pd.indexInfo( true, wp.x );
     const IndexInfo iy = pd.indexInfo( false, wp.y );
     Coord3 pos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    pos.z = (cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    pos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
 
     EM::PosID pid;
-    fsseditor->getInteractionInfo( pid, 0, 0, pos, SI().zScale() );
+    fsseditor->getInteractionInfo( pid, &fsspainter_->getLineSetID(),
+			fsspainter_->getLineName(), pos, SI().zScale() );
 
     if ( pid.isUdf() )
 	return; 
@@ -311,6 +308,10 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 {
+    if ( !editor_->viewer().appearance().annot_.editable_
+	 || editor_->isSelActive() )
+	return;
+
     mousepid_.setObjectID( -1 );
     int edidauxdataid = editor_->getSelPtDataID();
     int displayedknotid = -1;
@@ -367,6 +368,10 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 
 void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 {
+    if ( !editor_->viewer().appearance().annot_.editable_ 
+	 || editor_->isSelActive() )
+	return;
+
     if ( seedhasmoved_ )
     {
 	seedhasmoved_ = false;
@@ -386,6 +391,10 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	return;
 
     const FlatDataPack* dp = editor_->viewer().pack( false );
+    if ( !dp )
+	dp = editor_->viewer().pack( true );
+
+    if ( !dp ) return;
 
     const MouseEvent& mouseevent = meh_->event();
     const uiRect datarect( editor_->getMouseArea() );
@@ -398,14 +407,17 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     const IndexInfo ix = pd.indexInfo( true, wp.x );
     const IndexInfo iy = pd.indexInfo( false, wp.y );
     Coord3 pos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    pos.z = (cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    pos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
 
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
 
     EM::PosID interactpid;
-    fsseditor->getInteractionInfo( interactpid, 0, 0, pos, SI().zScale() );
+    fsseditor->getInteractionInfo( interactpid, &fsspainter_->getLineSetID() ,
+				   fsspainter_->getLineName(), pos,
+				   SI().zScale() );
 
-    if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() && !mouseevent.shiftStatus() )
+    if ( !mousepid_.isUdf() && mouseevent.ctrlStatus() 
+	 && !mouseevent.shiftStatus() )
     {
 	//Remove knot/stick
 	const int rmnr = RowCol(mousepid_.subID()).row;
@@ -423,25 +435,60 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     {
 	Coord3 editnormal( 0, 0, 1 );
 
-	if ( cs_.defaultDir()==CubeSampling::Inl )
+	const MultiID* lineset = 0;
+	const char* linenm = 0;
+
+	if ( cs_.isEmpty() )
+	{
+	    editnormal = Coord3( fsspainter_->getNormalToTrace(ix.nearest_),0 );
+	    lineset = &fsspainter_->getLineSetID();
+	    linenm = fsspainter_->getLineName();
+	}
+	else if ( cs_.defaultDir()==CubeSampling::Inl )
 	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
 	else if ( cs_.defaultDir()==CubeSampling::Crl )
 	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
 	const int sid = emfss->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
-	const int insertsticknr = !fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
+	const int insertsticknr = !fss || fss->isEmpty() 
+	    			  ? 0 : fss->rowRange().stop+1;
 
 	fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
-			  0, 0, true );
+			  lineset, linenm, true );
 	const EM::SubID subid = RowCol(insertsticknr,0).getSerialized();
 	fsseditor->setLastClicked( EM::PosID(emfss->id(),sid,subid) );
     }
     else
     {
-	fssg.insertKnot( interactpid.sectionID(), interactpid.subID(), pos, true );
+	fssg.insertKnot( interactpid.sectionID(), interactpid.subID(),
+			 pos, true );
 	fsseditor->setLastClicked( interactpid );
     }
 }
+
+
+void FaultStickSetFlatViewEditor::set2D( bool yn )
+{ fsspainter_->set2D( yn ); }
+
+
+void FaultStickSetFlatViewEditor::setLineName( const char* ln )
+{ fsspainter_->setLineName( ln ); }
+
+
+void FaultStickSetFlatViewEditor::setLineID( const MultiID& lsetid )
+{ fsspainter_->setLineID( lsetid ); }
+
+
+TypeSet<int>& FaultStickSetFlatViewEditor::getTrcNos()
+{ return fsspainter_->getTrcNos(); }
+
+
+TypeSet<float>& FaultStickSetFlatViewEditor::getDistances()
+{ return fsspainter_->getDistances(); }
+
+
+TypeSet<Coord>& FaultStickSetFlatViewEditor::getCoords()
+{ return fsspainter_->getCoords(); }
 
 } // namespace MPE

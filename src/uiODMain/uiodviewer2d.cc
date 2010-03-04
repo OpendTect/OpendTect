@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.24 2010-02-24 12:18:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.25 2010-03-04 06:37:49 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -121,7 +121,11 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 		    appl_.applMgr().visServer()->getObjectName(visid_) );
 	    dp2ddh->getPosDataTable( 
 		    emviewer2dman_[ivwr]->getHorPainter()->getTrcNos(),
-		    emviewer2dman_[ivwr]->getHorPainter()->getDistances());
+		    emviewer2dman_[ivwr]->getHorPainter()->getDistances() );
+	    dp2ddh->getPosDataTable( fssfveditor_[ivwr]->getTrcNos(),
+				     fssfveditor_[ivwr]->getDistances() );
+	    dp2ddh->getCoordDataTable( fssfveditor_[ivwr]->getTrcNos(),
+				       fssfveditor_[ivwr]->getCoords() );
 	    emviewer2dman_[ivwr]->setCubeSampling(
 		    dp2ddh->dataholder().getCubeSampling() );
 	    horfveditor_[ivwr]->setCubeSampling( 
@@ -130,12 +134,16 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    horfveditor_[ivwr]->setSelSpec( &wvaselspec_, true );
 	    horfveditor_[ivwr]->setLineName(
 		    appl_.applMgr().visServer()->getObjectName(visid_) );
+	    fssfveditor_[ivwr]->setLineName(
+		    appl_.applMgr().visServer()->getObjectName(visid_) );
 	    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    appl_.applMgr().visServer()->getObject(visid_));
 	    if ( s2d )
 	    {
 		horfveditor_[ivwr]->setLineSetID( s2d->lineSetID() );
+		fssfveditor_[ivwr]->setLineID( s2d->lineSetID() );
 		horfveditor_[ivwr]->set2D( true );
+		fssfveditor_[ivwr]->set2D( true );
 	    }
 	}
 	fssfveditor_[ivwr]->drawFault();

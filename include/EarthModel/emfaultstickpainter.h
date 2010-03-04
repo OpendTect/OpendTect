@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.3 2010-03-02 06:51:06 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.4 2010-03-04 06:37:49 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,12 @@ public:
 	    				   ObjectSet<StkMarkerInfo>&);
 
     void		set2D(bool yn)		{ is2d_ = yn; }
-    void		setLineName(const char*);
-    void		setLineID(MultiID*);
+    bool		is2D()			{ return is2d_; }
+    void		setLineName(const char* ln) { linenm_ = ln; }
+    const char*		getLineName()		{ return linenm_; }
+    void		setLineID(const MultiID& lsetid)	{ lsetid_ = lsetid; }
+    MultiID&		getLineSetID()		{ return lsetid_; }
+    Coord		getNormalToTrace( int trcnr ) const;
 
     Notifier<FaultStickPainter>	abouttorepaint_;
     Notifier<FaultStickPainter> repaintdone_;
@@ -107,7 +111,7 @@ protected:
 
     bool		is2d_;
     const char*		linenm_;
-    const MultiID*	lineset_;
+    MultiID		lsetid_;
     
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;

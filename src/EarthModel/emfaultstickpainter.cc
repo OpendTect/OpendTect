@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.3 2010-03-02 06:51:06 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.4 2010-03-04 06:37:49 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,13 +24,13 @@ namespace EM
 
 FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv )
     : viewer_(fv)
-    , markerlinestyle_(LineStyle::Solid,2,Color(0,255,0))
-    , markerstyle_( MarkerStyle2D::Square, 4, Color::White() )
-    , activefssid_(-1)
-    , activestickid_(-1)
-    , is2d_(false)
+    , markerlinestyle_( LineStyle::Solid,2,Color(0,255,0) )
+    , markerstyle_( MarkerStyle2D::Square, 4, Color(255,255,0) )
+    , activefssid_( -1 )
+    , activestickid_( -1 )
+    , is2d_( false )
     , linenm_( 0 )
-    , lineset_( 0 )
+    , lsetid_( 0 )
     , abouttorepaint_( this )
     , repaintdone_( this )
 {
@@ -128,10 +128,10 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 
 	    if ( emfss->geometry().pickedOn2DLine(sid,rc.row) )
 	    {
-		const MultiID* lset = emfss->geometry().lineSet( sid, rc.row );
+		const MultiID& lset = *emfss->geometry().lineSet( sid, rc.row );
 		const char* lnm = emfss->geometry().lineName( sid, rc.row );
 
-		if ( (lset != lineset_) || (!matchString(lnm,linenm_)) )
+		if ( !is2d_ || (!matchString(lnm,linenm_)) || (lset != lsetid_) )
 		    continue;
 	    }
 	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row) )
@@ -460,6 +460,41 @@ bool FaultStickPainter::getNearestDistance( const Coord3& pos, float& dist )
 	dist = distances_[posidx];
 
     return posidx!=-1;
+}
+
+
+Coord FaultStickPainter::getNormalToTrace( int trcnr ) const
+{
+    int posid = -1;
+    int sz = trcnos_.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( trcnos_[idx] == trcnr )
+	{
+	    posid = idx;
+	    break;
+	}
+    }
+
+    if ( posid == -1 || sz == 0 )
+	return Coord(mUdf(float), mUdf(float));
+
+    Coord pos = coords_[posid];
+    Coord v1;
+    if ( posid+1<sz )
+	v1 = coords_[posid+1]- pos;
+    else if ( posid-1>=0 )
+	v1 = pos - coords_[posid-1];
+
+    if ( v1.x == 0 )
+	return Coord( 1, 0 );
+    else if ( v1.y == 0 )
+	return Coord( 0, 1 );
+    else
+    {
+	float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
+	return Coord( -v1.y/length, v1.x/length );
+    }
 }
 
 } //namespace EM
