@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.23 2010-02-22 09:32:54 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.24 2010-03-04 09:22:29 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -395,6 +395,9 @@ uiPoint uiGraphicsViewBase::getScenePos( float x, float y ) const
     return uiPoint( (int)body_->mapToScene(viewpos).x(),
 	    	    (int)body_->mapToScene(viewpos).y() );
 }
+
+const uiPoint& uiGraphicsViewBase::getStartPos() const	
+{ return body_->getStartPos(); }
 
 
 void uiGraphicsViewBase::show()

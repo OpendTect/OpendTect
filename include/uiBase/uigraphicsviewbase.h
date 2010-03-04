@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.12 2010-02-22 09:32:54 cvsbruno Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.13 2010-03-04 09:22:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ public:
 
     uiPoint			getCursorPos() const; 
     uiPoint			getScenePos(float,float) const; 
+    const uiPoint& 		getStartPos() const;
     const uiRect*		getSelectedArea() const	{return selectedarea_;}
     void			setViewArea(double x,double y,
 	    				    double w,double h);
