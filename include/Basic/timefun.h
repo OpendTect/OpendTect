@@ -8,14 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	Time functions
- RCS:		$Id: timefun.h,v 1.12 2010-02-24 10:49:34 cvsnanne Exp $
+ RCS:		$Id: timefun.h,v 1.13 2010-03-04 06:52:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
-
-#ifdef __cpp__
 
 class QTime;
 
@@ -51,22 +49,6 @@ protected:
     mGlobal const char*	getTimeString(const char* fmt=defTimeFmt(),
 				      bool local=true);
 
-}
-#endif
-
-
-#ifdef __cpp__
-extern "C" {
-#endif
-
-mGlobal int Time_getMilliSeconds(void);		/*!< From day start */
-mGlobal int Time_passedSince(int); 		/*!< in millisecs */
-
-mGlobal const char* Time_getFullDateString(void); /*!< full date/time */
-mGlobal const char* Time_getTimeString(void);  	/*!< "hh::mm::ss" */
-
-#ifdef __cpp__
-}
-#endif
+} // namespace Time
 
 #endif
