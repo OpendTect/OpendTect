@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.32 2010-03-03 10:11:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.33 2010-03-04 05:11:53 cvsumesh Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -464,7 +464,8 @@ unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
     if ( minimal_ ) return 0;
     mChkRowID(rid,0);
     int selgrp, grp;
-    getUnCompacted( bivSet().getVal(bvsidxs_[rid],groupcol_), selgrp, grp );
+    getUnCompacted( mNINT(bivSet().getVal(bvsidxs_[rid],groupcol_)),
+	    	    selgrp, grp );
     return (unsigned short)((grp < -0.5 ? -grp : grp)+.5);
 }
 
@@ -472,7 +473,8 @@ unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
 int DataPointSet::selGroup( DataPointSet::RowID rid ) const
 {
     int grp,selgrp;
-    getUnCompacted( bivSet().getVal(bvsidxs_[rid],groupcol_), selgrp, grp );
+    getUnCompacted( mNINT(bivSet().getVal(bvsidxs_[rid],groupcol_)),
+	    	    selgrp, grp );
     return selgrp;
 }
 
