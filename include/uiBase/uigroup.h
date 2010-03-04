@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.38 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uigroup.h,v 1.39 2010-03-04 09:20:48 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ public:
     void		setBorder( int ); 
 
     void		setFrame( bool yn=true );
+    void		setNoBackGround();
 
     uiObject*		hAlignObj();
     void		setHAlignObj( uiObject* o );
