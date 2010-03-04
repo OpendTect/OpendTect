@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.8 2010-03-03 02:34:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.9 2010-03-04 07:07:22 cvsnanne Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -425,7 +425,7 @@ bool SampledProbDenFuncND::usePar( const IOPar& par )
 	if ( nrdims < 1 )
 	    return false;
 
-	bins_.setInfo( ArrayNDInfoImpl(nrdims) );
+	bins_.copyFrom( ArrayNDImpl<float>( ArrayNDInfoImpl(nrdims) ) );
     }
 
     TypeSet<int> sizes( nrdims, 0 );
