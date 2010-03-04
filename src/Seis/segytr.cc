@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.94 2010-02-12 10:31:27 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.95 2010-03-04 10:48:39 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -540,7 +540,7 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
     int usecur = 1; const bool is2d = Seis::is2D(fileopts_.geomType());
     if ( is2d )
     {
-	if ( curtrcnr_ < 0 )
+	if ( mIsUdf(curtrcnr_) || curtrcnr_ < 0 )
 	    usecur = prevtrcnr_ < 0 ? -1 : 0;
     }
     else
