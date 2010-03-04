@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.3 2010-03-03 13:19:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.4 2010-03-04 16:37:47 cvsbert Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -187,7 +187,10 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
     const IOObj* pdfioobj = outputfld_->ioobj();
     if ( !pdfioobj ) return false;
 
-    ArrayNDImpl<float> pdfarr = ArrayNDImpl<float>( ArrayNDInfoImpl(nrdisp_) );
+    ArrayNDInfoImpl ainf( nrdisp_ );
+    for ( int idx=0; idx<nrdisp_; idx++ )
+	ainf.setSize( idx, probflds_[idx]->selNrBins() );
+    ArrayNDImpl<float> pdfarr( ainf );
 
     SampledProbDenFuncND pdf( pdfarr ); 
     fillPDF( pdf );
@@ -196,6 +199,17 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
     if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj,&errmsg) )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiMSG().message( "Probability density function successfully created" );
+    BufferString msg( "Created " );
+    if ( nrdisp_ > 1 )
+    {
+	for ( int idx=0; idx<nrdisp_; idx++ )
+	{
+	    msg += pdf.size(idx);
+	    if ( idx < nrdisp_-1 ) msg += "x";
+	}
+	msg += " ";
+    }
+    msg += "Probability Density Function";
+    uiMSG().message( msg );
     return false;
 }
