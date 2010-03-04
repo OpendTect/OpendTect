@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray1dinterpol.cc,v 1.1 2009-12-16 05:59:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiarray1dinterpol.cc,v 1.2 2010-03-04 09:14:27 cvsnanne Exp $";
 
 #include "uiarray1dinterpol.h"
 
@@ -49,6 +49,7 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
     uiLabeledComboBox* lcbbx =
 	new uiLabeledComboBox( this, algonms, "Algorithm" );
     methodsel_ = lcbbx->box();
+    setHAlignObj( methodsel_ );
 
     if ( prevfld )
 	lcbbx->attach( alignedBelow, prevfld );
