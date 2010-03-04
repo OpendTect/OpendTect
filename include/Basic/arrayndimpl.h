@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.65 2010-03-01 11:38:51 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.66 2010-03-04 07:05:56 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -735,13 +735,14 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 	MemCopier<T> cpier( this->getData(), templ.getData(),in_->getTotalSz());
 	cpier.execute();
     }
-    else
+    else if ( in_->getTotalSz() > 0 )
     {
 	ArrayNDIter iter( *in_ );
 	do
 	{
-	    set(iter.getPos(), templ.get(iter.getPos));
-	} while ( this->next() );
+	    const int* pos = iter.getPos();
+	    setND( pos, templ.getND(pos) );
+	} while ( iter.next() );
     }
 }
 
@@ -814,7 +815,7 @@ bool ArrayNDImpl<T>::setSize( const int* d )
     for ( int idx=0; idx<ndim; idx++ )
 	in_->setSize( idx, d[idx] );
 
-    if ( stor_->setSize( in_->getTotalSz() ) )
+    if ( !stor_->setSize(in_->getTotalSz()) )
     {
 	ptr_ = 0;
 	return false;
