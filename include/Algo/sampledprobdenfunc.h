@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.7 2010-03-03 02:34:08 cvsnanne Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.8 2010-03-04 15:28:41 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,10 @@ protected:
 };
 
 
+#define mDefSampledProbDenFuncClone(clss) \
+    clss* clone() const	{ return new clss(*this); }
+
+
 mClass SampledProbDenFunc1D : public ProbDenFunc1D
 			    , public ArrayNDProbDenFunc
 {
@@ -66,6 +70,8 @@ public:
     			SampledProbDenFunc1D(const float*,int);
     			SampledProbDenFunc1D(const SampledProbDenFunc1D&);
     SampledProbDenFunc1D& operator =(const SampledProbDenFunc1D&);
+    			mDefSampledProbDenFuncClone(SampledProbDenFunc1D)
+    virtual void	copyFrom(const ProbDenFunc&);
 
     virtual float	value(float) const;
 
@@ -94,9 +100,12 @@ mClass SampledProbDenFunc2D : public ProbDenFunc2D
 			    , public ArrayNDProbDenFunc
 {
 public:
+
     			SampledProbDenFunc2D(const Array2D<float>&);
     			SampledProbDenFunc2D(const SampledProbDenFunc2D&);
     SampledProbDenFunc2D& operator =(const SampledProbDenFunc2D&);
+    			mDefSampledProbDenFuncClone(SampledProbDenFunc2D)
+    virtual void	copyFrom(const ProbDenFunc&);
 
     virtual float	value(float,float) const;
 
@@ -139,6 +148,8 @@ public:
     			SampledProbDenFuncND(const SampledProbDenFuncND&);
 			SampledProbDenFuncND();
     SampledProbDenFuncND& operator =(const SampledProbDenFuncND&);
+    			mDefSampledProbDenFuncClone(SampledProbDenFuncND)
+    virtual void	copyFrom(const ProbDenFunc&);
 
     virtual int		nrDims() const	{ return bins_.info().getNDim(); }
     virtual const char*	dimName(int) const;

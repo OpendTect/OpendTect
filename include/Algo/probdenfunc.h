@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.8 2010-03-01 09:28:52 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.9 2010-03-04 15:28:41 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,9 @@ mClass ProbDenFunc : public NamedObject
 {
 public:
 
-    virtual		~ProbDenFunc()			{}
+    virtual ProbDenFunc* clone() const				= 0;
+    virtual		~ProbDenFunc()				{}
+    virtual void	copyFrom(const ProbDenFunc&)		= 0;
 
     virtual const char*	getTypeStr() const			= 0;
     virtual int		nrDims() const				= 0;
@@ -61,6 +63,9 @@ mClass ProbDenFunc1D : public ProbDenFunc
 {
 public:
 
+    virtual void	copyFrom( const ProbDenFunc& pdf )
+			{ varnm_ = pdf.dimName(0); }
+
     virtual int		nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
     virtual void	setDimName( int dim, const char* nm )
@@ -86,6 +91,9 @@ protected:
 mClass ProbDenFunc2D : public ProbDenFunc
 {
 public:
+
+    virtual void	copyFrom( const ProbDenFunc& pdf )
+			{ dim0nm_ = pdf.dimName(0); dim1nm_ = pdf.dimName(1); }
 
     virtual int		nrDims() const			{ return 2; }
     virtual const char*	dimName(int) const;

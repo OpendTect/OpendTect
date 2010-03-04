@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.9 2010-03-04 07:07:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.10 2010-03-04 15:28:41 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -206,6 +206,16 @@ SampledProbDenFunc1D& SampledProbDenFunc1D::operator =(
 }
 
 
+void SampledProbDenFunc1D::copyFrom( const ProbDenFunc& pdf )
+{
+    mDynamicCastGet(const SampledProbDenFunc1D*,spdf1d,&pdf)
+    if ( spdf1d )
+	*this = *spdf1d;
+    else
+	ProbDenFunc1D::copyFrom( pdf );
+}
+
+
 float SampledProbDenFunc1D::value( float pos ) const
 {
     const int sz = size( 0 );
@@ -284,6 +294,16 @@ SampledProbDenFunc2D& SampledProbDenFunc2D::operator =(
 	bins_ = spdf.bins_;
     }
     return *this;
+}
+
+
+void SampledProbDenFunc2D::copyFrom( const ProbDenFunc& pdf )
+{
+    mDynamicCastGet(const SampledProbDenFunc2D*,spdf2d,&pdf)
+    if ( spdf2d )
+	*this = *spdf2d;
+    else
+	ProbDenFunc2D::copyFrom( pdf );
 }
 
 
@@ -376,6 +396,19 @@ SampledProbDenFuncND& SampledProbDenFuncND::operator =(
 	dimnms_ = spdf.dimnms_;
     }
     return *this;
+}
+
+
+void SampledProbDenFuncND::copyFrom( const ProbDenFunc& pdf )
+{
+    mDynamicCastGet(const SampledProbDenFuncND*,spdfnd,&pdf)
+    if ( spdfnd )
+	*this = *spdfnd;
+    else
+    {
+	for ( int idx=0; idx<nrDims(); idx++ )
+	    setDimName( idx, pdf.dimName(idx) );
+    }
 }
 
 
