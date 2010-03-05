@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.9 2009-09-02 06:57:40 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.10 2010-03-05 10:13:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class uiTabStack;
 class uiWellDispProperties;
+class uiComboBox;
 
 namespace Well { class Data; class DisplayProperties; };
 
@@ -52,6 +53,24 @@ protected:
     bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
+};
+
+
+mClass uiMultiWellDispPropDlg : public uiWellDispPropDlg
+{
+public:
+			uiMultiWellDispPropDlg(uiParent*,ObjectSet<Well::Data>);
+			~uiMultiWellDispPropDlg(){}
+
+
+    Notifier<uiMultiWellDispPropDlg>	wdChged;
+
+protected:
+
+    ObjectSet<Well::Data> wds_;
+    uiComboBox*		wellselfld_;
+
+    void 		wellSelChg(CallBacker*);
 };
 
 

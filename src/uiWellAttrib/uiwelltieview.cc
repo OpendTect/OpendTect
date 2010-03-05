@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.60 2010-02-22 09:34:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.61 2010-03-05 10:13:35 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -155,7 +155,7 @@ bool uiTieView::setLogsParams()
 
 void uiTieView::drawVelLog()
 {
-    uiWellLogDisplay::LogData& wldld1 = logsdisp_[0]->logData(0);
+    uiWellLogDisplay::LogData& wldld1 = logsdisp_[0]->logData(true);
     wldld1.wl_ = dataholder_.logset()->getLog( params_->dispcurrvellognm_ );
     wldld1.xrev_ = !wtsetup_.issonic_;
     wldld1.wld_.color_ = Color::stdDrawColor(0);
@@ -165,7 +165,7 @@ void uiTieView::drawVelLog()
 
 void uiTieView::drawDenLog()
 {
-    uiWellLogDisplay::LogData& wldld2 = logsdisp_[0]->logData(1);
+    uiWellLogDisplay::LogData& wldld2 = logsdisp_[0]->logData(false);
     wldld2.wl_ = dataholder_.logset()->getLog( params_->denlognm_ );
     wldld2.isyaxisleft_ = false;
     wldld2.wld_.color_ = Color::stdDrawColor(1);

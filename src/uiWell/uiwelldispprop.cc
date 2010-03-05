@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.33 2009-11-13 08:13:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.34 2010-03-05 10:13:35 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -34,27 +34,27 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::BasicProps& pr )
     : uiGroup(p,"Well display properties group")
-    , props_(pr)
+    , props_(&pr)
     , propChanged(this)
 
 {
     szfld_ = new uiSpinBox( this, 0, "Size" );
     szfld_->setInterval( StepInterval<int>(0,mUdf(int),1) );
-    szfld_->setValue(  props_.size_ );
+    szfld_->setValue(  props().size_ );
     szfld_->valueChanging.notify( mCB(this,uiWellDispProperties,propChg) );
     new uiLabel( this, su.mysztxt_, szfld_ );
 
-    uiColorInput::Setup csu( props_.color_ );
+    uiColorInput::Setup csu( props().color_ );
     csu.lbltxt( su.mycoltxt_ ).withalpha( false );
     BufferString dlgtxt( "Select " );
-    dlgtxt += su.mycoltxt_; dlgtxt += " for "; dlgtxt += props_.subjectName();
+    dlgtxt += su.mycoltxt_; dlgtxt += " for "; dlgtxt += props().subjectName();
     colfld_ = new uiColorInput( this, csu, su.mycoltxt_ );
     colfld_->attach( alignedBelow, szfld_ );
     colfld_->colorchanged.notify( mCB(this,uiWellDispProperties,propChg) );
 
     setHAlignObj( colfld_ );
-    
 }
+
 
 void uiWellDispProperties::propChg( CallBacker* )
 {
@@ -65,16 +65,16 @@ void uiWellDispProperties::propChg( CallBacker* )
 
 void uiWellDispProperties::putToScreen()
 {
-    szfld_->setValue( props_.size_ );
-    colfld_->setColor( props_.color_ );
+    szfld_->setValue( props().size_ );
+    colfld_->setColor( props().color_ );
     doPutToScreen();
 }
 
 
 void uiWellDispProperties::getFromScreen()
 {
-    props_.size_ = szfld_->getValue();
-    props_.color_ = colfld_->color();
+    props().size_ = szfld_->getValue();
+    props().color_ = colfld_->color();
     doGetFromScreen();
 }
 
@@ -102,6 +102,13 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 		mCB(this,uiWellTrackDispProperties,propChg) );
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
     doPutToScreen();
+}
+
+
+void uiWellTrackDispProperties::resetProps( Well::DisplayProperties::BasicProps& pp )
+{
+    props_ = &pp;
+    propChg(0);
 }
 
 
@@ -178,6 +185,13 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 }
 
 
+void uiWellMarkersDispProperties::resetProps( Well::DisplayProperties::BasicProps& pp )
+{
+    props_ = &pp;
+    propChg(0);
+}
+
+
 void uiWellMarkersDispProperties::markerFldsChged( CallBacker*  )
 {
     colfld_->setSensitive( singlecolfld_->isChecked() );
@@ -228,7 +242,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 		mCB(this,uiWellLogDispProperties,isStyleChanged) );
     stylefld_->valuechanged.notify( propchgcb );
 
-    rangefld_ = new uiGenInput( this, "Data range",
+    rangefld_ = new uiGenInput( this, "Log range (min/max)",
 			     FloatInpIntervalSpec()
 			     .setName(BufferString(" range start"),0)
 			     .setName(BufferString(" range stop"),1) );
@@ -282,7 +296,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logsfld_->box()->selectionChanged.notify(
 		mCB(this,uiWellLogDispProperties,updateFillRange) );
 
-    BufferString selfilllbl( "Fill with log" );
+    BufferString selfilllbl( "Log fill range (min/max)" );
     filllogsfld_ = new uiLabeledComboBox( this, selfilllbl );
     filllogsfld_->box()->addItems( lognames );
     filllogsfld_->attach( alignedBelow, colfld_ );
@@ -329,12 +343,20 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     repeatfld_->valueChanging.notify( propchgcb );
   
     lblo_ = new uiLabeledSpinBox( this, "Overlap" );
-    ovlapfld_ = lblo_ ->box();
+    ovlapfld_ = lblo_->box();
     ovlapfld_->setInterval( 0, 100, 20 );
     lblo_->attach( alignedBelow, seiscolorfld_ );
     ovlapfld_->valueChanging.notify( propchgcb );
     
     recoverProp();
+}
+
+
+void uiWellLogDispProperties::resetProps( Well::DisplayProperties::BasicProps& pp )
+{
+    props_ = &pp;
+    recoverProp();
+    propChg(0);
 }
 
 
@@ -453,7 +475,7 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 
 void uiWellLogDispProperties::recoverProp( )
 {
-    doPutToScreen();
+    putToScreen();
     if ( logprops().name_ == "None" || logprops().name_ ==  "none" ) selNone();
     isSeismicSel(0);
     choiceSel(0);

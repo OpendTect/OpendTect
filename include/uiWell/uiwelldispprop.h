@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.19 2009-10-21 15:09:03 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.20 2010-03-05 10:13:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,10 +52,11 @@ public:
     			uiWellDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::BasicProps&);
 
-    Well::DisplayProperties::BasicProps& props()	{ return props_; }
+    Well::DisplayProperties::BasicProps& props()	{ return *props_; }
 
     void		putToScreen();
     void		getFromScreen();
+    virtual void 	resetProps(Well::DisplayProperties::BasicProps&) {}
 
     Notifier<uiWellDispProperties>	propChanged;
 
@@ -64,7 +65,7 @@ protected:
     virtual void	doPutToScreen()			{}
     virtual void	doGetFromScreen()		{}
 
-    Well::DisplayProperties::BasicProps&	props_;
+    Well::DisplayProperties::BasicProps*	props_;
 
     void		propChg(CallBacker*);
     uiColorInput*	colfld_;
@@ -80,7 +81,9 @@ public:
 					Well::DisplayProperties::Track&);
 
     Well::DisplayProperties::Track&	trackprops()
-	{ return static_cast<Well::DisplayProperties::Track&>(props_); }
+	{ return static_cast<Well::DisplayProperties::Track&>(*props_); }
+
+    void 		resetProps(Well::DisplayProperties::BasicProps&);
 
 protected:
 
@@ -100,7 +103,9 @@ public:
 					Well::DisplayProperties::Markers&);
 
     Well::DisplayProperties::Markers&	mrkprops()
-	{ return static_cast<Well::DisplayProperties::Markers&>(props_); }
+	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
+    
+    void 		resetProps(Well::DisplayProperties::BasicProps&);
 
 protected:
 
@@ -116,6 +121,7 @@ protected:
     uiLabeledSpinBox*	cylinderheightfld_;
 };
 
+
 mClass uiWellLogDispProperties : public uiWellDispProperties
 {
 public:
@@ -124,8 +130,9 @@ public:
 					Well::LogSet* wl);
 
     Well::DisplayProperties::Log&	logprops()
-	{ return static_cast<Well::DisplayProperties::Log&>(props_); }
-
+	{ return static_cast<Well::DisplayProperties::Log&>(*props_); }
+    
+    void 		resetProps(Well::DisplayProperties::BasicProps&);
 
 protected:
 
@@ -170,7 +177,6 @@ protected:
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;
     Well::LogSet*  wl_;
-
 };
 
 #endif
