@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.25 2010-03-04 06:37:49 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.26 2010-03-05 14:35:04 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -366,7 +366,6 @@ void uiODWellSeisViewer2D::createViewWin( DataPack::ID id, bool wva )
     viewwin_ = win;
     viewstdcontrol_ = (uiFlatViewStdControl*)win->controlView(); 
     win->windowClosed.notify( mCB(this,uiODWellSeisViewer2D,winCloseCB) );
-    uiFlatViewer& mainvwr = viewwin()->viewer();
     viewwin()->start();
     createViewWinEditors();
 }
