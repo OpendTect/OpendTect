@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Yuancheng Liu
  Date:		August 2009
- RCS:		$Id: horizon3dtesselator.h,v 1.3 2009-11-27 10:11:07 cvsranojay Exp $
+ RCS:		$Id: horizon3dtesselator.h,v 1.4 2010-03-05 21:16:11 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -19,13 +19,13 @@ ________________________________________________________________________
 class Coord3List;
 
 
-/* Assume given Coord3List has size nrrowscoord*nrcolscoord and all the points are 
-   added in  order of rows. The nrrow and nrcol are the size you want to tesselate.
-   Your spacing should be 1, 2, 4, 8 ,16, or 32. The normals and their indices are 
-   optional, you could put dummy 0s for them. The normals are calculated based on 
-   the spacing and they are local. The normal indices are based on my own normals, 
-   hence normstartidx is provided in case you want to arrange your global indices 
-   based on your spacing or whatever. */
+/* Assume given Coord3List has size nrrowscoord*nrcolscoord and all the points 
+   are added in  order of rows. The nrrow and nrcol are the size you want to 
+   tesselate. Your spacing should be 1, 2, 4, 8 ,16, or 32. The normals and 
+   their indices are optional, you could put dummy 0s for them. The normals are
+   calculated based on the spacing and they are local. The normal indices are 
+   based on my own normals, hence normstartidx is provided in case you want to 
+   arrange your global indices based on your spacing or whatever. */
 
 mClass Horizon3DTesselator : public SequentialTask
 {
