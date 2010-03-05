@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewzoommgr.h,v 1.6 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: flatviewzoommgr.h,v 1.7 2010-03-05 09:27:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
     bool		atStart() const		{ return cur_ < 1; }
     Size		toStart() const;
     int			nrZooms() const		{ return zooms_.size(); }
+    Size		initialSize() const 	{ return nrZooms() ? zooms_[0] 
+								   : 0;       }
 
     double		fwdFac() const		{ return fwdfac_; }
     void		setFwdFac( double fac )	{ fwdfac_ = fac; }
