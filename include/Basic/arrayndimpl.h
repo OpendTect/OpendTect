@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.66 2010-03-04 07:05:56 cvsnanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.67 2010-03-05 13:56:25 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -347,13 +347,15 @@ void ArrayNDFileStor<T>::close()
 }
 
 
-#define mArrNDImplFileConstructor \
+#define mArrNDImplFileConstructor(preact,postact) \
     , stor_( 0 ) \
     , ptr_( 0 ) \
 { \
+    preact; \
     setStorage( file \
 	? (ValueSeries<T>*) new ArrayNDFileStor<T>(info().getTotalSz()) \
 	: (ValueSeries<T>*) new MultiArrayValueSeries<T,T>(info().getTotalSz())); \
+    postact; \
 }
 
 
@@ -392,7 +394,7 @@ bool clss<T>::setStorage(ValueSeries<T>* s) \
 template <class T> inline
 Array1DImpl<T>::Array1DImpl(int nsz, bool file )
     : in_(nsz)
-mArrNDImplFileConstructor
+mArrNDImplFileConstructor(,)
 
 mArrNDImplCopyConstructor( Array1DImpl, Array1D )
 mArrNDImplCopyConstructor( Array1DImpl, Array1DImpl )
@@ -476,13 +478,13 @@ bool Array1DImpl<T>::setSize( int s )
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( int sz0, int sz1, bool file )
     : in_(sz0,sz1)
-mArrNDImplFileConstructor
+mArrNDImplFileConstructor(,)
 
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz, bool file )
     : in_( nsz )
-mArrNDImplFileConstructor
+mArrNDImplFileConstructor(,)
 
 
 mArrNDImplCopyConstructor( Array2DImpl, Array2D )
@@ -584,13 +586,13 @@ bool Array2DImpl<T>::setSize( int d0, int d1 )
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2, bool file)
     : in_(sz0,sz1,sz2)
-mArrNDImplFileConstructor
+mArrNDImplFileConstructor(,)
 
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz, bool file )
     : in_(nsz)
-mArrNDImplFileConstructor
+mArrNDImplFileConstructor(,)
 
 mArrNDImplCopyConstructor( Array3DImpl, Array3D )
 mArrNDImplCopyConstructor( Array3DImpl, Array3DImpl )
@@ -696,19 +698,19 @@ bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDInfo& nsz, bool file )
     : in_( nsz.clone() )
-mArrNDImplFileConstructor
+mArrNDImplFileConstructor(,)
 
 
 template <class T> inline
-ArrayNDImpl<T>::ArrayNDImpl( const ArrayND<T>& templ, bool file )
-    : in_(templ.info().clone())
-mArrNDImplFileConstructor
+ArrayNDImpl<T>::ArrayNDImpl( const ArrayND<T>& arrnd, bool file )
+    : in_(arrnd.info().clone())
+mArrNDImplFileConstructor(,copyFrom(arrnd))
 
 
 template <class T> inline
-ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDImpl<T>& templ, bool file )
-    : in_(templ.info().clone())
-mArrNDImplFileConstructor
+ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDImpl<T>& arrnd, bool file )
+    : in_(arrnd.info().clone())
+mArrNDImplFileConstructor(,copyFrom(arrnd))
 
 
 template <class T> inline
