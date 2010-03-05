@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: poly2horvol.cc,v 1.1 2009-08-21 13:43:57 cvsbert Exp $";
+static const char* rcsID = "$Id: poly2horvol.cc,v 1.2 2010-03-05 19:42:10 cvsyuancheng Exp $";
 
 #include "poly2horvol.h"
 
@@ -98,7 +98,14 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 
 	for ( int isect=0; isect<nrsect; isect++ )
 	{
-	    const float horz = hor_->getPos( isect, subid ).z;
+	    const EM::SectionID sid = hor_->sectionID( isect );
+	    float horz = hor_->getPos( sid, subid ).z;
+	    if ( mIsUdf(horz) && bid.inl!=hs.stop.inl && bid.crl!=hs.stop.crl )
+ 	    { //The very last edges should exclude.
+		horz = hor_->geometry().sectionGeometry(sid)->computePosition(
+       			Coord(bid.inl,bid.crl) ).z;
+ 	    }
+		    
 	    if ( mIsUdf(horz) )
 		continue;
 
