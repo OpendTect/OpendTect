@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.103 2010-03-02 06:51:06 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.104 2010-03-05 06:23:21 cvsumesh Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -725,7 +725,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    deepErase( lines );
 	}
     }
-    else if ( ptlist.size() == 1 )
+    else if ( (ptlist.size()==1) && (ad.markerstyles_.size()==0) )
     {
 	const Color usecol = color( true );
 	if ( !pointitem_ )
@@ -764,7 +764,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    markeritemgrp_->add( marketitem );
 	}
 	
-	markeritemgrp_->setZValue(1);
+	markeritemgrp_->setZValue(2);
     }
 
     if ( !ad.name_.isEmpty() && !mIsUdf(ad.namepos_) )
