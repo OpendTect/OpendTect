@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.30 2009-12-09 04:11:17 cvsumesh Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.31 2010-03-05 09:24:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ public:
 						const uiWorldRect& curview,
 						const uiWorldRect& bbox) const;
     uiTabStackDlg*		propDialog();
-
+    const FlatView::ZoomMgr&	zoomMgr() const { return zoommgr_; }
 
 protected:
 
