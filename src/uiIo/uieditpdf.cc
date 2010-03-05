@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.11 2010-03-05 13:57:57 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.12 2010-03-05 14:49:48 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -288,14 +288,18 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	if ( !vwwinnd_ )
 	{
 	    uiFlatViewMainWin::Setup su( "Probability Density Function" );
+	    su.nrstatusfields(0);
 	    vwwinnd_ = new uiFlatViewMainWin( this, su );
 	    vwwinnd_->setDarkBG( false );
+	    vwwinnd_->setInitialSize( 300, 300 );
 	    uiFlatViewer& vwr = vwwinnd_->viewer();
-	    vwr.setInitialSize( uiSize(300,200) );
 	    FlatView::Appearance& app = vwr.appearance();
 	    app.ddpars_.show( false, true );
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.title_ = pdf_.name();
+	    if ( nrdims_ > 2 )
+		ann.title_.add( " at " ).add( pdf_.dimName(2) ).add( "=" )
+		    	  .add( andpdf->sampling(2).atIndex(curdim2_) );
 	    ann.setAxesAnnot( true );
 	    ann.x1_.name_ = pdf_.dimName(0);
 	    ann.x2_.name_ = pdf_.dimName(1);
