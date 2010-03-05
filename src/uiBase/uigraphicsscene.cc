@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.41 2010-02-18 16:20:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.42 2010-03-05 09:33:59 cvsbruno Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -461,4 +461,12 @@ void uiGraphicsObjectScene::setItemStretch( uiObjectItem* item, int stretch )
 int uiGraphicsObjectScene::stretchFactor( uiObjectItem* item ) const
 {
     return layout_->stretchFactor( item->qWidgetItem() );
+}
+
+
+const uiSize uiGraphicsObjectScene::layoutSize() const
+{
+     return ( layoutitem_ ? uiSize( (int)layoutitem_->size().rwidth(),
+				    (int)layoutitem_->size().rheight() )
+			  : uiSize(0,0) );
 }
