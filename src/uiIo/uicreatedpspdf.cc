@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.4 2010-03-04 16:37:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.5 2010-03-05 11:32:00 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -156,15 +156,19 @@ void uiCreateDPSPDF::handleDisp( CallBacker* )
 }
 
 
-void uiCreateDPSPDF::fillPDF( SampledProbDenFuncND& pdf )
+void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 {
     ObjectSet<DPSDensityCalcND::AxisParam> axisparams;
-    for ( int dimnr=0; dimnr<pdf.nrDims(); dimnr++ )
+    mDynamicCastGet(ProbDenFunc*,prdf,&pdf)
+    if ( !prdf ) return;
+
+    for ( int dimnr=0; dimnr<prdf->nrDims(); dimnr++ )
     {
-	pdf.setDimName( dimnr, probflds_[dimnr]->selColName() );
+	prdf->setDimName( dimnr, probflds_[dimnr]->selColName() );
 	StepInterval<float> dimrg = probflds_[dimnr]->selColRange();
-	pdf.sds_[dimnr].start = dimrg.start;
-	pdf.sds_[dimnr].step = dimrg.step;
+	SamplingData<float>& sd = pdf.sampling( dimnr );
+	sd.start = dimrg.start;
+	sd.step = dimrg.step;
 	
 	DPSDensityCalcND::AxisParam* axparam =
 	    new DPSDensityCalcND::AxisParam();
@@ -178,7 +182,7 @@ void uiCreateDPSPDF::fillPDF( SampledProbDenFuncND& pdf )
     uiTaskRunner tr( this );
     tr.execute( denscalc );
 
-    denscalc.getFreqData( pdf.bins_ );
+    denscalc.getFreqData( pdf.getData() );
 }
 
 
@@ -187,29 +191,39 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
     const IOObj* pdfioobj = outputfld_->ioobj();
     if ( !pdfioobj ) return false;
 
-    ArrayNDInfoImpl ainf( nrdisp_ );
-    for ( int idx=0; idx<nrdisp_; idx++ )
-	ainf.setSize( idx, probflds_[idx]->selNrBins() );
-    ArrayNDImpl<float> pdfarr( ainf );
-
-    SampledProbDenFuncND pdf( pdfarr ); 
-    fillPDF( pdf );
-
-    BufferString errmsg;
-    if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj,&errmsg) )
-	{ uiMSG().error(errmsg); return false; }
-
-    BufferString msg( "Created " );
-    if ( nrdisp_ > 1 )
+    if ( nrdisp_ == 1 )
     {
-	for ( int idx=0; idx<nrdisp_; idx++ )
-	{
-	    msg += pdf.size(idx);
-	    if ( idx < nrdisp_-1 ) msg += "x";
-	}
-	msg += " ";
+	Array1DImpl<float> pdfarr = Array1DImpl<float>( 0 );
+	SampledProbDenFunc1D pdf( pdfarr ); 
+	fillPDF( pdf );
+	
+	BufferString errmsg;
+	if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj,&errmsg) )
+	    { uiMSG().error(errmsg); return false; }
     }
-    msg += "Probability Density Function";
-    uiMSG().message( msg );
+    else if ( nrdisp_ == 2 )
+    {
+	Array2DImpl<float> pdfarr = Array2DImpl<float>( Array2DInfoImpl() );
+	SampledProbDenFunc2D pdf( pdfarr ); 
+	fillPDF( pdf );
+	
+	BufferString errmsg;
+	if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj,&errmsg) )
+	    { uiMSG().error(errmsg); return false; }
+    }
+    else
+    {
+	ArrayNDImpl<float> pdfarr =
+	    ArrayNDImpl<float>( ArrayNDInfoImpl(nrdisp_) );
+	SampledProbDenFuncND pdf( pdfarr ); 
+	fillPDF( pdf );
+	
+	BufferString errmsg;
+	if ( !ProbDenFuncTranslator::write(pdf,*pdfioobj,&errmsg) )
+	    { uiMSG().error(errmsg); return false; }
+    }
+
+
+    uiMSG().message( "Probability density function successfully created" );
     return false;
 }

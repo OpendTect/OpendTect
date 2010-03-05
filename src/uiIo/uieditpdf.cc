@@ -8,23 +8,25 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.9 2010-03-04 15:29:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.10 2010-03-05 11:32:00 cvssatyaki Exp $";
 
 #include "uieditpdf.h"
 
-#include "uigeninput.h"
-#include "uitabstack.h"
-#include "uitable.h"
+#include "uiaxishandler.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uimsg.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewer.h"
-#include "pixmap.h"
+#include "uifunctiondisplay.h"
+#include "uigeninput.h"
+#include "uitabstack.h"
+#include "uitable.h"
 
-#include "sampledprobdenfunc.h"
 #include "arrayndsmoother.h"
 #include "flatposdata.h"
+#include "pixmap.h"
+#include "sampledprobdenfunc.h"
 
 #define mDeclArrNDPDF mDynamicCastGet(ArrayNDProbDenFunc*,andpdf,workpdf_)
 #define mDeclNrDims \
@@ -110,12 +112,12 @@ void uiEditProbDenFunc::mkTable( uiGroup* grp )
     for ( int irow=0; irow<nrrows; irow++ )
     {
 	mGetRowIdx(irow);
-	const float rowval = andpdf->sampling(1).atIndex(rowidx);
+	const float rowval = andpdf->sampling(nrdims<2 ? 0: 1).atIndex(rowidx);
 	tbl_->setRowLabel( irow, toString(rowval) );
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( grp );
-    if ( nrdims > 1 )
+    if ( nrdims > 0 )
     {
 	uiToolButton* but = new uiToolButton( bgrp, "View",
 				ioPixmap("viewprdf.png"),
@@ -221,14 +223,49 @@ const char* dimName( bool dim0 ) const
     const ProbDenFunc&	pdf_;
 };
 
+class uiPDF1DViewWin : public uiDialog
+{
+public:
+
+uiPDF1DViewWin( uiParent* p, const float* xvals, const float* yvals, int sz )
+    : uiDialog(p,uiDialog::Setup("1D PDF Viewer","","").modal(false) )
+{
+    setCtrlStyle( uiDialog::LeaveOnly );
+    disp_ = new uiFunctionDisplay( this, uiFunctionDisplay::Setup() );
+    disp_->setVals( xvals, yvals, sz );
+}
+
+uiFunctionDisplay* 	funcDisp()	{ return disp_; }
+
+uiFunctionDisplay* 	disp_;
+
+};
+
 
 void uiEditProbDenFunc::viewPDF( CallBacker* )
 {
     mDeclNrDims; mDeclArrNDPDF;
-    if ( nrdims < 2 || !andpdf ) return;
-    if ( !getValsFromScreen() ) return;
+    if ( !andpdf ) return;
 
     const ArrayND<float>& data = andpdf->getData();
+    if ( nrdims == 1 )
+    {
+	TypeSet<float> xvals;
+	const int sz = data.info().getSize(0);
+	for ( int idx=0; idx<sz; idx++ )
+	    xvals += andpdf->sampling(0).atIndex(idx);
+
+	uiPDF1DViewWin* pdfvwr =
+	    new uiPDF1DViewWin( this, xvals.arr(), data.getData(), sz );
+	pdfvwr->funcDisp()->xAxis()->setName( workpdf_->dimName(0) );
+	pdfvwr->funcDisp()->yAxis(false)->setName( "Frequency" );
+	pdfvwr->setDeleteOnClose( false );
+	pdfvwr->show();
+	return;
+    }
+
+    if ( !getValsFromScreen() ) return;
+
     mDeclSzVars; mDeclIdxs;
 
     if ( !flatvwwin_ )
