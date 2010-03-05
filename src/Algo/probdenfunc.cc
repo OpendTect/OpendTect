@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.11 2010-03-04 16:36:44 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.12 2010-03-05 06:30:17 cvsnanne Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -373,11 +373,12 @@ SampledProbDenFuncND::SampledProbDenFuncND( const ArrayND<float>& arr )
 }
 
 
-SampledProbDenFuncND::SampledProbDenFuncND( const SampledProbDenFuncND& spf )
-    : bins_(spf.bins_)
-    , sds_(spf.sds_)
-    , dimnms_(spf.dimnms_)
+SampledProbDenFuncND::SampledProbDenFuncND( const SampledProbDenFuncND& spdf )
+    : bins_(ArrayNDImpl<float>(spdf.bins_))
+    , sds_(spdf.sds_)
+    , dimnms_(spdf.dimnms_)
 {
+    bins_.copyFrom( spdf.bins_ );
 }
 
 
