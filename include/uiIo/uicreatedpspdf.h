@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Satyaki Maitra
  Date:          Jan 2010
- RCS:           $Id: uicreatedpspdf.h,v 1.2 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:           $Id: uicreatedpspdf.h,v 1.3 2010-03-05 13:57:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiIOObjSel;
 class uiDataPointSetCrossPlotter;
 class uiPrDenFunVarSel;
 class BufferStringSet;
-class SampledProbDenFuncND;
+class ArrayNDProbDenFunc;
 /*! \brief Dialog for Horizon Import */
 
 mClass uiCreateDPSPDF : public uiDialog
@@ -44,7 +44,7 @@ protected:
     uiGenInput*			nrbinfld_;
     uiDataPointSetCrossPlotter&	plotter_;
 
-    void 			fillPDF(SampledProbDenFuncND&);
+    void 			fillPDF(ArrayNDProbDenFunc&);
     void			setColRange(CallBacker*);
     void			butPush(CallBacker*);
     void			handleDisp(CallBacker*);
