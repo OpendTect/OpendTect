@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.4 2010-02-23 09:48:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.5 2010-03-05 09:35:35 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -18,15 +18,25 @@ static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.4 2010-02-23 09:48:55 c
 
 
 uiObjectItemView::uiObjectItemView( uiParent* p )
-    : uiGraphicsView(p, "Object Item Viewer" )
+    : uiGraphicsView(p,"Object Item Viewer")
 {
-    setScene( *new uiGraphicsObjectScene("Object Scene") );
+    uiGraphicsObjectScene* newscene = new uiGraphicsObjectScene("Object Scene");
+    setScene( *newscene );
+    reSize.notify( mCB(this,uiObjectItemView,resetViewArea) );
 } 
 
 
 #define mGetScene(act)\
     mDynamicCastGet(uiGraphicsObjectScene*,sc,&scene())\
     if ( !sc ) act;
+void uiObjectItemView::resetViewArea( CallBacker* )
+{
+    mGetScene(return)
+    uiSize sz = sc->layoutSize();
+    setViewArea( 0, 0, sz.width(), sz.height() );
+}
+
+
 void uiObjectItemView::addItem( uiObjectItem* itm, int stretch )
 {
     objectitems_ += itm;

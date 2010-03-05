@@ -35,6 +35,7 @@ public:
     int				nrItems() const { return objectitems_.size(); }
     int 			stretchFactor(uiObjectItem*);
     void 			setStretchFactor(uiObjectItem*,int sf);
+    void			resetViewArea(CallBacker*);
 
 protected:
 
