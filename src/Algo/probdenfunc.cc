@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.12 2010-03-05 06:30:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.13 2010-03-05 14:49:40 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -20,6 +20,11 @@ static const char* rcsID = "$Id: probdenfunc.cc,v 1.12 2010-03-05 06:30:17 cvsna
 #include <math.h>
 
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
+
+ProbDenFunc::ProbDenFunc( const ProbDenFunc& pdf )
+    : NamedObject(pdf.name())
+{
+}
 
 void ProbDenFunc::fillPar( IOPar& par ) const
 {
@@ -66,7 +71,7 @@ bool ProbDenFunc::isCompatibleWith( const ProbDenFunc& pdf ) const
 ProbDenFunc1D& ProbDenFunc1D::operator =( const ProbDenFunc1D& pd )
 {
     if ( this != & pd )
-	varnm_ = pd.varnm_;
+	{ varnm_ = pd.varnm_; setName( pd.name() ); }
     return *this;
 }
 
@@ -74,10 +79,7 @@ ProbDenFunc1D& ProbDenFunc1D::operator =( const ProbDenFunc1D& pd )
 ProbDenFunc2D& ProbDenFunc2D::operator =( const ProbDenFunc2D& pd )
 {
     if ( this != & pd )
-    {
-	dim0nm_ = pd.dim0nm_;
-	dim1nm_ = pd.dim1nm_;
-    }
+	{ dim0nm_ = pd.dim0nm_; dim1nm_ = pd.dim1nm_; setName( pd.name() ); }
     return *this;
 }
 
@@ -186,7 +188,7 @@ SampledProbDenFunc1D::SampledProbDenFunc1D( const float* vals, int sz )
 
 
 SampledProbDenFunc1D::SampledProbDenFunc1D( const SampledProbDenFunc1D& spdf )
-    : ProbDenFunc1D(spdf.varnm_)
+    : ProbDenFunc1D(spdf)
     , sd_(spdf.sd_)
     , bins_(spdf.bins_)
 {
@@ -275,7 +277,7 @@ SampledProbDenFunc2D::SampledProbDenFunc2D( const Array2D<float>& a2d )
 
 
 SampledProbDenFunc2D::SampledProbDenFunc2D( const SampledProbDenFunc2D& spdf )
-    : ProbDenFunc2D(spdf.dim0nm_,spdf.dim1nm_)
+    : ProbDenFunc2D(spdf)
     , sd0_(spdf.sd0_)
     , sd1_(spdf.sd1_)
     , bins_(spdf.bins_)
@@ -374,17 +376,18 @@ SampledProbDenFuncND::SampledProbDenFuncND( const ArrayND<float>& arr )
 
 
 SampledProbDenFuncND::SampledProbDenFuncND( const SampledProbDenFuncND& spdf )
-    : bins_(ArrayNDImpl<float>(spdf.bins_))
+    : ProbDenFunc(spdf)
+    , bins_(spdf.bins_)
     , sds_(spdf.sds_)
     , dimnms_(spdf.dimnms_)
 {
-    bins_.copyFrom( spdf.bins_ );
 }
 
 
 SampledProbDenFuncND::SampledProbDenFuncND()
     : bins_(ArrayNDImpl<float>(ArrayNDInfoImpl(0)))
-{}
+{
+}
 
 
 SampledProbDenFuncND& SampledProbDenFuncND::operator =(
@@ -392,6 +395,7 @@ SampledProbDenFuncND& SampledProbDenFuncND::operator =(
 {
     if ( this != &spdf )
     {
+	setName( spdf.name() );
 	sds_ = spdf.sds_;
 	bins_ = spdf.bins_;
 	dimnms_ = spdf.dimnms_;
@@ -407,6 +411,7 @@ void SampledProbDenFuncND::copyFrom( const ProbDenFunc& pdf )
 	*this = *spdfnd;
     else
     {
+	setName( pdf.name() );
 	for ( int idx=0; idx<nrDims(); idx++ )
 	    setDimName( idx, pdf.dimName(idx) );
     }

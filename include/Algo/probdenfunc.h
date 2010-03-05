@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.9 2010-03-04 15:28:41 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.10 2010-03-05 14:49:40 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,12 @@ public:
     			//!< tbl[0] tells what my index is for pdf's index '0'
     
     static const char*	sKeyNrDim();
+
+protected:
+
+    			ProbDenFunc()				{}
+    			ProbDenFunc(const ProbDenFunc&);
+
 };
 
 
@@ -64,7 +70,7 @@ mClass ProbDenFunc1D : public ProbDenFunc
 public:
 
     virtual void	copyFrom( const ProbDenFunc& pdf )
-			{ varnm_ = pdf.dimName(0); }
+			{ varnm_ = pdf.dimName(0); setName(pdf.name()); }
 
     virtual int		nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
@@ -83,6 +89,9 @@ protected:
 
     			ProbDenFunc1D( const char* vnm )
 			    : varnm_(vnm)	{}
+    			ProbDenFunc1D( const ProbDenFunc1D& pdf )
+			    : ProbDenFunc(pdf)
+			    , varnm_(pdf.varnm_)		{}
     ProbDenFunc1D&	operator =(const ProbDenFunc1D&);
 
 };
@@ -93,7 +102,8 @@ mClass ProbDenFunc2D : public ProbDenFunc
 public:
 
     virtual void	copyFrom( const ProbDenFunc& pdf )
-			{ dim0nm_ = pdf.dimName(0); dim1nm_ = pdf.dimName(1); }
+			{ dim0nm_ = pdf.dimName(0); dim1nm_ = pdf.dimName(1);
+			  setName(pdf.name()); }
 
     virtual int		nrDims() const			{ return 2; }
     virtual const char*	dimName(int) const;
@@ -111,6 +121,10 @@ protected:
 
     			ProbDenFunc2D( const char* vnm0, const char* vnm1 )
 			    : dim0nm_(vnm0), dim1nm_(vnm1)	{}
+    			ProbDenFunc2D( const ProbDenFunc2D& pdf )
+			    : ProbDenFunc(pdf)
+			    , dim0nm_(pdf.dim0nm_)
+			    , dim1nm_(pdf.dim1nm_)		{}
     ProbDenFunc2D&	operator =(const ProbDenFunc2D&);
 
 };

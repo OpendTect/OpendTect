@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.8 2010-03-04 15:28:41 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.9 2010-03-05 14:49:40 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -146,7 +146,6 @@ public:
 
     			SampledProbDenFuncND(const ArrayND<float>&);
     			SampledProbDenFuncND(const SampledProbDenFuncND&);
-			SampledProbDenFuncND();
     SampledProbDenFuncND& operator =(const SampledProbDenFuncND&);
     			mDefSampledProbDenFuncClone(SampledProbDenFuncND)
     virtual void	copyFrom(const ProbDenFunc&);
@@ -176,6 +175,10 @@ protected:
     virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
     virtual const SamplingData<float>&	getSampling( int d ) const
 					{ return sds_[d]; }
+
+public:
+
+    			SampledProbDenFuncND();
 
 };
 
