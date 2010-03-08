@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.118 2009-10-07 10:15:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.119 2010-03-08 06:27:45 cvsranojay Exp $";
 
 #include "uiodmain.h"
 
@@ -601,18 +601,6 @@ bool uiODMain::askStore( bool& askedanything )
 	    return false;
     }
 
-    doask = true;
-    Settings::common().getYN( "dTect.Ask store picks", doask );
-    if ( doask && !applmgr_->pickSetsStored() )
-    {
-	askedanything = true;
-	int res = uiMSG().askSave( "Pick sets have changed.\n"
-				   "Store the changes now?");
-	if ( res == 1 )
-	    applmgr_->storePickSets();
-	else if ( res == -1 )
-	    return false;
-    }
     if ( SI().has2D() && !askStoreAttribs( true, askedanything ) )
 	return false;
     if ( SI().has3D() && !askStoreAttribs( false, askedanything ) )
