@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.29 2010-01-04 09:18:06 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.30 2010-03-08 12:26:44 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -44,6 +44,8 @@ mGlobal int caseInsensitiveEqual(const char*,const char*,
 mGlobal int matchString(const char* startstring,const char* maybebigger);
 /*!> is a case insensitive version of matchString */
 mGlobal int matchStringCI(const char*,const char*);
+mGlobal int stringEndsWith(const char* endstring,const char* maybebigger);
+mGlobal int stringEndsWithCI(const char*,const char*);
 
 /*!> fills a buffer with the next word (delimited by whitespace) in string.
      It returns a ptr just after the word. */
