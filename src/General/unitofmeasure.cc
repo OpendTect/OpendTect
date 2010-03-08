@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.13 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.14 2010-03-08 12:27:55 cvsbert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -174,21 +174,36 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 {
     if ( !nm || !*nm ) return 0;
 
-    if ( caseInsensitiveEqual(nm,"PU",0) )
-	return "%";
-    else if ( caseInsensitiveEqual(nm,"F",0)
-	   || caseInsensitiveEqual(nm,"FEET",0) )
-	return "ft";
-    else if ( caseInsensitiveEqual(nm,"F/S",0)
-	   || caseInsensitiveEqual(nm,"FT/S",0)
-	   || caseInsensitiveEqual(nm,"FEET/S",0) )
-	return "ft/s";
-    else if ( matchStringCI("USEC/F",nm) || matchStringCI("us/f",nm) )
-	return "us/ft";
-    else if ( matchStringCI("USEC/M",nm) )
-	return "us/m";
-    else if ( matchStringCI("G/C",nm) )
-	return "g/cc";
+    switch ( *nm )
+    {
+    case 'P' : case 'p':
+	if ( caseInsensitiveEqual(nm,"PU",0) )
+	    return "%";
+    break;
+    case 'F': case 'f':
+	if ( caseInsensitiveEqual(nm,"F",0)
+	  || caseInsensitiveEqual(nm,"FT",0)
+	  || caseInsensitiveEqual(nm,"FEET",0) )
+	    return "ft";
+	else if ( caseInsensitiveEqual(nm,"F/S",0)
+	       || caseInsensitiveEqual(nm,"F/SEC",0) )
+	    return "ft/s";
+	else if ( (stringEndsWithCI("/S",nm) || stringEndsWithCI("/SEC",nm))
+		    && (matchStringCI("FT",nm) || matchStringCI("FEET",nm)) )
+	    return "ft/s";
+    break;
+    case 'U' : case 'u':
+	if ( matchStringCI("USEC/F",nm) || matchStringCI("US/F",nm) )
+	    return "us/ft";
+	else if ( matchStringCI("USEC/M",nm) )
+	    return "us/m";
+    break;
+    case 'G' : case 'g':
+	if ( matchStringCI("G/C",nm) || matchStringCI("GM/C",nm)
+	  || matchStringCI("GR/C",nm) )
+	    return "g/cc";
+    break;
+    }
 
     return 0;
 }
