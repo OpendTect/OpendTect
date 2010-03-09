@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.87 2009-11-06 12:01:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.88 2010-03-09 14:22:04 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -437,16 +437,18 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 	}
     }
 
-    BufferString userref;
-    if ( !dsc->isStored() )
-	userref = descpar.find( userRefStr() );
-    else
+    BufferString userref = descpar.find( userRefStr() );
+    if ( dsc->isStored() )
     {
 	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
 	const LineKey lk( keypar->getStringValue() );
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName().buf()) );
-	userref = ioobj.ptr() ? (BufferString)ioobj->name()
-	    		      : (BufferString)descpar.find( userRefStr() );
+	if ( ioobj.ptr() )
+	{
+	    BufferString tentativeuserref = (BufferString)ioobj->name();
+	    if ( !tentativeuserref.isStartOf( userref ) )
+		userref = tentativeuserref;
+	}
     }
     dsc->setUserRef( userref );
 
