@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.9 2010-03-05 14:49:40 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.10 2010-03-09 08:01:00 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "probdenfunc.h"
 #include "samplingdata.h"
 #include "arrayndimpl.h"
+#include "bufstringset.h"
 
 class IOPar;
 

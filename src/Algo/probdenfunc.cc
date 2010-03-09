@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.13 2010-03-05 14:49:40 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.14 2010-03-09 08:01:00 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: probdenfunc.cc,v 1.13 2010-03-05 14:49:40 cvsbe
 #include "iopar.h"
 #include "keystrs.h"
 #include <math.h>
+#include <iostream>
 
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
 

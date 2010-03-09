@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapackbase.cc,v 1.7 2010-03-01 18:09:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: datapackbase.cc,v 1.8 2010-03-09 08:01:00 cvsbert Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: datapackbase.cc,v 1.7 2010-03-01 18:09:55 cvsyu
 #include "keystrs.h"
 #include "survinfo.h"
 #include "separstr.h"
+#include "bufstringset.h"
 
 
 class MapDataPackXYRotater : public ParallelTask
