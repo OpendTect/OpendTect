@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.26 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.27 2010-03-09 12:14:14 cvsraman Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -244,3 +244,28 @@ mReadImpl( readInt16, od_int16 )
 mReadImpl( readInt32, od_int32 )
 mReadImpl( readInt64, od_int64 )
 mReadImpl( readFloat, float )
+
+od_int64 StreamIO::tellg() const
+{
+    return istrm_ ? (od_int64)istrm_->tellg() : -1;
+}
+
+od_int64 StreamIO::tellp() const
+{
+    return ostrm_ ? (od_int64)ostrm_->tellp() : -1;
+}
+
+bool StreamIO::seekg( od_int64 pos, std::ios_base::seekdir dir )
+{
+    if ( !istrm_ ) return false;
+    istrm_->seekg( pos, dir );
+    return istrm_->fail();
+}
+
+bool StreamIO::seekp( od_int64 pos, std::ios_base::seekdir dir )
+{
+    if ( !ostrm_ ) return false;
+    ostrm_->seekp( pos, dir );
+    return ostrm_->fail();
+}
+
