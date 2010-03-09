@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.95 2010-03-04 10:48:39 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.96 2010-03-09 23:29:18 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -41,6 +41,7 @@ static const int cSEGYWarnPos = 2;
 static const int cSEGYWarnZeroSampIntv = 3;
 static const int cSEGYWarnDataReadIncomplete = 4;
 static const int cSEGYWarnNonrectCoord = 5;
+static const int cSEGYWarnSuspiciousCoord = 6;
 static const int cMaxNrSamples = 1000000;
 static int maxnrconsecutivebadtrcs = -1;
 static const char* sKeyMaxConsBadTrcs = "SEGY.Max Bad Trace Block";
@@ -209,6 +210,13 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 	      "First occurrence ";
 	msg += detail;
     }
+    else if ( nr == cSEGYWarnSuspiciousCoord )
+    {
+	msg = "Suspiciously large coordinate found.\nThis may be incorrect "
+	    "- please check the coordinate scaling.\nOverrule if necessary."
+	    "\nCoordinate found: ";
+	msg.add( detail ).add( " at " ).add( getTrcPosStr() );
+    }
 
     SeisTrcTranslator::addWarn( nr, msg );
 }
@@ -308,6 +316,13 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 		{ errmsg = "Cannot read coordinate file"; return; }
 	}
 	ti.coord = bp2c_->coordAt( ti.nr );
+    }
+    
+    if ( ti.coord.x > 1e9 || ti.coord.y > 1e9 )
+    {
+	BufferString coordstr("(");
+	coordstr.add( ti.coord.x ).add( "," ).add( ti.coord.y ).add( "(" );
+	addWarn( cSEGYWarnSuspiciousCoord, coordstr );
     }
 }
 
