@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.13 2010-03-09 08:03:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.14 2010-03-09 12:02:19 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -295,6 +295,7 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	    uiFlatViewer& vwr = vwwinnd_->viewer();
 	    FlatView::Appearance& app = vwr.appearance();
 	    app.ddpars_.show( false, true );
+	    app.ddpars_.vd_.blocky_ = true;
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.title_ = pdf_.name();
 	    ann.setAxesAnnot( true );
@@ -326,12 +327,12 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 
 	SamplingData<float> sd( andpdf->sampling(0) );
 	StepInterval<double> rg( sd.start,
-				 sd.start + andpdf->size(0) * sd.step,
+				 sd.start + (andpdf->size(0)-1) * sd.step,
 				 sd.step );
 	dp->posData().setRange( true, rg );
 	sd = SamplingData<float>( andpdf->sampling(1) );
 	rg = StepInterval<double>( sd.start,
-				   sd.start + andpdf->size(1) * sd.step,
+				   sd.start + (andpdf->size(1)-1) * sd.step,
 				   sd.step );
 	dp->posData().setRange( false, rg );
 	DPM( DataPackMgr::FlatID() ).add( dp );
