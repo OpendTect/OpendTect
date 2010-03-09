@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.88 2010-03-09 14:22:04 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.89 2010-03-09 22:45:20 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -437,7 +437,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 	}
     }
 
-    BufferString userref = descpar.find( userRefStr() );
+    BufferString userref = descpar.find( userRefStr() ).buf();
     if ( dsc->isStored() )
     {
 	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
