@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.99 2009-09-14 13:18:37 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.100 2010-03-09 08:01:56 cvsbert Exp $";
 
 #include "attriboutput.h"
 
@@ -168,7 +168,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	if ( cmvs && cmvs->handlesUndef() )
 	{
 	    const BinDataDesc desc = cmvs->dataDesc();
-	    datacubes_->addCube(mUdf(float), false, &desc );
+	    datacubes_->addCube(mUdf(float), &desc );
 	}
 	else
 	    datacubes_->addCube(mUdf(float));

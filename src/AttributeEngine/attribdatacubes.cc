@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.28 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.29 2010-03-09 08:01:56 cvsbert Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -31,39 +31,23 @@ DataCubes::~DataCubes()
 { deepErase( cubes_ ); }
 
 
-bool DataCubes::addCube( bool maydofile, const  BinDataDesc* desc )
+bool DataCubes::addCube( const  BinDataDesc* desc )
 {
     float dummy;
     const BinDataDesc floatdesc( dummy );
     Array3DImpl<float>* arr = 0;
     if ( !desc || (*desc)==floatdesc )
     {
-        arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, false);
+        arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_ );
 	if ( !arr->isOK() )
 	{
-	    if ( maydofile )
-	    {
-		ArrayNDFileStor<float>* stor =
-		    new ArrayNDFileStor<float>( arr->info().getTotalSz() );
-		if ( !stor->isOK() )
-		{
-		    delete arr;
-		    delete stor;
-		    return false;
-		}
-
-		arr->setStorage( stor );
-	    }
-	    else
-	    {
-		delete arr;
-		return false;
-	    }
+	    delete arr;
+	    return false;
 	}
     }
     else
     {
-	 arr = new Array3DImpl<float>( 0, 0, 0, false);
+	 arr = new Array3DImpl<float>( 0, 0, 0 );
 	 ConvMemValueSeries<float>* stor= new ConvMemValueSeries<float>(0,*desc);
 	 arr->setStorage( stor );
 	 arr->setSize( inlsz_, crlsz_, zsz_ );
@@ -79,9 +63,9 @@ bool DataCubes::addCube( bool maydofile, const  BinDataDesc* desc )
 }
 
 
-bool DataCubes::addCube( float val, bool maydofile, const BinDataDesc* t )
+bool DataCubes::addCube( float val, const BinDataDesc* t )
 {
-    if ( !addCube( maydofile, t ) )
+    if ( !addCube( t ) )
 	return false;
 
     setValue( cubes_.size()-1, val );

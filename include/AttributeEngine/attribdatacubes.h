@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.17 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.18 2010-03-09 08:01:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,10 +33,8 @@ public:
     				DataCubes();
 
     int				nrCubes() const { return cubes_.size(); }
-    bool			addCube(bool fileifnomem=false,
-					const BinDataDesc* = 0 );
-    bool			addCube(float,bool fileifnomem=false,
-					const BinDataDesc* = 0 );
+    bool			addCube(const BinDataDesc* bdd=0);
+    bool			addCube(float,const BinDataDesc* bdd=0);
     				//!<Adds the cube and inits it to the given val.
     void			removeCube(int);
 
