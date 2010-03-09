@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.41 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: arraynd.h,v 1.42 2010-03-09 08:02:52 cvsbert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -39,39 +39,30 @@ public:
 
     virtual inline bool			isOK() const;
 
-					// Read specs
-    virtual T	                	getND( const int* ) const	= 0;
+    virtual T	                	getND(const int*) const	= 0;
+    virtual bool			isSettable() const	{ return true; }
+    virtual void			setND(const int*,T)	= 0;
 
     inline const ValueSeries<T>*	getStorage() const
 					{ return getStorage_(); }
-
-    inline const T*			getData() const
-					{ return getData_(); }
-    virtual const T*			get1D(const int*) const;
-    virtual int				get1DDim() const;
-
-					// Write specs
-    virtual bool			isSettable() const
-					{ return true; }
-    virtual void			setND( const int*, T )	= 0;
-
+    inline ValueSeries<T>*		getStorage();
     virtual bool			canSetStorage() const { return false; }
     virtual bool			setStorage(ValueSeries<T>* s)
     					{ delete s; return true; }
     					/*!<becomes mine. The size must be
 					    settable, or I return false. */
 
-    inline ValueSeries<T>*		getStorage();
+    inline const T*			getData() const
+					{ return getData_(); }
     inline T*				getData();
-    virtual T*				get1D( const int* i );
+    virtual const T*			get1D(const int*) const;
+    virtual T*				get1D(const int*);
+    virtual int				get1DDim() const;
+
 
     virtual const ArrayNDInfo&		info() const		= 0;
     virtual bool			canSetInfo() const
     					{ return false; }
-    					/*!< You might not be able to
-					     change nr dimension, check
-					     canChangeNrDims() if you
-					     want to do that. */
     virtual bool			canChangeNrDims() const
     					{ return false; }
     virtual bool			setInfo( const ArrayNDInfo& )
@@ -154,22 +145,92 @@ public:
 };
 
 
-/*!Converter class from one type to another. */
+/*!\brief iterates through all samples in an ArrayND.
 
-template <class T, class TT> class Array3DConv : public Array3D<T>
+   ArrayNDIter will be on the first position when initiated, and move to
+   the second at the fist call to next(). next() will return false when
+   no more positions are avaliable.
+*/
+
+mClass ArrayNDIter
 {
 public:
-    		Array3DConv(Array3D<TT>* arr) : arr_( arr ) {}
-    		~Array3DConv() { delete arr_; }
-    void	set(int p0,int p1,int p2,T v)	{arr_->set( p0, p1, p2,(TT)v );}
-    T        	get(int p0,int p1,int p2) const {return (T)arr_->get(p0,p1,p2);}
-    const Array3DInfo&	info() const		{return arr_->info(); }
+				ArrayNDIter( const ArrayNDInfo& );
+				~ArrayNDIter();
+
+    bool			next();
+    void			reset();
+
+    template <class T> void inline setPos(const T& idxabl);
+    const int*			getPos() const { return position_; }
+    int				operator[](int) const;
 
 protected:
-    Array3D<TT>*	arr_;
+
+    bool			inc(int);
+
+    int*			position_;
+    const ArrayNDInfo&		sz_;
+
 };
 
-//Only implementations below
+
+template <class T> inline void ArrayNDIter::setPos( const T& idxable )
+{
+    for ( int idx=sz_.getNDim()-1; idx>=0; idx-- )
+	position_[idx] = idxable[idx];
+}
+
+
+/*! Converter classes from one type to another. */
+
+#define mDefArrayNDConverter(nd) \
+template <class T, class TT> \
+class Array##nd##Conv : public Array##nd<T> \
+{ \
+public: \
+ \
+    			Array##nd##Conv(Array##nd<TT>* arr) \
+			    : arr_(arr)	{} \
+    			~Array##nd##Conv()	{ delete arr_; } \
+ \
+    const Array##nd##Info&	info() const	{ return arr_->info(); } \
+ \
+protected: \
+ \
+    Array##nd<TT>*	arr_; \
+ \
+public:
+
+mDefArrayNDConverter(1D)
+
+    T        		get( int p0 ) const
+    					{ return (T)arr_->get( p0 ); }
+    void		set( int p0, T v )
+    					{ arr_->set( p0, (TT)v ); }
+
+};
+
+mDefArrayNDConverter(2D)
+
+    T        		get( int p0, int p1 ) const
+    					{ return (T)arr_->get( p0, p1 ); }
+    void		set( int p0, int p1, T v )
+    					{ arr_->set( p0, p1, (TT)v ); }
+
+};
+
+mDefArrayNDConverter(3D)
+
+    T        		get( int p0, int p1, int p2 ) const
+    					{ return (T)arr_->get( p0, p1, p2 ); }
+    void		set( int p0, int p1, int p2, T v )
+    					{ arr_->set( p0, p1, p2, (TT)v ); }
+
+};
+
+
+// Only implementations below
 
 template <class T> inline
 bool ArrayND<T>::isOK() const
@@ -203,24 +264,23 @@ int ArrayND<T>::get1DDim() const
 template <class T> inline
 T* ArrayND<T>::getData()
 {
-    return isSettable() ? const_cast<T*>(((const ArrayND*)this)->getData_()): 0;
+    return !isSettable() ? 0
+			 : const_cast<T*>(((const ArrayND*)this)->getData_());
 }
 
 
 template <class T> inline
 ValueSeries<T>* ArrayND<T>::getStorage()
 {
-    return isSettable()
-	? const_cast<ValueSeries<T>* >
-		(((const ArrayND*)this)->getStorage_())
-	: 0;
+    return !isSettable() ? 0 : 
+	const_cast<ValueSeries<T>* >(((const ArrayND*)this)->getStorage_());
 }
 
 
 template <class T> inline
 T* ArrayND<T>::get1D( const int* i )
 {
-    return isSettable() ? const_cast<T*>(((const ArrayND*)this)->get1D(i)) :0;
+    return !isSettable() ? 0 : const_cast<T*>(((const ArrayND*)this)->get1D(i));
 }
 
 
@@ -368,5 +428,6 @@ void ArrayND<T>::getAll( T* ptr ) const
     ArrayNDGetAll<T> getter( ptr, *this );
     getter.execute();
 }
+
 
 #endif
