@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.27 2010-03-09 12:14:14 cvsraman Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.28 2010-03-09 12:15:35 cvsraman Exp $";
 
 #include "strmoper.h"
 #include "strmio.h"
@@ -259,13 +259,13 @@ bool StreamIO::seekg( od_int64 pos, std::ios_base::seekdir dir )
 {
     if ( !istrm_ ) return false;
     istrm_->seekg( pos, dir );
-    return istrm_->fail();
+    return !istrm_->fail();
 }
 
 bool StreamIO::seekp( od_int64 pos, std::ios_base::seekdir dir )
 {
     if ( !ostrm_ ) return false;
     ostrm_->seekp( pos, dir );
-    return ostrm_->fail();
+    return !ostrm_->fail();
 }
 
