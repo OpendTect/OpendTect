@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.14 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.15 2010-03-09 08:03:15 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -14,8 +14,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 
-/*!
-Contains the information about the size of ArrayND, and
+/*!  Contains the information about the size of ArrayND, and
 in what order the data is stored (if accessable via a pointer).
 */
 
@@ -192,35 +191,6 @@ protected:
 };
 
 
-/*!\brief ArrayNDIter is an object that is able to iterate through all samples
-   in a ArrayND.
-   \par
-   ArrayNDIter will stand on the first position when initiated, and move to
-   the second at the fist call to next(). next() will return false when
-   no more positions are avaliable
-*/
-
-mClass ArrayNDIter
-{
-public:
-				ArrayNDIter( const ArrayNDInfo& );
-				~ArrayNDIter();
-
-    bool			next();
-    void			reset();
-
-    template <class T> void inline	setPos( const T& idxabl );
-    const int*			getPos() const { return position_; }
-    int				operator[](int) const;
-
-protected:
-    bool			inc(int);
-
-    int*			position_;
-    const ArrayNDInfo&		sz_;
-};
-
-
 inline int Array1DInfoImpl::getSize( int dim ) const
 {
     return dim ? 0 : sz_;
@@ -251,11 +221,4 @@ inline od_uint64 Array3DInfoImpl::getOffset( int p0, int p1, int p2 ) const
 }
 
 
-template <class T> inline void ArrayNDIter::setPos( const T& idxable )
-{
-    for ( int idx=sz_.getNDim()-1; idx>=0; idx-- )
-	position_[idx] = idxable[idx];
-}
-
 #endif
-
