@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: odmemory.h,v 1.3 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: odmemory.h,v 1.4 2010-03-09 20:19:47 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -71,6 +71,7 @@ public:
     void	setOutput( T* ptr )		{ outptr_ = ptr; outvs_ = 0; }
     void	setOutput( ValueSeries<T>& vs )	{ outptr_ = vs.arr();
 						  outvs_ = &vs; }
+    void	setSize(od_int64 sz)		{ sz_ = sz; }
 
     bool	doPrepare(int);
     bool	doWork(od_int64,od_int64,int);
