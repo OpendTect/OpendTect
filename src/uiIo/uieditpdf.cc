@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.12 2010-03-05 14:49:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.13 2010-03-09 08:03:53 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -297,13 +297,18 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	    app.ddpars_.show( false, true );
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.title_ = pdf_.name();
-	    if ( nrdims_ > 2 )
-		ann.title_.add( " at " ).add( pdf_.dimName(2) ).add( "=" )
-		    	  .add( andpdf->sampling(2).atIndex(curdim2_) );
 	    ann.setAxesAnnot( true );
 	    ann.x1_.name_ = pdf_.dimName(0);
 	    ann.x2_.name_ = pdf_.dimName(1);
 	    vwwinnd_->windowClosed.notify( clsecb );
+	}
+
+	if ( nrdims_ > 2 )
+	{
+	    FlatView::Annotation& ann = vwwinnd_->viewer().appearance().annot_;
+	    ann.title_ = pdf_.name();
+	    ann.title_.add( " at " ).add( pdf_.dimName(2) ).add( "=" )
+		      .add( andpdf->sampling(2).atIndex(curdim2_) );
 	}
 
 	Array2D<float>* arr2d = new Array2DImpl<float>( nrcols, nrrows );
@@ -394,7 +399,7 @@ bool uiEditProbDenFunc::acceptOK( CallBacker* )
 
     if ( !getNamesFromScreen() )
 	return false;
-    if ( tbl_ && getValsFromScreen(&chgd_) )
+    if ( tbl_ && !getValsFromScreen(&chgd_) )
 	return false;
 
     if ( chgd_ )
