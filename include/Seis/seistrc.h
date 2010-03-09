@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.38 2010-02-15 09:56:14 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.39 2010-03-09 22:50:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,11 +140,12 @@ public:
     float*	arr();
     const float* arr() const;
 
+    inline ValueSeries<float>*	clone() const;
+
 protected:
 
     SeisTrc&	trc_;
     int		icomp_;
-
 };
 
 /*!> Seismic traces conforming the MathFunction interface.
@@ -165,6 +166,10 @@ protected:
     const SeisTrc&	trc_;
     const int		icomp_;
 };
+
+inline ValueSeries<float>* SeisTrcValueSeries::clone() const
+{ return new SeisTrcValueSeries( trc_, icomp_ ); }
+
 
 /*!\mainpage Seismics
 

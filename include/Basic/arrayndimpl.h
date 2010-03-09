@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.68 2010-03-09 08:03:15 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.69 2010-03-09 22:50:23 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -39,7 +39,10 @@ public:
 
     inline			Array1DImpl(int sz);
     inline			~Array1DImpl();
-    				mDeclArrayNDCopyTools(1D)
+    				mDeclArrayNDCopyTools(1D);
+
+    ValueSeries<T>*		clone() const
+    				{ return new Array1DImpl<T>(*this); }
     		
     inline bool			isOK() const { return stor_ && stor_->isOK(); }
     inline void			copyFrom(const Array1D<T>&);

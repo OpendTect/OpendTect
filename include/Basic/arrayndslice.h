@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: arrayndslice.h,v 1.7 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: arrayndslice.h,v 1.8 2010-03-09 22:50:23 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
@@ -52,6 +52,8 @@ public:
 				Array1DSlice(ArrayND<T>&);
 				Array1DSlice(const ArrayND<T>&);
 				~Array1DSlice();
+
+    ValueSeries<T>*		clone() const;
 
     T				get( int ) const;
     void			set( int, T );
@@ -145,6 +147,18 @@ T Array1DSlice<T>::get( int pos ) const
     return source_.getND( srcpos );
 }
 
+
+template <class T> inline
+ValueSeries<T>* Array1DSlice<T>::clone() const
+{
+    Array1DSlice<T>* res = new Array1DSlice<T>( source_ );
+    res->info_ = info_;
+    res->vardim_ = vardim_;
+    res->position_ = position_;
+    res->offset_ = offset_;
+
+    return res;
+}
 
 template <class T> inline
 const Array1DInfo& Array1DSlice<T>::info() const	

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris Tingdahl
  Date:          Oct 2006
- RCS:           $Id: convmemvalseries.h,v 1.8 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:           $Id: convmemvalseries.h,v 1.9 2010-03-09 22:50:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
 
     inline		~ConvMemValueSeries();
     inline bool		isOK() const;
+
+    ValueSeries<T>*	clone() const;
 
     inline od_int64	size() const;
     inline bool		writable() const;
@@ -87,6 +89,23 @@ ConvMemValueSeries<T>::~ConvMemValueSeries()
     delete [] ptr_;
     delete undefhandler_;
 }
+
+
+template <class T> inline
+ValueSeries<T>*	ConvMemValueSeries<T>::clone() const
+{
+    ConvMemValueSeries<T>* res = new ConvMemValueSeries( size_,
+	    interpreter_.dataChar(), undefhandler_ );
+    if ( storArr() )
+    {
+	MemCopier<char> copier( res->storArr(), storArr(),
+		size_ * interpreter_.nrBytes() );
+	copier.execute();
+    }
+
+    return res;
+}
+
 
 
 template <class T> inline
