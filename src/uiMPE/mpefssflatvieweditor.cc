@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.5 2010-03-10 05:33:14 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.6 2010-03-10 05:43:48 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,9 @@ void FaultStickSetFlatViewEditor::activeFSSChgCB( CallBacker* )
 
 
 void FaultStickSetFlatViewEditor::fssRepaintATSCB( CallBacker* )
-{ cleanActStkContainer(); }
+{ 
+    cleanActStkContainer(); 
+}
 
 
 void FaultStickSetFlatViewEditor::fssRepaintedCB( CallBacker* )
