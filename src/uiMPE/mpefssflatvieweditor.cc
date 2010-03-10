@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.3 2010-03-04 06:37:49 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.4 2010-03-10 05:26:45 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
     editor_->movementFinished.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
+    MPE::engine().activefsschanged.remove(
+	    mCB(this,FaultStickSetFlatViewEditor,activeFSSChgCB) );
     setMouseEventHandler( 0 );
 }
 
