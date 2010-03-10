@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.5 2010-02-15 16:15:51 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.6 2010-03-10 16:19:04 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -23,6 +23,11 @@ static const char* rcsID = "$Id: seisbayesclass.cc,v 1.5 2010-02-15 16:15:51 cvs
 const char* SeisBayesClass::sKeyPDFID()		{ return "PDF.ID"; }
 const char* SeisBayesClass::sKeySeisInpID()	{ return "Seismics.Input.ID"; }
 const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
+const char* SeisBayesClass::sKeyNormPol()	{ return "Norm.Policy"; }
+const char* SeisBayesClass::sKeyPreScale()	{ return "PreScale"; }
+
+DefineEnumNames(SeisBayesClass,NormPol,0,"Normalization Policy")
+    { "None", "Per bin", "Joint", "Per PDF", 0 };
 
 
 SeisBayesClass::SeisBayesClass( const IOPar& iop )
@@ -35,11 +40,16 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	, outtrcs_(*new SeisTrcBuf(true))
 	, initstep_(1)
 	, nrdims_(0)
+	, normpol_(None)
 {
     const char* res = iop.find( sKey::Type );
     is2d_ = res && *res == '2';
     if ( is2d_ )
 	{ msg_ = "2D not implemented"; return; }
+
+    res = iop.find( sKeyNormPol() );
+    if ( res && *res )
+	normpol_ = eEnum(NormPol,res);
 
     msg_ = "Initializing";
 }
@@ -98,6 +108,13 @@ bool SeisBayesClass::getPDFs( const IOPar& iop )
 	TypeSet<int>* idxs = new TypeSet<int>;
 	pdf->getIndexTableFor( pdf0, *idxs );
 	pdfxtbls_ += idxs;
+
+	const char* res = iop.find( mGetSeisBayesPreScaleKey(ipdf) );
+	float scl = 1;
+	if ( res && *res ) scl = atof( res );
+	if ( scl < 0 ) scl = -scl;
+	if ( scl == 0 ) scl = 1;
+	prescales_ += scl;
     }
 
     if ( pdfs_.isEmpty() )

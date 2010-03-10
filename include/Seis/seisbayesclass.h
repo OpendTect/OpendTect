@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.5 2010-02-15 16:15:51 cvsbert Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.6 2010-03-10 16:19:04 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 #include "executor.h"
 #include "bufstringset.h"
+#include "enums.h"
 class IOPar;
 class SeisTrc;
 class SeisTrcBuf;
@@ -41,12 +42,17 @@ mClass SeisBayesClass : public Executor
 {
 public:
 
+    enum NormPol		{ None, PerBin, Joint, PerPDF };
+    				DeclareEnumUtils(NormPol)
+
     				SeisBayesClass(const IOPar&);
     				~SeisBayesClass();
 
     static const char*		sKeyPDFID();
     static const char*		sKeySeisInpID();
     static const char*		sKeySeisOutID();
+    static const char*		sKeyNormPol();
+    static const char*		sKeyPreScale();
 
     int				nextStep();
     const char*			message() const;
@@ -64,6 +70,8 @@ protected:
     SeisTrcBuf&			outtrcs_;
     const IOPar&		pars_;
     ObjectSet< TypeSet<int> >	pdfxtbls_;
+    NormPol			normpol_;
+    TypeSet<float>		prescales_;
 
     const int			nrdims_;
     od_int64			nrdone_;
@@ -90,8 +98,11 @@ protected:
 
 };
 
-#define mGetSeisBayesIDKey(ky,nr) \
-            IOPar::compKey(SeisBayesClass::sKey##ky##ID(),nr)
+#define mGetSeisBayesKey(ky,nr) \
+    IOPar::compKey(SeisBayesClass::sKey##ky(),nr)
+#define mGetSeisBayesIDKey(ky,nr) mGetSeisBayesKey(ky##ID,nr)
+
+#define mGetSeisBayesPreScaleKey(nr) mGetSeisBayesKey(PreScale,nr)
 #define mGetSeisBayesPDFIDKey(nr) mGetSeisBayesIDKey(PDF,nr)
 #define mGetSeisBayesSeisInpIDKey(nr) mGetSeisBayesIDKey(SeisInp,nr)
 #define mGetSeisBayesSeisOutIDKey(nr) mGetSeisBayesIDKey(SeisOut,nr)

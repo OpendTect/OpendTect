@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.9 2010-02-17 12:53:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.10 2010-03-10 16:19:04 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.9 2010-02-17 12:53:06 c
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uigeninput.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiobjdisposer.h"
@@ -29,13 +30,22 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.9 2010-02-17 12:53:06 c
 #include "seistrctr.h"
 
 
-
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxNrPDFs = 5;
 static const char* sKeyBayesInv = "Bayesian Inversion";
 #define mInpPDFs	10
-#define mInpSeis	11
-#define mOutput		12
+#define mGetWghts	11
+#define mInpSeis	12
+#define mOutput		13
+
+
+static ProbDenFunc* getPDF( const char* id, BufferString& emsg )
+{
+    if ( !id || !*id ) { emsg = "No ID"; return 0; }
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+    if ( !ioobj ) { emsg = "No IOObj"; return 0; }
+    return ProbDenFuncTranslator::read(*ioobj,&emsg);
+}
 
 
 uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
@@ -69,6 +79,9 @@ void uiSeisBayesClass::doPart()
     {
     case mInpPDFs:
 	getInpPDFs();
+    break;
+    case mGetWghts:
+	getWeights();
     break;
     case mInpSeis:
 	getInpSeis();
@@ -212,16 +225,79 @@ void uiSeisBayesClass::getInpPDFs()
 void uiSeisBayesClass::inpPDFsGot( CallBacker* )
 {
     mHandleVWCancel(inppdfdlg_,cCancelled())
-    mSetState( mInpSeis );
+    mSetState( mGetWghts );
 }
 
 
-static ProbDenFunc* getPDF( const char* id, BufferString& emsg )
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
+class uiSeisBayesWeights : public uiVarWizardDlg
 {
-    if ( !id || !*id ) { emsg = "No ID"; return 0; }
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
-    if ( !ioobj ) { emsg = "No IOObj"; return 0; }
-    return ProbDenFuncTranslator::read(*ioobj,&emsg);
+public:
+
+uiSeisBayesWeights( uiParent* p, IOPar& pars )
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[2] Normalization/Scaling",
+			 mTODOHelpID), pars,Middle)
+{
+    normpolfld_ = new uiGenInput( this, "Normalization mode",
+		      StringListInpSpec(SeisBayesClass::NormPolNames()) );
+    const char* res = pars_.find( SeisBayesClass::sKeyNormPol() );
+    SeisBayesClass::NormPol pol = SeisBayesClass::PerBin;
+    if ( res && *res ) pol = eEnum(SeisBayesClass::NormPol,res);
+    normpolfld_->setValue( (int)pol );
+
+    for ( int idx=0; idx<cMaxNrPDFs; idx++ )
+    {
+	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
+	if ( !id || !*id ) break;
+
+	BufferString scltxt( "Pre-scale for '" );
+	scltxt.add( IOM().nameOf(id) ).add( "'" );
+	float scl = 1;
+	res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
+	if ( res && *res ) scl = atof( res );
+	uiGenInput* fld = new uiGenInput( this, scltxt, FloatInpSpec(scl) );
+	fld->attach( alignedBelow, idx ? sclflds_[idx-1] : normpolfld_ );
+	sclflds_ += fld;
+    }
+}
+
+bool acceptOK( CallBacker* )
+{
+    for ( int idx=0; idx<sclflds_.size(); idx++ )
+    {
+	float scl = sclflds_[idx]->getfValue();
+	if ( scl <= 0 )
+	    mErrRet("Please enter only valid scales (> 0)")
+	if ( mIsUdf(scl) ) scl = 1;
+	pars_.set( mGetSeisBayesPreScaleKey(idx), scl );
+    }
+
+    const SeisBayesClass::NormPol pol
+	= (SeisBayesClass::NormPol)normpolfld_->getIntValue();
+    pars_.set( SeisBayesClass::sKeyNormPol(),
+	    eString(SeisBayesClass::NormPol,pol) );
+    return true;
+}
+
+    uiGenInput*		normpolfld_;
+    ObjectSet<uiGenInput> sclflds_;
+
+};
+
+
+void uiSeisBayesClass::getWeights()
+{
+    wghtsdlg_ = new uiSeisBayesWeights( parent_, pars_ );
+    mLaunchVWDialog(wghtsdlg_,uiSeisBayesClass,weightsGot);
+}
+
+
+void uiSeisBayesClass::weightsGot( CallBacker* )
+{
+    mHandleVWCancel(wghtsdlg_,mInpPDFs)
+    mSetState( mInpSeis );
 }
 
 
@@ -230,7 +306,7 @@ class uiSeisBayesSeisInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[2] Specify Seismic input",
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[3] Specify Seismic input",
 			 mTODOHelpID), pars,Middle)
     , lsfld_(0)
     , is2d_(is2d)
@@ -299,7 +375,7 @@ void uiSeisBayesClass::getInpSeis()
 
 void uiSeisBayesClass::inpSeisGot( CallBacker* )
 {
-    mHandleVWCancel(inpseisdlg_,mInpPDFs)
+    mHandleVWCancel(inpseisdlg_,mGetWghts)
     mSetState( mOutput );
 }
 
@@ -310,7 +386,7 @@ public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,
-			"[3] Select and specify output",mTODOHelpID), pars,End)
+			"[4] Select and specify output",mTODOHelpID), pars,End)
     , is2d_(is2d)
 {
     if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }
@@ -360,8 +436,6 @@ void addOut( const char* nm, bool ispdf )
 	fld->attach( alignedBelow, flds3d_[curidx-1] );
     flds3d_ += fld;
 }
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool acceptOK( CallBacker* )
 {
