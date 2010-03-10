@@ -3,7 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID = "$Id: genericnumer.cc,v 1.18 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: genericnumer.cc,v 1.19 2010-03-10 05:38:12 cvsnanne Exp $";
 
 #include "genericnumer.h"
 #include "undefval.h"
@@ -14,16 +14,19 @@ static const char* rcsID = "$Id: genericnumer.cc,v 1.18 2009-07-22 16:01:29 cvsb
 
 bool findValue( const FloatMathFunction& func, float x1, float x2, float& res,
 		float targetval, float tol)
-{ 
+{
     float f1 = targetval - func.getValue(x1);
     float f2 = targetval - func.getValue(x2);
+
+    if ( f1==0.0 ) { res = x1; return true; }
+    if ( f2==0.0 ) { res = x2; return true; }
 
     if ( f2*f1>0.0 ) return false;
 
     float f3 = f2;
+    float x3, e, d;
     for ( int idx=1; idx<=ITMAX; idx++ )
     {
-	float x3, e, d;
 	if ( f2*f3 > 0.0 )
 	{
 	    x3 = x1;
