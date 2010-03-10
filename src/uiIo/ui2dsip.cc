@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dsip.cc,v 1.9 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: ui2dsip.cc,v 1.10 2010-03-10 16:18:11 cvsbert Exp $";
 
 #include "ui2dsip.h"
 #include "uidialog.h"
@@ -16,6 +16,12 @@ static const char* rcsID = "$Id: ui2dsip.cc,v 1.9 2009-07-22 16:01:39 cvsbert Ex
 #include "cubesampling.h"
 #include "errh.h"
 
+static const char* dlgtitle =
+"Specify working area values.\n"
+"No need to be precise, parts can lie outside the ranges.\n"
+"The values will determine the size of the display box,\n"
+"and provide some defaults a.o. for 3D horizon generation.";
+
 
 class ui2DDefSurvInfoDlg : public uiDialog
 {
@@ -23,9 +29,9 @@ public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey setup for 2D only",
-				 "Specify survey characteristics","0.3.8"))
+				 dlgtitle,"0.3.8"))
 {
-    trcdistfld = new uiGenInput( this, "Average trace distance (approx.)",
+    trcdistfld = new uiGenInput( this, "Approximate average trace distance",
 	    			 FloatInpSpec() );
     DoubleInpSpec dis;
     xrgfld = new uiGenInput( this, "X-coordinate range", dis, dis );
