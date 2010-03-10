@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.80 2010-01-22 14:32:31 cvsbruno Exp $
+ RCS:           $Id: uimainwin.h,v 1.81 2010-03-10 07:18:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,6 @@ public:
     void		setExitAppOnClose(bool yn);
     void		setDeleteOnClose(bool yn);
 
-    void		moveDockWindow(uiDockWin&,Dock d=Top,int index=-1);
     void		removeDockWindow(uiDockWin*);
     void		addDockWindow(uiDockWin&,Dock);
     void		addToolBar(uiToolBar*);

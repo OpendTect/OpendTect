@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.197 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.198 2010-03-10 07:18:44 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -134,7 +134,6 @@ public:
 			    return true;
 			}
 
-    void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
     void		removeDockWin(uiDockWin*);
     void		addDockWin(uiDockWin&,uiMainWin::Dock);
 
@@ -196,10 +195,6 @@ private:
     Timer		poptimer;
     bool		popped_up;
     uiSize		prefsz_;
-
-    ObjectSet<uiDockWin>	wins2move;
-    TypeSet<uiMainWin::Dock>	docks4wins;
-    void			moveDockWindows();
 
     bool		deletefrombody_;
     bool		deletefromod_;
@@ -325,7 +320,6 @@ void uiMainWinBody::popTimTick( CallBacker* )
 {
     if ( popped_up ) { pErrMsg( "huh?" );  return; }
 	popped_up = true;
-    moveDockWindows();
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
 	resize( prefsz_.hNrPics(), prefsz_.vNrPics() );
 }
@@ -377,42 +371,10 @@ void uiMainWinBody::close()
 
 
 uiStatusBar* uiMainWinBody::uistatusbar()
-{
-    return statusbar;
-}
-
+{ return statusbar; }
 
 uiMenuBar* uiMainWinBody::uimenubar()
-{
-    return menubar;
-}
-
-
-void uiMainWinBody::uimoveDockWindow( uiDockWin& dwin, uiMainWin::Dock dock,
-				      int index )
-{
-    if ( index < 0 )
-    {
-	wins2move += &dwin;
-	docks4wins += dock;
-    }
-    else
-    {
-	wins2move.insertAt( &dwin, index );
-	docks4wins.insert( index, dock );
-    }
-
-    moveDockWindows();
-}
-
-
-void uiMainWinBody::moveDockWindows()
-{
-    if ( !poppedUp() ) return;
-
-    wins2move.erase();
-    docks4wins.erase();
-}
+{ return menubar; }
 
 
 void uiMainWinBody::removeDockWin( uiDockWin* dwin )
@@ -715,10 +677,6 @@ const char* uiMainWin::caption( bool unique ) const
 
 void uiMainWin::setDeleteOnClose( bool yn )
 { body_->setAttribute( Qt::WA_DeleteOnClose, yn ); }
-
-
-void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
-{ body_->uimoveDockWindow(dwin,d,index); }
 
 
 void uiMainWin::removeDockWindow( uiDockWin* dwin )
