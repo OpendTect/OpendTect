@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.64 2009-12-07 09:07:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.65 2010-03-11 05:44:57 cvsnanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -486,7 +486,13 @@ bool Well::MarkerSetAscIO::get( std::istream& strm, Well::MarkerSet& ms,
 	for ( int icol=nmcol+1; icol<5; icol++ )
 	{
 	    if ( icol == dpthcol ) break;
-	    fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_[0].pos_.c() = icol;
+
+	    if ( fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_.isEmpty() )
+		fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_ +=
+		    Table::TargetInfo::Selection::Elem( RowCol(0,icol), 0 );
+	    else
+		fd_.bodyinfos_[icol-nmcol+1]->selection_.elems_[0].pos_.c()
+		    = icol;
 	}
     }
 
