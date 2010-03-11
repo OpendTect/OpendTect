@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.128 2010-03-01 18:10:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.129 2010-03-11 10:15:26 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -481,7 +481,8 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->selectActiveVersion( channel, textureidx );
 
-    if ( !as_.validIdx(channel) || !userrefs_.validIdx(channel) )
+    if ( !as_.validIdx(channel) || !userrefs_.validIdx(channel) ||
+	 userrefs_[channel]->isEmpty() )
 	return;
 
     if ( !strcmp("Section ID",userrefs_[channel]->get(0)) )
@@ -765,6 +766,8 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
        return;
 
     data.bivSet().empty();
+    for ( int idx=0; idx<userrefs_[channel]->size(); idx++ )
+	data.dataSet().add( new DataColDef(userrefs_[channel]->get(idx)) );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
