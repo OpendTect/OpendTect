@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.26 2010-03-05 14:35:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.27 2010-03-11 05:45:57 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -256,6 +256,7 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     if ( viewstdcontrol_ && viewstdcontrol_->propDialog() )
 	viewstdcontrol_->propDialog()->close();
 
+    viewstdcontrol_ = 0;
     viewwin_ = 0;
 }
 
