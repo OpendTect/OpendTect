@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.29 2009-09-09 12:46:34 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.30 2010-03-11 16:58:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,8 @@ ________________________________________________________________________
 
   If the values are in contiguous memory, arr() should return non-null.
  
- */
+*/
+
 
 template <class T>
 class ValueSeries
@@ -34,6 +35,7 @@ public:
 
     virtual		~ValueSeries()		{}
 
+    virtual ValueSeries<T>* clone() const			= 0;
     virtual bool	isOK() const			{ return true; }
 
     virtual T		value(od_int64) const		= 0;
@@ -62,6 +64,7 @@ public:
     inline		OffsetValueSeries( ValueSeries<T>& src, od_int64 off );
     inline		OffsetValueSeries( const ValueSeries<T>& src,
 	    				   od_int64 off);
+    inline ValueSeries<T>* clone() const;
 
     inline T		value( od_int64 idx ) const;
     inline void		setValue( od_int64 idx, T v );
@@ -98,6 +101,8 @@ public:
     		ArrayValueSeries( AT* ptr, bool memmine, od_int64 sz=-1 );
     		ArrayValueSeries( od_int64 sz );
     		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
+
+    ValueSeries<RT>*	clone() const;
 
     bool	isOK() const			{ return ptr_; }
 
@@ -140,6 +145,8 @@ public:
     		MultiArrayValueSeries(const MultiArrayValueSeries<RT, AT>&);
     		~MultiArrayValueSeries();
 
+    ValueSeries<RT>*	clone() const;
+
     bool	isOK() const			{ return cursize_>=0; }
 
     RT		value( od_int64 idx ) const;
@@ -164,6 +171,10 @@ protected:
 };
 
 
+template <class RT, class AT> inline
+ValueSeries<RT>* MultiArrayValueSeries<RT,AT>::clone() const
+{ return new MultiArrayValueSeries<RT,AT>( *this ); }
+
 
 template <class T> inline
 OffsetValueSeries<T>::OffsetValueSeries( ValueSeries<T>& src, od_int64 off )
@@ -175,6 +186,11 @@ template <class T> inline
 OffsetValueSeries<T>::OffsetValueSeries(const ValueSeries<T>& src,od_int64 off)
     : src_( const_cast<ValueSeries<T>& >(src) ), off_( off ), writable_(false) 
 {}
+
+
+template <class T> inline
+ValueSeries<T>* OffsetValueSeries<T>::clone() const
+{ return new OffsetValueSeries( src_, off_ ); }
 
 
 template <class T> inline
@@ -243,6 +259,20 @@ ArrayValueSeries<RT,AT>::ArrayValueSeries( od_int64 sz )
     : ptr_( 0 ), mine_(true), cursize_( -1 )
 {
     setSize( sz );
+}
+
+
+template <class RT, class AT>
+ValueSeries<RT>* ArrayValueSeries<RT,AT>::clone() const
+{
+    AT* ptr = ptr_;
+    if ( mine_ && cursize_>0 )
+    {
+	ptr = new AT[cursize_];
+	memcpy( ptr, ptr_, sizeof(AT)*cursize_ );
+    }
+
+    return new ArrayValueSeries( ptr, mine_, cursize_ );
 }
 
 
