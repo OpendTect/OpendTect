@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.14 2010-03-09 12:02:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.15 2010-03-11 14:12:43 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -195,6 +195,8 @@ bool uiEditProbDenFunc::getValsFromScreen( bool* chgd )
     mDeclSzVars; mDeclIdxs;
 
     ArrayND<float>& data = andpdf->getData();
+    mDynamicCastGet(const ArrayNDProbDenFunc*,organdpdf,&inpdf_)
+    const ArrayND<float>& orgdata = organdpdf->getData();
     for ( int irow=0; irow<nrrows; irow++ )
     {
 	mGetRowIdx(irow);
@@ -209,11 +211,12 @@ bool uiEditProbDenFunc::getValsFromScreen( bool* chgd )
 
 	    idxs[0] = nrdims_ == 1 ? rowidx : icol;
 	    const float tblval = atof( tbltxt );
-	    const float arrval = data.getND( idxs );
-	    if ( !mIsEqual(tblval,arrval,mDefEps) )
+	    data.setND( idxs, tblval );
+	    if ( chgd )
 	    {
-		data.setND( idxs, tblval );
-		if ( chgd ) *chgd = true;
+		const float orgarrval = orgdata.getND( idxs );
+		if ( !mIsEqual(tblval,orgarrval,mDefEps) )
+		    *chgd = true;
 	    }
 	}
     }

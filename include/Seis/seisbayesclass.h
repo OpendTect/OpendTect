@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.6 2010-03-10 16:19:04 cvsbert Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.7 2010-03-11 14:12:43 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -63,10 +63,13 @@ public:
 protected:
 
     bool			is2d_;
+    ObjectSet<ProbDenFunc>	inppdfs_;
     ObjectSet<ProbDenFunc>	pdfs_;
     ObjectSet<SeisTrcReader>	rdrs_;
+    ObjectSet<SeisTrcReader>	aprdrs_;
     ObjectSet<SeisTrcWriter>	wrrs_;
     SeisTrcBuf&			inptrcs_;
+    SeisTrcBuf&			aptrcs_;
     SeisTrcBuf&			outtrcs_;
     const IOPar&		pars_;
     ObjectSet< TypeSet<int> >	pdfxtbls_;
@@ -81,9 +84,10 @@ protected:
     bool			needclass_;
     int				initstep_;
 
-    bool			getPDFs(const IOPar&);
-    bool			getReaders(const IOPar&);
-    bool			getWriters(const IOPar&);
+    bool			getPDFs();
+    bool			scalePDFs();
+    bool			getReaders();
+    bool			getWriters();
 
     int				readInpTrcs();
     int				createOutput();

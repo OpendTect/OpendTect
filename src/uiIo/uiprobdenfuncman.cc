@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.6 2010-02-27 10:43:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprobdenfuncman.cc,v 1.7 2010-03-11 14:12:43 cvsbert Exp $";
 
 #include "uiprobdenfuncman.h"
 
@@ -63,11 +63,25 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
     uiEditProbDenFunc dlg( this, *pdf, true );
     if ( dlg.go() && dlg.isChanged() )
     {
+	const int choice = uiMSG().question( "PDF changed. Save?", "&Yes",
+						"&As new ...", "&No" );
+	if ( choice < 0 ) return;
+
+	PtrMan<IOObj> saveioobj = curioobj_->clone();
+	if ( choice == 0 )
+	{
+	    CtxtIOObj ctio( ctxt_ );
+	    ctio.ctxt.forread = false;
+	    uiIOObjSelDlg dlg( this, ctio, "Save As" );
+	    if ( !dlg.go() || !dlg.ioObj() ) return;
+	    saveioobj = dlg.ioObj()->clone();
+	}
+
 	BufferString emsg;
-	if ( !ProbDenFuncTranslator::write(*pdf,*curioobj_,&emsg) )
+	if ( !ProbDenFuncTranslator::write(*pdf,*saveioobj,&emsg) )
 	    uiMSG().error( emsg );
 	else
-	    selgrp->fullUpdate( curioobj_->key() );
+	    selgrp->fullUpdate( saveioobj->key() );
     }
 }
 

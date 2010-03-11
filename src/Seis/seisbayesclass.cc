@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.6 2010-03-10 16:19:04 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.7 2010-03-11 14:12:43 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -37,17 +37,18 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	, nrdone_(0)
 	, totalnr_(-2)
 	, inptrcs_(*new SeisTrcBuf(true))
+	, aptrcs_(*new SeisTrcBuf(true))
 	, outtrcs_(*new SeisTrcBuf(true))
 	, initstep_(1)
 	, nrdims_(0)
 	, normpol_(None)
 {
-    const char* res = iop.find( sKey::Type );
+    const char* res = pars_.find( sKey::Type );
     is2d_ = res && *res == '2';
     if ( is2d_ )
 	{ msg_ = "2D not implemented"; return; }
 
-    res = iop.find( sKeyNormPol() );
+    res = pars_.find( sKeyNormPol() );
     if ( res && *res )
 	normpol_ = eEnum(NormPol,res);
 
@@ -63,23 +64,26 @@ SeisBayesClass::~SeisBayesClass()
 
     delete &pars_;
     delete &inptrcs_;
+    delete &aptrcs_;
     delete &outtrcs_;
 }
 
 
 void SeisBayesClass::cleanUp()
 {
+    deepErase(inppdfs_);
     deepErase(pdfs_);
     deepErase(rdrs_);
+    deepErase(aprdrs_);
     deepErase(wrrs_);
 }
 
 
-bool SeisBayesClass::getPDFs( const IOPar& iop )
+bool SeisBayesClass::getPDFs()
 {
     for ( int ipdf=0; ; ipdf++ )
     {
-	const char* id = iop.find( mGetSeisBayesPDFIDKey(ipdf) );
+	const char* id = pars_.find( mGetSeisBayesPDFIDKey(ipdf) );
 	if ( !id || !*id )
 	    break;
 
@@ -94,10 +98,10 @@ bool SeisBayesClass::getPDFs( const IOPar& iop )
 	if ( !pdf )
 	    return false;
 
-	pdfs_ += pdf;
+	inppdfs_ += pdf;
 	pdfnames_.add( ioobj->name() );
 
-	const ProbDenFunc& pdf0 = *pdfs_[0];
+	const ProbDenFunc& pdf0 = *inppdfs_[0];
 	if ( ipdf == 0 )
 	    const_cast<int&>(nrdims_) = pdf->nrDims();
 	else if ( pdf->nrDims() != nrdims_ )
@@ -109,7 +113,7 @@ bool SeisBayesClass::getPDFs( const IOPar& iop )
 	pdf->getIndexTableFor( pdf0, *idxs );
 	pdfxtbls_ += idxs;
 
-	const char* res = iop.find( mGetSeisBayesPreScaleKey(ipdf) );
+	const char* res = pars_.find( mGetSeisBayesPreScaleKey(ipdf) );
 	float scl = 1;
 	if ( res && *res ) scl = atof( res );
 	if ( scl < 0 ) scl = -scl;
@@ -117,8 +121,10 @@ bool SeisBayesClass::getPDFs( const IOPar& iop )
 	prescales_ += scl;
     }
 
-    if ( pdfs_.isEmpty() )
+    if ( inppdfs_.isEmpty() )
 	{ msg_ = "No PDF's in parameters"; return false; }
+    else if ( !scalePDFs() )
+	return false;
 
     pdfnames_.add( "Classification" );
     pdfnames_.add( "Confidence" );
@@ -127,19 +133,33 @@ bool SeisBayesClass::getPDFs( const IOPar& iop )
 }
 
 
-bool SeisBayesClass::getReaders( const IOPar& iop )
+bool SeisBayesClass::scalePDFs()
 {
-    if ( pdfs_.isEmpty() ) return false;
-    const ProbDenFunc& pdf0 = *pdfs_[0];
-    for ( int ivar=0; ivar<nrdims_; ivar++ )
+    const int nrpdfs = pdfs_.size();
+
+    for ( int ipdf=0; ipdf<nrpdfs; ipdf++ )
+    {
+	ProbDenFunc* pdf = inppdfs_[ipdf]->clone();
+	pdfs_ += pdf;
+    }
+
+    return true;
+}
+
+
+bool SeisBayesClass::getReaders()
+{
+    if ( inppdfs_.isEmpty() ) return false;
+    const ProbDenFunc& pdf0 = *inppdfs_[0];
+    for ( int idim=0; idim<nrdims_; idim++ )
     {
 	inptrcs_.add( new SeisTrc );
 
-	const char* id = iop.find( mGetSeisBayesSeisInpIDKey(ivar) );
+	const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(idim) );
 	if ( !id || !*id )
 	{
-	    msg_ = "Cannot find "; mAddIdxRank(ivar);
-	    msg_ += " input cube (for "; msg_ += pdf0.dimName(ivar);
+	    msg_ = "Cannot find "; mAddIdxRank(idim);
+	    msg_ += " input cube (for "; msg_ += pdf0.dimName(idim);
 	    msg_ += ") in parameters";
 	    return false;
 	}
@@ -147,12 +167,12 @@ bool SeisBayesClass::getReaders( const IOPar& iop )
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
 	if ( !ioobj )
 	{
-	    msg_ = "Cannot find input cube for "; msg_ += pdf0.dimName(ivar);
+	    msg_ = "Cannot find input cube for "; msg_ += pdf0.dimName(idim);
 	    msg_ += "\nID found is "; msg_ += id; return false;
 	}
 
 	SeisTrcReader* rdr = new SeisTrcReader( ioobj );
-	rdr->usePar( iop );
+	rdr->usePar( pars_ );
 	if ( !rdr->prepareWork() )
 	    { msg_ = rdr->errMsg(); delete rdr; return false; }
 
@@ -164,7 +184,7 @@ bool SeisBayesClass::getReaders( const IOPar& iop )
 }
 
 
-bool SeisBayesClass::getWriters( const IOPar& iop )
+bool SeisBayesClass::getWriters()
 {
     const int nrpdfs = pdfs_.size();
     if ( nrpdfs < 1 ) return false;
@@ -174,7 +194,7 @@ bool SeisBayesClass::getWriters( const IOPar& iop )
     {
 	outtrcs_.add( new SeisTrc );
 
-	const char* id = iop.find( mGetSeisBayesSeisOutIDKey(ipdf) );
+	const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(ipdf) );
 	if ( !id || !*id )
 	    { wrrs_ += 0; continue; }
 	else
@@ -240,9 +260,9 @@ od_int64 SeisBayesClass::totalNr() const
 int SeisBayesClass::nextStep()
 {
     if ( initstep_ )
-	return (initstep_ == 1 ? getPDFs(pars_)
-	     : (initstep_ == 2 ? getReaders(pars_)
-		 	       : getWriters(pars_)))
+	return (initstep_ == 1 ? getPDFs()
+	     : (initstep_ == 2 ? getReaders()
+		 	       : getWriters()))
 	     ? MoreToDo() : ErrorOccurred();
 
     int ret = readInpTrcs();

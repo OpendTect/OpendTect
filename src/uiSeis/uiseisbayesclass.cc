@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.10 2010-03-10 16:19:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.11 2010-03-11 14:12:43 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -252,7 +252,7 @@ uiSeisBayesWeights( uiParent* p, IOPar& pars )
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
 	if ( !id || !*id ) break;
 
-	BufferString scltxt( "Pre-scale for '" );
+	BufferString scltxt( "Additional scaling factor for '" );
 	scltxt.add( IOM().nameOf(id) ).add( "'" );
 	float scl = 1;
 	res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
