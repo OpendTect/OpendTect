@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.40 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.41 2010-03-11 11:18:00 cvsbert Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -126,14 +126,16 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 }
 
 
-uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s )
+uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool reloc )
     	: uiManipButGrp(s.obj_->parent())
 	, subj_(s)
+	, locbut(0)
 {
     subj_.grp_ = this;
 
     const CallBack cb( mCB(this,uiIOObjManipGroup,tbPush) );
-    locbut = addButton( FileLocation, cb, "Change location on disk" );
+    if ( reloc )
+	locbut = addButton( FileLocation, cb, "Change location on disk" );
     renbut = addButton( Rename, cb, "Rename this object" );
     robut = addButton( ReadOnly, cb, "Toggle Read only : locked" );
     setAlternative( robut, ioPixmap("unlock.png"),
@@ -163,10 +165,10 @@ void uiIOObjManipGroup::commitChgs( IOObj* ioobj )
 
 void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
 {
-    if ( tp == FileLocation )	locbut->click();
-    else if ( tp == Rename )	renbut->click();
-    else if ( tp == ReadOnly )	robut->click();
-    else if ( tp == Remove )	rembut->click();
+    if ( tp == FileLocation && locbut )	locbut->click();
+    else if ( tp == Rename )		renbut->click();
+    else if ( tp == ReadOnly )		robut->click();
+    else if ( tp == Remove )		rembut->click();
 }
 
 
@@ -178,7 +180,7 @@ void uiIOObjManipGroup::selChg()
 
     const bool isexisting = ioobj && ioobj->implExists(true);
     const bool isreadonly = isexisting && ioobj->implReadOnly();
-    locbut->setSensitive( iostrm && !isreadonly );
+    if ( locbut ) locbut->setSensitive( iostrm && !isreadonly );
     useAlternative( robut, !isreadonly );
     renbut->setSensitive( ioobj );
     rembut->setSensitive( ioobj && !isreadonly );

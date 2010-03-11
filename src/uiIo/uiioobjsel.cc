@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.143 2010-02-12 09:33:52 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.144 2010-03-11 11:18:00 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -94,7 +94,8 @@ void relocStart( const char* msg )
 
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
-			      const char* seltxt, bool multisel )
+			      const char* seltxt, bool multisel,
+			      bool havereloc )
     : uiGroup(p)
     , ctio_(c)
     , ismultisel_(multisel && ctio_.ctxt.forread)
@@ -155,7 +156,8 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     if ( !ismultisel_ && ctio_.ctxt.maydooper )
     {
 	manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
-	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj );
+	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
+							 havereloc );
     }
 
     listfld_->setHSzPol( uiObject::Wide );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.104 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.105 2010-03-11 11:18:00 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -66,7 +66,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , is2d_(is2d)
 {
     ctxt_.trglobexpr = is2d_ ? "2D" : "CBVS";
-    createDefaultUI();
+    createDefaultUI( true );
     selgrp->getListField()->doubleClicked.notify(
 	    			is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
 				      : mCB(this,uiSeisFileMan,browsePush) );

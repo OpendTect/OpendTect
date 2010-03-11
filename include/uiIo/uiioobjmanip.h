@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.16 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.17 2010-03-11 11:18:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,8 @@ mClass uiIOObjManipGroup : public uiManipButGrp
 {
 public:
 
-			uiIOObjManipGroup(uiIOObjManipGroupSubj&);
+			uiIOObjManipGroup(uiIOObjManipGroupSubj&,
+					  bool havereloc);
 			~uiIOObjManipGroup();
 
     void		selChg();

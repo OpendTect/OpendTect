@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.10 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.11 2010-03-11 11:18:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ protected:
     IOObjContext&		ctxt_;
     bool			curimplexists_;
 
-    void			createDefaultUI();
+    void			createDefaultUI(bool needreloc=false);
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;
     virtual double		getFileSize(const char*,int&) const;

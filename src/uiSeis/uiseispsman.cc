@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.16 2009-11-23 11:54:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.17 2010-03-11 11:18:00 cvsbert Exp $";
 
 
 #include "uiseispsman.h"
@@ -30,7 +30,7 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
 {
-    createDefaultUI();
+    createDefaultUI( true );
     selgrp->setPrefWidthInChar( 50 );
     infofld->setPrefWidthInChar( 60 );
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
