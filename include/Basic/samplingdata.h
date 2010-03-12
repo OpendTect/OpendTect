@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.16 2009-12-18 14:40:47 cvsbert Exp $
+ RCS:		$Id: samplingdata.h,v 1.17 2010-03-12 11:21:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ template <class T>
 class SamplingData
 {
 public:
+
     inline				SamplingData(T sa=0,T se=1);
     inline				SamplingData(T x0,T y0,T x1,T y1);
     template <class FT>	inline		SamplingData(const SamplingData<FT>&);
@@ -29,11 +30,16 @@ public:
     inline bool				operator==(const SamplingData&)const;
     inline bool				operator!=(const SamplingData&)const;
 
-    inline StepInterval<T>		interval(int nrsamp) const;
-    template <class IT> inline float	getIndex(IT val) const;
-    template <class IT> inline int	nearestIndex(IT x) const;
-    template <class IT> inline T	atIndex(IT idx) const;
-    template <class IT> inline T	snap(IT idx) const;
+    template <class IT> inline StepInterval<T> interval(IT nrsamples) const;
+    template <class FT> inline float	getIndex(FT) const;
+    template <class FT> inline int	nearestIndex(FT) const;
+    template <class IT> inline T	atIndex(IT) const;
+    template <class FT> inline T	snap(FT) const;
+
+    template <class FT>	inline void	set(FT,FT);
+    template <class FT>	inline void	set(const SamplingData<FT>&);
+    template <class FT>	inline void	set(const StepInterval<FT>&);
+    inline void				scale(T);
 
     T					start;
     T					step;
@@ -56,8 +62,8 @@ SamplingData<T>::SamplingData( T x0, T y0, T x1, T y1 )
 
 template <class T> 
 template <class FT> inline
-SamplingData<T>::SamplingData( const SamplingData<FT>& templ )
-    : start( templ.start ), step( templ.step )
+SamplingData<T>::SamplingData( const SamplingData<FT>& sd )
+    : start( sd.start ), step( sd.step )
 {}
 
 
@@ -96,33 +102,55 @@ bool SamplingData<T>::operator!=( const SamplingData& sd ) const
 { return ! (sd == *this); }
 
 
-template <class T> inline
-StepInterval<T> SamplingData<T>::interval( int nrsamp ) const
-{ return StepInterval<T>( start, nrsamp ? start+(nrsamp-1)*step : 0, step); }
+template <class T>
+template <class IT> inline
+StepInterval<T> SamplingData<T>::interval( IT nrsamp ) const
+{
+    return nrsamp ? StepInterval<T>( start, start+(nrsamp-1)*step, step )
+		  : StepInterval<T>( start, start, step ); }
 
 
 template <class T>
-template <class IT> inline
-float SamplingData<T>::getIndex( IT val ) const
-{ return (val-start) / (float) step; }
+template <class FT> inline
+float SamplingData<T>::getIndex( FT val ) const
+{ return (val-start) / ((float)step); }
 
 
 template <class T>
-template <class IT> inline
-int SamplingData<T>::nearestIndex( IT x ) const
-{ float fidx = getIndex(x); return mNINT(fidx); }
+template <class FT> inline
+int SamplingData<T>::nearestIndex( FT x ) const
+{ const float fidx = getIndex(x); return mNINT(fidx); }
 
 
 template <class T>
-template <class IT> inline
-T SamplingData<T>::snap( IT val ) const
-{ return start + step * ((T) nearestIndex(val) ); }
+template <class FT> inline
+T SamplingData<T>::snap( FT val ) const
+{ return start + step * nearestIndex(val); }
 
 
 template <class T>
 template <class IT> inline
 T SamplingData<T>::atIndex( IT idx ) const
 { return start + step * (T)idx; }
+
+template <class T> 
+template <class FT> inline
+void SamplingData<T>::set( FT sa, FT se )
+{ start = sa; step = se; }
+
+template <class T> 
+template <class FT> inline
+void SamplingData<T>::set( const StepInterval<FT>& intv )
+{ start = intv.start; step = intv.step; }
+
+template <class T> 
+template <class FT> inline
+void SamplingData<T>::set( const SamplingData<FT>& sd )
+{ start = sd.start; step = sd.step; }
+
+template <class T> inline
+void SamplingData<T>::scale( T scl )
+{ start *= scl; step *= scl; }
 
 
 #endif
