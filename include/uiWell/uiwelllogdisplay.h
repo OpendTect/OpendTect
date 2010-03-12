@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.21 2010-03-05 10:13:35 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.22 2010-03-12 14:14:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,16 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiaxishandler.h"
 #include "draw.h"
+#include "menuhandler.h"
 #include "welldata.h"
 #include "wellmarker.h"
 #include "welldisp.h"
+#include "uigraphicsitem.h"
+#include "uigraphicsitemimpl.h"
 
 class uiGraphicsScene;
 class uiLineItem;
+class uiMenuHandler;
 class uiObjectItem;
 class uiParent;
 class uiPolyLineItem;
@@ -30,6 +34,8 @@ class uiPolygonItem;
 class uiTextItem;
 class uiToolBar;
 class uiWellDispPropDlg;
+
+class MouseEvent;
 class UnitOfMeasure;
 namespace Well 
 { 
@@ -145,9 +151,32 @@ public:
     				{ return first ? ld1_ : ld2_; }
     void                        setD2TModel( const Well::D2TModel* d2tm )
 				{ d2tm_ = d2tm; }
-    void			setMarkers( const ObjectSet<Well::Marker>* ms )
-				{ markers_ = ms; }
-    
+    const Interval<float>&	zRange() const	{ return zrg_; }
+    void			setZRange(const Interval<float>&);
+    void			dataChanged();
+
+    void			setZDispInFeet( bool yn )
+    				{ dispzinft_ = yn; dataChanged(); }
+    bool			zDispInFeet() const	  { return dispzinft_; }
+
+    void			setZInTime( bool yn )
+    				{ zistime_ = yn; dataChanged(); }
+    bool			zInTime() const	  { return zistime_; }
+
+
+    mStruct MarkerItem
+    {
+			MarkerItem( Well::Marker& mrk )
+			    : mrk_(mrk) {}
+			~MarkerItem()
+			{
+			    delete itm_; delete txtitm_;
+			}
+	Well::Marker&	mrk_;
+	uiLineItem*	itm_;
+	uiTextItem*	txtitm_;
+    };
+
     mStruct PickData
     {
 			PickData( float dah, Color c=Color::NoColor() )
@@ -160,47 +189,48 @@ public:
     };
 
     TypeSet<PickData>&		zPicks()	{ return zpicks_; }
-
-    const Interval<float>&	zRange() const	{ return zrg_; }
-    void			setZRange(const Interval<float>&);
-    void			dataChanged();
-
-    void			setZDispInFeet( bool yn )
-    				{ dispzinft_ = yn; dataChanged(); }
-    bool			zDispInFeet() const	  { return dispzinft_; }
-
-    void			setZInTime( bool yn )
-    				{ zintime_ = yn; dataChanged(); }
-    bool			zInTime() const	  { return zintime_; }
     
+    void			changeMarkerPos(Well::Marker*);
+    void			setMarkers( ObjectSet<Well::Marker>* ms )
+				{ markers_ = ms; }
+    void			setEditMarkers(bool);
+    Well::Marker*		selectMarker(bool allowrghtclk);
+    float			mousePos();
+
+    Notifier<uiWellLogDisplay> markerchged;
+
 protected:
 
     LogData			ld1_;
     LogData			ld2_;
     Interval<float>		zrg_;
-    bool			zintime_;
+    bool			zistime_;
     bool			dispzinft_;
+    bool			markeredit_;
+    bool			mousepressed_;
 
-    const ObjectSet<Well::Marker>* markers_;
+    ObjectSet<Well::Marker>* 	markers_;
+    Well::Marker* 		selmarker_;
     TypeSet<PickData>		zpicks_;
     const Well::D2TModel*       d2tm_;
 
     Setup			setup_;
 
-    ObjectSet<uiLineItem>	markeritms_;
-    ObjectSet<uiTextItem>	markertxtitms_;
+    ObjectSet<MarkerItem>	markeritms_;
     ObjectSet<uiLineItem>	zpickitms_;
 
     void			init(CallBacker*);
+    void                        mouseMoved(CallBacker*);
+    void                        mousePressed(CallBacker*);
     void			mouseRelease(CallBacker*);
+    void			reDrawMarkers(CallBacker*);
     void			reSized(CallBacker*);
 
-    void			gatherInfo();
-    void			draw();
-
     void			setAxisRelations();
-    void			gatherInfo(bool);
     void			setAxisRanges(bool);
+    void			gatherInfo();
+    void			gatherInfo(bool);
+    void			draw();
     void			drawLog(bool);
     void			drawLine(LogData&,const Well::DahObj* ldah);
     void			drawFilling(bool);
@@ -232,7 +262,7 @@ public:
 
 				uiWellDisplay(uiParent*,const Setup&,
 					      Well::Data&);
-				~uiWellDisplay(){};
+				~uiWellDisplay();
     
     uiWellLogDisplay* 		logDisplay(int ix) 
     				{ return ix<logdisps_.size() ? logdisps_[ix]:0;}
@@ -244,8 +274,8 @@ public:
     void			setZRange(Interval<float>);
     const Interval<float>&	zRange() const	{ return zrg_; }
     void			setZInTime( bool yn )
-    				{ zintime_ = yn; dataChanged(0); }
-    bool			zInTime() const	  { return zintime_; }
+    				{ zistime_ = yn; dataChanged(0); }
+    bool			zInTime() const	  { return zistime_; }
 
 protected:
 
@@ -253,17 +283,27 @@ protected:
     const Well::D2TModel*	d2tm_;
     ObjectSet<uiWellLogDisplay> logdisps_;
 
+    uiMenuHandler&		menu_;
+    MenuItem            	addmrkmnuitem_;
+    MenuItem            	remmrkmnuitem_;
+
     Interval<float>		zrg_;
-    bool			zintime_;
+    bool			zistime_;
     int 			logwidth_;	 	   
     int 			logheight_;
     bool			noborderspace_;
-    
+    void			addMarker();
     void			setLogPanel(bool,bool=true);
     void                        gatherInfo();
+    bool                        handleUserClick(const MouseEvent&);
     void                        setAxisRanges();
+
+    void                        createMenuCB(CallBacker*);
+    void			handleMenuCB(CallBacker*);
     void                        dataChanged(CallBacker*);
     void 			updateProperties(CallBacker*); 
+    void 			usrClickCB(CallBacker*);
+    void			trigMarkersChanged(CallBacker*);
 };
 
 
@@ -275,6 +315,8 @@ public:
 			    , wellview_(*new uiWellDisplay(this,
 					    uiWellDisplay::Setup(),wd))
 			{
+			    wd.tobedeleted.notify( 
+				    	mCB(this,uiWellDisplayWin,close) );
 			    BufferString msg( "2D Viewer ");
 			    msg += wd.name();
 			    setCaption( msg );

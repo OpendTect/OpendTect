@@ -7,43 +7,42 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.26 2010-03-05 10:13:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.27 2010-03-12 14:14:44 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
-#include "uiwelldisppropdlg.h"
+
+#include "uicolor.h"
+#include "uidialog.h"
+#include "uigeninput.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uimenuhandler.h"
 
 #include "coltabsequence.h"
 #include "mouseevent.h"
 #include "dataclipper.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include "uibutton.h"
-#include "uitoolbar.h"
-#include "uiobjbody.h"
-
-#include "welllog.h"
-#include "welllogset.h"
 #include "welldata.h"
-#include "wellmarker.h"
-#include "welltrack.h"
 #include "welld2tmodel.h"
 #include "welldisp.h"
+#include "welllog.h"
+#include "welllogset.h"
+#include "wellmarker.h"
+#include "welltrack.h"
 
 #include <iostream>
 
 
-
 #define mDefZPosInLoop(val)\
     float zpos = val;\
-    if ( zintime_ && d2tm_ )\
+    if ( zistime_ && d2tm_ )\
 	zpos = d2tm_->getTime( zpos )*1000;\
     if ( zpos < zrg_.start )\
 	continue;\
     else if ( zpos > zrg_.stop )\
 	break;\
-    if ( dispzinft_ && !zintime_)\
+    if ( dispzinft_ && !zistime_)\
 	zpos *= mToFeetFactor;
 uiWellLogDisplay::LineData::LineData( uiGraphicsScene& scn, Setup su )
     : zrg_(mUdf(float),0)
@@ -86,9 +85,13 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , setup_(su)
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeetByDefault())
-    , zintime_(false)
+    , zistime_(false)
     , markers_(0)
+    , markeredit_(false)   
+    , mousepressed_(false)			   
+    , selmarker_(0)			   
     , d2tm_(0)
+    , markerchged(this)	   
     , ld1_(scene(),true,LineData::Setup()
 	    				.noxaxisline(su.noxaxisline_)
 	    				.noyaxisline(su.noyaxisline_)
@@ -112,7 +115,12 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
 
     getMouseEventHandler().buttonReleased.notify(
 			    mCB(this,uiWellLogDisplay,mouseRelease) );
+    getMouseEventHandler().buttonPressed.notify(
+			    mCB(this,uiWellLogDisplay,mousePressed) );
+    getMouseEventHandler().movement.notify(
+			    mCB(this,uiWellLogDisplay,mouseMoved) );
 
+    markerchged.notify( mCB(this,uiWellLogDisplay,reDrawMarkers) );
     reSize.notify( mCB(this,uiWellLogDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
@@ -163,7 +171,7 @@ void uiWellLogDisplay::gatherInfo()
     setAxisRanges( false );
 	
     BufferString znm;
-    if ( zintime_ )
+    if ( zistime_ )
 	znm += "TWT", "(ms)";
     else
 	znm += "MD ", dispzinft_ ? "(ft)" : "(m)";
@@ -227,7 +235,7 @@ void uiWellLogDisplay::gatherInfo( bool first )
 
     float startpos = ld.wl_->dah( 0 );
     float stoppos = ld.wl_->dah( sz-1 );
-    if ( zintime_ && d2tm_ )
+    if ( zistime_ && d2tm_ )
     {
 	startpos = d2tm_->getTime( startpos )*1000;
 	stoppos = d2tm_->getTime( stoppos )*1000;
@@ -249,7 +257,7 @@ void uiWellLogDisplay::setAxisRanges( bool first )
     ld.xax_.setBounds( dispvalrg );
 
     Interval<float> dispzrg( zrg_.stop, zrg_.start );
-    if ( dispzinft_ && !zintime_ )
+    if ( dispzinft_ && !zistime_ )
 	dispzrg.scale( mToFeetFactor );
     ld.yax_.setBounds( dispzrg );
 
@@ -446,25 +454,32 @@ void uiWellLogDisplay::drawFilling( bool first )
     const int x1 = ld1_.xax_.getRelPosPix( 0 ); \
     const int x2 = ld1_.xax_.getRelPosPix( 1 ); \
     const int y = ld1_.yax_.getPix( zpos )
-
 void uiWellLogDisplay::drawMarkers()
 {
-    mRemoveSet( markeritms_ );
-    mRemoveSet( markertxtitms_ );
+    for ( int idx=0; idx<markeritms_.size(); idx++ ) \
+    {
+	scene().removeItem( markeritms_[idx]->itm_ ); 
+	scene().removeItem( markeritms_[idx]->txtitm_ ); 
+    }
+    deepErase( markeritms_ );
     if ( !markers_ ) return;
 
     for ( int idx=0; idx<markers_->size(); idx++ )
     {
-	const Well::Marker& mrkr = *((*markers_)[idx]);
+	Well::Marker& mrkr = *((*markers_)[idx]);
 	if ( mrkr.color() == Color::NoColor() ) continue;
 
 	mDefZPosInLoop( mrkr.dah() )
 	mDefHorLineX1X2Y();
 
+	MarkerItem* markeritm = new MarkerItem( mrkr );
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
 	li->setPenStyle( LineStyle(setup_.markerls_.type_,
 		    		   setup_.markerls_.width_,mrkr.color()) );
-	markeritms_ += li;
+	MouseCursor cursor( markeredit_ ? 
+				MouseCursor::SizeVer : MouseCursor::Arrow );
+	li->setCursor( cursor );
+	markeritm->itm_ = li;
 
 	BufferString mtxt( mrkr.name() );
 	if ( setup_.nrmarkerchars_ < mtxt.size() )
@@ -473,8 +488,99 @@ void uiWellLogDisplay::drawMarkers()
 			 new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
 	ti->setPos( uiPoint(x1-1,y) );
 	ti->setTextColor( mrkr.color() );
-	markertxtitms_ += ti;
+	markeritm->txtitm_ = ti;
+
+	markeritms_ += markeritm;
     }
+}
+
+
+void uiWellLogDisplay::reDrawMarkers( CallBacker* )
+{
+    drawMarkers();
+}
+
+
+void uiWellLogDisplay::setEditMarkers( bool edit )
+{
+    markeredit_ = edit;
+    drawMarkers();
+}
+
+
+void uiWellLogDisplay::mousePressed( CallBacker* cb )
+{
+    mousepressed_ = true;
+    if ( mousepressed_ && markeredit_ )
+       selmarker_ = selectMarker(false);	
+}
+
+
+void uiWellLogDisplay::mouseMoved( CallBacker* cb )
+{
+    if ( mousepressed_ )
+	changeMarkerPos( selmarker_ );
+}
+
+
+void uiWellLogDisplay::mouseRelease( CallBacker* )
+{
+    mousepressed_ = false;
+    selmarker_ = 0; 
+}
+
+
+Well::Marker* uiWellLogDisplay::selectMarker( bool allowrightclk)
+{
+    if ( !markeredit_ ) return 0;
+    if ( getMouseEventHandler().isHandled() )
+	return 0;
+
+    const MouseEvent& ev = getMouseEventHandler().event();
+    if ( (ev.buttonState() & OD::MidButton ) ) return 0;
+    if ( !allowrightclk )
+    {	
+	 if ( !(ev.buttonState() & OD::LeftButton ) ||
+	       (ev.buttonState() & OD::RightButton ) )
+	return 0;
+    }
+
+    int mousepos = ev.pos().y;
+    uiLineItem* mrkitm = 0; uiTextItem* mrktxtitm;
+    for ( int idx=0; idx<markeritms_.size(); idx++ )
+    {
+	if ( fabs( markeritms_[idx]->itm_->getPos().y - mousepos )<2 )
+	    return ( &markeritms_[idx]->mrk_ );
+    }
+    return 0;
+}
+
+
+void uiWellLogDisplay::changeMarkerPos( Well::Marker* mrk )
+{
+    if ( getMouseEventHandler().isHandled() )
+	return;
+
+    if ( !selmarker_ ) return;
+
+    const MouseEvent& ev = getMouseEventHandler().event();
+    if ( !(ev.buttonState() & OD::LeftButton ) ||
+	  (ev.buttonState() & OD::MidButton ) ||
+	  (ev.buttonState() & OD::RightButton ) )
+	return;
+
+    selmarker_->setDah( mousePos() );
+    markerchged.trigger(); 
+}
+
+
+float uiWellLogDisplay::mousePos()  
+{
+    const MouseEvent& ev = getMouseEventHandler().event();
+    float mousepos = ld1_.yax_.getVal( ev.pos().y );
+    if ( zistime_ && d2tm_ )
+	mousepos = d2tm_->getDepth( mousepos )/1000;
+    return mousepos;
 }
 
 
@@ -499,9 +605,6 @@ void uiWellLogDisplay::drawZPicks()
 }
 
 
-void uiWellLogDisplay::mouseRelease( CallBacker* )
-{}
-
 
 
 uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
@@ -511,8 +614,11 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
 	, wd_(wd)
 	, zrg_(mUdf(float),0)
 	, d2tm_(wd_.d2TModel())
-   	, zintime_(wd_.haveD2TModel())		     
+   	, zistime_(wd_.haveD2TModel())		     
 	, noborderspace_(s.noborderspace_)				    
+	, menu_(*new uiMenuHandler(p,-1))
+	, remmrkmnuitem_("Remove marker...",100)      				
+	, addmrkmnuitem_("Add marker...",101)      			 
 {
     if ( s.nobackground_ )
 	setNoBackGround();
@@ -524,11 +630,21 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
     for ( int idx=0; idx<s.nrpanels_; idx++ )
 	setLogPanel( s.noborderspace_, idx==0 );
 
+    menu_.ref();
+    menu_.createnotifier.notify(mCB(this,uiWellDisplay,createMenuCB));
+    menu_.handlenotifier.notify(mCB(this,uiWellDisplay,handleMenuCB));
+
     setHSpacing( 0 );
     setPrefWidth( s.nrpanels_*logwidth_ );
     setPrefHeight( mLogHeight );
     updateProperties(0);
     //setInitialZRange();
+}
+
+
+uiWellDisplay::~uiWellDisplay()
+{
+    menu_.unRef();
 }
 
 
@@ -540,7 +656,6 @@ void uiWellDisplay::setInitialZRange()
     {
 	if ( !logdisps_[dispidx] ) continue;
 	Interval<float> dahrg;
-
 	uiWellLogDisplay::LogData ld = logdisps_[dispidx]->logData( true );
 	wl = ld.wl_;
 	if ( wl ) dahrg = wl->dahRange();
@@ -553,8 +668,8 @@ void uiWellDisplay::setInitialZRange()
 	if ( !dahrg.overlaps( zrg, false ) )
 	    zrg = dahrg;
     }
-    Swap( zrg.start, zrg.stop );
-    if ( zintime_ && d2tm_ ) 
+    //Swap( zrg.start, zrg.stop );
+    if ( zistime_ && d2tm_ ) 
 	zrg.set( d2tm_->getTime(zrg.start)*1000,d2tm_->getTime(zrg.stop)*1000 );
   
     setZRange( zrg );
@@ -580,9 +695,13 @@ void uiWellDisplay::setLogPanel( bool noborderspace, bool isleft )
 	logdisp->attach( rightOf, logdisps_[logdisps_.size()-1] );
 
     logdisps_ += logdisp;
-    logdisp->setZInTime( zintime_ && d2tm_ );
+    logdisp->setZInTime( zistime_ && d2tm_ );
     logdisp->setD2TModel( d2tm_ );
     logdisp->setMarkers( &wd_.markers() );
+    logdisp->setEditMarkers( true );
+    logdisp->markerchged.notify(mCB(this,uiWellDisplay,trigMarkersChanged));
+    logdisp->getMouseEventHandler().buttonReleased.notify(
+				    mCB(this,uiWellDisplay,usrClickCB) );
 }
 
 
@@ -598,7 +717,6 @@ void uiWellDisplay::setZRange( Interval<float> rg )
 {
     zrg_.set( rg.stop, rg.start );
     setAxisRanges();
-    dataChanged(0);
 }
 
 
@@ -633,4 +751,128 @@ void uiWellDisplay::updateProperties( CallBacker* cb )
 	logdisps_[idx]->logData(false).wld_ = wd_.displayProperties().right_;
     }
     dataChanged( 0 );
+}
+
+
+void uiWellDisplay::trigMarkersChanged( CallBacker* )
+{
+    wd_.markerschanged.trigger();
+}
+
+
+void uiWellDisplay::usrClickCB( CallBacker* cb )
+{
+    mDynamicCastGet(MouseEventHandler*,mevh,cb)
+    if ( !mevh ) 
+	return; 
+    if ( !mevh->hasEvent() )
+	return;
+    if ( mevh->isHandled() )
+	return;
+
+    mevh->setHandled( handleUserClick(mevh->event()) );
+}
+
+
+bool uiWellDisplay::handleUserClick( const MouseEvent& ev )
+{
+    if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
+	 !ev.altStatus() )
+    {
+	menu_.executeMenu(0);
+	return true;
+    }
+    return false;
+}
+
+
+class uiWellDispAddMarkerDlg : public uiDialog
+{
+public : 
+    uiWellDispAddMarkerDlg( uiParent* p, float dah )
+	: uiDialog(p,uiDialog::Setup("Add marker",
+				     "Specify properties",mNoHelpID))
+	, marker_(0)							     
+    {
+	namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );
+	depthfld_ = new uiGenInput( this, "Depth", FloatInpSpec(dah) );
+	depthfld_->attach( alignedBelow, namefld_ );
+	uiColorInput::Setup csu( Color::DgbColor() );
+	csu.lbltxt( "Color" ).withalpha(false);
+	colorfld_ = new uiColorInput( this, csu, "Color" );
+	colorfld_->attach( alignedBelow, depthfld_ );
+    }
+
+    bool acceptOK( CallBacker* )
+    {
+	const char* nm = namefld_->text();
+	float dpt = depthfld_->getfValue();
+	marker_ = new Well::Marker( nm, dpt );
+	marker_->setColor( colorfld_->color() );
+	return true;
+    }
+
+    Well::Marker* marker() { return marker_; }
+
+protected :
+    Well::Marker*	marker_;
+    uiGenInput*		namefld_;
+    uiGenInput*		depthfld_;
+    uiColorInput*	colorfld_;
+};
+
+
+void uiWellDisplay::handleMenuCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet( MenuHandler*, menu, caller );
+    if ( mnuid==-1 || menu->isHandled() )
+	return;
+
+    bool ishandled = true;
+    if ( !logdisps_.size() ) return;
+    if ( mnuid==addmrkmnuitem_.id )
+    {
+	uiWellDispAddMarkerDlg dlg( this, logdisps_[0]->mousePos() );
+	if ( dlg.go() )
+	{
+	    Well::Marker* newmrk = dlg.marker();
+	    if ( !newmrk ) return;
+	    Well::MarkerSet& mrkset = wd_.markers();
+	    for ( int idx=0; idx<mrkset.size(); idx++ )
+	    {
+		Well::Marker& mrk = *mrkset[idx]; 
+		if ( newmrk->dah() > mrk.dah() )
+		    continue;
+		else 
+		{ 
+		    mrkset.insertAt( newmrk, idx );
+		    logdisps_[0]->markerchged.trigger(); 
+		    return;
+		}
+	    }
+	}
+    }
+    else if ( mnuid==remmrkmnuitem_.id  && logdisps_[0]->selectMarker(true) )
+    {
+	ObjectSet<Well::Marker>& mrkset = wd_.markers();
+	delete mrkset.remove( 
+		mrkset.indexOf( logdisps_[0]->selectMarker(true) ), true );
+	logdisps_[0]->markerchged.trigger(); 
+    }
+    else
+	ishandled = false;
+
+    menu->setIsHandled( ishandled );
+}
+
+
+void uiWellDisplay::createMenuCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    if ( !menu ) return;
+
+    if ( logdisps_.size() && logdisps_[0]->selectMarker(true) ) 
+	mAddMenuItem( menu, &remmrkmnuitem_, true, false );
+    mAddMenuItem( menu, &addmrkmnuitem_, true, false );
 }
