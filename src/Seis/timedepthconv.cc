@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.17 2010-03-12 15:13:04 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.18 2010-03-12 21:16:13 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -559,13 +559,13 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 
     if ( survistime && !time )
     {
-	res.start *= topvavg_.start;
-	res.stop *= botvavg_.stop;
+	res.start *= topvavg_.start/2;
+	res.stop *= botvavg_.stop/2;
     }
     else if ( !survistime && time )
     {
-	res.start /= topvavg_.stop;
-	res.stop /= botvavg_.start;
+	res.start /= topvavg_.stop/2;
+	res.stop /= botvavg_.start/2;
     }
 
     return res;
@@ -575,7 +575,7 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 float Time2DepthStretcher::getGoodZStep() const
 {
     if ( SI().zIsTime() )
-	return SI().zRange(true).step * (topvavg_.start+botvavg_.stop) * 0.5;
+	return SI().zRange(true).step * (topvavg_.start+botvavg_.stop) * 0.25;
 
     return SI().zRange(true).step;
 }
@@ -590,7 +590,7 @@ const char* Time2DepthStretcher::getFromZDomainString() const
 
 
 const char* Time2DepthStretcher::getZDomainID() const
-{ return velreader_ && velreader_->ioObj() ? velreader_->ioObj()->key() : 0; }
+{ return velreader_ && velreader_->ioObj() ? velreader_->ioObj()->key().buf() : 0; }
 
 
 void Time2DepthStretcher::releaseData()
@@ -685,13 +685,13 @@ Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
 
     if ( survisdepth && !depth )
     {
-	res.start /= topvavg.stop;
-	res.stop /= botvavg.start;
+	res.start /= topvavg.stop/2;
+	res.stop /= botvavg.start/2;
     }
     else if ( !survisdepth && depth )
     {
-	res.start *= topvavg.stop;
-	res.stop *= botvavg.start;
+	res.start *= topvavg.stop/2;
+	res.stop *= botvavg.start/2;
     }
 
     return res;
@@ -705,7 +705,7 @@ float Depth2TimeStretcher::getGoodZStep() const
 
     const Interval<float> topvavg = stretcher_->getVavgRg(true);
     const Interval<float> botvavg = stretcher_->getVavgRg(false);
-    return 2 * SI().zRange(true).step / (topvavg.stop+botvavg.start);
+    return 4 * SI().zRange(true).step / (topvavg.stop+botvavg.start);
 }
 
 
@@ -719,5 +719,3 @@ const char* Depth2TimeStretcher::getFromZDomainString() const
 
 const char* Depth2TimeStretcher::getZDomainID() const
 { return stretcher_->getZDomainID(); }
-
-
