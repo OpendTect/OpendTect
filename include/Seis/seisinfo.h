@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.29 2009-11-27 11:28:38 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.30 2010-03-12 14:58:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ mClass SeisTrcInfo
 public:
 			SeisTrcInfo()
 			: sampling(0,defaultSampleInterval()), nr(0)
-			, pick(mUdf(float)), refpos(mUdf(float))
+			, refnr(mUdf(float)), pick(mUdf(float))
 			, offset(0), azimuth(0), new_packet(false)
 			{}
 
@@ -40,8 +40,8 @@ public:
     Coord		coord;
     float		offset;
     float		azimuth;
+    float		refnr;
     float		pick;
-    float		refpos;
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const
@@ -49,7 +49,7 @@ public:
     SampleGate		sampleGate(const Interval<float>&) const;
     bool		dataPresent(float pos,int trcsize) const;
 
-    enum Fld		{ TrcNr=0, Pick, RefPos,
+    enum Fld		{ TrcNr=0, Pick, RefNr,
 			  CoordX, CoordY, BinIDInl, BinIDCrl,
 			  Offset, Azimuth };
     			DeclareEnumUtils(Fld)

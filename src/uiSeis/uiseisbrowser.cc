@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.50 2009-10-05 05:43:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.51 2010-03-12 14:58:23 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -805,9 +805,10 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 	   			coordinpspec.setName("X",0).setName("Y",0) );
     coordfld_->setReadOnly();
 
-    BufferString label( is2d_ ? sKey::TraceNr : sKey::Position );
-    PositionInpSpec bidinpspec( PositionInpSpec::Setup(false,is2d_,false) ); 
-    trcnrbinidfld_ = new uiGenInput( valgrp, label.buf(), bidinpspec );
+    BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position );
+    IntInpSpec iis; FloatInpSpec fis;
+    DataInpSpec* pdis = &iis; if ( is2d_ ) pdis = &fis;
+    trcnrbinidfld_ = new uiGenInput( valgrp, label.buf(), iis, *pdis );
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
@@ -848,10 +849,13 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 {
     coordfld_->setValue( trc.info().coord );
-    if ( is2d_ )
-	trcnrbinidfld_->setValue( trc.info().binid.crl );
-    else
+    if ( !is2d_ )
 	trcnrbinidfld_->setValue( trc.info().binid );
+    else
+    {
+	trcnrbinidfld_->setValue( trc.info().binid.crl, 0 );
+	trcnrbinidfld_->setValue( trc.info().refnr, 1 );
+    }
 
     if ( trc.size() < 1 ) return;
 

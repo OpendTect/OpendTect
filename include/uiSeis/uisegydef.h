@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.13 2009-12-03 11:49:29 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.14 2010-03-12 14:58:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,6 +175,8 @@ protected:
     uiGenInput*		crlbyteszfld_;
     uiGenInput*		trnrbytefld_;
     uiGenInput*		trnrbyteszfld_;
+    uiGenInput*		refnrbytefld_;
+    uiGenInput*		refnrbyteszfld_;
     uiGenInput*		psposfld_;
     uiGenInput*		offsbytefld_;
     uiGenInput*		offsbyteszfld_;

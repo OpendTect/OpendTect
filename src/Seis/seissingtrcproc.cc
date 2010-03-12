@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.59 2009-08-28 12:50:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.60 2010-03-12 14:58:23 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -354,7 +354,7 @@ int SeisSingleTraceProc::getFillTrc()
 	filltrc_->info().nr = 0;
 	filltrc_->info().offset = 0;
 	filltrc_->info().azimuth = 0;
-	filltrc_->info().refpos = filltrc_->info().pick = mUdf(float);
+	filltrc_->info().refnr = filltrc_->info().pick = mUdf(float);
     }
 
     if ( fillbid_.inl > fillhs_.stop.inl )

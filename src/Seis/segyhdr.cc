@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.82 2010-03-03 07:28:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.83 2010-03-12 14:58:23 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -39,11 +39,14 @@ const char* TrcHeaderDef::sOffsByte()	{ return "Offset byte"; }
 const char* TrcHeaderDef::sAzimByte()	{ return "Azimuth byte"; }
 const char* TrcHeaderDef::sTrNrByte()	{ return "Trace number byte"; }
 const char* TrcHeaderDef::sPickByte()	{ return "Pick byte"; }
+const char* TrcHeaderDef::sRefNrByte()	{ return "Reference number byte"; }
 const char* TrcHeaderDef::sInlByteSz()	{ return "Nr bytes for In-line"; }
 const char* TrcHeaderDef::sCrlByteSz()	{ return "Nr bytes for Cross-line"; }
 const char* TrcHeaderDef::sOffsByteSz()	{ return "Nr bytes for Offset"; }
 const char* TrcHeaderDef::sAzimByteSz()	{ return "Nr bytes for Azimuth"; }
 const char* TrcHeaderDef::sTrNrByteSz()	{ return "Nr bytes for trace number"; }
+const char* TrcHeaderDef::sPickByteSz()	{ return "Nr bytes for Pick"; }
+const char* TrcHeaderDef::sRefNrByteSz() { return "Nr bytes for RefNr"; }
 }
 
 static bool sInfo2D = false;
@@ -591,6 +594,11 @@ static void putRev1Flds( const SeisTrcInfo& ti, unsigned char* buf,
     BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
     mSTHPutInt(bid.inl,188); mSTHPutInt(bid.crl,192);
     int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
+    if ( ti.refnr != 0 && !mIsUdf(ti.refnr) )
+    {
+	tnr = mNINT(ti.refnr*10);
+	const short scl = -10; mSTHPutShort(scl,200);
+    }
     mSTHPutInt(tnr,196);
 }
 
@@ -627,7 +635,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     mSTHPutInt(icy,hdef.ycoord-1);
 
 #define mSTHPutIntMemb(timemb,hdmemb) \
-    if ( timemb > 0 && hdef.hdmemb != 255 ) \
+    if ( timemb > 0 && !mIsUdf(timemb) && hdef.hdmemb != 255 ) \
     { \
 	if ( hdef.hdmemb##bytesz == 2 ) \
 	    mSTHPutShort(timemb,hdef.hdmemb-1) \
@@ -644,9 +652,20 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     int iv = mNINT( tioffs ); mSTHPutIntMemb(iv,offs);
     iv = mNINT( ti.azimuth * 360 / M_PI ); mSTHPutIntMemb(iv,azim);
 
+    int itemp;
+#define mSTHPutFloatMemb(memb,fac) \
+    if ( ti.memb > 0 && !mIsUdf(ti.memb) && hdef.memb != 255 ) \
+    { \
+	itemp = mNINT(ti.memb*fac); \
+	if ( hdef.memb##bytesz == 2 ) \
+	    mSTHPutShort(itemp,hdef.memb-1) \
+	else \
+	    mSTHPutInt(itemp,hdef.memb-1) \
+    }
+
     const float zfac = SI().zFactor();
-    if ( !mIsUdf(ti.pick) && hdef.pick != 255 )
-	{ nr2put = mNINT(ti.pick*zfac); mSTHPutInt(nr2put,hdef.pick-1) }
+    mSTHPutFloatMemb(pick,zfac)
+    mSTHPutFloatMemb(refnr,10)
 
     // Absolute priority, therefore possibly overwriting previous
     putSampling( ti.sampling, 0 ); // 0=ns must be set elsewhere
@@ -697,12 +716,12 @@ static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf,
     ti.coord.y = IbmFormat::asInt( mGetBytes(184,4) );
     ti.binid.inl = IbmFormat::asInt( mGetBytes(188,4) );
     ti.binid.crl = IbmFormat::asInt( mGetBytes(192,4) );
-    ti.nr = IbmFormat::asInt( mGetBytes(196,4) );
+    ti.refnr = IbmFormat::asInt( mGetBytes(196,4) );
     short scalnr = IbmFormat::asShort( mGetBytes(200,2) );
     if ( scalnr )
     {
-	const float fnr = ti.nr * (scalnr > 0 ? scalnr : -1./scalnr);
-	ti.nr = mNINT(fnr + .5);
+	ti.refnr *= (scalnr > 0 ? scalnr : -1./scalnr);
+	ti.nr = mNINT(ti.refnr);
     }
     mPIEPAdj(Coord,ti.coord,true);
     mPIEPAdj(BinID,ti.binid,true);
@@ -745,10 +764,24 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     mPIEPAdj(Z,ti.sampling.start,true);
     mPIEPAdj(Z,ti.sampling.step,true);
 
-    ti.pick = ti.refpos = mUdf(float);
+    ti.pick = ti.refnr = mUdf(float);
     ti.nr = IbmFormat::asInt( mGetBytes(0,4) );
-    if ( hdef.pick != 255 )
-	ti.pick = IbmFormat::asInt( mGetBytes(hdef.pick-1,4) ) * zfac;
+    int itemp;
+#define mGetFloatVal(memb,fac) \
+    if ( hdef.memb != 255 ) \
+    {\
+	itemp = hdef.memb##bytesz == 2 \
+	    ? IbmFormat::asShort( mGetBytes(hdef.memb-1,2) ) \
+	    : IbmFormat::asInt( mGetBytes(hdef.memb-1,4) ); \
+	ti.memb = ((float)itemp) * fac; \
+    }
+    mGetFloatVal(pick,0.001);
+    float nrfac = 1;
+    short scalnr = IbmFormat::asShort( mGetBytes(200,2) );
+    if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
+	nrfac = 1 / ((float)(-scalnr));
+    mGetFloatVal(refnr,nrfac);
+
     mPIEPAdj(Z,ti.pick,true);
     ti.coord.x = ti.coord.y = 0;
     if ( hdef.xcoord != 255 )
@@ -828,12 +861,15 @@ void SEGY::TrcHeaderDef::usePar( const IOPar& iopar )
     mGtFromPar( sTrNrByte(), trnr );
     mGtFromPar( sXCoordByte(), xcoord );
     mGtFromPar( sYCoordByte(), ycoord );
+    mGtFromPar( sPickByte(), pick );
+    mGtFromPar( sRefNrByte(), refnr );
     mGtFromPar( sInlByteSz(), inlbytesz );
     mGtFromPar( sCrlByteSz(), crlbytesz );
     mGtFromPar( sOffsByteSz(), offsbytesz );
     mGtFromPar( sAzimByteSz(), azimbytesz );
     mGtFromPar( sTrNrByteSz(), trnrbytesz );
-    mGtFromPar( sPickByte(), pick );
+    mGtFromPar( sPickByteSz(), pickbytesz );
+    mGtFromPar( sRefNrByteSz(), refnrbytesz );
 }
 
 
@@ -860,10 +896,13 @@ void SEGY::TrcHeaderDef::fillPar( IOPar& iopar, const char* key ) const
     mPutToPar( sTrNrByte(), trnr );
     mPutToPar( sXCoordByte(), xcoord );
     mPutToPar( sYCoordByte(), ycoord );
+    mPutToPar( sPickByte(), pick );
+    mPutToPar( sRefNrByte(), refnr );
     mPutToPar( sInlByteSz(), inlbytesz );
     mPutToPar( sCrlByteSz(), crlbytesz );
     mPutToPar( sOffsByteSz(), offsbytesz );
     mPutToPar( sAzimByteSz(), azimbytesz );
     mPutToPar( sTrNrByteSz(), trnrbytesz );
-    mPutToPar( sPickByte(), pick );
+    mPutToPar( sPickByteSz(), pickbytesz );
+    mPutToPar( sRefNrByteSz(), refnrbytesz );
 }

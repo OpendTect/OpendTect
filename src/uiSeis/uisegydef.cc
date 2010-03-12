@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.32 2009-12-07 14:03:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.33 2010-03-12 14:58:23 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -359,7 +359,10 @@ static uiGenInput* mkPosFld( uiGroup* grp, const char* key, const IOPar* iop,
     if ( def > 239 ) def = mUdf(int);
     IntInpSpec inpspec( def );
     inpspec.setLimits( Interval<int>( 1, 239 ) );
-    return new uiGenInput( grp, dispnm ? dispnm : key, inpspec.setName(key) );
+    BufferString fldnm( dispnm ? dispnm : key );
+    if ( fldnm[0] == '[' )
+	fldnm += "]";
+    return new uiGenInput( grp, fldnm, inpspec.setName(key) );
 }
 
 
@@ -407,7 +410,8 @@ static bool setIf( IOPar& iop, bool yn, const char* key, uiGenInput* inp,
 	else mHndlByte(sYCoordByte(),185,true,"Y-coord");
 	else mHndlByte(sInlByte(),189,!is2d,"In-line");
 	else mHndlByte(sCrlByte(),193,!is2d,"Cross-line");
-	else mHndlByte(sTrNrByte(),197,is2d,sKey::TraceNr);
+	else mHndlByte(sTrNrByte(),5,is2d,sKey::TraceNr);
+	else mHndlByte(sRefNrByte(),197,is2d,"RefNr");
 	if ( fld )
 	{
 	    BufferString msg( "Please note that the byte for the " );
@@ -497,6 +501,8 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
 	, inlbytefld_(0)
 	, crlbytefld_(0)
 	, trnrbytefld_(0)
+	, refnrbytefld_(0)
+	, refnrbyteszfld_(0)
 	, psposfld_(0)
 	, posfld_(0)
 	, readcoordsfld_(0)
@@ -584,6 +590,11 @@ void uiSEGYFileOpts::crdChk( CallBacker* )
     coordsfnmfld_->display( !ischckd && isfile );
     coordsstartfld_->display( !ischckd && !isfile );
     coordsstepfld_->display( !ischckd && !isfile );
+    if ( refnrbytefld_ )
+    {
+	refnrbytefld_->display( ischckd );
+	refnrbyteszfld_->display( ischckd );
+    }
 }
 
 
@@ -623,7 +634,10 @@ void uiSEGYFileOpts::getReport( IOPar& iop ) const
     }
 
     if ( trnrbytefld_ )
+    {
 	mGetIndexNrByteRep("Trace number byte",trnr)
+	mGetIndexNrByteRep("Reference number byte",refnr)
+    }
     else if ( inlbytefld_ )
     {
 	mGetIndexNrByteRep("In-line byte",inl)
@@ -733,7 +747,16 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar* iop,
     {
 	mkTrcNrFlds( grp, iop, thdef );
 	if ( setup_.revtype_ == uiSEGYRead::Rev0 )
+	{
 	    mkCoordFlds( grp, iop, thdef );
+	    refnrbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sRefNrByte(),
+				      iop, thdef.refnr, "[Ref/SP number" );
+	    refnrbytefld_->attach( alignedBelow, ycoordbytefld_ );
+	    refnrbyteszfld_ = mkByteSzFld( grp,
+		    		SEGY::TrcHeaderDef::sRefNrByteSz(),
+				iop, thdef.refnrbytesz );
+	    refnrbyteszfld_->attach( rightOf, refnrbytefld_ );
+	}
 	grp->setHAlignObj( trnrbytefld_ );
     }
 
@@ -859,6 +882,8 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
     {
 	setByteNrFld( trnrbytefld_, iop, SEGY::TrcHeaderDef::sTrNrByte() );
 	setByteSzFld( trnrbyteszfld_, iop, SEGY::TrcHeaderDef::sTrNrByteSz() );
+	setByteNrFld( refnrbytefld_, iop, SEGY::TrcHeaderDef::sRefNrByte() );
+	setByteSzFld( refnrbyteszfld_, iop, SEGY::TrcHeaderDef::sRefNrByteSz());
     }
 
     if ( orulegrp_ )
@@ -969,6 +994,8 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     mSetByteIf( xcoordbytefld_, sYCoordByte(), ycoordbytefld_ );
     mSetByteIf( trnrbytefld_, sTrNrByte(), trnrbytefld_ );
     mSetSzIf( trnrbytefld_, sTrNrByteSz(), trnrbyteszfld_ );
+    mSetByteIf( refnrbytefld_, sRefNrByte(), refnrbytefld_ );
+    mSetSzIf( refnrbytefld_, sRefNrByteSz(), refnrbyteszfld_ );
 
     if ( psgrp_ )
     {

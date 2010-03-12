@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.10 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: segythdef.h,v 1.11 2010-03-12 14:58:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,15 +37,19 @@ public:
 				unsigned char t=5,
 				unsigned char o=37,
 				unsigned char a=255,
-				unsigned char p=255,
+				unsigned char pk=255,
+				unsigned char rp=255,
 				unsigned char ibs=4,
 				unsigned char cbs=4,
 				unsigned char obs=4,
 				unsigned char abs=4,
-				unsigned char tbs=4)
+				unsigned char tbs=4,
+				unsigned char pkbs=4,
+				unsigned char rpbs=4)
 			: inl(i), crl(c), xcoord(x), ycoord(y), trnr(t)
-			, offs(o), azim(a), pick(p)
+			, offs(o), azim(a), pick(pk), refnr(rp)
 			, inlbytesz(ibs), crlbytesz(cbs), trnrbytesz(tbs)
+			, refnrbytesz(rpbs), pickbytesz(pkbs)
 			, offsbytesz(obs), azimbytesz(abs), pinfo(0)	{}
 
     unsigned char	inl, inlbytesz;
@@ -53,17 +57,19 @@ public:
     unsigned char	trnr, trnrbytesz;
     unsigned char	offs, offsbytesz;
     unsigned char	azim, azimbytesz;
+    unsigned char	refnr, refnrbytesz;
+    unsigned char	pick, pickbytesz;
     unsigned char	xcoord, ycoord;
-    unsigned char	pick;
 
     inline static bool	isReserved( unsigned char b, unsigned char sb )
-                        { return sb < b+3 && sb > ((int)b)-3; }
+                        { return sb < ((short)b)+3 && sb > ((short)b)-3; }
 
     inline bool         isClashing( unsigned char b ) const
                         {
                             return isReserved( b, xcoord )
 				|| isReserved( b, ycoord )
 				|| isReserved( b, pick )
+				|| isReserved( b, refnr )
 				|| isReserved( b, inl )
 				|| isReserved( b, crl )
 				|| isReserved( b, offs )
@@ -88,6 +94,9 @@ public:
     static const char*	sAzimByte();
     static const char*	sAzimByteSz();
     static const char*	sPickByte();
+    static const char*	sPickByteSz();
+    static const char*	sRefNrByte();
+    static const char*	sRefNrByteSz();
 
     BufferString	linename;
     SeisPacketInfo*	pinfo;

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jul 2002
  Contents:	PAuxiliary info on position
- RCS:		$Id: posauxinfo.h,v 1.8 2009-07-22 16:01:16 cvsbert Exp $
+ RCS:		$Id: posauxinfo.h,v 1.9 2010-03-12 14:58:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ public:
 		{
 		    binid.inl = binid.crl = 0; coord.x = coord.y = 0;
 		    startpos = offset = azimuth = 0;
-		    pick = refpos = mUdf(float);
+		    pick = refnr = mUdf(float);
 		}
 
     BinID	binid;
@@ -38,7 +38,7 @@ public:
     float	offset;
     float	azimuth;
     float	pick;
-    float	refpos;
+    float	refnr;
 
 };
 
@@ -52,17 +52,17 @@ public:
 		PosAuxInfoSelection()
 		: startpos(false), coord(false)
 		, offset(false), azimuth(false)
-		, pick(false), refpos(false)	{}
+		, pick(false), refnr(false)	{}
 
 		void setAll( bool yn )
-		{ startpos = coord = offset = azimuth = pick = refpos = yn; }
+		{ startpos = coord = offset = azimuth = pick = refnr = yn; }
 
     bool	startpos;
     bool	coord;
     bool	offset;
     bool	azimuth;
     bool	pick;
-    bool	refpos;
+    bool	refnr;
 };
 
 

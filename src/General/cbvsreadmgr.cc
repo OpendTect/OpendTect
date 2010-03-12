@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.58 2009-08-04 12:21:46 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.59 2010-03-12 14:58:23 cvsbert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -638,7 +638,7 @@ void CBVSReadMgr::getAuxFromFile( PosAuxInfo& pad )
     mCondGetCoordAuxFromStrm()
     mCondGetAuxFromStrm(offset,4)
     mCondGetAuxFromStrm(pick,8)
-    mCondGetAuxFromStrm(refpos,16)
+    mCondGetAuxFromStrm(refnr,16)
     mCondGetAuxFromStrm(azimuth,32)
 }
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.78 2009-11-16 06:57:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.79 2010-03-12 14:58:23 cvsbert Exp $";
 
 /*!
 
@@ -192,7 +192,7 @@ void CBVSReader::getAuxInfoSel( const char* ptr )
     info_.auxinfosel.coord =	mAuxSetting(ptr,2);
     info_.auxinfosel.offset =	mAuxSetting(ptr,4);
     info_.auxinfosel.pick =	mAuxSetting(ptr,8);
-    info_.auxinfosel.refpos =	mAuxSetting(ptr,16);
+    info_.auxinfosel.refnr =	mAuxSetting(ptr,16);
     info_.auxinfosel.azimuth =	mAuxSetting(ptr,32);
 
 #define mAddBytes(memb,t) \
@@ -206,7 +206,7 @@ void CBVSReader::getAuxInfoSel( const char* ptr )
     }
     mAddBytes(offset,float);
     mAddBytes(pick,float);
-    mAddBytes(refpos,float);
+    mAddBytes(refnr,float);
     mAddBytes(azimuth,float);
 }
 
@@ -659,7 +659,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     auxinf.coord = info_.geom.b2c.transform( curbinid_ );
     auxinf.startpos = info_.sd.start;
     auxinf.offset = auxinf.azimuth = 0;
-    auxinf.pick = mSetUdf(auxinf.refpos);
+    auxinf.pick = mSetUdf(auxinf.refnr);
 
     if ( !auxnrbytes )
 	return true;
@@ -681,7 +681,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	auxinf.coord = getTrailerCoord( auxinf.binid );
     mCondGetAux(offset)
     mCondGetAux(pick)
-    mCondGetAux(refpos)
+    mCondGetAux(refnr)
     mCondGetAux(azimuth)
 
     hinfofetched = true;

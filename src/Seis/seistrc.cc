@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.47 2010-01-04 11:08:28 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.48 2010-03-12 14:58:23 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -120,8 +120,6 @@ SampleGate SeisTrc::sampleGate( const Interval<float>& tg, bool check ) const
 SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 {
     const float pick = info_.pick;
-    if ( mIsUdf(pick) )
-	const_cast<float&>(pick) = info_.refpos;
     if ( mIsUdf(pick) )
 	return 0;
 

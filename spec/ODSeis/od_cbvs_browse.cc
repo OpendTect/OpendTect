@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.31 2009-12-07 14:01:21 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.32 2010-03-12 14:58:23 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.31 2009-12-07 14:01:21 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.32 2010-03-12 14:58:23 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -143,9 +143,9 @@ int main( int argc, char** argv )
 	if ( !mIsZero(trc.info().pick,mDefEps)
 		&& !mIsUdf(trc.info().pick) )
 	    std::cerr << "Pick position: " << trc.info().pick << std::endl;
-	if ( !mIsZero(trc.info().refpos,mDefEps)
-		&& !mIsUdf(trc.info().refpos) )
-	    std::cerr << "Reference position: " << trc.info().refpos
+	if ( !mIsZero(trc.info().refnr,mDefEps)
+		&& !mIsUdf(trc.info().refnr) )
+	    std::cerr << "Reference number: " << trc.info().refnr
 		      << std::endl;
 	if ( !mIsZero(trc.info().offset,mDefEps)
 		&& !mIsUdf(trc.info().offset) )

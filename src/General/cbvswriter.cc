@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.54 2010-02-09 09:02:44 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.55 2010-03-12 14:58:23 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -74,7 +74,7 @@ void CBVSWriter::init( const CBVSInfo& i )
     if ( auxinfo_ && survgeom_.fullyrectandreg
       && !auxinfosel_.startpos && !auxinfosel_.coord
       && !auxinfosel_.offset && !auxinfosel_.azimuth
-      && !auxinfosel_.pick && !auxinfosel_.refpos )
+      && !auxinfosel_.pick && !auxinfosel_.refnr )
 	auxinfo_ = 0;
 
     writeHdr( i ); if ( errmsg_ ) return;
@@ -152,7 +152,7 @@ void CBVSWriter::putAuxInfoSel( unsigned char* ptr ) const
     }
     mDoMemb(offset,4)
     mDoMemb(pick,8)
-    mDoMemb(refpos,16)
+    mDoMemb(refnr,16)
     mDoMemb(azimuth,32)
 
     const_cast<CBVSWriter*>(this)->auxnrbytes_ = auxbts;
@@ -375,7 +375,7 @@ bool CBVSWriter::writeAuxInfo()
 	}
 	mDoWrAI(offset)
 	mDoWrAI(pick)
-	mDoWrAI(refpos)
+	mDoWrAI(refnr)
 	mDoWrAI(azimuth)
     }
 

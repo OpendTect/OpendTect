@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.58 2009-11-27 11:28:38 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.59 2010-03-12 14:58:23 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -207,14 +207,14 @@ double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
 {
     switch ( fld )
     {
-    case Pick:		return pick;
-    case RefPos:	return refpos;
     case CoordX:	return coord.x;
     case CoordY:	return coord.y;
     case BinIDInl:	return binid.inl;
     case BinIDCrl:	return binid.crl;
     case Offset:	return offset;
     case Azimuth:	return azimuth;
+    case RefNr:		return refnr;
+    case Pick:		return pick;
     default:		return nr;
     }
 }
@@ -285,13 +285,10 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
     mIOIOPar( set, CoordX, coord.x );
     mIOIOPar( set, CoordY, coord.y );
 
-    if ( !mIsUdf(pick) )
-    {
-	if ( !mIsUdf(pick) )
-	    mIOIOPar( set, Pick, pick );
-	if ( !mIsUdf(refpos) )
-	    mIOIOPar( set, RefPos, refpos );
-    }
+    if ( pick && !mIsUdf(pick) )
+	mIOIOPar( set, Pick, pick );
+    if ( refnr && !mIsUdf(refnr) )
+	mIOIOPar( set, RefNr, refnr );
 }
 
 
@@ -318,7 +315,7 @@ void SeisTrcInfo::usePar( const IOPar& iopar )
     mIOIOPar( get, Offset,	offset );
     mIOIOPar( get, Azimuth,	azimuth );
     mIOIOPar( get, Pick,	pick );
-    mIOIOPar( get, RefPos,	refpos );
+    mIOIOPar( get, RefNr,	refnr );
 
     iopar.get( sSamplingInfo, sampling.start, sampling.step );
 }
@@ -333,7 +330,7 @@ void SeisTrcInfo::fillPar( IOPar& iopar ) const
     mIOIOPar( set, Offset,	offset );
     mIOIOPar( set, Azimuth,	azimuth );
     mIOIOPar( set, Pick,	pick );
-    mIOIOPar( set, RefPos,	refpos );
+    mIOIOPar( set, RefNr,	refnr );
 
     iopar.set( sSamplingInfo, sampling.start, sampling.step );
 }
@@ -414,7 +411,7 @@ void SeisTrcInfo::putTo( PosAuxInfo& auxinf ) const
     auxinf.offset = offset;
     auxinf.azimuth = azimuth;
     auxinf.pick = pick;
-    auxinf.refpos = refpos;
+    auxinf.refnr = refnr;
 }
 
 
@@ -426,7 +423,7 @@ void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
     offset = auxinf.offset;
     azimuth = auxinf.azimuth;
     pick = auxinf.pick;
-    refpos = auxinf.refpos;
+    refnr = auxinf.refnr;
 }
 
 
@@ -440,9 +437,8 @@ void SeisTrcInfo::handlePossibleFeetConversion( bool conv_back,
 
     const float fac = conv_back ? mToFeetFactor : mFromFeetFactor;
 
-    sampling.start *= fac; sampling.step *= fac;
+    sampling.scale( fac );
     if ( !mIsUdf(pick) ) pick *= fac;
-    if ( !mIsUdf(refpos) ) refpos *= fac;
 }
 
 
