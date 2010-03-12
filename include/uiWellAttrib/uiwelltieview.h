@@ -59,7 +59,7 @@ protected:
 
     ObjectSet<uiWellLogDisplay>& logsdisp_;
     WellTie::DataHolder&  	dataholder_;
-    const Well::Data& 		wd_;		
+    Well::Data& 		wd_;		
     const WellTie::Setup& 	wtsetup_;
     const WellTie::Params::DataParams* params_;
     WellTie::PickSet*		seispickset_;
