@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.69 2010-03-09 22:50:23 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.70 2010-03-12 13:59:00 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -185,8 +185,15 @@ clss<T>::clss( const from<T>& templ ) \
     , stor_(0) \
     , ptr_(0) \
 { \
-    setStorage( new MultiArrayValueSeries<T,T>(info().getTotalSz()) ); \
-    copyFrom( templ ); \
+    const ValueSeries<T>* storage = templ.getStorage(); \
+    ValueSeries<T>* newstor = storage ? storage->clone() : 0; \
+    if ( newstor ) \
+        setStorage( newstor ); \
+    else \
+    { \
+	setStorage( new MultiArrayValueSeries<T,T>(info().getTotalSz()) ); \
+	copyFrom( templ ); \
+    } \
 }
 
 #define mArrNDImplDestructor( clss ) \
