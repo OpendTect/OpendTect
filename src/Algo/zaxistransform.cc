@@ -4,11 +4,13 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.17 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.18 2010-03-12 23:13:55 cvskris Exp $";
 
 #include "zaxistransform.h"
 
 #include "survinfo.h"
+#include "keystrs.h"
+#include "zdomain.h"
 
 
 mImplFactory( ZAxisTransform, ZATF );
@@ -30,6 +32,19 @@ void ZAxisTransform::setVolumeOfInterest( int, const CubeSampling&, bool )
 
 
 void ZAxisTransform::removeVolumeOfInterest( int ) {}
+
+
+const char* ZAxisTransform::getToZDomainUnit( bool ) const
+{ return sKey::EmptyString; }
+
+
+void ZAxisTransform::getToZDomainInfo( ZDomain::Info& info ) const
+{
+    info.zfactor_ = getZFactor();
+    info.name_ = getToZDomainString();
+    info.id_ = getZDomainID();
+    info.unitstr_ = getToZDomainUnit( false );
+}
 
 
 bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)

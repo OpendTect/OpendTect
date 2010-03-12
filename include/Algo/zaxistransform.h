@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.24 2009-09-17 13:07:06 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.25 2010-03-12 23:13:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ class Coord3;
 class CubeSampling;
 class IOPar;
 class TaskRunner;
+
+namespace ZDomain { class Info; }
 
 /*! Baseclass for z stretching in different ways. The z-stretch may be dependent
 on the location (binid). The various transforms can be retrieved from factory
@@ -76,6 +78,8 @@ public:
     virtual const char*		getZDomainID() const			= 0;
     virtual float		getZFactor() const		{ return 1; }
     				//!\Should be used in user interfaces
+    virtual const char*		getToZDomainUnit(bool withparens) const;
+    void			getToZDomainInfo(ZDomain::Info&) const;
 
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }
