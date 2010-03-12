@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: veldesc.cc,v 1.13 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: veldesc.cc,v 1.14 2010-03-12 13:42:03 cvskris Exp $";
 
 
 #include "veldesc.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: veldesc.cc,v 1.13 2009-07-22 16:01:31 cvsbert E
 #include "separstr.h"
 #include "fixedstring.h"
 #include "staticsdesc.h"
+#include "survinfo.h"
 
 const char* VelocityDesc::sKeyVelocityType()	{ return "Velocity Type"; }
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
@@ -103,4 +104,13 @@ bool VelocityDesc::usePar( const IOPar& par )
 	return false;
 
     return true;
+}
+
+
+const char* VelocityDesc::getVelUnit( bool wp )
+{
+    if ( SI().depthsInFeetByDefault() )
+	return wp ? "(ft/s)" : "ft/s";
+
+    return wp ? "(m/s)" : "m/s";
 }

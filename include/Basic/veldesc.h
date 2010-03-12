@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.12 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: veldesc.h,v 1.13 2010-03-12 13:42:03 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -42,6 +42,8 @@ public:
     static const char*	sKeyVelocityType();
     static const char*	sKeyIsFeetPerSecond();
     static const char*	sKeyIsVelocity();
+
+    static const char*	getVelUnit(bool withparens=true);
 };
 
 
