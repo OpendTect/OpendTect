@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.29 2009-07-22 16:01:15 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.30 2010-03-12 19:36:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ public:
     IOObj*		clone() const;
     IOObj*		getParent() const;
     			//!< Will return null for objects in the survey dir
-    virtual MultiID	key() const			{ return key_; }
+    virtual const MultiID& key() const			{ return key_; }
 
     virtual		~IOObj();
     virtual bool	bad() const			= 0;
