@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.14 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.15 2010-03-12 11:22:23 cvsbert Exp $";
 
 #include "segydirectdef.h"
 #include "segyfiledata.h"
@@ -261,9 +261,7 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
 	ld.posns_ += l2dpos;
     }
     const FileData& fd = *(*fds_)[0];
-    ld.zrg_.start = fd.sampling_.start;
-    ld.zrg_.step = fd.sampling_.step;
-    ld.zrg_.stop = ld.zrg_.start + (fd.trcsz_-1) * ld.zrg_.step;
+    ld.zrg_ = fd.sampling_.interval( fd.trcsz_ );
 }
 
 
