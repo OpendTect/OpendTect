@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.30 2010-03-11 16:58:06 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.31 2010-03-12 13:40:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -363,9 +363,17 @@ MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries(
 	MemCopier<AT> cpier;
 	for ( int idx=0; idx<ptrs_.size(); idx++ )
 	{
+	    const od_int64 nextstart = ((od_int64) idx+1)*chunksize_;
+	    od_int64 curchunksize = chunksize_;
+	    if ( nextstart>cursize_ )
+	    {
+		od_int64 diff = nextstart-cursize_;
+		curchunksize -= diff;
+	    }
+
 	    cpier.setInput( mavs.ptrs_[idx] );
 	    cpier.setOutput( ptrs_[idx] );
-	    cpier.setSize( chunksize_ );
+	    cpier.setSize( curchunksize );
 	    cpier.execute();
 	}
     }
