@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.15 2010-03-12 15:13:04 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.16 2010-03-12 16:08:40 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -157,15 +157,19 @@ public:
 					const VelocityDesc&) 	{}
 				~VelocityModelScanner() 	{}
 
-    const Interval<float>&	getTopAverageVelocity() const
+    const char*			 message() const { return msg_.buf(); }
+
+    const Interval<float>&	getTopVAvg() const
     				{ return startavgvel_; }
-    const Interval<float>&	getBotAverageVelocity() const
+    const Interval<float>&	getBotVAvg() const
     				{ return stopavgvel_; }
 
     int				nextStep()
     				{ return SequentialTask::ErrorOccurred(); }
 
 protected:
+
+    BufferString		msg_;
     HorSampling			subsel_;
 
     Interval<float>		startavgvel_;

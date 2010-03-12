@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.30 2010-03-12 15:13:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.31 2010-03-12 16:08:40 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -140,7 +140,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     veldescfld_ = new uiVelocityDesc( this, vsu );
     veldescfld_->attach( alignedBelow, volselfld_ );
 
-    BufferString str( "Vavg at top" );
+    BufferString str( "Vavg at top " );
     str += VelocityDesc::getVelUnit( true );
 
     topavgvelfld_ =
@@ -151,7 +151,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 			    mCB(this,uiVelocityDescDlg, scanAvgVelCB ), false );
     scanavgvel_->attach( rightOf, topavgvelfld_ );
 
-    str = "Vavg range at bottom";
+    str = "Vavg at bottom ";
     str += VelocityDesc::getVelUnit( true );
 
     botavgvelfld_ =
@@ -208,8 +208,8 @@ void uiVelocityDescDlg::scanAvgVelCB( CallBacker* )
     uiTaskRunner tr( this );
     if ( tr.execute( scanner ) )
     {
-	topavgvelfld_->setValue( scanner.getTopAverageVelocity() );
-	botavgvelfld_->setValue( scanner.getBotAverageVelocity() );
+	topavgvelfld_->setValue( scanner.getTopVAvg() );
+	botavgvelfld_->setValue( scanner.getBotVAvg() );
     }
 }
 
