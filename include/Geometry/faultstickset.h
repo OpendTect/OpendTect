@@ -6,7 +6,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.6 2009-12-11 15:35:52 cvsjaap Exp $
+RCS:           $Id: faultstickset.h,v 1.7 2010-03-12 21:07:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
 
     int			nrSticks() const;
     int			nrKnots(int stick) const;
+    const TypeSet<Coord3>* getStick(int stickidx) const;
 
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int stick) const;
