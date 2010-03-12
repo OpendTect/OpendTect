@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.129 2009-11-11 12:05:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.130 2010-03-12 23:09:23 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -69,9 +69,9 @@ void setSIDomain( IOPar& iop, bool yn )
 
 Info::Info( bool fromsi )
     : zfactor_(fromsi ? SI().zFactor() : 1)
-    , name_(fromsi ? SI().getZDomainString() : "")
-    , unitstr_(fromsi ? SI().getZUnitString() : "")
-    , id_("")
+    , name_(fromsi ? SI().getZDomainString() : sKey::EmptyString.buf() )
+    , unitstr_(fromsi ? SI().getZUnitString() : sKey::EmptyString.buf() )
+    , id_( sKey::EmptyString )
 {}
 
 }
