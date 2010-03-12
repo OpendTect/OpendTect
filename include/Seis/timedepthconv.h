@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.13 2009-09-17 13:07:54 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.14 2010-03-12 14:28:14 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -36,9 +36,12 @@ public:
     virtual bool		setVelData(const MultiID&)		= 0;
     const char*			errMsg() const 		{ return errmsg_; }
 
+    static const char*		sKeyAverageVelocity()	{ return "Avg Vel"; }
+
 protected:
-    				VelocityStretcher() : errmsg_( 0 ) 	{}
+    				VelocityStretcher() : errmsg_( 0 ) {}
     mutable const char*		errmsg_;
+
 };
 
 
@@ -72,6 +75,9 @@ public:
     const char*		getFromZDomainString() const;
     const char*		getZDomainID() const;
 
+    const Interval<float>& getAverageVel() const { return averagevel_; }
+    static Interval<float> getDefaultAverageVel();
+
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
@@ -94,6 +100,8 @@ protected:
     SeisTrcReader*			velreader_;
     VelocityDesc			veldesc_;
     bool				velintime_;
+
+    Interval<float>			averagevel_; //Used to compute range
 };
 
 
@@ -136,6 +144,29 @@ protected:
 			~Depth2TimeStretcher()				{}
 
     RefMan<Time2DepthStretcher>		stretcher_;
+};
+
+
+mClass VelocityModelScanner : public SequentialTask
+{
+public:
+    				VelocityModelScanner(const IOObj&,
+					const VelocityDesc&) 	{}
+				~VelocityModelScanner() 	{}
+
+    const Interval<float>&	getStartAverageVelocity() const
+    				{ return startavgvel_; }
+    const Interval<float>&	getStopAverageVelocity() const
+    				{ return stopavgvel_; }
+
+    int				nextStep()
+    				{ return SequentialTask::ErrorOccurred(); }
+
+protected:
+    HorSampling			subsel_;
+
+    Interval<float>		startavgvel_;
+    Interval<float>		stopavgvel_;
 };
 
 #endif
