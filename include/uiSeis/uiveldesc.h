@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.14 2009-08-13 09:30:52 cvsbert Exp $
+ RCS:           $Id: uiveldesc.h,v 1.15 2010-03-12 15:13:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,13 @@ protected:
 
    bool			acceptOK(CallBacker*);
    void			volSelChange(CallBacker*);
+   void			scanAvgVelCB(CallBacker*);
 
-   uiSeisSel*		volsel_;
-   uiVelocityDesc*	veldesc_;
+   uiSeisSel*		volselfld_;
+   uiVelocityDesc*	veldescfld_;
+   uiGenInput*		topavgvelfld_;
+   uiGenInput*		botavgvelfld_;
+   uiPushButton*	scanavgvel_;
 };
 
 

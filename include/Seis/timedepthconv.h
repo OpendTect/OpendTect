@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.14 2010-03-12 14:28:14 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.15 2010-03-12 15:13:04 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -24,6 +24,7 @@ class CubeDataPack;
 class SeisTrc;
 class FlatDataPack;
 class MultiID;
+class IOObj;
 class SeisTrcReader;
 template <class T> class ValueSeries;
 
@@ -36,7 +37,8 @@ public:
     virtual bool		setVelData(const MultiID&)		= 0;
     const char*			errMsg() const 		{ return errmsg_; }
 
-    static const char*		sKeyAverageVelocity()	{ return "Avg Vel"; }
+    static const char*		sKeyTopVavg()	{ return "Top Vavg"; }
+    static const char*		sKeyBotVavg()	{ return "Bottom Vavg"; }
 
 protected:
     				VelocityStretcher() : errmsg_( 0 ) {}
@@ -75,8 +77,8 @@ public:
     const char*		getFromZDomainString() const;
     const char*		getZDomainID() const;
 
-    const Interval<float>& getAverageVel() const { return averagevel_; }
-    static Interval<float> getDefaultAverageVel();
+    const Interval<float>& getVavgRg(bool start) const;
+    static Interval<float> getDefaultVAvg();
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -101,7 +103,8 @@ protected:
     VelocityDesc			veldesc_;
     bool				velintime_;
 
-    Interval<float>			averagevel_; //Used to compute range
+    Interval<float>			topvavg_; //Used to compute ranges
+    Interval<float>			botvavg_; //Used to compute ranges
 };
 
 
@@ -154,9 +157,9 @@ public:
 					const VelocityDesc&) 	{}
 				~VelocityModelScanner() 	{}
 
-    const Interval<float>&	getStartAverageVelocity() const
+    const Interval<float>&	getTopAverageVelocity() const
     				{ return startavgvel_; }
-    const Interval<float>&	getStopAverageVelocity() const
+    const Interval<float>&	getBotAverageVelocity() const
     				{ return stopavgvel_; }
 
     int				nextStep()

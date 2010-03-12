@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.16 2009-09-10 16:27:30 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.17 2010-03-12 15:13:04 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -38,6 +38,8 @@ ZAxisTransform* Time2DepthStretcher::create()
 
 Time2DepthStretcher::Time2DepthStretcher()
     : velreader_( 0 )
+    , topvavg_ ( getDefaultVAvg().start, getDefaultVAvg().start )
+    , botvavg_ ( getDefaultVAvg().stop, getDefaultVAvg().stop )
 {
     voidata_.allowNull( true );
 }
@@ -62,7 +64,13 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
     }
 
     veldesc_.type_ = VelocityDesc::Interval;
-    veldesc_.usePar ( velioobj->pars() );
+    veldesc_.usePar( velioobj->pars() );
+
+    topvavg_ = Interval<float>( getDefaultVAvg().start, getDefaultVAvg().start);
+    botvavg_ = Interval<float>( getDefaultVAvg().stop, getDefaultVAvg().stop);
+
+    velioobj->pars().get( sKeyTopVavg(), topvavg_ );
+    velioobj->pars().get( sKeyBotVavg(), botvavg_ );
 
     BufferString depthdomain = ZDomain::getDefault().buf();
     velioobj->pars().get( ZDomain::sKey(), depthdomain );
@@ -82,6 +90,10 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
 }
 
 
+const Interval<float>& Time2DepthStretcher::getVavgRg( bool top ) const
+{ return top ? topvavg_ : botvavg_; }
+
+
 bool Time2DepthStretcher::isOK() const
 {
     if ( !TimeDepthConverter::isVelocityDescUseable( veldesc_, velintime_ ) )
@@ -93,6 +105,18 @@ bool Time2DepthStretcher::isOK() const
     return true;
 }
 
+
+Interval<float> Time2DepthStretcher::getDefaultVAvg()
+{
+    Interval<float> res( 1350, 4500 );
+    if ( SI().depthsInFeetByDefault() )
+    {
+	res.start *= mToFeetFactor;
+	res.stop *= mToFeetFactor;
+    }
+
+    return res;
+}
 
 
 void Time2DepthStretcher::fillPar( IOPar& par ) const
@@ -529,22 +553,19 @@ void Time2DepthStretcher::udfFill( ValueSeries<float>& res, int sz )
 
 Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 {
-    const float factor = SI().defaultXYtoZScale(SurveyInfo::Second,
-	    					SurveyInfo::Meter);
-
     Interval<float> res = SI().zRange(true);
 
     const bool survistime = SI().zIsTime();
 
     if ( survistime && !time )
     {
-	res.start *= factor;
-	res.stop *= factor;
+	res.start *= topvavg_.start;
+	res.stop *= botvavg_.stop;
     }
     else if ( !survistime && time )
     {
-	res.start /= factor;
-	res.stop /= factor;
+	res.start /= topvavg_.stop;
+	res.stop /= botvavg_.start;
     }
 
     return res;
@@ -554,11 +575,7 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 float Time2DepthStretcher::getGoodZStep() const
 {
     if ( SI().zIsTime() )
-    {
-	const float factor = SI().defaultXYtoZScale(SurveyInfo::Second,
-						    SurveyInfo::Meter);
-	return SI().zRange(true).step * factor;
-    }
+	return SI().zRange(true).step * (topvavg_.start+botvavg_.stop) * 0.5;
 
     return SI().zRange(true).step;
 }
@@ -659,8 +676,8 @@ void Depth2TimeStretcher::transformBack(const BinID& bid,
 
 Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
 {
-    const float factor = SI().defaultXYtoZScale(SurveyInfo::Second,
-	    					SurveyInfo::Meter);
+    const Interval<float> topvavg = stretcher_->getVavgRg(true);
+    const Interval<float> botvavg = stretcher_->getVavgRg(false);
 
     Interval<float> res = SI().zRange(true);
 
@@ -668,13 +685,13 @@ Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
 
     if ( survisdepth && !depth )
     {
-	res.start /= factor;
-	res.stop /= factor;
+	res.start /= topvavg.stop;
+	res.stop /= botvavg.start;
     }
     else if ( !survisdepth && depth )
     {
-	res.start *= factor;
-	res.stop *= factor;
+	res.start *= topvavg.stop;
+	res.stop *= botvavg.start;
     }
 
     return res;
@@ -686,9 +703,9 @@ float Depth2TimeStretcher::getGoodZStep() const
     if ( SI().zIsTime() )
 	return SI().zRange(true).step;
 
-    const float factor = SI().defaultXYtoZScale(SurveyInfo::Second,
-	    					SurveyInfo::Meter);
-    return SI().zRange(true).step / factor;
+    const Interval<float> topvavg = stretcher_->getVavgRg(true);
+    const Interval<float> botvavg = stretcher_->getVavgRg(false);
+    return 2 * SI().zRange(true).step / (topvavg.stop+botvavg.start);
 }
 
 

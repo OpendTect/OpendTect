@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.29 2009-08-27 09:58:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.30 2010-03-12 15:13:04 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.29 2009-08-27 09:58:39 cvsbert
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uistaticsdesc.h"
+#include "uitaskrunner.h"
 #include "zdomain.h"
 
 static const char* sKeyDefVelCube = "Default.Cube.Velocity";
@@ -132,12 +133,30 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     uiSeisSel::fillContext( Seis::Vol, true, ctxt );
     uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( "Velocity cube" );
-    volsel_ = new uiSeisSel( this, ctxt, ssu );
-    if ( sel ) volsel_->setInput( *sel );
-    volsel_->selectiondone.notify( mCB(this,uiVelocityDescDlg,volSelChange) );
+    volselfld_ = new uiSeisSel( this, ctxt, ssu );
+    if ( sel ) volselfld_->setInput( *sel );
+    volselfld_->selectiondone.notify(mCB(this,uiVelocityDescDlg,volSelChange) );
 
-    veldesc_ = new uiVelocityDesc( this, vsu );
-    veldesc_->attach( alignedBelow, volsel_ );
+    veldescfld_ = new uiVelocityDesc( this, vsu );
+    veldescfld_->attach( alignedBelow, volselfld_ );
+
+    BufferString str( "Vavg at top" );
+    str += VelocityDesc::getVelUnit( true );
+
+    topavgvelfld_ =
+	new uiGenInput( this, str.buf(), FloatInpIntervalSpec(false) );
+    topavgvelfld_->attach( alignedBelow, veldescfld_ );
+
+    scanavgvel_ = new uiPushButton( this, "Scan",
+			    mCB(this,uiVelocityDescDlg, scanAvgVelCB ), false );
+    scanavgvel_->attach( rightOf, topavgvelfld_ );
+
+    str = "Vavg range at bottom";
+    str += VelocityDesc::getVelUnit( true );
+
+    botavgvelfld_ =
+	new uiGenInput( this, str.buf(), FloatInpIntervalSpec(false) );
+    botavgvelfld_->attach( alignedBelow, topavgvelfld_ );
 
     volSelChange( 0 );
 }
@@ -149,30 +168,64 @@ uiVelocityDescDlg::~uiVelocityDescDlg()
 
 IOObj* uiVelocityDescDlg::getSelection() const
 {
-    return volsel_->getIOObj(true);
+    return volselfld_->getIOObj(true);
 }
 
 
 void uiVelocityDescDlg::volSelChange(CallBacker*)
 {
-    const IOObj* ioobj = volsel_->ioobj( true );
+    const IOObj* ioobj = volselfld_->ioobj( true );
+    scanavgvel_->setSensitive( ioobj );
+
+    VelocityDesc vd;
+    Interval<float> topavgvel = Time2DepthStretcher::getDefaultVAvg();
+    Interval<float> botavgvel = Time2DepthStretcher::getDefaultVAvg();
+
+    if ( ioobj )
+    {
+	vd.usePar( ioobj->pars() );
+	ioobj->pars().get( VelocityStretcher::sKeyTopVavg(), topavgvel );
+	ioobj->pars().get( VelocityStretcher::sKeyBotVavg(), botavgvel );
+    }
+
+    veldescfld_->set( vd );
+    topavgvelfld_->setValue( topavgvel );
+    botavgvelfld_->setValue( botavgvel );
+}
+
+
+void uiVelocityDescDlg::scanAvgVelCB( CallBacker* )
+{
+    const IOObj* ioobj = volselfld_->ioobj( true );
     if ( !ioobj )
 	return;
 
-    VelocityDesc vd;
-    vd.usePar( ioobj->pars() );
-    veldesc_->set( vd );
+    VelocityDesc desc;
+    if ( !veldescfld_->get( desc, true ) )
+	return;
+
+    VelocityModelScanner scanner( *ioobj, desc );
+    uiTaskRunner tr( this );
+    if ( tr.execute( scanner ) )
+    {
+	topavgvelfld_->setValue( scanner.getTopAverageVelocity() );
+	botavgvelfld_->setValue( scanner.getBotAverageVelocity() );
+    }
 }
 
 
 bool uiVelocityDescDlg::acceptOK(CallBacker*)
 {
-    volsel_->commitInput();
-    PtrMan<IOObj> ioobj = volsel_->getIOObj( false );
+    volselfld_->commitInput();
+    PtrMan<IOObj> ioobj = volselfld_->getIOObj( false );
     if ( !ioobj )
 	return false;
 
-    return veldesc_->updateAndCommit( *ioobj, true );
+    ioobj->pars().set( VelocityStretcher::sKeyTopVavg(),
+	    	       topavgvelfld_->getFInterval(0) );
+    ioobj->pars().set( VelocityStretcher::sKeyBotVavg(),
+	    	       botavgvelfld_->getFInterval(0) );
+    return veldescfld_->updateAndCommit( *ioobj, true );
 }
 
 
