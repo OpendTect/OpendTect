@@ -37,6 +37,7 @@ protected:
     uiGenInput*		sdfld_;
     uiGenInput*		haveposfld_;
     uiGenInput*		havenrfld_;
+    uiGenInput*		haverefnrfld_;
     uiGenInput*		isxyfld_;
     uiGenInput*		inldeffld_;
     uiGenInput*		crldeffld_;

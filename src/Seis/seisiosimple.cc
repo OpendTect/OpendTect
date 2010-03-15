@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.19 2009-12-09 10:48:14 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.20 2010-03-15 09:28:11 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -47,7 +47,8 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 {
     clear(true);
     isasc_ = havepos_ = true;
-    havenr_ = havesd_ = haveoffs_ = haveazim_ = isxy_ = remnull_ = false;
+    havenr_ = haverefnr_ = havesd_ = haveoffs_ = haveazim_
+	    = isxy_ = remnull_ = false;
 
     if ( filenm && *filenm )
 	fname_ = filenm;
@@ -73,7 +74,7 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     havesd_ = d.havesd_; sd_ = d.sd_;
     nrsamples_ = d.nrsamples_;
     havepos_ = d.havepos_; isxy_ = d.isxy_;
-    havenr_ = d.havenr_; nrdef_ = d.nrdef_;
+    havenr_ = d.havenr_; haverefnr_ = d.haverefnr_; nrdef_ = d.nrdef_;
     haveoffs_ = d.haveoffs_; offsdef_ = d.offsdef_; haveazim_ = d.haveazim_;
     nroffsperpos_ = d.nroffsperpos_;
     inldef_ = d.inldef_; crldef_ = d.crldef_; nrcrlperinl_ = d.nrcrlperinl_;
@@ -306,7 +307,7 @@ int SeisIOSimple::nextStep()
 
 int SeisIOSimple::readImpTrc( SeisTrc& trc )
 {
-    BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0;
+    BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0, refnr = 0;
     const bool is2d = Seis::is2D(data_.geom_);
     const bool isps = Seis::isPS(data_.geom_);
 
@@ -315,9 +316,17 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     else
     {
 	if ( data_.isasc_ )
+	{
 	    *sd_.istrm >> nr;
+	    if ( data_.haverefnr_ )
+		*sd_.istrm >> refnr;
+	}
 	else
+	{
 	    mStrmBinRead( nr, int );
+	    if ( data_.haverefnr_ )
+		mStrmBinRead( refnr, float );
+	}
     }
 
     if ( !data_.havepos_ )
@@ -399,6 +408,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     trc.info().offset = SI().xyInFeet() ? offs * mFromFeetFactor : offs;
     trc.info().azimuth = azim;
     trc.info().nr = nr;
+    trc.info().refnr = refnr;
     prevnr_ = nr;
     float val;
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
@@ -455,9 +465,11 @@ int SeisIOSimple::writeExpTrc()
 		{ datasd.start *= 1000; datasd.step *= 1000; }
 	    mPIEPAdj(Z,datasd.start,false); mPIEPAdj(Z,datasd.step,false);
 	    if ( data_.isasc_ )
-		*sd_.ostrm << datasd.start << '\t'
-			  << datasd.step << '\t'
-			  << data_.nrsamples_ << std::endl;
+	    {
+		*sd_.ostrm << toString(datasd.start) << '\t';
+		*sd_.ostrm << toString(datasd.step) << '\t'
+			   << data_.nrsamples_ << std::endl;
+	    }
 	    else
 	    {
 		mStrmBinWrite( datasd.start, float );
@@ -473,15 +485,22 @@ int SeisIOSimple::writeExpTrc()
     if ( data_.havenr_ )
     {
 	int nr = trc_.info().nr;
+	const float refnr = trc_.info().refnr;
 	mPIEPAdj(TrcNr,nr,false);
 	if ( data_.isasc_ )
 	{
 	    *sd_.ostrm << nr;
+	    if ( data_.haverefnr_ )
+		*sd_.ostrm << '\t' << toString(refnr);
 	    if ( data_.havepos_ )
-		*sd_.ostrm << ' ';
+		*sd_.ostrm << '\t';
 	}
 	else
+	{
 	    mStrmBinWrite( nr, int );
+	    if ( data_.haverefnr_ )
+		mStrmBinWrite( refnr, float );
+	}
     }
 
     if ( data_.havepos_ )
@@ -492,8 +511,8 @@ int SeisIOSimple::writeExpTrc()
 	    mPIEPAdj(Coord,coord,false);
 	    if ( data_.isasc_ )
 	    {
-		*sd_.ostrm << getStringFromDouble(0,coord.x) << ' ';
-		*sd_.ostrm << getStringFromDouble(0,coord.y);
+		*sd_.ostrm << toString(coord.x) << '\t';
+		*sd_.ostrm << toString(coord.y);
 	    }
 	    else
 	    {

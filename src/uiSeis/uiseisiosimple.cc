@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.29 2009-12-02 16:52:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.30 2010-03-15 09:28:11 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -66,6 +66,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     	, ctio_(*uiSeisSel::mkCtxtIOObj(gt,!imp))
     	, sdfld_(0)
 	, havenrfld_(0)
+	, haverefnrfld_(0)
 	, nrdeffld_(0)
     	, inldeffld_(0)
     	, subselfld_(0)
@@ -122,7 +123,13 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	havenrfld_->setValue( data().havenr_ );
 	havenrfld_->attach( alignedBelow, attachobj );
 	havenrfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
-	attachobj = havenrfld_->attachObj();
+	txt = isimp_ ? "Ref/SP number included" : "Include Ref/SP number";
+	txt += " (after trace number)";
+	haverefnrfld_ = new uiGenInput( this, txt, BoolInpSpec(false) );
+	haverefnrfld_->setValue( data().haverefnr_ );
+	haverefnrfld_->attach( alignedBelow, havenrfld_ );
+	havenrfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
+	attachobj = haverefnrfld_->attachObj();
     }
     else
     {
@@ -176,7 +183,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 		    "Trace number definition: start, step",
 		    IntInpSpec(data().nrdef_.start).setName("Trc def start"),
 		    IntInpSpec(data().nrdef_.step).setName("Trc def step") );
-	    nrdeffld_->attach( alignedBelow, attachobj );
+	    nrdeffld_->attach( alignedBelow, havenrfld_ );
 	    startposfld_ = new uiGenInput( this,
 					  "Start position (X, Y, Trace number)",
 					  PositionInpSpec(data().startpos_) );
@@ -390,9 +397,14 @@ void uiSeisIOSimple::haveposSel( CallBacker* cb )
 
 void uiSeisIOSimple::havenrSel( CallBacker* cb )
 {
-    if ( !nrdeffld_ ) return;
-    nrdeffld_->display( haveposfld_->getBoolValue()
-	    	    && !havenrfld_->getBoolValue() );
+    if ( !havenrfld_ ) return;
+
+    const bool havepos = haveposfld_->getBoolValue();
+    const bool havenr = havenrfld_->getBoolValue();
+    if ( nrdeffld_ )
+	nrdeffld_->display( havepos && !havenr );
+    if ( haverefnrfld_ )
+	haverefnrfld_->display( havepos && havenr );
 }
 
 
@@ -456,12 +468,13 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     }
 
     data().havepos_ = haveposfld_->getBoolValue();
-    data().havenr_ = false;
+    data().havenr_ = data().haverefnr_ = false;
     if ( data().havepos_ )
     {
 	data().isxy_ = is2D() || isxyfld_->getBoolValue();
-	data().havenr_ = is2D() && havenrfld_->getBoolValue();
-	if ( isimp_ && data().havenr_ )
+	data().havenr_ = havenrfld_ && havenrfld_->getBoolValue();
+	data().haverefnr_ = data().havenr_ && haverefnrfld_->getBoolValue();
+	if ( isimp_ && !data().havenr_ )
 	{
 	    data().nrdef_.start = nrdeffld_->getIntValue(0);
 	    data().nrdef_.step = nrdeffld_->getIntValue(1);

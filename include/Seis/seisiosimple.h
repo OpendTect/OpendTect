@@ -51,6 +51,8 @@ public:
 	bool		havenr_;
 	SamplingData<int> nrdef_;
 
+	bool		haverefnr_;
+
 	bool		havesd_;
 	SamplingData<float> sd_;
 	int		nrsamples_;
