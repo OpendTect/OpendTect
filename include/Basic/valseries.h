@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.31 2010-03-12 13:40:47 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.32 2010-03-15 18:35:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     virtual bool	canSetAll() const		{ return false; }
     virtual void	setAll(T)			{}
 
+    virtual bool	selfSufficient() const		{ return false; }
+    			/*!<\returns true if not depending on other objects */
     virtual bool	reSizeable() const		{ return false; }
     virtual bool	setSize(od_int64) 		{ return false; }
 
@@ -116,6 +118,7 @@ public:
     const RT*	arr() const			mImplArr;
     RT*		arr()				mImplArr;
 
+    bool	selfSufficient() const		{ return mine_; }
     bool	reSizeable() const		{ return mine_; }
     inline bool	setSize(od_int64);
     od_int64	size() const			{ return cursize_; }
@@ -159,6 +162,7 @@ public:
     const RT*	arr() const;
     RT*		arr();
 
+    bool	selfSufficient() const		{ return true; }
     bool	reSizeable() const		{ return true; }
     inline bool	setSize(od_int64);
     od_int64	size() const			{ return cursize_; }
