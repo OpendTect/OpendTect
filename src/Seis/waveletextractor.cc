@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
- RCS:           $Id: waveletextractor.cc,v 1.4 2009-11-23 04:59:34 cvsnageswara Exp $ 
+ RCS:           $Id: waveletextractor.cc,v 1.5 2010-03-15 03:58:19 cvsnageswara Exp $ 
  ________________________________________________________________________
                    
 -*/   
@@ -116,15 +116,12 @@ void WaveletExtractor::initFFT()
 
 bool WaveletExtractor::getNextLine()
 {
-    if ( seisrdr_ )
-	delete seisrdr_;
-    seisrdr_ = new SeisTrcReader( &iobj_ );
-    if ( !seisrdr_ )
-	return false;
     lineidx_++;
     if ( lineidx_ >= sdset_.size() )
 	return false;
 
+    delete seisrdr_; // TODO: find a better way to reset the reader
+    seisrdr_ = new SeisTrcReader( &iobj_ );
     seisrdr_->setSelData( sdset_[lineidx_]->clone() );
     seisrdr_->prepareWork();
     return true;
