@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.70 2010-03-12 13:59:00 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.71 2010-03-15 14:23:40 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -30,7 +30,8 @@ ________________________________________________________________________
     inline Array##nd##Impl<T>&	operator =( const Array##nd<T>& ai ) \
 				{ copyFrom(ai); return *this; } \
     inline Array##nd##Impl<T>&	operator =( const Array##nd##Impl<T>& ai ) \
-				{ copyFrom(ai); return *this; }
+				{ copyFrom(ai); return *this; } \
+    inline bool			setStorageNoResize(ValueSeries<T>*); \
 
 
 template <class T> class Array1DImpl : public Array1D<T>
@@ -174,7 +175,7 @@ protected:
     , stor_(0) \
     , ptr_(0) \
 { \
-    setStorage( (ValueSeries<T>*)new MultiArrayValueSeries<T,T>( \
+    setStorageNoResize( (ValueSeries<T>*)new MultiArrayValueSeries<T,T>( \
 					info().getTotalSz())); \
 }
 
@@ -187,11 +188,10 @@ clss<T>::clss( const from<T>& templ ) \
 { \
     const ValueSeries<T>* storage = templ.getStorage(); \
     ValueSeries<T>* newstor = storage ? storage->clone() : 0; \
-    if ( newstor ) \
-        setStorage( newstor ); \
-    else \
+    if ( !newstor || !setStorageNoResize( newstor ) )  \
     { \
-	setStorage( new MultiArrayValueSeries<T,T>(info().getTotalSz()) ); \
+	setStorageNoResize( \
+		new MultiArrayValueSeries<T,T>(info().getTotalSz()) ); \
 	copyFrom( templ ); \
     } \
 }
@@ -209,6 +209,14 @@ bool clss<T>::setStorage( ValueSeries<T>* s ) \
 	delete s; \
 	return false; \
     } \
+    return setStorageNoResize( s ); \
+} \
+ \
+ \
+template <class T> inline \
+bool clss<T>::setStorageNoResize( ValueSeries<T>* s ) \
+{ \
+    ptr_ = 0; \
     delete stor_; stor_ = s; ptr_ = stor_->arr(); \
     return true; \
 }
