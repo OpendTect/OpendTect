@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.11 2010-03-11 14:12:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.12 2010-03-15 16:12:46 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -81,7 +81,7 @@ void uiSeisBayesClass::doPart()
 	getInpPDFs();
     break;
     case mGetWghts:
-	getWeights();
+	getNorm();
     break;
     case mInpSeis:
 	getInpSeis();
@@ -232,13 +232,14 @@ void uiSeisBayesClass::inpPDFsGot( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
-class uiSeisBayesWeights : public uiVarWizardDlg
+class uiSeisBayesNorm : public uiVarWizardDlg
 {
 public:
 
-uiSeisBayesWeights( uiParent* p, IOPar& pars )
+uiSeisBayesNorm( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[2] Normalization/Scaling",
 			 mTODOHelpID), pars,Middle)
+    , is2d_(*pars[sKey::Type] == '2')
 {
     normpolfld_ = new uiGenInput( this, "Normalization mode",
 		      StringListInpSpec(SeisBayesClass::NormPolNames()) );
@@ -246,6 +247,11 @@ uiSeisBayesWeights( uiParent* p, IOPar& pars )
     SeisBayesClass::NormPol pol = SeisBayesClass::PerBin;
     if ( res && *res ) pol = eEnum(SeisBayesClass::NormPol,res);
     normpolfld_->setValue( (int)pol );
+
+    const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
+    uiSeisSel::Setup su( gt ); su.optional(true);
+    IOObjContext ctxt( mIOObjContext(SeisTrc) );
+    uiSeisSel::fillContext( gt, true, ctxt );
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
@@ -281,22 +287,23 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
+    bool		is2d_;
     uiGenInput*		normpolfld_;
     ObjectSet<uiGenInput> sclflds_;
 
 };
 
 
-void uiSeisBayesClass::getWeights()
+void uiSeisBayesClass::getNorm()
 {
-    wghtsdlg_ = new uiSeisBayesWeights( parent_, pars_ );
-    mLaunchVWDialog(wghtsdlg_,uiSeisBayesClass,weightsGot);
+    normdlg_ = new uiSeisBayesNorm( parent_, pars_ );
+    mLaunchVWDialog(normdlg_,uiSeisBayesClass,normGot);
 }
 
 
-void uiSeisBayesClass::weightsGot( CallBacker* )
+void uiSeisBayesClass::normGot( CallBacker* )
 {
-    mHandleVWCancel(wghtsdlg_,mInpPDFs)
+    mHandleVWCancel(normdlg_,mInpPDFs)
     mSetState( mInpSeis );
 }
 
@@ -305,11 +312,11 @@ class uiSeisBayesSeisInp : public uiVarWizardDlg
 {
 public:
 
-uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
+uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[3] Specify Seismic input",
 			 mTODOHelpID), pars,Middle)
     , lsfld_(0)
-    , is2d_(is2d)
+    , is2d_(*pars[sKey::Type] == '2')
 {
     BufferString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
@@ -317,7 +324,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars, bool is2d )
     if ( !pdf ) { new uiLabel(this,emsg); return; }
 
     const int nrvars = pdf->nrDims();
-    const Seis::GeomType gt = is2d ? Seis::Line : Seis::Vol;
+    const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
     uiSeisSel::Setup su( gt );
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
     uiSeisSel::fillContext( gt, true, ctxt );
@@ -368,7 +375,7 @@ bool acceptOK( CallBacker* )
 
 void uiSeisBayesClass::getInpSeis()
 {
-    inpseisdlg_ = new uiSeisBayesSeisInp( parent_, pars_, is2d_ );
+    inpseisdlg_ = new uiSeisBayesSeisInp( parent_, pars_ );
     mLaunchVWDialog(inpseisdlg_,uiSeisBayesClass,inpSeisGot);
 }
 
@@ -384,10 +391,10 @@ class uiSeisBayesOut : public uiVarWizardDlg
 {
 public:
 
-uiSeisBayesOut( uiParent* p, IOPar& pars, bool is2d )
+uiSeisBayesOut( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,
 			"[4] Select and specify output",mTODOHelpID), pars,End)
-    , is2d_(is2d)
+    , is2d_(*pars[sKey::Type] == '2')
 {
     if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }
 
@@ -473,7 +480,7 @@ bool acceptOK( CallBacker* )
 
 void uiSeisBayesClass::doOutput()
 {
-    outdlg_ = new uiSeisBayesOut( parent_, pars_, is2d_ );
+    outdlg_ = new uiSeisBayesOut( parent_, pars_ );
     mLaunchVWDialog(outdlg_,uiSeisBayesClass,outputDone);
 }
 

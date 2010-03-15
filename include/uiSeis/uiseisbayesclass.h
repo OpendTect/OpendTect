@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2010
- RCS:           $Id: uiseisbayesclass.h,v 1.5 2010-03-10 16:19:04 cvsbert Exp $
+ RCS:           $Id: uiseisbayesclass.h,v 1.6 2010-03-15 16:12:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "odusgclient.h"
 #include "uivarwizard.h"
 class uiSeisBayesPDFInp;
-class uiSeisBayesWeights;
+class uiSeisBayesNorm;
 class uiSeisBayesSeisInp;
 class uiSeisBayesOut;
 
@@ -35,7 +35,7 @@ protected:
     bool		is2d_;
 
     uiSeisBayesPDFInp*	inppdfdlg_;
-    uiSeisBayesWeights*	wghtsdlg_;
+    uiSeisBayesNorm*	normdlg_;
     uiSeisBayesSeisInp*	inpseisdlg_;
     uiSeisBayesOut*	outdlg_;
 
@@ -45,8 +45,8 @@ protected:
     void		getInpPDFs();
     void		inpPDFsGot(CallBacker*);
 
-    void		getWeights();
-    void		weightsGot(CallBacker*);
+    void		getNorm();
+    void		normGot(CallBacker*);
 
     void		getInpSeis();
     void		inpSeisGot(CallBacker*);
