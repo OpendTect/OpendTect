@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.36 2010-02-12 09:43:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.37 2010-03-15 19:28:53 cvsyuancheng Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -99,6 +99,7 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
     , displayintersectionmnuitem_( "&At sections only" ) \
+    , displayintersecthorizonmnuitem_( "&At horizons" ) \
     , singlecolmnuitem_( "Use single &color" ) \
     , removeselectedmnuitem_( "Re&move selection" )
 
@@ -112,6 +113,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
     displayplanemnuitem_.checkable = true;
     displaystickmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
+    displayintersecthorizonmnuitem_.checkable = true;
     singlecolmnuitem_.checkable = true;
 }
 
@@ -125,6 +127,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     displayplanemnuitem_.checkable = true;
     displaystickmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
+    displayintersecthorizonmnuitem_.checkable = true;
     singlecolmnuitem_.checkable = true;
     displayid_ = id;
 }
@@ -234,6 +237,8 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
 		  faultdisplay_->areSticksDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		  faultdisplay_->areIntersectionsDisplayed() );
+    mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_, true,
+		  faultdisplay_->areHorizonIntersectionsDisplayed() );
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
     const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
@@ -292,6 +297,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	const bool planechecked = displayplanemnuitem_.checked;
 	faultdisplay_->display( !stickchecked, stickchecked || planechecked );
 	faultdisplay_->displayIntersections( false );
+	faultdisplay_->displayHorizonIntersections( false );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
@@ -299,6 +305,13 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	const bool interchecked = displayintersectionmnuitem_.checked;
 	faultdisplay_->display( false, interchecked );
 	faultdisplay_->displayIntersections( !interchecked );
+    }
+    else if ( mnuid==displayintersecthorizonmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	const bool interchecked = displayintersecthorizonmnuitem_.checked;
+	faultdisplay_->display( false, interchecked );
+	faultdisplay_->displayHorizonIntersections( !interchecked );
     }
     else if ( mnuid==singlecolmnuitem_.id )
     {
