@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.32 2009-11-27 11:34:45 cvsnageswara Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.33 2010-03-15 16:36:36 cvsjaap Exp $";
 
 #include "uimain.h"
 #include "uiodmenumgr.h"
@@ -33,9 +33,6 @@ mExternC PluginInfo* GetCmdDriverPluginInfo()
 	"Used for testing and general 'scripting'." };
     return &retpii;
 }
-
-
-//static const char* autoexecfnm = "autoexec.cmd";
 
 
 mExternC const char* InitCmdDriverPlugin( int, char** )
