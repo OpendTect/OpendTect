@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.57 2009-10-29 05:32:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.58 2010-03-15 16:15:01 cvsbert Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -82,7 +82,7 @@ void uiAttrTrcSelOut::createSingleHorUI()
     ctio_.ctxt.forread = true;
     objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate along surface" );
     objfld_->attach( alignedBelow, attrfld_ );
-    objfld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
+    objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
     createSubSelFld( uppgrp_ );
     createZIntervalFld( uppgrp_ );
@@ -114,7 +114,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     obj2fld_ = new uiIOObjSel( uppgrp_, ctio2_, "and bottom surface:" );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
-    obj2fld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
+    obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
     createExtraZTopFld( uppgrp_ );
     createExtraZBotFld( uppgrp_ );

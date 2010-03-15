@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.15 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.16 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uigmtcontour.h"
 
@@ -58,7 +58,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     , lsfld_(0)
 {
     inpfld_ = new uiIOObjSel( this, ctio_,"Select Horizon" );
-    inpfld_->selectiondone.notify( mCB(this,uiGMTContourGrp,objSel) );
+    inpfld_->selectionDone.notify( mCB(this,uiGMTContourGrp,objSel) );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     subselfld_->attach( alignedBelow, inpfld_ );

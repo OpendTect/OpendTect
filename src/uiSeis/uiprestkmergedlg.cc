@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.20 2009-12-02 11:10:24 cvsraman Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.21 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -296,7 +296,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
 {
     inctio_.setObj( key );
     inpfld_ = new uiIOObjSel( this, inctio_, "Input Data Store" );
-    inpfld_->selectiondone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
+    inpfld_->selectionDone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 
     uiPosSubSel::Setup psssu( false, false );
     psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )

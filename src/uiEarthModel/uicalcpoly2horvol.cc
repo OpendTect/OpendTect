@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.7 2009-08-24 09:41:36 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.8 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -120,7 +120,7 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 
     horsel_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
 	    			"Calculate to" );
-    horsel_->selectiondone.notify( mCB(this,uiCalcPolyHorVol,horSel) );
+    horsel_->selectionDone.notify( mCB(this,uiCalcPolyHorVol,horSel) );
 
     mkStdGrp()->attach( alignedBelow, horsel_ );
 }
@@ -179,7 +179,7 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
     pssel_ = new uiIOObjSel( this, ctxt, "Calculate from polygon" );
-    pssel_->selectiondone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
+    pssel_->selectionDone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
 
     mkStdGrp()->attach( alignedBelow, pssel_ );
 }

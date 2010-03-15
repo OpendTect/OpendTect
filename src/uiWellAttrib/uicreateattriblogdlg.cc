@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.25 2009-08-28 08:17:55 cvshelene Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.26 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -82,7 +82,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     attribfld_ = attrib ? new uiAttrSel( this, *attrib_ )
 			: new uiAttrSel( this, 0, uiAttrSelData(false) );
     attribfld_->setNLAModel( nlamodel_ );
-    attribfld_->selectiondone.notify( mCB(this,uiCreateAttribLogDlg,selDone) );
+    attribfld_->selectionDone.notify( mCB(this,uiCreateAttribLogDlg,selDone) );
 
     if ( !singlewell )
     {

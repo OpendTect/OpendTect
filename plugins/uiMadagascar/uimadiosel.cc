@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.28 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.29 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -70,11 +70,11 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     {
 	seis3dfld_ = new uiSeisSel( this, ctio3d_, uiSeisSel::Setup(Seis::Vol));
 	seis3dfld_->attach( alignedBelow, typfld_ );
-	seis3dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
+	seis3dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	seisps3dfld_ = new uiSeisSel( this, ctiops3d_,
 				      uiSeisSel::Setup(Seis::VolPS));
 	seisps3dfld_->attach( alignedBelow, typfld_ );
-	seisps3dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
+	seisps3dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	if ( isinp )
 	{
 	    subsel3dfld_ = new uiSeis3DSubSel( this, Seis::SelSetup(Seis::Vol)
@@ -86,11 +86,11 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     {
 	seis2dfld_ = new uiSeisSel( this, ctio2d_,uiSeisSel::Setup(Seis::Line));
 	seis2dfld_->attach( alignedBelow, typfld_ );
-	seis2dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
+	seis2dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	seisps2dfld_ = new uiSeisSel( this, ctiops2d_,
 					uiSeisSel::Setup(Seis::LinePS) );
 	seisps2dfld_->attach( alignedBelow, typfld_ );
-	seisps2dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
+	seisps2dfld_->selectionDone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	subsel2dfld_ = new uiSeis2DSubSel( this, Seis::SelSetup(Seis::Line)
 						 .fornewentry(!isinp));
 	subsel2dfld_->attach( alignedBelow, seis2dfld_ );

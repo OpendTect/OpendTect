@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.16 2010-03-15 04:16:37 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.17 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -64,7 +64,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
 
 	seissel3dfld_ = new uiSeisSel( this, seisctio_,
 	    			     uiSeisSel::Setup(false,false) );
-	seissel3dfld_->selectiondone.notify(
+	seissel3dfld_->selectionDone.notify(
 				mCB(this,uiWaveletExtraction,inputSelCB) );
 
 	subselfld3d_ = new uiSeis3DSubSel( this, Seis::SelSetup(false,false)

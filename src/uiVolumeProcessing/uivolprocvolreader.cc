@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.4 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.5 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uivolprocvolreader.h"
 #include "uimsg.h"
@@ -39,7 +39,7 @@ uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
 	ctio_->setObj( 0 );
 
     seissel_ = new uiSeisSel( this, *ctio_, uiSeisSel::Setup(false,false) );
-    seissel_->selectiondone.notify( mCB(this,uiVolumeReader,volSel) );
+    seissel_->selectionDone.notify( mCB(this,uiVolumeReader,volSel) );
 
     addNameFld( seissel_ );
     finaliseDone.notify( mCB(this,uiVolumeReader,volSel) );

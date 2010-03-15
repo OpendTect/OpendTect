@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.29 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.30 2010-03-15 16:15:01 cvsbert Exp $";
 
 
 #include "uiattrsurfout.h"
@@ -48,7 +48,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     ctio_.ctxt.forread = true;
     objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate on surface" );
     objfld_->attach( alignedBelow, attrnmfld_ );
-    objfld_->selectiondone.notify( mCB(this,uiAttrSurfaceOut,objSel) );
+    objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSel) );
 
     uppgrp_->setHAlignObj( attrfld_ );
     addStdFields( false, true );

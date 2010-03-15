@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.9 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.10 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uigmt2dlines.h"
 
@@ -47,7 +47,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
     inpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(Seis::Line) );
-    inpfld_->selectiondone.notify( mCB(this,uiGMT2DLinesGrp,objSel) );
+    inpfld_->selectionDone.notify( mCB(this,uiGMT2DLinesGrp,objSel) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );

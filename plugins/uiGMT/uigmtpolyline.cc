@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.9 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.10 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uigmtpolyline.h"
 
@@ -49,7 +49,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
     ctio_.ctxt.allowcnstrsabsent = false;
     inpfld_ = new uiIOObjSel( this, ctio_,"Select Polygon" );
-    inpfld_->selectiondone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
+    inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );

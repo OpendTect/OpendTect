@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityvolumeconversion.cc,v 1.1 2009-12-08 16:27:26 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityvolumeconversion.cc,v 1.2 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uivelocityvolumeconversion.h"
 
@@ -30,7 +30,7 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     uiSeisSel::Setup velsetup( Seis::Vol );
     velsetup.seltxt( "Input velocity model" );
     input_ = new uiVelSel( uppgrp_, velctxt, velsetup );
-    input_->selectiondone.notify(
+    input_->selectionDone.notify(
 	    mCB(this,Vel::uiBatchVolumeConversion,inputChangeCB ));
 
     possubsel_ =  new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,false) );

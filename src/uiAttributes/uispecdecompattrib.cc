@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.26 2009-09-01 03:43:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.27 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -37,7 +37,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     
 {
     inpfld_ = getImagInpFld( is2d );
-    inpfld_->selectiondone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
+    inpfld_->selectionDone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
 
     typefld_ = new uiGenInput( this, "Transform type",
 	    		      BoolInpSpec(true,"FFT","CWT") );

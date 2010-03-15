@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.18 2009-08-27 15:55:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.19 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -277,7 +277,7 @@ uiSeisPreLoadMgrSel2D( uiParent* p )
     }
 
     lssel_ = new uiIOObjSel( this, ctio_ );
-    lssel_->selectiondone.notify( mCB(this,uiSeisPreLoadMgrSel2D,lsSel) );
+    lssel_->selectionDone.notify( mCB(this,uiSeisPreLoadMgrSel2D,lsSel) );
     uiGroup* boxgrp = new uiGroup( this, "List boxes" );
     uiLabeledListBox* lllb = new uiLabeledListBox( boxgrp, "Line(s)", true,
 	    			 uiLabeledListBox::AboveMid );

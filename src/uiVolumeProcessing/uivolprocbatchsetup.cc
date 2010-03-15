@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.10 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.11 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -41,7 +41,7 @@ VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
 	   			"Volume Builder setup" );
     if ( initialsetup )
 	setupsel_->setInput( *initialsetup );
-    setupsel_->selectiondone.notify( mCB(this,uiBatchSetup,setupSelCB) );
+    setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
 
     editsetup_ = new uiPushButton( uppgrp_, "Create",
 	    VolProc::uiChain::getPixmap(),

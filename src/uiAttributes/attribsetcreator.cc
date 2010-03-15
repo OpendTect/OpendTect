@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.16 2009-07-28 07:09:41 cvsranojay Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.17 2010-03-15 16:15:01 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"
@@ -114,7 +114,7 @@ void mkGrp( uiGroup* mkgrp, const char* lbltxt,
 	    newsel->attach( alignedBelow, prevsel );
 
 	neednewgrp = !((idx+1) % maxnrselinrow);
-	newsel->selectiondone.notify( mCB(this,uiSelExternalAttrInps,cubeSel) );
+	newsel->selectionDone.notify( mCB(this,uiSelExternalAttrInps,cubeSel) );
 	sels += newsel;
 	prevsel = newsel;
     }

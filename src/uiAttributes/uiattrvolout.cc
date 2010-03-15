@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.73 2009-11-04 05:44:14 cvsraman Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.74 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -66,7 +66,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     uiAttrSelData attrdata( ad, false );
     attrdata.nlamodel = nlamodel;
     todofld = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
-    todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
+    todofld->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
     transffld = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
 	    	.fornewentry(!is2d).withstep(false).multiline(true) );

@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.11 2009-09-21 04:04:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.12 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -40,7 +40,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
 {
     inpfld_ = new uiSeisSel( this, seisctio_, uiSeisSel::Setup(Seis::Vol) );
-    inpfld_->selectiondone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    inpfld_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
 
     winoption_= new uiGenInput( this, "Window Option",
 	                        BoolInpSpec(true, "Single Horizon",
@@ -49,11 +49,11 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     winoption_->attach( alignedBelow, inpfld_ );
 
     horfld1_ = new uiIOObjSel( this, horctio1_, "    Horizon" );
-    horfld1_->selectiondone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    horfld1_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld1_->attach( alignedBelow, winoption_ );
 
     horfld2_ = new uiIOObjSel( this, horctio2_, "Bottom Horizon" );
-    horfld2_->selectiondone.notify( mCB(this,uiStratAmpCalc,inpSel) );
+    horfld2_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld2_->attach( alignedBelow, horfld1_ );
 
     BufferString lbltxt = "Z Offset ";

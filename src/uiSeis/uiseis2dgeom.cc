@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.18 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.19 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"
@@ -43,7 +43,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 	mainObject()->finaliseStart.notify( cb );
     }
     seisfld = new uiSeisSel( this, ctio, uiSeisSel::Setup(Seis::Line) );
-    seisfld->selectiondone.notify( cb );
+    seisfld->selectionDone.notify( cb );
 
     lnmsfld = new uiGenInput( this, "One line only",
 			      StringListInpSpec(emptylnms) );

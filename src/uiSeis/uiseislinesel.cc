@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.32 2010-01-22 11:32:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.33 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiseislinesel.h"
 
@@ -219,7 +219,7 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio,
 {
     linesetfld_ = new uiSeisSel( this, lsctio_, uiSeisSel::Setup(Seis::Line)
 						.selattr(withattr_) );
-    linesetfld_->selectiondone.notify( mCB(this,uiSeis2DLineSubSel,lineSetSel));
+    linesetfld_->selectionDone.notify( mCB(this,uiSeis2DLineSubSel,lineSetSel));
 
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", true );
     llb->attach( alignedBelow, linesetfld_ );

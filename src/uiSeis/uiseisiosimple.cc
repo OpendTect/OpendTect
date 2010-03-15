@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.30 2010-03-15 09:28:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.31 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -99,7 +99,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     else
     {
 	seisfld_ = new uiSeisSel( this, ctio_, ssu );
-	seisfld_->selectiondone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
+	seisfld_->selectionDone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
 	sep = mkDataManipFlds();
     }
 
@@ -255,7 +255,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    lnmfld_ = new uiSeis2DLineNameSel( this, false );
 	    lnmfld_->fillWithAll();
 	    lnmfld_->attach( alignedBelow, seisfld_ );
-	    seisfld_->selectiondone.notify( mCB(this,uiSeisIOSimple,lsSel) );
+	    seisfld_->selectionDone.notify( mCB(this,uiSeisIOSimple,lsSel) );
 	}
     }
     else

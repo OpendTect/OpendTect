@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.33 2009-09-22 08:08:20 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.34 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -156,7 +156,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     else
 	inpfld = new uiAttrSel( grp, "Input data", uiAttrSelData(false) );
     grp->setHAlignObj( inpfld );
-    inpfld->selectiondone.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
+    inpfld->selectionDone.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     evfld = new uiGenInput( grp, "Event type",
 	    		    StringListInpSpec(sKeyEventNames()) );

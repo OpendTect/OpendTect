@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.9 2009-08-28 20:57:38 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.10 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -76,7 +76,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     {
 	attrinpfld_ = new uiAttrSel( this, descset, "Select Attribute" );
 	attrinpfld_->attach( alignedBelow, slider_ );
-	attrinpfld_->selectiondone.notify(
+	attrinpfld_->selectionDone.notify(
 		mCB(this,uiHorizonShiftDialog,attribChangeCB) );
 	
 	calbut_ = new uiPushButton( this, "Calculate", false );

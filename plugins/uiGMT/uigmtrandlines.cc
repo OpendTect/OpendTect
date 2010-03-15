@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.6 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.7 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uigmtrandlines.h"
 
@@ -48,7 +48,7 @@ uiGMTRandLinesGrp::uiGMTRandLinesGrp( uiParent* p )
     , linenms_(*new BufferStringSet)
 {
     inpfld_ = new uiIOObjSel( this, ctio_, "Select Line(set)" );
-    inpfld_->selectiondone.notify( mCB(this,uiGMTRandLinesGrp,objSel) );
+    inpfld_->selectionDone.notify( mCB(this,uiGMTRandLinesGrp,objSel) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.11 2009-08-28 10:43:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.12 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -184,7 +184,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     wellfld_ = new uiIOObjSel( this, ctio_, "Add to Well" );
     wellfld_->attach( alignedBelow, inpsampfld_ );
     wellfld_->attach( ensureBelow, sep );
-    wellfld_->selectiondone.notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
+    wellfld_->selectionDone.notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
 
     lognmfld_ = new uiGenInput( this, "Output log name", "VSP" );
     lognmfld_->attach( alignedBelow, wellfld_ );

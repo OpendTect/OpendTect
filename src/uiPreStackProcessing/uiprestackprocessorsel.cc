@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.8 2009-11-18 22:33:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.9 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiprestackprocessorsel.h"
 
@@ -27,7 +27,7 @@ uiProcSel::uiProcSel( uiParent* p, const char* lbl,
     selfld_ = new uiIOObjSel( this, ctxt, lbl );
     PtrMan<const IOObj> ioobj = mid ? IOM().get(*mid) : 0;
     if ( ioobj ) selfld_->setInput( *ioobj );
-    selfld_->selectiondone.notify( mCB(this,uiProcSel,selDoneCB));
+    selfld_->selectionDone.notify( mCB(this,uiProcSel,selDoneCB));
     editbut_ = new uiPushButton( this, "",
 	    mCB(this,uiProcSel,editPushCB), false );
     editbut_->attach( rightOf, selfld_ );

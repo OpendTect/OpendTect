@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.10 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.11 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uisrchprocfiles.h"
 
@@ -41,7 +41,7 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
     maskfld->attach( alignedBelow, dirfld );
     objfld = new uiIOObjSel( this, ctio_, "Output data to find" );
     objfld->attach( alignedBelow, maskfld );
-    objfld->selectiondone.notify( mCB(this,uiSrchProcFiles,srchDir) );
+    objfld->selectionDone.notify( mCB(this,uiSrchProcFiles,srchDir) );
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, objfld );
     fnamefld = new uiGenInput( this, "-> File name found", FileNameInpSpec(""));

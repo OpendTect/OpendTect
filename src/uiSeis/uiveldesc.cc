@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.31 2010-03-12 16:08:40 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.32 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiveldesc.h"
 
@@ -135,7 +135,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( "Velocity cube" );
     volselfld_ = new uiSeisSel( this, ctxt, ssu );
     if ( sel ) volselfld_->setInput( *sel );
-    volselfld_->selectiondone.notify(mCB(this,uiVelocityDescDlg,volSelChange) );
+    volselfld_->selectionDone.notify(mCB(this,uiVelocityDescDlg,volSelChange) );
 
     veldescfld_ = new uiVelocityDesc( this, vsu );
     veldescfld_->attach( alignedBelow, volselfld_ );
@@ -237,7 +237,7 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
 	    mCB(this,uiVelSel,editCB), false );
     editcubebutt_->attach( rightOf, selbut_ );
     updateEditButton( 0 );
-    selectiondone.notify( mCB(this,uiVelSel,updateEditButton) );
+    selectionDone.notify( mCB(this,uiVelSel,updateEditButton) );
 
     const char* res = SI().pars().find( sKeyDefVelCube );
     if ( res && *res && IOObj::isKey(res) )

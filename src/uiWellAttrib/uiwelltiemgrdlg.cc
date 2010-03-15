@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.30 2009-12-17 10:42:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.31 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -62,7 +62,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     if ( !wtsetup_.wellid_.isEmpty() )
 	wllctio_.setObj( wtsetup_.wellid_ );
     wellfld_ = new uiIOObjSel( this, wllctio_ );
-    wellfld_->selectiondone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
+    wellfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,wellSel) );
 
     uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
     sep->attach( stretchedBelow, wellfld_ );
@@ -92,7 +92,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 						uiSeisSel::Setup(Seis::Line));
 	if ( typefld_ )
 	    seis2dfld_->attach( alignedBelow, typefld_ );
-	seis2dfld_->selectiondone.notify( mCB(this,uiTieWinMGRDlg,selChg) );
+	seis2dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,selChg) );
 	seislinefld_ = new uiSeis2DLineNameSel( seisgrp, true );
 	seislinefld_->attach( alignedBelow, seis2dfld_ );
     }

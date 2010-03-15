@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.76 2009-10-07 08:51:20 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.77 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -107,7 +107,7 @@ void uiIOSurface::mkObjFld( const char* lbl )
     ctio_->ctxt.forread = forread_;
     objfld_ = new uiIOObjSel( this, *ctio_, lbl );
     if ( forread_ )
-	objfld_->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
+	objfld_->selectionDone.notify( mCB(this,uiIOSurface,objSel) );
 }
 
 

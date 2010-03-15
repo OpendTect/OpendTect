@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistaticsdesc.cc,v 1.2 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uistaticsdesc.cc,v 1.3 2010-03-15 16:15:01 cvsbert Exp $";
 
 #include "uistaticsdesc.h"
 
@@ -32,7 +32,7 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();    
     ctxt.forread = true;
     horfld_ = new uiIOObjSel( this, ctxt, "Statics elevation" );
-    horfld_->selectiondone.notify( mCB(this,uiStaticsDesc,updateFlds));
+    horfld_->selectionDone.notify( mCB(this,uiStaticsDesc,updateFlds));
 
     useconstantvelfld_ = new uiGenInput( this, "Use constant velocity",
 	    BoolInpSpec(true) );
