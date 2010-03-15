@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.27 2010-03-12 14:14:44 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.28 2010-03-15 05:12:40 cvsranojay Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -549,7 +549,7 @@ Well::Marker* uiWellLogDisplay::selectMarker( bool allowrightclk)
     uiLineItem* mrkitm = 0; uiTextItem* mrktxtitm;
     for ( int idx=0; idx<markeritms_.size(); idx++ )
     {
-	if ( fabs( markeritms_[idx]->itm_->getPos().y - mousepos )<2 )
+	if ( abs( markeritms_[idx]->itm_->getPos().y - mousepos )<2 )
 	    return ( &markeritms_[idx]->mrk_ );
     }
     return 0;
