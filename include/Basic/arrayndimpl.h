@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.71 2010-03-15 14:23:40 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.72 2010-03-15 18:36:38 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -31,7 +31,7 @@ ________________________________________________________________________
 				{ copyFrom(ai); return *this; } \
     inline Array##nd##Impl<T>&	operator =( const Array##nd##Impl<T>& ai ) \
 				{ copyFrom(ai); return *this; } \
-    inline bool			setStorageNoResize(ValueSeries<T>*); \
+    inline bool			setStorageNoResize(ValueSeries<T>*);
 
 
 template <class T> class Array1DImpl : public Array1D<T>
@@ -187,7 +187,9 @@ clss<T>::clss( const from<T>& templ ) \
     , ptr_(0) \
 { \
     const ValueSeries<T>* storage = templ.getStorage(); \
-    ValueSeries<T>* newstor = storage ? storage->clone() : 0; \
+    ValueSeries<T>* newstor = storage && storage->selfSufficient() \
+    	? storage->clone() \
+	: 0; \
     if ( !newstor || !setStorageNoResize( newstor ) )  \
     { \
 	setStorageNoResize( \
