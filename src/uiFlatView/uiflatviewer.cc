@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.104 2010-03-05 06:23:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.105 2010-03-15 09:00:21 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -41,8 +41,8 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.104 2010-03-05 06:23:21 cvs
     , arrowitem2_(0) \
     , polyitem_(0) \
     , pointitem_(0) \
-    , polylineitmgrp_(0) \
-    , markeritemgrp_(0) 
+    , polylineitmset_(0) \
+    , markeritemset_(0) 
 
 
 float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
@@ -471,10 +471,13 @@ bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 
     drawGridAnnot( annot.color_.isVisible(), drawarea, wr );
 
-    if ( polylineitmgrp_ )
-	polylineitmgrp_->removeAll( true );
-    if ( markeritemgrp_ )
-	markeritemgrp_->removeAll( true );
+    if ( polylineitmset_ )
+    {
+	canvas_.scene().removeItems( *polylineitmset_ );
+	while ( polylineitmset_->size()>1000 ) // Hack! >1000 items unlikely
+	    polylineitmset_->remove( 0, false );
+    }
+
     if ( pointitem_ )
     {
 	canvas_.scene().removeItem( pointitem_ );
@@ -707,21 +710,19 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    ObjectSet<TypeSet<uiPoint> > lines;
 	    clipPolyLine( datarect, ptlist, lines );
 
-	    if ( !polylineitmgrp_ )
-	    {
-		polylineitmgrp_ = new uiGraphicsItemGroup();
-		canvas_.scene().addItemGrp( polylineitmgrp_ );
-	    }
+	    if ( !polylineitmset_ )
+		polylineitmset_ = new uiGraphicsItemSet();
+
 	    for ( int idx=lines.size()-1; idx>=0; idx-- )
 	    {
 		uiPolyLineItem* polyitem = new uiPolyLineItem();
 		polyitem->setPolyLine( *lines[idx] );
 		polyitem->setPenStyle( ad.linestyle_ );
-		polylineitmgrp_->add( polyitem );
+		polyitem->setZValue(1);
+		canvas_.scene().addItem( polyitem );
+		polylineitmset_->add( polyitem );
 	    }
 	    
-	    polylineitmgrp_->setZValue(1);
-
 	    deepErase( lines );
 	}
     }
@@ -743,28 +744,38 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
     const int nrmarkerstyles = ad.markerstyles_.size();
     if ( nrmarkerstyles )
     {
-	if ( !markeritemgrp_ )
-	{
-	    markeritemgrp_ = new uiGraphicsItemGroup();
-	    canvas_.scene().addItemGrp( markeritemgrp_ );
-	}
-	for ( int idx=nrpoints-1; idx>=0; idx-- )
+	if ( !markeritemset_ )
+	    markeritemset_ = new uiGraphicsItemSet();
+
+	for ( int idx=0; idx<nrpoints; idx++ )
 	{
 	    const int styleidx = mMIN(idx,nrmarkerstyles-1);
 	    if ( !ad.markerstyles_[styleidx].isVisible() ||
 		 datarect.isOutside(ptlist[idx] ) )
 		continue;
 
-	    uiMarkerItem* marketitem =
-		new uiMarkerItem( ad.markerstyles_[styleidx] );
-	    marketitem->setPenColor( ad.markerstyles_[styleidx].color_ );
-	    marketitem->setFillColor( ad.markerstyles_[styleidx].color_ );
-	    marketitem->setPos( ptlist[idx] );
-	    marketitem->setZValue( 2 );
-	    markeritemgrp_->add( marketitem );
+	    uiMarkerItem* markeritem = 0;
+	    if ( markeritemset_->validIdx(idx) )
+	    {
+		uiGraphicsItem* itm = markeritemset_->get( idx );
+		mDynamicCast(uiMarkerItem*,markeritem,itm)
+	    }
+
+	    if ( !markeritem )
+	    {
+		markeritem = canvas_.scene().addItem(
+			new uiMarkerItem( ad.markerstyles_[styleidx] ) );
+		markeritemset_->add( markeritem );
+	    }
+
+	    markeritem->setPenColor( ad.markerstyles_[styleidx].color_ );
+	    markeritem->setFillColor( ad.markerstyles_[styleidx].color_ );
+	    markeritem->setPos( ptlist[idx] );
+	    markeritem->setZValue( 2 );
 	}
-	
-	markeritemgrp_->setZValue(2);
+
+	for ( int idx=nrpoints; idx<markeritemset_->size(); idx++ )
+	    markeritemset_->get( idx )->setVisible( false );
     }
 
     if ( !ad.name_.isEmpty() && !mIsUdf(ad.namepos_) )

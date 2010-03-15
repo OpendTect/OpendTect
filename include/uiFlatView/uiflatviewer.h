@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.38 2010-02-19 13:49:11 cvsbruno Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.39 2010-03-15 09:00:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiRGBArray;
 class uiWorld2Ui;
 class uiFlatViewControl;
 class uiGraphicsItem;
-class uiGraphicsItemGroup;
+class uiGraphicsItemSet;
 class uiArrowItem;
 class uiEllipseItem;
 class uiLineItem;
@@ -130,8 +130,8 @@ protected:
     uiArrowItem*		arrowitem2_;
     uiMarkerItem*		pointitem_;
     uiPolygonItem*		polyitem_;
-    uiGraphicsItemGroup*	polylineitmgrp_;
-    uiGraphicsItemGroup*	markeritemgrp_;
+    uiGraphicsItemSet*		polylineitmset_;
+    uiGraphicsItemSet*		markeritemset_;
 
     void			onFinalise(CallBacker*);
     void			reDraw(CallBacker*);
