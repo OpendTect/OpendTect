@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.59 2010-03-12 14:58:23 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.60 2010-03-15 09:27:39 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -228,7 +228,7 @@ void SeisTrcInfo::getAxisCandidates( Seis::GeomType gt,
     if ( Seis::isPS(gt) )
 	{ flds += Offset; flds += Azimuth; }
     else if ( Seis::is2D(gt) )
-	flds += TrcNr;
+	{ flds += TrcNr; flds += RefNr; }
     else
 	{ flds += BinIDInl; flds += BinIDCrl; }
 
@@ -273,7 +273,11 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
     }
 
     if ( is2d )
+    {
 	mIOIOPar( set, TrcNr, nr );
+	if ( refnr && !mIsUdf(refnr) )
+	    mIOIOPar( set, RefNr, refnr );
+    }
     else
     {
 	mIOIOPar( set, BinIDInl, binid.inl );
