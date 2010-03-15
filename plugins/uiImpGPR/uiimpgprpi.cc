@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.1 2010-03-11 16:17:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.2 2010-03-15 14:29:45 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -22,9 +22,14 @@ static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.1 2010-03-11 16:17:24 cvsbert
 #include "seisselectionimpl.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "datachar.h"
 #include "plugins.h"
 
-static const char* menunm = "&GPR: DTZ";
+// GPR data needs to be scaled, in T, by 1000 to be able to use OpendTect
+// effectively
+#define mNanoFac 1e-6
+
+static const char* menunm = "&GPR: DZT";
 
 
 mExternC int GetuiImpGPRPluginType()
@@ -36,10 +41,10 @@ mExternC int GetuiImpGPRPluginType()
 mExternC PluginInfo* GetuiImpGPRPluginInfo()
 {
     static PluginInfo retpi = {
-	"GPR: .DTZ import",
+	"GPR: .DZT import",
 	"Bert Bril/Matthias Schuh",
 	"0.0.0",
-	"Imports GPR data in DTZ format.\n" };
+	"Imports GPR data in DZT format.\n" };
     return &retpi;
 }
 
@@ -54,6 +59,7 @@ public:
 			uiImpGPRMgr(uiODMain&);
 
     uiODMain&		appl_;
+    void		updMnu(CallBacker*);
     void		doWork(CallBacker*);
 };
 
@@ -61,50 +67,126 @@ public:
 uiImpGPRMgr::uiImpGPRMgr( uiODMain& a )
 	: appl_(a)
 {
-    appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->
+    appl_.menuMgr().dTectMnuChanged.notify( mCB(this,uiImpGPRMgr,updMnu) );
+    updMnu(0);
+}
+
+void uiImpGPRMgr::updMnu( CallBacker* )
+{
+    if ( SI().has2D() )
+	appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->
 		insertItem(new uiMenuItem(menunm,mCB(this,uiImpGPRMgr,doWork)));
 }
 
-#define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 #define mStrm (*sd_.istrm)
+#define mErrRet(s) { msg_ = s; nrsamples_ = 0; return; }
 
-class ImpGPRMgr : public Executor
+#define mExtraHdrBytes 512
+#define mHdrBytesPerChannel 1024
+
+namespace DZT
+{
+
+struct FileHeader
+{
+    struct Date
+    {
+	unsigned sec2:5, min:6, hour:5, day:5, month:4, year:7;
+    };
+
+			FileHeader() : nsamp(0)	{}
+
+    bool		getFrom(std::istream&,BufferString&);
+    bool		isOK() const		{ return nsamp > 0; }
+
+    int			traceNr( int trcidx ) const
+			{ return 1 + trcidx * sps; }
+    int			nrBytesPerSample() const
+    			{ return bits / 8; }
+    int			nrBytesPerTrace() const
+			{ return nsamp * nrBytesPerSample(); }
+
+    unsigned short tag, data, nsamp, bits;
+    short zero;
+    float sps, spm, mpm, position, range;
+    Date created, modified;
+    unsigned short npass, rgain, nrgain, text, ntext, proc, nproc, nchan;
+    float epsr, top, depth;
+    char dtype, antname[14];
+    unsigned short chanmask;
+    unsigned short chksum;
+
+};
+
+#define mRdVal(v) strm.read( (char*)(&v), sizeof(v) )
+bool FileHeader::getFrom( std::istream& strm, BufferString& emsg )
+{
+    mRdVal(tag); mRdVal(data); mRdVal(nsamp); mRdVal(bits); mRdVal(zero);
+    mRdVal(sps); mRdVal(spm); mRdVal(mpm); mRdVal(position); mRdVal(range);
+    mRdVal(created); mRdVal(modified);
+    mRdVal(npass); mRdVal(rgain); mRdVal(nrgain); mRdVal(text); mRdVal(ntext);
+    mRdVal(proc); mRdVal(nproc); mRdVal(nchan);
+    mRdVal(epsr); mRdVal(top); mRdVal(depth);
+    char buf[32]; strm.read( buf, 32 ); dtype = buf[32];
+    strm.read( antname, 14 );
+    mRdVal(chanmask); strm.read( buf, 12 );
+    mRdVal(chksum);
+
+    emsg.setEmpty();
+#define mRetFalse nsamp = 0; return false
+    if ( nsamp < 1 )
+	{ emsg = "Zero Nr of samples found."; mRetFalse; }
+    if ( sps < 1 )
+	{ emsg = "Zero scans per second found."; mRetFalse; }
+    if ( range < 1 )
+	{ emsg = "Zero trace length found."; mRetFalse; }
+    if ( data < 128 )
+	{ emsg.add("Invalid data offset found: ").add(data); mRetFalse; }
+
+    // dtype cannot be trusted, it seems
+    if ( bits < 32 )
+    {
+	if ( dtype %2 )
+	    dtype = bits == 16 ? 3 : 1;
+	else
+	    dtype = bits == 16 ? 2 : 0;
+    }
+
+    strm.seekg( std::streampos(data), std::ios::beg );
+    if ( !strm.good() )
+	{ emsg = "Cannot read first trace."; mRetFalse; }
+
+    return true;
+}
+
+
+class Importer : public ::Executor
 {
 public:
 
-ImpGPRMgr( const char* fnm, const IOObj& ioobj, const LineKey& lk )
+Importer( const char* fnm, const IOObj& ioobj, const LineKey& lk )
     : Executor("Importing DTZ file")
-    , msg_("Handling traces")
     , nrdone_(0)
-    , totalnr_(-1) // default: -1 => unknown
-    , nrsamples_(-1)
+    , totalnr_(-1)
     , lk_(lk)
+    , wrr_(0)
+    , databuf_(0)
+    , di_(DataCharacteristics())
 {
     sd_ = StreamProvider( fnm ).makeIStream();
-    if ( !sd_.usable() ) return;
-
-    //TODO 1: get file info like trace size, and sampling.
-    // For test, I'll read a 'Simple File' header
-    mStrm >> trc_.info().sampling.start >> trc_.info().sampling.step
-    	  >> nrsamples_;
-    if ( SI().zIsTime() )
-    {
-	trc_.info().sampling.start *= 0.001;
-	trc_.info().sampling.step *= 0.001;
-    }
-
-    if ( nrsamples_ < 1 )
-    {
-	msg_ = "Header problem: found ";
-	msg_.add( nrsamples_ ).add( " samples" );
+    if ( !sd_.usable() )
 	return;
-    }
-    else
-    {
-	trc_.reSize( nrsamples_, false );
-	// If you know the total nr of traces, you can set totalnr_ to that
-    }
-    // End TODO 1
+
+    if ( !fh_.getFrom( mStrm, msg_ ) )
+	return;
+
+    DataCharacteristics dc( fh_.dtype < 9, fh_.dtype %2 );
+    dc.setNrBytes( fh_.dtype > 1 ? (fh_.dtype > 3 ? 4 : 2) : 1 );
+    di_.set( dc );
+
+    trc_.data().reSize( fh_.nsamp );
+    for ( int ichan=1; ichan<fh_.nchan; ichan++ )
+	trc_.data().addComponent( fh_.nsamp, DataCharacteristics() );
 
     wrr_ = new SeisTrcWriter( &ioobj );
     Seis::RangeSelData* rsd = new Seis::RangeSelData;
@@ -112,6 +194,9 @@ ImpGPRMgr( const char* fnm, const IOObj& ioobj, const LineKey& lk )
     rsd->lineKey() = lk;
     wrr_ = new SeisTrcWriter( &ioobj );
     wrr_->setSelData( rsd );
+
+    databuf_ = new char [ fh_.nrBytesPerTrace() ];
+    msg_ = "Handling traces";
 }
 
 const char* message() const	{ return msg_; }
@@ -119,29 +204,43 @@ const char* nrDoneText() const	{ return "Traces handled"; }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totalnr_; }
 
+~Importer()
+{
+    sd_.close();
+    delete wrr_;
+    delete [] databuf_;
+}
+
+#undef mErrRet
+#define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
+
 int nextStep()
 {
-    if ( nrsamples_ < 1 )
+    if ( !fh_.isOK() )
     {
-	if ( nrsamples_ < 0 )
+	if ( !sd_.usable() )
 	    mErrRet("Cannot open input file")
 	else
 	    return ErrorOccurred();
     }
 
-    //TODO 2: Read a new trace
-    // For test, reading a specific Simple File format
-    int trcnr = 0;
-    mStrm >> trcnr; if ( trcnr == 0 ) return Finished();
-    trc_.info().nr = trcnr;
-    mStrm >> trc_.info().coord.x >> trc_.info().coord.y;
-    float val;
-    for ( int isamp=0; isamp<nrsamples_; isamp++ )
+    const int trcbytes = fh_.nrBytesPerTrace();
+    mStrm.read( databuf_, trcbytes );
+    if ( mStrm.gcount() != trcbytes )
+	return Finished();
+
+    trc_.info().nr = fh_.traceNr(nrdone_);
+    trc_.info().coord.x = trc_.info().nr;
+    trc_.info().coord.y = 0;
+
+    for ( int ichan=0; ichan<fh_.nchan; ichan++ )
     {
-	mStrm >> val;
-	trc_.set( isamp, val, 0 );
+	for ( int isamp=0; isamp<fh_.nsamp; isamp++ )
+	    trc_.set( isamp, di_.get(databuf_,isamp)+fh_.zero, ichan );
+	float firstrealval = trc_.get( 2, ichan );
+	trc_.set( 0, firstrealval, ichan );
+	trc_.set( 1, firstrealval, ichan );
     }
-    // End TODO 2
 
     if ( !wrr_->put(trc_) )
 	mErrRet(wrr_->errMsg())
@@ -150,18 +249,22 @@ int nextStep()
     return mStrm.good() ? MoreToDo() :  Finished();
 }
 
-    SamplingData<float>	sampling_;
-    int			nrsamples_;
     SeisTrc		trc_;
     SeisTrcWriter*	wrr_;
     StreamData		sd_;
     LineKey		lk_;
+
+    DZT::FileHeader	fh_;
+    char*		databuf_;
+    DataInterpreter<float> di_;
 
     od_int64		nrdone_;
     od_int64		totalnr_;
     BufferString	msg_;
 
 };
+
+}
 
 
 #undef mErrRet
@@ -179,7 +282,7 @@ uiGPRImporter( uiParent* p )
 	{ new uiLabel(this,"TODO: implement 3D loading"); }
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.filter( "*.dtz" ).forread( true );
+    fisu.filter( "*.dzt" ).forread( true );
     inpfld_ = new uiFileInput( this, "Input DTZ file", fisu );
 
     lnmfld_ = new uiGenInput( this, "Output Line name" );
@@ -205,7 +308,7 @@ bool acceptOK( CallBacker* )
     if ( !ioobj ) return false;
 
     uiTaskRunner tr( this );
-    ImpGPRMgr importer( fnm, *ioobj, LineKey(lnm,outfld_->attrNm()) );
+    DZT::Importer importer( fnm, *ioobj, LineKey(lnm,outfld_->attrNm()) );
     return tr.execute( importer );
 }
 
