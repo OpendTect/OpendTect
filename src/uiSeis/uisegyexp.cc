@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.28 2009-12-07 16:21:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.29 2010-03-15 09:27:04 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -167,16 +167,19 @@ BufferString getSummary() const
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y","103.0.7"))
+	, Usage::Client("SEG-Y")
     	, geom_(gt)
     	, morebut_(0)
     	, autogentxthead_(true)
 	, selcomp_(-1)
 {
+    prepUsgStart( "Export" ); sendUsgInfo();
     setCtrlStyle( DoAndStay );
+    const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
     
     PtrMan<CtxtIOObj> ctio = uiSeisSel::mkCtxtIOObj( geom_, true );
     seissel_ = new uiSeisSel( this, ctio->ctxt, uiSeisSel::Setup(geom_) );
-    seissel_->selectiondone.notify( mCB(this,uiSEGYExp,inpSel) );
+    seissel_->selectiondone.notify( inpselcb );
 
     uiSeisTransfer::Setup tsu( geom_ );
     tsu.withnullfill(true).fornewentry(false).onlyrange(false);
@@ -198,11 +201,14 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	morebut_ = new uiCheckBox( this, "Export more from same Line Set" );
 	morebut_->attach( alignedBelow, fsfld_ );
     }
+
+    finaliseDone.notify( inpselcb );
 }
 
 
 uiSEGYExp::~uiSEGYExp()
 {
+    prepUsgEnd(); sendUsgInfo();
 }
 
 

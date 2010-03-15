@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyexp.h,v 1.7 2009-11-24 11:05:53 cvsbert Exp $
+ RCS:           $Id: uisegyexp.h,v 1.8 2010-03-15 09:27:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "seistype.h"
 #include "iopar.h"
+#include "odusgclient.h"
 class uiSeisSel;
 class uiCheckBox;
 class uiSeisTransfer;
@@ -23,6 +24,7 @@ class uiSEGYExpTxtHeader;
 
 
 mClass uiSEGYExp : public uiDialog
+		 , public Usage::Client
 {
 public:
 
