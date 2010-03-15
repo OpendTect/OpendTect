@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.37 2009-11-27 03:01:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.38 2010-03-15 19:28:17 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -519,6 +519,12 @@ void ExplFaultStickSurface::updateTextureCoords()
 
 void ExplFaultStickSurface::display( bool ynsticks, bool ynpanels )
 {
+    if ( !ynsticks && !ynpanels )
+    {
+	addToGeometries( new IndexedGeometry(IndexedGeometry::Lines,
+		    IndexedGeometry::PerVertex,coordlist_,normallist_,0) );
+    }
+    
     if ( displaysticks_!=ynsticks )
     {
 	for ( int idx=0; idx<sticks_.size(); idx++ )

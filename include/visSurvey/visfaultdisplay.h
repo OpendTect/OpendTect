@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.22 2010-02-04 17:20:24 cvsjaap Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.23 2010-03-15 19:28:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,7 @@ namespace Geometry { class ExplFaultStickSurface; class ExplPlaneIntersection; }
 namespace visSurvey
 {
 class MPEEditor;
+class HorizonDisplay;
 
 /*!\brief 
 
@@ -98,6 +99,9 @@ public:
 
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
+    
+    void			displayHorizonIntersections(bool yn);
+    bool			areHorizonIntersectionsDisplayed() const;
 
     Notifier<FaultDisplay>	colorchange;
 
@@ -138,6 +142,8 @@ protected:
 
     void			setActiveStick(const EM::PosID&);
     void 			updateActiveStickMarker();
+    void			updateHorizonIntersections( int whichobj,
+	    				const ObjectSet<const SurveyObject>&);
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		displaytransform_;
@@ -154,6 +160,10 @@ protected:
     ObjectSet<const SurveyObject>	intersectionobjs_;
     TypeSet<int>			planeids_;
 
+    ObjectSet<visBase::GeomIndexedShape> horintersections_;
+    ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
+    ObjectSet<const SurveyObject>	horobjs_;
+    
     visBase::PickStyle*			activestickmarkerpickstyle_;
     visBase::IndexedPolyLine3D*		activestickmarker_;
     int					activestick_;
