@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.72 2010-03-15 18:36:38 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.73 2010-03-15 21:53:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -232,9 +232,9 @@ bool clss<T>::setStorageNoResize( ValueSeries<T>* s ) \
 	return; \
     }
 #define mArrNDImplHandleNormalCopy(inf) \
-    mArrNDImplDoNormalCopy(inf) \
     if ( inf != templ.info() ) \
 	setInfo( templ.info() ); \
+    mArrNDImplDoNormalCopy(inf);
 
 
 template <class T> inline
@@ -480,6 +480,7 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 	delete in_;
 	in_ = templ.info().clone();
     }
+
     mArrNDImplDoNormalCopy(*in_)
 
     if ( in_->getTotalSz() > 0 )
