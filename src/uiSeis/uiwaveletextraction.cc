@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.15 2010-01-22 11:32:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.16 2010-03-15 04:16:37 cvsnageswara Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -188,7 +188,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	    return false;
     }
 
-    int taperlen = mNINT(taperfld_->getfValue());
+    int taperlen = mNINT( taperfld_->getfValue() );
     int wvltlen = mNINT( wtlengthfld_->getfValue() );
     if ( (2*taperlen > wvltlen) || taperlen < 0 )
     {
@@ -338,7 +338,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     BufferString surfkey = IOPar::compKey( sKey::Surface,
 	    				   Pos::EMSurfaceProvider::id1Key() );
     MultiID surf1mid, surf2mid;
-    if ( !surfacepar.get(surfkey.buf(),surf1mid) )
+    if ( !surfacepar.get( surfkey.buf(), surf1mid ) )
 	return false;
 
     surfkey = IOPar::compKey( sKey::Surface,
@@ -357,15 +357,15 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     }
 
     uiTaskRunner dlg( this );
-    EM::EMObject* emobjsingle = EM::EMM().loadIfNotFullyLoaded( surf1mid,
-	    							&dlg );
+    EM::EMObject* emobjsinglehor = EM::EMM().loadIfNotFullyLoaded( surf1mid,
+	    							   &dlg );
 
-    if ( emobjsingle )
-	emobjsingle->ref();
+    if ( emobjsinglehor )
+	emobjsinglehor->ref();
     else 
 	return false;
 
-    mDynamicCastGet(EM::Horizon3D*,horizon1,emobjsingle)
+    mDynamicCastGet(EM::Horizon3D*,horizon1,emobjsinglehor)
     if ( !horizon1 )
     {
 	uiMSG().error( "Error loading horizon" );
@@ -375,15 +375,15 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     if ( betweenhors )
     {
 	EM::SectionID sid = horizon1->sectionID( 0 );
-	EM::EMObject* emobjdouble = EM::EMM().loadIfNotFullyLoaded( surf2mid,
-	       							    &dlg );
+	EM::EMObject* emobjdoublehor = EM::EMM().loadIfNotFullyLoaded( surf2mid,
+								       &dlg );
 
-	if ( emobjdouble )
-	    emobjdouble->ref();
+	if ( emobjdoublehor )
+	    emobjdoublehor->ref();
 	else 
 	    return false;
 
-	mDynamicCastGet( EM::Horizon3D*,horizon2,emobjdouble )
+	mDynamicCastGet( EM::Horizon3D*, horizon2,emobjdoublehor )
 	if ( !horizon2 )
 	{
 	    uiMSG().error( "Error loading second horizon" );
@@ -397,7 +397,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	horizon1->geometry().fillBinIDValueSet( sid, bvs, prov );
 	horizon2->geometry().fillBinIDValueSet( sid2, bvs, prov );
 
-	emobjdouble->unRef();
+	emobjdoublehor->unRef();
     }
     else
     {
@@ -405,14 +405,14 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	horizon1->geometry().fillBinIDValueSet( sid,tsd.binidValueSet(),prov );
     }
 
-    emobjsingle->unRef();
+    emobjsinglehor->unRef();
     
     return true;
 }
 
 
 bool uiWaveletExtraction::getSelData( const IOPar& rangepar,
-					 const IOPar& surfacepar )
+				      const IOPar& surfacepar )
 {
     if ( zextraction_->getBoolValue() )
     {
