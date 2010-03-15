@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.8 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.9 2010-03-15 13:26:17 cvsbert Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -160,7 +160,7 @@ int nextStep()
     outtrc_.info().binid = intrc_.info().binid;
     outtrc_.info().coord = intrc_.info().coord;
     outtrc_.info().nr = intrc_.info().nr;
-    outtrc_.info().refpos = horz;
+    outtrc_.info().pick = horz;
     for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )
     {
 	for ( int isamp=0; isamp<outtrc_.size(); isamp++ )
