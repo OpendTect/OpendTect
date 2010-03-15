@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.16 2010-02-09 08:48:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.17 2010-03-15 08:59:43 cvsnanne Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -24,9 +24,7 @@ static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.16 2010-02-09 08:48:55 cv
 #include <QPoint>
 #include <QRectF>
 #include <QRgb>
-#include <QString>
 #include <QStyleOption>
-#include <QTextOption>
 
 
 QRectF ODGraphicsPointItem::boundingRect() const
@@ -154,6 +152,7 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 
 
 ODGraphicsArrowItem::ODGraphicsArrowItem()
+    : QAbstractGraphicsShapeItem()
 {
 }
 
@@ -284,27 +283,19 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt, double angle,
 
 
 ODGraphicsTextItem::ODGraphicsTextItem()
-    : text_(new QString() )
-    , alignoption_(new QTextOption() )
+    : QGraphicsTextItem()
 {
-}
-
-
-ODGraphicsTextItem::~ODGraphicsTextItem()
-{
-    delete text_;
-    delete alignoption_;
 }
 
 
 void ODGraphicsTextItem::setTextAlignment( Alignment alignment )
 {
-    alignoption_->setAlignment( (Qt::Alignment)alignment.uiValue() );
+    alignoption_.setAlignment( (Qt::Alignment)alignment.uiValue() );
 }
 
 
 void ODGraphicsTextItem::setText( const char* txt )
-{ *text_ = txt; }
+{ text_ = txt; }
 
 
 QRectF ODGraphicsTextItem::boundingRect() const
@@ -312,7 +303,7 @@ QRectF ODGraphicsTextItem::boundingRect() const
     const uiFont& font = FontList().get(
 				FontData::key(FontData::GraphicsSmall ) );
     QFontMetrics fm( font.qFont() );
-    QRectF rectf( fm.boundingRect( *text_ ) );
+    QRectF rectf( fm.boundingRect( text_ ) );
     return rectf;
 }
 
@@ -322,7 +313,7 @@ void ODGraphicsTextItem::paint( QPainter* painter,
 				 QWidget *widget )
 {
     painter->setClipRect( option->exposedRect );
-    painter->drawText( boundingRect(), *text_, *alignoption_ );
+    painter->drawText( boundingRect(), text_, alignoption_ );
 
     if (option->state & QStyle::State_Selected)
     {
@@ -351,6 +342,12 @@ void ODGraphicsPixmapItem::paint( QPainter* painter,
     painter->setClipRect( option->exposedRect );
     QGraphicsPixmapItem::paint( painter, option, widget );
 }
+
+
+
+ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
+    : QAbstractGraphicsShapeItem()
+{}
 
 
 QRectF ODGraphicsPolyLineItem::boundingRect() const

@@ -7,24 +7,26 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.11 2010-02-09 07:28:15 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.12 2010-03-15 08:59:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <QGraphicsItem>
-#include <QPolygon>
+#include <QPolygonF>
+#include <QString>
+#include <QTextOption>
 
 #include "draw.h"
 
-class QTextOption;
 class ioPixmap;
 
 class ODGraphicsPointItem : public QAbstractGraphicsShapeItem
 {
 public:
     				ODGraphicsPointItem()
-				    : highlight_(false)
+				    : QAbstractGraphicsShapeItem()
+				    , highlight_(false)
 				    , penwidth_(2)
 				    , pencolor_(Color::Black())	{}
 
@@ -49,6 +51,7 @@ class ODGraphicsMarkerItem : public QAbstractGraphicsShapeItem
 {
 public:
     				ODGraphicsMarkerItem();
+    virtual			~ODGraphicsMarkerItem();
 
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
@@ -66,9 +69,6 @@ protected:
     Color			fillcolor_;	
     bool			fill_;	
     int 			side_;	
-
-public:
-    				~ODGraphicsMarkerItem();
 };
 
 
@@ -86,6 +86,7 @@ class ODGraphicsArrowItem : public QAbstractGraphicsShapeItem
 {
 public:
     				ODGraphicsArrowItem();
+
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
@@ -101,7 +102,6 @@ public:
     void			setLineStyle(QPainter&,const LineStyle&);
 
 protected:
-    QRectF*			boundingrect_;
     ArrowStyle			arrowstyle_;
     int				arrowsz_;
 };
@@ -111,31 +111,35 @@ class ODGraphicsTextItem : public QGraphicsTextItem
 {
 public:
     				ODGraphicsTextItem();
+
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
     void 			setTextAlignment(Alignment);
     void			setText(const char*);
+
 protected:
     QRectF			boundingrect_;
-    QString*			text_;
-    QTextOption*		alignoption_;
-
-public:
-    				~ODGraphicsTextItem();
+    QString			text_;
+    QTextOption			alignoption_;
 };
 
 
 class ODGraphicsPolyLineItem : public QAbstractGraphicsShapeItem
 {
 public:
+				ODGraphicsPolyLineItem();
+
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
-    void			setPolyLine( const QPolygon& polygon )
-    				{ qpolygon_ = polygon; }
+    void			setPolyLine( const QPolygonF& polygon )
+    				{
+				    prepareGeometryChange();
+				    qpolygon_ = polygon;
+				}
 protected:
-    QPolygon			qpolygon_;
+    QPolygonF			qpolygon_;
 };
 
 
