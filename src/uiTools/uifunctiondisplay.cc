@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.55 2009-12-22 14:48:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.56 2010-03-15 09:01:33 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -388,7 +388,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 			     isy2 ? setup_.y2col_ : setup_.ycol_ );
     for ( int idx=0; idx<ptlist.size(); idx++ )
     {
-	if ( idx < curitmgrp->getSize() )
+	if ( idx < curitmgrp->size() )
 	{
 	    uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
 	    itm->setPos( ptlist[idx].x, ptlist[idx].y );
@@ -402,9 +402,10 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	    curitmgrp->add( markeritem );
 	}
     }
-    if ( ptlist.size() < curitmgrp->getSize() )
+
+    if ( ptlist.size() < curitmgrp->size() )
     {
-	for ( int idx=ptlist.size(); idx<curitmgrp->getSize(); idx++ )
+	for ( int idx=ptlist.size(); idx<curitmgrp->size(); idx++ )
 	    curitmgrp->getUiItem(idx)->setVisible( false );
     }
     curitmgrp->setZValue( isy2 ? setup_.curvzvaly2_ : setup_.curvzvaly_ );

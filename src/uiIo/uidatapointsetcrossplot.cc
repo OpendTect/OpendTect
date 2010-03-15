@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.62 2010-03-03 13:19:02 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.63 2010-03-15 09:01:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.62 2010-03-03 13:19:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.63 2010-03-15 09:01:33 cvsnanne Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -977,7 +977,7 @@ void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
        					       uiDataPointSet::DRowID rid,
 					       bool isy2 )
 {
-    if ( itmidx >= curitmgrp->getSize() )
+    if ( itmidx >= curitmgrp->size() )
     {
 	uiGraphicsItem* itm = 0;
 	if ( mstyle.type_ == MarkerStyle2D::None )
@@ -1354,9 +1354,9 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 	itmidx++;
     }
 
-    if ( itmidx < curitmgrp->getSize() )
+    if ( itmidx < curitmgrp->size() )
     {
-	for ( int idx=itmidx; idx<curitmgrp->getSize(); idx++ )
+	for ( int idx=itmidx; idx<curitmgrp->size(); idx++ )
 	    curitmgrp->getUiItem(idx)->setVisible(false);
     }
     
