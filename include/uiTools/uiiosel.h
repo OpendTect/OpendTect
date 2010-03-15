@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.42 2010-02-12 14:30:14 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.43 2010-03-15 16:14:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,9 @@ public:
     void		doSel(CallBacker*);
     			//!< Called by Select button push.
     			//!< Make sure selok_ is true if that is the case!
-    Notifier<uiIOSelect> selectiondone;
+
+    Notifier<uiIOSelect> selectionDone;
+    Notifier<uiIOSelect> optionalChecked;
 
     const char*		labelText() const;
     void		setLabelText(const char*);

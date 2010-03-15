@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.61 2010-02-12 14:30:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.62 2010-03-15 16:14:21 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -29,7 +29,8 @@ IOPar& uiIOFileSelect::tmpstoragehistory()
 uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	: uiGroup(p)
 	, doselcb_(butcb)
-	, selectiondone(this)
+	, selectionDone(this)
+	, optionalChecked(this)
 	, specialitems(*new IOPar)
     	, keepmytxt_(su.keepmytxt_)
     	, lbl_(0)
@@ -314,12 +315,12 @@ void uiIOSelect::setChecked( bool yn )
 
 void uiIOSelect::optCheck( CallBacker* )
 {
-    if ( optbox_ )
-    {
-	const bool isch = isChecked();
-	inp_->setSensitive( isch );
-	selbut_->setSensitive( isch );
-    }
+    if ( !optbox_ ) return;
+
+    const bool isch = isChecked();
+    inp_->setSensitive( isch );
+    selbut_->setSensitive( isch );
+    optionalChecked.trigger();
 }
 
 
@@ -331,7 +332,7 @@ void uiIOSelect::doSel( CallBacker* )
     if ( selok_ )
     {
 	updateFromEntries();
-	selectiondone.trigger();
+	selectionDone.trigger();
     }
 }
 
@@ -339,7 +340,7 @@ void uiIOSelect::doSel( CallBacker* )
 void uiIOSelect::selDone( CallBacker* )
 {
     processInput();
-    selectiondone.trigger();
+    selectionDone.trigger();
 }
 
 
