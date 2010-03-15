@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kris Tingdahl
  Date:          Oct 2006
- RCS:           $Id: convmemvalseries.h,v 1.9 2010-03-09 22:50:23 cvskris Exp $
+ RCS:           $Id: convmemvalseries.h,v 1.10 2010-03-15 18:37:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
     inline T		value(od_int64 idx) const;
     inline void		setValue( od_int64 idx, T v );
 
+    inline bool		selfSufficient() const	{ return true; }
     inline bool		reSizeable() const	{ return true; }
     inline bool		setSize(od_int64);
 
