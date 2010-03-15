@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.20 2010-02-11 07:12:37 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.21 2010-03-15 08:58:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
 #include "uigeom.h"
+#include "manobjectset.h"
 
 class Color;
 class LineStyle;
@@ -71,13 +72,25 @@ protected:
 
     QGraphicsItem*	qgraphicsitem_;
 
-    virtual QGraphicsItem* mkQtObj()			= 0;
+    virtual QGraphicsItem* mkQtObj()			{ return 0; }
     bool		selected_; // Remove when things in Qt works
 
 private:
     static int		getNewID();
     const int		id_;
 
+};
+
+
+mClass uiGraphicsItemSet : public ManagedObjectSet<uiGraphicsItem>
+{
+public:
+			uiGraphicsItemSet()
+			    : ManagedObjectSet<uiGraphicsItem>(false)	{}
+
+    void		add( uiGraphicsItem* itm )	{ (*this) += itm; }
+    uiGraphicsItem*	get( int idx )			{ return (*this)[idx]; }
+    const uiGraphicsItem* get( int idx ) const		{ return (*this)[idx]; }
 };
 
 
@@ -97,7 +110,7 @@ public:
     void		remove(uiGraphicsItem*,bool);
     void		removeAll(bool);
     bool		isEmpty() const		{ return items_.isEmpty(); }
-    int			getSize() const		{ return items_.size(); }
+    int			size() const		{ return items_.size(); }
     uiGraphicsItem* 	getUiItem( int idx )	{ return gtItm(idx); }
     const uiGraphicsItem* getUiItem( int idx ) const	{ return gtItm(idx); }
 

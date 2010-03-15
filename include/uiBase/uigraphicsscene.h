@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.30 2010-03-05 09:33:59 cvsbruno Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.31 2010-03-15 08:58:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,10 +43,12 @@ public:
     void			removeAllItems();
     uiGraphicsItem*		removeItem(uiGraphicsItem*);
     				/*!<Gives object back to caller (not deleted) */
+    void			removeItems(uiGraphicsItemSet&);
+    				/*!<Does not delete the items*/
 
     template <class T> T*	addItem(T*);
-    uiGraphicsItemGroup*	addItemGrp(uiGraphicsItemGroup*);
     				//!<Item becomes mine
+    uiGraphicsItemGroup*	addItemGrp(uiGraphicsItemGroup*);
     int				nrItems() const;
     uiGraphicsItem*		getItem(int id);
     const uiGraphicsItem*	getItem(int id) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.20 2010-02-11 07:12:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.21 2010-03-15 08:58:57 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -231,8 +231,8 @@ void uiGraphicsItemGroup::removeAll( bool withdelete )
 void uiGraphicsItemGroup::setVisible( bool yn )
 {
     isvisible_ = yn;
-    for ( int idx=0; idx<getSize(); idx++ )
-	getUiItem(idx)->setVisible( yn );
+    for ( int idx=0; idx<items_.size(); idx++ )
+	items_[idx]->setVisible( yn );
 }
 
 
@@ -244,9 +244,10 @@ bool uiGraphicsItemGroup::isVisible() const
 
 uiRect uiGraphicsItemGroup::boundingRect() const
 {
-    if ( getSize() < 1 ) return uiRect();
+    if ( isEmpty() ) return uiRect();
+
     uiRect ret( getUiItem(0)->boundingRect() );
-    for ( int idx=1; idx<getSize(); idx++ )
-	ret.include( getUiItem(idx)->boundingRect() );
+    for ( int idx=1; idx<items_.size(); idx++ )
+	ret.include( items_[idx]->boundingRect() );
     return ret;
 }
