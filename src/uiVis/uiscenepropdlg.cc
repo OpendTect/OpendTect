@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.11 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.12 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -67,7 +67,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     bgcolfld_ = new uiColorInput( this, uiColorInput::Setup( oldbgcolor_)
 					.lbltxt("Background color") );
     bgcolfld_->attach( alignedBelow, annotscalefld_ );
-    bgcolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
+    bgcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
     markersizefld_ = new uiSliderExtra( this,
 				uiSliderExtra::Setup("Mouse marker size"),
@@ -82,12 +82,12 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     markercolfld_ = new uiColorInput( this,
 	    uiColorInput::Setup(oldmarkercolor_).lbltxt("Mouse marker color") );
     markercolfld_->attach( alignedBelow, markersizefld_ );
-    markercolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
+    markercolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     
     annotcolfld_ = new uiColorInput( this,
 	    uiColorInput::Setup(annotcolor_).lbltxt("Annotation color") );
     annotcolfld_->attach( alignedBelow, markercolfld_ );
-    annotcolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
+    annotcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 }
 
 

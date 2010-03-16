@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.42 2009-11-03 03:48:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.43 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uicoltabman.h"
 
@@ -123,13 +123,13 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     cisetup.lbltxt("Undefined color");
     undefcolfld_ = new uiColorInput( rightgrp, cisetup );
     undefcolfld_->enableAlphaSetting( enabletrans_ );
-    undefcolfld_->colorchanged.notify( mCB(this,uiColorTableMan,undefColSel) );
+    undefcolfld_->colorChanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, segmentfld_ );
 
     markercolfld_ = new uiColorInput(
 	rightgrp,uiColorInput::Setup(ctab_.markColor()).lbltxt("Marker color"));
     markercolfld_->enableAlphaSetting( true );
-    markercolfld_->colorchanged.notify(
+    markercolfld_->colorChanged.notify(
 	    mCB(this,uiColorTableMan,markerColChgd) );
     markercolfld_->attach( alignedBelow, undefcolfld_ );
     

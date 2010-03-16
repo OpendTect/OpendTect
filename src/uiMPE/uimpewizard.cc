@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.97 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.98 2010-03-16 10:02:46 cvsbert Exp $";
 
 
 #include "uimpewizard.h"
@@ -215,7 +215,7 @@ uiGroup* Wizard::createTrackModePage()
     colorfld = new uiColorInput( grp,
 			         uiColorInput::Setup(getRandStdDrawColor() ).
 				 lbltxt("Object color") );
-    colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
+    colorfld->colorChanged.notify( mCB(this,Wizard,colorChangeCB) );
 
     mDefSeedConModeGrp( hmodegrp, Horizon3D ); 
     mDefSeedConModeGrp( h2dmodegrp, Horizon2D ); 

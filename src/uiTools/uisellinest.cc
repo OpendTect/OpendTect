@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.31 2010-02-20 00:58:42 cvskarthika Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.32 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -45,7 +45,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 	colinp = new uiColorInput( this,
 				   uiColorInput::Setup(linestyle.color_).
 				   lbltxt(wdraw ? "Color" : "Line color") );
-	colinp->colorchanged.notify( mCB(this,uiSelLineStyle,changeCB) );
+	colinp->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel )
 	    colinp->attach( rightTo, stylesel );
     }

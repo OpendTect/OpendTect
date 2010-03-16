@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.21 2010-02-20 00:58:42 cvskarthika Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.22 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -111,7 +111,7 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
     {
 	colinp_ = new uiColorInput( this,
 		uiColorInput::Setup(so->getColor()).lbltxt("Base color") );
-	colinp_->colorchanged.notify( mCB(this,uiMaterialGrp,colorChangeCB) );
+	colinp_->colorChanged.notify( mCB(this,uiMaterialGrp,colorChangeCB) );
 	colinp_->setSensitive( color );
 	prevobj_ = colinp_;
     }

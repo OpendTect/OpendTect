@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.34 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.35 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -231,7 +231,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     colorfld_ = new uiColorInput( grp, 
 	    			  uiColorInput::Setup(getRandStdDrawColor() ).
 				  lbltxt("Horizon color") );
-    colorfld_->colorchanged.notify( 
+    colorfld_->colorChanged.notify( 
 	    		mCB(this,uiHorizonSetupGroup,colorChangeCB) );
     grp->setHAlignObj( colorfld_ );
 
@@ -258,7 +258,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 	    			       uiColorInput::Setup(Color::White()).
 				       lbltxt("Seed Color") );
     seedcolselfld_->attach( alignedBelow, seedsliderfld_ );
-    seedcolselfld_->colorchanged.notify( 
+    seedcolselfld_->colorChanged.notify( 
 	    			mCB(this,uiHorizonSetupGroup,seedColSel) );
 
     return grp;

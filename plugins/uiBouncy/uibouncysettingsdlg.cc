@@ -5,7 +5,7 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID = "$Id: uibouncysettingsdlg.cc,v 1.2 2009-09-09 07:59:14 cvskarthika Exp $";
+static const char* rcsID = "$Id: uibouncysettingsdlg.cc,v 1.3 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uibouncysettingsdlg.h"
 #include "uigeninput.h"
@@ -31,11 +31,11 @@ uiBouncySettingsDlg::uiBouncySettingsDlg( uiParent* p,
     color1sel_ = new uiColorInput( this, 
 	    uiColorInput::Setup( getRandStdDrawColor() ).lbltxt( "Color 1" ) );
     color1sel_->attach( alignedBelow, radiusfld_ );
-    color1sel_->colorchanged.notify( chgCB );
+    color1sel_->colorChanged.notify( chgCB );
     color2sel_ = new uiColorInput( this, 
 	    uiColorInput::Setup( getRandStdDrawColor() ).lbltxt( "Color 2" ) );
     color2sel_->attach( alignedBelow, color1sel_ );
-    color2sel_->colorchanged.notify( chgCB );
+    color2sel_->colorChanged.notify( chgCB );
 
     uiGroup* inlcrlgrp = new uiGroup( this, "InlCrl group" );     
     inlcrlgrp->attach( leftAlignedBelow, color2sel_ );

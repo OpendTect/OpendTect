@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.34 2010-03-05 10:13:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.35 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -50,7 +50,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
     dlgtxt += su.mycoltxt_; dlgtxt += " for "; dlgtxt += props().subjectName();
     colfld_ = new uiColorInput( this, csu, su.mycoltxt_ );
     colfld_->attach( alignedBelow, szfld_ );
-    colfld_->colorchanged.notify( mCB(this,uiWellDispProperties,propChg) );
+    colfld_->colorChanged.notify( mCB(this,uiWellDispProperties,propChg) );
 
     setHAlignObj( colfld_ );
 }
@@ -171,7 +171,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     csu.lbltxt( dlgtxt ).withalpha( false );
     nmcolfld_ = new uiColorInput( this, csu, dlgtxt );
     nmcolfld_->attach( alignedBelow, nmsizefld_ );
-    nmcolfld_->colorchanged.notify( 
+    nmcolfld_->colorChanged.notify( 
 		mCB(this,uiWellMarkersDispProperties,propChg) );
 
     samecolasmarkerfld_ = new uiCheckBox( this, "same as markers");
@@ -325,14 +325,14 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 			        .lbltxt("Filling color") );
     seiscolorfld_->attach( alignedBelow, logwidthfld_);
     seiscolorfld_->display(false);
-    seiscolorfld_->colorchanged.notify( propchgcb );
+    seiscolorfld_->colorChanged.notify( propchgcb );
 
     fillcolorfld_ = new uiColorInput( this,
 		                 uiColorInput::Setup(logprops().seiscolor_)
 			        .lbltxt("Filling color") );
     fillcolorfld_->attach( alignedBelow, colfld_);
     fillcolorfld_->display(false);
-    fillcolorfld_->colorchanged.notify( propchgcb );
+    fillcolorfld_->colorChanged.notify( propchgcb );
 
     lblr_ = new uiLabeledSpinBox( this, "Repeat" );
     repeatfld_ = lblr_ ->box();

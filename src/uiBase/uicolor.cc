@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.28 2009-08-07 12:53:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.29 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -116,8 +116,8 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	, dodrawbox_(0)
 	, uilbl_(0)
 	, withalpha_(s.withalpha_)
-	, colorchanged(this)
-	, dodrawchanged(this)
+	, colorChanged(this)
+	, doDrawChanged(this)
 {
     if ( s.withcheck_ )
     {
@@ -159,7 +159,7 @@ void uiColorInput::setDoDraw( bool yn )
 void uiColorInput::dodrawSel( CallBacker* )
 {
     colbut_->setSensitive( dodrawbox_->isChecked() );
-    dodrawchanged.trigger();
+    doDrawChanged.trigger();
 }
 
 
@@ -171,7 +171,7 @@ void uiColorInput::selCol( CallBacker* )
     if ( oldcol != newcol )
     {
 	setColor( newcol );
-	colorchanged.trigger();
+	colorChanged.trigger();
     }
 }
 

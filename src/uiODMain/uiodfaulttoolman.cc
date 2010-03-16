@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.5 2010-02-12 10:38:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.6 2010-03-16 10:02:46 cvsbert Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -74,7 +74,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     colorfld_ = new uiColorInput( this,
 		    uiColorInput::Setup(newcolor_).lbltxt("Current color"),
 				  "Output color" );
-    colorfld_->colorchanged.notify(
+    colorfld_->colorChanged.notify(
 			mCB(this,uiFaultStickTransferDlg,outputColorChg) );
     colorfld_->attach( alignedBelow, faultoutputfld_ );
 
@@ -110,7 +110,7 @@ uiFaultStickTransferDlg::~uiFaultStickTransferDlg()
 			mCB(this,uiFaultStickTransferDlg,outputComboChg) );
     fssoutputfld_->getObjSel()->inpBox()->editTextChanged.remove(
 			mCB(this,uiFaultStickTransferDlg,outputComboChg) );
-    colorfld_->colorchanged.remove(
+    colorfld_->colorChanged.remove(
 			mCB(this,uiFaultStickTransferDlg,outputColorChg) );
     sequelnamefld_->activated.remove(
 			mCB(this,uiFaultStickTransferDlg,sequelNameCB) );
@@ -184,7 +184,7 @@ void uiFaultStickTransferDlg::outputColorChg( CallBacker* cb )
     if ( !ftbman_ )
 	return;
 
-    NotifyStopper ns( ftbman_->getOutputColor()->colorchanged );
+    NotifyStopper ns( ftbman_->getOutputColor()->colorChanged );
     ftbman_->getOutputColor()->setColor( colorfld_->color() );
 }
 
@@ -324,7 +324,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 
     tboutputcolor_ = new uiColorInput( 0, uiColorInput::Setup(Color(0,0,0)),
 				       "Output color" );
-    tboutputcolor_->colorchanged.notify(
+    tboutputcolor_->colorChanged.notify(
 	    			mCB(this,uiODFaultToolMan,outputColorChg) );
     toolbar_->addObject( tboutputcolor_->getButton() );
 
@@ -355,7 +355,7 @@ uiODFaultToolMan::~uiODFaultToolMan()
 				mCB(this,uiODFaultToolMan,outputComboChg) );
     tboutputcombo_->editTextChanged.remove(
 				mCB(this,uiODFaultToolMan,outputComboChg) );
-    tboutputcolor_->colorchanged.remove(
+    tboutputcolor_->colorChanged.remove(
 	    			mCB(this,uiODFaultToolMan,outputColorChg) );
 
     visBase::DM().selMan().selnotifier.remove(
@@ -526,7 +526,7 @@ void uiODFaultToolMan::outputComboChg( CallBacker* )
 void uiODFaultToolMan::outputColorChg( CallBacker* )
 {
     settingsdlg_->getOutputColor()->setColor( tboutputcolor_->color() );
-    settingsdlg_->getOutputColor()->colorchanged.trigger();
+    settingsdlg_->getOutputColor()->colorChanged.trigger();
 }
 
 

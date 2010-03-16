@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.47 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.48 2010-03-16 10:02:46 cvsbert Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -335,7 +335,7 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
 
     midlcolsel_->attach( rightOf, wigcolsel_ );
     rightcolsel_->attach( alignedWith, midlcolsel_ );
-    midlcolsel_->dodrawchanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
+    midlcolsel_->doDrawChanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
 
     midlinefld_ = new uiGenInput( this, "Display middle line at",
 			BoolInpSpec(true,"Specified value","Median value") );
