@@ -1,14 +1,14 @@
 
-#ifndef mpefssflatvieweditor_h
-#define mpefssflatvieweditor_h
+#ifndef mpef3dflatvieweditor_h
+#define mpef3dflatvieweditor_h
 
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
- Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.h,v 1.4 2010-03-16 07:18:07 cvsumesh Exp $
+ Date:		Mar 2010
+ RCS:		$Id: mpef3dflatvieweditor.h,v 1.1 2010-03-16 07:18:07 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,17 +19,17 @@ ________________________________________________________________________
 
 class MouseEventHandler;
 
-namespace EM { class FaultStickPainter; }
+namespace EM { class Fault3DPainter; }
 namespace FlatView { class AuxDataEditor; }
 
 namespace MPE
 {
 
-mClass FaultStickSetFlatViewEditor : public EM::FaultStickSetFlatViewEditor
+mClass Fault3DFlatViewEditor : public EM::FaultStickSetFlatViewEditor
 {
 public:
-    			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*);
-			~FaultStickSetFlatViewEditor();
+    			Fault3DFlatViewEditor(FlatView::AuxDataEditor*);
+			~Fault3DFlatViewEditor();
 
     void		setMouseEventHandler(MouseEventHandler*);
     void		updateActStkContainer();
@@ -37,20 +37,11 @@ public:
     void		setCubeSampling(const CubeSampling&);
     void		drawFault();
 
-    void		set2D(bool yn);
-    void		setLineName(const char*);
-    void		setLineID(const MultiID&);
-
-    TypeSet<int>&	getTrcNos();
-    TypeSet<float>&	getDistances();
-    TypeSet<Coord>&	getCoords();
-
 protected:
+    void			activeF3DChgCB(CallBacker*);
 
-    void			activeFSSChgCB(CallBacker*);
-
-    void			fssRepaintATSCB(CallBacker*);
-    void			fssRepaintedCB(CallBacker*);
+    void			f3dRepaintATSCB(CallBacker*);
+    void			f3dRepaintedCB(CallBacker*);
 
     void 			seedMovementStartedCB(CallBacker*);
     void			seedMovementFinishedCB(CallBacker*);
@@ -68,7 +59,7 @@ protected:
     void			cleanActStkContainer();
     void			fillActStkContainer(const EM::ObjectID);
 
-    EM::FaultStickPainter*  	fsspainter_;
+    EM::Fault3DPainter*		f3dpainter_;
     bool			seedhasmoved_;
 
     FlatView::AuxDataEditor*	editor_;
@@ -78,6 +69,6 @@ protected:
     EM::PosID			mousepid_;
 };
 
-} //namespace MPE
+}; //namespace MPE
 
 #endif

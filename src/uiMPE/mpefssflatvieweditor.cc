@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:           $Id: mpefssflatvieweditor.cc,v 1.6 2010-03-10 05:43:48 cvsumesh Exp $
+ RCS:           $Id: mpefssflatvieweditor.cc,v 1.7 2010-03-16 07:18:04 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "emfaultstickset.h"
 #include "emfaultstickpainter.h"
 #include "emmanager.h"
-#include "emposid.h"
 #include "faultstickseteditor.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
@@ -27,7 +26,6 @@ ________________________________________________________________________
 
 #include "uiworld2ui.h"
 
-
 namespace MPE
 {
 
@@ -35,6 +33,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 				FlatView::AuxDataEditor* ed )
     : EM::FaultStickSetFlatViewEditor(ed)
     , editor_(ed)
+    , fsspainter_( new EM::FaultStickPainter(ed->viewer()) )
     , meh_(0)
     , activestickid_(-1)
     , seedhasmoved_(false)
@@ -44,7 +43,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
     ed->movementFinished.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
-    MPE::engine().activefsschanged.notify(
+    MPE::engine().activefsschanged_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,activeFSSChgCB) );
     fsspainter_->abouttorepaint_.notify(
 	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
@@ -57,11 +56,13 @@ FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 {
     editor_->movementStarted.remove(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
-    editor_->movementFinished.notify(
+    editor_->movementFinished.remove(
 	    mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
-    MPE::engine().activefsschanged.remove(
+    MPE::engine().activefsschanged_.remove(
 	    mCB(this,FaultStickSetFlatViewEditor,activeFSSChgCB) );
     setMouseEventHandler( 0 );
+    delete fsspainter_;
+    deepErase( markeridinfo_ );
 }
 
 
@@ -91,6 +92,27 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 }
 
 
+void FaultStickSetFlatViewEditor::setCubeSampling( const CubeSampling& cs )
+{
+    EM::FaultStickSetFlatViewEditor::setCubeSampling( cs );
+    fsspainter_->setCubeSampling( cs, true );
+}
+
+
+void FaultStickSetFlatViewEditor::drawFault()
+{
+    for ( int idx=0; idx<EM::EMM().nrLoadedObjects(); idx++ )
+    {
+	EM::ObjectID emid = EM::EMM().objectID( idx );
+	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+	mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
+	if ( !emfss )
+	    continue;
+	fsspainter_->addFaultStickSet( emid );
+    }
+}
+
+
 void FaultStickSetFlatViewEditor::updateActStkContainer()
 {
     cleanActStkContainer();
@@ -109,17 +131,17 @@ void FaultStickSetFlatViewEditor::cleanActStkContainer()
 }
 
 
-void FaultStickSetFlatViewEditor::fillActStkContainer(const EM::ObjectID oid)
+void FaultStickSetFlatViewEditor::fillActStkContainer( const EM::ObjectID oid )
 {
-    ObjectSet<EM::FaultStickPainter::StkMarkerInfo> dispedstkmrkinfos;
-    fsspainter_->getDisplayedSticks( oid, dispedstkmrkinfos );
+    ObjectSet<EM::FaultStickPainter::StkMarkerInfo> dispdstkmrkinfos;
+    fsspainter_->getDisplayedSticks( oid, dispdstkmrkinfos );
 
-    for ( int idx=0; idx<dispedstkmrkinfos.size(); idx++ )
+    for ( int idx=0; idx<dispdstkmrkinfos.size(); idx++ )
     {
 	StkMarkerIdInfo* merkeridinfo = new  StkMarkerIdInfo;
 	merkeridinfo->merkerid_ = editor_->addAuxData(
-			    dispedstkmrkinfos[idx]->marker_, true );
-	merkeridinfo->stickid_ = dispedstkmrkinfos[idx]->stickid_;
+			    dispdstkmrkinfos[idx]->marker_, true );
+	merkeridinfo->stickid_ = dispdstkmrkinfos[idx]->stickid_;
 	editor_->enableEdit( merkeridinfo->merkerid_, false, true, false );
 
 	markeridinfo_ += merkeridinfo;
@@ -412,7 +434,6 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     pos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
 
     EM::FaultStickSetGeometry& fssg = emfss->geometry();
-
     EM::PosID interactpid;
     fsseditor->getInteractionInfo( interactpid, &fsspainter_->getLineSetID() ,
 				   fsspainter_->getLineName(), pos,

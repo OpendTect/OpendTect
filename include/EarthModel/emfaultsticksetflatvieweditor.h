@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultsticksetflatvieweditor.h,v 1.1 2010-02-12 08:41:31 cvsumesh Exp $
+ RCS:		$Id: emfaultsticksetflatvieweditor.h,v 1.2 2010-03-16 07:15:08 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,24 +23,17 @@ namespace FlatView { class AuxDataEditor; }
 namespace EM
 {
 
-class FaultStickPainter;
-class Fault3DPainter;
-
 mClass FaultStickSetFlatViewEditor : public CallBacker
 {
 public:
     			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*);
 			~FaultStickSetFlatViewEditor() {}
 
-    void		setCubeSampling(const CubeSampling&);
-    void		drawFault();    
+    virtual void	setCubeSampling(const CubeSampling&);
+    virtual void	drawFault() =0;    
 
 protected:
-
-    FaultStickPainter*	fsspainter_;
-    Fault3DPainter*	f3dpainter_;
-    CubeSampling	cs_;
-				
+    CubeSampling	cs_;			
 };
 } //namespace EM
 

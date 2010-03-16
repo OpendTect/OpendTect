@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.27 2010-03-11 05:45:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.28 2010-03-16 07:19:32 cvsumesh Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.27 2010-03-11 05:45:57 cvsn
 #include "attribsel.h"
 #include "emhorizonpainter.h"
 #include "horflatvieweditor.h"
+#include "mpef3dflatvieweditor.h"
 #include "mpefssflatvieweditor.h"
 #include "settings.h"
 
@@ -82,6 +83,8 @@ uiODViewer2D::~uiODViewer2D()
     }
 
     deepErase ( horfveditor_ );
+    deepErase( fssfveditor_ );
+    deepErase( f3dfveditor_ );
     delete viewwin();
 }
 
@@ -114,6 +117,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 		horfveditor_[ivwr]->setSelSpec( &wvaselspec_, true );
 	    }
 	    fssfveditor_[ivwr]->setCubeSampling( cs );
+	    f3dfveditor_[ivwr]->setCubeSampling( cs );
 	}
 	else if ( dp2ddh )
 	{
@@ -147,6 +151,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	    }
 	}
 	fssfveditor_[ivwr]->drawFault();
+	f3dfveditor_[ivwr]->drawFault();
 
 	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
 	DPM(DataPackMgr::FlatID()).release( curpackid );
@@ -221,8 +226,12 @@ void uiODViewer2D::createViewWinEditors()
 		 mCB(this,uiODViewer2D,updateHorFlatViewerSeedPickStatus) );
 	horfveditor_[ivwr]->setMouseEventHandler( 
 		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
-	fssfveditor_ += new MPE::FaultStickSetFlatViewEditor(auxdataeditor_[ivwr]);
+	fssfveditor_ += new MPE::FaultStickSetFlatViewEditor(
+							auxdataeditor_[ivwr]);
 	fssfveditor_[ivwr]->setMouseEventHandler(
+		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
+	f3dfveditor_ += new MPE::Fault3DFlatViewEditor( auxdataeditor_[ivwr]);
+	f3dfveditor_[ivwr]->setMouseEventHandler(
 		    &vwr.rgbCanvas().scene().getMouseEventHandler() );
 	vwr.dataChanged.notify( mCB(this,uiODViewer2D,dataChangedCB) );
     }
@@ -247,6 +256,8 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     }
 	
     deepErase( horfveditor_ );
+    deepErase( fssfveditor_ );
+    deepErase( f3dfveditor_ );
 
     mDynamicCastGet(uiMainWin*,mw,cb)
     if ( mw ) mw->windowClosed.remove( mCB(this,uiODViewer2D,winCloseCB) );

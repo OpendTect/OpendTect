@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.4 2010-03-04 06:37:49 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.5 2010-03-16 07:15:08 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,9 @@ public:
     			FaultStickPainter(FlatView::Viewer&);
 			~FaultStickPainter();
 
+    void		setCubeSampling(const CubeSampling&,bool);
+    const CubeSampling&	getCubeSampling()	{ return cs_; }
+
 	mStruct FaultStickSetInfo
 	{
 	    EM::ObjectID	id_;
@@ -47,16 +50,9 @@ public:
 
     void		setActiveFSS(const EM::ObjectID&);
     void		setActiveStick(EM::PosID&);
-
     int			getActiveStickId()	{ return activestickid_; }
-
-    void		setCubeSampling(const CubeSampling&,bool);
-    const CubeSampling&	getCubeSampling()	{ return cs_; }
-
     void		setMarkerLineStyle(const LineStyle&);
-
     bool		hasDiffActiveStick(const EM::PosID*);
-
     FlatView::Annotation::AuxData* getAuxData(const EM::PosID*);
 
     	mStruct StkMarkerInfo
@@ -72,7 +68,8 @@ public:
     bool		is2D()			{ return is2d_; }
     void		setLineName(const char* ln) { linenm_ = ln; }
     const char*		getLineName()		{ return linenm_; }
-    void		setLineID(const MultiID& lsetid)	{ lsetid_ = lsetid; }
+    void		setLineID(const MultiID& lsetid)	
+    			{ lsetid_ = lsetid; }
     MultiID&		getLineSetID()		{ return lsetid_; }
     Coord		getNormalToTrace( int trcnr ) const;
 
@@ -102,9 +99,9 @@ protected:
 
     FlatView::Viewer&   viewer_;
 
-    ObjectSet<FaultStickSetInfo>	fssinfos_;
+    ObjectSet<FaultStickSetInfo>			fssinfos_;
 
-    ObjectSet<ObjectSet<ObjectSet<StkMarkerInfo> > > faultmarkerline_;
+    ObjectSet<ObjectSet<ObjectSet<StkMarkerInfo> > >	faultmarkerline_;
 
     EM::ObjectID	activefssid_;
     int			activestickid_;

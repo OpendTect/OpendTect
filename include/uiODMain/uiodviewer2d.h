@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.12 2010-02-22 09:34:19 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.13 2010-03-16 07:19:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,11 @@ class uiODMain;
 class uiSlicePos2DView;
 namespace Attrib { class SelSpec; }
 namespace EM { class HorizonPainter; class uiEMViewer2DManager; }
-namespace MPE { class HorizonFlatViewEditor; class FaultStickSetFlatViewEditor;}
+namespace MPE { 
+    		class HorizonFlatViewEditor;
+	        class Fault3DFlatViewEditor; 	
+		class FaultStickSetFlatViewEditor;
+	      }
 
 
 /*!\brief Manages the 2D Viewers
@@ -47,11 +51,12 @@ public:
     
 protected:
 
-    uiSlicePos2DView*		slicepos_;
-    uiFlatViewStdControl*	viewstdcontrol_;
-    ObjectSet<uiFlatViewAuxDataEditor>	auxdataeditor_;
-    ObjectSet<MPE::HorizonFlatViewEditor> horfveditor_;
+    uiSlicePos2DView*				slicepos_;
+    uiFlatViewStdControl*			viewstdcontrol_;
+    ObjectSet<uiFlatViewAuxDataEditor>		auxdataeditor_;
+    ObjectSet<MPE::HorizonFlatViewEditor> 	horfveditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fssfveditor_;
+    ObjectSet<MPE::Fault3DFlatViewEditor>	f3dfveditor_;
     ObjectSet<EM::uiEMViewer2DManager> emviewer2dman_;
 
     Attrib::SelSpec&		wvaselspec_;
