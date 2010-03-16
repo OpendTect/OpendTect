@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.13 2010-03-16 09:51:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.14 2010-03-16 13:17:00 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -240,6 +240,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 			 mTODOHelpID), pars,Middle)
     , is2d_(*pars[sKey::Type] == '2')
 {
+    const CallBack dispcb( mCB(this,uiSeisBayesNorm,updDisp) );
     normpolfld_ = new uiGenInput( this, "Normalization mode",
 		      StringListInpSpec(SeisBayesClass::NormPolNames()) );
     const char* res = pars_.find( SeisBayesClass::sKeyNormPol() );
@@ -247,35 +248,95 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     if ( res && *res ) pol = eEnum(SeisBayesClass::NormPol,res);
     normpolfld_->setValue( (int)pol );
 
+    useglobfld_ = new uiGenInput( this, "A priori weights",
+	    			  BoolInpSpec(false,"Constant","Variable") );
+    useglobfld_->attach( alignedBelow, normpolfld_ );
+
     const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
     uiSeisSel::Setup su( gt ); su.optional(true);
     const IOObjContext ctxt( uiSeisSel::ioContext(gt,true) );
 
+    bool havevariable = false;
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
 	if ( !id || !*id ) break;
 
-	BufferString scltxt( "Global scaling for '" );
+	uiGenInput* alobj = idx ? sclflds_[idx-1] : useglobfld_;
+
+	BufferString scltxt( "Relative weight for '" );
 	scltxt.add( IOM().nameOf(id) ).add( "'" );
 	float scl = 1;
 	res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
 	if ( res && *res ) scl = atof( res );
 	uiGenInput* fld = new uiGenInput( this, scltxt, FloatInpSpec(scl) );
-	fld->attach( alignedBelow, idx ? sclflds_[idx-1] : normpolfld_ );
+	fld->attach( alignedBelow, alobj );
 	sclflds_ += fld;
+
+	BufferString aptxt( "A Priori weights for '" );
+	aptxt.add( IOM().nameOf(id) ).add( "'" );
+	uiIOObjSel* os = new uiIOObjSel( this, ctxt, aptxt );
+	res = pars_.find( mGetSeisBayesAPProbIDKey(idx) );
+	os->setInput( MultiID(res) );
+	os->attach( alignedBelow, alobj );
+	apflds_ += os;
+	if ( res && *res ) havevariable = true;
+    }
+
+    useglobfld_->setValue( !havevariable );
+
+    normpolfld_->valuechanged.notify( dispcb );
+    useglobfld_->valuechanged.notify( dispcb );
+    finaliseDone.notify( dispcb );
+}
+
+
+bool isGlob() const
+{
+    const SeisBayesClass::NormPol np =
+		(SeisBayesClass::NormPol)normpolfld_->getIntValue();
+    const bool isperbin = np == SeisBayesClass::PerBin;
+    return !isperbin || useglobfld_->getBoolValue();
+}
+
+
+void updDisp( CallBacker* )
+{
+    const SeisBayesClass::NormPol np =
+		(SeisBayesClass::NormPol)normpolfld_->getIntValue();
+    const bool isperbin = np == SeisBayesClass::PerBin;
+    const bool isglob = isGlob();
+
+    useglobfld_->display( isperbin );
+    for ( int idx=0; idx<apflds_.size(); idx++ )
+    {
+	sclflds_[idx]->display( isglob );
+	apflds_[idx]->display( !isglob );
     }
 }
 
 bool acceptOK( CallBacker* )
 {
+    const bool isglob = isGlob();
     for ( int idx=0; idx<sclflds_.size(); idx++ )
     {
-	float scl = sclflds_[idx]->getfValue();
-	if ( scl <= 0 )
-	    mErrRet("Please enter only valid scales (> 0)")
-	if ( mIsUdf(scl) ) scl = 1;
-	pars_.set( mGetSeisBayesPreScaleKey(idx), scl );
+	if ( isglob )
+	{
+	    float scl = sclflds_[idx]->getfValue();
+	    if ( scl <= 0 )
+		mErrRet("Please enter only valid scales (> 0)")
+	    if ( mIsUdf(scl) ) scl = 1;
+	    pars_.set( mGetSeisBayesPreScaleKey(idx), scl );
+	    pars_.removeWithKey( mGetSeisBayesAPProbIDKey(idx) );
+	}
+	else
+	{
+	    uiIOObjSel* fld = apflds_[idx];
+	    const IOObj* ioobj = fld->ioobj();
+	    if ( !ioobj ) return false;
+	    pars_.set( mGetSeisBayesAPProbIDKey(idx), ioobj->key() );
+	    pars_.removeWithKey( mGetSeisBayesPreScaleKey(idx) );
+	}
     }
 
     const SeisBayesClass::NormPol pol
@@ -287,7 +348,9 @@ bool acceptOK( CallBacker* )
 
     bool		is2d_;
     uiGenInput*		normpolfld_;
+    uiGenInput*		useglobfld_;
     ObjectSet<uiGenInput> sclflds_;
+    ObjectSet<uiIOObjSel> apflds_;
 
 };
 
