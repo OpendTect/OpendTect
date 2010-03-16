@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.50 2010-02-12 08:46:40 cvsumesh Exp $
+ RCS:           $Id: mpeengine.h,v 1.51 2010-03-16 07:13:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,18 +133,18 @@ public:
 
     			/*Fault(StickSet)s workaround, untill
 			  2DViewer tree is not in place */
-    Notifier<Engine>    activefaultchanged;
+    Notifier<Engine>    activefaultchanged_;
     void		setActiveFaultObjID(EM::ObjectID objid)
 			{ 
 			    activefaultid_ = objid;
-			    activefaultchanged.trigger();
+			    activefaultchanged_.trigger();
 			}
     EM::ObjectID	getActiveFaultObjID()	{ return activefaultid_; }
-    Notifier<Engine>    activefsschanged;
+    Notifier<Engine>    activefsschanged_;
     void		setActiveFSSObjID(EM::ObjectID objid)
 			{
 			    activefssid_ = objid;
-			    activefsschanged.trigger();
+			    activefsschanged_.trigger();
 			}
     EM::ObjectID	getActiveFSSObjID()	{ return activefssid_; }
 
