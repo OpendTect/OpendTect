@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.105 2010-03-15 09:00:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.106 2010-03-16 07:04:35 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -759,6 +759,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    {
 		uiGraphicsItem* itm = markeritemset_->get( idx );
 		mDynamicCast(uiMarkerItem*,markeritem,itm)
+		if ( markeritem ) markeritem->setVisible( true );
 	    }
 
 	    if ( !markeritem )
