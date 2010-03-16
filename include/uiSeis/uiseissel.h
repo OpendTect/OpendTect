@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.44 2009-11-04 10:48:26 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.45 2010-03-16 09:51:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ public:
 
     static CtxtIOObj*	mkCtxtIOObj(Seis::GeomType,bool forread);
     				//!< returns new default CtxtIOObj
+    static IOObjContext	ioContext(Seis::GeomType,bool forread);
     static void		fillContext(Seis::GeomType,bool forread,IOObjContext&);
 
 protected:

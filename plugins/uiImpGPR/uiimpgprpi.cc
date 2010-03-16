@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.3 2010-03-16 09:28:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.4 2010-03-16 09:51:56 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.3 2010-03-16 09:28:32 cvsbert
 #include "uiseissel.h"
 #include "uitaskrunner.h"
 #include "dztimporter.h"
-#include "seistrctr.h"
 #include "survinfo.h"
 #include "plugins.h"
 
@@ -92,9 +91,8 @@ uiDZTImporter( uiParent* p )
     lnmfld_ = new uiGenInput( this, "Output Line name" );
     lnmfld_->attach( alignedBelow, inpfld_ );
 
-    IOObjContext ctxt( mIOObjContext(SeisTrc) );
-    uiSeisSel::fillContext( Seis::Line, false, ctxt );
-    outfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Line) );
+    outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),
+	    		     uiSeisSel::Setup(Seis::Line) );
     outfld_->setAttrNm( "GPR" );
     outfld_->attach( alignedBelow, lnmfld_ );
 }

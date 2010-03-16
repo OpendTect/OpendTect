@@ -4,13 +4,12 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.11 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.12 2010-03-16 09:51:56 cvsbert Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
 #include "seisselection.h"
 #include "ctxtioobj.h"
-#include "seistrctr.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "volprocchain.h"
@@ -51,9 +50,7 @@ VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     possubsel_ = new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,true) );
     possubsel_->attach( alignedBelow, setupsel_ );
 
-    IOObjContext outputcontext = SeisTrcTranslatorGroup::ioContext();
-    uiSeisSel::fillContext( Seis::Vol, false, outputcontext );
-    outputsel_ = new uiSeisSel( uppgrp_, outputcontext, 
+    outputsel_ = new uiSeisSel( uppgrp_, uiSeisSel::ioContext(Seis::Vol,false), 
 	    			uiSeisSel::Setup(Seis::Vol) );
     outputsel_->attach( alignedBelow, possubsel_ );
 

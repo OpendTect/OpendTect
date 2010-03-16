@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.12 2010-03-15 16:12:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.13 2010-03-16 09:51:56 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -27,14 +27,13 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.12 2010-03-15 16:12:46 
 #include "keystrs.h"
 #include "probdenfunc.h"
 #include "probdenfunctr.h"
-#include "seistrctr.h"
 
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxNrPDFs = 5;
 static const char* sKeyBayesInv = "Bayesian Inversion";
 #define mInpPDFs	10
-#define mGetWghts	11
+#define mGetNorm	11
 #define mInpSeis	12
 #define mOutput		13
 
@@ -80,7 +79,7 @@ void uiSeisBayesClass::doPart()
     case mInpPDFs:
 	getInpPDFs();
     break;
-    case mGetWghts:
+    case mGetNorm:
 	getNorm();
     break;
     case mInpSeis:
@@ -225,7 +224,7 @@ void uiSeisBayesClass::getInpPDFs()
 void uiSeisBayesClass::inpPDFsGot( CallBacker* )
 {
     mHandleVWCancel(inppdfdlg_,cCancelled())
-    mSetState( mGetWghts );
+    mSetState( mGetNorm );
 }
 
 
@@ -250,15 +249,14 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 
     const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
     uiSeisSel::Setup su( gt ); su.optional(true);
-    IOObjContext ctxt( mIOObjContext(SeisTrc) );
-    uiSeisSel::fillContext( gt, true, ctxt );
+    const IOObjContext ctxt( uiSeisSel::ioContext(gt,true) );
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
 	if ( !id || !*id ) break;
 
-	BufferString scltxt( "Additional scaling factor for '" );
+	BufferString scltxt( "Global scaling for '" );
 	scltxt.add( IOM().nameOf(id) ).add( "'" );
 	float scl = 1;
 	res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
@@ -326,8 +324,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     const int nrvars = pdf->nrDims();
     const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
     uiSeisSel::Setup su( gt );
-    IOObjContext ctxt( mIOObjContext(SeisTrc) );
-    uiSeisSel::fillContext( gt, true, ctxt );
+    const IOObjContext ctxt( uiSeisSel::ioContext(gt,true) );
 
     if ( is2d_ )
     {
@@ -382,7 +379,7 @@ void uiSeisBayesClass::getInpSeis()
 
 void uiSeisBayesClass::inpSeisGot( CallBacker* )
 {
-    mHandleVWCancel(inpseisdlg_,mGetWghts)
+    mHandleVWCancel(inpseisdlg_,mGetNorm)
     mSetState( mOutput );
 }
 
@@ -425,8 +422,7 @@ void addOut( const char* nm, bool ispdf )
 {
     const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
     uiSeisSel::Setup su( gt ); su.optional(true);
-    IOObjContext ctxt( mIOObjContext(SeisTrc) );
-    uiSeisSel::fillContext( gt, false, ctxt );
+    const IOObjContext ctxt( uiSeisSel::ioContext(gt,true) );
 
     if ( !ispdf )
 	su.seltxt_ = nm;

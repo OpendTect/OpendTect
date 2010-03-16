@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.90 2010-01-25 04:24:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.91 2010-03-16 09:51:56 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -329,6 +329,14 @@ CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
 
     ret->ctxt.forread = forread;
     return ret;
+}
+
+
+IOObjContext uiSeisSel::ioContext( Seis::GeomType geom, bool forread )
+{
+    IOObjContext ctxt( mIOObjContext(SeisTrc) );
+    fillContext( geom, forread, ctxt );
+    return ctxt;
 }
 
 
