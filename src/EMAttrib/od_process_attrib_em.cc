@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.65 2010-03-03 13:56:16 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.66 2010-03-16 15:33:19 cvshelene Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -164,10 +164,17 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
     {
 	MultiID* mid = new MultiID(objidstr.buf());
 	midset += mid;
+	BufferString newattrnm;
+	iopar.get( sKey::Target, newattrnm );
+	strm << "Calculating surface data '" << newattrnm << "'." << std::endl;
+	strm.flush();
     }
     else
     {
 	outpid = objidstr.buf();
+	PtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
+	strm << "Calculating '" << ioobj->name() << "'." << std::endl;
+	strm.flush();
 	BufferString basehorstr(
 	    IOPar::compKey(sKey::Geometry,LocationOutput::surfidkey()) );
 	BufferString hor1str = IOPar::compKey(basehorstr,0);

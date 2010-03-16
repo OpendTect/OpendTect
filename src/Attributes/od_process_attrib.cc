@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.30 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.31 2010-03-16 15:33:19 cvshelene Exp $";
 
 #include "batchprog.h"
 
@@ -117,7 +117,10 @@ bool BatchProgram::go( std::ostream& strm )
     strm << std::endl;
 
     strm << "Preparing processing"; strm.flush();
-    const char* seisid = pars().find( "Output.1.Seismic ID" );
+    const char* seisid = pars().find( "Output.0.Seismic.ID" );
+    if ( !seisid )
+	seisid = pars().find( "Output.1.Seismic ID" );
+
     if ( !seisid )
 	strm << " ..." << std::endl;
     else
@@ -144,8 +147,11 @@ bool BatchProgram::go( std::ostream& strm )
 	    mRetFileProb(fdesc,dirnm,
 		    	 isdir ? "is not writeable" : "does not exist")
 	}
+
+	strm << " of '" << ioobj->name() << "'." << std::endl;
+	strm.flush();
+
     }
-    strm.flush();
 
     Attrib::StorageProvider::initClass();
     Attrib::DescSet attribset( false );
