@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.27 2009-08-28 08:17:55 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.28 2010-03-16 04:37:26 cvsranojay Exp $";
 
 #include "uiwellattribsel.h"
 
@@ -43,7 +43,7 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
 {
     attribfld = new uiAttrSel( this, &attrset_ );
     attribfld->setNLAModel( nlamodel_ );
-    attribfld->selectiondone.notify( mCB(this,uiWellAttribSel,selDone) );
+    attribfld->selectionDone.notify( mCB(this,uiWellAttribSel,selDone) );
 
     const bool zinft = SI().depthsInFeetByDefault();
     BufferString lbl = "Depth range"; lbl += zinft ? "(ft)" : "(m)";
