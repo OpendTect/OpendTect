@@ -7,7 +7,7 @@ _______________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqtaper.cc,v 1.6 2009-11-27 15:46:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqtaper.cc,v 1.7 2010-03-16 10:09:58 cvsbert Exp $";
 
 #include "uifreqtaper.h"
 #include "uiamplspectrum.h"
@@ -439,7 +439,7 @@ uiFuncTaperDisp::uiFuncTaperDisp( uiParent* p, const Setup& s )
     , window_(0)				
     , funcvals_(0)
     , orgfuncvals_(0)
-    , taperchanged(this)    		 
+    , taperChanged(this)    		 
 {
     datasz_ = s.datasz_;
     orgdatasz_ = s.datasz_;
@@ -567,7 +567,7 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
     else if ( xvals.size() ) 
 	setVals( xvals.arr(), window_->getValues(), datasz_ );
 
-    taperchanged.trigger();
+    taperChanged.trigger();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.20 2009-12-15 14:53:45 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltattr.cc,v 1.21 2010-03-16 10:09:58 cvsbert Exp $";
 
 
 #include "uiseiswvltattr.h"
@@ -133,7 +133,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     s.drawliney_ = false;
     freqdrawer_ = new uiFuncTaperDisp( this, s );
     freqdrawer_->attach( ensureBelow, timedrawer_ );
-    freqdrawer_->taperchanged.notify(mCB(this,uiSeisWvltTaperDlg,act) );
+    freqdrawer_->taperChanged.notify(mCB(this,uiSeisWvltTaperDlg,act) );
 
     typefld_ = new uiGenInput( this, "Taper",
 				    BoolInpSpec(true,"Time","Frequency") ); 

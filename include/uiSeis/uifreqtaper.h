@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Nov 2009
- RCS:		$Id: uifreqtaper.h,v 1.6 2009-11-27 15:45:36 cvsbruno Exp $
+ RCS:		$Id: uifreqtaper.h,v 1.7 2010-03-16 10:09:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,9 +98,6 @@ public:
 
 			uiFuncTaperDisp(uiParent*,const Setup&);
 			~uiFuncTaperDisp();
-   
-
-    Notifier<uiFuncTaperDisp> taperchanged;
 
     void 		setWindows(float,float rightvar=0);
     void		setFunction(Array1DImpl<float>&,Interval<float>);
@@ -117,6 +114,8 @@ public:
 
     TaperData&		leftTaperData() { return leftd_; }
     TaperData&		rightTaperData() { return rightd_; }
+   
+    Notifier<uiFuncTaperDisp> taperChanged;
 
 protected:
 
