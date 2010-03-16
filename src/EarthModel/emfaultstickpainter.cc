@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.cc,v 1.4 2010-03-04 06:37:49 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.cc,v 1.5 2010-03-16 07:15:14 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,9 +42,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv )
 FaultStickPainter::~FaultStickPainter()
 {
     while ( faultmarkerline_.size() )
-    {
 	removeFSS(0);
-    }
 
     deepErase( fssinfos_ );
 }
@@ -131,7 +129,7 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 		const MultiID& lset = *emfss->geometry().lineSet( sid, rc.row );
 		const char* lnm = emfss->geometry().lineName( sid, rc.row );
 
-		if ( !is2d_ || (!matchString(lnm,linenm_)) || (lset != lsetid_) )
+		if ( !is2d_ || (!matchString(lnm,linenm_)) || (lset != lsetid_))
 		    continue;
 	    }
 	    else if ( emfss->geometry().pickedOnPlane(sid,rc.row) )
@@ -160,9 +158,16 @@ bool FaultStickPainter::addPolyLine( const EM::ObjectID& oid )
 		else if ( cs_.defaultDir() == CubeSampling::Crl )
 		    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
-		if ( editnormal.normalize() != 
-			emfss->geometry().getEditPlaneNormal(sid,rc.row) )
-		    continue;
+		const Coord3 nzednor = editnormal.normalize();
+		const Coord3 stkednor = 
+		    	emfss->geometry().getEditPlaneNormal(sid,rc.row);
+
+		const bool equinormal =
+		    mIsEqual(nzednor.x,stkednor.x,.0000099) &&
+		    mIsEqual(nzednor.y,stkednor.y,.0000099) &&
+		    mIsEqual(nzednor.z,stkednor.z,.0000099);
+
+		if ( !equinormal ) continue;
 
 		// we need to deal in different way if cs direction is Z
 		if ( cs_.defaultDir() != CubeSampling::Z )
@@ -373,8 +378,6 @@ FlatView::Annotation::AuxData* FaultStickPainter::getAuxData(
     }
 
     if ( idx == -1 ) return 0;
-
-    int size = faultmarkerline_.size();
 
     return (*(*faultmarkerline_[idx])[0])[activestickid_]->marker_;
 }
