@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.31 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.32 2010-03-16 15:38:08 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -474,7 +474,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	data().isxy_ = is2D() || isxyfld_->getBoolValue();
 	data().havenr_ = havenrfld_ && havenrfld_->getBoolValue();
 	data().haverefnr_ = data().havenr_ && haverefnrfld_->getBoolValue();
-	if ( isimp_ && !data().havenr_ )
+	if ( isimp_ && nrdeffld_ && !data().havenr_ )
 	{
 	    data().nrdef_.start = nrdeffld_->getIntValue(0);
 	    data().nrdef_.step = nrdeffld_->getIntValue(1);
