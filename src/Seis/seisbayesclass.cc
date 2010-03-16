@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.7 2010-03-11 14:12:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.8 2010-03-16 13:17:25 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -21,10 +21,11 @@ static const char* rcsID = "$Id: seisbayesclass.cc,v 1.7 2010-03-11 14:12:43 cvs
 #include "ioobj.h"
 
 const char* SeisBayesClass::sKeyPDFID()		{ return "PDF.ID"; }
+const char* SeisBayesClass::sKeyAPProbID()	{ return "PDF.Norm.APProb.ID"; }
+const char* SeisBayesClass::sKeyNormPol()	{ return "PDF.Norm.Policy"; }
+const char* SeisBayesClass::sKeyPreScale()	{ return "PDF.Norm.PreScale"; }
 const char* SeisBayesClass::sKeySeisInpID()	{ return "Seismics.Input.ID"; }
 const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
-const char* SeisBayesClass::sKeyNormPol()	{ return "Norm.Policy"; }
-const char* SeisBayesClass::sKeyPreScale()	{ return "PreScale"; }
 
 DefineEnumNames(SeisBayesClass,NormPol,0,"Normalization Policy")
     { "None", "Per bin", "Joint", "Per PDF", 0 };
@@ -43,6 +44,8 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	, nrdims_(0)
 	, normpol_(None)
 {
+    aprdrs_.allowNull( true );
+
     const char* res = pars_.find( sKey::Type );
     is2d_ = res && *res == '2';
     if ( is2d_ )
@@ -119,6 +122,16 @@ bool SeisBayesClass::getPDFs()
 	if ( scl < 0 ) scl = -scl;
 	if ( scl == 0 ) scl = 1;
 	prescales_ += scl;
+
+	aptrcs_.add( new SeisTrc );
+	res = pars_.find( mGetSeisBayesAPProbIDKey(ipdf) );
+	SeisTrcReader* rdr = 0;
+	if ( res && *res )
+	{
+	    rdr = getReader( res, false, ipdf );
+	    if ( !rdr ) return false;
+	}
+	aprdrs_ += rdr;
     }
 
     if ( inppdfs_.isEmpty() )
@@ -147,6 +160,35 @@ bool SeisBayesClass::scalePDFs()
 }
 
 
+SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
+{
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+    if ( !ioobj )
+    {
+	msg_.setEmpty(); const ProbDenFunc& pdf0 = *inppdfs_[0];
+	if ( isdim )
+	    msg_.add( "Cannot find input cube for " )
+		.add( inppdfs_[0]->dimName(idx) );
+	else
+	    msg_.add( "Cannot find a priori scaling cube for " )
+		.add( inppdfs_[idx]->name() );
+	msg_.add( "\nID found is " ).add( id );
+	return 0;
+    }
+
+    SeisTrcReader* rdr = new SeisTrcReader( ioobj );
+    rdr->usePar( pars_ );
+    if ( !rdr->prepareWork() )
+    {
+	msg_.setEmpty();
+	msg_.add( "For " ).add( ioobj->name() ).add(":\n").add( rdr->errMsg() );
+	delete rdr; return 0;
+    }
+
+    return rdr;
+}
+
+
 bool SeisBayesClass::getReaders()
 {
     if ( inppdfs_.isEmpty() ) return false;
@@ -164,18 +206,8 @@ bool SeisBayesClass::getReaders()
 	    return false;
 	}
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
-	if ( !ioobj )
-	{
-	    msg_ = "Cannot find input cube for "; msg_ += pdf0.dimName(idim);
-	    msg_ += "\nID found is "; msg_ += id; return false;
-	}
-
-	SeisTrcReader* rdr = new SeisTrcReader( ioobj );
-	rdr->usePar( pars_ );
-	if ( !rdr->prepareWork() )
-	    { msg_ = rdr->errMsg(); delete rdr; return false; }
-
+	SeisTrcReader* rdr = getReader( id, true, idim );
+	if ( !rdr ) return false;
 	rdrs_ += rdr;
     }
 
@@ -299,6 +331,20 @@ int SeisBayesClass::readInpTrcs()
 	if ( !rdrs_[idx]->get(*inptrcs_.get(idx)) )
 	{
 	    msg_ = rdrs_[idx]->errMsg();
+	    return Executor::ErrorOccurred();
+	}
+    }
+
+    for ( int idx=0; idx<aprdrs_.size(); idx++ )
+    {
+	SeisTrcReader* rdr = aprdrs_[idx];
+	if ( !rdr ) continue;
+
+	if ( !rdr->seisTranslator()->goTo( ti0.binid ) )
+	    return 2;
+	if ( !rdr->get(*aptrcs_.get(idx)) )
+	{
+	    msg_ = rdr->errMsg();
 	    return Executor::ErrorOccurred();
 	}
     }

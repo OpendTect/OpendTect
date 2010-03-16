@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.7 2010-03-11 14:12:43 cvsbert Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.8 2010-03-16 13:17:25 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -49,6 +49,7 @@ public:
     				~SeisBayesClass();
 
     static const char*		sKeyPDFID();
+    static const char*		sKeyAPProbID();
     static const char*		sKeySeisInpID();
     static const char*		sKeySeisOutID();
     static const char*		sKeyNormPol();
@@ -89,6 +90,7 @@ protected:
     bool			getReaders();
     bool			getWriters();
 
+    SeisTrcReader*		getReader(const char*,bool,int);
     int				readInpTrcs();
     int				createOutput();
     int				closeDown();
@@ -108,6 +110,7 @@ protected:
 
 #define mGetSeisBayesPreScaleKey(nr) mGetSeisBayesKey(PreScale,nr)
 #define mGetSeisBayesPDFIDKey(nr) mGetSeisBayesIDKey(PDF,nr)
+#define mGetSeisBayesAPProbIDKey(nr) mGetSeisBayesIDKey(APProb,nr)
 #define mGetSeisBayesSeisInpIDKey(nr) mGetSeisBayesIDKey(SeisInp,nr)
 #define mGetSeisBayesSeisOutIDKey(nr) mGetSeisBayesIDKey(SeisOut,nr)
 
