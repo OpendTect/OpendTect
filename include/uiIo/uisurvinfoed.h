@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.33 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.34 2010-03-16 10:07:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ public:
 
     bool		dirnmChanged() const	{ return dirnamechanged; }
     const char*		dirName() const;
-    Notifier<uiSurveyInfoEditor> survparchanged;
 
     static int		addInfoProvider(uiSurvInfoProvider*);
     static bool		copySurv(const char* frompath,const char* fromdirnm,
@@ -43,6 +42,8 @@ public:
     static bool		renameSurv(const char* path,const char* fromdirnm,
 				   const char* todirnm);
     static const char*	newSurvTempDirName();
+
+    Notifier<uiSurveyInfoEditor> survParChanged;
     			
 protected:
 

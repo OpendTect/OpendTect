@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.115 2009-09-07 14:14:53 cvshelene Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.116 2010-03-16 10:07:13 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -110,7 +110,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	, rootdir_(GetBaseDataDir())
 	, orgdirname_(si_.dirname.buf())
 	, si_(si)
-	, survparchanged(this)
+	, survParChanged(this)
 	, x0fld_(0)
 	, dirnamechanged(false)
 	, sipfld_(0)
@@ -539,7 +539,7 @@ bool uiSurveyInfoEditor::doApply()
     else if ( !setRelation() )
 	return false;
 
-    survparchanged.trigger();
+    survParChanged.trigger();
     return true;
 }
 
