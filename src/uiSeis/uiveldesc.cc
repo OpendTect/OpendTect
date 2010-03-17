@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.33 2010-03-16 09:51:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.34 2010-03-17 21:34:56 cvsyuancheng Exp $";
 
 #include "uiveldesc.h"
 
@@ -325,7 +325,7 @@ bool uiTimeDepthBase::acceptOK()
     if ( !desc.usePar( ioobj->pars() ) )
 	mErrRet("Cannot read velocity information for selected model");
 
-    BufferString zdomain = ioobj->pars().find( ZDomain::sKey() ).buf();
+    BufferString zdomain = ioobj->pars().find( ZDomain::sKey() ).str();
     if ( zdomain.isEmpty() )
 	zdomain = SI().getZDomainString();
 
