@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.13 2010-03-16 07:19:28 cvsumesh Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.14 2010-03-17 06:47:58 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,11 +53,11 @@ protected:
 
     uiSlicePos2DView*				slicepos_;
     uiFlatViewStdControl*			viewstdcontrol_;
-    ObjectSet<uiFlatViewAuxDataEditor>		auxdataeditor_;
-    ObjectSet<MPE::HorizonFlatViewEditor> 	horfveditor_;
-    ObjectSet<MPE::FaultStickSetFlatViewEditor> fssfveditor_;
-    ObjectSet<MPE::Fault3DFlatViewEditor>	f3dfveditor_;
-    ObjectSet<EM::uiEMViewer2DManager> emviewer2dman_;
+    ObjectSet<uiFlatViewAuxDataEditor>		auxdataeditors_;
+    ObjectSet<MPE::HorizonFlatViewEditor> 	horfveditors_;
+    ObjectSet<MPE::FaultStickSetFlatViewEditor> fssfveditors_;
+    ObjectSet<MPE::Fault3DFlatViewEditor>	f3dfveditors_;
+    ObjectSet<EM::uiEMViewer2DManager> 		emviewer2dmans_;
 
     Attrib::SelSpec&		wvaselspec_;
     Attrib::SelSpec&		vdselspec_;
