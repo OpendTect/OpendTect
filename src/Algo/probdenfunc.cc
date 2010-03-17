@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.14 2010-03-09 08:01:00 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.15 2010-03-17 12:21:41 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -108,14 +108,18 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
     }
 }
 
+#define mDefArrVars(retval,constspec) \
+    constspec ArrayND<float>& array = getData(); \
+    const od_int64 totalsz = array.info().getTotalSz(); \
+    if ( totalsz < 1 ) \
+	return retval; \
+    constspec float* values = array.getData(); \
+    if ( !values ) return retval
 
 void ArrayNDProbDenFunc::dump( std::ostream& strm, bool binary ) const
 {
-    const ArrayND<float>& array = getData();
+    mDefArrVars(,const);
     const ArrayNDInfo& info = array.info();
-    const od_int64 totalsz = info.getTotalSz();
-    const float* values = array.getData();
-    if ( !values ) return;
 
     const od_int64 rowsz = info.getSize( info.getNDim()-1 );
     for ( od_int64 idx=0; idx<totalsz; idx++ )
@@ -136,13 +140,7 @@ void ArrayNDProbDenFunc::dump( std::ostream& strm, bool binary ) const
 
 bool ArrayNDProbDenFunc::obtain( std::istream& strm, bool binary )
 {
-    ArrayND<float>& array = getData();
-    const od_int64 totalsz = array.info().getTotalSz();
-    if ( totalsz < 1 )
-	return false;
-
-    float* values = array.getData();
-    if ( !values ) return false;
+    mDefArrVars(false,);
 
     float val;
     for ( od_int64 idx=0; idx<totalsz; idx++ )
@@ -158,9 +156,30 @@ bool ArrayNDProbDenFunc::obtain( std::istream& strm, bool binary )
     return true;
 }
 
+
+float ArrayNDProbDenFunc::getNormFac() const
+{
+    mDefArrVars(1,const);
+
+    float sumval = 0;
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
+	sumval += values[idx];
+
+    return 1 / sumval;
+}
+
+
+void ArrayNDProbDenFunc::doScale( float fac )
+{
+    mDefArrVars(,);
+
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
+	values[idx] *= fac;
+}
+
 // 1D
 
-SampledProbDenFunc1D::SampledProbDenFunc1D( const Array1D<float>& a1d )
+Sampled1DProbDenFunc::Sampled1DProbDenFunc( const Array1D<float>& a1d )
     : ProbDenFunc1D("")
     , sd_(0,1)
     , bins_(a1d)
@@ -168,7 +187,7 @@ SampledProbDenFunc1D::SampledProbDenFunc1D( const Array1D<float>& a1d )
 }
 
 
-SampledProbDenFunc1D::SampledProbDenFunc1D( const TypeSet<float>& vals )
+Sampled1DProbDenFunc::Sampled1DProbDenFunc( const TypeSet<float>& vals )
     : ProbDenFunc1D("")
     , sd_(0,1)
     , bins_(vals.size())
@@ -178,7 +197,7 @@ SampledProbDenFunc1D::SampledProbDenFunc1D( const TypeSet<float>& vals )
 }
 
 
-SampledProbDenFunc1D::SampledProbDenFunc1D( const float* vals, int sz )
+Sampled1DProbDenFunc::Sampled1DProbDenFunc( const float* vals, int sz )
     : ProbDenFunc1D("")
     , sd_(0,1)
     , bins_(sz)
@@ -188,7 +207,7 @@ SampledProbDenFunc1D::SampledProbDenFunc1D( const float* vals, int sz )
 }
 
 
-SampledProbDenFunc1D::SampledProbDenFunc1D( const SampledProbDenFunc1D& spdf )
+Sampled1DProbDenFunc::Sampled1DProbDenFunc( const Sampled1DProbDenFunc& spdf )
     : ProbDenFunc1D(spdf)
     , sd_(spdf.sd_)
     , bins_(spdf.bins_)
@@ -196,8 +215,8 @@ SampledProbDenFunc1D::SampledProbDenFunc1D( const SampledProbDenFunc1D& spdf )
 }
 
 
-SampledProbDenFunc1D& SampledProbDenFunc1D::operator =(
-					const SampledProbDenFunc1D& spdf )
+Sampled1DProbDenFunc& Sampled1DProbDenFunc::operator =(
+					const Sampled1DProbDenFunc& spdf )
 {
     if ( this != &spdf )
     {
@@ -209,9 +228,9 @@ SampledProbDenFunc1D& SampledProbDenFunc1D::operator =(
 }
 
 
-void SampledProbDenFunc1D::copyFrom( const ProbDenFunc& pdf )
+void Sampled1DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 {
-    mDynamicCastGet(const SampledProbDenFunc1D*,spdf1d,&pdf)
+    mDynamicCastGet(const Sampled1DProbDenFunc*,spdf1d,&pdf)
     if ( spdf1d )
 	*this = *spdf1d;
     else
@@ -219,7 +238,7 @@ void SampledProbDenFunc1D::copyFrom( const ProbDenFunc& pdf )
 }
 
 
-float SampledProbDenFunc1D::value( float pos ) const
+float Sampled1DProbDenFunc::value( float pos ) const
 {
     const int sz = size( 0 );
     if ( sz < 1 ) return 0;
@@ -240,14 +259,14 @@ float SampledProbDenFunc1D::value( float pos ) const
 }
 
 
-void SampledProbDenFunc1D::fillPar( IOPar& par ) const
+void Sampled1DProbDenFunc::fillPar( IOPar& par ) const
 {
     ProbDenFunc::fillPar( par );
     ArrayNDProbDenFunc::fillPar( par );
 }
 
 
-bool SampledProbDenFunc1D::usePar( const IOPar& par )
+bool Sampled1DProbDenFunc::usePar( const IOPar& par )
 {
     int sz = -1;
     par.get( IOPar::compKey(sKey::Size,0), sz );
@@ -259,16 +278,16 @@ bool SampledProbDenFunc1D::usePar( const IOPar& par )
 }
 
 
-void SampledProbDenFunc1D::dump( std::ostream& strm, bool binary ) const
+void Sampled1DProbDenFunc::dump( std::ostream& strm, bool binary ) const
 { ArrayNDProbDenFunc::dump( strm, binary ); }
 
-bool SampledProbDenFunc1D::obtain( std::istream& strm, bool binary )
+bool Sampled1DProbDenFunc::obtain( std::istream& strm, bool binary )
 { return ArrayNDProbDenFunc::obtain( strm, binary ); }
 
 
 // 2D
 
-SampledProbDenFunc2D::SampledProbDenFunc2D( const Array2D<float>& a2d )
+Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Array2D<float>& a2d )
     : ProbDenFunc2D("","")
     , sd0_(0,1)
     , sd1_(0,1)
@@ -277,7 +296,7 @@ SampledProbDenFunc2D::SampledProbDenFunc2D( const Array2D<float>& a2d )
 }
 
 
-SampledProbDenFunc2D::SampledProbDenFunc2D( const SampledProbDenFunc2D& spdf )
+Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Sampled2DProbDenFunc& spdf )
     : ProbDenFunc2D(spdf)
     , sd0_(spdf.sd0_)
     , sd1_(spdf.sd1_)
@@ -286,8 +305,8 @@ SampledProbDenFunc2D::SampledProbDenFunc2D( const SampledProbDenFunc2D& spdf )
 }
 
 
-SampledProbDenFunc2D& SampledProbDenFunc2D::operator =(
-					const SampledProbDenFunc2D& spdf )
+Sampled2DProbDenFunc& Sampled2DProbDenFunc::operator =(
+					const Sampled2DProbDenFunc& spdf )
 {
     if ( this != &spdf )
     {
@@ -300,9 +319,9 @@ SampledProbDenFunc2D& SampledProbDenFunc2D::operator =(
 }
 
 
-void SampledProbDenFunc2D::copyFrom( const ProbDenFunc& pdf )
+void Sampled2DProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 {
-    mDynamicCastGet(const SampledProbDenFunc2D*,spdf2d,&pdf)
+    mDynamicCastGet(const Sampled2DProbDenFunc*,spdf2d,&pdf)
     if ( spdf2d )
 	*this = *spdf2d;
     else
@@ -310,7 +329,7 @@ void SampledProbDenFunc2D::copyFrom( const ProbDenFunc& pdf )
 }
 
 
-float SampledProbDenFunc2D::value( float px, float py ) const
+float Sampled2DProbDenFunc::value( float px, float py ) const
 {
     const int szx = size( 0 ); const int szy = size( 1 );
     if ( szx < 1 || szy < 1 ) return 0;
@@ -333,14 +352,14 @@ float SampledProbDenFunc2D::value( float px, float py ) const
 }
 
 
-void SampledProbDenFunc2D::fillPar( IOPar& par ) const
+void Sampled2DProbDenFunc::fillPar( IOPar& par ) const
 {
     ProbDenFunc::fillPar( par );
     ArrayNDProbDenFunc::fillPar( par );
 }
 
 
-bool SampledProbDenFunc2D::usePar( const IOPar& par )
+bool Sampled2DProbDenFunc::usePar( const IOPar& par )
 {
     int sz0 = -1; int sz1 = -1;
     par.get( IOPar::compKey(sKey::Size,0), sz0 );
@@ -357,15 +376,15 @@ bool SampledProbDenFunc2D::usePar( const IOPar& par )
 }
 
 
-void SampledProbDenFunc2D::dump( std::ostream& strm, bool binary ) const
+void Sampled2DProbDenFunc::dump( std::ostream& strm, bool binary ) const
 { ArrayNDProbDenFunc::dump( strm, binary ); }
 
-bool SampledProbDenFunc2D::obtain( std::istream& strm, bool binary )
+bool Sampled2DProbDenFunc::obtain( std::istream& strm, bool binary )
 { return ArrayNDProbDenFunc::obtain( strm, binary ); }
 
 
 // ND
-SampledProbDenFuncND::SampledProbDenFuncND( const ArrayND<float>& arr )
+SampledNDProbDenFunc::SampledNDProbDenFunc( const ArrayND<float>& arr )
     : bins_(arr)
 {
     for ( int idx=0; idx<arr.info().getNDim(); idx++ )
@@ -376,7 +395,7 @@ SampledProbDenFuncND::SampledProbDenFuncND( const ArrayND<float>& arr )
 }
 
 
-SampledProbDenFuncND::SampledProbDenFuncND( const SampledProbDenFuncND& spdf )
+SampledNDProbDenFunc::SampledNDProbDenFunc( const SampledNDProbDenFunc& spdf )
     : ProbDenFunc(spdf)
     , bins_(spdf.bins_)
     , sds_(spdf.sds_)
@@ -385,14 +404,14 @@ SampledProbDenFuncND::SampledProbDenFuncND( const SampledProbDenFuncND& spdf )
 }
 
 
-SampledProbDenFuncND::SampledProbDenFuncND()
+SampledNDProbDenFunc::SampledNDProbDenFunc()
     : bins_(ArrayNDImpl<float>(ArrayNDInfoImpl(0)))
 {
 }
 
 
-SampledProbDenFuncND& SampledProbDenFuncND::operator =(
-					const SampledProbDenFuncND& spdf )
+SampledNDProbDenFunc& SampledNDProbDenFunc::operator =(
+					const SampledNDProbDenFunc& spdf )
 {
     if ( this != &spdf )
     {
@@ -405,9 +424,9 @@ SampledProbDenFuncND& SampledProbDenFuncND::operator =(
 }
 
 
-void SampledProbDenFuncND::copyFrom( const ProbDenFunc& pdf )
+void SampledNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 {
-    mDynamicCastGet(const SampledProbDenFuncND*,spdfnd,&pdf)
+    mDynamicCastGet(const SampledNDProbDenFunc*,spdfnd,&pdf)
     if ( spdfnd )
 	*this = *spdfnd;
     else
@@ -419,7 +438,7 @@ void SampledProbDenFuncND::copyFrom( const ProbDenFunc& pdf )
 }
 
 
-const char* SampledProbDenFuncND::dimName( int dim ) const
+const char* SampledNDProbDenFunc::dimName( int dim ) const
 {
     if ( dim >= 0 && dim < dimnms_.size() )
 	return dimnms_.get( dim ).buf();
@@ -430,7 +449,7 @@ const char* SampledProbDenFuncND::dimName( int dim ) const
 }
 
 
-float SampledProbDenFuncND::value( const TypeSet<float>& vals ) const
+float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
 {
     if ( vals.size() < sds_.size() )
 	return 0;
@@ -449,19 +468,19 @@ float SampledProbDenFuncND::value( const TypeSet<float>& vals ) const
 }
 
 
-void SampledProbDenFuncND::fillPar( IOPar& par ) const
+void SampledNDProbDenFunc::fillPar( IOPar& par ) const
 {
     ProbDenFunc::fillPar( par );
     if ( nrDims() == 1 )
-	par.set( sKey::Type, SampledProbDenFunc1D::typeStr() );
+	par.set( sKey::Type, Sampled1DProbDenFunc::typeStr() );
     else if ( nrDims() == 2 )
-	par.set( sKey::Type, SampledProbDenFunc2D::typeStr() );
+	par.set( sKey::Type, Sampled2DProbDenFunc::typeStr() );
 
     ArrayNDProbDenFunc::fillPar( par );
 }
 
 
-bool SampledProbDenFuncND::usePar( const IOPar& par )
+bool SampledNDProbDenFunc::usePar( const IOPar& par )
 {
     int nrdims = nrDims();
     if ( nrdims < 1 )
@@ -492,9 +511,9 @@ bool SampledProbDenFuncND::usePar( const IOPar& par )
 }
 
 
-void SampledProbDenFuncND::dump( std::ostream& strm, bool binary ) const
+void SampledNDProbDenFunc::dump( std::ostream& strm, bool binary ) const
 { ArrayNDProbDenFunc::dump( strm, binary ); }
 
-bool SampledProbDenFuncND::obtain( std::istream& strm, bool binary )
+bool SampledNDProbDenFunc::obtain( std::istream& strm, bool binary )
 { return ArrayNDProbDenFunc::obtain( strm, binary ); }
 

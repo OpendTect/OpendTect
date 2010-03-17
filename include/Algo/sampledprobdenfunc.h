@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.10 2010-03-09 08:01:00 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.11 2010-03-17 12:21:41 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,8 @@ protected:
 
     virtual const ArrayND<float>&	getArrND() const	= 0;
     virtual const SamplingData<float>&	getSampling(int) const	= 0;
+    virtual float			getNormFac() const;
+    virtual void			doScale(float);
 
 };
 
@@ -60,24 +62,29 @@ protected:
 #define mDefSampledProbDenFuncClone(clss) \
     clss* clone() const	{ return new clss(*this); }
 
+#define mDefArrayNDProbDenFuncFns(nm) \
+    nm##ProbDenFunc*	clone() const	{ return new nm##ProbDenFunc(*this); } \
+    static const char*	typeStr()	{ return #nm; } \
+    virtual const char*	getTypeStr() const	{ return typeStr(); } \
+    float		normFac() const		{ return getNormFac(); } \
+    bool		canScale() const	{ return true; } \
+    void		scale( float f )	{ doScale(f); }
 
-mClass SampledProbDenFunc1D : public ProbDenFunc1D
+
+mClass Sampled1DProbDenFunc : public ProbDenFunc1D
 			    , public ArrayNDProbDenFunc
 {
 public:
 
-    			SampledProbDenFunc1D(const Array1D<float>&);
-    			SampledProbDenFunc1D(const TypeSet<float>&);
-    			SampledProbDenFunc1D(const float*,int);
-    			SampledProbDenFunc1D(const SampledProbDenFunc1D&);
-    SampledProbDenFunc1D& operator =(const SampledProbDenFunc1D&);
-    			mDefSampledProbDenFuncClone(SampledProbDenFunc1D)
+    			Sampled1DProbDenFunc(const Array1D<float>&);
+    			Sampled1DProbDenFunc(const TypeSet<float>&);
+    			Sampled1DProbDenFunc(const float*,int);
+    			Sampled1DProbDenFunc(const Sampled1DProbDenFunc&);
+    Sampled1DProbDenFunc& operator =(const Sampled1DProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
+    			mDefArrayNDProbDenFuncFns(Sampled1D)
 
     virtual float	value(float) const;
-
-    static const char*	typeStr()			{ return "Sampled1D"; }
-    virtual const char*	getTypeStr() const		{ return typeStr(); }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -97,21 +104,18 @@ protected:
 };
 
 
-mClass SampledProbDenFunc2D : public ProbDenFunc2D
+mClass Sampled2DProbDenFunc : public ProbDenFunc2D
 			    , public ArrayNDProbDenFunc
 {
 public:
 
-    			SampledProbDenFunc2D(const Array2D<float>&);
-    			SampledProbDenFunc2D(const SampledProbDenFunc2D&);
-    SampledProbDenFunc2D& operator =(const SampledProbDenFunc2D&);
-    			mDefSampledProbDenFuncClone(SampledProbDenFunc2D)
+    			Sampled2DProbDenFunc(const Array2D<float>&);
+    			Sampled2DProbDenFunc(const Sampled2DProbDenFunc&);
+    Sampled2DProbDenFunc& operator =(const Sampled2DProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
+    			mDefArrayNDProbDenFuncFns(Sampled2D)
 
     virtual float	value(float,float) const;
-
-    static const char*	typeStr()			{ return "Sampled2D"; }
-    virtual const char*	getTypeStr() const		{ return typeStr(); }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -140,16 +144,16 @@ protected:
  */
 
 
-mClass SampledProbDenFuncND : public ProbDenFunc
+mClass SampledNDProbDenFunc : public ProbDenFunc
 			    , public ArrayNDProbDenFunc
 {
 public:
 
-    			SampledProbDenFuncND(const ArrayND<float>&);
-    			SampledProbDenFuncND(const SampledProbDenFuncND&);
-    SampledProbDenFuncND& operator =(const SampledProbDenFuncND&);
-    			mDefSampledProbDenFuncClone(SampledProbDenFuncND)
+    			SampledNDProbDenFunc(const ArrayND<float>&);
+    			SampledNDProbDenFunc(const SampledNDProbDenFunc&);
+    SampledNDProbDenFunc& operator =(const SampledNDProbDenFunc&);
     virtual void	copyFrom(const ProbDenFunc&);
+    			mDefArrayNDProbDenFuncFns(SampledND)
 
     virtual int		nrDims() const	{ return bins_.info().getNDim(); }
     virtual const char*	dimName(int) const;
@@ -158,9 +162,6 @@ public:
     virtual float	value(const TypeSet<float>&) const;
     virtual ArrayND<float>* getArrClone() const	
     			{ return new ArrayNDImpl<float>(bins_); }
-
-    static const char*	typeStr()			{ return "SampledND"; }
-    virtual const char*	getTypeStr() const		{ return typeStr(); }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -179,7 +180,7 @@ protected:
 
 public:
 
-    			SampledProbDenFuncND();
+    			SampledNDProbDenFunc();
 
 };
 
