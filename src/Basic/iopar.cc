@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.81 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.82 2010-03-17 19:03:26 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -883,7 +883,7 @@ void IOPar::set( const char* s, const BufferString& bs )
 
 void IOPar::set( const char* s, const FixedString& bs )
 {
-    set( s, bs.buf() );
+    set( s, bs.str() );
 }
 
 

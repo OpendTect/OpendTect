@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer
  Date:		April 2009
- RCS:		$Id: fixedstring.h,v 1.9 2009-11-11 12:03:10 cvsnanne Exp $
+ RCS:		$Id: fixedstring.h,v 1.10 2010-03-17 19:03:26 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -36,9 +36,9 @@ public:
     bool	isEmpty() const			{ return !ptr_ || !*ptr_; }
     int		size() const;
 
-		operator const char*() const   	{ return buf(); }
+		operator const char*() const   	{ return str(); }
 
-    const char*	buf() const 			{ return isEmpty() ? 0 : ptr_; }
+    const char*	str() const 			{ return isEmpty() ? 0 : ptr_; }
 
 protected:
 
