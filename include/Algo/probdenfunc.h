@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: probdenfunc.h,v 1.10 2010-03-05 14:49:40 cvsbert Exp $
+ RCS:		$Id: probdenfunc.h,v 1.11 2010-03-17 12:20:52 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,8 @@ public:
     virtual void	setDimName(int dim,const char*)		= 0;
     virtual float	value(const TypeSet<float>&) const	= 0;
 
+    virtual bool	canScale() const			{ return false;}
+    virtual void	scale(float)				{}
     virtual float	normFac() const				{ return 1; }
 
     virtual void	fillPar(IOPar&) const;
