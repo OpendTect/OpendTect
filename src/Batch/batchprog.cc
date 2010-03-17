@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.107 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.108 2010-03-17 20:56:31 cvsyuancheng Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -169,10 +169,10 @@ void BatchProgram::init( int* pac, char** av )
     }
 
 
-    BufferString res = iopar->find( sKey::LogFile ).buf();
+    BufferString res = iopar->find( sKey::LogFile ).str();
     if ( !res )
 	iopar->set( sKey::LogFile, StreamProvider::sStdErr() );
-    res = iopar->find( sKey::Survey ).buf();
+    res = iopar->find( sKey::Survey ).str();
     if ( !res || !*res )
 	IOMan::newSurvey();
     else
@@ -314,7 +314,7 @@ bool BatchProgram::initOutput()
 	exit( 0 );
     }
 
-    BufferString res = pars().find( sKey::LogFile ).buf();
+    BufferString res = pars().find( sKey::LogFile ).str();
     if ( res == "stdout" ) res.setEmpty();
  
     bool hasviewprogress = true;
@@ -370,13 +370,13 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     const BufferString basekey( bsky );
     BufferString iopkey( basekey ); iopkey += ".";
     iopkey += "ID";
-    BufferString res = pars().find( iopkey ).buf();
+    BufferString res = pars().find( iopkey ).str();
     if ( res.isEmpty() )
     {
-	iopkey = basekey; res = pars().find( iopkey ).buf();
+	iopkey = basekey; res = pars().find( iopkey ).str();
 	if ( res.isEmpty() )
 	{
-	    iopkey += ".Name"; res = pars().find( iopkey ).buf();
+	    iopkey += ".Name"; res = pars().find( iopkey ).str();
 	    if ( res.isEmpty() )
 	    {
 		if ( msgiffail )
