@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.198 2010-03-10 07:18:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.199 2010-03-17 14:53:40 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -148,7 +148,7 @@ public:
     const ObjectSet<uiToolBar>& toolBars() const	{ return toolbars_; }
     const ObjectSet<uiDockWin>& dockWins() const	{ return dockwins_; }
 
-    void		setModal( bool yn )		{ modal_ = yn; }
+    void		setModal(bool yn);
     bool		isModal() const			{ return modal_; }
 
     void		setWindowTitle(const char*);
@@ -231,6 +231,13 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
     setWindowModality( p && modal ? Qt::WindowModal : Qt::NonModal );
 
     deletefrombody_ = deletefromod_ = false;
+}
+
+
+void uiMainWinBody::setModal( bool yn )
+{
+    modal_ = yn;
+    setWindowModality( yn ? Qt::WindowModal : Qt::NonModal );
 }
 
 
