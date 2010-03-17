@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: dztimporter.cc,v 1.1 2010-03-16 09:28:32 cvsbert Exp $";
+static const char* rcsID = "$Id: dztimporter.cc,v 1.2 2010-03-17 17:03:54 cvsbert Exp $";
 
 #include "dztimporter.h"
 #include "seistrc.h"
@@ -12,12 +12,22 @@ static const char* rcsID = "$Id: dztimporter.cc,v 1.1 2010-03-16 09:28:32 cvsber
 #include "seisselectionimpl.h"
 #include "strmprov.h"
 #include "datachar.h"
+#include "survinfo.h"
 #include <iostream>
 
 static const float cNanoFac = 1e-9;
 
 
 #define mRdVal(v) strm.read( (char*)(&v), sizeof(v) )
+
+DZT::FileHeader::FileHeader()
+    : nsamp(0)
+    , nrdef_(1,1)
+    , cstart_(SI().minCoord(true))
+    , cstep_(SI().crlDistance(),0)
+{
+}
+
 
 bool DZT::FileHeader::getFrom( std::istream& strm, BufferString& emsg )
 {
@@ -66,8 +76,8 @@ void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
     ti.sampling.start = position;
     ti.sampling.step = ((float)range) / (nsamp-1);
     ti.sampling.scale( cNanoFac );
-    ti.coord.x = ti.nr;
-    ti.coord.y = 0;
+    ti.coord.x = cstart_.x + cstep_.x * trcidx;
+    ti.coord.y = cstart_.y + cstep_.y * trcidx;
 }
 
 
@@ -84,6 +94,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     , di_(DataCharacteristics())
     , trc_(*new SeisTrc)
     , sd_(*new StreamData(StreamProvider(fnm).makeIStream()))
+    , zfac_(1)
 {
     if ( !sd_.usable() )
 	return;
@@ -146,6 +157,7 @@ int DZT::Importer::nextStep()
 	return closeAll();
 
     fh_.fillInfo( trc_.info(), nrdone_ );
+    trc_.info().sampling.scale( zfac_ );
 
     for ( int ichan=0; ichan<fh_.nchan; ichan++ )
     {

@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2010
- RCS:		$Id: dztimporter.h,v 1.1 2010-03-16 09:28:32 cvsbert Exp $
+ RCS:		$Id: dztimporter.h,v 1.2 2010-03-17 17:03:54 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "datainterp.h"
 #include "linekey.h"
+#include "samplingdata.h"
+#include "position.h"
 class IOObj;
 class SeisTrc;
 class SeisTrcInfo;
@@ -31,13 +33,13 @@ struct FileHeader
 	unsigned	sec2:5, min:6, hour:5, day:5, month:4, year:7;
     };
 
-			FileHeader() : nsamp(0)	{}
+			FileHeader();
 
     bool		getFrom(std::istream&,BufferString&);
     inline bool		isOK() const		{ return nsamp > 0; }
 
     inline int		traceNr( int trcidx ) const
-			{ return 1 + trcidx * sps; }
+			{ return nrdef_.atIndex(trcidx); }
     inline int		nrBytesPerSample() const
     			{ return bits / 8; }
     inline int		nrBytesPerTrace() const
@@ -52,6 +54,11 @@ struct FileHeader
     float		epsr, top, depth;
     char		dtype, antname[14];
     unsigned short	chanmask, chksum;
+
+    // Could these be found? Not in all files for sure ...
+    SamplingData<int>	nrdef_;
+    Coord		cstart_;
+    Coord		cstep_;
 
 };
 
@@ -70,6 +77,9 @@ public:
 
     int			nextStep();
 
+    FileHeader		fh_;
+    float		zfac_;
+
 protected:
 
     SeisTrc&		trc_;
@@ -77,7 +87,6 @@ protected:
     StreamData&		sd_;
     LineKey		lk_;
 
-    FileHeader		fh_;
     char*		databuf_;
     DataInterpreter<float> di_;
 

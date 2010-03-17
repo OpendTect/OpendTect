@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.4 2010-03-16 09:51:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.5 2010-03-17 17:03:54 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -88,8 +88,21 @@ uiDZTImporter( uiParent* p )
     fisu.filter( "*.dzt" ).forread( true );
     inpfld_ = new uiFileInput( this, "Input DTZ file", fisu );
 
+    nrdeffld_ = new uiGenInput( this, "Trace number definition: start, step",
+				IntInpSpec(1), IntInpSpec(1) );
+    nrdeffld_->attach( alignedBelow, inpfld_ );
+    startposfld_ = new uiGenInput( this, "Start position (X,Y)",
+	    			PositionInpSpec(SI().minCoord(true)) );
+    startposfld_->attach( alignedBelow, nrdeffld_ );
+    stepposfld_ = new uiGenInput( this, "Step in X/Y",
+	    			FloatInpSpec(1), FloatInpSpec(1) );
+    stepposfld_->attach( alignedBelow, startposfld_ );
+
+    zfacfld_ = new uiGenInput( this, "Z Factor", FloatInpSpec(1) );
+    zfacfld_->attach( alignedBelow, stepposfld_ );
+
     lnmfld_ = new uiGenInput( this, "Output Line name" );
-    lnmfld_->attach( alignedBelow, inpfld_ );
+    lnmfld_->attach( alignedBelow, zfacfld_ );
 
     outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),
 	    		     uiSeisSel::Setup(Seis::Line) );
@@ -109,13 +122,24 @@ bool acceptOK( CallBacker* )
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj ) return false;
 
-    uiTaskRunner tr( this );
     DZT::Importer importer( fnm, *ioobj, LineKey(lnm,outfld_->attrNm()) );
+    importer.fh_.nrdef_.start = nrdeffld_->getIntValue(0);
+    importer.fh_.nrdef_.step = nrdeffld_->getIntValue(0);
+    importer.fh_.cstart_ = startposfld_->getCoord();
+    importer.fh_.cstep_.x = stepposfld_->getfValue(0);
+    importer.fh_.cstep_.y = stepposfld_->getfValue(1);
+    importer.zfac_ = zfacfld_->getfValue();
+
+    uiTaskRunner tr( this );
     return tr.execute( importer );
 }
 
     uiFileInput*	inpfld_;
     uiGenInput*		lnmfld_;
+    uiGenInput*		nrdeffld_;
+    uiGenInput*		startposfld_;
+    uiGenInput*		stepposfld_;
+    uiGenInput*		zfacfld_;
     uiSeisSel*		outfld_;
 
 };
