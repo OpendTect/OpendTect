@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.107 2010-03-16 10:29:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.108 2010-03-17 06:06:39 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.107 2010-03-16 10:29:21 cvs
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
 #include "flatviewaxesdrawer.h"
+#include "flatviewzoommgr.h"
 #include "mousecursor.h"
 #include "pixmap.h"
 #include "datapackbase.h"
@@ -96,7 +97,6 @@ uiFlatViewer::~uiFlatViewer()
 	canvas_.scene().removeItems( *markeritemset_ );
 
     delete polylineitemset_; delete markeritemset_;
-
     delete bmp2rgb_;
     delete wvabmpmgr_;
     delete vdbmpmgr_;
@@ -115,12 +115,13 @@ void uiFlatViewer::reDraw( CallBacker* )
 void uiFlatViewer::reSizeDraw( CallBacker* cb )
 {
     anysetviewdone_ = true;
-    if ( !initview_ && enabhaddrag_ )
+    if ( !initview_ && enabhaddrag_ && !control()->zoomMgr().atStart() )
     {
 	uiSize newsize( canvas_.width(), canvas_.height() );
 	mCBCapsuleUnpack(uiSize,oldsize,cb);
 	const float widthfac = (float)newsize.width()/(float)oldsize.width();
 	const float heightfac = (float)newsize.height()/(float)oldsize.height();
+	uiRect prevscenerect = canvas_.getSceneRect();
 	uiRect scenerect( uiPoint(0,0),
 		uiSize(mNINT((canvas_.getSceneRect().width()-5)*widthfac),
 		       mNINT((canvas_.getSceneRect().height()-5)*heightfac)) );
@@ -332,6 +333,13 @@ bool uiFlatViewer::drawBitMaps()
 {
     if ( enabhaddrag_ )
     {
+	if ( initview_ || control()->zoomMgr().atStart() )
+	{
+	    uiRect scenerect( uiPoint(0,0), uiSize(mNINT(canvas_.width()),
+						   mNINT(canvas_.height())) );
+	    canvas_.setSceneRect( scenerect );
+	}
+
 	uiRect scenerect =  rgbCanvas().getSceneRect();
 	canvas_.beforeDraw( scenerect.width(), scenerect.height() );
     }
@@ -771,6 +779,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 
 	    uiMarkerItem* markeritem = canvas_.scene().addItem(
 		new uiMarkerItem( ad.markerstyles_[styleidx] ) );
+
 	    markeritem->setPenColor( ad.markerstyles_[styleidx].color_ );
 	    markeritem->setFillColor( ad.markerstyles_[styleidx].color_ );
 	    markeritem->setPos( ptlist[idx] );
