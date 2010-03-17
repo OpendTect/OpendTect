@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.27 2010-02-11 12:30:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.28 2010-03-17 19:39:03 cvskris Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -188,32 +188,32 @@ void BufferString::setMinBufSize( unsigned int newlen )
 }
 
 
-void BufferString::insertAt( int atidx, const char* str )
+void BufferString::insertAt( int atidx, const char* string )
 {
     const int cursz = size();	// Had to do this to avoid weird compiler bug
     if ( atidx >= cursz )	// i.e. do not replace cursz with size() ...!
-	{ replaceAt( atidx, str ); return; }
-    if ( !str || !*str )
+	{ replaceAt( atidx, string ); return; }
+    if ( !string || !*string )
 	return;
 
     if ( atidx < 0 )
     {
-	const int lenstr = strlen( str );
+	const int lenstr = strlen( string );
 	if ( atidx <= -lenstr ) return;
-	str += -atidx;
+	string += -atidx;
 	atidx = 0;
     }
 
     BufferString rest( buf_ + atidx );
     *(buf_ + atidx) = '\0';
-    *this += str;
+    *this += string;
     *this += rest;
 }
 
 
-void BufferString::replaceAt( int atidx, const char* str, bool cut )
+void BufferString::replaceAt( int atidx, const char* string, bool cut )
 {
-    const int strsz = str ? strlen(str) : 0;
+    const int strsz = string ? strlen(string) : 0;
     int cursz = size();
     const int nrtopad = atidx - cursz;
     if ( nrtopad > 0 )
@@ -241,7 +241,7 @@ void BufferString::replaceAt( int atidx, const char* str, bool cut )
 	{
 	    const int replidx = atidx + idx;
 	    if ( replidx >= 0 )
-		buf_[replidx] = *(str + idx);
+		buf_[replidx] = *(string + idx);
 	}
     }
 
