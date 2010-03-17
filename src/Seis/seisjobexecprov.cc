@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.36 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.37 2010-03-17 19:40:30 cvskris Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -82,7 +82,7 @@ SeisJobExecProv::~SeisJobExecProv()
 const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 {
     static BufferString res;
-    res = iopar.find( sKeySeisOutIDKey() ).buf();
+    res = iopar.find( sKeySeisOutIDKey() ).str();
     if ( res.isEmpty() ) res = mOutKey("Seismic.ID");
     return res.buf();
 }

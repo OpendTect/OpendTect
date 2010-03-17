@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.50 2009-09-14 13:18:37 cvshelene Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.51 2010-03-17 19:40:30 cvskris Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -46,7 +46,7 @@ static const BufferString& gtFileName( const char* fnm )
 
 static const BufferString& gtFileName( const IOPar& iop )
 {
-    return gtFileName( iop.find( sKey::FileName ).buf() );
+    return gtFileName( iop.find( sKey::FileName ).str() );
 }
 
 const char* SeisCBVS2DLineIOProvider::getFileName( const IOPar& iop )
@@ -298,7 +298,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
-    BufferString fnm = iop.find( sKey::FileName ).buf();
+    BufferString fnm = iop.find( sKey::FileName ).str();
     if ( fnm.isEmpty() )
     {
 	if ( previop )

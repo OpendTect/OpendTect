@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.18 2010-03-12 21:16:13 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.19 2010-03-17 19:40:30 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -72,7 +72,7 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
     velioobj->pars().get( sKeyTopVavg(), topvavg_ );
     velioobj->pars().get( sKeyBotVavg(), botvavg_ );
 
-    BufferString depthdomain = ZDomain::getDefault().buf();
+    BufferString depthdomain = ZDomain::getDefault().str();
     velioobj->pars().get( ZDomain::sKey(), depthdomain );
 
     if ( depthdomain==ZDomain::sKeyTWT() )
