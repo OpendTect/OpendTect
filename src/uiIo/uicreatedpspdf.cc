@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.6 2010-03-17 12:02:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.7 2010-03-17 12:25:14 cvsbert Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -181,19 +181,19 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 
     if ( prdf->nrDims() == 1 )
     {
-	mDynamicCastGet(SampledProbDenFunc1D*,sprdf,&pdf)
+	mDynamicCastGet(Sampled1DProbDenFunc*,sprdf,&pdf)
 	if ( !sprdf ) return;
 	sprdf->bins_.setSize( nrbins[0] );
     }
     else if ( prdf->nrDims() == 2 )
     {
-	mDynamicCastGet(SampledProbDenFunc2D*,sprdf,&pdf)
+	mDynamicCastGet(Sampled2DProbDenFunc*,sprdf,&pdf)
 	if ( !sprdf ) return;
 	sprdf->bins_.setSize( nrbins[0], nrbins[1] );
     }
     else
     {
-	mDynamicCastGet(SampledProbDenFuncND*,sprdf,&pdf)
+	mDynamicCastGet(SampledNDProbDenFunc*,sprdf,&pdf)
 	if ( !sprdf ) return;
 	sprdf->bins_.setSize( nrbins.arr() );
     }
@@ -212,7 +212,7 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
     if ( nrdisp_ == 1 )
     {
 	Array1DImpl<float> pdfarr = Array1DImpl<float>( 0 );
-	SampledProbDenFunc1D pdf( pdfarr ); 
+	Sampled1DProbDenFunc pdf( pdfarr ); 
 	fillPDF( pdf );
 	
 	BufferString errmsg;
@@ -222,7 +222,7 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
     else if ( nrdisp_ == 2 )
     {
 	Array2DImpl<float> pdfarr = Array2DImpl<float>( Array2DInfoImpl() );
-	SampledProbDenFunc2D pdf( pdfarr ); 
+	Sampled2DProbDenFunc pdf( pdfarr ); 
 	fillPDF( pdf );
 	
 	BufferString errmsg;
@@ -233,7 +233,7 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
     {
 	ArrayNDImpl<float> pdfarr =
 	    ArrayNDImpl<float>( ArrayNDInfoImpl(nrdisp_) );
-	SampledProbDenFuncND pdf( pdfarr ); 
+	SampledNDProbDenFunc pdf( pdfarr ); 
 	fillPDF( pdf );
 	
 	BufferString errmsg;
