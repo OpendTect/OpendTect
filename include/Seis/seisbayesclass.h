@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.8 2010-03-16 13:17:25 cvsbert Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.9 2010-03-17 12:25:48 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -35,6 +35,7 @@ class SeisTrcWriter;
   * 0 .. N-1 = the Probability output for PDF 0 .. N-1
   * N = the Classification
   * N+1 = the Classification confidence
+  * N+2 = the Determination confidence: sum of the input PDF values
 
   */
 
@@ -78,12 +79,14 @@ protected:
     TypeSet<float>		prescales_;
 
     const int			nrdims_;
+    const int			nrpdfs_;
+    const bool			needclass_;
     od_int64			nrdone_;
     od_int64			totalnr_;
     BufferString		msg_;
     BufferStringSet		pdfnames_;
-    bool			needclass_;
     int				initstep_;
+    mutable TypeSet<float>	pdfinpvals_;
 
     bool			getPDFs();
     bool			scalePDFs();
@@ -95,8 +98,13 @@ protected:
     int				createOutput();
     int				closeDown();
 
+    float			getPDFValue(int ipdf,int isamp,int icomp,
+	    				    bool inp=false) const;
+    float			getAPTrcVal(int ipdf,int isamp,int icomp);
+    void			calcPerBinProbs();
     void			calcProbs(int);
     void			calcClass();
+    void			calcDet();
     void			cleanUp();
     void			prepOutTrc(SeisTrc&,bool) const;
     void			getClass(const TypeSet<float>&,int&,

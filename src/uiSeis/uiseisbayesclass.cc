@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.14 2010-03-16 13:17:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.15 2010-03-17 12:25:48 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -263,19 +263,17 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 	if ( !id || !*id ) break;
 
 	uiGenInput* alobj = idx ? sclflds_[idx-1] : useglobfld_;
+	BufferString fldtxt( "For '" );
+	fldtxt.add( IOM().nameOf(id) ).add( "'" );
 
-	BufferString scltxt( "Relative weight for '" );
-	scltxt.add( IOM().nameOf(id) ).add( "'" );
 	float scl = 1;
 	res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
 	if ( res && *res ) scl = atof( res );
-	uiGenInput* fld = new uiGenInput( this, scltxt, FloatInpSpec(scl) );
+	uiGenInput* fld = new uiGenInput( this, fldtxt, FloatInpSpec(scl) );
 	fld->attach( alignedBelow, alobj );
 	sclflds_ += fld;
 
-	BufferString aptxt( "A Priori weights for '" );
-	aptxt.add( IOM().nameOf(id) ).add( "'" );
-	uiIOObjSel* os = new uiIOObjSel( this, ctxt, aptxt );
+	uiIOObjSel* os = new uiIOObjSel( this, ctxt, fldtxt );
 	res = pars_.find( mGetSeisBayesAPProbIDKey(idx) );
 	os->setInput( MultiID(res) );
 	os->attach( alignedBelow, alobj );
@@ -291,23 +289,9 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 }
 
 
-bool isGlob() const
-{
-    const SeisBayesClass::NormPol np =
-		(SeisBayesClass::NormPol)normpolfld_->getIntValue();
-    const bool isperbin = np == SeisBayesClass::PerBin;
-    return !isperbin || useglobfld_->getBoolValue();
-}
-
-
 void updDisp( CallBacker* )
 {
-    const SeisBayesClass::NormPol np =
-		(SeisBayesClass::NormPol)normpolfld_->getIntValue();
-    const bool isperbin = np == SeisBayesClass::PerBin;
-    const bool isglob = isGlob();
-
-    useglobfld_->display( isperbin );
+    const bool isglob = useglobfld_->getBoolValue();
     for ( int idx=0; idx<apflds_.size(); idx++ )
     {
 	sclflds_[idx]->display( isglob );
@@ -317,7 +301,7 @@ void updDisp( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    const bool isglob = isGlob();
+    const bool isglob = useglobfld_->getBoolValue();
     for ( int idx=0; idx<sclflds_.size(); idx++ )
     {
 	if ( isglob )
@@ -469,8 +453,9 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 	if ( !id || !*id ) break;
 	addOut( IOM().nameOf(id), true );
     }
-    addOut( "Classification", false );
-    addOut( "Confidence", false );
+    addOut( "Classification: Class", false );
+    addOut( "Classification: Confidence", false );
+    addOut( "Determination strength", false );
 
     Seis::SelSetup sss( is2d_, false ); sss.fornewentry(true).onlyrange(false);
     subselfld_ = uiSeisSubSel::get( this, sss );
@@ -485,7 +470,7 @@ void addOut( const char* nm, bool ispdf )
 {
     const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
     uiSeisSel::Setup su( gt ); su.optional(true);
-    const IOObjContext ctxt( uiSeisSel::ioContext(gt,true) );
+    const IOObjContext ctxt( uiSeisSel::ioContext(gt,false) );
 
     if ( !ispdf )
 	su.seltxt_ = nm;

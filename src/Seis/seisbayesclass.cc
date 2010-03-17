@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.8 2010-03-16 13:17:25 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.9 2010-03-17 12:25:48 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -30,6 +30,10 @@ const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
 DefineEnumNames(SeisBayesClass,NormPol,0,"Normalization Policy")
     { "None", "Per bin", "Joint", "Per PDF", 0 };
 
+#define mDefNrCompsSamps(trc) \
+    const int nrcomps = (trc).nrComponents(); \
+    const int nrsamps = (trc).size()
+
 
 SeisBayesClass::SeisBayesClass( const IOPar& iop )
     	: Executor( "Bayesian inversion" )
@@ -42,6 +46,7 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	, outtrcs_(*new SeisTrcBuf(true))
 	, initstep_(1)
 	, nrdims_(0)
+	, nrpdfs_(0)
 	, normpol_(None)
 {
     aprdrs_.allowNull( true );
@@ -134,13 +139,16 @@ bool SeisBayesClass::getPDFs()
 	aprdrs_ += rdr;
     }
 
-    if ( inppdfs_.isEmpty() )
+    const_cast<int&>(nrpdfs_) = inppdfs_.size();
+    if ( nrpdfs_ < 1 )
 	{ msg_ = "No PDF's in parameters"; return false; }
     else if ( !scalePDFs() )
 	return false;
 
+    pdfinpvals_.setSize( nrdims_, 0 );
     pdfnames_.add( "Classification" );
     pdfnames_.add( "Confidence" );
+    pdfnames_.add( "Determination" );
     initstep_ = 2;
     return true;
 }
@@ -148,12 +156,24 @@ bool SeisBayesClass::getPDFs()
 
 bool SeisBayesClass::scalePDFs()
 {
-    const int nrpdfs = pdfs_.size();
-
-    for ( int ipdf=0; ipdf<nrpdfs; ipdf++ )
+    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
     {
 	ProbDenFunc* pdf = inppdfs_[ipdf]->clone();
 	pdfs_ += pdf;
+	float prescl = prescales_[ipdf];
+	if ( normpol_ == PerPDF )
+	    prescl *= pdf->normFac();
+	pdf->scale( prescl );
+    }
+
+    if ( normpol_ == Joint )
+    {
+	float sum = 0;
+	for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+	    sum += 1. / pdfs_[ipdf]->normFac();
+	const float scl = 1. / sum;
+	for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+	    pdfs_[ipdf]->scale( scl );
     }
 
     return true;
@@ -191,8 +211,9 @@ SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
 
 bool SeisBayesClass::getReaders()
 {
-    if ( inppdfs_.isEmpty() ) return false;
+    if ( nrpdfs_ < 1 ) return false;
     const ProbDenFunc& pdf0 = *inppdfs_[0];
+
     for ( int idim=0; idim<nrdims_; idim++ )
     {
 	inptrcs_.add( new SeisTrc );
@@ -218,11 +239,10 @@ bool SeisBayesClass::getReaders()
 
 bool SeisBayesClass::getWriters()
 {
-    const int nrpdfs = pdfs_.size();
-    if ( nrpdfs < 1 ) return false;
+    if ( nrpdfs_ < 1 ) return false;
 
     wrrs_.allowNull( true ); bool haveoutput = false;
-    for ( int ipdf=0; ipdf<nrpdfs+2; ipdf++ )
+    for ( int ipdf=0; ipdf<nrpdfs_+3; ipdf++ )
     {
 	outtrcs_.add( new SeisTrc );
 
@@ -246,7 +266,7 @@ bool SeisBayesClass::getWriters()
     if ( !haveoutput )
 	{ msg_ = "No output specified in parameters"; return false; }
 
-    needclass_ = wrrs_[nrpdfs] || wrrs_[nrpdfs+1];
+    const_cast<bool&>(needclass_) = wrrs_[nrpdfs_] || wrrs_[nrpdfs_+1];
     initstep_ = 0;
     msg_ = "Processing";
     return true;
@@ -353,26 +373,39 @@ int SeisBayesClass::readInpTrcs()
 }
 
 
-#define mWrTrc(nr) \
+#define mWrTrc(nr) { \
     	wrr = wrrs_[nr]; \
 	if ( wrr && !wrr->put(*outtrcs_.get(nr)) ) \
-	    { msg_ = wrr->errMsg(); return ErrorOccurred(); }
+	    { msg_ = wrr->errMsg(); return ErrorOccurred(); } }
 
 int SeisBayesClass::createOutput()
 {
-    const int nrpdfs = pdfs_.size();
-    for ( int ipdf=0; ipdf<nrpdfs; ipdf++ )
+    if ( normpol_ == PerBin )
+	calcPerBinProbs();
+    else
     {
-	if ( needclass_ || wrrs_[ipdf] )
-	    calcProbs( ipdf );
-	SeisTrcWriter* mWrTrc(ipdf)
+	for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+	{
+	    if ( needclass_ || wrrs_[ipdf] )
+		calcProbs( ipdf );
+	}
     }
+
+    SeisTrcWriter* wrr;
+
+    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+	mWrTrc(ipdf)
 
     if ( needclass_ )
     {
 	calcClass();
-	SeisTrcWriter* mWrTrc(nrpdfs)
-	mWrTrc(nrpdfs+1)
+	mWrTrc(nrpdfs_) mWrTrc(nrpdfs_+1)
+    }
+
+    if ( wrrs_[nrpdfs_+2] )
+    {
+	calcDet();
+	mWrTrc(nrpdfs_+2)
     }
 
     nrdone_++;
@@ -402,30 +435,97 @@ void SeisBayesClass::prepOutTrc( SeisTrc& trc, bool isch ) const
 }
 
 
+float SeisBayesClass::getPDFValue( int ipdf, int isamp, int icomp,
+				   bool inp ) const
+{
+    const SeisTrc& inptrc = *inptrcs_.get( 0 );
+    const SeisTrc& outtrc = *outtrcs_.get( ipdf );
+    const float eps = inptrc.info().sampling.step * 0.0001;
+
+    for ( int idim0=0; idim0<nrdims_; idim0++ )
+    {
+	const int idim = (*pdfxtbls_[ipdf])[idim0];
+	const SeisTrc& inptrc = *inptrcs_.get( idim );
+	const float z = outtrc.samplePos( isamp );
+	if ( z < inptrc.samplePos(0) - eps )
+	    pdfinpvals_[idim] = inptrc.get( 0, icomp );
+	else if ( z > inptrc.samplePos(inptrc.size()-1) + eps )
+	    pdfinpvals_[idim] = inptrc.get( inptrc.size()-1, icomp );
+	else
+	    pdfinpvals_[idim] = inptrc.getValue( z, icomp );
+    }
+    return ((inp ? inppdfs_ : pdfs_)[ipdf])->value( pdfinpvals_ );
+}
+
+
+float SeisBayesClass::getAPTrcVal( int ipdf, int isamp, int icomp )
+{
+    const SeisTrc& trc = *aptrcs_.get( ipdf );
+    if ( icomp >= trc.nrComponents() ) icomp = 0;
+    return trc.get( isamp, icomp );
+}
+
+
+void SeisBayesClass::calcPerBinProbs()
+{
+    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+	prepOutTrc( *outtrcs_.get( ipdf ), false );
+
+    mDefNrCompsSamps(*outtrcs_.get(0));
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	for ( int isamp=0; isamp<nrsamps; isamp++ )
+	{
+	    TypeSet<float> vals; float sumval = 0;
+	    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+	    {
+		const float val = getPDFValue( ipdf, isamp, icomp, false );
+		vals += val; sumval += val;
+	    }
+	    const bool haveout = sumval != 0;
+	    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+	    {
+		float val = haveout ? vals[ipdf] / sumval : 0;
+		if ( haveout && aprdrs_[ipdf] )
+		    val *= getAPTrcVal( ipdf, isamp, icomp );
+		outtrcs_.get(ipdf)->set( isamp, val, icomp );
+	    }
+	}
+    }
+}
+
+
 void SeisBayesClass::calcProbs( int ipdf )
 {
     SeisTrc& trc = *outtrcs_.get( ipdf ); prepOutTrc( trc, false );
-    const ProbDenFunc& pdf = *pdfs_[ipdf];
 
-    TypeSet<float> inpvals( nrdims_, 0 );
-    const float eps = trc.info().sampling.step * 0.0001;
-    for ( int icomp=0; icomp<trc.nrComponents(); icomp++ )
+    mDefNrCompsSamps(trc);
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
-	for ( int isamp=0; isamp<trc.size(); isamp++ )
+	for ( int isamp=0; isamp<nrsamps; isamp++ )
 	{
-	    for ( int idim0=0; idim0<nrdims_; idim0++ )
-	    {
-		const int idim = (*pdfxtbls_[ipdf])[idim0];
-		const SeisTrc& inptrc = *inptrcs_.get( idim );
-		const float z = trc.samplePos( isamp );
-		if ( z < inptrc.samplePos(0) - eps )
-		    inpvals[idim] = inptrc.get( 0, icomp );
-		else if ( z > inptrc.samplePos(inptrc.size()-1) + eps )
-		    inpvals[idim] = inptrc.get( inptrc.size()-1, icomp );
-		else
-		    inpvals[idim] = inptrc.getValue( z, icomp );
-	    }
-	    trc.set( isamp, pdf.value(inpvals), icomp );
+	    float val = getPDFValue( ipdf, isamp, icomp );
+	    if ( aprdrs_[ipdf] )
+		val *= getAPTrcVal( ipdf, isamp, icomp );
+	    trc.set( isamp, val, icomp );
+	}
+    }
+}
+
+
+void SeisBayesClass::calcDet()
+{
+    SeisTrc& dettrc = *outtrcs_.get( nrpdfs_+2 ); prepOutTrc( dettrc, false );
+
+    mDefNrCompsSamps(dettrc);
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	for ( int isamp=0; isamp<nrsamps; isamp++ )
+	{
+	    float sum = 0;
+	    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+		sum += getPDFValue(ipdf,isamp,icomp,true);
+	    dettrc.set( isamp, sum, icomp );
 	}
     }
 }
@@ -433,17 +533,17 @@ void SeisBayesClass::calcProbs( int ipdf )
 
 void SeisBayesClass::calcClass()
 {
-    const int nrpdfs = pdfs_.size();
-    SeisTrc& clsstrc = *outtrcs_.get( nrpdfs ); prepOutTrc( clsstrc, true );
-    SeisTrc& conftrc = *outtrcs_.get( nrpdfs+1 ); prepOutTrc( conftrc, false );
+    SeisTrc& clsstrc = *outtrcs_.get( nrpdfs_ ); prepOutTrc( clsstrc, true );
+    SeisTrc& conftrc = *outtrcs_.get( nrpdfs_+1 ); prepOutTrc( conftrc, false );
 
-    TypeSet<float> probs( nrpdfs, 0 ); int winner; float conf;
-    for ( int icomp=0; icomp<clsstrc.nrComponents(); icomp++ )
+    TypeSet<float> probs( nrpdfs_, 0 ); int winner; float conf;
+    mDefNrCompsSamps(clsstrc);
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
-	for ( int isamp=0; isamp<clsstrc.size(); isamp++ )
+	for ( int isamp=0; isamp<nrsamps; isamp++ )
 	{
-	    for ( int iprob=0; iprob<nrpdfs; iprob++ )
-		probs[iprob] = outtrcs_.get(iprob)->get( isamp, icomp );
+	    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+		probs[ipdf] = outtrcs_.get(ipdf)->get( isamp, icomp );
 	    getClass( probs, winner, conf );
 	    clsstrc.set( isamp, winner, icomp );
 	    conftrc.set( isamp, conf, icomp );
