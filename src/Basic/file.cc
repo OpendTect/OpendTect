@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.4 2010-03-03 05:54:00 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.5 2010-03-17 06:26:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,8 +83,8 @@ bool createLink( const char* fnm, const char* linknm )
 }
 
 
-bool copyFile( const char* from, const char* to )
-{ return QFile::copy( from, to ); }
+bool copy( const char* from, const char* to )
+{ return isFile(from) ? QFile::copy( from, to ) : copyDir( from, to ); }
 
 
 bool copyDir( const char* from, const char* to )
@@ -107,8 +107,8 @@ bool copyDir( const char* from, const char* to )
 }
 
 
-bool removeFile( const char* fnm )
-{ return QFile::remove( fnm ); }
+bool remove( const char* fnm )
+{ return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm ); }
 
 
 bool removeDir( const char* dirnm )
@@ -157,8 +157,15 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
 
 bool setPermissions( const char* fnm, const char* perms, bool recursive )
 {
-    // TODO
+#ifdef __win__
     return false;
+#else
+    BufferString cmd( "chmod " );
+    if ( recursive && isDirectory(fnm) )
+	cmd += " -R ";
+    cmd.add( perms ).add( " " ).add( fnm );
+    return system( cmd ) != -1;
+#endif
 }
 
 
@@ -169,12 +176,6 @@ int getKbSize( const char* fnm )
     return kbsz;
 }
 
-
-int getFreeMBytes( const char* fnm )
-{
-    // TODO
-    return -1;
-}
 
 static const char* sKeyTimeFormat = "ddd dd MMM yyyy , hh:mm:ss";
 
