@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.28 2010-02-19 11:10:35 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.29 2010-03-17 21:29:38 cvsyuancheng Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -148,7 +148,7 @@ void MadStream::initRead( IOPar* par )
 
     if ( inptyp == "Madagascar" )
     {
-	const char* filenm = par->find( sKey::FileName ).buf();
+	const char* filenm = par->find( sKey::FileName ).str();
 
 	BufferString inpstr( filenm );
 	bool scons = false;
@@ -197,7 +197,7 @@ void MadStream::initRead( IOPar* par )
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
-    const char* attrnm = par->find( sKey::Attribute ).buf();
+    const char* attrnm = par->find( sKey::Attribute ).str();
     if ( attrnm && *attrnm && seldata )
 	seldata->lineKey().setAttrName( attrnm );
 
@@ -254,7 +254,7 @@ void MadStream::initWrite( IOPar* par )
     
     if ( is2d_ && !isps_ )
     {
-	const char* attrnm = par->find( sKey::Attribute ).buf();
+	const char* attrnm = par->find( sKey::Attribute ).str();
 	if ( attrnm && *attrnm && seldata )
 	    seldata->lineKey().setAttrName( attrnm );
 
@@ -270,7 +270,7 @@ BufferString MadStream::getPosFileName( bool forread ) const
     BufferString posfnm;
     if ( forread )
     {
-	posfnm = pars_.find( sKeyPosFileName ).buf();
+	posfnm = pars_.find( sKeyPosFileName ).str();
 	if ( !posfnm.isEmpty() && File_exists(posfnm) )
 	    return posfnm;
 	else posfnm.setEmpty();
@@ -278,12 +278,12 @@ BufferString MadStream::getPosFileName( bool forread ) const
 
     BufferString typ = 
 	pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
-		    		    sKey::Type) ).buf();
+		    		    sKey::Type) ).str();
     if ( typ == sKeyMadagascar )
     {
 	BufferString outfnm =
 	    pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
-		    			sKey::FileName) ).buf();
+		    			sKey::FileName) ).str();
 	FilePath fp( outfnm );
 	fp.setExtension( "pos" );
 	if ( !forread || File_exists(fp.fullPath()) )

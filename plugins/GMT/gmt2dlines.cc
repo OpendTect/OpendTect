@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.12 2010-02-09 06:30:37 cvsraman Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.13 2010-03-17 21:29:38 cvsyuancheng Exp $";
 
 #include "gmt2dlines.h"
 
@@ -75,7 +75,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     strm << "Posting 2D Lines " << ioobj->name() << " ...  ";
 
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle ).buf();
+    BufferString lsstr = find( ODGMT::sKeyLineStyle ).str();
     ls.fromString( lsstr );
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel, postlabel );
@@ -257,7 +257,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
 	mErrStrmRet("Cannot read random lines")
 	
     LineStyle ls;
-    BufferString lsstr = find( ODGMT::sKeyLineStyle ).buf();
+    BufferString lsstr = find( ODGMT::sKeyLineStyle ).str();
     ls.fromString( lsstr );
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel, postlabel );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.12 2010-02-09 06:30:37 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.13 2010-03-17 21:29:38 cvsyuancheng Exp $";
 
 #include "gmtcontour.h"
 
@@ -66,7 +66,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     {
 	par.set( ODGMT::sKeyShape, "Line" );
 	par.set( sKey::Size, 1 );
-	str = find( ODGMT::sKeyLineStyle ).buf();
+	str = find( ODGMT::sKeyLineStyle ).str();
 	par.set( ODGMT::sKeyLineStyle, str );
     }
 
@@ -75,7 +75,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     if ( dofill )
     {
 	par.set( ODGMT::sKeyPostColorBar, true );
-	str = find( ODGMT::sKeyDataRange ).buf();
+	str = find( ODGMT::sKeyDataRange ).str();
 	par.set( ODGMT::sKeyDataRange, str );
     }
 
@@ -124,7 +124,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( !isz )
     {
 	strm << "Loading surface data \"" << attribnm << "\" ... ";
-	const int selidx = sd.valnames.indexOf( attribnm.buf() );
+	const int selidx = sd.valnames.indexOf( attribnm.str() );
 	PtrMan<Executor> exec = hor->auxdata.auxDataLoader( selidx );
 	if ( !exec || !exec->execute() )
 	    mErrStrmRet("Failed");
@@ -166,7 +166,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     BinID bid;
     EM::SectionID sid = hor->sectionID( 0 );
     const float fac = SI().zFactor();
-    const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.buf() );
+    const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.str() );
     while ( iter.next(bid) )
     {
 	EM::PosID posid( hor->id(), sid, bid.getSerialized() );
@@ -218,7 +218,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     {
 	strm << "Drawing contours ...  ";
 	FixedString lskey = find( ODGMT::sKeyLineStyle );
-	LineStyle ls; ls.fromString( lskey.buf() );
+	LineStyle ls; ls.fromString( lskey.str() );
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );
 	comm = "grdcontour "; comm += finalgrd;
