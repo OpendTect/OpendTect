@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.5 2010-03-05 09:35:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.6 2010-03-17 13:25:16 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -26,17 +26,21 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
 } 
 
 
-#define mGetScene(act)\
-    mDynamicCastGet(uiGraphicsObjectScene*,sc,&scene())\
-    if ( !sc ) act;
 void uiObjectItemView::resetViewArea( CallBacker* )
 {
-    mGetScene(return)
-    uiSize sz = sc->layoutSize();
-    setViewArea( 0, 0, sz.width(), sz.height() );
+    int w = 0, h = 0;
+    for ( int idx=0; idx<objectitems_.size(); idx++)
+    {
+	w += objectitems_[idx]->objectSize().width();
+	h = objectitems_[idx]->objectSize().height();
+    }
+    setViewArea( 0, 0, w+5, h+5 );
 }
 
 
+#define mGetScene(act)\
+    mDynamicCastGet(uiGraphicsObjectScene*,sc,&scene())\
+    if ( !sc ) act;
 void uiObjectItemView::addItem( uiObjectItem* itm, int stretch )
 {
     objectitems_ += itm;
@@ -47,7 +51,6 @@ void uiObjectItemView::addItem( uiObjectItem* itm, int stretch )
 
 void uiObjectItemView::insertItem( uiObjectItem* itm, int stretch, int posidx)
 {
-    objectitems_ += itm;
     objectitems_.insertAt( itm, posidx );
     mGetScene(return) sc->insertObjectItem( posidx, itm );
 }
@@ -57,6 +60,12 @@ void uiObjectItemView::removeItem( uiObjectItem* itm )
 {
     objectitems_ -= itm;
     mGetScene(return) sc->removeObjectItem( itm );
+}
+
+
+uiObjectItem* uiObjectItemView::getItem( int idx ) 
+{
+    return ( idx>=0 && nrItems()>idx ) ? objectitems_[idx] : 0; 
 }
 
 
@@ -74,9 +83,19 @@ uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos )
 }
 
 
-uiObjectItem* uiObjectItemView::getItem( int idx) 
+void uiObjectItemView::getObjectsFromRect( const uiRect& rect, 
+					   ObjectSet<uiObject>& objs ) 
 {
-    return ( idx>=0 && nrItems()>idx ) ? objectitems_[idx] : 0; 
+    Interval<float> rectborders( rect.left(), rect.right() );
+    Interval<int> objborders(0,0); 
+    for ( int idx=0; idx<objectitems_.size(); idx++ )
+    {
+	objborders.stop += objectitems_[idx]->objectSize().width();
+	if ( rectborders.includes( objborders.start ) ||
+	   		rectborders.includes( objborders.stop ) )	
+	    objs += objectitems_[idx]->getObject();
+	objborders.start = objborders.stop;
+    }
 }
 
 

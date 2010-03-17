@@ -13,6 +13,8 @@ ________________________________________________________________________
 
 -*/
 
+/*brief embeds some uiObjects in a graphicsview following a horrizontal layout
+ !\only works with QT 5 */
 #include "uigraphicsview.h"
 
 class uiParent;
@@ -31,10 +33,15 @@ public:
     void 			removeItem(uiObjectItem*);
     
     uiObjectItem*		getItemFromPos(const Geom::Point2D<int>&);
-    uiObjectItem*		getItem(int idx); 
+    uiObjectItem*		getItem(int idx);
+    void			getObjectsFromRect(const uiRect&,
+	    					   ObjectSet<uiObject>&);
+
     int				nrItems() const { return objectitems_.size(); }
+
     int 			stretchFactor(uiObjectItem*);
     void 			setStretchFactor(uiObjectItem*,int sf);
+    
     void			resetViewArea(CallBacker*);
 
 protected:
