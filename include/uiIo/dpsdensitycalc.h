@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          March 2010
- RCS:           $Id: dpsdensitycalc.h,v 1.1 2010-03-03 10:05:56 cvssatyaki Exp $
+ RCS:           $Id: dpsdensitycalc.h,v 1.2 2010-03-17 12:02:05 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,11 +24,11 @@ public:
     {
 	int			colid_;
 	StepInterval<float>	valrange_;
-	int			nrbins_;
     };
 
 				DPSDensityCalcND(const uiDataPointSet& uidps,
-						 const ObjectSet<AxisParam>&);
+						 const ObjectSet<AxisParam>&,
+						 ArrayND<float>&);
 
     od_int64			nrDone() const		{ return nrdone_; }
     od_int64			nrIterations() const;
@@ -37,11 +37,9 @@ public:
     bool			setFreqValue(const int*);
     bool			doWork(od_int64 start,od_int64 stop,int);
 
-    void			getFreqData(ArrayND<float>&) const;
-
 protected:
     const uiDataPointSet&		uidps_;
-    ArrayND<float>*			freqdata_;
+    ArrayND<float>&			freqdata_;
     ObjectSet<AxisParam>		axisdatas_;
     int					nrdims_;
     int					nrdone_;

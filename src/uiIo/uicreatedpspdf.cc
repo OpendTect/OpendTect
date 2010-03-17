@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.5 2010-03-05 11:32:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.6 2010-03-17 12:02:05 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -162,6 +162,7 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
     mDynamicCastGet(ProbDenFunc*,prdf,&pdf)
     if ( !prdf ) return;
 
+    TypeSet<int> nrbins;
     for ( int dimnr=0; dimnr<prdf->nrDims(); dimnr++ )
     {
 	prdf->setDimName( dimnr, probflds_[dimnr]->selColName() );
@@ -174,15 +175,32 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 	    new DPSDensityCalcND::AxisParam();
 	axparam->colid_ = probflds_[dimnr]->selColID();
 	axparam->valrange_ = dimrg;
-	axparam->nrbins_ = probflds_[dimnr]->selNrBins();
+	nrbins += probflds_[dimnr]->selNrBins();
 	axisparams += axparam;
     }
 
-    DPSDensityCalcND denscalc( plotter_.uiPointSet(), axisparams );
+    if ( prdf->nrDims() == 1 )
+    {
+	mDynamicCastGet(SampledProbDenFunc1D*,sprdf,&pdf)
+	if ( !sprdf ) return;
+	sprdf->bins_.setSize( nrbins[0] );
+    }
+    else if ( prdf->nrDims() == 2 )
+    {
+	mDynamicCastGet(SampledProbDenFunc2D*,sprdf,&pdf)
+	if ( !sprdf ) return;
+	sprdf->bins_.setSize( nrbins[0], nrbins[1] );
+    }
+    else
+    {
+	mDynamicCastGet(SampledProbDenFuncND*,sprdf,&pdf)
+	if ( !sprdf ) return;
+	sprdf->bins_.setSize( nrbins.arr() );
+    }
+
+    DPSDensityCalcND denscalc( plotter_.uiPointSet(), axisparams,pdf.getData());
     uiTaskRunner tr( this );
     tr.execute( denscalc );
-
-    denscalc.getFreqData( pdf.getData() );
 }
 
 
