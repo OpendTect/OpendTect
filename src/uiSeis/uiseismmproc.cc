@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.134 2010-03-03 07:28:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.135 2010-03-17 20:40:00 cvskris Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -109,7 +109,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     uiObject* inlperjobattach = 0;
     if ( !is2d )
     {
-	BufferString tmpstordir = iop.find(sKey::TmpStor).buf();
+	BufferString tmpstordir = iop.find(sKey::TmpStor).str();
 	isrestart = !tmpstordir.isEmpty();
 	if ( !isrestart )
 	{
