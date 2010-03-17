@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.10 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.11 2010-03-17 20:37:23 cvskris Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -234,7 +234,7 @@ const char* uiHorizonShiftDialog::getAttribBaseName() const
     if ( res.isEmpty() || res==sDefaultAttribName() )
 	res = attrinpfld_->getInput();
 
-    return res.buf();
+    return res.str();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.20 2009-11-18 19:53:34 cvskris Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.21 2010-03-17 20:35:19 cvskris Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -123,7 +123,7 @@ public:
     {
 	return errmsg_.isEmpty()
 	    ? "Loading body"
-	    : errmsg_.buf();
+	    : errmsg_.str();
      }
 
 protected:
@@ -204,7 +204,7 @@ const char*       message() const
 {
     return errmsg_.isEmpty()
 	? "Loading body"
-	: errmsg_.buf();
+	: errmsg_.str();
 }
 
 
