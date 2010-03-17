@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.7 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.8 2010-03-17 21:20:11 cvsyuancheng Exp $";
 
 #include "uigmtrandlines.h"
 
@@ -153,7 +153,7 @@ bool uiGMTRandLinesGrp::usePar( const IOPar& par )
     FixedString lskey = par.find( ODGMT::sKeyLineStyle );
     if ( lskey )
     {
-	LineStyle ls; ls.fromString( lskey.buf() );
+	LineStyle ls; ls.fromString( lskey.str() );
 	lsfld_->setStyle( ls );
     }
 

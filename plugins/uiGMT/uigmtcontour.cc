@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.16 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.17 2010-03-17 21:20:11 cvsyuancheng Exp $";
 
 #include "uigmtcontour.h"
 
@@ -414,7 +414,7 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     if ( drawcontour )
     {
 	FixedString lskey = par.find( ODGMT::sKeyLineStyle );
-	LineStyle ls; ls.fromString( lskey.buf() );
+	LineStyle ls; ls.fromString( lskey.str() );
 	lsfld_->setStyle( ls );
     }
 
