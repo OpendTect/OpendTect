@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.14 2010-03-08 12:27:55 cvsbert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.15 2010-03-18 19:44:30 cvskris Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -67,12 +67,17 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 }
 
 
-const char* UnitOfMeasure::surveyDefZUnitAnnot( bool symb )
+const char* UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
 {
     if ( SI().zIsTime() )
-	return symb ? "ms" : "Milliseconds";
+    {
+	if ( !symb )
+	    return "Milliseconds";
+	else
+	    return withparens ? "(ms)" : "ms";
+    }
     else
-	return surveyDefDepthUnitAnnot( symb );
+	return surveyDefDepthUnitAnnot( symb, withparens );
 }
 
 
@@ -82,12 +87,19 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 }
 
 
-const char* UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb )
+const char* UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
 {
     if ( SI().depthsInFeetByDefault() )
-	return symb ? "ft" : "Feet";
-    else
-	return symb ? "m" : "Meter";
+    {
+	if ( !symb )
+	    return "Feet";
+	return withparens ? "(ft)" : "ft";
+    }
+
+    if ( !symb )
+	return "Meter";
+
+    return withparens ? "(m)" : "m";
 }
 
 

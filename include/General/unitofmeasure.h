@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.10 2010-02-23 10:20:47 cvsraman Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.11 2010-03-18 19:44:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,9 +75,9 @@ public:
     void		setSource( Repos::Source s )	{ source_ = s; }
 
     static const UnitOfMeasure* surveyDefZUnit();
-    static const char*	surveyDefZUnitAnnot(bool symbol=false);
+    static const char*	surveyDefZUnitAnnot(bool symbol,bool withparens);
     static const UnitOfMeasure* surveyDefDepthUnit();
-    static const char*	surveyDefDepthUnitAnnot(bool symbol=false);
+    static const char*	surveyDefDepthUnitAnnot(bool symbol,bool withparens);
 
 protected:
 
