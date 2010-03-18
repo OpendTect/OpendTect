@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.35 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.36 2010-03-18 21:14:25 cvskris Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -73,26 +73,30 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 
 #define mCreateDepthDomMnuItemIfNeeded( is2d, needext ) \
 {\
-    if ( scene && scene->getZAxisTransform() )\
+    if ( scene ) \
     {\
 	subitem = attrserv->zDomainAttribMenuItem( *as,\
 	    scene->getZDomainString(), scene->getZDomainID(), is2d, needext );\
-	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );\
+	if ( subitem ) \
+	    mAddMenuItem(&mnu,subitem,subitem->nrItems(),subitem->checked);\
     }\
 }
 
 
 #define mCreateItemsList( is2d, needext ) \
 { \
-    subitem = attrserv->storedAttribMenuItem( *as, is2d, false ); \
-    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
-    subitem = attrserv->calcAttribMenuItem( *as, is2d, needext ); \
-    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
-    subitem = attrserv->nlaAttribMenuItem( *as, is2d, needext ); \
-    if ( subitem && subitem->nrItems() ) \
-	mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
-    subitem = attrserv->storedAttribMenuItem( *as, is2d, true ); \
-    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
+    if ( cantransform ) \
+    { \
+	subitem = attrserv->storedAttribMenuItem( *as, is2d, false ); \
+	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
+	subitem = attrserv->calcAttribMenuItem( *as, is2d, needext ); \
+	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
+	subitem = attrserv->nlaAttribMenuItem( *as, is2d, needext ); \
+	if ( subitem && subitem->nrItems() ) \
+	    mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
+	subitem = attrserv->storedAttribMenuItem( *as, is2d, true ); \
+	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
+    } \
     mCreateDepthDomMnuItemIfNeeded( is2d, needext ); \
 }
 
@@ -109,7 +113,11 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	if ( !so ) return;
 
 	Pol2D3D p2d3d = so->getAllowedDataType();
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid))
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid));
+
+	const FixedString zdomain = scene->getZDomainString();
+	const bool needtransform = zdomain && zdomain!=SI().getZDomainString();
+	const bool cantransform = !needtransform || scene->getZAxisTransform();
 
 	bool need2dlist = SI().has2D() && p2d3d != Only3D;
 	bool need3dlist = SI().has3D() && p2d3d != Only2D;
