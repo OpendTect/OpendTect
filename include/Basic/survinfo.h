@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.90 2010-03-18 17:58:01 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.91 2010-03-18 19:45:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,6 @@ public:
     void		setZUnit(bool istime,bool infeet=false);
     const char*		getXYUnitString(bool withparens=true) const;
     const char*		getZUnitString(bool withparens=true) const;
-    const char*		getZUnitString(bool istime,bool withparens) const;
     const char*		getZDomainString() const;
     static float	defaultXYtoZScale(Unit zunit,Unit xyunit);
     			/*!<Gives a ballpark figure of how to scale Z to
