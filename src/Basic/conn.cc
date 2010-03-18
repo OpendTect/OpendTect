@@ -5,14 +5,14 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.35 2010-03-03 04:05:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.36 2010-03-18 05:32:31 cvsnanne Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
 #include "strmoper.h"
 #include "oddirs.h"
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "timefun.h"
 #include <iostream>
@@ -56,15 +56,15 @@ mBasicGlobal std::ostream& logMsgStrm()
 	{ strm = &std::cerr; return *strm; }
 
     const char* basedd = GetBaseDataDir();
-    if ( !File_isDirectory( basedd ) )
+    if ( !File::isDirectory(basedd) )
 	mErrRet( "Directory for data storage is invalid" )
 
     FilePath fp( basedd );
     fp.add( "LogFiles" );
     const BufferString dirnm = fp.fullPath();
-    if ( !File_exists(dirnm) )
-	File_createDir( dirnm, 0775 );
-    if ( !File_isDirectory(dirnm) )
+    if ( !File::exists(dirnm) )
+	File::createDir( dirnm );
+    if ( !File::isDirectory(dirnm) )
 	mErrRet( "Cannot create proper directory for log file" )
 
     const FilePath pfp( GetPersonalDir() );

@@ -5,16 +5,16 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.39 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.40 2010-03-18 05:32:31 cvsnanne Exp $";
 
 #include "settings.h"
-#include "filegen.h"
-#include "filepath.h"
+
 #include "ascstream.h"
-#include "safefileio.h"
-#include "oddirs.h"
 #include "errh.h"
-#include <filegen.h>
+#include "file.h"
+#include "filepath.h"
+#include "oddirs.h"
+#include "safefileio.h"
 
 static const char* sKeyDeflt = "Default settings";
 static const char* sKeyCommon = "Common";
@@ -108,7 +108,7 @@ static void handleLegacyPar( Settings& setts, const char* key,
 
 bool Settings::doRead( bool ext )
 {
-    const bool empty_initially = File_isEmpty(fname);
+    const bool empty_initially = File::isEmpty(fname);
     const bool iscommon = name() == sKeyCommon;
 
     SafeFileIO sfio( fname, false );
@@ -120,9 +120,9 @@ bool Settings::doRead( bool ext )
 	tmplfname += "Settings";
 	tmplfname = mGetSetupFileName(tmplfname);
 	bool okaftercopy = false;
-	if ( File_exists(tmplfname) )
+	if ( File::exists(tmplfname) )
 	{
-	    File_copy( tmplfname, fname, mC_False );
+	    File::copy( tmplfname, fname );
 	    if ( sfio.open(true) )
 		okaftercopy = true;
 	}

@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.106 2010-02-19 06:45:55 cvsraman Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.107 2010-03-18 05:32:31 cvsnanne Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +37,7 @@ static const char* rcsID = "$Id: strmprov.cc,v 1.106 2010-02-19 06:45:55 cvsrama
 # define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
 #endif
 
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "string2.h"
 #include "strmoper.h"
@@ -68,8 +68,8 @@ static const char* mkUnLinked( const char* fnm )
 	return fnm;
 
     // Maybe the file itself is a link
-    static BufferString ret; ret = File_linkTarget(fnm);
-    if ( File_exists(ret) )
+    static BufferString ret; ret = File::linkTarget(fnm);
+    if ( File::exists(ret) )
 	return ret.buf();
 
     // Maybe there are links in the directories
@@ -78,10 +78,10 @@ static const char* mkUnLinked( const char* fnm )
     for ( int idx=0; idx<nrlvls; idx++ )
     {
 	BufferString dirnm = fp.dirUpTo( idx );
-	const bool islink = File_isLink(dirnm);
+	const bool islink = File::isLink(dirnm);
 	if ( islink )
-	    dirnm = File_linkTarget( fp.dirUpTo(idx) );
-	if ( !File_exists(dirnm) )
+	    dirnm = File::linkTarget( fp.dirUpTo(idx) );
+	if ( !File::exists(dirnm) )
 	    return fnm;
 
 	if ( islink )
@@ -313,7 +313,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 	{ msg_ = "Cannot open '"; msg_ += nm; msg_ += "'"; }
     else
     {
-	od_int64 bufsz = File_getKbSize( nm ) + 1;
+	od_int64 bufsz = File::getKbSize( nm ) + 1;
 	bufsz *= 1024;
 	char* buf = 0;
 	mTryAlloc(buf,char [ bufsz ])
@@ -420,11 +420,11 @@ StreamProviderDataPreLoader( const BufferStringSet& nms, const char* id )
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	const char* fnm = nms.get( idx );
-	if ( !File_exists(fnm) )
+	if ( !File::exists(fnm) )
 	    continue;
 
 	fnms_.add( fnm );
-	totnr_ += File_getKbSize( fnm );
+	totnr_ += File::getKbSize( fnm );
     }
     mkNewPLD();
 }
@@ -440,7 +440,7 @@ bool mkNewPLD()
 	}
 	else
 	{
-	    totnr_ -= File_getKbSize( curpld_->fnm_ );
+	    totnr_ -= File::getKbSize( curpld_->fnm_ );
 	    delete curpld_;
 	}
     }
@@ -808,15 +808,15 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 
     if ( isfile && islocal )
     {
-	bool doesexist = File_exists( sd.fileName() );
+	bool doesexist = File::exists( sd.fileName() );
 	if ( !doesexist )
 	{
 	    FilePath fp( fname_ );
 	    BufferString fullpath = fp.fullPath( FilePath::Local, true );
-	    if ( !File_exists(fullpath) )
+	    if ( !File::exists(fullpath) )
 		fullpath = fp.fullPath( FilePath::Local, false );
 	    // Sometimes the filename _is_ weird, and the cleanup is wrong
-	    doesexist = File_exists( fullpath );
+	    doesexist = File::exists( fullpath );
 	    if ( doesexist )
 		sd.setFileName( fullpath );
 	}
@@ -1045,7 +1045,7 @@ static const char* getCmd( const char* fnm )
 	interp = "awk.exe";
     else if ( strstr(execnm,".sed") || strstr(execnm,".SED") )
 	interp = "sed.exe";
-    else if ( File_exists( execnm ) )
+    else if ( File::exists( execnm ) )
     {
 	// We have a full path to a file with no known extension,
 	// but it exists. Let's peek inside.
@@ -1082,7 +1082,7 @@ static const char* getCmd( const char* fnm )
 	    interpfp.add("bin").add(interp);
 	}
 
-	if ( !File_exists( interpfp.fullPath() ) )
+	if ( !File::exists( interpfp.fullPath() ) )
 	{
 	    interpfp.set( GetSoftwareDir(0) );
 	    interpfp.add("bin").add("win").add("sys")
@@ -1191,7 +1191,7 @@ bool StreamProvider::exists( int fr ) const
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? true
-	     : File_exists( fname_.buf() );
+	     : File::exists( fname_ );
 
     sprintf( oscommand.buf(), "%s %s 'test -%c %s && echo 1'", rshcomm_.buf(),
 	    			hostname_.buf(), fr ? 'r' : 'w', fname_.buf() );
@@ -1204,8 +1204,8 @@ bool StreamProvider::remove( bool recursive ) const
     if ( isbad_ || type_ != StreamConn::File ) return false;
 
     if ( hostname_.isEmpty() )
-	return fname_ == sStdIO() || fname_ == sStdErr() ? false :
-		File_remove( fname_.buf(), recursive );
+	return fname_ == sStdIO() || fname_ == sStdErr()
+	    ? false : File::remove( fname_ );
 
     sprintf( oscommand.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
 	      rshcomm_.buf(), hostname_.buf(), recursive ? "r" : "",
@@ -1221,7 +1221,7 @@ bool StreamProvider::setReadOnly( bool yn ) const
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? false :
-	       File_makeWritable( fname_.buf(), mFile_NotRecursive, !yn );
+	       File::makeWritable( fname_, false, !yn );
 
     sprintf( oscommand.buf(), "%s %s 'chmod %s %s && echo 1'",
 	      rshcomm_.buf(), hostname_.buf(), yn ? "a-w" : "ug+w",
@@ -1237,7 +1237,7 @@ bool StreamProvider::isReadOnly() const
 
     if ( hostname_.isEmpty() )
 	return fname_ == sStdIO() || fname_ == sStdErr() ? false :
-		!File_isWritable( fname_.buf() );
+		!File::isWritable( fname_ );
 
     sprintf( oscommand.buf(), "%s %s 'test -w %s && echo 1'",
 	      rshcomm_.buf(), hostname_.buf(), fname_.buf() );
@@ -1289,7 +1289,7 @@ bool StreamProvider::rename( const char* newnm, const CallBack* cb )
     {
 	if ( hostname_.isEmpty() )
 	    rv = fname_ == sStdIO() || fname_ == sStdErr() ? true :
-		    File_rename( fname_.buf(), newnm );
+		    File::rename( fname_, newnm );
 	else
 	{
 	    sprintf( oscommand.buf(), "%s %s '/bin/mv -f %s %s && echo 1'",

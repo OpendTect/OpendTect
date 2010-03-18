@@ -7,26 +7,28 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.67 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.68 2010-03-18 05:32:31 cvsnanne Exp $";
 
 
 #include "plugins.h"
-#include "filepath.h"
-#include "filegen.h"
-#include "dirlist.h"
-#include "strmprov.h"
-#include "envvars.h"
-#include "oddirs.h"
-#include "settings.h"
-#include "separstr.h"
-#include "errh.h"
-
-#ifndef __win__
-#include <dlfcn.h>
-#endif
-#include <iostream>
 
 #include "debugmasks.h"
+#include "dirlist.h"
+#include "envvars.h"
+#include "errh.h"
+#include "file.h"
+#include "filepath.h"
+#include "oddirs.h"
+#include "separstr.h"
+#include "settings.h"
+#include "strmprov.h"
+
+#include <iostream>
+
+#ifndef __win__
+# include <dlfcn.h>
+#endif
+
 
 static const char* sPluginDir = "plugins";
 static const char* sKeyNoDispName = "??";
@@ -64,10 +66,10 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 #ifdef __win__
 
     BufferString targetlibnm( lnm );
-    if ( File_isLink(lnm) )
-	targetlibnm = File_linkTarget(lnm);
+    if ( File::isLink(lnm) )
+	targetlibnm = File::linkTarget(lnm);
 
-    if ( File_exists(targetlibnm) )
+    if ( File::exists(targetlibnm) )
     {
 	handle_ = LoadLibrary( targetlibnm );
 	if ( !handle_ )
@@ -82,7 +84,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 #else
 
-    if ( File_exists(lnm) )
+    if ( File::exists(lnm) )
     {
 	handle_ = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
 

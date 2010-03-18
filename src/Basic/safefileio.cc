@@ -4,17 +4,19 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.8 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.9 2010-03-18 05:32:31 cvsnanne Exp $";
 
 #include "safefileio.h"
-#include "filegen.h"
-#include "filepath.h"
-#include "strmprov.h"
+
 #include "dateinfo.h"
-#include "hostdata.h"
-#include "thread.h"
-#include "oddirs.h"
 #include "errh.h"
+#include "file.h"
+#include "filepath.h"
+#include "hostdata.h"
+#include "oddirs.h"
+#include "strmprov.h"
+#include "thread.h"
+
 #include <iostream>
 
 
@@ -60,11 +62,11 @@ bool SafeFileIO::openRead( bool ignorelock )
     mkLock( true );
 
     const char* toopen = filenm_.buf();
-    if ( File_isEmpty(toopen) )
+    if ( File::isEmpty(toopen) )
     {
 	if ( usebakwhenmissing_ )
 	    toopen = bakfnm_.buf();
-	if ( File_isEmpty(toopen) )
+	if ( File::isEmpty(toopen) )
 	{
 	    errmsg_ = "Input file '"; errmsg_ += filenm_;
 	    errmsg_ += "' is not present or empty";
@@ -99,10 +101,10 @@ bool SafeFileIO::openWrite( bool ignorelock )
 	return false;
     mkLock( false );
 
-    if ( File_exists( newfnm_.buf() ) )
-	File_remove( newfnm_.buf(), mFile_NotRecursive );
+    if ( File::exists(newfnm_) )
+	File::remove( newfnm_ );
 
-    sd_ = StreamProvider( newfnm_.buf() ).makeOStream();
+    sd_ = StreamProvider( newfnm_ ).makeOStream();
     if ( !sd_.usable() )
     {
 	errmsg_ = "Cannot open '"; errmsg_ += newfnm_;
@@ -117,31 +119,31 @@ bool SafeFileIO::openWrite( bool ignorelock )
 
 bool SafeFileIO::commitWrite()
 {
-    if ( File_isEmpty(newfnm_) )
+    if ( File::isEmpty(newfnm_) )
     {
 	errmsg_ = "File '"; errmsg_ += filenm_;
 	errmsg_ += "' not overwritten with empty new file";
 	return false;
     }
 
-    if ( File_exists( bakfnm_ ) )
-	File_remove( bakfnm_, mFile_NotRecursive );
+    if ( File::exists( bakfnm_ ) )
+	File::remove( bakfnm_ );
 
-    if ( !File_rename( filenm_, bakfnm_ ) )
+    if ( !File::rename( filenm_, bakfnm_ ) )
     {
 	errmsg_ = "Cannot create backup file '";
 	errmsg_ += bakfnm_; errmsg_ += "'";
 	UsrMsg( errmsg_.buf(), MsgClass::Warning );
 	errmsg_ = "";
     }
-    if ( !File_rename( newfnm_, filenm_ ) )
+    if ( !File::rename( newfnm_, filenm_ ) )
     {
 	errmsg_ = "Changes in '"; errmsg_ += filenm_;
 	errmsg_ += "' could not be commited.";
 	return false;
     }
     if ( removebakonsuccess_ )
-	File_remove( bakfnm_, mFile_NotRecursive );
+	File::remove( bakfnm_ );
 
     return true;
 }
@@ -154,8 +156,8 @@ bool SafeFileIO::doClose( bool keeplock, bool docommit )
     bool res = true;
     if ( isread || !docommit )
     {
-	if ( !isread && File_exists(newfnm_) )
-	    File_remove( newfnm_, mFile_NotRecursive );
+	if ( !isread && File::exists(newfnm_) )
+	    File::remove( newfnm_ );
     }
     else
 	res = commitWrite();
@@ -170,7 +172,7 @@ bool SafeFileIO::doClose( bool keeplock, bool docommit )
 bool SafeFileIO::haveLock() const
 {
     //TODO read the lock file to see whether date and time are feasible
-    return File_exists( lockfnm_.buf() );
+    return File::exists( lockfnm_ );
 }
 
 
@@ -191,7 +193,7 @@ bool SafeFileIO::waitForLock() const
 
     if ( allowlockremove_ )
     {
-	File_remove( lockfnm_, mFile_NotRecursive );
+	File::remove( lockfnm_ );
 	return true;
     }
 
@@ -225,6 +227,6 @@ void SafeFileIO::mkLock( bool forread )
 
 void SafeFileIO::rmLock()
 {
-    if ( locked_ && File_exists(lockfnm_) )
-	File_remove( lockfnm_, mFile_NotRecursive );
+    if ( locked_ && File::exists(lockfnm_) )
+	File::remove( lockfnm_ );
 }

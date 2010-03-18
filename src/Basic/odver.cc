@@ -4,19 +4,21 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.6 2009-08-24 07:29:09 cvsbert Exp $
+ RCS:           $Id: odver.cc,v 1.7 2010-03-18 05:32:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.6 2009-08-24 07:29:09 cvsbert Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.7 2010-03-18 05:32:31 cvsnanne Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
-#include "filepath.h"
-#include "filegen.h"
-#include "strmprov.h"
+
 #include "bufstring.h"
+#include "file.h"
+#include "filepath.h"
+#include "strmprov.h"
+
 #include <iostream>
 
 
@@ -49,15 +51,15 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
     const char* swdir = GetSoftwareDir(0);
     BufferString fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
     fnm += "."; fnm += typ;
-    if ( !File_exists(fnm) )
+    if ( !File::exists(fnm) )
     {
 	fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
-	if ( !File_exists(fnm) )
+	if ( !File::exists(fnm) )
 	    fnm = FilePath( swdir ).add( ".rel" ).fullPath();
     }
 
     res = "";
-    if ( File_exists(fnm) )
+    if ( File::exists(fnm) )
     {
 	StreamData sd = StreamProvider( fnm ).makeIStream();
 	if ( sd.usable() )

@@ -4,18 +4,19 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.16 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.17 2010-03-18 05:32:31 cvsnanne Exp $";
 
 #include "dirlist.h"
-#include "globexpr.h"
+
+#include "file.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "globexpr.h"
 
 #ifdef __win__
-#include <windows.h>
+# include <windows.h>
 #else
-#include <unistd.h>
-#include <dirent.h>
+# include <unistd.h>
+# include <dirent.h>
 #endif
 
 
@@ -56,7 +57,7 @@ void DirList::update()
 	if ( type_ != AllEntries )
 	{
 	    fp.setFileName( dat.cFileName );
-	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fp.fullPath()) )
+	    if ( (type_==FilesOnly) == (bool)File::isDirectory(fp.fullPath()) )
 		continue;
 	}
 
@@ -79,12 +80,12 @@ void DirList::update()
 	  && (dp->d_name)[2] == '\0' ) continue;
 
 	fp.setFileName( dp->d_name );
-	if ( !File_exists(fp.fullPath()) )
+	if ( !File::exists(fp.fullPath()) )
 	    continue;
 
 	if ( type_ != AllEntries )
 	{
-	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fp.fullPath()) )
+	    if ( (type_==FilesOnly) == (bool)File::isDirectory(fp.fullPath()) )
 		continue;
 	}
 
