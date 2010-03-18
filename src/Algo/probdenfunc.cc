@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.16 2010-03-17 13:52:00 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.17 2010-03-18 10:35:04 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -342,8 +342,8 @@ float Sampled2DProbDenFunc::value( float px, float py ) const
 
     float v[4];
     v[0] = idxx < 0 || idxy < 0		? 0 : bins_.get( idxx, idxy );
-    v[1] = idxy > szy-2 || idxx < 0	? 0 : bins_.get( idxx+1, idxy );
-    v[2] = idxx > szx-2 || idxy < 0	? 0 : bins_.get( idxx, idxy+1 );
+    v[1] = idxx > szx-2 || idxx < 0	? 0 : bins_.get( idxx+1, idxy );
+    v[2] = idxy > szy-2 || idxy < 0	? 0 : bins_.get( idxx, idxy+1 );
     v[3] = idxx > szx-2 || idxy > szy-2	? 0 : bins_.get( idxx+1, idxy+1 );
 
     const float val = Interpolate::LinearReg2D<float>(v)
