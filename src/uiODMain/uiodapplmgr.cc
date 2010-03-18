@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.370 2010-02-19 13:59:15 cvskarthika Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.371 2010-03-18 19:29:43 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -73,6 +73,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.370 2010-02-19 13:59:15 cvsk
 #include "ptrman.h"
 #include "seisbuf.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "zaxistransform.h"
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
@@ -282,26 +283,41 @@ void uiODApplMgr::addTimeDepthScene()
     uiDialog::Setup setup("Velocity model",
 		"Select velocity model to base scene on","0.4.7");
     uiSingleGroupDlg dlg( &appl_, setup );
-    uiZAxisTransform* uitrans = SI().zIsTime() 
-	? (uiZAxisTransform*) new uiTime2Depth( &dlg )
-	: (uiZAxisTransform*) new uiDepth2Time( &dlg );
+    uiTimeDepthBase* uitrans = SI().zIsTime() 
+	? (uiTimeDepthBase*) new uiTime2Depth( &dlg )
+	: (uiTimeDepthBase*) new uiDepth2Time( &dlg );
     dlg.setGroup( uitrans );
     if ( !dlg.go() ) return;
 
-    const BufferString snm( 
-	    SI().zIsTime() ? "Depth (using '" : "Time (using '",
-	    uitrans->selName(), "')" );
+    BufferString snm( SI().zIsTime() ? sKey::Depth : sKey::Time );
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
+    if ( ztrans )
+    {
+	snm += " (using '";
+	uitrans->selName(), "')";
+    }
+
     const int sceneid = sceneMgr().addScene( false, ztrans, snm);
     if ( sceneid!=-1 )
     {
 	const float zscale = SI().zIsTime()
-	    ? SurveyInfo::defaultXYtoZScale( SurveyInfo::Meter, SI().xyUnit())
-	    : SurveyInfo::defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit());
+	    ? SurveyInfo::defaultXYtoZScale(SurveyInfo::Meter, SI().xyUnit())
+	    : SurveyInfo::defaultXYtoZScale(SurveyInfo::Second, SI().xyUnit());
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
 	scene->setZScale( zscale );
 	sceneMgr().viewAll( 0 ); sceneMgr().tile();
+	if ( !ztrans )
+	{
+	    ZDomain::Info info( false );
+	    info.name_ = sKey::Depth;
+	    info.unitstr_ =  UnitOfMeasure::surveyDefDepthUnitAnnot(true);
+	    scene->setZDomainInfo( info );
+
+	    CubeSampling cs = SI().sampling( true );
+	    cs.zrg = uitrans->getZRange();
+	    scene->setCubeSampling( cs );
+	}
     }
 }
 
