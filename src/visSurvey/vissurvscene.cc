@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.130 2010-03-17 21:35:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.131 2010-03-18 19:48:03 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -67,6 +67,7 @@ Scene::Scene()
     , coordselector_( 0 )
     , zscale_( SI().zScale() )
     , infopar_(*new IOPar)
+    , zdomaininfo_( true )
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -111,7 +112,7 @@ void Scene::init()
 	SI().pars().get( STM().zOldStretchStr(), zsc );
     setZStretch( zsc );
 
-    setAnnotationCube( cs );
+    setCubeSampling( cs );
     addInlCrlTObject( annot_ );
     updateAnnotationText();
 
@@ -210,25 +211,20 @@ bool Scene::isRightHandSystem() const
 
 void Scene::getZDomainInfo( ZDomain::Info& info ) const
 {
-    info.name_ = getZDomainString();
-    info.id_ = getZDomainID();
-    info.zfactor_ = getZDomainFactor();
-    info.unitstr_ = getZDomainUnitString();
+    info = zdomaininfo_;
 }
 
 
 const char* Scene::getZDomainString() const
-{
-    return datatransform_ ? datatransform_->getToZDomainString()
-			  : ZDomain::getDefault().str();
-}
+{ return zdomaininfo_.name_.str(); }
 
 
 const char* Scene::getZDomainID() const
-{ return datatransform_ ? datatransform_->getZDomainID() : 0; }
+{ return zdomaininfo_.id_.str(); }
 
-float Scene::getZDomainFactor() const
-{ return datatransform_ ? datatransform_->getZFactor() : SI().zFactor(); }
+
+float Scene::getZDomainFactor() const { return zdomaininfo_.zfactor_; }
+
 
 const char* Scene::getZDomainUnitString() const
 { return datatransform_ ? "" : SI().getZUnitString(); }
@@ -243,7 +239,7 @@ void Scene::getAllowedZDomains( BufferString& dms ) const
 }
 
 
-void Scene::setAnnotationCube( const CubeSampling& cs )
+void Scene::setCubeSampling( const CubeSampling& cs )
 {
     cs_ = cs;
     if ( !annot_ ) return;
@@ -540,9 +536,24 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	const Interval<float> zrg = zat->getZInterval( false );
 	cs.zrg.start = zrg.start;
 	cs.zrg.stop = zrg.stop;
+	cs.zrg.step = zat->getGoodZStep();
+
+	zat->getToZDomainInfo( zdomaininfo_ );
+    }
+    else
+    {
+	ZDomain::Info zi( true );
+	zdomaininfo_ = zi;
     }
 
-    setAnnotationCube( cs );
+    setCubeSampling( cs );
+    updateAnnotationText();
+}
+
+
+void Scene::setZDomainInfo( const ZDomain::Info& zdi )
+{
+    zdomaininfo_ = zdi;
     updateAnnotationText();
 }
 
@@ -694,6 +705,12 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	datatransform_->fillPar( transpar );
 	par.mergeComp( transpar, sKeyZAxisTransform() );
     }
+    else
+    {
+	zdomaininfo_.fillPar( par );
+	cs_.fillPar( par );
+	par.set( sKey::Scale, zscale_ );
+    }
 
     par.set( sKeyTopImageID(), topimg_->id() );
     par.set( sKeyBotImageID(), botimg_->id() );
@@ -741,7 +758,8 @@ int Scene::usePar( const IOPar& par )
 
     if ( zstretch != curzstretch_ )
 	setZStretch( zstretch );
-   
+  
+    ZDomain::Info zdomaininfo; 
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {
@@ -749,6 +767,18 @@ int Scene::usePar( const IOPar& par )
 	RefMan<ZAxisTransform> transform = ZATF().create( nm );
 	if ( transform && transform->usePar( *transpar ) )
 	    setZAxisTransform( transform,0 );
+    }
+    else if ( zdomaininfo.usePar( par ) &&
+	      zdomaininfo.name_!=SI().getZDomainString() )
+    {
+	CubeSampling cs;
+	float zscale;
+	if ( cs.usePar( par ) && par.get( sKey::Scale, zscale ) )
+	{
+	    setCubeSampling( cs );
+	    setZScale( zscale );
+	    setZDomainInfo( zdomaininfo );
+	}
     }
 
     res = getImageFromPar( par,sKeyTopImageID(), topimg_ );
