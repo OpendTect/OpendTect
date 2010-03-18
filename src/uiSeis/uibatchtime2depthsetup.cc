@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.8 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.9 2010-03-18 18:16:21 cvskris Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -57,7 +57,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     inputdepthsel_ = new uiSeisSel( uppgrp_, inputdepthctxt, setup );
     inputdepthsel_->attach( alignedBelow, velsel_ );
 
-    possubsel_ =  new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,true) );
+    possubsel_ =  new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,false) );
     possubsel_->attach( alignedBelow, inputtimesel_ );
 
     IOObjContext outputctxt = SeisTrcTranslatorGroup::ioContext();
