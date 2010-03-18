@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.35 2010-03-18 18:14:34 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.36 2010-03-18 19:46:05 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.35 2010-03-18 18:14:34 cvskris
 #include "uimsg.h"
 #include "uistaticsdesc.h"
 #include "uitaskrunner.h"
+#include "unitofmeasure.h"
 #include "zdomain.h"
 
 static const char* sKeyDefVelCube = "Default.Cube.Velocity";
@@ -298,7 +299,7 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
 
     BufferString str = t2d ? sKey::Depth.str() : sKey::Time.str();
     str += " range ";
-    str += SI().getZUnitString( !t2d, true );
+    str += UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
 
     rangefld_ = new uiGenInput(this, str.buf(),
 	    		       FloatInpIntervalSpec(true) );
