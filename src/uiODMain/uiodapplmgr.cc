@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.371 2010-03-18 19:29:43 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.372 2010-03-18 19:47:10 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -311,7 +311,7 @@ void uiODApplMgr::addTimeDepthScene()
 	{
 	    ZDomain::Info info( false );
 	    info.name_ = sKey::Depth;
-	    info.unitstr_ =  UnitOfMeasure::surveyDefDepthUnitAnnot(true);
+	    info.unitstr_ =  UnitOfMeasure::surveyDefDepthUnitAnnot(true,false);
 	    scene->setZDomainInfo( info );
 
 	    CubeSampling cs = SI().sampling( true );
