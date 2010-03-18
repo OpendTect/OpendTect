@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.15 2010-03-12 15:13:04 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.16 2010-03-18 18:14:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,15 +103,24 @@ mClass uiTimeDepthBase : public uiZAxisTransform
 {
 public:
     ZAxisTransform*		getSelection();
+    StepInterval<float>		getZRange() const;
+    				//!Only if no ZAxisTransform
     const char*			selName() const;
 protected:
     				uiTimeDepthBase(uiParent*,bool);
     				~uiTimeDepthBase();
     FixedString			getZDomain() const;
     bool			acceptOK();
+    void			useVelChangeCB(CallBacker*);
+
+    void			getDefaultZRange(StepInterval<float>&) const;
 
     VelocityStretcher*		transform_;
     BufferString		selname_;
+
+    uiGenInput*			usevelfld_;
+    uiGenInput*			rangefld_;
+
     uiVelSel*			velsel_;
     bool 			t2d_;
 };

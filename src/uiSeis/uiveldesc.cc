@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.34 2010-03-17 21:34:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.35 2010-03-18 18:14:34 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -287,10 +287,27 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
     , transform_ ( 0 )
     , t2d_( t2d )
 {
+    usevelfld_ = new uiGenInput(this, "Use velocity model", BoolInpSpec(true) );
+    usevelfld_->valuechanged.notify( mCB(this,uiTimeDepthBase,useVelChangeCB) );
+
     IOObjContext ctxt = uiVelSel::ioContext();
     ctxt.forread = true;
     uiSeisSel::Setup su( false, false ); su.seltxt("Velocity model");
     velsel_ = new uiVelSel( this, ctxt, su );
+    velsel_->attach( alignedBelow, usevelfld_ );
+
+    BufferString str = t2d ? sKey::Depth.str() : sKey::Time.str();
+    str += " range ";
+    str += SI().getZUnitString( !t2d, true );
+
+    rangefld_ = new uiGenInput(this, str.buf(),
+	    		       FloatInpIntervalSpec(true) );
+    rangefld_->attach( alignedBelow, usevelfld_ );
+    StepInterval<float> zrange;
+    getDefaultZRange( zrange );
+    rangefld_->setValue( zrange );
+
+    useVelChangeCB( 0 );
 }
 
 
@@ -306,6 +323,29 @@ ZAxisTransform* uiTimeDepthBase::getSelection()
 }
 
 
+StepInterval<float> uiTimeDepthBase::getZRange() const
+{ return rangefld_->getFStepInterval(); } 
+
+
+void uiTimeDepthBase::getDefaultZRange( StepInterval<float>& rg ) const
+{
+    const Interval<float> velrg = Time2DepthStretcher::getDefaultVAvg();
+    rg = SI().zRange( true );
+    if ( t2d_ && SI().zIsTime() )
+    {
+	rg.start *= velrg.start / 2;
+	rg.stop *= velrg.stop / 2;
+	rg.step *= velrg.center() / 2;
+    }
+    else if ( !t2d_ && !SI().zIsTime() )
+    {
+	rg.start /= velrg.start*2;
+	rg.stop /= velrg.stop*2;
+	rg.step /= velrg.center()*2;
+    }
+}
+
+
 const char* uiTimeDepthBase::selName() const
 { return selname_.buf(); }
 
@@ -315,9 +355,25 @@ const char* uiTimeDepthBase::selName() const
 bool uiTimeDepthBase::acceptOK()
 {
     if ( transform_ ) transform_->unRef();
-        transform_ = 0;
-    
-    const IOObj* ioobj = velsel_->ioobj( false );
+    transform_ = 0;
+
+    const IOObj* ioobj = 0;
+    if ( !usevelfld_->getBoolValue() )
+    {
+	const StepInterval<float> zrg = rangefld_->getFStepInterval();
+	if ( mIsUdf(zrg.start) || mIsUdf(zrg.stop) || mIsUdf(zrg.step) ||
+	     zrg.isRev() || zrg.step<=0 )
+	{
+	    uiMSG().error( "Z Range must be defined, "
+		    "start value must be less than stop value, "
+		    "and step must be more than zero." );
+	    return false;
+	}
+
+	return true;
+    }
+
+    ioobj = velsel_->ioobj( false );
     if ( !ioobj )
 	return false;
 
@@ -358,7 +414,7 @@ bool uiTimeDepthBase::acceptOK()
 	mErrRet("Could not allocate memory");
 
     transform_->ref();
-    if ( !transform_->setVelData( ioobj->key() ) || !transform_->isOK() )
+    if ( !transform_->setVelData( ioobj->key()  ) || !transform_->isOK() )
     {
 	FileMultiString fms("Internal: Could not initialize transform" );
 	fms += transform_->errMsg();
@@ -369,6 +425,13 @@ bool uiTimeDepthBase::acceptOK()
     selname_ = ioobj->name();
 
     return true;
+}
+
+
+void uiTimeDepthBase::useVelChangeCB(CallBacker*)
+{
+    velsel_->display( usevelfld_->getBoolValue() );
+    rangefld_->display( !usevelfld_->getBoolValue() );
 }
 
 
