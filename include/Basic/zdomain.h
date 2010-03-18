@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra & K. Tingdahl
  Date:		April 2009
- RCS:		$Id: zdomain.h,v 1.7 2009-11-11 12:05:06 cvsnanne Exp $
+ RCS:		$Id: zdomain.h,v 1.8 2010-03-18 19:23:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,12 @@ mStruct Info
     BufferString	unitstr_;
     BufferString	id_;
     float		zfactor_;
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+    static const char*	sKeyUnit();
+    static const char*	sKeyFactor();
 };
 
 } // namespace ZDomain

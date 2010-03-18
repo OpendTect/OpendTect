@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.132 2010-03-18 17:58:01 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.133 2010-03-18 19:23:12 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -52,6 +52,9 @@ FixedString ZDomain::getDefault(){return FixedString(SI().getZDomainString()); }
 
 namespace ZDomain
 {
+const char* Info::sKeyUnit()		{ return "ZDomain Unit"; }
+const char* Info::sKeyFactor()		{ return "ZDomain factor"; }
+
 bool isSIDomain( const IOPar& iop )
 {
     const char* domstr = iop.find( sKey() );
@@ -74,7 +77,34 @@ Info::Info( bool fromsi )
     , id_( sKey::EmptyString )
 {}
 
+
+bool Info::usePar( const IOPar& par )
+{
+    if ( !par.get( sKey(), name_ ) )
+	return false;
+
+    if ( !par.get( sKeyID(), id_ ) )
+	id_ = sKey::EmptyString;
+
+    if ( !par.get( sKeyUnit(), unitstr_ ) )
+	unitstr_ = sKey::EmptyString;
+
+    if ( !par.get( sKeyFactor(), zfactor_ ) )
+	zfactor_ = 1;
+
+    return true;
 }
+
+
+void Info::fillPar( IOPar& par ) const
+{
+    par.set( sKey(), name_ );
+    par.set( sKeyID(), id_ );
+    par.set( sKeyUnit(), unitstr_ );
+    par.set( sKeyFactor(), zfactor_ );
+}
+
+}; //namespace ZDomain
 
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
