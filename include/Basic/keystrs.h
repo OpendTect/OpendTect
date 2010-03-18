@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.56 2010-02-08 02:30:03 cvsnanne Exp $
+ RCS:		$Id: keystrs.h,v 1.57 2010-03-18 05:28:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,9 +45,11 @@ to this namespace.
 namespace sKey
 {
 
+    mExt FixedString	Ascii		mImpl("Ascii");
     mExt FixedString	Attribute 	mImpl("Attribute");
     mExt FixedString	Attributes	mImpl("Attributes");
     mExt FixedString	Azimuth		mImpl("Azimuth");
+    mExt FixedString	Binary		mImpl("Binary");
     mExt FixedString	Color		mImpl("Color");
     mExt FixedString	Cube		mImpl("Cube");
     mExt FixedString	DataType	mImpl("DataType");
@@ -64,6 +66,7 @@ namespace sKey
     mExt FixedString	Keys		mImpl("Keys");
     mExt FixedString	LineKey		mImpl("Line key");
     mExt FixedString	Log		mImpl("Log");
+    mExt FixedString	LogFile		mImpl("Log file");
     mExt FixedString	Name		mImpl("Name");
     mExt FixedString	No		mImpl("No");
     mExt FixedString	None		mImpl("None");
@@ -93,6 +96,7 @@ namespace sKey
     mExt FixedString	Type		mImpl("Type");
     mExt FixedString	Undef		mImpl("Undefined");
     mExt FixedString	Value		mImpl("Value");
+    mExt FixedString	Version		mImpl("Version");
     mExt FixedString	XCoord		mImpl("X-Coord");
     mExt FixedString	YCoord		mImpl("Y-Coord");
     mExt FixedString	Yes		mImpl("Yes");
@@ -121,10 +125,7 @@ namespace sKey
     mExt FixedString    TrcRange        mImpl("Trace Range");
 
     mExt FixedString	TmpStor		mImpl("Temporary storage location");
-    mExt FixedString	LogFile		mImpl("Log file");
-    mExt FixedString	Version		mImpl("Version");
 
-	
     mExt FixedString	Default		mImpl("Default");
     mExt FixedString	DefCube		mImpl("Default.Cube");
     mExt FixedString	DefLineSet	mImpl("Default.LineSet");
