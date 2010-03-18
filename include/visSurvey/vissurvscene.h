@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.67 2009-12-03 06:18:25 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.68 2010-03-18 19:25:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "cubesampling.h"
 #include "position.h"
+#include "zdomain.h"
 
 
 class Color;
@@ -90,7 +91,7 @@ public:
     virtual void		removeObject(int idx);
 
     const CubeSampling&		getCubeSampling() const		{ return cs_; }
-    void			setAnnotationCube(const CubeSampling&);
+    void			setCubeSampling(const CubeSampling&);
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);
@@ -138,6 +139,7 @@ public:
 
     bool			isRightHandSystem() const;
 
+    void			setZDomainInfo(const ZDomain::Info&);
     void			getZDomainInfo(ZDomain::Info&) const;
     const char*			getZDomainString() const;
     const char*			getZDomainID() const;
@@ -198,10 +200,9 @@ protected:
     const MouseCursor*		mousecursor_;
     IOPar&			infopar_;
     float			curzstretch_;
-    float			zscale_;
 
-    BufferString		zdomain_;
-    BufferString		zdomainid_;
+    ZDomain::Info		zdomaininfo_;
+    float			zscale_;
 
     bool			appallowshad_;	   //from application
     bool			userwantsshading_; //from settings

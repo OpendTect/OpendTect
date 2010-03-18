@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.448 2010-02-24 14:19:45 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.449 2010-03-18 19:25:34 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -1251,7 +1251,7 @@ bool uiVisPartServer::setWorkingArea()
 	int sceneid = sceneids[ids];
 	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
-	if ( scene ) scene->setAnnotationCube( SI().sampling(true) );
+	if ( scene ) scene->setCubeSampling( SI().sampling(true) );
     }
 
     return true;
