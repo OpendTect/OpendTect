@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.121 2010-02-15 06:19:46 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.122 2010-03-18 19:49:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -155,6 +155,7 @@ protected:
     void			updateFromDisplayIDs(int attrib,TaskRunner*);
 
     void			updateMainSwitch();
+    void			setScene(Scene*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
     void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,

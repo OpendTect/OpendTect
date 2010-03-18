@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.229 2010-01-05 16:47:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.230 2010-03-18 19:49:09 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -178,18 +178,10 @@ void PlaneDataDisplay::setOrientation( Orientation nt )
 
 void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 {
-    CubeSampling survey( SI().sampling(true) );
-    if ( datatransform_ )
-    {
-	if ( csfromsession_ != survey )
-	    survey = csfromsession_;
-	else
-	{
-	    survey.zrg.setFrom( datatransform_->getZInterval(false) );
-	    survey.zrg.step = datatransform_->getGoodZStep();
-	}
-    }
-	
+    if ( !scene_ )
+	return;
+
+    CubeSampling survey = scene_->getCubeSampling();
     const Interval<float> inlrg( survey.hrg.start.inl, survey.hrg.stop.inl );
     const Interval<float> crlrg( survey.hrg.start.crl, survey.hrg.stop.crl );
 
@@ -240,10 +232,11 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
     const Interval<float> crlrg( res.hrg.start.crl, res.hrg.stop.crl );
     const Interval<float> zrg( res.zrg );
 
-    if ( datatransform_ )
-	res.hrg.snapToSurvey();
-    else
-	res.snapToSurvey();
+    res.hrg.snapToSurvey();
+    const StepInterval<float>& scenezrg = scene_->getCubeSampling().zrg;
+    res.zrg.limitTo( scenezrg );
+    res.zrg.start = scenezrg.snap( res.zrg.start );
+    res.zrg.stop = scenezrg.snap( res.zrg.stop );
 
     if ( orientation_==Inline )
 	res.hrg.start.inl = res.hrg.stop.inl =
@@ -252,7 +245,7 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 	res.hrg.start.crl = res.hrg.stop.crl =
 	    SI().crlRange(true).snap( crlrg.center() );
     else
-	res.zrg.start = res.zrg.stop = SI().zRange(true).snap(zrg.center());
+	res.zrg.start = res.zrg.stop = scenezrg.snap(zrg.center());
 
     return res;
 }
@@ -1040,6 +1033,13 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 bool PlaneDataDisplay::isVerticalPlane() const
 {
     return orientation_ != PlaneDataDisplay::Timeslice;
+}
+
+
+void PlaneDataDisplay::setScene( Scene* sc )
+{
+    SurveyObject::setScene( sc );
+    updateRanges( true, true );
 }
 
 
