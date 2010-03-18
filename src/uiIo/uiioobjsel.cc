@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.144 2010-03-11 11:18:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.145 2010-03-18 09:09:09 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -757,7 +757,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	return false;
 
     processInput();
-    if ( existingTyped() )
+    if ( !alreadyerr && existingTyped() )
     {
 	if ( workctio_.ioobj )
 	{
