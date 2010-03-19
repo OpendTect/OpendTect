@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.19 2010-03-17 19:40:30 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.20 2010-03-19 15:44:12 cvsyuancheng Exp $";
 
 #include "timedepthconv.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: timedepthconv.cc,v 1.19 2010-03-17 19:40:30 cvs
 #include "iopar.h"
 #include "keystrs.h"
 #include "samplfunc.h"
+#include "seisbounds.h"
 #include "seisread.h"
 #include "seispacketinfo.h"
 #include "seistrc.h"
@@ -719,3 +720,122 @@ const char* Depth2TimeStretcher::getFromZDomainString() const
 
 const char* Depth2TimeStretcher::getZDomainID() const
 { return stretcher_->getZDomainID(); }
+
+
+VelocityModelScanner::VelocityModelScanner( const IOObj& input, 
+					    const VelocityDesc& vd )
+    : obj_( input )
+    , vd_( vd )
+    , msg_( "Velocity cube scanning " )
+    , startavgvel_( -1, -1 )
+    , stopavgvel_( -1, -1 )
+    , subsel_( true )
+    , reader_( new SeisTrcReader(&obj_) )
+    , definedv0_( false )
+    , definedv1_( false )
+    , zistime_ ( SI().zIsTime() )
+    , nrdone_( 0 )
+{
+    reader_->prepareWork();
+    mDynamicCastGet( Seis::Bounds3D*, bd3, reader_->getBounds() );
+    if ( bd3 ) subsel_ = bd3->cs_.hrg;
+
+    hsiter_.setSampling(  subsel_ );
+    const char* veldomain = input.pars().find( ZDomain::sKey() );
+    if ( veldomain )
+	zistime_ = veldomain==ZDomain::sKeyTWT();
+}
+
+
+VelocityModelScanner::~VelocityModelScanner()
+{
+    delete reader_;
+}
+
+
+int VelocityModelScanner::nextStep()
+{
+    if ( !hsiter_.next( curbid_ ) )
+	return Finished();
+   
+    mDynamicCastGet( SeisTrcTranslator*, veltranslator, reader_->translator() );
+    if ( !veltranslator || !veltranslator->supportsGoTo() )
+    {
+	msg_ = "Cannot read velocity volume";
+	return ErrorOccurred();
+    }
+
+    nrdone_++; 
+    
+    SeisTrc veltrace;
+    if ( !veltranslator->goTo(curbid_) || !reader_->get(veltrace) )
+	return MoreToDo();
+
+    const SeisTrcValueSeries trcvs( veltrace, 0 );
+
+    const int sz = veltrace.size();
+    if ( sz<2 ) return MoreToDo();
+    
+    const SamplingData<double> sd = veltrace.info().sampling;    
+
+    TimeDepthConverter tdconverter;
+    if ( !tdconverter.setVelocityModel( trcvs, sz, sd, vd_, zistime_ ) )
+	return MoreToDo();
+	
+    ArrayValueSeries<float, float> resvs( sz );
+    
+    if ( zistime_ )
+    {
+	if ( !tdconverter.calcDepths( resvs, sz, sd ) )
+	    return MoreToDo();
+    }
+    else
+    {
+	if ( !tdconverter.calcTimes( resvs, sz, sd ) )
+	    return MoreToDo();
+    }
+
+    if ( !mIsUdf(resvs.value(0)) )
+    {
+	float v0 = -1;
+    	if ( sd.start>0 )
+    	    v0 = zistime_ ? 2*resvs.value(0)/sd.start 
+			  : ( resvs.value(0)>0.0001 ? 
+				  2*sd.start/resvs.value(0) : 1500);
+    	else
+    	{
+    	    if ( !mIsUdf(resvs.value(1)) )
+    	    {
+     		const float diff0 = resvs.value(1) - resvs.value(0); 
+     		v0 = zistime_ ? 2 * diff0 / sd.step : 2 * sd.step / diff0;
+    	    }
+    	}
+
+	if ( v0 > 0 )
+	{
+	    if ( !definedv0_ )
+	    {
+		definedv0_ = true;
+		startavgvel_.start = startavgvel_.stop = v0;;
+	    }
+	    else
+		startavgvel_.include( v0 );
+	}
+    }
+    
+    if ( !mIsUdf(resvs.value(sz-1)) && !mIsUdf(resvs.value(sz-2)) )
+    {
+	const float diff1 = resvs.value(sz-1) - resvs.value(sz-2);
+	const float v1 = zistime_ ? 2 * diff1 / sd.step : 2 * sd.step / diff1;
+
+	if ( !definedv1_ )
+	{
+	    definedv1_ = true;
+	    stopavgvel_.start = stopavgvel_.stop = v1;
+	}
+	else
+	    stopavgvel_.include( v1 );
+    }
+
+    return MoreToDo();
+}

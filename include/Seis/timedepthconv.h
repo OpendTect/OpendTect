@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.16 2010-03-12 16:08:40 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.17 2010-03-19 15:44:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "multidimstorage.h"
 #include "veldesc.h"
 
+class BinID;
 class CubeDataPack;
 class SeisTrc;
 class FlatDataPack;
@@ -154,23 +155,34 @@ mClass VelocityModelScanner : public SequentialTask
 {
 public:
     				VelocityModelScanner(const IOObj&,
-					const VelocityDesc&) 	{}
-				~VelocityModelScanner() 	{}
+					const VelocityDesc&); 	
+				~VelocityModelScanner();
 
-    const char*			 message() const { return msg_.buf(); }
+    const char*			message() const		{ return msg_.buf(); }
+    od_int64			totalNr() const { return subsel_.totalNr(); }
+    od_int64			nrDone() const		{ return nrdone_; }
+    const char*			nrDoneText() const { return "Position scanned";}
 
-    const Interval<float>&	getTopVAvg() const
-    				{ return startavgvel_; }
-    const Interval<float>&	getBotVAvg() const
-    				{ return stopavgvel_; }
+    const Interval<float>&	getTopVAvg() const	{ return startavgvel_; }
+    const Interval<float>&	getBotVAvg() const	{ return stopavgvel_; }
 
-    int				nextStep()
-    				{ return SequentialTask::ErrorOccurred(); }
+    int				nextStep();
 
 protected:
 
     BufferString		msg_;
     HorSampling			subsel_;
+    HorSamplingIterator		hsiter_;
+    BinID			curbid_;
+    bool			definedv0_;
+    bool			definedv1_;
+    bool			zistime_;
+    int				nrdone_;
+
+    const IOObj&		obj_;
+    const VelocityDesc&		vd_;
+
+    SeisTrcReader*		reader_;
 
     Interval<float>		startavgvel_;
     Interval<float>		stopavgvel_;
