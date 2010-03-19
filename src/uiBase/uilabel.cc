@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilabel.cc,v 1.18 2010-01-06 12:24:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilabel.cc,v 1.19 2010-03-19 04:08:05 cvssatyaki Exp $";
 
 
 #include "uilabel.h"
 #include "uiobjbody.h"
+#include "pixmap.h"
 
 #include <qlabel.h> 
 
@@ -94,6 +95,12 @@ const char* uiLabel::text() const
     static BufferString txt;
     txt = mQStringToConstChar( body_->text() );
     return txt.buf();
+}
+
+
+void uiLabel::setPixmap( const ioPixmap& pixmap )
+{
+    body_->setPixmap( *pixmap.qpixmap() );
 }
 
 

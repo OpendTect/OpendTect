@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.14 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uilabel.h,v 1.15 2010-03-19 04:08:05 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiGroup;
 class uiLabelBody;
+class ioPixmap;
 
 mClass uiLabel : public uiObject
 {
@@ -35,6 +36,7 @@ public:
 */
     virtual void        setText(const char*);
     const char*         text() const;
+    void		setPixmap(const ioPixmap&);
 
 /*! 
     setting an alignment only makes sense if you reserve space using
