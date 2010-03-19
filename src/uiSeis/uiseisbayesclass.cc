@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.15 2010-03-17 12:25:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.16 2010-03-19 09:16:07 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -488,7 +488,20 @@ void addOut( const char* nm, bool ispdf )
     flds3d_ += fld;
 }
 
+
+bool rejectOK( CallBacker* cb )
+{
+    bool rv = uiVarWizardDlg::rejectOK( cb );
+    getFromScreen( true );
+    return rv;
+}
+
 bool acceptOK( CallBacker* )
+{
+    return getFromScreen( false );
+}
+
+bool getFromScreen( bool permissive )
 {
     if ( is2d_ ) return false;
 
@@ -497,10 +510,19 @@ bool acceptOK( CallBacker* )
     {
 	uiSeisSel* sel = flds3d_[idx];
 	const bool isneeded = sel->isChecked();
-	const IOObj* ioobj = isneeded ? sel->ioobj() : 0;
+	const IOObj* ioobj = isneeded ? sel->ioobj(permissive) : 0;
 	if ( isneeded && !ioobj )
-	    mErrRet("Please specify all selected outputs")
-	if ( !ioobj ) continue;
+	{
+	    if ( permissive )
+		continue;
+	    else
+		mErrRet("Please specify all selected outputs")
+	}
+	if ( !ioobj )
+	{
+	    pars_.removeWithKey( mGetSeisBayesSeisOutIDKey(idx) );
+	    continue;
+	}
 
 	pars_.set( mGetSeisBayesSeisOutIDKey(idx), ioobj->key() );
 	nrout++;
@@ -508,7 +530,7 @@ bool acceptOK( CallBacker* )
 
     subselfld_->fillPar( pars_ );
 
-    if ( nrout < 1 )
+    if ( !permissive && nrout < 1 )
 	mErrRet("Please specify at least one output")
     return true;
 }
