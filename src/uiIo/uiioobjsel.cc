@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.145 2010-03-18 09:09:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.146 2010-03-19 08:52:42 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -757,13 +757,13 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	return false;
 
     processInput();
-    if ( !alreadyerr && existingTyped() )
+    if ( existingTyped() )
     {
 	if ( workctio_.ioobj )
 	{
 	    const bool isalreadyok = inctio_.ioobj
 			    && inctio_.ioobj->key() == workctio_.ioobj->key();
-	    if ( !isalreadyok && !workctio_.ctxt.forread )
+	    if ( !alreadyerr && !isalreadyok && !workctio_.ctxt.forread )
 	    {
 		const bool exists = workctio_.ioobj->implExists( false );
 		if ( exists )
