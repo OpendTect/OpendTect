@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.32 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.33 2010-03-19 04:20:23 cvssatyaki Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.32 2009-12-03 06:18
 #include "strmprov.h"
 #include "trigonometry.h"
 
-#include "uibinidtable.h"
 #include "uibutton.h"
 #include "mousecursor.h"
 #include "uidialog.h"
@@ -31,6 +30,7 @@ static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.32 2009-12-03 06:18
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uipositiontable.h"
 #include "uiselsimple.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
@@ -64,28 +64,32 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&New"), 0 );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
-    uiPopupMenu* genmnu = new uiPopupMenu( getUiParent(), "&Generate" );
-    genmnu->insertItem( new uiMenuItem("From &Existing ..."), 2 );
-    genmnu->insertItem( new uiMenuItem("Along &Contours ..."), 3 );
-    genmnu->insertItem( new uiMenuItem("From &Polygon ..."), 4 );
-    genmnu->insertItem( new uiMenuItem("From &Wells ..."), 5 );
-    mnu.insertItem( genmnu );
+    uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
+    newmnu->insertItem( new uiMenuItem("Empty"), 0 );
+    newmnu->insertItem( new uiMenuItem("From &Existing ..."), 1 );
+    newmnu->insertItem( new uiMenuItem("Along &Contours ..."), 2 );
+    newmnu->insertItem( new uiMenuItem("From &Polygon ..."), 3 );
+    newmnu->insertItem( new uiMenuItem("From &Wells ..."), 4 );
+    newmnu->insertItem( new uiMenuItem("From &Table ..."), 5 );
+    mnu.insertItem( newmnu );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 6 );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
+
     if ( mnuid == 0 )
 	addChild( new uiODRandomLineTreeItem(-1), false );
-    else if ( mnuid == 1 )
+    if ( mnuid>=1 && mnuid<4 )
+	genRandLine( mnuid-1 );
+    else if ( mnuid == 4 )
+	genRandLineFromWell();
+    else if ( mnuid == 5 )
+	genRandLineFromTable();
+    else if ( mnuid == 6 )
     {
 	const IOObj* ioobj = selRandomLine();
 	if ( ioobj )
 	    load( *ioobj );
     }
-    else if ( mnuid>1 && mnuid<5 )
-	genRandLine( mnuid-2 );
-    else if ( mnuid == 5 )
-	genRandLineFromWell();
 
     handleStandardItems( mnuid );
     return true;
@@ -175,6 +179,34 @@ void uiODRandomLineParentTreeItem::genRandLineFromWell()
     applMgr()->wellServer()->selectWellCoordsForRdmLine();
     applMgr()->wellServer()->randLineDlgClosed.notify(
 	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );
+}
+
+
+void uiODRandomLineParentTreeItem::genRandLineFromTable()
+{
+    uiDialog dlg( getUiParent(),
+	    	  uiDialog::Setup("Random lines","Specify node positions","") );
+    uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
+    Interval<float> zrg = SI().zRange(true);
+    zrg.scale( SI().zFactor() );
+    table->setZRange( zrg );
+
+    if ( dlg.go() )
+    {
+	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
+	addChild( itm, false );
+	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
+	if ( !rtd ) return;
+
+	TypeSet<BinID> newbids;
+	table->getBinIDs( newbids );
+	rtd->setKnotPositions( newbids );
+
+	table->getZRange( zrg );
+	zrg.scale( 1/SI().zFactor() );
+	rtd->setDepthInterval( zrg );
+    }
 }
 
 
@@ -353,7 +385,7 @@ void uiODRandomLineTreeItem::editNodes()
     rtd->getAllKnotPos( bids );
     uiDialog dlg( getUiParent(),
 	    	  uiDialog::Setup("Random lines","Specify node positions","") );
-    uiBinIDTable* table = new uiBinIDTable( &dlg, true );
+    uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     table->setBinIDs( bids );
 
     Interval<float> zrg = rtd->getDataTraceRange();

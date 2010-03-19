@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipositiontable.cc,v 1.1 2010-03-18 03:38:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipositiontable.cc,v 1.2 2010-03-19 04:20:23 cvssatyaki Exp $";
 
 #include "uipositiontable.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uipositiontable.cc,v 1.1 2010-03-18 03:38:57 cv
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitable.h"
+#include "pixmap.h"
 #include "ranges.h"
 #include "survinfo.h"
 
@@ -36,6 +37,15 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     if ( withic_ ) infotxt += "Inl/Crl";
     infotxt += " positions";
     uiLabel* lbl = new uiLabel( this, infotxt );
+
+    uiLabel* pmlvl =  new uiLabel( this, "" );
+    ioPixmap pm( 20, 20 ); pm.fill( Color(200,0,0) );
+    pmlvl->setPixmap( pm );
+    pmlvl->attach( rightTo, lbl );
+
+    uiLabel* collbl =  new uiLabel( this, "Node outside Survey" );
+    collbl->attach( rightTo, pmlvl );
+
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
 	    					.rowgrow(true)
 						.defrowlbl(true), "Pos Table" );
@@ -43,6 +53,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     table_->valueChanged.notify( mCB(this,uiPositionTable,posChgCB) );
     table_->setNrCols( withxy_ && withic_ ? 4 : 2 );
     table_->setNrRows( 5 );
+    attachObj()->setMinimumWidth( withxy_ && withic_ ? 400 : 200 );
 
     table_->setColumnLabel( 0, withxy_ ? "X" : "Inline" );
     table_->setColumnLabel( 1, withxy_ ? "Y" : "Crossline" );
@@ -60,6 +71,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
 	BufferString zlbl = "Z range "; zlbl += SI().getZUnitString();
 	zfld_ = new uiGenInput( this, zlbl,
 	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
+	zfld_->setStretch( 0, 0 );
 	zfld_->attach( leftAlignedBelow, table_ );
 	zfld_->attach( ensureBelow, hsep );
     }
@@ -82,12 +94,31 @@ void uiPositionTable::posChgCB( CallBacker* )
 
     NotifyStopper ns( table_->valueChanged );
     const RowCol& rc = table_->notifiedCell();
+    BinID bid;
     if ( rc.col==0 || rc.col==1 )
     {
+	Coord coord( table_->getValue(RowCol(rc.row,0)),
+		     table_->getValue(RowCol(rc.row,1)) );
+	bid = SI().transform( coord );
+	if ( withic_ )
+	{
+	    table_->setValue( RowCol(rc.row,2), bid.inl );
+	    table_->setValue( RowCol(rc.row,3), bid.crl );
+	}
     }
     else if ( rc.col==2 || rc.col==3 )
     {
+	bid = BinID( table_->getValue(RowCol(rc.row,2)),
+		     table_->getValue(RowCol(rc.row,3)) );
+	Coord coord = SI().transform( bid );
+	if ( withxy_ )
+	{
+	    table_->setValue( RowCol(rc.row,0), coord.x );
+	    table_->setValue( RowCol(rc.row,1), coord.y );
+	}
     }
+
+    setRowColor( rc.row, SI().includes(bid,SI().zRange(true).start,true) );
 }
 
 
@@ -104,12 +135,15 @@ void uiPositionTable::setCoords( const TypeSet<Coord>& coords )
 	    table_->setValue( RowCol(idx,getYCol()), crd.y );
 	}
 
+	const BinID bid = SI().transform( crd );
+
 	if ( withic_ )
 	{
-	    const BinID bid = SI().transform( crd );
 	    table_->setValue( RowCol(idx,getICol()), bid.inl );
 	    table_->setValue( RowCol(idx,getCCol()), bid.crl );
 	}
+
+	setRowColor( idx, SI().includes(bid,SI().zRange(true).start,true) );
     }
 }
 
@@ -138,6 +172,8 @@ void uiPositionTable::setBinIDs( const TypeSet<BinID>& binids )
 	    table_->setValue( RowCol(idx,getICol()), bid.inl );
 	    table_->setValue( RowCol(idx,getCCol()), bid.crl );
 	}
+
+	setRowColor( idx, SI().includes(bid,SI().zRange(true).start,true) );
     }
 
 }
@@ -145,6 +181,28 @@ void uiPositionTable::setBinIDs( const TypeSet<BinID>& binids )
 
 void uiPositionTable::getBinIDs( TypeSet<BinID>& binids ) const
 {
+    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    {
+	if ( withic_ )
+	{
+	    if ( mIsUdf(table_->getValue(RowCol(idx,2))) ||
+		 mIsUdf(table_->getValue(RowCol(idx,3))) )
+		continue;
+
+	    binids += BinID( table_->getValue(RowCol(idx,2)),
+			     table_->getValue(RowCol(idx,3)) );
+	}
+	else
+	{
+	    if ( mIsUdf(table_->getValue(RowCol(idx,0))) ||
+		 mIsUdf(table_->getValue(RowCol(idx,1))) )
+		continue;
+
+	    Coord coord( table_->getValue(RowCol(idx,0)),
+		    	 table_->getValue(RowCol(idx,1)) );
+	    binids += SI().transform( coord );
+	}
+    }
 }
 
 
@@ -156,4 +214,11 @@ void uiPositionTable::getZRange( Interval<float>& zrg ) const
 {
     zrg.setFrom( withz_ ? zfld_->getFInterval() 
 	    		: (Interval<float>)SI().zRange(false) );
+}
+
+void uiPositionTable::setRowColor( int rid, bool includes )
+{
+    Color col = !includes ? Color(200,0,0) : Color::White();
+    for ( int colid=0; colid<table_->nrCols(); colid++ )
+	table_->setColor( RowCol(rid,colid), col );
 }
