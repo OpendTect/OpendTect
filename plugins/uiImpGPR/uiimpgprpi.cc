@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.5 2010-03-17 17:03:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.6 2010-03-19 09:21:47 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -34,7 +34,7 @@ mExternC PluginInfo* GetuiImpGPRPluginInfo()
     static PluginInfo retpi = {
 	"GPR: .DZT import",
 	"Bert Bril/Matthias Schuh",
-	"0.0.0",
+	"0.0.1",
 	"Imports GPR data in DZT format.\n" };
     return &retpi;
 }
