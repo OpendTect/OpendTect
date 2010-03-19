@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.131 2010-03-18 19:48:03 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.132 2010-03-19 04:40:39 cvsranojay Exp $";
 
 #include "vissurvscene.h"
 
@@ -43,7 +43,7 @@ const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
 const char* Scene::sKeyZStretch()	{ return "ZStretch"; }
 const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
-const char* Scene::sKeyAppAllowShading(){ return "";}
+const char* Scene::sKeyAppAllowShading(){ return "Allow shading";}
 const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
 const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
 
@@ -216,11 +216,11 @@ void Scene::getZDomainInfo( ZDomain::Info& info ) const
 
 
 const char* Scene::getZDomainString() const
-{ return zdomaininfo_.name_.str(); }
+{ return zdomaininfo_.name_.buf(); }
 
 
 const char* Scene::getZDomainID() const
-{ return zdomaininfo_.id_.str(); }
+{ return zdomaininfo_.id_.buf(); }
 
 
 float Scene::getZDomainFactor() const { return zdomaininfo_.zfactor_; }
