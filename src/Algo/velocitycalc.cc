@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.21 2009-12-07 18:24:47 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.22 2010-03-19 15:43:26 cvsyuancheng Exp $";
 
 #include "velocitycalc.h"
 
@@ -208,17 +208,17 @@ bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int sz,
 	    if ( depth<=depthrg.start )
 	    {
 		const double ddepth = depth-depthrg.start;
-		time = times_[0]+ddepth/firstvel_;
+		time = firstvel_>0 ? times_[0]+ddepth/firstvel_ : times_[0];
 	    }
 	    else if ( depth>=depthrg.stop )
 	    {
 		const double ddepth = depth-depthrg.stop;
-		time = times_[sz_-1] + ddepth/lastvel_;
+		time = times_[sz_-1] + ddepth/lastvel_; 
 	    }
 	    else
 	    {
-		time = IdxAble::interpolateReg(times_,sz_,
-					       depthrg.getfIndex(depth));
+		time = IdxAble::interpolateReg( times_, sz_,
+					       depthrg.getfIndex(depth) );
 	    }
 
 	    res.setValue( idx, time );
@@ -234,7 +234,7 @@ bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int sz,
 	    if ( depth<=depths_[0] )
 	    {
 		const double ddepth = depth-depths_[0];
-		time = sd_.start+ddepth/firstvel_;
+		time = firstvel_>0 ? sd_.start+ddepth/firstvel_ : sd_.start;
 	    }
 	    else if ( depth>depths_[sz_-1] )
 	    {
@@ -282,22 +282,24 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     if ( !velsz ) return true;
 
     float prevvel = mUdf(float);
+    int startidx = -1;
     for ( int idx=0; idx<velsz; idx++ )
     {
 	if ( mIsUdf(vels.value(idx) ) )
 	    continue;
 
+	startidx = idx;
 	prevvel = vels.value(idx);
 	break;
     }
 
-    if ( mIsUdf(prevvel) )
+    if ( startidx==-1 )
 	return false;
 
-    double depth = sd.start * prevvel/2;
-    depths[0] = depth;
+    double depth = (sd.start+startidx*sd.step)*prevvel/2;
+    depths[startidx] = depth;
 
-    for ( int idx=1; idx<velsz; idx++ )
+    for ( int idx=startidx+1; idx<velsz; idx++ )
     {
 	float curvel = vels.value( idx );
 	if ( mIsUdf(curvel) )
@@ -334,16 +336,36 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 {
     if ( !velsz ) return true;
 
-    float prevvel = vels.value(0);
-    double time = sd.start / prevvel;
-
-    times[0] = time;
-
-    for ( int idx=1; idx<velsz; idx++ )
+    float prevvel;
+    int startidx = -1;
+    for ( int idx=0; idx<velsz; idx++ )
     {
-	const float curvel = vels.value( idx );
+	if ( mIsUdf(vels.value(idx)) )
+	    continue;
 
-	time += sd.step*2/curvel; //time is TWT
+	startidx = idx;
+	prevvel = vels.value(idx);
+	break;
+    }
+
+    if ( startidx==-1 )
+	return false;
+
+    double time = 
+	mIsZero(prevvel,1e-8) ? 0 : (sd.start + sd.step*startidx) / prevvel;
+    times[startidx] = time;
+
+    for ( int idx=startidx+1; idx<velsz; idx++ )
+    {
+	float curvel = vels.value( idx );
+	if ( mIsUdf(curvel) )
+	{
+	    curvel = prevvel;
+	    if ( curvel>0 )
+		time += sd.step*2/curvel;
+	}
+	else
+    	    time += sd.step*2/curvel; //time is TWT
 
 	times[idx] = time;
 	prevvel = curvel;
