@@ -4,15 +4,17 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.5 2009-09-10 16:53:27 cvskris Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.6 2010-03-19 15:42:49 cvsyuancheng Exp $";
 
 #include "seiszaxisstretcher.h"
 
 #include "genericnumer.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
+#include "seispacketinfo.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
+#include "seistrctr.h"
 #include "seiswrite.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
@@ -29,7 +31,6 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     , outcs_( outcs )
     , ztransform_( ztf )
     , nrdone_( 0 )
-    , totalnr_( outcs.hrg.totalNr() )
     , sampler_( 0 )
     , outtrc_( 0 )
     , outputptr_( 0 )
@@ -41,17 +42,23 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 
     ztransform_.ref();
 
-    CubeSampling cs( true );
-    cs.hrg = outcs_.hrg;
-
     seisreader_ = new SeisTrcReader( &in );
-    seisreader_->setSelData( new  Seis::RangeSelData(cs) );
-    if ( !seisreader_->prepareWork() )
+    if ( !seisreader_->prepareWork(Seis::Scan) ||!seisreader_->seisTranslator())
     {
 	delete seisreader_;
 	seisreader_ = 0;
 	return;
     }
+
+    const SeisPacketInfo& spi = seisreader_->seisTranslator()->packetInfo();
+    HorSampling storhrg; storhrg.set( spi.inlrg, spi.crlrg );
+    outcs_.hrg.limitTo( storhrg );
+
+    CubeSampling cs( true );
+    cs.hrg = outcs_.hrg;
+    seisreader_->setSelData( new Seis::RangeSelData(cs) );
+
+    totalnr_ = cs.hrg.totalNr();
 
     seiswriter_ = new SeisTrcWriter( &out );
 
@@ -122,10 +129,17 @@ int SeisZAxisStretcher::nextStep()
 	curbid.crl = intrc.info().nr;
     }
 
+    if ( !outcs_.hrg.includes( curbid ) )
+	return MoreToDo();
+
     sampler_->setBinID( curbid );
 
     if ( curhrg_.isEmpty() || !curhrg_.includes(curbid) )
-	nextChunk();
+    {
+	if ( !newChunk( curbid.inl ) )
+	    return MoreToDo();
+    }
+
     sampler_->computeCache( Interval<int>( 0, outtrc_->size()-1) );
 
     const SeisTrcFunction trcfunc( intrc, 0 );
@@ -148,24 +162,16 @@ int SeisZAxisStretcher::nextStep()
 
 #define mMaxNrTrc	5000
 
-void SeisZAxisStretcher::nextChunk()
+bool SeisZAxisStretcher::newChunk( int inl )
 {
-    int chunksize = mMaxNrTrc/outcs_.hrg.nrCrl();
+    int chunksize = is2d_ ? 1 : mMaxNrTrc/outcs_.hrg.nrCrl();
     if ( chunksize<1 ) chunksize = 1;
 
-    if ( curhrg_.isEmpty() )
-    {
-	curhrg_ = outcs_.hrg;
-	curhrg_.stop.inl = curhrg_.start.inl + curhrg_.step.inl * chunksize;
-    }
-    else
-    {
-	curhrg_.start.inl = curhrg_.stop.inl + curhrg_.step.inl;
-	curhrg_.stop.inl = curhrg_.start.inl + curhrg_.step.inl * chunksize;
-
-	if ( curhrg_.stop.inl> outcs_.hrg.stop.inl )
-	    curhrg_.stop.inl = outcs_.hrg.stop.inl;
-    }
+    curhrg_ = outcs_.hrg;
+    curhrg_.start.inl = inl;
+    curhrg_.stop.inl = curhrg_.start.inl + curhrg_.step.inl * (chunksize-1);
+    if ( curhrg_.stop.inl>outcs_.hrg.stop.inl )
+	curhrg_.stop.inl = outcs_.hrg.stop.inl;
 
     CubeSampling cs( outcs_ );
     cs.hrg = curhrg_;
@@ -175,5 +181,5 @@ void SeisZAxisStretcher::nextChunk()
     else
 	ztransform_.setVolumeOfInterest( voiid_, cs, !forward_ );
 
-    ztransform_.loadDataIfMissing( voiid_ );
+    return ztransform_.loadDataIfMissing( voiid_ );
 }

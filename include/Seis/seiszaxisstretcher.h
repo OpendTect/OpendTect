@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.5 2009-07-22 16:01:18 cvsbert Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.6 2010-03-19 15:42:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -48,7 +48,7 @@ public:
 
 protected:
 
-    void				nextChunk();
+    bool				newChunk(int startinl);
 
     SeisTrcReader*			seisreader_;
     SeisTrcWriter*			seiswriter_;
