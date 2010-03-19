@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.9 2010-03-17 12:25:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.10 2010-03-19 12:53:13 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -418,7 +418,7 @@ void SeisBayesClass::prepOutTrc( SeisTrc& trc, bool isch ) const
     const SeisTrc& inptrc = *inptrcs_.get( 0 );
     if ( trc.isEmpty() )
     {
-	const DataCharacteristics dc( isch ? DataCharacteristics::UI8
+	const DataCharacteristics dc( isch ? DataCharacteristics::SI8
 					   : DataCharacteristics::F32 );
 	trc.data().setComponent( dc, 0 );
 	for ( int icomp=0; icomp<inptrc.nrComponents(); icomp++ )
@@ -565,8 +565,8 @@ void SeisBayesClass::getClass( const TypeSet<float>& probs, int& winner,
 	if ( probs[idx] > winnerval )
 	    { winner = idx; winnerval = probs[idx]; }
     }
-    if ( winnerval < mDefEps )
-	{ conf = 0; winner++; return; }
+    if ( winnerval < 1e-20 )
+	{ conf = 0; winner = -1; return; }
 
     float runnerupval = probs[winner ? 0 : 1];
     for ( int idx=0; idx<probs.size(); idx++ )
