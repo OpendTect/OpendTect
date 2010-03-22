@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.36 2010-03-18 19:46:05 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.37 2010-03-22 18:23:04 cvsyuancheng Exp $";
 
 #include "uiveldesc.h"
 
@@ -232,6 +232,7 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
 		    const uiSeisSel::Setup& setup )
     : uiSeisSel( p, ctxt, setup )
+    , velrgchanged( this )
 {
     editcubebutt_ = new uiPushButton( this, "",
 	    mCB(this,uiVelSel,editCB), false );
@@ -242,6 +243,9 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
     const char* res = SI().pars().find( sKeyDefVelCube );
     if ( res && *res && IOObj::isKey(res) )
 	setInput( MultiID(res) );
+
+    trg_ = Time2DepthStretcher::getDefaultVAvg();
+    brg_ = Time2DepthStretcher::getDefaultVAvg();
 }
 
 
@@ -267,6 +271,10 @@ void uiVelSel::editCB(CallBacker*)
     if ( dlg.go() )
 	workctio_.setObj( dlg.getSelection() );
 
+    trg_ = dlg.getVelocityTopRange();
+    brg_ = dlg.getVelocityBottomRange();
+    velrgchanged.trigger();
+    
     updateEditButton( 0 );
 }
 
@@ -288,27 +296,24 @@ uiTimeDepthBase::uiTimeDepthBase( uiParent* p, bool t2d )
     , transform_ ( 0 )
     , t2d_( t2d )
 {
-    usevelfld_ = new uiGenInput(this, "Use velocity model", BoolInpSpec(true) );
-    usevelfld_->valuechanged.notify( mCB(this,uiTimeDepthBase,useVelChangeCB) );
-
     IOObjContext ctxt = uiVelSel::ioContext();
     ctxt.forread = true;
     uiSeisSel::Setup su( false, false ); su.seltxt("Velocity model");
     velsel_ = new uiVelSel( this, ctxt, su );
-    velsel_->attach( alignedBelow, usevelfld_ );
-
+    velsel_->velrgchanged.notify(
+	    mCB(this,uiTimeDepthBase,setZRangeCB) );
+    velsel_->selectionDone.notify(
+	    mCB(this,uiTimeDepthBase,setZRangeCB) );
+	
     BufferString str = t2d ? sKey::Depth.str() : sKey::Time.str();
     str += " range ";
     str += UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
 
     rangefld_ = new uiGenInput(this, str.buf(),
 	    		       FloatInpIntervalSpec(true) );
-    rangefld_->attach( alignedBelow, usevelfld_ );
-    StepInterval<float> zrange;
-    getDefaultZRange( zrange );
-    rangefld_->setValue( zrange );
-
-    useVelChangeCB( 0 );
+    rangefld_->attach( alignedBelow, velsel_ );
+    
+    setZRangeCB( 0 );
 }
 
 
@@ -328,22 +333,31 @@ StepInterval<float> uiTimeDepthBase::getZRange() const
 { return rangefld_->getFStepInterval(); } 
 
 
-void uiTimeDepthBase::getDefaultZRange( StepInterval<float>& rg ) const
+void uiTimeDepthBase::setZRangeCB( CallBacker* )
 {
-    const Interval<float> velrg = Time2DepthStretcher::getDefaultVAvg();
-    rg = SI().zRange( true );
+    StepInterval<float> rg;
+    const StepInterval<float> zrg = SI().zRange(true);
+    const Interval<float> topvelrg = velsel_->getVelocityTopRange();
+    const Interval<float> botvelrg = velsel_->getVelocityBottomRange();
+
     if ( t2d_ && SI().zIsTime() )
     {
-	rg.start *= velrg.start / 2;
-	rg.stop *= velrg.stop / 2;
-	rg.step *= velrg.center() / 2;
+	rg.start = zrg.start * topvelrg.start / 2;
+	rg.stop = zrg.stop * botvelrg.stop / 2;
+	rg.step = (rg.stop-rg.start) / zrg.nrSteps();
+	rg.step = mNINT( rg.step );
     }
     else if ( !t2d_ && !SI().zIsTime() )
     {
-	rg.start /= velrg.start*2;
-	rg.stop /= velrg.stop*2;
-	rg.step /= velrg.center()*2;
+	rg.start = 2 * zrg.start / topvelrg.stop;
+	rg.stop = 2 * zrg.stop / botvelrg.start;
+	rg.step = (rg.stop-rg.start) / zrg.nrSteps();
+	rg.step = mNINT( rg.step );
     }
+    else
+	rg = SI().zRange( true );
+
+    rangefld_->setValue( rg );
 }
 
 
@@ -358,23 +372,7 @@ bool uiTimeDepthBase::acceptOK()
     if ( transform_ ) transform_->unRef();
     transform_ = 0;
 
-    const IOObj* ioobj = 0;
-    if ( !usevelfld_->getBoolValue() )
-    {
-	const StepInterval<float> zrg = rangefld_->getFStepInterval();
-	if ( mIsUdf(zrg.start) || mIsUdf(zrg.stop) || mIsUdf(zrg.step) ||
-	     zrg.isRev() || zrg.step<=0 )
-	{
-	    uiMSG().error( "Z Range must be defined, "
-		    "start value must be less than stop value, "
-		    "and step must be more than zero." );
-	    return false;
-	}
-
-	return true;
-    }
-
-    ioobj = velsel_->ioobj( false );
+    const IOObj* ioobj = velsel_->ioobj( false );
     if ( !ioobj )
 	return false;
 
@@ -426,13 +424,6 @@ bool uiTimeDepthBase::acceptOK()
     selname_ = ioobj->name();
 
     return true;
-}
-
-
-void uiTimeDepthBase::useVelChangeCB(CallBacker*)
-{
-    velsel_->display( usevelfld_->getBoolValue() );
-    rangefld_->display( !usevelfld_->getBoolValue() );
 }
 
 

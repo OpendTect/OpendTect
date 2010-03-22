@@ -6,16 +6,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.16 2010-03-18 18:14:34 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.17 2010-03-22 18:23:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigeninput.h"
 #include "uiseissel.h"
-#include "veldesc.h"
 #include "uizaxistransform.h"
+#include "veldesc.h"
 
-class uiGenInput;
 class uiSeisSel;
 class uiCheckBox;
 class uiStaticsDesc;
@@ -64,6 +64,10 @@ public:
 
    IOObj*		getSelection() const;
    			//!<returned object must be managed by caller
+    Interval<float>	getVelocityTopRange() const	
+    			{ return topavgvelfld_->getFInterval(0); }
+    Interval<float>	getVelocityBottomRange() const	
+    			{ return botavgvelfld_->getFInterval(0); }
 
 protected:
 
@@ -90,12 +94,18 @@ public:
 
     void			setInput(const MultiID&);
     static const IOObjContext&	ioContext();
+    
+    Interval<float>		getVelocityTopRange() const	{ return trg_; }
+    Interval<float>		getVelocityBottomRange() const	{ return brg_; }
+    Notifier<uiVelSel>		velrgchanged;
 
 protected:
 
     void			updateEditButton(CallBacker*);
     void			editCB(CallBacker*);
     uiPushButton*		editcubebutt_;
+    Interval<float>		trg_;
+    Interval<float>		brg_;
 };
 
 
@@ -111,14 +121,12 @@ protected:
     				~uiTimeDepthBase();
     FixedString			getZDomain() const;
     bool			acceptOK();
-    void			useVelChangeCB(CallBacker*);
 
-    void			getDefaultZRange(StepInterval<float>&) const;
+    void			setZRangeCB(CallBacker*);
 
     VelocityStretcher*		transform_;
     BufferString		selname_;
 
-    uiGenInput*			usevelfld_;
     uiGenInput*			rangefld_;
 
     uiVelSel*			velsel_;
