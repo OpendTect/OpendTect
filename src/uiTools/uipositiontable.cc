@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipositiontable.cc,v 1.2 2010-03-19 04:20:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uipositiontable.cc,v 1.3 2010-03-22 07:15:36 cvsumesh Exp $";
 
 #include "uipositiontable.h"
 
@@ -108,8 +108,8 @@ void uiPositionTable::posChgCB( CallBacker* )
     }
     else if ( rc.col==2 || rc.col==3 )
     {
-	bid = BinID( table_->getValue(RowCol(rc.row,2)),
-		     table_->getValue(RowCol(rc.row,3)) );
+	bid = BinID( mNINT(table_->getValue(RowCol(rc.row,2))),
+		     mNINT(table_->getValue(RowCol(rc.row,3))) );
 	Coord coord = SI().transform( bid );
 	if ( withxy_ )
 	{
@@ -189,8 +189,8 @@ void uiPositionTable::getBinIDs( TypeSet<BinID>& binids ) const
 		 mIsUdf(table_->getValue(RowCol(idx,3))) )
 		continue;
 
-	    binids += BinID( table_->getValue(RowCol(idx,2)),
-			     table_->getValue(RowCol(idx,3)) );
+	    binids += BinID( mNINT(table_->getValue(RowCol(idx,2))),
+			     mNINT(table_->getValue(RowCol(idx,3))) );
 	}
 	else
 	{
