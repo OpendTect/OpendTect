@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.132 2010-03-19 04:40:39 cvsranojay Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.133 2010-03-22 04:25:13 cvssatyaki Exp $";
 
 #include "vissurvscene.h"
 
@@ -216,11 +216,19 @@ void Scene::getZDomainInfo( ZDomain::Info& info ) const
 
 
 const char* Scene::getZDomainString() const
+<<<<<<< vissurvscene.cc
+{ return zdomaininfo_.name_; }
+=======
 { return zdomaininfo_.name_.buf(); }
+>>>>>>> 1.132
 
 
 const char* Scene::getZDomainID() const
+<<<<<<< vissurvscene.cc
+{ return zdomaininfo_.id_; }
+=======
 { return zdomaininfo_.id_.buf(); }
+>>>>>>> 1.132
 
 
 float Scene::getZDomainFactor() const { return zdomaininfo_.zfactor_; }
