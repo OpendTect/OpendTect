@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uieventfreqattrib.cc,v 1.5 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uieventfreqattrib.cc,v 1.6 2010-03-22 11:54:39 cvsbert Exp $";
 
 #include "uieventfreqattrib.h"
 #include "eventfreqattrib.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uieventfreqattrib.cc,v 1.5 2009-07-22 16:01:28 
 
 using namespace Attrib;
 
-mInitAttribUI(uiEventFreqAttrib,EventFreq,"Event Frequency",sKeyFreqGrp)
+mInitAttribUI(uiEventFreqAttrib,EventFreq,"Event Frequency",sKeyFreqGrp())
 
 uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d)
