@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initattributes.cc,v 1.5 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: initattributes.cc,v 1.6 2010-03-22 10:13:06 cvsbert Exp $";
 
 #include "initattributes.h"
 #include "coherencyattrib.h"
 #include "convolveattrib.h"
+#include "deltaresampleattrib.h"
 #include "dipfilterattrib.h"
 #include "energyattrib.h"
 #include "evaluateattrib.h"
@@ -21,6 +22,7 @@ static const char* rcsID = "$Id: initattributes.cc,v 1.5 2009-07-22 16:01:30 cvs
 #include "freqfilterattrib.h"
 #include "hilbertattrib.h"
 #include "instantattrib.h"
+#include "matchdeltaattrib.h"
 #include "mathattrib.h"
 #include "prestackattrib.h"
 #include "positionattrib.h"
@@ -35,6 +37,7 @@ void Attributes::initStdClasses()
 {
     Attrib::Coherency::initClass();
     Attrib::Convolve::initClass();
+    Attrib::DeltaResample::initClass();
     Attrib::DipFilter::initClass();
     Attrib::Energy::initClass();
     Attrib::Evaluate::initClass();
@@ -44,6 +47,7 @@ void Attributes::initStdClasses()
     Attrib::FreqFilter::initClass();
     Attrib::Hilbert::initClass();
     Attrib::Instantaneous::initClass();
+    Attrib::MatchDelta::initClass();
     Attrib::Math::initClass();
     Attrib::PSAttrib::initClass();
     Attrib::Position::initClass();

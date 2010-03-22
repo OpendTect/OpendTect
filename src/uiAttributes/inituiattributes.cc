@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: inituiattributes.cc,v 1.4 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: inituiattributes.cc,v 1.5 2010-03-22 10:13:06 cvsbert Exp $";
 
 #include "inituiattributes.h"
 
 #include "uicoherencyattrib.h"
 #include "uiconvolveattrib.h"
+#include "uideltaresampleattrib.h"
 #include "uidipfilterattrib.h"
 #include "uienergyattrib.h"
 #include "uieventattrib.h"
@@ -20,6 +21,7 @@ static const char* rcsID = "$Id: inituiattributes.cc,v 1.4 2009-07-22 16:01:37 c
 #include "uifrequencyattrib.h"
 #include "uifreqfilterattrib.h"
 #include "uiinstantattrib.h"
+#include "uimatchdeltaattrib.h"
 #include "uimathattrib.h"
 #include "uiprestackattrib.h"
 #include "uipositionattrib.h"
@@ -35,6 +37,7 @@ void uiAttributes::initStdClasses()
 {
     uiCoherencyAttrib::initClass();
     uiConvolveAttrib::initClass();
+    uiDeltaResampleAttrib::initClass();
     uiDipFilterAttrib::initClass();
     uiEnergyAttrib::initClass();
     uiEventAttrib::initClass();
@@ -42,6 +45,7 @@ void uiAttributes::initStdClasses()
     uiFrequencyAttrib::initClass();
     uiFreqFilterAttrib::initClass();
     uiInstantaneousAttrib::initClass();
+    uiMatchDeltaAttrib::initClass();
     uiMathAttrib::initClass();
     uiPreStackAttrib::initClass();
     uiPositionAttrib::initClass();
