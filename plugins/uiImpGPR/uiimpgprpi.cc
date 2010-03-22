@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.6 2010-03-19 09:21:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.7 2010-03-22 08:54:42 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -33,15 +33,14 @@ mExternC PluginInfo* GetuiImpGPRPluginInfo()
 {
     static PluginInfo retpi = {
 	"GPR: .DZT import",
-	"Bert Bril/Matthias Schuh",
-	"0.0.1",
-	"Imports GPR data in DZT format.\n" };
+	"Bert",
+	"0.0.2",
+	"Imports GPR data in DZT format."
+	"\nThanks to Matthias Schuh (m.schuh@neckargeo.net) for information,"
+	"\ntest data and comments." };
     return &retpi;
 }
 
-
-// OK: we need an object to receive the CallBacks. In serious software,
-// that may be a 'normal' object inheriting from CallBacker.
 
 class uiImpGPRMgr :  public CallBacker
 {
@@ -94,8 +93,9 @@ uiDZTImporter( uiParent* p )
     startposfld_ = new uiGenInput( this, "Start position (X,Y)",
 	    			PositionInpSpec(SI().minCoord(true)) );
     startposfld_->attach( alignedBelow, nrdeffld_ );
+    const float tdist = SI().inlDistance();
     stepposfld_ = new uiGenInput( this, "Step in X/Y",
-	    			FloatInpSpec(1), FloatInpSpec(1) );
+	    			FloatInpSpec(tdist), FloatInpSpec(0) );
     stepposfld_->attach( alignedBelow, startposfld_ );
 
     zfacfld_ = new uiGenInput( this, "Z Factor", FloatInpSpec(1) );
