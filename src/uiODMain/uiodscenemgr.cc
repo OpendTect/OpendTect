@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.200 2010-02-22 09:34:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.201 2010-03-22 04:25:03 cvssatyaki Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -797,14 +797,14 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     BufferString capt( "Tree scene " ); capt += vwridx;
 
     scn.dw_ = new uiDockWin( &appl_, capt );
-    scn.dw_->setMinimumWidth( 150 );
+    scn.dw_->setMinimumWidth( 200 );
     scn.lv_ = new uiListView( scn.dw_, capt );
     scn.dw_->setObject( scn.lv_ );
     BufferStringSet labels;
     labels.add( "Elements" );
     labels.add( "Color" );
     scn.lv_->addColumns( labels );
-    scn.lv_->setColumnWidth( cColorColumn(), 30 );
+    scn.lv_->setFixedColumnWidth( cColorColumn(), 40 );
 
     scn.itemmanager_ = new uiODTreeTop( scn.sovwr_, scn.lv_, &applMgr(), tifs_);
     uiODSceneTreeItem* sceneitm =

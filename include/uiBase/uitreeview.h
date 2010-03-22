@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.40 2009-10-23 09:21:05 cvsjaap Exp $
+ RCS:           $Id: uitreeview.h,v 1.41 2010-03-22 04:25:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,9 +62,11 @@ public:
     void		setColumnText(int column,const char* label);
     const char*		columnText(int column) const;
     void		setColumnWidth(int column,int width);
+    void		setFixedColumnWidth(int column,int width);
     int			columnWidth(int column) const;
 
-    enum		WidthMode { Manual, Maximum };
+    enum		WidthMode { Manual, Fixed, Stretch, ResizeToContents,
+				    Custom };
     void		setColumnWidthMode(int column,WidthMode);
     WidthMode		columnWidthMode(int column) const;
 

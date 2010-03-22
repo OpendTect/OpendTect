@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.61 2010-02-04 16:56:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.62 2010-03-22 04:25:03 cvssatyaki Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uitreeview.cc,v 1.61 2010-02-04 16:56:15 cvsjaa
 #include <QSize>
 #include <QString>
 #include <QTreeWidgetItem>
+#include <iostream>
 
 #include "i_qlistview.h"
 
@@ -52,15 +53,19 @@ public:
 			    { return prefnrlines_ ? prefnrlines_ : 7; }
 
     uiListView&		lvhandle()	{ return lvhandle_; }
+    TypeSet<int>&	fixedColWidth()	{ return fixcolwidths_; }
 
 protected:
 
     int 		prefnrlines_;
 
+    void		resizeEvent(QResizeEvent *);
     void		keyPressEvent(QKeyEvent*);
     bool		moveItem(QKeyEvent*);
     void		mousePressEvent(QMouseEvent*);
     void		mouseReleaseEvent(QMouseEvent*);
+
+    TypeSet<int>	fixcolwidths_;
 
 private:
 
@@ -95,6 +100,26 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent,
 
 uiListViewBody::~uiListViewBody()
 { delete &messenger_; }
+
+
+void uiListViewBody::resizeEvent( QResizeEvent* event )
+{
+    const int nrcols = columnCount();
+    if ( nrcols != 2 )
+	return QTreeWidget::resizeEvent( event );
+
+// hack for OpendTect scene tree
+    const int lastcol = lvhandle_.nrColumns()-1;
+    if ( lvhandle_.columnWidthMode(1) == uiListView::Fixed )
+    {
+	const int fixedwidth = fixcolwidths_[ 1 ];
+	if ( mIsUdf(fixedwidth) || fixedwidth==0 )
+	    return QTreeWidget::resizeEvent( event );
+	setColumnWidth( 0, width()-fixedwidth-4 );
+    }
+
+    QTreeWidget::resizeEvent( event );
+}
 
 
 void uiListViewBody::keyPressEvent( QKeyEvent* event )
@@ -283,7 +308,10 @@ void uiListView::addColumns( const BufferStringSet& lbls )
 
     QStringList qlist;
     for ( int idx=0; idx<lbls.size(); idx++ )
+    {
+	body_->fixedColWidth() += 0;
 	qlist.append( QString(lbls.get(idx).buf()) );
+    }
 
     body_->setHeaderLabels( qlist );
 }
@@ -309,12 +337,34 @@ void uiListView::setColumnWidth( int col, int width )
 { body_->setColumnWidth( col, width ); }
 
 
+void uiListView::setFixedColumnWidth( int col, int width )
+{
+    body_->setColumnWidth( col, width );
+    if ( body_->fixedColWidth().validIdx(col) )
+	body_->fixedColWidth()[col] =  width;
+    setColumnWidthMode( col, uiListView::Fixed );
+}
+
+
 int uiListView::columnWidth( int col ) const
 { return body_->columnWidth( col ); }
 
 
 int uiListView::nrColumns() const
 { return body_->columnCount(); }
+
+
+void uiListView::setColumnWidthMode( int column, WidthMode widthmode )
+{
+    body_->header()->setResizeMode( column,
+	    			    (QHeaderView::ResizeMode)int(widthmode) ); 
+}
+
+
+uiListView::WidthMode uiListView::columnWidthMode( int column ) const
+{
+    return (uiListView::WidthMode)int(body_->header()->resizeMode(column));
+}
 
 
 void uiListView::setColumnAlignment( int col, Alignment::HPos hal )
