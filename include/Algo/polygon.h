@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.23 2010-02-01 09:39:35 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.24 2010-03-22 14:54:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,9 @@ public:
 
     void	reverse();
 
+    double	distTo(const Geom::Point2D<T>& refpt,int* segmentidxptr=0,
+		       double* fractionptr=0) const;
+
 protected:
  
     static int doSegmentsMeet( const Geom::Point2D<T>& p1,
@@ -120,6 +123,11 @@ protected:
 				 const Geom::Point2D<T>& posvec );
 
     float sgnArea() const;
+
+    static double distToSegment( const Geom::Point2D<T>& p1,
+	    			 const Geom::Point2D<T>& p2,
+				 const Geom::Point2D<T>& refpt,
+				 double* fractionptr=0 );
 
     TypeSet<Geom::Point2D<T> >	poly_;
     bool			closed_;
@@ -596,6 +604,66 @@ void ODPolygon<T>::reverse()
     
     xrg_.set( mUdf(T), mUdf(T) );
     yrg_.set( mUdf(T), mUdf(T) );
+}
+
+
+template <class T> inline
+double ODPolygon<T>::distToSegment( const Geom::Point2D<T>& p1,
+				    const Geom::Point2D<T>& p2,
+				    const Geom::Point2D<T>& refpt,
+				    double* fractionptr )
+{
+    double frac = 0;
+
+    if ( p1 != p2 )
+    {
+	const Geom::Point2D<T> dif = p2 - p1;
+	const double numerator = dif.x*(refpt.x-p1.x) + dif.y*(refpt.y-p1.y);
+	frac = numerator / (dif.x*dif.x + dif.y*dif.y);
+
+	if ( frac < 0 )
+	    frac = 0;
+	if ( frac > 1 )
+	    frac = 1;
+    }
+
+    if ( fractionptr )
+	*fractionptr = frac;
+
+    return refpt.distTo( p1*(1-frac) + p2*frac );
+}
+
+
+template <class T> inline
+double ODPolygon<T>::distTo( const Geom::Point2D<T>& refpt,
+			     int* segmentidxptr, double* fractionptr ) const
+{
+    const int sz = size();
+    if ( !sz )
+	return mUdf(double);
+
+    double mindist = MAXDOUBLE;
+    int mindistidx;
+    double mindistfrac;
+
+    for ( int idx=(isClosed() ? sz-1 : sz-2); idx>=0; idx-- )
+    {
+	const Geom::Point2D<T>& pt1 = getVertex( idx );
+	const Geom::Point2D<T>& pt2 = nextVertex( idx );
+	double frac;
+	const double dist = distToSegment( pt1, pt2, refpt, &frac );
+
+	if ( mindist >= dist )
+	{
+	    mindist = dist;
+	    if ( segmentidxptr )
+		*segmentidxptr = idx;
+	    if ( fractionptr )
+		*fractionptr = frac;
+	}
+    }
+
+    return mindist;
 }
 
 #endif
