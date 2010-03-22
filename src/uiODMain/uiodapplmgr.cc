@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.372 2010-03-18 19:47:10 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.373 2010-03-22 18:21:21 cvsyuancheng Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -291,11 +291,12 @@ void uiODApplMgr::addTimeDepthScene()
 
     BufferString snm( SI().zIsTime() ? sKey::Depth : sKey::Time );
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
-    if ( ztrans )
-    {
-	snm += " (using '";
-	uitrans->selName(), "')";
-    }
+    if ( !ztrans )
+	return;
+
+    snm += " (using '";
+    snm += uitrans->selName();
+    snm += "')";
 
     const int sceneid = sceneMgr().addScene( false, ztrans, snm);
     if ( sceneid!=-1 )
@@ -307,17 +308,9 @@ void uiODApplMgr::addTimeDepthScene()
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
 	scene->setZScale( zscale );
 	sceneMgr().viewAll( 0 ); sceneMgr().tile();
-	if ( !ztrans )
-	{
-	    ZDomain::Info info( false );
-	    info.name_ = sKey::Depth;
-	    info.unitstr_ =  UnitOfMeasure::surveyDefDepthUnitAnnot(true,false);
-	    scene->setZDomainInfo( info );
-
-	    CubeSampling cs = SI().sampling( true );
-	    cs.zrg = uitrans->getZRange();
-	    scene->setCubeSampling( cs );
-	}
+	CubeSampling cs = SI().sampling( true );
+	cs.zrg = uitrans->getZRange();
+	scene->setCubeSampling( cs );
     }
 }
 
