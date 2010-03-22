@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.20 2010-03-19 15:44:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.21 2010-03-22 14:26:22 cvsyuancheng Exp $";
 
 #include "timedepthconv.h"
 
@@ -756,7 +756,15 @@ VelocityModelScanner::~VelocityModelScanner()
 int VelocityModelScanner::nextStep()
 {
     if ( !hsiter_.next( curbid_ ) )
+    {
+	if ( startavgvel_.start<0 || stopavgvel_.start<0 )
+	{
+	    msg_ = "Velocity volume is not defined for the selected type.";
+	    return ErrorOccurred();
+	}
+	
 	return Finished();
+    }
    
     mDynamicCastGet( SeisTrcTranslator*, veltranslator, reader_->translator() );
     if ( !veltranslator || !veltranslator->supportsGoTo() )
@@ -801,7 +809,7 @@ int VelocityModelScanner::nextStep()
     	if ( sd.start>0 )
     	    v0 = zistime_ ? 2*resvs.value(0)/sd.start 
 			  : ( resvs.value(0)>0.0001 ? 
-				  2*sd.start/resvs.value(0) : 1500);
+				  2*sd.start/resvs.value(0) : 1500 );
     	else
     	{
     	    if ( !mIsUdf(resvs.value(1)) )
