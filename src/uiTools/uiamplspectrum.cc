@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.17 2010-03-03 14:46:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.18 2010-03-23 16:14:38 cvsbruno Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -40,14 +40,14 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
 	    				    : "Wavenumber (/m)" );
     disp_->yAxis(false)->setName( "Power (dB)" );
 
-    uiGroup* dispgrp = new uiGroup( this, "display Params Group" );
-    dispgrp->attach( centeredBelow, disp_ );
-    rangefld_ = new uiGenInput( dispgrp, "Display between frequencies",
+    dispparamgrp_ = new uiGroup( this, "display Params Group" );
+    dispparamgrp_->attach( centeredBelow, disp_ );
+    rangefld_ = new uiGenInput( dispparamgrp_, "Display between frequencies",
 			FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
 			.setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiAmplSpectrum,dispRangeChgd ) );
-    stepfld_ = new uiLabeledSpinBox( dispgrp, "Gridline step");
+    stepfld_ = new uiLabeledSpinBox( dispparamgrp_, "Gridline step");
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->setInterval( 1, 50, 5 );
     stepfld_->box()->valueChanging.notify(mCB(this,uiAmplSpectrum,dispRangeChgd));

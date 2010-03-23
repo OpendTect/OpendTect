@@ -7,7 +7,7 @@ ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.8 2010-03-03 14:46:24 cvsbruno Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.9 2010-03-23 16:14:38 cvsbruno Exp $
 ______________________________________________________________________
                        
 */   
@@ -45,6 +45,7 @@ protected:
     uiFunctionDisplay*		disp_;
     uiGenInput*			rangefld_;
     uiLabeledSpinBox*		stepfld_;
+    uiGroup*			dispparamgrp_;
 
     void			initFFT(int nrsamples);
     bool			compute(const Array3D<float>&);

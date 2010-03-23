@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.51 2010-03-12 14:58:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.52 2010-03-23 16:14:38 cvsbruno Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -835,8 +835,8 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     lbl->attach( rightOf, maxamplatfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, disp_ );
-    valgrp->attach( centeredBelow, disp_ );
+    sep->attach( stretchedBelow, dispparamgrp_ );
+    valgrp->attach( centeredBelow, sep );
     valgrp->attach( ensureBelow, sep );
 
     setPrefHeightInChar( 20 );
