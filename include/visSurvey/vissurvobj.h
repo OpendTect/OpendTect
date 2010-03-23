@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.115 2010-02-24 15:17:13 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.116 2010-03-23 21:18:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -181,8 +181,13 @@ public:
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
 	    					  TaskRunner*);
     virtual bool		canHandleColTabSeqTrans(int) const;
-    virtual bool 		isClassification(int attr) const {return false;}
-    virtual void		setClassification(int attrib,bool yn)	{}
+    
+    virtual void		enableTextureInterpolation(bool)	{}
+    virtual bool		textureInterpolationEnabled() const 
+    				{ return true; }
+    virtual bool		canEnableTextureInterpolation() const
+    				{ return false; }
+
     virtual bool 		isAngle(int attrib) const	 {return false;}
     virtual void		setAngleFlag(int attrib,bool yn)	{}
     virtual void		enableAttrib(int attrib,bool yn)	{}
