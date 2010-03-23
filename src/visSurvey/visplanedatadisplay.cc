@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.230 2010-03-18 19:49:09 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.231 2010-03-23 21:20:10 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -783,7 +783,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 		ZAxisTransformDataPack( *displaypacks[idx], 
 		f3ddp->cube().cubeSampling(), *datatransform_ ) );
 
-	    ztransformdp->setInterpolate( !isClassification(attrib) );
+	    ztransformdp->setInterpolate( textureInterpolationEnabled() );
 	    ztransformdp->setOutputCS( getCubeSampling(true,true) );
 	    ztransformdp->transform();
 
@@ -929,7 +929,7 @@ void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
 			      const Array2D<float>& inp, TaskRunner* tr ) const
 {
     Array2DReSampler<float,float> resampler( inp, res, sz0, sz1, true );
-    resampler.setInterpolate( !isClassification( attrib ) );
+    resampler.setInterpolate( textureInterpolationEnabled() );
     if ( tr ) tr->execute( resampler );
     else resampler.execute();
 }

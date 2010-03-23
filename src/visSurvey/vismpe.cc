@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.103 2010-02-23 21:25:14 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.104 2010-03-23 21:20:10 cvsyuancheng Exp $";
 
 #include "vismpe.h"
 
@@ -1463,7 +1463,7 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 	// to do: check this stuff
 	ZAxisTransformer* datatransformer;
 	mTryAlloc( datatransformer,ZAxisTransformer(*datatransform_,true));
-	datatransformer->setInterpolate( !isClassification(attrib) );
+	datatransformer->setInterpolate( textureInterpolationEnabled() );
 	//datatransformer->setInterpolate( true );
 	datatransformer->setInput( cdp->cube().getCube(0), cdp->sampling() );
 	datatransformer->setOutputRange( getCubeSampling(true,true,0) );

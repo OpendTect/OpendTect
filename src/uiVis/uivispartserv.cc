@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.449 2010-03-18 19:25:34 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.450 2010-03-23 21:20:10 cvsyuancheng Exp $";
 
 #include "uivispartserv.h"
 
@@ -939,19 +939,19 @@ const Attrib::SelSpec* uiVisPartServer::getSelSpec( int id, int attrib ) const
 }
 
 
-bool uiVisPartServer::isClassification( int id, int attrib ) const
+bool uiVisPartServer::interpolationEnabled( int id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->isClassification( attrib ) : false;
+    return so ? so->textureInterpolationEnabled() : true;
 }
 
 
-void uiVisPartServer::setClassification( int id, int attrib, bool yn )
+void uiVisPartServer::enableInterpolation( int id, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
 
-    so->setClassification( attrib, yn );
+    so->enableTextureInterpolation( yn );
 }
 
 

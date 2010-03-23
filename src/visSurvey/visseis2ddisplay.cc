@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.87 2010-02-15 03:52:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.88 2010-03-23 21:20:10 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -440,7 +440,7 @@ void Seis2DDisplay::setData( int attrib,
 		SampledFunctionImpl<float,const float*>
 		    inputfunc( inputptr, arrzsz, z0, sd.step );
 		inputfunc.setHasUdfs( true );
-		inputfunc.setInterpolate( !isClassification(attrib) );
+		inputfunc.setInterpolate( textureInterpolationEnabled() );
 
 		float* outputptr = tmparr->getData() +
 				   tmparr->info().getOffset( crlidx, 0 );	
@@ -460,7 +460,7 @@ void Seis2DDisplay::setData( int attrib,
 
 	    if ( resolution_ )
 		texture_->setDataOversample( attrib, sidx, resolution_, 
-			!isClassification(attrib), &slice, true );
+			textureInterpolationEnabled(), &slice, true );
 	    else
 	    {
 		texture_->splitTexture( true );

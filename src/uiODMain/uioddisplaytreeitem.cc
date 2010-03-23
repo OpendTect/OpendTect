@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.37 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.38 2010-03-23 21:20:10 cvsyuancheng Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.37 2010-02-04 10:59:
 #include "uiodscenemgr.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
+#include "vismultiattribsurvobj.h"
 #include "vissurvobj.h"
 
 
@@ -50,6 +51,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 
 static const int cHistogramIdx = 991;
 static const int cAttribIdx = 1000;
+static const int cTextureInterpIdx = 997;
 static const int cDuplicateIdx = 900;
 static const int cLinkIdx = 800;
 static const int cLockIdx = -900;
@@ -270,8 +272,8 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
 		      visserv_->canDuplicate(displayid_) );
 
-    const bool usehide =
-       menu->getMenuType()==uiMenuHandler::fromScene() && !visserv_->isSoloMode();
+    const bool usehide = menu->getMenuType()==uiMenuHandler::fromScene() && 
+			!visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
     mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),false);

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.52 2009-12-03 06:18:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.53 2010-03-23 21:20:10 cvsyuancheng Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -327,7 +327,7 @@ bool uiODVolrenTreeItem::anyButtonClick( uiListViewItem* item )
 
     if ( !select() ) return false;
 
-    if ( !visserv_->isClassification( displayID(), 0) )
+    if ( visserv_->interpolationEnabled( displayID() ) )
 	 ODMainWin()->applMgr().updateColorTable( displayID(), 0 );
 
     return true;
@@ -412,7 +412,7 @@ bool uiODVolrenSubTreeItem::anyButtonClick( uiListViewItem* item )
     if ( !select() ) return false;
 
     const int displayid = parent_->selectionKey();
-    if ( !visserv_->isClassification( displayid, 0) )
+    if ( visserv_->interpolationEnabled( displayid ) )
 	 ODMainWin()->applMgr().updateColorTable( displayid, 0 );
 
     return true;

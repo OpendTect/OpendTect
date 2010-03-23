@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.54 2010-02-24 15:17:13 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.55 2010-03-23 21:20:10 cvsyuancheng Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -37,6 +37,7 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     , channels_( dochannels ? visBase::TextureChannels::create() : 0 )
     , onoffstatus_( true )
     , resolution_( 0 )
+    , enabletextureinterp_( true )
 {
     if ( texture_ )
     {
@@ -118,7 +119,11 @@ MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
     if ( !channels_ ) return true;
 
-    return channels_->setChannels2RGBA( t );
+    const bool res = channels_->setChannels2RGBA( t );
+    if ( getChannels2RGBA() )
+	getChannels2RGBA()->enableInterpolation( enabletextureinterp_ );
+
+    return res;
 }
 
 
@@ -332,27 +337,18 @@ void MultiTextureSurveyObject::setSelSpec( int attrib,
 }
 
 
-bool MultiTextureSurveyObject::isClassification( int attrib ) const
-{
-    return attrib>=0 && attrib<isclassification_.size()
-	? isclassification_[attrib] : false;
-}
+bool MultiTextureSurveyObject::textureInterpolationEnabled() const
+{ return enabletextureinterp_; }
 
 
-void MultiTextureSurveyObject::setClassification( int attrib, bool yn )
+void MultiTextureSurveyObject::enableTextureInterpolation( bool yn )
 {
-    if ( attrib<0 || attrib>=as_.size() )
+    if ( enabletextureinterp_==yn )
 	return;
 
-    if ( yn )
-    {
-	while ( attrib>=isclassification_.size() )
-	    isclassification_ += false;
-    }
-    else if ( attrib>=isclassification_.size() )
-	return;
-
-    isclassification_[attrib] = yn;
+    enabletextureinterp_ = yn;
+    if ( getChannels2RGBA() )
+	getChannels2RGBA()->enableInterpolation( yn );
 }
 
 
