@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.22 2010-03-12 14:14:43 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.23 2010-03-23 05:48:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -310,21 +310,13 @@ protected:
 mClass uiWellDisplayWin : public uiMainWin
 {
 public:
-    			uiWellDisplayWin(uiParent* p, Well::Data& wd )
-			    : uiMainWin(p,"") 
-			    , wellview_(*new uiWellDisplay(this,
-					    uiWellDisplay::Setup(),wd))
-			{
-			    wd.tobedeleted.notify( 
-				    	mCB(this,uiWellDisplayWin,close) );
-			    BufferString msg( "2D Viewer ");
-			    msg += wd.name();
-			    setCaption( msg );
-			}
+    			uiWellDisplayWin(uiParent*,Well::Data&);
+			~uiWellDisplayWin();
 
 protected:
-
-    uiWellDisplay& 	wellview_;
+    void		closeWin(CallBacker*);
+    uiWellDisplay*	wellview_;
+    Well::Data&		wd_;
 };
 
 #endif
