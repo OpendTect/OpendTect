@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.1 2010-03-22 14:55:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.2 2010-03-23 13:36:56 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.1 2010-03-22 14:55:22 cvs
 #include "uimenuhandler.h"
 #include "uistratmgr.h"
 
+#include "draw.h"
 #include "randcolor.h"
 #include "survinfo.h"
 #include "stratlevel.h"
@@ -33,18 +34,10 @@ uiStratDisplay::uiStratDisplay( uiParent* p )
     StepInterval<float> rg( SI().zRange(true) );
     rg.sort( false );
     setZRange( rg );
-    finaliseDone.notify( mCB(this,uiStratDisplay,init) );
 }
 
 
-void uiStratDisplay::init()
-{
-    gatherStratInfo();
-    draw();
-}
-
-
-void uiStratDisplay::gatherStratInfo()
+void uiStratDisplay::gatherInfo()
 {
     addLevels();
     addNode( *((Strat::NodeUnitRef*)uistratmgr_->getCurTree()), 0 );
@@ -98,20 +91,20 @@ void uiStratDisplay::addUnitAnnot( const Strat::UnitRef& uref, int order )
     const Strat::Level* toplvl = Strat::eRT().getLevel( &uref, true );
     const Strat::Level* baselvl = Strat::eRT().getLevel( &uref, false );
     if ( !toplvl || !baselvl ) return;
-    addAnnot( uref.code(),order,toplvl->timerg_.start, baselvl->timerg_.start );
-}
-
-
-void uiStratDisplay::addAnnot( const char* uname, int order, 
-				   float top, float base )
-{
+    Interval<float> pos = getUnitPos( *toplvl, *baselvl );
     uiAnnotDisplay::AnnotData* ad = 
-			new uiAnnotDisplay::AnnotData( uname, top, base ); 
-    ad->col_ = getRandStdDrawColor();
+	new uiAnnotDisplay::AnnotData( uref.code(), pos.start, pos.stop ); 
+    ad->col_ = toplvl->color_;
     ad->order_ = order;
     annotdatas_ += ad;
 }
 
+
+Interval<float> uiStratDisplay::getUnitPos( const Strat::Level& toplvl, 
+					    const Strat::Level& baselvl ) 
+{
+    return Interval<float>( toplvl.timerg_.start, baselvl.timerg_.start );
+}
 
 
 uiAnnotDisplay::uiAnnotDisplay( uiParent* p )
@@ -135,8 +128,15 @@ uiAnnotDisplay::uiAnnotDisplay( uiParent* p )
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiAnnotDisplay,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiAnnotDisplay,handleMenuCB));
+    
+    finaliseDone.notify( mCB(this,uiAnnotDisplay,init) );
+}
 
-    draw();
+
+void uiAnnotDisplay::init( CallBacker* )
+{
+    dataChanged();
+    show();
 }
 
 
@@ -150,6 +150,16 @@ void uiAnnotDisplay::updateAxis()
 {
     zax_.setNewDevSize( height(), width() );
 }
+
+
+void uiAnnotDisplay::dataChanged()
+{
+    gatherInfo(); draw();
+}
+
+
+void uiAnnotDisplay::gatherInfo()
+{}
 
 
 void uiAnnotDisplay::draw()

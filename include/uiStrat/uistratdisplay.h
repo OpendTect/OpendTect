@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.1 2010-03-22 14:55:22 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.2 2010-03-23 13:36:56 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigraphicsview.h"
 #include "uiaxishandler.h"
-#include "draw.h"
 #include "menuhandler.h"
 
 class uiMenuHandler;
@@ -25,7 +24,7 @@ class uiTextItem;
 class LayerSequence;
 class MouseEvent;
 
-namespace Strat{ class UnitRef; class NodeUnitRef; }
+namespace Strat{ class UnitRef; class NodeUnitRef; class Level; }
 
 mClass uiAnnotDisplay : public uiGraphicsView
 {
@@ -61,6 +60,7 @@ public:
 
     void		setZRange( StepInterval<float> rg ) 
     			{ zax_.setBounds(rg); draw(); }
+    void		dataChanged();
 
 protected:
 
@@ -76,11 +76,13 @@ protected:
     void		draw();
     void		drawAnnots();
     void		drawLevels();
+    virtual void	gatherInfo();
+    bool 		handleUserClick(const MouseEvent&);
     void		updateAxis(); 
     
     void                createMenuCB(CallBacker*);
     void                handleMenuCB(CallBacker*);
-    bool 		handleUserClick(const MouseEvent&);
+    void		init(CallBacker*);
     void		reSized(CallBacker*);
     void                usrClickCB(CallBacker*);
 };
@@ -95,12 +97,11 @@ protected:
 
     uiStratMgr* 	uistratmgr_;
 
-    void		init();
-    void		gatherStratInfo();
     void		addNode(const Strat::NodeUnitRef&,int);
-    void		addAnnot(const char*,int,float,float);
     void		addLevels();
     virtual void	addUnitAnnot(const Strat::UnitRef&,int);
+    void		gatherInfo();
+    virtual Interval<float> getUnitPos(const Strat::Level&,const Strat::Level&);
 };
 
 #endif
