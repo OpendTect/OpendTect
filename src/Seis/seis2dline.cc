@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.77 2009-12-15 12:20:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.78 2010-03-23 16:16:56 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
@@ -602,19 +602,14 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
 
 
 void Seis2DLineSet::getLineNamesWithAttrib( BufferStringSet& nms,
-					    const char* attrnm)
+					    const char* attrnm ) const
 {
     nms.erase();
-    const int sz = nrLines();
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<nrLines(); idx++ )
     {
-	if ( attrnm )
-	{
-	    const char* foundattbnm = attribute(idx);
-	    
-	    if ( !strcmp(attrnm,foundattbnm) )
-		    nms.addIfNew( lineName(idx) );
-	}
+	const LineKey lk( lineName(idx), attrnm );
+	if ( lineKey(idx) == lk )
+	    nms.addIfNew( lineName(idx) );
     }
 }
 
