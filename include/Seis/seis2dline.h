@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.46 2009-12-15 12:20:18 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.47 2010-03-23 16:16:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ public:
 	    				       const char* datatyp=0,
 					       bool allowcnstabsent = false,
 	    				       bool incl=true) const;
-    void		getLineNamesWithAttrib(BufferStringSet&,const char*);
+    void		getLineNamesWithAttrib(BufferStringSet&,
+	    					const char* attrnm) const;
 
     bool		getGeometry(PosInfo::LineSet2DData&) const;
     bool		getGeometry(int,PosInfo::Line2DData&) const;
