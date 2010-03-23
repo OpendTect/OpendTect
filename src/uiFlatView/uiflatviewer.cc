@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.108 2010-03-17 06:06:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.109 2010-03-23 10:47:42 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -836,3 +836,7 @@ void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
 }
 
 
+void uiFlatViewer::disableReSizeDrawNotifier()
+{
+    canvas_.reSize.remove( mCB(this,uiFlatViewer,reSizeDraw) );
+}
