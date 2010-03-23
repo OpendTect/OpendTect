@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.6 2010-03-17 13:25:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.7 2010-03-23 10:48:40 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -83,8 +83,8 @@ uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos )
 }
 
 
-void uiObjectItemView::getObjectsFromRect( const uiRect& rect, 
-					   ObjectSet<uiObject>& objs ) 
+void uiObjectItemView::getItemsFromRect( const uiRect& rect, 
+				       ObjectSet<uiObjectItem>& objs ) 
 {
     Interval<float> rectborders( rect.left(), rect.right() );
     Interval<int> objborders(0,0); 
@@ -93,7 +93,7 @@ void uiObjectItemView::getObjectsFromRect( const uiRect& rect,
 	objborders.stop += objectitems_[idx]->objectSize().width();
 	if ( rectborders.includes( objborders.start ) ||
 	   		rectborders.includes( objborders.stop ) )	
-	    objs += objectitems_[idx]->getObject();
+	    objs += objectitems_[idx];
 	objborders.start = objborders.stop;
     }
 }
