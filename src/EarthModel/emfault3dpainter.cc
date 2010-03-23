@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.2 2010-03-16 07:15:14 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.3 2010-03-23 06:14:14 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ bool Fault3DPainter::addPolyLine( const EM::ObjectID& oid )
     for ( int sidx=0; sidx<emf3d->nrSections(); sidx++ )
     {
 	int sid = emf3d->sectionID( sidx );
-	
+
 	Fault3DMarker* f3dsectionmarker = new Fault3DMarker;
 	(*f3dmarker) += f3dsectionmarker;
 
@@ -116,6 +116,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D* f3d, const EM::SectionID& sid,
 {
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 		     f3d->sectionGeometry(sid) );
+
     if ( !fss || fss->isEmpty() )
 	return false;
 
@@ -136,7 +137,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D* f3d, const EM::SectionID& sid,
 
 	Coord3 editnormal( 0, 0, 1 ); 
 	// Let's assume cs default dir. is 'Z'
-	
+
 	if ( cs_.defaultDir() == CubeSampling::Inl )
 	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
 	else if ( cs_.defaultDir() == CubeSampling::Crl )
@@ -149,9 +150,9 @@ bool Fault3DPainter::paintSticks(EM::Fault3D* f3d, const EM::SectionID& sid,
 	    mIsEqual(nzednor.x,stkednor.x,.0000099) &&
 	    mIsEqual(nzednor.y,stkednor.y,.0000099) &&
 	    mIsEqual(nzednor.z,stkednor.z,.0000099);
-	
-	if ( !equinormal ) continue;
-	
+
+	if ( !equinormal ) continue;	
+
 	// we need to deal in different way if cs direction is Z
 	if ( cs_.defaultDir() != CubeSampling::Z )
 	{
@@ -172,7 +173,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D* f3d, const EM::SectionID& sid,
 	    Coord extrcoord1, extrcoord2;
 	    extrcoord1 = SI().transform( extrbid1 );
 	    extrcoord2 = SI().transform( extrbid2 );
-	    
+
 	    for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	    {
 		const Coord3& pos = fss->getKnot( rc );
@@ -195,7 +196,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D* f3d, const EM::SectionID& sid,
 		const Coord3 pos = fss->getKnot( rc );
 		if ( !mIsEqual(pos.z,cs_.zrg.start,.0001) )
 		    break;
-		
+
 		BinID binid = SI().transform(pos.coord());
 		stickauxdata->poly_ +=
 			FlatView::Point( binid.inl, binid.crl );
@@ -213,6 +214,7 @@ bool Fault3DPainter::paintSticks(EM::Fault3D* f3d, const EM::SectionID& sid,
 		viewer_.appearance().annot_.auxdata_ += stickauxdata;
 	    }
     }
+
     return true;
 }
 
@@ -236,6 +238,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D* f3d,
     Coord3 p3( SI().transform(stop), cs_.zrg.start );
 
     TypeSet<Coord3> pts;
+
     pts += p0; pts += p1; pts += p2; pts += p3;
 
     const Coord3 normal = (p1-p0).cross(p3-p0).normalize();
@@ -331,6 +334,7 @@ void Fault3DPainter::setActiveF3D( const EM::ObjectID& oid )
 	else if ( f3dinfos_[f3didx]->id_ == oid )
 	{ idx = f3didx; break; }
     }
+
     activef3did_ = oid;
 
     if ( idx == -1 ) return;
@@ -526,4 +530,6 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
     }
 }
 
+
 } //namespace EM
+
