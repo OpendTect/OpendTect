@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.62 2010-02-23 21:25:14 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.63 2010-03-23 21:16:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ class EdgeLineSetDisplay;
 
 
 mClass EMObjectDisplay :  public  visBase::VisualObjectImpl,
-                         public visSurvey::SurveyObject
+                          public visSurvey::SurveyObject
 {
 public:
     				EMObjectDisplay();
