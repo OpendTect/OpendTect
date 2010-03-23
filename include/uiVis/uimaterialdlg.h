@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.12 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.13 2010-03-23 21:20:59 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "draw.h"
 
 class uiColorInput;
+class uiGenInput;
 class uiSlider;
 class uiSelLineStyle;
 class uiTabStack;
@@ -70,6 +71,19 @@ protected:
     visSurvey::SurveyObject*	survobj_;
     LineStyle			backup_;
     uiSelLineStyle*		field_;
+};
+
+
+mClass uiTextureInterpolateGrp : public uiDlgGroup
+{
+public:
+				uiTextureInterpolateGrp(uiParent*,
+					visSurvey::SurveyObject*);
+protected:				
+    void			chgIntpCB(CallBacker*);
+    
+    uiGenInput*			textclasssify_;
+    visSurvey::SurveyObject*	survobj_;
 };
 
 

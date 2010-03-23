@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.22 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.23 2010-03-23 21:20:59 cvsyuancheng Exp $";
 
 #include "uimaterialdlg.h"
 
 #include "uicolor.h"
+#include "uigeninput.h"
 #include "uisellinest.h"
 #include "uislider.h"
 #include "uitabstack.h"
@@ -69,6 +70,9 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 			survobj_, true, true, false, false, false, true,
 			survobj_->hasColor() )) ;
     }
+    
+    if ( so && so->canEnableTextureInterpolation() )
+	addGroup( new uiTextureInterpolateGrp(tabstack_->tabGroup(),survobj_) );
 
     if ( survobj_->lineStyle() )
 	addGroup( new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ )  );
@@ -82,6 +86,31 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
 
     setCancelText( "" );
+}
+
+
+uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p, 
+						  visSurvey::SurveyObject* so )
+    : uiDlgGroup(p,"Texture")
+    , survobj_(so)
+{
+    mDynamicCastGet( visSurvey::MultiTextureSurveyObject*, mto, survobj_ );
+    const bool intpenabled = mto && mto->textureInterpolationEnabled();    
+    textclasssify_ = new uiGenInput( this, "Data:   ", 
+	    BoolInpSpec(intpenabled,"Interpolation","Classification") );
+    textclasssify_->valuechanged.notify( 
+	    mCB(this,uiTextureInterpolateGrp,chgIntpCB) );
+}
+
+
+void uiTextureInterpolateGrp::chgIntpCB( CallBacker* cb )
+{
+    mDynamicCastGet( visSurvey::MultiTextureSurveyObject*, mto, survobj_ );
+    if ( !mto || !textclasssify_ ) 
+	return;
+    
+    const bool intp = textclasssify_->getBoolValue();
+    mto->enableTextureInterpolation( intp );    
 }
 
 
