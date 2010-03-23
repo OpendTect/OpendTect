@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.21 2010-02-11 22:55:38 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.22 2010-03-23 21:21:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visdata.h"
 
 class SoColTabTextureChannel2RGBA;
+class SoComplexity;
 class SbImage;
 class SoSwitch;
 class SoGroup;
@@ -49,6 +50,8 @@ public:
 
     virtual void		setChannels(TextureChannels*);
     virtual void		notifyChannelChange()			{}
+    virtual void		enableInterpolation(bool);
+    virtual bool		interpolationEnabled() const;
     virtual bool		createRGBA(SbImage&) const		= 0;
 				/*!<Fill the image with the output, using
 				    current settings. */
@@ -72,6 +75,7 @@ protected:
 
     TextureChannels*	channels_;
     bool		shadingallowed_;
+    bool		enableinterpolation_;
 };
 
 
@@ -109,6 +113,7 @@ public:
 				mCreateDataObj(ColTabTextureChannel2RGBA);
 
     void			swapChannels(int ch0,int ch1);
+    void			enableInterpolation(bool);
 
     bool			canSetSequence() const		{ return true;}
     void			setSequence(int ch,const ColTab::Sequence&);
@@ -159,11 +164,14 @@ protected:
     SoShaderParameter1i*		startlayer_;
     SoShaderParameterArray1f*		layeropacity_;
     SoTextureComposerInfo*		tci_;
+    SoComplexity*			shadingcomplexity_;
 
 					//Non shading
     void				doFill(
 	    				    SoColTabTextureChannel2RGBA*) const;
+    SoGroup*				noneshadinggroup_;
     SoColTabTextureChannel2RGBA*	converter_;
+    SoComplexity*			nonshadingcomplexity_;
 };
 
 

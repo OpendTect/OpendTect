@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.39 2010-02-26 17:05:54 cvskarthika Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.40 2010-03-23 21:21:56 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -212,6 +212,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 TextureChannel2RGBA::TextureChannel2RGBA()
     : channels_( 0 )
     , shadingallowed_( true )
+    , enableinterpolation_( true )
 {}
 
 
@@ -231,6 +232,19 @@ void TextureChannel2RGBA::allowShading( bool yn )
 }
 
 
+bool TextureChannel2RGBA::interpolationEnabled() const
+{
+    return enableinterpolation_;
+}
+
+
+void TextureChannel2RGBA::enableInterpolation( bool yn )
+{
+    if ( enableinterpolation_!=yn )
+    	enableinterpolation_ = yn;
+}
+
+
 bool TextureChannel2RGBA::canUseShading() const
 {
     return shadingallowed_ && SoOD::supportsFragShading()==1 &&
@@ -247,17 +261,20 @@ bool ColTabTextureChannel2RGBA::canUseShading() const
 
 
 ColTabTextureChannel2RGBA::ColTabTextureChannel2RGBA()
-    : converter_( new SoColTabTextureChannel2RGBA )
-    , shaderswitch_( new SoSwitch )
+    : shaderswitch_( new SoSwitch )
+    , noneshadinggroup_( new SoGroup )
+    , converter_( 0 )
     , shadinggroup_( 0 )
     , shaderctab_( 0 )
     , fragmentshader_( 0 )
     , numlayers_( 0 )
     , startlayer_( 0 )
     , layeropacity_( 0 )
+    , shadingcomplexity_( 0 )
+    , nonshadingcomplexity_( 0 )
 {
     shaderswitch_->ref();
-    shaderswitch_->addChild( converter_ );
+    shaderswitch_->addChild( noneshadinggroup_ );
 }
 
 
@@ -350,6 +367,19 @@ void ColTabTextureChannel2RGBA::setEnabled(int ch,bool yn)
     update();
 }
 
+
+void ColTabTextureChannel2RGBA::enableInterpolation( bool yn )
+{
+    if ( enableinterpolation_!=yn )
+    {
+	enableinterpolation_ = yn;
+	if ( shadingcomplexity_ ) 
+	    shadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
+
+	if ( nonshadingcomplexity_ ) 
+	    nonshadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
+    }
+}
 
 bool ColTabTextureChannel2RGBA::isEnabled(int ch) const
 {
@@ -449,7 +479,20 @@ void ColTabTextureChannel2RGBA::update()
     if ( doshading )
 	setShadingVars();
     else
+    {
+    	if ( !converter_ )
+    	{
+	    nonshadingcomplexity_ = new SoComplexity;
+    	    nonshadingcomplexity_->textureQuality.setValue(
+    		    enableinterpolation_ ? 0.9 : 0.1 );
+	    noneshadinggroup_->addChild( nonshadingcomplexity_ );
+
+    	    converter_ = new SoColTabTextureChannel2RGBA;
+	    noneshadinggroup_->addChild( converter_ );
+    	}
+    
 	doFill( converter_ );
+    }
 
     shaderswitch_->whichChild = doshading ? 1 : 0;
 }
@@ -475,7 +518,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	ctabunit->unit = ctabunitnr;
 
 	SoComplexity* complexity = new SoComplexity;
-	complexity->textureQuality.setValue( 0.1 );
+	complexity->textureQuality.setValue(0.1);
 	shadinggroup_->addChild( complexity );
 
 	shaderctab_ = new SoTexture2;
@@ -531,10 +574,10 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	shadinggroup_->addChild( ctabunit );
 	ctabunit->unit = 0;
 
-	complexity = new SoComplexity;
-	complexity->textureQuality.setValue( 0.9 );
-	shadinggroup_->addChild( complexity );
-
+	shadingcomplexity_ = new SoComplexity;
+	shadingcomplexity_->textureQuality.setValue(
+		enableinterpolation_ ? 0.9 : 0.1 );
+	shadinggroup_->addChild( shadingcomplexity_ );
     }
 
     if ( !coltabs_.size() )

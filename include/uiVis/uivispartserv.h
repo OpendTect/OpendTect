@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.258 2010-02-19 13:44:18 cvskarthika Exp $
+ RCS:           $Id: uivispartserv.h,v 1.259 2010-03-23 21:21:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,11 +129,11 @@ public:
     const Attrib::SelSpec* getSelSpec(int id,int attrib) const;
     void		setSelSpec(int id,int attrib,const Attrib::SelSpec&);
     void		setUserRefs(int id,int attrib,BufferStringSet*);
-    bool		isClassification(int id,int attrib) const;
-    			/*!<Specifies that the data is integers that should't
+    bool		interpolationEnabled(int id) const;
+    			/*!<Specifies that the data is integers that should
 			    be interpolated. */
-    void		setClassification(int id, int attrib, bool yn);
-    			/*!<Specify that the data is integers that should't
+    void		enableInterpolation(int id,bool yn);
+    			/*!<Specify that the data is integers that should
 			    be interpolated. */
     bool		isAngle(int id,int attrib) const;
     			/*!<Specifies that the data is angles, i.e. -PI==PI. */

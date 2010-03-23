@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.122 2010-03-18 19:49:09 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.123 2010-03-23 21:21:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -62,6 +62,9 @@ public:
 
     void			setOrientation(Orientation);
     Orientation			getOrientation() const { return orientation_; }
+
+    bool			canEnableTextureInterpolation() const 
+    				{ return true; }
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;

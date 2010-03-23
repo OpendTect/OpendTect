@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.33 2010-02-24 14:49:52 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.34 2010-03-23 21:21:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -65,8 +65,10 @@ public:
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			clearTextures();
     				/*!<Blanks all textures. */
-    bool 			isClassification(int attrib) const;
-    void			setClassification(int attrib,bool yn);
+    
+    void			enableTextureInterpolation(bool);
+    bool			textureInterpolationEnabled() const;
+    
     bool 			isAngle(int attrib) const;
     void			setAngleFlag(int attrib,bool yn);
     void			enableAttrib(int attrib,bool yn);
@@ -123,7 +125,7 @@ protected:
 
 private:
     ObjectSet<Attrib::SelSpec>	as_;
-    BoolTypeSet			isclassification_;
+    bool			enabletextureinterp_;
     bool			onoffstatus_;
 
     static const char*		sKeySequence();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.41 2010-02-15 06:19:46 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.42 2010-03-23 21:21:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,8 @@ public:
     void			setLineName(const char*);
     const char*			getLineName() const;
 
+    bool			canEnableTextureInterpolation() const
+    				{ return true; }
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
 

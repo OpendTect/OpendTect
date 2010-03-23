@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.11 2009-08-27 21:48:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.12 2010-03-23 21:21:56 cvsyuancheng Exp $";
 
 #include "vissplittexture2rectangle.h"
 
@@ -48,13 +48,13 @@ SplitTexture2Rectangle::SplitTexture2Rectangle()
     addChild( shapehint );
     shapehint->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
     shapehint->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
-
+/*
     SoComplexity* complexity = new SoComplexity;
     complexity->textureQuality.setValue( 0.9 );
     complexity->type.setIgnored( true );
     complexity->value.setIgnored( true );
     addChild( complexity );
-
+*/
     if ( getMaterial() ) getMaterial()->setColor( Color(255,255,255) , 0 );
     updateFaceSets();
 }
