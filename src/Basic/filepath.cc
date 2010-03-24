@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.28 2010-03-24 07:19:39 cvsranojay Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.29 2010-03-24 07:29:38 cvsnanne Exp $";
 
 #include "filepath.h"
 
@@ -256,12 +256,10 @@ BufferString FilePath::getTempName( const char* ext )
 {
     FilePath fp( getTempDir() );
 
-    BufferString fname( "od" );
+    BufferString fname( "od", GetPID() );
     static int counter = 0;
     int time_stamp = time( (time_t*)0 ) + counter++;
-    char uniquestr[80];
-    sprintf( uniquestr, "%X%X", GetPID(), (int)time_stamp );
-    fname += uniquestr;
+    fname += time_stamp;
 
     if ( ext && *ext )
     {
