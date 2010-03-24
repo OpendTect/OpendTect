@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.23 2010-03-04 09:24:46 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.24 2010-03-24 12:04:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
     {
 			BasicProps( int sz=1 )
 			    : size_(sz)			
-			    , color_(Color(255,255,255))
+			    , color_(Color(0,0,255))
 			    {}
 
 	Color		color_;
