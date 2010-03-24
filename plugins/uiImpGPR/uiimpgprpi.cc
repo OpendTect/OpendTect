@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.7 2010-03-22 08:54:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.8 2010-03-24 05:39:14 cvsnanne Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.7 2010-03-22 08:54:42 cvsbert
 #include "plugins.h"
 
 
-static const char* menunm = "&GPR: DZT";
+static const char* menunm = "&GPR: DZT ...";
 
 
 mExternC int GetuiImpGPRPluginType()
@@ -77,7 +77,7 @@ class uiDZTImporter : public uiDialog
 public:
 
 uiDZTImporter( uiParent* p )
-    : uiDialog(p,Setup("Import GPR Seismics","Import DTZ Seismics",mNoHelpID))
+    : uiDialog(p,Setup("Import GPR Seismics","Import DZT Seismics",mNoHelpID))
     , inpfld_(0)
 {
     if ( !SI().has2D() )
@@ -85,7 +85,7 @@ uiDZTImporter( uiParent* p )
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( "*.dzt" ).forread( true );
-    inpfld_ = new uiFileInput( this, "Input DTZ file", fisu );
+    inpfld_ = new uiFileInput( this, "Input DZT file", fisu );
 
     nrdeffld_ = new uiGenInput( this, "Trace number definition: start, step",
 				IntInpSpec(1), IntInpSpec(1) );

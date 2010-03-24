@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: dztimporter.cc,v 1.2 2010-03-17 17:03:54 cvsbert Exp $";
+static const char* rcsID = "$Id: dztimporter.cc,v 1.3 2010-03-24 05:39:14 cvsnanne Exp $";
 
 #include "dztimporter.h"
 #include "seistrc.h"
@@ -85,7 +85,7 @@ void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
 
 DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
 			 const LineKey& lk )
-    : Executor("Importing DTZ file")
+    : Executor("Importing DZT file")
     , nrdone_(0)
     , totalnr_(-1)
     , lk_(lk)
