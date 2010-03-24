@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.100 2010-03-09 08:01:56 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.101 2010-03-24 10:49:05 cvsumesh Exp $";
 
 #include "attriboutput.h"
 
@@ -636,7 +636,7 @@ void TwoDOutput::collectData( const DataHolder& data, float refstep,
 
     SeisTrcInfo* trcinfo = new SeisTrcInfo(info);
     trcinfo->sampling.step = refstep;
-    trcinfo->sampling.start = 0;
+    //trcinfo->sampling.start = 0;
     output_->trcinfoset_ += trcinfo;
 }
 
