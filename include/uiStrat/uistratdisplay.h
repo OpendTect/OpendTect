@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.2 2010-03-23 13:36:56 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.3 2010-03-24 10:05:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,8 @@ public:
     void		setZRange( StepInterval<float> rg ) 
     			{ zax_.setBounds(rg); draw(); }
     void		dataChanged();
+    int			nrAnnots() { return annotdatas_.size(); }
+    AnnotData*		annot(int idx) { return annotdatas_[idx]; }
 
 protected:
 

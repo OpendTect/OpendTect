@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.29 2010-03-23 05:48:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.30 2010-03-24 10:05:51 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -17,10 +17,12 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.29 2010-03-23 05:48:52 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uimenuhandler.h"
+#include "uiwellstratdisplay.h"
 
 #include "coltabsequence.h"
 #include "mouseevent.h"
 #include "dataclipper.h"
+#include "randcolor.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
@@ -48,13 +50,13 @@ uiWellLogDisplay::LineData::LineData( uiGraphicsScene& scn, Setup su )
     : zrg_(mUdf(float),0)
     , setup_(su)  
     , xax_(&scn,uiAxisHandler::Setup(uiRect::Top)
-					    .nogridline(su.nogridline_)
+					    .nogridline(su.noxgridline_)
 					    .border(su.border_)
 					    .noborderspace(su.noborderspace_)
 					    .noaxisline(su.noxaxisline_)
 					    .ticsz(su.xaxisticsz_))
     , yax_(&scn,uiAxisHandler::Setup(uiRect::Left)
-					    .nogridline(su.nogridline_)
+					    .nogridline(su.noygridline_)
 					    .noaxisline(su.noyaxisline_)
 					    .border(su.border_)
 					    .noborderspace(su.noborderspace_))
@@ -96,14 +98,16 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
 	    				.noxaxisline(su.noxaxisline_)
 	    				.noyaxisline(su.noyaxisline_)
 					.xaxisticsz(su.axisticsz_)
-	    				.nogridline(su.nogridline_)
+	    				.noygridline(su.noygridline_)
+	    				.noxgridline(su.noxgridline_)
 					.noborderspace(su.noborderspace_))
     , ld2_(scene(),false,LineData::Setup()
 	    				.noxaxisline(su.noxaxisline_)
 					.noyaxisline(su.noyaxisline_)
 					.xaxisticsz(su.axisticsz_)
 					.noborderspace(su.noborderspace_)
-	    				.nogridline(su.nogridline_))
+	    				.noygridline(su.noygridline_)
+	    				.noxgridline(su.noxgridline_))
 {
     if ( su.nobackground_ )
     {
@@ -480,7 +484,6 @@ void uiWellLogDisplay::drawMarkers()
 				MouseCursor::SizeVer : MouseCursor::Arrow );
 	li->setCursor( cursor );
 	markeritm->itm_ = li;
-
 	BufferString mtxt( mrkr.name() );
 	if ( setup_.nrmarkerchars_ < mtxt.size() )
 	    mtxt[setup_.nrmarkerchars_] = '\0';
@@ -489,7 +492,6 @@ void uiWellLogDisplay::drawMarkers()
 	ti->setPos( uiPoint(x1-1,y) );
 	ti->setTextColor( mrkr.color() );
 	markeritm->txtitm_ = ti;
-
 	markeritms_ += markeritm;
     }
 }
@@ -606,7 +608,6 @@ void uiWellLogDisplay::drawZPicks()
 
 
 
-
 uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
     	: uiGroup(p, wd.name() )
 	, logwidth_(s.logwidth_)		 
@@ -615,13 +616,24 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
 	, zrg_(mUdf(float),0)
 	, d2tm_(wd_.d2TModel())
    	, zistime_(wd_.haveD2TModel())		     
-	, noborderspace_(s.noborderspace_)				    
+	, noborderspace_(s.noborderspace_)				   
+	, stratdisp_(0)								
 	, menu_(*new uiMenuHandler(p,-1))
-	, remmrkmnuitem_("Remove marker...",100)      				
-	, addmrkmnuitem_("Add marker...",101)      			 
+	, remmrkmnuitem_("Remove marker...",0)      				
+	, addmrkmnuitem_("Add marker...",1)      			 
 {
     if ( s.nobackground_ )
 	setNoBackGround();
+   
+    if ( s.withstratdisp_ ) 
+    {	
+	stratdisp_ = new uiWellStratDisplay(this,wd.markers());
+	stratdisp_->setPrefWidth( 75 );
+	stratdisp_->setStretch( 2, 2 );
+	stratdisp_->setD2TModel( d2tm_ );
+	stratdisp_->setZIsTime( zistime_ );
+	stratdisp_->dataChanged();
+    }
     
     setStretch( 2, 2 );
     logwidth_ -= s.noborderspace_ ? 50 : 0;
@@ -635,9 +647,10 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
     menu_.handlenotifier.notify(mCB(this,uiWellDisplay,handleMenuCB));
 
     setHSpacing( 0 );
-    setPrefWidth( s.nrpanels_*logwidth_ );
+    setPrefWidth( s.nrpanels_*logwidth_ + 75 );
     setPrefHeight( mLogHeight );
     updateProperties(0);
+    
     //setInitialZRange();
 }
 
@@ -685,7 +698,8 @@ void uiWellDisplay::setLogPanel( bool noborderspace, bool isleft )
 	wldsu.nobackground_ = true;
 	wldsu.axisticsz_ = -15; 
 	wldsu.noborderspace_ = true; 
-	wldsu.nogridline_ = true;
+	wldsu.noygridline_ = true;
+	wldsu.noxgridline_ = false;
 	wldsu.noyaxisline_ = true; 
     }
     wldsu.border_ = uiBorder(0);
@@ -693,6 +707,9 @@ void uiWellDisplay::setLogPanel( bool noborderspace, bool isleft )
     uiWellLogDisplay* logdisp = new uiWellLogDisplay( this, wldsu );
     if ( logdisps_.size() )
 	logdisp->attach( rightOf, logdisps_[logdisps_.size()-1] );
+    if ( stratdisp_ ) logdisp->attach( ensureLeftOf, stratdisp_ );
+    logdisp->setPrefWidth( logwidth_ );
+    logdisp->setPrefHeight( mLogHeight );
 
     logdisps_ += logdisp;
     logdisp->setZInTime( zistime_ && d2tm_ );
@@ -878,13 +895,16 @@ void uiWellDisplay::createMenuCB( CallBacker* cb )
 }
 
 
-// uiWellDisplayWin
-uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
-    : uiMainWin(p,Setup(BufferString("2D Viewer ",wd.name())))
-    , wd_(wd)
+
+uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
+    : uiMainWin(p,"")
+    , welldisp_(*new uiWellDisplay(this,uiWellDisplay::Setup(),wd))
+    , wd_(wd)						    
 {
-    wellview_ = new uiWellDisplay( this, uiWellDisplay::Setup(), wd );
-    wd.tobedeleted.notify( mCB(this,uiWellDisplayWin,closeWin) );
+    BufferString msg( "2D Viewer ");
+    msg += wd.name();
+    setCaption( msg );
+    wd.tobedeleted.notify( mCB(this,uiWellDisplayWin,close) );
 }
 
 

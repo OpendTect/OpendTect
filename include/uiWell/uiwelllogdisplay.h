@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.23 2010-03-23 05:48:00 cvsranojay Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.24 2010-03-24 10:05:51 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,10 @@ ________________________________________________________________________
 class uiGraphicsScene;
 class uiLineItem;
 class uiMenuHandler;
-class uiObjectItem;
-class uiParent;
 class uiPolyLineItem;
 class uiPolygonItem;
 class uiTextItem;
-class uiToolBar;
-class uiWellDispPropDlg;
+class uiWellStratDisplay;
 
 class MouseEvent;
 class UnitOfMeasure;
@@ -59,7 +56,8 @@ public:
 				    : nrmarkerchars_(2)
 				    , markerls_(LineStyle::Dot,1)
 				    , pickls_(LineStyle::Solid,1,Color(0,200,0))
-				    , nogridline_(false)
+				    , noxgridline_(false)
+				    , noygridline_(false)
 				    , border_(5)
 				    , yborder_(5)
 				    , noborderspace_(false)
@@ -84,7 +82,8 @@ public:
 	mDefSetupMemb(bool,noypixafter)
 	mDefSetupMemb(bool,noborderspace)
 	mDefSetupMemb(int,axisticsz)
-	mDefSetupMemb(bool,nogridline)
+	mDefSetupMemb(bool,noygridline)
+	mDefSetupMemb(bool,noxgridline)
 	mDefSetupMemb(bool,noyaxisline)
 	mDefSetupMemb(bool,noxaxisline)
 	mDefSetupMemb(bool,nobackground)
@@ -101,7 +100,8 @@ public:
 				    : border_(5)
 				    , noborderspace_(false)
 				    , xaxisticsz_(2)			   
-				    , nogridline_(false)
+				    , noxgridline_(false)
+				    , noygridline_(false)
 				    , noxaxisline_(false)
 				    , noyaxisline_(false)
 				    {}
@@ -111,7 +111,8 @@ public:
 		mDefSetupMemb(int,xaxisticsz)
 		mDefSetupMemb(bool,noyaxisline)
 		mDefSetupMemb(bool,noxaxisline)
-		mDefSetupMemb(bool,nogridline)
+		mDefSetupMemb(bool,noxgridline)
+		mDefSetupMemb(bool,noygridline)
 	    };
 
 				LineData(uiGraphicsScene&,Setup);
@@ -162,7 +163,6 @@ public:
     void			setZInTime( bool yn )
     				{ zistime_ = yn; dataChanged(); }
     bool			zInTime() const	  { return zistime_; }
-
 
     mStruct MarkerItem
     {
@@ -250,7 +250,8 @@ public:
 				    , noborderspace_(false)
 				    , nobackground_(false)		   
 				    , logwidth_(mLogWidth)	 	   
-				    , logheight_(mLogHeight)	 	   
+				    , logheight_(mLogHeight)
+				    , withstratdisp_(false) 		    
 				    {}
 
 	mDefSetupMemb(int,nrpanels) // nr Log Panels
@@ -258,6 +259,7 @@ public:
 	mDefSetupMemb(bool,noborderspace) //will remove all grid/axis lines 
 	mDefSetupMemb(int,logheight) //log height
 	mDefSetupMemb(int,logwidth) //log width
+	mDefSetupMemb(bool,withstratdisp) //Add Stratigraphy display
     };
 
 				uiWellDisplay(uiParent*,const Setup&,
@@ -276,12 +278,14 @@ public:
     void			setZInTime( bool yn )
     				{ zistime_ = yn; dataChanged(0); }
     bool			zInTime() const	  { return zistime_; }
+    uiWellStratDisplay*		stratDisp() { return stratdisp_; }
 
 protected:
 
     Well::Data&			wd_;
     const Well::D2TModel*	d2tm_;
     ObjectSet<uiWellLogDisplay> logdisps_;
+    uiWellStratDisplay*		stratdisp_;
 
     uiMenuHandler&		menu_;
     MenuItem            	addmrkmnuitem_;
@@ -314,9 +318,13 @@ public:
 			~uiWellDisplayWin();
 
 protected:
-    void		closeWin(CallBacker*);
+
+    uiWellDisplay& 	welldisp_;
     uiWellDisplay*	wellview_;
+
     Well::Data&		wd_;
+    
+    void		closeWin(CallBacker*);
 };
 
 #endif
