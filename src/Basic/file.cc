@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.5 2010-03-17 06:26:32 cvsnanne Exp $
+ RCS:		$Id: file.cc,v 1.6 2010-03-24 07:19:39 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,11 @@ bool isFile( const char* fnm )
 bool isDirectory( const char* fnm )
 {
     QFileInfo qfi( fnm );
+    if ( qfi.isDir() )
+	return true;
+
+    BufferString lnkfnm( fnm, ".lnk" );
+    qfi.setFile( lnkfnm.buf() );
     return qfi.isDir();
 }
 
@@ -72,10 +77,10 @@ bool rename( const char* oldname, const char* newname )
 bool createLink( const char* fnm, const char* linknm )
 { 
 #ifdef __win__
-    BufferString lnknm( linknm );
+    BufferString winlinknm( linknm );
     if ( !strstr(linknm,".lnk")  )
-	lnknm += ".lnk";
-    return QFile::link( fnm, lnknm.buf() );
+	winlinknm += ".lnk";
+    return QFile::link( fnm, winlinknm.buf() );
 #else
     return QFile::link( fnm, linknm );
 #endif
@@ -227,6 +232,14 @@ const char* getHomePath()
 {
     static BufferString pathstr;
     pathstr = QDir::homePath().toAscii().constData();
+    return pathstr.buf();
+}
+
+
+const char* getTempPath()
+{
+    static BufferString pathstr;
+    pathstr = QDir::tempPath().toAscii().constData();
     return pathstr.buf();
 }
 

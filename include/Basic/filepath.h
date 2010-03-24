@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.10 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: filepath.h,v 1.11 2010-03-24 07:19:39 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,7 @@ protected:
 
     void		addPart(const char*);
     void		compress(int sl=0);
+    void		trueDirIfLink();
 };
 
 

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.101 2010-03-03 07:28:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.102 2010-03-24 07:19:39 cvsranojay Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: ioman.cc,v 1.101 2010-03-03 07:28:10 cvsranojay
 #include "iostrm.h"
 #include "transl.h"
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "errh.h"
 #include "strmprov.h"
@@ -56,7 +56,7 @@ IOMan::IOMan( const char* rd )
     	, applicationClosing(this)
 {
     rootdir = rd && *rd ? rd : GetDataDir();
-    if ( !File_isDirectory(rootdir) )
+    if ( !File::isDirectory(rootdir) )
 	rootdir = GetBaseDataDir();
 }
 
@@ -120,14 +120,14 @@ void IOMan::init()
 	// We'll try to recover by using the 'BasicSurvey' in the app
 	basicfp.setFileName( dd->dirnm );
 	BufferString basicdirnm = basicfp.fullPath();
-	if ( !File_exists(basicdirnm) )
+	if ( !File::exists(basicdirnm) )
 	    // Oh? So this is removed from the BasicSurvey
 	    // Let's hope they know what they're doing
 	    { prevdd = dd; continue; }
 
 	rootfp.setFileName( dd->dirnm );
 	BufferString dirnm = rootfp.fullPath();
-	if ( !File_exists(dirnm) )
+	if ( !File::exists(dirnm) )
 	{
 	    // This directory should have been in the survey.
 	    // It is not. If it is the seismic directory, we do not want to
@@ -137,7 +137,7 @@ void IOMan::init()
 		BufferString msg( "Corrupt survey: missing directory: " );
 		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
 	    }
-	    else if ( !File_copy(basicdirnm,dirnm,mFile_Recursive) )
+	    else if ( !File::copy(basicdirnm,dirnm) )
 	    {
 		BufferString msg( "Cannot create directory: " );
 		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
@@ -260,13 +260,13 @@ static bool validOmf( const char* dir )
 {
     FilePath fp( dir ); fp.add( ".omf" );
     BufferString fname = fp.fullPath();
-    if ( File_isEmpty(fname) )
+    if ( File::isEmpty(fname) )
     {
 	fp.setFileName( ".omb" );
-	if ( File_isEmpty(fp.fullPath()) )
+	if ( File::isEmpty(fp.fullPath()) )
 	    return false;
 	else
-	    File_copy( fname, fp.fullPath(), mFile_NotRecursive );
+	    File::copy( fname, fp.fullPath() );
     }
     return true;
 }
@@ -292,16 +292,16 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     const BufferString basedatadir( GetBaseDataDir() );
     if ( basedatadir.isEmpty() )
 	mErrRet("Please set the environment variable DTECT_DATA.")
-    else if ( !File_exists(basedatadir) )
+    else if ( !File::exists(basedatadir) )
 	mErrRetNotODDir(0)
     else if ( !validOmf(basedatadir) )
 	mErrRetNotODDir(".omf")
 
     const BufferString projdir = GetDataDir();
-    if ( projdir != basedatadir && File_isDirectory(projdir) )
+    if ( projdir != basedatadir && File::isDirectory(projdir) )
     {
 	const bool noomf = !validOmf( projdir );
-	const bool nosurv = File_isEmpty(
+	const bool nosurv = File::isEmpty(
 				FilePath(projdir).add(".survey").fullPath() );
 
 	if ( !noomf && !nosurv )
@@ -328,7 +328,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
     // Survey in ~/.od/survey[.$DTECT_USER] is invalid. Remove it if necessary
     BufferString survfname = GetSurveyFileName();
-    if ( File_exists(survfname) && !File_remove(survfname,mFile_NotRecursive) )
+    if ( File::exists(survfname) && !File::remove(survfname) )
     {
 	errmsg = "The file "; errmsg += survfname;
 	errmsg += " contains an invalid survey.\n";
@@ -345,7 +345,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 bool IOMan::setRootDir( const char* dirnm )
 {
     if ( !dirnm || !strcmp(rootdir,dirnm) ) return true;
-    if ( !File_isDirectory(dirnm) ) return false;
+    if ( !File::isDirectory(dirnm) ) return false;
     rootdir = dirnm;
     return setDir( rootdir );
 }
@@ -363,7 +363,7 @@ bool IOMan::to( const IOLink* link )
     FilePath fp( curDir() );
     fp.add( link ? (const char*)link->dirname : ".." );
     BufferString fulldir = fp.fullPath();
-    if ( !File_isDirectory(fulldir) ) return false;
+    if ( !File::isDirectory(fulldir) ) return false;
 
     prevkey = dirptr->key();
     return setDir( fulldir );
@@ -660,7 +660,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 	Translator* tmptr = ctio.ctxt.trgroup->make( trnm );
 	BufferString fnm = generateFileName( tmptr, iostrm->name() );
 	int ifnm = 1;
-	while ( File_exists(fnm) )
+	while ( File::exists(fnm) )
 	{
 	    BufferString altfnm( iostrm->name() );
 	    altfnm += ifnm; fnm = generateFileName( tmptr, altfnm );
@@ -693,7 +693,7 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 	if ( subnr ) fnm += subnr;
 	if ( tr && tr->defExtension() )
 	    { fnm += "."; fnm += tr->defExtension(); }
-	if ( !File_exists(fnm) ) break;
+	if ( !File::exists(fnm) ) break;
     }
 
     return fnm;
@@ -719,7 +719,7 @@ bool IOMan::setFileName( MultiID newkey, const char* fname )
     iostrm->setFileName( fp.fullPath() );
   
     const FileNameString fullnewname = iostrm->fullUserExpr(true); 
-    int ret = File_rename( fulloldname, fullnewname );
+    bool ret = File::rename( fulloldname, fullnewname );
     if ( !ret || !commitChanges( *ioobj ) )
 	return false;
 
@@ -852,9 +852,9 @@ bool SurveyDataTreePreparer::createDataTree()
     fp.add( dirdata_.dirname_ );
     const BufferString thedirnm( fp.fullPath() );
     bool dircreated = false;
-    if ( !File_exists(thedirnm) )
+    if ( !File::exists(thedirnm) )
     {
-	if ( !File_createDir(thedirnm,0) )
+	if ( !File::createDir(thedirnm) )
 	    mErrRet( "Cannot create '", dirdata_.dirname_,
 		     "' directory in survey");
 	dircreated = true;
@@ -862,14 +862,14 @@ bool SurveyDataTreePreparer::createDataTree()
 
     fp.add( ".omf" );
     const BufferString omffnm( fp.fullPath() );
-    if ( File_exists(omffnm) )
+    if ( File::exists(omffnm) )
 	return true;
 
     StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
     if ( !sd.usable() )
     {
 	if ( dircreated )
-	    File_remove( thedirnm, mFile_Recursive );
+	    File::remove( thedirnm );
 	mErrRet( "Could not create '.omf' file in ", dirdata_.dirname_,
 		 " directory" );
     }
@@ -954,13 +954,13 @@ void IOMan::setupCustomDataDirs( int taridx )
 bool OD_isValidRootDataDir( const char* d )
 {
     FilePath fp( d ? d : GetBaseDataDir() );
-    if ( !File_isDirectory( fp.fullPath() ) ) return false;
+    if ( !File::isDirectory( fp.fullPath() ) ) return false;
 
     fp.add( ".omf" );
-    if ( !File_exists( fp.fullPath() ) ) return false;
+    if ( !File::exists( fp.fullPath() ) ) return false;
 
     fp.setFileName( ".survey" );
-    if ( File_exists( fp.fullPath() ) )
+    if ( File::exists( fp.fullPath() ) )
 	return false;
 
     return true;

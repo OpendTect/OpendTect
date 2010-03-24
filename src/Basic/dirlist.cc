@@ -4,22 +4,14 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.17 2010-03-18 05:32:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.18 2010-03-24 07:19:39 cvsranojay Exp $";
 
 #include "dirlist.h"
 
 #include "file.h"
 #include "filepath.h"
-#include "globexpr.h"
 
-#ifdef __win__
-# include <windows.h>
-#else
-# include <unistd.h>
-# include <dirent.h>
-#endif
-
-
+#include <QDir>
 
 DirList::DirList( const char* dirname, DirList::Type t, const char* msk )
 	: dir_(dirname?dirname:".")
@@ -34,68 +26,33 @@ void DirList::update()
 {
     erase();
     const bool havemask = !mask_.isEmpty();
-    GlobExpr ge( mask_.buf(), !__iswin__ && !__ismac__  );
-    FilePath fp( dir_ ); fp.add( "X" );
 
-#ifdef __win__
-    WIN32_FIND_DATA	dat;
-    HANDLE		mhndl;
-
-    BufferString dirnm = dir_;
-    dirnm += "\\*";
-
-    mhndl = FindFirstFile( (const char*)dirnm, &dat );
-    if ( mhndl == INVALID_HANDLE_VALUE )
-	return;
-
-    do
+    QDir qdir( dir_.buf() );
+    if ( havemask )
     {
-        if ( (dat.cFileName)[0] == '.' && (dat.cFileName)[1] == '\0' ) continue;
-        if ( (dat.cFileName)[0] == '.' && (dat.cFileName)[1] == '.'
-	  && (dat.cFileName)[2] == '\0' ) continue;
-
-	if ( type_ != AllEntries )
-	{
-	    fp.setFileName( dat.cFileName );
-	    if ( (type_==FilesOnly) == (bool)File::isDirectory(fp.fullPath()) )
-		continue;
-	}
-
-	if ( havemask && !ge.matches(dat.cFileName) )
-	    continue;
-
-	add( dat.cFileName );
-
-    } while ( FindNextFile(mhndl,&dat) );
-
-#else
-    DIR* dirp = opendir( dir_.buf() );
-    if ( !dirp ) return;
-
-    struct dirent* dp;
-    for ( dp = readdir(dirp); dp; dp = readdir(dirp) )
-    {
-        if ( (dp->d_name)[0] == '.' && (dp->d_name)[1] == '\0' ) continue;
-        if ( (dp->d_name)[0] == '.' && (dp->d_name)[1] == '.'
-	  && (dp->d_name)[2] == '\0' ) continue;
-
-	fp.setFileName( dp->d_name );
-	if ( !File::exists(fp.fullPath()) )
-	    continue;
-
-	if ( type_ != AllEntries )
-	{
-	    if ( (type_==FilesOnly) == (bool)File::isDirectory(fp.fullPath()) )
-		continue;
-	}
-
-	if ( havemask && !ge.matches(dp->d_name) )
-	    continue;
-
-	add( dp->d_name );
+	QStringList filters;
+	filters << mask_.buf();
+	qdir.setNameFilters( filters );
     }
-    closedir(dirp);
+
+    QDir::Filters filters;
+    if ( type_ == FilesOnly )
+	filters = QDir::Files;
+    else if ( type_ == DirsOnly )
+	filters = QDir::Dirs;
+
+    QStringList qlist = qdir.entryList( filters );
+    
+    for ( int idx=0; idx<qlist.size(); idx++ )
+    {	
+	BufferString dirnm = qlist[idx].toAscii().constData();
+#ifdef __win__
+	int sz = dirnm.size() - 4;
+	if ( strstr( dirnm.buf(), ".lnk" ) )
+	    dirnm[sz] = '\0'; 
 #endif
+	add( dirnm );
+    }
 
     sort();
 }

@@ -4,17 +4,16 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.27 2009-11-18 05:33:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.28 2010-03-24 07:19:39 cvsranojay Exp $";
 
 #include "filepath.h"
-#include "envvars.h"
+
+#include "file.h"
 #include "msgh.h"
-#include "string2.h"
-#include <iostream>
-#include <stdio.h>
+#include "winutils.h"
+
 #include <time.h>
 
-#include "winutils.h"
 
 const char* FilePath::sPrefSep = ":";
 
@@ -59,18 +58,11 @@ bool FilePath::operator != ( const char* fnm ) const
 
 FilePath& FilePath::set( const char* _fnm )
 {
+    BufferString fnmbs( _fnm );
     lvls_.erase(); prefix_ = ""; isabs_ = false;
     if ( !_fnm ) return *this;
 
-    BufferString __fnm
-#ifdef __win__
-		      ( getCleanWinPath(_fnm) );
-#else
-		      ( _fnm );
-#endif
-
-    const char* fnm = __fnm.buf();
-
+    const char* fnm = fnmbs.buf(); 
     mSkipBlanks( fnm );
     if ( !*fnm ) return *this;
 
@@ -244,35 +236,19 @@ BufferString FilePath::dirUpTo( int lvl ) const
 
 BufferString FilePath::getTempDir()
 {
-    BufferString fname;
-
-#ifdef __win__
-
-    if ( GetEnvVar("TMP") )
-	fname = GetEnvVar( "TMP" );
-    else if ( GetEnvVar("TEMP") )
-	fname = GetEnvVar( "TEMP" );
-    else // make sure we have at least write access...
+    BufferString tmpdir = File::getTempPath();
+    if ( !File::exists(tmpdir) )
     {
-	fname = GetSpecialFolderLocation( CSIDL_PERSONAL );
-	static bool warn = true;
-	if ( warn )
-	{
-	    BufferString msg( "WARNING: You don't have the TEMP or TMP "
-		    	      "environment variable set.\nUsing directory '" );
-	    		 msg += fname; msg += "'.";
-	    UsrMsg( msg );
-	    warn = false;
-	}
+	BufferString msg( "Temporary directory '", tmpdir, "'does not exist" );
+	UsrMsg( msg );
+    }
+    else if ( !File::isWritable(tmpdir) )
+    {
+	BufferString msg( "Temporary directory '", tmpdir, "'is read-only" );
+	UsrMsg( msg );
     }
 
-#else
-
-    fname = "/tmp";
-
-#endif
-
-    return fname;
+    return tmpdir;
 }
 
 
@@ -298,13 +274,16 @@ BufferString FilePath::getTempName( const char* ext )
 }
 
 
-BufferString FilePath::mkCleanPath(const char* path, Style stl)
+BufferString FilePath::mkCleanPath( const char* path, Style stl )
 {
-    if ( stl == Local )		stl = __iswin__ ? Windows : Unix;
+    if ( stl == Local )
+	stl = __iswin__ ? Windows : Unix;
 
-    BufferString ret;
-    if ( stl == Windows )	ret = getCleanWinPath( path ) ;
-    else			ret = getCleanUnxPath( path ) ;
+    BufferString ret( path );
+    if ( stl == Windows && !__iswin__ )
+	ret = getCleanWinPath( path );
+    if ( stl == Unix && __iswin__ )
+	ret = getCleanUnxPath( path );
 
     return ret;
 }
@@ -357,6 +336,7 @@ void FilePath::addPart( const char* fnm )
     }
     *bufptr = '\0';
     if ( buf[0] ) lvls_.add( buf );
+    trueDirIfLink();
 }
 
 
@@ -377,4 +357,21 @@ void FilePath::compress( int startlvl )
 	    idx -= remoffs + 1;
 	}
     }
+}
+
+
+void FilePath::trueDirIfLink()
+{
+#ifdef __win__
+    BufferString dirnm = dirUpTo( -1 );
+    if ( File::exists(dirnm) )
+	return;
+
+    dirnm += ".lnk";
+    if ( File::exists(dirnm) && File::isLink(dirnm) )
+    {
+	const char* newdirnm = File::linkTarget( dirnm );
+	set( newdirnm );
+    }
+#endif
 }
