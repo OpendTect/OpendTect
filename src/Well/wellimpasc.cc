@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.66 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.67 2010-03-25 04:31:32 cvsraman Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -15,7 +15,8 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.66 2010-03-25 03:55:14 cvsran
 #include "wellmarker.h"
 #include "strmprov.h"
 #include "unitofmeasure.h"
-#include "tabledef.h"*
+#include "tabledef.h"
+#include <iostream>
 
 
 static bool convToDah( const Well::Track& trck, float& val,
