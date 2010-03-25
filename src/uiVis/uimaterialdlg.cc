@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.23 2010-03-23 21:20:59 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.24 2010-03-25 15:28:59 cvsyuancheng Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.23 2010-03-23 21:20:59 cvs
 #include "vismaterial.h"
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "vishorizondisplay.h"
 #include "visplanedatadisplay.h"
 #include "vispolygonbodydisplay.h"
 #include "visemobjdisplay.h"
@@ -94,8 +95,19 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
     : uiDlgGroup(p,"Texture")
     , survobj_(so)
 {
+    bool intpenabled = false; 
     mDynamicCastGet( visSurvey::MultiTextureSurveyObject*, mto, survobj_ );
-    const bool intpenabled = mto && mto->textureInterpolationEnabled();    
+    if ( mto )
+	intpenabled = mto->textureInterpolationEnabled();
+    else
+    {
+	mDynamicCastGet( visSurvey::HorizonDisplay*, hor, survobj_ );
+	if ( hor ) 
+	    intpenabled = hor->textureInterpolationEnabled();
+	else
+	    return;
+    }
+    
     textclasssify_ = new uiGenInput( this, "Data:   ", 
 	    BoolInpSpec(intpenabled,"Interpolation","Classification") );
     textclasssify_->valuechanged.notify( 
@@ -105,12 +117,19 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 
 void uiTextureInterpolateGrp::chgIntpCB( CallBacker* cb )
 {
-    mDynamicCastGet( visSurvey::MultiTextureSurveyObject*, mto, survobj_ );
-    if ( !mto || !textclasssify_ ) 
+    if ( !textclasssify_ )
 	return;
     
     const bool intp = textclasssify_->getBoolValue();
-    mto->enableTextureInterpolation( intp );    
+    mDynamicCastGet( visSurvey::MultiTextureSurveyObject*, mto, survobj_ );
+    if ( mto  ) 
+     	mto->enableTextureInterpolation( intp );    
+    else
+    {
+	mDynamicCastGet( visSurvey::HorizonDisplay*, hor, survobj_ );
+	if ( hor ) 
+	    hor->enableTextureInterpolation( intp );
+    }
 }
 
 
