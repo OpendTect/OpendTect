@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.41 2010-03-25 15:33:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.42 2010-03-25 15:59:56 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -480,27 +480,9 @@ void ColTabTextureChannel2RGBA::update()
 
     const bool doshading = shadingallowed_ && canUseShading();
     if ( doshading )
-    {
 	setShadingVars();
-	if ( nonshadingcomplexity_ )
-	    noneshadinggroup_->removeChild( nonshadingcomplexity_ );
-
-	nonshadingcomplexity_ = 0;
-    }
     else
     {
-	if ( shadingcomplexity_ )
-	{
-	    if ( shadinggroup_ )
-	    {
-		shadinggroup_->removeChild( shadingcomplexity_ );
-		shaderswitch_->removeChild( shadinggroup_ );
-	    }
-
-	    shadinggroup_ = 0;
-	    shadingcomplexity_ = 0;
-	}
-	
     	if ( !converter_ )
     	{
 	    nonshadingcomplexity_ = new SoComplexity;
