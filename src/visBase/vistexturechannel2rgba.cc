@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.40 2010-03-23 21:21:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.41 2010-03-25 15:33:17 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -370,14 +370,17 @@ void ColTabTextureChannel2RGBA::setEnabled(int ch,bool yn)
 
 void ColTabTextureChannel2RGBA::enableInterpolation( bool yn )
 {
-    if ( enableinterpolation_!=yn )
-    {
-	enableinterpolation_ = yn;
-	if ( shadingcomplexity_ ) 
-	    shadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
+    if ( enableinterpolation_==yn )
+	return;
 
-	if ( nonshadingcomplexity_ ) 
-	    nonshadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
+    enableinterpolation_ = yn;
+    if ( shadingcomplexity_ ) 
+	shadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
+
+    if ( nonshadingcomplexity_ ) 
+    {
+	nonshadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
+	converter_->touch();
     }
 }
 
@@ -477,9 +480,27 @@ void ColTabTextureChannel2RGBA::update()
 
     const bool doshading = shadingallowed_ && canUseShading();
     if ( doshading )
+    {
 	setShadingVars();
+	if ( nonshadingcomplexity_ )
+	    noneshadinggroup_->removeChild( nonshadingcomplexity_ );
+
+	nonshadingcomplexity_ = 0;
+    }
     else
     {
+	if ( shadingcomplexity_ )
+	{
+	    if ( shadinggroup_ )
+	    {
+		shadinggroup_->removeChild( shadingcomplexity_ );
+		shaderswitch_->removeChild( shadinggroup_ );
+	    }
+
+	    shadinggroup_ = 0;
+	    shadingcomplexity_ = 0;
+	}
+	
     	if ( !converter_ )
     	{
 	    nonshadingcomplexity_ = new SoComplexity;
