@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.32 2010-03-12 14:58:23 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.33 2010-03-25 05:22:12 cvsranojay Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.32 2010-03-12 14:58:23 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.33 2010-03-25 05:22:12 cvsranojay Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.32 2010-03-12 14:58:23 cv
 #include "cbvsreadmgr.h"
 #include "conn.h"
 #include "iostrm.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "datachar.h"
 #include "strmprov.h"
@@ -55,9 +55,9 @@ int main( int argc, char** argv )
 
     FilePath fp( argv[1] );
     if ( !fp.isAbsolute() )
-        fp.insert( File_getCurrentDir() );
+	fp.insert( File::getCurrentPath() );
     const BufferString fname = fp.fullPath();
-    if ( !File_exists(fname) )
+    if ( !File::exists(fname) )
     {
         std::cerr << fname << " does not exist" << std::endl;
         ExitProgram( 1 );

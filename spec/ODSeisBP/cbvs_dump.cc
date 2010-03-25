@@ -13,7 +13,7 @@ static const char* rcsID = "$Id";
 #include "conn.h"
 #include "iostrm.h"
 #include "separstr.h"
-#include "filegen.h"
+#include "file.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "iopar.h"
@@ -56,7 +56,7 @@ bool BatchProgram::go( std::ostream& logstrm )
     BufferString fname( StreamProvider::sStdIO() );
     pars().get( "Input", fname );
     StreamProvider sp( fname );
-    sp.addPathIfNecessary( File_getCurrentDir() );
+    sp.addPathIfNecessary( File::getCurrentPath() );
     if ( !sp.exists(true) )
     {
         mErrStrm << fname << " does not exist" << std::endl;
@@ -79,7 +79,7 @@ bool BatchProgram::go( std::ostream& logstrm )
     fname = StreamProvider::sStdIO();
     pars().get( "Output", fname );
     sp.set( fname );
-    sp.addPathIfNecessary( File_getCurrentDir() );
+    sp.addPathIfNecessary( File::getCurrentPath() );
     if ( sp.bad() )
         { mErrStrm << "Invalid output: " << fname << std::endl; return false; }
     StreamData sd = sp.makeOStream();
