@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.30 2010-03-24 10:05:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.31 2010-03-25 11:47:11 cvsranojay Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -904,13 +904,12 @@ uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
     BufferString msg( "2D Viewer ");
     msg += wd.name();
     setCaption( msg );
-    wd.tobedeleted.notify( mCB(this,uiWellDisplayWin,close) );
+    wd_.tobedeleted.notify( mCB(this,uiWellDisplayWin,closeWin) );
 }
 
 
 uiWellDisplayWin::~uiWellDisplayWin()
 {
-    wd_.tobedeleted.remove( mCB(this,uiWellDisplayWin,closeWin) );
 }
 
 
