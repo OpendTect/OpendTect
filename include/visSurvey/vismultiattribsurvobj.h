@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.34 2010-03-23 21:21:56 cvsyuancheng Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.35 2010-03-25 19:49:08 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -94,6 +94,8 @@ public:
     void			fillPar(IOPar&, TypeSet<int>&) const;
     int				usePar(const IOPar&);
     virtual bool                canBDispOn2DViewer() const	{ return true; }
+    bool			canEnableTextureInterpolation() const
+				{ return channels_; }
 
     const char*			errMsg() const { return errmsg_.buf(); }
     

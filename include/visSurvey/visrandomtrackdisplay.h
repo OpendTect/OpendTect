@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.77 2010-03-25 15:28:12 cvsyuancheng Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.78 2010-03-25 19:49:08 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -55,8 +55,6 @@ public:
 				     this rtd, and is present in its name. */
 
     bool			isInlCrl() const { return true; }
-    bool			canEnableTextureInterpolation() const
-				{ return true; }
 
     int				nrResolutions() const 	{ return 3; }
     void			setResolution(int,TaskRunner*);
