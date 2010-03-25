@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.31 2010-02-11 23:13:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.32 2010-03-25 15:22:41 cvsyuancheng Exp $";
 
 #include "vistexturechannels.h"
 
@@ -724,6 +724,12 @@ void TextureChannels::update( int channel, bool tc2rgba )
 
     if ( tc2rgba && tc2rgba_ )
 	tc2rgba_->notifyChannelChange();
+}
+
+
+void TextureChannels::touchMappedData()
+{
+    tc_->touch();
 }
 
 

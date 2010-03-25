@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.13 2009-11-30 21:30:16 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.14 2010-03-25 15:22:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -75,7 +75,8 @@ public:
 
     SoNode*			getInventorNode();
     const SbImage*		getChannels() const;
-
+    void			touchMappedData();
+    
 protected:
     friend			class ChannelInfo;
     void			update(int channel,bool tc2rgba);
