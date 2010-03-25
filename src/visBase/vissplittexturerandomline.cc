@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.10 2010-02-17 18:44:23 cvskris Exp $";
+static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.11 2010-03-25 15:21:02 cvsyuancheng Exp $";
 
 #include "vissplittexturerandomline.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: vissplittexturerandomline.cc,v 1.10 2010-02-17 
 #include "SoTextureComposer.h"
 #include "viscoord.h"
 
-#include <Inventor/nodes/SoComplexity.h>
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoShapeHints.h>
@@ -45,13 +44,7 @@ SplitTextureRandomLine::SplitTextureRandomLine()
     addChild( shapehint );
     shapehint->vertexOrdering = SoShapeHints::CLOCKWISE;
     shapehint->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
-   
-    SoComplexity* complexity = new SoComplexity;
-    complexity->textureQuality.setValue( 0.9 );
-    complexity->type.setIgnored( true );
-    complexity->value.setIgnored( true );
-    addChild( complexity );
-
+    
     setMaterial( 0 );
 }
 
