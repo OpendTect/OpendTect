@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.23 2010-03-15 19:28:17 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.24 2010-03-25 15:28:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,8 @@ public:
 
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }
+    bool			canEnableTextureInterpolation() const
+				{ return true; }
 
     virtual int			nrResolutions() const;
     virtual void		setResolution(int,TaskRunner*);

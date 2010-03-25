@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.59 2010-03-25 10:13:52 cvsumesh Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.60 2010-03-25 15:28:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -39,6 +39,12 @@ public:
 				mCreateDataObj( HorizonDisplay );
     void			setDisplayTransformation(mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
+
+    void			enableTextureInterpolation(bool);
+    bool			textureInterpolationEnabled() const
+				{ return enabletextureinterp_; }
+    bool			canEnableTextureInterpolation() const
+				{ return true; }
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     //const ZAxisTransform*	getZAxisTransform() const;
@@ -209,6 +215,7 @@ protected:
 
     TypeSet<ColTab::MapperSetup>	coltabmappersetups_;//for each channel
     TypeSet<ColTab::Sequence>		coltabsequences_;  //for each channel
+    bool				enabletextureinterp_;
 
     bool				usestexture_;
     bool				useswireframe_;

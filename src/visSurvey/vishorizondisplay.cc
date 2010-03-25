@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.130 2010-03-25 10:14:07 cvsumesh Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.131 2010-03-25 15:28:12 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -38,6 +38,7 @@ static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.130 2010-03-25 10:14:0
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
 #include "vistexturechannel2rgba.h"
+#include "vistexturechannels.h"
 #include "vismultiattribsurvobj.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
@@ -73,7 +74,8 @@ HorizonDisplay::HorizonDisplay()
     //, zaxistransform_( 0 )
     , allowshading_( true )					
     , intersectionlinematerial_( 0 )	
-    , displayintersectionlines_( true )	
+    , displayintersectionlines_( true )
+    , enabletextureinterp_( true )    
 {
     maxintersectionlinethickness_ = 0.02 *
 	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
@@ -196,6 +198,8 @@ bool HorizonDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 
     EMObjectDisplay::setChannels2RGBA( 0 );
     sections_[0]->setChannels2RGBA( t );
+    sections_[0]->getChannels2RGBA()->enableInterpolation(enabletextureinterp_);
+
     return true;
 }
 
@@ -946,6 +950,24 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     hasmoved.trigger();
 
     return addEdgeLineDisplay( sid );
+}
+
+
+void HorizonDisplay::enableTextureInterpolation( bool yn )
+{
+    if ( enabletextureinterp_==yn )
+	return;
+
+    enabletextureinterp_ = yn;
+    for ( int idx=0; idx<sections_.size(); idx++ )
+    {
+	if ( !sections_[idx] || !sections_[idx]->getChannels2RGBA() )
+	    continue;
+	
+	sections_[idx]->getChannels2RGBA()->enableInterpolation( yn );
+	if ( sections_[idx]->getChannels2RGBA()->canUseShading() )
+	    sections_[idx]->getChannels()->touchMappedData();
+    }
 }
 
 
