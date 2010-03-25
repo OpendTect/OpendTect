@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.63 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.64 2010-03-25 15:32:20 cvsyuancheng Exp $";
 
 
 #include "vismultitexture2.h"
@@ -46,10 +46,10 @@ namespace visBase
 MultiTexture2::MultiTexture2()
     : switch_( new SoSwitch )
     , texture_( new SoColTabMultiTexture2 )
-    , complexity_( new SoComplexity )
     , nonshadinggroup_( new SoGroup )
-    , shadingcomplexity_( 0 )
     , shadinggroup_( new SoGroup )
+    , complexity_( new SoComplexity )
+    , shadingcomplexity_( 0 )
     , size_( -1, -1 )
     , useshading_( false )
     , dosplittexture_( false )			  
@@ -63,6 +63,7 @@ MultiTexture2::MultiTexture2()
     , layersize0_( 0 )
     , layersize1_( 0 )
     , ctabunit_( 0 )
+    , enableinterpolation_( true )
 {
     switch_->ref();
     switch_->addChild( nonshadinggroup_ );
@@ -164,7 +165,7 @@ void MultiTexture2::setTextureTransparency( int texturenr, unsigned char trans )
 	while ( layeropacity_->value.getNum()<texturenr )
 	    layeropacity_->value.set1Value( layeropacity_->value.getNum(),
 		isTextureEnabled(layeropacity_->value.getNum()) &&
-		getCurrentTextureIndexData(layeropacity_->value.getNum()) ? 1 : 0 );
+	    getCurrentTextureIndexData(layeropacity_->value.getNum()) ? 1 : 0 );
 
 	const float opacity = 1.0 - (float) trans/255;
 	layeropacity_->value.set1Value( texturenr,
@@ -272,21 +273,25 @@ float MultiTexture2::getTextureRenderQuality() const
 { return 1; }
 
 
-void MultiTexture2::setInterpolation( bool yn )
+void MultiTexture2::enableInterpolation( bool yn )
 {
-    reviewShading();
-
-    if ( useshading_ )
-	return;
-
-    complexity_->textureQuality.setValue( yn ? 1 : 0.1 );
+    enableinterpolation_ = yn;
     if ( shadingcomplexity_ )
-	shadingcomplexity_->textureQuality.setValue( yn ? 1 : 0.1 );
+    {
+	shadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
+	ctabtexture_->touch();
+    }
+    
+    if ( complexity_ )
+    {
+	complexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
+    	updateColorTables();
+    }
 }
 
 
-bool MultiTexture2::getInterpolation() const
-{ return complexity_->textureQuality.getValue() > 0.2; }
+bool MultiTexture2::interpolationEnabled() const
+{ return enableinterpolation_; }
 
 
 int MultiTexture2::getMaxTextureSize()
@@ -309,8 +314,8 @@ bool MultiTexture2::setDataOversample( int texture, int version,
     const static int minpix2d = 128;
     const int maxpix2d = getMaxTextureSize();
 
-    const int newx0 = getPow2Sz( datax0size*resolution, true, minpix2d, maxpix2d );
-    const int newx1 = getPow2Sz( datax1size*resolution, true, minpix2d, maxpix2d );
+    const int newx0 = getPow2Sz( datax0size*resolution,true,minpix2d,maxpix2d );
+    const int newx1 = getPow2Sz( datax1size*resolution,true,minpix2d,maxpix2d );
 
     if ( !setSize( newx0, newx1 ) )
 	return false;
@@ -730,8 +735,9 @@ void MultiTexture2::createShadingVars()
 
 	if ( !shadingcomplexity_ )
 	    shadingcomplexity_ = new SoComplexity;
-
-	shadingcomplexity_->textureQuality.setValue( 0.3 );
+    	    
+	shadingcomplexity_->textureQuality.setValue( 
+		enableinterpolation_ ? 1 : 0.1 );
 	shadinggroup_->addChild( shadingcomplexity_ );
 
 	datatexturegrp_ = new SoGroup;
