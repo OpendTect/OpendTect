@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.204 2010-02-19 13:18:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.205 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.204 2010-02-19 13:18:28 cvsb
 
 #include "dirlist.h"
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
@@ -1044,15 +1044,15 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	    BufferString dirnm( "icons." );
 	    dirnm += itm->name().buf() + 1; // Skip the leading '&'
 	    const BufferString sourcedir( mGetSetupFileName(dirnm) );
-	    if ( !File_isDirectory(sourcedir) )
+	    if ( !File::isDirectory(sourcedir) )
 	    {
 		uiMSG().error( "Icon directory seems to be invalid" );
 		break;
 	    }
 
 	    const BufferString targetdir( GetSettingsFileName("icons") );
-	    File_remove( targetdir, mFile_Recursive );
-	    File_copy( sourcedir, targetdir, mFile_Recursive );
+	    File::remove( targetdir );
+	    File::copy( sourcedir, targetdir );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
 		uiToolBar::toolBars()[idx]->reLoadPixMaps();
 	}

@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.52 2009-11-20 12:43:34 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.53 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uifiledlg.h"
 
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "separstr.h"
@@ -112,14 +112,14 @@ int uiFileDialog::go()
     FilePath fp( fname_ );
     fname_ = fp.fullPath();
     BufferString dirname;
-    if ( !File_isDirectory(fname_) )
+    if ( !File::isDirectory(fname_) )
     {
-	if ( !File_isDirectory(fp.pathOnly()) )
+	if ( !File::isDirectory(fp.pathOnly()) )
 	{
 	    dirname = GetPersonalDir();
 	    fname_ = "";
 	}
-	else if ( !File_exists(fname_) &&
+	else if ( !File::exists(fname_) &&
 		  (mode_ == ExistingFile || mode_ == ExistingFiles) )
 	{
 	    dirname = fp.pathOnly();
@@ -349,11 +349,11 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	if ( !idx && externalfilenames_->size()>1 && mode_!=ExistingFiles )
 	    mRetErrMsg( fname, "expected to be solitary" );
 
-	if ( File_isDirectory(fname) )
+	if ( File::isDirectory(fname) )
 	{
 	    if ( mode_!=Directory && mode_!=DirectoryOnly )
 		mRetErrMsg( fname, "specifies an existing directory" );
-	    if ( !forread_ && !File_isWritable(fname) )
+	    if ( !forread_ && !File::isWritable(fname) )
 		mRetErrMsg( fname, "specifies a read-only directory" );
 	}
 	else 
@@ -361,19 +361,19 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	    if ( mode_==Directory || mode_==DirectoryOnly )
 		mRetErrMsg( fname, "specifies no existing directory" );
 
-	    if ( !File_exists(fname) )
+	    if ( !File::exists(fname) )
 	    {
 		if ( mode_ != AnyFile ) 
 		    mRetErrMsg( fname, "specifies no existing file" );
 		if ( fp.nrLevels() > 1 )
 		{
-		    if ( !File_isDirectory(fp.pathOnly()) )
+		    if ( !File::isDirectory(fp.pathOnly()) )
 			mRetErrMsg( fname, "ends in non-existing directory" );
-		    if ( !forread_ && !File_isWritable(fp.pathOnly()) )
+		    if ( !forread_ && !File::isWritable(fp.pathOnly()) )
 			mRetErrMsg( fname, "ends in a read-only directory" );
 		}
 	    }
-	    else if ( !forread_ && !File_isWritable(fname) )
+	    else if ( !forread_ && !File::isWritable(fname) )
 		mRetErrMsg( fname, "specifies a read-only file" );
 	}
 

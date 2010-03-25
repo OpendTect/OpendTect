@@ -4,14 +4,14 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.28 2009-10-01 07:33:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.29 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
 
 #include "ascstream.h"
 #include "bufstringset.h"
-#include "filegen.h"
+#include "file.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -488,7 +488,7 @@ void ColTab::SeqMgr::readColTabs()
 {
     IOPar* iop = 0;
     BufferString fnm = mGetSetupFileName("ColTabs");
-    if ( File_exists(fnm) )
+    if ( File::exists(fnm) )
     {
 	StreamData sd = StreamProvider( fnm ).makeIStream();
 	if ( sd.usable() )
@@ -636,8 +636,8 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     const BufferString fnm( applsetup
 	    ? GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"ColTabs",0)
 	    : GetSetupDataFileName(ODSetupLoc_SWDirOnly,"ColTabs",0) );
-    if ( File_exists(fnm) && !File_isWritable(fnm)
-	    && !File_makeWritable(fnm,mFile_NotRecursive,mC_True) )
+    if ( File::exists(fnm) && !File::isWritable(fnm)
+		&& !File::makeWritable(fnm,File::NonRecursive(),mC_True) )
     {
 	BufferString msg( "Cannot make:\n" ); msg == fnm; msg += "\nwritable.";
 	ErrMsg( msg ); return false;

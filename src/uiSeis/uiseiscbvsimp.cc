@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.61 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.62 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.61 2010-03-15 16:15:01 cvs
 #include "ctxtioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "keystrs.h"
@@ -215,7 +215,7 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
     BufferString inp = finpfld->text();
     if ( !*(const char*)inp ) return;
 
-    if ( !File_isEmpty(inp) )
+    if ( !File::isEmpty(inp) )
     {
 	PtrMan<IOObj> ioobj = getfInpIOObj( inp );
 	transffld->updateFrom( *ioobj );

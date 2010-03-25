@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.61 2009-11-11 15:27:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.62 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiwellman.h"
 
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.61 2009-11-11 15:27:51 cvsbert
 #include "ioobj.h"
 #include "iostrm.h"
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ptrman.h"
 #include "strmprov.h"
@@ -473,9 +473,9 @@ static bool addSize( const char* basefnm, const char* fnmend,
 		     double& totalsz, int& nrfiles )
 {
     BufferString fnm( basefnm ); fnm += fnmend;
-    if ( !File_exists(fnm) ) return false;
+    if ( !File::exists(fnm) ) return false;
 
-    totalsz += (double)File_getKbSize( fnm );
+    totalsz += (double)File::getKbSize( fnm );
     nrfiles++;
     return true;
 }
@@ -483,9 +483,9 @@ static bool addSize( const char* basefnm, const char* fnmend,
 
 double uiWellMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( File_isEmpty(filenm) ) return -1;
+    if ( File::isEmpty(filenm) ) return -1;
 
-    double totalsz = (double)File_getKbSize( filenm );
+    double totalsz = (double)File::getKbSize( filenm );
     nrfiles = 1;
 
     FilePath fp( filenm ); fp.setExtension( 0 );

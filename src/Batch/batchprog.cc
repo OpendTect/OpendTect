@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.108 2010-03-17 20:56:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.109 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.108 2010-03-17 20:56:31 cvsyua
 #include <iostream>
 
 #ifdef __win__
-# include "filegen.h"
+# include "file.h"
 #else
 # include "_execbatch.h"
 #endif
@@ -139,7 +139,7 @@ void BatchProgram::init( int* pac, char** av )
 
     int count=10;
 
-    while ( !File_exists(fn) && count-->0 )
+    while ( !File::exists(fn) && count-->0 )
 	Threads::sleep(1);
 
 #endif

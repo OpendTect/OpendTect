@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.18 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.19 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.18 2009-07-22 16:01:40 c
 #include "helpview.h"
 #include "strmprov.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 #include "oddirs.h"
 #include "iopar.h"
 #include "errh.h"
@@ -115,10 +115,10 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 	if ( !sd.usable() || !di->getFrom(*sd.istrm,fulldirnm) )
 	{
 	    fp.setFileName( "index.htm" );
-	    if ( !File_exists(fp.fullPath()) )
+	    if ( !File::exists(fp.fullPath()) )
 	    {
 		fp.setFileName( "index.html" );
-		if ( !File_exists(fp.fullPath()) )
+		if ( !File::exists(fp.fullPath()) )
 		    { delete di; sd.close(); continue; }
 	    }
 	    di->starturl = fp.fullPath();
@@ -278,7 +278,7 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
 	fp = mGetUserDocDir();
 	const char* htmlfnm = "about.html";
 	helpurl = fp.add(oddirnm).add(htmlfnm).fullPath();
-	if ( !File_exists(helpurl) )
+	if ( !File::exists(helpurl) )
 	    helpurl = GetDocFileDir( htmlfnm );
     } break;
     default:

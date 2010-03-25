@@ -7,26 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacetr.cc,v 1.33 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfacetr.cc,v 1.34 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "emsurfacetr.h"
 
-#include "ascstream.h"
-#include "datachar.h"
-#include "datainterp.h"
 #include "emsurface.h"
 #include "emsurfaceio.h"
 #include "emsurfauxdataio.h"
 #include "executor.h"
-#include "filegen.h"
 #include "filepath.h"
-#include "ioobj.h"
-#include "iopar.h"
 #include "iostrm.h"
 #include "strmprov.h"
-#include "ptrman.h"
 #include "survinfo.h"
-#include "cubesampling.h"
 #include "settings.h"
 
 

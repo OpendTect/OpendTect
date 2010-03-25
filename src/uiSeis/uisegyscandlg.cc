@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.25 2009-08-21 10:11:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.26 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.25 2009-08-21 10:11:46 cvs
 #include "segyscanner.h"
 #include "segydirectdef.h"
 #include "seispsioprov.h"
-#include "filegen.h"
+#include "file.h"
 #include <sstream>
 
 
@@ -124,18 +124,18 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	pathnm = ctio_.ioobj->fullUserExpr( Conn::Write );
 	if ( lnmfld_ )
 	{
-	    if ( !File_isDirectory(pathnm) )
+	    if ( !File::isDirectory(pathnm) )
 	    {
-		File_createDir(pathnm,0);
-		if ( !File_isDirectory(pathnm) )
+		File::createDir(pathnm);
+		if ( !File::isDirectory(pathnm) )
 		    mErrRet("Cannot create directory for output:\n",pathnm)
 	    }
-	    if ( !File_isWritable(pathnm) )
+	    if ( !File::isWritable(pathnm) )
 		mErrRet("Output directory is not writable:\n",pathnm)
 	}
 	else
 	{
-	    if ( File_exists(pathnm) && !File_isWritable(pathnm) )
+	    if ( File::exists(pathnm) && !File::isWritable(pathnm) )
 		mErrRet("Cannot overwrite output file:\n",pathnm)
 	}
     }

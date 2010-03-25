@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.41 2010-03-11 11:18:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.42 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.41 2010-03-11 11:18:00 cvsb
 #include "iopar.h"
 #include "transl.h"
 #include "ptrman.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "errh.h"
@@ -336,7 +336,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj* ioobj, Translator* tr )
     IOStream chiostrm;
     chiostrm.copyFrom( iostrm );
     const char* newdir = dlg.fileName();
-    if ( !File_isDirectory(newdir) )
+    if ( !File::isDirectory(newdir) )
     { uiMSG().error( "Selected path is not a directory" ); return false; }
 
     FilePath fp( oldfnm ); fp.setPath( newdir );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.94 2010-02-16 04:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.95 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.94 2010-02-16 04:15:30 c
 #include "ctxtioobj.h"
 #include "datainpspec.h"
 #include "dirlist.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "iodir.h"
 #include "ioman.h"
@@ -935,7 +935,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 				 BufferStringSet& attribfiles,
 				 BufferStringSet& attribnames )
 {
-    if ( !dirnm || !File_exists(dirnm) )
+    if ( !dirnm || !File::exists(dirnm) )
 	return;
 
     DirList attrdl( dirnm, DirList::DirsOnly, "*Attribs" );
@@ -957,7 +957,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 		attrfnm = fp.fullPath();
 	    }
 
-	    if ( !File_exists(attrfnm) ) continue;
+	    if ( !File::exists(attrfnm) ) continue;
 		
 	    attribnames.add( subpar->getKey(idy) );
 	    attribfiles.add( attrfnm );
@@ -1007,7 +1007,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 	FilePath fp( basedir );
 	fp.add( dirnm ).add( ".survey" );
 	BufferString survfnm = fp.fullPath();
-	if ( File_exists(survfnm) )
+	if ( File::exists(survfnm) )
 	    survlist.add( dirnm );
     }
     survlist.sort();

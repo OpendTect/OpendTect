@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.17 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.18 2010-03-25 03:55:14 cvsranojay Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.17 2009-12-03 14:47:46 c
 #include "uitable.h"
 
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "iopar.h"
 #include "pixmap.h"
 #include "tabledef.h"
@@ -217,7 +217,7 @@ uiReadMarkerFile( uiParent* p )
 bool acceptOK( CallBacker* )
 {
     fnm_ = fnmfld_->fileName();
-    if ( File_isEmpty(fnm_) )
+    if ( File::isEmpty(fnm_) )
 	{ uiMSG().error( "Invalid input file" ); return false; }
     keep_ = !replfld_->getBoolValue();
     return true;

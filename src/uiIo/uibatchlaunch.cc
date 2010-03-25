@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.84 2009-11-13 03:19:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.85 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.84 2009-11-13 03:19:00 cvs
 #include "uispinbox.h"
 
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
 #include "ioman.h"
@@ -373,15 +373,15 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 
     if ( redo_ )
     {
-	if ( File_isEmpty(fnm) )
+	if ( File::isEmpty(fnm) )
 	{
 	    uiMSG().error( "Invalid (epty or not readable) specification file" );
 	    return false;
 	}
     }
-    else if ( File_exists(fnm) )
+    else if ( File::exists(fnm) )
     {
-	if ( !File_isWritable(fnm) )
+	if ( !File::isWritable(fnm) )
 	{
 	    BufferString msg( "Cannot write specifications to\n", fnm.buf(),
 		"\nPlease select another file, or make sure file is writable.");

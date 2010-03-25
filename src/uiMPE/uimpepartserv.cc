@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.108 2009-10-30 11:06:31 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.109 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uimpepartserv.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.108 2009-10-30 11:06:31 cv
 #include "emtracker.h"
 #include "emobject.h"
 #include "executor.h"
-#include "filegen.h"
+#include "file.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -1007,7 +1007,7 @@ void uiMPEPartServer::loadTrackSetupCB( CallBacker* )
 bool uiMPEPartServer::readSetup( const MultiID& mid ) 
 {
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
-    if ( !File_exists(setupfilenm) ) return false;
+    if ( !File::exists(setupfilenm) ) return false;
 
     const EM::ObjectID emid = EM::EMM().getObjectID( mid );
     const int trackerid = getTrackerID( emid );

@@ -7,14 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 -*/
 
-static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.3 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.4 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiimpfaultstickset2d.h"
 
 #include "bufstringset.h"
 #include "emfault3d.h"
-#include "filegen.h"
-#include "multiid.h"
 
 #include "uicombobox.h"
 #include "uifileinput.h"

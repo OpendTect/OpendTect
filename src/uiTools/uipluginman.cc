@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginman.cc,v 1.27 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uipluginman.cc,v 1.28 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: uipluginman.cc,v 1.27 2009-07-22 16:01:42 cvsbe
 #include "plugins.h"
 #include "oddirs.h"
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "separstr.h"
 #include "filepath.h"
 #include "strmprov.h"
@@ -149,7 +149,7 @@ void uiPluginMan::loadPush( CallBacker* )
     if ( loaddir.isEmpty() )
     {
 	loaddir = PIM().getAutoDir( true );
-	if ( !File_exists(loaddir) )
+	if ( !File::exists(loaddir) )
 	    loaddir = PIM().getAutoDir( false );
     }
 
@@ -157,7 +157,7 @@ void uiPluginMan::loadPush( CallBacker* )
     if ( !dlg.go() ) return;
 
     BufferString fnm = dlg.fileName();
-    if ( !File_exists(fnm) )
+    if ( !File::exists(fnm) )
 	uiMSG().error( "File does not exist" );
     else if ( !PIM().load(fnm) )
 	uiMSG().error( "Couldn't load plugin" );

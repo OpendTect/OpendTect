@@ -4,12 +4,12 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.14 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.15 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
 #include "survinfo.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ascstream.h"
 #include "strmprov.h"
@@ -78,7 +78,7 @@ PropertyRefRepository::PropertyRefRepository()
 void PropertyRefRepository::addFromFile( const Repos::FileProvider& rfp )
 {
     BufferString fnm = rfp.fileName();
-    if ( !File_exists(fnm) ) return;
+    if ( !File::exists(fnm) ) return;
     StreamData sd = StreamProvider( fnm ).makeIStream();
     if ( !sd.usable() ) return;
 
@@ -145,7 +145,7 @@ bool PropertyRefRepository::write( Repos::Source src ) const
 	    { havesrc = true; break; }
     }
     if ( !havesrc )
-	return !File_exists(fnm) || File_remove( fnm, mFile_NotRecursive );
+	return !File::exists(fnm) || File::remove( fnm );
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() )

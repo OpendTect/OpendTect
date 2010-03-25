@@ -4,12 +4,12 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.29 2010-03-17 21:29:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.30 2010-03-25 03:58:45 cvsranojay Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -113,7 +113,7 @@ static bool getScriptForScons( BufferString& str )
     const char* rsfroot = GetEnvVar("RSFROOT");
     FilePath sconsfp(rsfroot);
     sconsfp.add( "bin" ).add( "scons" );
-    if ( !File_exists(sconsfp.fullPath()) )
+    if ( !File::exists(sconsfp.fullPath()) )
 	return false;
 
 #ifdef __win__
@@ -132,7 +132,7 @@ static bool getScriptForScons( BufferString& str )
     *sd.ostrm << "popd" << std::endl;
 #endif
     sd.close();
-    File_setPermissions( scriptfile, "744", 0 );
+    File::setPermissions( scriptfile, "744", 0 );
 
     str = "@";
     str += scriptfile;
@@ -271,7 +271,7 @@ BufferString MadStream::getPosFileName( bool forread ) const
     if ( forread )
     {
 	posfnm = pars_.find( sKeyPosFileName ).str();
-	if ( !posfnm.isEmpty() && File_exists(posfnm) )
+	if ( !posfnm.isEmpty() && File::exists(posfnm) )
 	    return posfnm;
 	else posfnm.setEmpty();
     }
@@ -286,7 +286,7 @@ BufferString MadStream::getPosFileName( bool forread ) const
 		    			sKey::FileName) ).str();
 	FilePath fp( outfnm );
 	fp.setExtension( "pos" );
-	if ( !forread || File_exists(fp.fullPath()) )
+	if ( !forread || File::exists(fp.fullPath()) )
 	    posfnm = fp.fullPath();
     }
     else if ( !forread )
@@ -390,7 +390,7 @@ void MadStream::fillHeaderParsFromSeis()
 	    headerpars_->set( "o3", inlrg.start );
 	    headerpars_->set( "n3", inlrg.nrSteps()+1 );
 	    headerpars_->set( "d3", inlrg.step );
-	    if ( File_exists(posfnm) )
+	    if ( File::exists(posfnm) )
 		StreamProvider(posfnm).remove(); // While overwriting rsf
 	}
     }

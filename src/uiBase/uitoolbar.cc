@@ -7,19 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.55 2010-02-08 11:22:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.56 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uitoolbar.h"
 
 #include "uiaction.h"
-#include "uibody.h"
 #include "uibutton.h"
 #include "uimainwin.h"
-#include "uiobj.h"
 #include "uiparentbody.h"
 
 #include "bufstringset.h"
-#include "filegen.h"
 #include "menuhandler.h"
 #include "pixmap.h"
 #include "separstr.h"

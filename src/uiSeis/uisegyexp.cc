@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.30 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.31 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -38,7 +38,7 @@ static const char* rcsID = "$Id: uisegyexp.cc,v 1.30 2010-03-15 16:15:01 cvsbert
 #include "oddirs.h"
 #include "pixmap.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 #include "zdomain.h"
 #include "strmprov.h"
 
@@ -109,10 +109,10 @@ void writePush( CallBacker* )
     if ( !dlg.go() ) return;
 
     fp.set( dlg.fileName() );
-    if ( !File_isWritable(fp.pathOnly()) )
+    if ( !File::isWritable(fp.pathOnly()) )
 	{ uiMSG().error("Cannot write to this directory"); return; }
     const BufferString fnm( fp.fullPath() );
-    if ( File_exists(fnm) && !File_isWritable(fnm) )
+    if ( File::exists(fnm) && !File::isWritable(fnm) )
 	{ uiMSG().error("Cannot write to this file"); return; }
 
     if ( !edfld_->saveToFile(fnm,80,false) )
@@ -283,9 +283,9 @@ bool acceptOK( CallBacker* )
     BufferString fnm = fnmfld_->fileName();
     FilePath fp( fnm );
     BufferString dirnm( fp.pathOnly() );
-    if ( !File_isDirectory(dirnm) )
-	File_createDir( dirnm, 0 );
-    if ( !File_isDirectory(dirnm) || !File_isWritable(dirnm) )
+    if ( !File::isDirectory(dirnm) )
+	File::createDir( dirnm );
+    if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
     {
 	uiMSG().error( "Directory provided not usable" );
 	return false;

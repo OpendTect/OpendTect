@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.27 2009-12-23 14:25:03 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.28 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: tableascio.cc,v 1.27 2009-12-23 14:25:03 cvsber
 #include "strmprov.h"
 #include "ascstream.h"
 #include "keystrs.h"
-#include "filegen.h"
+#include "file.h"
 #include <iostream>
 
 mBasicExtern std::ostream& logMsgStrm();
@@ -58,7 +58,7 @@ FileFormatRepository::FileFormatRepository()
 void FileFormatRepository::addFromFile( const char* fnm,
 					Repos::Source src )
 {
-    if ( !File_exists(fnm) ) return;
+    if ( !File::exists(fnm) ) return;
     StreamData sd = StreamProvider( fnm ).makeIStream();
     if ( !sd.usable() ) return;
 
@@ -149,7 +149,7 @@ bool FileFormatRepository::write( Repos::Source src ) const
 	    { havesrc = true; break; }
     }
     if ( !havesrc )
-	return !File_exists(fnm) || File_remove( fnm, mFile_NotRecursive );
+	return !File::exists(fnm) || File::remove( fnm );
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() )

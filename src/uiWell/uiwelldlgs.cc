@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.88 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.89 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.88 2009-12-03 14:47:46 cvsber
 #include "uiwellpartserv.h"
 
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iodirentry.h"
@@ -148,7 +148,7 @@ bool acceptOK( CallBacker* )
 {
     track_.erase();
     fnm_ = wtinfld_->fileName();
-    if ( File_isEmpty(fnm_.buf()) )
+    if ( File::isEmpty(fnm_.buf()) )
 	{ uiMSG().error( "Invalid input file" ); return false; }
     return true;
 }

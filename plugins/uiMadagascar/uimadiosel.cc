@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.30 2010-03-17 21:29:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.31 2010-03-25 03:58:45 cvsranojay Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: uimadiosel.cc,v 1.30 2010-03-17 21:29:38 cvsyua
 #include "ioobj.h"
 #include "ioman.h"
 #include "survinfo.h"
-#include "filegen.h"
+#include "file.h"
 #include "keystrs.h"
 
 
@@ -323,7 +323,7 @@ bool uiMadIOSelDlg::getInp()
     if ( isMad() || isSU() )
     {
 	const BufferString fnm( madfld_->fileName() );
-	if ( fnm.isEmpty() || (isinp_ && !File_exists(fnm)) )
+	if ( fnm.isEmpty() || (isinp_ && !File::exists(fnm)) )
 	    mErrRet("file")
     }
     else if ( !isNone() )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.105 2010-03-11 11:18:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.106 2010-03-25 03:55:14 cvsranojay Exp $";
 
 
 #include "uiseisfileman.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiseisfileman.cc,v 1.105 2010-03-11 11:18:00 cv
 #include "cbvsreadmgr.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -212,16 +212,16 @@ void uiSeisFileMan::mkFileInfo()
 
 double uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( File_isEmpty(filenm) ) return -1;
+    if ( File::isEmpty(filenm) ) return -1;
 
     double totalsz = 0;
     nrfiles = 0;
     while ( true )
     {
 	BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
-	if ( !File_exists(fullnm) ) break;
+	if ( !File::exists(fullnm) ) break;
 	
-	totalsz += (double)File_getKbSize( fullnm );
+	totalsz += (double)File::getKbSize( fullnm );
 	nrfiles++;
     }
 
@@ -474,8 +474,8 @@ void uiSeis2DFileMan::attribSel( CallBacker* )
     txt += "\nLocation: "; txt += fp.pathOnly();
     txt += "\nFile name: "; txt += fp.fileName();
     txt += "\nFile size: "; 
-    txt += uiObjFileMan::getFileSizeString( File_getKbSize(fname) );
-    const char* timestr = File_getTime( fname );
+    txt += uiObjFileMan::getFileSizeString( File::getKbSize(fname) );
+    const char* timestr = File::timeLastModified( fname );
     if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
     infofld_->setText( txt );
 

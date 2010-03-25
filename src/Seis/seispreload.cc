@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.9 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.10 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seispreload.h"
 #include "seistrctr.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: seispreload.cc,v 1.9 2009-07-22 16:01:35 cvsber
 #include "seis2dline.h"
 #include "seisioobjinfo.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 #include "keystrs.h"
 #include "ioman.h"
 #include "strmprov.h"
@@ -94,7 +94,7 @@ bool Seis::PreLoader::loadVol() const
     for ( int idx=0; true; idx++ )
     {
 	const BufferString fnm( CBVSIOMgr::getFileName(basefnm,idx) );
-	if ( File_exists(fnm) )
+	if ( File::exists(fnm) )
 	    fnms.add( fnm );
 	else
 	    break;

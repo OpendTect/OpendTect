@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.62 2010-03-15 16:14:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.63 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uiiosel.cc,v 1.62 2010-03-15 16:14:21 cvsbert E
 #include "uilabel.h"
 #include "uifiledlg.h"
 #include "iopar.h"
-#include "filegen.h"
+#include "file.h"
 #include "keystrs.h"
 
 IOPar& uiIOFileSelect::ixtablehistory()
@@ -411,7 +411,7 @@ bool uiIOFileSelect::fillPar( IOPar& iopar ) const
 {
     const char* res = getInput();
     iopar.set( "File name", res );
-    return res && *res && File_exists(res);
+    return res && *res && File::exists(res);
 }
 
 

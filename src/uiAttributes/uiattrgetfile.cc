@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.13 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.14 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.13 2009-07-22 16:01:37 cvs
 #include "seistrctr.h"
 #include "iopar.h"
 #include "oddirs.h"
-#include "filegen.h"
+#include "file.h"
 #include "keystrs.h"
 
 // uiAttrSrchProcFiles implementation at end of file
@@ -123,7 +123,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 bool uiGetFileForAttrSet::acceptOK( CallBacker* )
 {
     fname_ = fileinpfld->fileName();
-    if ( fname_.isEmpty() || !File_exists(fname_) )
+    if ( fname_.isEmpty() || !File::exists(fname_) )
     {
 	uiMSG().error( "Please enter the filename" );
 	return false;

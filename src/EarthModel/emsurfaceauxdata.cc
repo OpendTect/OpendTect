@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.26 2010-01-07 14:20:24 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.27 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.26 2010-01-07 14:20:24 
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
 #include "executor.h"
-#include "filegen.h"
+#include "file.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -258,7 +258,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 	for ( int idx=0; ; idx++ )
 	{
 	    fnm = dgbSurfDataWriter::createHovName( conn->fileName(), idx );
-	    if ( !File_exists(fnm.buf()) )
+	    if ( !File::exists(fnm.buf()) )
 		break;
 	}
 
@@ -296,7 +296,7 @@ BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
 	if ( gap > 100 ) return "";
 
 	filenm = EM::dgbSurfDataWriter::createHovName(sp.fileName(),idx);
-	if ( File_isEmpty(filenm.buf()) )
+	if ( File::isEmpty(filenm.buf()) )
 	{ gap++; continue; }
 
 	EM::dgbSurfDataReader rdr( filenm.buf() );
@@ -311,7 +311,7 @@ BufferString SurfaceAuxData::getFileName( const IOObj& ioobj,
 bool SurfaceAuxData::removeFile( const IOObj& ioobj, const char* attrnm )
 {
     const BufferString fnm = getFileName( ioobj, attrnm );
-    return !fnm.isEmpty() ? File_remove( fnm, mFile_NotRecursive ) : false;
+    return !fnm.isEmpty() ? File::remove( fnm ) : false;
 }
  
 

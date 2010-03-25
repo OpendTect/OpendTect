@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.24 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.25 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.24 2009-07-22 16:01:40 cv
 #include "uimsg.h"
 #include "cubesampling.h"
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -311,7 +311,7 @@ bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 	const BufferString fnm = tffld_->getInput();
 	if ( fnm.isEmpty() )
 	    mErrRet("Please provide the table file name")
-	else if ( File_isEmpty(fnm.buf()) )
+	else if ( File::isEmpty(fnm.buf()) )
 	    mErrRet("Please select an existing/readable file")
 	iop.set( mGetTableKey(sKey::FileName), fnm );
 	iop.removeWithKey( mGetTableKey("ID") );

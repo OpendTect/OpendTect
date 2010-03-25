@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.32 2010-03-16 15:38:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.33 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.32 2010-03-16 15:38:08 cv
 #include "iopar.h"
 #include "survinfo.h"
 #include "oddirs.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
 
@@ -428,7 +428,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     if ( !isascfld_ ) return true;
 
     BufferString fnm( fnmfld_->fileName() );
-    if ( isimp_ && !File_exists(fnm) )
+    if ( isimp_ && !File::exists(fnm) )
 	mErrRet("Input file does not exist or is unreadable")
     if ( !seisfld_->commitInput() )
 	mErrRet( isimp_ ? "Please choose a name for the imported data"

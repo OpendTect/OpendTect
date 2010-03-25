@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.21 2009-07-22 16:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.22 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisegyexamine.h"
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.21 2009-07-22 16:01:41 c
 #include <iostream>
 
 #ifdef __win__
-#include "filegen.h"
+#include "file.h"
 #endif
 
 
@@ -75,8 +75,8 @@ int main( int argc, char ** argv )
     uiMain app( argc, argv );
 
 #ifdef __win__
-    if ( File_isLink( su.fs_.fname_.buf() ) )
-	su.fs_.fname_ = File_linkTarget( su.fs_.fname_.buf() );
+    if ( File::isLink( su.fs_.fname_.buf() ) )
+	su.fs_.fname_ = File::linkTarget( su.fs_.fname_.buf() );
 #endif
 
     uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );

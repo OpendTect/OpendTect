@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.8 2010-03-03 06:02:37 cvsraman Exp $";
+static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.9 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiclusterjobprov.h"
 
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: uiclusterjobprov.cc,v 1.8 2010-03-03 06:02:37 c
 #include "dirlist.h"
 #include "envvars.h"
 #include "executor.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
 #include "ioman.h"
@@ -51,7 +51,7 @@ static BufferString getDefTempStorDir()
     Stats::RandGen::init();
     stordir += Stats::RandGen::getIndex(100000);
     fp.add( stordir );
-    if ( !File_createDir(fp.fullPath(),0755) )
+    if ( !File::createDir(fp.fullPath()) )
 	return 0;
 
     return fp.fullPath();
@@ -72,7 +72,7 @@ ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	fp.setFileName( dl.get(idx) );
-	File_remove( fp.fullPath(), 0 );
+	File::remove( fp.fullPath() );
     }
 }
 
@@ -109,7 +109,7 @@ static bool writeScriptFile( const char* scrfnm, const char* parfnm,
     *sd.ostrm << "echo \"removed script with ${status}\" >>\\" << std::endl;
     *sd.ostrm << logfnm << std::endl;
     sd.close();
-    File_setPermissions( scrfnm, "711", 0 );
+    File::setPermissions( scrfnm, "711", 0 );
     return true;
 }
 
@@ -180,8 +180,8 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 
     FilePath fp( GetProcFileName(0) );
     fp.add( "scriptdir" );
-    if ( !File_isDirectory(fp.fullPath()) )
-	File_createDir( fp.fullPath(), 0755 );
+    if ( !File::isDirectory(fp.fullPath()) )
+	File::createDir( fp.fullPath() );
     scriptdirfld_ = new uiFileInput( this, "Storage directory for scripts",
 	   			     fp.fullPath() );
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
@@ -229,11 +229,11 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	mErrRet( "Please enter a valid par file name")
 
     BufferString tmpdir = tmpstordirfld_->fileName();
-    if ( tmpdir.isEmpty() || !File_isDirectory(tmpdir) )
+    if ( tmpdir.isEmpty() || !File::isDirectory(tmpdir) )
 	mErrRet( "Please make a valid entry for temporary storage directory")
 
     BufferString scriptdir = scriptdirfld_->fileName();
-    if ( scriptdir.isEmpty() || !File_isDirectory(scriptdir) )
+    if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir) )
 	mErrRet( "Please make a valid entry for script storage directory")
 
     BufferString mainscrnm = masterscriptfld_->fileName();
@@ -241,7 +241,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	mErrRet( "Please make a valid entry for Main script file")
 
     if ( tempstordir_ != tmpdir )
-	File_remove( tempstordir_.buf(), 1 );
+	File::remove( tempstordir_.buf() );
 
     const MultiID tmpid = getTmpID( tmpdir.buf() );
     MultiID outseisid;
@@ -330,7 +330,7 @@ bool uiClusterJobProv::createMasterScript( const char* parfnm,
     *sd.ostrm << "    " << cmscmd.buf() << " $file &" << std::endl;
     *sd.ostrm << "end" << std::endl;
     sd.close();
-    File_setPermissions( masterscript.buf(), "744", 0 );
+    File::setPermissions( masterscript.buf(), "744", 0 );
     BufferString msg( "The script file " );
     msg += masterscript;
     msg += " has been created successfully. Execute now?";

@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.83 2009-08-26 13:06:27 cvsbert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.84 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -573,13 +573,7 @@ int File_createLink( const char* from, const char* to )
 
 const char* File_linkTarget( const char* fname )
 {
-#ifdef __win__
-    if ( !File_isLink(fname) )
-	return fname;
-
-    return getWinLinkTarget(fname);
-
-#else
+#ifndef __win__
     static FileNameString pathbuf;
     return File_isLink(fname) && readlink(fname,pathbuf,256) != -1
 	 ? pathbuf : fname;

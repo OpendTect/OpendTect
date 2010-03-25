@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.115 2010-03-16 10:07:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.116 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisurvey.h"
 
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.115 2010-03-16 10:07:13 cvsbert
 #include "dirlist.h"
 #include "ioman.h"
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "iostrm.h"
@@ -83,9 +83,9 @@ static BufferString getTrueDir( const char* dn )
 {
     BufferString dirnm = dn;
     FilePath fp;
-    while ( File_isLink(dirnm) )
+    while ( File::isLink(dirnm) )
     {
-	BufferString newdirnm = File_linkTarget(dirnm);
+	BufferString newdirnm = File::linkTarget(dirnm);
 	fp.set( newdirnm );
 	if ( !fp.isAbsolute() )
 	{
@@ -103,7 +103,7 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
 {
     FilePath fp( GetBaseDataDir() ); fp.add( todirnm );
     const BufferString todir( fp.fullPath() );
-    if ( File_exists(todir) )
+    if ( File::exists(todir) )
     {
 	BufferString msg( "A survey '" );
 	msg += todirnm;
@@ -126,13 +126,13 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
     const BufferString fromdir = getTrueDir( FilePath(from).fullPath() );
 
     MouseCursorChanger cc( MouseCursor::Wait );
-    if ( !File_copy( fromdir, todir, mFile_Recursive ) )
+    if ( !File::copy( fromdir, todir ) )
     {
         uiMSG().error( "Cannot copy the survey data" );
         return false;
     }
 
-    File_makeWritable( todir, mFile_Recursive, mC_True );
+    File::makeWritable( todir, File::Recursive(), mC_True );
     return true;
 }
 
@@ -337,13 +337,13 @@ void inpSel( CallBacker* )
 bool acceptOK( CallBacker* )
 {
     fname = inpfld->fileName();
-    if ( !File_exists(fname) )
+    if ( !File::exists(fname) )
 	mErrRet( "Selected directory does not exist" );
-    if ( !File_isDirectory(fname) )
+    if ( !File::isDirectory(fname) )
 	mErrRet( "Please select a valid directory" );
     FilePath fp( fname );
     fp.add( ".survey" );
-    if ( !File_exists( fp.fullPath() ) )
+    if ( !File::exists( fp.fullPath() ) )
 	mErrRet( "This is not an OpendTect survey directory" );
 
     newdirnm = newdirnmfld->text();
@@ -431,7 +431,7 @@ void uiSurvey::rmButPushed( CallBacker* )
 
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    bool rmres = File_remove( truedirnm, mFile_Recursive );
+    bool rmres = File::remove( truedirnm );
     MouseCursorManager::restoreOverride();
     if ( !rmres )
     {
@@ -440,7 +440,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     }
 
     if ( seldirnm != truedirnm ) // must have been a link
-	File_remove( seldirnm, mFile_NotRecursive );
+	File::remove( seldirnm );
 
     updateSvyList();
     const char* ptr = GetSurveyName();
@@ -500,7 +500,7 @@ bool uiSurvey::updateSvyFile()
         ErrMsg( "Cannot update the 'survey' file in $HOME/.od/" );
         return false;
     }
-    if ( !File_exists( FilePath(GetBaseDataDir()).add(seltxt).fullPath() ) )
+    if ( !File::exists( FilePath(GetBaseDataDir()).add(seltxt).fullPath() ) )
     {
         ErrMsg( "Survey directory does not exist anymore" );
         return false;
@@ -700,7 +700,7 @@ void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot )
 	FilePath fp( basedir );
 	fp.add( dirnm ).add( ".survey" );
 	BufferString survfnm = fp.fullPath();
-	if ( File_exists(survfnm) )
+	if ( File::exists(survfnm) )
 	    list.add( dirnm );
     }
 

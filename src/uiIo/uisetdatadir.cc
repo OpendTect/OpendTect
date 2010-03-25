@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetdatadir.cc,v 1.29 2009-07-22 16:19:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.30 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisetdatadir.h"
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "ioman.h"
 #include "settings.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "envvars.h"
 #include "oddirs.h"
@@ -101,7 +101,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 bool uiSetDataDir::acceptOK( CallBacker* )
 {
     BufferString datadir = basedirfld->text();
-    if ( datadir.isEmpty() || !File_isDirectory(datadir) )
+    if ( datadir.isEmpty() || !File::isDirectory(datadir) )
 	mErrRet( "Please enter a valid (existing) location" )
 
     if ( oddirfld )
@@ -143,7 +143,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
     const BufferString stdomf( mGetSetupFileName("omf") );
     bool trycpdemosurv = false;
 
-    if ( !File_exists(datadir) )
+    if ( !File::exists(datadir) )
     {
 #ifdef __win__
 	BufferString progfiles=GetSpecialFolderLocation(CSIDL_PROGRAM_FILES);
@@ -156,11 +156,11 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	    mErrRet( "Please do not try to use 'Program Files' for data.\n"
 		     "A directory like 'My Documents' would be good." )
 #endif
-	if ( !File_createDir( datadir, 0 ) )
+	if ( !File::createDir( datadir ) )
 	    mErrRet( "Cannot create the new directory.\n"
 		     "Please check if you have the required write permissions" )
-	File_copy( stdomf, omffnm, mFile_NotRecursive );
-	if ( !File_exists(omffnm) )
+	File::copy( stdomf, omffnm );
+	if ( !File::exists(omffnm) )
 	    mErrRet( "Cannot copy a file to the new directory!" )
 
 	trycpdemosurv = true;
@@ -168,15 +168,15 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 
     if ( !OD_isValidRootDataDir(datadir) )
     {
-	if ( !File_isDirectory(datadir) )
+	if ( !File::isDirectory(datadir) )
 	    mErrRet( "A file (not a directory) with this name already exists" )
-	if ( !File_exists(omffnm) )
+	if ( !File::exists(omffnm) )
 	{
 	    if ( !uiMSG().askGoOn( "This is not an OpendTect data directory.\n"
 				  "Do you want it to be converted into one?" ) )
 		return false;
-	    File_copy( stdomf, omffnm, mFile_NotRecursive );
-	    if ( !File_exists(omffnm) )
+	    File::copy( stdomf, omffnm );
+	    if ( !File::exists(omffnm) )
 		mErrRet( "Could not convert the directory.\n"
 			 "Most probably you have no write permissions." )
 
@@ -185,7 +185,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	else
 	{
 	    FilePath fp( datadir ); fp.add( "Seismics" );
-	    if ( File_exists(fp.fullPath()) )
+	    if ( File::exists(fp.fullPath()) )
 	    {
 		fp.setFileName( 0 );
 		BufferString probdatadir( fp.pathOnly() );
@@ -211,17 +211,17 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	FilePath demosurvnm( GetSoftwareDir(0) );
 	demosurvnm.add( GetEnvVar("DTECT_DEMO_SURVEY") );
 
-	if ( File_isDirectory(demosurvnm.fullPath()) )
+	if ( File::isDirectory(demosurvnm.fullPath()) )
 	{
 	    FilePath fp( datadir );
 	    fp.add( FilePath(demosurvnm).fileName() );
 	    const BufferString todir( fp.fullPath() );
-	    if ( !File_exists(todir) )
+	    if ( !File::exists(todir) )
 	    {
 		if ( uiMSG().askGoOn( 
 			"Do you want to install the demo survey\n"
 			"in your OpendTect Data Root directory?" ) )
-		    File_copy( demosurvnm.fullPath(), todir, mFile_Recursive );
+		    File::copy( demosurvnm.fullPath(), todir );
 	    }
 	}
     }

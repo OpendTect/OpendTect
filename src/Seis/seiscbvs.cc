@@ -5,10 +5,9 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.82 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.83 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seiscbvs.h"
-#include "seisinfo.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
@@ -16,13 +15,9 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.82 2009-07-22 16:01:34 cvsbert 
 #include "cbvswritemgr.h"
 #include "filepath.h"
 #include "iostrm.h"
-#include "cubesampling.h"
-#include "iopar.h"
 #include "survinfo.h"
 #include "strmprov.h"
 #include "separstr.h"
-#include "filegen.h"
-#include "errh.h"
 
 const char* CBVSSeisTrcTranslator::sKeyDataStorage()	{ return "Data storage"; }
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }

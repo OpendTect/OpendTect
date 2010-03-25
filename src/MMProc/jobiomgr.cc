@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.35 2010-03-03 07:28:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.36 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "jobiomgr.h"
 
 #include "debugmasks.h"
 #include "envvars.h"
 #include "errh.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
 #include "ioman.h"
@@ -453,8 +453,8 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
     newiop.set( sKey::Survey, IOM().surveyName() );
 
-    if ( File_exists(iopfnm) ) File_remove( iopfnm, mFile_NotRecursive );
-    if ( File_exists(logfnm) ) File_remove( logfnm, mFile_NotRecursive );
+    if ( File::exists(iopfnm) ) File::remove( iopfnm );
+    if ( File::exists(logfnm) ) File::remove( logfnm );
 
     StreamData iopsd = StreamProvider(iopfnm).makeOStream();
     if ( !iopsd.usable() )

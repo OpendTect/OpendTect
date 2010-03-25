@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.132 2010-02-04 16:18:47 cvsjaap Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.133 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "emsurfaceio.h"
 
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.132 2010-02-04 16:18:47 cvsj
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
 #include "emsurfauxdataio.h"
-#include "filegen.h"
+#include "file.h"
 #include "parametricsurface.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -294,7 +294,7 @@ void dgbSurfaceReader::createAuxDataReader()
 
 	BufferString hovfnm( 
 		dgbSurfDataWriter::createHovName(conn_->fileName(),idx) );
-	if ( File_isEmpty(hovfnm.buf()) )
+	if ( File::isEmpty(hovfnm.buf()) )
 	{ gap++; continue; }
 
 	dgbSurfDataReader* dreader = new dgbSurfDataReader( hovfnm.buf() );
@@ -1532,7 +1532,7 @@ int dgbSurfaceWriter::nextStep()
 		{
 		    fnm = dgbSurfDataWriter::createHovName( conn_->fileName(),
 							    count );
-		    if ( !File_exists(fnm.buf()) )
+		    if ( !File::exists(fnm.buf()) )
 			break;
 		}
 	    }

@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.13 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.14 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "prestackeventio.h"
 
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: prestackeventio.cc,v 1.13 2009-07-22 16:01:34 c
 #include "datachar.h"
 #include "datainterp.h"
 #include "dirlist.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "ioobj.h"
@@ -293,7 +293,7 @@ bool EventReader::readSamplingData( const IOObj& ioobj,
 	 	SamplingData<int>& inlsampling, SamplingData<int>& crlsampling )
 {
     const BufferString fnm( ioobj.fullUserExpr(true) );
-    if ( !File_isDirectory(fnm.buf()) )
+    if ( !File::isDirectory(fnm.buf()) )
 	return false;
 
     FilePath horidfnm;
@@ -320,7 +320,7 @@ bool EventReader::readSamplingData( const IOObj& ioobj,
 bool EventReader::prepareWork()
 {
     const BufferString fnm( ioobj_->fullUserExpr(true) );
-    if ( !File_isDirectory(fnm.buf()) )
+    if ( !File::isDirectory(fnm.buf()) )
     {
 	errmsg_ = "Error: ";
 	errmsg_ += fnm;
@@ -342,7 +342,7 @@ bool EventReader::prepareWork()
     const DirList dirlist( fnm.buf(), DirList::FilesOnly, mask.buf() );
     for ( int idx=0; idx<dirlist.size(); idx++ )
     {
-	if ( File_isEmpty( dirlist.fullPath(idx) ) )
+	if ( File::isEmpty( dirlist.fullPath(idx) ) )
 	   continue;
  
        const SeparString sepstr( dirlist[idx]->buf(), '_' );
@@ -437,7 +437,7 @@ bool EventReader::readAuxData(const char* fnm)
 
     BufferString auxfilenm = horidfnm.fullPath();
 
-    if ( !File_exists( auxfilenm ) )
+    if ( !File::exists( auxfilenm ) )
 	horidfnm.setFileName( sOldHorizonFileName() );
 
     auxfilenm = horidfnm.fullPath();
@@ -561,11 +561,11 @@ int EventWriter::nextStep()
 		      crlsampling.step );
 
 	const BufferString fnm( ioobj_->fullUserExpr(true) );
-	if ( !File_exists( fnm.buf() ) || !File_isDirectory( fnm.buf() ) )
+	if ( !File::exists( fnm.buf() ) || !File::isDirectory( fnm.buf() ) )
 	{
-	    if ( !File_isDirectory( fnm.buf() ) )
+	    if ( !File::isDirectory( fnm.buf() ) )
 	    {
-		if ( !File_remove( fnm.buf(), mFile_NotRecursive ) )
+		if ( !File::remove( fnm.buf() ) )
 		{
 		    errmsg_ = "Cannot remove ";
 		    errmsg_ += fnm;
@@ -573,7 +573,7 @@ int EventWriter::nextStep()
 		}
 	    }
 
-	    if ( !File_createDir(fnm.buf(), 0) )
+	    if ( !File::createDir(fnm.buf()) )
 	    {
 		errmsg_ = "Cannot create directory ";
 		errmsg_ += fnm;
@@ -635,7 +635,7 @@ int EventWriter::nextStep()
 	    EventPatchWriter* writer =
 		new EventPatchWriter( patchfnm.buf(), eventmanager_);
 
-	    if ( !File_isEmpty(patchfnm.buf()) )
+	    if ( !File::isEmpty(patchfnm.buf()) )
 	    {
 		StreamConn* conn = new StreamConn( patchfnm.buf(), Conn::Read );
 		if ( conn && conn->forRead() )
@@ -760,7 +760,7 @@ EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
     , totalnr_( -1 )
 {
     const BufferString fromnm( from_->fullUserExpr(true) );
-    if ( !File_isDirectory(fromnm.buf()) )
+    if ( !File::isDirectory(fromnm.buf()) )
     {
 	errmsg_ = "Input file ";
 	errmsg_ += fromnm.buf();
@@ -769,10 +769,10 @@ EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
     }
 
     const BufferString tonm( to_->fullUserExpr(true) );
-    if ( File_exists( tonm.buf() ) )
+    if ( File::exists( tonm.buf() ) )
     {
-	File_remove( tonm.buf(), mFile_Recursive );
-	if ( File_exists( tonm.buf() ) )
+	File::remove( tonm.buf() );
+	if ( File::exists( tonm.buf() ) )
 	{
 	    errmsg_ = "Cannot overwrite ";
 	    errmsg_ += tonm.buf();
@@ -781,7 +781,7 @@ EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
 	}
     }
 
-    if ( !File_createDir( tonm.buf(), 0 ) )
+    if ( !File::createDir( tonm.buf() ) )
     {
 	errmsg_ = "Cannot create ";
 	errmsg_ += tonm.buf();
@@ -821,7 +821,7 @@ int EventDuplicator::nextStep()
     const int idx = filestocopy_.size()-1;
 
     const BufferString tonm( to_->fullUserExpr(true) );
-    if ( !File_isDirectory(tonm.buf()) )
+    if ( !File::isDirectory(tonm.buf()) )
     {
 	errmsg_ = tonm.buf();
 	errmsg_ += " is not a directory";
@@ -836,8 +836,7 @@ int EventDuplicator::nextStep()
     message_ += targetfile.fileName();
     message_ += ".";
 
-    if ( !File_copy( filestocopy_[idx]->buf(), targetfile.fullPath().buf(),
-			mFile_NotRecursive) )
+    if ( !File::copy( filestocopy_[idx]->buf(), targetfile.fullPath().buf() ) )
     {
 	errmsg_ = "Cannot copy ";
 	errmsg_ = filestocopy_[idx]->buf();
@@ -856,8 +855,8 @@ void EventDuplicator::errorCleanup()
 {
 
     const BufferString tonm( to_->fullUserExpr(true) );
-    if ( File_exists( tonm.buf() ) )
-	File_remove( tonm.buf(), mFile_Recursive );
+    if ( File::exists( tonm.buf() ) )
+	File::remove( tonm.buf() );
 }
 
 
@@ -1461,10 +1460,10 @@ int EventPatchWriter::nextStep()
 
 	if ( !bids.size() )
 	{
-	    if ( File_exists( fileio_.fileName() ) &&
-		 File_isWritable( fileio_.fileName() ) )
+	    if ( File::exists( fileio_.fileName() ) &&
+		 File::isWritable( fileio_.fileName() ) )
 	    {
-		return File_remove( fileio_.fileName(), mFile_NotRecursive )
+		return File::remove( fileio_.fileName() )
 		    ? Finished()
 		    : ErrorOccurred();
 	    }

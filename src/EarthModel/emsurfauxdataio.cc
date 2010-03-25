@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.43 2009-08-12 03:04:35 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.44 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.43 2009-08-12 03:04:35 c
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
-#include "filegen.h"
+#include "file.h"
 #include "iopar.h"
 #include "parametricsurface.h"
 #include "strmprov.h"
@@ -107,7 +107,7 @@ dgbSurfDataWriter::~dgbSurfDataWriter()
 
 
 #define mErrRetWrite(msg) \
-{ errmsg_ = msg; File_remove(filename_.buf(),mFile_NotRecursive); \
+{ errmsg_ = msg; File::remove(filename_.buf()); \
     return ErrorOccurred(); }
 
 

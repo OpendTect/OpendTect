@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabimport.cc,v 1.7 2009-10-16 09:15:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicoltabimport.cc,v 1.8 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uicoltabimport.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uicoltabimport.cc,v 1.7 2009-10-16 09:15:14 cvs
 #include "oddirs.h"
 #include "ptrman.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 #include "coltabsequence.h"
 #include "settings.h"
 
@@ -62,10 +62,10 @@ void uiColTabImport::usrSel( CallBacker* )
     listfld_->box()->empty();
 
     FilePath fp( homedirfld_->fileName() );
-    if ( !File_exists(fp.fullPath()) )
+    if ( !File::exists(fp.fullPath()) )
 	mErrRet( "Please select an existing directory" );
     fp.add( ".od" );
-    if ( !File_exists(fp.fullPath()) )
+    if ( !File::exists(fp.fullPath()) )
 	mErrRet( "No '.od' directory found in directory" );
 
     BufferString settdir( fp.fullPath() );

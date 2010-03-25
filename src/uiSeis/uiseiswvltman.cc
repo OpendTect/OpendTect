@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.56 2010-03-09 08:04:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.57 2010-03-25 03:55:14 cvsranojay Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.56 2010-03-09 08:04:06 cvs
 #include "arrayndimpl.h"
 #include "flatposdata.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 
 #include "uibutton.h"
 #include "uiioobjsel.h"
@@ -277,7 +277,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 
     FilePath fp( basedatadir ); fp.add( dlg.selFld()->getText() );
     const BufferString tmprootdir( fp.fullPath() );
-    if ( !File_exists(tmprootdir) ) mRet("Survey doesn't seem to exist")
+    if ( !File::exists(tmprootdir) ) mRet("Survey doesn't seem to exist")
     const BufferString realrootdir( GetDataDir() );
 
     // No returns from here ...

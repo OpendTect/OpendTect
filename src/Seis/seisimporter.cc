@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.23 2009-08-27 13:45:02 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.24 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: seisimporter.cc,v 1.23 2009-08-27 13:45:02 cvsb
 #include "survinfo.h"
 #include "binidsorting.h"
 #include "ptrman.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "errh.h"
 
@@ -369,12 +369,12 @@ int doFinal()
     {
 	errmsg_ = "No traces written during re-sorting.\n";
 	errmsg_ += "The imported cube remains to have swapped in/crosslines";
-	File_remove( tmpfnm, mFile_NotRecursive );
+	File::remove( tmpfnm );
 	return Executor::ErrorOccurred();
     }
 
-    if ( !File_remove(targetfnm_,mFile_NotRecursive)
-      || !File_rename(tmpfnm,targetfnm_) )
+    if ( !File::remove(targetfnm_)
+      || !File::rename(tmpfnm,targetfnm_) )
     {
 	errmsg_ = "Your input data is cross-line sorted.\n"
 	    	  "OpendTect has re-sorted to in-line sorting.\n"

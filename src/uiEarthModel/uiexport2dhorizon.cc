@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.9 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.10 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiexport2dhorizon.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.9 2009-12-03 14:47:46 
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -214,7 +214,7 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
     if ( !strcmp(outfld_->fileName(),"") )
 	mErrRet( "Please select output file" );
 
-    if ( File_exists(outfld_->fileName()) && 
+    if ( File::exists(outfld_->fileName()) && 
 			!uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 

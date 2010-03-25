@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.37 2010-03-17 19:40:30 cvskris Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.38 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.37 2010-03-17 19:40:30 c
 #include "iodirentry.h"
 #include "oddirs.h"
 #include "hostdata.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "strmprov.h"
@@ -180,7 +180,7 @@ bool SeisJobExecProv::emitLSFile( const char* fnm ) const
 
     outls_->putTo( *sd.ostrm );
     sd.close();
-    return !File_isEmpty( fnm );
+    return !File::isEmpty( fnm );
 }
 
 
@@ -197,7 +197,7 @@ bool SeisJobExecProv::isRestart() const
     if ( !res )
 	return iopar_.find( sKeyProcIs2D );
 
-    return File_isDirectory(res);
+    return File::isDirectory(res);
 }
 
 
@@ -211,7 +211,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 	iopar_.set( sKey::TmpStor, getDefTempStorDir() );
 	tmpstordir = iopar_.find( sKey::TmpStor );
     }
-    const bool havetempdir = File_isDirectory(tmpstordir);
+    const bool havetempdir = File::isDirectory(tmpstordir);
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
@@ -228,7 +228,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 	ptrnrs = &inlnrs;
 	mSetInlsPerJob( 1 );
     }
-    else if ( !File_createDir(tmpstordir,0) )
+    else if ( !File::createDir(tmpstordir) )
     {
 	errmsg_ = "Cannot create data directory in Temporary storage dir";
 	return 0;
@@ -387,5 +387,5 @@ bool SeisJobExecProv::removeTempSeis()
 
     if ( fp.fileName() == "i.*" )
 	fp.setFileName(0);
-    return File_remove(fp.fullPath().buf(),mFile_Recursive);
+    return File::remove( fp.fullPath().buf() );
 }

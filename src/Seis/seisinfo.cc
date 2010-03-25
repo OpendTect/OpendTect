@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.60 2010-03-15 09:27:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.61 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: seisinfo.cc,v 1.60 2010-03-15 09:27:39 cvsbert 
 #include "survinfo.h"
 #include "strmprov.h"
 #include "strmdata.h"
-#include "filegen.h"
+#include "file.h"
 #include "iopar.h"
 #include "cubesampling.h"
 #include "enums.h"
@@ -37,7 +37,7 @@ static BufferString getUsrInfo()
 {
     BufferString bs;
     const char* envstr = GetEnvVar( "DTECT_SEIS_USRINFO" );
-    if ( !envstr || !File_exists(envstr) ) return bs;
+    if ( !envstr || !File::exists(envstr) ) return bs;
 
     StreamData sd = StreamProvider(envstr).makeIStream();
     if ( sd.usable() )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.135 2010-03-17 20:40:00 cvskris Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.136 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: uiseismmproc.cc,v 1.135 2010-03-17 20:40:00 cvs
 #include "iostrm.h"
 #include "oddirs.h"
 #include "timer.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "executor.h"
 #include "ptrman.h"
@@ -131,7 +131,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	    tmpstordirfld = new uiIOFileSelect( this,
 			    sKey::TmpStor, false, tmpstordir );
 	    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory() );
-	    if ( !tmpstordir.isEmpty() && File_isDirectory(tmpstordir) )
+	    if ( !tmpstordir.isEmpty() && File::isDirectory(tmpstordir) )
 		tmpstordirfld->setInput( tmpstordir );
 	    tmpstordirfld->selectDirectory( true );
 	    tmpstordirfld->stretchHor( true );
@@ -294,7 +294,7 @@ void uiSeisMMProc::startWork( CallBacker* )
     else
     {
 	tmpstordir = tmpstordirfld->getInput();
-	if ( !File_isWritable(tmpstordir) )
+	if ( !File::isWritable(tmpstordir) )
 	    mErrRet("The temporary storage directory is not writable")
 	tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
 	const_cast<IOPar&>(iop).set( sKey::TmpStor, tmpstordir );
@@ -320,13 +320,13 @@ void uiSeisMMProc::startWork( CallBacker* )
     if ( !is2d )
     {
 	iop.get( sKey::TmpStor, tmpstordir );
-	if ( !File_isDirectory(tmpstordir) )
+	if ( !File::isDirectory(tmpstordir) )
 	{
-	    if ( File_exists(tmpstordir) )
-		File_remove( tmpstordir, mFile_NotRecursive );
-	    File_createDir( tmpstordir, 0 );
+	    if ( File::exists(tmpstordir) )
+		File::remove( tmpstordir );
+	    File::createDir( tmpstordir );
 	}
-	if ( !File_isDirectory(tmpstordir) )
+	if ( !File::isDirectory(tmpstordir) )
 	    mErrRet("Cannot create temporary storage directory")
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.116 2010-03-16 10:07:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.117 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.116 2010-03-16 10:07:13 cvs
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "errh.h"
+#include "file.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -25,7 +26,6 @@ static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.116 2010-03-16 10:07:13 cvs
 #include "survinfo.h"
 #include "statrand.h"
 #include "iopar.h"
-
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uifiledlg.h"
@@ -128,9 +128,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	BufferString storagedir = FilePath(orgstorepath_)
 	    			  .add(orgdirname_).fullPath();
 	int linkcount = 0;
-	while ( linkcount++ < 20 && File_isLink(storagedir) )
+	while ( linkcount++ < 20 && File::isLink(storagedir) )
 	{
-	    BufferString newstoragedir = File_linkTarget(storagedir);
+	    BufferString newstoragedir = File::linkTarget(storagedir);
 	    FilePath fp( newstoragedir );
 	    if ( !fp.isAbsolute() )
 	    {
@@ -154,12 +154,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	orgdirname_ = newSurvTempDirName();
 	BufferString dirnm = FilePath( orgstorepath_ )
 	    		    .add( orgdirname_ ).fullPath();
-	if ( File_exists(dirnm) )
-	    File_remove( dirnm, mFile_Recursive );
+	if ( File::exists(dirnm) )
+	    File::remove( dirnm );
 	if ( !copySurv(mGetSetupFileName("BasicSurvey"),0,
 		       orgstorepath_,orgdirname_) )
 	    return;
-	File_makeWritable( dirnm, mFile_Recursive, mC_True );
+	File::makeWritable( dirnm, File::Recursive(), mC_True );
 
 	fulldirpath = dirnm;
     }
@@ -454,7 +454,7 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
 {
     const BufferString fnmin = FilePath(inpath).add(indirnm).fullPath();
     const BufferString fnmout = FilePath(outpath).add(outdirnm).fullPath();
-    if ( File_exists(fnmout) )
+    if ( File::exists(fnmout) )
     {
 	BufferString msg( "Cannot copy " ); msg += fnmin;
 	msg += " to "; msg += fnmout;
@@ -463,9 +463,9 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
 	return false;
     }
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    File_copy( fnmin, fnmout, mFile_Recursive );
+    File::copy( fnmin, fnmout );
     MouseCursorManager::restoreOverride();
-    if ( !File_exists(fnmout) )
+    if ( !File::exists(fnmout) )
     {
 	BufferString msg( "Copy " ); msg += fnmin;
 	msg += " to "; msg += fnmout; msg += " failed\n"
@@ -483,7 +483,7 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 {
     const BufferString fnmin = FilePath(path).add(indirnm).fullPath();
     const BufferString fnmout = FilePath(path).add(outdirnm).fullPath();
-    if ( File_exists(fnmout) )
+    if ( File::exists(fnmout) )
     {
 	BufferString msg( "Cannot rename " ); msg += fnmin;
 	msg += " to "; msg += fnmout;
@@ -491,8 +491,8 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 	uiMSG().error( msg );
 	return false;
     }
-    File_rename( fnmin, fnmout );
-    if ( !File_exists(fnmout) )
+    File::rename( fnmin, fnmout );
+    if ( !File::exists(fnmout) )
     {
 	BufferString msg( "Rename " ); msg += fnmin;
 	msg += " to "; msg += fnmout; msg += " failed\n"
@@ -568,8 +568,8 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
     {
 	const BufferString dirnm = FilePath(orgstorepath_)
 	    			   .add(orgdirname_).fullPath();
-	if ( File_exists(dirnm) )
-	    File_remove( dirnm, mFile_Recursive );
+	if ( File::exists(dirnm) )
+	    File::remove( dirnm );
     }
     return true;
 }
@@ -603,7 +603,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     if ( !isnew_ )
     {
 	if ( (dirnamechanged || storepathchanged)
-	  && File_exists(newdir) )
+	  && File::exists(newdir) )
 	{
 	    uiMSG().error( "The new target directory exists.\n"
 		    	   "Please enter another directory name or location." );
@@ -618,7 +618,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 				newstorepath,newdirnm) )
 		return false;
 	    else if ( !uiMSG().askGoOn("Keep the survey at the old location?") )
-		File_remove( olddir, mFile_Recursive );
+		File::remove( olddir );
 	}
 	else if ( dirnamechanged )
 	{
@@ -628,7 +628,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     }
     else
     {
-	if ( File_exists(newdir) )
+	if ( File::exists(newdir) )
 	{
 	    uiMSG().error( "The chosen target directory exists.\n"
 		    	   "Please enter another name or location." );
@@ -639,22 +639,22 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	{
 	    if ( !copySurv(orgstorepath_,orgdirname_,newstorepath,newdirnm) )
 		return false;
-	    File_remove( olddir, mFile_Recursive );
+	    File::remove( olddir );
 	}
 	else if ( !renameSurv(newstorepath,orgdirname_,newdirnm) )
 	    return false;
     }
 
     BufferString linkpos = FilePath(rootdir_).add(newdirnm).fullPath(); 
-    if ( File_exists(linkpos) )
+    if ( File::exists(linkpos) )
     {
-       if ( File_isLink(linkpos) )
-	   File_remove( linkpos, mFile_NotRecursive );
+       if ( File::isLink(linkpos) )
+	   File::remove( linkpos );
     }
 
-    if ( !File_exists(linkpos) )
+    if ( !File::exists(linkpos) )
     {
-	if ( !File_createLink(newdir,linkpos) )
+	if ( !File::createLink(newdir,linkpos) )
 	{
 	    BufferString msg( "Cannot create link from \n" );
 	    msg += newdir; msg += " to \n"; msg += linkpos;
@@ -809,7 +809,7 @@ void uiSurveyInfoEditor::pathbutPush( CallBacker* )
     if ( dlg.go() )
     {
 	BufferString dirnm( dlg.fileName() );
-	if ( !File_isWritable(dirnm) )
+	if ( !File::isWritable(dirnm) )
 	{
 	    uiMSG().error( "Directory is not writable" );
 	    return;

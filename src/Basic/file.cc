@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.6 2010-03-24 07:19:39 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.7 2010-03-25 03:55:14 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -242,5 +242,14 @@ const char* getTempPath()
     pathstr = QDir::tempPath().toAscii().constData();
     return pathstr.buf();
 }
+
+
+bool Recursive()
+{ return true; }
+
+
+bool NonRecursive()
+{ return false; }
+
 
 } // namespace File

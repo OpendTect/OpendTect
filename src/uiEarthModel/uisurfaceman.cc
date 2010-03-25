@@ -7,14 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.69 2009-12-03 03:13:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.70 2010-03-25 03:55:14 cvsranojay Exp $";
 
 
 #include "uisurfaceman.h"
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "ioobj.h"
 #include "multiid.h"
 #include "oddirs.h"
@@ -213,9 +213,9 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 
     const BufferString filename =
 		SurfaceAuxData::getFileName( *curioobj_, attribnm );
-    if ( File_isEmpty(filename) )
+    if ( File::isEmpty(filename) )
 	mErrRet( "Cannot find attribute file" )
-    else if ( !File_isWritable(filename) )
+    else if ( !File::isWritable(filename) )
 	mErrRet( "The attribute data file is not writable" )
 
     StreamData sdin( StreamProvider(filename).makeIStream() );
@@ -244,20 +244,20 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     BufferString tmpfnm( filename ); tmpfnm += "_old";
     if ( !writeok )
     {
-	File_remove( ofilename, mFile_NotRecursive );
+	File::remove( ofilename );
 	mErrRet( "Error during write. Reverting to old name" )
     }
 
-    if ( File_rename(filename,tmpfnm) )
-	File_rename(ofilename,filename);
+    if ( File::rename(filename,tmpfnm) )
+	File::rename(ofilename,filename);
     else
     {
-	File_remove( ofilename, mFile_NotRecursive );
+	File::remove( ofilename );
 	mErrRet( "Cannot rename file(s). Reverting to old name" )
     }
 
-    if ( File_exists(tmpfnm) )
-	File_remove( tmpfnm, mFile_NotRecursive );
+    if ( File::exists(tmpfnm) )
+	File::remove( tmpfnm );
 
     selChg( this );
 }
@@ -336,16 +336,16 @@ void uiSurfaceMan::mkFileInfo()
 
 double uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( File_isEmpty(filenm) ) return -1;
-    double totalsz = (double)File_getKbSize( filenm );
+    if ( File::isEmpty(filenm) ) return -1;
+    double totalsz = (double)File::getKbSize( filenm );
     nrfiles = 1;
 
     const BufferString basefnm( filenm );
     for ( int idx=0; ; idx++ )
     {
 	BufferString fnm( basefnm ); fnm += "^"; fnm += idx; fnm += ".hov";
-	if ( !File_exists(fnm) ) break;
-	totalsz += (double)File_getKbSize( fnm );
+	if ( !File::exists(fnm) ) break;
+	totalsz += (double)File::getKbSize( fnm );
 	nrfiles++;
     }
 

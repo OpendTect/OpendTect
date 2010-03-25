@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.21 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.22 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -33,7 +33,7 @@ static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.21 2009-12-03 14:47:46 cv
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "filegen.h"
+#include "file.h"
 #include "emhorizon2d.h"
 
 #include <math.h>
@@ -432,7 +432,7 @@ bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
     for ( int idx=0; idx<filenames.size(); idx++ )
     {
 	const char* fnm = filenames[idx]->buf();
-	if ( !File_exists(fnm) )
+	if ( !File::exists(fnm) )
 	{
 	    BufferString errmsg( "Cannot find input file:\n" );
 	    errmsg += fnm;

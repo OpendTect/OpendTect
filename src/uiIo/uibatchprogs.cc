@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.45 2010-03-02 11:06:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.46 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uibatchprogs.cc,v 1.45 2010-03-02 11:06:23 cvsr
 #include "ascstream.h"
 #include "separstr.h"
 #include "strmprov.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "manobjectset.h"
 #include "iopar.h"
@@ -119,7 +119,7 @@ BatchProgInfoList::BatchProgInfoList()
 
 void BatchProgInfoList::getEntries( const char* fnm )
 {
-    if ( File_isEmpty(fnm) ) return;
+    if ( File::isEmpty(fnm) ) return;
     StreamData sd = StreamProvider(fnm).makeIStream();
     if ( !sd.usable() ) return;
 
@@ -273,14 +273,14 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     if ( bpi.exampleinput.isEmpty() )
 	{ pErrMsg("In CB that shouldn't be called for entry"); return; }
     BufferString sourceex( mGetSetupFileName(bpi.exampleinput) );
-    if ( File_isEmpty(sourceex) )
+    if ( File::isEmpty(sourceex) )
 	{ pErrMsg("Installation problem"); return; }
 
     BufferString targetex = GetProcFileName( bpi.exampleinput );
-    if ( !File_exists(targetex) )
+    if ( !File::exists(targetex) )
     {
-	File_copy( sourceex, targetex, mFile_NotRecursive );
-	File_makeWritable( targetex, mFile_NotRecursive, mC_True );
+	File::copy( sourceex, targetex );
+	File::makeWritable( targetex, File::NonRecursive(), mC_True );
     }
 
     if ( browser )

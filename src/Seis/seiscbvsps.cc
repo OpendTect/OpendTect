@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.43 2009-11-27 03:01:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.44 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: seiscbvsps.cc,v 1.43 2009-11-27 03:01:38 cvsnan
 #include "seisbuf.h"
 #include "cbvsreadmgr.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "posinfo.h"
@@ -183,8 +183,8 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
     const BufferString fnm( fp.fullPath() );
     if ( nms.isEmpty() )
     {
-	if ( File_exists(fnm) )
-	    File_remove( fnm, mFile_NotRecursive );
+	if ( File::exists(fnm) )
+	    File::remove( fnm );
 	return true;
     }
 
@@ -210,7 +210,7 @@ void SeisCBVSPSIO::usePar( const IOPar& iopar )
 
 bool SeisCBVSPSIO::dirNmOK( bool forread ) const
 {
-    if ( File_isDirectory(dirnm_) )
+    if ( File::isDirectory(dirnm_) )
 	return true;
 
     if ( forread )
@@ -220,8 +220,8 @@ bool SeisCBVSPSIO::dirNmOK( bool forread ) const
 	return false;
     }
 
-    File_createDir( dirnm_, 0 );
-    if ( !File_isDirectory(dirnm_) )
+    File::createDir( dirnm_ );
+    if ( !File::isDirectory(dirnm_) )
     {
 	errmsg_ = "Cannot create directory '";
 	errmsg_ += dirnm_; errmsg_ += "'";
@@ -302,7 +302,7 @@ static const char* posdataFileName( const char* dirnm )
     return ret.buf();
 }
 
-#define mRemoveCache(fnm) File_remove( fnm, mFile_NotRecursive )
+#define mRemoveCache(fnm) File::remove( fnm )
 
 
 SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
@@ -424,7 +424,7 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
 
     BufferString filep = fp.fullPath();
 
-    if( !File_exists( (const char*)filep ) )
+    if( !File::exists( (const char*)filep ) )
     {
 	errmsg_ = "No Pre Stack data available for inline "; errmsg_ += inl;
 	return false;
@@ -551,7 +551,7 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
     if ( !dirNmOK(true) ) return;
 
     const BufferString fnm( get2DFileName(lnm) );
-    if ( !File_exists(fnm) ) return;
+    if ( !File::exists(fnm) ) return;
 
     errmsg_ = "";
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );

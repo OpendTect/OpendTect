@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.25 2009-12-04 11:36:05 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.26 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: seispsioprov.cc,v 1.25 2009-12-04 11:36:05 cvsb
 #include "seistrc.h"
 #include "seispacketinfo.h"
 #include "posinfo.h"
-#include "filegen.h"
+#include "file.h"
 #include "iox.h"
 #include "ioman.h"
 #include "iodir.h"
@@ -154,12 +154,12 @@ bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     BufferString fnm( ioobj->fullUserExpr(true) );
-    if ( File_exists(fnm) )
-	File_remove( fnm, File_isDirectory(fnm) );
+    if ( File::exists(fnm) )
+	File::remove( fnm );
     const char* res = ioobj->pars().find( SeisPSIOProvider::sKeyCubeID );
     if ( res )
 	IOM().permRemove( MultiID(res) );
-    return !File_exists(fnm);
+    return !File::exists(fnm);
 }
 
 
@@ -167,9 +167,9 @@ bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     BufferString fnm( ioobj->fullUserExpr(true) );
-    if ( File_exists(fnm) )
-	File_remove( fnm, File_isDirectory(fnm) );
-    return !File_exists(fnm);
+    if ( File::exists(fnm) )
+	File::remove( fnm );
+    return !File::exists(fnm);
 }
 
 

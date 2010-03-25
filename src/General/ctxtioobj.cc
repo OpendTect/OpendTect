@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.45 2010-01-19 05:44:51 cvsraman Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.46 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: ctxtioobj.cc,v 1.45 2010-01-19 05:44:51 cvsrama
 #include "transl.h"
 #include "globexpr.h"
 #include "separstr.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "survinfo.h"
 #include "keystrs.h"
@@ -126,7 +126,7 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
     const IOObjContext::StdDirData* sdd = getStdDirData( sst );
     FilePath fp( GetDataDir() ); fp.add( sdd->dirnm );
     BufferString dirnm = fp.fullPath();
-    if ( !File_exists(dirnm) )
+    if ( !File::exists(dirnm) )
     {
 	if ( sst == IOObjContext::NLA )
 	    fp.setFileName( "NNs" );
@@ -138,7 +138,7 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
 	    fp.setFileName( "Logs" );
 
 	BufferString altdirnm = fp.fullPath();
-	if ( File_exists(altdirnm) )
+	if ( File::exists(altdirnm) )
 	    dirnm = altdirnm;
     }
     return dirnm;

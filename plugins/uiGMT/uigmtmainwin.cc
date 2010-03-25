@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.19 2009-07-28 07:15:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.20 2010-03-25 03:58:45 cvsranojay Exp $";
 
 #include "uigmtmainwin.h"
 
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "gmtpar.h"
 #include "gmtprocflow.h"
@@ -401,7 +401,7 @@ void uiGMTMainWin::checkFileCB( CallBacker* )
 {
     FilePath fp( filefld_->fileName() );
     fp.setExtension( "tmp" );
-    if ( !File_exists(fp.fullPath()) )
+    if ( !File::exists(fp.fullPath()) )
 	return;
 
     tim_->stop();
@@ -437,12 +437,12 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 
     FilePath fp( fnm );
     BufferString dirnm = fp.pathOnly();
-    if ( !File_isDirectory(dirnm.buf()) || !File_isWritable(dirnm.buf()) )
+    if ( !File::isDirectory(dirnm.buf()) || !File::isWritable(dirnm.buf()) )
 	mErrRet("Output directory is not writable")
 
     fp.setExtension( "ps" );
     fnm = fp.fullPath();
-    if ( File_exists(fnm.buf()) && !File_isWritable(fnm.buf()) )
+    if ( File::exists(fnm.buf()) && !File::isWritable(fnm.buf()) )
 	mErrRet("Output file already exists and is read only")
 
     par.set( sKey::FileName, fnm );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.44 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.45 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: uiimppickset.cc,v 1.44 2009-12-03 14:47:46 cvsb
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "filegen.h"
+#include "file.h"
 #include "pickset.h"
 #include "picksettr.h"
 
@@ -221,7 +221,7 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
 bool uiImpExpPickSet::checkInpFlds()
 {
     BufferString filenm = filefld_->fileName();
-    if ( import_ && !File_exists(filenm) )
+    if ( import_ && !File::exists(filenm) )
 	mErrRet( "Please select input file" );
 
     if ( !import_ && filenm.isEmpty() )

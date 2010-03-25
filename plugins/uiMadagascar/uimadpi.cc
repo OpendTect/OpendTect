@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.18 2009-11-24 14:13:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.19 2010-03-25 03:58:45 cvsranojay Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: uimadpi.cc,v 1.18 2009-11-24 14:13:48 cvsbert E
 #include "uitoolbar.h"
 
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "maddefs.h"
@@ -44,7 +44,7 @@ mExternC PluginInfo* GetuiMadagascarPluginInfo()
 bool checkEnvVars( BufferString& msg )
 {
     BufferString rsfdir = GetEnvVar( "RSFROOT" );
-    if ( rsfdir.isEmpty() || !File_isDirectory(rsfdir.buf()) )
+    if ( rsfdir.isEmpty() || !File::isDirectory(rsfdir.buf()) )
     {
 	msg = "RSFROOT is either not set or invalid";
 	return false;

@@ -5,13 +5,13 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.41 2009-08-27 10:01:41 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.42 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "helpview.h"
 
 #include "envvars.h"
 #include "errh.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "multiid.h"
 #include "oddirs.h"
@@ -167,10 +167,10 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* docdir)
     {
 	url = ismainidx ? FilePath( docdir ).add( sIndexHtml ).fullPath().buf()
 			: GetDocFileDir( sToDoHtml );
-	if ( ismainidx && !File_exists(url) )
+	if ( ismainidx && !File::exists(url) )
 	{
 	    url = FilePath( docdir ).add( sBookHtml ).fullPath();
-	    if ( !File_exists(url) )
+	    if ( !File::exists(url) )
 		url = GetDocFileDir( sNotFoundHtml );
 	}
 	return url;
@@ -199,7 +199,7 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* docdir)
 
     const char* fnm = htmlfnm.isEmpty() ? sIndexHtml : htmlfnm.buf();
     url = FilePath( docdir ).add( fnm ).fullPath();
-    const bool doesexist = File_exists(url);
+    const bool doesexist = File::exists(url);
     if ( showhelpstuff )
     {
 	BufferString msg( "Link '", linknm, "' -> URL '" );
@@ -221,7 +221,7 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
 {
     const BufferString docdir =
 	FilePath( mGetUserDocDir() ).add( getScope(winid) ).fullPath();
-    if ( !File_exists(docdir) )
+    if ( !File::exists(docdir) )
 	return BufferString( GetDocFileDir(sNotInstHtml) );
 
     const BufferString lnm = getLinkNameForWinID( winid, docdir );

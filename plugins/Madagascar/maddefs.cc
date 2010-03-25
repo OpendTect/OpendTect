@@ -4,11 +4,11 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.17 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.18 2010-03-25 03:58:45 cvsranojay Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "dirlist.h"
 #include "strmprov.h"
@@ -47,7 +47,7 @@ void ODMad::ProgInfo::doPreScanCheck()
 	errmsg_ = "RSFROOT not set - no program definitions available";
 	return;
     }
-    if ( !File_isDirectory(rsfroot_) )
+    if ( !File::isDirectory(rsfroot_) )
     {
 	errmsg_ = "$RSFROOT (Madagascar) is invalid:\n";
 	errmsg_ += rsfroot_;
@@ -58,7 +58,7 @@ void ODMad::ProgInfo::doPreScanCheck()
     FilePath fp( rsfroot_ ); fp.add( "doc" ).add( "txt" );
     defdir_ = fp.fullPath();
 
-    if ( !File_isDirectory(defdir_) )
+    if ( !File::isDirectory(defdir_) )
     {
 	errmsg_ = "Madagascar installation not prepared. Directory:\n";
 	errmsg_ += defdir_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.29 2010-03-11 11:18:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.30 2010-03-25 03:55:14 cvsranojay Exp $";
 
 
 #include "uiobjfileman.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiobjfileman.cc,v 1.29 2010-03-11 11:18:00 cvsb
 #include "ioman.h"
 #include "dirlist.h"
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "streamconn.h"
 #include "survinfo.h"
@@ -108,13 +108,13 @@ const char* uiObjFileMan::getDefKey() const
 
 double uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    nrfiles = File_exists(filenm) ? 1 : 0;
+    nrfiles = File::exists(filenm) ? 1 : 0;
     if ( nrfiles == 0 )
 	return 0;
 
-    double ret = (double)File_getKbSize( filenm );
+    double ret = (double)File::getKbSize( filenm );
     if ( ret < 0 ) ret = -ret;
-    if ( !File_isDirectory(filenm) )
+    if ( !File::isDirectory(filenm) )
 	return ret;
 
     DirList dl( filenm );
@@ -167,7 +167,7 @@ BufferString uiObjFileMan::getFileInfo()
 
     BufferString fname( conn->fileName() );
     FilePath fp( fname );
-    const bool isdir = File_isDirectory( fname );
+    const bool isdir = File::isDirectory( fname );
     int nrfiles = 1;
     const double totsz = getFileSize( fname, nrfiles );
 
@@ -177,7 +177,7 @@ BufferString uiObjFileMan::getFileInfo()
     txt += "\nSize on disk: "; txt += getFileSizeString( totsz );
     if ( nrfiles > 1 )
 	{ txt += "\nNumber of files: "; txt += nrfiles; }
-    const char* timestr = File_getTime( fname );
+    const char* timestr = File::timeLastModified( fname );
     if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
     int txtsz = txt.size()-1;
     if ( txt[ txtsz ] != '\n' ) txt += "\n";

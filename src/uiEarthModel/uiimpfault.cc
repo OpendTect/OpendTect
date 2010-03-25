@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.38 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.39 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiimpfault.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiimpfault.cc,v 1.38 2009-12-03 14:47:46 cvsber
 #include "emfault3d.h"
 #include "emfsstofault3d.h"
 #include "emmanager.h"
-#include "filegen.h"
+#include "file.h"
 #include "ioobj.h"
 #include "lmkemfaulttransl.h"
 #include "streamconn.h"
@@ -264,7 +264,7 @@ bool uiImportFault::checkInpFlds()
 {
     if ( !*infld_->fileName() )
 	mErrRet( "Please select the input file" )
-    else if ( !File_exists(infld_->fileName()) )
+    else if ( !File::exists(infld_->fileName()) )
 	mErrRet( "Input file does not exist" )
 
     if( !isfss_ )
@@ -273,7 +273,7 @@ bool uiImportFault::checkInpFlds()
 	{
 	    if ( !*formatfld_->fileName() )
 		mErrRet( "Please select the format file" )
-	    else if ( !File_exists(formatfld_->fileName()) )
+	    else if ( !File::exists(formatfld_->fileName()) )
 		mErrRet( "Format file does not exist" )
 	}
     }

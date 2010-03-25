@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.31 2010-03-16 15:33:19 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.32 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "batchprog.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.31 2010-03-16 15:33:19
 #include "attribprocessor.h"
 #include "attribstorprovider.h"
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
 #include "initalgo.h"
@@ -95,11 +95,11 @@ bool BatchProgram::go( std::ostream& strm )
     const char* tempdir = pars().find(sKey::TmpStor);
     if ( tempdir && *tempdir )
     {
-	if ( !File_exists(tempdir) )
+	if ( !File::exists(tempdir) )
 	    mRetFileProb(sKey::TmpStor,tempdir,"does not exist")
-	else if ( !File_isDirectory(tempdir) )
+	else if ( !File::isDirectory(tempdir) )
 	    mRetFileProb(sKey::TmpStor,tempdir,"is not a directory")
-	else if ( !File_isWritable(tempdir) )
+	else if ( !File::isWritable(tempdir) )
 	    mRetFileProb(sKey::TmpStor,tempdir,"is not writeable")
     }
 
@@ -139,8 +139,8 @@ bool BatchProgram::go( std::ostream& strm )
 	    fp.add( ioobj->fullUserExpr(false) );
 	}
 	BufferString dirnm = fp.pathOnly();
-	const bool isdir = File_isDirectory( dirnm );
-	if ( !isdir || !File_isWritable(dirnm) )
+	const bool isdir = File::isDirectory( dirnm );
+	if ( !isdir || !File::isWritable(dirnm) )
 	{
 	    BufferString fdesc("Output directory for '");
 	    fdesc += ioobj->name(); fdesc += "'";

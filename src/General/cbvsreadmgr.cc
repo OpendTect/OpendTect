@@ -5,11 +5,11 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.59 2010-03-12 14:58:23 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.60 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
-#include "filegen.h"
+#include "file.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "datachar.h"
@@ -57,7 +57,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
     for ( int fnr=0; ; fnr++ )
     {
 	BufferString fname = single_file ? fnm : getFileName(fnr).buf();
-	if ( !File_exists((const char*)fname) )
+	if ( !File::exists((const char*)fname) )
 	    break;
 
 	foundone = true;
@@ -96,7 +96,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 void CBVSReadMgr::handleAuxFile()
 {
     BufferString fname = getFileName( -1 );
-    if ( !File_exists((const char*)fname) )
+    if ( !File::exists((const char*)fname) )
 	return;
 
     StreamData sd = StreamProvider(fname).makeIStream();
@@ -712,7 +712,7 @@ const char* CBVSReadMgr::check( const char* basefname )
     for ( ; ; curnr++ )
     {
 	BufferString fname = getFileName( basefname, curnr );
-	if ( !File_exists((const char*)fname) ) break;
+	if ( !File::exists((const char*)fname) ) break;
 
 	StreamData sd = StreamProvider(fname).makeIStream();
 	const char* res = CBVSReader::check( *sd.istrm );

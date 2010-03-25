@@ -8,11 +8,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.13 2009-09-28 12:25:34 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.14 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uivelocityfunctionimp.h"
 
-#include "filegen.h"
+#include "file.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -99,7 +99,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !sd.usable() )
 	 mErrRet( "Cannot open input file" );
 
-    const od_int64 filesize = File_getKbSize( inpfld_->fileName() );
+    const od_int64 filesize = File::getKbSize( inpfld_->fileName() );
     FunctionAscIO velascio( fd_, *sd.istrm, filesize ? filesize : -1 );
 
     velascio.setOutput( bidvalset );

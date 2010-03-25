@@ -4,18 +4,14 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.30 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.31 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
 #include "stratlevel.h"
 #include "safefileio.h"
 #include "ascstream.h"
-#include "separstr.h"
-#include "filegen.h"
 #include "keystrs.h"
-#include "errh.h"
-#include "debug.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "color.h"

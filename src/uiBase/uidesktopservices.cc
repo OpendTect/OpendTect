@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidesktopservices.cc,v 1.10 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uidesktopservices.cc,v 1.11 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uidesktopservices.h"
 
 #include "bufstring.h"
 #include "debugmasks.h"
-#include "filegen.h"
 #include "uimsg.h"
 
 #include <QDesktopServices>

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.33 2010-03-12 14:58:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.34 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uisegydef.cc,v 1.33 2010-03-12 14:58:23 cvsbert
 #include "oddirs.h"
 #include "envvars.h"
 #include "settings.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "seisioobjinfo.h"
 
@@ -114,7 +114,7 @@ bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 		if ( !strchr(spec.fname_.buf(),'*') )
 		    mErrRet("Please put a wildcard ('*') in the file name")
 	    }
-	    else if ( !File_exists(spec.fname_) )
+	    else if ( !File::exists(spec.fname_) )
 		mErrRet("Selected input file does not exist")
 	}
     }

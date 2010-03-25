@@ -4,11 +4,11 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: madio.cc,v 1.7 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: madio.cc,v 1.8 2010-03-25 03:58:45 cvsranojay Exp $";
 
 #include "madio.h"
 #include "keystrs.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "strmprov.h"
 #include "envvars.h"
@@ -31,7 +31,7 @@ bool ODMad::FileSpec::fileNameOK( const char* fnm ) const
     if ( !forread_ )
     {
 	FilePath fp( fnm );
-	if ( !File_isWritable(fp.pathOnly()) )
+	if ( !File::isWritable(fp.pathOnly()) )
 	{
 	    errmsg_ = "Directory '";
 	    errmsg_ += fp.pathOnly();
@@ -39,7 +39,7 @@ bool ODMad::FileSpec::fileNameOK( const char* fnm ) const
 	    return false;
 	}
     }
-    else if ( fnm && *fnm && File_isEmpty(fnm) )
+    else if ( fnm && *fnm && File::isEmpty(fnm) )
     {
 	errmsg_ = "File '";
 	errmsg_ += fnm;
@@ -134,18 +134,18 @@ StreamData ODMad::FileSpec::doOpen( const char* fnm ) const
 {
     if ( forread_ )
     {
-	if ( !File_exists(fnm) )
+	if ( !File::exists(fnm) )
 	    mErrRet("File '",fnm,"' does not exist")
-	else if ( File_isEmpty(fnm) )
+	else if ( File::isEmpty(fnm) )
 	    mErrRet("File '",fnm,"' is empty")
     }
     else
     {
 	FilePath fp( fnm );
 	const BufferString dirnm( fp.pathOnly() );
-	if ( !File_isDirectory(dirnm) )
+	if ( !File::isDirectory(dirnm) )
 	    mErrRet("Directory '",dirnm,"' does not exist")
-	else if ( !File_isWritable(dirnm) )
+	else if ( !File::isWritable(dirnm) )
 	    mErrRet("Directory '",dirnm,"' is not writable")
     }
 

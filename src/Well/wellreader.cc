@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.38 2009-09-17 11:10:18 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.39 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.38 2009-09-17 11:10:18 cvsber
 #include "wellmarker.h"
 #include "welldisp.h"
 #include "ascstream.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "errh.h"
 #include "strmprov.h"
@@ -96,9 +96,9 @@ bool Well::IO::removeAll( const char* ext ) const
     for ( int idx=1; ; idx++ )
     {
 	BufferString fnm( getFileName(ext,idx) );
-	if ( !File_exists(fnm) )
+	if ( !File::exists(fnm) )
 	    break;
-	else if ( !File_remove(fnm,mFile_NotRecursive) )
+	else if ( !File::remove(fnm) )
 	    return false;
     }
     return true;

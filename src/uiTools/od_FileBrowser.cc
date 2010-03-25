@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.17 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.18 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uitextfile.h"
 #include "uimain.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.17 2009-07-22 16:01:42 cv
 #include <iostream>
 
 #ifdef __win__
-# include "filegen.h"
+# include "file.h"
 #endif
 
 int main( int argc, char ** argv )
@@ -55,8 +55,8 @@ int main( int argc, char ** argv )
     uiMain app( argc, argv );
 
 #ifdef __win__
-    if ( File_isLink( fnm ) )
-	fnm = const_cast<char*>(File_linkTarget(fnm));
+    if ( File::isLink( fnm ) )
+	fnm = const_cast<char*>(File::linkTarget(fnm));
 #endif
 
     uiTextFile::Setup tfsetup( !edit, table, fnm );

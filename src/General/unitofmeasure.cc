@@ -4,14 +4,14 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.15 2010-03-18 19:44:30 cvskris Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.16 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "strmprov.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "debug.h"
 #include "errh.h"
@@ -114,7 +114,7 @@ UnitOfMeasureRepository::UnitOfMeasureRepository()
 void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 						Repos::Source src )
 {
-    if ( !File_exists(fnm) ) return;
+    if ( !File::exists(fnm) ) return;
     StreamData sd = StreamProvider( fnm ).makeIStream();
     if ( !sd.usable() ) return;
 
@@ -154,7 +154,7 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
 	    { havesrc = true; break; }
     }
     if ( !havesrc )
-	return !File_exists(fnm) || File_remove( fnm, mFile_NotRecursive );
+	return !File::exists(fnm) || File::remove( fnm );
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() )

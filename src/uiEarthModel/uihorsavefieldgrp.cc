@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.6 2009-12-16 06:03:19 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.7 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uihorsavefieldgrp.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uihorsavefieldgrp.cc,v 1.6 2009-12-16 06:03:19 
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "filegen.h"
+#include "file.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
@@ -199,7 +199,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 	mErrRet( "New horizon data loading failed" );
 
     newhorizon_->setMultiID( outputfld_->ioobj()->key() );
-    File_copy( horizon_->name(), newhorizon_->name(), mFile_NotRecursive );
+    File::copy( horizon_->name(), newhorizon_->name() );
 
     return true;
 }

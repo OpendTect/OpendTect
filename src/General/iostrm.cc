@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.31 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.32 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: iostrm.cc,v 1.31 2009-07-22 16:01:32 cvsbert Ex
 #include "strmprov.h"
 #include "separstr.h"
 #include "string2.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 
 class IOStreamProducer : public IOObjProducer
@@ -194,7 +194,7 @@ Conn* IOStream::getConn( Conn::State rw ) const
 
     StreamConn*	s = 0;
     StreamData sd( fr ? sp->makeIStream() : sp->makeOStream() );
-    if ( !sd.usable() && !File_isDirectory(sp->fileName()) )
+    if ( !sd.usable() && !File::isDirectory(sp->fileName()) )
 	{ delete sp; return 0; }
 
     s = new StreamConn( sd );

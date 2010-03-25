@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.15 2010-02-24 10:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.16 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.15 2010-02-24 10:44:33 c
 #include "uimsg.h"
 #include "uislider.h"
 
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
@@ -160,10 +160,10 @@ bool uiWindowGrabDlg::filenameOK() const
 	return false;
     }
 
-    if ( File_exists(filename) )
+    if ( File::exists(filename) )
     {
 	BufferString msg = "The file "; msg += filename; 
-	if ( !File_isWritable(filename) )
+	if ( !File::isWritable(filename) )
 	{
 	    msg += " is not writable";
 	    uiMSG().error(msg);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.51 2010-02-15 07:11:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.52 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.51 2010-02-15 07:11:39 cv
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "filegen.h"
+#include "file.h"
 #include "ioobj.h"
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -255,8 +255,8 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     const BufferString oldsetupname = EM::Surface::getSetupFileName( *ioobj );
     const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);
-    if ( File_exists(oldsetupname) ) 
-	File_copy( oldsetupname, newsetupname, mFile_NotRecursive );
+    if ( File::exists(oldsetupname) ) 
+	File::copy( oldsetupname, newsetupname );
 
     return true;
 }

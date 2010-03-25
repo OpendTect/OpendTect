@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrdevenv.cc,v 1.33 2009-11-25 06:50:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.34 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uicrdevenv.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uicrdevenv.cc,v 1.33 2009-11-25 06:50:13 cvsran
 #include "uimsg.h"
 
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
@@ -67,19 +67,19 @@ bool uiCrDevEnv::isOK( const char* datadir )
 
     if ( !datafp.nrLevels() ) return false;
 
-    if ( !datafp.nrLevels() || !File_isDirectory( datafp.fullPath() ) )
+    if ( !datafp.nrLevels() || !File::isDirectory( datafp.fullPath() ) )
 	return false;
 
     datafp.add( "src" );
-    if ( !File_isDirectory(datafp.fullPath()) )
+    if ( !File::isDirectory(datafp.fullPath()) )
 	return false;
 
     datafp.set( datadir ).add( "include" );
-    if ( !File_isDirectory(datafp.fullPath()) )
+    if ( !File::isDirectory(datafp.fullPath()) )
 	return false;
 
     datafp.set( datadir ).add( "plugins" );
-    if ( !File_isDirectory(datafp.fullPath()) )
+    if ( !File::isDirectory(datafp.fullPath()) )
 	return false;
 
     return true;
@@ -104,7 +104,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     BufferString workdirnm;
 
-    if ( File_exists(oldworkdir.fullPath()) )
+    if ( File::exists(oldworkdir.fullPath()) )
     {
 	BufferString msg = "Your current work directory (";
 	msg += oldworkdir.fullPath();
@@ -115,7 +115,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	if ( uiMSG().askGoOn(msg) )
 	{
-	    File_remove( workdirnm, mFile_Recursive );
+	    File::remove( workdirnm );
 	    workdirnm = oldworkdir.fullPath();
 	}
     }
@@ -132,7 +132,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	basedirnm = dlg.basedirfld->text();
 	worksubdirm = dlg.workdirfld->text();
 
-	if ( !File_isDirectory(basedirnm) )
+	if ( !File::isDirectory(basedirnm) )
 	    mErrRet( "Invalid directory selected" )
 
 	workdirnm = FilePath( basedirnm ).add( worksubdirm ).fullPath();
@@ -140,10 +140,10 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     if ( workdirnm.isEmpty() ) return;
 	
-    if ( File_exists(workdirnm) )
+    if ( File::exists(workdirnm) )
     {
 	BufferString msg;
-	const bool isdir= File_isDirectory( workdirnm );
+	const bool isdir= File::isDirectory( workdirnm );
 	const bool isok = isOK(workdirnm);
 
 	if ( isdir )
@@ -165,11 +165,11 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	if ( !uiMSG().askRemove(msg) )
 	    return;
 
-	File_remove( workdirnm, mFile_Recursive );
+	File::remove( workdirnm );
     }
 
 
-    if ( !File_createDir( workdirnm, 0 ) )
+    if ( !File::createDir( workdirnm ) )
 	mErrRet( "Cannot create the new directory.\n"
 		 "Please check if you have the required write permissions" )
 
@@ -202,7 +202,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 #endif
     
     BufferString relfile = FilePath(workdirnm).add(".rel.devel").fullPath();
-    if ( !File_exists(relfile) )
+    if ( !File::exists(relfile) )
 	mErrRet( "Creation seems to have failed" )
     else
     {
@@ -222,7 +222,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 bool uiCrDevEnv::acceptOK( CallBacker* )
 {
     BufferString workdir = basedirfld->text();
-    if ( workdir.isEmpty() || !File_isDirectory(workdir) )
+    if ( workdir.isEmpty() || !File::isDirectory(workdir) )
 	mErrRet( "Please enter a valid (existing) location" )
 
     if ( workdirfld )
@@ -234,7 +234,7 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 	workdir = FilePath( workdir ).add( workdirnm ).fullPath();
     }
 
-    if ( !File_exists(workdir) )
+    if ( !File::exists(workdir) )
     {
 #ifdef __win__
 	if ( !strncasecmp("C:\\Program Files", workdir, 16)

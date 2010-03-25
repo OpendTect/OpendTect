@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.11 2009-08-27 09:58:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.12 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.11 2009-08-27 09:58:39 cv
 #include "uimsg.h"
 #include "uispinbox.h"
 
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -271,7 +271,7 @@ void uiSaveImageDlg::fileSel( CallBacker* )
     BufferString filename = fileinputfld_->fileName();
     if ( filename.isEmpty() ) return;
     
-    if ( !File_isDirectory(filename) )
+    if ( !File::isDirectory(filename) )
 	addFileExtension( filename );
     fileinputfld_->setFileName( filename );
 }
@@ -294,10 +294,10 @@ bool uiSaveImageDlg::filenameOK() const
 	return false;
     }
 
-    if ( File_exists(filename) )
+    if ( File::exists(filename) )
     {
 	BufferString msg = "The file "; msg += filename; 
-	if ( !File_isWritable(filename) )
+	if ( !File::isWritable(filename) )
 	{
 	    msg += " is not writable";
 	    uiMSG().error(msg);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackexpmute.cc,v 1.6 2009-12-03 14:47:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackexpmute.cc,v 1.7 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiprestackexpmute.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiprestackexpmute.cc,v 1.6 2009-12-03 14:47:46 
 #include "uimsg.h"
 
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "mathfunc.h"
 #include "oddirs.h"
 #include "prestackmutedeftransl.h"
@@ -112,7 +112,7 @@ bool uiExportMute::acceptOK( CallBacker* )
     if (!strcmp(outfld_->fileName(),"") )
 	mErrRet( "Please select output file" );
 
-    if ( File_exists(outfld_->fileName()) && 
+    if ( File::exists(outfld_->fileName()) && 
 	    		!uiMSG().askContinue("Output file exists. Continue?") )
 	return false;
 

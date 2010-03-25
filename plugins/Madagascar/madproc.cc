@@ -2,13 +2,13 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.cc,v 1.7 2009-07-22 16:01:27 cvsbert Exp $
+ * ID       : $Id: madproc.cc,v 1.8 2010-03-25 03:58:45 cvsranojay Exp $
 -*/
 
 
 #include "madproc.h"
 #include "envvars.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "madio.h"
@@ -28,7 +28,7 @@ bool ODMad::Proc::progExists( const char* prog )
     fp.setExtension( "exe" );
 #endif
 
-    return File_exists( fp.fullPath() );
+    return File::exists( fp.fullPath() );
 }
 
 
@@ -123,7 +123,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		fp.add( filepath );
 	    }
 	    
-	    if ( !File_exists(fp.fullPath()) )
+	    if ( !File::exists(fp.fullPath()) )
 	    {
 		isvalid_ = false;
 		errmsg_ = "Cannot find RSF file ";

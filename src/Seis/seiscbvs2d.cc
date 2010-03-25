@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.51 2010-03-17 19:40:30 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.52 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.51 2010-03-17 19:40:30 cvskri
 #include "executor.h"
 #include "survinfo.h"
 #include "keystrs.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "errh.h"
@@ -72,7 +72,7 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOPar& iop ) const
     if ( !isUsable(iop) ) return true;
 
     const BufferString& fnm = gtFileName( iop );
-    return fnm.isEmpty() || File_isEmpty(fnm);
+    return fnm.isEmpty() || File::isEmpty(fnm);
 }
 
 
@@ -116,7 +116,7 @@ void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 {
     if ( !isUsable(iop) ) return;
     const BufferString& fnm = gtFileName(iop);
-    File_remove( fnm.buf(), mFile_NotRecursive );
+    File::remove( fnm.buf() );
 }
 
 

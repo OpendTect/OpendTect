@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.19 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.20 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.19 2010-03-15 16:15:01 
 #include "ascstream.h"
 #include "ptrman.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 #include "datapack.h"
 #include "survinfo.h"
 #include "preloads.h"

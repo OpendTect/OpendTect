@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.38 2009-11-03 12:04:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.39 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "pixmap.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: pixmap.cc,v 1.38 2009-11-03 12:04:47 cvsnanne E
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "errh.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "separstr.h"
@@ -83,11 +83,11 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     {
 	fp.setPath( GetSettingsFileName("icons") );
 	fname = fp.fullPath();
-	if ( !File_exists(fname) )
+	if ( !File::exists(fname) )
 	{
 	    fp.setPath( mGetSetupFileName("icons.cur") );
 	    fname = fp.fullPath();
-	    if ( !File_exists(fname) )
+	    if ( !File::exists(fname) )
 	    {
 		fp.setPath( mGetSetupFileName("icons.Default") );
 		fname = fp.fullPath();

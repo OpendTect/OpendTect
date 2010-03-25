@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.23 2009-09-10 14:11:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.24 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.23 2009-09-10 14:11:47 cvsb
 #include "seiswrite.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 #include "dirlist.h"
 #include "ioman.h"
 #include "iostrm.h"
@@ -139,7 +139,7 @@ bool acceptOK( CallBacker* )
     BufferString fnm = fnmfld_->fileName();
     FilePath fp( fnm );
     BufferString dirnm( fp.pathOnly() );
-    if ( !File_isDirectory(dirnm) )
+    if ( !File::isDirectory(dirnm) )
     {
 	uiMSG().error( "Directory provided not usable" );
 	return false;

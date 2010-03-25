@@ -4,30 +4,21 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.78 2010-03-23 16:16:56 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.79 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seis2dline.h"
 #include "seis2dlineio.h"
 #include "seisselection.h"
 #include "seisbuf.h"
 #include "linesetposinfo.h"
-#include "survinfo.h"
 #include "safefileio.h"
 #include "ascstream.h"
 #include "bufstringset.h"
 #include "binidvalset.h"
-#include "cubesampling.h"
 #include "survinfo.h"
-#include "executor.h"
-#include "filegen.h"
 #include "filepath.h"
 #include "keystrs.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "timefun.h"
-#include "errh.h"
 
-#include <iostream>
 #include <sstream>
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.66 2010-03-16 15:33:19 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.67 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.66 2010-03-16 15:33
 #include "attribstorprovider.h"
 
 #include "batchprog.h"
-#include "binidvalset.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -29,8 +28,6 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.66 2010-03-16 15:33
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
-#include "filegen.h"
-#include "filepath.h"
 #include "hostdata.h"
 #include "initalgo.h"
 #include "initattributeengine.h"
@@ -38,12 +35,9 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.66 2010-03-16 15:33
 #include "initearthmodel.h"
 #include "initprestackprocessing.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "iopar.h"
 #include "keystrs.h"
 #include "linesetposinfo.h"
 #include "progressmeter.h"
-#include "ptrman.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisjobexecprov.h"
@@ -52,7 +46,6 @@ static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.66 2010-03-16 15:33
 #include "seis2dline.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "timefun.h"
 
 
 using namespace Attrib;

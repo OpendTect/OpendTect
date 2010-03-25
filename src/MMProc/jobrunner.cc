@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobrunner.cc,v 1.41 2010-03-03 07:28:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.42 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: jobrunner.cc,v 1.41 2010-03-03 07:28:10 cvsrano
 #include "jobdescprov.h"
 #include "hostdata.h"
 #include "filepath.h"
-#include "filegen.h"
+#include "file.h"
 #include "iopar.h"
 #include "jobiomgr.h"
 #include "queue.h"
@@ -83,10 +83,10 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     procdir_ += "_"; procdir_ += tmpfile_nr;
     tmpfile_nr++;
 
-    if ( File_exists(procdir_) && !File_isDirectory(procdir_) )
-	File_remove(procdir_,mFile_NotRecursive);
-    if ( !File_exists(procdir_) )
-	File_createDir(procdir_,0);
+    if ( File::exists(procdir_) && !File::isDirectory(procdir_) )
+	File::remove(procdir_);
+    if ( !File::exists(procdir_) )
+	File::createDir(procdir_);
 
     if ( mIsUdf(descprov_->nrJobs()) || !descprov_->nrJobs() )
     {

@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.60 2010-02-08 15:32:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.61 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "uiwellimpasc.h"
 
 #include "ctxtioobj.h"
-#include "filegen.h"
+#include "file.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"

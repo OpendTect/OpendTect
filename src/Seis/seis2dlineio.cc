@@ -4,7 +4,7 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID = "$Id: seis2dlineio.cc,v 1.5 2009-12-18 14:41:29 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dlineio.cc,v 1.6 2010-03-25 03:55:14 cvsranojay Exp $";
 
 #include "seis2dlineio.h"
 #include "seis2dline.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: seis2dlineio.cc,v 1.5 2009-12-18 14:41:29 cvsbe
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "posinfo.h"
-#include "filegen.h"
+#include "file.h"
 #include "seisbuf.h"
 #include "sorting.h"
 #include "ioobj.h"
@@ -45,10 +45,10 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
     nms.erase();
 
     BufferString bakfnm( fnm ); bakfnm += ".bak";
-    if ( File_exists(bakfnm) )
-	File_remove( bakfnm, mFile_NotRecursive );
+    if ( File::exists(bakfnm) )
+	File::remove( bakfnm );
 
-    return File_remove( fnm, mFile_NotRecursive );
+    return File::remove( fnm );
 }
 
 
@@ -73,7 +73,7 @@ bool TwoDSeisTrcTranslator::initRead_()
     if ( !conn->ioobj )
 	{ errmsg = "Cannot reconstruct 2D filename"; return false; }
     BufferString fnm( conn->ioobj->fullUserExpr(true) );
-    if ( !File_exists(fnm) ) return false;
+    if ( !File::exists(fnm) ) return false;
 
     Seis2DLineSet lset( fnm );
     if ( lset.nrLines() < 1 )
