@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.31 2010-03-15 08:58:57 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.32 2010-03-25 10:25:04 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,8 @@ public:
     void                        removeObjectItem(uiObjectItem*);
     void			setItemStretch(uiObjectItem*,int stretch);
     int 			stretchFactor(uiObjectItem*) const;
+    
+    void			setLayoutPos(float,float);
     const uiSize		layoutSize() const;
      
 protected:
