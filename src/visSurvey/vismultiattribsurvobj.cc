@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.55 2010-03-23 21:20:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.56 2010-03-25 15:31:43 cvsyuancheng Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -348,7 +348,13 @@ void MultiTextureSurveyObject::enableTextureInterpolation( bool yn )
 
     enabletextureinterp_ = yn;
     if ( getChannels2RGBA() )
+    {
 	getChannels2RGBA()->enableInterpolation( yn );
+	if ( getChannels2RGBA()->canUseShading() ) 
+	    channels_->touchMappedData();
+    }
+    else if ( texture_ )
+	texture_->enableInterpolation( yn );
 }
 
 
