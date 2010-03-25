@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.31 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.32 2010-03-25 09:01:41 cvsranojay Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.31 2010-03-25 03:55:14 cv
 #include "iopar.h"
 #include "ioman.h"
 #include "color.h"
-
+#include "debug.h"
 
 static const char* filenamebase = "StratUnits";
 static const char* filetype = "Stratigraphic Tree";
