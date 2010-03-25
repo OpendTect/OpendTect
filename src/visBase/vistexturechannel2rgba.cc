@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.42 2010-03-25 15:59:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.43 2010-03-25 19:51:23 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -240,8 +240,7 @@ bool TextureChannel2RGBA::interpolationEnabled() const
 
 void TextureChannel2RGBA::enableInterpolation( bool yn )
 {
-    if ( enableinterpolation_!=yn )
-    	enableinterpolation_ = yn;
+    enableinterpolation_ = yn;
 }
 
 
@@ -373,14 +372,19 @@ void ColTabTextureChannel2RGBA::enableInterpolation( bool yn )
     if ( enableinterpolation_==yn )
 	return;
 
-    enableinterpolation_ = yn;
+    TextureChannel2RGBA::enableInterpolation( yn );
+
     if ( shadingcomplexity_ ) 
 	shadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
 
     if ( nonshadingcomplexity_ ) 
     {
 	nonshadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
-	converter_->touch();
+
+	//Crappy stuff!
+	if ( !yn )
+	    converter_->touch();
+	//end of crap
     }
 }
 

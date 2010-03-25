@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.131 2010-03-25 15:28:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.132 2010-03-25 19:51:23 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -937,6 +937,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     }
 
     surf->getChannels2RGBA()->allowShading( allowshading_ );
+    surf->getChannels2RGBA()->enableInterpolation( enabletextureinterp_ );
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1, tr );
 
@@ -965,8 +966,11 @@ void HorizonDisplay::enableTextureInterpolation( bool yn )
 	    continue;
 	
 	sections_[idx]->getChannels2RGBA()->enableInterpolation( yn );
-	if ( sections_[idx]->getChannels2RGBA()->canUseShading() )
+
+	//Crap, but does not work otherwise
+	if ( !yn && sections_[idx]->getChannels2RGBA()->canUseShading() )
 	    sections_[idx]->getChannels()->touchMappedData();
+	//End of crap
     }
 }
 

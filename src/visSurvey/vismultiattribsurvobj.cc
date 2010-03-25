@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.56 2010-03-25 15:31:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.57 2010-03-25 19:51:23 cvsyuancheng Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -350,11 +350,12 @@ void MultiTextureSurveyObject::enableTextureInterpolation( bool yn )
     if ( getChannels2RGBA() )
     {
 	getChannels2RGBA()->enableInterpolation( yn );
-	if ( getChannels2RGBA()->canUseShading() ) 
+
+	//Should not be necessary, but buggy Coin/driver forces me
+	if ( !yn && getChannels2RGBA()->canUseShading() ) 
 	    channels_->touchMappedData();
+	//End of crap
     }
-    else if ( texture_ )
-	texture_->enableInterpolation( yn );
 }
 
 

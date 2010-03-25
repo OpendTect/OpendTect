@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.65 2010-03-25 17:51:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.66 2010-03-25 19:51:23 cvsyuancheng Exp $";
 
 
 #include "vismultitexture2.h"
@@ -282,7 +282,8 @@ void MultiTexture2::enableInterpolation( bool yn )
     else if ( complexity_ )
     {
 	complexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
-    	updateColorTables();
+    	//if ( !yn ) updateColorTables();
+	//Crap, if you need it to work, ebale it.
     }
 }
 
