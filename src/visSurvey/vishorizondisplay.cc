@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.129 2010-03-11 10:15:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.130 2010-03-25 10:14:07 cvsumesh Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -70,7 +70,7 @@ HorizonDisplay::HorizonDisplay()
     , edgelineradius_( 3.5 )
     , validtexture_( false )
     , resolution_( 0 )
-    , zaxistransform_( 0 )
+    //, zaxistransform_( 0 )
     , allowshading_( true )					
     , intersectionlinematerial_( 0 )	
     , displayintersectionlines_( true )	
@@ -184,8 +184,8 @@ bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* HorizonDisplay::getZAxisTransform() const
-{ return zaxistransform_; }
+//const ZAxisTransform* HorizonDisplay::getZAxisTransform() const
+//{ return zaxistransform_; }
 
 
 bool HorizonDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )

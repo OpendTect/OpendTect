@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.63 2010-03-23 21:16:37 cvsyuancheng Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.64 2010-03-25 10:13:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 
 class Executor;
+class ZAxisTransform;
 
 namespace EM { class EMManager; class EMObject; }
 namespace Geometry { class Element; }
@@ -46,6 +47,10 @@ public:
     mVisTrans*			getDisplayTransformation();
     void			setDisplayTransformation(mVisTrans*);
     void			setSceneEventCatcher( visBase::EventCatcher* );
+    virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
+				{ return false; }
+    const ZAxisTransform*	getZAxisTransform() const
+    				{ return zaxistransform_; }	
 
     virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getObjectID() const;
@@ -123,6 +128,7 @@ protected:
     Notifier<EMObjectDisplay>	locknotifier;
 
     mVisTrans*				transformation_;
+    ZAxisTransform*			zaxistransform_;
     visBase::EventCatcher*		eventcatcher_;
 
     ObjectSet<visBase::DataObjectGroup>	posattribmarkers_;

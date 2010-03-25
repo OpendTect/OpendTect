@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.129 2010-02-23 21:25:14 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.130 2010-03-25 10:14:07 cvsumesh Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.129 2010-02-23 21:25:14 
 #include "vismpeeditor.h"
 #include "vistransform.h"
 #include "vistexturechannel2rgba.h"
+#include "zaxistransform.h"
 
 
 
@@ -50,6 +51,7 @@ EMObjectDisplay::EMObjectDisplay()
     , editor_( 0 )
     , eventcatcher_( 0 )
     , transformation_( 0 )
+    , zaxistransform_( 0 )
     , displayonlyatsections_( false )
     , hasmoved( this )
     , changedisplay( this )

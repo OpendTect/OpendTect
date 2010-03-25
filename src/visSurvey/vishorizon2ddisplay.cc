@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.34 2010-02-19 23:30:21 cvskarthika Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.35 2010-03-25 10:14:07 cvsumesh Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -36,7 +36,7 @@ namespace visSurvey
 {
 
 Horizon2DDisplay::Horizon2DDisplay()
-    : zaxistransform_(0)
+   // : zaxistransform_(0)
 {
     points_.allowNull(true);
     EMObjectDisplay::setLineStyle( LineStyle(LineStyle::Solid,2 ) );
@@ -537,8 +537,8 @@ bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-const ZAxisTransform* Horizon2DDisplay::getZAxisTransform() const
-{ return zaxistransform_; }
+//const ZAxisTransform* Horizon2DDisplay::getZAxisTransform() const
+//{ return zaxistransform_; }
 
 
 void Horizon2DDisplay::zAxisTransformChg( CallBacker* )
