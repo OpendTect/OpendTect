@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.47 2010-03-03 17:40:23 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.48 2010-03-25 15:16:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -92,6 +92,7 @@ public:
     void			setChannels2RGBA(TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannels2RGBA();
     const TextureChannel2RGBA*	getChannels2RGBA() const;
+    TextureChannels*		getChannels() const	{ return channels_; }
 
     				//Geometry stuff
     void			setSurface(Geometry::BinIDSurface*,bool conn,
