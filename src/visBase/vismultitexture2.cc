@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.64 2010-03-25 15:32:20 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.65 2010-03-25 17:51:11 cvsyuancheng Exp $";
 
 
 #include "vismultitexture2.h"
@@ -276,13 +276,10 @@ float MultiTexture2::getTextureRenderQuality() const
 void MultiTexture2::enableInterpolation( bool yn )
 {
     enableinterpolation_ = yn;
-    if ( shadingcomplexity_ )
-    {
+
+    if ( useshading_ && canUseShading() && shadingcomplexity_ )
 	shadingcomplexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
-	ctabtexture_->touch();
-    }
-    
-    if ( complexity_ )
+    else if ( complexity_ )
     {
 	complexity_->textureQuality.setValue( yn ? 0.9 : 0.1 );
     	updateColorTables();
