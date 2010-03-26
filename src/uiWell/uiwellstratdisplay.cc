@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.2 2010-03-26 10:39:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.3 2010-03-26 16:51:48 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
 #include "stratlevel.h"
 #include "uigraphicsscene.h"
-#include "stratunitrepos.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 
