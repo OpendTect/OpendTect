@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.35 2010-03-25 10:14:07 cvsumesh Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.36 2010-03-26 08:14:44 cvsumesh Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -36,7 +36,6 @@ namespace visSurvey
 {
 
 Horizon2DDisplay::Horizon2DDisplay()
-   // : zaxistransform_(0)
 {
     points_.allowNull(true);
     EMObjectDisplay::setLineStyle( LineStyle(LineStyle::Solid,2 ) );
@@ -463,6 +462,8 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	    Coord3 pos = marker->centerPos();
 	    if ( transformation_ ) 
 		pos = transformation_->transform( pos );
+	    if ( zaxistransform_ )
+		pos.z = zaxistransform_->transform( pos );
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const float dist = seis2dlist[idz]->calcDist(pos);
@@ -537,13 +538,8 @@ bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 }
 
 
-//const ZAxisTransform* Horizon2DDisplay::getZAxisTransform() const
-//{ return zaxistransform_; }
-
-
 void Horizon2DDisplay::zAxisTransformChg( CallBacker* )
 {
-    // TODO: implement
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
 	updateSection( sidx );
 }

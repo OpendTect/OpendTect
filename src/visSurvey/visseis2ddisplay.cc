@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.89 2010-03-24 10:49:05 cvsumesh Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.90 2010-03-26 08:14:44 cvsumesh Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -64,12 +64,13 @@ class Seis2DTextureDataArrayFiller: public ParallelTask
 public:
 
 Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
-			      const Attrib::Data2DHolder& dh,  int seriesid, 
-			      Array2DImpl<float>& array )
+			      const Attrib::Data2DHolder& dh,  int seriesid,
+			      ZAxisTransform* datatrans, Array2DImpl<float>& array )
     : data2dh_( dh )
     , arr_( array )	
     , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
-    , s2d_( s2d )			  
+    , s2d_( s2d )
+    , datatransform_( datatrans )
 {
     const int trnrsz = s2d_.geometry_.posns_.size();
     for ( int idx=0; idx<trnrsz; idx++ )
@@ -126,11 +127,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	for ( int idy=0; idy<nrsamp; idy++ )
 	{
 	    const int smp = firstdhsample+idy;
-	    const float val = dh->dataPresent(smp)
+	    int shift = dh->z0_;
+	    if ( datatransform_ )
+		shift = 0;
+	    const float val = dh->dataPresent(smp+shift)
 		? dataseries->value( smp )
 		: mUdf(float);
-	    const int arrzidx = arraysrg.getIndex( smp );
-	    if ( arrzidx<0 || arrzidx>=arrzsz ) 
+	    const int arrzidx = arraysrg.getIndex( smp+shift );
+	    if ( arrzidx<0 || arrzidx>=arrzsz+shift ) 
 	    {
 		addToNrDone( 1 );
 		continue;
@@ -150,6 +154,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const Seis2DDisplay&		s2d_;
     const int				valseridx_;
     TypeSet<int>			trcnrs_;
+    ZAxisTransform*			datatransform_;
 };
 
 
@@ -396,7 +401,8 @@ void Seis2DDisplay::setData( int attrib,
     {
 	arr->setAll( mUdf(float) );
 
-	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, sidx, *arr );
+	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, sidx,
+						  datatransform_, *arr );
 	if ( !arrayfiller.execute() )
 	    continue;
 
@@ -443,7 +449,7 @@ void Seis2DDisplay::setData( int attrib,
 		inputfunc.setInterpolate( textureInterpolationEnabled() );
 
 		float* outputptr = tmparr->getData() +
-				   tmparr->info().getOffset( crlidx, 0 );	
+				   tmparr->info().getOffset( crlidx, sd.nearestIndex(firstz) );	
 		reSample( inputfunc, outpsampler, outputptr, cs.nrZ() );
 	    }
 	}
