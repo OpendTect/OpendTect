@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.1 2010-03-24 10:05:51 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.2 2010-03-26 10:39:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ mClass uiWellStratDisplay : public uiStratDisplay
 {
 public:
 
-				uiWellStratDisplay(uiParent*,
+				uiWellStratDisplay(uiParent*, bool nobg,
 					const  ObjectSet<Well::Marker>&);
 				~uiWellStratDisplay(){};
 

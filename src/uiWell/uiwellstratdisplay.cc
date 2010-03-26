@@ -7,22 +7,29 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.1 2010-03-24 10:05:51 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.2 2010-03-26 10:39:27 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
 #include "stratlevel.h"
+#include "uigraphicsscene.h"
 #include "stratunitrepos.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 
-uiWellStratDisplay::uiWellStratDisplay( uiParent* p, 
+uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
 					const ObjectSet<Well::Marker>& mrks )
     : uiStratDisplay(p)
     , markers_(mrks)  
     , istime_(false)
     , d2tm_(0)		    
 {
+    if ( nobg )
+    {
+	setNoSytemBackGroundAttribute();
+	uisetBackgroundColor( Color( 255, 255, 255, 0 )  );
+	scene().setBackGroundColor( Color( 255, 255, 255, 0 )  );
+    }
 }
 
 
