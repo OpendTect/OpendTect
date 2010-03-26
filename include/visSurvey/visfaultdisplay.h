@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.25 2010-03-25 19:49:08 cvsyuancheng Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.26 2010-03-26 16:16:11 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -100,8 +100,9 @@ public:
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
     
-    void			displayHorizonIntersections(bool yn);
+    void			displayHorizonIntersections(bool yn); 
     bool			areHorizonIntersectionsDisplayed() const;
+    bool			hasHorizons() const		{ return horintersections_.size(); }
 
     Notifier<FaultDisplay>	colorchange;
 
@@ -163,6 +164,7 @@ protected:
     ObjectSet<visBase::GeomIndexedShape> horintersections_;
     ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
     ObjectSet<const SurveyObject>	horobjs_;
+    bool				displayhorintersections_;
     
     visBase::PickStyle*			activestickmarkerpickstyle_;
     visBase::IndexedPolyLine3D*		activestickmarker_;

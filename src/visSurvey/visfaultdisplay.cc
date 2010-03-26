@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.48 2010-03-15 19:28:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.49 2010-03-26 16:16:11 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -72,6 +72,7 @@ FaultDisplay::FaultDisplay()
     , usestexture_( false )
     , displaysticks_( false )
     , stickselectmode_( false )
+    , displayhorintersections_( false )
 {
     activestickmarkerpickstyle_->ref();
     activestickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -985,6 +986,7 @@ bool FaultDisplay::areIntersectionsDisplayed() const
 
 void FaultDisplay::displayHorizonIntersections( bool yn )
 {
+    displayhorintersections_ = yn;
     for ( int idx=0; idx<horintersections_.size(); idx++ )
     {
 	if ( yn )
@@ -995,9 +997,7 @@ void FaultDisplay::displayHorizonIntersections( bool yn )
 
 
 bool FaultDisplay::areHorizonIntersectionsDisplayed() const
-{ 
-    return !horintersections_.size() ? false : horintersections_[0]->isOn();
-}
+{  return displayhorintersections_; }
 
 #define mCreateNewHorIntersection() \
     visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();\
@@ -1031,8 +1031,6 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
     if ( !emfault_ )
 	return;
    
-    const bool intersectionison = areHorizonIntersectionsDisplayed();
-    
     const float zscale = 
 	scene_  ? scene_->getZScale() *scene_->getZStretch() : SI().zScale();
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
@@ -1109,8 +1107,8 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
     for ( int idx=usedids.size()-1; idx>=0; idx-- )
 	horobjs_.remove( usedids[idx] );
     horobjs_ = usedhors;
-    if ( intersectionison )
-    	displayHorizonIntersections( intersectionison );
+    
+    displayHorizonIntersections( displayhorintersections_ );
 }
 
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.37 2010-03-15 19:28:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.38 2010-03-26 16:16:11 cvsyuancheng Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -297,21 +297,30 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	const bool planechecked = displayplanemnuitem_.checked;
 	faultdisplay_->display( !stickchecked, stickchecked || planechecked );
 	faultdisplay_->displayIntersections( false );
-	faultdisplay_->displayHorizonIntersections( false );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	const bool interchecked = displayintersectionmnuitem_.checked;
-	faultdisplay_->display( false, interchecked );
 	faultdisplay_->displayIntersections( !interchecked );
+	if ( interchecked && displayintersecthorizonmnuitem_.checked &&
+		faultdisplay_->hasHorizons() )
+	    return;
+
+	faultdisplay_->display( false, interchecked );
     }
     else if ( mnuid==displayintersecthorizonmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	const bool interchecked = displayintersecthorizonmnuitem_.checked;
-	faultdisplay_->display( false, interchecked );
 	faultdisplay_->displayHorizonIntersections( !interchecked );
+	if ( !displayintersectionmnuitem_.checked )
+	{
+	    if ( faultdisplay_->hasHorizons() )
+		faultdisplay_->display( false, interchecked );
+	    else 
+		faultdisplay_->display( false, true );
+	}
     }
     else if ( mnuid==singlecolmnuitem_.id )
     {
