@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.12 2010-01-22 11:32:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.13 2010-03-26 05:39:55 cvsraman Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -40,7 +40,8 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     setup.withsectionfld( false );
     hor3dsel_ = new uiSurfaceRead( this, setup );
 
-    linesetinpsel_ = new uiSeis2DMultiLineSel( this );
+    uiSeis2DMultiLineSel::Setup su( "Select lines" );
+    linesetinpsel_ = new uiSeis2DMultiLineSel( this, su );
     linesetinpsel_->attach( alignedBelow, hor3dsel_ );
 
     out2dfld_ = new uiSurfaceWrite( this, uiSurfaceWrite::Setup("2D Horizon") );
@@ -128,7 +129,7 @@ bool uiHor2DFrom3DDlg::checkFlds()
 void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 {
     const BufferStringSet sellinenames =
-					linesetinpsel_->subsel()->getSelLines();
+					linesetinpsel_->getSelLines();
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.getObjectID( hor3dsel_->selIOObj()->key() );
     mDynamicCastGet(EM::Horizon3D*,horizon3d,em.getObject(objid));
@@ -136,10 +137,10 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
     {
 	PosInfo::Line2DData posdata;
 
-	uiSeisPartServer::get2DLineGeometry( linesetinpsel_->getIOObj()->key(),
+	uiSeisPartServer::get2DLineGeometry( linesetinpsel_->ioObj()->key(),
 					     sellinenames.get(idx), posdata );
 	const int lineid =
-	    horizon2d.geometry().addLine( linesetinpsel_->getIOObj()->key(),
+	    horizon2d.geometry().addLine( linesetinpsel_->ioObj()->key(),
 				          sellinenames.get(idx).buf() );
 	for ( int idy=0; idy<posdata.posns_.size(); idy++ )
 	{

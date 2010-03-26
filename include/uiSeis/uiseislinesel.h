@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.21 2010-01-22 11:32:47 cvsnanne Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.22 2010-03-26 05:39:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,36 +81,95 @@ protected:
 };
 
 
-mClass uiSeis2DLineSubSel : public uiDialog
+mClass uiSeis2DMultiLineSel : public uiCompoundParSel
 {
 public:
-    				uiSeis2DLineSubSel(uiParent*,CtxtIOObj& lsctio,
-						   bool withz,bool attr=false);
-				~uiSeis2DLineSubSel()	{}
+
+    struct Setup
+    {
+				Setup( const char* txt )
+				    : lbltxt_(txt)
+				    , withlinesetsel_(true)
+				    , withz_(false)
+				    , withattr_(false)
+				    , withstep_(false)
+				    , filldef_(true)	{}
+
+	mDefSetupMemb(BufferString,lbltxt)
+	mDefSetupMemb(bool,withlinesetsel)
+	mDefSetupMemb(bool,withz)
+	mDefSetupMemb(bool,withattr)
+	mDefSetupMemb(bool,withstep)
+	mDefSetupMemb(bool,filldef)
+    };
+
+    				uiSeis2DMultiLineSel(uiParent*,const Setup&);
+				~uiSeis2DMultiLineSel();
 
     BufferString		getSummary() const;
+    IOObj*			getIOObj();		// becomes yours
+    const IOObj*		ioObj() const;
+    BufferString		getAttribName() const;
+    const BufferStringSet&	getSelLines() const;
+    bool			isAll() const;
+    const StepInterval<float>&	getZRange() const;
+    const TypeSet<StepInterval<int> >&	getTrcRgs() const;
 
-    void			setLineSet(const MultiID&);
-    void			setAttrName(const char*);
+    void			setLineSet(const MultiID&,const char* attr=0);
     void			setSelLines(const BufferStringSet&);
-    void			setTrcRange(const StepInterval<int>&,
-					    const char* lnm);
+    void			setAll(bool);
     void			setZRange(const StepInterval<float>&);
+    void			setTrcRgs(const TypeSet<StepInterval<int> >&);
 
-    const char*			getAttrName() const;
-    const BufferStringSet&	getSelLines() const { return sellines_;}
-    StepInterval<int>		getTrcRange(const char* lnm) const;
-    StepInterval<float>		getZRange() const;
+    bool			fillPar(IOPar&) const;
+    void			usePar(const IOPar&);
 
 protected:
 
-    bool			withattr_;
+    Setup&			setup_;
+
+    bool			isall_;
+    CtxtIOObj&			ctio_;
+    BufferString		attrnm_;
     BufferStringSet		sellines_;
+    StepInterval<float>		zrg_;
+    TypeSet<StepInterval<int> >	trcrgs_;
+
+    void			doDlg(CallBacker*);
+};
+
+
+mClass uiSeis2DMultiLineSelDlg : public uiDialog
+{
+public:
+    				uiSeis2DMultiLineSelDlg(uiParent*,CtxtIOObj&,
+					const uiSeis2DMultiLineSel::Setup&);
+				~uiSeis2DMultiLineSelDlg()	{}
+
+    BufferString		getSummary() const;
+
+    IOObj*			getIOObj();
+    const char*			getAttribName() const;
+    void			getSelLines(BufferStringSet&) const;
+    bool			isAll() const;
+    void			getZRange(StepInterval<float>&) const;
+    void			getTrcRgs(TypeSet<StepInterval<int> >&) const;
+
+    void			setLineSet(const MultiID&,const char* attr=0);
+    void			setSelection(const BufferStringSet&,
+	    			       const TypeSet<StepInterval<int> >* rg=0);
+    void			setAll(bool);
+    void			setZRange(const StepInterval<float>&);
+
+protected:
+
+    const uiSeis2DMultiLineSel::Setup&	setup_;
+
+    CtxtIOObj&			ctio_;
     uiSeisSel*			linesetfld_;
     uiListBox*			lnmsfld_;
     uiSelNrRange*		trcrgfld_;
     uiSelZRange*		zrgfld_;
-    CtxtIOObj&			lsctio_;
 
     TypeSet<StepInterval<int> >	maxtrcrgs_;
     TypeSet<StepInterval<int> >	trcrgs_;
@@ -121,32 +180,6 @@ protected:
     void			trcRgChanged(CallBacker*);
 
     virtual bool		acceptOK(CallBacker*);
-};
-
-
-mClass uiSeis2DMultiLineSel : public uiCompoundParSel
-{
-public:
-    				uiSeis2DMultiLineSel(uiParent*,bool withz=false,
-						     bool withattr=false);
-				~uiSeis2DMultiLineSel();
-
-    BufferString		getSummary() const;
-    void			doDlg(CallBacker*);
-    IOObj*			getIOObj();
-    void			setIOObj(const MultiID&);
-    const uiSeis2DLineSubSel*	subsel() const		{ return linesel_; }
-
-    void			fillPar(IOPar&) const;
-    void			usePar(const IOPar&);
-
-protected:
-
-    BufferStringSet		sellines_;
-    TypeSet<StepInterval<int> >	trcrgs_;
-
-    CtxtIOObj*			lsctio_;
-    uiSeis2DLineSubSel*		linesel_;
 };
 
 #endif

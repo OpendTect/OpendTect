@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.33 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.34 2010-03-26 05:39:55 cvsraman Exp $";
 
 #include "uiseislinesel.h"
 
@@ -209,119 +209,102 @@ void uiSeis2DLineNameSel::setLineSet( const MultiID& ky )
 
 
 
-uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio,
-       					bool withz, bool withattr )
-    : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
-				   mNoDlgTitle,"50.0.17") )
-    , lsctio_(lsctio)
+uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
+       					const uiSeis2DMultiLineSel::Setup& su )
+    : uiDialog( p, uiDialog::Setup("Select 2D Lines",mNoDlgTitle,"50.0.17") )
+    , setup_(su)
+    , ctio_(c)
+    , linesetfld_(0)
     , zrgfld_(0)
-    , withattr_(withattr)
 {
-    linesetfld_ = new uiSeisSel( this, lsctio_, uiSeisSel::Setup(Seis::Line)
-						.selattr(withattr_) );
-    linesetfld_->selectionDone.notify( mCB(this,uiSeis2DLineSubSel,lineSetSel));
-
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", true );
-    llb->attach( alignedBelow, linesetfld_ );
     lnmsfld_ = llb->box();
-    lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DLineSubSel,lineSel) );
+    lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DMultiLineSelDlg,
+					   lineSel) );
+
+    if ( setup_.withlinesetsel_ )
+    {
+	uiSeisSel::Setup setup(Seis::Line);
+	setup.selattr(setup_.withattr_).filldef(setup_.filldef_);
+	linesetfld_ = new uiSeisSel( this, ctio_, setup );
+	linesetfld_->selectionDone.notify( mCB(this,uiSeis2DMultiLineSelDlg,
+					   lineSetSel));
+	llb->attach( alignedBelow, linesetfld_ );
+    }
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
-	   			  false, "Trace" );
-    trcrgfld_->rangeChanged.notify( mCB(this,uiSeis2DLineSubSel,trcRgChanged) );
+	   			  setup_.withstep_, "Trace" );
+    trcrgfld_->rangeChanged.notify( mCB(this,uiSeis2DMultiLineSelDlg,
+					trcRgChanged) );
     trcrgfld_->attach( alignedBelow, llb );
 
-    if ( withz )
+    if ( setup_.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, false,
+	zrgfld_ = new uiSelZRange( this, su.withstep_,
 			BufferString("Z Range",SI().getZUnitString()) );
 	zrgfld_->attach( alignedBelow, trcrgfld_ );
     }
 
-    finaliseDone.notify( mCB(this,uiSeis2DLineSubSel,finalised) );
+    finaliseDone.notify( mCB(this,uiSeis2DMultiLineSelDlg,finalised) );
 }
 
 
-void uiSeis2DLineSubSel::finalised( CallBacker* )
+void uiSeis2DMultiLineSelDlg::finalised( CallBacker* )
 {
-    if ( !lsctio_.ioobj )
+    if ( !linesetfld_ ) return;
+    const IOObj* lsetobj = linesetfld_->ioobj();
+    if ( !lsetobj )
 	linesetfld_->doSel( 0 );
+}
+
+
+void uiSeis2DMultiLineSelDlg::setLineSet( const MultiID& key, const char* attr )
+{
+    if ( linesetfld_ )
+    {
+	linesetfld_->setInput( key );
+	if ( attr && *attr )
+	    linesetfld_->setAttrNm( attr );
+    }
 
     lineSetSel( 0 );
 }
 
 
-void uiSeis2DLineSubSel::setLineSet( const MultiID& key )
-{
-    linesetfld_->setInput( key );
-    lineSetSel( 0 );
-}
+void uiSeis2DMultiLineSelDlg::setAll( bool yn )
+{ lnmsfld_->selectAll( yn ); }
 
-
-void uiSeis2DLineSubSel::setAttrName( const char* nm )
-{
-    if ( withattr_ )
-	linesetfld_->setAttrNm( nm );
-}
-
-
-void uiSeis2DLineSubSel::setSelLines( const BufferStringSet& sellines )
+void uiSeis2DMultiLineSelDlg::setSelection( const BufferStringSet& sellines,
+       				const TypeSet<StepInterval<int> >* rgs	)
 { 
-    sellines_ = sellines; 
-    lnmsfld_->setSelectedItems( sellines_ );
-}
-
-
-void uiSeis2DLineSubSel::setTrcRange( const StepInterval<int>& rg,
-				      const char* lnm )
-{
-    const int idx = lnmsfld_->indexOf( lnm );
-    if ( idx >=0 ) trcrgs_[idx] = rg;
-}
-
-
-void uiSeis2DLineSubSel::setZRange( const StepInterval<float>& rg )
-{
-    if ( zrgfld_ )
-	zrgfld_->setRange( rg );
-}
-
-
-BufferString uiSeis2DLineSubSel::getSummary() const
-{
-    BufferString ret;
-    if ( !linesetfld_ ) return ret;
-
-    if ( !lsctio_.ioobj )
-    {
-	lsctio_.fillDefault( true );
-	if ( !lsctio_.ioobj )
-	    return ret;
-    }
-
-    ret = lsctio_.ioobj->name();
-    const int nrsel = sellines_.size();
-    const int nroflines = lnmsfld_->size();
-    if ( nroflines==1 )
-	ret += " (1 line)";
-    else
-    {
-	ret += " (";
-	if ( nroflines == nrsel ) ret += "all";
-	else { ret += nrsel; ret += "/"; ret += nroflines; }
-	ret += " lines)";
-    }
-
-    return ret;
-}
-
-
-void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
-{
-    if ( !linesetfld_->commitInput() || !lsctio_.ioobj )
+    if ( rgs && rgs->size() != sellines.size() )
 	return;
 
-    SeisIOObjInfo oinf( lsctio_.ioobj );
+    lnmsfld_->clearSelection();
+    for ( int idx=0; idx<sellines.size(); idx++ )
+    {
+	const int selidx = lnmsfld_->indexOf( sellines.get(idx) );
+	if ( selidx < 0 )
+	    continue;
+
+	lnmsfld_->setSelected( selidx );
+	if ( rgs )
+	    trcrgs_[selidx] = (*rgs)[idx];
+    }
+
+    lineSel(0);
+}
+
+void uiSeis2DMultiLineSelDlg::setZRange( const StepInterval<float>& rg )
+{ if ( zrgfld_ ) zrgfld_->setRange( rg ); }
+
+void uiSeis2DMultiLineSelDlg::lineSetSel( CallBacker* )
+{
+    const IOObj* lsetobj = linesetfld_ ? linesetfld_->ioobj() : ctio_.ioobj;
+    if ( !lsetobj )
+	return;
+
+    SeisIOObjInfo oinf( lsetobj );
     BufferStringSet lnms;
     oinf.getLineNames( lnms );   
     lnmsfld_->empty();
@@ -331,7 +314,7 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
     if ( oinf.getRanges(cs) )
 	setZRange( cs.zrg );
 
-    BufferString selattrnm = linesetfld_->attrNm();
+    BufferString selattrnm = linesetfld_ ? linesetfld_->attrNm() : "";
 
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
@@ -341,7 +324,7 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 	StepInterval<int> globtrcrg( 0, 0, 1 );
 	int startidx=0; int maxattridx = attrbnms.size() - 1;
 	const int defidx = attrbnms.indexOf( LineKey::sKeyDefAttrib() );
-	if ( defidx>=0 && !withattr_ )
+	if ( defidx>=0 && !setup_.withattr_ )
 	    startidx = maxattridx = defidx;
 
 	int maxnrtrcs = 0;
@@ -350,7 +333,7 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
 	    const char* attrnm = attrbnms.get( attridx );
-	    if ( withattr_ && selattrnm != attrnm )
+	    if ( setup_.withattr_ && selattrnm != attrnm )
 		continue;
 
 	    LineKey lk( lnm, attrnm );
@@ -375,26 +358,48 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 }
 
 
-const char* uiSeis2DLineSubSel::getAttrName() const
+IOObj* uiSeis2DMultiLineSelDlg::getIOObj()
+{ return linesetfld_ ? linesetfld_->getIOObj() : ctio_.ioobj->clone(); }
+
+const char* uiSeis2DMultiLineSelDlg::getAttribName() const
+{ return linesetfld_ ? linesetfld_->attrNm() : 0; }
+
+void uiSeis2DMultiLineSelDlg::getSelLines( BufferStringSet& sellines ) const
 {
-    return withattr_ ? linesetfld_->attrNm() : 0;
+    deepErase( sellines );
+    lnmsfld_->getSelectedItems( sellines );
+}
+
+void uiSeis2DMultiLineSelDlg::getTrcRgs(TypeSet<StepInterval<int> >& rgs) const
+{
+    rgs.erase();
+    for ( int idx=0; idx<lnmsfld_->size(); idx++ )
+    {
+	if ( !lnmsfld_->isSelected(idx) )
+	    continue;
+
+	rgs += trcrgs_[idx];
+    }
+}
+
+bool uiSeis2DMultiLineSelDlg::isAll() const
+{
+    for ( int idx=0; idx<lnmsfld_->size(); idx++ )
+	if ( !lnmsfld_->isSelected(idx) || trcrgs_[idx] != maxtrcrgs_[idx] )
+	    return false;
+
+    return true;
 }
 
 
-StepInterval<int> uiSeis2DLineSubSel::getTrcRange( const char* nm ) const
+void uiSeis2DMultiLineSelDlg::getZRange( StepInterval<float>& zrg ) const
 {
-    const int idx = lnmsfld_->indexOf( nm );
-    return idx<0 ? Interval<int>(0,0) : (Interval<int>)trcrgs_[idx];
+    if ( zrgfld_ )
+	zrg = zrgfld_->getRange();
 }
 
 
-StepInterval<float> uiSeis2DLineSubSel::getZRange() const
-{
-    return zrgfld_ ? zrgfld_->getRange() : SI().zRange( false );
-}
-
-
-void uiSeis2DLineSubSel::lineSel( CallBacker* )
+void uiSeis2DMultiLineSelDlg::lineSel( CallBacker* )
 {
     const bool multisel = lnmsfld_->nrSelected() > 1;
     trcrgfld_->setSensitive( !multisel );
@@ -410,7 +415,7 @@ void uiSeis2DLineSubSel::lineSel( CallBacker* )
 }
 
 
-void uiSeis2DLineSubSel::trcRgChanged( CallBacker* )
+void uiSeis2DMultiLineSelDlg::trcRgChanged( CallBacker* )
 {
     const int curitm = lnmsfld_->currentItem();
     if ( curitm<0 ) return;
@@ -420,63 +425,114 @@ void uiSeis2DLineSubSel::trcRgChanged( CallBacker* )
 }
 
 
-bool uiSeis2DLineSubSel::acceptOK( CallBacker* )
+bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
 {
-    sellines_.erase();
-    lnmsfld_->getSelectedItems( sellines_ );
+    trcRgChanged( 0 );
     return true;
 }
 
 
-uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, bool withz,
-					  bool withattr )
+uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const Setup& setup )
     : uiCompoundParSel(p,"LineSet/LineName","Select")
-    , lsctio_(mMkCtxtIOObj(SeisTrc))
+    , setup_(*new uiSeis2DMultiLineSel::Setup(setup))
+    , ctio_(*mMkCtxtIOObj(SeisTrc))
+    , isall_(true)
 {
     butPush.notify( mCB(this,uiSeis2DMultiLineSel,doDlg) );
-    linesel_ = new uiSeis2DLineSubSel( this, *lsctio_, withz, withattr );
+    ctio_.ctxt.deftransl = "2D";
+    if ( setup_.filldef_ )
+	ctio_.fillDefault();
 }
 
 
 uiSeis2DMultiLineSel::~uiSeis2DMultiLineSel()
 {
-    if ( lsctio_ ) delete lsctio_->ioobj;
-    delete lsctio_;
+    deepErase( sellines_ );
+    delete &setup_;
+    delete ctio_.ioobj;
+    delete &ctio_;
 }
 
 
 BufferString uiSeis2DMultiLineSel::getSummary() const
 {
-    return linesel_->getSummary();
+    BufferString ret;
+    if ( !ctio_.ioobj || !ctio_.ioobj->implExists(true) )
+	return ret;
+
+    ret = ctio_.ioobj->name();
+    const int nrsel = sellines_.size();
+    if ( nrsel==1 )
+	ret += " (1 line)";
+    else
+    {
+	ret += " (";
+	if ( isall_ )
+	    ret += "all";
+	else
+	    ret += nrsel;
+
+	ret += " lines)";
+    }
+
+    return ret;
 }
 
 
 void uiSeis2DMultiLineSel::doDlg( CallBacker* )
 {
-    if ( !linesel_ || !linesel_->go() )
+    uiSeis2DMultiLineSelDlg dlg( this, ctio_, setup_ );
+    if ( ctio_.ioobj )
+    {
+	dlg.setLineSet( ctio_.ioobj->key(), attrnm_.buf() );
+
+	if ( isall_ )
+	    dlg.setAll( true );
+	else
+	    dlg.setSelection( sellines_, &trcrgs_ );
+
+	dlg.setZRange( zrg_ );
+    }
+
+    if ( !dlg.go() )
 	return;
 
-    sellines_ = linesel_->getSelLines();
-    trcrgs_.erase();
-    for ( int idx=0; idx<sellines_.size(); idx++ )
+    if ( setup_.withlinesetsel_ )
     {
-	StepInterval<int> trcrg = linesel_->getTrcRange( sellines_.get(idx) );
-	trcrgs_ += trcrg;
+	IOObj* newobj = dlg.getIOObj();
+	if ( newobj != ctio_.ioobj )
+	{
+	    delete ctio_.ioobj;
+	    ctio_.ioobj = newobj;
+	}
+
+	attrnm_ = dlg.getAttribName();
     }
+
+    isall_ = dlg.isAll();
+    dlg.getZRange( zrg_ );
+    if ( !isall_ )
+    {
+	dlg.getSelLines( sellines_ );
+	dlg.getTrcRgs( trcrgs_ );
+    }
+
+    updateSummary();
 }
 
 
-void uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
+bool uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
 {
-    if ( !lsctio_->ioobj )
-	return;
-    
-    par.set( "LineSet.ID", lsctio_->ioobj->key() );
-    const char* attrnm = linesel_->getAttrName();
-    if ( attrnm && *attrnm )
-	par.set( sKey::Attribute, attrnm );
+    if ( !ctio_.ioobj || !ctio_.ioobj->implExists(true) )
+	return false;
 
-    par.set( sKey::ZRange, linesel_->getZRange() );
+    par.set( "LineSet.ID", ctio_.ioobj->key() );
+    if ( !attrnm_.isEmpty() )
+	par.set( sKey::Attribute, attrnm_ );
+
+    if ( setup_.withz_ )
+	par.set( sKey::ZRange, zrg_ );
+
     BufferString mergekey;
     IOPar lspar;
     for ( int idx=0; idx<sellines_.size(); idx++ )
@@ -489,23 +545,23 @@ void uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
     }
 
     par.mergeComp( lspar, sKey::LineKey );
+    return true;
 }
 
 
 void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 {
     MultiID lsetkey;
-    if ( par.get("LineSet.ID",lsetkey) )
-	setIOObj( lsetkey );
+    if ( !par.get("LineSet.ID",lsetkey) )
+	return;
 
-    FixedString attrnm = par.find( sKey::Attribute );
-    if ( attrnm )
-	linesel_->setAttrName( attrnm );
+    delete ctio_.ioobj;
+    ctio_.ioobj = IOM().get( lsetkey );
+    par.get( sKey::Attribute, attrnm_ );
+    par.get( sKey::ZRange, zrg_ );
 
-    StepInterval<float> zrg;
-    if ( par.get(sKey::ZRange, zrg) )
-	linesel_->setZRange( zrg );
-
+    deepErase( sellines_ );
+    trcrgs_.erase();
     PtrMan<IOPar> lspar = par.subselect( sKey::LineKey );
     if ( !lspar ) return;
 
@@ -523,23 +579,53 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	sellines_.add( lnm );
 	trcrgs_ += trcrg;
     }
-    
-    if ( !linesel_ ) return;
 
-    linesel_->setSelLines( sellines_ );
-    for ( int idx=0; idx<sellines_.size(); idx++ )
-	linesel_->setTrcRange( trcrgs_[idx], sellines_.get(idx) );
+    updateSummary();
 }
 
+
+const IOObj* uiSeis2DMultiLineSel::ioObj() const
+{ return ctio_.ioobj; }
 
 IOObj* uiSeis2DMultiLineSel::getIOObj()
-{ return lsctio_->ioobj; }
+{ return ctio_.ioobj ? ctio_.ioobj->clone() : 0; }
 
+BufferString uiSeis2DMultiLineSel::getAttribName() const
+{ return attrnm_; }
 
-void uiSeis2DMultiLineSel::setIOObj( const MultiID& key )
+const BufferStringSet& uiSeis2DMultiLineSel::getSelLines() const
+{ return sellines_; }
+
+bool uiSeis2DMultiLineSel::isAll() const
+{ return isall_; }
+
+const StepInterval<float>& uiSeis2DMultiLineSel::getZRange() const
+{ return zrg_; }
+
+const TypeSet<StepInterval<int> >&  uiSeis2DMultiLineSel::getTrcRgs() const
+{ return trcrgs_; }
+
+void uiSeis2DMultiLineSel::setLineSet( const MultiID& key, const char* attr )
 {
+    delete ctio_.ioobj;
+    ctio_.ioobj = IOM().get( key );
+    attrnm_ = attr;
     deepErase( sellines_ );
     trcrgs_.erase();
-    linesel_->setLineSet( key );
-    lsctio_->setObj( key );
+    isall_ = true;
+    updateSummary();
 }
+
+
+void uiSeis2DMultiLineSel::setSelLines( const BufferStringSet& sellines )
+{ sellines_ = sellines; updateSummary(); }
+
+void uiSeis2DMultiLineSel::setAll( bool yn )
+{ isall_ = yn; updateSummary(); }
+
+void uiSeis2DMultiLineSel::setZRange( const StepInterval<float>& zrg )
+{ zrg_ = zrg; }
+
+void uiSeis2DMultiLineSel::setTrcRgs( const TypeSet<StepInterval<int> >& rgs )
+{ trcrgs_ = rgs; }
+

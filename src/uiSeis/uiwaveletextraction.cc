@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.17 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.18 2010-03-26 05:39:55 cvsraman Exp $";
 
 #include "uiwaveletextraction.h"
 
@@ -75,7 +75,8 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     }
     else
     {
-	linesel2dfld_ = new uiSeis2DMultiLineSel( this, false, true );
+	uiSeis2DMultiLineSel::Setup su( "Select lines" );
+	linesel2dfld_ = new uiSeis2DMultiLineSel( this, su.withz(true) );
 	linesel2dfld_->butPush.notify( 
 				mCB(this,uiWaveletExtraction,inputSelCB) );
     }
@@ -248,7 +249,7 @@ bool uiWaveletExtraction::check2DFlds()
 	return false;
     }
 
-    if ( linesel2dfld_->subsel()->getSelLines().isEmpty() )
+    if ( linesel2dfld_->getSelLines().isEmpty() )
     {
 	uiMSG().error( "Select at least one line from LineSet" );
 	return false;
@@ -293,13 +294,11 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 
 	ObjectSet<Seis::SelData> sdset;
 	StepInterval<int> trcrg;
-	BufferStringSet sellines = linesel2dfld_->subsel()->getSelLines();
-
+	BufferStringSet sellines = linesel2dfld_->getSelLines();
+	const TypeSet<StepInterval<int> >&  trcrgs = linesel2dfld_->getTrcRgs();
 	for ( int lidx=0; lidx<sellines.size(); lidx++ )
 	{
-	    trcrg = linesel2dfld_->subsel()->getTrcRange(
-		    				sellines[lidx]->buf() );
-	    range.cubeSampling().hrg.setCrlRange( trcrg );
+	    range.cubeSampling().hrg.setCrlRange( trcrgs[lidx] );
 	    range.lineKey().setLineName( sellines.get(lidx).buf() );
 	    sd_ = range.clone();
 	    sdset += sd_;
