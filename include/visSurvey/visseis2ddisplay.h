@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.43 2010-03-25 19:49:08 cvsyuancheng Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.44 2010-03-29 22:14:15 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class SeisTrcInfo;
 class ZAxisTransform;
+class Color;
 
 namespace visBase
 {
@@ -116,6 +117,9 @@ public:
 
     void			clearTexture(int);
 
+    void			setLineNameColor(const Color&);
+    const Color&		getLineNameColor();
+    
     NotifierAccess*		getMovementNotifier()
     				{ return &geomchanged_; }
 
