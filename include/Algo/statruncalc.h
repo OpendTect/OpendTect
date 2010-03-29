@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.18 2010-02-08 15:33:22 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.19 2010-03-29 07:10:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,7 @@ protected:
     T			sum_wx;
     T			sum_wxx;
     TypeSet<int>	clss_;
-    TypeSet<int>	occs_;
+    TypeSet<T>		clsswt_;
 
     inline bool		isZero( const T& t ) const	{ return !t; }
 
@@ -243,7 +243,7 @@ void RunCalc<T>::clear()
     sum_x = sum_w = sum_xx = sum_wx = sum_wxx = 0;
     nradded_ = nrused_ = minidx_ = maxidx_ = curmedidx_ = 0;
     minval_ = maxval_ = mUdf(T);
-    clss_.erase(); occs_.erase(); vals_.erase();
+    clss_.erase(); clsswt_.erase(); vals_.erase();
 }
 
 
@@ -271,14 +271,11 @@ bool RunCalc<T>::addExceptMed( T val, T wt )
     {
 	int ival; Conv::set( ival, val );
 	int setidx = clss_.indexOf( ival );
-	int iwt = 1;
-	if ( setup_.weighted_ )
-	    Conv::set( iwt, wt );
 
 	if ( setidx < 0 )
-	    { clss_ += ival; occs_ += iwt; }
+	    { clss_ += ival; clsswt_ += wt; }
 	else
-	    occs_[setidx] += iwt;
+	    clsswt_[setidx] += wt;
     }
 
     if ( setup_.needsums_ )
@@ -317,11 +314,11 @@ bool RunCalc<T>::remExceptMed( T val, T wt )
 
 	if ( setidx >= 0 )
 	{
-	    occs_[setidx] -= iwt;
-	    if ( occs_[setidx] <= 0 )
+	    clsswt_[setidx] -= wt;
+	    if ( clsswt_[setidx] <= 0 )
 	    {
 		clss_.remove( setidx );
-		occs_.remove( setidx );
+		clsswt_.remove( setidx );
 	    }
 	}
     }
@@ -507,11 +504,11 @@ inline T RunCalc<T>::mostFreq() const
     if ( clss_.isEmpty() )
 	return mUdf(T);
 
-    int maxocc = occs_[0]; int ret = clss_[0];
+    T maxwt = clsswt_[0]; int ret = clss_[0];
     for ( int idx=1; idx<clss_.size(); idx++ )
     {
-	if ( occs_[idx] > maxocc )
-	    { maxocc = occs_[idx]; ret = clss_[idx]; }
+	if ( clsswt_[idx] > maxwt )
+	    { maxwt = clsswt_[idx]; ret = clss_[idx]; }
     }
 
     return ret;
