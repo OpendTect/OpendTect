@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.12 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.13 2010-03-29 22:10:48 cvskarthika Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.12 2010-03-16 10:02:46 cv
 #include "uislider.h"
 #include "uisoviewer.h"
 #include "uivispartserv.h"
+#include "visseis2ddisplay.h"
+#include "visdata.h"
 
 bool uiScenePropertyDlg::savestatus = true;
 
@@ -94,6 +96,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 void uiScenePropertyDlg::updateCB( CallBacker* cb )
 {
     updateScene( scene_ );
+    updateSeis2DDisplay();
     viewer_->setBackgroundColor( bgcolfld_->color() );
     annotfld_->setSensitive( survboxfld_->isChecked() );
     annotscalefld_->setSensitive( survboxfld_->isChecked() );
@@ -142,6 +145,8 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 	updateScene( scene );
     }
 
+    updateSeis2DDisplay();
+
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	const_cast<uiSoViewer*>(viewers_[idx])->setBackgroundColor(
@@ -152,3 +157,19 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 
     return true;
 }
+
+
+void uiScenePropertyDlg::updateSeis2DDisplay()
+{
+    TypeSet<int> ids;
+    visBase::DM().getIds( typeid(visSurvey::Seis2DDisplay), ids );
+
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+        visBase::DataObject* dataobj = visBase::DM().getObject( ids[idx] );
+	mDynamicCastGet( visSurvey::Seis2DDisplay*, s2dd, dataobj );
+	if ( s2dd )
+	    s2dd->setLineNameColor( annotcolfld_->color() );	    
+    }
+}
+

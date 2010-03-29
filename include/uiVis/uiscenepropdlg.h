@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.h,v 1.4 2009-07-22 16:01:24 cvsbert Exp $
+ RCS:           $Id: uiscenepropdlg.h,v 1.5 2010-03-29 22:10:48 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiVisPartServer;
 class uiSoViewer;
 class uiSliderExtra;
 
-namespace visSurvey { class Scene; }
+namespace visSurvey { class Scene; class Seis2DDisplay; }
 
 /*! Dialog for scene properties. */
 
@@ -34,6 +34,7 @@ public:
 
 protected:
     void		updateScene(visSurvey::Scene*);
+    void		updateSeis2DDisplay();
     void		updateCB(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
