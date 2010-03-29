@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uieditpdf.cc,v 1.15 2010-03-11 14:12:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uieditpdf.cc,v 1.16 2010-03-29 11:02:18 cvsbert Exp $";
 
 #include "uieditpdf.h"
 
@@ -299,6 +299,8 @@ void uiEditProbDenFunc::viewPDF( CallBacker* )
 	    FlatView::Appearance& app = vwr.appearance();
 	    app.ddpars_.show( false, true );
 	    app.ddpars_.vd_.blocky_ = true;
+	    app.ddpars_.vd_.clipperc_.start =
+	    app.ddpars_.vd_.clipperc_.stop = 0;
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.title_ = pdf_.name();
 	    ann.setAxesAnnot( true );
