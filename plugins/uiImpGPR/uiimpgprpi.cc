@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.9 2010-03-29 09:13:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.10 2010-03-29 12:44:50 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -71,9 +71,6 @@ void uiImpGPRMgr::updMnu( CallBacker* )
 }
 
 
-#undef mErrRet
-#define mErrRet(s) { uiMSG().error(s); return; }
-
 class uiDZTImporter : public uiDialog
 {
 public:
@@ -117,10 +114,10 @@ void inpSel( CallBacker* )
     if ( fnm.isEmpty() ) return;
 
     StreamData sd( StreamProvider(fnm).makeIStream() );
-    if ( !sd.usable() ) mErrRet("Cannot open input file")
+    if ( !sd.usable() ) return;
 
     DZT::FileHeader fh; BufferString emsg;
-    if ( !fh.getFrom(*sd.istrm,emsg) ) mErrRet(emsg)
+    if ( !fh.getFrom(*sd.istrm,emsg) ) return;
 
     FilePath fp( fnm ); fp.setExtension( "", true );
     lnmfld_->setText( fp.fileName() );
@@ -130,7 +127,6 @@ void inpSel( CallBacker* )
 
 }
 
-#undef mErrRet
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool acceptOK( CallBacker* )
