@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.10 2010-03-19 12:53:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.11 2010-03-29 11:03:10 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -479,15 +479,15 @@ void SeisBayesClass::calcPerBinProbs()
 	    TypeSet<float> vals; float sumval = 0;
 	    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
 	    {
-		const float val = getPDFValue( ipdf, isamp, icomp, false );
+		float val = getPDFValue( ipdf, isamp, icomp, false );
+		if ( aprdrs_[ipdf] )
+		    val *= getAPTrcVal( ipdf, isamp, icomp );
 		vals += val; sumval += val;
 	    }
 	    const bool haveout = sumval != 0;
 	    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
 	    {
-		float val = haveout ? vals[ipdf] / sumval : 0;
-		if ( haveout && aprdrs_[ipdf] )
-		    val *= getAPTrcVal( ipdf, isamp, icomp );
+		const float val = haveout ? vals[ipdf] / sumval : 0;
 		outtrcs_.get(ipdf)->set( isamp, val, icomp );
 	    }
 	}
