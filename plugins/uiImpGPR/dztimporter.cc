@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: dztimporter.cc,v 1.3 2010-03-24 05:39:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: dztimporter.cc,v 1.4 2010-03-29 09:13:14 cvsbert Exp $";
 
 #include "dztimporter.h"
 #include "seistrc.h"
@@ -31,14 +31,22 @@ DZT::FileHeader::FileHeader()
 
 bool DZT::FileHeader::getFrom( std::istream& strm, BufferString& emsg )
 {
+    // From 0, (u)shorts:
     mRdVal(tag); mRdVal(data); mRdVal(nsamp); mRdVal(bits); mRdVal(zero);
+    // From 10, floats:
     mRdVal(sps); mRdVal(spm); mRdVal(mpm); mRdVal(position); mRdVal(range);
+    // From 30, dates (4 bytes each):
     mRdVal(created); mRdVal(modified);
+    // From 38, unsigned shorts:
     mRdVal(npass); mRdVal(rgain); mRdVal(nrgain); mRdVal(text); mRdVal(ntext);
     mRdVal(proc); mRdVal(nproc); mRdVal(nchan);
+    // From 54, floats:
     mRdVal(epsr); mRdVal(top); mRdVal(depth);
+    // From 66, 1 byte dtype and 31 bytes reserved
     char buf[32]; strm.read( buf, 32 ); dtype = buf[32];
+    // From 98, 14 bytes antenna
     strm.read( antname, 14 );
+    // From 112, the rest
     mRdVal(chanmask); strm.read( buf, 12 );
     mRdVal(chksum);
 

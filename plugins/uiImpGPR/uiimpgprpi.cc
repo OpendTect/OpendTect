@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.8 2010-03-24 05:39:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.9 2010-03-29 09:13:14 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.8 2010-03-24 05:39:14 cvsnann
 #include "uitaskrunner.h"
 #include "dztimporter.h"
 #include "survinfo.h"
+#include "strmprov.h"
+#include "filepath.h"
 #include "plugins.h"
 
 
@@ -70,7 +72,7 @@ void uiImpGPRMgr::updMnu( CallBacker* )
 
 
 #undef mErrRet
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { uiMSG().error(s); return; }
 
 class uiDZTImporter : public uiDialog
 {
@@ -86,6 +88,7 @@ uiDZTImporter( uiParent* p )
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( "*.dzt" ).forread( true );
     inpfld_ = new uiFileInput( this, "Input DZT file", fisu );
+    inpfld_->valuechanged.notify( mCB(this,uiDZTImporter,inpSel) );
 
     nrdeffld_ = new uiGenInput( this, "Trace number definition: start, step",
 				IntInpSpec(1), IntInpSpec(1) );
@@ -93,9 +96,8 @@ uiDZTImporter( uiParent* p )
     startposfld_ = new uiGenInput( this, "Start position (X,Y)",
 	    			PositionInpSpec(SI().minCoord(true)) );
     startposfld_->attach( alignedBelow, nrdeffld_ );
-    const float tdist = SI().inlDistance();
-    stepposfld_ = new uiGenInput( this, "Step in X/Y",
-	    			FloatInpSpec(tdist), FloatInpSpec(0) );
+    stepposfld_ = new uiGenInput( this, "Step in X/Y", FloatInpSpec(),
+	    				FloatInpSpec(0) );
     stepposfld_->attach( alignedBelow, startposfld_ );
 
     zfacfld_ = new uiGenInput( this, "Z Factor", FloatInpSpec(1) );
@@ -106,9 +108,30 @@ uiDZTImporter( uiParent* p )
 
     outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),
 	    		     uiSeisSel::Setup(Seis::Line) );
-    outfld_->setAttrNm( "GPR" );
     outfld_->attach( alignedBelow, lnmfld_ );
 }
+
+void inpSel( CallBacker* )
+{
+    const BufferString fnm( inpfld_->fileName() );
+    if ( fnm.isEmpty() ) return;
+
+    StreamData sd( StreamProvider(fnm).makeIStream() );
+    if ( !sd.usable() ) mErrRet("Cannot open input file")
+
+    DZT::FileHeader fh; BufferString emsg;
+    if ( !fh.getFrom(*sd.istrm,emsg) ) mErrRet(emsg)
+
+    FilePath fp( fnm ); fp.setExtension( "", true );
+    lnmfld_->setText( fp.fileName() );
+
+    const float tdist = fh.spm ? 1. / ((float)fh.spm) : SI().inlDistance();
+    stepposfld_->setValue( tdist, 0 );
+
+}
+
+#undef mErrRet
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool acceptOK( CallBacker* )
 {
