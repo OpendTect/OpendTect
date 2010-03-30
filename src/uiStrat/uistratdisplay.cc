@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.2 2010-03-23 13:36:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.3 2010-03-30 12:04:01 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -17,192 +17,127 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.2 2010-03-23 13:36:56 cvs
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uimenuhandler.h"
-#include "uistratmgr.h"
 
 #include "draw.h"
 #include "randcolor.h"
 #include "survinfo.h"
-#include "stratlevel.h"
-#include "stratreftree.h"
-#include "stratunitrepos.h"
-
 
 uiStratDisplay::uiStratDisplay( uiParent* p )
-    : uiAnnotDisplay(p)
-    , uistratmgr_(new uiStratMgr(p))
+    : uiGraphicsView(p,"Vertical Stratigraphy viewer")
+    , data_(StratDisp()) 
+    , zax_(&scene(),uiAxisHandler::Setup(uiRect::Left))	      
+    , menu_(*new uiMenuHandler(p,-1))
+    , addunitmnuitem_("Add Unit...",0)
+    , remunitmnuitem_("Remove unit...",1)
 {
+    setPrefWidth( 70 );
+    setPrefHeight( 600 );
+    
     StepInterval<float> rg( SI().zRange(true) );
     rg.sort( false );
     setZRange( rg );
+
+    getMouseEventHandler().buttonReleased.notify(
+					mCB(this,uiStratDisplay,usrClickCB) );
+    setStretch( 2, 2 );
+    reSize.notify( mCB(this,uiStratDisplay,reSized) );
+    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+
+    menu_.ref();
+    menu_.createnotifier.notify(mCB(this,uiStratDisplay,createMenuCB));
+    menu_.handlenotifier.notify(mCB(this,uiStratDisplay,handleMenuCB));
+    
+    finaliseDone.notify( mCB(this,uiStratDisplay,init) );
+}
+
+
+int uiStratDisplay::nrSubUnits()
+{
+    int nrsubunits = 0;
+    for ( int idx=0; idx<nrUnits(); idx++ )
+    {
+	if ( getUnit(idx)->order_ > nrsubunits )
+	    nrsubunits  = getUnit(idx)->order_;
+    }
+    return nrsubunits+1;
 }
 
 
 void uiStratDisplay::gatherInfo()
 {
-    addLevels();
-    addNode( *((Strat::NodeUnitRef*)uistratmgr_->getCurTree()), 0 );
+    data_.gatherInfo();
 }
 
 
-void uiStratDisplay::addLevels()
-{
-    TypeSet<Color> lvlcolors; BufferStringSet lvlnms;
-    uistratmgr_->getLvlsTxtAndCol( lvlnms, lvlcolors );
-    TypeSet< Interval<float> > lvlrgs;
-    for ( int idx=0; idx<lvlnms.size(); idx++ )
-    {
-	Interval<float> rg; Color col;
-	uistratmgr_->getLvlPars( lvlnms[idx]->buf(), rg, col );
-	if ( mIsUdf( rg.start ) ) continue;
-	uiAnnotDisplay::MarkerData* md = 
-	    new uiAnnotDisplay::MarkerData( lvlnms[idx]->buf(), rg.start );
-	md->col_ = col;
-	lvlrgs += rg;
-	mrkdatas_ += md;
-    }
-}
-
-
-void uiStratDisplay::addNode( const Strat::NodeUnitRef& nur, int order ) 
-{
-    for ( int iref=0; iref<nur.nrRefs(); iref++ )
-    {
-	const Strat::UnitRef& ref = nur.ref( iref );
-	if ( ref.isLeaf() )
-	{
-	    addUnitAnnot( nur, order-1 );
-	    if ( order+1 > nrsubannots_ ) nrsubannots_ = order+1;
-	    mDynamicCastGet(const Strat::LeafUnitRef*,lur,&ref);
-	    if ( !lur ) continue;
-	    addUnitAnnot( *lur, order );
-	}
-	else
-	{
-	    mDynamicCastGet(const Strat::NodeUnitRef*,chldnur,&ref);
-	    if ( chldnur )
-	    { order++; addNode( *chldnur, order ); }
-	}
-    }
-}
-
-
-void uiStratDisplay::addUnitAnnot( const Strat::UnitRef& uref, int order )
-{
-    const Strat::Level* toplvl = Strat::eRT().getLevel( &uref, true );
-    const Strat::Level* baselvl = Strat::eRT().getLevel( &uref, false );
-    if ( !toplvl || !baselvl ) return;
-    Interval<float> pos = getUnitPos( *toplvl, *baselvl );
-    uiAnnotDisplay::AnnotData* ad = 
-	new uiAnnotDisplay::AnnotData( uref.code(), pos.start, pos.stop ); 
-    ad->col_ = toplvl->color_;
-    ad->order_ = order;
-    annotdatas_ += ad;
-}
-
-
-Interval<float> uiStratDisplay::getUnitPos( const Strat::Level& toplvl, 
-					    const Strat::Level& baselvl ) 
-{
-    return Interval<float>( toplvl.timerg_.start, baselvl.timerg_.start );
-}
-
-
-uiAnnotDisplay::uiAnnotDisplay( uiParent* p )
-    : uiGraphicsView(p,"Vertical Stratigraphy viewer")
-    , nrsubannots_(1)
-    , zax_(&scene(),uiAxisHandler::Setup(uiRect::Left))	      
-	, menu_(*new uiMenuHandler(p,-1))
-        , addannotmnuitem_("Add annot...",0)
-        , remannotmnuitem_("Remove annot...",1)
-{
-    setPrefWidth( 70 );
-    setPrefHeight( 600 );
-
-    getMouseEventHandler().buttonReleased.notify(
-					mCB(this,uiAnnotDisplay,usrClickCB) );
-    setStretch( 2, 2 );
-    reSize.notify( mCB(this,uiAnnotDisplay,reSized) );
-    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
-
-    menu_.ref();
-    menu_.createnotifier.notify(mCB(this,uiAnnotDisplay,createMenuCB));
-    menu_.handlenotifier.notify(mCB(this,uiAnnotDisplay,handleMenuCB));
-    
-    finaliseDone.notify( mCB(this,uiAnnotDisplay,init) );
-}
-
-
-void uiAnnotDisplay::init( CallBacker* )
+void uiStratDisplay::init( CallBacker* )
 {
     dataChanged();
     show();
 }
 
 
-void uiAnnotDisplay::reSized( CallBacker* )
+void uiStratDisplay::reSized( CallBacker* )
 {
     draw();
 }
 
 
-void uiAnnotDisplay::updateAxis()
+void uiStratDisplay::updateAxis()
 {
     zax_.setNewDevSize( height(), width() );
 }
 
 
-void uiAnnotDisplay::dataChanged()
+void uiStratDisplay::dataChanged()
 {
     gatherInfo(); draw();
 }
 
 
-void uiAnnotDisplay::gatherInfo()
-{}
-
-
-void uiAnnotDisplay::draw()
+void uiStratDisplay::draw()
 {
     updateAxis();
     drawLevels();
-    drawAnnots();
+    drawUnits();
 }
 
-
-void uiAnnotDisplay::drawLevels()
+#define mRemoveSet( itms ) \
+    for ( int idx=0; idx<itms.size(); idx++ ) \
+    scene().removeItem( itms[idx] ); \
+    deepErase( itms );
+void uiStratDisplay::drawLevels()
 {
-    for ( int idx=0; idx<mrkdatas_.size(); idx++ )
+    mRemoveSet( lvlitms_ );
+    for ( int idx=0; idx<nrLevels(); idx++ )
     {
-	uiAnnotDisplay::MarkerData& ld = *mrkdatas_[idx];
-	delete scene().removeItem( ld.itm_  );
-	delete scene().removeItem( ld.txtitm_  );
+	StratDisp::Level& lvl = *getLevel( idx );
 
-	int x1 = ld.order_*width();
+	int x1 = lvl.order_*width();
 	int x2 = x1 + width();
-	int y = zax_.getPix( ld.zpos_ );
+	int y = zax_.getPix( lvl.zpos_ );
 
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
-	li->setPenStyle( LineStyle(LineStyle::Solid,3,ld.col_) );
-	ld.itm_ = li;
+	li->setPenStyle( LineStyle(LineStyle::Solid,3,lvl.col_) );
+	lvlitms_ += li;
     }
 }
 
 
-void uiAnnotDisplay::drawAnnots()
+void uiStratDisplay::drawUnits()
 {
-    int subwidthfactor = width()/nrsubannots_;
+    mRemoveSet( txtitms_ );
+    mRemoveSet( unititms_ );
+    int subwidthfactor = width()/nrSubUnits();
 
-    for ( int idx=0; idx<annotdatas_.size(); idx++ )
+    for ( int idx=0; idx<nrUnits(); idx++ )
     {
-	uiAnnotDisplay::AnnotData& ad = *annotdatas_[idx];
-	delete scene().removeItem( ad.plitm_  );
-	delete scene().removeItem( ad.txtitm_  );
-
-	int x1 = ad.order_*subwidthfactor;
+	StratDisp::Unit& unit = *getUnit( idx );
+	
+	int x1 = unit.order_*subwidthfactor;
 	int x2 = x1 + subwidthfactor;
-	int y1 = zax_.getPix( ad.zpos_ );
-	int y2 = zax_.getPix( ad.zposbot_ );
+	int y1 = zax_.getPix( unit.zpos_ );
+	int y2 = zax_.getPix( unit.zposbot_ );
 
 	TypeSet<uiPoint> rectpts;
 	rectpts += uiPoint( x1, y1 );
@@ -211,19 +146,19 @@ void uiAnnotDisplay::drawAnnots()
 	rectpts += uiPoint( x1, y2  );
 	rectpts += uiPoint( x1, y1  );
 	uiPolygonItem* pli = scene().addPolygon( rectpts, true );
-	pli->setFillColor( ad.col_ );
-	uiTextItem* ti = scene().addItem( new uiTextItem( ad.name_ ) );
+	pli->setFillColor( unit.col_ );
+	uiTextItem* ti = scene().addItem( new uiTextItem( unit.name_ ) );
 	ti->setTextColor( Color::White() );
 	ti->setPos( x2/2, y1+(y2-y1)/2 );
 	ti->rotate( 270 );
-	ti->setZValue(1);
-	ad.txtitm_ = ti;
-	ad.plitm_ = pli;
+	ti->setZValue( unit.order_ );
+	txtitms_ += ti;
+	unititms_ += pli;
     }
 }
 
 
-void uiAnnotDisplay::usrClickCB( CallBacker* cb )
+void uiStratDisplay::usrClickCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
     if ( !mevh )
@@ -237,7 +172,7 @@ void uiAnnotDisplay::usrClickCB( CallBacker* cb )
 }
 
 
-bool uiAnnotDisplay::handleUserClick( const MouseEvent& ev )
+bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 {
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	!ev.altStatus() )
@@ -249,13 +184,13 @@ bool uiAnnotDisplay::handleUserClick( const MouseEvent& ev )
 }
 
 
-void uiAnnotDisplay::createMenuCB( CallBacker* cb )
+void uiStratDisplay::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     if ( !menu ) return;
 
-    mAddMenuItem( menu, &remannotmnuitem_, true, false );
-    mAddMenuItem( menu, &addannotmnuitem_, true, false );
+    mAddMenuItem( menu, &remunitmnuitem_, true, false );
+    mAddMenuItem( menu, &addunitmnuitem_, true, false );
 }
 
 
@@ -282,12 +217,12 @@ public :
 	const char* nm = namefld_->text();
 	float topdpt = topdepthfld_->getfValue();
 	float botdpt = botdepthfld_->getfValue();
-	annot_ = new uiAnnotDisplay::AnnotData( nm, topdpt, botdpt );
-	annot_->col_ =  colorfld_->color();
+	unit_ = new StratDisp::Unit( nm, topdpt, botdpt );
+	unit_->col_ =  colorfld_->color();
 	return true;
     }
 
-    uiAnnotDisplay::AnnotData* annot() { return annot_; }
+    StratDisp::Unit* unit() { return unit_; }
 
 protected :
 
@@ -295,11 +230,11 @@ protected :
     uiGenInput*         topdepthfld_;
     uiGenInput*         botdepthfld_;
     uiColorInput*       colorfld_;
-    uiAnnotDisplay::AnnotData* annot_;
+    StratDisp::Unit* 	unit_;
 };
 
 
-void uiAnnotDisplay::handleMenuCB( CallBacker* cb )
+void uiStratDisplay::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet( MenuHandler*, menu, caller );
@@ -307,14 +242,14 @@ void uiAnnotDisplay::handleMenuCB( CallBacker* cb )
     return;
 
     bool ishandled = true;
-    if ( mnuid==addannotmnuitem_.id )
+    if ( mnuid==addunitmnuitem_.id )
     {
 	uiCreateAnnotDlg dlg( parent(), 
 		(float)getMouseEventHandler().event().pos().y );
 	if ( dlg.go() )
 	{
-	    uiAnnotDisplay::AnnotData* annot = dlg.annot();
-	    if ( annot ) annotdatas_ += annot;
+	    StratDisp::Unit* unit = dlg.unit();
+	    if ( unit ) data_.units_ += unit;
 	}
 	draw();
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.3 2010-03-24 10:05:51 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.4 2010-03-30 12:04:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,95 +15,54 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "uiaxishandler.h"
 #include "menuhandler.h"
+#include "stratdisp.h"
 
 class uiMenuHandler;
 class uiParent;
 class uiPolygonItem;
-class uiStratMgr;
 class uiTextItem;
-class LayerSequence;
 class MouseEvent;
 
-namespace Strat{ class UnitRef; class NodeUnitRef; class Level; }
-
-mClass uiAnnotDisplay : public uiGraphicsView
+mClass uiStratDisplay : public uiGraphicsView
 {
 public:
-			uiAnnotDisplay(uiParent*);
+				uiStratDisplay(uiParent*);
 
-    mStruct MarkerData
-    {
-			MarkerData( const char* nm, float pos )
-			    : zpos_(pos)
-			    , name_(nm)
-			    , order_(0)		     
-			    {}
-
-	float 		zpos_;
-	const char*	name_;
-	Color 		col_;
-	uiTextItem*	txtitm_;
-	uiLineItem*	itm_;
-	int		order_; //optional sublayer number  
-    };
-
-    mStruct AnnotData : public MarkerData
-    {
-			AnnotData(const char* nm,float zpostop,float zposbot)
-			    : MarkerData(nm,zpostop) 
-			    , zposbot_(zposbot)
-			    {}
-
-	float 		zposbot_;
-	uiPolygonItem*	plitm_;
-    };
-
-    void		setZRange( StepInterval<float> rg ) 
-    			{ zax_.setBounds(rg); draw(); }
-    void		dataChanged();
-    int			nrAnnots() { return annotdatas_.size(); }
-    AnnotData*		annot(int idx) { return annotdatas_[idx]; }
+    void			setZRange( StepInterval<float> rg ) 
+    				{ zax_.setBounds(rg); draw(); }
+    void			dataChanged();
+    int				nrUnits() 	{ return data_.units_.size(); }
+    int				nrLevels() 	{ return data_.levels_.size(); }
+    StratDisp::Level* 		getLevel(int idx) { return data_.levels_[idx]; }
+    StratDisp::Unit* 		getUnit(int idx) { return data_.units_[idx]; }
 
 protected:
+  
+    StratDisp			data_;
 
-    ObjectSet<MarkerData> mrkdatas_;  //Horizontal Lines
-    ObjectSet<AnnotData> annotdatas_; //Filled Rectangles
-    int			nrsubannots_;
-    uiAxisHandler 	zax_;
+    ObjectSet<uiTextItem>	txtitms_;
+    ObjectSet<uiLineItem>	lvlitms_;
+    ObjectSet<uiPolygonItem>	unititms_;
 
-    uiMenuHandler&      menu_;
-    MenuItem            addannotmnuitem_;
-    MenuItem            remannotmnuitem_;
+    uiAxisHandler 		zax_; 
 
-    void		draw();
-    void		drawAnnots();
-    void		drawLevels();
-    virtual void	gatherInfo();
-    bool 		handleUserClick(const MouseEvent&);
-    void		updateAxis(); 
+    uiMenuHandler&      	menu_;
+    MenuItem            	addunitmnuitem_;
+    MenuItem            	remunitmnuitem_;
+
+    void			draw();
+    void			drawUnits();
+    void			drawLevels();
+    virtual void		gatherInfo();
+    bool 			handleUserClick(const MouseEvent&);
+    int 			nrSubUnits();
+    void			updateAxis(); 
     
-    void                createMenuCB(CallBacker*);
-    void                handleMenuCB(CallBacker*);
-    void		init(CallBacker*);
-    void		reSized(CallBacker*);
-    void                usrClickCB(CallBacker*);
-};
-
-
-mClass uiStratDisplay : public uiAnnotDisplay
-{
-public:
-    			uiStratDisplay(uiParent*);
-
-protected: 
-
-    uiStratMgr* 	uistratmgr_;
-
-    void		addNode(const Strat::NodeUnitRef&,int);
-    void		addLevels();
-    virtual void	addUnitAnnot(const Strat::UnitRef&,int);
-    void		gatherInfo();
-    virtual Interval<float> getUnitPos(const Strat::Level&,const Strat::Level&);
+    void                	createMenuCB(CallBacker*);
+    void                	handleMenuCB(CallBacker*);
+    void			init(CallBacker*);
+    void			reSized(CallBacker*);
+    void                	usrClickCB(CallBacker*);
 };
 
 #endif
