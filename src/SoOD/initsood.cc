@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.20 2010-03-30 08:03:16 cvskarthika Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.21 2010-03-30 08:42:49 cvskarthika Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -105,5 +105,5 @@ void SoOD::initStdClasses()
     SoTextureComposerInfo::initClass();
     SoAxes::initClass();
     SoBeachBall::initClass();
-	SoDGBDragPointDragger::initClass();
+    SoDGBDragPointDragger::initClass();
 }
