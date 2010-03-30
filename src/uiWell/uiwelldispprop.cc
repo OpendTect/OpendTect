@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.35 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.36 2010-03-30 13:17:20 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -39,7 +39,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
 
 {
     szfld_ = new uiSpinBox( this, 0, "Size" );
-    szfld_->setInterval( StepInterval<int>(0,mUdf(int),1) );
+    szfld_->setInterval( StepInterval<int>(0,100,1) );
     szfld_->setValue(  props().size_ );
     szfld_->valueChanging.notify( mCB(this,uiWellDispProperties,propChg) );
     new uiLabel( this, su.mysztxt_, szfld_ );
