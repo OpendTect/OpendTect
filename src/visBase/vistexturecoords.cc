@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.14 2009-08-06 02:42:55 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.15 2010-03-30 11:55:21 cvskris Exp $";
 
 #include "vistexturecoords.h"
 
@@ -164,6 +164,12 @@ int TextureCoordListAdapter::nextID( int previd ) const
 
 int TextureCoordListAdapter::add( const Coord3& p )
 { return texturecoords_.addCoord( p ); }
+
+
+void TextureCoordListAdapter::addValue( int, const Coord3& p )
+{
+    pErrMsg("Not implemented");
+}
 
 
 Coord3 TextureCoordListAdapter::get( int idx ) const
