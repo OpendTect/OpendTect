@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.109 2010-03-23 10:47:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.110 2010-03-30 11:59:35 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -40,7 +40,6 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.109 2010-03-23 10:47:42 cvs
     , rectitem_(0) \
     , arrowitem1_(0) \
     , arrowitem2_(0) \
-    , polyitem_(0) \
     , pointitem_(0) \
     , polylineitemset_(0) \
     , markeritemset_(0) 
@@ -713,16 +712,20 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    pointitem_ = 0;
 	}
 
+	if ( !polylineitemset_ )
+	    polylineitemset_ = new uiGraphicsItemSet();
+
 	if ( drawfill )
 	{
-	    if ( !polyitem_ )
-		polyitem_ = canvas_.scene().addPolygon( ptlist, true );
-	    else
-		polyitem_->setPolygon( ptlist );
-	    polyitem_->setZValue(1);
-	    polyitem_->setFillColor(  ad.fillcolor_ );
-	    polyitem_->fill();
-	    polyitem_->setPenStyle( ad.linestyle_ );
+	    uiPolygonItem* polyitem = 
+		canvas_.scene().addPolygon( ptlist, true );
+	    polyitem->setZValue( ad.zvalue_ );
+	    Color col = ad.fillcolor_;
+	    col.setTransparency( 100 );
+	    polyitem->setFillColor(  ad.fillcolor_ );
+	    polyitem->fill();
+	    polyitem->setPenStyle( ad.linestyle_ );
+	    polylineitemset_->add( polyitem );
 	    //TODO clip polygon
 	}
 	else
@@ -732,9 +735,6 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 
 	    ObjectSet<TypeSet<uiPoint> > lines;
 	    clipPolyLine( datarect, ptlist, lines );
-
-	    if ( !polylineitemset_ )
-		polylineitemset_ = new uiGraphicsItemSet();
 
 	    for ( int idx=lines.size()-1; idx>=0; idx-- )
 	    {

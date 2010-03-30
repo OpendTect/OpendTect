@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.45 2009-09-10 11:11:49 cvssatyaki Exp $
+ RCS:           $Id: flatview.h,v 1.46 2010-03-30 11:59:35 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ public:
 	LineStyle		linestyle_;
 	Color			fillcolor_;
 	TypeSet<MarkerStyle2D>	markerstyles_;
+	int			zvalue_; 	//overlay zvalue ( max=on top )
 	bool			areMarkersVisible() const;
 
 	Interval<double>*	x1rg_;		//!<if 0, use viewer's rg & zoom
