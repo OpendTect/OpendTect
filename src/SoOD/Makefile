@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.42 2010-03-02 03:38:28 cvsnanne Exp $
+#	RCS :		$Id: Makefile,v 1.43 2010-03-30 08:18:50 cvskarthika Exp $
 #_______________________________________________________________________________
 
 
@@ -10,12 +10,14 @@ SRC.cc	:=	initsood.cc \
 		SoOD.cc \
 		SoArrow.cc \
 		SoAxes.cc \
+		SoBeachBall.cc \
 		SoCameraFacingZAxisRotation.cc \
 		SoCameraInfo.cc \
 		SoCameraInfoElement.cc \
 		SoColTabMultiTexture2.cc \
 		SoColTabTextureChannel2RGBA.cc \
 		SoDepthTabPlaneDragger.cc \
+		SoDGBDragPointDragger.cc \
 		SoDGBIndexedPointSet.cc \
 		SoForegroundTranslation.cc \
 		SoGridSurfaceDragger.cc \
@@ -46,8 +48,7 @@ SRC.cc	:=	initsood.cc \
 		UTMElement.cc \
 		UTMPosition.cc \
 		ViewportRegion.cc \
-		LegendKit.cc \
-		SoBeachBall.cc 
+		LegendKit.cc
 		
 
 PROG.cc := oib2a.cc

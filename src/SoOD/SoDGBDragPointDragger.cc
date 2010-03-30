@@ -8,12 +8,12 @@ ________________________________________________________________________
 
 -*/
 
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.2 2010-03-30 08:18:50 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
 #include "Inventor/elements/SoViewVolumeElement.h"
 #include "Inventor/SbRotation.h"
-#include "iostream"
 
 void SoDGBDragPointDragger::initClass()
 {
@@ -83,3 +83,4 @@ void SoDGBDragPointDragger::dragStart(void)
 	}*/
 
 }
+
