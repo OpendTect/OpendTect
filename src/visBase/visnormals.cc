@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visnormals.cc,v 1.17 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: visnormals.cc,v 1.18 2010-03-30 11:52:31 cvskris Exp $";
 
 #include "visnormals.h"
 
@@ -30,7 +30,11 @@ Normals::Normals()
 {
     normals_->ref();
     for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
+    {
 	unusednormals_ += 0;
+	normals_->vector.set1Value( 0,
+		SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
+    }
 }
 
 
@@ -50,7 +54,11 @@ void Normals::setNormal( int idx, const Vector3& n )
 
     Threads::MutexLocker lock( mutex_ );
     for ( int idy=normals_->vector.getNum(); idy<idx; idy++ )
+    {
 	unusednormals_ += idy;
+	normals_->vector.set1Value( idy,
+		SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
+    }
 
     normals_->vector.set1Value( idx, SbVec3f( normal.x, normal.y, normal.z ));
 }
@@ -105,6 +113,39 @@ int Normals::addNormal( const Vector3& n )
 }
 
 
+void Normals::addNormalValue( int idx, const Vector3& n )
+{
+    Coord3 normal = n;
+    transformNormal( transformation_, normal, true );
+
+    Threads::MutexLocker lock( mutex_ );
+    SbVec3f newnormal = normals_->vector[idx];
+    bool set = idx>=normals_->vector.getNum();
+
+    if ( !set )
+    {
+	newnormal = normals_->vector[idx];
+	if ( mIsUdf(newnormal[0]) )
+	    set = true;
+	else
+	{
+	    newnormal[0] += normal.x;
+	    newnormal[1] += normal.y;
+	    newnormal[2] += normal.z;
+	}
+    }
+
+    if ( set )
+    {
+	newnormal[0] = normal.x;
+	newnormal[1] = normal.y;
+	newnormal[2] = normal.z;
+    }
+
+    normals_->vector.set1Value( idx, newnormal );
+}
+
+
 void Normals::removeNormal(int idx)
 {
     Threads::MutexLocker lock( mutex_ );
@@ -118,13 +159,20 @@ void Normals::removeNormal(int idx)
     if ( idx==nrnormals-1 )
 	normals_->vector.deleteValues( idx );
     else
+    {
 	unusednormals_ += idx;
+	normals_->vector.set1Value( idx,
+		SbVec3f(mUdf(float),mUdf(float),mUdf(float) ) );
+    }
 }
 
 
 Coord3 Normals::getNormal( int idx ) const
 {
     Threads::MutexLocker lock( mutex_ );
+    if ( idx>=normals_->vector.getNum() )
+	return Coord3::udf();
+
     const SbVec3f norm = normals_->vector[idx];
     Coord3 res( norm[0], norm[1], norm[2] );
     transformNormal( transformation_, res, false );

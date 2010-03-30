@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.10 2010-02-12 07:13:08 cvsumesh Exp $
+ RCS:           $Id: positionlist.h,v 1.11 2010-03-30 11:52:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class Coord3;
 mClass Coord3List
 { mRefCountImplNoDestructor(Coord3List);
 public:
+    virtual Thread::ReadWriteLock*	getLock()		{ return 0; }
     virtual int		nextID(int previd) const			= 0;
     			//!<If previd == -1, first id is returned.
 			//!<If -1 is returned, no more id's are available.
@@ -30,6 +31,8 @@ public:
     virtual Coord3	get(int id) const				= 0;
     virtual bool	isDefined(int id) const				= 0;
     virtual void	set(int id,const Coord3&)			= 0;
+    virtual void	addValue(int id,const Coord3&)			= 0;
+    			//!<Adds value to existing value at id
     virtual void	remove(int id)					= 0;
 };
 
@@ -45,6 +48,8 @@ public:
     virtual void	set(int id,const Coord&)			= 0;
     virtual int		add(const Coord&)				= 0;
     			//!<Return new id, or -1 if unsuccessful
+    virtual void	addValue(int id,const Coord&)			= 0;
+    			//!<Adds value to existing value at id
     virtual void	remove(int id)					= 0;
 };
 
@@ -58,6 +63,7 @@ public:
     void		set(int id,const Coord&);	
     int			add(const Coord&); 		
     void		remove(int id);
+    void		addValue(int id,const Coord&);
     int			getSize() const 	{ return points_.size(); }
 
 protected:
@@ -78,6 +84,7 @@ public:
     bool		isDefined(int) const;
     void                remove(int id);
     int                 getSize() const         { return coords_.size(); }
+    void		addValue(int id,const Coord3&);
 
 protected:
 

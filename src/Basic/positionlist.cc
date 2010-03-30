@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: positionlist.cc,v 1.3 2010-02-12 07:13:13 cvsumesh Exp $";
+static const char* rcsID = "$Id: positionlist.cc,v 1.4 2010-03-30 11:52:31 cvskris Exp $";
 
 #include "positionlist.h"
 
@@ -64,6 +64,15 @@ int Coord2ListImpl::add( const Coord& co )
 
     points_ += co;
     return points_.size()-1;
+}
+
+
+void Coord2ListImpl::addValue( int idx, const Coord& co )
+{
+    if ( idx>=points_.size() || removedids_.indexOf(idx)!=-1 )
+	add( co );
+    else
+	points_[idx] += co;
 }
 
 
@@ -128,6 +137,15 @@ int Coord3ListImpl::add( const Coord3& coord3 )
 
     coords_ += coord3;
     return coords_.size()-1;
+}
+
+
+void Coord3ListImpl::addValue( int idx, const Coord3& co )
+{
+    if ( idx>=coords_.size() || removedids_.indexOf(idx)!=-1 )
+	add( co );
+    else
+	coords_[idx] += co;
 }
 
 
