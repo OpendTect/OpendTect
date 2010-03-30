@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.110 2010-03-30 11:59:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.111 2010-03-30 12:00:56 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -720,9 +720,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad,
 	    uiPolygonItem* polyitem = 
 		canvas_.scene().addPolygon( ptlist, true );
 	    polyitem->setZValue( ad.zvalue_ );
-	    Color col = ad.fillcolor_;
-	    col.setTransparency( 100 );
-	    polyitem->setFillColor(  ad.fillcolor_ );
+	    polyitem->setFillColor( ad.fillcolor_ );
 	    polyitem->fill();
 	    polyitem->setPenStyle( ad.linestyle_ );
 	    polylineitemset_->add( polyitem );
