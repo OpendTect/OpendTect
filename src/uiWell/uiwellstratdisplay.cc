@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.3 2010-03-26 16:51:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.4 2010-03-30 12:09:17 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -31,30 +31,45 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
     }
 }
 
-
-Interval<float> uiWellStratDisplay::getUnitPos( const Strat::Level& toplvl,
-						const Strat::Level& baselvl )
-
+void uiWellStratDisplay::gatherInfo()
 {
-    Interval<float> posrg( mUdf(float), mUdf(float) );
+    data_.gatherInfo();
+    for ( int idx=0; idx<nrUnits(); idx++ )
+    {
+	if ( getUnit( idx ) )
+	    setUnitPos( *getUnit( idx ) );
+    }
+}
+
+
+void uiWellStratDisplay::setUnitPos( StratDisp::Unit& unit )  
+{
+    float& toppos = unit.zpos_; 
+    float& botpos = unit.zposbot_;
     const Well::Marker* topmrk = 0;
     const Well::Marker* basemrk = 0;
     for ( int idx=0; idx<markers_.size(); idx++ )
     {
-	if ( markers_[idx]->level() == &toplvl )
+	const Strat::Level* lvl = markers_[idx]->level();
+	if ( lvl && !strcmp( lvl->name(), unit.toplvlnm_ ) )
 	    topmrk = markers_[idx];
-	if ( markers_[idx]->level() == &baselvl )
+	if ( lvl && !strcmp( lvl->name(), unit.botlvlnm_ ) )
 	    basemrk = markers_[idx];
     }
     if ( !topmrk || !basemrk ) 
-	return posrg;
-    posrg.start = topmrk->dah();
-    posrg.stop = basemrk->dah();
-    if ( istime_ && d2tm_ ) 
     { 
-	posrg.start = d2tm_->getTime( posrg.start ); 
-	posrg.stop = d2tm_->getTime( posrg.stop ); 
+	toppos = mUdf(float); 
+	botpos = mUdf(float); 
     }
-    return posrg;    
+    else
+    {
+	toppos = topmrk->dah();
+	botpos = basemrk->dah();
+	if ( istime_ && d2tm_ ) 
+	{ 
+	    toppos = d2tm_->getTime( toppos ); 
+	    botpos = d2tm_->getTime( botpos ); 
+	}
+    }
 }
 

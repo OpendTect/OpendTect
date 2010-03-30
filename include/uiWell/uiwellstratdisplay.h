@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.2 2010-03-26 10:39:27 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.3 2010-03-30 12:09:17 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,9 +20,7 @@ namespace Well
     class D2TModel; 
 }
 
-namespace Strat{ class UnitRef; }
-
-/*!\brief creates a display of stratigraphy IF levels are linked to markers.*/
+/*!\brief creates a display of stratigraphy WHEN levels are linked to markers.*/
 mClass uiWellStratDisplay : public uiStratDisplay
 {
 public:
@@ -40,8 +38,9 @@ protected:
     bool 			istime_;
     const Well::D2TModel*	d2tm_;
     const ObjectSet<Well::Marker>& markers_;
-    Interval<float> 		getUnitPos(const Strat::Level&,
-	    				   const Strat::Level&);
+
+    void			gatherInfo();
+    void 			setUnitPos(StratDisp::Unit&);
 };
 
 #endif
