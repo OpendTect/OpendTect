@@ -8,11 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.10 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.11 2010-03-30 08:02:13 cvskarthika Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
-#include "Inventor/draggers/SoDragPointDragger.h"
+#include "SoDGBDragPointDragger.h"
+
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoMaterial.h"
 #include "Inventor/nodes/SoRotation.h"
@@ -42,7 +43,7 @@ SoRandomTrackLineDragger::SoRandomTrackLineDragger()
     SO_KIT_ADD_CATALOG_ENTRY(subDraggerRot,SoRotation, false,
 				subDraggerSep, subDraggers, false );
     SO_KIT_ADD_CATALOG_LIST_ENTRY(subDraggers,SoGroup, false,
-				subDraggerSep, "", SoDragPointDragger, false );
+				subDraggerSep, "", SoDGBDragPointDragger, false );
     SO_KIT_ADD_CATALOG_ENTRY(feedbackSwitch,SoSwitch, false,
 				this, "", false );
     SO_KIT_ADD_CATALOG_ENTRY(feedback, SoSeparator, false,
@@ -190,8 +191,8 @@ void SoRandomTrackLineDragger::dragStart(SoDragger* dragger_)
     SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
     sw->whichChild = 0;
 
-    SoDragPointDragger* dragger =
-			reinterpret_cast<SoDragPointDragger*>( dragger_ );
+    SoDGBDragPointDragger* dragger =
+			reinterpret_cast<SoDGBDragPointDragger*>( dragger_ );
 
     SoNodeKitListPart* partlist =
 	SO_GET_ANY_PART( this, "subDraggers", SoNodeKitListPart );
@@ -218,8 +219,8 @@ void SoRandomTrackLineDragger::dragStart(SoDragger* dragger_)
 
 void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
 {
-    SoDragPointDragger* dragger =
-			reinterpret_cast<SoDragPointDragger*>( dragger_ );
+    SoDGBDragPointDragger* dragger =
+			reinterpret_cast<SoDGBDragPointDragger*>( dragger_ );
 
     SoNodeKitListPart* partlist =
 	SO_GET_ANY_PART( this, "subDraggers", SoNodeKitListPart );
@@ -330,7 +331,7 @@ void SoRandomTrackLineDragger::updateDraggers()
 
     while ( partlist->getNumChildren()<nrknots*2 )
     {
-	SoDragPointDragger* newdragger = new SoDragPointDragger;
+	SoDGBDragPointDragger* newdragger = new SoDGBDragPointDragger;
 	partlist->addChild( newdragger );
 	newdragger->addStartCallback( &startCB, this );
 	newdragger->addMotionCallback( &motionCB, this );
@@ -356,8 +357,8 @@ void SoRandomTrackLineDragger::updateDraggers()
 		(istop ? z0.getValue() : z1.getValue())/scalefactor[2],
 		-knotpos[1]/scalefactor[1] );
 
-	SoDragPointDragger* curdragger =
-	    reinterpret_cast<SoDragPointDragger*>(partlist->getChild(idx));
+	SoDGBDragPointDragger* curdragger =
+	    reinterpret_cast<SoDGBDragPointDragger*>(partlist->getChild(idx));
 
 	curdragger->translation.setValue(draggerpos);
 	SbVec3f pos( knotpos[0], knotpos[1],
