@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.29 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.30 2010-03-30 11:54:05 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -438,7 +438,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	{
 	    bucket = new Geometry::IndexedGeometry(
 		    Geometry::IndexedGeometry::TriangleStrip,
-		    Geometry::IndexedGeometry::PerFace, 0, normallist_ );
+		    Geometry::IndexedGeometry::PerVertex, 0, normallist_ );
 
 	    ibuckets_.add( &bucket, indicesbucket );
 	    geometries_ += bucket;
@@ -451,10 +451,10 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
 
     TypeSet<int> coordindices;
-    TypeSet<int> normalindices;
+    TypeSet<Coord3> normals;
 
     coordindices.setCapacity( nrtableindices*16 );
-    normalindices.setCapacity( nrtableindices*4 );
+    normals.setCapacity( nrtableindices*16 );
 
     int arrpos = 0;
     bool gotonextstrip = false;
@@ -534,6 +534,8 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	}
 
 	coordindices += index;
+	normals += Coord3(0,0,0);
+
 	if ( normallist_ )
 	{
 	    triangles += coordlist_->get( index );
@@ -543,16 +545,29 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
 	    if ( nrtri>=3 )
 	    {
-		const Coord3 v0 =
-		    triangles[nrtri-(reverse?3:1)]-triangles[nrtri-2];
-		const Coord3 v1 =
-		    triangles[nrtri-(reverse?1:3)]-triangles[nrtri-2];
-		Coord3 normal = v0.cross( v1 );
-		if ( !normal.sqAbs() )
-		    normal = Coord3( 1, 0, 0 );
+		const int c0 = nrtri-(reverse?3:1);
+		const int c1 = nrtri-2;
+		const int c2 = nrtri-(reverse?1:3);
+		const Coord3 v0 = triangles[c0]-triangles[c1];
+		const Coord3 v1 = triangles[c2]-triangles[c1];
 
-		const int normidx = normallist_->add( normal );
-		normalindices += normidx;
+		Coord3 normal = v0.cross( v1 );
+		const double normalsqlen = normal.sqAbs();
+		if ( !normalsqlen )
+		    normal = Coord3( 1, 0, 0 );
+		else
+		    normal /= Math::Sqrt( normalsqlen );
+
+		const int nrindices = coordindices.size();
+
+		const int i0 = coordindices[nrindices-1];
+		const int i1 = coordindices[nrindices-2];
+		const int i2 = coordindices[nrindices-3];
+		
+		//Should be locked
+		normallist_->addValue( i0, normal );
+		normallist_->addValue( i1, normal );
+		normallist_->addValue( i2, normal );
 	    }
 	}
     }
@@ -561,7 +576,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
     Threads::MutexLocker lock( bucket->lock_ );
     bucket->coordindices_.append( coordindices );
-    bucket->normalindices_.append( normalindices );
+    bucket->normalindices_.append( coordindices );
 
     return true;
 }
