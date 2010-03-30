@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.18 2009-12-23 04:29:17 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.19 2010-03-30 12:06:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,6 +228,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 		auxdata->linestyle_ = markerlinestyle_;
 		auxdata->linestyle_.color_ = hor->preferredColor();
 		auxdata->fillcolor_ = hor->preferredColor();
+		auxdata->name_ = hor->name();
 		newmarker = false;
 		auxdata->enabled_ = horizoninfos_[horidx]->lineenabled_;
 		markerlinecount++;
