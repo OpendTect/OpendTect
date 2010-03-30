@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.11 2010-03-30 11:52:31 cvskris Exp $
+ RCS:           $Id: positionlist.h,v 1.12 2010-03-30 12:00:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ class Coord3;
 mClass Coord3List
 { mRefCountImplNoDestructor(Coord3List);
 public:
-    virtual Thread::ReadWriteLock*	getLock()		{ return 0; }
     virtual int		nextID(int previd) const			= 0;
     			//!<If previd == -1, first id is returned.
 			//!<If -1 is returned, no more id's are available.
