@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: attribdescsetman.h,v 1.4 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribdescsetman.h,v 1.5 2010-03-31 13:44:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ public:
 			~DescSetMan();
 
     DescSet*		descSet()			{ return ads_; }
+    const DescSet*	descSet() const			{ return ads_; }
     void		setDescSet(DescSet*);
 
     bool		is2D() const			{ return is2d_; }

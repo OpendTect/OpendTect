@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.77 2010-02-12 04:24:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.78 2010-03-31 13:44:20 cvshelene Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.77 2010-02-12 04:24:3
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribdsmanpack.h"
 #include "attribsel.h"
 #include "emmanager.h"
 #include "externalattrib.h"
@@ -1008,8 +1009,16 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     LineKey linekey( s2d->name(), attribnm );
     myas.set( attribnm, attribid, false, 0 );
     myas.set2DFlag();
-    myas.setRefFromID( *attrserv->curDescSet(true) );
+    const Attrib::DescSet* ds = Attrib::DSMPack().getAds( true, true );
+    if ( !ds ) return false;
+    myas.setRefFromID( *ds );
     myas.setUserRef( attribnm ); // Why is this necessary?
+    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
+    if ( !targetdesc ) return false;
+
+    BufferString defstring;
+    targetdesc->getDefStr( defstring );
+    myas.setDefString( defstring );
     attrserv->setTargetSelSpec( myas );
 
     CubeSampling cs;

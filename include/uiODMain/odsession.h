@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.9 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: odsession.h,v 1.10 2010-03-31 13:44:20 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ public:
     virtual		~ODSession()		{}
 
     IOPar&		vispars() 		{ return vispars_; }
-    IOPar&		attrpars(bool);
+    IOPar&		attrpars(bool,bool);
     IOPar&		nlapars() 		{ return nlapars_; }
     IOPar&		mpepars() 		{ return mpepars_; }
     IOPar&		scenepars() 		{ return scenepars_; }
@@ -51,6 +51,8 @@ protected:
     IOPar		attrpars_;
     IOPar		attrpars2d_;
     IOPar		attrpars3d_;
+    IOPar		attrpars2dstored_;
+    IOPar		attrpars3dstored_;
     IOPar		nlapars_;
     IOPar		mpepars_;
     IOPar		pluginpars_;
@@ -62,6 +64,8 @@ protected:
     static const char*	attrprefix;
     static const char*	attr2dprefix;
     static const char*	attr3dprefix;
+    static const char*	attr2dstoredprefix;
+    static const char*	attr3dstoredprefix;
     static const char*	nlaprefix;
     static const char*	trackprefix;
     static const char*	pluginprefix;

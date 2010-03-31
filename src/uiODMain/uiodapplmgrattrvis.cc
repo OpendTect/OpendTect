@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.11 2009-11-04 03:27:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.12 2010-03-31 13:44:20 cvshelene Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -81,7 +81,7 @@ void uiODApplMgrAttrVisHandler::createVol( bool is2d )
 
 void uiODApplMgrAttrVisHandler::doXPlot()
 {
-    Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
+    const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
     if ( !ads ) return;
 
     am_.wellattrserv_->setAttribSet( *ads );
@@ -91,7 +91,7 @@ void uiODApplMgrAttrVisHandler::doXPlot()
 
 void uiODApplMgrAttrVisHandler::crossPlot()
 {
-    Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
+    const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
     if ( !ads ) return;
 
     am_.attrserv_->set2DEvent( ads->is2D() );

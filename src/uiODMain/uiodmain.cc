@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.120 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.121 2010-03-31 13:44:20 cvshelene Exp $";
 
 #include "uiodmain.h"
 
@@ -502,8 +502,14 @@ bool uiODMain::updateSession()
 {
     cursession_->clear();
     applMgr().visServer()->fillPar( cursession_->vispars() );
-    applMgr().attrServer()->fillPar( cursession_->attrpars(true), true );
-    applMgr().attrServer()->fillPar( cursession_->attrpars(false), false );
+    applMgr().attrServer()->fillPar( cursession_->attrpars(true,false),
+	    			     true, false );
+    applMgr().attrServer()->fillPar( cursession_->attrpars(true, true),
+	    			     true, true );
+    applMgr().attrServer()->fillPar( cursession_->attrpars(false, false),
+	    			     false, false );
+    applMgr().attrServer()->fillPar( cursession_->attrpars(false, true),
+	    			     false, true );
     sceneMgr().getScenePars( cursession_->scenepars() );
     if ( applMgr().nlaServer()
       && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) ) 
@@ -525,9 +531,17 @@ void uiODMain::doRestoreSession()
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession_->nlapars() );
     if ( SI().has2D() )
-	applMgr().attrServer()->usePar( cursession_->attrpars(true), true );
+    {
+	applMgr().attrServer()->usePar( cursession_->attrpars(true,false),
+					true, false );
+	applMgr().attrServer()->usePar( cursession_->attrpars(true,true),
+					true, true );
+    }
     if ( SI().has3D() )
-	applMgr().attrServer()->usePar( cursession_->attrpars(false), false );
+    {
+	applMgr().attrServer()->usePar( cursession_->attrpars(false,false),						false, false );
+	applMgr().attrServer()->usePar( cursession_->attrpars(false,true),						false, true );
+    }
     applMgr().mpeServer()->usePar( cursession_->mpepars() );
     const bool visok = applMgr().visServer()->usePar( cursession_->vispars() );
     if ( visok )

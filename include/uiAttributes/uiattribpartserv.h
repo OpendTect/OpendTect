@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.67 2010-02-12 04:24:33 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.68 2010-03-31 13:44:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ namespace Attrib
     class Data2DHolder;
     class Desc;
     class DescSet;
-    class DescSetMan;
     class EngineMan;
     class SelInfo;
     class SelSpec;
@@ -126,9 +125,6 @@ public:
     DataPack::ID	create2DOutput(const CubeSampling&,const LineKey&,
 	    			       TaskRunner&);
 
-    bool		isDataAngles(bool) const;
-			/*!<\returns true if the target data is an
-				     angle, i.e. -PI==PI. */
     bool		isDataClassified(const Array3D<float>&) const;
 
     Attrib::DescID	getStoredID(const LineKey&,bool is2d,int selout=-1);
@@ -165,8 +161,8 @@ public:
     void		setEvaluateInfo(bool ae,bool as)
 			{ alloweval_=ae; allowevalstor_=as; }
 
-    void		fillPar(IOPar&,bool) const;
-    void		usePar(const IOPar&,bool);
+    void		fillPar(IOPar&,bool,bool) const;
+    void		usePar(const IOPar&,bool,bool);
 
     void		setDPSDispMgr( DataPointSetDisplayMgr* dispmgr )
     			{ dpsdispmgr_ = dispmgr; }
@@ -176,7 +172,7 @@ public:
     int			use3DMode() const;
     			//!< If you have services that can work on 2D or 3D
     			//!< 0 = 2D, 1 = 3D, -1 = user cancel
-    Attrib::DescSet*	getUserPrefDescSet() const;
+    const Attrib::DescSet*	getUserPrefDescSet() const;
     			//!< For services that can work on 2D or 3D
     void		showXPlot(CallBacker*);
 
@@ -203,8 +199,6 @@ protected:
     ObjectSet<MenuItem> linesets2dstoredmnuitem_;
     ObjectSet<MenuItem> linesets2dsteeringmnuitem_;
 
-    Attrib::DescSetMan*	adsman2d_;
-    Attrib::DescSetMan*	adsman3d_;
     uiAttribCrossPlot*	uiattrxplot_;
     const Attrib::Desc*	dirshwattrdesc_;
     uiAttribDescSetEd*	attrsetdlg_;
@@ -223,9 +217,6 @@ protected:
 
     void		attrsetDlgClosed(CallBacker*);
     void		attrsetDlgCloseTimTick(CallBacker*);
-
-    Attrib::DescSetMan* getAdsMan(bool) const;
-    Attrib::DescSetMan* getAdsMan(bool);
 
     Attrib::DescID	targetID(bool is2d,int nr=0) const;
 
