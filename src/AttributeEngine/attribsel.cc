@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.43 2009-11-13 03:27:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.44 2010-03-31 13:34:23 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -198,6 +198,13 @@ bool SelSpec::usePar( const IOPar& par )
     is2d_ = false;		par.getYN( sKeyIs2D(), is2d_ );
     		
     return true;
+}
+
+
+bool SelSpec::isStored() const
+{
+    BufferString storstr = StorageProvider::attribName();
+    return storstr.isStartOf( defstring_ );
 }
 
 

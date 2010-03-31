@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.24 2009-11-13 03:27:47 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.25 2010-03-31 13:34:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,8 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+
+    bool		isStored() const;
 
     static const DescID& cNoAttrib();
     static const DescID& cAttribNotSel();
