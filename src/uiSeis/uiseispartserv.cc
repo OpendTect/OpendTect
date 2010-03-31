@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.117 2010-01-12 04:12:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.118 2010-03-31 18:53:25 cvskris Exp $";
 
 #include "uiseispartserv.h"
 
@@ -201,7 +201,11 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 					  const char* linenm,
 					  PosInfo::Line2DData& geom )
 {
-    mGet2DLineSet(false)
+    mGet2DLineSet(false);
+
+    bool setzrange = false;
+    StepInterval<float> maxzrg;
+
     int lineidx = lineset.indexOf( linenm );
     if ( lineidx < 0 )
     {
@@ -212,6 +216,7 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
 	int maxnrtrcs = 0;
+	bool first = true;
 	for ( int idx=0; idx<attribs.size(); idx++ )
 	{
 	    int indx = lineset.indexOf( LineKey(linenm,attribs.get(idx)) );
@@ -224,12 +229,31 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 		maxnrtrcs = nrtrcs;
 		lineidx = indx;
 	    }
+
+	    if ( first )
+	    {
+		first = false;
+		maxzrg = zrg;
+	    }
+	    else
+	    {
+		maxzrg.start = mMIN(maxzrg.start, zrg.start );
+		maxzrg.stop = mMAX(maxzrg.stop, zrg.stop );
+		maxzrg.step = mMIN(maxzrg.step, zrg.step );
+	    }
 	}
 
 	if ( lineidx < 0 ) return false;
+	setzrange = true;
     }
 
-    return lineset.getGeometry( lineidx, geom );
+    if ( !lineset.getGeometry( lineidx, geom ) )
+	return false;
+
+    if ( setzrange )
+	geom.zrg_ = maxzrg;
+
+    return true;
 }
 
 
