@@ -7,18 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.48 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.49 2010-03-31 07:56:28 cvssatyaki Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
 
+#include "uibutton.h"
 #include "uicolor.h"
 #include "uicolortable.h"
-#include "uigeninput.h"
 #include "uicombobox.h"
-#include "uilabel.h"
 #include "uiflatviewer.h"
-#include "uibutton.h"
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uilabel.h"
 #include "uisellinest.h"
 #include "uiseparator.h"
 
@@ -739,6 +740,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     , vwr_(vwr)
     , applycb_(applcb)
     , selannot_(selannot)
+    , wvatab_(0)
 {
     vwr_.fillAppearancePar( initialpar_ );
 
@@ -801,6 +803,12 @@ bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
 
 bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 {
+    if ( (wvatab_ && !wvatab_->doDisp()) && (vdtab_ && !vdtab_->doDisp()) )
+    {
+	uiMSG().error( "Either select Wiggle or Visual Display" );
+	return false;
+    }
+     
     if ( !uiTabStackDlg::acceptOK(cb) )
 	return false;
 

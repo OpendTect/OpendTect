@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.111 2010-03-30 12:00:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.112 2010-03-31 07:56:28 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -58,7 +58,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     , anysetviewdone_(false)
     , enabhaddrag_(enabhanddrag)
     , initview_(true)
-    , extraborders_(0,0,0,0)
+    , extraborders_(0,0,5,0)
     , annotborder_(0,0,0,0)
     , viewborder_(0,0,0,0)
     , annotsz_(50,20) //TODO: should be dep on font size
@@ -68,6 +68,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     , dispParsChanged(this)
     , control_(0)
     , useseldataranges_(false)	 
+    , drawwithoutdata_(false)	 
 {
     canvas_.scene().setMouseEventActive( true );
     canvas_.setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
@@ -330,6 +331,17 @@ void uiFlatViewer::reset()
 
 bool uiFlatViewer::drawBitMaps()
 {
+    if ( !drawwithoutdata_ && (!pack(true) && !pack(false)) )
+    {
+	reportedchanges_.erase();
+	PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
+						canvas_.arrArea().height() );
+	pixmap->fill( color(false) );
+	canvas_.setPixmap( *pixmap );
+	canvas_.draw();
+	return true;
+    }
+
     if ( enabhaddrag_ )
     {
 	if ( initview_ || control()->zoomMgr().atStart() )
@@ -358,7 +370,6 @@ bool uiFlatViewer::drawBitMaps()
 	if ( dct == All || dct == WVAData || dct == VDData )
 	{ 
 	    datachgd = true;
-	    dispParsChanged.trigger();
 	    break;
 	}
 	else if ( dct == WVAPars || dct == VDPars )
@@ -371,11 +382,12 @@ bool uiFlatViewer::drawBitMaps()
     if ( !datachgd && !parschanged && annotchanged )
 	return false;
 
-    if ( datachgd )
-	dataChanged.trigger();
 
     const bool hasdata = packID(false)!=DataPack::cNoID() ||
 			 packID(true)!=DataPack::cNoID();
+    
+    if ( datachgd && hasdata )
+	dataChanged.trigger();
     uiPoint offs( mUdf(int), mUdf(int) );
     if ( !wvabmpmgr_ )
     {
@@ -475,10 +487,11 @@ bool uiFlatViewer::drawAnnot()
 
 bool uiFlatViewer::drawAnnot( const uiRect& drawarea, const uiWorldRect& wr )
 {
-    if ( mainwin() && !mainwin()->finalised() )
+    if ( (mainwin() && !mainwin()->finalised()) )
 	return false;
 
     BufferStringSet bss; getAnnotChoices( bss );
+
     if ( bss.indexOf(appearance().annot_.x1_.name_) >= 0 )
 	axesdrawer_.altdim0_ = bss.indexOf( appearance().annot_.x1_.name_ );
 
@@ -549,7 +562,7 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 void uiFlatViewer::setAnnotChoice( int sel )
 {
     BufferStringSet bss; getAnnotChoices( bss );
-    if ( mIsUdf(sel) || ((sel >= 0 && sel < bss.size()) &&
+    if ( mIsUdf(sel) || bss.isEmpty() || ( !bss.validIdx(sel) ||
 	 bss.get(sel) == appearance().annot_.x1_.name_) )
 	return;
 

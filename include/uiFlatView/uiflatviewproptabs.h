@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.13 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.14 2010-03-31 07:56:28 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ public:
 
     void		setDataNames();
     virtual void	setData()			= 0;
+    bool		doDisp() const;
 
 protected:
     			uiFlatViewDataDispPropTab(uiParent*,FlatView::Viewer&,
@@ -60,7 +61,6 @@ protected:
 
     FlatView::DataDispPars& ddpars_;
     virtual FlatView::DataDispPars::Common& commonPars()	= 0;
-    bool		doDisp() const;
     virtual const char*	dataName() const			= 0;
 
     uiComboBox*		dispfld_;
