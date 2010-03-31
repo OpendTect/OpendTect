@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.24 2010-03-22 14:54:29 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.25 2010-03-31 06:45:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,8 @@ public:
     double	distTo(const Geom::Point2D<T>& refpt,int* segmentidxptr=0,
 		       double* fractionptr=0) const;
 
+    bool	operator==(const ODPolygon<T>&) const;
+
 protected:
  
     static int doSegmentsMeet( const Geom::Point2D<T>& p1,
@@ -136,6 +138,14 @@ protected:
     mutable Interval<T>		xrg_;
     mutable Interval<T>		yrg_;
 };
+
+
+template <class T> inline
+bool ODPolygon<T>::operator==( const ODPolygon<T>& poly ) const
+{
+    if ( data() != poly.data() ) return false;
+    return true;
+}
 
 
 template <class T> inline

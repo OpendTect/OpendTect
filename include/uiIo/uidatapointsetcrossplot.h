@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.32 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.33 2010-03-31 06:45:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uiaxisdata.h"
 #include "rowcol.h"
 #include "linear.h"
+#include "polygon.h"
 
 class Coord;
 class RowCol;
@@ -36,7 +37,6 @@ class uiRectItem;
 class uiGraphicsItemGroup;
 class uiGraphicsItem;
 class uiRect;
-template <class T> class ODPolygon;
 template <class T> class Array1D;
 
 /*!\brief Data Point Set Cross Plotter */
@@ -117,6 +117,7 @@ public:
 	ODPolygon<int>*		poly_;
 	uiWorldRect*		worldrect_;
 	ODPolygon<double>*	worldpoly_;
+	bool			operator==(const SelectionArea&) const;
     };
 
     mStruct SelectionGrp
@@ -128,6 +129,8 @@ public:
 	BufferString		name_;
 	Color			col_;
 	TypeSet<int>		selareaids_;
+	TypeSet<uiWorldRect>	worldrects_;
+	TypeSet< ODPolygon<double> > worldpolys_;
     };
 
     AxisData			x_;
@@ -164,7 +167,7 @@ public:
     bool			isSceneSelectable() const	
     				{ return selectable_; }
     void			setSelectable( bool y1, bool y2 );
-    void			removeSelections();
+    void			removeSelections(bool relfrmselgrp = true);
     void			deleteSelections();
     void			checkSelection(uiDataPointSet::DRowID,
 				   uiGraphicsItem*,bool,const AxisData&,
@@ -228,13 +231,13 @@ public:
     void			setSelectionAreas(
 				    const ObjectSet<SelectionArea>&);
     ObjectSet<SelectionGrp>&	selectionGrps()		{ return selgrpset_; }
-    void			setSelectionGrps(
-				    const ObjectSet<SelectionGrp>&);
+    void			reDrawSelections();
     TypeSet<Color>		selGrpCols() const;
     void			setCurSelGrp(int grp)	{ curselgrp_ = grp; }
     int				curSelGrp() const	{ return curselgrp_; }
     int 			getSelAreaID(int idx) const;
     int				getSelAreaIdx(int id) const;
+    bool			isSelAreaValid(int id) const;
     int				getSelGrpIdx(int selareaid) const;
     void			setTRMsg( const char* msg )
 				{ trmsg_ = msg; }

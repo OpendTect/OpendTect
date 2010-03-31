@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.33 2010-03-04 05:11:53 cvsumesh Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.34 2010-03-31 06:45:24 cvssatyaki Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -483,7 +483,7 @@ bool DataPointSet::isSelected( DataPointSet::RowID rid ) const
 {
     if ( minimal_ ) return true;
     mChkRowID(rid,0);
-    return selGroup(rid) > 0;
+    return selGroup(rid) >= 0;
 }
 
 

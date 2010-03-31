@@ -444,6 +444,7 @@ void addSelGrp( CallBacker* cb )
     tbl_->setText( RowCol(newcell.r(),0), selgrpnm );
     selgrps_ += new uiDataPointSetCrossPlotter::SelectionGrp( selgrpnm,
 	    tbl_->getColor(RowCol(newcell.r(),1)) );
+    curselgrp_ = tbl_->currentRow();
     selGrpChanged.trigger();
 }
 
@@ -453,6 +454,7 @@ void remSelGrp( CallBacker* )
     if ( tbl_->nrRows() <= 1 ) return;
     selgrps_.remove( tbl_->currentRow() );
     tbl_->removeRow( tbl_->currentRow() );
+    curselgrp_ = tbl_->currentRow();
     selGrpRemoved.trigger();
 }
 
@@ -651,13 +653,16 @@ uiSelectionSettDlg( uiDataPointSetCrossPlotter& p,
 
 void selGrpChangedCB( CallBacker* )
 {
-    plotter_.setCurSelGrp( selgrptab_->curselgrp_ );
+    plotter_.setCurSelGrp(
+	    selgrptab_->curselgrp_ < 0 ? 0 : selgrptab_->curselgrp_ );
 }
 
 
 void selGrpRemovedCB( CallBacker* )
 {
-    plotter_.setSelectionGrps( selgrptab_->selgrps_ );
+    plotter_.setCurSelGrp(
+	    selgrptab_->curselgrp_ < 0 ? 0 : selgrptab_->curselgrp_ );
+    plotter_.reDrawSelections();
 }
 
 
@@ -680,7 +685,7 @@ bool acceptOK( CallBacker* )
 	}
     }
 
-    plotter_.setSelectionGrps( selgrptab_->selgrps_ );
+    plotter_.reDrawSelections();
 
     return true;
 }

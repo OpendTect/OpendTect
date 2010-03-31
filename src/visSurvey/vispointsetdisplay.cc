@@ -4,11 +4,12 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.11 2010-03-03 10:11:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.12 2010-03-31 06:45:24 cvssatyaki Exp $";
 
 #include "randcolor.h"
 #include "selector.h"
 #include "viscoord.h"
+#include "visevent.h"
 #include "vispointsetdisplay.h"
 
 #include "datapointset.h"
@@ -25,6 +26,9 @@ namespace visSurvey {
 PointSetDisplay::PointSetDisplay()
     : VisualObjectImpl( true )
     , data_(0)
+    , transformation_(0)
+    , eventcatcher_(0)
+    , selpointsetidx_(-1)
 {
     setMaterial( 0 );
     colors_ += Color::DgbColor();
@@ -34,6 +38,8 @@ PointSetDisplay::PointSetDisplay()
 
 PointSetDisplay::~PointSetDisplay()
 {
+    setSceneEventCatcher(0);
+
     for ( int idx=0; idx<pointsets_.size(); idx++ )
 	removeChild( pointsets_[idx]->getInventorNode() );
     if ( data_ )
@@ -50,15 +56,17 @@ void PointSetDisplay::setNrPointSets( int nr )
 	    visBase::PointSet* pst = visBase::PointSet::create();
 	    pst->setMaterial( visBase::Material::create() );
 	    addChild( pst->getInventorNode() );
+	    if ( transformation_ )
+		pst->setDisplayTransformation( transformation_ );
 	    pointsets_ += pst;
 	}
 	else
 	    pointsets_.remove( pointsets_.size()-1 );
     }
 
-    while ( nr != pointsets_.size() )
+    while ( nr != colors_.size() )
     {
-	if ( nr > pointsets_.size() )
+	if ( nr > colors_.size() )
 	    colors_ += getRandomColor();
 	else
 	    colors_.remove( colors_.size()-1 );
@@ -121,8 +129,6 @@ void PointSetDisplay::update()
 	if ( !pointsets_.validIdx(selgrp) )
 	    selgrp = 0;
 
-	Color col = colors_[selgrp];
-	std::cout<<selgrp<<"\t"<<(int)col.r()<<"\t"<<(int)col.g()<<"\t"<<(int)col.b()<<std::endl;
 	pointsets_[selgrp]->getCoordinates()->addPos(
 		Coord3(data_->coord(idx),data_->z(idx)) );
     }
@@ -156,12 +162,67 @@ void PointSetDisplay::removeSelection( const Selector<Coord3>& selector )
 
 void PointSetDisplay::setDisplayTransformation( visBase::Transformation* nt )
 {
+    if ( transformation_ == nt )
+	return;
+
+    if ( transformation_ )
+	transformation_->unRef();
+
+    transformation_ = nt;
+    if ( transformation_ )
+	transformation_->ref();
+
     for ( int idx=0; idx<pointsets_.size(); idx++ )
-	pointsets_[idx]->setDisplayTransformation( nt );
+	pointsets_[idx]->setDisplayTransformation( transformation_ );
 }
 
 
 visBase::Transformation* PointSetDisplay::getDisplayTransformation()
-{ return pointsets_[0]->getDisplayTransformation(); }
+{ return transformation_; }
+
+
+void PointSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
+{
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.remove(mCB(this,PointSetDisplay,eventCB));
+	eventcatcher_->unRef();
+    }
+
+    eventcatcher_ = nevc;
+
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.notify(mCB(this,PointSetDisplay,eventCB));
+	eventcatcher_->ref();
+    }
+}
+
+void PointSetDisplay::eventCB( CallBacker* cb )
+{
+    if ( !isOn() || isLocked() ) return;
+
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+
+    if ( eventinfo.buttonstate_ != OD::RightButton )
+	return;
+
+    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    {
+	const DataObject* pickedobj =
+	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	mDynamicCastGet(const visBase::PointSet*,pointset,pickedobj);
+	if ( !pointset ) continue;
+
+	for ( int pidx=0; pidx<pointsets_.size(); pidx++ )
+	{
+	    if ( pointsets_[pidx] == pointset )
+		selpointsetidx_ = pidx;
+	}
+    }
+
+//    eventcatcher_->setHandled();
+}
+
 
 } //namespace visSurvey

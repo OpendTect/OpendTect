@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.10 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.11 2010-03-31 06:45:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class DataPointSet;
 
-namespace visBase { class PointSet; }
+namespace visBase { class PointSet; class Transformation; class EventCatcher; }
 
 namespace visSurvey
 {
@@ -50,15 +50,24 @@ public:
 
     const char*			errMsg() const { return errmsg_.buf(); }
 
+    virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     void			removeSelection(const Selector<Coord3>&);
     bool			selectable()			{ return true; }
     bool			canRemoveSelecion()		{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
+
+    int				selPointSetIdx() const
+    				{ return selpointsetidx_; }
 protected:
 
-    TypeSet<Color>			colors_;
-    ObjectSet<visBase::PointSet> 	pointsets_;
+    int 			selpointsetidx_;
+    TypeSet<Color>		colors_;
+    ObjectSet<visBase::PointSet> pointsets_;
     DataPointSet*		data_;
+    visBase::Transformation*	transformation_;
+    visBase::EventCatcher*	eventcatcher_;
+
+    void			eventCB(CallBacker*);
 };
 
 };

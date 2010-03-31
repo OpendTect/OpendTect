@@ -7,16 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Satyaki Maitra
  Date:		Nov 2009
- RCS:		$Id: dpsdispmgr.h,v 1.2 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:		$Id: dpsdispmgr.h,v 1.3 2010-03-31 06:45:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
+#include "bufstring.h"
+#include "color.h"
 
-class Color;
 class DataPointSet;
-class BufferString;
 
 /*!Interface for DataPointSet Displays. Object must be locked before
    accessing any of the other functions, and should be unlocked when
@@ -27,6 +27,18 @@ class BufferString;
    DispID not to be confused with Visid. Its used to keep an account for the
    DataPointSetDisplayMgr only.
 */
+
+mStruct DataPointSetDisplayMgrGrp
+{
+public:
+    				DataPointSetDisplayMgrGrp( const char* nm,
+							   const Color& col )
+				    : name_(nm), col_(col)	{}
+
+   BufferString			name_;
+   Color			col_;
+};
+
 
 mClass DataPointSetDisplayMgr : public CallBacker
 {
@@ -54,11 +66,24 @@ public:
 
     virtual void		getIconInfo(BufferString& fnm,
 	    				    BufferString& tootltip) const = 0;
+
+    void			addDispMgrGrp( const char* nm,const Color& col )
+    { dispmgrgrps_ += new DataPointSetDisplayMgrGrp( nm, col ); }
+
+    void			removeDispMgrGrp( int nr )
+				{ if ( dispmgrgrps_.validIdx(nr) )
+				    delete dispmgrgrps_.remove( nr ); }
+
+    void			removeAllGrps()
+    { while ( dispmgrgrps_.size()) removeDispMgrGrp(dispmgrgrps_.size()-1); }
+    
+    const ObjectSet<DataPointSetDisplayMgrGrp>& groups() const
+				{ return dispmgrgrps_; }
+
 protected:
 
     TypeSet<int>		availableviewers_;
+    ObjectSet<DataPointSetDisplayMgrGrp> dispmgrgrps_;
 };
 	    				   
-
-
 #endif

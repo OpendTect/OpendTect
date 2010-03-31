@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2009
- RCS:           $Id: uidpscrossplottools.cc,v 1.1 2009-08-11 07:21:23 cvssatyaki Exp $
+ RCS:           $Id: uidpscrossplottools.cc,v 1.2 2010-03-31 06:45:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.1 2009-08-11 07:21:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplottools.cc,v 1.2 2010-03-31 06:45:24 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -88,6 +88,21 @@ uiDataPointSetCrossPlotter::SelectionArea::~SelectionArea()
     delete rect_;
     delete poly_;
 }
+
+bool uiDataPointSetCrossPlotter::SelectionArea::operator==(
+	const uiDataPointSetCrossPlotter::SelectionArea& selarea ) const
+{
+    if ( type_ != selarea.type_ ) return false;
+    if ( type_ == uiDataPointSetCrossPlotter::SelectionArea::Rectangle
+	 && (*worldrect_ != *selarea.worldrect_) )
+	return false;
+    if ( type_ == uiDataPointSetCrossPlotter::SelectionArea::Polygon
+	 && !(worldpoly_->data() == selarea.worldpoly_->data()) )
+	return false;
+
+    return true;
+}
+
 
 bool uiDataPointSetCrossPlotter::SelectionArea::isInside(
 	const uiPoint& pos ) const

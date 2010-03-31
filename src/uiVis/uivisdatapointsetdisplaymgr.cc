@@ -7,14 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.11 2010-03-03 10:11:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.12 2010-03-31 06:45:24 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
 #include "uimenuhandler.h"
 #include "uivispartserv.h"
 #include "uimaterialdlg.h"
+#include "uicombobox.h"
 #include "uicreatepicks.h"
+#include "uigeninput.h"
 #include "uiioobj.h"
 #include "uimsg.h"
 #include "uislider.h"
@@ -24,10 +26,12 @@ static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.11 2010-03-0
 #include "emmanager.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "pixmap.h"
 #include "visdata.h"
 #include "visrandomposbodydisplay.h"
 #include "vissurvscene.h"
 #include "vispointsetdisplay.h"
+#include "vispointset.h"
 
 uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     : visserv_( serv )
@@ -38,6 +42,7 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     , sizemnuitem_( "Set size ..." )
     , treeToBeAdded( this )
 {
+    vismenu_->ref();
     vismenu_->createnotifier.notify(
 	    mCB(this,uiVisDataPointSetDisplayMgr,createMenuCB) );
     vismenu_->handlenotifier.notify(
@@ -47,6 +52,15 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
 
 uiVisDataPointSetDisplayMgr::~uiVisDataPointSetDisplayMgr()
 {
+    if ( vismenu_ )
+    {
+	vismenu_->createnotifier.remove(
+		mCB(this,uiVisDataPointSetDisplayMgr,createMenuCB) );
+	vismenu_->handlenotifier.remove(
+		mCB(this,uiVisDataPointSetDisplayMgr,handleMenuCB) );
+	vismenu_->unRef();
+    }
+
     deepErase( displayinfos_ );
 }
 
@@ -103,6 +117,57 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
 }
 
 
+mClass uiCreateBodyDlg : public uiDialog
+{
+public:
+uiCreateBodyDlg( uiParent* p, const ObjectSet<DataPointSetDisplayMgrGrp>& mgr )
+    : uiDialog( p, uiDialog::Setup("Body Creation","Create new Body",mNoHelpID))
+{
+    uiLabeledComboBox* cbx = new uiLabeledComboBox( this, "Selection Group" );
+    selfld_ = cbx->box();
+    for ( int idx=0; idx<mgr.size(); idx++ )
+    {
+	selfld_->addItem( mgr[idx]->name_ );
+	ioPixmap pixmap( 20, 20 );
+	pixmap.fill( mgr[idx]->col_ );
+	selfld_->setPixmap( pixmap, idx );
+    }
+}
+
+int selGrpIdx() const
+{ return selfld_->currentItem(); }
+
+    uiComboBox*		selfld_;
+};
+
+
+mClass uiCreatePicksDlg : public uiCreatePicks
+{
+public:
+uiCreatePicksDlg( uiParent* p, const ObjectSet<DataPointSetDisplayMgrGrp>& mgr )
+    : uiCreatePicks( p )
+{
+    uiLabeledComboBox* cbx = new uiLabeledComboBox( this, "Selection Group" );
+    selfld_ = cbx->box();
+    for ( int idx=0; idx<mgr.size(); idx++ )
+    {
+	selfld_->addItem( mgr[idx]->name_ );
+	ioPixmap pixmap( 20, 20 );
+	pixmap.fill( mgr[idx]->col_ );
+	selfld_->setPixmap( pixmap, idx );
+    }
+
+    cbx->attach( alignedAbove, nmfld_ );
+}
+
+int selGrpIdx() const
+{ return selfld_->currentItem(); }
+
+    uiComboBox*		selfld_;
+
+};
+
+
 void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
@@ -115,6 +180,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::PointSetDisplay*,display,dataobj);
     if ( !display )
 	return;
+    mDynamicCastGet(visBase::PointSet*,pointset,dataobj);
 
     bool dispcorrect = false;
     for ( int idx=0; idx<displayinfos_.size(); idx++ )
@@ -131,20 +197,24 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 
     if ( mnuid == createbodymnuitem_.id )
     {
-	RefMan<EM::EMObject> emobj =
-		EM::EMM().createTempObject( EM::RandomPosBody::typeStr() );
-	const DataPointSet* data = display->getDataPack();
-	mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
-	if ( !emps )
-	    return;
+	uiCreateBodyDlg dlg( visserv_.appserv().parent(), dispmgrgrps_ );
+	if ( dlg.go() )
+	{
+	    RefMan<EM::EMObject> emobj =
+		    EM::EMM().createTempObject( EM::RandomPosBody::typeStr() );
+	    const DataPointSet* data = display->getDataPack();
+	    mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
+	    if ( !emps )
+		return;
 
-	emps->copyFrom( *data, true );
-	emps->setPreferredColor( display->getColor(0) );
-	treeToBeAdded.trigger( emps->id() );
+	    emps->copyFrom( *data, dlg.selGrpIdx() );
+	    emps->setPreferredColor( display->getColor(dlg.selGrpIdx()) );
+	    treeToBeAdded.trigger( emps->id() );
+	}
     }
     else if ( mnuid == storepsmnuitem_.id )
     {
-	uiCreatePicks dlg( visserv_.appserv().parent() );
+	uiCreatePicksDlg dlg( visserv_.appserv().parent(), dispmgrgrps_ );
 	if ( !dlg.go() )
 	return;
 
@@ -153,7 +223,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	const DataPointSet* data = display->getDataPack();
 	for ( int rid=0; rid<data->size(); rid++ )
 	{
-	    if ( data->isSelected(rid) )
+	    if ( data->selGroup(rid) == dlg.selGrpIdx() )
 	    pickset += Pick::Location( Coord3(data->coord(rid),data->z(rid)));
 	}
 
@@ -265,6 +335,9 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 
     int id = 0;
     while ( ids_.indexOf(id)!=-1 ) id++;
+    TypeSet<Color> selcols;
+    for ( int idx=0; idx<dispmgrgrps_.size(); idx++ )
+	selcols += dispmgrgrps_[idx]->col_;
 
     for ( int idx=0; idx<parents.size(); idx++ )
     {
@@ -282,8 +355,6 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	if ( !scene )
 	    continue;
 
-	TypeSet<Color> selcols;
-	selcols += Color::DgbColor();
 	visserv_.addObject( display, parents[idx], true );
 	display->setDataPack( dps.id() );
 	display->setColors( selcols );
@@ -330,6 +401,10 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 
     TypeSet<int> scenestoadd = wantedscenes;
     scenestoadd.createDifference( displayinfo.sceneids_ );
+
+    TypeSet<Color> selcols;
+    for ( int colnr=0; colnr<dispmgrgrps_.size(); colnr++ )
+	selcols += dispmgrgrps_[colnr]->col_;
 
     for ( int idy=0; idy<scenestoremove.size(); idy++ )
     {
@@ -388,6 +463,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 	    continue;
 
 	display->setDataPack( dps.id() );
+	display->setColors( selcols );
     }
 }
 
