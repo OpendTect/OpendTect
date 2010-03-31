@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.20 2010-01-21 11:44:01 raman Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.21 2010-03-31 07:14:39 raman Exp $";
 
 #include "flthortools.h"
 
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: flthortools.cc,v 1.20 2010-01-21 11:44:01 raman
 #include "ioobj.h"
 #include "posinfo.h"
 #include "seis2dline.h"
-#include "sorting.h"
 #include "survinfo.h"
 #include "trigonometry.h"
 
@@ -33,6 +32,12 @@ namespace SSIS
 
 int FaultTrace::nextID( int previd ) const
 { return previd >= -1 && previd < coords_.size()-1 ? previd + 1 : -1; }
+
+void FaultTrace::setIndices( const TypeSet<int>& indices )
+{ coordindices_ = indices; }
+
+const TypeSet<int>& FaultTrace::getIndices() const
+{ return coordindices_; }
 
 int FaultTrace::add( const Coord3& pos )
 {
@@ -94,18 +99,6 @@ void FaultTrace::remove( int idx )
 bool FaultTrace::isDefined( int idx ) const
 { return idx >= 0 && idx < coords_.size() && coords_[idx] != Coord3::udf(); }
 
-void FaultTrace::sortZ()
-{
-    lock_.lock();
-    mAllocVarLenArr( float, zvals, coords_.size() );
-    for ( int idx=0; idx<coords_.size(); idx++ )
-	zvals[idx] = coords_[idx].z;
-
-    sort_coupled( mVarLenArr(zvals), coords_.arr(), coords_.size() );
-    lock_.unLock();
-}
-
-
 FaultTrace* FaultTrace::clone()
 {
     FaultTrace* newobj = new FaultTrace;
@@ -122,10 +115,16 @@ float FaultTrace::getZValFor( const BinID& bid ) const
     Coord pt2( isinl_ ? bid.crl : bid.inl, zrg.stop * SI().zFactor() );
     Line2 line( pt1, pt2 );
     TypeSet<float> intersections;
-    for ( int idx=1; idx<getSize(); idx++ )
+    for ( int idx=1; idx<coordindices_.size(); idx++ )
     {
-	const Coord3& pos1 = get( idx - 1 );
-	const Coord3& pos2 = get( idx );
+	if ( coordindices_[idx] < 0 )
+	{
+	    idx += 2;
+	    continue;
+	}
+
+	const Coord3& pos1 = get( coordindices_[idx-1] );
+	const Coord3& pos2 = get( coordindices_[idx] );
 
 	const Coord posbid1 = SI().binID2Coord().transformBackNoSnap( pos1 );
 	const Coord posbid2 = SI().binID2Coord().transformBackNoSnap( pos2 );
@@ -164,15 +163,24 @@ bool FaultTrace::isCrossing( const BinID& bid1, float z1,
     Coord pt2( isinl_ ? bid2.crl : bid2.inl, z2 );
     Line2 line( pt1, pt2 );
 
-    for ( int idx=1; idx<getSize(); idx++ )
+    for ( int idx=1; idx<coordindices_.size(); idx++ )
     {
-	const Coord3& pos1 = get( idx - 1 );
-	const Coord3& pos2 = get( idx );
+	const int curidx = coordindices_[idx];
+	const int previdx = coordindices_[idx-1];
+	if ( curidx < 0 || previdx < 0 )
+	{
+	    idx += 2;
+	    continue;
+	}
+
+	const Coord3& pos1 = get( previdx );
+	const Coord3& pos2 = get( curidx );
+
 	Coord nodepos1, nodepos2;
 	if ( is2d )
 	{
-	    nodepos1.setXY( getTrcNr(idx-1), pos1.z * SI().zFactor() );
-	    nodepos2.setXY( getTrcNr(idx), pos2.z * SI().zFactor() );
+	    nodepos1.setXY( getTrcNr(previdx), pos1.z * SI().zFactor() );
+	    nodepos2.setXY( getTrcNr(curidx), pos2.z * SI().zFactor() );
 	}
 	else
 	{
@@ -276,9 +284,12 @@ bool FaultTraceExtractor::execute()
     mDynamicCastGet(FaultTrace*,flttrc,clist);
     if ( !flttrc ) return false;
 
+    const Geometry::IndexedGeometry* idxgeom = idxdshape->getGeometry()[0];
+    if ( !idxgeom ) return false;
+
     flttrc_ = flttrc->clone();
     flttrc_->ref();
-    flttrc_->sortZ();
+    flttrc_->setIndices( idxgeom->coordindices_ );
     flttrc_->setIsInl( isinl_ );
     flttrc_->setLineNr( nr_ );
     if ( bvset_ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.13 2010-01-21 11:44:01 raman Exp $
+ RCS:		$Id: flthortools.h,v 1.14 2010-03-31 07:14:42 raman Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,13 +33,14 @@ public:
     int			add(const Coord3&);
     int			add(const Coord3&,int trcnr);
     Coord3		get(int) const;
+    const TypeSet<int>&	getIndices() const;
     int			getTrcNr(int) const;
     void		set(int,const Coord3&);
     void		set(int,const Coord3&,int);
+    void		setIndices(const TypeSet<int>&);
     void		remove(int);
     bool		isDefined(int) const;
     int			getSize() const	{ return coords_.size(); }
-    void		sortZ();
     FaultTrace*		clone();
 
     bool		isInl() const			{ return isinl_; }
@@ -48,12 +49,14 @@ public:
     void		setLineNr(int nr)		{ nr_ = nr; }
     bool		isCrossing(const BinID&,float,const BinID&,float) const;
     float		getZValFor(const BinID&) const;
+    void		addValue(int id,const Coord3&)	{}
 
 protected:
 
     bool		isinl_;
     int			nr_;
     TypeSet<Coord3>	coords_;
+    TypeSet<int>	coordindices_;
     TypeSet<int>	trcnrs_;	// For 2D only;
     Threads::Mutex	lock_;
 };
