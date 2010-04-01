@@ -43,6 +43,7 @@ public:
     void 			setStretchFactor(uiObjectItem*,int sf);
     
     void			resetViewArea(CallBacker*);
+    void			setSceneLayoutPos(float,float);
 
 protected:
 

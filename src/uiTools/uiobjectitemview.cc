@@ -1,13 +1,13 @@
 /*+
 ________________________________________________________________________
 
- (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Jan 2010
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.7 2010-03-23 10:48:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.8 2010-04-01 09:17:29 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -26,6 +26,9 @@ uiObjectItemView::uiObjectItemView( uiParent* p )
 } 
 
 
+#define mGetScene(act)\
+    mDynamicCastGet(uiGraphicsObjectScene*,sc,&scene())\
+    if ( !sc ) act;
 void uiObjectItemView::resetViewArea( CallBacker* )
 {
     int w = 0, h = 0;
@@ -34,13 +37,17 @@ void uiObjectItemView::resetViewArea( CallBacker* )
 	w += objectitems_[idx]->objectSize().width();
 	h = objectitems_[idx]->objectSize().height();
     }
-    setViewArea( 0, 0, w+5, h+5 );
+    mGetScene(return); 
+    setViewArea( 0, 0, w + sc->layoutPos().x, h + sc->layoutPos().y );
 }
 
 
-#define mGetScene(act)\
-    mDynamicCastGet(uiGraphicsObjectScene*,sc,&scene())\
-    if ( !sc ) act;
+void uiObjectItemView::setSceneLayoutPos( float x, float y )
+{
+    mGetScene(return); sc->setLayoutPos( x, y );
+}
+
+
 void uiObjectItemView::addItem( uiObjectItem* itm, int stretch )
 {
     objectitems_ += itm;
