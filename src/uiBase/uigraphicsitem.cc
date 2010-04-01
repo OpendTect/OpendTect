@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.21 2010-03-15 08:58:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.22 2010-04-01 09:19:08 cvsbruno Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -142,12 +142,14 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls )
 }
 
 
-void uiGraphicsItem::setFillColor( const Color& col )
+void uiGraphicsItem::setFillColor( const Color& col, bool withalpha )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    QBrush qbrush( QColor(QRgb(col.rgb())) );
+    QColor color = QColor(QRgb(col.rgb()));
+    if ( withalpha ) color.setAlpha( col.t() );
+    QBrush qbrush( color );
     agsitm->setBrush( qbrush );
 }
 
