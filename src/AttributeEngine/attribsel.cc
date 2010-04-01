@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.44 2010-03-31 13:34:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.45 2010-04-01 17:33:15 cvskris Exp $";
 
 #include "attribsel.h"
 
@@ -390,7 +390,7 @@ void SelInfo::getZDomainItems( const char* zdomainkey, const char* zdomainid,
 	const char* zid = ioobj.pars().find( ZDomain::sKeyID() );
 	const bool matchkey = zkey && !strcmp(zkey,zdomainkey);
 	const bool matchid = zid && !strcmp(zid,zdomainid);
-	if ( matchkey && (!zdomainid || matchid) )
+	if ( matchkey && (!zdomainid || !zid || matchid) )
 	    nms.add( ioobj.name() );
     }
 
