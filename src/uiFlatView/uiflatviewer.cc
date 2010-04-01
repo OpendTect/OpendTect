@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.112 2010-03-31 07:56:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.113 2010-04-01 04:28:06 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -68,7 +68,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool enabhanddrag )
     , dispParsChanged(this)
     , control_(0)
     , useseldataranges_(false)	 
-    , drawwithoutdata_(false)	 
 {
     canvas_.scene().setMouseEventActive( true );
     canvas_.setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
@@ -331,17 +330,6 @@ void uiFlatViewer::reset()
 
 bool uiFlatViewer::drawBitMaps()
 {
-    if ( !drawwithoutdata_ && (!pack(true) && !pack(false)) )
-    {
-	reportedchanges_.erase();
-	PtrMan<ioPixmap> pixmap = new ioPixmap( canvas_.arrArea().width(),
-						canvas_.arrArea().height() );
-	pixmap->fill( color(false) );
-	canvas_.setPixmap( *pixmap );
-	canvas_.draw();
-	return true;
-    }
-
     if ( enabhaddrag_ )
     {
 	if ( initview_ || control()->zoomMgr().atStart() )

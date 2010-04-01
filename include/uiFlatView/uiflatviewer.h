@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.43 2010-03-31 07:56:28 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.44 2010-04-01 04:28:06 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,6 @@ public:
     const Interval<double>& getSelDataRange(bool forx) const
     			{ return forx ? xseldatarange_ : yseldatarange_; } 
     void		disableReSizeDrawNotifier(); 
-    void		doDrawWithoutdata(bool yn)	{drawwithoutdata_ = yn;}
 
 protected:
 
@@ -114,7 +113,6 @@ protected:
     bool			x0rev_;
     bool			x1rev_;
     bool			useseldataranges_;
-    bool			drawwithoutdata_;
 
     Interval<double>		xseldatarange_;
     Interval<double>		yseldatarange_;
