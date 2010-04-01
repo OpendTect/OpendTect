@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.17 2010-03-19 12:54:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.18 2010-04-01 10:12:24 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -56,6 +56,7 @@ uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
     , Usage::Client(sKeyBayesInv)
     , is2d_(is2d)
     , inppdfdlg_(0)
+    , normdlg_(0)
     , inpseisdlg_(0)
     , outdlg_(0)
 {
