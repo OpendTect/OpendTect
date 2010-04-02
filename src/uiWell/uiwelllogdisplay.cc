@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.32 2010-03-26 14:17:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.33 2010-04-02 09:05:27 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.32 2010-03-26 14:17:02 
 #include "uigraphicsitemimpl.h"
 #include "uimenuhandler.h"
 #include "uiwellstratdisplay.h"
+#include "uiwellinfopanels.h"
 
 #include "coltabsequence.h"
 #include "mouseevent.h"
@@ -94,6 +95,7 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , selmarker_(0)			   
     , d2tm_(0)
     , markerchged(this)	   
+    , selmarkerchged(this)	   
     , ld1_(scene(),true,LineData::Setup()
 	    				.noxaxisline(su.noxaxisline_)
 	    				.noyaxisline(su.noyaxisline_)
@@ -514,14 +516,21 @@ void uiWellLogDisplay::mousePressed( CallBacker* cb )
 {
     mousepressed_ = true;
     if ( mousepressed_ && markeredit_ )
-       selmarker_ = selectMarker(false);	
+       selmarker_ = selectMarkerItem(false);	
 }
 
 
 void uiWellLogDisplay::mouseMoved( CallBacker* cb )
 {
     if ( mousepressed_ )
-	changeMarkerPos( selmarker_ );
+	changeMarkerPos( &selmarker_->mrk_ );
+    else if ( selectMarkerItem(false) )
+    {
+	selmarker_ = selectMarkerItem(false);	
+	if ( selmarker_ )
+	    selmarker_->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
+		       setup_.markerls_.width_+1,selmarker_->mrk_.color()) );
+    }
 }
 
 
@@ -532,7 +541,7 @@ void uiWellLogDisplay::mouseRelease( CallBacker* )
 }
 
 
-Well::Marker* uiWellLogDisplay::selectMarker( bool allowrightclk)
+uiWellLogDisplay::MarkerItem* uiWellLogDisplay::selectMarkerItem( bool allowrightclk )
 {
     if ( !markeredit_ ) return 0;
     if ( getMouseEventHandler().isHandled() )
@@ -552,7 +561,7 @@ Well::Marker* uiWellLogDisplay::selectMarker( bool allowrightclk)
     for ( int idx=0; idx<markeritms_.size(); idx++ )
     {
 	if ( abs( markeritms_[idx]->itm_->getPos().y - mousepos )<2 )
-	    return ( &markeritms_[idx]->mrk_ );
+	    return ( markeritms_[idx] );
     }
     return 0;
 }
@@ -571,7 +580,7 @@ void uiWellLogDisplay::changeMarkerPos( Well::Marker* mrk )
 	  (ev.buttonState() & OD::RightButton ) )
 	return;
 
-    selmarker_->setDah( mousePos() );
+    selmarker_->mrk_.setDah( mousePos() );
     markerchged.trigger(); 
 }
 
@@ -624,17 +633,16 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
 {
     if ( s.nobackground_ )
 	setNoBackGround();
-   
+    
     if ( s.withstratdisp_ ) 
     {	
-	stratdisp_ = new uiWellStratDisplay(p,true,wd.markers());
-	stratdisp_->setPrefWidth( 75 );
+	stratdisp_ = new uiWellStratDisplay(this,true,wd.markers());
+	stratdisp_->setPrefWidth( 65 );
 	stratdisp_->setStretch( 2, 2 );
 	stratdisp_->setD2TModel( d2tm_ );
 	stratdisp_->setZIsTime( zistime_ );
 	stratdisp_->dataChanged();
     }
-    
     setStretch( 2, 2 );
     logwidth_ -= s.noborderspace_ ? 50 : 0;
     wd_.dispparschanged.notify( mCB(this,uiWellDisplay,updateProperties) );
@@ -870,11 +878,11 @@ void uiWellDisplay::handleMenuCB( CallBacker* cb )
 	    }
 	}
     }
-    else if ( mnuid==remmrkmnuitem_.id  && logdisps_[0]->selectMarker(true) )
+    else if ( mnuid==remmrkmnuitem_.id  && logdisps_[0]->selectMarkerItem(true))
     {
 	ObjectSet<Well::Marker>& mrkset = wd_.markers();
 	delete mrkset.remove( 
-		mrkset.indexOf( logdisps_[0]->selectMarker(true) ), true );
+	    mrkset.indexOf( &logdisps_[0]->selectMarkerItem(true)->mrk_), true );
 	logdisps_[0]->markerchged.trigger(); 
     }
     else
@@ -889,7 +897,7 @@ void uiWellDisplay::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     if ( !menu ) return;
 
-    if ( logdisps_.size() && logdisps_[0]->selectMarker(true) ) 
+    if ( logdisps_.size() && logdisps_[0]->selectMarkerItem(true) ) 
 	mAddMenuItem( menu, &remmrkmnuitem_, true, false );
     mAddMenuItem( menu, &addmrkmnuitem_, true, false );
 }
@@ -898,7 +906,9 @@ void uiWellDisplay::createMenuCB( CallBacker* cb )
 
 uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
     : uiMainWin(p,"")
-    , welldisp_(*new uiWellDisplay(this,uiWellDisplay::Setup(),wd))
+    , welldisp_(*new uiWellDisplay(this,uiWellDisplay::Setup()
+							.withstratdisp(true)
+							,wd))
     , wd_(wd)						    
 {
     BufferString msg( "2D Viewer ");
@@ -915,3 +925,7 @@ uiWellDisplayWin::~uiWellDisplayWin()
 
 void uiWellDisplayWin::closeWin( CallBacker* )
 { close(); }
+
+
+
+

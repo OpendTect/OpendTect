@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.24 2010-03-24 10:05:51 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.25 2010-04-02 09:05:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,10 +194,11 @@ public:
     void			setMarkers( ObjectSet<Well::Marker>* ms )
 				{ markers_ = ms; }
     void			setEditMarkers(bool);
-    Well::Marker*		selectMarker(bool allowrghtclk);
+    uiWellLogDisplay::MarkerItem* selectMarkerItem(bool allowrghtclk);
     float			mousePos();
 
     Notifier<uiWellLogDisplay> markerchged;
+    Notifier<uiWellLogDisplay> selmarkerchged;
 
 protected:
 
@@ -210,7 +211,7 @@ protected:
     bool			mousepressed_;
 
     ObjectSet<Well::Marker>* 	markers_;
-    Well::Marker* 		selmarker_;
+    MarkerItem* 		selmarker_;
     TypeSet<PickData>		zpicks_;
     const Well::D2TModel*       d2tm_;
 
