@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.60 2010-02-22 22:42:40 cvskris Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.61 2010-04-02 08:59:03 cvsbruno Exp $
 
 
 
@@ -140,6 +140,7 @@ protected:
     void                        pickCB(CallBacker* cb=0);
     void                        welldataDelNotify(CallBacker* cb=0);
     void 			saveDispProp( const Well::Data* wd );
+    void			setLogInfo(BufferString&,BufferString&,float,bool) const;
     
     Well::Data*			getWD() const;
     Well::DisplayProperties* 	dispprop_;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.120 2010-02-23 20:59:37 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.121 2010-04-02 08:59:03 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -547,6 +547,16 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     const float zstep2 = zfactor * SI().zStep()/2;
 
     info = "Well: "; info += wd->name();
+    if ( wd->d2TModel() ) 
+    {
+	info += ", MD: ";
+	float dah = wd->d2TModel()->getDepth( mousez*0.001 );
+
+	info += toString( mNINT(dah) );
+	setLogInfo( info, val, dah, true );
+	setLogInfo( info, val, dah, false );
+    }
+
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
@@ -557,6 +567,28 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 	info += ", Marker: ";
 	info += wellmarker->name();
 	break;
+    }
+}
+
+
+void WellDisplay::setLogInfo( BufferString& info, BufferString& val, 
+				float dah, bool isleft ) const
+{
+    mGetWD(return);
+    const Well::DisplayProperties& disp = wd->displayProperties();
+    const char* lognm = isleft ? disp.left_.name_ : disp.right_.name_;
+    if ( lognm && strcmp(lognm,"None") )
+    {
+	info += isleft ? ", Left: " : ", Right: ";
+	info += lognm;
+	const Well::Log* log = wd->logs().getLog( lognm );
+	if (log) 
+	{
+	    if ( val.size() ) val += " / ";
+	    val += toString( log->getValue( dah ) ); 
+	    val += " ";
+	    val += log->unitMeasLabel();
+	}
     }
 }
 
