@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.45 2010-02-04 10:59:47 cvsranojay Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.46 2010-04-02 08:55:11 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -160,8 +160,6 @@ protected:
     uiListViewItem*		getItem()	{ return uilistviewitem_; }
     const uiListViewItem*	getItem() const { return uilistviewitem_; }
 
-    const ObjectSet<uiTreeItem>& getChildren() const	{ return children_; }
-
     virtual bool		showSubMenu() { return true; }
     virtual bool		select(int selkey);
 
@@ -184,7 +182,6 @@ protected:
     ObjectSet<uiTreeItem>	children_;
     friend			class uiTreeTopItem;
     friend			class uiODTreeTop;
-    friend			class CmdDriver;
 
 private:
     bool			addChildImpl(CallBacker*,uiTreeItem*,bool,bool);
