@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.16 2009-10-14 05:54:47 cvsumesh Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.17 2010-04-05 05:16:52 cvssatyaki Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -167,7 +167,14 @@ bool Pos::EMSurfaceProvider::toNextPos()
 
     curzrg_.start = curzrg_.stop = surf1_->getPos( curpos_ ).z;
     if ( surf2_ )
-	curzrg_.stop = surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
+    {
+	const float stop =
+	    surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
+	if ( !mIsUdf(stop) )
+	    curzrg_.stop = stop;
+    }
+
+    curzrg_.sort();
     curzrg_ += extraz_;
 
     if ( surf2_ || extraz_.width()>0 )
