@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.12 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.13 2010-04-05 05:18:34 cvssatyaki Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -62,7 +62,6 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p )
     , settings_( Settings::fetch(sKeySnapshot) )
 {
     uiParent* fldabove = 0;
-
 
     setSaveButtonChecked( true );
     IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
@@ -197,11 +196,18 @@ void uiSaveImageDlg::unitChg( CallBacker* )
 
     const int sel = unitfld_->getIntValue();
     if ( !sel )
+    {
 	size = sizecm_;
+	dpifld_->display( true );
+    }
     else if ( sel == 1 )
+    {
 	size = sizeinch_;
+	dpifld_->display( true );
+    }
     else if ( sel == 2 )
     {
+	dpifld_->display( false );
 	size = sizepix_;
 	nrdec = 0;
 	range = maximum_pixel_size_range;
