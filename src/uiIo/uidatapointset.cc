@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.59 2010-03-31 06:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.60 2010-04-05 05:17:52 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -1110,6 +1110,8 @@ void uiDataPointSet::retrieve( CallBacker* )
     if ( newdps->isEmpty() )
 	{ delete newdps; uiMSG().error("Data set is not suitable"); return; }
 
+    setCaption( seldlg.ioObj()->name() );
+    selPtsToBeRemoved.trigger();
     MouseCursorManager::setOverride( MouseCursor::Wait );
     tbl_->clearTable();
     dps_ = *newdps;
