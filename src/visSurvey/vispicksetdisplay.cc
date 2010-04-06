@@ -4,13 +4,14 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.99 2009-07-22 16:01:46 cvsbert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.100 2010-04-06 17:33:59 cvsyuancheng Exp $";
 
 #include "vispicksetdisplay.h"
 
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "mousecursor.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "separstr.h"
@@ -97,6 +98,8 @@ void PickSetDisplay::displayBody( bool yn )
 
 bool PickSetDisplay::setBodyDisplay()
 {
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+
     if ( !shoulddisplaybody_ || !set_ || !set_->size() )
 	return false;
     
