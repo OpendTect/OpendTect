@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.121 2010-04-02 08:59:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.122 2010-04-06 08:13:26 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -577,7 +577,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
     mGetWD(return);
     const Well::DisplayProperties& disp = wd->displayProperties();
     const char* lognm = isleft ? disp.left_.name_ : disp.right_.name_;
-    if ( lognm && strcmp(lognm,"None") )
+    if ( lognm && strcmp(lognm,"None") && strcmp(lognm,"none") )
     {
 	info += isleft ? ", Left: " : ", Right: ";
 	info += lognm;
