@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.9 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.10 2010-04-06 06:28:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 mClass uiCreatePicks : public uiDialog 
 {
 public:
-			uiCreatePicks(uiParent*);
+			uiCreatePicks(uiParent*,bool aspolygon=false);
 			~uiCreatePicks() {}
 
     virtual Pick::Set*	getPickSet() const;	//!< Set is yours
@@ -65,6 +65,8 @@ protected:
     uiGenInput*		nmfld_;
     uiColorInput*       colsel_;
     BufferString	name_;
+
+    bool		aspolygon_;
 
     virtual bool	acceptOK(CallBacker*);
 };

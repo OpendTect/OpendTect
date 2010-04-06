@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.63 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.64 2010-04-06 06:28:18 cvsnanne Exp $";
 
 #include "uipickpartserv.h"
 
@@ -133,12 +133,8 @@ bool uiPickPartServer::loadSets( bool poly )
 
 bool uiPickPartServer::createEmptySet( bool aspolygon )
 {
-    uiCreatePicks dlg( parent() );
-    if ( aspolygon )
-	dlg.setTitleText( "Create new Polygon (Pick Set)" );
+    uiCreatePicks dlg( parent(), aspolygon );
     mHandleDlg();
-    newps->disp_.connect_ = aspolygon ? Pick::Set::Disp::Open
-				      : Pick::Set::Disp::None;
     return newps ? storeNewSet( newps ) : false;
 }
 

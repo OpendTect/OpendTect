@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.18 2009-07-22 16:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.19 2010-04-06 06:28:18 cvsnanne Exp $";
 
 #include "uicreatepicks.h"
 
@@ -47,12 +47,15 @@ static const char* sGeoms2D[] = { "Z Range", "On Horizon",
     				  "Between Horizons", 0 };
 
 
-uiCreatePicks::uiCreatePicks( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Pick Set Creation",
-				 "Create new PickSet",
-				 "105.0.0"))
+uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly )
+    : uiDialog(p,uiDialog::Setup(
+			aspoly ? "Polygon Creation" : "Pick Set Creation",
+			aspoly ? "Create new Polygon" : "Create new PickSet",
+			"105.0.0"))
+    , aspolygon_(aspoly)
 {
-    nmfld_ = new uiGenInput( this, "Name for new PickSet" );
+    nmfld_ = new uiGenInput( this,
+		BufferString("Name for new ",aspoly ? "Polygon" : "PickSet") );
     colsel_ = new uiColorInput( this,
 	    		      uiColorInput::Setup(getRandStdDrawColor()).
 	   		      lbltxt("Color") );
@@ -64,6 +67,8 @@ Pick::Set* uiCreatePicks::getPickSet() const
 {
     Pick::Set* ret = new Pick::Set( name_ );
     ret->disp_.color_ = colsel_->color();
+    ret->disp_.connect_ = aspolygon_ ? Pick::Set::Disp::Open
+				  : Pick::Set::Disp::None;
     return ret;
 }
 
