@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.146 2010-04-06 07:06:09 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.147 2010-04-06 08:43:23 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1179,8 +1179,11 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
 	PtrMan<IOObj> ioobj = IOM().getLocal( item->text );
 	if ( ioobj )
+	{
 	    attribid = eDSMPack().getDescSet( false, true )
 					->getStoredID( ioobj->key() );
+	    isstored = true;
+	}
     }
     else
 	return false;
