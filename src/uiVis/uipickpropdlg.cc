@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.14 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.15 2010-04-06 17:34:50 cvsyuancheng Exp $";
 
 #include "uipickpropdlg.h"
 
@@ -28,7 +28,6 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     : uiMarkerStyleDlg( p, "Pick properties" )
     , set_( set )
     , psd_( psd )
-    , needtriangulate_( true )		 
 {
     setTitleText( "Specity picks style" );
     usedrawstylefld_ = new uiCheckBox( this, "Connect picks" );
@@ -86,11 +85,8 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
     	set_.disp_.connect_ = Pick::Set::Disp::None;
     	Pick::Mgr().reportDispChange( this, set_ );
 	
-    	if ( needtriangulate_ )
-    	{
-    	    psd_->setBodyDisplay();
-    	    needtriangulate_ = false;
-    	}
+    	if ( !psd_->getDisplayBody() )
+	    psd_->setBodyDisplay();
     }
 }
 
