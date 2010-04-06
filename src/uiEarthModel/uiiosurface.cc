@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.77 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.78 2010-04-06 11:33:09 cvsnanne Exp $";
 
 #include "uiiosurface.h"
 
@@ -444,6 +444,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 	attribfld_->attach( alignedBelow, objfld_ );
 	sectionfld_->attach( rightTo, attribfld_ );
 	attachobj = attribfld_;
+	attribfld_->box()->setMultiSelect( setup.multiattribsel_ );
     }
     else if ( setup.withsectionfld_ )
     {

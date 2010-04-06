@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.34 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uiiosurface.h,v 1.35 2010-04-06 11:33:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,6 +137,7 @@ public:
 			    , withsectionfld_(true)
 			    , withsubsel_(false)
 			    , multisubsel_(false)
+			    , multiattribsel_(true)
 			{}
 
 	mDefSetupMemb(BufferString,typ)
@@ -144,6 +145,7 @@ public:
 	mDefSetupMemb(bool,withsectionfld)
 	mDefSetupMemb(bool,withsubsel)
 	mDefSetupMemb(bool,multisubsel)
+	mDefSetupMemb(bool,multiattribsel)
     };
 
     			uiSurfaceRead(uiParent*,const Setup&);
