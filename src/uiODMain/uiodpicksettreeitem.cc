@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.66 2010-02-04 10:59:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.67 2010-04-06 06:16:00 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -126,17 +126,16 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), mLoadIdx );
+    mnu.insertItem( new uiMenuItem("&Load PickSet ..."), mLoadIdx );
     mnu.insertItem( new uiMenuItem("Load &Polygon..."), mLoadPolyIdx );
-    uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
+    uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New PickSet" );
     newmnu->insertItem( new uiMenuItem("&Empty ..."), mEmptyIdx );
-    newmnu->insertItem( new uiMenuItem("&Polygon ..."), mPolygonIdx );
-    newmnu->insertItem( new uiMenuItem("&Generate ..."), mGen3DIdx );
+    newmnu->insertItem( new uiMenuItem("Generate &3D..."), mGen3DIdx );
     if ( SI().has2D() )
-	newmnu->insertItem( new uiMenuItem("Random for &2D data ..."),
-			    mRandom2DIdx );
-
+	newmnu->insertItem( new uiMenuItem("Generate &2D ..."), mRandom2DIdx );
     mnu.insertItem( newmnu );
+    mnu.insertItem( new uiMenuItem("Ne&w Polygon ..."), mPolygonIdx );
+
     if ( children_.size() > 0 )
     {
 	mnu.insertItem( new uiMenuItem("&Save changes"), mSaveIdx );
