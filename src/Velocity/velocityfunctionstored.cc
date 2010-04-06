@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.6 2009-07-22 16:01:35 cvsbert Exp $";
+static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.7 2010-04-06 12:00:42 cvsranojay Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -78,10 +78,15 @@ bool StoredFunction::moveTo( const BinID& bid )
     if ( !idxs ) return false;
 
     sort_coupled( zval_.arr(), mVarLenArr(idxs), zval_.size() );
-    mAllocVarLenArr( float, vels, vel_.size() );
-    mAllocVarLenArr( float, anisotropy, anisotropy_.size() );
-    if ( !anisotropy ) return false;
+
+    ArrPtrMan<float> vels;
+    mTryAllocPtrMan( vels, float[vel_.size()] );
+    if ( !vels ) return false;
+
+    ArrPtrMan<float> anisotropy;
+    mTryAllocPtrMan( anisotropy, float[anisotropy_.size()] );
     const bool hasanisotropy = !anisotropy_.isEmpty();
+    if ( hasanisotropy && !anisotropy ) return false;
 
     for ( int idx=zval_.size()-1; idx>=0; idx-- )
     {
