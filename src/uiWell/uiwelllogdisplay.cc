@@ -7,21 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.33 2010-04-02 09:05:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.34 2010-04-07 15:03:40 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
+#include "uiwelldisplaycontrol.h"
 
 #include "uicolor.h"
-#include "uidialog.h"
-#include "uigeninput.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
-#include "uimenuhandler.h"
 #include "uiwellstratdisplay.h"
 #include "uiwellinfopanels.h"
 
 #include "coltabsequence.h"
-#include "mouseevent.h"
 #include "dataclipper.h"
 #include "randcolor.h"
 #include "survinfo.h"
@@ -91,11 +88,9 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     , zistime_(false)
     , markers_(0)
     , markeredit_(false)   
-    , mousepressed_(false)			   
-    , selmarker_(0)			   
     , d2tm_(0)
-    , markerchged(this)	   
-    , selmarkerchged(this)	   
+    , highlightedmrkitem_(0)	     
+    , highlightedMarkerItemChged(this)			     
     , ld1_(scene(),true,LineData::Setup()
 	    				.noxaxisline(su.noxaxisline_)
 	    				.noyaxisline(su.noyaxisline_)
@@ -119,14 +114,6 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     }
     setStretch( 2, 2 );
 
-    getMouseEventHandler().buttonReleased.notify(
-			    mCB(this,uiWellLogDisplay,mouseRelease) );
-    getMouseEventHandler().buttonPressed.notify(
-			    mCB(this,uiWellLogDisplay,mousePressed) );
-    getMouseEventHandler().movement.notify(
-			    mCB(this,uiWellLogDisplay,mouseMoved) );
-
-    markerchged.notify( mCB(this,uiWellLogDisplay,reDrawMarkers) );
     reSize.notify( mCB(this,uiWellLogDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
@@ -493,6 +480,7 @@ void uiWellLogDisplay::drawMarkers()
 			 new uiTextItem(mtxt,mAlignment(Right,VCenter)) );
 	ti->setPos( uiPoint(x1-1,y) );
 	ti->setTextColor( mrkr.color() );
+	markeritm->color_ = mrkr.color();
 	markeritm->txtitm_ = ti;
 	markeritms_ += markeritm;
     }
@@ -512,86 +500,34 @@ void uiWellLogDisplay::setEditMarkers( bool edit )
 }
 
 
-void uiWellLogDisplay::mousePressed( CallBacker* cb )
+uiWellLogDisplay::MarkerItem* uiWellLogDisplay::getMarkerItem( 
+						const Well::Marker* mrk )
 {
-    mousepressed_ = true;
-    if ( mousepressed_ && markeredit_ )
-       selmarker_ = selectMarkerItem(false);	
-}
-
-
-void uiWellLogDisplay::mouseMoved( CallBacker* cb )
-{
-    if ( mousepressed_ )
-	changeMarkerPos( &selmarker_->mrk_ );
-    else if ( selectMarkerItem(false) )
-    {
-	selmarker_ = selectMarkerItem(false);	
-	if ( selmarker_ )
-	    selmarker_->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
-		       setup_.markerls_.width_+1,selmarker_->mrk_.color()) );
-    }
-}
-
-
-void uiWellLogDisplay::mouseRelease( CallBacker* )
-{
-    mousepressed_ = false;
-    selmarker_ = 0; 
-}
-
-
-uiWellLogDisplay::MarkerItem* uiWellLogDisplay::selectMarkerItem( bool allowrightclk )
-{
-    if ( !markeredit_ ) return 0;
-    if ( getMouseEventHandler().isHandled() )
-	return 0;
-
-    const MouseEvent& ev = getMouseEventHandler().event();
-    if ( (ev.buttonState() & OD::MidButton ) ) return 0;
-    if ( !allowrightclk )
-    {	
-	 if ( !(ev.buttonState() & OD::LeftButton ) ||
-	       (ev.buttonState() & OD::RightButton ) )
-	return 0;
-    }
-
-    int mousepos = ev.pos().y;
-    uiLineItem* mrkitm = 0; uiTextItem* mrktxtitm;
     for ( int idx=0; idx<markeritms_.size(); idx++ )
     {
-	if ( abs( markeritms_[idx]->itm_->getPos().y - mousepos )<2 )
-	    return ( markeritms_[idx] );
+	if ( &markeritms_[idx]->mrk_ == mrk )
+	    return markeritms_[idx];
     }
     return 0;
 }
 
 
-void uiWellLogDisplay::changeMarkerPos( Well::Marker* mrk )
+void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 {
-    if ( getMouseEventHandler().isHandled() )
-	return;
-
-    if ( !selmarker_ ) return;
-
-    const MouseEvent& ev = getMouseEventHandler().event();
-    if ( !(ev.buttonState() & OD::LeftButton ) ||
-	  (ev.buttonState() & OD::MidButton ) ||
-	  (ev.buttonState() & OD::RightButton ) )
-	return;
-
-    selmarker_->mrk_.setDah( mousePos() );
-    markerchged.trigger(); 
-}
-
-
-float uiWellLogDisplay::mousePos()  
-{
-    const MouseEvent& ev = getMouseEventHandler().event();
-    float mousepos = ld1_.yax_.getVal( ev.pos().y );
-    if ( zistime_ && d2tm_ )
-	mousepos = d2tm_->getDepth( mousepos )/1000;
-    return mousepos;
+    if ( highlightedmrkitem_ )
+	highlightedmrkitem_->itm_->setPenStyle(LineStyle(setup_.markerls_.type_,
+		       setup_.markerls_.width_, highlightedmrkitem_->color_) );
+    
+    MarkerItem* mrkitm = getMarkerItem( mrk );
+    if ( mrkitm )
+    {
+	mrkitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
+			setup_.markerls_.width_+1, mrkitm->color_) );
+	highlightedmrkitem_ = mrkitm;
+    }	
+    else
+	highlightedmrkitem_ = 0;
+    highlightedMarkerItemChged.trigger();
 }
 
 
@@ -617,6 +553,8 @@ void uiWellLogDisplay::drawZPicks()
 
 
 
+
+
 uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
     	: uiGroup(p, wd.name() )
 	, logwidth_(s.logwidth_)		 
@@ -627,22 +565,16 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
    	, zistime_(wd_.haveD2TModel())		     
 	, noborderspace_(s.noborderspace_)				   
 	, stratdisp_(0)								
-	, menu_(*new uiMenuHandler(p,-1))
-	, remmrkmnuitem_("Remove marker...",0)      				
-	, addmrkmnuitem_("Add marker...",1)      			 
 {
     if ( s.nobackground_ )
 	setNoBackGround();
     
-    if ( s.withstratdisp_ ) 
-    {	
-	stratdisp_ = new uiWellStratDisplay(this,true,wd.markers());
-	stratdisp_->setPrefWidth( 65 );
-	stratdisp_->setStretch( 2, 2 );
-	stratdisp_->setD2TModel( d2tm_ );
-	stratdisp_->setZIsTime( zistime_ );
-	stratdisp_->dataChanged();
-    }
+    stratdisp_ = new uiWellStratDisplay(this,true,wd.markers());
+    stratdisp_->setPrefWidth( 65 );
+    stratdisp_->setStretch( 2, 2 );
+    stratdisp_->setD2TModel( d2tm_ );
+    stratdisp_->setZIsTime( zistime_ );
+
     setStretch( 2, 2 );
     logwidth_ -= s.noborderspace_ ? 50 : 0;
     wd_.dispparschanged.notify( mCB(this,uiWellDisplay,updateProperties) );
@@ -650,23 +582,62 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
     for ( int idx=0; idx<s.nrpanels_; idx++ )
 	setLogPanel( s.noborderspace_, idx==0 );
 
-    menu_.ref();
-    menu_.createnotifier.notify(mCB(this,uiWellDisplay,createMenuCB));
-    menu_.handlenotifier.notify(mCB(this,uiWellDisplay,handleMenuCB));
+    mrkedit_ = new uiWellDisplayMarkerEdit( *logDisplay(0), wd );
 
     setHSpacing( 0 );
     setPrefWidth( s.nrpanels_*logwidth_ + 75 );
     setPrefHeight( mLogHeight );
     updateProperties(0);
     
+    
     //setInitialZRange();
 }
 
 
-uiWellDisplay::~uiWellDisplay()
+uiWellDisplay::uiWellDisplay( uiParent* p, uiWellDisplay& curdisp, bool withstrat )
+    : uiGroup(p,"")
+    , wd_(curdisp.wellData())
+    , stratdisp_(curdisp.stratDisp())
+    , mrkedit_(0)  			     
 {
-    menu_.unRef();
+    /*
+    setNoBackGround();
+
+    setPrefWidth( mLogWidth );
+    setPrefHeight( mLogHeight );
+    
+    uiWellLogDisplay* testlog = curdisp.logDisplay(0);
+    testlog->reParent( this );
+    testlog->setPrefWidth( 50 );
+    testlog->setPrefHeight( 600 );
+    logdisps_ += testlog;
+    
+    stratdisp_->reParent( this );
+    stratdisp_->display( withstrat );
+    stratdisp_->setPrefWidth( 50 );
+    stratdisp_->setPrefHeight( 600 );
+    if ( withstrat )
+    {
+	setLogPanel( true, true );
+	logDisplay(1)->reParent( this );
+	logDisplay(1)->setStretch( 2, 2 );
+	logDisplay(1)->setPrefWidth( 50 );
+	logDisplay(1)->setPrefHeight( 600 );
+	logDisplay(1)->attach( rightOf, testlog );
+	stratdisp_->attach( ensureRightOf, logDisplay(1) );
+    }
+
+    setHSpacing( 0 );
+    updateProperties(0);
+    setPrefWidth( 150 );
+    setPrefHeight( 600 );
+    setStretch( 2, 2 );
+    */
 }
+
+
+uiWellDisplay::~uiWellDisplay()
+{}
 
 
 void uiWellDisplay::setInitialZRange()
@@ -701,7 +672,7 @@ void uiWellDisplay::setLogPanel( bool noborderspace, bool isleft )
 {
     uiWellLogDisplay::Setup wldsu; wldsu.nrmarkerchars(3);
     wldsu.noxpixafter_ = isleft; wldsu.noxpixbefore_ = !isleft;
-    if ( noborderspace_ ) 
+    if ( noborderspace ) 
     { 
 	wldsu.nobackground_ = true;
 	wldsu.axisticsz_ = -15; 
@@ -713,9 +684,9 @@ void uiWellDisplay::setLogPanel( bool noborderspace, bool isleft )
     wldsu.border_ = uiBorder(0);
     wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
     uiWellLogDisplay* logdisp = new uiWellLogDisplay( this, wldsu );
+    wd_.markerschanged.notify( mCB(logdisp,uiWellLogDisplay,reDrawMarkers) );
     if ( logdisps_.size() )
 	logdisp->attach( rightOf, logdisps_[logdisps_.size()-1] );
-    if ( stratdisp_ ) logdisp->attach( ensureLeftOf, stratdisp_ );
     logdisp->setPrefWidth( logwidth_ );
     logdisp->setPrefHeight( mLogHeight );
 
@@ -723,10 +694,6 @@ void uiWellDisplay::setLogPanel( bool noborderspace, bool isleft )
     logdisp->setZInTime( zistime_ && d2tm_ );
     logdisp->setD2TModel( d2tm_ );
     logdisp->setMarkers( &wd_.markers() );
-    logdisp->setEditMarkers( true );
-    logdisp->markerchged.notify(mCB(this,uiWellDisplay,trigMarkersChanged));
-    logdisp->getMouseEventHandler().buttonReleased.notify(
-				    mCB(this,uiWellDisplay,usrClickCB) );
 }
 
 
@@ -779,130 +746,6 @@ void uiWellDisplay::updateProperties( CallBacker* cb )
 }
 
 
-void uiWellDisplay::trigMarkersChanged( CallBacker* )
-{
-    wd_.markerschanged.trigger();
-}
-
-
-void uiWellDisplay::usrClickCB( CallBacker* cb )
-{
-    mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh ) 
-	return; 
-    if ( !mevh->hasEvent() )
-	return;
-    if ( mevh->isHandled() )
-	return;
-
-    mevh->setHandled( handleUserClick(mevh->event()) );
-}
-
-
-bool uiWellDisplay::handleUserClick( const MouseEvent& ev )
-{
-    if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
-	 !ev.altStatus() )
-    {
-	menu_.executeMenu(0);
-	return true;
-    }
-    return false;
-}
-
-
-class uiWellDispAddMarkerDlg : public uiDialog
-{
-public : 
-    uiWellDispAddMarkerDlg( uiParent* p, float dah )
-	: uiDialog(p,uiDialog::Setup("Add marker",
-				     "Specify properties",mNoHelpID))
-	, marker_(0)							     
-    {
-	namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );
-	depthfld_ = new uiGenInput( this, "Depth", FloatInpSpec(dah) );
-	depthfld_->attach( alignedBelow, namefld_ );
-	uiColorInput::Setup csu( Color::DgbColor() );
-	csu.lbltxt( "Color" ).withalpha(false);
-	colorfld_ = new uiColorInput( this, csu, "Color" );
-	colorfld_->attach( alignedBelow, depthfld_ );
-    }
-
-    bool acceptOK( CallBacker* )
-    {
-	const char* nm = namefld_->text();
-	float dpt = depthfld_->getfValue();
-	marker_ = new Well::Marker( nm, dpt );
-	marker_->setColor( colorfld_->color() );
-	return true;
-    }
-
-    Well::Marker* marker() { return marker_; }
-
-protected :
-    Well::Marker*	marker_;
-    uiGenInput*		namefld_;
-    uiGenInput*		depthfld_;
-    uiColorInput*	colorfld_;
-};
-
-
-void uiWellDisplay::handleMenuCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet( MenuHandler*, menu, caller );
-    if ( mnuid==-1 || menu->isHandled() )
-	return;
-
-    bool ishandled = true;
-    if ( !logdisps_.size() ) return;
-    if ( mnuid==addmrkmnuitem_.id )
-    {
-	uiWellDispAddMarkerDlg dlg( this, logdisps_[0]->mousePos() );
-	if ( dlg.go() )
-	{
-	    Well::Marker* newmrk = dlg.marker();
-	    if ( !newmrk ) return;
-	    Well::MarkerSet& mrkset = wd_.markers();
-	    for ( int idx=0; idx<mrkset.size(); idx++ )
-	    {
-		Well::Marker& mrk = *mrkset[idx]; 
-		if ( newmrk->dah() > mrk.dah() )
-		    continue;
-		else 
-		{ 
-		    mrkset.insertAt( newmrk, idx );
-		    logdisps_[0]->markerchged.trigger(); 
-		    return;
-		}
-	    }
-	}
-    }
-    else if ( mnuid==remmrkmnuitem_.id  && logdisps_[0]->selectMarkerItem(true))
-    {
-	ObjectSet<Well::Marker>& mrkset = wd_.markers();
-	delete mrkset.remove( 
-	    mrkset.indexOf( &logdisps_[0]->selectMarkerItem(true)->mrk_), true );
-	logdisps_[0]->markerchged.trigger(); 
-    }
-    else
-	ishandled = false;
-
-    menu->setIsHandled( ishandled );
-}
-
-
-void uiWellDisplay::createMenuCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( !menu ) return;
-
-    if ( logdisps_.size() && logdisps_[0]->selectMarkerItem(true) ) 
-	mAddMenuItem( menu, &remmrkmnuitem_, true, false );
-    mAddMenuItem( menu, &addmrkmnuitem_, true, false );
-}
-
-
 
 uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
     : uiMainWin(p,"")
@@ -918,14 +761,6 @@ uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
 }
 
 
-uiWellDisplayWin::~uiWellDisplayWin()
-{
-}
-
-
 void uiWellDisplayWin::closeWin( CallBacker* )
 { close(); }
-
-
-
 
