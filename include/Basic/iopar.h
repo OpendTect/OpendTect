@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.59 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.60 2010-04-07 13:10:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,7 +118,9 @@ public:
     bool		getYN(const char*,bool&,bool&,bool&) const;
     bool		getYN(const char*,bool&,bool&,bool&,bool&) const;
     inline bool		isTrue( const char* key ) const
-			{ bool b = false; return getYN(key,b) && b; }
+			{ bool is = false; return getYN(key,is) && is; }
+    inline bool		isFalse( const char* key ) const
+			{ bool is = false; return getYN(key,is) && !is; }
 
     bool		get(const char*,int&,int&,float&) const;
 
