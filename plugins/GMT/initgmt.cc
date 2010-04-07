@@ -7,15 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initgmt.cc,v 1.8 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: initgmt.cc,v 1.9 2010-04-07 09:26:18 cvsnageswara Exp $";
 
 
-#include "initgmt.h"
 #include "gmtbasemap.h"
-#include "gmtlocations.h"
-#include "gmtcontour.h"
 #include "gmtcoastline.h"
+#include "gmtcontour.h"
+#include "gmtfault.h"
+#include "gmtlocations.h"
 #include "gmt2dlines.h"
+#include "initgmt.h"
 
 
 void GMT::initStdClasses()
@@ -25,6 +26,7 @@ void GMT::initStdClasses()
     GMTLocations::initClass();
     GMTPolyline::initClass();
     GMTContour::initClass();
+    GMTFault::initClass();
     GMTCoastline::initClass();
     GMTWells::initClass();
     GMT2DLines::initClass();
