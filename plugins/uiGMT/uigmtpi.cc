@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.22 2009-12-02 06:57:25 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.23 2010-04-07 09:24:09 cvsnageswara Exp $";
 
 #include "gmtdef.h"
 #include "ioman.h"
@@ -14,12 +14,13 @@ static const char* rcsID = "$Id: uigmtpi.cc,v 1.22 2009-12-02 06:57:25 cvsraman 
 #include "uigmtadv.h"
 #include "uigmtcoastline.h"
 #include "uigmtcontour.h"
+#include "uigmtfaults.h"
 #include "uigmtlocations.h"
 #include "uigmtmainwin.h"
 #include "uigmtpolyline.h"
+#include "uigmtrandlines.h"
 #include "uigmtwells.h"
 #include "uigmt2dlines.h"
-#include "uigmtrandlines.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -165,6 +166,7 @@ mExternC const char* InituiGMTPlugin( int, char** )
 	return "Cannot create 'GMT' directory in survey";
 
     uiGMTContourGrp::initClass();
+    uiGMTFaultsGrp::initClass();
     uiGMTWellsGrp::initClass();
     uiGMTLocationsGrp::initClass();
     uiGMTPolylineGrp::initClass();
