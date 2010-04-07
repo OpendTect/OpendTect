@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.35 2010-04-06 11:33:09 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.36 2010-04-07 12:09:26 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,9 @@ public:
 
     IOObj*		selIOObj() const;
     void		getSelection(EM::SurfaceIODataSelection&) const;
+    void		getSelAttributes( BufferStringSet&) const;
+    void		setInput(const MultiID&) const;
+    void		setSelAttributes(const BufferStringSet&) const;
 
     virtual bool	processInput()		{ return true; };
 
