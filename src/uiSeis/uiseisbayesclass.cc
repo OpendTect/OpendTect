@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.18 2010-04-01 10:12:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.19 2010-04-08 09:29:05 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -242,12 +242,29 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[2] Normalization/Scaling",
 			 mGetNormHelpID), pars,Middle)
     , is2d_(*pars[sKey::Type] == '2')
-    , normpolfld_(0)
+    , prenormfld_(0)
+    , nrpdfs_(0)
 {
     const CallBack dispcb( mCB(this,uiSeisBayesNorm,updDisp) );
 
+    for ( int idx=0; idx<cMaxNrPDFs; idx++ )
+    {
+	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
+	if ( !id || !*id ) break;
+	nrpdfs_++;
+    }
+
+    if ( nrpdfs_ > 1 )
+    {
+	const bool dopre = !pars_.isFalse( SeisBayesClass::sKeyPreNorm() );
+	prenormfld_ = new uiGenInput( this, "Normalize Input PDFs",
+					    BoolInpSpec(dopre) );
+    }
+
     useglobfld_ = new uiGenInput( this, "A priori weights",
 	    			  BoolInpSpec(false,"Constant","Variable") );
+    if ( prenormfld_ )
+	useglobfld_->attach( alignedBelow, prenormfld_ );
 
     const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
     uiSeisSel::Setup su( gt ); su.optional(true);
@@ -255,11 +272,9 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 
     bool havevariable = false;
     uiGenInput* alobj = useglobfld_;
-    for ( int idx=0; idx<cMaxNrPDFs; idx++ )
+    for ( int idx=0; idx<nrpdfs_; idx++ )
     {
 	const char* id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
-	if ( !id || !*id ) break;
-
 	BufferString fldtxt( "For '" );
 	fldtxt.add( IOM().nameOf(id) ).add( "'" );
 
@@ -281,16 +296,12 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     }
     useglobfld_->setValue( !havevariable );
 
-    if ( sclflds_.size() > 1 )
+    if ( prenormfld_ )
     {
-	normpolfld_ = new uiGenInput( this, "Normalization mode",
-			  StringListInpSpec(SeisBayesClass::NormPolNames()) );
-	normpolfld_->attach( alignedBelow, alobj );
-	const char* res = pars_.find( SeisBayesClass::sKeyNormPol() );
-	SeisBayesClass::NormPol pol = SeisBayesClass::PerBin;
-	if ( res && *res ) pol = eEnum(SeisBayesClass::NormPol,res);
-	normpolfld_->setValue( (int)pol );
-	normpolfld_->valuechanged.notify( dispcb );
+	const bool dopost = !pars_.isFalse( SeisBayesClass::sKeyPostNorm() );
+	postnormfld_ = new uiGenInput( this, "Normalise output",
+					    BoolInpSpec(dopost) );
+	postnormfld_->attach( alignedBelow, alobj );
     }
 
 
@@ -311,6 +322,7 @@ void updDisp( CallBacker* )
 
 bool rejectOK( CallBacker* cb )
 {
+    if ( nrpdfs_ < 1 ) return true;
     bool rv = uiVarWizardDlg::rejectOK( cb );
     getFromScreen( true );
     return rv;
@@ -318,6 +330,7 @@ bool rejectOK( CallBacker* cb )
 
 bool acceptOK( CallBacker* )
 {
+    if ( nrpdfs_ < 1 ) return false;
     pars_.removeWithKey( mGetSeisBayesAPProbIDKey("*") );
     pars_.removeWithKey( mGetSeisBayesPreScaleKey("*") );
     return getFromScreen( false );
@@ -326,7 +339,7 @@ bool acceptOK( CallBacker* )
 bool getFromScreen( bool permissive )
 {
     const bool isglob = useglobfld_->getBoolValue();
-    for ( int idx=0; idx<sclflds_.size(); idx++ )
+    for ( int idx=0; idx<nrpdfs_; idx++ )
     {
 	if ( isglob )
 	{
@@ -350,20 +363,22 @@ bool getFromScreen( bool permissive )
 	}
     }
 
-    if ( normpolfld_ )
+    if ( prenormfld_ )
     {
-	const SeisBayesClass::NormPol pol
-	    = (SeisBayesClass::NormPol)normpolfld_->getIntValue();
-	pars_.set( SeisBayesClass::sKeyNormPol(),
-		eString(SeisBayesClass::NormPol,pol) );
+	pars_.setYN( SeisBayesClass::sKeyPreNorm(),
+		     prenormfld_->getBoolValue() );
+	pars_.setYN( SeisBayesClass::sKeyPostNorm(),
+		     postnormfld_->getBoolValue() );
     }
 
     return true;
 }
 
     bool		is2d_;
-    uiGenInput*		normpolfld_;
+    int			nrpdfs_;
     uiGenInput*		useglobfld_;
+    uiGenInput*		prenormfld_;
+    uiGenInput*		postnormfld_;
     ObjectSet<uiGenInput> sclflds_;
     ObjectSet<uiIOObjSel> apflds_;
 
