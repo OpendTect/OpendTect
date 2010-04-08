@@ -5,12 +5,11 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.106 2010-02-24 20:15:33 cvskarthika Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.107 2010-04-08 07:24:32 cvsranojay Exp $";
 
 #include "genc.h"
 #include "string2.h"
 #include "envvars.h"
-#include "winutils.h"
 #include "mallocdefs.h"
 #include "debugmasks.h"
 #include "oddirs.h"
@@ -24,6 +23,7 @@ static const char* rcsID = "$Id: genc.c,v 1.106 2010-02-24 20:15:33 cvskarthika 
 #else
 # include <float.h>
 # include <sys/timeb.h>
+# include <shlobj.h>
 #endif
 
 

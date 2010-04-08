@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.18 2010-03-18 05:32:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.19 2010-04-08 07:24:32 cvsranojay Exp $";
 
 
 #include "winutils.h"
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: winutils.cc,v 1.18 2010-03-18 05:32:31 cvsnanne
 # include <windows.h>
 # include <shlobj.h>
 # include <process.h>
-//# include <float.h>
 
 // registry stuff
 # include <regstr.h>
@@ -30,11 +29,6 @@ static const char* rcsID = "$Id: winutils.cc,v 1.18 2010-03-18 05:32:31 cvsnanne
 
 #include <ctype.h>
 #include <string.h>
-
-
-#ifdef __cpp__
-extern "C" {
-#endif
 
 static const char* drvstr="/cygdrive/";
 
@@ -202,8 +196,26 @@ static int initialise_Co( void )
     return initialised;
 }
 
+
+bool winCopy( const char* from, const char* to, bool isfile )
+{
+    SHFILEOPSTRUCT fileop;
+    BufferString frm( from );
+    if ( !isfile )
+	frm += "\\*";
+
+    const int sz = frm.size();
+    frm[sz+1] = '\0';
+     
+    ZeroMemory( &fileop, sizeof(fileop) );
+    fileop.hwnd = NULL; fileop.wFunc = FO_COPY;
+    fileop.pFrom = frm; fileop.pTo = to; 
+    fileop.fFlags = ( isfile ? FOF_FILESONLY : FOF_MULTIDESTFILES )
+			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION;
+
+    int res = SHFileOperation( &fileop );
+    return !res;
+}
+
 #endif // __win__
 
-#ifdef __cpp__
-}
-#endif

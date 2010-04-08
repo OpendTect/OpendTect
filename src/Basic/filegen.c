@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.84 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.85 2010-04-08 07:24:32 cvsranojay Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -20,8 +20,6 @@ static const char* rcsID = "$Id: filegen.c,v 1.84 2010-03-25 03:55:14 cvsranojay
 #endif
 
 #ifdef __win__
-# include "winutils.h"
-
 # include <windows.h>
 # include <shlwapi.h>
 # include <time.h>

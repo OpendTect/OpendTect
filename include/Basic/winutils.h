@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Lammertink
  Date:		09-10-2003
  Contents:	Utilities for win32 support
- RCS:		$Id: winutils.h,v 1.4 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: winutils.h,v 1.5 2010-04-08 07:24:32 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,19 +22,20 @@ ________________________________________________________________________
 #endif
 
 #ifdef __cpp__
-extern "C" {
-#endif
-
-const char*	getCleanUnxPath( const char* path );
-const char*	getCleanWinPath( const char* path );
-
+extern "C" 
+{
+    const char*	getCleanUnxPath( const char* path );
+    const char*	getCleanWinPath( const char* path );
+    mGlobal const char*	GetSpecialFolderLocation(int csidl);
+ }
 #ifdef __win__
 
-mGlobal const char*	getWinLinkTarget( const char * fname ); /* impl: winlinks.c */
+mGlobal	bool		winCopy(const char* from,const char* to,bool isfile);
 
 mGlobal const char*	getCygDir();
 
-mGlobal const char*	GetSpecialFolderLocation(int csidl);
+#endif
+
 /*
 For documentation of the CSIDL values, see: 
 
@@ -345,9 +346,5 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 */
 
 #endif /* __win__ */
-
-#ifdef __cpp__
-}
-#endif
 
 #endif

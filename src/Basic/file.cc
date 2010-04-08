@@ -5,13 +5,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.7 2010-03-25 03:55:14 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.8 2010-04-08 07:24:32 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "file.h"
 #include "bufstring.h"
+#include "winutils.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -89,7 +90,13 @@ bool createLink( const char* fnm, const char* linknm )
 
 
 bool copy( const char* from, const char* to )
-{ return isFile(from) ? QFile::copy( from, to ) : copyDir( from, to ); }
+{ 
+#ifdef __win__
+    return  winCopy( from, to, isFile(from) );
+#else
+    return isFile(from) ? QFile::copy( from, to ) : copyDir( from, to ); 
+#endif
+}
 
 
 bool copyDir( const char* from, const char* to )
