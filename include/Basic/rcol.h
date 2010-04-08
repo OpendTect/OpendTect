@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.17 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: rcol.h,v 1.18 2010-04-08 15:17:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,7 @@ ________________________________________________________________________
 /*!\brief Object with row and col, which are accesable through r() and c(). */
 
 #include "gendefs.h"
-#include "math2.h"
 #include "plftypes.h"
-#include "undefval.h"
 
 #include <math.h>
 
@@ -88,13 +86,6 @@ public:
     void		fill(char*) const;
     bool		use(const char*);
 
-    template <class T>
-    inline static bool 	makeLine( const RCol& start, const RCol& stop,
-				  TypeSet<T>& output, const RCol& step );
-    			/*!< Makes a line from start to stop and stores it in
-			     output. The function will fail if start or stop
-			     is not reachable with the given step.
-			 */
 };
 
 
@@ -128,124 +119,6 @@ inline void RCol::setSerialized( od_int64 serialized )
     r() = (od_int32) (serialized>>32);
     c() = (od_int32) (serialized & 0xFFFFFFFF);
 }
-
-
-/*!\brief Object that builds a line from start in the direction of dir with
-  	  a step. The line is built in an iterative way, so it is possible
-	  to check after everystep if the line should continue (e.g. check if
-	  it has bumped into something.
-*/
-
-template <class T, class TT>
-class RColLineBuilder
-{
-public:
-    			RColLineBuilder( const TT& start,
-					   const TT& dir,
-					   const TT& step,
-					   TypeSet<T>& line);
-   int			nextStep();
-   			/*!<\returns 1 if the extension went well, -1 if
-			     	       the direction is zero. */
-
-protected:
-   float		distToLine( const TT& rc ) const;
-   const TT&		start_;
-   const TT&		dir_;
-   const TT&		step_;
-   const float		dirlen_;
-   TypeSet<T>&		line_;
-};
-
-
-template <class T,class TT> inline
-RColLineBuilder<T,TT>::RColLineBuilder( const TT& start,
-	const TT& dir, const TT& step, TypeSet<T>& line )
-   : start_( start )
-   , dir_( dir )
-   , step_( step )
-   , line_( line )
-   , dirlen_( Math::Sqrt(float(dir_[0]*dir_[0]+dir_[1]*dir_[1])) )
-{}
-
-
-template <class T,class TT> inline
-int RColLineBuilder<T,TT>::nextStep()
-{
-    if ( !dir_[0] && !dir_[1] )
-	return -1;
-
-    T bestrc;
-    if ( line_.size() )
-    {
-	const T& lastpos = line_[line_.size()-1];
-
-	float disttoline = mUdf(float);
-
-	if ( dir_[0] )
-	{
-	    const T candidate =
-	    lastpos+T(dir_[0]>0?step_[0]:-step_[0], 0 );
-	    const float dist = distToLine(candidate);
-	    if ( dist<disttoline )
-	    { bestrc = candidate; disttoline=dist; }
-	}
-
-	if ( dir_[1] )
-	{
-	    const T candidate =
-		lastpos+T(0,dir_[1]>0?step_[1]:-step_[1] );
-	    const float dist = distToLine(candidate);
-	    if ( dist<disttoline )
-	    { bestrc = candidate; disttoline=dist; }
-	}
-
-	if ( dir_[0] && dir_[1] )
-	{
-	    const T candidate =
-		lastpos+T( dir_[0]>0?step_[0]:-step_[0],
-				dir_[1]>0?step_[1]:-step_[1] );
-	    const float dist = distToLine(candidate);
-	    if ( dist<disttoline )
-	    { bestrc = candidate; disttoline=dist; }
-	}
-    }
-    else
-	bestrc = start_;
-
-    line_ += bestrc;
-    return 1;
-}
-
-
-template <class T,class TT> inline
-float RColLineBuilder<T,TT>::distToLine( const TT& rc ) const
-{
-    return fabs((dir_[0]*(rc[1]-start_[1])-dir_[1]*(rc[0]-start_[0]))/dirlen_);
-}
-
-
-template <class T> inline
-bool RCol::makeLine( const RCol& start, const RCol& stop,
-		     TypeSet<T>& output, const RCol& step )
-{
-    if ( start[0]%step[0]!=stop[0]%step[0] ||
-	 start[1]%step[1]!=stop[1]%step[1] )
-	return false;
-
-    output.erase();
-    if ( start==stop )
-    { output += start; return true; }
-
-    T dir = stop;
-    dir -= start;
-
-    RColLineBuilder<T,RCol> builder( start, dir, step, output );
-
-    while ( builder.nextStep()>0 && output[output.size()-1]!=stop );
-    return true;
-}
-
 
 
 #endif

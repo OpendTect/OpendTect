@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.38 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.39 2010-04-08 15:17:41 cvsbert Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -402,10 +402,121 @@ void EdgeLineSegment::reverse()
 }
 
 
+template <class T, class TT>
+class RColLineBuilder
+{
+public:
+    			RColLineBuilder( const TT& start,
+					   const TT& dir,
+					   const TT& step,
+					   TypeSet<T>& line);
+   int			nextStep();
+   			/*!<\returns 1 if the extension went well, -1 if
+			     	       the direction is zero. */
+
+protected:
+   float		distToLine( const TT& rc ) const;
+   const TT&		start_;
+   const TT&		dir_;
+   const TT&		step_;
+   const float		dirlen_;
+   TypeSet<T>&		line_;
+};
+
+
+template <class T,class TT> inline
+RColLineBuilder<T,TT>::RColLineBuilder( const TT& start,
+	const TT& dir, const TT& step, TypeSet<T>& line )
+   : start_( start )
+   , dir_( dir )
+   , step_( step )
+   , line_( line )
+   , dirlen_( Math::Sqrt(float(dir_[0]*dir_[0]+dir_[1]*dir_[1])) )
+{}
+
+
+template <class T,class TT> inline
+int RColLineBuilder<T,TT>::nextStep()
+{
+    if ( !dir_[0] && !dir_[1] )
+	return -1;
+
+    T bestrc;
+    if ( line_.size() )
+    {
+	const T& lastpos = line_[line_.size()-1];
+
+	float disttoline = mUdf(float);
+
+	if ( dir_[0] )
+	{
+	    const T candidate =
+	    lastpos+T(dir_[0]>0?step_[0]:-step_[0], 0 );
+	    const float dist = distToLine(candidate);
+	    if ( dist<disttoline )
+	    { bestrc = candidate; disttoline=dist; }
+	}
+
+	if ( dir_[1] )
+	{
+	    const T candidate =
+		lastpos+T(0,dir_[1]>0?step_[1]:-step_[1] );
+	    const float dist = distToLine(candidate);
+	    if ( dist<disttoline )
+	    { bestrc = candidate; disttoline=dist; }
+	}
+
+	if ( dir_[0] && dir_[1] )
+	{
+	    const T candidate =
+		lastpos+T( dir_[0]>0?step_[0]:-step_[0],
+				dir_[1]>0?step_[1]:-step_[1] );
+	    const float dist = distToLine(candidate);
+	    if ( dist<disttoline )
+	    { bestrc = candidate; disttoline=dist; }
+	}
+    }
+    else
+	bestrc = start_;
+
+    line_ += bestrc;
+    return 1;
+}
+
+
+template <class T,class TT> inline
+float RColLineBuilder<T,TT>::distToLine( const TT& rc ) const
+{
+    return fabs((dir_[0]*(rc[1]-start_[1])-dir_[1]*(rc[0]-start_[0]))/dirlen_);
+}
+
+
+template <class T>
+static bool RCol_makeLine( const RCol& start, const RCol& stop,
+		     TypeSet<T>& output, const RCol& step )
+{
+    if ( start[0]%step[0]!=stop[0]%step[0] ||
+	 start[1]%step[1]!=stop[1]%step[1] )
+	return false;
+
+    output.erase();
+    if ( start==stop )
+    { output += start; return true; }
+
+    T dir = stop;
+    dir -= start;
+
+    RColLineBuilder<T,RCol> builder( start, dir, step, output );
+
+    while ( builder.nextStep()>0 && output[output.size()-1]!=stop );
+    return true;
+}
+
+
 void EdgeLineSegment::makeLine( const RowCol& start, const RowCol& stop )
 {
     PtrMan<NotifyStopper> stopper = notifier ? new NotifyStopper(*notifier) : 0;
-    RCol::makeLine( start, stop, nodes, horizon_.geometry().step() );
+    RCol_makeLine( start, stop, nodes, horizon_.geometry().step() );
 
     if ( notifier )
     {
@@ -1295,7 +1406,7 @@ bool EdgeLine::repairLine()
 	setRemoveZeroSegments(prevremovestatus);
 
 	TypeSet<RowCol> rcs;
-	RCol::makeLine( forward ? start : stop, forward ? stop : start,
+	RCol_makeLine( forward ? start : stop, forward ? stop : start,
 			rcs, step );
 
 	rcs.remove(0);
