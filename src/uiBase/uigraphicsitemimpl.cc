@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.39 2010-03-15 08:59:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.40 2010-04-08 11:28:25 cvssatyaki Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -231,13 +231,17 @@ void uiLineItem::setLine( int x1, int y1, int x2, int y2, bool abs )
 
 void uiLineItem::setStartPos( const uiPoint& start, bool abspos )
 {
-    QLineF qline = qlineitem_->line();
+    QPointF qstoppos = qlineitem_->mapToScene( qlineitem_->line().p1() );
+    uiPoint stoppos( qstoppos.x(), qstoppos.y() );
+    setLine( start.x, start.y, stoppos.x, stoppos.y, abspos );
 }
 
 
 void uiLineItem::setEndPos( const uiPoint& end, bool abspos )
 {
-    QLineF qline = qlineitem_->line();
+    QPointF qstartpos = qlineitem_->mapToScene( qlineitem_->line().p2() );
+    uiPoint startpos( qstartpos.x(), qstartpos.y() );
+    setLine( startpos.x, startpos.y, end.x, end.y, abspos );
 }
 
 
