@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.17 2010-03-18 10:35:04 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.18 2010-04-08 09:28:01 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -20,7 +20,10 @@ static const char* rcsID = "$Id: probdenfunc.cc,v 1.17 2010-03-18 10:35:04 cvsbe
 #include <math.h>
 #include <iostream>
 
+static const float snappos = 1e-5;
+
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
+
 
 ProbDenFunc::ProbDenFunc( const ProbDenFunc& pdf )
     : NamedObject(pdf.name())
@@ -242,8 +245,15 @@ float Sampled1DProbDenFunc::value( float pos ) const
 {
     const int sz = size( 0 );
     if ( sz < 1 ) return 0;
-
     const float fidx = sd_.getIndex( pos );
+    const int nidx = mNINT(fidx);
+    if ( mIsZero(nidx-fidx,snappos) )
+    {
+	if ( nidx < 0 || nidx > sz-1 )
+	    return 0;
+	return bins_.get( nidx );
+    }
+
     const int idx = (int)floor(fidx);
     if ( idx < -1 || idx > sz-1 )
 	return 0;
@@ -336,18 +346,26 @@ float Sampled2DProbDenFunc::value( float px, float py ) const
 
     const float fidxx = sd0_.getIndex( px );
     const float fidxy = sd1_.getIndex( py );
+    const int nidxx = mNINT(fidxx); const int nidxy = mNINT(fidxy);
+    if ( mIsZero(nidxx-fidxx,snappos) && mIsZero(nidxy-fidxy,snappos) )
+    {
+	if ( nidxx < 0 || nidxy < 0 || nidxx > szx-1 || nidxy > szy-1 )
+	    return 0;
+	return bins_.get( nidxx, nidxy );
+    }
+
     const int idxx = (int)floor(fidxx); const int idxy = (int)floor(fidxy);
     if ( idxx < -1 || idxx > szx-1 || idxy < -1 || idxy > szy-1 )
 	return 0;
 
     float v[4];
     v[0] = idxx < 0 || idxy < 0		? 0 : bins_.get( idxx, idxy );
-    v[1] = idxx > szx-2 || idxx < 0	? 0 : bins_.get( idxx+1, idxy );
-    v[2] = idxy > szy-2 || idxy < 0	? 0 : bins_.get( idxx, idxy+1 );
+    v[1] = idxx > szx-2 || idxy < 0	? 0 : bins_.get( idxx+1, idxy );
+    v[2] = idxy > szy-2 || idxx < 0	? 0 : bins_.get( idxx, idxy+1 );
     v[3] = idxx > szx-2 || idxy > szy-2	? 0 : bins_.get( idxx+1, idxy+1 );
 
-    const float val = Interpolate::LinearReg2D<float>(v)
-			.apply( fidxx - idxx, fidxy - idxy );
+    const float xpos = fidxx - idxx; const float ypos = fidxy - idxy;
+    const float val = Interpolate::LinearReg2D<float>(v).apply( xpos, ypos );
     return val < 0 ? 0 : val;
 }
 
@@ -453,6 +471,8 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
 {
     if ( vals.size() < sds_.size() )
 	return 0;
+
+    //TODO implement interpolation (and snapping)
 
     TypeSet<int> idxs;
     for ( int idx=0; idx<sds_.size(); idx++ )
