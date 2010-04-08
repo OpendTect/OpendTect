@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.65 2010-01-27 13:48:27 cvsjaap Exp $
+ RCS:           $Id: uiobj.h,v 1.66 2010-04-08 12:59:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,7 @@ public:
     uiParent*		parent()			{ return parent_; }
     const uiParent*	parent() const
 			    { return const_cast<uiObject*>(this)->parent(); }
+    void		reParent(uiParent*);
     
     uiMainWin*		mainwin();
     QWidget*		qwidget();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.92 2010-01-27 13:48:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.93 2010-04-08 12:59:25 cvsbruno Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -488,4 +488,15 @@ void uiObject::useNameToolTip( bool yn )
 
     for ( int idx=uiobjectlist_.size()-1; idx>=0; idx-- )
 	uiobjectlist_[idx]->doSetToolTip();
+}
+
+
+void uiObject::reParent( uiParent* p )
+{
+    if ( !p || !p->pbody() ) return;
+    qwidget()->setParent( p->pbody()->managewidg() );
+    uiParentBody* b = dynamic_cast<uiParentBody*>( p->body() );
+    if ( !b ) return;
+    mBody()->reParent( b );
+    p->manageChld( *this, *mBody() );  
 }

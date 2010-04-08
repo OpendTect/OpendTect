@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.51 2010-01-27 13:48:27 cvsjaap Exp $
+ RCS:           $Id: uiobjbody.h,v 1.52 2010-04-08 12:59:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,9 @@ public:
 
     bool		isHidden()		{ return is_hidden; }
     bool		itemInited() const;
+
+    void		reParent(uiParentBody* pb)
+			{ if ( pb ) parent_ = pb; }
 
 protected:
 
