@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.64 2010-03-31 06:45:24 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.65 2010-04-08 11:34:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.64 2010-03-31 06:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.65 2010-04-08 11:34:24 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -50,7 +50,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , dps_(uidps.pointSet())
     , uidps_(uidps)
     , setup_(su)
-    , meh_(scene().getMouseEventHandler())
     , mincolid_(1-uidps.pointSet().nrFixedCols())
     , selrow_(-1)
     , x_(*this,uiRect::Bottom)
@@ -60,6 +59,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , y4colid_(mUdf(int))
     , y3ctab_(ColTab::Sequence("Rainbow"))
     , y4ctab_(ColTab::Sequence(""))
+    , lineDrawn( this )
     , selectionChanged( this )
     , pointsSelected( this )
     , removeRequest( this )
@@ -99,6 +99,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , mousepressed_(false)
     , isdensityplot_(false)
     , multclron_(false)
+    , drawuserdefline_(false)
+    , drawy2_(false)
     , timer_(*new Timer())
     , trmsg_("Calculating Density" )
 {
@@ -113,17 +115,15 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
  
     y3mapper_.setup_.cliprate_ = 0.0;
     y4mapper_.setup_.cliprate_ = 0.0;
-    meh_.buttonPressed.notify( mCB(this,uiDataPointSetCrossPlotter,mouseClick));
-    meh_.buttonReleased.notify( mCB(this,uiDataPointSetCrossPlotter,mouseRel));
 
     reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reSizeDraw) );
     reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     getMouseEventHandler().buttonPressed.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,getSelStarPos) );
+	    mCB(this,uiDataPointSetCrossPlotter,mouseClicked) );
     getMouseEventHandler().movement.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,drawPolygon) );
+	    mCB(this,uiDataPointSetCrossPlotter,mouseMove) );
     getMouseEventHandler().buttonReleased.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,itemsSelected) );
+	    mCB(this,uiDataPointSetCrossPlotter,mouseReleased) );
 
     timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     setStretch( 2, 2 );
@@ -408,6 +408,35 @@ void uiDataPointSetCrossPlotter::removeSelections( bool remfrmselgrp )
 }
 
 
+void uiDataPointSetCrossPlotter::setUserDefLine( const uiPoint& startpos,
+						 const uiPoint& stoppos)
+{
+    if ( drawy2_ )
+    {
+	if ( !y2userdeflineitm_ )
+	{
+	    y2userdeflineitm_ = new uiLineItem();
+	    scene().addItem( y2userdeflineitm_ );
+	}
+    }
+    else
+    {
+	if ( !y1userdeflineitm_ )
+	{
+	    y1userdeflineitm_ = new uiLineItem();
+	    scene().addItem( y1userdeflineitm_ );
+	}
+    }
+
+    uiLineItem* curlineitem = drawy2_ ? y2userdeflineitm_ : y1userdeflineitm_;
+    curlineitem->setLine( startpos, stoppos );
+    LineStyle ls = !drawy2_ ? y_.defaxsu_.style_: y2_.defaxsu_.style_;
+    ls.width_ = 3;
+    curlineitem->setPenStyle( ls );
+    curlineitem->setZValue( 4 );
+}
+
+
 void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
 {
     isy1selectable_ = y1;
@@ -415,12 +444,25 @@ void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
 }
 
 
-void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
+void uiDataPointSetCrossPlotter::mouseClicked( CallBacker* )
 {
+    if ( drawuserdefline_ )
+    {
+	startpos_ = getCursorPos();
+	mousepressed_ = true;
+    }
+
+    const MouseEvent& ev = getMouseEventHandler().event();
+    const bool isnorm = !ev.ctrlStatus() && !ev.shiftStatus() &&!ev.altStatus();
+
+    if ( isnorm && selNearest(ev) )
+	selectionChanged.trigger();
+
     if ( !selectable_ )
 	return;
 
     mousepressed_ = true;
+
     if ( rectangleselection_ )
     {
 	selareaset_ += new SelectionArea(
@@ -469,8 +511,27 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 }
 
 
-void uiDataPointSetCrossPlotter::drawPolygon( CallBacker* )
+void uiDataPointSetCrossPlotter::mouseMove( CallBacker* )
 {
+    if ( drawuserdefline_ && mousepressed_ )
+    {
+	uiPoint stoppos = getCursorPos();
+	const uiAxisHandler& xah = *x_.axis_;
+	const uiAxisHandler& yah = drawy2_ ? *y2_.axis_ : *y_.axis_;
+	LinePars& linepar = drawy2_ ? userdefy2lp_ : userdefy1lp_;
+	const float base =
+	    xah.getVal(stoppos.x) - xah.getVal(startpos_.x);
+	const float perpendicular =
+	    yah.getVal(stoppos.y) - yah.getVal(startpos_.y);
+	linepar.ax = perpendicular/base;
+	linepar.a0 = yah.getVal(startpos_.y) -
+	    	     ( linepar.ax * xah.getVal(startpos_.x) );
+	
+	setUserDefLine( startpos_, stoppos );
+	lineDrawn.trigger();
+	return;
+    }
+
     if ( !selectable_ || !mousepressed_ )
 	return;
 
@@ -665,9 +726,18 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 }
 
 
-void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
+void uiDataPointSetCrossPlotter::mouseReleased( CallBacker* )
 {
     mousepressed_ = false;
+    const MouseEvent& ev = getMouseEventHandler().event();
+    const bool isdel = ev.shiftStatus() && !ev.ctrlStatus() && !ev.altStatus();
+    
+    if ( !setup_.noedit_ && isdel && selNearest(ev) )
+    {
+	removeRequest.trigger();
+	selrow_ = -1;
+    }
+
     if ( !selectable_ || !selareaset_.validIdx(curselarea_) )
 	return;
 
@@ -865,40 +935,6 @@ int uiDataPointSetCrossPlotter::getRow(
 }
 
 
-void uiDataPointSetCrossPlotter::mouseClick( CallBacker* cb )
-{
-    if ( meh_.isHandled() ) return;
-
-    const MouseEvent& ev = meh_.event();
-    const bool isnorm = !ev.ctrlStatus() && !ev.shiftStatus() &&!ev.altStatus();
-
-    if ( isnorm && selNearest(ev) )
-    {
-	selectionChanged.trigger();
-	meh_.setHandled( true );
-    }
-}
-
-
-void uiDataPointSetCrossPlotter::mouseRel( CallBacker* cb )
-{
-    if ( meh_.isHandled() ) return;
-
-    const MouseEvent& ev = meh_.event();
-    const bool isdel = ev.shiftStatus() && !ev.ctrlStatus() && !ev.altStatus();
-    
-    uiPoint scenepos( getScenePos(ev.x(),ev.y()) );
-    MouseEvent sceneev( ev.buttonState(), scenepos.x, scenepos.y );
-
-    if ( !setup_.noedit_ && isdel && selNearest(sceneev) )
-    {
-	removeRequest.trigger();
-	meh_.setHandled( true );
-	selrow_ = -1;
-    }
-}
-
-
 void uiDataPointSetCrossPlotter::setOverlayY1Cols( int y3 )
 { y3colid_ = y3; }
 
@@ -1034,14 +1070,6 @@ void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
 	    itm = new uiMarkerItem( mstyle, false );
 	}
 
-	if ( !multclron_ )
-	    itm->setPenColor( yah.setup().style_.color_ );
-	else
-	    itm->setPenColor( isy2 
-		? (!y2grpcols_.size() ? yah.setup().style_.color_
-		    		      : y2grpcols_[dps_.group(rid)-1])
-		: (!y1grpcols_.size() ? yah.setup().style_.color_
-		    		      : y1grpcols_[dps_.group(rid)-1]) );
 	itm->setZValue( 4 );
 	curitmgrp->add( itm );
     }
@@ -1122,14 +1150,36 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	    		    (double)yad.axis_->getPix(yval) );
     uiPoint datapt = w2ui.transform( wpt );
 
+    unsigned short grpid = dps_.group(rid)-1;
     if ( item && !isy2 && showy3_ )
-	item->setFillColor( getOverlayColor(rid,true) );
+    {
+	mDynamicCastGet(uiMarkerItem*,markeritem,item)
+	if ( markeritem ) markeritem->setFillColor( getOverlayColor(rid,true) );
+    }
     else if ( item && isy2 && showy4_ )
-	item->setFillColor( getOverlayColor(rid,false) );
+    {
+	mDynamicCastGet(uiMarkerItem*,markeritem,item)
+	if ( markeritem ) markeritem->setFillColor( getOverlayColor(rid,false));
+    }
     else
     {
 	mDynamicCastGet(uiMarkerItem*,markeritem,item)
 	if ( markeritem ) markeritem->setFill( false );
+    }
+
+    if ( item )
+    {
+	const Color& multicol = isy2 ? !y2grpcols_.validIdx(grpid)
+				     ? Color::White() : y2grpcols_[grpid]
+				     : !y1grpcols_.validIdx(grpid)
+				     ? Color::White() : y1grpcols_[grpid];
+	Color overlaycol = yad.axis_->setup().style_.color_;
+	if ( showy3_ && !isy2 )
+	    overlaycol = getOverlayColor(rid,true);
+	else if ( showy4_ && isy2 )
+	    overlaycol = getOverlayColor(rid,false);
+
+	item->setPenColor(!multclron_ ? overlaycol : multicol );
     }
 
     bool ptselected = false;
@@ -1138,18 +1188,6 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	SelectionArea* selarea = selareaset_.size() ? selareaset_[idx] : 0;
 	if ( !selarea )
 	    continue;
-
-	if ( item )
-	{
-	    if ( !multclron_ )
-		item->setPenColor( yad.axis_->setup().style_.color_ );
-	    else
-		item->setPenColor( isy2 
-		    ? ( !y2grpcols_.size() ? yad.axis_->setup().style_.color_
-					   : y2grpcols_[dps_.group(rid)-1])
-		    : ( !y1grpcols_.size() ? yad.axis_->setup().style_.color_
-					   : y1grpcols_[dps_.group(rid)-1]) );
-	}
 
 	const bool itmselected = selarea->isInside( pt );
 	
@@ -1451,7 +1489,7 @@ void uiDataPointSetCrossPlotter::drawData(
 void uiDataPointSetCrossPlotter::drawYUserDefLine( const Interval<int>& xpixrg,
 						    bool draw, bool isy1 )
 {
-    uiLineItem* curlineitem = isy1 ? y1userdeflineitm_ : y2userdeflineitm_;
+    uiLineItem*& curlineitem = isy1 ? y1userdeflineitm_ : y2userdeflineitm_;
     if ( !draw )
     {
 	if ( curlineitem )
@@ -1483,8 +1521,11 @@ void uiDataPointSetCrossPlotter::drawYUserDefLine( const Interval<int>& xpixrg,
     }
     
     curlineitem->setZValue( 4 );
-    drawLine( *curlineitem, userdefy1lp_, xah, yah, &xvalrg );
-    curlineitem->setPenStyle( isy1 ? y_.defaxsu_.style_: y2_.defaxsu_.style_ );
+    drawLine( *curlineitem, isy1 ? userdefy1lp_ : userdefy2lp_, xah, yah,
+	      &xvalrg );
+    LineStyle ls = isy1 ? y_.defaxsu_.style_: y2_.defaxsu_.style_;
+    ls.width_ = 3;
+    curlineitem->setPenStyle( ls );
 }
 
 

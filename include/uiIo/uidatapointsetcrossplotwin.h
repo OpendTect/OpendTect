@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.21 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.22 2010-04-08 11:34:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiprogressbar.h"
 #include "uimainwin.h"
 
+class uiDataPointSetCrossPlotterPropDlg;
 class uiSelectionSettDlg;
 class uiColorTable;
 class uiComboBox;
@@ -46,6 +47,7 @@ protected:
 
     uiDataPointSet&		uidps_;
     uiDataPointSetCrossPlotter&	plotter_;
+    uiDataPointSetCrossPlotterPropDlg* propdlg_;
     uiSelectionSettDlg*		selsettdlg_;
     uiToolBar&			disptb_;
     uiToolBar&			seltb_;

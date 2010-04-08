@@ -67,6 +67,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , colortb_(*new uiToolBar(this,"DensityPlot Colorbar",uiToolBar::Top,true))
     , grpfld_(0)
     , selsettdlg_(0)
+    , propdlg_(0)
     , wantnormalplot_(false)
 {
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
@@ -699,6 +700,7 @@ bool acceptOK( CallBacker* )
 uiDataPointSetCrossPlotWin::~uiDataPointSetCrossPlotWin()
 {
     delete selsettdlg_;
+    delete propdlg_;
 }
 
 
@@ -892,8 +894,9 @@ void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
-    uiDataPointSetCrossPlotterPropDlg dlg( &plotter_ );
-    dlg.go();
+    if ( !propdlg_ )
+	propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
+    propdlg_->go();
 }
 
 

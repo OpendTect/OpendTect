@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.35 2010-03-03 10:11:57 cvssatyaki Exp $
+ RCS:		$Id: datapointset.h,v 1.36 2010-04-08 11:34:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,14 +111,12 @@ public:
 	const BinID&		binID() const		{ return pos_.binID(); }
 	Coord			coord() const		{ return pos_.coord(); }
 	const TypeSet<float>&	data() const		{ return data_; }
-	unsigned short		group() const
-				{ return grp_ < 0 ? -grp_ : grp_; }
+	unsigned short		group() const;
 	bool			isSel() const		{ return grp_ > 0; }
 	bool			isInactive() const	{ return grp_ == 0; }
 	void			setSel( bool yn )
 	    			{ if ( (grp_ >= 0) != yn ) grp_ = -grp_; }
-	void			setGroup( unsigned short grp )
-	    			{ grp_ = grp_ >= 0 ? grp : -grp; }
+	void			setGroup(unsigned short grp);
 	void			getBVSValues(TypeSet<float>&,bool is2d,
 					     bool ismini) const;
 

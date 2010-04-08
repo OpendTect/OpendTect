@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.33 2010-03-31 06:45:24 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.34 2010-04-08 11:34:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ public:
     void		setOverlayY1Cols(DataPointSet::ColID y3);
     void		setOverlayY2Cols(DataPointSet::ColID y3);
 
+    Notifier<uiDataPointSetCrossPlotter>	lineDrawn;
     Notifier<uiDataPointSetCrossPlotter>	pointsSelected;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
     Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
@@ -255,6 +256,11 @@ public:
     void			setOverlayY1AttSeq(const ColTab::Sequence&);
     void			setOverlayY2AttSeq(const ColTab::Sequence&);
 
+    void			setUserDefDrawType( bool draw, bool isy2 )
+				{ drawuserdefline_ = draw; drawy2_ = isy2;
+			       	  selectable_ = !draw; }
+    void			setUserDefLine(const uiPoint&,const uiPoint&);
+
     void			updateOverlayMapper(bool isy1);
     Color			getOverlayColor(uiDataPointSet::DRowID,bool);
     
@@ -276,7 +282,6 @@ protected:
     uiDataPointSet&		uidps_;
     DataPointSet&		dps_;
     Setup			setup_;
-    MouseEventHandler&		meh_;
     MathExpression*		mathobj_;
     BufferString		mathobjstr_;
     BufferString		trmsg_;
@@ -305,6 +310,8 @@ protected:
     bool			mousepressed_;
     bool			rectangleselection_;
     bool                        isdensityplot_;
+    bool                        drawuserdefline_;
+    bool                        drawy2_;
     float			plotperc_;
     int				eachcount_;
     int				curgrp_;
@@ -323,6 +330,7 @@ protected:
     Array1D<char>*		y2rowidxs_;
     TypeSet<uiDataPointSet::DColID> modcolidxs_;
     bool			selrowisy2_;
+    uiPoint			startpos_;
 
     ObjectSet<SelectionArea>	selareaset_;
     ObjectSet<SelectionGrp>	selgrpset_;
@@ -343,11 +351,9 @@ protected:
     bool			selNearest(const MouseEvent&);
     void 			reDraw(CallBacker*);
     void 			reSizeDraw(CallBacker*);
-    void 			mouseClick(CallBacker*);
-    void 			mouseRel(CallBacker*);
-    void                        getSelStarPos(CallBacker*);
-    void                        drawPolygon(CallBacker*);
-    void                        itemsSelected(CallBacker*);
+    void                        mouseClicked(CallBacker*);
+    void                        mouseMove(CallBacker*);
+    void                        mouseReleased(CallBacker*);
     void                        removeSelections(CallBacker*);
 };
 #endif

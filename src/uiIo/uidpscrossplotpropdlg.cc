@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.17 2010-03-03 10:11:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.18 2010-04-08 11:34:24 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -232,6 +232,8 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , plotter_(p->plotter())
     , hasy2_(plotter_.axisHandler(2))
     , shwy2userdefline_(0)
+    , selaxisfld_(0)
+    , dragmode_(0)
 {
     uiLabel* y1lbl = new uiLabel( this, "Y1 =" );
     y1a0fld_ = new uiGenInput( this, "", FloatInpSpec(0) );
@@ -266,7 +268,63 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 	shwy2userdefline_->attach( alignedBelow, y2a0fld_ );
     }
 
+    drawlinefld_ = new uiCheckBox( this, "Draw Line" );
+    drawlinefld_->attach( alignedBelow, hasy2_ ? shwy2userdefline_
+	    				       : shwy1userdefline_ );
+    drawlinefld_->activated.notify( mCB(this,uiDPSUserDefTab,ckeckedCB) );
+
+    if ( hasy2_ )
+    {
+	selaxisfld_ =
+	    new uiGenInput( this, "", BoolInpSpec(true,"Draw Y1","Draw Y2") );
+	selaxisfld_->attach( rightTo, drawlinefld_ );
+	selaxisfld_->valuechanged.notify(
+		mCB(this,uiDPSUserDefTab,drawAxisChanged) );
+	selaxisfld_->display( false );
+    }
+
+    ckeckedCB( 0 );
+    plotter_.lineDrawn.notify( mCB(this,uiDPSUserDefTab,setFlds) );
     p->finaliseDone.notify( mCB(this,uiDPSUserDefTab,initFlds) );
+    p->windowClosed.notify( mCB(this,uiDPSUserDefTab,setLines) );
+}
+
+
+void setLines( CallBacker* )
+{
+    uiPoint pos( 0, 0 );
+    if ( !shwy1userdefline_->isChecked() ||
+	 (shwy2userdefline_ && !shwy2userdefline_->isChecked()) )
+	plotter_.setUserDefLine( pos, pos );
+    plotter_.setDragMode( (uiGraphicsView::ODDragMode)dragmode_ );
+}
+
+
+void drawAxisChanged( CallBacker* )
+{
+    plotter_.setUserDefDrawType( drawlinefld_->isChecked(),
+	    			 !selaxisfld_->getBoolValue() );
+}
+
+
+void ckeckedCB( CallBacker* )
+{
+    if ( selaxisfld_ )
+	selaxisfld_->display( drawlinefld_->isChecked() );
+
+    plotter_.setUserDefDrawType( drawlinefld_->isChecked(),
+	    			 selaxisfld_ && !selaxisfld_->getBoolValue() );
+    MouseCursor cursor;
+    if ( drawlinefld_->isChecked() )
+    {
+	dragmode_ = plotter_.dragMode();
+	cursor.shape_ = MouseCursor::Cross;
+	plotter_.setDragMode( uiGraphicsView::NoDrag );
+    }
+    else
+	plotter_.setDragMode( (uiGraphicsView::ODDragMode)dragmode_ );
+
+    plotter_.setCursor( cursor );
 }
 
 
@@ -289,6 +347,24 @@ void initFlds( CallBacker* )
 }
 
 
+void setFlds( CallBacker* )
+{
+    if ( drawlinefld_->isChecked() )
+    {
+	if ( selaxisfld_ && !selaxisfld_->getBoolValue() )
+	{
+	    y2a0fld_->setValue( plotter_.userdefy2lp_.a0 );
+	    y2a1fld_->setValue( plotter_.userdefy2lp_.ax );
+	}
+	else
+	{
+	    y1a0fld_->setValue( plotter_.userdefy1lp_.a0 );
+	    y1a1fld_->setValue( plotter_.userdefy1lp_.ax );
+	}
+    }
+}
+
+
 bool acceptOK()
 {
     plotter_.userdefy1lp_.a0 = y1a0fld_->getfValue();
@@ -301,6 +377,7 @@ bool acceptOK()
 	plotter_.userdefy2lp_.ax = y2a1fld_->getfValue();
 	plotter_.setup().showy2userdefline_ = shwy2userdefline_->isChecked();
     }
+
     plotter_.setup().showy1userdefline_ = shwy1userdefline_->isChecked();
     return true;
 }
@@ -308,12 +385,15 @@ bool acceptOK()
     uiDataPointSetCrossPlotter&		plotter_;
 
     bool 		hasy2_;	
+    int  		dragmode_;	
     uiGenInput*		y1a0fld_;
     uiGenInput*		y1a1fld_;
     uiGenInput*		y2a0fld_;
     uiGenInput*		y2a1fld_;
+    uiGenInput*		selaxisfld_;
     uiCheckBox*		shwy1userdefline_;
     uiCheckBox*		shwy2userdefline_;
+    uiCheckBox*		drawlinefld_;
 
 };
 
@@ -435,7 +515,8 @@ bool acceptOK()
 
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,"0.4.8"))
+	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,"0.4.8")
+						.modal(false) )
 	, plotter_(*p)
     	, bdroptab_(0)
 {

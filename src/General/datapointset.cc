@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.34 2010-03-31 06:45:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.35 2010-04-08 11:34:24 cvssatyaki Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -98,6 +98,21 @@ void DataPointSet::DataRow::getBVSValues( TypeSet<float>& vals,
 	vals += pos_.nr_;
     for ( int idx=0; idx<data_.size(); idx++ )
 	vals += data_[idx];
+}
+
+
+unsigned short DataPointSet::DataRow::group() const
+{
+    int selgrp,grp;
+    getUnCompacted( grp_, selgrp, grp );
+    return (unsigned short)((grp < -0.5 ? -grp : grp)+.5);
+}
+
+
+void DataPointSet::DataRow::setGroup( unsigned short newgrp )
+{
+    grp_ = grp_ >= 0 ? newgrp : -newgrp;
+    grp_ = getCompacted( -1, newgrp ) ;
 }
 
 
