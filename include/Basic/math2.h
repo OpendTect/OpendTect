@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.11 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: math2.h,v 1.12 2010-04-08 15:18:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,10 @@ ________________________________________________________________________
 
 /* Functions with some extra facilities added to math.h
 
-   Each function has a float and a double version. The float version is
-   prefixed with 'f', the double with 'd'. This seems very old-fashioned, but
-   there are two reasons:
-   1) The compiler will complain rather than choose one in many circumstances
-   2) It forces thought about the matter
+   Each function has a float and a double version. This may be very
+   old-fashioned, but who cares.
+
+   At the end, there is also an all-integer x to the power y.
 
  */
 
@@ -68,6 +67,9 @@ mGlobal double Log(double);
 mGlobal double Log10(double);
 mGlobal double Exp(double);
 mGlobal double Sqrt(double);
+
+mGlobal int IntPowerOf(int,int);
+mGlobal od_int64 IntPowerOf(od_int64,int);
 
 } // namespace Math
 

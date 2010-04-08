@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: math2.cc,v 1.8 2009-07-22 16:01:31 cvsbert Exp $";
+static const char* rcsID = "$Id: math2.cc,v 1.9 2010-04-08 15:18:04 cvsbert Exp $";
 
 #include "math2.h"
 #include "undefval.h"
@@ -32,11 +32,41 @@ static const char* rcsID = "$Id: math2.cc,v 1.8 2009-07-22 16:01:31 cvsbert Exp 
 #include "math2_inc.h"
 #undef mTYPE
 
+
+int Math::IntPowerOf( int numb, int to )
+{
+    int ret = 1;
+    while ( to != 0 )
+    {
+	if ( to > 0 )
+	    { ret *= numb; to--; }
+	else
+	    { ret /= numb; to++; }
+    }
+    return ret;
+}
+
+
+od_int64 Math::IntPowerOf( od_int64 numb, int to )
+{
+    od_int64 ret = 1;
+    while ( to != 0 )
+    {
+	if ( to > 0 )
+	    { ret *= numb; to--; }
+	else
+	    { ret /= numb; to++; }
+    }
+    return ret;
+}
+
+
 float Math::Exp( float s )
 {
     static const float maxval = mFloatLogFn( MAXFLOAT );
     return s < maxval ? mFloatExpFn( s ) : mUdf(float);
 }
+
 
 double Math::Exp( double s )
 {
