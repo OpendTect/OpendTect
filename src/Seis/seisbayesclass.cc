@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.11 2010-03-29 11:03:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.12 2010-04-08 09:26:50 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -22,13 +22,12 @@ static const char* rcsID = "$Id: seisbayesclass.cc,v 1.11 2010-03-29 11:03:10 cv
 
 const char* SeisBayesClass::sKeyPDFID()		{ return "PDF.ID"; }
 const char* SeisBayesClass::sKeyAPProbID()	{ return "PDF.Norm.APProb.ID"; }
-const char* SeisBayesClass::sKeyNormPol()	{ return "PDF.Norm.Policy"; }
+const char* SeisBayesClass::sKeyPreNorm()	{ return "PDF.Norm.PreNorm"; }
+const char* SeisBayesClass::sKeyPostNorm()	{ return "PDF.Norm.PostNorm"; }
 const char* SeisBayesClass::sKeyPreScale()	{ return "PDF.Norm.PreScale"; }
 const char* SeisBayesClass::sKeySeisInpID()	{ return "Seismics.Input.ID"; }
 const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
 
-DefineEnumNames(SeisBayesClass,NormPol,0,"Normalization Policy")
-    { "None", "Per bin", "Joint", "Per PDF", 0 };
 
 #define mDefNrCompsSamps(trc) \
     const int nrcomps = (trc).nrComponents(); \
@@ -47,7 +46,8 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	, initstep_(1)
 	, nrdims_(0)
 	, nrpdfs_(0)
-	, normpol_(None)
+	, doprenorm_(!iop.isFalse( sKeyPreNorm() ))
+	, dopostnorm_(!iop.isFalse( sKeyPostNorm() ))
 {
     aprdrs_.allowNull( true );
 
@@ -55,10 +55,6 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
     is2d_ = res && *res == '2';
     if ( is2d_ )
 	{ msg_ = "2D not implemented"; return; }
-
-    res = pars_.find( sKeyNormPol() );
-    if ( res && *res )
-	normpol_ = eEnum(NormPol,res);
 
     msg_ = "Initializing";
 }
@@ -142,8 +138,7 @@ bool SeisBayesClass::getPDFs()
     const_cast<int&>(nrpdfs_) = inppdfs_.size();
     if ( nrpdfs_ < 1 )
 	{ msg_ = "No PDF's in parameters"; return false; }
-    else if ( !scalePDFs() )
-	return false;
+    preScalePDFs();
 
     pdfinpvals_.setSize( nrdims_, 0 );
     pdfnames_.add( "Classification" );
@@ -154,29 +149,17 @@ bool SeisBayesClass::getPDFs()
 }
 
 
-bool SeisBayesClass::scalePDFs()
+void SeisBayesClass::preScalePDFs()
 {
     for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
     {
 	ProbDenFunc* pdf = inppdfs_[ipdf]->clone();
 	pdfs_ += pdf;
 	float prescl = prescales_[ipdf];
-	if ( normpol_ == PerPDF )
+	if ( doprenorm_ )
 	    prescl *= pdf->normFac();
 	pdf->scale( prescl );
     }
-
-    if ( normpol_ == Joint )
-    {
-	float sum = 0;
-	for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
-	    sum += 1. / pdfs_[ipdf]->normFac();
-	const float scl = 1. / sum;
-	for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
-	    pdfs_[ipdf]->scale( scl );
-    }
-
-    return true;
 }
 
 
@@ -380,16 +363,10 @@ int SeisBayesClass::readInpTrcs()
 
 int SeisBayesClass::createOutput()
 {
-    if ( normpol_ == PerBin )
-	calcPerBinProbs();
-    else
-    {
-	for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
-	{
-	    if ( needclass_ || wrrs_[ipdf] )
-		calcProbs( ipdf );
-	}
-    }
+    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
+	calcProbs( ipdf );
+    if ( dopostnorm_ )
+	postScaleProbs();
 
     SeisTrcWriter* wrr;
 
@@ -466,11 +443,8 @@ float SeisBayesClass::getAPTrcVal( int ipdf, int isamp, int icomp )
 }
 
 
-void SeisBayesClass::calcPerBinProbs()
+void SeisBayesClass::postScaleProbs()
 {
-    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
-	prepOutTrc( *outtrcs_.get( ipdf ), false );
-
     mDefNrCompsSamps(*outtrcs_.get(0));
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
@@ -479,9 +453,7 @@ void SeisBayesClass::calcPerBinProbs()
 	    TypeSet<float> vals; float sumval = 0;
 	    for ( int ipdf=0; ipdf<nrpdfs_; ipdf++ )
 	    {
-		float val = getPDFValue( ipdf, isamp, icomp, false );
-		if ( aprdrs_[ipdf] )
-		    val *= getAPTrcVal( ipdf, isamp, icomp );
+		const float val = outtrcs_.get(ipdf)->get(isamp,icomp);
 		vals += val; sumval += val;
 	    }
 	    const bool haveout = sumval != 0;

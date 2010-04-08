@@ -7,14 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Feb 2010
- RCS:		$Id: seisbayesclass.h,v 1.9 2010-03-17 12:25:48 cvsbert Exp $
+ RCS:		$Id: seisbayesclass.h,v 1.10 2010-04-08 09:26:50 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 #include "executor.h"
 #include "bufstringset.h"
-#include "enums.h"
 class IOPar;
 class SeisTrc;
 class SeisTrcBuf;
@@ -43,9 +42,6 @@ mClass SeisBayesClass : public Executor
 {
 public:
 
-    enum NormPol		{ None, PerBin, Joint, PerPDF };
-    				DeclareEnumUtils(NormPol)
-
     				SeisBayesClass(const IOPar&);
     				~SeisBayesClass();
 
@@ -53,7 +49,8 @@ public:
     static const char*		sKeyAPProbID();
     static const char*		sKeySeisInpID();
     static const char*		sKeySeisOutID();
-    static const char*		sKeyNormPol();
+    static const char*		sKeyPreNorm();
+    static const char*		sKeyPostNorm();
     static const char*		sKeyPreScale();
 
     int				nextStep();
@@ -75,7 +72,8 @@ protected:
     SeisTrcBuf&			outtrcs_;
     const IOPar&		pars_;
     ObjectSet< TypeSet<int> >	pdfxtbls_;
-    NormPol			normpol_;
+    bool			doprenorm_;
+    bool			dopostnorm_;
     TypeSet<float>		prescales_;
 
     const int			nrdims_;
@@ -89,7 +87,8 @@ protected:
     mutable TypeSet<float>	pdfinpvals_;
 
     bool			getPDFs();
-    bool			scalePDFs();
+    void			preScalePDFs();
+    void			postScaleProbs();
     bool			getReaders();
     bool			getWriters();
 
