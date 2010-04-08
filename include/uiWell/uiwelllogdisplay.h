@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.26 2010-04-07 15:03:40 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.27 2010-04-08 13:13:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,14 +257,27 @@ public:
 	mDefSetupMemb(bool,withstratdisp) 	//Add Stratigraphy display
     };
 
+    mClass ShapeSetup
+    {
+	public:
+				    ShapeSetup(uiParent* p)
+				    : parent_(p)
+				    , withstrat_(false)
+				    , nrlogpanels_(1)
+				    {}
+	uiParent* 	parent_;
+	bool 		withstrat_;
+	int 		nrlogpanels_;
+    };
+
 				uiWellDisplay(uiParent*,const Setup&,
 						Well::Data&);
-				uiWellDisplay(uiParent*,uiWellDisplay&,bool);
+				uiWellDisplay(uiWellDisplay&,const ShapeSetup&);
 				~uiWellDisplay();
     
-    
-    uiWellLogDisplay* 		logDisplay(int ix) 
-    				{ return ix<logdisps_.size() ? logdisps_[ix]:0;}
+   
+    int 			nrLogDisp() 	{ return logdisps_.size();}	
+    uiWellLogDisplay* 		logDisplay(int idx) { return logdisps_[idx]; }
 
     Well::Data&			wellData() 		{ return wd_; }
     const Well::Data&		wellData() const 	{ return wd_; }
@@ -272,12 +285,13 @@ public:
     void			setLog(const char*,int,bool);
     void			setInitialZRange();
     void			setZRange(Interval<float>);
-    const Interval<float>&	zRange() const		{ return zrg_; }
+    const Interval<float>&	zRange() const	 	{ return zrg_; }
     void			setZInTime( bool yn )
     				{ zistime_ = yn; dataChanged(0); }
-    bool			zInTime() const	  	{ return zistime_; }
+    bool			zInTime() const 	{ return zistime_; }
     uiWellStratDisplay*		stratDisp() 		{ return stratdisp_; }
     const uiWellStratDisplay*	stratDisp() const  	{ return stratdisp_; }
+    bool			hasStratDisp() const	{ return stratdisp_; }
 
 protected:
 
@@ -311,8 +325,6 @@ public:
 protected:
 
     uiWellDisplay& 	welldisp_;
-    uiWellDisplay*	wellview_;
-
     Well::Data&		wd_;
     
     void		closeWin(CallBacker*);

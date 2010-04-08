@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.1 2010-04-07 15:03:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.2 2010-04-08 13:13:11 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -54,10 +54,16 @@ void uiWellDisplayReshape::handleMenuCB( CallBacker* cb )
 	return;
 
     if ( mnuid==addlogmnuitem_.id )
-    {
-    }
+	addLogPanel();
+    if ( mnuid==addlogmnuitem_.id )
+	remLogPanel();
 }
 
+
+void uiWellDisplayReshape::addLogPanel()
+{}
+void uiWellDisplayReshape::remLogPanel()
+{}
 
 
 

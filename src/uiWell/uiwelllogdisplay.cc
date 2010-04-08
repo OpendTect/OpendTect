@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.34 2010-04-07 15:03:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.35 2010-04-08 13:13:11 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -112,7 +112,6 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
 	uisetBackgroundColor( Color( 255, 255, 255, 0 )  );
 	scene().setBackGroundColor( Color( 255, 255, 255, 0 )  );
     }
-    setStretch( 2, 2 );
 
     reSize.notify( mCB(this,uiWellLogDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
@@ -514,19 +513,22 @@ uiWellLogDisplay::MarkerItem* uiWellLogDisplay::getMarkerItem(
 
 void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 {
-    if ( highlightedmrkitem_ )
-	highlightedmrkitem_->itm_->setPenStyle(LineStyle(setup_.markerls_.type_,
-		       setup_.markerls_.width_, highlightedmrkitem_->color_) );
-    
+    if ( highlightedmrkitem_ && highlightedmrkitem_->itm_ )
+	highlightedmrkitem_->itm_->setPenStyle(
+				LineStyle(setup_.markerls_.type_,
+		       		setup_.markerls_.width_, 
+				highlightedmrkitem_->color_) );
+
+    highlightedmrkitem_ = 0;
     MarkerItem* mrkitm = getMarkerItem( mrk );
     if ( mrkitm )
     {
-	mrkitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
-			setup_.markerls_.width_+1, mrkitm->color_) );
+	mrkitm->itm_->setPenStyle( 
+				LineStyle(setup_.markerls_.type_,
+				setup_.markerls_.width_+1, 
+				mrkitm->color_) );
 	highlightedmrkitem_ = mrkitm;
     }	
-    else
-	highlightedmrkitem_ = 0;
     highlightedMarkerItemChged.trigger();
 }
 
@@ -569,11 +571,14 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
     if ( s.nobackground_ )
 	setNoBackGround();
     
-    stratdisp_ = new uiWellStratDisplay(this,true,wd.markers());
-    stratdisp_->setPrefWidth( 65 );
-    stratdisp_->setStretch( 2, 2 );
-    stratdisp_->setD2TModel( d2tm_ );
-    stratdisp_->setZIsTime( zistime_ );
+    if ( s.withstratdisp_ )
+    {
+	stratdisp_ = new uiWellStratDisplay(this,true,wd.markers());
+	stratdisp_->setPrefWidth( 65 );
+	stratdisp_->setStretch( 2, 2 );
+	stratdisp_->setD2TModel( d2tm_ );
+	stratdisp_->setZIsTime( zistime_ );
+    }
 
     setStretch( 2, 2 );
     logwidth_ -= s.noborderspace_ ? 50 : 0;
@@ -585,7 +590,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
     mrkedit_ = new uiWellDisplayMarkerEdit( *logDisplay(0), wd );
 
     setHSpacing( 0 );
-    setPrefWidth( s.nrpanels_*logwidth_ + 75 );
+    setPrefWidth( s.nrpanels_*logwidth_ + 65 );
     setPrefHeight( mLogHeight );
     updateProperties(0);
     
@@ -594,46 +599,53 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
 }
 
 
-uiWellDisplay::uiWellDisplay( uiParent* p, uiWellDisplay& curdisp, bool withstrat )
-    : uiGroup(p,"")
-    , wd_(curdisp.wellData())
-    , stratdisp_(curdisp.stratDisp())
-    , mrkedit_(0)  			     
+uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
+    : uiGroup(su.parent_,"")
+    , wd_(orgdisp.wellData())
+    , stratdisp_(orgdisp.stratDisp())
+    , mrkedit_(0)
 {
-    /*
     setNoBackGround();
 
-    setPrefWidth( mLogWidth );
-    setPrefHeight( mLogHeight );
-    
-    uiWellLogDisplay* testlog = curdisp.logDisplay(0);
-    testlog->reParent( this );
-    testlog->setPrefWidth( 50 );
-    testlog->setPrefHeight( 600 );
-    logdisps_ += testlog;
-    
-    stratdisp_->reParent( this );
-    stratdisp_->display( withstrat );
-    stratdisp_->setPrefWidth( 50 );
-    stratdisp_->setPrefHeight( 600 );
-    if ( withstrat )
+    for ( int idx=0; idx<orgdisp.nrLogDisp(); idx++ )
     {
-	setLogPanel( true, true );
-	logDisplay(1)->reParent( this );
-	logDisplay(1)->setStretch( 2, 2 );
-	logDisplay(1)->setPrefWidth( 50 );
-	logDisplay(1)->setPrefHeight( 600 );
-	logDisplay(1)->attach( rightOf, testlog );
-	stratdisp_->attach( ensureRightOf, logDisplay(1) );
+	if ( su.nrlogpanels_ == idx ) break; //TODO delete non used ones
+	uiWellLogDisplay* log = orgdisp.logDisplay(idx);
+	log->reParent( this );
+	if ( idx ) log->attach( rightOf, logdisps_[idx-1] );
+	log->setPrefWidth( mLogWidth );
+	log->setPrefHeight( mLogHeight );
+	log->setStretch( 2, 2 );
+	logdisps_ += log;
     }
-
+    
+    for ( int idx=logdisps_.size(); idx<su.nrlogpanels_; idx++ )
+    {
+	setLogPanel( true, false );
+	logdisps_[idx]->setPrefWidth( mLogWidth );
+    }
+    
+    if ( su.withstrat_ )
+    {
+	if ( stratdisp_ )
+	    stratdisp_->reParent(this);
+	else
+	    stratdisp_ = new uiWellStratDisplay(this,true,wd_.markers());
+	stratdisp_->setPrefWidth( mLogWidth );
+	stratdisp_->setPrefHeight( mLogHeight );
+	stratdisp_->dataChanged();
+	stratdisp_->setStretch( 2, 2 );
+	if ( nrLogDisp() )
+	    stratdisp_->attach( ensureRightOf, logdisps_[nrLogDisp()-1] );
+    }
+   
+    setPrefWidth( su.nrlogpanels_*mLogWidth );
+    setPrefHeight( mLogHeight );
     setHSpacing( 0 );
-    updateProperties(0);
-    setPrefWidth( 150 );
-    setPrefHeight( 600 );
     setStretch( 2, 2 );
-    */
+    updateProperties(0);
 }
+
 
 
 uiWellDisplay::~uiWellDisplay()
@@ -691,6 +703,7 @@ void uiWellDisplay::setLogPanel( bool noborderspace, bool isleft )
     logdisp->setPrefHeight( mLogHeight );
 
     logdisps_ += logdisp;
+    logdisp->setStretch( 2, 2);
     logdisp->setZInTime( zistime_ && d2tm_ );
     logdisp->setD2TModel( d2tm_ );
     logdisp->setMarkers( &wd_.markers() );

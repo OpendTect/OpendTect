@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiwelldisplaycontrol.h,v 1.1 2010-04-07 15:03:40 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaycontrol.h,v 1.2 2010-04-08 13:13:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ mClass uiWellDisplayReshape : public CallBacker
 public:
 				uiWellDisplayReshape(uiWellDisplay&);
 				~uiWellDisplayReshape(){};
-    
+
     uiMenuHandler&		menu() { return menu_; }
 
 protected:
@@ -40,6 +40,8 @@ protected:
     
     void                        createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
+    void			addLogPanel();
+    void			remLogPanel();
 };
 
 
