@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.51 2010-01-21 05:36:20 cvsranojay Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.52 2010-04-08 10:47:32 cvsnanne Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -132,9 +132,8 @@ void uiFileInput::enableExamine( bool yn )
 
 void uiFileInput::doSelect( CallBacker* )
 {
-    BufferString fname = text();
+    BufferString fname = fileName();
     BufferString oldfltr = selfltr_;
-    if ( fname.isEmpty() )	fname = defseldir_;
 
     const bool usegendlg = selmode_ == uiFileDialog::Directory
 			|| selmode_ == uiFileDialog::DirectoryOnly
@@ -183,14 +182,15 @@ const char* uiFileInput::fileName() const
     static BufferString fname;
     fname = text();
     FilePath fp( fname );
-    if ( !fp.isAbsolute() && !fname.isEmpty() && !defseldir_.isEmpty() )
+    if ( fname.isEmpty() )
+	fname = defseldir_;
+    else if ( !fp.isAbsolute() && !fname.isEmpty() && !defseldir_.isEmpty() )
     {
 	fp.insert( defseldir_ );
 	fname = fp.fullPath(); //fname is cleaned here.
     }
     else
 	fname = FilePath::mkCleanPath( fname, FilePath::Local );
-
 
     return fname;
 }
