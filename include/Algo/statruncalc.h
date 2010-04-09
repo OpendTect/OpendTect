@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.19 2010-03-29 07:10:16 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.20 2010-04-09 14:20:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -686,7 +686,7 @@ double WindowedCalc<T>::getValue( Type t ) const
     {
     case Min:		return min();
     case Max:		return max();
-    case Extreme:	return max();
+    case Extreme:	return extreme();
     case Median:	return median();
     default:		break;
     }
