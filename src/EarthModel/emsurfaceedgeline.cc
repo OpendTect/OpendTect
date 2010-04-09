@@ -8,13 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.39 2010-04-08 15:17:41 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.40 2010-04-09 07:59:04 cvsbert Exp $";
    
 
 #include "emsurfaceedgeline.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
+#include "rcollinebuilder.h"
 #include "executor.h"
 #include "iopar.h"
 #include "mathfunc.h"
@@ -491,32 +492,10 @@ float RColLineBuilder<T,TT>::distToLine( const TT& rc ) const
 }
 
 
-template <class T>
-static bool RCol_makeLine( const RCol& start, const RCol& stop,
-		     TypeSet<T>& output, const RCol& step )
-{
-    if ( start[0]%step[0]!=stop[0]%step[0] ||
-	 start[1]%step[1]!=stop[1]%step[1] )
-	return false;
-
-    output.erase();
-    if ( start==stop )
-    { output += start; return true; }
-
-    T dir = stop;
-    dir -= start;
-
-    RColLineBuilder<T,RCol> builder( start, dir, step, output );
-
-    while ( builder.nextStep()>0 && output[output.size()-1]!=stop );
-    return true;
-}
-
-
 void EdgeLineSegment::makeLine( const RowCol& start, const RowCol& stop )
 {
     PtrMan<NotifyStopper> stopper = notifier ? new NotifyStopper(*notifier) : 0;
-    RCol_makeLine( start, stop, nodes, horizon_.geometry().step() );
+    ::makeLine( start, stop, nodes, horizon_.geometry().step() );
 
     if ( notifier )
     {
@@ -1406,8 +1385,7 @@ bool EdgeLine::repairLine()
 	setRemoveZeroSegments(prevremovestatus);
 
 	TypeSet<RowCol> rcs;
-	RCol_makeLine( forward ? start : stop, forward ? stop : start,
-			rcs, step );
+	::makeLine( forward ? start : stop, forward ? stop : start, rcs, step );
 
 	rcs.remove(0);
 	rcs.remove(rcs.size()-1);
