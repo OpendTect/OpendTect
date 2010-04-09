@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.19 2010-04-09 10:24:31 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.20 2010-04-09 12:21:39 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -361,8 +361,8 @@ float Sampled2DProbDenFunc::value( float px, float py ) const
 
     float v[4];
     v[0] = idxx < 0 || idxy < 0		? 0 : bins_.get( idxx, idxy );
-    v[1] = idxx > szx-2 || idxy < 0	? 0 : bins_.get( idxx+1, idxy );
-    v[2] = idxy > szy-2 || idxx < 0	? 0 : bins_.get( idxx, idxy+1 );
+    v[1] = idxy > szy-2 || idxx < 0	? 0 : bins_.get( idxx, idxy+1 );
+    v[2] = idxx > szx-2 || idxy < 0	? 0 : bins_.get( idxx+1, idxy );
     v[3] = idxx > szx-2 || idxy > szy-2	? 0 : bins_.get( idxx+1, idxy+1 );
 
     const float xpos = fidxx - idxx; const float ypos = fidxy - idxy;
@@ -544,9 +544,10 @@ void SampledNDProbDenFunc::addToInterpSums( const TypeSet<int>& idxs0,
     }
 
     const float dist = sqrt( distsq );
-    sumwt += dist;
+    const float wt = dist ? 1 / dist : 10000; // dist can't be 0, but still
+    sumwt += wt;
     const float val = isoutside ? 0 : bins_.getND( idxs.arr() );
-    sumval += dist * val;
+    sumval += wt * val;
 }
 
 
