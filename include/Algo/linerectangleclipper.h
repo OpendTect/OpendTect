@@ -7,12 +7,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: linerectangleclipper.h,v 1.4 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:		$Id: linerectangleclipper.h,v 1.5 2010-04-09 08:09:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "geometry.h"
+#include <math.h>
 
 /*!Clips a line between two points by a rectangle. The line may be completely
    outside, completely inside or partially inside. If partially inside, new

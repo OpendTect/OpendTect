@@ -4,9 +4,10 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.14 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.15 2010-04-09 08:09:24 cvsbert Exp $";
 
 #include "faultsticksurface.h"
+#include <math.h>
 
 namespace Geometry
 {
