@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.18 2010-04-08 15:17:41 cvsbert Exp $
+ RCS:		$Id: rcol.h,v 1.19 2010-04-09 07:58:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,14 +17,13 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "plftypes.h"
-
-#include <math.h>
-
 template <class T> class TypeSet;
+
 
 mClass RCol 
 {
 public:
+
     virtual		~RCol() {}
     int&		operator[](int idx) { return idx ? c() : r(); }
     int			operator[](int idx) const { return idx ? c() : r(); }
