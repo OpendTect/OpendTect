@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.27 2010-02-09 07:28:15 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.28 2010-04-09 10:33:50 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
     uiGroup*			getGroup();
     void			setGroup(uiGroup*);
     
-    void			setObjectSize(int,int);
+    virtual void		setObjectSize(int,int);
     const uiSize		objectSize() const;
 
     QGraphicsProxyWidget*	qWidgetItem()	{ return qwidgetitem_; }
