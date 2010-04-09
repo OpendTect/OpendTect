@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.4 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.5 2010-04-09 11:20:47 cvsnanne Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -20,8 +20,9 @@ namespace Attrib
 { 
 
 
-DataCubesWriter::DataCubesWriter( MultiID& mid, Attrib::DataCubes& dc,
-       				const TypeSet<int>& cubeindices )
+DataCubesWriter::DataCubesWriter( const MultiID& mid,
+				  const Attrib::DataCubes& dc,
+				  const TypeSet<int>& cubeindices )
     : Executor( "Attribute volume writer" )
     , nrdone_( 0 )
     , totalnr_( dc.cubeSampling().totalNr() )
