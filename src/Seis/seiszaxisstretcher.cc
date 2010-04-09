@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.6 2010-03-19 15:42:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.7 2010-04-09 09:16:53 cvsranojay Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -50,13 +50,16 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 	return;
     }
 
-    const SeisPacketInfo& spi = seisreader_->seisTranslator()->packetInfo();
-    HorSampling storhrg; storhrg.set( spi.inlrg, spi.crlrg );
-    outcs_.hrg.limitTo( storhrg );
-
+    if ( !is2d_ )
+    {
+	const SeisPacketInfo& spi = seisreader_->seisTranslator()->packetInfo();
+	HorSampling storhrg; storhrg.set( spi.inlrg, spi.crlrg );
+	outcs_.hrg.limitTo( storhrg );
+    }
+    
     CubeSampling cs( true );
     cs.hrg = outcs_.hrg;
-    seisreader_->setSelData( new Seis::RangeSelData(cs) );
+     seisreader_->setSelData( new Seis::RangeSelData(cs) );
 
     totalnr_ = cs.hrg.totalNr();
 
