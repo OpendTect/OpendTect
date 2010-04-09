@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.18 2010-04-08 09:28:01 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.19 2010-04-09 10:24:31 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: probdenfunc.cc,v 1.18 2010-04-08 09:28:01 cvsbe
 #include "interpol2d.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "math2.h"
 #include <math.h>
 #include <iostream>
 
@@ -469,22 +470,83 @@ const char* SampledNDProbDenFunc::dimName( int dim ) const
 
 float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
 {
-    if ( vals.size() < sds_.size() )
+    const int nrdims = sds_.size();
+    if ( vals.size() < nrdims )
 	return 0;
-
-    //TODO implement interpolation (and snapping)
-
-    TypeSet<int> idxs;
-    for ( int idx=0; idx<sds_.size(); idx++ )
+    TypeSet<int> szs;
+    for ( int idim=0; idim<nrdims; idim++ )
     {
-	const int sdidx = sds_[idx].nearestIndex( vals[idx] );
-	if ( sdidx < 0 || sdidx > size(idx) )
-	    return 0;
-
-	idxs += sdidx;
+	const int sz = size( idim );
+	if ( sz < 1 ) return 0;
+	szs += sz;
     }
 
-    return bins_.getND( idxs.arr() );
+    // Hopefully we are at a bin
+    TypeSet<int> idxs; bool atbin = true;
+    for ( int idim=0; idim<nrdims; idim++ )
+    {
+	const float fidx = sds_[idim].getIndex( vals[idim] );
+	const int nidx = mNINT(fidx);
+	if ( nidx < -1 || nidx > szs[idim] )
+	    return 0;
+	if ( nidx == -1 || nidx == szs[idim] || !mIsZero(nidx-fidx,snappos) )
+	    { atbin = false; break; }
+	idxs += nidx;
+    }
+    if ( atbin )
+	return bins_.getND( idxs.arr() );
+
+    // OK, need to interpolate. First, collect the positions
+    idxs.erase(); TypeSet<float> relpos;
+    for ( int idim=0; idim<nrdims; idim++ )
+    {
+	const float fidx = sds_[idim].getIndex( vals[idim] );
+	const int idx = (int)floor(fidx);
+	if ( idx < -1 || idx > szs[idim]-1 )
+	    return 0;
+	relpos += fidx - idx; idxs += idx;
+    }
+
+    // Inv distance interpolation seems usable.
+    float sumval = 0; float sumwt = 0;
+    const od_int64 nrcontrib = Math::IntPowerOf( 2, nrdims );
+    for ( od_int64 ipt=0; ipt<nrcontrib; ipt++ )
+    {
+	TypeSet<int> curidxs( idxs );
+	od_int64 curpt = ipt;
+	for ( int idim=0; idim<nrdims; idim++ )
+	{
+	    if ( curpt & 1 ) curidxs[idim]++;
+	    curpt >>= 1;
+	}
+	addToInterpSums( idxs, curidxs, relpos, szs, sumval, sumwt );
+    }
+
+    return sumwt ? sumval / sumwt : 0;
+}
+
+
+void SampledNDProbDenFunc::addToInterpSums( const TypeSet<int>& idxs0,
+		const TypeSet<int>& idxs, const TypeSet<float>& relpos,
+		const TypeSet<int>& szs, float& sumval, float& sumwt ) const
+{
+    const int nrdims = sds_.size();
+    float distsq = 0;
+    bool isoutside = false;
+    for ( int idim=0; idim<nrdims; idim++ )
+    {
+	const int idx = idxs[idim];
+	if ( idx < 0 || idx >= szs[idim] )
+	    isoutside = true;
+	float dist = relpos[idim];
+	if ( idxs0[idim] != idx ) dist = 1 - dist;
+	distsq += dist * dist;
+    }
+
+    const float dist = sqrt( distsq );
+    sumwt += dist;
+    const float val = isoutside ? 0 : bins_.getND( idxs.arr() );
+    sumval += dist * val;
 }
 
 
@@ -512,10 +574,10 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
 	bins_.copyFrom( ArrayNDImpl<float>( ArrayNDInfoImpl(nrdims) ) );
     }
 
-    TypeSet<int> sizes( nrdims, 0 );
+    TypeSet<int> szs( nrdims, 0 );
     for ( int idx=0; idx<nrdims; idx++ )
     {
-	par.get( IOPar::compKey(sKey::Size,idx), sizes[idx] );
+	par.get( IOPar::compKey(sKey::Size,idx), szs[idx] );
 
 	SamplingData<float> sd;
 	par.get( IOPar::compKey(sKey::Sampling,idx), sd );
@@ -526,7 +588,7 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
 	dimnms_.add( dimnm );
     }
 
-    bins_.setSize( sizes.arr() );
+    bins_.setSize( szs.arr() );
     return bins_.info().getTotalSz() > 0;
 }
 

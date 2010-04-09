@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Jan 2010
- RCS:		$Id: sampledprobdenfunc.h,v 1.11 2010-03-17 12:21:41 cvsbert Exp $
+ RCS:		$Id: sampledprobdenfunc.h,v 1.12 2010-04-09 10:24:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -177,6 +177,10 @@ protected:
     virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
     virtual const SamplingData<float>&	getSampling( int d ) const
 					{ return sds_[d]; }
+
+    void		addToInterpSums(const TypeSet<int>&,const TypeSet<int>&,
+				    const TypeSet<float>&,const TypeSet<int>&,
+				    float&,float&) const;
 
 public:
 
