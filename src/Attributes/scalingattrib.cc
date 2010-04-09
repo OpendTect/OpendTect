@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.31 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.32 2010-04-09 08:20:28 cvsbert Exp $";
 
 #include "scalingattrib.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: scalingattrib.cc,v 1.31 2009-07-22 16:01:30 cvs
 #include "attribparamgroup.h"
 #include "statruncalc.h"
 #include "survinfo.h"
+#include <math.h>
 
 #define mStatsTypeRMS	0
 #define mStatsTypeMean	1
