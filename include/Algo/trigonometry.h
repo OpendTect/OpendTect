@@ -7,13 +7,14 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.44 2010-02-24 22:27:13 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.45 2010-04-09 08:06:00 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "position.h"
+#include <math.h>
 
 template <class T> class TypeSet;
 template <class T> class ObjectSet;
