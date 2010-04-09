@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.40 2010-04-09 07:59:04 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.41 2010-04-09 08:26:05 cvsbert Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -495,7 +495,7 @@ float RColLineBuilder<T,TT>::distToLine( const TT& rc ) const
 void EdgeLineSegment::makeLine( const RowCol& start, const RowCol& stop )
 {
     PtrMan<NotifyStopper> stopper = notifier ? new NotifyStopper(*notifier) : 0;
-    ::makeLine( start, stop, nodes, horizon_.geometry().step() );
+    ::makeLine( start, stop, horizon_.geometry().step(), nodes );
 
     if ( notifier )
     {
@@ -1385,7 +1385,7 @@ bool EdgeLine::repairLine()
 	setRemoveZeroSegments(prevremovestatus);
 
 	TypeSet<RowCol> rcs;
-	::makeLine( forward ? start : stop, forward ? stop : start, rcs, step );
+	::makeLine( forward ? start : stop, forward ? stop : start, step, rcs );
 
 	rcs.remove(0);
 	rcs.remove(rcs.size()-1);
