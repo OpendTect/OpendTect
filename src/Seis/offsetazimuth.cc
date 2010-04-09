@@ -4,9 +4,10 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: offsetazimuth.cc,v 1.3 2009-07-22 16:01:34 cvsbert Exp $";
+static const char* rcsID = "$Id: offsetazimuth.cc,v 1.4 2010-04-09 08:14:13 cvsbert Exp $";
 
 #include "offsetazimuth.h"
+#include <math.h>
 
 
 #define mAzimuthFactor	0.012295862	//2PI/511
