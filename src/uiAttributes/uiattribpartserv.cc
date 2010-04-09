@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.147 2010-04-06 08:43:23 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.148 2010-04-09 08:57:58 cvsranojay Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -827,6 +827,9 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod )
 {
     const Attrib::DescSet* ds = getUserPrefDescSet();
+    if ( !ds )
+	return false;
+
     uiSetPickDirs dlg( parent(), ps, ds, nlamod );
     return dlg.go();
 }
