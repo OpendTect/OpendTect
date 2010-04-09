@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.23 2009-07-22 16:01:33 cvsbert Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.24 2010-04-09 08:22:00 cvsbert Exp $";
 
 #include "emeditor.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: emeditor.cc,v 1.23 2009-07-22 16:01:33 cvsbert 
 #include "geeditor.h"
 #include "mpeengine.h"
 #include "survinfo.h"
+#include "rcollinebuilder.h"
 
 namespace MPE 
 {
@@ -339,7 +340,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 
     const RowCol lastrc = els.last();
     TypeSet <RowCol> line;
-    RowCol::makeLine( lastrc, rc, line, emsurface.geometry().step() );
+    makeLine( lastrc, rc, emsurface.geometry().step(), line );
     if ( rc==els[0] )
 	line.remove(line.size()-1);
 
