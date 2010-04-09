@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.206 2010-04-08 11:39:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.207 2010-04-09 12:03:10 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -347,7 +347,7 @@ void uiODMenuMgr::fillManMenu()
 	manmnu_->insertItem( mnu );
     }
 
-    mInsertPixmapItem( manmnu_, "&PickSets ...", mManPickMnuItm,
+    mInsertPixmapItem( manmnu_, "&PickSets/Polygons ...", mManPickMnuItm,
 		       "man_picks.png" );
     mInsertPixmapItem( manmnu_, "Probability &Density Functions ...",
 		 mManPDFMnuItm, "man_prdfs.png" );
@@ -688,13 +688,13 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 void uiODMenuMgr::fillManTB()
 {
     const int seisid =
-	mAddTB(mantb_,"man_seis.png","Manage seismic data",false,manSeis);
+	mAddTB(mantb_,"man_seis.png","Manage Seismic data",false,manSeis);
     const int horid =
-	mAddTB(mantb_,"man_hor.png","Manage horizons",false,manHor);
+	mAddTB(mantb_,"man_hor.png","Manage Horizons",false,manHor);
     const int fltid =
-	mAddTB(mantb_,"man_flt.png","Manage faults",false,manFlt);
+	mAddTB(mantb_,"man_flt.png","Manage Faults",false,manFlt);
     mAddTB(mantb_,"man_wll.png","Manage well data",false,manWll);
-    mAddTB(mantb_,"man_picks.png","Manage Pick Sets",false,manPick);
+    mAddTB(mantb_,"man_picks.png","Manage PickSets/Polygons",false,manPick);
     mAddTB(mantb_,"man_wvlt.png","Manage Wavelets",false,manWvlt);
     mAddTB(mantb_,"man_strat.png","Manage Stratigraphy",false,manStrat);
  
