@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.18 2010-01-25 11:34:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.19 2010-04-09 08:37:12 cvsbert Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.18 2010-01-25 11:34:20 cvsn
 #include "uilabel.h"
 #include "uisellinest.h"
 #include "uispinbox.h"
+#include <math.h>
 
 
 static const char* sKeyLineStyle = "Measure LineStyle";

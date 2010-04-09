@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.60 2010-02-25 03:06:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.61 2010-04-09 08:37:12 cvsbert Exp $";
 
 #include "visprestackviewer.h"
 
@@ -35,6 +35,7 @@ static const char* rcsID = "$Id: visprestackviewer.cc,v 1.60 2010-02-25 03:06:51
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
+#include <math.h>
 
 
 mCreateFactoryEntry( PreStackView::Viewer3D );
