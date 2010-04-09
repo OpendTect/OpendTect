@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.1 2009-12-11 09:42:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.2 2010-04-09 08:27:08 cvsbert Exp $";
 
 
 #include "uiseiswvltimpexp.h"
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.1 2009-12-11 09:42:23 c
 #include "uifileinput.h"
 #include "uiseparator.h"
 #include "uimsg.h"
+
+#include <math.h>
 
 
 uiSeisWvltImp::uiSeisWvltImp( uiParent* p )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.31 2010-01-08 10:20:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.32 2010-04-09 08:27:08 cvsbert Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -38,6 +38,8 @@ static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.31 2010-01-08 10:20:46 
 #include "transl.h"
 #include "uiioobjsel.h"
 #include "uiwellpartserv.h"
+
+#include <math.h>
 
 
 static const char* sTypes[] = { "Top", "Bottom", 0 };

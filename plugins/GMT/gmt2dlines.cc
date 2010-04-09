@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.13 2010-03-17 21:29:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.14 2010-04-09 08:31:27 cvsbert Exp $";
 
 #include "gmt2dlines.h"
 
@@ -23,6 +23,8 @@ static const char* rcsID = "$Id: gmt2dlines.cc,v 1.13 2010-03-17 21:29:38 cvsyua
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+
+#include <math.h>
 
 
 int GMT2DLines::factoryid_ = -1;
