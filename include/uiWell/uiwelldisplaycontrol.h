@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiwelldisplaycontrol.h,v 1.2 2010-04-08 13:13:11 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaycontrol.h,v 1.3 2010-04-09 12:18:27 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,9 +72,10 @@ protected:
    
     float			mousePos(); 
     void 			addLogDisplay(uiWellLogDisplay&);
+    void 			removeLogDisplay(uiWellLogDisplay&);
     void                        changeMarkerPos(Well::Marker*);
-    bool                        handleUserClick(const MouseEvent&);
     void			trigMarkersChanged();
+    bool                        handleUserClick(const MouseEvent&);
 
     void                        createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
@@ -82,6 +83,7 @@ protected:
     void                        mousePressed(CallBacker*);
     void			mouseRelease(CallBacker*);
     void 			usrClickCB(CallBacker*);
+    void			resetMarkerCursors(CallBacker*);
 };
 
 #endif

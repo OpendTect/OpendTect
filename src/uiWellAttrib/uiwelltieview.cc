@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.61 2010-03-05 10:13:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.62 2010-04-09 12:18:27 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -137,14 +137,15 @@ void uiTieView::initFlatViewer()
 bool uiTieView::setLogsParams()
 {
     if ( !params_->timeintvs_.size() ) return false;
+    const WellTie::Params::uiParams* uipms = dataholder_.uipms();
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return false;
-    const WellTie::Params::uiParams* uipms = dataholder_.uipms();
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
-	logsdisp_[idx]->setD2TModel( d2tm );
-	logsdisp_[idx]->setZDispInFeet( uipms->iszinft_ );
-	logsdisp_[idx]->setZInTime( uipms->iszintime_ );
+	logsdisp_[idx]->data().d2tm_ = d2tm;
+	logsdisp_[idx]->data().dispzinft_ = uipms->iszinft_;
+	logsdisp_[idx]->data().zistime_ = uipms->iszintime_;
+	logsdisp_[idx]->dataChanged();
     }
     const float startdah = d2tm->getDepth( zrange_.start );
     const float stopdah = d2tm->getDepth( zrange_.stop );
@@ -291,7 +292,10 @@ void uiTieView::setLogsRanges( float start, float stop )
 	stop = d2tm->getTime( stop )*1000;
     }
     for (int idx=0; idx<logsdisp_.size(); idx++)
-	logsdisp_[idx]->setZRange( Interval<float>( start, stop) );
+    {
+	logsdisp_[idx]->data().zrg_ = Interval<float>( start, stop);
+	logsdisp_[idx]->dataChanged();
+    }
 }
 
 
@@ -366,7 +370,10 @@ void uiTieView::drawWellMarkers()
     }
     bool ismarkerdisp = dataholder_.uipms()->ismarkerdisp_;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
-	logsdisp_[idx]->setMarkers( ismarkerdisp ? &wd_.markers() : 0 );
+    {
+	logsdisp_[idx]->data().markers_ = ismarkerdisp ? &wd_.markers() : 0;
+	logsdisp_[idx]->dataChanged();
+    }
 }	
 
 #define mRemoveSet( auxs ) \

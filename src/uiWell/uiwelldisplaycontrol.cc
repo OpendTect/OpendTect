@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.2 2010-04-08 13:13:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.3 2010-04-09 12:18:27 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -17,8 +17,9 @@ static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.2 2010-04-08 13:13:
 #include "uigeninput.h"
 #include "uicolor.h"
 #include "welld2tmodel.h"
-
-
+#include "welldata.h"
+#include "wellmarker.h"
+#include "uigraphicsitemimpl.h"
 
 uiWellDisplayReshape::uiWellDisplayReshape( uiWellDisplay& disp )
     : CallBacker(CallBacker::CallBacker())
@@ -79,9 +80,13 @@ uiWellDisplayMarkerEdit::uiWellDisplayMarkerEdit( uiWellLogDisplay& disp, Well::
     , remmrkmnuitem_("Remove marker...",0)      				
 {
     addLogDisplay( disp );
+
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiWellDisplayMarkerEdit,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiWellDisplayMarkerEdit,handleMenuCB));
+    
+    wd_.markerschanged.notify( 
+	     	mCB(this,uiWellDisplayMarkerEdit,resetMarkerCursors) );
 }
 
 
@@ -99,7 +104,22 @@ void uiWellDisplayMarkerEdit::addLogDisplay( uiWellLogDisplay& ld )
     meh.buttonReleased.notify( mCB(this,uiWellDisplayMarkerEdit,usrClickCB) );
     meh.buttonPressed.notify( mCB(this,uiWellDisplayMarkerEdit,mousePressed) );
     meh.movement.notify( mCB(this,uiWellDisplayMarkerEdit,mouseMoved) );
-    ld.setEditMarkers( true );
+}
+
+
+void uiWellDisplayMarkerEdit::resetMarkerCursors( CallBacker* )
+{
+    for ( int idx=0; idx<logdisps_.size(); idx++ )
+    {
+	uiWellLogDisplay* ld = logdisps_[idx];
+	if ( !ld ) continue;
+	for ( int idmrk=0; idmrk<ld->markerItems().size(); idmrk++ )
+	{
+	    uiWellLogDisplay::MarkerItem* mrkitm = ld->markerItems()[idmrk];
+	    if ( mrkitm && mrkitm->itm_ )
+		 mrkitm->itm_->setCursor( MouseCursor::SizeVer );
+	}
+    }
 }
 
 
@@ -299,7 +319,7 @@ Well::Marker* uiWellDisplayMarkerEdit::selectMarker( CallBacker* cb, bool allowr
 
 
 #define mSetZVal(val)\
-    if ( logdisps_[0]->zIsTime() && wd_.haveD2TModel() )\
+    if ( logdisps_[0]->data().zistime_ && wd_.haveD2TModel() )\
 	val = wd_.d2TModel()->getDepth( val )/1000;
 void uiWellDisplayMarkerEdit::changeMarkerPos( Well::Marker* mrk )
 {
@@ -311,6 +331,4 @@ void uiWellDisplayMarkerEdit::changeMarkerPos( Well::Marker* mrk )
 	trigMarkersChanged();
     }
 }
-
-
 
