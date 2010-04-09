@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.16 2009-10-16 09:15:14 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.17 2010-04-09 08:21:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "mousecursor.h"
 #include "pixmap.h"
+#include <math.h>
 
 
 uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )

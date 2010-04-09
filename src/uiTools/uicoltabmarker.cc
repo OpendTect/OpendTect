@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.9 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.10 2010-04-09 08:21:34 cvsbert Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.9 2009-07-22 16:01:42 cvs
 #include "draw.h"
 #include "mouseevent.h"
 #include "rowcol.h"
+#include <math.h>
 
 
 static const int cColorCol = 1;
