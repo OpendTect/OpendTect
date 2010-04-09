@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.65 2010-04-08 11:34:24 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.66 2010-04-09 07:33:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.65 2010-04-08 11:34:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.66 2010-04-09 07:33:37 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplot.h"
 
@@ -229,7 +229,7 @@ void uiDataPointSetCrossPlotter::getRandRowids()
 	while ( rowcount < totalrows )
 	{
 	    int randrow = randgen.getIndex( dps_.size() );
-	    if ( rowidxs->get(randrow) == '0' )
+	    if ( rowidxs->get(randrow) == '0' && !dps_.isInactive(randrow) )
 		rowidxs->set( randrow, '1' );
 	    else
 		continue;
