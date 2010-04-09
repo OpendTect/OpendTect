@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.11 2009-07-22 16:01:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.12 2010-04-09 08:46:13 cvsbert Exp $";
 
 #include "uigridlinesdlg.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.11 2009-07-22 16:01:43 cv
 #include "uisellinest.h"
 #include "visgridlines.h"
 #include "visplanedatadisplay.h"
+#include <math.h>
 
 
 #define mCreateGridFld( name, lbl ) \
