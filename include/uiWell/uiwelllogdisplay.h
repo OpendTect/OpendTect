@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.28 2010-04-09 12:18:27 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.29 2010-04-12 11:23:14 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -299,6 +299,7 @@ public:
     const Well::Data&		wellData() const 	{ return pms_.wd_; }
     Params&			params()		{ return pms_; } 
     const Params&		params() const		{ return pms_; } 
+    void                        dataChanged(CallBacker*);
 
 protected:
 
@@ -315,7 +316,6 @@ protected:
     void                        gatherInfo();
     void                        setAxisRanges();
 
-    void                        dataChanged(CallBacker*);
     void 			updateProperties(CallBacker*); 
 };
 

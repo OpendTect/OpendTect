@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.3 2010-04-09 12:18:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.4 2010-04-12 11:23:14 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -133,8 +133,8 @@ void uiWellDisplayMarkerEdit::mousePressed( CallBacker* cb )
 
 void uiWellDisplayMarkerEdit::mouseMoved( CallBacker* cb )
 {
-    if ( mousepressed_ && selmarker_ )
-	changeMarkerPos( selmarker_ );
+    //if ( mousepressed_ && selmarker_ )
+//	changeMarkerPos( selmarker_ );
     
     curmarker_ = selectMarker( cb, true );
     if ( curmarker_ != lastmarker_ )  

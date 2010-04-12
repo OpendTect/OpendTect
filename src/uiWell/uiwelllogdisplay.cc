@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.36 2010-04-09 12:18:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.37 2010-04-12 11:23:14 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -512,16 +512,15 @@ void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 		       		setup_.markerls_.width_, 
 				highlightedmrkitem_->color_) );
 
-    highlightedmrkitem_ = 0;
-    MarkerItem* mrkitm = getMarkerItem( mrk );
+    MarkerItem* mrkitm = mrk ? getMarkerItem( mrk ) : 0;
     if ( mrkitm )
     {
 	mrkitm->itm_->setPenStyle( 
 				LineStyle(setup_.markerls_.type_,
 				setup_.markerls_.width_+1, 
 				mrkitm->color_) );
-	highlightedmrkitem_ = mrkitm;
-    }	
+    }
+    highlightedmrkitem_ = mrkitm;
     highlightedMarkerItemChged.trigger();
 }
 
@@ -699,18 +698,7 @@ void uiWellDisplay::addLogPanel( bool noborderspace, bool isleft )
     logdisp->setPrefWidth( pms_.logwidth_ );
     logdisp->setPrefHeight( mLogHeight );
     logdisps_ += logdisp;
-    logdisp->data().zistime_ = pms_.zistime_ && pms_.d2tm_;
-    logdisp->data().d2tm_ = pms_.d2tm_;
-    logdisp->data().markers_ = &pms_.wd_.markers();
     pms_.wd_.markerschanged.notify(mCB(logdisp,uiWellLogDisplay,reDrawMarkers));
-}
-
-
-void uiWellDisplay::setAxisRanges()
-{
-    Interval<float> dispzrg( pms_.zrg_.stop, pms_.zrg_.start );
-    for ( int idx=0; idx<logdisps_.size(); idx++ )
-	if ( logdisps_[idx] ) logdisps_[idx]->data().zrg_ = dispzrg;
 }
 
 
@@ -729,7 +717,15 @@ void uiWellDisplay::setLog( const char* logname, int logidx, bool left )
 void uiWellDisplay::dataChanged( CallBacker* cb )
 {
     for ( int idx=0; idx<logdisps_.size(); idx++ )
-	if ( logdisps_[idx] ) logdisps_[idx]->dataChanged();
+    {
+	uiWellLogDisplay* logdisp = logdisps_[idx];
+	if ( !logdisp ) continue;
+	logdisps_[idx]->data().zrg_ = pms_.zrg_;
+	logdisp->data().zistime_ = pms_.zistime_ && pms_.d2tm_;
+	logdisp->data().d2tm_ = pms_.d2tm_;
+	logdisp->data().markers_ = &pms_.wd_.markers();
+	logdisp->dataChanged();
+    }
 }
 
 
@@ -741,7 +737,7 @@ void uiWellDisplay::updateProperties( CallBacker* cb )
 	if ( !ld ) continue;
 	setLog( pms_.wd_.displayProperties().left_.name_, idx, true );
 	setLog( pms_.wd_.displayProperties().right_.name_, idx, false );
-	logdisps_[idx]->logData(true).wld_ = pms_.wd_.displayProperties().left_;
+	logdisps_[idx]->logData(true).wld_= pms_.wd_.displayProperties().left_;
 	logdisps_[idx]->logData(false).wld_ = pms_.wd_.displayProperties().right_;
     }
     dataChanged( 0 );
