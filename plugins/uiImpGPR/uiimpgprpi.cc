@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.10 2010-03-29 12:44:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpgprpi.cc,v 1.11 2010-04-12 15:02:06 cvsbert Exp $";
 
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -76,7 +76,7 @@ class uiDZTImporter : public uiDialog
 public:
 
 uiDZTImporter( uiParent* p )
-    : uiDialog(p,Setup("Import GPR Seismics","Import DZT Seismics",mNoHelpID))
+    : uiDialog(p,Setup("Import GPR Seismics","Import DZT Seismics","103.0.16"))
     , inpfld_(0)
 {
     if ( !SI().has2D() )
