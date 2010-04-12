@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.27 2009-07-29 06:23:59 cvsumesh Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.28 2010-04-12 11:20:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,13 @@ ________________________________________________________________________
 
 class IOPar;
 namespace EM { class Horizon; };
-namespace Attrib { class DataCubes; };
 class EventTracker;
 
 
 namespace MPE
 {
 
+class DataHolder;
 class SectionExtender;
 
 mClass HorizonAdjuster : public SectionAdjuster
@@ -77,7 +77,7 @@ public:
 protected:
 
     Attrib::SelSpec*		attribsel_;
-    const Attrib::DataCubes*	attrdata_;
+    const DataHolder*		attrdata_;
     EM::Horizon&		horizon_;
     EventTracker*		tracker_;
 

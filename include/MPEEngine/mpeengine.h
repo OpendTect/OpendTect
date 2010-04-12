@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.51 2010-03-16 07:13:52 cvsumesh Exp $
+ RCS:           $Id: mpeengine.h,v 1.52 2010-04-12 11:20:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ a static inistanciation of that can be retrieved by MPE::engine().
 
 */
 
+#include "attribdataholder.h"
+#include "attribdatacubes.h"
 #include "attribsel.h"
 #include "bufstring.h"
 #include "callback.h"
@@ -34,7 +36,7 @@ class CubeSampling;
 class TaskRunner;
 class MultiID;
 
-namespace Attrib { class SelSpec; class DataCubes; }
+namespace Attrib { class SelSpec; }
 namespace EM { class EMObject; }
 namespace Geometry { class Element; };
 template <class T> class Selector;
@@ -45,6 +47,71 @@ namespace MPE
 class EMTracker;
 class TrackPlane;
 class ObjectEditor;
+
+mClass AbstDataHolder : public CallBacker
+{
+mRefCountImplNoDestructor(AbstDataHolder);
+public:
+			AbstDataHolder(){}
+};
+
+mClass DataHolder : public AbstDataHolder
+{
+public:
+    			DataHolder()
+			: AbstDataHolder()
+			, is2d_( false )
+			, dcdata_(0)
+			, d2dhdata_(0)
+			{ cs_.setEmpty(); }
+    
+    bool		is2D() const		{ return is2d_; }
+    void		setCubeSampling(const CubeSampling cs)
+			{ cs_ = cs; }
+    CubeSampling	getCubeSampling() const
+			{ return cs_; }
+    void		set3DData(const Attrib::DataCubes* dc)
+			{ is2d_ = false; dcdata_ = dc; }
+    const Attrib::DataCubes*
+			get3DData() const	{ return dcdata_; }
+    void		set2DData(const Attrib::Data2DHolder* d2h)
+			{ is2d_ = true; d2dhdata_ = d2h; }
+    const Attrib::Data2DHolder*
+			get2DData() const	{ return d2dhdata_; }
+    const int		nrCubes() const
+			{
+			    if ( !dcdata_ && !d2dhdata_ )
+				return 0;
+			    if ( !is2d_ && dcdata_ )
+				return dcdata_->nrCubes();
+			    if ( is2d_ && d2dhdata_ )
+				return d2dhdata_->dataset_.size();
+
+			    return 0;
+			}
+
+protected:
+    CubeSampling		cs_;
+    const Attrib::DataCubes*	dcdata_;
+    const Attrib::Data2DHolder*	d2dhdata_;
+    bool			is2d_;
+
+private:
+    void		refNotify() const
+    			{
+			    if ( !is2d_ && dcdata_ )
+				dcdata_->ref();
+			    if ( is2d_ && d2dhdata_ )
+				d2dhdata_->ref();
+			}
+    void		unRefNotify() const
+			{
+			    if ( !is2d_ && dcdata_ )
+				dcdata_->unRef();
+			    if ( is2d_ && d2dhdata_ )
+				d2dhdata_->unRef();
+			}
+};
 
 mClass Engine : public CallBacker
 {
@@ -112,12 +179,12 @@ public:
 			     should be tracked. */
     int			getCacheIndexOf(const Attrib::SelSpec&) const;
     DataPack::ID	getAttribCacheID(const Attrib::SelSpec&) const;
-    const Attrib::DataCubes*
+    const DataHolder*
 			getAttribCache(const Attrib::SelSpec&);
     bool		setAttribData( const Attrib::SelSpec&,
 	    			       DataPack::ID);
     bool		setAttribData( const Attrib::SelSpec&,
-				       const Attrib::DataCubes*);
+				       const DataHolder*);
     bool		cacheIncludes(const Attrib::SelSpec&,
 				      const CubeSampling&);
     void		swapCacheAndItsBackup();
@@ -157,7 +224,7 @@ public:
 
 protected:
     int				getFreeID();
-    const Attrib::DataCubes*    getAttribCache(DataPack::ID);
+    const DataHolder*    	getAttribCache(DataPack::ID);
 
     BufferString		errmsg_;
     CubeSampling		activevolume_;
@@ -187,10 +254,10 @@ protected:
     };
 
     TypeSet<DataPack::ID>  		attribcachedatapackids_;   
-    ObjectSet<const Attrib::DataCubes>	attribcache_;
+    ObjectSet<const DataHolder>	attribcache_;
     ObjectSet<CacheSpecs>		attribcachespecs_;
     TypeSet<DataPack::ID>               attribbkpcachedatapackids_;
-    ObjectSet<const Attrib::DataCubes>	attribbackupcache_;
+    ObjectSet<const DataHolder>	attribbackupcache_;
     ObjectSet<CacheSpecs>		attribbackupcachespecs_;
 
     mStruct FlatCubeInfo

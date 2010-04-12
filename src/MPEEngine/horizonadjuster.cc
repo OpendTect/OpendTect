@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.60 2009-09-01 21:59:25 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.61 2010-04-12 11:20:34 cvsumesh Exp $";
 
 #include "horizonadjuster.h"
 
@@ -189,28 +189,39 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 			     float& targetz) const 
 {
-    const Array3D<float>& cube = attrdata_->getCube(0);
-    const ValueSeries<float>* storage = cube.getStorage();
+    //const Array3D<float>& cube = attrdata_->getCube(0);
+    CubeSampling cs = attrdata_->getCubeSampling();
+    const int toinlidx = cs.hrg.inlRange().nearestIndex( attrDataBinId(to).inl);
+    if ( toinlidx<0 || toinlidx>=cs.nrInl() )
+	return false;
+
+    const int tocrlidx = cs.hrg.crlRange().nearestIndex( attrDataBinId(to).crl);
+    if ( tocrlidx<0 || tocrlidx>=cs.nrCrl() )
+	return false;
+
+    const ValueSeries<float>* storage = 0;
+    if ( !attrdata_->is2D() && attrdata_->get3DData() )
+	storage = attrdata_->get3DData()->getCube(0).getStorage();
+    if ( attrdata_->is2D() && attrdata_->get2DData() )
+    {
+	const int todataholidx =
+	    attrdata_->get2DData()->getDataHolderIndex( tocrlidx );
+	if ( todataholidx < 0 ) return false;
+	storage = attrdata_->get2DData()->dataset_[todataholidx]->series(0);
+    }
     if ( !storage ) return false; 
 
-    const int zsz = attrdata_->getZSz();
+    const int zsz = cs.nrZ();
 
-    const SamplingData<double> sd( attrdata_->z0*attrdata_->zstep,
-	    			   attrdata_->zstep );
+    const SamplingData<double> sd( cs.zrg.start,cs.zrg.step );
 
-    const int toinlidx = 
-	attrdata_->inlsampling.nearestIndex(attrDataBinId(to).inl);
-    if ( toinlidx<0 || toinlidx>=attrdata_->getInlSz() )
-	return false;
-
-    const int tocrlidx = 
-	attrdata_->crlsampling.nearestIndex(attrDataBinId(to).crl);
-    if ( tocrlidx<0 || tocrlidx>=attrdata_->getCrlSz() )
-	return false;
+    od_int64 tooffset = !attrdata_->is2D() ?
+		attrdata_->get3DData()->getCube(0).info().getOffset(
+							toinlidx, tocrlidx, 0 )
+		: 0;
 
     const OffsetValueSeries<float> toarr( 
-		    const_cast<ValueSeries<float>&>(*storage), 
-		    cube.info().getOffset( toinlidx, tocrlidx, 0 ) ); 
+		    const_cast<ValueSeries<float>&>(*storage), tooffset ); 
 
     if ( !horizon_.isDefined(sectionid_, to.getSerialized()) )
 	return false;
@@ -222,18 +233,30 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     if ( from.inl!=-1 && from.crl!=-1 )
     {
 	const int frominlidx = 
-	    attrdata_->inlsampling.nearestIndex(attrDataBinId(from).inl);
-	if ( frominlidx<0 || frominlidx>=attrdata_->getInlSz() )
+	    cs.hrg.inlRange().nearestIndex(attrDataBinId(from).inl);
+	if ( frominlidx<0 || frominlidx>=cs.nrInl() )
 	    return false;
 
 	const int fromcrlidx = 
-	    attrdata_->crlsampling.nearestIndex(attrDataBinId(from).crl);
-	if ( fromcrlidx<0 || fromcrlidx>=attrdata_->getCrlSz() )
+	    cs.hrg.crlRange().nearestIndex(attrDataBinId(from).crl);
+	if ( fromcrlidx<0 || fromcrlidx>=cs.nrCrl() )
 	    return false;
 
+	od_int64 fromoffset = !attrdata_->is2D() ?
+	    	attrdata_->get3DData()->getCube(0).info().getOffset(
+						frominlidx, fromcrlidx, 0 )
+		: 0;
+
+	if ( attrdata_->is2D() && attrdata_->get2DData() )
+	{
+	    const int frmdatahdidx = 
+		attrdata_->get2DData()->getDataHolderIndex( fromcrlidx );
+	    if ( frmdatahdidx < 0 ) return false;
+	    storage = attrdata_->get2DData()->dataset_[frmdatahdidx]->series(0);
+	}
+
 	const OffsetValueSeries<float> fromarr( 
-		    const_cast<ValueSeries<float>&>(*storage), 
-		    cube.info().getOffset( frominlidx, fromcrlidx, 0 ) ); 
+		    const_cast<ValueSeries<float>&>(*storage), fromoffset ); 
 	if ( !horizon_.isDefined(sectionid_, from.getSerialized()) )
 	    return false;
 	const float fromz = horizon_.getPos(sectionid_,from.getSerialized()).z;
@@ -313,8 +336,9 @@ bool HorizonAdjuster::is2D() const
 
 const BinID HorizonAdjuster::attrDataBinId( const BinID& bid ) const 
 {
-    return is2D() && attrdata_->getInlSz()==1 ? 
-	   BinID( attrdata_->inlsampling.start, bid.crl ) : bid;
+    return is2D() && attrdata_->getCubeSampling().nrInl()==1 
+	? BinID( attrdata_->getCubeSampling().hrg.inlRange().start, bid.crl )
+	: bid;
 }
 
 

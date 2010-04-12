@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.109 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.110 2010-04-12 11:20:34 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -721,7 +721,10 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 				     const Attrib::DataCubes* slcset )
 {
-    MPE::engine().setAttribData( spec, slcset );
+    RefMan<MPE::DataHolder> dh = new MPE::DataHolder;
+    dh->setCubeSampling( slcset->cubeSampling() );
+    dh->set3DData( slcset );
+    MPE::engine().setAttribData( spec, dh );
 }
 
 
@@ -735,11 +738,12 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
 	MPE::engine().setAttribData( as, 0 );
 	return;
     }
-	
-    RefMan<Attrib::DataCubes> dc = new Attrib::DataCubes;
 
-    if ( newdata->fillDataCube(*dc) )
-	MPE::engine().setAttribData( as, dc );
+    RefMan<MPE::DataHolder> dh = new MPE::DataHolder;
+    dh->setCubeSampling( newdata->getCubeSampling() );
+    dh->set2DData( newdata );
+
+    MPE::engine().setAttribData( as, dh );
 }
 
 
@@ -848,7 +852,7 @@ DataPack::ID uiMPEPartServer::getAttribCacheID(
 { return MPE::engine().getAttribCacheID( spec ); }
 
 
-const Attrib::DataCubes*
+const MPE::DataHolder*
     uiMPEPartServer::getAttribCache( const Attrib::SelSpec& spec ) const
 { return MPE::engine().getAttribCache( spec ); }
 

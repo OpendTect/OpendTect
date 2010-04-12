@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.48 2009-10-30 07:24:46 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.49 2010-04-12 11:20:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class BufferStringSet;
 class uiDialog;
 
 namespace Geometry { class Element; }
-namespace MPE { class uiSetupGroup; }
+namespace MPE { class uiSetupGroup; class DataHolder; }
 namespace Attrib { class DescSet; class DataCubes; class Data2DHolder; }
 
 
@@ -83,7 +83,7 @@ public:
 					     be possible in the activeVolume. */
     const Attrib::SelSpec*	getAttribSelSpec() const;
     DataPack::ID		getAttribCacheID(const Attrib::SelSpec&) const;
-    const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
+    const MPE::DataHolder*	getAttribCache(const Attrib::SelSpec&) const;
     void			setAttribData(const Attrib::SelSpec&,
 	    				      DataPack::ID);
     void			setAttribData(const Attrib::SelSpec&,

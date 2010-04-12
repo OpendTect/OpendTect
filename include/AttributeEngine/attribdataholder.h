@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.23 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribdataholder.h,v 1.24 2010-04-12 11:20:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ public:
     inline int			size() const	{ return dataset_.size(); }
     bool			fillDataCube(DataCubes&) const;
     CubeSampling		getCubeSampling() const;
+    int				getDataHolderIndex(int) const;
     ObjectSet<DataHolder>	dataset_;
     				/*!<\note that z0 on the dataholder refers
 				 	  to samples in trcinfoset_.sampling. */

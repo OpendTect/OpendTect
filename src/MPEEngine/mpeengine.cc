@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.99 2010-03-16 07:13:56 cvsumesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.100 2010-04-12 11:20:34 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
@@ -451,41 +451,43 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 }
 
 
-const Attrib::DataCubes* Engine::getAttribCache( DataPack::ID datapackid )
+const DataHolder* Engine::getAttribCache( DataPack::ID datapackid )
 {
-    //TODO ultimate goal is to remove any communication through DataCube
     DataPack* datapack = DPM( DataPackMgr::FlatID() ).obtain( datapackid, true);
     if ( !datapack )
 	datapack = DPM( DataPackMgr::CubeID() ).obtain( datapackid, true );
 
+    DataHolder* dh = new DataHolder();
+
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
-    if ( cdp ) return &cdp->cube();
+    if ( cdp )
+    {
+	dh->setCubeSampling( cdp->cube().cubeSampling() );
+	dh->set3DData( &cdp->cube() );
+    }
     mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
-    if ( fdp ) return &fdp->cube();
+    if ( fdp )
+    {
+	dh->setCubeSampling( fdp->cube().cubeSampling() );
+	dh->set3DData( &fdp->cube() );
+    }
 
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,datapack);
     if ( dp2d )
     {
-	const Attrib::Data2DHolder* cache = 0;
-	cache = &dp2d->dataholder();
-	if ( cache )
-	{
-	    Attrib::DataCubes* cube = 0;
-	    mTryAlloc( cube, Attrib::DataCubes );
-	    if ( !cache->fillDataCube(*cube) )
-		return 0;
-	    else
-		return cube;
-	}
+	dh->setCubeSampling( dp2d->dataholder().getCubeSampling() );
+	dh->set2DData( &dp2d->dataholder() );
     }
 
-    return 0;
+    if ( dh->getCubeSampling().isEmpty() )
+    { delete dh; return 0; }
+    else
+	return dh;
 }
 
 
-const Attrib::DataCubes* Engine::getAttribCache(const Attrib::SelSpec& as)
+const DataHolder* Engine::getAttribCache(const Attrib::SelSpec& as)
 {
-    //TODO ultimate goal is to remove any communication through DataCube
     const int idx = getCacheIndexOf(as);
     return idx>=0 && idx<attribcache_.size() ? attribcache_[idx] : 0;
 }
@@ -494,7 +496,6 @@ const Attrib::DataCubes* Engine::getAttribCache(const Attrib::SelSpec& as)
 bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    DataPack::ID cacheid )
 {
-    //TODO ultimate goal is to remove any communication through DataCube
     const int idx = getCacheIndexOf(as);
     if ( idx>=0 && idx<attribcachedatapackids_.size() )
     {
@@ -509,7 +510,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	else
 	{
 	    attribcache_[idx]->unRef();
-	    const Attrib::DataCubes* newdata = getAttribCache( cacheid );
+	    const DataHolder* newdata = getAttribCache( cacheid );
 	    if ( newdata )
 	    {
 		attribcachedatapackids_[idx] = cacheid;
@@ -524,7 +525,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	    new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
 	    new CacheSpecs( as ) ;
 
-	const Attrib::DataCubes* newdata = getAttribCache( cacheid );
+	const DataHolder* newdata = getAttribCache( cacheid );
 	if ( newdata )
 	{
 	    attribcachedatapackids_ += cacheid;
@@ -538,7 +539,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 
 
 bool Engine::setAttribData( const Attrib::SelSpec& as, 
-			    const Attrib::DataCubes* newdata )
+			    const DataHolder* newdata )
 {
     const int idx = getCacheIndexOf(as);
     if ( idx>=0 && idx<attribcache_.size() )
@@ -572,11 +573,11 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as, 
 			    const CubeSampling& cs )
 {
-    const Attrib::DataCubes* cache = getAttribCache( as );
+    const DataHolder* cache = getAttribCache( as );
     if ( !cache ) 
 	return false;
 
-    CubeSampling cachedcs = cache->cubeSampling();
+    CubeSampling cachedcs = cache->getCubeSampling();
     const float zrgeps = 0.01 * SI().zStep();
     cachedcs.zrg.widen( zrgeps );  
     
@@ -587,7 +588,7 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 void Engine::swapCacheAndItsBackup()
 {
     const TypeSet<DataPack::ID> tempcachedatapackids = attribcachedatapackids_;
-    const ObjectSet<const Attrib::DataCubes> tempcache = attribcache_;
+    const ObjectSet<const DataHolder> tempcache = attribcache_;
     const ObjectSet<CacheSpecs> tempcachespecs = attribcachespecs_;
     attribcachedatapackids_ = attribbkpcachedatapackids_;
     attribcache_ = attribbackupcache_;
