@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          March 2010
- RCS:           $Id: SoDGBDragPointDragger.h,v 1.3 2010-04-07 07:28:36 cvskarthika Exp $
+ RCS:           $Id: SoDGBDragPointDragger.h,v 1.4 2010-04-12 13:25:38 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,8 @@ src file for more details.
 
 class SoSensor;
 class SoFieldSensor;
+class SbLineProjector;
+class SbPlaneProjector;
 
 mClass SoDGBDragPointDragger : public SoDragger {
 
@@ -94,14 +96,26 @@ protected:
     static void 	finishCB(void * f, SoDragger * d);
     static void 	fieldSensorCB(void * f, SoSensor * s);
     static void 	valueChangedCB(void * f, SoDragger * d);
+    void		metaKeyChangeCB(void *, SoDragger *d);
 
     SoFieldSensor* 	fieldSensor;
 
 private:
     void 		updateSwitchNodes();
-    int 		currAxis;
-    float 		jumpLimit;
+
+    int 		curraxis_;
+    SbLineProjector*	lineproj_;
+    SbPlaneProjector*	planeproj_;
+    SbVec3f		worldrestartpt_;
+    SbVec3f		lastmotion_;
+    SbVec3f		extramotion_;
+    int			constraintstate_;
+    bool		movecyl_;
+    
     static const char* 	draggergeometry_;
+    static const char*	linefbswitchnames_[];
+    static const char*	linetranslatornames_[];
+    static const char*	planetranslatornames_[];
 
 };
 
