@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.18 2010-04-12 11:20:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.19 2010-04-12 11:28:42 cvsumesh Exp $";
 
 #include "attribdataholder.h"
 
@@ -292,6 +292,7 @@ int Data2DHolder::getDataHolderIndex( int trcno ) const
 	if ( trcno == trcinfoset_[idx]->nr )
 	    return idx;
     }
+
     return -1;
 }
 
