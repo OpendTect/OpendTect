@@ -4,7 +4,7 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.20 2010-04-09 12:21:39 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.21 2010-04-12 09:32:06 cvsbert Exp $";
 
 // Sampled:
 // 1D currently does polynomial interpolation
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: probdenfunc.cc,v 1.20 2010-04-09 12:21:39 cvsbe
 #include "iopar.h"
 #include "keystrs.h"
 #include "math2.h"
+#include "interpolnd.h"
 #include <math.h>
 #include <iostream>
 
@@ -482,7 +483,7 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
     }
 
     // Hopefully we are at a bin
-    TypeSet<int> idxs; bool atbin = true;
+    TypeSet<int> idxs(nrdims,0); bool atbin = true;
     for ( int idim=0; idim<nrdims; idim++ )
     {
 	const float fidx = sds_[idim].getIndex( vals[idim] );
@@ -491,63 +492,42 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
 	    return 0;
 	if ( nidx == -1 || nidx == szs[idim] || !mIsZero(nidx-fidx,snappos) )
 	    { atbin = false; break; }
-	idxs += nidx;
+	idxs[idim] = nidx;
     }
     if ( atbin )
 	return bins_.getND( idxs.arr() );
 
-    // OK, need to interpolate. First, collect the positions
-    idxs.erase(); TypeSet<float> relpos;
+    // No, Need to interpolate.
+    TypeSet<float> relpos( nrdims, 0 );
     for ( int idim=0; idim<nrdims; idim++ )
     {
 	const float fidx = sds_[idim].getIndex( vals[idim] );
 	const int idx = (int)floor(fidx);
 	if ( idx < -1 || idx > szs[idim]-1 )
 	    return 0;
-	relpos += fidx - idx; idxs += idx;
+	relpos[idim] = fidx - idx; idxs[idim] = idx;
     }
 
-    // Inv distance interpolation seems usable.
-    float sumval = 0; float sumwt = 0;
-    const od_int64 nrcontrib = Math::IntPowerOf( 2, nrdims );
-    for ( od_int64 ipt=0; ipt<nrcontrib; ipt++ )
+    const od_int64 nrpts = Math::IntPowerOf( 2, nrdims );
+    float* hcvals = new float[nrpts];
+    for ( od_int64 ipt=0; ipt<nrpts; ipt++ )
     {
 	TypeSet<int> curidxs( idxs );
-	od_int64 curpt = ipt;
+	od_int64 curbits = ipt;
+	bool isoutside = false;
 	for ( int idim=0; idim<nrdims; idim++ )
 	{
-	    if ( curpt & 1 ) curidxs[idim]++;
-	    curpt >>= 1;
+	    if ( curbits & 1 ) curidxs[idim]++;
+	    curbits >>= 1;
+	    if ( curidxs[idim] < 0 || curidxs[idim] >= szs[idim] )
+		{ isoutside = true; break; }
 	}
-	addToInterpSums( idxs, curidxs, relpos, szs, sumval, sumwt );
+	hcvals[ipt] = isoutside ? 0 : bins_.getND( curidxs.arr() );
     }
 
-    return sumwt ? sumval / sumwt : 0;
-}
-
-
-void SampledNDProbDenFunc::addToInterpSums( const TypeSet<int>& idxs0,
-		const TypeSet<int>& idxs, const TypeSet<float>& relpos,
-		const TypeSet<int>& szs, float& sumval, float& sumwt ) const
-{
-    const int nrdims = sds_.size();
-    float distsq = 0;
-    bool isoutside = false;
-    for ( int idim=0; idim<nrdims; idim++ )
-    {
-	const int idx = idxs[idim];
-	if ( idx < 0 || idx >= szs[idim] )
-	    isoutside = true;
-	float dist = relpos[idim];
-	if ( idxs0[idim] != idx ) dist = 1 - dist;
-	distsq += dist * dist;
-    }
-
-    const float dist = sqrt( distsq );
-    const float wt = dist ? 1 / dist : 10000; // dist can't be 0, but still
-    sumwt += wt;
-    const float val = isoutside ? 0 : bins_.getND( idxs.arr() );
-    sumval += wt * val;
+    const float res = Interpolate::linearRegND( nrdims, hcvals, relpos.arr() );
+    delete [] hcvals;
+    return res;
 }
 
 
