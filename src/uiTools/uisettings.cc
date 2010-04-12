@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisettings.cc,v 1.36 2009-12-08 13:00:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uisettings.cc,v 1.37 2010-04-12 08:45:18 cvsbert Exp $";
 
 #include "uisettings.h"
 
@@ -29,7 +29,10 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	, setts_(issurvdefs_ ? SI().getPars() : Settings::fetch(settskey))
 {
     if ( issurvdefs_ )
+    {
 	setTitleText( "Set Survey default value" );
+	setHelpID( "0.2.8" );
+    }
     keyfld_ = new uiGenInput( this, "Settings keyword", StringInpSpec() );
     uiButton* pb = new uiPushButton( this, "&Select existing",
 	    			     mCB(this,uiSettings,selPush), false );
