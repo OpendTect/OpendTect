@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.24 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.25 2010-04-12 13:29:19 cvshelene Exp $";
 
 
 #include "uiscalingattrib.h"
@@ -37,6 +37,7 @@ static const char* statstypestr[] =
     "Mean",
     "Max",
     "User-defined",
+    "Detrend",
     0
 };
 

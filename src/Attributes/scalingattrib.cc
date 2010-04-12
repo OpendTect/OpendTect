@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.32 2010-04-09 08:20:28 cvsbert Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.33 2010-04-12 13:29:19 cvshelene Exp $";
 
 #include "scalingattrib.h"
 
@@ -22,10 +22,11 @@ static const char* rcsID = "$Id: scalingattrib.cc,v 1.32 2010-04-09 08:20:28 cvs
 #include "survinfo.h"
 #include <math.h>
 
-#define mStatsTypeRMS	0
-#define mStatsTypeMean	1
-#define mStatsTypeMax 	2
-#define mStatsTypeUser 	3
+#define mStatsTypeRMS		0
+#define mStatsTypeMean		1
+#define mStatsTypeMax 		2
+#define mStatsTypeUser 		3
+#define mStatsTypeDetrend 	4
 
 #define mScalingTypeZPower   0
 #define mScalingTypeWindow   1
@@ -81,6 +82,7 @@ void Scaling::initClass()
     statstype->addEnum( statsTypeNamesStr(mStatsTypeMean) );
     statstype->addEnum( statsTypeNamesStr(mStatsTypeMax) );
     statstype->addEnum( statsTypeNamesStr(mStatsTypeUser) );
+    statstype->addEnum( statsTypeNamesStr(mStatsTypeDetrend) );
     statstype->setDefaultValue( mStatsTypeRMS );
     desc->addParam( statstype );
 
@@ -142,7 +144,8 @@ const char* Scaling::statsTypeNamesStr( int type )
     if ( type==mStatsTypeRMS ) return "RMS";
     if ( type==mStatsTypeMean ) return "Mean";
     if ( type==mStatsTypeMax ) return "Max";
-    return "User-defined";
+    if ( type==mStatsTypeUser ) return "User-defined";
+    return "Detrend";
 }
 
 
@@ -190,7 +193,7 @@ Scaling::Scaling( Desc& desc_ )
 
 bool Scaling::allowParallelComputation() const
 {
-    return scalingtype_ != mScalingTypeAGC;
+    return scalingtype_ != mScalingTypeAGC && statstype_ != mStatsTypeDetrend;
 }
 
 
@@ -239,6 +242,48 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 }
     
 
+void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
+				  int z0 )
+{
+    trends_.erase();
+    Stats::Type statstype = Stats::Sum;
+    Stats::RunCalc<float> stats( Stats::RunCalcSetup().require(statstype) );
+    Stats::RunCalc<float> statsidx( Stats::RunCalcSetup().require(statstype) );
+
+    for ( int sgidx=0; sgidx<gates_.size(); sgidx++ )
+    {
+	const Interval<int>& sg = sgates[sgidx];
+	if ( !sg.start && !sg.stop )
+	{
+	    trends_ += Trend(1,0);
+	    continue;
+	}
+
+	float crosssum = 0;
+	int nrindexes = 0;
+	for ( int idx=sg.start; idx<=sg.stop; idx++ )
+	{
+	    float val = getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
+	    stats += val;
+	    statsidx += idx;
+	    crosssum += val*idx;
+	    nrindexes++;
+	}
+
+	const float sumvalues = (float)stats.getValue( Stats::Sum );
+	const float sumidx = (float)statsidx.getValue( Stats::Sum );
+	const float sumsqidx = (float)statsidx.getValue( Stats::SqSum );
+	const float aval = ( nrindexes * crosssum - sumvalues * sumidx ) / 
+	    		   ( nrindexes * sumsqidx - sumidx * sumidx );
+	const float bval = ( sumvalues * sumsqidx - sumidx * crosssum ) /
+	    		   ( nrindexes * sumsqidx - sumidx * sumidx );
+	trends_ += Trend( aval, bval );
+	stats.clear();
+	statsidx.clear();
+    }
+}
+    
+
 bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 			   int z0, int nrsamples, int threadid ) const
 {
@@ -258,8 +303,14 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
     getSampleGates( gates_, samplegates, z0, nrsamples );
 
     TypeSet<float> scalefactors;
-    if ( statstype_ != mStatsTypeUser )
+    if ( statstype_ != mStatsTypeUser && statstype_ != mStatsTypeDetrend )
 	getScaleFactorsFromStats( samplegates, scalefactors, z0 );
+    else if ( statstype_ == mStatsTypeDetrend )
+    {
+	const_cast<Scaling*>(this)->getTrendsFromStats( samplegates, z0 );
+	for ( int trendidx=0; trendidx<trends_.size(); trendidx++ )
+	    scalefactors += 1;
+    }
     else
 	scalefactors = factors_;
 
@@ -273,9 +324,12 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    if ( !found && samplegates[sgidx].includes(csamp) )
 	    {
+		if ( statstype_ == mStatsTypeDetrend )
+		    scalefactors[sgidx] = trends_[sgidx].valueAtX( csamp );
 		if ( sgidx+1 < samplegates.size() && 
 		     samplegates[sgidx+1].includes(csamp) )
 		{
+		    scalefactors[sgidx+1] = trends_[sgidx+1].valueAtX( csamp );
 		    scalefactor = interpolator( scalefactors[sgidx], 
 			    			scalefactors[sgidx+1],
 						samplegates[sgidx+1].start,
@@ -289,7 +343,13 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-	setOutputValue( output, 0, idx, z0, trcval*scalefactor );
+	const float outval = mIsUdf(trcval)
+	    			? trcval
+			        : statstype_ == mStatsTypeDetrend
+					? trcval - scalefactor
+					: trcval * scalefactor;
+
+	setOutputValue( output, 0, idx, z0, outval );
     }
 
     return true;

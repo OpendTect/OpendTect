@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.18 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: scalingattrib.h,v 1.19 2010-04-12 13:29:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,8 @@ protected:
     void		getScaleFactorsFromStats(
 	    			const TypeSet<Interval<int> >& gates,
 				TypeSet<float>& factors,int) const;
+    void		getTrendsFromStats(
+	    			const TypeSet<Interval<int> >& gates,int);
     const Interval<int>* desZSampMargin( int inp, int ) const;
 
     int			scalingtype_;
@@ -84,6 +86,24 @@ protected:
     float		width_;
     Interval<float>     window_;
     float          	mutefraction_;
+
+    //for trend removal ( trend of aX+b type )
+    struct Trend
+    {
+			Trend( float a, float b )
+			    : a_( a )
+			    , b_( b )			{};
+
+	float		valueAtX( float x ) const	{ return a_ * x + b_; }
+	bool		operator==( Trend t ) const
+							{ return t.a_==a_
+							      && t.b_==b_; }
+
+	float		a_;
+	float		b_;
+    };
+
+    TypeSet<Trend>	trends_;
 };
 
 }; // namespace Attrib
