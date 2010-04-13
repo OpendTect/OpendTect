@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.h,v 1.2 2010-04-07 09:24:09 cvsnageswara Exp $
+ RCS:           $Id: uigmtfaults.h,v 1.3 2010-04-13 08:31:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,7 @@ protected:
     static int                  factoryid_;
 
     void			typeChgCB(CallBacker*);
-    void			loadFault(CallBacker*);
-    bool			loadSurface(CallBacker*);
+    void			faultSel(CallBacker*);
 
 
     uiIOObjSel*			faultfld_;
