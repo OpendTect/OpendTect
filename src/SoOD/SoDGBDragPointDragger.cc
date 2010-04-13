@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.6 2010-04-13 07:28:03 cvsbert Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.7 2010-04-13 12:25:35 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
@@ -340,8 +340,8 @@ void SoDGBDragPointDragger::dragStart()
     const float angletox = fabs( localprojdir[0] );
     const float angletoy = fabs( localprojdir[1] );
     const float angletoz = fabs( localprojdir[2] );
-    const float upperlimit = 0.8;
-    const float lowerlimit = 0.2;
+    const float upperlimit = 0.7;
+    const float lowerlimit = 0.3;
     
     // When the cylinder is lying flat (almost along the Z axis), restrict 
     // picking the cylinder. User probably wants to move just the rectangle 
@@ -352,14 +352,10 @@ void SoDGBDragPointDragger::dragStart()
     // by mistake.
 
     // to do: check the conditions
-    if ( ( angletox <= lowerlimit ) &&
-	 ( angletoy >= upperlimit ) &&
-	 ( angletoz <= lowerlimit ) )
-	     movecyl_ = false;
-    else if ( ( angletox >= upperlimit ) &&
-	      ( angletoy >= upperlimit ) &&
-	      ( angletoz <= lowerlimit ) )
-	    movecyl_ = true;
+    if ( ( angletox <= lowerlimit ) && ( angletoy >= upperlimit ) )
+        movecyl_ = false;
+    else if ( angletoy <= lowerlimit )
+	movecyl_ = true;
     else
     {
         // Let the user drag as desired. Find which object the user has picked.
