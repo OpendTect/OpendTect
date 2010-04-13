@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.37 2010-04-12 11:23:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.38 2010-04-13 12:55:16 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -93,11 +93,10 @@ uiWellLogDisplay::MarkerItem::~MarkerItem()
 
 
 
-
 uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     : uiGraphicsView(p,"Well Log display viewer")
     , setup_(su)
-    , highlightedmrkitem_(0)	     
+    , highlightedmrk_(0)	     
     , highlightedMarkerItemChged(this)			     
     , ld1_(scene(),true,LineData::Setup()
 	    				.noxaxisline(su.noxaxisline_)
@@ -497,7 +496,7 @@ uiWellLogDisplay::MarkerItem* uiWellLogDisplay::getMarkerItem(
 {
     for ( int idx=0; idx<markeritms_.size(); idx++ )
     {
-	if ( &markeritms_[idx]->mrk_ == mrk )
+	if ( markeritms_[idx]->mrk_ == mrk )
 	    return markeritms_[idx];
     }
     return 0;
@@ -506,21 +505,23 @@ uiWellLogDisplay::MarkerItem* uiWellLogDisplay::getMarkerItem(
 
 void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 {
-    if ( highlightedmrkitem_ && highlightedmrkitem_->itm_ )
-	highlightedmrkitem_->itm_->setPenStyle(
-				LineStyle(setup_.markerls_.type_,
-		       		setup_.markerls_.width_, 
-				highlightedmrkitem_->color_) );
-
+    if ( highlightedmrk_ )
+    {
+	uiWellLogDisplay::MarkerItem* mitm = getMarkerItem( highlightedmrk_ );
+	if ( mitm ) 
+	    mitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
+				     setup_.markerls_.width_, 
+				     mitm->color_) );
+    }
     MarkerItem* mrkitm = mrk ? getMarkerItem( mrk ) : 0;
     if ( mrkitm )
     {
-	mrkitm->itm_->setPenStyle( 
-				LineStyle(setup_.markerls_.type_,
-				setup_.markerls_.width_+1, 
-				mrkitm->color_) );
+	mrkitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
+				    setup_.markerls_.width_+1, 
+				    mrkitm->color_) );
+	mrkitm->itm_->setCursor( MouseCursor::SizeVer );
     }
-    highlightedmrkitem_ = mrkitm;
+    highlightedmrk_ = mrk;
     highlightedMarkerItemChged.trigger();
 }
 
@@ -586,6 +587,7 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
     : uiGroup(su.parent_,"")
     , stratdisp_(orgdisp.stratDisp())
     , pms_(orgdisp.params())				     
+    , mrkedit_(orgdisp.markerEdit())
 {
     setNoBackGround();
 
@@ -605,6 +607,7 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
     {
 	addLogPanel( true, false );
 	logdisps_[idx]->setPrefWidth( mLogWidth );
+	if ( mrkedit_ ) mrkedit_->addLogDisplay( *logdisps_[idx] );
     }
    
     if ( su.withstrat_ ) 
@@ -665,13 +668,17 @@ void uiWellDisplay::setStratDisp()
     if ( stratdisp_ )
 	stratdisp_->reParent(this);
     else
+    {
 	stratdisp_ = new uiWellStratDisplay(this,true,pms_.wd_.markers());
+	pms_.wd_.markerschanged.notify( 
+		mCB(stratdisp_,uiWellStratDisplay,doDataChange) );
+    }
 
     stratdisp_->setPrefWidth( mLogWidth );
     stratdisp_->setPrefHeight( mLogHeight );
     stratdisp_->setD2TModel( pms_.d2tm_ );
     stratdisp_->setZIsTime( pms_.zistime_ );
-    stratdisp_->dataChanged();
+    stratdisp_->doDataChange(0);
     if ( nrLogDisp() )
 	stratdisp_->attach( ensureRightOf, logdisps_[nrLogDisp()-1] );
 }

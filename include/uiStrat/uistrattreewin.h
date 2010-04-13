@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.25 2009-09-01 07:56:42 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.26 2010-04-13 12:55:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ public:
 
     void		popUp() const;
     virtual bool		closeOK();
+    
+    const uiStratMgr&	man() const	{ return uistratmgr_; }
 
     mutable Notifier<uiStratTreeWin>	levelCreated;
     mutable Notifier<uiStratTreeWin>	levelChanged;
@@ -62,6 +64,7 @@ protected: \
 
 protected:
 
+    uiStratMgr&			uistratmgr_;
     uiStratRefTree*		uitree_;
     uiListBox*			lvllistfld_;
     uiStratLinkLvlUnitDlg*	linkunlvldlg_;
@@ -78,6 +81,8 @@ protected:
     uiToolButton*		savebut_;
     uiToolButton*		moveunitupbut_;
     uiToolButton*		moveunitdownbut_;
+    bool			needsave_;
+    bool			needcloseok_;
 
     void			createMenu();
     void			createToolBar();
@@ -102,12 +107,6 @@ protected:
     void			moveUnitCB(CallBacker*);
     void			forceCloseCB(CallBacker*);
     void			helpCB(CallBacker*);
-
-
-    uiStratMgr*			uistratmgr_;
-
-    bool			needsave_;
-    bool			needcloseok_;
 
 private:
 

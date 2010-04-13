@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.3 2010-03-30 12:04:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.4 2010-04-13 12:55:16 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.3 2010-03-30 12:04:01 cvs
 
 uiStratDisplay::uiStratDisplay( uiParent* p )
     : uiGraphicsView(p,"Vertical Stratigraphy viewer")
-    , data_(StratDisp()) 
+    , data_(uiStratDisp()) 
     , zax_(&scene(),uiAxisHandler::Setup(uiRect::Left))	      
     , menu_(*new uiMenuHandler(p,-1))
     , addunitmnuitem_("Add Unit...",0)
@@ -48,6 +48,8 @@ uiStratDisplay::uiStratDisplay( uiParent* p )
     menu_.createnotifier.notify(mCB(this,uiStratDisplay,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiStratDisplay,handleMenuCB));
     
+    data_.dataChanged.notify( mCB(this,uiStratDisplay,doDataChange) );
+
     finaliseDone.notify( mCB(this,uiStratDisplay,init) );
 }
 
@@ -67,6 +69,12 @@ int uiStratDisplay::nrSubUnits()
 void uiStratDisplay::gatherInfo()
 {
     data_.gatherInfo();
+}
+
+
+void uiStratDisplay::doDataChange( CallBacker* )
+{
+    dataChanged();
 }
 
 
@@ -111,7 +119,7 @@ void uiStratDisplay::drawLevels()
     mRemoveSet( lvlitms_ );
     for ( int idx=0; idx<nrLevels(); idx++ )
     {
-	StratDisp::Level& lvl = *getLevel( idx );
+	uiStratDisp::Level& lvl = *getLevel( idx );
 
 	int x1 = lvl.order_*width();
 	int x2 = x1 + width();
@@ -132,7 +140,7 @@ void uiStratDisplay::drawUnits()
 
     for ( int idx=0; idx<nrUnits(); idx++ )
     {
-	StratDisp::Unit& unit = *getUnit( idx );
+	uiStratDisp::Unit& unit = *getUnit( idx );
 	
 	int x1 = unit.order_*subwidthfactor;
 	int x2 = x1 + subwidthfactor;
@@ -217,12 +225,12 @@ public :
 	const char* nm = namefld_->text();
 	float topdpt = topdepthfld_->getfValue();
 	float botdpt = botdepthfld_->getfValue();
-	unit_ = new StratDisp::Unit( nm, topdpt, botdpt );
+	unit_ = new uiStratDisp::Unit( nm, topdpt, botdpt );
 	unit_->col_ =  colorfld_->color();
 	return true;
     }
 
-    StratDisp::Unit* unit() { return unit_; }
+    uiStratDisp::Unit* unit() { return unit_; }
 
 protected :
 
@@ -230,7 +238,7 @@ protected :
     uiGenInput*         topdepthfld_;
     uiGenInput*         botdepthfld_;
     uiColorInput*       colorfld_;
-    StratDisp::Unit* 	unit_;
+    uiStratDisp::Unit* 	unit_;
 };
 
 
@@ -248,7 +256,7 @@ void uiStratDisplay::handleMenuCB( CallBacker* cb )
 		(float)getMouseEventHandler().event().pos().y );
 	if ( dlg.go() )
 	{
-	    StratDisp::Unit* unit = dlg.unit();
+	    uiStratDisp::Unit* unit = dlg.unit();
 	    if ( unit ) data_.units_ += unit;
 	}
 	draw();

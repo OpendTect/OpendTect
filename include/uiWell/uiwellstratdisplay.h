@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uiwellstratdisplay.h,v 1.3 2010-03-30 12:09:17 cvsbruno Exp $
+ RCS:           $Id: uiwellstratdisplay.h,v 1.4 2010-04-13 12:55:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ protected:
     const ObjectSet<Well::Marker>& markers_;
 
     void			gatherInfo();
-    void 			setUnitPos(StratDisp::Unit&);
+    void 			setUnitPos(uiStratDisp::Unit&);
 };
 
 #endif

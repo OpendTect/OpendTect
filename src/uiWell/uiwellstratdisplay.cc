@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.4 2010-03-30 12:09:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.5 2010-04-13 12:55:16 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -31,6 +31,7 @@ uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
     }
 }
 
+
 void uiWellStratDisplay::gatherInfo()
 {
     data_.gatherInfo();
@@ -42,7 +43,7 @@ void uiWellStratDisplay::gatherInfo()
 }
 
 
-void uiWellStratDisplay::setUnitPos( StratDisp::Unit& unit )  
+void uiWellStratDisplay::setUnitPos( uiStratDisp::Unit& unit )  
 {
     float& toppos = unit.zpos_; 
     float& botpos = unit.zposbot_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.5 2010-04-06 10:06:40 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.6 2010-04-13 12:55:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "uiaxishandler.h"
 #include "menuhandler.h"
-#include "stratdisp.h"
+#include "uistratdispdata.h"
 
 class uiMenuHandler;
 class uiParent;
@@ -30,17 +30,17 @@ public:
 
     void			setZRange( StepInterval<float> rg ) 
     				{ zax_.setBounds(rg); draw(); }
-    void			dataChanged();
+    virtual void		doDataChange(CallBacker*);
     int				nrUnits() const { return data_.units_.size(); }
     int				nrLevels() const { return data_.levels_.size();}
-    StratDisp::Level* 		getLevel(int idx) { return data_.levels_[idx]; }
-    StratDisp::Unit* 		getUnit(int idx) { return data_.units_[idx]; }
-    const StratDisp::Level* 	getLevel(int i) const {return data_.levels_[i];}
-    const StratDisp::Unit* 	getUnit(int i) const { return data_.units_[i]; }
+    uiStratDisp::Level* 	getLevel(int idx) { return data_.levels_[idx]; }
+    uiStratDisp::Unit* 		getUnit(int idx) { return data_.units_[idx]; }
+    const uiStratDisp::Level* 	getLevel(int i) const {return data_.levels_[i];}
+    const uiStratDisp::Unit* 	getUnit(int i) const { return data_.units_[i]; }
 
 protected:
   
-    StratDisp			data_;
+    uiStratDisp			data_;
 
     ObjectSet<uiTextItem>	txtitms_;
     ObjectSet<uiLineItem>	lvlitms_;
@@ -52,6 +52,7 @@ protected:
     MenuItem            	addunitmnuitem_;
     MenuItem            	remunitmnuitem_;
 
+    void			dataChanged();
     void			draw();
     void			drawUnits();
     void			drawLevels();

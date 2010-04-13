@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.4 2010-04-12 11:23:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.5 2010-04-13 12:55:16 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -84,9 +84,6 @@ uiWellDisplayMarkerEdit::uiWellDisplayMarkerEdit( uiWellLogDisplay& disp, Well::
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiWellDisplayMarkerEdit,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiWellDisplayMarkerEdit,handleMenuCB));
-    
-    wd_.markerschanged.notify( 
-	     	mCB(this,uiWellDisplayMarkerEdit,resetMarkerCursors) );
 }
 
 
@@ -100,26 +97,10 @@ void uiWellDisplayMarkerEdit::addLogDisplay( uiWellLogDisplay& ld )
 {
     logdisps_ += &ld;
     MouseEventHandler& meh = ld.getMouseEventHandler();
-    meh.buttonReleased.notify( mCB(this,uiWellDisplayMarkerEdit,mouseRelease) );
+    meh.buttonReleased.notify(mCB(this,uiWellDisplayMarkerEdit,mouseRelease) );
     meh.buttonReleased.notify( mCB(this,uiWellDisplayMarkerEdit,usrClickCB) );
     meh.buttonPressed.notify( mCB(this,uiWellDisplayMarkerEdit,mousePressed) );
     meh.movement.notify( mCB(this,uiWellDisplayMarkerEdit,mouseMoved) );
-}
-
-
-void uiWellDisplayMarkerEdit::resetMarkerCursors( CallBacker* )
-{
-    for ( int idx=0; idx<logdisps_.size(); idx++ )
-    {
-	uiWellLogDisplay* ld = logdisps_[idx];
-	if ( !ld ) continue;
-	for ( int idmrk=0; idmrk<ld->markerItems().size(); idmrk++ )
-	{
-	    uiWellLogDisplay::MarkerItem* mrkitm = ld->markerItems()[idmrk];
-	    if ( mrkitm && mrkitm->itm_ )
-		 mrkitm->itm_->setCursor( MouseCursor::SizeVer );
-	}
-    }
 }
 
 
@@ -133,8 +114,8 @@ void uiWellDisplayMarkerEdit::mousePressed( CallBacker* cb )
 
 void uiWellDisplayMarkerEdit::mouseMoved( CallBacker* cb )
 {
-    //if ( mousepressed_ && selmarker_ )
-//	changeMarkerPos( selmarker_ );
+    if ( mousepressed_ && selmarker_ )
+	changeMarkerPos( selmarker_ );
     
     curmarker_ = selectMarker( cb, true );
     if ( curmarker_ != lastmarker_ )  
@@ -320,7 +301,7 @@ Well::Marker* uiWellDisplayMarkerEdit::selectMarker( CallBacker* cb, bool allowr
 
 #define mSetZVal(val)\
     if ( logdisps_[0]->data().zistime_ && wd_.haveD2TModel() )\
-	val = wd_.d2TModel()->getDepth( val )/1000;
+	val = wd_.d2TModel()->getDepth( val/1000 );
 void uiWellDisplayMarkerEdit::changeMarkerPos( Well::Marker* mrk )
 {
     if ( selmarker_ )

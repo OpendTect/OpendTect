@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.37 2009-09-01 07:56:42 cvshelene Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.38 2010-04-13 12:55:16 cvsbruno Exp $";
 
 #include "uistrattreewin.h"
 
@@ -51,10 +51,11 @@ const uiStratTreeWin& StratTWin()
 
 #define mAskStratMgrNotif(nm) \
     CallBack nm##cb = mCB( this,uiStratTreeWin,nm##CB );\
-    uistratmgr_->nm.notify( nm##cb );
+    uistratmgr_.nm.notify( nm##cb );
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true)
+    , uistratmgr_(*new uiStratMgr(this))
     , levelCreated(this)
     , levelChanged(this)
     , levelRemoved(this)
@@ -69,7 +70,6 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , needsave_(false)
     , needcloseok_(true)
 {
-    uistratmgr_ = new uiStratMgr( this );
     IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,forceCloseCB ) );
     mAskStratMgrNotif(unitCreated)
     mAskStratMgrNotif(unitChanged)
@@ -166,7 +166,7 @@ void uiStratTreeWin::createGroups()
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
     rightgrp->setStretch( 1, 1 );
     
-    uitree_ = new uiStratRefTree( leftgrp, uistratmgr_ );
+    uitree_ = new uiStratRefTree( leftgrp, &uistratmgr_ );
     CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
     uitree_->listView()->selectionChanged.notify( selcb );
@@ -235,16 +235,16 @@ void uiStratTreeWin::editCB( CallBacker* )
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
     lockbut_->setOn( !doedit );
     if ( doedit )
-	uistratmgr_->createTmpTree( false );
+	uistratmgr_.createTmpTree( false );
 }
 
 
 void uiStratTreeWin::resetCB( CallBacker* )
 {
-    const Strat::RefTree* bcktree = uistratmgr_->getBackupTree();
+    const Strat::RefTree* bcktree = uistratmgr_.getBackupTree();
     if ( !bcktree ) return;
     bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt(true) );
-    uistratmgr_->reset( iseditmode );
+    uistratmgr_.reset( iseditmode );
     uitree_->setTree( bcktree, true );
     uitree_->expand( true );
 }
@@ -252,14 +252,14 @@ void uiStratTreeWin::resetCB( CallBacker* )
 
 void uiStratTreeWin::saveCB( CallBacker* )
 {
-    uistratmgr_->save();
+    uistratmgr_.save();
     needsave_ = false;
 }
 
 
 void uiStratTreeWin::saveAsCB( CallBacker* )
 {
-    uistratmgr_->saveAs();
+    uistratmgr_.saveAs();
     needsave_ = false;
 }
 
@@ -294,7 +294,7 @@ void uiStratTreeWin::rClickLvlCB( CallBacker* )
 	editLevel( mnuid ? false : true );
     else
     {
-	uistratmgr_->removeLevel( lvllistfld_->getText() );
+	uistratmgr_.removeLevel( lvllistfld_->getText() );
 	lvllistfld_->removeItem( lvllistfld_->currentItem() );
 	uitree_->updateLvlsPixmaps();
 	uitree_->listView()->triggerUpdate();
@@ -311,7 +311,7 @@ void uiStratTreeWin::fillLvlList()
     lvllistfld_->empty();
     BufferStringSet lvlnms;
     TypeSet<Color> lvlcolors;
-    uistratmgr_->getLvlsTxtAndCol( lvlnms, lvlcolors );
+    uistratmgr_.getLvlsTxtAndCol( lvlnms, lvlcolors );
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	lvllistfld_->addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
     
@@ -322,7 +322,7 @@ void uiStratTreeWin::fillLvlList()
 
 void uiStratTreeWin::editLevel( bool create )
 {
-    uiStratLevelDlg newlvldlg( this, uistratmgr_ );
+    uiStratLevelDlg newlvldlg( this, &uistratmgr_ );
     if ( !create )
 	newlvldlg.setLvlInfo( lvllistfld_->getText() );
     if ( newlvldlg.go() )
@@ -344,7 +344,7 @@ void uiStratTreeWin::updateLvlList( bool create )
     Color lvlcol;
     int lvlidx = create ? lvllistfld_->size()
 			: lvllistfld_->currentItem();
-    uistratmgr_->getLvlTxtAndCol( lvlidx, lvlnm, lvlcol );
+    uistratmgr_.getLvlTxtAndCol( lvlidx, lvlnm, lvlcol );
     if ( create )
 	lvllistfld_->addItem( lvlnm, lvlcol );
     else
@@ -366,16 +366,16 @@ bool uiStratTreeWin::closeOK()
 {
     if ( !needcloseok_ )
 	return true;
-    if ( needsave_ || uistratmgr_->needSave() )
+    if ( needsave_ || uistratmgr_.needSave() )
     {
 	int res = uiMSG().askSave( 
 			"Do you want to save this stratigraphic framework?" );
 	if ( res == 1 )
-	    uistratmgr_->save();
+	    uistratmgr_.save();
 	else if ( res == 0 )
 	{
 	    resetCB( 0 );
-	    uistratmgr_->createTmpTree( true );
+	    uistratmgr_.createTmpTree( true );
 	    return true;
 	}
 	else if ( res == -1 )

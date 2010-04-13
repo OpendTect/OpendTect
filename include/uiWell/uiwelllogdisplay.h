@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.29 2010-04-12 11:23:14 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.30 2010-04-13 12:55:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,7 +166,7 @@ public:
     Notifier<uiWellLogDisplay>  highlightedMarkerItemChged;
     void 			highlightMarkerItem(const Well::Marker*);
     MarkerItem* 		getMarkerItem(const Well::Marker*);
-    MarkerItem*			highlightedmrkitem_;
+    const Well::Marker*		highlightedmrk_;
     ObjectSet<MarkerItem>&   	markerItems() { return  markeritms_; } 
     void			reDrawMarkers(CallBacker*);
 
@@ -294,6 +294,7 @@ public:
     uiWellStratDisplay*		stratDisp() 		{ return stratdisp_; }
     const uiWellStratDisplay*	stratDisp() const  	{ return stratdisp_; }
     bool			hasStratDisp() const	{ return stratdisp_; }
+    uiWellDisplayMarkerEdit*	markerEdit() 		{ return mrkedit_; }
     
     Well::Data&			wellData() 		{ return pms_.wd_; }
     const Well::Data&		wellData() const 	{ return pms_.wd_; }
