@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.32 2010-04-13 07:40:35 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.33 2010-04-13 08:31:49 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -372,7 +372,7 @@ bool doExp( const FilePath& fp )
 
 bool uiSEGYExp::acceptOK( CallBacker* )
 {
-    const IOObj* inioobj = seissel_->ioobj();
+    const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )
 	{ uiMSG().error( "Please select the data to export" ); return false; }
     const SEGY::FileSpec sfs( fsfld_->getSpec() );

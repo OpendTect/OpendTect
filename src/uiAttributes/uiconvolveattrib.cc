@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.19 2009-07-31 06:12:28 cvsraman Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.20 2010-04-13 08:31:49 cvsbert Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -172,7 +172,7 @@ bool uiConvolveAttrib::getParameters( Desc& desc )
 	mSetInt( Convolve::sizeStr(), szfld_->box()->getValue() );
     }
     else if ( typeval == 3 )
-	if ( waveletfld_->ioobj() )
+	if ( waveletfld_->ioobj(true) )
 	    mSetString( Convolve::waveletStr(), waveletfld_->key().buf() );
 
     return true;

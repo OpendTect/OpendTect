@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.15 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.16 2010-04-13 08:31:49 cvsbert Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -107,8 +107,7 @@ void uiIsopachMaker::toHorSel( CallBacker* )
 bool uiIsopachMaker::acceptOK( CallBacker* )
 {
     horsel_->commitInput();
-    if ( !horsel_->ioobj() )
-	mErrRet("Please provide the isopach horizon")
+    if ( !horsel_->ioobj() ) return false;
 
     attrnm_ =  attrnmfld_->text();
     if ( attrnm_.isEmpty() || attrnm_ == "<auto>" )
@@ -236,29 +235,26 @@ int finishWork()
 
 bool uiIsopachMaker::doWork()
 {
-    if ( saveattr_ && !basesel_->commitInput() )
-	mErrRet("Please select base horizon" )
+    if ( !horsel_->ioobj() || (saveattr_ && !basesel_->ioobj()) )
+	return false;
 
-    if ( !horsel_->commitInput() )
-	mErrRet("Please select the horizon")
     uiTaskRunner tr( this );
-    
-    if ( !baseemobj_ )
+    if ( baseemobj_ )
+	baseemobj_->ref();
+    else
     {
 	baseemobj_ = EM::EMM().loadIfNotFullyLoaded( basesel_->ioobj()->key(),
 						     &tr );
 	baseemobj_->ref();
     }
-    else baseemobj_->ref();
 
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(
-	    horsel_->ioobj()->key(), &tr );
+					horsel_->ioobj()->key(), &tr );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
 	mErrRet("Cannot load selected horizon")
     h2->ref();
     
-    //emobj = EM::EMM().getObject( horid_ );
     mDynamicCastGet(EM::Horizon3D*,h1,baseemobj_)
     if ( !h1 )
 	{ h2->unRef(); mErrRet("Cannot find base horizon") }

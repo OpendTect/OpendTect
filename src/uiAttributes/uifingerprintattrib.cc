@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.64 2010-02-09 11:10:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.65 2010-04-13 08:31:49 cvsbert Exp $";
 
 -*/
 
@@ -378,7 +378,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     else if ( refgrpval == 2 )
     {
 	mSetInt( FingerPrint::statstypeStr(), statsfld_->getIntValue() );
-	if ( picksetfld_->ioobj() )
+	if ( picksetfld_->ioobj(true) )
 	    mSetString( FingerPrint::valpicksetStr(), 
 			picksetfld_->key() )
     }
@@ -551,7 +551,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
     {
 	ObjectSet<BinIDValueSet> values;
 	picksetfld_->processInput();
-	const IOObj* ioobj = picksetfld_->ioobj();
+	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
 	    errmsg = "Please choose the pickset from which\n";
@@ -734,7 +734,7 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
     if ( refgrpval == 1 )
     {
 	picksetfld_->processInput();
-	const IOObj* ioobj = picksetfld_->ioobj();
+	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
 	    errmsg_ = "Please choose the pickset from which\n";
@@ -774,7 +774,7 @@ bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
 
     if ( refgrpval == 1 )
     {
-	if ( picksetfld_->ioobj() )
+	if ( picksetfld_->ioobj(true) )
 	    calcobj_.setRgRefPick( picksetfld_->key() );
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.63 2010-03-26 05:39:55 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.64 2010-04-13 08:31:49 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -503,7 +503,7 @@ bool uiSeisCopyLineSet::acceptOK( CallBacker* )
 	par.set( sKey::Scale, scaler->toString() );
 
     par.set( IOPar::compKey(sKey::Output,sKey::Attribute), outpfld_->attrNm() );
-    Seis2DCopier exec( inpfld_->getIOObj(), outpfld_->ioobj(), par );
+    Seis2DCopier exec( inpfld_->getIOObj(), outpfld_->ioobj(true), par );
     uiTaskRunner dlg( this );
 
     return dlg.execute( exec );

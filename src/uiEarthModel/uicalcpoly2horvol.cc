@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.8 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uicalcpoly2horvol.cc,v 1.9 2010-04-13 08:31:49 cvsbert Exp $";
 
 #include "uicalcpoly2horvol.h"
 #include "poly2horvol.h"
@@ -140,19 +140,16 @@ void uiCalcPolyHorVol::horSel( CallBacker* cb )
 
     horsel_->commitInput();
     const IOObj* ioobj = horsel_->ioobj();
-    if ( !ioobj )
-	uiMSG().error( "Please provide the horizon to calculate to" );
-    else
+    if ( !ioobj ) return;
+
+    uiTaskRunner tr( this );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
+							  &tr );
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    if ( hor )
     {
-	uiTaskRunner tr( this );
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
-							      &tr );
-	mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-	if ( hor )
-	{
-	    hor->ref();
-	    hor_ = hor;
-	}
+	hor->ref();
+	hor_ = hor;
     }
 
     haveChg( cb );
@@ -198,16 +195,13 @@ void uiCalcHorPolyVol::psSel( CallBacker* cb )
     ps_ = 0;
 
     const IOObj* ioobj = pssel_->ioobj();
-    if ( !ioobj )
-	uiMSG().error( "Please provide the polygon" );
-    else
+    if ( !ioobj ) return;
+
+    ps_ = new Pick::Set; BufferString msg; 
+    if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,msg) )
     {
-	ps_ = new Pick::Set; BufferString msg; 
-	if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,msg) )
-	{
-	    uiMSG().error( msg );
-	    delete ps_; ps_ = 0;
-	}
+	uiMSG().error( msg );
+	delete ps_; ps_ = 0;
     }
 
     haveChg( cb );

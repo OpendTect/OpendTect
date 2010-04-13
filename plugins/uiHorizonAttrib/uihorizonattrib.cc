@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.19 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.20 2010-04-13 08:31:49 cvsbert Exp $";
 
 #include "uihorizonattrib.h"
 #include "horizonattrib.h"
@@ -107,7 +107,7 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 	return false;
 
     mSetString( Horizon::sKeyHorID(),
-	        horfld_->ioobj() ? horfld_->ioobj()->key().buf() : "" );
+	        horfld_->ioobj(true) ? horfld_->ioobj()->key().buf() : "" );
     const int typ = typefld_->getIntValue();
     mSetEnum( Horizon::sKeyType(), typ );
     if ( typ==0 )
@@ -138,11 +138,7 @@ bool uiHorizonAttrib::getInput( Desc& desc )
 
 void uiHorizonAttrib::horSel( CallBacker* )
 {
-    if ( !horfld_->ioobj() )
-    {
-	uiMSG().error( "No valid horizon selected" );
-	return;
-    }
+    if ( !horfld_->ioobj() ) return;
 
     EM::SurfaceIOData iodata;
     const char* err =

@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.2 2010-04-07 09:24:09 cvsnageswara Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.3 2010-04-13 08:31:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 	      : uiGMTOverlayGrp(p,"Fault")
 {
     faultfld_ = new uiIOObjSel( this, mIOObjContext(EMFault3D), "Fault" );
-    faultfld_->selectionDone.notify( mCB(this,uiGMTFaultsGrp,loadFault) );
+    faultfld_->selectionDone.notify( mCB(this,uiGMTFaultsGrp,faultSel) );
 
     namefld_ = new uiGenInput( this, "Name" );
     namefld_->attach( alignedBelow, faultfld_ );
@@ -80,15 +80,16 @@ void uiGMTFaultsGrp::typeChgCB( CallBacker* )
 }
 
 
-void uiGMTFaultsGrp::loadFault( CallBacker* )
+void uiGMTFaultsGrp::faultSel( CallBacker* )
 {
-    namefld_->setText( faultfld_->ioobj()->name() );
+    if ( faultfld_->ioobj(true) )
+	namefld_->setText( faultfld_->ioobj()->name() );
 }
 
 
 bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 {
-    if ( !faultfld_->ioobj() )
+    if ( !faultfld_->ioobj(true) )
 	return false;
 
     iop.set( ODGMT::sKeyFaultID, faultfld_->key() );

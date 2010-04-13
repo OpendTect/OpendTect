@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.45 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.46 2010-04-13 08:31:49 cvsbert Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -155,7 +155,9 @@ bool uiImpExpPickSet::doImport()
 	serv_->fillZValsFrmHor( &ps, horinpfld_->box()->currentItem() );
     }
 
-    PtrMan<IOObj> ioobj = objfld_->ioobj()->clone();
+    const IOObj* objfldioobj = objfld_->ioobj();
+    if ( !objfldioobj ) return false;
+    PtrMan<IOObj> ioobj = objfldioobj->clone();
     const bool ispolygon = polyfld_->isChecked();
     if ( ispolygon )
     {
@@ -179,9 +181,11 @@ bool uiImpExpPickSet::doImport()
 
 bool uiImpExpPickSet::doExport()
 {
-    Pick::Set ps;
-    BufferString errmsg;
-    PtrMan<IOObj> ioobj = objfld_->ioobj()->clone();
+    const IOObj* objfldioobj = objfld_->ioobj();
+    if ( !objfldioobj ) return false;
+
+    PtrMan<IOObj> ioobj = objfldioobj->clone();
+    BufferString errmsg; Pick::Set ps;
     if ( !PickSetTranslator::retrieve(ps,ioobj,true, errmsg) )
 	mErrRet(errmsg);
 
