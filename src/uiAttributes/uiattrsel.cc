@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.46 2009-11-03 04:54:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.47 2010-04-13 13:09:44 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
+#include "attribdsmanpack.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsel.h"
@@ -384,6 +385,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     attrdata_.outputnr = -1;
     zdomainkey_ = "";
     if ( !selgrp_ || !in_action_ ) return true;
+    bool wantstoreddata = false;
 
     int selidx = -1;
     const int seltyp = selType();
@@ -407,14 +409,16 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
 	if ( !ioobj ) return false;
 
+	wantstoreddata = true;
 	LineKey linekey( ioobj->key() );
-	DescSet& as = const_cast<DescSet&>( attrdata_.attrSet() );
-	attrdata_.attribid = as.getStoredID( linekey, 0, true );
+	DescSet* as = eDSMPack().getDescSet( attrdata_.attrSet().is2D(), true );
+	attrdata_.attribid = as->getStoredID( linekey, 0, true );
 	zdomainkey_ = attrdata_.zdomainkey;
 
     }
     else
     {
+	wantstoreddata = true;
 	attrdata_.compnr = compfld_->box()->currentItem();
 	if ( attrdata_.compnr< 0 ) attrdata_.compnr = 0;
 	const char* ioobjkey = attrinf_->ioobjids.get(selidx);
@@ -438,8 +442,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 		linekey.setAttrName( attrnm );
 	}
 
-	DescSet& as = const_cast<DescSet&>( attrdata_.attrSet() );
-	attrdata_.attribid = as.getStoredID( linekey, attrdata_.compnr, true );
+	DescSet* as = wantstoreddata
+	    		? eDSMPack().getDescSet(attrdata_.attrSet().is2D(),true)
+			: const_cast<DescSet*>( &attrdata_.attrSet() );
+	attrdata_.attribid = as->getStoredID( linekey, attrdata_.compnr, true );
 	if ( needattrmatch && !attrdata_.attribid.isValid() )
 	{
 	    BufferString msg( "Could not find the seismic data " );
@@ -448,6 +454,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	    uiMSG().error( msg );
 	    return false;
 	}
+	if ( wantstoreddata )
+	    attrdata_.setAttrSet( as );
     }
 
     return true;

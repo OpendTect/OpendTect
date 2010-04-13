@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.148 2010-04-09 08:57:58 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.149 2010-04-13 13:09:44 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -305,7 +305,6 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
 				       const char* zdomainid, bool is2d )
 {
-    //TODO need to look in stored set?
     const DescSetMan* adsman = DSMPack().getDescSetMan( is2d );
     uiAttrSelData attrdata( *adsman->descSet() );
     attrdata.attribid = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
@@ -319,8 +318,9 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
 
     attrdata.attribid = dlg.attribID();
     attrdata.outputnr = dlg.outputNr();
+    attrdata.setAttrSet( &dlg.getAttrSet() );
     const bool isnla = !attrdata.attribid.isValid() && attrdata.outputnr >= 0;
-    const Desc* desc = adsman->descSet()->getDesc( attrdata.attribid );
+    const Desc* desc = attrdata.attrSet().getDesc( attrdata.attribid );
     const bool isstored = desc && desc->isStored();
     BufferString objref;
     if ( isnla )
@@ -336,7 +336,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
     if ( isnla && attrdata.nlamodel )
 	selspec.setRefFromID( *attrdata.nlamodel );
     else if ( !isnla )
-	selspec.setRefFromID( *adsman->descSet() );
+	selspec.setRefFromID( attrdata.attrSet() );
     selspec.setZDomainKey( dlg.zDomainKey() );
 
     return true;
