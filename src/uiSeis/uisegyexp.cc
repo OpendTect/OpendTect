@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.31 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.32 2010-04-13 07:40:35 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -214,7 +214,7 @@ uiSEGYExp::~uiSEGYExp()
 
 void uiSEGYExp::inpSel( CallBacker* )
 {
-    const IOObj* ioobj = seissel_->ioobj();
+    const IOObj* ioobj = seissel_->ioobj(true);
     if ( ioobj )
 	transffld_->updateFrom( *ioobj );
 }
