@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.5 2010-04-12 13:25:38 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.6 2010-04-13 07:28:03 cvsbert Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
@@ -396,7 +396,7 @@ void SoDGBDragPointDragger::dragStart()
 	SoInteractionKit::setSwitchValue( sw, this->curraxis_ );
 
 	// set the active part - to do
-	char* activepartname = "";
+	const char* activepartname = "";
 	if ( curraxis_ == 0 )
 	    activepartname = "dragPointYZTranslatorTranslatorActive";
 	else if ( curraxis_ == 1 )
@@ -546,7 +546,7 @@ void SoDGBDragPointDragger::dragFinish()
 	SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
 	    
 	// set the inactive part
-	char* inactivepartname = "";
+	const char* inactivepartname = "";
 	if ( curraxis_ == 0 )
 	    inactivepartname = "dragPointXTranslatorTranslator";
 	else if ( curraxis_ == 1 )
@@ -564,7 +564,7 @@ void SoDGBDragPointDragger::dragFinish()
 	SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
 
 	// set the inactive part
-	char* inactivepartname = "";
+	const char* inactivepartname = "";
 	if ( curraxis_ == 0 )
 	    inactivepartname = "dragPointYZTranslatorTranslator";
 	else if ( curraxis_ == 1 )
