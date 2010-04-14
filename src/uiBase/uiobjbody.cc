@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjbody.cc,v 1.29 2010-02-19 09:18:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.30 2010-04-14 11:27:34 cvsnanne Exp $";
 
 
 #include "uiobjbody.h"
@@ -224,7 +224,8 @@ Color uiObjectBody::uibackgroundColor() const
 void uiObjectBody::uisetBackgroundColor( const Color& col )
 {
     QPalette qpal( qwidget()->palette() );
-    qpal.setColor( QPalette::Base, QColor(col.r(),col.g(),col.b(),col.t()) );
+    qpal.setColor( QPalette::Base,
+		   QColor(col.r(),col.g(),col.b(),255-col.t()) );
     qwidget()->setPalette( qpal );
 }
 
