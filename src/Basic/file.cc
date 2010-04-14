@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.10 2010-04-14 07:32:52 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.11 2010-04-14 07:46:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,18 +92,21 @@ bool createLink( const char* fnm, const char* linknm )
 bool copy( const char* from, const char* to )
 { 
 #ifdef __win__
-    return  winCopy( from, to, isFile(from) );
+    return winCopy( from, to, isFile(from) );
 #else
    if ( !isFile(from) )
-	return  copyDir( from, to ); 
-    if ( !File::exists(to) )
+	return copyDir( from, to );
+
+    if ( !exists(to) )
 	return QFile::copy( from, to );
     
-	const BufferString newfile( to, ".tmp" );
-	File::rename( to, newfile.buf() );
-	bool res = QFile::copy( from, to );
-	res ? File::remove( newfile ) : File::rename( newfile.buf(), to );
-	return res;
+    const BufferString tmpfnm( to, ".tmp" );
+    if ( !File::rename(to,tmpfnm) )
+	return false;
+
+    const bool res = QFile::copy( from, to );
+    res ? File::remove( tmpfnm ) : File::rename( tmpfnm, to );
+    return res;
 #endif
 }
 
