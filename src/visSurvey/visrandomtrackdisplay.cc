@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.120 2010-04-14 05:43:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.121 2010-04-14 08:05:02 cvsnanne Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -1101,6 +1101,7 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
 	    BinID bid = SI().transform( pos );
 	    pos.x = bid.inl; pos.y = bid.crl;
 	    setPickPos( pos );
+	    eventcatcher_->setHandled();
 	 }
     }
 
@@ -1113,9 +1114,10 @@ void RandomTrackDisplay::setPolyLineMode( bool mode )
     polyline_->turnOn( polylinemode_ );
     for ( int idx=0; idx<markergrp_->size(); idx++ )
     {
-	mDynamicCastGet( visBase::Marker*, marker, markergrp_->getObject(idx) );
-	marker->turnOn( polylinemode_ );
+	mDynamicCastGet(visBase::Marker*,marker,markergrp_->getObject(idx));
+	if ( marker ) marker->turnOn( polylinemode_ );
     }
+
     triangles_->turnOn( !polylinemode_ );
     dragger_->turnOn( false );
 }
