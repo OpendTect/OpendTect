@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.8 2010-04-08 07:24:32 cvsranojay Exp $
+ RCS:		$Id: file.cc,v 1.9 2010-04-14 07:29:08 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,16 @@ bool copy( const char* from, const char* to )
 #ifdef __win__
     return  winCopy( from, to, isFile(from) );
 #else
-    return isFile(from) ? QFile::copy( from, to ) : copyDir( from, to ); 
+   if ( !isFile(from) )
+	return  copyDir( from, to ); 
+    if ( File::exists(to) )
+    {
+	const BufferString newfile( to, ".tmp" );
+	File::rename( to, newfile.buf() );
+	bool res = QFile::copy( from, to );
+	res ? File::remove( newfile ) : File::rename( newfile.buf(), to );
+	return res;
+    }
 #endif
 }
 
