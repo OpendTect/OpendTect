@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.78 2010-03-25 19:49:08 cvsyuancheng Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.79 2010-04-14 05:19:48 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,8 @@ namespace visBase
 { 
     class SplitTextureRandomLine; 
     class MultiTexture2; 
-    class EventCatcher; 
+    class EventCatcher;
+    class PolyLine;
     class RandomTrackDragger; 
 };
 
@@ -133,12 +134,17 @@ public:
     bool			canBDispOn2DViewer() const	{ return true; }
     TypeSet<BinID>*             getPath()		{ return &trcspath_; }
     const SeisTrcBuf*		getCache(int attrib) const;
+    void			setSceneEventCatcher(visBase::EventCatcher*);
+
     
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> knotmoving_;
 
     const char*			errMsg() const { return errmsg_.buf(); }
-
+    void			setPolyLineMode(bool mode ); 
+    void			crateFromPolyLine();
+    void			setColor(Color);
+				
 protected:
 				~RandomTrackDisplay();
 
@@ -163,10 +169,18 @@ protected:
 
     void			knotMoved(CallBacker*);
     void			knotNrChanged(CallBacker*);
-
+    void			pickCB(CallBacker*);
+    bool			checkValidPick(const visBase::EventInfo&,
+					       const Coord3& pos) const;
+    void			setPickPos(const Coord3& pos);
+    void			removePickPos( const TypeSet<int>& );
 
     visBase::SplitTextureRandomLine* triangles_;
     visBase::RandomTrackDragger* dragger_;
+    visBase::PolyLine*		polyline_;
+    visBase::DataObjectGroup*   markergrp_;
+    visBase::EventCatcher*	eventcatcher_;
+
     ObjectSet<SeisTrcBuf>	cache_;
     int				selknotidx_;
     TypeSet<DataPack::ID>	datapackids_;
@@ -178,7 +192,7 @@ protected:
     bool			lockgeometry_;
     bool			ismanip_;
     int				namenr_;
-
+    bool			polylinemode_;
     static const char*		sKeyTrack();
     static const char*		sKeyNrKnots();
     static const char*		sKeyKnotPrefix();

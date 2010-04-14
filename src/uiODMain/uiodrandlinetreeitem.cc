@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.33 2010-03-19 04:20:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.34 2010-04-14 05:19:48 cvsranojay Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -15,16 +15,19 @@ static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.33 2010-03-19 04:20
 #include "ptrman.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
+#include "randcolor.h"
 #include "survinfo.h"
 #include "strmprov.h"
 #include "trigonometry.h"
 
 #include "uibutton.h"
 #include "mousecursor.h"
+#include "uicolor.h"
 #include "uidialog.h"
 #include "uiempartserv.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -39,6 +42,56 @@ static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.33 2010-03-19 04:20
 #include "visrandomtrackdisplay.h"
 
 
+class uiRandomTrackPolyLineDlg : public uiDialog
+{
+public:
+			uiRandomTrackPolyLineDlg(uiParent* p, 
+					    visSurvey::RandomTrackDisplay* rtd )
+			: uiDialog(p,Setup("Random Track from Polyline",
+				   "RandomTrack from Polyline",mNoHelpID)
+				   .modal(false))
+				   , rtd_(rtd) 
+			{
+			    BufferString lbl;
+			    lbl = "Pick Polygon on Z-Slice/Horizons";
+			    label_ = new uiLabel( this, lbl );
+			   
+			    colsel_ = new uiColorInput( this, 
+				uiColorInput::Setup(getRandStdDrawColor())
+						    .lbltxt("Color") );
+			    colsel_->attach( alignedBelow, label_ );
+			    colsel_->colorChanged.notify(
+				 mCB(this,uiRandomTrackPolyLineDlg,colrchngCB));
+			    rtd_->setColor( colsel_->color() );
+			}
+
+
+			void colrchngCB( CallBacker* )
+			{
+			    rtd_->setColor( colsel_->color() );
+			}
+
+
+			bool acceptOK( CallBacker* )
+			{
+			    rtd_->crateFromPolyLine();
+			    rtd_->setPolyLineMode( false );
+			    return true;
+			}
+			
+
+			const visSurvey::RandomTrackDisplay* getRandTrackDisp()
+			{ return rtd_; }
+
+
+protected:
+    visSurvey::RandomTrackDisplay* rtd_;
+    uiLabel*		label_;
+    uiColorInput*	colsel_;
+};
+
+
+// Tree Items
 uiTreeItem* uiODRandomLineTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd, 
@@ -47,9 +100,9 @@ uiTreeItem* uiODRandomLineTreeItemFactory::create( int visid, uiTreeItem* ) cons
 }
 
 
-
 uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
     : uiODTreeItem( "Random line" )
+    , rtdpolylinedlg_(0)
 {}
 
 
@@ -71,8 +124,9 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     newmnu->insertItem( new uiMenuItem("From &Polygon ..."), 3 );
     newmnu->insertItem( new uiMenuItem("From &Wells ..."), 4 );
     newmnu->insertItem( new uiMenuItem("From &Table ..."), 5 );
+    newmnu->insertItem( new uiMenuItem("&Interactive  ..."), 6 );
     mnu.insertItem( newmnu );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 6 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 7 );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
 
@@ -85,6 +139,8 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     else if ( mnuid == 5 )
 	genRandLineFromTable();
     else if ( mnuid == 6 )
+	genRandomLineFromPickPolygon();
+    else if ( mnuid == 7 )
     {
 	const IOObj* ioobj = selRandomLine();
 	if ( ioobj )
@@ -207,6 +263,36 @@ void uiODRandomLineParentTreeItem::genRandLineFromTable()
 	zrg.scale( 1/SI().zFactor() );
 	rtd->setDepthInterval( zrg );
     }
+}
+
+
+void uiODRandomLineParentTreeItem::genRandomLineFromPickPolygon()
+{
+    if ( rtdpolylinedlg_ )
+	return;
+
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
+    addChild( itm, false );
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+        ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
+    rtd->setPolyLineMode( true );
+    rtdpolylinedlg_ = new uiRandomTrackPolyLineDlg( getUiParent(), rtd );
+    rtdpolylinedlg_->windowClosed.notify(
+	mCB(this,uiODRandomLineParentTreeItem,randomtrackPolyLineWinCloseCB) );
+    ODMainWin()->applMgr().visServer()->setViewMode( false );
+    rtdpolylinedlg_->go();
+}
+
+
+void uiODRandomLineParentTreeItem::randomtrackPolyLineWinCloseCB(CallBacker* cb)
+{
+    if( !rtdpolylinedlg_->uiResult() )
+    {
+	const int id = rtdpolylinedlg_->getRandTrackDisp()->id();
+	removeChild( findChild( id ) );
+	ODMainWin()->applMgr().visServer()->removeObject( id, sceneID() );
+    }
+    rtdpolylinedlg_ = 0;
 }
 
 

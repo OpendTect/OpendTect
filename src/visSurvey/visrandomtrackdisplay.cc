@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.118 2010-02-19 21:14:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.119 2010-04-14 05:19:48 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -31,8 +31,13 @@ static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.118 2010-02-19 21:
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
+#include "visevent.h"
+#include "vishorizondisplay.h"
 #include "vismaterial.h"
+#include "vismarker.h"
 #include "vismultitexture2.h"
+#include "vispolyline.h"
+#include "visplanedatadisplay.h"
 #include "visrandomtrack.h"
 #include "visrandomtrackdragger.h"
 #include "vissplittexturerandomline.h"
@@ -40,6 +45,8 @@ static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.118 2010-02-19 21:
 #include "vistexturechannel2rgba.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
+#include "zaxistransform.h"
+
 
 #include <math.h>
 
@@ -55,15 +62,19 @@ const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
-    : MultiTextureSurveyObject( true )
-    , triangles_( visBase::SplitTextureRandomLine::create() )
-    , dragger_( visBase::RandomTrackDragger::create() )
+    : MultiTextureSurveyObject(true)
+    , triangles_(visBase::SplitTextureRandomLine::create())
+    , dragger_(visBase::RandomTrackDragger::create())
+    , polyline_(visBase::PolyLine::create())
+    , markergrp_(visBase::DataObjectGroup::create())
+    , polylinemode_(false)
     , knotmoving_(this)
     , moving_(this)
     , selknotidx_(-1)
     , ismanip_(false)
-    , datatransform_( 0 )
-    , lockgeometry_( false )
+    , datatransform_(0)
+    , lockgeometry_(false)
+    , eventcatcher_(0)
 {
     TypeSet<int> randomlines;
     visBase::DM().getIds( typeid(*this), randomlines );
@@ -86,6 +97,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
+    
 
     dragger_->ref();
     int channelidx = 
@@ -96,6 +108,12 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     triangles_->ref();
     addChild( triangles_->getInventorNode() );
+    
+    addChild( polyline_->getInventorNode() );
+    polyline_->setMaterial( visBase::Material::create() );
+   
+   markergrp_->ref();
+   addChild( markergrp_->getInventorNode() );
 
     const StepInterval<float>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
@@ -127,11 +145,14 @@ RandomTrackDisplay::RandomTrackDisplay()
 
 RandomTrackDisplay::~RandomTrackDisplay()
 {
+    setSceneEventCatcher( 0 );
     triangles_->unRef();
     dragger_->unRef();
-
+    removeChild( polyline_->getInventorNode() );
+    polyline_->unRef();
+    removeChild( markergrp_->getInventorNode() );
+    markergrp_->unRef();
     deepErase( cache_ );
-
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
@@ -1032,5 +1053,168 @@ const SeisTrcBuf* RandomTrackDisplay::getCache( int attrib ) const
     return (attrib<0 || attrib>=cache_.size() ) ? 0 : cache_[attrib];
 }
 
+
+void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
+{
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.remove( 
+				     mCB(this,RandomTrackDisplay,pickCB) );
+	eventcatcher_->unRef();
+    }
+    
+    eventcatcher_ = evnt;
+    
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->ref();
+	eventcatcher_->eventhappened.notify(
+				     mCB(this,RandomTrackDisplay,pickCB) );
+    }
+
+}
+
+void RandomTrackDisplay::pickCB( CallBacker* cb )
+{
+    if ( polylinemode_ )
+    {  
+	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+      
+	if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick && 
+	     OD::leftMouseButton( eventinfo.buttonstate_ ) )
+	{  
+	    Coord3 pos = eventinfo.worldpickedpos;
+
+	    if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+			!OD::altKeyboardButton(eventinfo.buttonstate_) &&
+			!OD::shiftKeyboardButton(eventinfo.buttonstate_) )
+	    {
+		removePickPos( eventinfo.pickedobjids );
+		eventcatcher_->setHandled();
+		return;
+	    }
+
+	    if ( !checkValidPick( eventinfo, pos ) )
+	        return;
+	    BinID bid = SI().transform( pos );
+	    pos.x = bid.inl; pos.y = bid.crl;
+	    setPickPos( pos );
+	 }
+    }
+
+} 
+
+
+void RandomTrackDisplay::setPolyLineMode( bool mode )
+{ 
+    polylinemode_ = mode;
+    polyline_->turnOn( polylinemode_ );
+    for ( int idx=0; idx<markergrp_->size(); idx++ )
+    {
+	mDynamicCastGet( visBase::Marker*, marker, markergrp_->getObject(idx) );
+	marker->turnOn( polylinemode_ );
+    }
+    triangles_->turnOn( !polylinemode_ );
+    dragger_->turnOn( false );
+}
+
+
+bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi, 
+					 const Coord3& pos) const
+{
+    const int sz = evi.pickedobjids.size();
+    bool validpicksurface = false;
+    int eventid = -1;
+    BufferString info;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const DataObject* pickedobj =
+	    visBase::DM().getObject( evi.pickedobjids[idx] );
+
+	if ( eventid==-1 && pickedobj->pickable() )
+	{
+	    eventid = evi.pickedobjids[idx];
+	    if ( validpicksurface )
+		break;
+	}
+
+	mDynamicCastGet(const SurveyObject*,so,pickedobj);
+
+	if ( so && so->allowsPicks() )
+	{
+	    mDynamicCastGet(const HorizonDisplay*,hd,so);
+	    mDynamicCastGet(const PlaneDataDisplay*,pdd,so);
+	    if ( hd ||( pdd && 
+		    (pdd->getOrientation() == PlaneDataDisplay::Timeslice)) )
+	    validpicksurface = true;
+	    if ( eventid!=-1 )
+		break;
+	}
+    }
+
+    if ( !validpicksurface )
+	return false;
+
+    return true;
+
+ }
+
+
+void RandomTrackDisplay::setPickPos( const Coord3& pos )
+{
+    polyline_->addPoint( pos );
+    visBase::Marker* marker = visBase::Marker::create();
+    marker->setMaterial( visBase::Material::create() );
+    marker->getMaterial()->setColor( polyline_->getMaterial()->getColor() );
+    marker->setCenterPos( pos );
+    markergrp_->addObject( marker );
+    marker->turnOn( true );
+}
+  
+
+void RandomTrackDisplay::removePickPos( const TypeSet<int>& ids )
+{
+     
+    for ( int idx=0; idx<markergrp_->size(); idx++ )
+    {
+	mDynamicCastGet( const visBase::Marker*, marker, 
+			 markergrp_->getObject(idx));
+	
+	if ( marker && ids.isPresent(marker->id()) )
+	{ 
+	    polyline_->removePoint( idx );
+	    markergrp_->removeObject( idx );
+	    break;
+	}
+    }
+ 
+}
+
+
+void RandomTrackDisplay::setColor( Color colr )
+{
+    polyline_->getMaterial()->setColor( colr );
+    for ( int idx=0; idx<markergrp_->size(); idx++ )
+    {
+	mDynamicCastGet( visBase::Marker*, marker, 
+			 markergrp_->getObject(idx));
+	if ( marker )
+	    marker->getMaterial()->setColor( colr );
+    }
+}
+
+
+void RandomTrackDisplay::crateFromPolyLine()
+{
+    TypeSet<BinID> bids;
+    for ( int idx=0; idx<polyline_->size(); idx++ )
+    {
+	Coord pos = polyline_->getPoint( idx );
+	bids += BinID( pos.x, pos.y );
+    }
+    
+    setKnotPositions( bids );
+}
 
 } // namespace visSurvey
