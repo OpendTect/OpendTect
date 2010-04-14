@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.79 2010-04-14 05:19:48 cvsranojay Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.80 2010-04-14 09:01:16 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -142,7 +142,7 @@ public:
 
     const char*			errMsg() const { return errmsg_.buf(); }
     void			setPolyLineMode(bool mode ); 
-    void			crateFromPolyLine();
+    void			createFromPolyLine();
     void			setColor(Color);
 				
 protected:

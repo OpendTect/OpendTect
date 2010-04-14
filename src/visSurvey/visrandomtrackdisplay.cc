@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.121 2010-04-14 08:05:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.122 2010-04-14 09:01:16 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -633,8 +633,9 @@ void RandomTrackDisplay::resetManipulation()
 
 void RandomTrackDisplay::showManipulator( bool yn )
 {
-    if ( lockgeometry_ ) yn = false;
+    if ( polylinemode_ ) return;
 
+    if ( lockgeometry_ ) yn = false;
     if ( !yn ) dragger_->showFeedback( false );
     dragger_->turnOn( yn );
 }
@@ -1076,6 +1077,7 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
 
 }
 
+
 void RandomTrackDisplay::pickCB( CallBacker* cb )
 {
     if ( polylinemode_ )
@@ -1109,7 +1111,7 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
 
 
 void RandomTrackDisplay::setPolyLineMode( bool mode )
-{ 
+{
     polylinemode_ = mode;
     polyline_->turnOn( polylinemode_ );
     for ( int idx=0; idx<markergrp_->size(); idx++ )
@@ -1129,13 +1131,10 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
     const int sz = evi.pickedobjids.size();
     bool validpicksurface = false;
     int eventid = -1;
-    BufferString info;
-
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
 	    visBase::DM().getObject( evi.pickedobjids[idx] );
-
 	if ( eventid==-1 && pickedobj->pickable() )
 	{
 	    eventid = evi.pickedobjids[idx];
@@ -1144,24 +1143,19 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 	}
 
 	mDynamicCastGet(const SurveyObject*,so,pickedobj);
+	if ( !so || !so->allowsPicks() )
+	    continue;
 
-	if ( so && so->allowsPicks() )
-	{
-	    mDynamicCastGet(const HorizonDisplay*,hd,so);
-	    mDynamicCastGet(const PlaneDataDisplay*,pdd,so);
-	    if ( hd ||( pdd && 
-		    (pdd->getOrientation() == PlaneDataDisplay::Timeslice)) )
-	    validpicksurface = true;
-	    if ( eventid!=-1 )
-		break;
-	}
+	mDynamicCastGet(const HorizonDisplay*,hd,so);
+	mDynamicCastGet(const PlaneDataDisplay*,pdd,so);
+	validpicksurface = hd ||
+		(pdd && pdd->getOrientation() == PlaneDataDisplay::Timeslice);
+
+	if ( eventid!=-1 )
+	    break;
     }
 
-    if ( !validpicksurface )
-	return false;
-
-    return true;
-
+    return validpicksurface;
  }
 
 
@@ -1179,12 +1173,10 @@ void RandomTrackDisplay::setPickPos( const Coord3& pos )
 
 void RandomTrackDisplay::removePickPos( const TypeSet<int>& ids )
 {
-     
     for ( int idx=0; idx<markergrp_->size(); idx++ )
     {
-	mDynamicCastGet( const visBase::Marker*, marker, 
-			 markergrp_->getObject(idx));
-	
+	mDynamicCastGet(const visBase::Marker*,marker,
+			markergrp_->getObject(idx));
 	if ( marker && ids.isPresent(marker->id()) )
 	{ 
 	    polyline_->removePoint( idx );
@@ -1196,20 +1188,18 @@ void RandomTrackDisplay::removePickPos( const TypeSet<int>& ids )
 }
 
 
-void RandomTrackDisplay::setColor( Color colr )
+void RandomTrackDisplay::setColor( Color color )
 {
-    polyline_->getMaterial()->setColor( colr );
+    polyline_->getMaterial()->setColor( color );
     for ( int idx=0; idx<markergrp_->size(); idx++ )
     {
-	mDynamicCastGet( visBase::Marker*, marker, 
-			 markergrp_->getObject(idx));
-	if ( marker )
-	    marker->getMaterial()->setColor( colr );
+	mDynamicCastGet(visBase::Marker*,marker,markergrp_->getObject(idx));
+	if ( marker ) marker->getMaterial()->setColor( color );
     }
 }
 
 
-void RandomTrackDisplay::crateFromPolyLine()
+void RandomTrackDisplay::createFromPolyLine()
 {
     TypeSet<BinID> bids;
     for ( int idx=0; idx<polyline_->size(); idx++ )

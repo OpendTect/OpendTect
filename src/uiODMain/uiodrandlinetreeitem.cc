@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.36 2010-04-14 08:27:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.37 2010-04-14 09:01:16 cvsranojay Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -68,7 +68,7 @@ void colorChangeCB( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    rtd_->crateFromPolyLine();
+    rtd_->createFromPolyLine();
     rtd_->setPolyLineMode( false );
     return true;
 }
