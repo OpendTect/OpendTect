@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.231 2010-03-23 21:20:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.232 2010-04-14 19:45:18 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -233,10 +233,16 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
     const Interval<float> zrg( res.zrg );
 
     res.hrg.snapToSurvey();
-    const StepInterval<float>& scenezrg = scene_->getCubeSampling().zrg;
-    res.zrg.limitTo( scenezrg );
-    res.zrg.start = scenezrg.snap( res.zrg.start );
-    res.zrg.stop = scenezrg.snap( res.zrg.stop );
+    if ( scene_ )
+    {
+    	const StepInterval<float>& scenezrg = scene_->getCubeSampling().zrg;
+    	res.zrg.limitTo( scenezrg );
+    	res.zrg.start = scenezrg.snap( res.zrg.start );
+    	res.zrg.stop = scenezrg.snap( res.zrg.stop );
+
+	if ( orientation_!=Inline && orientation_!=Crossline )
+	    res.zrg.start = res.zrg.stop = scenezrg.snap(zrg.center());
+    }
 
     if ( orientation_==Inline )
 	res.hrg.start.inl = res.hrg.stop.inl =
@@ -244,8 +250,6 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
     else if ( orientation_==Crossline )
 	res.hrg.start.crl = res.hrg.stop.crl =
 	    SI().crlRange(true).snap( crlrg.center() );
-    else
-	res.zrg.start = res.zrg.stop = scenezrg.snap(zrg.center());
 
     return res;
 }
@@ -1039,7 +1043,8 @@ bool PlaneDataDisplay::isVerticalPlane() const
 void PlaneDataDisplay::setScene( Scene* sc )
 {
     SurveyObject::setScene( sc );
-    updateRanges( true, true );
+
+    if ( sc ) updateRanges( false, false );
 }
 
 
