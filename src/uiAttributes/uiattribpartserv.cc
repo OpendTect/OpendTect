@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.149 2010-04-13 13:09:44 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.150 2010-04-14 14:42:45 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -307,20 +307,20 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
 {
     const DescSetMan* adsman = DSMPack().getDescSetMan( is2d );
     uiAttrSelData attrdata( *adsman->descSet() );
-    attrdata.attribid = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
-    attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
-    attrdata.nlamodel = getNLAModel(is2d);
-    attrdata.zdomainkey = zdomainkey;
-    attrdata.zdomainid = zdomainid;
+    attrdata.attribid_ = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
+    attrdata.outputnr_ = selspec.isNLA() ? selspec.id().asInt() : -1;
+    attrdata.nlamodel_ = getNLAModel(is2d);
+    attrdata.zdomainkey_ = zdomainkey;
+    attrdata.zdomainid_ = zdomainid;
     uiAttrSelDlg dlg( parent(), "View Data", attrdata );
     if ( !dlg.go() )
 	return false;
 
-    attrdata.attribid = dlg.attribID();
-    attrdata.outputnr = dlg.outputNr();
+    attrdata.attribid_ = dlg.attribID();
+    attrdata.outputnr_ = dlg.outputNr();
     attrdata.setAttrSet( &dlg.getAttrSet() );
-    const bool isnla = !attrdata.attribid.isValid() && attrdata.outputnr >= 0;
-    const Desc* desc = attrdata.attrSet().getDesc( attrdata.attribid );
+    const bool isnla = !attrdata.attribid_.isValid() && attrdata.outputnr_ >= 0;
+    const Desc* desc = attrdata.attrSet().getDesc( attrdata.attribid_ );
     const bool isstored = desc && desc->isStored();
     BufferString objref;
     if ( isnla )
@@ -331,10 +331,10 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
 	objref = ioobj ? ioobj->name() : "";
     }
 
-    selspec.set( 0, isnla ? DescID(attrdata.outputnr,true) : attrdata.attribid,
-	         isnla, objref );
-    if ( isnla && attrdata.nlamodel )
-	selspec.setRefFromID( *attrdata.nlamodel );
+    selspec.set( 0, isnla ? DescID(attrdata.outputnr_,true)
+	    		  : attrdata.attribid_, isnla, objref );
+    if ( isnla && attrdata.nlamodel_ )
+	selspec.setRefFromID( *attrdata.nlamodel_ );
     else if ( !isnla )
 	selspec.setRefFromID( attrdata.attrSet() );
     selspec.setZDomainKey( dlg.zDomainKey() );
@@ -1111,8 +1111,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 			    steering3dmnuitem_.findItem(mnuid);
     const DescSetMan* adsman = DSMPack().getDescSetMan( is2d );
     uiAttrSelData attrdata( *adsman->descSet() );
-    attrdata.nlamodel = getNLAModel(is2d);
-    SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel, is2d,
+    attrdata.nlamodel_ = getNLAModel(is2d);
+    SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_, is2d,
 	    	     DescID::undef(), issteering, issteering );
     const MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     const MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
@@ -1229,7 +1229,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     }
 
     if ( isnla )
-	as.setRefFromID( *attrdata.nlamodel );
+	as.setRefFromID( *attrdata.nlamodel_ );
     else
 	as.setRefFromID( *DSMPack().getDescSet(is2d, isstored) );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.18 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.19 2010-04-14 14:42:45 cvshelene Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -78,7 +78,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     }
 
     uiAttrSelData asd( *ads_, false );
-    asd.nlamodel = nlamdl_;
+    asd.nlamodel_ = nlamdl_;
     phifld_ = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])", asd );
     if ( dirinpfld_ )
 	phifld_->attach( alignedBelow, dirinpfld_ );

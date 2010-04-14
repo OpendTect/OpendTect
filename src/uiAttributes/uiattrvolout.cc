@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.74 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.75 2010-04-14 14:42:45 cvshelene Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -64,7 +64,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     setCaption( is2d ? "Create LineSet Attribute":"Create Volume Attribute");
 
     uiAttrSelData attrdata( ad, false );
-    attrdata.nlamodel = nlamodel;
+    attrdata.nlamodel_ = nlamodel;
     todofld = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
     todofld->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
 

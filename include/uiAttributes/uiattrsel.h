@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.21 2010-04-13 13:09:44 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.22 2010-04-14 14:42:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,22 +37,22 @@ public:
 				uiAttrSelData(const Attrib::DescSet&,
 					      bool fillwithdef=true);
 
-    Attrib::DescID		attribid;
-    const NLAModel*		nlamodel;
-    int				outputnr;
-    int				compnr;
-    bool			shwcubes;
-    BufferString		zdomainkey;
-    BufferString		zdomainid;
+    Attrib::DescID		attribid_;
+    const NLAModel*		nlamodel_;
+    int				outputnr_;
+    int				compnr_;
+    bool			shwcubes_;
+    BufferString		zdomainkey_;
+    BufferString		zdomainid_;
 
     bool			is2D() const;
-    const Attrib::DescSet&	attrSet() const		{ return *attrset; }
+    const Attrib::DescSet&	attrSet() const		{ return *attrset_; }
     void			setAttrSet( const Attrib::DescSet* ds )
-						    { if ( ds ) attrset = ds; }
+						    { if ( ds ) attrset_ = ds; }
 
 protected:
 
-    const Attrib::DescSet*	attrset;
+    const Attrib::DescSet*	attrset_;
 
 };
 
@@ -79,9 +79,9 @@ public:
 			~uiAttrSelDlg();
 
 			// if ( go() ) ...
-    Attrib::DescID	attribID() const	{ return attrdata_.attribid; }
+    Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
 			//!< -1 if not selected
-    int			outputNr() const	{ return attrdata_.outputnr; }
+    int			outputNr() const	{ return attrdata_.outputnr_; }
 			//!< -1 if not selected
     const char*		zDomainKey() const	{ return zdomainkey_; }
 
@@ -92,6 +92,7 @@ protected:
 
     uiAttrSelData	attrdata_;
     Attrib::SelInfo*	attrinf_;
+    bool		usedasinput_;
     bool		in_action_;
     BufferString	zdomainkey_;
 
@@ -140,8 +141,8 @@ public:
 			uiAttrSel(uiParent*,const char*,const uiAttrSelData&);
 			~uiAttrSel()		{}
 
-    Attrib::DescID	attribID() const	{ return attrdata_.attribid; }
-    int			outputNr() const	{ return attrdata_.outputnr; }
+    Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
+    int			outputNr() const	{ return attrdata_.outputnr_; }
     inline bool		is2D() const		{ return attrdata_.is2D(); }
     inline bool		is3D() const		{ return !is2D(); }
 
@@ -154,12 +155,12 @@ public:
     void		setNLAModel(const NLAModel*);
 
     void		setIgnoreDesc(const Attrib::Desc*);
-    void		setIgnoreID( Attrib::DescID id ) { ignoreid = id; }
+    void		setIgnoreID( Attrib::DescID id ) { ignoreid_ = id; }
 
     virtual void	getHistory(const IOPar&);
     virtual void	processInput();
 
-    const char*		errMsg()		{ return errmsg; }
+    const char*		errMsg()		{ return errmsg_; }
     bool		getRanges(CubeSampling&) const;
     			//!< Tries to determine ranges of currently selected.
 
@@ -173,9 +174,9 @@ protected:
 
     uiAttrSelData	attrdata_;
     bool		is2d_;
-    Attrib::DescID	ignoreid;
-    BufferString	errmsg;
-    mutable BufferString usrnm;
+    Attrib::DescID	ignoreid_;
+    BufferString	errmsg_;
+    mutable BufferString usrnm_;
 
     void		updateInput();
     void		update2D();
