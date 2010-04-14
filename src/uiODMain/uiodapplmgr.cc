@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.373 2010-03-22 18:21:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.374 2010-04-14 10:47:13 cvsjaap Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1070,6 +1070,10 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 
 	    for ( int idx=0; idx<enableattrib.size(); idx++ )
 		visserv_->enableAttrib( visid, idx, enableattrib[idx] );
+
+	    uiTreeItem* parent = sceneMgr().findItem( visid );
+	    if ( parent )
+		parent->updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
 	else
 	{

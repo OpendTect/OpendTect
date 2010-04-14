@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.132 2010-03-25 19:51:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.133 2010-04-14 10:50:45 cvsjaap Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -869,8 +869,7 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
     Coord3 shift( nt ); shift.z *= -1;
     translation_->setTranslation( shift );
 
-    if ( getOnlyAtSectionsDisplay() )
-	setOnlyAtSectionsDisplay( true );		/* retrigger */
+    setOnlyAtSectionsDisplay( displayonlyatsections_ );		/* retrigger */
 }
 
 
@@ -1505,7 +1504,7 @@ static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zshift,
 	    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 	    Coord vrtxcoord( vertex.x, vertex.y );
 	    vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
-	    const Coord3 pos( vrtxcoord, cs.zrg.start );
+	    const Coord3 pos( vrtxcoord, cs.zrg.start-zshift );
 	    const int posidx = line->getCoordinates()->addPos( pos );
 	    line->setCoordIndex( cii++, posidx ); 
 	}
