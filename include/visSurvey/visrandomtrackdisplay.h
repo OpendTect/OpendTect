@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.80 2010-04-14 09:01:16 cvsranojay Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.81 2010-04-14 12:18:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -108,7 +108,8 @@ public:
     void			getAllKnotPos(TypeSet<BinID>&) const;
     TypeSet<BinID>*             getKnots()		{ return &knots_; }
     void			removeKnot(int);
-    void			setKnotPositions(const TypeSet<BinID>&);
+    void			removeAllKnots();
+    bool			setKnotPositions(const TypeSet<BinID>&);
     void			lockGeometry(bool);
     bool			isGeometryLocked() const;
 
@@ -142,7 +143,7 @@ public:
 
     const char*			errMsg() const { return errmsg_.buf(); }
     void			setPolyLineMode(bool mode ); 
-    void			createFromPolyLine();
+    bool			createFromPolyLine();
     void			setColor(Color);
 				
 protected:

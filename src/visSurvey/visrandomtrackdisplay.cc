@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.123 2010-04-14 09:42:28 cvsbruno Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.124 2010-04-14 12:18:11 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -280,12 +280,12 @@ void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
 }
 
 
-static void decoincideKnots( const TypeSet<BinID>& knots, 
+static bool decoincideKnots( const TypeSet<BinID>& knots, 
 			     TypeSet<BinID>& uniqueknots )
 {
     uniqueknots.erase();
     if ( knots.isEmpty() )
-	return;
+	return false;
     uniqueknots += knots[0];
 
     for ( int idx=1; idx<knots.size(); idx++ )
@@ -306,16 +306,17 @@ static void decoincideKnots( const TypeSet<BinID>& knots,
 	    }
 	}
     }
+    return true;
 }
 
 
-void RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
+bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 {
     TypeSet<BinID> uniquebids;
-    decoincideKnots( newbids, uniquebids );
+   if ( !decoincideKnots( newbids, uniquebids ) ) return false;
    
     if ( uniquebids.size() < 2 ) 
-	return;
+	return false;
     while ( nrKnots() > uniquebids.size() )
 	removeKnot( nrKnots()-1 );
 
@@ -340,7 +341,7 @@ void RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 	triangles_->setDepthRange( getDataTraceRange() );
 	triangles_->setLineKnots( knots_ );	
 	moving_.trigger();
-	return;
+	return true;
     }
 
     for ( int idx=0; idx<uniquebids.size(); idx++ )
@@ -366,6 +367,16 @@ void RandomTrackDisplay::removeKnot( int knotidx )
     knots_.remove(knotidx);
     triangles_->setLineKnots( knots_ );	
     dragger_->removeKnot( knotidx );
+}
+
+
+void RandomTrackDisplay::removeAllKnots()
+{
+    for ( int idx=0; idx<knots_.size(); idx++ )
+    	dragger_->removeKnot( idx );
+    
+    knots_.erase();	
+    triangles_->setLineKnots( knots_ );
 }
 
 
@@ -1080,33 +1091,32 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
 
 void RandomTrackDisplay::pickCB( CallBacker* cb )
 {
-    if ( polylinemode_ )
+    if ( !polylinemode_ ) return;
+
+
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+  
+    if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick && 
+			    OD::leftMouseButton( eventinfo.buttonstate_ ) )
     {  
-	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-      
-	if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick && 
-	     OD::leftMouseButton( eventinfo.buttonstate_ ) )
-	{  
-	    Coord3 pos = eventinfo.worldpickedpos;
+	Coord3 pos = eventinfo.worldpickedpos;
 
-	    if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-			!OD::altKeyboardButton(eventinfo.buttonstate_) &&
-			!OD::shiftKeyboardButton(eventinfo.buttonstate_) )
-	    {
-		removePickPos( eventinfo.pickedobjids );
-		eventcatcher_->setHandled();
-		return;
-	    }
-
-	    if ( !checkValidPick( eventinfo, pos ) )
-	        return;
-	    BinID bid = SI().transform( pos );
-	    pos.x = bid.inl; pos.y = bid.crl;
-	    setPickPos( pos );
+	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+		    !OD::altKeyboardButton(eventinfo.buttonstate_) &&
+		    !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
+	{
+	    removePickPos( eventinfo.pickedobjids );
 	    eventcatcher_->setHandled();
-	 }
-    }
+	    return;
+	}
 
+	if ( !checkValidPick( eventinfo, pos ) )
+	    return;
+	BinID bid = SI().transform( pos );
+	pos.x = bid.inl; pos.y = bid.crl;
+	setPickPos( pos );
+	eventcatcher_->setHandled();
+    }
 } 
 
 
@@ -1199,7 +1209,7 @@ void RandomTrackDisplay::setColor( Color color )
 }
 
 
-void RandomTrackDisplay::createFromPolyLine()
+bool RandomTrackDisplay::createFromPolyLine()
 {
     TypeSet<BinID> bids;
     for ( int idx=0; idx<polyline_->size(); idx++ )
@@ -1208,7 +1218,7 @@ void RandomTrackDisplay::createFromPolyLine()
 	bids += BinID( (int)pos.x, (int)pos.y );
     }
     
-    setKnotPositions( bids );
+    return setKnotPositions( bids );
 }
 
 } // namespace visSurvey

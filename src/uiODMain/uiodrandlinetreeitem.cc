@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.37 2010-04-14 09:01:16 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.38 2010-04-14 12:18:11 cvsranojay Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -57,6 +57,7 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     colsel_->colorChanged.notify(
 	    mCB(this,uiRandomLinePolyLineDlg,colorChangeCB) );
 
+    rtd_->removeAllKnots();
     rtd->setPolyLineMode( true );
     rtd_->setColor( colsel_->color() );
 }
@@ -68,7 +69,11 @@ void colorChangeCB( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    rtd_->createFromPolyLine();
+    if ( !rtd_->createFromPolyLine() )
+    {
+	uiMSG().error("Please select at least two points on TimeSlice/Horizon");
+	return false;
+    }
     rtd_->setPolyLineMode( false );
     return true;
 }
@@ -268,6 +273,7 @@ void uiODRandomLineParentTreeItem::genRandomLineFromPickPolygon()
     ODMainWin()->applMgr().visServer()->setViewMode( false );
     uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
     addChild( itm, false );
+   
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
         ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
 
@@ -353,6 +359,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
+    if (  rtd->nrKnots() <= 0 ) return;
     const bool islocked = rtd->isGeometryLocked() || rtd->isLocked();
     mAddMenuItem( menu, &editnodesmnuitem_, !islocked, false );
     mAddMenuItem( menu, &insertnodemnuitem_, !islocked, false );
@@ -371,7 +378,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	    nodename = "before node ";
 	    nodename += idx;
 	}
-
+	
 	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename), 
 			    rtd->canAddKnot(idx), false );
     }
