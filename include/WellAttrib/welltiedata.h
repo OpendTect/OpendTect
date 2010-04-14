@@ -42,12 +42,12 @@ public:
 				~DataHolder();
 
 //WellData			
-    Well::Data* 		wd()        	   { return wd_; }	
-    const Well::Data* 		wd()     const   { return wd_; }	
+    Well::Data* 		wd() 		{ return wd_; }	
+    const Well::Data* 		wd()     const 	{ return wd_; }	
 
 //logs 
     Well::LogSet*  	  	logset() 	{ return logset_; }
-    const Well::LogSet* 	logset() const { return logset_; }
+    const Well::LogSet* 	logset() const 	{ return logset_; }
     Array1DImpl<float>*		arr(const char* nm) { return getLogVal(nm); }
     Array1DImpl<float>* 	getLogVal(const char*,bool dah=false);
     void 			setLogVal(const char*,const Array1DImpl<float>*,
@@ -55,32 +55,34 @@ public:
     void 			resetLogData();
 
 //Wavelet
-    ObjectSet<Wavelet>&		wvltset() { return wvltset_; }
+    ObjectSet<Wavelet>&		wvltset() 	{ return wvltset_; }
     const ObjectSet<Wavelet>&	wvltset() const { return wvltset_; }
 
 //Params
-    const WellTie::Setup& setup()  const   { return setup_; }
-    const WellTie::Params*  	params() const   { return params_; }   
-    WellTie::Params::uiParams* 	uipms()    { return &params_->uipms_;  }
+    const WellTie::Setup& setup()  const   	{ return setup_; }
+    const WellTie::Params*  	params() const  { return params_; }   
+    WellTie::Params::uiParams* 	uipms()    	{ return &params_->uipms_;  }
     const WellTie::Params::uiParams* uipms() const { return &params_->uipms_;  }
-    WellTie::Params::DataParams* dpms()    { return &params_->dpms_; }
+    WellTie::Params::DataParams* dpms()    	{ return &params_->dpms_; }
     const WellTie::Params::DataParams* dpms() const { return &params_->dpms_; }
-    const WellTie::UnitFactors& getUnits() const   { return factors_; }
+    const WellTie::UnitFactors& getUnits() const { return factors_; }
 
 //MGRs
-    WellTie::D2TModelMGR* d2TMGR()	   { return d2tmgr_; }   
-    const WellTie::D2TModelMGR* d2TMGR() const { return d2tmgr_; }   
-    WellTie::PickSetMGR*  pickmgr()   	   { return pickmgr_; }
-    const WellTie::PickSetMGR* pickmgr() const { return pickmgr_; }
+    WellTie::D2TModelMGR* d2TMGR()	   	{ return d2tmgr_; }   
+    const WellTie::D2TModelMGR* d2TMGR() const 	{ return d2tmgr_; }   
+    WellTie::PickSetMGR*  pickmgr()   	   	{ return pickmgr_; }
+    const WellTie::PickSetMGR* pickmgr() const 	{ return pickmgr_; }
 
 //CtxtIobj
-    CtxtIOObj*	seisCtxt()		{ return &seisctio_; }
-    CtxtIOObj*	wvltCtxt() 		{ return &wvltctio_; }
+    CtxtIOObj*			seisCtxt() 	{ return &seisctio_; }
+    const CtxtIOObj*		seisCtxt() const { return &seisctio_; }
+    CtxtIOObj*			wvltCtxt() 	{ return &wvltctio_; }
+    const CtxtIOObj*		wvltCtxt() const { return &wvltctio_; }
 
 //Others    
-    float&			corrcoeff() 	   { return corrcoeff_; }
-    const float&		corrcoeff() const  { return corrcoeff_; }
-    WellTie::GeoCalculator* 	geoCalc()	   { return geocalc_; } 
+    float&			corrcoeff() 	{ return corrcoeff_; }
+    const float&		corrcoeff() const { return corrcoeff_; }
+    WellTie::GeoCalculator* 	geoCalc() 	{ return geocalc_; } 
     const WellTie::GeoCalculator* geoCalc() const { return geocalc_; } 
     
 private:
@@ -110,10 +112,8 @@ private:
 mClass DataWriter 
 {	
 public:    
-				DataWriter(WellTie::DataHolder* dh)
-				    : holder_(dh)
-				    {}
-				~DataWriter(){};
+				DataWriter(const WellTie::DataHolder&);
+				~DataWriter();
    
     mStruct LogData
     {
@@ -138,9 +138,10 @@ public:
 
 protected:
 
-    WellTie::DataHolder*	holder_;
+    const WellTie::DataHolder&	holder_;
+    Well::Writer* 		wtr_;
 
-    const Well::Writer* 	getWellWriter() const;
+    void 			setWellWriter();
     bool                        writeLog2Cube(LogData&) const;
 };
 

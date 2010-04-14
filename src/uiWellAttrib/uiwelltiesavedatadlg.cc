@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.12 2009-11-02 09:32:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.13 2010-04-14 13:11:02 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
@@ -30,7 +30,7 @@ static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.12 2009-11-02 09:32
 namespace WellTie
 {
 
-uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
+uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const WellTie::DataHolder& dh)
     : uiDialog( p, uiDialog::Setup("Save current data",
 		"Check the items to be saved",mTODOHelpID) )
     , dataholder_(dh)
@@ -39,21 +39,20 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
     setCtrlStyle( DoAndStay );
 
     BufferStringSet lognms; 	BufferStringSet wvltnms;
-
-    for ( int idx=0; idx<dh->wvltset().size(); idx++)
+    for ( int idx=0; idx<dh.wvltset().size(); idx++)
     {
-	wvltctioset_ += new CtxtIOObj( *dh->wvltCtxt() );
-	wvltnms.add( dh->wvltset()[idx]->name() );
+	wvltctioset_ += new CtxtIOObj( *dh.wvltCtxt() );
+	wvltnms.add( dh.wvltset()[idx]->name() );
     }
-
-    for ( int idx=3; idx<dh->logset()->size()-2; idx++)
+    //TODO change with ref numbers instead of 3 and size()-2!! 
+    for ( int idx=3; idx<dh.logset()->size()-2; idx++)
     {
-	seisctioset_ += new CtxtIOObj( *dh->seisCtxt() );
-	lognms.add( dh->logset()->getLog(idx).name() );
+	seisctioset_ += new CtxtIOObj( *dh.seisCtxt() );
+	lognms.add( dh.logset()->getLog(idx).name() );
     }
 
     uiSaveDataGroup::Setup su; su.itemnames_=lognms;
-    su.wellname(dataholder_->wd()->name()); su.ctio_ = seisctioset_;
+    su.wellname(dataholder_.wd()->name()); su.ctio_ = seisctioset_;
     savelogsfld_ = new uiSaveDataGroup( this, su );
 
     saveasfld_ = new uiGenInput( this, "Save as", 
@@ -72,7 +71,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, WellTie::DataHolder* dh)
 
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, repeatfld_ );
-
+    
     su.labelcolnm("Wavelet"); su.itemnames_ = wvltnms;
     su.ctio_ = wvltctioset_;
     savewvltsfld_ = new uiSaveDataGroup( this, su );
@@ -101,12 +100,13 @@ void uiSaveDataDlg::changeLogUIOutput( CallBacker* )
     mErrRet( "Cannot write log(s)" );
 bool uiSaveDataDlg::acceptOK( CallBacker* )
 {
+    bool success = true;
     if ( !savelogsfld_ || !savewvltsfld_ ) 
 	return false;
-    BufferStringSet lognms, wvltnms;
-    if ( !savelogsfld_->getNamesToBeSaved( lognms) )
+    BufferStringSet lognms, wvltnms; TypeSet<int> logidces, wvltidces;
+    if ( !savelogsfld_->getNamesToBeSaved( lognms, logidces ) )
        return false;	
-    if ( !savewvltsfld_->getNamesToBeSaved( wvltnms  ) )
+    if ( !savewvltsfld_->getNamesToBeSaved( wvltnms, wvltidces  ) )
 	return false;
 
     if ( lognms.isEmpty() && wvltnms.isEmpty() )
@@ -114,10 +114,17 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 
     for ( int idx=0; idx<wvltnms.size(); idx++ )
     {
-	const int wvltidx = savewvltsfld_->indexOf( wvltnms.get(idx) );
-	if ( wvltidx <0 ) continue;
-	if ( !dataholder_->wvltset()[wvltidx]->put( 
-		    			wvltctioset_[wvltidx]->ioobj ) )
+	const char* orgwvltnm = savewvltsfld_->name( wvltidces[idx] );
+	const int wvltidx = savewvltsfld_->indexOf( orgwvltnm );
+	if ( wvltidx < 0 || !wvltctioset_[wvltidx]->ioobj ) 
+	{ 
+	    BufferString wmsg( "Can not write " ); 
+	    wmsg += wvltnms.get( idx );
+	    uiMSG().error( wmsg ); 
+	    success = false; 
+	    continue;
+	}
+	if ( !dataholder_.wvltset()[wvltidx]->put(wvltctioset_[wvltidx]->ioobj))
 	{
 	    BufferString errmsg( "cannot save " ); 
 	    errmsg += wvltnms.get(idx);
@@ -125,14 +132,22 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
 	}
     }
 
-    Well::LogSet logset; TypeSet<int> ctioidxset;
+    Well::LogSet logset; ;
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Well::Log* l = dataholder_->logset()->getLog( lognms.get(idx) );
-	if ( !l ) continue;
+	const char* orglognm = savelogsfld_->name( logidces[idx] );
+	const Well::Log* l = dataholder_.logset()->getLog( orglognm );
+	if ( !l )
+	{ 
+	    BufferString logmsg( "Can not write " ); 
+	    logmsg += lognms.get(idx);
+	    uiMSG().error(logmsg); 
+	    success = false; 
+	    continue;
+	}
 	Well::Log* newlog = new Well::Log( *l );
+	newlog->setName( lognms.get(idx) );
 	logset.add( newlog );
-	ctioidxset += savelogsfld_->indexOf( lognms.get(idx) );
     }
 
     if ( saveasfld_->getBoolValue() )
@@ -142,13 +157,15 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     }
     else 
     {
-	DataWriter::LogData lds( logset ); lds.seisctioset_ = seisctioset_;
+	DataWriter::LogData lds( logset ); 
+	lds.seisctioset_ = seisctioset_;
 	lds.nrtraces_ = repeatfld_->box()->getValue(); 
-	lds.ctioidxset_ = ctioidxset; 
+	lds.ctioidxset_ = logidces; 
 	if ( !datawriter_->writeLogs2Cube( lds ) )
 	    mCanNotWriteLogs();
     }
-    uiMSG().message( "Successfully saved the selected items" );
+    if ( success )
+	uiMSG().message( "Successfully saved the selected items" );
 
     return false;
 }
@@ -223,7 +240,8 @@ void uiSaveDataGroup::checkAll( CallBacker* )
 }
 
 
-bool uiSaveDataGroup::getNamesToBeSaved( BufferStringSet& nms )
+bool uiSaveDataGroup::getNamesToBeSaved( BufferStringSet& nms, 
+					 TypeSet<int>& nmidces )
 {
     deepErase( nms );
     for ( int idx=0; idx<names_.size(); idx++ )
@@ -236,7 +254,8 @@ bool uiSaveDataGroup::getNamesToBeSaved( BufferStringSet& nms )
 	    msg += names_.get(idx);
 	    mErrRet( msg );
 	}
-	nms.add( names_.get(idx) );
+	nms.add( ioobjselflds_[idx]->getInput() );
+	nmidces += idx;
     }
     return true;
 }

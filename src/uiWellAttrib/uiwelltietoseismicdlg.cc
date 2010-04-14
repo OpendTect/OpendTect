@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.67 2009-12-09 08:26:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.68 2010-04-14 13:11:02 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -372,10 +372,12 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
 }
 
 
-void uiTieWin::saveDataPushed( CallBacker* cb )
+bool uiTieWin::saveDataPushed( CallBacker* cb )
 {
-    uiSaveDataDlg dlg( this, dataholder_ );
-    dlg.go();
+    if ( !dataholder_ )
+    	mErrRet( "Cannot launch dialog, data is missing" );
+    uiSaveDataDlg dlg( this, *dataholder_ );
+    return ( dlg.go() );
 }
 
 

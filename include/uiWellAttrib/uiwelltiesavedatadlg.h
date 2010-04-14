@@ -62,9 +62,11 @@ public:
     				uiSaveDataGroup(uiParent*,const Setup&);
     				~uiSaveDataGroup(){};
 
-    bool 			getNamesToBeSaved(BufferStringSet&);
+    bool 			getNamesToBeSaved(BufferStringSet&,
+	    					  TypeSet<int>&);
     const int			indexOf( const char* nm ) const
 				{ return names_.indexOf(nm); }
+    const char*			name(int idx) { return names_.get(idx); }
     void 			changeLogUIOutput(CallBacker*);
 
 protected:
@@ -77,7 +79,6 @@ protected:
     ObjectSet<uiGenInput> 	nameflds_;
     ObjectSet<uiCheckBox> 	boxflds_;
     ObjectSet<uiIOObjSel>  	ioobjselflds_;
-
     const BufferStringSet	names_;
     bool 			saveasioobj_;
 
@@ -88,7 +89,8 @@ protected:
 mClass uiSaveDataDlg : public uiDialog
 {
 public: 
-				uiSaveDataDlg(uiParent*,WellTie::DataHolder*);
+				uiSaveDataDlg(uiParent*,
+					      const WellTie::DataHolder&);
 				~uiSaveDataDlg();
 
 protected :
@@ -100,7 +102,7 @@ protected :
     uiSaveDataGroup* 		savewvltsfld_;
     uiGenInput* 		saveasfld_;
     uiLabeledSpinBox*		repeatfld_;
-    const WellTie::DataHolder* 	dataholder_;
+    const WellTie::DataHolder& 	dataholder_;
     WellTie::DataWriter*	datawriter_;
 
     bool 			acceptOK(CallBacker*);

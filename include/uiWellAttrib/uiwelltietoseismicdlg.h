@@ -113,7 +113,7 @@ protected:
     void 			provideWinHelp(CallBacker*);
     bool			rejectOK(CallBacker*);
     void 			setView(CallBacker*);
-    void 			saveDataPushed(CallBacker*);
+    bool 			saveDataPushed(CallBacker*);
     void			eventTypeChg(CallBacker*);
     bool 			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);

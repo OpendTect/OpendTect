@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.21 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.22 2010-04-14 13:11:02 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -34,7 +34,7 @@ D2TModelMGR::D2TModelMGR( WellTie::DataHolder& dh )
 	, orgd2t_(0)					    
 	, prvd2t_(0)
 	, emptyoninit_(false)
-	, datawriter_(new WellTie::DataWriter(&dh))
+	, datawriter_(new WellTie::DataWriter(dh))
 {
     if ( !wd_ ) return;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.28 2009-11-30 16:33:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.29 2010-04-14 13:11:02 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -112,66 +112,69 @@ void DataHolder::setLogVal( const char* nm ,
 }
 
 
-const Well::Writer* DataWriter::getWellWriter() const
-{
-    const MultiID& wid = holder_->setup().wellid_;
-    mDynamicCastGet( const IOStream*, iostrm, IOM().get(wid) );
-    if ( !iostrm ) return 0;
 
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
-    BufferString fname = sp.fileName();
-    return new Well::Writer( fname, *holder_->wd() );
+DataWriter::DataWriter( const WellTie::DataHolder& dh )
+    	: holder_(dh)
+	, wtr_(0)  
+{
+    setWellWriter();
+}
+
+DataWriter::~DataWriter()
+{
+    delete wtr_;
 }
 
 
-#define mStop(act) delete wr; act;
+void DataWriter::setWellWriter()
+{
+    const MultiID& wid = holder_.setup().wellid_;
+    mDynamicCastGet( const IOStream*, iostrm, IOM().get(wid) );
+    if ( !iostrm ) return;
+
+    StreamProvider sp( iostrm->fileName() );
+    sp.addPathIfNecessary( iostrm->dirName() );
+    wtr_ = new Well::Writer(sp.fileName(),*holder_.wd()); 
+}
+
+
 bool DataWriter::writeD2TM() const
 {
-    const Well::Writer* wr = getWellWriter();
-    if ( wr && wr->putLogs() )
-	mStop( return true );
-    
-    mStop( return false );
+    return ( wtr_ && wtr_->putD2T() );
 }
 
 
 bool DataWriter::writeLogs( const Well::LogSet& logset ) const
 {
-    Well::LogSet& wdlogset = const_cast<Well::LogSet&>( holder_->wd()->logs() );
+    Well::LogSet& wdlogset = const_cast<Well::LogSet&>( holder_.wd()->logs() );
     for ( int idx=0; idx<logset.size(); idx++ )
     {
 	Well::Log* log = new Well::Log( logset.getLog(idx) );
 	wdlogset.add( log );
     }
-
-    const Well::Writer* wr = getWellWriter();
-    if ( wr && wr->putLogs() )
-	mStop( return true );
-
-    mStop( return false );
+    return ( wtr_ && wtr_->putLogs() );
 }
 
 
-bool DataWriter::writeLogs2Cube( LogData& ldset ) const
+bool DataWriter::writeLogs2Cube( LogData& ld ) const
 {
     bool allsucceeded = true;
-    for ( int idx=0; idx<ldset.logset_.size(); idx++ )
+    for ( int idx=0; idx<ld.logset_.size(); idx++ )
     {
-	WellTie::TrackExtractor wtextr( holder_->wd() );
-	wtextr.timeintv_ = holder_->dpms()->timeintvs_[1];
+	WellTie::TrackExtractor wtextr( holder_.wd() );
+	wtextr.timeintv_ = holder_.dpms()->timeintvs_[1];
 	if ( !wtextr.execute() )
 	    pErrMsg( "unable to extract position" );
 
-	ldset.curlog_ = &ldset.logset_.getLog( idx );
-	ldset.curidx_ = idx;
-	const int datasz = ldset.curlog_->size();
+	ld.curlog_ = &ld.logset_.getLog( idx );
+	ld.curidx_ = idx;
+	const int datasz = ld.curlog_->size();
 
-	ldset.bids_.erase();
-	for ( int idx=0; idx<datasz; idx++ )
-	    ldset.bids_ += wtextr.getBIDs()[idx];
+	ld.bids_.erase();
+	for ( int idbids=0; idbids<datasz; idbids++ )
+	    ld.bids_ += wtextr.getBIDs()[idbids];
 
-	if ( !writeLog2Cube( ldset ) )
+	if ( !writeLog2Cube( ld ) )
 	    allsucceeded = false;
     }
     return allsucceeded;
@@ -180,6 +183,7 @@ bool DataWriter::writeLogs2Cube( LogData& ldset ) const
 
 bool DataWriter::writeLog2Cube( LogData& ld) const
 {
+    if ( ld.ctioidxset_[ld.curidx_] < 0 ) return false;
     SeisTrcWriter writer( ld.seisctioset_[ld.ctioidxset_[ld.curidx_]]->ioobj );
     bool succeeded = true;
     TypeSet<BinID> bids = ld.bids_;
