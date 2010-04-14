@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.122 2010-04-14 09:01:16 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.123 2010-04-14 09:42:28 cvsbruno Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -1205,7 +1205,7 @@ void RandomTrackDisplay::createFromPolyLine()
     for ( int idx=0; idx<polyline_->size(); idx++ )
     {
 	Coord pos = polyline_->getPoint( idx );
-	bids += BinID( pos.x, pos.y );
+	bids += BinID( (int)pos.x, (int)pos.y );
     }
     
     setKnotPositions( bids );
