@@ -1,0 +1,31 @@
+0.Name: Injection Disposal Well
+0.Icon File Name: injectiondisposalwell.png
+0.Def File Name: injdispwell.def
+1.Name: Plugged Oil Gas Well
+1.Icon File Name: pluggedoilgaswell.png
+1.Def File Name: plgdoilgaswell.def
+2.Name: Cancelled Location
+2.Icon File Name: canceledlocation.png
+2.Def File Name: cancloc.def
+3.Name: Plugged Gas Well
+3.Icon File Name: pluggedgaswell.png
+3.Def File Name: plgdgaswell.def
+4.Name: Plugged Oil Well
+4.Icon File Name: pluggedoilwell.png
+4.Def File Name: plgdoilwell.def
+5.Name: Oil Gas Well
+5.Icon File Name: oilgaswell.png
+5.Def File Name: oilgaswell.def
+6.Name: Oil Well
+6.Icon File Name: oilwell.png
+6.Def File Name: oilwell.def
+7.Name: Dry Hole
+7.Icon File Name: dryhole.png
+7.Def File Name: dryhole.def
+8.Name: Permitted Location
+8.Icon File Name: permittedlocation.png
+8.Def File Name: permloc.def
+9.Name: Gas Well
+9.Icon File Name: gaswell.png
+9.Def File Name: gaswell.def
+!
