@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.5 2010-04-13 12:55:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.6 2010-04-14 15:36:16 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -77,7 +77,8 @@ uiWellDisplayMarkerEdit::uiWellDisplayMarkerEdit( uiWellLogDisplay& disp, Well::
     , lastmarker_(0)		
     , menu_(*new uiMenuHandler(disp.parent(),-1))
     , addmrkmnuitem_("Add marker...",1)      			 
-    , remmrkmnuitem_("Remove marker...",0)      				
+    , remmrkmnuitem_("Remove marker...",0)
+    , edit_(true)				  	  
 {
     addLogDisplay( disp );
 
@@ -114,7 +115,7 @@ void uiWellDisplayMarkerEdit::mousePressed( CallBacker* cb )
 
 void uiWellDisplayMarkerEdit::mouseMoved( CallBacker* cb )
 {
-    if ( mousepressed_ && selmarker_ )
+    if ( mousepressed_ && selmarker_ && edit_ )
 	changeMarkerPos( selmarker_ );
     
     curmarker_ = selectMarker( cb, true );
@@ -300,7 +301,8 @@ Well::Marker* uiWellDisplayMarkerEdit::selectMarker( CallBacker* cb, bool allowr
 
 
 #define mSetZVal(val)\
-    if ( logdisps_[0]->data().zistime_ && wd_.haveD2TModel() )\
+    if ( logdisps_[0]->data().zistime_ &&\
+	    wd_.haveD2TModel() && wd_.d2TModel()->size() > 0 )\
 	val = wd_.d2TModel()->getDepth( val/1000 );
 void uiWellDisplayMarkerEdit::changeMarkerPos( Well::Marker* mrk )
 {

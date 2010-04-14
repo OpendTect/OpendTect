@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.38 2010-04-13 12:55:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.39 2010-04-14 15:36:16 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -505,6 +505,7 @@ uiWellLogDisplay::MarkerItem* uiWellLogDisplay::getMarkerItem(
 
 void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 {
+    MouseCursor cursor( MouseCursor::Arrow );
     if ( highlightedmrk_ )
     {
 	uiWellLogDisplay::MarkerItem* mitm = getMarkerItem( highlightedmrk_ );
@@ -519,8 +520,10 @@ void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
 	mrkitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
 				    setup_.markerls_.width_+1, 
 				    mrkitm->color_) );
-	mrkitm->itm_->setCursor( MouseCursor::SizeVer );
+	cursor = MouseCursor::SizeVer;
     }
+    if ( parent() ) parent()->setCursor( cursor );
+    cursor_ = cursor;
     highlightedmrk_ = mrk;
     highlightedMarkerItemChged.trigger();
 }
@@ -553,7 +556,6 @@ uiWellDisplay::Params::Params( Well::Data& wd, int lw, int lh )
     , logheight_(lh)  
     , wd_(wd)
     , zrg_(mUdf(float),0)
-    , d2tm_(wd.d2TModel())
     , zistime_(wd.haveD2TModel())		    
 {
 }
@@ -570,15 +572,14 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
     for ( int idx=0; idx<s.nrpanels_; idx++ )
 	addLogPanel( s.noborderspace_, idx==0 );
 
-    pms_.wd_.dispparschanged.notify(mCB(this,uiWellDisplay,updateProperties));
     mrkedit_ = new uiWellDisplayMarkerEdit( *logDisplay(0), wd );
 
     setHSpacing( 0 );
     setStretch( 2, 2 );
     setPrefWidth( getDispWidth() );
     setPrefHeight( mLogHeight );
+    addWDNotifiers( wd );
     updateProperties(0);
-    
     //setInitialZRange();
 }
 
@@ -619,12 +620,21 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
     setPrefHeight( mLogHeight );
     setHSpacing( 0 );
     setStretch( 2, 2 );
+    addWDNotifiers( pms_.wd_ );
     updateProperties(0);
 }
 
 
 uiWellDisplay::~uiWellDisplay()
 {
+}
+
+
+void uiWellDisplay::addWDNotifiers( Well::Data& wd )
+{
+    wd.dispparschanged.notify( mCB(this,uiWellDisplay,updateProperties) );
+    wd.d2tchanged.notify( mCB(this,uiWellDisplay,dataChanged) );
+    wd.markerschanged.notify( mCB(this,uiWellDisplay,dataChanged) );
 }
 
 
@@ -655,9 +665,9 @@ void uiWellDisplay::setInitialZRange()
 	    zrg = dahrg;
     }
     //Swap( zrg.start, zrg.stop );
-    if ( pms_.zistime_ && pms_.d2tm_ ) 
-	zrg.set( pms_.d2tm_->getTime(zrg.start)*1000, 
-		 pms_.d2tm_->getTime(zrg.stop)*1000 );
+    if ( pms_.zistime_ && pms_.wd_.haveD2TModel() ) 
+	zrg.set( pms_.wd_.d2TModel()->getTime(zrg.start)*1000, 
+		 pms_.wd_.d2TModel()->getTime(zrg.stop)*1000 );
   
     pms_.zrg_ = zrg; 
 }
@@ -668,15 +678,11 @@ void uiWellDisplay::setStratDisp()
     if ( stratdisp_ )
 	stratdisp_->reParent(this);
     else
-    {
 	stratdisp_ = new uiWellStratDisplay(this,true,pms_.wd_.markers());
-	pms_.wd_.markerschanged.notify( 
-		mCB(stratdisp_,uiWellStratDisplay,doDataChange) );
-    }
 
     stratdisp_->setPrefWidth( mLogWidth );
     stratdisp_->setPrefHeight( mLogHeight );
-    stratdisp_->setD2TModel( pms_.d2tm_ );
+    stratdisp_->setD2TModel( pms_.wd_.d2TModel() );
     stratdisp_->setZIsTime( pms_.zistime_ );
     stratdisp_->doDataChange(0);
     if ( nrLogDisp() )
@@ -705,7 +711,6 @@ void uiWellDisplay::addLogPanel( bool noborderspace, bool isleft )
     logdisp->setPrefWidth( pms_.logwidth_ );
     logdisp->setPrefHeight( mLogHeight );
     logdisps_ += logdisp;
-    pms_.wd_.markerschanged.notify(mCB(logdisp,uiWellLogDisplay,reDrawMarkers));
 }
 
 
@@ -728,10 +733,16 @@ void uiWellDisplay::dataChanged( CallBacker* cb )
 	uiWellLogDisplay* logdisp = logdisps_[idx];
 	if ( !logdisp ) continue;
 	logdisps_[idx]->data().zrg_ = pms_.zrg_;
-	logdisp->data().zistime_ = pms_.zistime_ && pms_.d2tm_;
-	logdisp->data().d2tm_ = pms_.d2tm_;
+	logdisp->data().d2tm_ = pms_.wd_.d2TModel();
+	logdisp->data().zistime_ = pms_.zistime_ && pms_.wd_.d2TModel();
 	logdisp->data().markers_ = &pms_.wd_.markers();
 	logdisp->dataChanged();
+    }
+    if ( stratdisp_ )
+    {
+	stratdisp_->setD2TModel( pms_.wd_.d2TModel() );
+	stratdisp_->setZIsTime( pms_.zistime_ );
+	stratdisp_->doDataChange(cb);
     }
 }
 
@@ -749,6 +760,10 @@ void uiWellDisplay::updateProperties( CallBacker* cb )
     }
     dataChanged( 0 );
 }
+
+
+void uiWellDisplay::setEditOn( bool yn )
+{ if ( mrkedit_ ) mrkedit_->setEditOn(yn); }
 
 
 

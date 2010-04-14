@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.30 2010-04-13 12:55:16 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.31 2010-04-14 15:36:16 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uigroup.h"
 #include "uiaxishandler.h"
+#include "uicursor.h"
 #include "draw.h"
 #include "welldisp.h"
 
@@ -198,12 +199,11 @@ public:
 	bool 			zistime_;
 	Well::MarkerSet* 	markers_;
     };
-
-    DahData&			data() { return data_; }
-    const DahData&		data() const { return data_; }
-
     TypeSet<PickData>&		zPicks()	{ return zpicks_; }
-
+    DahData&			data() 		{ return data_; }
+    const DahData&		data() const 	{ return data_; }
+    const MouseCursor&		cursor() const 	{ return cursor_; }
+    
 protected:
 
     LogData			ld1_;
@@ -216,6 +216,8 @@ protected:
 
     ObjectSet<MarkerItem>	markeritms_;
     ObjectSet<uiLineItem>	zpickitms_;
+    
+    MouseCursor			cursor_;
 
     void			init(CallBacker*);
     void			reSized(CallBacker*);
@@ -302,6 +304,9 @@ public:
     const Params&		params() const		{ return pms_; } 
     void                        dataChanged(CallBacker*);
 
+    void			setEditOn( bool yn );
+    
+
 protected:
 
     ObjectSet<uiWellLogDisplay> logdisps_;
@@ -310,6 +315,7 @@ protected:
     Params			pms_;
 
     void			addLogPanel(bool,bool);
+    void			addWDNotifiers(Well::Data&);
     void			setStratDisp();
     void			setInitialZRange();
     int 			getDispWidth();
