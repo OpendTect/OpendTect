@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: uigmtfaults.cc,v 1.3 2010-04-13 08:31:49 cvsbert Exp $
+ RCS:           $Id: uigmtfaults.cc,v 1.4 2010-04-14 04:05:20 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,9 +114,8 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
     {
 	if ( !horfld_->ioobj() )
 	    return false;
+
 	iop.set( ODGMT::sKeyHorizonID, horfld_->key() );
-	uiMSG().message( "Calculation on horizon not implemented" );
-	return false;
     }
 
     BufferString lskey;

@@ -7,12 +7,16 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nageswara
  Date:          March 2010
- RCS:           $Id: gmtfault.h,v 1.1 2010-04-07 09:26:18 cvsnageswara Exp $
+ RCS:           $Id: gmtfault.h,v 1.2 2010-04-14 04:05:20 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gmtpar.h"
+
+class Coord3;
+class Coord3ListImpl;
+namespace EM { class Fault3D; }
 
 mClass GMTFault : public GMTPar
 {
@@ -30,6 +34,9 @@ public:
 
 protected:
     static GMTPar*	createInstance(const IOPar&);
+    TypeSet<Coord3>	getCornersOfZSlice(float) const;
+    bool		calcOnHorizon(const EM::Fault3D*,Coord3ListImpl&) const;
+
     static int		factoryid_;
 };
 
