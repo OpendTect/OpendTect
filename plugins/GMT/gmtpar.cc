@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtpar.cc,v 1.6 2010-02-09 06:30:37 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtpar.cc,v 1.7 2010-04-14 05:54:28 cvsraman Exp $";
 
 
 #include "gmtpar.h"
@@ -19,11 +19,6 @@ static const char* rcsID = "$Id: gmtpar.cc,v 1.6 2010-02-09 06:30:37 cvsraman Ex
 #include "strmdata.h"
 #include "strmprov.h"
 #include <iostream>
-
-
-DefineNameSpaceEnumNames(ODGMT,Shape,3,"Shapes")
-{ "Star", "Circle", "Diamond", "Square", "Triangle", "Cross", "Polygon",
-  "Line", 0 };
 
 
 GMTParFactory& GMTPF()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.13 2010-04-07 09:26:18 cvsnageswara Exp $
+ RCS:		$Id: gmtdef.h,v 1.14 2010-04-14 05:54:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,42 @@ namespace ODGMT
     static const char*  sKeyFaultID = "FaultID";
     static const char*  sKeyHorizonID = "HorizonID";
     static const char*  sKeyZIntersectionYN = "ZIntersection";
+
 };
+
+
+mClass GMTWellSymbol : public NamedObject
+{
+public:
+    BufferString	iconfilenm_;
+    BufferString	deffilenm_;
+
+    bool		usePar(const IOPar&);
+
+    static const char*	sKeyIconFileName();
+    static const char*	sKeyDefFileName();
+};
+
+
+mClass GMTWellSymbolRepository
+{
+public:
+    			GMTWellSymbolRepository();
+			~GMTWellSymbolRepository();
+
+   int			size() const;
+   const GMTWellSymbol*	get(int) const;
+   const GMTWellSymbol*	get(const char*) const;
+
+protected:
+
+   void			init();
+
+   ObjectSet<GMTWellSymbol>	symbols_;
+};
+
+
+mGlobal const GMTWellSymbolRepository& GMTWSR();
 
 
 #define mGetDefault( key, fn, var ) \

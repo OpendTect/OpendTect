@@ -7,11 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.11 2010-02-09 06:30:37 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.12 2010-04-14 05:54:28 cvsraman Exp $";
 
 #include "gmtlocations.h"
 
 #include "draw.h"
+#include "envvars.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -23,9 +25,108 @@ static const char* rcsID = "$Id: gmtlocations.cc,v 1.11 2010-02-09 06:30:37 cvsr
 #include "wellreader.h"
 
 
+DefineNameSpaceEnumNames(ODGMT,Shape,3,"Shapes")
+{ "Star", "Circle", "Diamond", "Square", "Triangle", "Cross", "Polygon",
+  "Line", 0 };
+
 DefineNameSpaceEnumNames(ODGMT,Alignment,1,"Alignments")
 { "Above", "Below", "Left", "Right", 0 };
 
+
+// Well Symbols
+
+const char* GMTWellSymbol::sKeyIconFileName()	{ return "Icon File Name"; }
+const char* GMTWellSymbol::sKeyDefFileName()	{ return "Def File Name"; }
+
+bool GMTWellSymbol::usePar( const IOPar& par )
+{
+    FixedString namestr = par.find( sKey::Name );
+    if ( !namestr )
+	return false;
+
+    setName( namestr );
+    if ( !par.get(sKeyIconFileName(),iconfilenm_)
+	    || !par.get(sKeyDefFileName(),deffilenm_) )
+	return false;
+
+    return true;
+}
+
+
+const GMTWellSymbolRepository& GMTWSR()
+{
+    static GMTWellSymbolRepository* inst = 0;
+    if ( !inst )
+	inst = new GMTWellSymbolRepository;
+
+    return *inst;
+}
+
+
+GMTWellSymbolRepository::GMTWellSymbolRepository()
+{
+    init();
+}
+
+
+GMTWellSymbolRepository::~GMTWellSymbolRepository()
+{
+    deepErase( symbols_ );
+}
+
+
+int GMTWellSymbolRepository::size() const
+{
+    return symbols_.size();
+}
+
+
+void GMTWellSymbolRepository::init()
+{
+    const char* gmtsharedir = GetOSEnvVar( "GMT_SHAREDIR" );
+    if ( !gmtsharedir || !*gmtsharedir )
+	return;
+
+    FilePath fp( gmtsharedir );
+    fp.add( "custom" );
+    fp.add( "indexfile" );
+    IOPar par;
+    if ( !par.read(fp.fullPath(),0) || !par.size() )
+	return;
+
+    for ( int idx=0; idx<100; idx++ )
+    {
+	PtrMan<IOPar> subpar = par.subselect( idx );
+	if ( !subpar ) return;
+
+	GMTWellSymbol* symbol = new GMTWellSymbol;
+	if ( symbol->usePar(*subpar) )
+	    symbols_ += symbol;
+	else
+	    delete symbol;
+    }
+}
+
+
+const GMTWellSymbol* GMTWellSymbolRepository::get( int idx ) const
+{
+    return symbols_.validIdx(idx) ? symbols_[idx] : 0;
+}
+
+
+const GMTWellSymbol* GMTWellSymbolRepository::get( const char* nm ) const
+{
+    for ( int idx=0; idx<symbols_.size(); idx++ )
+    {
+	if ( symbols_[idx]->name() == nm )
+	    return symbols_[idx];
+    }
+
+    return 0;
+}
+
+
+// GMTLocations
 int GMTLocations::factoryid_ = -1;
 
 void GMTLocations::initClass()
