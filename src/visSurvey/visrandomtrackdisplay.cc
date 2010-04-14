@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.124 2010-04-14 12:18:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.125 2010-04-14 14:09:02 cvsyuancheng Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -353,6 +353,8 @@ bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 	else
 	    addKnot( bid );
     }
+
+    return true;
 }
 
 
