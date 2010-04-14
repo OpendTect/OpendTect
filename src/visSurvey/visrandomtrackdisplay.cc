@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.119 2010-04-14 05:19:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.120 2010-04-14 05:43:22 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -109,11 +109,12 @@ RandomTrackDisplay::RandomTrackDisplay()
     triangles_->ref();
     addChild( triangles_->getInventorNode() );
     
+    polyline_->ref();
     addChild( polyline_->getInventorNode() );
     polyline_->setMaterial( visBase::Material::create() );
    
-   markergrp_->ref();
-   addChild( markergrp_->getInventorNode() );
+    markergrp_->ref();
+    addChild( markergrp_->getInventorNode() );
 
     const StepInterval<float>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
@@ -150,6 +151,7 @@ RandomTrackDisplay::~RandomTrackDisplay()
     dragger_->unRef();
     removeChild( polyline_->getInventorNode() );
     polyline_->unRef();
+    markergrp_->removeAll();
     removeChild( markergrp_->getInventorNode() );
     markergrp_->unRef();
     deepErase( cache_ );
