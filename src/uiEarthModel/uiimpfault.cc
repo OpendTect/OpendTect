@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.39 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.40 2010-04-15 10:40:48 cvsjaap Exp $";
 
 #include "uiimpfault.h"
 
@@ -75,8 +75,8 @@ void uiImportFault::createUI()
 
     if ( !isfss_ ) 
     {
-	BufferStringSet types; types.add( "Plain ascii" )
-	    			    .add( "Landmark format" );
+	BufferStringSet types; types.add( "Plain ascii" );
+//	    			    .add( "Landmark format" );
     	typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
