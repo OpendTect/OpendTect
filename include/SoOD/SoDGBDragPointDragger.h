@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          March 2010
- RCS:           $Id: SoDGBDragPointDragger.h,v 1.5 2010-04-15 09:04:41 cvskarthika Exp $
+ RCS:           $Id: SoDGBDragPointDragger.h,v 1.6 2010-04-15 20:33:04 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ src file for more details.
 
 #include <Inventor/draggers/SoDragger.h>
 #include <Inventor/fields/SoSFVec3f.h>
+#include <Inventor/fields/SoSFBool.h>
 
 class SoSensor;
 class SoFieldSensor;
@@ -70,7 +71,9 @@ mClass SoDGBDragPointDragger : public SoDragger {
     SO_KIT_CATALOG_ENTRY_HEADER(zFeedbackTranslation);
     SO_KIT_CATALOG_ENTRY_HEADER(zTranslator);
     SO_KIT_CATALOG_ENTRY_HEADER(zTranslatorSwitch);
-    SO_KIT_CATALOG_ENTRY_HEADER(axisFeedbackSwitch);
+    SO_KIT_CATALOG_ENTRY_HEADER(planeXAxisFeedbackSwitch);
+    SO_KIT_CATALOG_ENTRY_HEADER(planeYAxisFeedbackSwitch);
+    SO_KIT_CATALOG_ENTRY_HEADER(planeZAxisFeedbackSwitch);
     SO_KIT_CATALOG_ENTRY_HEADER(xAxisFeedback);
     SO_KIT_CATALOG_ENTRY_HEADER(yAxisFeedback);
     SO_KIT_CATALOG_ENTRY_HEADER(zAxisFeedback);
@@ -84,6 +87,11 @@ public:
     void 		showNextDraggerSet(void);
 
     SoSFVec3f		translation;
+
+    // This field specifies whether dragging should be restricted to the plane
+    // or cylinder depending on the view angle. Behaves like COIN3D's 
+    // SoDragPointDragger if false. Default is true.
+    SoSFBool		restrictdragging;
 
 protected:
     virtual 		~SoDGBDragPointDragger(void);
@@ -101,11 +109,14 @@ protected:
     static void 	fieldSensorCB(void * f, SoSensor * s);
     static void 	valueChangedCB(void * f, SoDragger * d);
     void		metaKeyChangeCB(void *, SoDragger *d);
+ 
+    void		showPlaneAxes(bool showx, bool showy, bool showz);
 
     SoFieldSensor* 	fieldSensor;
 
 private:
     void 		updateSwitchNodes();
+    bool		setObjectToDrag(SbVec3f);
 
     int 		curraxis_;
     SbLineProjector*	lineproj_;
