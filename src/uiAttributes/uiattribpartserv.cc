@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.151 2010-04-15 10:01:42 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.152 2010-04-15 11:02:06 cvsranojay Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -437,7 +437,9 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     const int nr3d = ds3d->nrDescs( false );
     const int nr2d = ds2d->nrDescs( false );
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
-
+    
+    return ds3d; //TODO: 2D pickset direction workaround needed, 
+		 //force return only 3D
     int res = uiMSG().askGoOnAfter( "Which attributes do you want to use?",
 	   			    0, "&3D", "&2D" );
     if ( res == 2 ) return 0;
