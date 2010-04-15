@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.15 2009-07-22 16:01:25 cvsbert Exp $
+ RCS:		$Id: vistext.h,v 1.16 2010-04-15 15:43:47 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class SoTranslation;
 
 namespace visBase
 {
+class PickStyle;
 
 mClass Text : public VisualObjectImpl
 {
@@ -54,6 +55,7 @@ protected:
     SoTranslation*		textpos_;
     SoFont*			font_;
     Transformation*		transformation_;
+    PickStyle*			pickstyle_;
 
     static const char*		sKeyString();
     static const char*		sKeyFontSize();

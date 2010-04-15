@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistext.cc,v 1.19 2009-07-22 16:01:45 cvsbert Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.20 2010-04-15 15:43:47 cvsjaap Exp $";
 
 #include "vistext.h"
 
 #include "iopar.h"
 #include "vistransform.h"
 #include "vismaterial.h"
+#include "vispickstyle.h"
 #include "separstr.h"
 #include "keystrs.h"
 
@@ -39,7 +40,12 @@ Text::Text()
     , textpos_(new SoTranslation)
     , font_(new SoFont)
     , transformation_( 0 )
+    , pickstyle_(PickStyle::create())
 {
+    pickstyle_->ref();
+    addChild( pickstyle_->getInventorNode() );
+    pickstyle_->setStyle( PickStyle::Unpickable );
+
     addChild( textpos_ );
     addChild( font_ );
 }
@@ -50,6 +56,7 @@ Text::~Text()
     if ( transformation_ ) transformation_->unRef();
     removeChild( textpos_ );
     removeChild( font_ );
+    pickstyle_->unRef();
 }
 
 
