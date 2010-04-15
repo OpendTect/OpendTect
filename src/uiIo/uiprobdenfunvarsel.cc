@@ -44,6 +44,13 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
 }
 
 
+void uiPrDenFunVarSel::setColNr( int nr )
+{
+    attrsel_->setCurrentItem( nr );
+    attrChanged( 0 );
+}
+
+
 void uiPrDenFunVarSel::setAttrRange( const StepInterval<float>& range )
 {
     rangesel_->setValue( range );

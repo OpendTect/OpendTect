@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.7 2010-03-17 12:25:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatedpspdf.cc,v 1.8 2010-04-15 12:05:25 cvssatyaki Exp $";
 
 #include "uicreatedpspdf.h"
 
@@ -69,6 +69,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     {
 	uiPrDenFunVarSel* fld = new uiPrDenFunVarSel( this, colinfo );
 	fld->attrSelChanged.notify( mCB(this,uiCreateDPSPDF,setColRange) );
+	fld->setColNr( plotter_.axisData(idx).colid_ + 3 );
 	setColRange( fld );
 	if ( idx == 0 )
 	    rmbuts_ += 0;
@@ -98,6 +99,9 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     outputfld_->setLabelText( "Output PDF" );
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
+    butPush( addbuts_[1] );
+    if ( plotter_.isY2Shown() )
+	butPush( addbuts_[2] );
     handleDisp( 0 );
 }
 
@@ -112,13 +116,27 @@ void uiCreateDPSPDF::setColRange( CallBacker* cb )
     if ( !varselfld ) return;
 
     Interval<float> datarange( mUdf(float),-mUdf(float) );
-    for ( int rid=0; rid<plotter_.dps().size(); rid++ )
+
+    bool isaxisshown = false;
+    for ( int idx=0; idx<3; idx++ )
     {
-	const float val = plotter_.getVal(varselfld->selColID(),rid);
-       	if ( !mIsUdf(val) && val > datarange.stop )
-	    datarange.stop = val;
-	if ( !mIsUdf(val) && val < datarange.start )
-	    datarange.start = val;
+	if ( varselfld->selColID() ==  plotter_.axisData(idx).colid_ )
+	{
+	    isaxisshown = true;
+	    datarange = plotter_.axisHandler(idx)->range();
+	}
+    }
+
+    if ( !isaxisshown )
+    {
+	for ( int rid=0; rid<plotter_.dps().size(); rid++ )
+	{
+	    const float val = plotter_.getVal(varselfld->selColID(),rid);
+	    if ( !mIsUdf(val) && val > datarange.stop )
+		datarange.stop = val;
+	    if ( !mIsUdf(val) && val < datarange.start )
+		datarange.start = val;
+	}
     }
 
     StepInterval<float> attrrange( datarange );

@@ -38,6 +38,7 @@ struct DataColInfo
     BufferString		selColName() const;
 
     void			setAttrRange(const StepInterval<float>&);
+    void			setColNr(int);
 
     Notifier<uiPrDenFunVarSel>	attrSelChanged;
 
