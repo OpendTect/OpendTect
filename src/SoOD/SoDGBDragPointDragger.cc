@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.8 2010-04-15 09:03:53 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.9 2010-04-15 20:34:24 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
@@ -25,11 +25,12 @@ static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.8 2010-04-15 09:03
 #include <Inventor/projectors/SbLineProjector.h>
 #include <Inventor/projectors/SbPlaneProjector.h>
 
-// constraints on the plane for movement along 2 axes
+// constraints on the plane for movement along the 3 principal axes
 #define CONSTRAINT_OFF  0
 #define CONSTRAINT_WAIT 1
 #define CONSTRAINT_X    2
 #define CONSTRAINT_Y    3
+#define CONSTRAINT_Z    4
 
 SO_KIT_SOURCE(SoDGBDragPointDragger);
 
@@ -121,7 +122,7 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
     
     // Plane feedback
     SO_KIT_ADD_CATALOG_ENTRY(planeFeedbackSep, SoSeparator, FALSE, 
-	    topSeparator, axisFeedbackSwitch, FALSE);
+	    topSeparator, planeXAxisFeedbackSwitch, FALSE);
     SO_KIT_ADD_CATALOG_ENTRY(planeFeedbackTranslation, SoTranslation, FALSE, 
 	    planeFeedbackSep, planeFeedbackSwitch, FALSE);
     SO_KIT_ADD_CATALOG_ENTRY(planeFeedbackSwitch, SoSwitch, FALSE, 
@@ -134,14 +135,18 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
 	    planeFeedbackSwitch, "", TRUE);
    
     // Plane axes feedback
-    SO_KIT_ADD_CATALOG_ENTRY(axisFeedbackSwitch, SoSwitch, FALSE, 
-	    topSeparator, geomSeparator, FALSE);
+    SO_KIT_ADD_CATALOG_ENTRY(planeXAxisFeedbackSwitch, SoSwitch, FALSE, 
+	    topSeparator, planeYAxisFeedbackSwitch, FALSE);
     SO_KIT_ADD_CATALOG_ENTRY(xAxisFeedback, SoSeparator, TRUE, 
-	    axisFeedbackSwitch, yAxisFeedback, TRUE);
+	    planeXAxisFeedbackSwitch, yAxisFeedback, TRUE);
+    SO_KIT_ADD_CATALOG_ENTRY(planeYAxisFeedbackSwitch, SoSwitch, FALSE, 
+	    topSeparator, planeZAxisFeedbackSwitch, FALSE);
     SO_KIT_ADD_CATALOG_ENTRY(yAxisFeedback, SoSeparator, TRUE, 
-	    axisFeedbackSwitch, zAxisFeedback, TRUE);
+	    planeYAxisFeedbackSwitch, zAxisFeedback, TRUE);
+    SO_KIT_ADD_CATALOG_ENTRY(planeZAxisFeedbackSwitch, SoSwitch, FALSE, 
+	    topSeparator, geomSeparator, FALSE);
     SO_KIT_ADD_CATALOG_ENTRY(zAxisFeedback, SoSeparator, TRUE, 
-	    axisFeedbackSwitch, "", TRUE);
+	    planeZAxisFeedbackSwitch, "", TRUE);
       
     if (SO_KIT_IS_FIRST_INSTANCE())
     {
@@ -150,6 +155,7 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
     }
 
     SO_KIT_ADD_FIELD(translation, (0.0f, 0.0f, 0.0f));
+    SO_KIT_ADD_FIELD(restrictdragging, (true));
     SO_KIT_INIT_INSTANCE();
 
     // initialize default parts pertaining to feedback
@@ -200,10 +206,9 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
 	sw = SO_GET_ANY_PART(this, linefbswitchnames_[i], SoSwitch);
 	SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
     }
-    
-    sw = SO_GET_ANY_PART(this, "axisFeedbackSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
 
+    showPlaneAxes( false, false, false );
+    
     // set up projector
     this->lineproj_ = new SbLineProjector();
     this->planeproj_ = new SbPlaneProjector();
@@ -345,7 +350,7 @@ void SoDGBDragPointDragger::dragStart()
     if ( !cyl || !cube )
 	return;
 	
-    // find the orientation of the dragger to the Z-axis
+    // find the orientation of the dragger to the 3 axes
     SbViewVolume vw = getViewVolume();
     SbVec3f worldprojdir = vw.getProjectionDirection();
     const SbMatrix& mat = getWorldToLocalMatrix();
@@ -353,30 +358,8 @@ void SoDGBDragPointDragger::dragStart()
     mat.multDirMatrix( worldprojdir, localprojdir );
     localprojdir.normalize();
 
-    const float angletox = fabs( localprojdir[0] );
-    const float angletoy = fabs( localprojdir[1] );
-    const float angletoz = fabs( localprojdir[2] );
-    const float upperlimit = 0.7;
-    const float lowerlimit = 0.3;
-    
-    // When the cylinder is lying flat (almost along the Z axis), restrict 
-    // picking the cylinder. User probably wants to move just the rectangle 
-    // but has picked the cylinder by mistake.
-    //
-    // When the cylinder is upright, restrict picking the rectangle. User 
-    // probably wants to move just the cylinder but has picked the rectangle 
-    // by mistake.
+    bool set = setObjectToDrag( localprojdir );
 
-    // conditions have been tested for only when curraxis_ is 1
-    bool set = false;
-    if ( curraxis_ == 1)
-    {
-	set = true;
-	if ( ( angletox <= lowerlimit ) && ( angletoy >= upperlimit ) )
-	    movecyl_ = false;
-	else if ( angletoy <= lowerlimit )
-	    movecyl_ = true;
-    }
     if ( !set) 
     {
         // Let the user drag as desired. Find which object the user has picked.
@@ -417,27 +400,24 @@ void SoDGBDragPointDragger::dragStart()
 
 	// set the active part and the axes feedback
 	const char* activepartname = "";
-        sw = SO_GET_ANY_PART(this, "axisFeedbackSwitch", SoSwitch);
+	
 	if ( curraxis_ == 0 )
 	{
 	    setPartAsDefault(planetranslatornames_[0],
 		"dragPointYZTranslatorTranslatorActive");
-	    SoInteractionKit::setSwitchValue(sw, 1);
-	    SoInteractionKit::setSwitchValue(sw, 2);
+	    showPlaneAxes( false, true, true );
 	}
 	else if ( curraxis_ == 1 )
 	{
 	    setPartAsDefault(planetranslatornames_[1], 
 		"dragPointXZTranslatorTranslatorActive");
-	    SoInteractionKit::setSwitchValue(sw, 0);
-	    SoInteractionKit::setSwitchValue(sw, 2);
+	    showPlaneAxes( true, false, true );
 	}
 	else if (curraxis_ == 2 )
 	{
 	    setPartAsDefault(planetranslatornames_[2], 
 		"dragPointXYTranslatorTranslatorActive");
-	    SoInteractionKit::setSwitchValue(sw, 0);
-	    SoInteractionKit::setSwitchValue(sw, 1);
+	    showPlaneAxes( true, true, false );
 	}
 
 	SbVec3f hitpt = this->getLocalStartingPoint();
@@ -456,7 +436,45 @@ void SoDGBDragPointDragger::dragStart()
 }
 
 
-// to do? Extra feedback for moving plane along individual axes
+bool SoDGBDragPointDragger::setObjectToDrag( SbVec3f localprojdir )
+{
+	if ( !restrictdragging.getValue() )
+	return false;
+
+    const float angletox = fabs( localprojdir[0] );
+    const float angletoy = fabs( localprojdir[1] );
+    const float angletoz = fabs( localprojdir[2] );
+    const float upperlimit = 0.7;
+    const float lowerlimit = 0.3;
+    
+    // When the cylinder is lying flat (almost along the Z axis), restrict 
+    // picking the cylinder. User probably wants to move just the rectangle 
+    // but has picked the cylinder by mistake.
+    //
+    // When the cylinder is upright or lying along the X axis, restrict 
+    // picking the rectangle. User probably wants to move just the cylinder 
+    // but has picked the rectangle by mistake.
+
+    // conditions have been tested for only when curraxis_ is 1
+    bool set = false;
+    if ( curraxis_ == 1 )
+    {
+	if ( ( angletox <= lowerlimit ) && ( angletoy >= upperlimit ) )
+	{
+	    movecyl_ = false;
+	    set = true;
+	}
+	else if ( angletoy <= lowerlimit )
+	{
+	    movecyl_ = true;
+	    set = true;
+	}
+    }
+
+    return set;
+}
+
+
 void SoDGBDragPointDragger::drag()
 {
     if ( movecyl_ )
@@ -504,9 +522,9 @@ void SoDGBDragPointDragger::drag()
 		this->setStartingPoint( worldprojpt );
 		this->extramotion_ += this->lastmotion_;
       
-		/*SoSwitch *sw = SO_GET_ANY_PART(
-		 this, "axisFeedbackSwitch", SoSwitch);
-		 SoInteractionKit::setSwitchValue(sw, SO_SWITCH_ALL);*/
+		showPlaneAxes( ( curraxis_ == 0 ) ? false : true,
+				( curraxis_ == 1 ) ? false : true,
+				( curraxis_ == 2 ) ? false : true );			
 		this->constraintstate_ = CONSTRAINT_OFF;
 	    }
     
@@ -532,21 +550,35 @@ void SoDGBDragPointDragger::drag()
 		    if ( this->isAdequateConstraintMotion() )
 		    {
 			SbVec3f newmotion = projpt - localrestartpt;
-			if ( fabs( newmotion[0] ) >= fabs( newmotion[1] ) )
+			if ( ( curraxis_ == 1 && 
+			       fabs(newmotion[0]) >= fabs(newmotion[2]) ) || 
+			     ( curraxis_ == 2 &&
+			       fabs(newmotion[0]) >= fabs(newmotion[1]) ) )
 			{
+			    // XZ or XY
 			    this->constraintstate_ = CONSTRAINT_X;
 			    motion[0] += newmotion[0];
-			    /*SoSwitch *sw = SO_GET_ANY_PART(
-			     this, "axisFeedbackSwitch", SoSwitch);
-			     SoInteractionKit::setSwitchValue(sw, 0);*/
+			    showPlaneAxes( true, false, false );
 		        }
-			else 
+			else if ( ( curraxis_ == 0 && 
+			       fabs(newmotion[1]) >= fabs(newmotion[2]) ) || 
+			     ( curraxis_ == 2 &&
+			       fabs(newmotion[1]) >= fabs(newmotion[0]) ) )
 			{
+			    // YZ or XY
 			    this->constraintstate_ = CONSTRAINT_Y;
 			    motion[1] += newmotion[1];
-			    /*SoSwitch *sw = SO_GET_ANY_PART(
-			     this, "axisFeedbackSwitch", SoSwitch);
-			     SoInteractionKit::setSwitchValue(sw, 1);*/
+			    showPlaneAxes( false, true, false );
+			}
+			else if ( ( curraxis_ == 0 && 
+			       fabs(newmotion[2]) >= fabs(newmotion[1]) ) || 
+			     ( curraxis_ == 1 &&
+			       fabs(newmotion[2]) >= fabs(newmotion[0]) ) )
+			{
+			    // YZ or XZ
+			    this->constraintstate_ = CONSTRAINT_Z;
+			    motion[2] += newmotion[2];
+			    showPlaneAxes( false, false, true );
         		}
       		    }
       		    else
@@ -559,6 +591,10 @@ void SoDGBDragPointDragger::drag()
 
 	    case CONSTRAINT_Y:
 		motion[1] += projpt[1] - localrestartpt[1];
+		break;
+	    
+	    case CONSTRAINT_Z:
+	        motion[2] += projpt[2] - localrestartpt[2];
 		break;
 	    }
 
@@ -606,12 +642,23 @@ void SoDGBDragPointDragger::dragFinish()
 	else if (curraxis_ == 2 )
 	    setPartAsDefault(planetranslatornames_[2], 
 		"dragPointXYTranslatorTranslator");
-
-	sw = SO_GET_ANY_PART(this, "axisFeedbackSwitch", SoSwitch);
-	SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
-
+    
+	showPlaneAxes( false, false, false );
 	this->constraintstate_ = CONSTRAINT_OFF;
     }
+}
+
+
+void SoDGBDragPointDragger::showPlaneAxes( bool showx, bool showy, bool showz )
+{
+    SoSwitch* sw;
+
+    sw = SO_GET_ANY_PART(this, "planeXAxisFeedbackSwitch", SoSwitch);
+    SoInteractionKit::setSwitchValue(sw, showx ? 0 : SO_SWITCH_NONE);
+    sw = SO_GET_ANY_PART(this, "planeYAxisFeedbackSwitch", SoSwitch);
+    SoInteractionKit::setSwitchValue(sw, showy ? 0 : SO_SWITCH_NONE);
+    sw = SO_GET_ANY_PART(this, "planeZAxisFeedbackSwitch", SoSwitch);
+    SoInteractionKit::setSwitchValue(sw, showz ? 0 : SO_SWITCH_NONE);
 }
 
 
@@ -797,4 +844,5 @@ const char* SoDGBDragPointDragger::draggergeometry_ =
 #undef CONSTRAINT_WAIT
 #undef CONSTRAINT_X
 #undef CONSTRAINT_Y
+#undef CONSTRAINT_Z
 
