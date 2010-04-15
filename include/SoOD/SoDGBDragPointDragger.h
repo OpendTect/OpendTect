@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          March 2010
- RCS:           $Id: SoDGBDragPointDragger.h,v 1.4 2010-04-12 13:25:38 cvskarthika Exp $
+ RCS:           $Id: SoDGBDragPointDragger.h,v 1.5 2010-04-15 09:04:41 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,10 @@ mClass SoDGBDragPointDragger : public SoDragger {
     SO_KIT_CATALOG_ENTRY_HEADER(zFeedbackTranslation);
     SO_KIT_CATALOG_ENTRY_HEADER(zTranslator);
     SO_KIT_CATALOG_ENTRY_HEADER(zTranslatorSwitch);
+    SO_KIT_CATALOG_ENTRY_HEADER(axisFeedbackSwitch);
+    SO_KIT_CATALOG_ENTRY_HEADER(xAxisFeedback);
+    SO_KIT_CATALOG_ENTRY_HEADER(yAxisFeedback);
+    SO_KIT_CATALOG_ENTRY_HEADER(zAxisFeedback);
 
 public:
     static void		initClass(void);
