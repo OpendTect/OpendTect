@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.65 2010-03-04 09:20:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.66 2010-04-15 15:38:15 cvsjaap Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -544,6 +544,12 @@ void uiGroup::setHCentreObj( uiObject* o )
 void uiGroup::setNoBackGround()
     { grpobj_->body_->setAttribute( Qt::WA_NoSystemBackground ); }
 
+
+void uiGroup::setChildrenSensitive( bool yn )
+{
+    for ( int idx=0; idx<grpobj_->childList()->size(); idx++ )
+	((uiObject*) (*grpobj_->childList())[idx])->setSensitive( yn );
+}
 
 
 uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
