@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.199 2010-03-17 14:53:40 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.200 2010-04-15 15:39:21 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -160,6 +160,7 @@ protected:
     virtual void	finalise( bool trigger_finalise_start_stop=true );
     void		closeEvent(QCloseEvent*);
     bool		event(QEvent*);
+
 
     void		renewToolbarsMenu();
     void		toggleToolbar(CallBacker*);
@@ -792,12 +793,18 @@ void uiMainWin::readSettings()
 void uiMainWin::raise()
 { body_->raise(); }
 
-void uiMainWin::activateWindow()
-{ body_->activateWindow(); }
+
+static uiMainWin* programmedactivewin_ = 0;
+
+void uiMainWin::programActiveWindow( uiMainWin* mw )
+{ programmedactivewin_ = mw; }
 
 
 uiMainWin* uiMainWin::activeWindow()
 {
+    if ( programmedactivewin_ )
+	return programmedactivewin_;
+
     QWidget* _aw = qApp->activeWindow();
     if ( !_aw )		return 0;
 

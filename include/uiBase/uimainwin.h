@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.81 2010-03-10 07:18:44 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.82 2010-04-15 15:39:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,6 @@ public:
     virtual void	show();
     void                close();
     void		raise();
-    void		activateWindow();
 
     void		showMaximized();
     void		showMinimized();
@@ -188,6 +187,9 @@ protected:
 
     BufferString	caption_;
 
+public:	
+			// Not for casual use
+    static void		programActiveWindow(uiMainWin*);
 };
 
 #endif
