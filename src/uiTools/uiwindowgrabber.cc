@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.16 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.17 2010-04-15 08:05:26 cvsjaap Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -266,9 +266,11 @@ uiWindowGrabber::~uiWindowGrabber()
 void uiWindowGrabber::mkThread( CallBacker* )
 {
     // give window manager chance to remove the uiWindowGrabDlg from screen
-    Threads::sleep( 0.1 );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    Threads::sleep( 1 );
 
     grabwin_->activateInGUIThread( mCB(this,uiWindowGrabber,actCB) ); 
+    MouseCursorManager::restoreOverride();
 }
 
 
