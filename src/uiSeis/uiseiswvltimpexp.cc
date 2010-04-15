@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.2 2010-04-09 08:27:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltimpexp.cc,v 1.3 2010-04-15 15:41:18 cvsjaap Exp $";
 
 
 #include "uiseiswvltimpexp.h"
@@ -36,7 +36,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     setCtrlStyle( DoAndStay );
 
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
-	    		      .withexamine(true).examinetablestyle(true) );
+		      .withexamine(true).examstyle(uiFileInput::Setup::Table) );
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
 
