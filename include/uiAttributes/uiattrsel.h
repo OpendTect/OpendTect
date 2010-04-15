@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.22 2010-04-14 14:42:45 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.23 2010-04-15 10:01:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,8 @@ public:
 			uiAttrSelDlg(uiParent*,const char* seltxt,
 				     const uiAttrSelData&,
 				     Attrib::DescID ignoreid=
-				     		Attrib::DescID(-1,true));
+				     		Attrib::DescID(-1,true),
+				     bool isinp4otherattrib = true);
 			~uiAttrSelDlg();
 
 			// if ( go() ) ...
@@ -92,7 +93,7 @@ protected:
 
     uiAttrSelData	attrdata_;
     Attrib::SelInfo*	attrinf_;
-    bool		usedasinput_;
+    bool		usedasinput_;	//input for another attribute
     bool		in_action_;
     BufferString	zdomainkey_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.150 2010-04-14 14:42:45 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.151 2010-04-15 10:01:42 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -312,7 +312,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
     attrdata.nlamodel_ = getNLAModel(is2d);
     attrdata.zdomainkey_ = zdomainkey;
     attrdata.zdomainid_ = zdomainid;
-    uiAttrSelDlg dlg( parent(), "View Data", attrdata );
+    uiAttrSelDlg dlg( parent(), "View Data", attrdata, DescID::undef(), false );
     if ( !dlg.go() )
 	return false;
 

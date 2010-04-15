@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.48 2010-04-14 14:44:04 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.49 2010-04-15 10:01:42 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -77,7 +77,8 @@ bool uiAttrSelData::is2D() const
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 			    const uiAttrSelData& atd, 
-			    DescID ignoreid )
+			    DescID ignoreid,
+       			    bool isinp4otherattrib )
 	: uiDialog(p,Setup("",0,atd.nlamodel_?"":"101.1.1"))
 	, attrdata_(atd)
 	, selgrp_(0)
@@ -89,7 +90,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
     	, zdomainfld_(0)
 	, zdomoutfld_(0)
 	, in_action_(false)
-	, usedasinput_( ignoreid.isValid() )
+	, usedasinput_( isinp4otherattrib )
 {
     attrinf_ = new SelInfo( &atd.attrSet(), atd.nlamodel_, is2D(), ignoreid );
     if ( attrinf_->ioobjnms.isEmpty() )
