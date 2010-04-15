@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.45 2010-04-01 09:15:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.46 2010-04-15 07:18:43 cvsbruno Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -238,7 +238,7 @@ uiPolyLineItem* uiGraphicsScene::addPolyLine( const TypeSet<uiPoint>& ptlist )
 
 void uiGraphicsScene::setBackGroundColor( const Color& color )
 {
-    QBrush brush( QColor(color.r(),color.g(),color.b(),color.t()) );
+    QBrush brush( QColor(color.r(),color.g(),color.b(),255-color.t()) );
     odgraphicsscene_->setBackgroundBrush( brush );
 }
 
