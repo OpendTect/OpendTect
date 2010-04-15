@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.14 2010-03-17 06:47:58 cvsumesh Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.15 2010-04-15 12:41:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ mClass uiODWellSeisViewer2D : public uiODViewer2D
 public:
 				uiODWellSeisViewer2D(uiODMain&,int visid);
 
-    void			createViewWin(DataPack::ID,bool wva);
+    bool			createViewWin(DataPack::ID,bool wva);
 };
 
 #endif
