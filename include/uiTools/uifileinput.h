@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.31 2009-12-03 14:47:46 cvsbert Exp $
+ RCS:           $Id: uifileinput.h,v 1.32 2010-04-15 15:42:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,11 +40,16 @@ public:
 			Setup(uiFileDialog::Type t,const char* filenm=0);
 
 	BufferString	fnm;
+
+	enum ExamStyle	{ View, Table, Log, Edit };
+
 	mDefSetupMemb(BufferString,filter)
 	mDefSetupMemb(BufferString,defseldir)
+	mDefSetupMemb(bool,displaylocalpath)
 	mDefSetupMemb(bool,forread)
 	mDefSetupMemb(bool,withexamine)
-	mDefSetupMemb(bool,examinetablestyle)
+	mDefSetupMemb(ExamStyle,examstyle)
+
 	mDefSetupMemb(bool,directories)
 	mDefSetupMemb(bool,allowallextensions)
 	mDefSetupMemb(bool,confirmoverwrite)
@@ -78,6 +83,7 @@ public:
     void		setSelectMode( uiFileDialog::Mode m) 
 			{ selmodset_ = true;  selmode_ = m; }
 
+    void		setSensitive(bool yn)	{ setChildrenSensitive(yn); }
     void		enableExamine(bool);
     			//!< only if examinebut present
 
@@ -86,9 +92,10 @@ protected:
     bool		forread_;
     BufferString	filter_;
     BufferString	defseldir_;
+    bool		displaylocalpath_;
     BufferString	selfltr_;
     bool		addallexts_;
-    bool		tablevw_;
+    Setup::ExamStyle	examstyle_;
     bool		confirmoverwrite_;
     CallBack		excb_;
 

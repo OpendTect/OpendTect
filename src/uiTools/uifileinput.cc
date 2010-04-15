@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.52 2010-04-08 10:47:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.53 2010-04-15 15:42:37 cvsjaap Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -24,12 +24,13 @@ uiFileInput::Setup::Setup( const char* filenm )
     : fnm(filenm)
     , forread_(true)
     , withexamine_(false)
-    , examinetablestyle_(false)
+    , examstyle_(View)
     , directories_(false)
     , allowallextensions_(true)
     , confirmoverwrite_(true)
     , filedlgtype_(uiFileDialog::Txt)
     , defseldir_(GetDataDir())
+    , displaylocalpath_(false)
 {
 }
 
@@ -38,12 +39,13 @@ uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
     : fnm(filenm)
     , forread_(true)
     , withexamine_(t==uiFileDialog::Txt)
-    , examinetablestyle_(false)
+    , examstyle_(View)
     , confirmoverwrite_(true)
     , filedlgtype_(t)
     , directories_(false)
     , allowallextensions_(true)
     , defseldir_(GetDataDir())
+    , displaylocalpath_(false)
 {
 }
 
@@ -53,21 +55,25 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , forread_(setup.forread_)
     , filter_(setup.filter_)
     , defseldir_(setup.defseldir_)
+    , displaylocalpath_(setup.displaylocalpath_)
     , selmodset_(false)
     , selmode_(uiFileDialog::AnyFile)
     , filedlgtype_(setup.filedlgtype_)
     , examinebut_(0)
     , addallexts_(setup.allowallextensions_)
-    , tablevw_(setup.examinetablestyle_)
+    , examstyle_(setup.examstyle_)
     , confirmoverwrite_(setup.confirmoverwrite_)
 {
+    setFileName( setup.fnm );
     setWithSelect( true );
     if ( setup.withexamine_ )
     {
-	examinebut_ = new uiPushButton( this, "&Examine", 
-					mCB(this,uiFileInput,examineFile),
-					false );
-	examinebut_->setName( BufferString("Examine ",txt) );
+	examinebut_ = new uiPushButton( this,
+			    (examstyle_==Setup::Edit ? "&Edit" : "&Examine"),
+			    mCB(this,uiFileInput,examineFile), false );
+
+	examinebut_->setName(
+	    BufferString(examstyle_==Setup::Edit ? "Edit" : "Examine ",txt) );
     }
     if ( setup.directories_ )
     {
@@ -89,7 +95,10 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
     , examinebut_(0)
     , addallexts_(true)
     , confirmoverwrite_(true)
+    , defseldir_(GetDataDir())
+    , displaylocalpath_(false)
 {
+    setFileName( fnm );
     setWithSelect( true );
 }
 
@@ -114,19 +123,37 @@ void uiFileInput::isFinalised( CallBacker* )
 
 void uiFileInput::setDefaultSelectionDir( const char* s )
 {
+    BufferString fname = text();
+    if ( !fname.isEmpty() )
+	fname = fileName();
+
     defseldir_ = s ? s : GetDataDir();
+    setFileName( fname );
 }
 
 
 void uiFileInput::setFileName( const char* s )
 {
     setText( s );
+
+    if ( displaylocalpath_ )
+    {
+	BufferString fname = fileName();
+	BufferString seldir = FilePath(defseldir_).fullPath();
+	if ( matchString(seldir,fname) )
+	{
+	    const char* ptr = fname.buf() + seldir.size();
+	    if ( *ptr=='\\' || *ptr=='/' )
+		setText( ptr+1 );
+	}
+    }
 }
 
 
 void uiFileInput::enableExamine( bool yn )
 {
-    if ( examinebut_ ) examinebut_->setSensitive( yn );
+    if ( examinebut_ )
+	examinebut_->setSensitive( yn );
 }
 
 
@@ -210,10 +237,16 @@ void uiFileInput::examineFile( CallBacker* )
     else
     {
 	BufferString cmd( "FileBrowser" );
-	if ( tablevw_ )
+	if ( examstyle_ == Setup::Table )
 	    cmd += " --table --maxlines 250";
 	else
 	    cmd += " --maxlines 5000";
+
+	if ( examstyle_ == Setup::Log )
+	    cmd += " --log";
+	if ( examstyle_ == Setup::Edit )
+	    cmd += " --edit";
+
 	ExecuteScriptCommand( cmd, fileName() );
     }
 }
