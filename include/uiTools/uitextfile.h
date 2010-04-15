@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextfile.h,v 1.4 2009-07-22 16:01:23 cvsbert Exp $
+ RCS:           $Id: uitextfile.h,v 1.5 2010-04-15 15:39:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ public:
 			    , table_(tbl)
 			    , filename_(fname)
 			    , maxlines_(mUdf(int))
+			    , logviewmode_(false)
 			{
 			}
 
@@ -38,6 +39,7 @@ public:
 	mDefSetupMemb(bool,table)
 	mDefSetupMemb(BufferString,filename)
 	mDefSetupMemb(int,maxlines)
+	mDefSetupMemb(bool,logviewmode)
 
     };
 

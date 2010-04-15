@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.44 2009-08-20 07:01:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.45 2010-04-15 15:39:56 cvsjaap Exp $";
 
 
 #include "uitextedit.h"
@@ -20,11 +20,14 @@ static const char* rcsID = "$Id: uitextedit.cc,v 1.44 2009-08-20 07:01:20 cvsnan
 #include "ascstream.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "timer.h"
 
 #include <iostream>
 #include <QTextDocument> 
 #include <QTextEdit> 
 
+
+#define mMaxLineLength 32768
 
 
 uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
@@ -58,10 +61,10 @@ void uiTextEditBase::readFromFile( const char* src, int wraplen )
     BufferString contents;
     BufferString newcontents;
 
-#define mMaxLineLength 32768
     char buf[mMaxLineLength];
     int lines_left = maxLines();
-    if ( lines_left < 0 ) lines_left = mUdf(int);
+    if ( lines_left < 0 )
+	lines_left = mUdf(int);
     int nrnewlines = 0;
     while ( true )
     {
@@ -163,7 +166,6 @@ int uiTextEditBase::nrLines() const
 }
 
 
-
 class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
 {
 public:
@@ -222,7 +224,8 @@ void uiTextEdit::setText( const char* txt, bool trigger_notif )
 }
 
 
-void uiTextEdit::append( const char* txt)	{ body_->append(txt); }
+void uiTextEdit::append( const char* txt )	{ body_->append(txt); }
+
 QTextEdit& uiTextEdit::qte()			{ return *body_; }
 
 
@@ -258,7 +261,7 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
 //-------------------------------------------------------
 
 uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
-			      bool forceplaintxt )
+			      bool forceplaintxt, bool lvmode )
     : uiTextEditBase( parnt, nm, mkbody(parnt,nm,forceplaintxt) )	
     , goneForwardOrBack(this)
     , linkHighlighted(this)
@@ -267,7 +270,20 @@ uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
     , cangobackw_(false)
     , forceplaintxt_(forceplaintxt)
     , maxlines_(mxlns)
+    , logviewmode_(lvmode)
+    , lastlinestartpos_(-1)
 {
+    qte().document()->setMaximumBlockCount( mxlns );
+
+    timer_ = new Timer();
+    timer_->tick.notify( mCB(this,uiTextBrowser,readTailCB) );
+}
+
+
+uiTextBrowser::~uiTextBrowser()
+{
+    timer_->tick.remove( mCB(this,uiTextBrowser,readTailCB) );
+    delete timer_;
 }
 
 
@@ -280,6 +296,43 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 
 
 QTextEdit& uiTextBrowser::qte()	{ return *body_; }
+
+
+void uiTextBrowser::readTailCB( CallBacker* )
+{
+    StreamData sd = StreamProvider( textsrc_ ).makeIStream();
+    if ( !sd.usable() )
+	return;
+
+    char buf[mMaxLineLength];
+    const int maxchartocmp = mMIN( mMaxLineLength, 80 );
+
+    if ( lastlinestartpos_ >= 0 )
+    {
+	sd.istrm->seekg( lastlinestartpos_ );
+	sd.istrm->getline( buf, mMaxLineLength );
+	if ( !sd.istrm->good() || strncmp(buf, lastline_.buf(), maxchartocmp) )
+	{
+	    sd.close();
+	    lastlinestartpos_ = -1;
+	    qte().setText( "" );
+	    sd = StreamProvider( textsrc_ ).makeIStream();
+	    if ( !sd.usable() )
+		return;
+	}
+    }
+
+    while ( sd.istrm->peek()!=EOF )
+    {
+	lastlinestartpos_ = sd.istrm->tellg();
+	sd.istrm->getline( buf, mMaxLineLength );
+	qte().append( buf );
+    }
+
+    buf[maxchartocmp-1] = '\0';
+    lastline_= buf;
+    sd.close();
+}
 
 
 void uiTextBrowser::setText( const char* txt )
@@ -301,7 +354,15 @@ void uiTextBrowser::setSource( const char* src )
     if ( forceplaintxt_ )
     {
 	textsrc_ = src;
-	readFromFile( src );
+
+	if ( logviewmode_ )
+	{
+	    lastlinestartpos_ = -1;
+	    readTailCB( 0 );
+	    timer_->start( 500, false ); 
+	}
+	else
+	    readFromFile( src );
     }
     else
         body_->setSource( QUrl(src) );

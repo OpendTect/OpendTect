@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextfile.cc,v 1.8 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uitextfile.cc,v 1.9 2010-04-15 15:39:56 cvsjaap Exp $";
 
 #include "uitextfile.h"
 #include "uitextedit.h"
@@ -38,7 +38,7 @@ void uiTextFile::init( uiParent* p )
 	txted_ = new uiTextEdit( p, setup_.filename_ );
     else
 	txtbr_ = new uiTextBrowser( p, setup_.filename_, setup_.maxlines_,
-				    true );
+				    true, setup_.logviewmode_ );
 
     BufferString nm( setup_.filename_ );
     setup_.filename_ = "";
