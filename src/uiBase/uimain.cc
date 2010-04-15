@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.52 2009-07-22 16:01:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.53 2010-04-15 15:38:50 cvsjaap Exp $";
 
 #include "uimain.h"
 
@@ -18,11 +18,13 @@ static const char* rcsID = "$Id: uimain.cc,v 1.52 2009-07-22 16:01:38 cvsbert Ex
 #include "bufstringset.h"
 #include "debugmasks.h"
 #include "errh.h"
+#include "keyboardevent.h"
 #include "settings.h"
 #include "uimsg.h"
 
 #include <QApplication>
 #include <QCleanlooksStyle>
+#include <QKeyEvent>
 #include <QIcon>
 
 #include "dtect.xpm"
@@ -62,12 +64,52 @@ extern OSErr    NativePathNameToFSSpec(char *, FSSpec *, unsigned long);
 #endif
 
 
+mClass KeyboardEventFilter : public QObject
+{
+public:
+    			KeyboardEventFilter(KeyboardEventHandler& kbeh)
+			    : kbehandler_(kbeh)				{}
+protected:
+    bool		eventFilter(QObject*,QEvent*);
+
+    KeyboardEventHandler& kbehandler_;
+};
+
+
+bool KeyboardEventFilter::eventFilter( QObject* obj, QEvent* event )
+{
+    if ( event->type()!=QEvent::KeyPress && event->type()!=QEvent::KeyRelease )
+	return false;
+
+    const QKeyEvent* qke = dynamic_cast<QKeyEvent*>( event );
+    if ( !qke ) return false;
+
+    KeyboardEvent kbe;
+    kbe.key_ = (OD::KeyboardKey) qke->key();
+    kbe.modifier_ = OD::ButtonState( (int) qke->modifiers() );
+    kbe.isrepeat_ = qke->isAutoRepeat();
+
+    if ( event->type() == QEvent::KeyPress )
+	kbehandler_.triggerKeyPressed( kbe );
+    else 
+	kbehandler_.triggerKeyReleased( kbe );
+
+    if ( kbehandler_.isHandled() )
+	return true;
+
+    return QObject::eventFilter( obj, event );
+}
+
+
 void myMessageOutput( QtMsgType type, const char *msg );
 
 
 const uiFont* uiMain::font_ = 0;
 QApplication* uiMain::app_ = 0;
 uiMain*	uiMain::themain_ = 0;
+
+KeyboardEventHandler* uiMain::keyhandler_ = 0;
+KeyboardEventFilter* uiMain::keyfilter_ = 0;
 
 
 static void initQApplication()
@@ -134,6 +176,11 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     else
 	app_ = new QApplication( argc, argv );
 
+
+    KeyboardEventHandler& kbeh = keyboardEventHandler();
+    keyfilter_ = new KeyboardEventFilter( kbeh );
+    app_->installEventFilter( keyfilter_ );
+
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "... done." );
 
@@ -157,6 +204,9 @@ uiMain::~uiMain()
 {
     delete app_;
     delete font_;
+
+    delete keyhandler_;
+    delete keyfilter_;
 }
 
 
@@ -237,6 +287,15 @@ uiMain& uiMain::theMain()
 
     themain_ = new uiMain( qApp );
     return *themain_;
+}
+
+
+KeyboardEventHandler& uiMain::keyboardEventHandler()
+{
+    if ( !keyhandler_ )
+	keyhandler_ = new KeyboardEventHandler();
+
+    return *keyhandler_;
 }
 
 

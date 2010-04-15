@@ -7,17 +7,20 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.16 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uimain.h,v 1.17 2010-04-15 15:38:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigeom.h"
+
 class uiMainWin;
 class QApplication;
 class uiFont;
 class QWidget;
 class BufferStringSet;
+class KeyboardEventHandler;
+class KeyboardEventFilter;
 
 
 mClass uiMain
@@ -52,6 +55,8 @@ public:
      */
     static void		processEvents(int msec=3000);
 
+    static KeyboardEventHandler& keyboardEventHandler();
+
 protected:
 
     static uiMain*	themain_;
@@ -59,6 +64,9 @@ protected:
 
     static QApplication*  app_;
     static const uiFont*  font_;
+
+    static KeyboardEventHandler* keyhandler_;
+    static KeyboardEventFilter*  keyfilter_;
 
 			//! necessary for uicMain coin inialisation
     virtual void	init( QWidget* mainwidget )             {}
