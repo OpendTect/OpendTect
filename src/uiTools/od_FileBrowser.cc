@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.18 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.19 2010-04-15 15:43:05 cvsjaap Exp $";
 
 #include "uitextfile.h"
 #include "uimain.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.18 2010-03-25 03:55:14 cv
 int main( int argc, char ** argv )
 {
     int argidx = 1;
-    bool edit = false, table = false, dofork = true;
+    bool edit = false, table = false, dofork = true, logview = false;
     int maxlines = mUdf(int);
 
     while ( argc > argidx )
@@ -35,11 +35,13 @@ int main( int argc, char ** argv )
 	    { argidx++; maxlines = atoi(argv[argidx]); }
 	else if ( !strcmp(argv[argidx],"--nofork") )
 	    dofork = false;
+	else if ( !strcmp(argv[argidx],"--log") )
+	    logview = true;
 	else if ( !strcmp(argv[argidx],"--help") )
 	{
 	    std::cerr << "Usage: " << argv[0]
-		      << " [--edit|--table|--maxlines nrlines] [filename]\n"
-		      << "Note: filename must be with FULL path." << std::endl;
+		<< " [--edit|--table|--log|--maxlines nrlines] [filename]\n"
+		<< "Note: filename must be with FULL path." << std::endl;
 	    ExitProgram( 0 );
 	}
 	argidx++;
@@ -61,7 +63,9 @@ int main( int argc, char ** argv )
 
     uiTextFile::Setup tfsetup( !edit, table, fnm );
     tfsetup.maxlines( maxlines );
+    tfsetup.logviewmode( logview );
     uiTextFileDlg::Setup fdsetup( fnm );
+    fdsetup.allowopen(edit).allowsave(edit);
     uiTextFileDlg* dlg = new uiTextFileDlg( 0, tfsetup, fdsetup );
     app.setTopLevel( dlg );
     dlg->show();
