@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tutorialattrib.cc,v 1.7 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: tutorialattrib.cc,v 1.8 2010-04-15 13:37:55 cvskris Exp $";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"
@@ -84,8 +84,8 @@ void Tutorial::updateDesc( Desc& desc )
 }
 
 
-Tutorial::Tutorial( Desc& desc_ )
-    : Provider( desc_ )
+Tutorial::Tutorial( Desc& desc )
+    : Provider( desc )
 {
     if ( !isOK() ) return;
 
