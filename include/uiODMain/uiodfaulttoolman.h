@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Jaap Glas
  Date:		December 2009
- RCS:		$Id: uiodfaulttoolman.h,v 1.3 2010-02-12 10:38:35 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttoolman.h,v 1.4 2010-04-15 15:41:46 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,7 @@ protected:
     void			outputColorChg(CallBacker*);
     void			displayChg(CallBacker*);
     void			sequelNameCB(CallBacker*);
+    void			surveyChg(CallBacker*);
 
     uiODMain&			appl_;
     uiODFaultToolMan*		ftbman_;	

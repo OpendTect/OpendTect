@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.6 2010-03-16 10:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.7 2010-04-15 15:41:46 cvsjaap Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -18,7 +18,9 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.6 2010-03-16 10:02:46 c
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "ioman.h"
 #include "randcolor.h"
+#include "timefun.h"
 #include "visdataman.h"
 #include "visfaultsticksetdisplay.h"
 #include "visfaultdisplay.h"
@@ -39,8 +41,6 @@ static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.6 2010-03-16 10:02:46 c
 #include "uiseparator.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
-
-#include "timefun.h"
 
 uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 						  uiODFaultToolMan* ftbman )
@@ -99,6 +99,8 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     finaliseDone.notify( mCB(this,uiFaultStickTransferDlg,finaliseDoneCB) );
     appl_.applMgr().visServer()->objectaddedremoved.notify(
 			mCB(this,uiFaultStickTransferDlg,displayChg) );
+
+    IOM().surveyChanged.notify( mCB(this,uiFaultStickTransferDlg,surveyChg) );
 }
 
 
@@ -118,6 +120,8 @@ uiFaultStickTransferDlg::~uiFaultStickTransferDlg()
     finaliseDone.remove( mCB(this,uiFaultStickTransferDlg,finaliseDoneCB) );
     appl_.applMgr().visServer()->objectaddedremoved.remove(
 			mCB(this,uiFaultStickTransferDlg,displayChg) );
+
+    IOM().surveyChanged.remove( mCB(this,uiFaultStickTransferDlg,surveyChg) );
 }
 
 
@@ -284,6 +288,14 @@ bool uiFaultStickTransferDlg::afterTransferUpdate()
     }
 
     return true;
+}
+
+
+void uiFaultStickTransferDlg::surveyChg( CallBacker* )
+{
+    faultoutputfld_->getObjSel()->inpBox()->empty();
+    fssoutputfld_->getObjSel()->inpBox()->empty();
+    outputComboChg( 0 );
 }
 
 
@@ -461,7 +473,8 @@ void uiODFaultToolMan::enableToolbar( bool yn )
 	tracktbwashidden_ = tracktb_->isHidden();
 	tracktb_->display( false );
 
-	showSettings( toolbar_->isOn(settingsbutidx_) );
+	const bool selmode = toolbar_->isOn( editselbutidx_ );
+	showSettings( selmode && toolbar_->isOn(settingsbutidx_) );
     }
 
     toolbar_->display( yn );
@@ -506,7 +519,7 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* )
     if ( curfltd_ )
 	curfltd_->setStickSelectMode( selmode );
 
-    toolbar_->setSensitive( removalbutidx_,  selmode );
+    toolbar_->setSensitive( removalbutidx_, selmode );
     toolbar_->setSensitive( copybutidx_, selmode );
     toolbar_->setSensitive( movebutidx_, selmode );
     toolbar_->setSensitive( settingsbutidx_, selmode );
@@ -577,6 +590,9 @@ void uiODFaultToolMan::transferSticks( bool copy )
     }
 
     const MultiID destmid = settingsdlg_->getObjSel()->key();
+    if ( destmid.isEmpty() )
+	return;
+
     EM::EMM().loadIfNotFullyLoaded( destmid );
     const EM::ObjectID destemid = EM::EMM().getObjectID( destmid );
     mDynamicCastGet( EM::Fault*, destfault, EM::EMM().getObject(destemid) );
@@ -677,7 +693,7 @@ void uiODFaultToolMan::transferSticks( bool copy )
 
     if ( newnrselected )
     {
-	uiMSG().message( "Output fault could not fit in ",
+	uiMSG().message( "Output fault could not incorporate ",
 			 toString(newnrselected), " of the selected sticks!" );
     }
 }
