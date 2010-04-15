@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.19 2010-04-14 14:42:45 cvshelene Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.20 2010-04-15 08:38:53 cvsranojay Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -179,7 +179,10 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
     for ( int idx=0; idx<phis.size(); idx++ )
 	ps_[idx].dir = Sphere( 1, thetas[idx], phis[idx] );
-
+ 
+    ps_.disp_.markertype_ = MarkerStyle3D::Arrow;
+    Pick::Mgr().reportChange( this, ps_ );
+    Pick::Mgr().reportDispChange( this, ps_ );
     return true;
 }
 
