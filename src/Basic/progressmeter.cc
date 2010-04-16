@@ -21,6 +21,7 @@ TextStreamProgressMeter::TextStreamProgressMeter( std::ostream& out,
 						  unsigned short rowlen )
     : strm_(out)
     , rowlen_(rowlen)
+    , finished_(true)
 { reset(); }
 
 
@@ -62,7 +63,6 @@ void TextStreamProgressMeter::reset()
     nrdone_ = 0;
     oldtime_ = Time::getMilliSeconds();
     inited_ = false;
-    finished_ = false;
     nrdoneperchar_ = 1; distcharidx_ = 0;
     lastannotatednrdone_ = 0;
     nrdotsonline_ = 0;
@@ -78,10 +78,10 @@ void TextStreamProgressMeter::setStarted()
 	if ( !message_.isEmpty() ) strm_ << '\t' << message_.buf() << '\n';
         oldtime_ = Time::getMilliSeconds();
 	strm_.flush();
+	finished_ = false;
 	inited_ = true;
     }
 }
-
 
 
 void TextStreamProgressMeter::addProgress( int nr )
