@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.4 2010-04-13 12:55:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.5 2010-04-16 13:04:49 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -25,7 +25,17 @@ static const char* rcsID = "$Id: uistratdisplay.cc,v 1.4 2010-04-13 12:55:16 cvs
 uiStratDisplay::uiStratDisplay( uiParent* p )
     : uiGraphicsView(p,"Vertical Stratigraphy viewer")
     , data_(uiStratDisp()) 
-    , zax_(&scene(),uiAxisHandler::Setup(uiRect::Left))	      
+    , xax_(&scene(),uiAxisHandler::Setup(uiRect::Top)
+					.nogridline(false)
+					.border(uiBorder(0))
+					.noborderspace(true)
+					.noaxisline(false)
+					.ticsz(-15))
+    , yax_(&scene(),uiAxisHandler::Setup(uiRect::Left)
+					.nogridline(false)
+					.noaxisline(true)
+					.border(uiBorder(0))
+					.noborderspace(true))
     , menu_(*new uiMenuHandler(p,-1))
     , addunitmnuitem_("Add Unit...",0)
     , remunitmnuitem_("Remove unit...",1)
@@ -39,7 +49,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p )
 
     getMouseEventHandler().buttonReleased.notify(
 					mCB(this,uiStratDisplay,usrClickCB) );
-    setStretch( 2, 2 );
     reSize.notify( mCB(this,uiStratDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
@@ -49,7 +58,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p )
     menu_.handlenotifier.notify(mCB(this,uiStratDisplay,handleMenuCB));
     
     data_.dataChanged.notify( mCB(this,uiStratDisplay,doDataChange) );
-
     finaliseDone.notify( mCB(this,uiStratDisplay,init) );
 }
 
@@ -93,7 +101,14 @@ void uiStratDisplay::reSized( CallBacker* )
 
 void uiStratDisplay::updateAxis()
 {
-    zax_.setNewDevSize( height(), width() );
+    xax_.setNewDevSize( width(), height() );
+    yax_.setNewDevSize( height(), width() );
+    xax_.setBorder( uiBorder(0) );
+    yax_.setBorder( uiBorder(0) );
+    xax_.setBegin( &yax_ );     yax_.setBegin( &xax_ );
+    xax_.setEnd( &yax_ );       yax_.setEnd( &xax_ );
+    yax_.plotAxis();
+    xax_.plotAxis();
 }
 
 
@@ -123,7 +138,7 @@ void uiStratDisplay::drawLevels()
 
 	int x1 = lvl.order_*width();
 	int x2 = x1 + width();
-	int y = zax_.getPix( lvl.zpos_ );
+	int y = yax_.getPix( lvl.zpos_ );
 
 	uiLineItem* li = scene().addItem( new uiLineItem(x1,y,x2,y,true) );
 	li->setPenStyle( LineStyle(LineStyle::Solid,3,lvl.col_) );
@@ -144,8 +159,8 @@ void uiStratDisplay::drawUnits()
 	
 	int x1 = unit.order_*subwidthfactor;
 	int x2 = x1 + subwidthfactor;
-	int y1 = zax_.getPix( unit.zpos_ );
-	int y2 = zax_.getPix( unit.zposbot_ );
+	int y1 = yax_.getPix( unit.zpos_ );
+	int y2 = yax_.getPix( unit.zposbot_ );
 
 	TypeSet<uiPoint> rectpts;
 	rectpts += uiPoint( x1, y1 );

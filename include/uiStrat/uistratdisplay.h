@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2010
- RCS:           $Id: uistratdisplay.h,v 1.6 2010-04-13 12:55:16 cvsbruno Exp $
+ RCS:           $Id: uistratdisplay.h,v 1.7 2010-04-16 13:04:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ public:
 				uiStratDisplay(uiParent*);
 
     void			setZRange( StepInterval<float> rg ) 
-    				{ zax_.setBounds(rg); draw(); }
+    				{ yax_.setBounds(rg); draw(); }
     virtual void		doDataChange(CallBacker*);
     int				nrUnits() const { return data_.units_.size(); }
     int				nrLevels() const { return data_.levels_.size();}
@@ -46,7 +46,8 @@ protected:
     ObjectSet<uiLineItem>	lvlitms_;
     ObjectSet<uiPolygonItem>	unititms_;
 
-    uiAxisHandler 		zax_; 
+    uiAxisHandler 		yax_; 
+    uiAxisHandler 		xax_; 
 
     uiMenuHandler&      	menu_;
     MenuItem            	addunitmnuitem_;
