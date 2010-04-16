@@ -79,8 +79,9 @@ if ( $hostnm == dgb26 ) then
     set dodeps=no
 endif
 
-if ( ! -d $WORK/dtect/build ) then
-    mkdir $WORK/dtect/build
+set logdir=$WORK/dtect/log
+if ( ! -d $logdir ) then
+    mkdir $logdir
 endif
 
 if ( $shallow == no ) then
@@ -128,6 +129,10 @@ make $flags lib
 make
 cd ../spec
 make
+
+cdw
+cat `find . -name ls$HDIR | sort` > $logdir/error.log
+cat `find . -name ls$HDIR.prog | sort` >> $logdir/error.log
 
 programmer_doc:
 
