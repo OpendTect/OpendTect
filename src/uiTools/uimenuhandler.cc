@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.14 2009-07-22 16:01:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.15 2010-04-16 11:27:52 cvsnanne Exp $";
 
 
 #include "uimenuhandler.h"
 #include "mousecursor.h"
+#include "pixmap.h"
 #include "uimenu.h"
 
 const int uiMenuHandler::fromTree()	{ return 1; }
@@ -121,6 +122,7 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	    mnuitem->setEnabled( subitm.enabled );
 	    mnuitem->setCheckable( subitm.checkable );
 	    mnuitem->setChecked( subitm.checked );
+	    mnuitem->setPixmap( ioPixmap(subitm.iconfnm) );
 	}
 
 	handled[lowestitem] = true;
