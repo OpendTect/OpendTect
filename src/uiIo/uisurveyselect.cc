@@ -10,32 +10,36 @@ ________________________________________________________________________
 
 #include "uisurveyselect.h"
 
+#include "filepath.h"
 #include "oddirs.h"
 #include "uifileinput.h"
 #include "uilistbox.h"
 #include "uisurvey.h"
 
+extern "C" const char* GetSurveyName();
 
-uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Survey Slection",
-				 "Select Survey",mNoHelpID))
+uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
+       				      const char* dataroot )
+    : uiDialog(p,uiDialog::Setup("Survey Selection",
+				 "Select Survey",mTODOHelpID))
     
 {
     datarootfld_ = new uiFileInput( this, "Data Root",
-		uiFileInput::Setup(uiFileDialog::Gen,GetBaseDataDir())
+		uiFileInput::Setup(uiFileDialog::Gen,dataroot)
 		.directories(true) );
+    setDataRoot( dataroot );
     datarootfld_->valuechanged.notify( 
-		mCB(this,uiSurveySelectDlg,rootSelectCB) );
+		mCB(this,uiSurveySelectDlg,rootSelCB) );
 
-    surveylistfld_ = new uiListBox( this, "Survey list", false, 
-				    uiLabeledListBox::AboveLeft );
+    surveylistfld_ = new uiListBox( this, "Survey list", false, 10 );
     surveylistfld_->attach( alignedBelow, datarootfld_ );
     surveylistfld_->selectionChanged.notify( 
-		mCB(this,uiSurveySelectDlg,surveyListCB) );
-    newsurveyfld_ = new uiGenInput( this, "Name" );
-    
-    newsurveyfld_->attach( alignedBelow, surveylistfld_ );
+		mCB(this,uiSurveySelectDlg,surveySelCB) );
+
+    surveyfld_ = new uiGenInput( this, "Name" );
+    surveyfld_->attach( alignedBelow, surveylistfld_ );
     fillSurveyList();
+    setSurveyName( survnm );
 }
 
 
@@ -43,12 +47,30 @@ uiSurveySelectDlg::~uiSurveySelectDlg()
 {}
 
 
+void uiSurveySelectDlg::setDataRoot( const char* dataroot )
+{
+    BufferString basedatadir( dataroot );
+    if ( basedatadir.isEmpty() )
+	basedatadir = GetBaseDataDir();
+    datarootfld_->setText( dataroot );
+}
+
+
 const char* uiSurveySelectDlg::getDataRoot() const
 { return datarootfld_->text(); }
 
+void uiSurveySelectDlg::setSurveyName( const char* nm )
+{ surveylistfld_->setCurrentItem( nm ); }
 
-const BufferString uiSurveySelectDlg::getSurveyName() const
-{ return newsurveyfld_->text(); }
+const char* uiSurveySelectDlg::getSurveyName() const
+{ return surveyfld_->text(); }
+
+BufferString uiSurveySelectDlg::getSurveyPath() const
+{
+    FilePath fp( getDataRoot() );
+    fp.add( getSurveyName() );
+    return fp.fullPath();
+}
 
 
 void uiSurveySelectDlg::fillSurveyList()
@@ -60,29 +82,31 @@ void uiSurveySelectDlg::fillSurveyList()
 }
 
 
-void uiSurveySelectDlg::rootSelectCB( CallBacker* )
+void uiSurveySelectDlg::rootSelCB( CallBacker* )
 {
     fillSurveyList();
 }
 
 
-void uiSurveySelectDlg::surveyListCB( CallBacker* )
+void uiSurveySelectDlg::surveySelCB( CallBacker* )
 {
-    newsurveyfld_->setText( surveylistfld_->getText() );
+    surveyfld_->setText( surveylistfld_->getText() );
 }
 
 
-bool uiSurveySelectDlg::isNewSurvey()
+bool uiSurveySelectDlg::isNewSurvey() const
 {
-   return !surveylistfld_->isPresent( newsurveyfld_->text() );
+   return !surveylistfld_->isPresent( surveyfld_->text() );
 }
 
 
+// uiSurveySelect
 uiSurveySelect::uiSurveySelect( uiParent* p )
-	: uiIOSelect(p,uiIOSelect::Setup("Select Survey"),
-		     mCB(this,uiSurveySelect,selectCB))
-{
-}
+    : uiIOSelect(p,uiIOSelect::Setup("Select Survey"),
+		 mCB(this,uiSurveySelect,selectCB))
+    , dataroot_(GetBaseDataDir())
+    , surveyname_(GetSurveyName())
+{}
 
 
 uiSurveySelect::~uiSurveySelect()
@@ -91,17 +115,11 @@ uiSurveySelect::~uiSurveySelect()
 
 void uiSurveySelect::selectCB( CallBacker* )
 {
-    uiSurveySelectDlg dlg( this );
+    uiSurveySelectDlg dlg( this, surveyname_, dataroot_ );
     if( !dlg.go() ) return;
-    
-    setInputText( dlg.getSurveyName() );
+
     isnewsurvey_ = dlg.isNewSurvey();
+    surveyname_ = dlg.getSurveyName();
+    dataroot_ = dlg.getDataRoot();
+    setInputText( surveyname_ );
 }
-
-
-bool uiSurveySelect::isNewSurvey()
-{
-    return isnewsurvey_;
-}
-
-

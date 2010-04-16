@@ -22,22 +22,28 @@ class uiFileInput;
 mClass uiSurveySelectDlg : public uiDialog
 {
 public:
-			uiSurveySelectDlg(uiParent*);
+			uiSurveySelectDlg(uiParent*,const char* survnm=0,
+					  const char* dataroot=0);
 			~uiSurveySelectDlg();
-    
-    const char*		    getDataRoot() const;
-    const BufferString	    getSurveyName() const;
-    bool		    isNewSurvey();
+
+    void		setDataRoot(const char*);
+    const char*		getDataRoot() const;
+
+    void		setSurveyName(const char*);
+    const char*		getSurveyName() const;
+    BufferString	getSurveyPath() const;
+
+    bool		isNewSurvey() const;
 
 protected:
     
-    void		    rootSelectCB(CallBacker*);
-    void		    surveyListCB(CallBacker*);
-    void		    fillSurveyList();
+    void		rootSelCB(CallBacker*);
+    void		surveySelCB(CallBacker*);
+    void		fillSurveyList();
  
-    uiFileInput*	    datarootfld_;
-    uiListBox*		    surveylistfld_;
-    uiGenInput*		    newsurveyfld_;
+    uiFileInput*	datarootfld_;
+    uiListBox*		surveylistfld_;
+    uiGenInput*		surveyfld_;
 };
 
 
@@ -45,11 +51,17 @@ mClass uiSurveySelect : public uiIOSelect
 {
 public:
 			uiSurveySelect(uiParent*);
-			~uiSurveySelect(); 
-    bool		isNewSurvey();
+			~uiSurveySelect();
+
+    bool		isNewSurvey() const	{ return isnewsurvey_; }
+
 protected:
-    bool		isnewsurvey_;
+
     void		selectCB(CallBacker*);
+
+    bool		isnewsurvey_;
+    BufferString	dataroot_;
+    BufferString	surveyname_;
 };
 
 #endif
