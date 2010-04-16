@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: probdenfunctr.cc,v 1.10 2010-03-17 12:21:41 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunctr.cc,v 1.11 2010-04-16 03:29:33 cvsnanne Exp $";
 
 #include "probdenfunctr.h"
 
@@ -32,8 +32,6 @@ ProbDenFuncTranslator::ProbDenFuncTranslator( const char* nm, const char* unm )
 
 const char* ProbDenFuncTranslator::key()
 { return "Probability Density Function"; }
-
-static const char* sKeyBinary = "Binary";
 
 
 ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
@@ -105,7 +103,7 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
 
     pdf->usePar( par );
     binary_ = false;
-    par.getYN( sKeyBinary, binary_ );
+    par.getYN( sKey::Binary, binary_ );
 
     pdf->obtain( strm, binary_ );
     return pdf;
@@ -123,7 +121,7 @@ bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf,
 
     IOPar par;
     pdf.fillPar( par );
-    par.setYN( sKeyBinary, binary_ );
+    par.setYN( sKey::Binary, binary_ );
     par.putTo( astrm );
 
     pdf.dump( strm, binary_ );
