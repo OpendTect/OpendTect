@@ -7,20 +7,23 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.34 2010-03-26 05:39:55 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.35 2010-04-16 03:28:54 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
-#include "uiseissel.h"
-#include "uilistbox.h"
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uiselsurvranges.h"
-#include "uiselsimple.h"
+#include "uigeninput.h"
+#include "uilistbox.h"
 #include "uimsg.h"
+#include "uiseissel.h"
+#include "uiselsimple.h"
+#include "uiselsurvranges.h"
 
 #include "bufstringset.h"
 #include "ctxtioobj.h"
+#include "iodir.h"
+#include "ioman.h"
 #include "keystrs.h"
 #include "linekey.h"
 #include "seisioobjinfo.h"
@@ -28,8 +31,6 @@ static const char* rcsID = "$Id: uiseislinesel.cc,v 1.34 2010-03-26 05:39:55 cvs
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "transl.h"
-#include "ioman.h"
-#include "iodir.h"
 
 
 
@@ -252,7 +253,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
 void uiSeis2DMultiLineSelDlg::finalised( CallBacker* )
 {
     if ( !linesetfld_ ) return;
-    const IOObj* lsetobj = linesetfld_->ioobj();
+    const IOObj* lsetobj = linesetfld_->ioobj( true );
     if ( !lsetobj )
 	linesetfld_->doSel( 0 );
 }
@@ -427,7 +428,8 @@ void uiSeis2DMultiLineSelDlg::trcRgChanged( CallBacker* )
 
 bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
 {
-    trcRgChanged( 0 );
+    if ( lnmsfld_->nrSelected() == 1 )
+	trcRgChanged( 0 );
     return true;
 }
 
@@ -438,6 +440,7 @@ uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const Setup& setup )
     , ctio_(*mMkCtxtIOObj(SeisTrc))
     , isall_(true)
 {
+    if ( !setup.lbltxt_.isEmpty() ) txtfld_->setTitleText( setup.lbltxt_ );
     butPush.notify( mCB(this,uiSeis2DMultiLineSel,doDlg) );
     ctio_.ctxt.deftransl = "2D";
     if ( setup_.filldef_ )
@@ -511,12 +514,8 @@ void uiSeis2DMultiLineSel::doDlg( CallBacker* )
 
     isall_ = dlg.isAll();
     dlg.getZRange( zrg_ );
-    if ( !isall_ )
-    {
-	dlg.getSelLines( sellines_ );
-	dlg.getTrcRgs( trcrgs_ );
-    }
-
+    dlg.getSelLines( sellines_ );
+    dlg.getTrcRgs( trcrgs_ );
     updateSummary();
 }
 
@@ -544,7 +543,7 @@ bool uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
 	lspar.mergeComp( linepar, mergekey );
     }
 
-    par.mergeComp( lspar, sKey::LineKey );
+    par.mergeComp( lspar, "Line" );
     return true;
 }
 
@@ -562,7 +561,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 
     deepErase( sellines_ );
     trcrgs_.erase();
-    PtrMan<IOPar> lspar = par.subselect( sKey::LineKey );
+    PtrMan<IOPar> lspar = par.subselect( "Line" );
     if ( !lspar ) return;
 
     for ( int idx=0; idx<1024; idx++ )

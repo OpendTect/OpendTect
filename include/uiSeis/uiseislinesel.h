@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.22 2010-03-26 05:39:55 cvsraman Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.23 2010-04-16 03:28:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ public:
 
     struct Setup
     {
-				Setup( const char* txt )
+				Setup( const char* txt=0 )
 				    : lbltxt_(txt)
 				    , withlinesetsel_(true)
 				    , withz_(false)
