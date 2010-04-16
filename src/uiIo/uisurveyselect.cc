@@ -122,4 +122,5 @@ void uiSurveySelect::selectCB( CallBacker* )
     surveyname_ = dlg.getSurveyName();
     dataroot_ = dlg.getDataRoot();
     setInputText( surveyname_ );
+    selok_ = true;
 }
