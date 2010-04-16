@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.9 2010-04-08 13:00:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiobjectitemview.cc,v 1.10 2010-04-16 11:45:31 cvsbruno Exp $";
 
 
 #include "uiobjectitemview.h"
@@ -80,8 +80,9 @@ uiObjectItem* uiObjectItemView::getItem( int idx )
 
 uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos ) 
 {
+    mGetScene(return 0)
     //TODO in the y direction
-    Interval<int> borders(0,0); 
+    Interval<int> borders(0,sc->layoutPos().x); 
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {
 	borders.stop += objectitems_[idx]->objectSize().width(); 
