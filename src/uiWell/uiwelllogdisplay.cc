@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.39 2010-04-14 15:36:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.40 2010-04-16 13:06:11 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -97,7 +97,8 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     : uiGraphicsView(p,"Well Log display viewer")
     , setup_(su)
     , highlightedmrk_(0)	     
-    , highlightedMarkerItemChged(this)			     
+    , highlightedMarkerItemChged(this)
+    , infoChanged(this)	 			      
     , ld1_(scene(),true,LineData::Setup()
 	    				.noxaxisline(su.noxaxisline_)
 	    				.noyaxisline(su.noyaxisline_)
@@ -124,6 +125,10 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     reSize.notify( mCB(this,uiWellLogDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+
+    //TODO move this to the control
+    getMouseEventHandler().movement.notify( 
+				    mCB(this,uiWellLogDisplay,mouseMoved) );
 
     finaliseDone.notify( mCB(this,uiWellLogDisplay,init) );
 }
@@ -484,6 +489,15 @@ void uiWellLogDisplay::drawMarkers()
 }
 
 
+void uiWellLogDisplay::mouseMoved( CallBacker* )
+{
+    BufferString info;
+    getPosInfo( mousePos(), info );
+    CBCapsule<BufferString> caps( info, this );
+    infoChanged.trigger( &caps );
+}
+
+
 void uiWellLogDisplay::reDrawMarkers( CallBacker* )
 {
     drawMarkers();
@@ -518,9 +532,9 @@ void uiWellLogDisplay::highlightMarkerItem( const Well::Marker* mrk  )
     if ( mrkitm )
     {
 	mrkitm->itm_->setPenStyle( LineStyle(setup_.markerls_.type_,
-				    setup_.markerls_.width_+1, 
+				    setup_.markerls_.width_+2, 
 				    mrkitm->color_) );
-	cursor = MouseCursor::SizeVer;
+	//cursor = MouseCursor::SizeVer;
     }
     if ( parent() ) parent()->setCursor( cursor );
     cursor_ = cursor;
@@ -550,6 +564,61 @@ void uiWellLogDisplay::drawZPicks()
 }
 
 
+float uiWellLogDisplay::mousePos()
+{
+    const MouseEventHandler& meh = getMouseEventHandler();
+    const MouseEvent& ev = meh.event();
+    return logData(true).yax_.getVal( ev.pos().y );
+}
+
+
+void uiWellLogDisplay::getPosInfo( float pos, BufferString& info ) 
+{
+    info.setEmpty();
+    if ( data_.markers_ )
+    {
+	for ( int idx=0; idx<data_.markers_->size(); idx++ )
+	{
+	    const Well::Marker* marker = (*data_.markers_)[idx];
+	    if ( !marker ) continue;
+	    float markerpos = marker->dah(); 
+	    if ( data_.zistime_ && data_.d2tm_ ) 
+		markerpos = data_.d2tm_->getTime( markerpos )*1000; 
+	    if ( !mIsEqual(markerpos,pos,5) )
+		continue;
+	    info += ", Marker: ";
+	    info += marker->name();
+	    break;
+	}
+    }
+    if ( data_.zistime_ )
+    {
+	if ( data_.d2tm_ )
+	{
+	    info += ", MD: ";
+	    float dah = data_.d2tm_->getDepth( pos*0.001 );
+	    info += toString( mNINT(dah) );
+	}
+	info += ", Time: ";
+	info += toString( mNINT(pos) );
+    }
+    else
+    {
+	info += ", MD: ";
+	info += toString( mNINT(pos) );
+	if ( data_.d2tm_ )
+	{
+	    info += ", Time: ";
+	    float time = data_.d2tm_->getTime( pos )*1000;
+	    info += toString( mNINT(time) );
+	}
+    }
+}
+
+
+
+
+
 
 uiWellDisplay::Params::Params( Well::Data& wd, int lw, int lh )
     : logwidth_(lw)
@@ -574,6 +643,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, Well::Data& wd)
 
     mrkedit_ = new uiWellDisplayMarkerEdit( *logDisplay(0), wd );
 
+    setStratDisp();
     setHSpacing( 0 );
     setStretch( 2, 2 );
     setPrefWidth( getDispWidth() );
@@ -611,8 +681,12 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
 	if ( mrkedit_ ) mrkedit_->addLogDisplay( *logdisps_[idx] );
     }
    
-    if ( su.withstrat_ ) 
+    if ( su.withstrat_ )
+    {	
 	setStratDisp();
+	stratdisp_->setPrefWidth( mLogWidth );
+	stratdisp_->setPrefHeight( mLogHeight );
+    }
     else 
     { delete stratdisp_; stratdisp_ = 0; }
 
@@ -627,6 +701,8 @@ uiWellDisplay::uiWellDisplay( uiWellDisplay& orgdisp, const ShapeSetup& su )
 
 uiWellDisplay::~uiWellDisplay()
 {
+    removeWDNotifiers( pms_.wd_ );
+    delete mrkedit_;
 }
 
 
@@ -635,6 +711,14 @@ void uiWellDisplay::addWDNotifiers( Well::Data& wd )
     wd.dispparschanged.notify( mCB(this,uiWellDisplay,updateProperties) );
     wd.d2tchanged.notify( mCB(this,uiWellDisplay,dataChanged) );
     wd.markerschanged.notify( mCB(this,uiWellDisplay,dataChanged) );
+}
+
+
+void uiWellDisplay::removeWDNotifiers( Well::Data& wd )
+{
+    wd.dispparschanged.remove( mCB(this,uiWellDisplay,updateProperties) );
+    wd.d2tchanged.remove( mCB(this,uiWellDisplay,dataChanged) );
+    wd.markerschanged.remove( mCB(this,uiWellDisplay,dataChanged) );
 }
 
 
@@ -680,11 +764,10 @@ void uiWellDisplay::setStratDisp()
     else
 	stratdisp_ = new uiWellStratDisplay(this,true,pms_.wd_.markers());
 
-    stratdisp_->setPrefWidth( mLogWidth );
-    stratdisp_->setPrefHeight( mLogHeight );
     stratdisp_->setD2TModel( pms_.wd_.d2TModel() );
     stratdisp_->setZIsTime( pms_.zistime_ );
     stratdisp_->doDataChange(0);
+    stratdisp_->setStretch( 2, 2 );
     if ( nrLogDisp() )
 	stratdisp_->attach( ensureRightOf, logdisps_[nrLogDisp()-1] );
 }
@@ -704,12 +787,13 @@ void uiWellDisplay::addLogPanel( bool noborderspace, bool isleft )
 	wldsu.noyaxisline_ = true; 
     }
     wldsu.border_ = uiBorder(0);
-    wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
+    //wldsu.border_.setLeft(0); wldsu.border_.setRight(0);
     uiWellLogDisplay* logdisp = new uiWellLogDisplay( this, wldsu );
     if ( logdisps_.size() )
 	logdisp->attach( rightOf, logdisps_[logdisps_.size()-1] );
     logdisp->setPrefWidth( pms_.logwidth_ );
     logdisp->setPrefHeight( mLogHeight );
+    logdisp->infoChanged.notify( mCB(this, uiWellDisplay, setPosInfo) );
     logdisps_ += logdisp;
 }
 
@@ -766,11 +850,22 @@ void uiWellDisplay::setEditOn( bool yn )
 { if ( mrkedit_ ) mrkedit_->setEditOn(yn); }
 
 
+void uiWellDisplay::setPosInfo( CallBacker* cb ) 
+{
+    info_.setEmpty();
+    mCBCapsuleUnpack(BufferString,mesg,cb);
+    if ( mesg.isEmpty() ) return;
+    info_ = "Well: "; info_ += pms_.wd_.name();
+    info_ += mesg;
+}
+
+
 
 uiWellDisplayWin::uiWellDisplayWin( uiParent* p, Well::Data& wd )
     : uiMainWin(p,"")
     , welldisp_(*new uiWellDisplay(this,uiWellDisplay::Setup()
 							.withstratdisp(true)
+							.noborderspace(true)
 							,wd))
     , wd_(wd)						    
 {

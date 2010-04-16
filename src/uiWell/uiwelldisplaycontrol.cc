@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.6 2010-04-14 15:36:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.7 2010-04-16 13:06:11 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
@@ -74,23 +74,30 @@ uiWellDisplayMarkerEdit::uiWellDisplayMarkerEdit( uiWellLogDisplay& disp, Well::
     , mousepressed_(false)			
     , selmarker_(0)		
     , curmarker_(0)		
-    , lastmarker_(0)		
-    , menu_(*new uiMenuHandler(disp.parent(),-1))
+    , lastmarker_(0)
+    , menu_(0)	    
     , addmrkmnuitem_("Add marker...",1)      			 
     , remmrkmnuitem_("Remove marker...",0)
     , edit_(true)				  	  
 {
     addLogDisplay( disp );
-
-    menu_.ref();
-    menu_.createnotifier.notify(mCB(this,uiWellDisplayMarkerEdit,createMenuCB));
-    menu_.handlenotifier.notify(mCB(this,uiWellDisplayMarkerEdit,handleMenuCB));
 }
 
 
 uiWellDisplayMarkerEdit::~uiWellDisplayMarkerEdit()
 {
-    menu_.unRef();
+    if ( menu_ ) menu_->unRef();
+}
+
+
+void uiWellDisplayMarkerEdit::addMenu( uiMenuHandler* menu )
+{
+    if ( menu_ ) 
+    {  menu_->unRef(); }
+    menu_ = menu;
+    menu_->ref();
+    menu_->createnotifier.notify(mCB(this,uiWellDisplayMarkerEdit,createMenuCB));
+    menu_->handlenotifier.notify(mCB(this,uiWellDisplayMarkerEdit,handleMenuCB));
 }
 
 
@@ -98,18 +105,20 @@ void uiWellDisplayMarkerEdit::addLogDisplay( uiWellLogDisplay& ld )
 {
     logdisps_ += &ld;
     MouseEventHandler& meh = ld.getMouseEventHandler();
-    meh.buttonReleased.notify(mCB(this,uiWellDisplayMarkerEdit,mouseRelease) );
-    meh.buttonReleased.notify( mCB(this,uiWellDisplayMarkerEdit,usrClickCB) );
     meh.buttonPressed.notify( mCB(this,uiWellDisplayMarkerEdit,mousePressed) );
+    meh.buttonPressed.notify( mCB(this,uiWellDisplayMarkerEdit,usrClickCB) );
     meh.movement.notify( mCB(this,uiWellDisplayMarkerEdit,mouseMoved) );
+    
+    //buttonReleased does not work when nested graphicsview
+    //meh.buttonReleased.notify(mCB(this,uiWellDisplayMarkerEdit,mouseRelease));
+    //meh.buttonReleased.notify( mCB(this,uiWellDisplayMarkerEdit,usrClickCB));
 }
 
 
 void uiWellDisplayMarkerEdit::mousePressed( CallBacker* cb )
 {
-    mousepressed_ = true;
-    if ( mousepressed_ )
-       selmarker_ = selectMarker( cb, false );	
+    mousepressed_ = !mousepressed_;
+    selmarker_ = mousepressed_ ? selectMarker( cb, false ) : 0;
 }
 
 
@@ -161,7 +170,7 @@ bool uiWellDisplayMarkerEdit::handleUserClick( const MouseEvent& ev )
     if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	 !ev.altStatus() )
     {
-	menu_.executeMenu(0);
+	if ( menu_ ) menu_->executeMenu(0);
 	return true;
     }
     return false;
@@ -213,13 +222,13 @@ void uiWellDisplayMarkerEdit::handleMenuCB( CallBacker* cb )
 	return;
 
     bool ishandled = true;
-    if ( !logdisps_.isEmpty() ) return;
+    if ( logdisps_.isEmpty() ) return;
     if ( mnuid==addmrkmnuitem_.id )
     {
-	uiWellDispAddMarkerDlg dlg( 0, mousePos() );
-	if ( dlg.go() )
+	uiWellDispAddMarkerDlg mrkdlg( menu_->getParent(), mousePos() );
+	if ( mrkdlg.go() )
 	{
-	    Well::Marker* newmrk = dlg.marker();
+	    Well::Marker* newmrk = mrkdlg.marker();
 	    if ( !newmrk ) return;
 	    Well::MarkerSet& mrkset = wd_.markers();
 	    for ( int idx=0; idx<mrkset.size(); idx++ )
@@ -236,10 +245,10 @@ void uiWellDisplayMarkerEdit::handleMenuCB( CallBacker* cb )
 	    }
 	}
     }
-    else if ( mnuid==remmrkmnuitem_.id  && selectMarker( cb, true ) )
+    else if ( mnuid==remmrkmnuitem_.id  && selectMarker( 0, true ) )
     {
 	ObjectSet<Well::Marker>& mrkset = wd_.markers();
-	delete mrkset.remove( mrkset.indexOf( selectMarker(cb,true) ), true);
+	delete mrkset.remove( mrkset.indexOf( selectMarker(0,true) ), true);
 	trigMarkersChanged();
     }
     else
@@ -254,30 +263,32 @@ void uiWellDisplayMarkerEdit::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     if ( !menu ) return;
 
-    if ( logdisps_.size() && selectMarker(cb,true) ) 
-	mAddMenuItem( menu, &remmrkmnuitem_, true, false );
-    mAddMenuItem( menu, &addmrkmnuitem_, true, false );
+    if ( logdisps_.size() && selectMarker(0,true) ) 
+	mAddMenuItem( menu, &remmrkmnuitem_, true, false )
+    mAddMenuItem( menu, &addmrkmnuitem_, true, false )
 }
 
 
-float uiWellDisplayMarkerEdit::mousePos()  
+float uiWellDisplayMarkerEdit::mousePos() 
 {
     if ( !logdisps_.size() ) return 0;
-    const MouseEvent& ev = logdisps_[0]->getMouseEventHandler().event();
-    return logdisps_[0]->logData(0).yax_.getVal( ev.pos().y );
+    return logdisps_[0]->mousePos();
 }
 
 
 Well::Marker* uiWellDisplayMarkerEdit::selectMarker( CallBacker* cb, bool allowrightclk )
 {
-    mDynamicCastGet(MouseEventHandler*,mevh,cb)
     uiWellLogDisplay* seldisp = 0;
-    for ( int idx=0; idx<logdisps_.size(); idx++)
+    if ( cb )
     {
-	if ( &logdisps_[idx]->getMouseEventHandler() == mevh )
-	    seldisp = logdisps_[idx];
+	mDynamicCastGet(MouseEventHandler*,mevh,cb)
+	for ( int idx=0; idx<logdisps_.size(); idx++)
+	{
+	    if ( &logdisps_[idx]->getMouseEventHandler() == mevh )
+		seldisp = logdisps_[idx];
+	}
     }
-
+    else if ( logdisps_.size() ) seldisp = logdisps_[0];
     if ( !seldisp ) return 0;
 
     const MouseEvent& ev = seldisp->getMouseEventHandler().event();

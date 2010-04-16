@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Mar 2009
- RCS:           $Id: uiwelldisplaycontrol.h,v 1.5 2010-04-14 15:36:16 cvsbruno Exp $
+ RCS:           $Id: uiwelldisplaycontrol.h,v 1.6 2010-04-16 13:06:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,8 @@ public:
 						     Well::Data&);
 				~uiWellDisplayMarkerEdit();
     
-    uiMenuHandler&		menu() { return menu_; }
+    const uiMenuHandler*	menu() const { return menu_; }
+    void			addMenu(uiMenuHandler*);
     void 			addLogDisplay(uiWellLogDisplay&);
     void 			removeLogDisplay(uiWellLogDisplay&);
     void			setEditOn( bool yn ) { edit_ = yn; }
@@ -68,16 +69,16 @@ protected:
     Well::Marker* 		lastmarker_;
     Well::Marker* 		selectMarker(CallBacker*,bool allowrghtclk);
 
-    uiMenuHandler&		menu_;
+    uiMenuHandler*		menu_;
     MenuItem            	addmrkmnuitem_;
     MenuItem            	remmrkmnuitem_;
     bool                        mousepressed_;
     bool 			edit_;
    
-    float			mousePos(); 
     void                        changeMarkerPos(Well::Marker*);
-    void			trigMarkersChanged();
     bool                        handleUserClick(const MouseEvent&);
+    float			mousePos(); 
+    void			trigMarkersChanged();
 
     void                        createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.31 2010-04-14 15:36:16 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.32 2010-04-16 13:06:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,6 +149,8 @@ public:
 	friend class		uiWellLogDisplay;
     };
     
+    const LogData&		logData(bool first=true) const
+    				{ return logData(first); }
     LogData&			logData(bool first=true)
     				{ return first ? ld1_ : ld2_; }
     void			dataChanged();
@@ -203,6 +205,9 @@ public:
     DahData&			data() 		{ return data_; }
     const DahData&		data() const 	{ return data_; }
     const MouseCursor&		cursor() const 	{ return cursor_; }
+    float			mousePos(); 
+    
+    Notifier<uiWellLogDisplay>  infoChanged;
     
 protected:
 
@@ -221,11 +226,13 @@ protected:
 
     void			init(CallBacker*);
     void			reSized(CallBacker*);
+    void			mouseMoved(CallBacker*);
 
     void			setAxisRelations();
     void			setAxisRanges(bool);
     void			gatherInfo();
     void			gatherInfo(bool);
+    void 			getPosInfo(float,BufferString&);
     void			draw();
     void			drawLog(bool);
     void			drawLine(LogData&,const Well::DahObj* ldah);
@@ -296,7 +303,8 @@ public:
     uiWellStratDisplay*		stratDisp() 		{ return stratdisp_; }
     const uiWellStratDisplay*	stratDisp() const  	{ return stratdisp_; }
     bool			hasStratDisp() const	{ return stratdisp_; }
-    uiWellDisplayMarkerEdit*	markerEdit() 		{ return mrkedit_; }
+    uiWellDisplayMarkerEdit* 	markerEdit() 		{ return mrkedit_; }
+    const uiWellDisplayMarkerEdit* markerEdit() const	{ return mrkedit_; }
     
     Well::Data&			wellData() 		{ return pms_.wd_; }
     const Well::Data&		wellData() const 	{ return pms_.wd_; }
@@ -305,7 +313,7 @@ public:
     void                        dataChanged(CallBacker*);
 
     void			setEditOn( bool yn );
-    
+    BufferString		getPosInfo() const	{ return info_; } 
 
 protected:
 
@@ -313,9 +321,12 @@ protected:
     uiWellStratDisplay*		stratdisp_;
     uiWellDisplayMarkerEdit*	mrkedit_;
     Params			pms_;
+    BufferString		info_;
 
     void			addLogPanel(bool,bool);
     void			addWDNotifiers(Well::Data&);
+    void			removeWDNotifiers(Well::Data&);
+    void 			setPosInfo(CallBacker*);
     void			setStratDisp();
     void			setInitialZRange();
     int 			getDispWidth();
