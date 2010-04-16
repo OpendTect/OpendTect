@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.30 2010-04-15 12:41:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.31 2010-04-16 03:33:22 cvsnanne Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -193,6 +193,7 @@ void uiODViewer2D::createViewWin( bool isvert )
 	viewwin_ = dwin;
 	controlparent = &appl_;
     }
+
     viewwin_->setInitialSize( 600, 400 );
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
@@ -201,6 +202,7 @@ void uiODViewer2D::createViewWin( bool isvert )
 	vwr.appearance().setGeoDefaults(isvert);
 	vwr.appearance().annot_.setAxesAnnot(true);
     }
+
     uiFlatViewer& mainvwr = viewwin()->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0")
