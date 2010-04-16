@@ -6,17 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.26 2009-07-22 16:01:21 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.27 2010-04-16 03:20:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "bufstringset.h"
-
-#ifndef __cygwin__
-# define HAVE_OUTPUT_OPTIONS
-#endif
 
 class InlineSplitJobDescProv;
 class IOPar;
@@ -27,7 +23,6 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
-#ifdef HAVE_OUTPUT_OPTIONS
 mClass uiBatchLaunch : public uiDialog
 {
 public:
@@ -61,7 +56,7 @@ protected:
     int			selected();
 
 };
-#endif
+
 
 mClass uiFullBatchDialog : public uiDialog
 {
@@ -76,6 +71,7 @@ protected:
 			    , multiprocprognm_("")
 			    , modal_(true)
 			    , menubar_(false)
+			    , showoutputopts_(true)
 			{}
 
 	mDefSetupMemb(BufferString,wintxt)
@@ -83,6 +79,7 @@ protected:
 	mDefSetupMemb(BufferString,multiprocprognm)
 	mDefSetupMemb(bool,modal)
 	mDefSetupMemb(bool,menubar)
+	mDefSetupMemb(bool,showoutputopts)
     };
 
     			uiFullBatchDialog(uiParent*,const Setup&);
@@ -133,6 +130,5 @@ protected:
     virtual bool	parBaseName() const	{ return 0; }
 
 };
-
 
 #endif

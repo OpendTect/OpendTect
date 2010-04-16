@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.85 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.86 2010-04-16 03:20:36 cvsnanne Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -62,8 +62,8 @@ static bool writeProcFile( IOPar& iop, const char* tfname )
     return true;
 }
 
-#ifdef HAVE_OUTPUT_OPTIONS
 
+// uiBatchLaunch
 uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 			      const char* hn, const char* pn, bool wp )
         : uiDialog(p,uiDialog::Setup("Batch launch","Specify output mode",
@@ -111,6 +111,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 				.forread(false)
 	   			.filter("*.log;;*.txt") );
     filefld_->attach( alignedBelow, optfld_ );
+
 #ifndef __msvc__
     nicefld_ = new uiLabeledSpinBox( this, "Nice level" );
     nicefld_->attach( alignedBelow, filefld_ );
@@ -219,7 +220,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     replaceCharacter(_parfnm.buf(),' ','%');
     comm += " \""; comm += _parfnm; comm += "\"";
 
-     nicelvl_ = nicefld_->box()->getValue();
+    nicelvl_ = nicefld_->box()->getValue();
     if ( nicelvl_ != 0 )
 	{ comm += " --nice "; comm += nicelvl_; }
     comm += " "; comm += progname_;
@@ -235,13 +236,10 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     comm += " \"";
     comm += parfname_;
     comm += "\"";
-
-#else
-
+# else
     comm += " --inbg ";
     comm += progname_; comm += " \""; 
     comm += parfname_; comm += "\"";
-
 # endif
 
 #endif
@@ -254,16 +252,15 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     return true;
 }
 
-#endif // HAVE_OUTPUT_OPTIONS
 
-
+// uiFullBatchDialog
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
-    : uiDialog(p,uiDialog::Setup(s.wintxt_,"",mNoHelpID).modal(s.modal_)
-						 .menubar(s.menubar_))
+    : uiDialog(p,uiDialog::Setup(s.wintxt_,"",mNoHelpID)
+		 .modal(s.modal_).menubar(s.menubar_))
     , uppgrp_(new uiGroup(this,"Upper group"))
     , procprognm_(s.procprognm_.isEmpty() ? "process_attrib" : s.procprognm_)
     , multiprognm_(s.multiprocprognm_.isEmpty() ? "SeisMMBatch"
-					       : s.multiprocprognm_)
+						: s.multiprocprognm_)
     , redo_(false)
     , parfnamefld_(0)
     , singmachfld_( 0 )
@@ -271,6 +268,11 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
 {
     setCtrlStyle( DoAndProceed );
     setParFileNmDef( 0 );
+    if ( s.showoutputopts_ )
+    {
+	enableSaveButton( "Show options" );
+	setSaveButtonChecked( false );
+    }
 }
 
 
@@ -329,6 +331,7 @@ void uiFullBatchDialog::setParFileNmDef( const char* nm )
 		: multiparfname_ );
 }
 
+
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
     const BufferString inpfnm = parfnamefld_->fileName();
@@ -341,6 +344,8 @@ void uiFullBatchDialog::singTogg( CallBacker* cb )
 	parfnamefld_->setFileName( multiparfname_ );
 
     parfnamefld_->display( !hascluster_ || singmachfld_->getIntValue()<2 );
+    uiButton* optionsbut = button( uiDialog::SAVE );
+    if ( optionsbut ) optionsbut->display( issing );
 }
 
 
@@ -432,13 +437,14 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 
 bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 {
-#ifdef HAVE_OUTPUT_OPTIONS
-    uiBatchLaunch dlg( this, iop, 0, procprognm_, false );
-    dlg.setParFileName( fnm );
-    return dlg.go();
-#else
+    if ( saveButtonChecked() )
+    {
+	uiBatchLaunch dlg( this, iop, 0, procprognm_, false );
+	dlg.setParFileName( fnm );
+	return dlg.go();
+    }
 
-    BufferString fname = "stdout";
+    BufferString fname = "window";
 
     IOPar& workiop( const_cast<IOPar&>( iop ) );
     workiop.set( "Log file", fname );
@@ -482,9 +488,6 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 	return false;
     }
     return true;
-
-#endif
-
 }
 
 
@@ -506,6 +509,7 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
 }
 
 
+// uiRestartBatchDialog
 uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
        					    const char* mpn )
     	: uiFullBatchDialog(p,Setup("(Re-)Start processing")
@@ -517,6 +521,3 @@ uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
     setCtrlStyle( DoAndProceed );
     addStdFields( true );
 }
-
-
-
