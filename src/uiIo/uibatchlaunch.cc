@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.86 2010-04-16 03:20:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.87 2010-04-16 05:06:20 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -475,7 +475,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 # endif
 
 #else
-    BufferString comm = FilePath(GetBinPlfDir()).add(procprognm_);
+    BufferString comm = FilePath(GetBinPlfDir()).add(procprognm_).fullPath();
     BufferString _parfnm( parfp.fullPath(FilePath::Windows) );
     comm += " \""; comm += _parfnm; comm += "\"";
     dormt = true;
