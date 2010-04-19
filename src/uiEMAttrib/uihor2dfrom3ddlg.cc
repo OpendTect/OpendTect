@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.13 2010-03-26 05:39:55 cvsraman Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.14 2010-04-19 06:13:34 cvssatyaki Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.13 2010-03-26 05:39:55 
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "executor.h"
+#include "hor2dfrom3dcreator.h"
 #include "ptrman.h"
 #include "posinfo.h"
 #include "ioobj.h"
@@ -128,32 +129,15 @@ bool uiHor2DFrom3DDlg::checkFlds()
 
 void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 {
-    const BufferStringSet sellinenames =
-					linesetinpsel_->getSelLines();
+    const BufferStringSet sellinenames = linesetinpsel_->getSelLines();
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.getObjectID( hor3dsel_->selIOObj()->key() );
     mDynamicCastGet(EM::Horizon3D*,horizon3d,em.getObject(objid));
-    for ( int idx=0; idx<sellinenames.size(); idx++ )
-    {
-	PosInfo::Line2DData posdata;
+    Hor2DFrom3DCreatorGrp creator( *horizon3d, horizon2d );
+    creator.init( sellinenames, linesetinpsel_->ioObj()->key() );
 
-	uiSeisPartServer::get2DLineGeometry( linesetinpsel_->ioObj()->key(),
-					     sellinenames.get(idx), posdata );
-	const int lineid =
-	    horizon2d.geometry().addLine( linesetinpsel_->ioObj()->key(),
-				          sellinenames.get(idx).buf() );
-	for ( int idy=0; idy<posdata.posns_.size(); idy++ )
-	{
-	    const PosInfo::Line2DPos& posinfo = posdata.posns_[idy];
-	    BinID bid = SI().transform( posinfo.coord_ );
-	    EM::SubID subid = bid.getSerialized();
-	    const Coord3 pos3d = horizon3d->getPos( horizon3d->sectionID(0),
-		    				    subid );
-	    subid = RowCol( lineid, posinfo.nr_ ).getSerialized();
-	    Coord3 pos( 0, 0, pos3d.z );
-	    horizon2d.setPos(horizon2d.sectionID(0),subid,pos,false);
-	}
-    }
+    uiTaskRunner tr( this );
+    tr.execute( creator );
 }
 
 
