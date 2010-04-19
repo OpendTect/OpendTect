@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.31 2010-04-16 03:33:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.32 2010-04-19 06:07:09 cvssatyaki Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -157,6 +157,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	f3dfveditors_[ivwr]->drawFault();
 
 	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
+	viewwin()->viewer(ivwr).removePack( curpackid );
 	DPM(DataPackMgr::FlatID()).release( curpackid );
 
 	FlatView::DataDispPars& ddp = 
