@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.33 2010-04-12 13:29:19 cvshelene Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.34 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "scalingattrib.h"
 
@@ -158,8 +158,8 @@ const char* Scaling::scalingTypeNamesStr( int type )
 }
 
 
-Scaling::Scaling( Desc& desc_ )
-    : Provider( desc_ )
+Scaling::Scaling( Desc& desc )
+    : Provider( desc )
 {
     if ( !isOK() ) return;
 
@@ -168,7 +168,7 @@ Scaling::Scaling( Desc& desc_ )
     mGetFloat( width_, widthStr() );
     mGetFloat( mutefraction_, mutefractionStr() );
 
-    mDescGetParamGroup(ZGateParam,gateset,desc,gateStr())
+    mDescGetParamGroup(ZGateParam,gateset,desc_,gateStr())
     for ( int idx=0; idx<gateset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*gateset)[idx];
@@ -180,7 +180,7 @@ Scaling::Scaling( Desc& desc_ )
     mGetEnum( statstype_, statsTypeStr() );
     if ( statstype_ == mStatsTypeUser )
     {
-	mDescGetParamGroup(ValParam,factorset,desc,factorStr())
+	mDescGetParamGroup(ValParam,factorset,desc_,factorStr())
 	for ( int idx=0; idx<factorset->size(); idx++ )
 	    factors_ += ((ValParam&)((*factorset)[idx])).getfValue( 0 );
     }
@@ -205,7 +205,7 @@ bool Scaling::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Scaling::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata_ = inputs[0]->getData( relpos, zintv );
+    inputdata_ = inputs_[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
     return inputdata_;
 }
@@ -360,7 +360,7 @@ void Scaling::scaleZN( const DataHolder& output, int z0, int nrsamples) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float curt = (idx+z0)*refstep;
+	const float curt = (idx+z0)*refstep_;
 	const float result = pow(curt,powerval_) * 
 	    		     getInputValue( *inputdata_, dataidx_, idx, z0 );
        	setOutputValue( output, 0, idx, z0, result );
@@ -371,8 +371,8 @@ void Scaling::scaleZN( const DataHolder& output, int z0, int nrsamples) const
 void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
 {
     Interval<int> samplewindow;
-    samplewindow.start = mNINT( window_.start/refstep );
-    samplewindow.stop = mNINT( window_.stop/refstep );
+    samplewindow.start = mNINT( window_.start/refstep_ );
+    samplewindow.stop = mNINT( window_.stop/refstep_ );
 
     if ( nrsamples <= samplewindow.width() )
     {
@@ -404,8 +404,8 @@ void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 {
     for( int idx=0; idx<oldtgs.size(); idx++ )
     {
-	Interval<int> sg( mNINT(oldtgs[idx].start/refstep),
-			  mNINT(oldtgs[idx].stop/refstep) );
+	Interval<int> sg( mNINT(oldtgs[idx].start/refstep_),
+			  mNINT(oldtgs[idx].stop/refstep_) );
 	if ( sg.start>nrsamples+z0 || sg.stop<z0 )
 	{
 	    newsampgates += Interval<int>(0,0);

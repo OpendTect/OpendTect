@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonattrib.cc,v 1.18 2010-01-22 09:27:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.19 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "horizonattrib.h"
 
@@ -73,7 +73,7 @@ Horizon::Horizon( Desc& dsc )
     , horizon2dlineid_( mUdf(int) )
     , relz_(false)
 { 
-    BufferString idstr = desc.getValParam( sKeyHorID() )->getStringValue();
+    BufferString idstr = desc_.getValParam( sKeyHorID() )->getStringValue();
     horid_ = MultiID( idstr.buf() );
 
     mGetEnum( outtype_, sKeyType() );
@@ -84,7 +84,7 @@ Horizon::Horizon( Desc& dsc )
 
     if ( !isOK() )
     {
-	errmsg = "Selected surface data name does not exist";
+	errmsg_ = "Selected surface data name does not exist";
 	return;
     }
 }
@@ -118,7 +118,7 @@ const char* Horizon::outTypeNamesStr( int type )
 
 bool Horizon::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata_ = inputs[0]->getData( relpos, zintv );
+    inputdata_ = inputs_[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
     return inputdata_;
 }
@@ -154,10 +154,10 @@ void Horizon::prepareForComputeData()
 
     horizon_ = hor;
     horizon_->ref();
-    if ( desc.is2D() )
+    if ( desc_.is2D() )
 	fillLineID();
 
-    if ( outtype_ == mOutTypeZ || desc.is2D() )
+    if ( outtype_ == mOutTypeZ || desc_.is2D() )
 	mRet
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,hor)
@@ -170,7 +170,7 @@ void Horizon::prepareForComputeData()
 	BufferString msg = "Loading surface data ";
 	msg += surfdatanm_;
 	msg += " failed.";
-	errmsg =  msg;
+	errmsg_ =  msg;
 	horizon_->unRef();
 	mRet
     }
@@ -193,13 +193,13 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !horizon_ ) return false;
 
-    RowCol rc = currentbid + relpos;
-    if ( desc.is2D() )
+    RowCol rc = currentbid_ + relpos;
+    if ( desc_.is2D() )
     {
 	if ( mIsUdf(horizon2dlineid_) )
 	    return false;
 
-	rc = RowCol( horizon2dlineid_, currentbid.crl+relpos.crl );
+	rc = RowCol( horizon2dlineid_, currentbid_.crl+relpos.crl );
     }
 
     const EM::PosID posid( horizon_->id(), horizon_->sectionID(0),
@@ -211,7 +211,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
     {
 	for ( int iz=0; iz<nrsamples; iz++ )
 	{
-	    const float ziz = (z0 + iz) * refstep;
+	    const float ziz = (z0 + iz) * refstep_;
 	    setOutputValue( output, 0, iz, z0, ziz - zval );
 	}
     }
@@ -220,7 +220,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	float outputvalue = mUdf(float);
 	if ( isz )
 	    outputvalue = zval;
-	else if ( !desc.is2D() )
+	else if ( !desc_.is2D() )
 	{
 	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
 	    if ( hor3d )

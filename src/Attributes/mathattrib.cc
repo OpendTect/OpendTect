@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathattrib.cc,v 1.41 2009-08-27 14:08:04 cvshelene Exp $";
+static const char* rcsID = "$Id: mathattrib.cc,v 1.42 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "mathattrib.h"
 
@@ -128,7 +128,7 @@ Math::Math( Desc& dsc )
 
     MathExpressionParser mep( expr->getStringValue() );
     expression_ = mep.parse();
-    errmsg += mep.errMsg();
+    errmsg_ += mep.errMsg();
     if ( !mep.errMsg().isEmpty() ) return;
 
     mDescGetParamGroup(FloatParam,cstset,dsc,cstStr())
@@ -193,7 +193,7 @@ bool Math::getInputData( const BinID& relpos, int zintv )
 
     for ( int varidx=0; varidx<nrinputs; varidx++ )
     {
-	const DataHolder* data = inputs[varidx]->getData( relpos, zintv );
+	const DataHolder* data = inputs_[varidx]->getData( relpos, zintv );
 	if ( !data ) return false;
 	
 	inputdata_.replace( varidx, data );
@@ -218,7 +218,7 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     if ( (nrxvars + nrcstvars + nrspecvars) != nrvar ) 
 	return false;
 
-    const int recstartidx = mNINT( recstartpos_/refstep );
+    const int recstartidx = mNINT( recstartpos_/refstep_ );
 
     //in case first sample is undef prevent result=undef
     //on whole trace for recursive formulas
@@ -282,9 +282,9 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    float val;
 	    switch ( specstable_[specidx].specidx_ )
 	    {
-		case 0 :	val = refstep; break;
-		case 1 :	val = currentbid.inl; break;
-		case 2 :	val = currentbid.crl; break;
+		case 0 :	val = refstep_; break;
+		case 1 :	val = currentbid_.inl; break;
+		case 2 :	val = currentbid_.crl; break;
 	    }
 	    mathobj->setVariableValue( specstable_[specidx].fexpvaridx_, val );
 	}

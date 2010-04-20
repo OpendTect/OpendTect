@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.30 2009-11-05 06:10:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.31 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "coherencyattrib.h"
@@ -64,15 +64,15 @@ void Coherency::updateDesc( Desc& desc )
 {
     const ValParam* type = desc.getValParam( sKeyType() );
     if ( type->getIntValue() == 2 )
-	desc.inputSpec(1).enabled = true;
+	desc.inputSpec(1).enabled_ = true;
 
     if ( desc.is2D() )
 	desc.setNrOutputs( Seis::UnknowData, 2 );
 }
 
 
-Coherency::Coherency( Desc& desc_ )
-    : Provider( desc_ )
+Coherency::Coherency( Desc& desc )
+    : Provider( desc )
     , realdataholder_ ( 0 )
     , imagdataholder_ ( 0 )
 { 
@@ -92,7 +92,7 @@ Coherency::Coherency( Desc& desc_ )
     ddip_ = ddip_/dipFactor();
 
     mGetBinID( stepout_, sKeyStepout() );
-    stepout_.inl = desc.is2D() ? 0 : abs( stepout_.inl );
+    stepout_.inl = desc_.is2D() ? 0 : abs( stepout_.inl );
     stepout_.crl = abs( stepout_.crl );
 
     const float extraz = 
@@ -117,7 +117,7 @@ float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
 
     ValueSeriesInterpolator<float> interp1(dh1.nrsamples_-1);
     ValueSeriesInterpolator<float> interp2(dh2.nrsamples_-1);
-    if ( needinterp )
+    if ( needinterp_ )
     {
 	//We can afford using extrapolation with polyReg1DWithUdf because 
 	//even if extrapolation is needed, position will be anyway close to v0
@@ -163,7 +163,7 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 	    {
 		ValueSeriesInterpolator<float> 
 		    	interp( re.get(idy,idz)->nrsamples_-1 );
-		if ( needinterp )
+		if ( needinterp_ )
 		{
 		    //We can afford using extrapolation with polyReg1DWithUdf
 		    //because even if extrapolation is needed,
@@ -173,7 +173,7 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 		float crlpos = (idz - (crlsz/2)) * distcrl_;
 		float place = s - re.get(idy,idz)->z0_ + idx + 
-		    	     (inlpos*inldip)/refstep + (crlpos*crldip)/refstep;
+		    	     (inlpos*inldip)/refstep_ + (crlpos*crldip)/refstep_;
 		    
 		float real = 
 		    interp.value( *(re.get(idy,idz)->series(realidx_)), place );
@@ -197,7 +197,7 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 void Coherency::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT( refstep*zFactor() );
+    const int truestep = mNINT( refstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
@@ -206,13 +206,13 @@ void Coherency::prepPriorToBoundsCalc()
 
     if ( chgstart )
     {
-	int minstart = (int)(desgate_.start / refstep);
-	desgate_.start = (minstart-1) * refstep;
+	int minstart = (int)(desgate_.start / refstep_);
+	desgate_.start = (minstart-1) * refstep_;
     }
     if ( chgstop )
     {
-	int minstop = (int)(desgate_.stop / refstep);
-	desgate_.stop = (minstop+1) * refstep;
+	int minstop = (int)(desgate_.stop / refstep_);
+	desgate_.stop = (minstop+1) * refstep_;
     }
 
     Provider::prepPriorToBoundsCalc();
@@ -221,7 +221,7 @@ void Coherency::prepPriorToBoundsCalc()
 
 void Coherency::prepareForComputeData()
 {
-    BinID step = inputs[0]->getStepoutStep();
+    BinID step = inputs_[0]->getStepoutStep();
 	
     distinl_ = fabs(inldist()*step.inl);
     distcrl_ = fabs(crldist()*step.crl);
@@ -239,8 +239,8 @@ bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
 bool Coherency::computeData1( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
-    Interval<int> samplegate( mNINT(gate_.start/refstep),
-				mNINT(gate_.stop/refstep) );
+    Interval<int> samplegate( mNINT(gate_.start/refstep_),
+				mNINT(gate_.stop/refstep_) );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float cursamp = z0 + idx;
@@ -248,26 +248,26 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	float dipatmax = 0;
 
 	float curdip = -maxdip_;
-	const bool is2d = desc.is2D();
+	const bool is2d = desc_.is2D();
 
 	float extras0 = 0;
 	float extras1 = 0;
 	float extras2 = 0;
 	//make sure the data extracted from input DataHolders is at exact z pos
-	if ( needinterp )
+	if ( needinterp_ )
 	{
 	    float extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
-	    extras0 = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep;
+	    extras0 = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep_;
 	    if ( !is2d )
 		extras1 =
-		    (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refstep;
-	    extras2 = (extrazfspos - inputdata_[2]->extrazfromsamppos_)/refstep;
+		    (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refstep_;
+	    extras2 = (extrazfspos - inputdata_[2]->extrazfromsamppos_)/refstep_;
 	}
 
 	while ( curdip <= maxdip_ && !is2d )
 	{
 	    float coh = calc1( cursamp + extras0,
-		    		cursamp + extras1 + (curdip * distinl_)/refstep,
+		    		cursamp + extras1 + (curdip * distinl_)/refstep_,
 				samplegate, *inputdata_[0], *inputdata_[1] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
@@ -284,7 +284,7 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	while ( curdip <= maxdip_ )
 	{
 	    float coh = calc1( cursamp + extras0,
-		    		cursamp + extras2 + (curdip * distcrl_)/refstep,
+		    		cursamp + extras2 + (curdip * distcrl_)/refstep_,
 				samplegate, *inputdata_[0], *inputdata_[2] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
@@ -309,16 +309,16 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 bool Coherency::computeData2( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
-    const bool is2d = desc.is2D();
-    Interval<int> samplegate( mNINT(gate_.start/refstep),
-				mNINT(gate_.stop/refstep) );
+    const bool is2d = desc_.is2D();
+    Interval<int> samplegate( mNINT(gate_.start/refstep_),
+				mNINT(gate_.stop/refstep_) );
 
     float extras = 0;
     //make sure the data extracted from input DataHolders is at exact z pos
-    if ( needinterp )
+    if ( needinterp_ )
     {
 	float extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
-	extras = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep;
+	extras = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep_;
     }
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -367,18 +367,18 @@ bool Coherency::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Coherency::getInputData( const BinID& relpos, int idx )
 {
-    const bool is2d = desc.is2D();
-    const BinID bidstep = inputs[0]->getStepoutStep();
+    const bool is2d = desc_.is2D();
+    const BinID bidstep = inputs_[0]->getStepoutStep();
     if ( type_==1 )
     {
 	while ( inputdata_.size() < 3 )
 	    inputdata_ += 0;
 
-	const DataHolder* datac = inputs[0]->getData( relpos, idx );
+	const DataHolder* datac = inputs_[0]->getData( relpos, idx );
 	const DataHolder* datai = is2d ? 0 :
-	   inputs[0]->getData( BinID(relpos.inl+bidstep.inl, relpos.crl), idx );
+	   inputs_[0]->getData( BinID(relpos.inl+bidstep.inl, relpos.crl), idx );
 	const DataHolder* datax =
-	   inputs[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx );
+	   inputs_[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx );
 	if ( !datac || (!datai&&!is2d) || !datax )
 	    return false;
 
@@ -404,14 +404,14 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 	    {
 		BinID bid = BinID( relpos.inl + idy * bidstep.inl, 
 				   relpos.crl + idz * bidstep.crl );
-		const DataHolder* dh = inputs[0]->getData( bid, idx );
+		const DataHolder* dh = inputs_[0]->getData( bid, idx );
 		if ( !dh )
 		    return false;
 
 		realdataholder_->set(idy+stepout_.inl,idz+stepout_.crl, 
 			const_cast<DataHolder*>(dh) );
 
-		const DataHolder* data = inputs[1]->getData( bid, idx );
+		const DataHolder* data = inputs_[1]->getData( bid, idx );
 		if ( !data )
 		    return false;
 		

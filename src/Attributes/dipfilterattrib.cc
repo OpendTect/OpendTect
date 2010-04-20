@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.26 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.27 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -152,9 +152,9 @@ DipFilter::DipFilter( Desc& ds )
     mGetFloat( taperlen, taperlenStr() );
     taperlen = taperlen/100;
 
-    kernel.setSize( desc.is2D() ? 1 : size, size, size );
+    kernel.setSize( desc_.is2D() ? 1 : size, size, size );
     valrange = Interval<float>(minvel,maxvel);
-    stepout = desc.is2D() ? BinID( 0, size/2 ) : BinID( size/2, size/2 );
+    stepout = desc_.is2D() ? BinID( 0, size/2 ) : BinID( size/2, size/2 );
     initKernel();
 }
 
@@ -167,7 +167,7 @@ bool DipFilter::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool DipFilter::initKernel()
 {
-    const bool is2d = desc.is2D();
+    const bool is2d = desc_.is2D();
     const int hsz = size/2;
     const int hszinl = is2d ? 0 : hsz;
 
@@ -187,7 +187,7 @@ bool DipFilter::initKernel()
 
 	    for ( int kti=-hsz; kti<=hsz; kti++ )
 	    {
-		float kt = kti * refstep;
+		float kt = kti * refstep_;
 
 		static const float rad2deg = 180 / M_PI;
 
@@ -319,14 +319,14 @@ bool DipFilter::getInputData( const BinID& relpos, int index )
     
     int idx = 0;
 
-    const BinID bidstep = inputs[0]->getStepoutStep();
+    const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int inl=-stepout.inl; inl<=stepout.inl; inl++ )
     {
 	for ( int crl=-stepout.crl; crl<=stepout.crl; crl++ )
 	{
 	    const BinID truepos( relpos.inl + inl*abs(bidstep.inl),
 				 relpos.crl + crl*abs(bidstep.crl) );
-	    const DataHolder* dh = inputs[0]->getData( truepos, index );
+	    const DataHolder* dh = inputs_[0]->getData( truepos, index );
 	    if ( !dh ) return false;
 
 	    inputdata.replace( idx, dh );
@@ -342,10 +342,10 @@ bool DipFilter::getInputData( const BinID& relpos, int index )
 bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 			     int z0, int nrsamples, int threadid ) const
 {
-    if ( outputinterest.isEmpty() ) return false;
+    if ( outputinterest_.isEmpty() ) return false;
 
     const int hsz = size/2;
-    const int sizeinl = desc.is2D() ? 1 : size;
+    const int sizeinl = desc_.is2D() ? 1 : size;
     for ( int idx=0; idx<nrsamples; idx++)
     {
 	int dhoff = 0;

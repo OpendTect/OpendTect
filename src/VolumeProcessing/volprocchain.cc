@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.12 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.13 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -124,18 +124,18 @@ bool ChainExecutor::setCalculationScope(
 {
     if ( !output ) return false;
 
-    hrg_.start.inl = output->inlsampling.start;
-    hrg_.start.crl = output->crlsampling.start;
-    hrg_.step.inl = output->inlsampling.step;
-    hrg_.step.crl = output->crlsampling.step;
-    hrg_.stop.inl = output->inlsampling.atIndex( output->getInlSz()-1 );
-    hrg_.stop.crl = output->crlsampling.atIndex( output->getCrlSz()-1 );
+    hrg_.start.inl = output->inlsampling_.start;
+    hrg_.start.crl = output->crlsampling_.start;
+    hrg_.step.inl = output->inlsampling_.step;
+    hrg_.step.crl = output->crlsampling_.step;
+    hrg_.stop.inl = output->inlsampling_.atIndex( output->getInlSz()-1 );
+    hrg_.stop.crl = output->crlsampling_.atIndex( output->getCrlSz()-1 );
 
-    zrg_.start = output->z0;
+    zrg_.start = output->z0_;
     zrg_.step = 1;
-    zrg_.stop = output->z0 + output->getZSz()-1;
+    zrg_.stop = output->z0_ + output->getZSz()-1;
     chain_.setZSampling(
-	    SamplingData<float>( output->z0*output->zstep, output->zstep ),
+	    SamplingData<float>( output->z0_*output->zstep_, output->zstep_ ),
 	    SI().zIsTime() );
 
     if ( cubeoutput_ ) 
@@ -211,13 +211,13 @@ bool ChainExecutor::prepareNewStep()
 	 curoutput_->getZSz()!=nrz )
 	curoutput_->setSize( nrinl, nrcrl, nrz );
 
-    curoutput_->inlsampling.start = inlrg.start;
-    curoutput_->inlsampling.step = inlrg.step;
-    curoutput_->crlsampling.start = crlrg.start;
-    curoutput_->crlsampling.step = crlrg.step;
-    curoutput_->crlsampling.step = crlrg.step;
-    curoutput_->z0 = zrg.start;
-    curoutput_->zstep = chain_.getZSampling().step;
+    curoutput_->inlsampling_.start = inlrg.start;
+    curoutput_->inlsampling_.step = inlrg.step;
+    curoutput_->crlsampling_.start = crlrg.start;
+    curoutput_->crlsampling_.step = crlrg.step;
+    curoutput_->crlsampling_.step = crlrg.step;
+    curoutput_->z0_ = zrg.start;
+    curoutput_->zstep_ = chain_.getZSampling().step;
 
     if ( !curoutput_->nrCubes() && !curoutput_->addCube( mUdf(float), false ) )
     {

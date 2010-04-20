@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.30 2010-04-20 18:09:13 cvskris Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.31 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,19 +146,6 @@ protected:
     uiAttrSel*		createInpFld(const uiAttrSelData&,const char* txt=0);
     uiImagAttrSel*	createImagInpFld(bool is2d);
 
-    uiAttrSel*		getInpFld(bool is2d,const char* txt=0)
-    			/*!<Obsoleted. Use createInpFld instead. Will be removed
-			    in version 4.4 of OpendTect or higher. */
-    			{ return createInpFld( is2d, txt ); }
-    uiAttrSel*		getInpFld(const uiAttrSelData& d,const char* txt=0);
-    			/*!<Obsoleted. Use createInpFld instead. Will be removed
-			    in version 4.4 of OpendTect or higher. */
-			{ return createInpFld( d, txt ); }
-    uiImagAttrSel*	getImagInpFld(bool is2d);
-    			/*!<Obsoleted. Use createImagInpFld instead. Will be
-			    removed in version 4.4 of OpendTect or higher. */
-    			{ return createImagInpFld( is2d ); }
-   
     BufferString        helpid_;
     BufferString	attrnm_;
     DomainType		domtyp_;

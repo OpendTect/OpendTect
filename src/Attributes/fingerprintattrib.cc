@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: fingerprintattrib.cc,v 1.17 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: fingerprintattrib.cc,v 1.18 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "fingerprintattrib.h"
 
@@ -135,21 +135,21 @@ FingerPrint::FingerPrint( Desc& dsc )
 
     inputdata_.allowNull(true);
 
-    mDescGetParamGroup(FloatParam,valueset,desc,valStr())
+    mDescGetParamGroup(FloatParam,valueset,desc_,valStr())
     for ( int idx=0; idx<valueset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*valueset)[idx];
 	refvector_ += param.getfValue(0);
     }
 
-    mDescGetParamGroup(FloatGateParam,rangeset,desc,rangeStr())
+    mDescGetParamGroup(FloatGateParam,rangeset,desc_,rangeStr())
     for ( int idx=0; idx<rangeset->size(); idx++ )
     {
 	const FloatGateParam& param = (FloatGateParam&)(*rangeset)[idx];
 	ranges_ += param.getValue();
     }
 
-    mDescGetParamGroup(IntParam,weightset,desc,weightStr())
+    mDescGetParamGroup(IntParam,weightset,desc_,weightStr())
     for ( int idx=0; idx<weightset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*weightset)[idx];
@@ -173,19 +173,19 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
     while ( inputdata_.size() < vectsz )
 	inputdata_ += 0;
 
-    while ( dataidx_.size() < inputs.size() )
+    while ( dataidx_.size() < inputs_.size() )
 	dataidx_ += -1;
 
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	const DataHolder* data = inputs[idx]->getData( relpos, zintv );
+	const DataHolder* data = inputs_[idx]->getData( relpos, zintv );
 	if ( !data ) return false;
 
 	inputdata_.replace( idx, data );
 	dataidx_[idx] = getDataIndex( idx );
     }
 
-    int dataindex = inputs.size();
+    int dataindex = inputs_.size();
     for ( int idx=0; idx<weights_.size(); idx++ )
     {
 	int nrtimes = weights_[idx]-1;
@@ -206,7 +206,7 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos, 
 			       int z0, int nrsamples, int threadid ) const
 {
-    if ( inputdata_.isEmpty() || !outputinterest[0] ) return false;
+    if ( inputdata_.isEmpty() || !outputinterest_[0] ) return false;
 
     TypeSet<float> scaledlocal;
     for ( int idx=0; idx<nrsamples; idx++ )

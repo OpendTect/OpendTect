@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.18 2010-03-09 08:01:56 cvsbert Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.19 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,10 +75,10 @@ public:
     int				getCrlSz() const	{ return crlsz_; }
     int				getZSz() const		{ return zsz_; }
 
-    SamplingData<int>		inlsampling;
-    SamplingData<int>		crlsampling;
-    int				z0;
-    double			zstep;
+    SamplingData<int>		inlsampling_;
+    SamplingData<int>		crlsampling_;
+    int				z0_;
+    double			zstep_;
     CubeSampling		cubeSampling() const;
     				/*!<For convenience. The samling is changed
 				    by setting inlsampling, crlsampling, z0 and

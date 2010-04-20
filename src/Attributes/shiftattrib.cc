@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.31 2009-08-25 10:41:53 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.32 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -40,7 +40,7 @@ void Shift::initClass()
     desc->addInput( InputSpec("Input data",true) );
 
     InputSpec steeringspec( "Steering data", false );
-    steeringspec.issteering = true;
+    steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
 
     mAttrEndInitClass
@@ -49,12 +49,12 @@ void Shift::initClass()
 
 void Shift::updateDesc( Desc& desc )
 {
-    desc.inputSpec(1).enabled = desc.getValParam(steeringStr())->getBoolValue();
+    desc.inputSpec(1).enabled_ = desc.getValParam(steeringStr())->getBoolValue();
 }
 
 
-Shift::Shift( Desc& desc_ )
-    : Provider(desc_)
+Shift::Shift( Desc& desc )
+    : Provider(desc)
     , steeridx_(-1)
 {
     mGetBinID( pos_, posStr() );
@@ -91,10 +91,10 @@ void Shift::init()
 
 void Shift::initSteering()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering( stepout_ );
+	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
+	    inputs_[idx]->initSteering( stepout_ );
     }
 }
 
@@ -110,16 +110,16 @@ bool Shift::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Shift::getInputData( const BinID& relpos, int zintv )
 {
-    const BinID bidstep = inputs[0]->getStepoutStep();
+    const BinID bidstep = inputs_[0]->getStepoutStep();
     const BinID posneeded = relpos + bidstep*pos_;
-    inputdata_ = inputs[0]->getData( posneeded, zintv );
+    inputdata_ = inputs_[0]->getData( posneeded, zintv );
     if ( !inputdata_ )
 	return false;
 
     dataidx_ = getDataIndex( 0 );
     if ( steeridx_<0 ) steeridx_ = getSteeringIndex( pos_ );
 
-    steeringdata_ = dosteer_ ? inputs[1]->getData( relpos, zintv ) : 0;
+    steeringdata_ = dosteer_ ? inputs_[1]->getData( relpos, zintv ) : 0;
     if ( !steeringdata_ && dosteer_ )
 	return false;
 
@@ -130,11 +130,11 @@ bool Shift::getInputData( const BinID& relpos, int zintv )
 bool Shift::computeData( const DataHolder& output, const BinID& relpos,
 			 int z0, int nrsamples, int threadid ) const
 {
-    if ( !outputinterest[0] ) return false;
+    if ( !outputinterest_[0] ) return false;
 
-    float sampleshift = time_/(zFactor()*refstep);
+    float sampleshift = time_/(zFactor()*refstep_);
     const int sampleidx = mNINT(sampleshift);
-    const float extrasamp = output.extrazfromsamppos_/refstep;
+    const float extrasamp = output.extrazfromsamppos_/refstep_;
     const bool dointerpolate = dosteer_ || 
 			       !mIsEqual(sampleshift,sampleidx,0.001);
 
@@ -165,15 +165,15 @@ const BinID* Shift::reqStepout( int inp, int out ) const
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep);\
+	int minbound = (int)(gatebound / refstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep;\
+	gatebound = (minbound+incvar) * refstep_;\
     }\
 }
 
 void Shift::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT( refstep*zFactor() );
+    const int truestep = mNINT( refstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 

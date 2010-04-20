@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: matchdeltaattrib.cc,v 1.1 2010-03-22 10:13:06 cvsbert Exp $";
+static const char* rcsID = "$Id: matchdeltaattrib.cc,v 1.2 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "matchdeltaattrib.h"
 #include "attribdataholder.h"
@@ -39,8 +39,8 @@ void MatchDelta::initClass()
 }
 
 
-MatchDelta::MatchDelta( Desc& desc_ )
-    : Provider( desc_ )
+MatchDelta::MatchDelta( Desc& desc )
+    : Provider( desc )
     , dessamps_(-20,20)
 {
     if ( !isOK() ) return;
@@ -52,8 +52,8 @@ MatchDelta::MatchDelta( Desc& desc_ )
 
 bool MatchDelta::getInputData( const BinID& relpos, int zintv )
 {
-    refcubedata_ = inputs[0]->getData( relpos, zintv );
-    mtchcubedata_ = inputs[1]->getData( relpos, zintv );
+    refcubedata_ = inputs_[0]->getData( relpos, zintv );
+    mtchcubedata_ = inputs_[1]->getData( relpos, zintv );
     if ( !refcubedata_ || !mtchcubedata_ )
 	return false;
 
@@ -61,7 +61,7 @@ bool MatchDelta::getInputData( const BinID& relpos, int zintv )
     refintv_.stop = refcubedata_->z0_ + refcubedata_->nrsamples_ - 1;
     mtchintv_.start = mtchcubedata_->z0_;
     mtchintv_.stop = mtchcubedata_->z0_ + mtchcubedata_->nrsamples_ - 1;
-    maxsamps_ = maxshift_ / refstep;
+    maxsamps_ = maxshift_ / refstep_;
 
     refseries_ = refcubedata_->series( getDataIndex(0) );
     mtchseries_ = mtchcubedata_->series( getDataIndex(1) );
@@ -134,7 +134,7 @@ void MatchDelta::findEvents( int z0, int nrsamples ) const
 void MatchDelta::fillOutput( const DataHolder& output,
 			     int z0, int nrsamples ) const
 {
-    const float outfac = refstep * SI().zFactor();
+    const float outfac = refstep_ * SI().zFactor();
     if ( poss_.size() < 2 )
     {
 	const float deltaval = (deltas_.isEmpty() ? 0 : deltas_[0]) * outfac;

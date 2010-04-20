@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.5 2010-04-09 11:20:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.6 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -77,8 +77,8 @@ int DataCubesWriter::nextStep()
 
     trc_.info().binid = currentpos_;
     trc_.info().coord = SI().transform( currentpos_ );
-    const int inlidx = cube_.inlsampling.nearestIndex( currentpos_.inl );
-    const int crlidx = cube_.crlsampling.nearestIndex( currentpos_.crl );
+    const int inlidx = cube_.inlsampling_.nearestIndex( currentpos_.inl );
+    const int crlidx = cube_.crlsampling_.nearestIndex( currentpos_.crl );
 
     for ( int idx=0; idx<cubeindices_.size(); idx++ )
     {

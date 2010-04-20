@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribfactory.cc,v 1.9 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribfactory.cc,v 1.10 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribfactory.h"
 
@@ -21,11 +21,11 @@ ProviderFactory::ProviderFactory()
 
 ProviderFactory::~ProviderFactory()
 {
-    for ( int idx=0; idx<descs.size(); idx++ )
-	descs[idx]->unRef();
+    for ( int idx=0; idx<descs_.size(); idx++ )
+	descs_[idx]->unRef();
 
-    descs.erase();
-    creaters.erase();
+    descs_.erase();
+    creaters_.erase();
 }
 
 
@@ -36,8 +36,8 @@ void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
 	return;
 
     nps->ref();
-    descs += nps;
-    creaters += pc;
+    descs_ += nps;
+    creaters_ += pc;
 };
 
 
@@ -49,7 +49,7 @@ Provider* ProviderFactory::create( Desc& desc ) const
     const int idx = indexOf(desc.attribName());
     if ( idx==-1 ) return 0;
 
-    return creaters[idx]( desc );
+    return creaters_[idx]( desc );
 }
 
 
@@ -58,15 +58,15 @@ Desc* ProviderFactory::createDescCopy( const char* nm ) const
     const int idx = indexOf(nm);
     if ( idx==-1 ) return 0;
 
-    return new Desc( *descs[idx] );
+    return new Desc( *descs_[idx] );
 }
 
 
 int ProviderFactory::indexOf( const char* nm ) const
 {
-    for ( int idx=0; idx<descs.size(); idx++ )
+    for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	if ( !strcmp( descs[idx]->attribName(), nm ) )
+	if ( !strcmp( descs_[idx]->attribName(), nm ) )
 	    return idx;
     }
 

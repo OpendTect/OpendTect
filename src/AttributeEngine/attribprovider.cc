@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.121 2009-11-18 21:58:40 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.122 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -88,7 +88,7 @@ Provider* Provider::create( Desc& desc, BufferString& errstr )
     Provider* prov = internalCreate( desc, existing, issame, errstr );
     if ( !prov ) return 0;
 
-    prov->allexistingprov = existing;
+    prov->allexistingprov_ = existing;
     return prov;
 }
 
@@ -162,15 +162,15 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     if ( !newprov->checkInpAndParsAtStart() )
     {
 	existing.remove( existing.indexOf(newprov), existing.size()-1 );
-	BufferString attribnm = newprov->desc.attribName();
+	BufferString attribnm = newprov->desc_.attribName();
 	if ( attribnm == StorageProvider::attribName() )
 	{
 	    errstr = "Cannot load Stored Cube '";
-	    errstr += newprov->desc.userRef(); errstr += "'";
+	    errstr += newprov->desc_.userRef(); errstr += "'";
 	}
 	else
 	{
-	    errstr = "Attribute \""; errstr += newprov->desc.userRef(); 
+	    errstr = "Attribute \""; errstr += newprov->desc_.userRef(); 
 	    errstr += "\" of type \""; errstr += attribnm;
 	    errstr += "\" cannot be initialized";
 	}
@@ -184,61 +184,61 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
 
 Provider::Provider( Desc& nd )
-    : desc( nd )
-    , desiredvolume( 0 )
-    , possiblevolume( 0 ) 
-    , outputinterest( nd.nrOutputs(), 0 )
-    , reqbufferstepout( 0, 0 )
-    , desbufferstepout( 0, 0 )
+    : desc_( nd )
+    , desiredvolume_( 0 )
+    , possiblevolume_( 0 ) 
+    , outputinterest_( nd.nrOutputs(), 0 )
+    , reqbufferstepout_( 0, 0 )
+    , desbufferstepout_( 0, 0 )
     , providertask_( 0 )
-    , currentbid( -1, -1 )
+    , currentbid_( -1, -1 )
     , curlinekey_( 0, 0 )
-    , linebuffer( 0 )
-    , refstep( 0 )
-    , alreadymoved(0)
-    , isusedmulttimes(0)
+    , linebuffer_( 0 )
+    , refstep_( 0 )
+    , alreadymoved_(0)
+    , isusedmulttimes_(0)
     , seldata_(0)
     , curtrcinfo_(0)
     , extraz_(0,0)
-    , trcinfobid( -1, -1 )
-    , prevtrcnr( 0 )
-    , needinterp( 0 )
+    , trcinfobid_( -1, -1 )
+    , prevtrcnr_( 0 )
+    , needinterp_( 0 )
     , useshortcuts_( 0 )
 {
-    desc.ref();
-    inputs.allowNull(true);
-    for ( int idx=0; idx<desc.nrInputs(); idx++ )
-	inputs += 0;
+    desc_.ref();
+    inputs_.allowNull(true);
+    for ( int idx=0; idx<desc_.nrInputs(); idx++ )
+	inputs_ += 0;
 }
 
 
 Provider::~Provider()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] ) inputs[idx]->unRef();
-    inputs.erase();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] ) inputs_[idx]->unRef();
+    inputs_.erase();
 
-    allexistingprov.erase();
+    allexistingprov_.erase();
 
-    desc.unRef();
+    desc_.unRef();
 
     delete providertask_;
 
-    delete linebuffer;
-    delete possiblevolume;
-    delete desiredvolume;
+    delete linebuffer_;
+    delete possiblevolume_;
+    delete desiredvolume_;
 }
 
 
 bool Provider::isOK() const
 {
-    return errmsg.isEmpty(); /* Huh? &parser && parser.isOK(); */
+    return errmsg_.isEmpty(); /* Huh? &parser && parser.isOK(); */
 }
 
 
 Desc& Provider::getDesc()
 {
-    return desc;
+    return desc_;
 }
 
 
@@ -250,42 +250,42 @@ const Desc& Provider::getDesc() const
 
 void Provider::enableOutput( int out, bool yn )
 {
-    if ( out<0 || out >= outputinterest.size() )
+    if ( out<0 || out >= outputinterest_.size() )
 	{ pErrMsg( "Huh?" ); return; }
 
     if ( yn )
-	outputinterest[out]++;
+	outputinterest_[out]++;
     else
     {
-	if ( !outputinterest[out] )
+	if ( !outputinterest_[out] )
 	{
 	    pErrMsg( "Hue?");
 	    return;
 	}
-	outputinterest[out]--;
+	outputinterest_[out]--;
     }
 }
 
 
 bool Provider::isOutputEnabled( int out ) const
 {
-    if ( out<0 || out >= outputinterest.size() )
+    if ( out<0 || out >= outputinterest_.size() )
 	return false;
     else
-	return outputinterest[out];
+	return outputinterest_[out];
 }
 
 
 #define setBufStepout( prefix ) \
 { \
-    if ( ns.inl <= prefix##bufferstepout.inl \
-	    && ns.crl <= prefix##bufferstepout.crl ) \
+    if ( ns.inl <= prefix##bufferstepout_.inl \
+	    && ns.crl <= prefix##bufferstepout_.crl ) \
 	return; \
 \
-    if ( ns.inl > prefix##bufferstepout.inl ) \
-    	prefix##bufferstepout.inl = ns.inl; \
-    if ( ns.crl > prefix##bufferstepout.crl ) \
-    	prefix##bufferstepout.crl = ns.crl;\
+    if ( ns.inl > prefix##bufferstepout_.inl ) \
+    	prefix##bufferstepout_.inl = ns.inl; \
+    if ( ns.crl > prefix##bufferstepout_.crl ) \
+    	prefix##bufferstepout_.crl = ns.crl;\
 }
 
 
@@ -309,44 +309,44 @@ void Provider::setReqBufStepout( const BinID& ns, bool wait )
 
 void Provider::setDesiredVolume( const CubeSampling& ndv )
 {
-    if ( !desiredvolume )
-	desiredvolume = new CubeSampling(ndv);
+    if ( !desiredvolume_ )
+	desiredvolume_ = new CubeSampling(ndv);
     else
     {
 	if ( !isUsedMultTimes() )
-	    *desiredvolume = ndv;
+	    *desiredvolume_ = ndv;
 	else
 	{
-	    desiredvolume->hrg.start.inl = 
-		desiredvolume->hrg.start.inl < ndv.hrg.start.inl ?
-		desiredvolume->hrg.start.inl : ndv.hrg.start.inl;
-	    desiredvolume->hrg.stop.inl =
-		desiredvolume->hrg.stop.inl > ndv.hrg.stop.inl ?
-		desiredvolume->hrg.stop.inl : ndv.hrg.stop.inl;
-	    desiredvolume->hrg.stop.crl =
-		desiredvolume->hrg.stop.crl > ndv.hrg.stop.crl ?
-		desiredvolume->hrg.stop.crl : ndv.hrg.stop.crl;
-	    desiredvolume->hrg.start.crl =
-		desiredvolume->hrg.start.crl < ndv.hrg.start.crl ?
-		desiredvolume->hrg.start.crl : ndv.hrg.start.crl;
-	    desiredvolume->zrg.start = desiredvolume->zrg.start < ndv.zrg.start?
-		desiredvolume->zrg.start : ndv.zrg.start;
-	    desiredvolume->zrg.stop = desiredvolume->zrg.stop > ndv.zrg.stop ?
-		desiredvolume->zrg.stop : ndv.zrg.stop;
+	    desiredvolume_->hrg.start.inl = 
+		desiredvolume_->hrg.start.inl < ndv.hrg.start.inl ?
+		desiredvolume_->hrg.start.inl : ndv.hrg.start.inl;
+	    desiredvolume_->hrg.stop.inl =
+		desiredvolume_->hrg.stop.inl > ndv.hrg.stop.inl ?
+		desiredvolume_->hrg.stop.inl : ndv.hrg.stop.inl;
+	    desiredvolume_->hrg.stop.crl =
+		desiredvolume_->hrg.stop.crl > ndv.hrg.stop.crl ?
+		desiredvolume_->hrg.stop.crl : ndv.hrg.stop.crl;
+	    desiredvolume_->hrg.start.crl =
+		desiredvolume_->hrg.start.crl < ndv.hrg.start.crl ?
+		desiredvolume_->hrg.start.crl : ndv.hrg.start.crl;
+	    desiredvolume_->zrg.start = desiredvolume_->zrg.start < ndv.zrg.start?
+		desiredvolume_->zrg.start : ndv.zrg.start;
+	    desiredvolume_->zrg.stop = desiredvolume_->zrg.stop > ndv.zrg.stop ?
+		desiredvolume_->zrg.stop : ndv.zrg.stop;
 	}
     }
 
     CubeSampling inputcs;
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs[idx] ) continue;
-	for ( int idy=0; idy<outputinterest.size(); idy++ )
+	if ( !inputs_[idx] ) continue;
+	for ( int idy=0; idy<outputinterest_.size(); idy++ )
 	{
-	    if ( outputinterest[idy]<1 ) continue;
+	    if ( outputinterest_[idy]<1 ) continue;
 
-	    bool isstored = inputs[idx] ? inputs[idx]->desc.isStored() : false;
+	    bool isstored = inputs_[idx] ? inputs_[idx]->desc_.isStored() : false;
 	    if ( computeDesInputCube( idx, idy, inputcs, !isstored ) )
-		inputs[idx]->setDesiredVolume( inputcs );
+		inputs_[idx]->setDesiredVolume( inputcs );
 	}
     }
 }
@@ -366,27 +366,27 @@ mGetMargin( type, var, req##var, req##funcPost )
 bool Provider::getPossibleVolume( int output, CubeSampling& res )
 {
     CubeSampling tmpres = res;
-    if ( inputs.size()==0 )
+    if ( inputs_.size()==0 )
     {
 	const bool is2d = getDesc().descSet()->is2D();
 	if ( !is2d ) res.init(true);
-	if ( !possiblevolume )
-	    possiblevolume = new CubeSampling;
+	if ( !possiblevolume_ )
+	    possiblevolume_ = new CubeSampling;
 
-	if ( is2d ) *possiblevolume = res;
+	if ( is2d ) *possiblevolume_ = res;
 	return true;
     }
 
-    if ( !desiredvolume ) return false;
+    if ( !desiredvolume_ ) return false;
 
     TypeSet<int> outputs;
     if ( output != -1 )
 	outputs += output;
     else
     {
-	for ( int idx=0; idx<outputinterest.size(); idx++ )
+	for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	{
-	    if ( outputinterest[idx] > 0 )
+	    if ( outputinterest_[idx] > 0 )
 		outputs += idx;
 	}
     }
@@ -395,9 +395,9 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
     for ( int idx=0; idx<outputs.size(); idx++ )
     {
 	const int out = outputs[idx];
-	for ( int inp=0; inp<inputs.size(); inp++ )
+	for ( int inp=0; inp<inputs_.size(); inp++ )
 	{
-	    if ( !inputs[inp] )
+	    if ( !inputs_[inp] )
 		continue;
 
 	    CubeSampling inputcs = tmpres;
@@ -408,14 +408,14 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 	    for ( int idy=0; idy<inputoutput.size(); idy++ )
 	    {
 		if ( !computeDesInputCube(inp, out, inputcs, true)) continue;
-		if ( !inputs[inp]->getPossibleVolume( idy, inputcs ) ) 
+		if ( !inputs_[inp]->getPossibleVolume( idy, inputcs ) ) 
 		    continue;
 
 		const BinID* stepout = reqStepout(inp,out);
 		if ( stepout )
 		{
-		    int inlstepoutfact = desiredvolume->hrg.step.inl;
-		    int crlstepoutfact = desiredvolume->hrg.step.crl;
+		    int inlstepoutfact = desiredvolume_->hrg.step.inl;
+		    int crlstepoutfact = desiredvolume_->hrg.step.crl;
 		    inputcs.hrg.start.inl += stepout->inl * inlstepoutfact;
 		    inputcs.hrg.start.crl += stepout->crl * crlstepoutfact;
 		    inputcs.hrg.stop.inl -= stepout->inl * inlstepoutfact;
@@ -432,8 +432,8 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 		const Interval<int>* zrgsamp = reqZSampMargin(inp,out);
 		if ( zrgsamp )
 		{
-		    inputcs.zrg.start -= zrgsamp->start*refstep;
-		    inputcs.zrg.stop -= zrgsamp->stop*refstep;
+		    inputcs.zrg.start -= zrgsamp->start*refstep_;
+		    inputcs.zrg.stop -= zrgsamp->stop*refstep_;
 		}
 		
 		res.limitToWithUdf( inputcs );
@@ -442,27 +442,27 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 	}
     }
 
-    if ( !possiblevolume )
-	possiblevolume = new CubeSampling;
+    if ( !possiblevolume_ )
+	possiblevolume_ = new CubeSampling;
     
-    possiblevolume->hrg = res.hrg;
-    possiblevolume->zrg = res.zrg;
+    possiblevolume_->hrg = res.hrg;
+    possiblevolume_->zrg = res.zrg;
     return isset;
 }
 
 
 int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 {
-    if ( alreadymoved )
+    if ( alreadymoved_ )
 	return 1;
 
-    if ( inputs.size() < 1 )
+    if ( inputs_.size() < 1 )
 	startpos = BinID(-1,-1);
     
     bool docheck = startpos == BinID(-1,-1);
     
     if ( getDesc().descSet()->is2D() )
-	prevtrcnr = currentbid.crl;
+	prevtrcnr_ = currentbid_.crl;
 
     bool needmove;
     bool docontinue = true;
@@ -470,24 +470,24 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     while ( docontinue )
     {
 	needmove = docheck;
-	for ( int idx=0; idx<inputs.size(); idx++ )
+	for ( int idx=0; idx<inputs_.size(); idx++ )
 	{
-	    if ( !inputs[idx] ) continue;
+	    if ( !inputs_[idx] ) continue;
 	    
-	    currentbid = inputs[idx]->getCurrentPosition();
-	    trcinfobid = inputs[idx]->getTrcInfoBid();
-	    if ( !docheck && currentbid == startpos ) continue;
-	    if ( !docheck && trcinfobid != BinID(-1,-1) 
-		 && trcinfobid == startpos )
+	    currentbid_ = inputs_[idx]->getCurrentPosition();
+	    trcinfobid_ = inputs_[idx]->getTrcInfoBid();
+	    if ( !docheck && currentbid_ == startpos ) continue;
+	    if ( !docheck && trcinfobid_ != BinID(-1,-1) 
+		 && trcinfobid_ == startpos )
 		continue;
 	    
 	    needmove = true;
-	    const int res = inputs[idx]->moveToNextTrace(startpos, firstcheck);
+	    const int res = inputs_[idx]->moveToNextTrace(startpos, firstcheck);
 	    if ( res!=1 ) return res;
 
-	    if ( !inputs[idx]->getMSCProvider() ) continue;
-	    if ( movinginputs.indexOf( inputs[idx] ) < 0 )
-		movinginputs += inputs[idx];
+	    if ( !inputs_[idx]->getMSCProvider() ) continue;
+	    if ( movinginputs.indexOf( inputs_[idx] ) < 0 )
+		movinginputs += inputs_[idx];
 	}
 	if ( !needmove || docheck ) 
 	    docontinue = false;
@@ -495,10 +495,10 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	if ( !docheck && firstcheck )
 	{
 	    bool allok = true;
-	    for ( int idi=0; idi<inputs.size(); idi++)
+	    for ( int idi=0; idi<inputs_.size(); idi++)
 	    {
-		if ( inputs[idi] && inputs[idi]->getTrcInfoBid() != BinID(-1,-1)
-		     && inputs[idi]->getTrcInfoBid() != startpos )
+		if ( inputs_[idi] && inputs_[idi]->getTrcInfoBid() != BinID(-1,-1)
+		     && inputs_[idi]->getTrcInfoBid() != startpos )
 		{
 		    allok = false;
 		    break;
@@ -519,34 +519,34 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
     if ( movinginputs.isEmpty() && needmove )
     {
-	if ( inputs.isEmpty() && !desc.isStored() )
+	if ( inputs_.isEmpty() && !desc_.isStored() )
 	{
-	    if ( currentbid.inl == -1 && currentbid.crl == -1 )
+	    if ( currentbid_.inl == -1 && currentbid_.crl == -1 )
 	    {
 		const bool is2d = getDesc().descSet()->is2D();
-		currentbid.inl = is2d ? 0 : desiredvolume->hrg.start.inl;
-		currentbid.crl = desiredvolume->hrg.start.crl;
+		currentbid_.inl = is2d ? 0 : desiredvolume_->hrg.start.inl;
+		currentbid_.crl = desiredvolume_->hrg.start.crl;
 	    }
 	    else
 	    {
-		BinID prevbid = currentbid;
+		BinID prevbid = currentbid_;
 		BinID step = getStepoutStep();
-		if ( prevbid.crl +step.crl <= desiredvolume->hrg.stop.crl )
-		    currentbid.crl = prevbid.crl +step.crl;
-		else if ( prevbid.inl +step.inl <= desiredvolume->hrg.stop.inl )
+		if ( prevbid.crl +step.crl <= desiredvolume_->hrg.stop.crl )
+		    currentbid_.crl = prevbid.crl +step.crl;
+		else if ( prevbid.inl +step.inl <= desiredvolume_->hrg.stop.inl )
 		{
-		    currentbid.inl = prevbid.inl +step.inl;
-		    currentbid.crl = desiredvolume->hrg.start.crl;
+		    currentbid_.inl = prevbid.inl +step.inl;
+		    currentbid_.crl = desiredvolume_->hrg.start.crl;
 		}
 		else
 		    return 0;
 	    }
 	}
 	else if ( needmove )
-	    currentbid = BinID(-1,-1);
+	    currentbid_ = BinID(-1,-1);
 
-	setCurrentPosition(currentbid);
-	alreadymoved = true;
+	setCurrentPosition(currentbid_);
+	alreadymoved_ = true;
 	return 1;
     }
 
@@ -559,45 +559,45 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
     if ( !movinginputs.isEmpty() )
     {
-	currentbid = movinginputs[0]->getCurrentPosition();
+	currentbid_ = movinginputs[0]->getCurrentPosition();
 	curtrcinfo_ = movinginputs[0]->getCurrentTrcInfo();
-	trcinfobid = movinginputs[0]->getTrcInfoBid();
+	trcinfobid_ = movinginputs[0]->getTrcInfoBid();
     }
 
     if ( docheck )
     {
-	for ( int idx=0; idx<inputs.size(); idx++ )
+	for ( int idx=0; idx<inputs_.size(); idx++ )
 	{
-	    if ( !inputs[idx] ) continue;
-	    if ( !inputs[idx]->setCurrentPosition( currentbid ) )
+	    if ( !inputs_[idx] ) continue;
+	    if ( !inputs_[idx]->setCurrentPosition( currentbid_ ) )
 		return -1;
 	}
-	setCurrentPosition( currentbid );
+	setCurrentPosition( currentbid_ );
     }
 
-    alreadymoved = true;
+    alreadymoved_ = true;
     return 1;
 }
 
 
 void Provider::resetMoved()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] )
-	    inputs[idx]->resetMoved();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] )
+	    inputs_[idx]->resetMoved();
 
-    alreadymoved = false;
+    alreadymoved_ = false;
 }
 
 
 void Provider::computeNewStartPos( BinID& newstart )
 {
     const BinID step = getStepoutStep();
-    for ( int idi=0; idi<inputs.size(); idi++ )
+    for ( int idi=0; idi<inputs_.size(); idi++ )
     {
 	BinID inputbid(BinID(-1,-1));
-	if ( inputs[idi] && inputs[idi]->getTrcInfoBid() != BinID(-1,-1) )
-	    inputbid = inputs[idi]->getCurrentPosition();
+	if ( inputs_[idi] && inputs_[idi]->getTrcInfoBid() != BinID(-1,-1) )
+	    inputbid = inputs_[idi]->getCurrentPosition();
 	
 	if ( inputbid == BinID(-1,-1) ) continue;
 	if ( newstart == BinID(-1,-1) )
@@ -606,7 +606,7 @@ void Provider::computeNewStartPos( BinID& newstart )
 	}
 	else
 	{
-	    if ( desc.descSet()->is2D() )
+	    if ( desc_.descSet()->is2D() )
 		newstart = newstart.crl<inputbid.crl ? inputbid : newstart; 
 	    else
 	    {
@@ -696,52 +696,52 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 
 BinID Provider::getCurrentPosition() const
 {
-    return currentbid;
+    return currentbid_;
 }
 
 
 void Provider::updateCurrentInfo()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs[idx] ) continue;
-	inputs[idx]->updateCurrentInfo();
-	if ( currentbid != inputs[idx]->getCurrentPosition() )
-	    currentbid = inputs[idx]->getCurrentPosition();
-	if ( inputs[idx]->getCurrentTrcInfo() && 
-		curtrcinfo_ != inputs[idx]->getCurrentTrcInfo() )
-	    curtrcinfo_ = inputs[idx]->getCurrentTrcInfo();
-	if ( trcinfobid != inputs[idx]->getTrcInfoBid() )
-	    trcinfobid = inputs[idx]->getTrcInfoBid();
+	if ( !inputs_[idx] ) continue;
+	inputs_[idx]->updateCurrentInfo();
+	if ( currentbid_ != inputs_[idx]->getCurrentPosition() )
+	    currentbid_ = inputs_[idx]->getCurrentPosition();
+	if ( inputs_[idx]->getCurrentTrcInfo() && 
+		curtrcinfo_ != inputs_[idx]->getCurrentTrcInfo() )
+	    curtrcinfo_ = inputs_[idx]->getCurrentTrcInfo();
+	if ( trcinfobid_ != inputs_[idx]->getTrcInfoBid() )
+	    trcinfobid_ = inputs_[idx]->getTrcInfoBid();
     }
 }
 
 
 bool Provider::setCurrentPosition( const BinID& bid )
 {
-    if ( currentbid == BinID(-1,-1) )
-	currentbid = bid;
-    else if ( bid != currentbid )
+    if ( currentbid_ == BinID(-1,-1) )
+	currentbid_ = bid;
+    else if ( bid != currentbid_ )
     {
-	if ( inputs.isEmpty() && !desc.isStored())
-	    currentbid = bid;
+	if ( inputs_.isEmpty() && !desc_.isStored())
+	    currentbid_ = bid;
 	else
 	    return false;
     }
     
-    if ( linebuffer )
+    if ( linebuffer_ )
     {
 	if ( doNotReUseDH() )
 	{
-	    linebuffer->removeAllExcept( currentbid );
+	    linebuffer_->removeAllExcept( currentbid_ );
 	    return true;
 	}
 	
 	const BinID step = getStepoutStep();
 	BinID dir = BinID(1,1);
 	dir.inl *= step.inl/abs(step.inl); dir.crl *= step.crl/abs(step.crl);
-	const BinID lastbid = currentbid - desbufferstepout*step;
-	linebuffer->removeBefore(lastbid, dir);
+	const BinID lastbid = currentbid_ - desbufferstepout_*step;
+	linebuffer_->removeBefore(lastbid, dir);
     // in every direction...
     }
 
@@ -751,17 +751,17 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
-    const float dz = mIsZero(refstep,mDefEps) ? SI().zStep() : refstep;
-    const Interval<int> possintv( mNINT(possiblevolume->zrg.start/dz),
-	    			  mNINT(possiblevolume->zrg.stop/dz) );
+    const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
+    const Interval<int> possintv( mNINT(possiblevolume_->zrg.start/dz),
+	    			  mNINT(possiblevolume_->zrg.stop/dz) );
 
-    Array2DImpl< Interval<int> > inputranges( inputs.size(), intvs.size() );
+    Array2DImpl< Interval<int> > inputranges( inputs_.size(), intvs.size() );
     for ( int idx=0; idx<intvs.size(); idx++ )
     {
 	Interval<int> reqintv = intvs[idx];
 	if ( reqintv.start > possintv.stop || reqintv.stop < possintv.start )
 	{
-	    for ( int inp=0; inp<inputs.size(); inp++ )
+	    for ( int inp=0; inp<inputs_.size(); inp++ )
 		inputranges.set( inp, idx, Interval<int>(mUdf(int),mUdf(int)) );
 	    continue;
 	}
@@ -772,21 +772,21 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	    reqintv.stop = possintv.stop;
 
 	if ( !isUsedMultTimes() )
-	    localcomputezintervals += reqintv;
+	    localcomputezintervals_ += reqintv;
 	else
 	{
-	    if ( localcomputezintervals.size()<=idx )
-		localcomputezintervals += reqintv;
+	    if ( localcomputezintervals_.size()<=idx )
+		localcomputezintervals_ += reqintv;
 	    else
-		localcomputezintervals[idx].include(reqintv);
+		localcomputezintervals_[idx].include(reqintv);
 	}
 
 	fillInputRangesArray( inputranges, idx, reqintv );
     }
 
-    for ( int inp=0; inp<inputs.size(); inp++ )
+    for ( int inp=0; inp<inputs_.size(); inp++ )
     {
-	if ( !inputs[inp] )
+	if ( !inputs_[inp] )
 	    continue;
 
 	TypeSet<Interval<int> > inpranges;
@@ -797,7 +797,7 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 		continue;
 	    inpranges += rg;
 	}
-	inputs[inp]->addLocalCompZIntervals( inpranges );
+	inputs_[inp]->addLocalCompZIntervals( inpranges );
     }
 }
 
@@ -811,14 +811,14 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 void Provider::fillInputRangesArray( Array2DImpl< Interval<int> >& inputranges, 
 				     int idx, const Interval<int>& reqintv )
 {
-    const float dz = mIsZero(refstep,mDefEps) ? SI().zStep() : refstep;
-    for ( int out=0; out<outputinterest.size(); out++ )
+    const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
+    for ( int out=0; out<outputinterest_.size(); out++ )
     {
-	if ( !outputinterest[out] ) continue;
+	if ( !outputinterest_[out] ) continue;
 
-	for ( int inp=0; inp<inputs.size(); inp++ )
+	for ( int inp=0; inp<inputs_.size(); inp++ )
 	{
-	    if ( !inputs[inp] )
+	    if ( !inputs_[inp] )
 		continue;
 
 	    Interval<int> inputrange( reqintv );
@@ -841,34 +841,34 @@ void Provider::fillInputRangesArray( Array2DImpl< Interval<int> >& inputranges,
 
 const TypeSet< Interval<int> >& Provider::localCompZIntervals() const
 {
-    return localcomputezintervals;
+    return localcomputezintervals_;
 }
 
 
 void Provider::resetZIntervals()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] )
-	    inputs[idx]->resetZIntervals();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] )
+	    inputs_[idx]->resetZIntervals();
 
-    for ( int idx=localcomputezintervals.size(); idx>0; idx-- )
-	localcomputezintervals.remove(idx-1);
+    for ( int idx=localcomputezintervals_.size(); idx>0; idx-- )
+	localcomputezintervals_.remove(idx-1);
 }
     
 
 BinID Provider::getStepoutStep() const
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs[idx] || !inputs[idx]->needStoredInput() ) continue;
-	BinID bid = inputs[idx]->getStepoutStep();
+	if ( !inputs_[idx] || !inputs_[idx]->needStoredInput() ) continue;
+	BinID bid = inputs_[idx]->getStepoutStep();
 	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
     }
 
-    for ( int idx=0; idx<parents.size(); idx++ )
+    for ( int idx=0; idx<parents_.size(); idx++ )
     {
-	if ( !parents[idx] ) continue;
-	BinID bid = parents[idx]->getStepoutStep();
+	if ( !parents_[idx] ) continue;
+	BinID bid = parents_[idx]->getStepoutStep();
 	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
     }
 
@@ -879,33 +879,33 @@ BinID Provider::getStepoutStep() const
 
 const DataHolder* Provider::getData( const BinID& relpos, int idi )
 {
-    if ( idi < 0 || idi >= localcomputezintervals.size() )
+    if ( idi < 0 || idi >= localcomputezintervals_.size() )
 	return 0;
 
     const DataHolder* constres = getDataDontCompute(relpos);
-    Interval<int> loczinterval( localcomputezintervals[idi] );
+    Interval<int> loczinterval( localcomputezintervals_[idi] );
     if ( constres && constres->z0_ == loczinterval.start 
 	    && constres->nrsamples_ == loczinterval.width()+1 )
 	return constres;
 
-    if ( !linebuffer )
-	linebuffer = new DataHolderLineBuffer;
+    if ( !linebuffer_ )
+	linebuffer_ = new DataHolderLineBuffer;
     DataHolder* outdata =
-        linebuffer->createDataHolder( currentbid+relpos, loczinterval.start,
+        linebuffer_->createDataHolder( currentbid_+relpos, loczinterval.start,
 				      loczinterval.width()+1 );
     if ( !outdata || !getInputData(relpos, idi) )
     {
-	if ( outdata ) linebuffer->removeDataHolder( currentbid+relpos );
+	if ( outdata ) linebuffer_->removeDataHolder( currentbid_+relpos );
 	return 0;
     }
     
     const int nrsamples = outdata->nrsamples_;
-    for ( int idx=0; idx<outputinterest.size(); idx++ )
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
 	while ( outdata->nrSeries()<=idx )
 	    outdata->add( true );
 	
-	if ( outputinterest[idx]<=0 ) 
+	if ( outputinterest_[idx]<=0 ) 
 	{
 	    if ( outdata->series(idx) )
 		outdata->replace( idx, 0 );
@@ -933,7 +933,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
     }
 
     const int z0 = outdata->z0_;
-    if ( needinterp )
+    if ( needinterp_ )
 	outdata->extrazfromsamppos_ = getExtraZFromSampInterval( z0, nrsamples);
 
     bool success = false;
@@ -955,7 +955,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
     if ( !success )
     {
-	linebuffer->removeDataHolder( currentbid+relpos );
+	linebuffer_->removeDataHolder( currentbid_+relpos );
 	return 0;
     }
 
@@ -965,16 +965,16 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
 const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
 {
-    return linebuffer ? linebuffer->getDataHolder(currentbid+relpos) : 0;
+    return linebuffer_ ? linebuffer_->getDataHolder(currentbid_+relpos) : 0;
 }
 
 
 SeisMSCProvider* Provider::getMSCProvider() const
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs[idx] ) continue;
-	SeisMSCProvider* res = inputs[idx]->getMSCProvider();
+	if ( !inputs_[idx] ) continue;
+	SeisMSCProvider* res = inputs_[idx]->getMSCProvider();
 	if ( res ) return res;
     }
 
@@ -1016,19 +1016,19 @@ void Provider::setOutputInterestSize( bool preserve )
 {
     if ( preserve )
     {
-	int outintsz = outputinterest.size();
-	if ( outintsz == desc.nrOutputs() ) return;
+	int outintsz = outputinterest_.size();
+	if ( outintsz == desc_.nrOutputs() ) return;
 
-	if ( outintsz < desc.nrOutputs() )
+	if ( outintsz < desc_.nrOutputs() )
 	{
-	    TypeSet<int> addon(desc.nrOutputs()-outputinterest.size(),0);
-	    outputinterest.append( addon );
+	    TypeSet<int> addon(desc_.nrOutputs()-outputinterest_.size(),0);
+	    outputinterest_.append( addon );
 	}
 	else
-	    outputinterest.remove( desc.nrOutputs()-1, outintsz-1 );
+	    outputinterest_.remove( desc_.nrOutputs()-1, outintsz-1 );
     }
     else
-	outputinterest = TypeSet<int>(desc.nrOutputs(),0);
+	outputinterest_ = TypeSet<int>(desc_.nrOutputs(),0);
 }
 
 
@@ -1048,7 +1048,7 @@ bool Provider::computeData( const DataHolder& output, const BinID& relpos,
 
 int Provider::getDataIndex( int input ) const
 {
-    return desc.getInput(input) ? desc.getInput(input)->selectedOutput() : -1;
+    return desc_.getInput(input) ? desc_.getInput(input)->selectedOutput() : -1;
 }
 
 
@@ -1062,7 +1062,7 @@ bool Provider::getInputOutput( int input, TypeSet<int>& res ) const
 {
     res.erase();
 
-    Desc* inputdesc = desc.getInput(input);
+    Desc* inputdesc = desc_.getInput(input);
     if ( !inputdesc ) return false;
 
     res += inputdesc->selectedOutput();
@@ -1072,42 +1072,42 @@ bool Provider::getInputOutput( int input, TypeSet<int>& res ) const
 
 void Provider::setInput( int inp, Provider* np )
 {
-    if ( inputs[inp] )
+    if ( inputs_[inp] )
     {
-	if ( inputs[inp]->desc.isSteering() )
+	if ( inputs_[inp]->desc_.isSteering() )
 	    initSteering();
 
 	TypeSet<int> inputoutputs;
 	if ( getInputOutput( inp, inputoutputs ) )
 	{
 	    for ( int idx=0; idx<inputoutputs.size(); idx++ )
-		inputs[inp]->enableOutput( inputoutputs[idx], false );
+		inputs_[inp]->enableOutput( inputoutputs[idx], false );
 	}
-	inputs[inp]->unRef();
+	inputs_[inp]->unRef();
     }
 
-    inputs.replace( inp, np );
-    if ( !inputs[inp] )
+    inputs_.replace( inp, np );
+    if ( !inputs_[inp] )
 	return;
 
-    inputs[inp]->ref();
-    if ( inputs[inp]->desc.isSteering() )
+    inputs_[inp]->ref();
+    if ( inputs_[inp]->desc_.isSteering() )
 	initSteering();
     
     TypeSet<int> inputoutputs;
     if ( getInputOutput( inp, inputoutputs ) )
     {
 	for ( int idx=0; idx<inputoutputs.size(); idx++ )
-	    inputs[inp]->enableOutput( inputoutputs[idx], true );
-	inputs[inp]->updateInputReqs(-1);
+	    inputs_[inp]->enableOutput( inputoutputs[idx], true );
+	inputs_[inp]->updateInputReqs(-1);
     }
 
     updateInputReqs(inp);
-    inputs[inp]->updateStorageReqs();
-    if ( inputs[inp]->desc.isSteering() )
+    inputs_[inp]->updateStorageReqs();
+    if ( inputs_[inp]->desc_.isSteering() )
     {
-	inputs[inp]->updateInputReqs(-1);
-	inputs[inp]->updateStorageReqs(-1);
+	inputs_[inp]->updateInputReqs(-1);
+	inputs_[inp]->updateStorageReqs(-1);
     }
 }
 
@@ -1122,8 +1122,8 @@ void Provider::updateStorageReqs( bool all )
 {
     if ( !all )
     {
-	for ( int idx=0; idx<inputs.size(); idx++ )
-	    if ( inputs[idx] ) inputs[idx]->updateStorageReqs( all );
+	for ( int idx=0; idx<inputs_.size(); idx++ )
+	    if ( inputs_[idx] ) inputs_[idx]->updateStorageReqs( all );
     }
 }
 
@@ -1140,24 +1140,24 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 	Interval<int> zrgsamp(0,0);
 	mUseMargins(int,Samp,samp)
 	
-	zrg.include( Interval<float>( zrgsamp.start*refstep,
-		    		      zrgsamp.stop*refstep ) );
+	zrg.include( Interval<float>( zrgsamp.start*refstep_,
+		    		      zrgsamp.stop*refstep_ ) );
 
 	Interval<float> extraz = Interval<float>(extraz_.start + zrg.start,
 						 extraz_.stop + zrg.stop);
-	const_cast<Provider*>(inputs[inp])->setSelData( seldata_ );
-	const_cast<Provider*>(inputs[inp])->setExtraZ( extraz );
+	const_cast<Provider*>(inputs_[inp])->setSelData( seldata_ );
+	const_cast<Provider*>(inputs_[inp])->setExtraZ( extraz );
     }
     
-    if ( !desiredvolume )
+    if ( !desiredvolume_ )
 	return false;
 
-    res = *desiredvolume;
+    res = *desiredvolume_;
 
     if ( usestepout )
     {
-	int inlstepoutfact = desiredvolume->hrg.step.inl;
-	int crlstepoutfact = desiredvolume->hrg.step.crl;
+	int inlstepoutfact = desiredvolume_->hrg.step.inl;
+	int crlstepoutfact = desiredvolume_->hrg.step.crl;
 
 	BinID stepout(0,0);
 	const BinID* reqstepout = reqStepout( inp, out );
@@ -1180,7 +1180,7 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 
     Interval<int> zrgsamp(0,0);
     mUseMargins(int,Samp,samp)
-    zrg.include(Interval<float>( zrgsamp.start*refstep, zrgsamp.stop*refstep ));
+    zrg.include(Interval<float>( zrgsamp.start*refstep_, zrgsamp.stop*refstep_ ));
     
     res.zrg.start += zrg.start;
     res.zrg.stop += zrg.stop;
@@ -1193,19 +1193,19 @@ void Provider::updateInputReqs( int inp )
 {
     if ( inp == -1 )
     {
-	for ( int idx=0; idx<inputs.size(); idx++ )
+	for ( int idx=0; idx<inputs_.size(); idx++ )
 	    updateInputReqs(idx);
 	return;
     }
 
     CubeSampling inputcs;
-    for ( int out=0; out<outputinterest.size(); out++ )
+    for ( int out=0; out<outputinterest_.size(); out++ )
     {
-	if ( !outputinterest[out] ) continue;
+	if ( !outputinterest_[out] ) continue;
 
-	bool isstored = inputs[inp] ? inputs[inp]->desc.isStored() : false;
+	bool isstored = inputs_[inp] ? inputs_[inp]->desc_.isStored() : false;
 	if ( computeDesInputCube( inp, out, inputcs, !isstored ) )
-	    inputs[inp]->setDesiredVolume( inputcs );
+	    inputs_[inp]->setDesiredVolume( inputcs );
 
 	BinID stepout(0,0);
 	const BinID* req = reqStepout(inp,out);
@@ -1217,11 +1217,11 @@ void Provider::updateInputReqs( int inp )
 	    stepout.crl = mMAX(stepout.crl,des->crl );
 	}
 
-	if ( inputs[inp] )
+	if ( inputs_[inp] )
 	{
-	    inputs[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) + 
-		    			   reqbufferstepout, true );
-	    inputs[inp]->setDesBufStepout( stepout+desbufferstepout );
+	    inputs_[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) + 
+		    			   reqbufferstepout_, true );
+	    inputs_[inp]->setDesBufStepout( stepout+desbufferstepout_ );
 	}
     }
 }
@@ -1242,24 +1242,24 @@ int Provider::getTotalNrPos( bool is2d )
 	mDynamicCastGet(const Seis::TableSelData*,tsd,seldata_)
 	return tsd->binidValueSet().totalSize();
     }
-    if ( !possiblevolume || !desiredvolume )
+    if ( !possiblevolume_ || !desiredvolume_ )
 	return false;
 
-    CubeSampling cs = *desiredvolume;
+    CubeSampling cs = *desiredvolume_;
     if ( getDesc().isStored() )
     {
 	cs.hrg.start.inl =
-	    desiredvolume->hrg.start.inl < cs.hrg.start.inl ?
-	    cs.hrg.start.inl : desiredvolume->hrg.start.inl;
+	    desiredvolume_->hrg.start.inl < cs.hrg.start.inl ?
+	    cs.hrg.start.inl : desiredvolume_->hrg.start.inl;
 	cs.hrg.stop.inl =
-	    desiredvolume->hrg.stop.inl > cs.hrg.stop.inl ?
-	    cs.hrg.stop.inl : desiredvolume->hrg.stop.inl;
+	    desiredvolume_->hrg.stop.inl > cs.hrg.stop.inl ?
+	    cs.hrg.stop.inl : desiredvolume_->hrg.stop.inl;
 	cs.hrg.stop.crl =
-	    desiredvolume->hrg.stop.crl > cs.hrg.stop.crl ?
-	    cs.hrg.stop.crl : desiredvolume->hrg.stop.crl;
+	    desiredvolume_->hrg.stop.crl > cs.hrg.stop.crl ?
+	    cs.hrg.stop.crl : desiredvolume_->hrg.stop.crl;
 	cs.hrg.start.crl =
-	    desiredvolume->hrg.start.crl < cs.hrg.start.crl ?
-	    cs.hrg.start.crl : desiredvolume->hrg.start.crl;
+	    desiredvolume_->hrg.start.crl < cs.hrg.start.crl ?
+	    cs.hrg.start.crl : desiredvolume_->hrg.start.crl;
     }
     return is2d ? cs.nrCrl() : cs.nrInl() * cs.nrCrl();
 }
@@ -1267,12 +1267,12 @@ int Provider::getTotalNrPos( bool is2d )
 
 void Provider::computeRefStep()
 {
-    for( int idx=0; idx<allexistingprov.size(); idx++ )
+    for( int idx=0; idx<allexistingprov_.size(); idx++ )
     {
 	float step = 0;
-	bool isstored = allexistingprov[idx]->getZStepStoredData(step);
+	bool isstored = allexistingprov_[idx]->getZStepStoredData(step);
 	if ( isstored )
-	    refstep = ( refstep != 0 && refstep < step )? refstep : step;
+	    refstep_ = ( refstep_ != 0 && refstep_ < step )? refstep_ : step;
 	    
     }
 }
@@ -1280,49 +1280,49 @@ void Provider::computeRefStep()
 
 void Provider::setRefStep( float step )
 {
-    refstep = step;
-    for ( int idx=0; idx<allexistingprov.size(); idx++ )
-	const_cast<Provider*>(allexistingprov[idx])->refstep = refstep;
+    refstep_ = step;
+    for ( int idx=0; idx<allexistingprov_.size(); idx++ )
+	const_cast<Provider*>(allexistingprov_[idx])->refstep_ = refstep_;
 }
 
 
 void Provider::setCurLineKey( const char* linename )
 {
     BufferString attrname;
-    if ( !desc.isStored() )
-	attrname = desc.userRef();
+    if ( !desc_.isStored() )
+	attrname = desc_.userRef();
     else
     {
-	const ValParam* idpar = desc.getValParam( StorageProvider::keyStr() );
+	const ValParam* idpar = desc_.getValParam( StorageProvider::keyStr() );
 	LineKey lk( idpar->getStringValue() );
 	attrname = lk.attrName();
     }
 
     curlinekey_.setLineName( linename );
     curlinekey_.setAttrName( attrname );
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {   
-	if ( !inputs[idx] ) continue;
-	inputs[idx]->setCurLineKey( curlinekey_.lineName() );
+	if ( !inputs_[idx] ) continue;
+	inputs_[idx]->setCurLineKey( curlinekey_.lineName() );
     }
 }
 
 
 void Provider::adjust2DLineStoredVolume()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] )
-	    inputs[idx]->adjust2DLineStoredVolume();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] )
+	    inputs_[idx]->adjust2DLineStoredVolume();
 }
 
 
 void Provider::setSelData( const Seis::SelData* seldata )
 {
     seldata_ = seldata;
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] )
-	    inputs[idx]->setSelData(seldata_);
+	if ( inputs_[idx] )
+	    inputs_[idx]->setSelData(seldata_);
     }
 }
 
@@ -1335,16 +1335,16 @@ void Provider::setExtraZ( const Interval<float>& extraz )
 
 void Provider::setPossibleVolume( const CubeSampling& cs )
 {
-    if ( possiblevolume )
-	delete possiblevolume;
+    if ( possiblevolume_ )
+	delete possiblevolume_;
 
-    possiblevolume = new CubeSampling(cs);
+    possiblevolume_ = new CubeSampling(cs);
 }
 
 
 float Provider::getRefStep() const
 { 
-    return !mIsZero(refstep,mDefEps) ? refstep : SI().zStep();
+    return !mIsZero(refstep_,mDefEps) ? refstep_ : SI().zStep();
 }
 
 
@@ -1368,49 +1368,49 @@ float Provider::crldist() const
 
 BufferString Provider::errMsg() const
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] && inputs[idx]->errMsg().size() )
-	    return inputs[idx]->errMsg();
+	if ( inputs_[idx] && inputs_[idx]->errMsg().size() )
+	    return inputs_[idx]->errMsg();
     }
     
-    return errmsg;
+    return errmsg_;
 }
 
 
 void Provider::setUsedMultTimes()
 {
-    isusedmulttimes = true;
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    isusedmulttimes_ = true;
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] )
-	    inputs[idx]->setUsedMultTimes();
+	if ( inputs_[idx] )
+	    inputs_[idx]->setUsedMultTimes();
     }
 }
 
 
 void Provider::setNeedInterpol( bool yn )
 {
-    needinterp = yn;
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    needinterp_ = yn;
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] )
-	    inputs[idx]->setNeedInterpol( yn );
+	if ( inputs_[idx] )
+	    inputs_[idx]->setNeedInterpol( yn );
     }
 }
 
 
 void Provider::resetDesiredVolume()
 {
-    if ( desiredvolume )
+    if ( desiredvolume_ )
     {
-	delete desiredvolume; 
-	desiredvolume = 0;
+	delete desiredvolume_; 
+	desiredvolume_ = 0;
     }
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] )
-	    inputs[idx]->resetDesiredVolume();
+	if ( inputs_[idx] )
+	    inputs_[idx]->resetDesiredVolume();
     }
 }
 
@@ -1439,18 +1439,18 @@ float Provider::getInputValue( const DataHolder& input, int inputidx,
 			       int sampleidx, int z0 ) const
 {
     float extraz = 0;
-    if ( needinterp )
+    if ( needinterp_ )
     {
 	int intvidx = 0;
-	for ( int idx=0; idx<localcomputezintervals.size(); idx++ )
-	    if ( localcomputezintervals[idx].includes(z0) )
+	for ( int idx=0; idx<localcomputezintervals_.size(); idx++ )
+	    if ( localcomputezintervals_[idx].includes(z0) )
 		intvidx = idx;
 
 	float exacttime = exactz_[intvidx];
 	extraz = getExtraZFromSampPos( exacttime );
     }
 
-    if ( needinterp && !mIsEqual(extraz,input.extrazfromsamppos_,mDefEps) )
+    if ( needinterp_ && !mIsEqual(extraz,input.extrazfromsamppos_,mDefEps) )
 	return getInterpolInputValue( input, inputidx,
 				   (float)sampleidx + extraz/getRefStep(), z0 );
     else
@@ -1478,22 +1478,22 @@ void Provider::setOutputValue( const DataHolder& output, int outputidx,
 
 void Provider::prepareForComputeData()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] ) inputs[idx]->prepareForComputeData();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] ) inputs_[idx]->prepareForComputeData();
 }
 
 
 void Provider::prepPriorToBoundsCalc()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] ) inputs[idx]->prepPriorToBoundsCalc();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] ) inputs_[idx]->prepPriorToBoundsCalc();
 }
 
 
 bool Provider::prepPriorToOutputSetup()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] ) inputs[idx]->prepPriorToOutputSetup();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] ) inputs_[idx]->prepPriorToOutputSetup();
 
     return false;
 }
@@ -1502,25 +1502,25 @@ bool Provider::prepPriorToOutputSetup()
 void Provider::setExactZ( const TypeSet<float>& exactz )
 {
     exactz_ = exactz;
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] )
-	    inputs[idx]->setExactZ( exactz );
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] )
+	    inputs_[idx]->setExactZ( exactz );
 }
 
 
 void Provider::getCompNames( BufferStringSet& nms ) const
 {
     nms.erase();
-    nms.add( desc.attribName() );
+    nms.add( desc_.attribName() );
 }
 
 
 float Provider::getMaxDistBetwTrcs() const
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	if ( inputs_[idx] )
 	{
-	    float tmp = inputs[idx]->getMaxDistBetwTrcs();
+	    float tmp = inputs_[idx]->getMaxDistBetwTrcs();
 	    if ( !mIsUdf(tmp) ) return tmp;
 	}
 
@@ -1531,9 +1531,9 @@ float Provider::getMaxDistBetwTrcs() const
 bool Provider::needStoredInput() const
 {
     bool needinput = false;
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] && inputs[idx]->needStoredInput() )
+	if ( inputs_[idx] && inputs_[idx]->needStoredInput() )
 	{
 	    needinput = true;
 	    break;
@@ -1547,10 +1547,10 @@ bool Provider::needStoredInput() const
 void Provider::setRdmPaths( TypeSet<BinID>* truepath,
 			    TypeSet<BinID>* snappedpath )
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] )
-	    inputs[idx]->setRdmPaths( truepath, snappedpath );
+	if ( inputs_[idx] )
+	    inputs_[idx]->setRdmPaths( truepath, snappedpath );
     }
 }
 
@@ -1564,10 +1564,10 @@ float Provider::getExtraZFromSampPos( float exacttime ) const
 float Provider::getExtraZFromSampInterval( int z0, int nrsamples ) const
 {
     int intvidx = -1;
-    for ( int idx=0; idx<localcomputezintervals.size(); idx++ )
+    for ( int idx=0; idx<localcomputezintervals_.size(); idx++ )
     {
-	 if ( localcomputezintervals[idx].includes( z0 ) &&
-	      localcomputezintervals[idx].includes( z0+nrsamples-1 ) )
+	 if ( localcomputezintervals_[idx].includes( z0 ) &&
+	      localcomputezintervals_[idx].includes( z0+nrsamples-1 ) )
 	 {
 	     intvidx = idx;
 	     break;

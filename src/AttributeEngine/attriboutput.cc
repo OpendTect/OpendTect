@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.101 2010-03-24 10:49:05 cvsumesh Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.102 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attriboutput.h"
 
@@ -178,7 +178,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
     mGetZSz();
 
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    const Interval<int> outrg( datacubes_->z0, datacubes_->z0+zsz-1 );
+    const Interval<int> outrg( datacubes_->z0_, datacubes_->z0_+zsz-1 );
 
     if ( !inputrg.overlaps(outrg,false) )
 	return;
@@ -187,9 +187,9 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	    			 mMIN(inputrg.stop, outrg.stop ) );
 
     const int inlidx =
-	datacubes_->inlsampling.nearestIndex(info.binid.inl);
+	datacubes_->inlsampling_.nearestIndex(info.binid.inl);
     const int crlidx =
-	datacubes_->crlsampling.nearestIndex(info.binid.crl);
+	datacubes_->crlsampling_.nearestIndex(info.binid.crl);
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
@@ -207,7 +207,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 		    data.series(desoutputs_[desout])->value(idx-data.z0_);
 
 		datacubes_->setValue( desout, inlidx, crlidx,
-				      idx-datacubes_->z0, val);
+				      idx-datacubes_->z0_, val);
 	    }
 	}
 	else
@@ -216,7 +216,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 		    	     datacubes_->getCube(desout).getStorage() );
 	    const char elemsz = cmvs->dataDesc().nrBytes();
 
-	    const od_int64 destoffset = transrg.start-datacubes_->z0 +
+	    const od_int64 destoffset = transrg.start-datacubes_->z0_ +
 		datacubes_->getCube(desout).info().getOffset(inlidx,crlidx,0);
 
 	    char* dest = deststor->storArr() + destoffset * elemsz;
@@ -247,14 +247,14 @@ void DataCubesOutput::init( float refstep )
 {
     datacubes_ = new Attrib::DataCubes;
     datacubes_->ref();
-    datacubes_->inlsampling= StepInterval<int>(desiredvolume_.hrg.start.inl,
+    datacubes_->inlsampling_= StepInterval<int>(desiredvolume_.hrg.start.inl,
 					       desiredvolume_.hrg.stop.inl,
 					       desiredvolume_.hrg.step.inl);
-    datacubes_->crlsampling= StepInterval<int>(desiredvolume_.hrg.start.crl,
+    datacubes_->crlsampling_= StepInterval<int>(desiredvolume_.hrg.start.crl,
 					       desiredvolume_.hrg.stop.crl,
 					       desiredvolume_.hrg.step.crl);
-    datacubes_->z0 = mNINT(desiredvolume_.zrg.start/refstep);
-    datacubes_->zstep = refstep;
+    datacubes_->z0_ = mNINT(desiredvolume_.zrg.start/refstep);
+    datacubes_->zstep_ = refstep;
     int inlsz, crlsz, zsz;
     mGetSz(inl); mGetSz(crl); mGetZSz();
     datacubes_->setSize( inlsz, crlsz, zsz );

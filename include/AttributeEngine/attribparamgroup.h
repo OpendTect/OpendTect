@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.9 2009-11-18 05:33:45 cvsnanne Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.10 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 */
 
@@ -46,7 +46,7 @@ public:
     			ParamGroup( int startsz, const char* prefix,
 				    const PT& templ);
 			ParamGroup(const ParamGroup&);
-			~ ParamGroup();
+			~ParamGroup();
 
     ParamGroup<PT>*	clone() const;
     bool		isOK() const;
@@ -55,25 +55,25 @@ public:
     bool                getCompositeValue(BufferString&) const;
     void                fillDefStr(BufferString&) const;
 
-    Param&		operator[]( int idx )		{ return *params[idx]; }
-    const Param&	operator[]( int idx ) const	{ return *params[idx]; }
+    Param&		operator[]( int idx )		{ return *params_[idx]; }
+    const Param&	operator[]( int idx ) const	{ return *params_[idx]; }
 
     void		setSize( int );
-    int			size() const { return sz; }
-    const char*		getPrefix() const { return prefix; }
+    int			size() const { return sz_; }
+    const char*		getPrefix() const { return prefix_; }
 
 protected:
     int				getSize() const;
     bool			isEqual(const Param&) const;
 
-    int				sz;
+    int				sz_;
 
-    const char*			prefix;
-    PT				templ;
-    ObjectSet<PT>		params;
-    ObjectSet<char>		keys;
+    const char*			prefix_;
+    PT				templ_;
+    ObjectSet<PT>		params_;
+    ObjectSet<char>		keys_;
 
-    BufferString		errmsg;
+    BufferString		errmsg_;
 
 };
 
@@ -107,19 +107,19 @@ template <class PT> inline
 bool ParamGroup<PT>::isEqual(const Param& b) const
 {
     mDynamicCastGet(ParamGroup<PT>*,pgr,&const_cast<Param&>(b));
-    if ( pgr->size() != sz ) return false;
-    if ( strcmp( pgr->getPrefix(), prefix )) return false;
-    for ( int idx=0; idx<sz; idx++ )
+    if ( pgr->size() != sz_ ) return false;
+    if ( strcmp( pgr->getPrefix(), prefix_ )) return false;
+    for ( int idx=0; idx<sz_; idx++ )
     {
-	if ( params[idx]->getSpec()->nElems()
-		!= pgr->params[idx]->getSpec()->nElems() )
+	if ( params_[idx]->getSpec()->nElems()
+		!= pgr->params_[idx]->getSpec()->nElems() )
 	    return false;
 
 	for ( int idy=0; 
-		idy<params[idx]->getSpec()->nElems(); idy++ )
+		idy<params_[idx]->getSpec()->nElems(); idy++ )
 	{
-	    BufferString txt( params[idx]->getSpec()->text(idx) );
-	    if ( txt != pgr->params[idx]->getSpec()->text(idx) )
+	    BufferString txt( params_[idx]->getSpec()->text(idx) );
+	    if ( txt != pgr->params_[idx]->getSpec()->text(idx) )
 		return false;
 	}
     }
@@ -131,15 +131,15 @@ template <class PT> inline
 bool ParamGroup<PT>::isOK() const
 {
     if ( !enabled_ ) return true;
-    if ( !sz ) return false;
+    if ( !sz_ ) return false;
     
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<sz_; idx++ )
     {
-	if ( !params[idx]->isOK() )
+	if ( !params_[idx]->isOK() )
 	{
-	    BufferString& err = const_cast<ParamGroup*>(this)-> errmsg;
+	    BufferString& err = const_cast<ParamGroup*>(this)-> errmsg_;
 	    err = "cannot parse parameter "; err += idx; 
-	    err += " of the group "; err += prefix;
+	    err += " of the group "; err += prefix_;
 	    return false;
 	}
     }
@@ -152,9 +152,9 @@ template <class PT> inline
 bool ParamGroup<PT>::setValues( BufferStringSet& vals )
 {
     setSize( vals.size() );
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<sz_; idx++ )
     {
-	if ( !params[idx]->setCompositeValue(vals.get(idx) ) )
+	if ( !params_[idx]->setCompositeValue(vals.get(idx) ) )
 	    return false;
     }
 
@@ -171,14 +171,14 @@ ParamGroup<PT>* ParamGroup<PT>::clone() const
 
 template <class PT> inline
 const char* ParamGroup<PT>::errMsg() const
-{ return errmsg; }
+{ return errmsg_; }
 
 
 template <class PT> inline
-ParamGroup<PT>::ParamGroup( int startsz, const char* prefix_, const PT& templ_)
-    : Param ( prefix_ )
-    , templ( templ_ )
-    , prefix( prefix_ )
+ParamGroup<PT>::ParamGroup( int startsz, const char* prefix, const PT& templ )
+    : Param( prefix )
+    , templ_( templ )
+    , prefix_( prefix )
 {
     isgroup_ = true;
     setSize( startsz );
@@ -187,65 +187,65 @@ ParamGroup<PT>::ParamGroup( int startsz, const char* prefix_, const PT& templ_)
 
 template <class PT> inline
 ParamGroup<PT>::ParamGroup( const ParamGroup<PT>& a )
-    : Param ( a )
-    , prefix( a.prefix )
-    , templ( a.templ )
-    , sz( a.sz )
+    : Param( a )
+    , prefix_( a.prefix_ )
+    , templ_( a.templ_ )
+    , sz_( a.sz_ )
 {
-    for ( int idx=0; idx<a.params.size(); idx++ )
+    for ( int idx=0; idx<a.params_.size(); idx++ )
     {
 	PT* np = new PT( (PT&)a[idx] );
-        char* newkey = new char[strlen(prefix) + 10];
-        sprintf( newkey, "%s%d", prefix, idx );
+        char* newkey = new char[strlen(prefix_) + 10];
+        sprintf( newkey, "%s%d", prefix_, idx );
         np->setKey( newkey );
 
-        keys += newkey;
-	params += np;
+        keys_ += newkey;
+	params_ += np;
     }
 }
 
 template <class PT> inline
 ParamGroup<PT>::~ParamGroup()
 {
-    deepErase( params );
-    for ( int idx=0; idx<keys.size(); idx++ )
-	delete [] keys[idx];
+    deepErase( params_ );
+    for ( int idx=0; idx<keys_.size(); idx++ )
+	delete [] keys_[idx];
 }
 
 
 template <class PT> inline
 int ParamGroup<PT>::getSize() const
 {
-    return sz;
+    return sz_;
 }
 
 
 template <class PT> inline
 void ParamGroup<PT>::setSize( int nsz )
 {
-    while ( nsz > params.size() )
+    while ( nsz > params_.size() )
     {
-	PT* newpara = new PT(templ);
+	PT* newpara = new PT(templ_);
 
-	char* newkey = new char[strlen(prefix) + 10];
-	sprintf( newkey, "%s%d", prefix, params.size() );
+	char* newkey = new char[strlen(prefix_) + 10];
+	sprintf( newkey, "%s%d", prefix_, params_.size() );
 
 	newpara->setKey( newkey );
 
-	keys += newkey;
-	params += newpara;
+	keys_ += newkey;
+	params_ += newpara;
     }
 
-    sz = nsz;
+    sz_ = nsz;
 }
 
 template <class PT> inline
 bool ParamGroup<PT>::getCompositeValue( BufferString& res ) const
 {
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<sz_; idx++ )
     {
 	BufferString tmpres;
-	if ( !params[idx]->getCompositeValue(tmpres) )
+	if ( !params_[idx]->getCompositeValue(tmpres) )
 	    return false;
 
 	res += tmpres; res +=" ";
@@ -257,13 +257,13 @@ bool ParamGroup<PT>::getCompositeValue( BufferString& res ) const
 template <class PT> inline
 void ParamGroup<PT>::fillDefStr( BufferString& res ) const
 {
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<sz_; idx++ )
     {
-	res += params[idx]->getKey();
+	res += params_[idx]->getKey();
 	res += "=";
 	BufferString val;
-	if ( !params[idx]->isRequired() || !params[idx]->getCompositeValue(val))
-	    val = params[idx]->getDefaultValue();
+	if ( !params_[idx]->isRequired() || !params_[idx]->getCompositeValue(val))
+	    val = params_[idx]->getDefaultValue();
 	res += val;
 	res += " ";
     }

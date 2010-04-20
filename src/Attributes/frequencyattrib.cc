@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.26 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.27 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -126,7 +126,7 @@ Frequency::~Frequency()
 		if ( sd.usable() )
 		{
 		    BufferString bfstr;
-		    desc.getDefStr(bfstr);
+		    desc_.getDefStr(bfstr);
 		    *sd.ostrm << bfstr << '\n';
 		    *sd.ostrm << data;
 		}
@@ -143,10 +143,10 @@ Frequency::~Frequency()
 
 void Frequency::prepPriorToBoundsCalc()
 {
-    if ( !mIsEqual( refstep, SI().zStep(), 1e-6 ) )
+    if ( !mIsEqual( refstep_, SI().zStep(), 1e-6 ) )
     {
-	samplegate_ = Interval<int>(mNINT(gate_.start/refstep),
-				   mNINT(gate_.stop/refstep));
+	samplegate_ = Interval<int>(mNINT(gate_.start/refstep_),
+				   mNINT(gate_.stop/refstep_));
 
 	if ( window_ )
 	{
@@ -170,10 +170,10 @@ bool Frequency::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Frequency::getInputData( const BinID& relpos, int zintv )
 {
-    redata_ = inputs[0]->getData( relpos, zintv );
+    redata_ = inputs_[0]->getData( relpos, zintv );
     if ( !redata_ ) return false;
 
-    imdata_ = inputs[1]->getData( relpos, zintv );
+    imdata_ = inputs_[1]->getData( relpos, zintv );
     if ( !imdata_ ) return false;
 
     realidx_ = getDataIndex( 0 );
@@ -194,7 +194,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	myself->fft_.setDir(true);
 	myself->fft_.init();
 
-	myself->df_ = FFT::getDf( refstep, fftsz_ );
+	myself->df_ = FFT::getDf( refstep_, fftsz_ );
 	myself->signal_ = new Array1DImpl<float_complex>(samplegate_.width()+1);
 	myself->timedomain_ = new Array1DImpl<float_complex>( fftsz_ );
 	myself->freqdomain_ = new Array1DImpl<float_complex>( fftsz_ );
@@ -245,9 +245,9 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( dumptofile_ )
 	    {
 		BufferString dump;
-		BinID pos = currentbid;
+		BinID pos = currentbid_;
 		dump += pos.inl; dump += " "; dump += pos.crl; dump += " ";
-		dump += cursample*refstep; dump += " "; 
+		dump += cursample*refstep_; dump += " "; 
 		dump += df_*idy; dump += " "; dump += val2; dump += "\n";
 		myself->dumpset_.add( dump );
 	    }

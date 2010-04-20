@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriblinebuffer.h,v 1.7 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attriblinebuffer.h,v 1.8 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,9 +41,9 @@ public:
 protected:
     void		removeInline( int lineidx );
 
-    TypeSet<int>			inlines;	
-    ObjectSet<ObjectSet<DataHolder> >	inlinedata;
-    ObjectSet<TypeSet<int> >		crossliness;
+    TypeSet<int>			inlines_;	
+    ObjectSet<ObjectSet<DataHolder> >	inlinedata_;
+    ObjectSet<TypeSet<int> >		crossliness_;
     DataHolder*		gtDataHolder(const BinID&) const;
 };
 

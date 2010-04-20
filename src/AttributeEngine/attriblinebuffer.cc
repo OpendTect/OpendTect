@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.11 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.12 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attriblinebuffer.h"
 
@@ -20,36 +20,36 @@ DataHolderLineBuffer::DataHolderLineBuffer() {}
 
 DataHolderLineBuffer::~DataHolderLineBuffer()
 {
-    for ( int idx=inlinedata.size()-1; idx>=0; idx-- )
-	deepErase( *inlinedata[idx] );
+    for ( int idx=inlinedata_.size()-1; idx>=0; idx-- )
+	deepErase( *inlinedata_[idx] );
 
-    deepErase( inlinedata );
-    deepErase( crossliness );
+    deepErase( inlinedata_ );
+    deepErase( crossliness_ );
 }
 
 
 DataHolder* DataHolderLineBuffer::createDataHolder( const BinID& bid,
 						    int z0, int nrsamples )
 {
-    int lineidx = inlines.indexOf(bid.inl);
+    int lineidx = inlines_.indexOf(bid.inl);
     if ( lineidx==-1 )
     {
-	inlinedata += new ObjectSet<DataHolder>;
-	crossliness += new TypeSet<int>;
-	lineidx = inlinedata.size()-1;
-	inlines += bid.inl;
+	inlinedata_ += new ObjectSet<DataHolder>;
+	crossliness_ += new TypeSet<int>;
+	lineidx = inlinedata_.size()-1;
+	inlines_ += bid.inl;
     }
 
-    const int traceidx = crossliness[lineidx]->indexOf(bid.crl);
+    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl);
     if ( traceidx==-1 )
     {
 	DataHolder* res = new DataHolder( z0, nrsamples );
-	(*inlinedata[lineidx]) += res;
-	(*crossliness[lineidx]) += bid.crl;
+	(*inlinedata_[lineidx]) += res;
+	(*crossliness_[lineidx]) += bid.crl;
 	return res;
     }
 
-    DataHolder* trcdata = (*inlinedata[lineidx])[traceidx];
+    DataHolder* trcdata = (*inlinedata_[lineidx])[traceidx];
     if ( trcdata->nrsamples_ != nrsamples )
     {
 	removeDataHolder( bid );
@@ -63,48 +63,48 @@ DataHolder* DataHolderLineBuffer::createDataHolder( const BinID& bid,
 
 DataHolder* DataHolderLineBuffer::gtDataHolder( const BinID& bid ) const
 {
-    const int lineidx = inlines.indexOf(bid.inl);
+    const int lineidx = inlines_.indexOf(bid.inl);
     if ( lineidx==-1 ) return 0;
 
-    const int traceidx = crossliness[lineidx]->indexOf(bid.crl);
+    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl);
     if ( traceidx==-1 ) return 0;
-    return const_cast<DataHolder*>( (*inlinedata[lineidx])[traceidx] );
+    return const_cast<DataHolder*>( (*inlinedata_[lineidx])[traceidx] );
 }
 
 
 void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
 {
-    const int lineidx = inlines.indexOf(bid.inl);
+    const int lineidx = inlines_.indexOf(bid.inl);
     if ( lineidx==-1 ) return;
 
-    const int traceidx = crossliness[lineidx]->indexOf(bid.crl);
+    const int traceidx = crossliness_[lineidx]->indexOf(bid.crl);
     if ( traceidx==-1 ) return;
 
-    delete (*inlinedata[lineidx])[traceidx];
-    inlinedata[lineidx]->remove( traceidx );
-    crossliness[lineidx]->remove(traceidx);
+    delete (*inlinedata_[lineidx])[traceidx];
+    inlinedata_[lineidx]->remove( traceidx );
+    crossliness_[lineidx]->remove(traceidx);
 
-    if ( !inlinedata[lineidx]->size() )
+    if ( !inlinedata_[lineidx]->size() )
 	removeInline( lineidx );
 }
 
 
 #define removeWithOp( op )\
 {\
-    for ( int idx=0; idx<inlines.size(); idx++ )\
+    for ( int idx=0; idx<inlines_.size(); idx++ )\
     {\
 	bool removeline = false;\
-	if ( direction.inl*inlines[idx] op direction.inl*bid.inl )\
+	if ( direction.inl*inlines_[idx] op direction.inl*bid.inl )\
 	    removeline = true;\
-	else if ( inlines[idx]==bid.inl )\
+	else if ( inlines_[idx]==bid.inl )\
 	{\
-	    TypeSet<int>& crosslines = *crossliness[idx];\
+	    TypeSet<int>& crosslines = *crossliness_[idx];\
 	    for ( int idy=crosslines.size()-1; idy>=0; idy-- )\
 	    {\
 		if ( direction.crl*crosslines[idy] op direction.crl*bid.crl )\
 		{\
-		    delete (*inlinedata[idx])[idy];\
-		    inlinedata[idx]->remove(idy);\
+		    delete (*inlinedata_[idx])[idy];\
+		    inlinedata_[idx]->remove(idy);\
 		    crosslines.remove(idy);\
 		}\
 	    }\
@@ -137,14 +137,14 @@ void DataHolderLineBuffer::removeAllExcept( const BinID& bid )
 
 void DataHolderLineBuffer::removeInline( int lineidx )
 {
-    deepErase( *inlinedata[lineidx] );
-    delete inlinedata[lineidx];
-    inlinedata.remove( lineidx );
+    deepErase( *inlinedata_[lineidx] );
+    delete inlinedata_[lineidx];
+    inlinedata_.remove( lineidx );
 
-    delete crossliness[lineidx];
-    crossliness.remove( lineidx );
+    delete crossliness_[lineidx];
+    crossliness_.remove( lineidx );
 
-    inlines.remove(lineidx);
+    inlines_.remove(lineidx);
 }
 
 

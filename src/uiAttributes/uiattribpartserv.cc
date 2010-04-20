@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.153 2010-04-15 11:31:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.154 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -393,13 +393,13 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
 {
     nms.erase();
     SelInfo attrinf( curDescSet( is2d ), 0, is2d );
-    for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
-	nms.add( attrinf.attrnms.get(idx) );
+    for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
+	nms.add( attrinf.attrnms_.get(idx) );
 
     BufferStringSet storedoutputs;
-    for ( int idx=0; idx<attrinf.ioobjids.size(); idx++ )
+    for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
-	const char* ioobjid = attrinf.ioobjids.get( idx );
+	const char* ioobjid = attrinf.ioobjids_.get( idx );
 	uiSeisIOObjInfo* sii = new uiSeisIOObjInfo( MultiID(ioobjid), false );
 	sii->getDefKeys( storedoutputs, true );
 	delete sii;
@@ -867,7 +867,7 @@ void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
 	{
 	    SelInfo attrinf( DSMPack().getDescSet(true,true), 0, true,
 		    	     DescID::undef(), issteer, issteer );
-	    const MultiID mid( attrinf.ioobjids.get(idx) );
+	    const MultiID mid( attrinf.ioobjids_.get(idx) );
 	    BufferStringSet nms = get2DStoredItems( mid, issteer, onlymultcomp);
 	    if ( nms.isEmpty() ) continue;
 	    *lsets2dmnuitem += itm;
@@ -891,9 +891,9 @@ BufferStringSet uiAttribPartServer::get2DStoredItems( const MultiID& mid,
 BufferStringSet uiAttribPartServer::get2DStoredLSets( const SelInfo& sinf) const
 {
     BufferStringSet linesets;
-    for ( int idlset=0; idlset<sinf.ioobjids.size(); idlset++ )
+    for ( int idlset=0; idlset<sinf.ioobjids_.size(); idlset++ )
     {
-	const char* lsetid = sinf.ioobjids.get(idlset);
+	const char* lsetid = sinf.ioobjids_.get(idlset);
 	const MultiID mid( lsetid );
 	const BufferString& lsetnm = IOM().get(mid)->name();
 	linesets.add( lsetnm );
@@ -943,7 +943,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
     const bool isstored = ds && ds->getDesc( as.id() ) 
 	? ds->getDesc( as.id() )->isStored() : false;
     BufferStringSet bfset = is2d ? get2DStoredLSets( attrinf )
-				 : attrinf.ioobjids;
+				 : attrinf.ioobjids_;
 
     MenuItem* mnu = menu;
     if ( multcomp && needext )
@@ -960,7 +960,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 	{
 	    if ( nritems == 1 )
 	    {
-		const MultiID mid( attrinf.ioobjids.get(0) );
+		const MultiID mid( attrinf.ioobjids_.get(0) );
 		BufferStringSet nmsset = get2DStoredItems(mid,issteer,multcomp);
 
 		insert2DStoredItems( nmsset, 0, nmsset.size(), isstored,
@@ -973,7 +973,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 	else
 	{
 	    const int start = 0; const int stop = nritems;
-	    mInsertItems(ioobjnms,mnu,isstored);
+	    mInsertItems(ioobjnms_,mnu,isstored);
 	}
     }
     else
@@ -1008,7 +1008,7 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 	{
 	    SelInfo attrinf( DSMPack().getDescSet(false,true), 0, false,
 		    	     DescID::undef() );
-	    mInsertItems(ioobjnms,submnu,correcttype);
+	    mInsertItems(ioobjnms_,submnu,correcttype);
 	}
 	
 	MenuItem* storedmnuitem = is2d ? issteer ? &steering2dmnuitem_
@@ -1024,14 +1024,14 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
 						  bool is2d, bool useext )
 {
     SelInfo attrinf( DSMPack().getDescSet(is2d,false) );
-    const bool isattrib = attrinf.attrids.indexOf( as.id() ) >= 0; 
+    const bool isattrib = attrinf.attrids_.indexOf( as.id() ) >= 0; 
 
-    const int start = 0; const int stop = attrinf.attrnms.size();
+    const int start = 0; const int stop = attrinf.attrnms_.size();
     MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     BufferString txt = useext ? ( is2d? "Attributes &2D" : "Attributes &3D" )
 			      : "&Attributes";
     calcmnuitem->text = txt;
-    mInsertItems(attrnms,calcmnuitem,isattrib);
+    mInsertItems(attrnms_,calcmnuitem,isattrib);
 
     calcmnuitem->enabled = calcmnuitem->nrItems();
     return calcmnuitem;
@@ -1057,8 +1057,8 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 	SelInfo attrinf( dset, nlamodel );
 	const bool isnla = as.isNLA();
 	const bool hasid = as.id().isValid();
-	const int start = 0; const int stop = attrinf.nlaoutnms.size();
-	mInsertItems(nlaoutnms,nlamnuitem,isnla);
+	const int start = 0; const int stop = attrinf.nlaoutnms_.size();
+	mInsertItems(nlaoutnms_,nlamnuitem,isnla);
     }
 
     nlamnuitem->enabled = nlamnuitem->nrItems();
@@ -1132,10 +1132,10 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
 	if ( !item ) item = steering3dmnuitem_.findItem(mnuid);
-	int idx = attrinf.ioobjnms.indexOf(item->text);
+	int idx = attrinf.ioobjnms_.indexOf(item->text);
 	attribid = eDSMPack().getDescSet(false,true)
-	    			->getStoredID( attrinf.ioobjids.get(idx) );
-	idlkey = LineKey( attrinf.ioobjids.get(idx) );
+	    			->getStoredID( attrinf.ioobjids_.get(idx) );
+	idlkey = LineKey( attrinf.ioobjids_.get(idx) );
 	isstored = true;
     }
     else if ( stored2dmnuitem_.findItem(mnuid) ||
@@ -1145,7 +1145,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	{
 	    const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
 	    if ( !item ) item = steering2dmnuitem_.findItem(mnuid);
-	    const MultiID mid( attrinf.ioobjids.get(0) );
+	    const MultiID mid( attrinf.ioobjids_.get(0) );
 	    idlkey = LineKey( mid, item->text );
 	    attribid = eDSMPack().getDescSet(true,true)->getStoredID( idlkey );
 	    isstored = true;
@@ -1157,7 +1157,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 		if ( (*ls2dmnuitm)[idx]->findItem(mnuid) )
 		{
 		    const MenuItem* item = (*ls2dmnuitm)[idx]->findItem(mnuid);
-		    const MultiID mid( attrinf.ioobjids.get(idx) );
+		    const MultiID mid( attrinf.ioobjids_.get(idx) );
 		    idlkey = LineKey( mid, item->text );
 		    attribid = eDSMPack().getDescSet( true, true )
 					->getStoredID( idlkey );
@@ -1169,8 +1169,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else if ( calcmnuitem->findItem(mnuid) )
     {
 	const MenuItem* item = calcmnuitem->findItem(mnuid);
-	int idx = attrinf.attrnms.indexOf(item->text);
-	attribid = attrinf.attrids[idx];
+	int idx = attrinf.attrnms_.indexOf(item->text);
+	attribid = attrinf.attrids_[idx];
     }
     else if ( nlamnuitem->findItem(mnuid) )
     {

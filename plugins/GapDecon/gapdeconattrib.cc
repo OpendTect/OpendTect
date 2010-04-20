@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.20 2009-07-22 16:01:27 cvsbert Exp $";
+static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.21 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "gapdeconattrib.h"
 
@@ -149,13 +149,13 @@ void GapDecon::updateDesc( Desc& desc )
     if ( !onlyacorr )
     {
 	int stepout = desc.getValParam( stepoutStr() )->getIntValue();
-	desc.inputSpec(1).enabled = stepout>0;
+	desc.inputSpec(1).enabled_ = stepout>0;
     }
 }
 
 
-GapDecon::GapDecon( Desc& desc_ )
-    : Provider( desc_ )
+GapDecon::GapDecon( Desc& desc )
+    : Provider( desc )
     , ncorr_( 0 )
     , nlag_( 0 )
     , ngap_( 0 )
@@ -187,10 +187,10 @@ GapDecon::GapDecon( Desc& desc_ )
 
 bool GapDecon::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata_ = inputs[0]->getData( relpos, zintv );
+    inputdata_ = inputs_[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
 
-    inputdatamixed_ = inputs[1] ? inputs[1]->getData( relpos, zintv ) : 0;
+    inputdatamixed_ = inputs_[1] ? inputs_[1]->getData( relpos, zintv ) : 0;
     dataidxmixed_ = inputdatamixed_ ? getDataIndex( 1 ) : -1;
 
     return inputdata_;
@@ -199,11 +199,11 @@ bool GapDecon::getInputData( const BinID& relpos, int zintv )
 
 void GapDecon::prepareForComputeData()
 {
-    ncorr_ = mNINT( gate_.width() / refstep );
+    ncorr_ = mNINT( gate_.width() / refstep_ );
     if ( !useonlyacorr_ )
     {
-	nlag_ = mNINT( lagsize_ / refstep / zFactor() );
-	ngap_ = mNINT( gapsize_ / refstep / zFactor() );
+	nlag_ = mNINT( lagsize_ / refstep_ / zFactor() );
+	ngap_ = mNINT( gapsize_ / refstep_ / zFactor() );
     }
 
     lcorr_ =  nlag_? nlag_+ngap_ : ncorr_;
@@ -256,7 +256,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     float* crosscorr = autocorr + nlag_;//first sample of gap is at 
 					//maxlag_+1 = nlag_ because minlag = 0
 
-    int absstartsampidx = mNINT( gate_.start / refstep );
+    int absstartsampidx = mNINT( gate_.start / refstep_ );
     int startcorr = absstartsampidx - inputdata_->z0_;
     bool usedmixed = inputdatamixed_ && inputdatamixed_->series(dataidxmixed_);
     int safestartcorr = usedmixed ? absstartsampidx-inputdatamixed_->z0_

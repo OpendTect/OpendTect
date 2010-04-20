@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.25 2010-03-31 13:34:23 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.26 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,11 +123,11 @@ mClass CurrentSel
 {
 public:
 			CurrentSel()
-			: attrid(DescID(-1,true)), outputnr(-1)	{}
+			: attrid_(DescID(-1,true)), outputnr_(-1)	{}
 
-    DescID		attrid;
-    MultiID		ioobjkey;
-    int			outputnr; // For NLA or attribute nr in 2D
+    DescID		attrid_;
+    MultiID		ioobjkey_;
+    int			outputnr_; // For NLA or attribute nr in 2D
 
 };
 
@@ -146,11 +146,11 @@ public:
 			SelInfo(const SelInfo&);
     SelInfo&		operator=(const SelInfo&);
 
-    BufferStringSet	ioobjnms;
-    BufferStringSet	ioobjids;
-    BufferStringSet	attrnms;
-    TypeSet<DescID>	attrids;
-    BufferStringSet	nlaoutnms;
+    BufferStringSet	ioobjnms_;
+    BufferStringSet	ioobjids_;
+    BufferStringSet	attrnms_;
+    TypeSet<DescID>	attrids_;
+    BufferStringSet	nlaoutnms_;
 
     static bool		is2D(const char* defstr_or_ioobjid);
     static void		getAttrNames(const char* defstr_or_ioobjid,

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.45 2010-04-01 17:33:15 cvskris Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.46 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribsel.h"
 
@@ -230,8 +230,8 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 		 attrset->getID(*desc) == ignoreid || desc->isHidden() )
 		continue;
 
-	    attrids += descid;
-	    attrnms.add( desc->userRef() );
+	    attrids_ += descid;
+	    attrnms_.add( desc->userRef() );
 	}
     }
 
@@ -243,7 +243,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	    BufferString nm( *nlamod->design().outputs[idx] );
 	    if ( IOObj::isKey(nm) )
 		nm = IOM().nameOf( nm, false );
-	    nlaoutnms.add( nm );
+	    nlaoutnms_.add( nm );
 	}
     }
 }
@@ -251,7 +251,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 
 void SelInfo::fillStored( const char* filter )
 {
-    ioobjnms.erase(); ioobjids.erase();
+    ioobjnms_.erase(); ioobjids_.erase();
 
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
@@ -295,16 +295,16 @@ void SelInfo::fillStored( const char* filter )
 	    }
 	}
 
-	ioobjnms.add( ioobjnm );
-	ioobjids.add( (const char*)ioobj.key() );
-	if ( ioobjnms.size() > 1 )
+	ioobjnms_.add( ioobjnm );
+	ioobjids_.add( (const char*)ioobj.key() );
+	if ( ioobjnms_.size() > 1 )
 	{
-	    for ( int icmp=ioobjnms.size()-2; icmp>=0; icmp-- )
+	    for ( int icmp=ioobjnms_.size()-2; icmp>=0; icmp-- )
 	    {
-		if ( ioobjnms.get(icmp) > ioobjnms.get(icmp+1) )
+		if ( ioobjnms_.get(icmp) > ioobjnms_.get(icmp+1) )
 		{
-		    ioobjnms.swap( icmp, icmp+1 );
-		    ioobjids.swap( icmp, icmp+1 );
+		    ioobjnms_.swap( icmp, icmp+1 );
+		    ioobjids_.swap( icmp, icmp+1 );
 		}
 	    }
 	}
@@ -313,11 +313,11 @@ void SelInfo::fillStored( const char* filter )
 
 
 SelInfo::SelInfo( const SelInfo& asi )
-	: ioobjnms(asi.ioobjnms)
-	, ioobjids(asi.ioobjids)
-	, attrnms(asi.attrnms)
-	, attrids(asi.attrids)
-	, nlaoutnms(asi.nlaoutnms)
+	: ioobjnms_(asi.ioobjnms_)
+	, ioobjids_(asi.ioobjids_)
+	, attrnms_(asi.attrnms_)
+	, attrids_(asi.attrids_)
+	, nlaoutnms_(asi.nlaoutnms_)
 	, is2d_(asi.is2d_)
 	, usesteering_(asi.usesteering_)
 	, onlysteering_(asi.onlysteering_)
@@ -327,11 +327,11 @@ SelInfo::SelInfo( const SelInfo& asi )
 
 SelInfo& SelInfo::operator=( const SelInfo& asi )
 {
-    ioobjnms = asi.ioobjnms;
-    ioobjids = asi.ioobjids;
-    attrnms = asi.attrnms;
-    attrids = asi.attrids;
-    nlaoutnms = asi.nlaoutnms;
+    ioobjnms_ = asi.ioobjnms_;
+    ioobjids_ = asi.ioobjids_;
+    attrnms_ = asi.attrnms_;
+    attrids_ = asi.attrids_;
+    nlaoutnms_ = asi.nlaoutnms_;
     is2d_ = asi.is2d_;
     usesteering_ = asi.usesteering_;
     onlysteering_ = asi.onlysteering_;
@@ -374,7 +374,6 @@ void SelInfo::getZDomainItems( const char* zdomainkey, const char* zdomainid,
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
-    BufferStringSet ioobjnms;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];

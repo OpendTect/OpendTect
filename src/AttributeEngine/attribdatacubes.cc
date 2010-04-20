@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.29 2010-03-09 08:01:56 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.30 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -17,10 +17,10 @@ namespace Attrib
 {
 
 DataCubes::DataCubes()
-    : inlsampling( SI().inlRange(true).start, SI().inlRange(true).step )
-    , crlsampling( SI().crlRange(true).start, SI().crlRange(true).step )
-    , z0( mNINT(SI().zRange(true).start/SI().zRange(true).step) )
-    , zstep( SI().zRange(true).step )
+    : inlsampling_( SI().inlRange(true).start, SI().inlRange(true).step )
+    , crlsampling_( SI().crlRange(true).start, SI().crlRange(true).step )
+    , z0_( mNINT(SI().zRange(true).start/SI().zRange(true).step) )
+    , zstep_( SI().zRange(true).step )
     , inlsz_( 0 )
     , crlsz_( 0 )
     , zsz_( 0 )
@@ -82,12 +82,12 @@ void DataCubes::removeCube( int idx )
 
 bool DataCubes::setSizeAndPos( const CubeSampling& cs )
 {
-    inlsampling.start = cs.hrg.start.inl;
-    crlsampling.start = cs.hrg.start.crl;
-    inlsampling.step = cs.hrg.step.inl;
-    crlsampling.step = cs.hrg.step.crl;
-    z0 = mNINT(cs.zrg.start/cs.zrg.step);
-    zstep = cs.zrg.step;
+    inlsampling_.start = cs.hrg.start.inl;
+    crlsampling_.start = cs.hrg.start.crl;
+    inlsampling_.step = cs.hrg.step.inl;
+    crlsampling_.step = cs.hrg.step.crl;
+    z0_ = mNINT(cs.zrg.start/cs.zrg.step);
+    zstep_ = cs.zrg.step;
 
     return setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
 }
@@ -130,9 +130,9 @@ void DataCubes::setValue( int array, float val )
 bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 			  bool interpolate ) const
 {
-    const int inlidx = inlsampling.nearestIndex( bidv.binid.inl );
+    const int inlidx = inlsampling_.nearestIndex( bidv.binid.inl );
     if ( inlidx<0 || inlidx>=inlsz_ ) return false;
-    const int crlidx = crlsampling.nearestIndex( bidv.binid.crl );
+    const int crlidx = crlsampling_.nearestIndex( bidv.binid.crl );
     if ( crlidx<0 || crlidx>=crlsz_ ) return false;
 
     if ( cubes_.size() <= array ) return false;
@@ -140,7 +140,7 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
     const OffsetValueSeries<float> data(*cubes_[array]->getStorage(),
 		     cubes_[array]->info().getOffset( inlidx, crlidx, 0 ) );
 
-    const float zpos = bidv.value/zstep-z0;
+    const float zpos = bidv.value/zstep_-z0_;
 
     if ( !interpolate )
     {
@@ -165,17 +165,17 @@ bool DataCubes::includes( const BinIDValue& bidv ) const
     if ( !includes( bidv.binid ) )
 	return false;
 
-    const float zpos = bidv.value/zstep-z0;
-    const float eps = bidv.sCompareEpsilon()/zstep;
+    const float zpos = bidv.value/zstep_-z0_;
+    const float eps = bidv.sCompareEpsilon()/zstep_;
     return zpos>-eps && zpos<=zsz_-1+eps;
 }
 
 
 bool DataCubes::includes( const BinID& binid ) const
 {
-    const int inlidx = inlsampling.nearestIndex( binid.inl );
+    const int inlidx = inlsampling_.nearestIndex( binid.inl );
     if ( inlidx<0 || inlidx>=inlsz_ ) return false;
-    const int crlidx = crlsampling.nearestIndex( binid.crl );
+    const int crlidx = crlsampling_.nearestIndex( binid.crl );
     if ( crlidx<0 || crlidx>=crlsz_ ) return false;
     return true;
 }
@@ -206,14 +206,14 @@ CubeSampling DataCubes::cubeSampling() const
 
     if ( inlsz_ && crlsz_ && zsz_ )
     {
-	res.hrg.start = BinID( inlsampling.start, crlsampling.start );
-	res.hrg.stop = BinID( inlsampling.atIndex(inlsz_-1),
-			      crlsampling.atIndex(crlsz_-1) );
-	res.hrg.step = BinID( inlsampling.step, crlsampling.step );
+	res.hrg.start = BinID( inlsampling_.start, crlsampling_.start );
+	res.hrg.stop = BinID( inlsampling_.atIndex(inlsz_-1),
+			      crlsampling_.atIndex(crlsz_-1) );
+	res.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
 
-	res.zrg.start = z0 * zstep;
-	res.zrg.stop = (z0+zsz_-1) * zstep;
-	res.zrg.step = zstep;
+	res.zrg.start = z0_ * zstep_;
+	res.zrg.stop = (z0_+zsz_-1) * zstep_;
+	res.zrg.step = zstep_;
     }
 
     return res;

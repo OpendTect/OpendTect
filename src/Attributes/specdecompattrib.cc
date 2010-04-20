@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.29 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.30 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -94,9 +94,9 @@ void SpecDecomp::updateDesc( Desc& desc )
     const bool iscwt = type == transTypeNamesStr( mTransformTypeContinuous );
     desc.setParamEnabled( cwtwaveletStr(), iscwt );
 
-    //HERE see what to do when SI().zStep() != refstep !!!
+    //HERE see what to do when SI().zStep() != refstep_ !!!
     float dfreq;
-    mGetFloat( dfreq, deltafreqStr() );
+    mGetFloatFromDesc( desc, dfreq, deltafreqStr() );
     const float nyqfreq = 0.5 / SI().zStep();
     const int nrattribs = mNINT( nyqfreq / dfreq );
     desc.setNrOutputs( Seis::UnknowData, nrattribs );
@@ -111,8 +111,8 @@ const char* SpecDecomp::transTypeNamesStr(int type)
 }
 
 
-SpecDecomp::SpecDecomp( Desc& desc_ )
-    : Provider( desc_ )
+SpecDecomp::SpecDecomp( Desc& desc )
+    : Provider( desc )
     , window_(0)
     , fftisinit_(false)
     , timedomain_(0)
@@ -166,10 +166,10 @@ bool SpecDecomp::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool SpecDecomp::getInputData( const BinID& relpos, int idx )
 {
-    redata_ = inputs[0]->getData( relpos, idx );
+    redata_ = inputs_[0]->getData( relpos, idx );
     if ( !redata_ ) return false;
 
-    imdata_ = inputs[1]->getData( relpos, idx );
+    imdata_ = inputs_[1]->getData( relpos, idx );
     if ( !imdata_ ) return false;
 
     realidx_ = getDataIndex( 0 );
@@ -187,18 +187,18 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	if ( transformtype_ == mTransformTypeFourier )
 	{
 	    const_cast<SpecDecomp*>(this)->samplegate_ = 
-		     Interval<int>(mNINT(gate_.start/refstep),
-				   mNINT(gate_.stop/refstep));
+		     Interval<int>(mNINT(gate_.start/refstep_),
+				   mNINT(gate_.stop/refstep_));
 	    const_cast<SpecDecomp*>(this)->sz_ = samplegate_.width()+1;
 
-	    const float fnyq = 0.5 / refstep;
+	    const float fnyq = 0.5 / refstep_;
 	    const int minsz = mNINT( 2*fnyq/deltafreq_ );
 	    const_cast<SpecDecomp*>(this)->fftsz_ = sz_ > minsz ? sz_ : minsz;
 	    const_cast<SpecDecomp*>(this)->
 			fft_.setInputInfo(Array1DInfoImpl(fftsz_));
 	    const_cast<SpecDecomp*>(this)->fft_.setDir(true);
 	    const_cast<SpecDecomp*>(this)->fft_.init();
-	    const_cast<SpecDecomp*>(this)->df_ = FFT::getDf( refstep, fftsz_ );
+	    const_cast<SpecDecomp*>(this)->df_ = FFT::getDf( refstep_, fftsz_ );
 
 	    const_cast<SpecDecomp*>(this)->window_ = 
 		new ArrayNDWindow( Array1DInfoImpl(sz_), false, 
@@ -267,9 +267,9 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 
 	fft_.transform( *timedomain_, *freqdomain_ );
 
-	for ( int idf=0; idf<outputinterest.size(); idf++ )
+	for ( int idf=0; idf<outputinterest_.size(); idf++ )
 	{
-	    if ( !outputinterest[idf] ) continue;
+	    if ( !outputinterest_[idf] ) continue;
 
 	    float_complex val = freqdomain_->get( idf );
 	    float real = val.real();
@@ -314,7 +314,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
             int scalepos = intpow(2,scale-1) + ((idx+off) >> (nrscales-scale));
             spectrum[scale] = fabs(transformed.get(scalepos));
 
-	    if ( !outputinterest[scale] ) continue;
+	    if ( !outputinterest_[scale] ) continue;
 	    setOutputValue( output, scale, idx, z0, spectrum[scale] );
         }
     }
@@ -359,14 +359,14 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     cwt.setInputInfo( Array1DInfoImpl(nrsamp) );
     cwt.setDir( true );
     cwt.setWavelet( cwtwavelet_ );
-    cwt.setDeltaT( refstep );
+    cwt.setDeltaT( refstep_ );
 
     const float nyqfreq = 0.5 / SI().zStep();
     const int nrattribs = mNINT( nyqfreq / deltafreq_ );
     const float freqstop = deltafreq_*nrattribs;
     TypeSet<int> freqidxs;
     for ( int idx=0; idx<nrOutputs(); idx++ )
-	if ( outputinterest[idx]>0 ) freqidxs += idx;
+	if ( outputinterest_[idx]>0 ) freqidxs += idx;
 
     cwt.setFreqIdxs( freqidxs );
     cwt.setTransformRange( StepInterval<float>(deltafreq_,freqstop,deltafreq_));
@@ -393,7 +393,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
 
     for ( int idx=0; idx<nrscales; idx++ )
     {
-	if ( !outputinterest[idx] ) continue;
+	if ( !outputinterest_[idx] ) continue;
 	for ( int ids=0; ids<nrsamples; ids++ )
 	    setOutputValue( output, idx, ids, z0, outputdata.get(ids+off,idx) );
     }
@@ -415,7 +415,7 @@ const Interval<int>* SpecDecomp::desZSampMargin( int inp, int ) const
 void SpecDecomp::getCompNames( BufferStringSet& nms ) const
 {
     nms.erase();
-    const float fnyq = 0.5 / refstep;
+    const float fnyq = 0.5 / refstep_;
     const char* basestr = "frequency = ";
     BufferString suffixstr = zIsTime() ? " Hz" : " cycles/mm";
     for ( float freq=deltafreq_; freq<fnyq; freq+=deltafreq_ )

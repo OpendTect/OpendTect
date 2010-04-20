@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.118 2010-02-24 15:17:13 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.119 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -616,8 +616,8 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		cache_->cubeSampling().hrg.crlRange().stop,
 		cache_->cubeSampling().zrg.stop );
 	isosurfaces_[idx]->setScales(
-		cache_->inlsampling, cache_->crlsampling,
-		SamplingData<float>(cache_->z0*cache_->zstep,cache_->zstep) );
+		cache_->inlsampling_, cache_->crlsampling_,
+		SamplingData<float>(cache_->z0_*cache_->zstep_,cache_->zstep_) );
 	if ( isosurfsettings_[idx].mode_ )
     	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
 		    cache_->getCube(0), isosurfsettings_[idx].isovalue_, tr );

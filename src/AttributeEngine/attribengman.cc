@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.98 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.99 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribengman.h"
 
@@ -47,24 +47,24 @@ namespace Attrib
 {
     
 EngineMan::EngineMan()
-	: inpattrset(0)
-	, procattrset(0)
-	, nlamodel(0)
+	: inpattrset_(0)
+	, procattrset_(0)
+	, nlamodel_(0)
 	, cs_(*new CubeSampling)
-	, cache(0)
-	, udfval( mUdf(float) )
-	, curattridx(0)
+	, cache_(0)
+	, udfval_( mUdf(float) )
+	, curattridx_(0)
 {
 }
 
 
 EngineMan::~EngineMan()
 {
-    delete procattrset;
-    delete inpattrset;
-    delete nlamodel;
+    delete procattrset_;
+    delete inpattrset_;
+    delete nlamodel_;
     delete &cs_;
-    if ( cache ) cache->unRef();
+    if ( cache_ ) cache_->unRef();
 }
 
 
@@ -181,24 +181,24 @@ void EngineMan::setExecutorName( Executor* ex )
     if ( !ex ) return;
 
     BufferString usernm( getCurUserRef() );
-    if ( usernm.isEmpty() || !inpattrset ) return;
+    if ( usernm.isEmpty() || !inpattrset_ ) return;
 
-    if ( curattridx < 0 || curattridx >= attrspecs_.size() )
+    if ( curattridx_ < 0 || curattridx_ >= attrspecs_.size() )
 	ex->setName( "Processing attribute" );
 
-    SelSpec& ss = attrspecs_[curattridx];
+    SelSpec& ss = attrspecs_[curattridx_];
     BufferString nm( "Calculating " );
-    if ( ss.isNLA() && nlamodel )
+    if ( ss.isNLA() && nlamodel_ )
     {
 	nm = "Applying ";
-	nm += nlamodel->nlaType(true);
+	nm += nlamodel_->nlaType(true);
 	nm += ": calculating";
 	if ( IOObj::isKey(usernm) )
 	    usernm = IOM().nameOf( usernm, false );
     }
     else
     {
-	const Desc* desc = inpattrset->getDesc( ss.id() );
+	const Desc* desc = inpattrset_->getDesc( ss.id() );
 	if ( desc && desc->isStored() )
 	    nm = "Reading from";
     }
@@ -229,33 +229,33 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 
 void EngineMan::setNLAModel( const NLAModel* m )
 {
-    delete nlamodel;
-    nlamodel = m ? m->clone() : 0;
+    delete nlamodel_;
+    nlamodel_ = m ? m->clone() : 0;
 }
 
 
 void EngineMan::setAttribSet( const DescSet* ads )
 {
-    delete inpattrset;
-    inpattrset = ads ? new DescSet( *ads ) : 0;
+    delete inpattrset_;
+    inpattrset_ = ads ? new DescSet( *ads ) : 0;
 }
 
 
 const char* EngineMan::getCurUserRef() const
 {
-    const int idx = curattridx;
+    const int idx = curattridx_;
     if ( attrspecs_.isEmpty() || !attrspecs_[idx].id().isValid() ) return "";
 
     SelSpec& ss = const_cast<EngineMan*>(this)->attrspecs_[idx];
     if ( attrspecs_[idx].isNLA() )
     {
-	if ( !nlamodel ) return "";
-	ss.setRefFromID( *nlamodel );
+	if ( !nlamodel_ ) return "";
+	ss.setRefFromID( *nlamodel_ );
     }
     else
     {
-	if ( !inpattrset ) return "";
-	ss.setRefFromID( *inpattrset );
+	if ( !inpattrset_ ) return "";
+	ss.setRefFromID( *inpattrset_ );
     }
     return attrspecs_[idx].userRef();
 }
@@ -263,7 +263,7 @@ const char* EngineMan::getCurUserRef() const
 
 const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 {
-    if ( proc.outputs_.size()==1 && !cache )
+    if ( proc.outputs_.size()==1 && !cache_ )
 	return proc.outputs_[0]->getDataCubes();
 
     ObjectSet<const DataCubes> cubeset;
@@ -283,10 +283,10 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 	cubeset += dc;
     }
 
-    if ( cache )
+    if ( cache_ )
     {
-	cubeset += cache;
-	cache->ref();
+	cubeset += cache_;
+	cache_->ref();
     }
 
     if ( cubeset.isEmpty() )
@@ -294,10 +294,10 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 
     DataCubes* output = new DataCubes;
     output->ref();
-    if ( cache && cache->cubeSampling().zrg.step != cs_.zrg.step )
+    if ( cache_ && cache_->cubeSampling().zrg.step != cs_.zrg.step )
     {
 	CubeSampling cswithcachestep = cs_;
-	cswithcachestep.zrg.step = cache->cubeSampling().zrg.step;
+	cswithcachestep.zrg.step = cache_->cubeSampling().zrg.step;
 	output->setSizeAndPos(cswithcachestep);
     }
     else
@@ -311,22 +311,22 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 	const DataCubes& cubedata = *cubeset[iset];
 	for ( int sidx=cubedata.getInlSz()-1; sidx>=0; sidx-- )
 	{
-	    const int inl = cubedata.inlsampling.atIndex(sidx);
-	    const int tidx = output->inlsampling.nearestIndex(inl);
+	    const int inl = cubedata.inlsampling_.atIndex(sidx);
+	    const int tidx = output->inlsampling_.nearestIndex(inl);
 	    if ( tidx<0 || tidx>=output->getInlSz() )
 		continue;
 
 	    for ( int scdx=cubedata.getCrlSz()-1; scdx>=0; scdx-- )
 	    {
-		const int crl = cubedata.crlsampling.atIndex(scdx);
-		const int tcdx = output->crlsampling.nearestIndex(crl);
+		const int crl = cubedata.crlsampling_.atIndex(scdx);
+		const int tcdx = output->crlsampling_.nearestIndex(crl);
 		if ( tcdx<0 || tcdx>=output->getCrlSz() )
 		    continue;
 
 		for ( int szdx=cubedata.getZSz()-1; szdx>=0; szdx-- )
 		{
-		    const int z = cubedata.z0+szdx;
-		    const int tzdx = z-output->z0;
+		    const int z = cubedata.z0_+szdx;
+		    const int tzdx = z-output->z0_;
 
 		    if ( tzdx<0 || tzdx>=output->getZSz() )
 			continue;
@@ -377,7 +377,7 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
     DescSet* descset = addtoset ? new DescSet( *addtoset ) 
 				: new DescSet( attrspecs_[0].is2D() );
 
-    if ( !addtoset && !descset->usePar(nlamodel->pars(),nlamodel->versionNr()) )
+    if ( !addtoset && !descset->usePar(nlamodel_->pars(),nlamodel_->versionNr()) )
     {
 	errmsg = descset->errMsg();
 	delete descset;
@@ -385,12 +385,12 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
     }
 
     BufferString s;
-    nlamodel->dump(s);
-    BufferString defstr( nlamodel->nlaType(true) );
+    nlamodel_->dump(s);
+    BufferString defstr( nlamodel_->nlaType(true) );
     defstr += " specification=\""; defstr += s; defstr += "\"";
 
     addNLADesc( defstr, nladescid, *descset, attrspecs_[0].id().asInt(), 
-		nlamodel, errmsg );
+		nlamodel_, errmsg );
 
     DescSet* cleanset = descset->optimizeClone( nladescid );
     delete descset;
@@ -522,7 +522,7 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
     if ( !proc ) 
 	return 0; 
     
-    LineKey lkey = linekey.buf();
+    LineKey lkey = linekey_.buf();
     const Provider* prov = proc->getProvider();
     if ( prov && !prov->getDesc().isStored() )
 	lkey.setAttrName( proc->getAttribName() );
@@ -541,10 +541,10 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
 Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 					    const DataCubes* prev )
 {
-    if ( cache )
+    if ( cache_ )
     {
-	cache->unRef();
-	cache = 0;
+	cache_->unRef();
+	cache_ = 0;
     }
 
 
@@ -552,9 +552,9 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 	prev = 0;
     else if ( prev )
     {
-	cache = prev;
-	cache->ref();
-	const CubeSampling cachecs = cache->cubeSampling();
+	cache_ = prev;
+	cache_->ref();
+	const CubeSampling cachecs = cache_->cubeSampling();
 	if ( mRg(h).step != cs_.hrg.step
 	  || (mRg(h).start.inl - cs_.hrg.start.inl) % cs_.hrg.step.inl
 	  || (mRg(h).start.crl - cs_.hrg.start.crl) % cs_.hrg.step.crl 
@@ -566,8 +566,8 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 	  || mRg(z).stop < cs_.zrg.start - mStepEps*cs_.zrg.step )
 	    // No overlap, gotta crunch all the numbers ...
 	{
-	    cache->unRef();
-	    cache = 0;
+	    cache_->unRef();
+	    cache_ = 0;
 	}
     }
 
@@ -575,7 +575,7 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 { \
     DataCubesOutput* attrout = new DataCubesOutput(todocs); \
     attrout->setGeometry( todocs ); \
-    attrout->setUndefValue( udfval ); \
+    attrout->setUndefValue( udfval_ ); \
     proc->addOutput( attrout ); \
 }
 
@@ -583,11 +583,11 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
     if ( !proc ) 
 	return 0; 
 
-    if ( !cache )
+    if ( !cache_ )
 	mAddAttrOut( cs_ )
     else
     {
-	const CubeSampling cachecs = cache->cubeSampling();
+	const CubeSampling cachecs = cache_->cubeSampling();
 	CubeSampling todocs( cs_ );
 	if ( mRg(h).start.inl > cs_.hrg.start.inl )
 	{
@@ -652,7 +652,7 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
     : Executor("Extracting attributes")
 {
     const int nrinps = inputs.size();
-    const DescSet* attrset = aem.procattrset ? aem.procattrset : aem.inpattrset;
+    const DescSet* attrset = aem.procattrset_ ? aem.procattrset_ : aem.inpattrset_;
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	const DescID id = attrset->getID( inputs.get(idx), true );
@@ -711,16 +711,16 @@ Executor* EngineMan::createFeatureOutput( const BufferStringSet& inputs,
 
 void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 {
-    if ( !procattrset || !attrspecs_.size() )
+    if ( !procattrset_ || !attrspecs_.size() )
 	return;
 
-    if ( !procattrset->is2D() )
+    if ( !procattrset_->is2D() )
 	return;
 
     Desc* storeddesc = 0;
     for ( int idx=0; idx<attrspecs_.size(); idx++ )
     {
-	const Desc* desc = procattrset->getDesc( attrspecs_[idx].id() );
+	const Desc* desc = procattrset_->getDesc( attrspecs_[idx].id() );
 	if ( !desc ) continue;
 	if ( desc->isStored() )
 	{
@@ -897,10 +897,10 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 
 Processor* EngineMan::getProcessor( BufferString& errmsg )
 {
-    if ( procattrset )
-	{ delete procattrset; procattrset = 0; }
+    if ( procattrset_ )
+	{ delete procattrset_; procattrset_ = 0; }
 
-    if ( !inpattrset || !attrspecs_.size() )
+    if ( !inpattrset_ || !attrspecs_.size() )
 	mErrRet( "No attribute set or input specs" )
 
     TypeSet<DescID> outattribs;
@@ -913,26 +913,26 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
     bool doeval = false;
     if ( !attrspecs_[0].isNLA() )
     {
-	procattrset = inpattrset->optimizeClone( outattribs );
-	if ( !procattrset ) mErrRet("Attribute set not valid");
+	procattrset_ = inpattrset_->optimizeClone( outattribs );
+	if ( !procattrset_ ) mErrRet("Attribute set not valid");
 
 	if ( outattribs.size() > 1 )
 	{
 	    doeval = true;
-	    outid = createEvaluateADS( *procattrset, outattribs, errmsg);
+	    outid = createEvaluateADS( *procattrset_, outattribs, errmsg);
 	}
     }
     else
     {
 	DescID nlaid( SelSpec::cNoAttrib() );
-	procattrset = createNLAADS( nlaid, errmsg );
+	procattrset_ = createNLAADS( nlaid, errmsg );
 	if ( *(const char*)errmsg )
 	    mErrRet(errmsg)
 	outid = nlaid;
     }
 
     Processor* proc = 
-		createProcessor( *procattrset, lineKey().buf(), outid, errmsg );
+		createProcessor( *procattrset_, lineKey().buf(), outid, errmsg );
     setExecutorName( proc );
     if ( !proc )
 	mErrRet( errmsg )

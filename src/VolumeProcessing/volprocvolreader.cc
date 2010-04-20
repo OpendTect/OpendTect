@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprocvolreader.cc,v 1.3 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: volprocvolreader.cc,v 1.4 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "volprocvolreader.h"
 
@@ -112,17 +112,17 @@ bool VolumeReader::computeBinID( const BinID& bid, int thread )
 	 !output_ )
 	return false;
 
-    const StepInterval<int> outputinlrg( output_->inlsampling.start,
-   			 output_->inlsampling.atIndex( output_->getInlSz()-1 ),
-			 output_->inlsampling.step );
+    const StepInterval<int> outputinlrg( output_->inlsampling_.start,
+   			 output_->inlsampling_.atIndex( output_->getInlSz()-1 ),
+			 output_->inlsampling_.step );
 
     if ( !outputinlrg.includes( bid.inl ) ||
          (bid.inl-outputinlrg.start)%outputinlrg.step )
 	return false;
 
-    const StepInterval<int> outputcrlrg( output_->crlsampling.start,
-			output_->crlsampling.atIndex( output_->getCrlSz()-1 ),
-			output_->crlsampling.step );
+    const StepInterval<int> outputcrlrg( output_->crlsampling_.start,
+			output_->crlsampling_.atIndex( output_->getCrlSz()-1 ),
+			output_->crlsampling_.step );
 
     if ( !outputcrlrg.includes( bid.crl ) ||
          (bid.crl-outputcrlrg.start)%outputcrlrg.step )
@@ -140,7 +140,7 @@ bool VolumeReader::computeBinID( const BinID& bid, int thread )
     StepInterval<int> inputinlrg;
     if ( inputarr )
     {
-	inputinlrg = input_->inlsampling.interval( input_->getInlSz() );
+	inputinlrg = input_->inlsampling_.interval( input_->getInlSz() );
 	if ( !inputinlrg.includes( bid.inl ) ||
 	      (bid.inl-inputinlrg.start)%inputinlrg.step )
 	    inputarr = 0;
@@ -149,7 +149,7 @@ bool VolumeReader::computeBinID( const BinID& bid, int thread )
     StepInterval<int> inputcrlrg;
     if ( inputarr )
     {
-	inputcrlrg = input_->crlsampling.interval( input_->getCrlSz() );
+	inputcrlrg = input_->crlsampling_.interval( input_->getCrlSz() );
 	if ( !inputcrlrg.includes( bid.crl ) ||
 	      (bid.crl-inputcrlrg.start)%inputcrlrg.step )
 	    inputarr = 0;
@@ -167,8 +167,8 @@ bool VolumeReader::computeBinID( const BinID& bid, int thread )
 	float val;
 	if ( hastrc )
 	{
-	    const int cursample = output_->z0+idx;
-	    const double z = output_->zstep * cursample;
+	    const int cursample = output_->z0_+idx;
+	    const double z = output_->zstep_ * cursample;
 	    val = trc.getValue( z, 0 );
 	    dobg = mIsUdf(val);
 	}

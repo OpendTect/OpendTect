@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.13 2009-07-22 16:01:36 cvsbert Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.14 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -268,12 +268,12 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 	if ( !func->moveTo( bid ) )
 	    continue;
 
-	const int inlidx = output->inlsampling.nearestIndex( bid.inl );
-	const int crlidx = output->crlsampling.nearestIndex( bid.crl );
+	const int inlidx = output->inlsampling_.nearestIndex( bid.inl );
+	const int crlidx = output->crlsampling_.nearestIndex( bid.crl );
 
 	for ( int idy=0; idy<zsz; idy++ )
 	{
-	    const float z = (output->z0+idy) * output->zstep;
+	    const float z = (output->z0_+idy) * output->zstep_;
 	    const float vel = func->getVelocity( z );
 
 	    output->setValue( 0, inlidx, crlidx, idy, vel );
@@ -364,8 +364,10 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 	    const BinID sourcebid =
 		task_.definedBids().getBinID(task_.definedPos()[usedvals[idy]]);
 
-	    const int inlidx = output.inlsampling.nearestIndex( sourcebid.inl );
-	    const int crlidx = output.crlsampling.nearestIndex( sourcebid.crl );
+	    const int inlidx =
+		output.inlsampling_.nearestIndex( sourcebid.inl );
+	    const int crlidx =
+		output.crlsampling_.nearestIndex( sourcebid.crl );
 
 	    const od_int64 offset = array.info().getOffset( inlidx, crlidx, 0 );
 
@@ -375,8 +377,8 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 		srcoffsets += offset;
 	}
 
-	const int inlidx = output.inlsampling.nearestIndex( bid.inl );
-	const int crlidx = output.crlsampling.nearestIndex( bid.crl );
+	const int inlidx = output.inlsampling_.nearestIndex( bid.inl );
+	const int crlidx = output.crlsampling_.nearestIndex( bid.crl );
 	const od_int64 targetoffset = array.info().getOffset(inlidx,crlidx,0);
 	float* dstptr = output.getCube(0).getData();
 

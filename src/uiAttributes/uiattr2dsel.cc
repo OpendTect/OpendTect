@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.9 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.10 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "uiattr2dsel.h"
 #include "attribdescset.h"
@@ -97,7 +97,7 @@ void uiAttr2DSelDlg::doFinalise( CallBacker* )
 
 void uiAttr2DSelDlg::createSelectionButtons()
 {
-    const bool haveattribs = attrinf_->attrnms.size();
+    const bool haveattribs = attrinf_->attrnms_.size();
 
     selgrp_ = new uiButtonGroup( this, "Input selection" );
     storfld_ = new uiRadioButton( selgrp_, "Stored" );
@@ -110,14 +110,14 @@ void uiAttr2DSelDlg::createSelectionButtons()
     if ( !nla_ ) return;
 
     nlafld_ = new uiRadioButton( selgrp_, nla_->nlaType(false) );
-    nlafld_->setSensitive( attrinf_->nlaoutnms.size() );
+    nlafld_->setSensitive( attrinf_->nlaoutnms_.size() );
     nlafld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
 }
 
 
 void uiAttr2DSelDlg::createSelectionFields()
 {
-    const bool haveattribs = attrinf_->attrnms.size();
+    const bool haveattribs = attrinf_->attrnms_.size();
 
     BufferStringSet nms;
     SelInfo::getAttrNames( setid_, nms );
@@ -130,7 +130,7 @@ void uiAttr2DSelDlg::createSelectionFields()
 
     if ( haveattribs )
     {
-	attroutfld_ = new uiListBox( this, attrinf_->attrnms,
+	attroutfld_ = new uiListBox( this, attrinf_->attrnms_,
 				     "Attributes", false );
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->setCurrentItem( 0 );
@@ -138,9 +138,9 @@ void uiAttr2DSelDlg::createSelectionFields()
 	attroutfld_->attach( rightOf, selgrp_ );
     }
 
-    if ( attrinf_->nlaoutnms.size() )
+    if ( attrinf_->nlaoutnms_.size() )
     {
-	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms,
+	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms_,
 				    "Attributes", false );
 	nlaoutfld_->setHSzPol( uiObject::Wide );
 	nlaoutfld_->setCurrentItem( 0 );
@@ -199,7 +199,7 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
     if ( seltype_ == 0 )
 	storednm_ = storoutfld_->getText();
     else if ( seltype_ == 1 )
-	descid_ = attrinf_->attrids[selidx];
+	descid_ = attrinf_->attrids_[selidx];
     else if ( seltype_ == 2 )
 	descid_ = DescID( selidx, true );
 

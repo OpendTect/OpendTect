@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.4 2009-11-18 16:54:41 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.5 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
@@ -180,9 +180,9 @@ Task* LateralSmoother::createTask()
     if ( !input_ || !output_ )
 	return 0;
 
-    if ( input_->inlsampling.step!=output_->inlsampling.step ||
-	 input_->crlsampling.step!=output_->crlsampling.step || 
-	 !mIsEqual(input_->zstep,output_->zstep, 1e-3*SI().zRange(true).step)) 
+    if ( input_->inlsampling_.step!=output_->inlsampling_.step ||
+	 input_->crlsampling_.step!=output_->crlsampling_.step || 
+	 !mIsEqual(input_->zstep_,output_->zstep_,1e-3*SI().zRange(true).step)) 
     {
 	return 0;
     }
@@ -191,8 +191,8 @@ Task* LateralSmoother::createTask()
     {
 	if ( !mIsUdf(pars_.rowdist_) )
 	{
-	    pars_.rowdist_ = (SI().inlDistance()*input_->inlsampling.step)/
-			     (SI().crlDistance()*input_->crlsampling.step);
+	    pars_.rowdist_ = (SI().inlDistance()*input_->inlsampling_.step)/
+			     (SI().crlDistance()*input_->crlsampling_.step);
 	}
     }
     else
@@ -201,13 +201,13 @@ Task* LateralSmoother::createTask()
     }
 
     return new LateralSmootherTask( input_->getCube( 0 ),
-	    input_->inlsampling.start,
-	    input_->crlsampling.start,
-	    input_->z0,
+	    input_->inlsampling_.start,
+	    input_->crlsampling_.start,
+	    input_->z0_,
 	    output_->getCube( 0 ),
-	    output_->inlsampling.start,
-	    output_->crlsampling.start,
-	    output_->z0,
+	    output_->inlsampling_.start,
+	    output_->crlsampling_.start,
+	    output_->z0_,
 	    pars_ );
 
     return 0;

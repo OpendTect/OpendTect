@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: attribslice.cc,v 1.10 2010-03-09 08:01:56 cvsbert Exp $";
+static const char* rcsID = "$Id: attribslice.cc,v 1.11 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribslice.h"
 
@@ -46,29 +46,29 @@ SliceSet::~SliceSet()
 { deepUnRef( *this ); }
 
 
-#define mInlIdx ((inl-sampling.hrg.start.inl) / sampling.hrg.step.inl)
-#define mCrlIdx ((crl-sampling.hrg.start.crl) / sampling.hrg.step.crl)
-#define mZIdx (sampling.zrg.nearestIndex(z))
+#define mInlIdx ((inl-sampling_.hrg.start.inl) / sampling_.hrg.step.inl)
+#define mCrlIdx ((crl-sampling_.hrg.start.crl) / sampling_.hrg.step.crl)
+#define mZIdx (sampling_.zrg.nearestIndex(z))
 
 void SliceSet::getIdxs( int inl, int crl, float z,
 			 int& i0, int& i1, int& i2 ) const
 {
-    if ( direction == CubeSampling::Z )
+    if ( direction_ == CubeSampling::Z )
 	{ i0 = mZIdx; i1 = mInlIdx; i2 = mCrlIdx; }
-    else if ( direction == CubeSampling::Inl )
+    else if ( direction_ == CubeSampling::Inl )
 	{ i0 = mInlIdx; i1 = mCrlIdx; i2 = mZIdx; }
-    else if ( direction == CubeSampling::Crl )
+    else if ( direction_ == CubeSampling::Crl )
 	{ i0 = mCrlIdx; i1 = mInlIdx; i2 = mZIdx; }
 }
 
 
 void SliceSet::getIdx( int nr, int inl, int crl, float z, int& iout ) const
 {
-    if ( direction == CubeSampling::Z )
+    if ( direction_ == CubeSampling::Z )
 	iout = nr ? (nr == 1 ? mInlIdx : mCrlIdx) : mZIdx;
-    else if ( direction == CubeSampling::Inl )
+    else if ( direction_ == CubeSampling::Inl )
 	iout = nr ? (nr == 1 ? mCrlIdx : mZIdx) : mInlIdx;
-    else if ( direction == CubeSampling::Crl )
+    else if ( direction_ == CubeSampling::Crl )
 	iout = nr ? (nr == 1 ? mInlIdx : mZIdx) : mCrlIdx;
 }
 
@@ -92,7 +92,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 
     if ( size0==-1 ) return 0;
 
-    if ( direction== CubeSampling::Z )
+    if ( direction_== CubeSampling::Z )
     {
 	const int inlsz = size0;
 	const int crlsz = size1;
@@ -121,7 +121,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 	return res;
     }
 
-    if ( direction == CubeSampling::Crl )
+    if ( direction_ == CubeSampling::Crl )
     {
 	const int inlsz = size0;
 	const int crlsz = size();

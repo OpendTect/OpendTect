@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.49 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribdesc.h,v 1.50 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,16 +33,16 @@ typedef void(*DescStatusUpdater)(Desc&);
 mClass InputSpec
 {
 public:
-    				InputSpec( const char* d, bool enabled_ )
-				    : desc(d), enabled(enabled_)
-				    , issteering(false)		{}
+    				InputSpec( const char* d, bool enabled )
+				    : desc_(d), enabled_(enabled)
+				    , issteering_(false)		{}
 
-    const char*        		getDesc() const { return desc; }
+    const char*        		getDesc() const { return desc_; }
 
-    BufferString		desc;
-    TypeSet<Seis::DataType>	forbiddenDts;
-    bool			enabled;
-    bool			issteering;
+    BufferString		desc_;
+    TypeSet<Seis::DataType>	forbiddenDts_;
+    bool			enabled_;
+    bool			issteering_;
 
     bool			operator==(const InputSpec&) const;
 };
@@ -194,76 +194,93 @@ protected:
 
 }; // namespace Attrib
 
-#define mGetInt( var, varstring ) \
+#define mGetIntFromDesc( __desc, var, varstring ) \
 {\
-    var = desc.getValParam(varstring)->getIntValue(0); \
+    var = __desc.getValParam(varstring)->getIntValue(0); \
     if ( mIsUdf(var) )\
-        var = desc.getValParam(varstring)->getDefaultIntValue(0);\
+        var = __desc.getValParam(varstring)->getDefaultIntValue(0);\
 }
 
-#define mGetFloat( var, varstring ) \
+#define mGetFloatFromDesc( __desc, var, varstring ) \
 {\
-    var = desc.getValParam(varstring)->getfValue(0); \
+    var = __desc.getValParam(varstring)->getfValue(0); \
     if ( mIsUdf(var) )\
-        var = desc.getValParam(varstring)->getDefaultfValue(0);\
+        var = __desc.getValParam(varstring)->getDefaultfValue(0);\
 }
 
-#define mGetBool( var, varstring ) \
+
+
+#define mGetBoolFromDesc( __desc, var, varstring ) \
 {\
     Attrib::ValParam* valparam##var = \
-            const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
+            const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
     mDynamicCastGet(Attrib::BoolParam*,boolparam##var,valparam##var);\
     if ( boolparam##var ) \
         var = boolparam##var->isSet() ? boolparam##var->getBoolValue(0)\
 				      : boolparam##var->getDefaultBoolValue(0);\
 }
 
-#define mGetEnum( var, varstring ) \
+#define mGetEnumFromDesc( __desc, var, varstring ) \
 {\
     Attrib::ValParam* valparam##var = \
-            const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
+            const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
     mDynamicCastGet(Attrib::EnumParam*,enumparam##var,valparam##var);\
     if ( enumparam##var ) \
         var = enumparam##var->isSet() ? enumparam##var->getIntValue(0)\
 				      : enumparam##var->getDefaultIntValue(0);\
 }
 
-#define mGetString( var, varstring ) \
+#define mGetStringFromDesc( __desc, var, varstring ) \
 {\
-    var = desc.getValParam(varstring)->getStringValue(0); \
+    var = __desc.getValParam(varstring)->getStringValue(0); \
     if ( !strcmp( var, "" ) )\
-        var = desc.getValParam(varstring)->getDefaultStringValue(0); \
+        var = __desc.getValParam(varstring)->getDefaultStringValue(0); \
 }
     
-#define mGetBinID( var, varstring ) \
+#define mGetBinIDFromDesc( __desc, var, varstring ) \
 {\
-    var.inl = desc.getValParam(varstring)->getIntValue(0); \
-    var.crl = desc.getValParam(varstring)->getIntValue(1); \
+    var.inl = __desc.getValParam(varstring)->getIntValue(0); \
+    var.crl = __desc.getValParam(varstring)->getIntValue(1); \
     if ( mIsUdf(var.inl) || mIsUdf(var.crl) )\
     {\
 	Attrib::ValParam* valparam##var = \
-	      const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
+	      const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
 	mDynamicCastGet(Attrib::BinIDParam*,binidparam##var,valparam##var);\
 	if ( binidparam##var ) \
 	    var = binidparam##var->getDefaultBinIDValue();\
     }\
-    if ( desc.descSet()->is2D() ) \
+    if ( __desc.descSet()->is2D() ) \
     	var.inl = 0; \
 }
 
-#define mGetFloatInterval( var, varstring ) \
+#define mGetFloatIntervalFromDesc( __desc, var, varstring ) \
 {\
-    var.start = desc.getValParam(varstring)->getfValue(0); \
-    var.stop = desc.getValParam(varstring)->getfValue(1); \
+    var.start = __desc.getValParam(varstring)->getfValue(0); \
+    var.stop = __desc.getValParam(varstring)->getfValue(1); \
     if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
     {\
 	Attrib::ValParam* valparam##var = \
-	      const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
+	      const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\
 	mDynamicCastGet(Attrib::ZGateParam*,gateparam##var,valparam##var);\
 	if ( gateparam##var ) \
 	    var = gateparam##var->getDefaultGateValue();\
     }\
 }
+
+#define mGetFloat( var, varstring ) \
+    mGetFloatFromDesc( desc_, var, varstring )
+#define mGetInt( var, varstring ) \
+    mGetIntFromDesc( desc_, var, varstring )
+#define mGetBool( var, varstring ) \
+    mGetBoolFromDesc( desc_, var, varstring )
+#define mGetEnum( var, varstring ) \
+    mGetEnumFromDesc( desc_, var, varstring )
+#define mGetString( var, varstring ) \
+    mGetStringFromDesc( desc_, var, varstring )
+#define mGetBinID( var, varstring ) \
+    mGetBinIDFromDesc( desc_, var, varstring )
+#define mGetFloatInterval( var, varstring ) \
+    mGetFloatIntervalFromDesc( desc_, var, varstring )
 
 #endif
 

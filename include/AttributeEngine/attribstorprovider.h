@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.32 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.33 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ protected:
     BinID		stepoutstep_;
     CubeSampling	storedvolume_;
 
-    enum Status        { Nada, StorageOpened, Ready } status;
+    enum Status        { Nada, StorageOpened, Ready } status_;
 };
 
 }; // namespace Attrib

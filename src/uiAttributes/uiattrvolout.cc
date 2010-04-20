@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.75 2010-04-14 14:42:45 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.76 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -189,10 +189,10 @@ bool uiAttrVolOut::prepareProcessing()
 	}
     }
 
-    sel.ioobjkey = ctio.ioobj->key();
-    sel.attrid = todofld->attribID();
-    sel.outputnr = todofld->outputNr();
-    if ( sel.outputnr < 0 && !sel.attrid.isValid() )
+    sel.ioobjkey_ = ctio.ioobj->key();
+    sel.attrid_ = todofld->attribID();
+    sel.outputnr_ = todofld->outputNr();
+    if ( sel.outputnr_ < 0 && !sel.attrid_.isValid() )
     {
 	uiMSG().error( "Please select the output quantity" );
 	return false;

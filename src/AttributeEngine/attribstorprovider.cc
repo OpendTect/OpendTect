@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.94 2009-09-29 12:33:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.95 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -130,10 +130,10 @@ void StorageProvider::updateDesc( Desc& desc )
 }
 
 
-StorageProvider::StorageProvider( Desc& desc_ )
-    : Provider( desc_ )
+StorageProvider::StorageProvider( Desc& desc )
+    : Provider( desc )
     , mscprov_(0)
-    , status( Nada )
+    , status_( Nada )
     , stepoutstep_(-1,0)
 {
 }
@@ -146,13 +146,13 @@ StorageProvider::~StorageProvider()
 
 
 #undef mErrRet
-#define mErrRet(s) { errmsg = s; delete mscprov_; mscprov_= 0; return false; }
+#define mErrRet(s) { errmsg_ = s; delete mscprov_; mscprov_= 0; return false; }
 
 bool StorageProvider::checkInpAndParsAtStart()
 {
-    if ( status!=Nada ) return false;
+    if ( status_!=Nada ) return false;
 
-    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
+    const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
     const MultiID mid( lk.lineName() );
     if ( !isOK() ) return false;
     mscprov_ = new SeisMSCProvider( mid );
@@ -161,7 +161,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	mErrRet( mscprov_->errMsg() )
 
     const bool is2d = mscprov_->is2D();
-    desc.set2D( is2d );
+    desc_.set2D( is2d );
     if ( !is2d )
 	SeisTrcTranslator::getRanges( mid, storedvolume_, lk );
     else
@@ -222,36 +222,36 @@ bool StorageProvider::checkInpAndParsAtStart()
 	}
     }
 
-    status = StorageOpened;
+    status_ = StorageOpened;
     return true;
 }
 
 
 int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 {
-    if ( alreadymoved )
+    if ( alreadymoved_ )
 	return 1;
 
-    if ( status==Nada )
+    if ( status_==Nada )
 	return -1;
 
-    if ( status==StorageOpened )
+    if ( status_==StorageOpened )
     {
 	if ( !setMSCProvSelData() )
 	    return -1;
 
-	status = Ready;
+	status_ = Ready;
     }
 
     if ( !useshortcuts_ )
     {
 	if ( getDesc().is2D() )
-	    prevtrcnr = currentbid.crl;
+	    prevtrcnr_ = currentbid_.crl;
 
 	bool validstartpos = startpos != BinID(-1,-1);
 	if ( validstartpos && curtrcinfo_ && curtrcinfo_->binid == startpos )
 	{
-	    alreadymoved = true;
+	    alreadymoved_ = true;
 	    return 1;
 	}
     }
@@ -262,7 +262,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	SeisMSCProvider::AdvanceState res = mscprov_->advance();
 	switch ( res )
 	{
-	    case SeisMSCProvider::Error:	{ errmsg = mscprov_->errMsg();
+	    case SeisMSCProvider::Error:	{ errmsg_ = mscprov_->errMsg();
 						  return -1; }
 	    case SeisMSCProvider::EndReached:	return 0;
 	    case SeisMSCProvider::Buffering:	continue;
@@ -288,11 +288,11 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 
 		curtrcinfo_ = 0;
 		const SeisTrcInfo& newti = trc->info();
-		currentbid = desc.is2D()? BinID( 0, newti.nr ) 
+		currentbid_ = desc_.is2D()? BinID( 0, newti.nr ) 
 					: newti.binid;
-		trcinfobid = newti.binid;
+		trcinfobid_ = newti.binid;
 		if ( firstcheck || startpos == BinID(-1,-1)
-		  || currentbid == startpos || newti.binid == startpos )
+		  || currentbid_ == startpos || newti.binid == startpos )
 		{
 		    advancefurther = false;
 		    curtrcinfo_ = &trc->info();
@@ -301,8 +301,8 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	}
     }
 
-    setCurrentPosition( currentbid );
-    alreadymoved = true;
+    setCurrentPosition( currentbid_ );
+    alreadymoved_ = true;
     return 1;
 }
 
@@ -311,21 +311,21 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 {\
     if ( res.hrg.step.dir>1 )\
     {\
-	float remain = ( possiblevolume->hrg.start.dir - res.hrg.start.dir ) %\
+	float remain = ( possiblevolume_->hrg.start.dir - res.hrg.start.dir ) %\
 	    		res.hrg.step.dir;\
 	if ( !mIsZero( remain, 1e-3 ) )\
-	    res.hrg.start.dir = possiblevolume->hrg.start.dir + \
+	    res.hrg.start.dir = possiblevolume_->hrg.start.dir + \
 				mNINT(remain +0.5) *res.hrg.step.dir;\
     }\
 }
 
 bool StorageProvider::getPossibleVolume( int, CubeSampling& globpv )
 {
-    if ( !possiblevolume ) 
-	possiblevolume = new CubeSampling;
+    if ( !possiblevolume_ ) 
+	possiblevolume_ = new CubeSampling;
 
-    *possiblevolume = storedvolume_;
-    globpv.limitToWithUdf( *possiblevolume );
+    *possiblevolume_ = storedvolume_;
+    globpv.limitToWithUdf( *possiblevolume_ );
 
     const bool havecrls = globpv.hrg.crlRange().width(false) >= 0;
     if ( mscprov_->is2D() )
@@ -351,14 +351,14 @@ bool StorageProvider::initMSCProvider()
 
 #define setBufStepout( prefix ) \
 { \
-    if ( ns.inl <= prefix##bufferstepout.inl \
-	    && ns.crl <= prefix##bufferstepout.crl ) \
+    if ( ns.inl <= prefix##bufferstepout_.inl \
+	    && ns.crl <= prefix##bufferstepout_.crl ) \
 	return; \
 \
-    if ( ns.inl > prefix##bufferstepout.inl ) \
-	prefix##bufferstepout.inl = ns.inl; \
-    if ( ns.crl > prefix##bufferstepout.crl ) \
-	prefix##bufferstepout.crl = ns.crl;\
+    if ( ns.inl > prefix##bufferstepout_.inl ) \
+	prefix##bufferstepout_.inl = ns.inl; \
+    if ( ns.crl > prefix##bufferstepout_.crl ) \
+	prefix##bufferstepout_.crl = ns.crl;\
 }
 
 
@@ -382,8 +382,8 @@ void StorageProvider::updateStorageReqs( bool )
 {
     if ( !mscprov_ ) return;
 
-    mscprov_->setStepout( desbufferstepout.inl, desbufferstepout.crl, false );
-    mscprov_->setStepout( reqbufferstepout.inl, reqbufferstepout.crl, true );
+    mscprov_->setStepout( desbufferstepout_.inl, desbufferstepout_.crl, false );
+    mscprov_->setStepout( reqbufferstepout_.inl, reqbufferstepout_.crl, true );
 }
 
 
@@ -401,19 +401,19 @@ bool StorageProvider::setMSCProvSelData()
     if ( is2d )
 	return set2DRangeSelData(); 
 
-    if ( !desiredvolume )
+    if ( !desiredvolume_ )
     {
-	for ( int idp=0; idp<parents.size(); idp++ )
+	for ( int idp=0; idp<parents_.size(); idp++ )
 	{
-	    if ( !parents[idp] ) continue;
+	    if ( !parents_[idp] ) continue;
 
-	    if ( parents[idp]->getDesiredVolume() )
+	    if ( parents_[idp]->getDesiredVolume() )
 	    {
-		setDesiredVolume( *parents[idp]->getDesiredVolume() );
+		setDesiredVolume( *parents_[idp]->getDesiredVolume() );
 		break;
 	    }
 	}
-	if ( !desiredvolume )
+	if ( !desiredvolume_ )
 	    return true;
     }
 
@@ -422,29 +422,29 @@ bool StorageProvider::setMSCProvSelData()
 
     CubeSampling cs;
     cs.hrg.start.inl = 
-	    desiredvolume->hrg.start.inl < storedvolume_.hrg.start.inl ?
-	    storedvolume_.hrg.start.inl : desiredvolume->hrg.start.inl;
+	    desiredvolume_->hrg.start.inl < storedvolume_.hrg.start.inl ?
+	    storedvolume_.hrg.start.inl : desiredvolume_->hrg.start.inl;
     cs.hrg.stop.inl = 
-	    desiredvolume->hrg.stop.inl > storedvolume_.hrg.stop.inl ?
-	    storedvolume_.hrg.stop.inl : desiredvolume->hrg.stop.inl;
+	    desiredvolume_->hrg.stop.inl > storedvolume_.hrg.stop.inl ?
+	    storedvolume_.hrg.stop.inl : desiredvolume_->hrg.stop.inl;
     cs.hrg.stop.crl = 
-	    desiredvolume->hrg.stop.crl > storedvolume_.hrg.stop.crl ?
-	    storedvolume_.hrg.stop.crl : desiredvolume->hrg.stop.crl;
+	    desiredvolume_->hrg.stop.crl > storedvolume_.hrg.stop.crl ?
+	    storedvolume_.hrg.stop.crl : desiredvolume_->hrg.stop.crl;
     cs.hrg.start.crl = 
-	    desiredvolume->hrg.start.crl < storedvolume_.hrg.start.crl ?
-	    storedvolume_.hrg.start.crl : desiredvolume->hrg.start.crl;
-    cs.zrg.start = desiredvolume->zrg.start < storedvolume_.zrg.start ?
-		    storedvolume_.zrg.start : desiredvolume->zrg.start;
-    cs.zrg.stop = desiredvolume->zrg.stop > storedvolume_.zrg.stop ?
-		     storedvolume_.zrg.stop : desiredvolume->zrg.stop;
+	    desiredvolume_->hrg.start.crl < storedvolume_.hrg.start.crl ?
+	    storedvolume_.hrg.start.crl : desiredvolume_->hrg.start.crl;
+    cs.zrg.start = desiredvolume_->zrg.start < storedvolume_.zrg.start ?
+		    storedvolume_.zrg.start : desiredvolume_->zrg.start;
+    cs.zrg.stop = desiredvolume_->zrg.stop > storedvolume_.zrg.stop ?
+		     storedvolume_.zrg.stop : desiredvolume_->zrg.stop;
 
     reader.setSelData( haveseldata ? seldata_->clone()
 	   			   : new Seis::RangeSelData(cs) );
 
     SeisTrcTranslator* transl = reader.seisTranslator();
-    for ( int idx=0; idx<outputinterest.size(); idx++ )
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	if ( !outputinterest[idx] ) 
+	if ( !outputinterest_[idx] ) 
 	    transl->componentInfo()[idx]->destidx = -1;
     }
 
@@ -459,15 +459,15 @@ bool StorageProvider::setTableSelData()
     SeisTrcReader& reader = mscprov_->reader();
     if ( reader.is2D() )
     {
-	const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
+	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
 	seldata->lineKey().setAttrName( lk.attrName() );
     }
     reader.setSelData( seldata );
     SeisTrcTranslator* transl = reader.seisTranslator();
     if ( !transl ) return false;
-    for ( int idx=0; idx<outputinterest.size(); idx++ )
+    for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
-	if ( !outputinterest[idx] && transl->componentInfo().size()>idx ) 
+	if ( !outputinterest_[idx] && transl->componentInfo().size()>idx ) 
 	    transl->componentInfo()[idx]->destidx = -1;
     }
     return true;
@@ -499,16 +499,16 @@ bool StorageProvider::set2DRangeSelData()
 		return false;
 	    Interval<int> rg( 0, 0 );
 	    seldata->setInlRange( rg );
-	    rg.start = desiredvolume->hrg.start.crl < trcrg.start?
-			trcrg.start : desiredvolume->hrg.start.crl;
-	    rg.stop = desiredvolume->hrg.stop.crl > trcrg.stop ?
-			trcrg.stop : desiredvolume->hrg.stop.crl;
+	    rg.start = desiredvolume_->hrg.start.crl < trcrg.start?
+			trcrg.start : desiredvolume_->hrg.start.crl;
+	    rg.stop = desiredvolume_->hrg.stop.crl > trcrg.stop ?
+			trcrg.stop : desiredvolume_->hrg.stop.crl;
 	    seldata->setCrlRange( rg );
 	    Interval<float> zrg;
-	    zrg.start = desiredvolume->zrg.start < lsetzrg.start ?
-			lsetzrg.start : desiredvolume->zrg.start;
-	    zrg.stop = desiredvolume->zrg.stop > lsetzrg.stop ?
-			lsetzrg.stop : desiredvolume->zrg.stop;
+	    zrg.start = desiredvolume_->zrg.start < lsetzrg.start ?
+			lsetzrg.start : desiredvolume_->zrg.start;
+	    zrg.stop = desiredvolume_->zrg.stop > lsetzrg.stop ?
+			lsetzrg.stop : desiredvolume_->zrg.stop;
 	    seldata->setZRange( zrg );
 	}
 	reader.setSelData( seldata );
@@ -521,31 +521,31 @@ bool StorageProvider::set2DRangeSelData()
 
 
 #define mInitErrMsg() \
-    errmsg = "'"; errmsg += desc.userRef(); errmsg += "'"; \
-    errmsg += " contains no data in selected area:\n"
+    errmsg_ = "'"; errmsg_ += desc_.userRef(); errmsg_ += "'"; \
+    errmsg_ += " contains no data in selected area:\n"
 
 #define mAdd2ErrMsg(varwrong,s,start,stop) \
     if ( varwrong ) \
     { \
-	errmsg += s; errmsg += " range is: "; \
-	errmsg += start; errmsg += "-"; errmsg += stop; \
-	errmsg += "\n"; \
+	errmsg_ += s; errmsg_ += " range is: "; \
+	errmsg_ += start; errmsg_ += "-"; errmsg_ += stop; \
+	errmsg_ += "\n"; \
     }
 
 bool StorageProvider::checkDesiredVolumeOK()
 {
-    if ( !desiredvolume )
+    if ( !desiredvolume_ )
 	return true;
 
     const bool inlwrong =
-	desiredvolume->hrg.start.inl > storedvolume_.hrg.stop.inl
-     || desiredvolume->hrg.stop.inl < storedvolume_.hrg.start.inl;
+	desiredvolume_->hrg.start.inl > storedvolume_.hrg.stop.inl
+     || desiredvolume_->hrg.stop.inl < storedvolume_.hrg.start.inl;
     const bool crlwrong =
-	desiredvolume->hrg.start.crl > storedvolume_.hrg.stop.crl
-     || desiredvolume->hrg.stop.crl < storedvolume_.hrg.start.crl;
+	desiredvolume_->hrg.start.crl > storedvolume_.hrg.stop.crl
+     || desiredvolume_->hrg.stop.crl < storedvolume_.hrg.start.crl;
     const bool zwrong =
-	desiredvolume->zrg.start > storedvolume_.zrg.stop
-     || desiredvolume->zrg.stop < storedvolume_.zrg.start;
+	desiredvolume_->zrg.start > storedvolume_.zrg.stop
+     || desiredvolume_->zrg.stop < storedvolume_.zrg.start;
 
     if ( !inlwrong && !crlwrong && !zwrong )
 	return true;
@@ -563,19 +563,19 @@ bool StorageProvider::checkDesiredVolumeOK()
 bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg, 
 				   StepInterval<float>zrg )
 {
-    if ( !desiredvolume )
+    if ( !desiredvolume_ )
     {
-	errmsg = "internal error, '"; errmsg += desc.userRef(); errmsg += "'";
-	errmsg += " has no desired volume\n";
+	errmsg_ = "internal error, '"; errmsg_ += desc_.userRef(); errmsg_ += "'";
+	errmsg_ += " has no desired volume\n";
 	return false;
     }
     
     const bool trcrgwrong =
-	desiredvolume->hrg.start.crl > trcrg.stop
-     || desiredvolume->hrg.stop.crl < trcrg.start;
+	desiredvolume_->hrg.start.crl > trcrg.stop
+     || desiredvolume_->hrg.stop.crl < trcrg.start;
     const bool zwrong =
-	desiredvolume->zrg.start > zrg.stop
-     || desiredvolume->zrg.stop < zrg.start;
+	desiredvolume_->zrg.start > zrg.stop
+     || desiredvolume_->zrg.stop < zrg.start;
 
     if ( !trcrgwrong && !zwrong )
 	return true;
@@ -597,15 +597,15 @@ bool StorageProvider::computeData( const DataHolder& output,
     if ( !trc || !trc->size() )
 	return false;
 
-    if ( desc.is2D() && seldata_ && seldata_->type() == Seis::Table )
+    if ( desc_.is2D() && seldata_ && seldata_->type() == Seis::Table )
     {
-	Interval<float> deszrg = desiredvolume->zrg;
-	Interval<float> poszrg = possiblevolume->zrg;
+	Interval<float> deszrg = desiredvolume_->zrg;
+	Interval<float> poszrg = possiblevolume_->zrg;
 	const float desonlyzrgstart = deszrg.start - poszrg.start;
 	const float desonlyzrgstop = deszrg.stop - poszrg.stop;
 	Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-	const float diffstart = z0*refstep - trcrange.start;
-	const float diffstop = (z0+nrsamples-1)*refstep - trcrange.stop;
+	const float diffstart = z0*refstep_ - trcrange.start;
+	const float diffstop = (z0+nrsamples-1)*refstep_ - trcrange.stop;
 	bool isdiffacceptable = (diffstart>=0 || diffstart >= desonlyzrgstart)
 				&& (diffstop <= 0 || diffstop<=desonlyzrgstop);
 	if ( !isdiffacceptable )
@@ -622,8 +622,8 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     const int z0 = data.z0_;
     float exacttime = 0;
     float extrazfromsamppos = 0;
-    BoolTypeSet isclass( outputinterest.size(), true );
-    if ( needinterp )
+    BoolTypeSet isclass( outputinterest_.size(), true );
+    if ( needinterp_ )
     {
 	checkClassType( trc, isclass );
 	extrazfromsamppos = getExtraZFromSampInterval( z0, data.nrsamples_ );
@@ -634,14 +634,14 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     trcrange.widen( 0.001 * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
-	const float curt = (float)(z0+idx)*refstep + extrazfromsamppos;
+	const float curt = (float)(z0+idx)*refstep_ + extrazfromsamppos;
 	int compidx = -1;
-	for ( int idy=0; idy<outputinterest.size(); idy++ )
+	for ( int idy=0; idy<outputinterest_.size(); idy++ )
 	{
-	    if ( outputinterest[idy] )
+	    if ( outputinterest_[idy] )
 	    {
 		compidx++;
-		const int compnr = desc.is2D() ? idy : compidx;
+		const int compnr = desc_.is2D() ? idy : compidx;
 		const float val = trcrange.includes(curt) ? 
 		   ( isclass[idy] ? trc->get(trc->nearestSample(curt), compnr)
 				  : trc->getValue(curt, compnr) )
@@ -718,15 +718,15 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     if ( !dc->includes(bid) )
 	return;
 
-    const int inlidx = dc->inlsampling.nearestIndex( bid.inl );
-    const int crlidx = dc->crlsampling.nearestIndex( bid.crl );
+    const int inlidx = dc->inlsampling_.nearestIndex( bid.inl );
+    const int crlidx = dc->crlsampling_.nearestIndex( bid.crl );
     for ( int idz=0; idz<dc->getZSz(); idz++ )
     {
-	const float curt = (dc->z0+idz) * dc->zstep;
+	const float curt = (dc->z0_+idz) * dc->zstep_;
 	int cubeidx = -1;
-	for ( int idx=0; idx<outputinterest.size(); idx++ )
+	for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	{
-	    if ( !outputinterest[idx] )
+	    if ( !outputinterest_[idx] )
 		continue;
 
 	    cubeidx++;
@@ -736,7 +736,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 	    if ( !trcrange.includes(curt) )
 		continue;
 
-	    //the component index inthe trace is depending on outputinterest,
+	    //the component index inthe trace is depending on outputinterest_,
 	    //thus is the same as cubeidx
 	    const float val = trc->getValue( curt, cubeidx );
 	    dc->setValue( cubeidx, inlidx, crlidx, idz, val );
@@ -754,9 +754,9 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
     {
 	foundneed = false;
 	int compidx = -1;
-	for ( int ido=0; ido<outputinterest.size(); ido++ )
+	for ( int ido=0; ido<outputinterest_.size(); ido++ )
 	{
-	    if ( outputinterest[ido] )
+	    if ( outputinterest_[ido] )
 	    {
 		compidx++;
 		if ( isclass[ido] )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.43 2009-10-22 10:32:16 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.44 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "similarityattrib.h"
 
@@ -69,7 +69,7 @@ void Similarity::initClass()
     desc->setNrOutputs( Seis::UnknowData, 5 );
 
     InputSpec steeringspec( "Steering data", false );
-    steeringspec.issteering = true;
+    steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
 
     mAttrEndInitClass
@@ -84,7 +84,7 @@ void Similarity::updateDesc( Desc& desc )
     desc.setParamEnabled( pos1Str(), !iscube );
     desc.setParamEnabled( stepoutStr(), iscube );
 
-    desc.inputSpec(1).enabled = desc.getValParam(steeringStr())->getBoolValue();
+    desc.inputSpec(1).enabled_ = desc.getValParam(steeringStr())->getBoolValue();
 }
 
 
@@ -97,8 +97,8 @@ const char* Similarity::extensionTypeStr( int type )
 }
 
 
-Similarity::Similarity( Desc& desc_ )
-    : Provider( desc_ )
+Similarity::Similarity( Desc& desc )
+    : Provider( desc )
 {
     if ( !isOK() ) return;
 
@@ -190,10 +190,10 @@ bool Similarity::getTrcPos()
 
 void Similarity::initSteering()
 {
-    for( int idx=0; idx<inputs.size(); idx++ )
+    for( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering( stepout_ );
+	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
+	    inputs_[idx]->initSteering( stepout_ );
     }
 }
 
@@ -214,18 +214,18 @@ bool Similarity::getInputData( const BinID& relpos, int zintv )
     while ( inputdata_.size() < trcpos_.size() )
 	inputdata_ += 0;
 
-    const BinID bidstep = inputs[0]->getStepoutStep();
+    const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int idx=0; idx<trcpos_.size(); idx++ )
     {
 	const DataHolder* data = 
-		    inputs[0]->getData( relpos+trcpos_[idx]*bidstep, zintv );
+		    inputs_[0]->getData( relpos+trcpos_[idx]*bidstep, zintv );
 	if ( !data ) return false;
 	inputdata_.replace( idx, data );
     }
     
     dataidx_ = getDataIndex( 0 );
 
-    steeringdata_ = dosteer_ ? inputs[1]->getData( relpos, zintv ) : 0;
+    steeringdata_ = dosteer_ ? inputs_[1]->getData( relpos, zintv ) : 0;
     if ( dosteer_ && !steeringdata_ )
 	return false;
 
@@ -238,8 +238,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() ) return false;
 
-    const Interval<int> samplegate( mNINT(gate_.start/refstep),
-				    mNINT(gate_.stop/refstep) );
+    const Interval<int> samplegate( mNINT(gate_.start/refstep_),
+				    mNINT(gate_.stop/refstep_) );
 
     const int gatesz = samplegate.width() + 1;
     const int nrpairs = extension_==mExtensionCube ? pos0s_.size()
@@ -247,15 +247,15 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
     const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
 
     Stats::RunCalcSetup rcsetup;
-    if ( outputinterest[0] ) rcsetup.require( Stats::Average );
-    if ( outputinterest[1] ) rcsetup.require( Stats::Median );
-    if ( outputinterest[2] ) rcsetup.require( Stats::Variance );
-    if ( outputinterest[3] ) rcsetup.require( Stats::Min );
-    if ( outputinterest[4] ) rcsetup.require( Stats::Max );
+    if ( outputinterest_[0] ) rcsetup.require( Stats::Average );
+    if ( outputinterest_[1] ) rcsetup.require( Stats::Median );
+    if ( outputinterest_[2] ) rcsetup.require( Stats::Variance );
+    if ( outputinterest_[3] ) rcsetup.require( Stats::Min );
+    if ( outputinterest_[4] ) rcsetup.require( Stats::Max );
     Stats::RunCalc<float> stats( rcsetup );
 
     float extrazfspos = mUdf(float);
-    if ( needinterp )
+    if ( needinterp_ )
 	extrazfspos = getExtraZFromSampInterval( z0, nrsamples );
 
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -285,9 +285,9 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
 	    //make sure data extracted from input DataHolders is at exact z pos
 	    float extras0 = mIsUdf(extrazfspos) ? 0 :
-		(extrazfspos - inputdata_[idx0]->extrazfromsamppos_)/refstep;
+		(extrazfspos - inputdata_[idx0]->extrazfromsamppos_)/refstep_;
 	    float extras1 = mIsUdf(extrazfspos) ? 0 :
-		(extrazfspos - inputdata_[idx1]->extrazfromsamppos_)/refstep;
+		(extrazfspos - inputdata_[idx1]->extrazfromsamppos_)/refstep_;
 	    SimiFunc vals0( *(inputdata_[idx0]->series(dataidx_)), 
 			    inputdata_[idx0]->nrsamples_-1 );
 	    SimiFunc vals1( *(inputdata_[idx1]->series(dataidx_)), 
@@ -306,20 +306,20 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( stats.size() < 1 )
 	{
-	    for ( int sidx=0; sidx<outputinterest.size(); sidx++ )
+	    for ( int sidx=0; sidx<outputinterest_.size(); sidx++ )
 		setOutputValue( output, sidx, idx, z0, 0 );
 	}
 	else
 	{
-	    if ( outputinterest[0] )
+	    if ( outputinterest_[0] )
 		setOutputValue( output, 0, idx, z0, stats.average() );
-	    if ( outputinterest[1] )
+	    if ( outputinterest_[1] )
 		setOutputValue( output, 1, idx, z0, stats.median() );
-	    if ( outputinterest[2] ) 
+	    if ( outputinterest_[2] ) 
 		setOutputValue( output, 2, idx, z0, stats.variance() );
-	    if ( outputinterest[3] )
+	    if ( outputinterest_[3] )
 		setOutputValue( output, 3, idx, z0, stats.min() );
-	    if ( outputinterest[4] )
+	    if ( outputinterest_[4] )
 	       	setOutputValue( output, 4, idx, z0, stats.max() );
 	}
     }
@@ -336,15 +336,15 @@ const BinID* Similarity::reqStepout( int inp, int out ) const
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep);\
+	int minbound = (int)(gatebound / refstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep;\
+	gatebound = (minbound+incvar) * refstep_;\
     }\
 }
 
 void Similarity::prepPriorToBoundsCalc()
 {
-     const int truestep = mNINT( refstep*zFactor() );
+     const int truestep = mNINT( refstep_*zFactor() );
      if ( truestep == 0 )
        	 return Provider::prepPriorToBoundsCalc();
 

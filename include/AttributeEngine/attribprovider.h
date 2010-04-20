@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.80 2009-08-25 10:41:53 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.81 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ public:
     const DataHolder*		getDataDontCompute(const BinID& relpos) const;
 
     int				nrOutputs() const
-    				{ return outputinterest.size(); }
+    				{ return outputinterest_.size(); }
     void			enableOutput(int output,bool yn=true);
     bool			isOutputEnabled(int output) const;
     void			setOutputInterestSize(bool preserve=false);
@@ -71,14 +71,14 @@ public:
     virtual void		setReqBufStepout(const BinID&,bool wait=false);
     virtual void		setDesBufStepout(const BinID&,bool wait=false);
     const BinID&		getReqBufStepout() const
-    				{ return reqbufferstepout; }
+    				{ return reqbufferstepout_; }
     const BinID&		getDesBufStepout() const
-    				{ return desbufferstepout; }
+    				{ return desbufferstepout_; }
     void			setDesiredVolume(const CubeSampling&);
     				/*!< The desired volume is the ideal volume
 				  required by the user*/
     const CubeSampling*		getDesiredVolume() const
-				{ return desiredvolume; }
+				{ return desiredvolume_; }
     void			resetDesiredVolume(); 
     void                        setPossibleVolume( const CubeSampling& );
     				/*!< The possible volume is the volume that can
@@ -86,7 +86,7 @@ public:
 				  and stepouts*/
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
     const CubeSampling*		getPossibleVolume() const
-    				{ return possiblevolume; }
+    				{ return possiblevolume_; }
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
     virtual void		adjust2DLineStoredVolume();
@@ -131,8 +131,8 @@ public:
     
     virtual BinID		getStepoutStep() const;
     virtual float		getMaxDistBetwTrcs() const;
-    ObjectSet<Provider>&	getInputs() 		{ return inputs; }
-    BinID			getTrcInfoBid() const	{ return trcinfobid; }
+    ObjectSet<Provider>&	getInputs() 		{ return inputs_; }
+    BinID			getTrcInfoBid() const	{ return trcinfobid_; }
     BufferString         	errMsg() const;
 
     virtual void		initSteering()			{}
@@ -217,7 +217,7 @@ protected:
     DataHolder*			getDataHolder(const BinID& relpos);
     void			removeDataHolder(const BinID& relpos);
     void			setInput(int input,Provider*);
-    void			addParent( Provider* prov ) { parents += prov; }
+    void			addParent( Provider* prov ) { parents_+=prov; }
     virtual BinDataDesc		getOutputFormat(int output) const;
     virtual bool		doNotReUseDH() const		{ return false;}
 
@@ -232,9 +232,9 @@ protected:
     				/*!<The same provider can be used multiple times
 				which allows the attribute to be computed 
 				only once*/
-    bool			isUsedMultTimes()  { return isusedmulttimes; }
+    bool			isUsedMultTimes()  { return isusedmulttimes_; }
     bool			isNew2DLine() const
-    				{ return prevtrcnr > currentbid.crl; }
+    				{ return prevtrcnr_ > currentbid_.crl; }
 
     virtual const BinID*	desStepout(int input,int output) const;
 				/*!<The system will
@@ -327,37 +327,37 @@ protected:
 				{ return zIsTime() ? mMAXDIPSECURE
 						   : mMAXDIPSECUREDEPTH; }
 
-    ObjectSet<Provider>		inputs;
-    ObjectSet<Provider>		parents;
-    Desc&			desc;
-    TypeSet<int>		outputinterest;
-    BinID			desbufferstepout;
-    BinID			reqbufferstepout;
-    CubeSampling*		desiredvolume;
-    CubeSampling*               possiblevolume;
-    TypeSet< Interval<int> >	localcomputezintervals;
-    ObjectSet<Provider>		allexistingprov;
+    ObjectSet<Provider>		inputs_;
+    ObjectSet<Provider>		parents_;
+    Desc&			desc_;
+    TypeSet<int>		outputinterest_;
+    BinID			desbufferstepout_;
+    BinID			reqbufferstepout_;
+    CubeSampling*		desiredvolume_;
+    CubeSampling*               possiblevolume_;
+    TypeSet< Interval<int> >	localcomputezintervals_;
+    ObjectSet<Provider>		allexistingprov_;
     TypeSet<float>      	exactz_;//only used for outputs which require
                                         //data at exact z values not placed
                                         //at sample locations
 
     ProviderTask*		providertask_;
-    DataHolderLineBuffer*	linebuffer;
-    BinID			currentbid;
-    int				prevtrcnr;
+    DataHolderLineBuffer*	linebuffer_;
+    BinID			currentbid_;
+    int				prevtrcnr_;
     LineKey			curlinekey_;
     const Seis::SelData*	seldata_;
     Interval<float>     	extraz_;
     const SeisTrcInfo*		curtrcinfo_;
-    BinID                       trcinfobid;
+    BinID                       trcinfobid_;
     bool			useshortcuts_;
 
-    float                       refstep;
-    bool 			alreadymoved;
+    float                       refstep_;
+    bool 			alreadymoved_;
 
-    bool			isusedmulttimes;
-    bool			needinterp;
-    BufferString 		errmsg;
+    bool			isusedmulttimes_;
+    bool			needinterp_;
+    BufferString 		errmsg_;
 };
 
 

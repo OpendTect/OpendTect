@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.4 2010-02-25 04:34:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: volprocbodyfiller.cc,v 1.5 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "volprocbodyfiller.h"
 
@@ -118,14 +118,14 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     if ( flatbody && plgknots_.size()<2 )
 	return false;
    
-    const int outputinlidx = output_->inlsampling.nearestIndex( bid.inl );
-    const int outputcrlidx = output_->crlsampling.nearestIndex( bid.crl );
+    const int outputinlidx = output_->inlsampling_.nearestIndex( bid.inl );
+    const int outputcrlidx = output_->crlsampling_.nearestIndex( bid.crl );
     const int outputzsz = output_->getZSz();
 
     const int inputinlidx = input_ 
-	? input_->inlsampling.nearestIndex(bid.inl) : 0;
+	? input_->inlsampling_.nearestIndex(bid.inl) : 0;
     const int inputcrlidx = input_
-	? input_->crlsampling.nearestIndex(bid.crl) : 0;
+	? input_->crlsampling_.nearestIndex(bid.crl) : 0;
     const bool useinput =
 	inputinlidx>=0 && inputinlidx < input_->getCube(0).info().getSize(0) &&
 	inputcrlidx>=0 && inputcrlidx < input_->getCube(0).info().getSize(1);
@@ -161,7 +161,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	    val = outsideval_;
 	else
 	{
-	    const float z = (output_->z0+idx)*output_->zstep;
+	    const float z = (output_->z0_+idx)*output_->zstep_;
 	    if ( flatbody )
 		val = plgzrg.includes( z * SI().zScale() ) ? insideval_
 							   : outsideval_;
@@ -187,7 +187,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	   
 	if ( mIsUdf(val) && useinput )
 	{
-	    const int inputidx = idx+output_->z0-input_->z0;
+	    const int inputidx = idx+output_->z0_-input_->z0_;
 	    if ( inputidx>=0 && inputidx<inputzsz )
 		val = input_->getCube(0).get(inputinlidx,inputcrlidx,inputidx);
 	}
@@ -328,13 +328,13 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 		count++;
 	    }
 	    
-	    z += output_->zstep * SI().zScale();
+	    z += output_->zstep_ * SI().zScale();
 	}
 	
 	if ( count==1 )
 	{
-	    res.start -= 0.5 * output_->zstep;
-	    res.stop += 0.5 * output_->zstep;
+	    res.start -= 0.5 * output_->zstep_;
+	    res.stop += 0.5 * output_->zstep_;
 	}
 	
 	return count;
@@ -360,8 +360,8 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	    
 	    if ( mIsZero( res.width(), 1e-3 ) )
 	    {
-		res.start -= 0.5 * output_->zstep;
-		res.stop += 0.5 * output_->zstep;
+		res.start -= 0.5 * output_->zstep_;
+		res.stop += 0.5 * output_->zstep_;
 	    }
 	}
 	else //It is a case hard to see on the display.
@@ -374,8 +374,8 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	    const Coord diff = coord - plgknots_[0].coord();
 	    const double z = plgknots_[0].z -
 		( normal.x * diff.x + normal.y * diff.y ) / normal.z;
-	    res.start = z - 0.5 * output_->zstep;
-	    res.stop = z + 0.5 * output_->zstep;
+	    res.start = z - 0.5 * output_->zstep_;
+	    res.stop = z + 0.5 * output_->zstep_;
 	}
     }
 

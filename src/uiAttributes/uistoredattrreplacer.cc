@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.14 2010-02-09 07:26:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.15 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -470,7 +470,7 @@ bool uiStoredAttribReplacer::hasInput( const Desc& desc,
 	const Desc* inp = desc.getInput( idx );
 	if ( !inp )
 	{
-	    if ( desc.inputSpec(idx).enabled )
+	    if ( desc.inputSpec(idx).enabled_ )
 		return false;
 	    else
 		continue;

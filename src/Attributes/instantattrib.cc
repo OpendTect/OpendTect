@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.20 2009-10-29 09:31:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: instantattrib.cc,v 1.21 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "instantattrib.h"
 
@@ -55,8 +55,8 @@ bool Instantaneous::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Instantaneous::getInputData( const BinID& relpos, int zintv )
 {
-    realdata_ = inputs[0]->getData( relpos, zintv );
-    imagdata_ = inputs[1]->getData( relpos, zintv );
+    realdata_ = inputs_[0]->getData( relpos, zintv );
+    imagdata_ = inputs_[1]->getData( relpos, zintv );
     realidx_ = getDataIndex( 0 );
     imagidx_ = getDataIndex( 1 );
     return realdata_ && imagdata_;
@@ -124,7 +124,7 @@ float Instantaneous::calcAmplitude1Der( int cursample, int z0 ) const
     const float prev = calcAmplitude( cursample-1, z0 );
     const float next = calcAmplitude( cursample+1, z0 );
     mCheckRetUdf( prev, next );
-    return (next-prev) / (2*refstep);
+    return (next-prev) / (2*refstep_);
 }
 
 
@@ -133,7 +133,7 @@ float Instantaneous::calcAmplitude2Der( int cursample, int z0 ) const
     const float prev = calcAmplitude1Der( cursample-1, z0 );
     const float next = calcAmplitude1Der( cursample+1, z0 );
     mCheckRetUdf( prev, next );
-    return (next-prev) / (2*refstep);
+    return (next-prev) / (2*refstep_);
 }
 
 
@@ -153,13 +153,13 @@ float Instantaneous::calcFrequency( int cursample, int z0 ) const
     const float prevreal = mGetRVal( cursample-1 );
     const float nextreal = mGetRVal( cursample+1 );
     mCheckRetUdf( prevreal, nextreal );
-    const float dreal_dt = (nextreal - prevreal) / (2*refstep);
+    const float dreal_dt = (nextreal - prevreal) / (2*refstep_);
 
     const float imag = mGetIVal( cursample );
     const float previmag = mGetIVal( cursample-1 );
     const float nextimag = mGetIVal( cursample+1 );
     mCheckRetUdf( previmag, nextimag );
-    const float dimag_dt = (nextimag-previmag) / (2*refstep);
+    const float dimag_dt = (nextimag-previmag) / (2*refstep_);
 
     float denom = (real*real + imag*imag);
     if ( mIsZero( denom, 1e-6 ) ) denom = 1e-6;
@@ -172,7 +172,7 @@ float Instantaneous::calcPhaseAccel( int cursample, int z0 ) const
     const float prev = calcFrequency( cursample-1, z0 );
     const float next = calcFrequency( cursample+1, z0 );
     mCheckRetUdf( prev, next );
-    return (next-prev) / (2*refstep);
+    return (next-prev) / (2*refstep_);
 }
 
 
@@ -207,7 +207,7 @@ float Instantaneous::calcRMSAmplitude( int cursample, int z0 ) const
 	nrsamples++;
     }
     
-    float dt = (nrsamples-1) * refstep;
+    float dt = (nrsamples-1) * refstep_;
     if ( mIsZero( dt, 1e-6 ) ) dt = 1e-6;
     return Math::Sqrt( sumia2/dt );
 }

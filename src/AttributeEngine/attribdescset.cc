@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.90 2010-03-17 21:31:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.91 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -978,24 +978,24 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 {
     Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), true );
-    for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
+    for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
     {
 	BufferString defstr;
-	const Attrib::Desc* mydesc = getDesc( attrinf.attrids[idx] );
+	const Attrib::Desc* mydesc = getDesc( attrinf.attrids_[idx] );
 	if ( mydesc )
 	    mydesc->getDefStr( defstr );
-	FileMultiString fms( defstr ); fms += attrinf.attrids[idx].asInt();
+	FileMultiString fms( defstr ); fms += attrinf.attrids_[idx].asInt();
 	attrdefs.add( fms );
     }
-    for ( int idx=0; idx<attrinf.ioobjids.size(); idx++ )
+    for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
 	BufferStringSet bss;
-	SeisIOObjInfo sii( MultiID( attrinf.ioobjids.get(idx) ) );
+	SeisIOObjInfo sii( MultiID( attrinf.ioobjids_.get(idx) ) );
 	sii.getDefKeys( bss, true );
 	for ( int inm=0; inm<bss.size(); inm++ )
 	{
 	    const char* defkey = bss.get(inm).buf();
-	    const char* ioobjnm = attrinf.ioobjnms.get(idx).buf();
+	    const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
 	    FileMultiString fms(SeisIOObjInfo::defKey2DispName(defkey,ioobjnm));
 	    fms += defkey;
 	    attrdefs.add( fms );

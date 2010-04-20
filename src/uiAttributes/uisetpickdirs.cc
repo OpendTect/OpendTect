@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.20 2010-04-15 08:38:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.21 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -59,7 +59,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	, createdset_( 0 )
 {
     SelInfo attrselinfo( ads_, nlamdl_ );
-    if ( attrselinfo.ioobjids.size() == 0 )
+    if ( attrselinfo.ioobjids_.size() == 0 )
     {
 	new uiLabel( this, "Please import a seismic cube first" );
 	return;
@@ -253,12 +253,12 @@ bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
     aem.setNLAModel( nlamdl_ );
 
     SelInfo selinfo( 0, nlamdl_ );
-    const int nrnlaouts = selinfo.nlaoutnms.size();
+    const int nrnlaouts = selinfo.nlaoutnms_.size();
     for ( int idx=0; idx<nrnlaouts; idx++ )
     {
 	if ( !idx )
 	{
-	    SelSpec tmpspec( selinfo.nlaoutnms.get( idx ) );
+	    SelSpec tmpspec( selinfo.nlaoutnms_.get( idx ) );
 	    tmpspec.setIDFromRef(nlamdl_);
 	    aem.setAttribSpec( tmpspec );
 	    DescID nlaid(-1, true);

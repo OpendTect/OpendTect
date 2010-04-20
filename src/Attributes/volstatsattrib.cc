@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.50 2010-02-08 15:33:22 cvsbert Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.51 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "volstatsattrib.h"
 
@@ -91,7 +91,7 @@ void VolStats::initClass()
     desc->addInput( InputSpec("Input data",true) );
 
     InputSpec steeringspec( "Steering data", false );
-    steeringspec.issteering = true;
+    steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
 
     int res =0;
@@ -104,7 +104,7 @@ void VolStats::initClass()
 
 void VolStats::updateDesc( Desc& desc )
 {
-    desc.inputSpec(1).enabled = desc.getValParam(steeringStr())->getBoolValue();
+    desc.inputSpec(1).enabled_ = desc.getValParam(steeringStr())->getBoolValue();
 
     BufferString shapestr = desc.getValParam(shapeStr())->getStringValue();
     const bool isoptstack = shapestr == shapeTypeStr( mShapeOpticalStack );
@@ -189,17 +189,17 @@ VolStats::~VolStats()
 
 void VolStats::initSteering()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering( stepout_ );
+	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
+	    inputs_[idx]->initSteering( stepout_ );
     }
 }
 
 
 bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !dosteer_ || input<inputs.size()-1 ) 
+    if ( !dosteer_ || input<inputs_.size()-1 ) 
 	return Provider::getInputOutput( input, res );
 
     for ( int idx=0; idx<positions_.size(); idx++ )
@@ -218,11 +218,11 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
     while ( inputdata_.size()<positions_.size() )
 	inputdata_ += 0;
 
-    steeringdata_ = dosteer_ ? inputs[1]->getData( relpos, zintv ) : 0;
+    steeringdata_ = dosteer_ ? inputs_[1]->getData( relpos, zintv ) : 0;
     if ( dosteer_ && !steeringdata_ )
 	return false;
 
-    const BinID bidstep = inputs[0]->getStepoutStep();
+    const BinID bidstep = inputs_[0]->getStepoutStep();
     const int nrpos = positions_.size();
 
     int nrvalidtrcs = 0;
@@ -230,7 +230,7 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
     {
 	const bool atcenterpos = positions_[posidx] == BinID(0,0);
 	const BinID truepos = relpos + positions_[posidx] * bidstep;
-	const DataHolder* indata = inputs[0]->getData( truepos, zintv );
+	const DataHolder* indata = inputs_[0]->getData( truepos, zintv );
 	if ( !indata )
 	{
 	    if ( atcenterpos )
@@ -271,15 +271,15 @@ const BinID* VolStats::desStepout( int inp, int out ) const
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep);\
+	int minbound = (int)(gatebound / refstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep;\
+	gatebound = (minbound+incvar) * refstep_;\
     }\
 }
     
 void VolStats::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT( refstep*zFactor() );
+    const int truestep = mNINT( refstep_*zFactor() );
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
@@ -295,7 +295,7 @@ void VolStats::prepPriorToBoundsCalc()
 
     if ( shape_ == mShapeOpticalStack && (!linepath_ || !linetruepos_) )
     {
-	errmsg = "Optical Stack should only be applied on random lines";
+	errmsg_ = "Optical Stack should only be applied on random lines";
 	return;
     }
 
@@ -321,15 +321,15 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     const int nrpos = positions_.size();
-    const Interval<int> samplegate( mNINT(gate_.start/refstep), 
-				    mNINT(gate_.stop/refstep) );
+    const Interval<int> samplegate( mNINT(gate_.start/refstep_), 
+				    mNINT(gate_.stop/refstep_) );
     const int gatesz = samplegate.width() + 1;
-    const float extrasamp = output.extrazfromsamppos_/refstep;
+    const float extrasamp = output.extrazfromsamppos_/refstep_;
 
     Stats::RunCalcSetup rcsetup;
-    for ( int outidx=0; outidx<outputinterest.size(); outidx++ )
+    for ( int outidx=0; outidx<outputinterest_.size(); outidx++ )
     {
-	if ( outputinterest[outidx] )
+	if ( outputinterest_[outidx] )
 	    rcsetup.require( (Stats::Type)outputtypes[outidx] );
     }
     int statsz = 0;
@@ -376,10 +376,10 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-        const int nroutp = outputinterest.size();
+        const int nroutp = outputinterest_.size();
 	for ( int outidx=0; outidx<nroutp; outidx++ )
 	{
-	    if ( outputinterest[outidx] == 0 )
+	    if ( outputinterest_[outidx] == 0 )
 		continue;
 
 	    const float outval = wcalc.getValue(
@@ -402,7 +402,7 @@ void VolStats::reInitPosAndSteerIdxes()
 
     for ( int idx=0; idx<truepos.size(); idx++ )
     {
-	const BinID tmpbid = truepos[idx]-currentbid;
+	const BinID tmpbid = truepos[idx]-currentbid_;
 	positions_ += tmpbid;
 	steerindexes_ += getSteeringIndex( tmpbid );
     }
@@ -411,7 +411,7 @@ void VolStats::reInitPosAndSteerIdxes()
 
 void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
 {
-    int curbididx = linepath_->indexOf( currentbid );
+    int curbididx = linepath_->indexOf( currentbid_ );
     if ( curbididx < 0 ) return;
 
     int trueposidx = -1;
@@ -431,9 +431,9 @@ void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
     const BinID prevpos = (*linetruepos_)[trueposidx-1];
     const BinID nextpos = (*linetruepos_)[trueposidx];
     TypeSet< Geom::Point2D<float> > idealpos;
-    getIdealStackPos( currentbid, prevpos, nextpos, idealpos );
+    getIdealStackPos( currentbid_, prevpos, nextpos, idealpos );
 
-    pos += currentbid;
+    pos += currentbid_;
 
     //snap the ideal positions to existing BinIDs
     for ( int idx=0; idx<idealpos.size(); idx++ )

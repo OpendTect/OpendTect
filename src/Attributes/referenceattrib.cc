@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.24 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.25 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "referenceattrib.h"
@@ -57,7 +57,7 @@ bool Reference::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Reference::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata_ = inputs[0]->getData( relpos, zintv );
+    inputdata_ = inputs_[0]->getData( relpos, zintv );
     return inputdata_;
 }
 
@@ -65,9 +65,9 @@ bool Reference::getInputData( const BinID& relpos, int zintv )
 bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 			     int z0, int nrsamples, int threadid ) const
 {
-    const float step = refstep ? refstep : SI().zStep();
+    const float step = refstep_ ? refstep_ : SI().zStep();
     Coord coord;
-    const BinID truepos = currentbid + relpos;
+    const BinID truepos = currentbid_ + relpos;
     if ( isOutputEnabled(0) || isOutputEnabled(1) ) 
 	coord = SI().transform( truepos );
 
@@ -76,14 +76,14 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	const int outidx = z0 - output.z0_ + idx;
 	setOutputValue( output, 0, idx, z0, coord.x );
 	setOutputValue( output, 1, idx, z0, coord.y );
-	if ( outputinterest[2] )
+	if ( outputinterest_[2] )
 	{
 	    if ( nrsamples==1 )
 	    {
 		int idi = -1;
-		for ( int index=0; index<localcomputezintervals.size(); index++)
+		for ( int index=0; index<localcomputezintervals_.size(); index++)
 		{
-		    if ( localcomputezintervals[index].includes( z0 ) )
+		    if ( localcomputezintervals_[index].includes( z0 ) )
 		    {
 			idi = index;
 			break;
@@ -123,7 +123,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    setOutputValue( output, 3, idx, z0, truepos.crl );
 	    setOutputValue( output, 4, idx, z0, z0+idx+1 );
 	    setOutputValue( output, 5, idx, z0,
-			    truepos.crl - desiredvolume->hrg.start.crl + 1 );
+			    truepos.crl - desiredvolume_->hrg.start.crl + 1 );
 	    if ( isOutputEnabled(6) )
 	    {
 		const int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;

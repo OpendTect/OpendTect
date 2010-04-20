@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: positionattrib.cc,v 1.31 2009-08-25 10:41:53 cvshelene Exp $";
+static const char* rcsID = "$Id: positionattrib.cc,v 1.32 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "positionattrib.h"
@@ -61,7 +61,7 @@ void Position::initClass()
     desc->addOutputDataType( Seis::UnknowData );
 
     InputSpec steerspec( "Steering data", false );
-    steerspec.issteering = true;
+    steerspec.issteering_ = true;
     desc->addInput( steerspec );
 
     mAttrEndInitClass
@@ -70,7 +70,7 @@ void Position::initClass()
 
 void Position::updateDesc( Desc& desc )
 {
-    desc.inputSpec(2).enabled =
+    desc.inputSpec(2).enabled_ =
 		desc.getValParam( steeringStr() )->getBoolValue();
 }
 
@@ -83,8 +83,8 @@ const char* Position::operTypeStr( int type )
 }
 
     
-Position::Position( Desc& desc_ )
-    : Provider( desc_ )
+Position::Position( Desc& desc )
+    : Provider( desc )
 {
     if ( !isOK() ) return;
 
@@ -125,10 +125,10 @@ Position::~Position()
 
 void Position::initSteering()
 {
-    for( int idx=0; idx<inputs.size(); idx++ )
+    for( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering(stepout_);
+	if ( inputs_[idx] && inputs_[idx]->getDesc().isSteering() )
+	    inputs_[idx]->initSteering(stepout_);
     }
 }
 
@@ -150,7 +150,7 @@ bool Position::getInputData( const BinID& relpos, int zintv )
     const int nrpos = positions_.size();
     const int inlsz = stepout_.inl * 2 + 1;
     const int crlsz = stepout_.crl * 2 + 1;
-    BinID bidstep = inputs[0]->getStepoutStep();
+    BinID bidstep = inputs_[0]->getStepoutStep();
     //bidstep.inl = abs(bidstep.inl); bidstep.crl = abs(bidstep.crl);
 
     while ( inputdata_.size()<nrpos )
@@ -159,9 +159,9 @@ bool Position::getInputData( const BinID& relpos, int zintv )
     for ( int posidx=0; posidx<nrpos; posidx++ )
     {
 	BinID truepos = relpos + positions_[posidx] * bidstep;
-	const DataHolder* indata = inputs[0]->getData( truepos, zintv );
+	const DataHolder* indata = inputs_[0]->getData( truepos, zintv );
 
-	const DataHolder* odata = inputs[1]->getData( truepos, zintv );
+	const DataHolder* odata = inputs_[1]->getData( truepos, zintv );
 	if ( !indata || !odata ) return false;
 
 	inputdata_.replace( posidx, indata );
@@ -171,7 +171,7 @@ bool Position::getInputData( const BinID& relpos, int zintv )
     
     inidx_ = getDataIndex( 0 );
     outidx_ = getDataIndex( 1 );
-    steerdata_ = dosteer_ ? inputs[2]->getData( relpos, zintv ) : 0;
+    steerdata_ = dosteer_ ? inputs_[2]->getData( relpos, zintv ) : 0;
 
     return true;
 }
@@ -185,14 +185,14 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
     const int nrpos = positions_.size();
     const int cposnr = (int)(nrpos/2);
 
-    const Interval<int> samplegate( mNINT(gate_.start/refstep),
-				    mNINT(gate_.stop/refstep) );
+    const Interval<int> samplegate( mNINT(gate_.start/refstep_),
+				    mNINT(gate_.stop/refstep_) );
 
     const Stats::Type statstype =  oper_ == 2 ? Stats::Median
 				: (oper_ == 1 ? Stats::Max
 					      : Stats::Min );
     Stats::RunCalc<float> stats( Stats::RunCalcSetup().require(statstype) );
-    const float extrasamp = output.extrazfromsamppos_/refstep;
+    const float extrasamp = output.extrazfromsamppos_/refstep_;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -243,15 +243,15 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 {\
     if ( cond )\
     {\
-	int minbound = (int)(gatebound / refstep);\
+	int minbound = (int)(gatebound / refstep_);\
 	int incvar = plus ? 1 : -1;\
-	gatebound = (minbound+incvar) * refstep;\
+	gatebound = (minbound+incvar) * refstep_;\
     }\
 }
 
 void Position::prepPriorToBoundsCalc()
 {
-    const int truestep = mNINT( refstep*zFactor() );
+    const int truestep = mNINT( refstep_*zFactor() );
     if( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.18 2009-11-18 20:50:09 cvskris Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.19 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "prestackattrib.h"
 
@@ -107,7 +107,7 @@ PSAttrib::PSAttrib( Desc& ds )
     {
 	preprocessor_ = new ::PreStack::ProcessManager;
 	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
-					       errmsg ) )
+					       errmsg_ ) )
 	{
 	    delete preprocessor_;
 	    preprocessor_ = 0;
@@ -157,7 +157,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 		if ( !preprocessor_->wantsInput(relbid) )
 		    continue;
 
-		const BinID bid = currentbid+relpos+relbid*stepoutstep;
+		const BinID bid = currentbid_+relpos+relbid*stepoutstep;
 
 		mTryAlloc( gather, ::PreStack::Gather );
 		if ( !gather )
@@ -179,7 +179,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	return true;
     }
 
-    const BinID bid = currentbid+relpos;
+    const BinID bid = currentbid_+relpos;
 
     mDeclareAndTryAlloc( ::PreStack::Gather*, gather, ::PreStack::Gather );
     if ( !gather )
@@ -194,7 +194,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 }
 
 
-#define mErrRet(s1,s2,s3) { errmsg = BufferString(s1,s2,s3); return; }
+#define mErrRet(s1,s2,s3) { errmsg_ = BufferString(s1,s2,s3); return; }
 
 void PSAttrib::prepPriorToBoundsCalc()
 {
@@ -203,7 +203,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     if ( !psioobj_ )
 	mErrRet("Cannot find pre-stack data store ",psid_," in object manager")
 
-    if ( desc.is2D() )
+    if ( desc_.is2D() )
 	psrdr_ = SPSIOPF().get2DReader(*psioobj_,curlinekey_.lineName().buf());
     else
 	psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
@@ -224,12 +224,12 @@ bool PSAttrib::computeData( const DataHolder& output, const BinID& relpos,
 	return false;
 
     float extrazfromsamppos = 0;
-    if ( needinterp )
+    if ( needinterp_ )
 	extrazfromsamppos = getExtraZFromSampInterval( z0, nrsamples );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float z = (z0 + idx) * refstep + extrazfromsamppos;
+	const float z = (z0 + idx) * refstep_ + extrazfromsamppos;
 	setOutputValue( output, 0, idx, z0, propcalc_->getVal(z) );
     }
 

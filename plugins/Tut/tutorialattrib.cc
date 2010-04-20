@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: tutorialattrib.cc,v 1.8 2010-04-15 13:37:55 cvskris Exp $";
+static const char* rcsID = "$Id: tutorialattrib.cc,v 1.9 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "tutorialattrib.h"
 #include "attribdataholder.h"
@@ -62,7 +62,7 @@ void Tutorial::initClass()
     desc->addInput( InputSpec("Input data",true) );
     
     InputSpec steeringspec( "Steering data", false );
-    steeringspec.issteering = true;
+    steeringspec.issteering_ = true;
     desc->addInput( steeringspec );
 
     mAttrEndInitClass
@@ -79,7 +79,7 @@ void Tutorial::updateDesc( Desc& desc )
     desc.setParamEnabled( horsmoothStr(), action=="Smooth" );
     desc.setParamEnabled( stepoutStr(), action=="Smooth" && horsmooth );
     desc.setParamEnabled( weaksmoothStr(), action=="Smooth" && !horsmooth );
-    desc.inputSpec(1).enabled = action=="Smooth" && horsmooth
+    desc.inputSpec(1).enabled_ = action=="Smooth" && horsmooth
 			&& desc.getValParam(steeringStr())->getBoolValue();
 }
 
@@ -122,8 +122,8 @@ Tutorial::Tutorial( Desc& desc )
 
 void Tutorial::initSteering()
 {
-    if ( inputs[1] && inputs[1]->getDesc().isSteering() )
-	inputs[1]->initSteering( stepout_ );
+    if ( inputs_[1] && inputs_[1]->getDesc().isSteering() )
+	inputs_[1]->initSteering( stepout_ );
 }
 
 
@@ -143,24 +143,24 @@ bool Tutorial::getInputData( const BinID& relpos, int zintv )
 {
     if ( inpdata_.isEmpty() )
 	inpdata_ += 0;
-    const DataHolder* data = inputs[0]->getData( relpos, zintv );
+    const DataHolder* data = inputs_[0]->getData( relpos, zintv );
     if ( !data ) return false;
     inpdata_.replace( 0, data);
 
 
     if ( action_ ==2 && horsmooth_ )
     {
-	steeringdata_ = inputs[1] ? inputs[1]->getData( relpos, zintv ) : 0;
+	steeringdata_ = inputs_[1] ? inputs_[1]->getData( relpos, zintv ) : 0;
 	const int maxlength  = mMAX(stepout_.inl, stepout_.crl)*2 + 1;
 	while ( inpdata_.size() < maxlength * maxlength )
 	    inpdata_ += 0;
     
-	const BinID bidstep = inputs[0]->getStepoutStep();
+	const BinID bidstep = inputs_[0]->getStepoutStep();
 	for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
 	{
 	    if ( posandsteeridx_.steeridx_[idx] == 0 ) continue;
 	    const BinID inpos = relpos + bidstep * posandsteeridx_.pos_[idx];
-	    const DataHolder* data = inputs[0]->getData( inpos );
+	    const DataHolder* data = inputs_[0]->getData( inpos );
 	    if ( !data ) continue;
 	    inpdata_.replace( posandsteeridx_.steeridx_[idx], data);
 	}

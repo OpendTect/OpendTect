@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.49 2010-04-15 10:01:42 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.50 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -93,7 +93,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	, usedasinput_( isinp4otherattrib )
 {
     attrinf_ = new SelInfo( &atd.attrSet(), atd.nlamodel_, is2D(), ignoreid );
-    if ( attrinf_->ioobjnms.isEmpty() )
+    if ( attrinf_->ioobjnms_.isEmpty() )
     {
 	new uiLabel( this, "No seismic data available.\n"
 			   "Please import data first" );
@@ -103,8 +103,8 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	return;
     }
 
-    const bool havenlaouts = attrinf_->nlaoutnms.size();
-    const bool haveattribs = attrinf_->attrnms.size();
+    const bool havenlaouts = attrinf_->nlaoutnms_.size();
+    const bool haveattribs = attrinf_->attrnms_.size();
 
     BufferString nm( "Select " ); nm += seltxt;
     setName( nm );
@@ -129,11 +129,11 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	{
 	    seltyp = desc->isStored() ? 0 : 1;
 	    if ( seltyp == 1 )
-		attrcur = attrinf_->attrnms.indexOf( desc->userRef() );
+		attrcur = attrinf_->attrnms_.indexOf( desc->userRef() );
 	    else if ( storoutfld_ )
 	    {
 		LineKey lk( desc->userRef() );
-		storcur = attrinf_->ioobjnms.indexOf( lk.lineName() );
+		storcur = attrinf_->ioobjnms_.indexOf( lk.lineName() );
 		//2D attrib is set in cubeSel, called from doFinalize
 	    }
 	}
@@ -145,16 +145,16 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 		const DescID attrid = attrdata_.attrSet().getID( idx );
 		const Desc& ad = *attrdata_.attrSet().getDesc( attrid );
 		if ( ad.isStored() && storcur == -1 )
-		    storcur = attrinf_->ioobjnms.indexOf( ad.userRef() );
+		    storcur = attrinf_->ioobjnms_.indexOf( ad.userRef() );
 		else if ( !ad.isStored() && attrcur == -1 )
-		    attrcur = attrinf_->attrnms.indexOf( ad.userRef() );
+		    attrcur = attrinf_->attrnms_.indexOf( ad.userRef() );
 		if ( storcur != -1 && attrcur != -1 ) break;
 	    }
 	}
     }
 
     if ( storcur == -1 )		storcur = 0;
-    if ( attrcur == -1 )		attrcur = attrinf_->attrnms.size()-1;
+    if ( attrcur == -1 )		attrcur = attrinf_->attrnms_.size()-1;
     if ( nlacur == -1 && havenlaouts )	nlacur = 0;
 
     if ( storoutfld_  )			storoutfld_->setCurrentItem( storcur );
@@ -185,8 +185,8 @@ void uiAttrSelDlg::doFinalise( CallBacker* )
 
 void uiAttrSelDlg::createSelectionButtons()
 {
-    const bool havenlaouts = attrinf_->nlaoutnms.size();
-    const bool haveattribs = attrinf_->attrnms.size();
+    const bool havenlaouts = attrinf_->nlaoutnms_.size();
+    const bool haveattribs = attrinf_->attrnms_.size();
 
     selgrp_ = new uiButtonGroup( this, "Input selection" );
     storfld_ = new uiRadioButton( selgrp_, "Stored" );
@@ -215,12 +215,12 @@ void uiAttrSelDlg::createSelectionButtons()
 
 void uiAttrSelDlg::createSelectionFields()
 {
-    const bool havenlaouts = attrinf_->nlaoutnms.size();
-    const bool haveattribs = attrinf_->attrnms.size();
+    const bool havenlaouts = attrinf_->nlaoutnms_.size();
+    const bool haveattribs = attrinf_->attrnms_.size();
 
     if ( attrdata_.shwcubes_ )
     {
-	storoutfld_ = new uiListBox( this, attrinf_->ioobjnms );
+	storoutfld_ = new uiListBox( this, attrinf_->ioobjnms_ );
 	storoutfld_->setHSzPol( uiObject::Wide );
 	storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
 	storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
@@ -237,7 +237,7 @@ void uiAttrSelDlg::createSelectionFields()
 
     if ( haveattribs )
     {
-	attroutfld_ = new uiListBox( this, attrinf_->attrnms );
+	attroutfld_ = new uiListBox( this, attrinf_->attrnms_ );
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	attroutfld_->attach( rightOf, selgrp_ );
@@ -245,7 +245,7 @@ void uiAttrSelDlg::createSelectionFields()
 
     if ( havenlaouts )
     {
-	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms );
+	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms_ );
 	nlaoutfld_->setHSzPol( uiObject::Wide );
 	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	nlaoutfld_->attach( rightOf, selgrp_ );
@@ -311,8 +311,8 @@ void uiAttrSelDlg::filtChg( CallBacker* c )
 
     attrinf_->fillStored( filtfld_->text() );
     storoutfld_->empty();
-    storoutfld_->addItems( attrinf_->ioobjnms );
-    if ( attrinf_->ioobjnms.size() )
+    storoutfld_->addItems( attrinf_->ioobjnms_ );
+    if ( attrinf_->ioobjnms_.size() )
 	storoutfld_->setCurrentItem( 0 );
 
     cubeSel( c );
@@ -335,7 +335,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferString ioobjkey;
     if ( selidx >= 0 )
     {
-	ioobjkey = attrinf_->ioobjids.get( storoutfld_->currentItem() );
+	ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
 	is2d = SelInfo::is2D( ioobjkey.buf() );
     }
     attr2dfld_->display( is2d );
@@ -399,7 +399,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	return false;
 
     if ( seltyp == 1 )
-	attrdata_.attribid_ = attrinf_->attrids[selidx];
+	attrdata_.attribid_ = attrinf_->attrids_[selidx];
     else if ( seltyp == 2 )
 	attrdata_.outputnr_ = selidx;
     else if ( seltyp == 3 )
@@ -422,7 +422,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     {
 	attrdata_.compnr_ = compfld_->box()->currentItem();
 	if ( attrdata_.compnr_< 0 ) attrdata_.compnr_ = 0;
-	const char* ioobjkey = attrinf_->ioobjids.get(selidx);
+	const char* ioobjkey = attrinf_->ioobjids_.get(selidx);
 	LineKey linekey( ioobjkey );
 	if ( SelInfo::is2D(ioobjkey) )
 	{

@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: evaluateattrib.cc,v 1.11 2009-07-22 16:01:30 cvsbert Exp $";
+static const char* rcsID = "$Id: evaluateattrib.cc,v 1.12 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "evaluateattrib.h"
@@ -41,15 +41,15 @@ bool Evaluate::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Evaluate::getInputData( const BinID& relpos, int zintv )
 {
-    while ( inputdata_.size() < inputs.size() )
+    while ( inputdata_.size() < inputs_.size() )
     {
 	inputdata_ += 0;
 	dataidx_ += -1;
     }
 
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	const DataHolder* data = inputs[idx]->getData( relpos, zintv );
+	const DataHolder* data = inputs_[idx]->getData( relpos, zintv );
 	if ( !data ) return false;
 
 	inputdata_.replace( idx, data );

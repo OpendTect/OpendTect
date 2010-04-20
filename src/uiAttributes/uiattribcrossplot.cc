@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.46 2009-12-01 09:45:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.47 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -94,18 +94,18 @@ void uiAttribCrossPlot::adsChg()
     attrsfld_->empty();
 
     Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
-    for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
-	attrsfld_->addItem( attrinf.attrnms.get(idx), false );
+    for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
+	attrsfld_->addItem( attrinf.attrnms_.get(idx), false );
     
-    for ( int idx=0; idx<attrinf.ioobjids.size(); idx++ )
+    for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
 	BufferStringSet bss;
-	SeisIOObjInfo sii( MultiID( attrinf.ioobjids.get(idx) ) );
+	SeisIOObjInfo sii( MultiID( attrinf.ioobjids_.get(idx) ) );
 	sii.getDefKeys( bss, true );
 	for ( int inm=0; inm<bss.size(); inm++ )
 	{
 	    const char* defkey = bss.get(inm).buf();
-	    const char* ioobjnm = attrinf.ioobjnms.get(idx).buf();
+	    const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
 	    attrsfld_->addItem(
 		    SeisIOObjInfo::defKey2DispName(defkey,ioobjnm) );
 	}

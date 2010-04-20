@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.73 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.74 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "attribdesc.h"
 
@@ -21,18 +21,18 @@ namespace Attrib
 
 bool InputSpec::operator==(const InputSpec& b) const
 {
-    if ( desc!=b.desc || enabled!=b.enabled || issteering!=b.issteering )
+    if ( desc_!=b.desc_ || enabled_!=b.enabled_ || issteering_!=b.issteering_ )
 	return false;
 
-    for ( int idx=0; idx<forbiddenDts.size(); idx++ )
+    for ( int idx=0; idx<forbiddenDts_.size(); idx++ )
     {
-	if ( b.forbiddenDts.indexOf(forbiddenDts[idx])==-1 )
+	if ( b.forbiddenDts_.indexOf(forbiddenDts_[idx])==-1 )
 	    return false;
     }
 
-    for ( int idx=0; idx<b.forbiddenDts.size(); idx++ )
+    for ( int idx=0; idx<b.forbiddenDts_.size(); idx++ )
     {
-	if ( forbiddenDts.indexOf(b.forbiddenDts[idx])==-1 )
+	if ( forbiddenDts_.indexOf(b.forbiddenDts_[idx])==-1 )
 	    return false;
     }
 
@@ -263,8 +263,8 @@ bool Desc::setInput( int inp, const Desc* nd )
 
 bool Desc::setInput_( int input, Desc* nd )
 {
-    if ( nd && (inputspecs_[input].forbiddenDts.indexOf(nd->dataType())!=-1 ||
-		inputspecs_[input].issteering!=nd->isSteering()) )
+    if ( nd && (inputspecs_[input].forbiddenDts_.indexOf(nd->dataType())!=-1 ||
+		inputspecs_[input].issteering_!=nd->isSteering()) )
 	return false;
 
     if ( inputs_[input] ) inputs_[input]->unRef();
@@ -310,7 +310,7 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputspecs_[idx].enabled ) continue;
+	if ( !inputspecs_[idx].enabled_ ) continue;
 	if ( !inputs_[idx] )
 	{
 	    BufferString msg = "'"; msg += inputspecs_[idx].getDesc();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: deltaresampleattrib.cc,v 1.1 2010-03-22 10:13:06 cvsbert Exp $";
+static const char* rcsID = "$Id: deltaresampleattrib.cc,v 1.2 2010-04-20 22:03:25 cvskris Exp $";
 
 #include "deltaresampleattrib.h"
 #include "attribdataholder.h"
@@ -39,8 +39,8 @@ void DeltaResample::initClass()
 }
 
 
-DeltaResample::DeltaResample( Desc& desc_ )
-    : Provider( desc_ )
+DeltaResample::DeltaResample( Desc& desc )
+    : Provider( desc )
     , dessamps_(-1000,1000)
     , period_(0)
 {
@@ -52,8 +52,8 @@ DeltaResample::DeltaResample( Desc& desc_ )
 
 bool DeltaResample::getInputData( const BinID& relpos, int zintv )
 {
-    refcubedata_ = inputs[0]->getData( relpos, zintv );
-    deltacubedata_ = inputs[1]->getData( relpos, zintv );
+    refcubedata_ = inputs_[0]->getData( relpos, zintv );
+    deltacubedata_ = inputs_[1]->getData( relpos, zintv );
     if ( !refcubedata_ || !deltacubedata_ )
 	return false;
 
@@ -77,7 +77,7 @@ bool DeltaResample::computeData( const DataHolder& output, const BinID& relpos,
 		      && !mIsUdf(interp.period_);
     int refoffs = z0 - refcubedata_->z0_;
 
-    const float inpfac = 1. / (refstep * SI().zFactor());
+    const float inpfac = 1. / (refstep_ * SI().zFactor());
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float deltaval = getInputValue( *deltacubedata_, dcdataidx_,

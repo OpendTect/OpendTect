@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.41 2010-03-17 20:38:21 cvskris Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.42 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "uisteeringsel.h"
@@ -182,8 +182,8 @@ DescID uiSteeringSel::descID()
 		continue;
 
 	    float dip, azi;
-	    mGetFloat( dip, "dip" );
-	    mGetFloat( azi, "azi" );
+	    mGetFloatFromDesc( desc, dip, "dip" );
+	    mGetFloatFromDesc( desc, azi, "azi" );
 	    if ( mIsEqual(dip,dipfld_->getfValue(),mDefEps) &&
 		 mIsEqual(azi,dirfld_->getfValue(),mDefEps) )
 		return descid;

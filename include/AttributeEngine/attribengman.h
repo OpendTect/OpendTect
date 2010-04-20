@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.34 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: attribengman.h,v 1.35 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,19 +58,19 @@ public:
 
     SeisTrcStorOutput* 	createOutput(const IOPar&,const LineKey&);
 
-    const DescSet* 	attribSet() const	{ return inpattrset; }
-    const NLAModel*	nlaModel() const	{ return nlamodel; }
+    const DescSet* 	attribSet() const	{ return inpattrset_; }
+    const NLAModel*	nlaModel() const	{ return nlamodel_; }
     const CubeSampling&	cubeSampling() const	{ return cs_; }
-    const BufferString&	lineKey() const		{ return linekey; }
-    float		undefValue() const	{ return udfval; }
+    const BufferString&	lineKey() const		{ return linekey_; }
+    float		undefValue() const	{ return udfval_; }
 
     void		setAttribSet(const DescSet*);
     void		setNLAModel(const NLAModel*);
     void		setAttribSpec(const SelSpec&);
     void		setAttribSpecs(const TypeSet<SelSpec>&);
     void		setCubeSampling(const CubeSampling&);
-    void		setLineKey( const char* lk )	{ linekey = lk; }
-    void		setUndefValue( float v )	{ udfval = v; }
+    void		setLineKey( const char* lk )	{ linekey_ = lk; }
+    void		setUndefValue( float v )	{ udfval_ = v; }
     DescSet*		createNLAADS(DescID& outid,BufferString& errmsg,
 	    			     const DescSet* addtoset=0);
     static DescID	createEvaluateADS(DescSet&, const TypeSet<DescID>&,
@@ -115,15 +115,15 @@ public:
 
 protected:
 
-    const DescSet* 	inpattrset;
-    const NLAModel*	nlamodel;
+    const DescSet* 	inpattrset_;
+    const NLAModel*	nlamodel_;
     CubeSampling&	cs_;
-    const DataCubes*	cache;
-    float		udfval;
-    BufferString	linekey;
+    const DataCubes*	cache_;
+    float		udfval_;
+    BufferString	linekey_;
 
-    DescSet*		procattrset;
-    int			curattridx;
+    DescSet*		procattrset_;
+    int			curattridx_;
     TypeSet<SelSpec>	attrspecs_;
 
     Processor*		getProcessor(BufferString& err);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.48 2010-02-23 09:54:04 cvsbruno Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.49 2010-04-20 22:03:25 cvskris Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -131,7 +131,7 @@ void FreqFilter::updateDesc( Desc& desc )
 
     const bool isfft = desc.getValParam(isfftfilterStr())->getBoolValue();
     desc.setParamEnabled( nrpolesStr(), !isfft );
-    desc.inputSpec(1).enabled = isfft;
+    desc.inputSpec(1).enabled_ = isfft;
 }
 
 
@@ -210,12 +210,12 @@ bool FreqFilter::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool FreqFilter::getInputData( const BinID& relpos, int idx )
 {
-    redata = inputs[0]->getData(relpos, idx);
+    redata = inputs_[0]->getData(relpos, idx);
     if ( !redata ) return false;
 
     realidx_ = getDataIndex( 0 );
     
-    imdata = isfftfilter ? inputs[1]->getData(relpos, idx) : 0;
+    imdata = isfftfilter ? inputs_[1]->getData(relpos, idx) : 0;
     imagidx_ = isfftfilter ? getDataIndex( 1 ) : -1;
     if ( isfftfilter && !imdata ) return false;
 
@@ -262,20 +262,20 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 
     if ( filtertype == mFilterLowPass )
     {
-	float cutoff = refstep * maxfreq;
+	float cutoff = refstep_ * maxfreq;
 	BFlowpass( nrpoles, cutoff, nrsamp, data, outp );
     }
     else if ( filtertype == mFilterHighPass )
     {
-	float cutoff = refstep * minfreq;
+	float cutoff = refstep_ * minfreq;
 	BFhighpass( nrpoles, cutoff, nrsamp, data, outp );
     }
     else
     {
-	float cutoff = refstep * maxfreq;
+	float cutoff = refstep_ * maxfreq;
 	ArrPtrMan<float> tmp = new float [nrsamp];
 	BFlowpass( nrpoles, cutoff, nrsamp, data, tmp );
-	cutoff = refstep * minfreq;
+	cutoff = refstep_ * minfreq;
 	BFhighpass( nrpoles, cutoff, nrsamp, tmp, outp );
     }
     
@@ -328,7 +328,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
     for ( int idx=0; idx<fftsz; idx++ )
         timedomain.set( idx, 0 );
 
-    const float df = FFT::getDf( refstep, fftsz);
+    const float df = FFT::getDf( refstep_, fftsz);
     const int sz = fftsz/2 - nrsamp/2;
     for ( int idx=0; idx<nrsamp; idx++ )
     {

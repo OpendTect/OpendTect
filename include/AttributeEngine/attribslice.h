@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribslice.h,v 1.7 2010-03-09 08:01:56 cvsbert Exp $
+ RCS:           $Id: attribslice.h,v 1.8 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,8 +56,8 @@ public:
 
 			SliceSet();
 
-    CubeSampling::Dir	direction;
-    CubeSampling	sampling;
+    CubeSampling::Dir	direction_;
+    CubeSampling	sampling_;
 
     void		getIdx(int dimnr,int inl,int crl,float z,int&) const;
     void		getIdxs(int inl,int crl,float z,int&,int&,int&) const;

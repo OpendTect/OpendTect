@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.27 2010-01-15 08:12:07 cvsnanne Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.28 2010-04-20 22:03:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ bool Hilbert::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Hilbert::getInputData( const BinID& relpos, int intv )
 {
-    inputdata_ = inputs[0]->getData( relpos, intv );
+    inputdata_ = inputs_[0]->getData( relpos, intv );
     dataidx_ = getDataIndex( 0 );
     return inputdata_;
 }
