@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          March 2010
- RCS:           $Id: SoDGBDragPointDragger.h,v 1.7 2010-04-20 12:20:14 cvskarthika Exp $
+ RCS:           $Id: SoDGBDragPointDragger.h,v 1.8 2010-04-20 21:17:18 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -18,8 +18,9 @@ ________________________________________________________________________
 
 /*!\brief
 This class is basically a SoDGBDragPointDragger, which overcomes the 
-undesirable effects of the SoDGBDragPointDragger when it is very small. See 
-src file for more details.
+undesirable effects of the SoDGBDragPointDragger when it is very small. The 
+cylinder lies along the Z axis and the cube in the XY plane. See src file for 
+more details.
 */
 
 #include <Inventor/draggers/SoDragger.h>
@@ -30,6 +31,8 @@ class SoSensor;
 class SoFieldSensor;
 class SbLineProjector;
 class SbPlaneProjector;
+class SoCylinder;
+class SoCube;
 
 mClass SoDGBDragPointDragger : public SoDragger {
 
@@ -103,13 +106,12 @@ protected:
 
 private:
     void 		updateSwitchNodes();
-    bool		setObjectToDrag(SbVec3f);
+    bool		determineDragDirection(const SoCylinder*, 
+		    	const SoCube*);
 
     int 		curraxis_;
     SbLineProjector*	lineproj_;
     SbPlaneProjector*	planeproj_;
-    SbVec3f		worldrestartpt_;
-    SbVec3f		lastmotion_;
     bool		movecyl_;
     
     static const char* 	draggergeometry_;

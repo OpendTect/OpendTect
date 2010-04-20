@@ -8,13 +8,12 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.10 2010-04-20 12:19:37 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.11 2010-04-20 21:17:18 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
 #include <Inventor/SbRotation.h>
 #include <Inventor/SbVec3f.h>
-#include <Inventor/events/SoKeyboardEvent.h>
 #include <Inventor/nodes/SoRotation.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -129,8 +128,8 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
    
     if (SO_KIT_IS_FIRST_INSTANCE())
     {
-	SoInteractionKit::readDefaultParts("dragPointDragger.iv",
-		draggergeometry_, static_cast<int>(strlen(draggergeometry_)));
+	SoInteractionKit::readDefaultParts( "",	draggergeometry_, 
+		static_cast <int> ( strlen( draggergeometry_ ) ) );
     }
 
     SO_KIT_ADD_FIELD(translation, (0.0f, 0.0f, 0.0f));
@@ -138,71 +137,71 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
     SO_KIT_INIT_INSTANCE();
 
     // initialize default parts pertaining to feedback
-    this->setPartAsDefault("xFeedback", "dragPointXFeedback");
-    this->setPartAsDefault("yFeedback", "dragPointYFeedback");
-    this->setPartAsDefault("zFeedback", "dragPointZFeedback");
-    this->setPartAsDefault("yzFeedback", "dragPointYZFeedback");
-    this->setPartAsDefault("xzFeedback", "dragPointXZFeedback");
-    this->setPartAsDefault("xyFeedback", "dragPointXYFeedback");
-    this->setPartAsDefault("xAxisFeedback", "dragPointPlaneXAxisFeedback");
-    this->setPartAsDefault("yAxisFeedback", "dragPointPlaneYAxisFeedback");
-    this->setPartAsDefault("zAxisFeedback", "dragPointPlaneZAxisFeedback");
+    this->setPartAsDefault( "xFeedback", "dragPointXFeedback" );
+    this->setPartAsDefault( "yFeedback", "dragPointYFeedback" );
+    this->setPartAsDefault( "zFeedback", "dragPointZFeedback" );
+    this->setPartAsDefault( "yzFeedback", "dragPointYZFeedback" );
+    this->setPartAsDefault( "xzFeedback", "dragPointXZFeedback" );
+    this->setPartAsDefault( "xyFeedback", "dragPointXYFeedback" );
+    this->setPartAsDefault( "xAxisFeedback", "dragPointPlaneXAxisFeedback" );
+    this->setPartAsDefault( "yAxisFeedback", "dragPointPlaneYAxisFeedback" );
+    this->setPartAsDefault( "zAxisFeedback", "dragPointPlaneZAxisFeedback" );
 
     // initialise the translators to inactive geometry states
-    this->setPartAsDefault(linetranslatornames_[0],
-		"dragPointXTranslatorTranslator");
-    this->setPartAsDefault(linetranslatornames_[1],
-		"dragPointYTranslatorTranslator");
-    this->setPartAsDefault(linetranslatornames_[2],
-		"dragPointZTranslatorTranslator");
-    this->setPartAsDefault(planetranslatornames_[0],
-		"dragPointYZTranslatorTranslator");
-    this->setPartAsDefault(planetranslatornames_[1], 
-		"dragPointXZTranslatorTranslator");
-    this->setPartAsDefault(planetranslatornames_[2], 
-		"dragPointXYTranslatorTranslator");
+    this->setPartAsDefault( linetranslatornames_[0],
+		"dragPointXTranslatorTranslator" );
+    this->setPartAsDefault( linetranslatornames_[1],
+		"dragPointYTranslatorTranslator" );
+    this->setPartAsDefault( linetranslatornames_[2],
+		"dragPointZTranslatorTranslator" );
+    this->setPartAsDefault( planetranslatornames_[0],
+		"dragPointYZTranslatorTranslator" );
+    this->setPartAsDefault( planetranslatornames_[1], 
+		"dragPointXZTranslatorTranslator" );
+    this->setPartAsDefault( planetranslatornames_[2], 
+		"dragPointXYTranslatorTranslator" );
  
     // set rotations to align draggers to their respective axis/planes
     SoRotation* xrot = new SoRotation;
     xrot->rotation.setValue(SbRotation(
-		SbVec3f(1.0f, 0.0f, 0.0f), (static_cast<float>(M_PI))*0.5f));
+	SbVec3f(1.0f, 0.0f, 0.0f), ( static_cast <float> ( M_PI ) ) * 0.5f ) );
     this->setAnyPartAsDefault("rotX", xrot);
     SoRotation* yrot = new SoRotation;
     yrot->rotation.setValue(SbRotation(
-		SbVec3f(0.0f, 1.0f, 0.0f), (static_cast<float>(M_PI))*0.5f));
+	SbVec3f(0.0f, 1.0f, 0.0f), ( static_cast <float> ( M_PI ) ) * 0.5f ) );
     this->setAnyPartAsDefault("rotY", yrot);
     SoRotation* zrot = new SoRotation;
     zrot->rotation.setValue(SbRotation(
-		SbVec3f(0.0f, 0.0f, 1.0f), (static_cast<float>(M_PI))*0.5f));
+	SbVec3f(0.0f, 0.0f, 1.0f), ( static_cast <float> ( M_PI ) ) * 0.5f ) );
     this->setAnyPartAsDefault("rotZ", zrot);
 
     // initialize feedback switch nodes
     SoSwitch* sw;
-    sw = SO_GET_ANY_PART(this, "planeFeedbackSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
+    sw = SO_GET_ANY_PART( this, "planeFeedbackSwitch", SoSwitch );
+    SoInteractionKit::setSwitchValue( sw, SO_SWITCH_NONE );
     for ( int i = 0; i < 3; i++ )
     {
-	sw = SO_GET_ANY_PART(this, linefbswitchnames_[i], SoSwitch);
-	SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
+	sw = SO_GET_ANY_PART( this, linefbswitchnames_[i], SoSwitch );
+	SoInteractionKit::setSwitchValue( sw, SO_SWITCH_NONE );
     }
 
     // set up projector
     this->lineproj_ = new SbLineProjector();
     this->planeproj_ = new SbPlaneProjector();
 
-    this->curraxis_ = 1;
+    this->curraxis_ = 2;
     this->updateSwitchNodes();
     movecyl_ = false;
 
-    this->addStartCallback(SoDGBDragPointDragger::startCB, this);
-    this->addMotionCallback(SoDGBDragPointDragger::motionCB, this);
-    this->addFinishCallback(SoDGBDragPointDragger::finishCB, this);
-    this->addValueChangedCallback(SoDGBDragPointDragger::valueChangedCB);
-    this->fieldSensor = new SoFieldSensor(
-		SoDGBDragPointDragger::fieldSensorCB, this);
-    this->fieldSensor->setPriority(0);
+    this->addStartCallback( SoDGBDragPointDragger::startCB, this );
+    this->addMotionCallback( SoDGBDragPointDragger::motionCB, this );
+    this->addFinishCallback( SoDGBDragPointDragger::finishCB, this );
+    this->addValueChangedCallback( SoDGBDragPointDragger::valueChangedCB );
+    this->fieldSensor = new SoFieldSensor( 
+		SoDGBDragPointDragger::fieldSensorCB, this );
+    this->fieldSensor->setPriority( 0 );
 
-    this->setUpConnections(TRUE, TRUE);
+    this->setUpConnections( TRUE, TRUE );
 }
 
 
@@ -217,24 +216,24 @@ SoDGBDragPointDragger::~SoDGBDragPointDragger()
 SbBool SoDGBDragPointDragger::setUpConnections( SbBool onoff, 
 	SbBool doitalways )
 {
-    if (!doitalways && this->connectionsSetUp == onoff) return onoff;
+    if ( !doitalways && this->connectionsSetUp == onoff ) return onoff;
 
     SbBool oldval = this->connectionsSetUp;
 
-    if (onoff) 
+    if ( onoff )
     {
-	SoDragger::setUpConnections(onoff, doitalways);
+	SoDragger::setUpConnections( onoff, doitalways );
 
-	SoDGBDragPointDragger::fieldSensorCB(this, NULL);
+	SoDGBDragPointDragger::fieldSensorCB( this, NULL );
 
-	if (this->fieldSensor->getAttachedField() != &this->translation) 
-	    this->fieldSensor->attach(&this->translation);
+	if ( this->fieldSensor->getAttachedField() != &this->translation )
+	    this->fieldSensor->attach( &this->translation );
     }
     else 
     {
-        if (this->fieldSensor->getAttachedField() != NULL)
+        if ( this->fieldSensor->getAttachedField() != NULL )
 	    this->fieldSensor->detach();
-	SoDragger::setUpConnections(onoff, doitalways);
+	SoDragger::setUpConnections( onoff, doitalways );
     }
    
     this->connectionsSetUp = onoff;
@@ -263,16 +262,16 @@ void SoDGBDragPointDragger::setDefaultOnNonWritingFields()
 
 void SoDGBDragPointDragger::fieldSensorCB( void* d, SoSensor* )
 {
-    SoDGBDragPointDragger* thisp = static_cast<SoDGBDragPointDragger*>(d);
+    SoDGBDragPointDragger* thisp = static_cast <SoDGBDragPointDragger*> ( d );
     SbMatrix matrix = thisp->getMotionMatrix();
-    thisp->workFieldsIntoTransform(matrix);
-    thisp->setMotionMatrix(matrix);
+    thisp->workFieldsIntoTransform( matrix );
+    thisp->setMotionMatrix( matrix );
 }
 
 
 void SoDGBDragPointDragger::valueChangedCB( void*, SoDragger* d )
 {
-    SoDGBDragPointDragger* thisp = static_cast<SoDGBDragPointDragger*>(d);
+    SoDGBDragPointDragger* thisp = static_cast <SoDGBDragPointDragger*> ( d );
 
     SbMatrix matrix = thisp->getMotionMatrix();
     SbVec3f t;
@@ -281,61 +280,43 @@ void SoDGBDragPointDragger::valueChangedCB( void*, SoDragger* d )
     t[2] = matrix[3][2];
 
     thisp->fieldSensor->detach();
-    if (thisp->translation.getValue() != t)
+    if ( thisp->translation.getValue() != t )
 	thisp->translation = t;
 
-    thisp->fieldSensor->attach(&thisp->translation);
+    thisp->fieldSensor->attach( &thisp->translation );
 }
 
 
 void SoDGBDragPointDragger::dragStart()
 {
-    // determine if the cylinder was picked or the cube
-    SoCylinder* cyl = SO_GET_ANY_PART(this, linetranslatornames_[curraxis_], 
-		SoCylinder);
-    SoCube* cube = SO_GET_ANY_PART(this, planetranslatornames_[curraxis_], 
-		SoCube);	
+    SoCylinder* cyl = SO_GET_ANY_PART( this, linetranslatornames_[curraxis_], 
+		    SoCylinder );
+    SoCube* cube = SO_GET_ANY_PART( this, planetranslatornames_[curraxis_], 
+		    SoCube );
     
     if ( !cyl || !cube )
 	return;
-	
-    // find the orientation of the dragger to the 3 axes
-    SbViewVolume vw = getViewVolume();
-    SbVec3f worldprojdir = vw.getProjectionDirection();
-    const SbMatrix& mat = getWorldToLocalMatrix();
-    SbVec3f localprojdir;
-    mat.multDirMatrix( worldprojdir, localprojdir );
-    localprojdir.normalize();
 
-    bool set = setObjectToDrag( localprojdir );
+    // determine if the cylinder was picked or the cube
+    if ( !determineDragDirection( cyl, cube ) )
+	return;
 
-    if ( !set) 
-    {
-        // Let the user drag as desired. Find which object the user has picked.
-	const SoPath* pickpath = getPickPath();
-	if ( pickpath->containsNode( cyl ) )
-	    movecyl_ = true;
-	else if ( pickpath->containsNode( cube ) )
-	    movecyl_ = false;
-	else	return;
-    }
-	
     SoSwitch* sw;
     if ( movecyl_ )
     {
-        sw = SO_GET_ANY_PART(this, linefbswitchnames_[curraxis_], SoSwitch);
+        sw = SO_GET_ANY_PART( this, linefbswitchnames_[curraxis_], SoSwitch );
 	SoInteractionKit::setSwitchValue( sw, 0 );
         
 	// set the active part 
 	if ( curraxis_ == 0 )
-	    setPartAsDefault(linetranslatornames_[0],
-		    "dragPointXTranslatorTranslatorActive");
+	    setPartAsDefault( linetranslatornames_[0],
+		    "dragPointXTranslatorTranslatorActive" );
 	else if ( curraxis_ == 1 )
-	    setPartAsDefault(linetranslatornames_[1],
-		    "dragPointYTranslatorTranslatorActive");
+	    setPartAsDefault( linetranslatornames_[1],
+		    "dragPointYTranslatorTranslatorActive" );
 	else if (curraxis_ == 2 )
-	    setPartAsDefault(linetranslatornames_[2],
-		    "dragPointZTranslatorTranslatorActive");
+	    setPartAsDefault( linetranslatornames_[2],
+		    "dragPointZTranslatorTranslatorActive" );
  
 	SbVec3f hitpt = this->getLocalStartingPoint();
 	SbVec3f endpt( 0.0f, 0.0f, 0.0f );
@@ -344,7 +325,7 @@ void SoDGBDragPointDragger::dragStart()
     }
     else
     {
-	sw = SO_GET_ANY_PART(this, "planeFeedbackSwitch", SoSwitch);
+	sw = SO_GET_ANY_PART( this, "planeFeedbackSwitch", SoSwitch );
 	SoInteractionKit::setSwitchValue( sw, this->curraxis_ );
 
 	// set the active part and the axes feedback
@@ -352,68 +333,89 @@ void SoDGBDragPointDragger::dragStart()
 	
 	if ( curraxis_ == 0 )
 	{
-	    setPartAsDefault(planetranslatornames_[0],
-		"dragPointYZTranslatorTranslatorActive");
+	    setPartAsDefault( planetranslatornames_[0],
+		"dragPointYZTranslatorTranslatorActive" );
 	}
 	else if ( curraxis_ == 1 )
 	{
-	    setPartAsDefault(planetranslatornames_[1], 
-		"dragPointXZTranslatorTranslatorActive");
+	    setPartAsDefault( planetranslatornames_[1], 
+		"dragPointXZTranslatorTranslatorActive" );
 	}
 	else if (curraxis_ == 2 )
 	{
-	    setPartAsDefault(planetranslatornames_[2], 
-		"dragPointXYTranslatorTranslatorActive");
+	    setPartAsDefault( planetranslatornames_[2], 
+		"dragPointXYTranslatorTranslatorActive" );
 	}
 
 	SbVec3f hitpt = this->getLocalStartingPoint();
 	SbVec3f endpt( 0.0f, 0.0f, 0.0f );
 	endpt[curraxis_] = 1.0f;
 	planeproj_->setPlane( SbPlane( endpt, hitpt ) );
-	if ( this->getEvent()->wasShiftDown() )
-	{
-	    this->getLocalToWorldMatrix().multVecMatrix( 
-			    hitpt, this->worldrestartpt_ );
-	}
     }
 }
 
 
-bool SoDGBDragPointDragger::setObjectToDrag( SbVec3f localprojdir )
+bool SoDGBDragPointDragger::determineDragDirection( const SoCylinder* cyl, 
+		const SoCube* cube )
 {
-	if ( !restrictdragging.getValue() )
-	return false;
+    // find the orientation of the dragger to the 3 axes
+    SbViewVolume vw = getViewVolume();
+    SbVec3f worldprojdir = vw.getProjectionDirection();
+    const SbMatrix& mat = getWorldToLocalMatrix();
+    SbVec3f localprojdir;
+    mat.multDirMatrix( worldprojdir, localprojdir );
+    localprojdir.normalize();
 
-    const float angletox = fabs( localprojdir[0] );
-    const float angletoy = fabs( localprojdir[1] );
-    const float angletoz = fabs( localprojdir[2] );
-    const float upperlimit = 0.7;
-    const float lowerlimit = 0.3;
-    
-    // When the cylinder is lying flat (almost along the Z axis), restrict 
-    // picking the cylinder. User probably wants to move just the rectangle 
-    // but has picked the cylinder by mistake.
-    //
-    // When the cylinder is upright or lying along the X axis, restrict 
-    // picking the rectangle. User probably wants to move just the cylinder 
-    // but has picked the rectangle by mistake.
-
-    // conditions have been tested for only when curraxis_ is 1
+	// conditions have been tested for only when curraxis_ is 1
     bool set = false;
-    if ( curraxis_ == 1 )
+    
+    if ( restrictdragging.getValue() )
     {
-	if ( ( angletox <= lowerlimit ) && ( angletoy >= upperlimit ) )
-	{
-	    movecyl_ = false;
-	    set = true;
-	}
-	else if ( angletoy <= lowerlimit )
+	const float angletox = fabs( localprojdir[0] );
+	const float angletoy = fabs( localprojdir[1] );
+    	const float angletoz = fabs( localprojdir[2] );
+	const float upperlimit = 0.7;
+    	const float lowerlimit = 0.3;
+    
+    	// When the cylinder is lying flat (almost along the Z axis), restrict 
+    	// picking the cylinder. User probably wants to move just the rectangle 
+    	// but has picked the cylinder by mistake.
+    	//
+    	// When the cylinder is upright or lying along the X axis, restrict 
+    	// picking the rectangle. User probably wants to move just the cylinder 
+    	// but has picked the rectangle by mistake.
+
+    	if ( curraxis_ == 1 )
+    	{
+	    if ( ( angletox <= lowerlimit ) && ( angletoy >= upperlimit ) )
+	    {
+		movecyl_ = false;
+	    	set = true;
+	    }
+	    else if ( angletoy <= lowerlimit )
+	    {
+	        movecyl_ = true;
+	        set = true;
+	    }
+        }
+    }
+    
+    if ( !set) 
+    {
+        // Let the user drag as desired. Find which object the user has picked.
+	const SoPath* pickpath = getPickPath();
+	if ( pickpath->containsNode( cyl ) )
 	{
 	    movecyl_ = true;
 	    set = true;
 	}
+	else if ( pickpath->containsNode( cube ) )
+	{
+	    movecyl_ = false;
+	    set = true;
+	}
     }
-
+	
     return set;
 }
 
@@ -448,9 +450,8 @@ void SoDGBDragPointDragger::drag()
 				this->getProjectorEpsilon(), projpt ) )
 	{
 	    SbVec3f startpt = this->getLocalStartingPoint();
-	    this->lastmotion_ = projpt - startpt;;
 	    this->setMotionMatrix( this->appendTranslation( 
-		this->getStartMotionMatrix(), lastmotion_ ) );
+		this->getStartMotionMatrix(), projpt - startpt ) );
         }
     }
 }
@@ -462,57 +463,57 @@ void SoDGBDragPointDragger::dragFinish()
     
     if ( movecyl_ )
     {
-	sw = SO_GET_ANY_PART(this, linefbswitchnames_[curraxis_], SoSwitch);
-	SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
+	sw = SO_GET_ANY_PART( this, linefbswitchnames_[curraxis_], SoSwitch );
+	SoInteractionKit::setSwitchValue( sw, SO_SWITCH_NONE );
 	    
 	// set the inactive part
     	if ( curraxis_ == 0 )
-	    setPartAsDefault(linetranslatornames_[0],
-		    "dragPointXTranslatorTranslator");
+	    setPartAsDefault( linetranslatornames_[0],
+		    "dragPointXTranslatorTranslator" );
 	else if ( curraxis_ == 1 )
-	    setPartAsDefault(linetranslatornames_[1],
-		    "dragPointYTranslatorTranslator");
+	    setPartAsDefault( linetranslatornames_[1],
+		    "dragPointYTranslatorTranslator" );
 	else if (curraxis_ == 2 )
-	    setPartAsDefault(linetranslatornames_[2],
-		    "dragPointZTranslatorTranslator");
+	    setPartAsDefault( linetranslatornames_[2],
+		    "dragPointZTranslatorTranslator" );
     } 
     else
     {
-	sw = SO_GET_ANY_PART(this, "planeFeedbackSwitch", SoSwitch);
-	SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
+	sw = SO_GET_ANY_PART( this, "planeFeedbackSwitch", SoSwitch );
+	SoInteractionKit::setSwitchValue( sw, SO_SWITCH_NONE );
 
 	// set the inactive part
 	const char* activepartname = "";
 	if ( curraxis_ == 0 )
-	    setPartAsDefault(planetranslatornames_[0],
-		"dragPointYZTranslatorTranslator");
+	    setPartAsDefault( planetranslatornames_[0],
+		"dragPointYZTranslatorTranslator" );
 	else if ( curraxis_ == 1 )
-	    setPartAsDefault(planetranslatornames_[1], 
-		"dragPointXZTranslatorTranslator");
+	    setPartAsDefault( planetranslatornames_[1], 
+		"dragPointXZTranslatorTranslator" );
 	else if (curraxis_ == 2 )
-	    setPartAsDefault(planetranslatornames_[2], 
-		"dragPointXYTranslatorTranslator");
+	    setPartAsDefault( planetranslatornames_[2], 
+		"dragPointXYTranslatorTranslator" );
     }
 }
 
 
 void SoDGBDragPointDragger::startCB( void* d, SoDragger* )
 {
-    SoDGBDragPointDragger* thisp = static_cast<SoDGBDragPointDragger* >(d);
+    SoDGBDragPointDragger* thisp = static_cast <SoDGBDragPointDragger*> ( d );
     thisp->dragStart();
 }
 
 
 void SoDGBDragPointDragger::motionCB( void* d, SoDragger* )
 {
-     SoDGBDragPointDragger* thisp = static_cast<SoDGBDragPointDragger* >(d);
-     thisp->drag();
+    SoDGBDragPointDragger* thisp = static_cast <SoDGBDragPointDragger*> ( d );
+    thisp->drag();
 }
 
 
 void SoDGBDragPointDragger::finishCB( void* d, SoDragger* )
 {
-    SoDGBDragPointDragger* thisp = static_cast<SoDGBDragPointDragger* >(d);
+    SoDGBDragPointDragger* thisp = static_cast <SoDGBDragPointDragger*> ( d );
     thisp->dragFinish();
 }
 
@@ -522,25 +523,25 @@ void SoDGBDragPointDragger::updateSwitchNodes()
     // switch the dragger geometry
     SoSwitch *sw;
     
-    sw = SO_GET_ANY_PART(this, "xTranslatorSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, this->curraxis_ == 0 ? 
-	    0 : SO_SWITCH_NONE);
-    sw = SO_GET_ANY_PART(this, "yTranslatorSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, this->curraxis_ == 1 ? 
-	    0 : SO_SWITCH_NONE);
-    sw = SO_GET_ANY_PART(this, "zTranslatorSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, this->curraxis_ == 2 ? 
-	    0 : SO_SWITCH_NONE);
+    sw = SO_GET_ANY_PART( this, "xTranslatorSwitch", SoSwitch );
+    SoInteractionKit::setSwitchValue( sw, this->curraxis_ == 0 ? 
+	    0 : SO_SWITCH_NONE );
+    sw = SO_GET_ANY_PART( this, "yTranslatorSwitch", SoSwitch );
+    SoInteractionKit::setSwitchValue( sw, this->curraxis_ == 1 ? 
+	    0 : SO_SWITCH_NONE );
+    sw = SO_GET_ANY_PART( this, "zTranslatorSwitch", SoSwitch );
+    SoInteractionKit::setSwitchValue( sw, this->curraxis_ == 2 ? 
+	    0 : SO_SWITCH_NONE );
 
-    sw = SO_GET_ANY_PART(this, "yzTranslatorSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, this->curraxis_ == 0 ? 
-	    0 : SO_SWITCH_NONE);
-    sw = SO_GET_ANY_PART(this, "xzTranslatorSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, this->curraxis_ == 1 ? 
-	    0 : SO_SWITCH_NONE);
-    sw = SO_GET_ANY_PART(this, "xyTranslatorSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, this->curraxis_ == 2 ? 
-	    0 : SO_SWITCH_NONE);
+    sw = SO_GET_ANY_PART( this, "yzTranslatorSwitch", SoSwitch );
+    SoInteractionKit::setSwitchValue( sw, this->curraxis_ == 0 ? 
+	    0 : SO_SWITCH_NONE );
+    sw = SO_GET_ANY_PART( this, "xzTranslatorSwitch", SoSwitch );
+    SoInteractionKit::setSwitchValue( sw, this->curraxis_ == 1 ? 
+	    0 : SO_SWITCH_NONE );
+    sw = SO_GET_ANY_PART( this, "xyTranslatorSwitch", SoSwitch );
+    SoInteractionKit::setSwitchValue( sw, this->curraxis_ == 2 ? 
+	    0 : SO_SWITCH_NONE );
 }
 
 
@@ -673,10 +674,4 @@ const char* SoDGBDragPointDragger::draggergeometry_ =
   "  Coordinate3 { point [ 0 0 -3, 0 0 3 ] }\n"
   "  LineSet { }\n"
   "}\n";
-
-#undef CONSTRAINT_OFF
-#undef CONSTRAINT_WAIT
-#undef CONSTRAINT_X
-#undef CONSTRAINT_Y
-#undef CONSTRAINT_Z
 
