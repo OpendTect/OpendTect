@@ -6,12 +6,13 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2010
- RCS:		$Id: gravhorcalc.h,v 1.1 2010-04-19 15:14:27 cvsbert Exp $
+ RCS:		$Id: gravhorcalc.h,v 1.2 2010-04-20 10:00:59 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 #include "executor.h"
+#include "grav.h"
 class MultiID;
 
 
