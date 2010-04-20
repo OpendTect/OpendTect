@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.12 2010-04-20 20:28:10 cvskris Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.13 2010-04-20 21:24:31 cvskarthika Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
@@ -39,9 +39,7 @@ SoRandomTrackLineDragger::SoRandomTrackLineDragger()
     SO_KIT_ADD_CATALOG_ENTRY(subDraggerSep,SoSeparator, false,
 				this, feedbackSwitch, false );
     SO_KIT_ADD_CATALOG_ENTRY(subDraggerScale,SoScale, false,
-				subDraggerSep, subDraggerRot, true );
-    SO_KIT_ADD_CATALOG_ENTRY(subDraggerRot,SoRotation, false,
-				subDraggerSep, subDraggers, false );
+				subDraggerSep, subDraggers, true );
     SO_KIT_ADD_CATALOG_LIST_ENTRY(subDraggers,SoGroup, false,
 				subDraggerSep, "", SoDGBDragPointDragger, false );
     SO_KIT_ADD_CATALOG_ENTRY(feedbackSwitch,SoSwitch, false,
@@ -70,9 +68,6 @@ SoRandomTrackLineDragger::SoRandomTrackLineDragger()
 
     SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
     sw->whichChild = SO_SWITCH_NONE;
-
-    SoRotation* rot = SO_GET_ANY_PART( this, "subDraggerRot", SoRotation );
-    rot->rotation.setValue( SbVec3f( 1, 0, 0 ), M_PI/2 );
 
     SoScale* scale = SO_GET_ANY_PART( this, "subDraggerScale", SoScale );
     scale->scaleFactor.setValue( SbVec3f( 0.5, 0.5, 0.5 ) );
@@ -247,8 +242,8 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
 
     SbVec3f draggerpos = dragger->translation.getValue();
     SbVec3f newpos( xyzSnap(0,draggerpos[0]*scalefactor[0]),
-	    		xyzSnap(1,-draggerpos[2]*scalefactor[1]),
-			xyzSnap(2,draggerpos[1]*scalefactor[2]) );
+	    		xyzSnap(1,draggerpos[1]*scalefactor[1]),
+			xyzSnap(2,draggerpos[2]*scalefactor[2]) );
     bool ischanged = false;
 
 #define mIsZero(x) ( x < 1e-10 && x > -1e-10 )
@@ -354,8 +349,8 @@ void SoRandomTrackLineDragger::updateDraggers()
 	const SbVec2f knotpos = knots[knotid];
 
 	SbVec3f draggerpos( knotpos[0]/scalefactor[0],
-		(istop ? z0.getValue() : z1.getValue())/scalefactor[2],
-		-knotpos[1]/scalefactor[1] );
+		knotpos[1]/scalefactor[1],
+		(istop ? z0.getValue() : z1.getValue())/scalefactor[2] );
 
 	SoDGBDragPointDragger* curdragger =
 	    reinterpret_cast<SoDGBDragPointDragger*>(partlist->getChild(idx));
