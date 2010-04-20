@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.9 2010-04-15 20:34:24 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.10 2010-04-20 12:19:37 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
@@ -24,13 +24,6 @@ static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.9 2010-04-15 20:34
 #include <Inventor/sensors/SoFieldSensor.h>
 #include <Inventor/projectors/SbLineProjector.h>
 #include <Inventor/projectors/SbPlaneProjector.h>
-
-// constraints on the plane for movement along the 3 principal axes
-#define CONSTRAINT_OFF  0
-#define CONSTRAINT_WAIT 1
-#define CONSTRAINT_X    2
-#define CONSTRAINT_Y    3
-#define CONSTRAINT_Z    4
 
 SO_KIT_SOURCE(SoDGBDragPointDragger);
 
@@ -122,7 +115,7 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
     
     // Plane feedback
     SO_KIT_ADD_CATALOG_ENTRY(planeFeedbackSep, SoSeparator, FALSE, 
-	    topSeparator, planeXAxisFeedbackSwitch, FALSE);
+	    topSeparator, geomSeparator, FALSE);
     SO_KIT_ADD_CATALOG_ENTRY(planeFeedbackTranslation, SoTranslation, FALSE, 
 	    planeFeedbackSep, planeFeedbackSwitch, FALSE);
     SO_KIT_ADD_CATALOG_ENTRY(planeFeedbackSwitch, SoSwitch, FALSE, 
@@ -134,20 +127,6 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
     SO_KIT_ADD_CATALOG_ENTRY(xyFeedback, SoSeparator, TRUE, 
 	    planeFeedbackSwitch, "", TRUE);
    
-    // Plane axes feedback
-    SO_KIT_ADD_CATALOG_ENTRY(planeXAxisFeedbackSwitch, SoSwitch, FALSE, 
-	    topSeparator, planeYAxisFeedbackSwitch, FALSE);
-    SO_KIT_ADD_CATALOG_ENTRY(xAxisFeedback, SoSeparator, TRUE, 
-	    planeXAxisFeedbackSwitch, yAxisFeedback, TRUE);
-    SO_KIT_ADD_CATALOG_ENTRY(planeYAxisFeedbackSwitch, SoSwitch, FALSE, 
-	    topSeparator, planeZAxisFeedbackSwitch, FALSE);
-    SO_KIT_ADD_CATALOG_ENTRY(yAxisFeedback, SoSeparator, TRUE, 
-	    planeYAxisFeedbackSwitch, zAxisFeedback, TRUE);
-    SO_KIT_ADD_CATALOG_ENTRY(planeZAxisFeedbackSwitch, SoSwitch, FALSE, 
-	    topSeparator, geomSeparator, FALSE);
-    SO_KIT_ADD_CATALOG_ENTRY(zAxisFeedback, SoSeparator, TRUE, 
-	    planeZAxisFeedbackSwitch, "", TRUE);
-      
     if (SO_KIT_IS_FIRST_INSTANCE())
     {
 	SoInteractionKit::readDefaultParts("dragPointDragger.iv",
@@ -207,8 +186,6 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
 	SoInteractionKit::setSwitchValue(sw, SO_SWITCH_NONE);
     }
 
-    showPlaneAxes( false, false, false );
-    
     // set up projector
     this->lineproj_ = new SbLineProjector();
     this->planeproj_ = new SbPlaneProjector();
@@ -220,13 +197,11 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
     this->addStartCallback(SoDGBDragPointDragger::startCB, this);
     this->addMotionCallback(SoDGBDragPointDragger::motionCB, this);
     this->addFinishCallback(SoDGBDragPointDragger::finishCB, this);
-    //this->addOtherEventCallback(&SoDGBDragPointDragger::metaKeyChangeCB, this);
     this->addValueChangedCallback(SoDGBDragPointDragger::valueChangedCB);
     this->fieldSensor = new SoFieldSensor(
 		SoDGBDragPointDragger::fieldSensorCB, this);
     this->fieldSensor->setPriority(0);
 
-    this->constraintstate_ = CONSTRAINT_OFF;
     this->setUpConnections(TRUE, TRUE);
 }
 
@@ -313,32 +288,6 @@ void SoDGBDragPointDragger::valueChangedCB( void*, SoDragger* d )
 }
 
 
-void SoDGBDragPointDragger::metaKeyChangeCB( void *, SoDragger *d )
-{
-    // check if plane dragger is active
-    SoDGBDragPointDragger* thisp = static_cast<SoDGBDragPointDragger*>(d);
-    if ( !thisp->isActive.getValue() && movecyl_ ) return;
-
-    const SoEvent *event = thisp->getEvent();
-    if ( thisp->constraintstate_ == CONSTRAINT_OFF &&
-         event->wasShiftDown() )
-        thisp->drag();
-    else if ( thisp->constraintstate_ != CONSTRAINT_OFF &&
-              !event->wasShiftDown() )
-	thisp->drag();
-}
-
-
-// Circulate the dragger's three different sets of geometry, to circulate the 
-// orientation of the translation axis and translation plane through the three
-// principal axes.
-void SoDGBDragPointDragger::showNextDraggerSet()
-{
-    this->curraxis_ = (this->curraxis_ + 1) % 3;
-    this->updateSwitchNodes();
-}
-
-
 void SoDGBDragPointDragger::dragStart()
 {
     // determine if the cylinder was picked or the cube
@@ -405,19 +354,16 @@ void SoDGBDragPointDragger::dragStart()
 	{
 	    setPartAsDefault(planetranslatornames_[0],
 		"dragPointYZTranslatorTranslatorActive");
-	    showPlaneAxes( false, true, true );
 	}
 	else if ( curraxis_ == 1 )
 	{
 	    setPartAsDefault(planetranslatornames_[1], 
 		"dragPointXZTranslatorTranslatorActive");
-	    showPlaneAxes( true, false, true );
 	}
 	else if (curraxis_ == 2 )
 	{
 	    setPartAsDefault(planetranslatornames_[2], 
 		"dragPointXYTranslatorTranslatorActive");
-	    showPlaneAxes( true, true, false );
 	}
 
 	SbVec3f hitpt = this->getLocalStartingPoint();
@@ -428,10 +374,7 @@ void SoDGBDragPointDragger::dragStart()
 	{
 	    this->getLocalToWorldMatrix().multVecMatrix( 
 			    hitpt, this->worldrestartpt_ );
-	    this->constraintstate_ = CONSTRAINT_WAIT;
 	}
-		
-	this->extramotion_ = SbVec3f(0, 0, 0);
     }
 }
 
@@ -504,103 +447,10 @@ void SoDGBDragPointDragger::drag()
 	if (this->planeproj_->tryProject( this->getNormalizedLocaterPosition(),
 				this->getProjectorEpsilon(), projpt ) )
 	{
-	    const SoEvent *event = this->getEvent();
-	    if ( event->wasShiftDown() && 
-		 this->constraintstate_ == CONSTRAINT_OFF )
-	    {
-		this->constraintstate_ = CONSTRAINT_WAIT;
-		this->setStartLocaterPosition( event->getPosition() );
-		this->getLocalToWorldMatrix().multVecMatrix( projpt, 
-				this->worldrestartpt_ );
-            }
-	    else if ( !event->wasShiftDown() && 
-		      this->constraintstate_ != CONSTRAINT_OFF )
-	    {
-		SbVec3f worldprojpt;
-		this->getLocalToWorldMatrix().multVecMatrix( projpt, 
-				worldprojpt );
-		this->setStartingPoint( worldprojpt );
-		this->extramotion_ += this->lastmotion_;
-      
-		showPlaneAxes( ( curraxis_ == 0 ) ? false : true,
-				( curraxis_ == 1 ) ? false : true,
-				( curraxis_ == 2 ) ? false : true );			
-		this->constraintstate_ = CONSTRAINT_OFF;
-	    }
-    
 	    SbVec3f startpt = this->getLocalStartingPoint();
-	    SbVec3f motion;
-	    SbVec3f localrestartpt;
-    
-	    if ( this->constraintstate_ != CONSTRAINT_OFF )
-	    {
-		this->getWorldToLocalMatrix().multVecMatrix(
-				this->worldrestartpt_, localrestartpt );
-		motion = localrestartpt - startpt;
-	    }
-	    else 
-		motion = projpt - startpt;
-    
-	    switch( this->constraintstate_ )
-	    {
-		case CONSTRAINT_OFF:
-		    break;
-
-	        case CONSTRAINT_WAIT:
-		    if ( this->isAdequateConstraintMotion() )
-		    {
-			SbVec3f newmotion = projpt - localrestartpt;
-			if ( ( curraxis_ == 1 && 
-			       fabs(newmotion[0]) >= fabs(newmotion[2]) ) || 
-			     ( curraxis_ == 2 &&
-			       fabs(newmotion[0]) >= fabs(newmotion[1]) ) )
-			{
-			    // XZ or XY
-			    this->constraintstate_ = CONSTRAINT_X;
-			    motion[0] += newmotion[0];
-			    showPlaneAxes( true, false, false );
-		        }
-			else if ( ( curraxis_ == 0 && 
-			       fabs(newmotion[1]) >= fabs(newmotion[2]) ) || 
-			     ( curraxis_ == 2 &&
-			       fabs(newmotion[1]) >= fabs(newmotion[0]) ) )
-			{
-			    // YZ or XY
-			    this->constraintstate_ = CONSTRAINT_Y;
-			    motion[1] += newmotion[1];
-			    showPlaneAxes( false, true, false );
-			}
-			else if ( ( curraxis_ == 0 && 
-			       fabs(newmotion[2]) >= fabs(newmotion[1]) ) || 
-			     ( curraxis_ == 1 &&
-			       fabs(newmotion[2]) >= fabs(newmotion[0]) ) )
-			{
-			    // YZ or XZ
-			    this->constraintstate_ = CONSTRAINT_Z;
-			    motion[2] += newmotion[2];
-			    showPlaneAxes( false, false, true );
-        		}
-      		    }
-      		    else
-			return;
-      		break;
-	    
-	    case CONSTRAINT_X:
-	        motion[0] += projpt[0] - localrestartpt[0];
-		break;
-
-	    case CONSTRAINT_Y:
-		motion[1] += projpt[1] - localrestartpt[1];
-		break;
-	    
-	    case CONSTRAINT_Z:
-	        motion[2] += projpt[2] - localrestartpt[2];
-		break;
-	    }
-
-	    this->lastmotion_ = motion;
+	    this->lastmotion_ = projpt - startpt;;
 	    this->setMotionMatrix( this->appendTranslation( 
-		this->getStartMotionMatrix(), this->extramotion_+motion ) );
+		this->getStartMotionMatrix(), lastmotion_ ) );
         }
     }
 }
@@ -642,23 +492,7 @@ void SoDGBDragPointDragger::dragFinish()
 	else if (curraxis_ == 2 )
 	    setPartAsDefault(planetranslatornames_[2], 
 		"dragPointXYTranslatorTranslator");
-    
-	showPlaneAxes( false, false, false );
-	this->constraintstate_ = CONSTRAINT_OFF;
     }
-}
-
-
-void SoDGBDragPointDragger::showPlaneAxes( bool showx, bool showy, bool showz )
-{
-    SoSwitch* sw;
-
-    sw = SO_GET_ANY_PART(this, "planeXAxisFeedbackSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, showx ? 0 : SO_SWITCH_NONE);
-    sw = SO_GET_ANY_PART(this, "planeYAxisFeedbackSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, showy ? 0 : SO_SWITCH_NONE);
-    sw = SO_GET_ANY_PART(this, "planeZAxisFeedbackSwitch", SoSwitch);
-    SoInteractionKit::setSwitchValue(sw, showz ? 0 : SO_SWITCH_NONE);
 }
 
 

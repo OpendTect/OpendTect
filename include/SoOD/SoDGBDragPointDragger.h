@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          March 2010
- RCS:           $Id: SoDGBDragPointDragger.h,v 1.6 2010-04-15 20:33:04 cvskarthika Exp $
+ RCS:           $Id: SoDGBDragPointDragger.h,v 1.7 2010-04-20 12:20:14 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -71,20 +71,10 @@ mClass SoDGBDragPointDragger : public SoDragger {
     SO_KIT_CATALOG_ENTRY_HEADER(zFeedbackTranslation);
     SO_KIT_CATALOG_ENTRY_HEADER(zTranslator);
     SO_KIT_CATALOG_ENTRY_HEADER(zTranslatorSwitch);
-    SO_KIT_CATALOG_ENTRY_HEADER(planeXAxisFeedbackSwitch);
-    SO_KIT_CATALOG_ENTRY_HEADER(planeYAxisFeedbackSwitch);
-    SO_KIT_CATALOG_ENTRY_HEADER(planeZAxisFeedbackSwitch);
-    SO_KIT_CATALOG_ENTRY_HEADER(xAxisFeedback);
-    SO_KIT_CATALOG_ENTRY_HEADER(yAxisFeedback);
-    SO_KIT_CATALOG_ENTRY_HEADER(zAxisFeedback);
 
 public:
     static void		initClass(void);
     			SoDGBDragPointDragger(void);
-    
-    void 		setJumpLimit(const float limit);
-    float 		getJumpLimit(void) const;
-    void 		showNextDraggerSet(void);
 
     SoSFVec3f		translation;
 
@@ -108,10 +98,7 @@ protected:
     static void 	finishCB(void * f, SoDragger * d);
     static void 	fieldSensorCB(void * f, SoSensor * s);
     static void 	valueChangedCB(void * f, SoDragger * d);
-    void		metaKeyChangeCB(void *, SoDragger *d);
  
-    void		showPlaneAxes(bool showx, bool showy, bool showz);
-
     SoFieldSensor* 	fieldSensor;
 
 private:
@@ -123,8 +110,6 @@ private:
     SbPlaneProjector*	planeproj_;
     SbVec3f		worldrestartpt_;
     SbVec3f		lastmotion_;
-    SbVec3f		extramotion_;
-    int			constraintstate_;
     bool		movecyl_;
     
     static const char* 	draggergeometry_;
