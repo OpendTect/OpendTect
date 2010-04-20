@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.11 2010-04-20 21:17:18 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.12 2010-04-20 21:39:01 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
@@ -373,9 +373,9 @@ bool SoDGBDragPointDragger::determineDragDirection( const SoCylinder* cyl,
     {
 	const float angletox = fabs( localprojdir[0] );
 	const float angletoy = fabs( localprojdir[1] );
-    	const float angletoz = fabs( localprojdir[2] );
+	const float angletoz = fabs( localprojdir[2] );
 	const float upperlimit = 0.7;
-    	const float lowerlimit = 0.3;
+	const float lowerlimit = 0.3;
     
     	// When the cylinder is lying flat (almost along the Z axis), restrict 
     	// picking the cylinder. User probably wants to move just the rectangle 
@@ -390,12 +390,25 @@ bool SoDGBDragPointDragger::determineDragDirection( const SoCylinder* cyl,
 	    if ( ( angletox <= lowerlimit ) && ( angletoy >= upperlimit ) )
 	    {
 		movecyl_ = false;
-	    	set = true;
+		set = true;
 	    }
 	    else if ( angletoy <= lowerlimit )
 	    {
-	        movecyl_ = true;
-	        set = true;
+		movecyl_ = true;
+		set = true;
+	    }
+        }
+    	else if ( curraxis_ == 2 )
+    	{
+	    if ( ( angletoy <= lowerlimit ) && ( angletoz >= upperlimit ) )
+	    {
+		movecyl_ = false;
+		set = true;
+	    }
+	    else if ( angletoz <= lowerlimit )
+	    {
+		movecyl_ = true;
+		set = true;
 	    }
         }
     }
