@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicursor.cc,v 1.14 2009-10-23 08:35:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicursor.cc,v 1.15 2010-04-20 12:44:28 cvsjaap Exp $";
 
 #include "uicursor.h"
 #include "pixmap.h"
@@ -66,6 +66,30 @@ void uiCursorManager::unsetPriorityCursor()
 
     prioritycursoractive_ = false;
     restoreOverride();
+}
+
+
+MouseCursor::Shape uiCursorManager::overrideCursorShape()
+{
+    if ( !QApplication::overrideCursor() )
+	return MouseCursor::NotSet;
+
+    QCursor topcursor = *QApplication::overrideCursor();
+
+    if ( !prioritycursoractive_ )
+	return (MouseCursor::Shape) topcursor.shape();
+
+    QApplication::restoreOverrideCursor();
+
+    if ( !QApplication::overrideCursor() )
+    {
+	QApplication::setOverrideCursor( topcursor );
+	return MouseCursor::NotSet;
+    }
+
+    QCursor overridecursor = *QApplication::overrideCursor();
+    QApplication::setOverrideCursor( topcursor );
+    return (MouseCursor::Shape) overridecursor.shape();
 }
 
 
