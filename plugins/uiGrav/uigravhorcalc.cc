@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.1 2010-04-19 15:14:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.2 2010-04-20 08:31:02 cvsbert Exp $";
 
 #include "uigravhorcalc.h"
 #include "gravhorcalc.h"
@@ -18,15 +18,20 @@ static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.1 2010-04-19 15:14:27 cvsb
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
+#include "emsurfaceiodata.h"
 
 
 uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     : uiDialog(p,Setup("Calculate Gravity","", mTODOHelpID))
-    , horid_(EM::EMM().getMultiID(enobjid))
+    , topfld_(0)
     , velfld_(0)
 {
-    hornm_ = IOM().nameOf( horid_ );
-    setTitleText( BufferString("Calculate gravity at '", hornm_, "'" ) );
+    MultiID horid = EM::EMM().getMultiID( enobjid );
+    horioobj_ = IOM().get( horid );
+    if ( !horioobj_ )
+	{ new uiLabel(this,"Internal: Cannot find horizon"); return; }
+    setTitleText( BufferString("Calculate gravity at '",
+		  horioobj_->name(), "'" ) );
 
     const IOObjContext ctxt( mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup su( "Top Horizon" );
@@ -34,7 +39,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     uiGroup* inpgrp = new uiGroup( this, "Upper group" );
 
     topfld_ = new uiIOObjSel( inpgrp, ctxt, su );
-    topfld_->setInput( horid_ );
+    topfld_->setInput( horid );
     topfld_->selectionDone.notify( mCB(this,uiGravHorCalc,topSel) );
 
     denvarfld_ = new uiGenInput( inpgrp, "Density (contrast)",
@@ -71,10 +76,17 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     attrnmfld_ = new uiGenInput( this, "Output attribute",
 	    			 StringInpSpec("Grav") );
     attrnmfld_->attach( alignedBelow, cutoffangfld_ );
-    uiLabel* lbl = new uiLabel( this, BufferString("(on '",hornm_,"')") );
+    uiLabel* lbl = new uiLabel( this,
+	    		BufferString("(on '",horioobj_->name(),"')") );
     lbl->attach( rightOf, attrnmfld_ );
 
     finaliseDone.notify( mCB(this,uiGravHorCalc,initFlds) );
+}
+
+
+uiGravHorCalc::~uiGravHorCalc()
+{
+    delete const_cast<IOObj*>( horioobj_ );
 }
 
 
@@ -95,6 +107,15 @@ void uiGravHorCalc::denVarSel( CallBacker* )
 
 void uiGravHorCalc::topSel( CallBacker* )
 {
+    const IOObj* ioobj = topfld_->ioobj( true );
+    if ( !ioobj ) ioobj = horioobj_;
+
+    EM::SurfaceIOData iod;
+    const char* emsg = EM::EMM().getSurfaceData( ioobj->key(), iod );
+    if ( emsg && *emsg )
+	{ uiMSG().error(emsg); return; }
+
+    denattrfld_->newSpec( StringListInpSpec(iod.valnames), 0 );
 }
 
 
@@ -102,5 +123,7 @@ void uiGravHorCalc::topSel( CallBacker* )
 
 bool uiGravHorCalc::acceptOK( CallBacker* )
 {
+    if ( !topfld_ ) return false;
+
     return false;
 }

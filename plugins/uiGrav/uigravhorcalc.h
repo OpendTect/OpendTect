@@ -8,6 +8,7 @@
 
 #include "uidialog.h"
 #include "emposid.h"
+class IOObj;
 class uiGenInput;
 class uiIOObjSel;
 class uiVelSel;
@@ -18,11 +19,12 @@ class uiGravHorCalc : public uiDialog
 public:
 
 			uiGravHorCalc(uiParent*,EM::ObjectID);
+			~uiGravHorCalc();
 
 protected:
 
     const MultiID	horid_;
-    BufferString	hornm_;
+    const IOObj*	horioobj_;
 
     uiIOObjSel*		topfld_;
     uiIOObjSel*		botfld_;
