@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.14 2010-04-19 06:13:34 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.15 2010-04-20 04:31:16 cvssatyaki Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -83,8 +83,8 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
     if ( !horizon2d )
 	return false;
 
-    set2DHorizon( *horizon2d );
     horizon2d->ref();
+    set2DHorizon( *horizon2d );
     
     PtrMan<Executor> saver = horizon2d->saver();
     uiTaskRunner writedlg( this );
