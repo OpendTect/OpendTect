@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.11 2010-03-30 08:02:13 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.12 2010-04-20 20:28:10 cvskris Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
@@ -245,10 +245,10 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
     SoScale* scale = SO_GET_ANY_PART( this, "subDraggerScale", SoScale );
     SbVec3f scalefactor = scale->scaleFactor.getValue();
 
-    SbVec3f newpos_ = dragger->translation.getValue();
-    SbVec3f newpos( xyzSnap(0,newpos_[0]*scalefactor[0]),
-	    		xyzSnap(1,-newpos_[2]*scalefactor[1]),
-			xyzSnap(2,newpos_[1]*scalefactor[2]) );
+    SbVec3f draggerpos = dragger->translation.getValue();
+    SbVec3f newpos( xyzSnap(0,draggerpos[0]*scalefactor[0]),
+	    		xyzSnap(1,-draggerpos[2]*scalefactor[1]),
+			xyzSnap(2,draggerpos[1]*scalefactor[2]) );
     bool ischanged = false;
 
 #define mIsZero(x) ( x < 1e-10 && x > -1e-10 )
