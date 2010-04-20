@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifrequencyattrib.cc,v 1.23 2009-10-14 14:37:32 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifrequencyattrib.cc,v 1.24 2010-04-20 18:09:13 cvskris Exp $";
 
 
 #include "uifrequencyattrib.h"
@@ -44,7 +44,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.6")
 
 {
-    inpfld = getImagInpFld( is2d );
+    inpfld = createImagInpFld( is2d );
 
     gatefld = new uiGenInput( this, gateLabel(), 
 	    		      FloatInpIntervalSpec().setName("Z start",0)

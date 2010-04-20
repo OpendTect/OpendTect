@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.44 2009-11-13 03:33:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.45 2010-04-20 18:09:13 cvskris Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -64,7 +64,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     	, acorrview_ ( new GapDeconACorrView(p) )
     	, positiondlg_(0)
 {
-    inpfld_ = getInpFld( is2d );
+    inpfld_ = createInpFld( is2d );
 
     BufferString gatestr = "Correlation window ";
     gatestr += SI().getZUnitString();

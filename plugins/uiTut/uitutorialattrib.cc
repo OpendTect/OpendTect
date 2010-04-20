@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitutorialattrib.cc,v 1.11 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutorialattrib.cc,v 1.12 2010-04-20 18:09:13 cvskris Exp $";
 
 
 #include "uitutorialattrib.h"
@@ -42,7 +42,7 @@ mInitAttribUI(uiTutorialAttrib,Tutorial,"Tutorial",sKeyBasicGrp())
 uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d)
 {
-    inpfld_ = getInpFld( is2d );
+    inpfld_ = createInpFld( is2d );
 
     actionfld_ = new uiGenInput( this, "Action", 
 	    			StringListInpSpec(actionstr) );

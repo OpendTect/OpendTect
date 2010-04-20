@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.29 2009-07-22 16:01:20 cvsbert Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.30 2010-04-20 18:09:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,9 +142,22 @@ protected:
     bool		zIsTime() const;
 
     ChangeTracker	chtr_;
-    uiAttrSel*		getInpFld(bool is2d,const char* txt=0);
-    uiAttrSel*		getInpFld(const uiAttrSelData&,const char* txt=0);
+    uiAttrSel*		createInpFld(bool is2d,const char* txt=0);
+    uiAttrSel*		createInpFld(const uiAttrSelData&,const char* txt=0);
+    uiImagAttrSel*	createImagInpFld(bool is2d);
+
+    uiAttrSel*		getInpFld(bool is2d,const char* txt=0)
+    			/*!<Obsoleted. Use createInpFld instead. Will be removed
+			    in version 4.4 of OpendTect or higher. */
+    			{ return createInpFld( is2d, txt ); }
+    uiAttrSel*		getInpFld(const uiAttrSelData& d,const char* txt=0);
+    			/*!<Obsoleted. Use createInpFld instead. Will be removed
+			    in version 4.4 of OpendTect or higher. */
+			{ return createInpFld( d, txt ); }
     uiImagAttrSel*	getImagInpFld(bool is2d);
+    			/*!<Obsoleted. Use createImagInpFld instead. Will be
+			    removed in version 4.4 of OpendTect or higher. */
+    			{ return createImagInpFld( is2d ); }
    
     BufferString        helpid_;
     BufferString	attrnm_;
@@ -152,7 +165,6 @@ protected:
     BufferString	errmsg_;
     DescSet*		ads_;
     bool		is2d_;
-
 
     static const char*	sKeyOtherGrp();
     static const char*	sKeyBasicGrp();

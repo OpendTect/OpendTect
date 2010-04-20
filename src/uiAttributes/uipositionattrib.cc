@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uipositionattrib.cc,v 1.16 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uipositionattrib.cc,v 1.17 2010-04-20 18:09:13 cvskris Exp $";
 
 
 #include "uipositionattrib.h"
@@ -39,7 +39,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.10")
 	
 {
-    inpfld = getInpFld(  is2d, "Input attribute" );
+    inpfld = createInpFld(  is2d, "Input attribute" );
 
     stepoutfld = new uiStepOutSel( this, is2d );
     stepoutfld->setFieldNames( "Inl Stepout", "Crl Stepout" );
@@ -56,7 +56,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
     operfld = new uiGenInput( this, "Operator", StringListInpSpec(opstrs) );
     operfld->attach( alignedBelow, steerfld );
 
-    outfld = getInpFld( is2d, "Output attribute" );
+    outfld = createInpFld( is2d, "Output attribute" );
     outfld->attach( alignedBelow, operfld );
 
     setHAlignObj( inpfld );

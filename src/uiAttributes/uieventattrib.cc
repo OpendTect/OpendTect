@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: uieventattrib.cc,v 1.16 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uieventattrib.cc,v 1.17 2010-04-20 18:09:13 cvskris Exp $";
 
 
 
@@ -53,7 +53,7 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
         : uiAttrDescEd(p,is2d,"101.0.4")
 	  
 {
-    inpfld = getInpFld( is2d );
+    inpfld = createInpFld( is2d );
 
     issinglefld = new uiGenInput( this, "Use",
 			BoolInpSpec(true,"Single event","Multiple events") );

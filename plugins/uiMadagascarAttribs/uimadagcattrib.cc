@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimadagcattrib.cc,v 1.1 2009-10-27 15:55:06 cvshelene Exp $";
+static const char* rcsID = "$Id: uimadagcattrib.cc,v 1.2 2010-04-20 18:09:13 cvskris Exp $";
 
 #include "uimadagcattrib.h"
 #include "madagcattrib.h"
@@ -25,7 +25,7 @@ mInitAttribUI(uiMadAGCAttrib,MadAGC,"Madagascar AGC","Madagascar AGC")
 uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,mTODOHelpID)
 {
-    inpfld_ = getInpFld( is2d, "Input Data");
+    inpfld_ = createInpFld( is2d, "Input Data");
     
     smoothzradiusfld_ = new uiGenInput( this, "Z smoothing radius (samples)",
 	    			   	IntInpSpec(0) );

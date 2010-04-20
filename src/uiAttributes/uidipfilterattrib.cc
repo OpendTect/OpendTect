@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidipfilterattrib.cc,v 1.22 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uidipfilterattrib.cc,v 1.23 2010-04-20 18:09:13 cvskris Exp $";
 
 #include "uidipfilterattrib.h"
 #include "dipfilterattrib.h"
@@ -41,7 +41,7 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.2")
 	  
 {
-    inpfld = getInpFld( is2d );
+    inpfld = createInpFld( is2d );
 
     szfld = new uiLabeledSpinBox( this, "Filter size" );
     szfld->box()->setMinValue( cMinVal );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uienergyattrib.cc,v 1.17 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uienergyattrib.cc,v 1.18 2010-04-20 18:09:13 cvskris Exp $";
 
 
 
@@ -38,7 +38,7 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.3")
 
 {
-    inpfld_ = getInpFld( is2d );
+    inpfld_ = createInpFld( is2d );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
 	    		FloatInpIntervalSpec().setName("Z start",0)

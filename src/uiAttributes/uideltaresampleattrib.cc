@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uideltaresampleattrib.cc,v 1.1 2010-03-22 10:13:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uideltaresampleattrib.cc,v 1.2 2010-04-20 18:09:13 cvskris Exp $";
 
 #include "uideltaresampleattrib.h"
 #include "deltaresampleattrib.h"
@@ -24,9 +24,9 @@ mInitAttribUI(uiDeltaResampleAttrib,DeltaResample,"Delta Resample",
 uiDeltaResampleAttrib::uiDeltaResampleAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.103")
 {
-    refcubefld_ = getInpFld( is2d, "Input Cube");
+    refcubefld_ = createInpFld( is2d, "Input Cube");
     
-    deltacubefld_ = getInpFld( is2d, "Delta Cube" );
+    deltacubefld_ = createInpFld( is2d, "Delta Cube" );
     deltacubefld_->attach( alignedBelow, refcubefld_ );
 
     periodfld_ = new uiGenInput( this, "Input is periodic", FloatInpSpec());

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisemblanceattrib.cc,v 1.4 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uisemblanceattrib.cc,v 1.5 2010-04-20 18:09:13 cvskris Exp $";
 
 #include "uisemblanceattrib.h"
 #include "semblanceattrib.h"
@@ -31,7 +31,7 @@ uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
     , sz2dfld_(0)
     , sz3dfld_(0)
 {
-    inpfld_ = getInpFld( is2d );
+    inpfld_ = createInpFld( is2d );
 
     uiGenInput* attachobj = 0;
     if ( is2d )

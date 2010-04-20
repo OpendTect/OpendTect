@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.25 2010-02-08 15:33:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.26 2010-04-20 18:09:13 cvskris Exp $";
 
 
 
@@ -57,7 +57,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.16")
  
 {
-    inpfld_ = getInpFld( is2d );
+    inpfld_ = createInpFld( is2d );
 
     gatefld_ = new uiGenInput( this, gateLabel(), 
 	    		       FloatInpIntervalSpec().setName("Z start",0)

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.36 2010-02-19 13:58:07 cvsbruno Exp $";
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.37 2010-04-20 18:09:13 cvskris Exp $";
 
 
 #include "uifreqfilterattrib.h"
@@ -43,7 +43,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.7")
 
 {
-    inpfld = getImagInpFld( is2d );
+    inpfld = createImagInpFld( is2d );
 
     isfftfld = new uiGenInput( this, "Filtering method", 
 			       BoolInpSpec(true,"FFT","ButterWorth") );

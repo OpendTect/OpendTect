@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.11 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.12 2010-04-20 18:09:13 cvskris Exp $";
 
 
 #include "uiinstantattrib.h"
@@ -47,7 +47,7 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.8")
 
 {
-    inpfld = getImagInpFld( is2d );
+    inpfld = createImagInpFld( is2d );
 
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outstrs) );
     outpfld->setElemSzPol( uiObject::MedVar );

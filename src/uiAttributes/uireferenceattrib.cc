@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uireferenceattrib.cc,v 1.14 2009-07-22 16:01:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uireferenceattrib.cc,v 1.15 2010-04-20 18:09:13 cvskris Exp $";
 
 
 
@@ -57,7 +57,7 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.11")
     
 {
-    inpfld = getInpFld( is2d );
+    inpfld = createInpFld( is2d );
     
     outpfld3d = new uiGenInput( this, "Desired Output",
 				   StringListInpSpec(outpstrs3d) );

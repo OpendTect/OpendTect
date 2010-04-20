@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimatchdeltaattrib.cc,v 1.1 2010-03-22 10:13:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uimatchdeltaattrib.cc,v 1.2 2010-04-20 18:09:13 cvskris Exp $";
 
 #include "uimatchdeltaattrib.h"
 #include "matchdeltaattrib.h"
@@ -24,9 +24,9 @@ mInitAttribUI(uiMatchDeltaAttrib,MatchDelta,"Match delta","Trace match")
 uiMatchDeltaAttrib::uiMatchDeltaAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.102")
 {
-    refcubefld_ = getInpFld( is2d, "Reference Cube");
+    refcubefld_ = createInpFld( is2d, "Reference Cube");
     
-    mtchcubefld_ = getInpFld( is2d, "Match Cube" );
+    mtchcubefld_ = createInpFld( is2d, "Match Cube" );
     mtchcubefld_->attach( alignedBelow, refcubefld_ );
 
     maxshiftfld_ = new uiGenInput( this, zDepLabel("Maximum","shift"),
