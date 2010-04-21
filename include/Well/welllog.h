@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.24 2009-11-30 11:50:32 cvsbruno Exp $
+ RCS:		$Id: welllog.h,v 1.25 2010-04-21 14:06:50 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,7 @@ public:
     void		insertAtDah(float dh,float val);
 
     Interval<float>&	valueRange() 			{ return range_; }
+    const Interval<float>& valueRange() const 		{ return range_; }
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
