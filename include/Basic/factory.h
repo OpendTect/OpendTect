@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.13 2009-07-22 16:01:14 cvsbert Exp $
+ RCS:		$Id: factory.h,v 1.14 2010-04-21 14:51:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,6 +194,27 @@ protected:
 };
 
 
+template <class T, class P0, class P1, class P2>
+mClass Factory3Param : public FactoryBase
+{
+public:
+    typedef			T* (*Creator)(P0,P1,P2);
+    inline void			addCreator(Creator,const char* nm=0,
+	    				   const char* usernm = 0);
+    				/*!<Name may be be null
+				   If nm is found, old creator is replaced.
+				   nm can be a SeparString, separated by
+				   cSeparator(), allowing multiple names,
+				   where the first name will be the main
+				   name that is returned in getNames. */
+    inline T*			create(const char* nm, P0, P1, P2,
+	    			       bool chknm=true)const;
+    				//!<Name may be be null, if null name is given
+				//!<chknm will be forced to false
+protected:
+
+    TypeSet<Creator>		creators_;
+};
 #define mCreateImpl( donames, createfunc ) \
     if ( donames ) \
     { \
@@ -271,6 +292,22 @@ T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
 }
 
 
+template <class T, class P0, class P1, class P2> inline
+void Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* name,
+					 const char* username )
+{
+    mAddCreator;
+}
+
+
+template <class T, class P0, class P1, class P2> inline
+T* Factory3Param<T,P0,P1,P2>::create( const char* name, P0 p0, P1 p1, P2 p2,
+				   bool chk ) const
+{
+    mCreateImpl( chk, creators_[idx]( p0, p1, p2 ) );
+}
+
+
 #define mDefineFactory( T, funcname ) \
 mGlobal ::Factory<T>& funcname()
 
@@ -316,6 +353,23 @@ static ::Factory2Param<T,P0,P1>& funcname()
 { \
     static PtrMan< ::Factory2Param<T,P0,P1> > inst =\
 	    new ::Factory2Param<T,P0,P1>; \
+    return *inst; \
+} 
+
+
+#define mDefineFactory3Param( T, P0, P1, P2, funcname ) \
+mGlobal ::Factory3Param<T,P0,P1,P2>& funcname()
+
+
+#define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
+static ::Factory3Param<T,P0,P1,P2>& funcname()
+
+
+#define mImplFactory3Param( T, P0, P1, P2,funcname ) \
+::Factory3Param<T,P0,P1,P2>& funcname() \
+{ \
+    static PtrMan< ::Factory3Param<T,P0,P1,P2> > inst =\
+	    new ::Factory3Param<T,P0,P1,P2>; \
     return *inst; \
 } 
 
