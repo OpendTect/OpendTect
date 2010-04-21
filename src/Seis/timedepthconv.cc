@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.22 2010-04-14 21:23:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.23 2010-04-21 16:05:17 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -591,7 +591,11 @@ const char* Time2DepthStretcher::getFromZDomainString() const
 
 
 const char* Time2DepthStretcher::getZDomainID() const
-{ return velreader_ && velreader_->ioObj() ? velreader_->ioObj()->key().buf() : 0; }
+{
+    return velreader_ && velreader_->ioObj()
+	? velreader_->ioObj()->key().buf()
+	: 0;
+}
 
 
 void Time2DepthStretcher::releaseData()
