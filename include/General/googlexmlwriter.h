@@ -1,15 +1,16 @@
-#ifndef odgooglewritexml_h
-#define odgooglewritexml_h
+#ifndef googlexmlwriter_h
+#define googlexmlwriter_h
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: googlexmlwriter.h,v 1.5 2009-11-16 13:56:10 cvsbert Exp $
+ * ID       : $Id: googlexmlwriter.h,v 1.6 2010-04-21 11:00:34 cvsbert Exp $
 -*/
 
 #include "bufstring.h"
 class StreamData;
 class Coord;
+class LatLong;
 class Color;
 class SurveyInfo;
 template <class T> class TypeSet;
@@ -48,6 +49,8 @@ public:
     void		writeIconStyles(const char* iconnm,int xpixoffs,
 					const char* ins=0);
     void		writePlaceMark(const char* iconnm,const Coord&,
+				       const char* nm);
+    void		writePlaceMark(const char* iconnm,const LatLong&,
 				       const char* nm);
     void		writeLine(const char* iconnm,const TypeSet<Coord>&,
 	    			  const char* nm);

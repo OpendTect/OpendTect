@@ -6,7 +6,7 @@
 
 static const char* rcsID = "$Id";
 
-#include "odgooglexmlwriter.h"
+#include "googlexmlwriter.h"
 #include "survinfo.h"
 #include "strmprov.h"
 #include "latlong.h"
@@ -128,9 +128,14 @@ void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, int xpixoffs,
 void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 					  const char* nm )
 {
-    if ( !isOK() ) return; mDeclIconStNm;
+    writePlaceMark( iconnm, SI().latlong2Coord().transform(crd), nm );
+}
 
-    const LatLong ll( SI().latlong2Coord().transform(crd) );
+
+void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
+					  const LatLong& ll, const char* nm )
+{
+    if ( !isOK() ) return; mDeclIconStNm;
 
     strm() << "\n\t<Placemark>\n"
 	   << "\t\t<name>" << nm << "</name>\n"

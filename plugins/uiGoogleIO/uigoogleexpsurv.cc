@@ -7,7 +7,7 @@
 static const char* rcsID = "$Id";
 
 #include "uigoogleexpsurv.h"
-#include "odgooglexmlwriter.h"
+#include "googlexmlwriter.h"
 #include "uisurvey.h"
 #include "uisellinest.h"
 #include "uifileinput.h"
