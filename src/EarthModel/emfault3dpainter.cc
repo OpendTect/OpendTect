@@ -1,11 +1,10 @@
-
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.cc,v 1.3 2010-03-23 06:14:14 cvskarthika Exp $
+ RCS:		$Id: emfault3dpainter.cc,v 1.4 2010-04-21 07:46:30 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -387,7 +386,7 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
 }
 
 
-bool Fault3DPainter::hasDiffActiveStick( const EM::PosID* pid )
+bool Fault3DPainter::hasDiffActiveStick( const EM::PosID* pid ) const
 {
     if ( pid->objectID() != activef3did_ ||
 	 pid->getRowCol().row != activestickid_ )
@@ -397,7 +396,8 @@ bool Fault3DPainter::hasDiffActiveStick( const EM::PosID* pid )
 }
 
 
-FlatView::Annotation::AuxData* Fault3DPainter::getAuxData( const EM::PosID* pid)
+FlatView::Annotation::AuxData* Fault3DPainter::getAuxData(
+						const EM::PosID* pid) const
 {
     int idx = -1;
 

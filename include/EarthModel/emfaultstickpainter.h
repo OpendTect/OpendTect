@@ -1,4 +1,3 @@
-
 #ifndef emfaultstickpainter_h
 #define emfaultstickpainter_h
 
@@ -8,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Jan 2010
- RCS:		$Id: emfaultstickpainter.h,v 1.5 2010-03-16 07:15:08 cvsumesh Exp $
+ RCS:		$Id: emfaultstickpainter.h,v 1.6 2010-04-21 07:46:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,15 +34,7 @@ public:
 			~FaultStickPainter();
 
     void		setCubeSampling(const CubeSampling&,bool);
-    const CubeSampling&	getCubeSampling()	{ return cs_; }
-
-	mStruct FaultStickSetInfo
-	{
-	    EM::ObjectID	id_;
-	    BufferString	name_;
-	    bool		lineenabled_;
-	    bool		nodeenabled_;
-	};
+    const CubeSampling&	getCubeSampling() const			{ return cs_; }
 
     void		addFaultStickSet(const MultiID&);
     void                addFaultStickSet(const EM::ObjectID&);
@@ -66,19 +57,19 @@ public:
 
     void		set2D(bool yn)		{ is2d_ = yn; }
     bool		is2D()			{ return is2d_; }
-    void		setLineName(const char* ln) { linenm_ = ln; }
-    const char*		getLineName()		{ return linenm_; }
-    void		setLineID(const MultiID& lsetid)	
+    void		setLineName( const char* ln ) 	{ linenm_ = ln; }
+    const char*		getLineName() const		{ return linenm_; }
+    void		setLineID( const MultiID& lsetid )	
     			{ lsetid_ = lsetid; }
-    MultiID&		getLineSetID()		{ return lsetid_; }
+    const MultiID&	getLineSetID() const		{ return lsetid_; }
     Coord		getNormalToTrace( int trcnr ) const;
 
     Notifier<FaultStickPainter>	abouttorepaint_;
     Notifier<FaultStickPainter> repaintdone_;
 
-    TypeSet<int>&	getTrcNos()		{ return trcnos_; }
-    TypeSet<float>&	getDistances()		{ return distances_; }
-    TypeSet<Coord>&	getCoords()		{ return coords_; }
+    TypeSet<int>&	getTrcNos()			{ return trcnos_; }
+    TypeSet<float>&	getDistances()			{ return distances_; }
+    TypeSet<Coord>&	getCoords()			{ return coords_; }
 
 protected:
 
@@ -99,7 +90,15 @@ protected:
 
     FlatView::Viewer&   viewer_;
 
-    ObjectSet<FaultStickSetInfo>			fssinfos_;
+    		mStruct FaultStickSetInfo
+	        {
+		    EM::ObjectID        id_;
+		    BufferString        name_;
+		    bool                lineenabled_;
+		    bool                nodeenabled_;
+		};
+
+    ObjectSet<FaultStickSetInfo>                        fssinfos_;
 
     ObjectSet<ObjectSet<ObjectSet<StkMarkerInfo> > >	faultmarkerline_;
 

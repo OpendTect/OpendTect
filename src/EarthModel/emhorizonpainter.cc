@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.19 2010-03-30 12:06:01 cvsbruno Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.20 2010-04-21 07:46:30 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,8 +167,8 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
     seedsauxdata->markerstyles_ += markerstyle_;
     viewer_.appearance().annot_.auxdata_ += seedsauxdata;
 
-    ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
-		new ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >;
+    ObjectSet<SectionMarkerLine>* sectionmarkerlines =
+					new ObjectSet<SectionMarkerLine>;
 
     if ( isupdating_ )
 	hormarkerlines_.replace( horidx, sectionmarkerlines );
@@ -177,8 +177,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 
     for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
-	ObjectSet<FlatView::Annotation::AuxData>* markerlines = 
-	    			new ObjectSet<FlatView::Annotation::AuxData>;
+	SectionMarkerLine* markerlines = new SectionMarkerLine;
 	(*sectionmarkerlines) += markerlines;
 	
 	bool newmarker = true;
@@ -283,13 +282,11 @@ void HorizonPainter::changePolyLineColor( const EM::ObjectID& oid )
 	  !hormarkerlines_[horpos] )
 	return;
 
-    ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines = 
-				hormarkerlines_[horpos];
+    ObjectSet<SectionMarkerLine>* sectionmarkerlines = hormarkerlines_[horpos];
 
     for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
-	ObjectSet<FlatView::Annotation::AuxData>* markerlines = 
-	    					(*sectionmarkerlines)[ids];
+	SectionMarkerLine* markerlines = (*sectionmarkerlines)[ids];
 	for ( int markidx=0; markidx<markerlines->size(); markidx++ )
 	{
 	    FlatView::Annotation::AuxData* auxdata = (*markerlines)[markidx];
@@ -313,13 +310,11 @@ void HorizonPainter::enableHorizonLine( const EM::ObjectID& oid, bool enabled )
 	  !hormarkerlines_[horpos] )
 	return;
 
-    ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
-						    hormarkerlines_[horpos];
+    ObjectSet<SectionMarkerLine>* sectionmarkerlines = hormarkerlines_[horpos];
 
     for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
-	ObjectSet<FlatView::Annotation::AuxData>* markerlines =
-					    (*sectionmarkerlines)[ids];
+	SectionMarkerLine* markerlines = (*sectionmarkerlines)[ids];
 	for ( int markidx=0; markidx<markerlines->size(); markidx++ )
 	{
 	    FlatView::Annotation::AuxData* auxdata = (*markerlines)[markidx];
@@ -365,16 +360,14 @@ void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
     if ( (horpos==-1) || (hormarkerlines_.size() <= 0) 
 	 || !hormarkerlines_[horpos] )
 	return;
-    ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
-				hormarkerlines_[horpos];
+    ObjectSet<SectionMarkerLine>* sectionmarkerlines = hormarkerlines_[horpos];
 
     BinID binid;
     binid.setSerialized( pid.subID() );
 
     for ( int ids=0; ids<hor->nrSections(); ids++ )
     {
-	ObjectSet<FlatView::Annotation::AuxData>* markerlines =
-	    					(*sectionmarkerlines)[ids];
+	SectionMarkerLine* markerlines = (*sectionmarkerlines)[ids];
 	for ( int markidx=0; markidx<markerlines->size(); markidx++ )
 	{
 	    Coord3 crd = hor->getPos( hor->sectionID(ids), pid.subID() );
@@ -481,12 +474,11 @@ void HorizonPainter::removeHorizon( const MultiID& mid )
 
 void HorizonPainter::removePolyLine( int idx )
 {
-    ObjectSet<ObjectSet<FlatView::Annotation::AuxData> >* sectionmarkerlines =
+    ObjectSet<SectionMarkerLine>* sectionmarkerlines =
 							hormarkerlines_[idx];
     for ( int markidx=sectionmarkerlines->size()-1; markidx>=0; markidx-- )
     {
-	ObjectSet<FlatView::Annotation::AuxData>* markerlines = 
-	    					(*sectionmarkerlines)[markidx];
+	SectionMarkerLine* markerlines = (*sectionmarkerlines)[markidx];
 	for ( int idy=markerlines->size()-1; idy>=0; idy-- )
 	    viewer_.appearance().annot_.auxdata_ -= (*markerlines)[idy];
 

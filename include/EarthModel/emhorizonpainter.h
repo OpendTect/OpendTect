@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.7 2009-12-23 04:28:11 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.8 2010-04-21 07:46:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,8 @@ protected:
     
     ObjectSet<HorizonInfo>  horizoninfos_;
 
-    ObjectSet< ObjectSet<ObjectSet<FlatView::Annotation::AuxData> > > 	hormarkerlines_;
+    typedef ObjectSet<FlatView::Annotation::AuxData> SectionMarkerLine;
+    ObjectSet< ObjectSet<SectionMarkerLine> > hormarkerlines_;
 
     ObjectSet<FlatView::Annotation::AuxData> horsmarkerseeds_;
     MarkerStyle2D	markerstyle_;

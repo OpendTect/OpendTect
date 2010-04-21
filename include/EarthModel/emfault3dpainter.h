@@ -1,4 +1,3 @@
-
 #ifndef emfault3dpainter_h
 #define emfault3dpainter_h
 
@@ -8,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Feb 2010
- RCS:		$Id: emfault3dpainter.h,v 1.2 2010-03-16 07:15:08 cvsumesh Exp $
+ RCS:		$Id: emfault3dpainter.h,v 1.3 2010-04-21 07:46:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,26 +31,18 @@ public:
     			Fault3DPainter(FlatView::Viewer&);
 			~Fault3DPainter();
 
-	mStruct Fault3DInfo
-	{
-	    EM::ObjectID	id_;
-	    BufferString	name_;
-	    bool		lineenabled_;
-	    bool		nodeenabled_;
-	};
-
     void		setCubeSampling(const CubeSampling&,bool);
-    const CubeSampling&	getCubeSampling()	{ return cs_; }
+    const CubeSampling&	getCubeSampling() const			{ return cs_; }
 
     void		addFault3D(const MultiID&);
     void		addFault3D(const EM::ObjectID&);
 
     void		setActiveF3D(const EM::ObjectID&);
     void		setActiveStick(EM::PosID&);
-    int			getActiveStickId()	{ return activestickid_; }
+    const int		getActiveStickId() const      { return activestickid_; }
     void		setMarkerLineStyle(const LineStyle&);
-    bool		hasDiffActiveStick(const EM::PosID*);
-    FlatView::Annotation::AuxData* getAuxData(const EM::PosID*);
+    bool		hasDiffActiveStick(const EM::PosID*) const;
+    FlatView::Annotation::AuxData* getAuxData(const EM::PosID*) const;
 
 	mStruct StkMarkerInfo
 	{
@@ -89,6 +80,14 @@ protected:
 
     LineStyle		markerlinestyle_;
     MarkerStyle2D	markerstyle_;
+
+		mStruct Fault3DInfo
+		{
+		    EM::ObjectID        id_;
+		    BufferString        name_;
+		    bool                lineenabled_;
+		    bool                nodeenabled_;
+		};
 
     ObjectSet<Fault3DInfo>		    f3dinfos_;
     ObjectSet<ObjectSet<Fault3DMarker> >    f3dmarkers_;
