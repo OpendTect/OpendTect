@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.207 2010-04-09 12:03:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.208 2010-04-21 10:18:24 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -387,7 +387,7 @@ void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
 
-    uiPopupMenu* voitm = new uiPopupMenu( &appl_, "&Create Volume output" );
+    uiPopupMenu* voitm = new uiPopupMenu( &appl_, "&Create Seismic Output" );
     create2D3DMnu( voitm, "&Attribute", mSeisOut2DMnuItm, mSeisOut3DMnuItm );
     if ( SI().has3D() )
     {
@@ -418,7 +418,7 @@ void uiODMenuMgr::fillProcMenu()
 
     procmnu_->insertItem( voitm );
 
-    uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create Grid output");
+    uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create Grid Output");
     create2D3DMnu( grditm, "&Grid", mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
     procmnu_->insertItem( grditm );
 
