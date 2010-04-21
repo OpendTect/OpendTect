@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uizaxistransform.cc,v 1.1 2009-07-26 03:59:05 cvskris Exp $";
+static const char* rcsID = "$Id: uizaxistransform.cc,v 1.2 2010-04-21 16:06:45 cvskris Exp $";
 
 #include "uizaxistransform.h"
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: uizaxistransform.cc,v 1.1 2009-07-26 03:59:05 c
 #include "uigeninput.h"
 #include "uidialog.h"
 
-mImplFactory2Param( uiZAxisTransform, uiParent*, const char*,
+mImplFactory3Param( uiZAxisTransform, uiParent*, const char*, const char*,
 		    uiZAxisTransform::factory );
 
 
@@ -26,7 +26,7 @@ uiZAxisTransform::uiZAxisTransform( uiParent* p )
 
 
 uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
-	const char* fromdomain )
+	const char* fromdomain, const char* todomain )
     : uiGroup( p )
 {
     transflds_.allowNull( true );
@@ -44,7 +44,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     for ( int idx=0; idx<factorynames.size(); idx++ )
     {
 	uiZAxisTransform* uizat = uiZAxisTransform::factory().create(
-		factorynames[idx]->buf(), dlg, fromdomain );
+		factorynames[idx]->buf(), dlg, fromdomain, todomain );
 	if ( !uizat )
 	    continue;
 

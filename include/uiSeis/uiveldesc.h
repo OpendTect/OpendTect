@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.17 2010-03-22 18:23:03 cvsyuancheng Exp $
+ RCS:           $Id: uiveldesc.h,v 1.18 2010-04-21 16:06:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,7 +138,7 @@ mClass uiTime2Depth : public uiTimeDepthBase
 {
 public:
     static void			initClass();
-    static uiZAxisTransform*	create(uiParent*,const char*);
+    static uiZAxisTransform*	create(uiParent*,const char*,const char*);
 
 				uiTime2Depth(uiParent*);
 };
@@ -148,7 +148,7 @@ mClass uiDepth2Time : public uiTimeDepthBase
 {
 public:
     static void			initClass();
-    static uiZAxisTransform*	create(uiParent*,const char*);
+    static uiZAxisTransform*	create(uiParent*,const char*,const char*);
 
 				uiDepth2Time(uiParent*);
 };

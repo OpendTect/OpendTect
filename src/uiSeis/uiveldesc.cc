@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.37 2010-03-22 18:23:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.38 2010-04-21 16:06:45 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -440,9 +440,13 @@ void uiTime2Depth::initClass()
 }
 
 
-uiZAxisTransform* uiTime2Depth::create( uiParent* p, const char* fromdomain )
+uiZAxisTransform* uiTime2Depth::create( uiParent* p, const char* fromdomain,
+					const char* todomain )
 {
-    if ( fromdomain!=ZDomain::sKeyTWT() )
+    if ( fromdomain && fromdomain!=ZDomain::sKeyTWT() )
+	return 0;
+
+    if ( todomain && todomain!=ZDomain::sKeyDepth() )
 	return 0;
 
     return new uiTime2Depth( p );
@@ -461,9 +465,13 @@ void uiDepth2Time::initClass()
 }
 
 
-uiZAxisTransform* uiDepth2Time::create( uiParent* p, const char* fromdomain )
+uiZAxisTransform* uiDepth2Time::create( uiParent* p, const char* fromdomain,
+       					const char* todomain )
 {
-    if ( fromdomain!=ZDomain::sKeyDepth() )
+    if ( fromdomain && fromdomain!=ZDomain::sKeyDepth() )
+	return 0;
+
+    if ( todomain && todomain!=ZDomain::sKeyTWT() )
 	return 0;
 
     return new uiDepth2Time( p );

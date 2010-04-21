@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uizaxistransform.h,v 1.1 2009-07-26 03:59:05 cvskris Exp $
+ RCS:           $Id: uizaxistransform.h,v 1.2 2010-04-21 16:06:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,8 @@ class uiDialog;
 mClass uiZAxisTransform : public uiDlgGroup
 {
 public:
-    mDefineFactory2ParamInClass(uiZAxisTransform,uiParent*,const char*,factory);
+    mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
+	    			const char*,const char*,factory);
 
     virtual ZAxisTransform*	getSelection()			= 0;
     virtual const char*		selName() const			= 0;
@@ -42,7 +43,8 @@ mClass uiZAxisTransformSel : public uiGroup
 {
 public:
     				uiZAxisTransformSel(uiParent*, bool withnone,
-						    const char* fromdomain=0);
+						    const char* fromdomain=0,
+						    const char* todomain=0);
     ZAxisTransform*		getSelection();
     NotifierAccess*		selectionDone();
     int				nrTransforms() const;

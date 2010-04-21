@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.66 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.67 2010-04-21 16:06:45 cvskris Exp $";
 
 #include "uiexphorizon.h"
 
@@ -63,7 +63,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
  			      mCB(this,uiExportHorizon, settingsCB), false);
     settingsbutt_->attach( rightOf, typfld_ );
     const char* zmodes[] = { sKey::Yes, sKey::No, "Transformed", 0 };
-    transfld_ = new uiZAxisTransformSel( this, true, SI().getZDomainString() );
+    transfld_ = new uiZAxisTransformSel( this, true, SI().getZDomainString(),
+	    				 0 );
     if ( !transfld_->nrTransforms() )
     {
 	zmodes[2] = 0;
