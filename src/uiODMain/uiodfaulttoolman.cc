@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.7 2010-04-15 15:41:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.8 2010-04-21 07:09:02 cvsnanne Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -389,8 +389,9 @@ uiODFaultToolMan::~uiODFaultToolMan()
 
 void uiODFaultToolMan::finaliseDoneCB( CallBacker* )
 {
-    settingsdlg_->go();
-    settingsdlg_->close();
+// TODO: For Jaap, go should only be called in settingsToggleCB
+//    settingsdlg_->go();
+//    settingsdlg_->close();
     clearCurDisplayObj();
 }
 
