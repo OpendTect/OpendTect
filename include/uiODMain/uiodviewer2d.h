@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.15 2010-04-15 12:41:05 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.16 2010-04-22 11:11:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 class uiFlatViewAuxDataEditor;
 class uiFlatViewStdControl;
 class uiFlatViewWin;
-class uiWellToSeisMainWin;
 class uiMainWin;
 class uiODMain;
 class uiSlicePos2DView;
@@ -73,15 +72,6 @@ protected:
     void			updateOldActiveVolInUiMPEManCB(CallBacker*);
     void			restoreActiveVolInUiMPEManCB(CallBacker*);
     void			updateHorFlatViewerSeedPickStatus(CallBacker*);
-};
-
-
-mClass uiODWellSeisViewer2D : public uiODViewer2D
-{
-public:
-				uiODWellSeisViewer2D(uiODMain&,int visid);
-
-    bool			createViewWin(DataPack::ID,bool wva);
 };
 
 #endif

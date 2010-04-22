@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.73 2010-02-19 13:48:48 cvskarthika Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.74 2010-04-22 11:11:36 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,8 +116,6 @@ public:
     uiODTreeTop*		getTreeItemMgr(const uiListView*) const;
 
     void			displayIn2DViewer(int visid,int attribid,
-	    					  bool wva);
-    void			displayIn2DWellPanel(int visid,int attribid,
 	    					  bool wva);
     void			remove2DViewer(int visid);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.32 2010-04-19 06:07:09 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.33 2010-04-22 11:11:36 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -26,7 +26,6 @@ static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.32 2010-04-19 06:07:09 cvss
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
-#include "uiwelltoseismicmainwin.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -260,10 +259,13 @@ void uiODViewer2D::createViewWinEditors()
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
-    DataPack::ID packid = viewwin()->viewer().packID( true );
-    DPM(DataPackMgr::FlatID()).release( packid );
-    packid = viewwin()->viewer().packID( false );
-    DPM(DataPackMgr::FlatID()).release( packid );
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    {
+	DataPack::ID packid = viewwin()->viewer( ivwr ).packID( true );
+	DPM(DataPackMgr::FlatID()).release( packid );
+	packid = viewwin()->viewer( ivwr ).packID( false );
+	DPM(DataPackMgr::FlatID()).release( packid );
+    }
 
     for ( int idx=0; idx<horfveditors_.size(); idx++ )
     {
@@ -382,26 +384,3 @@ void uiODViewer2D::updateHorFlatViewerSeedPickStatus( CallBacker* )
 		appl_.applMgr().visServer()->isTrackingSetupActive() );
     }
 }
-
-
-
-uiODWellSeisViewer2D::uiODWellSeisViewer2D( uiODMain& appl, int visid )
-    : uiODViewer2D(appl,visid)
-{
-}
-
-
-bool uiODWellSeisViewer2D::createViewWin( DataPack::ID id, bool wva )
-{    
-    uiWellToSeisMGR mgr( &appl_, id, false  );
-    uiWellToSeisMainWin* win = mgr.win();
-    if ( !win ) 
-    { delete win; return false; }
-    viewwin_ = win;
-    viewstdcontrol_ = (uiFlatViewStdControl*)win->controlView(); 
-    win->windowClosed.notify( mCB(this,uiODWellSeisViewer2D,winCloseCB) );
-    viewwin()->start();
-    createViewWinEditors();
-    return true;
-}
-

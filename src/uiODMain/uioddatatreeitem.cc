@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.49 2010-04-22 09:53:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.50 2010-04-22 11:11:36 cvsbruno Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -48,7 +48,6 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , addto2dvieweritem_("Display in a &2D Viewer as")
     , view2dwvaitem_("&Wiggle")
     , view2dvditem_("&VD")
-    , seiswellitem_("Correlate with Wells in a &2D Panel")
 {}
 
 
@@ -244,11 +243,9 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
 	mAddMenuItem( &addto2dvieweritem_, &view2dvditem_, hasattrib, false )
 	mAddMenuItem( menu, &addto2dvieweritem_, hasattrib, false )
-	mAddMenuItem( menu, &seiswellitem_, hasattrib, false )
     }
     else
     {
-	mResetMenuItem( &seiswellitem_ );
 	mResetMenuItem( &addto2dvieweritem_ );
 	mResetMenuItem( &view2dwvaitem_ );
 	mResetMenuItem( &view2dvditem_ );
@@ -349,12 +346,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	ODMainWin()->sceneMgr().displayIn2DViewer( displayID(), attribNr(),
 						   mnuid==view2dwvaitem_.id );
-	menu->setIsHandled( true );
-    }
-    else if ( mnuid == seiswellitem_.id )
-    {
-	ODMainWin()->sceneMgr().displayIn2DWellPanel( displayID(), attribNr(),
-						   	false );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==removemnuitem_.id )
