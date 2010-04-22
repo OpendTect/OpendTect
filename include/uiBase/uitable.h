@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.59 2010-02-27 10:42:46 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.60 2010-04-22 19:06:51 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,10 +123,14 @@ public:
     bool		gridShown() const;
     void		setCurrentCell(const RowCol&,bool noselection=false);
     void		setCellObject(const RowCol&,uiObject*);
+    			/*!<\note The uiObject should be given a NULL pointer
+			     as uiParent* at construction. */
     uiObject*		getCellObject(const RowCol&) const;
     void		clearCellObject(const RowCol&);
     RowCol		getCell(uiObject*);
     void		setCellGroup(const RowCol&,uiGroup*);
+    			/*!<\note The uiObject should be given a NULL pointer
+			     as uiParent* at construction. */
     uiGroup*		getCellGroup(const RowCol&) const;
     RowCol		getCell(uiGroup*);
 
