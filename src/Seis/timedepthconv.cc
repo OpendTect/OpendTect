@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.23 2010-04-21 16:05:17 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.24 2010-04-22 21:13:49 cvsyuancheng Exp $";
 
 #include "timedepthconv.h"
 
@@ -318,7 +318,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
     Array3D<float>* arr = voidata_[idx];
     if ( !arr )
     {
-	arr = new Array3DImpl<float>(voi.nrInl(),voi.nrCrl(),voi.nrZ());
+	arr = new Array3DImpl<float>(voi.nrInl(),voi.nrCrl(),voi.nrZ()+1 );
 	if ( !arr->isOK() )
 	    return false;
 
