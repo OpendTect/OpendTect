@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.211 2009-10-16 05:49:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.212 2010-04-22 09:53:48 cvsranojay Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -26,9 +26,9 @@ static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.211 2009-10-16 05:49:17 cvs
 
 
 const char* uiODTreeTop::sceneidkey()		{ return "Sceneid"; }
-const char* uiODTreeTop::viewerptr = "Viewer";
-const char* uiODTreeTop::applmgrstr = "Applmgr";
-const char* uiODTreeTop::scenestr = "Scene";
+const char* uiODTreeTop::viewerptr()		{ return "Viewer"; }
+const char* uiODTreeTop::applmgrstr()		{ return "Applmgr"; }
+const char* uiODTreeTop::scenestr()		{ return "Scene"; }
 
 
 uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
@@ -37,8 +37,8 @@ uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
     , tfs(tfs_)
 {
     setProperty<int>( sceneidkey(), sovwr->sceneID() );
-    setPropertyPtr( viewerptr, sovwr );
-    setPropertyPtr( applmgrstr, am );
+    setPropertyPtr( viewerptr(), sovwr );
+    setPropertyPtr( applmgrstr(), am );
 
     tfs->addnotifier.notify( mCB(this,uiODTreeTop,addFactoryCB) );
     tfs->removenotifier.notify( mCB(this,uiODTreeTop,removeFactoryCB) );
@@ -70,7 +70,7 @@ bool uiODTreeTop::select(int selkey)
 uiODApplMgr* uiODTreeTop::applMgr()
 {
     void* res = 0;
-    getPropertyPtr( applmgrstr, res );
+    getPropertyPtr( applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
 
@@ -128,7 +128,7 @@ bool uiODTreeItem::anyButtonClick( uiListViewItem* item )
 uiODApplMgr* uiODTreeItem::applMgr()
 {
     void* res = 0;
-    getPropertyPtr( uiODTreeTop::applmgrstr, res );
+    getPropertyPtr( uiODTreeTop::applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
 
@@ -136,7 +136,7 @@ uiODApplMgr* uiODTreeItem::applMgr()
 uiSoViewer* uiODTreeItem::viewer()
 {
     void* res = 0;
-    getPropertyPtr( uiODTreeTop::viewerptr, res );
+    getPropertyPtr( uiODTreeTop::viewerptr(), res );
     return reinterpret_cast<uiSoViewer*>( res );
 }
 

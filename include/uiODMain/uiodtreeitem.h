@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.34 2009-07-22 16:01:22 cvsbert Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.35 2010-04-22 09:53:48 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -47,9 +47,9 @@ public:
 			~uiODTreeTop();
 
     static const char*	sceneidkey();
-    static const char*	viewerptr;
-    static const char*	applmgrstr;
-    static const char*	scenestr;
+    static const char*	viewerptr();
+    static const char*	applmgrstr();
+    static const char*	scenestr();
 
     int			sceneID() const;
     bool		select(int selkey);

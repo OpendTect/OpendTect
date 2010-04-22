@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.48 2010-01-21 13:07:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.49 2010-04-22 09:53:48 cvsranojay Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -91,7 +91,7 @@ int uiODDataTreeItem::uiListViewItemType() const
 uiODApplMgr* uiODDataTreeItem::applMgr() const
 {
     void* res = 0;
-    getPropertyPtr( uiODTreeTop::applmgrstr, res );
+    getPropertyPtr( uiODTreeTop::applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
 
@@ -99,7 +99,7 @@ uiODApplMgr* uiODDataTreeItem::applMgr() const
 uiSoViewer* uiODDataTreeItem::viewer() const
 {
     void* res = 0;
-    getPropertyPtr( uiODTreeTop::viewerptr, res );
+    getPropertyPtr( uiODTreeTop::viewerptr(), res );
     return reinterpret_cast<uiSoViewer*>( res );
 }
 
