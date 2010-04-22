@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.8 2010-04-21 07:09:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttoolman.cc,v 1.9 2010-04-22 04:22:25 cvsranojay Exp $";
 
 
 #include "uiodfaulttoolman.h"
@@ -338,7 +338,11 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 				       "Output color" );
     tboutputcolor_->colorChanged.notify(
 	    			mCB(this,uiODFaultToolMan,outputColorChg) );
+#ifndef __win__
     toolbar_->addObject( tboutputcolor_->getButton() );
+#else
+    toolbar_->addObject(  tboutputcolor_->attachObj() );
+#endif
 
     settingsbutidx_ = toolbar_->addButton( "tracker-settings.png",
 	    			mCB(this,uiODFaultToolMan,settingsToggleCB),
