@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.37 2009-11-24 13:04:28 cvsbruno Exp $
+ RCS:           $Id: arrayndutils.h,v 1.38 2010-04-22 14:03:03 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -52,15 +52,27 @@ inline void operator<<( std::ostream& strm, const ArrayND<T>& array )
 /*! \brief Removes the DC component from an ArrayND.
 
 If no output is given, removeBias( ) will store the result in the input
-ArrayND.
+ArrayND. User can choose to remove only the average or an eventual linear trend.
 
 */
+
+
+#define mComputeTrendAandB( sz ) \
+	const T aval = ( (T)sz * crosssum - sum * (T)sumindexes ) / \
+		       ( (T)sz * (T)sumsqidx - (T)sumindexes * (T)sumindexes );\
+	const T bval = ( sum * (T)sumsqidx - (T)sumindexes * crosssum ) / \
+		       ( (T)sz * (T)sumsqidx - (T)sumindexes * (T)sumindexes );
+
 template <class T>
-inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_ = 0)
+inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_=0, bool onlyavg=true )
 {
     ArrayND<T>* out = out_ ? out_ : in; 
 
     T avg = 0;
+    T sum = 0;
+    int sumindexes = 0;
+    int sumsqidx = 0;
+    T crosssum = 0;
 
     if ( out_ && in->info() != out_->info() ) return false;
 
@@ -72,29 +84,47 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_ = 0)
     if ( inpptr && outptr )
     {
 	for ( int idx=0; idx<sz; idx++ )
-	    avg += inpptr[idx]; 
+	{
+	    sum += inpptr[idx];
+	    sumindexes += idx;
+	    sumsqidx += idx * idx;
+	    crosssum += inpptr[idx] * (T)idx;
+	} 
 
-	avg /= sz;
+	avg = sum / (T)sz;
+	mComputeTrendAandB(sz)
 
 	for ( int idx=0; idx<sz; idx++ )
-	    outptr[idx] = inpptr[idx] - avg;
+	    outptr[idx] = onlyavg ? inpptr[idx] - avg
+				  : inpptr[idx] - avg - (aval*(T)idx+bval);
     }
     else
     {
 	ArrayNDIter iter( in->info() );
+	int index = 0;
 
 	do
 	{
-	    avg += in->getND( iter.getPos() );
+	    const T value = in->getND( iter.getPos() );
+	    sum += value;
+	    sumindexes += index;
+	    sumsqidx += index * index;
+	    crosssum += value * (T)index;
+	    index++;
 	} while ( iter.next() );
 
 	iter.reset();
-	avg /= sz;
+	index = 0;
+	avg = sum / (T)sz;
+	mComputeTrendAandB(index)
 
 	do
 	{
-	    out->setND(iter.getPos(), in->getND( iter.getPos() ) - avg); 
-
+	    const T outval = 
+		onlyavg ? in->getND( iter.getPos() ) - avg
+		        : in->getND( iter.getPos() ) - avg-(aval*(T)index+bval);
+	    out->setND(iter.getPos(), outval );
+	    index++;
 	} while ( iter.next() );
     }
 
