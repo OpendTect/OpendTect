@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicursor.cc,v 1.15 2010-04-20 12:44:28 cvsjaap Exp $";
+static const char* rcsID = "$Id: uicursor.cc,v 1.16 2010-04-22 14:49:26 cvsjaap Exp $";
 
 #include "uicursor.h"
 #include "pixmap.h"
@@ -47,6 +47,7 @@ void uiCursorManager::fillQCursor( const MouseCursor& mc, QCursor& qcursor )
 
 
 static bool prioritycursoractive_ = false;
+static MouseCursor::Shape overrideshape_ = MouseCursor::NotSet;
 
 
 void uiCursorManager::setPriorityCursor( MouseCursor::Shape mcshape )
@@ -70,31 +71,13 @@ void uiCursorManager::unsetPriorityCursor()
 
 
 MouseCursor::Shape uiCursorManager::overrideCursorShape()
-{
-    if ( !QApplication::overrideCursor() )
-	return MouseCursor::NotSet;
-
-    QCursor topcursor = *QApplication::overrideCursor();
-
-    if ( !prioritycursoractive_ )
-	return (MouseCursor::Shape) topcursor.shape();
-
-    QApplication::restoreOverrideCursor();
-
-    if ( !QApplication::overrideCursor() )
-    {
-	QApplication::setOverrideCursor( topcursor );
-	return MouseCursor::NotSet;
-    }
-
-    QCursor overridecursor = *QApplication::overrideCursor();
-    QApplication::setOverrideCursor( topcursor );
-    return (MouseCursor::Shape) overridecursor.shape();
-}
+{ return overrideshape_; }
 
 
 static void setOverrideQCursor( const QCursor& qcursor, bool replace )
 {
+    overrideshape_ = (MouseCursor::Shape) qcursor.shape();
+
     QCursor topcursor;
     const bool stackwasempty = !QApplication::overrideCursor();
     if ( !stackwasempty )
@@ -139,16 +122,31 @@ void uiCursorManager::setOverrideCursor( const MouseCursor& mc, bool replace )
 }
 
 
+#define mStoreOverrideShape() \
+{ \
+    overrideshape_ = MouseCursor::NotSet; \
+    if ( QApplication::overrideCursor() ) \
+    { \
+	const QCursor overridecursor = *QApplication::overrideCursor(); \
+	overrideshape_ = (MouseCursor::Shape) overridecursor.shape(); \
+    } \
+}
+
 void uiCursorManager::restoreInternal()
 {
-    QCursor topcursor;
-    const bool stackwasempty = !QApplication::overrideCursor();
-    if ( stackwasempty )
+    if ( !QApplication::overrideCursor() )
 	return;
 
-    topcursor = *QApplication::overrideCursor();
+    const QCursor topcursor = *QApplication::overrideCursor();
     QApplication::restoreOverrideCursor();
 
-    if ( prioritycursoractive_ && !stackwasempty )
-	QApplication::changeOverrideCursor( topcursor );
+    if ( !prioritycursoractive_ )
+    {
+	mStoreOverrideShape();
+	return;
+    }
+
+    QApplication::restoreOverrideCursor();
+    mStoreOverrideShape();
+    QApplication::setOverrideCursor( topcursor );
 }
