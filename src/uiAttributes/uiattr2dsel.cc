@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.10 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.11 2010-04-23 15:33:30 cvshelene Exp $";
 
 #include "uiattr2dsel.h"
 #include "attribdescset.h"
@@ -201,7 +201,7 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
     else if ( seltype_ == 1 )
 	descid_ = attrinf_->attrids_[selidx];
     else if ( seltype_ == 2 )
-	descid_ = DescID( selidx, true );
+	descid_ = DescID( selidx, false );
 
     return true;
 }

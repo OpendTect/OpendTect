@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.91 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.92 2010-04-23 15:33:29 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -28,6 +28,7 @@ namespace Attrib
 
 DescSet::DescSet( bool is2d )
     : is2d_(is2d)
+    , storedattronly_(false)
     , descToBeRemoved(this)
 {
     ensureDefStoredPresent();
@@ -36,6 +37,7 @@ DescSet::DescSet( bool is2d )
 
 DescSet::DescSet( const DescSet& ds )
     : is2d_(ds.is2d_)
+    , storedattronly_(ds.storedattronly_)
     , descToBeRemoved(this)
 {
     *this = ds;
@@ -83,6 +85,7 @@ DescSet& DescSet::operator =( const DescSet& ds )
     {
 	removeAll( false );
 	is2d_ = ds.is2d_;
+	storedattronly_ = ds.storedattronly_;
 	for ( int idx=0; idx<ds.nrDescs(); idx++ )
 	    addDesc( new Desc( *ds.descs_[idx] ), ds.ids_[idx] );
 	updateInputs();
@@ -265,6 +268,8 @@ void DescSet::removeAll( bool kpdef )
 }
 
 
+//As we do not store DescSets with storedattronly_=true it is useless to check
+//for this in usePar and fillPar 
 void DescSet::fillPar( IOPar& par ) const
 {
     int maxid = 0;
@@ -514,7 +519,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    int inpid;
 	    if ( !descpar->get(key,inpid) ) continue;
 
-	    Desc* inpdesc = getDesc( DescID(inpid,true) );
+	    Desc* inpdesc = getDesc( DescID(inpid,false) );
 	    if ( !inpdesc ) continue;
 
 	    dsc.setInput( input, inpdesc );
@@ -585,7 +590,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	 }
 	
 	dsc->updateParams();
-	addDesc( dsc, DescID(id,true) );
+	addDesc( dsc, DescID(id,false) );
 	copypar.mergeComp( *descpar, toString(id) );
     }
     
@@ -593,7 +598,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
     useOldSteeringPar(copypar, newsteeringdescs, errmsgs);
 
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
-	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1, true ) );
+	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1, false ) );
 
     int nrdescsnosteer = ids_.size()-newsteeringdescs.size();
     if ( !setAllInputDescs( nrdescsnosteer, copypar, errmsgs ) )
@@ -624,7 +629,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 				     steeringdescid) )
 	        mHandleParseErr( "Cannot create steering desc" );
 	    
-	    Desc* dsc = getDesc( DescID(id,true) );
+	    Desc* dsc = getDesc( DescID(id,false) );
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
 		BufferString inputstr = IOPar::compKey( "Input", idx );
@@ -708,14 +713,14 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     const char* inldipstr = steeringpar.find("InlDipID");
     if ( inldipstr )
     {
-	DescID inldipid( atoi(inldipstr), true );
+	DescID inldipid( atoi(inldipstr), false );
 	stdesc->setInput( 0, getDesc(inldipid) );
     }
 
     const char* crldipstr = steeringpar.find("CrlDipID");
     if ( crldipstr )
     {
-	DescID crldipid( atoi(crldipstr), true );
+	DescID crldipid( atoi(crldipstr), false );
 	stdesc->setInput( 1, getDesc(crldipid) );
     }	
 
@@ -752,7 +757,7 @@ DescID DescSet::getFreeID() const
 	    highestid = index;
     }
 
-    return DescID( highestid+1, true );
+    return DescID( highestid+1, storedattronly_ );
 }
 
 

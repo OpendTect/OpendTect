@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.154 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.155 2010-04-23 15:33:30 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -331,7 +331,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zdomainkey,
 	objref = ioobj ? ioobj->name() : "";
     }
 
-    selspec.set( 0, isnla ? DescID(attrdata.outputnr_,true)
+    selspec.set( 0, isnla ? DescID(attrdata.outputnr_,false)
 	    		  : attrdata.attribid_, isnla, objref );
     if ( isnla && attrdata.nlamodel_ )
 	selspec.setRefFromID( *attrdata.nlamodel_ );
@@ -530,6 +530,7 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
     const DataCubes* output = createOutput( cs, cache );
     if ( !output || !output->nrCubes() )  return DataPack::cNoID();
 
+    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const bool isflat = cs.isFlat();
     DataPack* newpack;
     if ( isflat )
@@ -679,8 +680,8 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	return -1;
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    DataPack* newpack =
-		new Attrib::FlatRdmTrcsDataPack( targetID(false), output, path);
+    DataPack* newpack = new Attrib::FlatRdmTrcsDataPack( targetID(false),
+							 output, path );
     newpack->setName( targetspecs_[0].userRef() );
     dpman.add( newpack );
     return newpack->id();
@@ -727,9 +728,10 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 	return -1;
 
     int component = 0;
+    const bool isstored = targetspecs_[0].isStored();
     Attrib::DescID adid = targetID(true);
     const Attrib::DescSet* curds =
-			DSMPack().getDescSet( true, targetspecs_[0].isStored());
+			DSMPack().getDescSet( true, isstored );
     if ( curds )
     {
 	const Attrib::Desc* targetdesc = curds->getDesc( adid );
@@ -738,8 +740,8 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     }
     
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    Flat2DDHDataPack* newpack = new Attrib::Flat2DDHDataPack( adid, *data2d,
-	    						      false, component);
+    Flat2DDHDataPack* newpack =
+	new Attrib::Flat2DDHDataPack( adid, *data2d, false, component );
     newpack->setName( linekey.attrName() );
     dpman.add( newpack );
     return newpack->id();
@@ -1219,7 +1221,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	objref = ioobj ? ioobj->name() : "";
     }
 
-    DescID did = isnla ? DescID(outputnr,true) : attribid;
+    DescID did = isnla ? DescID(outputnr,false) : attribid;
     as.set( 0, did, isnla, objref );
 
     BufferString bfs;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.21 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.22 2010-04-23 15:33:30 cvshelene Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -261,7 +261,7 @@ bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
 	    SelSpec tmpspec( selinfo.nlaoutnms_.get( idx ) );
 	    tmpspec.setIDFromRef(nlamdl_);
 	    aem.setAttribSpec( tmpspec );
-	    DescID nlaid(-1, true);
+	    DescID nlaid(-1, false);
 	    BufferString errmsg;
 	    createdset_ = aem.createNLAADS( nlaid, errmsg, ads_ );
 	    if ( errmsg.size() ) mErrRet( errmsg );

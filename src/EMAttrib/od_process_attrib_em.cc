@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.67 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.68 2010-04-23 15:33:30 cvshelene Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -101,7 +101,7 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 						  tmpattribstr.buf() ) );
     if ( !res )
 	mErrRet( "No target attribute found" )
-    DescID outid( atoi( res ), true ); 
+    DescID outid( atoi( res ), false ); 
     if ( initialset.getDesc(outid) < 0 )
 	mErrRet( "Target attribute not present in attribute set" )
 
@@ -421,7 +421,7 @@ bool BatchProgram::go( std::ostream& strm )
     {
 	int id;
 	if ( attribsiopar->get(toString(idx),id) )
-	    attribids += DescID(id,true);
+	    attribids += DescID(id,false);
     }
 
     if ( !attribids.size() )

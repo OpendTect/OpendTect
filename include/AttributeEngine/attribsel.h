@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.26 2010-04-20 22:03:25 cvskris Exp $
+ RCS:           $Id: attribsel.h,v 1.27 2010-04-23 15:33:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,7 @@ protected:
     static const char*	sKeyIsNLA();
     static const char*	sKeyDefStr();
     static const char*	sKeyIs2D();
+    static const char*	sKeyOnlyStoredData();
 
     void		setDiscr(const DescSet&);
     void		setDiscr(const NLAModel&);

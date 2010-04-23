@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.46 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.47 2010-04-23 15:33:30 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -45,6 +45,8 @@ const char* SelSpec::sKeyIsNLA()	{ return "Is attrib NLA Model"; }
 const char* SelSpec::sKeyObjRef()	{ return "Object Reference"; }
 const char* SelSpec::sKeyDefStr()	{ return "Definition"; }
 const char* SelSpec::sKeyIs2D()		{ return "Is 2D"; }
+const char* SelSpec::sKeyOnlyStoredData()
+				      { return "DescSet only for stored data"; }
 static const char* isnnstr = "Is attrib NN"; // for backward compatibility
 
 bool SelSpec::operator==( const SelSpec& ss ) const
@@ -94,7 +96,7 @@ void SelSpec::set( const Desc& desc )
 void SelSpec::set( const NLAModel& nlamod, int nr )
 {
     isnla_ = true;
-    id_ = DescID(nr,true);
+    id_ = DescID(nr,false);
     setRefFromID( nlamod );
 }
 
@@ -125,7 +127,7 @@ void SelSpec::setIDFromRef( const NLAModel& nlamod )
     for ( int idx=0; idx<nrout; idx++ )
     {
 	if ( ref_ == *nlamod.design().outputs[idx] )
-	    { id_ = DescID(idx,true); break; }
+	    { id_ = DescID(idx,false); break; }
     }
     setDiscr( nlamod );
 }
@@ -142,9 +144,6 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 	     strcmp( attribname, ds.getDesc(id_)->attribName() ) )
 	    id_ = ds.getID( defstring_, false );
     }
-     /*TODO: make it work 100% : doesn't work if attribute and stored data 
-    have the same name and the stored data is the FIRST thing you try
-    to display*/
     const Desc* desc = ds.getDesc( id_ );
     if ( desc )
 	setDepthDomainKey( *desc );
@@ -177,6 +176,7 @@ void SelSpec::fillPar( IOPar& par ) const
 {
     par.set( sKeyRef(), ref_ );
     par.set( sKeyID(), id_.asInt() );
+    par.set( sKeyOnlyStoredData(), id_.isStored() );
     par.setYN( sKeyIsNLA(), isnla_ );
     par.set( sKeyObjRef(), objref_ );
     par.set( sKeyDefStr(), defstring_ );
@@ -189,6 +189,7 @@ bool SelSpec::usePar( const IOPar& par )
 {
     ref_ = ""; 			par.get( sKeyRef(), ref_ );
     id_ = cNoAttrib();		par.get( sKeyID(), id_.asInt() );
+    				par.getYN( sKeyOnlyStoredData(),id_.isStored());
     isnla_ = false; 		par.getYN( sKeyIsNLA(), isnla_ );
     				par.getYN( isnnstr, isnla_ );
     objref_ = "";		par.get( sKeyObjRef(), objref_ );
@@ -203,8 +204,7 @@ bool SelSpec::usePar( const IOPar& par )
 
 bool SelSpec::isStored() const
 {
-    BufferString storstr = StorageProvider::attribName();
-    return storstr.isStartOf( defstring_ );
+    return id_.isValid() && id_.isStored();
 }
 
 

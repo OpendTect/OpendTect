@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.50 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.51 2010-04-23 15:33:30 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -555,7 +555,8 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     BufferString buf( txt );
     char* outnrstr = strchr( buf.buf(), ':' );
     if ( outnrstr ) *outnrstr++ = '\0';
-    const DescID attrid( atoi(buf.buf()), true );
+    const DescID attrid( atoi(buf.buf()),
+	    		 attrdata_.attrSet().containsStoredDescOnly() );
     const int outnr = outnrstr ? atoi( outnrstr ) : 0;
     if ( !attrid.isValid() )
     {

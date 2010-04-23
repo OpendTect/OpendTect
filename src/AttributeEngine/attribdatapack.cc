@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.36 2010-03-04 06:37:49 cvsumesh Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.37 2010-04-23 15:33:29 cvshelene Exp $";
 
 #include "attribdatapack.h"
 
@@ -44,6 +44,8 @@ void DataPackCommon::dumpInfo( IOPar& iop ) const
 {
     iop.set( "Source type", sourceType() );
     iop.set( "Attribute.ID", descID().asInt() );
+    BufferString isstoredstr = IOPar::compKey( sKey::Attribute, sKey::Stored );
+    iop.set( isstoredstr.buf(), descID().isStored() );
     iop.set( "Vertical", isVertical() );
 }
 

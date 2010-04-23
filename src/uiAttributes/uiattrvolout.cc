@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.76 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.77 2010-04-23 15:33:30 cvshelene Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -227,7 +227,7 @@ bool uiAttrVolOut::prepareProcessing()
 
 bool uiAttrVolOut::fillPar( IOPar& iop )
 {
-    DescID nlamodelid(-1, true);
+    DescID nlamodelid(-1, false);
     if ( nlamodel && todofld->outputNr() >= 0 )
     {
 	if ( !nlaid || !(*nlaid) )

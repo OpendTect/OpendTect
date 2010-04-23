@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.15 2010-04-20 22:03:25 cvskris Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.16 2010-04-23 15:33:30 cvshelene Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -85,7 +85,7 @@ void uiStoredAttribReplacer::getUserRefs( const IOPar& iopar )
 	    int descidx=-1;
 	    if ( !descpar->get(key,descidx) ) break;
 	    if ( descidx < 0 ) continue;
-	    DescID descid( descidx, true );
+	    DescID descid( descidx, false );
 	    bool issteering = false;
 	    for ( int stridx=0; stridx<storedids_.size(); stridx++ )
 	    {
@@ -292,22 +292,22 @@ void uiStoredAttribReplacer::handleSingleInput()
 	{
 	    StoredEntry storeentry = storedids_[steeridx];
 	    const int ouputidx = attrset_->getDesc(
-		    DescID(storeentry.firstid_.asInt(),true))->selectedOutput();
+		DescID( storeentry.firstid_.asInt(), false ))->selectedOutput();
 	    Desc* adsteerinl = new Desc( "Inline Desc" );
 	    Desc* adsteercrl = new Desc( "Cross Line Desc" );
 	    if ( ouputidx == 0 )
 	    {
 		adsteerinl = attrset_->getDesc(
-			DescID(storeentry.firstid_.asInt(),true) );
+			DescID(storeentry.firstid_.asInt(),false) );
 		adsteercrl = attrset_->getDesc(
-			DescID(storeentry.secondid_.asInt(),true) );
+			DescID(storeentry.secondid_.asInt(),false) );
 	    }
 	    else
 	    {
 		adsteerinl = attrset_->getDesc(
-			DescID(storeentry.secondid_.asInt(),true));
+			DescID(storeentry.secondid_.asInt(),false));
 		adsteercrl = attrset_->getDesc(
-			DescID(storeentry.firstid_.asInt(),true));
+			DescID(storeentry.firstid_.asInt(),false));
 	    }
 	    adsteerinl->changeStoredID( dlg.getSteerKey() );
 	    BufferString bfstr = dlg.getSteerRef();
@@ -370,23 +370,23 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    if ( attrset_ )
 	    {
 		const int ouputidx = attrset_->getDesc(
-			DescID(storeentry.firstid_.asInt(),true))->
+			DescID(storeentry.firstid_.asInt(),false))->
 			    selectedOutput();
 		Desc* adsteerinl = new Desc( "Inline Desc" );
 		Desc* adsteercrl = new Desc( "Cross Line Desc" );
 		if ( ouputidx == 0 )
 		{
 		    adsteerinl = attrset_->getDesc(
-			    DescID(storeentry.firstid_.asInt(),true) );
+			    DescID(storeentry.firstid_.asInt(),false) );
 		    adsteercrl = attrset_->getDesc(
-			    DescID(storeentry.secondid_.asInt(),true) );
+			    DescID(storeentry.secondid_.asInt(),false) );
 		}
 		else
 		{
 		    adsteerinl = attrset_->getDesc(
-			    DescID(storeentry.secondid_.asInt(),true));
+			    DescID(storeentry.secondid_.asInt(),false));
 		    adsteercrl = attrset_->getDesc(
-			    DescID(storeentry.firstid_.asInt(),true));
+			    DescID(storeentry.firstid_.asInt(),false));
 		}
 
 		adsteerinl->changeStoredID( dlg.getSteerKey() );
