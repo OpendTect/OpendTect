@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          Jan 2010
- RCS:		$Id: emhorizonztransformer.h,v 1.2 2010-01-15 09:51:19 cvsnanne Exp $
+ RCS:		$Id: emhorizonztransformer.h,v 1.3 2010-04-23 08:24:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,11 @@ ________________________________________________________________________
 #include "executor.h"
 #include "position.h"
 
-class HorSamplingIterator;
 class ZAxisTransform;
 
 namespace EM
 {
+class EMObjectIterator;
 class Horizon;
 
 mClass HorizonZTransformer : public Executor
@@ -41,8 +41,8 @@ protected:
     od_int64			nrdone_;
     od_int64			totalnr_;
 
-    BinID			bid_;
-    HorSamplingIterator*	iter_;
+    EMObjectIterator*		iter_;
+
     const Horizon&		tarhor_;
     const ZAxisTransform&	zat_;
     Horizon*			outputhor_;

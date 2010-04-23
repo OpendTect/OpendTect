@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransformer.cc,v 1.2 2010-01-15 09:51:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: emhorizonztransformer.cc,v 1.3 2010-04-23 08:24:32 cvsnanne Exp $";
 
 #include "emhorizonztransformer.h"
 
 #include "emhorizon.h"
 #include "emhorizonztransform.h"
-#include "horsampling.h"
 
 namespace EM
 {
@@ -29,10 +28,8 @@ HorizonZTransformer::HorizonZTransformer( const ZAxisTransform& zat,
     , nrdone_(0)
     , outputhor_(0)
 {
-    HorSampling hs;
-    hs.set( tarhor_.geometry().rowRange(), tarhor_.geometry().colRange() );
-    totalnr_ = hs.totalNr();
-    iter_ = new HorSamplingIterator( hs );
+    iter_ = tarhor_.createIterator( -1 );
+    totalnr_ = iter_->maximumSize();
 }
 
 
@@ -54,24 +51,23 @@ void HorizonZTransformer::setReferenceZ( float z )
 { refz_ = z; }
 
 
-// TODO: handle multple sections
 int HorizonZTransformer::nextStep()
 {
-    if ( !iter_->next(bid_) )
+    PosID posid = iter_->next();
+    if ( posid.isUdf() )
 	return Executor::Finished();
 
-    int sidx = 0;
-    const SubID subid = bid_.getSerialized();
-    float z = tarhor_.getPos( tarhor_.sectionID(sidx), subid ).z;
-    if ( !mIsUdf(z) && !isforward_ )
+    float z = tarhor_.getPos( posid ).z;
+    if ( !isforward_ && !mIsUdf(z) )
 	z -= refz_;
 
-    float newz = zat_.transform( BinIDValue(bid_,z) );
-    if ( !mIsUdf(newz) && isforward_ )
+    BinID bid; bid.setSerialized( posid.subID() );
+    float newz = zat_.transform( BinIDValue(bid,z) );
+    if ( isforward_ && !mIsUdf(newz) )
 	newz += refz_;
 
-    SectionID sid = outputhor_->sectionID( sidx );
-    outputhor_->setPos( sid, subid, Coord3(0,0,newz), false );
+    outputhor_->setPos( posid.sectionID(), posid.subID(),
+			Coord3(0,0,newz), false );
     nrdone_++;
     return Executor::MoreToDo();
 }
