@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.15 2009-12-22 14:45:17 cvsbert Exp $
+ RCS:		$Id: odver.h,v 1.16 2010-04-23 05:47:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ void GetSpecificODVersion(const char* typ,BufferString&);
   </ul>
  <li>File and stream handling
   <ul>
-   <li>filegen.h : basic file tools like existence, path operations, copy, etc.
+   <li>file.h : basic file tools like existence, path operations, copy, etc.
    <li>ascstream.h : read and write of the typical OpendTect standard Ascii data
    <li>dirlist.h : list contents of a directory
    <li>strmprov.h and strmdata.h : access files, pipes, or devices for read
