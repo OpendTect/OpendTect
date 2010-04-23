@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.30 2010-03-25 03:58:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.31 2010-04-23 11:33:41 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -555,9 +555,7 @@ bool MadStream::isOK() const
 
 const char* MadStream::errMsg() const
 {
-    if ( errmsg_ == "" ) return 0;
-    else 
-	return errmsg_.buf();
+    return errmsg_.isEmpty() ? 0 : errmsg_.buf();
 }
 
 
@@ -709,8 +707,8 @@ bool MadStream::writeTraces( bool writetofile )
 	if ( !haspos )
 	    mErrBoolRet( "Geometry data missing" );
 
-	headerpars_->set( "n2", nrtrcsperbinid );
-	headerpars_->set( "n3", nrbinids );
+	headerpars_->get( "n2", nrtrcsperbinid );
+	headerpars_->get( "n3", nrbinids );
     }
 
     if ( haspos )

@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.12 2009-09-11 11:12:55 cvsraman Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.13 2010-04-23 11:33:41 cvsraman Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -53,7 +53,7 @@ ODMad::ProcExec::~ProcExec()
 }
 
 
-#define mErrRet(s) { strm_ << s << std::endl; return false; }
+#define mErrRet(s) { errmsg_ = s; return false; }
 bool ODMad::ProcExec::init()
 {
     delete madstream_; madstream_ = 0;

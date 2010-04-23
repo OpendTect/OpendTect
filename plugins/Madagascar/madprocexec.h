@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jan 2008
- * ID       : $Id: madprocexec.h,v 1.5 2009-07-22 16:01:27 cvsbert Exp $
+ * ID       : $Id: madprocexec.h,v 1.6 2010-04-23 11:33:41 cvsraman Exp $
 -*/
 
 #include "enums.h"
@@ -39,6 +39,7 @@ public:
     int			nextStep();
 
     bool		init();
+    BufferString	errMsg()		{ return errmsg_; }
 
     static const char*	sKeyFlowStage();
     static const char*	sKeyCurProc();
@@ -48,6 +49,7 @@ protected:
     IOPar&		pars_;
     FlowStage		stage_;
 //    ProcFlow&		procflow_;
+    BufferString	errmsg_;
     std::ostream&	strm_;
     int			nrdone_;
     float*		trc_;
