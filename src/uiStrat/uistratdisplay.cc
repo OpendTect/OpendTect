@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratdisplay.cc,v 1.5 2010-04-16 13:04:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistratdisplay.cc,v 1.6 2010-04-23 08:36:27 cvsbruno Exp $";
 
 #include "uistratdisplay.h"
 
@@ -62,6 +62,12 @@ uiStratDisplay::uiStratDisplay( uiParent* p )
 }
 
 
+uiStratDisplay::~uiStratDisplay()
+{
+    menu_.unRef();
+}
+
+
 int uiStratDisplay::nrSubUnits()
 {
     int nrsubunits = 0;
@@ -103,12 +109,8 @@ void uiStratDisplay::updateAxis()
 {
     xax_.setNewDevSize( width(), height() );
     yax_.setNewDevSize( height(), width() );
-    xax_.setBorder( uiBorder(0) );
-    yax_.setBorder( uiBorder(0) );
     xax_.setBegin( &yax_ );     yax_.setBegin( &xax_ );
     xax_.setEnd( &yax_ );       yax_.setEnd( &xax_ );
-    yax_.plotAxis();
-    xax_.plotAxis();
 }
 
 
