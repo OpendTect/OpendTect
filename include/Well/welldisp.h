@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.24 2010-03-24 12:04:11 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.25 2010-04-23 08:40:31 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,8 @@ class IOPar;
 
 namespace Well
 {
+    class D2TModel;
+    class MarkerSet;
 
 /*!\brief Display properties of a well */
 
@@ -176,6 +178,33 @@ public:
 
 };
 
+
+/*!\brief used for a 2D display of well data ( log, strat ... ) */
+mClass Well2DDispData
+{
+public:
+			    Well2DDispData()
+			    : zrg_(mUdf(float),0)
+			    , zistime_(false)
+			    , dispzinft_(false)
+			    , markers_(0)
+			    , d2tm_(0)
+			    {}
+
+    void		    copyFrom(Well2DDispData& d)
+			    {
+				zrg_ 	 = d.zrg_;
+				zistime_ = d.zistime_;
+				dispzinft_ = d.dispzinft_;
+				markers_ = d.markers_;
+				d2tm_ 	 = d.d2tm_;
+			    }	
+    const Well::D2TModel*   d2tm_;
+    Well::MarkerSet*        markers_;
+    Interval<float>         zrg_;
+    bool                    dispzinft_;
+    bool                    zistime_;
+};
 
 } // namespace
 
