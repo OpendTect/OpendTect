@@ -4,13 +4,8 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID = "$Id: probdenfunc.cc,v 1.21 2010-04-12 09:32:06 cvsbert Exp $";
+static const char* rcsID = "$Id: probdenfunc.cc,v 1.22 2010-04-23 08:36:08 cvsbert Exp $";
 
-// Sampled:
-// 1D currently does polynomial interpolation
-// 2D currently does bi-linear interpolation
-// ND currently does no interpolation at all, returns nearest
- 
 
 #include "sampledprobdenfunc.h"
 #include "interpol1d.h"
@@ -181,6 +176,7 @@ void ArrayNDProbDenFunc::doScale( float fac )
     for ( od_int64 idx=0; idx<totalsz; idx++ )
 	values[idx] *= fac;
 }
+
 
 // 1D
 
@@ -404,6 +400,7 @@ bool Sampled2DProbDenFunc::obtain( std::istream& strm, bool binary )
 
 
 // ND
+
 SampledNDProbDenFunc::SampledNDProbDenFunc( const ArrayND<float>& arr )
     : bins_(arr)
 {
