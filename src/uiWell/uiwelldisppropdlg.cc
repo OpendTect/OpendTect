@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.25 2010-03-05 10:13:35 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.26 2010-04-23 10:02:13 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -138,35 +138,28 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	, wdChged(this)	 
 	, wellselfld_(0)	 
 {
-    uiLabeledComboBox* lcb = 0;
     if ( wds_.size()>1 )
     {
 	BufferStringSet wellnames;
 	for ( int idx=0; idx< wds_.size(); idx++ )
 	    wellnames.addIfNew( wds_[idx]->name() );
 	
-	lcb = new uiLabeledComboBox( this, "Select Well" );
-	wellselfld_ = lcb->box();
-	wellselfld_->addItems( wellnames );
-	wellselfld_->selectionChanged.notify(
+	wellselfld_ = new uiLabeledComboBox( this, "Select Well" );
+	wellselfld_->box()->addItems( wellnames );
+	wellselfld_->box()->selectionChanged.notify(
 		    mCB(this,uiMultiWellDispPropDlg,wellSelChg) );
-	wellselfld_ = lcb->box();
-	lcb->attach( centeredAbove,ts_ );
+	wellselfld_->attach( centeredAbove, ts_ );
 
 	uiSeparator* sep = new uiSeparator( this, "Well Sel/Log Sel Sep" );
-	sep->attach( stretchedBelow, lcb );
+	sep->attach( stretchedBelow, wellselfld_ );
 	setVSpacing( 25 );
     }
 }
 
 
-void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
+void uiMultiWellDispPropDlg::resetProps( Well::DisplayProperties& prop,
+       					 const Well::LogSet* wls )
 {
-    const int selidx = wellselfld_ ? wellselfld_->currentItem() : 0;
-    wd_ = wds_[selidx];
-    if ( !wd_ ) return;
-    wd_->dispparschanged.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
-    wd_->tobedeleted.notify( mCB(this,uiMultiWellDispPropDlg,welldataDelNotify) );
     bool foundleftlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
@@ -178,16 +171,28 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
 						&propflds_[idx]->props() );
 	if ( logpp )
 	{
-	    propflds_[idx]->resetProps( foundleftlog ? 
-		    			wd_->displayProperties().right_ :
-		    			wd_->displayProperties().left_ );
+	    mDynamicCastGet(uiWellLogDispProperties*,logfld,propflds_[idx]);
+	    if ( logfld )
+		logfld->setLogSet( wls );
+	    propflds_[idx]->resetProps( foundleftlog? prop.right_: prop.left_);
 	    foundleftlog = true;
 	}
 	else if ( trcpp )
-	    propflds_[idx]->resetProps( wd_->displayProperties().track_ );
+	    propflds_[idx]->resetProps( prop.track_ );
 	else if ( mrkpp )
-	    propflds_[idx]->resetProps( wd_->displayProperties().markers_ );
+	    propflds_[idx]->resetProps( prop.markers_ );
     }
+}
+
+
+void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
+{
+    const int selidx = wellselfld_ ? wellselfld_->box()->currentItem() : 0;
+    wd_ = wds_[selidx];
+    if ( !wd_ ) return;
+    wd_->dispparschanged.notify( mCB(this,uiMultiWellDispPropDlg,wdChg) );
+    wd_->tobedeleted.notify(mCB(this,uiMultiWellDispPropDlg,welldataDelNotify));
+    resetProps( wd_->displayProperties(), &wd_->logs() );
 }
 
 

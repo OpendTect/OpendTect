@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.20 2010-03-05 10:13:35 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.21 2010-04-23 10:02:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,12 +127,13 @@ mClass uiWellLogDispProperties : public uiWellDispProperties
 public:
     			uiWellLogDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Log&,
-					Well::LogSet* wl);
+					const Well::LogSet* wl);
 
     Well::DisplayProperties::Log&	logprops()
 	{ return static_cast<Well::DisplayProperties::Log&>(*props_); }
     
     void 		resetProps(Well::DisplayProperties::BasicProps&);
+    void		setLogSet(const Well::LogSet*);
 
 protected:
 
@@ -153,7 +154,6 @@ protected:
     void 		logSel(CallBacker*);
     void 		selNone();
     void 		setFieldVals( bool );
-
 
     uiGenInput*		stylefld_;
     uiGenInput*         clipratefld_;
@@ -176,7 +176,7 @@ protected:
 
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;
-    Well::LogSet*  wl_;
+    const Well::LogSet*  wl_;
 };
 
 #endif

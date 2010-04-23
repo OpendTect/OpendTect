@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.11 2010-04-21 11:35:45 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.12 2010-04-23 10:02:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,9 @@ ________________________________________________________________________
 
 class uiTabStack;
 class uiWellDispProperties;
-class uiComboBox;
+class uiLabeledComboBox;
 
-namespace Well { class Data; class DisplayProperties; };
+namespace Well { class Data; class DisplayProperties; class LogSet; };
 
 
 /*! \brief Dialog for well display properties. */
@@ -47,8 +47,8 @@ protected:
     void			getFromScreen();
     void			putToScreen();
 
-    void			applyAllPush(CallBacker*);
-    void			propChg(CallBacker*);
+    virtual void		applyAllPush(CallBacker*);
+    virtual void		propChg(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
@@ -58,18 +58,21 @@ protected:
 mClass uiMultiWellDispPropDlg : public uiWellDispPropDlg
 {
 public:
-			uiMultiWellDispPropDlg(uiParent*,ObjectSet<Well::Data>);
-			~uiMultiWellDispPropDlg(){}
+				uiMultiWellDispPropDlg(uiParent*,
+						ObjectSet<Well::Data>);
+				~uiMultiWellDispPropDlg(){}
 
 
     Notifier<uiMultiWellDispPropDlg>	wdChged;
 
 protected:
 
-    ObjectSet<Well::Data> wds_;
-    uiComboBox*		wellselfld_;
+    ObjectSet<Well::Data> 	wds_;
+    uiLabeledComboBox*		wellselfld_;
 
-    void 		wellSelChg(CallBacker*);
+    void			resetProps(Well::DisplayProperties&,
+					    const Well::LogSet*);
+    virtual void 		wellSelChg(CallBacker*);
 };
 
 

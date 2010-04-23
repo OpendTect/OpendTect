@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.36 2010-03-30 13:17:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.37 2010-04-23 10:02:13 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -227,9 +227,8 @@ void uiWellMarkersDispProperties::doGetFromScreen()
 uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::Log& lp, 
-				Well::LogSet* wl)
+				const Well::LogSet* wl)
     : uiWellDispProperties(p,su,lp)
-    , wl_(wl)
 {
     CallBack propchgcb = mCB(this,uiWellLogDispProperties,propChg);
     CallBack choiceselcb = mCB(this,uiWellLogDispProperties,choiceSel);
@@ -279,15 +278,9 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 		mCB(this,uiWellLogDispProperties,isFilledSel) );
     singlfillcolfld_->activated.notify( propchgcb );
 
-    BufferStringSet lognames;
-    for ( int idx=0; idx< wl_->size(); idx++ )
-	lognames.addIfNew( wl_->getLog(idx).name() );
-    lognames.sort();
     BufferString sellbl( "Select log" );
     logsfld_ = new uiLabeledComboBox( this, sellbl );
     logsfld_->box()->setHSzPol( uiObject::Wide );
-    logsfld_->box()->addItem("None");
-    logsfld_->box()->addItems( lognames );
     logsfld_->attach( alignedAbove, cliprangefld_ );
     logsfld_->box()->selectionChanged.notify(
 		mCB(this,uiWellLogDispProperties,logSel) );
@@ -298,10 +291,11 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
     BufferString selfilllbl( "Log fill range (min/max)" );
     filllogsfld_ = new uiLabeledComboBox( this, selfilllbl );
-    filllogsfld_->box()->addItems( lognames );
     filllogsfld_->attach( alignedBelow, colfld_ );
     filllogsfld_->box()->selectionChanged.notify(
 		mCB(this,uiWellLogDispProperties,updateFillRange) );
+
+    setLogSet( wl );
 
     coltablistfld_ = new uiColorTableSel( this, "Table selection" );
     coltablistfld_->attach( rightOf, filllogsfld_ );
@@ -483,8 +477,18 @@ void uiWellLogDispProperties::recoverProp( )
 }
 
 
-void uiWellLogDispProperties::setRangeFields( Interval<float>& range )
+void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 {
+    wl_ = wls;
+    BufferStringSet lognames;
+    for ( int idx=0; idx< wl_->size(); idx++ )
+	lognames.addIfNew( wl_->getLog(idx).name() );
+    lognames.sort();
+    logsfld_->box()->empty();
+    logsfld_->box()->addItem("None");
+    logsfld_->box()->addItems( lognames );
+    filllogsfld_->box()->empty();
+    filllogsfld_->box()->addItems( lognames );
 }
 
 
