@@ -5,7 +5,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: file.cc,v 1.11 2010-04-14 07:46:01 cvsnanne Exp $
+ RCS:		$Id: file.cc,v 1.12 2010-04-23 06:19:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,7 +172,7 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
     cmd = "chmod";
     if ( recursive && isDirectory(fnm) )
 	cmd += " -R ";
-    cmd.add(yn ? "ug+w '" : "a-w '").add(fnm).add("'");
+    cmd.add(yn ? " ug+w '" : " a-w '").add(fnm).add("'");
 #endif
 
     return system( cmd ) != -1;
