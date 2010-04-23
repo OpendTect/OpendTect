@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.89 2009-11-12 12:22:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.90 2010-04-23 18:57:31 cvsyuancheng Exp $";
 
 
 #include "uitable.h"
@@ -905,7 +905,7 @@ void uiTable::editCell( const RowCol& rc, bool replace )
 
 void uiTable::popupMenu( CallBacker* )
 {
-    if ( !setup_.rowgrow_ && !setup_.colgrow_ )
+    if ( (!setup_.rowgrow_ && !setup_.colgrow_) || setup_.rightclickdisabled_ )
 	return;
 
     uiPopupMenu* mnu = new uiPopupMenu( parent(), "Action" );
