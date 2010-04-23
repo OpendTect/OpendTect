@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.35 2010-01-21 13:07:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.36 2010-04-23 11:11:29 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -64,15 +64,22 @@ uiWaveletView::~uiWaveletView()
 }
 
 
+#define mSetNm(nm,w) if ( w ) { nm += "("; nm += w->name(); nm += ")"; }
 void uiWaveletView::createWaveletFields( uiGroup* grp )
 {
     grp->setHSpacing( 40 );
-    
-    activewvltfld_ = new uiGenInput( this, "Active Wavelet : ",
-	 			BoolInpSpec(true,"Initial","Estimated")  );
-    activewvltfld_->attach( hCentered );
+   
+    const Wavelet* initw = dataholder_->wvltset()[0];
+    BufferString initwnm( "Initial " ); 
+    BufferString estwnm( "Estimated" ); 
+    mSetNm( initwnm, initw ) 
+    uiLabel* wvltlbl = new uiLabel( this, "Set active Wavelet : "); 
+    activewvltfld_ = new uiGenInput( this, "",
+			    BoolInpSpec(true, initwnm, estwnm)  );
+    wvltlbl->attach( alignedAbove, activewvltfld_ );
     activewvltfld_->valuechanged.notify(
 	   		 mCB(this, uiWaveletView, activeWvltChanged) );
+    setVSpacing ( 0 );
 }
 
 
@@ -102,8 +109,6 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     , wvltChged(this)							 
 {
     viewer_ = new uiFlatViewer( this );
-    uiLabel* wvltlbl = new uiLabel( this, wvlt->name() );
-    wvltlbl->attach( alignedAbove, viewer_);
     
     wvltbuts_ += new uiToolButton( this, "Properties", "info.png",
 	    mCB(this,uiWavelet,dispProperties) );
@@ -122,6 +127,7 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 
     initWaveletViewer();
     drawWavelet();
+    setVSpacing ( 0 );
 }
 
 
