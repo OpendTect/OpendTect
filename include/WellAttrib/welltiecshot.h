@@ -13,7 +13,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
+#include "commondefs.h"
+#include "typeset.h"
 
 class DataPointSet;
 namespace Well
@@ -22,11 +23,6 @@ namespace Well
     class Log;
     class D2TModel;
 }
-
-class uiFileInput;
-class uiFunctionDisplay;
-class uiGenInput;
-class uiLabel;
 
 namespace WellTie
 {
