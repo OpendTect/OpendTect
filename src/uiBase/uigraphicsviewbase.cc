@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.24 2010-03-04 09:22:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.25 2010-04-23 08:38:31 cvsbruno Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -420,7 +420,7 @@ Color uiGraphicsViewBase::backgroundColor() const
 
 void uiGraphicsViewBase::uisetBackgroundColor( const Color& color )
 {
-    body_->uisetBackgroundColor( (color.r(),color.g(),color.b(),color.t()) );
+    body_->uisetBackgroundColor( color );
 }
 
 
