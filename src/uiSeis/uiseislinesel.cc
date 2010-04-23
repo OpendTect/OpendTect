@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.35 2010-04-16 03:28:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.36 2010-04-23 09:33:21 cvsraman Exp $";
 
 #include "uiseislinesel.h"
 
@@ -243,6 +243,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p, CtxtIOObj& c,
     {
 	zrgfld_ = new uiSelZRange( this, su.withstep_,
 			BufferString("Z Range",SI().getZUnitString()) );
+	zrgfld_->setRangeLimits( SI().zRange(false) );
 	zrgfld_->attach( alignedBelow, trcrgfld_ );
     }
 
@@ -445,6 +446,8 @@ uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const Setup& setup )
     ctio_.ctxt.deftransl = "2D";
     if ( setup_.filldef_ )
 	ctio_.fillDefault();
+
+    updateFromLineset();
 }
 
 
@@ -612,7 +615,44 @@ void uiSeis2DMultiLineSel::setLineSet( const MultiID& key, const char* attr )
     deepErase( sellines_ );
     trcrgs_.erase();
     isall_ = true;
+    updateFromLineset();
     updateSummary();
+}
+
+
+void uiSeis2DMultiLineSel::updateFromLineset()
+{
+    if ( !ctio_.ioobj )
+	return;
+
+    SeisIOObjInfo oinf( ctio_.ioobj );
+    BufferStringSet lnms;
+    BufferStringSet attrnms;
+    oinf.getAttribNames( attrnms );
+    if ( attrnm_.isEmpty() )
+	attrnm_ = LineKey::sKeyDefAttrib();
+
+    if ( attrnms.indexOf(attrnm_) < 0 )
+	attrnm_ = attrnms.get(0);
+
+    oinf.getLineNamesWithAttrib( attrnm_.buf(), lnms );
+    if ( !lnms.size() )
+	return;
+
+    CubeSampling cs;
+    if ( oinf.getRanges(cs) )
+	zrg_ = cs.zrg;
+
+    for ( int idx=0; idx<lnms.size(); idx++ )
+    {
+	const char* lnm = lnms.get(idx).buf();
+	StepInterval<int> trcrg( 0, 0, 1 );
+	StepInterval<float> zrg;
+	LineKey lk( lnm, attrnm_.buf() );
+	oinf.getRanges( lk, trcrg, zrg );
+	trcrgs_ += trcrg;
+	sellines_.add( lnm );
+    }
 }
 
 

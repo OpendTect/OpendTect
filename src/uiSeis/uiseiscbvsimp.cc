@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.64 2010-04-13 08:31:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.65 2010-04-23 09:33:21 cvsraman Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -338,7 +338,7 @@ Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
     , doscale_(false)
 {
     inattrnm_ = par.find( sKey::Attribute );
-    PtrMan<IOPar> lspar = par.subselect( sKey::LineKey );
+    PtrMan<IOPar> lspar = par.subselect( "Line" );
     if ( !lspar ) return;
 
     for ( int idx=0; idx<1024; idx++ )
