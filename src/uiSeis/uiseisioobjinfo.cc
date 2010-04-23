@@ -7,14 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.23 2010-02-22 11:06:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.24 2010-04-23 05:41:41 cvsnanne Exp $";
 
 #include "uiseisioobjinfo.h"
-#include "uimsg.h"
-#include "seiscbvs.h"
-#include "ptrman.h"
-#include "ioobj.h"
+
 #include "cbvsreadmgr.h"
+#include "ioobj.h"
+#include "ptrman.h"
+#include "seiscbvs.h"
+#include "systeminfo.h"
+#include "uimsg.h"
 
 # include <sstream>
 
@@ -34,7 +36,6 @@ uiSeisIOObjInfo::uiSeisIOObjInfo( const MultiID& key, bool errs )
 
 
 #define mChk(ret) if ( !isOK() ) return ret
-
 
 bool uiSeisIOObjInfo::provideUserInfo() const
 {
@@ -72,7 +73,8 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     const int szmb = expectedMBs( si );
     if ( szmb < 0 ) // Unknown, but probably small
 	return true;
-    const int avszmb = GetFreeMBOnDisk( ioObj() );
+
+    const int avszmb = System::getFreeMBOnDisk( *ioObj() );
     if ( avszmb == 0 )
     {
 	if ( !doerrs ) return false;

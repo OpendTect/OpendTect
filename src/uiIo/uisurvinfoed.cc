@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.117 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.118 2010-04-23 05:41:41 cvsnanne Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -16,16 +16,16 @@ static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.117 2010-03-25 03:55:14 cvs
 #include "cubesampling.h"
 #include "errh.h"
 #include "file.h"
-#include "filegen.h"
 #include "filepath.h"
-#include "ioman.h"
-#include "ioobj.h" // for GetFreeMBOnDiskMsg
 #include "mousecursor.h"
+#include "ioman.h"
+#include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "survinfo.h"
 #include "statrand.h"
-#include "iopar.h"
+#include "survinfo.h"
+#include "systeminfo.h"
+
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uifiledlg.h"
@@ -823,7 +823,7 @@ void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 void uiSurveyInfoEditor::updStatusBar( const char* dirnm )
 {
     BufferString msg;
-    GetFreeMBOnDiskMsg( File_getFreeMBytes(dirnm), msg );
+    System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(dirnm), msg );
     toStatusBar( msg );
 }
 

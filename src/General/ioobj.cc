@@ -4,24 +4,21 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.30 2009-07-22 16:01:32 cvsbert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.31 2010-04-23 05:41:41 cvsnanne Exp $";
 
-#include "iodir.h"
-#include "ioman.h"
-#include "iolink.h"
-#include "iostrm.h"
-#include "iopar.h"
-#include "iostrm.h"
-#include "transl.h"
-#include "oddirs.h"
 #include "ascstream.h"
-#include "survinfo.h"
-#include "separstr.h"
-#include "filegen.h"
-#include "filepath.h"
-#include "ptrman.h"
 #include "conn.h"
 #include "errh.h"
+#include "iodir.h"
+#include "iolink.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "iostrm.h"
+#include "ptrman.h"
+#include "separstr.h"
+#include "survinfo.h"
+#include "transl.h"
+
 #include <stdlib.h>
 
 
@@ -334,34 +331,4 @@ bool fullImplRemove( const IOObj& ioobj )
 {
     PtrMan<Translator> tr = ioobj.getTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
-}
-
-
-int GetFreeMBOnDisk( const IOObj* ioobj )
-{
-    mDynamicCastGet(const IOStream*,iostrm,ioobj)
-
-    BufferString dir;
-    if ( !iostrm || iostrm->type() != StreamConn::File )
-	dir = GetDataDir();
-    else
-	dir = FilePath( iostrm->getExpandedName(true) ).pathOnly();
-
-    return File_getFreeMBytes( dir );
-}
-
-
-void GetFreeMBOnDiskMsg( int mb, BufferString& bs )
-{
-    bs = "Free space on disk: ";
-    if ( mb < 1024 )
-	{ bs += mb; bs += " MB"; }
-    else
-    {
-	int gb = mb / 1024;
-	bs += gb; bs += ".";
-	float fmb = (mb % 1024) / 102.4;
-	int tenthsofgb = mNINT(fmb);
-	bs += tenthsofgb; bs += " GB";
-    }
 }

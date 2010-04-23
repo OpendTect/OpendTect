@@ -1,5 +1,5 @@
-#ifndef ioobj_H
-#define ioobj_H
+#ifndef ioobj_h
+#define ioobj_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.30 2010-03-12 19:36:39 cvskris Exp $
+ RCS:		$Id: ioobj.h,v 1.31 2010-04-23 05:41:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,14 +148,8 @@ private:
 
 };
 
-
 mGlobal bool equalIOObj(const MultiID&,const MultiID&);
 mGlobal bool areEqual(const IOObj*,const IOObj*);
 mGlobal bool fullImplRemove(const IOObj&);
-mGlobal int GetFreeMBOnDisk(const IOObj*);
-//!< If null passed or otherwise impossible returns survey directory free space
-mGlobal void GetFreeMBOnDiskMsg(int,BufferString&);
-//!< Shouldn't be here. But where?
-
 
 #endif

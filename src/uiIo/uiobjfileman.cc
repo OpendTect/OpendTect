@@ -7,26 +7,28 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.30 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.31 2010-04-23 05:41:41 cvsnanne Exp $";
 
 
 #include "uiobjfileman.h"
-#include "uiioobjsel.h"
-#include "uiioobjmanip.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "dirlist.h"
-#include "ctxtioobj.h"
-#include "file.h"
-#include "filepath.h"
-#include "streamconn.h"
-#include "survinfo.h"
-#include "keystrs.h"
-#include "transl.h"
 
+#include "uibutton.h"
+#include "uiioobjmanip.h"
+#include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
-#include "uibutton.h"
+
+#include "ctxtioobj.h"
+#include "dirlist.h"
+#include "file.h"
+#include "filepath.h"
+#include "ioobj.h"
+#include "ioman.h"
+#include "keystrs.h"
+#include "streamconn.h"
+#include "survinfo.h"
+#include "systeminfo.h"
+#include "transl.h"
 
 
 static const int cPrefHeight = 10;
@@ -83,7 +85,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
 
     BufferString msg;
     if ( curioobj_ )
-	GetFreeMBOnDiskMsg( GetFreeMBOnDisk(curioobj_), msg );
+	System::getFreeMBOnDiskMsg( System::getFreeMBOnDisk(*curioobj_), msg );
     toStatusBar( msg );
 }
 
