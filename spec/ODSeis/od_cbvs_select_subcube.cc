@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.28 2009-07-22 16:01:29 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.29 2010-04-23 05:18:32 cvsnanne Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.28 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.29 2010-04-23 05:18:32 cvsnanne Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.28 2009-07-22 16:
 #include "iostrm.h"
 #include "separstr.h"
 #include "strmprov.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "ptrman.h"
 #include <iostream>
@@ -39,7 +39,7 @@ static int doWork( int argc, char** argv )
 
     FilePath fp( argv[2] );
     
-    if ( !File_exists(fp.fullPath()) )
+    if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
         return 1;
@@ -47,7 +47,7 @@ static int doWork( int argc, char** argv )
     
     if ( !fp.isAbsolute() )
     {
-        fp.insert( File_getCurrentDir() );
+        fp.insert( File::getCurrentDir() );
     }
 
     BufferString fname=fp.fullPath();
@@ -57,7 +57,7 @@ static int doWork( int argc, char** argv )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
     fp.set( argv[3] ); 
-    if ( !fp.isAbsolute() ) { fp.insert( File_getCurrentDir() ); }
+    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentDir() ); }
     fname = fp.fullPath();
 
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();

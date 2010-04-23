@@ -3,11 +3,11 @@
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id: od_create_ridge.cc,v 1.6 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: od_create_ridge.cc,v 1.7 2010-04-23 05:18:32 cvsnanne Exp $";
 
 #include "conn.h"
 #include "cubesampling.h"
-#include "filegen.h"
+#include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
 #include "ptrman.h"
@@ -34,13 +34,13 @@ static int doWork( int argc, char** argv )
     bool is2d = false;
 
     FilePath fp( argv[2] ); 
-    if ( !File_exists(fp.fullPath()) )
+    if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
         return 1;
     }
     else if ( !fp.isAbsolute() )
-        fp.insert( File_getCurrentDir() );
+        fp.insert( File::getCurrentDir() );
 
     BufferString fname=fp.fullPath();
 
@@ -50,7 +50,7 @@ static int doWork( int argc, char** argv )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
     fp.set( argv[3] ); 
-    if ( !fp.isAbsolute() ) { fp.insert( File_getCurrentDir() ); }
+    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentDir() ); }
     fname = fp.fullPath();
 
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
