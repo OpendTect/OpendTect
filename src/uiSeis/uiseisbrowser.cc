@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.52 2010-03-23 16:14:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.53 2010-04-23 11:16:30 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -573,6 +573,17 @@ void uiSeisBrowser::commitChanges()
 }
 
 
+void uiSeisBrowser::doBrowse( uiParent* p, const IOObj& ioobj, bool is2d,
+			      const LineKey* lk )
+{
+    uiSeisBrowser::Setup setup( ioobj.key(), is2d ? Seis::Line : Seis::Vol );
+    setup.readonly( ioobj.implReadOnly() );
+    if ( lk ) setup.linekey( *lk );
+    uiSeisBrowser dlg( p, setup, is2d );
+    dlg.go();
+}
+
+
 bool uiSeisBrowser::acceptOK( CallBacker* )
 {
     commitChanges();
@@ -586,7 +597,6 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
 
     return res == 0;
 }
-
 
 
 class uiSeisBrowseWriter : public Executor

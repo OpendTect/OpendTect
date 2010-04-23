@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.20 2009-09-10 11:37:23 cvshelene Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.21 2010-04-23 11:16:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,14 +19,14 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "position.h"
 #include "linekey.h"
-
-class CBVSSeisTrcTranslator;
+class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
-class uiSeisTrcBufViewer;
 class SeisTrcBufDataPack;
-class uiComboBox;
+class CBVSSeisTrcTranslator;
 class uiTable;
+class uiComboBox;
+class uiSeisTrcBufViewer;
 class uiSeisBrowserInfoVwr;
 
 
@@ -67,6 +67,9 @@ public :
     const BinID&	curBinID() const;
     const float		curZ() const;
     void		setCompNr( int compnr )		{ compnr_ = compnr; }
+
+    static void		doBrowse(uiParent*,const IOObj&,bool is2d,
+	    			 const LineKey* lk=0);
 
 protected:
 
