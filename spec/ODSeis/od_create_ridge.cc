@@ -3,7 +3,7 @@
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id: od_create_ridge.cc,v 1.7 2010-04-23 05:18:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_create_ridge.cc,v 1.8 2010-04-23 05:27:20 cvsnanne Exp $";
 
 #include "conn.h"
 #include "cubesampling.h"
@@ -40,7 +40,7 @@ static int doWork( int argc, char** argv )
         return 1;
     }
     else if ( !fp.isAbsolute() )
-        fp.insert( File::getCurrentDir() );
+        fp.insert( File::getCurrentPath() );
 
     BufferString fname=fp.fullPath();
 
@@ -50,7 +50,7 @@ static int doWork( int argc, char** argv )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
     fp.set( argv[3] ); 
-    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentDir() ); }
+    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();

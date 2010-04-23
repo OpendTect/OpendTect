@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_check_nan_vals.cc,v 1.4 2010-04-23 05:18:32 cvsnanne Exp $
+ * RCS      : $Id: od_cbvs_check_nan_vals.cc,v 1.5 2010-04-23 05:27:20 cvsnanne Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_check_nan_vals.cc,v 1.4 2010-04-23 05:18:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_cbvs_check_nan_vals.cc,v 1.5 2010-04-23 05:27:20 cvsnanne Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -46,7 +46,7 @@ int main( int argc, char** argv )
     
     if ( !fp.isAbsolute() )
     {
-        fp.insert( File::getCurrentDir() );
+        fp.insert( File::getCurrentPath() );
     }
 
     BufferString fname=fp.fullPath();
@@ -57,7 +57,7 @@ int main( int argc, char** argv )
 	{ std::cerr << tri->errMsg() << std::endl; ExitProgram( 1 ); }
 
     fp.set( argv[2] ); 
-    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentDir() ); }
+    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
     StreamData outsd = StreamProvider( fname ).makeOStream();

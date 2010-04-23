@@ -2,10 +2,10 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_copy.cc,v 1.4 2010-04-23 05:18:32 cvsnanne Exp $
+ * RCS      : $Id: od_cbvs_copy.cc,v 1.5 2010-04-23 05:27:20 cvsnanne Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_copy.cc,v 1.4 2010-04-23 05:18:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_cbvs_copy.cc,v 1.5 2010-04-23 05:27:20 cvsnanne Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -62,7 +62,7 @@ static int doWork( int argc, char** argv )
         return 1;
     }
     else if ( !fp.isAbsolute() )
-        fp.insert( File::getCurrentDir() );
+        fp.insert( File::getCurrentPath() );
 
     BufferString fname=fp.fullPath();
 
@@ -72,7 +72,7 @@ static int doWork( int argc, char** argv )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
     fp.set( argv[argidx] ); 
-    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentDir() ); }
+    if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();

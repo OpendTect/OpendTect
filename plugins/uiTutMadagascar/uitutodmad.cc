@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitutodmad.cc,v 1.3 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutodmad.cc,v 1.4 2010-04-23 05:29:41 cvsnanne Exp $";
 
 #include "uitutodmad.h"
 
-#include "filegen.h"
+#include "file.h"
 #include "madio.h"
 #include "madstream.h"
 #include "seisbufadapters.h"
@@ -45,7 +45,7 @@ bool uiTutODMad::acceptOK( CallBacker* )
     iop_.clear();
     iop_.set( IOPar::compKey("Input",sKey::Type), ODMad::sKeyMadagascar() );
     const BufferString fnm = maddatafld_->fileName();
-    if ( fnm.isEmpty() || !File_exists(fnm) )
+    if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	uiMSG().error( "Please select an existing input file" );
 	return false;
