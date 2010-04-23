@@ -4,7 +4,7 @@
  *  DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.1 2010-04-22 21:15:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.2 2010-04-23 19:20:27 cvsyuancheng Exp $";
 
 
 #include "uihorauxdatasel.h"
@@ -177,7 +177,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
     
     auxfld_ = new uiGenInput( this, "Surface Data", str ); 
     auxfld_->attach( rightOf, selbut_ );
-    auxfld_->setPrefWidthInChar( 40 );
+    auxfld_->setPrefWidthInChar( 60 );
     auxfld_->valuechanged.notify(
 	    mCB(this,uiHorizonAuxDataSel,auxidxChg) );
     if ( hasobj && auxidx>=0 ) auxfld_->setValue(auxidx);
