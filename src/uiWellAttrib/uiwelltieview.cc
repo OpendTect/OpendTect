@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.62 2010-04-09 12:18:27 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.63 2010-04-23 10:03:50 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -82,8 +82,8 @@ void uiTieView::fullRedraw()
     drawWellMarkers();
     drawCShot();
 
-    for ( int idx =0; idx<logsdisp_.isEmpty(); idx++ )
-	logsdisp_[idx]->dataChanged();
+    for ( int idx=0; idx<logsdisp_.size(); idx++ )
+	logsdisp_[idx]->doDataChange();
     redrawViewer(0);
 }
 
@@ -145,7 +145,7 @@ bool uiTieView::setLogsParams()
 	logsdisp_[idx]->data().d2tm_ = d2tm;
 	logsdisp_[idx]->data().dispzinft_ = uipms->iszinft_;
 	logsdisp_[idx]->data().zistime_ = uipms->iszintime_;
-	logsdisp_[idx]->dataChanged();
+	logsdisp_[idx]->doDataChange();
     }
     const float startdah = d2tm->getDepth( zrange_.start );
     const float stopdah = d2tm->getDepth( zrange_.stop );
@@ -294,7 +294,7 @@ void uiTieView::setLogsRanges( float start, float stop )
     for (int idx=0; idx<logsdisp_.size(); idx++)
     {
 	logsdisp_[idx]->data().zrg_ = Interval<float>( start, stop);
-	logsdisp_[idx]->dataChanged();
+	logsdisp_[idx]->doDataChange();
     }
 }
 
@@ -372,7 +372,7 @@ void uiTieView::drawWellMarkers()
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
 	logsdisp_[idx]->data().markers_ = ismarkerdisp ? &wd_.markers() : 0;
-	logsdisp_[idx]->dataChanged();
+	logsdisp_[idx]->doDataChange();
     }
 }	
 
@@ -462,7 +462,7 @@ void uiTieView::drawCShot()
     checkshotitm_ = scene.addItem( new uiPolyLineItem(pts) );
     LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
     checkshotitm_->setPenStyle( ls );
-    logsdisp_[0]->dataChanged();
+    logsdisp_[0]->doDataChange();
 }
 
 

@@ -7,17 +7,19 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.32 2010-04-16 13:06:11 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.33 2010-04-23 10:03:50 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigraphicsview.h"
+#include "uigraphicsview.h" 
 #include "uimainwin.h"
 #include "uigroup.h"
+
 #include "uiaxishandler.h"
 #include "uicursor.h"
 #include "draw.h"
+#include "multiid.h"
 #include "welldisp.h"
 
 class uiGraphicsScene;
@@ -138,7 +140,6 @@ public:
 	const UnitOfMeasure*	unitmeas_;
 	bool			xrev_;
 	bool			isyaxisleft_;
-
 	Well::DisplayProperties::Log wld_;
 
 	protected:
@@ -146,6 +147,7 @@ public:
 
 	void			copySetupFrom( const LogData& ld )
 	    			{ unitmeas_ = ld.unitmeas_; xrev_ = ld.xrev_; }
+
 	friend class		uiWellLogDisplay;
     };
     
@@ -153,7 +155,9 @@ public:
     				{ return logData(first); }
     LogData&			logData(bool first=true)
     				{ return first ? ld1_ : ld2_; }
-    void			dataChanged();
+
+    void 			setDispProperties(Well::DisplayProperties&);
+    void			doDataChange()  { dataChanged(); }
 
     mStruct MarkerItem
     {
@@ -183,27 +187,11 @@ public:
 	float		dah_;
 	Color		color_;	//!< default will use the global setup color
     };
-    
-    mStruct DahData
-    {
-	public:
-	    			DahData()
-				    : zrg_(mUdf(float),0)
-				    , zistime_(false)
-				    , dispzinft_(false)		     
-				    , markers_(0)
-			    	    , d2tm_(0)
-				    {}
 
-	const Well::D2TModel*	d2tm_;
-	Interval<float>		zrg_;
-	bool			dispzinft_;
-	bool 			zistime_;
-	Well::MarkerSet* 	markers_;
-    };
     TypeSet<PickData>&		zPicks()	{ return zpicks_; }
-    DahData&			data() 		{ return data_; }
-    const DahData&		data() const 	{ return data_; }
+    Well::Well2DDispData&	data() 		{ return data_; }
+    Well::DisplayProperties& 	disp()		{ return disp_; }
+    const Well::Well2DDispData&	data() const 	{ return data_; }
     const MouseCursor&		cursor() const 	{ return cursor_; }
     float			mousePos(); 
     
@@ -217,14 +205,16 @@ protected:
     TypeSet<PickData>		zpicks_;
 
     Setup			setup_;
-    DahData			data_;
-
+    Well::Well2DDispData	data_;
+    Well::DisplayProperties 	disp_;
+    
     ObjectSet<MarkerItem>	markeritms_;
     ObjectSet<uiLineItem>	zpickitms_;
     
     MouseCursor			cursor_;
 
     void			init(CallBacker*);
+    void			dataChanged();
     void			reSized(CallBacker*);
     void			mouseMoved(CallBacker*);
 
@@ -255,14 +245,18 @@ public:
 				    , logwidth_(mLogWidth)	 	   
 				    , logheight_(mLogHeight)
 				    , withstratdisp_(false) 		    
+				    , withedit_(false)	       
+				    , wd_(0)				    
 				    {}
 
+	mDefSetupMemb(Well::Data*,wd) 		// will be used if not null
 	mDefSetupMemb(int,nrpanels) 	 	// nr Log Panels
 	mDefSetupMemb(bool,nobackground) 	//transparent background
 	mDefSetupMemb(bool,noborderspace) 	//will remove all border&annots 
 	mDefSetupMemb(int,logheight) 		//log height
 	mDefSetupMemb(int,logwidth) 		//log width
 	mDefSetupMemb(bool,withstratdisp) 	//Add Stratigraphy display
+	mDefSetupMemb(bool,withedit) 		//Add Marker Editor
     };
 
     mClass ShapeSetup
@@ -280,39 +274,39 @@ public:
 
     mStruct Params
     {
-	public :		Params(Well::Data&,int,int);
+	public :		Params(Well::Data*,int,int);
 
 	int 			logwidth_;	 	   
 	int 			logheight_;
-	Interval<float>		zrg_;
-	bool			zistime_;
-	Well::Data&		wd_;
-	const Well::D2TModel*	d2tm_;
+	Well::Data*		wd_;
+	Well::Well2DDispData	data_;
     };	
-
 				uiWellDisplay(uiParent*,const Setup&,
-						Well::Data&);
+					      const MultiID& );
 				uiWellDisplay(uiWellDisplay&,const ShapeSetup&);
 				~uiWellDisplay();
     
-   
-    int 			nrLogDisp() 	{ return logdisps_.size();}	
-    uiWellLogDisplay* 		logDisplay(int idx) { return logdisps_[idx]; }
     void			setLog(const char*,int,bool);
+    int 			nrLogDisp() 	  { return logdisps_.size();}	
+    int 			nrLogDisp() const { return logdisps_.size();}	
+    uiWellLogDisplay* 		logDisplay(int i) 	{ return logdisps_[i]; }
+    const uiWellLogDisplay* 	logDisplay(int i) const	{ return logdisps_[i]; }
 
+    MultiID                     getWellID() 		{ return wellid_; }
     uiWellStratDisplay*		stratDisp() 		{ return stratdisp_; }
     const uiWellStratDisplay*	stratDisp() const  	{ return stratdisp_; }
     bool			hasStratDisp() const	{ return stratdisp_; }
     uiWellDisplayMarkerEdit* 	markerEdit() 		{ return mrkedit_; }
     const uiWellDisplayMarkerEdit* markerEdit() const	{ return mrkedit_; }
+   
+    void 			setDispProperties(Well::DisplayProperties&,
+						    int panelnr=0); 
     
-    Well::Data&			wellData() 		{ return pms_.wd_; }
-    const Well::Data&		wellData() const 	{ return pms_.wd_; }
+    Well::Data*			wellData() const 	{ return getWD(); }
     Params&			params()		{ return pms_; } 
     const Params&		params() const		{ return pms_; } 
     void                        dataChanged(CallBacker*);
 
-    void			setEditOn( bool yn );
     BufferString		getPosInfo() const	{ return info_; } 
 
 protected:
@@ -322,19 +316,20 @@ protected:
     uiWellDisplayMarkerEdit*	mrkedit_;
     Params			pms_;
     BufferString		info_;
+    MultiID                     wellid_;
 
     void			addLogPanel(bool,bool);
     void			addWDNotifiers(Well::Data&);
+    Well::Data*			getWD() const;
     void			removeWDNotifiers(Well::Data&);
     void 			setPosInfo(CallBacker*);
     void			setStratDisp();
-    void			setInitialZRange();
     int 			getDispWidth();
 
     void                        gatherInfo();
     void                        setAxisRanges();
 
-    void 			updateProperties(CallBacker*); 
+    void			welldataDelNotify(CallBacker*);
 };
 
 
@@ -350,6 +345,7 @@ protected:
     Well::Data&		wd_;
     
     void		closeWin(CallBacker*);
+    void		updateProperties(CallBacker*);
 };
 
 #endif

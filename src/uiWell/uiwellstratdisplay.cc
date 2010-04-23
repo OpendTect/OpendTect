@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.5 2010-04-13 12:55:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.6 2010-04-23 10:03:50 cvsbruno Exp $";
 
 #include "uiwellstratdisplay.h"
 
@@ -15,18 +15,17 @@ static const char* rcsID = "$Id: uiwellstratdisplay.cc,v 1.5 2010-04-13 12:55:16
 #include "uigraphicsscene.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+#include "welldisp.h"
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p, bool nobg,
-					const ObjectSet<Well::Marker>& mrks )
+					const Well::Well2DDispData& dd)
     : uiStratDisplay(p)
-    , markers_(mrks)  
-    , istime_(false)
-    , d2tm_(0)		    
+    , dispdata_(dd)
 {
     if ( nobg )
     {
 	setNoSytemBackGroundAttribute();
-	uisetBackgroundColor( Color( 255, 255, 255, 0 )  );
+	uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
 	scene().setBackGroundColor( Color( 255, 255, 255, 0 )  );
     }
 }
@@ -45,17 +44,18 @@ void uiWellStratDisplay::gatherInfo()
 
 void uiWellStratDisplay::setUnitPos( uiStratDisp::Unit& unit )  
 {
+    if ( !dispdata_.markers_ ) return;
     float& toppos = unit.zpos_; 
     float& botpos = unit.zposbot_;
     const Well::Marker* topmrk = 0;
     const Well::Marker* basemrk = 0;
-    for ( int idx=0; idx<markers_.size(); idx++ )
+    for ( int idx=0; idx<dispdata_.markers_->size(); idx++ )
     {
-	const Strat::Level* lvl = markers_[idx]->level();
+	const Strat::Level* lvl = (*dispdata_.markers_)[idx]->level();
 	if ( lvl && !strcmp( lvl->name(), unit.toplvlnm_ ) )
-	    topmrk = markers_[idx];
+	    topmrk = (*dispdata_.markers_)[idx];
 	if ( lvl && !strcmp( lvl->name(), unit.botlvlnm_ ) )
-	    basemrk = markers_[idx];
+	    basemrk = (*dispdata_.markers_)[idx];
     }
     if ( !topmrk || !basemrk ) 
     { 
@@ -66,10 +66,10 @@ void uiWellStratDisplay::setUnitPos( uiStratDisp::Unit& unit )
     {
 	toppos = topmrk->dah();
 	botpos = basemrk->dah();
-	if ( istime_ && d2tm_ ) 
+	if ( dispdata_.zistime_ && dispdata_.d2tm_ ) 
 	{ 
-	    toppos = d2tm_->getTime( toppos ); 
-	    botpos = d2tm_->getTime( botpos ); 
+	    toppos = dispdata_.d2tm_->getTime( toppos ); 
+	    botpos = dispdata_.d2tm_->getTime( botpos ); 
 	}
     }
 }

@@ -7,79 +7,38 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.7 2010-04-16 13:06:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisplaycontrol.cc,v 1.8 2010-04-23 10:03:50 cvsbruno Exp $";
 
 
 #include "uiwelldisplaycontrol.h"
-#include "mouseevent.h"
-#include "uimenuhandler.h"
+#include "uicolor.h"
 #include "uidialog.h"
 #include "uigeninput.h"
-#include "uicolor.h"
+#include "uigraphicsitemimpl.h"
+#include "uimenuhandler.h"
+#include "uiwelllogdisplay.h"
+
+#include "mouseevent.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellmarker.h"
-#include "uigraphicsitemimpl.h"
-
-uiWellDisplayReshape::uiWellDisplayReshape( uiWellDisplay& disp )
-    : CallBacker(CallBacker::CallBacker())
-    , menu_(*new uiMenuHandler(&disp,-1))
-    , addlogmnuitem_("Add Log Display...",0)      			 
-    , remlogmnuitem_("Remove Log Display...",1)
-    , addstratmnuitem_("Add Strat Display...",2)
-    , remstratmnuitem_("Remove Strat Display...",3)
-{
-    menu_.ref();
-    menu_.createnotifier.notify(mCB(this,uiWellDisplayReshape,createMenuCB));
-    menu_.handlenotifier.notify(mCB(this,uiWellDisplayReshape,handleMenuCB));
-}
 
 
-void uiWellDisplayReshape::createMenuCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( !menu ) return;
-
-    mAddMenuItem( menu, &remlogmnuitem_, true, false );
-    mAddMenuItem( menu, &addlogmnuitem_, true, false );
-    mAddMenuItem( menu, &remstratmnuitem_, true, false );
-    mAddMenuItem( menu, &addstratmnuitem_, true, false );
-}
-
-
-void uiWellDisplayReshape::handleMenuCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet( MenuHandler*, menu, caller );
-    if ( mnuid==-1 || menu->isHandled() )
-	return;
-
-    if ( mnuid==addlogmnuitem_.id )
-	addLogPanel();
-    if ( mnuid==addlogmnuitem_.id )
-	remLogPanel();
-}
-
-
-void uiWellDisplayReshape::addLogPanel()
-{}
-void uiWellDisplayReshape::remLogPanel()
-{}
-
-
-
-uiWellDisplayMarkerEdit::uiWellDisplayMarkerEdit( uiWellLogDisplay& disp, Well::Data& wd )
+uiWellDisplayMarkerEdit::uiWellDisplayMarkerEdit( uiWellLogDisplay& disp, 
+						  Well::Data* wd )
     : CallBacker(CallBacker::CallBacker())
     , wd_(wd)  
     , mousepressed_(false)			
     , selmarker_(0)		
     , curmarker_(0)		
     , lastmarker_(0)
-    , menu_(0)	    
+    , menu_(0)	 
     , addmrkmnuitem_("Add marker...",1)      			 
     , remmrkmnuitem_("Remove marker...",0)
-    , edit_(true)				  	  
+    , needsave_(false)					      	
 {
+    if ( disp.parent() )
+	addMenu(new uiMenuHandler(disp.parent(),-1) );	 
     addLogDisplay( disp );
 }
 
@@ -93,7 +52,7 @@ uiWellDisplayMarkerEdit::~uiWellDisplayMarkerEdit()
 void uiWellDisplayMarkerEdit::addMenu( uiMenuHandler* menu )
 {
     if ( menu_ ) 
-    {  menu_->unRef(); }
+    { menu_->unRef(); }
     menu_ = menu;
     menu_->ref();
     menu_->createnotifier.notify(mCB(this,uiWellDisplayMarkerEdit,createMenuCB));
@@ -108,10 +67,6 @@ void uiWellDisplayMarkerEdit::addLogDisplay( uiWellLogDisplay& ld )
     meh.buttonPressed.notify( mCB(this,uiWellDisplayMarkerEdit,mousePressed) );
     meh.buttonPressed.notify( mCB(this,uiWellDisplayMarkerEdit,usrClickCB) );
     meh.movement.notify( mCB(this,uiWellDisplayMarkerEdit,mouseMoved) );
-    
-    //buttonReleased does not work when nested graphicsview
-    //meh.buttonReleased.notify(mCB(this,uiWellDisplayMarkerEdit,mouseRelease));
-    //meh.buttonReleased.notify( mCB(this,uiWellDisplayMarkerEdit,usrClickCB));
 }
 
 
@@ -124,7 +79,7 @@ void uiWellDisplayMarkerEdit::mousePressed( CallBacker* cb )
 
 void uiWellDisplayMarkerEdit::mouseMoved( CallBacker* cb )
 {
-    if ( mousepressed_ && selmarker_ && edit_ )
+    if ( mousepressed_ && selmarker_ )
 	changeMarkerPos( selmarker_ );
     
     curmarker_ = selectMarker( cb, true );
@@ -147,7 +102,8 @@ void uiWellDisplayMarkerEdit::mouseRelease( CallBacker* )
 
 void uiWellDisplayMarkerEdit::trigMarkersChanged()
 {
-    wd_.markerschanged.trigger();
+    if ( wd_ ) wd_->markerschanged.trigger();
+    needsave_ = true;
 }
 
 
@@ -216,6 +172,7 @@ protected :
 
 void uiWellDisplayMarkerEdit::handleMenuCB( CallBacker* cb )
 {
+    if ( !wd_ ) return;
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet( MenuHandler*, menu, caller );
     if ( mnuid==-1 || menu->isHandled() )
@@ -230,7 +187,7 @@ void uiWellDisplayMarkerEdit::handleMenuCB( CallBacker* cb )
 	{
 	    Well::Marker* newmrk = mrkdlg.marker();
 	    if ( !newmrk ) return;
-	    Well::MarkerSet& mrkset = wd_.markers();
+	    Well::MarkerSet& mrkset = wd_->markers();
 	    for ( int idx=0; idx<mrkset.size(); idx++ )
 	    {
 		Well::Marker& mrk = *mrkset[idx]; 
@@ -247,7 +204,7 @@ void uiWellDisplayMarkerEdit::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==remmrkmnuitem_.id  && selectMarker( 0, true ) )
     {
-	ObjectSet<Well::Marker>& mrkset = wd_.markers();
+	ObjectSet<Well::Marker>& mrkset = wd_->markers();
 	delete mrkset.remove( mrkset.indexOf( selectMarker(0,true) ), true);
 	trigMarkersChanged();
     }
@@ -312,9 +269,9 @@ Well::Marker* uiWellDisplayMarkerEdit::selectMarker( CallBacker* cb, bool allowr
 
 
 #define mSetZVal(val)\
-    if ( logdisps_[0]->data().zistime_ &&\
-	    wd_.haveD2TModel() && wd_.d2TModel()->size() > 0 )\
-	val = wd_.d2TModel()->getDepth( val/1000 );
+    if ( logdisps_[0]->data().zistime_ && wd_ &&\
+	    wd_->haveD2TModel() && wd_->d2TModel()->size() > 0 )\
+	val = wd_->d2TModel()->getDepth( val/1000 );
 void uiWellDisplayMarkerEdit::changeMarkerPos( Well::Marker* mrk )
 {
     if ( selmarker_ )
