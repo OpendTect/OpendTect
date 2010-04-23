@@ -133,14 +133,17 @@ void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 
 
 void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm,
-					  const LatLong& ll, const char* nm )
+					  const LatLong& ll, const char* nm,
+       					  const char* desc )
 {
     if ( !isOK() ) return; mDeclIconStNm;
 
     strm() << "\n\t<Placemark>\n"
-	   << "\t\t<name>" << nm << "</name>\n"
-	   << "\t\t<LookAt>\n";
-    strm() << "\t\t\t<longitude>" << getStringFromDouble(0,ll.lng_)
+	   << "\t\t<name>" << nm << "</name>\n";
+    if ( desc && *desc )
+	strm() << "\t\t<description>" << desc << "</description>\n";
+    strm() << "\t\t<LookAt>\n"
+	      "\t\t\t<longitude>" << getStringFromDouble(0,ll.lng_)
 				      << "</longitude>\n";
     strm() << "\t\t\t<latitude>" << getStringFromDouble(0,ll.lat_)
 				      << "</latitude>\n";

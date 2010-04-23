@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: googlexmlwriter.h,v 1.6 2010-04-21 11:00:34 cvsbert Exp $
+ * ID       : $Id: googlexmlwriter.h,v 1.7 2010-04-23 11:16:05 cvsbert Exp $
 -*/
 
 #include "bufstring.h"
@@ -51,7 +51,7 @@ public:
     void		writePlaceMark(const char* iconnm,const Coord&,
 				       const char* nm);
     void		writePlaceMark(const char* iconnm,const LatLong&,
-				       const char* nm);
+				       const char* nm,const char* desc=0);
     void		writeLine(const char* iconnm,const TypeSet<Coord>&,
 	    			  const char* nm);
 
