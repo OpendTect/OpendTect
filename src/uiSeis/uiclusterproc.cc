@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Raman Singh
  Date:          April 2008
- RCS:		$Id: uiclusterproc.cc,v 1.2 2009-07-22 16:01:41 cvsbert Exp $
+ RCS:		$Id: uiclusterproc.cc,v 1.3 2010-04-23 05:10:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "dirlist.h"
 #include "timer.h"
-#include "filegen.h"
 #include "filepath.h"
 #include "strmprov.h"
 #include "envvars.h"

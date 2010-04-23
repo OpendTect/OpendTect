@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodsysadmcoltabs.cc,v 1.1 2010-01-06 13:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodsysadmcoltabs.cc,v 1.2 2010-04-23 05:12:23 cvsnanne Exp $";
 
 #include "uiodsysadmcoltabs.h"
 
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: uiodsysadmcoltabs.cc,v 1.1 2010-01-06 13:11:25 
 
 #include "coltabsequence.h"
 #include "oddirs.h"
-#include "filegen.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"

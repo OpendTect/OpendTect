@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodsysadm.cc,v 1.1 2010-01-06 13:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodsysadm.cc,v 1.2 2010-04-23 05:12:23 cvsnanne Exp $";
 
 #include "uiodsysadm.h"
 #include "uiodsysadmcoltabs.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uiodsysadm.cc,v 1.1 2010-01-06 13:11:25 cvsbert
 #include "uiseparator.h"
 #include "plugins.h"
 #include "oddirs.h"
-#include "filegen.h"
+#include "file.h"
 
 
 uiODSysAdm& ODSysAdmMainWin()
@@ -64,9 +64,9 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
 	    // The order of the following has to match the header file's!
 	, swdir_(GetSoftwareDir(0))
 	, asdir_(GetApplSetupDir())
-	, haveas_(!asdir_.isEmpty() && File_exists(asdir_))
-	, swwritable_(File_isWritable(swdir_))
-	, aswritable_(haveas_ && File_isWritable(asdir_))
+	, haveas_(!asdir_.isEmpty() && File::exists(asdir_))
+	, swwritable_(File::isWritable(swdir_))
+	, aswritable_(haveas_ && File::isWritable(asdir_))
 {
 
     if ( !swwritable_ && !aswritable_ )
