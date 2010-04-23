@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtlocations.cc,v 1.8 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtlocations.cc,v 1.9 2010-04-23 11:32:25 cvsnageswara Exp $";
 
 #include "uigmtlocations.h"
 
@@ -49,7 +49,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
-    symbfld_ = new uiGMTSymbolPars( this );
+    symbfld_ = new uiGMTSymbolPars( this, false );
     symbfld_->attach( alignedBelow, namefld_ );
 }
 

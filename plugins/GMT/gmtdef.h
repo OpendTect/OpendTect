@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.14 2010-04-14 05:54:28 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.15 2010-04-23 11:33:30 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ namespace ODGMT
 			DeclareNameSpaceEnumUtils(Resolution)
     enum Alignment	{ Above, Below, Left, Right };
 			DeclareNameSpaceEnumUtils(Alignment);
+    enum ExecStatus	{ Success, FatalError, Failure };
 
     static const char*	sShapeKeys[] = { "a", "c", "d", "s", "t", "x", "n",
 					 "-", 0 };
@@ -70,11 +71,11 @@ namespace ODGMT
     static const char*	sKeyXRange = "X Range";
     static const char*	sKeyYRange = "Y Range";
     static const char*	sKeyZVals = "Z values";
-
     static const char*  sKeyFaultID = "FaultID";
     static const char*  sKeyHorizonID = "HorizonID";
     static const char*  sKeyZIntersectionYN = "ZIntersection";
-
+    static const char*  sKeyUseWellSymbolsYN = "Use Well Symbols";
+    static const char*  sKeyWellSymbolName = "Symbol Name";
 };
 
 

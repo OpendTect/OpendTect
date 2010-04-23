@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.18 2010-02-09 06:30:37 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.19 2010-04-23 11:33:30 cvsnageswara Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -217,10 +217,25 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	bool dofill;
 	par->getYN( ODGMT::sKeyFill, dofill );
 	BufferString legendstring = "S 0.6c ";
-	legendstring += symbstr; legendstring += " "; 
+
+	bool usewellsymbol = false;
+	par->getYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbol );
+	if ( !usewellsymbol )
+	    legendstring += symbstr;
+	else
+	{
+	    BufferString symbolname;
+	    par->get( ODGMT::sKeyWellSymbolName, symbolname );
+	    BufferString deffilenm = GMTWSR().get( symbolname )->deffilenm_;
+	    legendstring += "k"; legendstring += deffilenm;
+	    par->get( sKey::Size, size );
+	}
+
+	legendstring += " ";
 	legendstring += size > 1 ? 1 : size;
 	legendstring += "c ";
-	if ( dofill )
+
+	if ( !usewellsymbol && dofill )
 	{
 	    BufferString fillcolstr;
 	    Color fillcol;

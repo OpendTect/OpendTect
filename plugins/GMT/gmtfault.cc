@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nageswara
  Date:		April 2010
-RCS:		$Id: gmtfault.cc,v 1.2 2010-04-14 04:05:20 cvsnageswara Exp $
+RCS:		$Id: gmtfault.cc,v 1.3 2010-04-23 11:33:30 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	if ( size == 0 )
 	{
 	    strm << "Selected ZSlice and Fault are not intersected\n";
-	    return true;
+	    return false;
 	}
 
 	*sd.ostrm << "> " << std::endl;
@@ -164,7 +164,7 @@ bool GMTFault::execute( std::ostream& strm, const char* fnm )
 	if ( clist.getSize() == 0 )
 	{
 	    strm << "Selected Horizon and Fault are not intersected\n";
-	    return true;
+	    return false;
 	}
 
 	*sd.ostrm << "> " << std::endl;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.12 2010-04-14 05:54:28 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.13 2010-04-23 11:33:30 cvsnageswara Exp $";
 
 #include "gmtlocations.h"
 
@@ -355,17 +355,36 @@ const char* GMTWells::userRef() const
 bool GMTWells::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name, find(sKey::Name) );
-    FixedString str = find( ODGMT::sKeyShape );
-    par.set( ODGMT::sKeyShape, str );
-    str = find( sKey::Size );
-    par.set( sKey::Size, str );
-    str = find( sKey::Color );
-    par.set( sKey::Color, str );
-    str = find( ODGMT::sKeyFill );
-    par.set( ODGMT::sKeyFill, str );
-    str = find( ODGMT::sKeyFillColor );
-    if ( !str.isEmpty() )
-	par.set( ODGMT::sKeyFillColor, str );
+
+    bool usewellsymbols = false;
+    getYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbols );
+    par.setYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbols );
+    if ( usewellsymbols )
+    {
+	BufferString wellsymbolnm;
+	get( ODGMT::sKeyWellSymbolName, wellsymbolnm );
+	par.set( ODGMT::sKeyWellSymbolName, wellsymbolnm );
+	BufferString color;
+	get( sKey::Color, color );
+	par.set( sKey::Color, color );
+	float size;
+	get( sKey::Size, size );
+	par.set( sKey::Size, size );
+    }
+    else
+    {
+	FixedString str = find( ODGMT::sKeyShape );
+	par.set( ODGMT::sKeyShape , str );
+	str = find( sKey::Size );
+	par.set( sKey::Size, str );
+	str = find( sKey::Color );
+	par.set( sKey::Color, Color::DgbColor() );
+	str = find( ODGMT::sKeyFill );
+	par.set( ODGMT::sKeyFill, str );
+	str = find( ODGMT::sKeyFillColor );
+	if ( !str.isEmpty() )
+	    par.set( ODGMT::sKeyFillColor, str );
+    }
 
     return true;
 }
@@ -382,19 +401,32 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     Color outcol; get( sKey::Color, outcol );
     BufferString outcolstr;
     mGetColorString( outcol, outcolstr );
-    bool dofill;
-    getYN( ODGMT::sKeyFill, dofill );
-
-    float size;
-    get( sKey::Size, size );
-    const int shape = eEnum( ODGMT::Shape, find(ODGMT::sKeyShape) );
 
     BufferString comm = "@psxy ";
     BufferString rgstr; mGetRangeProjString( rgstr, "X" );
     comm += rgstr; comm += " -O -K -S";
-    comm += ODGMT::sShapeKeys[shape]; comm += size;
-    comm += " -W1p,"; comm += outcolstr;
-    if ( dofill )
+
+    bool usewellsymbols = false;
+    getYN( ODGMT::sKeyUseWellSymbolsYN, usewellsymbols );
+    if ( usewellsymbols )
+    {
+	BufferString wellsymbolnm;
+	get( ODGMT::sKeyWellSymbolName, wellsymbolnm );
+	BufferString deffilenm = GMTWSR().get( wellsymbolnm )->deffilenm_;
+	comm += "k"; comm += deffilenm;
+    }
+    else
+    {
+	const int shape = eEnum( ODGMT::Shape, find(ODGMT::sKeyShape) );
+	comm += ODGMT::sShapeKeys[shape];
+    }
+
+    float size;
+    get( sKey::Size, size );
+    comm += " -W"; comm+=size; comm += "p,"; comm += outcolstr;
+    bool dofill;
+    getYN( ODGMT::sKeyFill, dofill );
+    if ( !usewellsymbols && dofill )
     {
 	Color fillcol;
 	get( ODGMT::sKeyFillColor, fillcol );
@@ -419,9 +451,11 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
 
 	Coord surfcoord = data.info().surfacecoord;
 	surfcoords += surfcoord;
-	*sd.ostrm << surfcoord.x << " " << surfcoord.y << std::endl;
+	*sd.ostrm << surfcoord.x << " " << surfcoord.y << " " << size
+	    						      << std::endl;
     }
 
+    strm << comm << std::endl;
     sd.close();
     bool postlabel = false;
     getYN( ODGMT::sKeyPostLabel, postlabel );
@@ -464,5 +498,3 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     strm << "Done" << std::endl;
     return true;
 }
-
-

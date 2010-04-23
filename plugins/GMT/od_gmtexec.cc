@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_gmtexec.cc,v 1.9 2010-02-09 06:30:37 cvsraman Exp $";
+static const char* rcsID = "$Id: od_gmtexec.cc,v 1.10 2010-04-23 11:33:30 cvsnageswara Exp $";
 
 #include "batchprog.h"
 #include "filepath.h"
@@ -23,6 +23,17 @@ static const char* rcsID = "$Id: od_gmtexec.cc,v 1.9 2010-02-09 06:30:37 cvsrama
 
 #include <iostream>
 
+#define mErrFatalRet(msg) \
+{ \
+    strm << msg << std::endl; \
+    StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream(); \
+    *sd.ostrm << "Failed" << std::endl; \
+    sd.close(); \
+    finishmsg_ = "Failed to create map"; \
+    return false; \
+}
+
+
 bool BatchProgram::go( std::ostream& strm )
 {
     General::initStdClasses();
@@ -35,24 +46,49 @@ bool BatchProgram::go( std::ostream& strm )
 
     FilePath tmpfp( psfilenm );
     tmpfp.setExtension( "tmp" );
+    IOPar legendspar;
+    int legendidx = 0;
+    legendspar.set( ODGMT::sKeyGroupName, "Legend" );
     for ( int idx=0; ; idx++ )
     {
 	IOPar* iop = pars().subselect( idx );
 	if ( !iop ) break;
 
 	PtrMan<GMTPar> par = GMTPF().create( *iop );
-	if ( !par || !par->execute(strm,psfilenm) )
+	if ( !idx && ( !par || par->find(ODGMT::sKeyGroupName) != "Basemap" ) )
+	    mErrFatalRet("Basemap parameters missing")
+
+	if ( !par->execute(strm,psfilenm) )
 	{
 	    BufferString msg = "Failed to post ";
 	    msg += iop->find( ODGMT::sKeyGroupName );
-	    StreamData sd = StreamProvider( tmpfp.fullPath() ).makeOStream();
 	    strm << msg << std::endl;
-	    *sd.ostrm << "Failed" << std::endl;
-	    sd.close();
-	    finishmsg_ = "Failed to create map";
-	    return false;
+	    if ( idx )
+		continue;
+	    else
+		mErrFatalRet("Please check your GMT installation")
+	}
+
+	IOPar legpar;
+	if ( par->fillLegendPar( legpar ) )
+	    legendspar.mergeComp( legpar, toString(legendidx++) );
+
+	if ( idx == 0 )
+	{
+	    Interval<int> xrg, yrg;
+	    Interval<float> mapdim;
+	    par->get( ODGMT::sKeyXRange, xrg );
+	    par->get( ODGMT::sKeyYRange, yrg );
+	    par->get( ODGMT::sKeyMapDim, mapdim );
+	    legendspar.set( ODGMT::sKeyMapDim, mapdim );
+	    legendspar.set( ODGMT::sKeyXRange, xrg );
+	    legendspar.set( ODGMT::sKeyYRange, yrg );
 	}
     }
+
+    PtrMan<GMTPar> par = GMTPF().create( legendspar );
+    if ( !par || !par->execute(strm, psfilenm) )
+	strm << "Failed to post legends";
 
     FilePath gmtcommandsfnm( GetBinPlfDir() );
     gmtcommandsfnm.add( ".gmtcommands4" );
@@ -62,4 +98,3 @@ bool BatchProgram::go( std::ostream& strm )
     sd.close();
     return true;
 }
-

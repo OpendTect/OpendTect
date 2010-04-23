@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtwells.cc,v 1.8 2009-07-22 16:01:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtwells.cc,v 1.9 2010-04-23 11:32:25 cvsnageswara Exp $";
 
 #include "uigmtwells.h"
 
@@ -58,7 +58,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Wells") );
     namefld_->attach( alignedBelow, llb );
 
-    symbfld_ = new uiGMTSymbolPars( this );
+    symbfld_ = new uiGMTSymbolPars( this, true );
     symbfld_->attach( alignedBelow, namefld_ );
 
     lebelfld_ = new uiCheckBox( this, "Post labels",

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.21 2010-04-16 03:21:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.22 2010-04-23 11:32:25 cvsnageswara Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -460,17 +460,9 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     basemappar.get( ODGMT::sKeyYRange, yrg );
     BufferString numkey( "", idx++ );
     par.mergeComp( basemappar, numkey );
-    IOPar legendpar;
-    makeLegendPar( legendpar );
-    const bool haslegends = legendpar.size() > 1;
-    if ( haslegends )
-	legendpar.set( ODGMT::sKeyMapDim, mapdim );
-
     for ( int ldx=0; ldx<pars_.size(); ldx++ )
     {
 	numkey = idx++;
-	const bool closeps = !haslegends && ( ldx == pars_.size() - 1 );
-	pars_[ldx]->setYN( ODGMT::sKeyClosePS, closeps );
 	pars_[ldx]->set( ODGMT::sKeyMapDim, mapdim );
 	pars_[ldx]->set( ODGMT::sKeyXRange, xrg );
 	pars_[ldx]->set( ODGMT::sKeyYRange, yrg );
@@ -480,8 +472,6 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     if ( !pars_.size() )
 	return true;
 
-    numkey = idx;
-    par.mergeComp( legendpar, numkey );
     return true;
 }
 
@@ -515,19 +505,3 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 
     return true;
 }
-
-
-void uiGMTMainWin::makeLegendPar( IOPar& legpar ) const
-{
-    legpar.set( ODGMT::sKeyGroupName, "Legend" );
-    int pdx = 0;
-    for ( int idx=0; idx<pars_.size(); idx++ )
-    {
-	IOPar par;
-	if ( !pars_[idx]->fillLegendPar(par) )
-	    continue;
-
-	legpar.mergeComp( par, toString( pdx++ ) );
-    }
-}
-

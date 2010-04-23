@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.h,v 1.4 2009-07-22 16:01:28 cvsbert Exp $
+ RCS:		$Id: uigmtmainwin.h,v 1.5 2010-04-23 11:32:25 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,6 @@ protected:
     bool		prepareProcessing()		{ return true; }
     bool		fillPar(IOPar&);
     bool		usePar( const IOPar&);
-    void		makeLegendPar(IOPar&) const;
 };
 
 #endif
