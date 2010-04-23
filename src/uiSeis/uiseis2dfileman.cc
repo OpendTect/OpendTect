@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.1 2010-04-23 11:17:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.2 2010-04-23 12:45:58 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.1 2010-04-23 11:17:33 cv
 #include "pixmap.h"
 #include "seis2dline.h"
 #include "seis2dlinemerge.h"
+#include "seiscube2linedata.h"
 #include "survinfo.h"
 #include "zdomain.h"
 #include "linesetposinfo.h"
@@ -34,6 +35,7 @@ static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.1 2010-04-23 11:17:33 cv
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
 #include "uiseisbrowser.h"
+#include "uiseissel.h"
 #include "uisplitter.h"
 #include "uitextedit.h"
 #include "uitaskrunner.h"
@@ -489,17 +491,49 @@ uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
     : uiDialog(p,Setup("Extract from 3D","Get 3D data as 2D line attribute",
 		       mTODOHelpID) )
     , objinf_(objinf)
+    , sellns_(sellns)
 {
+    alllnsfld_ = new uiGenInput( this, "Extract for",
+	    		BoolInpSpec(true,"All lines", "Selected line(s)") );
+    cubefld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
+	    			uiSeisSel::Setup(Seis::Vol) );
+    cubefld_->attach( alignedBelow, alllnsfld_ );
+    cubefld_->selectionDone.notify( mCB(this,uiSeis2DExtractFrom3D,cubeSel) );
     attrnmfld_ = new uiGenInput( this, "Store as attribute" );
+    attrnmfld_->attach( alignedBelow, cubefld_ );
+}
+
+void cubeSel( CallBacker* )
+{
+    const IOObj* ioobj = cubefld_->ioobj( true );
+    const char* attrnm = attrnmfld_->text();
+    if ( ioobj && !*attrnm )
+	attrnmfld_->setText( ioobj->name() );
 }
 
 bool acceptOK( CallBacker* )
 {
-    return true;
+    const IOObj* ioobj = cubefld_->ioobj();
+    if ( !ioobj ) return false;
+    const char* attrnm = attrnmfld_->text();
+    if ( !*attrnm )
+	{ uiMSG().error("Please provide an attribute name"); return false; }
+
+    BufferStringSet lnms;
+    if ( !alllnsfld_->getBoolValue() )
+	lnms = sellns_;
+
+    SeisCube2LineDataExtracter extr( *ioobj, *objinf_.ioObj(), attrnm,
+	    			     lnms.isEmpty() ? 0 : &lnms );
+    uiTaskRunner tr( this );
+    return tr.execute( extr );
 }
 
     const uiSeisIOObjInfo&	objinf_;
+    const BufferStringSet&	sellns_;
 
+    uiSeisSel*		cubefld_;
+    uiGenInput*		alllnsfld_;
     uiGenInput*		attrnmfld_;
 
 };
