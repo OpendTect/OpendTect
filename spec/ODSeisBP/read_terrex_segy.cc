@@ -15,7 +15,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: read_terrex_segy.cc,v 1.3 2009-12-03 11:48:15 cvsbert Exp $";
+static const char* rcsID = "$Id: read_terrex_segy.cc,v 1.4 2010-04-23 05:15:05 cvsnanne Exp $";
 
 #include "ioobj.h"
 #include "iopar.h"
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: read_terrex_segy.cc,v 1.3 2009-12-03 11:48:15 c
 #include "segytr.h"
 #include "segyhdr.h"
 #include "ibmformat.h"
-#include "filegen.h"
+#include "file.h"
 #include "strmprov.h"
 #include "progressmeter.h"
 #include "seisselectionimpl.h"
@@ -78,7 +78,7 @@ void interpretBuf( SeisTrcInfo& ti )
 bool BatchProgram::go( std::ostream& strm )
 {
     const char* segyfnm = pars().find( "Input Seismics.File name" );
-    if ( !segyfnm || !File_exists(segyfnm) )
+    if ( !segyfnm || !File::exists(segyfnm) )
 	mErrRet("Need valid 'Input Seismics.File name'")
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
