@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.43 2010-03-25 19:51:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.44 2010-04-23 15:46:46 cvskarthika Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -611,7 +611,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	layeropacity_->value.deleteValues( nrchannels, -1 );
 
     int firstlayer = -1;
-	char firstlayertrans = 0;
+    char firstlayertrans = 1;  // SoTextureComposerInfo::cHasTransparency
 
     numlayers_->value.setValue( nrchannels );
 
@@ -621,7 +621,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	SbVec3s size; int dummy2;
 	const unsigned char* vals = channel.getValue( size, dummy2 );
 	// Starting from the front layer, find the (foremost) layer which is 
-	// fully opaque(if any). That will be the first layer to be rendered 
+	// fully opaque (if any). That will be the first layer to be rendered 
 	// (rendering starts at this layer and proceeds forward).
 	if ( vals && enabled_.size()>idx && enabled_[idx] )
 	{
@@ -645,10 +645,9 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 		    ? (float) opacity_[idx]/255
 		    : 0.0 );
 	}
+	}
 
-	tci_->transparencyInfo = firstlayertrans;
-    }
-
+    tci_->transparencyInfo = firstlayertrans;
     startlayer_->value.setValue( firstlayer );
 }
 
@@ -680,9 +679,9 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	"    {								\n"
 	// Color values are premultiplied with their alpha values.
 	"        vec4 prevcol = gl_FragColor;  \n"
-	"        col *= layeropacity;  \n"
-	"        gl_FragColor.rgb = col.rgb + prevcol.rgb * (1 - col.a); \n"
-	"        gl_FragColor.a = col.a + prevcol.a*(1-col.a);	\n"
+	"        vec4 newcol = col * layeropacity;  \n"
+	"        gl_FragColor.rgb = newcol.rgb + prevcol.rgb * (1 - newcol.a); \n"
+	"        gl_FragColor.a = newcol.a + prevcol.a*(1-newcol.a);	\n"
 	"    }								\n"
 	"}								\n\n";
 
