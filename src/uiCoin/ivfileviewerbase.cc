@@ -3,7 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : May 2000
 -*/
-static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.7 2009-09-24 07:34:33 cvsranojay Exp $";
+static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.8 2010-04-23 08:28:23 cvsnanne Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -15,7 +15,7 @@ static const char* __rcsID = "$Id: ivfileviewerbase.cc,v 1.7 2009-09-24 07:34:33
 
 #ifdef USESOODCLASSES
 # include "initsood.h"
-# include "filegen.h"
+# include "file.h"
 # include "uifiledlg.h"
 # ifdef __msvc__
 #  include "winmain.h"
@@ -38,7 +38,7 @@ int main( int narg, char** argv )
 #ifdef USESOODCLASSES
     BufferString filebuf = filename;
 
-    while ( filebuf.isEmpty() || !File_exists( filebuf.buf() ) )
+    while ( filebuf.isEmpty() || !File::exists( filebuf.buf() ) )
     {
 	uiFileDialog dlg( 0, uiFileDialog::ExistingFile, 0,
 			  "IV files (*.iv)", "Select file to view" );
