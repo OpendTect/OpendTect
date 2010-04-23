@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.23 2010-04-16 03:28:54 cvsnanne Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.24 2010-04-23 09:33:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,7 @@ protected:
     TypeSet<StepInterval<int> >	trcrgs_;
 
     void			doDlg(CallBacker*);
+    void			updateFromLineset();
 };
 
 
