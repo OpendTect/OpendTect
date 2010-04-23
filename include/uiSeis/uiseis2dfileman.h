@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne/Bert
  Date:          April 2002/Nov 2009
- RCS:           $Id: uiseis2dfileman.h,v 1.4 2009-12-11 14:48:23 cvsbert Exp $
+ RCS:           $Id: uiseis2dfileman.h,v 1.5 2010-04-23 11:17:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ protected:
     void		mergeLines(CallBacker*);
     void		removeAttrib(CallBacker*);
     void		renameAttrib(CallBacker*);
+    void		extrFrom3D(CallBacker*);
 
     uiListBox*		linefld_;
     uiListBox*		attrfld_;
