@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.13 2010-04-23 14:42:27 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.14 2010-04-25 22:04:13 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
@@ -33,8 +33,8 @@ const char* SoDGBDragPointDragger::xytranslatorname_ = "xyTranslator";
 // -->            "zTranslator"
 // -->            "xyTranslator"
 // -->            "feedbackSwitch"
-// -->            "zFeedback"
-// -->            "xyFeedback"
+// -->                "zFeedback"
+// -->                "xyFeedback"
 
 SO_KIT_SOURCE(SoDGBDragPointDragger);
 
@@ -64,7 +64,7 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
 		static_cast <int> ( strlen( draggergeometry_ ) ) );
  
     SO_KIT_ADD_FIELD(translation, (0.0f, 0.0f, 0.0f));
-    SO_KIT_ADD_FIELD(draggerautoselect, (true));
+    SO_KIT_ADD_FIELD(autoselectdragdirection, (true));
     SO_KIT_INIT_INSTANCE();
 
     // initialise the translators to inactive geometry states
@@ -87,9 +87,9 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
     addMotionCallback( SoDGBDragPointDragger::motionCB, this );
     addFinishCallback( SoDGBDragPointDragger::finishCB, this );
     addValueChangedCallback( SoDGBDragPointDragger::valueChangedCB );
-    fieldSensor = new SoFieldSensor( 
+    fieldsensor_ = new SoFieldSensor( 
 		SoDGBDragPointDragger::fieldSensorCB, this );
-    fieldSensor->setPriority( 0 );
+    fieldsensor_->setPriority( 0 );
 
     setUpConnections( true, true );
 }
@@ -97,16 +97,16 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
 
 SoDGBDragPointDragger::~SoDGBDragPointDragger()
 {
-    delete fieldSensor;
+    delete fieldsensor_;
     delete lineproj_;
     delete planeproj_;
 }
 
 
 SbBool SoDGBDragPointDragger::setUpConnections( SbBool onoff, 
-	SbBool doitalways )
+		SbBool doitalways )
 {
-    if ( !doitalways && connectionsSetUp == onoff ) return onoff;
+    if ( !doitalways && connectionsSetUp==onoff ) return onoff;
 
     SbBool oldval = connectionsSetUp;
 
@@ -116,13 +116,13 @@ SbBool SoDGBDragPointDragger::setUpConnections( SbBool onoff,
 
 	SoDGBDragPointDragger::fieldSensorCB( this, NULL );
 
-	if ( fieldSensor->getAttachedField() != &translation )
-	    fieldSensor->attach( &translation );
+	if ( fieldsensor_->getAttachedField() != &translation )
+	    fieldsensor_->attach( &translation );
     }
     else 
     {
-        if ( fieldSensor->getAttachedField() != NULL )
-	    fieldSensor->detach();
+        if ( fieldsensor_->getAttachedField() != NULL )
+	    fieldsensor_->detach();
 	SoDragger::setUpConnections( onoff, doitalways );
     }
    
@@ -158,11 +158,11 @@ void SoDGBDragPointDragger::valueChangedCB( void*, SoDragger* d )
     t[1] = matrix[3][1];
     t[2] = matrix[3][2];
 
-    thisp->fieldSensor->detach();
+    thisp->fieldsensor_->detach();
     if ( thisp->translation.getValue() != t )
 	thisp->translation = t;
 
-    thisp->fieldSensor->attach( &thisp->translation );
+    thisp->fieldsensor_->attach( &thisp->translation );
 }
 
 
@@ -180,6 +180,7 @@ void SoDGBDragPointDragger::dragStart()
 
     SbVec3f hitpt = getLocalStartingPoint();
 	SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
+
     if ( movecyl_ )
     {
 	SoInteractionKit::setSwitchValue( sw, 0 );
@@ -212,9 +213,9 @@ bool SoDGBDragPointDragger::determineDragDirection( const SoCylinder* cyl,
     mat.multDirMatrix( worldprojdir, localprojdir );
     localprojdir.normalize();
 
-    bool set = false;
+    bool selected = false;
     
-    if ( draggerautoselect.getValue() )
+    if ( autoselectdragdirection.getValue() )
     {
 	const float angletoy = fabs( localprojdir[1] );
 	const float angletoz = fabs( localprojdir[2] );
@@ -229,35 +230,35 @@ bool SoDGBDragPointDragger::determineDragDirection( const SoCylinder* cyl,
     	// picking the rectangle. User probably wants to move just the cylinder 
     	// but has picked the rectangle by mistake.
 
-        if ( ( angletoy <= lowerlimit ) && ( angletoz >= upperlimit ) )
+        if ( (angletoy<=lowerlimit) && (angletoz>=upperlimit) )
 	{
 	    movecyl_ = false;
-	    set = true;
+	    selected = true;
 	}
-	else if ( angletoz <= lowerlimit )
+	else if ( angletoz<=lowerlimit )
 	{
 	    movecyl_ = true;
-	    set = true;
+	    selected = true;
 	}
     }
     
-    if ( !set) 
+    if ( !selected ) 
     {
         // Let the user drag as desired. Find which object the user has picked.
 	const SoPath* pickpath = getPickPath();
 	if ( pickpath->containsNode( cyl ) )
 	{
 	    movecyl_ = true;
-	    set = true;
+	    selected = true;
 	}
 	else if ( pickpath->containsNode( cube ) )
 	{
 	    movecyl_ = false;
-	    set = true;
+	    selected = true;
 	}
     }
 	
-    return set;
+    return selected;
 }
 
 
@@ -283,7 +284,7 @@ void SoDGBDragPointDragger::dragFinish()
     SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
     SoInteractionKit::setSwitchValue( sw, SO_SWITCH_NONE );
 
-	// set the inactive part
+    // set the inactive part
     if ( movecyl_ )
         setPartAsDefault( ztranslatorname_, "dragPointZTranslatorTranslator" );
     else
