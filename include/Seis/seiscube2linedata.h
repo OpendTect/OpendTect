@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Apr 2010
- RCS:		$Id: seiscube2linedata.h,v 1.1 2010-04-23 12:45:58 cvsbert Exp $
+ RCS:		$Id: seiscube2linedata.h,v 1.2 2010-04-26 08:29:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 class IOObj;
 class SeisTrcBuf;
-class SeisTrcReader;
 class Seis2DLineSet;
-class Seis2DLinePutter;
+class SeisTrcReader;
+class SeisTrcWriter;
+class Cube2LineDataLineKeyProvider;
 
 
 /*!\brief Extracts 3D cube data into 2D line attribute */
@@ -43,15 +44,23 @@ protected:
 
     SeisTrcReader&	rdr_;
     Seis2DLineSet&	ls_;
+    SeisTrcWriter&	wrr_;
     SeisTrcBuf&		tbuf_;
+    const BufferString	attrnm_;
     BufferString	msg_;
     BufferStringSet	lnms_;
     Executor*		fetcher_;
-    Seis2DLinePutter*	putter_;
     int			lidx_;
     od_int64		nrdone_;
+    Cube2LineDataLineKeyProvider* c2ldlkp_;
+    BufferStringSet	lineshandled_;
 
+    void		closeDown();
+    bool		getNextFetcher();
     int			handleTrace();
+
+    friend class	Cube2LineDataLineKeyProvider;
+
 };
 
 
