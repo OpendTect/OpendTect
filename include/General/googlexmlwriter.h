@@ -4,7 +4,7 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2007
- * ID       : $Id: googlexmlwriter.h,v 1.7 2010-04-23 11:16:05 cvsbert Exp $
+ * ID       : $Id: googlexmlwriter.h,v 1.8 2010-04-26 08:08:15 cvsranojay Exp $
 -*/
 
 #include "bufstring.h"
@@ -20,7 +20,7 @@ namespace ODGoogle
 {
 class XMLItem;
 
-class XMLWriter
+mClass XMLWriter
 {
 public:
 
