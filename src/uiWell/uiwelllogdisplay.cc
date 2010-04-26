@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.41 2010-04-23 10:03:50 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.42 2010-04-26 08:59:24 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -643,7 +643,8 @@ uiWellDisplay::Params::Params( Well::Data* wd, int lw, int lh )
 uiWellDisplay::uiWellDisplay( uiParent* p, const Setup& s, const MultiID& wid )
     	: uiGroup(p,"")
 	, stratdisp_(0)
-	, wellid_(wid)       	       
+	, wellid_(wid) 
+	, mrkedit_(0)	       
 	, pms_(Params(s.wd_,s.logwidth_,s.logheight_))	
 {
     mGetWD(return);
