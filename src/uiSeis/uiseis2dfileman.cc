@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.2 2010-04-23 12:45:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.3 2010-04-26 08:28:23 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -442,6 +442,20 @@ bool acceptOK( CallBacker* )
 };
 
 
+void uiSeis2DFileMan::redoAllLists()
+{
+    const MultiID lsid( objinfo_->ioObj()->key() );
+    delete objinfo_;
+    objinfo_ = new uiSeisIOObjInfo( lsid );
+    if ( objinfo_->isOK() )
+    {
+	delete lineset_;
+	lineset_ = new Seis2DLineSet( objinfo_->ioObj()->fullUserExpr(true) );
+    }
+    fillLineBox();
+}
+
+
 void uiSeis2DFileMan::mergeLines( CallBacker* )
 {
     if ( linefld_->size() < 2 ) return;
@@ -467,18 +481,7 @@ void uiSeis2DFileMan::mergeLines( CallBacker* )
 
     uiSeis2DFileManMergeDlg dlg( this, *objinfo_, sellnms );
     if ( dlg.go() )
-    {
-	const MultiID lsid( objinfo_->ioObj()->key() );
-	delete objinfo_;
-	objinfo_ = new uiSeisIOObjInfo( lsid );
-	if ( objinfo_->isOK() )
-	{
-	    delete lineset_;
-	    lineset_ = new Seis2DLineSet(
-		    			objinfo_->ioObj()->fullUserExpr(true) );
-	}
-	fillLineBox();
-    }
+	redoAllLists();
 }
 
 
@@ -546,5 +549,5 @@ void uiSeis2DFileMan::extrFrom3D( CallBacker* )
     BufferStringSet sellnms; linefld_->getSelectedItems( sellnms );
     uiSeis2DExtractFrom3D dlg( this, *objinfo_, sellnms );
     if ( dlg.go() )
-	lineSel(0);
+	redoAllLists();
 }
