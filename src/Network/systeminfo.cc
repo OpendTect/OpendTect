@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: systeminfo.cc,v 1.2 2010-04-25 22:05:40 cvskarthika Exp $";
+static const char* rcsID = "$Id: systeminfo.cc,v 1.3 2010-04-26 03:13:08 cvsnanne Exp $";
 
 
 #include "systeminfo.h"
@@ -32,8 +32,8 @@ static const char* rcsID = "$Id: systeminfo.cc,v 1.2 2010-04-25 22:05:40 cvskart
 # include <sys/mount.h>
 #endif
 
-#ifndef __win__
-static struct statfs fsstatbuf;
+#ifdef __win__
+# include <windows.h>
 #endif
 
 namespace System
@@ -106,19 +106,15 @@ int getFreeMBOnDisk( const char* path )
     ULARGE_INTEGER freeBytesAvail2User;
     ULARGE_INTEGER totalNrBytes;
     ULARGE_INTEGER totalNrFreeBytes;
-    const int len = strlen( path );
-    WCHAR* newpath;
-    newpath = new WCHAR[len+1];
-    MultiByteToWideChar( 0, 0, path, len, newpath, len+1 );
-    GetDiskFreeSpaceEx( newpath, &freeBytesAvail2User,
+    GetDiskFreeSpaceEx( path, &freeBytesAvail2User,
 			&totalNrBytes, &totalNrFreeBytes );
-    delete [] newpath;
 
     res = freeBytesAvail2User.LowPart * fac * fac;
     res += ((double)freeBytesAvail2User.HighPart) * 2048;
 
 #else
 
+    static struct statfs fsstatbuf;
     if ( statfs(path,&fsstatbuf) == -1 )
 	return 0;
 
