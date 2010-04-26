@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.3 2010-04-26 08:28:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dfileman.cc,v 1.4 2010-04-26 10:05:13 cvsbert Exp $";
 
 
 #include "uiseis2dfileman.h"
@@ -72,7 +72,8 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 		 mCB(this,uiSeis2DFileMan,renameLine), "Rename line");
     linegrp_->addButton( ioPixmap("mergelines.png"),
 		 mCB(this,uiSeis2DFileMan,mergeLines), "Merge lines");
-    linegrp_->addButton( ioPixmap("extr3dseisinto2d.png"),
+    if ( SI().has3D() )
+	linegrp_->addButton( ioPixmap("extr3dseisinto2d.png"),
 		 mCB(this,uiSeis2DFileMan,extrFrom3D), "Extract from 3D cube");
     linegrp_->attach( rightOf, linefld_ );
 
