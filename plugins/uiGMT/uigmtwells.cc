@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtwells.cc,v 1.9 2010-04-23 11:32:25 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigmtwells.cc,v 1.10 2010-04-26 04:19:17 cvsnageswara Exp $";
 
 #include "uigmtwells.h"
 
@@ -92,7 +92,7 @@ void uiGMTWellsGrp::fillItems()
 void uiGMTWellsGrp::reset()
 {
     welllistfld_->clearSelection();
-    namefld_->setValue( "Wells" );
+    namefld_->setText( "Wells" );
     symbfld_->reset();
     lebelfld_->setChecked( false );
     labelfontszfld_->setValue( 10 );
@@ -118,7 +118,11 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
     if ( !nrsel )
 	mErrRet("Please select at least one well")
 
+    const char* namestr = namefld_->text();
+    if ( !namestr || !*namestr )
+	mErrRet(" Please enter name")
     par.set( sKey::Name, namefld_->text() );
+
     BufferStringSet selnames;
     welllistfld_->getSelectedItems( selnames );
     par.set( ODGMT::sKeyWellNames, selnames );
