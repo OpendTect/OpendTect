@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: systeminfo.cc,v 1.3 2010-04-26 03:13:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: systeminfo.cc,v 1.4 2010-04-26 07:57:03 cvsranojay Exp $";
 
 
 #include "systeminfo.h"
@@ -106,7 +106,7 @@ int getFreeMBOnDisk( const char* path )
     ULARGE_INTEGER freeBytesAvail2User;
     ULARGE_INTEGER totalNrBytes;
     ULARGE_INTEGER totalNrFreeBytes;
-    GetDiskFreeSpaceEx( path, &freeBytesAvail2User,
+    GetDiskFreeSpaceExA( path, &freeBytesAvail2User,
 			&totalNrBytes, &totalNrFreeBytes );
 
     res = freeBytesAvail2User.LowPart * fac * fac;
