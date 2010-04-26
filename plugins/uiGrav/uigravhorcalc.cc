@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.2 2010-04-20 08:31:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.3 2010-04-26 10:09:09 cvsbert Exp $";
 
 #include "uigravhorcalc.h"
 #include "gravhorcalc.h"
@@ -12,19 +12,20 @@ static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.2 2010-04-20 08:31:02 cvsb
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uiveldesc.h"
+#include "uizaxistransform.h"
 #include "ioman.h"
 #include "survinfo.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
+#include "zdomain.h"
 
 
 uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     : uiDialog(p,Setup("Calculate Gravity","", mTODOHelpID))
     , topfld_(0)
-    , velfld_(0)
+    , ztransffld_(0)
 {
     MultiID horid = EM::EMM().getMultiID( enobjid );
     horioobj_ = IOM().get( horid );
@@ -61,12 +62,9 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
 
     if ( SI().zIsTime() )
     {
-	IOObjContext velctxt = uiVelSel::ioContext();
-	velctxt.forread = true;
-	uiSeisSel::Setup velsetup( Seis::Vol );
-	velsetup.seltxt( "Velocity model" );
-	velfld_ = new uiVelSel( inpgrp, velctxt, velsetup );
-	velfld_->attach( alignedBelow, botfld_ );
+	ztransffld_ = new uiZAxisTransformSel( inpgrp, false,
+						ZDomain::sKeyTWT() );
+	ztransffld_->attach( alignedBelow, botfld_ );
     }
 
     cutoffangfld_ = new uiGenInput( this, "Cutoff angle (deg)",

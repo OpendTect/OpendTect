@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Mar 2010
- RCS:		$Id: gravhorcalc.h,v 1.3 2010-04-20 12:53:18 cvsbert Exp $
+ RCS:		$Id: gravhorcalc.h,v 1.4 2010-04-26 10:09:09 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "grav.h"
 class MultiID;
-class Time2DepthStretcher;
+class ZAxisTransform;
 namespace EM { class Horizon3D; }
 
 
@@ -34,6 +34,12 @@ public:
     void		setCutOffAngle( float a )	{ cutoffangle_ = a; }
     void		setVelModel( const MultiID& m )	{ velmid_ = m; }
 
+    const char*		message() const			{ return msg_; }
+    const char*		nrDoneText() const;
+    od_int64		nrDone() const			{ return nrdone_; }
+    od_int64		totalNr() const			{ return totnr_; }
+    int			nextStep();
+
 protected:
 
     float		cutoffangle_;
@@ -42,7 +48,13 @@ protected:
     EM::Horizon3D*	calchor_;
     EM::Horizon3D*	tophor_;
     EM::Horizon3D*	bothor_;
-    Time2DepthStretcher* ztransf_;
+    ZAxisTransform*	ztransf_;
+
+    BufferString	msg_;
+    od_int64		totnr_;
+    od_int64		nrdone_;
+
+    int			doLoadStep();
 
 };
 

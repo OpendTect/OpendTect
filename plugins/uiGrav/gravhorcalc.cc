@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: gravhorcalc.cc,v 1.2 2010-04-20 12:53:18 cvsbert Exp $";
+static const char* rcsID = "$Id: gravhorcalc.cc,v 1.3 2010-04-26 10:09:09 cvsbert Exp $";
 
 #include "gravhorcalc.h"
 #include "timedepthconv.h"
@@ -19,6 +19,9 @@ Grav::HorCalc::HorCalc( const MultiID& calc, const MultiID* top,
     , bothor_(0)
     , ztransf_(0)
     , cutoffangle_(ang)
+    , msg_("Loading horizons")
+    , nrdone_(0)
+    , totnr_(3)
 {
 }
 
@@ -33,4 +36,32 @@ Grav::HorCalc::~HorCalc()
 	bothor_->unRef();
     if ( ztransf_ )
 	ztransf_->unRef();
+}
+
+
+const char* Grav::HorCalc::nrDoneText() const
+{
+    return ztransf_ ? "Positions done" : "Horizons loaded";
+}
+
+
+int Grav::HorCalc::doLoadStep()
+{
+    nrdone_++;
+    if ( nrdone_ == 3 )
+    {
+	// ztransf_ = ZATF().create( xxx );
+	msg_ = "TODO";
+	return ErrorOccurred();
+    }
+    return MoreToDo();
+}
+
+
+int Grav::HorCalc::nextStep()
+{
+    if ( !ztransf_ )
+	return doLoadStep();
+
+    return Finished();
 }
