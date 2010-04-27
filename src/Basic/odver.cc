@@ -4,12 +4,12 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.7 2010-03-18 05:32:31 cvsnanne Exp $
+ RCS:           $Id: odver.cc,v 1.8 2010-04-27 10:20:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.7 2010-03-18 05:32:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.8 2010-04-27 10:20:18 cvsbert Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -48,15 +48,11 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
 {
     if ( !typ ) typ = GetPlfSubDir();
 
-    const char* swdir = GetSoftwareDir(0);
-    BufferString fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
+    FilePath fp( GetSoftwareDir(0) ); fp.add( "relinfo" ).add( "ver" );
+    BufferString fnm = FilePath(fp).fullPath();
     fnm += "."; fnm += typ;
     if ( !File::exists(fnm) )
-    {
-	fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
-	if ( !File::exists(fnm) )
-	    fnm = FilePath( swdir ).add( ".rel" ).fullPath();
-    }
+	fnm = fp.fullPath();
 
     res = "";
     if ( File::exists(fnm) )
