@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.79 2010-04-06 07:06:09 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.80 2010-04-27 08:46:31 cvshelene Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.79 2010-04-06 07:06:0
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdsmanpack.h"
+#include "attribdescsetsholder.h"
 #include "attribsel.h"
 #include "emmanager.h"
 #include "externalattrib.h"
@@ -1009,7 +1009,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     LineKey linekey( s2d->name(), attribnm );
     myas.set( attribnm, attribid, false, 0 );
     myas.set2DFlag();
-    const Attrib::DescSet* ds = Attrib::DSMPack().getDescSet( true, true );
+    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
     if ( !ds ) return false;
     myas.setRefFromID( *ds );
     myas.setUserRef( attribnm ); // Why is this necessary?

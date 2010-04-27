@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.51 2010-04-23 15:33:30 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.52 2010-04-27 08:46:31 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
-#include "attribdsmanpack.h"
+#include "attribdescsetsholder.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsel.h"
@@ -414,7 +414,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	LineKey linekey( ioobj->key() );
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSMPack().getDescSet( attrdata_.attrSet(). is2D(), true );
+		: eDSHolder().getDescSet( attrdata_.attrSet(). is2D(), true );
 	attrdata_.attribid_ = descset->getStoredID( linekey, 0, true );
 	zdomainkey_ = attrdata_.zdomainkey_;
     }
@@ -445,7 +445,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSMPack().getDescSet( attrdata_.attrSet(). is2D(), true );
+		: eDSHolder().getDescSet( attrdata_.attrSet(). is2D(), true );
 	attrdata_.attribid_ =
 	    	descset->getStoredID( linekey, attrdata_.compnr_, true );
 	if ( needattrmatch && !attrdata_.attribid_.isValid() )
