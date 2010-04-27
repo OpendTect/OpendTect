@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.14 2010-04-25 22:04:13 cvskarthika Exp $";
+static const char* rcsID = "$Id: SoDGBDragPointDragger.cc,v 1.15 2010-04-27 06:15:46 cvskarthika Exp $";
 
 #include "SoDGBDragPointDragger.h"
 
@@ -64,7 +64,6 @@ SoDGBDragPointDragger::SoDGBDragPointDragger()
 		static_cast <int> ( strlen( draggergeometry_ ) ) );
  
     SO_KIT_ADD_FIELD(translation, (0.0f, 0.0f, 0.0f));
-    SO_KIT_ADD_FIELD(autoselectdragdirection, (true));
     SO_KIT_INIT_INSTANCE();
 
     // initialise the translators to inactive geometry states
@@ -179,7 +178,7 @@ void SoDGBDragPointDragger::dragStart()
 	return;
 
     SbVec3f hitpt = getLocalStartingPoint();
-	SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
+    SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
 
     if ( movecyl_ )
     {
@@ -214,34 +213,31 @@ bool SoDGBDragPointDragger::determineDragDirection( const SoCylinder* cyl,
     localprojdir.normalize();
 
     bool selected = false;
+    const float angletoy = fabs( localprojdir[1] );
+    const float angletoz = fabs( localprojdir[2] );
+    const float upperlimit = 0.7;
+    const float lowerlimit = 0.3;
     
-    if ( autoselectdragdirection.getValue() )
-    {
-	const float angletoy = fabs( localprojdir[1] );
-	const float angletoz = fabs( localprojdir[2] );
-	const float upperlimit = 0.7;
-	const float lowerlimit = 0.3;
-    
-    	// When the cylinder is lying flat (almost along the Z axis), restrict 
-    	// picking the cylinder. User probably wants to move just the rectangle 
-    	// but has picked the cylinder by mistake.
-    	//
-    	// When the cylinder is upright or lying along the X axis, restrict 
-    	// picking the rectangle. User probably wants to move just the cylinder 
-    	// but has picked the rectangle by mistake.
+    // When the cylinder is lying flat, almost aligned to the Y axis, 
+    // restrict picking the cylinder. User probably wants to move just the 
+    // rectangle, but has picked the cylinder by mistake.
+    //
+    // When the cylinder is upright (almost along the Z axis) or horizontal
+    // (almost along the X axis), restrict picking the rectangle. User 
+    // probably wants to move just the cylinder but has picked the rectangle 
+    // by mistake.
 
-        if ( (angletoy<=lowerlimit) && (angletoz>=upperlimit) )
-	{
-	    movecyl_ = false;
-	    selected = true;
-	}
-	else if ( angletoz<=lowerlimit )
-	{
-	    movecyl_ = true;
-	    selected = true;
-	}
+    if ( (angletoy<=lowerlimit) && (angletoz>=upperlimit) )
+    {
+	movecyl_ = false;
+	selected = true;
     }
-    
+    else if ( angletoz<=lowerlimit )
+    {
+	movecyl_ = true;
+	selected = true;
+    }
+        
     if ( !selected ) 
     {
         // Let the user drag as desired. Find which object the user has picked.
@@ -274,7 +270,7 @@ void SoDGBDragPointDragger::drag()
   
     if ( proj->tryProject( getNormalizedLocaterPosition(), 
 		getProjectorEpsilon(), projpt ) )
-	    setMotionMatrix( appendTranslation( 
+	setMotionMatrix( appendTranslation( 
 		getStartMotionMatrix(), projpt - getLocalStartingPoint() ) );
 }
 

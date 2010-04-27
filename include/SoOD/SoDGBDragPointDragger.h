@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Karthika
  Date:          March 2010
- RCS:           $Id: SoDGBDragPointDragger.h,v 1.10 2010-04-25 22:04:12 cvskarthika Exp $
+ RCS:           $Id: SoDGBDragPointDragger.h,v 1.11 2010-04-27 06:16:03 cvskarthika Exp $
 ________________________________________________________________________
 
 
@@ -48,13 +48,6 @@ public:
     			SoDGBDragPointDragger(void);
 
     SoSFVec3f		translation;
-
-/*!\brief
-This field specifies whether the object to be dragged should be automatically 
-determined or not depending on the view angle. Behaves like COIN3D's 
-SoDragPointDragger if false. Default is true.
-*/
-    SoSFBool		autoselectdragdirection;
 
 protected:
     virtual 		~SoDGBDragPointDragger(void);
