@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.52 2010-04-27 08:46:31 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.53 2010-04-27 15:21:07 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -472,22 +472,25 @@ bool uiAttrSelDlg::acceptOK( CallBacker* )
 
 
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
-			DescID curid )
+		      DescID curid, bool isinp4otherattrib )
     : uiIOSelect(p,uiIOSelect::Setup(txt?txt:"Input Data"),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
+    , usedasinput_(isinp4otherattrib)
 {
     attrdata_.attribid_ = curid;
     updateInput();
 }
 
 
-uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad )
+uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
+       		      bool isinp4otherattrib )
     : uiIOSelect(p,uiIOSelect::Setup(txt?txt:"Input Data"),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ad)
     , ignoreid_(DescID::undef())
+    , usedasinput_(isinp4otherattrib)
 {
     updateInput();
 }
@@ -628,11 +631,13 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
 
 void uiAttrSel::doSel( CallBacker* )
 {
-    uiAttrSelDlg dlg( this, lbl_->text(), attrdata_, ignoreid_ );
+    uiAttrSelDlg dlg( this, lbl_->text(), attrdata_, ignoreid_, usedasinput_ );
     if ( dlg.go() )
     {
 	attrdata_.attribid_ = dlg.attribID();
 	attrdata_.outputnr_ = dlg.outputNr();
+	if ( !usedasinput_ )
+	    attrdata_.setAttrSet( &dlg.getAttrSet() );
 	updateInput();
 	selok_ = true;
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.23 2010-04-15 10:01:42 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.24 2010-04-27 15:21:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,8 +138,10 @@ mClass uiAttrSel : public uiIOSelect
 public:
 			uiAttrSel(uiParent*,const Attrib::DescSet&,
 				  const char* txt=0,
-				  Attrib::DescID curid=Attrib::DescID::undef());
-			uiAttrSel(uiParent*,const char*,const uiAttrSelData&);
+				  Attrib::DescID curid=Attrib::DescID::undef(),
+				  bool isinp4otherattrib = true);
+			uiAttrSel(uiParent*,const char*,const uiAttrSelData&,
+				  bool isinp4otherattrib = true);
 			~uiAttrSel()		{}
 
     Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
@@ -176,6 +178,7 @@ protected:
     uiAttrSelData	attrdata_;
     bool		is2d_;
     Attrib::DescID	ignoreid_;
+    bool		usedasinput_;	//input for another attribute
     BufferString	errmsg_;
     mutable BufferString usrnm_;
 
