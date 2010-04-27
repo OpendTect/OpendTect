@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.42 2010-04-26 08:59:24 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.43 2010-04-27 07:22:15 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -125,7 +125,8 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
     //TODO move this to the control
-    getMouseEventHandler().movement.notify( 
+    if ( su.withposinfo_ )
+	getMouseEventHandler().movement.notify( 
 				    mCB(this,uiWellLogDisplay,mouseMoved) );
 
     finaliseDone.notify( mCB(this,uiWellLogDisplay,init) );

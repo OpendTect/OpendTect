@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uiwelllogdisplay.h,v 1.33 2010-04-23 10:03:50 cvsbruno Exp $
+ RCS:           $Id: uiwelllogdisplay.h,v 1.34 2010-04-27 07:22:15 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ public:
 				    , noxaxisline_(false)
 				    , noyaxisline_(false)
 				    , nobackground_(false)		 
+				    , withposinfo_(false)		 
 				    {}
 
 	mDefSetupMemb(uiBorder,border)
@@ -90,6 +91,7 @@ public:
 	mDefSetupMemb(bool,noyaxisline)
 	mDefSetupMemb(bool,noxaxisline)
 	mDefSetupMemb(bool,nobackground)
+	mDefSetupMemb(bool,withposinfo)
     };
 
 				uiWellLogDisplay(uiParent*,const Setup&);
