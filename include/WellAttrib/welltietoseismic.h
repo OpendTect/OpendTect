@@ -29,7 +29,7 @@ namespace WellTie
 mClass DataPlayer
 {
 public:
-			DataPlayer(WellTie::DataHolder*,TaskRunner*);
+			DataPlayer(WellTie::DataHolder&,TaskRunner*);
 			~DataPlayer();
 
     bool 		computeAll();
@@ -51,18 +51,18 @@ protected:
 
     TaskRunner*		tr_;      //becomes mine  
 
-    Well::Data& 	wd_;
     Well::LogSet& 	logset_;
 
     const WellTie::Params::DataParams& params_;	
     const WellTie::Setup& wtsetup_;	
     WellTie::TrackExtractor *wtextr_;
 
-    WellTie::DataHolder* dholder_;
+    WellTie::DataHolder& dholder_;
     WellTie::D2TModelMGR* d2tmgr_;
     WellTie::GeoCalculator* geocalc_;
     ObjectSet<Wavelet>* wvltset_;
 
+    Well::Data* 	wd();
     bool		computeCrossCorrel();
     bool  		convolveWavelet();
     bool		extractSeismics();

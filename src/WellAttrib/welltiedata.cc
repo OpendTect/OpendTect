@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.29 2010-04-14 13:11:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.30 2010-04-27 08:21:09 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "ioman.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: welltiedata.cc,v 1.29 2010-04-14 13:11:02 cvsbr
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "wellman.h"
 #include "wellwriter.h"
 
 #include "welltiecshot.h"
@@ -37,16 +38,19 @@ namespace WellTie
 {
 
 
-
-DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd, 
-			const WellTie::Setup& s )
-    	: params_(params)	
-	, wd_(wd) 
+DataHolder::DataHolder( const WellTie::Setup& s )
+    	: CallBacker(CallBacker::CallBacker())
+	, wellid_(s.wellid_)				  
 	, setup_(s)
 	, factors_(s.unitfactors_) 	  
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
 	, seisctio_(*mMkCtxtIOObj(SeisTrc))
+	, wd_(0)			
+	, params_(0)		     		
+	, closeall(this)				   
 {
+    wd_ = wd();
+    params_ = new WellTie::Params( s, wd_ );
     seisctio_.ctxt.forread = false;
     wvltctio_.ctxt.forread = false;
 
@@ -55,10 +59,10 @@ DataHolder::DataHolder( WellTie::Params* params, Well::Data* wd,
 
     uipms_   = &params_->uipms_;
     dpms_    = &params_->dpms_;
-    pickmgr_ = new WellTie::PickSetMGR( wd_ );
+    pickmgr_ = new WellTie::PickSetMGR( *this );
     geocalc_ = new WellTie::GeoCalculator( *this );
     d2tmgr_  = new WellTie::D2TModelMGR( *this );
-    logset_ = new Well::LogSet();
+    logset_  = new Well::LogSet();
 }
 
 
@@ -66,12 +70,41 @@ DataHolder::~DataHolder()
 {
     deepErase( arr_ );
     logset_->empty();
+    delete params_;
     delete logset_;
     delete pickmgr_;
     delete d2tmgr_;
-    delete params_;
     delete seisctio_.ioobj; delete &seisctio_;
     delete wvltctio_.ioobj; delete &wvltctio_;
+
+    if ( wd_ )
+	wd_->tobedeleted.remove( mCB(this,DataHolder,welldataDelNotify) );
+    wd_ = 0;
+    Well::MGR().release( wellid_ );
+}
+
+
+void DataHolder::welldataDelNotify( CallBacker* )
+{ wd_ = 0;  if ( params_ ) params_->resetWD(0); }
+
+
+Well::Data* DataHolder::wd() const
+{
+    if ( !wd_ )
+    {
+	DataHolder* self = const_cast<DataHolder*>( this );
+	Well::Data* wd = Well::MGR().get( wellid_, false );
+	self->wd_ = wd;
+	if ( wd )
+	{
+	    if ( params_ )
+		params_->resetWD( wd );
+	    wd->tobedeleted.notify( mCB(self,DataHolder,welldataDelNotify) );
+	}
+	//else
+	  //  self->triggerClose();
+    }
+    return wd_;
 }
 
 
@@ -82,21 +115,22 @@ void DataHolder::resetLogData()
     {
 	Well::Log* log = new Well::Log( dpms_->colnms_.get(idx) );
 	logset_->add( log );
- 	arr_ += new Array1DImpl<float>( log->size() );
+	arr_ += new Array1DImpl<float>( log->size() );
     }
 }
 
 
-Array1DImpl<float>* DataHolder::getLogVal( const char* nm, bool isdah )
+Array1DImpl<float>* DataHolder::getLogVal( const char* nm, bool isdah ) const 
 {
+    DataHolder* self = const_cast<DataHolder*>( this );
     const int logidx = logset_->indexOf( nm );
     if ( logidx<0 ) return 0;
-    Well::Log& log = logset_->getLog( logidx );
-    float* val = isdah ? log.dahArr() : log.valArr();
-    delete arr_[logidx];
-    arr_.replace( logidx, new Array1DImpl<float> (log.size()) );
-    memcpy( arr_[logidx]->getData(), val, log.size()*sizeof(float) );
-    return arr_[logidx];
+    const Well::Log& log = logset_->getLog( logidx );
+    const float* val = isdah ? log.dahArr() : log.valArr();
+    delete self->arr_[logidx];
+    self->arr_.replace( logidx, new Array1DImpl<float> (log.size()) );
+    memcpy( self->arr_[logidx]->getData(), val, log.size()*sizeof(float) );
+    return self->arr_[logidx];
 }
 
 
@@ -114,7 +148,7 @@ void DataHolder::setLogVal( const char* nm ,
 
 
 DataWriter::DataWriter( const WellTie::DataHolder& dh )
-    	: holder_(dh)
+	: holder_(dh)
 	, wtr_(0)  
 {
     setWellWriter();

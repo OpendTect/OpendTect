@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.31 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.32 2010-04-27 08:21:09 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -45,7 +45,10 @@ namespace WellTie
 uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
 		"Select Data to tie Well to Seismic","107.4.0")
-		.savetext("Save as default").savebutton(true).savechecked(false))
+		.savetext("Save as default")
+		.savebutton(true)
+		.savechecked(false)
+		.modal(false))
 	, wtsetup_(wtsetup)
         , wllctio_(*mMkCtxtIOObj(Well))
         , wvltctio_(*mMkCtxtIOObj(Wavelet))
@@ -145,8 +148,15 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
+    delete &wtsetup_;
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
+    delWins();
+}
+
+
+void uiTieWinMGRDlg::delWins()
+{
     deepErase( welltiedlgsetcpy_ );
 }
 

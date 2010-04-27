@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiepickset.cc,v 1.27 2009-12-22 15:37:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiepickset.cc,v 1.28 2010-04-27 08:21:09 cvsbruno Exp $";
 
 #include "welltiepickset.h"
 
@@ -17,12 +17,6 @@ static const char* rcsID = "$Id: welltiepickset.cc,v 1.27 2009-12-22 15:37:13 cv
 
 namespace WellTie
 {
-
-void PickSetMGR::setData( WellTie::DataHolder* dholder )
-{
-    holder_ = dholder;
-}
-
 
 void PickSetMGR::setEventType( int seltype )
 {
@@ -70,13 +64,13 @@ float PickSetMGR::findEvent( float zpos, bool issynth )
     zpos *= 0.001;
     if ( evtype_ == VSEvent::None ) return zpos;
 
-    const WellTie::Params::DataParams& dpms =  *holder_->dpms();
+    const WellTie::Params::DataParams& dpms = *dholder_.dpms();
     const char* colnm = issynth ? dpms.synthnm_ : dpms.seisnm_; 
     const int maxidx = dpms.timeintvs_[1].nrSteps()-1;
     Interval<float> intvup ( zpos, zpos - mTimeGate );
     Interval<float> intvdown ( zpos, zpos + mTimeGate );
     SamplingData<float> sd( dpms.timeintvs_[1].start, dpms.timeintvs_[1].step );
-    Array1DImpl<float>& vals = *holder_->getLogVal( colnm );
+    const Array1DImpl<float>& vals = *dholder_.getLogVal( colnm );
     ValueSeriesEvFinder<float,float> evf( vals, maxidx, sd );
     const float evposup =  evf.find( evtype_, intvup ).pos;
     const float evposdown =  evf.find( evtype_, intvdown ).pos;

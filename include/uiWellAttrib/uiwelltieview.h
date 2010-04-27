@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "uigroup.h"
-#include "flatview.h"
+#include "uiflatviewer.h"
 #include "welltieunitfactors.h"
 #include "welltiedata.h"
 
@@ -27,6 +27,7 @@ class uiFunctionDisplay;
 class uiPolyLineItem;
 class uiWellLogDisplay;
 class uiLabel;
+
 namespace Well
 {
     class Marker;
@@ -50,8 +51,7 @@ public:
     void        		fullRedraw();
     void 			redrawViewer(CallBacker*);
     void        		drawUserPicks();
-    bool        		isEmpty() 
-    				{ return dataholder_.logset()->isEmpty(); }
+    bool        		isEmpty(); 
 
 protected:
 
@@ -59,7 +59,6 @@ protected:
 
     ObjectSet<uiWellLogDisplay>& logsdisp_;
     WellTie::DataHolder&  	dataholder_;
-    Well::Data& 		wd_;		
     const WellTie::Setup& 	wtsetup_;
     const WellTie::Params::DataParams* params_;
     WellTie::PickSet*		seispickset_;

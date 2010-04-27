@@ -27,15 +27,17 @@ class uiTieView;
 mClass uiEventStretch : public uiStretch
 {
 public:
-			uiEventStretch(uiParent*,WellTie::DataHolder*,
+			uiEventStretch(uiParent*,WellTie::DataHolder&,
 				   WellTie::uiTieView&);
 			~uiEventStretch();
 
     Notifier<uiEventStretch> 		pickadded;
     void 				doWork(CallBacker*); 
+    void				setD2TModel(const Well::D2TModel*);
     
 protected:
 
+    const Well::D2TModel*		d2t_;
     WellTie::D2TModelMGR*		d2tmgr_;
     WellTie::PickSet& 			seispickset_;
     WellTie::PickSet& 			synthpickset_;

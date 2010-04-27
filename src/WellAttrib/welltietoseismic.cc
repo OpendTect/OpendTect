@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.47 2009-12-22 15:37:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.48 2010-04-27 08:21:09 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -38,16 +38,15 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.47 2009-12-22 15:37:13 
 namespace WellTie
 {
 
-DataPlayer::DataPlayer( WellTie::DataHolder* dh, TaskRunner* tr ) 
-    	: wtsetup_(dh->setup())
+DataPlayer::DataPlayer( WellTie::DataHolder& dh, TaskRunner* tr ) 
+    	: wtsetup_(dh.setup())
 	, dholder_(dh)  
-	, wd_(*dh->wd()) 
-	, params_(*dh->dpms())		 
-	, logset_(*dh->logset())	   
+	, params_(*dh.dpms())		 
+	, logset_(*dh.logset())	   
 	, tr_(tr)		  
-      	, d2tmgr_(dh->d2TMGR())
+      	, d2tmgr_(dh.d2TMGR())
 {
-    geocalc_ = new WellTie::GeoCalculator(*dh);
+    geocalc_ = new WellTie::GeoCalculator(dh);
 } 
 
 
@@ -58,9 +57,15 @@ DataPlayer::~DataPlayer()
 }
 
 
+Well::Data* DataPlayer::wd()
+{
+    return dholder_.wd();
+}
+
+
 bool DataPlayer::computeAll()
 {
-    dholder_->resetLogData();
+    dholder_.resetLogData();
 
     if ( !resampleLogs() ) 	   return false;
     if ( !computeReflectivity() )  return false;
@@ -83,13 +88,13 @@ bool DataPlayer::computeWvltPack()
 
 
 #define mSetData(lognm,dahlognm,arr)\
-    dholder_->setLogVal( lognm, &arr, dholder_->getLogVal( dahlognm, true ) );
+    dholder_.setLogVal( lognm, &arr, dholder_.getLogVal( dahlognm, true ) );
 #define mReturnExec(yn) { MouseCursorManager::restoreOverride(); return yn; }
 bool DataPlayer::extractSeismics()
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
     
-    WellTie::TrackExtractor wtextr( &wd_ );
+    WellTie::TrackExtractor wtextr( wd() );
     wtextr.timeintv_ = params_.timeintvs_[1];
     if ( !tr_->execute( wtextr ) ) 
 	mReturnExec(false)
@@ -141,13 +146,13 @@ bool DataPlayer::resLogExecutor( const BufferStringSet& lognms, bool fromwd,
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	Well::Log* newlog = logset_.getLog( lognms.get(idx) );
-	const Well::Log* log = fromwd ? wd_.logs().getLog(lognms.get(idx)) 
+	const Well::Log* log = fromwd ? wd()->logs().getLog(lognms.get(idx)) 
 				      : newlog;
 	if ( !newlog || !log )
 	    continue;
 	
 	const Well::Log* orglog = new Well::Log( *log );
-	WellTie::LogResampler logres( newlog, *orglog, &wd_, dholder_ );
+	WellTie::LogResampler logres( newlog, *orglog, wd(), &dholder_ );
 	logres.setTimeIntv( intv ); logres.isavg_ = fromwd;
 	wasdone = tr_->execute( logres );
 	delete orglog;
@@ -163,8 +168,8 @@ bool DataPlayer::computeReflectivity()
 
     Array1DImpl<float> ai( params_.timeintvs_[0].nrSteps() );
     Array1DImpl<float> ref( params_.timeintvs_[1].nrSteps() );
-    geocalc_->computeAI( *dholder_->arr( lognms.get(0) ), 
-			 *dholder_->arr( lognms.get(1) ), ai ); 
+    geocalc_->computeAI( *dholder_.arr( lognms.get(0) ), 
+			 *dholder_.arr( lognms.get(1) ), ai ); 
 
     geocalc_->lowPassFilter( ai, 1/( 3*SI().zStep() ) );
     geocalc_->computeReflectivity( ai, ref, params_.step_ );
@@ -183,14 +188,14 @@ bool DataPlayer::convolveWavelet()
     si.start -= params_.timeintvs_[1].step/2;
     si.stop  -= params_.timeintvs_[1].step/2;
     
-    WellTie::LogResampler synres( 0, *logset_.getLog(params_.refnm_), &wd_ );
+    WellTie::LogResampler synres( 0, *logset_.getLog(params_.refnm_), wd() );
     synres.setTimeIntv( si ); 
     synres.isavg_ = false;
     synres.execute(); 
 
     bool isinitwvltactive = params_.isinitwvltactive_;
-    Wavelet* wvlt = isinitwvltactive ? dholder_->wvltset()[0] 
-				     : dholder_->wvltset()[1]; 
+    Wavelet* wvlt = isinitwvltactive ? dholder_.wvltset()[0] 
+				     : dholder_.wvltset()[1]; 
     if ( !wvlt ) return false;
 
     const int wvltsz = wvlt->size();
@@ -218,20 +223,20 @@ bool DataPlayer::estimateWavelet()
     const StepInterval<float> si = params_.timeintvs_[2];
     const int datasz = si.nrSteps(); 
 
-    WellTie::LogResampler refres( 0, *logset_.getLog(params_.refnm_), &wd_ );
+    WellTie::LogResampler refres( 0, *logset_.getLog(params_.refnm_), wd() );
     refres.setTimeIntv( si ); refres.isavg_ = false;
     refres.execute(); 
     
-    WellTie::LogResampler seisres( 0, *logset_.getLog(params_.seisnm_), &wd_ );
+    WellTie::LogResampler seisres( 0, *logset_.getLog(params_.seisnm_), wd() );
     seisres.setTimeIntv( si ); seisres.isavg_ = false;
     seisres.execute(); 
 
-    Wavelet* wvlt = dholder_->wvltset()[1]; 
+    Wavelet* wvlt = dholder_.wvltset()[1]; 
     if ( !wvlt ) return false;
 
     wvlt->setName( "Estimated Wavelet" );
     int wvltsz = params_.estwvltlength_ ? params_.estwvltlength_ 
-					: dholder_->wvltset()[0]->size();
+					: dholder_.wvltset()[0]->size();
     if ( datasz < wvltsz +1 )
        return false;
 
@@ -259,11 +264,11 @@ bool DataPlayer::computeCrossCorrel()
     const int sz = si.nrSteps();
     
     WellTie::LogResampler synres( logset_.getLog(params_.crosscorrnm_), 
-	    			  *logset_.getLog(params_.synthnm_), &wd_ );
+	    			  *logset_.getLog(params_.synthnm_), wd() );
     synres.setTimeIntv( si ); synres.isavg_ = false;
     synres.execute(); 
     
-    WellTie::LogResampler seisres( 0, *logset_.getLog(params_.seisnm_), &wd_ );
+    WellTie::LogResampler seisres( 0, *logset_.getLog(params_.seisnm_), wd() );
     seisres.setTimeIntv( si ); seisres.isavg_ = false;
     seisres.execute();
 
@@ -271,12 +276,12 @@ bool DataPlayer::computeCrossCorrel()
 
     geocalc_->crosscorr( *synres.vals_, *seisres.vals_, tmpcrosscorr );
 
-    dholder_->setLogVal( params_.crosscorrnm_, &tmpcrosscorr, synres.dahs_ );
+    dholder_.setLogVal( params_.crosscorrnm_, &tmpcrosscorr, synres.dahs_ );
     //computes cross-correl coeff
     LinStats2D ls2d;
     ls2d.use( synres.vals_->getData(), seisres.vals_->getData(), sz );
 
-    dholder_->corrcoeff() = ls2d.corrcoeff;
+    dholder_.corrcoeff() = ls2d.corrcoeff;
 
     return true;
 }

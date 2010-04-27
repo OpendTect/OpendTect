@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.47 2009-12-22 15:37:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.48 2010-04-27 08:21:09 cvsbruno Exp $";
 
 
 #include "welltiegeocalculator.h"
@@ -33,8 +33,8 @@ namespace WellTie
 
 GeoCalculator::GeoCalculator( const WellTie::DataHolder& dh )
 		: params_(*dh.params())
-		, setup_(dh.setup())	
-		, wd_(*dh.wd())
+		, setup_(dh.setup())
+		, dholder_(dh)	    	    
 		, denfactor_(0)	   
 		, velfactor_(0)	   
 {
@@ -42,17 +42,23 @@ GeoCalculator::GeoCalculator( const WellTie::DataHolder& dh )
     velfactor_ = dh.getUnits().velFactor();
 }    
 
+
+const Well::Data& GeoCalculator::wd()
+{
+    return *dholder_.wd();
+}
+
 //each sample is converted to a time using the travel time log
 //the correspondance between samples and depth values provides a first
 //TWT approx.
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
 							  bool doclean )
 {
-    const Well::Log* log = wd_.logs().getLog( vellog );
+    const Well::Log* log = wd().logs().getLog( vellog );
     if ( !log ) return 0;
     TypeSet<float> vals, dpt, time;
 
-    dpt += -wd_.track().value(0);
+    dpt += -wd().track().value(0);
     vals += 0;
     for ( int idx=0; idx<log->size(); idx++ )
     {
@@ -74,7 +80,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const char* vellog,
     sort_coupled( time.arr(), mVarLenArr(zidxs), vals.size() );
     
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    d2tnew->add( wd_.track().dah(0)-wd_.track().value(0), 0 ); //set KB Depth
+    d2tnew->add( wd().track().dah(0)-wd().track().value(0), 0 ); //set KB Depth
 
     for ( int idx=1; idx<time.size(); idx++ )
     {

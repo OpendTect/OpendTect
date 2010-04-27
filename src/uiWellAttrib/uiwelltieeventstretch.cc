@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.17 2009-09-03 09:41:40 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.18 2010-04-27 08:21:09 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -25,14 +25,15 @@ static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.17 2009-09-03 09:4
 namespace WellTie
 {
 
-uiEventStretch::uiEventStretch( uiParent* p, WellTie::DataHolder* dh, 
+uiEventStretch::uiEventStretch( uiParent* p, WellTie::DataHolder& dh, 
 				WellTie::uiTieView& v )
-        : d2tmgr_(dh->d2TMGR())
-  	, pmgr_(*dh->pickmgr())  
+        : d2tmgr_(dh.d2TMGR())
+  	, pmgr_(*dh.pickmgr())  
 	, pickadded(this)
-	, synthpickset_(*dh->pickmgr()->getSynthPickSet())
-	, seispickset_(*dh->pickmgr()->getSeisPickSet())
+	, synthpickset_(*dh.pickmgr()->getSynthPickSet())
+	, seispickset_(*dh.pickmgr()->getSeisPickSet())
 	, WellTie::uiStretch(p,dh,v)
+	, d2t_(0)			    
 {
     synthpickset_.pickadded.notify(mCB(this,uiEventStretch,addSyntPick));
     seispickset_.pickadded.notify(mCB(this,uiEventStretch,addSeisPick));
@@ -69,10 +70,16 @@ void uiEventStretch::doWork( CallBacker* )
 }
 
 
+void uiEventStretch::setD2TModel( const Well::D2TModel* dtm )
+{
+    d2t_ = dtm;
+}
+
+
 void uiEventStretch::doStretchWork()
 {
-    Well::D2TModel d2t = *wd_->d2TModel();
-    const int d2tsz = d2t.size();
+    if ( !d2t_ ) return;
+    const int d2tsz = d2t_->size();
     Array1DImpl<float> d2tarr( d2tsz );
     Array1DImpl<float>* prvd2tarr = new Array1DImpl<float>( d2tsz );
 
@@ -80,8 +87,8 @@ void uiEventStretch::doStretchWork()
 
     for ( int idx=0; idx<d2tsz; idx++ )
     {
-	prvd2tarr->set( idx, d2t.value(idx) );
-	d2tarr.set( idx, d2t.value(idx) + timeshift );
+	prvd2tarr->set( idx, d2t_->value(idx) );
+	d2tarr.set( idx, d2t_->value(idx) + timeshift );
     }
 
     updatePicksPos( d2tarr, *prvd2tarr, synthpickset_, 0 );

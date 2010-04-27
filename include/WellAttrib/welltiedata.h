@@ -12,10 +12,8 @@ $
 ________________________________________________________________________
 -*/
 
-#include "namedobj.h"
+#include "callback.h"
 #include "arrayndimpl.h"
-#include "welllog.h"
-#include "welllogset.h"
 #include "welltieunitfactors.h"
 
 class DataPointSet;
@@ -34,32 +32,35 @@ namespace WellTie
 
 
 //brief contains all the data, params and mgrs needed by TWTS
-mClass DataHolder 
+mClass DataHolder : public CallBacker 
 {
 public:    
-				DataHolder(WellTie::Params*,Well::Data*,
-				  		const WellTie::Setup&);
+				DataHolder(const WellTie::Setup&);
 				~DataHolder();
 
 //WellData			
-    Well::Data* 		wd() 		{ return wd_; }	
-    const Well::Data* 		wd()     const 	{ return wd_; }	
+    Well::Data* 		wd() const;	
+    const MultiID& 		wellid_;
+    Notifier<DataHolder>	closeall;
+    void			welldataDelNotify(CallBacker*);
+    //void			triggerClose();
 
 //logs 
     Well::LogSet*  	  	logset() 	{ return logset_; }
     const Well::LogSet* 	logset() const 	{ return logset_; }
     Array1DImpl<float>*		arr(const char* nm) { return getLogVal(nm); }
-    Array1DImpl<float>* 	getLogVal(const char*,bool dah=false);
+    Array1DImpl<float>* 	getLogVal(const char*,bool dah=false) const;
     void 			setLogVal(const char*,const Array1DImpl<float>*,
     					  const Array1DImpl<float>*);
     void 			resetLogData();
-
+   
 //Wavelet
     ObjectSet<Wavelet>&		wvltset() 	{ return wvltset_; }
     const ObjectSet<Wavelet>&	wvltset() const { return wvltset_; }
 
 //Params
     const WellTie::Setup& setup()  const   	{ return setup_; }
+    WellTie::Params*  		params()  	{ return params_; }   
     const WellTie::Params*  	params() const  { return params_; }   
     WellTie::Params::uiParams* 	uipms()    	{ return &params_->uipms_;  }
     const WellTie::Params::uiParams* uipms() const { return &params_->uipms_;  }

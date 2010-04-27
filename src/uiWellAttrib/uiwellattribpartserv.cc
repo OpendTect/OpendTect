@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.25 2009-11-30 12:17:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.26 2010-04-27 08:21:09 cvsbruno Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -42,6 +42,8 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , xplotwin2d_(0)
     , xplotwin3d_(0)
     , dpsdispmgr_(0)
+    , welltiedlg_(0)
+    , welltiedlgopened_(false)
 {
 }
 
@@ -134,12 +136,23 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
 
 bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
 {
-    WellTie::Setup wtsetup;
-    wtsetup.wellid_ = wid;
-    
-    WellTie::uiTieWinMGRDlg dlg( parent(), wtsetup );
-    dlg.go();
-
+    WellTie::Setup* wtsetup = new WellTie::Setup();
+    wtsetup->wellid_ = wid;
+    if ( !welltiedlgopened_ )
+    {
+	welltiedlg_ = new WellTie::uiTieWinMGRDlg( parent(), *wtsetup );
+	welltiedlg_->windowClosed.notify(
+		mCB(this,uiWellAttribPartServer,closeWellTieDlg));	
+	welltiedlgopened_ = welltiedlg_->go();
+    }
     return true;
+}
+
+void uiWellAttribPartServer::closeWellTieDlg( CallBacker* cb )
+{
+    mDynamicCastGet(WellTie::uiTieWinMGRDlg*,dlg,cb)
+    if ( !dlg ) { pErrMsg("Huh"); return; }
+    dlg->delWins();
+    welltiedlgopened_ = false; 
 }
 

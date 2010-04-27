@@ -60,13 +60,14 @@ protected:
 mClass Params
 {
 public :
-				Params(const WellTie::Setup&,Well::Data*);
+				Params(const WellTie::Setup&,
+				       const Well::Data*);
 				~Params(){};
 
     mStruct uiParams
     {
 			    uiParams(const Well::Data* d)
-				: wd_(*d)
+				: wd_(d)
 				, iscsdisp_(false)
 				, ismarkerdisp_(d->haveMarkers())
 				, iszinft_(false)
@@ -79,14 +80,16 @@ public :
 	bool                    ismarkerdisp_;
 	bool                    iszinft_;
 	bool                    iszintime_;
-	const Well::Data&	wd_;
+	void			resetWD(const Well::Data* wd)
+	    			{ wd_ = wd; }
+	const Well::Data*	wd_;
     };
 
     mStruct DataParams
     {
 			   DataParams(const Well::Data* d,
 				      const WellTie::Setup& w)
-				: wd_(*d)
+				: wd_(d)
 				, wts_(w)  
 				, step_(20)
 				, isinitwvltactive_(true) 	  
@@ -119,7 +122,9 @@ public :
 	CubeSampling*		cs_;
     
 	const WellTie::Setup&	wts_;
-	const Well::Data&	wd_;
+	const Well::Data*	wd_;
+	void			resetWD(const Well::Data* wd)
+	    			{ wd_ = wd; }
 	float			d2T(float,bool istime = true) const;
 	Interval<float>		d2T(Interval<float>,bool time = true) const;
 	void	 		createColNames();
@@ -133,11 +138,12 @@ public :
 
     bool			resetParams() {return dpms_.resetTimeParams();} 
     void			resetVelLogNm();
+    void			resetWD(const Well::Data*);
 
 protected :
 
     const WellTie::Setup&	wtsetup_;
-    Well::Data&			wd_;
+    const Well::Data*		wd_;
 };
 
 };//namespace WellTie

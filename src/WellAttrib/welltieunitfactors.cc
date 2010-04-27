@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.36 2009-12-09 08:26:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.37 2010-04-27 08:21:09 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -86,13 +86,14 @@ double UnitFactors::calcDensFactor( const char* densunit )
 
 
 
-Params::Params( const WellTie::Setup& wts, Well::Data* wd )
+Params::Params( const WellTie::Setup& wts, const Well::Data* wd )
 	: wtsetup_(wts)
+	, wd_(wd)  
 	, uipms_(wd)				    
 	, dpms_(wd,wts)				    
-	, wd_(*wd)
 {
-    uipms_.iscscorr_ = ( wd_.haveCheckShotModel() && !wts.useexistingd2tm_ );
+    if ( wd_ )
+	uipms_.iscscorr_ = (wd_->haveCheckShotModel() && !wts.useexistingd2tm_);
 
     dpms_.setUpCubeSampling(); 
     dpms_.currvellognm_ = uipms_.iscscorr_ ? wts.corrvellognm_ : wts.vellognm_;
@@ -103,6 +104,14 @@ Params::Params( const WellTie::Setup& wts, Well::Data* wd )
 	dpms_.timeintvs_ += StepInterval<float>( mUdf(float), mUdf(float), 0);
 
     resetParams();
+}
+
+
+void Params::resetWD( const Well::Data* wd )
+{
+    wd_ = wd;
+    dpms_.resetWD( wd );
+    uipms_.resetWD( wd );
 }
 
 
@@ -133,7 +142,8 @@ void Params::DataParams::setUpCubeSampling()
 bool Params::DataParams::resetTimeParams()
 {
     if ( !timeintvs_.size() ) return false;
-    float tstart = 0; float tstop = d2T(wd_.track().dah(wd_.track().size()-1));
+    float tstart = 0; 
+    float tstop = wd_ ? d2T(wd_->track().dah(wd_->track().size()-1)) : 0;
     if ( cs_ )
     {
 	tstart = cs_->zrg.start;
@@ -158,7 +168,7 @@ bool Params::DataParams::resetTimeParams()
 
 float Params::DataParams::d2T( float zval, bool istime ) const
 {
-    const Well::D2TModel* d2t = wd_.d2TModel(); 
+    const Well::D2TModel* d2t = wd_ ? wd_->d2TModel() : 0; 
     if ( !d2t ) return 0;
     
     return istime?  d2t->getTime( zval ) : d2t->getDepth( zval );
@@ -168,7 +178,7 @@ float Params::DataParams::d2T( float zval, bool istime ) const
 Interval<float> Params::DataParams::d2T( Interval<float> zintv, bool istime ) const
 {
     Interval<float> zret( 0, 0);
-    const Well::D2TModel* d2t = wd_.d2TModel(); 
+    const Well::D2TModel* d2t = wd_ ? wd_->d2TModel() : 0; 
     if ( !d2t ) return zret;
 
     if ( istime )

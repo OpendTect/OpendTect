@@ -24,12 +24,12 @@ namespace Well
 }
 
 /*!\brief Manages the D2T models used during TWTS. 
-  CheckShot Correction are applied as follow :
+  CheckShot Correction are applied this way :
   Sonic->'transformed' CheckShot correction->Sonic->d2tm
   but
   Sonic->d2tm->direct CheckShot correction->d2tm->Sonic 
   would have been also possible.
-  With the 1st way, we save a stage but we end up with a 
+  With the 1st method, we save a stage but we end up with a 
   d2tm that needs to be shifted from a first reference value 
   given by the CheckShot.
 */
@@ -63,7 +63,7 @@ public:
 
 protected:
 
-    Well::Data* 		wd_;
+    DataHolder& 		dholder_;
     Well::D2TModel& 		d2T();
     Well::D2TModel* 		prvd2t_;
     Well::D2TModel* 		orgd2t_;
@@ -71,6 +71,8 @@ protected:
     const WellTie::Params&	params_;
     const WellTie::DataWriter*	datawriter_;
     bool			emptyoninit_;
+
+    Well::Data* 		wd();
 };
 
 }; //namespace WellTie

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.10 2009-12-08 09:03:30 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.11 2010-04-27 08:21:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
 			uiTieWinMGRDlg(uiParent*, WellTie::Setup&);
 			~uiTieWinMGRDlg();
 
+    void		delWins(); 
 
 protected:
 

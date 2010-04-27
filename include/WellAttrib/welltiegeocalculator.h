@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.17 2009-12-01 15:55:55 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.18 2010-04-27 08:21:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,9 +107,11 @@ protected:
 
     double 		denfactor_;
     double 		velfactor_;
-    const Well::Data&	wd_;
     const WellTie::Setup& setup_;
     const WellTie::Params& params_;
+    const WellTie::DataHolder& dholder_;
+
+    const Well::Data& 	wd();
 };
 
 }; //namespace WellTie

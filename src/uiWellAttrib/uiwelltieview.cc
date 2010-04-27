@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.64 2010-04-23 10:42:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.65 2010-04-27 08:21:09 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -35,15 +35,14 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.64 2010-04-23 10:42:30 cvs
 #include "welltiesetup.h"
 #include "welltieunitfactors.h"
 
-
+#define mGetWD(act) const Well::Data* wd = dataholder_.wd(); if ( !wd ) act;
 namespace WellTie
 {
 
 uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, 
 		      WellTie::DataHolder& dh,
 		      ObjectSet<uiWellLogDisplay>* ldis )  
-	: wd_(*dh.wd()) 
-	, vwr_(vwr)  
+	: vwr_(vwr)  
 	, logsdisp_(*ldis)	     
 	, dataholder_(dh)  
 	, params_(dh.dpms())     	
@@ -138,7 +137,8 @@ bool uiTieView::setLogsParams()
 {
     if ( !params_->timeintvs_.size() ) return false;
     const WellTie::Params::uiParams* uipms = dataholder_.uipms();
-    const Well::D2TModel* d2tm = wd_.d2TModel();
+    mGetWD(return false)
+    const Well::D2TModel* d2tm = wd->d2TModel();
     if ( !d2tm ) return false;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
@@ -284,7 +284,8 @@ void uiTieView::setDataPack( SeisTrcBuf* trcbuf, const char* varname,
 
 void uiTieView::setLogsRanges( float start, float stop )
 {
-    const Well::D2TModel* d2tm = wd_.d2TModel();
+    mGetWD(return)
+    const Well::D2TModel* d2tm = wd->d2TModel();
     if ( !d2tm ) return; 
     if ( dataholder_.uipms()->iszintime_ )
     {
@@ -307,7 +308,8 @@ void uiTieView::removePack()
 
 void uiTieView::zoomChg( CallBacker* )
 {
-    const Well::D2TModel* d2tm = wd_.d2TModel();
+    mGetWD(return)
+    const Well::D2TModel* d2tm = wd->d2TModel();
     if ( !d2tm ) return; 
 
     uiWorldRect curwr = vwr_->curView();
@@ -345,14 +347,17 @@ void uiTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 
 void uiTieView::drawWellMarkers()
 {
+    Well::Data* wd = dataholder_.wd();
+    if ( !wd ) return;
+
     deepErase( wellmarkerauxdatas_ );
-    const Well::D2TModel* d2tm = wd_.d2TModel();
+    const Well::D2TModel* d2tm = wd->d2TModel();
     if ( !d2tm ) return; 
    
-    for ( int midx=0; midx<wd_.markers().size(); midx++ )
+    for ( int midx=0; midx<wd->markers().size(); midx++ )
     {
 	Well::Marker* marker = const_cast<Well::Marker*>( 
-						wd_.markers()[midx] );
+						wd->markers()[midx] );
 	if ( !marker  ) continue;
 	
 	float zpos = d2tm->getTime( marker->dah() ); 
@@ -371,7 +376,7 @@ void uiTieView::drawWellMarkers()
     bool ismarkerdisp = dataholder_.uipms()->ismarkerdisp_;
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
-	logsdisp_[idx]->data().markers_ = ismarkerdisp ? &wd_.markers() : 0;
+	logsdisp_[idx]->data().markers_ = ismarkerdisp ? &wd->markers() : 0;
 	logsdisp_[idx]->doDataChange();
     }
 }	
@@ -425,7 +430,8 @@ void uiTieView::drawCShot()
     if ( !dataholder_.uipms()->iscsdisp_ ) 
 	return;
 
-    const Well::D2TModel* cs = wd_.checkShotModel();
+    mGetWD(return)
+    const Well::D2TModel* cs = wd->checkShotModel();
     if ( !cs  ) return;
     const int sz = cs->size();
     if ( sz < 2 ) return;
@@ -440,7 +446,7 @@ void uiTieView::drawCShot()
     Interval<float> zrg = ld.zrg_;
 
     const bool dispintime = dataholder_.uipms()->iszintime_;
-    const Well::D2TModel* d2tm = wd_.d2TModel();
+    const Well::D2TModel* d2tm = wd->d2TModel();
     if ( dispintime && !d2tm ) return; 
 
     for ( int idx=0; idx<sz; idx++ )
@@ -463,6 +469,12 @@ void uiTieView::drawCShot()
     LineStyle ls( LineStyle::Solid, 2, Color::DgbColor() );
     checkshotitm_->setPenStyle( ls );
     logsdisp_[0]->doDataChange();
+}
+
+
+bool uiTieView::isEmpty()
+{
+    return dataholder_.logset()->isEmpty();
 }
 
 

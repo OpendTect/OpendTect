@@ -96,9 +96,9 @@ mClass PickSetMGR : public CallBacker
 {
 public:
 
-			PickSetMGR(const Well::Data* wd)
+			PickSetMGR(const DataHolder& dh)
 			    : CallBacker(CallBacker::CallBacker())
-			    , wd_(wd)
+			    , dholder_(dh)
 			    , evtype_ (VSEvent::Extr)
 			    {}
     
@@ -110,7 +110,6 @@ public:
     WellTie::PickSet* 	getSeisPickSet()  { return &seispickset_; }
     const WellTie::PickSet* getSeisPickSet() const { return &seispickset_; }
 
-    const Well::Data* 	wd_;
     bool		lastpicksynth_;
     VSEvent::Type	evtype_;
 
@@ -128,7 +127,7 @@ public:
 
 protected:
 
-    WellTie::DataHolder* holder_;
+    const DataHolder& 	dholder_;
     const WellTie::Params::DataParams* datapms_;
 
     WellTie::PickSet 	synthpickset_;

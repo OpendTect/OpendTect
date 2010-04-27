@@ -8,13 +8,15 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.13 2010-04-14 13:11:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiesavedatadlg.cc,v 1.14 2010-04-27 08:21:09 cvsbruno Exp $";
 
 #include "uiwelltiesavedatadlg.h"
 
 #include "wavelet.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
+#include "welllog.h"
+#include "welllogset.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"

@@ -54,9 +54,8 @@ public:
 	
 protected:
 
-    Well::Data*			wd_;
     WellTie::Setup		setup_;
-    WellTie::DataHolder*	dataholder_;
+    WellTie::DataHolder&	dataholder_;
     WellTie::Params*		params_;
     WellTie::DataPlayer*   	dataplayer_;
     
@@ -126,7 +125,7 @@ mClass uiInfoDlg : public uiDialog
 {
 public:		
     		
-    		uiInfoDlg(uiParent*,WellTie::DataHolder*,WellTie::DataPlayer*);
+    		uiInfoDlg(uiParent*,WellTie::DataHolder&,WellTie::DataPlayer&);
     		~uiInfoDlg();
 
     Notifier<uiInfoDlg>  redrawNeeded;
@@ -138,8 +137,7 @@ public:
 protected:
    
     BufferStringSet             markernames_;
-    Well::Data*                 wd_;
-    WellTie::DataHolder*	dataholder_;
+    WellTie::DataHolder&	dataholder_;
     WellTie::Params::DataParams* params_;
 
     ObjectSet<uiGenInput>	zrangeflds_;
@@ -149,7 +147,7 @@ protected:
     uiPushButton*               savewvltestbut_;
     WellTie::uiCorrView*      	crosscorr_;
     WellTie::uiWaveletView*     wvltdraw_;
-    WellTie::DataPlayer*   	dataplayer_;
+    WellTie::DataPlayer&   	dataplayer_;
     
     void 			applyMarkerPushed(CallBacker*);
     void 			wvltChanged(CallBacker*);

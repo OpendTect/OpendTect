@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.25 2010-04-23 08:40:31 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.26 2010-04-27 08:21:09 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,13 +199,13 @@ public:
 				markers_ = d.markers_;
 				d2tm_ 	 = d.d2tm_;
 			    }	
-    const Well::D2TModel*   d2tm_;
-    Well::MarkerSet*        markers_;
+    const D2TModel*   	    d2tm_;
+    MarkerSet*        	    markers_;
     Interval<float>         zrg_;
     bool                    dispzinft_;
     bool                    zistime_;
 };
 
-} // namespace
+}; // namespace
 
 #endif
