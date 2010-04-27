@@ -4,7 +4,7 @@
  * DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: emioobjinfo.cc,v 1.1 2010-04-27 05:32:14 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emioobjinfo.cc,v 1.2 2010-04-27 08:25:01 cvsbruno Exp $";
 
 #include "emioobjinfo.h"
 #include "emsurfaceio.h"
@@ -158,7 +158,7 @@ StepInterval<int> IOObjInfo::getInlRange() const
 {
     mGetReader
     if ( !reader_ )
-	return Interval<int>(mUdf(float),mUdf(float));
+	return Interval<int>(mUdf(int),mUdf(int));
     return reader_->rowInterval();
 }
 
@@ -167,7 +167,7 @@ StepInterval<int> IOObjInfo::getCrlRange() const
 {
     mGetReader
     if ( !reader_ )
-	return Interval<int>(mUdf(float),mUdf(float));
+	return Interval<int>(mUdf(int),mUdf(int));
     return reader_->colInterval();
 }
 
@@ -216,7 +216,7 @@ int IOObjInfo::nrSticks() const
 
     Interval<float> rowrange;
     reader_->pars()->get( "Row range", rowrange );
-    return rowrange.width();
+    return (int)rowrange.width();
 }
 
 
