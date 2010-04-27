@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.12 2009-10-20 05:00:38 cvsranojay Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.13 2010-04-27 12:18:10 cvskarthika Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,11 +37,15 @@ public:
     void			setDisplayTransformation(Transformation*) {}
     void			turnOn(bool);
     void			setSize(int w,int h);
-    Geom::Size2D<int>		getSize();
+    Geom::Size2D<int>		getSize() const;
 
     enum Pos			{ BottomLeft, BottomRight, TopLeft, TopRight };
     void			setPos( Pos pos ); 
     Pos				getPos() const	    { return pos_; }
+
+    int				usePar(const IOPar& iopar);
+    void			fillPar(IOPar& iopar, TypeSet<int>& saveids) 
+					const;
 
 protected:
 				~SceneColTab();
@@ -51,6 +55,10 @@ protected:
     ColTab::Sequence		sequence_;
     Interval<float>		rg_;
     Pos				pos_;
+
+    static const char*		sizestr;
+    static const char*		posstr;
+
 };
 
 } // class visBase
