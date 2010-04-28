@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.38 2010-04-13 12:55:16 cvsbruno Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.39 2010-04-28 05:51:59 cvsnanne Exp $";
 
 #include "uistrattreewin.h"
 
@@ -112,22 +112,28 @@ void uiStratTreeWin::createMenu()
     uiMenuBar* menubar = menuBar();
     uiPopupMenu* mnu = new uiPopupMenu( this, "&Menu" );
     expandmnuitem_ = new uiMenuItem( mExpandTxt(true),
-				     mCB(this, uiStratTreeWin, setExpCB ) );
+				     mCB(this,uiStratTreeWin,setExpCB) );
+    expandmnuitem_->setPixmap( ioPixmap("collapse_tree.png") );
     mnu->insertItem( expandmnuitem_ );
     mnu->insertSeparator();
     editmnuitem_ = new uiMenuItem( mEditTxt(true),
 	    			   mCB(this,uiStratTreeWin,editCB) );
+    editmnuitem_->setPixmap( ioPixmap("unlock.png") );
     mnu->insertItem( editmnuitem_ );
     savemnuitem_ = new uiMenuItem( "&Save", mCB(this,uiStratTreeWin,saveCB) );
+    savemnuitem_->setPixmap( ioPixmap("save.png") );
     mnu->insertItem( savemnuitem_ );
     resetmnuitem_ = new uiMenuItem( "&Reset to last saved",
 	    			    mCB(this,uiStratTreeWin,resetCB));
+    resetmnuitem_->setPixmap( ioPixmap("undo.png") );
     mnu->insertItem( resetmnuitem_ );
     mnu->insertSeparator();
     openmnuitem_ = new uiMenuItem( "&Open...", mCB(this,uiStratTreeWin,openCB));
+    openmnuitem_->setPixmap( ioPixmap("openset.png") );
     mnu->insertItem( openmnuitem_ );
     saveasmnuitem_ = new uiMenuItem( "Save&As...",
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
+    saveasmnuitem_->setPixmap( ioPixmap("saveas.png") );
     mnu->insertItem( saveasmnuitem_ );
     menubar->insertItem( mnu );	    
 }
@@ -150,7 +156,7 @@ void uiStratTreeWin::createToolBar()
     mDefBut(lockbut_,"unlock.png",editCB,mEditTxt(false));
     lockbut_->setToggleButton( true );
 //    mDefBut(openbut_,"openset.png",openCB,"Open"); not implemented yet
-    mDefBut(savebut_,"saveset.png",saveCB,"Save");
+    mDefBut(savebut_,"save.png",saveCB,"Save");
     uiToolButton* helpbut = new uiToolButton( tb_, 0,
 					      ioPixmap("contexthelp.png"),
 					      mCB(this,uiStratTreeWin,helpCB) );
@@ -194,6 +200,8 @@ void uiStratTreeWin::setExpCB( CallBacker* )
     bool expand = !strcmp( expandmnuitem_->text(), mExpandTxt(true) );
     uitree_->expand( expand );
     expandmnuitem_->setText( expand ? mCollapseTxt(true) : mExpandTxt(true) );
+    expandmnuitem_->setPixmap( expand ? ioPixmap("collapse_tree.png")
+				      : ioPixmap("expand_tree.png") );
     colexpbut_->setPixmap( expand ? ioPixmap("collapse_tree.png")
 	    			  : ioPixmap("expand_tree.png") );
     colexpbut_->setToolTip( expand ? mCollapseTxt(false) : mExpandTxt(false) );
@@ -230,6 +238,8 @@ void uiStratTreeWin::editCB( CallBacker* )
     bool doedit = !strcmp( editmnuitem_->text(), mEditTxt(true) );
     uitree_->makeTreeEditable( doedit );
     editmnuitem_->setText( doedit ? mLockTxt(true) : mEditTxt(true) );
+    editmnuitem_->setPixmap( doedit ? ioPixmap("unlock.png")
+				    : ioPixmap("readonly.png") );
     lockbut_->setPixmap( doedit ? ioPixmap("unlock.png")
 	    			: ioPixmap("readonly.png") );
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
