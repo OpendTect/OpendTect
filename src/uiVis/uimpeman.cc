@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.195 2010-02-12 10:23:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.196 2010-04-28 11:37:12 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -945,6 +945,7 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 #define mAddSeedConModeItems( seedconmodefld, typ ) \
     if ( emobj && emobj->getTypeStr() == EM##typ##TranslatorGroup::keyword() ) \
     { \
+	seedconmodefld->empty(); \
 	for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
 	{ \
 	    seedconmodefld-> \
