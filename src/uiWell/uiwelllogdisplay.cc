@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.43 2010-04-27 07:22:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelllogdisplay.cc,v 1.44 2010-04-28 12:27:45 cvsbruno Exp $";
 
 #include "uiwelllogdisplay.h"
 #include "uiwelldisplaycontrol.h"
@@ -746,7 +746,7 @@ void uiWellDisplay::removeWDNotifiers( Well::Data& wd )
     uiWellDisplay* self = const_cast<uiWellDisplay*>( this );
     wd.d2tchanged.remove( mCB(self,uiWellDisplay,dataChanged) );
     wd.markerschanged.remove( mCB(self,uiWellDisplay,dataChanged) );
-    wd.tobedeleted.notify(mCB(self,uiWellDisplay,welldataDelNotify) );
+    wd.tobedeleted.remove(mCB(self,uiWellDisplay,welldataDelNotify) );
 }
 
 
