@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodviewer2d.h,v 1.16 2010-04-22 11:11:36 cvsbruno Exp $
+ RCS:           $Id: uiodviewer2d.h,v 1.17 2010-04-28 12:29:45 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ protected:
 
     void			createViewWin(bool isvert);
     void			createViewWinEditors();
+    void			setUpViewWinEditors(DataPack*);
     void			winCloseCB(CallBacker*);
     void			posChg(CallBacker*);
     void			dataChangedCB(CallBacker*);

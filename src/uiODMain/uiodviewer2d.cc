@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.33 2010-04-22 11:11:36 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodviewer2d.cc,v 1.34 2010-04-28 12:29:45 cvsbruno Exp $";
 
 #include "uiodviewer2d.h"
 
@@ -91,20 +91,12 @@ uiODViewer2D::~uiODViewer2D()
 }
 
 
-void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
+void uiODViewer2D::setUpViewWinEditors( DataPack* dp )
 {
-    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, false );
     mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
     mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
     mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
-    const bool isnew = !viewwin();
-    if ( isnew )
-	createViewWin( (dp3d && dp3d->isVertical()) ||
-		       (dp2d && dp2d->isVertical()) );
-
-    if ( slicepos_ )
-	slicepos_->getToolBar()->display( dp3d );
-
+   
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	if ( dp3d )
@@ -154,7 +146,29 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	}
 	fssfveditors_[ivwr]->drawFault();
 	f3dfveditors_[ivwr]->drawFault();
+    }
+}
 
+
+void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
+{
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( packid, false );
+    mDynamicCastGet(Attrib::Flat3DDataPack*,dp3d,dp)
+    mDynamicCastGet(Attrib::Flat2DDataPack*,dp2d,dp)
+    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2ddh,dp)
+
+    const bool isnew = !viewwin();
+    if ( isnew )
+	createViewWin( (dp3d && dp3d->isVertical()) ||
+		       (dp2d && dp2d->isVertical()) );
+
+    if ( slicepos_ )
+	slicepos_->getToolBar()->display( dp3d );
+
+    setUpViewWinEditors( dp );
+
+    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+    {
 	DataPack::ID curpackid = viewwin()->viewer(ivwr).packID( wva );
 	viewwin()->viewer(ivwr).removePack( curpackid );
 	DPM(DataPackMgr::FlatID()).release( curpackid );
