@@ -4,12 +4,13 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.17 2010-04-05 05:16:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.18 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "emsurfaceposprov.h"
 
 #include "cubesampling.h"
 #include "datapointset.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "emsurface.h"
@@ -231,15 +232,18 @@ void Pos::EMSurfaceProvider::usePar( const IOPar& iop )
 
     if ( id1_.isEmpty() ) return;
     EM::SurfaceIOData sd;
-    const char* res = EM::EMM().getSurfaceData( id1_, sd );
-    if ( res ) return;
+    EM::IOObjInfo eminfo( id1_ );
+    if ( !eminfo.isOK() ) return;
 
-    hs_ = sd.rg;
+    HorSampling hs;
+    hs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
+    hs_ = hs;
 
     if ( id2_.isEmpty() ) return;
-    res = EM::EMM().getSurfaceData( id2_, sd );
-    if ( res ) return;
-    hs_.limitTo( sd.rg );
+    eminfo = EM::IOObjInfo( id2_ );
+    if ( !eminfo.isOK() ) return;
+    hs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
+    hs_.limitTo( hs );
     // TODO: get zrg's
 }
 

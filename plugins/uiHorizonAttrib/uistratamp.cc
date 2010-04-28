@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.12 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.13 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: uistratamp.cc,v 1.12 2010-03-15 16:15:01 cvsber
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
@@ -124,16 +125,18 @@ void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
 
     if ( horfld1_->commitInput() )
     {
-	EM::SurfaceIOData sd;
-	EM::EMM().getSurfaceData( horctio1_.ioobj->key(), sd );
-	hs.limitTo( sd.rg );
+	EM::IOObjInfo eminfo( horctio1_.ioobj->key() );
+	HorSampling emhs;
+	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
+	hs.limitTo( emhs );
     }
 
     if ( horfld2_->commitInput() )
     {
-	EM::SurfaceIOData sd;
-	EM::EMM().getSurfaceData( horctio2_.ioobj->key(), sd );
-	hs.limitTo( sd.rg );
+	EM::IOObjInfo eminfo( horctio2_.ioobj->key() );
+	HorSampling emhs;
+	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
+	hs.limitTo( emhs );
     }
 }
 
@@ -165,13 +168,13 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
     if ( !checkInpFlds() ) return false;
 
     const bool addtotop = usesingle_ || selfld_->getBoolValue();
-    EM::EMManager& em = EM::EMM();
-    EM::SurfaceIOData sd;
-    em.getSurfaceData( addtotop ? horctio1_.ioobj->key()
-	    			: horctio2_.ioobj->key(), sd );
+    EM::IOObjInfo eminfo( addtotop ? horctio1_.ioobj->key()
+	    			   : horctio2_.ioobj->key() );
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
     const char* attribnm = attribnamefld_->text();
     bool overwrite = false;
-    if ( sd.valnames.indexOf( attribnm ) >= 0 )
+    if ( attrnms.indexOf( attribnm ) >= 0 )
     {
 	BufferString errmsg = "Attribute name ";
 	errmsg += attribnm;

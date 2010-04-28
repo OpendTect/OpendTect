@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.52 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.53 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.52 2010-03-25 03:55:14 cv
 #include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
@@ -139,13 +140,14 @@ bool uiStoreAuxData::acceptOK( CallBacker* )
 
 bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 {
-    EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( surface_.multiID(), sd );
+    EM::IOObjInfo eminfo( surface_.multiID() );
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
 
     bool present = false;
-    for ( int idx=0; idx<sd.valnames.size(); idx++ )
+    for ( int idx=0; idx<attrnms.size(); idx++ )
     {
-	if ( *sd.valnames[idx] == attrnm )
+	if ( attrnms.get(idx) == attrnm )
 	{
 	    present = true;
 	    break;

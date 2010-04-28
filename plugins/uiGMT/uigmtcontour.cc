@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.17 2010-03-17 21:20:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.18 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uigmtcontour.h"
 
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
@@ -161,21 +162,27 @@ void uiGMTContourGrp::objSel( CallBacker* )
     IOObj* ioobj = ctio_.ioobj;
     if ( !ioobj ) return;
 
-    const char* res = EM::EMM().getSurfaceData( ioobj->key(), sd_ );
-    if ( res )
+    EM::IOObjInfo eminfo( ioobj->key() );
+    if ( !eminfo.isOK() )
     {
-	uiMSG().error( res );
+	BufferString msg( "Cannot read '", ioobj->name().buf(), "'" );
+	uiMSG().error( msg );
 	return;
     }
 
     CubeSampling cs;
-    cs.hrg = sd_.rg;
+    HorSampling emhs;
+    emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
+    cs.hrg = emhs;
     subselfld_->setInput( cs );
     attribfld_->empty();
     attribfld_->addItem( ODGMT::sKeyZVals );
-    if ( sd_.valnames.size() )
+
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
+    if ( attrnms.size() )
     {
-	attribfld_->addItems( sd_.valnames );
+	attribfld_->addItems( attrnms );
 	attribfld_->setSensitive( true );	
     }
     else

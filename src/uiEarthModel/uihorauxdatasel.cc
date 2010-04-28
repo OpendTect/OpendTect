@@ -4,7 +4,7 @@
  *  DATE     : April 2010
 -*/
 
-static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.2 2010-04-23 19:20:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.3 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 
 #include "uihorauxdatasel.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: uihorauxdatasel.cc,v 1.2 2010-04-23 19:20:27 cv
 #include "ctxtioobj.h"
 #include "datainpspec.h"
 #include "emsurfacetr.h"
-#include "emmanager.h"
+#include "emioobjinfo.h"
 #include "ioman.h"
 #include "iodirentry.h"
 #include "uibutton.h"
@@ -122,13 +122,14 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
     for ( int idx=0; idx<horlist.size(); idx++ )
     {
 	const IOObj* obj = horlist[idx]->ioobj;
-	EM::SurfaceIOData sd; 
-	EM::EMM().getSurfaceData( obj->key(), sd ); 
-	if ( sd.valnames.size() )
+	EM::IOObjInfo eminfo( obj->key() ); 
+	BufferStringSet attrnms;
+	eminfo.getAttribNames( attrnms );
+	if ( attrnms.size() )
 	{
 	    mids_ += obj->key();
 	    hornms_.add( obj->name() );
-	    auxdatanms_ += sd.valnames;
+	    auxdatanms_ += attrnms;
 	}
     }
 }
@@ -167,10 +168,11 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
     const bool hasobj = !mid.isEmpty() && obj;
     if ( hasobj )
     {
-	EM::SurfaceIOData sd;
-	EM::EMM().getSurfaceData( mid, sd );
-	for ( int idx=0; idx<sd.valnames.size(); idx++ )
-	    str.addString( *sd.valnames[idx] );
+	EM::IOObjInfo eminfo( mid );
+	BufferStringSet attrnms;
+	eminfo.getAttribNames( attrnms );
+	for ( int idx=0; idx<attrnms.size(); idx++ )
+	    str.addString( attrnms.get(idx) );
 	
 	horfld_->setText( obj->name() );
     }    
@@ -212,12 +214,13 @@ void uiHorizonAuxDataSel::selCB( CallBacker* )
  
     horfld_->setText( obj->name() );	    
     
-    EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( selmid_, sd );
+    EM::IOObjInfo eminfo( selmid_ );
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
 
     StringListInpSpec str;
-    for ( int idx=0; idx<sd.valnames.size(); idx++ )
-	str.addString( *sd.valnames[idx] );
+    for ( int idx=0; idx<attrnms.size(); idx++ )
+	str.addString( attrnms.get(idx) );
     auxfld_->clear(); 
     auxfld_->newSpec( str, 0 );
 					    

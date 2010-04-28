@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.202 2010-02-11 09:33:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.203 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.202 2010-02-11 09:33:04 cvs
 #include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "embodytr.h"
@@ -207,9 +208,10 @@ int uiEMPartServer::nrAttributes( const EM::ObjectID& emid ) const
     EM::EMObject* emobj = em_.getObject( emid );
     if ( !emobj ) return 0;
 
-    EM::SurfaceIOData sd;
-    FixedString err = EM::EMM().getSurfaceData( emobj->multiID(), sd );
-    return err.isEmpty() ? sd.valnames.size() : 0;
+    EM::IOObjInfo eminfo( emobj->multiID() );
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
+    return eminfo.isOK() ? attrnms.size() : 0;
 }
 
 
@@ -517,14 +519,15 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm,
     mDynamicCastAll(id);
     if ( !hor3d ) return -1;
     
-    EM::SurfaceIOData sd;
     const MultiID mid = em_.getMultiID( id );
-    em_.getSurfaceData( mid, sd );
-    const int nritems = sd.valnames.size();
+    EM::IOObjInfo eminfo( mid );
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
+    const int nritems = attrnms.size();
     int selidx = -1;
     for ( int idx=0; idx<nritems; idx++ )
     {
-	const BufferString& nm = *sd.valnames[idx];
+	const BufferString& nm = attrnms.get(idx);
 	if ( nm == attrnm )
 	{ selidx= idx; break; }
     }
@@ -541,10 +544,11 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     mDynamicCastAll(id);
     if ( !hor3d ) return false;
 
-    EM::SurfaceIOData sd;
     const MultiID mid = em_.getMultiID( id );
-    em_.getSurfaceData( mid, sd );
-    uiSelectFromList::Setup setup( "Surface data", sd.valnames );
+    EM::IOObjInfo eminfo( mid );
+    BufferStringSet atrrnms;
+    eminfo.getAttribNames( atrrnms );
+    uiSelectFromList::Setup setup( "Surface data", atrrnms );
     setup.dlgtitle( "Select one or more attributes to be displayed\n"
 	    	    "on the horizon. After loading, use 'Page Up'\n"
 		    "and 'Page Down' buttons to scroll.\n"

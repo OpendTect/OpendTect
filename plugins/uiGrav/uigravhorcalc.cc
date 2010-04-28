@@ -4,7 +4,7 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.3 2010-04-26 10:09:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.4 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uigravhorcalc.h"
 #include "gravhorcalc.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uigravhorcalc.cc,v 1.3 2010-04-26 10:09:09 cvsb
 #include "uizaxistransform.h"
 #include "ioman.h"
 #include "survinfo.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
@@ -108,12 +109,16 @@ void uiGravHorCalc::topSel( CallBacker* )
     const IOObj* ioobj = topfld_->ioobj( true );
     if ( !ioobj ) ioobj = horioobj_;
 
-    EM::SurfaceIOData iod;
-    const char* emsg = EM::EMM().getSurfaceData( ioobj->key(), iod );
-    if ( emsg && *emsg )
-	{ uiMSG().error(emsg); return; }
+    EM::IOObjInfo eminfo( ioobj->key() );
+    if ( !eminfo.isOK() )
+    {
+	BufferString msg( "Cannot read '", ioobj->name().buf(), "'" );
+	uiMSG().error(msg); return;
+    }
 
-    denattrfld_->newSpec( StringListInpSpec(iod.valnames), 0 );
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
+    denattrfld_->newSpec( StringListInpSpec(attrnms), 0 );
 }
 
 

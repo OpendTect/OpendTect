@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.70 2010-03-25 03:55:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.71 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 
 #include "uisurfaceman.h"
@@ -22,9 +22,9 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.70 2010-03-25 03:55:14 cvsr
 #include "strmprov.h"
 #include "survinfo.h"
 
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
 
@@ -158,9 +158,8 @@ void uiSurfaceMan::copyCB( CallBacker* )
 
 void uiSurfaceMan::man2d( CallBacker* )
 {
-    EM::SurfaceIOData sd;
-    EMM().getSurfaceData( curioobj_->key(), sd );
-    uiSurface2DMan dlg( this, sd );
+    EM::IOObjInfo eminfo( curioobj_->key() );
+    uiSurface2DMan dlg( this, eminfo );
     dlg.go();
 }
 
@@ -276,57 +275,69 @@ void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
 
 void uiSurfaceMan::mkFileInfo()
 {
-#define mAddRangeTxt(line) \
-    if ( !haverg ) \
+#define mAddRangeTxt(inl) \
+    range = inl ? eminfo.getInlRange() : eminfo.getCrlRange(); \
+    if ( range.isUdf() ) \
 	txt += "-\n"; \
     else \
     { \
-	txt += sd.rg.start.line; txt += " - "; txt += sd.rg.stop.line; \
-	txt += " - "; txt += sd.rg.step.line; txt += "\n"; \
+	txt += range.start; txt += " - "; txt += range.stop; \
+	txt += " - "; txt += range.step; txt += "\n"; \
     }
 
     BufferString txt;
-    SurfaceIOData sd;
-    const char* res = EMM().getSurfaceData( curioobj_->key(), sd );
-    if ( !res )
-    {
-	fillAttribList( sd.valnames );
-	const bool haverg = sd.rg.start.inl < mUdf(int);
-	if ( isCur2D() || isCurFault() )
-	{
-	    if ( isCur2D() )
-		man2dbut_->setSensitive( true );
+    EM::IOObjInfo eminfo( curioobj_ );
+    if ( !eminfo.isOK() ) return;
 
-	    txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
-	    if ( sd.linenames.size() )
-		txt += sd.linenames.size();
-	    else
-		txt += "-";
-	    txt += "\n";
-	}
+    BufferStringSet attrnms;
+    if ( eminfo.getAttribNames(attrnms) )
+	fillAttribList( attrnms );
+
+    if ( isCur2D() || isCurFault() )
+    {
+	if ( isCur2D() )
+	    man2dbut_->setSensitive( true );
+
+	txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
+	if ( isCurFault() )
+	    txt += eminfo.nrSticks();
 	else
 	{
-	    man2dbut_->setSensitive( false );
-	    txt = "Inline range: "; mAddRangeTxt(inl)
-	    txt += "Crossline range: "; mAddRangeTxt(crl)
-	    if ( !sd.zrg.isUdf() )
-	    {
-		txt += "Z range"; txt += SI().getZUnitString(); txt += ": ";
-		txt += mNINT( sd.zrg.start * SI().zFactor() ); txt += " - ";
-		txt += mNINT( sd.zrg.stop * SI().zFactor() ); txt += "\n";
-	    }
+	    BufferStringSet linenames;
+	    if ( eminfo.getLineNames(linenames) )
+		txt += linenames.size();
+	    else
+		txt += "-";
+	}
+
+	txt += "\n";
+    }
+    else
+    {
+	man2dbut_->setSensitive( false );
+	StepInterval<int> range;
+	txt = "Inline range: "; mAddRangeTxt(true)
+	txt += "Crossline range: "; mAddRangeTxt(false)
+	Interval<float> zrange = eminfo.getZRange();
+	if ( !zrange.isUdf() )
+	{
+	    txt += "Z range"; txt += SI().getZUnitString(); txt += ": ";
+	    txt += mNINT( zrange.start * SI().zFactor() ); txt += " - ";
+	    txt += mNINT( zrange.stop * SI().zFactor() ); txt += "\n";
 	}
     }
 
     txt += getFileInfo();
 
-    if ( sd.sections.size() > 1 )
+    BufferStringSet sectionnms;
+    eminfo.getSectionNames( sectionnms );
+    if ( sectionnms.size() > 1 )
     {
-	txt += "Nr of sections: "; txt += sd.sections.size(); txt += "\n";
-	for ( int idx=0; idx<sd.sections.size(); idx++ )
+	txt += "Nr of sections: "; txt += sectionnms.size(); txt += "\n";
+	for ( int idx=0; idx<sectionnms.size(); idx++ )
 	{
 	    txt += "\tPatch "; txt += idx+1; txt += ": "; 
-	    txt += sd.sections[idx]->buf(); txt += "\n";
+	    txt += sectionnms[idx]->buf(); txt += "\n";
 	}
     }
 
@@ -448,10 +459,10 @@ void uiSurfaceMan::stratSel( CallBacker* )
 }
 
 
-uiSurface2DMan::uiSurface2DMan( uiParent* p, const SurfaceIOData& sd )
+uiSurface2DMan::uiSurface2DMan( uiParent* p, const IOObjInfo& info )
     :uiDialog(p,uiDialog::Setup("Surface file management","Manage 2D horizons",
 				"104.2.1"))
-    , sd_(sd)
+    , eminfo_(info)
 {
     setCtrlStyle( LeaveOnly );
 
@@ -459,7 +470,9 @@ uiSurface2DMan::uiSurface2DMan( uiParent* p, const SurfaceIOData& sd )
     uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines", false,
 						   uiLabeledListBox::AboveMid );
     linelist_ = lllb->box();
-    linelist_->addItems( sd.linenames );
+    BufferStringSet linenames;
+    info.getLineNames( linenames );
+    linelist_->addItems( linenames );
     linelist_->selectionChanged.notify( mCB(this,uiSurface2DMan,lineSel) );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
@@ -478,16 +491,21 @@ uiSurface2DMan::uiSurface2DMan( uiParent* p, const SurfaceIOData& sd )
 void uiSurface2DMan::lineSel( CallBacker* )
 {
     const int curitm = linelist_->currentItem();
-    if ( !sd_.linesets.validIdx(curitm) )
+    BufferStringSet linesets;
+    eminfo_.getLineSets( linesets );
+    if ( !linesets.validIdx(curitm) )
     {
 	infofld_->setText( "" );
 	return;
     }
 
-    BufferString txt( "LineSet name: ", sd_.linesets.get(curitm), "\n" );
-    if ( sd_.trcranges.validIdx(curitm) )
+    BufferString txt( "LineSet name: ", linesets.get(curitm), "\n" );
+    TypeSet< StepInterval<int> > trcranges;
+    eminfo_.getTrcRanges( trcranges );
+
+    if ( trcranges.validIdx(curitm) )
     {
-	StepInterval<int> trcrg = sd_.trcranges[ curitm ];
+	StepInterval<int> trcrg = trcranges[ curitm ];
 	txt += BufferString( sKey::FirstTrc, ": " ); txt += trcrg.start;
 	txt += "\n";
 	txt += BufferString( sKey::LastTrc, ": " ); txt += trcrg.stop;

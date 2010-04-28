@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistaticsdesc.cc,v 1.3 2010-03-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uistaticsdesc.cc,v 1.4 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uistaticsdesc.h"
 
 #include "ctxtioobj.h"
-#include "emmanager.h"
+#include "emioobjinfo.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
 #include "ioman.h"
@@ -55,11 +55,11 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
 
 void uiStaticsDesc::updateFlds( CallBacker* )
 {
-    EM::SurfaceIOData sd;
-    const FixedString err =
-	EM::EMM().getSurfaceData( horfld_->key(true), sd );
+    EM::IOObjInfo eminfo( horfld_->key(true) );
 
-    const bool horizonhasattribs = err.isEmpty() && sd.valnames.size();
+    BufferStringSet attrnms;
+    const bool horizonhasattribs =
+	eminfo.isOK() && eminfo.getAttribNames( attrnms );
 
     horfld_->display( true );
     useconstantvelfld_->display( true );
@@ -79,7 +79,7 @@ void uiStaticsDesc::updateFlds( CallBacker* )
 	horattribfld_->display( true );
 
 	horattribfld_->box()->empty();
-	horattribfld_->box()->addItems( sd.valnames );
+	horattribfld_->box()->addItems( attrnms );
     }
 }
 

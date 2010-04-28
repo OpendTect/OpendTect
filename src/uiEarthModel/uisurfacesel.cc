@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfacesel.cc,v 1.6 2009-07-22 16:01:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfacesel.cc,v 1.7 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uisurfacesel.h"
 
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uisurfacesel.cc,v 1.6 2009-07-22 16:01:39 cvsbe
 
 #include "ctxtioobj.h"
 #include "emsurfacetr.h"
-#include "emmanager.h"
+#include "emioobjinfo.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emsurfaceiodata.h"
@@ -103,12 +103,13 @@ void uiSurface2DSel::setLineSetID( const MultiID& mid )
 	const IOObj* ioobj = del[idx]->ioobj;
 	if ( !ioobj ) continue;
 
-	EM::SurfaceIOData sd;
-	EM::EMM().getSurfaceData( ioobj->key(), sd );
-	for ( int idz=0; idz<sd.linesets.size(); idz++ )
+	EM::IOObjInfo eminfo( ioobj->key() );
+	BufferStringSet linesets;
+	eminfo.getLineSets( linesets );
+	for ( int idz=0; idz<linesets.size(); idz++ )
 	{
 	    IOObj* selobj = IOM().get( mid );
-	    if ( *sd.linesets[idz] == selobj->name() )
+	    if ( linesets.get(idz) == selobj->name() )
 	    {
 		mids_.addIfNew( ioobj->key() );
 		names_.addIfNew( ioobj->name() );

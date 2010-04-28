@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.21 2010-04-20 18:09:13 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.22 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uihorizonattrib.h"
 #include "horizonattrib.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.21 2010-04-20 18:09:13 c
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "ctxtioobj.h"
-#include "emmanager.h"
+#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "ioman.h"
@@ -140,18 +140,19 @@ void uiHorizonAttrib::horSel( CallBacker* )
 {
     if ( !horfld_->ioobj() ) return;
 
-    EM::SurfaceIOData iodata;
-    const char* err =
-	EM::EMM().getSurfaceData( horfld_->ioobj()->key(), iodata );
-    if ( err && *err )
+    EM::IOObjInfo eminfo( horfld_->ioobj()->key() );
+    if ( !eminfo.isOK() )
     {
-	uiMSG().error( err );
+	BufferString msg( "Cannot read '", horfld_->ioobj()->name().buf(), "'");
+	uiMSG().error( msg );
 	return;
     }
 
+    BufferStringSet attrnms;
+    eminfo.getAttribNames( attrnms );
     surfdatanms_.erase();
-    for ( int idx=0; idx<iodata.valnames.size(); idx++ )
-	surfdatanms_.add( iodata.valnames.get(idx).buf() );
+    for ( int idx=0; idx<attrnms.size(); idx++ )
+	surfdatanms_.add( attrnms.get(idx).buf() );
     surfdatafld_->newSpec( StringListInpSpec(surfdatanms_), 0 );
     
     const bool actionreq = (surfdatanms_.size() && nrouttypes_<2) ||

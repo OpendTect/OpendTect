@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.26 2010-01-15 08:15:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.27 2010-04-28 03:44:49 cvssatyaki Exp $";
 
 #include "uimultisurfaceread.h"
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.26 2010-01-15 08:15:5
 #include "uipossubsel.h"
 
 #include "ctxtioobj.h"
-#include "emmanager.h"
+#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "ioman.h"
@@ -104,14 +104,17 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	{
 	    const MultiID& mid = ioobjselgrp_->selected( idx );
 
-	    const char* res = EM::EMM().getSurfaceData( mid, sd );
-	    if ( res ) continue;
+	    EM::IOObjInfo eminfo( mid );
+	    if ( !eminfo.isOK() ) continue;
+	    HorSampling emhs;
+	    emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
+
 	    if ( hs.isEmpty() )
-		hs = sd.rg;
+		hs = emhs;
 	    else
 	    {
-		hs.include( sd.rg.start );
-		hs.include( sd.rg.stop );
+		hs.include( emhs.start );
+		hs.include( emhs.stop );
 	    }
 	}
 
