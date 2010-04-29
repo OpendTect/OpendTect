@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.94 2009-12-03 15:28:05 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.95 2010-04-29 10:53:25 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -324,7 +324,8 @@ bool SeisTrcTranslator::writeBlock()
     SeisTrc* trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
     BinID binid( lastinlwritten, crlrg.start );
     SeisTrc* filltrc = 0;
-    for ( binid.crl; binid.crl != firstafter; binid.crl += stp )
+    int nrwritten = 0;
+    for ( ; binid.crl != firstafter; binid.crl += stp )
     {
 	while ( trc && trc->info().binid.crl < binid.crl )
 	{
@@ -348,10 +349,12 @@ bool SeisTrcTranslator::writeBlock()
 	    if ( !writeTrc_(*filltrc) )
 		return false;
 	}
+	nrwritten++;
     }
 
     delete filltrc;
     trcblock_.deepErase();
+    blockDumped( nrwritten );
     return true;
 }
 
@@ -359,12 +362,12 @@ bool SeisTrcTranslator::writeBlock()
 bool SeisTrcTranslator::dumpBlock()
 {
     bool rv = true;
-    for ( int idx=0; idx<trcblock_.size(); idx++ )
+    const int sz = trcblock_.size();
+    for ( int idx=0; idx<sz; idx++ )
     {
 	if ( !writeTrc_(*trcblock_.get(idx)) )
 	    { rv = false; break; }
     }
-    const int sz = trcblock_.size();
     trcblock_.deepErase();
     blockDumped( sz );
     return rv;
