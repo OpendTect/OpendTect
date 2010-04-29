@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.39 2010-04-28 05:51:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.40 2010-04-29 05:40:34 cvsranojay Exp $";
 
 #include "uistrattreewin.h"
 
@@ -113,28 +113,29 @@ void uiStratTreeWin::createMenu()
     uiPopupMenu* mnu = new uiPopupMenu( this, "&Menu" );
     expandmnuitem_ = new uiMenuItem( mExpandTxt(true),
 				     mCB(this,uiStratTreeWin,setExpCB) );
-    expandmnuitem_->setPixmap( ioPixmap("collapse_tree.png") );
     mnu->insertItem( expandmnuitem_ );
+    expandmnuitem_->setPixmap( ioPixmap("collapse_tree.png") );
     mnu->insertSeparator();
     editmnuitem_ = new uiMenuItem( mEditTxt(true),
 	    			   mCB(this,uiStratTreeWin,editCB) );
-    editmnuitem_->setPixmap( ioPixmap("unlock.png") );
     mnu->insertItem( editmnuitem_ );
+    editmnuitem_->setPixmap( ioPixmap("unlock.png") );
     savemnuitem_ = new uiMenuItem( "&Save", mCB(this,uiStratTreeWin,saveCB) );
-    savemnuitem_->setPixmap( ioPixmap("save.png") );
     mnu->insertItem( savemnuitem_ );
+    savemnuitem_->setPixmap( ioPixmap("save.png") );
     resetmnuitem_ = new uiMenuItem( "&Reset to last saved",
 	    			    mCB(this,uiStratTreeWin,resetCB));
-    resetmnuitem_->setPixmap( ioPixmap("undo.png") );
     mnu->insertItem( resetmnuitem_ );
+    resetmnuitem_->setPixmap( ioPixmap("undo.png") );
     mnu->insertSeparator();
+    
     openmnuitem_ = new uiMenuItem( "&Open...", mCB(this,uiStratTreeWin,openCB));
-    openmnuitem_->setPixmap( ioPixmap("openset.png") );
     mnu->insertItem( openmnuitem_ );
+    openmnuitem_->setPixmap( ioPixmap("openset.png") );
     saveasmnuitem_ = new uiMenuItem( "Save&As...",
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
-    saveasmnuitem_->setPixmap( ioPixmap("saveas.png") );
     mnu->insertItem( saveasmnuitem_ );
+    saveasmnuitem_->setPixmap( ioPixmap("saveas.png") );
     menubar->insertItem( mnu );	    
 }
 
