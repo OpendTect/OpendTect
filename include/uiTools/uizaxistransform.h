@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uizaxistransform.h,v 1.2 2010-04-21 16:06:45 cvskris Exp $
+ RCS:           $Id: uizaxistransform.h,v 1.3 2010-04-30 14:30:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     				uiZAxisTransformSel(uiParent*, bool withnone,
 						    const char* fromdomain=0,
 						    const char* todomain=0);
+    bool			fillPar(IOPar&);
     ZAxisTransform*		getSelection();
     NotifierAccess*		selectionDone();
     int				nrTransforms() const;

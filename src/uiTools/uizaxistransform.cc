@@ -7,14 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uizaxistransform.cc,v 1.2 2010-04-21 16:06:45 cvskris Exp $";
+static const char* rcsID = "$Id: uizaxistransform.cc,v 1.3 2010-04-30 14:30:06 cvskris Exp $";
 
 #include "uizaxistransform.h"
 
 #include "datainpspec.h"
+#include "refcount.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uidialog.h"
+#include "zaxistransform.h"
 
 mImplFactory3Param( uiZAxisTransform, uiParent*, const char*, const char*,
 		    uiZAxisTransform::factory );
@@ -119,6 +121,17 @@ ZAxisTransform* uiZAxisTransformSel::getSelection()
 {
     const int idx = selfld_->getIntValue();
     return transflds_[idx] ? transflds_[idx]->getSelection() : 0;
+}
+
+
+bool uiZAxisTransformSel::fillPar( IOPar& par )
+{
+    RefMan<ZAxisTransform> sel = getSelection();
+    if ( !sel )
+	return false;
+
+    sel->fillPar( par );
+    return true;
 }
 
 
