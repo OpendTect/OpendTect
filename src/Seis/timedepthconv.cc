@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.24 2010-04-22 21:13:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.25 2010-04-30 14:14:59 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -122,6 +122,7 @@ Interval<float> Time2DepthStretcher::getDefaultVAvg()
 
 void Time2DepthStretcher::fillPar( IOPar& par ) const
 {
+    ZAxisTransform::fillPar( par );
     if ( velreader_ && velreader_->ioObj() )
 	par.set( sKeyVelData(), velreader_->ioObj()->key() );
 }
@@ -129,6 +130,9 @@ void Time2DepthStretcher::fillPar( IOPar& par ) const
 
 bool Time2DepthStretcher::usePar( const IOPar& par )
 {
+    if ( !ZAxisTransform::usePar( par ) )
+	return false;
+
     MultiID vid;
     if ( par.get( sKeyVelData(), vid ) && !setVelData( vid ) )
 	return false;
