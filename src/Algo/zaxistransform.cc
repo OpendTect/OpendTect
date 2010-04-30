@@ -4,16 +4,43 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.18 2010-03-12 23:13:55 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.19 2010-04-30 14:05:03 cvskris Exp $";
 
 #include "zaxistransform.h"
 
-#include "survinfo.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "survinfo.h"
 #include "zdomain.h"
 
 
 mImplFactory( ZAxisTransform, ZATF );
+
+
+ZAxisTransform* ZAxisTransform::create( const IOPar& par )
+{
+    const FixedString str = par.find( sKey::Name );
+    if ( !str )
+	return 0;
+
+    ZAxisTransform* res = ZATF().create( str );
+    if ( !res )
+	return 0;
+
+    res->ref();
+    if ( !res->usePar( par ) )
+    {
+	res->unRef();
+	return 0;
+    }
+
+    return res;
+}
+
+    
+
+    
+    
 
 ZAxisTransform::ZAxisTransform()
 {}
@@ -93,6 +120,12 @@ float ZAxisTransform::getGoodZStep() const
 
 const char* ZAxisTransform::getFromZDomainString() const
 { return SI().getZDomainString(); }
+
+
+void ZAxisTransform::fillPar( IOPar& par ) const
+{
+    par.set( sKey::Name, name() );
+}
 
 
 ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,

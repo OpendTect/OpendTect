@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.25 2010-03-12 23:13:55 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.26 2010-04-30 14:05:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,18 +33,21 @@ ZATF().
 mClass ZAxisTransform
 { mRefCountImpl(ZAxisTransform);
 public:
-    			ZAxisTransform();
-    virtual const char*	name() const 				= 0;
-    virtual bool	isOK() const				{ return true; }
-    virtual const char*	errMsg()				{ return 0; }
+    static ZAxisTransform*	create(const IOPar&);
+    				/*!<\note Result will be reffed once. It is
+				          caller's responsibility to unref. */
+    				ZAxisTransform();
+    virtual const char*		name() const 				= 0;
+    virtual bool		isOK() const			{ return true; }
+    virtual const char*		errMsg()			{ return 0; }
 
-    virtual bool	needsVolumeOfInterest() const		{ return true; }
-    virtual int		addVolumeOfInterest(const CubeSampling&,
-	    				    bool zistrans=false);
-    virtual void	setVolumeOfInterest(int,const CubeSampling&,
-	    				    bool zistrans=false);
-    virtual void	removeVolumeOfInterest(int);
-    virtual bool	loadDataIfMissing(int,TaskRunner* =0);
+    virtual bool		needsVolumeOfInterest() const	{ return true; }
+    virtual int			addVolumeOfInterest(const CubeSampling&,
+	    					    bool zistrans=false);
+    virtual void		setVolumeOfInterest(int,const CubeSampling&,
+	    					    bool zistrans=false);
+    virtual void		removeVolumeOfInterest(int);
+    virtual bool		loadDataIfMissing(int,TaskRunner* =0);
     				
     virtual void		transform(const BinID&, 
 	    				  const SamplingData<float>&,
@@ -86,7 +89,7 @@ public:
     				//!\Returns the index of a line in a 2D lineset.
 
     virtual NotifierAccess*	changeNotifier()		{ return 0; }
-    virtual void		fillPar(IOPar&) const		{}
+    virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&)		{ return true; }
 };
 
