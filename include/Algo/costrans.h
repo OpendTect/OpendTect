@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.8 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: costrans.h,v 1.9 2010-04-30 20:36:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,8 +44,8 @@ standard, where it is used extensively.
 mClass CosineTransform : public GenericTransformND
 {
 public:
-    bool		isReal() const { return true; }
-    bool		isCplx() const { return true; }
+    bool		isReal(bool) const { return true; }
+    bool		isCplx(bool) const { return true; }
 
     bool		bidirectional() const { return true; }
 

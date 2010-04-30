@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.18 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.19 2010-04-30 20:36:25 cvskris Exp $";
 
 #include <iostream>
 
@@ -324,7 +324,7 @@ DWT::DWT(
 {}
 
 
-bool DWT::isReal() const
+bool DWT::real2real() const
 {
     return !WaveletTransform::isCplx( wt );
     //Transform cannot be real if kernel is cplx
@@ -539,10 +539,6 @@ bool CWT::setInputInfo( const ArrayNDInfo& ni )
     inited = false;
     return true;
 }
-
-
-bool CWT::isReal() const
-{ return true; }
 
 
 bool CWT::init()

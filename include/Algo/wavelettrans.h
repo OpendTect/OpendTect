@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.16 2009-07-22 16:01:13 cvsbert Exp $
+ RCS:           $Id: wavelettrans.h,v 1.17 2010-04-30 20:36:25 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
@@ -83,8 +83,10 @@ mClass DWT : public GenericTransformND
 public:
 		    DWT( WaveletTransform::WaveletType );
 
-    bool		isReal() const;
-    bool		isCplx() const { return true; }
+    bool		real2real() const;
+    bool		real2complex() const		{ return false; }
+    bool		complex2real() const		{ return false; }
+    bool		complex2complex() const		{ return true; }
 
     bool		bidirectional( ) const { return true; };
 
@@ -162,8 +164,10 @@ public:
     bool		setInputInfo(const ArrayNDInfo&);
     const ArrayNDInfo&	getInputInfo() const		{ return *info_; }
 
-    bool		isReal() const;
-    bool		isCplx() const			{ return true; }
+    bool		real2real() const		{ return true; }
+    bool		real2complex() const		{ return false; }
+    bool		complex2real() const		{ return false; }
+    bool		complex2complex() const		{ return true; }
 
     bool		bidirectional() const		{ return false; }
     bool		setDir(bool forw);

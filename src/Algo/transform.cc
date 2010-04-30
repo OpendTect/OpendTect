@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.6 2009-07-22 16:01:29 cvsbert Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.7 2010-04-30 20:36:25 cvskris Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
@@ -155,7 +155,7 @@ bool GenericTransformND::transform( const ArrayND<float>& in,
 				    ArrayND<float>& out ) const
 
 {
-    if ( !isReal() ) return false;
+    if ( !real2real() ) return false;
 
     if ( out.info() != in.info() || out.info() != *info ) return false;
 
@@ -182,7 +182,7 @@ bool GenericTransformND::transform( const ArrayND<float_complex>& in,
 				    ArrayND<float_complex>& out ) const
 
 {
-    if ( !isReal() ) return false;
+    if ( !complex2complex() ) return false;
     if ( out.info() != in.info() || out.info() != *info ) return false;
 
     const float_complex* ind = in.getData();

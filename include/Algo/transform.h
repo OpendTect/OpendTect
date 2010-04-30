@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.10 2009-07-22 16:01:12 cvsbert Exp $
+ RCS:           $Id: transform.h,v 1.11 2010-04-30 20:36:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,17 +52,17 @@ public:
     				/*!< Don't run before setInputInfo() has been
 				     run. */
 
-			//! Says whether float* can be used
-    virtual bool	isReal() const					= 0;
-			//! Says whether float_complex* can be used
-    virtual bool	isCplx() const					= 0;
+    virtual bool	real2real() const				= 0;
+    virtual bool	real2complex() const				= 0;
+    virtual bool	complex2real() const				= 0;
+    virtual bool	complex2complex() const				= 0;
 
 			//! Says whether the transform can be run in both dirs
     virtual bool	bidirectional() const				= 0;
-    virtual bool	setDir( bool forward )				= 0;
+    virtual bool	setDir(bool forward)				= 0;
     virtual bool	getDir() const					= 0;
 
-    virtual bool	init()						= 0;
+    virtual bool	init() { return true; }
 
     virtual bool	isPossible( const ArrayNDInfo& ) const;
     virtual void	getNearBigPsblSz(const ArrayNDInfo&,
@@ -72,16 +72,20 @@ public:
     virtual void	getNearBigFastSz(const ArrayNDInfo&,
 					   ArrayNDInfo& ) const;
 
-    virtual bool	transform( const ArrayND<float>&,
-				   ArrayND<float>& ) const		= 0;
-    virtual bool	transform( const ArrayND<float_complex>&,
-				   ArrayND<float_complex>& ) const 	= 0;
+    virtual bool	transform(const ArrayND<float>&,
+			    ArrayND<float>&) const	   { return false; }
+    virtual bool	transform(const ArrayND<float>&,
+			    ArrayND<float_complex>&) const { return false; }
+    virtual bool	transform(const ArrayND<float_complex>&,
+				  ArrayND<float_complex>&) const {return false;}
+    virtual bool	transform(const ArrayND<float_complex>&,
+				  ArrayND<float>&) const   { return false; }
 
 protected:
-    virtual bool	isPossible( int ) const				= 0;
-    virtual bool	isFast( int ) const				= 0;
-    virtual int		getNearBigFastSz( int ) const;
-    virtual int		getNearBigPsblSz( int ) const;
+    virtual bool	isPossible(int) const				= 0;
+    virtual bool	isFast(int) const				= 0;
+    virtual int		getNearBigFastSz(int) const;
+    virtual int		getNearBigPsblSz(int) const;
 };
 
 /*!\brief
