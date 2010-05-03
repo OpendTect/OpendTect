@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.7 2010-04-30 20:36:25 cvskris Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.8 2010-05-03 15:11:44 cvsyuancheng Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
@@ -26,7 +26,7 @@ const ArrayNDInfo& GenericTransformND::getInputInfo() const
 
 bool GenericTransformND::setDir( bool forward_ )
 {
-    if ( !bidirectional() && forward_==false ) return false;
+    if ( !biDirectional() && forward_==false ) return false;
     forward = forward_;
 
     return true;
@@ -39,7 +39,7 @@ bool GenericTransformND::getDir() const
 
 bool GenericTransformND::init()
 {
-    if ( !bidirectional() && forward==false ) return false;
+    if ( !biDirectional() && forward==false ) return false;
     if ( !info ) return false;
 
     if ( owntransforms.size() ) deepErase( owntransforms );

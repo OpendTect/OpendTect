@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.9 2010-04-30 20:36:25 cvskris Exp $
+ RCS:           $Id: costrans.h,v 1.10 2010-05-03 15:11:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ public:
     bool		isReal(bool) const { return true; }
     bool		isCplx(bool) const { return true; }
 
-    bool		bidirectional() const { return true; }
+    bool		biDirectional() const { return true; }
 
 protected:
 

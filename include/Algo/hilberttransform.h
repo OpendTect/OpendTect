@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		December 2007
- RCS:		$Id: hilberttransform.h,v 1.6 2010-04-30 20:36:25 cvskris Exp $
+ RCS:		$Id: hilberttransform.h,v 1.7 2010-05-03 15:11:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
     bool		complex2real() const		{ return false; }
     bool		complex2complex() const		{ return false; }
 
-    bool		bidirectional() const		{ return false; }
+    bool		biDirectional() const		{ return false; }
     bool		setDir(bool fw)			{ return fw; }
     bool		getDir() const			{ return forward_; }
 

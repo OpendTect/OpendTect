@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.11 2010-04-30 20:36:25 cvskris Exp $
+ RCS:           $Id: transform.h,v 1.12 2010-05-03 15:11:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ Usage:
 
 \note
 1) It is not guarantied that all sizes are supported, nor that all kinds
-of data (real & complex) or that the transform is bidirectional (reversible).
+of data (real & complex) or that the transform is biDirectional (reversible).
 This must be queried before usage.
 
 \par
@@ -58,7 +58,7 @@ public:
     virtual bool	complex2complex() const				= 0;
 
 			//! Says whether the transform can be run in both dirs
-    virtual bool	bidirectional() const				= 0;
+    virtual bool	biDirectional() const				= 0;
     virtual bool	setDir(bool forward)				= 0;
     virtual bool	getDir() const					= 0;
 
