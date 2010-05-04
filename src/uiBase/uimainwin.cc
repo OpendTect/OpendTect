@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.200 2010-04-15 15:39:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.201 2010-05-04 05:58:09 cvsranojay Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -291,16 +291,20 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 
 void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
+    QDesktopWidget wgt;
+    const int xpos = wgt.screen()->width() - QMainWindow::width();
+    const int ypos = wgt.screen()->height() - QMainWindow::height();
+   
     switch( pa )
     {
 	case uiMainWin::TopLeft :
 	    QWidget::move( 0, 0 ); break;
 	case uiMainWin::TopRight :
-	    QWidget::move( mUdf(int), 0 ); break;
+	    QWidget::move( xpos, 0 ); break;
 	case uiMainWin::BottomLeft :
-	    QWidget::move( 0, mUdf(int) ); break;
+	    QWidget::move( 0, ypos ); break;
 	case uiMainWin::BottomRight :
-	    QWidget::move( mUdf(int), mUdf(int) ); break;
+	    QWidget::move( xpos, ypos ); break;
     }
 }
 
