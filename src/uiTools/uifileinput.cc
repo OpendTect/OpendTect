@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifileinput.cc,v 1.53 2010-04-15 15:42:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: uifileinput.cc,v 1.54 2010-05-04 07:01:12 cvsbert Exp $";
 
 #include "uifileinput.h"
 #include "uifiledlg.h"
@@ -112,12 +112,6 @@ void uiFileInput::isFinalised( CallBacker* )
 {
     if ( examinebut_ )
 	examinebut_->attach( rightOf, selbut );
-    if ( selbut )
-    {
-	UserInputObj* uiobj = element(0);
-	mDynamicCastGet(uiLineEdit*,le,uiobj)
-	if ( le ) le->returnPressed.notify( mCB(this,uiFileInput,doSelect) );
-    }
 }
 
 
