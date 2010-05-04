@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.18 2010-04-08 11:39:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.19 2010-05-04 10:51:04 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -296,7 +296,7 @@ int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
 
 void uiODApplMgrDispatcher::processPreStack()
 { PreStack::uiBatchProcSetup dlg( par_, false ); dlg.go(); }
-void uiODApplMgrDispatcher::bayesInversion( bool is2d )
+void uiODApplMgrDispatcher::bayesClass( bool is2d )
 { new uiSeisBayesClass( ODMainWin(), is2d ); }
 void uiODApplMgrDispatcher::reStartProc()
 { uiRestartBatchDialog dlg( par_ ); dlg.go(); }

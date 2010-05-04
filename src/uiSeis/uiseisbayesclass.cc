@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.19 2010-04-08 09:29:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.20 2010-05-04 10:51:04 cvsbert Exp $";
 
 #include "uiseisbayesclass.h"
 #include "seisbayesclass.h"
@@ -35,7 +35,7 @@ static const char* rcsID = "$Id: uiseisbayesclass.cc,v 1.19 2010-04-08 09:29:05 
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
 static const int cMaxNrPDFs = 5;
-static const char* sKeyBayesInv = "Bayesian Inversion";
+static const char* sKeyBayesClss = "Bayesian classification";
 #define mInpPDFs	10
 #define mGetNorm	11
 #define mInpSeis	12
@@ -53,7 +53,7 @@ static ProbDenFunc* getPDF( const char* id, BufferString& emsg )
 
 uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
     : uiVarWizard(p)
-    , Usage::Client(sKeyBayesInv)
+    , Usage::Client(sKeyBayesClss)
     , is2d_(is2d)
     , inppdfdlg_(0)
     , normdlg_(0)
@@ -102,7 +102,7 @@ class uiSeisBayesPDFInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[1] Specify PDF input",
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,"[1] Specify PDF input",
 				 mInpPDFsHelpID), pars,Start)
     , nrdisp_(1)
 {
@@ -239,7 +239,8 @@ class uiSeisBayesNorm : public uiVarWizardDlg
 public:
 
 uiSeisBayesNorm( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[2] Normalization/Scaling",
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
+			"[2] Normalization/Scaling",
 			 mGetNormHelpID), pars,Middle)
     , is2d_(*pars[sKey::Type] == '2')
     , prenormfld_(0)
@@ -404,7 +405,8 @@ class uiSeisBayesSeisInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,"[3] Specify Seismic input",
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
+			"[3] Specify Seismic input",
 			 mInpSeisHelpID), pars,Middle)
     , lsfld_(0)
     , is2d_(*pars[sKey::Type] == '2')
@@ -498,7 +500,7 @@ class uiSeisBayesOut : public uiVarWizardDlg
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesInv,
+    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
 		    "[4] Select and specify output",mOutputHelpID), pars,End)
     , is2d_(*pars[sKey::Type] == '2')
     , haveclass_(true)

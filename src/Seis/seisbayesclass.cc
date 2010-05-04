@@ -4,7 +4,7 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID = "$Id: seisbayesclass.cc,v 1.12 2010-04-08 09:26:50 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbayesclass.cc,v 1.13 2010-05-04 10:51:04 cvsbert Exp $";
 
 #include "seisbayesclass.h"
 #include "seisread.h"
@@ -35,7 +35,7 @@ const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
 
 
 SeisBayesClass::SeisBayesClass( const IOPar& iop )
-    	: Executor( "Bayesian inversion" )
+    	: Executor( "Bayesian classification" )
 	, pars_(*new IOPar(iop))
 	, needclass_(false)
 	, nrdone_(0)
