@@ -186,7 +186,7 @@
   instead of the upper value (the value right below the current
   bigtick).
 */
-static const char* rcsID = "$Id: LegendKit.cc,v 1.6 2009-10-16 05:49:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: LegendKit.cc,v 1.7 2010-05-05 13:06:10 cvskarthika Exp $";
 
 
 #include "LegendKit.h"
@@ -373,6 +373,10 @@ LegendKit::LegendKit(void)
   PRIVATE(this)->prevvpsize.setValue(-1,-1);
   PRIVATE(this)->imageenabled = TRUE;
   PRIVATE(this)->backgroundenabled = FALSE;
+
+  size.setValue( 20, 150 );
+  istop = false;
+  isleft = true;
 
   // disable picking on geometry below
   SoPickStyle * ps = (SoPickStyle*) this->getAnyPart("pickStyle", TRUE);
@@ -644,7 +648,10 @@ LegendKit::initImage(void)
     rowdata = (unsigned char *) tex->image.getValue(tmpsize, nc);
   }
 
-  this->reallyInitImage(data, rowdata);
+  if ( (!PRIVATE(this)->discrete && 
+	(PRIVATE(this)->colorCB || PRIVATE(this)->colorCB2)) || 
+       (PRIVATE(this)->discrete && PRIVATE(this)->discretelist.getLength()) )
+    this->reallyInitImage(data, rowdata);
 
   if (didallocimage) {
     tmpsize[0] = short(size[0]);
